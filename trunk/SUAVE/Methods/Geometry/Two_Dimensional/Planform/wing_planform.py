@@ -91,11 +91,9 @@ def wing_planform(wing):
 
     if symmetric:
         y_coord = 0    
-        
-    # Do leading edge sweeps
-    le_sweep = convert_sweep(wing,0.25,0.)
-    wing.sweeps.leading_edge = le_sweep
-        
+    
+    # Total length calculation
+    total_length = np.sin(le_sweep)*span/2. + chord_tip
         
     # Computing flap geometry
     affected_area = 0.
@@ -120,10 +118,12 @@ def wing_planform(wing):
     wing.chords.root                = chord_root
     wing.chords.tip                 = chord_tip
     wing.chords.mean_aerodynamic    = mac
+    wing.sweeps.leading_edge        = le_sweep
     wing.areas.wetted               = swet
     wing.areas.affected             = affected_area
     wing.spans.projected            = span
     wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
+    wing.total_length               = total_length
     
     return wing
 

@@ -41,7 +41,7 @@ def wave_drag_lift(conditions,configuration,wing):
 
     # Unpack
     freestream = conditions.freestream
-    total_length = wing.chords.root
+    total_length = wing.total_length
     Sref = wing.areas.reference
     
     # Conditions
