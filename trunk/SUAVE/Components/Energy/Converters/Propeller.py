@@ -59,8 +59,8 @@ class Propeller(Energy_Component):
         self.prop_attributes.chord_distribution  = 0.0
         self.prop_attributes.mid_chord_alignment = 0.0
         self.thrust_angle                        = 0.0
-        self.origin                              = [0.0,0.0,0.0] # [X,Y,Z]
-        self.rotation                            = [0.0,0.0,0.0] # [X,Y,Z] rotation of axis relative to
+        self.origin                              = [[0.0,0.0,0.0]] # [X,Y,Z]
+        self.rotation                            = [[0.0,0.0,0.0]] # [X,Y,Z] rotation of axis relative to
                                                                  # vehicle (used in OpenVSP for thrust_angle)
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
