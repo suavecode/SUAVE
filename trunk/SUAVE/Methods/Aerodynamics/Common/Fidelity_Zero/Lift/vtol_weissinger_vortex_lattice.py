@@ -243,7 +243,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                 vt_prime       = 2*vt*r_div_r_prime
                 
                 # compute new components of freestream
-                Vx             = V_inf*np.cos(aoa) + va_prime
+                Vx             = V_inf*np.cos(aoa) - va_prime
                 Vy             = V_inf*np.sin(aoa) + vt_prime
                 modified_V_inf = np.sqrt(Vx**2 + Vy**2 )
                 modified_aoa   = np.arctan(Vx/Vy)
@@ -254,19 +254,34 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                 # modifiy air speed distribution being propeller 
                 start_val = np.where(prop_vec_minus == max(LHS_vec))[1][0]  
                 V_distribution[0][start_val : end_val]   = modified_V_inf 
-                aoa_distribution[0][start_val : end_val] = modified_aoa               
-  
-            #fig = plt.figure('Propeller Induced Speeds') 
-            #axes1 = fig.add_subplot(2,1,1)
-            #axes1.plot(y,aoa_distribution,'bo-')
-            #axes1.set_xlabel('Span (m)')
-            #axes1.set_ylabel(r'Tangential Velocity $m/s$')
-            #axes1.grid(True)  
-            #axes3 = fig.add_subplot(2,1,2)
-            #axes3.plot(y,V_distribution,'bo-' )
+                aoa_distribution[0][start_val : end_val] = modified_aoa  
+                
+                #y_dis = linspace()
+                #fig = plt.figure('Propeller Induced Speeds')    
+                #axes3 = fig.add_subplot(2,1,1)
+                #axes3.plot(y_dis,Vx,'bo-' )
+                #axes3.set_xlabel('Span (m)')
+                #axes3.set_ylabel(r'Axial Distribution $m/s$')
+                #axes3.grid(True)  
+                #axes4 = fig.add_subplot(2,1,2)
+                #axes4.plot(y_dis,Vy,'bo-' )
+                #axes4.set_xlabel('Span (m)')
+                #axes4.set_ylabel(r'Tangential Distribution $m/s$')
+                #axes4.grid(True)              
+                #plt.show() 
+                      
+   
+            #fig = plt.figure('Propeller Induced Speeds')    
+            #axes3 = fig.add_subplot(2,1,1)
+            #axes3.plot(y,aoa_distribution,'bo-' )
             #axes3.set_xlabel('Span (m)')
-            #axes3.set_ylabel(r'Velocity Distribution $m/s$')
-            #axes3.grid(True)                 
+            #axes3.set_ylabel(r'AoA Distribution $m/s$')
+            #axes3.grid(True)  
+            #axes4 = fig.add_subplot(2,1,2)
+            #axes4.plot(y,V_distribution,'bo-' )
+            #axes4.set_xlabel('Span (m)')
+            #axes4.set_ylabel(r'Velocity Distribution $m/s$')
+            #axes4.grid(True)              
             #plt.show() 
             
             q_distribution = 0.5*rho*V_distribution**2                                 
@@ -326,16 +341,16 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_dis
     CD_distribution = D[0]   
     
     # Lift & Drag distribution
-    Lift_distribution = q_distribution*L[0]        
-    Drag_distribution = q_distribution*D[0]       
+    Lift_distribution = q_distribution*CL_distribution         
+    Drag_distribution = q_distribution*CD_distribution       
 
     # Total Lift and Drag
     LT = sum(Lift_distribution[0]) 
     DT = sum(Drag_distribution[0])
     
     # Lift and Drag Coefficents 
-    CL = 2*LT/(0.5*Sref*q_inf)
-    CD = 2*DT/(0.5*Sref*q_inf)  
+    CL = 2*LT/(Sref*q_inf)
+    CD = 2*DT/(Sref*q_inf)  
     
     #fig = plt.figure('Lift Distribution') 
     #axes1 = fig.add_subplot(2,1,1)
