@@ -44,24 +44,24 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
         
         if isinstance(wing,C.Wings.Main_Wing):
             span_location_mac = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
-            mac_le_offset     = np.sin(wing.sweeps.leading_edge)*span_location_mac
+            mac_le_offset     = np.tan(wing.sweeps.leading_edge)*span_location_mac
             
             wing.mass_properties.center_of_gravity[0][0] = .3*wing.chords.mean_aerodynamic + mac_le_offset
             
         elif isinstance(wing,C.Wings.Horizontal_Tail):
             chord_length_h_tail_35_percent_semi_span  = compute_chord_length_from_span_location(wing,.35*wing.spans.projected*.5)
-            h_tail_35_percent_semi_span_offset        = np.sin(wing.sweeps.quarter_chord)*.35*.5*wing.spans.projected   
+            h_tail_35_percent_semi_span_offset        = np.tan(wing.sweeps.quarter_chord)*.35*.5*wing.spans.projected   
             wing.mass_properties.center_of_gravity[0][0] = .3*chord_length_h_tail_35_percent_semi_span + \
                                                                           h_tail_35_percent_semi_span_offset            
 
         elif isinstance(wing,C.Wings.Vertical_Tail):
-            chord_length_v_tail_35_percent_semi_span  = compute_chord_length_from_span_location(wing,.35*wing.spans.projected*.5)
-            v_tail_35_percent_semi_span_offset        = np.sin(wing.sweeps.quarter_chord)*.35*.5*wing.spans.projected
+            chord_length_v_tail_35_percent_semi_span  = compute_chord_length_from_span_location(wing,.35*wing.spans.projected)
+            v_tail_35_percent_semi_span_offset        = np.tan(wing.sweeps.quarter_chord)*.35*.5*wing.spans.projected
             wing.mass_properties.center_of_gravity[0][0] = .3*chord_length_v_tail_35_percent_semi_span + \
                                                                         v_tail_35_percent_semi_span_offset
         else:
             span_location_mac = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
-            mac_le_offset     = np.sin(wing.sweeps.leading_edge)*span_location_mac
+            mac_le_offset     = np.tan(wing.sweeps.leading_edge)*span_location_mac
             
             wing.mass_properties.center_of_gravity[0][0] = .3*wing.chords.mean_aerodynamic + mac_le_offset
             
@@ -72,7 +72,7 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     for prop in vehicle.propulsors:
             prop.mass_properties.center_of_gravity[0][0] = prop.engine_length*.5
             propulsion_mass                              += prop.mass_properties.mass         
-            propulsion_moment                            += propulsion_mass*prop.engine_length*.5
+            propulsion_moment                            += propulsion_mass*(prop.engine_length*.5+prop.origin[0][0])
             
     if propulsion_mass!= 0.:
         propulsion_cg = propulsion_moment/propulsion_mass
@@ -142,7 +142,7 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     optionals.mass_properties.center_of_gravity[0][0]          = 0.0   
         
     fuel.origin[0][0]                                          = vehicle.wings.main_wing.origin[0][0] 
-    fuel.mass_properties.center_of_gravity                     = vehicle.wings.main_wing.mass_properties.center_of_gravity
+    fuel.mass_properties.center_of_gravity                     = 0.0
     
     control_systems.origin[0][0]                               = vehicle.wings.main_wing.origin[0][0] 
     control_systems.mass_properties.center_of_gravity[0][0]    = vehicle.wings.main_wing.mass_properties.center_of_gravity[0][0] + \
