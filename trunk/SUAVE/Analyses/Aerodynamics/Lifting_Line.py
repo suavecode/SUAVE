@@ -293,11 +293,14 @@ def calculate_lift_lifting_line(conditions,settings,geometry):
 
     # iterate over wings
     total_lift_coeff = 0.0
+    AR               = 0.0
     wing_lifts = Data()
     for wing in geometry.wings.values():
 
-        [wing_lift_coeff,wing_drag_coeff] = LL(conditions,settings,wing)
+        [wing_lift_coeff,wing_drag_coeff,wing_AR] = LL(conditions,settings,wing)
         total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
+        AR += wing_AR * wing.areas.reference / vehicle_reference_area
         wing_lifts[wing.tag] = wing_lift_coeff
-
+    geometry.aspect_ratio  =  AR
+    
     return total_lift_coeff, wing_lifts

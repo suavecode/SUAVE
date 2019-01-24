@@ -203,6 +203,7 @@ class AVL_Inviscid(Aerodynamics):
         state.conditions.aerodynamics.drag_breakdown.induced = Data(
             total                  = inviscid_drag   ,
             span_efficiency_factor = span_efficiency ,
+            aspect_ratio      = ar                 ,
         )        
                 
         return inviscid_lift

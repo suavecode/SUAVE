@@ -84,7 +84,7 @@ class Stability(Analysis):
         Properties Used:
         N/A
         """
-  
+
         return
 
 

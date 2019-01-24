@@ -29,7 +29,7 @@ def main():
         [ 'cruise_altitude' ,  11, (   10   ,   13.   ) ,   10.  , Units.km]])
     
     outputs_sweep    = linear_sweep(problem)
-    truth_obj_sweeps = [[6809.14455765, 6629.30832632]]
+    truth_obj_sweeps = [[6520.70175944, 6409.39570595]]
     
     #print outputs_sweep
     max_err_sweeps = (np.max(np.abs(outputs_sweep['objective']-truth_obj_sweeps )/truth_obj_sweeps))
@@ -39,7 +39,7 @@ def main():
     outputs_carpet = variable_sweep(problem)
     
     #print outputs_carpet
-    truth_obj_carp  =  [[6686.79830704, 6650.74053198],[7031.47217287, 6542.08699857]] 
+    truth_obj_carp  =  [[6428.25009689, 6454.23964235],[6669.34206282, 6264.12298189]] 
 
     max_err_carp    = np.max(np.abs(outputs_carpet['objective']-truth_obj_carp)/truth_obj_carp) 
     print(' max_err_carp = ',  max_err_carp)
