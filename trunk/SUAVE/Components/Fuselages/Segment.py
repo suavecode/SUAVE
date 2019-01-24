@@ -4,6 +4,7 @@
 # Created:  Sep 2016, E. Botero (for wings)
 # Modified: Jul 2017, M. Clarke
 #           Aug 2018, T. St Francis (for fuselages)
+#           Jan 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,6 +12,7 @@
 
 from SUAVE.Core import Data
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties
+
 # ------------------------------------------------------------ 
 #  Fuselage Segments
 # ------------------------------------------------------------
