@@ -318,7 +318,7 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
 
     # iterate over wings
     total_lift_coeff = 0.0
-    AR = 0.0
+    AR               = 0.0
     wing_lifts = Data()
 
     for wing in geometry.wings.values():
@@ -329,4 +329,5 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
         wing_lifts[wing.tag] = wing_lift_coeff
     
     geometry.aspect_ratio  =  AR
+    
     return total_lift_coeff, wing_lifts 

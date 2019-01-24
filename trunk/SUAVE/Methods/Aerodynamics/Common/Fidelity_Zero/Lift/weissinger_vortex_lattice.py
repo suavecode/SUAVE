@@ -195,12 +195,10 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         CL = 2*LT/(0.5*Sref)
         CD = 2*DT/(0.5*Sref)     
         
-    else:
-        
+    else:        
         CL = 0.0
         CD = 0.0 
         AR = 0.0
-
         
     return CL, CD , AR 
 
