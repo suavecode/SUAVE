@@ -48,6 +48,7 @@ class Fuselage(Lofted_Body):
         """      
         
         self.tag = 'fuselage'
+        self.origin      =  [0.0,0.0,0.0]
         self.aerodynamic_center = [0.0,0.0,0.0]
         self.Sections    = Lofted_Body.Section.Container()
         self.Segments    = Lofted_Body.Segment.Container()
