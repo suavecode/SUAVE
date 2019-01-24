@@ -110,7 +110,9 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
                 else:
                     segment_span[i_seg]           = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
                     segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
-            
+                    Sref_seg                      = segment_span[i_seg] *( segment_chord[i_seg-1] + segment_chord[i_seg])*0.5
+                S_wing += Sref_seg 
+                
             # shift spanwise vortices onto section breaks 
             for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
@@ -153,6 +155,8 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             i              = np.arange(0,n)
             section_length = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
             twist_distri   = twist_rc + i/float(n)*(twist_tc-twist_rc)
+            S_wing         = span*(root_chord + tip_chord)*0.5
+            
             
             ya   = np.atleast_2d((i)*deltax)                                                  # y coordinate of start of horseshoe vortex on panel
             yb   = np.atleast_2d((i+1)*deltax)                                                # y coordinate of end horseshoe vortex on panel
@@ -161,7 +165,10 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             y    = np.atleast_2d(((i+1)*deltax-deltax/2))                                     # y coordinate of control points on panel 
                     
             RHS  = np.atleast_2d(np.sin(twist_distri+aoa))                                  
-                
+        
+        if sym_para is True : 
+            S_wing = S_wing*2        
+        AR =  (wing.spans.projected**2)/S_wing
         
         A = (whav(x,y,xa.T,ya.T)-whav(x,y,xa.T,yb.T)\
             -whav(x,y,xa.T,-ya.T)+whav(x,y,xa.T,-yb.T))*0.25/np.pi
@@ -191,10 +198,11 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     else:
         
         CL = 0.0
-        CD = 0.0    
+        CD = 0.0 
+        AR = 0.0
 
         
-    return CL, CD 
+    return CL, CD , AR 
 
 # ----------------------------------------------------------------------
 #   Helper Functions
