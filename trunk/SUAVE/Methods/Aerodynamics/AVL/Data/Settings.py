@@ -3,7 +3,7 @@
 # 
 # Created:  Dec 2014, T. Momose
 # Modified: Jan 2016, E. Botero
-#           Arp 2017, M. Clarke
+#           Oct 2018, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -59,7 +59,6 @@ class Settings(Data):
                 self.filenames                = Data()
                 self.flow_symmetry            = Data()
                 self.discretization           = Data()
-
                 self.number_control_surfaces     = 0
                 
                 self.discretization.defaults  = Data()
@@ -138,9 +137,9 @@ class AVL_Discretization_Settings(Data):
                 Properties Used:
                     N/A
                 """  
-                self.chordwise_elements        = 5
+                self.chordwise_vortices        = 5
                 self.chordwise_spacing_scheme  = 'equal'
-                self.spanwise_elements         = 10
+                self.spanwise_vortices         = 10
                 self.spanwise_spacing_scheme   = 'cosine'
 
                 

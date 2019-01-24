@@ -98,6 +98,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             section_stations       = np.zeros(n_segments)
             
             # obtain chord and twist at the beginning/end of each segment
+            S_wing = 0.0
             for i_seg in range(n_segments):                
                 segment_chord[i_seg]    = wing.Segments[i_seg].root_chord_percent*root_chord
                 segment_twist[i_seg]    = wing.Segments[i_seg].twist
@@ -111,7 +112,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
                     segment_span[i_seg]           = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
                     segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
                     Sref_seg                      = segment_span[i_seg] *( segment_chord[i_seg-1] + segment_chord[i_seg])*0.5
-                S_wing += Sref_seg 
+                    S_wing += Sref_seg 
                 
             # shift spanwise vortices onto section breaks 
             for i_seg in range(n_segments):

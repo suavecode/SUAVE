@@ -73,9 +73,7 @@ class AVL(Stability):
         N/A
         """                  
         self.tag                                            = 'avl'
-        self.keep_files                                     = True
-        
-        self.settings                                       = Settings()
+        self.keep_files                                     = True  
         
         self.current_status                                 = Data()
         self.current_status.batch_index                     = 0
@@ -83,12 +81,11 @@ class AVL(Stability):
         self.current_status.deck_file                       = None
         self.current_status.cases                           = None
         
+        self.settings                                       = Settings()
         self.settings.filenames.log_filename                = sys.stdout
         self.settings.filenames.err_filename                = sys.stderr
-
-        # Default number of spanwise and chordwise votices
-        self.settings.spanwise_vortices      = None
-        self.settings.chordwise_vortices     = None
+        self.settings.spanwise_vortices                     = None
+        self.settings.chordwise_vortices                    = None
             
         # Conditions table, used for surrogate model training
         self.training                                       = Data()        
@@ -159,7 +156,18 @@ class AVL(Stability):
             fuel.mass_properties.mass  = 0.
             configuration.fuel         = fuel	
 
-
+        # check if user specifies number of spanwise vortices
+        if self.settings.spanwise_vortices == None:
+            pass
+        else:
+            self.settings.discretization.defaults.wing.spanwise_vortices = self.settings.spanwise_vortices  
+        
+        # check if user specifies number of chordise vortices 
+        if self.settings.chordwise_vortices == None:
+            pass
+        else:
+            self.settings.discretization.defaults.wing.chordwise_vortices = self.settings.chordwise_vortices
+                
         run_folder = self.settings.filenames.run_folder 
    
         # Sample training data
@@ -474,18 +482,9 @@ class AVL(Stability):
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
         
-        # check if user specifies number of spanwise vortices
-        if self.settings.spanwise_vortices == None: 
-            spanwise_elements  = self.settings.discretization.defaults.wing.spanwise_elements
-        else:
-            spanwise_elements  = self.settings.spanwise_vortices
+        # rename default avl aircraft tag
+        self.settings.filenames.features = self.geometry._base.tag + '.avl'
         
-        # check if user specifies number of chordise vortices 
-        if self.settings.chordwise_vortices == None: 
-            chordwise_elements  = self.settings.discretization.defaults.wing.chordwise_elements
-        else:
-            chordwise_elements  = self.settings.chordwise_vortices
-
         # update current status
         self.current_status.batch_index += 1
         batch_index                      = self.current_status.batch_index
@@ -517,7 +516,7 @@ class AVL(Stability):
 
         # write the input files
         with redirect.folder(run_folder,force=False):
-            write_geometry(self,spanwise_elements,chordwise_elements)
+            write_geometry(self)
             write_run_cases(self)
             write_input_deck(self)
 
