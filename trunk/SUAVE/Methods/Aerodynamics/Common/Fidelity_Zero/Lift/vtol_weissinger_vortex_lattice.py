@@ -289,7 +289,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
         else:
             CL, CL_distribution, CD, CD_distribution = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_distribution,q_inf,Sref)
 
-    return   CL , CL_distribution, CD , CD_distribution
+    return   CL , CD 
         
 # ----------------------------------------------------------------------
 #   Helper Functions
