@@ -5,6 +5,7 @@
 from . import AVL
 from . import AERODAS
 from . import Fidelity_Zero
+from . import VTOL_Aero
 from . import Supersonic_Zero
 from . import Common
 from . import Lifting_Line

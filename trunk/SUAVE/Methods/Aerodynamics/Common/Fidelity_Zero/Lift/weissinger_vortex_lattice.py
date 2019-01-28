@@ -13,7 +13,8 @@
 
 # package imports
 import numpy as np 
-
+import pylab as plt
+import matplotlib
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
@@ -189,7 +190,15 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         DT = np.sum(D)
     
         CL = 2*LT/(0.5*Sref)
-        CD = 2*DT/(0.5*Sref)     
+        CD = 2*DT/(0.5*Sref)  
+        
+        #fig = plt.figure('Lift Distribution') 
+        #axes1 = fig.add_subplot(1,1,1)
+        #axes1.plot(y[0],-L[0],'bo--')
+        #axes1.set_xlabel('Span (m)')
+        #axes1.set_ylabel(r'L $m/s$')               
+        #plt.show() 
+        
         
     else:        
         CL = 0.0

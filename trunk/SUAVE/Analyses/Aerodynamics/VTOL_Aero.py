@@ -18,6 +18,7 @@ from .Results import Results
 
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
+from SUAVE.Methods.Aerodynamics import VTOL_Aero
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 from .Process_Geometry import Process_Geometry
 from .VTOL_Vortex_Lattice import VTOL_Vortex_Lattice
@@ -111,3 +112,20 @@ class VTOL_Aero(Markup):
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft
         
+    def initialize(self):
+        """Initializes the surrogate needed for lift calculation.
+        Assumptions:
+        None
+        Source:
+        N/A
+        Inputs:
+        None
+        Outputs:
+        None
+        Properties Used:
+        self.geometry
+        """                  
+        self.process.compute.lift.inviscid_wings.geometry = self.geometry
+        self.process.compute.lift.inviscid_wings.initialize()
+        
+    finalize = initialize

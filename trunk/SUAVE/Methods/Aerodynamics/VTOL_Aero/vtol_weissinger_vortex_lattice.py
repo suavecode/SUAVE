@@ -1,8 +1,7 @@
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-VTOL_Aero
 # vtol_weissinger_vortex_lattice.py
 # 
 # Created:  Jan 2019, M. Clarke
-
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,7 +15,7 @@ import matplotlib
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-VTOL_Aero
 def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
     """Uses the vortex lattice method to compute the lift coefficient and induced drag component
 
@@ -51,7 +50,6 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
     N/A
     """ 
 
-    orientation = wing.vertical
     span        = wing.spans.projected
     root_chord  = wing.chords.root
     tip_chord   = wing.chords.tip
@@ -62,13 +60,11 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
     sym_para    = wing.symmetric
     Sref        = wing.areas.reference
     orientation = wing.vertical
-    n           = 20            # number_panels_spanwise    
+    n           = 50            # number_panels_spanwise    
     
    #num_var     = len(conditions.freestream.density)    
     
     # conditions
-    LT = 0.0 
-    DT = 0.0 
     CL = 0.0 
     CD = 0.0 
     CL_distribution = np.zeros((1,n))
@@ -102,6 +98,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
             section_stations       = np.zeros(n_segments)
             
             # obtain chord and twist at the beginning/end of each segment    
+            S_wing = 0.0
             for i_seg in range(n_segments):                
                 segment_chord[i_seg] = wing.Segments[segment_keys[i_seg]].root_chord_percent*root_chord
                 segment_twist[i_seg] = wing.Segments[segment_keys[i_seg]].twist
@@ -114,7 +111,9 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                 else:
                     segment_span[i_seg]    = wing.Segments[segment_keys[i_seg]].percent_span_location*span - wing.Segments[segment_keys[i_seg-1]].percent_span_location*span
                     segment_chord_x_offset[i_seg]  = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
-    
+                    Sref_seg                      = segment_span[i_seg] *( segment_chord[i_seg-1] + segment_chord[i_seg])*0.5
+                    S_wing += Sref_seg 
+                    
             # shift spanwise vortices onto section breaks 
             for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
@@ -155,12 +154,19 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
             i              = np.arange(0,n)
             chord_distribution = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
             twist_distribution   = twist_rc + i/float(n)*(twist_tc-twist_rc)
-
+            S_wing         = span*(root_chord + tip_chord)*0.5
+            
             ya = np.atleast_2d((i)*deltax)                                                      # y coordinate of start of horseshoe vortex on panel
             yb = np.atleast_2d((i+1)*deltax)                                                    # y coordinate of end horseshoe vortex on panel
             xa = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*chord_distribution) # x coordinate of horseshoe vortex on panel
             x  = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*chord_distribution) # x coordinate of control points on panel
             y  = np.atleast_2d(((i+1)*deltax-deltax/2))                                         # y coordinate of control points on panel 
+       
+       
+        if sym_para is True : 
+            S_wing = S_wing*2        
+        AR =  (wing.spans.projected**2)/S_wing        
+        
         
         #-------------------------------------------------------------------------------------------------------
         # PROPELLER SLIPSTREAM MODEL
@@ -190,7 +196,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                 # obtain original properties of propeller 
                 D_p       = prop.tip_radius*2
                 R_p       = prop.tip_radius                     
-                Vx        = prop.run_attributes.velocity[index]            
+                Vx        = prop.run_attributes.velocity[index]             
                 r_nacelle = prop.hub_radius 
                 vt_old    = np.concatenate((prop.run_attributes.vt[index], - prop.run_attributes.vt[index][::-1]), axis=0)   # induced tangential velocity at propeller disc using propeller discretization
                 va_old    = np.concatenate((-prop.run_attributes.va[index], - prop.run_attributes.va[index][::-1]), axis=0)   # induced axial velocity at propeller disc  using propeller discretization
@@ -244,27 +250,27 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                 
                 # compute new components of freestream
                 Vx             = V_inf*np.cos(aoa) - va_prime
-                Vy             = V_inf*np.sin(aoa) + vt_prime
+                Vy             = V_inf*np.sin(aoa) - vt_prime
                 modified_V_inf = np.sqrt(Vx**2 + Vy**2 )
                 modified_aoa   = np.arctan(Vx/Vy)
                 numel          = len(modified_aoa)
-                modified_V_inf = np.reshape(modified_V_inf, (1,numel)) # reshape vector 
-                modified_aoa   = np.reshape(modified_aoa, (1,numel))   # reshape vector 
+                mod_V_inf = np.reshape(modified_V_inf, (1,numel)) # reshape vector 
+                mod_aoa   = np.reshape(modified_aoa, (1,numel))   # reshape vector 
                 
                 # modifiy air speed distribution being propeller 
                 start_val = np.where(prop_vec_minus == max(LHS_vec))[1][0]  
-                V_distribution[0][start_val : end_val]   = modified_V_inf 
-                aoa_distribution[0][start_val : end_val] = modified_aoa  
+                V_distribution[0][start_val : end_val]   = mod_V_inf 
+                aoa_distribution[0][start_val : end_val] = mod_aoa  
                 
-                #y_dis = linspace()
+
                 #fig = plt.figure('Propeller Induced Speeds')    
                 #axes3 = fig.add_subplot(2,1,1)
-                #axes3.plot(y_dis,Vx,'bo-' )
+                #axes3.plot(d,Vx,'bo-' )
                 #axes3.set_xlabel('Span (m)')
                 #axes3.set_ylabel(r'Axial Distribution $m/s$')
                 #axes3.grid(True)  
                 #axes4 = fig.add_subplot(2,1,2)
-                #axes4.plot(y_dis,Vy,'bo-' )
+                #axes4.plot(d,Vy,'bo-' )
                 #axes4.set_xlabel('Span (m)')
                 #axes4.set_ylabel(r'Tangential Distribution $m/s$')
                 #axes4.grid(True)              
@@ -272,48 +278,44 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                       
    
             #fig = plt.figure('Propeller Induced Speeds')    
-            #axes3 = fig.add_subplot(2,1,1)
+            #axes3 = fig.add_subplot(2,3,1)
             #axes3.plot(y,aoa_distribution,'bo-' )
             #axes3.set_xlabel('Span (m)')
             #axes3.set_ylabel(r'AoA Distribution $m/s$')
             #axes3.grid(True)  
-            #axes4 = fig.add_subplot(2,1,2)
+            #axes4 = fig.add_subplot(2,3,4)
             #axes4.plot(y,V_distribution,'bo-' )
             #axes4.set_xlabel('Span (m)')
             #axes4.set_ylabel(r'Velocity Distribution $m/s$')
-            #axes4.grid(True)              
+            #axes4.grid(True)               
+            #axes1 = fig.add_subplot(2,3,2)
+            #axes1.plot(d,modified_V_inf,'bo-')
+            #axes1.set_xlabel('Span (m)')
+            #axes1.set_ylabel(r'Modified V distribution $m/s$')
+            #axes1.grid(True)
+            #axes2 = fig.add_subplot(2,3,3)
+            #axes2.plot(d,modified_aoa,'bo-')
+            #axes2.set_xlabel('Span (m)')
+            #axes2.set_ylabel(r'Modified AoA Distribution $m/s$')            
+            #axes2.grid(True)              
             #plt.show() 
             
-            q_distribution = 0.5*rho*V_distribution**2                                 
-            CL, CL_distribution, CD, CD_distribution = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_distribution,q_inf,Sref)            
+            
+            #q_distribution =  0.5*rho*(V_distribution**2) true 
+            q_distribution = rho*(V_distribution**2)      
+            CL,CD  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,Sref)            
         else:
-            CL, CL_distribution, CD, CD_distribution = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_distribution,q_inf,Sref)
-
-    return   CL , CD 
+            CL,CD = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution,q_distribution,q_inf,Sref)
+    else:
+        CL = 0.0 
+        CD = 0.0 
+        CL_distribution = np.zeros((1,n))
+        CD_distribution= np.zeros((1,n))            
+        AR = 0.0
         
-# ----------------------------------------------------------------------
-#   Helper Functions
-# ----------------------------------------------------------------------
-def whav(x1,y1,x2,y2):
-    """ Helper function of vortex lattice method      
-        Inputs:
-            x1,x2 -x coordinates of bound vortex
-            y1,y2 -y coordinates of bound vortex
-        Outpus:
-            Cl_comp - lift coefficient
-            Cd_comp - drag  coefficient       
-        Assumptions:
-            if needed
-    """    
-
-    use_base    = 1 - np.isclose(x1,x2)*1.
-    no_use_base = np.isclose(x1,x2)*1.
-
-    whv = 1/(y1-y2)*(1+ (np.sqrt((x1-x2)**2+(y1-y2)**2)/(x1-x2)))*use_base + (1/(y1 -y2))*no_use_base
-
-    return whv 
-
-def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_distribution,q_inf, Sref):    
+    return   CL , CD , AR 
+        
+def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf, Sref):    
     sin_aoa = np.sin(aoa_distribution)
     cos_aoa = np.cos(aoa_distribution)
 
@@ -335,34 +337,64 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,q_dis
 
     L  = deltax * Lft
     D  = deltax * Dg
-        
-    # Lift & Drag distribution
-    CL_distribution = L[0]        
-    CD_distribution = D[0]   
     
-    # Lift & Drag distribution
-    Lift_distribution = q_distribution*CL_distribution         
-    Drag_distribution = q_distribution*CD_distribution       
+    # -----------------------------
+    #  PARTIALLY WORKS 
+    ## Lift & Drag distribution
+    #CL_distribution = L[0]        
+    #CD_distribution = D[0]   
+    
+    ## Lift & Drag distribution
+    #Lift_distribution = q_distribution*CL_distribution         
+    #Drag_distribution = q_distribution*CD_distribution       
 
-    # Total Lift and Drag
-    LT = sum(Lift_distribution[0]) 
-    DT = sum(Drag_distribution[0])
+    ## Total Lift and Drag
+    #LT = sum(Lift_distribution[0]) 
+    #DT = sum(Drag_distribution[0])
     
-    # Lift and Drag Coefficents 
-    CL = 2*LT/(Sref*q_inf)
-    CD = 2*DT/(Sref*q_inf)  
+    ## Lift and Drag Coefficents 
+    #CL = 2*LT/(Sref*q_inf)
+    #CD = 2*DT/(Sref*q_inf)  
+    # -----------------------------
+        
+    
+    # Total lift
+    LT = np.sum(L)
+    DT = np.sum(D)
+
+    CL = 2*LT/(0.5*Sref)
+    CD = 2*DT/(0.5*Sref)   
+    
+    
     
     #fig = plt.figure('Lift Distribution') 
-    #axes1 = fig.add_subplot(2,1,1)
-    #axes1.plot(y,LT,'bo-')
+    #axes1 = fig.add_subplot(1,1,1)
+    #axes1.plot(y[0],-L[0],'bo-')
     #axes1.set_xlabel('Span (m)')
-    #axes1.set_ylabel(r'Tangential Velocity $m/s$')
+    #axes1.set_ylabel(r'Lift $m/s$')
     #axes1.grid(True)  
-    #axes2 = fig.add_subplot(2,1,2)
-    #axes2.plot(y,CL,'bo-' )
-    #axes2.set_xlabel('Span (m)')
-    #axes2.set_ylabel(r'Velocity Distribution $m/s$')
-    #axes2.grid(True)                 
     #plt.show() 
     
-    return  CL , CL_distribution , CD , CD_distribution 
+    return  CL ,  CD  
+
+# ----------------------------------------------------------------------
+#   Helper Functions
+# ----------------------------------------------------------------------
+def whav(x1,y1,x2,y2):
+    """ Helper function of vortex lattice method      
+        Inputs:
+            x1,x2 -x coordinates of bound vortex
+            y1,y2 -y coordinates of bound vortex
+        Outpus:
+            Cl_comp - lift coefficient
+            Cd_comp - drag  coefficient       
+        Assumptions:
+            if needed
+    """    
+
+    use_base    = 1 - np.isclose(x1,x2)*1.
+    no_use_base = np.isclose(x1,x2)*1.
+
+    whv = 1/(y1-y2)*(1+ (np.sqrt((x1-x2)**2+(y1-y2)**2)/(x1-x2)))*use_base + (1/(y1 -y2))*no_use_base
+
+    return whv 
