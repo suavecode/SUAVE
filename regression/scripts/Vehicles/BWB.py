@@ -49,7 +49,7 @@ def vehicle_setup():
     vehicle.reference_area         = 125.0     
     vehicle.passengers             = 170
     vehicle.systems.control        = "fully powered" 
-    vehicle.systems.accessories    = "medium range"
+    vehicle.systems.accessories    = "business"
 
 
     # ------------------------------------------------------------------        
@@ -112,9 +112,7 @@ def vehicle_setup():
     segment.dihedral_outboard     = 4. * Units.deg
     segment.sweeps.quarter_chord  = 20. * Units.deg
     
-    #section = SUAVE.Components.Wings.Airfoils.Airfoil()
-    #section.airfoil = 'my_airfoil.dat' # Or enter a NACA number
-    
+   
     #segment.append(section)
     wing.Segments.append(segment)    
 
