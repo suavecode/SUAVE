@@ -5,3 +5,4 @@
 
 # classes
 from .Fuselage import Fuselage
+from .Segment import Segment
