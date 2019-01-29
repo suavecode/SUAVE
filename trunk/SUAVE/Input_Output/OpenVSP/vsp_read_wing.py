@@ -196,12 +196,10 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	sweeps_sum        = 0.
 	
 	for ii in range(start, segment_num):
-		#if segment_dihedral[ii] <= (70. * Units.deg): # Stop at segment with dihedral value over 70deg (wingtips).
 		span_sum_alt += segment_spans[ii]
 		proj_span_sum_alt += segment_spans[ii] * np.cos(segment_dihedral[ii])  # Use projected span to find total wing dihedral.
 		sweeps_sum += segment_spans[ii] * np.tan(segment_sweeps_quarter_chord[ii])
-		#else:
-			#break  
+
 	
 	wing.dihedral              = np.arccos(proj_span_sum_alt / span_sum_alt) 
 	wing.sweeps.quarter_chord  = -np.arctan(sweeps_sum / span_sum_alt)  # Minus sign makes it positive sweep.

@@ -120,8 +120,8 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 		widths.append(segment.width)
 		eff_diams.append(segment.effective_diameter)
 		
-		if ii !=0: # Segment length: stored as length since previous segment. (First segment will have length 0.0.)
-			segment.length = fuselage.lengths.total*(segment.percent_x_location-fuselage.Segments[ii-1].percent_x_location) * units_factor
+		if ii != (fuselage.vsp_data.xsec_num-1): # Segment length: stored as length since previous segment. (First segment will have length 0.0.)
+			segment.length = fuselage.lengths.total*(fuselage.Segments[ii+1].percent_x_location - segment.percent_x_location) * units_factor
 		else:
 			segment.length = 0.0
 		lengths.append(segment.length)
@@ -143,7 +143,7 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	fuselage.areas.front_projected  = np.pi*((fuselage.effective_diameter)/2)**2
 
 	eff_diam_gradients_fwd = np.array(eff_diams[1:]) - np.array(eff_diams[:-1])		# Compute gradients of segment effective diameters.
-	eff_diam_gradients_fwd = np.multiply(eff_diam_gradients_fwd, np.reciprocal(lengths[1:]))
+	eff_diam_gradients_fwd = np.multiply(eff_diam_gradients_fwd, lengths[:-1])
 		
 	fuselage = compute_fuselage_fineness(fuselage, x_locs, eff_diams, eff_diam_gradients_fwd)	
 
