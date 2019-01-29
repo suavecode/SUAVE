@@ -126,14 +126,14 @@ def main():
     actual.payload         = 27349.9081525 #includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.587065500002
     actual.bag             = 2313.3210870000003
-    actual.fuel            = 22588.48505897538
-    actual.empty           = 29077.406788524622
+    actual.fuel            = 19436.018087475382
+    actual.empty           = 32229.87376002462
     actual.wing            = 6576.679767012152
     actual.fuselage        = 1.0
     actual.propulsion      = 6838.185174956626
     actual.landing_gear    = 3160.632
-    actual.systems         = 12501.909846555845
-    actual.wt_furnish      = 6431.80372889
+    actual.systems         = 15654.376818055844
+    actual.wt_furnish      = 8205.349895589
     
     # error calculations
     error                 = Data()

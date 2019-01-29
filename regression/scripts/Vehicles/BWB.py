@@ -49,7 +49,7 @@ def vehicle_setup():
     vehicle.reference_area         = 125.0     
     vehicle.passengers             = 170
     vehicle.systems.control        = "fully powered" 
-    vehicle.systems.accessories    = "business"
+    vehicle.systems.accessories    = "sst"
 
 
     # ------------------------------------------------------------------        
