@@ -153,7 +153,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		jj = i-1  # Airfoil index i-1 because VSP airfoils and sections are one index off relative to SUAVE.
 		xsec_id = str(vsp.GetXSec(xsec_surf_id, jj))
 		airfoil = Airfoil()
-		if vsp.GetXSecShape(xsec_id) == 7: 	# XSec shape: NACA 4-series
+		if vsp.GetXSecShape(xsec_id) == vsp.XS_FOUR_SERIES: 	# XSec shape: NACA 4-series
 			camber = vsp.GetParmVal(wing_id, 'Camber', 'XSecCurve_' + str(jj)) 
 			
 			if camber == 0.:
@@ -167,7 +167,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			thick_cord_round           = int(np.around(thick_cord*100))
 			airfoil.tag                = 'NACA ' + str(camber_round) + str(camber_loc_round) + str(thick_cord_round)	
 	
-		elif vsp.GetXSecShape(xsec_id) == 8: 	# XSec shape: NACA 6-series
+		elif vsp.GetXSecShape(xsec_id) == vsp.XS_SIX_SERIES: 	# XSec shape: NACA 6-series
 			thick_cord_round = int(np.around(thick_cord*100))
 			a_value          = vsp.GetParmVal(wing_id, 'A', 'XSecCurve_' + str(jj))
 			ideal_CL         = int(np.around(vsp.GetParmVal(wing_id, 'IdealCl', 'XSecCurve_' + str(jj))*10))
@@ -177,7 +177,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			airfoil.tag      = 'NACA ' + series + str(ideal_CL) + str(thick_cord_round) + ' a=' + str(np.around(a_value,1))			
 				
 	
-		elif vsp.GetXSecShape(xsec_id) == 12:	# XSec shape: 12 is type AF_FILE
+		elif vsp.GetXSecShape(xsec_id) == vsp.XS_FILE_AIRFOIL:	# XSec shape: 12 is type AF_FILE
 			airfoil.thickness_to_chord = thick_cord
 			airfoil.points             = vsp.GetAirfoilCoordinates(wing_id, float(jj/segment_num))
 			# VSP airfoil API calls get coordinates and write files with the final argument being the fraction of segment position, regardless of relative spans. 

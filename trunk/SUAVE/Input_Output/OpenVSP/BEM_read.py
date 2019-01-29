@@ -16,9 +16,10 @@ import numpy as np
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
 def BEM_read(bem_file, units_type='SI'):
-    """Function that takes in a BEM file from Xrotor,Qprop, VSP, etc. 
+    """Function that takes in a BEM file from OpenVSP, etc. 
     and returns propellor data. Note, this only works for VSP at the 
-    moment and is not speed efficient.
+    moment and is not speed efficient. But could be extended for Qprop
+    or Xrotor
     
     Assumptions:
     Radius and Chord are normalized by Radius
