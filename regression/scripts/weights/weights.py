@@ -7,6 +7,7 @@ from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 from SUAVE.Methods.Weights.Correlations import Tube_Wing as Tube_Wing
 from SUAVE.Methods.Weights.Correlations import General_Aviation as General_Aviation
 from SUAVE.Methods.Weights.Correlations import BWB as BWB
+from SUAVE.Methods.Weights.Correlations import Human_Powered as HP
 
 from SUAVE.Core import (Data, Container,)
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
@@ -19,6 +20,8 @@ sys.path.append('../Vehicles')
 from Boeing_737 import vehicle_setup
 from Cessna_172 import vehicle_setup as vehicle_setup_general_aviation
 from BWB import vehicle_setup  as bwb_setup
+from Solar_UAV import vehicle_setup  as hp_setup
+
 
 def main():
   
@@ -142,7 +145,6 @@ def main():
     error.wing            = (actual.wing - weight.wing)/actual.wing
     error.fuselage        = (actual.fuselage - (weight.fuselage+1.0))/actual.fuselage
     error.propulsion      = (actual.propulsion - weight.propulsion)/actual.propulsion
-    error.landing_gear    = (actual.landing_gear - weight.landing_gear)/actual.landing_gear
     error.systems         = (actual.systems - weight.systems)/actual.systems
     error.wt_furnish      = (actual.wt_furnish - weight.systems_breakdown.furnish)/actual.wt_furnish
             
@@ -155,6 +157,37 @@ def main():
     for k,v in list(error.items()):
         assert(np.abs(v)<1E-6)    
     
+    # Human Powered Aircraft
+    vehicle = hp_setup()    
+    weight = HP.empty(vehicle)
+            
+    # regression values    
+    actual = Data()
+    actual.empty           = 138.02737768459374
+    actual.wing            = 89.86286881794777
+    actual.fuselage        = 1.0
+    actual.horizontal_tail = 31.749272074174737
+    actual.vertical_tail   = 16.415236792471237
+    
+    # error calculations
+    error                 = Data()
+    error.empty           = (actual.empty - weight.empty)/actual.empty
+    error.wing            = (actual.wing - weight.wing)/actual.wing
+    error.fuselage        = (actual.fuselage - (weight.fuselage+1.0))/actual.fuselage
+    error.horizontal_tail = (actual.horizontal_tail - weight.horizontal_tail)/actual.horizontal_tail
+    error.vertical_tail   = (actual.vertical_tail - weight.vertical_tail)/actual.vertical_tail
+            
+    print('Results (kg)')
+    print(weight)
+    
+    print('Relative Errors')
+    print(error)  
+              
+    for k,v in list(error.items()):
+        assert(np.abs(v)<1E-6)    
+
+
+
     return
 
 # ----------------------------------------------------------------------        
