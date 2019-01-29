@@ -108,9 +108,7 @@ def write(vehicle,tag,fuel_tank_set_ind=3):
     vsp.SetSetName(fuel_tank_set_ind,'fuel_tanks')
     
     for wing in vehicle.wings:       
-        area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
-        if wing.tag == 'main_wing':
-            main_wing_id = wing_id         
+        area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)   
     
     # -------------
     # Engines
