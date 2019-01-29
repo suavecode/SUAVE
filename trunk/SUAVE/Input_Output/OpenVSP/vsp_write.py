@@ -111,7 +111,7 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):
     vsp.SetSetName(fuel_tank_set_ind,'fuel_tanks')
     
     for wing in vehicle.wings:       
-        area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
+
         if verbose:
             print('Writing '+wing.tag+' to OpenVSP Model')
         area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
@@ -134,8 +134,7 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):
     # Fuselage
     # -------------    
     
-    if 'fuselage' in vehicle.fuselages:
-        fuselage = vehicle.fuselages.fuselage
+    for key, fuselage in vehicle.fuselages.items():
         if verbose:
             print('Writing '+fuselage.tag+' to OpenVSP Model')
         try:
@@ -559,10 +558,6 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     Properties Used:
     N/A
     """     
-
-=======
-
->>>>>>> develop
     
     num_segs = len(fuselage.Segments)
     length   = fuselage.lengths.total
@@ -641,23 +636,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
             tail_z_pos = vals.tail.z_pos
         else:
             pass # use above default
-            
-<<<<<<< HEAD
-        vsp.SetParmVal(fuse_id,"AllSym","XSec_4",1)
 
-    vsp.SetParmVal(fuse_id,"Length","Design",length)
-    vsp.SetParmVal(fuse_id,"Diameter","Design",width)
-    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_1",x1)
-    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_2",x2)
-    vsp.SetParmVal(fuse_id,"XLocPercent","XSec_3",x3)
-    vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_4",tail_z_pos)
-    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_1", width)
-    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_2", width)
-    vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_3", width)
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_1", height1);
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
-    vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);
-=======
         vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
 
     if num_segs == 0:
@@ -713,7 +692,6 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
             tail_z_pos = vals.tail.z_pos
         else:
             pass # use above default        
->>>>>>> develop
     
     if 'Fuel_Tanks' in fuselage:
         for tank in fuselage.Fuel_Tanks:
