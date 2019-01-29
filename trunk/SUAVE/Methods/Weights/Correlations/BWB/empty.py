@@ -94,7 +94,7 @@ def empty(vehicle):
     
   
     
-    propulsor_name = vehicle.propulsors.keys()[0] #obtain the key f
+    propulsor_name = list(vehicle.propulsors.keys())[0] #obtain the key f
     #for the propulsor for assignment purposes
     
     propulsors     = vehicle.propulsors[propulsor_name]

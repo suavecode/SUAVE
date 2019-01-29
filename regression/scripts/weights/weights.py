@@ -1,4 +1,4 @@
-# test_Weights.py
+# weights.py
 
 import SUAVE
 import numpy as np
@@ -6,9 +6,9 @@ from SUAVE.Core import Units
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 from SUAVE.Methods.Weights.Correlations import Tube_Wing as Tube_Wing
 from SUAVE.Methods.Weights.Correlations import General_Aviation as General_Aviation
-from SUAVE.Core import (
-    Data, Container,
-)
+from SUAVE.Methods.Weights.Correlations import BWB as BWB
+
+from SUAVE.Core import (Data, Container,)
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 import sys
@@ -18,9 +18,7 @@ sys.path.append('../Vehicles')
 
 from Boeing_737 import vehicle_setup
 from Cessna_172 import vehicle_setup as vehicle_setup_general_aviation
-
-
-
+from BWB import vehicle_setup  as bwb_setup
 
 def main():
   
@@ -115,7 +113,48 @@ def main():
 
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)    
-   
+
+    # BWB WEIGHTS
+    vehicle = bwb_setup()    
+    weight  = BWB.empty(vehicle)
+            
+    # regression values    
+    actual = Data()
+    actual.payload         = 27349.9081525 #includes cargo #17349.9081525 #without cargo
+    actual.pax             = 15036.587065500002
+    actual.bag             = 2313.3210870000003
+    actual.fuel            = 22588.48505897538
+    actual.empty           = 29077.406788524622
+    actual.wing            = 6576.679767012152
+    actual.fuselage        = 1.0
+    actual.propulsion      = 6838.185174956626
+    actual.landing_gear    = 3160.632
+    actual.systems         = 12501.909846555845
+    actual.wt_furnish      = 6431.80372889
+    
+    # error calculations
+    error                 = Data()
+    error.payload         = (actual.payload - weight.payload)/actual.payload
+    error.pax             = (actual.pax - weight.pax)/actual.pax
+    error.bag             = (actual.bag - weight.bag)/actual.bag
+    error.fuel            = (actual.fuel - weight.fuel)/actual.fuel
+    error.empty           = (actual.empty - weight.empty)/actual.empty
+    error.wing            = (actual.wing - weight.wing)/actual.wing
+    error.fuselage        = (actual.fuselage - (weight.fuselage+1.0))/actual.fuselage
+    error.propulsion      = (actual.propulsion - weight.propulsion)/actual.propulsion
+    error.landing_gear    = (actual.landing_gear - weight.landing_gear)/actual.landing_gear
+    error.systems         = (actual.systems - weight.systems)/actual.systems
+    error.wt_furnish      = (actual.wt_furnish - weight.systems_breakdown.furnish)/actual.wt_furnish
+            
+    print('Results (kg)')
+    print(weight)
+            
+    print('Relative Errors')
+    print(error)  
+              
+    for k,v in list(error.items()):
+        assert(np.abs(v)<1E-6)    
+    
     return
 
 # ----------------------------------------------------------------------        
