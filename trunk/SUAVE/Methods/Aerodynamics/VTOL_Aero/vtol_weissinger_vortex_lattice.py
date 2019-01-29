@@ -175,6 +175,8 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
         SOURCE: Aerodynamic Modelling of the Wing-Propeller Interaction
         Summary: This method uses the blade element momentum solution to modify the local angle of 
         attach and axial velocity incident on the wing
+        The code below assumes that if the propeller is interacting with the wing, the wing is always situated at the 
+        center of the propeller 
         '''
         rho              = conditions.freestream.density[index][0]                  
         q_inf            = conditions.freestream.dynamic_pressure[index][0] 
@@ -218,50 +220,54 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                     r_div_r_prime_val[j] = r_old[j]/r_prime[j]                    
                 r_div_r_prime_old =  np.concatenate((r_div_r_prime_val[::-1], r_div_r_prime_val), axis=0)   
   
-                # determine location of propeller on wing                  
-                prop_vec_minus = y - (prop.origin[i][1] - R_p)               
-                LHS_vec        = np.extract(prop_vec_minus <=0 ,prop_vec_minus)                 
-                if (prop.origin[i][1] + R_p) < span: 
-                    prop_vec_plus  = y - (prop.origin[i][1] + R_p)
-                    RHS_vec        = np.extract(prop_vec_plus >0 ,prop_vec_plus)   
-                    end_val        = np.where(prop_vec_plus == min(RHS_vec))[1][0] +1 
-                    n              = (np.where(prop_vec_plus == min(RHS_vec))[1] - np.where(prop_vec_minus == max(LHS_vec))[1]) + 1 
-                       
-                else: 
-                    end_val       = len(y[0])
-                    n             = (end_val  - np.where(prop_vec_minus == max(LHS_vec))[1])                      
-                    y_prop        = d_old + span
-                    cut_off       = (y_prop - span)[( y_prop - span) <= 0]
-                    cut_off       = cut_off.argmax()
-                    vt_old        = vt_old[:cut_off]
-                    va_old        = va_old[:cut_off]
-                    r_old         = r_old[:cut_off] 
-                    d_old         = d_old[:cut_off] 
-                    r_div_r_prime_old = r_div_r_prime_old[:cut_off]
+                # determine if slipstream wake interacts with wing 
+                if (prop.origin[i][2] + r_prime[-1]) > wing.origin[2]   and  (prop.origin[i][2] - r_prime[-1]) < wing.origin[2]:
+                    # determine y location of propeller on wing                  
+                    prop_vec_minus = y - (prop.origin[i][1] - R_p)               
+                    LHS_vec        = np.extract(prop_vec_minus <=0 ,prop_vec_minus)                 
+                    if (prop.origin[i][1] + R_p) < span: 
+                        prop_vec_plus  = y - (prop.origin[i][1] + R_p)
+                        RHS_vec        = np.extract(prop_vec_plus >0 ,prop_vec_plus)   
+                        end_val        = np.where(prop_vec_plus == min(RHS_vec))[1][0] +1 
+                        n              = (np.where(prop_vec_plus == min(RHS_vec))[1] - np.where(prop_vec_minus == max(LHS_vec))[1]) + 1 
+                           
+                    else: 
+                        end_val       = len(y[0])
+                        n             = (end_val  - np.where(prop_vec_minus == max(LHS_vec))[1])                      
+                        y_prop        = d_old + span
+                        cut_off       = (y_prop - span)[( y_prop - span) <= 0]
+                        cut_off       = cut_off.argmax()
+                        vt_old        = vt_old[:cut_off]
+                        va_old        = va_old[:cut_off]
+                        r_old         = r_old[:cut_off] 
+                        d_old         = d_old[:cut_off] 
+                        r_div_r_prime_old = r_div_r_prime_old[:cut_off]
+                        
+                    # changes the discretization on propeller diameter to match the discretization on the wing            
+                    vt             = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , vt_old)     # induced tangential velocity at propeller disc using wing discretization
+                    va             = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , va_old)     # induced axial velocity at propeller disc using wing discretization
+                    d              = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , d_old) 
+                    r_div_r_prime  = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , r_div_r_prime_old)                      
+            
+                    va_prime       = Kd*va
+                    vt_prime       = 2*vt*r_div_r_prime
                     
-                # changes the discretization on propeller diameter to match the discretization on the wing            
-                vt             = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , vt_old)     # induced tangential velocity at propeller disc using wing discretization
-                va             = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , va_old)     # induced axial velocity at propeller disc using wing discretization
-                d              = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , d_old) 
-                r_div_r_prime  = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , r_div_r_prime_old)                      
-        
-                va_prime       = Kd*va
-                vt_prime       = 2*vt*r_div_r_prime
-                
-                # compute new components of freestream
-                Vx             = V_inf*np.cos(aoa) - va_prime
-                Vy             = V_inf*np.sin(aoa) - vt_prime
-                modified_V_inf = np.sqrt(Vx**2 + Vy**2 )
-                modified_aoa   = np.arctan(Vx/Vy)
-                numel          = len(modified_aoa)
-                mod_V_inf = np.reshape(modified_V_inf, (1,numel)) # reshape vector 
-                mod_aoa   = np.reshape(modified_aoa, (1,numel))   # reshape vector 
-                
-                # modifiy air speed distribution being propeller 
-                start_val = np.where(prop_vec_minus == max(LHS_vec))[1][0]  
-                V_distribution[0][start_val : end_val]   = mod_V_inf 
-                aoa_distribution[0][start_val : end_val] = mod_aoa  
-                
+                    # compute new components of freestream
+                    Vx             = V_inf*np.cos(aoa) - va_prime
+                    Vy             = V_inf*np.sin(aoa) - vt_prime
+                    modified_V_inf = np.sqrt(Vx**2 + Vy**2 )
+                    modified_aoa   = np.arctan(Vx/Vy)
+                    numel          = len(modified_aoa)
+                    mod_V_inf = np.reshape(modified_V_inf, (1,numel)) # reshape vector 
+                    mod_aoa   = np.reshape(modified_aoa, (1,numel))   # reshape vector 
+                    
+                    # modifiy air speed distribution being propeller 
+                    start_val = np.where(prop_vec_minus == max(LHS_vec))[1][0]  
+                    V_distribution[0][start_val : end_val]   = mod_V_inf 
+                    aoa_distribution[0][start_val : end_val] = mod_aoa  
+                else: 
+                    pass
+                              
 
                 #fig = plt.figure('Propeller Induced Speeds')    
                 #axes3 = fig.add_subplot(2,1,1)
