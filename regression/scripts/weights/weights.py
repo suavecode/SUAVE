@@ -19,7 +19,7 @@ sys.path.append('../Vehicles')
 
 from Boeing_737 import vehicle_setup
 from Cessna_172 import vehicle_setup as vehicle_setup_general_aviation
-from BWB import vehicle_setup  as bwb_setup
+from Boeing_BWB_450 import vehicle_setup  as bwb_setup
 from Solar_UAV import vehicle_setup  as hp_setup
 
 

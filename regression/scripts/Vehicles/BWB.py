@@ -67,13 +67,13 @@ def vehicle_setup():
     wing.span_efficiency         = 0.9
     wing.dihedral                = 3.0 * Units.degrees
 
-    wing.spans.projected         = 39. #38.7298
+    wing.spans.projected         = 39.0
 
-    wing.chords.root             = 17#16.
-    wing.chords.tip              = 1.
-    wing.chords.mean_aerodynamic = (2./3.)*(wing.chords.root + wing.chords.root -(wing.chords.root*wing.chords.root)/(wing.chords.root+wing.chords.root))
+    wing.chords.root             = 17.0
+    wing.chords.tip              = 1.0
+    wing.chords.mean_aerodynamic = (2.0/3.0)*(wing.chords.root + wing.chords.root -(wing.chords.root*wing.chords.root)/(wing.chords.root+wing.chords.root))
 
-    wing.areas.reference         = 259.4#125.0
+    wing.areas.reference         = 259.4
 
     wing.twists.root             = 1.0 * Units.degrees
     wing.twists.tip              = -4.0 * Units.degrees
@@ -87,33 +87,24 @@ def vehicle_setup():
 
     wing.dynamic_pressure_ratio  = 1.0
     
-    # New stuff
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'fuselage_edge'
-    segment.percent_span_location = 7./wing.spans.projected
+    segment.percent_span_location = 7.0/wing.spans.projected
     segment.twist                 = -2. * Units.deg
-    segment.root_chord_percent    = .88 #0.8  #.8
-    segment.dihedral_outboard     = 10. * Units.deg
-    segment.sweeps.quarter_chord  = 40*Units.deg#70. * Units.deg
-    
-    #airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    #airfoil.coordinate_file = 'NACA2412'#'/Users/emiliobotero/Dropbox/SUAVE/Workspace/NACA2412.dat' # Or enter a NACA number
-    
-    #wing.append_airfoil(airfoil)
-    
-    #segment.append_airfoil(airfoil)
+    segment.root_chord_percent    = 0.88 
+    segment.dihedral_outboard     = 10.0 * Units.deg
+    segment.sweeps.quarter_chord  = 40.0*Units.deg
+        
     wing.Segments.append(segment)
     
     segment = SUAVE.Components.Wings.Segment()
     segment.tag                   = 'Outboard'
-    segment.percent_span_location = .3
-    segment.twist                 = 0. * Units.deg
+    segment.percent_span_location = 0.3
+    segment.twist                 = 0.0 * Units.deg
     segment.root_chord_percent    = 0.35
-    segment.dihedral_outboard     = 4. * Units.deg
-    segment.sweeps.quarter_chord  = 20. * Units.deg
+    segment.dihedral_outboard     = 4.0 * Units.deg
+    segment.sweeps.quarter_chord  = 20.0 * Units.deg
     
-   
-    #segment.append(section)
     wing.Segments.append(segment)    
 
     # add to vehicle
@@ -133,11 +124,11 @@ def vehicle_setup():
     fuselage.lengths.nose          = 4.0
     fuselage.lengths.tail          = 4.0
     fuselage.lengths.cabin         = 12.0
-    fuselage.lengths.total         = 22.
-    fuselage.lengths.fore_space    = 1.
-    fuselage.lengths.aft_space     = 1.    
+    fuselage.lengths.total         = 22.0
+    fuselage.lengths.fore_space    = 1.0
+    fuselage.lengths.aft_space     = 1.0    
 
-    fuselage.width                 = 8.
+    fuselage.width                 = 8.0
 
     fuselage.heights.maximum                    = 3.8
     fuselage.heights.at_quarter_length          = 3.7
@@ -156,7 +147,6 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(fuselage)
 
-
     # ------------------------------------------------------------------
     #   Turbofan Network
     # ------------------------------------------------------------------    
@@ -174,7 +164,6 @@ def vehicle_setup():
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
 
-
     # ------------------------------------------------------------------
     #   Component 1 - Ram
 
@@ -186,7 +175,6 @@ def vehicle_setup():
 
     # add to the network
     turbofan.append(ram)
-
 
     # ------------------------------------------------------------------
     #  Component 2 - Inlet Nozzle
@@ -202,7 +190,6 @@ def vehicle_setup():
     # add to network
     turbofan.append(inlet_nozzle)
 
-
     # ------------------------------------------------------------------
     #  Component 3 - Low Pressure Compressor
 
@@ -216,7 +203,6 @@ def vehicle_setup():
 
     # add to network
     turbofan.append(compressor)
-
 
     # ------------------------------------------------------------------
     #  Component 4 - High Pressure Compressor
@@ -232,7 +218,6 @@ def vehicle_setup():
     # add to network
     turbofan.append(compressor)
 
-
     # ------------------------------------------------------------------
     #  Component 5 - Low Pressure Turbine
 
@@ -247,7 +232,6 @@ def vehicle_setup():
     # add to network
     turbofan.append(turbine)
 
-
     # ------------------------------------------------------------------
     #  Component 6 - High Pressure Turbine
 
@@ -261,7 +245,6 @@ def vehicle_setup():
 
     # add to network
     turbofan.append(turbine)
-
 
     # ------------------------------------------------------------------
     #  Component 7 - Combustor
@@ -280,7 +263,6 @@ def vehicle_setup():
     # add to network
     turbofan.append(combustor)
 
-
     # ------------------------------------------------------------------
     #  Component 8 - Core Nozzle
 
@@ -294,7 +276,6 @@ def vehicle_setup():
 
     # add to network
     turbofan.append(nozzle)
-
 
     # ------------------------------------------------------------------
     #  Component 9 - Fan Nozzle
@@ -310,7 +291,6 @@ def vehicle_setup():
     # add to network
     turbofan.append(nozzle)
 
-
     # ------------------------------------------------------------------
     #  Component 10 - Fan
 
@@ -324,7 +304,6 @@ def vehicle_setup():
 
     # add to network
     turbofan.append(fan)
-
 
     # ------------------------------------------------------------------
     #Component 10 : thrust (to compute the thrust)
