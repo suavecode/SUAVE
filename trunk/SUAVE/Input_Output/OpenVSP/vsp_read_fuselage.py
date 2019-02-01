@@ -204,7 +204,7 @@ def get_fuselage_height(fuselage, location):
 	2. Fuselage percentage point [float].
 	
 	Outputs:
-	.
+	height [m]
 	
 	Properties Used:
 	N/A
