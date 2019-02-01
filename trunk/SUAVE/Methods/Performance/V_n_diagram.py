@@ -132,7 +132,7 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     try:    # aircraft minimum lift informed by user
         minimum_lift_coefficient = vehicle.minimum_lift_coefficient 
     except:
-        raise ValueError("The value not found. Specify minimum lift coefficeint")
+        raise ValueError("The value not found. Specify minimum lift coefficient")
              
     # -----------------------------------------------------------------------------
     # Convert all terms to English (Used for FAR) and remove elements from arrays
@@ -388,7 +388,8 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     #------------------------
     flog.write('Creating stall lines...\n')
     Num_of_points = 20                                            # number of points for the stall line
-    upper_bound = 2;  lower_bound = 1;
+    upper_bound = 2;
+    lower_bound = 1;
     stall_line(V_n_data, upper_bound, lower_bound, Num_of_points, 1)
     stall_line(V_n_data, upper_bound, lower_bound, Num_of_points, 2)
 
@@ -396,8 +397,15 @@ def V_n_diagram(vehicle,analyses,weight,altitude,delta_ISA):
     # Determine Gust loads
     # ----------------------------------------------
     flog.write('Calculating gust loads...\n')
-    gust_loads(category_tag, V_n_data, Kg, CLa,  Uref_rough,  Uref_cruise,  Uref_dive, Num_of_points, FAR_part_number, 1)
-    gust_loads(category_tag, V_n_data, Kg, CLa, -Uref_rough, -Uref_cruise, -Uref_dive, Num_of_points, FAR_part_number, 2)
+    V_n_data.gust_data           = Data()
+    V_n_data.gust_data.airspeeds = Data()
+    
+    V_n_data.gust_data.airspeeds.rough_gust  = Uref_rough
+    V_n_data.gust_data.airspeeds.cruise_gust = Uref_cruise
+    V_n_data.gust_data.airspeeds.dive_gust   = Uref_dive
+    
+    gust_loads(category_tag, V_n_data, Kg, CLa, Num_of_points, FAR_part_number, 1)
+    gust_loads(category_tag, V_n_data, Kg, CLa, Num_of_points, FAR_part_number, 2)
 
     #----------------------------------------------------------------
     # Finalize the load factors for acrobatic and utility aircraft
@@ -571,7 +579,7 @@ def stall_line(V_n_data, upper_bound, lower_bound, Num_of_points, sign_flag):
     return 
 #--------------------------------------------------------------------------------------------------------------
 
-def gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_dive, Num_of_points, FAR_part_number, sign_flag):
+def gust_loads(category_tag, V_n_data, Kg, CLa, Num_of_points, FAR_part_number, sign_flag):
 
     """ Calculates airspeeds and load factors for gust loads and modifies the V-n diagram
 
@@ -632,13 +640,19 @@ def gust_loads(category_tag, V_n_data, Kg, CLa, Uref_rough, Uref_cruise, Uref_di
         airspeeds        = V_n_data.airspeeds.positive
         load_factors     = V_n_data.load_factors.positive
         lift_coefficient = V_n_data.maximum_lift_coefficient
-        limit_load       = V_n_data.limit_loads.positive  
+        limit_load       = V_n_data.limit_loads.positive
+        Uref_rough       = V_n_data.gust_data.airspeeds.rough_gust
+        Uref_cruise      = V_n_data.gust_data.airspeeds.cruise_gust
+        Uref_dive        = V_n_data.gust_data.airspeeds.dive_gust
 
     elif sign_flag == 2:
         airspeeds        = V_n_data.airspeeds.negative
         load_factors     = V_n_data.load_factors.negative
         lift_coefficient = V_n_data.minimum_lift_coefficient
         limit_load       = V_n_data.limit_loads.negative
+        Uref_rough       = -V_n_data.gust_data.airspeeds.rough_gust
+        Uref_cruise      = -V_n_data.gust_data.airspeeds.cruise_gust
+        Uref_dive        = -V_n_data.gust_data.airspeeds.dive_gust
         
 
     gust_load_factors    = np.zeros(shape=(4));    

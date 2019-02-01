@@ -53,12 +53,12 @@ def compute_equivalent_properties(wing):
         sumr     = sumr + chords[i] * 0.5 * (chords[i] + chords[i+1]) * (Y[i+1] - Y[i])
         sumt     = sumt + chords[i+1] * 0.5 * (chords[i] + chords[i+1]) * (Y[i+1] - Y[i])
         sumsweep = sumsweep + sweep_LE[i] * 0.5 * (chords[i] + chords[i+1]) * (Y[i+1] - Y[i])
-
+        print(chords[i] * 0.5 * (chords[i] + chords[i+1]) * (Y[i+1] - Y[i]))
     Cwr     = 2 * sumr / area
     Cwt     = 2 * sumt / area
     sweepLE = 2 * sumsweep / area 
-    K       = area / (span * (Cwr + Cwt))
-
+    K       = 2 * area / (span * (Cwr + Cwt))
+    print(K)
     Cre   = K * Cwr
     Cte   = K * Cwt
 

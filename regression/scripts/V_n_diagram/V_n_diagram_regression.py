@@ -48,7 +48,7 @@ def main():
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)      
     
-    altitude = 0 * Units.m
+    altitude  = 0 * Units.m
     delta_ISA = 0
 
     # Part 23 aircraft
