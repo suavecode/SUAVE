@@ -316,7 +316,7 @@ class Propeller(Energy_Component):
         
         # store data
         results_conditions = Data     
-        prop_data = results_conditions(
+        thrust_attributes = results_conditions(
             number_sections    = N,
             r0                 = r,
             airfoil_chord      = c,
@@ -336,7 +336,7 @@ class Propeller(Energy_Component):
             mid_chord_aligment = self.mid_chord_aligment
         )
         
-        return thrust, torque, power, Cp, prop_data, etap  
+        return thrust, torque, power, Cp, thrust_attributes, etap  
 
     
     

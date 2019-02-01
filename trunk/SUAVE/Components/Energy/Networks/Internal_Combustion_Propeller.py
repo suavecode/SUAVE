@@ -54,7 +54,7 @@ class Internal_Combustion_Propeller(Propulsor):
         self.number_of_engines = None
         self.thrust_angle      = 0.0
         self.rated_speed       = 0.0
-        self.tag               = 'network'
+        self.thrust_attributes         = Data()   
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -103,15 +103,10 @@ class Internal_Combustion_Propeller(Propulsor):
         propeller.thrust_angle = self.thrust_angle
         
         # step 4
-        F, Q, P, Cp , noise_data, etap, thrust_attributes = propeller.spin(conditions)
+        F, Q, P, Cp, thrust_attributes, etap = propeller.spin(conditions)
         
         # link 
-        propeller.thrust_attributes.velocity = thrust_attributes.velocity 
-        propeller.thrust_attributes.thrust   = thrust_attributes.thrust   
-        propeller.thrust_attributes.vt       = thrust_attributes.vt     
-        propeller.thrust_attributes.va       = thrust_attributes.va               
-        propeller.thrust_attributes.Ut       = thrust_attributes.Ut    
-        propeller.thrust_attributes.Ua       = thrust_attributes.Ua  
+        propeller.thrust_attributes = thrust_attributes   
         
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]

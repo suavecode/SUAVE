@@ -198,10 +198,10 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                 # obtain original properties of propeller 
                 D_p       = prop.tip_radius*2
                 R_p       = prop.tip_radius                     
-                Vx        = prop.run_attributes.velocity[index]             
+                Vx        = prop.thrust_attributes.velocity[index]             
                 r_nacelle = prop.hub_radius 
-                vt_old    = np.concatenate((prop.run_attributes.vt[index], - prop.run_attributes.vt[index][::-1]), axis=0)   # induced tangential velocity at propeller disc using propeller discretization
-                va_old    = np.concatenate((-prop.run_attributes.va[index], - prop.run_attributes.va[index][::-1]), axis=0)   # induced axial velocity at propeller disc  using propeller discretization
+                vt_old    = np.concatenate((prop.thrust_attributes.vt[index], - prop.thrust_attributes.vt[index][::-1]), axis=0)   # induced tangential velocity at propeller disc using propeller discretization
+                va_old    = np.concatenate((-prop.thrust_attributes.va[index], - prop.thrust_attributes.va[index][::-1]), axis=0)   # induced axial velocity at propeller disc  using propeller discretization
                 n_old     = len(prop.chord_distribution)                      # number of spanwise divisions from propeller
                 r_old     = np.linspace(prop.hub_radius,R_p,n_old) 
                 d_old     = np.concatenate((-r_old[::-1], r_old) ,  axis=0)   
@@ -215,7 +215,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                     if j == 0:
                         r_prime[j] =  prop.hub_radius
                     else: 
-                        Kv         = (2*Vx + prop.run_attributes.va[index][j] + prop.run_attributes.va[index][j-1])/(2*Vx + Kd*(prop.run_attributes.va[index][j] +  prop.run_attributes.va[index][j-1]))
+                        Kv         = (2*Vx + prop.thrust_attributes.va[index][j] + prop.thrust_attributes.va[index][j-1])/(2*Vx + Kd*(prop.thrust_attributes.va[index][j] +  prop.thrust_attributes.va[index][j-1]))
                         r_prime[j] =  np.sqrt(r_prime[j-1]**2 + ( r_old[j]**2 -  r_old[j-1]**2)*Kv)   
                     r_div_r_prime_val[j] = r_old[j]/r_prime[j]                    
                 r_div_r_prime_old =  np.concatenate((r_div_r_prime_val[::-1], r_div_r_prime_val), axis=0)   
