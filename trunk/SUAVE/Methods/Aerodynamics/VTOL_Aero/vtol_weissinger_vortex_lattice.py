@@ -309,9 +309,9 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
             
             #q_distribution =  0.5*rho*(V_distribution**2) true 
             q_distribution = rho*(V_distribution**2)      
-            CL,CD  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,Sref)            
+            CL,CD  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,Sref,start_val,end_val)            
         else:
-            CL,CD = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution,q_distribution,q_inf,Sref)
+            CL,CD = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution,q_distribution,q_inf,Sref,start_val,end_val)
     else:
         CL = 0.0 
         CD = 0.0 
@@ -321,7 +321,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
         
     return   CL , CD , AR 
         
-def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf, Sref):    
+def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf, Sref,start_val,end_val):    
     sin_aoa = np.sin(aoa_distribution)
     cos_aoa = np.cos(aoa_distribution)
 
@@ -354,25 +354,29 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,c
     #Lift_distribution = q_distribution*CL_distribution         
     #Drag_distribution = q_distribution*CD_distribution       
 
-    ## Total Lift and Drag
-    #LT = sum(Lift_distribution[0]) 
-    #DT = sum(Drag_distribution[0])
+    ## Total Lift and Drag LT = sum(Lift_distribution[0]) DT =
+    #sum(Drag_distribution[0])
     
     ## Lift and Drag Coefficents 
     #CL = 2*LT/(Sref*q_inf)
     #CD = 2*DT/(Sref*q_inf)  
     # -----------------------------
-        
+    cl = L/(0.5*chord_distribution) 
+    cd = D/(0.5*chord_distribution) 
     
     # Total lift
-    LT = np.sum(L)
+    LT = np.sum(L)  
     DT = np.sum(D)
 
     CL = 2*LT/(0.5*Sref)
     CD = 2*DT/(0.5*Sref)   
     
+    # plot V(y),  cl(y)
     
-    
+    # Check LT, DT, CL and CD
+    print (LT)
+    print(DT)
+    print()
     #fig = plt.figure('Lift Distribution') 
     #axes1 = fig.add_subplot(1,1,1)
     #axes1.plot(y[0],-L[0],'bo-')

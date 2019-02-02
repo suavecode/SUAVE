@@ -141,18 +141,19 @@ class Battery_Propeller(Propulsor):
 
         # Run the avionics
         avionics.power()
-
-        # Run the payload
-        payload.power()
         
+        # Run the payload
+        payload.power()        
+
         # Run the motor for current
         motor.current(conditions)
+        
         # link
         esc.inputs.currentout =  motor.outputs.current
-        
+    
         # Run the esc
-        esc.currentin()
-
+        esc.currentin(conditions)
+    
         # Calculate avionics and payload power
         avionics_payload_power = avionics.outputs.power + payload.outputs.power
 
@@ -259,3 +260,5 @@ class Battery_Propeller(Propulsor):
         return    
             
     __call__ = evaluate_thrust
+
+
