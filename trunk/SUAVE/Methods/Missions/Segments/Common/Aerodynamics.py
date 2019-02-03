@@ -199,45 +199,7 @@ def update_aerodynamics(segment):
     # unpack results
     CL  = results.lift.total
     CD  = results.drag.total
-    
-    ## ------------------------------------------------------------
-    ## VALIDATION
-    ## Check LT, DT, CL and CD    
-    #L  = results.lift.inviscid_wings.lift_distribution.main_wing[0]
-    #D  = results.lift.inviscid_wings.drag_distribution.main_wing[0]
-    #cl = results.lift.inviscid_wings.cl_distribution.main_wing[0]  
-    #cd = results.lift.inviscid_wings.cd_distribution.main_wing[0]  
-    #y  = results.lift.inviscid_wings.wing_distribution.main_wing[0]
-    
-    ##print(DT)
-    #print(results.lift.inviscid_wings.total[0])
-    
-    ## plot V(y),  cl(y)
-    #fig = plt.figure('Aero',figsize=(12,12)) 
-    #axes1 = fig.add_subplot(2,2,1)
-    #axes1.plot(y,L,'bo-')
-    #axes1.set_xlabel('Span (m)')
-    #axes1.set_ylabel(r'Lift $N$')
-    #axes1.grid(True)  
-    #axes2 = fig.add_subplot(2,2,2)
-    #axes2.plot(y,D,'bo-')
-    #axes2.set_xlabel('Span (m)')
-    #axes2.set_ylabel(r'Drag $N$')
-    #axes2.grid(True)  
-    #axes3 = fig.add_subplot(2,2,3)
-    #axes3.plot(y,cl,'bo-')
-    #axes3.set_xlabel('Span (m)')
-    #axes3.set_ylabel(r'CL')
-    #axes3.grid(True)  
-    #axes4 = fig.add_subplot(2,2,4)
-    #axes4.plot(y,cd,'bo-')
-    #axes4.set_xlabel('Span (m)')
-    #axes4.set_ylabel(r'CD')
-    #axes4.grid(True)      
-    #plt.show() 
-    
-    ## ------------------------------------------------------------
-        
+            
     CL[q<=0.0] = 0.0
     CD[q<=0.0] = 0.0
     

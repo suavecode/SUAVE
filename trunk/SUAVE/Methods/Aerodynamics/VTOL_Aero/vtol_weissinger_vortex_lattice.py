@@ -182,7 +182,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
         q_inf            = conditions.freestream.dynamic_pressure[index][0] 
         V_inf            = conditions.freestream.velocity[index][0]  
         V_distribution   = np.ones((1,n))*V_inf      
-        aoa              = conditions.aerodynamics.angle_of_attack[index][0]   
+        aoa              = 0.0349066  # (2 degrees)conditions.aerodynamics.angle_of_attack[index][0]   
         aoa_distribution = np.ones((1,n))*aoa  
         
         if 'propulsor' in propulsors:
@@ -256,7 +256,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                     Vx             = V_inf*np.cos(aoa) - va_prime
                     Vy             = V_inf*np.sin(aoa) - vt_prime
                     modified_V_inf = np.sqrt(Vx**2 + Vy**2 )
-                    modified_aoa   = np.arctan(Vx/Vy)
+                    modified_aoa   = np.arctan(Vy/Vx)
                     numel          = len(modified_aoa)
                     mod_V_inf = np.reshape(modified_V_inf, (1,numel)) # reshape vector 
                     mod_aoa   = np.reshape(modified_aoa, (1,numel))   # reshape vector 
@@ -282,23 +282,23 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                       
    
             #fig = plt.figure('Propeller Induced Speeds')    
-            #axes3 = fig.add_subplot(2,3,1)
-            #axes3.plot(y,aoa_distribution,'bo-' )
+            #axes3 = fig.add_subplot(2,2,1)
+            #axes3.plot(y,aoa_distribution*57.2958,'bo-' )
             #axes3.set_xlabel('Span (m)')
             #axes3.set_ylabel(r'AoA Distribution $m/s$')
             #axes3.grid(True)  
-            #axes4 = fig.add_subplot(2,3,4)
+            #axes4 = fig.add_subplot(2,2,2)
             #axes4.plot(y,V_distribution,'bo-' )
             #axes4.set_xlabel('Span (m)')
             #axes4.set_ylabel(r'Velocity Distribution $m/s$')
             #axes4.grid(True)               
-            #axes1 = fig.add_subplot(2,3,2)
+            #axes1 = fig.add_subplot(2,2,3)
             #axes1.plot(d,modified_V_inf,'bo-')
             #axes1.set_xlabel('Span (m)')
             #axes1.set_ylabel(r'Modified V distribution $m/s$')
             #axes1.grid(True)
-            #axes2 = fig.add_subplot(2,3,3)
-            #axes2.plot(d,modified_aoa,'bo-')
+            #axes2 = fig.add_subplot(2,2,4)
+            #axes2.plot(d,modified_aoa*57.2958,'bo-')
             #axes2.set_xlabel('Span (m)')
             #axes2.set_ylabel(r'Modified AoA Distribution $m/s$')            
             #axes2.grid(True)              
@@ -306,9 +306,9 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
             
             
             q_distribution =  0.5*rho*(V_distribution**2) 
-            CL ,  CD , LT, DT , cl , cd , L , D   = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,Sref)            
+            CL ,  CD , LT, DT , cl , cd , L , D   = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,V_distribution,Sref)            
         else:
-            CL ,  CD , LT, DT , cl , cd , L , D  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution,q_distribution,q_inf,Sref)
+            CL ,  CD , LT, DT , cl , cd , L , D  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution,q_distribution,q_inf,V_distribution,Sref)
     else:
         CL = 0.0 
         CD = 0.0 
@@ -323,7 +323,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
         
     return   CL ,  CD , LT, DT , cl , cd , L , D , AR , y
         
-def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf, Sref):    
+def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,V_distribution, Sref):    
     sin_aoa = np.sin(aoa_distribution)
     cos_aoa = np.cos(aoa_distribution)
 
@@ -363,7 +363,46 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,c
     Lift = 2 * np.sum(Lift_distribution)  
     Drag = 2 * np.sum(Drag_distribution)
  
+    # ------------------------------------------------------------
+    #print(DT)
+    print(Lift)
     
+    # plot V(y),  cl(y)
+    fig = plt.figure('Aero',figsize=(14,12)) 
+    axes1 = fig.add_subplot(2,3,1)
+    axes1.plot(y,Lift_distribution,'bo-')
+    axes1.set_xlabel('Span (m)')
+    axes1.set_ylabel(r'Lift $N$')
+    axes1.grid(True)  
+    axes2 = fig.add_subplot(2,3,2)
+    axes2.plot(y,Drag_distribution ,'bo-')
+    axes2.set_xlabel('Span (m)')
+    axes2.set_ylabel(r'Drag $N$')
+    axes2.grid(True)  
+    axes5 = fig.add_subplot(2,3,3)
+    axes5.plot(y,(twist_distribution+aoa_distribution)*57.2958,'bo-')
+    axes5.set_xlabel('Span (m)')
+    axes5.set_ylabel(r'AoA_${eff}$')
+    axes5.grid(True)      
+    axes3 = fig.add_subplot(2,3,4)
+    axes3.plot(y,cl,'bo-')
+    axes3.set_xlabel('Span (m)')
+    axes3.set_ylabel(r'Cl')
+    axes3.grid(True)  
+    axes4 = fig.add_subplot(2,3,5)
+    axes4.plot(y,cd,'bo-')
+    axes4.set_xlabel('Span (m)')
+    axes4.set_ylabel(r'Cd')
+    axes4.grid(True) 
+    axes4 = fig.add_subplot(2,3,6)
+    axes4.plot(y,V_distribution,'bo-')
+    axes4.set_xlabel('Span (m)')
+    axes4.set_ylabel(r'velocity')
+    axes4.grid(True)     
+    plt.savefig("No_Prop.png")  
+    plt.show() 
+    
+    # ------------------------------------------------------------    
     return  CL ,  CD , Lift , Drag , cl , cd , Lift_distribution ,  Drag_distribution 
 
 # ----------------------------------------------------------------------
