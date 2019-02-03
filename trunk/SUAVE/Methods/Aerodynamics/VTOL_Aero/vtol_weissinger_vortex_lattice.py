@@ -221,7 +221,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                 r_div_r_prime_old =  np.concatenate((r_div_r_prime_val[::-1], r_div_r_prime_val), axis=0)   
   
                 # determine if slipstream wake interacts with wing 
-                if (prop.origin[i][2] + r_prime[-1]) > wing.origin[2]   and  (prop.origin[i][2] - r_prime[-1]) < wing.origin[2]:
+                if (prop.origin[i][2] + r_prime[-1]) > wing.origin[2]  and  (prop.origin[i][2] - r_prime[-1]) < wing.origin[2]:
                     # determine y location of propeller on wing                  
                     prop_vec_minus = y - (prop.origin[i][1] - R_p)               
                     LHS_vec        = np.extract(prop_vec_minus <=0 ,prop_vec_minus)                 
@@ -265,9 +265,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                     start_val = np.where(prop_vec_minus == max(LHS_vec))[1][0]  
                     V_distribution[0][start_val : end_val]   = mod_V_inf 
                     aoa_distribution[0][start_val : end_val] = mod_aoa  
-                else: 
-                    pass
-                              
+                             
 
                 #fig = plt.figure('Propeller Induced Speeds')    
                 #axes3 = fig.add_subplot(2,1,1)
@@ -307,21 +305,25 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
             #plt.show() 
             
             
-            #q_distribution =  0.5*rho*(V_distribution**2) true 
-            q_distribution = rho*(V_distribution**2)      
-            CL,CD  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,Sref,start_val,end_val)            
+            q_distribution =  0.5*rho*(V_distribution**2) 
+            CL ,  CD , LT, DT , cl , cd , L , D   = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,Sref)            
         else:
-            CL,CD = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution,q_distribution,q_inf,Sref,start_val,end_val)
+            CL ,  CD , LT, DT , cl , cd , L , D  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution,q_distribution,q_inf,Sref)
     else:
         CL = 0.0 
         CD = 0.0 
-        CL_distribution = np.zeros((1,n))
-        CD_distribution= np.zeros((1,n))            
+        LT = 0.0 
+        DT = 0.0 
+        cl = np.zeros((1,n))
+        cd = np.zeros((1,n))
+        L  = np.zeros((1,n))
+        D  = np.zeros((1,n))
+        y = np.zeros((1,n))   
         AR = 0.0
         
-    return   CL , CD , AR 
+    return   CL ,  CD , LT, DT , cl , cd , L , D , AR , y
         
-def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf, Sref,start_val,end_val):    
+def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf, Sref):    
     sin_aoa = np.sin(aoa_distribution)
     cos_aoa = np.cos(aoa_distribution)
 
@@ -344,23 +346,6 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,c
     L  = deltax * Lft
     D  = deltax * Dg
     
-    # -----------------------------
-    #  PARTIALLY WORKS 
-    ## Lift & Drag distribution
-    #CL_distribution = L[0]        
-    #CD_distribution = D[0]   
-    
-    ## Lift & Drag distribution
-    #Lift_distribution = q_distribution*CL_distribution         
-    #Drag_distribution = q_distribution*CD_distribution       
-
-    ## Total Lift and Drag LT = sum(Lift_distribution[0]) DT =
-    #sum(Drag_distribution[0])
-    
-    ## Lift and Drag Coefficents 
-    #CL = 2*LT/(Sref*q_inf)
-    #CD = 2*DT/(Sref*q_inf)  
-    # -----------------------------
     cl = L/(0.5*chord_distribution) 
     cd = D/(0.5*chord_distribution) 
     
@@ -369,23 +354,17 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,c
     DT = np.sum(D)
 
     CL = 2*LT/(0.5*Sref)
-    CD = 2*DT/(0.5*Sref)   
+    CD = 2*DT/(0.5*Sref) 
     
-    # plot V(y),  cl(y)
+    Lift_distribution = cl*chord_distribution*q_distribution
+    Drag_distribution = cd*chord_distribution*q_distribution 
     
-    # Check LT, DT, CL and CD
-    print (LT)
-    print(DT)
-    print()
-    #fig = plt.figure('Lift Distribution') 
-    #axes1 = fig.add_subplot(1,1,1)
-    #axes1.plot(y[0],-L[0],'bo-')
-    #axes1.set_xlabel('Span (m)')
-    #axes1.set_ylabel(r'Lift $m/s$')
-    #axes1.grid(True)  
-    #plt.show() 
+    # Total lift
+    Lift = 2 * np.sum(Lift_distribution)  
+    Drag = 2 * np.sum(Drag_distribution)
+ 
     
-    return  CL ,  CD  
+    return  CL ,  CD , Lift , Drag , cl , cd , Lift_distribution ,  Drag_distribution 
 
 # ----------------------------------------------------------------------
 #   Helper Functions

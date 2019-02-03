@@ -83,16 +83,37 @@ class VTOL_Vortex_Lattice(Aerodynamics):
         
         # inviscid lift of wings only
         inviscid_wings_lift                                                    = Data()
-        inviscid_wings_lift.total                                              = total_lift_coeff
+        inviscid_wings_lift_distri                                             = Data()
+        inviscid_wings_drag_distri                                             = Data()
+        inviscid_wings_cd_distri                                               = Data()     
+        inviscid_wings_cl_distri                                               = Data()      
+        wing_discretization                                                    = Data()  
+        
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift             = Data()
         state.conditions.aerodynamics.lift_coefficient_wing                    = Data()
         AR               = 0.0
         for wing in geometry.wings.keys():
             wing_CL = np.zeros((n,1))
+            wing_L =  np.zeros((n,50))  ##
+            wing_D =  np.zeros((n,50))  ##
+            wing_cd =  np.zeros((n,50))  ##           
+            wing_cl =  np.zeros((n,50)) ##  
+            y_dis   =  np.zeros((n,50))  ## 
             for index in range(n):
-                [wing_lift_coeff,  wing_drag_coeff ,wing_AR]                 = vtol_weissinger_vortex_lattice(conditions,settings,geometry.wings[wing],propulsors,index)
+                [wing_lift_coeff,  wing_drag_coeff , LT, DT , cl , cd , L , D, wing_AR, yd]    = vtol_weissinger_vortex_lattice(conditions,settings,geometry.wings[wing],propulsors,0)
                 wing_CL[index]                                               = wing_lift_coeff 
+                wing_L[index]                                                = L
+                wing_D[index]                                                = D
+                wing_cl[index]                                               = cl
+                wing_cd[index]                                               = cd
+                y_dis[index]                                                 = yd
             inviscid_wings_lift[wing]                                        = wing_CL
+            inviscid_wings_lift_distri[wing]                                 = wing_L  ##
+            inviscid_wings_drag_distri[wing]                                 = wing_D  ##
+            inviscid_wings_cd_distri[wing]                                   = wing_cd  ##            
+            inviscid_wings_cl_distri[wing]                                   = wing_cl  ##
+            wing_discretization[wing]                                        = y_dis  ##
+            
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]   
             state.conditions.aerodynamics.lift_coefficient_wing[wing]        = inviscid_wings_lift[wing] 
             AR                                                               += wing_AR * geometry.wings[wing].areas.reference/ vehicle_reference_area
@@ -103,7 +124,12 @@ class VTOL_Vortex_Lattice(Aerodynamics):
         state.conditions.aerodynamics.lift_coefficient                   = total_lift_coeff
         state.conditions.aerodynamics.inviscid_lift                      = total_lift_coeff 
         inviscid_wings_lift.total                                        = total_lift_coeff            
-            
+        inviscid_wings_lift.lift_distribution                            = inviscid_wings_lift_distri  
+        inviscid_wings_lift.drag_distribution                            = inviscid_wings_drag_distri    
+        inviscid_wings_lift.cl_distribution                              = inviscid_wings_cl_distri   
+        inviscid_wings_lift.cd_distribution                              = inviscid_wings_cd_distri
+        inviscid_wings_lift.wing_distribution                              = wing_discretization   
+        
         return inviscid_wings_lift
     
 
