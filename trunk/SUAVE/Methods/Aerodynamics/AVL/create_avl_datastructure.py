@@ -82,7 +82,7 @@ def translate_avl_geometry(geometry):
                 aircraft.append_wing(w)
                 
         for body in geometry.fuselages:
-                if body.configuration == 'tube_and_wing' or body.configuration == 'boom':
+                if body.tag == 'fuselage' or body.tag == 'boom':
                         b = translate_avl_body(body)
                         aircraft.append_body(b)
 
@@ -382,7 +382,7 @@ def populate_body_sections(avl_body,suave_body):
         symm = avl_body.symmetric   
         semispan_h = avl_body.widths.maximum * 0.5 * (2 - symm)
         semispan_v = avl_body.heights.maximum * 0.5
-        origin = avl_body.origin
+        origin = suave_body.origin[0]
 
         # Compute the curvature of the nose/tail given fineness ratio. Curvature is derived from general quadratic equation
         # This method relates the fineness ratio to the quadratic curve formula via a spline fit interpolation
