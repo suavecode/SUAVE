@@ -97,11 +97,12 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         battery    = self.battery
         
         fuel_capacity = 800 * Units.lb
-        range_extender_power = 550000 #Watts
+        range_extender_power = 500000 #Watts
         range_extender_efficiency = .3
+        range_extender_sfc = (.3/3600) #kg/(kW*s)
         
         power_generated = np.ones_like(conditions.propulsion.battery_energy)*range_extender_power
-        
+        mdot = range_extender_sfc * (power_generated/1000) 
 
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
@@ -139,10 +140,10 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         # Run the payload
         payload.power()
 
-        esc.inputs.currentout =  motor_power/np.transpose(esc.outputs.voltageout)[0]
+        esc.inputs.currentout =  np.transpose(motor_power/np.transpose(esc.outputs.voltageout))
         
         # Run the esc
-        esc.currentin()
+        esc.currentin(conditions)
 
         # Calculate avionics and payload power
         avionics_payload_power = avionics.outputs.power + payload.outputs.power
@@ -154,8 +155,8 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         # link
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
         #print(esc.outputs.currentin)
-        battery.inputs.power_in = -(np.transpose(esc.outputs.voltageout)[0]*esc.outputs.currentin + avionics_payload_power) + (
-                power_generated.T[0])
+        battery.inputs.power_in = -((esc.outputs.voltageout)[0]*esc.outputs.currentin + avionics_payload_power) + (
+                power_generated)
         battery.energy_calc(numerics)        
     
         
@@ -181,7 +182,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         '''
 
 
-        mdot = np.zeros(np.shape(conditions.freestream.velocity))
+        #mdot = np.zeros(np.shape(conditions.freestream.velocity))
 
         # Pack the conditions for outputs
         current              = esc.outputs.currentin

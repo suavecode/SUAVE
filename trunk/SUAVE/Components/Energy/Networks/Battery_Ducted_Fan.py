@@ -163,7 +163,7 @@ class Battery_Ducted_Fan(Propulsor):
         esc.inputs.currentout =  motor_power/np.transpose(esc.outputs.voltageout)[0]
         
         # Run the esc
-        esc.currentin()
+        esc.currentin(conditions)
 
         # Calculate avionics and payload power
         avionics_payload_power = avionics.outputs.power + payload.outputs.power
