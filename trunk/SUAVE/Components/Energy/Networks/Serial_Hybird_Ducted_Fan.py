@@ -3,7 +3,7 @@
 #
 # Created:  Sep 2014, M. Vegh
 # Modified: Jan 2016, T. MacDonald
-#           Nov 2018, C. Mc
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -22,7 +22,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Battery_Ducted_Fan(Propulsor):
+class Serial_Hybrid_Ducted_Fan(Propulsor):
     """ Simply connects a battery to a ducted fan, with an assumed motor efficiency
     
         Assumptions:
@@ -59,11 +59,12 @@ class Battery_Ducted_Fan(Propulsor):
         self.avionics         = None
         self.payload          = None
         self.voltage          = None
+        self.generator        = None
         self.tag              = 'Network'
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
-        """ Calculate thrust given the current state of the vehicle
+            """ Calculate thrust given the current state of the vehicle
     
             Assumptions:
             None
@@ -100,17 +101,6 @@ class Battery_Ducted_Fan(Propulsor):
         F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
         '''
 
-        
-
-        
-        # Create the outputs
-        #F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
-        #mdot = np.zeros_like(F)
-
-        #results = Data()
-        #results.thrust_force_vector = F
-        #results.vehicle_mass_rate   = mdot
-          
 
         #Cameron's attempt
         # unpack
@@ -122,6 +112,13 @@ class Battery_Ducted_Fan(Propulsor):
         battery    = self.battery
         propulsor  = self.propulsor
         battery    = self.battery
+        
+        fuel_capacity = 800 * Units.lb
+        range_extender_power = 500000 #Watts
+        range_extender_efficiency = .3
+        
+        power_generated = np.ones_like(conditions.propulsion.battery_energy)*range_extender_power
+        
 
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
@@ -129,7 +126,6 @@ class Battery_Ducted_Fan(Propulsor):
         # Step 0 ducted fan power
         results             = propulsor.evaluate_thrust(state)
         propulsive_power    = results.power
-        
         motor_power         = propulsive_power/self.motor_efficiency 
 
         # Why use battery_logic here instead of just battery_input?

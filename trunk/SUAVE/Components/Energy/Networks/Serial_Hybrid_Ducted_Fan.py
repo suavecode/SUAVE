@@ -2,8 +2,8 @@
 # Battery_Ducted_Fan.py
 #
 # Created:  Sep 2014, M. Vegh
-# Modified: Jan 2016, T. MacDonald
-#           Nov 2018, C. Mc
+# Modified: Jan 2016, T. MacDonaldb
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -13,7 +13,7 @@ import SUAVE
 
 # package imports
 import numpy as np
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
@@ -22,7 +22,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Battery_Ducted_Fan(Propulsor):
+class Serial_Hybrid_Ducted_Fan(Propulsor):
     """ Simply connects a battery to a ducted fan, with an assumed motor efficiency
     
         Assumptions:
@@ -59,6 +59,7 @@ class Battery_Ducted_Fan(Propulsor):
         self.avionics         = None
         self.payload          = None
         self.voltage          = None
+        self.generator        = None
         self.tag              = 'Network'
     
     # manage process with a driver function
@@ -83,34 +84,6 @@ class Battery_Ducted_Fan(Propulsor):
         """ 
 
          # unpack
-        
-        
-        '''
-        Don't think I use these?
-        # link
-        motor.inputs.voltage = esc.outputs.voltageout 
-        motor.power_lo(conditions)
-        #link
-        propeller.inputs.power = motor.outputs.power
-        F,P = propeller.spin_lo(conditions)
-            
-        # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-        eta        = conditions.propulsion.throttle[:,0,None]
-        P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
-        F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
-        '''
-
-        
-
-        
-        # Create the outputs
-        #F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
-        #mdot = np.zeros_like(F)
-
-        #results = Data()
-        #results.thrust_force_vector = F
-        #results.vehicle_mass_rate   = mdot
-          
 
         #Cameron's attempt
         # unpack
@@ -122,6 +95,13 @@ class Battery_Ducted_Fan(Propulsor):
         battery    = self.battery
         propulsor  = self.propulsor
         battery    = self.battery
+        
+        fuel_capacity = 800 * Units.lb
+        range_extender_power = 550000 #Watts
+        range_extender_efficiency = .3
+        
+        power_generated = np.ones_like(conditions.propulsion.battery_energy)*range_extender_power
+        
 
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
@@ -129,7 +109,6 @@ class Battery_Ducted_Fan(Propulsor):
         # Step 0 ducted fan power
         results             = propulsor.evaluate_thrust(state)
         propulsive_power    = results.power
-        
         motor_power         = propulsive_power/self.motor_efficiency 
 
         # Why use battery_logic here instead of just battery_input?
@@ -175,7 +154,8 @@ class Battery_Ducted_Fan(Propulsor):
         # link
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
         #print(esc.outputs.currentin)
-        battery.inputs.power_in = -(np.transpose(esc.outputs.voltageout)[0]*esc.outputs.currentin + avionics_payload_power)
+        battery.inputs.power_in = -(np.transpose(esc.outputs.voltageout)[0]*esc.outputs.currentin + avionics_payload_power) + (
+                power_generated.T[0])
         battery.energy_calc(numerics)        
     
         
