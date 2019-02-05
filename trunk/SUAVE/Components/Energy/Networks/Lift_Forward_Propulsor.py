@@ -136,9 +136,9 @@ class Lift_Forward_Propulsor(Propulsor):
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy    
         
-        #volts = state.unknowns.battery_voltage_under_load * 1. 
-        #volts[volts>self.voltage] = self.voltage
-        volts = self.voltage
+        volts = state.unknowns.battery_voltage_under_load * 1. 
+        volts[volts>self.voltage] = self.voltage
+        #volts = self.voltage
         
         # ESC Voltage
         esc_lift.inputs.voltagein    = volts      
@@ -179,7 +179,7 @@ class Lift_Forward_Propulsor(Propulsor):
         esc_forward.inputs.currentout =  motor_forward.outputs.current 
         
         # Run the esc
-        esc_forward.currentin()        
+        esc_forward.currentin(conditions)        
        
         ##
         # EVALUATE THRUST FROM LIFT PROPULSORS 
@@ -225,7 +225,7 @@ class Lift_Forward_Propulsor(Propulsor):
         F_lift[eta>1.0] = F_lift[eta>1.0]*eta[eta>1.0]        
         
         # Run the motor for current
-        i, etam_lift = motor_lift.current(conditions)  
+        i, etam_lift = motor_lift.current(konditions)  
         
         # Fix the current for the throttle cap
         motor_lift.outputs.current[eta>1.0] = motor_lift.outputs.current[eta>1.0]*eta[eta>1.0]
@@ -234,7 +234,7 @@ class Lift_Forward_Propulsor(Propulsor):
         esc_lift.inputs.currentout =  motor_lift.outputs.current     
         
         # Run the esc
-        esc_lift.currentin()          
+        esc_lift.currentin(konditions)          
         
         ##
         # COMBINE THRUST AND POWER
@@ -287,7 +287,7 @@ class Lift_Forward_Propulsor(Propulsor):
         conditions.propulsion.propeller_efficiency_forward = etap_forward
         conditions.propulsion.propeller_efficiency_lift    = etap_lift
         conditions.propulsion.motor_efficiency_forward     = etam_forward
-        conditions.propulsion.motor_efficiency_lift        = etam_lift        
+        conditions.propulsion.motor_efficiency_lift        = etam_lift       
           
         conditions.propulsion.battery_draw             = Data()
         conditions.propulsion.battery_draw.total       = battery_draw
@@ -300,7 +300,7 @@ class Lift_Forward_Propulsor(Propulsor):
         # Calculate the thrust and mdot
         F_lift_total    = F_lift*num_lift * [np.cos(self.thrust_angle_lift),0,-np.sin(self.thrust_angle_lift)]    
         F_forward_total = F_forward*num_forward * [np.cos(self.thrust_angle_forward),0,-np.sin(self.thrust_angle_forward)] 
-       
+
         F_total = F_lift_total + F_forward_total
         mdot    = np.zeros_like(F_total)
         
