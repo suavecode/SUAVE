@@ -129,9 +129,9 @@ class Lift_Forward_Propulsor(Propulsor):
         num_lift          = self.number_of_engines_lift
         num_forward       = self.number_of_engines_forward
         
-        ###
-        # Setup batteries and ESC's
-        ###
+        ##
+        # SETUP BATTERIES AND ESC's
+        ##
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy    
@@ -144,9 +144,9 @@ class Lift_Forward_Propulsor(Propulsor):
         esc_lift.inputs.voltagein    = volts      
         esc_forward.inputs.voltagein = volts 
         
-        ###
-        # Evaluate thrust from the forward propulsors
-        ###
+        ##
+        # EVALUATE THRUST FROM FORWARD PROPULSORS 
+        ##
         
         # Throttle the voltage
         esc_forward.voltageout(conditions)       
@@ -181,9 +181,9 @@ class Lift_Forward_Propulsor(Propulsor):
         # Run the esc
         esc_forward.currentin()        
        
-        ###
-        # Evaluate thrust from the lift propulsors
-        ###
+        ##
+        # EVALUATE THRUST FROM LIFT PROPULSORS 
+        ##
         
         # Make a new set of konditions, since there are differences for the esc and motor
         konditions                 = Data()
@@ -236,9 +236,9 @@ class Lift_Forward_Propulsor(Propulsor):
         # Run the esc
         esc_lift.currentin()          
         
-        ###
-        # Combine the thrusts and powers
-        ###
+        ##
+        # COMBINE THRUST AND POWER
+        ##
         
         # Run the avionics
         avionics.power()
@@ -310,7 +310,7 @@ class Lift_Forward_Propulsor(Propulsor):
         
         return results
     
-    def unpack_unknowns(self,segment):
+    def unpack_unknowns_transition(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
             This uses all the motors.
     
@@ -420,45 +420,7 @@ class Lift_Forward_Propulsor(Propulsor):
         
         return    
     
-    def unpack_unknowns_full_forward(self,segment):
-        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
-            This uses the lift motors at a variable throttle and the forward motor on full
-    
-            Assumptions:
-            Only the lift motors thro
-    
-            Source:
-            N/A
-    
-            Inputs:
-            state.unknowns.propeller_power_coefficient [None]
-            state.unknowns.battery_voltage_under_load  [volts]
-            state.unknowns.lift_throttle               [0-1]
-            state.unknowns.throttle                    [0-1]
-    
-            Outputs:
-            state.conditions.propulsion.propeller_power_coefficient [None]
-            state.conditions.propulsion.battery_voltage_under_load  [volts]
-            state.conditions.propulsion.lift_throttle               [0-1]
-            state.conditions.propulsion.throttle                    [0-1]
-    
-            Properties Used:
-            N/A
-        """             
-        
-        ones = segment.state.ones_row
-        
-        # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.lift_throttle                    = segment.state.unknowns.throttle
-        segment.state.conditions.propulsion.battery_voltage_under_load       = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.propeller_power_coefficient      = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.propeller_power_coefficient_lift = segment.state.unknowns.propeller_power_coefficient_lift
-        segment.state.conditions.propulsion.throttle                         = 1.0 * ones(1)
-        
-        return    
-    
-    
-    def residuals(self,segment):
+    def residuals_transition(self,segment):
         """ This packs the residuals to be send to the mission solver.
             Use this if all motors are operational
     

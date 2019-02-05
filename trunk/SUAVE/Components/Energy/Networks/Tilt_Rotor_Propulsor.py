@@ -101,6 +101,7 @@ class Tilt_Rotor_Propulsor(Propulsor):
         payload    = self.payload
         battery    = self.battery
         num_engines= self.number_of_engines
+        t_nondim   = state.numerics.dimensionless.control_points
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
@@ -110,14 +111,18 @@ class Tilt_Rotor_Propulsor(Propulsor):
         esc.inputs.voltagein = self.voltage
         
         # Step 2
-        esc.voltageout(conditions)   #NEED TOCORRECTETA
+        esc.voltageout(conditions)   
         # link
         motor.inputs.voltage = esc.outputs.voltageout 
+        
         # step 3
         motor.omega(conditions)
+        thrust_angle0 = self.thrust_angle_start # thurst angle
+        thrust_anglef = segment.state.unknowns.thrust_angle_end # thurst angle self.thrust_angle_end  ***check****
+        thrust_angle  = t_nondim * (thrust_anglef-thrust_angle0) + thrust_angle0 
         # link
         propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle =  state.unknowns.thrust_angle[0][0]
+        propeller.thrust_angle =  thrust_angle
         
         # step 4
         F, Q, P, Cp , noise, etap = propeller.spin(conditions)
@@ -170,12 +175,9 @@ class Tilt_Rotor_Propulsor(Propulsor):
         conditions.propulsion.propeller_torque     = Q
         
         # Create the outputs
-        # Find the angle between two points on the position vector 
-        n = len(state.conditions.frames.inertial.acceleration_vector)
-        trust_range = np.pi/2 # np.linspace(0,np.pi/2,n)
-        relative_directions = np.zeros((n,3))
-        relative_directions[:,0] = np.cos(trust_range)
-        relative_directions[:,2] = -np.sin(trust_range)
+        relative_directions = np.zeros((len(thrust_angle),3))
+        relative_directions[:,0] = np.cos(thrust_angle)
+        relative_directions[:,2] = -np.sin(thrust_angle)
         
         # computer force vector 
         F    = num_engines * np.multiply(F,relative_directions)       
@@ -188,7 +190,40 @@ class Tilt_Rotor_Propulsor(Propulsor):
         
         return results
     
+    def unpack_unknowns_transition(self,segment):
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+            This uses all the motors.
     
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.propeller_power_coefficient [None]
+            state.unknowns.battery_voltage_under_load  [volts]
+            state.unknowns.throttle                    [0-1]
+            state.unknowns.throttle.thrust_angle       [radians]
+            
+            Outputs:
+            state.conditions.propulsion.propeller_power_coefficient [None]
+            state.conditions.propulsion.battery_voltage_under_load  [volts]
+            state.conditions.propulsion.throttle                    [0-1]
+            state.conditions.propulsion.thrust_angle                [radians]
+    
+            Properties Used:
+            N/A
+        """          
+        
+        # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
+        segment.state.conditions.propulsion.battery_voltage_under_load       = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.propeller_power_coefficient      = segment.state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle
+        segment.state.conditions.propulsion.thrust_angle_end                 = segment.state.unknowns.thrust_angle_end
+        
+        return
+        
     def unpack_unknowns(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
     
@@ -209,12 +244,54 @@ class Tilt_Rotor_Propulsor(Propulsor):
             Properties Used:
             N/A
         """                  
-        ones = segment.state.ones_row
+
         # Here we are going to unpack the unknowns (Cp) provided for this network
         segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
         segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
-        #segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
-        segment.state.conditions.propulsion.thrust_angle                = np.pi/2 * ones(1)
+        
+        return
+    
+    def residuals_transition(self,segment):
+        """ This packs the residuals to be send to the mission solver.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.conditions.propulsion:
+                motor_torque                          [N-m]
+                propeller_torque                      [N-m]
+                voltage_under_load                    [volts]
+                
+            state.unknowns.battery_voltage_under_load [volts]
+            state.unknowns.thrust_angle               [radians]
+            
+            Outputs:
+            None
+    
+            Properties Used:
+            self.voltage                              [volts]
+        """        
+        
+        # Here we are going to pack the residuals (torque,voltage) from the network
+        
+        # Unpack
+        q_motor              = segment.state.conditions.propulsion.motor_torque
+        q_prop               = segment.state.conditions.propulsion.propeller_torque
+        v_actual             = segment.state.conditions.propulsion.voltage_under_load
+        v_predict            = segment.state.unknowns.battery_voltage_under_load
+        thrust_angle_actual  = segment.state.conditions.thrust_angle
+        thrust_angle_predict = segment.state.unknowns.thrust_angle
+        v_max                = self.voltage
+        
+        # Return the residuals
+        segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
+        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max 
+        segment.state.residuals.network[:,2] = thrust_angle_predict[:,0] - thrust_angle_actual[:,0]
+        
         return
     
     def residuals(self,segment):

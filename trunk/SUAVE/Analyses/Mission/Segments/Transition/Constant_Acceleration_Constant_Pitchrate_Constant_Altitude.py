@@ -1,4 +1,4 @@
-## @ingroup Analyses-Mission-Segments-Cruise
+## @ingroup Analyses-Mission-Segments-Transition
 # Constant_Acceleration_Constant_Altitude.py
 #
 # Created:  Jan 2016, E. Botero
@@ -58,11 +58,13 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         #   User inputs
         # --------------------------------------------------------------
         self.altitude  = None
-        self.acceleration      = 1.  * Units['m/s/s']
-        self.air_speed_start   = 0.0 * Units['m/s']
-        self.air_speed_end     = 1.0 * Units['m/s']
-        self.pitch_initial     = None
-        self.pitch_final       = 0.0 * Units['rad']        
+        self.acceleration       = 1.  * Units['m/s/s']
+        self.air_speed_start    = 0.0 * Units['m/s']
+        self.air_speed_end      = 1.0 * Units['m/s']
+        self.thrust_angle_start = 0.0 * Units['rad'] 
+        self.thrust_angle_end   = 1.0 * Units['rad']         
+        self.pitch_initial      = None
+        self.pitch_final        = 0.0 * Units['rad']        
         
         
         # --------------------------------------------------------------
@@ -89,7 +91,7 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = Methods.Cruise.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude.initialize_conditions
+        initialize.conditions              = Methods.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude.initialize_conditions
 
         # --------------------------------------------------------------
         #   Converge - starts iteration
@@ -131,7 +133,7 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
 
         # Solve Residuals
         iterate.residuals = Process()     
-        iterate.residuals.total_forces     = Methods.Cruise.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude.residual_total_forces
+        iterate.residuals.total_forces     = Methods.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude.residual_total_forces
         
         # --------------------------------------------------------------
         #   Finalize - after iteration

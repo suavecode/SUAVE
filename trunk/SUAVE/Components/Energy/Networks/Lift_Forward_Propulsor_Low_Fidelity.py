@@ -72,11 +72,11 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         payload           = self.payload
         battery           = self.battery
         num_lift          = self.number_of_engines_lift
-        num_forward       = self.number_of_engines_forward
+        num_forward       = self.number_of_engines_forward     
         
-        ###
-        # Setup batteries and ESC's
-        ###
+        ##
+        # SETUP BATTERIES AND ESC's
+        ##
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy    
@@ -89,9 +89,9 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         esc_lift.inputs.voltagein    = volts      
         esc_forward.inputs.voltagein = volts 
         
-        ###
-        # Evaluate thrust from the forward propulsors
-        ###
+        ##
+        # EVALUATE THRUST FROM FORWARD PROPULSORS 
+        ##
         
         # Throttle the voltage
         esc_forward.voltageout(conditions)       
@@ -110,15 +110,16 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         
         ## Run the motor for current
         #motor_forward.current(conditions)  
+        
         # link
         esc_forward.inputs.currentout =  motor_forward.outputs.current     
         
         # Run the esc
         esc_forward.currentin()        
        
-        ###
-        # Evaluate thrust from the lift propulsors
-        ###
+        ## 
+        # EVALUATE THRUST FROM LIFT PROPULSORS 
+        ## 
         
         # Make a new set of konditions, since there are differences for the esc and motor
         konditions                 = Data()
@@ -153,16 +154,17 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         F_lift[eta>1.0] = F_lift[eta>1.0]*eta[eta>1.0]        
         
         ## Run the motor for current
-        #motor_lift.current(conditions)  
+        #motor_lift.current(conditions)
+        
         # link
         esc_lift.inputs.currentout =  motor_lift.outputs.current     
         
         # Run the esc
         esc_lift.currentin()          
         
-        ###
-        # Combine the thrusts and powers
-        ###
+        ##
+        # COMBINE THRUST AND POWER
+        ##
         
         # Run the avionics
         avionics.power()
@@ -189,22 +191,15 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         # Run the battery
         battery.energy_calc(numerics)   
         
-        # Pack the conditions
-        #rpm_lift             = motor_lift.outputs.omega*60./(2.*np.pi)
-        #rpm_forward          = motor_forward.outputs.omega*60./(2.*np.pi)        
+        # Pack the conditions   
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
     
-        #conditions.propulsion.rpm_lift                 = rpm_lift
-        #conditions.propulsion.rpm_forward              = rpm_forward
+
         conditions.propulsion.current_lift             = i_lift 
         conditions.propulsion.current_forward          = i_forward 
-        #conditions.propulsion.motor_torque_lift        = motor_lift.outputs.torque
-        #conditions.propulsion.motor_torque_forward     = motor_forward.outputs.torque
-        #conditions.propulsion.propeller_torque_lift    = Q_lift   
-        #conditions.propulsion.propeller_torque_forward = Q_forward       
           
         conditions.propulsion.battery_draw             = battery_draw
         conditions.propulsion.battery_energy           = battery_energy
@@ -224,13 +219,10 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         
         return results
     
-    def unpack_unknowns(self,segment):
+    def unpack_unknowns_transition(self,segment):
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
         segment.state.conditions.propulsion.lift_throttle                    = segment.state.unknowns.lift_throttle
-        #state.conditions.propulsion.battery_voltage_under_load       = state.unknowns.battery_voltage_under_load
-        #state.conditions.propulsion.propeller_power_coefficient      = state.unknowns.propeller_power_coefficient
-        #state.conditions.propulsion.propeller_power_coefficient_lift = state.unknowns.propeller_power_coefficient_lift
         segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle
         
         return
@@ -242,9 +234,6 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
         segment.state.conditions.propulsion.lift_throttle                    = 0.0 * ones(1)
-        #state.conditions.propulsion.battery_voltage_under_load       = state.unknowns.battery_voltage_under_load
-        #state.conditions.propulsion.propeller_power_coefficient      = state.unknowns.propeller_power_coefficient
-        #state.conditions.propulsion.propeller_power_coefficient_lift = 0.0 * ones(1)
         segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle
         
         return    
@@ -254,11 +243,7 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         ones = segment.state.ones_row
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        #state.conditions.propulsion.lift_throttle                    = state.unknowns.lift_throttle
         segment.state.conditions.propulsion.lift_throttle             = segment.state.unknowns.throttle
-        #state.conditions.propulsion.battery_voltage_under_load       = state.unknowns.battery_voltage_under_load
-        #state.conditions.propulsion.propeller_power_coefficient      = 0.0 * ones(1)
-        #state.conditions.propulsion.propeller_power_coefficient_lift = state.unknowns.propeller_power_coefficient_lift
         segment.state.conditions.propulsion.throttle                         = 0.0 * ones(1)
         
         return    
