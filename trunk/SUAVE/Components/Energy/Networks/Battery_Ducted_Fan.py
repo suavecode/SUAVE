@@ -160,7 +160,7 @@ class Battery_Ducted_Fan(Propulsor):
         # Run the payload
         payload.power()
 
-        esc.inputs.currentout =  motor_power/np.transpose(esc.outputs.voltageout)[0]
+        esc.inputs.currentout =  np.transpose(motor_power/np.transpose(esc.outputs.voltageout))
         
         # Run the esc
         esc.currentin(conditions)
@@ -175,7 +175,7 @@ class Battery_Ducted_Fan(Propulsor):
         # link
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
         #print(esc.outputs.currentin)
-        battery.inputs.power_in = -(np.transpose(esc.outputs.voltageout)[0]*esc.outputs.currentin + avionics_payload_power)
+        battery.inputs.power_in = -((esc.outputs.voltageout)[0]*esc.outputs.currentin + avionics_payload_power)
         battery.energy_calc(numerics)        
     
         
