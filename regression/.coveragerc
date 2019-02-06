@@ -26,8 +26,4 @@ omit =
     ../trunk/SUAVE/Optimization/Package_Setups/pyoptsparse_setup.py
     ../trunk/SUAVE/Optimization/Package_Setups/pyopt_setup.py
     ../trunk/SUAVE/Optimization/Package_Setups/ipopt_setup.py
-    ../trunk/SUAVE/Input_Output/OpenVSP/get_fuel_tank_props.py
-    ../trunk/SUAVE/Input_Output/OpenVSP/get_vsp_areas.py
-    ../trunk/SUAVE/Input_Output/OpenVSP/vsp_write.py
-    ../trunk/SUAVE/Input_Output/OpenVSP/write_vsp_mesh.py
-    
+    ../trunk/SUAVE/Input_Output/OpenVSP/*
