@@ -14,14 +14,14 @@ import SUAVE
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 import math 
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
+class Tilt_Rotor(Propulsor):
     """ This is a simple network with a battery powering a propeller through
         an electric motor
 
@@ -60,6 +60,8 @@ class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
         self.number_of_engines = None
         self.voltage           = None
         self.thrust_angle      = 0.0 
+        self.thrust_angle_start  = None
+        self.thrust_angle_end    = None        
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -101,6 +103,7 @@ class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
         payload    = self.payload
         battery    = self.battery
         num_engines= self.number_of_engines
+        t_nondim   = state.numerics.dimensionless.control_points
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
@@ -113,13 +116,27 @@ class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
         esc.voltageout(conditions)   
         # link
         motor.inputs.voltage = esc.outputs.voltageout 
+        
         # step 3
         motor.omega(conditions)
+        
+        # Define the thrust angle        
+        #if self.thrust_angle_start != None:
+            #if state.unknowns.thrust_angle_end != None:
+                #thrust_angle0 = self.thrust_angle_start 
+                #thrust_anglef = state.unknowns.thrust_angle_end  
+                #thrust_angle  = t_nondim * (thrust_anglef-thrust_angle0) + thrust_angle0 
+            #else:
+                #thrust_angle = self.thrust_angle_start
+        thrust_angle0 = self.thrust_angle_start 
+        thrust_anglef = state.unknowns.thrust_angle_end[0]  
+        thrust_angle  = t_nondim * (thrust_anglef-thrust_angle0) + thrust_angle0 
+                
         # link
         propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle =  state.thrust_angle
+        propeller.thrust_angle =  thrust_angle
         
-        # step 4
+        # step 5
         F, Q, P, Cp , noise, etap = propeller.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
@@ -139,7 +156,7 @@ class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
         esc.inputs.currentout =  motor.outputs.current
         
         # Run the esc
-        esc.currentin()
+        esc.currentin(conditions)
 
         # Calculate avionics and payload power
         avionics_payload_power = avionics.outputs.power + payload.outputs.power
@@ -169,18 +186,30 @@ class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
         conditions.propulsion.motor_torque         = motor.outputs.torque
         conditions.propulsion.propeller_torque     = Q
         
-        # Create the outputs
-        F    = num_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]        
+        # Compute force vector       
+        #if self.thrust_angle_start != None:
+            #if state.unknowns.thrust_angle_end != None:
+                #relative_directions = np.zeros((len(thrust_angle),3))
+                #relative_directions[:,0] = np.cos(thrust_angle[:,0])
+                #relative_directions[:,2] = -np.sin(thrust_angle[:,0])
+                #F = num_engines * np.multiply(F,relative_directions)   
+            #else:
+                #F = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
+        
+        relative_directions = np.zeros((len(thrust_angle),3))
+        relative_directions[:,0] = np.cos(thrust_angle[:,0])
+        relative_directions[:,2] = -np.sin(thrust_angle[:,0])
+        F = num_engines * np.multiply(F,relative_directions)  
+        
+        
         mdot = np.zeros_like(F)
 
         results = Data()
         results.thrust_force_vector = F
-        results.vehicle_mass_rate   = mdot
-        
+        results.vehicle_mass_rate   = mdot        
         
         return results
-    
-    
+          
     def unpack_unknowns(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
     
@@ -201,15 +230,15 @@ class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
             Properties Used:
             N/A
         """                  
-        ones = segment.state.ones_row
+
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.battery_voltage_under_load       = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.propeller_power_coefficient      = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle 
-        #segment.state.conditions.propulsion.thurst_angle                     = segment.state.unknowns.thurst_angle
+        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
+        #segment.state.conditions.propulsion.thrust_angle_end            = segment.state.unknowns.thrust_angle_end
         
         return
-    
+       
     def residuals(self,segment):
         """ This packs the residuals to be send to the mission solver.
     
@@ -244,7 +273,8 @@ class Tilt_Rotor_Propulsor_Low_Fidelity(Propulsor):
         
         # Return the residuals
         segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
-        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max        
+        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max
+        
         return    
             
     __call__ = evaluate_thrust

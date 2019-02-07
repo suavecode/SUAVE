@@ -82,7 +82,7 @@ def translate_avl_geometry(geometry):
                 aircraft.append_wing(w)
                 
         for body in geometry.fuselages:
-                if body.tag == 'fuselage' or body.tag == 'boom':
+                if body.tag != 'cabin':
                         b = translate_avl_body(body)
                         aircraft.append_body(b)
 

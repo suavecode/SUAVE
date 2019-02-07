@@ -1,4 +1,4 @@
-# Lift_Forward_propulsor.py
+# Stopped_Rotor_Low_Fidelity.py
 # 
 # Created: Jan 2016, E. Botero
 # Modified: 
@@ -33,7 +33,7 @@ Data, Container
 # For any segment using this, body angle can't be an unknown.
 
 
-class Lift_Forward_Low_Fidelity(Propulsor):
+class Stopped_Rotor_Low_Fidelity(Propulsor):
     def __defaults__(self):
         self.motor_lift                = None
         self.motor_forward             = None
@@ -128,7 +128,7 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         konditions.frames          = Data()
         konditions.frames.inertial = Data()
         konditions.frames.body     = Data()
-        konditions.propulsion.throttle                    = conditions.propulsion.lift_throttle * 1.
+        konditions.propulsion.throttle                    = conditions.propulsion.throttle_lift* 1.
         konditions.freestream.density                     = conditions.freestream.density * 1.
         konditions.freestream.velocity                    = conditions.freestream.velocity * 1.
         konditions.freestream.dynamic_viscosity           = conditions.freestream.dynamic_viscosity * 1.
@@ -149,7 +149,7 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         F_lift,P_lift = propeller_lift.spin_lo(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-        eta = state.conditions.propulsion.lift_throttle
+        eta = state.conditions.propulsion.throttle_lift
         P_lift[eta>1.0] = P_lift[eta>1.0]*eta[eta>1.0]
         F_lift[eta>1.0] = F_lift[eta>1.0]*eta[eta>1.0]        
         
@@ -222,7 +222,7 @@ class Lift_Forward_Low_Fidelity(Propulsor):
     def unpack_unknowns_transition(self,segment):
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.lift_throttle                    = segment.state.unknowns.lift_throttle
+        segment.state.conditions.propulsion.throttle_lift                   = segment.state.unknowns.throttle_lift
         segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle
         
         return
@@ -233,7 +233,7 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         ones = segment.state.ones_row
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.lift_throttle                    = 0.0 * ones(1)
+        segment.state.conditions.propulsion.throttle_lift                   = 0.0 * ones(1)
         segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle
         
         return    
@@ -242,8 +242,8 @@ class Lift_Forward_Low_Fidelity(Propulsor):
         
         ones = segment.state.ones_row
         
-        # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.lift_throttle             = segment.state.unknowns.throttle
+        # Here we are going to unpack the unknowns (Cps,throttlevoltage) provided for this network
+        segment.state.conditions.propulsion.throttle_lift            = segment.state.unknowns.throttle
         segment.state.conditions.propulsion.throttle                         = 0.0 * ones(1)
         
         return    

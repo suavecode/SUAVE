@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-from scipy.optimize import fsolve
+import numpy as np
 
 ## @ingroup Methods-Missions-Segments-Transition
 def initialize_conditions(segment):
@@ -41,19 +41,20 @@ def initialize_conditions(segment):
     climb_angle = segment.climb_angle
     v0          = segment.air_speed_start_vector
     vf          = segment.air_speed_end_vector
-    ta0         = segment.thrust_angle_start  
-    taf         = segment.thrust_angle_end  #***check**** segment.state.unknowns.thrust_angle_end 
     ax          = segment.acceleration   
     T0          = segment.pitch_initial
     Tf          = segment.pitch_final     
     t_nondim    = segment.state.numerics.dimensionless.control_points
     conditions  = segment.state.conditions 
     
-    # check for initial altitude
-    if alt is None:
+    # check for initial and final altitude 
+    if alt0 is None:
         if not segment.state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude = alt
+        alt0 = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
+        segment.altitude_start  = alt0
+    
+    if altf is None:
+        raise AttributeError('final altitude not set')
         
     # check for initial pitch
     if T0 is None:
@@ -64,7 +65,7 @@ def initialize_conditions(segment):
     if v0 is None:
         v0  =  segment.state.initials.conditions.frames.inertial.velocity_vector[-1,:] 
         segment.velocity_vector = v0  
-        
+         
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0        
         
@@ -73,20 +74,19 @@ def initialize_conditions(segment):
         raise AttributeError('set climb')
     
     ground_distance = abs((altf-alt0)*np.arctan(climb_angle))
-    true_distance   = sqrt((altf-alt0)**2 + ground_distance**2)
+    true_distance   = np.sqrt((altf-alt0)**2 + ground_distance**2)
     t_initial       = conditions.frames.inertial.time[0,0]       
     vf_mag          = np.linalg.norm(vf)
     v0_mag          = np.linalg.norm(v0)
     
     if vf != None and ax != None:        
-        elapsed_time = fsolve(func(x,true_distance,v0,ax),5) # initial guess of 5 seconds 
-        # recalculated final velocity based on accleration 
+        elapsed_time =  (-v0_mag + np.sqrt(v0_mag**2 + 4*0.5*ax*true_distance))/(2*ax) 
         vf_mag = v0_mag + ax* (elapsed_time)
     
     if vf is None:
         if ax is None: raise AttributeError('set either final speed or acceleration')
         else:
-            elapsed_time = fsolve(func(x,true_distance,v0,ax),5) # initial guess of 5 seconds 
+            elapsed_time =  (-v0_mag + np.sqrt(v0_mag**2 + 4*0.5*ax*true_distance))/(2*ax)
             vf_mag = v0_mag + ax* (elapsed_time)
         
     if ax is None:
@@ -110,15 +110,13 @@ def initialize_conditions(segment):
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     
     
     # pack
-    segment.state.conditions.freestream.altitude[:,0] = alt
-    segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    segment.state.conditions.frames.inertial.velocity_vector[:,0] = vx 
-    segment.state.conditions.frames.inertial.velocity_vector[:,2] = vz 
+    segment.state.conditions.freestream.altitude[:,0] = alt[:,0]
+    segment.state.conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = vx[:,0] 
+    segment.state.conditions.frames.inertial.velocity_vector[:,2] = vz[:,0] 
     segment.state.conditions.frames.inertial.time[:,0] = time[:,0]
     
-def func(t,true_distance,v0,ax):      
-    return true_distance - v0*t + 0.5*ax*(t**2)
-
+    
 # ----------------------------------------------------------------------
 #  Residual Total Forces
 # ----------------------------------------------------------------------

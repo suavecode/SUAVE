@@ -39,6 +39,8 @@ def initialize_conditions(segment):
     climb_rate = segment.climb_rate
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
+    ta0        = segment.thrust_angle_start
+    taf        = segment.thrust_angle_end
     t_nondim   = segment.state.numerics.dimensionless.control_points
     t_initial  = segment.state.conditions.frames.inertial.time[0,0]
     conditions = segment.state.conditions  
@@ -47,7 +49,7 @@ def initialize_conditions(segment):
     if alt0 is None:
         if not segment.state.initials: raise AttributeError('initial altitude not set')
         alt0 = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-
+   
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0
     

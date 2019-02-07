@@ -28,25 +28,19 @@ class Propeller(Energy_Component):
     
     Assumptions:
     None
-
     Source:
     None
     """     
     def __defaults__(self):
         """This sets the default values for the component to function.
-
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         None
         """         
@@ -62,13 +56,10 @@ class Propeller(Energy_Component):
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
-
         Assumptions:
         per source
-
         Source:
         Qprop theory document
-
         Inputs:
         self.inputs.omega            [radian/s]
         conditions.freestream.
@@ -81,7 +72,6 @@ class Propeller(Energy_Component):
           inertial.velocity_vector   [m/s]
         conditions.propulsion.
           throttle                   [-]
-
         Outputs:
         conditions.propulsion.acoustic_outputs.
           number_sections            [-]
@@ -101,7 +91,6 @@ class Propeller(Energy_Component):
         torque                       [Nm]
         power                        [W]
         Cp                           [-] (coefficient of power)
-
         Properties Used:
         self. 
           number_blades              [-]
@@ -136,9 +125,16 @@ class Propeller(Energy_Component):
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body = orientation_product(T_inertial2body,Vv)
         
-        # Velocity transformed to the propulsor frame
-        body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
-        T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        # Velocity transformed to the propulsor frame with flag for tilt rotor
+        if np.isscalar(theta):
+            body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
+            T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        else:
+            body2thrust = np.zeros((len(theta),3,3))
+            for i in range(len(theta)):
+                body2thrust[i,:,:] = [[np.cos(theta[i][0]), 0., np.sin(theta[i][0])],[0., 1., 0.], [-np.sin(theta[i][0]), 0., np.cos(theta[i][0])]]
+            T_body2thrust      = orientation_transpose(body2thrust)
+       
         V_thrust      = orientation_product(T_body2thrust,V_body)
         
         # Now just use the aligned velocity

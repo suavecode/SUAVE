@@ -15,13 +15,14 @@ from .Series_Battery_Propeller_Hybrid import Series_Battery_Propeller_Hybrid
 from .Series_Battery_Propeller_Hybrid_Interp import Series_Battery_Propeller_Hybrid_Interp
 from .Series_Battery_Propeller_Hybrid_Low_Fid import Series_Battery_Propeller_Hybrid_Low_Fid
 from .Internal_Combustion_Propeller import Internal_Combustion_Propeller
-from .Lift_Forward_Propulsor_Low_Fidelity import Lift_Forward_Low_Fidelity
-from .Tilt_Rotor_Propulsor import Tilt_Rotor_Propulsor
-from .Tilt_Rotor_Propulsor_Low_Fidelity import Tilt_Rotor_Propulsor_Low_Fidelity
+from .Stopped_Rotor import Stopped_Rotor
+from .Stopped_Rotor_Low_Fidelity import Stopped_Rotor_Low_Fidelity
+from .Tilt_Rotor import Tilt_Rotor
+from .Tilt_Rotor_Low_Fidelity import Tilt_Rotor_Low_Fidelity
 from .Battery_Propeller_Low_Fidelity import Battery_Propeller_Low_Fidelity
 from .Propulsor_Surrogate import Propulsor_Surrogate
 from .Ramjet import Ramjet
 from .Battery_Propeller import Battery_Propeller
-from .Lift_Forward_Propulsor import Lift_Forward_Propulsor
 from .Scramjet import Scramjet
 from .Liquid_Rocket import Liquid_Rocket
+

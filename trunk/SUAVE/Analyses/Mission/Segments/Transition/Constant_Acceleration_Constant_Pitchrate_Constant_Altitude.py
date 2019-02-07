@@ -60,9 +60,7 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         self.altitude  = None
         self.acceleration       = 1.  * Units['m/s/s']
         self.air_speed_start    = 0.0 * Units['m/s']
-        self.air_speed_end      = 1.0 * Units['m/s']
-        self.thrust_angle_start = 0.0 * Units['rad'] 
-        self.thrust_angle_end   = 1.0 * Units['rad']         
+        self.air_speed_end      = 1.0 * Units['m/s']        
         self.pitch_initial      = None
         self.pitch_final        = 0.0 * Units['rad']        
         
@@ -76,7 +74,6 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.unknowns.throttle   = ones_row(1) * 0.5
         self.state.residuals.forces    = ones_row(2) * 0.0
         
         

@@ -38,9 +38,7 @@ def initialize_conditions(segment):
     # unpack
     alt = segment.altitude 
     v0  = segment.air_speed_start
-    vf  = segment.air_speed_end
-    ta0 = segment.thrust_angle_start  
-    taf = segment.thrust_angle_end    
+    vf  = segment.air_speed_end  
     ax  = segment.acceleration   
     T0  = segment.pitch_initial
     Tf  = segment.pitch_final     

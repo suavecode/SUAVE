@@ -124,10 +124,10 @@ class Battery_Propeller(Propulsor):
         propeller.thrust_angle = self.thrust_angle
         
         if (self.use_surrogate == True) and (self.propeller.surrogate is not None):
-            F, Q, P, Cp = propeller.spin_surrogate(conditions)
+            F, Q, P, Cp , noise, etap = propeller.spin_surrogate(conditions)
         else:            
             # step 4
-            F, Q, P, Cp = propeller.spin(conditions)
+            F, Q, P, Cp , noise, etap = propeller.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]
@@ -146,7 +146,7 @@ class Battery_Propeller(Propulsor):
         esc.inputs.currentout =  motor.outputs.current
         
         # Run the esc
-        esc.currentin()
+        esc.currentin(conditions)
 
         # Calculate avionics and payload power
         avionics_payload_power = avionics.outputs.power + payload.outputs.power
