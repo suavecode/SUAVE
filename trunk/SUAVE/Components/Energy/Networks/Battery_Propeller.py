@@ -142,7 +142,7 @@ class Battery_Propeller(Propulsor):
         esc.inputs.currentout =  motor.outputs.current
         
         # Run the esc
-        esc.currentin()
+        esc.currentin(conditions)
 
         # Calculate avionics and payload power
         avionics_payload_power = avionics.outputs.power + payload.outputs.power

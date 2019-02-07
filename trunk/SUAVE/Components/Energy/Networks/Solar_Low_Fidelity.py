@@ -154,7 +154,7 @@ class Solar_Low_Fidelity(Propulsor):
         esc.inputs.currentout =  motor.outputs.current
         
         # Run the esc
-        esc.currentin()
+        esc.currentin(conditions)
         # link
         solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_of_engines
         solar_logic.inputs.volts_motor = esc.outputs.voltageout 
