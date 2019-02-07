@@ -12,7 +12,7 @@ except ImportError:
 import numpy as np
 
 ## @ingroup Input_Output-OpenVSP
-def get_vsp_areas(tag):
+def get_vsp_areas(filename = 'Unnamed_CompGeom.csv'):
     """This calls OpenVSP to compute the wetted areas of a previously written vehicle.
     
     Assumptions:
@@ -44,9 +44,10 @@ def get_vsp_areas(tag):
         print('VSP import failed')
         return -1
 
+    vsp.SetComputationFileName(file_type, filename)
     vsp.ComputeCompGeom(vsp.SET_ALL, half_mesh, file_type)
     
-    f = open('Unnamed_CompGeom.csv')
+    f = open(filename)
     
     wetted_areas = dict()
     
@@ -63,5 +64,7 @@ def get_vsp_areas(tag):
             if item_tag in wetted_areas:
                 item_w_area = wetted_areas[item_tag] + item_w_area
             wetted_areas[item_tag] = item_w_area
+            
+    f.close()
     
     return wetted_areas

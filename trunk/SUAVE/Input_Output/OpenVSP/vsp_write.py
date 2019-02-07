@@ -136,8 +136,7 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):
     # Fuselage
     # -------------    
     
-    if 'fuselage' in vehicle.fuselages:
-        fuselage = vehicle.fuselages.fuselage
+    for key, fuselage in vehicle.fuselages.items():
         if verbose:
             print('Writing '+fuselage.tag+' to OpenVSP Model')
         try:
@@ -561,7 +560,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
 
     Properties Used:
     N/A
-    """
+    """     
     
     num_segs = len(fuselage.Segments)
     length   = fuselage.lengths.total
@@ -614,7 +613,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         
 
         vals = fuselage.OpenVSP_values
-        
+
         # for wave drag testing
         fuselage.OpenVSP_ID = fuse_id
         
@@ -640,7 +639,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
             tail_z_pos = vals.tail.z_pos
         else:
             pass # use above default
-            
+
         vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
 
     if num_segs == 0:
@@ -814,6 +813,41 @@ def write_wing_conformal_fuel_tank(wing, wing_id,fuel_tank,fuel_tank_set_ind):
     
     # Offset
     vsp.SetParmVal(tank_id,'Offset','Design',offset)      
+    
+    for key, fuselage in vehicle.fuselages.items():
+        width    = fuselage.width
+        length   = fuselage.lengths.total
+        hmax     = fuselage.heights.maximum
+        height1  = fuselage.heights.at_quarter_length
+        height2  = fuselage.heights.at_wing_root_quarter_chord 
+        height3  = fuselage.heights.at_three_quarters_length
+        effdia   = fuselage.effective_diameter
+        n_fine   = fuselage.fineness.nose 
+        t_fine   = fuselage.fineness.tail  
+        w_ac     = wing.aerodynamic_center
+        
+        w_origin = vehicle.wings.main_wing.origin
+        w_c_4    = vehicle.wings.main_wing.chords.root/4.
+        
+        # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
+        
+        x1 = 0.25
+        x2 = (w_origin[0]+w_c_4)/length
+        x3 = 0.75
+        
+        fuse_id = vsp.AddGeom("FUSELAGE") 
+        vsp.SetGeomName(fuse_id, fuselage.tag)
+        area_tags[fuselage.tag] = ['fuselages',fuselage.tag]
+        
+        # Set the origins:
+        x = fuselage.origin[0][0]
+        y = fuselage.origin[0][1]
+        z = fuselage.origin[0][2]
+        vsp.SetParmVal(fuse_id,'X_Location','XForm',x)
+        vsp.SetParmVal(fuse_id,'Y_Location','XForm',y)
+        vsp.SetParmVal(fuse_id,'Z_Location','XForm',z)
+        vsp.SetParmVal(fuse_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+        vsp.SetParmVal(fuse_id,'Origin','XForm',0.0)
     
     # Fuel tank chord bounds
     vsp.SetParmVal(tank_id,'ChordTrimFlag','Design',1.)
