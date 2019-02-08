@@ -14,17 +14,21 @@ cruise
 
 #---------------------------------------------------------
 SURFACE
-vertical_stabilizer
+main_wing
 #Nchordwise  Cspace   Nspanwise  Sspace
-5         1.0         10      -1.1 
+5         1.0         10      1.0
+
+YDUPLICATE
+0.0
+
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-28.79  0    1.54    8.19    0.0     
+13.61  0    -1.27    7.76    0.06981317007977318     
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-32.416474657471426  0.0    7.777    0.95    0.0     
+21.611839413939776  17.16    -1.27    0.782    0.0     
 
 
 #---------------------------------------------------------
@@ -48,21 +52,17 @@ SECTION
 
 #---------------------------------------------------------
 SURFACE
-main_wing
+vertical_stabilizer
 #Nchordwise  Cspace   Nspanwise  Sspace
-5         1.0         10      1.0
-
-YDUPLICATE
-0.0
-
+5         1.0         10      -1.1 
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-13.61  0    -1.27    7.76    0.06981317007977318     
+28.79  0    1.54    8.19    0.0     
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-21.611839413939776  17.16    -1.27    0.782    0.0     
+32.416474657471426  0.0    7.777    0.95    0.0     
 
 
 #---------------------------------------------------------
