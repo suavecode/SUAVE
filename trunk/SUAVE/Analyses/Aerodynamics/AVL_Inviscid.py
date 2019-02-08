@@ -3,6 +3,7 @@
 #
 # Created:  Apr 2017, M. Clarke 
 # Modified: Jan 2018, W. Maier
+#           Oct 2018, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -69,23 +70,19 @@ class AVL_Inviscid(Aerodynamics):
         """          
         self.tag                             = 'avl'
         self.keep_files                      = True
-        
-        self.settings                        = Settings()
-        
-        self.current_status                  = Data()
-        
+                
+        self.current_status                  = Data()        
         self.current_status.batch_index      = 0
         self.current_status.batch_file       = None
         self.current_status.deck_file        = None
         self.current_status.cases            = None      
         self.geometry                        = None   
         
+        self.settings                        = Settings()
         self.settings.filenames.log_filename = sys.stdout
-        self.settings.filenames.err_filename = sys.stderr
-        
-        # Default number of spanwise and chordwise votices
-        self.settings.spanwise_vortices      = None
-        self.settings.chordwise_vortices     = None
+        self.settings.filenames.err_filename = sys.stderr        
+        self.settings.spanwise_vortices      = None 
+        self.settings.chordwise_vortices     = None         
         
         # Conditions table, used for surrogate model training
         self.training                        = Data()   
@@ -96,6 +93,7 @@ class AVL_Inviscid(Aerodynamics):
         
         self.training.lift_coefficient       = None
         self.training.drag_coefficient       = None
+        self.training.span_efficiency_factor = None
         self.training_file                   = None
         
         # Surrogate model
@@ -104,7 +102,7 @@ class AVL_Inviscid(Aerodynamics):
         # Regression Status
         self.regression_flag                 = False
 
-    def initialize(self):
+    def initialize(self,spanwise_vortices,chordwise_vortices):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -125,7 +123,19 @@ class AVL_Inviscid(Aerodynamics):
         geometry     = self.geometry
         self.tag     = 'avl_analysis_of_{}'.format(geometry.tag)
         run_folder   = self.settings.filenames.run_folder
-                
+        
+        # check if user specifies number of spanwise vortices
+        if spanwise_vortices == None:
+            pass
+        else:
+            self.settings.discretization.defaults.wing.spanwise_vortices = spanwise_vortices  
+        
+        # check if user specifies number of chordise vortices 
+        if chordwise_vortices == None:
+            pass
+        else:
+            self.settings.discretization.defaults.wing.chordwise_vortices = chordwise_vortices     
+            
         # Sample training data
         self.sample_training()
     
@@ -151,11 +161,14 @@ class AVL_Inviscid(Aerodynamics):
         Outputs:
         inviscid_lift      [-] CL
         inviscid_drag      [-] CD
-
+        span_efficiency    [-] e
+        
         Properties Used:
         self.surrogates.
-          lift_coefficient [-] CL
-          drag_coefficient [-] CD
+          lift_coefficient       [-] CL
+          drag_coefficient       [-] CD
+          span_efficiency_factor [-] e
+          
         """  
         # Unpack
         surrogates    = self.surrogates        
@@ -165,24 +178,34 @@ class AVL_Inviscid(Aerodynamics):
         AoA           = conditions.aerodynamics.angle_of_attack
         lift_model    = surrogates.lift_coefficient
         drag_model    = surrogates.drag_coefficient
+        e_model       = surrogates.span_efficiency_factor
         
         # Inviscid lift
-        data_len      = len(AoA)
-        inviscid_lift = np.zeros([data_len,1])
+        data_len        = len(AoA)
+        inviscid_lift   = np.zeros([data_len,1])
+        inviscid_drag   = np.zeros([data_len,1])    
+        span_efficiency = np.zeros([data_len,1]) 
+        
         for ii,_ in enumerate(AoA):
-            inviscid_lift[ii] = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])]) #sklearn update fix
-            
+            inviscid_lift[ii]   = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])])  
+            inviscid_drag[ii]   = drag_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
+            span_efficiency[ii] = e_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
+        
+        # Store inviscid lift results     
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()    
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = inviscid_lift
-
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
-        # Inviscid drag, zeros are a placeholder for possible future implementation
-        inviscid_drag                                                    = np.zeros([data_len,1])        
+        # Store inviscid drag results  
+        ar            = geometry.wings['main_wing'].aspect_ratio
         state.conditions.aerodynamics.inviscid_drag_coefficient          = inviscid_drag
-        
-        return inviscid_lift, inviscid_drag
+        state.conditions.aerodynamics.drag_breakdown.induced = Data(
+            total                  = inviscid_drag   ,
+            span_efficiency_factor = span_efficiency ,
+        )        
+                
+        return inviscid_lift
         
 
     def sample_training(self):
@@ -218,10 +241,11 @@ class AVL_Inviscid(Aerodynamics):
         
         CL       = np.zeros([len(AoA)*len(mach),1])
         CD       = np.zeros([len(AoA)*len(mach),1])
-
+        e        = np.zeros([len(AoA)*len(mach),1])
+        
         # Calculate aerodynamics for table
         table_size = len(AoA)*len(mach)
-        xy         = np.zeros([table_size,2])
+        xy         = np.zeros([table_size,2])  
         count      = 0
         time0      = time.time()
         
@@ -240,10 +264,11 @@ class AVL_Inviscid(Aerodynamics):
             #Run Analysis at AoA[i] and mach[j]
             results =  self.evaluate_conditions(run_conditions)
             
-            # Obtain CD and CL # Store other variables here as well 
+            # Obtain CD , CL and e  
             CL[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.lift_coefficient[:,0]
             CD[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.drag_breakdown.induced.total[:,0]      
-       
+            e[count*len(mach):(count+1)*len(mach),0]    = results.aerodynamics.drag_breakdown.induced.efficiency_factor[:,0]  
+            
             count += 1
         
         time1 = time.time()
@@ -254,13 +279,14 @@ class AVL_Inviscid(Aerodynamics):
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]
             CL         = data_array[:,2:3]
-            CD         = data_array[:,3:4]
+            CD         = data_array[:,3:4]            
+            e          = data_array[:,4:5]
             
         # Save the data for regression
-        #np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD]),fmt='%10.8f',header='   AoA      Mach     CL     CD ')
+        #np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD,e]),fmt='%10.8f',header='   AoA      Mach     CL     CD    e ')
         
         # Store training data
-        training.coefficients = np.hstack([CL,CD])
+        training.coefficients = np.hstack([CL,CD,e])
         training.grid_points  = xy
         
 
@@ -277,13 +303,15 @@ class AVL_Inviscid(Aerodynamics):
 
         Inputs:
         self.training.
-          coefficients     [-] CL and CD
-          grid_points      [radians,-] angles of attack and mach numbers 
+          coefficients             [-] CL and CD
+          span efficiency factor   [-] e 
+          grid_points              [radians,-] angles of attack and mach numbers 
 
         Outputs:
         self.surrogates.
-          lift_coefficient <Guassian process surrogate>
-          drag_coefficient <Guassian process surrogate>
+          lift_coefficient       <Guassian process surrogate>
+          drag_coefficient       <Guassian process surrogate>
+          span_efficiency_factor <Guassian process surrogate>
 
         Properties Used:
         No others
@@ -294,17 +322,22 @@ class AVL_Inviscid(Aerodynamics):
         mach_data                        = training.Mach
         CL_data                          = training.coefficients[:,0]
         CD_data                          = training.coefficients[:,1]
+        e_data                           = training.coefficients[:,2]
         xy                               = training.grid_points 
         
         # Gaussian Process New
         regr_cl                          = gaussian_process.GaussianProcessRegressor()
         regr_cd                          = gaussian_process.GaussianProcessRegressor()
+        regr_e                           = gaussian_process.GaussianProcessRegressor()
+        
         cl_surrogate                     = regr_cl.fit(xy, CL_data)
         cd_surrogate                     = regr_cd.fit(xy, CD_data)
+        e_surrogate                      = regr_e.fit(xy, e_data)
+        
         self.surrogates.lift_coefficient = cl_surrogate
-        self.surrogates.drag_coefficient = cd_surrogate  
-
-    
+        self.surrogates.drag_coefficient = cd_surrogate
+        self.surrogates.span_efficiency_factor = e_surrogate  
+        
         return
         
     
@@ -349,17 +382,8 @@ class AVL_Inviscid(Aerodynamics):
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template
         
-        # check if user specifies number of spanwise vortices
-        if self.settings.spanwise_vortices == None: 
-            spanwise_elements  = self.settings.discretization.defaults.wing.spanwise_elements
-        else:
-            spanwise_elements  = self.settings.spanwise_vortices
-        
-        # check if user specifies number of chordise vortices 
-        if self.settings.chordwise_vortices == None: 
-            chordwise_elements  = self.settings.discretization.defaults.wing.chordwise_elements
-        else:
-            chordwise_elements  = self.settings.chordwise_vortices
+        # rename defaul avl aircraft tag
+        self.settings.filenames.features = self.geometry._base.tag + '.avl'
         
         # update current status
         self.current_status.batch_index += 1
@@ -391,7 +415,7 @@ class AVL_Inviscid(Aerodynamics):
     
         # write the input files
         with redirect.folder(run_folder,force=False):
-            write_geometry(self,spanwise_elements,chordwise_elements)
+            write_geometry(self)
             write_run_cases(self)
             write_input_deck(self)
     
