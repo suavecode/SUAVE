@@ -117,7 +117,7 @@ def arbitrary(vehicle,settings=None):
             lambda_w = wing.taper
             
             # Calculate the weights
-            wt_wing  = wing_main.wing_main(S,b,lambda_w,t_c,sweep,Nult,TOW,wt_zf)
+            wt_wing  = wing_main.wing_main(wing,Nult,TOW,wt_zf)
             
             # Apply weight factor
             wt_wing  = wt_wing*(1.-wt_factors.main_wing)

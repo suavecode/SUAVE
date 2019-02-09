@@ -284,7 +284,7 @@ def empty(vehicle,settings=None):
     vehicle.hydraulics                          = hydraulics
     vehicle.optionals                           = optionals
     vehicle.landing_gear                        = landing_gear_component
-    #vehicle.wings['vertical_stabilizer'].rudder = rudder
+    vehicle.wings['vertical_stabilizer'].rudder = rudder
     
     
 
