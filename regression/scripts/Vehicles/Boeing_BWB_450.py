@@ -30,7 +30,8 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Boeing_BWB_450'
+    vehicle.tag = 'Boeing_BWB_450'    
+
 
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
