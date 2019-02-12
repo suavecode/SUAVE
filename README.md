@@ -32,6 +32,7 @@ Contributing Developers
 * Pedro Gonçalves
 * Rick Fenrich
 * Tarik Orra
+* Theo St. Francis
 * Tim MacDonald
 * Tim Momose
 * Tom Economon

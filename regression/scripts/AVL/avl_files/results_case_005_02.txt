@@ -34,20 +34,20 @@
 
                              alpha                beta
                   ----------------    ----------------
- z' force CL |    CLa =   7.354576    CLb =  -0.000000
- y  force CY |    CYa =   0.000000    CYb =  -0.644833
- x' mom.  Cl'|    Cla =  -0.000000    Clb =  -0.056807
- y  mom.  Cm |    Cma =  -7.703070    Cmb =   0.000000
- z' mom.  Cn'|    Cna =  -0.000000    Cnb =   0.145035
+ z' force CL |    CLa =   7.354583    CLb =  -0.000000
+ y  force CY |    CYa =   0.000000    CYb =  -0.644835
+ x' mom.  Cl'|    Cla =   0.000000    Clb =  -0.056807
+ y  mom.  Cm |    Cma =  -7.703092    Cmb =  -0.000000
+ z' mom.  Cn'|    Cna =   0.000000    Cnb =   0.145036
 
                      roll rate  p'      pitch rate  q'        yaw rate  r'
                   ----------------    ----------------    ----------------
- z' force CL |    CLp =   0.000000    CLq =  30.857687    CLr =   0.000000
- y  force CY |    CYp =  -0.052287    CYq =   0.000000    CYr =   0.702806
- x' mom.  Cl'|    Clp =  -0.566262    Clq =  -0.000000    Clr =   0.063846
- y  mom.  Cm |    Cmp =  -0.000000    Cmq = -82.195015    Cmr =  -0.000000
- z' mom.  Cn'|    Cnp =   0.029850    Cnq =  -0.000000    Cnr =  -0.313542
+ z' force CL |    CLp =   0.000000    CLq =  30.857759    CLr =  -0.000000
+ y  force CY |    CYp =  -0.052288    CYq =  -0.000002    CYr =   0.702807
+ x' mom.  Cl'|    Clp =  -0.566263    Clq =  -0.000000    Clr =   0.063846
+ y  mom.  Cm |    Cmp =   0.000000    Cmq = -82.195213    Cmr =   0.000000
+ z' mom.  Cn'|    Cnp =   0.029852    Cnq =   0.000002    Cnr =  -0.313543
 
- Neutral point  Xnp =  19.745552
+ Neutral point  Xnp =  19.745560
 
- Clb Cnr / Clr Cnb  =   1.923502    (  > 1 if spirally stable )
+ Clb Cnr / Clr Cnb  =   1.923492    (  > 1 if spirally stable )

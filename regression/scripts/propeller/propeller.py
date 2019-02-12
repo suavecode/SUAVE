@@ -1,6 +1,6 @@
-# test_propeller.py
+# propeller.py
 # 
-# Created:  Emilio Botero, Sep 2014
+# Created:  E. Botero, Sep 2014
 
 #----------------------------------------------------------------------
 #   Imports
