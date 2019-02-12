@@ -43,7 +43,6 @@ Contributing Institutions
 -------------------------
 * Stanford University Aerospace Design Lab ([adl.stanford.edu](http://adl.stanford.edu))
 * Embraer ([www.embraer.com](http://www.embraer.com))
-* Intelligent Automation Inc.  ([www.i-a-i.com](http://www.i-a-i.com))
 * NASA ([www.nasa.gov](http://www.nasa.gov))
 
 Simple Setup
