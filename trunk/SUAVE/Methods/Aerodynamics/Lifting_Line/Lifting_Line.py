@@ -97,7 +97,7 @@ def lifting_line(conditions,settings,geometry):
     if n_segments>0:
         c    = np.ones_like(etan) * wing.chords.root
         ageo = np.ones_like(etan) * wing.twists.root 
-        for i_seg in xrange(n_segments):
+        for i_seg in range(n_segments):
             
             # Figure out where the segment starts
             X1 = wing.Segments[segment_keys[i_seg]].percent_span_location

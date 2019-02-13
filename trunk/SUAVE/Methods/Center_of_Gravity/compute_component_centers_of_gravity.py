@@ -46,16 +46,16 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Fal
     mac_le_offset                                               = .8*np.sin(wing.sweeps.leading_edge)*span_location_mac
     wing.mass_properties.center_of_gravity[0]                   = .3*wing.chords.mean_aerodynamic + mac_le_offset
     
-    if vehicle.wings.has_key('horizontal_stabilizer'):
+    if 'horizontal_stabilizer' in vehicle.wings:
         h_tail                                                  = vehicle.wings['horizontal_stabilizer']
         chord_length_h_tail_35_percent_semi_span                = compute_chord_length_from_span_location(h_tail,.35*h_tail.spans.projected*.5)
         h_tail_35_percent_semi_span_offset                      =.8*np.sin(h_tail.sweeps.quarter_chord)*.35*.5*h_tail.spans.projected   
         h_tail.mass_properties.center_of_gravity[0]             = .3*chord_length_h_tail_35_percent_semi_span + \
                                                                       h_tail_35_percent_semi_span_offset
     else: 
-        print "no horizontal stabilizer"
+        print("no horizontal stabilizer")
         
-    if vehicle.wings.has_key('vertical_stabilizer'):
+    if 'vertical_stabilizer' in vehicle.wings:
         v_tail                                                  = vehicle.wings['vertical_stabilizer']
         chord_length_v_tail_35_percent_semi_span                = compute_chord_length_from_span_location(v_tail,.35*v_tail.spans.projected*.5)
         v_tail_35_percent_semi_span_offset                      =.8*np.sin(v_tail.sweeps.quarter_chord)*.35*.5*v_tail.spans.projected
@@ -63,7 +63,7 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Fal
                                                                     v_tail_35_percent_semi_span_offset
 
     # computes the CG of propulsors. If origin not specified in vehicle set up, change compute_propulsor_origin boolean to True
-    propulsor_name                                              = vehicle.propulsors.keys()[0]
+    propulsor_name                                              = list(vehicle.propulsors.keys())[0]
     propulsor                                                   = vehicle.propulsors[propulsor_name]   
     
     if compute_propulsor_origin == True:
@@ -96,7 +96,7 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Fal
         hydraulics                                              = vehicle.hydraulics
         optionals                                               = vehicle.optionals  
         
-        fuse_key                                                = vehicle.fuselages.keys()[0] 
+        fuse_key                                                = list(vehicle.fuselages.keys())[0] 
         fuselage                                                = vehicle.fuselages[fuse_key]
         
         fuselage.mass_properties.center_of_gravity[0]           = .45*fuselage.lengths.total

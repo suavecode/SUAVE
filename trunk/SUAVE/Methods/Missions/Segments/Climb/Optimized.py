@@ -16,7 +16,7 @@ import SUAVE
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Climb
-def unpack_unknowns(segment,state):
+def unpack_unknowns(segment):
     
     """Unpacks the unknowns set in the mission to be available for the mission.
 
@@ -27,29 +27,29 @@ def unpack_unknowns(segment,state):
     N/A
 
     Inputs:
-    state.unknowns.throttle            [Unitless]
-    state.unknowns.body_angle          [Radians]
-    state.unknowns.flight_path_angle   [Radians]
-    state.unknowns.velocity            [meters/second]
-    segment.altitude_start             [meters]
-    segment.altitude_end               [meters]
-    segment.air_speed_start            [meters/second]
-    segment.air_speed_end              [meters/second]
+    segment.state.unknowns.throttle            [Unitless]
+    segment.state.unknowns.body_angle          [Radians]
+    segment.state.unknowns.flight_path_angle   [Radians]
+    segment.state.unknowns.velocity            [meters/second]
+    segment.altitude_start                     [meters]
+    segment.altitude_end                       [meters]
+    segment.air_speed_start                    [meters/second]
+    segment.air_speed_end                      [meters/second]
 
     Outputs:
-    state.conditions.propulsion.throttle            [Unitless]
-    state.conditions.frames.body.inertial_rotations [Radians]
-    conditions.frames.inertial.velocity_vector      [meters/second]
+    segment.state.conditions.propulsion.throttle            [Unitless]
+    segment.state.conditions.frames.body.inertial_rotations [Radians]
+    conditions.frames.inertial.velocity_vector              [meters/second]
 
     Properties Used:
     N/A
     """    
     
     # unpack unknowns and givens
-    throttle = state.unknowns.throttle
-    theta    = state.unknowns.body_angle
-    gamma    = state.unknowns.flight_path_angle
-    vel      = state.unknowns.velocity
+    throttle = segment.state.unknowns.throttle
+    theta    = segment.state.unknowns.body_angle
+    gamma    = segment.state.unknowns.flight_path_angle
+    vel      = segment.state.unknowns.velocity
     alt0     = segment.altitude_start
     altf     = segment.altitude_end
     vel0     = segment.air_speed_start
@@ -72,13 +72,13 @@ def unpack_unknowns(segment,state):
     v_z   = -v_mag * np.sin(gamma)    
 
     # apply unknowns and pack conditions   
-    state.conditions.propulsion.throttle[:,0]             = throttle[:,0]
-    state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   
-    state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
-    state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
+    segment.state.conditions.propulsion.throttle[:,0]             = throttle[:,0]
+    segment.state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
+    segment.state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
 
 ## @ingroup Methods-Missions-Segments-Climb   
-def update_differentials(segment,state):
+def update_differentials(segment):
     """ On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0. This is different from the common method as it also includes the scaling of operators.
 
         Assumptions:
@@ -98,13 +98,13 @@ def update_differentials(segment,state):
     """    
 
     # unpack
-    numerics   = state.numerics
-    conditions = state.conditions
+    numerics   = segment.state.numerics
+    conditions = segment.state.conditions
     x    = numerics.dimensionless.control_points
     D    = numerics.dimensionless.differentiate
     I    = numerics.dimensionless.integrate 
-    r    = state.conditions.frames.inertial.position_vector
-    v    = state.conditions.frames.inertial.velocity_vector
+    r    = segment.state.conditions.frames.inertial.position_vector
+    v    = segment.state.conditions.frames.inertial.velocity_vector
     alt0 = segment.altitude_start
     altf = segment.altitude_end    
 
@@ -123,7 +123,7 @@ def update_differentials(segment,state):
     alt = np.dot(I,vz) + segment.altitude_start
     
     # pack
-    t_initial                                       = state.conditions.frames.inertial.time[0,0]
+    t_initial                                       = segment.state.conditions.frames.inertial.time[0,0]
     numerics.time.control_points                    = x
     numerics.time.differentiate                     = D
     numerics.time.integrate                         = I
@@ -134,7 +134,7 @@ def update_differentials(segment,state):
     return
 
 ## @ingroup Methods-Missions-Segments-Climb
-def objective(segment,state):
+def objective(segment):
     """ This function pulls the objective from the results of flying the segment and returns it to the optimizer
     
         Inputs:
@@ -156,10 +156,10 @@ def objective(segment,state):
         objective = 0.
     # No objective is just solved constraint like a normal mission    
         
-    state.objective_value = objective
+    segment.state.objective_value = objective
         
 ## @ingroup Methods-Missions-Segments-Climb
-def constraints(segment,state):
+def constraints(segment):
     """ This function pulls the equality constraints from the results of flying the segment and returns it to the optimizer
 
         Inputs:
@@ -171,17 +171,17 @@ def constraints(segment,state):
     """       
     
     # Residuals
-    state.constraint_values = state.residuals.pack_array()
+    segment.state.constraint_values = segment.state.residuals.pack_array()
         
 ## @ingroup Methods-Missions-Segments-Climb
-def cache_inputs(segment,state):
+def cache_inputs(segment):
     """ This function caches the prior inputs to make sure the same inputs are not run twice in a row
 
     """      
-    state.inputs_last = state.unknowns.pack_array()
+    segment.state.inputs_last = segment.state.unknowns.pack_array()
     
 ## @ingroup Methods-Missions-Segments-Climb
-def solve_linear_speed_constant_rate(segment,state):
+def solve_linear_speed_constant_rate(segment):
     
     """ The sets up an solves a mini segment that is a linear speed constant rate segment. The results become the initial conditions for an optimized climb segment later
 
@@ -224,21 +224,21 @@ def solve_linear_speed_constant_rate(segment,state):
     LSCR.altitude_end     = segment.altitude_end
     LSCR.climb_rate       = segment.seed_climb_rate
     LSCR.analyses         = segment.analyses
-    LSCR.state.conditions = state.conditions
-    LSCR.state.numerics   = state.numerics
+    LSCR.state.conditions = segment.state.conditions
+    LSCR.state.numerics   = segment.state.numerics
     mini_mission.append_segment(LSCR)
     
     results = mini_mission.evaluate()
     LSCR_res = results.segments.analysis
     
-    state.unknowns.body_angle        = LSCR_res.unknowns.body_angle
-    state.unknowns.throttle          = LSCR_res.unknowns.throttle
-    state.unknowns.flight_path_angle = LSCR_res.unknowns.body_angle - LSCR_res.conditions.aerodynamics.angle_of_attack
+    segment.state.unknowns.body_angle        = LSCR_res.unknowns.body_angle
+    segment.state.unknowns.throttle          = LSCR_res.unknowns.throttle
+    segment.state.unknowns.flight_path_angle = LSCR_res.unknowns.body_angle - LSCR_res.conditions.aerodynamics.angle_of_attack
     
     # Make the velocity vector
     v_mag = np.linalg.norm(LSCR_res.conditions.frames.inertial.velocity_vector,axis=1)
     
     if segment.air_speed_end is None:
-        state.unknowns.velocity =  np.reshape(v_mag[1:],(-1, 1))
+        segment.state.unknowns.velocity =  np.reshape(v_mag[1:],(-1, 1))
     elif segment.air_speed_end is not None:    
-        state.unknowns.velocity = np.reshape(v_mag[1:-1],(-1, 1))
+        segment.state.unknowns.velocity = np.reshape(v_mag[1:-1],(-1, 1))

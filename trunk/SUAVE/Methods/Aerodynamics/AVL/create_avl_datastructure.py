@@ -82,9 +82,8 @@ def translate_avl_geometry(geometry):
                 aircraft.append_wing(w)
                 
         for body in geometry.fuselages:
-                if body.tag == 'fuselage':
-                        b = translate_avl_body(body)
-                        aircraft.append_body(b)
+                b = translate_avl_body(body)
+                aircraft.append_body(b)
 
         return aircraft
 
@@ -129,7 +128,7 @@ def translate_avl_body(suave_body):
 
         Inputs:
             body.tag                                                       [-]
-            suave_wing.lengths.total                                       [meters] 
+            suave_wing.lengths.total                                       [meters]    
             suave_body.lengths.nose                                        [meters]
             suave_body.lengths.tail                                        [meters]
             suave_wing.verical                                             [meters]
@@ -195,7 +194,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                 n_segments           = len(suave_wing.Segments.keys())
 
                 segment_sweeps = []
-                for i_segs in xrange(n_segments):
+                for i_segs in range(n_segments):
                         if (i_segs == n_segments-1):
                                 segment_sweeps.append(0)                                  
                         else: 
@@ -209,7 +208,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                         segment_tip_chord   = root_chord*suave_wing.Segments[i_segs+1].root_chord_percent
                                         segment_span        = semispan*(suave_wing.Segments[i_segs+1].percent_span_location - suave_wing.Segments[i_segs].percent_span_location )
                                         segment_sweep       = np.arctan(((segment_root_chord*chord_fraction) + (np.tan(sweep_quarter_chord )*segment_span - chord_fraction*segment_tip_chord)) /segment_span)
-                        segment_sweeps.append(segment_sweep)
+                                segment_sweeps.append(segment_sweep)
                         dihedral       = suave_wing.Segments[i_segs].dihedral_outboard  
                         ctrl_surf_at_seg = False 
                         
@@ -225,7 +224,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                 ordered_section_spans = sorted(list(set(section_spans)))     # sort the section_spans in order to create sections in chronological order
                                 num_sections = len(ordered_section_spans)                    # count the number of sections breaks that the segment will contain    \
                                 
-                                for section_count in xrange(num_sections):        
+                                for section_count in range(num_sections):        
                                         # create and append sections onto avl wing structure  
                                         if ordered_section_spans[section_count] == semispan*suave_wing.Segments[i_segs-1].percent_span_location:  
                                                 # if control surface begins at beginning of segment, redundant section is removed
@@ -273,7 +272,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                                         index =+ 1                                                       
                    
                                         if suave_wing.Segments[i_segs].Airfoil:
-                                                section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil.airfoil.coordinate_file     
+                                                section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil.airfoil.coordinate_file
                                         avl_wing.append_section(section)   
                                         
                                 if ordered_section_spans[section_count] == semispan*suave_wing.Segments[i_segs].percent_span_location:  
@@ -381,7 +380,7 @@ def populate_body_sections(avl_body,suave_body):
         symm = avl_body.symmetric   
         semispan_h = avl_body.widths.maximum * 0.5 * (2 - symm)
         semispan_v = avl_body.heights.maximum * 0.5
-        origin = [0, 0, 0]
+        origin = suave_body.origin[0]
 
         # Compute the curvature of the nose/tail given fineness ratio. Curvature is derived from general quadratic equation
         # This method relates the fineness ratio to the quadratic curve formula via a spline fit interpolation

@@ -12,14 +12,14 @@
 import numpy as np
 from SUAVE.Core            import Units
 
-from angle_of_attack_effect import angle_of_attack_effect
-from external_plug_effect import external_plug_effect
-from ground_proximity_effect import ground_proximity_effect
-from jet_installation_effect import jet_installation_effect
-from mixed_noise_component import mixed_noise_component
-from noise_source_location import noise_source_location
-from primary_noise_component import primary_noise_component
-from secondary_noise_component import secondary_noise_component
+from .angle_of_attack_effect import angle_of_attack_effect
+from .external_plug_effect import external_plug_effect
+from .ground_proximity_effect import ground_proximity_effect
+from .jet_installation_effect import jet_installation_effect
+from .mixed_noise_component import mixed_noise_component
+from .noise_source_location import noise_source_location
+from .primary_noise_component import primary_noise_component
+from .secondary_noise_component import secondary_noise_component
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction

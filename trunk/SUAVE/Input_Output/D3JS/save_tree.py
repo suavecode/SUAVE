@@ -10,7 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Tree_Element import Tree_Element
+from .Tree_Element import Tree_Element
 import json
 
 

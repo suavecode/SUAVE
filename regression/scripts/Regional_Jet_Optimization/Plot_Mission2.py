@@ -25,7 +25,7 @@ def plot_mission(results,line_style='bo-'):
     #   Aerodynamics 
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
-    for segment in results.base.segments.values():
+    for segment in list(results.base.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -91,7 +91,7 @@ def plot_mission(results,line_style='bo-'):
     # ------------------------------------------------------------------
 
     fig = plt.figure("Altitude, Weight",figsize=(8,10))
-    for segment in results.base.segments.values():
+    for segment in list(results.base.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]

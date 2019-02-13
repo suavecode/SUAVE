@@ -2,7 +2,7 @@
 
 language: python
 python:
-    - "2.7_with_system_site_packages"
+    - "3.6"
 
 notifications:
     email:
@@ -15,17 +15,22 @@ branches:
 
 before_install:
     - sudo apt-get update
-    - sudo apt-get install -qq python-numpy python-scipy python-matplotlib python-scikits-learn python-pip
+    - sudo apt-get install -qq python3-pip
   
 install:
     - cd trunk
-    - python setup.py develop
+    - pip3 install --upgrade pip
+    - pip3 install --upgrade numpy
+    - pip3 install --upgrade scipy
+    - pip3 install --upgrade scikit-learn
+    - pip3 install --upgrade matplotlib
+    - pip3 install coveralls
+    - python3 setup.py develop
     - cd ../regression
-    - pip install coveralls
   
 # run test
 script:  
-     coverage run --source=SUAVE --omit=../trunk/SUAVE/Plugins/pint/* automatic_regression.py test
+     coverage run automatic_regression.py test
     
 after_success:
   coveralls

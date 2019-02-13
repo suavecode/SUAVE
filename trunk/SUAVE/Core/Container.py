@@ -9,7 +9,7 @@
 #   Imports
 # ----------------------------------------------------------------------        
 
-from Data     import Data
+from .Data     import Data
 from warnings import warn
 
 # ----------------------------------------------------------------------
@@ -116,4 +116,4 @@ class Container(Data):
         elif isinstance(vals,dict):
             self.update(vals)
         else:
-            raise Exception, 'unrecognized data type'
+            raise Exception('unrecognized data type')

@@ -39,7 +39,7 @@ class Airfoil(Lofted_Body.Section):
         self.tag                = 'Airfoil'
         self.thickness_to_chord = 0.0
         self.coordinate_file    = None    # absolute path
-        self.points             = [[],[]]
+        self.points             = []
         
     
     def import_airfoil_dat(self):
@@ -91,7 +91,7 @@ class Airfoil(Lofted_Body.Section):
                 section = None
                 continue
             
-            point = map(float,line.split())
+            point = list(map(float,line.split()))
             data[section].append(point)
             
         for k,v in data.items():
