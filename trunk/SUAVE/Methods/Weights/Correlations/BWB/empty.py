@@ -94,7 +94,7 @@ def empty(vehicle):
     
   
     
-    propulsor_name = vehicle.propulsors.keys()[0] #obtain the key f
+    propulsor_name = list(vehicle.propulsors.keys())[0] #obtain the key f
     #for the propulsor for assignment purposes
     
     propulsors     = vehicle.propulsors[propulsor_name]
@@ -112,7 +112,7 @@ def empty(vehicle):
         wt_propulsion                    = propulsors.mass_properties.mass
 
         if wt_propulsion==0:
-            warnings.warn("Propulsion mass= 0 ;e there is no Engine Weight being added to the Configuration", stacklevel=1)    
+            warnings.warn("Propulsion mass= 0; there is no Engine Weight being added to the Configuration", stacklevel=1)    
     
     S_gross_w  = vehicle.reference_area
 
