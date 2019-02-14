@@ -1,5 +1,5 @@
-## @ingroup Methods-Aerodynamics-VTOL_Aero
-# vtol_weissinger_vortex_lattice.py
+## @ingroup Methods-Aerodynamics-Blown_Wing_Aero
+# blown_wing_weissinger_vortex_lattice.py
 # 
 # Created:  Jan 2019, M. Clarke
 
@@ -11,12 +11,13 @@
 import numpy as np 
 import pylab as plt
 import matplotlib
+from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-VTOL_Aero
-def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
+def blown_wing_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
     """Uses the vortex lattice method to compute the lift coefficient and induced drag component
 
     Assumptions:
@@ -60,9 +61,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
     sym_para    = wing.symmetric
     Sref        = wing.areas.reference
     orientation = wing.vertical
-    n           = 50            # number_panels_spanwise    
-    
-   #num_var     = len(conditions.freestream.density)    
+    n           = settings.number_panels_spanwise
     
     # conditions
     CL = 0.0 
@@ -100,16 +99,16 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
             # obtain chord and twist at the beginning/end of each segment    
             S_wing = 0.0
             for i_seg in range(n_segments):                
-                segment_chord[i_seg] = wing.Segments[segment_keys[i_seg]].root_chord_percent*root_chord
-                segment_twist[i_seg] = wing.Segments[segment_keys[i_seg]].twist
-                segment_sweep[i_seg] = wing.Segments[segment_keys[i_seg]].sweeps.quarter_chord
-                section_stations[i_seg] = wing.Segments[segment_keys[i_seg]].percent_span_location*span
+                segment_chord[i_seg] = wing.Segments[i_seg].root_chord_percent*root_chord
+                segment_twist[i_seg] = wing.Segments[i_seg].twist
+                segment_sweep[i_seg] = wing.Segments[i_seg].sweeps.quarter_chord
+                section_stations[i_seg] = wing.Segments[i_seg].percent_span_location*span
 
                 if i_seg == 0:
                     segment_span[i_seg] = 0.0
                     segment_chord_x_offset[i_seg] = 0.25*root_chord # weissinger uses quarter chord as reference
                 else:
-                    segment_span[i_seg]    = wing.Segments[segment_keys[i_seg]].percent_span_location*span - wing.Segments[segment_keys[i_seg-1]].percent_span_location*span
+                    segment_span[i_seg]    = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
                     segment_chord_x_offset[i_seg]  = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
                     Sref_seg                      = segment_span[i_seg] *( segment_chord[i_seg-1] + segment_chord[i_seg])*0.5
                     S_wing += Sref_seg 
@@ -182,7 +181,7 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
         q_inf            = conditions.freestream.dynamic_pressure[index][0] 
         V_inf            = conditions.freestream.velocity[index][0]  
         V_distribution   = np.ones((1,n))*V_inf      
-        aoa              = 0.0349066  # (2 degrees)conditions.aerodynamics.angle_of_attack[index][0]   
+        aoa              = conditions.aerodynamics.angle_of_attack[index][0]   
         aoa_distribution = np.ones((1,n))*aoa  
         
         if 'propulsor' in propulsors:
@@ -190,24 +189,25 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
             propeller_status = True
         else: 
             propeller_status = False
-
-        if propeller_status : # If propellers present, find propeller location and re-vectorize wing with embedded propeller               
+            
+        # If propellers present, find propeller location and re-vectorize wing with embedded propeller               
+        if propeller_status :                   
             prop_slipstream_V_contribution = 0              
-            num_prop   = len(prop.origin)                                                 # number of propellers                  
-            for i in range(num_prop):                                                     # loop through propellers on aircraft to get combined effect of slipstreams
-                # obtain original properties of propeller 
+            num_prop   = len(prop.origin)    
+            # loop through propellers on aircraft to get combined effect of slipstreams
+            for i in range(num_prop):        
                 D_p       = prop.tip_radius*2
                 R_p       = prop.tip_radius                     
                 Vx        = prop.thrust_attributes.velocity[index]             
                 r_nacelle = prop.hub_radius 
-                vt_old    = np.concatenate((prop.thrust_attributes.vt[index], - prop.thrust_attributes.vt[index][::-1]), axis=0)   # induced tangential velocity at propeller disc using propeller discretization
-                va_old    = np.concatenate((-prop.thrust_attributes.va[index], - prop.thrust_attributes.va[index][::-1]), axis=0)   # induced axial velocity at propeller disc  using propeller discretization
-                n_old     = len(prop.chord_distribution)                      # number of spanwise divisions from propeller
+                vt_old    = np.concatenate((prop.thrust_attributes.vt[index], - prop.thrust_attributes.vt[index][::-1]), axis=0)  # induced tangential velocity at propeller disc using propeller discretization
+                va_old    = np.concatenate((-prop.thrust_attributes.va[index], - prop.thrust_attributes.va[index][::-1]), axis=0) # induced axial velocity at propeller disc  using propeller discretization
+                n_old     = len(prop.chord_distribution)                                                                          # spanwise discretization of propeller
                 r_old     = np.linspace(prop.hub_radius,R_p,n_old) 
                 d_old     = np.concatenate((-r_old[::-1], r_old) ,  axis=0)   
                 
-                # slipstream development from propeller disc to control point on wing
-                s                 =  prop.origin[i][0] - wing.origin[0]      # assuming straight (non-tapered) wings
+                # compute slipstream development factor from propeller disc to control point on wing
+                s                 =  prop.origin[i][0] - wing.origin[0]      
                 Kd                = 1 + s/(np.sqrt(s**2 + R_p**2))     
                 r_div_r_prime_val = np.zeros(n_old) 
                 r_prime = np.zeros(n_old) 
@@ -253,8 +253,8 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                     vt_prime       = 2*vt*r_div_r_prime
                     
                     # compute new components of freestream
-                    Vx             = V_inf*np.cos(aoa) - va_prime
-                    Vy             = V_inf*np.sin(aoa) - vt_prime
+                    Vx             = V_inf*np.cos(aoa) - va_prime   
+                    Vy             = V_inf*np.sin(aoa) - vt_prime   
                     modified_V_inf = np.sqrt(Vx**2 + Vy**2 )
                     modified_aoa   = np.arctan(Vy/Vx)
                     numel          = len(modified_aoa)
@@ -265,63 +265,16 @@ def vtol_weissinger_vortex_lattice(conditions,settings,wing,propulsors,index):
                     start_val = np.where(prop_vec_minus == max(LHS_vec))[1][0]  
                     V_distribution[0][start_val : end_val]   = mod_V_inf 
                     aoa_distribution[0][start_val : end_val] = mod_aoa  
-                             
-
-                #fig = plt.figure('Propeller Induced Speeds')    
-                #axes3 = fig.add_subplot(2,1,1)
-                #axes3.plot(d,Vx,'bo-' )
-                #axes3.set_xlabel('Span (m)')
-                #axes3.set_ylabel(r'Axial Distribution $m/s$')
-                #axes3.grid(True)  
-                #axes4 = fig.add_subplot(2,1,2)
-                #axes4.plot(d,Vy,'bo-' )
-                #axes4.set_xlabel('Span (m)')
-                #axes4.set_ylabel(r'Tangential Distribution $m/s$')
-                #axes4.grid(True)              
-                #plt.show() 
-                      
-   
-            #fig = plt.figure('Propeller Induced Speeds')    
-            #axes3 = fig.add_subplot(2,2,1)
-            #axes3.plot(y,aoa_distribution*57.2958,'bo-' )
-            #axes3.set_xlabel('Span (m)')
-            #axes3.set_ylabel(r'AoA Distribution $m/s$')
-            #axes3.grid(True)  
-            #axes4 = fig.add_subplot(2,2,2)
-            #axes4.plot(y,V_distribution,'bo-' )
-            #axes4.set_xlabel('Span (m)')
-            #axes4.set_ylabel(r'Velocity Distribution $m/s$')
-            #axes4.grid(True)               
-            #axes1 = fig.add_subplot(2,2,3)
-            #axes1.plot(d,modified_V_inf,'bo-')
-            #axes1.set_xlabel('Span (m)')
-            #axes1.set_ylabel(r'Modified V distribution $m/s$')
-            #axes1.grid(True)
-            #axes2 = fig.add_subplot(2,2,4)
-            #axes2.plot(d,modified_aoa*57.2958,'bo-')
-            #axes2.set_xlabel('Span (m)')
-            #axes2.set_ylabel(r'Modified AoA Distribution $m/s$')            
-            #axes2.grid(True)              
-            #plt.show() 
-            
             
             q_distribution =  0.5*rho*(V_distribution**2) 
-            CL ,  CD , LT, DT , cl , cd , L , D   = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,V_distribution,Sref)            
+            CL , CD  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,V_distribution,Sref)            
         else:
-            CL ,  CD , LT, DT , cl , cd , L , D  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution,q_distribution,q_inf,V_distribution,Sref)
+            CL , CD  = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution,q_distribution,q_inf,V_distribution,Sref)
     else:
         CL = 0.0 
         CD = 0.0 
-        LT = 0.0 
-        DT = 0.0 
-        cl = np.zeros((1,n))
-        cd = np.zeros((1,n))
-        L  = np.zeros((1,n))
-        D  = np.zeros((1,n))
-        y = np.zeros((1,n))   
-        AR = 0.0
         
-    return   CL ,  CD , LT, DT , cl , cd , L , D , AR , y
+    return   CL , CD 
         
 def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,chord_distribution, q_distribution,q_inf,V_distribution, Sref):    
     sin_aoa = np.sin(aoa_distribution)
@@ -359,51 +312,64 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa,aoa_distribution,c
     Lift_distribution = cl*chord_distribution*q_distribution
     Drag_distribution = cd*chord_distribution*q_distribution 
     
-    # Total lift
-    Lift = 2 * np.sum(Lift_distribution)  
-    Drag = 2 * np.sum(Drag_distribution)
- 
-    # ------------------------------------------------------------
-    #print(DT)
-    print(Lift)
+    Lift = 2 * np.sum(Lift_distribution)
+    Drag = 2 * np.sum(Drag_distribution) 
     
-    # plot V(y),  cl(y)
-    fig = plt.figure('Aero',figsize=(14,12)) 
-    axes1 = fig.add_subplot(2,3,1)
-    axes1.plot(y,Lift_distribution,'bo-')
-    axes1.set_xlabel('Span (m)')
-    axes1.set_ylabel(r'Lift $N$')
-    axes1.grid(True)  
-    axes2 = fig.add_subplot(2,3,2)
-    axes2.plot(y,Drag_distribution ,'bo-')
-    axes2.set_xlabel('Span (m)')
-    axes2.set_ylabel(r'Drag $N$')
-    axes2.grid(True)  
-    axes5 = fig.add_subplot(2,3,3)
-    axes5.plot(y,(twist_distribution+aoa_distribution)*57.2958,'bo-')
-    axes5.set_xlabel('Span (m)')
-    axes5.set_ylabel(r'AoA_${eff}$')
-    axes5.grid(True)      
-    axes3 = fig.add_subplot(2,3,4)
-    axes3.plot(y,cl,'bo-')
-    axes3.set_xlabel('Span (m)')
-    axes3.set_ylabel(r'Cl')
-    axes3.grid(True)  
-    axes4 = fig.add_subplot(2,3,5)
-    axes4.plot(y,cd,'bo-')
-    axes4.set_xlabel('Span (m)')
-    axes4.set_ylabel(r'Cd')
-    axes4.grid(True) 
-    axes4 = fig.add_subplot(2,3,6)
-    axes4.plot(y,V_distribution,'bo-')
-    axes4.set_xlabel('Span (m)')
-    axes4.set_ylabel(r'velocity')
-    axes4.grid(True)     
-    plt.savefig("No_Prop.png")  
-    plt.show() 
+    ## ===============================================
+    ## Total lift
+    #print("Lift")    
+    #print(Lift)
+    #print("CL")
+    #print(CL)
+    #print("Drag")    
     
-    # ------------------------------------------------------------    
-    return  CL ,  CD , Lift , Drag , cl , cd , Lift_distribution ,  Drag_distribution 
+    #print(Drag)
+    #print("CD")
+    #print(CD)
+
+    #fig = plt.figure('Aero',figsize=(18,12)) 
+    #axes1 = fig.add_subplot(2,3,1)
+    #axes1.plot(y,Lift_distribution,'bo-')
+    #axes1.set_xlabel('Span (m)')
+    #axes1.set_ylabel(r'Lift $N$')
+    #axes1.grid(True)  
+    ##plt.ylim((0,75))
+    #axes2 = fig.add_subplot(2,3,2)
+    #axes2.plot(y,Drag_distribution ,'bo-')
+    #axes2.set_xlabel('Span (m)')
+    #axes2.set_ylabel(r'Drag $N$')
+    #axes2.grid(True)  
+    ##plt.ylim((0,0.5))
+    #axes5 = fig.add_subplot(2,3,3)
+    #axes5.plot(y,(twist_distribution+aoa_distribution)*57.2958,'bo-')
+    #axes5.set_xlabel('Span (m)')
+    #axes5.set_ylabel(r'AoA_${eff}$')
+    #axes5.grid(True)      
+    ##plt.ylim((0,10))
+    #axes3 = fig.add_subplot(2,3,4)
+    #axes3.plot(y,cl,'bo-')
+    #axes3.set_xlabel('Span (m)')
+    #axes3.set_ylabel(r'Cl')
+    #axes3.grid(True)  
+    ##plt.ylim((0,0.05))
+    #axes4 = fig.add_subplot(2,3,5)
+    #axes4.plot(y,cd,'bo-')
+    #axes4.set_xlabel('Span (m)')
+    #axes4.set_ylabel(r'Cd')
+    #axes4.grid(True) 
+    ##plt.ylim((0,0.0005))
+    #axes4 = fig.add_subplot(2,3,6)
+    #axes4.plot(y,V_distribution,'bo-')
+    #axes4.set_xlabel('Span (m)')
+    #axes4.set_ylabel(r'velocity')
+    #axes4.grid(True)     
+    #plt.ylim((55,65))
+    #plt.savefig("Aquila_Prop_Cruise.png")  
+    #plt.show() 
+    
+    ## ===============================================
+    
+    return  CL ,  CD 
 
 # ----------------------------------------------------------------------
 #   Helper Functions

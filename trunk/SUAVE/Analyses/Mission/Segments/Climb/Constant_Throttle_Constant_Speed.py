@@ -121,13 +121,13 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         iterate.conditions.velocities      = Methods.Climb.Constant_Throttle_Constant_Speed.update_velocity_vector_from_wind_angle
         iterate.conditions.differentials_a = Methods.Climb.Constant_Throttle_Constant_Speed.update_differentials_altitude
         iterate.conditions.differentials_b = Methods.Common.Numerics.update_differentials_time
-        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust  
         iterate.conditions.acceleration    = Methods.Common.Frames.update_acceleration              
         iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
-        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations        
+        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations       
+        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust          
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
         iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.weights         = Methods.Common.Weights.update_weights

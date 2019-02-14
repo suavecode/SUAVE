@@ -117,12 +117,12 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         # Update Conditions
         iterate.conditions = Process()
         iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time
-        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
         iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations        
+        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust        
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
         iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability        
         iterate.conditions.weights         = Methods.Common.Weights.update_weights

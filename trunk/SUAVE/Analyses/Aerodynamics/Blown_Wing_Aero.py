@@ -1,5 +1,5 @@
 ## @ingroup Analyses-Aerodynamics
-# VTOL_Aero.py
+# Blown_Wing_Aero.py
 #
 # Created:  Jan 2018, M. Clarke
 
@@ -18,17 +18,19 @@ from .Results import Results
 
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
-from SUAVE.Methods.Aerodynamics import VTOL_Aero
+from SUAVE.Methods.Aerodynamics import Blown_Wing_Aero
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 from .Process_Geometry import Process_Geometry
-from .VTOL_Vortex_Lattice import VTOL_Vortex_Lattice
+from .Blown_Wing_Vortex_Lattice import Blown_Wing_Vortex_Lattice
 
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Aerodynamics
-class VTOL_Aero(Markup):
-    """This is an analysis based on low-fidelity models.
+class Blown_Wing_Aero(Markup):
+    """This is an analysis based on low-fidelity models. This model incorperates the blown effect of propellers mounted
+    in front of a wing.
+    separately
 
     Assumptions:
     Subsonic
@@ -54,7 +56,7 @@ class VTOL_Aero(Markup):
         Properties Used:
         N/A
         """          
-        self.tag    = 'vtol_aero_markup'
+        self.tag    = 'blown_wing_aero_markup'
     
         # correction factors
         settings = self.settings
@@ -69,23 +71,14 @@ class VTOL_Aero(Markup):
         settings.maximum_lift_coefficient           = np.inf 
         
         # vortex lattice configurations
-        settings.number_panels_spanwise  = 5
+        settings.number_panels_spanwise  = 100
         settings.number_panels_chordwise = 1
-        
         
         # build the evaluation process
         compute = self.process.compute
-        
-        # these methods have interface as
-        # results = function(state,settings,geometry)
-        # results are optional
-        
-        # first stub out empty functions
-        # then implement methods
-        # then we'll figure out how to connect to a mission
         compute.lift = Process()
 
-        compute.lift.inviscid_wings                = VTOL_Vortex_Lattice()
+        compute.lift.inviscid_wings                = Blown_Wing_Vortex_Lattice()
         compute.lift.vortex                        = SUAVE.Methods.skip
         compute.lift.compressible_wings            = Methods.Lift.wing_compressibility_correction
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
@@ -112,20 +105,3 @@ class VTOL_Aero(Markup):
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft
         
-    def initialize(self):
-        """Initializes the surrogate needed for lift calculation.
-        Assumptions:
-        None
-        Source:
-        N/A
-        Inputs:
-        None
-        Outputs:
-        None
-        Properties Used:
-        self.geometry
-        """                  
-        self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize()
-        
-    finalize = initialize

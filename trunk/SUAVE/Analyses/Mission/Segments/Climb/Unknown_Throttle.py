@@ -113,23 +113,6 @@ class Unknown_Throttle(Aerodynamic):
         iterate.unknowns.mission           = Methods.Climb.Common.unpack_unknowns  
         
         # Update Conditions
-        # ORIGINAL
-        #iterate.conditions = Process()
-        #iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time 
-        #iterate.conditions.acceleration    = Methods.Common.Frames.update_acceleration
-        #iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
-        #iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
-        #iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
-        #iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
-        #iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
-        #iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
-        #iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
-        #iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
-        #iterate.conditions.weights         = Methods.Common.Weights.update_weights
-        #iterate.conditions.forces          = Methods.Common.Frames.update_forces
-        #iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
-        ## --------------------------------------------------------------------------------
-       
         iterate.conditions = Process()
         iterate.conditions.differentials   = Methods.Common.Numerics.update_differentials_time             
         iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude

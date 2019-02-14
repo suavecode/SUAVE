@@ -2,7 +2,6 @@
 # These are the analyses that control aerodynamic evaluations.
 # @ingroup Analyses
 
-
 from .Aerodynamics                 import Aerodynamics
 from .AVL                          import AVL
 from .AVL_Inviscid                 import AVL_Inviscid 
@@ -19,5 +18,5 @@ from .SU2_Euler_Super              import SU2_Euler_Super
 from .SU2_inviscid_Super           import SU2_inviscid_Super
 from .Supersonic_OpenVSP_Wave_Drag import Supersonic_OpenVSP_Wave_Drag
 from .Lifting_Line                 import Lifting_Line
-from .VTOL_Aero                    import VTOL_Aero
-from .VTOL_Vortex_Lattice          import VTOL_Vortex_Lattice
+from .Blown_Wing_Aero              import Blown_Wing_Aero
+from .Blown_Wing_Vortex_Lattice    import Blown_Wing_Vortex_Lattice
