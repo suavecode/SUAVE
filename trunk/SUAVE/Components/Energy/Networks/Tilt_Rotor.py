@@ -126,18 +126,16 @@ class Tilt_Rotor(Propulsor):
                 thrust_angle0 = self.thrust_angle_start 
                 thrust_anglef = state.unknowns.thrust_angle_end  
                 thrust_angle  = t_nondim * (thrust_anglef-thrust_angle0) + thrust_angle0 
-            else:
-                thrust_angle = self.thrust_angle_start
-        #thrust_angle0 = self.thrust_angle_start 
-        #thrust_anglef = state.unknowns.thrust_angle_end[0]  
-        #thrust_angle  = t_nondim * (thrust_anglef-thrust_angle0) + thrust_angle0 
+        else:
+            thrust_angle = self.thrust_angle
                 
         # link
         propeller.inputs.omega =  motor.outputs.omega
         propeller.thrust_angle =  thrust_angle
+        conditions.propulsion.pitch_command = self.pitch_command
         
-        # step 5
-        F, Q, P, Cp , noise, etap = propeller.spin(conditions)
+        # step 5        
+        F, Q, P, Cp , noise, etap = propeller.spin_variable_pitch(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]

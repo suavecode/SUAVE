@@ -52,6 +52,7 @@ class Propeller(Energy_Component):
         self.mid_chord_aligment  = 0.0
         self.thrust_angle        = 0.0
         self.radius_distribution = None
+        self.ducted              = False
         self.tag                 = 'Propeller'
         
     def spin(self,conditions):
@@ -540,26 +541,26 @@ class Propeller(Energy_Component):
 
         etap     = V*thrust/power     
         
-        conditions.propulsion.etap = etap
+        conditions.propulsion.etap = etap        
         
         # store data
-        results_conditions = Results       
-        conditions.propulsion.acoustic_outputs = results_conditions(
-            number_sections = N,
-            r0 = r,
-            airfoil_chord = c,
-            blades_number = B,
+        results_conditions = Data      
+        noise_data = results_conditions(
+            number_sections    = N,
+            r0                 = r,
+            airfoil_chord      = c,
+            blades_number      = B,
             propeller_diameter = D,
-            drag_coefficient = Cd,
-            lift_coefficient = Cl,
-            rpm = omega,
-            velocity = V,
-            thrust = thrust,
-            hp = power,
+            drag_coefficient   = Cd,
+            lift_coefficient   = Cl,
+            omega              = omega,
+            velocity           = V,
+            thrust             = thrust,
+            power              = power,
         )
         
         
-        return thrust, torque, power, Cp
+        return thrust, torque, power, Cp, noise_data, etap
     
     
     def spin_surrogate(self,conditions):
