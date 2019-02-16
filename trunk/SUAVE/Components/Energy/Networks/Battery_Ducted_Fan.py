@@ -66,7 +66,9 @@ class Battery_Ducted_Fan(Propulsor):
         """ Calculate thrust given the current state of the vehicle
     
             Assumptions:
-            None
+            Batteries are constant mass
+            ESC input voltage is constant at max batter voltage
+            
     
             Source:
             N/A
@@ -83,37 +85,6 @@ class Battery_Ducted_Fan(Propulsor):
         """ 
 
          # unpack
-        
-        
-        '''
-        Don't think I use these?
-        # link
-        motor.inputs.voltage = esc.outputs.voltageout 
-        motor.power_lo(conditions)
-        #link
-        propeller.inputs.power = motor.outputs.power
-        F,P = propeller.spin_lo(conditions)
-            
-        # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-        eta        = conditions.propulsion.throttle[:,0,None]
-        P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
-        F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
-        '''
-
-        
-
-        
-        # Create the outputs
-        #F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
-        #mdot = np.zeros_like(F)
-
-        #results = Data()
-        #results.thrust_force_vector = F
-        #results.vehicle_mass_rate   = mdot
-          
-
-        #Cameron's attempt
-        # unpack
         conditions = state.conditions
         numerics   = state.numerics
         esc        = self.esc
@@ -129,41 +100,20 @@ class Battery_Ducted_Fan(Propulsor):
         # Step 0 ducted fan power
         results             = propulsor.evaluate_thrust(state)
         propulsive_power    = results.power
-        
         motor_power         = propulsive_power/self.motor_efficiency 
 
-        # Why use battery_logic here instead of just battery_input?
-        #battery_logic          = Data()
-        #battery_logic.power_in = pbat
-        #battery_logic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
-        # Couldn't current just be Pe/voltage?
-      
-        #battery.inputs = battery_logic
-        tol = 1e-6  
-
-        # Step 1 battery power
+        # Step 1 run the ESC
         esc.inputs.voltagein = self.voltage
-
-        # Step 2
-        test = (conditions.propulsion.throttle[:,0,None])*1.0
-        
-        if state.residuals.forces[0,0] < 1e-7 and state.residuals.forces[0,0] > 0:
-            a123= 1
-            # Works for first 32?
-        #print(1)
-            
         esc.voltageout(conditions)
-
+        esc.inputs.currentout =  np.transpose(motor_power/np.transpose(esc.outputs.voltageout)) 
+        esc.currentin(conditions)
+        esc_power = esc.inputs.voltagein*esc.outputs.currentin
+        
         # Run the avionics
         avionics.power()
 
         # Run the payload
         payload.power()
-
-        esc.inputs.currentout =  np.transpose(motor_power/np.transpose(esc.outputs.voltageout))
-        
-        # Run the esc
-        esc.currentin(conditions)
 
         # Calculate avionics and payload power
         avionics_payload_power = avionics.outputs.power + payload.outputs.power
@@ -175,32 +125,10 @@ class Battery_Ducted_Fan(Propulsor):
         # link
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
         #print(esc.outputs.currentin)
-        battery.inputs.power_in = -((esc.outputs.voltageout)[0]*esc.outputs.currentin + avionics_payload_power)
+        battery.inputs.power_in = -(esc_power + avionics_payload_power)
         battery.energy_calc(numerics)        
     
-        
-
-
-        #try:
-        #    initial_energy = conditions.propulsion.battery_energy
-        #    if initial_energy[0][0]==0: #beginning of segment; initialize battery
-        #        battery.current_energy = battery.current_energy[-1]*np.ones_like(initial_energy)
-        #except AttributeError: #battery energy not initialized, e.g. in takeoff
-        #    battery.current_energy=np.transpose(np.array([battery.current_energy[-1]*np.ones_like(Pe)]))
-        
-        
-        
-        
-        '''
-        #allow for mass gaining batteries
-        try:
-            mdot=find_mass_gain_rate(battery,-(pbat-battery.resistive_losses)) #put in transpose for solver
-        except AttributeError:
-            mdot=np.zeros_like(results.thrust_force_vector[:,0])
-        mdot=np.reshape(mdot, np.shape(conditions.freestream.velocity))
-        '''
-
-
+        # No mass gaining batteries
         mdot = np.zeros(np.shape(conditions.freestream.velocity))
 
         # Pack the conditions for outputs

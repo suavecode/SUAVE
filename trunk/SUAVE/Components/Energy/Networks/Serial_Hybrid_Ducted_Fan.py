@@ -97,7 +97,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         battery    = self.battery
         
         fuel_capacity = 800 * Units.lb
-        range_extender_power = 500000 #Watts
+        range_extender_power = 0000 #Watts
         range_extender_efficiency = .3
         range_extender_sfc = (.3/3600) #kg/(kW*s)
         
@@ -125,12 +125,9 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         esc.inputs.voltagein = self.voltage
 
         # Step 2
-        test = (conditions.propulsion.throttle[:,0,None])*1.0
         
         if state.residuals.forces[0,0] < 1e-7 and state.residuals.forces[0,0] > 0:
             a123= 1
-            # Works for first 32?
-        #print(1)
             
         esc.voltageout(conditions)
 
@@ -155,7 +152,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         # link
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
         #print(esc.outputs.currentin)
-        battery.inputs.power_in = -((esc.outputs.voltageout)[0]*esc.outputs.currentin + avionics_payload_power) + (
+        battery.inputs.power_in = -((esc.inputs.voltagein)*esc.outputs.currentin + avionics_payload_power) + (
                 power_generated)
         battery.energy_calc(numerics)        
     
