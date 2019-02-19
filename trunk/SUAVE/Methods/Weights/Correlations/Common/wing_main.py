@@ -72,76 +72,42 @@ def wing_main(wing,Nult,TOW,wt_zf):
             F  = wing.Segments[i-1].thickness_to_chord
             G  = wing.Segments[i].thickness_to_chord
             H  = wing.Segments[i-1].percent_span_location
+            J  = wing.Segments[i].percent_span_location
+            L  = (C-D)/E
+            M  = (G-F)/E
             
             Y1 = wing.Segments[i].percent_span_location
             Y2 = wing.Segments[i-1].percent_span_location
             
-            
-            WB1 = -(E*(-4*E*G**2 *Y1*C**2 + 4*E*F*G*Y1*C**2 + 4*E**2 *F**2 *np.log(-E*F - (F - G)*(H - Y1))*C**2 -\
-                       F**2 *np.log(-E*F - (F - G)*(H - Y1))*C**2 - G**2 *np.log(-E*F - (F - G)*(H - Y1))*C**2 +\
-                       4*F**2 *H**2 *np.log(-E*F - (F - G)*(H - Y1))*C**2 + 4*G**2 *H**2 *\
-                       np.log(-E*F - (F - G)*(H - Y1))*C**2 - 8*F*G*H**2 *np.log(-E*F - (F - G)*(H - Y1))*C**2 + \
-                       2 *F*G *np.log(-E*F - (F - G)*(H - Y1))*C**2 + 8*E*F**2 *H *np.log(-E*F - (F - G)*(H - Y1))*C**2\
-                       - 8*E*F*G*H*np.log(-E*F - (F - G)*(H - Y1))*C**2 - 4*E**2 *F**2 *np.log(D*(H - Y1) - \
-                       C*(E + H - Y1))*C**2 + F**2 *np.log(D*(H - Y1) - C*(E + H - Y1))*C**2 - 4*E**2 *G**2 *np.log(D*(H - Y1)\
-                       - C*(E + H - Y1))*C**2 + G**2 *np.log(D*(H - Y1) - C*(E + H - Y1))*C**2 - 4*F**2 *H**2 *np.log(D*(H - Y1) \
-                       - C*(E + H - Y1))*C**2 - 4*G**2 *H**2 *np.log(D*(H - Y1) - C*(E + H - Y1))*C**2 + 8*F*G*H**2 *np.log(D*(H - Y1) \
-                       - C*(E + H - Y1))*C**2 + 8*E**2 *F*G*np.log(D*(H - Y1) - C*(E + H - Y1))*C**2 - 2 *F*G*np.log(D*(H - Y1) \
-                       - C*(E + H - Y1))*C**2 - 8*E*F**2 *H*np.log(D*(H - Y1) - C*(E + H - Y1))*C**2 - 8 *E*G**2 *H*np.log(D*(H - Y1)\
-                       - C*(E + H - Y1))*C**2 + 16*E*F*G*H*np.log(D*(H - Y1) - C*(E + H - Y1))*C**2 - 4*D*E*F**2 *Y1*C + 4*D*E*G**2 *Y1*C \
-                       - 8*D*E**2 *F**2 *np.log(-E*F - (F - G)*(H - Y1))*C + 2 *D*F**2 *np.log(-E*F - (F - G)*(H - Y1))*C +\
-                       2*D*G**2 *np.log(-E*F - (F - G)*(H - Y1))*C - 8*D*F**2 *H**2 *np.log(-E*F - (F - G)*(H - Y1))*C - 8*D*G**2 *H**2 \
-                       *np.log(-E*F - (F - G)*(H - Y1))*C + 16*D*F*G*H**2 *np.log(-E*F - (F - G)*(H - Y1))*C -\
-                       4*D*F*G*np.log(-E*F - (F - G)*(H - Y1))*C - 16*D*E*F**2 *H*np.log(-E*F - (F - G)*(H - Y1))*C + \
-                       16*D*E*F*G*H*np.log(-E*F - (F - G)*(H - Y1))*C - 2 *D*F**2 *np.log(D*(H - Y1) - C*(E + H - Y1))*C -\
-                       2 *D*G**2 *np.log(D*(H - Y1) - C*(E + H - Y1))*C + 8*D*F**2 *H**2 *np.log(D*(H - Y1) - C*(E + H - Y1))*C + \
-                       8*D*G**2 *H**2 *np.log(D*(H - Y1) - C*(E + H - Y1))*C - 16*D*F*G*H**2 *np.log(D*(H - Y1) - C*(E + H - Y1))*C + \
-                       4*D*F*G*np.log(D*(H - Y1) - C*(E + H - Y1))*C + 8*D*E*F**2 *H*np.log(D*(H - Y1) - C*(E + H - Y1))*C +\
-                       8*D*E*G**2 *H*np.log(D*(H - Y1) - C*(E + H - Y1))*C - 16*D*E*F*G*H*np.log(D*(H - Y1) - C*(E + H - Y1))*C + \
-                       4*D**2 *E*F**2 *Y1 - 4*D**2 *E*F*G*Y1 - D**2 *F**2 *np.log(-E*F - (F - G)*(H - Y1)) + 4*D**2 *E**2 *F**2 \
-                       *np.log(-E*F - (F - G)*(H - Y1)) - D**2 *G**2 *np.log(-E*F - (F - G)*(H - Y1)) + 4*D**2 *F**2 *H**2\
-                       *np.log(-E*F - (F - G)*(H - Y1)) + 4*D**2 *G**2 *H**2 *np.log(-E*F - (F - G)*(H - Y1)) - 8*D**2 *F*G*H**2 \
-                       *np.log(-E*F - (F - G)*(H - Y1)) + 2 *D**2 *F*G *np.log(-E*F - (F - G)*(H - Y1)) + 8*D**2 *E*F**2 *H \
-                       *np.log(-E*F - (F - G)*(H - Y1)) - 8*D**2 *E*F*G*H*np.log(-E*F - (F - G)*(H - Y1)) + D**2 *F**2 \
-                       *np.log(D*(H - Y1) - C*(E + H - Y1)) + D**2 *G**2 *np.log(D*(H - Y1) - C*(E + H - Y1)) - 4*D**2 *F**2 *H**2\
-                       *np.log(D*(H - Y1) - C*(E + H - Y1)) - 4*D**2 *G**2 *H**2 *np.log(D*(H - Y1) - C*(E + H - Y1)) + 8*D**2 *F*G*H**2\
-                       *np.log(D*(H - Y1) - C*(E + H - Y1)) - 2 *D**2 *F*G *np.log(D*(H - Y1) - C*(E + H - Y1))))/(8*(C - D)**2 *(F - G)**2 *(C*G - D*F))
-            
-            
-            WB2 = -(E*(-4*E*G**2 *Y2*C**2 + 4*E*F*G*Y2*C**2 + 4*E**2 *F**2 *np.log(-E*F - (F - G)*(H - Y2))*C**2 -\
-                       F**2 *np.log(-E*F - (F - G)*(H - Y2))*C**2 - G**2 *np.log(-E*F - (F - G)*(H - Y2))*C**2 +\
-                       4*F**2 *H**2 *np.log(-E*F - (F - G)*(H - Y2))*C**2 + 4*G**2 *H**2 *\
-                       np.log(-E*F - (F - G)*(H - Y2))*C**2 - 8*F*G*H**2 *np.log(-E*F - (F - G)*(H - Y2))*C**2 + \
-                       2 *F*G *np.log(-E*F - (F - G)*(H - Y2))*C**2 + 8*E*F**2 *H *np.log(-E*F - (F - G)*(H - Y2))*C**2\
-                       - 8*E*F*G*H*np.log(-E*F - (F - G)*(H - Y2))*C**2 - 4*E**2 *F**2 *np.log(D*(H - Y2) - \
-                       C*(E + H - Y2))*C**2 + F**2 *np.log(D*(H - Y2) - C*(E + H - Y2))*C**2 - 4*E**2 *G**2 *np.log(D*(H - Y2)\
-                       - C*(E + H - Y2))*C**2 + G**2 *np.log(D*(H - Y2) - C*(E + H - Y2))*C**2 - 4*F**2 *H**2 *np.log(D*(H - Y2) \
-                       - C*(E + H - Y2))*C**2 - 4*G**2 *H**2 *np.log(D*(H - Y2) - C*(E + H - Y2))*C**2 + 8*F*G*H**2 *np.log(D*(H - Y2) \
-                       - C*(E + H - Y2))*C**2 + 8*E**2 *F*G*np.log(D*(H - Y2) - C*(E + H - Y2))*C**2 - 2 *F*G*np.log(D*(H - Y2) \
-                       - C*(E + H - Y2))*C**2 - 8*E*F**2 *H*np.log(D*(H - Y2) - C*(E + H - Y2))*C**2 - 8 *E*G**2 *H*np.log(D*(H - Y2)\
-                       - C*(E + H - Y2))*C**2 + 16*E*F*G*H*np.log(D*(H - Y2) - C*(E + H - Y2))*C**2 - 4*D*E*F**2 *Y2*C + 4*D*E*G**2 *Y2*C \
-                       - 8*D*E**2 *F**2 *np.log(-E*F - (F - G)*(H - Y2))*C + 2 *D*F**2 *np.log(-E*F - (F - G)*(H - Y2))*C +\
-                       2*D*G**2 *np.log(-E*F - (F - G)*(H - Y2))*C - 8*D*F**2 *H**2 *np.log(-E*F - (F - G)*(H - Y2))*C - 8*D*G**2 *H**2 \
-                       *np.log(-E*F - (F - G)*(H - Y2))*C + 16*D*F*G*H**2 *np.log(-E*F - (F - G)*(H - Y2))*C -\
-                       4*D*F*G*np.log(-E*F - (F - G)*(H - Y2))*C - 16*D*E*F**2 *H*np.log(-E*F - (F - G)*(H - Y2))*C + \
-                       16*D*E*F*G*H*np.log(-E*F - (F - G)*(H - Y2))*C - 2 *D*F**2 *np.log(D*(H - Y2) - C*(E + H - Y2))*C -\
-                       2 *D*G**2 *np.log(D*(H - Y2) - C*(E + H - Y2))*C + 8*D*F**2 *H**2 *np.log(D*(H - Y2) - C*(E + H - Y2))*C + \
-                       8*D*G**2 *H**2 *np.log(D*(H - Y2) - C*(E + H - Y2))*C - 16*D*F*G*H**2 *np.log(D*(H - Y2) - C*(E + H - Y2))*C + \
-                       4*D*F*G*np.log(D*(H - Y2) - C*(E + H - Y2))*C + 8*D*E*F**2 *H*np.log(D*(H - Y2) - C*(E + H - Y2))*C +\
-                       8*D*E*G**2 *H*np.log(D*(H - Y2) - C*(E + H - Y2))*C - 16*D*E*F*G*H*np.log(D*(H - Y2) - C*(E + H - Y2))*C + \
-                       4*D**2 *E*F**2 *Y2 - 4*D**2 *E*F*G*Y2 - D**2 *F**2 *np.log(-E*F - (F - G)*(H - Y2)) + 4*D**2 *E**2 *F**2 \
-                       *np.log(-E*F - (F - G)*(H - Y2)) - D**2 *G**2 *np.log(-E*F - (F - G)*(H - Y2)) + 4*D**2 *F**2 *H**2\
-                       *np.log(-E*F - (F - G)*(H - Y2)) + 4*D**2 *G**2 *H**2 *np.log(-E*F - (F - G)*(H - Y2)) - 8*D**2 *F*G*H**2 \
-                       *np.log(-E*F - (F - G)*(H - Y2)) + 2 *D**2 *F*G *np.log(-E*F - (F - G)*(H - Y2)) + 8*D**2 *E*F**2 *H \
-                       *np.log(-E*F - (F - G)*(H - Y2)) - 8*D**2 *E*F*G*H*np.log(-E*F - (F - G)*(H - Y2)) + D**2 *F**2 \
-                       *np.log(D*(H - Y2) - C*(E + H - Y2)) + D**2 *G**2 *np.log(D*(H - Y2) - C*(E + H - Y2)) - 4*D**2 *F**2 *H**2\
-                       *np.log(D*(H - Y2) - C*(E + H - Y2)) - 4*D**2 *G**2 *H**2 *np.log(D*(H - Y2) - C*(E + H - Y2)) + 8*D**2 *F*G*H**2\
-                       *np.log(D*(H - Y2) - C*(E + H - Y2)) - 2 *D**2 *F*G *np.log(D*(H - Y2) - C*(E + H - Y2))))/(8*(C - D)**2 *(F - G)**2 *(C*G - D*F))
-           
+            if C==D and F==G:
+                
+                WB1 = 1/(G*C)* (Y1/8 - Y1**3/6 )
+                WB2 = 1/(G*C)* (Y2/8 - Y2**3/6 )
+                
+            elif C!=D and F==G:
 
+                WB1 = (1/(G)) *  ((4*C**2 + 8*C*H*L + (4*H**2 - 1)*L**2)*np.log(C + H*L - L*Y1) + \
+                                  2*L*Y1 *(2*C + L*(2*H + Y1)))/(8*L**3)
+                WB2 = (1/(G)) *  ((4*C**2 + 8*C*H*L + (4*H**2 - 1)*L**2)*np.log(C + H*L - L*Y2) + \
+                                  2*L*Y2 *(2*C + L*(2*H + Y2)))/(8*L**3)
+
+                
+            elif C==D and F!=G:
+                
+                WB1 = (1/(C))*((4*F**2 + 8*F*H*M + (4*H**2 - 1)*M**2)*np.log(F + H*M - M*Y1) + 2*M*Y1 \
+                               *(2*F + M*(2*H + Y1)))/(8*M**3)
+                WB2 = (1/(C))*((4*F**2 + 8*F*H*M + (4*H**2 - 1)*M**2)*np.log(F + H*M - M*Y2) + 2*M*Y2 \
+                               *(2*F + M*(2*H + Y2)))/(8*M**3)
             
-     
-            
+            elif C!=D and F!=G:
+
+                WB1 = (M**2 *(4*C**2 + 8*C*H*L + (4*H**2 - 1)*L**2)*np.log(C + H*L - L*Y1) +\
+                       L*(4*M*Y1 *(C*M - F*L) + L*(-4*F**2 - 8*F*H*M - 4*H**2 *M**2 +\
+                                                   M**2)*np.log(F + H*M - M*Y1)))/(8*L**2 *M**2 *(F*L - C*M))
+                WB2 = (M**2 *(4*C**2 + 8*C*H*L + (4*H**2 - 1)*L**2)*np.log(C + H*L - L*Y2) +\
+                       L*(4*M*Y2 *(C*M - F*L) + L*(-4*F**2 - 8*F*H*M - 4*H**2 *M**2 +\
+                                                   M**2)*np.log(F + H*M - M*Y2)))/(8*L**2 *M**2 *(F*L - C*M))
+                
             run_sum += (WB2-WB1)
             
         weight = 4.22*area 
