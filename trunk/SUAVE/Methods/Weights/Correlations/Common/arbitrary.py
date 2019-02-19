@@ -22,6 +22,7 @@ from SUAVE.Methods.Weights.Correlations.Common.systems import systems
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 import SUAVE.Components.Energy.Networks as Nets
 import SUAVE.Components.Wings as Wings
+from SUAVE.Attributes.Solids.Aluminum import Aluminum
 
 import numpy as np
 
@@ -117,7 +118,9 @@ def arbitrary(vehicle,settings=None):
             lambda_w = wing.taper
             
             # Calculate the weights
-            wt_wing  = wing_main.wing_main(wing,Nult,TOW,wt_zf)
+            rho      = Aluminum().density
+            sigma    = Aluminum().yield_tensile_strength            
+            wt_wing  = wing_main.wing_main(wing,Nult,TOW,wt_zf,rho,sigma)
             
             # Apply weight factor
             wt_wing  = wt_wing*(1.-wt_factors.main_wing)
