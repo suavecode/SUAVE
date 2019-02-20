@@ -18,7 +18,6 @@ from .Internal_Combustion_Propeller import Internal_Combustion_Propeller
 from .Stopped_Rotor import Stopped_Rotor
 from .Stopped_Rotor_Low_Fidelity import Stopped_Rotor_Low_Fidelity
 from .Tilt_Rotor import Tilt_Rotor
-from .Tilt_Rotor_Low_Fidelity import Tilt_Rotor_Low_Fidelity
 from .Battery_Propeller_Low_Fidelity import Battery_Propeller_Low_Fidelity
 from .Propulsor_Surrogate import Propulsor_Surrogate
 from .Ramjet import Ramjet

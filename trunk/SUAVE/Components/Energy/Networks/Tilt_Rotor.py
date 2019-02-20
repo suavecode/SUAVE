@@ -14,7 +14,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 import math 
-from SUAVE.Core import Data
+from SUAVE.Core import  Units, Data
 
 # ----------------------------------------------------------------------
 #  Network
@@ -121,23 +121,21 @@ class Tilt_Rotor(Propulsor):
         motor.omega(conditions)
         
         # Define the thrust angle        
-        #if self.thrust_angle_start != None:
-            #if state.unknowns.thrust_angle_end != None:
-                #thrust_angle0 = self.thrust_angle_start 
-                #thrust_anglef = state.unknowns.thrust_angle_end  
-                #thrust_angle  = t_nondim * (thrust_anglef-thrust_angle0) + thrust_angle0 
-            #else:
-                #thrust_angle = self.thrust_angle_start
-        thrust_angle0 = self.thrust_angle_start 
-        thrust_anglef = state.unknowns.thrust_angle_end[0]  
-        thrust_angle  = t_nondim * (thrust_anglef-thrust_angle0) + thrust_angle0 
+        if self.thrust_angle_start != None:
+            if 'thrust_angle_end' in state.unknowns:
+                thrust_angle0 = self.thrust_angle_start 
+                thrust_anglef = state.unknowns.thrust_angle_end  
+                thrust_angle  = t_nondim * (thrust_anglef-thrust_angle0) + thrust_angle0 
+        else:
+            thrust_angle = self.thrust_angle
                 
         # link
         propeller.inputs.omega =  motor.outputs.omega
         propeller.thrust_angle =  thrust_angle
+        conditions.propulsion.pitch_command = self.pitch_command
         
-        # step 5
-        F, Q, P, Cp , noise, etap = propeller.spin(conditions)
+        # step 5        
+        F, Q, P, Cp , noise, etap = propeller.spin_variable_pitch(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]
@@ -187,19 +185,19 @@ class Tilt_Rotor(Propulsor):
         conditions.propulsion.propeller_torque     = Q
         
         # Compute force vector       
-        #if self.thrust_angle_start != None:
-            #if state.unknowns.thrust_angle_end != None:
-                #relative_directions = np.zeros((len(thrust_angle),3))
-                #relative_directions[:,0] = np.cos(thrust_angle[:,0])
-                #relative_directions[:,2] = -np.sin(thrust_angle[:,0])
-                #F = num_engines * np.multiply(F,relative_directions)   
-            #else:
-                #F = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
+        if self.thrust_angle_start != None:
+            if 'thrust_angle_end' in state.unknowns:
+                relative_directions = np.zeros((len(thrust_angle),3))
+                relative_directions[:,0] = np.cos(thrust_angle[:,0])
+                relative_directions[:,2] = -np.sin(thrust_angle[:,0])
+                F = num_engines * np.multiply(F,relative_directions)   
+            else:
+                F = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
         
-        relative_directions = np.zeros((len(thrust_angle),3))
-        relative_directions[:,0] = np.cos(thrust_angle[:,0])
-        relative_directions[:,2] = -np.sin(thrust_angle[:,0])
-        F = num_engines * np.multiply(F,relative_directions)  
+        #relative_directions = np.zeros((len(thrust_angle),3))
+        #relative_directions[:,0] = np.cos(thrust_angle[:,0])
+        #relative_directions[:,2] = -np.sin(thrust_angle[:,0])
+        #F = num_engines * np.multiply(F,relative_directions)  
         
         
         mdot = np.zeros_like(F)
@@ -210,6 +208,36 @@ class Tilt_Rotor(Propulsor):
         
         return results
           
+    def unpack_unknowns_hover(self,segment):
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.propeller_power_coefficient [None]
+            state.unknowns.battery_voltage_under_load  [volts]
+    
+            Outputs:
+            state.conditions.propulsion.propeller_power_coefficient [None]
+            state.conditions.propulsion.battery_voltage_under_load  [volts]
+    
+            Properties Used:
+            N/A
+        """                  
+        ones = segment.state.ones_row
+       
+        # Here we are going to unpack the unknowns (Cp) provided for this network
+        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
+        segment.state.conditions.propulsion.thrust_angle_end            = 0.0 * ones(1) * Units.degrees
+        
+        return
+      
     def unpack_unknowns(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
     
@@ -235,10 +263,10 @@ class Tilt_Rotor(Propulsor):
         segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
         segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
         segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
-        #segment.state.conditions.propulsion.thrust_angle_end            = segment.state.unknowns.thrust_angle_end
+        segment.state.conditions.propulsion.thrust_angle_end            = segment.state.unknowns.thrust_angle_end
         
         return
-       
+    
     def residuals(self,segment):
         """ This packs the residuals to be send to the mission solver.
     
