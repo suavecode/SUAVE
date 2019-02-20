@@ -276,11 +276,10 @@ class Propeller(Energy_Component):
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
                 break
 
-        #This is an atrocious fit of DAE51 data at RE=50k for Cd
-        #There is also RE scaling
         Re      = (W*c)/nu
         
-        Cdval = (cd_coeff[0] *(Cl*Cl*Cl*Cl)+cd_coeff[1]*(Cl*Cl*Cl)+cd_coeff[2]*(Cl*Cl)+cd_coeff[3]*Cl+cd_coeff[4])*((re_coeff[0]/Re)**re_coeff[1])   #(0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        #use a 4th degree polynomial fit with Reynolds number scaling for Cd
+        Cdval = (cd_coeff[0] *(Cl*Cl*Cl*Cl)+cd_coeff[1]*(Cl*Cl*Cl)+cd_coeff[2]*(Cl*Cl)+cd_coeff[3]*Cl+cd_coeff[4])*((re_coeff[0]/Re)**re_coeff[1])  
         Cdval[alpha>=pi/2] = 2.
         
         #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
