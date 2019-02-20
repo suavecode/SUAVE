@@ -80,38 +80,40 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
             L  = (C-D)/E
             M  = (G-F)/E
             
-            Y1 = wing.Segments[i].percent_span_location
-            Y2 = wing.Segments[i-1].percent_span_location
+            Y1 = wing.Segments[i-1].percent_span_location
+            Y2 = wing.Segments[i].percent_span_location
+            
             
             if C==D and F==G:
 
-                WB1 = 1/(G*C)* (Y1/8 - Y1**3/6 )
-                WB2 = 1/(G*C)* (Y2/8 - Y2**3/6 )
+                WB1 = 1/(G*C)* (Y1*(H**2)/8 - Y1**3/6 )
+                WB2 = 1/(G*C)* (Y2*(H**2)/8 - Y2**3/6 )
+                              
                 
             elif C!=D and F==G:
 
-                WB1 = (1/(G)) *  ((4*C**2 + 8*C*H*L + (4*H**2 - 1)*L**2)*np.log(C + H*L - L*Y1) + \
-                                  2*L*Y1 *(2*C + L*(2*H + Y1)))/(8*L**3)
-                WB2 = (1/(G)) *  ((4*C**2 + 8*C*H*L + (4*H**2 - 1)*L**2)*np.log(C + H*L - L*Y2) + \
-                                  2*L*Y2 *(2*C + L*(2*H + Y2)))/(8*L**3)
+                WB1 = (1/(G)) * ((4*D**2 + 8*D*J*L - L**2 *(H**2 - 4*J**2))*np.log(D + J*L - L*Y1) + \
+                                 2*L*Y1 *(2*D + L*(2*J + Y1)))/(8*L**3)
+                WB2 = (1/(G)) * ((4*D**2 + 8*D*J*L - L**2 *(H**2 - 4*J**2))*np.log(D + J*L - L*Y2) + \
+                                 2*L*Y2 *(2*D + L*(2*J + Y2)))/(8*L**3)
   
             elif C==D and F!=G:
                 
-                WB1 = (1/(C))*((4*F**2 + 8*F*H*M + (4*H**2 - 1)*M**2)*np.log(F + H*M - M*Y1) + 2*M*Y1 \
-                               *(2*F + M*(2*H + Y1)))/(8*M**3)
-                WB2 = (1/(C))*((4*F**2 + 8*F*H*M + (4*H**2 - 1)*M**2)*np.log(F + H*M - M*Y2) + 2*M*Y2 \
-                               *(2*F + M*(2*H + Y2)))/(8*M**3)
+                WB1 = (1/(C))*((4*F**2 + 8*F*H*M + 3*H**2 *M**2)*np.log(F + H*M - M*Y1) +\
+                               2*M*Y1*(2*F + M*(2*H + Y1)))/(8*M**3)
+                WB2 = (1/(C))*((4*F**2 + 8*F*H*M + 3*H**2 *M**2)*np.log(F + H*M - M*Y2) +\
+                               2*M*Y2*(2*F + M*(2*H + Y2)))/(8*M**3)
             
             elif C!=D and F!=G:
 
-                WB1 = (M**2 *(4*C**2 + 8*C*H*L + (4*H**2 - 1)*L**2)*np.log(C + H*L - L*Y1) +\
-                       L*(4*M*Y1 *(C*M - F*L) + L*(-4*F**2 - 8*F*H*M - 4*H**2 *M**2 +\
-                                                   M**2)*np.log(F + H*M - M*Y1)))/(8*L**2 *M**2 *(F*L - C*M))
-                WB2 = (M**2 *(4*C**2 + 8*C*H*L + (4*H**2 - 1)*L**2)*np.log(C + H*L - L*Y2) +\
-                       L*(4*M*Y2 *(C*M - F*L) + L*(-4*F**2 - 8*F*H*M - 4*H**2 *M**2 +\
-                                                   M**2)*np.log(F + H*M - M*Y2)))/(8*L**2 *M**2 *(F*L - C*M))
+                WB1 =  (M**2 *(4*C**2 + 8*C*H*L + 3*H**2 *L**2)*np.log(C + H*L - L*Y1) -\
+                        L*(4*M*Y1*(F*L - C*M) + L*(4*F**2 + 8*F*H*M + 3*H**2 \
+                                                   *M**2)*np.log(F + H*M - M*Y1)))/(8*L**2 *M**2 *(F*L - C*M))
+                WB2 =  (M**2 *(4*C**2 + 8*C*H*L + 3*H**2 *L**2)*np.log(C + H*L - L*Y2) -\
+                        L*(4*M*Y2*(F*L - C*M) + L*(4*F**2 + 8*F*H*M + 3*H**2 \
+                                                   *M**2)*np.log(F + H*M - M*Y2)))/(8*L**2 *M**2 *(F*L - C*M))
                 
-            run_sum += (WB2-WB1)
+            run_sum += -(WB2-WB1)
             
         run_sum = run_sum*b**2 # This b^2 is because the Y is non dimensional
             
