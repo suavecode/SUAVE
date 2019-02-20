@@ -3,6 +3,7 @@
 #
 # Created:  Jun 2014, E. Botero
 # Modified: Jan 2016, T. MacDonald
+#           Feb 2019, M. Vegh            
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -59,8 +60,8 @@ class Propeller(Energy_Component):
         self.prop_attributes.chord_distribution  = 0.0
         self.prop_attributes.mid_chord_alignment = 0.0
         self.prop_attributes.lift_curve_slope    = 2.*np.pi    
-        self.prop_attributes.cd_coeff            = [.108, -.2612, .181, -.0139, .0278]  #coefficients for a 4th degree polynomial fit of Cd(Cl)
-        self.prop_attributes.cd_re_scaling_coeff = [50000., .2]  # scaling = (coeff[0]/Re) **.2
+        self.prop_attributes.cd_coeff            = [.108, -.2612, .181, -.0139, .0278]  #coefficients for a 4th degree polynomial fit of Cd(Cl) for the airfoil
+        self.prop_attributes.cd_re_scaling_coeff = [50000., .2]  # scaling = (coeff[0]/Re) **coeff[1]
         self.thrust_angle                        = 0.0
         self.origin                              = [[0.0,0.0,0.0]] # [X,Y,Z]
         self.rotation                            = [[0.0,0.0,0.0]] # [X,Y,Z] rotation of axis relative to
@@ -118,6 +119,9 @@ class Propeller(Energy_Component):
           chord_distribution         [m]
           mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
           lift_curve_slope           [1/radians] (2D lift curve slope of the airfoil)
+          cd_coeff                   [-]
+          cd_re_scaling_coeff        [-]
+          
         self.thrust_angle            [radians]
         """         
            
