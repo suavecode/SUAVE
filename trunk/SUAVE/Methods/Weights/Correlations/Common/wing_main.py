@@ -113,9 +113,9 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
                 
             run_sum += (WB2-WB1)
             
-        run_sum = run_sum*b**2
+        run_sum = run_sum*b**2 # This b^2 is because the Y is non dimensional
             
-        weight_factor =  gamma*run_sum
+        weight_factor = gamma*run_sum
         
         weight = 4.22*(area/Units.feet**2) + (weight_factor/Units.lb)
             
