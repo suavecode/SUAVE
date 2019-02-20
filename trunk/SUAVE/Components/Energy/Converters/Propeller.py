@@ -58,10 +58,15 @@ class Propeller(Energy_Component):
         self.prop_attributes.twist_distribution  = 0.0
         self.prop_attributes.chord_distribution  = 0.0
         self.prop_attributes.mid_chord_alignment = 0.0
+        self.prop_attributes.lift_curve_slope    = 2.*np.pi    
+        self.prop_attributes.cd_coeff            = [.108, -.2612, .181, -.0139, .0278]  #coefficients for a 4th degree polynomial fit of Cd(Cl)
+        self.prop_attributes.cd_re_scaling_coeff = [50000., .2]  # scaling = (coeff[0]/Re) **.2
         self.thrust_angle                        = 0.0
         self.origin                              = [[0.0,0.0,0.0]] # [X,Y,Z]
         self.rotation                            = [[0.0,0.0,0.0]] # [X,Y,Z] rotation of axis relative to
-                                                                 # vehicle (used in OpenVSP for thrust_angle)
+      
+
+                 # vehicle (used in OpenVSP for thrust_angle)
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
 
@@ -112,15 +117,21 @@ class Propeller(Energy_Component):
           twist_distribution         [radians]
           chord_distribution         [m]
           mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
+          lift_curve_slope           [1/radians] (2D lift curve slope of the airfoil)
         self.thrust_angle            [radians]
         """         
            
         #Unpack    
-        B      = self.prop_attributes.number_blades
-        R      = self.prop_attributes.tip_radius
-        Rh     = self.prop_attributes.hub_radius
-        beta   = self.prop_attributes.twist_distribution
-        c      = self.prop_attributes.chord_distribution
+        B        = self.prop_attributes.number_blades
+        R        = self.prop_attributes.tip_radius
+        Rh       = self.prop_attributes.hub_radius
+        beta     = self.prop_attributes.twist_distribution
+        c        = self.prop_attributes.chord_distribution
+        cl_a     = self.prop_attributes.lift_curve_slope
+        cd_coeff = self.prop_attributes.cd_coeff   
+        re_coeff = self.prop_attributes.cd_re_scaling_coeff
+        
+        
         omega1 = self.inputs.omega
         rho    = conditions.freestream.density[:,0,None]
         mu     = conditions.freestream.dynamic_viscosity[:,0,None]
@@ -214,7 +225,7 @@ class Propeller(Energy_Component):
             Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-            Cl = 2.*pi*alpha
+            Cl = cl_a*alpha
             
             # By 90 deg, it's totally stalled.
             Cl[alpha>=pi/2] = 0.
@@ -264,7 +275,8 @@ class Propeller(Energy_Component):
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
         Re      = (W*c)/nu
-        Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        
+        Cdval = (cd_coeff[0] *(Cl*Cl*Cl*Cl)+cd_coeff[1]*(Cl*Cl*Cl)+cd_coeff[2]*(Cl*Cl)+cd_coeff[3]*Cl+cd_coeff[4])*((re_coeff[0]/Re)**re_coeff[1])   #(0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         Cdval[alpha>=pi/2] = 2.
         
         #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
