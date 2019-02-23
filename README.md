@@ -54,7 +54,7 @@ cd SUAVE/trunk
 python setup.py install
 ```
 
-More information available at [download](http://suave.stanford.edu/download/).
+More information available at [download](http://suave.stanford.edu/download.html).
 
 
 Requirements
@@ -66,9 +66,4 @@ numpy, scipy, matplotlib, pip, scikit-learn
 Developer Install
 -----------------
 
-See [develop](http://suave.stanford.edu/develop/).
-
-Frequently Asked Questions
------------------
-
-See [FAQ](http://suave.stanford.edu/faq.html).
+See [develop](http://suave.stanford.edu/download/develop_install.html).
