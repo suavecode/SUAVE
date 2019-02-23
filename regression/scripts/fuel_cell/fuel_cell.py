@@ -18,11 +18,6 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    #size the battery
-    Mission_total=SUAVE.Analyses.Mission.Sequential_Segments()
-    Ereq=4000*Units.Wh #required energy for the mission in Joules
-   
-    Preq=3000. #maximum power requirements for mission in W
     numerics                      =Data()
     power                         =np.array([100])
    
@@ -33,7 +28,6 @@ def main():
     fuel_cell.discharge_model     = zero_fidelity
     conditions                    = Data()
     #build numerics
-    
     numerics.time                 =Data()
     numerics.time.integrate       = np.array([[0, 0],[0, 10]])
     numerics.time.differentiate   = np.array([[0, 0],[0, 1]])
@@ -65,4 +59,3 @@ def main():
     
 if __name__ == '__main__':
     main()
-    plt.show()
