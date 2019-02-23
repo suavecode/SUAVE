@@ -58,17 +58,21 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
     sweep = wing.sweeps.quarter_chord
     area  = wing.areas.reference
     t_c_w = wing.thickness_to_chord
-    mtow  = TOW
-    zfw   = wt_zf 
-
-    # Start the calculations
-    l_tot = Nult*np.sqrt(mtow*zfw)*9.81
-    gamma = 16*l_tot*rho/(sigma*np.pi*span)
+    
+    #rho_sigma = rho/sigma
+    rho_sigma = (1.642*10.**-6.)
     
     if len(wing.Segments)>0:
+        
+        # Start the calculations
+        l_tot = Nult*np.sqrt(TOW*wt_zf )*9.81
+        gamma = 16*l_tot*rho_sigma/(np.pi*span)
+        
+        # Prime some numbers
         RC = wing.chords.root
         run_sum = 0
         b = span
+        
         for i in range(1,len(wing.Segments)):
             C  = wing.Segments[i-1].root_chord_percent*RC
             D  = wing.Segments[i].root_chord_percent*RC
