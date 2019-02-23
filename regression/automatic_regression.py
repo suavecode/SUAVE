@@ -50,6 +50,7 @@ modules = [
     'scripts/ducted_fan/ducted_fan_network.py',
     'scripts/dynamic_stability/dynamicstability.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
+    'scripts/fuel_cell/fuel_cell.py',     
     'scripts/gasturbine_network/gasturbine_network.py',
     'scripts/geometry/NACA_airfoil_compute.py',
     'scripts/geometry/NACA_volume_compute.py',
