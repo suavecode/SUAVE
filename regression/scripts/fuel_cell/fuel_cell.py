@@ -1,5 +1,5 @@
-#test battery.py
-# by M Vegh, last modified 2/05/2015
+#fuel_cell.py
+# by M Vegh, last modified 2/22/2019
 
 
 #----------------------------------------------------------------------
