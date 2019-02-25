@@ -74,7 +74,6 @@ class Constant_Accelerated_Climb_Constant_Angle(Aerodynamic):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.unknowns.throttle   = ones_row(1) * 0.5
         self.state.residuals.forces    = ones_row(2) * 0.0
         
         

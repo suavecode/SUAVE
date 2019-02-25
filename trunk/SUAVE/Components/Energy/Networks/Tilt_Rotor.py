@@ -122,7 +122,7 @@ class Tilt_Rotor(Propulsor):
         
         # Define the thrust angle        
         if self.thrust_angle_start != None:
-            if 'thrust_angle_end' in state.unknowns:
+            if 'thrust_angle_end' in self:
                 thrust_angle0 = self.thrust_angle_start 
                 thrust_anglef = state.unknowns.thrust_angle_end  
                 thrust_angle  = t_nondim * (thrust_anglef-thrust_angle0) + thrust_angle0 
@@ -183,10 +183,11 @@ class Tilt_Rotor(Propulsor):
         conditions.propulsion.voltage_under_load   = voltage_under_load  
         conditions.propulsion.motor_torque         = motor.outputs.torque
         conditions.propulsion.propeller_torque     = Q
+        conditions.propulsion.acoustic_outputs[propeller.tag]    = noise
         
         # Compute force vector       
         if self.thrust_angle_start != None:
-            if 'thrust_angle_end' in state.unknowns:
+            if 'thrust_angle_end' in state.unknowns: 
                 relative_directions = np.zeros((len(thrust_angle),3))
                 relative_directions[:,0] = np.cos(thrust_angle[:,0])
                 relative_directions[:,2] = -np.sin(thrust_angle[:,0])
@@ -197,14 +198,13 @@ class Tilt_Rotor(Propulsor):
         #relative_directions = np.zeros((len(thrust_angle),3))
         #relative_directions[:,0] = np.cos(thrust_angle[:,0])
         #relative_directions[:,2] = -np.sin(thrust_angle[:,0])
-        #F = num_engines * np.multiply(F,relative_directions)  
-        
+        #F = num_engines * np.multiply(F,relative_directions)          
         
         mdot = np.zeros_like(F)
 
         results = Data()
         results.thrust_force_vector = F
-        results.vehicle_mass_rate   = mdot        
+        results.vehicle_mass_rate   = mdot   
         
         return results
           
@@ -233,8 +233,8 @@ class Tilt_Rotor(Propulsor):
         # Here we are going to unpack the unknowns (Cp) provided for this network
         segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
         segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
-        segment.state.conditions.propulsion.thrust_angle_end            = 0.0 * ones(1) * Units.degrees
+        segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle  
+
         
         return
       
@@ -263,7 +263,7 @@ class Tilt_Rotor(Propulsor):
         segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
         segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
         segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
-        segment.state.conditions.propulsion.thrust_angle_end            = segment.state.unknowns.thrust_angle_end
+          
         
         return
     
@@ -302,6 +302,9 @@ class Tilt_Rotor(Propulsor):
         # Return the residuals
         segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
         segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max
+        
+        #print (segment.state.residuals.network[:,0])
+        #print (segment.state.residuals.network[:,1])
         
         return    
             

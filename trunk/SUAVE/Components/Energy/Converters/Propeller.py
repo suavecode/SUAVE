@@ -313,23 +313,33 @@ class Propeller(Energy_Component):
         
         # store data
         results_conditions = Data      
-        noise_data = results_conditions(
-            number_sections    = N,
-            r0                 = r,
-            airfoil_chord      = c,
-            blades_number      = B,
-            propeller_diameter = D,
-            drag_coefficient   = Cd,
-            lift_coefficient   = Cl,
-            omega              = omega,
-            velocity           = V,
-            thrust             = thrust,
-            power              = power,
-            mid_chord_aligment = self.mid_chord_aligment
+        acoustic_outputs   = results_conditions(
+            n_blades               = B,
+            R                      = R,
+            D                      = D,
+            number_sections        = N,
+            radius_distribution    = np.linspace(Rh ,R, N),
+            chord_distribution     = c,     
+            twist_distribution     = beta,            
+            r0                     = r,
+            thickenss_distribution = max(c), 
+            thrust_angle           = theta,
+            speed_of_sound         = conditions.freestream.speed_of_sound,
+            density                = conditions.freestream.density,
+            velocity               = V,            
+            drag_coefficient       = Cd,
+            lift_coefficient       = Cl,       
+            omega                  = omega,            
+            thrust_distribution    = rho*B*(Gamma*(Wt-epsilon*Wa)*deltar) ,
+            thrust                 = thrust,
+            torque_distribution    = rho*B*(Gamma*(Wa+epsilon*Wt)*r*deltar),
+            torque                 = torque,
+            mid_chord_aligment     = self.mid_chord_aligment,
+            tc                     = .12 # Thickness to chord            
         )
         
         
-        return thrust, torque, power, Cp, noise_data, etap
+        return thrust, torque, power, Cp, acoustic_outputs, etap
     
     
 
@@ -359,7 +369,7 @@ class Propeller(Energy_Component):
         #Unpack    
         B       = self.number_blades
         R       = self.tip_radius
-        Rh      = self.hub_radius
+        Rh      = self.hub_radius        
         beta_in = self.twist_distribution
         c       = self.chord_distribution
         omega1  = self.inputs.omega
@@ -383,13 +393,20 @@ class Propeller(Energy_Component):
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body = orientation_product(T_inertial2body,Vv)
         
-        # Velocity transformed to the propulsor frame
-        body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
-        T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        # Velocity transformed to the propulsor frame with flag for tilt rotor
+        if np.isscalar(theta):
+            body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
+            T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        else:
+            body2thrust = np.zeros((len(theta),3,3))
+            for i in range(len(theta)):
+                body2thrust[i,:,:] = [[np.cos(theta[i][0]), 0., np.sin(theta[i][0])],[0., 1., 0.], [-np.sin(theta[i][0]), 0., np.cos(theta[i][0])]]
+            T_body2thrust      = orientation_transpose(body2thrust)
+       
         V_thrust      = orientation_product(T_body2thrust,V_body)
         
         # Now just use the aligned velocity
-        V = V_thrust[:,0,None]
+        V = V_thrust[:,0,None]        
         
         nu    = mu/rho
         tol   = 1e-6 # Convergence tolerance
@@ -433,7 +450,9 @@ class Propeller(Energy_Component):
         psiold = np.zeros(size)
         diff   = 1.
         
+       
         ii = 0
+        broke = False
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -461,23 +480,22 @@ class Propeller(Energy_Component):
             
             # Estimate Cl max
             Re         = (W*c)/nu 
-            #Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-            #Re_ref     = 9.*10**6      
-            #Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+            Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+            Re_ref     = 9.*10**6      
+            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
             Cl = 2.*pi*alpha
             
             # By 90 deg, it's totally stalled.
-            #Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]
+            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
             Cl[alpha>=pi/2] = 0.
             
+            # Scale for Mach, this is Karmen_Tsien
+            Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
             
-            ## Scale for Mach, this is Karmen_Tsien
-            #Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-            
-            ## If the blade segments are supersonic, don't scale
-            #Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
+            # If the blade segments are supersonic, don't scale
+            Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
             
             Rsquiggly = Gamma - 0.5*W*c*Cl
             
@@ -510,8 +528,19 @@ class Propeller(Energy_Component):
             psi    = psi + dpsi
             diff   = np.max(abs(psiold-psi))
             psiold = psi
-
-        #There is also RE scaling
+            
+            # If its really not going to converge
+            if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                broke = True
+                break
+                
+            ii+=1
+                
+            if ii>2000:
+                broke = True
+                break
+            
+        # There is also RE scaling
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         Cdval[alpha>=pi/2] = 2.
@@ -530,6 +559,7 @@ class Propeller(Energy_Component):
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
         power    = torque*omega       
+
         
         if ducted == True:
             thrust = thrust*1.02 # 2% extra thrust for duct effects
@@ -545,22 +575,32 @@ class Propeller(Energy_Component):
         
         # store data
         results_conditions = Data      
-        noise_data = results_conditions(
-            number_sections    = N,
-            r0                 = r,
-            airfoil_chord      = c,
-            blades_number      = B,
-            propeller_diameter = D,
-            drag_coefficient   = Cd,
-            lift_coefficient   = Cl,
-            omega              = omega,
-            velocity           = V,
-            thrust             = thrust,
-            power              = power,
+        acoustic_outputs   = results_conditions(
+            n_blades               = B,
+            R                      = R,
+            D                      = D,
+            number_sections        = N,
+            radius_distribution    = np.linspace(Rh ,R, N),
+            chord_distribution     = c,     
+            twist_distribution     = beta,            
+            r0                     = r,
+            thickenss_distribution = max(c), 
+            thrust_angle           = theta,
+            speed_of_sound         = conditions.freestream.speed_of_sound,
+            density                = conditions.freestream.density,
+            velocity               = V,            
+            drag_coefficient       = Cd,
+            lift_coefficient       = Cl,       
+            omega                  = omega,            
+            thrust_distribution    = rho*B*(Gamma*(Wt-epsilon*Wa)*deltar) ,
+            thrust                 = thrust,
+            torque_distribution    = rho*B*(Gamma*(Wa+epsilon*Wt)*r*deltar),
+            torque                 = torque,
+            mid_chord_aligment     = self.mid_chord_aligment,
+            tc                     = .12 # Thickness to chord            
         )
         
-        
-        return thrust, torque, power, Cp, noise_data, etap
+        return thrust, torque, power, Cp, acoustic_outputs, etap
     
     
     def spin_surrogate(self,conditions):

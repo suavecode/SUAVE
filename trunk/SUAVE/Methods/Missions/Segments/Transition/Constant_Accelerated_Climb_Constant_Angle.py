@@ -108,6 +108,7 @@ def initialize_conditions(segment):
     # set the body angle
     body_angle =time*(Tf-T0)/(t_final-t_initial)
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     
+
     
     # pack
     segment.state.conditions.freestream.altitude[:,0] = alt[:,0]
@@ -115,8 +116,7 @@ def initialize_conditions(segment):
     segment.state.conditions.frames.inertial.velocity_vector[:,0] = vx[:,0] 
     segment.state.conditions.frames.inertial.velocity_vector[:,2] = vz[:,0] 
     segment.state.conditions.frames.inertial.time[:,0] = time[:,0]
-    
-    
+        
 # ----------------------------------------------------------------------
 #  Residual Total Forces
 # ----------------------------------------------------------------------
@@ -146,15 +146,18 @@ def residual_total_forces(segment):
     
     # Unpack
     FT      = segment.state.conditions.frames.inertial.total_force_vector
-    ax      = segment.acceleration 
-    m       = segment.state.conditions.weights.total_mass  
-    one_row = segment.state.ones_row
-    
-    a_x    = ax*one_row(1)
-    
-    # horizontal
-    segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a_x[:,0]
-    # vertical
-    segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] 
+    v       = segment.state.conditions.frames.inertial.velocity_vector
+    D       = segment.state.numerics.time.differentiate      
+    a       = np.dot(D,v)
+    segment.state.conditions.frames.inertial.acceleration_vector = a      
+    m       = segment.state.conditions.weights.total_mass
 
+       
+    # horizontal
+    segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
+    # vertical
+    segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] - a[:,2]
+    
+    #print (segment.state.residuals.forces[:,0])
+    #print (segment.state.residuals.forces[:,1])
     return
