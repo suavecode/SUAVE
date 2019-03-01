@@ -191,19 +191,15 @@ class Tilt_Rotor(Propulsor):
                 relative_directions = np.zeros((len(thrust_angle),3))
                 relative_directions[:,0] = np.cos(thrust_angle[:,0])
                 relative_directions[:,2] = -np.sin(thrust_angle[:,0])
-                F = num_engines * np.multiply(F,relative_directions)   
-            else:
-                F = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
+                F_vec = num_engines * np.multiply(F,relative_directions)   
+        else:
+            F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
+            
         
-        #relative_directions = np.zeros((len(thrust_angle),3))
-        #relative_directions[:,0] = np.cos(thrust_angle[:,0])
-        #relative_directions[:,2] = -np.sin(thrust_angle[:,0])
-        #F = num_engines * np.multiply(F,relative_directions)          
-        
-        mdot = np.zeros_like(F)
+        mdot = np.zeros_like(F_vec)
 
         results = Data()
-        results.thrust_force_vector = F
+        results.thrust_force_vector = F_vec
         results.vehicle_mass_rate   = mdot   
         
         return results

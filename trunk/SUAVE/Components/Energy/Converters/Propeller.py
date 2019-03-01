@@ -44,16 +44,17 @@ class Propeller(Energy_Component):
         Properties Used:
         None
         """         
-        self.number_blades       = 0.0
-        self.tip_radius          = 0.0
-        self.hub_radius          = 0.0
-        self.twist_distribution  = 0.0
-        self.chord_distribution  = 0.0
-        self.mid_chord_aligment  = 0.0
-        self.thrust_angle        = 0.0
-        self.radius_distribution = None
-        self.ducted              = False
-        self.tag                 = 'Propeller'
+        self.number_blades          = 0.0
+        self.tip_radius             = 0.0
+        self.hub_radius             = 0.0
+        self.twist_distribution     = 0.0
+        self.chord_distribution     = 0.0
+        self.mid_chord_aligment     = 0.0
+        self.thrust_angle           = 0.0
+        self.induced_hover_velocity = 0.0
+        self.radius_distribution    = None
+        self.ducted                 = False
+        self.tag                    = 'Propeller'
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -109,6 +110,7 @@ class Propeller(Energy_Component):
         Rh     = self.hub_radius
         beta   = self.twist_distribution
         c      = self.chord_distribution
+        Vi     = self.induced_hover_velocity 
         omega1 = self.inputs.omega
         rho    = conditions.freestream.density[:,0,None]
         mu     = conditions.freestream.dynamic_viscosity[:,0,None]
@@ -172,9 +174,12 @@ class Propeller(Energy_Component):
         J       = V/(2.*R*n)    
         sigma   = np.multiply(B*c,1./(2.*pi*r))          
     
-        #I make the assumption that externally-induced velocity at the disk is zero
-        #This can be easily changed if needed in the future:
-        ua = 0.0
+        # Include externally-induced velocity at the disk for hover
+        #if V.all() == 0:
+            #ua = Vi
+        #else:
+            #ua = 0.0 
+        ua = 0.0 
         ut = 0.0
         
         omegar = np.outer(omega,r)
@@ -302,8 +307,8 @@ class Propeller(Energy_Component):
         D        = 2*R
         Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
 
-        thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
-        power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
+        #thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
+        #power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         
         thrust[omega1<0.0] = - thrust[omega1<0.0]
 
@@ -322,11 +327,10 @@ class Propeller(Energy_Component):
             chord_distribution     = c,     
             twist_distribution     = beta,            
             r0                     = r,
-            thickenss_distribution = max(c), 
             thrust_angle           = theta,
             speed_of_sound         = conditions.freestream.speed_of_sound,
             density                = conditions.freestream.density,
-            velocity               = V,            
+            velocity               = Vv,            
             drag_coefficient       = Cd,
             lift_coefficient       = Cl,       
             omega                  = omega,            
@@ -335,6 +339,7 @@ class Propeller(Energy_Component):
             torque_distribution    = rho*B*(Gamma*(Wa+epsilon*Wt)*r*deltar),
             torque                 = torque,
             mid_chord_aligment     = self.mid_chord_aligment,
+            max_thickness_distribution = self.max_thickness_distribution,
             tc                     = .12 # Thickness to chord            
         )
         
@@ -372,6 +377,7 @@ class Propeller(Energy_Component):
         Rh      = self.hub_radius        
         beta_in = self.twist_distribution
         c       = self.chord_distribution
+        Vi     = self.induced_hover_velocity 
         omega1  = self.inputs.omega
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
@@ -432,9 +438,12 @@ class Propeller(Energy_Component):
         J       = V/(2.*R*n)    
         sigma   = np.multiply(B*c,1./(2.*pi*r))          
     
-        #I make the assumption that externally-induced velocity at the disk is zero
-        #This can be easily changed if needed in the future:
-        ua = 0.0
+        # Include externally-induced velocity at the disk for hover
+        #if V.all() == 0:
+            #ua = Vi
+        #else:
+            #ua = 0.0 
+        ua = 0.0 
         ut = 0.0
         
         omegar = np.outer(omega,r)
@@ -584,11 +593,10 @@ class Propeller(Energy_Component):
             chord_distribution     = c,     
             twist_distribution     = beta,            
             r0                     = r,
-            thickenss_distribution = max(c), 
             thrust_angle           = theta,
             speed_of_sound         = conditions.freestream.speed_of_sound,
             density                = conditions.freestream.density,
-            velocity               = V,            
+            velocity               = Vv,            
             drag_coefficient       = Cd,
             lift_coefficient       = Cl,       
             omega                  = omega,            
@@ -597,6 +605,7 @@ class Propeller(Energy_Component):
             torque_distribution    = rho*B*(Gamma*(Wa+epsilon*Wt)*r*deltar),
             torque                 = torque,
             mid_chord_aligment     = self.mid_chord_aligment,
+            max_thickness_distribution = self.max_thickness_distribution,
             tc                     = .12 # Thickness to chord            
         )
         
