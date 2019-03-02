@@ -58,30 +58,30 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts):
             p_pref_r_H_dBA  = np.zeros((num_h,1))
 
             for h in range(num_h):
-                m              = harmonics[h]                    # harmonic number 
-                p_ref          = 2e-5                            # referece atmospheric pressure
-                a              = prop.speed_of_sound[i][0]       # speed of sound
-                rho            = prop.density[i][0]              # air density 
-                x              = prop.position[i][0]             # x relative position from observer
-                y              = prop.position[i][1]             # y relative position from observer 
-                z              = prop.position[i][2]             # z relative position from observer
-                Vx             = prop.velocity[i][0]             # x velocity of propeller  
-                Vy             = prop.velocity[i][1]             # y velocity of propeller 
-                Vz             = prop.velocity[i][2]             # z velocity of propeller 
-                thrust_angle   = prop.thrust_angle               # propeller thrust angle
-                AoA            = prop.AoA[i][0]                  # vehicle angle of attack                                            
-                N              = prop.n_rotors                   # numner of Rotors
-                B              = prop.n_blades                   # number of rotor blades
-                omega          = prop.omega[i]                   # angular velocity            rpm = (tip speed*60)/(pi*D)     , 1 rad/s = 9.5492965 rpm     
-                T              = prop.thrust[i]                  # rotor thrust                T (supposed) 14011 (total)  1751 (per rotor)  
-                Q              = prop.torque[i]                  # rotor torque  
-                T_distri_old   = prop.thrust_distribution[i]     # rotor thrust distribution  
-                Q_distri_old   = prop.torque_distribution[i]     # rotor torque distribution 
-                R_old          = prop.radius_distribution        # radial location     
-                c_old          = prop.chord_distribution         # blade chord    
-                phi_t_old      = prop.twist_distribution         # twist distribution  
-                t_old          = prop.max_thickness_distribution # twist distribution
-                MCA_old        = prop.mid_chord_aligment         # Mid Chord Alighment 
+                m              = harmonics[h]                      # harmonic number 
+                p_ref          = 2e-5                              # referece atmospheric pressure
+                a              = prop.speed_of_sound[i][0]         # speed of sound
+                rho            = prop.density[i][0]                # air density 
+                x              = prop.position[i][0]               # x relative position from observer
+                y              = prop.position[i][1]               # y relative position from observer 
+                z              = prop.position[i][2]               # z relative position from observer
+                Vx             = prop.velocity[i][0]               # x velocity of propeller  
+                Vy             = prop.velocity[i][1]               # y velocity of propeller 
+                Vz             = prop.velocity[i][2]               # z velocity of propeller 
+                thrust_angle   = prop.thrust_angle                 # propeller thrust angle
+                AoA            = prop.AoA[i][0]                    # vehicle angle of attack                                            
+                N              = prop.n_rotors                     # numner of Rotors
+                B              = prop.n_blades                     # number of rotor blades
+                omega          = prop.omega[i]                     # angular velocity            rpm = (tip speed*60)/(pi*D)     , 1 rad/s = 9.5492965 rpm     
+                T              = prop.blade_thrust[i]              # rotor blade thrust               
+                Q              = prop.blade_torque[i]              # rotor blade torque  
+                T_distri_old   = prop.blade_thrust_distribution[i] # rotor blade thrust distribution  
+                Q_distri_old   = prop.blade_torque_distribution[i] # rotor blade torque distribution 
+                R_old          = prop.radius_distribution          # radial location     
+                c_old          = prop.chord_distribution           # blade chord    
+                phi_t_old      = prop.twist_distribution           # twist distribution  
+                t_old          = prop.max_thickness_distribution   # twist distribution
+                MCA_old        = prop.mid_chord_aligment           # Mid Chord Alighment 
                 
                 # A-Weighting for Rotational Noise
                 '''A-weighted sound pressure level can be obtained by applying A(f) to the
@@ -92,14 +92,14 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts):
                 #------------------------------------------------------------------------
                 # Rotational SPL by Gutin & Deming
                 #------------------------------------------------------------------------  
-                R_tip    = R_old[-1]                         # Rotor Tip Radius           
-                R_hub    = R_old[0]                          # Rotor Hub Radius  
-                r_old    = R_old/R_tip                       # non dimensional radius distribution
-                V_distri = R_old*omega                       # blade velocity distribution
-                dT_dR    = np.diff(T_distri)/np.diff(R_old)  # dT_dR 
-                dT_dr    = np.diff(T_distri)/np.diff(r_old)  # dT_dr
-                dQ_dR    = np.diff(Q_distri)/np.diff(R_old)  # dQ_dR            
-                dQ_dr    = np.diff(Q_distri)/np.diff(r_old)  # dQ_dr
+                R_tip    = R_old[-1]                             # Rotor Tip Radius           
+                R_hub    = R_old[0]                              # Rotor Hub Radius  
+                r_old    = R_old/R_tip                           # non dimensional radius distribution
+                V_distri = R_old*omega                           # blade velocity distribution
+                dT_dR    = np.diff(T_distri_old)/np.diff(R_old)  # dT_dR 
+                dT_dr    = np.diff(T_distri_old)/np.diff(r_old)  # dT_dr
+                dQ_dR    = np.diff(Q_distri_old)/np.diff(R_old)  # dQ_dR            
+                dQ_dr    = np.diff(Q_distri_old)/np.diff(r_old)  # dQ_dr
                 
                 # we have to reduce dimension of R, r and c since dimension of differentials are 1 less 
                 n        = len(R_old) - 1
@@ -124,16 +124,14 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts):
                     v2    = [x,y,z]                          # observer_vector   
                     theta = np.arccos(x/S)                   # np.arccos(np.dot(v1,v2)/ (np.linalg.norm(v1) * np.linalg.norm(v2))) 
                     alpha = AoA
-                print(theta)
 
                 # sound pressure for loading noise 
-                p_mL_GD= ((m*B*omega)/(2*np.sqrt(2)*np.pi*a*(S)))*np.trapz(((dT_dR*np.cos(theta) - (dQ_dR*a)/(omega*(R**2)))* 
+                p_mL_GD= ((m*B*omega)/(2*np.sqrt(2)*np.pi*a*(S)))*np.trapz((((dT_dR)*np.cos(theta) - ((dQ_dR)*a)/(omega*(R**2)))* 
                                                                     jv(m*B,((m*B*omega*R*np.sin(theta))/a))),R,dR )                
                 p_mL_GD[np.isinf(p_mL_GD)] = 0
                 
                 # sound pressure for thickness noise 
-                p_mT_GD = ((m*B*omega)/(2*np.sqrt(2)*np.pi*a*(S)))*np.trapz(((dT_dR*np.cos(theta) - (dQ_dR*a)/(omega*(R**2)))* 
-                                                              jv(m*B,((m*B*omega*R*np.sin(theta))/a))), R, dR )  
+                p_mT_GD = ((-rho*((m*B*omega)**2)*B)/(3*np.sqrt(2)*np.pi*(S)))*np.trapz(c*t*jv(m*B,((m*B*omega*R*np.sin(theta))/a)), R, dR )  
                 p_mT_GD[np.isinf(p_mT_GD)] = 0
                 p_mT_GD[np.isneginf(p_mT_GD)] = 0
                 
@@ -150,17 +148,15 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts):
                 X            = np.sqrt(x**2 + z**2)                 # distance to observer from propeller plane (z)
                 V            = np.sqrt(Vx**2 + Vy**2 + Vz**2)       # velocity magnitude
                 M            = V/a                                  # Mach number
-                S0           = np.sqrt(z**2 + (1 - M**2)*(Y**2))    # amplitude radius                             
+                S0           = np.sqrt(x**2 + (1 - M**2)*(Y**2))    # amplitude radius                             
                 phi_t        = np.interp(R,R_old,phi_t_old)         # blade twist angle 
                 A_x          = 0.6853*c*t                           # airfoil cross-sectional area
                 
                 # sound pressure for loading noise 
                 p_mL_BM  = (1/(np.sqrt(2)*np.pi*S0))*np.trapz(( (R/(c*np.cos(phi_t)))*np.sin((m*B*c*np.cos(phi_t))/(2*R))* \
-                                                     ((((M + X/S0)*omega)/(a*(1 - M**2)))*dT_dR - (1/R**2)*dQ_dR)* \
-                                                     ((jv(m*B,((m*B*omega*R*Y)/a))) + (((1 - M**2)*Y*R)/(2*(S0**2)))*\
-                                                      ((jv((m*B-1),((m*B*omega*R*Y)/(a*S0)))) - (jv((m*B+1),((m*B*omega*R*Y)/(a*S0))))))),x = R,dx = dR)                         
-                
-                #p_mL_BM[np.isinf(p_mL_BM)] = 0
+                                                     ((((M + X/S0)*omega)/(a*(1 - M**2)))*(dT_dR) - (1/R**2)*(dQ_dR))* \
+                                                     ((jv(m*B,((m*B*omega*R*Y)/(a*S0)))) + (((1 - M**2)*Y*R)/(2*(S0**2)))*\
+                                                      ((jv((m*B-1),((m*B*omega*R*Y)/(a*S0)))) - (jv((m*B+1),((m*B*omega*R*Y)/(a*S0))))))),x = R,dx = dR)   
                 
                 # sound pressure for thickness noise 
                 p_mT_BM = -((rho*(m**2)*(omega**2)*(B**3) )/(2*np.sqrt(2)*np.pi*((1 - M**2)**2)))*(((S0 + M*X)**2)/(S0**3))* \
@@ -179,7 +175,7 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts):
                 # Rotational SPL by Hanson
                 #------------------------------------------------------------------------
                 D             = 2*R_tip                                                                                 # propeller diameter
-                V_tip          = R_tip*omega                                                                            # blade_tip_speed 
+                V_tip         = R_tip*omega                                                                            # blade_tip_speed 
                 M_t           = V_tip/a                                                                                 # tip Mach number 
                 M_s           = np.sqrt(M**2 + (r**2)*(M_t**2))                                                         # section relative Mach number 
                 r_t           = R_tip                                                                                   # propeller tip radius
@@ -194,23 +190,22 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts):
                 psi_V         = np.zeros(n)
                 for idx in range(n):
                     if k_x[idx] == 0:
-                        psi_L[idx] = 2/3                                                                                # normalized loading souce transforms
-                        psi_V[idx] = (8/k_x[idx]**2)*((2/k_x[idx])*np.sin(0.5*k_x[idx])- np.cos(0.5*k_x[idx]))          # normalized thickness souce transforms
-                    else:                                                                                               
                         psi_L[idx] = 1                                                                                  # normalized loading souce transforms
-                        psi_V[idx] = (2/k_x[idx])*np.sin(0.5*k_x[idx])                                                  # normalized thickness souce transforms           
+                        psi_V[idx] = 2/3                                                                                # normalized thickness souce transforms
+                    else:                                                                                               
+                        psi_L[idx] = (2/k_x[idx])*np.sin(0.5*k_x[idx])                                                  # normalized loading souce transforms
+                        psi_V[idx] = (8/k_x[idx]**2)*((2/k_x[idx])*np.sin(0.5*k_x[idx])- np.cos(0.5*k_x[idx]))          # normalized thickness souce transforms           
                 
                 # sound pressure for loading noise 
                 p_mL_H = ((1j*m*B*M_t*np.sin(theta_r)*np.exp(1j*m*B*((omega*S_r/a)+(phi_prime - np.pi/2))))/(2*np.sqrt(2)*np.pi*Y*r_t*(1 - M*np.cos(theta_r)))) \
-                          *np.trapz((((np.cos(theta_r_prime)/(1 - M*np.cos(theta_r)))*dT_dr - (1/((r**2)*M_t*r_t))*dQ_dr)*np.exp(1j*phi_s)*\
-                               (jv(m*B,((m*B*r*omega*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r)))))*psi_L),x = r,dx = dr)
-                                    
+                          *np.trapz((((np.cos(theta_r_prime)/(1 - M*np.cos(theta_r)))*(dT_dr) - (1/((r**2)*M_t*r_t))*(dQ_dr))*np.exp(1j*phi_s)*\
+                               (jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r)))))*psi_L),x = r,dx = dr)
                 p_mL_H[np.isinf(p_mL_H)] = 0
                 p_mL_H = p_mL_H.real
                 
                 # sound pressure for thickness noise 
                 p_mT_H = (-(rho*(a**2)*B*np.sin(theta_r)*np.exp(1j*m*B*((omega*S_r/a)+(phi_prime - np.pi/2))))/(4*np.sqrt(2)*np.pi*(Y/D)*(1 - M*np.cos(theta_r)))) \
-                        *np.trapz(((M_s**2)*(t/c)*np.exp(1j*phi_s)*(jv(m*B,((m*B*r*omega*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r)))))*(k_x**2)*psi_V),x = r,dx = dr)
+                        *np.trapz(((M_s**2)*(t/c)*np.exp(1j*phi_s)*(jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r)))))*(k_x**2)*psi_V),x = r,dx = dr)
                 p_mT_H[np.isinf(p_mT_H)] = 0  
                 p_mT_H = p_mT_H.real
                 
