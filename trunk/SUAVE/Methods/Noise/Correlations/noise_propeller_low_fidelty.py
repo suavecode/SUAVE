@@ -15,19 +15,14 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts):
            noise_data	 - SUAVE type vehicle
 
        Outputs:
-           OASPL                         - Overall Sound Pressure Level, [dB]
-           PNL                           - Perceived Noise Level, [dB]
-           PNL_dBA                       - Perceived Noise Level A-weighted level, [dBA]
+           SPL                         - Overall Sound Pressure Level, [dB]
 
        Assumptions:
            Empirical based procedure."""   
     
-    
-    SPL_DG_unweighted2 = np.zeros((ctrl_pts,1)) 
     SPL_DG_unweighted = np.zeros((ctrl_pts,1)) 
     SPL_BM_unweighted = np.zeros((ctrl_pts,1))
     SPL_H_unweighted  = np.zeros((ctrl_pts,1)) 
-    SPL_GDv_dBA2       = np.zeros((ctrl_pts,1))
     SPL_GDv_dBA       = np.zeros((ctrl_pts,1))
     SPL_BMv_dBA       = np.zeros((ctrl_pts,1))
     SPL_Hv_dBA        = np.zeros((ctrl_pts,1))      
@@ -35,12 +30,10 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts):
     for i in range(ctrl_pts): 
  
         total_p_pref_r_GD = []
-        total_p_pref_r_GD2 = []
         total_p_pref_r_BM = []
         total_p_pref_r_H  = []
         
         total_p_pref_GDv_dBA = []
-        total_p_pref_GDv_dBA2 = []
         total_p_pref_BMv_dBA = []
         total_p_pref_Hv_dBA = []
         
@@ -48,22 +41,18 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts):
             harmonics    = range(1,2)  
             num_h        = len(harmonics)
             
-            SPL_r_GD2     = np.zeros((num_h,1))
             SPL_r_GD     = np.zeros((num_h,1))
             SPL_r_BM     = np.zeros((num_h,1))
             SPL_r_H      = np.zeros((num_h,1))
             
-            p_pref_r_GD2  = np.zeros((num_h,1))
             p_pref_r_GD  = np.zeros((num_h,1))
             p_pref_r_BM  = np.zeros((num_h,1))
             p_pref_r_H   = np.zeros((num_h,1))
             
-            SPL_r_GD_dBA2 = np.zeros((num_h,1))
             SPL_r_GD_dBA = np.zeros((num_h,1))
             SPL_r_BM_dBA = np.zeros((num_h,1))
             SPL_r_H_dBA  = np.zeros((num_h,1))
             
-            p_pref_r_GD_dBA2 = np.zeros((num_h,1))
             p_pref_r_GD_dBA = np.zeros((num_h,1))
             p_pref_r_BM_dBA = np.zeros((num_h,1))
             p_pref_r_H_dBA  = np.zeros((num_h,1))
@@ -254,48 +243,39 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts):
             h           = t_avg*np.cos(blade_alpha) + c_avg*np.sin(blade_alpha)                # projected blade thickness                   
             f_peak      = (V_07*St)/h                                                          # V - blade velocity at a radial location of 0.7                
             f_spectrum  = [0.5*f_peak, 1*f_peak , 2*f_peak , 4*f_peak , 8*f_peak , 16*f_peak]  # spectrum
+            fr          = f_spectrum/f_peak                                                    # frequency ratio  
             SPL_weight  = [7.92 , 4.17 , 8.33 , 8.75 ,12.92 , 13.33]                           # SPL weight
             SPL_v       = np.ones_like(SPL_weight)*SPL_v - SPL_weight                          # SPL correction
-            SPL_v_dBA   = np.zeros((len(SPL_v),1))
-            for idx in range(len(SPL_v)):
-                SPL_v_dBA[idx] = A_weighting(SPL_v[idx],f)
-            
+
             dim         = len(f_spectrum)
             C           = np.zeros(dim) 
-            fr          = f_spectrum/f_peak                                                             # frequency ratio  
-            p_pref_v_dBA= np.zeros((len(SPL_v),1))
-            
-            # A-Weighting for Vortex Noise  
+            p_pref_v_dBA= np.zeros((dim,1))
             for j in range(dim-1):
                 C[j]        = (SPL_v[j+1] - SPL_v[j])/(np.log10(fr[j+1]) - np.log10(fr[j])) 
                 C[j+1]      = SPL_v[j+1]- C[j]*np.log10(fr[j+1])   
                 p_pref_v_dBA[j] = (10** (0.1*C[j+1]))* (((fr[j+1]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) - ((fr[j]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) )
                     
             # collecting unweighted pressure ratios 
-            total_p_pref_r_GD2.append(p_pref_r_GD2) 
             total_p_pref_r_GD.append(p_pref_r_GD)  
             total_p_pref_r_BM.append(p_pref_r_BM)  
             total_p_pref_r_H.append(p_pref_r_H)    
             
             # collecting weighted pressure ratios with vortex noise included
-            total_p_pref_GDv_dBA2.append(np.concatenate([p_pref_r_GD_dBA2,p_pref_v_dBA])) # Gutin & Deming rotational noise with Schlegel vortex noise
             total_p_pref_GDv_dBA.append(np.concatenate([p_pref_r_GD_dBA,p_pref_v_dBA])) # Gutin & Deming rotational noise with Schlegel vortex noise
             total_p_pref_BMv_dBA.append(np.concatenate([p_pref_r_BM_dBA,p_pref_v_dBA])) # Barry & Magliozzi rotational noise with Schlegel vortex noise
-            total_p_pref_Hv_dBA.append(np.concatenate([p_pref_r_H_dBA,p_pref_v_dBA])) # Hanson rotational noise with Schlegel vortex noise        
+            total_p_pref_Hv_dBA.append(np.concatenate([p_pref_r_H_dBA,p_pref_v_dBA]))   # Hanson rotational noise with Schlegel vortex noise        
         
         # Rotational SPL (Unweighted)   
-        SPL_DG_unweighted2[i,0] = decibel_arithmetic(total_p_pref_r_GD2)
         SPL_DG_unweighted[i,0] = decibel_arithmetic(total_p_pref_r_GD)
         SPL_BM_unweighted[i,0] = decibel_arithmetic(total_p_pref_r_BM)
         SPL_H_unweighted[i,0]  = decibel_arithmetic(total_p_pref_r_H)            
         
         # A- Weighted Rotational and Vortex SPL
-        SPL_GDv_dBA2[i,0] = decibel_arithmetic( total_p_pref_GDv_dBA2)
         SPL_GDv_dBA[i,0] = decibel_arithmetic( total_p_pref_GDv_dBA)
         SPL_BMv_dBA[i,0] = decibel_arithmetic(total_p_pref_BMv_dBA)
         SPL_Hv_dBA[i,0]  = decibel_arithmetic(total_p_pref_Hv_dBA)
     
-    return   SPL_DG_unweighted2 , SPL_DG_unweighted , SPL_BM_unweighted , SPL_H_unweighted , SPL_GDv_dBA2 , SPL_GDv_dBA  , SPL_BMv_dBA , SPL_Hv_dBA
+    return   SPL_DG_unweighted , SPL_BM_unweighted , SPL_H_unweighted , SPL_GDv_dBA  , SPL_BMv_dBA , SPL_Hv_dBA
 # -----------------------------------------------------------------------
 # Decibel Arithmetic
 # -----------------------------------------------------------------------
