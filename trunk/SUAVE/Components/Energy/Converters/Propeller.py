@@ -334,10 +334,10 @@ class Propeller(Energy_Component):
             drag_coefficient          = Cd,
             lift_coefficient          = Cl,       
             omega                     = omega,              
-            blade_thrust_distribution = rho*(Gamma*(Wt-epsilon*Wa)*deltar),  
-            blade_thrust              = thrust/B,
-            blade_torque_distribution = rho*(Gamma*(Wa+epsilon*Wt)*r*deltar),
-            blade_torque              = torque/B,
+            blade_thrust_distribution = -rho*(Gamma*(Wt-epsilon*Wa)*deltar),  
+            blade_thrust              = -thrust/B,
+            blade_torque_distribution = -rho*(Gamma*(Wa+epsilon*Wt)*r*deltar),
+            blade_torque              = -torque/B,
             mid_chord_aligment        = self.mid_chord_aligment,
             max_thickness_distribution= self.max_thickness_distribution 
         )
@@ -376,7 +376,7 @@ class Propeller(Energy_Component):
         Rh      = self.hub_radius        
         beta_in = self.twist_distribution
         c       = self.chord_distribution
-        Vi     = self.induced_hover_velocity 
+        Vi      = self.induced_hover_velocity 
         omega1  = self.inputs.omega
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
