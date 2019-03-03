@@ -11,14 +11,24 @@ import numpy as np
 from scipy.special import jv 
 
 def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
-    """Inputs:
-           noise_data	 - SUAVE type vehicle
+    """Source:
+        1. Herniczek, M., Feszty, D., Meslioui, S., Park, JongApplicability of Early Acoustic Theory for Modern Propeller Design
+        2. Schlegel, R., King, R., and Muli, H., “Helicopter Rotor Noise Generation and Propagation,” Technical Report, 
+        US Army Aviation Material Laboratories, Fort Eustis, VA, 1966
+        
+       Inputs:
+           - noise_data	 - SUAVE type vehicle
+           - Note that the notation is different from the reference, the speed of sound is denotes as "a" not "c"
+           and airfoil thickness is denoted with "t" and not "h"
 
        Outputs:
-           SPL                         - Overall Sound Pressure Level, [dB]
+           SPL     (using 3 methods*)   - Overall Sound Pressure Level, [dB] 
+           SPL_dBA (using 3 methods*)   - Overall Sound Pressure Level, [dBA] 
 
        Assumptions:
-           Empirical based procedure."""   
+           - Empirical based procedure.           
+           - The three methods used to compute rotational noise SPL are 1) Gutin and Deming, 2) Barry and Magliozzi and 3) Hanson
+           - Vortex noise is computed using the method outlined by Schlegel et. al """   
     
     SPL_DG_unweighted = [] 
     SPL_BM_unweighted = []
@@ -86,7 +96,8 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                 # A-Weighting for Rotational Noise
                 '''A-weighted sound pressure level can be obtained by applying A(f) to the
                 sound pressure level for each harmonic, then adding the results using the
-                method in Appendix B.'''
+                method in Appendix B.
+                '''
                 f  = B*omega*m/(2*np.pi)  
                 
                 #------------------------------------------------------------------------
@@ -132,7 +143,6 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                                                                   #- jv(m*B,((m*B*omega*R[0]*np.sin(theta))/a))*(T_distri[0]*np.cos(theta) - (Q_distri[0]*a)/(omega*(R[0]**2))) 
                                                                   #- np.trapz((((m*B)/((m*B*omega*R*np.sin(theta))/a))*(jv(m*B,((m*B*omega*R*np.sin(theta))/a))) - (jv(m*B+1,((m*B*omega*R*np.sin(theta))/a))))* ((T_distri)*np.cos(theta) - ((Q_distri)*a)/(omega*(R**2))),R,dR ) )                 
                 p_mL_GD[np.isinf(p_mL_GD)] = 0
-                print(p_mL_GD)
                 # sound pressure for thickness noise 
                 p_mT_GD = ((-rho*((m*B*omega)**2)*B)/(3*np.sqrt(2)*np.pi*(S)))*np.trapz(c*t*jv(m*B,((m*B*omega*R*np.sin(theta))/a)), R, dR )  
                 p_mT_GD[np.isinf(p_mT_GD)] = 0
@@ -140,7 +150,6 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                 
                 # unweighted rotational sound pressure level
                 SPL_r_GD[h]        = 10*np.log10(N*((p_mL_GD**2 + p_mT_GD**2 )/p_ref**2))
-                print (SPL_r_GD[h])
                 p_pref_r_GD[h]     = 10**(SPL_r_GD[h]/10)  
                 SPL_r_GD_dBA[h]    = A_weighting(SPL_r_GD[h],f)                
                 p_pref_r_GD_dBA[h] = 10**(SPL_r_GD_dBA[h]/10)   
