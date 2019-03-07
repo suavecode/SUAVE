@@ -333,11 +333,18 @@ class Propeller(Energy_Component):
             velocity                  = Vv,            
             drag_coefficient          = Cd,
             lift_coefficient          = Cl,       
-            omega                     = omega,              
-            blade_thrust_distribution = -rho*(Gamma*(Wt-epsilon*Wa)*deltar),  
-            blade_thrust              = -thrust/B,
-            blade_torque_distribution = -rho*(Gamma*(Wa+epsilon*Wt)*r*deltar),
-            blade_torque              = -torque/B,
+            omega                     = omega,     
+            
+            blade_dT_dR               = -rho*(Gamma*(Wt-epsilon*Wa)),   
+            blade_dT_dr               = -rho*(Gamma*(Wt-epsilon*Wa))*R,  
+            blade_T_distribution      = -rho*(Gamma*(Wt-epsilon*Wa))*deltar, 
+            blade_T                   = -thrust/B,  
+            
+            blade_dQ_dR               = -rho*(Gamma*(Wa+epsilon*Wt)*r), 
+            blade_dQ_dr               = -rho*(Gamma*(Wa+epsilon*Wt)*r)*R,
+            blade_Q_distribution      = -rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar,
+            blade_Q                   = -torque/B,           
+            
             mid_chord_aligment        = self.mid_chord_aligment,
             max_thickness_distribution= self.max_thickness_distribution 
         )
