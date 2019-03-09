@@ -55,18 +55,17 @@ def induced_drag_aircraft(state,settings,geometry):
     wing_e        = geometry.wings['main_wing'].span_efficiency
     ar            = geometry.wings['main_wing'].aspect_ratio 
     CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
-    
+    CDi           = conditions.aerodynamics.drag_breakdown.induced.total
     if e == None:
         e = 1/((1/wing_e)+np.pi*ar*K*CDp)
     
     # start the result
+    #print (CDi)
     total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
+    #print (total_induced_drag )
         
     # store data
-    conditions.aerodynamics.drag_breakdown.induced = Data(
-        total             = total_induced_drag ,
-        efficiency_factor = e                  ,
-        aspect_ratio      = ar                 ,
-    )
+    conditions.aerodynamics.drag_breakdown.induced.efficiency_factor = e 
+    conditions.aerodynamics.drag_breakdown.induced.aspect_ratio      = ar            
 
-    return total_induced_drag
+    return CDi
