@@ -5,6 +5,7 @@
 # Modified: Feb 2014, A. Wendorff
 #           Feb 2016, E. Botero
 #           Jul 2017, M. Clarke
+#           Mar 2019, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -63,7 +64,7 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
     rho_sigma = rho*9.81/sigma
     
     # Start the calculations
-    l_tot = Nult*np.sqrt(TOW*zfw)*9.81
+    l_tot = Nult*np.sqrt(TOW*wt_zf)*9.81
     gamma = 16*l_tot*rho_sigma/(np.pi*span)
     L0 = 2*l_tot/(span*np.pi)
                       
