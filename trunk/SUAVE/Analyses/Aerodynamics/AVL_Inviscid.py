@@ -192,20 +192,20 @@ class AVL_Inviscid(Aerodynamics):
             span_efficiency[ii] = e_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
         
         # Store inviscid lift results     
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()    
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = inviscid_lift
-        state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
-        state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = Data()    
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_lift
+        conditions.aerodynamics.lift_coefficient                   = inviscid_lift
+        conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
         # Store inviscid drag results  
         ar            = geometry.wings['main_wing'].aspect_ratio
-        state.conditions.aerodynamics.inviscid_drag_coefficient          = inviscid_drag
-        state.conditions.aerodynamics.drag_breakdown.induced = Data(
+        conditions.aerodynamics.inviscid_drag_coefficient          = inviscid_drag
+        conditions.aerodynamics.drag_breakdown.induced = Data(
             total                  = inviscid_drag   ,
             span_efficiency_factor = span_efficiency ,
         )        
                 
-        return inviscid_lift
+        return inviscid_lift  
         
 
     def sample_training(self):

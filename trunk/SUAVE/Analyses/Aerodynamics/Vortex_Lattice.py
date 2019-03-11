@@ -25,7 +25,8 @@ from .Aerodynamics import Aerodynamics
 
 # package imports
 import numpy as np
-
+import sklearn
+from sklearn import gaussian_process
 
 # ----------------------------------------------------------------------
 #  Class
@@ -77,16 +78,16 @@ class Vortex_Lattice(Aerodynamics):
 
         # conditions table, used for surrogate model training
         self.training = Data()        
-        self.training.angle_of_attack  = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
-        self.training.lift_coefficient = None
+        self.training.angle_of_attack          = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
+        self.training.lift_coefficient         = None
         self.training.induced_drag_coefficient = None
-        self.training.wing_lift_coefficients = None
+        self.training.wing_lift_coefficients   = None
         
         # surrogoate models
         self.surrogates = Data()
-        self.surrogates.lift_coefficient = None
+        self.surrogates.lift_coefficient         = None
         self.surrogates.induced_drag_coefficient = None
-        self.surrogates.wing_lift_coefficients = None
+        self.surrogates.wing_lift_coefficients   = None
  
         
     def initialize(self):
@@ -157,12 +158,10 @@ class Vortex_Lattice(Aerodynamics):
         """
 
         # unpack
-
         surrogates = self.surrogates        
         conditions = state.conditions
         
         # unpack        
-        q    = conditions.freestream.dynamic_pressure
         AoA  = conditions.aerodynamics.angle_of_attack
         Sref = geometry.reference_area
         
@@ -171,8 +170,8 @@ class Vortex_Lattice(Aerodynamics):
         
         # inviscid lift of wings only        
         inviscid_wings_lift                                              = Data()
-        inviscid_wings_lift.total                                        = wings_lift_model(AoA)        
-        inviscid_wings_drag                                              = wings_induced_drag_model(AoA)
+        inviscid_wings_lift.total                                        = wings_lift_model.predict(AoA)        
+        inviscid_wings_drag                                              = wings_induced_drag_model.predict(AoA)
         
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift.total
@@ -185,7 +184,7 @@ class Vortex_Lattice(Aerodynamics):
 
         for wing in geometry.wings.keys():
             wings_lift_model = surrogates.wing_lift_coefficients[wing]
-            inviscid_wings_lift[wing] = wings_lift_model(AoA)
+            inviscid_wings_lift[wing] = wings_lift_model.predict(AoA)
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]
             state.conditions.aerodynamics.lift_coefficient_wing[wing]        = inviscid_wings_lift[wing]
 
@@ -220,14 +219,15 @@ class Vortex_Lattice(Aerodynamics):
         training = self.training
         
         AoA = training.angle_of_attack
-        CL  = np.zeros_like(AoA)
-        CDi = np.zeros_like(AoA)
+        CL  = np.zeros((len(AoA),1))
+        CDi = np.zeros((len(AoA),1))
+        x   = np.zeros((len(AoA),1))
         
         wing_CLs = Data()
         wing_CDis = Data()
         for wing in geometry.wings.values():
-            wing_CLs[wing.tag]  = np.zeros_like(AoA)
-            wing_CDis[wing.tag] = np.zeros_like(AoA)
+            wing_CLs[wing.tag]  = np.zeros((len(AoA),1))
+            wing_CDis[wing.tag] = np.zeros((len(AoA),1))
 
         # condition input, local, do not keep
         konditions              = Data()
@@ -238,17 +238,17 @@ class Vortex_Lattice(Aerodynamics):
             
             # overriding conditions, thus the name mangling
             konditions.aerodynamics.angle_of_attack = AoA[i]
-            
+            x[i] = np.array(AoA[i])
             # these functions are inherited from Aerodynamics() or overridden
             CL[i],CDi[i], wing_lifts, wing_induced_drags = calculate_lift_vortex_lattice(konditions, settings, geometry)
             for wing in geometry.wings.values():
-                wing_CLs[wing.tag][i]  = wing_lifts[wing.tag]
-                wing_CDis[wing.tag][i] = wing_induced_drags[wing.tag]
+                wing_CLs[wing.tag][i,0]  = wing_lifts[wing.tag]
+                wing_CDis[wing.tag][i,0] = wing_induced_drags[wing.tag]
 
         # store training data 
-        training.lift_coefficient = CL
-        training.induced_drag_coefficient = CDi
+        training.coefficients = np.hstack([CL,CDi])        
         training.wing_lift_coefficients = wing_CLs
+        training.grid_points  = x
 
         return
 
@@ -276,29 +276,27 @@ class Vortex_Lattice(Aerodynamics):
             lift_coefficient       [-]
             wing_lift_coefficients [-] (wing specific)
         """        
-        # unpack data
-        training = self.training
-        AoA_data = training.angle_of_attack
-        CL_data  = training.lift_coefficient
-        CDi_data = training.induced_drag_coefficient
-        wing_CL_data = training.wing_lift_coefficients
+    
+        training                                    = self.training        
+        CL_data                                     = training.coefficients[:,0]
+        CDi_data                                    = training.coefficients[:,1]	
+        wing_CL_data                                = training.wing_lift_coefficients
+        x                                           = training.grid_points 
 
-        # pack for surrogate model
-        X_data = np.array([AoA_data]).T
-        X_data = np.reshape(X_data,-1)
-        
-        # learn the model
-        cl_surrogate = np.poly1d(np.polyfit(X_data, CL_data ,1))
-        cdi_surrogate = np.poly1d(np.polyfit(X_data, CDi_data ,1))
-        
-        wing_cl_surrogates = Data()        
+        # Gaussian Process New
+        regr_cl                                     = gaussian_process.GaussianProcessRegressor()
+        regr_cdi                                    = gaussian_process.GaussianProcessRegressor() 
+        regr_wing_cls                               = gaussian_process.GaussianProcessRegressor() 
+
+        cl_surrogate                                = regr_cl.fit(x,CL_data) 
+        cdi_surrogate                               = regr_cdi.fit(x,CDi_data)  
+        wing_cl_surrogates = Data() 
         for wing in wing_CL_data.keys():
-            wing_cl_surrogates[wing] = np.poly1d(np.polyfit(X_data, wing_CL_data[wing] ,1))
+            wing_cl_surrogates[wing] = regr_wing_cls.fit(x, wing_CL_data[wing])      
 
-        self.surrogates.lift_coefficient = cl_surrogate
-        self.surrogates.induced_drag_coefficient = cdi_surrogate
-        self.surrogates.wing_lift_coefficients = wing_cl_surrogates
-
+        self.surrogates.lift_coefficient          = cl_surrogate
+        self.surrogates.induced_drag_coefficient  = cdi_surrogate 
+        self.surrogates.wing_lift_coefficients    = wing_cl_surrogates
         return
 
 

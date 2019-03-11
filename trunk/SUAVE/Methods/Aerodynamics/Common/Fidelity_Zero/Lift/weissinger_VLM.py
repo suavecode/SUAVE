@@ -241,8 +241,10 @@ def weissinger_vehicle_VLM(conditions,configuration,geometry):
     RHS = np.empty(shape=[0,1])
     
     n   = configuration.number_panels_spanwise   
-    aoa = conditions.aerodynamics.angle_of_attack  
+    aoa = conditions.aerodynamics.angle_of_attack       
     vehicle_Sref = geometry.reference_area
+    AR  = geometry.wings['main_wing'].aspect_ratio
+    e   = geometry.wings['main_wing'].span_efficiency 
     
     for wing in geometry.wings.values():
         #unpack
@@ -375,8 +377,8 @@ def weissinger_vehicle_VLM(conditions,configuration,geometry):
     A_v = A*0.25/np.pi*T
     v   = np.sum(A_v,axis=1)
     
-    Lfi = -T * (sin_aoa-v)
-    Lfk =  T * cos_aoa 
+    Lfi = -T * (sin_aoa-v)*2
+    Lfk =  T * cos_aoa *2
     Lft = -Lfi * sin_aoa + Lfk * cos_aoa
     Dg  =  Lfi * cos_aoa + Lfk * sin_aoa
         
@@ -384,11 +386,12 @@ def weissinger_vehicle_VLM(conditions,configuration,geometry):
     Di  = deltax * Dg
     
     # Total lift
-    LT = np.sum(L)
+    LT  = np.sum(L)
     DTi = np.sum(Di)
 
-    CL = 2*LT/(0.5*vehicle_Sref)
-    CDi = 2*DTi/(0.5*vehicle_Sref)      
+    CL  = 2*LT/(vehicle_Sref)
+    #CDi = 2*DTi/(vehicle_Sref)  
+    CDi = CL**2/(np.pi*AR*e)
   
     return CL, CDi 
 
