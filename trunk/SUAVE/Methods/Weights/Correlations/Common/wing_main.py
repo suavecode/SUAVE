@@ -53,21 +53,17 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
     """ 
     
     # unpack inputs
-    span  = wing.spans.projected# / Units.ft
+    span  = wing.spans.projected
     taper = wing.taper
     sweep = wing.sweeps.quarter_chord
-    area  = wing.areas.reference #/ Units.ft**2 
+    area  = wing.areas.reference
     t_c_w = wing.thickness_to_chord
-    RC    = wing.chords.root# / Units.feet
-     
-    mtow  = TOW #/ Units.lb # Convert kg to lbs
-    zfw   = wt_zf# / Units.lb # Convert kg to lbs            
+    RC    = wing.chords.root
     
     rho_sigma = rho*9.81/sigma
-    #rho_sigma = (1.642*10.**-6.)
     
     # Start the calculations
-    l_tot = Nult*np.sqrt(mtow*zfw)*9.81
+    l_tot = Nult*np.sqrt(TOW*zfw)*9.81
     gamma = 16*l_tot*rho_sigma/(np.pi*span)
     L0 = 2*l_tot/(span*np.pi)
                       
@@ -85,11 +81,13 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
             Y1 = wing.Segments[i-1].percent_span_location
             Y2 = wing.Segments[i].percent_span_location
             
-            if wing.Segments[i-1].root_chord_percent==wing.Segments[i].root_chord_percent and wing.Segments[i-1].thickness_to_chord==wing.Segments[i].thickness_to_chord:
+            if wing.Segments[i-1].root_chord_percent==wing.Segments[i].root_chord_percent and\
+               wing.Segments[i-1].thickness_to_chord==wing.Segments[i].thickness_to_chord:
                 C  = wing.Segments[i-1].root_chord_percent*RC
                 G  = wing.Segments[i].thickness_to_chord
             
-                WB = (1/(G*C)) * 1/3*(1/8*(-Y1*(5-2*Y1**2)*np.sqrt(1-Y1**2)-3*np.arcsin(Y1))+1/8*(Y2*(5-2*Y2**2)*np.sqrt(1-Y2**2)+3*np.arcsin(Y2)))
+                WB = (1/(G*C)) * 1/3*(1/8*(-Y1*(5-2*Y1**2)*np.sqrt(1-Y1**2)-\
+                                           3*np.arcsin(Y1))+1/8*(Y2*(5-2*Y2**2)*np.sqrt(1-Y2**2)+3*np.arcsin(Y2)))
             
             else:
                 # A is the root thickness
@@ -103,8 +101,7 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
                 WB2 = big_integral(Y2, A, B, C)
                 
                 WB  = WB2-WB1
-                
-                
+
             run_sum3+= np.real(WB)
             
         weight_factor4 = rho_sigma*(b**2)*L0*run_sum3/2
@@ -128,6 +125,27 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
 
 
 def big_integral(x,A,B,C):
+    
+    """ Integrate the wing bending moment over a section
+    
+    Assumptions:
+        Linearly tapering thickness
+    
+    Source: 
+        Botero 2019
+        
+    Inputs:
+        x - span wise station      [dimensionless]
+        A - origin thickness       [meters]
+        B - taper ratio of section [dimensionless]
+        C - origin offset          [dimensionless]
+    
+    Outputs:
+        result - evaluate one side of an indefinite integral [meters^-1] 
+        
+    Properties Used:
+        N/A
+    """     
     
     results = (1/(4*B**3))*(2*A**2*(np.pi)*x+4*A*B*C*(np.pi)*x+ \
             B**2*(-1+2*C**2)*(np.pi)*x- \
