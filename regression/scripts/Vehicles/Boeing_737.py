@@ -31,7 +31,6 @@ def vehicle_setup():
     vehicle = SUAVE.Vehicle()
     vehicle.tag = 'Boeing_737800'    
     
-    
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
@@ -132,15 +131,15 @@ def vehicle_setup():
     wing.taper                   = 0.2
     wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 14.2      #
+    wing.spans.projected         = 14.2      
 
     wing.chords.root             = 4.7
     wing.chords.tip              = .955   
     wing.chords.mean_aerodynamic = 8.0
 
-    wing.areas.reference         = 32.488    #
-    wing.areas.exposed           = 199.7792                  # Exposed area of the horizontal tail
-    wing.areas.wetted            = 249.724                   # Wetted area of the horizontal tail
+    wing.areas.reference         = 32.488    
+    wing.areas.exposed           = 59.354                  # Exposed area of the horizontal tail
+    wing.areas.wetted            = 64.976                    # Wetted area of the horizontal tail
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
     

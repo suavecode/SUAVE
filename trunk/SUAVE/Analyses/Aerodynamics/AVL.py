@@ -63,6 +63,11 @@ class AVL(Markup):
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
+        
+        # ------
+        settings.spanwise_vortices                  = None
+        settings.chordwise_vortices                 = None        
+        
         settings.maximum_lift_coefficient           = np.inf 
         
                 
@@ -85,7 +90,6 @@ class AVL(Markup):
         compute.drag.parasite.propulsors.propulsor = Common.Drag.parasite_drag_propulsor
         compute.drag.parasite.pylons               = Common.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Common.Drag.induced_drag_aircraft
         compute.drag.compressibility               = Process()
         compute.drag.compressibility.wings         = Process_Geometry('wings')
         compute.drag.compressibility.wings.wing    = Common.Drag.compressibility_drag_wing
@@ -114,10 +118,15 @@ class AVL(Markup):
 
         Properties Used:
         self.geometry
-        """          
+        """  
+        # unpack
+        sv = self.settings.spanwise_vortices
+        cv = self.settings.chordwise_vortices 
+        
         self.process.compute.lift.inviscid.geometry = self.geometry
+        
         # Generate the surrogate
-        self.process.compute.lift.inviscid.initialize()
+        self.process.compute.lift.inviscid.initialize(sv,cv)
         
     finalize = initialize
     

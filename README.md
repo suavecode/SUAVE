@@ -8,7 +8,7 @@ Its purpose is to credibly produce conceptual-level design conclusions
 for future aircraft incorporating advanced technologies.
 
 [![Build Status](https://travis-ci.org/suavecode/SUAVE.svg?branch=master)](https://travis-ci.org/suavecode/SUAVE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.842938.svg)](https://doi.org/10.5281/zenodo.842938)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2564444.svg)](https://doi.org/10.5281/zenodo.2564444)
 
 License: LGPL-2.1
 
@@ -43,7 +43,6 @@ Contributing Institutions
 -------------------------
 * Stanford University Aerospace Design Lab ([adl.stanford.edu](http://adl.stanford.edu))
 * Embraer ([www.embraer.com](http://www.embraer.com))
-* Intelligent Automation Inc.  ([www.i-a-i.com](http://www.i-a-i.com))
 * NASA ([www.nasa.gov](http://www.nasa.gov))
 
 Simple Setup
