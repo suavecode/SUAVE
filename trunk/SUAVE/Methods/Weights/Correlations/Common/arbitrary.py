@@ -124,7 +124,7 @@ def arbitrary(vehicle,settings=None):
             
             # Apply weight factor
             wt_wing  = wt_wing*(1.-wt_factors.main_wing)
-            
+
             if np.isnan(wt_wing):
                 wt_wing = 0.
             
