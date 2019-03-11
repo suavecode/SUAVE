@@ -84,6 +84,9 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         """ 
 
          # unpack
+         
+        if state.residuals.forces[0,0] < 1e-7 and state.residuals.forces[0,0] > 0:
+            a123= 1
 
         #Cameron's attempt
         # unpack
@@ -97,7 +100,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         battery    = self.battery
         
         fuel_capacity = 800 * Units.lb
-        range_extender_power = 0000 #Watts
+        range_extender_power = 000000 #Watts
         range_extender_efficiency = .3
         range_extender_sfc = (.3/3600) #kg/(kW*s)
         
@@ -126,8 +129,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
 
         # Step 2
         
-        if state.residuals.forces[0,0] < 1e-7 and state.residuals.forces[0,0] > 0:
-            a123= 1
+
             
         esc.voltageout(conditions)
 
