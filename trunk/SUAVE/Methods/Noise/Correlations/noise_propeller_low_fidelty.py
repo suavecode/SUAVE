@@ -39,6 +39,11 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
     SPL_GDv_dBA       = []
     SPL_BMv_dBA       = []
     SPL_Hv_dBA        = []     
+    
+    if harmonic_test.any():
+        SPL_DG_unweighted = np.zeros((ctrl_pts,len(harmonic_test)))
+        SPL_BM_unweighted = np.zeros((ctrl_pts,len(harmonic_test)))
+        SPL_H_unweighted  = np.zeros((ctrl_pts,len(harmonic_test)))
 
     for i in range(ctrl_pts): 
  
@@ -50,25 +55,28 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
         total_p_pref_BMv_dBA = []
         total_p_pref_Hv_dBA = []
         
-        for prop  in noise_data.values(): 
-            harmonics    = range(1,2)  
+        for prop in noise_data.values(): 
+            if harmonic_test.any():
+                harmonics    = harmonic_test
+            else:
+                harmonics    = range(1,10) 
             num_h        = len(harmonics)
             
-            SPL_r_GD     = np.zeros((num_h,1))
-            SPL_r_BM     = np.zeros((num_h,1))
-            SPL_r_H      = np.zeros((num_h,1))
+            SPL_r_GD     = np.zeros(num_h)
+            SPL_r_BM     = np.zeros(num_h)
+            SPL_r_H      = np.zeros(num_h)
             
-            p_pref_r_GD  = np.zeros((num_h,1))
-            p_pref_r_BM  = np.zeros((num_h,1))
-            p_pref_r_H   = np.zeros((num_h,1))
+            p_pref_r_GD  = np.zeros(num_h)
+            p_pref_r_BM  = np.zeros(num_h)
+            p_pref_r_H   = np.zeros(num_h)
             
-            SPL_r_GD_dBA = np.zeros((num_h,1))
-            SPL_r_BM_dBA = np.zeros((num_h,1))
-            SPL_r_H_dBA  = np.zeros((num_h,1))
+            SPL_r_GD_dBA = np.zeros(num_h)
+            SPL_r_BM_dBA = np.zeros(num_h)
+            SPL_r_H_dBA  = np.zeros(num_h)
             
-            p_pref_r_GD_dBA = np.zeros((num_h,1))
-            p_pref_r_BM_dBA = np.zeros((num_h,1))
-            p_pref_r_H_dBA  = np.zeros((num_h,1))
+            p_pref_r_GD_dBA = np.zeros(num_h)
+            p_pref_r_BM_dBA = np.zeros(num_h)
+            p_pref_r_H_dBA  = np.zeros(num_h)
 
             for h in range(num_h):
                 m              = harmonics[h]                      # harmonic number 
@@ -96,7 +104,7 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                 dQ_dr          = prop.blade_dT_dr[i]               # nondimensionalized differential torque distribution
                 R              = prop.radius_distribution          # radial location     
                 c              = prop.chord_distribution           # blade chord    
-                beta          = prop.twist_distribution           # twist distribution  
+                beta           = prop.twist_distribution           # twist distribution  
                 t              = prop.max_thickness_distribution   # twist distribution
                 MCA            = prop.mid_chord_aligment           # Mid Chord Alighment 
                 
@@ -121,14 +129,12 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                 S        = np.sqrt(x**2 + y**2 + z**2)       # distance between rotor and the observer 
                 
                 # compute theta, the azimuthal angle location
-                if Vx == 0:
-                    theta = np.pi - np.arcsin(y/S)           #   np.arccos(x/S) 
-                    alpha = 0.                               
-                else:                                        
-                    v1    = [Vx,Vy,Vz]                       # velocity_vector
-                    v2    = [x,y,z]                          # observer_vector   
-                    theta = np.arccos(x/S)                   # np.arccos(np.dot(v1,v2)/ (np.linalg.norm(v1) * np.linalg.norm(v2))) 
-                    alpha = AoA
+                #if Vx == 0:
+                    #theta = np.pi - np.arcsin(y/S)           #   np.arccos(x/S) 
+                    #alpha = 0.                               
+                #else:                                           
+                theta = np.arccos(x/S)                   # np.arccos(np.dot(v1,v2)/ (np.linalg.norm(v1) * np.linalg.norm(v2))) 
+                alpha = AoA
 
                 # sound pressure for loading noise 
                 p_mL_GD= ((m*B*omega)/(2*np.sqrt(2)*np.pi*a*(S)))*np.trapz((((dT_dR)*np.cos(theta) - ((dQ_dR)*a)/(omega*(R**2)))* 
@@ -225,11 +231,7 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                 SPL_r_H_dBA[h]    = A_weighting(SPL_r_H[h],f)
                 p_pref_r_H_dBA[h] = 10**(SPL_r_H_dBA[h]/10)   
                 
-                print('theta')
-                print(theta/Units.degrees)
-                print(p_mL_H)
-                print(p_mT_H)      
-                print(SPL_r_H[h])                   
+               
                 
             # -----------------------------------------------------------------------
             # Vortex Noise (developed by Schlegel et. al)
@@ -259,7 +261,7 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
 
             dim         = len(f_spectrum)
             C           = np.zeros(dim) 
-            p_pref_v_dBA= np.zeros((dim,1))
+            p_pref_v_dBA= np.zeros(dim)
             for j in range(dim-1):
                 C[j]        = (SPL_v[j+1] - SPL_v[j])/(np.log10(fr[j+1]) - np.log10(fr[j])) 
                 C[j+1]      = SPL_v[j+1]- C[j]*np.log10(fr[j+1])   
@@ -275,10 +277,10 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
             total_p_pref_BMv_dBA.append(np.concatenate([p_pref_r_BM_dBA,p_pref_v_dBA])) # Barry & Magliozzi rotational noise with Schlegel vortex noise
             total_p_pref_Hv_dBA.append(np.concatenate([p_pref_r_H_dBA,p_pref_v_dBA]))   # Hanson rotational noise with Schlegel vortex noise        
         
-        if harmonic_test:
-            SPL_DG_unweighted.append(SPL_r_GD)
-            SPL_BM_unweighted.append(SPL_r_BM)
-            SPL_H_unweighted.append(SPL_r_H)
+        if harmonic_test.any():
+            SPL_DG_unweighted[i,:] = SPL_r_GD
+            SPL_BM_unweighted[i,:] = SPL_r_BM 
+            SPL_H_unweighted[i,:]  = SPL_r_H 
             
         else:
             # Rotational SPL (Unweighted)   
