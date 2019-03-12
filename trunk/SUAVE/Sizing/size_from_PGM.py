@@ -61,8 +61,8 @@ def size_from_PGM(vehicle):
         # The top level info
         vehicle.systems.control     = "fully powered" 
         vehicle.systems.accessories = "medium range"        
-        vehicle.envelope.ultimate_load = 2.5
-        vehicle.envelope.limit_load    = 1.5
+        vehicle.envelope.ultimate_load = 3.75
+        vehicle.envelope.limit_load    = 2.5
         vehicle.mass_properties.takeoff = vehicle.mass_properties.max_takeoff
         
         # Deal with passengers

@@ -72,8 +72,6 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
         
         # Prime some numbers
         run_sum = 0
-        run_sum2 = 0
-        run_sum3 = 0
         b = span
         
         for i in range(1,len(wing.Segments)):
@@ -84,30 +82,32 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
             
             if wing.Segments[i-1].root_chord_percent==wing.Segments[i].root_chord_percent and\
                wing.Segments[i-1].thickness_to_chord==wing.Segments[i].thickness_to_chord:
-                C  = wing.Segments[i-1].root_chord_percent*RC
+                C  = wing.Segments[i].root_chord_percent*RC
                 G  = wing.Segments[i].thickness_to_chord
+                SW = wing.Segments[i-1].sweeps.quarter_chord
             
-                WB = (1/(G*C)) * 1/3*(1/8*(-Y1*(5-2*Y1**2)*np.sqrt(1-Y1**2)-\
+                WB = (1/(G*C*np.cos(SW)**2)) * 1/3*(1/8*(-Y1*(5-2*Y1**2)*np.sqrt(1-Y1**2)-\
                                            3*np.arcsin(Y1))+1/8*(Y2*(5-2*Y2**2)*np.sqrt(1-Y2**2)+3*np.arcsin(Y2)))
             
             else:
                 # A is the root thickness
                 A = RC*wing.Segments[i-1].root_chord_percent* wing.Segments[i-1].thickness_to_chord
                 # B is the slope of the thickness
-                B = (A-RC*wing.Segments[i].root_chord_percent* wing.Segments[i].thickness_to_chord)/(wing.Segments[i].percent_span_location - wing.Segments[i-1].percent_span_location)
+                B = (A-RC*wing.Segments[i].root_chord_percent* wing.Segments[i].thickness_to_chord)/(wing.Segments[i].percent_span_location -wing.Segments[i-1].percent_span_location)
                 # C is the offset
                 C = wing.Segments[i-1].percent_span_location
+                SW = wing.Segments[i-1].sweeps.quarter_chord
                 
                 WB1 = big_integral(Y1, A, B, C)
                 WB2 = big_integral(Y2, A, B, C)
                 
-                WB  = WB2-WB1
+                WB  = (WB2-WB1)/(np.cos(SW)**2)
 
-            run_sum3+= np.real(WB)
+            run_sum += np.real(WB)
             
-        weight_factor4 = rho_sigma*(b**2)*L0*run_sum3/2
+        weight_factor = rho_sigma*(b**2)*L0*run_sum/2
         
-        weight = 4.22*area / Units.feet**2 + (weight_factor4 / Units.lb)
+        weight = 4.22*area / Units.feet**2 + (weight_factor / Units.lb)
             
     else:
         
