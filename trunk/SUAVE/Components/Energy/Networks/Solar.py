@@ -209,7 +209,7 @@ class Solar(Propulsor):
         """       
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
 
         return
     
