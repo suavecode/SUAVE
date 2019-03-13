@@ -78,6 +78,7 @@ class Wing(Lofted_Body):
 
         self.spans = Data()
         self.spans.projected = 0.0
+        self.spans.total     = 0.0
         
         self.areas = Data()
         self.areas.reference = 0.0

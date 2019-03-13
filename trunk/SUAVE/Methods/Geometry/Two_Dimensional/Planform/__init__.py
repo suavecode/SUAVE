@@ -10,3 +10,4 @@ from .vertical_tail_planform_raymer import vertical_tail_planform_raymer
 from .wing_fuel_volume import wing_fuel_volume
 from .populate_control_sections import populate_control_sections
 from .rescale_non_dimensional import set_origin_non_dimensional, set_origin_dimensional
+from .wing_segmented_planform import wing_segmented_planform
