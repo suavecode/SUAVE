@@ -25,7 +25,7 @@
   CDtot =   0.00000
   CDvis =   0.00000     CDind = 0.0000018
   CLff  =   0.00644     CDff  = 0.0000016    | Trefftz
-  CYff  =  -0.00000         e =    0.8804    | Plane  
+  CYff  =   0.00000         e =    0.8804    | Plane  
 
 
  ---------------------------------------------------------------
@@ -34,20 +34,20 @@
 
                              alpha                beta
                   ----------------    ----------------
- z' force CL |    CLa =   6.252076    CLb =   0.000000
- y  force CY |    CYa =   0.000000    CYb =  -0.617396
+ z' force CL |    CLa =   6.252086    CLb =   0.000000
+ y  force CY |    CYa =  -0.000001    CYb =  -0.617398
  x' mom.  Cl'|    Cla =   0.000000    Clb =  -0.053677
- y  mom.  Cm |    Cma =  -6.661656    Cmb =  -0.000000
- z' mom.  Cn'|    Cna =  -0.000000    Cnb =   0.132956
+ y  mom.  Cm |    Cma =  -6.661676    Cmb =  -0.000000
+ z' mom.  Cn'|    Cna =   0.000001    Cnb =   0.132957
 
                      roll rate  p'      pitch rate  q'        yaw rate  r'
                   ----------------    ----------------    ----------------
- z' force CL |    CLp =  -0.000000    CLq =  26.701250    CLr =  -0.000000
- y  force CY |    CYp =  -0.057746    CYq =  -0.000000    CYr =   0.670554
- x' mom.  Cl'|    Clp =  -0.489707    Clq =  -0.000001    Clr =   0.060125
- y  mom.  Cm |    Cmp =   0.000000    Cmq = -72.112915    Cmr =   0.000000
- z' mom.  Cn'|    Cnp =   0.031288    Cnq =   0.000000    Cnr =  -0.297476
+ z' force CL |    CLp =   0.000000    CLq =  26.701319    CLr =  -0.000000
+ y  force CY |    CYp =  -0.057748    CYq =  -0.000005    CYr =   0.670556
+ x' mom.  Cl'|    Clp =  -0.489709    Clq =  -0.000000    Clr =   0.060125
+ y  mom.  Cm |    Cmp =  -0.000000    Cmq = -72.113098    Cmr =   0.000000
+ z' mom.  Cn'|    Cnp =   0.031291    Cnq =   0.000004    Cnr =  -0.297477
 
- Neutral point  Xnp =  19.822319
+ Neutral point  Xnp =  19.822325
 
- Clb Cnr / Clr Cnb  =   1.997455    (  > 1 if spirally stable )
+ Clb Cnr / Clr Cnb  =   1.997448    (  > 1 if spirally stable )

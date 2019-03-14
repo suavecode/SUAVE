@@ -172,7 +172,7 @@ class Lift_Forward_Propulsor(Propulsor):
         esc_forward.inputs.currentout =  motor_forward.outputs.current     
         
         # Run the esc
-        esc_forward.currentin()        
+        esc_forward.currentin(conditions)        
        
         ###
         # Evaluate thrust from the lift propulsors
@@ -220,7 +220,7 @@ class Lift_Forward_Propulsor(Propulsor):
         esc_lift.inputs.currentout =  motor_lift.outputs.current     
         
         # Run the esc
-        esc_lift.currentin()          
+        esc_lift.currentin(konditions)          
         
         ###
         # Combine the thrusts and powers
