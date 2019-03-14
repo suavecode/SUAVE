@@ -68,7 +68,7 @@ def datcom(wing,mach):
     #Compute relevent parameters
     cL_alpha = []
     half_chord_sweep = convert_sweep(wing,0.25,0.5)  #Assumes original sweep is that of LE
-
+    
     #Compute k correction factor for Mach number    
     #First, compute corrected 2D section lift curve slope (C_la) for the given Mach number
     cla = 6.13          #Section C_la at M = 0; Roskam Airplane Design Part VI, Table 8.1  
@@ -83,8 +83,8 @@ def datcom(wing,mach):
     cla_M[mach<1.] = cla/Beta[mach<1.]
     cla_M[mach>1.] = 4.0/Beta[mach>1.]
     k              = cla_M/(2.0*np.pi/Beta)
-
+    
     #Compute aerodynamic surface 3D lift curve slope using the DATCOM formula
     cL_alpha =(2.0*np.pi*ar/(2.0+((ar**2.0*(Beta*Beta)/(k*k))*(1.0+(np.tan(half_chord_sweep))**2.0/(Beta*Beta))+4.0)**0.5))
-
+    
     return cL_alpha
