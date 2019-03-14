@@ -114,7 +114,7 @@ def wing_segmented_planform(wing):
         mac_loc_non_dim = 0.5
     
     # Calculate the effective taper ratio
-    lamda = 2*mgc/RC -1
+    lamda = 2*mgc/RC - 1
     
     # effective tip chord
     ct = lamda*RC
@@ -142,6 +142,9 @@ def wing_segmented_planform(wing):
     total_centroid = np.sum(Cxys*As,axis=0)/(ref_area/2)
     
     aerodynamic_center = [total_centroid[0]-MAC/4,total_centroid[1],0]
+    
+    # Total length for supersonics
+    total_length = np.tan(le_sweep_total)*span/2 + chords[-1]*RC
 
     
     # Pack stuff
@@ -156,6 +159,7 @@ def wing_segmented_planform(wing):
     wing.sweeps.leading_edge     = le_sweep_total
     wing.thickness_to_chord      = t_c
     wing.aerodynamic_center      = aerodynamic_center
+    wing.total_length            = total_length
     
     return wing
 
