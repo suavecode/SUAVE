@@ -3,6 +3,7 @@
 #
 # Created:  Jun 2014, E. Botero
 # Modified: Jan 2016, T. MacDonald
+#           Feb 2019, M. Vegh            
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -50,18 +51,24 @@ class Propeller(Energy_Component):
         Properties Used:
         None
         """         
-        self.tag                                 = 'propeller'
-        self.prop_attributes = Data
-        self.prop_attributes.number_blades       = 0.0
-        self.prop_attributes.tip_radius          = 0.0
-        self.prop_attributes.hub_radius          = 0.0
-        self.prop_attributes.twist_distribution  = 0.0
-        self.prop_attributes.chord_distribution  = 0.0
-        self.prop_attributes.mid_chord_alignment = 0.0
-        self.thrust_angle                        = 0.0
-        self.origin                              = [[0.0,0.0,0.0]] # [X,Y,Z]
-        self.rotation                            = [[0.0,0.0,0.0]] # [X,Y,Z] rotation of axis relative to
-                                                                 # vehicle (used in OpenVSP for thrust_angle)
+        self.tag                                            = 'propeller'
+        self.prop_attributes                                = Data                        
+        self.prop_attributes.number_blades                  = 0.0
+        self.prop_attributes.tip_radius                     = 0.0
+        self.prop_attributes.hub_radius                     = 0.0
+        self.prop_attributes.twist_distribution             = 0.0
+        self.prop_attributes.chord_distribution             = 0.0
+        self.prop_attributes.mid_chord_alignment            = 0.0
+        self.prop_attributes.lift_curve_slope               = 2.*np.pi    
+        self.prop_attributes.cd_coefficients                = [.108, -.2612, .181, -.0139, .0278]  #coefficients for a 4th degree polynomial fit of Cd(Cl) for the airfoil
+        self.prop_attributes.drag_reference_reynolds_number = 50000.     #drag scaling is  (Re_ref/Re) **Re_exp
+        self.prop_attributes.reynolds_scaling_exponent      = .2
+        self.thrust_angle                                   = 0.0
+        self.origin                                         = [[0.0,0.0,0.0]] # [X,Y,Z]
+        self.rotation                                       = [[0.0,0.0,0.0]] # [X,Y,Z] rotation of axis relative to
+      
+
+                 # vehicle (used in OpenVSP for thrust_angle)
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
 
@@ -106,21 +113,33 @@ class Propeller(Energy_Component):
 
         Properties Used:
         self.prop_attributes.
-          number_blades              [-]
-          tip_radius                 [m]
-          hub_radius                 [m]
-          twist_distribution         [radians]
-          chord_distribution         [m]
-          mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
-        self.thrust_angle            [radians]
+          number_blades                 [-]
+          tip_radius                    [m]
+          hub_radius                    [m]
+          twist_distribution            [radians]
+          chord_distribution            [m]
+          mid_chord_aligment            [m] (distance from the mid chord to the line axis out of the center of the blade)
+          lift_curve_slope              [1/radians] (2D lift curve slope of the airfoil)
+          cd_coefficients               [-]
+         drag_reference_reynolds_number [-]
+         reynolds_scaling_exponent      [-]
+        self.thrust_angle               [radians]
         """         
            
         #Unpack    
-        B      = self.prop_attributes.number_blades
-        R      = self.prop_attributes.tip_radius
-        Rh     = self.prop_attributes.hub_radius
-        beta   = self.prop_attributes.twist_distribution
-        c      = self.prop_attributes.chord_distribution
+        B        = self.prop_attributes.number_blades
+        R        = self.prop_attributes.tip_radius
+        Rh       = self.prop_attributes.hub_radius
+        beta     = self.prop_attributes.twist_distribution
+        c        = self.prop_attributes.chord_distribution
+        cl_a     = self.prop_attributes.lift_curve_slope
+        cd_coeff = self.prop_attributes.cd_coefficients   
+        re_ref   = self.prop_attributes.drag_reference_reynolds_number
+        x_re     = self.prop_attributes.reynolds_scaling_exponent  
+           
+        
+        
+        
         omega1 = self.inputs.omega
         rho    = conditions.freestream.density[:,0,None]
         mu     = conditions.freestream.dynamic_viscosity[:,0,None]
@@ -214,7 +233,7 @@ class Propeller(Energy_Component):
             Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-            Cl = 2.*pi*alpha
+            Cl = cl_a*alpha
             
             # By 90 deg, it's totally stalled.
             Cl[alpha>=pi/2] = 0.
@@ -261,10 +280,10 @@ class Propeller(Energy_Component):
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
                 break
 
-        #This is an atrocious fit of DAE51 data at RE=50k for Cd
-        #There is also RE scaling
         Re      = (W*c)/nu
-        Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        
+        #use a 4th degree polynomial fit with Reynolds number scaling for Cd
+        Cdval = (cd_coeff[0] *(Cl*Cl*Cl*Cl)+cd_coeff[1]*(Cl*Cl*Cl)+cd_coeff[2]*(Cl*Cl)+cd_coeff[3]*Cl+cd_coeff[4])*((re_ref/Re)**x_re)  
         Cdval[alpha>=pi/2] = 2.
         
         #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
