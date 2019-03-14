@@ -161,6 +161,29 @@ def wing_segmented_planform(wing):
 
 # Segment centroid
 def segment_centroid(seg_le_sweep,seg_semispan,dx,dy,seg_rc,seg_tc,A):
+    """Computes the centroid of a polygonal segment
+    
+    Assumptions:
+    Polygon
+    
+    Source:
+    None
+    
+    Inputs:
+    seg_le_sweep  [rad]
+    seg_semispan  [m]
+    dx            [m]
+    dy            [m]
+    seg_rc        [m]
+    seg_tc        [m]
+    A             [m**2]
+
+    Outputs:
+    cx,cy        [m,m]
+
+    Properties Used:
+    N/A
+    """    
     xi = np.array([0,np.tan(seg_le_sweep)*seg_semispan,np.tan(seg_le_sweep)*seg_semispan+seg_tc,seg_rc])
     yi = np.array([0,seg_semispan,seg_semispan,0])
     
