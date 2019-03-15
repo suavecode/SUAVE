@@ -174,12 +174,11 @@ class Propeller(Energy_Component):
         J       = V/(2.*R*n)    
         sigma   = np.multiply(B*c,1./(2.*pi*r))          
     
-        # Include externally-induced velocity at the disk for hover
-        #if V.all() == 0:
-            #ua = Vi
-        #else:
-            #ua = 0.0 
-        ua = 0.0 
+        #Include externally-induced velocity at the disk for hover
+        if V.all() == 0:
+            ua = Vi
+        else:
+            ua = 0.0 
         ut = 0.0
         
         omegar = np.outer(omega,r)
@@ -345,6 +344,8 @@ class Propeller(Energy_Component):
             blade_Q_distribution      = -rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar,
             blade_Q                   = -torque/B,           
             
+            power                     = -power,
+            
             mid_chord_aligment        = self.mid_chord_aligment,
             max_thickness_distribution= self.max_thickness_distribution 
         )
@@ -445,11 +446,10 @@ class Propeller(Energy_Component):
         sigma   = np.multiply(B*c,1./(2.*pi*r))          
     
         # Include externally-induced velocity at the disk for hover
-        #if V.all() == 0:
-            #ua = Vi
-        #else:
-            #ua = 0.0 
-        ua = 0.0 
+        if V.all() == 0:
+            ua = Vi
+        else:
+            ua = 0.0 
         ut = 0.0
         
         omegar = np.outer(omega,r)
@@ -465,7 +465,6 @@ class Propeller(Energy_Component):
         psiold = np.zeros(size)
         diff   = 1.
         
-       
         ii = 0
         broke = False
         while (diff>tol):
@@ -607,15 +606,17 @@ class Propeller(Energy_Component):
             lift_coefficient          = Cl,       
             omega                     = omega,          
             
-            blade_dT_dR               = -rho*(Gamma*(Wt-epsilon*Wa)),   
-            blade_dT_dr               = -rho*(Gamma*(Wt-epsilon*Wa))*R,  
-            blade_T_distribution      = -rho*(Gamma*(Wt-epsilon*Wa))*deltar, 
-            blade_T                   = -thrust/B,  
+            blade_dT_dR               = rho*(Gamma*(Wt-epsilon*Wa)),   
+            blade_dT_dr               = rho*(Gamma*(Wt-epsilon*Wa))*R,  
+            blade_T_distribution      = rho*(Gamma*(Wt-epsilon*Wa))*deltar, 
+            blade_T                   = thrust/B,  
             
-            blade_dQ_dR               = -rho*(Gamma*(Wa+epsilon*Wt)*r), 
-            blade_dQ_dr               = -rho*(Gamma*(Wa+epsilon*Wt)*r)*R,
-            blade_Q_distribution      = -rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar,
-            blade_Q                   = -torque/B,           
+            blade_dQ_dR               = rho*(Gamma*(Wa+epsilon*Wt)*r), 
+            blade_dQ_dr               = rho*(Gamma*(Wa+epsilon*Wt)*r)*R,
+            blade_Q_distribution      = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar,
+            blade_Q                   = torque/B,   
+            
+            power                     = power,
             
             mid_chord_aligment        = self.mid_chord_aligment,
             max_thickness_distribution= self.max_thickness_distribution         
