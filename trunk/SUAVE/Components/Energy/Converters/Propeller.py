@@ -11,6 +11,7 @@
 # package imports
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import compute_airfoil_polars
 from SUAVE.Core import Data
 import scipy.optimize as opt
 
@@ -44,17 +45,19 @@ class Propeller(Energy_Component):
         Properties Used:
         None
         """         
-        self.number_blades          = 0.0
-        self.tip_radius             = 0.0
-        self.hub_radius             = 0.0
-        self.twist_distribution     = 0.0
-        self.chord_distribution     = 0.0
-        self.mid_chord_aligment     = 0.0
-        self.thrust_angle           = 0.0
-        self.induced_hover_velocity = 0.0
-        self.radius_distribution    = None
-        self.ducted                 = False
-        self.tag                    = 'Propeller'
+        self.number_blades            = 0.0
+        self.tip_radius               = 0.0
+        self.hub_radius               = 0.0
+        self.twist_distribution       = 0.0
+        self.chord_distribution       = 0.0
+        self.mid_chord_aligment       = 0.0
+        self.thrust_angle             = 0.0
+        self.induced_hover_velocity   = 0.0
+        self.airfoil_sections         = None
+        self.airfoil_section_location = None
+        self.radius_distribution      = None
+        self.ducted                   = False
+        self.tag                      = 'Propeller'
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -112,6 +115,8 @@ class Propeller(Energy_Component):
         c      = self.chord_distribution
         Vi     = self.induced_hover_velocity 
         omega1 = self.inputs.omega
+        a_sec  = self.airfoil_sections        
+        a_secl = self.airfoil_section_location
         rho    = conditions.freestream.density[:,0,None]
         mu     = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv     = conditions.frames.inertial.velocity_vector
@@ -148,13 +153,22 @@ class Propeller(Energy_Component):
         
         omega = omega1*1.0
         omega = np.abs(omega)
-           
-        ######
-        # Enter airfoil data in a better way, there is currently Re and Ma scaling from DAE51 data
-        ######
-
+        
         #Things that don't change with iteration
-        N       = len(c) # Number of stations
+        N       = len(c) # Number of stations           
+        
+        
+        if  a_sec != None and a_secl != None:
+            airfoil_polars = Data()
+            # check dimension of section  
+            dim_sec = len(a_secl)
+            if dim_sec != N:
+                raise AssertionError("Number of sections not equal to number of stations")
+            # compute airfoil polars for airfoils 
+            airfoil_polars = compute_airfoil_polars(a_sec)
+            airfoil_cl     = airfoil_polars.CL
+            airfoil_cd     = airfoil_polars.CD
+            AoA_range      = airfoil_polars.AoA_range
         
         if self.radius_distribution is None:
             chi0    = Rh/R   # Where the propeller blade actually starts
@@ -175,11 +189,10 @@ class Propeller(Energy_Component):
         sigma   = np.multiply(B*c,1./(2.*pi*r))          
     
         # Include externally-induced velocity at the disk for hover
-        #if V.all() == 0:
-            #ua = Vi
-        #else:
-            #ua = 0.0 
-        ua = 0.0 
+        if V.all() == 0:
+            ua = Vi
+        else:
+            ua = 0.0 
         ut = 0.0
         
         omegar = np.outer(omega,r)
@@ -222,18 +235,9 @@ class Propeller(Energy_Component):
             F            = 2.*arccos_piece/pi
             Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
             
-            # Estimate Cl max
-            Re         = (W*c)/nu 
-            Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-            Re_ref     = 9.*10**6      
-            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
-            
-            # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-            Cl = 2.*pi*alpha
-            
-            # By 90 deg, it's totally stalled.
-            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
-            Cl[alpha>=pi/2] = 0.
+            # Estimate Cl from AERODAS Prediction 
+            for section_no in range(N+1):
+                Cl = np.interp(alpha[section_no],AoA_range,airfoil_CL[asecl[section_no],asec[section_no]])  
             
             # Scale for Mach, this is Karmen_Tsien
             Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
@@ -295,7 +299,7 @@ class Propeller(Energy_Component):
         Tp      = (Tp_Tinf)*T
         Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
         
-        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
+        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 
         
         epsilon  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
