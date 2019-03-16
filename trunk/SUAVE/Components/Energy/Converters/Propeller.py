@@ -155,8 +155,7 @@ class Propeller(Energy_Component):
         omega = np.abs(omega)
         
         #Things that don't change with iteration
-        N       = len(c) # Number of stations           
-        
+        N       = len(c) # Number of stations     
         
         if  a_sec != None and a_secl != None:
             airfoil_polars = Data()
@@ -165,7 +164,7 @@ class Propeller(Energy_Component):
             if dim_sec != N:
                 raise AssertionError("Number of sections not equal to number of stations")
             # compute airfoil polars for airfoils 
-            airfoil_polars = compute_airfoil_polars(a_sec)
+            airfoil_polars = compute_airfoil_polars(self,conditions, a_sec)
             airfoil_cl     = airfoil_polars.CL
             airfoil_cd     = airfoil_polars.CD
             AoA_range      = airfoil_polars.AoA_range
