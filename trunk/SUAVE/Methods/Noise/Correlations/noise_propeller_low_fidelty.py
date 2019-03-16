@@ -32,25 +32,31 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
     '''
     
 
-    
-    SPL_DG_unweighted = [] 
+    SPL_GD_unweighted_simp = []
+    SPL_GD_unweighted = [] 
     SPL_BM_unweighted = []
     SPL_H_unweighted  = [] 
+    SPL_v_unweighted  = [] 
+    SPL_GDv_dBA_simp  = []
     SPL_GDv_dBA       = []
     SPL_BMv_dBA       = []
     SPL_Hv_dBA        = []     
-    
+    SPL_v_dBA         = []
     if harmonic_test.any():
-        SPL_DG_unweighted = np.zeros((ctrl_pts,len(harmonic_test)))
+        SPL_GD_unweighted_simp = np.zeros((ctrl_pts,len(harmonic_test)))
+        SPL_GD_unweighted = np.zeros((ctrl_pts,len(harmonic_test)))
         SPL_BM_unweighted = np.zeros((ctrl_pts,len(harmonic_test)))
         SPL_H_unweighted  = np.zeros((ctrl_pts,len(harmonic_test)))
+        SPL_v_unweighted  = np.zeros((ctrl_pts,len(harmonic_test)))
 
     for i in range(ctrl_pts): 
  
+        total_p_pref_r_GD_simp = []
         total_p_pref_r_GD = []
         total_p_pref_r_BM = []
         total_p_pref_r_H  = []
         
+        total_p_pref_GDv_dBA_simp = []
         total_p_pref_GDv_dBA = []
         total_p_pref_BMv_dBA = []
         total_p_pref_Hv_dBA = []
@@ -59,21 +65,25 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
             if harmonic_test.any():
                 harmonics    = harmonic_test
             else:
-                harmonics    = range(1,10) 
+                harmonics    = np.arange(1,21) 
             num_h        = len(harmonics)
             
+            SPL_r_GD_simp     = np.zeros(num_h)
             SPL_r_GD     = np.zeros(num_h)
             SPL_r_BM     = np.zeros(num_h)
             SPL_r_H      = np.zeros(num_h)
             
+            p_pref_r_GD_simp  = np.zeros(num_h)
             p_pref_r_GD  = np.zeros(num_h)
             p_pref_r_BM  = np.zeros(num_h)
             p_pref_r_H   = np.zeros(num_h)
             
+            SPL_r_GD_dBA_simp = np.zeros(num_h)
             SPL_r_GD_dBA = np.zeros(num_h)
             SPL_r_BM_dBA = np.zeros(num_h)
             SPL_r_H_dBA  = np.zeros(num_h)
             
+            p_pref_r_GD_dBA_simp = np.zeros(num_h)
             p_pref_r_GD_dBA = np.zeros(num_h)
             p_pref_r_BM_dBA = np.zeros(num_h)
             p_pref_r_H_dBA  = np.zeros(num_h)
@@ -114,7 +124,6 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                 method in Appendix B.
                 '''
                 f  = B*omega*m/(2*np.pi)  
-                
                 #------------------------------------------------------------------------
                 # Rotational SPL by Gutin & Deming
                 #------------------------------------------------------------------------ 
@@ -126,14 +135,8 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                 dR       = R[1] - R[0]
                 dr       = r[1] - r[0]                 
                 A        = np.pi*(R_tip**2)                  # rotor Disc Area 
-                S        = np.sqrt(x**2 + y**2 + z**2)       # distance between rotor and the observer 
-                
-                # compute theta, the azimuthal angle location
-                #if Vx == 0:
-                    #theta = np.pi - np.arcsin(y/S)           #   np.arccos(x/S) 
-                    #alpha = 0.                               
-                #else:                                           
-                theta = np.arccos(x/S)                   # np.arccos(np.dot(v1,v2)/ (np.linalg.norm(v1) * np.linalg.norm(v2))) 
+                S        = np.sqrt(x**2 + y**2 + z**2)       # distance between rotor and the observer    
+                theta = np.arccos(x/S)                   
                 alpha = AoA
 
                 # sound pressure for loading noise 
@@ -150,6 +153,25 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                 SPL_r_GD_dBA[h]    = A_weighting(SPL_r_GD[h],f)                
                 p_pref_r_GD_dBA[h] = 10**(SPL_r_GD_dBA[h]/10)   
                 
+                
+                #------------------------------------------------------------------------
+                # Simplified Rotational SPL by Gutin & Deming
+                #------------------------------------------------------------------------  
+                Re = 0.8*R_tip
+                # sound pressure for loading noise 
+                p_mL_GD_simp = ((m*B*omega)/(2*np.sqrt(2)*np.pi*a*(S)))*(T*np.cos(theta) - (Q*a)/(omega*(Re**2)))*jv(m*B,((m*B*omega*Re*np.sin(theta))/a))
+                # sound pressure for thickness noise 
+                p_mT_GD_simp = ((-rho*((m*B*omega)**2)*B)/(3*np.sqrt(2)*np.pi*(S)))*max(c)*max(t)*Re*jv(m*B,((m*B*omega*Re*np.sin(theta))/a))
+                p_mT_GD_simp[np.isinf(p_mT_GD_simp)] = 0
+                p_mT_GD_simp[np.isneginf(p_mT_GD_simp)] = 0                            
+            
+                # unweighted rotational sound pressure level
+                SPL_r_GD_simp[h]        = 10*np.log10(N*((p_mL_GD_simp**2 + p_mT_GD_simp**2 )/p_ref**2))
+                p_pref_r_GD_simp[h]     = 10**(SPL_r_GD_simp[h]/10)  
+                SPL_r_GD_dBA_simp[h]    = A_weighting(SPL_r_GD_simp[h],f)                
+                p_pref_r_GD_dBA_simp[h] = 10**(SPL_r_GD_dBA_simp[h]/10)   
+
+
                 #------------------------------------------------------------------------
                 # Rotational SPL  by Barry & Magliozzi
                 #------------------------------------------------------------------------
@@ -165,9 +187,8 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                     if beta[idx] > 0:
                         phi_t[idx] = np.pi/2 - beta[idx]
                     else:
-                        phi_t[idx] = np.pi/2 + abs(beta[idx])                
-                #phi_t = beta                 
-                
+                        phi_t[idx] = np.pi/2 + abs(beta[idx])               
+                        
                 # sound pressure for loading noise 
                 p_mL_BM  = (1/(np.sqrt(2)*np.pi*S0))*np.trapz(( (R/(c*np.cos(phi_t)))*np.sin((m*B*c*np.cos(phi_t))/(2*R))* \
                                                      ((((M + X/S0)*omega)/(a*(1 - M**2)))*(dT_dR) - (1/R**2)*(dQ_dR))* \
@@ -217,13 +238,13 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                           *np.trapz(( (   (np.cos(theta_r_prime)/(1 - M*np.cos(theta_r)))*(dT_dr) - (1/((r**2)*M_t*r_t))*(dQ_dr)  ) * np.exp(1j*phi_s) *\
                                (jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r))))) * psi_L  ),x = r,dx = dr)
                 p_mL_H[np.isinf(p_mL_H)] = 0
-                p_mL_H = p_mL_H.real
+                p_mL_H = abs(p_mL_H)
                 
                 # sound pressure for thickness noise 
                 p_mT_H = (-(rho*(a**2)*B*np.sin(theta_r)*np.exp(1j*m*B*((omega*S_r/a)+(phi_prime - np.pi/2))))/(4*np.sqrt(2)*np.pi*(Y/D)*(1 - M*np.cos(theta_r)))) \
                         *np.trapz(((M_s**2)*(t/c)*np.exp(1j*phi_s)*(jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r)))))*(k_x**2)*psi_V ),x = r,dx = dr)
                 p_mT_H[np.isinf(p_mT_H)] = 0  
-                p_mT_H = p_mT_H.real
+                p_mT_H  = abs(p_mT_H)
                 
                 # unweighted rotational sound pressure level
                 SPL_r_H[h]        = 10*np.log10(N*((p_mL_H**2 + p_mT_H**2 )/p_ref**2))  
@@ -231,69 +252,78 @@ def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
                 SPL_r_H_dBA[h]    = A_weighting(SPL_r_H[h],f)
                 p_pref_r_H_dBA[h] = 10**(SPL_r_H_dBA[h]/10)   
                 
-               
-                
             # -----------------------------------------------------------------------
-            # Vortex Noise (developed by Schlegel et. al)
+            # Vortex Noise (developed by Schlegel et. al in Helicopter Rotor Noise) This is computed in feet 
             # ----------------------------------------------------------------------- 
-            V_07           = V_distri[13]                          # blade velocity at r/R_tip = 0.7 
-            St       = 0.28                                        # Strouhal number             
-            t_avg    = np.mean(t)                                  # thickness
-            c_avg    = np.mean(c)                                  # average chord  
-            A_blade  = np.trapz(c, dx = dR) # area of blade
-            s        = (B*A_blade)/A                               # rotor solidity
-            K        = 6.1e-11    
-            K_2      = np.sqrt((0.7**2)*(15**2)*K*S**2)               
-            
-            # unweighted overall vortex sound pressure level
-            SPL_v    = 20*np.log10((K_2)*(V_tip/(rho*S))*np.sqrt(((N*T)/s)*(T/A)))
-            SPL_v[np.isnan(SPL_v)] = 0
+            V_07      = V_tip*0.70/(Units.feet)                     # blade velocity at r/R_tip = 0.7 
+            St        = 0.28                                        # Strouhal number             
+            t_avg     = np.mean(t)/(Units.feet)                                  # thickness
+            c_avg     = np.mean(c)/(Units.feet)                                  # average chord  
+            beta_07   = beta[round(n*0.70)]                                                     # blade angle of attack at r/R = 0.7
+            h_val     = t_avg*np.cos(beta_07) + c_avg*np.sin(beta_07)                # projected blade thickness                   
+            f_peak    = (V_07*St)/h_val                                                          # V - blade velocity at a radial location of 0.7              
+            A_blade   = (np.trapz(c, dx = dR))/(Units.feet**2) # area of blade
+            CL_07     = 2*np.pi*beta_07
+            S_feet    = S/(Units.feet)
+            SPL_300ft = 10*np.log10(((6.1e-27)*A_blade*V_07**6)/(10**-16)) + 20*np.log(CL_07/0.4)
+            SPL_v     = SPL_300ft - 20*np.log10(S_feet/300)
             
             # estimation of A-Weighting for Vortex Noise  
-            Cl_bar      = (6*T)/(rho*s*V_tip*A)                                                # mean lift coefficient
-            blade_alpha = Cl_bar/(2*np.pi)                                                     # blade angle of attack at r/R = 0.7
-            h           = t_avg*np.cos(blade_alpha) + c_avg*np.sin(blade_alpha)                # projected blade thickness                   
-            f_peak      = (V_07*St)/h                                                          # V - blade velocity at a radial location of 0.7                
             f_spectrum  = [0.5*f_peak, 1*f_peak , 2*f_peak , 4*f_peak , 8*f_peak , 16*f_peak]  # spectrum
             fr          = f_spectrum/f_peak                                                    # frequency ratio  
             SPL_weight  = [7.92 , 4.17 , 8.33 , 8.75 ,12.92 , 13.33]                           # SPL weight
             SPL_v       = np.ones_like(SPL_weight)*SPL_v - SPL_weight                          # SPL correction
-
+            
             dim         = len(f_spectrum)
             C           = np.zeros(dim) 
-            p_pref_v_dBA= np.zeros(dim)
+            p_pref_v_dBA= np.zeros(dim-1)
+            SPL_v_dbAi = np.zeros(dim)
+            
+            for j in range(dim):
+                SPL_v_dbAi[j] = A_weighting(SPL_v[j],f_spectrum[j])
+            
             for j in range(dim-1):
-                C[j]        = (SPL_v[j+1] - SPL_v[j])/(np.log10(fr[j+1]) - np.log10(fr[j])) 
-                C[j+1]      = SPL_v[j+1]- C[j]*np.log10(fr[j+1])   
-                p_pref_v_dBA[j] = (10** (0.1*C[j+1]))* (((fr[j+1]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) - ((fr[j]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) )
-                    
+                C[j]        = (SPL_v_dbAi[j+1] - SPL_v_dbAi[j])/(np.log10(fr[j+1]) - np.log10(fr[j])) 
+                C[j+1]      = SPL_v_dbAi[j+1] - C[j]*np.log10(fr[j+1])   
+                p_pref_v_dBA[j] = (10**(0.1*C[j+1]))* (  ((fr[j+1]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) - ((fr[j]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) )
+                
+                
             # collecting unweighted pressure ratios 
+            total_p_pref_r_GD_simp.append(p_pref_r_GD_simp)  
             total_p_pref_r_GD.append(p_pref_r_GD)  
             total_p_pref_r_BM.append(p_pref_r_BM)  
             total_p_pref_r_H.append(p_pref_r_H)    
             
             # collecting weighted pressure ratios with vortex noise included
+            total_p_pref_GDv_dBA_simp.append(np.concatenate([p_pref_r_GD_dBA_simp,p_pref_v_dBA])) 
             total_p_pref_GDv_dBA.append(np.concatenate([p_pref_r_GD_dBA,p_pref_v_dBA])) # Gutin & Deming rotational noise with Schlegel vortex noise
             total_p_pref_BMv_dBA.append(np.concatenate([p_pref_r_BM_dBA,p_pref_v_dBA])) # Barry & Magliozzi rotational noise with Schlegel vortex noise
             total_p_pref_Hv_dBA.append(np.concatenate([p_pref_r_H_dBA,p_pref_v_dBA]))   # Hanson rotational noise with Schlegel vortex noise        
         
+        
+            SPL_v_dBA.append(decibel_arithmetic(p_pref_v_dBA))
+            
         if harmonic_test.any():
-            SPL_DG_unweighted[i,:] = SPL_r_GD
+            SPL_GD_unweighted_simp[i,:] = SPL_r_GD_simp
+            SPL_GD_unweighted[i,:] = SPL_r_GD
             SPL_BM_unweighted[i,:] = SPL_r_BM 
             SPL_H_unweighted[i,:]  = SPL_r_H 
             
         else:
             # Rotational SPL (Unweighted)   
-            SPL_DG_unweighted.append(decibel_arithmetic(total_p_pref_r_GD))
+            SPL_GD_unweighted_simp.append(decibel_arithmetic(total_p_pref_r_GD_simp))
+            SPL_GD_unweighted.append(decibel_arithmetic(total_p_pref_r_GD))
             SPL_BM_unweighted.append(decibel_arithmetic(total_p_pref_r_BM))
-            SPL_H_unweighted.append(decibel_arithmetic(total_p_pref_r_H))            
+            SPL_H_unweighted.append(decibel_arithmetic(total_p_pref_r_H))  
+            SPL_v_unweighted.append(SPL_v)
         
         # A- Weighted Rotational and Vortex SPL
+        SPL_GDv_dBA_simp.append(decibel_arithmetic(total_p_pref_GDv_dBA_simp))
         SPL_GDv_dBA.append(decibel_arithmetic(total_p_pref_GDv_dBA))
         SPL_BMv_dBA.append(decibel_arithmetic(total_p_pref_BMv_dBA))
         SPL_Hv_dBA.append(decibel_arithmetic(total_p_pref_Hv_dBA))
-    
-    return   SPL_DG_unweighted , SPL_BM_unweighted , SPL_H_unweighted , SPL_GDv_dBA  , SPL_BMv_dBA , SPL_Hv_dBA
+       
+    return   SPL_GD_unweighted , SPL_BM_unweighted , SPL_H_unweighted ,  SPL_GD_unweighted_simp , SPL_v_unweighted , SPL_GDv_dBA  , SPL_BMv_dBA , SPL_Hv_dBA ,SPL_GDv_dBA_simp  , SPL_v_dBA 
 # -----------------------------------------------------------------------
 # Decibel Arithmetic
 # -----------------------------------------------------------------------
@@ -307,5 +337,5 @@ def decibel_arithmetic(p_pref_total):
 def  A_weighting(SPL,f):
     Ra_f       = ((12200**2)*(f**4))/ (((f**2)+(20.6**2)) * ((f**2)+(12200**2)) * (((f**2) + 107.7**2)**0.5)* (((f**2)+ 737.9**2)**0.5)) 
     A_f        =  2.0  + 20*np.log10(Ra_f) 
-    SPL_dBA = SPL + A_f 
+    SPL_dBA = SPL + A_f
     return SPL_dBA
