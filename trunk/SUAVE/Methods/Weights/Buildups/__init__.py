@@ -1,9 +1,7 @@
 ## @defgroup Methods-Weights-Buildups Buildups
-'''
-Buildup weight methods provide weight breakdowns for vehicles based on part-by-part
-sizing.
-'''
-
+# Buildup weight methods provide weight breakdowns for vehicles based on part-by-part
+# sizing.
+# @ingroup Methods-Weights
 
 from . import Electric_Helicopter
 from . import Electric_Stopped_Rotor

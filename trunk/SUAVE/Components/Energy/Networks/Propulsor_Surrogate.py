@@ -159,9 +159,9 @@ class Propulsor_Surrogate(Propulsor):
         my_data = my_data[idx]                
                 
     
-        xy  = my_data[1:,:3] # Altitude, Mach, Throttle
-        thr = np.transpose(np.atleast_2d(my_data[1:,3])) # Thrust
-        sfc = np.transpose(np.atleast_2d(my_data[1:,4]))  # SFC
+        xy  = my_data[:,:3] # Altitude, Mach, Throttle
+        thr = np.transpose(np.atleast_2d(my_data[:,3])) # Thrust
+        sfc = np.transpose(np.atleast_2d(my_data[:,4]))  # SFC
         
         
         # Pick the type of process

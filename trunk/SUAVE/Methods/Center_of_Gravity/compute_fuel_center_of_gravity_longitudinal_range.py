@@ -3,14 +3,16 @@
 #
 # Created:  Sep 2018, T. MacDonald
 # Modified: Oct 2018, T. MacDonald
+#           Jan 2019, T. MacDonald
 
 from SUAVE.Core import DataOrdered, Data
 import numpy as np
 from copy import copy
 
 ## @ingroup Methods-Center_of_Gravity
-def plot_cg_map(masses,cg_mins,cg_maxes):
-    """Plot possible longitudinal cg positions for the fuel.
+def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0):
+    """Plot possible longitudinal cg positions for the fuel (or full vehicle
+    is empty mass is given)
     
     Assumptions:
     None
@@ -19,9 +21,11 @@ def plot_cg_map(masses,cg_mins,cg_maxes):
     N/A
 
     Inputs:
-    masses    [kg]
-    cg_mins   [m]
-    cg_maxes  [m]
+    masses     [kg]
+    cg_mins    [m]
+    cg_maxes   [m]
+    empty_mass [kg]
+    empty_cg   [m]
 
     Outputs:
     A plot
@@ -29,6 +33,14 @@ def plot_cg_map(masses,cg_mins,cg_maxes):
     Properties Used:
     N/A
     """    
+    
+    ylabel_string = 'Fuel Mass (kg)'
+    
+    if empty_mass != 0:
+        cg_maxes = (cg_maxes*masses+empty_cg*empty_mass)/(masses+empty_mass)
+        cg_mins  = (cg_mins*masses+empty_cg*empty_mass)/(masses+empty_mass)
+        masses   = masses+empty_mass
+        ylabel_string = 'Total Mass (kg)'
     
     import pylab as plt
 
@@ -38,7 +50,7 @@ def plot_cg_map(masses,cg_mins,cg_maxes):
     axes.plot(cg_mins,masses,'b-')
     
     axes.set_xlabel('CG Position (m)')
-    axes.set_ylabel('Fuel Mass (kg)')
+    axes.set_ylabel(ylabel_string)
     axes.set_title('Available Fuel CG Distribution')
     axes.grid(True)  
     
@@ -100,9 +112,9 @@ def compute_fuel_center_of_gravity_longitudinal_range(vehicle):
     max_cg      = np.zeros_like(fuel_masses)
     
     tank_masses_front_to_back = tank_masses
-    tank_masses_back_to_front = np.flip(tank_masses)
+    tank_masses_back_to_front = np.flip(tank_masses,0)
     tank_cgs_front_to_back    = tank_cgs
-    tank_cgs_back_to_front    = np.flip(tank_cgs)
+    tank_cgs_back_to_front    = np.flip(tank_cgs,0)
     
     for j,mass in enumerate(fuel_masses):
         # find minimum

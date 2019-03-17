@@ -6,7 +6,6 @@
 """ setup file for the Boeing 737 vehicle
 """
 
-
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
@@ -15,8 +14,6 @@ import numpy as np
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-
-
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -30,8 +27,8 @@ def vehicle_setup():
     
     vehicle = SUAVE.Vehicle()
     vehicle.tag = 'Boeing_737800'
-      
-    
+   
+
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
@@ -45,7 +42,6 @@ def vehicle_setup():
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     vehicle.mass_properties.center_of_gravity         = [ 15.30987849,   0.        ,  -0.48023939]
     
- 
     # envelope properties
     vehicle.envelope.category                 = 'transport'
     vehicle.envelope.FAR_part_number          = 25
@@ -79,7 +75,7 @@ def vehicle_setup():
     landing_gear.nose_wheels = 2    #number of wheels on the nose landing gear      
     vehicle.landing_gear=landing_gear
     
-    
+        
     # ------------------------------------------------------------------        
     #   Main Wing
     # ------------------------------------------------------------------        
@@ -113,6 +109,7 @@ def vehicle_setup():
     
     wing.dynamic_pressure_ratio  = 1.0
     
+    
     # ------------------------------------------------------------------
     #   Flaps
     # ------------------------------------------------------------------
@@ -124,8 +121,8 @@ def vehicle_setup():
     
     # add to vehicle
     vehicle.append_component(wing)
-
-
+    
+    
     # ------------------------------------------------------------------        
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------        
@@ -139,15 +136,15 @@ def vehicle_setup():
     wing.taper                   = 0.2
     wing.span_efficiency         = 0.9
     
-    wing.spans.projected         = 14.2      #
+    wing.spans.projected         = 14.2      
 
     wing.chords.root             = 4.7
     wing.chords.tip              = .955   
     wing.chords.mean_aerodynamic = 8.0
 
-    wing.areas.reference         = 32.488    #
-    wing.areas.exposed           = 199.7792                  # Exposed area of the horizontal tail
-    wing.areas.wetted            = 249.724                   # Wetted area of the horizontal tail
+    wing.areas.reference         = 32.488    
+    wing.areas.exposed           = 59.354                  # Exposed area of the horizontal tail
+    wing.areas.wetted            = 64.976                    # Wetted area of the horizontal tail
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
     
@@ -262,9 +259,7 @@ def vehicle_setup():
     
     #Assign engine areas
     turbofan.areas.wetted  = Awet
-    
-    
-    
+       
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
     
@@ -435,7 +430,6 @@ def vehicle_setup():
     
     #Engine setup for noise module    
    
-    
     # add to network
     turbofan.thrust = thrust
 
@@ -447,10 +441,6 @@ def vehicle_setup():
     turbofan.geometry_xe          = 1. # Geometry information for the installation effects function
     turbofan.geometry_ye          = 1. # Geometry information for the installation effects function   
     turbofan.geometry_Ce          = 2. # Geometry information for the installation effects function
-    
-    
-    
-    
     
     #size the turbofan
     turbofan_sizing(turbofan,mach_number,altitude)   
@@ -472,7 +462,7 @@ def vehicle_setup():
 
 def configs_setup(vehicle):
     
-  # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     #   Initialize Configurations
     # ------------------------------------------------------------------
     configs = SUAVE.Components.Configs.Config.Container()
@@ -527,7 +517,6 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Landing Configuration
     # ------------------------------------------------------------------
-
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'landing'
 
@@ -547,7 +536,6 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Short Field Takeoff Configuration
     # ------------------------------------------------------------------ 
-
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'short_field_takeoff'
     

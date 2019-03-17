@@ -59,7 +59,7 @@ def main():
     
     # append AVL stability analysis
     stability                                                  = SUAVE.Analyses.Stability.AVL()
-    stability.regression_flag                                  = True 
+    stability.regression_flag                                  = True
     stability.keep_files                                       = True
     stability.geometry                                         = copy.deepcopy(configs.cruise)
     stability.training_file                                    = 'cruise_data_stability.txt'    
@@ -122,7 +122,7 @@ def main():
 
     # lift coefficient check
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true         = 0.6118500927696005
+    lift_coefficient_true         = 0.6118979131570086
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -132,7 +132,7 @@ def main():
     
     # moment coefficient check
     moment_coefficient            = results.segments.cruise.conditions.stability.static.CM[0][0]
-    moment_coefficient_true       = -0.6288724307669327
+    moment_coefficient_true       = -0.6267104237340391
 
     print(moment_coefficient)
     diff_CM                       = np.abs(moment_coefficient - moment_coefficient_true)

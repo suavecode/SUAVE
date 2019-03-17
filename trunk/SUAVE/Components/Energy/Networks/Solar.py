@@ -154,7 +154,7 @@ class Solar(Propulsor):
         esc.inputs.currentout =  motor.outputs.current
         
         # Run the esc
-        esc.currentin()
+        esc.currentin(conditions)
         # link
         solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_of_engines
         solar_logic.inputs.volts_motor = esc.outputs.voltageout 
@@ -209,7 +209,7 @@ class Solar(Propulsor):
         """       
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
 
         return
     

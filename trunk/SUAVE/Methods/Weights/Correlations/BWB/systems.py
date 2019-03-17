@@ -75,9 +75,7 @@ def systems(num_seats,  ctrl_type,S_h,S_gross_w, ac_type):
 
     # Furnishings Group Wt
     furnish_wt = ((43.7 - 0.037*min(num_seats,300.))*num_seats + 46.0*num_seats) * Units.lb
-    if ac_type == "business":
-        furnish_wt = S_fus * 11.
-    
+       
     # Environmental Control
     ac_wt = (15.0 * num_seats) * Units.lb
 
