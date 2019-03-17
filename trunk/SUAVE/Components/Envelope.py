@@ -47,10 +47,8 @@ class Envelope(Component):
         """          
         self.tag = 'Envelope'
 
-        self.ultimate_load           = 0.0
-        self.limit_loads 	     = Data()
-        self.limit_loads.positive    = 0.0
-        self.limit_loads.negative    = 0.0
+        self.ultimate_load = 0.0
+        self.limit_load    = 0.0
 
         self.alpha_maximum   = 0.0
         self.alt_vc          = 0.0

@@ -11,4 +11,3 @@ from .size_mission_range_given_weights import size_mission_range_given_weights
 from .size_weights_given_mission_range import size_weights_given_mission_range
 from .V_n_diagram import V_n_diagram
 
-
