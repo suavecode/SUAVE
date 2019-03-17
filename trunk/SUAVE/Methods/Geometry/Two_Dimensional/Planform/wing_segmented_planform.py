@@ -29,7 +29,6 @@ def wing_segmented_planform(wing):
     wing.
       chords.root              [m]
       spans.projected          [m]
-      vertical                 <boolean> Determines if wing is vertical
       symmetric                <boolean> Determines if wing is symmetric
     
     Outputs:
@@ -55,6 +54,7 @@ def wing_segmented_planform(wing):
     # Unpack
     span = wing.spans.projected
     RC   = wing.chords.root
+    sym  = wing.symmetric
     
     # Pull all the segment data into array format
     span_locs = []
@@ -78,10 +78,14 @@ def wing_segmented_planform(wing):
     sweeps    = np.array(sweeps)
     
     # Basic calcs:
-    lengths = span_locs[1:]-span_locs[:-1]
+    semispan     = span/(1+sym)
+    lengths_ndim = span_locs[1:]-span_locs[:-1]
+    lengths_dim  = lengths_ndim*semispan
+    chords_dim   = RC*chords
+    tapers       = chords[1:]/chords[:-1]
     
     # Calculate the areas of each segment
-    As = (span/2)*RC*((lengths)*chords[:-1]-(chords[:-1]-chords[1:])*(lengths)/2)
+    As = RC*((lengths_dim)*chords[:-1]-(chords[:-1]-chords[1:])*(lengths_dim)/2)
     
     # Calculate the wing area
     ref_area = np.sum(As)*2
@@ -90,20 +94,21 @@ def wing_segmented_planform(wing):
     AR = (span**2)/ref_area
     
     # Calculate the total span
-    lens = span*(lengths)/np.cos(dihedrals[:-1])
-    total_len = np.sum(np.array(lens))
+    lens = lengths_dim/np.cos(dihedrals[:-1])
+    total_len = np.sum(np.array(lens))*(1+sym)
     
     # Calculate the mean geometric chord
     mgc = ref_area/span
     
     # Calculate the mean aerodynamic chord
-    A = RC*chords[:-1]
-    B = (A-RC*chords[1:])/(span_locs[:-1]-span_locs[1:])
+    A = chords_dim[:-1]
+    B = (A-chords_dim[1:])/(-lengths_ndim)
     C = span_locs[:-1]
     integral = ((A+B*(span_locs[1:]-C))**3-(A+B*(span_locs[:-1]-C))**3)/(3*B)
     # For the cases when the wing doesn't taper in a spot
-    integral[np.isnan(integral)] = (A[np.isnan(integral)]**2)*((lengths)[np.isnan(integral)])
-    MAC = (span/(ref_area))*np.sum(integral)
+    integral[np.isnan(integral)] = (A[np.isnan(integral)]**2)*((lengths_ndim)[np.isnan(integral)])
+    panel_mac = integral*lengths_dim*(1+sym)/As
+    MAC = (semispan*(1+sym)/(ref_area))*np.sum(integral)
     
     # Compute MAC Location, this will do the first location
     mac_percent     = MAC/RC
@@ -123,29 +128,30 @@ def wing_segmented_planform(wing):
     t_c = np.sum(As*t_cs[:-1])/(ref_area/2)
     
     # Calculate the segment leading edge sweeps
-    r_offsets = RC*chords[:-1]/4
-    t_offsets = RC*chords[1:]/4
-    le_sweeps = np.arctan((r_offsets+np.tan(sweeps[:-1])*(lengths*span/2)-t_offsets)/(lengths*span/2))    
+    r_offsets = chords_dim[:-1]/4
+    t_offsets = chords_dim[1:]/4
+    le_sweeps = np.arctan((r_offsets+np.tan(sweeps[:-1])*(lengths_dim)-t_offsets)/(lengths_dim))    
     
     # Calculate the effective sweeps
-    c_4_sweep   = np.arctan(np.sum(lengths*np.tan(sweeps[:-1])))
-    le_sweep_total= np.arctan(np.sum(lengths*np.tan(le_sweeps)))
+    c_4_sweep   = np.arctan(np.sum(lengths_ndim*np.tan(sweeps[:-1])))
+    le_sweep_total= np.arctan(np.sum(lengths_ndim*np.tan(le_sweeps)))
 
     # Calculate the aerodynamic center, but first the centroid
-    dxs = np.concatenate([np.array([0]),np.tan(le_sweeps[:-1])*lengths[:-1]*span/2])
-    dys = np.concatenate([np.array([0]),lengths[:-1]*span/2])
+    dxs = np.concatenate([np.array([0]),np.tan(le_sweeps[:-1])*lengths_dim[:-1]])
+    dys = np.concatenate([np.array([0]),lengths_dim[:-1]])
+    dzs = np.concatenate([np.array([0]),np.tan(dihedrals[:-1])*lengths_dim[:-1]])
     
     Cxys = []
-    for i in range(len(lengths)):
-        Cxys.append(segment_centroid(le_sweeps[i], span*lengths[i]/2, dxs[i], dys[i], chords[i]*RC, chords[i+1]*RC, As[i]))
+    for i in range(len(lengths_dim)):
+        Cxys.append(segment_centroid(le_sweeps[i],lengths_dim[i]*(1+sym),dxs[i],dys[i],dzs[i], chords_dim[i], chords_dim[i+1], tapers[i], As[i], panel_mac[i], dihedrals[i]))
 
-    total_centroid = np.sum(Cxys*As,axis=0)/(ref_area/2)
+    aerodynamic_center= np.dot(np.transpose(Cxys),As)/(ref_area/(1+sym))
     
-    aerodynamic_center = [total_centroid[0]-MAC/4,total_centroid[1],0]
+    if sym== True:
+        aerodynamic_center[1] = 0
     
     # Total length for supersonics
-    total_length = np.tan(le_sweep_total)*span/2 + chords[-1]*RC
-
+    total_length = np.tan(le_sweep_total)*semispan + chords[-1]*RC
     
     # Pack stuff
     wing.areas.reference         = ref_area
@@ -164,7 +170,7 @@ def wing_segmented_planform(wing):
     return wing
 
 # Segment centroid
-def segment_centroid(seg_le_sweep,seg_semispan,dx,dy,seg_rc,seg_tc,A):
+def segment_centroid(le_sweep,seg_span,dx,dy,dz,seg_rc,seg_tc,taper,A,mac,dihedral):
     """Computes the centroid of a polygonal segment
     
     Assumptions:
@@ -175,7 +181,7 @@ def segment_centroid(seg_le_sweep,seg_semispan,dx,dy,seg_rc,seg_tc,A):
     
     Inputs:
     seg_le_sweep  [rad]
-    seg_semispan  [m]
+    seg_span      [m]
     dx            [m]
     dy            [m]
     seg_rc        [m]
@@ -183,15 +189,22 @@ def segment_centroid(seg_le_sweep,seg_semispan,dx,dy,seg_rc,seg_tc,A):
     A             [m**2]
 
     Outputs:
-    cx,cy        [m,m]
+    cx,cy         [m,m]
 
     Properties Used:
     N/A
     """    
-    xi = np.array([0,np.tan(seg_le_sweep)*seg_semispan,np.tan(seg_le_sweep)*seg_semispan+seg_tc,seg_rc])
-    yi = np.array([0,seg_semispan,seg_semispan,0])
     
-    cx = -np.sum((xi[:-1]+xi[1:])*(xi[:-1]*yi[1:]-xi[1:]*yi[:-1]))/(6*A)+dx
-    cy = -np.sum((yi[:-1]+yi[1:])*(xi[:-1]*yi[1:]-xi[1:]*yi[:-1]))/(6*A)+dy
+    #Both of these work
+    #xi = np.array([0,np.tan(le_sweep)/2*seg_span,np.tan(le_sweep)*seg_span/2+seg_tc,seg_rc])
+    #yi = np.array([0,seg_span/2,seg_span/2,0])
     
-    return np.array([cx,cy])
+    #cx = -np.sum((xi[:-1]+xi[1:])*(xi[:-1]*yi[1:]-xi[1:]*yi[:-1]))/(6*A)+dx - mac/4
+    #cy = -np.sum((yi[:-1]+yi[1:])*(xi[:-1]*yi[1:]-xi[1:]*yi[:-1]))/(6*A)+dy
+    #cz = cy * np.tan(dihedral)  
+    
+    cy = seg_span / 6. * (( 1. + 2. * taper ) / (1. + taper))
+    cx = mac * 0.25 + cy * np.tan(le_sweep)
+    cz = cy * np.tan(dihedral)    
+    
+    return np.array([cx+dx,cy+dy,cz+dz])
