@@ -55,7 +55,7 @@ def initialize_conditions(segment):
         alt0 = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
 
     # discretize on altitude
-    alt = t_nondim * (altf-alt0) + alt0
+    alt = t_nondim * (alt0-altf) + altf
     
     # process velocity vector
     v_mag = air_speed

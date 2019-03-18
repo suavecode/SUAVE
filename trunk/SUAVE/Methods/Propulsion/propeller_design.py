@@ -12,7 +12,7 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units
-
+from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_airfoil_geometry
 # ----------------------------------------------------------------------
 #  Propeller Design
 # ----------------------------------------------------------------------
@@ -50,6 +50,8 @@ def propeller_design(prop,N=20):
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
     Power  = prop.design_power
+    a_sec  = prop.airfoil_sections          
+    a_secl = prop.airfoil_section_location      
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -199,13 +201,27 @@ def propeller_design(prop,N=20):
     
     Power = Pc*rho*(V**3)*np.pi*(R**2)/2
     Cp    = Power/(rho*(n**3)*(D**5))
-
-    prop.twist_distribution = beta
-    prop.chord_distribution = c
-    prop.Cp                 = Cp
-    prop.mid_chord_aligment = MCA
     
-    #These are used to check, the values here were used to verify against
-    #AIAA 89-2048 for their propeller
+    # compute max thickness distribution using NACA 4 series eqn
+    t_max          = np.zeros(20)
+    for idx in range(20):
+        c_blade    = np.linspace(0,c[idx],20)          # local chord  
+        t          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
+        t_max[idx] = np.max(t)                       
+
+    prop.max_thickness_distribution = t_max
+    prop.twist_distribution         = beta
+    prop.chord_distribution         = c
+    prop.Cp                         = Cp
+    prop.mid_chord_aligment         = MCA
+     
+    # compute airfoil sections if given
+    if  a_sec != None and a_secl != None:
+        airfoil_geometry = Data()
+        # check dimension of section  
+        dim_sec = len(a_secl)
+        if dim_sec != N:
+            raise AssertionError("Number of sections not equal to number of stations")
+        prop.airfoil_data = read_airfoil_geometry(a_sec)  
     
     return prop

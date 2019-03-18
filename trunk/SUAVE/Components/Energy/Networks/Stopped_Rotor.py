@@ -341,9 +341,9 @@ class Stopped_Rotor(Propulsor):
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
         segment.state.conditions.propulsion.battery_voltage_under_load            = segment.state.unknowns.battery_voltage_under_load
         segment.state.conditions.propulsion.propeller_power_coefficient_lift      = segment.state.unknowns.propeller_power_coefficient_lift
-        segment.state.conditions.propulsion.propeller_power_coefficient   = segment.state.unknowns.propeller_power_coefficient   
+        segment.state.conditions.propulsion.propeller_power_coefficient           = segment.state.unknowns.propeller_power_coefficient   
         segment.state.conditions.propulsion.throttle_lift                         = segment.state.unknowns.throttle_lift        
-        segment.state.conditions.propulsion.throttle                      = segment.state.unknowns.throttle
+        segment.state.conditions.propulsion.throttle                              = segment.state.unknowns.throttle
         
         return
     
