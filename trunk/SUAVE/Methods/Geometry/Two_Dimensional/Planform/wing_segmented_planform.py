@@ -110,13 +110,13 @@ def wing_segmented_planform(wing):
     panel_mac = integral*lengths_dim*(1+sym)/As
     MAC = (semispan*(1+sym)/(ref_area))*np.sum(integral)
     
-    # Compute MAC Location, this will do the first location
-    mac_percent     = MAC/RC
-    if len(np.where(chords>mac_percent)[0])>0:
-        i               = np.where(chords>mac_percent)[0][-1]
-        mac_loc_non_dim = (chords[i]-mac_percent)*(span_locs[i+1]-span_locs[i])/(chords[i]-chords[i+1]) + span_locs[i]
-    else: # This is a non tapered wing
-        mac_loc_non_dim = 0.5
+    ## Compute MAC Location, this will do the first location
+    #mac_percent     = MAC/RC
+    #if len(np.where(chords>mac_percent)[0])>0:
+        #i               = np.where(chords>mac_percent)[0][-1]
+        #mac_loc_non_dim = (chords[i]-mac_percent)*(span_locs[i+1]-span_locs[i])/(chords[i]-chords[i+1]) + span_locs[i]
+    #else: # This is a non tapered wing
+        #mac_loc_non_dim = 0.5
     
     # Calculate the effective taper ratio
     lamda = 2*mgc/RC - 1
