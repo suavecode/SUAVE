@@ -16,7 +16,7 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Descent
-def expand_state(segment,state):
+def expand_state(segment):
     """Makes all vectors in the state the same size.
 
     Assumptions:
@@ -45,7 +45,7 @@ def expand_state(segment,state):
     # unpack
     descent_angle = segment.descent_angle
     air_speed     = segment.air_speed   
-    conditions    = state.conditions      
+    conditions    = segment.state.conditions      
     
     # process velocity vector
     s0 = 4000. #Defining the initial position of the measureament will start at 4 km from the threshold
@@ -55,8 +55,8 @@ def expand_state(segment,state):
     total_time    = s0/v_x    
     n_points      = np.ceil(total_time/dt +1)       
     
-    state.numerics.number_control_points = n_points
-    state.expand_rows(int(n_points))   
+    segment.state.numerics.number_control_points = n_points
+    segment.state.expand_rows(int(n_points))   
     
     return
 
@@ -65,7 +65,7 @@ def expand_state(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Descent
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
 
     Assumptions:
@@ -95,8 +95,8 @@ def initialize_conditions(segment,state):
     # unpack
     descent_angle= segment.descent_angle
     air_speed    = segment.air_speed   
-    t_nondim     = state.numerics.dimensionless.control_points
-    conditions   = state.conditions  
+    t_nondim     = segment.state.numerics.dimensionless.control_points
+    conditions   = segment.state.conditions  
     
     altf = 50. * Units.feet #(50ft last point for the noise measureament)
     

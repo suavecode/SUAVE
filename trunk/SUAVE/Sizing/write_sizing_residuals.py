@@ -25,7 +25,7 @@ def write_sizing_residuals(sizing_loop, y_save, opt_inputs, residuals):
     
     """
     
-    file=open(sizing_loop.residual_filename, 'ab')
+    file=open(sizing_loop.residual_filename, 'a')
     file.write(str(y_save.tolist()+opt_inputs.tolist()))
     file.write(' ')
     file.write(str(residuals.tolist()))

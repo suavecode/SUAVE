@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from Propellant import Propellant
+from .Propellant import Propellant
 
 # ----------------------------------------------------------------------
 #  Jet_A1 Propellant Class

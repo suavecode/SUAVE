@@ -2,4 +2,4 @@
 # Variable cruise mission setups
 # @ingroup Analyses-Mission
 
-from Given_Weight import Given_Weight
+from .Given_Weight import Given_Weight

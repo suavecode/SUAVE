@@ -11,7 +11,9 @@
 # SUAVE imports
 
 from SUAVE.Analyses import Analysis, Settings, Process
-from Conditions import State
+from .Conditions import State
+from SUAVE.Core.Arrays import array_type
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Segment
@@ -64,10 +66,12 @@ class Segment(Analysis):
         self.process.finalize              = Process()
         self.process.finalize.post_process = Process()
         
+        self.conditions = self.state.conditions
+        
         return
         
 
-    def initialize(self,state):
+    def initialize(self):
         """ This executes the initialize process
     
             Assumptions:
@@ -85,7 +89,8 @@ class Segment(Analysis):
             Properties Used:
             None
         """         
-        self.process.initialize(self,state)
+        state = self.state
+        self.process.initialize(self)
         return
     
     def converge(self,state):
@@ -108,7 +113,7 @@ class Segment(Analysis):
         """             
         self.process.converge(self,state)    
     
-    def iterate(self,state):
+    def iterate(self):
         """ This executes the iterate process
     
             Assumptions:
@@ -126,10 +131,10 @@ class Segment(Analysis):
             Properties Used:
             None
         """        
-        self.process.iterate(self,state)
+        self.process.iterate(self)
         return
     
-    def finalize(self,state):
+    def finalize(self):
         """ This executes the finalize process
     
             Assumptions:
@@ -147,7 +152,7 @@ class Segment(Analysis):
             Properties Used:
             None
         """         
-        self.process.finalize(self,state)
+        self.process.finalize(self)
         return
  
     def compile(self):
@@ -191,8 +196,41 @@ class Segment(Analysis):
         """          
         if state is None:
             state = self.state
-        self.process(self,state)
-        return state
+        self.process(self)
+        return self
+    
+    
+    def merged(self):
+        """ Combines the states of multiple segments
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            state_out [State()]
+    
+            Properties Used:
+            None
+        """              
+        
+        state_out = State()
+        
+        for i,(tag,sub_seg) in enumerate(self.segments.items()):
+            sub_state = sub_seg.state
+            for key in ['unknowns','conditions','residuals']:
+                if i == 0:
+                    state_out[key].update(sub_state[key])
+                else:
+                    state_out[key] = state_out[key].do_recursive(append_array,sub_state[key])
+            
+        return state_out
+
     
     
 # ----------------------------------------------------------------------
@@ -255,3 +293,29 @@ class Container(Segment):
         return    
         
 Segment.Container = Container
+
+
+## @ingroup Analyses-Mission-Segments-Conditions
+def append_array(A,B=None):
+    """ A stacking operation used by merged to put together data structures
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        A [array]
+        B [array]
+
+        Outputs:
+        array
+
+        Properties Used:
+        None
+    """       
+    if isinstance(A,array_type) and isinstance(B,array_type):
+        return np.vstack([A,B])
+    else:
+        return None

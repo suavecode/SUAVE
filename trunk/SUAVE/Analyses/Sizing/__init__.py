@@ -3,4 +3,4 @@
 # @ingroup Analyses
 
 
-from Sizing import Sizing
+from . import Sizing

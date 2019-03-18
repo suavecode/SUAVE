@@ -43,6 +43,6 @@ def orientation_product(T,Bb):
     elif np.rank(Bb) == 2:
         C = np.einsum('aij,aj->ai', T, Bb )
     else:
-        raise Exception , 'bad B rank'
+        raise Exception('bad B rank')
         
     return C

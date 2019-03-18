@@ -45,10 +45,10 @@ def main():
     rho_err = np.max( rho_truth - rho )
     a_err   = np.max( a_truth   - a   )
     
-    print 'Max Pressure Difference       = %.4e' % p_err
-    print 'Max Temperature Difference    = %.4e' % T_err
-    print 'Max Density Difference        = %.4e' % rho_err
-    print 'Max Speed of Sound Difference = %.4e' % a_err
+    print('Max Pressure Difference       = %.4e' % p_err)
+    print('Max Temperature Difference    = %.4e' % T_err)
+    print('Max Density Difference        = %.4e' % rho_err)
+    print('Max Speed of Sound Difference = %.4e' % a_err)
     
     
     # ------------------------------------------------------------------

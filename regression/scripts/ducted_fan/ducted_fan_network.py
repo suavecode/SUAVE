@@ -41,9 +41,9 @@ def energy_network():
     # ------------------------------------------------------------------    
     
     # Setup Conditions        
-    ones_1col = np.ones([1,1])    
+    ones_1col  = np.ones([1,1])    
     conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-   
+       
     # Freestream conditions
     conditions.freestream.mach_number                 = ones_1col*0.4
     conditions.freestream.pressure                    = ones_1col*20000.0
@@ -188,8 +188,8 @@ def energy_network():
     #size the turbofan
     ducted_fan_sizing(ductedfan,0.5,10000.0)
     
-    print "Design thrust ",ductedfan.design_thrust
-    print "Sealevel static thrust ",ductedfan.sealevel_static_thrust
+    print("Design thrust ",ductedfan.design_thrust)
+    print("Sealevel static thrust ",ductedfan.sealevel_static_thrust)
     
     results_design     = ductedfan(state_sizing)
     results_off_design = ductedfan(state_off_design)
@@ -204,9 +204,9 @@ def energy_network():
     #error data function
     error =  Data()
     error.thrust_error = (F[0][0] -  expected.thrust)/expected.thrust
-    print error
+    print(error)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)    
         
     return

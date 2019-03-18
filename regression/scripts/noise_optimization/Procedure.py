@@ -490,7 +490,7 @@ def compute_noise(config,analyses,noise_segment):
 
 def weight(nexus):   
     
-    for tag,config in nexus.analyses.items():
+    for tag,config in list(nexus.analyses.items()):
         weights = config.weights.evaluate()
     
     return nexus
@@ -512,7 +512,7 @@ def noise_sideline_init(nexus):
     results = nexus.results
     results.sideline_initialization = mission.evaluate()
     
-    n_points   = np.ceil(results.sideline_initialization.conditions.climb.frames.inertial.time[-1] /0.5 +1)
+    n_points   = np.ceil(results.sideline_initialization.segments.climb.conditions.frames.inertial.time[-1] /0.5 +1)
 
     nexus.npoints_sideline_sign=np.sign(n_points)
     nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points = np.minimum(200, np.abs(n_points))  
@@ -528,7 +528,7 @@ def noise_takeoff_init(nexus):
     results = nexus.results
     results.takeoff_initialization = mission.evaluate()
     
-    n_points   = np.ceil(results.takeoff_initialization.conditions.climb.frames.inertial.time[-1] /0.5 +1)
+    n_points   = np.ceil(results.takeoff_initialization.segments.climb.conditions.frames.inertial.time[-1] /0.5 +1)
     nexus.npoints_takeoff_sign=np.sign(n_points)
 
     nexus.missions.takeoff.segments.climb.state.numerics.number_control_points = np.minimum(200, np.abs(n_points))
@@ -640,9 +640,9 @@ def post_process(nexus):
     
     summary.noise_margin  =  summary.noise_approach_margin + summary.noise_sideline_margin + summary.noise_flyover_margin
     
-    print "Sideline = ", summary.noise.sideline
-    print "Flyover = ", summary.noise.flyover
-    print "Approach = ", summary.noise.approach
+    print("Sideline = ", summary.noise.sideline)
+    print("Flyover = ", summary.noise.flyover)
+    print("Approach = ", summary.noise.approach)
   
     return nexus    
 

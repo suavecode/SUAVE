@@ -30,8 +30,6 @@ def main():
     analyses = mission_B737.analyses_setup(configs)
     mission  = mission_setup(configs,analyses)
     
-    vehicle.mass_properties.takeoff = 70000 * Units.kg
-    
     configs.finalize()
     analyses.finalize()
     
@@ -40,9 +38,14 @@ def main():
     
     plot_results(results)
     
-    error = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
-    print 'landing weight error' , error
-    assert error < 1.
+    distance_regression = 4317710.33719722
+    distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
+    error_distance      = abs((distance_regression - distance_calc )/distance_regression)
+    assert error_distance < 1e-6
+    
+    error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
+    print('landing weight error' , error_weight)
+    assert error_weight < 1e-6
     
     return
     
@@ -53,24 +56,26 @@ def mission_setup(configs,analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    #mission = SUAVE.Analyses.Mission.Sequential_Segments()
-    #mission = SUAVE.Analyses.Mission.All_At_Once()
     mission = SUAVE.Analyses.Mission.Vary_Cruise.Given_Weight()
     mission.tag = 'the_mission'
     
     # the cruise tag to vary cruise distance
     mission.cruise_tag = 'cruise'
-    mission.target_landing_weight = 40000.0 * Units.kg
+    mission.target_landing_weight = analyses.base.weights.vehicle.mass_properties.operating_empty
     
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
+    Segments = SUAVE.Analyses.Mission.Segments    
+    
+    # base segment
+    base_segment = Segments.Segment()
+    base_segment.state.numerics.number_control_points = 4
         
     
     # ------------------------------------------------------------------
     #   Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------
     
-    segment = Segments.Climb.Constant_Speed_Constant_Rate()
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb"
     
     segment.analyses.extend( analyses.takeoff )
@@ -88,22 +93,22 @@ def mission_setup(configs,analyses):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------    
     
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude()
+    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise"
     
     segment.analyses.extend( analyses.cruise )
     
     segment.air_speed  = 230.412 * Units['m/s']
-    segment.distance   = 2000.00 * Units.km
+    segment.distance   = 4000.00 * Units.km
         
     mission.append_segment(segment)
     
     
     # ------------------------------------------------------------------    
-    #   Descent Segment: consant speed, constant segment rate
+    #   Descent Segment: constant speed, constant segment rate
     # ------------------------------------------------------------------    
 
-    segment = Segments.Descent.Constant_Speed_Constant_Rate()
+    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent"
 
     segment.analyses.extend( analyses.landing )

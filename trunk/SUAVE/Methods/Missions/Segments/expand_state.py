@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 ## @ingroup methods-mission-segments
-def expand_state(segment,state):
+def expand_state(segment):
     
     """Makes all vectors in the state the same size.
 
@@ -29,9 +29,9 @@ def expand_state(segment,state):
     N/A
     """       
 
-    n_points = state.numerics.number_control_points
+    n_points = segment.state.numerics.number_control_points
     
-    state.expand_rows(n_points)
+    segment.state.expand_rows(n_points)
     
     return
     

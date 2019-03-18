@@ -9,13 +9,13 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units, Data
-from fuselage import fuselage
-from landing_gear import landing_gear
-from payload import payload
-from systems import systems
-from tail_horizontal import tail_horizontal
-from tail_vertical import tail_vertical
-from wing_main import wing_main
+from .fuselage import fuselage
+from .landing_gear import landing_gear
+from .payload import payload
+from .systems import systems
+from .tail_horizontal import tail_horizontal
+from .tail_vertical import tail_vertical
+from .wing_main import wing_main
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 import warnings
 
@@ -177,7 +177,7 @@ def empty(vehicle):
     q_c         = vehicle.design_dynamic_pressure
     mach_number = vehicle.design_mach_number
 
-    propulsor_name = vehicle.propulsors.keys()[0] #obtain the key for the propulsor for assignment purposes
+    propulsor_name = list(vehicle.propulsors.keys())[0] #obtain the key for the propulsor for assignment purposes
     propulsors     = vehicle.propulsors[propulsor_name]
     num_eng        = propulsors.number_of_engines
 
@@ -198,7 +198,7 @@ def empty(vehicle):
         if wt_propulsion==0:
             warnings.warn("Propulsion mass= 0 ;e there is no Engine Weight being added to the Configuration", stacklevel=1)    
     #find fuel volume
-    if not vehicle.has_key('fuel'): 
+    if 'fuel' not in vehicle: 
         warnings.warn("fuel mass= 0 ; fuel system volume is calculated incorrectly ", stacklevel=1)   
         N_tank     = 0 
         V_fuel     = 0.
@@ -213,7 +213,7 @@ def empty(vehicle):
         fuel.mass_properties.volume = V_fuel 
 
     #main wing
-    if not vehicle.wings.has_key('main_wing'):
+    if 'main_wing' not in vehicle.wings:
         wt_wing = 0.0
         wing_c_r = 0.0
         warnings.warn("There is no Wing Weight being added to the Configuration", stacklevel=1)
@@ -230,7 +230,7 @@ def empty(vehicle):
         wt_wing                                         = wing_main(S_gross_w, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW)
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing        
    
-    if not vehicle.wings.has_key('horizontal_stabilizer'):
+    if 'horizontal_stabilizer' not in vehicle.wings:
         wt_tail_horizontal = 0.0
         S_h = 0.0
         warnings.warn("There is no Horizontal Tail Weight being added to the Configuration", stacklevel=1)
@@ -249,7 +249,7 @@ def empty(vehicle):
         vehicle.wings['horizontal_stabilizer'].mass_properties.mass = wt_tail_horizontal        
     
     #vertical stabilizer
-    if not vehicle.wings.has_key('vertical_stabilizer'):   
+    if 'vertical_stabilizer' not in vehicle.wings:   
         output_3 = Data()
         output_3.wt_tail_vertical = 0.0
 
@@ -268,7 +268,7 @@ def empty(vehicle):
         
         vehicle.wings['vertical_stabilizer'].mass_properties.mass = output_3.wt_tail_vertical
     
-    if not vehicle.has_key('fuselages.fuselage'):
+    if 'fuselages.fuselage' not in vehicle:
         S_fus      = vehicle.fuselages['fuselage'].areas.wetted
         diff_p_fus = vehicle.fuselages['fuselage'].differential_pressure
         w_fus      = vehicle.fuselages['fuselage'].width
@@ -280,11 +280,11 @@ def empty(vehicle):
         #calculate fuselage weight
         wt_fuselage = fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_w2h, q_c, V_fuse, diff_p_fus)
     else:
-        print 'got here'
+        print('got here')
         warnings.warn('There is no Fuselage weight being added to the vehicle', stacklevel=1)
 
     #landing gear
-    if not vehicle.has_key('landing_gear'):
+    if 'landing_gear' not in vehicle:
         warnings.warn('There is no Landing Gear weight being added to the vehicle', stacklevel=1)
         wt_landing_gear = Data()
         wt_landing_gear.main = 0.0
@@ -299,7 +299,7 @@ def empty(vehicle):
         landing_gear_component.main.mass_properties.mass = wt_landing_gear.main
         landing_gear_component.nose.mass_properties.mass = wt_landing_gear.nose
 
-    if not vehicle.has_key('avionics'):
+    if 'avionics' not in vehicle:
         warnings.warn('There is no avionics weight being added to the vehicle; many weight correlations are dependant on this', stacklevel=1)
         avionics          = SUAVE.Components.Energy.Peripherals.Avionics()
         W_uav = 0.
@@ -309,7 +309,7 @@ def empty(vehicle):
         W_uav = avionics.mass_properties.uninstalled
 
     has_air_conditioner = 0
-    if vehicle.has_key('air_conditioner'):
+    if 'air_conditioner' in vehicle:
         has_air_conditioner = 1
 
     # Calculating Empty Weight of Aircraft

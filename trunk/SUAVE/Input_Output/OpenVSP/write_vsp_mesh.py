@@ -4,6 +4,7 @@
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
 #           Feb 2017, T. MacDonald
+#           Jan 2019, T. MacDonald
 
 try:
     import vsp_g as vsp
@@ -39,15 +40,18 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     
     # Reset OpenVSP to avoid including a previous vehicle
     vsp.ClearVSPModel()
+    
+    if 'turbofan' in geometry.propulsors:
+        print('Warning: no meshing sources are currently implemented for the nacelle')
 
     # Turn on symmetry plane splitting to improve robustness of meshing process
     if half_mesh_flag == True:
         f = fileinput.input(tag + '.vsp3',inplace=1)
         for line in f:
             if 'SymmetrySplitting' in line:
-                print line[0:34] + '1' + line[35:-1]
+                print(line[0:34] + '1' + line[35:-1])
             else:
-                print line
+                print(line)
     
     vsp.ReadVSPFile(tag + '.vsp3')
     
@@ -98,12 +102,12 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     
     vsp.WriteVSPFile(tag + '_premesh.vsp3')
     
-    print 'Starting mesh for ' + tag + ' (This may take several minutes)'
+    print('Starting mesh for ' + tag + ' (This may take several minutes)')
     ti = time.time()
     vsp.ComputeCFDMesh(set_int,file_type)
     tf = time.time()
     dt = tf-ti
-    print 'VSP meshing for ' + tag + ' completed in ' + str(dt) + ' s'
+    print('VSP meshing for ' + tag + ' completed in ' + str(dt) + ' s')
     
 ## @ingroup Input_Output-OpenVSP
 def set_sources(geometry):
@@ -182,14 +186,14 @@ def set_sources(geometry):
             u_start = 0.
             base_root = wing.chords.root
             base_tip  = wing.chords.tip            
-            for ii in xrange(0,num_secs):
+            for ii in range(0,num_secs):
                 if (ii==0) and (use_base == True): # create sources on root segment
                     cr = base_root
                     if len(wing.Segments) > 0:
                         ct = base_root  * wing.Segments[0].root_chord_percent
                         seg = wing.Segments[ii]
                     else:
-                        if wing.has_key('vsp_mesh'):
+                        if 'vsp_mesh' in wing:
                             custom_flag = True
                         else:
                             custom_flag = False
@@ -210,7 +214,7 @@ def set_sources(geometry):
                         ct = base_tip
                     # extract CFD source parameters
                     seg = wing.Segments[ii]
-                    if wing.Segments[ii].has_key('vsp_mesh'):
+                    if 'vsp_mesh' in wing.Segments[ii]:
                         custom_flag = True
                     else:
                         custom_flag = False
@@ -225,7 +229,7 @@ def set_sources(geometry):
                     cr = base_root * wing.Segments[ii-jj].root_chord_percent
                     ct = base_root * wing.Segments[ii+1-jj].root_chord_percent
                     seg = wing.Segments[ii-jj]
-                    if wing.Segments[ii-jj].has_key('vsp_mesh'):
+                    if 'vsp_mesh' in wing.Segments[ii-jj]:
                         custom_flag = True
                     else:
                         custom_flag = False
@@ -240,7 +244,7 @@ def set_sources(geometry):
                     cr = base_root * wing.Segments[ii-jj].root_chord_percent
                     ct = base_tip
                     seg = wing.Segments[ii-jj]
-                    if wing.Segments[ii-jj].has_key('vsp_mesh'):
+                    if 'vsp_mesh' in wing.Segments[ii-jj]:
                         custom_flag = True
                     else:
                         custom_flag = False
@@ -251,7 +255,7 @@ def set_sources(geometry):
                     
         elif comp_type == 'fuselage':
             fuselage = comp_dict[comp_name]
-            if fuselage.has_key('vsp_mesh'):
+            if 'vsp_mesh' in fuselage:
                 len1 = fuselage.vsp_mesh.length
                 rad1 = fuselage.vsp_mesh.radius
             else:
@@ -332,7 +336,7 @@ def add_segment_sources(comp,cr,ct,ii,u_start,num_secs,custom_flag,wingtip_flag,
     wloc1 = 0.
     wloc2 = 0.
     TE_match = True
-    if (custom_flag == True) and (seg.vsp_mesh.has_key('matching_TE')):
+    if (custom_flag == True) and ('matching_TE' in seg.vsp_mesh):
         if seg.vsp_mesh.matching_TE == False: # use default values if so
             vsp.AddCFDSource(vsp.LINE_SOURCE,comp,0,0.01 * cr,0.2 * cr,uloc1,wloc1,0.01 * ct,0.2 * ct,uloc2,wloc2) 
             TE_match = False

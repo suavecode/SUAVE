@@ -44,7 +44,7 @@ def linear_data(N = 16, integration = True, **options):
     
     # setup
     N = int(N)
-    if N <= 0: raise RuntimeError , "N = %i, must be > 0" % N
+    if N <= 0: raise RuntimeError("N = %i, must be > 0" % N)
     
     
     # --- X vector

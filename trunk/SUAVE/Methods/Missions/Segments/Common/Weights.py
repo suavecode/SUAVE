@@ -15,20 +15,20 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def initialize_weights(segment,state):
+def initialize_weights(segment):
     """ Sets the initial weight of the vehicle at the start of the segment
     
         Assumptions:
         Only used if there is an initial condition
         
         Inputs:
-            state.initials.conditions:
+            segment.state.initials.conditions:
                 weights.total_mass     [newtons]
-            state.conditions:           
+            segment.state.conditions:           
                 weights.total_mass     [newtons]
             
         Outputs:
-            state.conditions:           
+            segment.state.conditions:           
                 weights.total_mass     [newtons]
 
         Properties Used:
@@ -37,15 +37,15 @@ def initialize_weights(segment,state):
     """    
     
  
-    if state.initials:
-        m_initial = state.initials.conditions.weights.total_mass[-1,0]
+    if segment.state.initials:
+        m_initial = segment.state.initials.conditions.weights.total_mass[-1,0]
     else:
        
         m_initial = segment.analyses.weights.vehicle.mass_properties.takeoff
 
-    m_current = state.conditions.weights.total_mass
+    m_current = segment.state.conditions.weights.total_mass
     
-    state.conditions.weights.total_mass[:,:] = m_current + (m_initial - m_current[0,0])
+    segment.state.conditions.weights.total_mass[:,:] = m_current + (m_initial - m_current[0,0])
         
     return
     
@@ -54,7 +54,7 @@ def initialize_weights(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_gravity(segment,state):
+def update_gravity(segment):
     """ Sets the gravity for each part of the mission
     
         Assumptions:
@@ -73,12 +73,13 @@ def update_gravity(segment,state):
 
     # unpack
     planet = segment.analyses.planet
-    g0     = planet.features.sea_level_gravity
+    H      = segment.conditions.freestream.altitude
+    
     # calculate
-    g = g0        # m/s^2 (placeholder for better g models)
+    g      = planet.features.compute_gravity(H)
 
     # pack
-    state.conditions.freestream.gravity[:,0] = g
+    segment.state.conditions.freestream.gravity[:,0] = g[:,0]
 
     return
 
@@ -87,7 +88,7 @@ def update_gravity(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_weights(segment,state):
+def update_weights(segment):
     
     """ Integrate tbe mass rate to update the weights throughout a segment
     
@@ -95,16 +96,16 @@ def update_weights(segment,state):
         Only the energy network/propulsion system can change the mass
         
         Inputs:
-        state.conditions:
-            weights.total_mass              [kilograms]
-            weights.vehicle_mass_rate       [kilograms/second]
-            freestream.gravity              [meters/second^2]
+        segment.state.conditions:
+            weights.total_mass                [kilograms]
+            weights.vehicle_mass_rate         [kilograms/second]
+            freestream.gravity                [meters/second^2]
         segment.analyses.weights:
-            mass_properties.operating_empty [kilograms]
-        state.numerics.time.integrate       [array]
+            mass_properties.operating_empty   [kilograms]
+        segment.state.numerics.time.integrate [array]
             
         Outputs:
-        state.conditions:
+        segment.state.conditions:
             weights.total_mass                   [kilograms]
             frames.inertial.gravity_force_vector [kilograms]
 
@@ -114,11 +115,11 @@ def update_weights(segment,state):
     """          
     
     # unpack
-    conditions = state.conditions
+    conditions = segment.state.conditions
     m0         = conditions.weights.total_mass[0,0]
     mdot_fuel  = conditions.weights.vehicle_mass_rate
     g          = conditions.freestream.gravity
-    I          = state.numerics.time.integrate
+    I          = segment.state.numerics.time.integrate
 
     # calculate
     m = m0 + np.dot(I, -mdot_fuel )

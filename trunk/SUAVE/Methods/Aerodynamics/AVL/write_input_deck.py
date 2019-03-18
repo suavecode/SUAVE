@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from purge_files import purge_files
+from .purge_files import purge_files
 
 ## @ingroup Methods-Aerodynamics-AVL
 def write_input_deck(avl_object):
