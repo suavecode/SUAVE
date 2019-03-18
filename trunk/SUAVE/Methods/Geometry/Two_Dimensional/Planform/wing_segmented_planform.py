@@ -20,7 +20,8 @@ def wing_segmented_planform(wing):
     """Computes standard wing planform values.
     
     Assumptions:
-    Multisigmented wing. We only find the first spanwise location of the mean aerodynamic chord
+    Multisigmented wing. We only find the first spanwise location of the mean aerodynamic chord.
+    There is no unexposed wetted area, ie wing that intersects a fuselage
     
     Source:
     None
@@ -76,6 +77,7 @@ def wing_segmented_planform(wing):
     chords    = np.array(chords)
     span_locs = np.array(span_locs)
     sweeps    = np.array(sweeps)
+    t_cs      = np.array(t_cs)
     
     # Basic calcs:
     semispan     = span/(1+sym)
@@ -86,6 +88,10 @@ def wing_segmented_planform(wing):
     
     # Calculate the areas of each segment
     As = RC*((lengths_dim)*chords[:-1]-(chords[:-1]-chords[1:])*(lengths_dim)/2)
+    
+    # Calculate the weighted area, this should not include any unexposed area 
+    A_wets = 2*(1+0.2*t_cs[:-1])*As
+    wet_area = np.sum(A_wets)
     
     # Calculate the wing area
     ref_area = np.sum(As)*2
@@ -129,13 +135,13 @@ def wing_segmented_planform(wing):
     le_sweep_total= np.arctan(np.sum(lengths_ndim*np.tan(le_sweeps)))
 
     # Calculate the aerodynamic center, but first the centroid
-    dxs = np.concatenate([np.array([0]),np.tan(le_sweeps[:-1])*lengths_dim[:-1]])
-    dys = np.concatenate([np.array([0]),lengths_dim[:-1]])
-    dzs = np.concatenate([np.array([0]),np.tan(dihedrals[:-1])*lengths_dim[:-1]])
+    dxs = np.cumsum(np.concatenate([np.array([0]),np.tan(le_sweeps[:-1])*lengths_dim[:-1]]))
+    dys = np.cumsum(np.concatenate([np.array([0]),lengths_dim[:-1]]))
+    dzs = np.cumsum(np.concatenate([np.array([0]),np.tan(dihedrals[:-2])*lengths_dim[:-1]]))
     
     Cxys = []
     for i in range(len(lengths_dim)):
-        Cxys.append(segment_centroid(le_sweeps[i],lengths_dim[i]*(1+sym),dxs[i],dys[i],dzs[i], chords_dim[i], chords_dim[i+1], tapers[i], As[i], panel_mac[i], dihedrals[i]))
+        Cxys.append(segment_centroid(le_sweeps[i],lengths_dim[i]*(1+sym),dxs[i],dys[i],dzs[i], tapers[i], As[i], panel_mac[i], dihedrals[i]))
 
     aerodynamic_center= np.dot(np.transpose(Cxys),As)/(ref_area/(1+sym))
     
@@ -148,6 +154,7 @@ def wing_segmented_planform(wing):
     
     # Pack stuff
     wing.areas.reference         = ref_area
+    wing.areas.wetted            = wet_area
     wing.aspect_ratio            = AR
     wing.spans.total             = total_len
     wing.chords.mean_geometric   = mgc

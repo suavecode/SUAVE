@@ -14,6 +14,7 @@ import scipy as sp
 
 from SUAVE.Core import Data, Units
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import fuselage_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.rescale_non_dimensional import set_origin_dimensional
@@ -74,7 +75,12 @@ def size_from_PGM(vehicle):
         for wing in vehicle.wings:
                 
                 # Use existing scripts
-                wing = wing_planform(wing)
+                if len(wing.Segments)>0:
+                        wing = wing_segmented_planform(wing)
+                else:
+                        wing = wing_planform(wing)
+                        
+               
                 
                 # Get the max area
                 if isinstance(wing,Main_Wing):
