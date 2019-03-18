@@ -110,14 +110,6 @@ def wing_segmented_planform(wing):
     panel_mac = integral*lengths_dim*(1+sym)/As
     MAC = (semispan*(1+sym)/(ref_area))*np.sum(integral)
     
-    ## Compute MAC Location, this will do the first location
-    #mac_percent     = MAC/RC
-    #if len(np.where(chords>mac_percent)[0])>0:
-        #i               = np.where(chords>mac_percent)[0][-1]
-        #mac_loc_non_dim = (chords[i]-mac_percent)*(span_locs[i+1]-span_locs[i])/(chords[i]-chords[i+1]) + span_locs[i]
-    #else: # This is a non tapered wing
-        #mac_loc_non_dim = 0.5
-    
     # Calculate the effective taper ratio
     lamda = 2*mgc/RC - 1
     
@@ -147,6 +139,7 @@ def wing_segmented_planform(wing):
 
     aerodynamic_center= np.dot(np.transpose(Cxys),As)/(ref_area/(1+sym))
     
+    # If necessary the location of the MAC in the Y-direction could be outputted before overwriting
     if sym== True:
         aerodynamic_center[1] = 0
     
@@ -170,7 +163,7 @@ def wing_segmented_planform(wing):
     return wing
 
 # Segment centroid
-def segment_centroid(le_sweep,seg_span,dx,dy,dz,seg_rc,seg_tc,taper,A,mac,dihedral):
+def segment_centroid(le_sweep,seg_span,dx,dy,dz,taper,A,mac,dihedral):
     """Computes the centroid of a polygonal segment
     
     Assumptions:
@@ -184,9 +177,10 @@ def segment_centroid(le_sweep,seg_span,dx,dy,dz,seg_rc,seg_tc,taper,A,mac,dihedr
     seg_span      [m]
     dx            [m]
     dy            [m]
-    seg_rc        [m]
-    seg_tc        [m]
+    taper         [dimensionless]
     A             [m**2]
+    mac           [m]
+    dihedral      [radians]
 
     Outputs:
     cx,cy         [m,m]
@@ -194,14 +188,6 @@ def segment_centroid(le_sweep,seg_span,dx,dy,dz,seg_rc,seg_tc,taper,A,mac,dihedr
     Properties Used:
     N/A
     """    
-    
-    #Both of these work
-    #xi = np.array([0,np.tan(le_sweep)/2*seg_span,np.tan(le_sweep)*seg_span/2+seg_tc,seg_rc])
-    #yi = np.array([0,seg_span/2,seg_span/2,0])
-    
-    #cx = -np.sum((xi[:-1]+xi[1:])*(xi[:-1]*yi[1:]-xi[1:]*yi[:-1]))/(6*A)+dx - mac/4
-    #cy = -np.sum((yi[:-1]+yi[1:])*(xi[:-1]*yi[1:]-xi[1:]*yi[:-1]))/(6*A)+dy
-    #cz = cy * np.tan(dihedral)  
     
     cy = seg_span / 6. * (( 1. + 2. * taper ) / (1. + taper))
     cx = mac * 0.25 + cy * np.tan(le_sweep)
