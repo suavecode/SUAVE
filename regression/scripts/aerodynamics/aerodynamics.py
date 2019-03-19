@@ -13,9 +13,7 @@
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
-
 import numpy as np
-import pylab as plt
 
 import copy, time
 import random
@@ -157,6 +155,8 @@ def main():
             
     #call the aero model        
     results = aerodynamics.evaluate(state)
+    
+    # save results for plots regression 
     
     #build a polar for the markup aero
     polar = Data()    

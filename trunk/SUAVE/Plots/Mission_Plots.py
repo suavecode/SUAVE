@@ -1,11 +1,9 @@
 import SUAVE
-from SUAVE.Core import Units 
-import pylab as plt 
+from SUAVE.Core import Units
 import matplotlib
 import matplotlib.pyplot as plt  
-import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_airfoil_geometry
+from scipy import integrate
+import numpy as np 
 
 # ------------------------------------------------------------------
 #   Altitude, SFC & Weight
@@ -23,21 +21,26 @@ def plot_altitude_sfc_weight(results, save_figure = False, save_filename = "Alti
         thrust   =  segment.conditions.frames.body.thrust_force_vector[:,0]
         sfc      = (mdot / Units.lb) / (thrust /Units.lbf) * Units.hr
 
-        axes = fig.add_subplot(3,1,1)
+        axes = fig.add_subplot(4,1,1)
         axes.plot( time , altitude , 'bo-')
         axes.set_ylabel('Altitude (ft)',axis_font)
         axes.grid(True)
 
-        axes = fig.add_subplot(3,1,3)
+        axes = fig.add_subplot(4,1,3)
         axes.plot( time , sfc , 'bo-' )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
         axes.grid(True)
 
-        axes = fig.add_subplot(3,1,2)
+        axes = fig.add_subplot(4,1,2)
         axes.plot( time , mass , 'ro-' )
         axes.set_ylabel('Weight (lb)',axis_font)
         axes.grid(True)
+        
+        axes = fig.add_subplot(4,1,4)
+        axes.plot( time , mdot , 'ro-' )
+        axes.set_ylabel('Fuel Burn Rate (kg/s)',axis_font)
+        axes.grid(True)        
         
     if save_figure:
         plt.savefig(save_filename + ".png")  
@@ -70,7 +73,6 @@ def plot_aircraft_velocities(results, save_figure = False, save_filename = "Airc
 
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , EAS / Units.kts, 'bo-')
-        axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Equivalent Airspeed',axis_font)
         axes.grid(True)    
         
@@ -136,7 +138,7 @@ def plot_aerodynamic_coefficients(results, save_figure = False, save_filename = 
 
         axes = fig.add_subplot(4,1,1)
         axes.plot( time , aoa , 'bo-' )
-        axes.set_ylabel('Angle of Attack (deg)',axis_font)
+        axes.set_ylabel('AoA (deg)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False) 
         axes.grid(True)
@@ -178,19 +180,41 @@ def plot_aerodynamic_forces(results, save_figure = False, save_filename = "Aerod
     for segment in results.segments.values():
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lbf
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]  
+        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2] 
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]        
         eta    = segment.conditions.propulsion.throttle[:,0]
 
-        axes = fig.add_subplot(2,1,1)
-        axes.plot( time , Thrust , 'bo-')
-        axes.set_ylabel('Thrust (lbf)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(2,1,2)
+        axes = fig.add_subplot(4,1,1)
         axes.plot( time , eta , 'bo-' )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Throttle',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)         
         axes.grid(True)	 
+        
+        axes = fig.add_subplot(4,1,2)
+        axes.plot( time , Thrust , 'bo-')
+        axes.set_ylabel('Thrust (N)',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)         
+        axes.grid(True)        
+       
+        axes = fig.add_subplot(4,1,3)
+        axes.plot( time , Lift , 'bo-' )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Lift (N)',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
+        axes.grid(True)
+    
+        axes = fig.add_subplot(4,1,4)
+        axes.plot( time , Drag , 'bo-' )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Drag (N)',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
+        axes.grid(True)
         
     if save_figure:
         plt.savefig(save_filename + ".png") 
@@ -247,8 +271,7 @@ def plot_electronic_conditions(results, save_figure = False, save_filename = "El
         eta      = results.segments[i].conditions.propulsion.throttle[:,0]
         eta_l    = results.segments[i].conditions.propulsion.throttle[:,0]
         energy   = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        volts    = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
-        volts_oc = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]     
+        volts    = results.segments[i].conditions.propulsion.battery_voltage[:,0]      
         current = results.segments[i].conditions.propulsion.current[:,0]      
         battery_amp_hr = (energy*0.000277778)/volts
         C_rating   = current/battery_amp_hr
@@ -269,8 +292,7 @@ def plot_electronic_conditions(results, save_figure = False, save_filename = "El
         axes.grid(True)   
     
         axes = fig.add_subplot(2,2,3)
-        axes.plot(time, volts, 'bo-',label='Under Load')
-        axes.plot(time,volts_oc, 'ro-',label='Open Circuit')
+        axes.plot(time, volts, 'bo-',label='Under Load') 
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -298,6 +320,7 @@ def plot_flight_conditions(results, save_figure = False, save_filename = "Flight
     axis_font = {'fontname':'Arial', 'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8)
+    dist_base = 0.0
     for segment in results.segments.values():
 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -334,10 +357,14 @@ def plot_flight_conditions(results, save_figure = False, save_filename = "Flight
         axes.get_yaxis().get_major_formatter().set_useOffset(False) 
         axes.grid(True)    
         
+      
+        distance = np.array([dist_base] * len(time))
+        distance[1:] = integrate.cumtrapz(airspeed*1.94,time/60.0)+dist_base
+        dist_base = distance[-1]
         axes = fig.add_subplot(2,2,4)
-        axes.plot( time , x, 'bo-', time , y, 'go-' , time , z, 'ro-')
-        axes.set_ylabel('Displacement',axis_font)
+        axes.plot( time , distance , 'bo')
         axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Distance (nmi)',axis_font)          
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False) 
         axes.grid(True)           
@@ -349,7 +376,7 @@ def plot_flight_conditions(results, save_figure = False, save_filename = "Flight
 
 
 # ------------------------------------------------------------------
-#   Propulsion Conditions
+#   Propeller Propulsion Conditions
 # ------------------------------------------------------------------
 def plot_propulsor_conditions(results, save_figure = False, save_filename = "Propulsor"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
@@ -466,107 +493,22 @@ def plot_stability_coefficients(results, save_figure = False, save_filename = "S
         
     return
 
-
+# ------------------------------------------------------------------    
+#   Solar Flux
 # ------------------------------------------------------------------
-#   Propeller Geoemtry 
-# ------------------------------------------------------------------
-def plot_propeller_geometry(prop, save_figure = False, save_filename = "Propeller_Geometry"):   
-    # unpack
-    Rt     = prop.tip_radius          
-    Rh     = prop.hub_radius          
-    num_B  = prop.number_blades       
-    a_sec  = prop.airfoil_sections           
-    a_secl = prop.airfoil_section_location   
-    beta   = prop.twist_distribution         
-    b      = prop.chord_distribution         
-    r      = prop.radius_distribution        
-    t      = prop.max_thickness_distribution
-    
-    # prepare plot parameters
-    dim = len(b)
-    theta = np.linspace(0,2*np.pi,num_B+1)
-    
-    fig = plt.figure("Propeller Geoemtry")
-    ax = plt.axes(projection='3d') 
-    ax.set_zlim3d(-1, 1)        
-    ax.set_ylim3d(-1, 1)        
-    ax.set_xlim3d(-1, 1)     
-    
-    chord = np.outer(np.linspace(0,1,10),b)
-    for i in range(num_B):  
-        # plot propeller planfrom
-        surf_x = np.cos(theta[i]) * (chord*np.cos(beta)) - np.sin(theta[i]) * (r) 
-        surf_y = np.sin(theta[i]) * (chord*np.cos(beta)) + np.cos(theta[i]) * (r) 
-        surf_z = chord*np.sin(beta)                                
-        ax.plot_surface(surf_x ,surf_y ,surf_z, color = 'gray')
-        
-        if  a_sec != None and a_secl != None:
-            # check dimension of section  
-            dim_sec = len(a_secl)
-            if dim_sec != dim:
-                raise AssertionError("Number of sections not equal to number of stations") 
-                      
-            # get airfoil coordinate geometry     
-            airfoil_data = read_airfoil_geometry(a_sec)       
-            
-            #plot airfoils 
-            for j in range(dim):
-                airfoil_max_t = airfoil_data.thickness_to_chord[a_secl[j]]
-                airfoil_xp = b[j] - airfoil_data.x_coordinates[a_secl[j]]*b[j]
-                airfoil_yp = r[j]*np.ones_like(airfoil_xp)            
-                airfoil_zp = airfoil_data.y_coordinates[a_secl[j]]*b[j]  * (t[j]/(airfoil_max_t*b[j]))
-                
-                transformation_1 = [[np.cos(beta[j]),0 , -np.sin(beta[j])], [0 ,  1 , 0] , [np.sin(beta[j]) , 0 , np.cos(beta[j])]]
-                transformation_2 = [[np.cos(theta[i]) ,-np.sin(theta[i]), 0],[np.sin(theta[i]) , np.cos(theta[i]), 0], [0 ,0 , 1]] 
-                transformation  = np.matmul(transformation_2,transformation_1)
-                
-                airfoil_x = np.zeros(len(airfoil_yp))
-                airfoil_y = np.zeros(len(airfoil_yp))
-                airfoil_z = np.zeros(len(airfoil_yp))     
-                
-                for k in range(len(airfoil_yp)):
-                    vec_1 = [[airfoil_xp[k]],[airfoil_yp[k]], [airfoil_zp[k]]]
-                    vec_2  = np.matmul(transformation,vec_1)
-                    airfoil_x[k] = vec_2[0]
-                    airfoil_y[k] = vec_2[1]
-                    airfoil_z[k] = vec_2[2]
-                            
-                ax.plot3D(airfoil_x, airfoil_y, airfoil_z, color = 'gray')
-                
-    if save_figure:
-        plt.savefig(save_filename + ".png")  
-                    
-    return
-
-
-# ------------------------------------------------------------------
-#   Propeller Performance
-# ------------------------------------------------------------------
-def plot_propeller_performance(noise, save_figure = False, save_filename = "Propeller_Performance"): 
+def plot_solar_flux(results, save_figure = False, save_filename = "Solar_Flux"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
-    fig.set_size_inches(10, 8)  
     fig = plt.figure(save_filename)
-    T = noise.blade_T_distribution[:][0]
-    Q = noise.blade_Q_distribution[:][0]
-    r = noise.radius_distribution
-           
-    axes = fig.add_subplot(2,1,1)
-    axes.plot(r, T , 'bo-')
-    axes.set_ylabel('T (N)',axis_font)
-    axes.set_xlabel('r (m)',axis_font)
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False)
-    axes.grid(True)  
-    
-    axes = fig.add_subplot(2,1,2)
-    axes.plot( r, Q, 'bo-')
-    axes.set_ylabel('Q (Nm)',axis_font)
-    axes.set_xlabel('r (m)',axis_font)
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False)
-    axes.grid(True)    
-    
+    fig.set_size_inches(10, 8)
+    for i in range(len(results.segments)):         
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        energy = results.segments[i].conditions.propulsion.solar_flux[:,0]
+        axes = fig.add_subplot(1,1,1)
+        axes.plot(time, energy, 'bo-')
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Solar Flux ($W/m^{2}$)')
+        axes.grid(True)  
+     
     if save_figure:
-        plt.savefig(save_filename + ".png")  
-        
-    return
+        plt.savefig(save_filename + ".png")    
+    return 
