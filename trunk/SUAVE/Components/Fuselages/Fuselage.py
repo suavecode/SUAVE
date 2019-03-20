@@ -15,6 +15,7 @@
 import SUAVE
 from SUAVE.Core import Data, Container, ContainerOrdered
 from SUAVE.Components import Physical_Component, Lofted_Body
+from SUAVE.Components.Fuselages.Segment import Segment_Container
 import numpy as np
 
 # ------------------------------------------------------------
@@ -56,7 +57,7 @@ class Fuselage(Lofted_Body):
         self.aerodynamic_center = [0.0,0.0,0.0]
         self.max_per_vehicle = 4
         self.Sections    = Lofted_Body.Section.Container()
-        self.Segments    = ContainerOrdered()
+        self.Segments    = SUAVE.Core.ContainerOrdered
         
         self.number_coach_seats = 0.0
         self.seats_abreast      = 0.0
@@ -102,14 +103,14 @@ class Fuselage(Lofted_Body):
         self.PGM_char_min_bounds    = [0.1,0.001,0.001,0.001,0.001]   
         self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
         
-        self.Fuel_Tanks = Container()
+        self.Fuel_Tanks = Fuel_Tank_Container()
 
         # For VSP
         self.vsp_data                = Data()
         self.vsp_data.xsec_surf_id   = ''    # There is only one XSecSurf in each VSP geom.
         self.vsp_data.xsec_num       = None  # Number if XSecs in fuselage geom.
         
-        self.Segments           = SUAVE.Core.ContainerOrdered()
+        self.Segments                = Segment_Container()
         
     def append_segment(self,segment):
         """ Adds a segment to the fuselage. 
@@ -209,6 +210,28 @@ class Container(Physical_Component.Container):
         """        
         
         return [Fuselage]
+    
+class Fuel_Tank_Container(Physical_Component.Container):
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """        
+        
+        return []
 
 # ------------------------------------------------------------
 #  Handle Linking

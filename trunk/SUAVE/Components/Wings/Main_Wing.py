@@ -8,8 +8,10 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUave imports
+# SUAVE imports
 from .Wing import Wing
+from SUAVE.Core import ContainerOrdered
+from SUAVE.Components.Wings.Segment import Segment
 
 # ----------------------------------------------------------------------
 #  Attribute
@@ -53,8 +55,52 @@ class Main_Wing(Wing):
         N/A
         """ 
         self.tag             = 'main_wing'
+        self.Segments         = Segment_Container()
         self.max_per_vehicle = 3
         self.PGM_compulsory  = True
+        
+        
+        
+## @ingroup Components-Wings
+class Segment_Container(ContainerOrdered):
+    """ Container for wing segment
+    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    None
+
+    Outputs:
+    None
+
+    Properties Used:
+    N/A
+    """     
+
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """       
+        
+        return [Segment]
 
 
 # ----------------------------------------------------------------------

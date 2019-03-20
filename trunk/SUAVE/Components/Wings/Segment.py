@@ -8,9 +8,11 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Data
+from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties
 from SUAVE.Components.Wings.Control_Surface import Control_Surface 
+
+import numpy as np
 # ------------------------------------------------------------ 
 #  Wing Segments
 # ------------------------------------------------------------
@@ -48,6 +50,10 @@ class Segment(Lofted_Body.Segment):
         self.areas.exposed         = 0.0
         self.areas.wetted          = 0.0
         self.Airfoil               = SUAVE.Core.ContainerOrdered()
+        self.PGM_compulsory         = False
+        self.PGM_characteristics    = ['percent_span_location','twist','root_chord_percent','dihedral_outboard','sweeps.quarter_chord']
+        self.PGM_char_min_bounds    = [0.,-np.pi,0.,-np.pi,-np.pi]   
+        self.PGM_char_max_bounds    = [1.,np.pi,np.inf,np.pi,np.pi]        
         
         self.control_surfaces      = Data()  
         
@@ -104,7 +110,7 @@ class Segment(Lofted_Body.Segment):
         
 
 ## @ingroup Components-Wings
-class SegmentContainer(Lofted_Body.Segment.Container):
+class Segment_Container(ContainerOrdered):
     """ Container for wing segment
     
     Assumptions:
@@ -122,5 +128,24 @@ class SegmentContainer(Lofted_Body.Segment.Container):
     Properties Used:
     N/A
     """     
+
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
     
-    pass
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """       
+        
+        return []

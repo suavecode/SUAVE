@@ -39,7 +39,6 @@ class Lofted_Body(Physical_Component):
         """         
         self.tag = 'Lofted_Body'
         self.Segments = DataOrdered() # think edges
-        self.Sections = SectionContainer() # think nodes
     
    
 # ------------------------------------------------------------
@@ -113,7 +112,7 @@ class Section(Component):
         """         
         self.tag = 'Section'
         
-        self.Curves = CurveContainer()
+        self.Curves = Curve_Container()
         
         self.prev = None
         self.next = None
@@ -158,7 +157,7 @@ class Curve(Component):
 # ------------------------------------------------------------
 
 ## @ingroup Components
-class SectionContainer(Component.Container):
+class Section_Container(Component.Container):
     """ This does nothing
     
     Assumptions:
@@ -167,10 +166,29 @@ class SectionContainer(Component.Container):
     Source:
     None
     """    
-    pass
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """       
+        
+        return []
 
 ## @ingroup Components
-class CurveContainer(Component.Container):
+class Curve_Container(Component.Container):
     """ This does nothing
     
     Assumptions:
@@ -187,8 +205,8 @@ class CurveContainer(Component.Container):
 # ------------------------------------------------------------
 
 Section.Curve       = Curve
-Section.Container   = SectionContainer
-Curve.Container     = CurveContainer
+Section.Container   = Section_Container
+Curve.Container     = Curve_Container
 Lofted_Body.Section = Section
 Lofted_Body.Segment = Segment
 
