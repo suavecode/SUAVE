@@ -74,7 +74,7 @@ def empty(config,
 # Unpack Inputs
 #-------------------------------------------------------------------------------
 
-    rProp               = config.propulsors.network.propeller.prop_attributes.tip_radius
+    rProp               = config.propulsors.network.propeller.tip_radius
     mBattery            = config.propulsors.network.battery.mass_properties.mass
     mPayload            = config.propulsors.network.payload.mass_properties.mass
     MTOW                = config.mass_properties.max_takeoff

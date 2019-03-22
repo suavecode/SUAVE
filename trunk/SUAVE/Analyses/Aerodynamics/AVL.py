@@ -126,7 +126,7 @@ class AVL(Markup):
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         # Generate the surrogate
-        self.process.compute.lift.inviscid.initialize(sv,cv),
+        self.process.compute.lift.inviscid.initialize(sv,cv)
         
     finalize = initialize
     

@@ -23,7 +23,7 @@ def propeller_design(prop,N=20):
           
           Inputs:
           Either design power or thrust
-          prop_attributes.
+          
             hub radius                       [m]
             tip radius                       [m]
             rotation rate                    [rad/s]

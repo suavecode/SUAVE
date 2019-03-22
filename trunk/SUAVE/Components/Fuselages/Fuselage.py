@@ -4,12 +4,24 @@
 # Created:  Mar 2014, T. Lukacyzk
 # Modified: Sep 2016, E. Botero
 #           Jun 2017, M. Clarke
+#           Aug 2018, T St. Francis
 #           Oct 2018, T. MacDonald
+<<<<<<< HEAD
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Data, Container
+=======
+#           Dec 2018, T. MacDonald
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
+import SUAVE
+from SUAVE.Core import Data, Container, ContainerOrdered
+>>>>>>> 90a933d24551b7cc8af7a6ada5b235461a2c9b12
 from SUAVE.Components import Physical_Component, Lofted_Body
 
 # ------------------------------------------------------------
@@ -47,9 +59,10 @@ class Fuselage(Lofted_Body):
         """      
         
         self.tag = 'fuselage'
-        
+        self.origin             = [[0.0,0.0,0.0]]
         self.aerodynamic_center = [0.0,0.0,0.0]
         self.Sections    = Lofted_Body.Section.Container()
+        self.Segments    = ContainerOrdered()
         
         self.number_coach_seats = 0.0
         self.seats_abreast      = 0.0
@@ -86,24 +99,51 @@ class Fuselage(Lofted_Body):
         # for BWB 
         self.aft_centerbody_area  = 0.0
         self.aft_centerbody_taper = 0.0
-        self.cabin_area           = 0.0
-        self.Segments             = SUAVE.Core.ContainerOrdered()
-    
+        self.cabin_area           = 0.0        
+        self.Fuel_Tanks = Container()
+
+        # For VSP
+        self.vsp_data                = Data()
+        self.vsp_data.xsec_surf_id   = ''    # There is only one XSecSurf in each VSP geom.
+        self.vsp_data.xsec_num       = None  # Number if XSecs in fuselage geom.
+        
+        self.Segments           = SUAVE.Core.ContainerOrdered()
+        
     def append_segment(self,segment):
-        """ Adds a segment to the wing 
+        """ Adds a segment to the fuselage. 
     
         Assumptions:
         None
-    
         Source:
         N/A
-    
         Inputs:
         None
-    
         Outputs:
         None
+        Properties Used:
+        N/A
+        """ 
+
+        # Assert database type
+        if not isinstance(segment,Data):
+            raise Exception('input component must be of type Data()')
+
+        # Store data
+        self.Segments.append(segment)
+
+        return
     
+    def append_fuel_tank(self,fuel_tank):
+        """ Adds a fuel tank to the fuselage 
+    
+        Assumptions:
+        None
+        Source:
+        N/A
+        Inputs:
+        None
+        Outputs:
+        None 
         Properties Used:
         N/A
         """ 
@@ -113,8 +153,47 @@ class Fuselage(Lofted_Body):
             raise Exception('input component must be of type Data()')
     
         # Store data
+        self.Fuel_Tanks.append(fuel_tank)
+
+        return
+    
+    def append_segment(self,segment):
+        """ Adds a segment to the fuselage. 
+    
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        
+        Properties Used:
+        N/A
+        """ 
+        
+        # Assert database type
+        if not isinstance(segment,Data):
+            raise Exception('input component must be of type Data()')
+        
+        # Store data
         self.Segments.append(segment)
-    
-        return       
-    
- 
+        
+        return
+        
+
+class Container(Physical_Component.Container):
+    pass
+        
+        
+
+
+# ------------------------------------------------------------
+#  Handle Linking
+# ------------------------------------------------------------
+
+Fuselage.Container = Container 

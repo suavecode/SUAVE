@@ -3,6 +3,7 @@
 #
 # Created:  Jun 2014, E. Botero
 # Modified: Jan 2016, T. MacDonald
+#           Feb 2019, M. Vegh            
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -49,17 +50,15 @@ class Propeller(Energy_Component):
 
         Properties Used:
         None
-        """         
-        self.number_blades        = 0.0
-        self.tip_radius           = 0.0
-        self.hub_radius           = 0.0
-        self.twist_distribution   = 0.0
-        self.chord_distribution   = 0.0
-        self.mid_chord_aligment   = 0.0
-        self.thrust_angle         = 0.0
-        self.radius_distribution  = None
-        self.rotation             = None    #1 if clockwise , -1 if counter clockwise
-        self.tag                  = 'Propeller'
+        """
+        self.number_blades                  = 0.0
+        self.tip_radius                     = 0.0
+        self.hub_radius                     = 0.0
+        self.twist_distribution             = 0.0
+        self.chord_distribution             = 0.0
+        self.mid_chord_aligment             = 0.0
+        self.thrust_angle                   = 'Propeller'
+        
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -228,7 +227,7 @@ class Propeller(Energy_Component):
             Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-            Cl = 2.*pi*alpha
+            Cl = cl_a*alpha
             
             # By 90 deg, it's totally stalled.
             Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing

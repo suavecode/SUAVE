@@ -4,6 +4,7 @@
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
 #           Feb 2017, T. MacDonald
+#           Jan 2019, T. MacDonald
 
 try:
     import vsp_g as vsp
@@ -39,6 +40,9 @@ def write_vsp_mesh(geometry,tag,half_mesh_flag,growth_ratio,growth_limiting_flag
     
     # Reset OpenVSP to avoid including a previous vehicle
     vsp.ClearVSPModel()
+    
+    if 'turbofan' in geometry.propulsors:
+        print('Warning: no meshing sources are currently implemented for the nacelle')
 
     # Turn on symmetry plane splitting to improve robustness of meshing process
     if half_mesh_flag == True:
