@@ -91,6 +91,7 @@ class Blown_Wing_Aero(Markup):
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
         compute.drag.parasite.propulsors.propulsor = Common.Drag.parasite_drag_propulsor
+        compute.drag.parasite.pylons               = Common.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Common.Drag.induced_drag_aircraft
         compute.drag.compressibility               = Process()

@@ -41,6 +41,7 @@ modules = [
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
+    'scripts.slipstream/Slipstream_Test.py',
     'scripts/VTOL,test_VTOL.py',
     'scripts/B737/mission_B737.py',
     'scripts/battery/battery.py',
