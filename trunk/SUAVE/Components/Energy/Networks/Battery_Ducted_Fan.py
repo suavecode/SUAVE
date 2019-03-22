@@ -37,7 +37,7 @@ class Battery_Ducted_Fan(Propulsor):
             This network operates slightly different than most as it attaches a propulsor to the net.
     
             Assumptions:
-            Your system always uses 90 amps...?
+            
     
             Source:
             N/A

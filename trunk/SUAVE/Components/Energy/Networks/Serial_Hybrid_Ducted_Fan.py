@@ -67,7 +67,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         """ Calculate thrust given the current state of the vehicle
     
             Assumptions:
-            None
+            Doesn't allow for mass gaining batteries
     
             Source:
             N/A
@@ -98,14 +98,16 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         battery    = self.battery
         propulsor  = self.propulsor
         battery    = self.battery
+        generator  = self.generator
         
-        fuel_capacity = 800 * Units.lb
-        range_extender_power = 000000 #Watts
-        range_extender_efficiency = .3
+
+        range_extender_power = 500000 #Watts
         range_extender_sfc = (.3/3600) #kg/(kW*s)
         
         power_generated = np.ones_like(conditions.propulsion.battery_energy)*range_extender_power
         mdot = range_extender_sfc * (power_generated/1000) 
+        
+        generator.calculate_power(conditions)
 
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
@@ -114,23 +116,14 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         results             = propulsor.evaluate_thrust(state)
         propulsive_power    = results.power
         motor_power         = propulsive_power/self.motor_efficiency 
-
-        # Why use battery_logic here instead of just battery_input?
-        #battery_logic          = Data()
-        #battery_logic.power_in = pbat
-        #battery_logic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
-        # Couldn't current just be Pe/voltage?
       
         #battery.inputs = battery_logic
         tol = 1e-6  
 
-        # Step 1 battery power
+        # Set the esc input voltage
         esc.inputs.voltagein = self.voltage
 
-        # Step 2
-        
-
-            
+        # Calculate the esc output voltage
         esc.voltageout(conditions)
 
         # Run the avionics
@@ -139,6 +132,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         # Run the payload
         payload.power()
 
+        # Calculate the esc input current
         esc.inputs.currentout =  np.transpose(motor_power/np.transpose(esc.outputs.voltageout))
         
         # Run the esc
@@ -150,12 +144,12 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         # Calculate avionics and payload current
         avionics_payload_current = avionics_payload_power/self.voltage
 
-
         # link
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
-        #print(esc.outputs.currentin)
         battery.inputs.power_in = -((esc.inputs.voltagein)*esc.outputs.currentin + avionics_payload_power) + (
-                power_generated)
+                generator.outputs.power_generated)
+        
+        # Run the battery
         battery.energy_calc(numerics)        
     
         
@@ -169,16 +163,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         #    battery.current_energy=np.transpose(np.array([battery.current_energy[-1]*np.ones_like(Pe)]))
         
         
-        
-        
-        '''
-        #allow for mass gaining batteries
-        try:
-            mdot=find_mass_gain_rate(battery,-(pbat-battery.resistive_losses)) #put in transpose for solver
-        except AttributeError:
-            mdot=np.zeros_like(results.thrust_force_vector[:,0])
-        mdot=np.reshape(mdot, np.shape(conditions.freestream.velocity))
-        '''
+    
 
 
         #mdot = np.zeros(np.shape(conditions.freestream.velocity))
@@ -194,7 +179,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         conditions.propulsion.battery_energy       = battery_energy
         conditions.propulsion.voltage_open_circuit = voltage_open_circuit
         
-        results.vehicle_mass_rate   = mdot
+        results.vehicle_mass_rate   = generator.outputs.vehicle_mass_rate
         return results
             
     __call__ = evaluate_thrust
