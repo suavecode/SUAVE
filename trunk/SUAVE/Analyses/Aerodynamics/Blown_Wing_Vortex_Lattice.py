@@ -12,7 +12,7 @@ import SUAVE
 
 from SUAVE.Core import Data
 from SUAVE.Core import Units
-from SUAVE.Methods.Aerodynamics.Blown_Wing_Aero  import blown_wing_weissinger_vortex_lattice
+from SUAVE.Methods.Aerodynamics.Blown_Wing_Aero  import blown_wing_VLM
 
 # local imports
 from .Aerodynamics import Aerodynamics
@@ -71,31 +71,64 @@ class Blown_Wing_Vortex_Lattice(Aerodynamics):
     
     def evaluate(self,state,settings,geometry):
         # unpack
-        conditions             = state.conditions
+        conditions             = state.conditions 
+        aero                   = state.conditions.aerodynamics
         propulsors             = geometry.propulsors
-        vehicle_reference_area = geometry.reference_area
-        total_lift_coeff       = Data()                
-        n                                                          = state.numerics.number_control_points        
-        total_lift_coeff                                           = np.zeros((n,1))
-        inviscid_wings_lift                                        = Data()           
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = Data()
-        state.conditions.aerodynamics.lift_coefficient_wing        = Data()
+        vehicle_reference_area = geometry.reference_area        
+        n                      = state.numerics.number_control_points   
+        
+        # lift
+        total_lift_coeff                                     = np.zeros((n,1))
+        inviscid_wings_lift                                  = Data()
+        inviscid_wings_lift_distribution                     = Data()
+        aero.lift_breakdown.inviscid_wings_lift              = Data()
+        aero.lift_breakdown.inviscid_wings_lift_distribution = Data()        
+        aero.lift_coefficient_wing                           = Data()
+         
+        # drag  
+        total_inviscid_drag_coeff                             = np.zeros((n,1))
+        inviscid_wings_drag                                   = Data() 
+        inviscid_wings_drag_distribution                      = Data()
+        aero.drag_breakdown.inviscid_wings_drag               = Data()
+        aero.drag_breakdown.inviscid_wings_drag_distribution  = Data() 
         
         for wing in geometry.wings.keys():
-            wing_CL = np.zeros((n,1))
+            wing_CL       = np.zeros((n,1))
+            wing_Cl_dist  = np.zeros((n,settings.number_panels_spanwise))
+            wing_CDi      = np.zeros((n,1))
+            wing_Cdi_dist = np.zeros((n,settings.number_panels_spanwise))            
             for index in range(n):
-                [wing_lift_coeff,  wing_drag_coeff ]    = blown_wing_weissinger_vortex_lattice(conditions,settings,geometry.wings[wing],propulsors,0)
-                wing_CL[index]                          = wing_lift_coeff      
-                
-            inviscid_wings_lift[wing]                                        = wing_CL            
-            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]   
-            state.conditions.aerodynamics.lift_coefficient_wing[wing]        = inviscid_wings_lift[wing] 
-            total_lift_coeff                                                 += wing_CL * geometry.wings[wing].areas.reference / vehicle_reference_area                         
+                [wing_lift_coeff,  wing_inviscid_drag_coeff , wing_lift_distribution , wing_inviscid_drag_distribution ] = blown_wing_VLM(conditions,settings,geometry.wings[wing],propulsors, index )
+                wing_CL[index]       = wing_lift_coeff      
+                wing_Cl_dist[index]  = wing_lift_distribution  
+                wing_CDi[index]      = wing_inviscid_drag_coeff     
+                wing_Cdi_dist[index] = wing_inviscid_drag_distribution  
+             
+            # lift   
+            inviscid_wings_lift[wing]                                  = wing_CL   
+            inviscid_wings_lift_distribution[wing]                     = wing_Cl_dist
+            aero.lift_breakdown.inviscid_wings_lift[wing]              = inviscid_wings_lift[wing]   
+            aero.lift_breakdown.inviscid_wings_lift_distribution[wing] = inviscid_wings_lift_distribution[wing] 
+            aero.lift_coefficient_wing[wing]                           = inviscid_wings_lift[wing] 
+            total_lift_coeff                                           += wing_CL * geometry.wings[wing].areas.reference / vehicle_reference_area                         
+       
+            # drag  
+            inviscid_wings_drag[wing]                                  = wing_CDi   
+            inviscid_wings_drag_distribution[wing]                     = wing_Cdi_dist
+            aero.drag_breakdown.inviscid_wings_drag[wing]              = inviscid_wings_drag[wing]   
+            aero.drag_breakdown.inviscid_wings_drag_distribution[wing] = inviscid_wings_drag_distribution[wing] 
+            aero.lift_coefficient_wing[wing]                           = inviscid_wings_drag[wing]            
+            total_inviscid_drag_coeff                                  += wing_CDi * geometry.wings[wing].areas.reference / vehicle_reference_area                              
         
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = total_lift_coeff
-        state.conditions.aerodynamics.lift_coefficient                   = total_lift_coeff
-        state.conditions.aerodynamics.inviscid_lift                      = total_lift_coeff 
-        inviscid_wings_lift.total                                        = total_lift_coeff   
+        # pack 
+        # lift 
+        aero.lift_breakdown.inviscid_wings_lift.total = total_lift_coeff
+        aero.lift_coefficient                         = total_lift_coeff
+        aero.inviscid_lift                            = total_lift_coeff 
+        inviscid_wings_lift.total                     = total_lift_coeff   
+        
+        # drag
+        aero.drag_breakdown.inviscid_wings_drag.total = total_inviscid_drag_coeff  
         
         return inviscid_wings_lift
     

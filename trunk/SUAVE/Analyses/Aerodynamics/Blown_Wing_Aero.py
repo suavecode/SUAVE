@@ -18,7 +18,6 @@ from .Results import Results
 
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
-from SUAVE.Methods.Aerodynamics import Blown_Wing_Aero
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 from .Process_Geometry import Process_Geometry
 from .Blown_Wing_Vortex_Lattice import Blown_Wing_Vortex_Lattice
@@ -71,13 +70,13 @@ class Blown_Wing_Aero(Markup):
         settings.maximum_lift_coefficient           = np.inf 
         
         # vortex lattice configurations
-        settings.number_panels_spanwise  = 100
+        settings.number_panels_spanwise  = 50
         settings.number_panels_chordwise = 1
         
         # build the evaluation process
         compute = self.process.compute
+        
         compute.lift = Process()
-
         compute.lift.inviscid_wings                = Blown_Wing_Vortex_Lattice()
         compute.lift.vortex                        = SUAVE.Methods.skip
         compute.lift.compressible_wings            = Methods.Lift.wing_compressibility_correction
@@ -92,7 +91,6 @@ class Blown_Wing_Aero(Markup):
         compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
         compute.drag.parasite.propulsors.propulsor = Common.Drag.parasite_drag_propulsor
-        compute.drag.parasite.pylons               = Common.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
         compute.drag.induced                       = Common.Drag.induced_drag_aircraft
         compute.drag.compressibility               = Process()
