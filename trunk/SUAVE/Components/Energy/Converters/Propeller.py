@@ -51,15 +51,18 @@ class Propeller(Energy_Component):
         Properties Used:
         None
         """
-        self.number_blades                  = 0.0
-        self.tip_radius                     = 0.0
-        self.hub_radius                     = 0.0
-        self.twist_distribution             = 0.0
-        self.chord_distribution             = 0.0
-        self.mid_chord_aligment             = 0.0
-        self.thrust_angle                   = 'Propeller'
-        
-        
+        self.number_blades       = 0.0
+        self.tip_radius          = 0.0
+        self.hub_radius          = 0.0
+        self.twist_distribution  = 0.0
+        self.chord_distribution  = 0.0
+        self.mid_chord_aligment  = 0.0
+        self.thrust_angle        = 0.0
+        self.radius_distribution = None
+        self.ducted              = False
+        self.tag                 = 'Propeller'
+
+
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
 
@@ -173,7 +176,7 @@ class Propeller(Energy_Component):
         x       = r*np.multiply(omega,1/V) # Nondimensional distance
         n       = omega/(2.*pi)            # Cycles per second
         J       = V/(2.*R*n)    
-        sigma   = np.multiply(B*c,1./(2.*pi*r))          
+        sigma   = np.multiply(B*c,1./(2.*pi*r))
     
         #I make the assumption that externally-induced velocity at the disk is zero
         #This can be easily changed if needed in the future:
@@ -194,13 +197,12 @@ class Propeller(Energy_Component):
         diff   = 1.
         
         ii = 0
-        broke = False
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
             Wa      = 0.5*Ua + 0.5*U*sin_psi
             Wt      = 0.5*Ut + 0.5*U*cos_psi   
-            va      = Wa - Ua
+            #va     = Wa - Ua
             vt      = Ut - Wt
             alpha   = beta - np.arctan2(Wa,Wt)
             W       = (Wa*Wa + Wt*Wt)**0.5
@@ -226,19 +228,19 @@ class Propeller(Energy_Component):
             Re_ref     = 9.*10**6      
             Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
             
-            # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-            Cl = cl_a*alpha
-            
+            #Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
+            Cl = 2.*pi*alpha
+        
             # By 90 deg, it's totally stalled.
             Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
             Cl[alpha>=pi/2] = 0.
-            
+        
             # Scale for Mach, this is Karmen_Tsien
             Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-            
+        
             # If the blade segments are supersonic, don't scale
             Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
-            
+        
             Rsquiggly = Gamma - 0.5*W*c*Cl
             
             #An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
@@ -273,7 +275,6 @@ class Propeller(Energy_Component):
             
             # If its really not going to converge
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
-                broke = True
                 break
                 
             ii+=1
@@ -558,20 +559,11 @@ class Propeller(Energy_Component):
         deltar   = (r[1]-r[0])
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
-        power    = torque*omega       
-        
-        if ducted == True:
-            thrust = thrust*1.02 # 2% extra thrust for duct effects
-       
-    
+        power    = torque*omega
+
         D        = 2*R
         Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
-        Ct       = thrust/(rho*(n*n)*(D*D*D*D))
-        Cq       = torque/(rho*(n*n)*(D*D*D*D*D))
-        
-        qs = 0.5 *rho * (Vv[0][0] + np.mean(np.sqrt(vt**2 + va**2)))**2
-        Cts      = thrust/(qs**np.pi*(R**2))
-   
+
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         
@@ -620,7 +612,7 @@ class Propeller(Energy_Component):
             mid_chord_aligment        = self.mid_chord_aligment     
         ) 
         
-        return thrust, torque, power, Cp, outputs  , etap     
+        return thrust, torque, power, Cp, outputs , etap
     
     def spin_surrogate(self,conditions):
         

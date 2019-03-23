@@ -10,8 +10,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-import pylab as plt
-import matplotlib
+
 # ----------------------------------------------------------------------
 #  Update Altitude
 # ----------------------------------------------------------------------
@@ -82,21 +81,7 @@ def update_atmosphere(segment):
     conditions.freestream.density           = atmo_data.density
     conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound
     conditions.freestream.dynamic_viscosity = atmo_data.dynamic_viscosity
-    
-    # Gamma
-    gamma = segment.analyses.atmosphere.fluid_properties.compute_gamma(atmo_data.temperature,atmo_data.pressure)
-    
-    # Gas constant
-    R = segment.analyses.atmosphere.fluid_properties.gas_specific_constant
-    
-    # Specific Heat
-    Cp = segment.analyses.atmosphere.fluid_properties.compute_cp(atmo_data.temperature,atmo_data.pressure)
-    
-    # pack
-    conditions.freestream.gamma                 = gamma
-    conditions.freestream.gas_specific_constant = R
-    conditions.freestream.specific_heat         = Cp
-    
+
     return
     
     

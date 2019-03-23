@@ -6,13 +6,6 @@
 #           Jun 2017, M. Clarke
 #           Aug 2018, T St. Francis
 #           Oct 2018, T. MacDonald
-<<<<<<< HEAD
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Data, Container
-=======
 #           Dec 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
@@ -21,7 +14,6 @@ from SUAVE.Core import Data, Container
 
 import SUAVE
 from SUAVE.Core import Data, Container, ContainerOrdered
->>>>>>> 90a933d24551b7cc8af7a6ada5b235461a2c9b12
 from SUAVE.Components import Physical_Component, Lofted_Body
 
 # ------------------------------------------------------------
@@ -99,7 +91,8 @@ class Fuselage(Lofted_Body):
         # for BWB 
         self.aft_centerbody_area  = 0.0
         self.aft_centerbody_taper = 0.0
-        self.cabin_area           = 0.0        
+        self.cabin_area           = 0.0
+
         self.Fuel_Tanks = Container()
 
         # For VSP
@@ -143,11 +136,11 @@ class Fuselage(Lofted_Body):
         Inputs:
         None
         Outputs:
-        None 
+        None
         Properties Used:
         N/A
         """ 
-    
+
         # Assert database type
         if not isinstance(segment,Data):
             raise Exception('input component must be of type Data()')
@@ -196,4 +189,4 @@ class Container(Physical_Component.Container):
 #  Handle Linking
 # ------------------------------------------------------------
 
-Fuselage.Container = Container 
+Fuselage.Container = Container

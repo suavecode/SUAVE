@@ -1,5 +1,5 @@
 ## @ingroup Methods-Missions-Segments-Cruise
-# Constant_Acceleration_Constant_Altitude.py
+# Constant_Accleration_Constant_Altitude.py
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero

@@ -69,11 +69,11 @@ def main():
     results = nexus.results
     err      = nexus.sizing_loop.norm_error
 
-    err_true = 0.0006997884458936955 #for 1E-2 tol
+    err_true = 0.0008431676127788957
     error    = abs((err-err_true)/err_true)
 
     data_inputs, data_outputs, read_success = read_sizing_residuals(sizing_loop, problem.inputs)
-    check_read_res = -0.06907076740468952
+    check_read_res = -0.06806243996920357
 
     error_res      = (data_outputs[1][0]-check_read_res)/check_read_res
     

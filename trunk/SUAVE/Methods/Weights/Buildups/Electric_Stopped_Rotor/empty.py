@@ -130,23 +130,21 @@ def empty(config,
 
     # Component Weight Calculations
 
-    output.lift_rotors      = (prop(config.propulsors.propulsor.propeller_lift, maxLift) 
-                               * (len(config.wings['main_wing'].motor_spanwise_locations))) *Units.kg
-    output.thrust_rotors    = prop(config.propulsors.propulsor.propeller_forward, maxLift/5) *Units.kg
+    output.lift_rotors      = (prop(config.propulsors.network.propeller, maxLift)
+                               * (len(config.wings['main_wing'].motor_spanwise_locations)
+                                  + len(config.wings['main_wing'].motor_spanwise_locations))) *Units.kg
+    output.thrust_rotors    = prop(config.propulsors.network.thrust_propeller, maxLift/5) *Units.kg
     output.fuselage         = fuselage(config) *Units.kg
     output.wiring           = wiring(config,
                                      np.ones(8)**0.25,
                                      maxLiftPower/etaMotor) *Units.kg
+    output.main_wing = wing(config.wings['main_wing'],
+                            config,
+                            maxLift/5) *Units.kg
+    output.sec_wing = wing(config.wings['secondary_wing'],
+                            config,
+                            maxLift/5) *Units.kg
 
-    total_wing_weight = 0.
-    for w in config.wings:
-        wing_tag = w.tag
-        if (wing_tag.find('main_wing') != -1):
-            wing_weight = wing(config.wings[w.tag],
-                               config, 
-                               maxLift/5) *Units.kg
-            total_wing_weight = total_wing_weight + wing_weight
-    output.total_wing_weight = total_wing_weight
     
 #-------------------------------------------------------------------------------
 # Weight Summations
@@ -158,18 +156,20 @@ def empty(config,
                             output.hubs +
                             output.fuselage + 
                             output.landing_gear +
-                            output.total_wing_weight
+                            output.main_wing +
+                            output.sec_wing
                             ) *Units.kg
 
-    output.empty        = (1.1 * (
+    output.empty        = 1.1 * (
                             output.structural +
                             output.seats +
                             output.avionics +
+                            output.battery +
                             output.motors +
                             output.servos +
                             output.wiring +
                             output.brs
-                            ) + output.battery) *Units.kg
+                            ) *Units.kg
     
     output.total        = (output.empty +
                             output.payload) *Units.kg

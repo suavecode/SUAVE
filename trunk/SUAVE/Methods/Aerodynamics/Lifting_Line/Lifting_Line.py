@@ -36,14 +36,11 @@ def lifting_line(conditions,settings,geometry):
       aspect_ratio                          [Unitless]
       areas.reference                       [m^2]
       vertical                              [Boolean]
-
     settings.number_of_stations             [int]
     conditions.aerodynamics.angle_of_attack [radians]
-
     Outputs:
     CL                                      [Unitless]
     CD                                      [Unitless]
-
     Properties Used:
     N/A
     """  
@@ -56,9 +53,7 @@ def lifting_line(conditions,settings,geometry):
     if orientation == True:
         CL = 0.0
         CD = 0.0
-        AR = 0.0
-        
-        return CL, CD , AR
+        return CL, CD
     else:
         pass
         
@@ -96,7 +91,6 @@ def lifting_line(conditions,settings,geometry):
     segment_keys = wing.Segments.keys()
     n_segments   = len(segment_keys)
     # If spanwise stations are setup
-    S_wing = 0.0
     if n_segments>0:
         c    = np.ones_like(etan) * wing.chords.root
         ageo = np.ones_like(etan) * wing.twists.root 
@@ -115,9 +109,7 @@ def lifting_line(conditions,settings,geometry):
                 X2 = wing.Segments[segment_keys[i_seg+1]].percent_span_location
                 L2 = wing.Segments[segment_keys[i_seg+1]].root_chord_percent
                 T2 = wing.Segments[segment_keys[i_seg+1]].twist
-                Sref_seg  =  (b*(X2-X1))*((L2+ L2)*root_chord)*0.5
-            
-            S_wing += Sref_seg                
+                
                 
             bools  =  np.logical_and(etan>X1,etan<X2)
                 
@@ -133,11 +125,7 @@ def lifting_line(conditions,settings,geometry):
         # Find the chords and twist profile
         c    = root_chord+root_chord*(taper-1.)*etan
         ageo = (tip_twist-root_twist)*etan+root_twist
-        S_wing         = b*(root_chord + tip_chord)*0.5
-    
-      
-    AR =  (b**2)/S_wing
-        
+
     k = c*cla/(4.*b) # Grouped term 
 
     
@@ -181,4 +169,4 @@ def lifting_line(conditions,settings,geometry):
     
     CD  = CDv + CDp
    
-    return CL, CD , AR
+    return CL, CD

@@ -31,6 +31,6 @@ def aircraft_total(state,settings,geometry):
     N/A
     """      
     
-    aircraft_lift_total = state.conditions.aerodynamics.lift_coefficient  
+    aircraft_lift_total = state.conditions.aerodynamics.lift_coefficient
 
     return aircraft_lift_total

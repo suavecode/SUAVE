@@ -105,7 +105,7 @@ def parasite_drag_wing(state,settings,geometry):
                     wing_root     = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_seg)
                     taper         = chord_tip/wing_root  
                     mac_seg       = wing_root  * 2/3 * (( 1 + taper  + taper**2 )/( 1 + taper))  
-                    S_seg         = span_seg*(chord_root+chord_tip)*0.5 
+                    Sref_seg      = span_seg*(chord_root+chord_tip)*0.5
                     S_exposed_seg = (span_seg-exposed_root_chord_offset)*(wing_root+chord_tip)*0.5                    
                 
                 else: 
@@ -113,11 +113,11 @@ def parasite_drag_wing(state,settings,geometry):
                     chord_tip     = root_chord*wing.Segments[i_segs+1].root_chord_percent
                     taper         = chord_tip/chord_root   
                     mac_seg       = chord_root * 2/3 * (( 1 + taper  + taper**2 )/( 1 + taper))
-                    S_seg         = span_seg*(chord_root+chord_tip)*0.5
-                    S_exposed_seg = S_seg
+                    Sref_seg      = span_seg*(chord_root+chord_tip)*0.5
+                    S_exposed_seg = Sref_seg
  
                 if wing.symmetric:
-                    S_seg = S_seg*2
+                    Sref_seg = Sref_seg*2
                     S_exposed_seg = S_exposed_seg*2
                 
                 # compute wetted area of segment
@@ -127,15 +127,15 @@ def parasite_drag_wing(state,settings,geometry):
                     Swet_seg = (1.977 + 0.52*t_c_w) * S_exposed_seg
         
                 # compute parasite drag coef., form factor, skin friction coef., compressibility factor and reynolds number for segments
-                segment_parasite_drag , segment_k_w, segment_cf_w_u, segment_cf_w_l, segment_k_comp_u, k_reyn_l = compute_parasite_drag(re,mac_seg,Mc,Tc,xtu,xtl,sweep_seg,t_c_w,S_seg,Swet_seg,C)    
+                segment_parasite_drag , segment_k_w, segment_cf_w_u, segment_cf_w_l, segment_k_comp_u, k_reyn_l = compute_parasite_drag(re,mac_seg,Mc,Tc,xtu,xtl,sweep_seg,t_c_w,Sref_seg,Swet_seg,C)
                 
                 total_wetted_area            += Swet_seg
-                total_segment_parasite_drag  += segment_parasite_drag*S_seg   
-                total_segment_k_w            += segment_k_w*S_seg 
-                total_segment_cf_w_u         += segment_cf_w_u*S_seg 
-                total_segment_cf_w_l         += segment_cf_w_l*S_seg 
-                total_segment_k_comp_u       += segment_k_comp_u*S_seg 
-                total_k_reyn_l               += k_reyn_l*S_seg  
+                total_segment_parasite_drag  += segment_parasite_drag*Sref_seg
+                total_segment_k_w            += segment_k_w*Sref_seg
+                total_segment_cf_w_u         += segment_cf_w_u*Sref_seg
+                total_segment_cf_w_l         += segment_cf_w_l*Sref_seg
+                total_segment_k_comp_u       += segment_k_comp_u*Sref_seg
+                total_k_reyn_l               += k_reyn_l*Sref_seg
                 
             Swet              = total_wetted_area     
             wing.areas.wetted = total_wetted_area 

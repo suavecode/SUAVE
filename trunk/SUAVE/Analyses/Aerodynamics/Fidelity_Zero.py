@@ -29,21 +29,28 @@ from .Vortex_Lattice import Vortex_Lattice
 ## @ingroup Analyses-Aerodynamics
 class Fidelity_Zero(Markup):
     """This is an analysis based on low-fidelity models.
+
     Assumptions:
     Subsonic
+
     Source:
     Primarily based on adg.stanford.edu, see methods for details
     """       
     def __defaults__(self):
         """This sets the default values and methods for the analysis.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         None
+
         Outputs:
         None
+
         Properties Used:
         N/A
         """          
@@ -117,14 +124,19 @@ class Fidelity_Zero(Markup):
         
     def initialize(self):
         """Initializes the surrogate needed for lift calculation.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         None
+
         Outputs:
         None
+
         Properties Used:
         self.geometry
         """                  

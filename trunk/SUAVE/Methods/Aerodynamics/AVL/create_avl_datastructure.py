@@ -128,7 +128,7 @@ def translate_avl_body(suave_body):
 
         Inputs:
             body.tag                                                       [-]
-            suave_wing.lengths.total                                       [meters]   
+            suave_wing.lengths.total                                       [meters]
             suave_body.lengths.nose                                        [meters]
             suave_body.lengths.tail                                        [meters]
             suave_wing.verical                                             [meters]
@@ -145,7 +145,6 @@ def translate_avl_body(suave_body):
         b                 = Body()
         b.tag             = suave_body.tag
         b.symmetric       = True
-        b.origin          = suave_body.origin
         b.lengths.total   = suave_body.lengths.total
         b.lengths.nose    = suave_body.lengths.nose
         b.lengths.tail    = suave_body.lengths.tail
@@ -273,7 +272,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                                         index =+ 1                                                       
                    
                                         if suave_wing.Segments[i_segs].Airfoil:
-                                                section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil.airfoil.coordinate_file     
+                                                section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil.airfoil.coordinate_file
                                         avl_wing.append_section(section)   
                                         
                                 if ordered_section_spans[section_count] == semispan*suave_wing.Segments[i_segs].percent_span_location:  
@@ -289,7 +288,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                 section.twist  = (suave_wing.Segments[i_segs].twist)*180/np.pi
                                 section.origin = origin[i_segs]
                                 if suave_wing.Segments[i_segs].Airfoil:
-                                       section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil.airfoil.coordinate_file
+                                        section.airfoil_coord_file   = suave_wing.Segments[i_segs].Airfoil.airfoil.coordinate_file
                 
                                 # append section to wing
                                 avl_wing.append_section(section)                               

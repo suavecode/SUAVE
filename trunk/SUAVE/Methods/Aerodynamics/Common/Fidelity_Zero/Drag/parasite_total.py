@@ -62,7 +62,9 @@ def parasite_total(state,settings,geometry):
  
     # from fuselage
     for fuselage in fuselages.values():
-        parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient 
+        if fuselage.tag == 'fuselage_bwb':
+            continue
+        parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient
         conditions.aerodynamics.drag_breakdown.parasite[fuselage.tag].parasite_drag_coefficient = parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
         total_parasite_drag += parasite_drag * fuselage.areas.front_projected/vehicle_reference_area
     

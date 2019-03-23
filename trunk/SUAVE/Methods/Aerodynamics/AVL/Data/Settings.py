@@ -58,7 +58,7 @@ class Settings(Data):
                 self.run_cases                = Run_Case.Container()
                 self.filenames                = Data()
                 self.flow_symmetry            = Data()
-                self.discretization           = Data()     
+                self.discretization           = Data()
                 self.number_control_surfaces     = 0
                 
                 self.discretization.defaults  = Data()
@@ -70,7 +70,7 @@ class Settings(Data):
                 self.discretization.defaults.fuselage.nose_interpolation      = 'parabolic'
                 self.discretization.defaults.fuselage.tail_interpolation      = 'linear'
 
-                self.filenames.avl_bin_name    = 'C:/Users/matth/Documents/AVL/avl.exe' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
+                self.filenames.avl_bin_name    = 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary
                 self.filenames.run_folder      = 'avl_files' # local reference, will be attached to working directory from which avl was created
                 self.filenames.features        = 'aircraft.avl'
                 self.filenames.mass_file       = 'aircraft.mass'

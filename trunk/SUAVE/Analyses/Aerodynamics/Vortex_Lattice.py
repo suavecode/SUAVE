@@ -33,22 +33,29 @@ import numpy as np
 ## @ingroup Analyses-Aerodynamics
 class Vortex_Lattice(Aerodynamics):
     """This builds a surrogate and computes lift using a basic vortex lattice.
+
     Assumptions:
     None
+
     Source:
     None
     """ 
 
     def __defaults__(self):
         """This sets the default values and methods for the analysis.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         None
+
         Outputs:
         None
+
         Properties Used:
         N/A
         """  
@@ -80,14 +87,19 @@ class Vortex_Lattice(Aerodynamics):
         
     def initialize(self):
         """Drives functions to get training samples and build a surrogate.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         None
+
         Outputs:
         None
+
         Properties Used:
         None
         """                      
@@ -100,14 +112,18 @@ class Vortex_Lattice(Aerodynamics):
 
     def evaluate(self,state,settings,geometry):
         """Evaluates lift and drag using available surrogates.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         state.conditions.
           freestream.dynamics_pressure       [-]
           angle_of_attack                    [radians]
+
         Outputs:
         conditions.aerodynamics.lift_breakdown.
           inviscid_wings_lift[wings.*.tag]   [-] CL (wing specific)
@@ -115,6 +131,7 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.
           lift_coefficient_wing              [-] CL (wing specific)
         inviscid_wings_lift                  [-] CL
+
         Properties Used:
         self.surrogates.
           lift_coefficient                   [-] CL
@@ -159,22 +176,27 @@ class Vortex_Lattice(Aerodynamics):
             inviscid_wings_lift[wing] = wings_lift_model(AoA)
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]
             state.conditions.aerodynamics.lift_coefficient_wing[wing]        = inviscid_wings_lift[wing]
-         
+
         return inviscid_wings_lift
 
 
     def sample_training(self):
         """Call methods to run vortex lattice for sample point evaluation.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         see properties used
+
         Outputs:
         self.training.
           lift_coefficient            [-] 
           wing_lift_coefficients      [-] (wing specific)
+
         Properties Used:
         self.geometry.wings.*.tag
         self.settings                 (passed to calculate vortex lattice)
@@ -215,16 +237,21 @@ class Vortex_Lattice(Aerodynamics):
 
     def build_surrogate(self):
         """Build a surrogate using sample evaluation results.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         see properties used
+
         Outputs:
         self.surrogates.
           lift_coefficient       <np.poly1d>
           wing_lift_coefficients <np.poly1d> (multiple surrogates)
+
         Properties Used:
         self.
           training.
@@ -250,6 +277,7 @@ class Vortex_Lattice(Aerodynamics):
         for wing in wing_CL_data.keys():
             wing_cl_surrogates[wing] = np.poly1d(np.polyfit(X_data, wing_CL_data[wing] ,1))
 
+
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.wing_lift_coefficients = wing_cl_surrogates
 
@@ -265,17 +293,22 @@ class Vortex_Lattice(Aerodynamics):
 def calculate_lift_vortex_lattice(conditions,settings,geometry):
     """Calculate the total vehicle lift coefficient and specific wing coefficients (with specific wing reference areas)
     using a vortex lattice method.
+
     Assumptions:
     None
+
     Source:
     N/A
+
     Inputs:
     conditions                      (passed to vortex lattice method)
     settings                        (passed to vortex lattice method)
     geometry.reference_area         [m^2]
     geometry.wings.*.reference_area (each wing is also passed to the vortex lattice method)
+
     Outputs:
     
+
     Properties Used:
     
     """            
@@ -288,9 +321,9 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
     wing_lifts = Data()
 
     for wing in geometry.wings.values():
-        [wing_lift_coeff,wing_drag_coeff,wing_AR] = weissinger_vortex_lattice(conditions,settings,wing)
-        total_lift_coeff                          += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
-        wing_lifts[wing.tag]                      = wing_lift_coeff 
-    
-    return total_lift_coeff, wing_lifts 
 
+        [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing)
+        total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
+        wing_lifts[wing.tag] = wing_lift_coeff
+
+    return total_lift_coeff, wing_lifts
