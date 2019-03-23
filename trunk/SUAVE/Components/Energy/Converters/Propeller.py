@@ -12,6 +12,7 @@
 # package imports
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import compute_airfoil_polars
 from SUAVE.Core import Data
 import scipy.optimize as opt
 
@@ -19,6 +20,12 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
 
 from warnings import warn
+
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
 
 # ----------------------------------------------------------------------
 #  Propeller Class
@@ -29,49 +36,42 @@ class Propeller(Energy_Component):
     
     Assumptions:
     None
-
     Source:
     None
     """     
     def __defaults__(self):
         """This sets the default values for the component to function.
-
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         None
-        """
-        self.number_blades       = 0.0
-        self.tip_radius          = 0.0
-        self.hub_radius          = 0.0
-        self.twist_distribution  = 0.0
-        self.chord_distribution  = 0.0
-        self.mid_chord_aligment  = 0.0
-        self.thrust_angle        = 0.0
-        self.radius_distribution = None
-        self.ducted              = False
-        self.tag                 = 'Propeller'
-
-
+        """         
+        self.number_blades            = 0.0
+        self.tip_radius               = 0.0
+        self.hub_radius               = 0.0
+        self.twist_distribution       = 0.0
+        self.chord_distribution       = 0.0
+        self.mid_chord_aligment       = 0.0
+        self.thrust_angle             = 0.0
+        self.induced_hover_velocity   = 0.0
+        self.airfoil_sections         = None
+        self.airfoil_section_location = None
+        self.radius_distribution      = None
+        self.ducted                   = False
+        self.tag                      = 'Propeller'
+        
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
-
         Assumptions:
         per source
-
         Source:
         Qprop theory document
-
         Inputs:
         self.inputs.omega            [radian/s]
         conditions.freestream.
@@ -84,7 +84,6 @@ class Propeller(Energy_Component):
           inertial.velocity_vector   [m/s]
         conditions.propulsion.
           throttle                   [-]
-
         Outputs:
         conditions.propulsion.acoustic_outputs.
           number_sections            [-]
@@ -104,7 +103,6 @@ class Propeller(Energy_Component):
         torque                       [Nm]
         power                        [W]
         Cp                           [-] (coefficient of power)
-
         Properties Used:
         self. 
           number_blades              [-]
@@ -122,7 +120,10 @@ class Propeller(Energy_Component):
         Rh     = self.hub_radius
         beta   = self.twist_distribution
         c      = self.chord_distribution
+        Vi     = self.induced_hover_velocity 
         omega1 = self.inputs.omega
+        a_sec  = self.airfoil_sections        
+        a_secl = self.airfoil_section_location
         rho    = conditions.freestream.density[:,0,None]
         mu     = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv     = conditions.frames.inertial.velocity_vector
@@ -139,9 +140,16 @@ class Propeller(Energy_Component):
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body = orientation_product(T_inertial2body,Vv)
         
-        # Velocity transformed to the propulsor frame
-        body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
-        T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        # Velocity transformed to the propulsor frame with flag for tilt rotor
+        if np.isscalar(theta):
+            body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
+            T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        else:
+            body2thrust = np.zeros((len(theta),3,3))
+            for i in range(len(theta)):
+                body2thrust[i,:,:] = [[np.cos(theta[i][0]), 0., np.sin(theta[i][0])],[0., 1., 0.], [-np.sin(theta[i][0]), 0., np.cos(theta[i][0])]]
+            T_body2thrust      = orientation_transpose(body2thrust)
+       
         V_thrust      = orientation_product(T_body2thrust,V_body)
         
         # Now just use the aligned velocity
@@ -152,13 +160,38 @@ class Propeller(Energy_Component):
         
         omega = omega1*1.0
         omega = np.abs(omega)
-           
-        ######
-        # Enter airfoil data in a better way, there is currently Re and Ma scaling from DAE51 data
-        ######
-
+        
         #Things that don't change with iteration
-        N       = len(c) # Number of stations
+        N       = len(c) # Number of stations     
+        
+        if  a_sec != None and a_secl != None:
+            airfoil_polars = Data()
+            # check dimension of section  
+            dim_sec = len(a_secl)
+            if dim_sec != N:
+                raise AssertionError("Number of sections not equal to number of stations")
+            # compute airfoil polars for airfoils 
+            airfoil_data = compute_airfoil_polars(self,conditions, a_sec)
+            airfoil_cl     = airfoil_data.cl_polars 
+            airfoil_cd     = airfoil_data.cd_polars 
+            aoa_sweep      = airfoil_data.aoa_sweep 
+            
+            # test plot 
+            fig = plt.figure()         
+            axes = fig.add_subplot(1,2,1)
+            axes.plot(aoa_sweep, airfoil_cl[1,:],'b-')
+            axes.set_ylabel('Cl')
+            axes.set_xlabel('AoA (deg)')
+            axes.legend(loc='lower right') 
+            axes.grid(True)     
+        
+            axes = fig.add_subplot(1,2,2)
+            axes.plot(aoa_sweep , airfoil_cd[1,:],'b-')
+            axes.set_ylabel('Cd')
+            axes.set_xlabel('AoA (deg)')  
+            axes.grid(True)  
+            plt.show()
+            
         
         if self.radius_distribution is None:
             chi0    = Rh/R   # Where the propeller blade actually starts
@@ -178,9 +211,12 @@ class Propeller(Energy_Component):
         J       = V/(2.*R*n)    
         sigma   = np.multiply(B*c,1./(2.*pi*r))
     
-        #I make the assumption that externally-induced velocity at the disk is zero
-        #This can be easily changed if needed in the future:
-        ua = 0.0
+
+        # Include externally-induced velocity at the disk for hover
+        if V.all() == 0:
+            ua = Vi
+        else:
+            ua = 0.0 
         ut = 0.0
         
         omegar = np.outer(omega,r)
@@ -222,19 +258,27 @@ class Propeller(Energy_Component):
             F            = 2.*arccos_piece/pi
             Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
             
-            # Estimate Cl max
-            Re         = (W*c)/nu 
-            Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-            Re_ref     = 9.*10**6      
-            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
-            
-            #Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-            Cl = 2.*pi*alpha
-        
-            # By 90 deg, it's totally stalled.
-            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
-            Cl[alpha>=pi/2] = 0.
-        
+            if  a_sec != None and a_secl != None:
+                # Estimate Cl and Cd from AERODAS Prediction 
+                Cl = np.zeros(N+1)
+                Cd = np.zeros(N+1)
+                for section_no in range(N+1):
+                    Cl[section_no] = np.interp(alpha[section_no]  , aoa_sweep , airfoil_cl[a_secl[section_no],:])  
+                    Cd[section_no]  = np.interp(alpha[section_no] , aoa_sweep , airfoil_cd[a_secl[section_no],:])  
+            else:
+               # Estimate Cl max
+                Re         = (W*c)/nu 
+                Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+                Re_ref     = 9.*10**6      
+                Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+                
+                # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
+                Cl = 2.*pi*alpha
+                
+                # By 90 deg, it's totally stalled.
+                Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
+                Cl[alpha>=pi/2] = 0.
+                
             # Scale for Mach, this is Karmen_Tsien
             Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
         
@@ -282,19 +326,20 @@ class Propeller(Energy_Component):
             if ii>2000:
                 broke = True
                 break
-
-        #There is also RE scaling
-        #This is an atrocious fit of DAE51 data at RE=50k for Cd
-        Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-        Cdval[alpha>=pi/2] = 2.
         
-        #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
-        Tw_Tinf = 1. + 1.78*(Ma*Ma)
-        Tp_Tinf = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
-        Tp      = (Tp_Tinf)*T
-        Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
-        
-        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
+        if  a_sec == None and a_secl == None:
+            #There is also RE scaling
+            #This is an atrocious fit of DAE51 data at RE=50k for Cd
+            Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+            Cdval[alpha>=pi/2] = 2.
+            
+            #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
+            Tw_Tinf = 1. + 1.78*(Ma*Ma)
+            Tp_Tinf = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
+            Tp      = (Tp_Tinf)*T
+            Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
+            
+            Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 
         
         epsilon  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
@@ -361,6 +406,7 @@ class Propeller(Energy_Component):
         
         return thrust, torque, power, Cp, outputs  , etap  
 
+
     
 
     def spin_variable_pitch(self,conditions):
@@ -389,9 +435,10 @@ class Propeller(Energy_Component):
         #Unpack    
         B       = self.number_blades
         R       = self.tip_radius
-        Rh      = self.hub_radius
+        Rh      = self.hub_radius        
         beta_in = self.twist_distribution
         c       = self.chord_distribution
+        Vi      = self.induced_hover_velocity 
         omega1  = self.inputs.omega
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
@@ -413,13 +460,20 @@ class Propeller(Energy_Component):
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body = orientation_product(T_inertial2body,Vv)
         
-        # Velocity transformed to the propulsor frame
-        body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
-        T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        # Velocity transformed to the propulsor frame with flag for tilt rotor
+        if np.isscalar(theta):
+            body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
+            T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        else:
+            body2thrust = np.zeros((len(theta),3,3))
+            for i in range(len(theta)):
+                body2thrust[i,:,:] = [[np.cos(theta[i][0]), 0., np.sin(theta[i][0])],[0., 1., 0.], [-np.sin(theta[i][0]), 0., np.cos(theta[i][0])]]
+            T_body2thrust      = orientation_transpose(body2thrust)
+       
         V_thrust      = orientation_product(T_body2thrust,V_body)
         
         # Now just use the aligned velocity
-        V = V_thrust[:,0,None]
+        V = V_thrust[:,0,None]        
         
         nu    = mu/rho
         tol   = 1e-6 # Convergence tolerance
@@ -445,9 +499,11 @@ class Propeller(Energy_Component):
         J       = V/(2.*R*n)    
         sigma   = np.multiply(B*c,1./(2.*pi*r))          
     
-        #I make the assumption that externally-induced velocity at the disk is zero
-        #This can be easily changed if needed in the future:
-        ua = 0.0
+        # Include externally-induced velocity at the disk for hover
+        if V.all() == 0:
+            ua = Vi
+        else:
+            ua = 0.0 
         ut = 0.0
         
         omegar = np.outer(omega,r)
@@ -464,6 +520,7 @@ class Propeller(Energy_Component):
         diff   = 1.
         
         ii = 0
+        broke = False
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -491,23 +548,22 @@ class Propeller(Energy_Component):
             
             # Estimate Cl max
             Re         = (W*c)/nu 
-            #Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-            #Re_ref     = 9.*10**6      
-            #Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+            Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+            Re_ref     = 9.*10**6      
+            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
             Cl = 2.*pi*alpha
             
             # By 90 deg, it's totally stalled.
-            #Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]
+            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
             Cl[alpha>=pi/2] = 0.
             
+            # Scale for Mach, this is Karmen_Tsien
+            Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
             
-            ## Scale for Mach, this is Karmen_Tsien
-            #Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-            
-            ## If the blade segments are supersonic, don't scale
-            #Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
+            # If the blade segments are supersonic, don't scale
+            Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
             
             Rsquiggly = Gamma - 0.5*W*c*Cl
             
@@ -540,8 +596,19 @@ class Propeller(Energy_Component):
             psi    = psi + dpsi
             diff   = np.max(abs(psiold-psi))
             psiold = psi
-
-        #There is also RE scaling
+            
+            # If its really not going to converge
+            if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                broke = True
+                break
+                
+            ii+=1
+                
+            if ii>2000:
+                broke = True
+                break
+            
+        # There is also RE scaling
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         Cdval[alpha>=pi/2] = 2.
@@ -571,7 +638,7 @@ class Propeller(Energy_Component):
 
         etap     = V*thrust/power     
         
-        conditions.propulsion.etap = etap
+        conditions.propulsion.etap = etap        
         
         # store data
         results_conditions = Data     
@@ -613,6 +680,7 @@ class Propeller(Energy_Component):
         ) 
         
         return thrust, torque, power, Cp, outputs , etap
+
     
     def spin_surrogate(self,conditions):
         

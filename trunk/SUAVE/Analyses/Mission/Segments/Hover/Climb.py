@@ -58,9 +58,11 @@ class Climb(Hover):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start = None # Optional
-        self.altitude_end   = 1. * Units.km
-        self.climb_rate     = 1.  * Units.m / Units.s
+        self.altitude_start     = None # Optional
+        self.altitude_end       = 1. * Units.km
+        self.thrust_angle_start = 90. * Units.degrees
+        self.thrust_angle_end   = 90. * Units['rad'] 
+        self.climb_rate         = 1.  * Units.m / Units.s
         
         # --------------------------------------------------------------
         #   The Solving Process

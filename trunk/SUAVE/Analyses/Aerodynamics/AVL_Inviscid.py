@@ -197,10 +197,10 @@ class AVL_Inviscid(Aerodynamics):
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
-        # Store inviscid drag results
-        ar            = geometry.wings['main_wing'].aspect_ratio
-        state.conditions.aerodynamics.inviscid_drag_coefficient          = inviscid_drag
-        state.conditions.aerodynamics.drag_breakdown.induced = Data(
+        # Store inviscid drag results  
+        ar                                                      = geometry.wings['main_wing'].aspect_ratio
+        state.conditions.aerodynamics.inviscid_drag_coefficient = inviscid_drag
+        state.conditions.aerodynamics.drag_breakdown.induced    = Data(
             total                  = inviscid_drag   ,
             span_efficiency_factor = span_efficiency ,
         )        
