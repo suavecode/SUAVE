@@ -67,7 +67,7 @@ def initialize_conditions(segment):
     # set the body angle
     body_angle = theta_dot*time + T0
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]    
-    
+
     # pack
     segment.state.conditions.freestream.altitude[:,0]             = alt
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down

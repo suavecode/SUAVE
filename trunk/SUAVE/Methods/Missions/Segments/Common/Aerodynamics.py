@@ -81,7 +81,7 @@ def update_atmosphere(segment):
     conditions.freestream.density           = atmo_data.density
     conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound
     conditions.freestream.dynamic_viscosity = atmo_data.dynamic_viscosity
-    
+
     return
     
     
@@ -179,12 +179,12 @@ def update_aerodynamics(segment):
     CLmax              = aerodynamics_model.settings.maximum_lift_coefficient
     
     # call aerodynamics model
-    results = aerodynamics_model( segment.state )    
+    results = aerodynamics_model(segment.state)    
     
     # unpack results
-    CL = results.lift.total
-    CD = results.drag.total
-
+    CL  = results.lift.total
+    CD  = results.drag.total
+            
     CL[q<=0.0] = 0.0
     CD[q<=0.0] = 0.0
     
@@ -197,6 +197,7 @@ def update_aerodynamics(segment):
     L = segment.state.ones_row(3) * 0.0
     D = segment.state.ones_row(3) * 0.0
 
+    
     L[:,2] = ( -CL * q * Sref )[:,0]
     D[:,0] = ( -CD * q * Sref )[:,0]
 
@@ -208,7 +209,6 @@ def update_aerodynamics(segment):
     conditions.aerodynamics.drag_coefficient = CD
     conditions.frames.wind.lift_force_vector[:,:] = L[:,:] # z-axis
     conditions.frames.wind.drag_force_vector[:,:] = D[:,:] # x-axis
-
 
 # ----------------------------------------------------------------------
 #  Update Stability

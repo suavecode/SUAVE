@@ -73,8 +73,8 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    save_plot_data(results)
-    plot_mission(results)    
+    # save_results(results)
+    plot_mission(results)
     plot_mission(old_results,'k-')
     plt.show()
     

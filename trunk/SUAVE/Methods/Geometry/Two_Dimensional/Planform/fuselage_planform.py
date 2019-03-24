@@ -90,7 +90,7 @@ def fuselage_planform(fuselage):
     # http://adg.stanford.edu/aa241/drag/wettedarea.html
     Deff = (a+b)*(64.-3.*R**4)/(64.-16.*R**2)
     wetted_area += 0.75*pi*Deff * (nose_length + tail_length)
-    
+
     # reference area approximated with
     reference_area = cross_section_area
     

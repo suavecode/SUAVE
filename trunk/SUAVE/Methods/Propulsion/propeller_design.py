@@ -12,17 +12,18 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units
-
+from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_airfoil_geometry
 # ----------------------------------------------------------------------
 #  Propeller Design
 # ----------------------------------------------------------------------
     
-def propeller_design(prop_attributes):
+
+def propeller_design(prop,N=20):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
           Either design power or thrust
-          prop_attributes.
+          
             hub radius                       [m]
             tip radius                       [m]
             rotation rate                    [rad/s]
@@ -41,15 +42,15 @@ def propeller_design(prop_attributes):
 
     """    
     # Unpack
-    B      = prop_attributes.number_blades
-    R      = prop_attributes.tip_radius
-    Rh     = prop_attributes.hub_radius
-    omega  = prop_attributes.angular_velocity    # Rotation Rate in rad/s
-    V      = prop_attributes.freestream_velocity # Freestream Velocity
-    Cl     = prop_attributes.design_Cl           # Design Lift Coefficient
-    alt    = prop_attributes.design_altitude
-    Thrust = prop_attributes.design_thrust
-    Power  = prop_attributes.design_power
+    B      = prop.number_blades
+    R      = prop.tip_radius
+    Rh     = prop.hub_radius
+    omega  = prop.angular_velocity    # Rotation Rate in rad/s
+    V      = prop.freestream_velocity # Freestream Velocity
+    Cl     = prop.design_Cl           # Design Lift Coefficient
+    alt    = prop.design_altitude
+    Thrust = prop.design_thrust
+    Power  = prop.design_power
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -67,7 +68,6 @@ def propeller_design(prop_attributes):
     Pc = 2.*Power/(rho*(V*V*V)*np.pi*(R*R))    
     
     tol   = 1e-10 # Convergence tolerance
-    N     = 20   # Number of Stations
 
     #Step 1, assume a zeta
     zeta = 0.1 # Assume to be small initially
@@ -200,13 +200,18 @@ def propeller_design(prop_attributes):
     
     Power = Pc*rho*(V**3)*np.pi*(R**2)/2
     Cp    = Power/(rho*(n**3)*(D**5))
+    
+    # compute max thickness distribution using NACA 4 series eqn
+    t_max          = np.zeros(20)
+    for idx in range(20):
+        c_blade    = np.linspace(0,c[idx],20)          # local chord  
+        t          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
+        t_max[idx] = np.max(t)                       
 
-    prop_attributes.twist_distribution = beta
-    prop_attributes.chord_distribution = c
-    prop_attributes.Cp                 = Cp
-    prop_attributes.mid_chord_aligment = MCA
-    
-    #These are used to check, the values here were used to verify against
-    #AIAA 89-2048 for their propeller
-    
-    return prop_attributes
+    prop.max_thickness_distribution = t_max
+    prop.twist_distribution         = beta
+    prop.chord_distribution         = c
+    prop.Cp                         = Cp
+    prop.mid_chord_aligment         = MCA  
+   
+    return prop

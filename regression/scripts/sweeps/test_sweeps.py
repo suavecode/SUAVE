@@ -39,7 +39,7 @@ def main():
     outputs_carpet = variable_sweep(problem)
     
     #print outputs_carpet
-    truth_obj_carp  =  [[6686.79830704, 6650.74053198],[7031.47217287, 6542.08699857]] 
+    truth_obj_carp  =  [[6686.79830704, 6650.74053198],[7031.47217287, 6542.08699857]]
 
     max_err_carp    = np.max(np.abs(outputs_carpet['objective']-truth_obj_carp)/truth_obj_carp) 
     print(' max_err_carp = ',  max_err_carp)
