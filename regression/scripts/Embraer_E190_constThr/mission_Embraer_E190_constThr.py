@@ -70,12 +70,12 @@ def main():
     print_mission_breakdown(results,filename='mission_breakdown.dat')
 
     # load older results
-    #save_results(results)
+    # save_results(results)
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results)
-    plot_mission(old_results,'k-')
+    plot_mission(results, line_color = 'bo-')
+    plot_mission(old_results, line_color = 'k-')
     plt.show()
     
 
@@ -395,25 +395,25 @@ def mission_setup(analyses):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results):
+def plot_mission(results,line_color):
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results)
+    plot_flight_conditions(results,line_color)
     
     # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results)
+    plot_aerodynamic_forces(results,line_color)
     
     # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results)
+    plot_aerodynamic_coefficients(results,line_color)
     
     # Drag Components
-    plot_drag_components(results)
+    plot_drag_components(results,line_color)
     
     # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results)
+    plot_altitude_sfc_weight(results,line_color)
     
     # Plot Velocities 
-    plot_aircraft_velocities(results)  
+    plot_aircraft_velocities(results,line_color)  
 
     return
 

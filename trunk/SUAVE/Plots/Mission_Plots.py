@@ -10,7 +10,7 @@ from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_airfoil
 # ------------------------------------------------------------------
 #   Altitude, SFC & Weight
 # ------------------------------------------------------------------
-def plot_altitude_sfc_weight(results, save_figure = False, save_filename = "Altitude_SFC_Weight"):
+def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, save_filename = "Altitude_SFC_Weight"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
@@ -25,14 +25,14 @@ def plot_altitude_sfc_weight(results, save_figure = False, save_filename = "Alti
         sfc      = (mdot / Units.lb) / (thrust /Units.lbf) * Units.hr
 
         axes = fig.add_subplot(3,1,1)
-        axes.plot( time , altitude , 'bo-')
+        axes.plot( time , altitude , line_color)
         axes.set_ylabel('Altitude (ft)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)        
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , sfc , 'bo-' )
+        axes.plot( time , sfc , line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -54,7 +54,7 @@ def plot_altitude_sfc_weight(results, save_figure = False, save_filename = "Alti
 # ------------------------------------------------------------------
 #   Aircraft Velocities
 # ------------------------------------------------------------------
-def plot_aircraft_velocities(results, save_figure = False, save_filename = "Aircraft_Velocities"):
+def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Velocities"):
     axis_font = {'fontname':'Arial', 'size':'14'}  
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
@@ -71,14 +71,14 @@ def plot_aircraft_velocities(results, save_figure = False, save_filename = "Airc
         mach     = segment.conditions.freestream.mach_number[:,0]
 
         axes = fig.add_subplot(3,1,1)
-        axes.plot( time , velocity / Units.kts, 'bo-')
+        axes.plot( time , velocity / Units.kts, line_color)
         axes.set_ylabel('velocity (kts)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)        
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,2)
-        axes.plot( time , EAS / Units.kts, 'bo-')
+        axes.plot( time , EAS / Units.kts, line_color)
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Equivalent Airspeed',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -86,7 +86,7 @@ def plot_aircraft_velocities(results, save_figure = False, save_filename = "Airc
         axes.grid(True)    
         
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , mach , 'bo-')
+        axes.plot( time , mach , line_color)
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Mach',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -101,7 +101,7 @@ def plot_aircraft_velocities(results, save_figure = False, save_filename = "Airc
 # ------------------------------------------------------------------
 #   Disc and Power Loadings
 # ------------------------------------------------------------------
-def plot_disc_power_loading(results, save_figure = False, save_filename = "Disc_Power_Loading"):
+def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, save_filename = "Disc_Power_Loading"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
@@ -112,14 +112,14 @@ def plot_disc_power_loading(results, save_figure = False, save_filename = "Disc_
         PL    = results.segments[i].conditions.propulsion.power_loading   
    
         axes = fig.add_subplot(2,1,1)
-        axes.plot(time, DL, 'bo-')
+        axes.plot(time, DL, line_color)
         axes.set_ylabel('lift disc power lb/ft2',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)
         axes.grid(True)       
   
         axes = fig.add_subplot(2,1,2)
-        axes.plot(time, PL, 'bo-' )       
+        axes.plot(time, PL, line_color )       
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('lift power loading (lb/hp)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -135,7 +135,7 @@ def plot_disc_power_loading(results, save_figure = False, save_filename = "Disc_
 # ------------------------------------------------------------------
 #   Aerodynamic Coefficients
 # ------------------------------------------------------------------
-def plot_aerodynamic_coefficients(results, save_figure = False, save_filename = "Aerodynamic_Coefficients"):
+def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Coefficients"):
     axis_font = {'fontname':'Arial', 'size':'14'}  
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8)
@@ -148,21 +148,21 @@ def plot_aerodynamic_coefficients(results, save_figure = False, save_filename = 
         l_d  = cl/cd
 
         axes = fig.add_subplot(4,1,1)
-        axes.plot( time , aoa , 'bo-' )
+        axes.plot( time , aoa , line_color )
         axes.set_ylabel('Angle of Attack (deg)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False) 
         axes.grid(True)
 
         axes = fig.add_subplot(4,1,2)
-        axes.plot( time , cl, 'bo-' )
+        axes.plot( time , cl, line_color )
         axes.set_ylabel('CL',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False) 
         axes.grid(True)    
         
         axes = fig.add_subplot(4,1,3)
-        axes.plot( time , cd, 'bo-' )
+        axes.plot( time , cd, line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('CD',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -170,7 +170,7 @@ def plot_aerodynamic_coefficients(results, save_figure = False, save_filename = 
         axes.grid(True)    
         
         axes = fig.add_subplot(4,1,4)
-        axes.plot( time , l_d, 'bo-' )
+        axes.plot( time , l_d, line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('L/D',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -185,7 +185,7 @@ def plot_aerodynamic_coefficients(results, save_figure = False, save_filename = 
 # ------------------------------------------------------------------
 #   Aerodynamic Forces
 # ------------------------------------------------------------------
-def plot_aerodynamic_forces(results, save_figure = False, save_filename = "Aerodynamic_Forces"):
+def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Forces"):
     axis_font = {'fontname':'Arial', 'size':'14'}  
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8)
@@ -198,21 +198,21 @@ def plot_aerodynamic_forces(results, save_figure = False, save_filename = "Aerod
         eta    = segment.conditions.propulsion.throttle[:,0]
 
         axes = fig.add_subplot(2,2,1)
-        axes.plot( time , eta , 'bo-' )
+        axes.plot( time , eta , line_color )
         axes.set_ylabel('Throttle',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)         
         axes.grid(True)	 
 
         axes = fig.add_subplot(2,2,2)
-        axes.plot( time , Lift , 'bo-')
+        axes.plot( time , Lift , line_color)
         axes.set_ylabel('Lift (N)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)         
         axes.grid(True)
         
         axes = fig.add_subplot(2,2,1)
-        axes.plot( time , Thrust , 'bo-')
+        axes.plot( time , Thrust , line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -220,7 +220,7 @@ def plot_aerodynamic_forces(results, save_figure = False, save_filename = "Aerod
         axes.grid(True)
         
         axes = fig.add_subplot(2,2,4)
-        axes.plot( time , Drag , 'bo-')
+        axes.plot( time , Drag , line_color)
         axes.set_ylabel('Drag (N)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -237,7 +237,7 @@ def plot_aerodynamic_forces(results, save_figure = False, save_filename = "Aerod
 # ------------------------------------------------------------------
 #   Drag Components
 # ------------------------------------------------------------------
-def plot_drag_components(results, save_figure = False, save_filename = "Drag_Components"):
+def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_filename = "Drag_Components"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
     fig = plt.figure(save_filename,figsize=(8,10))
     axes = plt.gca()
@@ -252,7 +252,7 @@ def plot_drag_components(results, save_figure = False, save_filename = "Drag_Com
         cd  = drag_breakdown.total[:,0]
          
         axes.plot( time , cdp , 'ko-', label='CD parasite' )
-        axes.plot( time , cdi , 'bo-', label='CD induced' )
+        axes.plot( time , cdi , line_color, label='CD induced' )
         axes.plot( time , cdc , 'go-', label='CD compressibility' )
         axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
         axes.plot( time , cd  , 'ro-', label='CD total'   )
@@ -272,7 +272,7 @@ def plot_drag_components(results, save_figure = False, save_filename = "Drag_Com
 # ------------------------------------------------------------------
 #   Electronic Conditions
 # ------------------------------------------------------------------
-def plot_electronic_conditions(results, save_figure = False, save_filename = "Electronic_Conditions"):
+def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Electronic_Conditions"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8)
@@ -288,14 +288,14 @@ def plot_electronic_conditions(results, save_figure = False, save_filename = "El
         C_rating   = current/battery_amp_hr
         
         axes = fig.add_subplot(2,2,1)
-        axes.plot(time, power, 'bo-')
+        axes.plot(time, power, line_color)
         axes.set_ylabel('Battery Power (Watts)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)
         axes.grid(True)       
     
         axes = fig.add_subplot(2,2,2)
-        axes.plot(time, energy*0.000277778, 'bo-')
+        axes.plot(time, energy*0.000277778, line_color)
         axes.set_ylabel('Battery Energy (W-hr)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)      
@@ -311,7 +311,7 @@ def plot_electronic_conditions(results, save_figure = False, save_filename = "El
         axes.grid(True)         
         
         axes = fig.add_subplot(2,2,4)
-        axes.plot(time, C_rating, 'bo-')
+        axes.plot(time, C_rating, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('C-Rating (C)',axis_font)  
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -327,7 +327,7 @@ def plot_electronic_conditions(results, save_figure = False, save_filename = "El
 # ------------------------------------------------------------------
 #   Flight Conditions
 # ------------------------------------------------------------------
-def plot_flight_conditions(results, save_figure = False, save_filename = "Flight_Conditions"):
+def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Flight_Conditions"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8)
@@ -346,21 +346,21 @@ def plot_flight_conditions(results, save_figure = False, save_filename = "Flight
         altitude = segment.conditions.freestream.altitude[:,0]
         
         axes = fig.add_subplot(2,2,1)
-        axes.plot(time, altitude, 'bo-')
+        axes.plot(time, altitude, line_color)
         axes.set_ylabel('Altitude (m)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)         
         axes.grid(True)            
 
         axes = fig.add_subplot(2,2,2)
-        axes.plot( time , airspeed , 'bo-' )
+        axes.plot( time , airspeed , line_color )
         axes.set_ylabel('Airspeed (m/s)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False) 
         axes.grid(True)
 
         axes = fig.add_subplot(2,2,3)
-        axes.plot( time , theta, 'bo-' )
+        axes.plot( time , theta, line_color )
         axes.set_ylabel('Pitch Angle (deg)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -384,7 +384,7 @@ def plot_flight_conditions(results, save_figure = False, save_filename = "Flight
 # ------------------------------------------------------------------
 #   Propulsion Conditions
 # ------------------------------------------------------------------
-def plot_propulsor_conditions(results, save_figure = False, save_filename = "Propulsor"):
+def plot_propulsor_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propulsor"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8)  
@@ -399,21 +399,21 @@ def plot_propulsor_conditions(results, save_figure = False, save_filename = "Pro
         ts     = results.segments[i].conditions.propulsion.tip_speed[:,0]
         
         axes = fig.add_subplot(2,3,1)
-        axes.plot(time, rpm, 'bo-')
+        axes.plot(time, rpm, line_color)
         axes.set_ylabel('RPM',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)
         axes.grid(True)       
 
         axes = fig.add_subplot(2,3,2)
-        axes.plot(time, -thrust, 'bo-')
+        axes.plot(time, -thrust, line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)      
         axes.grid(True)   
 
         axes = fig.add_subplot(2,3,3)
-        axes.plot(time, torque, 'bo-' )
+        axes.plot(time, torque, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Torque (N-m)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -421,7 +421,7 @@ def plot_propulsor_conditions(results, save_figure = False, save_filename = "Pro
         axes.grid(True)   
         
         axes = fig.add_subplot(2,3,4)
-        axes.plot(time, effp, 'bo-' )
+        axes.plot(time, effp, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Propeller Efficiency (N-m)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -430,7 +430,7 @@ def plot_propulsor_conditions(results, save_figure = False, save_filename = "Pro
         plt.ylim((0,1))
         
         axes = fig.add_subplot(2,3,5)
-        axes.plot(time, effm, 'bo-' )
+        axes.plot(time, effm, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -438,7 +438,7 @@ def plot_propulsor_conditions(results, save_figure = False, save_filename = "Pro
         axes.grid(True)
         
         axes = fig.add_subplot(2,3,6)
-        axes.plot(time, ts, 'bo-' )
+        axes.plot(time, ts, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Tip Speed (ft/s)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -454,7 +454,7 @@ def plot_propulsor_conditions(results, save_figure = False, save_filename = "Pro
 # ------------------------------------------------------------------
 #   Stability Coefficients
 # ------------------------------------------------------------------
-def plot_stability_coefficients(results, save_figure = False, save_filename = "Stability_Coefficients"):
+def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Stability_Coefficients"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8)
@@ -466,21 +466,21 @@ def plot_stability_coefficients(results, save_figure = False, save_filename = "S
         aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
         
         axes = fig.add_subplot(2,2,1)
-        axes.plot( time , aoa, 'bo-' )
+        axes.plot( time , aoa, line_color )
         axes.set_ylabel(r'$AoA$',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False) 
         axes.grid(True)    
          
         axes = fig.add_subplot(2,2,2)
-        axes.plot( time , cm, 'bo-' )
+        axes.plot( time , cm, line_color )
         axes.set_ylabel(r'$C_M$',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False) 
         axes.grid(True)    
         
         axes = fig.add_subplot(2,2,3)
-        axes.plot( time , cm_alpha, 'bo-' )
+        axes.plot( time , cm_alpha, line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel(r'$C_M\alpha$',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -488,7 +488,7 @@ def plot_stability_coefficients(results, save_figure = False, save_filename = "S
         axes.grid(True)    
         
         axes = fig.add_subplot(2,2,4)
-        axes.plot( time , SM, 'bo-' )
+        axes.plot( time , SM, line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Static Margin (%)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -503,7 +503,7 @@ def plot_stability_coefficients(results, save_figure = False, save_filename = "S
 # ------------------------------------------------------------------    
 #   Solar Flux
 # ------------------------------------------------------------------
-def plot_solar_flux(results, save_figure = False, save_filename = "Solar_Flux"):
+def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filename = "Solar_Flux"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
     fig = plt.figure(save_filename) 
     for i in range(len(results.segments)):                 
@@ -513,21 +513,21 @@ def plot_solar_flux(results, save_figure = False, save_filename = "Solar_Flux"):
         energy = results.segments[i].conditions.propulsion.battery_energy[:,0] / Units.MJ
     
         axes = fig.add_subplot(3,1,1)
-        axes.plot( time , flux , 'bo-' )
+        axes.plot( time , flux , line_color )
         axes.set_ylabel('Solar Flux (W/m$^2$)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)               
         axes.grid(True)
     
         axes = fig.add_subplot(3,1,2)
-        axes.plot( time , charge , 'bo-' )
+        axes.plot( time , charge , line_color )
         axes.set_ylabel('Charging Power (W)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)               
         axes.grid(True)
     
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , energy , 'bo-' )
+        axes.plot( time , energy , line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Battery Energy (MJ)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -542,7 +542,7 @@ def plot_solar_flux(results, save_figure = False, save_filename = "Solar_Flux"):
 # ------------------------------------------------------------------
 #   Propeller Geoemtry 
 # ------------------------------------------------------------------
-def plot_propeller_geometry(prop, save_figure = False, save_filename = "Propeller_Geometry"):   
+def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Geometry"):   
     # unpack
     Rt     = prop.tip_radius          
     Rh     = prop.hub_radius          
@@ -615,7 +615,7 @@ def plot_propeller_geometry(prop, save_figure = False, save_filename = "Propelle
 # ------------------------------------------------------------------
 #   Propeller Performance
 # ------------------------------------------------------------------
-def plot_propeller_performance(noise, save_figure = False, save_filename = "Propeller_Performance"): 
+def plot_propeller_performance(noise, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Performance"): 
     axis_font = {'fontname':'Arial', 'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
@@ -624,7 +624,7 @@ def plot_propeller_performance(noise, save_figure = False, save_filename = "Prop
     r = noise.radius_distribution
            
     axes = fig.add_subplot(2,1,1)
-    axes.plot(r, T , 'bo-')
+    axes.plot(r, T , line_color)
     axes.set_ylabel('T (N)',axis_font)
     axes.set_xlabel('r (m)',axis_font)
     axes.get_yaxis().get_major_formatter().set_scientific(False)

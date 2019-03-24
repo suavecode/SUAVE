@@ -74,8 +74,8 @@ def main():
 
     # plt the old results
     # save_results(results)
-    plot_mission(results)
-    plot_mission(old_results,'k-')
+    plot_mission(results, line_color = 'bo-')
+    plot_mission(old_results, line_color = 'k-')
     plt.show()
     
     # check the results
@@ -186,25 +186,25 @@ def base_analysis(vehicle):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results):
+def plot_mission(results,line_color):
 
     # Plot Flight Conditions 
-    plot_flight_conditions(results,save_figure= True)
+    plot_flight_conditions(results,line_color, save_figure= True)
     
     # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results,save_figure= True)
+    plot_aerodynamic_forces(results,line_color, save_figure= True)
     
     # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results,save_figure= True)
+    plot_aerodynamic_coefficients(results,line_color, save_figure= True)
     
     # Drag Components
-    plot_drag_components(results,save_figure= True)
+    plot_drag_components(results,line_color, save_figure= True)
     
     # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results,save_figure= True)
+    plot_altitude_sfc_weight(results,line_color, save_figure= True)
     
     # Plot Velocities 
-    plot_aircraft_velocities(results,save_figure= True)  
+    plot_aircraft_velocities(results,line_color, save_figure= True)  
     return
 
 def simple_sizing(configs, analyses):
