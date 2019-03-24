@@ -12,7 +12,6 @@
 # package imports
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import compute_airfoil_polars
 from SUAVE.Core import Data
 import scipy.optimize as opt
 
@@ -63,6 +62,7 @@ class Propeller(Energy_Component):
         self.airfoil_sections         = None
         self.airfoil_section_location = None
         self.radius_distribution      = None
+        self.rotation                 = None
         self.ducted                   = False
         self.tag                      = 'Propeller'
         
@@ -163,44 +163,10 @@ class Propeller(Energy_Component):
         
         #Things that don't change with iteration
         N       = len(c) # Number of stations     
-        
-        if  a_sec != None and a_secl != None:
-            airfoil_polars = Data()
-            # check dimension of section  
-            dim_sec = len(a_secl)
-            if dim_sec != N:
-                raise AssertionError("Number of sections not equal to number of stations")
-            # compute airfoil polars for airfoils 
-            airfoil_data = compute_airfoil_polars(self,conditions, a_sec)
-            airfoil_cl     = airfoil_data.cl_polars 
-            airfoil_cd     = airfoil_data.cd_polars 
-            aoa_sweep      = airfoil_data.aoa_sweep 
-            
-            # test plot 
-            fig = plt.figure()         
-            axes = fig.add_subplot(1,2,1)
-            axes.plot(aoa_sweep, airfoil_cl[1,:],'b-')
-            axes.set_ylabel('Cl')
-            axes.set_xlabel('AoA (deg)')
-            axes.legend(loc='lower right') 
-            axes.grid(True)     
-        
-            axes = fig.add_subplot(1,2,2)
-            axes.plot(aoa_sweep , airfoil_cd[1,:],'b-')
-            axes.set_ylabel('Cd')
-            axes.set_xlabel('AoA (deg)')  
-            axes.grid(True)  
-            plt.show()
-            
-        
-        if self.radius_distribution is None:
-            chi0    = Rh/R   # Where the propeller blade actually starts
-            chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
-            chi     = chi[0:N]
-        
-        else:
-            chi = self.radius_distribution
-        
+
+        chi0    = Rh/R   # Where the propeller blade actually starts
+        chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
+        chi     = chi[0:N]
         
         lamda   = V/(omega*R)              # Speed ratio
         r       = chi*R                    # Radial coordinate
@@ -212,11 +178,9 @@ class Propeller(Energy_Component):
         sigma   = np.multiply(B*c,1./(2.*pi*r))
     
 
-        # Include externally-induced velocity at the disk for hover
-        if V.all() == 0:
-            ua = Vi
-        else:
-            ua = 0.0 
+        #I make the assumption that externally-induced velocity at the disk is zero
+        #This can be easily changed if needed in the future:
+        ua = 0.0
         ut = 0.0
         
         omegar = np.outer(omega,r)
@@ -238,7 +202,7 @@ class Propeller(Energy_Component):
             cos_psi = np.cos(psi)
             Wa      = 0.5*Ua + 0.5*U*sin_psi
             Wt      = 0.5*Ut + 0.5*U*cos_psi   
-            #va     = Wa - Ua
+            va     = Wa - Ua
             vt      = Ut - Wt
             alpha   = beta - np.arctan2(Wa,Wt)
             W       = (Wa*Wa + Wt*Wt)**0.5
@@ -258,26 +222,18 @@ class Propeller(Energy_Component):
             F            = 2.*arccos_piece/pi
             Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
             
-            if  a_sec != None and a_secl != None:
-                # Estimate Cl and Cd from AERODAS Prediction 
-                Cl = np.zeros(N+1)
-                Cd = np.zeros(N+1)
-                for section_no in range(N+1):
-                    Cl[section_no] = np.interp(alpha[section_no]  , aoa_sweep , airfoil_cl[a_secl[section_no],:])  
-                    Cd[section_no]  = np.interp(alpha[section_no] , aoa_sweep , airfoil_cd[a_secl[section_no],:])  
-            else:
-               # Estimate Cl max
-                Re         = (W*c)/nu 
-                Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-                Re_ref     = 9.*10**6      
-                Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
-                
-                # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-                Cl = 2.*pi*alpha
-                
-                # By 90 deg, it's totally stalled.
-                Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
-                Cl[alpha>=pi/2] = 0.
+            # Estimate Cl max
+            Re         = (W*c)/nu 
+            Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+            Re_ref     = 9.*10**6      
+            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+            
+            # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
+            Cl = 2.*pi*alpha
+            
+            # By 90 deg, it's totally stalled.
+            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
+            Cl[alpha>=pi/2] = 0.
                 
             # Scale for Mach, this is Karmen_Tsien
             Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
@@ -327,19 +283,18 @@ class Propeller(Energy_Component):
                 broke = True
                 break
         
-        if  a_sec == None and a_secl == None:
-            #There is also RE scaling
-            #This is an atrocious fit of DAE51 data at RE=50k for Cd
-            Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-            Cdval[alpha>=pi/2] = 2.
-            
-            #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
-            Tw_Tinf = 1. + 1.78*(Ma*Ma)
-            Tp_Tinf = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
-            Tp      = (Tp_Tinf)*T
-            Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
-            
-            Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 
+        #There is also RE scaling
+        #This is an atrocious fit of DAE51 data at RE=50k for Cd
+        Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        Cdval[alpha>=pi/2] = 2.
+        
+        #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
+        Tw_Tinf = 1. + 1.78*(Ma*Ma)
+        Tp_Tinf = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
+        Tp      = (Tp_Tinf)*T
+        Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
+        
+        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 
         
         epsilon  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
@@ -351,11 +306,8 @@ class Propeller(Energy_Component):
         D        = 2*R
         Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
         Ct       = thrust/(rho*(n*n)*(D*D*D*D))
-        Cq       = torque/(rho*(n*n)*(D*D*D*D*D))
-        
-        qs = 0.5 *rho * (Vv[0][0] + np.mean(np.sqrt(vt**2 + va**2)))**2
-        Cts      = thrust/(qs**np.pi*(R**2))
-   
+        Cq       = torque/(rho*(n*n)*(D*D*D*D*D))        
+  
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         

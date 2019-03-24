@@ -74,9 +74,9 @@ def empty(config,
 # Unpack Inputs
 #-------------------------------------------------------------------------------
 
-    rProp               = config.propulsors.network.propeller.tip_radius
-    mBattery            = config.propulsors.network.battery.mass_properties.mass
-    mPayload            = config.propulsors.network.payload.mass_properties.mass
+    rProp               = config.propulsors['propulsor'].propeller.tip_radius
+    mBattery            = config.propulsors['propulsor'].battery.mass_properties.mass
+    mPayload            = config.propulsors['propulsor'].payload.mass_properties.mass
     MTOW                = config.mass_properties.max_takeoff
     fLength             = config.fuselages.fuselage.lengths.total
     fWidth              = config.fuselages.fuselage.width
@@ -91,7 +91,7 @@ def empty(config,
     output.payload      = mPayload
     output.seats        = 30.
     output.avionics     = 15.
-    output.motors       = config.propulsors.network.number_of_engines * 20.
+    output.motors       = config.propulsors['propulsor'].number_of_engines * 20.
     output.battery      = mBattery
     output.servos       = 5.2
     output.brs          = 16.
@@ -122,9 +122,9 @@ def empty(config,
 
     # Component Weight Calculations
 
-    output.rotor         = prop(config.propulsors.network.propeller,
+    output.rotor         = prop(config.propulsors['propulsor'].propeller,
                                 maxThrust)
-    output.tail_rotor    = prop(config.propulsors.network.propeller,
+    output.tail_rotor    = prop(config.propulsors['propulsor'].propeller,
                                 1.5*maxTorque/(1.25*rProp))*0.2
     output.transmission  = maxPower * 1.5873e-4          # From NASA OH-58 Study
     output.fuselage      = fuselage(config)

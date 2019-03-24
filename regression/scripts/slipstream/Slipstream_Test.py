@@ -37,7 +37,7 @@ def main():
     
     # lift coefficient  
     lift_coefficient              = results.segments['cruise'].conditions.aerodynamics.lift_coefficient[8][0]
-    lift_coefficient_true         = 0.4170076061873582   
+    lift_coefficient_true         = 0.41634678242751144  
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -46,7 +46,7 @@ def main():
     
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments['cruise'].conditions.aerodynamics.lift_breakdown.inviscid_wings_lift_distribution['main_wing'][8][8]
-    sectional_lift_coeff_true       = 0.3710211615901644
+    sectional_lift_coeff_true       = 0.3693779006560589
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')

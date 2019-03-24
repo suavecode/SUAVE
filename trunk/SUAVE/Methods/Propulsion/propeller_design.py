@@ -51,8 +51,6 @@ def propeller_design(prop,N=20):
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
     Power  = prop.design_power
-    a_sec  = prop.airfoil_sections          
-    a_secl = prop.airfoil_section_location      
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -214,15 +212,6 @@ def propeller_design(prop,N=20):
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
     prop.Cp                         = Cp
-    prop.mid_chord_aligment         = MCA
-     
-    # compute airfoil sections if given
-    if  a_sec != None and a_secl != None:
-        airfoil_geometry = Data()
-        # check dimension of section  
-        dim_sec = len(a_secl)
-        if dim_sec != N:
-            raise AssertionError("Number of sections not equal to number of stations")
-        prop.airfoil_data = read_airfoil_geometry(a_sec)  
-    
+    prop.mid_chord_aligment         = MCA  
+   
     return prop
