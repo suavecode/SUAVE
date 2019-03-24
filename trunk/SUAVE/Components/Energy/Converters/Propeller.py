@@ -68,10 +68,13 @@ class Propeller(Energy_Component):
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
+        
         Assumptions:
         per source
+        
         Source:
         Qprop theory document
+        
         Inputs:
         self.inputs.omega            [radian/s]
         conditions.freestream.
@@ -84,6 +87,7 @@ class Propeller(Energy_Component):
           inertial.velocity_vector   [m/s]
         conditions.propulsion.
           throttle                   [-]
+          
         Outputs:
         conditions.propulsion.acoustic_outputs.
           number_sections            [-]
@@ -111,7 +115,7 @@ class Propeller(Energy_Component):
           twist_distribution         [radians]
           chord_distribution         [m]
           mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
-        self.thrust_angle            [radians]
+          thrust_angle               [radians]
         """         
            
         #Unpack    
@@ -120,10 +124,7 @@ class Propeller(Energy_Component):
         Rh     = self.hub_radius
         beta   = self.twist_distribution
         c      = self.chord_distribution
-        Vi     = self.induced_hover_velocity 
-        omega1 = self.inputs.omega
-        a_sec  = self.airfoil_sections        
-        a_secl = self.airfoil_section_location
+        omega1 = self.inputs.omega 
         rho    = conditions.freestream.density[:,0,None]
         mu     = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv     = conditions.frames.inertial.velocity_vector
@@ -177,7 +178,6 @@ class Propeller(Energy_Component):
         J       = V/(2.*R*n)    
         sigma   = np.multiply(B*c,1./(2.*pi*r))
     
-
         #I make the assumption that externally-induced velocity at the disk is zero
         #This can be easily changed if needed in the future:
         ua = 0.0
