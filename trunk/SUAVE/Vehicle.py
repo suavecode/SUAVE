@@ -298,6 +298,7 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.zero_fuel_center_of_gravity = np.array([0.0,0.0,0.0])
 
         self.max_per_vehicle     = 1
+        self.PGM_special_parent  = None
         self.PGM_characteristics = ['max_takeoff','max_zero_fuel']
         self.PGM_compulsory      = True
         self.PGM_char_min_bounds = [0,0]   

@@ -124,8 +124,7 @@ class Property(object):
 ## @ingroup Core
 class DataOrdered(OrderedDict):
     """ An extension of the Python dict which allows for both tag and '.' usage.
-        This is an unordered dictionary. So indexing it will not produce deterministic results.
-        This has less overhead than ordering. If ordering is needed use DataOrdered().
+        This is an ordered dictionary. So indexing it will produce deterministic results.
        
         Assumptions:
         N/A
@@ -203,7 +202,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """          
-        if not isinstance(k,int):
+        if not (isinstance(k,int) or isinstance(k,np.int64)):
             return super(DataOrdered,self).__getattribute__(k)
         else:
             return super(DataOrdered,self).__getattribute__(self.keys()[k])
@@ -251,7 +250,7 @@ class DataOrdered(OrderedDict):
     
     def hasattr(self,k):
         try:
-            elf.__getitem__(k)
+            self.__getitem__(k)
             return True
         except:
             return False
@@ -374,26 +373,6 @@ class DataOrdered(OrderedDict):
         args += self.__str2(indent)
         
         return args
-        
-    def __repr__(self):
-        """ This function is used for printing the dataname of the class
-    
-            Assumptions:
-            N/A
-    
-            Source:
-            N/A
-    
-            Inputs:
-            N/A
-    
-            Outputs:
-            N/A
-    
-            Properties Used:
-            N/A    
-        """            
-        return self.dataname()
     
     def get_bases(self):
         """ Finds the higher classes that may be built off of data
@@ -691,8 +670,8 @@ class DataOrdered(OrderedDict):
             N/A
     
             Inputs:
-            k        [key]
-            v        [value]
+            key        [key]
+            value        [value]
     
             Outputs:
             N/A

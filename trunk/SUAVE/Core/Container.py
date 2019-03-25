@@ -90,6 +90,13 @@ class Container(Data):
             N/A
         """           
         
+        # See if the item tag exists, if it does modify the name
+        keys = self.keys()
+        if str.lower(val.tag) in keys:
+            string_of_keys = "".join(self.keys())
+            n_comps = string_of_keys.count(val.tag)
+            val.tag = val.tag + str(n_comps+1)        
+        
         Data.append(self,val)
         
     def extend(self,vals):

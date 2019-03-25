@@ -64,7 +64,7 @@ def wing_segmented_planform(wing):
     dihedrals = []
     chords    = []
     t_cs      = []
-    for key in wing.Segments:
+    for key in wing.Segments.keys():
         seg = wing.Segments[key]
         span_locs.append(seg.percent_span_location)
         twists.append(seg.twist)

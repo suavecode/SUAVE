@@ -11,6 +11,7 @@ import SUAVE
 from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties
 from SUAVE.Components.Wings.Control_Surface import Control_Surface 
+import SUAVE.Components.Wings.Main_Wing as Main_Wing
 
 import numpy as np
 # ------------------------------------------------------------ 
@@ -42,6 +43,7 @@ class Segment(Lofted_Body.Segment):
         self.twist                 = 0.0
         self.root_chord_percent    = 0.0
         self.dihedral_outboard     = 0.0
+        self.thickness_to_chord    = 0.0
         self.sweeps                = Data()
         self.sweeps.quarter_chord  = 0.0
         self.sweeps.leading_edge   = 0.0
@@ -50,10 +52,12 @@ class Segment(Lofted_Body.Segment):
         self.areas.exposed         = 0.0
         self.areas.wetted          = 0.0
         self.Airfoil               = SUAVE.Core.ContainerOrdered()
-        self.PGM_compulsory         = False
-        self.PGM_characteristics    = ['percent_span_location','twist','root_chord_percent','dihedral_outboard','sweeps.quarter_chord']
-        self.PGM_char_min_bounds    = [0.,-np.pi,0.,-np.pi,-np.pi]   
-        self.PGM_char_max_bounds    = [1.,np.pi,np.inf,np.pi,np.pi]        
+        self.PGM_compulsory        = False
+        self.max_per_vehicle       = 10
+        self.PGM_special_parent    = Main_Wing.Main_Wing
+        self.PGM_characteristics   = ['percent_span_location','twist','root_chord_percent','dihedral_outboard','sweeps.quarter_chord','thickness_to_chord']
+        self.PGM_char_min_bounds   = [0.,-np.pi,0.,-np.pi,-np.pi,0.0001]   
+        self.PGM_char_max_bounds   = [1.,np.pi,np.inf,np.pi,np.pi,1.]        
         
         self.control_surfaces      = Data()  
         
@@ -109,43 +113,43 @@ class Segment(Lofted_Body.Segment):
         return    
         
 
-## @ingroup Components-Wings
-class Segment_Container(ContainerOrdered):
-    """ Container for wing segment
+### @ingroup Components-Wings
+#class Segment_Container(ContainerOrdered):
+    #""" Container for wing segment
     
-    Assumptions:
-    None
+    #Assumptions:
+    #None
 
-    Source:
-    N/A
+    #Source:
+    #N/A
 
-    Inputs:
-    None
+    #Inputs:
+    #None
 
-    Outputs:
-    None
+    #Outputs:
+    #None
 
-    Properties Used:
-    N/A
-    """     
+    #Properties Used:
+    #N/A
+    #"""     
 
-    def get_children(self):
-        """ Returns the components that can go inside
+    #def get_children(self):
+        #""" Returns the components that can go inside
         
-        Assumptions:
-        None
+        #Assumptions:
+        #None
     
-        Source:
-        N/A
+        #Source:
+        #N/A
     
-        Inputs:
-        None
+        #Inputs:
+        #None
     
-        Outputs:
-        None
+        #Outputs:
+        #None
     
-        Properties Used:
-        N/A
-        """       
+        #Properties Used:
+        #N/A
+        #"""       
         
-        return []
+        #return []

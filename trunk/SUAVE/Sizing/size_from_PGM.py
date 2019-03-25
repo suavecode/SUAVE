@@ -21,7 +21,8 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Planform.rescale_non_dimensional imp
 from SUAVE.Methods.Propulsion import turbofan_sizing
 from SUAVE.Methods.Propulsion import turbojet_sizing
 
-from SUAVE.Components.Wings.Main_Wing import Main_Wing
+from SUAVE.Components.Wings.Main_Wing import Main_Wing, Segment_Container
+from SUAVE.Components.Wings.Segment import Segment
 
 # ----------------------------------------------------------------------
 #  Size from PGM
@@ -76,7 +77,13 @@ def size_from_PGM(vehicle):
                 
                 # Use existing scripts
                 if len(wing.Segments)>0:
+                        
+                        # Need to fix segments here. Make sure there's a tip and a root and order them sequentially
+                        wing = fix_wing_segments(wing)
+                        
+                        # Size the wing
                         wing = wing_segmented_planform(wing)
+                        
                 else:
                         wing = wing_planform(wing)
                         
@@ -556,3 +563,80 @@ def size_from_PGM(vehicle):
         
     
         return vehicle
+
+
+def fix_wing_segments(wing):
+        
+        # Unpack:
+        segs = wing.Segments
+                
+        
+        # Reorder the segments: make a new container.
+        new_container = Segment_Container()
+        
+        # Loop over and pull out the locations
+        spanwise_locs = []
+        for key,seg in segs.items():
+                spanwise_locs.append(seg.percent_span_location)
+        
+        # The indices that would sort the segs
+        indices = np.argsort(spanwise_locs)
+        
+
+        # Extrapolate to root and tip, if not at 0 and 1
+        if spanwise_locs[indices[0]]!=0.:
+                # Need a root
+                seg_0 = Segment()
+                
+                # See if Extrapolation is even possible:
+                if len(segs)==1:
+                
+                        seg_0.twist = segs[indices[0]].twist
+                        seg_0.root_chord_percent = segs[indices[0]].root_chord_percent
+                        seg_0.dihedral_outboard = segs[indices[0]].dihedral_outboard 
+                        seg_0.sweeps.quarter_chord = segs[indices[0]].sweeps.quarter_chord
+                        seg_0.thickness_to_chord = segs[indices[0]].thickness_to_chord
+                else:
+                        delta_span = spanwise_locs[indices[1]]-spanwise_locs[indices[0]]
+                        
+                        # Extrapolate linearly: twist, root chord percent, dihedral, sweeps.quarter_chord, thickness_to_chord
+                        seg_0.twist = segs[indices[0]].twist - segs[indices[0]].percent_span_location*(segs[indices[1]].twist-segs[indices[0]].twist)/delta_span
+                        seg_0.root_chord_percent = segs[indices[0]].root_chord_percent - \
+                                segs[indices[0]].percent_span_location*(segs[indices[1]].root_chord_percent-segs[indices[0]].root_chord_percent)/delta_span
+                        seg_0.dihedral_outboard = segs[indices[0]].dihedral_outboard - \
+                                segs[indices[0]].percent_span_location*(segs[indices[1]].dihedral_outboard-segs[indices[0]].dihedral_outboard)/delta_span
+                        seg_0.sweeps.quarter_chord = segs[indices[0]].sweeps.quarter_chord -\
+                                segs[indices[0]].percent_span_location*(segs[indices[1]].sweeps.quarter_chord-segs[indices[0]].sweeps.quarter_chord)/delta_span
+                        seg_0.thickness_to_chord = segs[indices[0]].thickness_to_chord - \
+                                segs[indices[0]].percent_span_location*(segs[indices[1]].thickness_to_chord-segs[indices[0]].thickness_to_chord)/delta_span
+                
+                new_container.append(seg_0)
+                
+        for ind in indices:
+                new_container.append(segs[ind])
+                
+        if spanwise_locs[indices[-1]]!=1.:
+                # Need a tip
+                seg_m1 = Segment()
+                delta_span = spanwise_locs[indices[-1]]-spanwise_locs[indices[-2]]
+                
+                seg_m1.percent_span_location = 1.0
+                seg_m1.twist = segs[indices[-1]].twist + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].twist-segs[indices[-2]].twist)/delta_span
+                seg_m1.root_chord_percent = segs[indices[-1]].root_chord_percent + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].root_chord_percent-\
+                                                                                 segs[indices[-2]].root_chord_percent)/delta_span
+                seg_m1.dihedral_outboard = segs[indices[-1]].dihedral_outboard + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].dihedral_outboard-\
+                                                                                 segs[indices[-2]].dihedral_outboard)/delta_span
+                seg_m1.sweeps.quarter_chord = segs[indices[-1]].sweeps.quarter_chord + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].sweeps.quarter_chord-\
+                                                                                 segs[indices[-2]].sweeps.quarter_chord)/delta_span
+                seg_m1.thickness_to_chord = segs[indices[-1]].thickness_to_chord + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].thickness_to_chord-\
+                                                                                 segs[indices[-2]].thickness_to_chord)/delta_span
+                
+                new_container.append(seg_m1)
+                
+                
+                
+        
+        # Change the container out
+        wing.Segments = new_container
+        
+        return wing
