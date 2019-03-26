@@ -17,13 +17,12 @@ from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_airfoil
 #  Propeller Design
 # ----------------------------------------------------------------------
     
-
 def propeller_design(prop,N=20):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
           Either design power or thrust
-          
+          prop_attributes.
             hub radius                       [m]
             tip radius                       [m]
             rotation rate                    [rad/s]
@@ -32,14 +31,12 @@ def propeller_design(prop,N=20):
             number of stations
             design lift coefficient
             airfoil data                     
-
           Outputs:
           Twist distribution                 [array of radians]
           Chord distribution                 [array of meters]
               
           Assumptions/ Source:
           Based on Design of Optimum Propellers by Adkins and Liebeck
-
     """    
     # Unpack
     B      = prop.number_blades
@@ -51,6 +48,8 @@ def propeller_design(prop,N=20):
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
     Power  = prop.design_power
+    a_sec  = prop.airfoil_sections          
+    a_secl = prop.airfoil_section_location      
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -212,6 +211,15 @@ def propeller_design(prop,N=20):
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
     prop.Cp                         = Cp
-    prop.mid_chord_aligment         = MCA  
-   
+    prop.mid_chord_aligment         = MCA
+     
+    # compute airfoil sections if given
+    if  a_sec != None and a_secl != None:
+        airfoil_geometry = Data()
+        # check dimension of section  
+        dim_sec = len(a_secl)
+        if dim_sec != N:
+            raise AssertionError("Number of sections not equal to number of stations")
+        prop.airfoil_data = read_airfoil_geometry(a_sec)  
+    
     return prop
