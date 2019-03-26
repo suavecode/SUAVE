@@ -86,9 +86,7 @@ def size_from_PGM(vehicle):
                         
                 else:
                         wing = wing_planform(wing)
-                        
-               
-                
+          
                 # Get the max area
                 if isinstance(wing,Main_Wing):
                         max_area += wing.areas.reference
@@ -618,18 +616,30 @@ def fix_wing_segments(wing):
         if spanwise_locs[indices[-1]]!=1.:
                 # Need a tip
                 seg_m1 = Segment()
-                delta_span = spanwise_locs[indices[-1]]-spanwise_locs[indices[-2]]
                 
-                seg_m1.percent_span_location = 1.0
-                seg_m1.twist = segs[indices[-1]].twist + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].twist-segs[indices[-2]].twist)/delta_span
-                seg_m1.root_chord_percent = segs[indices[-1]].root_chord_percent + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].root_chord_percent-\
-                                                                                 segs[indices[-2]].root_chord_percent)/delta_span
-                seg_m1.dihedral_outboard = segs[indices[-1]].dihedral_outboard + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].dihedral_outboard-\
-                                                                                 segs[indices[-2]].dihedral_outboard)/delta_span
-                seg_m1.sweeps.quarter_chord = segs[indices[-1]].sweeps.quarter_chord + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].sweeps.quarter_chord-\
-                                                                                 segs[indices[-2]].sweeps.quarter_chord)/delta_span
-                seg_m1.thickness_to_chord = segs[indices[-1]].thickness_to_chord + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].thickness_to_chord-\
-                                                                                 segs[indices[-2]].thickness_to_chord)/delta_span
+                # See if Extrapolation is even possible:
+                if len(segs)==1:
+                        
+                        seg_m1.percent_span_location = 1.0
+                        seg_m1.twist = segs[indices[0]].twist
+                        seg_m1.root_chord_percent = segs[indices[0]].root_chord_percent
+                        seg_m1.dihedral_outboard = segs[indices[0]].dihedral_outboard 
+                        seg_m1.sweeps.quarter_chord = segs[indices[0]].sweeps.quarter_chord
+                        seg_m1.thickness_to_chord = segs[indices[0]].thickness_to_chord
+                else:                
+
+                        delta_span = spanwise_locs[indices[-1]]-spanwise_locs[indices[-2]]
+                        
+                        seg_m1.percent_span_location = 1.0
+                        seg_m1.twist = segs[indices[-1]].twist + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].twist-segs[indices[-2]].twist)/delta_span
+                        seg_m1.root_chord_percent = segs[indices[-1]].root_chord_percent + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].root_chord_percent-\
+                                                                                         segs[indices[-2]].root_chord_percent)/delta_span
+                        seg_m1.dihedral_outboard = segs[indices[-1]].dihedral_outboard + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].dihedral_outboard-\
+                                                                                         segs[indices[-2]].dihedral_outboard)/delta_span
+                        seg_m1.sweeps.quarter_chord = segs[indices[-1]].sweeps.quarter_chord + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].sweeps.quarter_chord-\
+                                                                                         segs[indices[-2]].sweeps.quarter_chord)/delta_span
+                        seg_m1.thickness_to_chord = segs[indices[-1]].thickness_to_chord + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].thickness_to_chord-\
+                                                                                         segs[indices[-2]].thickness_to_chord)/delta_span
                 
                 new_container.append(seg_m1)
                 

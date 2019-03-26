@@ -52,7 +52,7 @@ class Segment(Lofted_Body.Segment):
         self.areas.exposed         = 0.0
         self.areas.wetted          = 0.0
         self.Airfoil               = SUAVE.Core.ContainerOrdered()
-        self.PGM_compulsory        = False
+        self.PGM_compulsory        = True
         self.max_per_vehicle       = 10
         self.PGM_special_parent    = Main_Wing.Main_Wing
         self.PGM_characteristics   = ['percent_span_location','twist','root_chord_percent','dihedral_outboard','sweeps.quarter_chord','thickness_to_chord']
