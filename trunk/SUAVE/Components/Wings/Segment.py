@@ -56,8 +56,8 @@ class Segment(Lofted_Body.Segment):
         self.max_per_vehicle       = 10
         self.PGM_special_parent    = Main_Wing.Main_Wing
         self.PGM_characteristics   = ['percent_span_location','twist','root_chord_percent','dihedral_outboard','sweeps.quarter_chord','thickness_to_chord']
-        self.PGM_char_min_bounds   = [0.,-np.pi,0.,-np.pi,-np.pi,0.0001]   
-        self.PGM_char_max_bounds   = [1.,np.pi,np.inf,np.pi,np.pi,1.]        
+        self.PGM_char_min_bounds   = [0.,-np.pi/2,0.,-np.pi/2,-np.pi/2,0.0001]   
+        self.PGM_char_max_bounds   = [1.,np.pi/2,np.inf,np.pi/2,np.pi/2,1.]        
         
         self.control_surfaces      = Data()  
         
