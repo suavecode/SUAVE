@@ -82,7 +82,7 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.filenames.log_filename = sys.stdout
         self.settings.filenames.err_filename = sys.stderr        
         self.settings.spanwise_vortices      = None 
-        self.settings.chordwise_vortices     = None         
+        self.settings.chordwise_vortices     = None
         
         # Conditions table, used for surrogate model training
         self.training                        = Data()   
@@ -197,10 +197,10 @@ class AVL_Inviscid(Aerodynamics):
         conditions.aerodynamics.lift_coefficient                   = inviscid_lift
         conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
         
-        # Store inviscid drag results  
-        ar            = geometry.wings['main_wing'].aspect_ratio
-        conditions.aerodynamics.inviscid_drag_coefficient          = inviscid_drag
-        conditions.aerodynamics.drag_breakdown.induced = Data(
+        # Store inviscid drag results
+        ar                                                      = geometry.wings['main_wing'].aspect_ratio
+        state.conditions.aerodynamics.inviscid_drag_coefficient = inviscid_drag
+        state.conditions.aerodynamics.drag_breakdown.induced    = Data(
             total                  = inviscid_drag   ,
             span_efficiency_factor = span_efficiency ,
         )        

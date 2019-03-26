@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Networks
-# Lift_Forward_propulsor.py
+# Stopped_Rotor.py
 # 
 # Created: Jan 2016, E. Botero
 # Modified: 
@@ -21,7 +21,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Lift_Forward_Propulsor(Propulsor):
+class Stopped_Rotor(Propulsor):
     """ This is a complex version of battery_propeller with a battery powering propellers through
         electric motors. In this case we have 2 sets of motors at different motors that can be controlled seperately
         
@@ -129,23 +129,23 @@ class Lift_Forward_Propulsor(Propulsor):
         num_lift          = self.number_of_engines_lift
         num_forward       = self.number_of_engines_forward
         
-        ###
-        # Setup batteries and ESC's
-        ###
+        ##
+        # SETUP BATTERIES AND ESC's
+        ##
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy    
         
-        volts = state.unknowns.battery_voltage_under_load   
+        volts = state.unknowns.battery_voltage_under_load
         volts[volts>self.voltage] = self.voltage
         
         # ESC Voltage
         esc_lift.inputs.voltagein    = volts      
         esc_forward.inputs.voltagein = volts 
         
-        ###
-        # Evaluate thrust from the forward propulsors
-        ###
+        ##
+        # EVALUATE THRUST FROM FORWARD PROPULSORS 
+        ##
         
         # Throttle the voltage
         esc_forward.voltageout(conditions)       
@@ -159,7 +159,7 @@ class Lift_Forward_Propulsor(Propulsor):
         propeller_forward.thrust_angle = self.thrust_angle_forward   
         
         # Run the propeller
-        F_forward, Q_forward, P_forward, Cp_forward = propeller_forward.spin(conditions)
+        F_forward, Q_forward, P_forward, Cp_forward , outputs , etap = propeller_forward.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -167,16 +167,16 @@ class Lift_Forward_Propulsor(Propulsor):
         F_forward[eta>1.0] = F_forward[eta>1.0]*eta[eta>1.0]        
         
         # Run the motor for current
-        motor_forward.current(conditions)  
+        motor_forward.current(conditions)
         # link
-        esc_forward.inputs.currentout =  motor_forward.outputs.current     
+        esc_forward.inputs.currentout =  motor_forward.outputs.current
         
         # Run the esc
         esc_forward.currentin(conditions)        
        
-        ###
-        # Evaluate thrust from the lift propulsors
-        ###
+        ##
+        # EVALUATE THRUST FROM LIFT PROPULSORS 
+        ##
         
         # Make a new set of konditions, since there are differences for the esc and motor
         konditions                 = Data()
@@ -185,7 +185,8 @@ class Lift_Forward_Propulsor(Propulsor):
         konditions.frames          = Data()
         konditions.frames.inertial = Data()
         konditions.frames.body     = Data()
-        konditions.propulsion.throttle                    = conditions.propulsion.lift_throttle * 1.
+        konditions.propulsion.outputs = Data()                
+        konditions.propulsion.throttle                    = conditions.propulsion.throttle_lift* 1.
         konditions.propulsion.propeller_power_coefficient = conditions.propulsion.propeller_power_coefficient_lift * 1.
         konditions.freestream.density                     = conditions.freestream.density * 1.
         konditions.freestream.velocity                    = conditions.freestream.velocity * 1.
@@ -194,7 +195,7 @@ class Lift_Forward_Propulsor(Propulsor):
         konditions.freestream.temperature                 = conditions.freestream.temperature * 1.
         konditions.frames.inertial.velocity_vector        = conditions.frames.inertial.velocity_vector *1.
         konditions.frames.body.transform_to_inertial      = conditions.frames.body.transform_to_inertial
-        
+
         # Throttle the voltage
         esc_lift.voltageout(konditions)       
         # link
@@ -207,24 +208,24 @@ class Lift_Forward_Propulsor(Propulsor):
         propeller_lift.thrust_angle = self.thrust_angle_lift
         
         # Run the propeller
-        F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin(konditions)
+        F_lift, Q_lift, P_lift, Cp_lift , outputs , etap= propeller_lift.spin(konditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-        eta = state.conditions.propulsion.lift_throttle
+        eta = state.conditions.propulsion.throttle_lift
         P_lift[eta>1.0] = P_lift[eta>1.0]*eta[eta>1.0]
         F_lift[eta>1.0] = F_lift[eta>1.0]*eta[eta>1.0]        
         
         # Run the motor for current
-        motor_lift.current(conditions)  
+        motor_lift.current(conditions)
         # link
         esc_lift.inputs.currentout =  motor_lift.outputs.current     
         
         # Run the esc
         esc_lift.currentin(konditions)          
         
-        ###
-        # Combine the thrusts and powers
-        ###
+        ##
+        # COMBINE THRUST AND POWER
+        ##
         
         # Run the avionics
         avionics.power()
@@ -236,14 +237,14 @@ class Lift_Forward_Propulsor(Propulsor):
         avionics_payload_power = avionics.outputs.power + payload.outputs.power
     
         # Calculate avionics and payload current
-        i_avionics_payload = avionics_payload_power/state.unknowns.battery_voltage_under_load    
+        i_avionics_payload = avionics_payload_power/state.unknowns.battery_voltage_under_load
         
         # Add up the power usages
         i_lift    = esc_lift.outputs.currentin*num_lift 
         i_forward = esc_forward.outputs.currentin*num_forward
         
         current_total = i_lift + i_forward + i_avionics_payload
-        power_total   = current_total * state.unknowns.battery_voltage_under_load  
+        power_total   = current_total * state.unknowns.battery_voltage_under_load
         
         battery.inputs.current  = current_total
         battery.inputs.power_in = - power_total
@@ -257,16 +258,16 @@ class Lift_Forward_Propulsor(Propulsor):
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load    
+        voltage_under_load   = battery.voltage_under_load
     
         conditions.propulsion.rpm_lift                 = rpm_lift
         conditions.propulsion.rpm_forward              = rpm_forward
-        conditions.propulsion.current_lift             = i_lift 
-        conditions.propulsion.current_forward          = i_forward 
+        conditions.propulsion.current_lift             = i_lift
+        conditions.propulsion.current_forward          = i_forward
         conditions.propulsion.motor_torque_lift        = motor_lift.outputs.torque
         conditions.propulsion.motor_torque_forward     = motor_forward.outputs.torque
-        conditions.propulsion.propeller_torque_lift    = Q_lift   
-        conditions.propulsion.propeller_torque_forward = Q_forward       
+        conditions.propulsion.propeller_torque_lift    = Q_lift
+        conditions.propulsion.propeller_torque_forward = Q_forward
           
         conditions.propulsion.battery_draw             = battery_draw
         conditions.propulsion.battery_energy           = battery_energy
@@ -276,7 +277,7 @@ class Lift_Forward_Propulsor(Propulsor):
         # Calculate the thrust and mdot
         F_lift_total    = F_lift*num_lift * [np.cos(self.thrust_angle_lift),0,-np.sin(self.thrust_angle_lift)]    
         F_forward_total = F_forward*num_forward * [np.cos(self.thrust_angle_forward),0,-np.sin(self.thrust_angle_forward)] 
-       
+
         F_total = F_lift_total + F_forward_total
         mdot    = np.zeros_like(F_total)
         
@@ -286,7 +287,7 @@ class Lift_Forward_Propulsor(Propulsor):
         
         return results
     
-    def unpack_unknowns(self,segment):
+    def unpack_unknowns_transition(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
             This uses all the motors.
     
@@ -297,15 +298,17 @@ class Lift_Forward_Propulsor(Propulsor):
             N/A
     
             Inputs:
+            state.unknowns.propeller_power_coefficient_lift[None]
             state.unknowns.propeller_power_coefficient [None]
             state.unknowns.battery_voltage_under_load  [volts]
-            state.unknowns.lift_throttle               [0-1]
+            state.unknowns.throttle_lift              [0-1]
             state.unknowns.throttle                    [0-1]
     
             Outputs:
+            state.conditions.propulsion.propeller_power_coefficient_lift [None]
             state.conditions.propulsion.propeller_power_coefficient [None]
             state.conditions.propulsion.battery_voltage_under_load  [volts]
-            state.conditions.propulsion.lift_throttle               [0-1]
+            state.conditions.propulsion.throttle_lift              [0-1]
             state.conditions.propulsion.throttle                    [0-1]
     
             Properties Used:
@@ -313,11 +316,11 @@ class Lift_Forward_Propulsor(Propulsor):
         """          
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.lift_throttle                    = segment.state.unknowns.lift_throttle
-        segment.state.conditions.propulsion.battery_voltage_under_load       = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.propeller_power_coefficient      = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.propeller_power_coefficient_lift = segment.state.unknowns.propeller_power_coefficient_lift
-        segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle
+        segment.state.conditions.propulsion.battery_voltage_under_load            = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.propeller_power_coefficient_lift      = segment.state.unknowns.propeller_power_coefficient_lift
+        segment.state.conditions.propulsion.propeller_power_coefficient           = segment.state.unknowns.propeller_power_coefficient   
+        segment.state.conditions.propulsion.throttle_lift                         = segment.state.unknowns.throttle_lift        
+        segment.state.conditions.propulsion.throttle                              = segment.state.unknowns.throttle
         
         return
     
@@ -335,13 +338,13 @@ class Lift_Forward_Propulsor(Propulsor):
             Inputs:
             state.unknowns.propeller_power_coefficient [None]
             state.unknowns.battery_voltage_under_load  [volts]
-            state.unknowns.lift_throttle               [0-1]
+            state.unknowns.throttle_lift              [0-1]
             state.unknowns.throttle                    [0-1]
     
             Outputs:
             state.conditions.propulsion.propeller_power_coefficient [None]
             state.conditions.propulsion.battery_voltage_under_load  [volts]
-            state.conditions.propulsion.lift_throttle               [0-1]
+            state.conditions.propulsion.throttle_lift              [0-1]
             state.conditions.propulsion.throttle                    [0-1]
     
             Properties Used:
@@ -351,11 +354,11 @@ class Lift_Forward_Propulsor(Propulsor):
         ones = segment.state.ones_row
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.lift_throttle                    = 0.0 * ones(1)
-        segment.state.conditions.propulsion.battery_voltage_under_load       = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.propeller_power_coefficient      = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.propeller_power_coefficient_lift = 0.0 * ones(1)
-        segment.state.conditions.propulsion.throttle                         = segment.state.unknowns.throttle
+        segment.state.conditions.propulsion.throttle_lift                       = 0.0 * ones(1)
+        segment.state.conditions.propulsion.battery_voltage_under_load          = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient_lift    = 0.0 * ones(1)
+        segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
         
         return    
     
@@ -372,14 +375,14 @@ class Lift_Forward_Propulsor(Propulsor):
             Inputs:
             state.unknowns.propeller_power_coefficient [None]
             state.unknowns.battery_voltage_under_load  [volts]
-            state.unknowns.lift_throttle               [0-1]
-            state.unknowns.throttle                    [0-1]
+            state.unknowns.throttle_lift              [0-1]
+            state.unknowns.throttle            [0-1]
     
             Outputs:
             state.conditions.propulsion.propeller_power_coefficient [None]
             state.conditions.propulsion.battery_voltage_under_load  [volts]
-            state.conditions.propulsion.lift_throttle               [0-1]
-            state.conditions.propulsion.throttle                    [0-1]
+            state.conditions.propulsion.throttle_lift              [0-1]
+            state.conditions.propulsion.throttle            [0-1]
     
             Properties Used:
             N/A
@@ -388,16 +391,15 @@ class Lift_Forward_Propulsor(Propulsor):
         ones = segment.state.ones_row
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.lift_throttle                    = segment.state.unknowns.lift_throttle
-        segment.state.conditions.propulsion.battery_voltage_under_load       = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.propeller_power_coefficient      = 0.0 * ones(1)
-        segment.state.conditions.propulsion.propeller_power_coefficient_lift = segment.state.unknowns.propeller_power_coefficient_lift
-        segment.state.conditions.propulsion.throttle                         = 0.0 * ones(1)
+        segment.state.conditions.propulsion.throttle_lift                        = segment.state.unknowns.throttle_lift
+        segment.state.conditions.propulsion.battery_voltage_under_load           = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.propeller_power_coefficient  = 0.0 * ones(1)
+        segment.state.conditions.propulsion.propeller_power_coefficient_lift     = segment.state.unknowns.propeller_power_coefficient_lift
+        segment.state.conditions.propulsion.throttle                     = 0.0 * ones(1)
         
         return    
     
-    
-    def residuals(self,segment):
+    def residuals_transition(self,segment):
         """ This packs the residuals to be send to the mission solver.
             Use this if all motors are operational
     
@@ -476,8 +478,8 @@ class Lift_Forward_Propulsor(Propulsor):
         v_max           = self.voltage        
         
         # Return the residuals
-        state.residuals.network[:,0] = q_motor_forward[:,0] - q_prop_forward[:,0]
-        state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max  
+        segment.state.residuals.network[:,0] = q_motor_forward[:,0] - q_prop_forward[:,0]
+        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max  
         
         return    
     
@@ -510,7 +512,7 @@ class Lift_Forward_Propulsor(Propulsor):
         # Here we are going to pack the residuals (torque,voltage) from the network
         q_motor_lift    = segment.state.conditions.propulsion.motor_torque_lift
         q_prop_lift     = segment.state.conditions.propulsion.propeller_torque_lift        
-        
+
         v_actual        = segment.state.conditions.propulsion.voltage_under_load
         v_predict       = segment.state.unknowns.battery_voltage_under_load
         v_max           = self.voltage        
