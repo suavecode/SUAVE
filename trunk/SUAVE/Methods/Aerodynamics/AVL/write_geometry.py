@@ -108,9 +108,9 @@ def make_header_text(avl_object):
     Sref  = avl_object.geometry.wings['main_wing'].areas.reference
     Cref  = avl_object.geometry.wings['main_wing'].chords.mean_aerodynamic
     Bref  = avl_object.geometry.wings['main_wing'].spans.projected
-    Xref  = avl_object.geometry.mass_properties.center_of_gravity[0]
-    Yref  = avl_object.geometry.mass_properties.center_of_gravity[1]
-    Zref  = avl_object.geometry.mass_properties.center_of_gravity[2]
+    Xref  = avl_object.geometry.mass_properties.center_of_gravity[0][0]
+    Yref  = avl_object.geometry.mass_properties.center_of_gravity[0][1]
+    Zref  = avl_object.geometry.mass_properties.center_of_gravity[0][2]
     name  = avl_object.geometry.tag
 
     mach = 0.0

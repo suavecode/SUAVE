@@ -43,12 +43,6 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     for wing in vehicle.wings:
         
         if isinstance(wing,C.Wings.Main_Wing):
-            if len(wing.Segments)==0:
-                span_location_mac = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
-                mac_le_offset     = np.tan(wing.sweeps.leading_edge)*span_location_mac
-                
-                wing.mass_properties.center_of_gravity[0][0] = .3*wing.chords.mean_aerodynamic + mac_le_offset
-            else:
                 wing.mass_properties.center_of_gravity[0][0] = .05*wing.chords.mean_aerodynamic +wing.aerodynamic_center[0]             
                 
             
@@ -146,7 +140,7 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     optionals.mass_properties.center_of_gravity[0][0]          = 0.0   
         
     fuel.origin[0][0]                                          = vehicle.wings.main_wing.origin[0][0] 
-    fuel.mass_properties.center_of_gravity                     = 0.0
+    fuel.mass_properties.center_of_gravity                     = vehicle.wings.main_wing.mass_properties.center_of_gravity[0][0] 
     
     control_systems.origin[0][0]                               = vehicle.wings.main_wing.origin[0][0] 
     control_systems.mass_properties.center_of_gravity[0][0]    = vehicle.wings.main_wing.mass_properties.center_of_gravity[0][0] + \

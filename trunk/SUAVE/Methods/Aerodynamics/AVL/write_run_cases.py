@@ -87,9 +87,9 @@ def write_run_cases(avl_object):
     purge_files([batch_filename]) 
     with open(batch_filename,'w') as runcases:
 
-        x_cg = aircraft.mass_properties.center_of_gravity[0]
-        y_cg = aircraft.mass_properties.center_of_gravity[1]
-        z_cg = aircraft.mass_properties.center_of_gravity[2]
+        x_cg = aircraft.mass_properties.center_of_gravity[0][0]
+        y_cg = aircraft.mass_properties.center_of_gravity[0][1]
+        z_cg = aircraft.mass_properties.center_of_gravity[0][2]
         mass = 0 
         moments_of_inertia = aircraft.mass_properties.moments_of_inertia.tensor
         Ixx  = moments_of_inertia[0][0]

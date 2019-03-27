@@ -188,7 +188,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                 semispan             = suave_wing.spans.projected*0.5 * (2 - symm)
                 avl_wing.semispan    = semispan
                 origin               = []
-                origin.append(suave_wing.origin)
+                origin.append(suave_wing.origin[0])
                 root_chord           =  suave_wing.chords.root
                 segment_percent_span = 0;   
                 n_segments           = len(suave_wing.Segments.keys())
@@ -317,7 +317,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                 span                  = suave_wing.spans.projected
                 semispan              = suave_wing.spans.projected * 0.5 * (2 - symm)
                 avl_wing.semispan     = semispan
-                origin                = suave_wing.origin
+                origin                = suave_wing.origin[0]
                
                 # define root section 
                 root_section          = Section()

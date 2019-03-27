@@ -109,7 +109,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     for surf in geometry.wings:
         #Unpack inputs
         s         = surf.areas.reference
-        x_surf    = surf.origin[0]
+        x_surf    = surf.origin[0][0]
         x_ac_surf = surf.aerodynamic_center[0]
         eta       = surf.dynamic_pressure_ratio
         downw     = 1 - surf.ep_alpha
