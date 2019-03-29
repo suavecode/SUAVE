@@ -174,7 +174,7 @@ class Vehicle(Data):
         
         # See if the component exists, if it does modify the name
         keys = component_root.keys()
-        if component.tag in keys:
+        if str.lower(component.tag) in keys:
             string_of_keys = "".join(component_root.keys())
             n_comps = string_of_keys.count(component.tag)
             component.tag = component.tag + str(n_comps+1)

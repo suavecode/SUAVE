@@ -579,7 +579,6 @@ def fix_wing_segments(wing):
         
         # The indices that would sort the segs
         indices = np.argsort(spanwise_locs)
-        
 
         # Extrapolate to root and tip, if not at 0 and 1
         if spanwise_locs[indices[0]]!=0.:
@@ -611,7 +610,11 @@ def fix_wing_segments(wing):
                 new_container.append(seg_0)
                 
         for ind in indices:
-                new_container.append(segs[ind])
+                if len(new_container) !=0:
+                        if new_container[-1].percent_span_location != segs[ind].percent_span_location:
+                                new_container.append(segs[ind])
+                else:
+                        new_container.append(segs[ind])
                 
         if spanwise_locs[indices[-1]]!=1.:
                 # Need a tip
@@ -642,6 +645,7 @@ def fix_wing_segments(wing):
                                                                                          segs[indices[-2]].thickness_to_chord)/delta_span
                 
                 new_container.append(seg_m1)
+                
                 
                 
                 
