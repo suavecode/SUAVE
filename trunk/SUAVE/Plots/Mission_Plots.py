@@ -5,7 +5,7 @@ import matplotlib
 import matplotlib.pyplot as plt  
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_airfoil_geometry
+from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_propeller_airfoils
 
 # ------------------------------------------------------------------
 #   Altitude, SFC & Weight
@@ -580,7 +580,7 @@ def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_
                 raise AssertionError("Number of sections not equal to number of stations") 
                       
             # get airfoil coordinate geometry     
-            airfoil_data = read_airfoil_geometry(a_sec)       
+            airfoil_data = read_propeller_airfoils(a_sec)       
             
             #plot airfoils 
             for j in range(dim):
