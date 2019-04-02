@@ -24,7 +24,6 @@ def wiring(config,
            max_power_draw):
     """ weight = SUAVE.Methods.Weights.Buildups.Common.wiring(
             config,
-            motor_spanwise_locations,
             max_power_draw)
         
         Assumptions:
@@ -34,24 +33,12 @@ def wiring(config,
         location on the wingspan, and that communication and sesor  wires run an
         additional length based on the fuselage and wing dimensions.
 
-        Intended for use with the following SUAVE vehicle types, but may be used
-        elsewhere:
-
-            Electric Helicopter
-            Electric Tiltrotor
-            Electric Stopped Rotor
-
-        Originally written as part of an AA 290 project intended for trade study
-        of the above vehicle types.
-        
         Sources:
         Project Vahana Conceptual Trade Study
 
         Inputs:
 
             config                      SUAVE Config Data Structure
-            wing                        SUAVE Wing Data Structure
-            motor_spanwise_locations    Motor Semi-Span Fractions       [Unitless]
             max_power_draw              Maximum DC Power Draw           [W]
 
         Outputs:
