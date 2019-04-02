@@ -111,18 +111,23 @@ def empty(config,
     # Conditional Inputs
 
     if isinstance(propulsor, Battery_Propeller):
-        nLiftProps  = propulsor.number_of_engines
-        nLiftBlades = propulsor.propeller.prop_attributes.number_blades
-        rLiftProp   = propulsor.propeller.prop_attributes.tip_radius
+        nLiftProps      = propulsor.number_of_engines
+        nLiftBlades     = propulsor.propeller.prop_attributes.number_blades
+        rTipLiftProp    = propulsor.propeller.prop_attributes.tip_radius
+        rHubLiftProp    = propulsor.propeller.prop_attributes.hub_radius
+        cLiftProp       = propulsor.propeller.prop_attributes.chord_distribution
 
     elif isinstance(propulsor, Lift_Forward_Propulsor):
         nLiftProps      = propulsor.number_of_engines_lift
         nLiftBlades     = propulsor.propeller_lift.prop_attributes.number_blades
-        rLiftProp       = propulsor.propeller_lift.prop_attributes.tip_radius
+        rTipLiftProp    = propulsor.propeller_lift.prop_attributes.tip_radius
+        rHubLiftProp    = propulsor.propeller_lift.prop_attributes.hub_radius
+        cLiftProp       = propulsor.propeller_lift.prop_attributes.chord_distribution
 
         nThrustProps    = propulsor.number_of_engines_forward
         nThrustBlades   = propulsor.propeller_forward.prop_attributes.number_blades
-        rThrustProp     = propulsor.propeller_forward.prop_attributes.tip_radius
+        rTipThrustProp  = propulsor.propeller_forward.prop_attributes.tip_radius
+        rHubThrustProp  = propulsor.propeller_forward.prop_attributes.hub_radius
     else:
         warn("""eVTOL weight buildup only supports the Battery Propeller and Lift Forward Propulsor energy networks.\n
         Weight buildup will not return information on propulsion system.""", stacklevel=1)
@@ -157,6 +162,15 @@ def empty(config,
 #-------------------------------------------------------------------------------
 # Calculated Attributes
 #-------------------------------------------------------------------------------
+
+    # Preparatory Calculations:
+
+    maxVTip         = sound * tipMach                               # Maximum Tip Velocity
+    maxLift         = MTOW * ToverW                                 # Maximum Lift
+    liftMeanRad     = ((rTipLiftProp**2 + rHubLiftProp**2)/2)**0.5  # Propeller Mean Radius
+    liftPitch       = 2*np.pi*liftMeanRad/nLiftBlades               # Propeller Pitch
+    liftBladeSol    = cLiftProp/liftPitch                           # Blade Solidity
+    AvgLiftBladeCD  = 0.012                                         # Assumed Drag Coeff.
 
 #-------------------------------------------------------------------------------
 # Component Weight Calculations
