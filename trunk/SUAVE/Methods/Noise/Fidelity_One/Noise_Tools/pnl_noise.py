@@ -60,9 +60,9 @@ def pnl_noise (SPL):
     #STEP 1 - Convert SPL to Perceived Noisiness
     #-------------------------------------------
     
-    for j in xrange(0,nsteps):
+    for j in range(0,nsteps):
     
-        for i in xrange(0,23):
+        for i in range(0,23):
             if SPL[j][i]>=noy[1][2]:
                 SPL_noy[j][i] = 10**(noy[i][8]*(SPL[j][i]-noy[i][4]))
                 

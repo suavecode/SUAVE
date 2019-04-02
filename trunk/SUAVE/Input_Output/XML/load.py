@@ -45,7 +45,7 @@ def load(file_in):
     
     # build xml tree
     builder = TreeBuilder()
-    if isinstance(src,basestring):
+    if isinstance(src,str):
         xml.sax.parseString(src, builder)
     else:
         xml.sax.parse(src, builder)

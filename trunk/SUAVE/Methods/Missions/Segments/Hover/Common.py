@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Hover
-def unpack_unknowns(segment,state):
+def unpack_unknowns(segment):
     """ Unpacks the throttle setting from the solver to the mission
     
         Assumptions:
@@ -29,10 +29,10 @@ def unpack_unknowns(segment,state):
     """     
     
     # unpack unknowns
-    throttle   = state.unknowns.throttle
+    throttle   = segment.state.unknowns.throttle
     
     # apply unknowns
-    state.conditions.propulsion.throttle[:,0] = throttle[:,0]
+    segment.state.conditions.propulsion.throttle[:,0] = throttle[:,0]
     
 
 # ----------------------------------------------------------------------
@@ -40,7 +40,7 @@ def unpack_unknowns(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Hover
-def residual_total_forces(segment,state):
+def residual_total_forces(segment):
     """ Calculates a residual based on forces
     
         Assumptions:
@@ -58,10 +58,10 @@ def residual_total_forces(segment,state):
                                 
     """            
     
-    FT = state.conditions.frames.inertial.total_force_vector
+    FT = segment.state.conditions.frames.inertial.total_force_vector
 
     # vertical
-    state.residuals.forces[:,0] = FT[:,2]
+    segment.state.residuals.forces[:,0] = FT[:,2]
 
     return
     

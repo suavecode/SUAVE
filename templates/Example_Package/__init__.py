@@ -7,5 +7,5 @@ from Example_Method import Example_Method
 
 # Packages
 ## sub-packages inside this package, no from * import *
-import Example_SubPackage
+from . import Example_SubPackage
 

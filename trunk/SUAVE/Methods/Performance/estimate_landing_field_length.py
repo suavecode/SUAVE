@@ -94,7 +94,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
             vehicle.maximum_lift_coefficient                 =   maximum_lift_coefficient
             
         except:
-            raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
+            raise ValueError("Maximum lift coefficient calculation error. Please, check inputs")
         
     # ==============================================
     # Computing speeds (Vs, Vref)

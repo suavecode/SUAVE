@@ -68,25 +68,27 @@ def main():
     evaluate_problem(nexus)
     results = nexus.results
     err      = nexus.sizing_loop.norm_error
-    err_true = 0.00084305798514 #for 1E-2 tol
-    error    = abs((err-err_true)/err)
+
+    err_true = 0.0008433474527249522 #for 1E-2 tol
+    error    = abs((err-err_true)/err_true)
 
     data_inputs, data_outputs, read_success = read_sizing_residuals(sizing_loop, problem.inputs)
-    check_read_res = -0.06783837567842196
-    error_res      = (data_outputs[1]-check_read_res)/check_read_res
+    check_read_res = -0.06803060191281879
+
+    error_res      = (data_outputs[1][0]-check_read_res)/check_read_res
     
     #remove files for later
     os.remove('sizing_outputs.txt')
     os.remove('y_err_values.txt')
-    print 'error = ', error
-    print 'error_res = ', error_res
-    assert(error<1e-5), 'sizing loop regression failed'    
-    assert(error_res<1e-7), 'sizing loop io failed'    
+    print('error = ', error)
+    print('error_res = ', error_res)
+    assert(error<1e-4), 'sizing loop regression failed'    
+    assert(error_res<1e-4), 'sizing loop io failed'    
     
     return
     
 def evaluate_problem(nexus):
-    for key,step in nexus.procedure.items():
+    for key,step in list(nexus.procedure.items()):
         if hasattr(step,'evaluate'):
             self = step.evaluate(nexus)
         else:
@@ -186,18 +188,17 @@ def simple_sizing(nexus):
     #now add to freestream data object
     freestream.velocity    = air_speed
     freestream.mach_number = mach_number
-    freestream.gravity     = 9.81
+    freestream.gravity     = SUAVE.Attributes.Planets.Earth().sea_level_gravity
     
-    conditions             = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
-    conditions.freestream  = freestream
-    
+    #assign conditions in form for propulsor sizing
+    conditions             = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions.freestream  = freestream   
     nose_load_fraction     = .06
    
     #now evaluate all of the vehicle configurations
     for config in configs:
         config.wings.horizontal_stabilizer.areas.reference = (26.0/92.0)*config.wings.main_wing.areas.reference
-         
-         
+                 
         for wing in config.wings:
             
             wing = SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
@@ -205,24 +206,21 @@ def simple_sizing(nexus):
             wing.areas.exposed  = 0.8 * wing.areas.wetted
             wing.areas.affected = 0.6 * wing.areas.reference
             
-
-
         fuselage                       = config.fuselages['fuselage']
         fuselage.differential_pressure = diff_pressure 
      
-        #now evaluate weights
-
+        # now evaluate weights
         # diff the new data
         
         config.mass_properties.max_takeoff     = m_guess #take in parameters
         config.mass_properties.takeoff         = m_guess 
         config.mass_properties.max_zero_fuel   = base.mass_properties.max_zero_fuel
         config.store_diff()
-       
-       
-    #now evaluate the weights   
-    weights = analyses.base.weights.evaluate() #base.weights.evaluate()  
-    #update zfw
+             
+    # now evaluate the weights   
+    weights = analyses.base.weights.evaluate()
+    
+    # update zfw
     empty_weight       = base.mass_properties.operating_empty
     payload            = base.mass_properties.max_payload
     zfw                = empty_weight + payload 
@@ -231,6 +229,7 @@ def simple_sizing(nexus):
     base.store_diff()
     for config in configs:
         config.pull_base()
+        
     # ------------------------------------------------------------------
     #   Landing Configuration
     # ------------------------------------------------------------------
@@ -242,9 +241,8 @@ def simple_sizing(nexus):
     landing.mass_properties.landing = base.mass_properties.max_zero_fuel
     
     # Landing CL_max
-    altitude                                         = nexus.missions.base.segments[-1].altitude_end
-    atmosphere                                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    
+    altitude               = nexus.missions.base.segments[-1].altitude_end
+    atmosphere             = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     freestream             = atmosphere.compute_values(altitude)
     mu                     = freestream.dynamic_viscosity
     rho                    = freestream.density
@@ -254,29 +252,27 @@ def simple_sizing(nexus):
     landing_conditions.freestream.dynamic_viscosity  = mu/rho
     CL_max_landing,CDi                               = compute_max_lift_coeff(landing,landing_conditions)
     landing.maximum_lift_coefficient                 = CL_max_landing
-    # diff the new data
-    landing.store_diff()
     
+    # diff the new data
+    landing.store_diff()   
     
     #Takeoff CL_max
-    takeoff                                          = nexus.vehicle_configurations.takeoff
-    takeoff_conditions                               = Data()
-    takeoff_conditions.freestream                    = Data()    
-    altitude                                         = nexus.missions.base.airport.altitude
-    atmosphere                                       = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    freestream                                       = atmosphere.compute_values(altitude)
-    mu                                               = freestream.dynamic_viscosity
-    rho                                              = freestream.density
-    takeoff_conditions.freestream.velocity           = nexus.missions.base.segments.climb_1.air_speed
-    takeoff_conditions.freestream.density            = rho
-    takeoff_conditions.freestream.dynamic_viscosity  = mu/rho 
-    max_CL_takeoff,CDi                               = compute_max_lift_coeff(takeoff,takeoff_conditions) 
-    takeoff.maximum_lift_coefficient                 = max_CL_takeoff
+    takeoff                                         = nexus.vehicle_configurations.takeoff
+    takeoff_conditions                              = Data()
+    takeoff_conditions.freestream                   = Data()    
+    altitude                                        = nexus.missions.base.airport.altitude
+    atmosphere                                      = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    freestream                                      = atmosphere.compute_values(altitude)
+    mu                                              = freestream.dynamic_viscosity
+    rho                                             = freestream.density
+    takeoff_conditions.freestream.velocity          = nexus.missions.base.segments.climb_1.air_speed
+    takeoff_conditions.freestream.density           = rho
+    takeoff_conditions.freestream.dynamic_viscosity = mu/rho 
+    max_CL_takeoff,CDi                              = compute_max_lift_coeff(takeoff,takeoff_conditions) 
+    takeoff.maximum_lift_coefficient                = max_CL_takeoff
     
     takeoff.store_diff()
     
-   
-
     #Base config CL_max
     base                                          = nexus.vehicle_configurations.base
     base_conditions                               = Data()
@@ -286,9 +282,7 @@ def simple_sizing(nexus):
     freestream                                    = atmosphere.compute_values(altitude)
     mu                                            = freestream.dynamic_viscosity
     rho                                           = freestream.density
-    
-    
-    
+          
     base_conditions.freestream.velocity           = nexus.missions.base.segments.climb_1.air_speed
     base_conditions.freestream.density            = rho
     base_conditions.freestream.dynamic_viscosity  = mu/rho 
@@ -323,12 +317,10 @@ def sizing_evaluation(y,nexus, scaling):
     passenger_weight = base.passenger_weights.mass_properties.mass
     
     #sizing loop outputs
-
     mass_out     = base.mass_properties.operating_empty[0]+fuel_out+passenger_weight
     dm           = (mass_out-m_guess)/m_guess
     nexus.dm     = dm
-
-   
+  
     nexus.results  =results #pack up results
    
     f     = np.array([dm])
@@ -336,7 +328,6 @@ def sizing_evaluation(y,nexus, scaling):
     
     return f, y_out
     
-
 # ----------------------------------------------------------------------
 #   Finalizing Function (make part of optimization nexus)[needs to come after simple sizing doh]
 # ----------------------------------------------------------------------    

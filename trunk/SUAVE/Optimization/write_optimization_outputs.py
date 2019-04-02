@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from helper_functions import get_values, scale_obj_values, scale_const_values
+from .helper_functions import get_values, scale_obj_values, scale_const_values
 
 # ----------------------------------------------------------------------
 #  write_optimization_outputs
@@ -63,7 +63,7 @@ def write_optimization_outputs(nexus, filename):
         problem_constraints.append(value)
     
     
-    file=open(filename, 'ab')
+    file=open(filename, 'a')
     file.write('iteration = ')
     file.write(str(nexus.total_number_of_iterations))
     file.write(' , ')

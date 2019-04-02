@@ -9,8 +9,8 @@
 # Imports
 #-------------------------------------------------------------------------------
 
-from Solid import Solid
-from Aluminum import Aluminum
+from .Solid import Solid
+from .Aluminum import Aluminum
 from SUAVE.Core import Units
 
 #-------------------------------------------------------------------------------

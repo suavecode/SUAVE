@@ -20,20 +20,20 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def initialize_inertial_position(segment,state):
+def initialize_inertial_position(segment):
     """ Sets the initial location of the vehicle at the start of the segment
     
         Assumptions:
         Only used if there is an initial condition
         
         Inputs:
-            state.initials.conditions:
+            segment.state.initials.conditions:
                 frames.inertial.position_vector   [meters]
-            state.conditions:           
+            segment.state.conditions:           
                 frames.inertial.position_vector   [meters]
             
         Outputs:
-            state.conditions:           
+            segment.state.conditions:           
                 frames.inertial.position_vector   [meters]
 
         Properties Used:
@@ -41,11 +41,11 @@ def initialize_inertial_position(segment,state):
                                 
     """    
     
-    if state.initials:
-        r_initial = state.initials.conditions.frames.inertial.position_vector
-        r_current = state.conditions.frames.inertial.position_vector
+    if segment.state.initials:
+        r_initial = segment.state.initials.conditions.frames.inertial.position_vector
+        r_current = segment.state.conditions.frames.inertial.position_vector
         
-        state.conditions.frames.inertial.position_vector[:,:] = r_current + (r_initial[-1,None,:] - r_current[0,None,:])
+        segment.state.conditions.frames.inertial.position_vector[:,:] = r_current + (r_initial[-1,None,:] - r_current[0,None,:])
     
     return
     
@@ -55,7 +55,7 @@ def initialize_inertial_position(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def initialize_time(segment,state):
+def initialize_time(segment):
     """ Sets the initial time of the vehicle at the start of the segment
     
         Assumptions:
@@ -79,20 +79,20 @@ def initialize_time(segment,state):
                                 
     """        
     
-    if state.initials:
-        t_initial = state.initials.conditions.frames.inertial.time
-        t_current = state.conditions.frames.inertial.time
+    if segment.state.initials:
+        t_initial = segment.state.initials.conditions.frames.inertial.time
+        t_current = segment.state.conditions.frames.inertial.time
         
-        state.conditions.frames.inertial.time[:,:] = t_current + (t_initial[-1,0] - t_current[0,0])
+        segment.state.conditions.frames.inertial.time[:,:] = t_current + (t_initial[-1,0] - t_current[0,0])
         
     else:
-        t_initial = state.conditions.frames.inertial.time[0,0]
+        t_initial = segment.state.conditions.frames.inertial.time[0,0]
         
-    if state.initials:
-        state.conditions.frames.planet.start_time = state.initials.conditions.frames.planet.start_time
+    if segment.state.initials:
+        segment.state.conditions.frames.planet.start_time = segment.state.initials.conditions.frames.planet.start_time
         
-    elif segment.has_key('start_time'):
-        state.conditions.frames.planet.start_time = segment.start_time
+    elif 'start_time' in segment:
+        segment.state.conditions.frames.planet.start_time = segment.start_time
     
     return
     
@@ -102,21 +102,21 @@ def initialize_time(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def initialize_planet_position(segment,state):
+def initialize_planet_position(segment):
     """ Sets the initial location of the vehicle relative to the planet at the start of the segment
     
         Assumptions:
         Only used if there is an initial condition
         
         Inputs:
-            state.initials.conditions:
+            segment.state.initials.conditions:
                 frames.planet.longitude [Radians]
                 frames.planet.latitude  [Radians]
             segment.longitude           [Radians]
             segment.latitude            [Radians]
 
         Outputs:
-            state.conditions:           
+            segment.state.conditions:           
                 frames.planet.latitude  [Radians]
                 frames.planet.longitude [Radians]
 
@@ -125,10 +125,10 @@ def initialize_planet_position(segment,state):
                                 
     """        
     
-    if state.initials:
-        longitude_initial = state.initials.conditions.frames.planet.longitude[-1,0]
-        latitude_initial  = state.initials.conditions.frames.planet.latitude[-1,0] 
-    elif segment.has_key('latitude'):
+    if segment.state.initials:
+        longitude_initial = segment.state.initials.conditions.frames.planet.longitude[-1,0]
+        latitude_initial  = segment.state.initials.conditions.frames.planet.latitude[-1,0] 
+    elif 'latitude' in segment:
         longitude_initial = segment.longitude
         latitude_initial  = segment.latitude      
     else:
@@ -136,8 +136,8 @@ def initialize_planet_position(segment,state):
         latitude_initial  = 0.0
 
 
-    state.conditions.frames.planet.longitude[:,0] = longitude_initial
-    state.conditions.frames.planet.latitude[:,0]  = latitude_initial    
+    segment.state.conditions.frames.planet.longitude[:,0] = longitude_initial
+    segment.state.conditions.frames.planet.latitude[:,0]  = latitude_initial    
 
     return
     
@@ -147,22 +147,22 @@ def initialize_planet_position(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_planet_position(segment,state):
+def update_planet_position(segment):
     """ Updates the location of the vehicle relative to the Planet throughout the mission
     
         Assumptions:
         This is valid for small movements and times as it does not account for the rotation of the Planet beneath the vehicle
         
         Inputs:
-        state.conditions:
+        segment.state.conditions:
             freestream.velocity                      [meters/second]
             freestream.altitude                      [meters]
             frames.body.inertial_rotations           [Radians]
         segment.analyses.planet.features.mean_radius [meters]
-        state.numerics.time.integrate                [float]
+        segment.state.numerics.time.integrate        [float]
             
         Outputs:
-            state.conditions:           
+            segment.state.conditions:           
                 frames.planet.latitude  [Radians]
                 frames.planet.longitude [Radians]
 
@@ -172,7 +172,7 @@ def update_planet_position(segment,state):
     """        
     
     # unpack
-    conditions = state.conditions
+    conditions = segment.state.conditions
     
     # unpack orientations and velocities
     V          = conditions.freestream.velocity[:,0]
@@ -181,7 +181,7 @@ def update_planet_position(segment,state):
     theta      = conditions.frames.body.inertial_rotations[:,1]
     psi        = conditions.frames.body.inertial_rotations[:,2]
     alpha      = conditions.aerodynamics.angle_of_attack[:,0]
-    I          = state.numerics.time.integrate
+    I          = segment.state.numerics.time.integrate
     Re         = segment.analyses.planet.features.mean_radius
 
     # The flight path and radius
@@ -213,7 +213,7 @@ def update_planet_position(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_orientations(segment,state):
+def update_orientations(segment):
     
     """ Updates the orientation of the vehicle throughout the mission for each relevant axis
     
@@ -221,14 +221,14 @@ def update_orientations(segment,state):
         This assumes the vehicle has 3 frames: inertial, body, and wind. There also contains bits for stability axis which are not used. Creates tensors and solves for alpha and beta.
         
         Inputs:
-        state.conditions:
+        segment.state.conditions:
             frames.inertial.velocity_vector          [meters/second]
             frames.body.inertial_rotations           [Radians]
         segment.analyses.planet.features.mean_radius [meters]
         state.numerics.time.integrate                [float]
             
         Outputs:
-            state.conditions:           
+            segment.state.conditions:           
                 aerodynamics.angle_of_attack      [Radians]
                 aerodynamics.side_slip_angle      [Radians]
                 aerodynamics.roll_angle           [Radians]
@@ -242,7 +242,7 @@ def update_orientations(segment,state):
     """
 
     # unpack
-    conditions = state.conditions
+    conditions = segment.state.conditions
     V_inertial = conditions.frames.inertial.velocity_vector
     body_inertial_rotations = conditions.frames.body.inertial_rotations
 
@@ -266,7 +266,6 @@ def update_orientations(segment,state):
     V_stability = V_body
     V_stability[:,1] = 0
     V_stability_magnitude = np.sqrt( np.sum(V_stability**2,axis=1) )[:,None]
-    #V_stability_direction = V_stability / V_stability_magnitude
 
     # calculate angle of attack
     alpha = np.arctan2(V_stability[:,2],V_stability[:,0])[:,None]
@@ -312,7 +311,7 @@ def update_orientations(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_forces(segment,state):
+def update_forces(segment):
     
     """ Summation of forces: lift, drag, thrust, weight. Future versions will include new definitions of dreams, FAA, money, and reality.
     
@@ -320,17 +319,17 @@ def update_forces(segment,state):
         You only have these 4 forces applied to the vehicle
         
         Inputs:
-        state.conditions:
-            frames.wind.lift_force_vector          [newtons]
-            frames.wind.drag_force_vector          [newtons]
-            frames.inertial.gravity_force_vector   [newtons]
-            frames.body.thrust_force_vector        [newtons]
-            frames.body.transform_to_inertial      [newtons]
-            frames.wind.transform_to_inertial      [newtons]
+            segment.state.conditions:
+                frames.wind.lift_force_vector          [newtons]
+                frames.wind.drag_force_vector          [newtons]
+                frames.inertial.gravity_force_vector   [newtons]
+                frames.body.thrust_force_vector        [newtons]
+                frames.body.transform_to_inertial      [newtons]
+                frames.wind.transform_to_inertial      [newtons]
 
             
         Outputs:
-            state.conditions:           
+            segment.state.conditions:           
                 frames.inertial.total_force_vector [newtons]
 
     
@@ -340,7 +339,7 @@ def update_forces(segment,state):
     """    
 
     # unpack
-    conditions = state.conditions
+    conditions = segment.state.conditions
 
     # unpack forces
     wind_lift_force_vector        = conditions.frames.wind.lift_force_vector
@@ -372,20 +371,20 @@ def update_forces(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def integrate_inertial_horizontal_position(segment,state):
+def integrate_inertial_horizontal_position(segment):
     """ Determines how far the airplane has traveled. 
     
         Assumptions:
         Assumes a flat earth, this is planar motion.
         
         Inputs:
-            state.conditions:
+            segment.state.conditions:
                 frames.inertial.position_vector [meters]
                 frames.inertial.velocity_vector [meters/second]
-            state.numerics.time.integrate       [float]
+            segment.state.numerics.time.integrate       [float]
             
         Outputs:
-            state.conditions:           
+            segment.state.conditions:           
                 frames.inertial.position_vector [meters]
 
         Properties Used:
@@ -394,10 +393,10 @@ def integrate_inertial_horizontal_position(segment,state):
     """        
 
     # unpack
-    conditions = state.conditions
+    conditions = segment.state.conditions
     x0 = conditions.frames.inertial.position_vector[0,None,0:1+1]
     vx = conditions.frames.inertial.velocity_vector[:,0:1+1]
-    I  = state.numerics.time.integrate
+    I  = segment.state.numerics.time.integrate
     
     # integrate
     x = np.dot(I,vx) + x0
@@ -412,19 +411,19 @@ def integrate_inertial_horizontal_position(segment,state):
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_acceleration(segment,state):
+def update_acceleration(segment):
     """ Differentiates the velocity vector to get accelerations
     
         Assumptions:
         Assumes a flat earth, this is planar motion.
         
         Inputs:
-            state.conditions:
+            segment.state.conditions:
                 frames.inertial.velocity_vector     [meters/second]
-            state.numerics.time.differentiate       [float]
+            segment.state.numerics.time.differentiate       [float]
             
         Outputs:
-            state.conditions:           
+            segment.state.conditions:           
                 frames.inertial.acceleration_vector [meters]
 
         Properties Used:
@@ -433,11 +432,11 @@ def update_acceleration(segment,state):
     """            
     
     # unpack conditions
-    v = state.conditions.frames.inertial.velocity_vector
-    D = state.numerics.time.differentiate
+    v = segment.state.conditions.frames.inertial.velocity_vector
+    D = segment.state.numerics.time.differentiate
     
     # accelerations
     acc = np.dot(D,v)
     
     # pack conditions
-    state.conditions.frames.inertial.acceleration_vector[:,:] = acc[:,:]   
+    segment.state.conditions.frames.inertial.acceleration_vector[:,:] = acc[:,:]   

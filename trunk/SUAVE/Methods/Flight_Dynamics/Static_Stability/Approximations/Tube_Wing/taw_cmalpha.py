@@ -91,7 +91,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     x_cg         = cg[:,0] #get cg location at every point in the mission    
 
     #Evaluate the effect of the fuselage on the stability derivative
-    if geometry.fuselages.has_key('fuselage'):
+    if 'fuselage' in geometry.fuselages:
         w_f   = geometry.fuselages['fuselage'].width
         l_f   = geometry.fuselages['fuselage'].lengths.total
         x_rqc = geometry.wings['main_wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))    
@@ -118,12 +118,12 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
         twist_r   = surf.twists.root
         twist_t   = surf.twists.tip     
         taper     = surf.taper
-        if surf.has_key('Airfoil'):
-            if surf.Airfoil.has_key('zero_angle_lift_coefficient'):
+        if 'Airfoil' in surf:
+            if 'zero_angle_lift_coefficient' in surf.Airfoil:
                 al0 = surf.Airfoil.zero_angle_lift_coefficient
             else:
                 al0 = 0.
-            if surf.Airfoil.has_key('zero_angle_moment_coefficient'):
+            if 'zero_angle_moment_coefficient' in surf.Airfoil:
                 cmac = surf.Airfoil.zero_angle_moment_coefficient
             else:
                 cmac = 0.
@@ -220,14 +220,14 @@ if __name__ == '__main__':
     configuration.mass_properties.center_of_gravity = np.array([112.2,0,0]) * Units.feet  
     
     #Method Test
-    print '<<Test run of the taw_cmalpha() method>>'
-    print 'Boeing 747 at Mach {0}'.format(Mach[0])
+    print('<<Test run of the taw_cmalpha() method>>')
+    print('Boeing 747 at Mach {0}'.format(Mach[0]))
     
     cm_a = taw_cmalpha(vehicle,Mach,conditions,configuration)
     
     expected = -1.45
-    print 'Cm_alpha       = {0:.4f}'.format(cm_a[0])
-    print 'Expected value = {}'.format(expected)
-    print 'Percent Error  = {0:.2f}%'.format(100.0*(cm_a[0]-expected)/expected)
-    print 'Static Margin  = {0:.4f}'.format(-cm_a[0]/vehicle.wings['main_wing'].CL_alpha[0])
-    print ' '
+    print('Cm_alpha       = {0:.4f}'.format(cm_a[0]))
+    print('Expected value = {}'.format(expected))
+    print('Percent Error  = {0:.2f}%'.format(100.0*(cm_a[0]-expected)/expected))
+    print('Static Margin  = {0:.4f}'.format(-cm_a[0]/vehicle.wings['main_wing'].CL_alpha[0]))
+    print(' ')

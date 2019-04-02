@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Networks
-# Battery_Ducted_Fan_Parallel_Hybrid.py
+# Dual_Battery_Ducted_Fan.py
 #
 # Created:  Sep 2015, M. Vegh
 # Modified: Feb 2016, M. Vegh
@@ -158,12 +158,9 @@ class Dual_Battery_Ducted_Fan(Propulsor):
         
         conditions.propulsion.auxiliary_battery_draw   = auxiliary_battery_draw
         conditions.propulsion.auxiliary_battery_energy = auxiliary_battery_energy
-        
-    
+   
         results.vehicle_mass_rate = mdot
-        #from SUAVE.Core import Units
-        #print 'primary power=',primary_battery_draw/Units.MJ
-        #print 'aux power=',auxiliary_battery_draw/Units.MJ
+
         return results
             
     __call__ = evaluate_thrust

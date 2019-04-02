@@ -2,7 +2,7 @@
 # Hover mission methods containing the functions for setting up and solving a mission.
 # @ingroup Methods-Missions-Segments
 
-import Climb
-import Hover
-import Common
-import Descent
+from . import Climb
+from . import Hover
+from . import Common
+from . import Descent

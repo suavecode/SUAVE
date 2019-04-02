@@ -112,7 +112,7 @@ def build_data_r(v):
             ret[k] = build_data_r(v[k])
     elif tv == list:
         ret = np.array(v)
-    elif (tv == unicode): 
+    elif (tv == str): 
         ret = str(v)
     elif (tv == bool):
         ret = v

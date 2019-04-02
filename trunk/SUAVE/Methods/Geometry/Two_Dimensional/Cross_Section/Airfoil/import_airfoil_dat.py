@@ -62,7 +62,7 @@ def import_airfoil_dat(filename):
             section = None
             continue
         
-        point = map(float,line.split())
+        point = list(map(float,line.split()))
         data[section].append(point)
         
     for k,v in data.items():

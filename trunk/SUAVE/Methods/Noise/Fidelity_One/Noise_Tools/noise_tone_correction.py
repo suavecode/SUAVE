@@ -33,18 +33,18 @@ def noise_tone_correction(SPL):
     delta_slope         = np.zeros(23)
     tone_correction_max = np.zeros(nsteps)
     
-    for j in xrange(0,nsteps):
+    for j in range(0,nsteps):
     
         #------------------------------------------------------------
         #STEP 1 - Calculation of slopes in the one-third octave bands
         #------------------------------------------------------------
-        for i in xrange(3,23):
+        for i in range(3,23):
             slope[i] = SPL[j][i]-SPL[j][i-1]
         
         #------------------------------------------------------------
         #STEP 2 - Encircle the necessary values of the slope
         #------------------------------------------------------------    
-        for i in xrange(3,23):        
+        for i in range(3,23):        
             aux_ds[i] = np.abs(slope[i]-slope[i-1])
             
             if aux_ds[i]>5:
@@ -57,7 +57,7 @@ def noise_tone_correction(SPL):
         step3  = np.zeros(23)
         step3a = np.zeros(23)
         step3b = np.zeros(23)
-        for i in xrange(3,23):
+        for i in range(3,23):
             if delta_slope[i]==1 and slope[i]>0 and slope[i]>slope[i-1]:
                 step3a[i] = 1
             if  delta_slope[i]==1 and slope[i]<=0 and slope[i-1]>0:
@@ -68,7 +68,7 @@ def noise_tone_correction(SPL):
         #STEP 4 - Compute new adjusted sound pressure level
         #------------------------------------------------------------        
         step4 = np.zeros(23)
-        for i in xrange(1,23):
+        for i in range(1,23):
             if step3[i]!=0 and i<23:
                 step4[i] = (SPL[j][i-1]+SPL[j][i+1])/2
             if step3[i]!=0 and i==23:
@@ -80,7 +80,7 @@ def noise_tone_correction(SPL):
         #STEP 5 - Recompute new slope
         #------------------------------------------------------------    
         step5 = np.zeros(25)
-        for i in xrange(3,23):
+        for i in range(3,23):
             step5[i]=step4[i]-step4[i-1]
         step5[2]  = step5[3]
         step5[24] = step5[23]
@@ -89,7 +89,7 @@ def noise_tone_correction(SPL):
         #STEP 6 - Compute the arithmetic average of the three adjacent slopes
         #------------------------------------------------------------
         step6 = np.zeros(23)
-        for i in xrange(2,22):
+        for i in range(2,22):
             if i==22:
                 step6[i] = (step5[i]+step5[i+1])/3.
             else:
@@ -100,7 +100,7 @@ def noise_tone_correction(SPL):
         #------------------------------------------------------------
         step7 = np.zeros(24)
         step7[2]=SPL[j][2]
-        for i in xrange(3,23):
+        for i in range(3,23):
             step7[i] = step7[i-1]+step6[i-1]
         
         #------------------------------------------------------------
@@ -108,13 +108,13 @@ def noise_tone_correction(SPL):
         #------------------------------------------------------------    
         step8 = np.zeros(24)
         step8_aux = np.zeros(24)
-        for i in xrange(2,16):
+        for i in range(2,16):
             step8_aux[i] = SPL[j][i]-step7[i]
             if step8_aux[i]>=1.5:
                 step8[i] = step8_aux[i]
             else:
                 step8[i]=0.
-        for i in xrange(17,22):
+        for i in range(17,22):
             step8_aux[i] = SPL[j][i]-step7[i]
             if step8_aux[i]>=1.5 and SPL[j][i]>0 and SPL[j][i+1]>0 and SPL[j][i-1]>0:
                 step8[i] = step8_aux[i]
@@ -131,21 +131,21 @@ def noise_tone_correction(SPL):
         #STEP 9 - Determine tone correction factors for each 1/3 octave band
         #------------------------------------------------------------
         tone_correction = np.zeros(23)
-        for i in xrange(2,9):
+        for i in range(2,9):
             if step8[i]>=1.5 and step8[i]<3:
                 tone_correction = (step8[i]/3)-0.5
             if step8[i]>=3 and step8[i]<20:
                 tone_correction = step8[i]/6.
             if step8[i]>20:
                 tone_correction = 3+(1/3)
-        for i in xrange(10,20):
+        for i in range(10,20):
             if step8[i]>=1.5 and step8[i]<3:
                 tone_correction = (2/3)*(step8[i])-1
             if step8[i]>=3 and step8[i]<20:
                 tone_correction = step8[i]/3.
             if step8[i]>20:
                 tone_correction = 6+(2/3)
-        for i in xrange(21,23):
+        for i in range(21,23):
             if step8[i]>=1.5 and step8[i]<3:
                 tone_correction = (step8[i]/3)-(1/2)
             if step8[i]>=3 and step8[i]<20:

@@ -9,5 +9,5 @@
 # Modified: Feb 2016, T. MacDonald
 
 # classes
-from Propulsor  import Propulsor
+from .Propulsor  import Propulsor
 
