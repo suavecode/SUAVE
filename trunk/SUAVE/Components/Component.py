@@ -45,6 +45,7 @@ class Component(Data):
             """         
         self.tag    = 'Component'
         self.origin = [[0.0,0.0,0.0]]
+        self.materials = Data()
 
     
 # ----------------------------------------------------------------------
