@@ -171,6 +171,14 @@ def empty(config,
     liftPitch       = 2*np.pi*liftMeanRad/nLiftBlades               # Propeller Pitch
     liftBladeSol    = cLiftProp/liftPitch                           # Blade Solidity
     AvgLiftBladeCD  = 0.012                                         # Assumed Drag Coeff.
+    psuedoCT        = maxLift/(1.225*np.pi*0.8**2)
+
+    maxLiftPower    = 1.15 * maxLift * (
+            k * np.sqrt(psuedoCT/2.) +
+            liftBladeSol * AvgLiftBladeCD/8. * maxVTip**3/psuedoCT
+    )
+
+
 
 #-------------------------------------------------------------------------------
 # Component Weight Calculations
