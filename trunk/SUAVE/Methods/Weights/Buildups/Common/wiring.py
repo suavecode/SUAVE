@@ -10,6 +10,8 @@
 #-------------------------------------------------------------------------------
 
 from SUAVE.Core import Units
+from SUAVE.Components.Energy.Networks import Battery_Propeller
+from SUAVE.Components.Energy.Networks import Lift_Forward_Propulsor
 import numpy as np
 
 
@@ -19,7 +21,6 @@ import numpy as np
 
 ## @ingroup Methods-Weights-Buildups-Common
 def wiring(config,
-           motor_spanwise_locations,
            max_power_draw):
     """ weight = SUAVE.Methods.Weights.Buildups.Common.wiring(
             config,
@@ -49,6 +50,7 @@ def wiring(config,
         Inputs:
 
             config                      SUAVE Config Data Structure
+            wing                        SUAVE Wing Data Structure
             motor_spanwise_locations    Motor Semi-Span Fractions       [Unitless]
             max_power_draw              Maximum DC Power Draw           [W]
 
@@ -64,18 +66,39 @@ def wiring(config,
     
     fLength     = config.fuselages.fuselage.lengths.total
     fHeight     = config.fuselages.fuselage.heights.maximum
-    wingspan    = config.wings['main_wing'].spans.projected
-
-    nMotors = max(len(motor_spanwise_locations),1)    # No. of motors on each half-wing, defaults to 1
+    propulsor   = config.propulsors.propsulor
 
     #---------------------------------------------------------------------------
-    # Determine mass of Power Cables
+    # Sub-Function for Each Wing's Power Cables
     #---------------------------------------------------------------------------
 
-    cablePower      = max_power_draw/nMotors      # Power draw through each cable
-    cableLength     = 2 * (nMotors * (fLength/2 + fHeight/2) + np.sum(motor_spanwise_locations) * wingspan/2)
-    cableDensity    = 1e-5
-    massCables      = cableDensity * cablePower * cableLength
+    def wingCabling(wingspan, motor_spanwise_locations):
+
+        nMotors = max(len(motor_spanwise_locations), 1)  # No. of motors on each half-wing, defaults to 1
+        cablePower = max_power_draw / nMotors  # Power draw through each cable
+        cableLength = 2 * (nMotors * (fLength / 2 + fHeight / 2) + np.sum(motor_spanwise_locations) * wingspan / 2)
+        cableDensity = 1e-5
+        massCables = cableDensity * cablePower * cableLength
+
+        return np.array([massCables, cableLength])
+
+    #----------------------------------------------------------------------------
+    # Calculate Total Cable Mass and Length
+    #----------------------------------------------------------------------------
+
+    if isinstance(propulsor, Battery_Propeller):
+        wingspan = fHeight
+        motor_spanwise_locations = np.ones(int(propulsor.number_of_engines))
+        massCables, cableLength = wingCabling(wingspan, motor_spanwise_locations)
+
+    else:
+        ML = np.array([0., 0.])
+
+        for wing in config.wings:
+            ML += wingCabling(wing.spans.projected, wing.motor_spanwise_locations)
+
+        massCables = ML[0]
+        cableLength = ML[1]
 
     #---------------------------------------------------------------------------
     # Determine mass of sensor/communication wires

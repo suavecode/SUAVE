@@ -81,11 +81,11 @@ def empty(config,
                         Battery
                         Motors
                         Servomotors
-                        Wiring
                     Systems
                         Avionics
                         ECS
                         BRS
+                        Wiring
                     Payload
 
 
@@ -136,7 +136,7 @@ def empty(config,
     tipMach     = max_tip_mach
     k           = disk_area_factor
     ToverW      = max_thrust_to_weight_ratio
-    etaMotor    = motor_efficiency
+    eta         = motor_efficiency
 
 #-------------------------------------------------------------------------------
 # Fixed Weights
@@ -163,26 +163,31 @@ def empty(config,
 # Calculated Attributes
 #-------------------------------------------------------------------------------
 
-    # Preparatory Calculations:
-
     maxVTip         = sound * tipMach                               # Maximum Tip Velocity
     maxLift         = MTOW * ToverW                                 # Maximum Lift
+    maxLiftOmega    = maxVTip/rTipLiftProp                          # Maximum Lift Prop Angular Velocity
     liftMeanRad     = ((rTipLiftProp**2 + rHubLiftProp**2)/2)**0.5  # Propeller Mean Radius
     liftPitch       = 2*np.pi*liftMeanRad/nLiftBlades               # Propeller Pitch
     liftBladeSol    = cLiftProp/liftPitch                           # Blade Solidity
     AvgLiftBladeCD  = 0.012                                         # Assumed Drag Coeff.
-    psuedoCT        = maxLift/(1.225*np.pi*0.8**2)
+    psuedoCT        = maxLift/(1.225*np.pi*rTipLiftProp**2)
 
     maxLiftPower    = 1.15 * maxLift * (
             k * np.sqrt(psuedoCT/2.) +
             liftBladeSol * AvgLiftBladeCD/8. * maxVTip**3/psuedoCT
     )
 
+    maxTorque = maxLiftPower/maxLiftOmega
 
 
 #-------------------------------------------------------------------------------
 # Component Weight Calculations
 #-------------------------------------------------------------------------------
+
+    output.fuselage = fuselage(config)  * Units.kg
+
+    if isinstance(propulsor, Battery_Propeller):
+        output.wiring = wiring(config, None, )
 
 #-------------------------------------------------------------------------------
 # Pack Up Outputs
