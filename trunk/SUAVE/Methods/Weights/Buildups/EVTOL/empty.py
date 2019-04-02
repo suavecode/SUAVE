@@ -128,6 +128,7 @@ def empty(config,
         nThrustBlades   = propulsor.propeller_forward.prop_attributes.number_blades
         rTipThrustProp  = propulsor.propeller_forward.prop_attributes.tip_radius
         rHubThrustProp  = propulsor.propeller_forward.prop_attributes.hub_radius
+        cThrustProp     = propulsor.propeller_forward.prop_attributes.chord_distribution
     else:
         warn("""eVTOL weight buildup only supports the Battery Propeller and Lift Forward Propulsor energy networks.\n
         Weight buildup will not return information on propulsion system.""", stacklevel=1)
@@ -164,21 +165,27 @@ def empty(config,
 #-------------------------------------------------------------------------------
 
     maxVTip         = sound * tipMach                               # Maximum Tip Velocity
+    AvgBladeCD      = 0.012                                         # Assumed Prop CD
+
     maxLift         = MTOW * ToverW * 9.81                          # Maximum Lift
     maxLiftOmega    = maxVTip/rTipLiftProp                          # Maximum Lift Prop Angular Velocity
     liftMeanRad     = ((rTipLiftProp**2 + rHubLiftProp**2)/2)**0.5  # Propeller Mean Radius
     liftPitch       = 2*np.pi*liftMeanRad/nLiftBlades               # Propeller Pitch
     liftBladeSol    = cLiftProp/liftPitch                           # Blade Solidity
-    AvgLiftBladeCD  = 0.012                                         # Assumed Drag Coeff.
-    psuedoCT        = maxLift/(1.225*np.pi*rTipLiftProp**2)
+    liftPseudoCT    = maxLift/(1.225*np.pi*rTipLiftProp**2)
 
-    maxLiftPower    = 1.15 * maxLift * (
-            k * np.sqrt(psuedoCT/2.) +
-            liftBladeSol * AvgLiftBladeCD/8. * maxVTip**3/psuedoCT
+    maxLiftPower = 1.15 * maxLift * (
+            k * np.sqrt(liftPseudoCT / 2.) +
+            liftBladeSol * AvgBladeCD / 8. * maxVTip ** 3 / liftPseudoCT
     )
 
-    maxTorque = maxLiftPower/maxLiftOmega
+    if isinstance(propulsor, Lift_Forward_Propulsor):
 
+        maxThrust = maxLift / 5.                                                    # Assume Conservative L/D of 5
+        thrustMeanRad = ((rTipThrustProp ** 2 + rHubThrustProp ** 2) / 2) ** 0.5    # Propeller Mean Radius
+        thrustPitch = 2 * np.pi * thrustMeanRad / nThrustBlades                     # Propeller Pitch
+        thrustBladeSol = cThrustProp / thrustPitch                                  # Blade Solidity
+        thrustPseudoCT = maxThrust / (1.225 * np.pi * rTipThrustProp ** 2)
 
 #-------------------------------------------------------------------------------
 # Component Weight Calculations
@@ -191,19 +198,29 @@ def empty(config,
         output.transmission = maxLiftPower * 1.5873e-4                          * Units.kg   # From NASA OH-58 Study
         output.lift_rotors  = nLiftProps * (propulsor.propeller,
                                 maxLift / max(nLiftProps - 1, 1))               * Units.kg
+        output.motors = (nLiftProps * maxLiftPower/max(nLiftProps-1, 1)) / 3500 * Units.kg   # 3500 W/kg Power Density
         if nLiftProps == 1:
+            maxLiftTorque = maxLiftPower / maxLiftOmega
             output.tail_rotor = prop(propulsor.propeller,
-                                     1.5*maxTorque/(1.25*rTipLiftProp))*0.2     * Units.kg
+                                     1.5*maxLiftTorque/(1.25*rTipLiftProp))*0.2     * Units.kg
 
     elif isinstance(propulsor, Lift_Forward_Propulsor):
+
+        maxThrustPower = maxThrust * (
+            k * np.sqrt(thrustPseudoCT / 2.) +
+            thrustBladeSol * AvgBladeCD / 8. * maxVTip **3 / thrustPseudoCT
+        )
 
         output.lift_rotors      = nLiftProps * (propulsor.propeller_lift,
                                     maxLift / max(nLiftProps - 1, 1))           * Units.kg
         output.thrust_rotors    = prop(propulsor.propeller_forward, maxLift/5.) * Units.kg
 
+        output.lift_motors = (nLiftProps*maxLiftPower/max(nLiftProps-1, 1))/3500* Units.kg  # 3500 W/kg Power Density
+        output.thrust_motors = (maxThrustPower/nThrustProps)/3500               * Units.kg
+
         for w in config.wings:
 
-            output[w.tag] = wing(w, config, maxLift/5.)
+            output[w.tag] = wing(w, config, maxThrust)
 
 #-------------------------------------------------------------------------------
 # Pack Up Outputs
