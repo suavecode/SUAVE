@@ -104,9 +104,6 @@ def empty(config,
     mBattery    = propulsor.battery.mass_properties.mass
     mPayload    = propulsor.payload.mass_properties.mass
     MTOW        = config.mass_properties.max_takeoff
-    fLength     = config.fuselages.fuselage.lengths.total
-    fWidth      = config.fuselages.fuselage.width
-    fHeight     = config.fuselages.fuselage.heights.maximum
 
     # Conditional Inputs
 
@@ -148,6 +145,7 @@ def empty(config,
     output.avionics     = 15.                       * Units.kg
     output.battery      = mBattery                  * Units.kg
     output.landing_gear = MTOW * 0.02               * Units.kg
+    output.ECS          = config.passengers * 7.    * Units.kg
 
     if isinstance(propulsor, Battery_Propeller):
         output.servos   = 5.2 * nLiftProps          * Units.kg
@@ -191,6 +189,9 @@ def empty(config,
 # Component Weight Calculations
 #-------------------------------------------------------------------------------
 
+    # NOTE: Throughout this section, the expression max(nLiftProps-1,1) is used to
+    #       express assumption that vehicle must be able to operate with 1 motor out
+
     output.fuselage = fuselage(config)                                          * Units.kg
     output.wiring   = wiring(config, maxLiftPower/eta)                          * Units.kg
 
@@ -225,3 +226,4 @@ def empty(config,
 #-------------------------------------------------------------------------------
 # Pack Up Outputs
 #-------------------------------------------------------------------------------
+

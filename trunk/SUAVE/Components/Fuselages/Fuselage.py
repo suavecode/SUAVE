@@ -87,6 +87,11 @@ class Fuselage(Lofted_Body):
         self.fineness.tail = 0.0
         
         self.differential_pressure = 0.0
+
+        self.materials.skin_materials       = Container()
+        self.materials.canopy_materials     = Container()
+        self.materials.keel_materials       = Container()
+        self.materials.bulkhead_materials   = Container()
         
         # for BWB 
         self.aft_centerbody_area  = 0.0
