@@ -5,6 +5,7 @@ sizing.
 '''
 
 
+import EVTOL
 import Electric_Helicopter
 import Electric_Stopped_Rotor
 import Electric_Tiltrotor

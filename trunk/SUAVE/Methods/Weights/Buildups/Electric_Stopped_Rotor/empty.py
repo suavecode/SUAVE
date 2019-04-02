@@ -1,5 +1,4 @@
 ## @ingroup Methods-Weights-Buildups-Electric_Stopped_Rotor
-
 # empty.py
 #
 # Created: Jun, 2017, J. Smart
@@ -40,7 +39,7 @@ def empty(config,
         assembly, transmission, and landing gear. Additionally incorporates
         results of the following common buildup scripts:
 
-            fuselage,py
+            fuselage.py
             prop.py
             wing.py
             wiring.py
@@ -95,14 +94,14 @@ def empty(config,
     etaMotor            = motor_efficiency
 
     output.payload          = mPayload * Units.kg
-    output.seats            = 30. *Units.kg
-    output.avionics         = 15. *Units.kg
-    output.motors           = config.propulsors.network.number_of_engines * 10. *Units.kg
-    output.battery          = mBattery *Units.kg
-    output.servos           = config.propulsors.network.number_of_engines * 0.65 *Units.kg
-    output.brs              = 16. *Units.kg
-    output.hubs             = config.propulsors.network.number_of_engines * 2. *Units.kg
-    output.landing_gear     = MTOW * 0.02 *Units.kg
+    output.seats            = 30. * Units.kg
+    output.avionics         = 15. * Units.kg
+    output.motors           = config.propulsors.network.number_of_engines * 10. * Units.kg
+    output.battery          = mBattery * Units.kg
+    output.servos           = config.propulsors.network.number_of_engines * 0.65 * Units.kg
+    output.brs              = 16. * Units.kg
+    output.hubs             = config.propulsors.network.number_of_engines * 2. * Units.kg
+    output.landing_gear     = MTOW * 0.02 * Units.kg
 
 #-------------------------------------------------------------------------------
 # Calculated Weights
