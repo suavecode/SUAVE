@@ -43,9 +43,9 @@ class Component(Data):
             Properties Used:
             None
             """         
-        self.tag    = 'Component'
-        self.origin = [[0.0,0.0,0.0]]
-        self.materials = Data()
+        self.tag        = 'Component'
+        self.origin     = [[0.0,0.0,0.0]]
+        self.materials  = Data()
 
     
 # ----------------------------------------------------------------------
