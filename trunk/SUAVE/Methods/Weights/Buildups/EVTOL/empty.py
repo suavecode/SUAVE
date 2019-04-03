@@ -203,7 +203,7 @@ def empty(config,
         if nLiftProps == 1:
             maxLiftTorque = maxLiftPower / maxLiftOmega
             output.tail_rotor = prop(propulsor.propeller,
-                                     1.5*maxLiftTorque/(1.25*rTipLiftProp))*0.2     * Units.kg
+                                     1.5*maxLiftTorque/(1.25*rTipLiftProp))*0.2 * Units.kg
 
     elif isinstance(propulsor, Lift_Forward_Propulsor):
 
