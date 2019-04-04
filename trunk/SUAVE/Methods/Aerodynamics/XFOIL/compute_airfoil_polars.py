@@ -177,7 +177,7 @@ def  read_propeller_airfoils(airfoils):
      airfoil_data.thickness_to_chord = []
      
      for i in range(num_airfoils):  
-          fname = airfoils[i] + '.dat'
+          fname = airfoils[i]
           # Open file and read column names and data block
           f = open(fname)
           
@@ -197,14 +197,20 @@ def  read_propeller_airfoils(airfoils):
                x_data[line_count] = float(data_block[line_count][2:10].strip())
                y_data[line_count]  = float(data_block[line_count][11:20].strip())
                
-          upper_surface =  y_data[0:int((data_len-1)/2)]
-          lower_surface =  y_data[int((data_len+1)/2):data_len]
-          thickness = upper_surface - lower_surface[::-1]
+          x_upper_surface =  x_data[0:int((data_len-1)/2)]
+          x_lower_surface =  x_data[int((data_len+1)/2):data_len]
+          y_upper_surface =  y_data[0:int((data_len-1)/2)]
+          y_lower_surface =  y_data[int((data_len+1)/2):data_len]
+          thickness = y_upper_surface - y_lower_surface[::-1]
           
           airfoil_data.thickness_to_chord.append(np.max(thickness))    
           airfoil_data.x_coordinates.append(x_data)  
-          airfoil_data.y_coordinates.append(y_data)    
-          airfoil_data.camber_coordinates.append(lower_surface[::-1] + thickness/2)
+          airfoil_data.y_coordinates.append(y_data)  
+          airfoil_data.x_upper_surface.append(x_upper_surface)
+          airfoil_data.x_lower_surface.append(x_lower_surface)
+          airfoil_data.y_upper_surface.append(y_upper_surface)
+          airfoil_data.y_lower_surface.append(y_lower_surface)
+          airfoil_data.camber_coordinates.append(y_lower_surface[::-1] + thickness/2)
           
      return airfoil_data
 
@@ -219,7 +225,7 @@ def  read_wing_airfoil(airfoil):
      airfoil_data.y_coordinates = []
      airfoil_data.thickness_to_chord = []     
   
-     fname = airfoil.tag + '.dat'
+     fname = airfoil
      # Open file and read column names and data block
      f = open(fname)
      
@@ -238,15 +244,21 @@ def  read_wing_airfoil(airfoil):
      for line_count , line in enumerate(data_block):
           x_data[line_count] = float(data_block[line_count][2:10].strip())
           y_data[line_count]  = float(data_block[line_count][11:20].strip())
-          
-     upper_surface =  y_data[0:int((data_len-1)/2)]
-     lower_surface =  y_data[int((data_len+1)/2):data_len]
-     thickness = upper_surface - lower_surface[::-1]
+     
+     x_upper_surface =  x_data[0:int((data_len-1)/2)]
+     x_lower_surface =  x_data[int((data_len+1)/2):data_len]           
+     y_upper_surface =  y_data[0:int((data_len-1)/2)]
+     y_lower_surface =  y_data[int((data_len+1)/2):data_len]
+     thickness = y_upper_surface - y_lower_surface[::-1]
      
      airfoil_data.thickness_to_chord = np.max(thickness)    
      airfoil_data.x_coordinates = x_data  
-     airfoil_data.y_coordinates = y_data 
-     airfoil_data.camber_coordinates = lower_surface[::-1] + thickness/2
+     airfoil_data.y_coordinates = y_data
+     airfoil_data.x_upper_surface = x_upper_surface
+     airfoil_data.x_lower_surface = x_lower_surface
+     airfoil_data.y_upper_surface = y_upper_surface
+     airfoil_data.y_lower_surface = y_lower_surface    
+     airfoil_data.camber_coordinates = y_lower_surface[::-1] + thickness/2
           
      return airfoil_data
 

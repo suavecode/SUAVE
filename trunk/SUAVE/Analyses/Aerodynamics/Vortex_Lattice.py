@@ -18,7 +18,7 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import weissinger_wing_VLM , weissinger_vehicle_VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import  weissinger_VLM
 
 # local imports
 from .Aerodynamics import Aerodynamics
@@ -332,16 +332,17 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
     # unpack
     vehicle_reference_area = geometry.reference_area
     
-    # compute lift of entire vehicle 
-    
     # iterate over wings 
+    total_lift_coeff = 0.0
+    totat_induced_drag_coeff = 0.0
+    
     wing_lifts = Data()
     wing_induced_drag = Data()
     for wing in geometry.wings.values():
-        [wing_lift_coeff,wing_drag_coeff] = weissinger_wing_VLM(conditions,settings,wing)
-        wing_lifts[wing.tag] = wing_lift_coeff
+        [wing_lift_coeff,wing_drag_coeff] = weissinger_VLM(conditions,settings,wing)
+        wing_lifts[wing.tag]        = wing_lift_coeff
         wing_induced_drag[wing.tag] = wing_drag_coeff
-
-    [total_lift_coeff,totat_induced_drag_coeff] = weissinger_vehicle_VLM(conditions,settings,geometry)
+        total_lift_coeff           += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
+        totat_induced_drag_coeff   += wing_drag_coeff * wing.areas.reference / vehicle_reference_area
 
     return total_lift_coeff,totat_induced_drag_coeff, wing_lifts , wing_induced_drag
