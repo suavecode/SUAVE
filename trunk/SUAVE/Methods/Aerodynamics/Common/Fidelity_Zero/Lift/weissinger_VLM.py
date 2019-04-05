@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# weissinger_VLM.py
+# weissinger_vortex_lattice.py
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Apr 2017, T. MacDonald

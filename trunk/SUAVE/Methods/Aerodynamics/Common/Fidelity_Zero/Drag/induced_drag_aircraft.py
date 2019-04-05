@@ -61,11 +61,15 @@ def induced_drag_aircraft(state,settings,geometry):
     
     # start the result
     #print (CDi)
-    total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
+    #CDi = aircraft_lift**2 / (np.pi*ar*e)
+    #conditions.aerodynamics.drag_breakdown.induced.total             = CDi
+    #conditions.aerodynamics.drag_breakdown.induced = Data()
     #print (total_induced_drag )
         
     # store data
+    
     conditions.aerodynamics.drag_breakdown.induced.efficiency_factor = e 
-    conditions.aerodynamics.drag_breakdown.induced.aspect_ratio      = ar            
+    conditions.aerodynamics.drag_breakdown.induced.aspect_ratio      = ar 
+    
 
     return CDi
