@@ -68,8 +68,10 @@ def vehicle_setup():
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.28
     wing.dihedral                = 5.00 * Units.deg
+    wing.chords.root             = 6.2
+    wing.spans.projected         = 28.72
     
-    wing.origin                  = [[12.3,0,-1.50]]
+    wing.origin                  = [[13.0,0,-1.50]]
     wing.vertical                = False
     wing.symmetric               = True       
     wing.high_lift               = True
@@ -77,16 +79,52 @@ def vehicle_setup():
     wing.flaps.chord             = 0.28
     wing.flaps.span_start        = 0.11
     wing.flaps.span_end          = 0.85
-    
-    
-    
-    wing = wing_planform(wing)
-    wing.areas.exposed           = 0.80 * wing.areas.wetted
-        
+    wing.areas.exposed           = 0.80 * wing.areas.wetted        
     wing.twists.root             = 2.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees    
     wing.span_efficiency         = 1.0
     wing.dynamic_pressure_ratio  = 1.0
+    
+    
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'root'
+    segment.percent_span_location = 0.0
+    segment.twist                 = 4. * Units.deg
+    segment.root_chord_percent    = 1.
+    segment.thickness_to_chord    = .11
+    segment.dihedral_outboard     = 5. * Units.degrees
+    segment.sweeps.quarter_chord  = 20.6 * Units.degrees
+    wing.Segments.append(segment)    
+    
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'yehudi'
+    segment.percent_span_location = 0.348
+    segment.twist                 = (4. - segment.percent_span_location*4.) * Units.deg
+    segment.root_chord_percent    = 0.60
+    segment.thickness_to_chord    = .11
+    segment.dihedral_outboard     = 4 * Units.degrees
+    segment.sweeps.quarter_chord  = 24.1 * Units.degrees
+    wing.Segments.append(segment)
+    
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_2'
+    segment.percent_span_location = 0.961
+    segment.twist                 = (4. - segment.percent_span_location*4.) * Units.deg
+    segment.root_chord_percent    = 0.25
+    segment.thickness_to_chord    = .11
+    segment.dihedral_outboard     = 70. * Units.degrees
+    segment.sweeps.quarter_chord  = 50. * Units.degrees
+    wing.Segments.append(segment)
+
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'Tip'
+    segment.percent_span_location = 1.
+    segment.twist                 = (4. - segment.percent_span_location*4.) * Units.deg
+    segment.root_chord_percent    = 0.070
+    segment.thickness_to_chord    = .11
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 0.
+    wing.Segments.append(segment)            
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -198,7 +236,7 @@ def vehicle_setup():
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
     gt_engine.tag               = 'turbofan'
-    gt_engine.origin            = [[11.95,4.41,-2.1],[11.95,-4.41,-2.1]]
+    gt_engine.origin            = [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]]
 
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4

@@ -60,9 +60,9 @@ class Main_Wing(Wing):
         self.Segments         = Segment_Container()
         self.max_per_vehicle = 3
         self.PGM_compulsory  = True
-        self.PGM_characteristics    = ['spans.projected','chords.root','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
-        self.PGM_char_min_bounds    = [0.00001,0.00001,0,-np.inf,-np.inf]   
-        self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
+        #self.PGM_characteristics    = ['spans.projected','chords.root','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
+        #self.PGM_char_min_bounds    = [0.001,0.001,0,-np.inf,-np.inf]   
+        #self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
         
         
         
@@ -105,7 +105,9 @@ class Segment_Container(ContainerOrdered):
         N/A
         """       
         
-        return [Segment]
+        #return [Segment]
+        
+        return []
     
     
     def append(self,val):

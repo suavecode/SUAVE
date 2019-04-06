@@ -195,6 +195,31 @@ def size_from_PGM(vehicle):
                 pax += fuse.number_coach_seats
                 
                 vehicle.passengers = pax
+                
+                fuse.OpenVSP_values = Data() # VSP uses degrees directly
+        
+                fuse.OpenVSP_values.nose = Data()
+                fuse.OpenVSP_values.nose.top = Data()
+                fuse.OpenVSP_values.nose.side = Data()
+                fuse.OpenVSP_values.nose.top.angle = 75.0
+                fuse.OpenVSP_values.nose.top.strength = 0.40
+                fuse.OpenVSP_values.nose.side.angle = 45.0
+                fuse.OpenVSP_values.nose.side.strength = 0.75  
+                fuse.OpenVSP_values.nose.TB_Sym = True
+                fuse.OpenVSP_values.nose.z_pos = -.015
+        
+                fuse.OpenVSP_values.tail = Data()
+                fuse.OpenVSP_values.tail.top = Data()
+                fuse.OpenVSP_values.tail.side = Data()    
+                fuse.OpenVSP_values.tail.bottom = Data()
+                fuse.OpenVSP_values.tail.top.angle = -90.0
+                fuse.OpenVSP_values.tail.top.strength = 0.1
+                fuse.OpenVSP_values.tail.side.angle = -30.0
+                fuse.OpenVSP_values.tail.side.strength = 0.50  
+                fuse.OpenVSP_values.tail.TB_Sym = True
+                fuse.OpenVSP_values.tail.bottom.angle = -30.0
+                fuse.OpenVSP_values.tail.bottom.strength = 0.50 
+                fuse.OpenVSP_values.tail.z_pos = .035                
         
         # Size the propulsion system
         for prop in vehicle.propulsors:
@@ -606,6 +631,12 @@ def fix_wing_segments(wing):
                                 segs[indices[0]].percent_span_location*(segs[indices[1]].sweeps.quarter_chord-segs[indices[0]].sweeps.quarter_chord)/delta_span
                         seg_0.thickness_to_chord = segs[indices[0]].thickness_to_chord - \
                                 segs[indices[0]].percent_span_location*(segs[indices[1]].thickness_to_chord-segs[indices[0]].thickness_to_chord)/delta_span
+                        
+                        # Check for things less than 0
+                        if seg_0.root_chord_percent<0:
+                                seg_0.root_chord_percent = 0.
+                        if seg_0.thickness_to_chord<0.0001:
+                                seg_0.thickness_to_chord = 0.0001
                 
                 new_container.append(seg_0)
                 
@@ -643,6 +674,13 @@ def fix_wing_segments(wing):
                                                                                          segs[indices[-2]].sweeps.quarter_chord)/delta_span
                         seg_m1.thickness_to_chord = segs[indices[-1]].thickness_to_chord + (1-segs[indices[-1]].percent_span_location)*(segs[indices[-1]].thickness_to_chord-\
                                                                                          segs[indices[-2]].thickness_to_chord)/delta_span
+                        
+                        # Check for things less than 0
+                        if seg_m1.root_chord_percent<0:
+                                seg_m1.root_chord_percent = 0.
+                        if seg_m1.thickness_to_chord<0.0001:
+                                seg_m1.thickness_to_chord = 0.0001
+                                        
                 
                 new_container.append(seg_m1)
                 
