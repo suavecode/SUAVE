@@ -127,7 +127,7 @@ class Battery_Propeller(Propulsor):
         propeller.thrust_angle = self.thrust_angle
         
         # step 4
-        F, Q, P, Cp = propeller.spin(conditions)
+        F, Q, P, Cp, outputs , etap = propeller.spin(conditions)
         
         if (self.use_surrogate == True) and (self.propeller.surrogate is not None):
             F, Q, P, Cp ,  outputs  , etap  = propeller.spin_surrogate(conditions)

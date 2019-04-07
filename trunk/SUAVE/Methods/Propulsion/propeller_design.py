@@ -207,11 +207,18 @@ def propeller_design(prop,N=20):
         c_blade    = np.linspace(0,c[idx],20)          # local chord  
         t          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
         t_max[idx] = np.max(t)                       
-
+ 
+ 
+    ## computer induced velocity at hover 
+    #T_prop  = Thrust  
+    #A_prop  = np.pi*(R**2)
+    #Vi      = np.sqrt(Thrust/(2*rho*A_prop))    
+    
     prop.max_thickness_distribution = t_max
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
     prop.Cp                         = Cp
     prop.mid_chord_aligment         = MCA  
-   
+    #prop.induced_hover_velocity     = Vi
+    
     return prop

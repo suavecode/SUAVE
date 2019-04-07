@@ -74,16 +74,16 @@ def empty(config,
 # Assumed Weights
 #-------------------------------------------------------------------------------
 
-    output.payload          = config.propulsors.network.payload.mass_properties.mass
+    output.payload          = config.propulsors.propulsor.payload.mass_properties.mass
     output.seats            = 30.
     output.avionics         = 15.
-    output.motors           = 10 * config.propulsors.network.number_of_engines
-    output.battery          = config.propulsors.network.battery.mass_properties.mass
-    output.servos           = 0.65 * config.propulsors.network.number_of_engines
+    output.motors           = 10 * config.propulsors.propulsor.number_of_engines
+    output.battery          = config.propulsors.propulsor.battery.mass_properties.mass
+    output.servos           = 0.65 * config.propulsors.propulsor.number_of_engines
     output.rotor_servos     = 2 * (len(config.wings['main_wing'].motor_spanwise_locations) 
                                    + len(config.wings['main_wing'].motor_spanwise_locations))
     output.brs              = 16.
-    output.hubs             = 2 * config.propulsors.network.number_of_engines
+    output.hubs             = 2 * config.propulsors.propulsor.number_of_engines
     output.landing_gear     = config.mass_properties.max_takeoff * 0.02
 
 #-------------------------------------------------------------------------------

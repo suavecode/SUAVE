@@ -14,6 +14,7 @@ import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data
 import scipy.optimize as opt
+from scipy.optimize import fsolve
 
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
@@ -58,7 +59,7 @@ class Propeller(Energy_Component):
         self.chord_distribution       = 0.0
         self.mid_chord_aligment       = 0.0
         self.thrust_angle             = 0.0
-        self.induced_hover_velocity   = 0.0
+        self.induced_hover_velocity   = None
         self.airfoil_sections         = None
         self.airfoil_section_location = None
         self.radius_distribution      = None
@@ -128,6 +129,7 @@ class Propeller(Energy_Component):
         rho    = conditions.freestream.density[:,0,None]
         mu     = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv     = conditions.frames.inertial.velocity_vector
+        Vh     = self.induced_hover_velocity 
         a      = conditions.freestream.speed_of_sound[:,0,None]
         T      = conditions.freestream.temperature[:,0,None]
         theta  = self.thrust_angle
@@ -156,6 +158,30 @@ class Propeller(Energy_Component):
         # Now just use the aligned velocity
         V = V_thrust[:,0,None]
         
+        ua = np.zeros_like(V)
+        if Vh != None:   
+            for i in range(len(V)):
+                V_inf = V_thrust[i] 
+                V_Vh =  V_thrust[i][0]/Vh
+                if Vv[i,:].all()  == True :
+                    ua[i] = Vh
+                elif Vv[i][0]  == 0 and  Vv[i][2] != 0: # vertical / axial flight
+                    if V_Vh > 0: # climbing 
+                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                    elif -2 <= V_Vh and V_Vh <= 0:  # slow descent                 
+                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718(V_Vh)**2 - 0.655(V_Vh)**4 ) 
+                    else: # windmilling 
+                        print("rotor is in the windmill break state!")
+                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) - np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                else: # forward flight conditions                 
+                    func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[2])**2 + (V_inf[0] + vi)**2)))
+                    vi_initial_guess = V_inf[0]
+                    ua[i]    = fsolve(func,vi_initial_guess)
+        else: 
+            ua = 0.0 
+            
+        ut = 0.0
+        
         nu    = mu/rho
         tol   = 1e-5 # Convergence tolerance
         
@@ -178,10 +204,7 @@ class Propeller(Energy_Component):
         J       = V/(2.*R*n)    
         sigma   = np.multiply(B*c,1./(2.*pi*r))
     
-        #I make the assumption that externally-induced velocity at the disk is zero
-        #This can be easily changed if needed in the future:
-        ua = 0.0
-        ut = 0.0
+
         
         omegar = np.outer(omega,r)
         Ua = np.outer((V + ua),np.ones_like(r))
@@ -390,7 +413,7 @@ class Propeller(Energy_Component):
         Rh      = self.hub_radius        
         beta_in = self.twist_distribution
         c       = self.chord_distribution
-        Vi      = self.induced_hover_velocity 
+        Vh      = self.induced_hover_velocity 
         omega1  = self.inputs.omega
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
@@ -425,7 +448,31 @@ class Propeller(Energy_Component):
         V_thrust      = orientation_product(T_body2thrust,V_body)
         
         # Now just use the aligned velocity
-        V = V_thrust[:,0,None]        
+        V = V_thrust[:,0,None]
+        
+        ua = np.zeros_like(V)
+        if Vh != None:   
+            for i in range(len(V)):
+                V_inf = V_thrust[i] 
+                V_Vh =  V_thrust[i][0]/Vh
+                if Vv[i,:].all()  == True :
+                    ua[i] = Vh
+                elif Vv[i][0]  == 0 and  Vv[i][2] != 0: # vertical / axial flight
+                    if V_Vh > 0: # climbing 
+                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                    elif -2 <= V_Vh and V_Vh <= 0:  # slow descent                 
+                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718(V_Vh)**2 - 0.655(V_Vh)**4 ) 
+                    else: # windmilling 
+                        print("rotor is in the windmill break state!")
+                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) - np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                else: # forward flight conditions                 
+                    func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[2])**2 + (V_inf[0] + vi)**2)))
+                    vi_initial_guess = V_inf[0]
+                    ua[i]    = fsolve(func,vi_initial_guess)
+        else: 
+            ua = 0.0 
+            
+        ut = 0.0 
         
         nu    = mu/rho
         tol   = 1e-6 # Convergence tolerance
@@ -450,14 +497,7 @@ class Propeller(Energy_Component):
         n       = omega/(2.*pi)            # Cycles per second
         J       = V/(2.*R*n)    
         sigma   = np.multiply(B*c,1./(2.*pi*r))          
-    
-        # Include externally-induced velocity at the disk for hover
-        if V.all() == 0:
-            ua = Vi
-        else:
-            ua = 0.0 
-        ut = 0.0
-        
+            
         omegar = np.outer(omega,r)
         Ua = np.outer((V + ua),np.ones_like(r))
         Ut = omegar - ut
@@ -478,7 +518,7 @@ class Propeller(Energy_Component):
             cos_psi = np.cos(psi)
             Wa      = 0.5*Ua + 0.5*U*sin_psi
             Wt      = 0.5*Ut + 0.5*U*cos_psi   
-            #va     = Wa - Ua
+            va     = Wa - Ua
             vt      = Ut - Wt
             alpha   = beta - np.arctan2(Wa,Wt)
             W       = (Wa*Wa + Wt*Wt)**0.5
