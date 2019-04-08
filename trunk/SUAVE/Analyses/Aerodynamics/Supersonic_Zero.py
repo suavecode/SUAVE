@@ -68,6 +68,17 @@ class Supersonic_Zero(Markup):
         settings.spoiler_drag_increment             = 0.00 
         settings.oswald_efficiency_factor           = None
         settings.maximum_lift_coefficient           = np.inf 
+        settings.begin_drag_rise_mach_number        = 0.95
+        settings.end_drag_rise_mach_number          = 1.2
+        settings.transonic_drag_multiplier          = 1.25    
+        # this multiplier is used to determine the volume wave drag at the peak Mach number
+        # by multiplying the volume wave drag at the end drag rise Mach number
+        settings.peak_mach_number                      = 1.04
+        settings.cross_sectional_area_calculation_type = 'Fixed'
+        # 'OpenVSP' can also be used. This allows the cross sectional area to vary with Mach number, but is 
+        # much more computationally intensive.        
+        settings.volume_wave_drag_scaling    = 3.7 # 1.8-2.2 are given as typical for an SST, but 3.7 was found to be more accurate 
+        # This way be due to added propulsion effects
         
         # vortex lattice configurations
         settings.number_panels_spanwise = 5
@@ -89,9 +100,9 @@ class Supersonic_Zero(Markup):
         compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total # SZ        
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
-        compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
+        compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
-        compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
+        compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage 
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
