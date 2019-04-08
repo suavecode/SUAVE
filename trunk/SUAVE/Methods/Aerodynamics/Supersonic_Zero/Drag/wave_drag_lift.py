@@ -10,6 +10,7 @@
 
 import numpy as np
 from SUAVE.Core import Data
+from SUAVE.Components.Wings import Main_Wing
 
 # ----------------------------------------------------------------------
 #   Wave Drag Lift
@@ -39,9 +40,9 @@ def wave_drag_lift(conditions,configuration,wing):
     """  
 
     # Unpack
-    freestream = conditions.freestream
+    freestream   = conditions.freestream
     total_length = wing.total_length
-    Sref = wing.areas.reference
+    Sref         = wing.areas.reference
     
     # Conditions
     Mc  = freestream.mach_number * 1.0
@@ -50,7 +51,7 @@ def wave_drag_lift(conditions,configuration,wing):
     ARL = total_length**2/Sref
     
     # Lift coefficient
-    if wing.tag == 'main_wing':
+    if isinstance(wing,Main_Wing):
         CL = conditions.aerodynamics.lift_coefficient
     else:
         CL = np.zeros_like(conditions.aerodynamics.lift_coefficient)

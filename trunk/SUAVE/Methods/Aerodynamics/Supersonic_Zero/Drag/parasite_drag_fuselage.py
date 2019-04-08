@@ -51,6 +51,8 @@ def parasite_drag_fuselage(state,settings,geometry):
     # unpack inputs
     configuration = settings
     form_factor   = configuration.fuselage_parasite_drag_form_factor
+    low_cutoff    = configuration.fuselage_parasite_drag_begin_blend_mach
+    high_cutoff   = configuration.fuselage_parasite_drag_end_blend_mach    
     fuselage      = geometry
     
     freestream  = state.conditions.freestream
@@ -83,9 +85,6 @@ def parasite_drag_fuselage(state,settings,geometry):
     du_max_u_high = np.array([[0.0]] * len(Mc))    
     
     k_fus = np.array([[0.0]] * len(Mc))
-    
-    low_cutoff  = 0.91
-    high_cutoff = 0.99
     
     low_inds  = Mc < high_cutoff
     high_inds = Mc > low_cutoff

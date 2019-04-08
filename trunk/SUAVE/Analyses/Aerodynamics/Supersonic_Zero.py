@@ -43,7 +43,9 @@ class Supersonic_Zero(Markup):
         None
 
         Source:
-        N/A
+        Concorde data used for determining defaults can be found in "Supersonic drag reduction technology in the 
+        scaled supersonic experimental airplane project by JAXA" by Kenji Yoshida
+        https://www.sciencedirect.com/science/article/pii/S0376042109000177
 
         Inputs:
         None
@@ -81,6 +83,8 @@ class Supersonic_Zero(Markup):
         # much more computationally intensive.        
         settings.volume_wave_drag_scaling    = 3.7 # 1.8-2.2 are given as typical for an SST, but 3.7 was found to be more accurate 
         # This may be due to added propulsion effects
+        settings.fuselage_parasite_drag_begin_blend_mach = 0.91
+        settings.fuselage_parasite_drag_end_blend_mach   = 0.99
         
         # vortex lattice configurations
         settings.number_panels_spanwise = 5
@@ -102,7 +106,7 @@ class Supersonic_Zero(Markup):
         compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total # SZ        
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
-        compute.drag.parasite.wings.wing           = Methods.Drag.parasite_drag_wing 
+        compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage 
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')

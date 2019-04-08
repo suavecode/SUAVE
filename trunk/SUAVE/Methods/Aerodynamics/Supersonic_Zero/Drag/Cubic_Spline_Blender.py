@@ -61,7 +61,6 @@ class Cubic_Spline_Blender():
         """          
         eta = self.eta_transform(x)
     
-        #y = np.zeros_like(eta)
         y = 2*eta*eta*eta-3*eta*eta+1
         y[eta<0] = 1
         y[eta>1] = 0

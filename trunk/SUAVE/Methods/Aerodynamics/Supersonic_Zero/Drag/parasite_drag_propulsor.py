@@ -75,8 +75,6 @@ def parasite_drag_propulsor(state,settings,geometry):
     # skin friction coefficient
     cf_prop, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)
 
-
-    #k_prop = np.array([[0.0]]*len(Mc))
     
     # form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
     k_prop_sub = 1. + 0.35 / (float(l_prop)/float(d_prop)) 

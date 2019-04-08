@@ -14,6 +14,7 @@ from SUAVE.Core import Data
 from .wave_drag_lift import wave_drag_lift
 from .wave_drag_volume import wave_drag_volume
 from .Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Components.Wings import Main_Wing
 
 import copy
 
@@ -42,8 +43,8 @@ def compressibility_drag_total(state,settings,geometry):
       volume_wave_drag_scaling                                       [Unitless]
     state.conditions.aerodynamics.lift_breakdown.compressible_wings  [Unitless]
     state.conditions.freestream.mach_number                          [Unitless]
-    geometry.maximum_cross_sectional_area                            [m^2]
-    geometry.total_length                                            [m]
+    geometry.maximum_cross_sectional_area                            [m^2] (used in subfunctions)
+    geometry.total_length                                            [m]   (used in subfunctions)
     geometry.reference_area                                          [m^2]
     geometry.wings                             
 
@@ -66,7 +67,6 @@ def compressibility_drag_total(state,settings,geometry):
     if settings.cross_sectional_area_calculation_type is not 'Fixed':
         raise NotImplementedError
     
-    vehicle_length = geometry.total_length
     wings          = geometry.wings
     Mc             = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
@@ -74,7 +74,7 @@ def compressibility_drag_total(state,settings,geometry):
     # Initialize result
     drag_breakdown.compressible = Data()
     
-    # Use main wing reference area for drag coefficients
+    # Use vehicle reference area for drag coefficients
     Sref_main = geometry.reference_area
     
 
@@ -192,6 +192,8 @@ def drag_div(Mc_ii,wing,cl,Sref_main):
 
     Source:
     adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    Concorde data can be found in "Supersonic drag reduction technology in the scaled supersonic 
+    experimental airplane project by JAXA" by Kenji Yoshida
 
     Inputs:
     wing.
@@ -215,10 +217,8 @@ def drag_div(Mc_ii,wing,cl,Sref_main):
     if wing.high_mach is True:
 
         # Divergence mach number, fit to Concorde data
-        # Concorde data can be found in "Supersonic drag reduction technology in the scaled supersonic 
-        # experimental airplane project by JAXA" by Kenji Yoshida
         MDiv = np.array([[0.98]] * len(Mc_ii))
-        mcc = np.array([[0.95]] * len(Mc_ii))
+        mcc  = np.array([[0.95]] * len(Mc_ii))
 
     else:
         # Unpack wing
@@ -226,7 +226,7 @@ def drag_div(Mc_ii,wing,cl,Sref_main):
         sweep_w = wing.sweeps.quarter_chord
 
         # Check if this is the main wing, other wings are assumed to have no lift
-        if wing.tag == 'main_wing':
+        if isinstance(wing, Main_Wing):
             cl_w = cl
         else:
             cl_w = 0

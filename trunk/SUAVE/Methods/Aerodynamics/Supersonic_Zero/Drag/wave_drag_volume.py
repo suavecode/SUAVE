@@ -7,6 +7,7 @@
 import numpy as np
 from SUAVE.Core import Units
 from .Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Components.Wings import Main_Wing
 
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def wave_drag_volume(vehicle,mach,scaling_factor):
@@ -30,8 +31,17 @@ def wave_drag_volume(vehicle,mach,scaling_factor):
 
     Properties Used:
     N/A
-    """    
-    LE_sweep = vehicle.wings.main_wing.sweeps.leading_edge / Units.deg
+    """ 
+    
+    num_main_wings = 0
+    for wing in vehicle.wings:
+        if isinstance(wing,Main_Wing):
+            main_wing = wing
+            num_main_wings += 1
+        if num_main_wings > 1:
+            raise NotImplementedError('This function is not designed to handle multiple main wings.')
+        
+    LE_sweep = main_wing.sweeps.leading_edge / Units.deg
     L        = vehicle.total_length
     Ae       = vehicle.maximum_cross_sectional_area
     S        = vehicle.reference_area
