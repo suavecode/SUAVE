@@ -167,7 +167,7 @@ def parasite_drag_wing(state,settings,geometry):
         
         chord_root = wing.chords.root
         chord_tip  = wing.chords.tip
-        wing_root     = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_w)
+        wing_root  = chord_root + exposed_root_chord_offset*((chord_tip - chord_root)/span_w)
     
         # calculate exposed area
         if wing.symmetric:

@@ -75,10 +75,12 @@ class Supersonic_Zero(Markup):
         # by multiplying the volume wave drag at the end drag rise Mach number
         settings.peak_mach_number                      = 1.04
         settings.cross_sectional_area_calculation_type = 'Fixed'
-        # 'OpenVSP' can also be used. This allows the cross sectional area to vary with Mach number, but is 
+        # 'Fixed' means that the area is not able to vary with Mach number, so the number at the desired cruise condition should
+        # be used
+        # 'OpenVSP' is a desired future possibility. This would allow the cross sectional area to vary with Mach number, but is 
         # much more computationally intensive.        
         settings.volume_wave_drag_scaling    = 3.7 # 1.8-2.2 are given as typical for an SST, but 3.7 was found to be more accurate 
-        # This way be due to added propulsion effects
+        # This may be due to added propulsion effects
         
         # vortex lattice configurations
         settings.number_panels_spanwise = 5

@@ -1,8 +1,9 @@
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_fuselage.py
 # 
-# Created:  Feb 2019, T. MacDonald
-# Modified: 
+# Created:  Aug 2014, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
+#           Feb 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports

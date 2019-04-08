@@ -63,9 +63,7 @@ def compressibility_drag_total(state,settings,geometry):
     peak_factor      = settings.transonic_drag_multiplier
     scaling_factor   = settings.volume_wave_drag_scaling
     
-    if settings.cross_sectional_area_calculation_type == 'Fixed':
-        max_area       = geometry.maximum_cross_sectional_area
-    else:
+    if settings.cross_sectional_area_calculation_type is not 'Fixed':
         raise NotImplementedError
     
     vehicle_length = geometry.total_length
@@ -216,7 +214,9 @@ def drag_div(Mc_ii,wing,cl,Sref_main):
     # If so use arbitrary divergence point as correlation will not work
     if wing.high_mach is True:
 
-        # Divergence mach number
+        # Divergence mach number, fit to Concorde data
+        # Concorde data can be found in "Supersonic drag reduction technology in the scaled supersonic 
+        # experimental airplane project by JAXA" by Kenji Yoshida
         MDiv = np.array([[0.98]] * len(Mc_ii))
         mcc = np.array([[0.95]] * len(Mc_ii))
 

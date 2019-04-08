@@ -1,8 +1,8 @@
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # wave_drag_volume.py
 # 
-# Created:  Feb 2019, T. MacDonald
-# Modified: 
+# Created:  Jun 2014, T. MacDonald
+# Modified: Feb 2019, T. MacDonald
 
 import numpy as np
 from SUAVE.Core import Units

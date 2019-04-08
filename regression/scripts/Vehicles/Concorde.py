@@ -44,12 +44,12 @@ def vehicle_setup():
     vehicle.envelope.limit_load    = 2.5
 
     # basic parameters
-    vehicle.reference_area         = 358.25      
-    vehicle.passengers             = 100
-    vehicle.systems.control        = "fully powered" 
-    vehicle.systems.accessories    = "long range"
+    vehicle.reference_area               = 358.25      
+    vehicle.passengers                   = 100
+    vehicle.systems.control              = "fully powered" 
+    vehicle.systems.accessories          = "long range"
     vehicle.maximum_cross_sectional_area = 13.9
-    vehicle.total_length           = 61.66
+    vehicle.total_length                 = 61.66
     
     
     # ------------------------------------------------------------------        
@@ -278,7 +278,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 2.7/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 0.
-    segment.thickness_to_chord    = 0.03
+    segment.thickness_to_chord    = 0.04
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)    
     
