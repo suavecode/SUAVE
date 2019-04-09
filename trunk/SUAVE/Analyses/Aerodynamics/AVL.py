@@ -119,6 +119,7 @@ class AVL(Markup):
         Properties Used:
         self.geometry
         """  
+        super(AVL, self).initialize()
         # unpack
         sv = self.settings.spanwise_vortices
         cv = self.settings.chordwise_vortices 
