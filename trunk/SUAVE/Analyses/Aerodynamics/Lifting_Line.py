@@ -2,7 +2,7 @@
 # Lifting_Line.py
 # 
 # Created:  Aug 2017, E. Botero
-# Modified: 
+# Modified: Apr 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports

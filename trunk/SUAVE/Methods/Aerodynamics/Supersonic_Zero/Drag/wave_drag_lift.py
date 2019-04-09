@@ -24,7 +24,7 @@ def wave_drag_lift(conditions,configuration,wing):
     Simplified equations
 
     Source:
-    http://adg.stanford.edu/aa241/drag/ssdragcalc.html
+    http://aerodesign.stanford.edu/aircraftdesign/drag/ssdragcalc.html
 
     Inputs:
     conditions.freestream.mach_number        [Unitless]

@@ -27,7 +27,7 @@ def parasite_drag_propulsor(state,settings,geometry):
 
     Source:
     Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach) (subsonic)
-    http://adg.stanford.edu/aa241/drag/BODYFORMFACTOR.HTML (supersonic)
+    http://aerodesign.stanford.edu/aircraftdesign/drag/BODYFORMFACTOR.HTML (supersonic)
 
     Inputs:
     state.conditions.freestream.

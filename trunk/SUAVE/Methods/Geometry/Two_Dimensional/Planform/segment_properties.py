@@ -19,36 +19,30 @@ def segment_properties(settings,wing):
     Segments are trapezoids
 
     Source:
-    None
+    http://aerodesign.stanford.edu/aircraftdesign/aircraftdesign.html (Stanford AA241 A/B Course Notes)
 
     Inputs:
     wing.
-      areas.reference          [m^2]
-      taper                    [-]
-      sweeps.quarter_chord     [radians]
-      aspect_ratio             [-]
-      thickness_to_chord       [-]
-      dihedral                 [radians]
-      vertical                 <boolean> Determines if wing is vertical
-      symmetric                <boolean> Determines if wing is symmetric
-      origin                   [m]       x, y, and z position
-      high_lift                <boolean> Determines if wing is in a high lift configuration
-      flaps.                             Flap values are only used if high lift is True
-        span_start             [-]       Span start position (.1 is 10% span)
-        span_end               [-]       Span end position (.1 is 10% span)
-        chord                  [-]       Portion of wing chord used (.1 is 10% chord)
+      exposed_root_chord_offset [m]
+      symmetric                 [-]
+      spans.projected           [m]
+      thickness_to_chord        [-]
+      areas.reference           [m^2]
+      areas.wetted              [m^2]
+      chords.root               [m]
+      Segments.
+        percent_span_location   [-]
+        root_chord_percent      [-]
 
     Outputs:
-    wing.
-      chords.root              [m]
-      chords.tip               [m]
-      chords.mean_aerodynamics [m]
-      areas.wetted             [m^2]
-      areas.affected           [m^2]
-      spans.projected          [m]
-      aerodynamic_center       [m]      x, y, and z location
-      flaps.chord_dimensional  [m]
-      flaps.area               [m^2]
+    wing.areas.wetted           [m^2]
+    wing.Segments.
+      taper                     [-]
+      chords.mean_aerodynamic   [m]
+      areas.
+        reference               [m^2]
+        exposed                 [m^2]
+        wetted                  [m^2]
         
 
     Properties Used:

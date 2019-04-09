@@ -25,7 +25,7 @@ def induced_drag_aircraft(state,settings,geometry):
     Based on fits
 
     Source:
-    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    http://aerodesign.stanford.edu/aircraftdesign/aircraftdesign.html (Stanford AA241 A/B Course Notes)
 
     Inputs:
     state.conditions.aerodynamics.lift_coefficient               [Unitless]

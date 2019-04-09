@@ -27,7 +27,7 @@ def parasite_drag_fuselage(state,settings,geometry):
     Basic fit
 
     Source:
-    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    http://aerodesign.stanford.edu/aircraftdesign/aircraftdesign.html (Stanford AA241 A/B Course Notes)
 
     Inputs:
     state.conditions.freestream.

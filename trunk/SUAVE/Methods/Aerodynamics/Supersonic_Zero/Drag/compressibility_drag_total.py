@@ -149,7 +149,7 @@ def lift_wave_drag(conditions,configuration,wing,Sref_main):
     Basic fit
 
     Source:
-    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    http://aerodesign.stanford.edu/aircraftdesign/aircraftdesign.html (Stanford AA241 A/B Course Notes)
 
     Inputs:
     conditions.freestream.mach_number [-]
@@ -191,7 +191,7 @@ def drag_div(Mc_ii,wing,cl,Sref_main):
     Basic fit, subsonic
 
     Source:
-    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    http://aerodesign.stanford.edu/aircraftdesign/aircraftdesign.html (Stanford AA241 A/B Course Notes)
     Concorde data can be found in "Supersonic drag reduction technology in the scaled supersonic 
     experimental airplane project by JAXA" by Kenji Yoshida
 

@@ -2,7 +2,7 @@
 # AERODAS.py
 # 
 # Created:  Feb 2016, E. Botero
-# Modified: 
+# Modified: Apr 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
