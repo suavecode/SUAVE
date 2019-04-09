@@ -15,7 +15,7 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data
 import scipy.optimize as opt
 from scipy.optimize import fsolve
-
+from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import compute_airfoil_polars
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
 
@@ -126,6 +126,8 @@ class Propeller(Energy_Component):
         beta   = self.twist_distribution
         c      = self.chord_distribution
         omega1 = self.inputs.omega 
+        a_sec  = self.airfoil_sections        
+        a_secl = self.airfoil_section_location        
         rho    = conditions.freestream.density[:,0,None]
         mu     = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv     = conditions.frames.inertial.velocity_vector
@@ -190,10 +192,26 @@ class Propeller(Energy_Component):
         
         #Things that don't change with iteration
         N       = len(c) # Number of stations     
-
-        chi0    = Rh/R   # Where the propeller blade actually starts
-        chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
-        chi     = chi[0:N]
+        
+        if  a_sec != None and a_secl != None:
+            airfoil_polars = Data()
+            # check dimension of section  
+            dim_sec = len(a_secl)
+            if dim_sec != N:
+                raise AssertionError("Number of sections not equal to number of stations")
+            # compute airfoil polars for airfoils 
+            airfoil_polars = compute_airfoil_polars(self,conditions, a_sec)
+            airfoil_cl     = airfoil_polars.CL
+            airfoil_cd     = airfoil_polars.CD
+            AoA_range      = airfoil_polars.AoA_range
+        
+        if self.radius_distribution is None:
+            chi0    = Rh/R   # Where the propeller blade actually starts
+            chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
+            chi     = chi[0:N]
+        
+        else:
+            chi = self.radius_distribution
         
         lamda   = V/(omega*R)              # Speed ratio
         r       = chi*R                    # Radial coordinate
@@ -220,6 +238,7 @@ class Propeller(Energy_Component):
         diff   = 1.
         
         ii = 0
+        broke = False        
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -415,6 +434,8 @@ class Propeller(Energy_Component):
         c       = self.chord_distribution
         Vh      = self.induced_hover_velocity 
         omega1  = self.inputs.omega
+        a_sec  = self.airfoil_sections        
+        a_secl = self.airfoil_section_location         
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector
@@ -480,15 +501,29 @@ class Propeller(Energy_Component):
         omega = omega1*1.0
         omega = np.abs(omega)
            
-        ######
-        # Enter airfoil data in a better way, there is currently Re and Ma scaling from DAE51 data
-        ######
-
         #Things that don't change with iteration
-        N       = len(c) # Number of stations
-        chi0    = Rh/R   # Where the propeller blade actually starts
-        chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
-        chi     = chi[0:N]
+        N       = len(c) # Number of stations     
+        
+        if  a_sec != None and a_secl != None:
+            airfoil_polars = Data()
+            # check dimension of section  
+            dim_sec = len(a_secl)
+            if dim_sec != N:
+                raise AssertionError("Number of sections not equal to number of stations")
+            # compute airfoil polars for airfoils 
+            airfoil_polars = compute_airfoil_polars(self,conditions, a_sec)
+            airfoil_cl     = airfoil_polars.CL
+            airfoil_cd     = airfoil_polars.CD
+            AoA_range      = airfoil_polars.AoA_range
+        
+        if self.radius_distribution is None:
+            chi0    = Rh/R   # Where the propeller blade actually starts
+            chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
+            chi     = chi[0:N]
+        
+        else:
+            chi = self.radius_distribution
+            
         lamda   = V/(omega*R)              # Speed ratio
         r       = chi*R                    # Radial coordinate
         pi      = np.pi
