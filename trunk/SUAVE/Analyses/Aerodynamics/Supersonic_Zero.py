@@ -20,6 +20,7 @@ from .Vortex_Lattice import Vortex_Lattice
 from .Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform.segment_properties import segment_properties
 
 import numpy as np
 
@@ -141,5 +142,8 @@ class Supersonic_Zero(Markup):
         """            
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
         self.process.compute.lift.inviscid_wings.initialize()
+        for wing in self.geometry.wings:
+            if len(wing.Segments) > 0:
+                segment_properties(self.settings,wing)    
         
     finalize = initialize        
