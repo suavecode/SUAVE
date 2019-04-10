@@ -1,7 +1,8 @@
 ## @ingroup Analyses-Aerodynamics
 # AVL.py
 #
-# Created: Apr 2017, M. Clarke 
+# Created:  Apr 2017, M. Clarke 
+# Modified: Apr 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -119,6 +120,7 @@ class AVL(Markup):
         Properties Used:
         self.geometry
         """  
+        super(AVL, self).initialize()
         # unpack
         sv = self.settings.spanwise_vortices
         cv = self.settings.chordwise_vortices 
