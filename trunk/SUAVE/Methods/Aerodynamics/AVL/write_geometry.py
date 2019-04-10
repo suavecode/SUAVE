@@ -3,14 +3,16 @@
 # 
 # Created:  Oct 2015, T. Momose
 # Modified: Jan 2016, E. Botero
-#           Apr 2017, M. Clarke
+#           Oct 2018, M. Clarke
 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from purge_files import purge_files
-from create_avl_datastructure import translate_avl_wing, translate_avl_body 
+from .purge_files import purge_files
+from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
+import numpy as np
+from .create_avl_datastructure import translate_avl_wing, translate_avl_body 
 
 ## @ingroup Methods-Aerodynamics-AVL
 def write_geometry(avl_object):
@@ -36,9 +38,10 @@ def write_geometry(avl_object):
     # unpack inputs
     aircraft            = avl_object.geometry
     geometry_file       = avl_object.settings.filenames.features
-
+    spanwise_vortices   = avl_object.settings.discretization.defaults.wing.spanwise_vortices
+    chordwise_vortices  = avl_object.settings.discretization.defaults.wing.chordwise_vortices
     # Open the geometry file after purging if it already exists
-    purge_files([geometry_file])
+    purge_files([geometry_file]) 
     geometry             = open(geometry_file,'w')
 
     with open(geometry_file,'w') as geometry:
@@ -47,14 +50,13 @@ def write_geometry(avl_object):
         
         for w in aircraft.wings:
             avl_wing      = translate_avl_wing(w)
-            wing_text     = make_surface_text(avl_wing)
+            wing_text     = make_surface_text(avl_wing,spanwise_vortices,chordwise_vortices)
             geometry.write(wing_text)  
                      
         for b in aircraft.fuselages:
-            if b.tag == 'fuselage':
-                avl_body  = translate_avl_body(b)
-                body_text = make_body_text(avl_body)
-                geometry.write(body_text)
+            avl_body  = translate_avl_body(b)
+            body_text = make_body_text(avl_body,chordwise_vortices)
+            geometry.write(body_text)
             
     return
 
@@ -119,7 +121,7 @@ def make_header_text(avl_object):
     return header_text
 
 
-def make_surface_text(avl_wing):
+def make_surface_text(avl_wing,spanwise_vortices,chordwise_vortices):
     """This function writes the surface text using the template required for the AVL executable to read
 
     Assumptions:
@@ -146,7 +148,7 @@ def make_surface_text(avl_wing):
 SURFACE
 {0}
 #Nchordwise  Cspace   Nspanwise  Sspace
-{1}           {2}         {3}     {4}{5}
+{1}         {2}         {3}      {4}{5}
 '''        
     # Unpack inputs
     symm = avl_wing.symmetric
@@ -160,37 +162,33 @@ SURFACE
     # Vertical Wings
     if avl_wing.vertical:
         # Define precision of analysis. See AVL documentation for reference 
-        chordwise_vortices       = 20  
         chordwise_vortex_spacing = 1.0
-        spanwise_vortices        = 20
-        spanwise_vortex_spacing  = 1
+        spanwise_vortex_spacing  = -1.1                              # cosine distribution i.e. || |   |    |    |  | ||
         ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[2])
         
-        # Write text    
-        surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices,spanwise_vortex_spacing,ydup)     
-        for i in xrange(len(ordered_tags)):
+        # Write text 
+        surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices ,spanwise_vortex_spacing,ydup)
+        for i in range(len(ordered_tags)):
             section_text    = make_wing_section_text(ordered_tags[i])
             surface_text    = surface_text + section_text
             
     # Horizontal Wings        
     else:        
-        # Define precision of analysis. See AVL documentation for reference 
-        chordwise_vortices       = 20  
-        chordwise_vortex_spacing = 1.0
-        spanwise_vortices        = 30
-        spanwise_vortex_spacing  = -1.0 
+        # Define precision of analysis. See AVL documentation for reference
+        chordwise_vortex_spacing = 1.0        
+        spanwise_vortex_spacing  = 1.0                              # cosine distribution i.e. || |   |    |    |  | ||
         ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[1])
     
-        # Write text    
-        surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices,spanwise_vortex_spacing,ydup)     
-        for i in xrange(len(ordered_tags)):
+        # Write text  
+        surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices ,spanwise_vortex_spacing,ydup)
+        for i in range(len(ordered_tags)):
             section_text    = make_wing_section_text(ordered_tags[i])
             surface_text    = surface_text + section_text
 
     return surface_text
 
 
-def make_body_text(avl_body):    
+def make_body_text(avl_body,chordwise_vortices):   
     """This function writes the body text using the template required for the AVL executable to read
 
     Assumptions:
@@ -222,25 +220,24 @@ SURFACE
     name = avl_body.tag
     
     # Define precision of analysis. See AVL documentation for reference 
-    chordwise_vortices       = 20  
     chordwise_vortex_spacing = 1.0 
     
     # Form the horizontal part of the + shaped fuselage    
     hname           = name + '_horizontal'
-    horizontal_text = surface_base.format(hname,chordwise_vortices,chordwise_vortex_spacing,'  ')   
+    horizontal_text = surface_base.format(hname,chordwise_vortices,chordwise_vortex_spacing)
        
     ordered_tags = []
     ordered_tags = sorted(avl_body.sections.horizontal, key = lambda x: x.origin[1])
-    for i in xrange(len(ordered_tags)):
+    for i in range(len(ordered_tags)):
         section_text    = make_body_section_text(ordered_tags[i])
         horizontal_text = horizontal_text + section_text
         
     # Form the vertical part of the + shaped fuselage
     vname         = name + '_vertical'
-    vertical_text = surface_base.format(vname,chordwise_vortices,chordwise_vortex_spacing,' ')   
+    vertical_text = surface_base.format(vname,chordwise_vortices,chordwise_vortex_spacing)   
     ordered_tags = []
     ordered_tags = sorted(avl_body.sections.vertical, key = lambda x: x.origin[2])
-    for i in xrange(len(ordered_tags)):
+    for i in range(len(ordered_tags)):
         section_text    = make_body_section_text(ordered_tags[i])
         vertical_text = vertical_text + section_text
         
@@ -273,7 +270,7 @@ def make_wing_section_text(avl_section):
 '''
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-{0}  {1}    {2}    {3}    {4}      
+{0}  {1}    {2}    {3}    {4}     
 '''
     airfoil_base = \
 '''
@@ -292,8 +289,11 @@ AFILE
     wing_section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
     if airfoil:
         wing_section_text = wing_section_text + airfoil_base.format(airfoil)
-    for cs in avl_section.control_surfaces:
-        control_text = make_controls_text(cs)
+    
+    ordered_cs = []
+    ordered_cs = sorted(avl_section.control_surfaces, key = lambda x: x.order)
+    for i in range(len(ordered_cs)):
+        control_text = make_controls_text(ordered_cs[i])
         wing_section_text = wing_section_text + control_text
 
     return wing_section_text
@@ -343,10 +343,7 @@ AFILE
     body_section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
     if airfoil:
         body_section_text = body_section_text + airfoil_base.format(airfoil)
-    for cs in avl_body_section.control_surfaces:
-        control_text = make_controls_text(cs)
-        body_section_text = body_section_text + control_text
-
+    
     return body_section_text
 
     

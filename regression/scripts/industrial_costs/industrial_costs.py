@@ -35,11 +35,11 @@ def main():
         nrec = (config.costs.industrial.non_recurring.total - config.costs.industrial.non_recurring.breakdown.tooling_production) / 1e6
         rec  = config.costs.industrial.unit_cost / 1e6
 
-        print '{:10s} => NREC: {:10.2f} , REC: {:7.2f}'.format(item,nrec,rec)
+        print('{:10s} => NREC: {:10.2f} , REC: {:7.2f}'.format(item,nrec,rec))
 
         output_list[:,idx] = nrec,rec
 
-    print ''
+    print('')
     test = check_results(config_list,output_list)
 
     return output_list
@@ -478,21 +478,21 @@ def check_results(config_list,new_results):
 
     # do the check
     for idx,item in enumerate(config_list):
-        print item
+        print(item)
 
         old_val = float(old_results[0][idx])
         new_val = float(new_results[0][idx])
         err = (new_val-old_val)/old_val
-        print 'Error at NREC:' , err
+        print('Error at NREC:' , err)
         assert np.abs(err) < 1e-6 , 'NREC Cost Failed : %s' % item
 
         old_val = float(old_results[1][idx])
         new_val = float(new_results[1][idx])
         err = (new_val-old_val)/old_val
-        print 'Error at REC:' , err
+        print('Error at REC:' , err)
         assert np.abs(err) < 1e-6 , 'REC Cost Failed : %s' % item
 
-        print ''
+        print('')
 
     return
 

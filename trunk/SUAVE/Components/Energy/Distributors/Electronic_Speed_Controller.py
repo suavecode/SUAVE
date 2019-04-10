@@ -79,7 +79,7 @@ class Electronic_Speed_Controller(Energy_Component):
         
         return voltsout
     
-    def currentin(self):
+    def currentin(self,conditions):
         """ The current going into the speed controller
         
             Assumptions:
@@ -96,12 +96,14 @@ class Electronic_Speed_Controller(Energy_Component):
                
         """
         
-        # Unpack
+        # Unpack, don't modify the throttle
+        eta = (conditions.propulsion.throttle[:,0,None])*1.0        
         eff        = self.efficiency
         currentout = self.inputs.currentout
-        currentin  = currentout/eff
+        currentin  = currentout*eta/eff
         
         # Pack
         self.outputs.currentin = currentin
+        self.outputs.power_in  = self.outputs.voltageout*currentin
         
         return currentin

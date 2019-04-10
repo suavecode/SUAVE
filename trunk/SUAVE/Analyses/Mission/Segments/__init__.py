@@ -3,14 +3,14 @@
 # @ingroup Analyses-Mission
 
 
-from Segment     import Segment
-from Simple      import Simple
-from Aerodynamic import Aerodynamic
+from .Segment     import Segment
+from .Simple      import Simple
+from .Aerodynamic import Aerodynamic
 
-import Climb
-import Conditions
-import Cruise
-import Descent
-import Ground
-import Hover
-import Single_Point
+from . import Climb
+from . import Conditions
+from . import Cruise
+from . import Descent
+from . import Ground
+from . import Hover
+from . import Single_Point

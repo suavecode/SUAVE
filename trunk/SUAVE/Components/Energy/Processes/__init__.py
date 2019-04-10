@@ -7,7 +7,8 @@
 # Created:  
 # Modified: Feb 2016, T. MacDonald
 
-from Solar_Radiation import Solar_Radiation
-from Thrust import Thrust
-from Thrust_JDM import Thrust_JDM
-from Thrust_TASOPT import Thrust_TASOPT
+from .Solar_Radiation import Solar_Radiation
+from .Thrust import Thrust
+from .Rocket_Thrust import Rocket_Thrust
+from .Thrust_JDM import Thrust_JDM
+from .Thrust_TASOPT import Thrust_TASOPT

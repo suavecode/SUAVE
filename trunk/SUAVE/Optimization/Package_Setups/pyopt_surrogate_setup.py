@@ -59,7 +59,7 @@ def pyopt_surrogate_setup(surrogate_function, inputs, constraints):
     scaled_inputs      = ini/scl
     x                  = scaled_inputs#*input_units
     
-    print 'x_setup=', x
+    print('x_setup=', x)
     #bound the input variables
     for j in range(len(inputs[:,1])):
         lbd = bnd[j][0]/(scl[j])#*input_units[j]

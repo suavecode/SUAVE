@@ -13,7 +13,7 @@ import numpy as np
 #  Expand State
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Missions-Segments-Climb
-def expand_state(segment,state):
+def expand_state(segment):
     
     """Makes all vectors in the state the same size. Determines the minimum amount of points needed to get data for noise certification.
 
@@ -36,7 +36,7 @@ def expand_state(segment,state):
     # unpack
     climb_angle  = segment.climb_angle
     air_speed    = segment.air_speed   
-    conditions   = state.conditions
+    conditions   = segment.state.conditions
     
     #Necessary input for determination of noise trajectory    
     dt = 0.5  #time step in seconds for noise calculation - Certification requirement    
@@ -49,9 +49,9 @@ def expand_state(segment,state):
     total_time=(x0+500)/v_x    
     n_points   = np.int(np.ceil(total_time/dt +1))       
     
-    state.numerics.number_control_points = n_points
+    segment.state.numerics.number_control_points = n_points
     
-    state.expand_rows(n_points)      
+    segment.state.expand_rows(n_points)      
     
     return
 
@@ -59,7 +59,7 @@ def expand_state(segment,state):
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 ## @ingroup methods-missions-segments-climb
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Gets the overall time step for the segment type.
     
     Assumptions:
@@ -90,8 +90,8 @@ def initialize_conditions(segment,state):
     # unpack
     climb_angle = segment.climb_angle
     air_speed   = segment.air_speed   
-    t_nondim    = state.numerics.dimensionless.control_points
-    conditions  = state.conditions  
+    t_nondim    = segment.state.numerics.dimensionless.control_points
+    conditions  = segment.state.conditions  
     
     # process velocity vector
     v_mag = air_speed

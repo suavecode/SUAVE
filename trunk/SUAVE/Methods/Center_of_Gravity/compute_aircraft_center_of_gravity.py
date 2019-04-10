@@ -48,14 +48,14 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
         wing_moment               = (wing.origin+wing_cg)*wing.mass_properties.mass
 
         # Horizontal Tail
-        if vehicle.wings.has_key('horizontal_stabilizer'):
+        if 'horizontal_stabilizer' in vehicle.wings:
                 h_tail             = vehicle.wings['horizontal_stabilizer']
                 h_tail_cg                 = h_tail.mass_properties.center_of_gravity
                 h_tail_moment             = (h_tail.origin+h_tail_cg)*h_tail.mass_properties.mass
         else:
                 h_tail_moment = 0
         # Verical Tail
-        if vehicle.wings.has_key('vertical_stabilizer'):
+        if 'vertical_stabilizer' in vehicle.wings:
                 v_tail             = vehicle.wings['vertical_stabilizer']  
                 v_tail_cg                 = v_tail.mass_properties.center_of_gravity
                 v_tail_moment             = (v_tail.origin+ v_tail_cg)*(v_tail.mass_properties.mass+v_tail.rudder.mass_properties.mass)
@@ -64,7 +64,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
 
 
         # Propulsion
-        propulsor_name                    = vehicle.propulsors.keys()[0]
+        propulsor_name                    = list(vehicle.propulsors.keys())[0]
         propulsor                         = vehicle.propulsors[propulsor_name]        
         propulsor_cg_base                 = propulsor.mass_properties.center_of_gravity
         propulsor_cg                      = 0
@@ -81,7 +81,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
         if vehicle.fuselages.keys() != []: 
 
                 landing_gear       = vehicle.landing_gear
-                propulsor_name     = vehicle.propulsors.keys()[0]
+                propulsor_name     = list(vehicle.propulsors.keys())[0]
                 propulsor          = vehicle.propulsors[propulsor_name]
                 electrical_systems = vehicle.electrical_systems
                 avionics           = vehicle.avionics
@@ -101,7 +101,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
                 # Fuel
                 fuel_cg                   = fuel.mass_properties.center_of_gravity
                 fuel_moment               = (fuel.origin+fuel_cg)*fuel.mass_properties.mass                
-                fuse_key                  = vehicle.fuselages.keys()[0] #['fuselage']
+                fuse_key                  = list(vehicle.fuselages.keys())[0] #['fuselage']
                 fuselage                  = vehicle.fuselages[fuse_key]                   
 
                 # Fuselage

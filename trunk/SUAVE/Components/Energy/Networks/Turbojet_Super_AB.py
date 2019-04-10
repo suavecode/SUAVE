@@ -24,7 +24,7 @@ from copy import deepcopy
 from warnings import warn
 
 
-from SUAVE.Core import Data, Data_Exception, Data_Warning
+from SUAVE.Core import Data
 from SUAVE.Components import Component, Physical_Component, Lofted_Body
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
@@ -383,13 +383,13 @@ class Turbojet_Super_AB(Propulsor):
         Tt4 = min_Tt4 + throttle*delta_Tt4   
         throttle_local = np.ones_like(throttle)
         
-        print "throttle : ",throttle,(throttle.all()>1.0)
+        print("throttle : ",throttle,(throttle.all()>1.0))
                                       
         #if(throttle.any()>1.0):
         if(throttle[0]>1.0):
             afterburner_on = 1
             Tt4 = min_Tt4 + throttle_local*delta_Tt4
-            print "aftburner :",Tt4
+            print("aftburner :",Tt4)
 
         #Tt4[throttle>1.0] = min_Tt4 + throttle_local[throttle>1.0]*delta_Tt4
         
@@ -426,7 +426,7 @@ class Turbojet_Super_AB(Propulsor):
             R_AB = (gamma_AB-1.0)/(gamma_AB)*c_pAB
             tau_lamdaAB = c_pAB*Tt7/(c_pc*T0)
             f_AB = (tau_lamdaAB - tau_lamda*tau_tH*tau_tL)/(eta_AB*h_PR/(c_pc*T0)-tau_lamdaAB)
-            print "aftburner test ",c_pAB,Tt7,c_pc,T0
+            print("aftburner test ",c_pAB,Tt7,c_pc,T0)
 
             
         
@@ -439,7 +439,7 @@ class Turbojet_Super_AB(Propulsor):
         V9_a0 = M9*np.sqrt(gamma_AB*R_AB*T9_T0/(gamma_c*R_c))
 
         f_O = f + f_AB
-        print throttle,f,f_AB,f
+        print(throttle,f,f_AB,f)
 
         F_mdot0 = a0/gc*(1.0 + f_O)*V9_a0 - M0 + (1.0 + f_O)*R_AB/R_c*(T9_T0/V9_a0)*((1.0-P0_P9)/gamma_c)
         

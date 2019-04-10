@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from wing_planform import wing_planform
+from .wing_planform import wing_planform
 
 # ----------------------------------------------------------------------
 #  Methods

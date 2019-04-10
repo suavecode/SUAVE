@@ -19,7 +19,7 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments
-def converge_opt(segment,state):
+def converge_opt(segment):
     """Interfaces the mission to an optimization algorithm
 
     Assumptions:
@@ -31,7 +31,6 @@ def converge_opt(segment,state):
     Inputs:
     state.unknowns                     [Data]
     segment                            [Data]
-    state                              [Data]
     segment.algorithm                  [string]
 
     Outputs:
@@ -42,15 +41,15 @@ def converge_opt(segment,state):
     """     
     
     # pack up the array
-    unknowns = state.unknowns.pack_array()
+    unknowns = segment.state.unknowns.pack_array()
     
     # Have the optimizer call the wrapper
-    obj       = lambda unknowns:get_objective(unknowns,(segment,state))   
-    econ      = lambda unknowns:get_econstraints(unknowns,(segment,state)) 
-    iecon     = lambda unknowns:get_ieconstraints(unknowns,(segment,state)) 
+    obj       = lambda unknowns:get_objective(unknowns,segment)   
+    econ      = lambda unknowns:get_econstraints(unknowns,segment) 
+    iecon     = lambda unknowns:get_ieconstraints(unknowns,segment)
     
     # Setup the bnds of the problem
-    bnds = make_bnds(unknowns, (segment,state))
+    bnds = make_bnds(unknowns, segment)
     
     # Solve the problem, based on chosen algorithm
     if segment.algorithm == 'SLSQP':
@@ -63,31 +62,31 @@ def converge_opt(segment,state):
         import pyOpt.pySNOPT    
         
         # Have the optimizer call the wrapper
-        obj_pyopt = lambda unknowns:get_problem_pyopt(unknowns,(segment,state)) 
+        obj_pyopt = lambda unknowns:get_problem_pyopt(unknowns,segment) 
     
         opt_prob = pyOpt.Optimization('SUAVE',obj_pyopt)
         opt_prob.addObj(segment.objective)
     
-        for ii in xrange(0,len(unknowns)):
+        for ii in range(0,len(unknowns)):
             lbd = (bnds[ii][0])
             ubd = (bnds[ii][1])
             vartype = 'c'
             opt_prob.addVar(str(ii),vartype,lower=lbd,upper=ubd,value=unknowns[ii])  
     
         # Setup constraints
-        segment_points = state.numerics.number_control_points
-        for ii in xrange(0,2*segment_points):
+        segment_points = segment.state.numerics.number_control_points
+        for ii in range(0,2*segment_points):
             opt_prob.addCon(str(ii), type='e', equal=0.)
-        for ii in xrange(0,3*segment_points-1):
+        for ii in range(0,3*segment_points-1):
             opt_prob.addCon(str(ii+segment_points*2), type='i', lower=0.,upper=np.inf)
     
-        print opt_prob
+        print(opt_prob)
     
         snopt = pyOpt.pySNOPT.SNOPT()    
         outputs = snopt(opt_prob) 
     
-        print outputs
-        print opt_prob.solution(0)
+        print(outputs)
+        print(opt_prob.solution(0))
 
     return
     
@@ -96,7 +95,7 @@ def converge_opt(segment,state):
 # ----------------------------------------------------------------------
     
 ## @ingroup Methods-Missions-Segments
-def get_objective(unknowns,(segment,state)):
+def get_objective(unknowns, segment):
     """ Runs the mission if the objective value is needed
     
         Assumptions:
@@ -114,19 +113,19 @@ def get_objective(unknowns,(segment,state)):
     """      
     
     if isinstance(unknowns,array_type):
-        state.unknowns.unpack_array(unknowns)
+        segment.state.unknowns.unpack_array(unknowns)
     else:
-        state.unknowns = unknowns
+        segment.state.unknowns = unknowns
         
-    if not np.all(state.inputs_last == state.unknowns):       
-        segment.process.iterate(segment,state)
+    if not np.all(segment.state.inputs_last == segment.state.unknowns):       
+        segment.process.iterate(segment)
         
-    objective = state.objective_value
+    objective = segment.objective_value
     
     return objective
 
 ## @ingroup Methods-Missions-Segments
-def get_econstraints(unknowns,(segment,state)):
+def get_econstraints(unknowns, segment):
     """ Runs the mission if the equality constraint values are needed
     
         Assumptions:
@@ -144,19 +143,19 @@ def get_econstraints(unknowns,(segment,state)):
     """       
     
     if isinstance(unknowns,array_type):
-        state.unknowns.unpack_array(unknowns)
+        segment.state.unknowns.unpack_array(unknowns)
     else:
-        state.unknowns = unknowns
+        segment.state.unknowns = unknowns
         
-    if not np.all(state.inputs_last == state.unknowns):       
-        segment.process.iterate(segment,state)
+    if not np.all(segment.state.inputs_last == segment.state.unknowns):       
+        segment.process.iterate(segment)
 
-    constraints = state.constraint_values
+    constraints = segment.state.constraint_values
     
     return constraints
 
 ## @ingroup Methods-Missions-Segments
-def make_bnds(unknowns,(segment,state)):
+def make_bnds(unknowns, segment):
     """ Automatically sets the bounds of the optimization.
     
         Assumptions:
@@ -174,10 +173,10 @@ def make_bnds(unknowns,(segment,state)):
         N/A
                                 
     """      
-    
-    ones    = state.ones_row(1)
-    ones_m1 = state.ones_row_m1(1)
-    ones_m2 = state.ones_row_m2(1)
+
+    ones    = segment.state.ones_row(1)
+    ones_m1 = segment.state.ones_row_m1(1)
+    ones_m2 = segment.state.ones_row_m2(1)
     
     throttle_bnds = ones*(0.,1.)
     body_angle    = ones*(0., np.pi/2.)
@@ -195,7 +194,7 @@ def make_bnds(unknowns,(segment,state)):
     return bnds
 
 ## @ingroup Methods-Missions-Segments
-def get_ieconstraints(unknowns,(segment,state)):
+def get_ieconstraints(unknowns, segment):
     """ Runs the mission if the inequality constraint values are needed
     
         Assumptions:
@@ -213,32 +212,32 @@ def get_ieconstraints(unknowns,(segment,state)):
         N/A
                                 
     """      
-    
+
     if isinstance(unknowns,array_type):
-        state.unknowns.unpack_array(unknowns)
+        segment.state.unknowns.unpack_array(unknowns)
     else:
-        state.unknowns = unknowns
+        segment.state.unknowns = unknowns
         
-    if not np.all(state.inputs_last == state.unknowns):       
-        segment.process.iterate(segment,state)
+    if not np.all(state.inputs_last == segment.state.unknowns):       
+        segment.process.iterate(segment)
     
     # Time goes forward, not backward
-    t_final = state.conditions.frames.inertial.time[-1,0]
-    time_con = (state.conditions.frames.inertial.time[1:,0] - state.conditions.frames.inertial.time[0:-1,0])/t_final
+    t_final = segment.state.conditions.frames.inertial.time[-1,0]
+    time_con = (segment.state.conditions.frames.inertial.time[1:,0] - segment.state.conditions.frames.inertial.time[0:-1,0])/t_final
     
     # Less than a specified CL limit
     CL_limit = segment.CL_limit 
-    CL_con = (CL_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/CL_limit
+    CL_con = (CL_limit  - segment.state.conditions.aerodynamics.lift_coefficient[:,0])/CL_limit
     
     # Altitudes are greater than 0
-    alt_con = state.conditions.freestream.altitude[:,0]/segment.altitude_end
+    alt_con = segment.state.conditions.freestream.altitude[:,0]/segment.altitude_end
     
     constraints = np.concatenate((time_con,CL_con,alt_con))
     
     return constraints
 
 ## @ingroup Methods-Missions-Segments
-def get_problem_pyopt(unknowns,(segment,state)):
+def get_problem_pyopt(unknowns):
     """ Runs the mission and obtains the objective and all constraints. This is formatted for pyopt
     
         Assumptions:
@@ -258,32 +257,32 @@ def get_problem_pyopt(unknowns,(segment,state)):
         N/A
                                 
     """       
-    
+
     if isinstance(unknowns,array_type):
-        state.unknowns.unpack_array(unknowns)
+        segment.state.unknowns.unpack_array(unknowns)
     else:
-        state.unknowns = unknowns
+        segment.state.unknowns = unknowns
         
-    if not np.all(state.inputs_last == state.unknowns):       
-        segment.process.iterate(segment,state)
+    if not np.all(state.inputs_last == segment.state.unknowns):       
+        segment.process.iterate(segment)
         
-    obj      = state.objective_value
+    obj      = segment.state.objective_value
     
     # Time goes forward, not backward
-    t_final  = state.conditions.frames.inertial.time[-1,0]
-    time_con = (state.conditions.frames.inertial.time[1:,0] - state.conditions.frames.inertial.time[0:-1,0])/t_final
+    t_final  = segment.state.conditions.frames.inertial.time[-1,0]
+    time_con = (segment.state.conditions.frames.inertial.time[1:,0] - segment.state.conditions.frames.inertial.time[0:-1,0])/t_final
     
     # Less than a specified CL limit
     CL_limit = segment.CL_limit 
     CL_con   = (CL_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/CL_limit
     
     # Altitudes are greater than 0
-    alt_con = state.conditions.freestream.altitude[:,0]/segment.altitude_end
+    alt_con = segment.state.conditions.freestream.altitude[:,0]/segment.altitude_end
     
     # Put the equality and inequality constraints together
-    constraints = np.concatenate((state.constraint_values,time_con,CL_con,alt_con))
+    constraints = np.concatenate((segment.state.constraint_values,time_con,CL_con,alt_con))
     
-    obj   = state.objective_value
+    obj   = segment.state.objective_value
     const = constraints.tolist()
     fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)    
     

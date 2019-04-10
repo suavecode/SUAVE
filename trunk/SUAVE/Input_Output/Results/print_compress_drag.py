@@ -78,7 +78,7 @@ def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
     fid.write('  MAIN WING THICKNESS RATIO ..... ' + str('%5.2f' %   t_c                )   + '    ' + '\n')
     fid.write(' \n')
     fid.write(' TOTAL COMPRESSIBILITY DRAG \n')
-    fid.write(np.insert(np.transpose(map('M={:5.3f} | '.format,(mach_vec))),0,'  CL   |  '))
+    fid.write(str(np.insert(np.transpose(list(map('M={:5.3f} | '.format,(mach_vec)))),0,'  CL   |  ')))
     fid.write('\n')
 
     # call aerodynamic method for each CL
@@ -93,16 +93,16 @@ def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
             cd_compress[wing.tag][:,idcl] =  drag_breakdown[wing.tag].compressibility_drag
             cd_compress_tot[:,idcl]      +=  drag_breakdown[wing.tag].compressibility_drag
         # print first the TOTAL COMPRESSIBILITY DRAG    
-        fid.write(np.insert((np.transpose(map('{:7.5f} | '.format,(cd_compress_tot[:,idcl])))),0,' {:5.3f} |  '.format(cl)))
+        fid.write(str(np.insert((np.transpose(list(map('{:7.5f} | '.format,(cd_compress_tot[:,idcl]))))),0,' {:5.3f} |  '.format(cl))))
         fid.write('\n')
     fid.write( 119*'-' )
     # print results of other components
     for wing in vehicle.wings: 
         fid.write('\n ' + wing.tag.upper() + '  ( t/c: {:4.3f} )'.format(wing.thickness_to_chord) + '\n')
-        fid.write(np.insert(np.transpose(map('M={:5.3f} | '.format,(mach_vec))),0,'  CL   |  '))
+        fid.write(str(np.insert(np.transpose(list(map('M={:5.3f} | '.format,(mach_vec)))),0,'  CL   |  ')))
         fid.write('\n')
         for idcl, cl in enumerate(cl_vec):
-            fid.write(np.insert((np.transpose(map('{:7.5f} | '.format,(cd_compress[wing.tag][:,idcl])))),0,' {:5.3f} |  '.format(cl)))
+            fid.write(str(np.insert((np.transpose(list(map('{:7.5f} | '.format,(cd_compress[wing.tag][:,idcl]))))),0,' {:5.3f} |  '.format(cl))))
             fid.write('\n')
         fid.write(119*'-')
     # close file

@@ -1,8 +1,8 @@
 # test_take_off_field_length.py
 #
-# Created:  Tarik, Carlos, Celso, Jun 2014
-# Modified: M. Vegh, Feb 2017
-
+# Created:  Jun 2014, Tarik, Carlos, Celso
+# Modified: Feb 2017, M. Vegh
+#           Jan 2018, W. Maier
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -69,45 +69,40 @@ def main():
             takeoff_field_length[id_w,id_eng],second_seg_clb_grad[id_w,id_eng] = \
                     estimate_take_off_field_length(configuration,analyses,airport,compute_clb_grad)
     
-   
-    truth_TOFL = np.array([[ 1116.10635509 ,  726.47454766 ,  525.93957657],
-                           [ 1180.15587618 ,  764.49121395 ,  553.07064632],
-                           [ 1247.04359555 ,  804.03963238 ,  581.25141247],
-                           [ 1316.83687778 ,  845.14335923 ,  610.49401596],
-                           [ 1389.60534387 ,  887.82659431 ,  640.81085913],
-                           [ 1465.42090714 ,  932.1141929  ,  672.21461168],
-                           [ 1544.3578087  ,  978.0316776  ,  704.71821645],
-                           [ 1626.49265282 , 1025.60525002 ,  738.33489512],
-                           [ 1711.90444209 , 1074.86180226 ,  773.07815381],
-                           [ 1800.67461244 , 1125.82892836 ,  808.96178847]]   )
- 
+    truth_TOFL = np.array([[1146.3140295 ,  744.4224024 ,  538.75342066],
+                          [1212.79759651,  783.81043596,  566.84232729],
+                          [1282.24797528,  824.79325202,  596.02212933],
+                          [1354.73722661,  867.39600237,  626.30576747],
+                          [1430.33984526,  911.64453411,  657.7064656 ],
+                          [1509.13279902,  957.5654027 ,  690.23773719],
+                          [1591.19556762, 1005.18588478,  723.91339158],
+                          [1676.61018132, 1054.53399092,  758.74754014],
+                          [1765.46125946, 1105.63847818,  794.75460231],
+                          [1857.83604878, 1158.52886253,  831.94931156]])                     
+                         
+    print(' takeoff_field_length=',  takeoff_field_length)
+    print(' second_seg_clb_grad = ', second_seg_clb_grad)                      
                              
-                             
-    print ' takeoff_field_length=',  takeoff_field_length
-    print ' second_seg_clb_grad = ', second_seg_clb_grad                      
-                             
-    truth_clb_grad =  np.array([[ 0.07441427 , 0.25242021 , 0.43042615],
-                            [ 0.06825112 , 0.24009391 , 0.4119367 ],
-                            [ 0.0624828  , 0.22855727 , 0.39463173],
-                            [ 0.05707296 , 0.21773759 , 0.37840221],
-                            [ 0.05198957 , 0.20757081 , 0.36315205],
-                            [ 0.04720429 , 0.19800024 , 0.34879619],
-                            [ 0.04269194 , 0.18897554 , 0.33525915],
-                            [ 0.0384301  , 0.18045186 , 0.32247363],
-                            [ 0.03439872 , 0.1723891  , 0.31037949],
-                            [ 0.03057983 , 0.16475133 , 0.29892282]]  )
+    truth_clb_grad =  np.array([[0.07667582, 0.25379674, 0.43091766],
+                                [0.0705383 , 0.24152171, 0.41250511],
+                                [0.06479412, 0.23003334, 0.39527256],
+                                [0.05940706, 0.21925922, 0.37911138],
+                                [0.0543452 , 0.2091355 , 0.3639258 ],
+                                [0.0495803 , 0.1996057 , 0.3496311 ],
+                                [0.04508728, 0.19061967, 0.33615205],
+                                [0.0408438 , 0.1821327 , 0.32342161],
+                                [0.03682989, 0.17410487, 0.31137986],
+                                [0.03302763, 0.16650035, 0.29997307]])
 
-          
-                       
-    TOFL_error = np.max(np.abs(truth_TOFL-takeoff_field_length))                           
-    GRAD_error = np.max(np.abs(truth_clb_grad-second_seg_clb_grad))
+    TOFL_error = np.max(np.abs(truth_TOFL-takeoff_field_length)/truth_TOFL)                           
+    GRAD_error = np.max(np.abs(truth_clb_grad-second_seg_clb_grad)/truth_clb_grad)
     
-    print 'Maximum Take OFF Field Length Error= %.4e' % TOFL_error
-    print 'Second Segment Climb Gradient Error= %.4e' % GRAD_error    
+    print('Maximum Take OFF Field Length Error= %.4e' % TOFL_error)
+    print('Second Segment Climb Gradient Error= %.4e' % GRAD_error)    
     
     import pylab as plt
     title = "TOFL vs W"
-    plt.figure(1); plt.hold
+    plt.figure(1); 
     plt.plot(w_vec,takeoff_field_length[:,0], 'k-', label = '2 Engines')
     plt.plot(w_vec,takeoff_field_length[:,1], 'r-', label = '3 Engines')
     plt.plot(w_vec,takeoff_field_length[:,2], 'b-', label = '4 Engines')
@@ -122,7 +117,7 @@ def main():
         
     
     title = "2nd Segment Climb Gradient vs W"
-    plt.figure(2); plt.hold
+    plt.figure(2); 
     plt.plot(w_vec,second_seg_clb_grad[:,0], 'k-', label = '2 Engines')
     plt.plot(w_vec,second_seg_clb_grad[:,1], 'r-', label = '3 Engines')
     plt.plot(w_vec,second_seg_clb_grad[:,2], 'b-', label = '4 Engines')
@@ -135,8 +130,8 @@ def main():
     plt.xlabel('Weight (kg)')
     plt.ylabel('Second Segment Climb Gradient (%)')    
     
-    assert( TOFL_error   < 1e-5 )
-    assert( GRAD_error   < 1e-5 )
+    assert( TOFL_error   < 1e-6 )
+    assert( GRAD_error   < 1e-6 )
 
     return 
     

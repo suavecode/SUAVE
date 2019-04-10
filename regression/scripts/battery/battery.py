@@ -43,7 +43,7 @@ def main():
     #build battery_inputs(i.e. current it's run at, power, normally done from energy network
     battery_inputs.current        =90*Units.amps
     battery_inputs.power_in       =np.array([Preq/2. , Preq])
-    print 'battery_inputs=', battery_inputs
+    print('battery_inputs=', battery_inputs)
     battery_li_ion.inputs         =battery_inputs
     
     #run tests on functionality
@@ -57,36 +57,36 @@ def main():
     battery_li_ion.current_energy=[[battery_li_ion.max_energy, battery_li_ion.max_energy]] #normally handle making sure arrays are same length in network
     #run discharge model
     battery_li_ion.energy_calc(numerics)
-    print battery_li_ion
+    print(battery_li_ion)
     plot_ragone(battery_li_ion, 'lithium ion')
     plot_ragone(battery_li_s,   'lithium sulfur')
     
 def test_mass_gain(battery,power):
-    print battery
+    print(battery)
     mass_gain       =find_total_mass_gain(battery)
-    print 'mass_gain=', mass_gain
+    print('mass_gain=', mass_gain)
     mdot            =find_mass_gain_rate(battery,power)
-    print 'mass_gain_rate=', mdot
+    print('mass_gain_rate=', mdot)
     return
 def test_initialize_from_energy_and_power(battery,energy,power):
     initialize_from_energy_and_power(battery, energy, power)
-    print battery
+    print(battery)
     return
 def test_find_ragone_properties(specific_energy,battery,energy,power):
     find_ragone_properties( specific_energy, battery, energy,power)
-    print battery
-    print 'specific_energy (Wh/kg)=',battery.specific_energy/(Units.Wh/Units.kg)
+    print(battery)
+    print('specific_energy (Wh/kg)=',battery.specific_energy/(Units.Wh/Units.kg))
     return
 def test_find_ragone_optimum(battery, energy, power):
     find_ragone_optimum(battery,energy,power)
-    print battery
+    print(battery)
     
-    print 'specific_energy (Wh/kg)=',battery.specific_energy/(Units.Wh/Units.kg)
-    print 'max_energy [W-h]=', battery.max_energy/Units.Wh
+    print('specific_energy (Wh/kg)=',battery.specific_energy/(Units.Wh/Units.kg))
+    print('max_energy [W-h]=', battery.max_energy/Units.Wh)
     return
 def test_initialize_from_mass(battery,mass):
     initialize_from_mass(battery,mass)
-    print battery
+    print(battery)
     return
     
 def plot_ragone(battery, name):

@@ -80,7 +80,7 @@ def distribute_non_recurring_cost(costs):
     support             = np.zeros(development_duration)
 
     # compute non-dimentional costs distributions for the development duration
-    for t in xrange(development_duration):
+    for t in range(development_duration):
         t_ref                   = 1./development_duration*(t+1)
         engineering[t]          = sum(ndim_engineering[       ndim_time<=t_ref]) - sum(engineering)
         manuf_engineering[t]    = sum(ndim_manuf_engineering[ ndim_time<=t_ref]) - sum(manuf_engineering)

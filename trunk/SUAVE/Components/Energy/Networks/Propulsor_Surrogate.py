@@ -18,6 +18,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 from SUAVE.Core import Data
 import sklearn
 from sklearn import gaussian_process
+from sklearn.gaussian_process.kernels import RationalQuadratic 
 from sklearn import neighbors
 from sklearn import svm
 
@@ -104,9 +105,10 @@ class Propulsor_Surrogate(Propulsor):
         data_len = len(altitude)
         sfc = np.zeros([data_len,1])  
         thr = np.zeros([data_len,1]) 
-        for ii,_ in enumerate(altitude):
-            sfc[ii] = sfc_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]))    
-            thr[ii] = thr_surrogate.predict(np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]]))   
+        for ii,_ in enumerate(altitude):            
+            sfc[ii] = sfc_surrogate.predict([np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]])])    
+            thr[ii] = thr_surrogate.predict([np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]])])   #This is the fix when sklearn is update.
+
         
         F    = thr
         mdot = thr*sfc*self.number_of_engines
@@ -157,15 +159,16 @@ class Propulsor_Surrogate(Propulsor):
         my_data = my_data[idx]                
                 
     
-        xy  = my_data[1:,:3] # Altitude, Mach, Throttle
-        thr = np.transpose(np.atleast_2d(my_data[1:,3])) # Thrust
-        sfc = np.transpose(np.atleast_2d(my_data[1:,4]))  # SFC
+        xy  = my_data[:,:3] # Altitude, Mach, Throttle
+        thr = np.transpose(np.atleast_2d(my_data[:,3])) # Thrust
+        sfc = np.transpose(np.atleast_2d(my_data[:,4]))  # SFC
         
-
+        
         # Pick the type of process
-        if self.surrogate_type  == 'gaussian':
-            regr_sfc = gaussian_process.GaussianProcess(theta0=50.,thetaL=8.,thetaU=100.)
-            regr_thr = gaussian_process.GaussianProcess(theta0=15.,thetaL=8.,thetaU=100.)                
+        if self.surrogate_type  == 'gaussian': 
+            gp_kernel_RQ = RationalQuadratic(length_scale=1.0, alpha=1.0)
+            regr_sfc = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_RQ,normalize_y=True)
+            regr_thr = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_RQ)      
             thr_surrogate = regr_thr.fit(xy, thr)
             sfc_surrogate = regr_sfc.fit(xy, sfc)  
             

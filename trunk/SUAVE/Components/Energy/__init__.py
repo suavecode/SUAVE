@@ -4,16 +4,16 @@
 # @ingroup Components
 
 # classes
-from Energy_Component import Energy_Component
-from Energy import Energy
+from .Energy_Component import Energy_Component
+from .Energy import Energy
 
 # packages
-import Storages
-import Converters
-import Distributors
-import Networks
-import Peripherals
-import Processes
+from . import Storages
+from . import Converters
+from . import Distributors
+from . import Networks
+from . import Peripherals
+from . import Processes
 
 
 

@@ -103,7 +103,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
             vehicle.maximum_lift_coefficient = maximum_lift_coefficient
         except:
-            raise ValueError, "Maximum lift coefficient calculation error. Please, check inputs"
+            raise ValueError("Maximum lift coefficient calculation error. Please, check inputs")
 
     # ==============================================
     # Computing speeds (Vs, V2, 0.7*V2)
@@ -119,7 +119,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     for propulsor in vehicle.propulsors : # may have than one propulsor
         engine_number += propulsor.number_of_engines
     if engine_number == 0:
-        raise ValueError, "No engine found in the vehicle"
+        raise ValueError("No engine found in the vehicle")
 
     # ==============================================
     # Getting engine thrust
@@ -133,6 +133,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
     conditions.freestream.velocity         = np.array(np.atleast_1d(speed_for_thrust))
     conditions.freestream.mach_number      = np.array(np.atleast_1d(speed_for_thrust/ a))
+    conditions.freestream.speed_of_sound   = np.array(a)
     conditions.freestream.temperature      = np.array(np.atleast_1d(T))
     conditions.freestream.pressure         = np.array(np.atleast_1d(p))
     conditions.propulsion.throttle         = np.array(np.atleast_1d(1.))
@@ -166,12 +167,12 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
             takeoff_constants[0] = 486.7
             takeoff_constants[1] =   2.282
             takeoff_constants[2] =   0.0000705
-            print 'The vehicle has more than 4 engines. Using 4 engine correlation. Result may not be correct.'
+            print('The vehicle has more than 4 engines. Using 4 engine correlation. Result may not be correct.')
         else:
             takeoff_constants[0] = 857.4
             takeoff_constants[1] =   2.476
             takeoff_constants[2] =   0.00014
-            print 'Incorrect number of engines: {0:.1f}. Using twin engine correlation.'.format(engine_number)
+            print('Incorrect number of engines: {0:.1f}. Using twin engine correlation.'.format(engine_number))
 
     # Define takeoff index   (V2^2 / (T/W)
     takeoff_index = V2_speed**2. / (thrust[0][0] / weight)

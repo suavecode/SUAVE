@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import os
-from purge_files import purge_files
+from .purge_files import purge_files
 
 ## @ingroup Methods-Aerodynamics-AVL
 def purge_directory(path,purge_subdirectories=False):
@@ -41,15 +41,15 @@ def purge_directory(path,purge_subdirectories=False):
 	
 	contents = os.listdir(path)
 	subdir   = []
-	print contents
+	print(contents)
 	
 	for item in contents:
-		print os.path.abspath(os.path.join(path,item))
+		print(os.path.abspath(os.path.join(path,item)))
 		if os.path.isdir(os.path.abspath(os.path.join(path,item))):
 			subdir.append(item)
 			contents.remove(item)
 	
-	print subdir, contents
+	print(subdir, contents)
 	purge_files(contents,path)
 	
 	if purge_subdirectories:
@@ -58,7 +58,7 @@ def purge_directory(path,purge_subdirectories=False):
 	
 	contents = os.listdir(path)
 	if contents:
-		print "Directory contains subdirectories which were not specified for deletion. Directory not fully deleted."
+		print("Directory contains subdirectories which were not specified for deletion. Directory not fully deleted.")
 	else:
 		os.rmdir(path)
 		

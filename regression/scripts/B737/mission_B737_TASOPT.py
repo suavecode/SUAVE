@@ -378,14 +378,16 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     #instantiate the gas turbine network
-    #gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan_TASOPT_Net()
-    gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan_TASOPT_Net_fsolve()
+    gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan_TASOPT_Net()
+    #gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan_TASOPT_Net_fsolve()
     gt_engine.tag               = 'turbofan'
 
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4 #4.9 #5.4
     gt_engine.engine_length     = 2.71
     gt_engine.nacelle_diameter  = 2.05
+    gt_engine.areas             = Data()
+    gt_engine.areas.wetted = 1.    
     
     #compute engine areas
     Awet    = 1.1*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length 
@@ -1183,21 +1185,21 @@ def check_results(new_results,old_results):
 
     # do the check
     for k in check_list:
-        print k
+        print(k)
 
         old_val = np.max( old_results.deep_get(k) )
         new_val = np.max( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
-        print 'Error at Max:' , err
+        print('Error at Max:' , err)
         assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
 
         old_val = np.min( old_results.deep_get(k) )
         new_val = np.min( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
-        print 'Error at Min:' , err
+        print('Error at Min:' , err)
         assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
 
-        print ''
+        print('')
 
     ## check high level outputs
     #def check_vals(a,b):
