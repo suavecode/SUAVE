@@ -39,8 +39,6 @@ def compressible_turbulent_flat_plate(Re,Ma,Tc):
     Properties Used:
     N/A
     """
-    
-    Re[Re<=1.] = 2. 
 
     # incompressible skin friction coefficient
     cf_inc = 0.455/(np.log10(Re))**2.58

@@ -139,7 +139,7 @@ class Fuselage(Lofted_Body):
         Properties Used:
         N/A
         """ 
-    
+
         # Assert database type
         if not isinstance(segment,Data):
             raise Exception('input component must be of type Data()')

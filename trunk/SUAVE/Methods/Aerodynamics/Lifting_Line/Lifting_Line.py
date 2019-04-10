@@ -36,14 +36,11 @@ def lifting_line(conditions,settings,geometry):
       aspect_ratio                          [Unitless]
       areas.reference                       [m^2]
       vertical                              [Boolean]
-
     settings.number_of_stations             [int]
     conditions.aerodynamics.angle_of_attack [radians]
-
     Outputs:
     CL                                      [Unitless]
     CD                                      [Unitless]
-
     Properties Used:
     N/A
     """  

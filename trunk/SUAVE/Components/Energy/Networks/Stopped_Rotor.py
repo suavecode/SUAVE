@@ -30,10 +30,8 @@ class Stopped_Rotor(Propulsor):
         The second is torque matching between motor and propeller.
         
         We have two inputs, the forward throttle and the lift throttle setting
-
         Since this is an airplane first and foremost, the "throttle" will be for forward thrust
         The new unknown will be for lift throttle, because of the assumption on throttle something needs to be done...
-
         Want only 1 residual on voltage
     
         Assumptions:

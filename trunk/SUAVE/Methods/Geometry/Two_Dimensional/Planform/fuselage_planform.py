@@ -91,9 +91,6 @@ def fuselage_planform(fuselage):
     Deff = (a+b)*(64.-3.*R**4)/(64.-16.*R**2)
     wetted_area += 0.75*pi*Deff * (nose_length + tail_length)
 
-    # estimating side projected area
-    side_projected_area = fuselage_height * (cabin_length + 0.75 * (nose_length + tail_length))
-
     # reference area approximated with
     reference_area = cross_section_area
     
@@ -104,7 +101,6 @@ def fuselage_planform(fuselage):
     fuselage.lengths.total         = fuselage_length
     fuselage.areas.wetted          = wetted_area
     fuselage.areas.front_projected = cross_section_area
-    fuselage.areas.side_projected  = side_projected_area
     fuselage.effective_diameter    = Deff
     
     return 0

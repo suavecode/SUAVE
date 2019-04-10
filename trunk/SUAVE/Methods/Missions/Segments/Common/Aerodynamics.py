@@ -81,21 +81,7 @@ def update_atmosphere(segment):
     conditions.freestream.density           = atmo_data.density
     conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound
     conditions.freestream.dynamic_viscosity = atmo_data.dynamic_viscosity
-    
-    # Gamma
-    gamma = segment.analyses.atmosphere.fluid_properties.compute_gamma(atmo_data.temperature,atmo_data.pressure)
-    
-    # Gas constant
-    R = segment.analyses.atmosphere.fluid_properties.gas_specific_constant
-    
-    # Specific Heat
-    Cp = segment.analyses.atmosphere.fluid_properties.compute_cp(atmo_data.temperature,atmo_data.pressure)
-    
-    # pack
-    conditions.freestream.gamma                 = gamma
-    conditions.freestream.gas_specific_constant = R
-    conditions.freestream.specific_heat         = Cp
-    
+
     return
     
     
@@ -193,12 +179,12 @@ def update_aerodynamics(segment):
     CLmax              = aerodynamics_model.settings.maximum_lift_coefficient
     
     # call aerodynamics model
-    results = aerodynamics_model( segment.state )    
+    results = aerodynamics_model(segment.state)    
     
     # unpack results
-    CL = results.lift.total
-    CD = results.drag.total
-
+    CL  = results.lift.total
+    CD  = results.drag.total
+            
     CL[q<=0.0] = 0.0
     CD[q<=0.0] = 0.0
     
@@ -211,6 +197,7 @@ def update_aerodynamics(segment):
     L = segment.state.ones_row(3) * 0.0
     D = segment.state.ones_row(3) * 0.0
 
+    
     L[:,2] = ( -CL * q * Sref )[:,0]
     D[:,0] = ( -CD * q * Sref )[:,0]
 

@@ -195,7 +195,7 @@ class Motor(Energy_Component):
         exp_i = self.expected_current
         io    = self.no_load_current + exp_i*(1-etaG)
         
-        i = (v-omeg/Kv)/Res
+        i=(v-omeg/Kv)/Res
         
         # This line means the motor cannot recharge the battery
         i[i < 0.0] = 0.0
@@ -203,7 +203,7 @@ class Motor(Energy_Component):
         # Pack
         self.outputs.current = i
           
-        etam = (1-io/i)*(1-i*Res/v)
+        etam=(1-io/i)*(1-i*Res/v)
         conditions.propulsion.etam = etam
         
         return i, etam

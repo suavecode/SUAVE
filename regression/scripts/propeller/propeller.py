@@ -58,13 +58,13 @@ def main():
     # Create and attach this propeller 
     prop.inputs.omega    = np.array(prop.angular_velocity,ndmin=2)
     
-    F, Q, P, Cplast = prop.spin(conditions)
+    F, Q, P, Cplast ,output , etap = prop.spin(conditions)
     
     # Truth values
-    F_truth      = 166.41590262
-    Q_truth      = 45.21732911
-    P_truth      = 9470.2952633 # Over 9000!
-    Cplast_truth = 0.00085898
+    F_truth      = 103.38703422
+    Q_truth      = 29.79226982
+    P_truth      = 6239.67840083
+    Cplast_truth = 0.00056596
     
     error = Data()
     error.Thrust  = np.max(np.abs(F-F_truth))

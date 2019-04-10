@@ -57,16 +57,6 @@ class Battery_Ducted_Fan(Propulsor):
         self.motor_efficiency = .95 
         self.tag              = 'Network'
 
-    def append_propulsor(self,propulsor):
-        self.propulsor         = propulsor
-        self.nacelle_diameter  = propulsor.nacelle_diameter
-        self.engine_length     = propulsor.engine_length
-        self.number_of_engines = propulsor.number_of_engines
-        self.areas             = Data()
-        self.areas.maximum     = propulsor.areas.maximum
-        self.areas.wetted      = propulsor.areas.wetted
-
-
     # manage process with a driver function
     def evaluate_thrust(self,state):
         """ Calculate thrust given the current state of the vehicle

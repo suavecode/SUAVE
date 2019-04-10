@@ -13,9 +13,7 @@
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
-
 import numpy as np
-import pylab as plt
 
 import copy, time
 import random
@@ -158,6 +156,8 @@ def main():
     #call the aero model        
     results = aerodynamics.evaluate(state)
     
+    # save results for plots regression 
+    
     #build a polar for the markup aero
     polar = Data()    
     CL = results.lift.total
@@ -243,7 +243,7 @@ def reg_values():
                          8.18865035e-05,  1.11968899e-03, 5.44253023e-14]]).T
 
     cd_i_r = np.array([[ 0.19063951, 0.02456685, 0.00774754, 0.00111272, 0.00155992,
-                         0.00974871, 0.01866957, 0.0368782 , 0.08198087, 0.17863787, 
+                         0.00974871, 0.01866957, 0.0368782 , 0.08198087, 0.17863787,
                          0.12122115]]).T
 
     cd_m_r = np.array([[ 0.00115557,0.00115557,0.00115557,0.00115557,0.00115557,
@@ -272,10 +272,11 @@ def reg_values():
                                   0.00494143,0.00588287,0.0074545 ,0.00591085,0.00548713,
                                   0.00591505]]).T
 
-    cd_tot_r        = np.array([[ 0.21106775,0.04272497,0.03502064,0.01836063,0.02134071,
-                                  0.02511415,0.03701438,0.05988822,0.10148327,0.19967312,
-                                  0.14178233]]).T
-            
+    cd_tot_r        = np.array([[0.21106775,0.04272497,0.03502064,0.01836063,0.02134071,
+                                0.02511415,0.03701438,0.05988822,0.10148327,0.19967312,
+                                0.14178233 ]]).T
+
+    
     return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, \
            cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 

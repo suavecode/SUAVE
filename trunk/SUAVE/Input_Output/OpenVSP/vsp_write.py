@@ -606,6 +606,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     area_tags[fuselage.tag] = ['fuselages',fuselage.tag]
 
     tail_z_pos = 0.02 # default value
+
     if 'OpenVSP_values' in fuselage:        
         vals = fuselage.OpenVSP_values
 
@@ -619,7 +620,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         vsp.SetParmVal(fuse_id,"RightLStrength","XSec_0",vals.nose.side.strength)
         vsp.SetParmVal(fuse_id,"TBSym","XSec_0",vals.nose.TB_Sym)
         vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_0",vals.nose.z_pos)
-             
+
         # Tail
         vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
         vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
@@ -688,7 +689,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         if 'z_pos' in vals.tail:
             tail_z_pos = vals.tail.z_pos
         else:
-            pass # use above default        
+            pass # use above default         
     
     if 'Fuel_Tanks' in fuselage:
         for tank in fuselage.Fuel_Tanks:

@@ -29,7 +29,6 @@ class Internal_Combustion_Engine(Energy_Component):
 
     def power(self,conditions):
         """ The internal combustion engine output power and specific power consumption
-
         Inputs:
             Engine:
                 sea-level power
@@ -44,7 +43,6 @@ class Internal_Combustion_Engine(Energy_Component):
             Power (brake) specific fuel consumption
             Fuel flow
             Torque
-
         """
 
         # Unpack
@@ -76,16 +74,16 @@ class Internal_Combustion_Engine(Energy_Component):
 
         # calculating the density ratio:
         sigma = rho / rho0
-        
+
         # calculating available power based on Gagg and Ferrar model (ref: S. Gudmundsson, 2014 - eq. 7-16)
         Pavailable = PSLS * (sigma - 0.117) / 0.883        
         Pavailable[h_flat > altitude]  = PSLS
 
         # applying throttle setting
         output_power = Pavailable * throttle
-        
+
         output_power[output_power<0.] = 0.
-        
+
         SFC = BSFC * Units['lb/hp/hr']
 
         #fuel flow rate

@@ -162,7 +162,7 @@ def main():
     lift = state.conditions.aerodynamics.lift_coefficient
     lift_r = np.array([-2.84689226, -1.06501674, -0.63426096, -0.35809118, -0.04487569,
         0.36343181, 0.61055156, 0.90742419, 1.43504496,  2.18401103,  1.81298486])[:,None]
-    
+
     print('lift = ', lift)
     
     lift_test = np.abs((lift-lift_r)/lift)

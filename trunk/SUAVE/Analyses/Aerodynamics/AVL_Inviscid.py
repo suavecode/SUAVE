@@ -82,7 +82,7 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.filenames.log_filename = sys.stdout
         self.settings.filenames.err_filename = sys.stderr        
         self.settings.spanwise_vortices      = None 
-        self.settings.chordwise_vortices     = None       
+        self.settings.chordwise_vortices     = None
         
         # Conditions table, used for surrogate model training
         self.training                        = Data()   

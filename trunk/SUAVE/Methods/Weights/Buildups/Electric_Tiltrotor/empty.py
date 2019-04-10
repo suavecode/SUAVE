@@ -33,39 +33,30 @@ def empty(config,
             disk_area_factor            = 1.15,
             max_thrust_to_weight_ratio  = 1.1,
             motor_efficience            = 0.85 * 0.98)
-
         Calculates the empty fuselage mass for an electric tiltrotor including
         seats, avionics, servomotors, ballistic recovery system, rotor and hub
         assembly, transmission, and landing gear. Additionally incorporates
         results of the following correlation scripts:
-
             fuselage,py
             prop.py
             wing.py
             wiring.py
-
         Originally written as part of an AA 290 project inteded for trade study
         of the Electric Tiltrotor along with the following defined SUAVE vehicle types:
-
             Electric Helicopter
             Electric Stopped Rotor
-            
+
         Sources:
         Project Vahana Conceptual Trade Study
-
         Inputs:
-
             config                          SUAVE Config Data Structure
             speed_of_sound                  Local Speed of Sound                [m/s]
             max_tip_mach                    Allowable Tip Mach Number           [Unitless]
             disk_area_factor                Inverse of Disk Area Efficiency     [Unitless]
             max_thrust_to_weight_ratio      Allowable Thrust to Weight Ratio    [Unitless]
             motor_efficiency                Motor Efficiency                    [Unitless]
-
         Outputs:
-
             output:                         Data Dictionary of Component Masses       [kg]
-
     """
 
     output = Data()
@@ -106,11 +97,11 @@ def empty(config,
     bladeSol    = 0.1                                           # Blade Solidity
     AvgCL       = 6 * Ct / bladeSol                             # Average Blade CL
     AvgCD       = 0.012                                         # Average Blade CD
-   
+
     maxLiftPower    = 1.15*maxLift*(
-                    k*np.sqrt(maxLift/(2*1.225*np.pi*0.8**2)) +
+        k*np.sqrt(maxLift/(2*1.225*np.pi*0.8**2)) +
                     bladeSol*AvgCD/8*Vtip**3/(maxLift/(1.225*np.pi*0.8**2))
-                    )
+    )
 
     maxTorque = maxLiftPower/omega
 
@@ -123,7 +114,7 @@ def empty(config,
     output.wiring           = wiring(config,
                                      np.ones(8)**0.25,
                                      maxLiftPower/etaMotor)
-   
+
     total_wing_weight = 0.
     for w in config.wings:
         wing_tag = w.tag
@@ -133,22 +124,22 @@ def empty(config,
                                maxLift/5) *Units.kg
             total_wing_weight = total_wing_weight + wing_weight
     output.total_wing_weight = total_wing_weight    
-    
-    
+
+
 #-------------------------------------------------------------------------------
 # Weight Summations
 #-------------------------------------------------------------------------------
 
 
     output.structural   = (output.lift_rotors +
-                            output.hubs +
+                           output.hubs +
                             output.fuselage + 
                             output.landing_gear +
                             output.total_wing_weight
                             )
 
     output.empty        = 1.1 * (
-                            output.structural +
+        output.structural +
                             output.seats +          
                             output.avionics +
                             output.battery +
@@ -157,9 +148,9 @@ def empty(config,
                             output.rotor_servos +
                             output.wiring +
                             output.brs
-                            )
-    
+    )
+
     output.total        = (output.empty +
-                            output.payload) 
+                           output.payload) 
 
     return output

@@ -94,7 +94,9 @@ def wing(wing,
     thicknessToChord            = wing.thickness_to_chord, 
     wingletFraction             = wing.winglet_fraction, 
     wingArea                    = wing.areas.reference
-    totalWingArea               = config.wings['main_wing'].areas.reference
+    totalWingArea = 0
+    for w in config.wings:
+        totalWingArea += w.areas.reference
     liftFraction                = wingArea/totalWingArea
     motor_spanwise_locations    = wing.motor_spanwise_locations
 

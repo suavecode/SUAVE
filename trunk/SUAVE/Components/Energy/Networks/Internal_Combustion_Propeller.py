@@ -102,14 +102,14 @@ class Internal_Combustion_Propeller(Propulsor):
         propeller.thrust_angle = self.thrust_angle
         
         # step 4
-        F, Q, P, Cp , noise, etap = propeller.spin(conditions)
+        F, Q, P, Cp ,  outputs  , etap  = propeller.spin(conditions)
         
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
         F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]   
         
-        #print 'Delta Torque'
-        #print Q - torque
+        # link
+        propeller.outputs = outputs
     
         # Pack the conditions for outputs
         rpm        = engine.speed / Units.rpm

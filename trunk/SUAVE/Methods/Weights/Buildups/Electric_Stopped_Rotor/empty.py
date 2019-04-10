@@ -34,28 +34,22 @@ def empty(config,
             disk_area_factor            = 1.15,
             max_thrust_to_weight_ratio  = 1.1,
             motor_efficiency            = 0.85 * 0.98)
-
         Calculates the empty fuselage mass for an electric stopped rotor including
         seats, avionics, servomotors, ballistic recovery system, rotor and hub
         assembly, transmission, and landing gear. Additionally incorporates
         results of the following common buildup scripts:
-
             fuselage,py
             prop.py
             wing.py
             wiring.py
-
         Originally written as part of an AA 290 project inteded for trade study
         of the Electric Stopped Rotor along with the following defined SUAVE config types:
-
             Electric Helicopter
             Electric Tiltrotor
             
         Sources:
         Project Vahana Conceptual Trade Study
-
         Inputs:
-
             config                          SUAVE Config Data Structure
             speed_of_sound                  Local Speed of Sound                [m/s]
             maximumTipMach                  Allowable Tip Mach Number           [Unitless]
@@ -64,9 +58,7 @@ def empty(config,
             motor_efficiency                Motor Efficiency                    [Unitless]
         
         Outputs:
-
             output:                         Data Dictionary of Component Masses       [kg]
-
     """
 
     output = Data()
@@ -151,8 +143,6 @@ def empty(config,
 #-------------------------------------------------------------------------------
 # Weight Summations
 #-------------------------------------------------------------------------------
-
-
     output.structural   = (output.lift_rotors +
                             output.thrust_rotors +
                             output.hubs +
