@@ -181,7 +181,7 @@ class Propeller(Energy_Component):
                     ua[i]    = fsolve(func,vi_initial_guess)
         else: 
             ua = 0.0 
-            
+ 
         ut = 0.0
         
         nu    = mu/rho
