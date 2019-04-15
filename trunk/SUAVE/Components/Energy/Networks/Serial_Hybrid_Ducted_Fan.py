@@ -68,6 +68,8 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
     
             Assumptions:
             Doesn't allow for mass gaining batteries
+            A DC distribution architecture  with no bus loses
+            DC Motor
     
             Source:
             N/A
@@ -83,12 +85,6 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
             Defaulted values
         """ 
 
-         # unpack
-         
-        if state.residuals.forces[0,0] < 1e-7 and state.residuals.forces[0,0] > 0:
-            a123= 1
-
-        #Cameron's attempt
         # unpack
         conditions = state.conditions
         numerics   = state.numerics
@@ -100,15 +96,9 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         battery    = self.battery
         generator  = self.generator
         
-
-        range_extender_power = 500000 #Watts
-        range_extender_sfc = (.3/3600) #kg/(kW*s)
-        
-        power_generated = np.ones_like(conditions.propulsion.battery_energy)*range_extender_power
-        mdot = range_extender_sfc * (power_generated/1000) 
-        
+        # Run the generator        
         generator.calculate_power(conditions)
-
+        
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
 
@@ -117,9 +107,6 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         propulsive_power    = results.power
         motor_power         = propulsive_power/self.motor_efficiency 
       
-        #battery.inputs = battery_logic
-        tol = 1e-6  
-
         # Set the esc input voltage
         esc.inputs.voltagein = self.voltage
 
@@ -151,22 +138,6 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         
         # Run the battery
         battery.energy_calc(numerics)        
-    
-        
-
-
-        #try:
-        #    initial_energy = conditions.propulsion.battery_energy
-        #    if initial_energy[0][0]==0: #beginning of segment; initialize battery
-        #        battery.current_energy = battery.current_energy[-1]*np.ones_like(initial_energy)
-        #except AttributeError: #battery energy not initialized, e.g. in takeoff
-        #    battery.current_energy=np.transpose(np.array([battery.current_energy[-1]*np.ones_like(Pe)]))
-        
-        
-    
-
-
-        #mdot = np.zeros(np.shape(conditions.freestream.velocity))
 
         # Pack the conditions for outputs
         current              = esc.outputs.currentin
