@@ -164,6 +164,9 @@ def size_from_PGM(vehicle):
                                         pax  += seats
                                         
                                         vehicle.passengers = int(pax)
+                                        
+                                        if vehicle.passengers <=0:
+                                                print('neg pax wing')
 
         # Set the vehicle reference area
         vehicle.reference_area = max_area   
@@ -196,6 +199,9 @@ def size_from_PGM(vehicle):
                 
                 vehicle.passengers = pax
                 
+                if vehicle.passengers <0:
+                        print('neg pax fuse')                
+                
                 fuse.OpenVSP_values = Data() # VSP uses degrees directly
         
                 fuse.OpenVSP_values.nose = Data()
@@ -224,6 +230,8 @@ def size_from_PGM(vehicle):
         # Size the propulsion system
         for prop in vehicle.propulsors:
                 prop.number_of_engines = int(np.round(prop.number_of_engines))
+                
+                #prop.OpenVSP_flow_through = True
                 
                 orig = prop.origin[0]
                 prop.origin = []
@@ -408,7 +416,7 @@ def size_from_PGM(vehicle):
                         if prop.nacelle_diameter == 0.:
                                 prop.nacelle_diameter= 0.01    
                                 
-                        prop.OpenVSP_flow_through = True
+                        #prop.OpenVSP_flow_through = True
                         
                 if prop.tag == 'Turbojet':
                         

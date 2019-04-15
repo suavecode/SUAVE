@@ -34,17 +34,18 @@ def wing_segmented_planform(wing):
     
     Outputs:
     wing.
-      spans.total              [m]
-      chords.tip               [m]
-      chords.mean_aerodynamics [m]
-      areas.reference          [m^2]
-      taper                    [-]
-      sweeps.quarter_chord     [radians]
-      aspect_ratio             [-]
-      thickness_to_chord       [-]
-      dihedral                 [radians]
+      spans.total                [m]
+      chords.tip                 [m]
+      chords.mean_aerodynamics   [m]
+      wing.chords.mean_geometric [m]
+      areas.reference            [m^2]
+      taper                      [-]
+      sweeps.quarter_chord       [radians]
+      aspect_ratio               [-]
+      thickness_to_chord         [-]
+      dihedral                   [radians]
       
-      aerodynamic_center       [m]      x, y, and z location
+      aerodynamic_center         [m]      x, y, and z location
 
         
     
@@ -87,14 +88,14 @@ def wing_segmented_planform(wing):
     tapers       = chords[1:]/chords[:-1]
     
     # Calculate the areas of each segment
-    As = RC*((lengths_dim)*chords[:-1]-(chords[:-1]-chords[1:])*(lengths_dim)/2)
+    As = (lengths_dim*chords_dim[:-1]-(chords_dim[:-1]-chords_dim[1:])*(lengths_dim/2))
     
     # Calculate the weighted area, this should not include any unexposed area 
     A_wets = 2*(1+0.2*t_cs[:-1])*As
     wet_area = np.sum(A_wets)
     
     # Calculate the wing area
-    ref_area = np.sum(As)*2
+    ref_area = np.sum(As)*(1+sym)
     
     # Calculate the Aspect Ratio
     AR = (span**2)/ref_area
@@ -116,11 +117,11 @@ def wing_segmented_planform(wing):
     panel_mac = integral*lengths_dim*(1+sym)/As
     MAC = (semispan*(1+sym)/(ref_area))*np.sum(integral)
     
-    # Calculate the effective taper ratio
-    lamda = 2*mgc/RC - 1
+    # Calculate the taper ratio
+    lamda = chords[-1]/chords[0]
     
-    # effective tip chord
-    ct = lamda*RC
+    # the tip chord
+    ct = chords_dim[-1]
     
     # Calculate an average t/c weighted by area
     t_c = np.sum(As*t_cs[:-1])/(ref_area/2)

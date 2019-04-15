@@ -239,7 +239,11 @@ class Vehicle(Data):
             if isinstance(item,Physical_Component.Container):
                 total += item.total_moment()
                 
-        CG = total/self.sum_mass()
+        mass = self.sum_mass()
+        if mass ==0:
+            mass = 1.
+                
+        CG = total/mass
         
         self.mass_properties.center_of_gravity = CG
                 
@@ -301,7 +305,7 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.PGM_special_parent  = None
         self.PGM_characteristics = ['max_takeoff','max_zero_fuel']
         self.PGM_compulsory      = True
-        self.PGM_char_min_bounds = [0,0]   
+        self.PGM_char_min_bounds = [1,1]   
         self.PGM_char_max_bounds = [np.inf,np.inf]        
 
 ## @ingroup Vehicle

@@ -79,8 +79,18 @@ def fuselage_planform(fuselage,length=None):
         tail_length     = tail_fineness * fuselage_width      
         cabin_length    = fuselage_length - nose_length - tail_length
         
+        if fuselage_length <= 0:
+            fuselage_length = 1.
+        if nose_length <= 0.:
+            nose_length = 1.
+        if tail_length <= 0:
+            tail_length = 1.
+        if cabin_length <= 1.:
+            cabin_length <= 1.
+        
         # Now we can calculate the number of passengers
         number_seats    = np.round(cabin_length * seats_abreast / seat_pitch)
+        if number_seats <=0: number_seats=0
     
     wetted_area = 0.0
     

@@ -44,6 +44,7 @@ def wing_planform(wing):
       chords.root              [m]
       chords.tip               [m]
       chords.mean_aerodynamics [m]
+      chords.mean_geometric    [m]
       areas.wetted             [m^2]
       areas.affected           [m^2]
       spans.projected          [m]
@@ -71,6 +72,7 @@ def wing_planform(wing):
     span       = (ar*sref)**.5
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
+    mgc        = (chord_root+chord_tip)/2
     
     swet = 2.*span/2.*(chord_root+chord_tip) *  (1.0 + 0.2*t_c_w)
 
@@ -118,6 +120,7 @@ def wing_planform(wing):
     wing.chords.root                = chord_root
     wing.chords.tip                 = chord_tip
     wing.chords.mean_aerodynamic    = mac
+    wing.chords.mean_geometric      = mgc
     wing.sweeps.leading_edge        = le_sweep
     wing.areas.wetted               = swet
     wing.areas.affected             = affected_area
