@@ -3,6 +3,7 @@
 #
 # Created:  Sep 2014, M. Vegh
 # Modified: Jan 2016, T. MacDonaldb
+#           Apr 2019, C. McMillan
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -23,7 +24,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 ## @ingroup Components-Energy-Networks
 class Serial_Hybrid_Ducted_Fan(Propulsor):
-    """ Simply connects a battery to a ducted fan, with an assumed motor efficiency
+    """ Connects a generator to a battery to a ducted fan, with assumed motor & generator efficiencies
     
         Assumptions:
         None
@@ -37,8 +38,8 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
             This network operates slightly different than most as it attaches a propulsor to the net.
     
             Assumptions:
-            Your system always uses 90 amps...?
-    
+            None
+
             Source:
             N/A
     
@@ -67,9 +68,10 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         """ Calculate thrust given the current state of the vehicle
     
             Assumptions:
-            Doesn't allow for mass gaining batteries
+            Constant mass batteries
             A DC distribution architecture  with no bus loses
-            DC Motor
+            DC motor
+            ESC input voltage is constant at max battery voltage
     
             Source:
             N/A
@@ -102,7 +104,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
 
-        # Step 0 ducted fan power
+        # Calculate ducted fan power
         results             = propulsor.evaluate_thrust(state)
         propulsive_power    = results.power
         motor_power         = propulsive_power/self.motor_efficiency 
@@ -131,7 +133,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         # Calculate avionics and payload current
         avionics_payload_current = avionics_payload_power/self.voltage
 
-        # link
+        # link to the battery
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
         battery.inputs.power_in = -((esc.inputs.voltagein)*esc.outputs.currentin + avionics_payload_power) + (
                 generator.outputs.power_generated)

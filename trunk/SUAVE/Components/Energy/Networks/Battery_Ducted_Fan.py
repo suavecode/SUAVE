@@ -3,7 +3,7 @@
 #
 # Created:  Sep 2014, M. Vegh
 # Modified: Jan 2016, T. MacDonald
-#           Nov 2018, C. Mc
+#           Apr 2019, C. McMillan
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -66,8 +66,8 @@ class Battery_Ducted_Fan(Propulsor):
         """ Calculate thrust given the current state of the vehicle
     
             Assumptions:
-            Batteries are constant mass
-            ESC input voltage is constant at max batter voltage
+            Constant mass batteries
+            ESC input voltage is constant at max battery voltage
             
     
             Source:
@@ -97,12 +97,12 @@ class Battery_Ducted_Fan(Propulsor):
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
 
-        # Step 0 ducted fan power
+        # Calculate ducted fan power
         results             = propulsor.evaluate_thrust(state)
         propulsive_power    = results.power
         motor_power         = propulsive_power/self.motor_efficiency 
 
-        # Step 1 run the ESC
+        # Run the ESC
         esc.inputs.voltagein = self.voltage
         esc.voltageout(conditions)
         esc.inputs.currentout =  np.transpose(motor_power/np.transpose(esc.outputs.voltageout)) 
@@ -122,7 +122,7 @@ class Battery_Ducted_Fan(Propulsor):
         avionics_payload_current = avionics_payload_power/self.voltage
 
 
-        # link
+        # link to the battery
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
         #print(esc.outputs.currentin)
         battery.inputs.power_in = -(esc_power + avionics_payload_power)

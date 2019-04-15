@@ -1,7 +1,7 @@
 ## @ingroup Components-Energy-Converters
-# Range_Extender_Low_Fid.py
+# Generator_Zero_Fid.py
 #
-# Created:  Mar 2019, C. McMillan
+# Created:  Apr 2019, C. McMillan
 
 
 # ----------------------------------------------------------------------
@@ -65,13 +65,14 @@ class Generator_Zero_Fid(Energy_Component):
         N/A
     
         Outputs:
-        self.outputs.power_generated    [W]
-        self.outputs.mdot               [kg/s]
+        self.outputs.
+            power_generated    [W]
+            mdot               [kg/s]
     
         Properties Used:
         self.
-          sfc                           [g/(KW*h)]
-          max_power                     [W]
+            sfc                [g/(KW*h)]
+            max_power          [W]
 
         """       
         
