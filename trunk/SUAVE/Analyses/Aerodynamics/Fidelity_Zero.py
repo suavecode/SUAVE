@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+#           Apr 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -140,6 +141,7 @@ class Fidelity_Zero(Markup):
         Properties Used:
         self.geometry
         """                  
+        super(Fidelity_Zero, self).initialize()
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
         self.process.compute.lift.inviscid_wings.initialize()
         

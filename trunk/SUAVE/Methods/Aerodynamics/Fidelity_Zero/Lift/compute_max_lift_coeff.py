@@ -3,7 +3,8 @@
 #
 # Created:  Dec 2013, A. Variyar
 # Modified: Feb 2014, T. Orra
-#           Jan 2016, E. Botero         
+#           Jan 2016, E. Botero        
+#           Feb 2019, E. Botero      
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -74,7 +75,8 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         Swing      = wing.areas.reference
         tc         = wing.thickness_to_chord * 100
         chord_mac  = wing.chords.mean_aerodynamic
-        sweep      = wing.sweeps.quarter_chord # convert into degrees
+        sweep      = wing.sweeps.quarter_chord
+        sweep_deg  = wing.sweeps.quarter_chord / Units.degree # convert into degrees
         taper      = wing.taper
         flap_chord = wing.flaps.chord
         flap_angle = wing.flaps.angle
@@ -96,10 +98,10 @@ def compute_max_lift_coeff(vehicle,conditions=None):
 
         #wing cl_max to outer panel Cl_max
         w_Clmax = op_Clmax* ( 0.919729714285715 -0.044504761904771*taper \
-                             -0.001835900000000*sweep +  0.247071428571446*taper**2 +  \
-                              0.003191500000000*taper*sweep  -0.000056632142857*sweep**2  \
-                             -0.279166666666676*taper**3 +  0.002300000000000*taper**2*sweep + \
-                              0.000049982142857*taper*sweep**2  -0.000000280000000* sweep**3)
+                             -0.001835900000000*sweep_deg +  0.247071428571446*taper**2 +  \
+                              0.003191500000000*taper*sweep_deg -0.000056632142857*sweep_deg**2  \
+                             -0.279166666666676*taper**3 +  0.002300000000000*taper**2*sweep_deg + \
+                              0.000049982142857*taper*sweep_deg**2  -0.000000280000000* sweep_deg**3)
 
         #---FAR stall speed effect---------------
         #should be optional based on aircraft being modelled

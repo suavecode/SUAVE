@@ -3,6 +3,9 @@
 # Created:  Feb 2017, M. Vegh (created from data taken from concorde/concorde.py)
 # Modified: Jul 2017, T. MacDonald
 #           Aug 2018, T. MacDonald
+#           Oct 2018, T. MacDonald
+#           Nov 2018, T. MacDonald
+#           Feb 2019, T. MacDonald
 
 """ setup file for the Concorde 
 """
@@ -15,7 +18,6 @@ from SUAVE.Core import (
 )
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Input_Output.OpenVSP.vsp_write import write
 
 def vehicle_setup():
 
@@ -42,17 +44,19 @@ def vehicle_setup():
     vehicle.envelope.limit_load    = 2.5
 
     # basic parameters
-    vehicle.reference_area         = 358.25      
-    vehicle.passengers             = 100
-    vehicle.systems.control        = "fully powered" 
-    vehicle.systems.accessories    = "long range"
+    vehicle.reference_area               = 358.25      
+    vehicle.passengers                   = 100
+    vehicle.systems.control              = "fully powered" 
+    vehicle.systems.accessories          = "long range"
+    vehicle.maximum_cross_sectional_area = 13.9
+    vehicle.total_length                 = 61.66
     
     
     # ------------------------------------------------------------------        
     #   Main Wing
     # ------------------------------------------------------------------        
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 1.83
@@ -60,7 +64,7 @@ def vehicle_setup():
     wing.sweeps.leading_edge     = 66.5 * Units.deg
     wing.thickness_to_chord      = 0.03
     wing.taper                   = 0.
-    wing.span_efficiency         = 0.9
+    wing.span_efficiency         = .95
     
     wing.spans.projected           = 25.6    
     
@@ -70,7 +74,7 @@ def vehicle_setup():
     wing.chords.mean_aerodynamic   = 18.4
     
     wing.areas.reference           = 358.25 
-    wing.areas.wetted              = 653. - 12.*2.4*2 # 2.4 is engine area on one side
+    wing.areas.wetted              = 601.
     wing.areas.exposed             = 326.5
     wing.areas.affected            = .6*wing.areas.reference
     
@@ -89,7 +93,8 @@ def vehicle_setup():
     wing.dynamic_pressure_ratio    = 1.0
     
     wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    wing_airfoil.coordinate_file   = 'NACA65-203.dat' 
+    # This airfoil is not a true Concorde airfoil
+    wing_airfoil.coordinate_file   = '../Vehicles/NACA65-203.dat' 
     
     wing.append_airfoil(wing_airfoil)  
     
@@ -117,18 +122,8 @@ def vehicle_setup():
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
-    # set section 3 start point
-    segment = SUAVE.Components.Wings.Segment() 
-    segment.tag                      = 'section_3'
-    segment.percent_span_location    = 5.95/(25.6/2) + wing.Segments['section_2'].percent_span_location
-    segment.twist                    = 0. * Units.deg
-    segment.root_chord_percent       = 4.4/33.8
-    segment.dihedral_outboard        = 0.
-    segment.sweeps.quarter_chord     = 71. * Units.deg 
-    segment.append_airfoil(wing_airfoil)
-    wing.Segments.append(segment)  
     
-    # set tip section start point
+    # set section 3 start point
     segment = SUAVE.Components.Wings.Segment() 
     segment.tag                   = 'section_3'
     segment.percent_span_location = 5.95/(25.6/2) + wing.Segments['section_2'].percent_span_location
@@ -140,6 +135,69 @@ def vehicle_setup():
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)  
     
+    # set tip
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'tip'
+    segment.percent_span_location = 1.
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 1.1/33.8
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 0.
+    segment.thickness_to_chord    = 0.03
+    segment.append_airfoil(wing_airfoil)
+    wing.Segments.append(segment)      
+    
+    # CG locations are approximate
+    # Masses from http://www.concordesst.com/fuelsys.html
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_9'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([26.5,0,0])
+    fuel_tank.mass_properties.fuel_mass_when_full  = 11096
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_10'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([28.7,0,0])
+    fuel_tank.mass_properties.fuel_mass_when_full  = 11943
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_1_and_4'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([31.0,0,0])
+    fuel_tank.mass_properties.fuel_mass_when_full  = 4198+4198
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)   
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_5_and_8'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([32.9,0,0])
+    fuel_tank.mass_properties.fuel_mass_when_full  = 7200+12838
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_6_and_7'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([37.4,0,0])
+    fuel_tank.mass_properties.fuel_mass_when_full  = 11587+7405
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_5A_and_7A'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([40.2,0,0])
+    fuel_tank.mass_properties.fuel_mass_when_full  = 2225+2225
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)
+    
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_2_and_3'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([40.2,0,0])
+    fuel_tank.mass_properties.fuel_mass_when_full  = 4570+4570
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    wing.Fuel_Tanks.append(fuel_tank)    
+    
     # add to vehicle
     vehicle.append_component(wing)
     
@@ -148,7 +206,7 @@ def vehicle_setup():
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Vertical_Tail()
     wing.tag = 'vertical_stabilizer'    
     
     wing.aspect_ratio            = 0.74      #
@@ -183,7 +241,8 @@ def vehicle_setup():
     wing.dynamic_pressure_ratio  = 1.0
     
     tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
-    tail_airfoil.coordinate_file = 'supersonic_tail.dat' 
+    # This airfoil is not a true Concorde airfoil
+    tail_airfoil.coordinate_file = '../Vehicles/supersonic_tail.dat' 
     
     wing.append_airfoil(tail_airfoil)  
 
@@ -195,7 +254,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 14.5/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 63. * Units.deg
-    segment.thickness_to_chord    = 0.03
+    segment.thickness_to_chord    = 0.04
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
@@ -207,9 +266,21 @@ def vehicle_setup():
     segment.root_chord_percent    = 7.5/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 40. * Units.deg
-    segment.thickness_to_chord    = 0.03
+    segment.thickness_to_chord    = 0.04
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
+    
+    # set tip
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'tip'
+    segment.percent_span_location = 1.
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 2.7/14.5
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 0.
+    segment.thickness_to_chord    = 0.04
+    segment.append_airfoil(tail_airfoil)
+    wing.Segments.append(segment)    
     
     # add to vehicle
     vehicle.append_component(wing)    
@@ -239,7 +310,7 @@ def vehicle_setup():
     fuselage.heights.at_wing_root_quarter_chord     = 3.32    #
     fuselage.heights.at_three_quarters_length       = 3.32    #
 
-    fuselage.areas.wetted          = 447.
+    fuselage.areas.wetted          = 442.
     fuselage.areas.front_projected = 11.9
     
     
@@ -264,7 +335,16 @@ def vehicle_setup():
     fuselage.OpenVSP_values.tail.side = Data()    
     fuselage.OpenVSP_values.tail.bottom = Data()
     fuselage.OpenVSP_values.tail.top.angle = 0.0
-    fuselage.OpenVSP_values.tail.top.strength = 0.0    
+    fuselage.OpenVSP_values.tail.top.strength = 0.0 
+    
+    # CG locations are approximate
+    # Masses from http://www.concordesst.com/fuelsys.html
+    fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
+    fuel_tank.tag                  = 'tank_11'
+    fuel_tank.mass_properties.center_of_gravity    = np.array([49.8,0,0])
+    fuel_tank.mass_properties.fuel_mass_when_full  = 10415
+    fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
+    fuselage.Fuel_Tanks.append(fuel_tank)     
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -284,7 +364,7 @@ def vehicle_setup():
     turbojet.nacelle_diameter  = 1.3
     turbojet.inlet_diameter    = 1.1
     turbojet.areas             = Data()
-    turbojet.areas.wetted      = 12.5*4.7*2. # 4.7 is outer perimeter on one side
+    turbojet.areas.wetted      = 120./turbojet.number_of_engines
     turbojet.origin            = [[37.,6.,-1.3],[37.,5.3,-1.3],[37.,-5.3,-1.3],[37.,-6.,-1.3]]
     
     # working fluid
@@ -453,13 +533,10 @@ def vehicle_setup():
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(turbojet)      
     
-    
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
-
-    # Vehicle can be written to OpenVSP here if the API is installed
-    #write(vehicle,'test')
+    
 
     return vehicle
 

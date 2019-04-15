@@ -50,6 +50,7 @@ modules = [
     'scripts/ducted_fan/ducted_fan_network.py',
     'scripts/dynamic_stability/dynamicstability.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
+    'scripts/fuel_cell/fuel_cell.py',     
     'scripts/gasturbine_network/gasturbine_network.py',
     'scripts/geometry/NACA_airfoil_compute.py',
     'scripts/geometry/NACA_volume_compute.py',
@@ -77,7 +78,8 @@ modules = [
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',    
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
-    'scripts/weights/weights.py',        
+    'scripts/weights/weights.py', 
+    'scripts/V_n_diagram/V_n_diagram_regression.py',       
 ]
 
 # ----------------------------------------------------------------------
