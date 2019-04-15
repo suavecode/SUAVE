@@ -48,6 +48,8 @@ modules = [
     'scripts/concorde/concorde.py',
     'scripts/DC_10_noise/DC_10_noise.py',
     'scripts/ducted_fan/ducted_fan_network.py',
+    'scripts/ducted_fan/battery_ducted_fan_network.py',
+    'scripts/ducted_fan/serial_hybrid_ducted_fan_network.py',
     'scripts/dynamic_stability/dynamicstability.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
     'scripts/fuel_cell/fuel_cell.py',     
