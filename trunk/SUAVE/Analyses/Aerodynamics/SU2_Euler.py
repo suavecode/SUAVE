@@ -3,6 +3,7 @@
 #
 # Created:  Sep 2016, E. Botero
 # Modified: Jan 2017, T. MacDonald
+#           Apr 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -130,6 +131,7 @@ class SU2_Euler(Markup):
           vsp_mesh_growth_ratio         [-] Determines how the mesh grows
           vsp_mesh_growth_limiting_flag <boolean> Determines if 3D growth limiting is used
         """         
+        super(SU2_Euler, self).initialize()
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         tag = self.geometry.tag

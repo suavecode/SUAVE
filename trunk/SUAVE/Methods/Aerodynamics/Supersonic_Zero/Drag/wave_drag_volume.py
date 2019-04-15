@@ -1,66 +1,66 @@
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # wave_drag_volume.py
 # 
-# Created:  Tim MacDonald, 6/24/14
-# Modified: Tim MacDonald, 6/24/14
-# 
+# Created:  Jun 2014, T. MacDonald
+# Modified: Feb 2019, T. MacDonald
 
-# ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-import copy
 import numpy as np
-
-# ----------------------------------------------------------------------
-#   Wave Drag Volume
-# ----------------------------------------------------------------------
+from SUAVE.Core import Units
+from .Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Components.Wings import Main_Wing
 
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
-def wave_drag_volume(conditions,configuration,wing):
-    """Computes wave drag due to volume
+def wave_drag_volume(vehicle,mach,scaling_factor):
+    """Computes the volume drag
 
     Assumptions:
-    Simplified equations for wing
+    Basic fit
 
     Source:
-    http://adg.stanford.edu/aa241/drag/ssdragcalc.html
+    D. Raymer, Aircraft Design: A Conceptual Approach, Fifth Ed. pg. 448-449
 
     Inputs:
-    conditions.freestream.mach_number        [Unitless]
-    wing.thickness_to_chord                  [Unitless]
-    wing.total_length                        [m]
-    wing.areas.reference                     [m^2]
-
+    vehicle.
+      wings.main_wing.sweeps.leading_edge [rad]
+      total_length                        [m]
+      maximum_cross_sectional_area        [m^2]
+      reference_area                      [m^2]
+      
     Outputs:
-    wave_drag_volume                         [Unitless]
+    vehicle_wave_drag                     [Unitless]
 
     Properties Used:
     N/A
-    """  
-
-    # unpack inputs
-    freestream   = conditions.freestream
-    total_length = wing.total_length
-    Sref         = wing.areas.reference
+    """ 
     
-    # conditions
-    Mc  = copy.copy(freestream.mach_number)
+    num_main_wings = 0
+    for wing in vehicle.wings:
+        if isinstance(wing,Main_Wing):
+            main_wing = wing
+            num_main_wings += 1
+        if num_main_wings > 1:
+            raise NotImplementedError('This function is not designed to handle multiple main wings.')
+        
+    LE_sweep = main_wing.sweeps.leading_edge / Units.deg
+    L        = vehicle.total_length
+    Ae       = vehicle.maximum_cross_sectional_area
+    S        = vehicle.reference_area
     
-    # length-wise aspect ratio
-    ARL = total_length**2/Sref
+    # Compute sears-hack D/q
+    Dq_SH = 9*np.pi/2*(Ae/L)*(Ae/L)
     
-    # thickness to chord
-    t_c_w = wing.thickness_to_chord
+    spline = Cubic_Spline_Blender(1.2,1.3)
+    h00 = lambda M:spline.compute(M)    
     
-    # Computations
-    x = np.pi*ARL/4
-    beta = np.array([[0.0]] * len(Mc))
-    wave_drag_volume = np.array([[0.0]] * len(Mc))    
-    beta[Mc >= 1.05] = np.sqrt(Mc[Mc >= 1.05]**2-1)
-    wave_drag_volume[Mc >= 1.05] = 4*t_c_w**2*(beta[Mc >= 1.05]**2+2*x**2)/(beta[Mc >= 1.05]**2+x**2)**1.5
-    wave_drag_volume[0:len(Mc[Mc >= 1.05]),0] = wave_drag_volume[Mc >= 1.05]
+    # Compute full vehicle D/q
+    Dq_vehicle           = np.zeros_like(mach)
+    Dq_vehicle_simpified = np.zeros_like(mach)
     
-    wave_drag_volume = wave_drag_volume * 1.15
+    Dq_vehicle[mach>=1.2] = scaling_factor*(1-0.2*(mach[mach>=1.2]-1.2)**0.57*(1-np.pi*LE_sweep**.77/100))*Dq_SH
+    Dq_vehicle_simpified  = scaling_factor*Dq_SH
     
-    return wave_drag_volume
+    Dq_vehicle = Dq_vehicle_simpified*h00(mach) + Dq_vehicle*(1-h00(mach))
+    
+    CD_c_vehicle = Dq_vehicle/S
+    
+    return CD_c_vehicle
