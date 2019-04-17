@@ -13,8 +13,6 @@ import SUAVE
 
 # package imports
 import numpy as np
-from SUAVE.Core import Data
-from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------
@@ -54,7 +52,7 @@ class Battery_Ducted_Fan(Propulsor):
         
         self.propulsor        = None
         self.battery          = None
-        self.motor_efficiency = .95 
+        self.motor_efficiency = 0.0 
         self.esc              = None
         self.avionics         = None
         self.payload          = None
@@ -99,15 +97,15 @@ class Battery_Ducted_Fan(Propulsor):
 
         # Calculate ducted fan power
         results             = propulsor.evaluate_thrust(state)
-        propulsive_power    = results.power
+        propulsive_power    = np.reshape(results.power, (-1,1))
         motor_power         = propulsive_power/self.motor_efficiency 
 
         # Run the ESC
-        esc.inputs.voltagein = self.voltage
+        esc.inputs.voltagein    = self.voltage
         esc.voltageout(conditions)
-        esc.inputs.currentout =  np.transpose(motor_power/np.transpose(esc.outputs.voltageout)) 
+        esc.inputs.currentout   = motor_power/esc.outputs.voltageout
         esc.currentin(conditions)
-        esc_power = esc.inputs.voltagein*esc.outputs.currentin
+        esc_power               = esc.inputs.voltagein*esc.outputs.currentin
         
         # Run the avionics
         avionics.power()

@@ -12,23 +12,12 @@
 
 import SUAVE
 from SUAVE.Core import Units
+from SUAVE.Core import Data
 
 import numpy as np
-import pylab as plt
-
-import copy, time
-
-from SUAVE.Core import (
-Data, Container,
-)
-
-# from SUAVE.Components import Component, Physical_Component, Lofted_Body
-from SUAVE.Components.Energy.Networks.Battery_Ducted_Fan import Battery_Ducted_Fan
 
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_ducted_fan_geometry
-
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -47,9 +36,6 @@ def energy_network():
     #instantiate the ducted fan network
     ducted_fan = SUAVE.Components.Energy.Networks.Ducted_Fan()
     ducted_fan.tag = 'ducted fan'
-
-    ducted_fan.number_of_engines = 2
-
     
     # setup
     ducted_fan.number_of_engines = 2
@@ -57,7 +43,6 @@ def energy_network():
     ducted_fan.nacelle_diameter  = 1.064 * Units.meter
     ducted_fan.origin            = [[8.95, 1.48, 0.50],[8.95, -1.48, 0.50]] # meters
 
-    
     #compute engine areas
     ducted_fan.areas.wetted      = 1.1*np.pi*ducted_fan.nacelle_diameter*ducted_fan.engine_length
     
@@ -125,12 +110,8 @@ def energy_network():
     #total design thrust (includes all the engines)
     thrust.total_design        = 2*700. * Units.lbf 
     
-    
     # add to network
     ducted_fan.thrust          = thrust   
-  
-    numerics                   = Data()    
-    eta                        = 1.0
     
     #design sizing conditions
     altitude      = 0.0 * Units.km
@@ -140,9 +121,8 @@ def energy_network():
     #size the ducted fan
     ducted_fan_sizing(ducted_fan,mach_number,altitude)
     
-    
     battery_ducted_fan                      = SUAVE.Components.Energy.Networks.Battery_Ducted_Fan()
-    battery_ducted_fan.tag                  = 'turbofan'
+    battery_ducted_fan.tag                  = 'battery_ducted_fan'
     battery_ducted_fan.nacelle_diameter     = ducted_fan.nacelle_diameter
     battery_ducted_fan.areas                = Data()
     battery_ducted_fan.areas.wetted         = ducted_fan.areas.wetted

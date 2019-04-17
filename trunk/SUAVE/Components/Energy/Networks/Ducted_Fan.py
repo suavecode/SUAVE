@@ -3,7 +3,6 @@
 # 
 # Created:  Feb 2016, M. Vegh
 # Modified: Aug 2017, E. Botero
-#           Apr 2019, C. McMillan
 
 # ----------------------------------------------------------------------
 #  Imports

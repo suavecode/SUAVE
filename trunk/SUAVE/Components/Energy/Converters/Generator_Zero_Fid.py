@@ -16,7 +16,7 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 import numpy as np
 
 # ----------------------------------------------------------------------
-#  Motor Class
+#  Generator Class
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Converters
 class Generator_Zero_Fid(Energy_Component):

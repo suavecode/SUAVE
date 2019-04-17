@@ -14,8 +14,6 @@ import SUAVE
 
 # package imports
 import numpy as np
-from SUAVE.Core import Data, Units
-from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------
@@ -53,15 +51,16 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
             N/A
         """         
         
-        self.propulsor        = None
-        self.battery          = None
-        self.motor_efficiency = .95 
-        self.esc              = None
-        self.avionics         = None
-        self.payload          = None
-        self.voltage          = None
-        self.generator        = None
-        self.tag              = 'Network'
+        self.propulsor              = None
+        self.battery                = None
+        self.motor_efficiency       = 0.0 
+        self.esc                    = None
+        self.avionics               = None
+        self.payload                = None
+        self.voltage                = None
+        self.generator              = None
+        self.tag                    = 'Network'
+        self.OpenVSP_flow_through   = False
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -106,7 +105,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
 
         # Calculate ducted fan power
         results             = propulsor.evaluate_thrust(state)
-        propulsive_power    = results.power
+        propulsive_power    = np.reshape(results.power, (-1,1))
         motor_power         = propulsive_power/self.motor_efficiency 
       
         # Set the esc input voltage
@@ -122,7 +121,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         payload.power()
 
         # Calculate the esc input current
-        esc.inputs.currentout =  np.transpose(motor_power/np.transpose(esc.outputs.voltageout))
+        esc.inputs.currentout = motor_power/esc.outputs.voltageout
         
         # Run the esc
         esc.currentin(conditions)

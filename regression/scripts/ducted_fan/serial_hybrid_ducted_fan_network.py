@@ -12,22 +12,12 @@
 
 import SUAVE
 from SUAVE.Core import Units
+from SUAVE.Core import Data
 
 import numpy as np
-import pylab as plt
-
-import copy, time
-
-from SUAVE.Core import (
-Data, Container,
-)
-
-# from SUAVE.Components import Component, Physical_Component, Lofted_Body
-from SUAVE.Components.Energy.Networks.Battery_Ducted_Fan import Battery_Ducted_Fan
 
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_ducted_fan_geometry
 
 # ----------------------------------------------------------------------
 #   Main
@@ -47,9 +37,6 @@ def energy_network():
     #instantiate the ducted fan network
     ducted_fan = SUAVE.Components.Energy.Networks.Ducted_Fan()
     ducted_fan.tag = 'ducted fan'
-
-    ducted_fan.number_of_engines = 2
-
     
     # setup
     ducted_fan.number_of_engines = 2
@@ -128,10 +115,7 @@ def energy_network():
     
     # add to network
     ducted_fan.thrust          = thrust   
-  
-    numerics                   = Data()    
-    eta                        = 1.0
-    
+      
     #design sizing conditions
     altitude      = 0.0 * Units.km
     mach_number   = 0.01
@@ -139,36 +123,36 @@ def energy_network():
     
     #size the ducted fan
     ducted_fan_sizing(ducted_fan,mach_number,altitude)
-    
-    
-    battery_ducted_fan                      = SUAVE.Components.Energy.Networks.Serial_Hybrid_Ducted_Fan()
-    battery_ducted_fan.tag                  = 'turbofan'
-    battery_ducted_fan.nacelle_diameter     = ducted_fan.nacelle_diameter
-    battery_ducted_fan.areas                = Data()
-    battery_ducted_fan.areas.wetted         = ducted_fan.areas.wetted
-    battery_ducted_fan.engine_length        = ducted_fan.engine_length
-    battery_ducted_fan.number_of_engines    = ducted_fan.number_of_engines
-    battery_ducted_fan.origin               = ducted_fan.origin
-    battery_ducted_fan.voltage              = 400.
+
+    # Created Serial Hybrid Ducted Fan network and set defaults
+    hybrid_ducted_fan                      = SUAVE.Components.Energy.Networks.Serial_Hybrid_Ducted_Fan()
+    hybrid_ducted_fan.tag                  = 'serial_hybrid_ducted_fan'
+    hybrid_ducted_fan.nacelle_diameter     = ducted_fan.nacelle_diameter
+    hybrid_ducted_fan.areas                = Data()
+    hybrid_ducted_fan.areas.wetted         = ducted_fan.areas.wetted
+    hybrid_ducted_fan.engine_length        = ducted_fan.engine_length
+    hybrid_ducted_fan.number_of_engines    = ducted_fan.number_of_engines
+    hybrid_ducted_fan.origin               = ducted_fan.origin
+    hybrid_ducted_fan.voltage              = 400.
 
     # add  gas turbine network turbofan to the network 
-    battery_ducted_fan.propulsor            = ducted_fan
+    hybrid_ducted_fan.propulsor            = ducted_fan
 
     # Create ESC and add to the network
     esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
     esc.efficiency                  = 0.97
-    battery_ducted_fan.esc          = esc
+    hybrid_ducted_fan.esc          = esc
 
     # Create payload and add to the network
     payload = SUAVE.Components.Energy.Peripherals.Avionics()
     payload.power_draw              = 0.
     payload.mass_properties.mass    = 0. * Units.kg 
-    battery_ducted_fan.payload      = payload
+    hybrid_ducted_fan.payload      = payload
 
     # Create avionics and add to the network
     avionics = SUAVE.Components.Energy.Peripherals.Avionics()
     avionics.power_draw             = 200. * Units.watts 
-    battery_ducted_fan.avionics     = avionics
+    hybrid_ducted_fan.avionics     = avionics
 
     # Create the battery and add to the network
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
@@ -177,14 +161,14 @@ def energy_network():
     bat.max_voltage                 = 400.
     bat.mass_properties.mass        = 1000. * Units.kg 
     initialize_from_mass(bat, bat.mass_properties.mass)
-    battery_ducted_fan.battery      = bat
+    hybrid_ducted_fan.battery      = bat
     
     # Create the generator and add to the network
     generator = SUAVE.Components.Energy.Converters.Generator_Zero_Fid()
     generator.max_power = 500000 * Units.watt
     generator.sfc = 300     #[g/(kW*h)]
     
-    battery_ducted_fan.generator = generator
+    hybrid_ducted_fan.generator = generator
     
     # ------------------------------------------------------------------
     #   Evaluation Conditions
@@ -240,13 +224,13 @@ def energy_network():
     conditions.propulsion.throttle                     = np.array([[1.0],[1.0]])
     conditions.propulsion.battery_energy               = bat.max_energy*np.ones_like(ones_1col)
     
-    print("Design thrust ", battery_ducted_fan.propulsor.design_thrust 
-          * battery_ducted_fan.number_of_engines)
-    print("Sealevel static thrust ", battery_ducted_fan.propulsor.sealevel_static_thrust
-          * battery_ducted_fan.number_of_engines)
+    print("Design thrust ", hybrid_ducted_fan.propulsor.design_thrust 
+          * hybrid_ducted_fan.number_of_engines)
+    print("Sealevel static thrust ", hybrid_ducted_fan.propulsor.sealevel_static_thrust
+          * hybrid_ducted_fan.number_of_engines)
     
     
-    results_off_design  = battery_ducted_fan(state)
+    results_off_design  = hybrid_ducted_fan(state)
     F                   = results_off_design.thrust_force_vector
     mdot                = results_off_design.vehicle_mass_rate
     power               = results_off_design.power
