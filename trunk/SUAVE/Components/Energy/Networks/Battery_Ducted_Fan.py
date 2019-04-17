@@ -119,7 +119,6 @@ class Battery_Ducted_Fan(Propulsor):
         # Calculate avionics and payload current
         avionics_payload_current = avionics_payload_power/self.voltage
 
-
         # link to the battery
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
         #print(esc.outputs.currentin)

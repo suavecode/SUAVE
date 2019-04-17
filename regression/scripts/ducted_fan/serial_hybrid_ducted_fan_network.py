@@ -131,7 +131,6 @@ def energy_network():
     hybrid_ducted_fan.areas                = Data()
     hybrid_ducted_fan.areas.wetted         = ducted_fan.areas.wetted
     hybrid_ducted_fan.engine_length        = ducted_fan.engine_length
-    hybrid_ducted_fan.number_of_engines    = ducted_fan.number_of_engines
     hybrid_ducted_fan.origin               = ducted_fan.origin
     hybrid_ducted_fan.voltage              = 400.
 
@@ -166,7 +165,7 @@ def energy_network():
     # Create the generator and add to the network
     generator = SUAVE.Components.Energy.Converters.Generator_Zero_Fid()
     generator.max_power = 500000 * Units.watt
-    generator.sfc = 300     #[g/(kW*h)]
+    generator.sfc = 300 * Units['g/kW/h']
     
     hybrid_ducted_fan.generator = generator
     

@@ -71,7 +71,7 @@ class Generator_Zero_Fid(Energy_Component):
     
         Properties Used:
         self.
-            sfc                [g/(KW*h)]
+            sfc                [kg/(W*s)]
             max_power          [W]
 
         """       
@@ -80,7 +80,7 @@ class Generator_Zero_Fid(Energy_Component):
         sfc         = self.sfc
         max_power   = self.max_power
 
-        mdot = (max_power/1000) * (sfc/(3600*1000))
+        mdot = max_power * sfc
         
         # Pack
         self.outputs.power_generated = max_power * np.ones_like(conditions.propulsion.throttle)

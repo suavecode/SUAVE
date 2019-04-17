@@ -127,7 +127,6 @@ def energy_network():
     battery_ducted_fan.areas                = Data()
     battery_ducted_fan.areas.wetted         = ducted_fan.areas.wetted
     battery_ducted_fan.engine_length        = ducted_fan.engine_length
-    battery_ducted_fan.number_of_engines    = ducted_fan.number_of_engines
     battery_ducted_fan.origin               = ducted_fan.origin
     battery_ducted_fan.voltage              = 400.
 
