@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Networks
-# Tilt_Rotor.py
+# Vectored_Thrust.py
 # 
 # Created:  Nov 2018, M.Clarke
 
@@ -21,7 +21,7 @@ from SUAVE.Core import  Units, Data
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Tilt_Rotor(Propulsor):
+class Vectored_Thrust(Propulsor):
     """ This is a simple network with a battery powering a propeller through
         an electric motor
 

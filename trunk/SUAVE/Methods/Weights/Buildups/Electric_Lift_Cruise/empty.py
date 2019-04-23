@@ -1,4 +1,4 @@
-## @ingroup Methods-Weights-Buildups-Electric_Stopped_Rotor
+## @ingroup Methods-Weights-Buildups-Electric_Lift_Cruise
 
 # empty.py
 #
@@ -20,14 +20,14 @@ import numpy as np
 # Empty
 #-------------------------------------------------------------------------------
 
-## @ingroup Methods-Weights-Buildups-Electric_Stopped_Rotor
+## @ingroup Methods-Weights-Buildups-Electric_Lift_Cruise
 def empty(config,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
           disk_area_factor              = 1.15,
           max_thrust_to_weight_ratio    = 1.1,
           motor_efficiency              = 0.85 * 0.98):
-    """weight = SUAVE.Methods.Weights.Buildups.Electric_Stopped_Rotor.empty(
+    """weight = SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty(
             config,
             speed_of_sound              = 340.294,
             max_tip_mach                = 0.65,
@@ -45,7 +45,7 @@ def empty(config,
         Originally written as part of an AA 290 project inteded for trade study
         of the Electric Stopped Rotor along with the following defined SUAVE config types:
             Electric Helicopter
-            Electric Tiltrotor
+            Electric Vectored_Thrust
             
         Sources:
         Project Vahana Conceptual Trade Study

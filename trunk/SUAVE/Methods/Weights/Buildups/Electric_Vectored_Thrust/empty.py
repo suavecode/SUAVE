@@ -1,4 +1,4 @@
-## @ingroup Methods-Weights-Buildups-Electric_Tiltrotor
+## @ingroup Methods-Weights-Buildups-Electric_Vectored_Thrust
 # empty.py
 #
 # Created: Jun, 2017, J. Smart
@@ -19,14 +19,14 @@ import numpy as np
 # Empty
 #-------------------------------------------------------------------------------
 
-## @ingroup Methods-Weights-Buildups-Electric_Tiltrotor
+## @ingroup Methods-Weights-Buildups-Electric_Vectored_Thrust
 def empty(config,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
           disk_area_factor              = 1.15,
           max_thrust_to_weight_ratio    = 1.1,
           motor_efficiency              = 0.85 * 0.98):
-    """weight = SUAVE.Methods.Weights.Buildups.electricTiltrotor.empty(
+    """weight = SUAVE.Methods.Weights.Buildups.electricVectored_Thrust.empty(
             config,
             speed_of_sound              = 340.294,
             max_tip_mach                = 0.65,
@@ -42,7 +42,7 @@ def empty(config,
             wing.py
             wiring.py
         Originally written as part of an AA 290 project inteded for trade study
-        of the Electric Tiltrotor along with the following defined SUAVE vehicle types:
+        of the Electric Vectored_Thrust along with the following defined SUAVE vehicle types:
             Electric Helicopter
             Electric Stopped Rotor
 

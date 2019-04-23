@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Networks
-# Stopped_Rotor.py
+# Lift_Cruise.py
 # 
 # Created: Jan 2016, E. Botero
 # Modified: 
@@ -21,7 +21,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Stopped_Rotor(Propulsor):
+class Lift_Cruise(Propulsor):
     """ This is a complex version of battery_propeller with a battery powering propellers through
         electric motors. In this case we have 2 sets of motors at different motors that can be controlled seperately
         

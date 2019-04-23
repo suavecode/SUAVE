@@ -62,7 +62,7 @@ def initialize_conditions(segment):
     # process velocity vector
     v_mag = (Vf-Vo)*t_nondim + Vo
     v_z   = -climb_rate # z points down
-    v_x   = np.sqrt( v_mag**2 - v_z**2 )
+    v_x   = np.sqrt(v_mag**2 - v_z**2 )
     
     # pack conditions    
     conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
