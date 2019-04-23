@@ -25,7 +25,7 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
     Basic fit
 
     Source:
-    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    http://aerodesign.stanford.edu/aircraftdesign/aircraftdesign.html (Stanford AA241 A/B Course Notes)
 
     Inputs:
     configuration.trim_drag_correction_factor  [Unitless]

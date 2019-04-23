@@ -1,8 +1,8 @@
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_propulsor.py
 # 
-# Created:  Aug 2014, T. MacDonald
-# Modified: Nov 2016, T. MacDonald
+# Created:  Feb 2019, T. MacDonald
+# Modified: 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,6 +10,7 @@
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import compressible_turbulent_flat_plate
 from SUAVE.Core import Data
+from .Cubic_Spline_Blender import Cubic_Spline_Blender
 
 import numpy as np
 
@@ -26,7 +27,7 @@ def parasite_drag_propulsor(state,settings,geometry):
 
     Source:
     Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach) (subsonic)
-    http://adg.stanford.edu/aa241/drag/BODYFORMFACTOR.HTML (supersonic)
+    http://aerodesign.stanford.edu/aircraftdesign/drag/BODYFORMFACTOR.HTML (supersonic)
 
     Inputs:
     state.conditions.freestream.
@@ -37,8 +38,6 @@ def parasite_drag_propulsor(state,settings,geometry):
       nacelle_diameter                           [m^2]
       areas.wetted                               [m^2]
       engine_length                              [m]
-    state.conditions.aerodynamics.drag_breakdown.
-      compressible.main_wing.divergence_mach     [Unitless]
 
     Outputs:
     propulsor_parasite_drag                      [Unitless]
@@ -52,6 +51,9 @@ def parasite_drag_propulsor(state,settings,geometry):
     conditions    = state.conditions
     configuration = settings
     propulsor     = geometry
+    
+    low_mach_cutoff  = settings.begin_drag_rise_mach_number
+    high_mach_cutoff = settings.end_drag_rise_mach_number    
         
     freestream = conditions.freestream
     
@@ -73,10 +75,6 @@ def parasite_drag_propulsor(state,settings,geometry):
     # skin friction coefficient
     cf_prop, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)
 
-
-    k_prop = np.array([[0.0]]*len(Mc))
-    # assume that the drag divergence mach number of the propulsor matches the main wing
-    Mdiv = state.conditions.aerodynamics.drag_breakdown.compressible.main_wing.divergence_mach
     
     # form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
     k_prop_sub = 1. + 0.35 / (float(l_prop)/float(d_prop)) 
@@ -84,14 +82,10 @@ def parasite_drag_propulsor(state,settings,geometry):
     # for supersonic flow (http://adg.stanford.edu/aa241/drag/BODYFORMFACTOR.HTML)
     k_prop_sup = 1.
     
-    sb_mask = (Mc <= Mdiv)
-    tn_mask = ((Mc > Mdiv) & (Mc < 1.05))
-    sp_mask = (Mc >= 1.05)
+    trans_spline = Cubic_Spline_Blender(low_mach_cutoff,high_mach_cutoff)
+    h00 = lambda M:trans_spline.compute(M)
     
-    k_prop[sb_mask] = k_prop_sub
-    # basic interpolation for transonic
-    k_prop[tn_mask] = (k_prop_sup-k_prop_sub)*(Mc[tn_mask]-Mdiv[tn_mask])/(1.05-Mdiv[tn_mask]) + k_prop_sub
-    k_prop[sp_mask] = k_prop_sup
+    k_prop = k_prop_sub*(h00(Mc)) + k_prop_sup*(1-h00(Mc))
     
     # --------------------------------------------------------
     # find the final result    

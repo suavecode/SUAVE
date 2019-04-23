@@ -3,7 +3,7 @@
 #
 # Created:  Sep 2014, M. Vegh
 # Modified: Jan 2016, T. MacDonald
-
+#           Apr 2019, C. McMillan
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -13,8 +13,6 @@ import SUAVE
 
 # package imports
 import numpy as np
-from SUAVE.Core import Data
-from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------
@@ -37,7 +35,7 @@ class Battery_Ducted_Fan(Propulsor):
             This network operates slightly different than most as it attaches a propulsor to the net.
     
             Assumptions:
-            Your system always uses 90 amps...?
+            
     
             Source:
             N/A
@@ -54,7 +52,11 @@ class Battery_Ducted_Fan(Propulsor):
         
         self.propulsor        = None
         self.battery          = None
-        self.motor_efficiency = .95 
+        self.motor_efficiency = 0.0 
+        self.esc              = None
+        self.avionics         = None
+        self.payload          = None
+        self.voltage          = None
         self.tag              = 'Network'
     
     # manage process with a driver function
@@ -62,7 +64,9 @@ class Battery_Ducted_Fan(Propulsor):
         """ Calculate thrust given the current state of the vehicle
     
             Assumptions:
-            None
+            Constant mass batteries
+            ESC input voltage is constant at max battery voltage
+            
     
             Source:
             N/A
@@ -76,48 +80,64 @@ class Battery_Ducted_Fan(Propulsor):
     
             Properties Used:
             Defaulted values
-        """         
-        
-        # unpack
+        """ 
 
-        propulsor   = self.propulsor
-        battery     = self.battery
+         # unpack
+        conditions = state.conditions
+        numerics   = state.numerics
+        esc        = self.esc
+        avionics   = self.avionics
+        payload    = self.payload 
+        battery    = self.battery
+        propulsor  = self.propulsor
+        battery    = self.battery
+
+        # Set battery energy
+        battery.current_energy = conditions.propulsion.battery_energy
+
+        # Calculate ducted fan power
+        results             = propulsor.evaluate_thrust(state)
+        propulsive_power    = np.reshape(results.power, (-1,1))
+        motor_power         = propulsive_power/self.motor_efficiency 
+
+        # Run the ESC
+        esc.inputs.voltagein    = self.voltage
+        esc.voltageout(conditions)
+        esc.inputs.currentout   = motor_power/esc.outputs.voltageout
+        esc.currentin(conditions)
+        esc_power               = esc.inputs.voltagein*esc.outputs.currentin
+        
+        # Run the avionics
+        avionics.power()
+
+        # Run the payload
+        payload.power()
+
+        # Calculate avionics and payload power
+        avionics_payload_power = avionics.outputs.power + payload.outputs.power
+
+        # Calculate avionics and payload current
+        avionics_payload_current = avionics_payload_power/self.voltage
+
+        # link to the battery
+        battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
+        #print(esc.outputs.currentin)
+        battery.inputs.power_in = -(esc_power + avionics_payload_power)
+        battery.energy_calc(numerics)        
     
-        conditions  = state.conditions
-        numerics    = state.numerics
-  
-        results = propulsor.evaluate_thrust(state)
-        Pe      = np.multiply(results.thrust_force_vector[:,0],conditions.freestream.velocity[0])
-        
-        try:
-            initial_energy = conditions.propulsion.battery_energy
-            if initial_energy[0][0]==0: #beginning of segment; initialize battery
-                battery.current_energy = battery.current_energy[-1]*np.ones_like(initial_energy)
-        except AttributeError: #battery energy not initialized, e.g. in takeoff
-            battery.current_energy=np.transpose(np.array([battery.current_energy[-1]*np.ones_like(Pe)]))
-        
-        pbat = -Pe/self.motor_efficiency
-        battery_logic          = Data()
-        battery_logic.power_in = pbat
-        battery_logic.current  = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
-      
-        battery.inputs = battery_logic
-        tol = 1e-6
-        
-        battery.energy_calc(numerics)
-        #allow for mass gaining batteries
-       
-        try:
-            mdot=find_mass_gain_rate(battery,-(pbat-battery.resistive_losses)) #put in transpose for solver
-        except AttributeError:
-            mdot=np.zeros_like(results.thrust_force_vector[:,0])
-        mdot=np.reshape(mdot, np.shape(conditions.freestream.velocity))
-        #Pack the conditions for outputs
-        battery_draw                         = battery.inputs.power_in
-        battery_energy                       = battery.current_energy
-      
-        conditions.propulsion.battery_draw   = battery_draw
-        conditions.propulsion.battery_energy = battery_energy
+        # No mass gaining batteries
+        mdot = np.zeros(np.shape(conditions.freestream.velocity))
+
+        # Pack the conditions for outputs
+        current              = esc.outputs.currentin
+        battery_draw         = battery.inputs.power_in 
+        battery_energy       = battery.current_energy
+        voltage_open_circuit = battery.voltage_open_circuit
+          
+        conditions.propulsion.current              = current
+        conditions.propulsion.battery_draw         = battery_draw
+        conditions.propulsion.battery_energy       = battery_energy
+        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
         
         results.vehicle_mass_rate   = mdot
         return results
