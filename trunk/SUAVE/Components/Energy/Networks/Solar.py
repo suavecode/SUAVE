@@ -64,7 +64,7 @@ class Solar(Propulsor):
         self.engine_length     = None
         self.number_of_engines = None
         self.tag               = 'Solar'
-        self.PGM_compulsory    = False
+        self.PGM_minimum       = 0
     
     # manage process with a driver function
     def evaluate_thrust(self,state):

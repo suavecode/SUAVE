@@ -247,7 +247,9 @@ class AVL_Inviscid(Aerodynamics):
         CL       = np.zeros([len(AoA)*len(mach),1])
         CD       = np.zeros([len(AoA)*len(mach),1])
         e        = np.zeros([len(AoA)*len(mach),1])
-        NP       = np.zeros([len(AoA)*len(mach),1]) 
+        NP       = np.zeros([len(AoA)*len(mach),1])
+        
+        len_AoA  = len(AoA)
         
         # Calculate aerodynamics for table
         table_size = len(AoA)*len(mach)
@@ -271,10 +273,10 @@ class AVL_Inviscid(Aerodynamics):
             results =  self.evaluate_conditions(run_conditions)
             
             # Obtain CD , CL and e  
-            CL[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.lift_coefficient[:,0]
-            CD[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.drag_breakdown.induced.total[:,0]      
-            e[count*len(mach):(count+1)*len(mach),0]    = results.aerodynamics.drag_breakdown.induced.efficiency_factor[:,0]  
-            NP[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.neutral_point[:,0]
+            CL[count*len_AoA:(count+1)*len_AoA,0]   = results.aerodynamics.lift_coefficient[:,0]
+            CD[count*len_AoA:(count+1)*len_AoA,0]   = results.aerodynamics.drag_breakdown.induced.total[:,0]      
+            e[count*len_AoA:(count+1)*len_AoA,0]    = results.aerodynamics.drag_breakdown.induced.efficiency_factor[:,0]  
+            NP[count*len_AoA:(count+1)*len_AoA,0]   = results.aerodynamics.neutral_point[:,0]
             
             count += 1
         

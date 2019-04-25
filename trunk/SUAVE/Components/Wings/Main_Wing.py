@@ -59,9 +59,9 @@ class Main_Wing(Wing):
         self.tag             = 'main_wing'
         self.Segments         = Segment_Container()
         self.max_per_vehicle = 3
-        self.PGM_compulsory  = True
+        self.PGM_minimum            = 1
         self.PGM_characteristics    = ['spans.projected','chords.root','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
-        self.PGM_char_min_bounds    = [0.001,0.001,0,-np.inf,-np.inf]   
+        self.PGM_char_min_bounds    = [1.0,0.5,0,-np.inf,-np.inf]   
         self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
         
         

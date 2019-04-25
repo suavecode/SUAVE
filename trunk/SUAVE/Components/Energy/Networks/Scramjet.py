@@ -63,7 +63,7 @@ class Scramjet(Propulsor):
         self.number_of_engines = 1.0 
         self.nacelle_diameter  = 1.0 
         self.engine_length     = 1.0  
-        self.PGM_compulsory    = False
+        self.PGM_minimum       = 0
 
     def evaluate_thrust(self,state): 
         """ Calculate thrust given the current state of the vehicle 

@@ -304,7 +304,7 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.max_per_vehicle     = 1
         self.PGM_special_parent  = None
         self.PGM_characteristics = ['max_takeoff','max_zero_fuel']
-        self.PGM_compulsory      = True
+        self.PGM_minimum         = 1
         self.PGM_char_min_bounds = [1,1]   
         self.PGM_char_max_bounds = [np.inf,np.inf]        
 

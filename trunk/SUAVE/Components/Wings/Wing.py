@@ -129,7 +129,7 @@ class Wing(Lofted_Body):
         self.Airfoil            = Data()
         
         self.non_dimensional_origin = [[0.0,0.0,0.0]]
-        self.PGM_compulsory         = False
+        self.PGM_minimum            = 1
         self.PGM_characteristics    = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','dihedral','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
         self.PGM_char_min_bounds    = [0,1.,0.001,0.1,0.001,-np.pi/4,-2.,-2,-2]   
         self.PGM_char_max_bounds    = [5.,np.inf,1.0,np.inf,np.pi/3,np.pi/4,2,2,2]

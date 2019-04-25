@@ -93,7 +93,7 @@ def read_results(avl_object):
             case_res.stability.Cl_q = float(lines[46+num_ctrl][43:54].strip())
             case_res.stability.Cl_r = float(lines[44+num_ctrl][65:74].strip())
             case_res.stability.Cm_p = float(lines[47+num_ctrl][24:34].strip())
-            case_res.stability.Cm_q = float(lines[47+num_ctrl][43:54].strip())
+            #case_res.stability.Cm_q = float(lines[47+num_ctrl][43:54].strip())
             case_res.stability.Cm_r = float(lines[44+num_ctrl][65:74].strip())
             case_res.stability.Cn_p = float(lines[48+num_ctrl][24:34].strip())
             case_res.stability.Cn_q = float(lines[48+num_ctrl][43:54].strip())

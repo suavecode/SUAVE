@@ -614,7 +614,7 @@ def fix_wing_segments(wing):
         indices = np.argsort(spanwise_locs)
 
         # Extrapolate to root and tip, if not at 0 and 1
-        if spanwise_locs[indices[0]]!=0.:
+        if spanwise_locs[indices[0]]>=1E-3:
                 # Need a root
                 seg_0 = Segment()
                 
@@ -631,8 +631,10 @@ def fix_wing_segments(wing):
                         
                         # Extrapolate linearly: twist, root chord percent, dihedral, sweeps.quarter_chord, thickness_to_chord
                         seg_0.twist = segs[indices[0]].twist - segs[indices[0]].percent_span_location*(segs[indices[1]].twist-segs[indices[0]].twist)/delta_span
-                        seg_0.root_chord_percent = segs[indices[0]].root_chord_percent - \
-                                segs[indices[0]].percent_span_location*(segs[indices[1]].root_chord_percent-segs[indices[0]].root_chord_percent)/delta_span
+                        #seg_0.root_chord_percent = segs[indices[0]].root_chord_percent - \
+                                #segs[indices[0]].percent_span_location*(segs[indices[1]].root_chord_percent-segs[indices[0]].root_chord_percent)/delta_span
+                        seg_0.root_chord_percent = 1.0
+                                
                         seg_0.dihedral_outboard = segs[indices[0]].dihedral_outboard - \
                                 segs[indices[0]].percent_span_location*(segs[indices[1]].dihedral_outboard-segs[indices[0]].dihedral_outboard)/delta_span
                         seg_0.sweeps.quarter_chord = segs[indices[0]].sweeps.quarter_chord -\
@@ -648,6 +650,12 @@ def fix_wing_segments(wing):
                 
                 new_container.append(seg_0)
                 
+        elif spanwise_locs[indices[0]]<1E-3:
+                segs[indices[0]].percent_span_location = 0.
+                segs[indices[0]].root_chord_percent    = 1.0
+                
+                
+                
         for ind in indices:
                 if len(new_container) !=0:
                         if new_container[-1].percent_span_location != segs[ind].percent_span_location:
@@ -655,7 +663,7 @@ def fix_wing_segments(wing):
                 else:
                         new_container.append(segs[ind])
                 
-        if spanwise_locs[indices[-1]]!=1.:
+        if spanwise_locs[indices[-1]]<(1.-1E-3):
                 # Need a tip
                 seg_m1 = Segment()
                 
@@ -688,14 +696,23 @@ def fix_wing_segments(wing):
                                 seg_m1.root_chord_percent = 0.
                         if seg_m1.thickness_to_chord<0.0001:
                                 seg_m1.thickness_to_chord = 0.0001
+                                
+                if spanwise_locs[indices[-1]]>(1.-1E-3):
+                        segs[indices[0]].percent_span_location = 1.
                                         
                 
                 new_container.append(seg_m1)
                 
-                
-                
-                
-        
+        # Check to ensure nothing exceeds the bounds
+        min_bounds = np.array(segs[0].PGM_char_min_bounds)
+        max_bounds = np.array(segs[0].PGM_char_max_bounds)
+        keys       = segs[0].PGM_characteristics
+        for seg in new_container:
+                for ii, key in enumerate(keys):
+                        val = new_container[seg].deep_get(key)
+                        if val < min_bounds[ii]: new_container[seg].deep_set(key,min_bounds[ii])
+                        if val > max_bounds[ii]: new_container[seg].deep_set(key,max_bounds[ii])
+
         # Change the container out
         wing.Segments = new_container
         

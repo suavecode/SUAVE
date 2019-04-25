@@ -242,7 +242,7 @@ def translate_results_to_conditions(cases,results):
         res.aerodynamics.Cl_q[i][0] = case_res.stability.Cl_q 
         res.aerodynamics.Cl_r[i][0] = case_res.stability.Cl_r 
         res.aerodynamics.Cm_p[i][0] = case_res.stability.Cm_p 
-        res.aerodynamics.Cm_q[i][0] = case_res.stability.Cm_q 
+        #res.aerodynamics.Cm_q[i][0] = case_res.stability.Cm_q 
         res.aerodynamics.Cm_r[i][0] = case_res.stability.Cm_r 
         res.aerodynamics.Cn_p[i][0] = case_res.stability.Cn_p 
         res.aerodynamics.Cn_q[i][0] = case_res.stability.Cn_q 
