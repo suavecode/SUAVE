@@ -1042,7 +1042,7 @@ def VLM(conditions,configuration,geometry):
     Cl_wing = np.zeros((n_w,n_sw))
     Cdi_wing = np.zeros((n_w,n_sw))
     
-    Del_Y = YB1 - YA1
+    Del_Y = np.abs(YB1 - YA1)
     #for j in range(n_w):
         #CL_wing[j] = 2*np.sum(gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw])/wing_areas[j]  # wing lift coefficient
         #CDi_wing[j] = -2*np.sum(gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw])/wing_areas[j] # wing induced drag coefficient
