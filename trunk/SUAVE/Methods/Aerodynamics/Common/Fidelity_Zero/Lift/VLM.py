@@ -195,8 +195,6 @@ def VLM(conditions,configuration,geometry):
         yc  = np.zeros(n_sw*n_cw) 
         zc  = np.zeros(n_sw*n_cw)
         
-        
-        
         section_twist= np.zeros(n_sw) 
         # ---------------------------------------------------------------------------------------
         # STEP 3: Determine if wing segments are defined  
@@ -897,9 +895,9 @@ def VLM(conditions,configuration,geometry):
     n_cppw     = n_cw*n_sw      # number of control points per wing
     n_cp       = n_w*n_cw*n_sw  # total number of control points 
     theta_w    = aoa[0][0]
-    C_AB_34_ll = np.zeros((n_cp,n_cp,3)) 
-    C_AB_34_rl = np.zeros((n_cp,n_cp,3))
+    C_AB_34_ll = np.zeros((n_cp,n_cp,3))
     C_AB_ll    = np.zeros((n_cp,n_cp,3))
+    C_AB_34_rl = np.zeros((n_cp,n_cp,3))    
     C_AB_rl    = np.zeros((n_cp,n_cp,3))
     C_AB_bv    = np.zeros((n_cp,n_cp,3))
     C_Ainf     = np.zeros((n_cp,n_cp,3))
@@ -909,8 +907,8 @@ def VLM(conditions,configuration,geometry):
     DW_mn = np.zeros((n_cp,n_cp,3))
     
     
-    for m in range(n_cp): # control point m
-        n = 0
+    for n in range(n_cp): # control point m
+        m = 0
         for sw_idx in range(n_sw): 
             for n_cwpsw in range(n_cw*n_w):      
                 
@@ -919,30 +917,30 @@ def VLM(conditions,configuration,geometry):
                 YC_hat  = YC[n]
                 ZC_hat  = -np.sin(theta_w)*XC[n] + np.cos(theta_w)*ZC[n] 
                                    
-                XA2_hat =  np.cos(theta_w)*XA2[(sw_idx + 1) *n_cw] + np.sin(theta_w)*ZA2[(sw_idx + 1)*n_cw] 
-                YA2_hat =  YA2[(sw_idx + 1)*n_cw]
-                ZA2_hat = -np.sin(theta_w)*XA2[(sw_idx + 1)*n_cw] + np.cos(theta_w)*ZA2[(sw_idx + 1)*n_cw]           
+                XA2_hat =  np.cos(theta_w)*XA2[(sw_idx + 1) *(n_cw-1)] + np.sin(theta_w)*ZA2[(sw_idx + 1)*(n_cw-1)] 
+                YA2_hat =  YA2[(sw_idx + 1)*(n_cw-1)]
+                ZA2_hat = -np.sin(theta_w)*XA2[(sw_idx + 1)*(n_cw-1)] + np.cos(theta_w)*ZA2[(sw_idx + 1)*(n_cw-1)]           
                           
-                XB2_hat =  np.cos(theta_w)*XB2[(sw_idx + 1)*n_cw] + np.sin(theta_w)*ZB2[(sw_idx + 1)*n_cw] 
-                YB2_hat =  YB2[(sw_idx + 1)*n_cw]
-                ZB2_hat = -np.sin(theta_w)*XB2[(sw_idx + 1)*n_cw] + np.cos(theta_w)*ZB2[(sw_idx + 1)*n_cw]                
+                XB2_hat =  np.cos(theta_w)*XB2[(sw_idx + 1)*(n_cw-1)] + np.sin(theta_w)*ZB2[(sw_idx + 1)*(n_cw-1)] 
+                YB2_hat =  YB2[(sw_idx + 1)*(n_cw-1)]
+                ZB2_hat = -np.sin(theta_w)*XB2[(sw_idx + 1)*(n_cw-1)] + np.cos(theta_w)*ZB2[(sw_idx + 1)*(n_cw-1)]                
                 
                 # starboard (right) wing 
                 if YC[m] > 0:
                     # compute influence of bound vortices 
-                    C_AB_bv[m,n] = vortex(XC[m], YC[m], ZC[m], XAH[n], YAH[n], ZAH[n], XBH[n], YBH[n], ZBH[n])   
+                    C_AB_bv[m,n] = vortex(XC[n], YC[n], ZC[n], XAH[m], YAH[m], ZAH[m], XBH[m], YBH[m], ZBH[m])   
                     
                     # compute influence of 3/4 left legs
-                    C_AB_34_ll[m,n] = vortex(XC[m], YC[m], ZC[m], XA2[n], YA2[n], ZA2[n], XAH[n], YAH[n], ZAH[n])      
+                    C_AB_34_ll[m,n] = vortex(XC[n], YC[n], ZC[n], XA2[m], YA2[m], ZA2[m], XAH[m], YAH[m], ZAH[m])      
                     
                     # compute influence of whole panel left legs 
-                    C_AB_ll[m,n]   =  vortex(XC[m], YC[m], ZC[m], XA2[n], YA2[n], ZA2[n], XA1[n], YA1[n], ZA1[n])      
+                    C_AB_ll[m,n]   =  vortex(XC[n], YC[n], ZC[n], XA2[m], YA2[m], ZA2[m], XA1[m], YA1[m], ZA1[m])      
                          
                     # compute influence of 3/4 right legs
-                    C_AB_34_rl[m,n] = vortex(XC[m], YC[m], ZC[m], XBH[n], YBH[n], ZBH[n], XB2[n], YB2[n], ZB2[n])      
+                    C_AB_34_rl[m,n] = vortex(XC[n], YC[n], ZC[n], XBH[m], YBH[m], ZBH[m], XB2[m], YB2[m], ZB2[m])      
                          
                     # compute influence of whole right legs 
-                    C_AB_rl[m,n] = vortex(XC[m], YC[m], ZC[m], XB1[n], YB1[n], ZB1[n], XB2[n], YB2[n], ZB2[n])    
+                    C_AB_rl[m,n] = vortex(XC[n], YC[n], ZC[n], XB1[m], YB1[m], ZB1[m], XB2[m], YB2[m], ZB2[m])    
                                     
                     # velocity induced by left leg of vortex (A to inf)
                     C_Ainf[m,n]  = vortex_to_inf(XC_hat, YC_hat, ZC_hat, XA2_hat, YA2_hat, ZA2_hat,theta_w)     
@@ -953,19 +951,19 @@ def VLM(conditions,configuration,geometry):
                 # port (left) wing 
                 else: 
                     # compute influence of bound vortices 
-                    C_AB_bv[m,n] = vortex(XC[m], YC[m], ZC[m], XBH[n], YBH[n], ZBH[n], XAH[n], YAH[n], ZAH[n])                       
+                    C_AB_bv[m,n] = vortex(XC[n], YC[n], ZC[n], XBH[m], YBH[m], ZBH[m], XAH[m], YAH[m], ZAH[m])                       
                 
                     # compute influence of 3/4 left legs
-                    C_AB_34_ll[m,n] = vortex(XC[m], YC[m], ZC[m], XBH[n], YBH[n], ZBH[n], XB2[n], YB2[n], ZB2[n])        
+                    C_AB_34_ll[m,n] = vortex(XC[n], YC[n], ZC[n], XB2[m], YB2[m], ZB2[m], XBH[m], YBH[m], ZBH[m])        
  
                     # compute influence of whole panel left legs 
-                    C_AB_ll[m,n]    =  vortex(XC[m], YC[m], ZC[m], XB1[n], YB1[n], ZB1[n], XB2[n], YB2[n], ZB2[n])      
+                    C_AB_ll[m,n]    =  vortex(XC[n], YC[n], ZC[n], XB2[m], YB2[m], ZB2[m], XB1[m], YB1[m], ZB1[m])      
                          
                     # compute influence of 3/4 right legs
-                    C_AB_34_rl[m,n] = vortex(XC[m], YC[m], ZC[m], XA2[n], YA2[n], ZA2[n], XAH[n], YAH[n], ZAH[n]) 
+                    C_AB_34_rl[m,n] = vortex(XC[n], YC[n], ZC[n], XAH[m], YAH[m], ZAH[m], XA2[m], YA2[m], ZA2[m]) 
                          
                     # compute influence of whole right legs 
-                    C_AB_rl[m,n] =  vortex(XC[m], YC[m], ZC[m], XA2[n], YA2[n], ZA2[n], XA1[n], YA1[n], ZA1[n])   
+                    C_AB_rl[m,n] =  vortex(XC[n], YC[n], ZC[n], XA1[m], YA1[m], ZA1[m], XA2[m], YA2[m], ZA2[m])   
                     
                     # velocity induced by left leg of vortex (A to inf)
                     C_Ainf[m,n]  = vortex_to_inf(XC_hat, YC_hat, ZC_hat, XB2_hat, YB2_hat, ZB2_hat,theta_w)  
@@ -973,15 +971,15 @@ def VLM(conditions,configuration,geometry):
                     # velocity induced by right leg of vortex (B to inf)
                     C_Binf[m,n]  =  vortex_to_inf(XC_hat, YC_hat, ZC_hat, XA2_hat, YA2_hat, ZA2_hat,theta_w)   
                 
-                n += 1 
+                m += 1 
     
     # Summation of Influences
-    for m in range(n_cp):
+    for n in range(n_cp):
         i = 0 
         j = 1
-        for n in range(n_cp):
+        for m in range(n_cp):
             C_AB_rl_ll = np.sum(C_AB_ll[m,(n+1):(n_cw*j)] +  C_AB_rl[m,(n+1):(n_cw*j)])
-            C_mn[m,n,:]  = (C_AB_34_ll[m,n] + C_AB_34_rl[m,n] + C_AB_bv[m,n] + C_AB_rl_ll + C_Ainf[m,n] + C_Binf[m,n]) # induced velocity from panel n  with i,j,k components
+            C_mn[m,n,:]  = ( C_AB_rl_ll + C_AB_34_ll[m,n] + C_AB_bv[m,n] + C_AB_34_rl[m,n] + C_Ainf[m,n] + C_Binf[m,n]) # induced velocity from panel n  with i,j,k components
             DW_mn[m,n,:] = (C_Ainf[m,n] + C_Binf[m,n])                                                                 # induced downwash velocity from panel n with i,j,k components   
             i += 1 
             if i == (n_cw):
@@ -1000,8 +998,8 @@ def VLM(conditions,configuration,geometry):
     DW_mn_k  = np.zeros((n_cp,n_cp))    
     phi   = np.zeros(n_cp)
     delta = np.zeros(n_cp)
-    for m in range(n_cp):
-        for n in range(n_cp):  
+    for n in range(n_cp):
+        for m in range(n_cp):  
             C_mn_i[m,n]  = C_mn[m,n,0]
             C_mn_j[m,n]  = C_mn[m,n,1]
             C_mn_k[m,n]  = C_mn[m,n,2]
@@ -1016,14 +1014,14 @@ def VLM(conditions,configuration,geometry):
     # STEP 9: Solve for vortex strengths and induced velocities 
     # ---------------------------------------------------------------------------------------
     A = np.zeros((n_cp,n_cp))
-    for m in range(n_cp):
-        for n in range(n_cp):     
+    for n in range(n_cp):
+        for m in range(n_cp):     
             A[m,n] = -C_mn_i[m,n]*np.sin(delta[m])*np.cos(phi[m]) - C_mn_j[m,n]*np.cos(delta[m])*np.sin(phi[m]) + C_mn_k[m,n]*np.cos(phi[m])*np.cos(delta[m])
     
     RHS = - np.sin(aoa - delta)*np.cos(phi)  
     
     # Vortex strength computation by matrix inversion
-    gamma_vec = np.linalg.solve(A.T,RHS.T).T 
+    gamma_vec = np.linalg.solve(A,RHS.T).T
     gamma = gamma_vec[0]
     
     # induced velocities 
@@ -1035,7 +1033,7 @@ def VLM(conditions,configuration,geometry):
     # STEP 10: Compute aerodynamic coefficients 
     # ---------------------------------------------------------------------------------------    
     i = 0
-    c_bar = np.mean(CS)
+    c_bar = np.mean(CS)# mean aerodynamic chord 
     
     X_M = np.ones(n_cp)*x_m  
     CL_wing  = np.zeros(n_w)
@@ -1074,7 +1072,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
 def vortex_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     DENUM =  (Z-Z1)**2 + (Y1-Y)**2
     XVEC  = -(Y1-Y)*np.sin(tw)/DENUM
-    YVEC  =  (Z-Z1)/DENUM
+    YVEC  = (Z-Z1)/DENUM
     ZVEC  =  (Y1-Y)*np.cos(tw)/DENUM
     BRAC  =  1 + ((X-X1) / (np.sqrt((X-X1)**2+ (Y-Y1)**2+ (Z-Z1)**2)))
     RVEC   = np.array([XVEC, YVEC, ZVEC])
