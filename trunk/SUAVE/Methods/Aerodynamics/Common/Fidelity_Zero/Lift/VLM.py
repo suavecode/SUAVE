@@ -906,7 +906,6 @@ def VLM(conditions,configuration,geometry):
     C_mn = np.zeros((n_cp,n_cp,3))
     DW_mn = np.zeros((n_cp,n_cp,3))
     
-    
     for n in range(n_cp): # control point m
         m = 0
         for sw_idx in range(n_sw): 
@@ -927,7 +926,7 @@ def VLM(conditions,configuration,geometry):
     
                 
                 # starboard (right) wing 
-                if YC[n] > 0:
+                if YBH[n] > 0:
                     # compute influence of bound vortices 
                     C_AB_bv[n,m] = vortex(XC[n], YC[n], ZC[n], XAH[m], YAH[m], ZAH[m], XBH[m], YBH[m], ZBH[m])   
                     
@@ -991,22 +990,29 @@ def VLM(conditions,configuration,geometry):
     # STEP 8: Compute total velocity induced by horseshoe all vortices on every control point by 
     #         every panel
     # ---------------------------------------------------------------------------------------
-    C_mn_i   = np.zeros((n_cp,n_cp))
-    C_mn_j   = np.zeros((n_cp,n_cp))
-    C_mn_k   = np.zeros((n_cp,n_cp))
-    DW_mn_i  = np.zeros((n_cp,n_cp))
-    DW_mn_j  = np.zeros((n_cp,n_cp))
-    DW_mn_k  = np.zeros((n_cp,n_cp))    
-    phi   = np.zeros(n_cp)
-    delta = np.zeros(n_cp)
-    for n in range(n_cp):
-        for m in range(n_cp):  
-            C_mn_i[m,n]  = C_mn[m,n,0]
-            C_mn_j[m,n]  = C_mn[m,n,1]
-            C_mn_k[m,n]  = C_mn[m,n,2]
-            DW_mn_i[m,n] = DW_mn[m,n,0]
-            DW_mn_j[m,n] = DW_mn[m,n,1]
-            DW_mn_k[m,n] = DW_mn[m,n,2]            
+    #C_mn_i   = np.zeros((n_cp,n_cp))
+    #C_mn_j   = np.zeros((n_cp,n_cp))
+    #C_mn_k   = np.zeros((n_cp,n_cp))
+    #DW_mn_i  = np.zeros((n_cp,n_cp))
+    #DW_mn_j  = np.zeros((n_cp,n_cp))
+    #DW_mn_k  = np.zeros((n_cp,n_cp))    
+    #phi   = np.zeros(n_cp)
+    #delta = np.zeros(n_cp)
+    #for n in range(n_cp):
+        #for m in range(n_cp):  
+            #C_mn_i[m,n]  = C_mn[m,n,0]
+            #C_mn_j[m,n]  = C_mn[m,n,1]
+            #C_mn_k[m,n]  = C_mn[m,n,2]
+            #DW_mn_i[m,n] = DW_mn[m,n,0]
+            #DW_mn_j[m,n] = DW_mn[m,n,1]
+            #DW_mn_k[m,n] = DW_mn[m,n,2]
+            
+    C_mn_i  = C_mn[:,:,0]
+    C_mn_j  = C_mn[:,:,1]
+    C_mn_k  = C_mn[:,:,2]
+    DW_mn_k = DW_mn[:,:,2]
+    
+    
         
     phi   = np.arctan((ZBC - ZAC)/(YBC - YAC))
     delta = np.arctan((ZC - ZCH)/(XC - XCH))
@@ -1017,13 +1023,13 @@ def VLM(conditions,configuration,geometry):
     A = np.zeros((n_cp,n_cp))
     for n in range(n_cp):
         for m in range(n_cp):     
-            A[m,n] = -C_mn_i[m,n]*np.sin(delta[n])*np.cos(phi[n]) - C_mn_j[m,n]*np.cos(delta[n])*np.sin(phi[n]) + C_mn_k[m,n]*np.cos(phi[n])*np.cos(delta[n])
+            A[n,m] = -C_mn_i[n,m]*np.sin(delta[n])*np.cos(phi[n]) - C_mn_j[n,m]*np.cos(delta[n])*np.sin(phi[n]) + C_mn_k[n,m]*np.cos(phi[n])*np.cos(delta[n])
     
     RHS = - np.sin(aoa - delta)*np.cos(phi)  
     
     # Vortex strength computation by matrix inversion
-    gamma_vec = np.linalg.solve(A.T,RHS.T)
-    gamma = gamma_vec
+    gamma_vec = np.linalg.solve(A.T,RHS.T).T
+    gamma = gamma_vec[0]
     
     # induced velocities 
     u = np.dot(gamma.T,C_mn_i)
@@ -1050,9 +1056,15 @@ def VLM(conditions,configuration,geometry):
             #Cl_wing[j,k]  = 2*np.sum(gamma[i*n_cw:(i+1)*n_cw] * Del_Y[i*n_cw:(i+1)*n_cw])/CS[i] # sectional lift coefficients 
             #Cdi_wing[j,k] = -2*np.sum(gamma[i*n_cw:(i+1)*n_cw] * Del_Y[i*n_cw:(i+1)*n_cw] *w[i*n_cw:(i+1)*n_cw])/CS[i] # sectional induced drag coefficients
             #i += 1 
+            
+    L  = np.sum(np.dot((u+1),gamma*Del_Y))
+    CL = 2*L/(0.5*Sref) 
+    
+    D  = np.sum(np.dot(-w,gamma*Del_Y))
+    CDi = 2*D/(0.5*Sref) 
       
-    CL  =  2*np.dot(gamma.T,Del_Y)/(Sref)    # vehicle lift coefficient
-    CDi = -2*np.dot(Del_Y,w.T)/(Sref)                        # vehicle lift coefficient
+    #CL  =  2*np.dot(gamma.T,Del_Y)/(Sref)    # vehicle lift coefficient
+    #CDi = -2*np.dot(Del_Y,w.T)/(Sref)                        # vehicle lift coefficient
     CM  = np.dot(gamma.T,Del_Y*(X_M - XCH))/(Sref*c_bar)   # vehicle lift coefficient 
     
     return CL, CL_wing, CDi, CDi_wing, CM 
