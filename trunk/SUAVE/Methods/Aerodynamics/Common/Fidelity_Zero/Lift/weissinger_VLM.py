@@ -13,13 +13,14 @@
 
 # package imports
 import numpy as np 
-
+import time
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def weissinger_VLM(conditions,configuration,wing):
+    ti = time.time()
     """Uses the vortex lattice method to compute the lift coefficient and induced drag component
     Assumptions:
     None
@@ -125,6 +126,7 @@ def weissinger_VLM(conditions,configuration,wing):
             i_seg = 0
             for idx in range(n):
                 twist_distri[idx]   =  segment_twist[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1])     
+                chord_distribution[idx] =  segment_chord[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1])
                 section_length[idx] =  segment_chord[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1])
                 xa[idx]             = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])                                                    # computer quarter chord points for each horseshoe vortex
                 x[idx]              = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])  + 0.5*section_length[idx]                         # computer three-quarter chord control points for each horseshoe vortex
@@ -147,6 +149,7 @@ def weissinger_VLM(conditions,configuration,wing):
             # discretizing the wing sections into panels 
             i              = np.arange(0,n)
             section_length = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
+            chord_distribution = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
             twist_distri   = twist_rc + i/float(n)*(twist_tc-twist_rc)
             
             ya   = np.atleast_2d((i)*deltax)                                                  # y coordinate of start of horseshoe vortex on panel
@@ -179,17 +182,26 @@ def weissinger_VLM(conditions,configuration,wing):
         # Total lift
         LT = np.sum(L)
         DT = np.sum(D)
-    
+        
         CL = 2*LT/(0.5*Sref)
-        CD = 2*DT/(0.5*Sref)     
+        CD = 2*DT/(0.5*Sref)
+        
+        cl = L/(0.5*chord_distribution) 
+        cdi = D/(0.5*chord_distribution)      
         
     else:
         
         CL = 0.0
         CD = 0.0    
-
+         
+        cl = 0.0 
+        cdi = 0.0 
         
-    return CL, CD 
+    tf = time.time()
+    print ('Time taken for Weis: ' + str(tf-ti)) 
+    #print ('Weissinger Discretization')
+    #print (y)
+    return CL, CD , cl ,cdi 
 
 # ----------------------------------------------------------------------
 #   Helper Functions
