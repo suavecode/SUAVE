@@ -1016,7 +1016,7 @@ def VLM(conditions,configuration,geometry):
     # induced velocities     
     u = np.dot(C_mn_i ,gamma)
     v = np.dot(C_mn_j ,gamma)
-    w = np.dot(DW_mn_k,gamma)    
+    w = np.dot(C_mn_k,gamma)    
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
@@ -1034,28 +1034,27 @@ def VLM(conditions,configuration,geometry):
     Del_Y = np.abs(YB1 - YA1)
     i = 0
     for j in range(n_w):
-        L_wing      = np.dot((u[j*n_cppw:(j+1)*n_cppw] +1), gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw]) # wing lift coefficient
-        CL_wing[j]  = L_wing/(0.5*wing_areas[j])
-        Di_wing     = np.dot(-w[j*n_cppw:(j+1)*n_cppw]  ,gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw]) # wing induced drag coefficient
-        CDi_wing[j] = Di_wing/(0.5*wing_areas[j])
+        L_wing      = np.dot((u[j*n_cppw:(j+1)*n_cppw] +1),gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw]) # wing lift coefficient
+        CL_wing[j]  = L_wing/(wing_areas[j])
+        Di_wing     = np.dot(-w[j*n_cppw:(j+1)*n_cppw]    ,gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw]) # wing induced drag coefficient
+        CDi_wing[j] = Di_wing/(wing_areas[j])
         for k in range(n_sw):   
-            l_wing      = np.dot((u[i*n_cw:(i+1)*n_cw] +1), gamma[i*n_cw:(i+1)*n_cw] * Del_Y[i*n_cw:(i+1)*n_cw])    # sectional lift coefficients 
-            Cl_wing[i]  = l_wing/(0.5*CS[i])
-            di_wing     = np.dot(-w[i*n_cw:(i+1)*n_cw]  ,gamma[i*n_cw:(i+1)*n_cw] * Del_Y[i*n_cw:(i+1)*n_cw]) # sectional induced drag coefficients
-            Cdi_wing[i] = di_wing/(0.5*CS[i])
+            l_wing      = np.dot((u[i*n_cw:(i+1)*n_cw] +1),gamma[i*n_cw:(i+1)*n_cw] * Del_Y[i*n_cw:(i+1)*n_cw]) # sectional lift coefficients 
+            Cl_wing[i]  = 2*l_wing/(CS[i])
+            di_wing     = np.dot(-w[i*n_cw:(i+1)*n_cw]  ,gamma[i*n_cw:(i+1)*n_cw] * Del_Y[i*n_cw:(i+1)*n_cw])   # sectional induced drag coefficients
+            Cdi_wing[i] = 2*di_wing/(CS[i])
             Y_val[i]    = YC[i*n_cw]
             i += 1
             
+    
     L  = np.dot((1+u),gamma*Del_Y)
     CL = 2*L/(Sref) 
     
     D  =  -np.dot(w,gamma*Del_Y)
-    CDi = 2*D/(Sref) 
+    CDi = 2*D/(np.pi*Sref) 
     
-    #CL = np.sqrt(CDi*4*np.pi)
-    CM  = np.dot(gamma.T,Del_Y*(X_M - XCH))/(Sref*c_bar)   # vehicle lift coefficient 
-    
-        
+    CM  = np.dot((X_M - XCH),Del_Y*gamma)/(Sref*c_bar)   
+     
     tf = time.time()
     print ('Time taken for VLM: ' + str(tf-ti))  
     
