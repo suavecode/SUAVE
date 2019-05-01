@@ -76,7 +76,6 @@ def weissinger_VLM(conditions,configuration,wing):
     cos_aoa = np.cos(aoa)
 
     if orientation == False :
-
         # Determine if wing segments are defined  
         n_segments           = len(wing.Segments.keys())
         segment_vortex_index = np.zeros(n_segments)
@@ -184,7 +183,7 @@ def weissinger_VLM(conditions,configuration,wing):
         DT = np.sum(D)
         
         CL = 2*LT/(0.5*Sref)
-        CD = 2*DT/(0.5*Sref)
+        CD = 16*DT/(Sref)
         
         cl = L/(0.5*chord_distribution) 
         cdi = D/(0.5*chord_distribution)      
@@ -199,8 +198,6 @@ def weissinger_VLM(conditions,configuration,wing):
         
     tf = time.time()
     print ('Time taken for Weis: ' + str(tf-ti)) 
-    #print ('Weissinger Discretization')
-    #print (y)
     return CL, CD , cl ,cdi 
 
 # ----------------------------------------------------------------------
