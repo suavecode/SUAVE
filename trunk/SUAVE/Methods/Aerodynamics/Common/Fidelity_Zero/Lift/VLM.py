@@ -101,26 +101,23 @@ def VLM(conditions,configuration,geometry):
     delta = np.arctan((data.ZC - data.ZCH)/(data.XC - data.XCH)) 
    
     # Build Aerodynamic Influence Coefficient Matrix
-    n_cp= data.n_cp
-    AoA   = np.ones_like(delta)*aoa 
-    A     = np.zeros((n_cp,n_cp))
-    for m in range(n_cp):
-        for n in range(n_cp):     
-            A[m,n] = C_mn[m,n,2] - C_mn[m,n,0]*np.tan(delta[n]) - C_mn[m,n,1]*np.tan(phi[n]) 
+    A = C_mn[:,:,2] - np.multiply(C_mn[:,:,0],np.tan(delta))- np.multiply(C_mn[:,:,1],np.tan(phi))
     
-    RHS = np.tan(delta)*np.cos(aoa) - np.sin(aoa) # CHECK
+    # Build the vector
+    RHS = np.tan(delta)*np.cos(aoa) - np.sin(aoa)
     
     # Compute vortex strength  
     gamma = np.linalg.solve(A,RHS)
     
     # Compute induced velocities     
     u = np.dot(C_mn[:,:,0],gamma)
-    v = np.dot(C_mn[:,:,1] ,gamma)
+    v = np.dot(C_mn[:,:,1],gamma)
     w = np.dot(C_mn[:,:,2],gamma)    
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
     # --------------------------------------------------------------------------------------- 
+    n_cp= data.n_cp   
     n_cppw     = n_sw*n_cw
     n_w        = data.n_w
     CS         = data.CS    

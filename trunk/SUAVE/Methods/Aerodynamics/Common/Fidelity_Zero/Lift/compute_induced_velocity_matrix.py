@@ -131,16 +131,30 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
                 sw_idx += 1
                 
     # Summation of Influences
-    for m in range(n_cp):
-        cw_idx = 0 
-        sw_idx = 1
-        for n in range(n_cp):
-            C_AB_rl_ll = np.sum(C_AB_ll[m,(n+1):(n_cw*sw_idx)] +  C_AB_rl[m,(n+1):(n_cw*sw_idx)])
-            C_mn[m,n,:]  = ( C_AB_rl_ll + C_AB_34_ll[m,n] + C_AB_bv[m,n] + C_AB_34_rl[m,n] + C_Ainf[m,n] + C_Binf[m,n]) # induced velocity from panel m  with i,j,k components
-            cw_idx += 1 
-            if cw_idx == n_cw:
-                cw_idx = 0 
-                sw_idx += 1    
+    # Add in the regular effects except AB_rl_ll   
+                
+    # Add the right and left influences seperateky
+    C_AB_llrl_roll = C_AB_ll+C_AB_rl
+    
+    # Prime the arrays
+    mask = np.ones_like(C_mn)
+    C_AB_llrl = np.zeros_like(C_mn)
+
+    for idx in range(n_cw-1):    
+        
+        # Make a mask
+        mask[:,n_cw-idx-1::n_cw,:]= np.zeros_like(mask[:,n_cw-idx-1::n_cw,:])  
+        # Roll it over to the next component
+        
+        C_AB_llrl_roll = np.roll(C_AB_llrl_roll,-1,axis=1)   
+        
+        # Add in the components that we need
+        C_AB_llrl = C_AB_llrl+ C_AB_llrl_roll*mask
+   
+
+    # Add all the sources together
+    C_mn = C_AB_34_ll + C_AB_bv + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
+    
     return C_mn
 
 # -------------------------------------------------------------------------------
