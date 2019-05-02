@@ -14,7 +14,7 @@ from SUAVE.Core import Units , Data
 from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_wing_airfoil
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_vortex_distribution(geometry,n_sw,n_cw):
+def compute_vortex_distribution(geometry,settings):
     # ---------------------------------------------------------------------------------------
     # STEP 1: Define empty vectors for coordinates of panes, control points and bound vortices
     # ---------------------------------------------------------------------------------------
@@ -56,6 +56,9 @@ def compute_vortex_distribution(geometry,n_sw,n_cw):
     ZC = np.empty(shape=[0,1]) 
     
     CS = np.empty(shape=[0,1]) 
+    
+    n_sw = settings.number_panels_spanwise 
+    n_cw = settings.number_panels_chordwise     
     n_w = 0 # number of wings 
     n_cp = 0 # number of bound vortices
     wing_areas = [] # wing areas 

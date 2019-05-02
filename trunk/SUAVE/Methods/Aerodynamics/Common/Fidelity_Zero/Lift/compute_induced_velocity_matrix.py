@@ -61,75 +61,94 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     C_AB_bv    = np.zeros((n_cp,n_cp,3))
     C_Ainf     = np.zeros((n_cp,n_cp,3))
     C_Binf     = np.zeros((n_cp,n_cp,3))
-    C_mn = np.zeros((n_cp,n_cp,3))
+
+    # Make all the hats
+    n_cw_1 = n_cw-1
+    XC_hats  = np.cos(theta_w)*XC + np.sin(theta_w)*ZC
+    YC_hats  = YC
+    ZC_hats  = -np.sin(theta_w)*XC + np.cos(theta_w)*ZC    
+
+    XA2_hats = np.cos(theta_w)*XA2[n_cw_1::n_cw]  + np.sin(theta_w)*ZA2[n_cw_1::n_cw] 
+    YA2_hats = YA2[n_cw_1::n_cw] 
+    ZA2_hats = -np.sin(theta_w)*XA2[n_cw_1::n_cw]  + np.cos(theta_w)*ZA2[n_cw_1::n_cw]   
+    
+    XB2_hats = np.cos(theta_w)*XB2[n_cw_1::n_cw]  + np.sin(theta_w)*ZB2[n_cw_1::n_cw]   
+    YB2_hats = YB2[n_cw_1::n_cw] 
+    ZB2_hats = -np.sin(theta_w)*XB2[n_cw_1::n_cw]  + np.cos(theta_w)*ZB2[n_cw_1::n_cw]     
+    
+    # Expand out the hats to be of length n instead of n_sw
+    XA2_hats = np.repeat(XA2_hats,n_cw)
+    YA2_hats = np.repeat(YA2_hats,n_cw)
+    ZA2_hats = np.repeat(ZA2_hats,n_cw)
+    XB2_hats = np.repeat(XB2_hats,n_cw)
+    YB2_hats = np.repeat(YB2_hats,n_cw)
+    ZB2_hats = np.repeat(ZB2_hats,n_cw)
+    
+    # If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
+    boolean = YBH<0.
+    XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
+    YA1[boolean], YB1[boolean] = YB1[boolean], YA1[boolean]
+    ZA1[boolean], ZB1[boolean] = ZB1[boolean], ZA1[boolean]
+    XA2[boolean], XB1[boolean] = XB2[boolean], XA1[boolean]
+    YA2[boolean], YB1[boolean] = YB2[boolean], YA1[boolean]
+    ZA2[boolean], ZB1[boolean] = ZB2[boolean], ZA1[boolean]    
+    XAH[boolean], XBH[boolean] = XBH[boolean], XAH[boolean]
+    YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
+    ZAH[boolean], ZBH[boolean] = ZBH[boolean], ZAH[boolean]
+    
+    XA2_hats[boolean], XB2_hats[boolean] = XB2_hats[boolean], XA2_hats[boolean]
+    YA2_hats[boolean], YB2_hats[boolean] = YB2_hats[boolean], YA2_hats[boolean]
+    ZA2_hats[boolean], ZB2_hats[boolean] = ZB2_hats[boolean], ZA2_hats[boolean]
     
     for m in range(n_cp): # control point m
-        sw_idx = 1
-        cw_idx = 0
-        for n in range(n_cp): # horseshe vortex n  	         
-            # trailing vortices  
-            XC_hat  = np.cos(theta_w)*XC[m] + np.sin(theta_w)*ZC[m]
-            YC_hat  = YC[m]
-            ZC_hat  = -np.sin(theta_w)*XC[m] + np.cos(theta_w)*ZC[m] 
+        for n in range(n_cp): # horseshe vortex n  	          
 
-            XA2_hat =  np.cos(theta_w)*XA2[(sw_idx*n_cw)-1]  + np.sin(theta_w)*ZA2[(sw_idx*n_cw)-1]  
-            YA2_hat =  YA2[(sw_idx*n_cw)-1]            
-            ZA2_hat = -np.sin(theta_w)*XA2[(sw_idx*n_cw)-1]  + np.cos(theta_w)*ZA2[(sw_idx*n_cw)-1]            
+            ## starboard (right) wing 
+            #if YBH[n] > 0:
+            # compute influence of bound vortices 
+            C_AB_bv[m,n] = vortex(XC[m], YC[m], ZC[m], XAH[n], YAH[n], ZAH[n], XBH[n], YBH[n], ZBH[n])   
 
-            XB2_hat =  np.cos(theta_w)*XB2[(sw_idx*n_cw)-1]  + np.sin(theta_w)*ZB2[(sw_idx*n_cw)-1]  
-            YB2_hat =  YB2[(sw_idx*n_cw)-1]            
-            ZB2_hat = -np.sin(theta_w)*XB2[(sw_idx*n_cw)-1]  + np.cos(theta_w)*ZB2[(sw_idx*n_cw)-1]         
+            # compute influence of 3/4 left legs
+            C_AB_34_ll[m,n] = vortex(XC[m], YC[m], ZC[m], XA2[n], YA2[n], ZA2[n], XAH[n], YAH[n], ZAH[n])      
 
-            # starboard (right) wing 
-            if YBH[n] > 0:
-                # compute influence of bound vortices 
-                C_AB_bv[m,n] = vortex(XC[m], YC[m], ZC[m], XAH[n], YAH[n], ZAH[n], XBH[n], YBH[n], ZBH[n])   
+            # compute influence of whole panel left legs 
+            C_AB_ll[m,n]   =  vortex(XC[m], YC[m], ZC[m], XA2[n], YA2[n], ZA2[n], XA1[n], YA1[n], ZA1[n])      
 
-                # compute influence of 3/4 left legs
-                C_AB_34_ll[m,n] = vortex(XC[m], YC[m], ZC[m], XA2[n], YA2[n], ZA2[n], XAH[n], YAH[n], ZAH[n])      
+            # compute influence of 3/4 right legs
+            C_AB_34_rl[m,n] = vortex(XC[m], YC[m], ZC[m], XBH[n], YBH[n], ZBH[n], XB2[n], YB2[n], ZB2[n])      
 
-                # compute influence of whole panel left legs 
-                C_AB_ll[m,n]   =  vortex(XC[m], YC[m], ZC[m], XA2[n], YA2[n], ZA2[n], XA1[n], YA1[n], ZA1[n])      
+            # compute influence of whole right legs 
+            C_AB_rl[m,n] = vortex(XC[m], YC[m], ZC[m], XB1[n], YB1[n], ZB1[n], XB2[n], YB2[n], ZB2[n])    
 
-                # compute influence of 3/4 right legs
-                C_AB_34_rl[m,n] = vortex(XC[m], YC[m], ZC[m], XBH[n], YBH[n], ZBH[n], XB2[n], YB2[n], ZB2[n])      
+            # velocity induced by left leg of vortex (A to inf)
+            C_Ainf[m,n]  = vortex_to_inf_l(XC_hats[m], YC_hats[m], ZC_hats[m], XA2_hats[n], YA2_hats[n], ZA2_hats[n],theta_w)     
 
-                # compute influence of whole right legs 
-                C_AB_rl[m,n] = vortex(XC[m], YC[m], ZC[m], XB1[n], YB1[n], ZB1[n], XB2[n], YB2[n], ZB2[n])    
+            # velocity induced by right leg of vortex (B to inf)
+            C_Binf[m,n]  = vortex_to_inf_r(XC_hats[m], YC_hats[m], ZC_hats[m], XB2_hats[n], YB2_hats[n], ZB2_hats[n],theta_w) 
 
-                # velocity induced by left leg of vortex (A to inf)
-                C_Ainf[m,n]  = vortex_to_inf_l(XC_hat, YC_hat, ZC_hat, XA2_hat, YA2_hat, ZA2_hat,theta_w)     
+            ## port (left) wing 
+            #else: 
+                ## compute influence of bound vortices 
+                #C_AB_bv[m,n]   = vortex(XC[m], YC[m], ZC[m], XBH[n], YBH[n], ZBH[n], XAH[n], YAH[n], ZAH[n])                       
 
-                # velocity induced by right leg of vortex (B to inf)
-                C_Binf[m,n]  = vortex_to_inf_r(XC_hat, YC_hat, ZC_hat, XB2_hat, YB2_hat, ZB2_hat,theta_w) 
+                ## compute influence of 3/4 left legs
+                #C_AB_34_ll[m,n] = vortex(XC[m], YC[m], ZC[m], XB2[n], YB2[n], ZB2[n], XBH[n], YBH[n], ZBH[n])        
 
-            # port (left) wing 
-            else: 
-                # compute influence of bound vortices 
-                C_AB_bv[m,n]   = vortex(XC[m], YC[m], ZC[m], XBH[n], YBH[n], ZBH[n], XAH[n], YAH[n], ZAH[n])                       
+                ## compute influence of whole panel left legs 
+                #C_AB_ll[m,n]    =  vortex(XC[m], YC[m], ZC[m], XB2[n], YB2[n], ZB2[n], XB1[n], YB1[n], ZB1[n])      
 
-                # compute influence of 3/4 left legs
-                C_AB_34_ll[m,n] = vortex(XC[m], YC[m], ZC[m], XB2[n], YB2[n], ZB2[n], XBH[n], YBH[n], ZBH[n])        
+                ## compute influence of 3/4 right legs
+                #C_AB_34_rl[m,n] = vortex(XC[m], YC[m], ZC[m], XAH[n], YAH[n], ZAH[n], XA2[n], YA2[n], ZA2[n]) 
 
-                # compute influence of whole panel left legs 
-                C_AB_ll[m,n]    =  vortex(XC[m], YC[m], ZC[m], XB2[n], YB2[n], ZB2[n], XB1[n], YB1[n], ZB1[n])      
+                ## compute influence of whole right legs 
+                #C_AB_rl[m,n] =  vortex(XC[m], YC[m], ZC[m], XA1[n], YA1[n], ZA1[n], XA2[n], YA2[n], ZA2[n])   
 
-                # compute influence of 3/4 right legs
-                C_AB_34_rl[m,n] = vortex(XC[m], YC[m], ZC[m], XAH[n], YAH[n], ZAH[n], XA2[n], YA2[n], ZA2[n]) 
+                ## velocity induced by left leg of vortex (A to inf)
+                #C_Ainf[m,n]  = vortex_to_inf_l(XC_hats[m], YC_hats[m], ZC_hats[m], XB2_hats[n], YB2_hats[n], ZB2_hats[n],theta_w)  
 
-                # compute influence of whole right legs 
-                C_AB_rl[m,n] =  vortex(XC[m], YC[m], ZC[m], XA1[n], YA1[n], ZA1[n], XA2[n], YA2[n], ZA2[n])   
+                ## velocity induced by right leg of vortex (B to inf)
+                #C_Binf[m,n]  =  vortex_to_inf_r(XC_hats[m], YC_hats[m], ZC_hats[m], XA2_hats[n], YA2_hats[n], ZA2_hats[n],theta_w)   
 
-                # velocity induced by left leg of vortex (A to inf)
-                C_Ainf[m,n]  = vortex_to_inf_l(XC_hat, YC_hat, ZC_hat, XB2_hat, YB2_hat, ZB2_hat,theta_w)  
-
-                # velocity induced by right leg of vortex (B to inf)
-                C_Binf[m,n]  =  vortex_to_inf_r(XC_hat, YC_hat, ZC_hat, XA2_hat, YA2_hat, ZA2_hat,theta_w)   
-            cw_idx += 1
-            if cw_idx == n_cw:
-                cw_idx = 0
-                sw_idx += 1
-                
     # Summation of Influences
     # Add in the regular effects except AB_rl_ll   
                 
@@ -137,22 +156,21 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     C_AB_llrl_roll = C_AB_ll+C_AB_rl
     
     # Prime the arrays
-    mask = np.ones_like(C_mn)
-    C_AB_llrl = np.zeros_like(C_mn)
+    mask      = np.ones((n_cp,n_cp,3))
+    C_AB_llrl = np.zeros((n_cp,n_cp,3))
 
     for idx in range(n_cw-1):    
         
         # Make a mask
         mask[:,n_cw-idx-1::n_cw,:]= np.zeros_like(mask[:,n_cw-idx-1::n_cw,:])  
-        # Roll it over to the next component
         
+        # Roll it over to the next component
         C_AB_llrl_roll = np.roll(C_AB_llrl_roll,-1,axis=1)   
         
         # Add in the components that we need
         C_AB_llrl = C_AB_llrl+ C_AB_llrl_roll*mask
-   
 
-    # Add all the sources together
+    # Add all the influences together
     C_mn = C_AB_34_ll + C_AB_bv + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
     
     return C_mn

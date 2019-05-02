@@ -16,7 +16,6 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Units
 import time
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution    import compute_vortex_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import  compute_induced_velocity_matrix
 from SUAVE.Plots import plot_vehicle_vlm_panelization
 # ----------------------------------------------------------------------
@@ -87,18 +86,18 @@ def VLM(conditions,configuration,geometry):
     
     aoa = conditions.aerodynamics.angle_of_attack[0][0]   # angle of attack    
     
-    # Compute vortex distribution
-    data = compute_vortex_distribution(geometry,n_sw,n_cw)
+    VD = geometry.vortex_distribution
+
     
     # Plot vortex discretization of vehicle
     #plot_vehicle_vlm_panelization(data)
     
     # Build induced velocity matrix, C_mn
-    C_mn = compute_induced_velocity_matrix(data,n_sw,n_cw,aoa)
+    C_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)
 
     # Compute flow tangency conditions   
-    phi   = np.arctan((data.ZBC - data.ZAC)/(data.YBC - data.YAC))
-    delta = np.arctan((data.ZC - data.ZCH)/(data.XC - data.XCH)) 
+    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))
+    delta = np.arctan((VD.ZC - VD.ZCH)/(VD.XC - VD.XCH)) 
    
     # Build Aerodynamic Influence Coefficient Matrix
     A = C_mn[:,:,2] - np.multiply(C_mn[:,:,0],np.tan(delta))- np.multiply(C_mn[:,:,1],np.tan(phi))
@@ -117,21 +116,26 @@ def VLM(conditions,configuration,geometry):
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
     # --------------------------------------------------------------------------------------- 
-    n_cp= data.n_cp   
+    n_cp       = VD.n_cp   
     n_cppw     = n_sw*n_cw
-    n_w        = data.n_w
-    CS         = data.CS    
-    wing_areas = data.wing_areas
+    n_w        = VD.n_w
+    CS         = VD.CS    
+    wing_areas = VD.wing_areas
     X_M        = np.ones(n_cp)*x_m  
     CL_wing    = np.zeros(n_w)
     CDi_wing   = np.zeros(n_w)
     Cl_wing    = np.zeros(n_w*n_sw)
     Cdi_wing   = np.zeros(n_w*n_sw)
     
-    Del_Y = np.abs(data.YB1 - data.YA1)
+    Del_Y = np.abs(VD.YB1 - VD.YA1)
     i = 0
+    
+    # Linspace out where breaks are
+    # Use split to divide u, w, gamma, and Del_y into more arrays
+    
+
     for j in range(n_w):
-        L_wing      = np.dot((u[j*n_cppw:(j+1)*n_cppw] +1),gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw]) # wing lift coefficient
+        L_wing     = np.dot((u[j*n_cppw:(j+1)*n_cppw] +1),gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw]) # wing lift coefficient
         CL_wing[j]  = L_wing/(wing_areas[j])
         Di_wing     = np.dot(-w[j*n_cppw:(j+1)*n_cppw]    ,gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw]) # wing induced drag coefficient
         CDi_wing[j] = Di_wing/(wing_areas[j])
@@ -151,7 +155,7 @@ def VLM(conditions,configuration,geometry):
     CDi = 2*D/(np.pi*Sref) 
     
     # moment coefficient
-    CM  = np.dot((X_M - data.XCH),Del_Y*gamma)/(Sref*c_bar)   
+    CM  = np.dot((X_M - VD.XCH),Del_Y*gamma)/(Sref*c_bar)   
      
     tf = time.time()
     print ('Time taken for VLM: ' + str(tf-ti))      
