@@ -116,40 +116,37 @@ def wing(wing,
 # Unpack Material Properties
 #-------------------------------------------------------------------------------
 
-    BiCF = Bidirectional_Carbon_Fiber()
-    BiCF_MGT = BiCF.minimum_gage_thickness
-    BiCF_DEN = BiCF.density
-    BiCF_UTS = BiCF.ultimate_tensile_strength
-    BiCF_USS = BiCF.ultimate_shear_strength
-    BiCF_UBS = BiCF.ultimate_bearing_strength
-    
-    UniCF = Unidirectional_Carbon_Fiber()
-    UniCF_MGT = UniCF.minimum_gage_thickness
-    UniCF_DEN = UniCF.density
-    UniCF_UTS = UniCF.ultimate_tensile_strength
-    UniCF_USS = UniCF.ultimate_shear_strength
-    
-    HCMB = Carbon_Fiber_Honeycomb()
-    HCMB_MGT = HCMB.minimum_gage_thickness
-    HCMB_DEN = HCMB.density
-    
-    RIB = Aluminum_Rib()
-    RIB_WID = RIB.minimum_width
-    RIB_MGT = RIB.minimum_gage_thickness
-    RIB_DEN = RIB.density
-    
-    ALUM = Aluminum()
-    ALUM_DEN = ALUM.density
-    ALUM_MGT = ALUM.minimum_gage_thickness
-    ALUM_UTS = ALUM.ultimate_tensile_strength
-    
-    EPOXY = Epoxy()
-    EPOXY_MGT = EPOXY.minimum_gage_thickness
-    EPOXY_DEN = EPOXY.density
-    
-    PAINT = Paint()
-    PAINT_MGT = PAINT.minimum_gage_thickness
-    PAINT_DEN = PAINT.density
+    torsMat = wing.materials.skin_materials.torsion_carrier
+    torsUSS = torsMat.ultimate_shear_strength
+    torsDen = torsMat.density
+    torsMGT = torsMat.minimum_gage_thickness
+
+    coreMat = wing.materials.skin_materials.core
+    coreDen = coreMat.density
+    coreMGT = coreMat.minimum_gage_thickness
+
+    bendMat = wing.materials.flap_materials.bending_carrier
+    bendUTS = bendMat.ultimate_tensile_strength
+    bendDen = bendMat.density
+
+    glueMat = wing.materials.skin_materials.adhesive
+    glueMGT = glueMat.minimum_gage_thickness
+    glueDen = glueMat.density
+
+    coverMat = wing.materials.skin_materials.covering
+    coverMGT = coverMat.minimum_gage_thickness
+    coverDen = coverMat.density
+
+    ribMat = wing.rib_materials.structural
+    ribWid = ribMat.minumum_width
+    ribMGT = ribMat.minimum_gage_thickness
+    ribDen = ribMat.density
+
+    shearMat = wing.spar_materials.shear_carrier
+    shearMGT = shearMat.minimum_gage_thickness
+    shearDen = shearMat.density
+    shearUSS = shearMat.ultimate_shear_strength
+
 
 #-------------------------------------------------------------------------------
 # Airfoil
@@ -286,33 +283,33 @@ def wing(wing,
 
     # Calculate Skin Weight Based on Torsion
 
-    tTorsion = My*dx/(2*BiCF_USS*torsionArea)               # Torsion Skin Thickness
-    tTorsion = np.maximum(tTorsion,BiCF_MGT*np.ones(N))     # Gage Constraint
-    mTorsion = tTorsion * torsionLength * BiCF_DEN          # Torsion Mass
-    mCore = HCMB_MGT*torsionLength*HCMB_DEN*np.ones(N)      # Core Mass
-    mGlue = EPOXY_MGT*EPOXY_DEN*torsionLength*np.ones(N)    # Epoxy Mass
+    tTorsion = My*dx/(2*torsUSS*torsionArea)                # Torsion Skin Thickness
+    tTorsion = np.maximum(tTorsion,torsMGT*np.ones(N))      # Gage Constraint
+    mTorsion = tTorsion * torsionLength * torsDen           # Torsion Mass
+    mCore = coreMGT*torsionLength*coreDen*np.ones(N)        # Core Mass
+    mGlue = glueMGT*glueDen*torsionLength*np.ones(N)        # Epoxy Mass
 
     # Calculate Flap Mass Based on Bending
 
-    tFlap = Mx*np.max(seg[0][:,1])/(flapInertia*UniCF_UTS)  # Bending Flap Thickness
-    mFlap = tFlap*flapLength*UniCF_DEN                      # Bending Flap Mass
-    mGlue += EPOXY_MGT*EPOXY_DEN*flapLength*np.ones(N)      # Updated Epoxy Mass
+    tFlap = Mx*np.max(seg[0][:,1])/(flapInertia*bendUTS)    # Bending Flap Thickness
+    mFlap = tFlap*flapLength*bendDen                        # Bending Flap Mass
+    mGlue += glueMGT*glueDen*flapLength*np.ones(N)          # Updated Epoxy Mass
 
     # Calculate Drag Flap Mass
 
-    tDrag = Mz*np.max(seg[2][:,0])/(dragInertia*UniCF_UTS)  # Drag Flap Thickness
-    mDrag = tDrag*dragLength*UniCF_DEN                      # Drag Flap Mass
-    mGlue += EPOXY_MGT*EPOXY_DEN*dragLength*np.ones(N)      # Updated Epoxy Mass
+    tDrag = Mz*np.max(seg[2][:,0])/(dragInertia*bendUTS)    # Drag Flap Thickness
+    mDrag = tDrag*dragLength*bendDen                        # Drag Flap Mass
+    mGlue += glueMGT*glueDen*dragLength*np.ones(N)          # Updated Epoxy Mass
 
     # Calculate Shear Spar Mass
 
-    tShear = 1.5*Vz/(BiCF_USS*h)                            # Shear Spar Thickness
-    tShear = np.maximum(tShear, BiCF_MGT*np.ones(N))        # Gage constraint
-    mShear = tShear*h*BiCF_DEN                              # Shear Spar Mass
+    tShear = 1.5*Vz/(shearUSS*h)                            # Shear Spar Thickness
+    tShear = np.maximum(tShear, shearMGT*np.ones(N))        # Gage constraint
+    mShear = tShear*h*shearDen                              # Shear Spar Mass
 
     # Paint
 
-    mPaint = skinLength*PAINT_MGT*PAINT_DEN*np.ones(N)      # Paint Mass
+    mPaint = skinLength*coverMGT*coverDen*np.ones(N)        # Paint Mass
 
     # Section Mass Total
 
@@ -320,7 +317,7 @@ def wing(wing,
 
     # Rib Mass
 
-    mRib = (A+skinLength*RIB_WID)*RIB_MGT*RIB_DEN
+    mRib = (A+skinLength*ribWid)*ribMGT*ribDen
 
     # Total Mass
 

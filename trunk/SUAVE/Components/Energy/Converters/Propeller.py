@@ -12,7 +12,7 @@
 # package imports
 import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Container
 import scipy.optimize as opt
 
 from SUAVE.Methods.Geometry.Three_Dimensional \
@@ -52,7 +52,8 @@ class Propeller(Energy_Component):
         None
         """         
         self.tag                                            = 'propeller'
-        self.prop_attributes                                = Data                        
+
+        self.prop_attributes                                = Data
         self.prop_attributes.number_blades                  = 0.0
         self.prop_attributes.tip_radius                     = 0.0
         self.prop_attributes.hub_radius                     = 0.0
@@ -63,10 +64,18 @@ class Propeller(Energy_Component):
         self.prop_attributes.cd_coefficients                = [.108, -.2612, .181, -.0139, .0278]  #coefficients for a 4th degree polynomial fit of Cd(Cl) for the airfoil
         self.prop_attributes.drag_reference_reynolds_number = 50000.     #drag scaling is  (Re_ref/Re) **Re_exp
         self.prop_attributes.reynolds_scaling_exponent      = .2
+
+        self.materials.skin_materials   = Container()
+        self.materials.flap_materials   = Container()
+        self.materials.rib_materials    = Container()
+        self.materials.spar_materials   = Container()
+        self.materials.root_materials   = Container()
+
         self.thrust_angle                                   = 0.0
         self.origin                                         = [[0.0,0.0,0.0]] # [X,Y,Z]
         self.rotation                                       = [[0.0,0.0,0.0]] # [X,Y,Z] rotation of axis relative to
-      
+
+
 
                  # vehicle (used in OpenVSP for thrust_angle)
     def spin(self,conditions):

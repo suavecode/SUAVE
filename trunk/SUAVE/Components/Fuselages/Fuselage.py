@@ -92,6 +92,7 @@ class Fuselage(Lofted_Body):
         self.materials.canopy_materials     = Container()
         self.materials.keel_materials       = Container()
         self.materials.bulkhead_materials   = Container()
+        self.materials.bolt_materials       = Container()
         
         # for BWB 
         self.aft_centerbody_area  = 0.0

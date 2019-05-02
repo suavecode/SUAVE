@@ -125,6 +125,7 @@ class Wing(Lofted_Body):
         self.Fuel_Tanks         = SUAVE.Core.Container()
 
         self.materials.skin_materials   = SUAVE.Core.Container()
+        self.materials.spar_materials   = SUAVE.Core.Container()
         self.materials.rib_materials    = SUAVE.Core.Container()
         self.materials.flap_materials   = SUAVE.Core.Container()
 
