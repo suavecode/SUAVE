@@ -136,11 +136,13 @@ def compute_vortex_distribution(geometry,settings):
         zc  = np.zeros(n_sw*n_cw)
         
         section_twist= np.zeros(n_sw) 
+        
         # ---------------------------------------------------------------------------------------
         # STEP 3: Determine if wing segments are defined  
         # ---------------------------------------------------------------------------------------
         n_segments           = len(wing.Segments.keys())
         if n_segments>0:
+            
             # ---------------------------------------------------------------------------------------
             # STEP 4A: Discretizing the wing sections into panels
             # ---------------------------------------------------------------------------------------

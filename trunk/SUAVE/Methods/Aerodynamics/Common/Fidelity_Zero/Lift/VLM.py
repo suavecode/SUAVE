@@ -131,20 +131,31 @@ def VLM(conditions,configuration,geometry):
     i = 0
     
     # Linspace out where breaks are
-    # Use split to divide u, w, gamma, and Del_y into more arrays
+    wing_space = np.linspace(0,n_cppw*n_w,n_w+1)
     
-
-    for j in range(n_w):
-        L_wing     = np.dot((u[j*n_cppw:(j+1)*n_cppw] +1),gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw]) # wing lift coefficient
-        CL_wing[j]  = L_wing/(wing_areas[j])
-        Di_wing     = np.dot(-w[j*n_cppw:(j+1)*n_cppw]    ,gamma[j*n_cppw:(j+1)*n_cppw] * Del_Y[j*n_cppw:(j+1)*n_cppw]) # wing induced drag coefficient
-        CDi_wing[j] = Di_wing/(wing_areas[j])
-        for k in range(n_sw):   
-            l_wing      = np.dot((u[i*n_cw:(i+1)*n_cw] +1),gamma[i*n_cw:(i+1)*n_cw] * Del_Y[i*n_cw:(i+1)*n_cw]) # sectional lift coefficients 
-            Cl_wing[i]  = 2*l_wing/(CS[i])
-            di_wing     = np.dot(-w[i*n_cw:(i+1)*n_cw]  ,gamma[i*n_cw:(i+1)*n_cw] * Del_Y[i*n_cw:(i+1)*n_cw])   # sectional induced drag coefficients
-            Cdi_wing[i] = 2*di_wing/(CS[i])
-            i += 1
+    # Use split to divide u, w, gamma, and Del_y into more arrays
+    u_n_w        = np.array(np.array_split(u,n_w))
+    u_n_w_sw     = np.array(np.array_split(u,n_w*n_sw))
+    w_n_w        = np.array(np.array_split(w,n_w))
+    w_n_w_sw     = np.array(np.array_split(w,n_w*n_sw))
+    gamma_n_w    = np.array(np.array_split(gamma,n_w))
+    gamma_n_w_sw = np.array(np.array_split(gamma,n_w*n_sw))
+    Del_Y_n_w    = np.array(np.array_split(Del_Y,n_w))
+    Del_Y_n_w_sw = np.array(np.array_split(Del_Y,n_w*n_sw))
+    
+    # Calculate the Coefficients on each wing individually
+    L_wing   = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=1)
+    CL_wing  = L_wing/wing_areas
+    Di_wing  = np.sum(np.multiply(-w_n_w,(gamma_n_w*Del_Y_n_w)),axis=1)
+    CDi_wing = Di_wing/wing_areas
+    
+    # Calculate each spanwise set of Cls and Cds
+    cl_sec = np.sum(np.multiply(u_n_w_sw+1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=1)/CS
+    cd_sec = np.sum(np.multiply(-w_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=1)/CS
+    
+    # Split the Cls for each wing
+    Cl_wings = np.array(np.split(cl_sec,n_w))
+    Cd_wings = np.array(np.split(cd_sec,n_w))
             
     # total lift and lift coefficient
     L  = np.dot((1+u),gamma*Del_Y)

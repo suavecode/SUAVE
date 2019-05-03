@@ -50,14 +50,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     # ---------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
     # --------------------------------------------------------------------------------------- 
-    n_cp       = n_w*n_cw*n_sw # total number of control points 
-    #C_AB_34_ll = np.zeros((n_cp,n_cp,3))
-    #C_AB_ll    = np.zeros((n_cp,n_cp,3))
-    #C_AB_34_rl = np.zeros((n_cp,n_cp,3))    
-    #C_AB_rl    = np.zeros((n_cp,n_cp,3))
-    #C_AB_bv    = np.zeros((n_cp,n_cp,3))
-    #C_Ainf     = np.zeros((n_cp,n_cp,3))
-    #C_Binf     = np.zeros((n_cp,n_cp,3))
+    n_cp     = n_w*n_cw*n_sw # total number of control points 
 
     # Make all the hats
     n_cw_1   = n_cw-1
@@ -95,10 +88,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     
     XA2_hats[boolean], XB2_hats[boolean] = XB2_hats[boolean], XA2_hats[boolean]
     YA2_hats[boolean], YB2_hats[boolean] = YB2_hats[boolean], YA2_hats[boolean]
-    ZA2_hats[boolean], ZB2_hats[boolean] = ZB2_hats[boolean], ZA2_hats[boolean]
-    
-    #for m in range(n_cp): # control point m
-        #for n in range(n_cp): # horseshe vortex n  	          
+    ZA2_hats[boolean], ZB2_hats[boolean] = ZB2_hats[boolean], ZA2_hats[boolean]         
 
     # compute influence of bound vortices 
     C_AB_bv = vortex(XC, YC, ZC, XAH.T, YAH.T, ZAH.T, XBH.T, YBH.T, ZBH.T).T
@@ -120,9 +110,6 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
 
     # velocity induced by right leg of vortex (B to inf)
     C_Binf  = vortex_to_inf_r(XC_hats, YC_hats, ZC_hats, XB2_hats.T, YB2_hats.T, ZB2_hats.T,theta_w).T
-
-    # Summation of Influences
-    # Add in the regular effects except AB_rl_ll   
                 
     # Add the right and left influences seperateky
     C_AB_llrl_roll = C_AB_ll+C_AB_rl
