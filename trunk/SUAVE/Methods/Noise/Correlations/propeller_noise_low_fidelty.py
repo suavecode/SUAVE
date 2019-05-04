@@ -1,4 +1,4 @@
-# noise_propeller_low_fidelty.py
+# propeller_noise_low_fidelty.py
 #
 # Created:  Feb 2018, M. Clarke
 
@@ -10,7 +10,7 @@ from SUAVE.Core import Units
 import numpy as np
 from scipy.special import jv 
 
-def noise_propeller_low_fidelty(noise_data,ctrl_pts,harmonic_test):
+def propeller_noise_low_fidelty(noise_data,ctrl_pts,harmonic_test):
     '''    Source:
         1. Herniczek, M., Feszty, D., Meslioui, S., Park, JongApplicability of Early Acoustic Theory for Modern Propeller Design
         2. Schlegel, R., King, R., and Muli, H., Helicopter Rotor Noise Generation and Propagation, Technical Report, 
