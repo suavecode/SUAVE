@@ -34,13 +34,13 @@ import matplotlib.pyplot as plt
 modules = [
 
     # ----------------------- Regression List --------------------------
-    'scripts/weights/eVTOL_Weights_Buildup_Regression.py',
     'scripts/aerodynamics/aerodynamics.py',
     #'scripts/aerodynamics_super/aerodynamics_super.py',
     #'scripts/regression/test_mission_AS2.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
+    'scripts/slipstream/Slipstream_Test.py',
     'scripts/B737/mission_B737.py',
     'scripts/battery/battery.py',
     'scripts/cmalpha/cmalpha.py',
