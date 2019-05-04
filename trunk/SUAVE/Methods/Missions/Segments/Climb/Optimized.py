@@ -129,7 +129,7 @@ def update_differentials(segment):
     numerics.time.control_points                    = x
     numerics.time.differentiate                     = D
     numerics.time.integrate                         = I
-    conditions.frames.inertial.time[1:,0]            = t_initial + x[1:,0] 
+    conditions.frames.inertial.time[1:,0]           = t_initial + x[1:,0] 
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context    
 

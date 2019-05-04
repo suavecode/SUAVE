@@ -127,9 +127,9 @@ class Lift_Cruise(Propulsor):
         num_lift          = self.number_of_engines_lift
         num_forward       = self.number_of_engines_forward
         
-        ##
+        #-----------------------------------------------------------------
         # SETUP BATTERIES AND ESC's
-        ##
+        #-----------------------------------------------------------------
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy    
@@ -142,12 +142,12 @@ class Lift_Cruise(Propulsor):
         esc_lift.inputs.voltagein    = volts      
         esc_forward.inputs.voltagein = volts 
         
-        ##
+        #---------------------------------------------------------------
         # EVALUATE THRUST FROM FORWARD PROPULSORS 
-        ##
-        
+        #---------------------------------------------------------------
         # Throttle the voltage
-        esc_forward.voltageout(conditions)       
+        esc_forward.voltageout(conditions) 
+        
         # link
         motor_forward.inputs.voltage = esc_forward.outputs.voltageout
         
@@ -179,9 +179,9 @@ class Lift_Cruise(Propulsor):
         # Run the esc
         esc_forward.currentin(conditions)        
        
-        ##
+        #-------------------------------------------------------------------
         # EVALUATE THRUST FROM LIFT PROPULSORS 
-        ##
+        #-------------------------------------------------------------------
         
         # Make a new set of konditions, since there are differences for the esc and motor
         konditions                 = Data()
@@ -414,9 +414,9 @@ class Lift_Cruise(Propulsor):
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
         segment.state.conditions.propulsion.throttle_lift                        = segment.state.unknowns.throttle_lift
         segment.state.conditions.propulsion.battery_voltage_under_load           = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.propeller_power_coefficient  = 0.0 * ones(1)
+        segment.state.conditions.propulsion.propeller_power_coefficient          = 0.0 * ones(1)
         segment.state.conditions.propulsion.propeller_power_coefficient_lift     = segment.state.unknowns.propeller_power_coefficient_lift
-        segment.state.conditions.propulsion.throttle                     = 0.0 * ones(1)
+        segment.state.conditions.propulsion.throttle                             = 0.0 * ones(1)
         
         return    
     

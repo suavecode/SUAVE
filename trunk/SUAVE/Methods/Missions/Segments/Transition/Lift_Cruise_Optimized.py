@@ -8,7 +8,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 import numpy as np
-from SUAVE.Core import Units
+from SUAVE.Core import Units, Data
+from SUAVE.Components.Energy.Networks.Lift_Cruise import Lift_Cruise
+from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
 import SUAVE
 
 # ----------------------------------------------------------------------
@@ -46,56 +48,22 @@ def unpack_unknowns(segment):
     
     # unpack
     conditions = segment.state.conditions
-    theta          = segment.state.unknowns.body_angle
     throttle       = segment.state.unknowns.throttle                        
     throttle_lift  = segment.state.unknowns.throttle_lift                   
     Cp_prop        = segment.state.unknowns.propeller_power_coefficient     
     Cp_prop_lift   = segment.state.unknowns.propeller_power_coefficient_lift
+    Voltage        = segment.state.unknowns.battery_voltage_under_load
+    alt            = segment.altitude   
     
-    # unpack
-    alt = segment.altitude 
-    v0  = segment.air_speed_start
-    vf  = segment.air_speed_end  
-    ax  = segment.acceleration   
-    T0  = segment.pitch_initial
-    Tf  = segment.pitch_final     
-    
-    # check for initial altitude
-    if alt is None:
-        if not segment.state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude = alt
-        
-    # check for initial pitch
-    if T0 is None:
-        T0  =  segment.state.initials.conditions.frames.body.inertial_rotations[-1,1]
-        segment.pitch_initial = T0        
-    
-    # dimensionalize time
-    t_initial = segment.state.conditions.frames.inertial.time[0,0]
-    t_final   = (vf-v0)/ax + t_initial
-    t_nondim  = segment.state.numerics.dimensionless.control_points
-    time      = t_nondim * (t_final-t_initial)
-    
-    # Figure out vx
-    vx = v0+time*ax
-    
-    # set the body angle
-    if Tf > T0:
-        body_angle =time*(Tf-T0)/(t_final-t_initial)
-    else:
-        body_angle = T0 - time*(T0-Tf)/(t_final-t_initial)
-    segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     
-    
-    # pack
-    conditions.frames.inertial.velocity_vector[:,0] = vx[:,0]
-        
-    # pack
-    conditions.frames.body.inertial_rotations[:,1]         = theta[:,0]     
+    # pack  
     conditions.propulsion.throttle                         = throttle[:,0]     
     conditions.propulsion.throttle_lift                    = throttle_lift[:,0]
     conditions.propulsion.propeller_power_coefficient      = Cp_prop[:,0]      
-    conditions.propulsion.propeller_power_coefficient_lift = Cp_prop_lift[:,0]     
+    conditions.propulsion.propeller_power_coefficient_lift = Cp_prop_lift[:,0]   
+    conditions.propulsion.battery_voltage_under_load       = Voltage[:,0] 
+    
+    conditions.frames.inertial.position_vector[:,2]        = -alt # z points down
+    conditions.freestream.altitude[:,0]                    =  alt # positive altitude in this context      
 
 ## @ingroup Methods-Missions-Segments-Climb   
 def update_differentials(segment):
@@ -124,28 +92,27 @@ def update_differentials(segment):
     x          = numerics.dimensionless.control_points
     D          = numerics.dimensionless.differentiate
     I          = numerics.dimensionless.integrate    
-    alt        = segment.altitude 
     v0         = segment.air_speed_start
     vf         = segment.air_speed_end  
     ax         = segment.acceleration   
     T0         = segment.pitch_initial
     Tf         = segment.pitch_final     
     
-    # check for initial altitude
-    if alt is None:
-        if not initials: raise AttributeError('altitude not set')
-        alt = -1.0 * initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude = alt
-        
-    # check for initial pitch
-    if T0 is None:
-        T0  =  initials.conditions.frames.body.inertial_rotations[-1,1]
-        segment.pitch_initial = T0    
+    dv = vf - v0
+    acc = -ax  # maintain column array
 
+    # get overall time step
+    dt = -(dv/acc)
+
+    # rescale operators
+    x = x * dt
+    D = D / dt
+    I = I * dt
+    
     # dimensionalize time
-    t_initial = conditions.frames.inertial.time[0,0]
-    t_final   = (vf-v0)/ax + t_initial
-    t_nondim  = numerics.dimensionless.control_points
+    t_initial = segment.state.conditions.frames.inertial.time[0,0]
+    t_final   = (vf-v0)/ax # dt
+    t_nondim  = segment.state.numerics.dimensionless.control_points
     time      = t_nondim * (t_final-t_initial)
     
     # Figure out vx
@@ -153,19 +120,17 @@ def update_differentials(segment):
     
     # set the body angle
     if Tf > T0:
-        body_angle =time*(Tf-T0)/(t_final-t_initial)
+        body_angle = time*(Tf-T0)/(t_final-t_initial)
     else:
         body_angle = T0 - time*(T0-Tf)/(t_final-t_initial)
-    conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     
-    
-    # pack   
+    segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     
+       
+    # pack  
     t_initial                                       = conditions.frames.inertial.time[0,0]
     numerics.time.control_points                    = x
     numerics.time.differentiate                     = D
     numerics.time.integrate                         = I
-    conditions.frames.inertial.time[1:,0]           = t_initial + x[1:,0] 
-    conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
-    conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context    
+    conditions.frames.inertial.time[:,0]            = time[:,0]
     conditions.frames.inertial.velocity_vector[:,0] = vx[:,0]
 
     return
@@ -242,46 +207,44 @@ def solve_constant_speed_constant_altitude_loiter(segment):
     Properties Used:
     N/A
     """ 
+    net = Lift_Cruise()
+    net.voltage = 400.     
     
     mini_mission = SUAVE.Analyses.Mission.Sequential_Segments()
     
-    CACPCA = SUAVE.Analyses.Mission.Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude()  
+    CACPCA = SUAVE.Analyses.Mission.Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude()   
     ones_row  = segment.state.ones_row  
-    #CACPCA.state.conditions   = segment.state.conditions  
-    #CACPCA.state.unknowns     = segment.state.unknowns 
-    #CACPCA.state.numerics     = segment.state.numerics
-     
-    CACPCA.altitude        = segment.altitude  
-    CACPCA.air_speed_start = 48.0
-    CACPCA.air_speed_end   = 50.0
-    CACPCA.acceleration    = 0.0001
-    CACPCA.pitch_initial   = 10.0 * Units.degrees
-    CACPCA.pitch_final     = 10.0 * Units.degrees
-    CACPCA.time            = segment.time
+    
+    CACPCA.time             = segment.time
     CACPCA.analyses         = segment.analyses
     CACPCA.state.conditions = segment.state.conditions
-    CACPCA.state.numerics   = segment.state.numerics
+    CACPCA.state.numerics   = segment.state.numerics      
     
-    CACPCA.state.unknowns   =  segment.state.unknowns
-    CACPCA.state.unknowns.propeller_power_coefficient_lift = 0.0 * ones_row(1)
-    CACPCA.state.unknowns.throttle_lift                    = 0.0 * ones_row(1)
-    CACPCA.state.unknowns.propeller_power_coefficient      = 0.01 * ones_row(1)
-    CACPCA.state.unknowns.throttle                         = 0.50 * ones_row(1)   
-    CACPCA.state.unknowns.body_angle                       = 10.0 * Units.degrees * ones_row(1)   
+    CACPCA.tag             = "transition"
+    CACPCA.altitude        = 40.  * Units.ft
+    CACPCA.air_speed_start = 0.   * Units['ft/min']
+    CACPCA.air_speed_end   = 45
+    CACPCA.acceleration    = 9.81/5
+    CACPCA.pitch_initial   = 0.0
+    CACPCA.pitch_final     = 7.75 * Units.degrees
     
-    CACPCA.state.propulsion.propeller_power_coefficient_lift  = 0.0 * ones_row(1)
-    CACPCA.state.propulsion.throttle_lift                     = 0.0 * ones_row(1)
-    CACPCA.state.propulsion.propeller_power_coefficient       = 0.01 * ones_row(1)
-    CACPCA.state.propulsion.throttle                          = 0.50 * ones_row(1)   
+    CACPCA.state.unknowns                              =  segment.state.unknowns   
+    CACPCA.state.residuals.forces                      = 0.0  * ones_row(2) 
+    CACPCA.state.residuals.network                     = 0.   * ones_row(3)  
+
+    CACPCA.process.iterate.unknowns.network          = net.unpack_unknowns_transition
+    CACPCA.process.iterate.residuals.network         = net.residuals_transition    
+    CACPCA.process.iterate.unknowns.mission          = SUAVE.Methods.skip
+    CACPCA.process.iterate.conditions.stability      = SUAVE.Methods.skip
+    CACPCA.process.finalize.post_process.stability   = SUAVE.Methods.skip    
     
     mini_mission.append_segment(CACPCA)
         
     results  = mini_mission.evaluate()
     CACPCA_res = results.segments.analysis
-
-    segment.state.unknowns.throttle                         = CACPCA_res.state.unknowns.throttle       
-    segment.state.unknowns.body_angle                       = CACPCA_res.state.unknowns.body_angle
+     
+    segment.state.unknowns.throttle                         = CACPCA_res.state.unknowns.throttle   
+    segment.state.unknowns.throttle_lift                    = CACPCA_res.state.unknowns.throttle_lift
     segment.state.unknowns.propeller_power_coefficient      = CACPCA_res.state.unknowns.propeller_power_coefficient       
-    segment.state.unknowns.propeller_power_coefficient_lift = CACPCA_res.state.unknowns.propeller_power_coefficient_lift  
-    
- 
+    segment.state.unknowns.propeller_power_coefficient_lift = CACPCA_res.state.unknowns.propeller_power_coefficient_lift
+

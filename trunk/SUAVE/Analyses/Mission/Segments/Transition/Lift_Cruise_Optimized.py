@@ -65,12 +65,12 @@ class Lift_Cruise_Optimized(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start  = None
+        self.altitude        = None
         self.air_speed_start = None
         self.air_speed_end   = None
         self.acceleration    = None
         self.pitch_initial   = None
-        self.pitch_final     = None        
+        self.pitch_final     = None     
         self.objective       = None # This will be a key
         self.minimize        = True
         self.CL_limit        = 1.e20 
@@ -86,11 +86,12 @@ class Lift_Cruise_Optimized(Aerodynamic):
         
         # initials and unknowns
         ones_row    = self.state.ones_row
-        self.state.unknowns.throttle_lift                    = ones_row(1) * 0.5
-        self.state.unknowns.throttle                         = ones_row(1) * 0.5
-        self.state.unknowns.propeller_power_coefficient_lift = ones_row(1) * 0.05
-        self.state.unknowns.propeller_power_coefficient      = ones_row(1) * 0.05
-        self.state.residuals.forces                          = ones_row(2) * 0.0
+        self.state.unknowns.propeller_power_coefficient_lift = 0.05 * ones_row(1)
+        self.state.unknowns.throttle_lift                    = 1.25 * ones_row(1)
+        self.state.unknowns.propeller_power_coefficient      = 0.02 * ones_row(1)
+        self.state.unknowns.throttle                         = .50 * ones_row(1)   
+        self.state.residuals.network                         = 0. * ones_row(3)    
+        self.state.residuals.forces                          = 0.0 * ones_row(2) 
         self.state.inputs_last                               = None
         self.state.objective_value                           = 0.0
         self.state.constraint_values                         = 0.0
@@ -106,7 +107,7 @@ class Lift_Cruise_Optimized(Aerodynamic):
         initialize.expand_state            = Methods.expand_state
         initialize.solved_mission          = Methods.Transition.Lift_Cruise_Optimized.solve_constant_speed_constant_altitude_loiter
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = SUAVE.Methods.skip
+        initialize.conditions              = Methods.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude.initialize_conditions
 
         # --------------------------------------------------------------
         #   Converge - starts iteration
