@@ -187,9 +187,6 @@ def geometric_propeller(noise_data):
     phi=np.zeros(n_steps)    
     theta = np.zeros(n_steps)  
        
-    
-  #  S_0 = 1500 * Units.ft
-
     #Microphone position from the start of the takeoff roll
     x0= np.float(2500. - S_0)
     

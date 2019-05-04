@@ -1,5 +1,5 @@
 ## @ingroup Methods-Missions-Segments-Transition
-# Constant_Accelerated_Climb_Constant_Angle.py
+# Constant_Acceleration_Constant_Angle_Linear_Climb.py
 # 
 # Created:  Feb 2019, M. Clarke
 

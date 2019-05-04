@@ -1,4 +1,4 @@
- ## @ingroup Optimization
+## @ingroup Optimization
 # Nexus.py
 # 
 # Created:  Jul 2015, E. Botero 
