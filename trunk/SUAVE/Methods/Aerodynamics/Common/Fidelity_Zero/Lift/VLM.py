@@ -17,13 +17,14 @@ import numpy as np
 from SUAVE.Core import Units
 import time
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import  compute_induced_velocity_matrix
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
 from SUAVE.Plots import plot_vehicle_vlm_panelization
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def VLM(conditions,configuration,geometry):
+def VLM(conditions,settings,geometry):
     ti = time.time()
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
@@ -56,8 +57,8 @@ def VLM(conditions,configuration,geometry):
          areas.reference                       [m^2]
          vertical                              [Boolean]
          origin                                [m]
-       configuration.number_panels_spanwise    [Unitless]
-       configuration.number_panels_chordwise   [Unitless]
+       settings.number_panels_spanwise    [Unitless]
+       settings.number_panels_chordwise   [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
 
     Outputs:
@@ -71,8 +72,8 @@ def VLM(conditions,configuration,geometry):
     """ 
    
     # unpack settings
-    n_sw   = configuration.number_panels_spanwise    
-    n_cw   = configuration.number_panels_chordwise   
+    n_sw   = settings.number_panels_spanwise    
+    n_cw   = settings.number_panels_chordwise   
     Sref   = geometry.reference_area
     
     # define point about which moment coefficient is computed 
@@ -85,12 +86,12 @@ def VLM(conditions,configuration,geometry):
         x_m = x_cg
     
     aoa = conditions.aerodynamics.angle_of_attack[0][0]   # angle of attack    
-    
-    VD = geometry.vortex_distribution
-
-    
+   
+    # generate vortex distribution
+    VD = compute_vortex_distribution(geometry,settings)       
+     
     # Plot vortex discretization of vehicle
-    #plot_vehicle_vlm_panelization(data)
+    plot_vehicle_vlm_panelization(VD)
     
     # Build induced velocity matrix, C_mn
     C_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)
@@ -169,6 +170,6 @@ def VLM(conditions,configuration,geometry):
     CM  = np.dot((X_M - VD.XCH),Del_Y*gamma)/(Sref*c_bar)   
      
     tf = time.time()
-    print ('Time taken for VLM: ' + str(tf-ti))      
+    print ('Time taken for VLM: ' + str(tf-ti))  
     return CL, Cl_wing, CDi, Cdi_wing, CM 
 

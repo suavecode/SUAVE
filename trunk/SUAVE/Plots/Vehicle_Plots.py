@@ -16,7 +16,7 @@ from mpl_toolkits.mplot3d import Axes3D
 # ------------------------------------------------------------------
 # Vortex Lattice Method Panelization 
 # ------------------------------------------------------------------
-def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "Propeller_Geometry"):     
+def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "VLM_Panelization"):     
 
     fig = plt.figure()
     axes = fig.add_subplot(2,2,1)
@@ -71,7 +71,6 @@ def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "Pr
     axes.set_ylabel('span ')
     axes.grid(True)
     
-    
     #axis scaling
     max_range = np.array([data.XAH.max()-data.XAH.min(), data.YAH.max()-data.YAH.min(), data.ZAH.max()-data.ZAH.min()]).max() / 2.0    
     mid_x = (data.XAH.max()+data.XAH.min()) * 0.5
@@ -80,6 +79,8 @@ def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "Pr
     axes.set_xlim(mid_x - max_range, mid_x + max_range)
     axes.set_ylim(mid_y - max_range, mid_y + max_range)
     axes.set_zlim(mid_z - max_range, mid_z + max_range)      
+    
+    plt.show()
     return
 
 

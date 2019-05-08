@@ -18,7 +18,9 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import  weissinger_VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import weissinger_VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import compute_vortex_distribution
 
 # local imports
 from .Aerodynamics import Aerodynamics
@@ -56,6 +58,7 @@ class Vortex_Lattice(Aerodynamics):
         self.tag = 'Vortex_Lattice'
 
         self.geometry = Data()
+        self.geometry.vortex_distribution = Data()
         self.settings = Data()
 
         # correction factors
@@ -81,7 +84,6 @@ class Vortex_Lattice(Aerodynamics):
         self.surrogates.lift_coefficient         = None
         self.surrogates.induced_drag_coefficient = None
         self.surrogates.wing_lift_coefficients   = None
- 
         
     def initialize(self):
         """Drives functions to get training samples and build a surrogate.
@@ -101,7 +103,6 @@ class Vortex_Lattice(Aerodynamics):
                     
         # build surrogate
         self.build_surrogate()
-
 
     def evaluate(self,state,settings,geometry):
         """Evaluates lift and drag using available surrogates.
@@ -184,6 +185,9 @@ class Vortex_Lattice(Aerodynamics):
         settings = self.settings
         training = self.training
         
+        # generate vortex distribution
+        compute_vortex_distribution(geometry,settings)
+        
         AoA = training.angle_of_attack
         CL  = np.zeros((len(AoA),1))
         CDi = np.zeros((len(AoA),1))
@@ -197,8 +201,8 @@ class Vortex_Lattice(Aerodynamics):
 
         # condition input, local, do not keep
         konditions              = Data()
-        konditions.aerodynamics = Data()
-
+        konditions.aerodynamics = Data() 
+        
         # calculate aerodynamics for table
         for i,_ in enumerate(AoA):
             
@@ -259,7 +263,6 @@ class Vortex_Lattice(Aerodynamics):
         self.surrogates.induced_drag_coefficient  = cdi_surrogate 
         self.surrogates.wing_lift_coefficients    = wing_cl_surrogates
         return
-
 
 
 # ----------------------------------------------------------------------
