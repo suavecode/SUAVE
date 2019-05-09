@@ -151,7 +151,7 @@ def VLM(conditions,settings,geometry):
     CDi_wing = Di_wing/wing_areas
     
     # Calculate each spanwise set of Cls and Cds
-    cl_sec = np.sum(np.multiply(u_n_w_sw+1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=1)/CS
+    cl_sec = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=1)/CS
     cd_sec = np.sum(np.multiply(-w_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=1)/CS
     
     # Split the Cls for each wing
