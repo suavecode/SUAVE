@@ -124,11 +124,11 @@ def weissinger_VLM(conditions,configuration,wing):
             # define coordinates of horseshoe vortices and control points
             i_seg = 0
             for idx in range(n):
-                twist_distri[idx]   =  segment_twist[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1])     
+                twist_distri[idx] =  segment_twist[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1])     
                 chord_distri[idx] =  segment_chord[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1])
-                xa[idx]             = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])                                                    # computer quarter chord points for each horseshoe vortex
-                x[idx]              = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])  + 0.5*chord_distri[idx]                         # computer three-quarter chord control points for each horseshoe vortex
-                y[idx]              = (yb[0][idx] -  deltax[idx]/2)                
+                xa[idx]           = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])                                                    # computer quarter chord points for each horseshoe vortex
+                x[idx]            = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])  + 0.5*chord_distri[idx]                         # computer three-quarter chord control points for each horseshoe vortex
+                y[idx]            = (yb[0][idx] -  deltax[idx]/2)                
                 
                 if y_coordinates[idx] == wing.Segments[i_seg+1].percent_span_location*span: 
                     i_seg += 1                    
@@ -149,11 +149,11 @@ def weissinger_VLM(conditions,configuration,wing):
             chord_distri = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
             twist_distri   = twist_rc + i/float(n)*(twist_tc-twist_rc)
             
-            ya   = np.atleast_2d((i)*deltax)                                                  # y coordinate of start of horseshoe vortex on panel
-            yb   = np.atleast_2d((i+1)*deltax)                                                # y coordinate of end horseshoe vortex on panel
+            ya   = np.atleast_2d((i)*deltax)                                                # y coordinate of start of horseshoe vortex on panel
+            yb   = np.atleast_2d((i+1)*deltax)                                              # y coordinate of end horseshoe vortex on panel
             xa   = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*chord_distri) # x coordinate of horseshoe vortex on panel
             x    = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*chord_distri) # x coordinate of control points on panel
-            y    = np.atleast_2d(((i+1)*deltax-deltax/2))                                     # y coordinate of control points on panel 
+            y    = np.atleast_2d(((i+1)*deltax-deltax/2))                                   # y coordinate of control points on panel 
                     
             RHS  = np.atleast_2d(np.sin(twist_distri+aoa))                                  
                 
@@ -216,6 +216,12 @@ def whav(x1,y1,x2,y2):
     use_base    = 1 - np.isclose(x1,x2)*1.
     no_use_base = np.isclose(x1,x2)*1.
     
-    whv = 1/(y1-y2)*(1+ (np.sqrt((x1-x2)**2+(y1-y2)**2)/(x1-x2)))*use_base + (1/(y1 -y2))*no_use_base
+    y1_y2 = y1-y2
+    x1_x2 = x1-x2
+    
+    y1_y2[y1_y2==0] = 1E-32 
+    x1_x2[x1_x2==0] = 1E-32
+    
+    whv = 1/(y1_y2)*(1+ (np.sqrt((x1_x2)**2+(y1_y2)**2)/(x1_x2)))*use_base + (1/(y1_y2))*no_use_base
     
     return whv
