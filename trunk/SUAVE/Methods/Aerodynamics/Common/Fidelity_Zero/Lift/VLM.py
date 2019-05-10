@@ -85,23 +85,24 @@ def VLM(conditions,settings,geometry):
     else:
         x_m = x_cg
     
-    aoa = conditions.aerodynamics.angle_of_attack[0][0]   # angle of attack    
+    aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
+    ones = np.atleast_2d(np.ones_like(aoa)) 
    
     # generate vortex distribution
     VD = compute_vortex_distribution(geometry,settings)       
      
     # Plot vortex discretization of vehicle
-    plot_vehicle_vlm_panelization(VD)
+    #plot_vehicle_vlm_panelization(VD)
     
     # Build induced velocity matrix, C_mn
     C_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)
 
     # Compute flow tangency conditions   
-    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))
-    delta = np.arctan((VD.ZC - VD.ZCH)/(VD.XC - VD.XCH)) 
+    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones
+    delta = np.arctan((VD.ZC - VD.ZCH)/(VD.XC - VD.XCH))*ones
    
     # Build Aerodynamic Influence Coefficient Matrix
-    A = C_mn[:,:,2] - np.multiply(C_mn[:,:,0],np.tan(delta))- np.multiply(C_mn[:,:,1],np.tan(phi))
+    A = C_mn[:,:,:,2] - np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.tan(delta)))- np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)))
     
     # Build the vector
     RHS = np.tan(delta)*np.cos(aoa) - np.sin(aoa)
@@ -110,9 +111,9 @@ def VLM(conditions,settings,geometry):
     gamma = np.linalg.solve(A,RHS)
     
     # Compute induced velocities     
-    u = np.dot(C_mn[:,:,0],gamma)
-    v = np.dot(C_mn[:,:,1],gamma)
-    w = np.dot(C_mn[:,:,2],gamma)    
+    u = np.dot(C_mn[:,:,:,0],gamma[:,:].T)[:,:,0]
+    v = np.dot(C_mn[:,:,:,1],gamma[:,:].T)[:,:,0]
+    w = np.dot(C_mn[:,:,:,2],gamma[:,:].T)[:,:,0]
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
@@ -120,56 +121,54 @@ def VLM(conditions,settings,geometry):
     n_cp       = VD.n_cp   
     n_cppw     = n_sw*n_cw
     n_w        = VD.n_w
-    CS         = VD.CS    
+    CS         = VD.CS*ones
     wing_areas = VD.wing_areas
-    X_M        = np.ones(n_cp)*x_m  
+    X_M        = np.ones(n_cp)*x_m  *ones
     CL_wing    = np.zeros(n_w)
     CDi_wing   = np.zeros(n_w)
     Cl_wing    = np.zeros(n_w*n_sw)
     Cdi_wing   = np.zeros(n_w*n_sw)
     
-    Del_Y = np.abs(VD.YB1 - VD.YA1)
-    i = 0
+    Del_Y = np.abs(VD.YB1 - VD.YA1)*ones
     
     # Linspace out where breaks are
     wing_space = np.linspace(0,n_cppw*n_w,n_w+1)
     
     # Use split to divide u, w, gamma, and Del_y into more arrays
-    u_n_w        = np.array(np.array_split(u,n_w))
-    u_n_w_sw     = np.array(np.array_split(u,n_w*n_sw))
-    w_n_w        = np.array(np.array_split(w,n_w))
-    w_n_w_sw     = np.array(np.array_split(w,n_w*n_sw))
-    gamma_n_w    = np.array(np.array_split(gamma,n_w))
-    gamma_n_w_sw = np.array(np.array_split(gamma,n_w*n_sw))
-    Del_Y_n_w    = np.array(np.array_split(Del_Y,n_w))
-    Del_Y_n_w_sw = np.array(np.array_split(Del_Y,n_w*n_sw))
+    u_n_w        = np.array(np.array_split(u,n_w,axis=1))
+    u_n_w_sw     = np.array(np.array_split(u,n_w*n_sw,axis=1))
+    w_n_w        = np.array(np.array_split(w,n_w,axis=1))
+    w_n_w_sw     = np.array(np.array_split(w,n_w*n_sw,axis=1))
+    gamma_n_w    = np.array(np.array_split(gamma,n_w,axis=1))
+    gamma_n_w_sw = np.array(np.array_split(gamma,n_w*n_sw,axis=1))
+    Del_Y_n_w    = np.array(np.array_split(Del_Y,n_w,axis=1))
+    Del_Y_n_w_sw = np.array(np.array_split(Del_Y,n_w*n_sw,axis=1))
     
     # Calculate the Coefficients on each wing individually
-    L_wing   = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=1)
+    L_wing   = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CL_wing  = L_wing/wing_areas
-    Di_wing  = np.sum(np.multiply(-w_n_w,(gamma_n_w*Del_Y_n_w)),axis=1)
+    Di_wing  = np.sum(np.multiply(-w_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CDi_wing = Di_wing/wing_areas
     
     # Calculate each spanwise set of Cls and Cds
-    cl_sec = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=1)/CS
-    cd_sec = np.sum(np.multiply(-w_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=1)/CS
+    cl_sec = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
+    cd_sec = np.sum(np.multiply(-w_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
     
     # Split the Cls for each wing
-    Cl_wings = np.array(np.split(cl_sec,n_w))
-    Cd_wings = np.array(np.split(cd_sec,n_w))
+    Cl_wings = np.array(np.split(cl_sec,n_w,axis=1))
+    Cd_wings = np.array(np.split(cd_sec,n_w,axis=1))
             
     # total lift and lift coefficient
-    L  = np.dot((1+u),gamma*Del_Y)
+    L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T
     CL = 2*L/(Sref) 
     
     # total drag and drag coefficient
-    D  =  -np.dot(w,gamma*Del_Y)
+    D  =  -np.atleast_2d(np.sum((w,gamma*Del_Y),axis=1)).T
     CDi = 2*D/(np.pi*Sref) 
     
     # moment coefficient
-    CM  = np.dot((X_M - VD.XCH),Del_Y*gamma)/(Sref*c_bar)   
+    CM  = np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)   
      
     tf = time.time()
     print ('Time taken for VLM: ' + str(tf-ti))  
     return CL, Cl_wing, CDi, Cdi_wing, CM 
-
