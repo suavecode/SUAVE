@@ -44,7 +44,6 @@ def wing_compressibility_correction(state,settings,geometry):
     """     
    
     # unpack
-    fus_correction = settings.fuselage_lift_correction
     Mc             = state.conditions.freestream.mach_number
     AoA            = state.conditions.aerodynamics.angle_of_attack
     wings_lift     = state.conditions.aerodynamics.lift_coefficient

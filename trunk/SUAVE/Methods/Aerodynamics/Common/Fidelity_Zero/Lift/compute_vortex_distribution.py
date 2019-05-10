@@ -515,7 +515,7 @@ def compute_vortex_distribution(geometry,settings):
                            
                 # ** TO DO ** Get flap/aileron locations and deflection
                 
-                # store coordinates of panels, horseshoeces vortices and control points relative to wing root 
+                # store coordinates of panels, horseshoe vortices and control points relative to wing root 
                 if vertical_wing:
                     xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
                     za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
@@ -539,11 +539,11 @@ def compute_vortex_distribution(geometry,settings):
                     ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
                       
                     xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                    zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y/2)                   
+                    zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2)                   
                     ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
              
                     xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                    zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y/2) 
+                    zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2) 
                     yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
                 
                     xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 

@@ -70,11 +70,12 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.drag_coefficient_increment         = 0.0000
 
         # vortex lattice configurations
-        self.settings.number_panels_spanwise = 5
+        self.settings.number_panels_spanwise  = 10
+        self.settings.number_panels_chordwise = 3
 
         # conditions table, used for surrogate model training
         self.training = Data()        
-        self.training.angle_of_attack          = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
+        self.training.angle_of_attack          = np.array([[-10.,-5.,0.,5.,10.]]).T * Units.deg
         self.training.lift_coefficient         = None
         self.training.induced_drag_coefficient = None
         self.training.wing_lift_coefficients   = None
@@ -142,25 +143,16 @@ class Vortex_Lattice(Aerodynamics):
         
         # inviscid lift of wings only        
         inviscid_wings_lift                                              = Data()
-        inviscid_wings_lift.total                                        = wings_lift_model.predict(AoA)        
-        inviscid_wings_drag                                              = wings_induced_drag_model.predict(AoA)
+        inviscid_wings_lift.total                                        = np.atleast_2d(wings_lift_model.predict(AoA)).T
+        inviscid_wings_drag                                              = np.atleast_2d(wings_induced_drag_model.predict(AoA)).T
         
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift.total
         conditions.aerodynamics.lift_coefficient                         = inviscid_wings_lift.total
         conditions.aerodynamics.drag_breakdown.induced                   = Data()
         conditions.aerodynamics.drag_breakdown.induced.total             = inviscid_wings_drag
-        
-        # store model for lift coefficients of each wing
-        conditions.aerodynamics.lift_coefficient_wing             = Data()      
 
-        for wing in geometry.wings.keys():
-            wings_lift_model = surrogates.wing_lift_coefficients[wing]
-            inviscid_wings_lift[wing] = wings_lift_model.predict(AoA)
-            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]
-            state.conditions.aerodynamics.lift_coefficient_wing[wing]        = inviscid_wings_lift[wing]
-
-        return inviscid_wings_lift
+        return
 
 
     def sample_training(self):
@@ -202,23 +194,19 @@ class Vortex_Lattice(Aerodynamics):
         # condition input, local, do not keep
         konditions              = Data()
         konditions.aerodynamics = Data() 
-        
-        # calculate aerodynamics for table
-        for i,_ in enumerate(AoA):
             
-            # overriding conditions, thus the name mangling
-            konditions.aerodynamics.angle_of_attack = AoA[i]
-            x[i] = np.array(AoA[i])
-            # these functions are inherited from Aerodynamics() or overridden
-            CL[i],CDi[i], wing_lifts, wing_induced_drags = calculate_lift_vortex_lattice(konditions, settings, geometry)
-            for wing in geometry.wings.values():
-                wing_CLs[wing.tag][i,0]  = wing_lifts[wing.tag]
-                wing_CDis[wing.tag][i,0] = wing_induced_drags[wing.tag]
+        # overriding conditions, thus the name mangling
+        konditions.aerodynamics.angle_of_attack = np.atleast_2d(AoA)
+        # these functions are inherited from Aerodynamics() or overridden
+        CL,CDi = calculate_lift_vortex_lattice(konditions, settings, geometry)
+        #for wing in geometry.wings.values():
+            #wing_CLs[wing.tag][:,:]  = wing_lifts[wing.tag]
+            #wing_CDis[wing.tag][:,:] = wing_induced_drags[wing.tag]
 
         # store training data 
         training.coefficients = np.hstack([CL,CDi])        
-        training.wing_lift_coefficients = wing_CLs
-        training.grid_points  = x
+        #training.wing_lift_coefficients = wing_CLs
+        training.grid_points  = np.array(AoA)
 
         return
 
@@ -255,13 +243,13 @@ class Vortex_Lattice(Aerodynamics):
 
         cl_surrogate                                = regr_cl.fit(x,CL_data) 
         cdi_surrogate                               = regr_cdi.fit(x,CDi_data)  
-        wing_cl_surrogates = Data() 
-        for wing in wing_CL_data.keys():
-            wing_cl_surrogates[wing] = regr_wing_cls.fit(x, wing_CL_data[wing])      
+        #wing_cl_surrogates = Data() 
+        #for wing in wing_CL_data.keys():
+            #wing_cl_surrogates[wing] = regr_wing_cls.fit(x, wing_CL_data[wing])      
 
         self.surrogates.lift_coefficient          = cl_surrogate
         self.surrogates.induced_drag_coefficient  = cdi_surrogate 
-        self.surrogates.wing_lift_coefficients    = wing_cl_surrogates
+        #self.surrogates.wing_lift_coefficients    = wing_cl_surrogates
         return
 
 
@@ -293,18 +281,20 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
     
     # iterate over wings 
     total_lift_coeff = 0.0
-    totat_induced_drag_coeff = 0.0
+    total_induced_drag_coeff = 0.0
     
     wing_lifts = Data()
     wing_induced_drag = Data()
-    for wing in geometry.wings.values():
-        [wing_lift_coeff,wing_drag_coeff] = weissinger_VLM(conditions,settings,wing)
-        wing_lifts[wing.tag]        = wing_lift_coeff
-        wing_induced_drag[wing.tag] = wing_drag_coeff
-        total_lift_coeff           += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
-        totat_induced_drag_coeff   += wing_drag_coeff * wing.areas.reference / vehicle_reference_area
+    #for wing in geometry.wings.values():
+        #wing_lift_coeff,wing_drag_coeff,_,_ = weissinger_VLM(conditions,settings,wing)
+        #wing_lifts[wing.tag]        = wing_lift_coeff
+        #wing_induced_drag[wing.tag] = wing_drag_coeff
+        #total_lift_coeff           += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
+        #total_induced_drag_coeff   += wing_drag_coeff * wing.areas.reference / vehicle_reference_area
+        
+    total_lift_coeff,total_induced_drag_coeff,_,_,_ = VLM(conditions,settings,geometry)
 
-    return total_lift_coeff,totat_induced_drag_coeff, wing_lifts , wing_induced_drag
+    return total_lift_coeff,total_induced_drag_coeff#, wing_lifts , wing_induced_drag
 
 
 

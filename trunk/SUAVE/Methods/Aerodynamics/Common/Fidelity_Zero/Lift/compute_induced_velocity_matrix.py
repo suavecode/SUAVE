@@ -15,7 +15,6 @@ from SUAVE.Core import Units , Data
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     
-    
     # unpack 
     ones = np.atleast_3d(np.ones_like(theta_w))
     XAH  = np.atleast_3d(data.XAH*ones)
@@ -97,26 +96,6 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     ZA2_hats[boolean], ZB2_hats[boolean] = ZB2_hats[boolean], ZA2_hats[boolean]
     
     # Transpose thing
-    #XA1 = np.swapaxes(XA1,1,2)
-    #YA1 = np.swapaxes(YA1,1,2)
-    #ZA1 = np.swapaxes(ZA1,1,2)
-    #XB1 = np.swapaxes(XB1,1,2)
-    #YB1 = np.swapaxes(YB1,1,2)
-    #ZB1 = np.swapaxes(ZB1,1,2)  
-    #XA2 = np.swapaxes(XA2,1,2)
-    #YA2 = np.swapaxes(YA2,1,2)
-    #ZA2 = np.swapaxes(ZA2,1,2)    
-    #XB2 = np.swapaxes(XB2,1,2)
-    #YB2 = np.swapaxes(YB2,1,2)
-    #ZB2 = np.swapaxes(ZB2,1,2)     
-       
-    #XA2_hats = np.swapaxes(XA2_hats,1,2)
-    #YA2_hats = np.swapaxes(YA2_hats,1,2)
-    #ZA2_hats = np.swapaxes(ZA2_hats,1,2)
-    #XB2_hats = np.swapaxes(XB2_hats,1,2)
-    #YB2_hats = np.swapaxes(YB2_hats,1,2)
-    #ZB2_hats = np.swapaxes(ZB2_hats,1,2)    
-    
     XC = np.swapaxes(XC,1,2) 
     YC = np.swapaxes(YC,1,2) 
     ZC = np.swapaxes(ZC,1,2) 

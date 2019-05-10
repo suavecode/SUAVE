@@ -163,12 +163,12 @@ def VLM(conditions,settings,geometry):
     CL = 2*L/(Sref) 
     
     # total drag and drag coefficient
-    D  =  -np.atleast_2d(np.sum((w,gamma*Del_Y),axis=1)).T
+    D  =  -np.atleast_2d(np.sum(np.multiply(w,gamma*Del_Y),axis=1)).T
     CDi = 2*D/(np.pi*Sref) 
     
     # moment coefficient
-    CM  = np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)   
+    CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T   
      
     tf = time.time()
     print ('Time taken for VLM: ' + str(tf-ti))  
-    return CL, Cl_wing, CDi, Cdi_wing, CM 
+    return CL, CDi, CM, Cl_wing, Cdi_wing,  

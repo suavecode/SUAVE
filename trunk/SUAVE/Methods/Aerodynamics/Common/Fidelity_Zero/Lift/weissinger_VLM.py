@@ -164,8 +164,11 @@ def weissinger_VLM(conditions,configuration,wing):
         # Vortex strength computation by matrix inversion
         T = np.linalg.solve(A.T,RHS.T).T
         
+        # broadcast out A
+        A_b = np.broadcast_to(A,(len(aoa),A.shape[0],A.shape[1]))
+        
         # Calculating the effective velocty         
-        A_v = A*0.25/np.pi*T
+        A_v = (A_b.T*0.25/np.pi*T.T).T
         v   = np.sum(A_v,axis=1)
         
         Lfi = -T * (sin_aoa-v)
@@ -177,8 +180,8 @@ def weissinger_VLM(conditions,configuration,wing):
         D  = deltax * Dg
         
         # Total lift
-        LT = np.sum(L)
-        DT = np.sum(D)
+        LT = np.atleast_2d(np.sum(L,axis=1)).T
+        DT = np.atleast_2d(np.sum(D,axis=1)).T
         
         CL = 2*LT/(0.5*Sref)
         CD = 16*DT/(Sref)
@@ -196,7 +199,7 @@ def weissinger_VLM(conditions,configuration,wing):
         
     tf = time.time()
     print ('Time taken for Weis: ' + str(tf-ti)) 
-    return CL, CD , cl ,cdi 
+    return CL, CD, cl ,cdi 
 
 # ----------------------------------------------------------------------
 #   Helper Functions
