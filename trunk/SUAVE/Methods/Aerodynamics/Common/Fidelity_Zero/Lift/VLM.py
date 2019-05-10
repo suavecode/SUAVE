@@ -110,10 +110,17 @@ def VLM(conditions,settings,geometry):
     # Compute vortex strength  
     gamma = np.linalg.solve(A,RHS)
     
+    # Do some matrix magic
+    len_aoa = len(aoa)
+    len_cps = VD.n_cp
+    eye = np.eye(len_aoa)
+    tile_eye = np.broadcast_to(eye,(len_cps,len_aoa,len_aoa))
+    tile_eye =  np.transpose(tile_eye,axes=[1,0,2])
+    
     # Compute induced velocities     
     u = np.dot(C_mn[:,:,:,0],gamma[:,:].T)[:,:,0]
     v = np.dot(C_mn[:,:,:,1],gamma[:,:].T)[:,:,0]
-    w = np.dot(C_mn[:,:,:,2],gamma[:,:].T)[:,:,0]
+    w = np.sum(np.dot(C_mn[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
