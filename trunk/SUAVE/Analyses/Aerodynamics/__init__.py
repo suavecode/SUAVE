@@ -19,3 +19,4 @@ from .SU2_Euler_Super  import SU2_Euler_Super
 from .SU2_inviscid_Super import SU2_inviscid_Super
 from .Supersonic_OpenVSP_Wave_Drag import Supersonic_OpenVSP_Wave_Drag
 from .Lifting_Line import Lifting_Line
+from .Vortex_Lattice_No_Surrogate import Vortex_Lattice_No_Surrogate
