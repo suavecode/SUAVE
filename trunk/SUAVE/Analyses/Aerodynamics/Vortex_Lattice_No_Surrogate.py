@@ -18,7 +18,7 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import weissinger_vortex_lattice
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import weissinger_VLM
 
 # local imports
 from .Aerodynamics import Aerodynamics
@@ -141,6 +141,7 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift.total
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_wings_lift.total
         state.conditions.aerodynamics.lift_coefficient_wing              = wing_lifts
+        state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lifts
         
         return inviscid_wings_lift
 
@@ -181,7 +182,7 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
 
     for wing in geometry.wings.values():
 
-        [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing)
+        [wing_lift_coeff,wing_drag_coeff] = weissinger_VLM(conditions,settings,wing)
         total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
         wing_lifts[wing.tag] = wing_lift_coeff
 

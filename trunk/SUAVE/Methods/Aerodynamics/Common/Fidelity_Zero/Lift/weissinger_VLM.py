@@ -13,21 +13,19 @@
 
 # package imports
 import numpy as np 
-
+#import time
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def weissinger_vortex_lattice(conditions,configuration,wing):
+def weissinger_VLM(conditions,configuration,wing):
+    #ti = time.time()
     """Uses the vortex lattice method to compute the lift coefficient and induced drag component
-
     Assumptions:
     None
-
     Source:
     An Introduction to Theoretical and Computational Aerodynamics by Jack Moran
-
     Inputs:
     wing.
       spans.projected                       [m]
@@ -44,11 +42,9 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     configuration.number_panels_spanwise    [Unitless]
     configuration.number_panels_chordwise   [Unitless]
     conditions.aerodynamics.angle_of_attack [radians]
-
     Outputs:
     Cl                                      [Unitless]
     Cd                                      [Unitless]
-
     Properties Used:
     N/A
     """ 
@@ -80,7 +76,6 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
     cos_aoa = np.cos(aoa)
 
     if orientation == False :
-
         # Determine if wing segments are defined  
         n_segments           = len(wing.Segments.keys())
         segment_vortex_index = np.zeros(n_segments)
@@ -123,17 +118,17 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             xa     = np.zeros(n)
             x      = np.zeros(n)
             y      = np.zeros(n)
-            twist_distri   = np.zeros(n)
-            section_length = np.zeros(n)
+            twist_distri  = np.zeros(n)
+            chord_distri = np.zeros(n)
             
             # define coordinates of horseshoe vortices and control points
             i_seg = 0
             for idx in range(n):
-                twist_distri[idx]   =  segment_twist[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1])     
-                section_length[idx] =  segment_chord[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1])
-                xa[idx]             = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])                                                    # computer quarter chord points for each horseshoe vortex
-                x[idx]              = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])  + 0.5*section_length[idx]                         # computer three-quarter chord control points for each horseshoe vortex
-                y[idx]              = (yb[0][idx] -  deltax[idx]/2)                
+                twist_distri[idx] =  segment_twist[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1])     
+                chord_distri[idx] =  segment_chord[i_seg] + ((yb[0][idx] - deltax[idx]/2 - section_stations[i_seg]) * (segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1])
+                xa[idx]           = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])                                                    # computer quarter chord points for each horseshoe vortex
+                x[idx]            = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])  + 0.5*chord_distri[idx]                         # computer three-quarter chord control points for each horseshoe vortex
+                y[idx]            = (yb[0][idx] -  deltax[idx]/2)                
                 
                 if y_coordinates[idx] == wing.Segments[i_seg+1].percent_span_location*span: 
                     i_seg += 1                    
@@ -151,14 +146,14 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         else:   # no segments defined on wing 
             # discretizing the wing sections into panels 
             i              = np.arange(0,n)
-            section_length = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
+            chord_distri = dchord/span*(span-(i+1)*deltax+deltax/2) + tip_chord
             twist_distri   = twist_rc + i/float(n)*(twist_tc-twist_rc)
             
-            ya   = np.atleast_2d((i)*deltax)                                                  # y coordinate of start of horseshoe vortex on panel
-            yb   = np.atleast_2d((i+1)*deltax)                                                # y coordinate of end horseshoe vortex on panel
-            xa   = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*section_length) # x coordinate of horseshoe vortex on panel
-            x    = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*section_length) # x coordinate of control points on panel
-            y    = np.atleast_2d(((i+1)*deltax-deltax/2))                                     # y coordinate of control points on panel 
+            ya   = np.atleast_2d((i)*deltax)                                                # y coordinate of start of horseshoe vortex on panel
+            yb   = np.atleast_2d((i+1)*deltax)                                              # y coordinate of end horseshoe vortex on panel
+            xa   = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.25*chord_distri) # x coordinate of horseshoe vortex on panel
+            x    = np.atleast_2d(((i+1)*deltax-deltax/2)*np.tan(sweep) + 0.75*chord_distri) # x coordinate of control points on panel
+            y    = np.atleast_2d(((i+1)*deltax-deltax/2))                                   # y coordinate of control points on panel 
                     
             RHS  = np.atleast_2d(np.sin(twist_distri+aoa))                                  
                 
@@ -169,8 +164,11 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         # Vortex strength computation by matrix inversion
         T = np.linalg.solve(A.T,RHS.T).T
         
+        # broadcast out A
+        A_b = np.broadcast_to(A,(len(aoa),A.shape[0],A.shape[1]))
+        
         # Calculating the effective velocty         
-        A_v = A*0.25/np.pi*T
+        A_v = (A_b.T*0.25/np.pi*T.T).T
         v   = np.sum(A_v,axis=1)
         
         Lfi = -T * (sin_aoa-v)
@@ -182,19 +180,26 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         D  = deltax * Dg
         
         # Total lift
-        LT = np.sum(L)
-        DT = np.sum(D)
-    
+        LT = np.atleast_2d(np.sum(L,axis=1)).T
+        DT = np.atleast_2d(np.sum(D,axis=1)).T
+        
         CL = 2*LT/(0.5*Sref)
-        CD = 2*DT/(0.5*Sref)     
+        CD = 16*DT/(Sref)
+        
+        #cl = L/(0.5*chord_distri) 
+        #cdi = D/(0.5*chord_distri)      
         
     else:
         
         CL = 0.0
         CD = 0.0    
-
+         
+        cl = 0.0 
+        cdi = 0.0 
         
-    return CL, CD 
+    #tf = time.time()
+    #print ('Time taken for Weis: ' + str(tf-ti)) 
+    return CL, CD
 
 # ----------------------------------------------------------------------
 #   Helper Functions
@@ -204,19 +209,22 @@ def whav(x1,y1,x2,y2):
         Inputs:
             x1,x2 -x coordinates of bound vortex
             y1,y2 -y coordinates of bound vortex
-
         Outpus:
             Cl_comp - lift coefficient
             Cd_comp - drag  coefficient       
-
         Assumptions:
             if needed
-
     """    
 
     use_base    = 1 - np.isclose(x1,x2)*1.
     no_use_base = np.isclose(x1,x2)*1.
     
-    whv = 1/(y1-y2)*(1+ (np.sqrt((x1-x2)**2+(y1-y2)**2)/(x1-x2)))*use_base + (1/(y1 -y2))*no_use_base
+    y1_y2 = y1-y2
+    x1_x2 = x1-x2
+    
+    y1_y2[y1_y2==0] = 1E-32 
+    x1_x2[x1_x2==0] = 1E-32
+    
+    whv = 1/(y1_y2)*(1+ (np.sqrt((x1_x2)**2+(y1_y2)**2)/(x1_x2)))*use_base + (1/(y1_y2))*no_use_base
     
     return whv
