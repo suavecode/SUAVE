@@ -61,7 +61,7 @@ def main():
     Power           = 7500.  #Specify either thrust or power to design for
     
     # Design the Propeller
-    prop                 = SUAVE.Components.Energy.Converters.Propeller()
+    prop                     = SUAVE.Components.Energy.Converters.Propeller()
     prop.number_blades       = Blades 
     prop.freestream_velocity = Velocity
     prop.angular_velocity    = RPM*(2.*np.pi/60.0)

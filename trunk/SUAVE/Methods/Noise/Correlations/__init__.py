@@ -3,5 +3,4 @@
 # @ingroup Methods-Noise
 
 from .shevell                     import shevell
-from .propeller_noise_low_fidelty import propeller_noise_low_fidelty
 from .propeller_noise_sae         import propeller_noise_sae

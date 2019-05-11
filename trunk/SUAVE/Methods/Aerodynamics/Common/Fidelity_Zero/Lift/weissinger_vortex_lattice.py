@@ -110,7 +110,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
                 else:
                     segment_span[i_seg]           = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
                     segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
-
+            
             # shift spanwise vortices onto section breaks 
             for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
@@ -161,7 +161,7 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
             y    = np.atleast_2d(((i+1)*deltax-deltax/2))                                     # y coordinate of control points on panel 
                     
             RHS  = np.atleast_2d(np.sin(twist_distri+aoa))                                  
-
+                
         
         A = (whav(x,y,xa.T,ya.T)-whav(x,y,xa.T,yb.T)\
             -whav(x,y,xa.T,-ya.T)+whav(x,y,xa.T,-yb.T))*0.25/np.pi
@@ -186,15 +186,15 @@ def weissinger_vortex_lattice(conditions,configuration,wing):
         DT = np.sum(D)
     
         CL = 2*LT/(0.5*Sref)
-        CD = 2*DT/(0.5*Sref)
+        CD = 2*DT/(0.5*Sref)     
         
     else:
-
+        
         CL = 0.0
-        CD = 0.0
+        CD = 0.0    
 
         
-    return CL, CD
+    return CL, CD 
 
 # ----------------------------------------------------------------------
 #   Helper Functions
@@ -212,7 +212,7 @@ def whav(x1,y1,x2,y2):
         Assumptions:
             if needed
 
-    """
+    """    
 
     use_base    = 1 - np.isclose(x1,x2)*1.
     no_use_base = np.isclose(x1,x2)*1.

@@ -90,7 +90,7 @@ class Lift_Cruise_Optimized(Aerodynamic):
         self.state.unknowns.throttle_lift                    = 1.25 * ones_row(1)
         self.state.unknowns.propeller_power_coefficient      = 0.02 * ones_row(1)
         self.state.unknowns.throttle                         = .50 * ones_row(1)   
-        self.state.residuals.network                         = 0. * ones_row(3)    
+        self.state.residuals.network                         = 0.0 * ones_row(3)    
         self.state.residuals.forces                          = 0.0 * ones_row(2) 
         self.state.inputs_last                               = None
         self.state.objective_value                           = 0.0

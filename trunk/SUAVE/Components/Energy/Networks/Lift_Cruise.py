@@ -276,6 +276,7 @@ class Lift_Cruise(Propulsor):
     
         conditions.propulsion.rpm_lift                     = rpm_lift
         conditions.propulsion.rpm_forward                  = rpm_forward
+        conditions.propulsion.current                      = i_lift + i_forward 
         conditions.propulsion.current_lift                 = i_lift 
         conditions.propulsion.current_forward              = i_forward 
         conditions.propulsion.motor_torque_lift            = motor_lift.outputs.torque
@@ -287,10 +288,9 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.motor_efficiency_forward     = etam_forward
         conditions.propulsion.motor_efficiency_lift        = etam_lift       
           
-        conditions.propulsion.battery_draw             = Data()
-        conditions.propulsion.battery_draw.total       = battery_draw
-        conditions.propulsion.battery_draw.forward_prop= -i_forward * volts 
-        conditions.propulsion.battery_draw.lift_prop   = -i_lift * volts 
+        conditions.propulsion.battery_draw             = battery_draw
+        conditions.propulsion.battery_draw_forward     = -i_forward * volts 
+        conditions.propulsion.battery_draw_lift        = -i_lift * volts 
         conditions.propulsion.battery_energy           = battery_energy
         conditions.propulsion.voltage_open_circuit     = voltage_open_circuit
         conditions.propulsion.voltage_under_load       = voltage_under_load      
