@@ -57,6 +57,17 @@ def VLM(conditions,settings,geometry):
          areas.reference                       [m^2]
          vertical                              [Boolean]
          origin                                [m]
+       fuselage.
+        origin                                 [m]
+        width                                  [m]
+        heights.maximum                        [m]      
+        lengths.nose                           [m]    
+        lengths.tail                           [m]     
+        lengths.total                          [m]     
+        lengths.cabin                          [m]     
+        fineness.nose                          [Unitless]
+        fineness.tail                          [Unitless]
+        
        settings.number_panels_spanwise    [Unitless]
        settings.number_panels_chordwise   [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
