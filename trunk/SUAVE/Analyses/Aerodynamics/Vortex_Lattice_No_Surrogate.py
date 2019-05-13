@@ -18,10 +18,11 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import weissinger_VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
 
 # local imports
 from .Aerodynamics import Aerodynamics
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
 
 # package imports
 import numpy as np
@@ -65,7 +66,9 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         self.settings = Data()
 
         # vortex lattice configurations
-        self.settings.number_panels_spanwise = 10
+        self.settings.number_panels_spanwise  = 8
+        self.settings.number_panels_chordwise = 2
+        self.settings.vortex_distribution = Data()
         
     def initialize(self):
         """Drives functions to get training samples and build a surrogate.
@@ -85,10 +88,15 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         Properties Used:
         None
         """                      
-        # sample training data
-        # Build the vortex distribution
+        # Unpack:
+        geometry = self.geometry
+        settings = self.settings        
+           
+        # generate vortex distribution
+        VD = compute_vortex_distribution(geometry,settings)      
         
-        pass
+        # Pack
+        self.settings.vortex_distribution = VD
 
 
     def evaluate(self,state,settings,geometry):
@@ -132,15 +140,18 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         """
         
         # unpack        
-        conditions =  state.conditions
+        conditions = state.conditions
+        settings   = self.settings
+        geometry   = self.geometry
         
         # inviscid lift of wings only
         inviscid_wings_lift                                              = Data()
-        inviscid_wings_lift.total, wing_lifts                            = calculate_lift_vortex_lattice(conditions,settings,geometry)
+        inviscid_wings_lift.total, total_induced_drag_coeff, wing_lifts, wing_drags  = calculate_lift_vortex_lattice(conditions,settings,geometry)
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift.total
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_wings_lift.total
         state.conditions.aerodynamics.lift_coefficient_wing              = wing_lifts
+        state.conditions.aerodynamics.drag_coefficient_wing              = wing_drags
         state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lifts
         
         return inviscid_wings_lift
@@ -177,13 +188,19 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
     vehicle_reference_area = geometry.reference_area
 
     # iterate over wings
-    total_lift_coeff = 0.0
     wing_lifts = Data()
+    wing_drags = Data()
+    
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing= VLM(conditions,settings,geometry)
 
+    ii = 0
     for wing in geometry.wings.values():
+        wing_lifts[wing.tag] = 1*(np.atleast_2d(CL_wing[:,ii]).T)
+        wing_drags[wing.tag] = 1*(np.atleast_2d(CDi_wing[:,ii]).T)
+        ii+=1
+        if wing.symmetric:
+            wing_lifts[wing.tag] += 1*(np.atleast_2d(CL_wing[:,ii]).T)
+            wing_drags[wing.tag] += 1*(np.atleast_2d(CDi_wing[:,ii]).T)
+            ii+=1
 
-        [wing_lift_coeff,wing_drag_coeff] = weissinger_VLM(conditions,settings,wing)
-        total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
-        wing_lifts[wing.tag] = wing_lift_coeff
-
-    return total_lift_coeff, wing_lifts
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags

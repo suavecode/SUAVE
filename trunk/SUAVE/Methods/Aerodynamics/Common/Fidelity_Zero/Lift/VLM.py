@@ -15,9 +15,7 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units
-import time
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import  compute_induced_velocity_matrix
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
 from SUAVE.Plots import plot_vehicle_vlm_panelization
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
@@ -25,7 +23,6 @@ from SUAVE.Plots import plot_vehicle_vlm_panelization
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def VLM(conditions,settings,geometry):
-    ti = time.time()
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
     Assumptions:
@@ -74,22 +71,21 @@ def VLM(conditions,settings,geometry):
     # unpack settings
     n_sw   = settings.number_panels_spanwise    
     n_cw   = settings.number_panels_chordwise   
+    VD     = settings.vortex_distribution
     Sref   = geometry.reference_area
+
     
     # define point about which moment coefficient is computed 
     c_bar  = geometry.wings['main_wing'].chords.mean_aerodynamic
     x_mac  = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0]
-    x_cg   = geometry.mass_properties.center_of_gravity[0] 
+    x_cg   = geometry.mass_properties.center_of_gravity[0][0]
     if x_cg == None:
         x_m = x_mac 
     else:
         x_m = x_cg
     
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
-    ones = np.atleast_2d(np.ones_like(aoa)) 
-   
-    # generate vortex distribution
-    VD = compute_vortex_distribution(geometry,settings)       
+    ones = np.atleast_2d(np.ones_like(aoa))
      
     # Plot vortex discretization of vehicle
     #plot_vehicle_vlm_panelization(VD)
@@ -129,7 +125,7 @@ def VLM(conditions,settings,geometry):
     n_cppw     = n_sw*n_cw
     n_w        = VD.n_w
     CS         = VD.CS*ones
-    wing_areas = VD.wing_areas
+    wing_areas = np.array(VD.wing_areas)
     X_M        = np.ones(n_cp)*x_m  *ones
     CL_wing    = np.zeros(n_w)
     CDi_wing   = np.zeros(n_w)
@@ -154,8 +150,8 @@ def VLM(conditions,settings,geometry):
     # Calculate the Coefficients on each wing individually
     L_wing   = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CL_wing  = L_wing/wing_areas
-    Di_wing  = np.sum(np.multiply(-w_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
-    CDi_wing = Di_wing/wing_areas
+    Di_wing  = -np.sum(np.multiply(w_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
+    CDi_wing = 2.*Di_wing/(np.pi*wing_areas)
     
     # Calculate each spanwise set of Cls and Cds
     cl_sec = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
@@ -176,6 +172,4 @@ def VLM(conditions,settings,geometry):
     # moment coefficient
     CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T   
      
-    tf = time.time()
-    print ('Time taken for VLM: ' + str(tf-ti))  
-    return CL, CDi, CM, Cl_wing, Cdi_wing,  
+    return CL, CDi, CM, CL_wing, CDi_wing  

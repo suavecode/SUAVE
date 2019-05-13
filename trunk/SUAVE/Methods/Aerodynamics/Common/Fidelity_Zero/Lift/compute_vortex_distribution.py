@@ -593,40 +593,40 @@ def compute_vortex_distribution(geometry,settings):
                 cs_w[idx_y] = wing_chord_section
                                                                      
         # adjusting coordinate axis so reference point is at the nose of the aircraft
-        xah = xah + wing_origin[0] # x coordinate of left corner of bound vortex 
-        yah = yah + wing_origin[1] # y coordinate of left corner of bound vortex 
-        zah = zah + wing_origin[2] # z coordinate of left corner of bound vortex 
-        xbh = xbh + wing_origin[0] # x coordinate of right corner of bound vortex 
-        ybh = ybh + wing_origin[1] # y coordinate of right corner of bound vortex 
-        zbh = zbh + wing_origin[2] # z coordinate of right corner of bound vortex 
-        xch = xch + wing_origin[0] # x coordinate of center of bound vortex on panel
-        ych = ych + wing_origin[1] # y coordinate of center of bound vortex on panel
-        zch = zch + wing_origin[2] # z coordinate of center of bound vortex on panel  
+        xah = xah + wing_origin[0][0] # x coordinate of left corner of bound vortex 
+        yah = yah + wing_origin[0][1] # y coordinate of left corner of bound vortex 
+        zah = zah + wing_origin[0][2] # z coordinate of left corner of bound vortex 
+        xbh = xbh + wing_origin[0][0] # x coordinate of right corner of bound vortex 
+        ybh = ybh + wing_origin[0][1] # y coordinate of right corner of bound vortex 
+        zbh = zbh + wing_origin[0][2] # z coordinate of right corner of bound vortex 
+        xch = xch + wing_origin[0][0] # x coordinate of center of bound vortex on panel
+        ych = ych + wing_origin[0][1] # y coordinate of center of bound vortex on panel
+        zch = zch + wing_origin[0][2] # z coordinate of center of bound vortex on panel  
         
-        xa1 = xa1 + wing_origin[0] # x coordinate of top left corner of panel
-        ya1 = ya1 + wing_origin[1] # y coordinate of bottom left corner of panel
-        za1 = za1 + wing_origin[2] # z coordinate of top left corner of panel
-        xa2 = xa2 + wing_origin[0] # x coordinate of bottom left corner of panel
-        ya2 = ya2 + wing_origin[1] # x coordinate of bottom left corner of panel
-        za2 = za2 + wing_origin[2] # z coordinate of bottom left corner of panel  
+        xa1 = xa1 + wing_origin[0][0] # x coordinate of top left corner of panel
+        ya1 = ya1 + wing_origin[0][1] # y coordinate of bottom left corner of panel
+        za1 = za1 + wing_origin[0][2] # z coordinate of top left corner of panel
+        xa2 = xa2 + wing_origin[0][0] # x coordinate of bottom left corner of panel
+        ya2 = ya2 + wing_origin[0][1] # x coordinate of bottom left corner of panel
+        za2 = za2 + wing_origin[0][2] # z coordinate of bottom left corner of panel  
         
-        xb1 = xb1 + wing_origin[0] # x coordinate of top right corner of panel  
-        yb1 = yb1 + wing_origin[1] # y coordinate of top right corner of panel 
-        zb1 = zb1 + wing_origin[2] # z coordinate of top right corner of panel 
-        xb2 = xb2 + wing_origin[0] # x coordinate of bottom rightcorner of panel 
-        yb2 = yb2 + wing_origin[1] # y coordinate of bottom rightcorner of panel 
-        zb2 = zb2 + wing_origin[2] # z coordinate of bottom right corner of panel                   
+        xb1 = xb1 + wing_origin[0][0] # x coordinate of top right corner of panel  
+        yb1 = yb1 + wing_origin[0][1] # y coordinate of top right corner of panel 
+        zb1 = zb1 + wing_origin[0][2] # z coordinate of top right corner of panel 
+        xb2 = xb2 + wing_origin[0][0] # x coordinate of bottom rightcorner of panel 
+        yb2 = yb2 + wing_origin[0][1] # y coordinate of bottom rightcorner of panel 
+        zb2 = zb2 + wing_origin[0][2] # z coordinate of bottom right corner of panel                   
         
-        xac = xac + wing_origin[0]  # x coordinate of control points on panel
-        yac = yac + wing_origin[1]  # y coordinate of control points on panel
-        zac = zac + wing_origin[2]  # z coordinate of control points on panel
-        xbc = xbc + wing_origin[0]  # x coordinate of control points on panel
-        ybc = ybc + wing_origin[1]  # y coordinate of control points on panel
-        zbc = zbc + wing_origin[2]  # z coordinate of control points on panel
+        xac = xac + wing_origin[0][0]  # x coordinate of control points on panel
+        yac = yac + wing_origin[0][1]  # y coordinate of control points on panel
+        zac = zac + wing_origin[0][2]  # z coordinate of control points on panel
+        xbc = xbc + wing_origin[0][0]  # x coordinate of control points on panel
+        ybc = ybc + wing_origin[0][1]  # y coordinate of control points on panel
+        zbc = zbc + wing_origin[0][2]  # z coordinate of control points on panel
         
-        xc  = xc + wing_origin[0]  # x coordinate of control points on panel
-        yc  = yc + wing_origin[1]  # y coordinate of control points on panel
-        zc  = zc + wing_origin[2]  # y coordinate of control points on panel
+        xc  = xc + wing_origin[0][0]  # x coordinate of control points on panel
+        yc  = yc + wing_origin[0][1]  # y coordinate of control points on panel
+        zc  = zc + wing_origin[0][2]  # y coordinate of control points on panel
         
         # if symmetry, store points of mirrored wing 
         n_w += 1
