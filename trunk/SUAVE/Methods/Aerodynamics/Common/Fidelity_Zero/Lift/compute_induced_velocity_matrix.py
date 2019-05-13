@@ -139,14 +139,16 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
         
         # Roll it over to the next component
         C_AB_llrl_roll = np.roll(C_AB_llrl_roll,-1,axis=1)   
-        
+         
         # Add in the components that we need
         C_AB_llrl = C_AB_llrl+ C_AB_llrl_roll*mask
 
     # Add all the influences together
     C_mn = C_AB_34_ll + C_AB_bv + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
     
-    return C_mn
+    DW_mn = C_AB_34_ll + C_AB_bv  + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
+    
+    return C_mn, DW_mn
 
 # -------------------------------------------------------------------------------
 # vortex strength computation
