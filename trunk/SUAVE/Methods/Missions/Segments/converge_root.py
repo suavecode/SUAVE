@@ -42,6 +42,12 @@ def converge_root(segment):
     
     unknowns = segment.state.unknowns.pack_array()
     
+    # Find the normalization factor
+    segment.state.normalization_factor = unknowns*1.
+    
+    # Normalize the unknowns
+    unknowns = unknowns/segment.state.normalization_factor
+    
     try:
         root_finder = segment.settings.root_finder
     except AttributeError:
@@ -88,10 +94,13 @@ def iterate(unknowns, segment):
     Properties Used:
     N/A
     """       
-    if isinstance(unknowns,array_type):
-        segment.state.unknowns.unpack_array(unknowns)
+    
+    unknowns_normal = segment.state.normalization_factor * unknowns
+    
+    if isinstance(unknowns_normal,array_type):
+        segment.state.unknowns.unpack_array(unknowns_normal)
     else:
-        segment.state.unknowns = unknowns
+        segment.state.unknowns_normal = unknowns_normal
         
     segment.process.iterate(segment)
     
