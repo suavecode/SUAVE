@@ -63,6 +63,9 @@ class State(Conditions):
         self.numerics   = Numerics()
         self.initials   = Conditions()
         
+        self.residual_normalization_factor =  None
+        self.unknowns_normalization_factor =  None
+        
     def expand_rows(self,rows):
         """ Makes a 1-D array the right size. Often used after a mission is initialized to size out the vectors to the
             right size.
