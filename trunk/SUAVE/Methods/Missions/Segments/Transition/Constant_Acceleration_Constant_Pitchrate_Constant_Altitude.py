@@ -65,7 +65,7 @@ def initialize_conditions(segment):
     
     # set the body angle
     if Tf > T0:
-        body_angle =time*(Tf-T0)/(t_final-t_initial)
+        body_angle = T0 + time*(Tf-T0)/(t_final-t_initial)
     else:
         body_angle = T0 - time*(T0-Tf)/(t_final-t_initial)
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     
