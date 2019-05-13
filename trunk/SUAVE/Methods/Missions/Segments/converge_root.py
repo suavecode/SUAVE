@@ -54,7 +54,7 @@ def converge_root(segment):
     segment.state.residual_normalization_factor[segment.state.residual_normalization_factor==0] = 1e-16
     
     # Normalize the unknowns
-    unknowns = unknowns/segment.state.unknown_normalization_factor
+    unknowns = unknowns/segment.state.unknowns_normalization_factor
     
     
     try:
