@@ -16,7 +16,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import  compute_induced_velocity_matrix
-from SUAVE.Plots import plot_vehicle_vlm_panelization
+
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
@@ -86,9 +86,6 @@ def VLM(conditions,settings,geometry):
     
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
     ones = np.atleast_2d(np.ones_like(aoa))
-     
-    # Plot vortex discretization of vehicle
-    #plot_vehicle_vlm_panelization(VD)
     
     # Build induced velocity matrix, C_mn
     C_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)

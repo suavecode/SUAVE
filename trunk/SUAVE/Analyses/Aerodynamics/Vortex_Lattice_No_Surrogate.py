@@ -23,6 +23,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
 # local imports
 from .Aerodynamics import Aerodynamics
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
+from SUAVE.Plots import plot_vehicle_vlm_panelization
 
 # package imports
 import numpy as np
@@ -97,6 +98,9 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         
         # Pack
         self.settings.vortex_distribution = VD
+        
+        # Plot vortex discretization of vehicle
+        plot_vehicle_vlm_panelization(VD)        
 
 
     def evaluate(self,state,settings,geometry):
