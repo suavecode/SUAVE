@@ -67,8 +67,8 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         self.settings = Data()
 
         # vortex lattice configurations
-        self.settings.number_panels_spanwise  = 8
-        self.settings.number_panels_chordwise = 2
+        self.settings.number_panels_spanwise  = 16
+        self.settings.number_panels_chordwise = 4
         self.settings.vortex_distribution = Data()
         
     def initialize(self):
@@ -100,7 +100,7 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         self.settings.vortex_distribution = VD
         
         # Plot vortex discretization of vehicle
-        plot_vehicle_vlm_panelization(VD)        
+        #plot_vehicle_vlm_panelization(VD)        
 
 
     def evaluate(self,state,settings,geometry):
@@ -150,12 +150,13 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         
         # inviscid lift of wings only
         inviscid_wings_lift                                              = Data()
-        inviscid_wings_lift.total, total_induced_drag_coeff, wing_lifts, wing_drags  = calculate_lift_vortex_lattice(conditions,settings,geometry)
+        inviscid_wings_lift.total, total_induced_drag_coeff, wing_lifts, wing_drags = calculate_lift_vortex_lattice(conditions,settings,geometry)
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift.total
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_wings_lift.total
         state.conditions.aerodynamics.lift_coefficient_wing              = wing_lifts
         state.conditions.aerodynamics.drag_coefficient_wing              = wing_drags
+        conditions.aerodynamics.drag_breakdown.induced.total             = total_induced_drag_coeff
         state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lifts
         
         return inviscid_wings_lift

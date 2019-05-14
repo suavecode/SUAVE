@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           May 2019, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -35,12 +36,26 @@ def converge_root(segment):
     Outputs:
     state.unknowns                     [Any]
     segment.state.numerics.converged   [Unitless]
+    segment.state.normalization_factor [Array]
 
     Properties Used:
     N/A
     """       
     
     unknowns = segment.state.unknowns.pack_array()
+    
+    # Find the normalization factors
+    segment.state.unknowns_normalization_factor  = unknowns*1.
+    segment.state.unknowns_normalization_factor[segment.state.unknowns_normalization_factor==0] = 1e-16 
+    
+    # Run one iteration to get the scaling
+    segment.process.iterate(segment)
+    segment.state.residual_normalization_factor = 1*segment.state.residuals.pack_array() 
+    segment.state.residual_normalization_factor[segment.state.residual_normalization_factor==0] = 1e-16
+    
+    # Normalize the unknowns
+    unknowns = unknowns/segment.state.unknowns_normalization_factor
+    
     
     try:
         root_finder = segment.settings.root_finder
@@ -57,13 +72,13 @@ def converge_root(segment):
         print("Segment did not converge. Segment Tag: " + segment.tag)
         print("Error Message:\n" + msg)
         segment.state.numerics.converged = False
-        segment.converged                = False
+        segment.converged = False
     else:
         segment.state.numerics.converged = True
         segment.converged = True
          
-         
-    return segment
+                            
+    return
     
 # ----------------------------------------------------------------------
 #  Helper Functions
@@ -81,8 +96,9 @@ def iterate(unknowns, segment):
     N/A
 
     Inputs:
-    state.unknowns                [Data]
-    segment.process.iterate       [Data]
+    state.unknowns                     [Data]
+    segment.process.iterate            [Data]
+    segment.state.normalization_factor [array]
 
     Outputs:
     residuals                     [Unitless]
@@ -90,13 +106,18 @@ def iterate(unknowns, segment):
     Properties Used:
     N/A
     """       
-    if isinstance(unknowns,array_type):
-        segment.state.unknowns.unpack_array(unknowns)
+    
+    unknowns_normal = segment.state.unknowns_normalization_factor * unknowns
+    
+    if isinstance(unknowns_normal,array_type):
+        segment.state.unknowns.unpack_array(unknowns_normal)
     else:
-        segment.state.unknowns = unknowns
+        segment.state.unknowns_normal = unknowns_normal
         
     segment.process.iterate(segment)
     
     residuals = segment.state.residuals.pack_array()
+    
+    residuals_normalized = residuals/segment.state.residual_normalization_factor
         
-    return residuals 
+    return residuals_normalized 

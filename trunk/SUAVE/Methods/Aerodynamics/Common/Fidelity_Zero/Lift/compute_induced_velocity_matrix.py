@@ -152,34 +152,67 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
 # vortex strength computation
 # -------------------------------------------------------------------------------
 def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
-    R1R2X  =   (Y-Y1)*(Z-Z2) - (Z-Z1)*(Y-Y2) 
-    R1R2Y  = -((X-X1)*(Z-Z2) - (Z-Z1)*(X-X2))
-    R1R2Z  =   (X-X1)*(Y-Y2) - (Y-Y1)*(X-X2)
-    SQUARE = R1R2X**2 + R1R2Y**2 + R1R2Z**2
-    R1     = np.sqrt((X-X1)**2 + (Y-Y1)**2 + (Z-Z1)**2)
-    R2     = np.sqrt((X-X2)**2 + (Y-Y2)**2 + (Z-Z2)**2)
-    R0R1   = (X2-X1)*(X-X1) + (Y2-Y1)*(Y-Y1) + (Z2-Z1)*(Z-Z1)
-    R0R2   = (X2-X1)*(X-X2) + (Y2-Y1)*(Y-Y2) + (Z2-Z1)*(Z-Z2)
+    
+    # Take all the differences
+    X_X1  = X-X1
+    X_X2  = X-X2
+    X2_X1 = X2-X1
+    
+    Y_Y1  = Y-Y1
+    Y_Y2  = Y-Y2
+    Y2_Y1 = Y2-Y1
+    
+    Z_Z1  = Z-Z1
+    Z_Z2  = Z-Z2 
+    Z2_Z1 = Z2-Z1 
+    
+    R1R2X  =   Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
+    R1R2Y  = -(X_X1*Z_Z2 - Z_Z1*X_X2)
+    R1R2Z  =   X_X1*Y_Y2 - Y_Y1*X_X2
+    
+    SQUARE = R1R2X*R1R2X + R1R2Y*R1R2Y + R1R2Z*R1R2Z
+    R1     = (X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1)**0.5
+    R2     = (X_X2*X_X2 + Y_Y2*Y_Y2 + Z_Z2*Z_Z2)**0.5
+    R0R1   = X2_X1*X_X1 + Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1
+    R0R2   = X2_X1*X_X2 + Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])
     COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)
+    
     return COEF
 
 def vortex_to_inf_l(X,Y,Z,X1,Y1,Z1,tw): 
-    DENUM =  (Z-Z1)**2 + (Y1-Y)**2
-    XVEC  = -(Y1-Y)*np.sin(tw)/DENUM
-    YVEC  =  (Z-Z1)/DENUM
-    ZVEC  =  (Y1-Y)*np.cos(tw)/DENUM
-    BRAC  =  1 + ((X-X1) / (np.sqrt((X-X1)**2+ (Y-Y1)**2+ (Z-Z1)**2)))
+    
+    # Take all the differences
+    X_X1  = X-X1    
+    Y_Y1  = Y-Y1
+    Y1_Y  = Y1-Y
+    Z_Z1  = Z-Z1
+ 
+    
+    DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y
+    XVEC  = -Y1_Y*np.sin(tw)/DENUM
+    YVEC  =  (Z_Z1)/DENUM
+    ZVEC  =  Y1_Y*np.cos(tw)/DENUM
+    BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1)))
     RVEC   = np.array([XVEC, YVEC, ZVEC])
     COEF  = (1/(4*np.pi))*RVEC*BRAC         
+    
     return COEF
 
 def vortex_to_inf_r(X,Y,Z,X1,Y1,Z1,tw):
-    DENUM =  (Z-Z1)**2 + (Y1-Y)**2
-    XVEC  = (Y1-Y)*np.sin(tw)/DENUM
-    YVEC  = -(Z-Z1)/DENUM
-    ZVEC  = -(Y1-Y)*np.cos(tw)/DENUM
-    BRAC  =  1 + ((X-X1) / (np.sqrt((X-X1)**2+ (Y-Y1)**2+ (Z-Z1)**2)))
+    
+    # Take all the differences
+    X_X1  = X-X1    
+    Y_Y1  = Y-Y1
+    Y1_Y  = Y1-Y
+    Z_Z1  = Z-Z1    
+    
+    DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y
+    XVEC  = Y1_Y*np.sin(tw)/DENUM
+    YVEC  = -Z_Z1/DENUM
+    ZVEC  = -Y1_Y*np.cos(tw)/DENUM
+    BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1+ Y_Y1*Y_Y1+ Z_Z1*Z_Z1)))
     RVEC   = np.array([XVEC, YVEC, ZVEC])
     COEF  = (1/(4*np.pi))*RVEC*BRAC         
+    
     return COEF
