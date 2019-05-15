@@ -1094,4 +1094,15 @@ def compute_vortex_distribution(geometry,settings):
     
     geometry.vortex_distribution = VD
     
+    # Compute Panel Areas 
+    VD.A_panel = compute_panel_area(VD)      
+    
     return VD 
+
+def compute_panel_area(VD):
+    P1P2 = [VD.XB1 - VD.XA1,VD.YB1 - VD.YA1,VD.ZB1 - VD.ZA1]
+    P1P3 = [VD.XA2 - VD.XA1,VD.YA2 - VD.YA1,VD.ZA2 - VD.ZA1]
+    P2P3 = [VD.XA2 - VD.XB1,VD.YA2 - VD.YB1,VD.ZA2 - VD.ZB1]
+    P2P4 = [VD.XB2 - VD.XB1,VD.YB2 - VD.YB1,VD.ZB2 - VD.ZB1]    
+    A_panel = 0.5*(np.linalg.norm(np.cross(P1P2,P1P3)) + np.linalg.norm(np.cross(P2P3, P2P4)))
+    return A_panel

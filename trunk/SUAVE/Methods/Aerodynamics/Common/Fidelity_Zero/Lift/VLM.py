@@ -103,7 +103,7 @@ def VLM(conditions,settings,geometry):
     VD = compute_vortex_distribution(geometry,settings)       
      
     # Plot vortex discretization of vehicle
-    #plot_vehicle_vlm_panelization(VD)
+    plot_vehicle_vlm_panelization(VD)
     
     # Build induced velocity matrix, C_mn
     C_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)
@@ -172,7 +172,7 @@ def VLM(conditions,settings,geometry):
     cl_sec = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
     cd_sec = np.sum(np.multiply(-w_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
     
-    # Split the Cls for each wing
+    # Split the Cls and Cds for each wing
     Cl_wings = np.array(np.split(cl_sec,n_w,axis=1))
     Cd_wings = np.array(np.split(cd_sec,n_w,axis=1))
             
@@ -183,10 +183,42 @@ def VLM(conditions,settings,geometry):
     # total drag and drag coefficient
     D  =  -np.atleast_2d(np.sum(np.multiply(w,gamma*Del_Y),axis=1)).T
     CDi = 2*D/(np.pi*Sref) 
-    
+
+    # pressure coefficient
+    U_tot = np.linalg.norm(u,v,w)
+    CPi = 1 - (U_tot)*(U_tot)
+     
     # moment coefficient
-    CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T   
+    CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
      
     tf = time.time()
-    print ('Time taken for VLM: ' + str(tf-ti))  
-    return CL, CDi, CM, Cl_wing, Cdi_wing,  
+    print ('Time taken for VLM: ' + str(tf-ti)) 
+    
+    # Debugging 
+    print("Calculate the Coefficients on each wing individually")
+    print(L_wing  )
+    print(CL_wing ) 
+    print(Di_wing ) 
+    print(CDi_wing) 
+    
+    print("Calculate each spanwise set of Cls and Cds")
+    print(cl_sec)
+    print(cd_sec)
+    
+    print( "Cls and Cds for each wing")
+    print(Cl_wings) 
+    print(Cd_wings) 
+            
+    print("total lift and lift coefficient")
+    print(L )
+    print(CL)
+    
+    print("total drag and drag coefficient")
+    print(D  )
+    print(CDi) 
+     
+    print("moment coefficient")
+    print(CM)
+    
+    
+    return CL, CDi, CM, Cl_wing, Cdi_wing, CPi 

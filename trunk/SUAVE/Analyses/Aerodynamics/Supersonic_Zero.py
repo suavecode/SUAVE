@@ -96,7 +96,6 @@ class Supersonic_Zero(Markup):
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft # SZ
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
