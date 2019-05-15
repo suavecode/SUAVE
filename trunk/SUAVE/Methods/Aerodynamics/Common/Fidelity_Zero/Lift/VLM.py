@@ -167,6 +167,6 @@ def VLM(conditions,settings,geometry):
     CDi = 2*D/(np.pi*Sref) 
     
     # moment coefficient
-    CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T   
+    CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T  
      
     return CL, CDi, CM, CL_wing, CDi_wing  

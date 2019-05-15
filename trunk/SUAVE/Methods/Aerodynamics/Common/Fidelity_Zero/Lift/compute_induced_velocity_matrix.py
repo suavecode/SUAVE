@@ -125,7 +125,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     # velocity induced by right leg of vortex (B to inf)
     C_Binf  = np.transpose(vortex_to_inf_r(XC_hats, YC_hats, ZC_hats, XB2_hats, YB2_hats, ZB2_hats,theta_w),axes=[1,2,3,0])
                 
-    # Add the right and left influences seperateky
+    # Add the right and left influences seperately
     C_AB_llrl_roll = C_AB_ll+C_AB_rl
     
     # Prime the arrays
@@ -145,6 +145,9 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
 
     # Add all the influences together
     C_mn = C_AB_34_ll + C_AB_bv + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
+    
+    # Good: C_AB_bv, C_Ainf, C_Binf
+    # Bad: C_AB_ll, C_AB_rl, C_AB_34_ll, C_AB_34_rl     
     
     return C_mn
 
@@ -171,12 +174,18 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
     R1R2Z  =   X_X1*Y_Y2 - Y_Y1*X_X2
     
     SQUARE = R1R2X*R1R2X + R1R2Y*R1R2Y + R1R2Z*R1R2Z
+    
+    SQUARE[SQUARE==0] = 1e-32
+    
     R1     = (X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1)**0.5
     R2     = (X_X2*X_X2 + Y_Y2*Y_Y2 + Z_Z2*Z_Z2)**0.5
     R0R1   = X2_X1*X_X1 + Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1
     R0R2   = X2_X1*X_X2 + Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])
     COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)
+    
+    if np.isnan(COEF).any():
+        print('NaN!')       
     
     return COEF
 

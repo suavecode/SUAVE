@@ -33,7 +33,7 @@ import numpy as np
 #  Class
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Aerodynamics
-class Vortex_Lattice_No_Surrogate(Aerodynamics):
+class Vortex_Lattice_Surrogate(Aerodynamics):
     """This builds a surrogate and computes lift using a basic vortex lattice.
 
     Assumptions:
@@ -71,6 +71,18 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         self.settings.number_panels_chordwise = 4
         self.settings.vortex_distribution = Data()
         
+        # conditions table, used for surrogate model training
+        self.training = Data()        
+        self.training.angle_of_attack       = np.array([[-10.,-5.,0.,5.,10.]]).T * Units.deg
+        self.training.lift_coefficient      = None
+        self.training.wing_lift_coefficient = None
+        self.training.drag_coefficient      = None
+        self.training.wing_drag_coefficient = None
+        
+        # surrogoate models
+        self.surrogates = Data()
+        self.surrogates.lift_coefficient = None        
+        
     def initialize(self):
         """Drives functions to get training samples and build a surrogate.
 
@@ -101,6 +113,12 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         
         # Plot vortex discretization of vehicle
         #plot_vehicle_vlm_panelization(VD)        
+        
+        # sample training data
+        self.sample_training()
+                    
+        # build surrogate
+        self.build_surrogate()        
 
 
     def evaluate(self,state,settings,geometry):
@@ -135,19 +153,97 @@ class Vortex_Lattice_No_Surrogate(Aerodynamics):
         conditions = state.conditions
         settings   = self.settings
         geometry   = self.geometry
+        AoA        = conditions.aerodynamics.angle_of_attack
+           
+        # Unapck the surrogates
+        CL_surrogate = self.surrogates.lift_coefficient
+        CD_surrogate = self.surrogates.drag_coefficient
+        wing_CL_surrogates = self.surrogates.wing_lifts 
+        wing_CD_surrogates = self.surrogates.wing_drags
         
-        # inviscid lift of wings only
+        # Evaluate the surrogate
+        lift_coefficients = CL_surrogate(AoA)
+        drag_coefficients = CD_surrogate(AoA)
+        
+        # Pull out the individual lifts
+        wing_lifts = Data()
+        wing_drags = Data()
+        
+        for key in geometry.wings.keys():
+            wing_lifts[key] = wing_CL_surrogates[key](AoA)
+            wing_drags[key] = wing_CD_surrogates[key](AoA)
+        
+        # Pack
         inviscid_wings_lift                                              = Data()
-        inviscid_wings_lift.total, total_induced_drag_coeff, wing_lifts, wing_drags = calculate_lift_vortex_lattice(conditions,settings,geometry)
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift.total
-        state.conditions.aerodynamics.lift_coefficient                   = inviscid_wings_lift.total
-        state.conditions.aerodynamics.lift_coefficient_wing              = wing_lifts
-        state.conditions.aerodynamics.drag_coefficient_wing              = wing_drags
-        conditions.aerodynamics.drag_breakdown.induced.total             = total_induced_drag_coeff
-        state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lifts
         
-        return inviscid_wings_lift
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = lift_coefficients
+        state.conditions.aerodynamics.lift_coefficient                   = lift_coefficients
+        
+        state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lifts
+        state.conditions.aerodynamics.lift_coefficient_wing              = wing_lifts
+        
+        state.conditions.aerodynamics.drag_coefficient_wing              = wing_drags
+        conditions.aerodynamics.drag_breakdown.induced.total             = drag_coefficients
+        
+        
+        return
+    
+    def sample_training(self):
+        # unpack
+        geometry = self.geometry
+        settings = self.settings
+        training = self.training
+        
+        # Setup Konditions
+        konditions              = Data()
+        konditions.aerodynamics = Data()
+        konditions.aerodynamics.angle_of_attack = training.angle_of_attack
+        
+        # Get the training data
+        total_lift, total_drag, wing_lifts, wing_drags = calculate_lift_vortex_lattice(konditions,settings,geometry)
+        
+        if np.isnan(total_lift).any():
+            print('NaN!')
+            plot_vehicle_vlm_panelization(settings.vortex_distribution)  
+        
+        # Store training data
+        training.lift_coefficient = total_lift
+        training.drag_coefficient = total_drag
+        training.wing_lifts       = wing_lifts
+        training.wing_drags       = wing_drags
+        
+        return
+        
+    def build_surrogate(self):
+        # unpack data
+        training = self.training
+        AoA_data = training.angle_of_attack
+        CL_data  = training.lift_coefficient
+        CD_data  =  training.drag_coefficient
+        wing_CL_data = training.wing_lifts
+        wing_CD_data = training.wing_drags    
+        
+        # learn the models
+        CL_surrogate = np.poly1d(np.polyfit(AoA_data.T[0], CL_data.T[0], 1))
+        CD_surrogate = np.poly1d(np.polyfit(AoA_data.T[0], CD_data.T[0], 2))
+        
+        wing_CL_surrogates = Data()
+        wing_CD_surrogates = Data()
+        
+        for wing in wing_CL_data.keys():
+            wing_CL_surrogates[wing] = np.poly1d(np.polyfit(AoA_data.T[0], wing_CL_data[wing].T[0], 1))   
+            wing_CD_surrogates[wing] = np.poly1d(np.polyfit(AoA_data.T[0], wing_CD_data[wing].T[0], 2))   
+        
+        # Pack the outputs
+        self.surrogates.lift_coefficient = CL_surrogate
+        self.surrogates.drag_coefficient = CD_surrogate
+        self.surrogates.wing_lifts       = wing_CL_surrogates
+        self.surrogates.wing_drags       = wing_CD_surrogates
+        
+        
+        
+        
 
 # ----------------------------------------------------------------------
 #  Helper Functions
