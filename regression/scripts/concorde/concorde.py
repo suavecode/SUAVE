@@ -39,8 +39,6 @@ Data, Container,
 import sys
 sys.path.append('../Vehicles')
 from Concorde import vehicle_setup, configs_setup
-from SUAVE.Analyses.Aerodynamics.Vortex_Lattice_No_Surrogate import Vortex_Lattice_No_Surrogate
-
 
 # This is a sizing function to fill turbojet parameters
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing

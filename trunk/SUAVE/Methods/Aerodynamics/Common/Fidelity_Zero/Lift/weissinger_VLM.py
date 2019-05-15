@@ -13,14 +13,13 @@
 
 # package imports
 import numpy as np 
-#import time
+
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def weissinger_VLM(conditions,configuration,wing):
-    #ti = time.time()
     """Uses the vortex lattice method to compute the lift coefficient and induced drag component
     Assumptions:
     None
@@ -191,14 +190,12 @@ def weissinger_VLM(conditions,configuration,wing):
         
     else:
         
-        CL = 0.0
-        CD = 0.0    
+        CL = np.zeros_like(aoa)
+        CD = np.zeros_like(aoa)  
          
         cl = 0.0 
         cdi = 0.0 
         
-    #tf = time.time()
-    #print ('Time taken for Weis: ' + str(tf-ti)) 
     return CL, CD
 
 # ----------------------------------------------------------------------

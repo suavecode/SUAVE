@@ -177,8 +177,8 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
     
     SQUARE[SQUARE==0] = 1e-32
     
-    R1     = (X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1)**0.5
-    R2     = (X_X2*X_X2 + Y_Y2*Y_Y2 + Z_Z2*Z_Z2)**0.5
+    R1     = np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1)
+    R2     = np.sqrt(X_X2*X_X2 + Y_Y2*Y_Y2 + Z_Z2*Z_Z2)
     R0R1   = X2_X1*X_X1 + Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1
     R0R2   = X2_X1*X_X2 + Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])

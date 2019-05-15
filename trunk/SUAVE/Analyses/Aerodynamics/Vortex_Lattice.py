@@ -1,11 +1,8 @@
 ## @ingroup Analyses-Aerodynamics
 # Vortex_Lattice.py
 #
-# Created:  Nov 2013, T. Lukaczyk
-# Modified:     2014, T. Lukaczyk, A. Variyar, T. Orra
-#           Feb 2016, A. Wendorff
-#           Apr 2017, T. MacDonald
-#           Nov 2017, E. Botero
+# Created:  May 2019, E. Botero
+# Modified:    
 
 
 # ----------------------------------------------------------------------
@@ -18,14 +15,16 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.weissinger_vortex_lattice import weissinger_vortex_lattice
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.weissinger_VLM import weissinger_VLM
 
 # local imports
 from .Aerodynamics import Aerodynamics
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
+from SUAVE.Plots import plot_vehicle_vlm_panelization
 
 # package imports
 import numpy as np
-
 
 # ----------------------------------------------------------------------
 #  Class
@@ -64,26 +63,29 @@ class Vortex_Lattice(Aerodynamics):
         self.geometry = Data()
         self.settings = Data()
 
-        # correction factors
-        self.settings.fuselage_lift_correction           = 1.14
-        self.settings.trim_drag_correction_factor        = 1.02
-        self.settings.wing_parasite_drag_form_factor     = 1.1
-        self.settings.fuselage_parasite_drag_form_factor = 2.3
-        self.settings.aircraft_span_efficiency_factor    = 0.78
-        self.settings.drag_coefficient_increment         = 0.0000
-
         # vortex lattice configurations
-        self.settings.number_panels_spanwise = 5
+        self.settings.number_panels_spanwise   = 16
+        self.settings.number_panels_chordwise  = 4
+        self.settings.use_surrogate            = True
+        self.settings.use_weissinger           = True
+        self.settings.plot_vortex_distribution = False
+        self.settings.vortex_distribution      = Data()
+        self.settings.call_function            = None
 
+        
         # conditions table, used for surrogate model training
         self.training = Data()        
-        self.training.angle_of_attack  = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
-        self.training.lift_coefficient = None
+        self.training.angle_of_attack       = np.array([[-10.,-5.,0.,5.,10.]]).T * Units.deg
+        self.training.lift_coefficient      = None
+        self.training.wing_lift_coefficient = None
+        self.training.drag_coefficient      = None
+        self.training.wing_drag_coefficient = None
         
         # surrogoate models
         self.surrogates = Data()
-        self.surrogates.lift_coefficient = None
- 
+        self.surrogates.lift_coefficient = None        
+        
+        self.evaluate = None
         
     def initialize(self):
         """Drives functions to get training samples and build a surrogate.
@@ -103,26 +105,58 @@ class Vortex_Lattice(Aerodynamics):
         Properties Used:
         None
         """                      
-        # sample training data
-        self.sample_training()
-                    
-        # build surrogate
-        self.build_surrogate()
+        # Unpack:
+        geometry = self.geometry
+        settings = self.settings        
+        
+        # Figure out if we are doing a full VLM or a Weissinger
+        if   settings.use_weissinger == True:
+            
+            # Set the call function
+            settings.call_function = calculate_weissinger
+            
+        elif settings.use_weissinger == False:
+            
+            # Set the call function
+            settings.call_function = calculate_VLM
+            
+            # generate vortex distribution
+            VD = compute_vortex_distribution(geometry,settings)      
+            
+            # Pack
+            settings.vortex_distribution = VD
+        
+        # Plot vortex discretization of vehicle
+        if settings.plot_vortex_distribution == True:
+            plot_vehicle_vlm_panelization(VD)        
+        
+        # If we are using the surrogate
+        if self.settings.use_surrogate == True:
+            
+            # sample training data
+            self.sample_training()
+                        
+            # build surrogate
+            self.build_surrogate()        
+            
+            self.evaluate = self.evaluate_surrogate
+            
+        else:
+            self.evaluate = self.evaluate_no_surrogate
 
 
-    def evaluate(self,state,settings,geometry):
+    def evaluate_surrogate(self,state,settings,geometry):
         """Evaluates lift and drag using available surrogates.
 
         Assumptions:
-        None
+        no changes to initial geometry or settings
 
         Source:
         N/A
 
         Inputs:
         state.conditions.
-          freestream.dynamics_pressure       [-]
-          angle_of_attack                    [radians]
+            angle_of_attack                    [radians]
 
         Outputs:
         conditions.aerodynamics.lift_breakdown.
@@ -137,49 +171,102 @@ class Vortex_Lattice(Aerodynamics):
           lift_coefficient                   [-] CL
           wing_lift_coefficient[wings.*.tag] [-] CL (wing specific)
         """          
-        """ process vehicle to setup geometry, condititon and settings
-            Inputs:
-                conditions - DataDict() of aerodynamic conditions
-            Outputs:
-                CL - array of lift coefficients, same size as alpha
-                CD - array of drag coefficients, same size as alpha
-            Assumptions:
-                linear intperolation surrogate model on Mach, Angle of Attack
-                    and Reynolds number
-                locations outside the surrogate's table are held to nearest data
-                no changes to initial geometry or settings
-        """
-
-        # unpack
-
-        surrogates = self.surrogates        
-        conditions = state.conditions
         
         # unpack        
-        q    = conditions.freestream.dynamic_pressure
-        AoA  = conditions.aerodynamics.angle_of_attack
-        Sref = geometry.reference_area
+        conditions = state.conditions
+        settings   = self.settings
+        geometry   = self.geometry
+        AoA        = conditions.aerodynamics.angle_of_attack
+           
+        # Unapck the surrogates
+        CL_surrogate = self.surrogates.lift_coefficient
+        CD_surrogate = self.surrogates.drag_coefficient
+        wing_CL_surrogates = self.surrogates.wing_lifts 
+        wing_CD_surrogates = self.surrogates.wing_drags
         
-        wings_lift_model = surrogates.lift_coefficient
+        # Evaluate the surrogate
+        lift_coefficients = CL_surrogate(AoA)
+        drag_coefficients = CD_surrogate(AoA)
         
-        # inviscid lift of wings only
+        # Pull out the individual lifts
+        wing_lifts = Data()
+        wing_drags = Data()
+        
+        for key in geometry.wings.keys():
+            wing_lifts[key] = wing_CL_surrogates[key](AoA)
+            wing_drags[key] = wing_CD_surrogates[key](AoA)
+        
+        # Pack
         inviscid_wings_lift                                              = Data()
-        inviscid_wings_lift.total                                        = wings_lift_model(AoA)
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift.total
-        state.conditions.aerodynamics.lift_coefficient                   = inviscid_wings_lift.total
         
-        # store model for lift coefficients of each wing
-        state.conditions.aerodynamics.lift_coefficient_wing             = Data()        
-        for wing in geometry.wings.keys():
-            wings_lift_model = surrogates.wing_lift_coefficients[wing]
-            inviscid_wings_lift[wing] = wings_lift_model(AoA)
-            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]
-            state.conditions.aerodynamics.lift_coefficient_wing[wing]        = inviscid_wings_lift[wing]
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = lift_coefficients
+        state.conditions.aerodynamics.lift_coefficient                   = lift_coefficients
+        
+        state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lifts
+        state.conditions.aerodynamics.lift_coefficient_wing              = wing_lifts
+        
+        state.conditions.aerodynamics.drag_coefficient_wing              = wing_drags
+        conditions.aerodynamics.drag_breakdown.induced.total             = drag_coefficients
+        
+        
+        return
+    
+    def evaluate_no_surrogate(self,state,settings,geometry):
+        """Evaluates lift and drag directly using VLM
+        
+        Assumptions:
+        no changes to initial geometry or settings
 
-        return inviscid_wings_lift
+        Source:
+        N/A
 
+        Inputs:
+        state.conditions.
+          angle_of_attack                    [radians]
 
+        Outputs:
+        conditions.aerodynamics.lift_breakdown.
+          inviscid_wings_lift[wings.*.tag]   [-] CL (wing specific)
+          inviscid_wings_lift.total          [-] CL
+        
+        conditions.aerodynamics.
+          drag_breakdown.induced.total       [-] CD (wing specific)
+          lift_coefficient_wing              [-] CL (wing specific)
+          drag_coefficient_wing              [-] CD (wing specific)
+        inviscid_wings_lift                  [-] CL
+
+        Properties Used:
+        self.surrogates.
+          lift_coefficient                   [-] CL
+          wing_lift_coefficient[wings.*.tag] [-] CL (wing specific)
+        """          
+        
+        # unpack        
+        conditions = state.conditions
+        settings   = self.settings
+        geometry   = self.geometry
+        
+        # Evaluate the VLM
+        lift_coefficients, drag_coefficients, wing_lifts, wing_drags = \
+            settings.call_function(conditions,settings,geometry)
+        
+        # Pack
+        inviscid_wings_lift                                              = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
+        
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = lift_coefficients
+        state.conditions.aerodynamics.lift_coefficient                   = lift_coefficients
+        
+        state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lifts
+        state.conditions.aerodynamics.lift_coefficient_wing              = wing_lifts
+        
+        state.conditions.aerodynamics.drag_coefficient_wing              = wing_drags
+        conditions.aerodynamics.drag_breakdown.induced.total             = drag_coefficients
+
+        return 
+    
+    
     def sample_training(self):
         """Call methods to run vortex lattice for sample point evaluation.
 
@@ -195,46 +282,37 @@ class Vortex_Lattice(Aerodynamics):
         Outputs:
         self.training.
           lift_coefficient            [-] 
-          wing_lift_coefficients      [-] (wing specific)
+          wing_lifts                  [-] (wing specific)
+          drag_coefficient            [-] 
+          wing_drags                  [-] (wing specific)
 
         Properties Used:
         self.geometry.wings.*.tag
         self.settings                 (passed to calculate vortex lattice)
         self.training.angle_of_attack [radians]
-        """        
+        """  
+        
         # unpack
         geometry = self.geometry
         settings = self.settings
         training = self.training
         
-        AoA = training.angle_of_attack
-        CL  = np.zeros_like(AoA)
-        
-        wing_CLs = Data() 
-        for wing in geometry.wings.values():
-            wing_CLs[wing.tag] = np.zeros_like(AoA)
-
-        # condition input, local, do not keep
+        # Setup Konditions
         konditions              = Data()
         konditions.aerodynamics = Data()
-
-        # calculate aerodynamics for table
-        for i,_ in enumerate(AoA):
-            
-            # overriding conditions, thus the name mangling
-            konditions.aerodynamics.angle_of_attack = AoA[i]
-            
-            # these functions are inherited from Aerodynamics() or overridden
-            CL[i], wing_lifts = calculate_lift_vortex_lattice(konditions, settings, geometry)
-            for wing in geometry.wings.values():
-                wing_CLs[wing.tag][i] = wing_lifts[wing.tag]
-
-        # store training data
-        training.lift_coefficient = CL
-        training.wing_lift_coefficients = wing_CLs
-
+        konditions.aerodynamics.angle_of_attack = training.angle_of_attack
+        
+        # Get the training data
+        total_lift, total_drag, wing_lifts, wing_drags = settings.call_function(konditions,settings,geometry)
+        
+        # Store training data
+        training.lift_coefficient = total_lift
+        training.drag_coefficient = total_drag
+        training.wing_lifts       = wing_lifts
+        training.wing_drags       = wing_drags
+        
         return
-
+        
     def build_surrogate(self):
         """Build a surrogate using sample evaluation results.
 
@@ -251,46 +329,98 @@ class Vortex_Lattice(Aerodynamics):
         self.surrogates.
           lift_coefficient       <np.poly1d>
           wing_lift_coefficients <np.poly1d> (multiple surrogates)
+          drag_coefficient       <np.poly2d>
+          wing_drag_coefficients <np.poly2d> (multiple surrogates)
 
         Properties Used:
-        self.
-          training.
-            angle_of_attack        [radians]
-            lift_coefficient       [-]
-            wing_lift_coefficients [-] (wing specific)
-        """        
+        self.training.
+          lift_coefficient            [-] 
+          wing_lifts                  [-] (wing specific)
+          drag_coefficient            [-] 
+          wing_drags                  [-] (wing specific)
+        """           
+
         # unpack data
         training = self.training
         AoA_data = training.angle_of_attack
         CL_data  = training.lift_coefficient
-        wing_CL_data = training.wing_lift_coefficients
-
-        # pack for surrogate model
-        X_data = np.array([AoA_data]).T
-        X_data = np.reshape(X_data,-1)
+        CD_data  =  training.drag_coefficient
+        wing_CL_data = training.wing_lifts
+        wing_CD_data = training.wing_drags    
         
-        # learn the model
-        cl_surrogate = np.poly1d(np.polyfit(X_data, CL_data ,1))
+        # learn the models
+        CL_surrogate = np.poly1d(np.polyfit(AoA_data.T[0], CL_data.T[0], 1))
+        CD_surrogate = np.poly1d(np.polyfit(AoA_data.T[0], CD_data.T[0], 2))
         
-        wing_cl_surrogates = Data()
+        wing_CL_surrogates = Data()
+        wing_CD_surrogates = Data()
         
         for wing in wing_CL_data.keys():
-            wing_cl_surrogates[wing] = np.poly1d(np.polyfit(X_data, wing_CL_data[wing] ,1))
-
-
-        self.surrogates.lift_coefficient = cl_surrogate
-        self.surrogates.wing_lift_coefficients = wing_cl_surrogates
-
-        return
-
-
-
+            wing_CL_surrogates[wing] = np.poly1d(np.polyfit(AoA_data.T[0], wing_CL_data[wing].T[0], 1))   
+            wing_CD_surrogates[wing] = np.poly1d(np.polyfit(AoA_data.T[0], wing_CD_data[wing].T[0], 2))   
+        
+        # Pack the outputs
+        self.surrogates.lift_coefficient = CL_surrogate
+        self.surrogates.drag_coefficient = CD_surrogate
+        self.surrogates.wing_lifts       = wing_CL_surrogates
+        self.surrogates.wing_drags       = wing_CD_surrogates
+        
+ 
 # ----------------------------------------------------------------------
 #  Helper Functions
 # ----------------------------------------------------------------------
 
 
-def calculate_lift_vortex_lattice(conditions,settings,geometry):
+def calculate_VLM(conditions,settings,geometry):
+    """Calculate the total vehicle lift coefficient and specific wing coefficients (with specific wing reference areas)
+    using a vortex lattice method.
+
+    Assumptions:
+    None
+
+    Source:
+    N/A
+
+    Inputs:
+    conditions                      (passed to vortex lattice method)
+    settings                        (passed to vortex lattice method)
+    geometry.reference_area         [m^2]
+    geometry.wings.*.reference_area (each wing is also passed to the vortex lattice method)
+
+    Outputs:
+    total_lift_coeff          [array]
+    total_induced_drag_coeff  [array]
+    wing_lifts                [Data]
+    wing_drags                [Data]
+
+    Properties Used:
+    
+    """            
+
+    # unpack
+    vehicle_reference_area = geometry.reference_area
+
+    # iterate over wings
+    wing_lifts = Data()
+    wing_drags = Data()
+    
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing= VLM(conditions,settings,geometry)
+
+    ii = 0
+    for wing in geometry.wings.values():
+        wing_lifts[wing.tag] = 1*(np.atleast_2d(CL_wing[:,ii]).T)
+        wing_drags[wing.tag] = 1*(np.atleast_2d(CDi_wing[:,ii]).T)
+        ii+=1
+        if wing.symmetric:
+            wing_lifts[wing.tag] += 1*(np.atleast_2d(CL_wing[:,ii]).T)
+            wing_drags[wing.tag] += 1*(np.atleast_2d(CDi_wing[:,ii]).T)
+            ii+=1
+
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags
+
+
+
+def calculate_weissinger(conditions,settings,geometry):
     """Calculate the total vehicle lift coefficient and specific wing coefficients (with specific wing reference areas)
     using a vortex lattice method.
 
@@ -317,13 +447,17 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
     vehicle_reference_area = geometry.reference_area
 
     # iterate over wings
-    total_lift_coeff = 0.0
     wing_lifts = Data()
+    wing_drags = Data()
+    
+    total_lift_coeff         = 0.
+    total_induced_drag_coeff = 0.
 
     for wing in geometry.wings.values():
-
-        [wing_lift_coeff,wing_drag_coeff] = weissinger_vortex_lattice(conditions,settings,wing)
+        [wing_lift_coeff,wing_drag_coeff] =  weissinger_VLM(conditions,settings,wing)
         total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
+        total_induced_drag_coeff += wing_drag_coeff * wing.areas.reference / vehicle_reference_area
         wing_lifts[wing.tag] = wing_lift_coeff
+        wing_drags[wing.tag] = wing_drag_coeff
 
-    return total_lift_coeff, wing_lifts
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags
