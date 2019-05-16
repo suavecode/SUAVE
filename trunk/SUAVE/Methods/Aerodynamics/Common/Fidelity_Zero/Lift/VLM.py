@@ -188,7 +188,7 @@ def VLM(conditions,settings,geometry):
     CDi = 2*D/(np.pi*Sref) 
 
     # pressure coefficient
-    U_tot = np.linalg.norm(u,v,w)
+    U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)
     CPi = 1 - (U_tot)*(U_tot)
      
     # moment coefficient
@@ -224,4 +224,4 @@ def VLM(conditions,settings,geometry):
     print(CM)
     
     
-    return CL, CDi, CM, Cl_wing, Cdi_wing, CPi 
+    return CL, CDi, CM, Cl_wing, Cdi_wing, cl_sec , cd_sec , CPi 

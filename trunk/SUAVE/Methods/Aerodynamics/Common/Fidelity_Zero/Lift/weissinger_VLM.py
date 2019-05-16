@@ -66,27 +66,36 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
     orientation = wing.vertical
 
     # conditions
-    aoa = conditions.aerodynamics.angle_of_attack
-    CL  = np.zeros_like(aoa)
-    CD  = np.zeros_like(aoa)  
-    m   = len(aoa)
-    n   = settings.number_panels_spanwise    
-    Cl  = np.zeros((m,n))
-    Cd  = np.zeros((m,n))    
-
-    # chord difference
-    dchord = (root_chord-tip_chord)
-    if sym_para is True :
-        span = span/2            
-    deltax = span/n
- 
+    aoa    = conditions.aerodynamics.angle_of_attack
+    if settings.use_surrogate:   
+        rho    = np.zeros_like(aoa)
+        V_inf  = np.zeros_like(aoa)        
+        
+    else:
+        rho    = conditions.freestream.density                
+        V_inf  = conditions.freestream.velocity
+        
+    m      = len(aoa)
+    n      = settings.number_panels_spanwise       
     #-------------------------------------------------------------------------------------------------------
     # WEISSINGER VORTEX LATTICE METHOD   
     #-------------------------------------------------------------------------------------------------------
     if orientation == False :
-        rho              = conditions.freestream.density                   
-        q_inf            = conditions.freestream.dynamic_pressure 
-        V_inf            = conditions.freestream.velocity 
+        if 'propulsor' in propulsors:
+            prop =  propulsors['propulsor'].propeller            
+            propeller_status = True
+            n = 50
+        else: 
+            propeller_status = False  
+
+        # chord difference
+        dchord = (root_chord-tip_chord)
+        if sym_para is True :
+            span = span/2            
+        deltax = span/n 
+        
+        Cl               = np.zeros((m,n))
+        Cd               = np.zeros((m,n))   
         V_distribution   = np.ones((m,n))*V_inf      
         aoa_distribution = np.ones((m,n))*aoa
         
@@ -196,30 +205,29 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
                 # optain propeller and slipstream properties
                 D_p       = prop.tip_radius*2
                 R_p       = prop.tip_radius                     
-                Vx        = prop.outputs.velocity            
+                            
                 r_nacelle = prop.hub_radius 
-                vt_old    = np.concatenate((prop.outputs.vt , - prop.outputs.vt[::-1]), axis=0)  # induced tangential velocity at propeller disc using propeller discretization
-                va_old    = np.concatenate((-prop.outputs.va, - prop.outputs.va[::-1]), axis=0) # induced axial velocity at propeller disc  using propeller discretization
+                vt_old    = np.concatenate((prop.outputs.vt , - prop.outputs.vt[::-1]), axis=1)  # induced tangential velocity at propeller disc using propeller discretization
+                va_old    = np.concatenate((-prop.outputs.va, - prop.outputs.va[::-1]), axis=1) # induced axial velocity at propeller disc  using propeller discretization
                 n_old     = len(prop.chord_distribution)                                                                          # spanwise discretization of propeller
                 r_old     = np.linspace(prop.hub_radius,R_p,n_old) 
                 d_old     = np.concatenate((-r_old[::-1], r_old) ,  axis=0)   
                 
                 # compute slipstream development factor from propeller disc to control point on wing
                 s                 =  prop.origin[i][0] - wing.origin[0]      
-                Kd                = 1 + s/(np.sqrt(s**2 + R_p**2))     
-                r_div_r_prime_val = np.zeros(n_old) 
-                r_prime = np.zeros(n_old) 
-                for j in range(n_old):
-                    if j == 0:
-                        r_prime[j] =  prop.hub_radius
-                    else: 
-                        Kv         = (2*Vx + prop.outputs.va[j] + prop.outputs.va[j-1])/(2*Vx + Kd*(prop.outputs.va[j] +  prop.outputs.va[j-1]))
-                        r_prime[j] =  np.sqrt(r_prime[j-1]**2 + ( r_old[j]**2 -  r_old[j-1]**2)*Kv)   
-                    r_div_r_prime_val[j] = r_old[j]/r_prime[j]                    
-                r_div_r_prime_old =  np.concatenate((r_div_r_prime_val[::-1], r_div_r_prime_val), axis=0)   
+                Kd                = 1 + s/(np.sqrt(s**2 + R_p**2))  
+                Vx                = np.tile(np.atleast_2d(prop.outputs.velocity[:,0]).T, (1, n_old))
+                r_prime           = np.zeros((m,n_old))                
+                r_prime[:,0]      = prop.hub_radius
+                Kv                = (2*Vx[:,1:] + prop.outputs.va[:,1:] + prop.outputs.va[:,:-1]) /(2*Vx[:,1:] + Kd*(prop.outputs.va[:,1:] +  prop.outputs.va[:,:-1]))
+                r_ratio_vals      =  r_old[1:]**2 - r_old[:-1]**2 
+                r_ratio           = np.ones((m,n_old-1))*(r_old[1:]**2 - r_old[:-1]**2 )
+                r_prime[:,1:]     =  np.sqrt(r_prime[:,:-1]**2 + (r_ratio)*Kv)   
+                r_div_r_prime_val  = r_old /r_prime                    
+                r_div_r_prime_old =  np.concatenate((r_div_r_prime_val[:,::-1], r_div_r_prime_val), axis=1)   
   
                 # determine if slipstream wake interacts with wing in the z direction
-                if (prop.origin[i][2] + r_prime[-1]) > wing.origin[2]  and  (prop.origin[i][2] - r_prime[-1]) < wing.origin[2]:
+                if (prop.origin[i][2] + r_prime[0,-1]) > wing.origin[2]  and  (prop.origin[i][2] - r_prime[0,-1]) < wing.origin[2]:
                     
                     # determine y location of propeller on wing                  
                     prop_vec_minus = y - (prop.origin[i][1] - R_p*np.sqrt(1 - (abs(prop.origin[i][2] - wing.origin[2])/R_p)))               
@@ -230,25 +238,30 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
                         prop_vec_plus  = y - (prop.origin[i][1] + R_p*np.sqrt(1 - (abs(prop.origin[i][2] - wing.origin[2])/R_p)))
                         RHS_vec        = np.extract(prop_vec_plus >0 ,prop_vec_plus)   
                         end_val        = np.where(prop_vec_plus == min(RHS_vec))[1][0] +1 
-                        n              = (np.where(prop_vec_plus == min(RHS_vec))[1] - np.where(prop_vec_minus == max(LHS_vec))[1]) + 1 
+                        discre         = (np.where(prop_vec_plus == min(RHS_vec))[1] - np.where(prop_vec_minus == max(LHS_vec))[1]) + 1 
                            
                     else: 
                         end_val       = len(y[0])
-                        n             = (end_val  - np.where(prop_vec_minus == max(LHS_vec))[1])                      
+                        discre        = (end_val  - np.where(prop_vec_minus == max(LHS_vec))[1])                      
                         y_prop        = d_old + span
                         cut_off       = (y_prop - span)[( y_prop - span) <= 0]
-                        cut_off       = cut_off.argmax()
-                        vt_old        = vt_old[:cut_off]
-                        va_old        = va_old[:cut_off]
-                        r_old         = r_old[:cut_off] 
-                        d_old         = d_old[:cut_off] 
-                        r_div_r_prime_old = r_div_r_prime_old[:cut_off]
-                        
-                    # changes the discretization on propeller diameter to match the discretization on the wing            
-                    vt             = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , vt_old)     # induced tangential velocity at propeller disc using wing discretization
-                    va             = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , va_old)     # induced axial velocity at propeller disc using wing discretization
-                    d              = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , d_old) 
-                    r_div_r_prime  = np.interp(np.linspace(-R_p,max(d_old),n) , d_old , r_div_r_prime_old)                      
+                        cut_off       = np.argmax(cut_off)
+                        vt_old        = vt_old[:,:cut_off]
+                        va_old        = va_old[:,:cut_off]
+                        r_old         =  r_old[:cut_off] 
+                        d_old         =  d_old[:cut_off] 
+                        r_div_r_prime_old = r_div_r_prime_old[:,cut_off]
+                    
+                    # changes the discretization on propeller diameter to match the discretization on the wing   
+                    D_old = np.ones((m,1)) *d_old 
+                    d              = np.interp(np.linspace(-R_p,max(d_old),discre) , d_old, d_old) 
+                    vt = np.zeros((m,discre[0]))           
+                    va = np.zeros((m,discre[0]))            
+                    r_div_r_prime =  np.zeros((m,discre[0]))  
+                    for k in range(m):                        
+                        vt[k,:]             = np.interp(np.linspace(-R_p,max(d_old),discre[0]) , d_old, vt_old[k,:])            # induced tangential velocity at propeller disc using wing discretization
+                        va[k,:]             = np.interp(np.linspace(-R_p,max(d_old),discre[0]) , d_old, va_old[k,:])            # induced axial velocity at propeller disc using wing discretization            
+                        r_div_r_prime[k,:]  = np.interp(np.linspace(-R_p,max(d_old),discre[0]) , d_old, r_div_r_prime_old[k,:])                      
                     
                     # adjust axial and tangential components if propeller is off centered 
                     va_prime       = Kd*va*np.sqrt(1 - (abs(prop.origin[i][2] - wing.origin[2])/R_p))
@@ -261,23 +274,24 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
                     # compute new components of freestream
                     Vx             = V_inf*np.cos(aoa) - va_prime   
                     Vy             = V_inf*np.sin(aoa) - vt_prime   
-                    modified_V_inf = np.sqrt(Vx**2 + Vy**2 )
-                    modified_aoa   = np.arctan(Vy/Vx)
-                    numel          = len(modified_aoa)
-                    mod_V_inf      = np.reshape(modified_V_inf, (1,numel)) # reshape vector 
-                    mod_aoa        = np.reshape(modified_aoa, (1,numel))   # reshape vector 
+                    modified_V_inf = np.sqrt(Vx**2 + Vy**2 )                    
+                    modified_aoa   = np.arctan(Vy/Vx)          
                     
                     # modifiy air speed distribution being propeller 
                     start_val = np.where(prop_vec_minus == max(LHS_vec))[1][0]  
-                    V_distribution[:][start_val:end_val]   = mod_V_inf 
-                    aoa_distribution[:][start_val:end_val] = mod_aoa  
+                    V_distribution[:,start_val:end_val]   = modified_V_inf 
+                    aoa_distribution[:,start_val:end_val] = modified_aoa
             
         q_distribution =  0.5*rho*V_distribution*V_distribution
-        CL , CD , Cl, Cd = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord_distribution, q_distribution,q_inf,V_distribution,Sref)            
-         
-    return   CL , CD  , Cl, Cd
+        CL , CD , Cl, Cd = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord_distribution, V_distribution,Sref)            
+    
+    else:    
+        Cl               = np.zeros((m,n))
+        Cd               = np.zeros((m,n))   
+    
+    return   CL , CD , Cl, Cd
         
-def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord_distribution, q_distribution,q_inf,V_distribution, Sref):    
+def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord_distribution,V_distribution, Sref):    
     sin_aoa = np.sin(aoa_distribution)
     cos_aoa = np.cos(aoa_distribution)
 
@@ -312,13 +326,7 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord
     DT = np.atleast_2d(np.sum(D,axis=1)).T
 
     CL = 2*LT/(0.5*Sref)
-    CD = 16*DT/(Sref)
-    
-    Lift_distribution = cl*chord_distribution*q_distribution
-    Drag_distribution = cd*chord_distribution*q_distribution 
-    
-    Lift = 2 * np.sum(Lift_distribution)
-    Drag = 2 * np.sum(Drag_distribution)     
+    CD = 16*DT/(Sref) 
     
     return  CL ,  CD , cl , cd 
 

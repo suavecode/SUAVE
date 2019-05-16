@@ -227,22 +227,25 @@ class Vortex_Lattice(Aerodynamics):
         geometry   = self.geometry
         
         # Evaluate the VLM
-        lift_coefficients, drag_coefficients, wing_lifts, wing_drags = \
+        lift_coefficients, drag_coefficients, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
             settings.call_function(conditions,settings,geometry)
         
         # Pack
-        inviscid_wings_lift                                              = Data()
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
+        inviscid_wings_lift                                                  = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift           = Data()
+                                                                             
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total     = lift_coefficients
+        conditions.aerodynamics.lift_coefficient                             = lift_coefficients
         
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = lift_coefficients
-        state.conditions.aerodynamics.lift_coefficient                   = lift_coefficients
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift           = wing_lifts
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift = wing_lift_distribution
+        conditions.aerodynamics.lift_coefficient_wing                        = wing_lifts
         
-        state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lifts
-        state.conditions.aerodynamics.lift_coefficient_wing              = wing_lifts
+        conditions.aerodynamics.drag_coefficient_wing                        = wing_drags
+        conditions.aerodynamics.drag_breakdown.induced.total                 = drag_coefficients
+        conditions.aerodynamics.drag_breakdown.induced.wings_sectional_drag  = wing_drag_distribution 
         
-        state.conditions.aerodynamics.drag_coefficient_wing              = wing_drags
-        conditions.aerodynamics.drag_breakdown.induced.total             = drag_coefficients
-
+        conditions.aerodynamics.pressure_coefficient                         = pressure_coefficient
         return 
     
     
@@ -276,9 +279,11 @@ class Vortex_Lattice(Aerodynamics):
         konditions.aerodynamics = Data()
         konditions.aerodynamics.angle_of_attack = training.angle_of_attack
         
-        # Get the training data
-        total_lift, total_drag, wing_lifts, wing_drags = settings.call_function(konditions,settings,geometry)
+        # Get the training data        
+        total_lift, total_drag, wing_lifts, wing_drags , wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
+            settings.call_function(konditions,settings,geometry)
         
+        # surrogate not run on sectional coefficients and pressure coefficients
         # Store training data
         training.lift_coefficient = total_lift
         training.drag_coefficient = total_drag
@@ -368,7 +373,7 @@ def calculate_VLM(conditions,settings,geometry):
     wing_lifts = Data()
     wing_drags = Data()
     
-    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing= VLM(conditions,settings,geometry)
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_sec , cd_sec , CPi = VLM(conditions,settings,geometry)
 
     ii = 0
     for wing in geometry.wings.values():
@@ -380,7 +385,7 @@ def calculate_VLM(conditions,settings,geometry):
             wing_drags[wing.tag] += 1*(np.atleast_2d(CDi_wing[:,ii]).T)
             ii+=1
 
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_sec , cd_sec , CPi
 
 
 
@@ -409,15 +414,18 @@ def calculate_weissinger(conditions,settings,geometry):
     # iterate over wings
     wing_lifts = Data()
     wing_drags = Data()
+    wing_lift_distribution = Data()
+    wing_drag_distribution = Data()    
     
     total_lift_coeff         = 0.
     total_induced_drag_coeff = 0.
 
     for wing in geometry.wings.values():
-        [wing_lift_coeff,wing_drag_coeff] =  weissinger_VLM(conditions,settings,wing,propulsors)
+        wing_lift_coeff,wing_drag_coeff, cl, cd  =  weissinger_VLM(conditions,settings,wing,propulsors)
         total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
         total_induced_drag_coeff += wing_drag_coeff * wing.areas.reference / vehicle_reference_area
         wing_lifts[wing.tag] = wing_lift_coeff
         wing_drags[wing.tag] = wing_drag_coeff
-
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags
+        wing_lift_distribution[wing.tag] = cl
+        wing_drag_distribution[wing.tag] = cd   
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, 0
