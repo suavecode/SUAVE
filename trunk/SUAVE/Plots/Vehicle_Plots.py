@@ -82,7 +82,7 @@ def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "VL
     
     n_cw = + 1
     n_sw = + 1
-    n_w = 
+    n_w = 1
     X = np.reshape(data.X, (9, 12))
     Y = np.reshape(data.Y, (9, 12))
     Z = np.reshape(data.Z, (9, 12))

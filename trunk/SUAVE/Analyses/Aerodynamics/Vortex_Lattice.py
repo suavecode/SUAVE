@@ -233,6 +233,7 @@ class Vortex_Lattice(Aerodynamics):
         # Pack
         inviscid_wings_lift                                                  = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift           = Data()
+        conditions.aerodynamics.drag_breakdown.induced                       = Data()
                                                                              
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total     = lift_coefficients
         conditions.aerodynamics.lift_coefficient                             = lift_coefficients

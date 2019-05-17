@@ -250,7 +250,7 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
                         va_old        = va_old[:,:cut_off]
                         r_old         =  r_old[:cut_off] 
                         d_old         =  d_old[:cut_off] 
-                        r_div_r_prime_old = r_div_r_prime_old[:,cut_off]
+                        r_div_r_prime_old = r_div_r_prime_old[:,:cut_off]
                     
                     # changes the discretization on propeller diameter to match the discretization on the wing   
                     D_old = np.ones((m,1)) *d_old 
@@ -285,9 +285,11 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
         q_distribution =  0.5*rho*V_distribution*V_distribution
         CL , CD , Cl, Cd = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord_distribution, V_distribution,Sref)            
     
-    else:    
-        Cl               = np.zeros((m,n))
-        Cd               = np.zeros((m,n))   
+    else: 
+        CL = 0 
+        CD = 0 
+        Cl = np.zeros((m,n))
+        Cd = np.zeros((m,n))   
     
     return   CL , CD , Cl, Cd
         
