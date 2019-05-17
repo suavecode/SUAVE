@@ -4,6 +4,7 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
 #           Nov 2018, T. MacDonald
+#           May 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -49,8 +50,7 @@ def initialize_conditions(segment):
     # check for initial altitude
     if alt is None:
         if not segment.state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude = alt     
+        alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]    
     segment.state.conditions.freestream.altitude[:,0] = alt
     
     # Update freestream to get speed of sound
