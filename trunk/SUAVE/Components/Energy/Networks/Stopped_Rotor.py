@@ -294,6 +294,15 @@ class Stopped_Rotor(Propulsor):
         conditions.propulsion.battery_energy           = battery_energy
         conditions.propulsion.voltage_open_circuit     = voltage_open_circuit
         conditions.propulsion.voltage_under_load       = voltage_under_load      
+        conditions.propulsion.battery_efficiency       = (battery_draw+battery.resistive_losses)/battery_draw
+        conditions.propulsion.payload_efficiency       = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw
+        conditions.propulsion.electronics_efficiency   =  -(P_forward*num_forward+P_lift*num_lift)/battery_draw
+        #conditions.propulsion.propeller_power_lift     = P_lift
+        #conditions.propulsion.propeller_thrust_lift    = F_lift
+        #conditions.propulsion.propeller_power_forward  = P_forward
+        
+        
+        
         
         # Calculate the thrust and mdot
         F_lift_total    = F_lift*num_lift * [np.cos(self.thrust_angle_lift),0,-np.sin(self.thrust_angle_lift)]    
@@ -306,6 +315,15 @@ class Stopped_Rotor(Propulsor):
         results.thrust_force_vector = F_total
         results.vehicle_mass_rate   = mdot
         
+        
+        conditions.propulsion.propeller_power_lift     = P_lift*num_lift
+        conditions.propulsion.propeller_thrust_lift    = F_lift*num_lift
+        conditions.propulsion.propeller_power_forward  = P_forward*num_forward
+        
+        conditions.propulsion.propeller_thrust_coefficient = Cp_forward
+        conditions.propulsion.propeller_power_coefficient_lift  = Cp_lift        
+        conditions.propulsion.propeller_thrust_coefficient_lift  = noise_lift.Ct
+
         return results
     
     def unpack_unknowns_transition(self,segment):

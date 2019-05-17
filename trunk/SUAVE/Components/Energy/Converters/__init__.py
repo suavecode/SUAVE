@@ -12,6 +12,7 @@ from .Fuel_Cell                  import Fuel_Cell
 from .Motor                      import Motor
 from .Motor_Lo_Fid               import Motor_Lo_Fid
 from .Propeller                  import Propeller
+from .Propeller_corr             import Propeller_corr
 from .Propeller_Lo_Fid           import Propeller_Lo_Fid
 from .Internal_Combustion_Engine import Internal_Combustion_Engine
 from .Ram                        import Ram
