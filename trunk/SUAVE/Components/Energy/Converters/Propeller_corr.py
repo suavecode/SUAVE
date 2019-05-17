@@ -67,7 +67,7 @@ class Propeller_corr(Energy_Component):
         self.rotation                 = None
         self.ducted                   = False
         self.induced_power_factor     = 1.48  #accounts for interference effeces
-        self.profile_drag_coefficienct = .03
+        self.profile_drag_coefficient = .03
         self.tag                      = 'Propeller'
         
     def spin(self,conditions):
@@ -350,7 +350,7 @@ class Propeller_corr(Energy_Component):
         Ct       = thrust/(rho*(n*n)*(D*D*D*D))
         Ct[Ct<0] = 0.        #prevent things from breaking
         kappa    = self.induced_power_factor 
-        Cd0      = self.profile_drag_coefficienct   
+        Cd0      = self.profile_drag_coefficient   
         Cp    = np.zeros_like(Ct)
         power = np.zeros_like(Ct)        
         for i in range(len(Vv)):
