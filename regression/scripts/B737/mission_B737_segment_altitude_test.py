@@ -1,9 +1,8 @@
 # mission_B737.py
 # 
-# Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2016, T. MacDonald
+# Created:  May 2019, T. MacDonald
 
-""" setup file for a mission with a 737
+""" Tests if altitude can be properly set mid mission
 """
 
 
@@ -86,7 +85,7 @@ def main():
     # plt the old results
     #save_results(results)
     plot_mission(results)
-    #plot_mission(old_results,'k-')
+    plot_mission(old_results,'k-')
     plt.show(block=True)
     # check the results
     check_results(results,old_results)
@@ -204,10 +203,10 @@ def plot_mission(results,line_style='bo-'):
     axis_font = {'fontname':'Arial', 'size':'14'}    
 
     # ------------------------------------------------------------------
-    #   Altitude,sfc,vehiclde weight
+    #   Altitude and Airspeed
     # ------------------------------------------------------------------
 
-    fig = plt.figure("Altitude_sfc_weight",figsize=(8,6))
+    fig = plt.figure("Altitude and Airspeed",figsize=(8,6))
     for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -342,6 +341,25 @@ def mission_setup(analyses):
 
     # add to mission
     mission.append_segment(segment)
+    
+    # ------------------------------------------------------------------
+    #   Second Climb Segment: constant Mach, constant segment angle 
+    # ------------------------------------------------------------------
+
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb_2"
+
+    segment.analyses.extend( analyses.takeoff )
+
+    segment.altitude_start = 10000 * Units.ft
+    segment.altitude_end   = 20000 * Units.ft
+    segment.air_speed      =   300 * Units.knots
+    segment.climb_rate     =  1000 * Units['ft/min']
+
+    segment.state.numerics.number_control_points = 4
+
+    # add to misison
+    mission.append_segment(segment)    
 
     # ------------------------------------------------------------------
     #   Mission definition complete    
@@ -447,10 +465,10 @@ def check_results(new_results,old_results):
 
 
 def load_results():
-    return SUAVE.Input_Output.SUAVE.load('results_mission_B737.res')
+    return SUAVE.Input_Output.SUAVE.load('results_altitude_check_B737.res')
 
 def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_B737.res')
+    SUAVE.Input_Output.SUAVE.archive(results,'results_altitude_check_B737.res')
     return
 
 if __name__ == '__main__': 
