@@ -156,10 +156,8 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
                 x[idx] = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])  + 0.5*chord_distribution[idx]                         # computer three-quarter chord control points for each horseshoe vortex
                 y[idx] = (yb[0][idx] -  deltax[idx]/2)                
 
-                if y_coordinates[idx] == wing.Segments[i_seg+1].percent_span_location*span: 
+                if y_coordinates[idx+1] == wing.Segments[i_seg+1].percent_span_location*span: 
                     i_seg += 1                    
-                if y_coordinates[idx+1] == span:
-                    continue
 
             ya = np.atleast_2d(ya)  # y coordinate of start of horseshoe vortex on panel
             yb = np.atleast_2d(yb)  # y coordinate of end horseshoe vortex on panel

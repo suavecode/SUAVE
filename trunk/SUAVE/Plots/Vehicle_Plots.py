@@ -16,6 +16,54 @@ from mpl_toolkits.mplot3d import Axes3D
 # ------------------------------------------------------------------
 # Vortex Lattice Method Panelization 
 # ------------------------------------------------------------------
+def plot_vehicle_geometry(data, save_figure = False, save_filename = "Vehicle_Geometry"):    
+    X = data.X 
+    Y = data.Y 
+    Z = data.Z 
+        
+    fig = plt.figure()
+    axes = fig.add_subplot(2,2,1)
+    axes.plot(Y,X,'bo')  
+    axes.set_ylabel('chord ')
+    axes.set_xlabel('span ')
+    plt.axis('equal')
+    axes.grid(True)
+    
+    axes = fig.add_subplot(2,2,2)
+    axes.plot(X,Z,'bo')    
+    axes.set_ylabel('height ')
+    axes.set_xlabel('span ')
+    plt.axis('equal')
+    axes.grid(True)
+    
+    axes = fig.add_subplot(2,2,3)
+    axes.plot(Y,Z,'bo')    
+    axes.set_ylabel('height')
+    axes.set_xlabel('span ')
+    plt.axis('equal')
+    axes.grid(True)
+    
+    axes = fig.add_subplot(2,2,4,projection='3d')
+    axes.plot3D(X,Y,Z,'bo')
+    axes.set_zlabel('height')
+    axes.set_xlabel('chord ')
+    axes.set_ylabel('span ')
+    axes.grid(True)
+    
+    #axis scaling
+    max_range = np.array([data.X.max()-data.X.min(), data.Y.max()-data.Y.min(), data.Z.max()-data.Z.min()]).max() / 2.0    
+    mid_x = (data.X .max()+data.X .min()) * 0.5
+    mid_y = (data.Y .max()+data.Y .min()) * 0.5
+    mid_z = (data.Z .max()+data.Z .min()) * 0.5
+    axes.set_xlim(mid_x - max_range, mid_x + max_range)
+    axes.set_ylim(mid_y - max_range, mid_y + max_range)
+    axes.set_zlim(mid_z - max_range, mid_z + max_range)    
+    
+    return
+
+# ------------------------------------------------------------------
+# Vortex Lattice Method Panelization 
+# ------------------------------------------------------------------
 def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "VLM_Panelization"):     
 
     fig = plt.figure()
@@ -80,55 +128,7 @@ def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "VL
     axes.set_ylim(mid_y - max_range, mid_y + max_range)
     axes.set_zlim(mid_z - max_range, mid_z + max_range)      
     
-    n_cw = + 1
-    n_sw = + 1
-    n_w = 1
-    X = np.reshape(data.X, (9, 12))
-    Y = np.reshape(data.Y, (9, 12))
-    Z = np.reshape(data.Z, (9, 12))
-        
-    fig = plt.figure()
-    axes = fig.add_subplot(2,2,1)
-    axes.plot(Y,X,'bo')  
-    axes.set_ylabel('chord ')
-    axes.set_xlabel('span ')
-    plt.axis('equal')
-    axes.grid(True)
-    
-    axes = fig.add_subplot(2,2,2)
-    axes.plot(X,Z,'bo')    
-    axes.set_ylabel('height ')
-    axes.set_xlabel('span ')
-    plt.axis('equal')
-    axes.grid(True)
-    
-    axes = fig.add_subplot(2,2,3)
-    axes.plot(data.Y,data.Z,'bo')    
-    axes.set_ylabel('height')
-    axes.set_xlabel('span ')
-    plt.axis('equal')
-    axes.grid(True)
-    
-    axes = fig.add_subplot(2,2,4,projection='3d')
-    axes.plot3D(data.X,data.Y,data.Z,'bo') 
-    axes.set_zlabel('height')
-    axes.set_xlabel('chord ')
-    axes.set_ylabel('span ')
-    axes.grid(True)
-    
-    #axis scaling
-    max_range = np.array([data.XAH.max()-data.XAH.min(), data.YAH.max()-data.YAH.min(), data.ZAH.max()-data.ZAH.min()]).max() / 2.0    
-    mid_x = (data.XAH.max()+data.XAH.min()) * 0.5
-    mid_y = (data.YAH.max()+data.YAH.min()) * 0.5
-    mid_z = (data.ZAH.max()+data.ZAH.min()) * 0.5
-    axes.set_xlim(mid_x - max_range, mid_x + max_range)
-    axes.set_ylim(mid_y - max_range, mid_y + max_range)
-    axes.set_zlim(mid_z - max_range, mid_z + max_range)     
-    
-    
-    plt.show()
     return
-
 
 # ------------------------------------------------------------------
 #   Propeller Geoemtry 

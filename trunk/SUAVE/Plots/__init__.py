@@ -13,5 +13,6 @@ from .Mission_Plots import plot_propulsor_conditions
 from .Mission_Plots import plot_disc_power_loading
 from .Mission_Plots import plot_solar_flux
 
+from .Vehicle_Plots import plot_vehicle_geometry
 from .Vehicle_Plots import plot_vehicle_vlm_panelization
 from .Vehicle_Plots import plot_propeller_geometry

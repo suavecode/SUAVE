@@ -49,7 +49,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     ZC   = np.atleast_3d(data.ZC*ones)  
     n_w  = data.n_w
 
-    theta_w =  np.atleast_3d(theta_w) 
+    theta_w = np.atleast_3d(0)  #np.atleast_3d(theta_w) wake model set to freestream
     n_aoa   = np.shape(theta_w)[0]
     
     # -------------------------------------------------------------------------------------------
@@ -197,14 +197,18 @@ def vortex_to_inf_l(X,Y,Z,X1,Y1,Z1,tw):
     Z_Z1  = Z-Z1
 
 
-    DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y
+    DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y    
+    DENUM[DENUM==0] = 1e-32
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
     YVEC  =  (Z_Z1)/DENUM
     ZVEC  =  Y1_Y*np.cos(tw)/DENUM
     BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1)))
     RVEC   = np.array([XVEC, YVEC, ZVEC])
-    COEF  = (1/(4*np.pi))*RVEC*BRAC         
-
+    COEF  = (1/(4*np.pi))*RVEC*BRAC  
+    
+    if np.isnan(COEF).any():
+        print('NaN!')   
+        
     return COEF
 
 def vortex_to_inf_r(X,Y,Z,X1,Y1,Z1,tw):
@@ -216,11 +220,15 @@ def vortex_to_inf_r(X,Y,Z,X1,Y1,Z1,tw):
     Z_Z1  = Z-Z1    
 
     DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y
+    DENUM[DENUM==0] = 1e-32
     XVEC  = Y1_Y*np.sin(tw)/DENUM
     YVEC  = -Z_Z1/DENUM
     ZVEC  = -Y1_Y*np.cos(tw)/DENUM
     BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1+ Y_Y1*Y_Y1+ Z_Z1*Z_Z1)))
     RVEC   = np.array([XVEC, YVEC, ZVEC])
-    COEF  = (1/(4*np.pi))*RVEC*BRAC         
-
+    COEF  = (1/(4*np.pi))*RVEC*BRAC      
+    
+    if np.isnan(COEF).any():
+        print('NaN!')   
+        
     return COEF

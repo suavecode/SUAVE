@@ -57,7 +57,7 @@ def compute_vortex_distribution(geometry,settings):
     
     n_sw = settings.number_panels_spanwise 
     n_cw = settings.number_panels_chordwise     
-    VD_
+
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
     # ---------------------------------------------------------------------------------------    
@@ -199,24 +199,11 @@ def compute_vortex_distribution(geometry,settings):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
                 y_coordinates[idx] = section_stations[i_seg]                
  
-
-            #y_coordinates[(np.abs(y_coordinates-section_stations[:])).argmin()] = section_stations[:]
-                
             # ---------------------------------------------------------------------------------------
             # STEP 6A: Define coordinates of panels horseshoe vortices and control points 
             # ---------------------------------------------------------------------------------------
             del_y = y_coordinates[1:] - y_coordinates[:-1]
         
-            # trial 
-            #seg_idx = np.zeros(n_cw*n_sw) 
-            #i_seg = 0
-            #for idx_y in range(n_sw):
-                #if y_coordinates[idx_y] == wing.Segments[i_seg+1].percent_span_location*span: 
-                    #i_seg += 1                
-                #seg_idx[idx_y] = i_seg   
-                ##if y_coordinates[idx_y+1] == span:
-                    ##continue  
-                
             # define coordinates of horseshoe vortices and control points
             i_seg = 0           
             for idx_y in range(n_sw):
@@ -314,7 +301,6 @@ def compute_vortex_distribution(geometry,settings):
                 zeta_prime_ch  = zeta_LE   - np.sin(section_twist)*(xi_ch-xi_LE)     + np.cos(-section_twist)*(zeta_ch-zeta_LE)            # z coordinate transformation of center of horseshoe
                                        
                 # ** TO DO ** Get flap/aileron locations and deflection
-                
                 # store coordinates of panels, horseshoeces vortices and control points relative to wing root 
                 if vertical_wing:
                     xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
@@ -400,11 +386,9 @@ def compute_vortex_distribution(geometry,settings):
                 
                 cs_w[idx_y] = wing_chord_section       
             
-                if y_coordinates[idx_y] == wing.Segments[i_seg+1].percent_span_location*span: 
-                    i_seg += 1                
-                if y_coordinates[idx_y+1] == span:
-                    continue 
-                
+                if y_b[idx_y] == section_stations[i_seg+1]: 
+                    i_seg += 1      
+                    
             if vertical_wing:    
                 x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
                 z[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
@@ -1083,7 +1067,7 @@ def compute_vortex_distribution(geometry,settings):
         VD.Y    = np.append(VD.Y  ,fhs_y )  
         VD.Z    = np.append(VD.Z  ,fhs_z )
                 
-        ## Vertical Fuselage Sections 
+        ## Vertical Fuselage Sections currently leads to large errors 
         #wing_areas.append(fus_v_area)
         #wing_areas.append(fus_v_area)
         
@@ -1162,6 +1146,8 @@ def compute_vortex_distribution(geometry,settings):
         #VD.Z    = np.append(VD.Z  ,fvs_z ) 
         
     VD.n_w  = n_w
+    VD.n_sw = n_sw
+    VD.n_cw = n_cw    
     VD.n_cp = n_cp    
     VD.wing_areas = wing_areas     
     VD.Stot = sum(wing_areas)

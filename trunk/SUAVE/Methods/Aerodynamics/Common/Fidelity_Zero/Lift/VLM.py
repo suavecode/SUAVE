@@ -15,17 +15,16 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units
-import time
+import matplotlib.pyplot as plt #**** need to remove once complete 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import  compute_induced_velocity_matrix
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
-from SUAVE.Plots import plot_vehicle_vlm_panelization
+from SUAVE.Plots import plot_vehicle_vlm_panelization , plot_vehicle_geometry
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def VLM(conditions,settings,geometry):
-    ti = time.time()
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
     Assumptions:
@@ -103,7 +102,8 @@ def VLM(conditions,settings,geometry):
     VD = compute_vortex_distribution(geometry,settings)       
      
     # Plot vortex discretization of vehicle
-    plot_vehicle_vlm_panelization(VD)
+    #plot_vehicle_vlm_panelization(VD)
+    #plot_vehicle_geometry(VD)
     
     # Build induced velocity matrix, C_mn
     C_mn, DW_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)
@@ -193,35 +193,5 @@ def VLM(conditions,settings,geometry):
      
     # moment coefficient
     CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
-     
-    tf = time.time()
-    print ('Time taken for VLM: ' + str(tf-ti)) 
-    
-    # Debugging 
-    print("Calculate the Coefficients on each wing individually")
-    print(L_wing  )
-    print(CL_wing ) 
-    print(Di_wing ) 
-    print(CDi_wing) 
-    
-    print("Calculate each spanwise set of Cls and Cds")
-    print(cl_sec)
-    print(cd_sec)
-    
-    print( "Cls and Cds for each wing")
-    print(Cl_wings) 
-    print(Cd_wings) 
-            
-    print("total lift and lift coefficient")
-    print(L )
-    print(CL)
-    
-    print("total drag and drag coefficient")
-    print(D  )
-    print(CDi) 
-     
-    print("moment coefficient")
-    print(CM)
-    
     
     return CL, CDi, CM, Cl_wing, Cdi_wing, cl_sec , cd_sec , CPi 
