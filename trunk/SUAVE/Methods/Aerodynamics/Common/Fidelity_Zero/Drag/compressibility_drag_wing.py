@@ -3,7 +3,7 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Nov 2016, T. MacDonald
-#        
+#           May 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -53,11 +53,9 @@ def compressibility_drag_wing(state,settings,geometry):
     
     wing = geometry
     if wing.tag == 'main_wing':
-        wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
-    elif wing.vertical:
-        wing_lifts = 0
+        cl_w = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
     else:
-        wing_lifts = 0.15 * conditions.aerodynamics.lift_breakdown.compressible_wings
+        cl_w = 0
         
     mach           = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
@@ -68,12 +66,6 @@ def compressibility_drag_wing(state,settings,geometry):
     # unpack wing
     t_c_w   = wing.thickness_to_chord
     sweep_w = wing.sweeps.quarter_chord
-    
-    # Currently uses vortex lattice model on all wings
-    if wing.tag=='main_wing':
-        cl_w = wing_lifts
-    else:
-        cl_w = 0
         
     cos_sweep = np.cos(sweep_w)
 
