@@ -4,6 +4,7 @@
 # Modified: Jun 2014, SUAVE Team
 #           Jul 2017, SUAVE Team
 #           Jan 2018, SUAVE Team
+#           May 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -42,6 +43,7 @@ modules = [
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
     'scripts/B737/mission_B737.py',
+    'scripts/B737/mission_B737_segment_altitude_test.py',
     'scripts/battery/battery.py',
     'scripts/cmalpha/cmalpha.py',
     'scripts/cnbeta/cnbeta.py',    
