@@ -176,7 +176,7 @@ def energy_network():
     # to compute thrust
     
     # instantiate
-    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    thrust = SUAVE.Components.Energy.Processes.Gas_Turbine_Thrust()       
     thrust.tag ='thrust'
     
     # setup

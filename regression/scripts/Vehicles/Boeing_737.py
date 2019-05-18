@@ -414,7 +414,7 @@ def vehicle_setup():
     
     # ------------------------------------------------------------------
     #Component 10 : thrust (to compute the thrust)
-    thrust = SUAVE.Components.Energy.Processes.Thrust()       
+    thrust = SUAVE.Components.Energy.Processes.Gas_Turbine_Thrust()       
     thrust.tag ='compute_thrust'
  
     #total design thrust (includes all the engines)

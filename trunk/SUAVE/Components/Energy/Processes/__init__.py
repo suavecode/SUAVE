@@ -8,5 +8,5 @@
 # Modified: Feb 2016, T. MacDonald
 
 from .Solar_Radiation import Solar_Radiation
-from .Thrust import Thrust
+from .Gas_Turbine_Thrust import Gas_Turbine_Thrust
 from .Rocket_Thrust import Rocket_Thrust
