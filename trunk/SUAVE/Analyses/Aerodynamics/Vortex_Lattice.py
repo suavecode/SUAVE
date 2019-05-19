@@ -22,7 +22,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.weissinger_VLM import 
 from .Aerodynamics import Aerodynamics
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
 from SUAVE.Plots import plot_vehicle_vlm_panelization
-
+from SUAVE.Plots import plot_vehicle_geometry
 # package imports
 import numpy as np
 
@@ -62,6 +62,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.use_surrogate            = True
         self.settings.use_weissinger           = True
         self.settings.plot_vortex_distribution = False
+        self.settings.plot_vehicle             = False
         self.settings.vortex_distribution      = Data()
         self.settings.call_function            = None
 
@@ -118,6 +119,10 @@ class Vortex_Lattice(Aerodynamics):
         if settings.plot_vortex_distribution == True:
             plot_vehicle_vlm_panelization(VD)        
         
+        # Plot vortex discretization of vehicle
+        if settings.plot_vehicle == True:
+            plot_vehicle_geometry(VD)    
+                
         # If we are using the surrogate
         if self.settings.use_surrogate == True:
             
@@ -180,16 +185,16 @@ class Vortex_Lattice(Aerodynamics):
             wing_drags[key] = wing_CD_surrogates[key](AoA)
         
         # Pack
-        inviscid_wings_lift                                              = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
+        conditions.aerodynamics.drag_breakdown.induced                   = Data()
         
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = lift_coefficients
-        state.conditions.aerodynamics.lift_coefficient                   = lift_coefficients
-        
-        state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = wing_lifts
-        state.conditions.aerodynamics.lift_coefficient_wing              = wing_lifts
-        
-        state.conditions.aerodynamics.drag_coefficient_wing              = wing_drags
+        conditions.aerodynamics.lift_coefficient                         = lift_coefficients
+                                                                         
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = wing_lifts
+        conditions.aerodynamics.lift_coefficient_wing                    = wing_lifts
+                                                                         
+        conditions.aerodynamics.drag_coefficient_wing                    = wing_drags
         conditions.aerodynamics.drag_breakdown.induced.total             = drag_coefficients
         
         
@@ -231,7 +236,6 @@ class Vortex_Lattice(Aerodynamics):
             settings.call_function(conditions,settings,geometry)
         
         # Pack
-        inviscid_wings_lift                                                  = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift           = Data()
         conditions.aerodynamics.drag_breakdown.induced                       = Data()
                                                                              
@@ -244,6 +248,7 @@ class Vortex_Lattice(Aerodynamics):
         
         conditions.aerodynamics.drag_coefficient_wing                        = wing_drags
         conditions.aerodynamics.drag_breakdown.induced.total                 = drag_coefficients
+        conditions.aerodynamics.drag_breakdown.induced.wings_drag            = wing_drags
         conditions.aerodynamics.drag_breakdown.induced.wings_sectional_drag  = wing_drag_distribution 
         
         conditions.aerodynamics.pressure_coefficient                         = pressure_coefficient

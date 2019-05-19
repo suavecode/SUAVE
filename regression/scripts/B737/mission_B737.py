@@ -69,7 +69,7 @@ def main():
     #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
 
     # load older results
-    #save_results(results)
+    # save_results(results)
     old_results = load_results()   
 
     # plt the old results
@@ -189,22 +189,22 @@ def base_analysis(vehicle):
 def plot_mission(results,line_color):
 
     # Plot Flight Conditions 
-    plot_flight_conditions(results,line_color, save_figure= True)
+    plot_flight_conditions(results)
     
     # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results,line_color, save_figure= True)
+    plot_aerodynamic_forces(results)
     
     # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results,line_color, save_figure= True)
+    plot_aerodynamic_coefficients(results)
     
     # Drag Components
-    plot_drag_components(results,line_color, save_figure= True)
+    plot_drag_components(results)
     
     # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results,line_color, save_figure= True)
+    plot_altitude_sfc_weight(results)
     
     # Plot Velocities 
-    plot_aircraft_velocities(results,line_color, save_figure= True)  
+    plot_aircraft_velocities(results)  
     return
 
 def simple_sizing(configs, analyses):
@@ -281,7 +281,7 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
-
+    base_segment.state.numerics.number_control_points        = 4  
 
     # ------------------------------------------------------------------
     #   First Climb Segment: constant Mach, constant segment angle 

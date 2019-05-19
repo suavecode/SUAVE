@@ -21,7 +21,7 @@ def plot_vehicle_geometry(data, save_figure = False, save_filename = "Vehicle_Ge
     Y = data.Y 
     Z = data.Z 
         
-    fig = plt.figure()
+    fig = plt.figure(save_filename)
     axes = fig.add_subplot(2,2,1)
     axes.plot(Y,X,'bo')  
     axes.set_ylabel('chord ')
@@ -66,7 +66,7 @@ def plot_vehicle_geometry(data, save_figure = False, save_filename = "Vehicle_Ge
 # ------------------------------------------------------------------
 def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "VLM_Panelization"):     
 
-    fig = plt.figure()
+    fig = plt.figure(save_filename)
     axes = fig.add_subplot(2,2,1)
     axes.plot(data.YA1,data.XA1,'bo') 
     axes.plot(data.YA2,data.XA2,'rx')

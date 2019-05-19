@@ -284,8 +284,8 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
         CL , CD , Cl, Cd = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord_distribution, V_distribution,Sref)            
     
     else: 
-        CL = 0 
-        CD = 0 
+        CL = np.zeros((m,1))
+        CD = np.zeros((m,1))
         Cl = np.zeros((m,n))
         Cd = np.zeros((m,n))   
     
@@ -325,8 +325,8 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord
     LT = np.atleast_2d(np.sum(L,axis=1)).T
     DT = np.atleast_2d(np.sum(D,axis=1)).T
 
-    CL = 2*LT/(0.5*Sref)
-    CD = 16*DT/(Sref) 
+    CL = 2*LT/(Sref)
+    CD = 8*DT/(Sref) 
     
     return  CL ,  CD , cl , cd 
 

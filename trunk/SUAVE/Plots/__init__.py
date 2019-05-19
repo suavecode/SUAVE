@@ -9,7 +9,8 @@ from .Mission_Plots import plot_drag_components
 from .Mission_Plots import plot_altitude_sfc_weight
 from .Mission_Plots import plot_aircraft_velocities
 from .Mission_Plots import plot_electronic_conditions
-from .Mission_Plots import plot_propulsor_conditions
+from .Mission_Plots import plot_proppeller_conditions 
+from .Mission_Plots import plot_eMotor_Prop_efficiencies
 from .Mission_Plots import plot_disc_power_loading
 from .Mission_Plots import plot_solar_flux
 

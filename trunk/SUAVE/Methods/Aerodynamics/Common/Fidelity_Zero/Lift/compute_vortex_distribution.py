@@ -1103,9 +1103,9 @@ def compute_vortex_distribution(geometry,settings):
         #fvs_xc  = np.concatenate([fvs_xc , fvs_xc ])
         #fvs_yc  = np.concatenate([fvs_yc , fvs_yc ])
         #fvs_zc  = np.concatenate([fvs_zc ,-fvs_zc ])
-        #fvs_x   = np.concatenate([fhs_x  , fhs_x  ])
-        #fvs_y   = np.concatenate([fhs_y  , fhs_y ])
-        #fvs_z   = np.concatenate([fhs_z  , -fhs_z  ])         
+        fvs_x   = np.concatenate([fhs_x  , fhs_x  ])
+        fvs_y   = np.concatenate([fhs_y  , fhs_y ])
+        fvs_z   = np.concatenate([fhs_z  , -fhs_z  ])         
         #n_cp += len(fvs_xch)
         #n_w  += 2 
         
@@ -1141,9 +1141,9 @@ def compute_vortex_distribution(geometry,settings):
         #VD.YC   = np.append(VD.YC ,fvs_yc)
         #VD.ZC   = np.append(VD.ZC ,fvs_zc)  
         #VD.CS   = np.append(VD.CS ,fvs_cs)     
-        #VD.X    = np.append(VD.X  ,fvs_x )
-        #VD.Y    = np.append(VD.Y  ,fvs_y )
-        #VD.Z    = np.append(VD.Z  ,fvs_z ) 
+        VD.X    = np.append(VD.X  ,fvs_x )
+        VD.Y    = np.append(VD.Y  ,fvs_y )
+        VD.Z    = np.append(VD.Z  ,fvs_z ) 
         
     VD.n_w  = n_w
     VD.n_sw = n_sw

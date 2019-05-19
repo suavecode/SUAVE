@@ -49,7 +49,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     ZC   = np.atleast_3d(data.ZC*ones)  
     n_w  = data.n_w
 
-    theta_w = np.atleast_3d(0)  #np.atleast_3d(theta_w) wake model set to freestream
+    theta_w = np.atleast_3d(theta_w) #wake model set to freestream
     n_aoa   = np.shape(theta_w)[0]
     
     # -------------------------------------------------------------------------------------------
@@ -171,11 +171,8 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
     R1R2X  =   Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
     R1R2Y  = -(X_X1*Z_Z2 - Z_Z1*X_X2)
     R1R2Z  =   X_X1*Y_Y2 - Y_Y1*X_X2
-
     SQUARE = R1R2X*R1R2X + R1R2Y*R1R2Y + R1R2Z*R1R2Z
-
     SQUARE[SQUARE==0] = 1e-32
-
     R1     = np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1) 
     R2     = np.sqrt(X_X2*X_X2 + Y_Y2*Y_Y2 + Z_Z2*Z_Z2) 
     R0R1   = X2_X1*X_X1 + Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1
@@ -195,7 +192,6 @@ def vortex_to_inf_l(X,Y,Z,X1,Y1,Z1,tw):
     Y_Y1  = Y-Y1
     Y1_Y  = Y1-Y
     Z_Z1  = Z-Z1
-
 
     DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y    
     DENUM[DENUM==0] = 1e-32

@@ -145,8 +145,6 @@ def VLM(conditions,settings,geometry):
     X_M        = np.ones(n_cp)*x_m  *ones
     CL_wing    = np.zeros(n_w)
     CDi_wing   = np.zeros(n_w)
-    Cl_wing    = np.zeros(n_w*n_sw)
-    Cdi_wing   = np.zeros(n_w*n_sw)
     
     Del_Y = np.abs(VD.YB1 - VD.YA1)*ones
     
@@ -194,4 +192,4 @@ def VLM(conditions,settings,geometry):
     # moment coefficient
     CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
     
-    return CL, CDi, CM, Cl_wing, Cdi_wing, cl_sec , cd_sec , CPi 
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_sec , cd_sec , CPi 
