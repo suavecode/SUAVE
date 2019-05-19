@@ -254,7 +254,7 @@ class Trust_Region_Optimization(Data):
                     xOpt_corr = con_outputs[1]
                     new_outputs = self.evaluate_corrected_model(x, problem=problem,corrections=corrections,tr=tr)
         
-                    fOpt_corr = new_outputs[0][0][0]
+                    fOpt_corr = new_outputs[0][0]
                     gOpt_corr = np.zeros([1,len(con)])[0]   
                     for ii in range(len(con)):
                         gOpt_corr[ii] = new_outputs[1][ii]

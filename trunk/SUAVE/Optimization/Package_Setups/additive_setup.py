@@ -12,6 +12,8 @@ import numpy as np
 import SUAVE
 try:
     import pyOpt
+    import pyOpt.pySNOPT
+    import pyOpt.pyALPSO
 except:
     pass
 import sklearn
@@ -294,8 +296,8 @@ def evaluate_corrected_model(x,problem=None,obj_surrogate=None,cons_surrogate=No
     const = problem.all_constraints(x).tolist()
     fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
     
-    obj_addition  = obj_surrogate.predict(x)
-    cons_addition = cons_surrogate.predict(x)
+    obj_addition  = obj_surrogate.predict(np.atleast_2d(x))
+    cons_addition = cons_surrogate.predict(np.atleast_2d(x))
     
     obj   = obj + obj_addition
     const = const + cons_addition
@@ -343,8 +345,8 @@ def evaluate_expected_improvement(x,problem=None,obj_surrogate=None,cons_surroga
     fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
     
     # Get uncertainty information
-    obj_addition, obj_sigma   = obj_surrogate.predict(x,return_std=True)
-    cons_addition, cons_sigma = cons_surrogate.predict(x,return_std=True)
+    obj_addition, obj_sigma   = obj_surrogate.predict(np.atleast_2d(x),return_std=True)
+    cons_addition, cons_sigma = cons_surrogate.predict(np.atleast_2d(x),return_std=True)
     
     fhat  = obj[0] + obj_addition
     # Calculate expected improvement (based on Schonlau, Computer Experiments and Global Optimization, 1997)
@@ -552,7 +554,7 @@ def initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con
         opt_prob.addObj('f',100) 
     for ii in range(0,len(inp)):
         vartype = 'c'
-        if x_eval == None:
+        if x_eval is None:
             opt_prob.addVar(nam[ii],vartype,lower=x_low_bound[ii],upper=x_up_bound[ii]) 
         else:
             opt_prob.addVar(nam[ii],vartype,lower=x_low_bound[ii],upper=x_up_bound[ii],value=x_eval[ii])    
