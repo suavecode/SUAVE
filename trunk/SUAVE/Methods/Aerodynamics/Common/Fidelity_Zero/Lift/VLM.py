@@ -100,11 +100,7 @@ def VLM(conditions,settings,geometry):
    
     # generate vortex distribution
     VD = compute_vortex_distribution(geometry,settings)       
-     
-    # Plot vortex discretization of vehicle
-    #plot_vehicle_vlm_panelization(VD)
-    #plot_vehicle_geometry(VD)
-    
+        
     # Build induced velocity matrix, C_mn
     C_mn, DW_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)
 

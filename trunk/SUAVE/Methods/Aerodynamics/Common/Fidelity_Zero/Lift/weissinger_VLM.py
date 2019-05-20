@@ -326,7 +326,7 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord
     DT = np.atleast_2d(np.sum(D,axis=1)).T
 
     CL = 2*LT/(Sref)
-    CD = 8*DT/(Sref) 
+    CD = 2*DT/(Sref) 
     
     return  CL ,  CD , cl , cd 
 

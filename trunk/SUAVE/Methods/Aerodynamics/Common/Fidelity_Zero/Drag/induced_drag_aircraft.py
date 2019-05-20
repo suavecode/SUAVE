@@ -52,15 +52,18 @@ def induced_drag_aircraft(state,settings,geometry):
     K             = configuration.viscous_lift_dependent_drag_factor
     CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
     CDi           = conditions.aerodynamics.drag_breakdown.induced.total    
+    ar            = geometry.wings['main_wing'].aspect_ratio 
     
     # compute span efficiency factor from invisid calculations
     e = (CDi*np.pi*ar)/(CL**2)
     
     # compute osward efficiency factor
-    if e0 == None:
-        e0 = 1/((1/e)+np.pi*ar*K*CDp)
+    e0 = 1/((1/e)+np.pi*ar*K*CDp)
    
     configuration.oswald_efficiency_factor = e0 
     conditions.aerodynamics.drag_breakdown.induced.span_efficiency_factor = e
 
+    # temporarily rewriting CDi
+    total_induced_drag = CL**2 / (np.pi*ar*e)     
+    conditions.aerodynamics.drag_breakdown.induced.total = total_induced_drag 
     return CDi
