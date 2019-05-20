@@ -52,7 +52,7 @@ def compressibility_drag_wing(state,settings,geometry):
     configuration = settings    # unused
     
     wing = geometry
-    if wing.tag == 'main_wing':
+    if isinstance(wing,Wings.Main_Wing):
         cl_w = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
     else:
         cl_w = 0
@@ -97,7 +97,7 @@ def compressibility_drag_wing(state,settings,geometry):
     cd_c = dcdc_cos3g * cos_sweep*cos_sweep*cos_sweep
     
     # increment
-    #total_compressibility_drag += cd_c
+    total_compressibility_drag += cd_c
     
     # dump data to conditions
     wing_results = Data(
