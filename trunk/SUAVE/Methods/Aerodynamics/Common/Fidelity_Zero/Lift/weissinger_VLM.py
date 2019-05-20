@@ -183,7 +183,7 @@ def weissinger_VLM(conditions,configuration,wing):
         DT = np.atleast_2d(np.sum(D,axis=1)).T
         
         CL = 2*LT/(0.5*Sref)
-        CD = 16*DT/(Sref)
+        CD = 8*DT/(Sref)
         
         #cl = L/(0.5*chord_distri) 
         #cdi = D/(0.5*chord_distri)      

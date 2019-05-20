@@ -178,7 +178,13 @@ def size_from_PGM(vehicle):
                 
                 # Split the number of passengers over the vehicle
                 #fuse.number_coach_seats = vehicle.passengers/n_fuses
-                fuse.differential_pressure = 55. * 1000.* Units.pascals       
+                fuse.differential_pressure = 55. * 1000.* Units.pascals 
+                fuse.seat_pitch            = 31. * Units.inch
+                
+                # If we've got a concorde
+                if vehicle.performance.vector[0][2]>344.:
+                        fuse.seat_pitch            = 38. * Units.inch
+                        
                 
                 # Calculate seats abreast
                 bins  = np.floor(fuse.width/0.53)
@@ -699,6 +705,7 @@ def fix_wing_segments(wing):
                                 
                 if spanwise_locs[indices[-1]]>(1.-1E-3):
                         segs[indices[0]].percent_span_location = 1.
+                        
                                         
                 
                 new_container.append(seg_m1)
@@ -710,8 +717,11 @@ def fix_wing_segments(wing):
         for seg in new_container:
                 for ii, key in enumerate(keys):
                         val = new_container[seg].deep_get(key)
+                        
+                        if np.isnan(val): val = 0.; new_container[seg].deep_set(key,0.)
                         if val < min_bounds[ii]: new_container[seg].deep_set(key,min_bounds[ii])
                         if val > max_bounds[ii]: new_container[seg].deep_set(key,max_bounds[ii])
+                        
 
         # Change the container out
         wing.Segments = new_container
