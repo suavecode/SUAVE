@@ -204,7 +204,8 @@ class AVL_Inviscid(Aerodynamics):
             total                  = inviscid_drag   ,
             span_efficiency_factor = span_efficiency ,
         )        
-                
+        
+
         return inviscid_lift  
         
 

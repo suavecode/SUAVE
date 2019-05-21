@@ -179,7 +179,7 @@ def VLM(conditions,settings,geometry):
     
     # total drag and drag coefficient
     D  =  -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T
-    CDi = 2*D/(np.pi*Sref) 
+    CDi = 2*D/(np.pi*Sref)   # 2*D/(np.pi*Sref) 
 
     # pressure coefficient
     U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)

@@ -49,7 +49,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     ZC   = np.atleast_3d(data.ZC*ones)  
     n_w  = data.n_w
 
-    theta_w = np.atleast_3d(theta_w) #wake model set to freestream
+    theta_w = np.atleast_3d(0) #wake model set to freestream
     n_aoa   = np.shape(theta_w)[0]
     
     # -------------------------------------------------------------------------------------------

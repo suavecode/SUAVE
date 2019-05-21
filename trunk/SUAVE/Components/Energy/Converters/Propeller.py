@@ -19,12 +19,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
 
 from warnings import warn
-
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-
 
 # ----------------------------------------------------------------------
 #  Propeller Class

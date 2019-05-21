@@ -12,9 +12,6 @@
 #
 # package imports
 import numpy as np 
-import pylab as plt
-import matplotlib
-from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
@@ -155,7 +152,7 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
                 xa[idx]= segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])                                                    # computer quarter chord points for each horseshoe vortex
                 x[idx] = segment_chord_x_offset[i_seg] + (yb[0][idx] - deltax[idx]/2 - section_stations[i_seg])*np.tan(segment_sweep[i_seg])  + 0.5*chord_distribution[idx]                         # computer three-quarter chord control points for each horseshoe vortex
                 y[idx] = (yb[0][idx] -  deltax[idx]/2)                
-
+                
                 if y_coordinates[idx+1] == wing.Segments[i_seg+1].percent_span_location*span: 
                     i_seg += 1                    
 
@@ -326,7 +323,7 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord
     DT = np.atleast_2d(np.sum(D,axis=1)).T
 
     CL = 2*LT/(Sref)
-    CD = 2*DT/(Sref) 
+    CD = np.pi*2*DT/(Sref) 
     
     return  CL ,  CD , cl , cd 
 
