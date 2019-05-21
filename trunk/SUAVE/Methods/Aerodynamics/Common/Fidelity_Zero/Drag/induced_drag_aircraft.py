@@ -55,25 +55,13 @@ def induced_drag_aircraft(state,settings,geometry):
     wing_e = geometry.wings['main_wing'].span_efficiency
     ar     = geometry.wings['main_wing'].aspect_ratio 
     CDp    = state.conditions.aerodynamics.drag_breakdown.parasite.total
+    e      = 1/((1/wing_e)+np.pi*ar*K*CDp)
 
-    if e == None:
-        e = 1/((1/wing_e)+np.pi*ar*K*CDp)
-
-    # NEW
-    #print('new CDi')
     CDi = conditions.aerodynamics.drag_breakdown.induced.total
-    #print(conditions.aerodynamics.drag_breakdown.induced.total)
-    #conditions.aerodynamics.drag_breakdown.induced.efficiency_factor = e  
+    #CDi = (CL*CL)/(np.pi*ar*e)
     
-    # OLD
-    old_CDi = CL**2 / (np.pi*ar*e)    
     # store data
-    conditions.aerodynamics.drag_breakdown.induced = Data(
-    total             = CDi ,
-    efficiency_factor = e  
-    )
-    
-    #err = (CDi -old_CDi ) 
-    #assert max(np.abs(err)) < 5e-3 , 'Max Check Failed : %s' % err    
+    conditions.aerodynamics.drag_breakdown.induced.total     = CDi
+    conditions.aerodynamics.drag_breakdown.efficiency_factor = e  
     
     return CDi 

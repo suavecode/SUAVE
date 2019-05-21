@@ -305,9 +305,9 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord
     
     # Calculating the effective velocty         
     A_v = (A_b.T*0.25/np.pi*T.T).T
-    v   = np.sum(A_v,axis=1)
+    w   = np.sum(A_v,axis=1)
 
-    Lfi = -T * (sin_aoa-v) * 2
+    Lfi =  T * (w-sin_aoa) * 2
     Lfk =  T * cos_aoa * 2
     Lft = -Lfi * sin_aoa + Lfk * cos_aoa
     Dg  =  Lfi * cos_aoa + Lfk * sin_aoa
@@ -323,7 +323,7 @@ def compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord
     DT = np.atleast_2d(np.sum(D,axis=1)).T
 
     CL = 2*LT/(Sref)
-    CD = np.pi*2*DT/(Sref) 
+    CD = 2*np.pi*DT/(Sref) 
     
     return  CL ,  CD , cl , cd 
 

@@ -173,6 +173,25 @@ class Vortex_Lattice(Aerodynamics):
         wing_CL_surrogates  = surrogates.wing_lifts 
         wing_CDi_surrogates = surrogates.wing_drags
         
+        
+        #import matplotlib.pyplot as plt
+        #fig  = plt.figure()
+        #axes = fig.add_subplot(1,1,1)
+        #xp   = np.linspace(-10, 10, 100)        
+        #axes.plot(xp, CDi_surrogate(xp*Units.degrees),'--')
+        #axes.grid(True)
+        #plt.ylim(0,0.06)    
+        
+        #fig  = plt.figure()
+        #axes = fig.add_subplot(1,1,1)
+        #xp   = np.linspace(-10, 10, 100)        
+        #axes.plot(xp, CL_surrogate(xp*Units.degrees),'--')
+        #axes.grid(True)
+        #plt.ylim(-1,1.5)      
+        #plt.show()        
+        
+        
+        
         # Evaluate the surrogate
         inviscid_lift = CL_surrogate(AoA)
         inviscid_drag = CDi_surrogate(AoA)
@@ -190,12 +209,12 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.lift_breakdown.total                         = inviscid_lift        
         conditions.aerodynamics.lift_breakdown.compressible_wings            = wing_lifts
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift           = wing_lifts
-        
+               
         # Drag   
         conditions.aerodynamics.drag_breakdown.induced                       = Data()
         conditions.aerodynamics.drag_breakdown.induced.total                 = inviscid_drag
         conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag   = wing_drags       
-                
+     
         return inviscid_lift
     
     def evaluate_no_surrogate(self,state,settings,geometry):
@@ -319,10 +338,10 @@ class Vortex_Lattice(Aerodynamics):
 
         # unpack data
         training      = self.training
-        AoA_data      = training.angle_of_attack
-        CL_data       = training.lift_coefficient
-        CDi_data      =  training.drag_coefficient
-        wing_CL_data  = training.wing_lifts
+        AoA_data     = training.angle_of_attack
+        CL_data      = training.lift_coefficient
+        CDi_data     =  training.drag_coefficient
+        wing_CL_data = training.wing_lifts
         wing_CDi_data = training.wing_drags    
         
         # learn the models
@@ -431,4 +450,5 @@ def calculate_weissinger(conditions,settings,geometry):
         wing_drags[wing.tag] = wing_drag_coeff
         wing_lift_distribution[wing.tag] = cl
         wing_drag_distribution[wing.tag] = cdi   
+    
     return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, 0
