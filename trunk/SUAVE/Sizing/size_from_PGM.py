@@ -670,7 +670,8 @@ def fix_wing_segments(wing):
                         new_container.append(segs[ind])
                 
         if spanwise_locs[indices[-1]]<(1.-1E-3):
-                # Need a tip
+                
+                # May need a tip
                 seg_m1 = Segment()
                 
                 # See if Extrapolation is even possible:
@@ -703,12 +704,14 @@ def fix_wing_segments(wing):
                         if seg_m1.thickness_to_chord<0.0001:
                                 seg_m1.thickness_to_chord = 0.0001
                                 
-                if spanwise_locs[indices[-1]]>(1.-1E-3):
-                        segs[indices[0]].percent_span_location = 1.
-                        
+                new_container.append(seg_m1)
+                                
+        if spanwise_locs[indices[-1]]>=(1.-1E-3):
+                segs[indices[-1]].percent_span_location = 1.
+                
                                         
                 
-                new_container.append(seg_m1)
+
                 
         # Check to ensure nothing exceeds the bounds
         min_bounds = np.array(segs[0].PGM_char_min_bounds)

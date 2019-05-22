@@ -43,6 +43,8 @@ def vortex_lift(state,settings,geometry):
     N/A
     """      
 
+
+
     Mc         = state.conditions.freestream.mach_number
     AoA        = state.conditions.aerodynamics.angle_of_attack
     wings_lift = np.zeros_like(state.conditions.aerodynamics.lift_coefficient)
@@ -50,7 +52,7 @@ def vortex_lift(state,settings,geometry):
 
     for wing in geometry.wings:
         
-        wing_lift = state.conditions.aerodynamics.lift_coefficient_wing[wing.tag]
+        wing_lift = state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag]
 
         if wing.vortex_lift is True:
             AR = wing.aspect_ratio
@@ -61,9 +63,10 @@ def vortex_lift(state,settings,geometry):
             # Apply to wing lift
             wing_lift[Mc < 1.0] = vortex_cl[Mc < 1.0]
         
-        wings_lift += wing_lift
+        # THIS CANNOT WORK
+        #wings_lift += wing_lift
     
-    state.conditions.aerodynamics.lift_coefficient           = wings_lift
+    #state.conditions.aerodynamics.lift_coefficient           = wings_lift
     state.conditions.aerodynamics.lift_breakdown.vortex_lift = vortex_cl   
     
     return vortex_cl

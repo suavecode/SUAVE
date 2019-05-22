@@ -57,7 +57,7 @@ def wing_compressibility(state,settings,geometry):
     compress_corr[Mc > 1.05] = 1./(np.sqrt(Mc[Mc > 1.05]**2.-1.))
 
     # correct lift
-    wings_lift_comp = wings_lift * compress_corr  
+    wings_lift_comp = wings_lift# * compress_corr  
     
     state.conditions.aerodynamics.lift_breakdown.compressible_wings = wings_lift_comp
     state.conditions.aerodynamics.lift_coefficient= wings_lift_comp    

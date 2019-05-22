@@ -144,7 +144,7 @@ def wing_segmented_planform(wing):
     for i in range(len(lengths_dim)):
         Cxys.append(segment_centroid(le_sweeps[i],lengths_dim[i]*(1+sym),dxs[i],dys[i],dzs[i], tapers[i], As[i], panel_mac[i], dihedrals[i]))
 
-    aerodynamic_center= np.dot(np.transpose(Cxys),As)/(ref_area/(1+sym))
+    aerodynamic_center= (np.dot(np.transpose(Cxys),As)/(ref_area/(1+sym))).tolist()
     
     # If necessary the location of the MAC in the Y-direction could be outputted before overwriting
     if sym== True:

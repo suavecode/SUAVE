@@ -15,8 +15,10 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units
+import matplotlib.pyplot as plt #**** need to remove once complete 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import  compute_induced_velocity_matrix
-
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
+from SUAVE.Plots import plot_vehicle_vlm_panelization
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
@@ -54,6 +56,17 @@ def VLM(conditions,settings,geometry):
          areas.reference                       [m^2]
          vertical                              [Boolean]
          origin                                [m]
+       fuselage.
+        origin                                 [m]
+        width                                  [m]
+        heights.maximum                        [m]      
+        lengths.nose                           [m]    
+        lengths.tail                           [m]     
+        lengths.total                          [m]     
+        lengths.cabin                          [m]     
+        fineness.nose                          [Unitless]
+        fineness.tail                          [Unitless]
+        
        settings.number_panels_spanwise    [Unitless]
        settings.number_panels_chordwise   [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
@@ -71,24 +84,25 @@ def VLM(conditions,settings,geometry):
     # unpack settings
     n_sw   = settings.number_panels_spanwise    
     n_cw   = settings.number_panels_chordwise   
-    VD     = settings.vortex_distribution
     Sref   = geometry.reference_area
-
     
     # define point about which moment coefficient is computed 
     c_bar  = geometry.wings['main_wing'].chords.mean_aerodynamic
-    x_mac  = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0]
-    x_cg   = geometry.mass_properties.center_of_gravity[0][0]
+    x_mac  = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
+    x_cg   = geometry.mass_properties.center_of_gravity[0][0] 
     if x_cg == None:
         x_m = x_mac 
     else:
         x_m = x_cg
     
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
-    ones = np.atleast_2d(np.ones_like(aoa))
-    
+    ones = np.atleast_2d(np.ones_like(aoa)) 
+   
+    # generate vortex distribution
+    VD = compute_vortex_distribution(geometry,settings)       
+        
     # Build induced velocity matrix, C_mn
-    C_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)
+    C_mn, DW_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)
 
     # Compute flow tangency conditions   
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones
@@ -114,6 +128,7 @@ def VLM(conditions,settings,geometry):
     u = np.dot(C_mn[:,:,:,0],gamma[:,:].T)[:,:,0]
     v = np.dot(C_mn[:,:,:,1],gamma[:,:].T)[:,:,0]
     w = np.sum(np.dot(C_mn[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)
+    w_ind = np.sum(np.dot(DW_mn[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
@@ -122,12 +137,10 @@ def VLM(conditions,settings,geometry):
     n_cppw     = n_sw*n_cw
     n_w        = VD.n_w
     CS         = VD.CS*ones
-    wing_areas = np.array(VD.wing_areas)
+    wing_areas = VD.wing_areas
     X_M        = np.ones(n_cp)*x_m  *ones
     CL_wing    = np.zeros(n_w)
     CDi_wing   = np.zeros(n_w)
-    Cl_wing    = np.zeros(n_w*n_sw)
-    Cdi_wing   = np.zeros(n_w*n_sw)
     
     Del_Y = np.abs(VD.YB1 - VD.YA1)*ones
     
@@ -139,6 +152,8 @@ def VLM(conditions,settings,geometry):
     u_n_w_sw     = np.array(np.array_split(u,n_w*n_sw,axis=1))
     w_n_w        = np.array(np.array_split(w,n_w,axis=1))
     w_n_w_sw     = np.array(np.array_split(w,n_w*n_sw,axis=1))
+    w_ind_n_w    = np.array(np.array_split(w_ind,n_w,axis=1))
+    w_ind_n_w_sw = np.array(np.array_split(w_ind,n_w*n_sw,axis=1))    
     gamma_n_w    = np.array(np.array_split(gamma,n_w,axis=1))
     gamma_n_w_sw = np.array(np.array_split(gamma,n_w*n_sw,axis=1))
     Del_Y_n_w    = np.array(np.array_split(Del_Y,n_w,axis=1))
@@ -147,14 +162,14 @@ def VLM(conditions,settings,geometry):
     # Calculate the Coefficients on each wing individually
     L_wing   = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CL_wing  = L_wing/wing_areas
-    Di_wing  = -np.sum(np.multiply(w_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
-    CDi_wing = 2.*Di_wing/(np.pi*wing_areas)
+    Di_wing  = np.sum(np.multiply(-w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
+    CDi_wing = Di_wing/wing_areas
     
     # Calculate each spanwise set of Cls and Cds
     cl_sec = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
-    cd_sec = np.sum(np.multiply(-w_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
+    cd_sec = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
     
-    # Split the Cls for each wing
+    # Split the Cls and Cds for each wing
     Cl_wings = np.array(np.split(cl_sec,n_w,axis=1))
     Cd_wings = np.array(np.split(cd_sec,n_w,axis=1))
             
@@ -163,10 +178,14 @@ def VLM(conditions,settings,geometry):
     CL = 2*L/(Sref) 
     
     # total drag and drag coefficient
-    D  =  -np.atleast_2d(np.sum(np.multiply(w,gamma*Del_Y),axis=1)).T
-    CDi = 2*D/(np.pi*Sref) 
-    
-    # moment coefficient
-    CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T  
+    D  =  -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T
+    CDi = D/(2*Sref)   
+
+    # pressure coefficient
+    U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)
+    CPi = 1 - (U_tot)*(U_tot)
      
-    return CL, CDi, CM, CL_wing, CDi_wing  
+    # moment coefficient
+    CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
+    
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_sec , cd_sec , CPi 
