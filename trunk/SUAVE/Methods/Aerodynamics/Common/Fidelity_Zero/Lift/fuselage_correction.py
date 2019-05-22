@@ -41,7 +41,7 @@ def fuselage_correction(state,settings,geometry):
     wings_lift_comp = state.conditions.aerodynamics.lift_coefficient
     
     # total lift, accounting one fuselage
-    aircraft_lift_total = wings_lift_comp * fus_correction 
+    aircraft_lift_total = wings_lift_comp# * fus_correction 
 
     state.conditions.aerodynamics.lift_coefficient= aircraft_lift_total
 

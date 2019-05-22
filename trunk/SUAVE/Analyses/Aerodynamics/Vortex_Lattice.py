@@ -69,7 +69,7 @@ class Vortex_Lattice(Aerodynamics):
         
         # conditions table, used for surrogate model training
         self.training = Data()        
-        self.training.angle_of_attack       = np.array([[-10.,-8., -5.,-2. ,0.,2.,5.,8.,10.]]).T * Units.deg
+        self.training.angle_of_attack       = np.array([[-10.,-8.,-5.,-3.5,-2.,0.,2.,3.5,5.,8.,10.]]).T * Units.deg
         self.training.lift_coefficient      = None
         self.training.wing_lift_coefficient = None
         self.training.drag_coefficient      = None
@@ -205,14 +205,14 @@ class Vortex_Lattice(Aerodynamics):
             wing_drags[key] = wing_CDi_surrogates[key](AoA)
         
         # Lift    
-        conditions.aerodynamics.lift_coefficient                             = inviscid_lift
-        conditions.aerodynamics.lift_breakdown.total                         = inviscid_lift        
+        conditions.aerodynamics.lift_coefficient                             = inviscid_lift*1.0
+        conditions.aerodynamics.lift_breakdown.total                         = inviscid_lift*1.0
         conditions.aerodynamics.lift_breakdown.compressible_wings            = wing_lifts
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift           = wing_lifts
                
         # Drag   
         conditions.aerodynamics.drag_breakdown.induced                       = Data()
-        conditions.aerodynamics.drag_breakdown.induced.total                 = inviscid_drag
+        conditions.aerodynamics.drag_breakdown.induced.total                 = inviscid_drag*1.0
         conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag   = wing_drags       
      
         return inviscid_lift
