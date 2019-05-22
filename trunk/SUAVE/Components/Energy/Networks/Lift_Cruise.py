@@ -274,26 +274,36 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.acoustic_outputs[propeller_forward.tag] = noise_forward
         conditions.propulsion.acoustic_outputs[propeller_lift.tag]    = noise_lift
     
-        conditions.propulsion.rpm_lift                     = rpm_lift
-        conditions.propulsion.rpm_forward                  = rpm_forward
-        conditions.propulsion.current                      = i_lift + i_forward 
-        conditions.propulsion.current_lift                 = i_lift 
-        conditions.propulsion.current_forward              = i_forward 
-        conditions.propulsion.motor_torque_lift            = motor_lift.outputs.torque
-        conditions.propulsion.motor_torque_forward         = motor_forward.outputs.torque
-        conditions.propulsion.propeller_torque_lift        = Q_lift   
-        conditions.propulsion.propeller_torque_forward     = Q_forward       
-        conditions.propulsion.propeller_efficiency_forward = etap_forward
-        conditions.propulsion.propeller_efficiency_lift    = etap_lift
-        conditions.propulsion.motor_efficiency_forward     = etam_forward
-        conditions.propulsion.motor_efficiency_lift        = etam_lift       
-          
-        conditions.propulsion.battery_draw             = battery_draw
-        conditions.propulsion.battery_draw_forward     = -i_forward * volts 
-        conditions.propulsion.battery_draw_lift        = -i_lift * volts 
-        conditions.propulsion.battery_energy           = battery_energy
-        conditions.propulsion.voltage_open_circuit     = voltage_open_circuit
-        conditions.propulsion.voltage_under_load       = voltage_under_load      
+        conditions.propulsion.rpm_lift                          = rpm_lift
+        conditions.propulsion.current_lift                      = i_lift 
+        conditions.propulsion.motor_torque_lift                 = motor_lift.outputs.torque
+        conditions.propulsion.motor_torque_forward              = motor_forward.outputs.torque
+        conditions.propulsion.motor_efficiency_lift             = etam_lift           
+        conditions.propulsion.propeller_torque_lift             = Q_lift   
+        conditions.propulsion.propeller_efficiency_lift         = etap_lift
+        conditions.propulsion.propeller_power_lift              = P_lift*num_lift
+        conditions.propulsion.propeller_thrust_lift             = F_lift*num_lift        
+        conditions.propulsion.propeller_power_coefficient_lift  = Cp_lift        
+        conditions.propulsion.propeller_thrust_coefficient_lift = noise_lift.Ct   
+        conditions.propulsion.battery_draw_lift                 = -i_lift * volts 
+
+        conditions.propulsion.rpm_forward                       = rpm_forward        
+        conditions.propulsion.battery_draw                      = battery_draw
+        conditions.propulsion.battery_draw_forward              = -i_forward * volts 
+        conditions.propulsion.battery_energy                    = battery_energy
+        conditions.propulsion.voltage_open_circuit              = voltage_open_circuit
+        conditions.propulsion.voltage_under_load                = voltage_under_load   
+        conditions.propulsion.motor_efficiency_forward          = etam_forward
+        conditions.propulsion.current_forward                   = i_forward 
+        conditions.propulsion.battery_efficiency                = (battery_draw+battery.resistive_losses)/battery_draw
+        conditions.propulsion.payload_efficiency                = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
+        conditions.propulsion.propeller_power_forward           = P_forward*num_forward
+        conditions.propulsion.propeller_thrust_coefficient      = Cp_forward   
+        conditions.propulsion.propeller_torque_forward          = Q_forward       
+        conditions.propulsion.propeller_efficiency_forward      = etap_forward        
+                                                                
+        conditions.propulsion.current                           = i_lift + i_forward 
+        conditions.propulsion.electronics_efficiency            = -(P_forward*num_forward+P_lift*num_lift)/battery_draw  
         
         # Calculate the thrust and mdot
         F_lift_total    = F_lift*num_lift * [np.cos(self.thrust_angle_lift),0,-np.sin(self.thrust_angle_lift)]    
@@ -304,7 +314,7 @@ class Lift_Cruise(Propulsor):
         
         results = Data()
         results.thrust_force_vector = F_total
-        results.vehicle_mass_rate   = mdot
+        results.vehicle_mass_rate   = mdot   
         
         return results
     
