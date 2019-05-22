@@ -57,11 +57,13 @@ def induced_drag_aircraft(state,settings,geometry):
     CDp    = state.conditions.aerodynamics.drag_breakdown.parasite.total
     e      = 1/((1/wing_e)+np.pi*ar*K*CDp)
 
-    CDi = conditions.aerodynamics.drag_breakdown.induced.total
+    #CDi = conditions.aerodynamics.drag_breakdown.induced.total
     #CDi = (CL*CL)/(np.pi*ar*e)
     
+    CDi = 0.
+    
     # store data
-    conditions.aerodynamics.drag_breakdown.induced.total     = CDi
-    conditions.aerodynamics.drag_breakdown.efficiency_factor = e  
+    #conditions.aerodynamics.drag_breakdown.induced.total     = CDi
+    #conditions.aerodynamics.drag_breakdown.efficiency_factor = e  
     
     return CDi 
