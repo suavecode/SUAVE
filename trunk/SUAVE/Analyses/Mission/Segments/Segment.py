@@ -50,6 +50,7 @@ class Segment(Analysis):
         """          
         
         self.settings = Settings()
+        self.settings.normalize = False
         
         self.state = State()
 

@@ -45,9 +45,12 @@ def converge_root(segment):
     unknowns = segment.state.unknowns.pack_array()
     
     # Find the normalization factors
-    segment.state.unknowns_normalization_factor  = unknowns*1.
-    segment.state.unknowns_normalization_factor[segment.state.unknowns_normalization_factor==0] = 1e-16 
-    
+    if segment.settings.normalize == True:
+        segment.state.unknowns_normalization_factor  = unknowns*1.
+        segment.state.unknowns_normalization_factor[segment.state.unknowns_normalization_factor==0] = 1e-16 
+    else:
+        segment.state.unknowns_normalization_factor  = np.ones_like(unknowns)
+
     # Run one iteration to get the scaling
     segment.process.iterate(segment)
     segment.state.residual_normalization_factor = 1*segment.state.residuals.pack_array() 
