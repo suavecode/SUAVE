@@ -8,24 +8,19 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
-# package imports
-import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data
-import scipy.optimize as opt
-from scipy.optimize import fsolve
 from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import compute_airfoil_polars
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
 
-from warnings import warn
-
+# package imports
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
+import scipy as sp
+import scipy.optimize as opt
+from scipy.optimize import fsolve
 
+from warnings import warn
 
 # ----------------------------------------------------------------------
 #  Propeller Class
@@ -65,6 +60,8 @@ class Propeller(Energy_Component):
         self.radius_distribution      = None
         self.rotation                 = None
         self.ducted                   = False
+        self.induced_power_factor     = 1.48  #accounts for interference effects
+        self.profile_drag_coefficient = .03        
         self.tag                      = 'Propeller'
         
     def spin(self,conditions):
@@ -220,9 +217,9 @@ class Propeller(Energy_Component):
         x       = r*np.multiply(omega,1/V) # Nondimensional distance
         n       = omega/(2.*pi)            # Cycles per second
         J       = V/(2.*R*n)    
-        sigma   = np.multiply(B*c,1./(2.*pi*r))
-    
-
+        #sigma   = np.multiply(B*c,1./(2.*pi*r))
+        blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
+        sigma   = blade_area[-1]/(pi*r[-1]**2)   
         
         omegar = np.outer(omega,r)
         Ua = np.outer((V + ua),np.ones_like(r))
@@ -343,12 +340,24 @@ class Propeller(Energy_Component):
         deltar   = (r[1]-r[0])
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
-        power    = torque*omega       
-
-        D        = 2*R
-        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
+        D        = 2*R 
         Ct       = thrust/(rho*(n*n)*(D*D*D*D))
-        Cq       = torque/(rho*(n*n)*(D*D*D*D*D))        
+        Ct[Ct<0] = 0.        #prevent things from breaking
+        kappa    = self.induced_power_factor 
+        Cd0      = self.profile_drag_coefficient   
+        Cp    = np.zeros_like(Ct)
+        power = np.zeros_like(Ct)        
+        for i in range(len(Vv)):
+            if -1. <Vv[i][0] <1.: # vertical/axial flight
+                Cp[i]       = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
+                power[i]    = Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+                torque[i]   = power[i]/omega[i]  
+            else:  
+                power[i]    = torque[i]*omega[i]   
+                Cp[i]       = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+
+
+        
   
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
@@ -531,7 +540,9 @@ class Propeller(Energy_Component):
         x       = r*np.multiply(omega,1/V) # Nondimensional distance
         n       = omega/(2.*pi)            # Cycles per second
         J       = V/(2.*R*n)    
-        sigma   = np.multiply(B*c,1./(2.*pi*r))          
+        #sigma   = np.multiply(B*c,1./(2.*pi*r))
+        blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
+        sigma   = blade_area[-1]/(pi*r[-1]**2)          
             
         omegar = np.outer(omega,r)
         Ua = np.outer((V + ua),np.ones_like(r))
@@ -653,16 +664,27 @@ class Propeller(Energy_Component):
         deltar   = (r[1]-r[0])
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
-        power    = torque*omega
-
-        D        = 2*R
-        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
+        
+        D        = 2*R 
+        Ct       = thrust/(rho*(n*n)*(D*D*D*D))
+        Ct[Ct<0] = 0.        #prevent things from breaking
+        kappa    = self.induced_power_factor 
+        Cd0      = self.profile_drag_coefficient   
+        Cp    = np.zeros_like(Ct)
+        power = np.zeros_like(Ct)        
+        for i in range(len(Vv)):
+            if -1. <Vv[i][0] <1.: # vertical/axial flight
+                Cp[i]       = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
+                power[i]    = Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+                torque[i]   = power[i]/omega[i]  
+            else:  
+                power[i]    = torque[i]*omega[i]   
+                Cp[i]       = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
 
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         
         thrust[omega1<0.0] = - thrust[omega1<0.0]
-
         etap     = V*thrust/power     
         
         conditions.propulsion.etap = etap        

@@ -136,7 +136,7 @@ class Lift_Cruise(Propulsor):
         
         volts = state.unknowns.battery_voltage_under_load * 1. 
         volts[volts>self.voltage] = self.voltage
-        #volts = self.voltage
+        volts = self.voltage
         
         # ESC Voltage
         esc_lift.inputs.voltagein    = volts      
@@ -470,10 +470,7 @@ class Lift_Cruise(Propulsor):
         segment.state.residuals.network[:,0] = (q_motor_forward[:,0] - q_prop_forward[:,0])/q_motor_forward[:,0] 
         segment.state.residuals.network[:,1] = (q_motor_lift[:,0] - q_prop_lift[:,0])/q_motor_lift[:,0]
         segment.state.residuals.network[:,2] = (v_predict[:,0] - v_actual[:,0])/v_max  
-        #print('***********************************************')
-        #print(segment.state.residuals.network[:,0])
-        #print(segment.state.residuals.network[:,1])
-        #print(segment.state.residuals.network[:,2])
+
         return
     
     
@@ -513,8 +510,7 @@ class Lift_Cruise(Propulsor):
         
         # Return the residuals
         segment.state.residuals.network[:,0] = q_motor_forward[:,0] - q_prop_forward[:,0]
-        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max  
-        
+        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max 
         return    
     
     def residuals_no_forward(self,segment):
