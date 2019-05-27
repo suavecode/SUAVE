@@ -96,7 +96,7 @@ class Gearbox(Energy_Component):
 
         # method to compute gearbox properties
 
-        w2 = w1 * R1/R2 #* eta    # gear output speed
+        w2 = w1 * R1/R2          # gear output speed
         T2 = T1 * R1/R2 * eta    # gear output torque
         P2 = P1 * eta            # gear output horsepower
         

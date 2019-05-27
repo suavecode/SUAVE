@@ -167,6 +167,44 @@ def vehicle_setup():
 
     vehicle.append_component(wing)   
 
+    # ------------------------------------------------------------------
+    #   Piston Propeller Network
+    # ------------------------------------------------------------------   
+    
+    # build network
+    net = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
+    net.number_of_engines = 2.
+    net.nacelle_diameter  = 42 * Units.inches
+    net.engine_length     = 0.01 * Units.inches
+    net.areas             = Data()
+    net.rated_speed       = 2700. * Units.rpm
+    net.areas.wetted      = 0.01
+
+    # Component 1 the engine
+    net.engine = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
+    net.engine.sea_level_power    = 180. * Units.horsepower
+    net.engine.flat_rate_altitude = 0.0
+    net.engine.speed              = 2700. * Units.rpm
+    net.engine.BSFC               = 0.52
+
+    # Design the Propeller    
+    prop  = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_blades       = 2.0
+    prop.freestream_velocity = 135.*Units['mph']    
+    prop.angular_velocity    = 1250.  * Units.rpm
+    prop.tip_radius          = 76./2. * Units.inches
+    prop.hub_radius          = 8.     * Units.inches
+    prop.design_Cl           = 0.8
+    prop.design_altitude     = 12000. * Units.feet
+    prop.design_thrust       = 0.0
+    prop.design_power        = .32 * 180. * Units.horsepower
+    prop                     = propeller_design(prop)
+    prop.origin              = [[2.,2.5,0.]] 
+    net.propeller            = prop
+
+    # add the network to the vehicle
+    vehicle.append_component(net)  
+    
     #Landing Gear
     landing_gear           = SUAVE.Components.Landing_Gear.Landing_Gear()
     main_gear              = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
@@ -185,10 +223,10 @@ def vehicle_setup():
     avionics                                                 = SUAVE.Components.Energy.Peripherals.Avionics()
     avionics.mass_properties.uninstalled                     = Wuav
     vehicle.avionics                                         = avionics
-    fuel                                                     = SUAVE.Components.Physical_Component()
-    fuel.origin                                              = wing.origin
-    fuel.mass_properties.center_of_gravity                   = wing.mass_properties.center_of_gravity
-    fuel.mass_properties.mass                                = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
+    #fuel                                                     = SUAVE.Components.Physical_Component()
+    #fuel.origin                                              = wing.origin
+    #fuel.mass_properties.center_of_gravity                   = wing.mass_properties.center_of_gravity
+    #fuel.mass_properties.mass                                = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
 
     '''
     #find zero_fuel_center_of_gravity
@@ -205,47 +243,7 @@ def vehicle_setup():
     sum_moments_less_fuel=(cg*MTOW-fuel_cg*fuel_mass)
     vehicle.fuel = fuel
     vehicle.mass_properties.zero_fuel_center_of_gravity = sum_moments_less_fuel/vehicle.mass_properties.max_zero_fuel
-    '''
-    
-    # ------------------------------------------------------------------
-    #   Piston Propeller Network
-    # ------------------------------------------------------------------    
-    
-    # build network
-    net = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
-    net.number_of_engines = 2.
-    net.nacelle_diameter  = 42 * Units.inches
-    net.engine_length     = 0.01 * Units.inches
-    net.areas             = Data()
-    net.rated_speed       = 2700. * Units.rpm
-    net.areas.wetted      = 0.01
-
-    # Component 1 the engine
-    net.engine = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
-    net.engine.sea_level_power    = 180. * Units.horsepower
-    net.engine.flat_rate_altitude = 0.0
-    net.engine.speed              = 2700. * Units.rpm
-    net.engine.BSFC               = 0.52
-
-
-    # Design the Propeller    
-    prop  = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0
-    prop.freestream_velocity = 135.*Units['mph']    
-    prop.angular_velocity    = 1250.  * Units.rpm
-    prop.tip_radius          = 76./2. * Units.inches
-    prop.hub_radius          = 8.     * Units.inches
-    prop.design_Cl           = 0.8
-    prop.design_altitude     = 12000. * Units.feet
-    prop.design_thrust       = 0.0
-    prop.design_power        = .32 * 180. * Units.horsepower
-    prop                     = propeller_design(prop)
-    prop.origin = [[2.,2.5,0.]] 
-    net.propeller        = prop
-
-    # add the network to the vehicle
-    vehicle.append_component(net)      
-    
+    '''   
     return vehicle
   
 def configs_setup(vehicle):

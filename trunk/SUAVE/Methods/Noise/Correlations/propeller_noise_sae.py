@@ -1,4 +1,4 @@
-# noise_propeller_sae.py
+# propeller_noise_sae.py
 #
 # Created:  Oct 2016, C. Ilario
 # Modified: 
@@ -10,8 +10,8 @@ import SUAVE
 from SUAVE.Core import Units
 import numpy as np
 
-def noise_propeller_sae(noise_data, ioprint = 0):
-    """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_propeller_sae(noise_data):
+def propeller_noise_sae(noise_data, ioprint = 0):
+    """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.propeller_noise_sae(noise_data):
                 Computes the Far-field noise for propeller noise following SAE AIR1407 procedure.
 
                 Inputs:

@@ -13,7 +13,9 @@
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
+
 import numpy as np
+import pylab as plt
 
 import copy, time
 import random
@@ -166,8 +168,6 @@ def main():
     #call the aero model        
     results = aerodynamics.evaluate(state)
     
-    # save results for plots regression 
-    
     #build a polar for the markup aero
     polar = Data()    
     CL = results.lift.total
@@ -256,8 +256,7 @@ def reg_values():
 
     cd_tot_r        = np.array([[0.04301985,0.03058505,0.0296789 ,0.01597932,0.01723586,0.01748367,
                                  0.02833039,0.04549242,0.05803012,0.08158141,0.10604404 ]]).T
-
-
+    
     return cd_c_r, cd_i_r, cd_m_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
 if __name__ == '__main__':

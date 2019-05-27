@@ -73,8 +73,7 @@ def main():
 def full_setup():
 
     # vehicle data
-    vehicle  = vehicle_setup()
-    #write(vehicle, 'Cessna_172') 
+    vehicle  = vehicle_setup() 
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
@@ -93,7 +92,6 @@ def full_setup():
 # ----------------------------------------------------------------------
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
-
 def analyses_setup(configs):
 
     configs, analyses = full_setup()
@@ -167,7 +165,6 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Stability Analysis
     stability = SUAVE.Analyses.Stability.Fidelity_Zero()    
-    #stability.settings.spanwise_vortex_density                  = 3
     stability.geometry = vehicle
     analyses.append(stability)
 
@@ -208,9 +205,7 @@ def configs_setup(vehicle):
     base_config.tag = 'base'
     configs.append(base_config)
  
-
-
-    # done!
+     # done!
     return configs
 
 # ----------------------------------------------------------------------
@@ -310,13 +305,10 @@ def mission_setup(analyses):
     segment.climb_rate     = -300.  * Units['ft/min']
     # add to misison
     mission.append_segment(segment)
-    
 
     # ------------------------------------------------------------------
     #   Mission definition complete    
     # ------------------------------------------------------------------
-
-
     return mission
 
 
@@ -331,7 +323,6 @@ def missions_setup(base_mission):
     # ------------------------------------------------------------------
 
     missions.base = base_mission
-
 
     # done!
     return missions  
