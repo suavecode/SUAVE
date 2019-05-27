@@ -152,8 +152,6 @@ def noise_geometric(noise_segment,analyses,config):
 
     return (dist,theta,phi)
 
-
-
 def geometric_propeller(noise_data):
     """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.geometric_propeller(noise_data):
                 Computes the geometric parameters for the noise tools: distance and emission angles for both polar and azimuthal angles.
