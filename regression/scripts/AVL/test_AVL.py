@@ -11,28 +11,15 @@
 
 import SUAVE
 from SUAVE.Core import Units
-
+from SUAVE.Core import Data, Container
 import numpy as np
-import pylab as plt
-
 import copy, time
 
-from SUAVE.Core import (
-Data, Container,
-)
-
 import sys
-
 sys.path.append('../Vehicles')
-# the analysis functions
-
 from Boeing_737 import vehicle_setup, configs_setup
 
-
 sys.path.append('../B737')
-# the analysis functions
-
-
 from mission_B737 import vehicle_setup, configs_setup, analyses_setup, mission_setup, missions_setup, simple_sizing
 import copy
 
@@ -143,4 +130,7 @@ def main():
     return
 
 if __name__ == '__main__': 
+    
     main()    
+    
+    print('AVL regression test passed!')
