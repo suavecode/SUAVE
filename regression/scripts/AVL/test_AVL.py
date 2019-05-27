@@ -11,7 +11,6 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Core import Data, Container
 import numpy as np
 import copy, time
 
