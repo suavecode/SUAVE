@@ -79,31 +79,31 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
-    wing.aspect_ratio            = 10.18
-    wing.sweeps.quarter_chord    = 25 * Units.deg
-    wing.thickness_to_chord      = 0.1
-    wing.taper                   = 0.1
-    wing.span_efficiency         = 0.9
-    
-    wing.spans.projected         = 34.32   
-    
-    wing.chords.root             = 7.760 * Units.meter
-    wing.chords.tip              = 0.782 * Units.meter
-    wing.chords.mean_aerodynamic = 4.235 * Units.meter
-    
-    wing.areas.reference         = 124.862 
-    
-    wing.twists.root             = 4.0 * Units.degrees
-    wing.twists.tip              = 0.0 * Units.degrees
-    
-    wing.origin                  = [13.61,0,-1.27]
-    wing.aerodynamic_center      = [0,0,0]  #[3,0,0]
-    
-    wing.vertical                = False
-    wing.symmetric               = True
-    wing.high_lift               = True
-    
-    wing.dynamic_pressure_ratio  = 1.0
+    wing.aspect_ratio              = 10.18
+    wing.sweeps.quarter_chord      = 25 * Units.deg
+    wing.thickness_to_chord        = 0.1
+    wing.taper                     = 0.1
+    wing.span_efficiency           = 0.9
+                                   
+    wing.spans.projected           = 34.32   
+                                   
+    wing.chords.root               = 7.760 * Units.meter
+    wing.chords.tip                = 0.782 * Units.meter
+    wing.chords.mean_aerodynamic   = 4.235 * Units.meter
+                                   
+    wing.areas.reference           = 124.862 
+                                   
+    wing.twists.root               = 4.0 * Units.degrees
+    wing.twists.tip                = 0.0 * Units.degrees
+                                   
+    wing.origin                    = [13.61,0,-1.27]
+    wing.aerodynamic_center        = [0,0,0]  #[3,0,0]
+    wing.exposed_root_chord_offset = 3.74/2
+    wing.vertical                  = False
+    wing.symmetric                 = True
+    wing.high_lift                 = True
+                                   
+    wing.dynamic_pressure_ratio    = 1.0
     
     # ------------------------------------------------------------------
     #   Flaps
@@ -125,31 +125,31 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'horizontal_stabilizer'
     
-    wing.aspect_ratio            = 6.16      #
-    wing.sweeps.quarter_chord    = 40 * Units.deg
-    wing.thickness_to_chord      = 0.08
-    wing.taper                   = 0.2
-    wing.span_efficiency         = 0.9
-    
-    wing.spans.projected         = 14.2      
-
-    wing.chords.root             = 4.7
-    wing.chords.tip              = .955   
-    wing.chords.mean_aerodynamic = 8.0
-
-    wing.areas.reference         = 32.488    
-    wing.areas.exposed           = 59.354                  # Exposed area of the horizontal tail
-    wing.areas.wetted            = 64.976                    # Wetted area of the horizontal tail
-    wing.twists.root             = 3.0 * Units.degrees
-    wing.twists.tip              = 3.0 * Units.degrees  
-    
-    wing.origin                  = [32.83,0,1.14]
-    wing.aerodynamic_center      = [0,0,0]
-    
-    wing.vertical                = False 
-    wing.symmetric               = True
-    
-    wing.dynamic_pressure_ratio  = 0.9  
+    wing.aspect_ratio              = 6.16      #
+    wing.sweeps.quarter_chord      = 40 * Units.deg
+    wing.thickness_to_chord        = 0.08
+    wing.taper                     = 0.2
+    wing.span_efficiency           = 0.9
+                                   
+    wing.spans.projected           = 14.2      
+                                   
+    wing.chords.root               = 4.7
+    wing.chords.tip                = .955   
+    wing.chords.mean_aerodynamic   = 8.0
+    wing.exposed_root_chord_offset = 3./2
+    wing.areas.reference           = 32.488    
+    wing.areas.exposed             = 59.354                  # Exposed area of the horizontal tail
+    wing.areas.wetted              = 64.976                    # Wetted area of the horizontal tail
+    wing.twists.root               = 3.0 * Units.degrees
+    wing.twists.tip                = 3.0 * Units.degrees  
+                                   
+    wing.origin                    = [32.83,0,1.14]
+    wing.aerodynamic_center        = [0,0,0]
+                                   
+    wing.vertical                  = False 
+    wing.symmetric                 = True
+                                   
+    wing.dynamic_pressure_ratio    = 0.9  
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -162,31 +162,31 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'    
     
-    wing.aspect_ratio            = 1.91      #
-    wing.sweeps.quarter_chord    = 25 * Units.deg
-    wing.thickness_to_chord      = 0.08
-    wing.taper                   = 0.25
-    wing.span_efficiency         = 0.9
-    
-    wing.spans.projected         = 7.777      #    
-
-    wing.chords.root             = 8.19
-    wing.chords.tip              = 0.95
-    wing.chords.mean_aerodynamic = 4.0
-    
-    wing.areas.reference         = 27.316    #
-    
-    wing.twists.root             = 0.0 * Units.degrees
-    wing.twists.tip              = 0.0 * Units.degrees  
-    
-    wing.origin                  = [28.79,0,1.54]
-    wing.aerodynamic_center      = [0,0,0]    #[2,0,0]    
-    
-    wing.vertical                = True 
-    wing.symmetric               = False
-    wing.t_tail                  = False
-    
-    wing.dynamic_pressure_ratio  = 1.0
+    wing.aspect_ratio              = 1.91      #
+    wing.sweeps.quarter_chord      = 25 * Units.deg
+    wing.thickness_to_chord        = 0.08
+    wing.taper                     = 0.25
+    wing.span_efficiency           = 0.9
+                                   
+    wing.spans.projected           = 7.777      #    
+                                   
+    wing.chords.root               = 8.19
+    wing.chords.tip                = 0.95
+    wing.chords.mean_aerodynamic   = 4.0
+                                   
+    wing.areas.reference           = 27.316    #
+                                   
+    wing.twists.root               = 0.0 * Units.degrees
+    wing.twists.tip                = 0.0 * Units.degrees  
+    wing.exposed_root_chord_offset = 3.74/2
+    wing.origin                    = [28.79,0,1.54]
+    wing.aerodynamic_center        = [0,0,0]    #[2,0,0]    
+                                   
+    wing.vertical                  = True 
+    wing.symmetric                 = False
+    wing.t_tail                    = False
+                                   
+    wing.dynamic_pressure_ratio    = 1.0
         
     # add to vehicle
     vehicle.append_component(wing)

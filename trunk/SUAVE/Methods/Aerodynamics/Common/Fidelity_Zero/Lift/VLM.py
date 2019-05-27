@@ -15,10 +15,9 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units
-import matplotlib.pyplot as plt #**** need to remove once complete 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import  compute_induced_velocity_matrix
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
-from SUAVE.Plots import plot_vehicle_vlm_panelization , plot_vehicle_geometry
+
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------

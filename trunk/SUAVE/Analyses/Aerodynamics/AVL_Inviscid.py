@@ -27,7 +27,6 @@ from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
 from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
 
 # Package imports
-import time
 import pylab as plt
 import os
 import sklearn
@@ -248,7 +247,6 @@ class AVL_Inviscid(Aerodynamics):
         table_size = len(AoA)*len(mach)
         xy         = np.zeros([table_size,2])  
         count      = 0
-        time0      = time.time()
         
         for i,_ in enumerate(mach):
             for j,_ in enumerate(AoA):
@@ -272,10 +270,7 @@ class AVL_Inviscid(Aerodynamics):
             
             count += 1
         
-        time1 = time.time()
-        
-        print('The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds')
-        
+
         if self.training_file:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]

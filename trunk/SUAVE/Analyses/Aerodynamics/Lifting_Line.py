@@ -120,7 +120,6 @@ class Lifting_Line(Aerodynamics):
           inviscid_wings_drag[wings.*.tag]   [-] CDi (wing specific)
           total                              [-] CDi
         conditions.aerodynamics.
-          lift_coefficient_wing              [-] CL (wing specific)
           inviscid_wings_lift                [-] CL
 
         Properties Used:
@@ -156,15 +155,13 @@ class Lifting_Line(Aerodynamics):
         conditions.aerodynamics.drag_breakdown.induced.total               = inviscid_wings_drag.total
         conditions.aerodynamics.drag_coefficient                           = inviscid_wings_drag.total        
         
-        # store model for lift coefficients of each wing
-        state.conditions.aerodynamics.lift_coefficient_wing              = Data()        
+        # store model for lift coefficients of each wing     
         for wing in geometry.wings.keys():
             wings_lift_model                                                 = surrogates.wing_lift_coefficients[wing] 
             wings_drag_model                                                 = surrogates.wing_drag_coefficients[wing]
             inviscid_wings_lift[wing]                                        = wings_lift_model(AoA)
             inviscid_wings_drag[wing]                                        = wings_drag_model(AoA)
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]
-            conditions.aerodynamics.lift_coefficient_wing[wing]              = inviscid_wings_lift[wing]
             conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag[wing]  = inviscid_wings_drag[wing]  
 
         return inviscid_wings_lift , inviscid_wings_drag
