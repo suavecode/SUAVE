@@ -31,8 +31,10 @@ def VLM(conditions,settings,geometry):
 
     Source:
     1. Aerodynamics for Engineers, Sixth Edition by John Bertin & Russel Cummings 
+    Pgs. 379-397(Literature)
     
-    2. An Introduction to Theoretical and Computational Aerodynamics by Jack Moran
+    2. Low-Speed Aerodynamics, Second Edition by Joseph katz, Allen Plotkin
+    Pgs. 331-338(Literature), 579-586 (Fortran Code implementation)
     
     3. Yahyaoui, M. "Generalized Vortex Lattice Method for Predicting Characteristics of Wings
     with Flap and Aileron Deflection" , World Academy of Science, Engineering and Technology 

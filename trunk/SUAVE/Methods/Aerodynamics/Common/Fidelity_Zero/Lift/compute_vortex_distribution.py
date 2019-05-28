@@ -1067,7 +1067,9 @@ def compute_vortex_distribution(geometry,settings):
         VD.Y    = np.append(VD.Y  ,fhs_y )  
         VD.Z    = np.append(VD.Z  ,fhs_z )
                 
-        ## Vertical Fuselage Sections currently leads to large errors 
+        ## Vertical Fuselage Sections
+        # Currently leads to large errors so ommitted. Will be used in the future to compute stability derivatives  
+        
         #wing_areas.append(fus_v_area)
         #wing_areas.append(fus_v_area)
         

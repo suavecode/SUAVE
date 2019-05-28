@@ -72,38 +72,81 @@ def vehicle_setup():
     vehicle.landing_gear=landing_gear
     
     
-    # ------------------------------------------------------------------        
+   # ------------------------------------------------------------------        
     #   Main Wing
     # ------------------------------------------------------------------        
-    
+
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
+
+    wing.aspect_ratio            = 10.18 # Not set
+    wing.thickness_to_chord      = 0.1 # Not set
+    wing.taper                   = 0.782/7.7760
+    wing.span_efficiency         = 0.9
     
-    wing.aspect_ratio              = 10.18
-    wing.sweeps.quarter_chord      = 25 * Units.deg
-    wing.thickness_to_chord        = 0.1
-    wing.taper                     = 0.1
-    wing.span_efficiency           = 0.9
-                                   
-    wing.spans.projected           = 34.32   
-                                   
-    wing.chords.root               = 7.760 * Units.meter
-    wing.chords.tip                = 0.782 * Units.meter
-    wing.chords.mean_aerodynamic   = 4.235 * Units.meter
-                                   
-    wing.areas.reference           = 124.862 
-                                   
-    wing.twists.root               = 4.0 * Units.degrees
-    wing.twists.tip                = 0.0 * Units.degrees
-                                   
-    wing.origin                    = [13.61,0,-1.27]
-    wing.aerodynamic_center        = [0,0,0]  #[3,0,0]
-    wing.exposed_root_chord_offset = 3.74/2
-    wing.vertical                  = False
-    wing.symmetric                 = True
-    wing.high_lift                 = True
-                                   
-    wing.dynamic_pressure_ratio    = 1.0
+    wing.spans.projected         = 34.32    
+
+    wing.chords.root             = 7.760 * Units.meter
+    wing.chords.tip              = 0.782 * Units.meter
+    wing.chords.mean_aerodynamic = 4.235 * Units.meter
+
+    wing.areas.reference         = 124.862  # Not set
+    wing.sweeps.quarter_chord    = 25. * Units.degrees
+
+    wing.twists.root             = 4.0 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees
+    wing.dihedral                = 2.5 * Units.degrees
+
+    wing.origin                  = [13.61,0,-1.27]
+    wing.aerodynamic_center      = [0,0,0] 
+
+    wing.vertical                = False
+    wing.symmetric               = True
+    wing.high_lift               = True
+
+    wing.dynamic_pressure_ratio  = 1.0
+    
+    # Root    
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'root'
+    segment.percent_span_location = 0.0
+    segment.twist                 = 4. * Units.deg
+    segment.root_chord_percent    = 1.
+    segment.dihedral_outboard     = 2.5 * Units.degrees
+    segment.sweeps.quarter_chord  = 28.225 * Units.degrees
+    wing.Segments.append(segment)    
+    
+    
+    # Yehudi    
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'yehudi'
+    segment.percent_span_location = 0.324
+    segment.twist                 = (wing.twists.root*(1-segment.percent_span_location)) * Units.deg
+    segment.root_chord_percent    = 0.5
+    segment.dihedral_outboard     = 5.5 * Units.degrees
+    segment.sweeps.quarter_chord  = 25. * Units.degrees 
+    wing.Segments.append(segment)
+    
+    # set tip section start point    
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_2'
+    segment.percent_span_location = 0.98
+    segment.twist                 = (wing.twists.root*(1-segment.percent_span_location))  * Units.deg
+    segment.root_chord_percent    = 0.220
+    segment.dihedral_outboard     = 5.5 * Units.degrees
+    segment.sweeps.quarter_chord  = 56.75 * Units.degrees 
+    wing.Segments.append(segment)
+    
+    
+    # Add a tip
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'Tip'
+    segment.percent_span_location = 1.
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 0.10077
+    segment.dihedral_outboard     = 0.
+    segment.sweeps.quarter_chord  = 0. 
+    wing.Segments.append(segment)     
     
     # ------------------------------------------------------------------
     #   Flaps
@@ -117,80 +160,124 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(wing)
 
-
     # ------------------------------------------------------------------        
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------        
-    
+
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'horizontal_stabilizer'
+
+
+    wing.aspect_ratio            = 5.023 
+    wing.thickness_to_chord      = 0.08 
+    wing.taper                   = 0.203
+    wing.span_efficiency         = 0.9
+    wing.spans.projected         = 14.2
+    wing.chords.root             = 4.70
+    wing.chords.tip              = 0.9541   
+    wing.chords.mean_aerodynamic = 3.241  
+    wing.areas.reference         = 40.14
+
+    wing.twists.root             = 0.0 * Units.degrees 
+    wing.twists.tip              = 0.0 * Units.degrees 
     
-    wing.aspect_ratio              = 6.16      #
-    wing.sweeps.quarter_chord      = 40 * Units.deg
-    wing.thickness_to_chord        = 0.08
-    wing.taper                     = 0.2
-    wing.span_efficiency           = 0.9
-                                   
-    wing.spans.projected           = 14.2      
-                                   
-    wing.chords.root               = 4.7
-    wing.chords.tip                = .955   
-    wing.chords.mean_aerodynamic   = 8.0
-    wing.exposed_root_chord_offset = 3./2
-    wing.areas.reference           = 32.488    
-    wing.areas.exposed             = 59.354                  # Exposed area of the horizontal tail
-    wing.areas.wetted              = 64.976                    # Wetted area of the horizontal tail
-    wing.twists.root               = 3.0 * Units.degrees
-    wing.twists.tip                = 3.0 * Units.degrees  
-                                   
-    wing.origin                    = [32.83,0,1.14]
-    wing.aerodynamic_center        = [0,0,0]
-                                   
-    wing.vertical                  = False 
-    wing.symmetric                 = True
-                                   
-    wing.dynamic_pressure_ratio    = 0.9  
+    wing.sweeps.quarter_chord    = 38.42 * Units.degrees
+
+    wing.origin                  = [32.83,0,1.14]
+    wing.aerodynamic_center      = [0,0,0]
+    wing.dihedral                = 8.63 * Units.degrees
+
+    wing.vertical                = False 
+    wing.symmetric               = True
+
+    wing.dynamic_pressure_ratio  = 0.9 
     
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'root_segment'
+    segment.percent_span_location = 0.0
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 1.0
+    segment.dihedral_outboard     = 8.63 * Units.degrees
+    segment.sweeps.quarter_chord  = 38.42 * Units.degrees
+    wing.Segments.append(segment)         
+    
+    
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'tip_segment'
+    segment.percent_span_location = 1
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 0.203
+    segment.dihedral_outboard     = 0 * Units.degrees
+    segment.sweeps.quarter_chord  = 0 * Units.degrees
+    wing.Segments.append(segment) 
+
     # add to vehicle
     vehicle.append_component(wing)
     
     
-    # ------------------------------------------------------------------
+      # ------------------------------------------------------------------
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
-    
+
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'    
+
+    wing.aspect_ratio            = 1.91
+    wing.sweep                   = 25. * Units.deg
+    wing.thickness_to_chord      = 0.08
+    wing.taper                   = 0.25
+    wing.span_efficiency         = 0.9
+
+    wing.spans.projected         = 7.77
+
+    wing.chords.root             = 8.19
+    wing.chords.tip              = 0.95
+    wing.chords.mean_aerodynamic = 4.0
+
+    wing.areas.reference         = 27.316
+
+    wing.twists.root             = 0.0 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees  
+
+    wing.origin                  = [28.79,0,1.54]
+    wing.aerodynamic_center      = [0,0,0]    
+
+    wing.vertical                = True 
+    wing.symmetric               = False
+    wing.t_tail                  = False
     
-    wing.aspect_ratio              = 1.91      #
-    wing.sweeps.quarter_chord      = 25 * Units.deg
-    wing.thickness_to_chord        = 0.08
-    wing.taper                     = 0.25
-    wing.span_efficiency           = 0.9
-                                   
-    wing.spans.projected           = 7.777      #    
-                                   
-    wing.chords.root               = 8.19
-    wing.chords.tip                = 0.95
-    wing.chords.mean_aerodynamic   = 4.0
-                                   
-    wing.areas.reference           = 27.316    #
-                                   
-    wing.twists.root               = 0.0 * Units.degrees
-    wing.twists.tip                = 0.0 * Units.degrees  
-    wing.exposed_root_chord_offset = 3.74/2
-    wing.origin                    = [28.79,0,1.54]
-    wing.aerodynamic_center        = [0,0,0]    #[2,0,0]    
-                                   
-    wing.vertical                  = True 
-    wing.symmetric                 = False
-    wing.t_tail                    = False
-                                   
-    wing.dynamic_pressure_ratio    = 1.0
-        
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'root'
+    segment.percent_span_location = 0.0
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 1.
+    segment.dihedral_outboard     = 0 * Units.degrees
+    segment.sweeps.quarter_chord  = 63.63 * Units.degrees
+    wing.Segments.append(segment)      
+    
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'segment_1'
+    segment.percent_span_location = 0.194
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 0.540
+    segment.dihedral_outboard     = 0. * Units.degrees
+    segment.sweeps.quarter_chord  = 30.0 * Units.degrees
+    wing.Segments.append(segment)  
+    
+    segment = SUAVE.Components.Wings.Segment() 
+    segment.tag                   = 'segment_2'
+    segment.percent_span_location = 1.0
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 0.175
+    segment.dihedral_outboard     = 0.0 * Units.degrees
+    segment.sweeps.quarter_chord  = 51.0 * Units.degrees
+    wing.Segments.append(segment)        
+
+    wing.dynamic_pressure_ratio  = 1.0
+
     # add to vehicle
     vehicle.append_component(wing)
-
+    
 
     # ------------------------------------------------------------------
     #  Fuselage

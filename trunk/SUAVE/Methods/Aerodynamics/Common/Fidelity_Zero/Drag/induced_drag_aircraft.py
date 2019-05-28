@@ -52,6 +52,7 @@ def induced_drag_aircraft(state,settings,geometry):
     CDp     = state.conditions.aerodynamics.drag_breakdown.parasite.total
     CL      = conditions.aerodynamics.lift_coefficient
     CDi_inv = conditions.aerodynamics.drag_breakdown.induced.total
+    e       = configuration.oswald_efficiency_factor
     
     ar      = geometry.wings['main_wing'].aspect_ratio
     
@@ -62,11 +63,12 @@ def induced_drag_aircraft(state,settings,geometry):
     CDi = CDi_inv + K*CDp*(CL**2)    
     
     # Recompute osward efficiciency factor
-    e0 = 1/((1/e_inv)+np.pi*ar*K*CDp)
-    configuration.oswald_efficiency_factor = e0
-      
+    if e == None:
+        e = 1/((1/e_inv)+np.pi*ar*K*CDp)
+        configuration.oswald_efficiency_factor = e
+        
     # store data
     conditions.aerodynamics.drag_breakdown.induced.total =  CDi
-    conditions.aerodynamics.drag_breakdown.induced.efficiency_factor = e0
+    conditions.aerodynamics.drag_breakdown.induced.efficiency_factor = e
     
     return CDi

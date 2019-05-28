@@ -24,11 +24,19 @@ YDUPLICATE
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-13.61  0    -1.27    7.76    0.06981317007977318     
+13.61  0    -1.27    7.76    4.0     
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-21.611839413939776  17.16    -1.27    0.782    0.0     
+17.568051378570523  5.55984    -1.0272521431795383    3.88    0.047193702973926666     
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+23.387248463154734  16.8168    0.05666982081822591    1.7072    0.001396263401595465     
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+24.145512554616403  17.16    0.08971622215962119    0.7819752    0.0     
 
 
 #---------------------------------------------------------
@@ -43,11 +51,11 @@ YDUPLICATE
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-32.83  0    1.14    4.7    0.05235987755982989     
+32.83  0    1.14    4.7    0.0     
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-38.78760738135868  7.1    1.14    0.955    0.05235987755982989     
+39.47311574580709  7.1    2.21757692624795    0.9541000000000001    0.0     
 
 
 #---------------------------------------------------------
@@ -62,7 +70,11 @@ SECTION
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-32.416474657471426  0.0    7.777    0.95    0.0     
+32.772443748193034  0.0    3.04738    4.4226    0.0     
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+37.13550659102537  0.0    9.31    1.43325    0.0     
 
 
 #---------------------------------------------------------

@@ -132,7 +132,7 @@ class SU2_inviscid(Aerodynamics):
         conditions = state.conditions
         
         mach       = conditions.freestream.mach_number
-        AoA         = conditions.aerodynamics.angle_of_attack
+        AoA        = conditions.aerodynamics.angle_of_attack
         lift_model = surrogates.lift_coefficient
         drag_model = surrogates.drag_coefficient
         AR         = geometry.wings['main_wing'].aspect_ratio
@@ -143,10 +143,11 @@ class SU2_inviscid(Aerodynamics):
         for ii,_ in enumerate(AoA):
             inviscid_lift[ii] = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])]) #sklearn fix
             
-        conditions.aerodynamics.lift_coefficient                           = inviscid_lift
-        conditions.aerodynamics.lift_breakdown                             = Data()
-        conditions.aerodynamics.lift_breakdown.total                       = inviscid_lift        
-        conditions.aerodynamics.lift_breakdown.compressible_wings          = inviscid_lift # incorrect        
+        conditions.aerodynamics.lift_coefficient                                 = inviscid_lift
+        conditions.aerodynamics.lift_breakdown                                   = Data()
+        conditions.aerodynamics.lift_breakdown.compressible_wings                = Data()
+        conditions.aerodynamics.lift_breakdown.total                             = inviscid_lift        
+        conditions.aerodynamics.lift_breakdown.compressible_wings['main_wing']   = inviscid_lift # currently using vehicle drag for wing        
                                                                            
         # Inviscid drag, zeros are a placeholder for possible future implementation
         inviscid_drag                                                      = (inviscid_lift**2)/(np.pi*AR) 

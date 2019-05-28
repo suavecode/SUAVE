@@ -45,7 +45,7 @@ def main():
     noise_cumulative_margin = objectives[0]
     
     actual = Data()
-    actual.noise_cumulative_margin = 19.807292281628207
+    actual.noise_cumulative_margin = 19.78096259118695
 
 
     error = Data()

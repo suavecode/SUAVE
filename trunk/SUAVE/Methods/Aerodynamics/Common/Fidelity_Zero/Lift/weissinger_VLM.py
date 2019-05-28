@@ -25,6 +25,7 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
 
     Source:
     An Introduction to Theoretical and Computational Aerodynamics by Jack Moran
+    Pgs. 124-135(Literature), 151-153 (Fortran Code implementation)
 
     Inputs:
     wing.

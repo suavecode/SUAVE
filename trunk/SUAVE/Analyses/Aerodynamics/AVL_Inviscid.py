@@ -191,10 +191,15 @@ class AVL_Inviscid(Aerodynamics):
             span_efficiency[ii] = e_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
         
         # Store inviscid lift results     
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = Data()    
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = Data()
+        conditions.aerodynamics.lift_breakdown.compressible_wings  = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_lift
         conditions.aerodynamics.lift_coefficient                   = inviscid_lift
-        conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
+        
+        Sref = geometry.reference_area
+        for wing in geometry.wings.values():
+            wing_area                                                            = wing.areas.reference
+            conditions.aerodynamics.lift_breakdown.compressible_wings[wing.tag]  = inviscid_lift*(wing_area/Sref)
         
         # Store inviscid drag results
         ar                                                      = geometry.wings['main_wing'].aspect_ratio
