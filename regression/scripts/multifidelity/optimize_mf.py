@@ -13,7 +13,7 @@ import vehicle_mf
 import procedure_mf
 import matplotlib.pyplot as plt
 from SUAVE.Optimization import Nexus, carpet_plot
-import SUAVE.Optimization.Package_Setups.additive_setup as additive_setup
+from SUAVE.Optimization.Package_Setups.additive_setup import Additive_Solver
 import SUAVE.Optimization.Package_Setups.TRMM.Trust_Region_Optimization as tro
 from SUAVE.Optimization.Package_Setups.TRMM.Trust_Region import Trust_Region
 # ----------------------------------------------------------------------        
@@ -24,6 +24,9 @@ def main():
     
     problem = setup()
     tol = 1e-8
+    
+    solver = Additive_Solver()
+    solver.local_optimizer = 'SNOPT'
     
     ################## Basic Additive ##################################################
     
@@ -37,7 +40,7 @@ def main():
     ])    
     
     print('Checking basic additive with no active constraints...')
-    outputs = additive_setup.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=1e-8,print_output=False)
+    outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=1e-8,print_output=False)
     print(outputs)   
     obj,x1,x2 = get_results(outputs)
     
@@ -59,7 +62,7 @@ def main():
     ])    
     
     print('Checking basic additive with one active constraint...')
-    outputs = additive_setup.Additive_Solve(problem,max_iterations=1000,num_samples=20,tolerance=1e-8,print_output=False)
+    outputs = solver.Additive_Solve(problem,max_iterations=1000,num_samples=20,tolerance=1e-8,print_output=False)
     print(outputs)   
     obj,x1,x2 = get_results(outputs)
     
@@ -81,7 +84,7 @@ def main():
     ])    
     
     print('Checking basic additive with two active constraints...')
-    outputs = additive_setup.Additive_Solve(problem,max_iterations=1000,num_samples=20,tolerance=1e-8,print_output=False)
+    outputs = solver.Additive_Solve(problem,max_iterations=1000,num_samples=20,tolerance=1e-8,print_output=False)
     print(outputs)   
     obj,x1,x2 = get_results(outputs)
     
@@ -105,7 +108,7 @@ def main():
     ])    
     
     print('Checking MEI additive with no active constraint...')
-    outputs = additive_setup.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
+    outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
     print(outputs)   
     obj,x1,x2 = get_results(outputs)
     
@@ -127,7 +130,7 @@ def main():
     ])    
     
     print('Checking MEI additive with one active constraint...')
-    outputs = additive_setup.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
+    outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
     print(outputs)   
     obj,x1,x2 = get_results(outputs)
     
@@ -149,7 +152,7 @@ def main():
     ])    
     
     print('Checking MEI additive with two active constraints...')
-    outputs = additive_setup.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
+    outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
     print(outputs)   
     obj,x1,x2 = get_results(outputs)
     
