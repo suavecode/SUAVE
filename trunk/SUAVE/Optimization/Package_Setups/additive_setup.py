@@ -24,6 +24,7 @@ from scipy.stats import norm
 import os
 import sys
 from scipy.optimize import minimize
+from scipy.optimize import shgo
 
 # ----------------------------------------------------------------------
 #  Additive Solve Functions
@@ -156,35 +157,50 @@ class Additive_Solver():
                 
                 problem.fidelity_level = 1
                 
-                outputs = opt(opt_prob,problem=problem, \
-                              obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate,fstar=fstar,cons=con)#, sens_step = sense_step)
+                #outputs = opt(opt_prob,problem=problem, \
+                              #obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate,fstar=fstar,cons=con)#, sens_step = sense_step)
+                #fOpt  = np.nan 
+                #imOpt = outputs[0]
+                #xOpt  = outputs[1]
+                
+                xb, shgo_cons = self.initialize_opt_vals_SHGO(opt_prob, obj, inp, x_low_bound, x_up_bound, con_low_edge, con_up_edge, nam, con, problem, g_additive_surrogate)
+            
+                self.global_optimizer = 'SHGO'
+                res = shgo(self.evaluate_expected_improvement, xb, iters=2, args=(problem,f_additive_surrogate,g_additive_surrogate,fstar),constraints=shgo_cons)
+                self.global_optimizer = 'ALPSO'
+                
                 fOpt  = np.nan 
-                imOpt = outputs[0]
-                xOpt  = outputs[1]
+                imOpt = res['fun']
+                xOpt  = res['x']               
             
             # ---------------------------------
             
-            # Add new samples and check objective and constraint values
-            f = np.hstack((f,np.zeros((num_fidelity_levels,1))))
-            g = np.hstack((g,np.zeros((num_fidelity_levels,1,len(con)))))
-            x_samples = np.vstack((x_samples,xOpt))
-            for level in range(1,num_fidelity_levels+1):
-                problem.fidelity_level = level
-                res = self.evaluate_model(problem,xOpt,scaled_constraints)
-                f[level-1][-1] = res[0]
-                g[level-1][-1] = res[1]
-                
-            # History writing
-            f_out.write('Iteration: ' + str(kk+1)    + '\n')
-            f_out.write('x0       : ' + str(xOpt[0]) + '\n')
-            f_out.write('x1       : ' + str(xOpt[1]) + '\n')
-            if opt_type == 'basic':
-                f_out.write('expd hi  : ' + str(fOpt) + '\n')
-            elif opt_type == 'MEI':
-                f_out.write('expd imp : ' + str(imOpt) + '\n')
-            f_out.write('low obj : ' + str(f[0][-1]) + '\n')
-            f_out.write('hi  obj : ' + str(f[1][-1]) + '\n') 
-            if kk == (max_iterations-1): # Reached maximum number of iterations
+            complete_flag = False
+            if np.any(np.isnan(xOpt)):
+                complete_flag = True
+            else:
+            
+                # Add new samples and check objective and constraint values
+                f = np.hstack((f,np.zeros((num_fidelity_levels,1))))
+                g = np.hstack((g,np.zeros((num_fidelity_levels,1,len(con)))))
+                x_samples = np.vstack((x_samples,xOpt))
+                for level in range(1,num_fidelity_levels+1):
+                    problem.fidelity_level = level
+                    res = self.evaluate_model(problem,xOpt,scaled_constraints)
+                    f[level-1][-1] = res[0]
+                    g[level-1][-1] = res[1]
+                    
+                # History writing
+                f_out.write('Iteration: ' + str(kk+1)    + '\n')
+                f_out.write('x0       : ' + str(xOpt[0]) + '\n')
+                f_out.write('x1       : ' + str(xOpt[1]) + '\n')
+                if opt_type == 'basic':
+                    f_out.write('expd hi  : ' + str(fOpt) + '\n')
+                elif opt_type == 'MEI':
+                    f_out.write('expd imp : ' + str(imOpt) + '\n')
+                f_out.write('low obj : ' + str(f[0][-1]) + '\n')
+                f_out.write('hi  obj : ' + str(f[1][-1]) + '\n') 
+            if kk == (max_iterations-1) or complete_flag == True: # Reached maximum number of iterations
                 f_diff = f[1,:] - f[0,:]
                 if opt_type == 'basic': # If basic setting f already has the expected optimum
                     fOpt = f[1][-1]
@@ -378,6 +394,11 @@ class Additive_Solver():
         
         """    
     
+        if np.any(np.isnan(x)):
+            if self.global_optimizer == 'ALPSO':
+                raise ValueError('Unknown error in ALPSO optimizer created NaN values.')
+            return np.inf
+    
         obj   = problem.objective(x)
         const = problem.all_constraints(x).tolist()
         fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)
@@ -391,26 +412,29 @@ class Additive_Solver():
         EI    = (fstar-fhat)*norm.cdf((fstar-fhat)/obj_sigma) + obj_sigma*norm.pdf((fstar-fhat)/obj_sigma)
         const = const + cons_addition
         
-        # Adjust signs for optimizer (this is specific to ALPSO)
-        signs  = np.ones([1,len(cons)])
-        offset = np.zeros([1,len(cons)])
-        for ii,con in enumerate(cons):
-            if cons[ii][1] == '>':
-                signs[0,ii] = -1
-            offset[0,ii] = cons[ii][2]
-        
-        
-        const = const*signs - offset*signs
-        const = const.tolist()[0]
-    
-        print('Inputs')
-        print(x)
-        print('Obj')
-        print(-EI)
-        print('Con')
-        print(const)
+        if self.global_optimizer == 'ALPSO':
+            # Adjust signs for optimizer (this is specific to ALPSO)
+            signs  = np.ones([1,len(cons)])
+            offset = np.zeros([1,len(cons)])
+            for ii,con in enumerate(cons):
+                if cons[ii][1] == '>':
+                    signs[0,ii] = -1
+                offset[0,ii] = cons[ii][2]
             
-        return -EI,const,fail
+            
+            const = const*signs - offset*signs
+            const = const.tolist()[0]
+        
+            print('Inputs')
+            print(x)
+            print('Obj')
+            print(-EI)
+            print('Con')
+            print(const)
+                
+            return -EI,const,fail
+        elif self.global_optimizer == 'SHGO':
+            return -EI
     
     ## @ingroup Optimization-Package_Setups
     def expected_improvement_carpet(self,lbs,ubs,problem,obj_surrogate,cons_surrogate,fstar,show_log_improvement=False):
@@ -608,6 +632,9 @@ class Additive_Solver():
     
     def unpack_constraints_slsqp(self,x,con_ind,sign,edge,problem,cons_surrogate):
         
+        if np.any(np.isnan(x)):
+            return np.inf        
+        
         const = problem.all_constraints(x).tolist()
         
         cons_addition = cons_surrogate.predict(np.atleast_2d(x))
@@ -639,6 +666,29 @@ class Additive_Solver():
             slsqp_con_list.append(c_dict)
         
         return x0,slsqp_con_list
+    
+    def initialize_opt_vals_SHGO(self,opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,problem,cons_surr):
+        # Initialize variables according to SLSQP requirements
+        bound_list = []
+        for i in range(len(x_low_bound)):
+            bound_list.append((x_low_bound[i],x_up_bound[i]))
+        slsqp_con_list = []
+        for i,c in enumerate(con):
+            c_dict = {}
+            if c[1] == '<' or c[1] == '>':
+                c_dict['type'] = 'ineq'
+            elif c[1] == '=':
+                c_dict['type'] = 'eq'
+            else:
+                raise ValueError('Constraint specification not recognized.')
+            c_dict['fun'] = self.unpack_constraints_slsqp
+            if c[1] == '<':
+                c_dict['args'] = [i,-1,c[2],problem,cons_surr]
+            else:
+                c_dict['args'] = [i,1,c[2],problem,cons_surr]
+            slsqp_con_list.append(c_dict)
+        
+        return bound_list,slsqp_con_list    
     
     ## @ingroup Optimization-Package_Setups
     def run_objective_optimization(self,opt_prob,problem,f_additive_surrogate,g_additive_surrogate):

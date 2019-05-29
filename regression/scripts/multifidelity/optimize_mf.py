@@ -27,6 +27,7 @@ def main():
     
     solver = Additive_Solver()
     solver.local_optimizer = 'SNOPT'
+    solver.global_optimizer = 'ALPSO'
     
     ################## Basic Additive ##################################################
     
@@ -116,7 +117,7 @@ def main():
     #   Check Results
     # ------------------------------------------------------------------    
 
-    assert( np.isclose(obj,  0, atol=1e-6) )
+    assert( np.isclose(obj,  0, atol=1e-5) )
     assert( np.isclose(x1 ,-.1, atol=1e-2) )
     assert( np.isclose(x2 ,  0, atol=1e-2) )      
     
