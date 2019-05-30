@@ -68,15 +68,16 @@ def VLM(conditions,settings,geometry):
         fineness.nose                          [Unitless]
         fineness.tail                          [Unitless]
         
-       settings.number_panels_spanwise    [Unitless]
-       settings.number_panels_chordwise   [Unitless]
+       settings.number_panels_spanwise         [Unitless]
+       settings.number_panels_chordwise        [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
-
-    Outputs:
-    CL                                      [Unitless]
-    Cl                                      [Unitless]
-    CDi                                     [Unitless]
-    Cdi                                     [Unitless]
+       conditions.freestream.mach_number       [Unitless]
+       
+    Outputs:                                   
+    CL                                         [Unitless]
+    Cl                                         [Unitless]
+    CDi                                        [Unitless]
+    Cdi                                        [Unitless]
 
     Properties Used:
     N/A
@@ -97,20 +98,21 @@ def VLM(conditions,settings,geometry):
         x_m = x_cg
     
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
+    mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(aoa)) 
    
     # generate vortex distribution
     VD = compute_vortex_distribution(geometry,settings)       
         
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)
+    C_mn, DW_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa,mach)
 
     # Compute flow tangency conditions   
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones
-    delta = np.arctan((VD.ZC - VD.ZCH)/(VD.XC - VD.XCH))*ones
+    delta = np.arctan((VD.ZC - VD.ZCH)/(VD.XC - VD.XCH))*ones  # EDIT
    
     # Build Aerodynamic Influence Coefficient Matrix
-    A = C_mn[:,:,:,2] - np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.tan(delta)))- np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)))
+    A = C_mn[:,:,:,2] - np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.tan(delta)))- np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)))  # EDIT
     
     # Build the vector
     RHS = np.tan(delta)*np.cos(aoa) - np.sin(aoa)
@@ -167,12 +169,12 @@ def VLM(conditions,settings,geometry):
     CDi_wing = Di_wing/wing_areas
     
     # Calculate each spanwise set of Cls and Cds
-    cl_sec = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
-    cd_sec = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
+    cl_y = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
+    cdi_y = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
     
     # Split the Cls and Cds for each wing
-    Cl_wings = np.array(np.split(cl_sec,n_w,axis=1))
-    Cd_wings = np.array(np.split(cd_sec,n_w,axis=1))
+    Cl_wings = np.array(np.split(cl_y,n_w,axis=1))
+    Cd_wings = np.array(np.split(cdi_y,n_w,axis=1))
             
     # total lift and lift coefficient
     L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T
@@ -184,9 +186,9 @@ def VLM(conditions,settings,geometry):
 
     # pressure coefficient
     U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)
-    CPi = 1 - (U_tot)*(U_tot)
+    CP = 1 - (U_tot)*(U_tot)
      
     # moment coefficient
     CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
     
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_sec , cd_sec , CPi 
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP 

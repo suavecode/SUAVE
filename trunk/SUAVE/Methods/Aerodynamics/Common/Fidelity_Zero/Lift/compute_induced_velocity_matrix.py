@@ -13,43 +13,47 @@ import numpy as np
 from SUAVE.Core import Units , Data
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
+def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
 
     # unpack 
     ones = np.atleast_3d(np.ones_like(theta_w))
-    XAH  = np.atleast_3d(data.XAH*ones)
+ 
+    # Prandtl Glauret Transformation
+    beta = np.atleast_3d(1/np.sqrt(1-mach**2))    
+    
+    XAH  = np.atleast_3d(data.XAH*beta)
     YAH  = np.atleast_3d(data.YAH*ones)
     ZAH  = np.atleast_3d(data.ZAH*ones)
-    XBH  = np.atleast_3d(data.XBH*ones)
+    XBH  = np.atleast_3d(data.XBH*beta)
     YBH  = np.atleast_3d(data.YBH*ones)
     ZBH  = np.atleast_3d(data.ZBH*ones)
 
-    XA1  = np.atleast_3d(data.XA1*ones)
+    XA1  = np.atleast_3d(data.XA1*beta)
     YA1  = np.atleast_3d(data.YA1*ones)
     ZA1  = np.atleast_3d(data.ZA1*ones)
-    XA2  = np.atleast_3d(data.XA2*ones)
+    XA2  = np.atleast_3d(data.XA2*beta)
     YA2  = np.atleast_3d(data.YA2*ones)
     ZA2  = np.atleast_3d(data.ZA2*ones)
 
-    XB1  = np.atleast_3d(data.XB1*ones)
+    XB1  = np.atleast_3d(data.XB1*beta)
     YB1  = np.atleast_3d(data.YB1*ones)
     ZB1  = np.atleast_3d(data.ZB1*ones)
-    XB2  = np.atleast_3d(data.XB2*ones)
+    XB2  = np.atleast_3d(data.XB2*beta)
     YB2  = np.atleast_3d(data.YB2*ones)
     ZB2  = np.atleast_3d(data.ZB2*ones)
 
-    XAC  = np.atleast_3d(data.XAC*ones)
+    XAC  = np.atleast_3d(data.XAC*beta)
     YAC  = np.atleast_3d(data.YAC*ones)
     ZAC  = np.atleast_3d(data.ZAC*ones)
-    XBC  = np.atleast_3d(data.XBC*ones)
+    XBC  = np.atleast_3d(data.XBC*beta)
     YBC  = np.atleast_3d(data.YBC*ones)
     ZBC  = np.atleast_3d(data.ZBC*ones)
-    XC   = np.atleast_3d(data.XC*ones)
+    XC   = np.atleast_3d(data.XC*beta)
     YC   = np.atleast_3d(data.YC*ones) 
     ZC   = np.atleast_3d(data.ZC*ones)  
     n_w  = data.n_w
 
-    theta_w = np.atleast_3d(0) #wake model set to freestream
+    theta_w = np.atleast_3d(0)     # wake model set to freestream
     n_aoa   = np.shape(theta_w)[0]
     
     # -------------------------------------------------------------------------------------------

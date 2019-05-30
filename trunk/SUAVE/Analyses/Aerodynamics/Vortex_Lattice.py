@@ -26,7 +26,8 @@ from SUAVE.Plots import plot_vehicle_geometry
 
 # package imports
 import numpy as np
-
+import sklearn
+from sklearn import gaussian_process
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
@@ -70,7 +71,8 @@ class Vortex_Lattice(Aerodynamics):
         
         # conditions table, used for surrogate model training
         self.training                          = Data()        
-        self.training.angle_of_attack          = np.array([[-5.,-3.5,-2.,0.,2.,3.5,5.,8.,10.,12.]]).T * Units.deg
+        self.training.angle_of_attack          = np.array([[-5.,-3.5,-2., 0.0, 2.0, 3.5, 5.0 , 8.0, 10., 12.]]).T * Units.deg
+        self.training.Mach                     = np.array([[0.0,0.1 ,0.2, 0.3, 0.4, 0.5, 0.6 , 0.7, 0.8 ,0.9]]).T 
         self.training.lift_coefficient         = None
         self.training.wing_lift_coefficient    = None
         self.training.drag_coefficient         = None
@@ -78,7 +80,10 @@ class Vortex_Lattice(Aerodynamics):
         
         # surrogoate models
         self.surrogates                        = Data()
-        self.surrogates.lift_coefficient       = None        
+        self.surrogates.lift_coefficient       = None  
+        self.surrogates.wing_lift_coefficient  = None
+        self.surrogates.drag_coefficient       = None
+        self.surrogates.wing_drag_coefficient  = None
         
         self.evaluate                          = None
         
@@ -174,35 +179,36 @@ class Vortex_Lattice(Aerodynamics):
         geometry            = self.geometry
         surrogates          = self.surrogates
         AoA                 = conditions.aerodynamics.angle_of_attack
+        Mach                = conditions.freestream.mach_number
            
         # Unapck the surrogates
         CL_surrogate        = surrogates.lift_coefficient
         CDi_surrogate       = surrogates.drag_coefficient
-        wing_CL_surrogates  = surrogates.wing_lifts 
-        wing_CDi_surrogates = surrogates.wing_drags
+        wing_CL_surrogates  = surrogates.wing_lift_coefficient
+        wing_CDi_surrogates = surrogates.wing_dragw_coefficient
                 
-        # Evaluate the surrogate
-        inviscid_lift       = CL_surrogate(AoA)
-        inviscid_drag       = CDi_surrogate(AoA)
+        data_len                 = len(AoA)
+        inviscid_lift            = np.zeros([data_len,1]) 
+        inviscid_drag            = np.zeros([data_len,1])        
         
-        # Pull out the individual lifts
-        wing_lifts          = Data()
-        wing_drags          = Data()
-        
-        for key in geometry.wings.keys():
-            wing_lifts[key] = wing_CL_surrogates[key](AoA)
-            wing_drags[key] = wing_CDi_surrogates[key](AoA)
-        
+        for ii,_ in enumerate(AoA):
+            inviscid_lift[ii]       = CL_surrogate.predict([np.array([AoA[ii][0],Mach[ii][0]])])  
+            inviscid_drag[ii]       = CDi_surrogate.predict([np.array([AoA[ii][0],Mach[ii][0]])])            
+            
+            for wing in geometry.wings.keys():
+                inviscid_wing_lifts = wing_CL_surrogates[wing].predict([np.array([AoA[ii][0],Mach[ii][0]])])  
+                inviscid_wing_drags = wing_CDi_surrogates[wing].predict([np.array([AoA[ii][0],Mach[ii][0]])])
+                conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]          = inviscid_wing_lifts
+                conditions.aerodynamics.lift_breakdown.compressible_wings[wing]           = inviscid_wing_lifts      
+                conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag[wing]  = inviscid_wing_drags
+         
         # Lift    
         conditions.aerodynamics.lift_coefficient                             = inviscid_lift*1.0
         conditions.aerodynamics.lift_breakdown.total                         = inviscid_lift*1.0
-        conditions.aerodynamics.lift_breakdown.compressible_wings            = wing_lifts
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift           = wing_lifts
-               
+        
         # Drag   
         conditions.aerodynamics.drag_breakdown.induced                       = Data()
-        conditions.aerodynamics.drag_breakdown.induced.total                 = inviscid_drag*1.0
-        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag   = wing_drags       
+        conditions.aerodynamics.drag_breakdown.induced.total                 = inviscid_drag*1.0   
      
         return inviscid_lift
     
@@ -227,7 +233,7 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.drag_breakdown.induced.
           total                                   [-] CDi 
           wings_sectional_drag                    [-] CDiy (wing specific)
-          induced.inviscid_wings_drag             [-] CDi (wing specific)        
+          induced.inviscid_wings_drag             [-] CDi  (wing specific)        
         conditions.aerodynamics.lift_breakdown. 
           total                                   [-] CDi 
           wings_sectional_lift                    [-] Cly (wing specific)
@@ -280,9 +286,9 @@ class Vortex_Lattice(Aerodynamics):
         Outputs:
         self.training.
           lift_coefficient            [-] 
-          wing_lifts                  [-] (wing specific)
+          wing_lift_coefficient       [-] (wing specific)
           drag_coefficient            [-] 
-          wing_drags                  [-] (wing specific)
+          wing_drag_coefficient       [-] (wing specific)
         Properties Used:
         self.geometry.wings.*.tag
         self.settings                 (passed to calculate vortex lattice)
@@ -290,25 +296,56 @@ class Vortex_Lattice(Aerodynamics):
         """  
         
         # unpack
-        geometry                                = self.geometry
-        settings                                = self.settings
-        training                                = self.training
-                                                
+        geometry = self.geometry
+        settings = self.settings
+        training = self.training        
+        AoA      = training.angle_of_attack
+        Mach     = training.Mach   
+        
         # Setup Konditions                      
         konditions                              = Data()
         konditions.aerodynamics                 = Data()
-        konditions.aerodynamics.angle_of_attack = training.angle_of_attack
+        konditions.aerodynamics.angle_of_attack = AoA 
+        
+        # Assign placeholders        
+        CL             = np.zeros([len(AoA)*len(Mach),1])
+        CDi            = np.zeros([len(AoA)*len(Mach),1])
+        CL_w           = Data()
+        CDi_w          = Data()
+        for wing in geometry.wings.keys():
+            CL_w[wing] = np.zeros([len(AoA)*len(Mach),1])
+            CDi_w[wing]= np.zeros([len(AoA)*len(Mach),1])
+        
+        # Calculate aerodynamics for table
+        table_size     = len(AoA)*len(Mach)
+        xy             = np.zeros([table_size,2])          
+        for i,_ in enumerate(Mach):
+            for j,_ in enumerate(AoA):
+                xy[i*len(Mach)+j,:] = np.array([AoA[j],Mach[i]])
         
         # Get the training data        
-        total_lift, total_drag, wing_lifts, wing_drags , wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
-            settings.call_function(konditions,settings,geometry)
-        
+        count = 0
+        for j,_ in enumerate(Mach):
+            konditions.freestream.mach_number = Mach[j]*np.ones_like(AoA)                         
+            total_lift, total_drag, wing_lifts, wing_drags , wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
+                settings.call_function(konditions,settings,geometry)
+           
+            # store training data
+            CL[count*len(Mach):(count+1)*len(Mach),0]                = total_lift
+            CDi[count*len(Mach):(count+1)*len(Mach),0]               = total_drag            
+            for wing in geometry.wings.keys():
+                CL_w[wing][count*len(Mach):(count+1)*len(Mach),0]    = wing_lifts[wing]
+                CDi_w[wing][count*len(Mach):(count+1)*len(Mach),0]   = wing_drags[wing]                
+            
+            count += 1 
+            
         # surrogate not run on sectional coefficients and pressure coefficients
         # Store training data
-        training.lift_coefficient = total_lift
-        training.drag_coefficient = total_drag
-        training.wing_lifts       = wing_lifts
-        training.wing_drags       = wing_drags
+        training.grid_points              = xy
+        training.lift_coefficient         = CL
+        training.wing_lift_coefficient    = CL_w
+        training.drag_coefficient         = CDi
+        training.wing_drag_coefficient    = CDi_w
         
         return
         
@@ -323,41 +360,47 @@ class Vortex_Lattice(Aerodynamics):
         Outputs:
         self.surrogates.
           lift_coefficient            <np.poly1d>
-          wing_inviscid_lift          <np.poly1d> (multiple surrogates)
+          wing_lift_coefficient       <np.poly1d> (multiple surrogates)
           drag_coefficient            <np.poly2d>
-          wing_inviscid_drag          <np.poly2d> (multiple surrogates)
+          wing_drag_coefficient       <np.poly2d> (multiple surrogates)
         Properties Used:
         self.training.
           lift_coefficient            [-] 
-          wing_lifts                  [-] (wing specific)
+          wing_lift_coefficient       [-] (wing specific)
           drag_coefficient            [-] 
-          wing_drags                  [-] (wing specific)
+          wing_drag_coefficient       [-] (wing specific)
         """           
 
         # unpack data
-        training      = self.training
-        AoA_data      = training.angle_of_attack
-        CL_data       = training.lift_coefficient
-        CDi_data      =  training.drag_coefficient
-        wing_CL_data  = training.wing_lifts
-        wing_CDi_data = training.wing_drags    
+        surrogates = self.surrogates
+        training   = self.training
+        geometry   = self.geometry
+        AoA_data   = training.angle_of_attack
+        mach_data  = training.Mach        
+        CL_data    = training.lift_coefficient      
+        CDi_data   = training.wing_lift_coefficient 
+        CL_w_data  = training.drag_coefficient      
+        CDi_w_data = training.wing_drag_coefficient 
+        xy         = training.grid_points
         
-        # learn the models
-        CL_surrogate  = np.poly1d(np.polyfit(AoA_data.T[0], CL_data.T[0], 1))
-        CDi_surrogate = np.poly1d(np.polyfit(AoA_data.T[0], CDi_data.T[0], 2))
-        
-        wing_CL_surrogates  = Data()
-        wing_CDi_surrogates = Data()
-        
-        for wing in wing_CL_data.keys():
-            wing_CL_surrogates[wing]  = np.poly1d(np.polyfit(AoA_data.T[0], wing_CL_data[wing].T[0], 1))   
-            wing_CDi_surrogates[wing] = np.poly1d(np.polyfit(AoA_data.T[0], wing_CDi_data[wing].T[0], 2))   
-        
+        # Gaussian Process 
+        regr_cl                    = gaussian_process.GaussianProcessRegressor()
+        regr_cdi                   = gaussian_process.GaussianProcessRegressor()
+        CL_surrogate               = regr_cl.fit(xy, CL_data)
+        CDi_surrogate              = regr_cdi.fit(xy, CDi_data)        
+        CL_w_surrogates            = Data() 
+        CDi_w_surrogates           = Data()         
+        for wing in geometry.wings.keys():
+            regr_cl_w              = gaussian_process.GaussianProcessRegressor()
+            regr_cdi_w             = gaussian_process.GaussianProcessRegressor()          
+            CL_w_surrogates[wing]  = regr_cl_w.fit(xy, CL_w_data[wing])   
+            CDi_w_surrogates[wing] = regr_cdi_w.fit(xy, CDi_w_data[wing])
+   
         # Pack the outputs
-        self.surrogates.lift_coefficient = CL_surrogate
-        self.surrogates.drag_coefficient = CDi_surrogate
-        self.surrogates.wing_lifts       = wing_CL_surrogates
-        self.surrogates.wing_drags       = wing_CDi_surrogates
+        surrogates.lift_coefficient     = CL_surrogate
+        surrogates.wing_lift_coefficient= CL_w_surrogates
+        surrogates.drag_coefficient     = CDi_surrogate
+        surrogates.wing_drag_coefficient= CDi_w_surrogates
         
         return
 # ----------------------------------------------------------------------
@@ -393,7 +436,7 @@ def calculate_VLM(conditions,settings,geometry):
     wing_lifts = Data()
     wing_drags = Data()
     
-    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_sec , cdi_sec , CPi = VLM(conditions,settings,geometry)
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y , CPi = VLM(conditions,settings,geometry)
 
     ii = 0
     for wing in geometry.wings.values():
@@ -405,7 +448,7 @@ def calculate_VLM(conditions,settings,geometry):
             wing_drags[wing.tag] += 1*(np.atleast_2d(CDi_wing[:,ii]).T)
             ii+=1
 
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_sec , cdi_sec , CPi
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_y , cdi_y , CPi
 
 
 
@@ -441,12 +484,12 @@ def calculate_weissinger(conditions,settings,geometry):
     total_induced_drag_coeff = 0.
 
     for wing in geometry.wings.values():
-        wing_lift_coeff,wing_drag_coeff, cl, cdi  =  weissinger_VLM(conditions,settings,wing,propulsors)
+        wing_lift_coeff,wing_drag_coeff, cl_y, cdi_y  =  weissinger_VLM(conditions,settings,wing,propulsors)
         total_lift_coeff                         += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
         total_induced_drag_coeff                 += wing_drag_coeff * wing.areas.reference / vehicle_reference_area
         wing_lifts[wing.tag]                      = wing_lift_coeff
         wing_drags[wing.tag]                      = wing_drag_coeff
-        wing_lift_distribution[wing.tag]          = cl
-        wing_drag_distribution[wing.tag]          = cdi   
+        wing_lift_distribution[wing.tag]          = cl_y
+        wing_drag_distribution[wing.tag]          = cdi_y  
     
     return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, 0
