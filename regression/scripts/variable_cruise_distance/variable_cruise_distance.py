@@ -69,6 +69,8 @@ def mission_setup(configs,analyses):
     # base segment
     base_segment = Segments.Segment()
     base_segment.state.numerics.number_control_points = 4
+    base_segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
+    base_segment.process.finalize.post_process.stability   = SUAVE.Methods.skip    
         
     
     # ------------------------------------------------------------------

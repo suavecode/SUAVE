@@ -94,7 +94,8 @@ def parasite_drag_wing(state,settings,geometry):
             if i_segs == num_segments-1:
                 continue 
             else:  
-                span_seg  = semispan*(wing.Segments[i_segs+1].percent_span_location - wing.Segments[i_segs].percent_span_location )            
+                dihedral  = wing.Segments[i_segs].dihedral_outboard
+                span_seg  = semispan*(wing.Segments[i_segs+1].percent_span_location - wing.Segments[i_segs].percent_span_location )/np.cos(dihedral)  
                 sweep_seg = wing.Segments[i_segs].sweeps.quarter_chord    
                 xtu       = wing.transition_x_upper
                 xtl       = wing.transition_x_lower      

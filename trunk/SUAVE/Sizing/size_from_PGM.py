@@ -13,6 +13,7 @@ import numpy as np
 import scipy as sp
 
 from SUAVE.Core import Data, Units
+from SUAVE.Core.Diffed_Data import diff
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import fuselage_planform
@@ -23,6 +24,8 @@ from SUAVE.Methods.Propulsion import turbojet_sizing
 
 from SUAVE.Components.Wings.Main_Wing import Main_Wing, Segment_Container
 from SUAVE.Components.Wings.Segment import Segment
+
+
 
 # ----------------------------------------------------------------------
 #  Size from PGM
@@ -70,6 +73,8 @@ def size_from_PGM(vehicle):
         # Deal with passengers
         pax = 0
         n_fuses = len(vehicle.fuselages)
+
+                
         
         # Size the wings
         max_area = 0
@@ -593,10 +598,22 @@ def size_from_PGM(vehicle):
                                 prop.engine_length = 0.01
                                 
                         if prop.nacelle_diameter == 0.:
-                                prop.nacelle_diameter= 0.01                           
+                                prop.nacelle_diameter= 0.01        
+                                
+        # Fix wing origins if they're on top of each other
+        wing_keys = list(vehicle.wings.keys())
+        for ii in range(len(vehicle.wings)):
+                for kk in range(ii):
+                        wing_a = vehicle.wings[wing_keys[ii]]
+                        wing_b = vehicle.wings[wing_keys[kk]]
+                        difference = Data(diff(wing_a,wing_b))
+                        if len(difference.keys())==1.:
+                                wing_b.non_dimensional_origin[0][0] = 0.1*np.random.rand() + wing_b.non_dimensional_origin[0][0]                  
 
         # Set the origins
         vehicle = set_origin_dimensional(vehicle)
+        
+         
         
     
         return vehicle

@@ -57,7 +57,7 @@ class Main_Wing(Wing):
         N/A
         """ 
         self.tag             = 'main_wing'
-        self.Segments         = Segment_Container()
+        self.Segments        = Segment_Container()
         self.max_per_vehicle = 3
         self.PGM_minimum            = 1
         self.PGM_characteristics    = ['spans.projected','chords.root','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
