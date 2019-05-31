@@ -226,8 +226,7 @@ class Propeller_corr(Energy_Component):
         #sigma   = np.multiply(B*c,1./(2.*pi*r))
         blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
         sigma   = blade_area[-1]/(pi*r[-1]**2)
-
-        
+     
         omegar = np.outer(omega,r)
         Ua = np.outer((V + ua),np.ones_like(r))
         Ut = omegar - ut

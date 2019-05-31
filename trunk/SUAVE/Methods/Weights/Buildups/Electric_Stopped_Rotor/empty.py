@@ -131,12 +131,16 @@ def empty(config,
                                      maxLiftPower/etaMotor) *Units.kg
 
     total_wing_weight = 0.
+    output.wings = Data()
     for w in config.wings:
         wing_tag = w.tag
+        #print('wing_tag =', wing_tag)
         if (wing_tag.find('main_wing') != -1):
             wing_weight = wing(config.wings[w.tag],
                                config, 
                                maxLift/5) *Units.kg
+            tag = wing_tag
+            output.wings[tag] = wing_weight
             total_wing_weight = total_wing_weight + wing_weight
     output.total_wing_weight = total_wing_weight
     

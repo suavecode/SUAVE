@@ -10,3 +10,4 @@ from .Weights_UAV                    import Weights_UAV
 from .Weights_Electric_Helicopter    import Weights_Electric_Helicopter
 from .Weights_Electric_Stopped_Rotor import Weights_Electric_Stopped_Rotor
 from .Weights_Electric_Tiltrotor     import Weights_Electric_Tiltrotor
+from .Weights_Human_Powered          import Weights_Human_Powered

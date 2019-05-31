@@ -323,7 +323,7 @@ class Stopped_Rotor(Propulsor):
         conditions.propulsion.propeller_thrust_coefficient = Cp_forward
         conditions.propulsion.propeller_power_coefficient_lift  = Cp_lift        
         conditions.propulsion.propeller_thrust_coefficient_lift  = noise_lift.Ct
-
+        conditions.propulsion.battery_current = current_total
         return results
     
     def unpack_unknowns_transition(self,segment):
