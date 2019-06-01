@@ -113,7 +113,7 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
    
         axes = fig.add_subplot(2,1,1)
         axes.plot(time, DL, line_color)
-        axes.set_ylabel('lift disc power lb/ft2',axis_font)
+        axes.set_ylabel('Disc Loading lb/ft2',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)
         axes.grid(True)       
@@ -121,7 +121,7 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
         axes = fig.add_subplot(2,1,2)
         axes.plot(time, PL, line_color )       
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('lift power loading (lb/hp)',axis_font)
+        axes.set_ylabel('Power Loading (lb/hp)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
         axes.grid(True)         
@@ -278,20 +278,21 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
     fig.set_size_inches(10, 8)
     for segment in results.segments.values():  
     
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        power    = -segment.conditions.propulsion.battery_draw[:,0] 
-        energy   = segment.conditions.propulsion.battery_energy[:,0] 
-        volts    = segment.conditions.propulsion.voltage_under_load[:,0] 
-        volts_oc = segment.conditions.propulsion.voltage_open_circuit[:,0]     
-        current = segment.conditions.propulsion.current[:,0]      
+        time           = segment.conditions.frames.inertial.time[:,0] / Units.min
+        energy         = segment.conditions.propulsion.battery_energy[:,0] 
+        specific_power = segment.conditions.propulsion.battery_specfic_power[:,0]
+        volts          = segment.conditions.propulsion.voltage_under_load[:,0] 
+        volts_oc       = segment.conditions.propulsion.voltage_open_circuit[:,0]     
+        current        = segment.conditions.propulsion.current[:,0]      
         battery_amp_hr = (energy*0.000277778)/volts
         C_rating   = current/battery_amp_hr
         
         axes = fig.add_subplot(2,2,1)
-        axes.plot(time, power, line_color)
-        axes.set_ylabel('Battery Power (Watts)',axis_font)
+        axes.plot(time,specific_power, 'bo-')
+        axes.set_ylabel('Specific Power kW/hg')
         axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)      
+        axes.grid(True)  
         axes.grid(True)       
     
         axes = fig.add_subplot(2,2,2)
@@ -323,7 +324,33 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         
     return
 
+def plot_residuals(results, line_color = 'bo-', save_figure = False, save_filename = "Residuals"):
+    axis_font = {'fontname':'Arial', 'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(10, 8)
+    for segment in results.segments.values():
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
+        if 'network' in segment.state.residuals:
+            network_res = len(segment.state.residuals.network[0]) 
+            for i in range(network_res-1):   
+                net_residuals = segment.state.residuals.network[:,i]
+                axes = fig.add_subplot(2,2,i+1)
+                axes.plot( time , net_residuals, line_color)    
+                axes.set_ylabel('Network Residuals ' + str(i+1),axis_font)
+                axes.set_xlabel('Time (min)',axis_font)   
+                axes.grid(True) 
+                
+        if 'forces' in segment.state.residuals:
+            forces_res  = len(segment.state.residuals.forces[0]) 
+            for j in range(network_res-1):
+                forces_residuals = segment.state.residuals.forces[:,j]
+                axes = fig.add_subplot(2,2,network_res+j)
+                axes.plot( time , forces_residuals, line_color)
+                axes.set_ylabel('Force Residuals ' + str(j+1) , axis_font)
+                axes.set_xlabel('Time (min)', axis_font) 
+                axes.grid(True) 
 
+    return 
 # ------------------------------------------------------------------
 #   Flight Conditions
 # ------------------------------------------------------------------
@@ -385,33 +412,25 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
 # ------------------------------------------------------------------
 def plot_propulsor_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propulsor"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
-    fig = plt.figure(save_filename)
+    save_filename1 = save_filename + '_Results_1'
+    save_filename2 = save_filename + '_Results_2'
+    fig = plt.figure(save_filename1)
     fig.set_size_inches(10, 8)  
     for segment in results.segments.values():
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm    = segment.conditions.propulsion.rpm  [:,0] 
-        thrust = segment.conditions.frames.body.thrust_force_vector[:,2]
-        torque = segment.conditions.propulsion.motor_torque 
-        effp   = segment.conditions.propulsion.etap[:,0]
-        effm   = segment.conditions.propulsion.etam[:,0]
-        ts     = segment.conditions.propulsion.tip_speed[:,0]
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min        
+        thrust   = segment.conditions.frames.body.thrust_force_vector[:,2]
+        torque   = segment.conditions.propulsion.motor_torque[:,0] 
+        effp     = segment.conditions.propulsion.etap[:,0]
+        effm     = segment.conditions.propulsion.etam[:,0]
         
-        axes = fig.add_subplot(2,3,1)
-        axes.plot(time, rpm, line_color)
-        axes.set_ylabel('RPM',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
-        axes.grid(True)       
-
-        axes = fig.add_subplot(2,3,2)
+        axes = fig.add_subplot(2,2,1)
         axes.plot(time, -thrust, line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)      
         axes.grid(True)   
 
-        axes = fig.add_subplot(2,3,3)
+        axes = fig.add_subplot(2,2,2)
         axes.plot(time, torque, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Torque (N-m)',axis_font)
@@ -419,7 +438,15 @@ def plot_propulsor_conditions(results, line_color = 'bo-', save_figure = False, 
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
         axes.grid(True)   
         
-        axes = fig.add_subplot(2,3,4)
+        axes = fig.add_subplot(2,2,3)
+        axes.plot(time, effm, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.grid(True)
+        
+        axes = fig.add_subplot(2,2,4)
         axes.plot(time, effp, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Propeller Efficiency (N-m)',axis_font)
@@ -428,24 +455,49 @@ def plot_propulsor_conditions(results, line_color = 'bo-', save_figure = False, 
         axes.grid(True)           
         plt.ylim((0,1))
         
-        axes = fig.add_subplot(2,3,5)
-        axes.plot(time, effm, line_color )
+    fig = plt.figure(save_filename2)
+    fig.set_size_inches(10, 8)  
+    for segment in results.segments.values(): 
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
+        rpm      = segment.conditions.propulsion.rpm  [:,0] 
+        tip_mach = segment.conditions.propulsion.propeller_tip_mach[:,0]  
+        throttle = segment.conditions.propulsion.throttle[:,0] 
+        Cp       = segment.conditions.propulsion.propeller_power_coefficient[:,0]        
+
+        axes = fig.add_subplot(2,2,1)
+        axes.plot(time, throttle, 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Throttle')
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.grid(True) 
+        
+        axes = fig.add_subplot(2,2,2)
+        axes.plot(time, Cp, 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Power Coefficient')
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.grid(True) 
+        
+        axes = fig.add_subplot(2,2,3)
+        axes.plot(time, rpm, line_color)
+        axes.set_ylabel('RPM',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)
+        axes.grid(True)  
+                
+        axes = fig.add_subplot(2,2,4)
+        axes.plot(time, tip_mach, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
+        axes.set_ylabel('Mach',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
         axes.grid(True)
         
-        axes = fig.add_subplot(2,3,6)
-        axes.plot(time, ts, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Tip Speed (ft/s)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)       
-        
     if save_figure:
-        plt.savefig(save_filename + ".png")  
+        plt.savefig(save_filename1 + ".png") 
+        plt.savefig(save_filename2 + ".png")
             
     return
 
@@ -543,68 +595,118 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
 # ------------------------------------------------------------------
 def plot_lift_propulsor(results, line_color = 'bo-', save_figure = False, save_filename = "Lift_Propulsor"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
-    fig = plt.figure(save_filename) 
+    save_filename1 = save_filename + '_Results_Pt1'
+    save_filename2 = save_filename + '_Results_Pt2'
+    save_filename3 = save_filename + '_Results_Pt3'
+    fig = plt.figure(save_filename1)
+    fig.set_size_inches(10, 8)  
     for segment in results.segments.values():
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm    = segment.conditions.propulsion.rpm_lift [:,0] 
-        thrust = segment.conditions.frames.body.thrust_force_vector[:,2]
-        torque = segment.conditions.propulsion.motor_torque_lift
-        effp   = segment.conditions.propulsion.propeller_efficiency_lift[:,0]
-        effm   = segment.conditions.propulsion.motor_efficiency_lift[:,0]
-        throttle = segment.conditions.propulsion.throttle_lift[:,0]
-        Cp_lift = segment.conditions.propulsion.propeller_power_coefficient_lift[:,0]
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min        
+        thrust   = segment.conditions.frames.body.thrust_force_vector[:,2]
+        torque   = segment.conditions.propulsion.motor_torque_lift[:,0] 
+        effp     = segment.conditions.propulsion.propeller_efficiency_lift[:,0]
+        effm     = segment.conditions.propulsion.motor_efficiency_lift[:,0]
         
-        axes = fig.add_subplot(2,3,1)
-        axes.plot(time, rpm, 'bo-')
-        axes.set_ylabel('RPM')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
-        axes.grid(True)       
-        
-        axes = fig.add_subplot(2,3,2)
-        axes.plot(time, -thrust, 'bo-')
-        axes.set_ylabel('Thrust (N)')
+        axes = fig.add_subplot(2,2,1)
+        axes.plot(time, -thrust, line_color)
+        axes.set_ylabel('Thrust (N)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)      
         axes.grid(True)   
-        
-        axes = fig.add_subplot(2,3,3)
-        axes.plot(time, torque, 'bo-' )
-        axes.set_xlabel('Time (mins)')
-        axes.set_ylabel('Torque (N-m)')
+    
+        axes = fig.add_subplot(2,2,2)
+        axes.plot(time, torque, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Torque (N-m)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
         axes.grid(True)   
         
-        axes = fig.add_subplot(2,3,4)
-        axes.plot(time, effp, 'bo-' ,label='prop')
-        axes.plot(time, effm, 'ro-' ,label='motor')
-        axes.legend(loc='upper center')              
-        axes.set_xlabel('Time (mins)')
-        axes.set_ylabel('Efficiency')
+        axes = fig.add_subplot(2,2,3)
+        axes.plot(time, effm, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.grid(True)
+        
+        axes = fig.add_subplot(2,2,4)
+        axes.plot(time, effp, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Propeller Efficiency (N-m)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
         axes.grid(True)           
         plt.ylim((0,1))
         
-        axes = fig.add_subplot(2,3,5)
-        axes.plot(time,throttle, 'bo-')
+    fig = plt.figure(save_filename2)
+    fig.set_size_inches(10, 8)  
+    for segment in results.segments.values(): 
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
+        rpm      = segment.conditions.propulsion.rpm_lift  [:,0] 
+        tip_mach = segment.conditions.propulsion.propeller_tip_mach_lift[:,0]  
+        throttle = segment.conditions.propulsion.throttle_lift[:,0] 
+        Cp       = segment.conditions.propulsion.propeller_power_coefficient_lift[:,0]        
+
+        axes = fig.add_subplot(2,2,1)
+        axes.plot(time, throttle, 'bo-' )
         axes.set_xlabel('Time (mins)')
         axes.set_ylabel('Throttle')
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)  
+        axes.grid(True) 
         
-        axes = fig.add_subplot(2,3,6)
-        axes.plot(time, Cp_lift , 'bo-' )
+        axes = fig.add_subplot(2,2,2)
+        axes.plot(time, Cp, 'bo-' )
         axes.set_xlabel('Time (mins)')
         axes.set_ylabel('Power Coefficient')
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)   
+        axes.grid(True) 
+        
+        axes = fig.add_subplot(2,2,3)
+        axes.plot(time, rpm, line_color)
+        axes.set_ylabel('RPM',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)
+        axes.grid(True)  
+                
+        axes = fig.add_subplot(2,2,4)
+        axes.plot(time, tip_mach, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Mach',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.grid(True) 
+    
+
+    fig = plt.figure(save_filename3)
+    fig.set_size_inches(10, 8) 
+    for segment in results.segments.values():
+        time  = segment.conditions.frames.inertial.time[:,0] / Units.min
+        DL    = segment.conditions.propulsion.disc_loading_lift
+        PL    = segment.conditions.propulsion.power_loading_lift  
+   
+        axes = fig.add_subplot(2,1,1)
+        axes.plot(time, DL, line_color)
+        axes.set_ylabel('Disc Loading lb/ft2',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)
+        axes.grid(True)       
+  
+        axes = fig.add_subplot(2,1,2)
+        axes.plot(time, PL, line_color )       
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Power Loading (lb/hp)',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.grid(True) 
         
     if save_figure:
-        plt.savefig(save_filename + ".png")
+        plt.savefig(save_filename1 + ".png") 
+        plt.savefig(save_filename2 + ".png")
+        plt.savefig(save_filename3 + ".png")
+            
     return 
 
 # ------------------------------------------------------------------    
@@ -612,70 +714,120 @@ def plot_lift_propulsor(results, line_color = 'bo-', save_figure = False, save_f
 # ------------------------------------------------------------------
 def plot_cruise_propulsor(results, line_color = 'bo-', save_figure = False, save_filename = "Cruise_Propulsor"):
     axis_font = {'fontname':'Arial', 'size':'14'} 
-    fig = plt.figure(save_filename) 
+    save_filename1 = save_filename + '_Results_1'
+    save_filename2 = save_filename + '_Results_2'
+    save_filename3 = save_filename + '_Results_Pt3'
+    fig = plt.figure(save_filename1)
+    fig.set_size_inches(10, 8)  
     for segment in results.segments.values():
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm    = segment.conditions.propulsion.rpm_forward [:,0] 
-        thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-        torque = segment.conditions.propulsion.motor_torque_forward
-        effp   = segment.conditions.propulsion.propeller_efficiency_forward[:,0]
-        effm   = segment.conditions.propulsion.motor_efficiency_forward[:,0]
-        throttle = segment.conditions.propulsion.throttle[:,0]
-        Cp     = segment.conditions.propulsion.propeller_power_coefficient[:,0]
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min        
+        thrust   = segment.conditions.frames.body.thrust_force_vector[:,2]
+        torque   = segment.conditions.propulsion.motor_torque_forward[:,0] 
+        effp     = segment.conditions.propulsion.propeller_efficiency_forward[:,0]
+        effm     = segment.conditions.propulsion.motor_efficiency_forward[:,0]
         
-        axes = fig.add_subplot(2,3,1)
-        axes.plot(time, rpm, 'bo-')
-        axes.set_ylabel('RPM')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
-        axes.grid(True)       
-        
-        axes = fig.add_subplot(2,3,2)
-        axes.plot(time, thrust, 'bo-')
-        axes.set_ylabel('Thrust (N)')
+        axes = fig.add_subplot(2,2,1)
+        axes.plot(time, -thrust, line_color)
+        axes.set_ylabel('Thrust (N)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)      
         axes.grid(True)   
-        
-        axes = fig.add_subplot(2,3,3)
-        axes.plot(time, torque, 'bo-' )
-        axes.set_xlabel('Time (mins)')
-        axes.set_ylabel('Torque (N-m)')
+    
+        axes = fig.add_subplot(2,2,2)
+        axes.plot(time, torque, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Torque (N-m)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
         axes.grid(True)   
         
-        axes = fig.add_subplot(2,3,4)
-        axes.plot(time, effp, 'bo-' ,label='prop')
-        axes.plot(time, effm, 'ro-' ,label='motor')
-        axes.legend(loc='upper center')              
-        axes.set_xlabel('Time (mins)')
-        axes.set_ylabel('Efficiency')
+        axes = fig.add_subplot(2,2,3)
+        axes.plot(time, effm, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.grid(True)
+        
+        axes = fig.add_subplot(2,2,4)
+        axes.plot(time, effp, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Propeller Efficiency (N-m)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
         axes.grid(True)           
         plt.ylim((0,1))
         
-        axes = fig.add_subplot(2,3,5)
-        axes.plot(time,throttle, 'bo-')
+    fig = plt.figure(save_filename2)
+    fig.set_size_inches(10, 8)  
+    for segment in results.segments.values(): 
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
+        rpm      = segment.conditions.propulsion.rpm_forward  [:,0] 
+        tip_mach = segment.conditions.propulsion.propeller_tip_mach_forward[:,0] 
+        throttle = segment.conditions.propulsion.throttle[:,0] 
+        Cp       = segment.conditions.propulsion.propeller_power_coefficient[:,0]        
+
+        axes = fig.add_subplot(2,2,1)
+        axes.plot(time, throttle, 'bo-' )
         axes.set_xlabel('Time (mins)')
         axes.set_ylabel('Throttle')
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)  
+        axes.grid(True) 
         
-        axes = fig.add_subplot(2,3,6)
+        axes = fig.add_subplot(2,2,2)
         axes.plot(time, Cp, 'bo-' )
         axes.set_xlabel('Time (mins)')
         axes.set_ylabel('Power Coefficient')
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)        
+        axes.grid(True) 
+        
+        axes = fig.add_subplot(2,2,3)
+        axes.plot(time, rpm, line_color)
+        axes.set_ylabel('RPM',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)
+        axes.grid(True)  
+                
+        axes = fig.add_subplot(2,2,4)
+        axes.plot(time, tip_mach, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Mach',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.grid(True) 
+        
+    fig = plt.figure(save_filename3)
+    fig.set_size_inches(10, 8) 
+    for segment in results.segments.values():
+        time  = segment.conditions.frames.inertial.time[:,0] / Units.min
+        DL    = segment.conditions.propulsion.disc_loading_forward
+        PL    = segment.conditions.propulsion.power_loading_forward  
+    
+        axes = fig.add_subplot(2,1,1)
+        axes.plot(time, DL, line_color)
+        axes.set_ylabel('Disc Loading lb/ft2',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)
+        axes.grid(True)       
+    
+        axes = fig.add_subplot(2,1,2)
+        axes.plot(time, PL, line_color )       
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Power Loading (lb/hp)',axis_font)
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.grid(True) 
         
     if save_figure:
-        plt.savefig(save_filename + ".png")
-        
+        plt.savefig(save_filename1 + ".png") 
+        plt.savefig(save_filename2 + ".png")
+        plt.savefig(save_filename3 + ".png")
+
+            
     return 
+    
 
 # ------------------------------------------------------------------    
 #   Residuals

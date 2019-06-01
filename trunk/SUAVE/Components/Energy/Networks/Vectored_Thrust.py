@@ -163,11 +163,15 @@ class Vectored_Thrust(Propulsor):
         avionics_payload_current = avionics_payload_power/self.voltage
 
         # link
-        battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
-        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
+        battery.inputs.current  = esc.outputs.currentin*num_engines+ avionics_payload_current
+        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*num_engines + avionics_payload_power)
         battery.energy_calc(numerics)        
-    
+        
         # Pack the conditions for outputs
+        rpm                  = motor.outputs.omega*60./(2.*np.pi)
+        a                    = conditions.freestream.speed_of_sound
+        R                    = propeller.tip_radius      
+        
         rpm                  = motor.outputs.omega*60./(2.*np.pi)
         current              = esc.outputs.currentin
         battery_draw         = battery.inputs.power_in 
@@ -175,15 +179,18 @@ class Vectored_Thrust(Propulsor):
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
           
-        conditions.propulsion.rpm                  = rpm
-        conditions.propulsion.current              = current
-        conditions.propulsion.battery_draw         = battery_draw
-        conditions.propulsion.battery_energy       = battery_energy
-        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
-        conditions.propulsion.voltage_under_load   = voltage_under_load  
-        conditions.propulsion.motor_torque         = motor.outputs.torque
-        conditions.propulsion.propeller_torque     = Q
+        conditions.propulsion.rpm                                = rpm
+        conditions.propulsion.current                            = current
+        conditions.propulsion.battery_draw                       = battery_draw
+        conditions.propulsion.battery_energy                     = battery_energy
+        conditions.propulsion.voltage_open_circuit               = voltage_open_circuit
+        conditions.propulsion.voltage_under_load                 = voltage_under_load  
+        conditions.propulsion.motor_torque                       = motor.outputs.torque
+        conditions.propulsion.propeller_torque                   = Q
         conditions.propulsion.acoustic_outputs[propeller.tag]    = noise
+        conditions.propulsion.battery_specfic_power              = -(battery_draw/1000)/battery.mass_properties.mass #kWh/kg
+        conditions.propulsion.propeller_tip_mach                 = (R*rpm)/a
+
         
         # Compute force vector       
         if self.thrust_angle_start != None:
@@ -194,7 +201,10 @@ class Vectored_Thrust(Propulsor):
                 F_vec = num_engines * np.multiply(F,relative_directions)   
         else:
             F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
-            
+        
+        F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1)*2.20462)  # lb   
+        conditions.propulsion.disc_loading                       = (F_mag.T)/(num_engines*np.pi*(R*3.28084)**2) # lb/ft^2       
+        conditions.propulsion.power_loading                      = (F_mag.T)/(battery_draw*0.00134102)           # lb/hp 
         
         mdot = np.zeros_like(F_vec)
 

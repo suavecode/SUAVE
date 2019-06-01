@@ -106,6 +106,7 @@ class Battery_Propeller(Propulsor):
         avionics   = self.avionics
         payload    = self.payload
         battery    = self.battery
+        num_engines= self.number_of_engines
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
@@ -170,6 +171,8 @@ class Battery_Propeller(Propulsor):
         battery.energy_calc(numerics)        
     
         # Pack the conditions for outputs
+        a                    = conditions.freestream.speed_of_sound
+        R                    = propeller.tip_radius
         rpm                  = motor.outputs.omega*60./(2.*np.pi)
         current              = esc.outputs.currentin
         battery_draw         = battery.inputs.power_in 
@@ -177,19 +180,25 @@ class Battery_Propeller(Propulsor):
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
           
-        conditions.propulsion.rpm                  = rpm
-        conditions.propulsion.current              = current
-        conditions.propulsion.battery_draw         = battery_draw
-        conditions.propulsion.battery_energy       = battery_energy
-        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
-        conditions.propulsion.voltage_under_load   = voltage_under_load  
-        conditions.propulsion.motor_torque         = motor.outputs.torque
-        conditions.propulsion.propeller_torque     = Q
+        conditions.propulsion.rpm                   = rpm
+        conditions.propulsion.current               = current
+        conditions.propulsion.battery_draw          = battery_draw
+        conditions.propulsion.battery_energy        = battery_energy
+        conditions.propulsion.voltage_open_circuit  = voltage_open_circuit
+        conditions.propulsion.voltage_under_load    = voltage_under_load  
+        conditions.propulsion.motor_torque          = motor.outputs.torque
+        conditions.propulsion.propeller_torque      = Q
+        conditions.propulsion.battery_specfic_power = -(battery_draw/1000)/battery.mass_properties.mass 
+        conditions.propulsion.propeller_tip_mach    = (R*rpm)/a
         
         # Create the outputs
         F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
         mdot = np.zeros_like(F)
 
+        F_mag = np.atleast_2d(np.linalg.norm(F, axis=1)*2.20462 ) # lb   
+        conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R*3.28084)**2) # lb/ft^2                     
+        conditions.propulsion.power_loading         = (F_mag.T)/(battery_draw*0.00134102)           # lb/hp 
+        
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
