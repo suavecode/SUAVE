@@ -15,6 +15,7 @@ from .Internal_Combustion_Propeller           import Internal_Combustion_Propell
 from .Lift_Cruise                             import Lift_Cruise
 from .Lift_Cruise_Low_Fidelity                import Lift_Cruise_Low_Fidelity
 from .Vectored_Thrust                         import Vectored_Thrust
+from .Vectored_Thrust_Low_Fidelity            import Vectored_Thrust_Low_Fidelity
 from .Propulsor_Surrogate                     import Propulsor_Surrogate
 from .Battery_Propeller                       import Battery_Propeller
 from .Ramjet                                  import Ramjet

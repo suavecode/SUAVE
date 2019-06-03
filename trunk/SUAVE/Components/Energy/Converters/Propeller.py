@@ -435,27 +435,27 @@ class Propeller(Energy_Component):
        
            """
            
-        #Unpack    
-        B       = self.number_blades
-        R       = self.tip_radius
-        Rh      = self.hub_radius        
+        #Unpack            
+        B      = self.number_blades
+        R      = self.tip_radius
+        Rh     = self.hub_radius
         beta_in = self.twist_distribution
-        c       = self.chord_distribution
-        Vh      = self.induced_hover_velocity 
-        omega1  = self.inputs.omega
+        c      = self.chord_distribution
+        omega1 = self.inputs.omega 
         a_sec  = self.airfoil_sections        
-        a_secl = self.airfoil_section_location         
-        rho     = conditions.freestream.density[:,0,None]
-        mu      = conditions.freestream.dynamic_viscosity[:,0,None]
-        Vv      = conditions.frames.inertial.velocity_vector
-        a       = conditions.freestream.speed_of_sound[:,0,None]
-        T       = conditions.freestream.temperature[:,0,None]
-        theta   = self.thrust_angle
-        tc      = .12 # Thickness to chord
+        a_secl = self.airfoil_section_location        
+        rho    = conditions.freestream.density[:,0,None]
+        mu     = conditions.freestream.dynamic_viscosity[:,0,None]
+        Vv     = conditions.frames.inertial.velocity_vector
+        Vh     = self.induced_hover_velocity 
+        a      = conditions.freestream.speed_of_sound[:,0,None]
+        T      = conditions.freestream.temperature[:,0,None]
+        theta  = self.thrust_angle
+        tc     = .12 # Thickness to chord
         beta_c  = conditions.propulsion.pitch_command
         ducted  = self.ducted
         
-        beta   = beta_in + beta_c
+        beta   = beta_in + beta_c        
         
         BB     = B*B
         BBB    = BB*B
@@ -501,15 +501,15 @@ class Propeller(Energy_Component):
                     ua[i]    = fsolve(func,vi_initial_guess)
         else: 
             ua = 0.0 
-            
-        ut = 0.0 
+ 
+        ut = 0.0
         
         nu    = mu/rho
-        tol   = 1e-6 # Convergence tolerance
+        tol   = 1e-5 # Convergence tolerance
         
         omega = omega1*1.0
         omega = np.abs(omega)
-           
+        
         #Things that don't change with iteration
         N       = len(c) # Number of stations     
         
@@ -532,7 +532,7 @@ class Propeller(Energy_Component):
         
         else:
             chi = self.radius_distribution
-            
+        
         lamda   = V/(omega*R)              # Speed ratio
         r       = chi*R                    # Radial coordinate
         pi      = np.pi
@@ -542,8 +542,8 @@ class Propeller(Energy_Component):
         J       = V/(2.*R*n)    
         #sigma   = np.multiply(B*c,1./(2.*pi*r))
         blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
-        sigma   = blade_area[-1]/(pi*r[-1]**2)          
-            
+        sigma   = blade_area[-1]/(pi*r[-1]**2)   
+        
         omegar = np.outer(omega,r)
         Ua = np.outer((V + ua),np.ones_like(r))
         Ut = omegar - ut
@@ -553,12 +553,12 @@ class Propeller(Energy_Component):
         size = (len(a),N)
     
         #Setup a Newton iteration
-        psi    = np.ones(size)*0.5
+        psi    = np.ones(size)
         psiold = np.zeros(size)
         diff   = 1.
         
         ii = 0
-        broke = False
+        broke = False        
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -596,13 +596,13 @@ class Propeller(Energy_Component):
             # By 90 deg, it's totally stalled.
             Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
             Cl[alpha>=pi/2] = 0.
-            
+                
             # Scale for Mach, this is Karmen_Tsien
             Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-            
+        
             # If the blade segments are supersonic, don't scale
             Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
-            
+        
             Rsquiggly = Gamma - 0.5*W*c*Cl
             
             #An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
@@ -637,7 +637,6 @@ class Propeller(Energy_Component):
             
             # If its really not going to converge
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
-                broke = True
                 break
                 
             ii+=1
@@ -645,8 +644,8 @@ class Propeller(Energy_Component):
             if ii>2000:
                 broke = True
                 break
-            
-        # There is also RE scaling
+        
+        #There is also RE scaling
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         Cdval[alpha>=pi/2] = 2.
@@ -657,14 +656,13 @@ class Propeller(Energy_Component):
         Tp      = (Tp_Tinf)*T
         Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
         
-        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
+        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 
         
         epsilon  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
         deltar   = (r[1]-r[0])
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
-        
         D        = 2*R 
         Ct       = thrust/(rho*(n*n)*(D*D*D*D))
         Ct[Ct<0] = 0.        #prevent things from breaking
@@ -681,13 +679,17 @@ class Propeller(Energy_Component):
                 power[i]    = torque[i]*omega[i]   
                 Cp[i]       = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
 
+
+        
+  
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         
         thrust[omega1<0.0] = - thrust[omega1<0.0]
+
         etap     = V*thrust/power     
         
-        conditions.propulsion.etap = etap        
+        conditions.propulsion.etap = etap
         
         # store data
         results_conditions = Data     
@@ -728,7 +730,7 @@ class Propeller(Energy_Component):
             mid_chord_aligment        = self.mid_chord_aligment     
         ) 
         
-        return thrust, torque, power, Cp, outputs , etap
+        return thrust, torque, power, Cp, outputs  , etap  
 
     
     def spin_surrogate(self,conditions):
