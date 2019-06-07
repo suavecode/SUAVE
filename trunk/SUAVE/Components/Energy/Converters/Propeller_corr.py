@@ -142,7 +142,7 @@ class Propeller_corr(Energy_Component):
         
         BB     = B*B
         BBB    = BB*B
-            
+        disk_area  = np.pi*(R**2)
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
@@ -226,7 +226,6 @@ class Propeller_corr(Energy_Component):
         #sigma   = np.multiply(B*c,1./(2.*pi*r))
         blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
         sigma   = blade_area[-1]/(pi*r[-1]**2)
-     
         omegar = np.outer(omega,r)
         Ua = np.outer((V + ua),np.ones_like(r))
         Ut = omegar - ut
@@ -346,26 +345,29 @@ class Propeller_corr(Energy_Component):
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
         D        = 2*R 
-        Ct       = thrust/(rho*(n*n)*(D*D*D*D))
+        tip_speed = omega*R
+        Ct       = thrust/(rho*disk_area*( tip_speed*tip_speed))   #thrust/(rho*(n*n)*(D*D*D*D))
         Ct[Ct<0] = 0.        #prevent things from breaking
         kappa    = self.induced_power_factor 
         Cd0      = self.profile_drag_coefficient   
         Cp    = np.zeros_like(Ct)
+        Cpl   = np.zeros_like(Ct)
         power = np.zeros_like(Ct)        
         for i in range(len(Vv)):
 
             
             if -1. <Vv[i][0] <1.: # vertical/axial flight
-                Cp[i]       = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
-                power[i]    = Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+                #note Leishmann has a different definition of power coefficient
+                Cpl[i]       = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
+                power[i]    =Cpl[i]* rho[i]*disk_area*(tip_speed[i]*tip_speed[i]*tip_speed[i])#Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
                 torque[i]   = power[i]/omega[i]   #
-               
+                
                 
             else:     
     
                 power[i]    = torque[i]*omega[i]   
-                Cp[i]       = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
-    
+            Cp[i]       = (rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))#power[i]/rho[i]*disk_area*(tip_speed[i]*tip_speed[i]*tip_speed[i])#(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+               
         
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0

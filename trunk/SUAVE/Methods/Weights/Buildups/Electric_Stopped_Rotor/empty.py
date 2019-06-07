@@ -66,7 +66,7 @@ def empty(config,
 #-------------------------------------------------------------------------------
 # Unpack Inputs
 #-------------------------------------------------------------------------------
-
+    contingency_factor  = config.contingency_factor
     rPropLift           = config.propulsors.propulsor.propeller_lift.tip_radius
     rPropThrust         = config.propulsors.propulsor.propeller_forward.tip_radius
     mBattery            = config.propulsors.propulsor.battery.mass_properties.mass
@@ -155,7 +155,7 @@ def empty(config,
                             output.total_wing_weight
                             ) *Units.kg
 
-    output.empty        = (1.1 * (
+    output.empty        = (contingency_factor * (
                             output.structural +
                             output.seats +
                             output.avionics +
