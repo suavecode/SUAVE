@@ -358,7 +358,7 @@ class Propeller_corr(Energy_Component):
             
             if -1. <Vv[i][0] <1.: # vertical/axial flight
                 #note Leishmann has a different definition of power coefficient
-                Cpl[i]       = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
+                Cpl[i]      = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
                 power[i]    =Cpl[i]* rho[i]*disk_area*(tip_speed[i]*tip_speed[i]*tip_speed[i])#Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
                 torque[i]   = power[i]/omega[i]   #
                 

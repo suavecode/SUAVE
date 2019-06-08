@@ -22,6 +22,7 @@ import numpy as np
 
 ## @ingroup Methods-Weights-Buildups-Electric_Stopped_Rotor
 def empty(config,
+          contingency_factor            = 1.1,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
           disk_area_factor              = 1.15,
@@ -66,7 +67,6 @@ def empty(config,
 #-------------------------------------------------------------------------------
 # Unpack Inputs
 #-------------------------------------------------------------------------------
-    contingency_factor  = config.contingency_factor
     rPropLift           = config.propulsors.propulsor.propeller_lift.tip_radius
     rPropThrust         = config.propulsors.propulsor.propeller_forward.tip_radius
     mBattery            = config.propulsors.propulsor.battery.mass_properties.mass
