@@ -8,126 +8,44 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units 
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt  
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 ## @ingroup Plots
 # ------------------------------------------------------------------
 # Vortex Lattice Method Panelization 
 # ------------------------------------------------------------------
-def plot_vehicle_geometry(data, save_figure = False, save_filename = "Vehicle_Geometry"):    
-    X = data.X 
-    Y = data.Y 
-    Z = data.Z 
-        
-    fig = plt.figure(save_filename)
-    axes = fig.add_subplot(2,2,1)
-    axes.plot(Y,X,'bo')  
-    axes.set_ylabel('chord ')
-    axes.set_xlabel('span ')
-    plt.axis('equal')
-    axes.grid(True)
-    
-    axes = fig.add_subplot(2,2,2)
-    axes.plot(X,Z,'bo')    
-    axes.set_ylabel('height ')
-    axes.set_xlabel('span ')
-    plt.axis('equal')
-    axes.grid(True)
-    
-    axes = fig.add_subplot(2,2,3)
-    axes.plot(Y,Z,'bo')    
-    axes.set_ylabel('height')
-    axes.set_xlabel('span ')
-    plt.axis('equal')
-    axes.grid(True)
-    
-    axes = fig.add_subplot(2,2,4,projection='3d')
-    axes.plot3D(X,Y,Z,'bo')
-    axes.set_zlabel('height')
-    axes.set_xlabel('chord ')
-    axes.set_ylabel('span ')
-    axes.grid(True)
-    
-    #axis scaling
-    max_range = np.array([data.X.max()-data.X.min(), data.Y.max()-data.Y.min(), data.Z.max()-data.Z.min()]).max() / 2.0    
-    mid_x = (data.X .max()+data.X .min()) * 0.5
-    mid_y = (data.Y .max()+data.Y .min()) * 0.5
-    mid_z = (data.Z .max()+data.Z .min()) * 0.5
-    axes.set_xlim(mid_x - max_range, mid_x + max_range)
-    axes.set_ylim(mid_y - max_range, mid_y + max_range)
-    axes.set_zlim(mid_z - max_range, mid_z + max_range)    
-    
-    return
-
-# ------------------------------------------------------------------
-# Vortex Lattice Method Panelization 
-# ------------------------------------------------------------------
 def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "VLM_Panelization"):     
-
-    fig = plt.figure(save_filename)
-    axes = fig.add_subplot(2,2,1)
-    axes.plot(data.YA1,data.XA1,'bo') 
-    axes.plot(data.YA2,data.XA2,'rx')
-    axes.plot(data.YB1,data.XB1,'g1') 
-    axes.plot(data.YB2,data.XB2,'yv')  
-    axes.plot(data.YC ,data.XC ,'ks')
-    axes.plot(data.YAH,data.XAH,'cD')
-    axes.plot(data.YBH,data.XBH,'k+')    
-    axes.set_ylabel('chord ')
-    axes.set_xlabel('span ')
-    plt.axis('equal')
-    axes.grid(True)
-    
-    axes = fig.add_subplot(2,2,2)
-    axes.plot(data.XA1,data.ZA1,'bo') 
-    axes.plot(data.XA2,data.ZA2,'rx')
-    axes.plot(data.XB1,data.ZB1,'g1') 
-    axes.plot(data.XB2,data.ZB2,'yv')  
-    axes.plot(data.XC ,data.ZC ,'ks')
-    axes.plot(data.XAH,data.ZAH,'cD')
-    axes.plot(data.XBH,data.ZBH,'k+')    
-    axes.set_ylabel('height ')
-    axes.set_xlabel('span ')
-    plt.axis('equal')
-    axes.grid(True)
-    
-    axes = fig.add_subplot(2,2,3)
-    axes.plot(data.YA1,data.ZA1,'bo') 
-    axes.plot(data.YA2,data.ZA2,'rx')
-    axes.plot(data.YB1,data.ZB1,'g1') 
-    axes.plot(data.YB2,data.ZB2,'yv')  
-    axes.plot(data.YC ,data.ZC ,'ks')
-    axes.plot(data.YAH,data.ZAH,'cD')
-    axes.plot(data.YBH,data.ZBH,'k+')    
-    axes.set_ylabel('height')
-    axes.set_xlabel('span ')
-    plt.axis('equal')
-    axes.grid(True)
-    
-    axes = fig.add_subplot(2,2,4,projection='3d')
-    axes.plot3D(data.XA1,data.YA1,data.ZA1,'bo') 
-    axes.plot3D(data.XA2,data.YA2,data.ZA2,'rx')
-    axes.plot3D(data.XB1,data.YB1,data.ZB1,'g1') 
-    axes.plot3D(data.XB2,data.YB2,data.ZB2,'yv')  
-    axes.plot3D(data.XC ,data.YC ,data.ZC ,'ks')
-    axes.plot3D(data.XAH,data.YAH,data.ZAH,'cD')
-    axes.plot3D(data.XBH,data.YBH,data.ZBH,'k+')    
-    axes.set_zlabel('height')
-    axes.set_xlabel('chord ')
-    axes.set_ylabel('span ')
-    axes.grid(True)
-    
-    #axis scaling
-    max_range = np.array([data.XAH.max()-data.XAH.min(), data.YAH.max()-data.YAH.min(), data.ZAH.max()-data.ZAH.min()]).max() / 2.0    
-    mid_x = (data.XAH.max()+data.XAH.min()) * 0.5
-    mid_y = (data.YAH.max()+data.YAH.min()) * 0.5
-    mid_z = (data.ZAH.max()+data.ZAH.min()) * 0.5
-    axes.set_xlim(mid_x - max_range, mid_x + max_range)
-    axes.set_ylim(mid_y - max_range, mid_y + max_range)
-    axes.set_zlim(mid_z - max_range, mid_z + max_range)      
-    
+    face_color = [0.9,0.9,0.9] # grey        
+    edge_color = [0, 0, 0]     # black
+    alpha_val = 0.5  
+    fig = plt.figure()
+    axes = Axes3D(save_filename)    
+    n_cp = data.n_cp 
+    for i in range(n_cp): 
+        X = [data.XA1[i],data.XB1[i],data.XB2[i],data.XA2[i]]
+        Y = [data.YA1[i],data.YB1[i],data.YB2[i],data.YA2[i]]
+        Z = [data.ZA1[i],data.ZB1[i],data.ZB2[i],data.ZA2[i]] 
+        verts = [list(zip(X, Y, Z))]
+        collection = Poly3DCollection(verts)
+        collection.set_facecolor(face_color)
+        collection.set_edgecolor(edge_color)
+        collection.set_alpha(alpha_val)
+        axes.add_collection3d(collection)     
+        max_range = np.array([data.X.max()-data.X.min(), data.Y.max()-data.Y.min(), data.Z.max()-data.Z.min()]).max() / 2.0    
+        mid_x = (data.X .max()+data.X .min()) * 0.5
+        mid_y = (data.Y .max()+data.Y .min()) * 0.5
+        mid_z = (data.Z .max()+data.Z .min()) * 0.5
+        axes.set_xlim(mid_x - max_range, mid_x + max_range)
+        axes.set_ylim(mid_y - max_range, mid_y + max_range)
+        axes.set_zlim(mid_z - max_range, mid_z + max_range)          
+        
+    axes.scatter(data.XC,data.YC,data.ZC, c='r', marker = 'o' )
+    plt.axis('off')
+    plt.grid(None)
     return
 
 # ------------------------------------------------------------------
