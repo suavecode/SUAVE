@@ -52,10 +52,15 @@ def induced_drag_aircraft(state,settings,geometry):
     aircraft_lift = conditions.aerodynamics.lift_coefficient
     e             = configuration.oswald_efficiency_factor
     K             = configuration.viscous_lift_dependent_drag_factor
-    wing_e        = geometry.wings['main_wing'].span_efficiency
-    ar            = geometry.wings['main_wing'].aspect_ratio 
     CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
     
+    if 'main_wing' in geometry.wings:
+        wing_e        = geometry.wings['main_wing'].span_efficiency
+        ar            = geometry.wings['main_wing'].aspect_ratio 
+    else:
+        wing_e        = 0.8 
+        ar            = geometry.fuselages['fuselage'].width/geometry.fuselages['fuselage'].lengths.total
+        
     if e == None:
         e = 1/((1/wing_e)+np.pi*ar*K*CDp)
     
