@@ -499,7 +499,7 @@ def plot_propulsor_conditions(results, line_color = 'bo-', save_figure = False, 
     for segment in results.segments.values():
         time  = segment.conditions.frames.inertial.time[:,0] / Units.min
         DL    = segment.conditions.propulsion.disc_loading
-        PL    = segment.conditions.propulsion.power_loading  
+        PL    = -segment.conditions.propulsionVTr_loading  
     
         axes = fig.add_subplot(2,1,1)
         axes.plot(time, DL, line_color)
@@ -510,7 +510,7 @@ def plot_propulsor_conditions(results, line_color = 'bo-', save_figure = False, 
         axes.grid(True)       
     
         axes = fig.add_subplot(2,1,2)
-        axes.plot(time, PL, line_color )       
+        axes.plot(time, -PL, line_color )       
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Power Loading (lb/hp)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -717,7 +717,7 @@ def plot_lift_propulsor_conditions(results, line_color = 'bo-', save_figure = Fa
         axes.grid(True)       
   
         axes = fig.add_subplot(2,1,2)
-        axes.plot(time, PL, line_color )       
+        axes.plot(time, -PL, line_color )       
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Power Loading (lb/hp)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -834,7 +834,7 @@ def plot_cruise_propulsor_conditions(results, line_color = 'bo-', save_figure = 
         axes.grid(True)       
     
         axes = fig.add_subplot(2,1,2)
-        axes.plot(time, PL, line_color )       
+        axes.plot(time, -PL, line_color )       
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Power Loading (lb/hp)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -846,15 +846,7 @@ def plot_cruise_propulsor_conditions(results, line_color = 'bo-', save_figure = 
         plt.savefig(save_filename2 + ".png")
         plt.savefig(save_filename3 + ".png")
     return 
-    
-        
-    if save_figure:
-        plt.savefig(save_filename + ".png")
-        
-    return         
-
-
-
+   
 # ------------------------------------------------------------------
 #   Propeller Geoemtry 
 # ------------------------------------------------------------------

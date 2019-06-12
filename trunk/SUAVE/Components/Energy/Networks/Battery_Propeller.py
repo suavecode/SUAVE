@@ -195,7 +195,7 @@ class Battery_Propeller(Propulsor):
         F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
         mdot = np.zeros_like(F)
 
-        F_mag = np.atleast_2d(np.linalg.norm(F, axis=1)*2.20462 ) # lb   
+        F_mag = np.atleast_2d(np.linalg.norm(F, axis=1)*0.224809) # lb   
         conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R*3.28084)**2) # lb/ft^2                     
         conditions.propulsion.power_loading         = (F_mag.T)/(battery_draw*0.00134102)           # lb/hp 
         
