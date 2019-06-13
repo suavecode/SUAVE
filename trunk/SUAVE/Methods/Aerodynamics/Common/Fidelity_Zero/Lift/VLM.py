@@ -102,14 +102,18 @@ def VLM(conditions,settings,geometry):
     ones = np.atleast_2d(np.ones_like(aoa)) 
    
     # generate vortex distribution
-    VD = compute_vortex_distribution(geometry,settings)       
+    VD = compute_vortex_distribution(geometry,settings)  
     
     # Build induced velocity matrix, C_mn
     C_mn, DW_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa,mach)
-
+    MCM = VD.MCM 
+    
     # Compute flow tangency conditions   
+    inv_root_beta = 1/np.sqrt(1-mach**2)     
+    inv_root_beta[np.isnan(inv_root_beta)] = 1.0
+    
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones
-    delta = np.arctan((VD.ZC - VD.ZCH)/(VD.XC - VD.XCH))*ones  # EDIT
+    delta = np.arctan((VD.ZC - VD.ZCH)/(VD.XC - VD.XCH)*inv_root_beta)   
    
     # Build Aerodynamic Influence Coefficient Matrix
     A = C_mn[:,:,:,2] - np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.tan(delta)))- np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)))  # EDIT
@@ -128,9 +132,9 @@ def VLM(conditions,settings,geometry):
     tile_eye =  np.transpose(tile_eye,axes=[1,0,2])
     
     # Compute induced velocities     
-    u = np.dot(C_mn[:,:,:,0],gamma[:,:].T)[:,:,0]
-    v = np.dot(C_mn[:,:,:,1],gamma[:,:].T)[:,:,0]
-    w = np.sum(np.dot(C_mn[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)
+    u = np.dot(C_mn[:,:,:,0]*MCM[:,:,:,0],gamma[:,:].T)[:,:,0]
+    v = np.dot(C_mn[:,:,:,1]*MCM[:,:,:,1],gamma[:,:].T)[:,:,0]
+    w = np.sum(np.dot(C_mn[:,:,:,2]*MCM[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)
     w_ind = np.sum(np.dot(DW_mn[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)
     
     # ---------------------------------------------------------------------------------------

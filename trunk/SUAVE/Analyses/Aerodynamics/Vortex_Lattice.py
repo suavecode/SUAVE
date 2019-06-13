@@ -21,8 +21,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.weissinger_VLM import 
 # local imports
 from .Aerodynamics import Aerodynamics
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
-from SUAVE.Plots import plot_vehicle_vlm_panelization
-from SUAVE.Plots import plot_vehicle_geometry
+from SUAVE.Plots import plot_vehicle_vlm_panelization 
 
 # package imports
 import numpy as np

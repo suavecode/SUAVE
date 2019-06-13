@@ -18,37 +18,39 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # unpack 
     ones = np.atleast_3d(np.ones_like(theta_w))
  
-    # Prandtl Glauret Transformation
-    beta = np.atleast_3d(1/np.sqrt(1-mach**2))    
-    
-    XAH  = np.atleast_3d(data.XAH*beta)
+    # Prandtl Glauret Transformation for subsonic
+    inv_root_beta = 1/np.sqrt(1-mach**2)     
+    inv_root_beta[np.isnan(inv_root_beta)] = 1.0
+    inv_root_beta = np.atleast_3d(inv_root_beta)
+     
+    XAH  = np.atleast_3d(data.XAH*inv_root_beta)
     YAH  = np.atleast_3d(data.YAH*ones)
     ZAH  = np.atleast_3d(data.ZAH*ones)
-    XBH  = np.atleast_3d(data.XBH*beta)
+    XBH  = np.atleast_3d(data.XBH*inv_root_beta)
     YBH  = np.atleast_3d(data.YBH*ones)
     ZBH  = np.atleast_3d(data.ZBH*ones)
 
-    XA1  = np.atleast_3d(data.XA1*beta)
+    XA1  = np.atleast_3d(data.XA1*inv_root_beta)
     YA1  = np.atleast_3d(data.YA1*ones)
     ZA1  = np.atleast_3d(data.ZA1*ones)
-    XA2  = np.atleast_3d(data.XA2*beta)
+    XA2  = np.atleast_3d(data.XA2*inv_root_beta)
     YA2  = np.atleast_3d(data.YA2*ones)
     ZA2  = np.atleast_3d(data.ZA2*ones)
 
-    XB1  = np.atleast_3d(data.XB1*beta)
+    XB1  = np.atleast_3d(data.XB1*inv_root_beta)
     YB1  = np.atleast_3d(data.YB1*ones)
     ZB1  = np.atleast_3d(data.ZB1*ones)
-    XB2  = np.atleast_3d(data.XB2*beta)
+    XB2  = np.atleast_3d(data.XB2*inv_root_beta)
     YB2  = np.atleast_3d(data.YB2*ones)
     ZB2  = np.atleast_3d(data.ZB2*ones)
 
-    XAC  = np.atleast_3d(data.XAC*beta)
+    XAC  = np.atleast_3d(data.XAC*inv_root_beta)
     YAC  = np.atleast_3d(data.YAC*ones)
     ZAC  = np.atleast_3d(data.ZAC*ones)
-    XBC  = np.atleast_3d(data.XBC*beta)
+    XBC  = np.atleast_3d(data.XBC*inv_root_beta)
     YBC  = np.atleast_3d(data.YBC*ones)
     ZBC  = np.atleast_3d(data.ZBC*ones)
-    XC   = np.atleast_3d(data.XC*beta)
+    XC   = np.atleast_3d(data.XC*inv_root_beta)
     YC   = np.atleast_3d(data.YC*ones) 
     ZC   = np.atleast_3d(data.ZC*ones)  
     n_w  = data.n_w
@@ -129,6 +131,20 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # velocity induced by right leg of vortex (B to inf)
     C_Binf  = np.transpose(vortex_to_inf_r(XC_hats, YC_hats, ZC_hats, XB2_hats, YB2_hats, ZB2_hats,theta_w),axes=[1,2,3,0])
 
+    # compute Mach Cone Matrix
+    MCM = np.ones_like(C_AB_bv)
+    MCM = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
+    data.MCM = MCM 
+    
+    # multiply by mach cone 
+    C_AB_bv     = C_AB_bv    * MCM
+    C_AB_34_ll  = C_AB_34_ll * MCM
+    C_AB_ll     = C_AB_ll    * MCM
+    C_AB_34_rl  = C_AB_34_rl * MCM
+    C_AB_rl     = C_AB_rl    * MCM
+    C_Ainf      = C_Ainf     * MCM
+    C_Binf      = C_Binf     * MCM  
+    
     # Add the right and left influences seperately
     C_AB_llrl_roll = C_AB_ll+C_AB_rl
 
@@ -158,7 +174,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
 # vortex strength computation
 # -------------------------------------------------------------------------------
 def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
-
+    
     # Take all the differences
     X_X1  = X-X1
     X_X2  = X-X2
@@ -232,3 +248,16 @@ def vortex_to_inf_r(X,Y,Z,X1,Y1,Z1,tw):
         print('NaN!')   
         
     return COEF
+
+
+def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
+    for m_idx in range(len(mach)):
+        c = np.arcsin(1/mach[m_idx])
+        for cp_idx in range(len(XC[m_idx,:])):
+            del_x = XC[m_idx,:] - XC[m_idx,cp_idx] 
+            del_y = YC[m_idx,:] - YC[m_idx,cp_idx] 
+            del_z = ZC[m_idx,:] - ZC[m_idx,cp_idx] 
+            flag  = -c*del_x**2 + del_y**2 + del_z**2
+            idxs  = np.where(flag > 0.0)[0]
+            MCM[m_idx,cp_idx,idxs]  = [0.0, 0.0, 0.0]     
+    return MCM
