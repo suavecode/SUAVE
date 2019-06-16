@@ -123,10 +123,6 @@ class Vortex_Lattice(Aerodynamics):
         # Plot vortex discretization of vehicle
         if settings.plot_vortex_distribution == True:
             plot_vehicle_vlm_panelization(VD)        
-        
-        # Plot vortex discretization of vehicle
-        if settings.plot_vehicle == True:
-            plot_vehicle_geometry(VD)    
                 
         # If we are using the surrogate
         if self.settings.use_surrogate == True:
@@ -304,7 +300,9 @@ class Vortex_Lattice(Aerodynamics):
         # Setup Konditions                      
         konditions                              = Data()
         konditions.aerodynamics                 = Data()
+        konditions.freestream                   = Data()
         konditions.aerodynamics.angle_of_attack = AoA 
+        konditions.freestream.mach_number       = Mach
         
         # Assign placeholders        
         CL             = np.zeros([len(AoA)*len(Mach),1])
@@ -320,7 +318,7 @@ class Vortex_Lattice(Aerodynamics):
         xy             = np.zeros([table_size,2])          
         for i,_ in enumerate(Mach):
             for j,_ in enumerate(AoA):
-                xy[i*len(Mach)+j,:] = np.array([AoA[j],Mach[i]])
+                xy[i*len(Mach)+j,:] = np.array([AoA[j][0],Mach[i][0]])
         
         # Get the training data        
         count = 0
@@ -330,11 +328,11 @@ class Vortex_Lattice(Aerodynamics):
                 settings.call_function(konditions,settings,geometry)
            
             # store training data
-            CL[count*len(Mach):(count+1)*len(Mach),0]                = total_lift
-            CDi[count*len(Mach):(count+1)*len(Mach),0]               = total_drag            
+            CL[count*len(Mach):(count+1)*len(Mach),0]                = total_lift[:,0]
+            CDi[count*len(Mach):(count+1)*len(Mach),0]               = total_drag[:,0]           
             for wing in geometry.wings.keys():
-                CL_w[wing][count*len(Mach):(count+1)*len(Mach),0]    = wing_lifts[wing]
-                CDi_w[wing][count*len(Mach):(count+1)*len(Mach),0]   = wing_drags[wing]                
+                CL_w[wing][count*len(Mach):(count+1)*len(Mach),0]    = wing_lifts[wing][:,0]
+                CDi_w[wing][count*len(Mach):(count+1)*len(Mach),0]   = wing_drags[wing][:,0]                
             
             count += 1 
             
@@ -443,8 +441,6 @@ def calculate_VLM(conditions,settings,geometry):
         wing_drags[wing.tag] = 1*(np.atleast_2d(CDi_wing[:,ii]).T)
         ii+=1
         if wing.symmetric:
-            wing_lifts[wing.tag] += 1*(np.atleast_2d(CL_wing[:,ii]).T)
-            wing_drags[wing.tag] += 1*(np.atleast_2d(CDi_wing[:,ii]).T)
             ii+=1
 
     return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_y , cdi_y , CPi

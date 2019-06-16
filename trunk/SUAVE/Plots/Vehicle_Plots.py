@@ -22,8 +22,8 @@ def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "VL
     face_color = [0.9,0.9,0.9] # grey        
     edge_color = [0, 0, 0]     # black
     alpha_val = 0.5  
-    fig = plt.figure()
-    axes = Axes3D(save_filename)    
+    fig = plt.figure(save_filename)
+    axes = Axes3D(fig)    
     n_cp = data.n_cp 
     for i in range(n_cp): 
         X = [data.XA1[i],data.XB1[i],data.XB2[i],data.XA2[i]]

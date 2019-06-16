@@ -12,7 +12,7 @@
 #
 # package imports
 import numpy as np 
-
+from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------

@@ -11,6 +11,13 @@ from SUAVE.Core import Units
 import matplotlib.pyplot as plt  
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from matplotlib.patches import Ellipse, Polygon
+import colorsys 
+import matplotlib.animation as animation
+import matplotlib as mpl
+import matplotlib.cm as cm
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_propeller_airfoils
 
 ## @ingroup Plots
@@ -234,6 +241,60 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
         axes.get_yaxis().get_major_formatter().set_useOffset(False)         
         axes.grid(True)        
     
+        
+    if save_figure:
+        plt.savefig(save_filename + ".png") 
+            
+    return
+
+
+# ------------------------------------------------------------------
+#   Pressure Coefficient
+# ------------------------------------------------------------------
+def plot_surface_pressure(vehicle,results,seg_idx,time_idx, line_color = 'bo-', save_figure = False, save_filename = "Surface_Pressure"):
+    
+    VD         = vehicle.base.vortex_distribution
+    n_cp       = VD.n_cp
+    n_cw       = VD.n_cw 
+    n_sw       = VD.n_sw 
+    axis_font  = {'fontname':'Arial', 'size':'14'}  
+ 
+    fig        = plt.figure(save_filename)
+    axes       = fig.add_subplot(1, 1, 1)  
+    fig.set_size_inches(12, 10)    
+    time       = results.segments[seg_idx].conditions.frames.inertial.time[time_idx,0] / Units.min
+    CP         = results.segments[seg_idx].conditions.aerodynamics.pressure_coefficient[time_idx]                  
+    
+    for i in range(n_cp):
+        # Get Color Map for Wing and Fuselage
+        alpha_val = 1.
+        if i > (n_cp - (1 + 2*n_sw*n_cw)):
+            rgb_color  = [0.5,0.5,0.5]
+            edge_color = [0.5,0.5,0.5]
+        else:
+            norm = mpl.colors.Normalize(vmin = -0.03  , vmax = 0.0)   
+            rgba_color = cm.jet(norm(CP[i]),bytes=True) 
+            rgb_color  = [rgba_color[0]/255 ,rgba_color[1]/255 ,rgba_color[2]/255 ]             
+            edge_color = rgb_color
+    
+        # Plot Vehilce
+        axes.add_patch(Polygon([[VD.YA1[i],-VD.XA1[i]], [VD.YB1[i],-VD.XB1[i]], [VD.YB2[i],-VD.XB2[i]], [VD.YA2[i],-VD.XA2[i]]], closed=True, 
+                                           facecolor = rgb_color , edgecolor  = edge_color , alpha = alpha_val))		
+        
+        # Set Color bar
+        axins1 = inset_axes(axes,width="5%",height="30%", loc='lower left')
+        norm = mpl.colors.Normalize(vmin=0, vmax=0.2) 
+        rgba_color = cm.jet(norm(400),bytes=True) 
+        cbar = mpl.colorbar.ColorbarBase(ax = axins1 , cmap = 'jet' ,norm=norm)
+        cbar.set_label('$C_{P}$', rotation =  0)    
+        
+        # Set Axis Bounds     
+        axes.set_ylim((-42, 2))
+        axes.set_xlim((-18, 18)) 
+        axes.axis('off')
+
+    plt.axis('off')
+    plt.grid(None)        
         
     if save_figure:
         plt.savefig(save_filename + ".png") 

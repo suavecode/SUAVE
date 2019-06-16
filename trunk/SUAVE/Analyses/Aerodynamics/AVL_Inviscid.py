@@ -256,6 +256,7 @@ class AVL_Inviscid(Aerodynamics):
         for i,_ in enumerate(mach):
             for j,_ in enumerate(AoA):
                 xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
+                
         for j,_ in enumerate(mach):
             # Set training conditions
             run_conditions = Aerodynamics()
