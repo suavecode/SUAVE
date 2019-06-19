@@ -26,8 +26,8 @@ def main():
     tol = 1e-8
     
     solver = Additive_Solver()
-    solver.local_optimizer = 'SNOPT'
-    solver.global_optimizer = 'ALPSO'
+    solver.local_optimizer = 'SLSQP'
+    solver.global_optimizer = 'SHGO'
     
     ################## Basic Additive ##################################################
     
@@ -161,7 +161,7 @@ def main():
     #   Check Results
     # ------------------------------------------------------------------    
 
-    assert( np.isclose(obj,5.41, atol=1e-2) ) # permissive tolerance due to slow optimization loop
+    assert( np.isclose(obj,5.38, atol=1e-2) )
     assert( np.isclose(x1 ,   2, atol=1e-2) )
     assert( np.isclose(x2 ,  -1, atol=1e-2) )     
     

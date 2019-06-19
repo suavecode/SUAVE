@@ -32,6 +32,10 @@ from scipy.optimize import shgo
 
 class Additive_Solver():
     def __init__(self):
+        # These defaults are chosen since they are built in to scipy and
+        # therefore are always available when running SUAVE
+        self.local_optimizer  = 'SLSQP'
+        self.global_optimizer = 'SHGO'
         return
 
     ## @ingroup Optimization-Package_Setups
@@ -67,7 +71,7 @@ class Additive_Solver():
             sys.stdout = devnull    
         
         if num_fidelity_levels != 2:
-            raise NotImplementedError
+            raise NotImplementedError('Additive corrections are only implemented for 2 fidelity levels.')
         
         # History writing
         f_out = open('add_hist.txt','w')
