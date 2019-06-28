@@ -215,7 +215,7 @@ class Stopped_Rotor(Propulsor):
         
         # Run the propeller
         #F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin_surrogate(konditions)
-        F_lift, Q_lift, P_lift, Cp_lift, noise_lift, etap_lift = propeller_lift.spin(konditions)
+        F_lift, Q_lift, P_lift, Cp_lift, output_lift, etap_lift = propeller_lift.spin(konditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = state.conditions.propulsion.throttle_lift
@@ -272,7 +272,7 @@ class Stopped_Rotor(Propulsor):
         voltage_under_load   = battery.voltage_under_load    
         
         conditions.propulsion.acoustic_outputs[propeller_forward.tag] = noise_forward
-        conditions.propulsion.acoustic_outputs[propeller_lift.tag]    = noise_lift
+        conditions.propulsion.acoustic_outputs[propeller_lift.tag]    = output_lift
     
         conditions.propulsion.rpm_lift                     = rpm_lift
         conditions.propulsion.rpm_forward                  = rpm_forward
@@ -297,6 +297,8 @@ class Stopped_Rotor(Propulsor):
         conditions.propulsion.battery_efficiency       = (battery_draw+battery.resistive_losses)/battery_draw
         conditions.propulsion.payload_efficiency       = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw
         conditions.propulsion.electronics_efficiency   =  -(P_forward*num_forward+P_lift*num_lift)/battery_draw
+        conditions.propulsion.rotor_tip_speed          = output_lift.tip_speed
+        
         #conditions.propulsion.propeller_power_lift     = P_lift
         #conditions.propulsion.propeller_thrust_lift    = F_lift
         #conditions.propulsion.propeller_power_forward  = P_forward
@@ -322,7 +324,7 @@ class Stopped_Rotor(Propulsor):
         
         conditions.propulsion.propeller_thrust_coefficient = Cp_forward
         conditions.propulsion.propeller_power_coefficient_lift  = Cp_lift        
-        conditions.propulsion.propeller_thrust_coefficient_lift  = noise_lift.Ct
+        conditions.propulsion.propeller_thrust_coefficient_lift  = output_lift.Ct
         conditions.propulsion.battery_current = current_total
         return results
     

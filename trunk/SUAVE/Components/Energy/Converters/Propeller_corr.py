@@ -68,7 +68,7 @@ class Propeller_corr(Energy_Component):
         self.ducted                   = False
         self.induced_power_factor     = 1.15  #accounts for interference effeces
         self.profile_drag_coefficient = .01
-        self.lift_curve_slope         = 5.7
+        self.lift_curve_slope         = 2*np.pi
         self.tag                      = 'Propeller'
         
     def spin(self,conditions):
