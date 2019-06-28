@@ -143,6 +143,7 @@ class Propeller_corr(Energy_Component):
         BB     = B*B
         BBB    = BB*B
         disk_area  = np.pi*(R**2)
+        kappa    = self.induced_power_factor 
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
@@ -156,7 +157,7 @@ class Propeller_corr(Energy_Component):
             body2thrust = np.zeros((len(theta),3,3))
             for i in range(len(theta)):
                 body2thrust[i,:,:] = [[np.cos(theta[i][0]), 0., np.sin(theta[i][0])],[0., 1., 0.], [-np.sin(theta[i][0]), 0., np.cos(theta[i][0])]]
-            T_body2thrust      = orientation_transpose(body2thrust)
+            T_body2thrust      = orientati88on_transpose(body2thrust)
        
         V_thrust      = orientation_product(T_body2thrust,V_body)
         
@@ -164,24 +165,33 @@ class Propeller_corr(Energy_Component):
         V = V_thrust[:,0,None]
         
         ua = np.zeros_like(V)
+        power_ratio = np.zeros_like(V)
         if Vh != None:   
             for i in range(len(V)):
                 V_inf = V_thrust[i] 
                 V_Vh =  V_thrust[i][0]/Vh
-                if Vv[i,:].all()  == True :
+            
+                if Vv[i,:].all()  == 0 :
                     ua[i] = Vh
                 elif Vv[i][0]  == 0 and  Vv[i][2] != 0: # vertical / axial flight
                     if V_Vh > 0: # climbing 
-                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                        ua[i] =Vh*(-.5*V_Vh+np.sqrt((.5*V_Vh)**2+1)) #Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                        
                     elif -2 <= V_Vh and V_Vh <= 0:  # slow descent                 
-                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718*(V_Vh)**2 - 0.655*(V_Vh)**4 ) 
+                        ua[i] = Vh*(1.15-V_Vh)#Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718*(V_Vh)**2 - 0.655*(V_Vh)**4 ) 
                     else: # windmilling 
                         print("rotor is in the windmill break state!")
                         ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) - np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                
+                
                 else: # forward flight conditions                 
                     func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[2])**2 + (V_inf[0] + vi)**2)))
                     vi_initial_guess = V_inf[0]
                     ua[i]    = fsolve(func,vi_initial_guess)
+           
+                power_ratio[i] = ua[i]/Vh+V_Vh
+                
+               
         else: 
             ua = 0.0 
         
@@ -348,7 +358,7 @@ class Propeller_corr(Energy_Component):
         tip_speed = omega*R
         Ct       = thrust/(rho*disk_area*( tip_speed*tip_speed))   #thrust/(rho*(n*n)*(D*D*D*D))
         Ct[Ct<0] = 0.        #prevent things from breaking
-        kappa    = self.induced_power_factor 
+  
         Cd0      = self.profile_drag_coefficient   
         Cp    = np.zeros_like(Ct)
         Cpl   = np.zeros_like(Ct)
