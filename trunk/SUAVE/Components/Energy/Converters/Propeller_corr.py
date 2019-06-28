@@ -13,7 +13,7 @@
 import numpy as np
 import scipy as sp
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 import scipy.optimize as opt
 from scipy.optimize import fsolve
 from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import compute_airfoil_polars
@@ -66,8 +66,9 @@ class Propeller_corr(Energy_Component):
         self.radius_distribution      = None
         self.rotation                 = None
         self.ducted                   = False
-        self.induced_power_factor     = 1.48  #accounts for interference effeces
-        self.profile_drag_coefficient = .03
+        self.induced_power_factor     = 1.15  #accounts for interference effeces
+        self.profile_drag_coefficient = .01
+        self.lift_curve_slope         = 5.7
         self.tag                      = 'Propeller'
         
     def spin(self,conditions):
@@ -283,7 +284,7 @@ class Propeller_corr(Energy_Component):
             Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-            Cl = 2.*pi*alpha
+            Cl = alpha*self.lift_curve_slope
             
             # By 90 deg, it's totally stalled.
             Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
@@ -356,10 +357,14 @@ class Propeller_corr(Energy_Component):
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
         D        = 2*R 
         tip_speed = omega*R
-        Ct       = thrust/(rho*disk_area*( tip_speed*tip_speed))   #thrust/(rho*(n*n)*(D*D*D*D))
-        Ct[Ct<0] = 0.        #prevent things from breaking
-  
-        Cd0      = self.profile_drag_coefficient   
+        #Leishman's thrust coefficient
+        #for rotor
+        Ctl       = thrust/(rho*disk_area*( tip_speed*tip_speed))   #thrust/(rho*(n*n)*(D*D*D*D))
+        Ctl[Ctl<0] = 0.        #prevent things from breaking
+        #motor thrust coefficient
+        Ct    = thrust/(rho*(n*n)*(D*D*D*D)) #used for motor model
+        Ct[Ct<0] = 0.  
+        Cd0    = self.profile_drag_coefficient   
         Cp    = np.zeros_like(Ct)
         Cpl   = np.zeros_like(Ct)
         power = np.zeros_like(Ct)        
@@ -367,8 +372,8 @@ class Propeller_corr(Energy_Component):
 
             
             if -1. <Vv[i][0] <1.: # vertical/axial flight
-                #note Leishmann has a different definition of power coefficient
-                Cpl[i]      = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
+                #note Leishmann has a different definition of power and torque coefficient
+                Cpl[i]      = (kappa*(Ctl[i]**1.5)/(2**.5))+sigma*Cd0/8.
                 power[i]    =Cpl[i]* rho[i]*disk_area*(tip_speed[i]*tip_speed[i]*tip_speed[i])#Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
                 torque[i]   = power[i]/omega[i]   #
                 
@@ -408,7 +413,7 @@ class Propeller_corr(Energy_Component):
             drag_coefficient          = Cd,
             lift_coefficient          = Cl,       
             omega                     = omega,          
-            
+            tip_speed                 = tip_speed,
             blade_dT_dR               = rho*(Gamma*(Wt-epsilon*Wa)),   
             blade_dT_dr               = rho*(Gamma*(Wt-epsilon*Wa))*R,  
             blade_T_distribution      = rho*(Gamma*(Wt-epsilon*Wa))*deltar, 
