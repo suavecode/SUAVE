@@ -70,8 +70,8 @@ class Vortex_Lattice(Aerodynamics):
         
         # conditions table, used for surrogate model training
         self.training                          = Data()        
-        self.training.angle_of_attack          = np.array([[-5.,-3.5,-2., 0.0, 2.0, 3.5, 5.0 , 8.0, 10., 12.]]).T * Units.deg
-        self.training.Mach                     = np.array([[0.0,0.1 ,0.2, 0.3, 0.4, 0.5, 0.6 , 0.7, 0.8 ,0.9]]).T 
+        self.training.angle_of_attack          = np.array([[-5., -3.5, -2., 0.0, 2.0, 3.5, 5.0 , 8.0, 10., 12.]]).T * Units.deg
+        self.training.Mach                     = np.array([[0.0, 0.1 ,0.2, 0.3, 0.4, 0.5, 0.6 , 0.7, 0.8 ,0.9]]).T 
         self.training.lift_coefficient         = None
         self.training.wing_lift_coefficient    = None
         self.training.drag_coefficient         = None
@@ -180,11 +180,18 @@ class Vortex_Lattice(Aerodynamics):
         CL_surrogate        = surrogates.lift_coefficient
         CDi_surrogate       = surrogates.drag_coefficient
         wing_CL_surrogates  = surrogates.wing_lift_coefficient
-        wing_CDi_surrogates = surrogates.wing_dragw_coefficient
+        wing_CDi_surrogates = surrogates.wing_drag_coefficient
                 
         data_len                 = len(AoA)
         inviscid_lift            = np.zeros([data_len,1]) 
         inviscid_drag            = np.zeros([data_len,1])        
+        
+        
+        conditions.aerodynamics.drag_breakdown.induced                     = Data()
+        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag = Data()
+        conditions.aerodynamics.lift_breakdown                             = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift         = Data()
+        conditions.aerodynamics.lift_breakdown.compressible_wings          = Data()
         
         for ii,_ in enumerate(AoA):
             inviscid_lift[ii]       = CL_surrogate.predict([np.array([AoA[ii][0],Mach[ii][0]])])  
@@ -375,8 +382,8 @@ class Vortex_Lattice(Aerodynamics):
         AoA_data   = training.angle_of_attack
         mach_data  = training.Mach        
         CL_data    = training.lift_coefficient      
-        CDi_data   = training.wing_lift_coefficient 
-        CL_w_data  = training.drag_coefficient      
+        CDi_data   = training.drag_coefficient 
+        CL_w_data  = training.wing_lift_coefficient     
         CDi_w_data = training.wing_drag_coefficient 
         xy         = training.grid_points
         
@@ -444,7 +451,6 @@ def calculate_VLM(conditions,settings,geometry):
             ii+=1
 
     return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_y , cdi_y , CPi
-
 
 
 def calculate_weissinger(conditions,settings,geometry):

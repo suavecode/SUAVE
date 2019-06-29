@@ -98,7 +98,7 @@ def VLM(conditions,settings,geometry):
         x_m = x_cg
     
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
-    mach = conditions.freestream.mach_number         # mach number
+    mach = conditions.freestream.mach_number*0         # mach number
     ones = np.atleast_2d(np.ones_like(aoa)) 
    
     # generate vortex distribution
@@ -109,11 +109,12 @@ def VLM(conditions,settings,geometry):
     MCM = VD.MCM 
     
     # Compute flow tangency conditions   
-    inv_root_beta = 1/np.sqrt(1-mach**2)     
+    inv_root_beta = 1/np.sqrt(1-(mach**2))     
     inv_root_beta[np.isnan(inv_root_beta)] = 1.0
+    inv_root_beta = np.atleast_2d(inv_root_beta)
     
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones
-    delta = np.arctan((VD.ZC - VD.ZCH)/(VD.XC - VD.XCH)*inv_root_beta)   
+    delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*inv_root_beta))   
    
     # Build Aerodynamic Influence Coefficient Matrix
     A = C_mn[:,:,:,2] - np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.tan(delta)))- np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)))  # EDIT

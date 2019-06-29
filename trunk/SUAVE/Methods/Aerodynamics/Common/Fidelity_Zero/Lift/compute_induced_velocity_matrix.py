@@ -19,7 +19,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     ones = np.atleast_3d(np.ones_like(theta_w))
  
     # Prandtl Glauret Transformation for subsonic
-    inv_root_beta = 1/np.sqrt(1-mach**2)     
+    inv_root_beta = 1/np.sqrt(1-(mach**2))     
     inv_root_beta[np.isnan(inv_root_beta)] = 1.0
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
