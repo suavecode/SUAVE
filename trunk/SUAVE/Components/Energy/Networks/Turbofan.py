@@ -74,8 +74,8 @@ class Turbofan(Propulsor):
         
         self.PGM_minimum         = 0
         self.PGM_characteristics = ['sealevel_static_thrust','number_of_engines','bypass_ratio','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
-        self.PGM_char_min_bounds = [1000.,1.,0.1,0.,-2,-2]   
-        self.PGM_char_max_bounds = [np.inf,np.inf,np.inf,2,2,2]             
+        self.PGM_char_min_bounds = [1000.,1.,0.1,0.,-1,-1]   
+        self.PGM_char_max_bounds = [np.inf,np.inf,np.inf,1,1,1]             
         
     _component_root_map = None
         

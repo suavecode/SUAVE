@@ -140,7 +140,7 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     optionals.mass_properties.center_of_gravity[0][0]          = 0.0   
         
     fuel.origin[0][0]                                          = vehicle.wings.main_wing.origin[0][0] 
-    fuel.mass_properties.center_of_gravity                     = vehicle.wings.main_wing.mass_properties.center_of_gravity[0][0] 
+    fuel.mass_properties.center_of_gravity                     = vehicle.wings.main_wing.mass_properties.center_of_gravity
     
     control_systems.origin[0][0]                               = vehicle.wings.main_wing.origin[0][0] 
     control_systems.mass_properties.center_of_gravity[0][0]    = vehicle.wings.main_wing.mass_properties.center_of_gravity[0][0] + \

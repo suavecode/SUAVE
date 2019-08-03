@@ -173,7 +173,7 @@ def vehicle_setup():
     wing.taper                   = 0.31
     wing.dihedral                = 0.00
     
-    wing.origin                  = [[32,0,1.675]]
+    wing.origin                  = [[30.4,0,1.675]]
     wing.vertical                = True
     wing.symmetric               = False       
     wing.high_lift               = False

@@ -40,7 +40,7 @@ def set_origin_non_dimensional(vehicle):
         length_scale = vehicle.fuselages.fuselage.lengths.total
     except:
         try:
-            length_scale = vehicle.wings.main_wing.spans.projected
+            length_scale = vehicle.wings.main_wing.lengths.total
         except:
             length_scale = 1.
 
@@ -94,7 +94,7 @@ def set_origin_dimensional(vehicle):
         length_scale = vehicle.fuselages.fuselage.lengths.total
     except:
         try:
-            length_scale = vehicle.wings.main_wing.spans.projected
+            length_scale = vehicle.wings.main_wing.lengths.total
         except:
             length_scale = 1.
 

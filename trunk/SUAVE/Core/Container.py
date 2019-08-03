@@ -11,6 +11,7 @@
 
 from .Data     import Data
 from warnings import warn
+import random
 
 # ----------------------------------------------------------------------
 #   Data Container Base Class
@@ -95,7 +96,11 @@ class Container(Data):
         if str.lower(val.tag) in keys:
             string_of_keys = "".join(self.keys())
             n_comps = string_of_keys.count(val.tag)
-            val.tag = val.tag + str(n_comps+1)        
+            val.tag = val.tag + str(n_comps+1)
+            
+            # Check again, because theres an outside chance that its duplicate again. Then assign a random
+            if str.lower(val.tag) in keys:
+                val.tag = val.tag + str(n_comps+random.randint(0,1000))
         
         Data.append(self,val)
         

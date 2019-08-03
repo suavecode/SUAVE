@@ -102,27 +102,93 @@ def size_from_PGM(vehicle):
                         
                         # The height needs to be at least 1.4 meters
                         height = 1.4
+
                         
-                        # Pull out data
-                        t_c   = wing.thickness_to_chord
-                        c     = wing.chords.root   
-                        span  = wing.spans.projected
-                        taper = wing.taper
-                        
-                        # Determine the area which has the min height
-                        h_c = height/c
-                        max_height = t_c*c
-                        
-                        if height<max_height:
-                        
+                        if len(wing.Segments)>0:
+                                for i, seg in enumerate(wing.Segments):
+                                        
+                                        seg = wing.Segments[i]
+                                        
+                                        if seg.percent_span_location>0.2:
+                                                break
+                                        
+                                        # Pull out data
+                                        t_c   = seg.thickness_to_chord
+                                        c     = seg.root_chord_percent*wing.chords.root 
+                                        span  = wing.spans.projected*(wing.Segments[i+1].percent_span_location-seg.percent_span_location)
+                                        
+                                        # Determine the area which has the min height
+                                        h_c = height/c
+                                                                                
+                                        root = lambda x:loc(x,t_c,h_c)
+                                        
+                                        x0 = np.array([0.])
+                                        x1 = np.array([1.])
+                                        
+                                        try:                                               
+                                                fore_location = sp.optimize.newton(root, x0)
+                                                aft_location  = sp.optimize.newton(root, x1)
+                                        except:
+                                                fore_location = 0.5
+                                                aft_location  = 0.5                                               
+                                        
+                                        root_length = (aft_location - fore_location)*c
+                                        
+                                        # Assume the passengers breaks are at wing breaks
+                                        end_chord  = wing.Segments[i+1].root_chord_percent*wing.chords.root 
+                                        max_height = end_chord*wing.Segments[i+1].thickness_to_chord
+                                        
+                                        if height<max_height:
+                                                
+                                                end_length = (aft_location - fore_location)*end_chord                      
+                                                
+                                                avg_length = 0.5*(root_length+end_length)
+                                                seats_len  = np.floor(avg_length / (31.* Units.inches)/2)
+                                                
+                                                # Calculate seats abreast
+                                                bins  = np.floor(span/0.53)
+                                                aisles = np.ceil(bins/7)
+                                                        
+                                                seats_abreast = bins-aisles
+                                                
+                                                seats = np.floor(seats_abreast*seats_len)
+                                                
+                                                if np.isnan(seats):
+                                                        seats = 0.
+                                                elif seats<= 0.:
+                                                        seats = 0.
+                                                        
+                                                pax  += seats
+                                                
+                                                vehicle.passengers = int(pax)
+                                                
+                                                if vehicle.passengers <=0:
+                                                        print('neg pax wing')
+                                        
+                                
+                        else:
+                                # Pull out data
+                                t_c   = wing.thickness_to_chord
+                                c     = wing.chords.root   
+                                span  = wing.spans.projected
+                                taper = wing.taper
+                                
+                                # Determine the area which has the min height
+                                h_c = height/c
+                                max_height = t_c*c
+                                                                        
                                 root = lambda x:loc(x,t_c,h_c)
                                 
                                 x0 = np.array([0.])
                                 x1 = np.array([1.])
                                 
-                                fore_location = sp.optimize.newton(root, x0)
-                                aft_location  = sp.optimize.newton(root, x1)
-                                
+                                try:                                               
+                                        fore_location = sp.optimize.newton(root, x0)
+                                        aft_location  = sp.optimize.newton(root, x1)
+                                except:
+                                        fore_location = 0.5
+                                        aft_location  = 0.5   
+                                        
                                 root_length = (aft_location - fore_location)*c
                                 
                                 # Assume the passengers are in the inner 10% for now
@@ -138,8 +204,12 @@ def size_from_PGM(vehicle):
                                         
                                         root = lambda x:loc(x,t_c,h_c)
                                         
-                                        fore_location = sp.optimize.newton(root, x0)
-                                        aft_location  = sp.optimize.newton(root, x1)
+                                        try:                                               
+                                                fore_location = sp.optimize.newton(root, x0)
+                                                aft_location  = sp.optimize.newton(root, x1)
+                                        except:
+                                                fore_location = 0.5
+                                                aft_location  = 0.5         
                                         
                                         end_length = (aft_location - fore_location)*end_chord                      
                                         
@@ -147,15 +217,8 @@ def size_from_PGM(vehicle):
                                         seats_len  = avg_length / (31.* Units.inches)
                                         
                                         # Calculate seats abreast
-                                        bins  = np.floor(span_loc/0.53)
-                                        if bins<=7:
-                                                aisles = 1.
-                                        elif bins>7:
-                                                aisles = 2.
-                                        elif bins>=15:
-                                                aisles = 3.
-                                        elif bins>= 23:
-                                                aisles = 4.
+                                        bins   = np.floor(span_loc/0.53)
+                                        aisles = np.ceil(bins/7)
                                                 
                                         seats_abreast = bins-aisles
                                         
@@ -606,8 +669,7 @@ def size_from_PGM(vehicle):
                 for kk in range(ii):
                         wing_a = vehicle.wings[wing_keys[ii]]
                         wing_b = vehicle.wings[wing_keys[kk]]
-                        difference = Data(diff(wing_a,wing_b))
-                        if len(difference.keys())==1.:
+                        if np.isclose(wing_a.non_dimensional_origin[0][0],wing_b.non_dimensional_origin[0][0]):
                                 wing_b.non_dimensional_origin[0][0] = 0.1*np.random.rand() + wing_b.non_dimensional_origin[0][0]                  
 
         # Set the origins
@@ -725,9 +787,6 @@ def fix_wing_segments(wing):
                                 
         if spanwise_locs[indices[-1]]>=(1.-1E-3):
                 segs[indices[-1]].percent_span_location = 1.
-                
-                                        
-                
 
                 
         # Check to ensure nothing exceeds the bounds
@@ -741,6 +800,13 @@ def fix_wing_segments(wing):
                         if np.isnan(val): val = 0.; new_container[seg].deep_set(key,0.)
                         if val < min_bounds[ii]: new_container[seg].deep_set(key,min_bounds[ii])
                         if val > max_bounds[ii]: new_container[seg].deep_set(key,max_bounds[ii])
+                        
+        # If we have too many segs. I'll just blindly delete the middle one
+        if len(new_container)>new_container[seg].max_per_vehicle:
+                n_keys_to_del = len(new_container)-new_container[seg].max_per_vehicle
+                for iiiii in range(n_keys_to_del):
+                        key_to_delete = new_container.keys()[int(np.floor(new_container[seg].max_per_vehicle/2))]
+                        new_container.__delattr__(key_to_delete)
                         
 
         # Change the container out

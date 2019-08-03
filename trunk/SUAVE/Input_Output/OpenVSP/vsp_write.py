@@ -328,7 +328,7 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
         vsp.SetParmVal( wing_id,'Span',x_secs[1],local_span) 
         vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[1],sec_tip_chord)
     else:
-        vsp.SetParmVal( wing_id,'Span',x_secs[1],span) 
+        vsp.SetParmVal( wing_id,'Span',x_secs[1],span/np.cos(dihedral*Units.degrees)) 
 
     vsp.Update()
 
