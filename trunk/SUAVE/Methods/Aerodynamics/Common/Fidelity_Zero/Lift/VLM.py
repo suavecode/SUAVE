@@ -1,11 +1,7 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 # VLM.py
 # 
-# Created:  Dec 2013, SUAVE Team
-# Modified: Apr 2017, T. MacDonald
-#           Oct 2017, E. Botero
-#           Jun 2018, M. Clarke
-
+# Created:  May 2019, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +15,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_veloci
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution     import compute_vortex_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix              import compute_RHS_matrix
 # ----------------------------------------------------------------------
-#  Weissinger Vortex Lattice
+#  Vortex Lattice
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
