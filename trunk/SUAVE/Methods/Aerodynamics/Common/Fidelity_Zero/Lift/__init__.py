@@ -4,7 +4,6 @@
 
 from .aircraft_total                   import aircraft_total
 from .fuselage_correction              import fuselage_correction
-from .weissinger_VLM                   import weissinger_VLM
 from .VLM                              import VLM
 from .compute_vortex_distribution      import compute_vortex_distribution
 from .compute_induced_velocity_matrix  import compute_induced_velocity_matrix

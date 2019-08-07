@@ -14,9 +14,7 @@ import SUAVE
 
 from SUAVE.Core import Data
 from SUAVE.Core import Units
-
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.weissinger_VLM import weissinger_VLM
 
 # local imports
 from .Aerodynamics import Aerodynamics
@@ -25,8 +23,6 @@ from SUAVE.Plots import plot_vehicle_vlm_panelization
 
 # package imports
 import numpy as np
-import sklearn
-from sklearn import gaussian_process
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
@@ -61,12 +57,10 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.number_panels_spanwise   = 50*2
         self.settings.number_panels_chordwise  = 1
         self.settings.use_surrogate            = True
-        self.settings.use_weissinger           = True
         self.settings.plot_vortex_distribution = False
         self.settings.plot_vehicle             = False
         self.settings.vortex_distribution      = Data()
         self.settings.call_function            = None
-
         
         # conditions table, used for surrogate model training
         self.training                          = Data()        
@@ -101,24 +95,13 @@ class Vortex_Lattice(Aerodynamics):
         """                      
         # Unpack:
         geometry = self.geometry
-        settings = self.settings 
+        settings = self.settings     
+                    
+        # generate vortex distribution
+        VD = compute_vortex_distribution(geometry,settings)      
         
-        # Figure out if we are doing a full VLM or a Weissinger
-        if   settings.use_weissinger == True:
-            
-            # Set the call function
-            settings.call_function = calculate_weissinger
-            
-        elif settings.use_weissinger == False:
-            
-            # Set the call function
-            settings.call_function = calculate_VLM
-            
-            # generate vortex distribution
-            VD = compute_vortex_distribution(geometry,settings)      
-            
-            # Pack
-            settings.vortex_distribution = VD
+        # Pack
+        settings.vortex_distribution = VD
         
         # Plot vortex discretization of vehicle
         if settings.plot_vortex_distribution == True:
@@ -265,7 +248,7 @@ class Vortex_Lattice(Aerodynamics):
         
         # Evaluate the VLM
         inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
-            settings.call_function(conditions,settings,geometry)
+            calculate_VLM(conditions,settings,geometry)
         
         
         # Lift 
@@ -342,7 +325,7 @@ class Vortex_Lattice(Aerodynamics):
         for j,_ in enumerate(Mach):
             konditions.freestream.mach_number = Mach[j]*np.ones_like(AoA)                         
             total_lift, total_drag, wing_lifts, wing_drags , wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
-                settings.call_function(konditions,settings,geometry)
+                calculate_VLM(konditions,settings,geometry)
            
             # store training data
             CL[count*len(Mach):(count+1)*len(Mach),0]                = total_lift[:,0]
@@ -420,8 +403,6 @@ class Vortex_Lattice(Aerodynamics):
 # ----------------------------------------------------------------------
 #  Helper Functions
 # ----------------------------------------------------------------------
-
-
 def calculate_VLM(conditions,settings,geometry):
     """Calculate the total vehicle lift coefficient and specific wing coefficients (with specific wing reference areas)
     using a vortex lattice method.
@@ -458,46 +439,3 @@ def calculate_VLM(conditions,settings,geometry):
             ii+=1
 
     return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_y , cdi_y , CPi
-
-
-def calculate_weissinger(conditions,settings,geometry):
-    """Calculate the total vehicle lift coefficient and specific wing coefficients (with specific wing reference areas)
-    using a vortex lattice method.
-    Assumptions:
-    None
-    Source:
-    N/A
-    Inputs:
-    conditions                      (passed to vortex lattice method)
-    settings                        (passed to vortex lattice method)
-    geometry.reference_area         [m^2]
-    geometry.wings.*.reference_area (each wing is also passed to the vortex lattice method)
-    Outputs:
-    
-    Properties Used:
-    
-    """            
-
-    # unpack
-    vehicle_reference_area   = geometry.reference_area
-    propulsors               = geometry.propulsors
-    
-    # iterate over wings
-    wing_lifts               = Data()
-    wing_drags               = Data()
-    wing_lift_distribution   = Data()
-    wing_drag_distribution   = Data()    
-    
-    total_lift_coeff         = 0.
-    total_induced_drag_coeff = 0.
-
-    for wing in geometry.wings.values():
-        wing_lift_coeff,wing_drag_coeff, cl_y, cdi_y  =  weissinger_VLM(conditions,settings,wing,propulsors)
-        total_lift_coeff                         += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
-        total_induced_drag_coeff                 += wing_drag_coeff * wing.areas.reference / vehicle_reference_area
-        wing_lifts[wing.tag]                      = wing_lift_coeff
-        wing_drags[wing.tag]                      = wing_drag_coeff
-        wing_lift_distribution[wing.tag]          = cl_y
-        wing_drag_distribution[wing.tag]          = cdi_y  
-    
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, 0

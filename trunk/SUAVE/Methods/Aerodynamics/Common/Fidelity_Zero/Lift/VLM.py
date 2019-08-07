@@ -120,7 +120,6 @@ def VLM(conditions,settings,geometry):
     A = C_mn[:,:,:,2] - np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.tan(delta)))- np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)))  # EDIT
     
     # Build the vector
-    #RHS = np.tan(delta)*np.cos(aoa) - np.sin(aoa)
     RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,conditions,geometry)
     
     # Compute vortex strength  
