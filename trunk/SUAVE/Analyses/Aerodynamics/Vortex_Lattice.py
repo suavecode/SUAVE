@@ -58,8 +58,8 @@ class Vortex_Lattice(Aerodynamics):
         self.settings = Data()
 
         # vortex lattice configurations
-        self.settings.number_panels_spanwise   = 16
-        self.settings.number_panels_chordwise  = 4
+        self.settings.number_panels_spanwise   = 50*2
+        self.settings.number_panels_chordwise  = 1
         self.settings.use_surrogate            = True
         self.settings.use_weissinger           = True
         self.settings.plot_vortex_distribution = False
@@ -254,9 +254,19 @@ class Vortex_Lattice(Aerodynamics):
         settings   = self.settings
         geometry   = self.geometry
         
+         
+        span_distributions  = Data()
+        for wing in geometry.wings:
+            wing_sym = 1
+            if wing.symmetric:
+                wing_sym = 2  
+            span_distributions[wing.tag] = np.linspace(0,(wing.spans.projected / wing_sym) , settings.number_panels_spanwise)
+        conditions.aerodynamics.span_distributions                           = span_distributions       
+        
         # Evaluate the VLM
         inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
             settings.call_function(conditions,settings,geometry)
+        
         
         # Lift 
         conditions.aerodynamics.lift_coefficient                             = inviscid_lift  
@@ -432,9 +442,6 @@ def calculate_VLM(conditions,settings,geometry):
     Properties Used:
     
     """            
-
-    # unpack
-    vehicle_reference_area = geometry.reference_area
 
     # iterate over wings
     wing_lifts = Data()

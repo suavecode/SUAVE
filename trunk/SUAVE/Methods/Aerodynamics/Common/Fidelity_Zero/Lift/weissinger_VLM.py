@@ -74,13 +74,6 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
     # WEISSINGER VORTEX LATTICE METHOD   
     #-------------------------------------------------------------------------------------------------------
     if orientation == False :
-        if 'propulsor' in propulsors:
-            prop =  propulsors['propulsor'].propeller            
-            propeller_status = True
-            n = 50
-        else: 
-            propeller_status = False  
-
         # chord difference
         dchord = (root_chord-tip_chord)
         if sym_para is True :
@@ -216,21 +209,21 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
                 r_prime[:,1:]     =  np.sqrt(r_prime[:,:-1]**2 + (r_ratio)*Kv)   
                 r_div_r_prime_val  = r_old /r_prime                    
                 r_div_r_prime_old =  np.concatenate((r_div_r_prime_val[:,::-1], r_div_r_prime_val), axis=1)   
-  
+                
                 # determine if slipstream wake interacts with wing in the z direction
                 if (prop.origin[i][2] + r_prime[0,-1]) > wing.origin[2]  and  (prop.origin[i][2] - r_prime[0,-1]) < wing.origin[2]:
-                    
+                
                     # determine y location of propeller on wing                  
                     prop_vec_minus = y - (prop.origin[i][1] - R_p*np.sqrt(1 - (abs(prop.origin[i][2] - wing.origin[2])/R_p)))               
                     LHS_vec        = np.extract(prop_vec_minus <=0 ,prop_vec_minus)                 
-                    
+                
                     # determine if slipstream wake interacts with wing in the y direction
                     if (prop.origin[i][1] + R_p) < span: 
                         prop_vec_plus  = y - (prop.origin[i][1] + R_p*np.sqrt(1 - (abs(prop.origin[i][2] - wing.origin[2])/R_p)))
                         RHS_vec        = np.extract(prop_vec_plus >0 ,prop_vec_plus)   
                         end_val        = np.where(prop_vec_plus == min(RHS_vec))[1][0] +1 
                         discre         = (np.where(prop_vec_plus == min(RHS_vec))[1] - np.where(prop_vec_minus == max(LHS_vec))[1]) + 1 
-                           
+                
                     else: 
                         end_val       = len(y[0])
                         discre        = (end_val  - np.where(prop_vec_minus == max(LHS_vec))[1])                      
@@ -242,7 +235,7 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
                         r_old         =  r_old[:cut_off] 
                         d_old         =  d_old[:cut_off] 
                         r_div_r_prime_old = r_div_r_prime_old[:,:cut_off]
-                    
+                
                     # changes the discretization on propeller diameter to match the discretization on the wing   
                     D_old = np.ones((m,1)) *d_old 
                     d              = np.interp(np.linspace(-R_p,max(d_old),discre) , d_old, d_old) 
@@ -253,11 +246,12 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
                         vt[k,:]             = np.interp(np.linspace(-R_p,max(d_old),discre[0]) , d_old, vt_old[k,:])            # induced tangential velocity at propeller disc using wing discretization
                         va[k,:]             = np.interp(np.linspace(-R_p,max(d_old),discre[0]) , d_old, va_old[k,:])            # induced axial velocity at propeller disc using wing discretization            
                         r_div_r_prime[k,:]  = np.interp(np.linspace(-R_p,max(d_old),discre[0]) , d_old, r_div_r_prime_old[k,:])                      
-                    
+                
                     # adjust axial and tangential components if propeller is off centered 
                     va_prime       = Kd*va*np.sqrt(1 - (abs(prop.origin[i][2] - wing.origin[2])/R_p))
                     vt_prime       = 2*vt*r_div_r_prime*np.sqrt(1 - (abs(prop.origin[i][2] - wing.origin[2])/R_p))
-                    
+                  
+                  
                     # adjust for clockwise/counter clockwise rotation
                     if prop.rotation != None:
                         vt_prime = vt_prime*prop.rotation[i]
@@ -272,7 +266,71 @@ def weissinger_VLM(conditions,settings,wing,propulsors):
                     start_val = np.where(prop_vec_minus == max(LHS_vec))[1][0]  
                     V_distribution[:,start_val:end_val]   = modified_V_inf 
                     aoa_distribution[:,start_val:end_val] = modified_aoa
-            
+                    
+                    ########################
+                    import pylab as plt
+                    fig = plt.figure()
+                    axes = fig.add_subplot(3,1,1) 
+                    yv  = np.linspace(-R_p,max(d_old),discre[0])
+                    axes.plot(r_old[1:], Kv[1], 'bo-')
+                    axes.set_ylabel('Kv')
+                    axes.get_yaxis().get_major_formatter().set_scientific(False)
+                    axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+                    axes.grid(True)   
+                        
+                    axes = fig.add_subplot(3,1,2) 
+                    yv  = np.linspace(-R_p,max(d_old),discre[0])
+                    axes.plot(r_old, r_prime[1], 'bo-')
+                    axes.set_ylabel('r prime')
+                    axes.get_yaxis().get_major_formatter().set_scientific(False)
+                    axes.get_yaxis().get_major_formatter().set_useOffset(False)    
+                    axes.grid(True)   
+                    
+                    axes = fig.add_subplot(3,1,3) 
+                    yv  = np.linspace(-R_p,max(d_old),discre[0])
+                    axes.plot(yv, r_div_r_prime[1], 'bo-')
+                    axes.plot(d_old, r_div_r_prime_old[1], 'ro-')
+                    axes.set_ylabel('r divided by r prime')
+                    axes.get_yaxis().get_major_formatter().set_scientific(False)
+                    axes.get_yaxis().get_major_formatter().set_useOffset(False)   
+                    axes.grid(True)   
+                    
+                    
+                    
+                    fig = plt.figure()
+                    axes = fig.add_subplot(2,1,1) 
+                    axes.plot(y[:,start_val:end_val][0], va_prime[1], 'bo-')
+                    axes.set_ylabel('Va   Profile')
+                    axes.get_yaxis().get_major_formatter().set_scientific(False)
+                    axes.get_yaxis().get_major_formatter().set_useOffset(False)             
+                    axes.grid(True)     
+                
+                    axes = fig.add_subplot(2,1,2)  
+                    axes.plot(y[:,start_val:end_val][0], vt_prime[1] , 'bo-')
+                    axes.set_ylabel('Vt  Profile')
+                    axes.get_yaxis().get_major_formatter().set_scientific(False)
+                    axes.get_yaxis().get_major_formatter().set_useOffset(False)             
+                    axes.grid(True)      
+                    
+                    fig = plt.figure()
+                    axes = fig.add_subplot(2,1,1)  
+                    axes.plot(y[0] , V_distribution[1] , 'bo-')
+                    axes.set_ylabel('V  Profile')
+                    axes.get_yaxis().get_major_formatter().set_scientific(False)
+                    axes.get_yaxis().get_major_formatter().set_useOffset(False)             
+                    axes.grid(True)  
+                    axes = fig.add_subplot(2,1,2)  
+                    axes.plot(y[0] , aoa_distribution[1] , 'bo-')
+                    axes.set_ylabel('AoA  Profile')
+                    axes.get_yaxis().get_major_formatter().set_scientific(False)
+                    axes.get_yaxis().get_major_formatter().set_useOffset(False)             
+                    axes.grid(True)        
+                    
+                    plt.show()
+                                        
+                    ########################  
+                    
+             
         q_distribution =  0.5*rho*V_distribution*V_distribution
         CL , CD , Cl, Cd = compute_forces(x,y,xa,ya,yb,deltax,twist_distribution,aoa_distribution,chord_distribution, V_distribution,Sref)            
     

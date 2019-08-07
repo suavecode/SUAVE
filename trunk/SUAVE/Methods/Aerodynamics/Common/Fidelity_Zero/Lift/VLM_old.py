@@ -98,7 +98,7 @@ def VLM(conditions,settings,geometry):
         x_m = x_cg
     
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
-    mach = conditions.freestream.mach_number*0         # mach number
+    mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(aoa)) 
    
     # generate vortex distribution
@@ -183,11 +183,11 @@ def VLM(conditions,settings,geometry):
             
     # total lift and lift coefficient
     L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T
-    CL = 2*L/(Sref) 
+    CL =  2*L/(Sref)   #  Subsonic 2*L/(Sref)   Supersonic 4*L/(Sref)    i.e. X 2 
     
     # total drag and drag coefficient
     D  =  -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T
-    CDi = D/(2*Sref)   
+    CDi = D/(2*Sref)  #Subsonic  D/(2*Sref)    Supersonic 4*D/(Sref)  i.e. it appears that subsonic drag is not consistent with the book
 
     # pressure coefficient
     U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)

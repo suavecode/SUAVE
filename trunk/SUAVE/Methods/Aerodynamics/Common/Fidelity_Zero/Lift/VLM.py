@@ -16,8 +16,8 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import  compute_induced_velocity_matrix
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
-
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution     import compute_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix              import compute_RHS_matrix
 # ----------------------------------------------------------------------
 #  Weissinger Vortex Lattice
 # ----------------------------------------------------------------------
@@ -84,14 +84,14 @@ def VLM(conditions,settings,geometry):
     """ 
    
     # unpack settings
-    n_sw   = settings.number_panels_spanwise    
-    n_cw   = settings.number_panels_chordwise   
-    Sref   = geometry.reference_area
+    n_sw       = settings.number_panels_spanwise    
+    n_cw       = settings.number_panels_chordwise   
+    Sref       = geometry.reference_area
     
     # define point about which moment coefficient is computed 
-    c_bar  = geometry.wings['main_wing'].chords.mean_aerodynamic
-    x_mac  = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0]
-    x_cg   = geometry.mass_properties.center_of_gravity[0] 
+    c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
+    x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0]
+    x_cg       = geometry.mass_properties.center_of_gravity[0] 
     if x_cg == None:
         x_m = x_mac 
     else:
@@ -120,7 +120,8 @@ def VLM(conditions,settings,geometry):
     A = C_mn[:,:,:,2] - np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.tan(delta)))- np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)))  # EDIT
     
     # Build the vector
-    RHS = np.tan(delta)*np.cos(aoa) - np.sin(aoa)
+    #RHS = np.tan(delta)*np.cos(aoa) - np.sin(aoa)
+    RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,conditions,geometry)
     
     # Compute vortex strength  
     gamma = np.linalg.solve(A,RHS)
