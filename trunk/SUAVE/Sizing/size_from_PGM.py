@@ -153,7 +153,7 @@ def size_from_PGM(vehicle):
                                                 
                                                 seats = np.floor(seats_abreast*seats_len)
                                                 
-                                                if np.isnan(seats):
+                                                if np.isnan(seats) or np.isinf(seats):
                                                         seats = 0.
                                                 elif seats<= 0.:
                                                         seats = 0.
