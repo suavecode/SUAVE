@@ -4,7 +4,7 @@
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
 #           Jul 2017, M. Clarke
-
+#           Aug 2019, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -75,11 +75,6 @@ class Body(Data):
 		self.sections.vertical        = Data()
 		self.sections.horizontal      = Data()
 		self.configuration            = Data()
-        
-		self.configuration.nspanwise  = 10
-		self.configuration.nchordwise = 5
-		self.configuration.sspace     = 1.0
-		self.configuration.cspace     = 1.0
 
 
 	def append_section(self,section,orientation='Horizontal'):

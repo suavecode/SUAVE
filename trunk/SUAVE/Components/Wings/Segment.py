@@ -78,19 +78,19 @@ class Segment(Lofted_Body.Segment):
 
     def append_control_surface(self,control_surface):
         """ Adds an control_surface to the segment
-
+        
         Assumptions:
         None
-
+        
         Source:
         N/A
-
+        
         Inputs:
         None
-
+        
         Outputs:
         None
-
+        
         Properties Used:
         N/A
         """  
@@ -101,8 +101,8 @@ class Segment(Lofted_Body.Segment):
         # store data
         self.control_surfaces.append(control_surface)
         return    
-        
-
+    
+ 
 ## @ingroup Components-Wings
 class SegmentContainer(Lofted_Body.Segment.Container):
     """ Container for wing segment

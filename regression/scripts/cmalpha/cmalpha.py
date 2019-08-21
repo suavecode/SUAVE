@@ -75,11 +75,9 @@ def main():
     conditions.aerodynamics       = Data()
     conditions.aerodynamics.angle_of_attack = 0.    
    
-    
-    
     cm_a = taw_cmalpha(vehicle,Mach,conditions,configs.base)[0]
    
-    expected = -0.54071741 #Should be -0.6
+    expected = -0.50331552 #Should be -0.6
     error.cm_a_SIAI = (cm_a - expected)/expected
     print(error)
     for k,v in list(error.items()):

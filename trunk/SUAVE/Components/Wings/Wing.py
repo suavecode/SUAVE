@@ -97,22 +97,6 @@ class Wing(Lofted_Body):
         self.twists.root = 0.0
         self.twists.tip  = 0.0
 
-        self.control_surfaces = Data()
-        self.flaps = Data()
-        self.flaps.chord      = 0.0
-        self.flaps.angle      = 0.0
-        self.flaps.span_start = 0.0
-        self.flaps.span_end   = 0.0
-        self.flaps.type       = None
-        self.flaps.area       = 0.0
-
-        self.slats = Data()
-        self.slats.chord      = 0.0
-        self.slats.angle      = 0.0
-        self.slats.span_start = 0.0
-        self.slats.span_end   = 0.0
-        self.slats.type       = None
-
         self.high_lift     = False
         self.high_mach     = False
         self.vortex_lift   = False
@@ -122,6 +106,7 @@ class Wing(Lofted_Body):
         
         self.Airfoil            = Data()
         self.Segments           = SUAVE.Core.ContainerOrdered()
+        self.control_surfaces   = SUAVE.Core.ContainerOrdered()
         self.Fuel_Tanks         = SUAVE.Core.Container()
 
     def append_segment(self,segment):

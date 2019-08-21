@@ -34,9 +34,9 @@ def vehicle_setup():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
     # mass properties
-    vehicle.mass_properties.takeoff         = 200. * Units.kg
-    vehicle.mass_properties.operating_empty = 200. * Units.kg
-    vehicle.mass_properties.max_takeoff     = 200. * Units.kg 
+    vehicle.mass_properties.takeoff           = 200. * Units.kg
+    vehicle.mass_properties.operating_empty   = 200. * Units.kg
+    vehicle.mass_properties.max_takeoff       = 200. * Units.kg 
     
     # basic parameters
     vehicle.reference_area                    = 80.       
@@ -118,8 +118,6 @@ def vehicle_setup():
     
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'    
-    
-    
     wing.aspect_ratio         = 20.       
     wing.sweeps.quarter_chord = 0 * Units.deg
     wing.thickness_to_chord   = 0.12

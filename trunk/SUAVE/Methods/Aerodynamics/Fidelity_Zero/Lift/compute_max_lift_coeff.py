@@ -43,10 +43,10 @@ def compute_max_lift_coeff(vehicle,conditions=None):
       sweeps.quarter_chord              [radians]
       taper                             [Unitless]
       flaps.chord                       [m]
-      flaps.angle                       [radians]
-      slats.angle                       [radians]
+     control_surfaces.flap.deflection_angle                       [radians]
+     control_surfaces.slat.deflection_angle                       [radians]
       areas.affected                    [m^2]
-      flaps.type                        [string]
+      control_surfaces.flap.configuration_type                        [string]
     conditions.freestream.
       velocity                          [m/s]
       density                           [kg/m^3]
@@ -78,11 +78,11 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         sweep      = wing.sweeps.quarter_chord
         sweep_deg  = wing.sweeps.quarter_chord / Units.degree # convert into degrees
         taper      = wing.taper
-        flap_chord = wing.flaps.chord
-        flap_angle = wing.flaps.angle
-        slat_angle = wing.slats.angle
+        flap_chord = wing.control_surfaces.flap.chord_fraction # correct !!! 
+        flap_angle = wing.control_surfaces.flap.deflection_angle
+        slat_angle = wing.control_surfaces.slat.deflection_angle
         Swf        = wing.areas.affected  #portion of wing area with flaps
-        flap_type  = wing.flaps.type
+        flap_type  = wing.control_surfaces.flap.configuration_type
         
         # conditions data
         V    = conditions.freestream.velocity 
@@ -152,10 +152,10 @@ if __name__ == '__main__':
     wing.chords.mean_aerodynamic = 3.66
 
     wing.flaps.chord = 0.28
-    wing.flaps.angle = 30.  * Units.deg
-    wing.slats.angle = 15.  * Units.deg
+    wing.control_surfaces.flap.deflection_angle = 30.  * Units.deg
+    wing.control_surfaces.slat.deflection_angle = 15.  * Units.deg
     wing.areas.affected  = 0.60 * wing.areas.reference 
-    wing.flaps.type   = 'double_slat'
+    wing.control_surfaces.flap.configuration_type   = 'double_slat'
     
     wing.high_lift  = True
 

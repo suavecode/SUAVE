@@ -31,8 +31,8 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 860.0 * Units.kilogram      # aerobatic, one pilot
-    vehicle.mass_properties.takeoff                   = 860.0 * Units.kilogram   
+    vehicle.mass_properties.max_takeoff      = 860.0 * Units.kilogram      # aerobatic, one pilot
+    vehicle.mass_properties.takeoff          = 860.0 * Units.kilogram   
   
     
     # envelope properties
@@ -43,12 +43,12 @@ def vehicle_setup():
     vehicle.envelope.cruise_mach             = 0.2
 
     # aerodynamic properties
-    vehicle.maximum_lift_coefficient = 1.26
-    vehicle.minimum_lift_coefficient = -1.26
-
-    # basic parameters
-    vehicle.reference_area         = 12.20 * Units['meters**2']  
-    vehicle.passengers             = 1
+    vehicle.maximum_lift_coefficient         = 1.26
+    vehicle.minimum_lift_coefficient         = -1.26
+                                             
+    # basic parameters                       
+    vehicle.reference_area                   = 12.20 * Units['meters**2']  
+    vehicle.passengers                       = 1
 
     # ------------------------------------------------------------------        
     #   Main Wing
