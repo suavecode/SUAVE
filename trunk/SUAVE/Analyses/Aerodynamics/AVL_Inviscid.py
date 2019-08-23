@@ -71,7 +71,7 @@ class AVL_Inviscid(Aerodynamics):
         N/A
         """          
         self.tag                             = 'avl'
-        self.keep_files                      = True
+        self.keep_files                      = False
                 
         self.current_status                  = Data()        
         self.current_status.batch_index      = 0
@@ -417,10 +417,7 @@ class AVL_Inviscid(Aerodynamics):
                         if cs_idx.function == 'aileron' or cs_idx.function == 'rudder': 
                             LatMode_idx.append(num_cs)   
                         num_cs  +=  1
-        
-        # clear folder of old files 
-        rmtree(run_folder)               
-        
+
         # translate conditions
         cases                            = translate_conditions_to_cases(self,geometry,run_conditions)    
         for case in cases:

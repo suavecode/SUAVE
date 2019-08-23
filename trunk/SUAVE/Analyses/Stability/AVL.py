@@ -76,7 +76,7 @@ class AVL(Stability):
         
         """
         self.tag                                    = 'avl'
-        self.keep_files                             = True
+        self.keep_files                             = False
                                                     
         self.current_status                         = Data()        
         self.current_status.batch_index             = 0
@@ -260,7 +260,7 @@ class AVL(Stability):
         """ 
         # Unpack
         geometry    = self.geometry
-        training    = self.training
+        training    = self.training 
         Trim        = self.settings.Trim
         Eigen_Modes = self.settings.Eigen_Modes              
         
@@ -276,7 +276,7 @@ class AVL(Stability):
         table_size = len(AoA)*len(mach)
         xy         = np.zeros([table_size,2])
         count      = 0
-
+        
         for i,_ in enumerate(mach):
             for j,_ in enumerate(AoA):
                 xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
@@ -455,9 +455,6 @@ class AVL(Stability):
                         if cs_idx.function == 'aileron' or cs_idx.function == 'rudder': 
                             LatMode_idx.append(num_cs)   
                         num_cs  +=  1
-                        
-        # clear folder of old files 
-        rmtree(run_folder)   
         
         # translate conditions
         cases                            = translate_conditions_to_cases(self,geometry,run_conditions)    
