@@ -71,19 +71,21 @@ def vehicle_setup():
     
     # control surfaces -------------------------------------------
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'flap' 
+    control_surface.tag                   = 'wing_s'
+    control_surface.function              = 'flap' 
     control_surface.span_fraction_start   = 0.11
     control_surface.span_fraction_end     = 0.85
-    control_surface.degrees_deflection    = 0.0
+    control_surface.deflection            = 0.0 * Units.deg 
     control_surface.chord_fraction        = 0.28    
     control_surface.configuration_type    = 'double_slotted'
     wing.append_control_surface(control_surface)   
         
-    control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'slat' 
+    control_surface                       = SUAVE.Components.Wings.Control_Surface()
+    control_surface.tag                   = 'wing_s'
+    control_surface.function              = 'slat' 
     control_surface.span_fraction_start   = 0.324 
     control_surface.span_fraction_end     = 0.963     
-    control_surface.degrees_deflection    = 1.0
+    control_surface.deflection            = 1.0 * Units.deg 
     control_surface.chord_fraction        = 0.1  	 
     wing.append_control_surface(control_surface) 
     
@@ -346,8 +348,8 @@ def configs_setup(vehicle):
 
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
-    config.wings['main_wing'].control_sufaces.flap.deflection_angle  = 20. * Units.deg
-    config.wings['main_wing'].control_sufaces.slat.deflection_angle  = 25. * Units.deg
+    config.wings['main_wing'].control_sufaces.flap.deflection  = 20. * Units.deg
+    config.wings['main_wing'].control_sufaces.slat.deflection  = 25. * Units.deg
     config.V2_VS_ratio = 1.21
     configs.append(config)
     
@@ -357,8 +359,8 @@ def configs_setup(vehicle):
 
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'landing'
-    config.wings['main_wing'].control_sufaces.flap.deflection_angle  = 30. * Units.deg
-    config.wings['main_wing'].control_sufaces.slat.deflection_angle  = 25. * Units.deg
+    config.wings['main_wing'].control_sufaces.flap.deflection  = 30. * Units.deg
+    config.wings['main_wing'].control_sufaces.slat.deflection  = 25. * Units.deg
     config.Vref_VS_ratio = 1.23
     configs.append(config)   
      
@@ -368,8 +370,8 @@ def configs_setup(vehicle):
 
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'short_field_takeoff'    
-    config.wings['main_wing'].control_sufaces.flap.deflection_angle  = 20. * Units.deg
-    config.wings['main_wing'].control_sufaces.slat.deflection_angle  = 25. * Units.deg
+    config.wings['main_wing'].control_sufaces.flap.deflection  = 20. * Units.deg
+    config.wings['main_wing'].control_sufaces.slat.deflection  = 25. * Units.deg
     config.V2_VS_ratio = 1.21
     
     # payload?

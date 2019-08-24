@@ -94,7 +94,7 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     bht     =       wing.horizontal_stabilizer.spans.projected / Units.ft        #horizontal tail span, ft
     Svt     =       wing.vertical_stabilizer.areas.reference / (Units.ft)**2     #vertical tail area, sq.ft
     bvt     =       wing.vertical_stabilizer.spans.projected  / Units.ft         #vertical tail span, ft
-    deltaf  =       wing.main_wing.control_surfaces.flap.deflection_angle        #flap delection, rad
+    deltaf  =       wing.main_wing.control_surfaces.flap.deflection        #flap delection, rad
     Sf      =       wing.main_wing.flaps.area  / (Units.ft)**2                   #flap area, sq.ft     # correct !!!     
     cf      =       wing.main_wing.flaps.chord_dimensional  / Units.ft           #flap chord, ft
     Dp      =       config.landing_gear.main_tire_diameter  / Units.ft           #MLG tyre diameter, ft

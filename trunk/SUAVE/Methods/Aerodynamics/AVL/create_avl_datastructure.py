@@ -267,7 +267,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                                         c.sign_duplicate      = 1.0                          # this float indicates control surface deflection symmetry
                                                         c.x_hinge             = 1 - ctrl_surf.chord_fraction # this float is the % location of the control surface hinge on the wing 
                                                         c.gain                = 1.0
-                                                        c.degrees_deflection  = ctrl_surf.degrees_deflection
+                                                        c.deflection          = ctrl_surf.deflection
                                                         c.order               = index
                                                         # if control surface is an aileron, the deflection is asymmetric. This is standard convention from AVL
                                                         if ctrl_surf.function == 'aileron': 

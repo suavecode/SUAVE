@@ -95,15 +95,15 @@ def wing_planform(wing):
     if wing.high_lift:
         flap = wing.control_surfaces.flap
         #compute wing chords at flap start and end
-        wing_chord_flap_start = wing.chords.root - flap.span_fraction_start(wing.chords.root - wing.chords.root*wing.taper)
-        wing_chord_flap_end   = wing.chords.root - flap.span_fraction_end(wing.chords.root - wing.chords.root*wing.taper)
-        flap_chord_start      = flap.chord_fraction * wing.chords.root - flap.span_fraction_start(wing.chords.root - wing.chords.root*wing.taper)
-        flap_chord_end        = flap.chord_fraction * wing.chords.root - flap.span_fraction_end(wing.chords.root - wing.chords.root*wing.taper)
+        wing_chord_flap_start = wing.chords.root - flap.span_fraction_start*(wing.chords.root - wing.chords.root*wing.taper)
+        wing_chord_flap_end   = wing.chords.root - flap.span_fraction_end*(wing.chords.root - wing.chords.root*wing.taper)
+        flap_chord_start      = flap.chord_fraction * wing.chords.root - flap.span_fraction_start*(wing.chords.root - wing.chords.root*wing.taper)
+        flap_chord_end        = flap.chord_fraction * wing.chords.root - flap.span_fraction_end*(wing.chords.root - wing.chords.root*wing.taper)
         flap_taper            = flap_chord_end / flap_chord_start
         flap_mac              = flap_chord_start *2./3* ((1 +flap_taper +flap_taper**2)/(1 + flap_taper))     
-        wing_span        = wing.spans.projected 
-        flap_area        = (flap_chord_start + flap_chord_end) * (flap.span_fraction_end- flap.span_fraction_start)*wing_span / 2.    
-        affected_area    = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_fraction_end- flap.span_fraction_start)*wing_span / 2.
+        wing_span             = wing.spans.projected 
+        flap_area             = (flap_chord_start + flap_chord_end) * (flap.span_fraction_end- flap.span_fraction_start)*wing_span / 2.    
+        affected_area         = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_fraction_end- flap.span_fraction_start)*wing_span / 2.
         
     # update
     wing.chords.root                = chord_root

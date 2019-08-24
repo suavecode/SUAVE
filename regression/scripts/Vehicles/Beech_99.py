@@ -58,18 +58,20 @@ def vehicle_setup():
                                           
     # control surfaces -------------------------------------------
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'flap' 
+    control_surface.tag                   = 'wing_f'
+    control_surface.function              = 'flap' 
     control_surface.span_fraction_start   = 0.15    # not correct, only placeholder
     control_surface.span_fraction_end     = 0.324   # not correct, only placeholder 
-    control_surface.degrees_deflection    = 1.0
+    control_surface.deflection            = 1.0 * Units.deg
     control_surface.chord_fraction        = 0.19    # not correct, only placeholder
     wing.append_control_surface(control_surface)    
     
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'slat' 
+    control_surface.tag                   = 'wing_s'
+    control_surface.function              = 'slat' 
     control_surface.span_fraction_start   = 0.324  # not correct, only placeholder 
     control_surface.span_fraction_end     = 0.963  # not correct, only placeholder   
-    control_surface.degrees_deflection    = 1.0
+    control_surface.deflection            = 1.0 * Units.deg
     control_surface.chord_fraction        = 0.1    # not correct, only placeholder	 
     wing.append_control_surface(control_surface)  
     
@@ -141,8 +143,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------ 
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'    
-    config.wings['main_wing'].control_surfaces.flap.deflection_angle = 20. * Units.deg
-    config.wings['main_wing'].control_surfaces.slat.deflection_angle = 25. * Units.deg 
+    config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
+    config.wings['main_wing'].control_surfaces.slat.deflection = 25. * Units.deg 
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2. 
     configs.append(config)

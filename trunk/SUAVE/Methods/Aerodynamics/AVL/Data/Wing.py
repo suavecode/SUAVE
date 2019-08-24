@@ -183,7 +183,7 @@ class Control_Surface(Data):
 		self.function            = 'function'
 		self.gain                = 0.0
 		self.x_hinge             = 0.0
-		self.deflection_angle    = 0.0         
+		self.deflection    = 0.0         
 		self.hinge_vector        = '0. 0. 0.' # the vector of rotation is along the hinge of the control surface
 		self.sign_duplicate      = '+1'       # sign_duplicate: 1.0 or -1.0 - the sign of
 					              # the duplicate control on the mirror wing.
@@ -220,7 +220,7 @@ class Control_Surface_Results(Data):
 		""" Sets the defaults of the control surface on the aircraft wing
 		"""   		
 		self.tag                 = 'control_surface'
-		self.deflection_angle    = 0.0
+		self.deflection    = 0.0
 		self.CL                  = 0.0
 		self.CY                  = 0.0
 		self.Cl                  = 0.0

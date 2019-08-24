@@ -43,8 +43,8 @@ def compute_max_lift_coeff(vehicle,conditions=None):
       sweeps.quarter_chord              [radians]
       taper                             [Unitless]
       flaps.chord                       [m]
-     control_surfaces.flap.deflection_angle                       [radians]
-     control_surfaces.slat.deflection_angle                       [radians]
+     control_surfaces.flap.deflection                       [radians]
+     control_surfaces.slat.deflection                       [radians]
       areas.affected                    [m^2]
       control_surfaces.flap.configuration_type                        [string]
     conditions.freestream.
@@ -79,8 +79,8 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         sweep_deg  = wing.sweeps.quarter_chord / Units.degree # convert into degrees
         taper      = wing.taper
         flap_chord = wing.control_surfaces.flap.chord_fraction # correct !!! 
-        flap_angle = wing.control_surfaces.flap.deflection_angle
-        slat_angle = wing.control_surfaces.slat.deflection_angle
+        flap_angle = wing.control_surfaces.flap.deflection
+        slat_angle = wing.control_surfaces.slat.deflection
         Swf        = wing.areas.affected  #portion of wing area with flaps
         flap_type  = wing.control_surfaces.flap.configuration_type
         
@@ -152,8 +152,8 @@ if __name__ == '__main__':
     wing.chords.mean_aerodynamic = 3.66
 
     wing.flaps.chord = 0.28
-    wing.control_surfaces.flap.deflection_angle = 30.  * Units.deg
-    wing.control_surfaces.slat.deflection_angle = 15.  * Units.deg
+    wing.control_surfaces.flap.deflection = 30.  * Units.deg
+    wing.control_surfaces.slat.deflection = 15.  * Units.deg
     wing.areas.affected  = 0.60 * wing.areas.reference 
     wing.control_surfaces.flap.configuration_type   = 'double_slat'
     

@@ -282,7 +282,7 @@ D{1}
     cs_commands = ''
     for wing in aircraft.wings:
         for ctrl_surf in wing.control_surfaces:
-            cs_command = cs_template.format(cs_idx,cs_idx,wing.control_surfaces[ctrl_surf].degrees_deflection)
+            cs_command = cs_template.format(cs_idx,cs_idx,wing.control_surfaces[ctrl_surf].deflection)
             cs_commands = cs_commands + cs_command
             cs_idx += 1
     return cs_commands 

@@ -109,7 +109,7 @@ def read_results(avl_object, Eigen_Modes):
                 for ctrl_idx in range(num_ctrl):
                     ctrl_surf = Control_Surface_Results()
                     ctrl_surf.tag                 = str(lines[29+ctrl_idx][2:10].strip())
-                    ctrl_surf.degrees_deflection  = float(lines[29+ctrl_idx][21:29].strip())
+                    ctrl_surf.deflection          = float(lines[29+ctrl_idx][21:29].strip())
                     ctrl_surf.CL                  = float(lines[52+num_ctrl][(20*ctrl_idx + 23):(20*ctrl_idx + 34)].strip())
                     ctrl_surf.CY                  = float(lines[53+num_ctrl][(20*ctrl_idx + 23):(20*ctrl_idx + 34)].strip())
                     ctrl_surf.Cl                  = float(lines[54+num_ctrl][(20*ctrl_idx + 23):(20*ctrl_idx + 34)].strip())

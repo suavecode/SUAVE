@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 from SUAVE.Components import Component
 from SUAVE.Components import Lofted_Body
 import numpy as np 
@@ -51,7 +51,7 @@ class Control_Surface(Component):
         self.span_fraction_end     = 0.0
         self.chord_fraction        = 0.0  
         self.hinge_fraction        = 1.0
-        self.deflection_angle      = 0.0  
+        self.deflection      = 0.0  
         self.configuration_type    = 'single_slotted'
         self.gain                  = 1.0
  
@@ -133,7 +133,7 @@ def append_ctrl_surf_to_wing_segments(wing):
                     control_surface.span_fraction_end     = s_sf[1]         
                     control_surface.chord_fraction        = w_cs[cs].chord_fraction
                     control_surface.hinge_fraction        = w_cs[cs].hinge_fraction
-                    control_surface.degrees_deflection    = w_cs[cs].degrees_deflection
+                    control_surface.deflection            = w_cs[cs].deflection / Units.deg
                     w_seg[i].append_control_surface(control_surface)        
                 
     # returns an updated wing with control surfaces appended onto the wing segments                  
