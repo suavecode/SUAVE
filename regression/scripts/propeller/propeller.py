@@ -37,11 +37,28 @@ def main():
     prop.design_power        = 7000.
     prop                     = propeller_design(prop)    
 
+    # Design a Rotor now
+    rot  = SUAVE.Components.Energy.Converters.Rotor()
+    rot.number_blades          = 2.0 
+    rot.freestream_velocity    = 0#.1*Units.ft/Units.second
+    rot.angular_velocity       = 2000.*(2.*np.pi/60.0)
+    rot.tip_radius             = 1.5
+    rot.hub_radius             = 0.05
+    rot.design_Cl              = 0.7 
+    rot.design_altitude        = 0.0 * Units.km
+    rot.design_thrust          = 1000.0
+    rot.induced_hover_velocity = 13.5 #roughly equivalent to a Chinook at SL
+    
+    rot  = propeller_design(prop)    
+
+
+
     # Find the operating conditions
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmosphere_conditions =  atmosphere.compute_values(prop.design_altitude)
     
-    V = prop.freestream_velocity
+    V  = prop.freestream_velocity
+    Vr = rot.freestream_velocity
     
     conditions = Data()
     conditions.freestream = Data()
@@ -51,14 +68,18 @@ def main():
     conditions.frames.inertial = Data()
     conditions.freestream.update(atmosphere_conditions)
     conditions.freestream.dynamic_viscosity = atmosphere_conditions.dynamic_viscosity
-    conditions.frames.inertial.velocity_vector = np.array([[V,0,0]])
     conditions.propulsion.throttle = np.array([[1.0]])
     conditions.frames.body.transform_to_inertial = np.array([np.eye(3)])
     
+    conditions_r = copy.deepcopy(conditions)
+    conditions.frames.inertial.velocity_vector   = np.array([[V,0,0]])
+    conditions_r.frames.inertial.velocity_vector = np.array([[0,Vr,0]])
+    
     # Create and attach this propeller 
     prop.inputs.omega    = np.array(prop.angular_velocity,ndmin=2)
-    
-    F, Q, P, Cplast ,output , etap = prop.spin(conditions)
+    rot.inputs.omega     = copy.copy(prop.inputs.omega)
+    F, Q, P, Cplast ,output , etap       = prop.spin(conditions)
+    Fr, Qr, Pr, Cplastr ,outputr , etapr = rot.spin(conditions_r)
     
     # Truth values
     F_truth      = 103.38703422
@@ -66,11 +87,30 @@ def main():
     P_truth      = 6239.67840083
     Cplast_truth = 0.00056596
     
+    Fr_truth      = 98.33229685
+    Qr_truth      = 5.72637115
+    Pr_truth      = 1199.32836953
+    Cplastr_truth = 0.00010878
+    
+     
+      
+     
+     
+      
+    
+    
+    
+    
     error = Data()
-    error.Thrust  = np.max(np.abs(F-F_truth))
-    error.Power   = np.max(np.abs(P-P_truth))
-    error.Torque  = np.max(np.abs(Q-Q_truth))
-    error.Cp      = np.max(np.abs(Cplast-Cplast_truth))   
+    error.Thrust   = np.max(np.abs(F-F_truth))
+    error.Power    = np.max(np.abs(P-P_truth))
+    error.Torque   = np.max(np.abs(Q-Q_truth))
+    error.Cp       = np.max(np.abs(Cplast-Cplast_truth))   
+    error.Thrustr  = np.max(np.abs(Fr-Fr_truth))
+    error.Powerr   = np.max(np.abs(Pr-Pr_truth))
+    error.Torquer  = np.max(np.abs(Qr-Qr_truth))
+    error.Cpr      = np.max(np.abs(Cplastr-Cplastr_truth)) 
+ 
     
     print('Errors:')
     print(error)

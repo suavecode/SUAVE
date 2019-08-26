@@ -32,7 +32,7 @@ import matplotlib.cm as cm
 #  Propeller Class
 # ----------------------------------------------------------------------    
 ## @ingroup Components-Energy-Converters
-class Propeller_corr(Energy_Component):
+class Rotor(Energy_Component):
     """This is a propeller component.
     
     Assumptions:
