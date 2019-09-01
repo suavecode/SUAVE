@@ -59,12 +59,7 @@ def write_geometry(avl_object,run_script_path):
                     filename = section.airfoil_coord_file
                     src      = run_script_path + '/' +  filename
                     dst      = run_script_path + '/avl_files' + '/' + filename
-                    shutil.copy2(src, dst)                                                  
-                elif section.naca_airfoil is not None:  
-                    filename = section.naca_airfoil
-                    src      = run_script_path + '/' +  filename
-                    dst      = run_script_path + '/avl_files' + '/' + filename
-                    shutil.copy2(src, dst)           
+                    shutil.copy2(src, dst)                
             
         for b in aircraft.fuselages:
             avl_body  = translate_avl_body(b)
@@ -290,18 +285,25 @@ SECTION
 AFILE
 {}
 '''
-
+    naca_airfoil_base = \
+'''
+NACA
+{}
+'''
     # Unpack inputs
-    x_le    = avl_section.origin[0]
-    y_le    = avl_section.origin[1]
-    z_le    = avl_section.origin[2]
-    chord   = avl_section.chord
-    ainc    = avl_section.twist
-    airfoil = avl_section.airfoil_coord_file
-
+    x_le          = avl_section.origin[0]
+    y_le          = avl_section.origin[1]
+    z_le          = avl_section.origin[2]
+    chord         = avl_section.chord
+    ainc          = avl_section.twist
+    airfoil_coord = avl_section.airfoil_coord_file
+    naca_airfoil  = avl_section.naca_airfoil 
+     
     wing_section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
-    if airfoil:
-        wing_section_text = wing_section_text + airfoil_base.format(airfoil)
+    if airfoil_coord:
+        wing_section_text = wing_section_text + airfoil_base.format(airfoil_coord)
+    if naca_airfoil:
+        wing_section_text = wing_section_text + airfoil_base.format(naca_airfoil)        
     
     ordered_cs = []
     ordered_cs = sorted(avl_section.control_surfaces, key = lambda x: x.order)

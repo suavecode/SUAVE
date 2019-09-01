@@ -5,8 +5,8 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from MACE.Analyses.AVL.purge_files                      import purge_files
-from MACE.Analyses.AVL.AVL_Data_Classes.AVL_Settings    import AVL_Settings
+from SUAVE.Methods.Aerodynamics.AVL.purge_files       import purge_files
+from SUAVE.Methods.Aerodynamics.AVL.Data.Settings     import Settings
 import numpy as np
 
 ## @ingroup Analyses-AVL

@@ -267,7 +267,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                                         c.sign_duplicate      = 1.0                          # this float indicates control surface deflection symmetry
                                                         c.x_hinge             = 1 - ctrl_surf.chord_fraction # this float is the % location of the control surface hinge on the wing 
                                                         c.gain                = 1.0
-                                                        c.deflection          = ctrl_surf.deflection
+                                                        c.deflection          = ctrl_surf.deflection / Units.degrees 
                                                         c.order               = index
                                                         # if control surface is an aileron, the deflection is asymmetric. This is standard convention from AVL
                                                         if ctrl_surf.function == 'aileron': 
@@ -456,7 +456,7 @@ def translate_avl_configuration(geometry,conditions):
             geometry.wings['Main Wing'].spans.projected          [meters]
             geometry.wings['Main Wing'].chords.mean_aerodynamic  [meters]
             geometry.mass_properties.center_of_gravity           [meters]
-            geometry.mass_properties.moments_of_inertia.tensor   [kilograms-meters**2]
+            geometry.mass_properties.moments_of_inertia.r   [kilograms-meters**2]
                   
         Outputs:
             config                                               [-]
@@ -471,7 +471,7 @@ def translate_avl_configuration(geometry,conditions):
         config.reference_values.cref             = geometry.wings['Main Wing'].chords.mean_aerodynamic
         config.reference_values.cg_coords        = geometry.mass_properties.center_of_gravity
         config.mass_properties.mass              = 0 
-        moment_tensor                            = geometry.mass_properties.moments_of_inertia.tensor
+        moment_tensor                            = geometry.mass_properties.moments_of_inertia.r
         config.mass_properties.inertial.Ixx      = moment_tensor[0][0]
         config.mass_properties.inertial.Iyy      = moment_tensor[1][1]
         config.mass_properties.inertial.Izz      = moment_tensor[2][2]

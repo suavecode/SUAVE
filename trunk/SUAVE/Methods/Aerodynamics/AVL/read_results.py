@@ -140,7 +140,7 @@ def read_results(avl_object, Eigen_Modes):
         wing_cd              = np.zeros((n_wings,n_sw))   
         
         # Extract resulst from surface forces result file
-        with open(case.aero_result_filename_4,'r') as aero_res_file:
+        with open(case.aero_result_filename_2,'r') as aero_res_file:
             aero_lines   = aero_res_file.readlines()
             line_idx     = 0
             header       = 12 + n_wings + n_fus_sec           
@@ -154,7 +154,7 @@ def read_results(avl_object, Eigen_Modes):
             case_res.aerodynamics.wing_CDs   = wing_CD
             
         # Extract resulst from  strip forces result file
-        with open(case.aero_result_filename_5,'r') as aero_res_file_2:
+        with open(case.aero_result_filename_3,'r') as aero_res_file_2:
             aero_lines_2     = aero_res_file_2.readlines()
             line_idx         = 0
             header           = 20
@@ -164,8 +164,12 @@ def read_results(avl_object, Eigen_Modes):
                 for j in range(n_sw):
                     wing_local_span[i,j]      = float(aero_lines_2[header + j + line_idx][8:16].strip())
                     wing_sectional_chord[i,j] = float(aero_lines_2[header + j + line_idx][16:24].strip())
-                    wing_cl[i,j]              = float(aero_lines_2[header + j + line_idx][61:69].strip())
-                    wing_cd[i,j]              = float(aero_lines_2[header + j + line_idx][70:78].strip())
+                    wing_cl[i,j]              = float(aero_lines_2[header + j + line_idx][61:69].strip()) 
+                    # At high angle of attacks, AVL does not give an answer 
+                    try:
+                        wing_cd[i,j]              = float(aero_lines_2[header + j + line_idx][70:78].strip())
+                    except:
+                        wing_cd[i,j]              = 0.
                 line_idx = divider_header +  n_sw + line_idx            
             case_res.aerodynamics.wing_local_spans    = wing_local_span
             case_res.aerodynamics.wing_section_chords = wing_sectional_chord 

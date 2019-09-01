@@ -35,9 +35,7 @@ import sklearn
 from sklearn import gaussian_process
 import numpy as np
 import sys
-from shutil import rmtree
-from warnings import warn
-from control.matlab import * # control toolbox needed in python. Run "pip (or pip3) install control"
+from shutil import rmtree 
 
 # ----------------------------------------------------------------------
 #  Class
@@ -225,6 +223,7 @@ class AVL_Inviscid(Aerodynamics):
         self.training_file (optional - file containing previous AVL data)
         """          
         # Unpack 
+        run_folder  = os.path.abspath(self.settings.filenames.run_folder)
         geometry    = self.geometry
         training    = self.training   
         Trim        = self.settings.Trim
@@ -242,6 +241,10 @@ class AVL_Inviscid(Aerodynamics):
         xy          = np.zeros([table_size,2])  
         count       = 0
         
+        # remove old files in run directory  
+        if not self.regression_flag:
+            rmtree(run_folder)
+            
         for i,_ in enumerate(mach):
             for j,_ in enumerate(AoA):
                 xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
@@ -278,7 +281,7 @@ class AVL_Inviscid(Aerodynamics):
             e          = data_array[:,4:5]
             
         # Save the data for regression
-        # np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD,e]),fmt='%10.8f',header='   AoA      Mach     CL     CD    e ')
+        #np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD,e]),fmt='%10.8f',header='   AoA      Mach     CL     CD    e ')
         
         # Store training data
         training.coefficients = np.hstack([CL,CD,e])
@@ -372,15 +375,9 @@ class AVL_Inviscid(Aerodynamics):
         # unpack
         run_folder                       = os.path.abspath(self.settings.filenames.run_folder)
         run_script_path                  = run_folder.rstrip('avl_files').rstrip('/')   
-        aero_results_template_1          = self.settings.filenames.aero_output_template_1       # 'stability_derivatives_{}.dat'
-        aero_results_template_2          = self.settings.filenames.aero_output_template_2       # 'body_axis_derivatives_{}.dat'
-        aero_results_template_3          = self.settings.filenames.aero_output_template_3       # 'total_forces_{}.dat'
-        aero_results_template_4          = self.settings.filenames.aero_output_template_4       # 'surface_forces_{}.dat'
-        aero_results_template_5          = self.settings.filenames.aero_output_template_5       # 'strip_forces_{}.dat'         
-        aero_results_template_6          = self.settings.filenames.aero_output_template_6       # 'element_forces_{}.dat'
-        aero_results_template_7          = self.settings.filenames.aero_output_template_7       # 'body_forces_{}.dat'
-        aero_results_template_8          = self.settings.filenames.aero_output_template_8       # 'hinge_moments_{}.dat' 
-        aero_results_template_9          = self.settings.filenames.aero_output_template_9       # 'strip_shear_moment_{}.dat'   
+        aero_results_template_1          = self.settings.filenames.aero_output_template_1       # 'stability_derivatives_{}.dat' 
+        aero_results_template_2          = self.settings.filenames.aero_output_template_2       # 'surface_forces_{}.dat'
+        aero_results_template_3          = self.settings.filenames.aero_output_template_3       # 'strip_forces_{}.dat'      
         dynamic_results_template_1       = self.settings.filenames.dynamic_output_template_1    # 'eigen_mode_{}.dat'
         dynamic_results_template_2       = self.settings.filenames.dynamic_output_template_2    # 'system_matrix_{}.dat'
         batch_template                   = self.settings.filenames.batch_template
@@ -425,22 +422,18 @@ class AVL_Inviscid(Aerodynamics):
             cases[case].stability_and_control.control_surface_names   = cs_names
         self.current_status.cases        = cases  
         
-       # write casefile names using the templates defined in MACE/Analyses/AVL/AVL_Data_Classes/Settings.py 
+       # write case filenames using the templates defined in MACE/Analyses/AVL/AVL_Data_Classes/Settings.py 
         for case in cases:  
-            cases[case].aero_result_filename_1     = aero_results_template_1.format(case)        # 'stability_derivatives_{}.dat'
-            cases[case].aero_result_filename_2     = aero_results_template_2.format(case)        # 'body_axis_derivatives_{}.dat'
-            cases[case].aero_result_filename_3     = aero_results_template_3.format(case)        # 'total_forces_{}.dat'
-            cases[case].aero_result_filename_4     = aero_results_template_4.format(case)        # 'surface_forces_{}.dat'
-            cases[case].aero_result_filename_5     = aero_results_template_5.format(case)        # 'strip_forces_{}.dat'            
-            cases[case].aero_result_filename_6     = aero_results_template_6.format(case)        # 'element_forces_{}.dat'
-            cases[case].aero_result_filename_7     = aero_results_template_7.format(case)        # 'body_forces_{}.dat'
-            cases[case].aero_result_filename_8     = aero_results_template_8.format(case)        # 'hinge_moments_{}.dat'
-            cases[case].aero_result_filename_9     = aero_results_template_9.format(case)        # 'strip_shear_moment_{}.dat'     
+            cases[case].aero_result_filename_1     = aero_results_template_1.format(case)        # 'stability_derivatives_{}.dat'  
+            cases[case].aero_result_filename_2     = aero_results_template_2.format(case)        # 'surface_forces_{}.dat'
+            cases[case].aero_result_filename_3     = aero_results_template_3.format(case)        # 'strip_forces_{}.dat'            
             cases[case].eigen_result_filename_1    = dynamic_results_template_1.format(case)     # 'eigen_mode_{}.dat'
             cases[case].eigen_result_filename_2    = dynamic_results_template_2.format(case)     # 'system_matrix_{}.dat'
-
+        
+        # Do not run eigen mode analysis for aero analysis  
+        EigenModes = False 
+        
         # write the input files
-        EigenModes = False # Do not run eigen mode analysis for aero analysis
         with redirect.folder(run_folder,force=False):
             write_geometry(self,run_script_path)
             write_mass_file(self,run_conditions)

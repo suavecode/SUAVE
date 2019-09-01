@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from MACE.Analyses.AVL.purge_files import purge_files
+from SUAVE.Methods.Aerodynamics.AVL.purge_files       import purge_files
 
 ## @ingroup Analyses-AVL
 def write_run_cases(avl_object,Trim):

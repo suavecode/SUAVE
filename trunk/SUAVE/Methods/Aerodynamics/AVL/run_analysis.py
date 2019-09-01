@@ -75,7 +75,7 @@ def call_avl(avl_object):
             ctime = time.ctime() # Current date and time stamp
     
             with open(in_deck,'r') as commands:
-                print_output = True
+                print_output = False
                 
                 # Initialize suppression of console window output
                 if print_output == False:

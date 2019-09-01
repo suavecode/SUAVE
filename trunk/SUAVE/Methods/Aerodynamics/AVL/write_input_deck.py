@@ -103,18 +103,6 @@ x
 {5}
 {6}
 {7}
-{8}
-{9}
-{10}
-{11}
-{12}
-{13}
-{14}
-{15}
-{16}
-{17}
-{18}
-{19}
 ''' 
     # if trim analysis is specified, this function writes the trim commands 
     if Trim:
@@ -126,43 +114,24 @@ x
     case_tag       = case.tag
     
     # AVL executable commands which correlate to particular result types 
-    aero_command_1 = 'st' # stability derivatives 
-    aero_command_2 = 'sb' # body-axis derivatives 
-    aero_command_3 = 'ft' # total forces 
-    aero_command_4 = 'fn' # surface forces 
-    aero_command_5 = 'fs' # strip forces 
-    aero_command_6 = 'fe' # element forces 
-    aero_command_7 = 'fb' # body forces
-    aero_command_8 = 'hm' # hinge moments
-    aero_command_9 = 'vm' # strip shear, moment 
+    aero_command_1 = 'st' # stability derivatives   
+    aero_command_2 = 'fn' # surface forces 
+    aero_command_3 = 'fs' # strip forces     
                    
     # create aliases for filenames for future handling
     aero_file_1    = case.aero_result_filename_1 
     aero_file_2    = case.aero_result_filename_2 
-    aero_file_3    = case.aero_result_filename_3 
-    aero_file_4    = case.aero_result_filename_4 
-    aero_file_5    = case.aero_result_filename_5 
-    aero_file_6    = case.aero_result_filename_6 
-    aero_file_7    = case.aero_result_filename_7 
-    aero_file_8    = case.aero_result_filename_8 
-    aero_file_9    = case.aero_result_filename_9 
+    aero_file_3    = case.aero_result_filename_3  
     
     # purge files 
     if not avl_object.keep_files:
         purge_files([aero_file_1])
         purge_files([aero_file_2])
-        purge_files([aero_file_3])
-        purge_files([aero_file_4])
-        purge_files([aero_file_5])
-        purge_files([aero_file_6])
-        purge_files([aero_file_7])
-        purge_files([aero_file_8])
-        purge_files([aero_file_9])        
+        purge_files([aero_file_3])      
     
     # write input deck for avl executable 
-    case_command = base_case_command.format(index,trim_command,aero_command_1 , aero_file_1 ,aero_command_2 , aero_file_2 , aero_command_3 , \
-                                            aero_file_3 , aero_command_4 , aero_file_4 , aero_command_5 , aero_file_5 ,  aero_command_6 , aero_file_6 ,\
-                                            aero_command_7 , aero_file_7 , aero_command_8 , aero_file_8 , aero_command_9 , aero_file_9) 
+    case_command = base_case_command.format(index,trim_command,aero_command_1 , aero_file_1 ,aero_command_2  \
+                                            , aero_file_2 , aero_command_3 , aero_file_3) 
         
     return case_command
 

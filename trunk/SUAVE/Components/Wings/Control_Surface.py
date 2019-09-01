@@ -133,7 +133,7 @@ def append_ctrl_surf_to_wing_segments(wing):
                     control_surface.span_fraction_end     = s_sf[1]         
                     control_surface.chord_fraction        = w_cs[cs].chord_fraction
                     control_surface.hinge_fraction        = w_cs[cs].hinge_fraction
-                    control_surface.degrees_deflection    = w_cs[cs].degrees_deflection
+                    control_surface.deflection            = w_cs[cs].deflection
                     w_seg[i].append_control_surface(control_surface)        
                 
     # returns an updated wing with control surfaces appended onto the wing segments                  

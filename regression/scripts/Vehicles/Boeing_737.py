@@ -21,9 +21,9 @@ def vehicle_setup():
     #   Initialize the Vehicle
     # ------------------------------------------------------------------    
 
-    vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Boeing_737_800'    
-    vehicle.configuration = 'Tube_Wing'
+    vehicle                                    = SUAVE.Vehicle()
+    vehicle.tag                                = 'Boeing_737_800'    
+    vehicle.configuration                      = 'Tube_Wing'
 
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
@@ -32,7 +32,7 @@ def vehicle_setup():
     vehicle.mass_properties.max_takeoff        = 79015.8   # kg
     vehicle.mass_properties.takeoff            = 79015.8   # kg
     vehicle.mass_properties.max_zero_fuel      = 0.9 * vehicle.mass_properties.max_takeoff
-    vehicle.mass_properties.center_of_gravity  = [ 15.30987849,   0.        ,  -0.48023939]
+    vehicle.mass_properties.center_of_gravity  = [ 15.30987849,   0.  ,  -0.48023939]
     vehicle.mass_properties.cargo              = 10000.  * Units.kilogram   
 
     # envelope properties
@@ -113,7 +113,7 @@ def vehicle_setup():
     segment                               = SUAVE.Components.Wings.Segment() 
     segment.tag                           = 'Tip'
     segment.percent_span_location         = 1.
-    segment.twist                         = 0. * Units.deg
+    segment.twist                         = 0. * Units.degrees
     segment.root_chord_percent            = 0.10077
     segment.dihedral_outboard             = 0.
     segment.sweeps.quarter_chord          = 0.
@@ -122,29 +122,29 @@ def vehicle_setup():
        
     # control surfaces -------------------------------------------
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'wing_f'
+    control_surface.tag                   = 'flap'
     control_surface.function              = 'flap' 
     control_surface.span_fraction_start   = 0.15 
     control_surface.span_fraction_end     = 0.324    
-    control_surface.deflection            = 1.0 * Units.deg
+    control_surface.deflection            = 1.0 * Units.degrees
     control_surface.chord_fraction        = 0.19    
     wing.append_control_surface(control_surface)    
     
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'wing_s'
+    control_surface.tag                   = 'slat'
     control_surface.function              = 'slat' 
     control_surface.span_fraction_start   = 0.324 
     control_surface.span_fraction_end     = 0.963     
-    control_surface.deflection            = 1.0 * Units.deg
+    control_surface.deflection            = 1.0 * Units.degrees
     control_surface.chord_fraction        = 0.1  	 
     wing.append_control_surface(control_surface)  
         
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'wing_a'
+    control_surface.tag                   = 'aileron'
     control_surface.function              = 'aileron'
     control_surface.span_fraction_start   = 0.7 
     control_surface.span_fraction_end     = 0.963 
-    control_surface.deflection            = 1.0 * Units.deg
+    control_surface.deflection            = 1.0 * Units.degrees
     control_surface.chord_fraction        = 0.16    
     wing.append_control_surface(control_surface)         
     
@@ -196,7 +196,7 @@ def vehicle_setup():
     
     # control surfaces -------------------------------------------
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'wing_e'
+    control_surface.tag                   = 'elevator'
     control_surface.function              = 'elevator'
     control_surface.span_fraction_start   = 0.09 
     control_surface.span_fraction_end     = 0.92
@@ -482,8 +482,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag                                                       = 'cutback'
-    config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
-    config.wings['main_wing'].control_surfaces.slat.deflection = 20. * Units.deg
+    config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
+    config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
     config.max_lift_coefficient_factor                               = 1. #0.95
     #Noise input for the landing gear                                
     config.landing_gear.gear_condition                               = 'up'       

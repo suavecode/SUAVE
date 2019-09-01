@@ -60,7 +60,7 @@ def vehicle_setup():
     
     # control surfaces -------------------------------------------
     control_surface                           = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                       = 'wing_f'
+    control_surface.tag                       = 'flap'
     control_surface.function                  = 'flap' 
     control_surface.span_fraction_start       = 0.15 
     control_surface.span_fraction_end         = 0.324    
@@ -69,7 +69,7 @@ def vehicle_setup():
     wing.append_control_surface(control_surface)    
     
     control_surface                           = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                       = 'wing_s'
+    control_surface.tag                       = 'slat'
     control_surface.function                  = 'slat' 
     control_surface.span_fraction_start       = 0.324 
     control_surface.span_fraction_end         = 0.963     
