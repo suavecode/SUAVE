@@ -62,7 +62,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         # Unpack
     # ==============================================
     atmo            = analyses.base.atmosphere
-    altitude        = airport.altitude * Units.ft
+    altitude        = airport.altitude / Units.ft
     delta_isa       = airport.delta_isa
     weight          = vehicle.mass_properties.takeoff
     reference_area  = vehicle.reference_area
@@ -94,7 +94,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
         # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
-        conditions  = atmo.compute_values(10000. * Units.ft)
+        conditions  = atmo.compute_values(10000. / Units.ft)
         conditions.freestream=Data()
         conditions.freestream.density   = conditions.density
         conditions.freestream.dynamic_viscosity = conditions.dynamic_viscosity
@@ -180,7 +180,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     takeoff_field_length = 0.
     for idx,constant in enumerate(takeoff_constants):
         takeoff_field_length += constant * takeoff_index**idx
-    takeoff_field_length = takeoff_field_length * Units.ft
+    takeoff_field_length = takeoff_field_length / Units.ft
     
     # calculating second segment climb gradient, if required by user input
     if compute_2nd_seg_climb:

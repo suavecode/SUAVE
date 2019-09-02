@@ -167,16 +167,16 @@ if __name__ == '__main__':
     vehicle = SUAVE.Vehicle()
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'main_wing'
-    wing.areas.reference           = 5500.0 * Units.feet**2
-    wing.spans.projected           = 196.0  * Units.feet
-    wing.chords.mean_aerodynamic   = 27.3 * Units.feet
-    wing.chords.root               = 44. * Units.feet  #54.5ft
+    wing.areas.reference           = 5500.0/ Units.feet**2
+    wing.spans.projected           = 196.0 / Units.feet
+    wing.chords.mean_aerodynamic   = 27.3/ Units.feet
+    wing.chords.root               = 44./ Units.feet  #54.5ft
     wing.sweeps.leading_edge       = 42.0   * Units.deg # Leading edge
     wing.taper          = 13.85/44.  #14.7/54.5
     wing.aspect_ratio   = wing.spans.projected**2/wing.areas.reference
     wing.symmetric      = True
     wing.vertical       = False
-    wing.origin         = np.array([59.,0,0]) * Units.feet  
+    wing.origin         = np.array([59.,0,0])/ Units.feet  
     wing.aerodynamic_center     = np.array([112.2*Units.feet,0.,0.])-wing.origin#16.16 * Units.meters,0.,0,])np.array([trapezoid_ac_x(wing),0., 0.])#
     wing.dynamic_pressure_ratio = 1.0
     wing.ep_alpha               = 0.0
@@ -193,12 +193,12 @@ if __name__ == '__main__':
     
     wing                     = SUAVE.Components.Wings.Wing()
     wing.tag = 'horizontal_stabilizer'
-    wing.areas.reference     = 1490.55* Units.feet**2
-    wing.spans.projected     = 71.6   * Units.feet
+    wing.areas.reference     = 1490.55 / Units.feet**2
+    wing.spans.projected     = 71.6  / Units.feet
     wing.sweeps.leading_edge = 44.0   * Units.deg # leading edge
     wing.taper               = 7.5/32.6
     wing.aspect_ratio        = wing.spans.projected**2/wing.areas.reference
-    wing.origin              = np.array([187.0,0,0])  * Units.feet
+    wing.origin              = np.array([187.0,0,0]) / Units.feet
     wing.symmetric           = True
     wing.vertical            = False
     wing.dynamic_pressure_ratio = 0.95
@@ -209,15 +209,15 @@ if __name__ == '__main__':
     
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
-    fuselage.x_root_quarter_chord = 77.0 * Units.feet
-    fuselage.lengths.total     = 229.7  * Units.feet
-    fuselage.width      = 20.9   * Units.feet 
+    fuselage.x_root_quarter_chord = 77.0/ Units.feet
+    fuselage.lengths.total     = 229.7 / Units.feet
+    fuselage.width      = 20.9  / Units.feet 
     vehicle.append_component(fuselage)
     
     configuration = Data()
     configuration.mass_properties = Data()
     configuration.mass_properties.center_of_gravity = Data()
-    configuration.mass_properties.center_of_gravity = np.array([112.2,0,0]) * Units.feet  
+    configuration.mass_properties.center_of_gravity = np.array([112.2,0,0])/ Units.feet  
     
     #Method Test
     print('<<Test run of the taw_cmalpha() method>>')

@@ -98,7 +98,7 @@ def initialize_conditions(segment):
     t_nondim     = segment.state.numerics.dimensionless.control_points
     conditions   = segment.state.conditions  
     
-    altf = 50. * Units.feet #(50ft last point for the noise measureament)
+    altf = 50. / Units.feet #(50ft last point for the noise measureament)
     
     #Linear equation: y-y0=m(x-x0)
     m_xx0 = 2000 * np.tan(descent_angle)

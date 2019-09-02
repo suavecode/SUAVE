@@ -88,31 +88,31 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     # ==============================================
     wing = config.wings
 
-    Sw                    =  wing.main_wing.areas.reference * (Units.ft)**2               # wing area, sq.ft
-    bw                    =  wing.main_wing.spans.projected * Units.ft                    # wing span, ft
-    Sht                   =  wing.horizontal_stabilizer.areas.reference * (Units.ft)**2   # horizontal tail area, sq.ft
-    bht                   =  wing.horizontal_stabilizer.spans.projected * Units.ft        # horizontal tail span, ft
-    Svt                   =  wing.vertical_stabilizer.areas.reference   * (Units.ft)**2   # vertical tail area, sq.ft
-    bvt                   =  wing.vertical_stabilizer.spans.projected   * Units.ft        # vertical tail span, ft
+    Sw                    =  wing.main_wing.areas.reference / (Units.ft)**2               # wing area, sq.ft
+    bw                    =  wing.main_wing.spans.projected / Units.ft                    # wing span, ft
+    Sht                   =  wing.horizontal_stabilizer.areas.reference / (Units.ft)**2   # horizontal tail area, sq.ft
+    bht                   =  wing.horizontal_stabilizer.spans.projected / Units.ft        # horizontal tail span, ft
+    Svt                   =  wing.vertical_stabilizer.areas.reference   / (Units.ft)**2   # vertical tail area, sq.ft
+    bvt                   =  wing.vertical_stabilizer.spans.projected   / Units.ft        # vertical tail span, ft
     deltaf                =  wing.main_wing.control_surfaces.flap.deflection              # flap delection, rad
                           
     flap                  = wing.main_wing.control_surfaces.flap
     wing_chord_flap_start = wing.main_wing.chords.root - flap.span_fraction_start*(wing.main_wing.chords.root - wing.main_wing.chords.root*wing.main_wing.taper)
     wing_chord_flap_end   = wing.main_wing.chords.root - flap.span_fraction_end*(wing.main_wing.chords.root - wing.main_wing.chords.root*wing.main_wing.taper)
-    flap_chord_start      = flap.chord_fraction * wing.main_wing.chords.root - flap.span_fraction_start*(wing.main_wing.chords.root - wing.main_wing.chords.root*wing.main_wing.taper)
-    flap_chord_end        = flap.chord_fraction * wing.main_wing.chords.root - flap.span_fraction_end*(wing.main_wing.chords.root - wing.main_wing.chords.root*wing.main_wing.taper)
+    flap_chord_start      = flap.chord_fraction * wing_chord_flap_start
+    flap_chord_end        = flap.chord_fraction * wing_chord_flap_end
     average_flap_chord    = 0.5*(flap_chord_start + flap_chord_end)
     flap_taper            = flap_chord_end / flap_chord_start
     flap_mac              = flap_chord_start *2./3* ((1 +flap_taper +flap_taper**2)/(1 + flap_taper))     
     wing_span             = wing.main_wing.spans.projected 
     flap_area             = (flap_chord_start + flap_chord_end) * (flap.span_fraction_end- flap.span_fraction_start)*wing_span / 2.        
     
-    Sf                    = flap_area * (Units.ft)**2                                   # flap area, sq.ft     
-    cf                    = average_flap_chord * Units.ft                               # flap chord, ft
-    Dp                    = config.landing_gear.main_tire_diameter * Units.ft           # MLG tyre diameter, ft
-    Hp                    = config.landing_gear.nose_tire_diameter * Units.ft           # MLG strut length, ft
-    Dn                    = config.landing_gear.main_strut_length  * Units.ft           # NLG tyre diameter, ft
-    Hn                    = config.landing_gear.nose_strut_length  * Units.ft           # NLG strut length, ft
+    Sf                    = flap_area / (Units.ft)**2                                   # flap area, sq.ft     
+    cf                    = average_flap_chord / Units.ft                               # flap chord, ft
+    Dp                    = config.landing_gear.main_tire_diameter / Units.ft           # MLG tyre diameter, ft
+    Hp                    = config.landing_gear.nose_tire_diameter / Units.ft           # MLG strut length, ft
+    Dn                    = config.landing_gear.main_strut_length  / Units.ft           # NLG tyre diameter, ft
+    Hn                    = config.landing_gear.nose_strut_length  / Units.ft           # NLG strut length, ft
     gear                  = config.landing_gear.gear_condition                          # Gear up or gear down
     
     nose_wheels           = config.landing_gear.nose_wheels                             # Number of wheels   

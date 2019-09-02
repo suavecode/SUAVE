@@ -19,21 +19,21 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_tur
 def vehicle_setup():
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
-    # ------------------------------------------------------------------    
-
-    vehicle                                    = SUAVE.Vehicle()
-    vehicle.tag                                = 'Boeing_737_800'    
-    vehicle.configuration                      = 'Tube_Wing'
-
+    # ------------------------------------------------------------------   
+    vehicle                                           = SUAVE.Vehicle()
+    vehicle.tag                                       = 'Boeing_737800'    
+   
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
     # mass properties
-    vehicle.mass_properties.max_takeoff        = 79015.8   # kg
-    vehicle.mass_properties.takeoff            = 79015.8   # kg
-    vehicle.mass_properties.max_zero_fuel      = 0.9 * vehicle.mass_properties.max_takeoff
-    vehicle.mass_properties.center_of_gravity  = [ 15.30987849,   0.  ,  -0.48023939]
-    vehicle.mass_properties.cargo              = 10000.  * Units.kilogram   
+    vehicle.mass_properties.max_takeoff               = 79015.8   # kg
+    vehicle.mass_properties.takeoff                   = 79015.8   # kg
+    vehicle.mass_properties.operating_empty           = 62746.4   # kg
+    vehicle.mass_properties.takeoff                   = 79015.8   # kg
+    vehicle.mass_properties.max_zero_fuel             = 62732.0   # kg #0.9 * vehicle.mass_properties.max_takeoff
+    vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
+    vehicle.mass_properties.center_of_gravity         = [ 15.30987849,   0.        ,  -0.48023939]
 
     # envelope properties
     vehicle.envelope.ultimate_load        = 2.5
@@ -164,7 +164,9 @@ def vehicle_setup():
     wing.chords.root                      = 4.70
     wing.chords.tip                       = 0.9541   
     wing.chords.mean_aerodynamic          = 3.241  
-    wing.areas.reference                  = 40.14
+    wing.areas.reference                  = 40.14 
+    wing.areas.exposed                    = 59.354                   # Exposed area of the horizontal tail
+    wing.areas.wetted                     = 64.976                   # Wetted area of the horizontal tail    
     wing.twists.root                      = 0.0 * Units.degrees
     wing.twists.tip                       = 0.0 * Units.degrees 
     wing.sweeps.quarter_chord             = 38.42 * Units.degrees
@@ -267,8 +269,8 @@ def vehicle_setup():
     #  Fuselage
     # ------------------------------------------------------------------
     fuselage                                    = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag                                = 'fuselage'
-    fuselage.configuration                      = 'tube_and_wing'  
+    fuselage.tag                                = 'fuselage'  
+    fuselage.number_coach_seats                 = vehicle.passengers
     fuselage.seats_abreast                      = 6
     fuselage.seat_pitch                         = 1
     fuselage.fineness.nose                      = 1.57
@@ -428,6 +430,7 @@ def vehicle_setup():
     landing_gear.main_strut_length        = 1.8 * Units.m
     landing_gear.nose_strut_length        = 1.3 * Units.m
     landing_gear.main_units               = 1      #number of nose landing gear
+    landing_gear.nose_units               = 1     #number of nose landing gear
     landing_gear.main_wheels              = 2    #number of wheels on the main landing gear
     landing_gear.nose_wheels              = 2    #number of wheels on the nose landing gear      
     vehicle.landing_gear                  = landing_gear

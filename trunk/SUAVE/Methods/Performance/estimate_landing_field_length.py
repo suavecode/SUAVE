@@ -51,7 +51,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     # Unpack
     # ==============================================
     atmo            = airport.atmosphere
-    altitude        = airport.altitude * Units.ft
+    altitude        = airport.altitude / Units.ft
     delta_isa       = airport.delta_isa
     weight          = vehicle.mass_properties.landing
     reference_area  = vehicle.reference_area

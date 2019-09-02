@@ -62,7 +62,7 @@ def vehicle_setup():
     wing.vertical                  = False
     wing.symmetric                 = True
     wing.high_lift                 = True
-    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
+    
     
     # control surfaces -------------------------------------------
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
@@ -83,6 +83,7 @@ def vehicle_setup():
     control_surface.chord_fraction        = 0.1  	 
     wing.append_control_surface(control_surface)  
     
+    SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
     vehicle.append_component(wing)
 
 
