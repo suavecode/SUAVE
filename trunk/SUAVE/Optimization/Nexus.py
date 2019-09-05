@@ -256,8 +256,8 @@ class Nexus(Data):
         if eqconstraints == []:
             scaled_constraints = []
         else:
-            constraint_values = help_fun.get_values(self,eqconstraints,aliases) - help_fun.scale_const_bnds(eqconstraints)
-            scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values)
+            constraint_values  = help_fun.get_values(self,eqconstraints,aliases)
+            scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values) - help_fun.scale_const_bnds(eqconstraints)
 
         return scaled_constraints   
     
