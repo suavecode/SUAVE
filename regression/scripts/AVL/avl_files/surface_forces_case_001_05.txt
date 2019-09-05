@@ -1,0 +1,27 @@
+ ---------------------------------------------------------------
+ Surface Forces (referred to Sref,Cref,Bref about Xref,Yref,Zref)
+ Standard axis orientation,  X fwd, Z down         
+
+     Sref =   124.9       Cref =    4.2350   Bref =   34.3200
+     Xref =     15.3099   Yref =    0.0000   Zref =   -0.4802
+
+ n      Area      CL      CD      Cm      CY      Cn      Cl     CDi     CDv
+ 1    63.791 -2.1221  0.1363  0.3554  0.0770  0.1530  0.4682  0.1363  0.0000   main_wing
+ 2    63.791 -2.1221  0.1363  0.3554 -0.0770 -0.1530 -0.4682  0.1363  0.0000   main_wing (YDUP)
+ 3    20.073  0.1997 -0.0214 -0.8805 -0.0045 -0.0014 -0.0177 -0.0214  0.0000   horizontal_stabilizer
+ 4    20.073  0.1997 -0.0214 -0.8805  0.0045  0.0014  0.0177 -0.0214  0.0000   horizontal_stabilizer (YDUP)
+ 5    26.975  0.0000 -0.0000 -0.0000 -0.0000  0.0000 -0.0000 -0.0000  0.0000   vertical_stabilizer
+ 6   112.393  0.0081 -0.0092 -0.0411  0.0000 -0.0000  0.0000 -0.0092  0.0000   fuselage_horizontal
+ 7   114.215 -0.0000 -0.0000  0.0000 -0.0000  0.0000  0.0000 -0.0000  0.0000   fuselage_vertical
+
+ Surface Forces (referred to Ssurf, Cave about root LE on hinge axis)
+
+   n     Ssurf      Cave       cl       cd      cdv    cm_LE
+   1    63.791     3.717  -4.1539   0.2668   0.0000   0.0000  main_wing
+   2    63.791     3.717  -4.1539   0.2668   0.0000   0.0000  main_wing (YDUP)
+   3    20.073     2.827   1.2425  -0.1328   0.0000   0.0000  horizontal_stabilizer
+   4    20.073     2.827   1.2425  -0.1328   0.0000   0.0000  horizontal_stabilizer (YDUP)
+   5    26.975     3.613   0.0000  -0.0000   0.0000   0.0000  vertical_stabilizer
+   6   112.393    30.376   0.0090  -0.0102   0.0000   0.0000  fuselage_horizontal
+   7   114.215    30.376   0.0000  -0.0000   0.0000   0.0000  fuselage_vertical
+ ---------------------------------------------------------------

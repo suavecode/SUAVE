@@ -46,8 +46,8 @@ Tunit = 1.0 s
 #------------------------- 
 #  Gravity and density to be used as default values in trim setup.
 #  Must be in the units given above.
-g   = 9.81
-rho = {1}
+g   = {1}
+rho = {2}
 
 #-------------------------
 #  Mass & Inertia breakdown.
@@ -59,12 +59,14 @@ rho = {1}
 #
 #  mass     x     y     z    Ixx    Iyy    Izz   Component Name
 #   
-    {2}  {3}  {4}  {5}  {6}  {7}  {8} ! {0}
+    {3}  {4}  {5}  {6}  {7}  {8}  {9} ! {0}
 '''
 
         # Unpack inputs
         name    = avl_object.geometry._base.tag
         density = run_conditions.freestream.density 
+        gravity = run_conditions.freestream.gravitational_acceleration
+        
         if aircraft.mass_properties.mass == 0:
             mass = aircraft.mass_properties.max_takeoff
         elif aircraft.mass_properties.max_takeoff == 0:
@@ -80,7 +82,7 @@ rho = {1}
         Izz     = aircraft.mass_properties.moments_of_inertia[2][2]
         
         # Insert inputs into the template
-        text = base_text.format(name, density,mass, x,y,z,Ixx,Iyy,Izz)
+        text = base_text.format(name, gravity , density,mass, x,y,z,Ixx,Iyy,Izz)
         mass_file_script.write(text)  
             
     return

@@ -61,20 +61,20 @@ class Settings(Data):
                 self.discretization                      = Data()
                 self.number_control_surfaces             = 0
                 
-                self.filenames.avl_bin_name              = 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary i.e. '/your/path/to/avl'
+                self.filenames.avl_bin_name              = '/home/matthew-linux/Documents/Avl/bin/avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary i.e. '/your/path/to/avl'
                 self.filenames.run_folder                = 'avl_files'  
                 self.filenames.features                  = 'aircraft.avl'
                 self.filenames.mass_file                 = 'aircraft.mass'
                 self.filenames.batch_template            = 'batch_{0:03d}.run'
                 self.filenames.deck_template             = 'commands_{0:03d}.deck' 
-                self.filenames.aero_output_template_1    = 'stability_derivatives_{}.dat' 
-                self.filenames.aero_output_template_2    = 'surface_forces_{}.dat'
-                self.filenames.aero_output_template_3    = 'strip_forces_{}.dat'   
-                self.filenames.dynamic_output_template_1 = 'eigen_mode_{}.dat'
-                self.filenames.dynamic_output_template_2 = 'system_matrix_{}.dat'
+                self.filenames.aero_output_template_1    = 'stability_derivatives_{}.txt' 
+                self.filenames.aero_output_template_2    = 'surface_forces_{}.txt'
+                self.filenames.aero_output_template_3    = 'strip_forces_{}.txt'   
+                self.filenames.dynamic_output_template_1 = 'eigen_mode_{}.txt'
+                self.filenames.dynamic_output_template_2 = 'system_matrix_{}.txt'
                 self.filenames.case_template             = 'case_{0:03d}_{1:02d}'
-                self.filenames.log_filename              = 'avl_log.dat'
-                self.filenames.err_filename              = 'avl_err.dat'
+                self.filenames.log_filename              = 'avl_log.txt'
+                self.filenames.err_filename              = 'avl_err.txt'
                 
                 self.flow_symmetry.xz_plane              = 0	# Symmetry across the xz-plane, y=0
                 self.flow_symmetry.xy_parallel           = 0    # Symmetry across the z=z_symmetry_plane plane
