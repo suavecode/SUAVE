@@ -170,7 +170,10 @@ class Additive_Solver():
                 xb, shgo_cons = self.initialize_opt_vals_SHGO(opt_prob, obj, inp, x_low_bound, x_up_bound, con_low_edge, con_up_edge, nam, con, problem, g_additive_surrogate)
             
                 self.global_optimizer = 'SHGO'
-                res = shgo(self.evaluate_expected_improvement, xb, iters=2, args=(problem,f_additive_surrogate,g_additive_surrogate,fstar),constraints=shgo_cons)
+                options = {}
+                #options['maxfev'] = 1
+                #self.expected_improvement_carpet(x_low_bound, x_up_bound, problem, f_additive_surrogate, g_additive_surrogate, fstar) 
+                res = shgo(self.evaluate_expected_improvement, xb, iters=2, args=(problem,f_additive_surrogate,g_additive_surrogate,fstar),constraints=shgo_cons,options=options)
                 self.global_optimizer = 'ALPSO'
                 
                 fOpt  = np.nan 
@@ -415,6 +418,9 @@ class Additive_Solver():
         # Calculate expected improvement (based on Schonlau, Computer Experiments and Global Optimization, 1997)
         EI    = (fstar-fhat)*norm.cdf((fstar-fhat)/obj_sigma) + obj_sigma*norm.pdf((fstar-fhat)/obj_sigma)
         const = const + cons_addition
+        EI    = np.log(EI)
+        if EI == -np.inf:
+            EI = -1000
         
         if self.global_optimizer == 'ALPSO':
             # Adjust signs for optimizer (this is specific to ALPSO)
@@ -481,7 +487,7 @@ class Additive_Solver():
             
         for ii,x0 in enumerate(x0s):
             for jj,x1 in enumerate(x1s):
-                x = [x0,x1]
+                x = [[x0,x1]]
                 obj   = problem.objective(x)
                 const = problem.all_constraints(x).tolist()    
             
@@ -490,6 +496,9 @@ class Additive_Solver():
                 
                 fhat      = obj[0] + obj_addition
                 EI[jj,ii] = (fstar-fhat)*norm.cdf((fstar-fhat)/obj_sigma) + obj_sigma*norm.pdf((fstar-fhat)/obj_sigma)
+                EI[jj,ii] = np.log(EI[jj,ii])
+                if EI[jj,ii] == -np.inf:
+                    EI[jj,ii] = -1000
                 const     = const + cons_addition
                 const     = const.tolist()[0]
                 

@@ -25,15 +25,19 @@ def main():
     problem = setup()
     tol = 1e-8
     
-    solver = Additive_Solver()
-    solver.local_optimizer = 'SLSQP'
-    solver.global_optimizer = 'SHGO'
+    def set_add_solver():
+        solver = Additive_Solver()
+        solver.local_optimizer = 'SLSQP'
+        solver.global_optimizer = 'ALPSO'
+        return solver
     
     ################## Basic Additive ##################################################
     
     # ------------------------------------------------------------------
     #   Inactive constraints
     # ------------------------------------------------------------------     
+    
+    solver = set_add_solver()
     
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., Units.less],
@@ -57,6 +61,8 @@ def main():
     #   Active constraint
     # ------------------------------------------------------------------     
     
+    solver = set_add_solver()
+    
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., Units.less],
         [ 'x2' , '>',   1., 1., Units.less],
@@ -78,6 +84,8 @@ def main():
     # ------------------------------------------------------------------
     #   Other active constraints
     # ------------------------------------------------------------------     
+    
+    solver = set_add_solver()
     
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '=',   2., 1., Units.less],
@@ -103,6 +111,8 @@ def main():
     #   Inactive constraints
     # ------------------------------------------------------------------     
     
+    solver = set_add_solver()
+    
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., Units.less],
         [ 'x2' , '>', -50., 1., Units.less],
@@ -125,6 +135,8 @@ def main():
     #   Active constraint
     # ------------------------------------------------------------------     
     
+    solver = set_add_solver()
+    
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., Units.less],
         [ 'x2' , '>',   1., 1., Units.less],
@@ -143,9 +155,11 @@ def main():
     assert( np.isclose(x1 ,-.1, atol=1e-2) )
     assert( np.isclose(x2 ,  1, atol=1e-2) )     
     
-    # ------------------------------------------------------------------
+    #------------------------------------------------------------------
     #   Other active constraints
-    # ------------------------------------------------------------------     
+    #------------------------------------------------------------------     
+    
+    solver = set_add_solver()
     
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '=',   2., 1., Units.less],
@@ -161,9 +175,9 @@ def main():
     #   Check Results
     # ------------------------------------------------------------------    
 
-    assert( np.isclose(obj,5.38, atol=1e-2) )
-    assert( np.isclose(x1 ,   2, atol=1e-2) )
-    assert( np.isclose(x2 ,  -1, atol=1e-2) )     
+    assert( np.isclose(obj,5.41, atol=3e-2) )
+    assert( np.isclose(x1 ,   2, atol=1e-6) )
+    assert( np.isclose(x2 ,  -1, atol=1e-6) )     
     
     ################# TRMM ##################################################
     
