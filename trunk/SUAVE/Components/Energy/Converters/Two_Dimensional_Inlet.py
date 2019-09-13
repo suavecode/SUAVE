@@ -235,6 +235,11 @@ class Two_Dimensional_Inlet(Energy_Component):
                 
                 
                 # initialize values
+                Pr_s = np.ones_like(Tt_inf)
+                Ps   = np.ones_like(Tt_inf)*P_inf
+                Pr_ts = np.ones_like(Tt_inf) # stagnation pressure ratio after shock
+                P_ts = np.ones_like(Tt_inf)
+                Ms   = np.ones_like(Tt_inf)
                 f_M1 = np.ones_like(Tt_inf)
                 Pr_1 = np.ones_like(Tt_inf)
                 P1   = np.ones_like(Tt_inf)
@@ -246,20 +251,39 @@ class Two_Dimensional_Inlet(Energy_Component):
                 M1[i_sub_no_shock]        = Isentropic.get_m(f_M1[i_sub_no_shock], gamma[i_sub_no_shock], 1)
                 P1[i_sub_no_shock]        = Isentropic.isentropic_relations(M1[i_sub_no_shock], gamma[i_sub_no_shock])[1] * Pt_inf[i_sub_no_shock]
                 
-                # subsonic with shock
-                M1[i_sub_shock], Pr_1[i_sub_shock] = Oblique_Shock.oblique_shock_relations(M_inf[i_sub_shock],gamma[i_sub_shock],0,90*np.pi/180.)[0:2]
-                P1[i_sub_shock]              = Pr_1[i_sub_shock]*P_inf[i_sub_shock]
+                # subsonic with shock ->getting post shock quantities
+                Ms[i_sub_shock], Pr_s[i_sub_shock] = Oblique_Shock.oblique_shock_relations(M_inf[i_sub_shock],gamma[i_sub_shock],0,90*np.pi/180.)[0:2]
+                Pr_ts[i_sub_shock]                 = Oblique_Shock.oblique_shock_relations(M_inf[i_sub_shock],gamma[i_sub_shock],0,90*np.pi/180.)[3]
+                Ps[i_sub_shock]                    = Pr_s[i_sub_shock]*P_inf[i_sub_shock]
+                P_ts[i_sub_shock]                  = Pr_ts[i_sub_shock]*Pt_inf[i_sub_shock]
+                
+                f_M1[i_sub_shock] = 1/Pr_ts[i_sub_shock]*A_inf[i_sub_shock]/A1*f_Minf[i_sub_shock]
+                M1[i_sub_shock]   = Isentropic.get_m(f_M1[i_sub_shock], gamma[i_sub_shock], 1)
+                P1[i_sub_shock]   = Isentropic.isentropic_relations(M1[i_sub_shock],gamma[i_sub_shock])[1]*P_ts[i_sub_shock] 
+                
+                #M1[i_sub_shock], Pr_1[i_sub_shock] = Oblique_Shock.oblique_shock_relations(M_inf[i_sub_shock],gamma[i_sub_shock],0,90*np.pi/180.)[0:2]
+                #P1[i_sub_shock]              = Pr_1[i_sub_shock]*P_inf[i_sub_shock]
                 
                 # supersonic case
                 beta[i_sup]            = Oblique_Shock.theta_beta_mach(M_inf[i_sup],gamma[i_sup],theta)
-                M1[i_sup], Pr_1[i_sup] = Oblique_Shock.oblique_shock_relations(M_inf[i_sup],gamma[i_sup],theta,beta[i_sup])[0:2]
-                P1[i_sup]              = Pr_1[i_sup]*P_inf[i_sup]
+                # computing post shock quantities
+                Ms[i_sup], Pr_s[i_sup] = Oblique_Shock.oblique_shock_relations(M_inf[i_sup],gamma[i_sup],theta,beta[i_sup])[0:2]
+                Pr_ts[i_sup]           = Oblique_Shock.oblique_shock_relations(M_inf[i_sup],gamma[i_sup],theta,beta[i_sup])[3]
+                Ps[i_sup]              = Pr_s[i_sup]*P_inf[i_sup]
+                
+                f_M1[i_sup] = 1/Pr_ts[i_sup]*A_inf[i_sup]/A1*f_Minf[i_sup]
+                M1[i_sup]   = Isentropic.get_m(f_M1[i_sup], gamma[i_sup], 1)
+                P1[i_sup]   = Isentropic.isentropic_relations(M1[i_sup],gamma[i_sup])[1]*P_ts[i_sup] 
+                
+                #M1[i_sup], Pr_1[i_sup] = Oblique_Shock.oblique_shock_relations(M_inf[i_sup],gamma[i_sup],theta,beta[i_sup])[0:2]
+                #P1[i_sup]              = Pr_1[i_sup]*P_inf[i_sup]
                 
                 # exposed area related drag
-                Ps_ov_Pinf = Oblique_Shock.get_invisc_press_recov(theta/Units.deg, M1)
+                Ps_ov_Pinf = Ps/P_inf
+                #Ps_ov_Pinf = Oblique_Shock.get_invisc_press_recov(theta/Units.deg, M1)
                 C_ps       = 2/(gamma*M_inf**2) * (Ps_ov_Pinf - 1)
                 
-                CD_add = (P_inf/q_inf) * (A1/AC) * np.cos(theta)*((P1/P_inf)*(1+gamma*M1**2)-1) - 2*(A_inf/AC) + C_ps+(AS/AC)
+                CD_add = (P_inf/q_inf) * (A1/AC) * np.cos(theta)*((P1/P_inf)*(1+gamma*M1**2)-1) - 2*(A_inf/AC) + C_ps*(AS/AC)
                 
                 i_14 = M_inf > 1.4
                 i_0709 = np.logical_and(M_inf >= 0.7, M_inf <= 0.9)

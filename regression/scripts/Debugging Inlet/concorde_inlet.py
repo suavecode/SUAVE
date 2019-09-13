@@ -304,7 +304,8 @@ def vehicle_setup():
     inlet_nozzle.pressure_ratio        = 0.98
     inlet_nozzle.areas.capture         = 1.1/2.**2*np.pi* Units['meter**2'] 
     inlet_nozzle.areas.throat          = 1./2.**2*np.pi* Units['meter**2'] 
-    inlet_nozzle.areas.inlet_entrance  = 1/20*12.5*4.7 * Units['meter**2']  # 4.7 is outer perimeter on one side
+    inlet_nozzle.areas.inlet_entrance  = 1.1/2.**2*np.pi* Units['meter**2']  # 4.7 is outer perimeter on one side
+    inlet_nozzle.areas.drag_direct_projection = 1/20*12.5*4.7 * Units['meter**2'] 
     inlet_nozzle.angles.ramp_angle     = 4.0 * Units.deg
     
     # add to network

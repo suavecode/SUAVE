@@ -205,7 +205,7 @@ class Thrust(Energy_Component):
         # adding in inlet drag to thrust calculation
         if inlet_drag:
             drag = inlet_nozzle.compute_drag(conditions)
-            FD2 = FD2 - drag
+            FD2 = FD2 - no_eng*drag
 
         #pack outputs
         self.outputs.thrust                            = FD2 
@@ -216,7 +216,7 @@ class Thrust(Energy_Component):
         self.outputs.power                             = power  
         self.outputs.specific_impulse                  = Isp
 
-    def compute_stream_thrust(self,conditions):  
+    def compute_stream_thrust(self,conditions, inlet_drag = False):  
         """Computes thrust and other properties as below. 
 
         Assumptions: 
@@ -290,7 +290,10 @@ class Thrust(Energy_Component):
         core_exit_temperature       = core_nozzle.temperature 
         core_exit_velocity          = core_nozzle.velocity 
         core_area_ratio             = core_nozzle.area_ratio 
-        no_eng                      = self.inputs.number_of_engines                       
+        no_eng                      = self.inputs.number_of_engines   
+
+        # adding in the inlet nozzle to the inputs
+        inlet_nozzle                = self.inputs.inlet_nozzle                       
 
         #unpacking from self 
         Tref                 = self.reference_temperature 
@@ -313,6 +316,11 @@ class Thrust(Energy_Component):
 
         #computing the dimensional thrust 
         FD2              = Fsp*a0*mdot_core*no_eng*throttle 
+        
+        # adding in inlet drag to thrust calculation
+        if inlet_drag:
+            drag = inlet_nozzle.compute_drag(conditions)
+            FD2 = FD2 - no_eng*drag
 
         #fuel flow rate 
         a = np.array([0.])         
@@ -382,7 +390,9 @@ class Thrust(Energy_Component):
         #compute dimensional mass flow rates
         if inlet_drag:
             drag                    = inlet_nozzle.compute_drag(conditions)
-            mdot_core               = (design_thrust+drag)/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)
+            print(drag)
+            mdot_core               = (design_thrust+no_eng*drag)/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)
+            print(design_thrust)
         else:
             mdot_core               = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
         mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
@@ -393,7 +403,7 @@ class Thrust(Energy_Component):
 
         return
 
-    def size_stream_thrust(self,conditions): 
+    def size_stream_thrust(self,conditions, inlet_drag=False): 
         """Sizes the core flow for the design condition. 
 
            Assumptions: 
@@ -423,6 +433,8 @@ class Thrust(Energy_Component):
                """              
 
         # Unpack Inputs
+        # adding in the inlet nozzle to the inputs
+        inlet_nozzle                = self.inputs.inlet_nozzle
         
         # Unpack Conditions
         a0                      = conditions.freestream.speed_of_sound 
@@ -439,13 +451,18 @@ class Thrust(Energy_Component):
         no_eng                      = self.inputs.number_of_engines 
         
         #compute nondimensional thrust 
-        self.compute_stream_thrust(conditions) 
+        self.compute_stream_thrust(conditions, inlet_drag) 
         
         #unpack results  
         Fsp                         = self.outputs.non_dimensional_thrust 
         
-        #compute dimensional mass flow rates 
-        mdot_core                   = design_thrust/(Fsp*a0*no_eng*throttle)   
+        #compute dimensional mass flow rates
+        if inlet_drag:
+            drag                    = inlet_nozzle.compute_drag(conditions)
+            mdot_core               = (design_thrust+no_eng*drag)/(Fsp*a0*(1)*no_eng*throttle)
+        else:
+            mdot_core               = design_thrust/(Fsp*a0*(1)*no_eng*throttle)  
+
         mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)) 
         
         #pack outputs 
