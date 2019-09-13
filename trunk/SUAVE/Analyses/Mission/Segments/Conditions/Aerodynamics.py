@@ -14,6 +14,7 @@ import numpy as np
 # SUAVE imports
 from .Basic import Basic
 from .Conditions import Conditions
+from SUAVE.Core import Units, Data
 
 # ----------------------------------------------------------------------
 #  Conditions
@@ -87,6 +88,8 @@ class Aerodynamics(Basic):
         self.freestream.gravity            = ones_1col * 0
         self.freestream.reynolds_number    = ones_1col * 0
         self.freestream.dynamic_pressure   = ones_1col * 0
+        # weird constant I need to figure out a better way of initializing
+        self.freestream.area_initial_streamtube = ones_1col * 1.1/2.**2*np.pi* Units['meter**2'] 
 
         # aerodynamics conditions
         self.aerodynamics = Conditions()        

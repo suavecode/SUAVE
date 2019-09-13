@@ -17,6 +17,7 @@ from .Ram import Ram
 from .Rocket_Combustor import Rocket_Combustor
 from .de_Laval_Nozzle import de_Laval_Nozzle
 from .Solar_Panel import Solar_Panel
+from .Two_Dimensional_Inlet import Two_Dimensional_Inlet
 from .Turbine import Turbine
 from .Supersonic_Nozzle import Supersonic_Nozzle
 from .Shaft_Power_Off_Take import Shaft_Power_Off_Take
