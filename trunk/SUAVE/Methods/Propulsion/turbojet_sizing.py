@@ -15,7 +15,7 @@ from SUAVE.Core import Data
 #   Sizing
 # ----------------------------------------------------------------------
 
-def turbojet_sizing(turbojet,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
+def turbojet_sizing(turbojet,mach_number = None, altitude = None, delta_isa = 0, conditions = None, inlet_drag = False):  
     """ create and evaluate a gas turbine network
     """    
     
@@ -162,6 +162,7 @@ def turbojet_sizing(turbojet,mach_number = None, altitude = None, delta_isa = 0,
     thrust.inputs.number_of_engines                        = number_of_engines
     thrust.inputs.total_temperature_reference              = low_pressure_compressor.outputs.stagnation_temperature
     thrust.inputs.total_pressure_reference                 = low_pressure_compressor.outputs.stagnation_pressure
+    thrust.inputs.inlet_nozzle                             = inlet_nozzle
 
     #compute the thrust
     thrust.inputs.fan_nozzle = Data()
@@ -171,7 +172,7 @@ def turbojet_sizing(turbojet,mach_number = None, altitude = None, delta_isa = 0,
     thrust.inputs.bypass_ratio = 0.0
     thrust.inputs.flow_through_core                        =  1.0 #scaled constant to turn on core thrust computation
     thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation     
-    thrust.size(conditions)
+    thrust.size(conditions, inlet_drag)
     
     #update the design thrust value
     turbojet.design_thrust = thrust.total_design

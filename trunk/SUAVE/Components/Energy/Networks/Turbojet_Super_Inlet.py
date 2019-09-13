@@ -202,6 +202,7 @@ class Turbojet_Super_Inlet(Propulsor):
         thrust.inputs.core_exit_velocity                       = core_nozzle.outputs.velocity
         thrust.inputs.core_area_ratio                          = core_nozzle.outputs.area_ratio
         thrust.inputs.core_nozzle                              = core_nozzle.outputs
+        thrust.inputs.inlet_nozzle                             = inlet_nozzle
 
         #link the thrust component to the combustor
         thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio 
@@ -283,17 +284,17 @@ class Turbojet_Super_Inlet(Propulsor):
             
             A0 = segment.state.conditions.freestream.area_initial_streamtube
             AC = self.inlet_nozzle.areas.capture
-            # penalty = 0
-            # ratio = A0/AC
-            # if any(ratio > 1):
-            #     penalty = (max(ratio)-1)*1*10**6
+            penalty = 0
+            ratio = A0/AC
+            if any(ratio > 1):
+                penalty = (max(ratio)-1)*1*10**6
                 
-            # if any(A0 <= 0):
-            #     penalty = abs(min(A0))*1*10**6
+            if any(A0 <= 0):
+                penalty = abs(min(A0))*1*10**6
             
             delta = ((mass_flow_rate_design-mass_flow_rate_inlet)/mass_flow_rate_design).flatten()
             # Return the residuals
-            segment.state.residuals.network[:,0] = delta
+            segment.state.residuals.network[:,0] = delta*penalty
             
             return    
 

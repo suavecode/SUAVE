@@ -304,8 +304,8 @@ def vehicle_setup():
     inlet_nozzle.pressure_ratio        = 0.98
     inlet_nozzle.areas.capture         = 1.1/2.**2*np.pi* Units['meter**2'] 
     inlet_nozzle.areas.throat          = 1./2.**2*np.pi* Units['meter**2'] 
-    inlet_nozzle.areas.inlet_entrance  = 1.1/2.**2*np.pi* Units['meter**2'] 
-    inlet_nozzle.angles.ramp_angle     = 10.0
+    inlet_nozzle.areas.inlet_entrance  = 1/20*12.5*4.7 * Units['meter**2']  # 4.7 is outer perimeter on one side
+    inlet_nozzle.angles.ramp_angle     = 4.0 * Units.deg
     
     # add to network
     turbojet.append(inlet_nozzle)
@@ -418,15 +418,19 @@ def vehicle_setup():
  
     # Note: Sizing builds the propulsor. It does not actually set the size of the turbojet
     # design sizing conditions
-    altitude      = 0.0*Units.ft
-    mach_number   = 0.01
+#    altitude      = 0.0*Units.ft
+#    mach_number   = 0.01
+#    isa_deviation = 0.
+    
+    altitude      = 18.288   * Units.km
+    mach_number   = 2.02
     isa_deviation = 0.
     
     # add to network
     turbojet.thrust = thrust
 
     #size the turbojet
-    turbojet_sizing(turbojet,mach_number,altitude)   
+    turbojet_sizing(turbojet,mach_number,altitude, inlet_drag = True)   
     
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(turbojet)      

@@ -80,13 +80,18 @@ def get_m(f_m_array, gamma_array, subsonic_flag):
         for i, f_m in enumerate(f_m_array):
             gamma = round(gamma_array[i], 2)
             f_m = round(f_m, 2)
-            # Symbolically solve for mach number
-            M = Symbol("M",real=True)
-            A_o_Astar    = 1/M * ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1))) * (1 + (gamma - 1)/2 * M**2) ** ((gamma+1)/(2*(gamma-1)))
-            M = np.array(solve(A_o_Astar - 1/f_m, M))
-            if subsonic_flag == 1:
-                M_list.append(np.asscalar(M[M < 1]))
+            if f_m == 0.0:
+                M_list.append(0.0)
             else:
-                M_list.append(np.asscalar(M[M >= 1]))
+                # Symbolically solve for mach number
+                M = Symbol("M",real=True)
+                A_o_Astar    = 1/M * ((gamma+1)/2)**(-(gamma+1)/(2*(gamma-1))) * (1 + (gamma - 1)/2 * M**2) ** ((gamma+1)/(2*(gamma-1)))
+                M = np.array(solve(A_o_Astar - 1/f_m, M))
+                M = abs(M)
+                if subsonic_flag == 1:
+                    M_reasonable = M[M > 0]
+                    M_list.append(np.asscalar(M_reasonable[M_reasonable < 1]))
+                else:
+                    M_list.append(np.asscalar(M[M >= 1]))
         return M_list
     return

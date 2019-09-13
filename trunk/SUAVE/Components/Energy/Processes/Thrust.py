@@ -81,7 +81,7 @@ class Thrust(Energy_Component):
 
 
 
-    def compute(self,conditions):
+    def compute(self,conditions, inlet_drag = False):
         """Computes thrust and other properties as below.
 
         Assumptions:
@@ -144,7 +144,10 @@ class Thrust(Energy_Component):
         M0                   = conditions.freestream.mach_number
         p0                   = conditions.freestream.pressure  
         g                    = conditions.freestream.gravity
-        throttle             = conditions.propulsion.throttle        
+        throttle             = conditions.propulsion.throttle
+
+        # adding in the inlet nozzle to the inputs
+        inlet_nozzle                = self.inputs.inlet_nozzle        
 
         #unpacking from inputs
         f                           = self.inputs.fuel_to_air_ratio
@@ -198,9 +201,13 @@ class Thrust(Energy_Component):
 
         #computing the power 
         power            = FD2*u0
+        
+        # adding in inlet drag to thrust calculation
+        if inlet_drag:
+            drag = inlet_nozzle.compute_drag(conditions)
+            FD2 = FD2 - drag
 
         #pack outputs
-
         self.outputs.thrust                            = FD2 
         self.outputs.thrust_specific_fuel_consumption  = TSFC
         self.outputs.non_dimensional_thrust            = Fsp 
@@ -323,7 +330,7 @@ class Thrust(Energy_Component):
         self.outputs.power                             = power
         self.outputs.specific_impulse                  = Isp
 
-    def size(self,conditions):
+    def size(self,conditions, inlet_drag = False):
         """Sizes the core flow for the design condition.
 
         Assumptions:
@@ -353,6 +360,9 @@ class Thrust(Energy_Component):
         a0                   = conditions.freestream.speed_of_sound
         throttle             = 1.0
 
+        # adding in the inlet nozzle to the inputs
+        inlet_nozzle                = self.inputs.inlet_nozzle
+        
         #unpack from self
         bypass_ratio                = self.inputs.bypass_ratio
         Tref                        = self.reference_temperature
@@ -370,7 +380,11 @@ class Thrust(Energy_Component):
         Fsp                         = self.outputs.non_dimensional_thrust
 
         #compute dimensional mass flow rates
-        mdot_core                   = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
+        if inlet_drag:
+            drag                    = inlet_nozzle.compute_drag(conditions)
+            mdot_core               = (design_thrust+drag)/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)
+        else:
+            mdot_core               = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
         mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))
 
         #pack outputs
