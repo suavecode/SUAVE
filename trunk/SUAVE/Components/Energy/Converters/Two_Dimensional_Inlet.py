@@ -165,6 +165,7 @@ class Two_Dimensional_Inlet(Energy_Component):
         T_out[i_sub_shock] = Isentropic.isentropic_relations(Mach[i_sub_shock], gamma[i_sub_shock])[0]*Tt_out[i_sub_shock]
         
         # Analysis of shocks for the supersonic case
+        print(M0[i_sup])
         beta[i_sup] = Oblique_Shock.theta_beta_mach(M0[i_sup],gamma[i_sup],theta*Units.rad)
         MC[i_sup], Pr_c[i_sup], Tr_c[i_sup], Ptr_c[i_sup] = Oblique_Shock.oblique_shock_relations(M0[i_sup],gamma[i_sup],theta*Units.rad,beta[i_sup])
         Pt_out[i_sup] = Ptr_c[i_sup]*Pt_in[i_sup]

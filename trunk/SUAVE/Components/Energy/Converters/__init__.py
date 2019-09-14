@@ -3,6 +3,7 @@
 # They typically contain functions operating on class specific input variables.
 ## @ingroup Components-Energy
 
+from .Axisymmetric_Inlet import Axisymmetric_Inlet
 from .Combustor import Combustor
 from .Compression_Nozzle import Compression_Nozzle
 from .Compressor import Compressor

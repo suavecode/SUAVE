@@ -296,7 +296,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Component 2 - Inlet Nozzle
     
-    inlet_nozzle = SUAVE.Components.Energy.Converters.Two_Dimensional_Inlet()
+    inlet_nozzle = SUAVE.Components.Energy.Converters.Axisymmetric_Inlet()
     inlet_nozzle.tag = 'inlet_nozzle'
     
     # setup
@@ -306,7 +306,7 @@ def vehicle_setup():
     inlet_nozzle.areas.throat          = 1./2.**2*np.pi* Units['meter**2'] 
     inlet_nozzle.areas.inlet_entrance  = 1.1/2.**2*np.pi* Units['meter**2']  # 4.7 is outer perimeter on one side
     inlet_nozzle.areas.drag_direct_projection = 1/20*12.5*4.7 * Units['meter**2'] 
-    inlet_nozzle.angles.ramp_angle     = 4.0 * Units.deg
+    inlet_nozzle.angles.cone_half_angle     = 4.0 * Units.deg
     
     # add to network
     turbojet.append(inlet_nozzle)
