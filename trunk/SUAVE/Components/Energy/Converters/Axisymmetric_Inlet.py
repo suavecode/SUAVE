@@ -172,9 +172,8 @@ class Axisymmetric_Inlet(Energy_Component):
         
         # Analysis of shocks for the supersonic case (conical shock)
         Ms[i_sup]       = Conical_Shock.get_Ms(M0[i_sup], theta/2)
-        print(M0, theta)
         beta[i_sup]     = Conical_Shock.get_beta(M0[i_sup], theta)
-        MC_wedge[i_sup] = Oblique_Shock.oblique_shock_relations(M0[i_sup],gamma[i_sup],theta,beta[i_sup])[0]
+        MC_wedge[i_sup] = Oblique_Shock.oblique_shock_relations(M0[i_sup],gamma[i_sup],theta*np.pi/180,beta[i_sup])[0]
         MC[i_sup]       = 0.5 * (Ms[i_sup] + MC_wedge[i_sup])
         
         Pt_th[i_sup]         = Conical_Shock.get_Cp(Ms[i_sup], theta)*q0[i_sup] + P0[i_sup]
