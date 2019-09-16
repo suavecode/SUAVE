@@ -423,9 +423,9 @@ def vehicle_setup():
     mach_number   = 0.01
     isa_deviation = 0.
     
-#    altitude      = 18.288   * Units.km
-#    mach_number   = 2.02
-#    isa_deviation = 0.
+    altitude      = 18.288   * Units.km
+    mach_number   = 2.02
+    isa_deviation = 0.
     
     # add to network
     turbojet.thrust = thrust

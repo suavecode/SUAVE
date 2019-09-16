@@ -170,16 +170,25 @@ class Thrust(Energy_Component):
         mdhc                 = self.compressor_nondimensional_massflow
         SFC_adjustment       = self.SFC_adjustment
 
-
-
         #--------Cantwell method---------------------------------
 
         #computing the non dimensional thrust
         core_thrust_nondimensional  = flow_through_core*(gamma*M0*M0*(core_nozzle.velocity/u0-1.) + core_area_ratio*(core_nozzle.static_pressure/p0-1.))
         fan_thrust_nondimensional   = flow_through_fan*(gamma*M0*M0*(fan_nozzle.velocity/u0-1.) + fan_area_ratio*(fan_nozzle.static_pressure/p0-1.))
+        
+        #computing the core mass flow
+        mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)        
 
         Thrust_nd                   = core_thrust_nondimensional + fan_thrust_nondimensional
-
+        
+        if inlet_drag:
+            drag = inlet_nozzle.compute_drag(conditions)
+            print(drag)
+            if all(drag) > 0:
+                drag_nd = drag*(gamma*M0)*1/(a0*(1.+bypass_ratio)*mdot_core)
+                Thrust_nd = Thrust_nd - drag_nd
+                print(drag_nd)
+        
         #Computing Specifc Thrust
         Fsp              = 1./(gamma*M0)*Thrust_nd
 
@@ -188,12 +197,11 @@ class Thrust(Energy_Component):
 
         #Computing the TSFC
         TSFC             = f*g/(Fsp*a0*(1.+bypass_ratio))*(1.-SFC_adjustment) * Units.hour # 1/s is converted to 1/hr here
-     
-        #computing the core mass flow
-        mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)
 
         #computing the dimensional thrust
         FD2              = Fsp*a0*(1.+bypass_ratio)*mdot_core*no_eng*throttle
+        print(FD2)
+        
 
         #fuel flow rate
         a = np.array([0.])        
@@ -201,11 +209,7 @@ class Thrust(Energy_Component):
 
         #computing the power 
         power            = FD2*u0
-        
-        # adding in inlet drag to thrust calculation
-        if inlet_drag:
-            drag = inlet_nozzle.compute_drag(conditions)
-            FD2 = FD2 - no_eng*drag
+            
 
         #pack outputs
         self.outputs.thrust                            = FD2 
@@ -315,7 +319,7 @@ class Thrust(Energy_Component):
         mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref) 
 
         #computing the dimensional thrust 
-        FD2              = Fsp*a0*mdot_core*no_eng*throttle 
+        FD2              = Fsp*a0*mdot_core*no_eng*throttle
         
         # adding in inlet drag to thrust calculation
         if inlet_drag:
@@ -382,7 +386,7 @@ class Thrust(Energy_Component):
         no_eng                      = self.inputs.number_of_engines
 
         #compute nondimensional thrust
-        self.compute(conditions)
+        self.compute(conditions, inlet_drag)
 
         #unpack results 
         Fsp                         = self.outputs.non_dimensional_thrust

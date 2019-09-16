@@ -41,6 +41,7 @@ def converge_root(segment):
     """       
     
     unknowns = segment.state.unknowns.pack_array()
+    print("unknowns", unknowns)
     
     try:
         root_finder = segment.settings.root_finder
@@ -96,5 +97,6 @@ def iterate(unknowns, segment):
     segment.process.iterate(segment)
     
     residuals = segment.state.residuals.pack_array()
+    print("unknowns", residuals)
         
     return residuals 

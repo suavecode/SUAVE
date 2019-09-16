@@ -58,6 +58,7 @@ class Turbojet_Super_Inlet(Propulsor):
         self.nacelle_diameter   = 1.0
         self.engine_length      = 1.0
         self.afterburner_active = False
+        self.inlet_drag         = False
 
     _component_root_map = None
 
@@ -222,6 +223,7 @@ class Turbojet_Super_Inlet(Propulsor):
 
         #getting the network outputs from the thrust outputs
         F            = thrust.outputs.thrust*[1,0,0]
+        print(F)
         mdot         = thrust.outputs.fuel_flow_rate
         Isp          = thrust.outputs.specific_impulse
         output_power = thrust.outputs.power
@@ -293,6 +295,7 @@ class Turbojet_Super_Inlet(Propulsor):
                 penalty = abs(min(A0))*1*10**10
             
             delta = ((mass_flow_rate_design-mass_flow_rate_inlet)/mass_flow_rate_design).flatten()
+            print("delta",delta)
             # Return the residuals
             segment.state.residuals.network[:,0] = delta+penalty
             return    

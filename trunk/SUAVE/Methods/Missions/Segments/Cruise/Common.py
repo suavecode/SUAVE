@@ -74,6 +74,7 @@ def residual_total_forces(segment):
     
     # horizontal
     segment.state.residuals.forces[:,0] = np.sqrt( FT[:,0]**2. + FT[:,1]**2. )/m
+    
     # vertical
     segment.state.residuals.forces[:,1] = FT[:,2]/m
 
