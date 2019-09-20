@@ -115,12 +115,13 @@ def arbitrary(vehicle,settings=None):
         if isinstance(wing,Wings.Main_Wing):
 
             # Unpack main wing specific parameters
-            lambda_w = wing.taper
+            lambda_w      = wing.taper
+            area_fraction = S/S_gross_w
             
             # Calculate the weights
             rho      = Aluminum().density
             sigma    = Aluminum().yield_tensile_strength            
-            wt_wing  = wing_main.wing_main(wing,Nult,TOW,wt_zf,rho,sigma)
+            wt_wing  = wing_main.wing_main(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction)
             
             # Apply weight factor
             wt_wing  = wt_wing*(1.-wt_factors.main_wing)

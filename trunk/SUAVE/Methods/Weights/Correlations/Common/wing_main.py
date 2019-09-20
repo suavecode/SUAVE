@@ -19,7 +19,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-Common 
-def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
+def wing_main(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction=1):
     """ Calculate the wing weight of the aircraft based on the fully-stressed 
     bending weight of the wing box
     
@@ -60,13 +60,14 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma):
     area  = wing.areas.reference
     t_c_w = wing.thickness_to_chord
     RC    = wing.chords.root
+    frac  = area_fraction
     
     rho_sigma = rho*9.81/sigma
     
     # Start the calculations
     l_tot = Nult*np.sqrt(TOW*wt_zf)*9.81
     gamma = 16*l_tot*rho_sigma/(np.pi*span)
-    L0 = 2*l_tot/(span*np.pi)
+    L0 = frac*2*l_tot/(span*np.pi)
                       
     if len(wing.Segments)>0:
         
