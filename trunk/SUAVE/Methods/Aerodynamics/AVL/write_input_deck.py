@@ -73,7 +73,7 @@ G
 
 
 def make_case_command(avl_object,case,Trim):
-    """ Makes commands for case execution in AVK
+    """ Makes commands for case execution in AVL
 
     Assumptions:
         None

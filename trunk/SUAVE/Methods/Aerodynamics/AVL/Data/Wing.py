@@ -15,7 +15,7 @@ from SUAVE.Core import Data
 # ------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-AVL-Data
 class Wing(Data):
-	""" A class that defines parameters of the AVL aircraft wing
+	""" This class that defines parameters of the AVL aircraft wing
 
 	Assumptions:
 	    None
@@ -48,7 +48,7 @@ class Wing(Data):
 		self.control_surfaces = Data()
 
 	def append_section(self,section):
-		""" adds a segment to the wing """
+		""" Adds a segment to the wing """
 
 		# assert database type
 		if not isinstance(section,Data):
@@ -64,7 +64,7 @@ class Wing(Data):
 # ------------------------------------------------------------
 
 class Section(Data):
-	""" A class that defines the sections of the aircraft wing in AVL.
+	""" This class defines the sections of the aircraft wing in AVL.
 	Each section can be thought of as a trapezoid
 
 	Assumptions:
@@ -142,7 +142,7 @@ class Section(Data):
 # ------------------------------------------------------------
 
 class Control_Surface(Data):
-	""" A class that defines the control surface geometry and deflection
+	""" This class defines the control surface geometry and deflection
 	on the aircraft wing in AVL
 
 	Assumptions:
@@ -183,7 +183,7 @@ class Control_Surface(Data):
 		self.function            = 'function'
 		self.gain                = 0.0
 		self.x_hinge             = 0.0
-		self.deflection    = 0.0         
+		self.deflection          = 0.0         
 		self.hinge_vector        = '0. 0. 0.' # the vector of rotation is along the hinge of the control surface
 		self.sign_duplicate      = '+1'       # sign_duplicate: 1.0 or -1.0 - the sign of
 					              # the duplicate control on the mirror wing.
@@ -195,7 +195,7 @@ class Control_Surface(Data):
 # ------------------------------------------------------------
 
 class Control_Surface_Data(Data):
-	""" A class that stores results from the control surfaces  
+	""" This class stores results from the control surfaces  
 	"""   	
 	def __defaults__(self):
 		self.tag                 = 'control_surface_results'
@@ -214,7 +214,7 @@ class Control_Surface_Data(Data):
 		return	
 
 class Control_Surface_Results(Data):
-	""" A class that defines the control surface geometry and deflection
+	""" This class defines the control surface geometry and deflection
 	"""   	
 	def __defaults__(self):
 		""" Sets the defaults of the control surface on the aircraft wing

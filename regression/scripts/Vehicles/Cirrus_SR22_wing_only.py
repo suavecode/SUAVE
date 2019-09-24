@@ -42,12 +42,13 @@ def vehicle_setup():
     vehicle.envelope.cruise_mach             = 0.16
 
     # aerodynamic properties
-    vehicle.maximum_lift_coefficient         = 1.45
-    vehicle.minimum_lift_coefficient         = -1.0
-                                             
-    # basic parameters                       
-    vehicle.reference_area                   = 12.077 * Units['meters**2']  
-    vehicle.passengers                       = 3
+    vehicle.maximum_lift_coefficient = 1.45	     
+    vehicle.minimum_lift_coefficient = -1.0	     
+
+                                           
+    # basic parameters                      
+    vehicle.reference_area         = 12.077 * Units['meters**2'] 
+    vehicle.passengers             = 3
 
     # ------------------------------------------------------------------        
     #   Main Wing

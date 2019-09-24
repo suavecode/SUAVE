@@ -18,7 +18,7 @@ from SUAVE.Core import DataOrdered
 
 ## @ingroup Methods-Aerodynamics-AVL-Data
 class Run_Case(Data):
-    """ A data class defining the parameters for the analysis cases 
+    """ This data class defines the parameters for the analysis cases 
     including angle of attack and mach number 
 
     Assumptions:
@@ -96,7 +96,7 @@ class Run_Case(Data):
         return
  
 class Container(DataOrdered):
-    """ A data class for the addition of a cases to the set of run cases
+    """ This is a data class for the addition of a cases to the set of run cases
 
     Assumptions:
         None
