@@ -127,7 +127,7 @@ def vehicle_setup():
     control_surface.function              = 'flap' 
     control_surface.span_fraction_start   = 0.10 
     control_surface.span_fraction_end     = 0.75   
-    control_surface.deflection            = 1.0 * Units.degrees
+    control_surface.deflection            = 0.0 * Units.degrees
     control_surface.configuration_type    = 'double_slotted'
     control_surface.chord_fraction        = 0.30   
     wing.append_control_surface(control_surface)    
@@ -142,7 +142,7 @@ def vehicle_setup():
     control_surface.function              = 'slat' 
     control_surface.span_fraction_start   = 0.324 
     control_surface.span_fraction_end     = 0.963     
-    control_surface.deflection            = 1.0 * Units.degrees
+    control_surface.deflection            = 0.0 * Units.degrees
     control_surface.chord_fraction        = 0.1  	 
     wing.append_control_surface(control_surface)  
         
@@ -151,7 +151,7 @@ def vehicle_setup():
     control_surface.function              = 'aileron'
     control_surface.span_fraction_start   = 0.7 
     control_surface.span_fraction_end     = 0.963 
-    control_surface.deflection            = 1.0 * Units.degrees
+    control_surface.deflection            = 0.0 * Units.degrees
     control_surface.chord_fraction        = 0.16    
     wing.append_control_surface(control_surface)         
     
@@ -209,7 +209,7 @@ def vehicle_setup():
     control_surface.function              = 'elevator'
     control_surface.span_fraction_start   = 0.09 
     control_surface.span_fraction_end     = 0.92
-    control_surface.deflection            = 1.0  * Units.deg
+    control_surface.deflection            = 0.0  * Units.deg
     control_surface.chord_fraction        = 0.3   
     wing.append_control_surface(control_surface)  
 
