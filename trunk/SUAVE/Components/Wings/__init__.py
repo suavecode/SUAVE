@@ -5,13 +5,15 @@
 # 
 # Created:  
 # Modified: Feb 2016, T. MacDonald
-#           Aug 2019, M. Clarke
+
 # classes
-from .Wing            import Wing
+from .Wing import Wing
 from .Control_Surface import Control_Surface
-from .Control_Surface import append_ctrl_surf_to_wing_segments 
-from .Main_Wing       import Main_Wing 
-from .Segment         import Segment, SegmentContainer
+from .Main_Wing import Main_Wing
+from .Vertical_Tail import Vertical_Tail
+from .Horizontal_Tail import Horizontal_Tail
+from .Segment import Segment, SegmentContainer 
+from .Control_Surface import append_ctrl_surf_to_wing_segments
 
 # packages
 from . import Airfoils
