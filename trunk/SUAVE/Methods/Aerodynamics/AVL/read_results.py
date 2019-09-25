@@ -14,7 +14,7 @@ from SUAVE.Methods.Aerodynamics.AVL.Data.Wing import Control_Surface_Data ,  Con
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-AVL
-def read_results(avl_object, Eigen_Modes):
+def read_results(avl_object):
     """ This functions reads the results from the results text file created 
     at the end of an AVL function call
 
@@ -41,8 +41,8 @@ def read_results(avl_object, Eigen_Modes):
         case     = avl_object.current_status.cases[case_name]
         num_ctrl =  case.stability_and_control.number_control_surfaces
         # open newly written result files and read in aerodynamic properties 
-        with open(case.aero_result_filename_1,'r') as res_file:
-            # Extract results from stability derivatives file                                                                
+        with open(case.aero_result_filename_1,'r') as stab_der_vile:
+            # Extract results from stability axis derivatives file                                                                
             case_res                                                        = Data()  
             case_res.aerodynamics                                           = Data()
             case_res.stability                                              = Data()
@@ -51,7 +51,7 @@ def read_results(avl_object, Eigen_Modes):
             case_res.stability.beta_derivatives                             = Data()   
                                                                             
             case_res.tag                                                    = case.tag 
-            lines                                                           = res_file.readlines()
+            lines                                                           = stab_der_vile.readlines()
             case_res.S_ref                                                  = float(lines[8][10:16].strip())
             case_res.c_ref                                                  = float(lines[8][31:37].strip())
             case_res.b_ref                                                  = float(lines[8][52:58].strip())
@@ -75,7 +75,7 @@ def read_results(avl_object, Eigen_Modes):
             case_res.aerodynamics.total_drag_coefficient                    = float(lines[24][10:20].strip())
             case_res.aerodynamics.viscous_drag_coefficient                  = float(lines[25][10:20].strip())
             case_res.aerodynamics.induced_drag_coefficient                  = float(lines[25][32:42].strip())
-            case_res.aerodynamics.span_efficiency_factor                    = float(lines[27][32:42].strip())
+            case_res.aerodynamics.oswald_efficiency                         = float(lines[27][32:42].strip())
                
             case_res.stability.alpha_derivatives.lift_curve_slope           = float(lines[36+num_ctrl][24:34].strip()) # CL_a
             case_res.stability.alpha_derivatives.side_force_derivative      = float(lines[37+num_ctrl][24:34].strip()) # CY_a
@@ -103,12 +103,12 @@ def read_results(avl_object, Eigen_Modes):
             case_res.stability.Cn_p                                         = float(lines[48+num_ctrl][24:34].strip())
             case_res.stability.Cn_q                                         = float(lines[48+num_ctrl][43:54].strip())
             case_res.stability.Cn_r                                         = float(lines[48+num_ctrl][65:74].strip())
-            
+             
             # this block of text reads in aerodynamic results related to the defined control surfaces 
             if num_ctrl != 0: 
                 for ctrl_idx in range(num_ctrl):
                     ctrl_surf = Control_Surface_Results()
-                    ctrl_surf.tag                 = str(lines[29+ctrl_idx][2:10].strip())
+                    ctrl_surf.tag                 = str(lines[29+ctrl_idx][2:11].strip())
                     ctrl_surf.deflection          = float(lines[29+ctrl_idx][21:29].strip())
                     ctrl_surf.CL                  = float(lines[52+num_ctrl][(20*ctrl_idx + 23):(20*ctrl_idx + 34)].strip())
                     ctrl_surf.CY                  = float(lines[53+num_ctrl][(20*ctrl_idx + 23):(20*ctrl_idx + 34)].strip())
@@ -175,50 +175,50 @@ def read_results(avl_object, Eigen_Modes):
             case_res.aerodynamics.wing_section_chords = wing_sectional_chord 
             case_res.aerodynamics.wing_section_cls    = wing_cl 
             case_res.aerodynamics.wing_section_cds    = wing_cd 
-        
-        # Extract resulst from eigen mode result file
-        if Eigen_Modes:         
-            with open(case.eigen_result_filename_1,'r') as eigen_res_file_1:
-                lines   = eigen_res_file_1.readlines()
-                index = case_idx*8
-                case_res.stability.roll_mode_real             = float(lines[3+index][11:26].strip())            
-                case_res.stability.dutch_roll_mode_1_real     = float(lines[4+index][11:26].strip())
-                case_res.stability.dutch_roll_mode_1_imag     = float(lines[4+index][29:40].strip())
-                case_res.stability.dutch_roll_mode_2_real     = float(lines[5+index][11:26].strip())
-                case_res.stability.dutch_roll_mode_2_imag     = float(lines[5+index][29:40].strip())
-                case_res.stability.spiral_mode_real           = float(lines[6+index][11:26].strip())
-                case_res.stability.short_period_mode_1_real   = float(lines[7+index][11:26].strip())
-                case_res.stability.short_period_mode_1_imag   = float(lines[7+index][29:40].strip())
-                case_res.stability.short_period_mode_2_real   = float(lines[8+index][11:26].strip())
-                case_res.stability.short_period_mode_2_imag   = float(lines[8+index][29:40].strip())
-                case_res.stability.phugoid_mode_1_real        = float(lines[9+index][11:26].strip())
-                case_res.stability.phugoid_mode_1_imag        = float(lines[9+index][29:40].strip())
-                case_res.stability.phugoid_mode_2_real        = float(lines[10+index][11:26].strip())                        
-                case_res.stability.phugoid_mode_2_imag        = float(lines[10+index][29:40].strip())
-                
-                
-                
+  
+        with open(case.aero_result_filename_4,'r') as bod_der_vile:
+            # Extract results from body axis derivatives file                         
+                                                                           
+            lines_2                  = bod_der_vile.readlines() 
+            case_res.stability.CX_u  = float(lines_2[36+num_ctrl][24:34].strip())
+            case_res.stability.CX_v  = float(lines_2[36+num_ctrl][43:54].strip())
+            case_res.stability.CX_w  = float(lines_2[36+num_ctrl][65:74].strip())
+            case_res.stability.CY_u  = float(lines_2[37+num_ctrl][24:34].strip())
+            case_res.stability.CY_v  = float(lines_2[37+num_ctrl][43:54].strip())
+            case_res.stability.CY_w  = float(lines_2[37+num_ctrl][65:74].strip())
+            case_res.stability.CZ_u  = float(lines_2[38+num_ctrl][24:34].strip())
+            case_res.stability.CZ_v  = float(lines_2[38+num_ctrl][43:54].strip())
+            case_res.stability.CZ_w  = float(lines_2[38+num_ctrl][65:74].strip())
+            case_res.stability.Cl_u  = float(lines_2[39+num_ctrl][24:34].strip())
+            case_res.stability.Cl_v  = float(lines_2[39+num_ctrl][43:54].strip())
+            case_res.stability.Cl_w  = float(lines_2[39+num_ctrl][65:74].strip())
+            case_res.stability.Cm_u  = float(lines_2[40+num_ctrl][24:34].strip())
+            case_res.stability.Cm_v  = float(lines_2[40+num_ctrl][43:54].strip())
+            case_res.stability.Cm_w  = float(lines_2[40+num_ctrl][65:74].strip())
+            case_res.stability.Cn_u  = float(lines_2[41+num_ctrl][24:34].strip())
+            case_res.stability.Cn_v  = float(lines_2[41+num_ctrl][43:54].strip())
+            case_res.stability.Cn_w  = float(lines_2[41+num_ctrl][65:74].strip())
             
-            with open(case.eigen_result_filename_2,'r') as system_matrix:
-                lines   = system_matrix.readlines()
-                index = case_idx*8
-                case_res.stability.A_B_matrix_headers = list(map(str,lines[1][0:200].strip().split()))    
-                case_res.stability.A_B_matrix_1       = list(map(float,lines[2][0:200].strip().split()))                 
-                case_res.stability.A_B_matrix_2       = list(map(float,lines[3][0:200].strip().split()))  
-                case_res.stability.A_B_matrix_3       = list(map(float,lines[4][0:200].strip().split()))  
-                case_res.stability.A_B_matrix_4       = list(map(float,lines[5][0:200].strip().split()))  
-                case_res.stability.A_B_matrix_5       = list(map(float,lines[6][0:200].strip().split()))  
-                case_res.stability.A_B_matrix_6       = list(map(float,lines[7][0:200].strip().split()))  
-                case_res.stability.A_B_matrix_7       = list(map(float,lines[8][0:200].strip().split()))  
-                case_res.stability.A_B_matrix_8       = list(map(float,lines[9][0:200].strip().split()))  
-                case_res.stability.A_B_matrix_9       = list(map(float,lines[10][0:200].strip().split())) 
-                case_res.stability.A_B_matrix_10      = list(map(float,lines[11][0:200].strip().split())) 
-                case_res.stability.A_B_matrix_11      = list(map(float,lines[12][0:200].strip().split())) 
-                case_res.stability.A_B_matrix_12      = list(map(float,lines[13][0:200].strip().split())) 
+            case_res.stability.CX_p  = float(lines_2[45+num_ctrl][24:34].strip())
+            case_res.stability.CX_q  = float(lines_2[45+num_ctrl][43:54].strip())
+            case_res.stability.CX_r  = float(lines_2[45+num_ctrl][65:74].strip())
+            case_res.stability.CY_p  = float(lines_2[46+num_ctrl][24:34].strip())
+            case_res.stability.CY_q  = float(lines_2[46+num_ctrl][43:54].strip())
+            case_res.stability.CY_r  = float(lines_2[46+num_ctrl][65:74].strip())
+            case_res.stability.CZ_p  = float(lines_2[47+num_ctrl][24:34].strip())
+            case_res.stability.CZ_q  = float(lines_2[47+num_ctrl][43:54].strip())
+            case_res.stability.CZ_r  = float(lines_2[47+num_ctrl][65:74].strip())
+            case_res.stability.Cl_p  = float(lines_2[48+num_ctrl][24:34].strip())
+            case_res.stability.Cl_q  = float(lines_2[48+num_ctrl][43:54].strip())
+            case_res.stability.Cl_r  = float(lines_2[48+num_ctrl][65:74].strip())
+            case_res.stability.Cm_p  = float(lines_2[49+num_ctrl][24:34].strip())
+            case_res.stability.Cm_q  = float(lines_2[49+num_ctrl][43:54].strip())
+            case_res.stability.Cm_r  = float(lines_2[49+num_ctrl][65:74].strip())
+            case_res.stability.Cn_p  = float(lines_2[50+num_ctrl][24:34].strip())
+            case_res.stability.Cn_q  = float(lines_2[50+num_ctrl][43:54].strip())
+            case_res.stability.Cn_r  = float(lines_2[50+num_ctrl][65:74].strip())
             
-            case_idx += 1
-            results.append(case_res)
-        else:
-            results.append(case_res)
+                
+        results.append(case_res)
             
     return results

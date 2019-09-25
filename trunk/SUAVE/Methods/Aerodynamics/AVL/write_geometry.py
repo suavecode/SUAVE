@@ -59,7 +59,12 @@ def write_geometry(avl_object,run_script_path):
                     filename = section.airfoil_coord_file
                     src      = run_script_path + '/' +  filename
                     dst      = run_script_path + '/avl_files' + '/' + filename
-                    shutil.copy2(src, dst)                
+                    try: 
+                        shutil.copy2(src, dst)       
+                    except:
+                        print('Airfoil Not Located, Using AVL default settings')
+                        section.airfoil_coord_file = None
+                        
             
         for b in aircraft.fuselages:
             avl_body  = translate_avl_body(b)

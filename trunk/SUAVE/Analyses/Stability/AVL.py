@@ -16,16 +16,17 @@ from SUAVE.Core import redirect
 from SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics import Aerodynamics
 from SUAVE.Analyses.Mission.Segments.Conditions.Conditions   import Conditions
 
-from SUAVE.Methods.Aerodynamics.AVL.write_geometry   import write_geometry
-from SUAVE.Methods.Aerodynamics.AVL.write_mass_file  import write_mass_file
-from SUAVE.Methods.Aerodynamics.AVL.write_run_cases  import write_run_cases
-from SUAVE.Methods.Aerodynamics.AVL.write_input_deck import write_input_deck
-from SUAVE.Methods.Aerodynamics.AVL.run_analysis     import run_analysis
-from SUAVE.Methods.Aerodynamics.AVL.translate_data   import translate_conditions_to_cases, translate_results_to_conditions
-from SUAVE.Methods.Aerodynamics.AVL.purge_files      import purge_files
-from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
-from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
-from SUAVE.Components.Wings.Control_Surface          import append_ctrl_surf_to_wing_segments 
+from SUAVE.Methods.Aerodynamics.AVL.write_geometry           import write_geometry
+from SUAVE.Methods.Aerodynamics.AVL.write_mass_file          import write_mass_file
+from SUAVE.Methods.Aerodynamics.AVL.write_run_cases          import write_run_cases
+from SUAVE.Methods.Aerodynamics.AVL.write_input_deck         import write_input_deck
+from SUAVE.Methods.Aerodynamics.AVL.run_analysis             import run_analysis
+from SUAVE.Methods.Aerodynamics.AVL.translate_data           import translate_conditions_to_cases, translate_results_to_conditions
+from SUAVE.Methods.Aerodynamics.AVL.purge_files              import purge_files
+from SUAVE.Methods.Aerodynamics.AVL.Data.Settings            import Settings
+from SUAVE.Methods.Aerodynamics.AVL.Data.Cases               import Run_Case
+from SUAVE.Components.Wings.Control_Surface                  import append_ctrl_surf_to_wing_segments  
+from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.compute_dynamic_flight_modes import  compute_dynamic_flight_modes
 
 # local imports 
 from .Stability import Stability
@@ -75,7 +76,8 @@ class AVL(Stability):
         """
         self.tag                                    = 'avl'
         self.keep_files                             = False
-                                                    
+        self.save_regression_results                = False   
+        
         self.current_status                         = Data()        
         self.current_status.batch_index             = 0
         self.current_status.batch_file              = None
@@ -88,13 +90,12 @@ class AVL(Stability):
         self.settings.filenames.err_filename        = sys.stderr        
         self.settings.spanwise_vortices             = 20
         self.settings.chordwise_vortices            = 10
-        self.settings.Trim                          = False
-        self.settings.Eigen_Modes                   = False
+        self.settings.Trim                          = False 
                                                     
         # Conditions table, used for surrogate model training
         self.training                               = Data()   
         
-        # Standard subsonic/transolic aircarft
+        # Standard subsonic/transonic aircarft
         self.training.angle_of_attack               = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
         self.training.Mach                          = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
         
@@ -156,7 +157,7 @@ class AVL(Stability):
         return
 
     def __call__(self,conditions):
-        """Evaluates moment coefficient, stability deriviatives and neutral point using available surrogates.
+        """Evaluates moment coefficient, stability and body axis deriviatives and neutral point using available surrogates.
 
         Assumptions:
         None
@@ -260,8 +261,7 @@ class AVL(Stability):
         run_folder  = os.path.abspath(self.settings.filenames.run_folder)
         geometry    = self.geometry
         training    = self.training 
-        Trim        = self.settings.Trim
-        Eigen_Modes = self.settings.Eigen_Modes              
+        Trim        = self.settings.Trim            
         
         AoA         = training.angle_of_attack
         mach        = training.Mach
@@ -277,8 +277,9 @@ class AVL(Stability):
         count      = 0
         
         # remove old files in run directory  
-        if not self.regression_flag:
-            rmtree(run_folder)
+        if os.path.exists('avl_files'):
+            if not self.regression_flag:
+                rmtree(run_folder)
         
         for i,_ in enumerate(mach):
             for j,_ in enumerate(AoA):
@@ -286,15 +287,16 @@ class AVL(Stability):
         for j,_ in enumerate(mach):
             # Set training conditions
             run_conditions = Aerodynamics()
-            run_conditions.weights.total_mass           = geometry.mass_properties.mass
             run_conditions.freestream.density           = 1.2
             run_conditions.freestream.gravity           = 9.81        
             run_conditions.aerodynamics.angle_of_attack = AoA 
-            run_conditions.aerodynamics.side_slip_angle = 0 
-            run_conditions.freestream.mach_number       = mach[j]
+            run_conditions.freestream.speed_of_sound    = 343.
+            run_conditions.aerodynamics.side_slip_angle = 0
+            run_conditions.freestream.velocity          = mach[j] * run_conditions.freestream.speed_of_sound
+            run_conditions.freestream.mach_number       = mach[j] 
             
             #Run Analysis at AoA[i] and mach[j]
-            results =  self.evaluate_conditions(geometry,run_conditions, Trim, Eigen_Modes)
+            results =  self.evaluate_conditions(run_conditions, Trim)
 
             # Obtain CM Cm_alpha, Cn_beta and the Neutral Point # Store other variables here as well 
             CM[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.Cmtot[:,0]
@@ -312,8 +314,9 @@ class AVL(Stability):
             Cn_beta    = data_array[:,4:5]
             NP         = data_array[:,5:6]
         
-        # Save the data for regression
-        #np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
+        # Save the data for regression 
+        if self.save_regression_results:
+            np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
         
         # Store training data
         training.coefficients = np.hstack([CM,Cm_alpha,Cn_beta,NP])
@@ -380,7 +383,7 @@ class AVL(Stability):
 #  Helper Functions
 # ----------------------------------------------------------------------
         
-    def evaluate_conditions(self,geometry,run_conditions, Trim , Eigen_Modes):
+    def evaluate_conditions(self,run_conditions, Trim  ):
         """Process vehicle to setup geometry, condititon, and configuration.
 
         Assumptions:
@@ -413,16 +416,17 @@ class AVL(Stability):
         # unpack
         run_folder                       = os.path.abspath(self.settings.filenames.run_folder)
         run_script_path                  = run_folder.rstrip('avl_files').rstrip('/')
-        aero_results_template_1          = self.settings.filenames.aero_output_template_1       # 'stability_derivatives_{}.dat' 
+        aero_results_template_1          = self.settings.filenames.aero_output_template_1       # 'stability_axis_derivatives_{}.dat' 
         aero_results_template_2          = self.settings.filenames.aero_output_template_2       # 'surface_forces_{}.dat'
-        aero_results_template_3          = self.settings.filenames.aero_output_template_3       # 'strip_forces_{}.dat'     
+        aero_results_template_3          = self.settings.filenames.aero_output_template_3       # 'strip_forces_{}.dat'   
+        aero_results_template_4          = self.settings.filenames.aero_output_template_4       # 'body_axis_derivatives_{}.dat'     
         dynamic_results_template_1       = self.settings.filenames.dynamic_output_template_1    # 'eigen_mode_{}.dat'
         dynamic_results_template_2       = self.settings.filenames.dynamic_output_template_2    # 'system_matrix_{}.dat'
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template 
         
         # rename defaul avl aircraft tag
-        self.tag                         = 'avl_analysis_of_{}'.format(geometry.tag) 
+        self.tag                         = 'avl_analysis_of_{}'.format(self.geometry.tag) 
         self.settings.filenames.features = self.geometry._base.tag + '.avl'
         self.settings.filenames.mass_file= self.geometry._base.tag + '.mass'
         
@@ -436,8 +440,6 @@ class AVL(Stability):
         num_cs       = 0
         cs_names     = []
         cs_functions = []
-        LongMode_idx = []
-        LatMode_idx  = []
         for wing in self.geometry.wings: # this parses through the wings to determine how many control surfaces does the vehicle have 
             if wing.control_surfaces:
                 wing = append_ctrl_surf_to_wing_segments(wing)             
@@ -447,14 +449,10 @@ class AVL(Stability):
                     for cs_idx in wing.Segments[seg].control_surfaces:
                         cs_names.append(cs_idx.tag)  
                         cs_functions.append(cs_idx.function) 
-                        if cs_idx.function == 'flap' or cs_idx.function == 'elevator' or cs_idx.function == 'slat': 
-                            LongMode_idx.append(num_cs)
-                        if cs_idx.function == 'aileron' or cs_idx.function == 'rudder': 
-                            LatMode_idx.append(num_cs)   
                         num_cs  +=  1
         
         # translate conditions
-        cases                            = translate_conditions_to_cases(self,geometry,run_conditions)    
+        cases                            = translate_conditions_to_cases(self, run_conditions)    
         for case in cases:
             cases[case].stability_and_control.number_control_surfaces = num_cs
             cases[case].stability_and_control.control_surface_names   = cs_names
@@ -462,9 +460,10 @@ class AVL(Stability):
         
        # write casefile names using the templates defined in MACE/Analyses/AVL/AVL_Data_Classes/Settings.py 
         for case in cases:  
-            cases[case].aero_result_filename_1     = aero_results_template_1.format(case)        # 'stability_derivatives_{}.dat'  
+            cases[case].aero_result_filename_1     = aero_results_template_1.format(case)        # 'stability_axis_derivatives_{}.dat'  
             cases[case].aero_result_filename_2     = aero_results_template_2.format(case)        # 'surface_forces_{}.dat'
-            cases[case].aero_result_filename_3     = aero_results_template_3.format(case)        # 'strip_forces_{}.dat'             
+            cases[case].aero_result_filename_3     = aero_results_template_3.format(case)        # 'strip_forces_{}.dat'  
+            cases[case].aero_result_filename_4     = aero_results_template_4.format(case)        # 'body_axis_derivatives_{}.dat'
             cases[case].eigen_result_filename_1    = dynamic_results_template_1.format(case)     # 'eigen_mode_{}.dat'
             cases[case].eigen_result_filename_2    = dynamic_results_template_2.format(case)     # 'system_matrix_{}.dat'
         
@@ -473,108 +472,22 @@ class AVL(Stability):
             write_geometry(self,run_script_path)
             write_mass_file(self,run_conditions)
             write_run_cases(self,Trim)
-            write_input_deck(self, Trim, Eigen_Modes)
+            write_input_deck(self, Trim)
 
             # RUN AVL!
-            results_avl = run_analysis(self,Eigen_Modes)
+            results_avl = run_analysis(self)
     
         # translate results
-        results = translate_results_to_conditions(cases,results_avl,Eigen_Modes)
-    
-        if not self.keep_files:
-            rmtree( run_folder )
-            
+        results = translate_results_to_conditions(cases,results_avl)
+        
         # -----------------------------------------------------------------------------------------------------------------------                     
         # Dynamic Stability & System Matrix Computation
         # -----------------------------------------------------------------------------------------------------------------------      
-        if Eigen_Modes:
-            # Unpack aircraft Properties 
-            b_ref  = results.b_ref
-            c_ref  = results.c_ref
-            S_ref  = results.S_ref 
-            Ixx    = self.geometry.mass_properties.moments_of_inertia[0][0]
-            Iyy    = self.geometry.mass_properties.moments_of_inertia[1][1]
-            Izz    = self.geometry.mass_properties.moments_of_inertia[2][2]     
-            
-            # unpack FLight Conditions  
-            rho    = run_conditions.freestream.density
-            u0     = run_conditions.freestream.velocity
-            q0     = 0.5 * rho * u0**2
-            # -----------------------------------------------------------------------------------------------------------------------                     
-            # longitudinal Modes 
-            # -----------------------------------------------------------------------------------------------------------------------  
-            # Build longitudinal EOM A Matrix (stability axis)
-            ALon = np.atleast_3d(results.stability.dynamic.A_matrix_LongModes) 
-            BLon = np.atleast_3d(results.stability.dynamic.B_matrix_LongModes) 
-            CLon = np.repeat(np.atleast_3d(np.identity(6)),len(results.aerodynamics.lift_coefficient),axis = 2)
-            DLon = np.zeros_like(BLon)
-                
-            # Find phugoid
-            phugoidFreqHz             = results.stability.dynamic.phugoid_mode_1_real/(2*np.pi)
-            phugoidDamping            = np.cos(np.arctan(results.stability.dynamic.phugoid_mode_1_real/results.stability.dynamic.phugoid_mode_1_imag))
-            phugoidTimeDoubleHalf     = np.log(2) / (abs(phugoidDamping)* 2 * np.pi *phugoidFreqHz)   
-            
-            # Find short period
-            shortPeriodFreqHz         = np.sqrt(results.stability.dynamic.short_period_mode_1_real**2 +results.stability.dynamic.short_period_mode_1_imag**2)
-            shortPeriodDamping        = np.cos(np.arctan(results.stability.dynamic.short_period_mode_1_real/results.stability.dynamic.short_period_mode_1_imag))
-            shortPeriodTimeDoubleHalf = np.log(2) /(abs(shortPeriodDamping)* 2 * np.pi *shortPeriodFreqHz)  
-            
-            # Build longitudinal state space system
-            lonSys = ss(ALon,BLon,CLon,DLon)
-            
-            # Build longitudinal EOM A Matrix (stability axis)
-            ALat = np.atleast_3d(results.stability.dynamic.A_matrix_LatModes) 
-            BLat = np.atleast_3d(results.stability.dynamic.B_matrix_LatModes) 
-            CLat = np.repeat(np.atleast_3d(np.identity(6)),len(results.aerodynamics.lift_coefficient),axis = 2)
-            DLat = np.zeros_like(BLon)
-            
-            # -----------------------------------------------------------------------------------------------------------------------                     
-            # Lateral Modes 
-            # -----------------------------------------------------------------------------------------------------------------------  
-            # Find dutch roll  
-            dutchRollFreqHz             = results.stability.dynamic.dutch_roll_mode_1_real/(2*np.pi)
-            dutchRollDamping            = np.cos(np.arctan(results.stability.dynamic.dutch_roll_mode_1_real/results.stability.dynamic.dutch_roll_mode_1_imag))
-            dutchRollTimeDoubleHalf     = np.log(2) / (abs(dutchRollDamping) * 2 * np.pi * dutchRollFreqHz) 
-            
-            # Find roll mode
-            rollSubsistenceFreqHz       = results.stability.dynamic.roll_mode/(2*np.pi)
-            rollSubsistenceDamping      = 1.
-            rollSubsistenceTimeConstant = 1 /(2 * np.pi * rollSubsistenceFreqHz * rollSubsistenceDamping  )  
-            
-            # Find spiral mode      
-            spiralFreqHz                = results.stability.dynamic.spiral_mode/(2*np.pi)
-            spiralDamping               = 1.
-            spiralTimeDoubleHalf        = np.log(2) / (abs(spiralDamping)*2 * np.pi *spiralFreqHz)
-                
-            # Build lateral state space system
-            latSys = ss(ALat,BLat,CLat,DLat) 
-            
-            # Inertial coupling susceptibility
-            # See Etkin & Reid pg. 118
-            Mw     = 0.5 * rho * u0 * c_ref * S_ref * results.stability.static.cm_alpha;
-            Nv     = 0.5 * rho * u0 * b_ref * S_ref * results.stability.static.cn_beta;      
-            results.stability.dynamic.pMax = min(min(np.sqrt(-Mw * u0 /(Izz - Ixx))) , min(np.sqrt(Nv * u0/(Iyy-Ixx)))) # check with Monica (removed -ve sign on Nv)
-            
-            # -----------------------------------------------------------------------------------------------------------------------  
-            # Store Results
-            # -----------------------------------------------------------------------------------------------------------------------  
-            results.stability.dynamic.lonSys                      = lonSys                                     
-            results.stability.dynamic.phugoidFreqHz               = phugoidFreqHz
-            results.stability.dynamic.phugoidDamp                 = phugoidDamping
-            results.stability.dynamic.phugoidTimeDoubleHalf       = phugoidTimeDoubleHalf
-            results.stability.dynamic.shortPeriodFreqHz           = shortPeriodFreqHz
-            results.stability.dynamic.shortPeriodDamp             = shortPeriodDamping
-            results.stability.dynamic.shortPeriodTimeDoubleHalf   = shortPeriodTimeDoubleHalf
+        # Dynamic Stability
+        if np.count_nonzero(self.geometry.mass_properties.moments_of_inertia) > 0:  
+                results = compute_dynamic_flight_modes(results,self.geometry,run_conditions,cases)        
              
-            results.stability.dynamic.latSys                      = latSys
-            results.stability.dynamic.dutchRollFreqHz             = dutchRollFreqHz
-            results.stability.dynamic.dutchRollDamping            = dutchRollDamping 
-            results.stability.dynamic.dutchRollTimeDoubleHalf     = dutchRollTimeDoubleHalf
-            results.stability.dynamic.rollSubsistenceFreqHz       = rollSubsistenceFreqHz
-            results.stability.dynamic.rollSubsistenceTimeConstant = rollSubsistenceTimeConstant
-            results.stability.dynamic.rollSubsistenceDamning      = rollSubsistenceDamping
-            results.stability.dynamic.spiralFreqHz                = spiralFreqHz
-            results.stability.dynamic.spiralTimeDoubleHalf        = spiralTimeDoubleHalf
-            results.stability.dynamic.spiralDamping               = spiralDamping 
-    
+        if not self.keep_files:
+            rmtree( run_folder )           
+ 
         return results

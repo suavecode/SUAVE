@@ -60,7 +60,7 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
     d_isa_vec = [0, 10]
     if imperial:
         speed_vec = np.linspace(0, 450, 10) * Units.knots
-        hp_vec = np.linspace(0, 50000, 11) / Units.ft
+        hp_vec = np.linspace(0, 50000, 11) * Units.ft
 
     elif SI:
         speed_vec = np.linspace(0, 225, 10) * Units['m/s']

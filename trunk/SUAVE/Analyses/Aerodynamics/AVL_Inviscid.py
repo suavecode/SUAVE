@@ -70,7 +70,8 @@ class AVL_Inviscid(Aerodynamics):
         """          
         self.tag                             = 'avl'
         self.keep_files                      = False
-                
+        self.save_regression_results         = False     
+        
         self.current_status                  = Data()        
         self.current_status.batch_index      = 0
         self.current_status.batch_file       = None
@@ -83,8 +84,7 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.filenames.err_filename = sys.stderr        
         self.settings.spanwise_vortices      = 20
         self.settings.chordwise_vortices     = 10
-        self.settings.Trim                   = False
-        self.settings.Eigen_Modes            = False
+        self.settings.Trim                   = False 
         
         # Conditions table, used for surrogate model training
         self.training                        = Data()   
@@ -227,7 +227,6 @@ class AVL_Inviscid(Aerodynamics):
         geometry    = self.geometry
         training    = self.training   
         Trim        = self.settings.Trim
-        Eigen_Modes = self.settings.Eigen_Modes
         
         AoA         = training.angle_of_attack
         mach        = training.Mach   
@@ -241,9 +240,10 @@ class AVL_Inviscid(Aerodynamics):
         xy          = np.zeros([table_size,2])  
         count       = 0
         
-        # remove old files in run directory  
-        if not self.regression_flag:
-            rmtree(run_folder)
+        # remove old files in run directory
+        if os.path.exists('avl_files'):
+            if not self.regression_flag:
+                rmtree(run_folder)
             
         for i,_ in enumerate(mach):
             for j,_ in enumerate(AoA):
@@ -251,20 +251,15 @@ class AVL_Inviscid(Aerodynamics):
         for j,_ in enumerate(mach):
             # Set training conditions
             run_conditions = Aerodynamics()
-            if geometry.mass_properties.mass == 0:
-                run_conditions.weights.total_mass = geometry.mass_properties.max_takeoff
-            elif geometry.mass_properties.max_takeoff == 0:
-                run_conditions.weights.total_mass = geometry.mass_properties.mass
-            else:
-                raise AttributeError("Specify Vehicle Mass")
             run_conditions.freestream.density           = 1.2
             run_conditions.freestream.gravity           = 9.81        
             run_conditions.aerodynamics.angle_of_attack = AoA 
             run_conditions.aerodynamics.side_slip_angle = 0 
             run_conditions.freestream.mach_number       = mach[j]
+            run_conditions.freestream.velocity          = mach[j] * run_conditions.freestream.speed_of_sound
             
             #Run Analysis at AoA[i] and mach[j]
-            results =  self.evaluate_conditions(geometry,run_conditions, Trim, Eigen_Modes)
+            results =  self.evaluate_conditions(run_conditions, Trim)
             
             # Obtain CD , CL and e  
             CL[count*len(mach):(count+1)*len(mach),0]   = results.aerodynamics.lift_coefficient[:,0]
@@ -281,7 +276,8 @@ class AVL_Inviscid(Aerodynamics):
             e          = data_array[:,4:5]
             
         # Save the data for regression
-        #np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD,e]),fmt='%10.8f',header='   AoA      Mach     CL     CD    e ')
+        if self.save_regression_results:
+            np.savetxt(geometry.tag+'_data_aerodynamics.txt',np.hstack([xy,CL,CD,e]),fmt='%10.8f',header='   AoA      Mach     CL     CD    e ')
         
         # Store training data
         training.coefficients = np.hstack([CL,CD,e])
@@ -342,7 +338,7 @@ class AVL_Inviscid(Aerodynamics):
 #  Helper Functions
 # ----------------------------------------------------------------------
         
-    def evaluate_conditions(self,geometry,run_conditions, Trim , Eigen_Modes):
+    def evaluate_conditions(self,run_conditions, Trim ):
         """Process vehicle to setup geometry, condititon, and configuration.
 
         Assumptions:
@@ -375,16 +371,17 @@ class AVL_Inviscid(Aerodynamics):
         # unpack
         run_folder                       = os.path.abspath(self.settings.filenames.run_folder)
         run_script_path                  = run_folder.rstrip('avl_files').rstrip('/')   
-        aero_results_template_1          = self.settings.filenames.aero_output_template_1       # 'stability_derivatives_{}.dat' 
+        aero_results_template_1          = self.settings.filenames.aero_output_template_1       # 'stability_axis_derivatives_{}.dat' 
         aero_results_template_2          = self.settings.filenames.aero_output_template_2       # 'surface_forces_{}.dat'
         aero_results_template_3          = self.settings.filenames.aero_output_template_3       # 'strip_forces_{}.dat'      
+        aero_results_template_4          = self.settings.filenames.aero_output_template_4       # 'body_axis_derivatives_{}.dat' 
         dynamic_results_template_1       = self.settings.filenames.dynamic_output_template_1    # 'eigen_mode_{}.dat'
         dynamic_results_template_2       = self.settings.filenames.dynamic_output_template_2    # 'system_matrix_{}.dat'
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template 
         
         # rename defaul avl aircraft tag
-        self.tag                         = 'avl_analysis_of_{}'.format(geometry.tag) 
+        self.tag                         = 'avl_analysis_of_{}'.format(self.geometry.tag) 
         self.settings.filenames.features = self.geometry._base.tag + '.avl'
         self.settings.filenames.mass_file= self.geometry._base.tag + '.mass'
         
@@ -416,7 +413,7 @@ class AVL_Inviscid(Aerodynamics):
                         num_cs  +=  1
 
         # translate conditions
-        cases                            = translate_conditions_to_cases(self,geometry,run_conditions)    
+        cases                            = translate_conditions_to_cases(self,run_conditions)    
         for case in cases:
             cases[case].stability_and_control.number_control_surfaces = num_cs
             cases[case].stability_and_control.control_surface_names   = cs_names
@@ -424,9 +421,10 @@ class AVL_Inviscid(Aerodynamics):
         
        # write case filenames using the templates defined in MACE/Analyses/AVL/AVL_Data_Classes/Settings.py 
         for case in cases:  
-            cases[case].aero_result_filename_1     = aero_results_template_1.format(case)        # 'stability_derivatives_{}.dat'  
+            cases[case].aero_result_filename_1     = aero_results_template_1.format(case)        # 'stability_axis_derivatives_{}.dat'  
             cases[case].aero_result_filename_2     = aero_results_template_2.format(case)        # 'surface_forces_{}.dat'
-            cases[case].aero_result_filename_3     = aero_results_template_3.format(case)        # 'strip_forces_{}.dat'            
+            cases[case].aero_result_filename_3     = aero_results_template_3.format(case)        # 'strip_forces_{}.dat'          
+            cases[case].aero_result_filename_4     = aero_results_template_4.format(case)        # 'body_axis_derivatives_{}.dat'            
             cases[case].eigen_result_filename_1    = dynamic_results_template_1.format(case)     # 'eigen_mode_{}.dat'
             cases[case].eigen_result_filename_2    = dynamic_results_template_2.format(case)     # 'system_matrix_{}.dat'
         
@@ -438,13 +436,13 @@ class AVL_Inviscid(Aerodynamics):
             write_geometry(self,run_script_path)
             write_mass_file(self,run_conditions)
             write_run_cases(self,Trim)
-            write_input_deck(self, Trim, Eigen_Modes)
+            write_input_deck(self, Trim)
 
             # RUN AVL!
-            results_avl = run_analysis(self,Eigen_Modes)
+            results_avl = run_analysis(self)
     
         # translate results
-        results = translate_results_to_conditions(cases,results_avl,Eigen_Modes)
+        results = translate_results_to_conditions(cases,results_avl)
     
         if not self.keep_files:
             rmtree( run_folder )

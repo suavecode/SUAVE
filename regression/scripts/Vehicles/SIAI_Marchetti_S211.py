@@ -48,7 +48,7 @@ def vehicle_setup():
     
     span_location_mac                         =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     mac_le_offset                             =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
-
+    wing.mass_properties.center_of_gravity[0] =.3*wing.chords.mean_aerodynamic+mac_le_offset
     
     Mach                                      = np.array([0.111])
     conditions                                = Data()
@@ -93,17 +93,19 @@ def vehicle_setup():
     wing.symmetric                            = True
     wing.vertical                             = False
     wing.dynamic_pressure_ratio               = 0.9 
-    main_wing_ar                              = wing.aspect_ratio    
+    main_wing_ar                              = wing.aspect_ratio
+    
     wing.aerodynamic_center                   = np.array([trapezoid_ac_x(wing), 0.0, 0.0])
     wing.CL_alpha                             = datcom(wing,Mach)
     main_wing_CLa                             = wing.CL_alpha
     wing.ep_alpha                             = 2.0*main_wing_CLa/np.pi/main_wing_ar
     span_location_mac                         = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     mac_le_offset                             =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
- 
+    wing.mass_properties.center_of_gravity[0] =.3*wing.chords.mean_aerodynamic+mac_le_offset
     
     vehicle.append_component(wing)
     
+    # fuselage 
     fuselage                                  = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag                              = 'fuselage'
     fuselage.x_root_quarter_chord             = 12.67 * Units.feet
@@ -111,14 +113,12 @@ def vehicle_setup():
     fuselage.width                            = ((2.94+5.9)/2)   * Units.feet 
     vehicle.append_component(fuselage)
     
-    wing.mass_properties.center_of_gravity[0] =.3*wing.chords.mean_aerodynamic+mac_le_offset
-    
+    # fuel    
     fuel                                      = SUAVE.Components.Physical_Component()
     fuel.origin                               = wing.origin
     fuel.mass_properties.center_of_gravity    = wing.mass_properties.center_of_gravity
     fuel.mass_properties.mass                 = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
-                                                               
-    
+      
     #find zero_fuel_center_of_gravity
     cg                   = vehicle.mass_properties.center_of_gravity
     MTOW                 = vehicle.mass_properties.max_takeoff

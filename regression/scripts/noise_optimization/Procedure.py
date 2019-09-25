@@ -471,7 +471,7 @@ def compute_noise(config,analyses,noise_segment):
     outputfile        = config.output_file
     outputfile_engine = config.output_file_engine
     print_output      = config.print_output
-    engine_flag       = config.engine_flag  # remove engine noise component from the approach segment
+    engine_flag       = config.engine_flag  #remove engine noise component from the approach segment
     
     geometric = noise_geometric(noise_segment,analyses,config)
     

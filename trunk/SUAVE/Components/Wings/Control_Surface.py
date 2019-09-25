@@ -24,10 +24,15 @@ class Control_Surface(Component):
     def __defaults__(self):
         """This sets the default values of control surfaces defined in SUAVE. 
         sign_duplicate: 1.0 or -1.0 - the sign of the duplicate control on the mirror wing.
+        
         Use 1.0 for a mirrored control surface, like an elevator. Use -1.0 for an aileron.
+        
         The span fraction is given by the array shown below:  
         [abs. % span location at beginning of crtl surf, abs. % span location at end  of crtl surf]
-
+        
+        The function argumentis a string that defines the function of a control surface. Options
+        are 'elevator','rudder','flap', 'aileron' and 'slat'
+        
         Assumptions:
         None
 
@@ -45,7 +50,7 @@ class Control_Surface(Component):
         """         
 
         self.tag                   = 'control_surface' 
-        self.function              = 'unspecified' # This is a string argument which defines the function of a control surface. Options are 'elevator','rudder','flap', 'aileron' and 'slat'
+        self.function              = 'unspecified' 
         self.span                  = 0.0
         self.span_fraction_start   = 0.0
         self.span_fraction_end     = 0.0

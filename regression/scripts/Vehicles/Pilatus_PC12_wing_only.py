@@ -31,31 +31,32 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     # mass properties
-    vehicle.mass_properties.max_takeoff     = 4762.0 * Units.kilogram      
-    vehicle.mass_properties.takeoff         = 4762.0 * Units.kilogram   
+    vehicle.mass_properties.max_takeoff               = 4762.0 * Units.kilogram      
+    vehicle.mass_properties.takeoff                   = 4762.0 * Units.kilogram   
   
     
     # envelope properties
-    vehicle.envelope.category               = 'utility'
-    vehicle.envelope.FAR_part_number 	    = 23
-    vehicle.envelope.limit_loads.positive   = 3.3
-    vehicle.envelope.limit_loads.negative   = -1.32
-    vehicle.envelope.cruise_mach 	    = 0.35
+    vehicle.envelope.category                   = 'utility'
+    vehicle.envelope.FAR_part_number 	        = 23
+    vehicle.envelope.limit_loads.positive    	= 3.3
+    vehicle.envelope.limit_loads.negative    	= -1.32
+    vehicle.envelope.cruise_mach 	        = 0.35
 
     # aerodynamic properties
-    vehicle.maximum_lift_coefficient        = 1.4
-    vehicle.minimum_lift_coefficient        = -1.24
-                                            
-    # basic parameters                      
-    vehicle.reference_area                  = 25.81 * Units['meters**2']  
-    vehicle.passengers                      = 1
-                                                
+    vehicle.maximum_lift_coefficient = 1.4
+    vehicle.minimum_lift_coefficient = -1.24
+
+    # basic parameters
+    vehicle.reference_area         = 25.81 * Units['meters**2']  
+    vehicle.passengers             = 1
+
     # ------------------------------------------------------------------        
     #   Main Wing
     # ------------------------------------------------------------------        
     
-    wing                         = SUAVE.Components.Wings.Main_Wing()
-    wing.tag                     = 'main_wing'
+    wing = SUAVE.Components.Wings.Main_Wing()
+    wing.tag = 'main_wing'
+    
     wing.aspect_ratio            = 10.3
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
     wing.thickness_to_chord      = 0.15

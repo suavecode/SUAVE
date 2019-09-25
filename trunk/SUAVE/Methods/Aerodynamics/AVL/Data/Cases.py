@@ -39,7 +39,7 @@ class Run_Case(Data):
     
     def __defaults__(self):
         """Defines the data structure and defaults of aerodynamics coefficients, 
-        body derivatives and stability derivatives   
+        body axis derivatives and stability axis derivatives   
 
         Assumptions:
             None
@@ -78,19 +78,14 @@ class Run_Case(Data):
 
         self.stability_and_control.control_surface_names     = None
         self.stability_and_control.control_surface_functions = None
-        self.stability_and_control.number_control_surfaces = 0
+        self.stability_and_control.number_control_surfaces   = 0
         self.conditions.freestream      = free
         self.conditions.aerodynamics    = aero
 
         self.aero_result_filename_1     = None
         self.aero_result_filename_2     = None
-        self.aero_result_filename_3     = None
+        self.aero_result_filename_3     = None 
         self.aero_result_filename_4     = None
-        self.aero_result_filename_5     = None
-        self.aero_result_filename_6     = None
-        self.aero_result_filename_7     = None
-        self.aero_result_filename_8     = None 
-        self.aero_result_filename_9     = None      
         self.eigen_result_filename_1    = None 
         self.eigen_result_filename_2    = None 
         return

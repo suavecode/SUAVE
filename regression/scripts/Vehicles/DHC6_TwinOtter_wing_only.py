@@ -31,24 +31,24 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     # mass properties
-    vehicle.mass_properties.max_takeoff    = 5670.0 * Units.kilogram      
-    vehicle.mass_properties.takeoff        = 5670.0 * Units.kilogram   
+    vehicle.mass_properties.max_takeoff               = 5670.0 * Units.kilogram      
+    vehicle.mass_properties.takeoff                   = 5670.0 * Units.kilogram   
   
     
     # envelope properties
-    vehicle.envelope.category              = 'commuter'
-    vehicle.envelope.FAR_part_number 	   = 23
-    vehicle.envelope.limit_loads.positive  = 3
-    vehicle.envelope.limit_loads.negative  = -1
-    vehicle.envelope.cruise_mach 	   = 0.3
+    vehicle.envelope.category                   = 'commuter'
+    vehicle.envelope.FAR_part_number 	        = 23
+    vehicle.envelope.limit_loads.positive    	= 3
+    vehicle.envelope.limit_loads.negative    	= -1
+    vehicle.envelope.cruise_mach 	        = 0.3
 
     # aerodynamic properties
-    vehicle.maximum_lift_coefficient       = 1.4
-    vehicle.minimum_lift_coefficient       = -1.24
-                                           
-    # basic parameters                     
-    vehicle.reference_area                 = 39.00 * Units['meters**2']  
-    vehicle.passengers                     = 1
+    vehicle.maximum_lift_coefficient = 1.4
+    vehicle.minimum_lift_coefficient = -1.24
+
+    # basic parameters
+    vehicle.reference_area         = 39.00 * Units['meters**2']  
+    vehicle.passengers             = 1
 
     # ------------------------------------------------------------------        
     #   Main Wing

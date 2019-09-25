@@ -30,9 +30,9 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
     
     # mass properties
-    vehicle.mass_properties.max_takeoff      = 598.7 * Units.kilogram 
-    vehicle.mass_properties.takeoff          = 598.7 * Units.kilogram   
-    vehicle.mass_properties.cargo            =  59.0  * Units.kilogram   
+    vehicle.mass_properties.max_takeoff               = 598.7 * Units.kilogram 
+    vehicle.mass_properties.takeoff                   = 598.7 * Units.kilogram   
+    vehicle.mass_properties.cargo                     =  59.0  * Units.kilogram   
     
     # envelope properties
     vehicle.envelope.category 	             = 'normal'
@@ -42,12 +42,11 @@ def vehicle_setup():
     vehicle.envelope.cruise_mach             = 0.16
 
     # aerodynamic properties
-    vehicle.maximum_lift_coefficient = 1.45	     
-    vehicle.minimum_lift_coefficient = -1.0	     
+    vehicle.maximum_lift_coefficient = 1.45
+    vehicle.minimum_lift_coefficient = -1.0
 
-                                           
-    # basic parameters                      
-    vehicle.reference_area         = 12.077 * Units['meters**2'] 
+    # basic parameters
+    vehicle.reference_area         = 12.077 * Units['meters**2']  
     vehicle.passengers             = 3
 
     # ------------------------------------------------------------------        

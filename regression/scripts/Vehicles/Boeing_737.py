@@ -34,7 +34,8 @@ def vehicle_setup():
     vehicle.mass_properties.max_zero_fuel             = 62732.0   # kg #0.9 * vehicle.mass_properties.max_takeoff
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     vehicle.mass_properties.center_of_gravity         = [ 15.30987849,   0.        ,  -0.48023939]
-
+    vehicle.mass_properties.moments_of_inertia        = [[3173074.17, 0 , 28752.77565],[0 , 3019041.443, 0],[0, 0, 5730017.433]] # estimated, not correct 
+    
     # envelope properties
     vehicle.envelope.ultimate_load        = 2.5
     vehicle.envelope.limit_load           = 1.5

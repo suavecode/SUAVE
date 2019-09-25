@@ -3,3 +3,4 @@
 
 from . import Approximations
 from . import Full_Linearized_Equations
+from .compute_dynamic_flight_modes import compute_dynamic_flight_modes

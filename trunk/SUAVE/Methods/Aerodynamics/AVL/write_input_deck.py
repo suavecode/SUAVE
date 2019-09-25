@@ -12,7 +12,7 @@
 from .purge_files import purge_files
 
 ## @ingroup Methods-Aerodynamics-AVL
-def write_input_deck(avl_object,Trim, Eigen_Modes):
+def write_input_deck(avl_object,Trim):
     """ This fucntions writes the execution steps used in the AVL call
 
     Assumptions:
@@ -62,11 +62,6 @@ G
             case_command = make_case_command(avl_object,case,Trim)
             input_deck.write(case_command)
 
-        #write store dynamics stability result files 
-        if Eigen_Modes:
-            em_case_command = make_eigen_mode_case_command(avl_object,case)
-            input_deck.write(em_case_command)
-
         input_deck.write('\nQUIT\n')
 
     return
@@ -103,6 +98,8 @@ x
 {5}
 {6}
 {7}
+{8}
+{9}
 ''' 
     # if trim analysis is specified, this function writes the trim commands 
     if Trim:
@@ -114,14 +111,16 @@ x
     case_tag       = case.tag
     
     # AVL executable commands which correlate to particular result types 
-    aero_command_1 = 'st' # stability derivatives   
+    aero_command_1 = 'st' # stability axis derivatives   
     aero_command_2 = 'fn' # surface forces 
-    aero_command_3 = 'fs' # strip forces     
+    aero_command_3 = 'fs' # strip forces 
+    aero_command_4 = 'sb' # body axis derivatives 
                    
     # create aliases for filenames for future handling
     aero_file_1    = case.aero_result_filename_1 
     aero_file_2    = case.aero_result_filename_2 
-    aero_file_3    = case.aero_result_filename_3  
+    aero_file_3    = case.aero_result_filename_3 
+    aero_file_4    = case.aero_result_filename_4
     
     # purge files 
     if not avl_object.keep_files:
@@ -131,7 +130,7 @@ x
     
     # write input deck for avl executable 
     case_command = base_case_command.format(index,trim_command,aero_command_1 , aero_file_1 ,aero_command_2  \
-                                            , aero_file_2 , aero_command_3 , aero_file_3) 
+                                            , aero_file_2 , aero_command_3 , aero_file_3, aero_command_4 , aero_file_4) 
         
     return case_command
 
@@ -175,53 +174,6 @@ c1
     trim_command = base_trim_command.format(condition,val)
     
     return trim_command
-
-def make_eigen_mode_case_command(avl_object,case):    
-    """Writes the commands for obtaining the eigen modes of the vehicle
-    eigen mode input deck template for AVL executable
-
-    Assumptions:
-        None
-        
-    Source:
-        None
-
-    Inputs:
-        avl_object
-        case
-
-    Outputs:
-        em_case_command
- 
-    Properties Used:
-        N/A
-    """ 
-    em_base_case_command = \
-'''
-MODE
-n
-w
-{0}
-s
-{1}
-''' 
-
-    # create aliases for result filenames for future handling 
-    em_results_file_1 = case.eigen_result_filename_1
-    em_results_file_2 = case.eigen_result_filename_2
-    
-    # purge old eigen mode result files  
-    if not case.keep_files:    
-        purge_files([em_results_file_1])
-        purge_files([em_results_file_2])
-        
-    # write commands into template 
-    
-    em_case_command = em_base_case_command.format(em_results_file_1,em_results_file_2)
-
-    return em_case_command
-
-
 
 def control_surface_deflection_command(case,aircraft): 
     """Writes the control surface command template

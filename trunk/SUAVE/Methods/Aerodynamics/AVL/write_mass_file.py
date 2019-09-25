@@ -65,12 +65,12 @@ rho = {2}
         # Unpack inputs
         name    = avl_object.geometry._base.tag
         density = run_conditions.freestream.density 
-        gravity = run_conditions.freestream.gravitational_acceleration
+        gravity = run_conditions.freestream.gravity
         
         if aircraft.mass_properties.mass == 0:
             mass = aircraft.mass_properties.max_takeoff
         elif aircraft.mass_properties.max_takeoff == 0:
-            rmass = aircraft.mass_properties.mass
+            mass = aircraft.mass_properties.mass
         else:
             raise AttributeError("Specify Vehicle Mass")
          

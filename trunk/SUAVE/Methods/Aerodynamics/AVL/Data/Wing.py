@@ -220,7 +220,7 @@ class Control_Surface_Results(Data):
 		""" Sets the defaults of the control surface on the aircraft wing
 		"""   		
 		self.tag                 = 'control_surface'
-		self.deflection    = 0.0
+		self.deflection          = 0.0
 		self.CL                  = 0.0
 		self.CY                  = 0.0
 		self.Cl                  = 0.0

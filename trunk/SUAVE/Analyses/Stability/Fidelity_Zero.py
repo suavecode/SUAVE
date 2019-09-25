@@ -112,7 +112,7 @@ class Fidelity_Zero(Stability):
 
         Inputs:
         conditions - DataDict() of aerodynamic conditions
-        results    - DataDict() of moment coeffients and stability derivatives
+        results    - DataDict() of moment coeffients and stability and body axis derivatives
 
         Outputs:
         None
@@ -213,7 +213,7 @@ class Fidelity_Zero(Stability):
             # Dynamic Stability Full Linearized Methods
             if stability.static.Cy_beta != 0 and stability.static.Cl_p.all() != 0 and stability.static.Cl_beta.all() != 0:
                 theta = conditions.frames.wind.body_rotations[:,1]
-                stability.static.Cl_psi       = Supporting_Functions.cy_psi(aero.lift_coefficient, theta)
+                stability.static.Cy_psi       = Supporting_Functions.cy_psi(aero.lift_coefficient, theta)
                 stability.static.CL_u         = 0
                 stability.static.Cz_u         = Supporting_Functions.cz_u(aero.lift_coefficient,velocity,stability.static.cL_u)
                 stability.static.Cz_alpha_dot = Supporting_Functions.cz_alphadot(stability.static.Cm_alpha, geometry.wings['horizontal_stabilizer'].ep_alpha)

@@ -18,7 +18,7 @@ from SUAVE.Methods.Aerodynamics.AVL.purge_files  import purge_files
 from SUAVE.Core                                  import redirect
 
 ## @ingroup Methods-Aerodynamics-AVL
-def run_analysis(avl_object ,Eigen_Modes):
+def run_analysis(avl_object):
     """ This calls the AVL executable and runs an analysis
 
     Assumptions:
@@ -37,7 +37,7 @@ def run_analysis(avl_object ,Eigen_Modes):
         N/A
     """    
     call_avl(avl_object)
-    results = read_results(avl_object,Eigen_Modes)
+    results = read_results(avl_object)
 
     return results
 
