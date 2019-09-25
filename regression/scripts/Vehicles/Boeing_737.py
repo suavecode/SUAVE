@@ -130,12 +130,7 @@ def vehicle_setup():
     control_surface.deflection            = 0.0 * Units.degrees
     control_surface.configuration_type    = 'double_slotted'
     control_surface.chord_fraction        = 0.30   
-    wing.append_control_surface(control_surface)    
-    
-    #wing.flaps.chord      =  0.30   
-    #wing.flaps.span_start =  0.10   # ->     wing.flaps.area = 97.1112
-    #wing.flaps.span_end   =  0.75
-    #wing.flaps.type       = 'double_slotted'  # -> wing.flaps.number_slots = 2
+    wing.append_control_surface(control_surface)   
         
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
     control_surface.tag                   = 'slat'
@@ -223,7 +218,7 @@ def vehicle_setup():
     wing                                  = SUAVE.Components.Wings.Wing()
     wing.tag                              = 'vertical_stabilizer'    
     wing.aspect_ratio                     = 1.91
-    wing.sweep                            = 25. * Units.deg
+    wing.sweeps.quarter_chord             = 25. * Units.deg
     wing.thickness_to_chord               = 0.08
     wing.taper                            = 0.25
     wing.span_efficiency                  = 0.9
@@ -262,7 +257,7 @@ def vehicle_setup():
                                           
     segment                               = SUAVE.Components.Wings.Segment() 
     segment.tag                           = 'segment_2'
-    segment.percent_span_location         = 0.961
+    segment.percent_span_location         = 1.0
     segment.twist                         = 0. * Units.deg
     segment.root_chord_percent            = 0.175
     segment.dihedral_outboard             = 0.0 * Units.degrees

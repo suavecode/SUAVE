@@ -16,7 +16,7 @@ cruise
 SURFACE
 main_wing
 #Nchordwise  Cspace   Nspanwise  Sspace
-10         1.0         20      1.0
+10         1.0         30      1.0
 
 YDUPLICATE
 0.0
@@ -31,12 +31,12 @@ B737a.txt
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-14.081205561907638  2.574    -1.2680397865247315    5.963703703703704    0.04045142444287879     
+13.924137041271758  1.7160000000000002    -1.2686931910164876    6.562469135802469    0.05023867298851025     
 
 AFILE
 B737b.txt
 CONTROL
-flap    1.0   0.81   0. 0. 0.  1.0
+flap    1.0   0.7   0. 0. 0.  1.0
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
@@ -44,6 +44,8 @@ SECTION
 
 AFILE
 B737c.txt
+CONTROL
+flap    1.0   0.7   0. 0. 0.  1.0
 CONTROL
 slat    1.0   -0.9   0. 0. 0.  1.0
 
@@ -55,6 +57,15 @@ AFILE
 B737c.txt
 CONTROL
 aileron    1.0   0.84   0. 0. 0.  -1.0
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+15.045609061585779  12.870000000000001    -1.2535185160082583    2.4314666666666667    0.0005077931772188462     
+
+AFILE
+B737c.txt
+CONTROL
+flap    1.0   0.7   0. 0. 0.  1.0
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
@@ -79,7 +90,7 @@ B737c.txt
 SURFACE
 horizontal_stabilizer
 #Nchordwise  Cspace   Nspanwise  Sspace
-10         1.0         20      1.0
+10         1.0         30      1.0
 
 YDUPLICATE
 0.0
@@ -110,7 +121,7 @@ SECTION
 SURFACE
 vertical_stabilizer
 #Nchordwise  Cspace   Nspanwise  Sspace
-10         1.0         20      -1.1 
+10         1.0         30      -1.1 
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
@@ -122,7 +133,7 @@ SECTION
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-30.562871778198357  0.0    9.006969999999999    1.43325    0.0     
+30.565641101791456  0.0    9.31    1.43325    0.0     
 
 
 #---------------------------------------------------------

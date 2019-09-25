@@ -442,14 +442,13 @@ class AVL(Stability):
         cs_functions = []
         for wing in self.geometry.wings: # this parses through the wings to determine how many control surfaces does the vehicle have 
             if wing.control_surfaces:
-                wing = append_ctrl_surf_to_wing_segments(wing)             
-            for seg in wing.Segments:
-                section_cs = len(wing.Segments[seg].control_surfaces)
-                if section_cs != 0:
-                    for cs_idx in wing.Segments[seg].control_surfaces:
-                        cs_names.append(cs_idx.tag)  
-                        cs_functions.append(cs_idx.function) 
-                        num_cs  +=  1
+                wing = append_ctrl_surf_to_wing_segments(wing)     
+                num_cs_on_wing = len(wing.control_surfaces)
+                num_cs +=  num_cs_on_wing
+                for cs in wing.control_surfaces:
+                    ctrl_surf = wing.control_surfaces[cs]     
+                    cs_names.append(ctrl_surf.tag)  
+                    cs_functions.append(ctrl_surf.function)   
         
         # translate conditions
         cases                            = translate_conditions_to_cases(self, run_conditions)    

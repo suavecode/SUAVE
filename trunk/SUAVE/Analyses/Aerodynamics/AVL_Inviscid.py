@@ -394,23 +394,17 @@ class AVL_Inviscid(Aerodynamics):
         # control surfaces
         num_cs       = 0
         cs_names     = []
-        cs_functions = []
-        LongMode_idx = []
-        LatMode_idx  = []
+        cs_functions = [] 
+        
         for wing in self.geometry.wings: # this parses through the wings to determine how many control surfaces does the vehicle have 
             if wing.control_surfaces:
-                wing = append_ctrl_surf_to_wing_segments(wing)             
-            for seg in wing.Segments:
-                section_cs = len(wing.Segments[seg].control_surfaces)
-                if section_cs != 0:
-                    for cs_idx in wing.Segments[seg].control_surfaces:
-                        cs_names.append(cs_idx.tag)  
-                        cs_functions.append(cs_idx.function) 
-                        if cs_idx.function == 'flap' or cs_idx.function == 'elevator' or cs_idx.function == 'slat': 
-                            LongMode_idx.append(num_cs)
-                        if cs_idx.function == 'aileron' or cs_idx.function == 'rudder': 
-                            LatMode_idx.append(num_cs)   
-                        num_cs  +=  1
+                wing = append_ctrl_surf_to_wing_segments(wing)     
+                num_cs_on_wing = len(wing.control_surfaces)
+                num_cs +=  num_cs_on_wing
+                for cs in wing.control_surfaces:
+                    ctrl_surf = wing.control_surfaces[cs]     
+                    cs_names.append(ctrl_surf.tag)  
+                    cs_functions.append(ctrl_surf.function)   
 
         # translate conditions
         cases                            = translate_conditions_to_cases(self,run_conditions)    
@@ -427,9 +421,6 @@ class AVL_Inviscid(Aerodynamics):
             cases[case].aero_result_filename_4     = aero_results_template_4.format(case)        # 'body_axis_derivatives_{}.dat'            
             cases[case].eigen_result_filename_1    = dynamic_results_template_1.format(case)     # 'eigen_mode_{}.dat'
             cases[case].eigen_result_filename_2    = dynamic_results_template_2.format(case)     # 'system_matrix_{}.dat'
-        
-        # Do not run eigen mode analysis for aero analysis  
-        EigenModes = False 
         
         # write the input files
         with redirect.folder(run_folder,force=False):
