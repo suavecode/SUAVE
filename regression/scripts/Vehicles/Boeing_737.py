@@ -125,12 +125,18 @@ def vehicle_setup():
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
     control_surface.tag                   = 'flap'
     control_surface.function              = 'flap' 
-    control_surface.span_fraction_start   = 0.15 
-    control_surface.span_fraction_end     = 0.324    
+    control_surface.span_fraction_start   = 0.10 
+    control_surface.span_fraction_end     = 0.75   
     control_surface.deflection            = 1.0 * Units.degrees
-    control_surface.chord_fraction        = 0.19    
+    control_surface.configuration_type    = 'double_slotted'
+    control_surface.chord_fraction        = 0.30   
     wing.append_control_surface(control_surface)    
     
+    #wing.flaps.chord      =  0.30   
+    #wing.flaps.span_start =  0.10   # ->     wing.flaps.area = 97.1112
+    #wing.flaps.span_end   =  0.75
+    #wing.flaps.type       = 'double_slotted'  # -> wing.flaps.number_slots = 2
+        
     control_surface                       = SUAVE.Components.Wings.Control_Surface() 
     control_surface.tag                   = 'slat'
     control_surface.function              = 'slat' 

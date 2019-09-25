@@ -21,6 +21,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 # ----------------------------------------------------------------------
 
 def vehicle_setup():
+
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
     # ------------------------------------------------------------------
@@ -40,6 +41,7 @@ def vehicle_setup():
     vehicle.mass_properties.max_payload               = 13063.   # kg
     vehicle.mass_properties.max_fuel                  = 12971.   # kg
     vehicle.mass_properties.cargo                     =     0.0  # kg
+
     vehicle.mass_properties.center_of_gravity         = [16.8, 0, 1.6]#[[60 * Units.feet, 0, 0]]  # Not correct
     vehicle.mass_properties.moments_of_inertia        = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
 

@@ -455,7 +455,7 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.altitude_end = 10.5   * Units.km
+    segment.altitude_end = 10.668 * Units.km
     segment.air_speed    = 226.0  * Units['m/s']
     segment.climb_rate   = 3.0    * Units['m/s']
 
@@ -472,9 +472,8 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.altitude  = 10.668 * Units.km # small jump to test altitude updating
-    segment.air_speed = 230.412 * Units['m/s']
-    segment.distance  = (3933.65 + 770 - 92.6) * Units.km
+    segment.air_speed  = 230.412 * Units['m/s']
+    segment.distance   = (3933.65 + 770 - 92.6) * Units.km
     
     segment.state.numerics.number_control_points = 10
 
@@ -491,10 +490,9 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.altitude_start = 10.5 * Units.km # small jump to test altitude updating
-    segment.altitude_end   = 8.0   * Units.km
-    segment.air_speed      = 220.0 * Units['m/s']
-    segment.descent_rate   = 4.5   * Units['m/s']
+    segment.altitude_end = 8.0   * Units.km
+    segment.air_speed    = 220.0 * Units['m/s']
+    segment.descent_rate = 4.5   * Units['m/s']
 
     # add to mission
     mission.append_segment(segment)
