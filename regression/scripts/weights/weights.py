@@ -30,11 +30,11 @@ def main():
     
     # regression values    
     actual = Data()
-    actual.payload         = 27349.9081525      #includes cargo #17349.9081525 #without cargo
+    actual.payload         = 27349.9081525      # includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.587065500002
     actual.bag             = 2313.3210870000003
-    actual.fuel            = 12812.797089601117 #includes cargo #22177.6377131 #without cargo
-    actual.empty           = 38853.094757898885
+    actual.fuel            = 12743.06871035153  # includes cargo #22177.6377131 #without cargo
+    actual.empty           = 38922.82313714847
     actual.wing            = 6651.456476395286
     actual.fuselage        = 6595.57965761445
     actual.propulsion      = 6838.185174956626
@@ -42,8 +42,8 @@ def main():
     actual.systems         = 13609.865967525631
     actual.wt_furnish      = 6431.803728889001
     actual.horizontal_tail = 1187.505678844735
-    actual.vertical_tail   = 578.4784304015376
-    actual.rudder          = 231.39137216061505
+    actual.vertical_tail   = 628.2844155798182
+    actual.rudder          = 251.31376623192727
     
     # error calculations
     error                 = Data()
