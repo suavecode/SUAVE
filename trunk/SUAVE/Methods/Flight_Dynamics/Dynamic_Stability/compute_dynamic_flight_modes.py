@@ -12,7 +12,6 @@ import numpy as np
 
 # SUAVE Imports
 from SUAVE.Core                                        import Data , Units  
-from control.matlab import ss  # control toolbox needed in python. Run "pip (or pip3) install control"
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.Full_Linearized_Equations import Supporting_Functions as Supporting_Functions
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 ## @ingroup Analyses-AVL
@@ -273,12 +272,13 @@ def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases):
         spiralDamping[i]        = - np.sign(LatModes[i,spiralInd].real)
         spiralTimeDoubleHalf[i] = np.log(2) / abs(2 * np.pi * spiralFreqHz[i] * spiralDamping[i])
          
-    # Build longitudinal and lateral state space system 
-    LonSys    = {}
-    LatSys    = {}    
-    for i in range(num_cases):         
-        LonSys[cases[i].tag] = ss(ALon[i],BLon[i],CLon[i],DLon[i])
-        LatSys[cases[i].tag] = ss(ALat[i],BLat[i],CLat[i],DLat[i]) 
+    ## Build longitudinal and lateral state space system. Requires additional toolbox 
+    #from control.matlab import ss  # control toolbox needed in python. Run "pip (or pip3) install control"    
+    #LonSys    = {}
+    #LatSys    = {}    
+    #for i in range(num_cases):         
+        #LonSys[cases[i].tag] = ss(ALon[i],BLon[i],CLon[i],DLon[i])
+        #LatSys[cases[i].tag] = ss(ALat[i],BLat[i],CLat[i],DLat[i]) 
     
     
     # Inertial coupling susceptibility
@@ -292,7 +292,7 @@ def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases):
     # Store Results
     # ------------------------------------------------------------------------------------------------------------------------  
     results.dynamic_stability.LongModes.LongModes                    = LonModes
-    results.dynamic_stability.LongModes.LongSys                      = LonSys    
+    #results.dynamic_stability.LongModes.LongSys                      = LonSys    
     results.dynamic_stability.LongModes.phugoidFreqHz                = phugoidFreqHz
     results.dynamic_stability.LongModes.phugoidDamp                  = phugoidDamping
     results.dynamic_stability.LongModes.phugoidTimeDoubleHalf        = phugoidTimeDoubleHalf
@@ -301,7 +301,7 @@ def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases):
     results.dynamic_stability.LongModes.shortPeriodTimeDoubleHalf    = shortPeriodTimeDoubleHalf
                                                                     
     results.dynamic_stability.LatModes.LatModes                      = LatModes  
-    results.dynamic_stability.LatModes.Latsys                        = LatSys   
+    #results.dynamic_stability.LatModes.Latsys                        = LatSys   
     results.dynamic_stability.LatModes.dutchRollFreqHz               = dutchRollFreqHz
     results.dynamic_stability.LatModes.dutchRollDamping              = dutchRollDamping
     results.dynamic_stability.LatModes.dutchRollTimeDoubleHalf       = dutchRollTimeDoubleHalf
