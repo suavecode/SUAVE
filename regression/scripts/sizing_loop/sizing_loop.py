@@ -66,7 +66,7 @@ def main():
     
     nexus.total_number_of_iterations = 0
     evaluate_problem(nexus)
-    results = nexus.results
+    results  = nexus.results
     err      = nexus.sizing_loop.norm_error
 
     err_true = 0.0009112610433804117
