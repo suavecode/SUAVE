@@ -42,7 +42,7 @@ class Segment(Lofted_Body.Segment):
         self.dihedral_outboard     = 0.0
         self.sweeps                = Data()
         self.sweeps.quarter_chord  = 0.0
-        self.sweeps.leading_edge   = 0.0
+        self.sweeps.leading_edge   = None
         self.areas                 = Data()
         self.areas.reference       = 0.0
         self.areas.exposed         = 0.0

@@ -199,7 +199,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                 segment_sweeps.append(0)                                  
                         else: # this converts all sweeps defined by the quarter chord to leading edge sweep since AVL needs the start of each wing section
                                 #from the leading edge coordinate and not the quarter chord coordinate
-                                if segments[i_segs].sweeps.leading_edge > 0: 
+                                if segments[i_segs].sweeps.leading_edge is not None: 
                                         # if leading edge sweep is defined 
                                         segment_sweep       = segments[i_segs].sweeps.leading_edge * Units.degrees # conversion to radians
                                 else:   

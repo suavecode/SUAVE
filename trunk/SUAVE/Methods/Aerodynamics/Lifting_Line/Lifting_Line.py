@@ -36,14 +36,11 @@ def lifting_line(conditions,settings,geometry):
       aspect_ratio                          [Unitless]
       areas.reference                       [m^2]
       vertical                              [Boolean]
-
     settings.number_of_stations             [int]
     conditions.aerodynamics.angle_of_attack [radians]
-
     Outputs:
     CL                                      [Unitless]
     CD                                      [Unitless]
-
     Properties Used:
     N/A
     """  
@@ -102,11 +99,17 @@ def lifting_line(conditions,settings,geometry):
             # Figure out where the segment starts
             X1 = wing.Segments[segment_keys[i_seg]].percent_span_location
             L1 = wing.Segments[segment_keys[i_seg]].root_chord_percent
-            T1 = wing.Segments[segment_keys[i_seg]].twist  
-            
-            X2 = wing.Segments[segment_keys[i_seg+1]].percent_span_location            
-            L2 = wing.Segments[segment_keys[i_seg+1]].root_chord_percent            
-            T2 = wing.Segments[segment_keys[i_seg+1]].twist
+            T1 = wing.Segments[segment_keys[i_seg]].twist 
+
+            if i_seg == n_segments-1 and X1 != 1.0:
+                X2 = 1.0
+                L2 = wing.chords.tip/wing.chords.root
+                T2 = wing.twists.tip
+            else:
+                X2 = wing.Segments[segment_keys[i_seg+1]].percent_span_location
+                L2 = wing.Segments[segment_keys[i_seg+1]].root_chord_percent
+                T2 = wing.Segments[segment_keys[i_seg+1]].twist
+                
                 
             bools  =  np.logical_and(etan>X1,etan<X2)
                 
