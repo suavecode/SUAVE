@@ -37,22 +37,12 @@ def main():
                   
     # initalize the standard vlm aero model  
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.process.compute.lift.inviscid_wings.settings.use_weissinger            = False
     aerodynamics.process.compute.lift.inviscid_wings.settings.use_surrogate             = True
     aerodynamics.process.compute.lift.inviscid_wings.settings.plot_vortex_distribution  = True
     aerodynamics.process.compute.lift.inviscid_wings.settings.plot_vehicle              = True 
     aerodynamics.geometry = vehicle        
     aerodynamics.initialize()    
     
-    # initalize the weissinger aero model - results are used in regression
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.process.compute.lift.inviscid_wings.settings.use_weissinger            = True
-    aerodynamics.process.compute.lift.inviscid_wings.settings.use_surrogate             = True
-    aerodynamics.process.compute.lift.inviscid_wings.settings.plot_vortex_distribution  = False
-    aerodynamics.process.compute.lift.inviscid_wings.settings.plot_vehicle              = False   
-    aerodynamics.geometry = vehicle        
-    aerodynamics.initialize()    
-        
     #no of test points
     test_num = 11
     

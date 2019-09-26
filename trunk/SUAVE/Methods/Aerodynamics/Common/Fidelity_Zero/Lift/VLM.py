@@ -1,11 +1,7 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 # VLM.py
 # 
-# Created:  Dec 2013, SUAVE Team
-# Modified: Apr 2017, T. MacDonald
-#           Oct 2017, E. Botero
-#           Jun 2018, M. Clarke
-
+# Created:  May 2019, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +15,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_veloci
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution     import compute_vortex_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix              import compute_RHS_matrix
 # ----------------------------------------------------------------------
-#  Weissinger Vortex Lattice
+#  Vortex Lattice
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
@@ -120,7 +116,6 @@ def VLM(conditions,settings,geometry):
     A = C_mn[:,:,:,2] - np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.tan(delta)))- np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)))  # EDIT
     
     # Build the vector
-    #RHS = np.tan(delta)*np.cos(aoa) - np.sin(aoa)
     RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,conditions,geometry)
     
     # Compute vortex strength  
