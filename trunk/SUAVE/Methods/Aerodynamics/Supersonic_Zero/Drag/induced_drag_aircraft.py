@@ -1,9 +1,8 @@
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # induced_drag_aircraft.py
 # 
-# Created:  Aug 2014, T. MacDonald
-# Modified: Nov 2016, T. MacDonald
-#           Aug 2018, T. MacDonald
+# Created:  Feb 2019, T. MacDonald
+#         
      
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,6 +11,7 @@
 from SUAVE.Core import Data
 
 import numpy as np
+from .Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # ----------------------------------------------------------------------
 #  Induced Drag Aicraft
@@ -25,7 +25,7 @@ def induced_drag_aircraft(state,settings,geometry):
     Based on fits
 
     Source:
-    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    http://aerodesign.stanford.edu/aircraftdesign/aircraftdesign.html (Stanford AA241 A/B Course Notes)
 
     Inputs:
     state.conditions.aerodynamics.lift_coefficient               [Unitless]
@@ -57,11 +57,15 @@ def induced_drag_aircraft(state,settings,geometry):
     
     if e == None:
         e = 1/((1/wing_e)+np.pi*ar*K*CDp)    
+        
+    spline = Cubic_Spline_Blender(.91,.99)
+    h00 = lambda M:spline.compute(M)      
     
-    total_induced_drag = np.zeros_like(mach)
-    total_induced_drag[mach<.95] = aircraft_lift[mach<.95]**2 / (np.pi*ar*e[mach<.95])
-    total_induced_drag[mach>=.95] = aircraft_lift[mach>=.95]**2 / (np.pi*ar*wing_e) # oswald factor would include wave drag due to lift
+    total_induced_drag_low  = aircraft_lift**2 / (np.pi*ar*e)
+    total_induced_drag_high = aircraft_lift**2 / (np.pi*ar*wing_e) # oswald factor would include wave drag due to lift
                                                                                     # which is not computed here
+                                                                                    
+    total_induced_drag      = total_induced_drag_low*h00(mach) + total_induced_drag_high*(1-h00(mach))
         
     # store data
     try:

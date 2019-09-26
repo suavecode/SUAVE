@@ -184,11 +184,15 @@ def VLM(conditions,settings,geometry):
             
     # total lift and lift coefficient
     L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T
-    CL =  2*L/(Sref)   #  Subsonic 2*L/(Sref)   Supersonic 4*L/(Sref)    i.e. X 2 
+    CL_correction = np.atleast_2d(np.ones_like(aoa)) 
+    CL_correction[mach > 1] = CL_correction[mach > 1] * 16   
+    CL =  CL_correction * 2*L/(Sref)   
     
     # total drag and drag coefficient
     D  =  -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T
-    CDi = D/(2*Sref)  #Subsonic  D/(2*Sref)    Supersonic 4*D/(Sref)  i.e. it appears that subsonic drag is not consistent with the book
+    CDi_correction = np.atleast_2d(np.ones_like(aoa)) 
+    CDi_correction[mach > 1] = CDi_correction[mach > 1] * 64   
+    CDi = CDi_correction* D/(2*Sref)  
 
     # pressure coefficient
     U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)

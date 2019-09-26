@@ -104,50 +104,6 @@ def compute_RHS_matrix(VD,n_sw,n_cw,delta,conditions,geometry):
                         for j in range(m): 
                             vt_prime[j,locations] = vt_prime[j,locations][:,::-1]
                             va_prime[j,locations] = va_prime[j,locations][:,::-1]
-
-                #########################
-                
-                #fig = plt.figure()
-                #axes = fig.add_subplot(3,1,1) 
-                #axes.plot(r_old[1:],Kv[0], 'bo-') 
-                #axes.set_ylabel('Kv ')
-                #axes.get_yaxis().get_major_formatter().set_scientific(False)
-                #axes.get_yaxis().get_major_formatter().set_useOffset(False)             
-                #axes.grid(True)   
-                
-                #axes = fig.add_subplot(3,1,2) 
-                #axes.plot(r_old, r_prime[0], 'bo-') 
-                #axes.set_ylabel('r prime')
-                #axes.get_yaxis().get_major_formatter().set_scientific(False)
-                #axes.get_yaxis().get_major_formatter().set_useOffset(False)             
-                #axes.grid(True)   
-                
-                #axes = fig.add_subplot(3,1,3) 
-                #axes.plot(Y_vals, r_div_r_prime[0,locations][0], 'bo-')
-                #axes.plot(prop_y_discre, r_div_r_prime_old[k,:,locations[0][0]], 'ro-')
-                #axes.set_ylabel('r divided by r prime')
-                #axes.get_yaxis().get_major_formatter().set_scientific(False)
-                #axes.get_yaxis().get_major_formatter().set_useOffset(False)             
-                #axes.grid(True)    
-                
-                #fig = plt.figure()
-                #axes = fig.add_subplot(2,1,1) 
-                #axes.plot(Y_vals, va_prime[0,locations][0], 'bo-')
-                #axes.set_ylabel('Va   Profile')
-                #axes.get_yaxis().get_major_formatter().set_scientific(False)
-                #axes.get_yaxis().get_major_formatter().set_useOffset(False)             
-                #axes.grid(True)     
-                
-                
-                #axes = fig.add_subplot(2,1,2)  
-                #axes.plot(Y_vals, vt_prime[0,locations][0] , 'bo-')
-                #axes.set_ylabel('Vt   Profile')
-                #axes.get_yaxis().get_major_formatter().set_scientific(False)
-                #axes.get_yaxis().get_major_formatter().set_useOffset(False)             
-                #axes.grid(True)                 
-                #plt.show()
-                
-                #########################
                         
                 # compute new components of freestream
                 Vx             = V_inf*np.cos(aoa) - va_prime   
@@ -158,34 +114,6 @@ def compute_RHS_matrix(VD,n_sw,n_cw,delta,conditions,geometry):
                 # modifiy air speed distribution behind propeller 
                 V_distribution[:,locations]   = modified_V_inf[:,locations] 
                 aoa_distribution[:,locations] =  modified_aoa[:,locations]
-
-            
-                    
-                
-                plt.show()                
-    fig = plt.figure()
-    axes = fig.add_subplot(2,1,1)
-    span = VD.YC[0:int(VD.n_cp/2)]
-    axes.plot( span , V_distribution[1,0:int(VD.n_cp/2)] , 'bo-' )
-    axes.plot(-span, V_distribution[1,int(VD.n_cp/2):], 'bo-')
-    axes.set_ylabel('Velocity Profile')
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False)             
-    axes.grid(True)     
-    
-
-    axes = fig.add_subplot(2,1,2)
-    span = VD.YC[0:int(VD.n_cp/2)]
-    axes.plot( span , aoa_distribution[1,0:int(VD.n_cp/2)] , 'bo-' )
-    axes.plot(-span, aoa_distribution[1,int(VD.n_cp/2):], 'bo-')
-    axes.set_ylabel('AoA Profile')
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False)             
-    axes.grid(True)     
-    
-    plt.show()
-
-
-
+ 
     RHS = np.tan(delta)*np.cos(aoa_distribution) - np.sin(aoa_distribution)
     return RHS

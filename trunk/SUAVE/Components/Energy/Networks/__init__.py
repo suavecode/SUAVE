@@ -10,7 +10,7 @@ from .Battery_Ducted_Fan                      import Battery_Ducted_Fan
 from .Turbofan                                import Turbofan
 from .Turbojet_Super                          import Turbojet_Super
 from .Solar_Low_Fidelity                      import Solar_Low_Fidelity
-from .Dual_Battery_Ducted_Fan                 import Dual_Battery_Ducted_Fan
+from .Battery_Ducted_Fan                      import Battery_Ducted_Fan
 from .Internal_Combustion_Propeller           import Internal_Combustion_Propeller
 from .Stopped_Rotor                           import Stopped_Rotor
 from .Stopped_Rotor_Low_Fidelity              import Stopped_Rotor_Low_Fidelity
