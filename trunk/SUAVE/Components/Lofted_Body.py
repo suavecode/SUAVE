@@ -10,7 +10,7 @@
 
 from .Component          import Component
 from .Physical_Component import Physical_Component
-from SUAVE.Core          import DataOrdered
+from SUAVE.Core         import DataOrdered
 
 
 # ------------------------------------------------------------
@@ -37,7 +37,7 @@ class Lofted_Body(Physical_Component):
             Properties Used:
             None
         """         
-        self.tag      = 'Lofted_Body'
+        self.tag = 'Lofted_Body'
         self.Segments = DataOrdered() # think edges
         self.Sections = SectionContainer() # think nodes
     

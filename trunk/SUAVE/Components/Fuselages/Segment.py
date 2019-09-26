@@ -5,7 +5,7 @@
 # Modified: Jul 2017, M. Clarke
 #           Aug 2018, T. St Francis (for fuselages)
 #           Jan 2019, T. MacDonald
-#           Aug 2019, M. Clarke
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -14,7 +14,7 @@ from SUAVE.Core import Data
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties
 
 # ------------------------------------------------------------ 
-#  Fuselage Sections
+#  Fuselage Segments
 # ------------------------------------------------------------
 
 ## @ingroup Components-Fuselages
