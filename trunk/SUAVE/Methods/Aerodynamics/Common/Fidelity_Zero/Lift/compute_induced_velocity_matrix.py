@@ -19,8 +19,11 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     ones = np.atleast_3d(np.ones_like(theta_w))
  
     # Prandtl Glauret Transformation for subsonic
-    inv_root_beta = 1/np.sqrt(1-(mach**2))     
-    inv_root_beta[np.isnan(inv_root_beta)] = 1.0
+    inv_root_beta = np.zeros_like(mach)
+    inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)     
+    inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
+    if np.any(mach==1):
+        raise('Mach of 1 cannot be used in building compressibiliy corrections.')
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
     XAH  = np.atleast_3d(data.XAH*inv_root_beta)

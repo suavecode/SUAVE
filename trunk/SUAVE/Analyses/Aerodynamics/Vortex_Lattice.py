@@ -352,7 +352,7 @@ class Vortex_Lattice(Aerodynamics):
         training = self.training        
         AoA      = training.angle_of_attack
         Mach_sub = training.Mach_subsonic
-        Mach_sup = training.Mach_subsonic 
+        Mach_sup = training.Mach_supersonic 
         
         # Setup Konditions                      
         konditions                              = Data()
@@ -387,14 +387,14 @@ class Vortex_Lattice(Aerodynamics):
         
         # Get the training data        
         count = 0
-        for j,_ in enumerate(Mach_sub):
-            konditions.freestream.mach_number = Mach_sub[j]*np.ones_like(AoA) 
-            konditions.freestream.velocity    = Mach_sub[j]*322.269* np.ones_like(AoA)  # taken at 15000 ft 
+        for mach_sub, mach_sup in zip(Mach_sub, Mach_sup):
+            konditions.freestream.mach_number = mach_sub*np.ones_like(AoA) 
+            konditions.freestream.velocity    = mach_sub*322.269* np.ones_like(AoA)  # taken at 15000 ft 
             total_lift_sub, total_drag_sub, wing_lifts_sub, wing_drags_sub , wing_lift_distribution_sub , wing_drag_distribution_sub , pressure_coefficient_sub = \
                 calculate_VLM(konditions,settings,geometry)
             
-            konditions.freestream.mach_number = Mach_sup[j]*np.ones_like(AoA)
-            konditions.freestream.velocity    = Mach_sup[j]*322.269*np.ones_like(AoA)  # taken at 15000 ft 
+            konditions.freestream.mach_number = mach_sup*np.ones_like(AoA)
+            konditions.freestream.velocity    = mach_sup*322.269*np.ones_like(AoA)  # taken at 15000 ft 
             total_lift_sup, total_drag_sup, wing_lifts_sup, wing_drags_sup , wing_lift_distribution_sup , wing_drag_distribution_sup , pressure_coefficient_sup = \
                 calculate_VLM(konditions,settings,geometry)
             
