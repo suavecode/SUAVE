@@ -44,10 +44,10 @@ def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases):
     c_ref  = results.c_ref
     S_ref  = results.S_ref 
     AR     = (b_ref**2)/S_ref
-    moments_of_inertia = aircraft.mass_properties.moments_of_inertia
-    Ixx    = aircraft.mass_properties.moments_of_inertia[0][0]
-    Iyy    = aircraft.mass_properties.moments_of_inertia[1][1]
-    Izz    = aircraft.mass_properties.moments_of_inertia[2][2]    
+    moments_of_inertia = aircraft.mass_properties.moments_of_inertia.tensor
+    Ixx    = moments_of_inertia[0][0]
+    Iyy    = moments_of_inertia[1][1]
+    Izz    = moments_of_inertia[2][2]    
     if aircraft.mass_properties.mass == 0:
         m  = aircraft.mass_properties.max_takeoff
     elif aircraft.mass_properties.max_takeoff == 0:

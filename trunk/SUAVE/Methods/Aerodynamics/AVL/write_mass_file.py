@@ -77,9 +77,9 @@ rho = {2}
         x       = aircraft.mass_properties.center_of_gravity[0]
         y       = aircraft.mass_properties.center_of_gravity[1]
         z       = aircraft.mass_properties.center_of_gravity[2]
-        Ixx     = aircraft.mass_properties.moments_of_inertia[0][0]
-        Iyy     = aircraft.mass_properties.moments_of_inertia[1][1]
-        Izz     = aircraft.mass_properties.moments_of_inertia[2][2]
+        Ixx     = aircraft.mass_properties.moments_of_inertia.tensor[0][0]
+        Iyy     = aircraft.mass_properties.moments_of_inertia.tensor[1][1]
+        Izz     = aircraft.mass_properties.moments_of_inertia.tensor[2][2]
         
         # Insert inputs into the template
         text = base_text.format(name, gravity , density,mass, x,y,z,Ixx,Iyy,Izz)

@@ -90,7 +90,7 @@ def write_run_cases(avl_object,Trim):
         y_cg = aircraft.mass_properties.center_of_gravity[1]
         z_cg = aircraft.mass_properties.center_of_gravity[2]
         mass = aircraft.mass_properties.mass
-        moments_of_inertia = aircraft.mass_properties.moments_of_inertia
+        moments_of_inertia = aircraft.mass_properties.moments_of_inertia.tensor
         Ixx  = moments_of_inertia[0][0]
         Iyy  = moments_of_inertia[1][1]
         Izz  = moments_of_inertia[2][2]

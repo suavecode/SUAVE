@@ -43,7 +43,7 @@ def vehicle_setup():
     vehicle.mass_properties.cargo                     =     0.0  # kg
 
     vehicle.mass_properties.center_of_gravity         = [16.8, 0, 1.6]#[[60 * Units.feet, 0, 0]]  # Not correct
-    vehicle.mass_properties.moments_of_inertia        = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
+    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
 
     # envelope properties
     vehicle.envelope.ultimate_load    = 3.5

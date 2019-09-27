@@ -483,7 +483,7 @@ class AVL(Stability):
         # Dynamic Stability & System Matrix Computation
         # -----------------------------------------------------------------------------------------------------------------------      
         # Dynamic Stability
-        if np.count_nonzero(self.geometry.mass_properties.moments_of_inertia) > 0:  
+        if np.count_nonzero(self.geometry.mass_properties.moments_of_inertia.tensor) > 0:  
                 results = compute_dynamic_flight_modes(results,self.geometry,run_conditions,cases)        
              
         if not self.keep_files:

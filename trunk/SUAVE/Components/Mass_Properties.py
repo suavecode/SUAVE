@@ -3,7 +3,7 @@
 # 
 # Created:  
 # Modified: Feb 2016, T. MacDonald
-#           Aug 2019, M. Clarke
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -45,7 +45,10 @@ class Mass_Properties(Data):
             None
         """         
         
-        self.mass                      = 0.0
-        self.volume                    = 0.0
-        self.center_of_gravity         = np.array([0.0,0.0,0.0])      
-        self.moments_of_inertia        = np.array([[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]])   # 
+        self.mass   = 0.0
+        self.volume = 0.0
+        self.center_of_gravity = np.array([0.0,0.0,0.0])
+        
+        self.moments_of_inertia = Data()
+        self.moments_of_inertia.center = np.array([0.0,0.0,0.0])
+        self.moments_of_inertia.tensor = np.array([[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]])
