@@ -26,6 +26,9 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import
 import numpy as np
 import sklearn
 from sklearn import gaussian_process
+from sklearn.gaussian_process import GaussianProcessRegressor 
+from sklearn.gaussian_process.kernels   import DotProduct,  RBF, WhiteKernel, RationalQuadratic ,  ConstantKernel
+
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
@@ -57,8 +60,8 @@ class Vortex_Lattice(Aerodynamics):
         self.settings = Data()
 
         # vortex lattice configurations
-        self.settings.number_panels_spanwise   = 20
-        self.settings.number_panels_chordwise  = 1
+        self.settings.number_panels_spanwise   = 25
+        self.settings.number_panels_chordwise  = 5
         self.settings.use_surrogate            = True
         self.settings.use_weissinger           = True
         self.settings.plot_vortex_distribution = False
@@ -291,22 +294,6 @@ class Vortex_Lattice(Aerodynamics):
         inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
             calculate_VLM(conditions,settings,geometry)
         
-        #transonic_range = abs(conditions.freestream.mach_number - 1)
-        #if any(transonic_range) < 0.1:
-            ## sample training data
-            #self.sample_training()
-                        
-            ## build surrogate
-            #self.build_surrogate()        
-            
-            #self.evaluate_surrogate(state, settings, geometry)
-            
-            #return inviscid_lift
-            
-        #else:            
-            #inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
-                #calculate_VLM(conditions,settings,geometry)
-        
         # Lift 
         conditions.aerodynamics.lift_coefficient                             = inviscid_lift  
         conditions.aerodynamics.lift_breakdown.total                         = inviscid_lift        
@@ -389,12 +376,12 @@ class Vortex_Lattice(Aerodynamics):
         count = 0
         for mach_sub, mach_sup in zip(Mach_sub, Mach_sup):
             konditions.freestream.mach_number = mach_sub*np.ones_like(AoA) 
-            konditions.freestream.velocity    = mach_sub*322.269* np.ones_like(AoA)  # taken at 15000 ft 
+            konditions.freestream.velocity    = mach_sub*295.190* np.ones_like(AoA) 
             total_lift_sub, total_drag_sub, wing_lifts_sub, wing_drags_sub , wing_lift_distribution_sub , wing_drag_distribution_sub , pressure_coefficient_sub = \
                 calculate_VLM(konditions,settings,geometry)
             
             konditions.freestream.mach_number = mach_sup*np.ones_like(AoA)
-            konditions.freestream.velocity    = mach_sup*322.269*np.ones_like(AoA)  # taken at 15000 ft 
+            konditions.freestream.velocity    = mach_sup*295.190*np.ones_like(AoA)  
             total_lift_sup, total_drag_sup, wing_lifts_sup, wing_drags_sup , wing_lift_distribution_sup , wing_drag_distribution_sup , pressure_coefficient_sup = \
                 calculate_VLM(konditions,settings,geometry)
             
@@ -492,13 +479,16 @@ class Vortex_Lattice(Aerodynamics):
             CDi_w_data_trans[wing] = np.atleast_2d(np.concatenate((edge_CDi_w_data_sub, edge_CDi_w_data_sup), axis = 0)).T 
             
         
-        # Gaussian Process 
-        regr_cl_sub                    = gaussian_process.GaussianProcessRegressor()
-        regr_cl_sup                    = gaussian_process.GaussianProcessRegressor()
-        regr_cl_trans                  = gaussian_process.GaussianProcessRegressor() 
-        regr_cdi_sub                   = gaussian_process.GaussianProcessRegressor()        
-        regr_cdi_sup                   = gaussian_process.GaussianProcessRegressor()
-        regr_cdi_trans                 = gaussian_process.GaussianProcessRegressor()
+        # Gaussian Process drag is noisy
+        gpr_kernel_sub  = RBF(length_scale=0.1, length_scale_bounds=(1e-05, 1e-3))  
+        gpr_kernel_sup  = RBF(length_scale=0.1, length_scale_bounds=(1e-05, 1e1)) + WhiteKernel(noise_level = 0.2, noise_level_bounds=(1e-06, 1e-03))
+        rbf             = RBF(length_scale= 0.1)
+        regr_cl_sub                    = GaussianProcessRegressor(kernel=rbf, alpha= 1e-3**2)
+        regr_cl_sup                    = GaussianProcessRegressor(kernel = gpr_kernel_sup)
+        regr_cl_trans                  = GaussianProcessRegressor() 
+        regr_cdi_sub                   = GaussianProcessRegressor(kernel = gpr_kernel_sub)        
+        regr_cdi_sup                   = GaussianProcessRegressor(kernel = gpr_kernel_sup)
+        regr_cdi_trans                 = GaussianProcessRegressor()
         
         CL_surrogate_sub               = regr_cl_sub.fit(xy_sub, CL_data_sub)
         CL_surrogate_sup               = regr_cl_sup.fit(xy_sup, CL_data_sup)
