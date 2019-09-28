@@ -12,6 +12,7 @@ from .Fuel_Cell                  import Fuel_Cell
 from .Motor                      import Motor
 from .Motor_Lo_Fid               import Motor_Lo_Fid
 from .Propeller                  import Propeller
+from .Rotor                      import Rotor
 from .Propeller_Lo_Fid           import Propeller_Lo_Fid
 from .Internal_Combustion_Engine import Internal_Combustion_Engine
 from .Ram                        import Ram
@@ -22,3 +23,4 @@ from .Turbine                    import Turbine
 from .Supersonic_Nozzle          import Supersonic_Nozzle
 from .Shaft_Power_Off_Take       import Shaft_Power_Off_Take
 from .Gearbox                    import Gearbox
+from .Rotor                      import Rotor
