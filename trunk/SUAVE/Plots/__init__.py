@@ -12,3 +12,7 @@ from .Mission_Plots import plot_electronic_conditions
 from .Mission_Plots import plot_propulsor_conditions
 from .Mission_Plots import plot_disc_power_loading
 from .Mission_Plots import plot_solar_flux
+from .Mission_Plots import plot_cruise_propulsor_conditions
+from .Mission_Plots import plot_lift_propulsor_conditions
+from .Mission_Plots import plot_residuals
+from .Mission_Plots import plot_propeller_performance

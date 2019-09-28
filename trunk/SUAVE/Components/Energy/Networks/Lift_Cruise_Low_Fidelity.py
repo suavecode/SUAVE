@@ -1,4 +1,4 @@
-# Stopped_Rotor_Low_Fidelity.py
+# Lift_Cruise_Low_Fidelity.py
 # 
 # Created: Jan 2016, E. Botero
 # Modified: 
@@ -33,7 +33,7 @@ Data, Container
 # For any segment using this, body angle can't be an unknown.
 
 
-class Stopped_Rotor_Low_Fidelity(Propulsor):
+class Lift_Cruise_Low_Fidelity(Propulsor):
     def __defaults__(self):
         self.motor_lift                = None
         self.motor_forward             = None

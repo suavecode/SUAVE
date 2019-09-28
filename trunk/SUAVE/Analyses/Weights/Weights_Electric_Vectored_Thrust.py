@@ -1,8 +1,8 @@
 ## @ingroup Analyses-Weights
 
-# Weights_Electric_Stopped_Rotor.py
+# Weights_Electric_Vectored_Thrust.py
 #
-# Created: Aug, 2017, J. Smart
+# Created: Mar, 2017, J. Smart
 # Modified: Apr, 2018, J. Smart
 
 # ----------------------------------------------------------------------
@@ -19,8 +19,8 @@ from .Weights import Weights
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Weights
-class Weights_Electric_Stopped_Rotor(Weights):
-    """ SUAVE.Analyses.Weights.Weights_Electric_Stopped_Rotor()
+class Weights_Electric_Vectored_Thrust(Weights):
+    """ SUAVE.Analyses.Weights.Weights_Electric_Vectored_Thrust()
     
     Assumptions:
     None
@@ -37,8 +37,9 @@ class Weights_Electric_Stopped_Rotor(Weights):
     Properties Used:
     N/A
     """
-
+    
     def __defaults__(self):
+        
         """Sets the default parameters for the weight analysis
 
         Assumptions:
@@ -57,7 +58,7 @@ class Weights_Electric_Stopped_Rotor(Weights):
         N/A
         """
         
-        self.tag = 'weights_electric_stopped_rotor'
+        self.tag = 'weights_electric_tiltrotor'
         
         self.vehicle  = Data()
         self.settings = Data()
@@ -68,7 +69,7 @@ class Weights_Electric_Stopped_Rotor(Weights):
 
         Assumptions:
         Analysis has been assigned a vehicle.
-        Weight method to be used is default Electric Stopped Rotor method.
+        Weight method to be used is default Electric Vectored_Thrust method.
 
         Source:
         N/A
@@ -86,7 +87,7 @@ class Weights_Electric_Stopped_Rotor(Weights):
         
         # unpack
         vehicle = self.vehicle
-        empty   = SUAVE.Methods.Weights.Buildups.Electric_Stopped_Rotor.empty
+        empty   = SUAVE.Methods.Weights.Buildups.Electric_Vectored_Thrust.empty
 
         
         # evaluate

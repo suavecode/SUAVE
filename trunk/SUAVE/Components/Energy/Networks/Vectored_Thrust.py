@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Networks
-# Tilt_Rotor.py
+# Vectored_Thrust.py
 # 
 # Created:  Nov 2018, M.Clarke
 
@@ -21,7 +21,7 @@ from SUAVE.Core import  Units, Data
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Tilt_Rotor(Propulsor):
+class Vectored_Thrust(Propulsor):
     """ This is a simple network with a battery powering a propeller through
         an electric motor
 
@@ -120,14 +120,8 @@ class Tilt_Rotor(Propulsor):
         # step 3
         motor.omega(conditions)
         
-        # Define the thrust angle        
-        if self.thrust_angle_start != None:
-            if 'thrust_angle_end' in self:
-                thrust_angle0 = self.thrust_angle_start 
-                thrust_anglef = state.unknowns.thrust_angle_end  
-                thrust_angle  = t_nondim * (thrust_anglef-thrust_angle0) + thrust_angle0 
-        else:
-            thrust_angle = self.thrust_angle
+        # Define the thrust angle 
+        thrust_angle = self.thrust_angle
                 
         # link
         propeller.inputs.omega =  motor.outputs.omega
@@ -163,11 +157,15 @@ class Tilt_Rotor(Propulsor):
         avionics_payload_current = avionics_payload_power/self.voltage
 
         # link
-        battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
-        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
+        battery.inputs.current  = esc.outputs.currentin*num_engines+ avionics_payload_current
+        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*num_engines + avionics_payload_power)
         battery.energy_calc(numerics)        
-    
+        
         # Pack the conditions for outputs
+        rpm                  = motor.outputs.omega*60./(2.*np.pi)
+        a                    = conditions.freestream.speed_of_sound
+        R                    = propeller.tip_radius      
+        
         rpm                  = motor.outputs.omega*60./(2.*np.pi)
         current              = esc.outputs.currentin
         battery_draw         = battery.inputs.power_in 
@@ -175,26 +173,25 @@ class Tilt_Rotor(Propulsor):
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
           
-        conditions.propulsion.rpm                  = rpm
-        conditions.propulsion.current              = current
-        conditions.propulsion.battery_draw         = battery_draw
-        conditions.propulsion.battery_energy       = battery_energy
-        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
-        conditions.propulsion.voltage_under_load   = voltage_under_load  
-        conditions.propulsion.motor_torque         = motor.outputs.torque
-        conditions.propulsion.propeller_torque     = Q
+        conditions.propulsion.rpm                                = rpm
+        conditions.propulsion.current                            = current
+        conditions.propulsion.battery_draw                       = battery_draw
+        conditions.propulsion.battery_energy                     = battery_energy
+        conditions.propulsion.voltage_open_circuit               = voltage_open_circuit
+        conditions.propulsion.voltage_under_load                 = voltage_under_load  
+        conditions.propulsion.motor_torque                       = motor.outputs.torque
+        conditions.propulsion.propeller_torque                   = Q
         conditions.propulsion.acoustic_outputs[propeller.tag]    = noise
+        conditions.propulsion.battery_specfic_power              = -(battery_draw/1000)/battery.mass_properties.mass #kWh/kg
+        conditions.propulsion.propeller_tip_mach                 = (R*rpm)/a
+
         
         # Compute force vector       
-        if self.thrust_angle_start != None:
-            if 'thrust_angle_end' in state.unknowns: 
-                relative_directions = np.zeros((len(thrust_angle),3))
-                relative_directions[:,0] = np.cos(thrust_angle[:,0])
-                relative_directions[:,2] = -np.sin(thrust_angle[:,0])
-                F_vec = num_engines * np.multiply(F,relative_directions)   
-        else:
-            F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
-            
+        F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
+        
+        F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1)*2.20462)  # lb   
+        conditions.propulsion.disc_loading                       = (F_mag.T)/(num_engines*np.pi*(R*3.28084)**2) # lb/ft^2       
+        conditions.propulsion.power_loading                      = (F_mag.T)/(battery_draw*0.00134102)           # lb/hp 
         
         mdot = np.zeros_like(F_vec)
 
@@ -230,8 +227,7 @@ class Tilt_Rotor(Propulsor):
         segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
         segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
         segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle  
-
-        
+ 
         return
       
     def unpack_unknowns(self,segment):

@@ -47,7 +47,7 @@ def empty(config,
         Originally written as part of an AA 290 project inteded for trade study
         of the Electric Helicopter along with the following defined SUAVE vehicle types:
 
-            Electric Tiltrotor
+            Electric Vectored_Thrust
             Electric Stopped Rotor
             
         Sources:
