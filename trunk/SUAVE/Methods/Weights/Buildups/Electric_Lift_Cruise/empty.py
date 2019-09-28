@@ -22,10 +22,13 @@ import numpy as np
 
 ## @ingroup Methods-Weights-Buildups-Electric_Lift_Cruise
 def empty(config,
+          contingency_factor            = 1.1,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
           disk_area_factor              = 1.15,
           max_thrust_to_weight_ratio    = 1.1,
+          safety_factor                 = 1.5,
+          max_g_load                    = 3.8,
           motor_efficiency              = 0.85 * 0.98):
     """weight = SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty(
             config,
@@ -136,7 +139,9 @@ def empty(config,
         if (wing_tag.find('main_wing') != -1):
             wing_weight = wing(config.wings[w.tag],
                                config, 
-                               maxLift/5) *Units.kg
+                               maxLift/5, safety_factor= safety_factor, max_g_load =  max_g_load ) *Units.kg
+            tag = wing_tag
+            output.wings[tag] = wing_weight
             total_wing_weight = total_wing_weight + wing_weight
     output.total_wing_weight = total_wing_weight
     
@@ -151,7 +156,7 @@ def empty(config,
                             output.total_wing_weight
                             ) *Units.kg
 
-    output.empty        = (1.1 * (
+    output.empty        = (contingency_factor * (
                             output.structural +
                             output.seats +
                             output.avionics +

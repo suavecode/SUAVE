@@ -305,11 +305,12 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.propeller_thrust_coefficient      = Cp_forward 
         conditions.propulsion.propeller_tip_mach_forward        = (rpm_forward * R_forward)/a
         conditions.propulsion.propeller_torque_forward          = Q_forward       
-        conditions.propulsion.propeller_efficiency_forward      = etap_forward        
-                                                                
+        conditions.propulsion.propeller_efficiency_forward      = etap_forward
+        conditions.propulsion.rotor_tip_speed                   = output_lift.tip_speed
         conditions.propulsion.current                           = i_lift + i_forward 
         conditions.propulsion.battery_specfic_power             = -(battery_draw/1000)/battery.mass_properties.mass    # kW/kg
         conditions.propulsion.electronics_efficiency            = -(P_forward*num_forward+P_lift*num_lift)/battery_draw  
+        conditions.propulsion.battery_current                   = current_total
         
         # Calculate the thrust and mdot
         F_lift_total    = F_lift*num_lift * [np.cos(self.thrust_angle_lift),0,-np.sin(self.thrust_angle_lift)]    
@@ -330,6 +331,11 @@ class Lift_Cruise(Propulsor):
         results = Data()
         results.thrust_force_vector = F_total
         results.vehicle_mass_rate   = mdot   
+        
+     
+     
+        
+        
         
         return results
     
