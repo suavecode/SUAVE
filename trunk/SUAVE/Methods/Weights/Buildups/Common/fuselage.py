@@ -38,7 +38,7 @@ def fuselage(config,
         SUAVE vehicle types, but may be used elsewhere:
 
             Electric Helicopter
-            Electric Tiltrotor
+            Electric Vectored_Thrust
             Electric Stopped Rotor
 
         Originally written as part of an AA 290 project intended for trade study

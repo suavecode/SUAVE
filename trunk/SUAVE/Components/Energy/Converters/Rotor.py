@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Converters
-# Propeller.py
+# Rotor.py
 #
 # Created:  Jun 2014, E. Botero
 # Modified: Jan 2016, T. MacDonald
@@ -796,7 +796,3 @@ class Rotor(Energy_Component):
         power  = Cp*rho*(n**3)*(D**5)
         
         #thrust[omega<0.0] = - thrust[omega<0.0]
-        
-        conditions.propulsion.etap = eta
-
-        return thrust, torque, power, Cp

@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Networks
-# Stopped_Rotor.py
+# Lift_Cruise.py
 # 
 # Created: Jan 2016, E. Botero
 # Modified: 
@@ -21,7 +21,7 @@ from SUAVE.Components.Propulsors.Propulsor import Propulsor
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Stopped_Rotor(Propulsor):
+class Lift_Cruise(Propulsor):
     """ This is a complex version of battery_propeller with a battery powering propellers through
         electric motors. In this case we have 2 sets of motors at different motors that can be controlled seperately
         
@@ -127,9 +127,9 @@ class Stopped_Rotor(Propulsor):
         num_lift          = self.number_of_engines_lift
         num_forward       = self.number_of_engines_forward
         
-        ##
+        #-----------------------------------------------------------------
         # SETUP BATTERIES AND ESC's
-        ##
+        #-----------------------------------------------------------------
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy    
@@ -142,12 +142,12 @@ class Stopped_Rotor(Propulsor):
         esc_lift.inputs.voltagein    = volts      
         esc_forward.inputs.voltagein = volts 
         
-        ##
+        #---------------------------------------------------------------
         # EVALUATE THRUST FROM FORWARD PROPULSORS 
-        ##
-        
+        #---------------------------------------------------------------
         # Throttle the voltage
-        esc_forward.voltageout(conditions)       
+        esc_forward.voltageout(conditions) 
+        
         # link
         motor_forward.inputs.voltage = esc_forward.outputs.voltageout
         
@@ -179,9 +179,9 @@ class Stopped_Rotor(Propulsor):
         # Run the esc
         esc_forward.currentin(conditions)        
        
-        ##
+        #-------------------------------------------------------------------
         # EVALUATE THRUST FROM LIFT PROPULSORS 
-        ##
+        #-------------------------------------------------------------------
         
         # Make a new set of konditions, since there are differences for the esc and motor
         konditions                 = Data()
@@ -215,7 +215,7 @@ class Stopped_Rotor(Propulsor):
         
         # Run the propeller
         #F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin_surrogate(konditions)
-        F_lift, Q_lift, P_lift, Cp_lift, output_lift, etap_lift = propeller_lift.spin(konditions)
+        F_lift, Q_lift, P_lift, Cp_lift, noise_lift, etap_lift = propeller_lift.spin(konditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = state.conditions.propulsion.throttle_lift
@@ -264,68 +264,79 @@ class Stopped_Rotor(Propulsor):
         battery.energy_calc(numerics)   
         
         # Pack the conditions
+        a                    = conditions.freestream.speed_of_sound
+        R_lift               = propeller_lift.tip_radius
+        R_forward            = propeller_forward.tip_radius
         rpm_lift             = motor_lift.outputs.omega*60./(2.*np.pi)
         rpm_forward          = motor_forward.outputs.omega*60./(2.*np.pi)        
         battery_draw         = battery.inputs.power_in 
-        battery_energy       = battery.current_energy
+        battery_energy       = battery.current_energy 
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
         
         conditions.propulsion.acoustic_outputs[propeller_forward.tag] = noise_forward
-        conditions.propulsion.acoustic_outputs[propeller_lift.tag]    = output_lift
+        conditions.propulsion.acoustic_outputs[propeller_lift.tag]    = noise_lift
     
-        conditions.propulsion.rpm_lift                     = rpm_lift
-        conditions.propulsion.rpm_forward                  = rpm_forward
-        conditions.propulsion.current_lift                 = i_lift 
-        conditions.propulsion.current_forward              = i_forward 
-        conditions.propulsion.motor_torque_lift            = motor_lift.outputs.torque
-        conditions.propulsion.motor_torque_forward         = motor_forward.outputs.torque
-        conditions.propulsion.propeller_torque_lift        = Q_lift   
-        conditions.propulsion.propeller_torque_forward     = Q_forward       
-        conditions.propulsion.propeller_efficiency_forward = etap_forward
-        conditions.propulsion.propeller_efficiency_lift    = etap_lift
-        conditions.propulsion.motor_efficiency_forward     = etam_forward
-        conditions.propulsion.motor_efficiency_lift        = etam_lift       
-          
-        conditions.propulsion.battery_draw             = Data()
-        conditions.propulsion.battery_draw.total       = battery_draw
-        conditions.propulsion.battery_draw.forward_prop= -i_forward * volts 
-        conditions.propulsion.battery_draw.lift_prop   = -i_lift * volts 
-        conditions.propulsion.battery_energy           = battery_energy
-        conditions.propulsion.voltage_open_circuit     = voltage_open_circuit
-        conditions.propulsion.voltage_under_load       = voltage_under_load      
-        conditions.propulsion.battery_efficiency       = (battery_draw+battery.resistive_losses)/battery_draw
-        conditions.propulsion.payload_efficiency       = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw
-        conditions.propulsion.electronics_efficiency   =  -(P_forward*num_forward+P_lift*num_lift)/battery_draw
-        conditions.propulsion.rotor_tip_speed          = output_lift.tip_speed
-        
-        #conditions.propulsion.propeller_power_lift     = P_lift
-        #conditions.propulsion.propeller_thrust_lift    = F_lift
-        #conditions.propulsion.propeller_power_forward  = P_forward
-        
-        
-        
+        conditions.propulsion.rpm_lift                          = rpm_lift
+        conditions.propulsion.current_lift                      = i_lift 
+        conditions.propulsion.motor_torque_lift                 = motor_lift.outputs.torque
+        conditions.propulsion.motor_torque_forward              = motor_forward.outputs.torque
+        conditions.propulsion.motor_efficiency_lift             = etam_lift           
+        conditions.propulsion.propeller_torque_lift             = Q_lift 
+        conditions.propulsion.propeller_tip_mach_lift           = (rpm_lift * R_lift )/a
+        conditions.propulsion.propeller_efficiency_lift         = etap_lift
+        conditions.propulsion.propeller_power_lift              = P_lift*num_lift
+        conditions.propulsion.propeller_thrust_lift             = F_lift*num_lift        
+        conditions.propulsion.propeller_power_coefficient_lift  = Cp_lift        
+        conditions.propulsion.propeller_thrust_coefficient_lift = noise_lift.Ct   
+        conditions.propulsion.battery_draw_lift                 = -i_lift * volts 
+
+        conditions.propulsion.rpm_forward                       = rpm_forward        
+        conditions.propulsion.battery_draw                      = battery_draw
+        conditions.propulsion.battery_draw_forward              = -i_forward * volts 
+        conditions.propulsion.battery_energy                    = battery_energy
+        conditions.propulsion.voltage_open_circuit              = voltage_open_circuit
+        conditions.propulsion.voltage_under_load                = voltage_under_load   
+        conditions.propulsion.motor_efficiency_forward          = etam_forward
+        conditions.propulsion.current_forward                   = i_forward 
+        conditions.propulsion.battery_efficiency                = (battery_draw+battery.resistive_losses)/battery_draw
+        conditions.propulsion.payload_efficiency                = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
+        conditions.propulsion.propeller_power_forward           = P_forward*num_forward
+        conditions.propulsion.propeller_thrust_coefficient      = Cp_forward 
+        conditions.propulsion.propeller_tip_mach_forward        = (rpm_forward * R_forward)/a
+        conditions.propulsion.propeller_torque_forward          = Q_forward       
+        conditions.propulsion.propeller_efficiency_forward      = etap_forward
+        conditions.propulsion.rotor_tip_speed                   = output_lift.tip_speed
+        conditions.propulsion.current                           = i_lift + i_forward 
+        conditions.propulsion.battery_specfic_power             = -(battery_draw/1000)/battery.mass_properties.mass    # kW/kg
+        conditions.propulsion.electronics_efficiency            = -(P_forward*num_forward+P_lift*num_lift)/battery_draw  
+        conditions.propulsion.battery_current                   = current_total
         
         # Calculate the thrust and mdot
         F_lift_total    = F_lift*num_lift * [np.cos(self.thrust_angle_lift),0,-np.sin(self.thrust_angle_lift)]    
         F_forward_total = F_forward*num_forward * [np.cos(self.thrust_angle_forward),0,-np.sin(self.thrust_angle_forward)] 
 
+
+        F_lift_mag = np.atleast_2d(np.linalg.norm(F_lift_total, axis=1)*0.224809 ) # lb 
+        F_forward_mag =  np.atleast_2d(np.linalg.norm(F_forward_total, axis=1)*0.224809) # lb   
+        
+        conditions.propulsion.disc_loading_lift                 = (F_lift_mag.T)/(self.number_of_engines_lift*np.pi*(R_lift *3.28084)**2) # lb/ft^2      
+        conditions.propulsion.disc_loading_forward              = (F_forward_mag.T)/(self.number_of_engines_forward*np.pi*(R_forward*3.28084)**2) # lb/ft^2       
+        conditions.propulsion.power_loading_lift                = (F_lift_mag.T)/(battery_draw*0.00134102)           # lb/hp         
+        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw*0.00134102)           # lb/hp 
+        
         F_total = F_lift_total + F_forward_total
         mdot    = np.zeros_like(F_total)
         
         results = Data()
         results.thrust_force_vector = F_total
-        results.vehicle_mass_rate   = mdot
+        results.vehicle_mass_rate   = mdot   
+        
+     
+     
         
         
-        conditions.propulsion.propeller_power_lift     = P_lift*num_lift
-        conditions.propulsion.propeller_thrust_lift    = F_lift*num_lift
-        conditions.propulsion.propeller_power_forward  = P_forward*num_forward
         
-        conditions.propulsion.propeller_thrust_coefficient = Cp_forward
-        conditions.propulsion.propeller_power_coefficient_lift  = Cp_lift        
-        conditions.propulsion.propeller_thrust_coefficient_lift  = output_lift.Ct
-        conditions.propulsion.battery_current = current_total
         return results
     
     def unpack_unknowns_transition(self,segment):
@@ -397,9 +408,9 @@ class Stopped_Rotor(Propulsor):
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
         segment.state.conditions.propulsion.throttle_lift                       = 0.0 * ones(1)
         segment.state.conditions.propulsion.battery_voltage_under_load          = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient         = segment.state.unknowns.propeller_power_coefficient
         segment.state.conditions.propulsion.propeller_power_coefficient_lift    = 0.0 * ones(1)
-        segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
+        segment.state.conditions.propulsion.throttle                            = segment.state.unknowns.throttle
         
         return    
     
@@ -434,9 +445,9 @@ class Stopped_Rotor(Propulsor):
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
         segment.state.conditions.propulsion.throttle_lift                        = segment.state.unknowns.throttle_lift
         segment.state.conditions.propulsion.battery_voltage_under_load           = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.propeller_power_coefficient  = 0.0 * ones(1)
+        segment.state.conditions.propulsion.propeller_power_coefficient          = 0.0 * ones(1)
         segment.state.conditions.propulsion.propeller_power_coefficient_lift     = segment.state.unknowns.propeller_power_coefficient_lift
-        segment.state.conditions.propulsion.throttle                     = 0.0 * ones(1)
+        segment.state.conditions.propulsion.throttle                             = 0.0 * ones(1)
         
         return    
     
@@ -480,10 +491,7 @@ class Stopped_Rotor(Propulsor):
         segment.state.residuals.network[:,0] = (q_motor_forward[:,0] - q_prop_forward[:,0])/q_motor_forward[:,0] 
         segment.state.residuals.network[:,1] = (q_motor_lift[:,0] - q_prop_lift[:,0])/q_motor_lift[:,0]
         segment.state.residuals.network[:,2] = (v_predict[:,0] - v_actual[:,0])/v_max  
-        #print('***********************************************')
-        #print(segment.state.residuals.network[:,0])
-        #print(segment.state.residuals.network[:,1])
-        #print(segment.state.residuals.network[:,2])
+
         return
     
     
@@ -523,8 +531,7 @@ class Stopped_Rotor(Propulsor):
         
         # Return the residuals
         segment.state.residuals.network[:,0] = q_motor_forward[:,0] - q_prop_forward[:,0]
-        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max  
-        
+        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max 
         return    
     
     def residuals_no_forward(self,segment):

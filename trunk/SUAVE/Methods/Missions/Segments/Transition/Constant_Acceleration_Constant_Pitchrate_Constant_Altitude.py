@@ -1,5 +1,5 @@
 ## @ingroup Methods-Missions-Segments-Transition
-# Constant_Accleration_Constant_Pitchrate_Constant_Altitide.py
+# Constant_Acceleration_Constant_Pitchrate_Constant_Altitude.py
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
@@ -42,7 +42,6 @@ def initialize_conditions(segment):
     ax  = segment.acceleration   
     T0  = segment.pitch_initial
     Tf  = segment.pitch_final     
-    conditions = segment.state.conditions 
     
     # check for initial altitude
     if alt is None:
@@ -56,7 +55,7 @@ def initialize_conditions(segment):
         segment.pitch_initial = T0    
 
     # dimensionalize time
-    t_initial = conditions.frames.inertial.time[0,0]
+    t_initial = segment.state.conditions.frames.inertial.time[0,0]
     t_final   = (vf-v0)/ax + t_initial
     t_nondim  = segment.state.numerics.dimensionless.control_points
     time      = t_nondim * (t_final-t_initial)
@@ -66,7 +65,7 @@ def initialize_conditions(segment):
     
     # set the body angle
     if Tf > T0:
-        body_angle =time*(Tf-T0)/(t_final-t_initial)
+        body_angle = T0 + time*(Tf-T0)/(t_final-t_initial)
     else:
         body_angle = T0 - time*(T0-Tf)/(t_final-t_initial)
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     

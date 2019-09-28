@@ -48,11 +48,9 @@ def main():
     rot.design_altitude        = 0.0 * Units.km
     rot.design_thrust          = 1000.0
     rot.induced_hover_velocity = 13.5 #roughly equivalent to a Chinook at SL
+
+    rot  = propeller_design(prop) 
     
-    rot  = propeller_design(prop)    
-
-
-
     # Find the operating conditions
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmosphere_conditions =  atmosphere.compute_values(prop.design_altitude)
@@ -68,6 +66,7 @@ def main():
     conditions.frames.inertial = Data()
     conditions.freestream.update(atmosphere_conditions)
     conditions.freestream.dynamic_viscosity = atmosphere_conditions.dynamic_viscosity
+    conditions.frames.inertial.velocity_vector = np.array([[V,0,0]])
     conditions.propulsion.throttle = np.array([[1.0]])
     conditions.frames.body.transform_to_inertial = np.array([np.eye(3)])
     
@@ -78,8 +77,10 @@ def main():
     # Create and attach this propeller 
     prop.inputs.omega    = np.array(prop.angular_velocity,ndmin=2)
     rot.inputs.omega     = copy.copy(prop.inputs.omega)
+    
     F, Q, P, Cplast ,output , etap       = prop.spin(conditions)
     Fr, Qr, Pr, Cplastr ,outputr , etapr = rot.spin(conditions_r)
+
     
     # Truth values
     F_truth      = 103.38703422
@@ -92,15 +93,6 @@ def main():
     Pr_truth      = 1199.32836953
     Cplastr_truth = 0.00010878
     
-     
-      
-     
-     
-      
-    
-    
-    
-    
     error = Data()
     error.Thrust   = np.max(np.abs(F-F_truth))
     error.Power    = np.max(np.abs(P-P_truth))
@@ -110,7 +102,6 @@ def main():
     error.Powerr   = np.max(np.abs(Pr-Pr_truth))
     error.Torquer  = np.max(np.abs(Qr-Qr_truth))
     error.Cpr      = np.max(np.abs(Cplastr-Cplastr_truth)) 
- 
     
     print('Errors:')
     print(error)
