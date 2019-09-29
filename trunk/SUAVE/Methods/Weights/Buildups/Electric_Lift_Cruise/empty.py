@@ -69,7 +69,6 @@ def empty(config,
 #-------------------------------------------------------------------------------
 # Unpack Inputs
 #-------------------------------------------------------------------------------
-
     rPropLift           = config.propulsors.propulsor.propeller_lift.tip_radius
     rPropThrust         = config.propulsors.propulsor.propeller_forward.tip_radius
     mBattery            = config.propulsors.propulsor.battery.mass_properties.mass
@@ -134,8 +133,14 @@ def empty(config,
                                      maxLiftPower/etaMotor) *Units.kg
 
     total_wing_weight = 0.
+    output.wings = Data()
+
+
+    
+    
     for w in config.wings:
         wing_tag = w.tag
+        #print('wing_tag =', wing_tag)
         if (wing_tag.find('main_wing') != -1):
             wing_weight = wing(config.wings[w.tag],
                                config, 
