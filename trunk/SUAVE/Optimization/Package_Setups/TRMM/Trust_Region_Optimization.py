@@ -10,10 +10,10 @@
 
 import numpy as np
 import SUAVE
-try:
-    import pyOpt
-except:
-    pass
+#try:
+    #import pyOpt
+#except:
+    #pass
 from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as help_fun
 import os
@@ -287,6 +287,24 @@ class Trust_Region_Optimization(Data):
                     gOpt_corr = np.zeros([1,len(con)])[0]   
                     for ii in range(len(con)):
                         gOpt_corr[ii] = new_outputs[1][ii]
+                elif self.optimizer == 'SLSQP':
+                    bounds = []
+                    for lb, ub in zip(con_low_edge, con_up_edge):
+                        bounds.append((lb,ub)) 
+                        
+                    res = minimize(self.evaluate_constraints, x, \
+                                   args=(problem,corrections,tr,con_low_edge,con_up_edge), bounds=bounds, method='slsqp')                    
+                        
+                    xOpt_corr = res['x']
+                    self.optimizer = 'SNOPT'
+                    new_outputs = self.evaluate_corrected_model(x, problem=problem,corrections=corrections,tr=tr)
+                    self.optimizer = 'SLSQP'
+                    
+                    fOpt_corr = new_outputs[0][0]
+                    gOpt_corr = np.zeros([1,len(con)])[0]   
+                    for ii in range(len(con)):
+                        gOpt_corr[ii] = new_outputs[1][ii]               
+                        
                 else:
                     raise ValueError('Selected optimizer not implemented')
                 
@@ -509,8 +527,10 @@ class Trust_Region_Optimization(Data):
         print(x)
         print('Cons violation')
         print(obj_cons)         
-            
-        return obj_cons,const,fail    
+        if self.optimizer == 'SNOPT':
+            return obj_cons,const,fail  
+        else:
+            return obj_cons
         
         
     def calculate_constraint_violation(self,gval,lb,ub):

@@ -10,12 +10,12 @@
 
 import numpy as np
 import SUAVE
-try:
-    import pyOpt
-    import pyOpt.pySNOPT
-    import pyOpt.pyALPSO
-except:
-    pass
+#try:
+    #import pyOpt
+    #import pyOpt.pySNOPT
+    #import pyOpt.pyALPSO
+#except:
+    #pass
 import sklearn
 from sklearn import gaussian_process
 from SUAVE.Optimization import helper_functions as help_fun

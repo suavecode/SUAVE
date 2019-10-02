@@ -33,151 +33,151 @@ def main():
     
     ################### Basic Additive ##################################################
     
-    ## ------------------------------------------------------------------
-    ##   Inactive constraints
-    ## ------------------------------------------------------------------     
+    # ------------------------------------------------------------------
+    #   Inactive constraints
+    # ------------------------------------------------------------------     
     
-    #solver = set_add_solver()
+    solver = set_add_solver()
     
-    #problem.optimization_problem.constraints = np.array([
-        #[ 'x1' , '>', -10., 1., Units.less],
-        #[ 'x2' , '>', -50., 1., Units.less],
-    #])    
+    problem.optimization_problem.constraints = np.array([
+        [ 'x1' , '>', -10., 1., Units.less],
+        [ 'x2' , '>', -50., 1., Units.less],
+    ])    
     
-    #print('Checking basic additive with no active constraints...')
-    #outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=1e-8,print_output=False)
-    #print(outputs)   
-    #obj,x1,x2 = get_results(outputs)
+    print('Checking basic additive with no active constraints...')
+    outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=1e-8,print_output=False)
+    print(outputs)   
+    obj,x1,x2 = get_results(outputs)
     
-    ## ------------------------------------------------------------------
-    ##   Check Results
-    ## ------------------------------------------------------------------    
+    # ------------------------------------------------------------------
+    #   Check Results
+    # ------------------------------------------------------------------    
 
-    #assert( np.isclose(obj,  0, atol=1e-6) )
-    #assert( np.isclose(x1 ,-.1, atol=1e-2) )
-    #assert( np.isclose(x2 ,  0, atol=1e-2) )      
+    assert( np.isclose(obj,  0, atol=1e-6) )
+    assert( np.isclose(x1 ,-.1, atol=1e-2) )
+    assert( np.isclose(x2 ,  0, atol=1e-2) )      
     
-    ## ------------------------------------------------------------------
-    ##   Active constraint
-    ## ------------------------------------------------------------------     
+    # ------------------------------------------------------------------
+    #   Active constraint
+    # ------------------------------------------------------------------     
     
-    #solver = set_add_solver()
+    solver = set_add_solver()
     
-    #problem.optimization_problem.constraints = np.array([
-        #[ 'x1' , '>', -10., 1., Units.less],
-        #[ 'x2' , '>',   1., 1., Units.less],
-    #])    
+    problem.optimization_problem.constraints = np.array([
+        [ 'x1' , '>', -10., 1., Units.less],
+        [ 'x2' , '>',   1., 1., Units.less],
+    ])    
     
-    #print('Checking basic additive with one active constraint...')
-    #outputs = solver.Additive_Solve(problem,max_iterations=1000,num_samples=20,tolerance=1e-8,print_output=False)
-    #print(outputs)   
-    #obj,x1,x2 = get_results(outputs)
+    print('Checking basic additive with one active constraint...')
+    outputs = solver.Additive_Solve(problem,max_iterations=1000,num_samples=20,tolerance=1e-8,print_output=False)
+    print(outputs)   
+    obj,x1,x2 = get_results(outputs)
     
-    ## ------------------------------------------------------------------
-    ##   Check Results
-    ## ------------------------------------------------------------------    
+    # ------------------------------------------------------------------
+    #   Check Results
+    # ------------------------------------------------------------------    
 
-    #assert( np.isclose(obj,  1, atol=1e-6) )
-    #assert( np.isclose(x1 ,-.1, atol=1e-2) )
-    #assert( np.isclose(x2 ,  1, atol=1e-2) )     
+    assert( np.isclose(obj,  1, atol=1e-6) )
+    assert( np.isclose(x1 ,-.1, atol=1e-2) )
+    assert( np.isclose(x2 ,  1, atol=1e-2) )     
     
-    ## ------------------------------------------------------------------
-    ##   Other active constraints
-    ## ------------------------------------------------------------------     
+    # ------------------------------------------------------------------
+    #   Other active constraints
+    # ------------------------------------------------------------------     
     
-    #solver = set_add_solver()
+    solver = set_add_solver()
     
-    #problem.optimization_problem.constraints = np.array([
-        #[ 'x1' , '=',   2., 1., Units.less],
-        #[ 'x2' , '<',  -1., 1., Units.less],
-    #])    
+    problem.optimization_problem.constraints = np.array([
+        [ 'x1' , '=',   2., 1., Units.less],
+        [ 'x2' , '<',  -1., 1., Units.less],
+    ])    
     
-    #print('Checking basic additive with two active constraints...')
-    #outputs = solver.Additive_Solve(problem,max_iterations=1000,num_samples=20,tolerance=1e-8,print_output=False)
-    #print(outputs)   
-    #obj,x1,x2 = get_results(outputs)
+    print('Checking basic additive with two active constraints...')
+    outputs = solver.Additive_Solve(problem,max_iterations=1000,num_samples=20,tolerance=1e-8,print_output=False)
+    print(outputs)   
+    obj,x1,x2 = get_results(outputs)
     
-    ## ------------------------------------------------------------------
-    ##   Check Results
-    ## ------------------------------------------------------------------    
+    # ------------------------------------------------------------------
+    #   Check Results
+    # ------------------------------------------------------------------    
 
-    #assert( np.isclose(obj,5.41, atol=1e-6) )
-    #assert( np.isclose(x1 ,   2, atol=1e-2) )
-    #assert( np.isclose(x2 ,  -1, atol=1e-2) )  
+    assert( np.isclose(obj,5.41, atol=1e-6) )
+    assert( np.isclose(x1 ,   2, atol=1e-2) )
+    assert( np.isclose(x2 ,  -1, atol=1e-2) )  
     
-    ################## Additive MEI ##################################################
+    ################# Additive MEI ##################################################
     
-    ## ------------------------------------------------------------------
-    ##   Inactive constraints
-    ## ------------------------------------------------------------------     
+    # ------------------------------------------------------------------
+    #   Inactive constraints
+    # ------------------------------------------------------------------     
     
-    #solver = set_add_solver()
+    solver = set_add_solver()
     
-    #problem.optimization_problem.constraints = np.array([
-        #[ 'x1' , '>', -10., 1., Units.less],
-        #[ 'x2' , '>', -50., 1., Units.less],
-    #])    
+    problem.optimization_problem.constraints = np.array([
+        [ 'x1' , '>', -10., 1., Units.less],
+        [ 'x2' , '>', -50., 1., Units.less],
+    ])    
     
-    #print('Checking MEI additive with no active constraint...')
-    #outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
-    #print(outputs)   
-    #obj,x1,x2 = get_results(outputs)
+    print('Checking MEI additive with no active constraint...')
+    outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
+    print(outputs)   
+    obj,x1,x2 = get_results(outputs)
     
-    ## ------------------------------------------------------------------
-    ##   Check Results
-    ## ------------------------------------------------------------------    
+    # ------------------------------------------------------------------
+    #   Check Results
+    # ------------------------------------------------------------------    
 
-    #assert( np.isclose(obj,  0, atol=1e-6) )
-    #assert( np.isclose(x1 ,-.1, atol=1e-2) )
-    #assert( np.isclose(x2 ,  0, atol=1e-2) )      
+    assert( np.isclose(obj,  0, atol=1e-6) )
+    assert( np.isclose(x1 ,-.1, atol=1e-2) )
+    assert( np.isclose(x2 ,  0, atol=1e-2) )      
     
-    ## ------------------------------------------------------------------
-    ##   Active constraint
-    ## ------------------------------------------------------------------     
+    # ------------------------------------------------------------------
+    #   Active constraint
+    # ------------------------------------------------------------------     
     
-    #solver = set_add_solver()
+    solver = set_add_solver()
     
-    #problem.optimization_problem.constraints = np.array([
-        #[ 'x1' , '>', -10., 1., Units.less],
-        #[ 'x2' , '>',   1., 1., Units.less],
-    #])    
+    problem.optimization_problem.constraints = np.array([
+        [ 'x1' , '>', -10., 1., Units.less],
+        [ 'x2' , '>',   1., 1., Units.less],
+    ])    
     
-    #print('Checking MEI additive with one active constraint...')
-    #outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
-    #print(outputs)   
-    #obj,x1,x2 = get_results(outputs)
+    print('Checking MEI additive with one active constraint...')
+    outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
+    print(outputs)   
+    obj,x1,x2 = get_results(outputs)
     
-    ## ------------------------------------------------------------------
-    ##   Check Results
-    ## ------------------------------------------------------------------    
+    # ------------------------------------------------------------------
+    #   Check Results
+    # ------------------------------------------------------------------    
 
-    #assert( np.isclose(obj,  1, atol=1e-4) ) # optimizer does not reach exactly optimum here
-    #assert( np.isclose(x1 ,-.1, atol=1e-2) )
-    #assert( np.isclose(x2 ,  1, atol=1e-2) )     
+    assert( np.isclose(obj,  1, atol=1e-4) ) # optimizer does not reach exactly optimum here
+    assert( np.isclose(x1 ,-.1, atol=1e-2) )
+    assert( np.isclose(x2 ,  1, atol=1e-2) )     
     
-    ##------------------------------------------------------------------
-    ##   Other active constraints
-    ##------------------------------------------------------------------     
+    #------------------------------------------------------------------
+    #   Other active constraints
+    #------------------------------------------------------------------     
     
-    #solver = set_add_solver()
+    solver = set_add_solver()
     
-    #problem.optimization_problem.constraints = np.array([
-        #[ 'x1' , '=',   2., 1., Units.less],
-        #[ 'x2' , '<',  -1., 1., Units.less],
-    #])    
+    problem.optimization_problem.constraints = np.array([
+        [ 'x1' , '=',   2., 1., Units.less],
+        [ 'x2' , '<',  -1., 1., Units.less],
+    ])    
     
-    #print('Checking MEI additive with two active constraints...')
-    #outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
-    #print(outputs)   
-    #obj,x1,x2 = get_results(outputs)
+    print('Checking MEI additive with two active constraints...')
+    outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
+    print(outputs)   
+    obj,x1,x2 = get_results(outputs)
     
-    ## ------------------------------------------------------------------
-    ##   Check Results
-    ## ------------------------------------------------------------------    
+    # ------------------------------------------------------------------
+    #   Check Results
+    # ------------------------------------------------------------------    
 
-    #assert( np.isclose(obj,5.41, atol=1e-6) )
-    #assert( np.isclose(x1 ,   2, atol=1e-6) )
-    #assert( np.isclose(x2 ,  -1, atol=1e-6) )     
+    assert( np.isclose(obj,5.41, atol=1e-6) )
+    assert( np.isclose(x1 ,   2, atol=1e-6) )
+    assert( np.isclose(x2 ,  -1, atol=1e-6) )     
     
     ################# TRMM ##################################################
     
