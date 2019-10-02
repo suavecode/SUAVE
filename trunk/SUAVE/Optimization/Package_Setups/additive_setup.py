@@ -210,7 +210,8 @@ class Additive_Solver():
             if kk == (max_iterations-1) or complete_flag == True: # Reached maximum number of iterations
                 f_diff = f[1,:] - f[0,:]
                 if opt_type == 'basic': # If basic setting f already has the expected optimum
-                    fOpt = f[1][-1]
+                    problem.fidelity_level = 2
+                    fOpt = self.evaluate_model(problem,xOpt,scaled_constraints)[0][0]
                 elif opt_type == 'MEI': # If MEI, find the optimum of the final surrogate
                     opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, \
                                                   obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)       
@@ -230,7 +231,10 @@ class Additive_Solver():
                     res = minimize(self.evaluate_corrected_model, x0,constraints=constraints,args=(problem,f_additive_surrogate,g_additive_surrogate),options={'ftol':1e-6,'disp':True})
                     fOpt = res['fun']
                     xOpt = res['x']
-                    self.local_optimizer = 'SNOPT'                        
+                    self.local_optimizer = 'SNOPT'  
+                    
+                    problem.fidelity_level = 2
+                    fOpt = self.evaluate_model(problem,xOpt,scaled_constraints)[0][0]               
             
                     f_out.write('x0_opt  : ' + str(xOpt[0]) + '\n')
                     f_out.write('x1_opt  : ' + str(xOpt[1]) + '\n')                
@@ -268,7 +272,10 @@ class Additive_Solver():
                     res = minimize(self.evaluate_corrected_model, x0,constraints=constraints,args=(problem,f_additive_surrogate,g_additive_surrogate),options={'ftol':1e-6,'disp':True})
                     fOpt = res['fun']
                     xOpt = res['x']
-                    self.local_optimizer = 'SNOPT'                    
+                    self.local_optimizer = 'SNOPT' 
+                    
+                    problem.fidelity_level = 2
+                    fOpt = self.evaluate_model(problem,xOpt,scaled_constraints)[0][0]                      
                     
                     f_out.write('x0_opt  : ' + str(xOpt[0]) + '\n')
                     f_out.write('x1_opt  : ' + str(xOpt[1]) + '\n')                
