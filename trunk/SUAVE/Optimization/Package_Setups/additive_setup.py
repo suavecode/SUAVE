@@ -3,6 +3,7 @@
 #
 # Created:  Apr 2017, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
+#           Oct 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,12 +11,12 @@
 
 import numpy as np
 import SUAVE
-#try:
-    #import pyOpt
-    #import pyOpt.pySNOPT
-    #import pyOpt.pyALPSO
-#except:
-    #pass
+try:
+    import pyOpt
+    import pyOpt.pySNOPT
+    import pyOpt.pyALPSO
+except:
+    pass
 import sklearn
 from sklearn import gaussian_process
 from SUAVE.Optimization import helper_functions as help_fun
@@ -122,63 +123,73 @@ class Additive_Solver():
             
             # Chose method ---------------
             if opt_type == 'basic': # Next point determined by surrogate optimum
-                opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, \
-                                          obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)       
-            
+                problem.fidelity_level = 1
                 x_eval = latin_hypercube_sampling(len(x),1,bounds=(x_low_bound,x_up_bound),criterion='random')[0]
                 
-                # Set up opt_prob
-                self.initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval)  
-                   
-                opt = pyOpt.pySNOPT.SNOPT()      
+                if self.local_optimizer == 'SNOPT':
+                    opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, \
+                                              obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)      
+                    
+                    # Set up opt_prob
+                    self.initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval)  
+                       
+                    opt = pyOpt.pySNOPT.SNOPT()      
+                    
+                    outputs = opt(opt_prob, sens_type='FD',problem=problem, \
+                                  obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)#, sens_step = sense_step)  
+                    fOpt = outputs[0][0]
+                    xOpt = outputs[1]
                 
-                problem.fidelity_level = 1
-                #outputs = opt(opt_prob, sens_type='FD',problem=problem, \
-                              #obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)#, sens_step = sense_step)  
-                #fOpt = outputs[0][0]
-                #xOpt = outputs[1]
+                elif self.local_optimizer == 'SLSQP':
                 
-                x0,constraints = self.initialize_opt_vals_SLSQP(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval,problem,g_additive_surrogate)
-                
-                self.local_optimizer = 'SLSQP'
-                res = minimize(self.evaluate_corrected_model, x0,constraints=constraints,args=(problem,f_additive_surrogate,g_additive_surrogate),options={'ftol':1e-6,'disp':True})
-                fOpt = res['fun']
-                xOpt = res['x']
-                self.local_optimizer = 'SNOPT'
+                    x0,constraints = self.initialize_opt_vals_SLSQP(obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval,problem,g_additive_surrogate)
+    
+                    res = minimize(self.evaluate_corrected_model, x0,constraints=constraints,args=(problem,f_additive_surrogate,g_additive_surrogate),options={'ftol':1e-6,'disp':True})
+                    fOpt = res['fun']
+                    xOpt = res['x']
+                    
+                else:
+                    raise NotImplementedError
     
             elif opt_type == 'MEI': # Next point determined by maximum expected improvement
                 fstar = np.min(f[1,:])
-                opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_expected_improvement, \
-                                          obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate,fstar=fstar)     
-                
-                # Set up opt_prob
-                self.initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,None)     
-                   
-                # Use a global optimizer
-                opt = pyOpt.pyALPSO.ALPSO()    
-                opt.setOption('maxOuterIter',value=20)
-                opt.setOption('seed',value=1.)
-                
                 problem.fidelity_level = 1
                 
-                #outputs = opt(opt_prob,problem=problem, \
-                              #obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate,fstar=fstar,cons=con)#, sens_step = sense_step)
-                #fOpt  = np.nan 
-                #imOpt = outputs[0]
-                #xOpt  = outputs[1]
+                if self.global_optimizer == 'ALPSO':
+                    opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_expected_improvement, \
+                                              obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate,fstar=fstar)     
+                    
+                    # Set up opt_prob
+                    self.initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,None)     
+                       
+                    # Use a global optimizer
+                    opt = pyOpt.pyALPSO.ALPSO()    
+                    opt.setOption('maxOuterIter',value=20)
+                    opt.setOption('seed',value=1.)                    
+                    
+                    outputs = opt(opt_prob,problem=problem, \
+                                  obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate,fstar=fstar,cons=con)#, sens_step = sense_step)
+                    fOpt  = np.nan 
+                    imOpt = outputs[0]
+                    xOpt  = outputs[1]
+                    
+                elif self.global_optimizer == 'SHGO':
                 
-                xb, shgo_cons = self.initialize_opt_vals_SHGO(opt_prob, obj, inp, x_low_bound, x_up_bound, con_low_edge, con_up_edge, nam, con, problem, g_additive_surrogate)
-            
-                self.global_optimizer = 'SHGO'
-                options = {}
-                #options['maxfev'] = 1
-                #self.expected_improvement_carpet(x_low_bound, x_up_bound, problem, f_additive_surrogate, g_additive_surrogate, fstar) 
-                res = shgo(self.evaluate_expected_improvement, xb, iters=2, args=(problem,f_additive_surrogate,g_additive_surrogate,fstar),constraints=shgo_cons,options=options)
-                self.global_optimizer = 'ALPSO'
+                    xb, shgo_cons = self.initialize_opt_vals_SHGO(obj, inp, x_low_bound, x_up_bound, con_low_edge, con_up_edge, nam, con, problem, g_additive_surrogate)
                 
-                fOpt  = np.nan 
-                imOpt = res['fun']
-                xOpt  = res['x']               
+                    #self.global_optimizer = 'SHGO'
+                    options = {}
+                    #options['maxfev'] = 1
+                    #self.expected_improvement_carpet(x_low_bound, x_up_bound, problem, f_additive_surrogate, g_additive_surrogate, fstar) 
+                    res = shgo(self.evaluate_expected_improvement, xb, iters=2, args=(problem,f_additive_surrogate,g_additive_surrogate,fstar),constraints=shgo_cons,options=options)
+                    #self.global_optimizer = 'ALPSO'
+                    
+                    fOpt  = np.nan 
+                    imOpt = res['fun']
+                    xOpt  = res['x']    
+                    
+                else:
+                    raise NotImplementedError
             
             # ---------------------------------
             
@@ -213,25 +224,26 @@ class Additive_Solver():
                     problem.fidelity_level = 2
                     fOpt = self.evaluate_model(problem,xOpt,scaled_constraints)[0][0]
                 elif opt_type == 'MEI': # If MEI, find the optimum of the final surrogate
-                    opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, \
-                                                  obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)       
                 
                     min_ind = np.argmin(f[1])
                     x_eval = x_samples[min_ind]
                 
-                    # Set up opt_prob
-                    self.initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval)    
-                
-                    #fOpt, xOpt = self.run_objective_optimization(opt_prob,problem,f_additive_surrogate,g_additive_surrogate)
+                    if self.local_optimizer == 'SNOPT':
+                        opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, \
+                                                      obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)                         
+                        
+                        # Set up opt_prob
+                        self.initialize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval)                           
+                        
+                        fOpt, xOpt = self.run_objective_optimization(opt_prob,problem,f_additive_surrogate,g_additive_surrogate)
                     
-                    problem.fidelity_level = 1
-                    x0,constraints = self.initialize_opt_vals_SLSQP(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval,problem,g_additive_surrogate)
-                    
-                    self.local_optimizer = 'SLSQP'
-                    res = minimize(self.evaluate_corrected_model, x0,constraints=constraints,args=(problem,f_additive_surrogate,g_additive_surrogate),options={'ftol':1e-6,'disp':True})
-                    fOpt = res['fun']
-                    xOpt = res['x']
-                    self.local_optimizer = 'SNOPT'  
+                    elif self.local_optimizer == 'SLSQP':
+                        problem.fidelity_level = 1
+                        x0,constraints = self.initialize_opt_vals_SLSQP(obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval,problem,g_additive_surrogate)
+                        
+                        res = minimize(self.evaluate_corrected_model, x0,constraints=constraints,args=(problem,f_additive_surrogate,g_additive_surrogate),options={'ftol':1e-6,'disp':True})
+                        fOpt = res['fun']
+                        xOpt = res['x'] 
                     
                     problem.fidelity_level = 2
                     fOpt = self.evaluate_model(problem,xOpt,scaled_constraints)[0][0]               
@@ -250,29 +262,36 @@ class Additive_Solver():
                 f_diff = f[1,:] - f[0,:]
                 converged = True
                 if opt_type == 'MEI':
-                    opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, \
-                                                  obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)       
-                
+                    
+                    problem.fidelity_level = 1
                     min_ind = np.argmin(f[1])
                     x_eval = x_samples[min_ind]
-                
-                    initalize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval)    
-                
-                    opt = pyOpt.pySNOPT.SNOPT()      
-                
-                    problem.fidelity_level = 1
-                    #outputs = opt(opt_prob, sens_type='FD',problem=problem, \
-                                  #obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)#, sens_step = sense_step)  
-                    #fOpt = outputs[0][0]
-                    #xOpt = outputs[1]
                     
-                    x0,constraints = self.initialize_opt_vals_SLSQP(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval,problem,g_additive_surrogate)
+                    if self.local_optimizer == 'SNOPT':
                     
-                    self.local_optimizer = 'SLSQP'
-                    res = minimize(self.evaluate_corrected_model, x0,constraints=constraints,args=(problem,f_additive_surrogate,g_additive_surrogate),options={'ftol':1e-6,'disp':True})
-                    fOpt = res['fun']
-                    xOpt = res['x']
-                    self.local_optimizer = 'SNOPT' 
+                        opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, \
+                                                      obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)       
+                    
+                        initalize_opt_vals(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval)    
+                    
+                        opt = pyOpt.pySNOPT.SNOPT()      
+                    
+                        
+                        outputs = opt(opt_prob, sens_type='FD',problem=problem, \
+                                      obj_surrogate=f_additive_surrogate,cons_surrogate=g_additive_surrogate)#, sens_step = sense_step)  
+                        fOpt = outputs[0][0]
+                        xOpt = outputs[1]
+                        
+                    elif self.local_optimizer == 'SLSQP':
+                    
+                        x0,constraints = self.initialize_opt_vals_SLSQP(opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval,problem,g_additive_surrogate)
+                        
+                        res = minimize(self.evaluate_corrected_model, x0,constraints=constraints,args=(problem,f_additive_surrogate,g_additive_surrogate),options={'ftol':1e-6,'disp':True})
+                        fOpt = res['fun']
+                        xOpt = res['x']
+                        
+                    else:
+                        raise NotImplementedError
                     
                     problem.fidelity_level = 2
                     fOpt = self.evaluate_model(problem,xOpt,scaled_constraints)[0][0]                      
@@ -666,7 +685,7 @@ class Additive_Solver():
         
         return con
     
-    def initialize_opt_vals_SLSQP(self,opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval,problem,cons_surr):
+    def initialize_opt_vals_SLSQP(self,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,x_eval,problem,cons_surr):
         # Initialize variables according to SLSQP requirements
         x0 = x_eval
         slsqp_con_list = []
@@ -687,7 +706,7 @@ class Additive_Solver():
         
         return x0,slsqp_con_list
     
-    def initialize_opt_vals_SHGO(self,opt_prob,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,problem,cons_surr):
+    def initialize_opt_vals_SHGO(self,obj,inp,x_low_bound,x_up_bound,con_low_edge,con_up_edge,nam,con,problem,cons_surr):
         # Initialize variables according to SLSQP requirements
         bound_list = []
         for i in range(len(x_low_bound)):

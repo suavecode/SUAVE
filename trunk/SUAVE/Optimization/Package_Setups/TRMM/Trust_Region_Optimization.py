@@ -3,6 +3,7 @@
 #
 # Created:  Apr 2017, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
+#           Oct 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,10 +11,10 @@
 
 import numpy as np
 import SUAVE
-#try:
-    #import pyOpt
-#except:
-    #pass
+try:
+    import pyOpt
+except:
+    pass
 from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as help_fun
 import os
@@ -65,7 +66,7 @@ class Trust_Region_Optimization(Data):
         self.optimizer_verify_level             = 0
         self.fidelity_levels                    = 2     # only two are currently supported
         self.evaluation_order                   = [1,2] # currently this order is necessary for proper functionality   
-        self.optimizer                          = 'SNOPT'
+        self.optimizer                          = 'SLSQP'
         
     def optimize(self,problem,print_output=False):
         """Optimizes the problem
@@ -296,9 +297,8 @@ class Trust_Region_Optimization(Data):
                                    args=(problem,corrections,tr,con_low_edge,con_up_edge), bounds=bounds, method='slsqp')                    
                         
                     xOpt_corr = res['x']
-                    self.optimizer = 'SNOPT'
-                    new_outputs = self.evaluate_corrected_model(x, problem=problem,corrections=corrections,tr=tr)
-                    self.optimizer = 'SLSQP'
+                    new_outputs = self.evaluate_corrected_model(x, problem=problem,corrections=corrections,tr=tr,
+                                                                return_cons=True)
                     
                     fOpt_corr = new_outputs[0][0]
                     gOpt_corr = np.zeros([1,len(con)])[0]   
@@ -432,7 +432,7 @@ class Trust_Region_Optimization(Data):
         return (f,df,g,dg)
 
 
-    def evaluate_corrected_model(self,x,problem=None,corrections=None,tr=None):
+    def evaluate_corrected_model(self,x,problem=None,corrections=None,tr=None,return_cons=False):
         """Evaluates the SUAVE nexus problem and applies corrections to the results.
         
         Assumptions:
@@ -474,7 +474,7 @@ class Trust_Region_Optimization(Data):
         print('Con')
         print(const)
             
-        if self.optimizer == 'SNOPT':
+        if self.optimizer == 'SNOPT' or return_cons:
             return obj,const,fail
         elif self.optimizer == 'SLSQP':
             return obj

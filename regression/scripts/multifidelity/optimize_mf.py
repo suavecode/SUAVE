@@ -1,6 +1,7 @@
 # Optimize.py
 # Created:  Feb 2016, M. Vegh
 # Modified: Nov 2016, T. MacDonald
+#           Oct 2019, T. MacDonald
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -28,7 +29,7 @@ def main():
     def set_add_solver():
         solver = Additive_Solver()
         solver.local_optimizer = 'SLSQP'
-        solver.global_optimizer = 'ALPSO'
+        solver.global_optimizer = 'SHGO'
         return solver
     
     ################### Basic Additive ##################################################
