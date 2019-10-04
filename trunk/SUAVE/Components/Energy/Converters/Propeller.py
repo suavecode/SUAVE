@@ -511,7 +511,7 @@ class Propeller(Energy_Component):
         omega = np.abs(omega)
         
         #Things that don't change with iteration
-        N       = len(c) # Number of stations     
+        N     = len(c) # Number of stations     
         
         if  a_sec != None and a_secl != None:
             airfoil_polars = Data()
@@ -789,3 +789,299 @@ class Propeller(Energy_Component):
         conditions.propulsion.etap = eta
 
         return thrust, torque, power, Cp
+
+
+    def spin_new(self,conditions):
+        """Analyzes a propeller given geometry and operating conditions.
+        
+        Assumptions:
+        per source
+        
+        Source:
+        Qprop theory document
+        
+        Inputs:
+        self.inputs.omega            [radian/s]
+        conditions.freestream.
+          density                    [kg/m^3]
+          dynamic_viscosity          [kg/(m-s)]
+          speed_of_sound             [m/s]
+          temperature                [K]
+        conditions.frames.
+          body.transform_to_inertial (rotation matrix)
+          inertial.velocity_vector   [m/s]
+        conditions.propulsion.
+          throttle                   [-]
+          
+        Outputs:
+        conditions.propulsion.acoustic_outputs.
+          number_sections            [-]
+          r0                         [m]
+          airfoil_chord              [m]
+          blades_number              [-]
+          propeller_diameter         [m]
+          drag_coefficient           [-]
+          lift_coefficient           [-]
+          omega                      [radian/s]
+          velocity                   [m/s]
+          thrust                     [N]
+          power                      [W]
+          mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
+        conditions.propulsion.etap   [-]
+        thrust                       [N]
+        torque                       [Nm]
+        power                        [W]
+        Cp                           [-] (coefficient of power)
+        Properties Used:
+        self. 
+          number_blades              [-]
+          tip_radius                 [m]
+          hub_radius                 [m]
+          twist_distribution         [radians]
+          chord_distribution         [m]
+          mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
+          thrust_angle               [radians]
+        """         
+           
+        #Unpack    
+        B        = self.number_blades
+        R        = self.tip_radius
+        Rh       = self.hub_radius
+        theta    = self.twist_distribution
+        c        = self.chord_distribution
+        omega1   = self.inputs.omega 
+        a_sec    = self.airfoil_sections        
+        a_secl   = self.airfoil_section_location        
+        rho      = conditions.freestream.density[:,0,None]
+        dyna_visc= conditions.freestream.dynamic_viscosity[:,0,None]
+        Vv       = conditions.frames.inertial.velocity_vector
+        Vh       = self.induced_hover_velocity 
+        a        = conditions.freestream.speed_of_sound[:,0,None]
+        T        = conditions.freestream.temperature[:,0,None]
+        theta_t  = self.thrust_angle
+        tc       = .12 # Thickness to chord
+    
+        BB     = B*B
+        BBB    = BB*B
+    
+        # Velocity in the Body frame
+        T_body2inertial = conditions.frames.body.transform_to_inertial
+        T_inertial2body = orientation_transpose(T_body2inertial)
+        V_body = orientation_product(T_inertial2body,Vv)
+    
+        # Velocity transformed to the propulsor frame with flag for tilt rotor
+        if np.isscalar(theta_t):
+            body2thrust   = np.array([[np.cos(theta_t), 0., np.sin(theta_t)],[0., 1., 0.], [-np.sin(theta_t), 0., np.cos(theta_t)]])
+            T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        else:
+            body2thrust = np.zeros((len(theta_t),3,3))
+            for i in range(len(theta_t)):
+                body2thrust[i,:,:] = [[np.cos(theta_t[i][0]), 0., np.sin(theta_t[i][0])],[0., 1., 0.], [-np.sin(theta_t[i][0]), 0., np.cos(theta_t[i][0])]]
+            T_body2thrust      = orientation_transpose(body2thrust)
+    
+        V_thrust      = orientation_product(T_body2thrust,V_body)
+    
+        # Now just use the aligned velocity
+        V = V_thrust[:,0,None]
+       
+        ua = np.zeros_like(V)
+        if Vh != None:     
+            for i in range(len(V)):
+                V_inf = V_thrust[i] 
+                V_Vh =  V_thrust[i][0]/Vh
+                if Vv[i,:].all()  == True :
+                    ua[i] = Vh
+                elif Vv[i][0]  == 0 and  Vv[i][2] != 0: # vertical / axial flight
+                    if V_Vh > 0: # climbing 
+                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                    elif -2 <= V_Vh and V_Vh <= 0:  # slow descent                 
+                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718*(V_Vh)**2 - 0.655*(V_Vh)**4 ) 
+                    else: # windmilling 
+                        print("rotor is in the windmill break state!")
+                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) - np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                else: # forward flight conditions                 
+                    func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[2])**2 + (V_inf[0] + vi)**2)))
+                    vi_initial_guess = V_inf[0]
+                    ua[i]    = fsolve(func,vi_initial_guess)
+        else: 
+            ua = 0.0 
+        ut    = 0.0
+     
+        tol   = 1e-5 # Convergence tolerance
+    
+        omega = omega1*1.0
+        omega = np.abs(omega)
+        
+        #Things that don't change with iteration
+        N        = len(c) # Number of stations     
+        ctrl_pts = len(Vv) 
+        
+        if  a_sec != None and a_secl != None:
+            airfoil_polars = Data()
+            # check dimension of section  
+            dim_sec = len(a_secl)
+            if dim_sec != N:
+                raise AssertionError("Number of sections not equal to number of stations")
+            # compute airfoil polars for airfoils 
+            airfoil_polars = compute_airfoil_polars(self,conditions, a_sec)
+            airfoil_cl     = airfoil_polars.CL
+            airfoil_cd     = airfoil_polars.CD
+            AoA_range      = airfoil_polars.AoA_range
+
+        if self.radius_distribution is None:
+            chi0    = Rh/R   # Where the propeller blade actually starts
+            chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
+            chi     = chi[0:N]
+        
+        else:
+            chi = self.radius_distribution
+         
+        r_dim            = chi*R                    # Radial coordinate
+        pi           = np.pi
+        pi2          = pi*pi
+        x            = r_dim*np.multiply(omega,1/V) # Nondimensional distance
+        n            = omega/(2.*pi)            # Cycles per second
+        J            = V/(2.*R*n)     
+        
+        # blade area 
+        blade_area   = sp.integrate.cumtrapz(B*c, r_dim-r_dim[0])
+        
+        # solidity 
+        sigma        = blade_area[-1]/(pi*r_dim[-1]**2)   
+        
+        # compute lambda and mu 
+        lamda        = (V_inf[0] + ua)/(omega*R)
+        mu           = V_inf[2]/(omega*R) 
+        alpha_disc   = np.arctan(V_inf[0]/V_inf[2])
+        lamda_c      = mu*np.tan(alpha_disc)                
+        
+        # wake skew angle 
+        X            = np.arctan(mu/lamda)
+        kx           = np.tan(X/2)
+        
+        # create radial distribution and aximuthal distribution 
+        psi_2d       = np.tile(np.linspace(0,2*np.pi,N),(N ,1))
+        psi          = np.repeat(psi_2d[:, :, np.newaxis], ctrl_pts, axis=2)
+        r_2d         = (np.tile(r_dim,(N,1))).T  
+        r            = np.repeat(r_2d[:, :, np.newaxis], ctrl_pts, axis=2)
+        
+        # initial radial inflow distribution 
+        lamda_i_old  = lamda*(1 + kx*r_dim*np.cos(psi))        
+        
+        # Setup a Newton iteration 
+        ii = 0  
+        broke = False      
+        diff   = 1.
+        while (diff > tol):   
+            beta_dot        = 0  # currently no flaping 
+            beta            = 0  # currently no coning
+            
+            # axial, tangential and radial components of local blade flow 
+            ut              = omega*r + mu*omega*R*np.sin(psi)                  
+            ur              = mu*omega*R*np.cos(psi)                                      
+            up              = lamda*omega*R  + r*beta_dot + mu*omega*R*beta*np.cos(psi)   
+            
+            # blade incident angle 
+            phi             = np.arctan(up/ut)
+            
+            # local blade angle of attack
+            alpha           = theta - phi                                  # 3.67
+            
+            # local CD and CL 
+            airfoil_cl      = 5.7*alpha                                    # 3.67
+            airfoil_cd      = 0.0087 - 0.00215*alpha + 0.4*alpha**2        # 3.87 
+            
+            # force coefficient 
+            cFz             = airfoil_cl *np.cos(r) + airfoil_cd *np.sin(phi)
+            
+            # newtown raphson iteration 
+            f_lambda_i      = ((sigma*cFz - 1)/(8*r))*lamda_i_old**2 + ((2*sigma*cFz/8*r) - 1)*lamda_i_old*lamda_c + \
+                              (sigma*cFz/8*r)*(r**2 + lamda_i_old**2)
+            f_prime_lamda_i = 2*((sigma*cFz - 1)/(8*r))*lamda_i_old + ((2*sigma*cFz/8*r) - 1)*lamda_c + \
+                               2*((sigma*cFz)/(8*r))
+            lambda_i_new    = lamda_i_old - f_lambda_i/f_prime_lamda_i 
+            
+            # get difference of old and new solution for lambda 
+            diff            = np.max(abs(lambda_i_new - lamda_i_old))
+            
+            # in the event that the tolerance is not met
+            # a) make recently calulated value the new value for next iteration 
+            lamda_i_old     = lambda_i_new 
+            
+            # b) compute new lamda 
+            lamda           = lamda_i_old + lamda_c
+                            
+            ii+=1 
+            if ii>2000:
+                # maximum iterations is 2000
+                broke = True
+                break
+             
+        U   = np.sqrt(ut**2 + up**2)
+        L   = 0.5 * rho * U**2 * c * airfoil_cl
+        D   = 0.5 * rho * U**2 * c * airfoil_cl
+        Fz  = L*np.cos(phi) - D*np.sin(phi)  
+        Fx  = L*np.sin(phi) - D*np.cos(phi) 
+ 
+        thrust   = N * sum(Fz[0])
+        torque   = N * sum(Fx[0] * r)
+        D        = 2*R 
+        Ct       = thrust/(rho*(n*n)*(D*D*D*D))
+        Ct[Ct<0] = 0.     # prevent things from breaking
+        kappa    = self.induced_power_factor 
+        Cd0      = self.profile_drag_coefficient   
+        Cp       = np.zeros_like(Ct)
+        power    = np.zeros_like(Ct)        
+        for i in range(len(Vv)):
+            if -1. <Vv[i][0] <1.: # vertical/axial flight
+                Cp[i]       = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
+                power[i]    = Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+                torque[i]   = power[i]/omega[i]  
+            else:  
+                power[i]    = torque[i]*omega[i]   
+                Cp[i]       = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+ 
+        etap     = V*thrust/power     
+        
+        conditions.propulsion.etap = etap
+        
+        # store data
+        results_conditions = Data     
+        outputs   = results_conditions(
+            n_blades                  = B,
+            R                         = R,
+            D                         = D,
+            number_sections           = N,
+            radius_distribution       = np.linspace(Rh ,R, N),
+            chord_distribution        = c,     
+            twist_distribution        = beta,            
+            r0                        = r,
+            thrust_angle              = theta,
+            speed_of_sound            = conditions.freestream.speed_of_sound,
+            density                   = conditions.freestream.density,
+            velocity                  = Vv, 
+            vt                        = vt, 
+            va                        = va, 
+            drag_coefficient          = Cd,
+            lift_coefficient          = Cl,       
+            omega                     = omega,          
+            
+            blade_dT_dR               = 0,
+            blade_dT_dr               = 0,
+            blade_T_distribution      = 0, 
+            blade_T                   = thrust/B,  
+            Ct                        = 0, 
+            Cts                       = 0, 
+            
+            blade_dQ_dR               = 0,
+            blade_dQ_dr               = 0,
+            blade_Q_distribution      = 0,
+            blade_Q                   = torque/B,   
+            Cq                        = 0, 
+            
+            power                     = power,
+            
+            mid_chord_aligment        = self.mid_chord_aligment     
+        ) 
+        
+        return thrust, torque, power, Cp,  outputs  , etap  
