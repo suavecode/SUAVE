@@ -359,10 +359,10 @@ class Propeller(Energy_Component):
 
         
   
-        thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
-        power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
+        #thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
+        #power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         
-        thrust[omega1<0.0] = - thrust[omega1<0.0]
+        #thrust[omega1<0.0] = - thrust[omega1<0.0]
 
         etap     = V*thrust/power     
         
@@ -847,7 +847,7 @@ class Propeller(Energy_Component):
         B        = self.number_blades
         R        = self.tip_radius
         Rh       = self.hub_radius
-        theta    = self.twist_distribution
+        twist    = self.twist_distribution
         c        = self.chord_distribution
         omega1   = self.inputs.omega 
         a_sec    = self.airfoil_sections        
@@ -959,72 +959,48 @@ class Propeller(Energy_Component):
         X            = np.arctan(mu/lamda)
         kx           = np.tan(X/2)
         
-        # create radial distribution and aximuthal distribution 
+        # create radial distribution and aximuthal distribution  
+        theta_2d     = np.tile(twist,(N ,1))
+        theta        = np.repeat(theta_2d[:, :, np.newaxis], ctrl_pts, axis=2)        
         psi_2d       = np.tile(np.linspace(0,2*np.pi,N),(N ,1))
         psi          = np.repeat(psi_2d[:, :, np.newaxis], ctrl_pts, axis=2)
         r_2d         = (np.tile(r_dim,(N,1))).T  
         r            = np.repeat(r_2d[:, :, np.newaxis], ctrl_pts, axis=2)
         
-        # initial radial inflow distribution 
-        lamda_i_old  = lamda*(1 + kx*r_dim*np.cos(psi))        
+        chord        = (np.tile(c,(N,1))).T  
+        local_chord  = np.repeat(chord[:, :, np.newaxis], ctrl_pts, axis=2)
         
-        # Setup a Newton iteration 
-        ii = 0  
-        broke = False      
-        diff   = 1.
-        while (diff > tol):   
-            beta_dot        = 0  # currently no flaping 
-            beta            = 0  # currently no coning
-            
-            # axial, tangential and radial components of local blade flow 
-            ut              = omega*r + mu*omega*R*np.sin(psi)                  
-            ur              = mu*omega*R*np.cos(psi)                                      
-            up              = lamda*omega*R  + r*beta_dot + mu*omega*R*beta*np.cos(psi)   
-            
-            # blade incident angle 
-            phi             = np.arctan(up/ut)
-            
-            # local blade angle of attack
-            alpha           = theta - phi                                  # 3.67
-            
-            # local CD and CL 
-            airfoil_cl      = 5.7*alpha                                    # 3.67
-            airfoil_cd      = 0.0087 - 0.00215*alpha + 0.4*alpha**2        # 3.87 
-            
-            # force coefficient 
-            cFz             = airfoil_cl *np.cos(r) + airfoil_cd *np.sin(phi)
-            
-            # newtown raphson iteration 
-            f_lambda_i      = ((sigma*cFz - 1)/(8*r))*lamda_i_old**2 + ((2*sigma*cFz/8*r) - 1)*lamda_i_old*lamda_c + \
-                              (sigma*cFz/8*r)*(r**2 + lamda_i_old**2)
-            f_prime_lamda_i = 2*((sigma*cFz - 1)/(8*r))*lamda_i_old + ((2*sigma*cFz/8*r) - 1)*lamda_c + \
-                               2*((sigma*cFz)/(8*r))
-            lambda_i_new    = lamda_i_old - f_lambda_i/f_prime_lamda_i 
-            
-            # get difference of old and new solution for lambda 
-            diff            = np.max(abs(lambda_i_new - lamda_i_old))
-            
-            # in the event that the tolerance is not met
-            # a) make recently calulated value the new value for next iteration 
-            lamda_i_old     = lambda_i_new 
-            
-            # b) compute new lamda 
-            lamda           = lamda_i_old + lamda_c
-                            
-            ii+=1 
-            if ii>2000:
-                # maximum iterations is 2000
-                broke = True
-                break
-             
+        
+        # initial radial inflow distribution 
+        lamda_i = lamda*(1 + kx*r*np.cos(psi))        
+        
+        beta_dot        = 0  # currently no flaping 
+        beta            = 0  # currently no coning
+        
+        # axial, tangential and radial components of local blade flow 
+        ut              = omega*r + mu*omega*R*np.sin(psi)                  
+        ur              = mu*omega*R*np.cos(psi)                                      
+        up              = lamda*omega*R  + r*beta_dot + mu*omega*R*beta*np.cos(psi)  
+         
+        # blade incident angle 
+        phi             = np.arctan(up/ut)
+        
+        # local blade angle of attack
+        alpha           = theta - phi   
+        
+        Cl      = 5.7*alpha                               
+        Cd      = 0.0087 - 0.00215*alpha + 0.4*alpha**2   
+           
         U   = np.sqrt(ut**2 + up**2)
-        L   = 0.5 * rho * U**2 * c * airfoil_cl
-        D   = 0.5 * rho * U**2 * c * airfoil_cl
+        L   = 0.5 * rho * U**2 * local_chord * Cl
+        D   = 0.5 * rho * U**2 * local_chord * Cd
         Fz  = L*np.cos(phi) - D*np.sin(phi)  
         Fx  = L*np.sin(phi) - D*np.cos(phi) 
- 
-        thrust   = N * sum(Fz[0])
-        torque   = N * sum(Fx[0] * r)
+        
+        # average thrust and torque over aximuth
+        thrust   = B * sum(np.mean(Fz, axis = 0).T) 
+        torque   = B * sum(np.mean(Fx, axis = 0).T * r_dim)
+        
         D        = 2*R 
         Ct       = thrust/(rho*(n*n)*(D*D*D*D))
         Ct[Ct<0] = 0.     # prevent things from breaking
@@ -1060,8 +1036,8 @@ class Propeller(Energy_Component):
             speed_of_sound            = conditions.freestream.speed_of_sound,
             density                   = conditions.freestream.density,
             velocity                  = Vv, 
-            vt                        = vt, 
-            va                        = va, 
+            vt                        = ut, 
+            va                        = up, 
             drag_coefficient          = Cd,
             lift_coefficient          = Cl,       
             omega                     = omega,          
@@ -1071,7 +1047,9 @@ class Propeller(Energy_Component):
             blade_T_distribution      = 0, 
             blade_T                   = thrust/B,  
             Ct                        = 0, 
-            Cts                       = 0, 
+            Cts                       = 0,
+            r                         = r,
+            psi                       = psi,
             
             blade_dQ_dR               = 0,
             blade_dQ_dr               = 0,
