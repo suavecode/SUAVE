@@ -356,9 +356,7 @@ class Propeller(Energy_Component):
                 power[i]    = torque[i]*omega[i]   
                 Cp[i]       = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
 
-
-        
-  
+ 
         #thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         #power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         
@@ -842,41 +840,43 @@ class Propeller(Energy_Component):
           mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
           thrust_angle               [radians]
         """         
-           
-        #Unpack    
-        B        = self.number_blades
-        R        = self.tip_radius
-        Rh       = self.hub_radius
-        twist    = self.twist_distribution
-        c        = self.chord_distribution
-        omega1   = self.inputs.omega 
-        a_sec    = self.airfoil_sections        
-        a_secl   = self.airfoil_section_location        
-        rho      = conditions.freestream.density[:,0,None]
-        dyna_visc= conditions.freestream.dynamic_viscosity[:,0,None]
-        Vv       = conditions.frames.inertial.velocity_vector
-        Vh       = self.induced_hover_velocity 
-        a        = conditions.freestream.speed_of_sound[:,0,None]
-        T        = conditions.freestream.temperature[:,0,None]
-        theta_t  = self.thrust_angle
-        tc       = .12 # Thickness to chord
-    
+        #Unpack            
+        B      = self.number_blades
+        R      = self.tip_radius
+        Rh     = self.hub_radius
+        beta_in = self.twist_distribution
+        c      = self.chord_distribution
+        omega1 = self.inputs.omega 
+        a_sec  = self.airfoil_sections        
+        a_secl = self.airfoil_section_location        
+        rho    = conditions.freestream.density[:,0,None]
+        mu     = conditions.freestream.dynamic_viscosity[:,0,None]
+        Vv     = conditions.frames.inertial.velocity_vector
+        Vh     = self.induced_hover_velocity 
+        a      = conditions.freestream.speed_of_sound[:,0,None]
+        T      = conditions.freestream.temperature[:,0,None]
+        theta  = self.thrust_angle
+        tc     = .12 # Thickness to chord
+        beta_c  = conditions.propulsion.pitch_command
+        ducted  = self.ducted 
+        beta   = beta_in + beta_c        
         BB     = B*B
         BBB    = BB*B
-    
+            
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body = orientation_product(T_inertial2body,Vv)
-    
+        
+     
         # Velocity transformed to the propulsor frame with flag for tilt rotor
-        if np.isscalar(theta_t):
-            body2thrust   = np.array([[np.cos(theta_t), 0., np.sin(theta_t)],[0., 1., 0.], [-np.sin(theta_t), 0., np.cos(theta_t)]])
+        if np.isscalar(theta):
+            body2thrust   = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
             T_body2thrust = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
         else:
-            body2thrust = np.zeros((len(theta_t),3,3))
-            for i in range(len(theta_t)):
-                body2thrust[i,:,:] = [[np.cos(theta_t[i][0]), 0., np.sin(theta_t[i][0])],[0., 1., 0.], [-np.sin(theta_t[i][0]), 0., np.cos(theta_t[i][0])]]
+            body2thrust = np.zeros((len(theta),3,3))
+            for i in range(len(theta)):
+                body2thrust[i,:,:] = [[np.cos(theta[i][0]), 0., np.sin(theta[i][0])],[0., 1., 0.], [-np.sin(theta[i][0]), 0., np.cos(theta[i][0])]]
             T_body2thrust      = orientation_transpose(body2thrust)
     
         V_thrust      = orientation_product(T_body2thrust,V_body)
@@ -903,19 +903,14 @@ class Propeller(Energy_Component):
                     func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[2])**2 + (V_inf[0] + vi)**2)))
                     vi_initial_guess = V_inf[0]
                     ua[i]    = fsolve(func,vi_initial_guess)
-        else: 
-            ua = 0.0 
-        ut    = 0.0
-     
-        tol   = 1e-5 # Convergence tolerance
-    
-        omega = omega1*1.0
-        omega = np.abs(omega)
-        
+                    
+        ut    = 0.0  
+         
         #Things that don't change with iteration
         N        = len(c) # Number of stations     
         ctrl_pts = len(Vv) 
         
+        # if airfoils are specified, get CL and CD as a function of alpha (currently not used)
         if  a_sec != None and a_secl != None:
             airfoil_polars = Data()
             # check dimension of section  
@@ -927,7 +922,8 @@ class Propeller(Energy_Component):
             airfoil_cl     = airfoil_polars.CL
             airfoil_cd     = airfoil_polars.CD
             AoA_range      = airfoil_polars.AoA_range
-
+        
+        # set up non dimensional radial distribution 
         if self.radius_distribution is None:
             chi0    = Rh/R   # Where the propeller blade actually starts
             chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
@@ -935,71 +931,272 @@ class Propeller(Energy_Component):
         
         else:
             chi = self.radius_distribution
-         
-        r_dim            = chi*R                    # Radial coordinate
-        pi           = np.pi
-        pi2          = pi*pi
+            
+        omega        = omega1*1.0
+        omega        = np.abs(omega)        
+        r_dim        = chi*R                        # Radial coordinate 
         x            = r_dim*np.multiply(omega,1/V) # Nondimensional distance
-        n            = omega/(2.*pi)            # Cycles per second
+        n            = omega/(2.*np.pi)             # Cycles per second
         J            = V/(2.*R*n)     
         
         # blade area 
         blade_area   = sp.integrate.cumtrapz(B*c, r_dim-r_dim[0])
         
         # solidity 
-        sigma        = blade_area[-1]/(pi*r_dim[-1]**2)   
+        sigma        = blade_area[-1]/(np.pi*r_dim[-1]**2)   
         
         # compute lambda and mu 
-        lamda        = (V_inf[0] + ua)/(omega*R)
-        mu           = V_inf[2]/(omega*R) 
+        lamda_mean   = (V_inf[0] + ua)/(omega*R)
+        lamda_i      = ua/(omega*R)
+        mu_prop      = V_inf[2]/(omega*R) 
+        lamda_h      = np.sqrt(lamda_i*np.sqrt(mu_prop**2 + lamda_mean**2)) 
         alpha_disc   = np.arctan(V_inf[0]/V_inf[2])
-        lamda_c      = mu*np.tan(alpha_disc)                
+        lamda_c      = mu_prop*np.tan(alpha_disc)    
         
         # wake skew angle 
-        X            = np.arctan(mu/lamda)
+        X            = np.arctan(mu_prop/lamda_mean)
         kx           = np.tan(X/2)
         
         # create radial distribution and aximuthal distribution  
-        theta_2d     = np.tile(twist,(N ,1))
-        theta        = np.repeat(theta_2d[:, :, np.newaxis], ctrl_pts, axis=2)        
+        theta_2d     = np.tile(beta,(N ,1))
+        theta_blade  = np.repeat(theta_2d[:, :, np.newaxis], ctrl_pts, axis=2)        
         psi_2d       = np.tile(np.linspace(0,2*np.pi,N),(N ,1))
         psi          = np.repeat(psi_2d[:, :, np.newaxis], ctrl_pts, axis=2)
-        r_2d         = (np.tile(r_dim,(N,1))).T  
-        r            = np.repeat(r_2d[:, :, np.newaxis], ctrl_pts, axis=2)
+        chi_2d       = (np.tile(chi,(N,1))).T  
+        r            = np.repeat(chi_2d[:, :, np.newaxis], ctrl_pts, axis=2) 
+        inflow_2d    = (np.tile(ua,(N,1))).T  
+        inflow_init  = np.repeat(inflow_2d[:, :, np.newaxis], ctrl_pts, axis=2) 
         
-        chord        = (np.tile(c,(N,1))).T  
-        local_chord  = np.repeat(chord[:, :, np.newaxis], ctrl_pts, axis=2)
+        beta_blade_dot        = 0  # currently no flaping 
+        beta_blade            = 0  # currently no coning         
+                
+        # Momentum theory approximation of inflow for BET if the advance ratio is large 
+        if mu_prop > 0: 
+            tip_loss_factor = 0.97
+            
+            # wake skew angle 
+            X            = np.arctan(mu_prop/lamda_mean)
+            kx           = np.tan(X/2) 
+            
+            chord        = (np.tile(c,(N,1))).T  
+            local_chord  = np.repeat(chord[:, :, np.newaxis], ctrl_pts, axis=2)
+     
+            # initial radial inflow distribution 
+            
+            lamda_i = lamda_mean*(1 + kx*r*np.cos(psi))    
+            
+            lamda   =  lamda_c + lamda_i
+            
+            # axial, tangential and radial components of local blade flow 
+            y               = r*R
+            ut              = omega*y + mu_prop*omega*R*np.sin(psi)                  
+            ur              = mu*omega*R*np.cos(psi)                                      
+            up              = lamda*omega*R  + r*beta_blade_dot + mu*omega*R*beta_blade*np.cos(psi)  
+             
+            # blade incident angle 
+            phi             = np.arctan(up/ut)
+            
+            # local blade angle of attack
+            alpha           = theta_blade - phi 
+            
+            # Estimate Cl max
+            nu         = mu/rho
+            Re         = (W*c)/nu 
+            Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+            Re_ref     = 9.*10**6      
+            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+            
+            # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
+            Cl = 2.*pi*alpha
+            
+            # By 90 deg, it's totally stalled.
+            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]  
+            Cl[alpha>=pi/2] = 0.
+                
+            # Scale for Mach, this is Karmen_Tsien
+            Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
         
+            # If the blade segments are supersonic, don't scale
+            Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]     
+            
+            #There is also RE scaling
+            #This is an atrocious fit of DAE51 data at RE=50k for Cd
+            Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+            Cdval[alpha>=pi/2] = 2.
+            
+            #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
+            Tw_Tinf = 1. + 1.78*(Ma*Ma)
+            Tp_Tinf = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
+            Tp      = (Tp_Tinf)*T
+            Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
+            
+            Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 
+            
+            U   = np.sqrt(ut**2 + up**2)
+            
+            # local blade lift and drag 
+            L   = 0.5 * rho * U**2 * c * Cl
+            D   = 0.5 * rho * U**2 * c * Cd
+            
+            # application of tip loss factor 
+            L[r<tip_loss_factor] = 0 
+            
+            # normal and tangential forces 
+            Fz  = L*np.cos(phi) - D*np.sin(phi)  
+            Fx  = L*np.sin(phi) - D*np.cos(phi) 
+            
+            # average thrust and torque over aximuth
+            thrust   = B * sum(np.mean(Fz, axis = 0).T) 
+            torque   = B * sum(np.mean(Fx, axis = 0).T * r_dim)          
+    
+            va_2d = up    
+            vt_2d = ut 
+            
+        # Blade Element Momentum Theory : Currenly small angle approximation
+        else:
+            # TO DO: Replaced  lines 1058 to 1197 with large angle approximation 
+            mu     = conditions.freestream.dynamic_viscosity[:,0,None]
+            tol   = 1e-5 
+            lamda   = V/(omega*R)              # Speed ratio
+            r       = chi*R                    # Radial coordinate
+            pi      = np.pi
+            pi2     = pi*pi
+            x       = r*np.multiply(omega,1/V) # Nondimensional distance
+            n       = omega/(2.*pi)            # Cycles per second
+            J       = V/(2.*R*n)    
+            #sigma   = np.multiply(B*c,1./(2.*pi*r))
+            blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
+            sigma   = blade_area[-1]/(pi*r[-1]**2)   
+            
+            omegar = np.outer(omega,r)
+            Ua = np.outer((V + ua),np.ones_like(r))
+            Ut = omegar - ut
+            U  = np.sqrt(Ua*Ua + Ut*Ut)
+            
+            #Things that will change with iteration
+            size = (len(a),N)
         
-        # initial radial inflow distribution 
-        lamda_i = lamda*(1 + kx*r*np.cos(psi))        
-        
-        beta_dot        = 0  # currently no flaping 
-        beta            = 0  # currently no coning
-        
-        # axial, tangential and radial components of local blade flow 
-        ut              = omega*r + mu*omega*R*np.sin(psi)                  
-        ur              = mu*omega*R*np.cos(psi)                                      
-        up              = lamda*omega*R  + r*beta_dot + mu*omega*R*beta*np.cos(psi)  
-         
-        # blade incident angle 
-        phi             = np.arctan(up/ut)
-        
-        # local blade angle of attack
-        alpha           = theta - phi   
-        
-        Cl      = 5.7*alpha                               
-        Cd      = 0.0087 - 0.00215*alpha + 0.4*alpha**2   
+            #Setup a Newton iteration
+            psi    = np.ones(size)
+            psiold = np.zeros(size)
+            diff   = 1.
+            
+            ii = 0
+            broke = False        
+            while (diff>tol):
+                sin_psi = np.sin(psi)
+                cos_psi = np.cos(psi)
+                Wa      = 0.5*Ua + 0.5*U*sin_psi
+                Wt      = 0.5*Ut + 0.5*U*cos_psi   
+                va     = Wa - Ua
+                vt      = Ut - Wt
+                alpha   = beta - np.arctan2(Wa,Wt)
+                W       = (Wa*Wa + Wt*Wt)**0.5
+                Ma      = (W)/a #a is the speed of sound
+                
+                lamdaw = r*Wa/(R*Wt)
+                
+                # Limiter to keep from Nan-ing
+                lamdaw[lamdaw<0.] = 0.
+                
+                f            = (B/2.)*(1.-r/R)/lamdaw
+                piece        = np.exp(-f)
+                arccos_piece = np.arccos(piece)
+                F            = 2.*arccos_piece/pi
+                Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
+                
+                # Estimate Cl max
+                nu         = mu/rho
+                Re         = (W*c)/nu 
+                Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+                Re_ref     = 9.*10**6      
+                Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+                
+                # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
+                Cl = 2.*pi*alpha
+                
+                # By 90 deg, it's totally stalled.
+                Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]  
+                Cl[alpha>=pi/2] = 0.
+                    
+                # Scale for Mach, this is Karmen_Tsien
+                Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+            
+                # If the blade segments are supersonic, don't scale
+                Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
+            
+                Rsquiggly = Gamma - 0.5*W*c*Cl
+                
+                #An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
+                #This was solved symbolically in Matlab and exported        
+                f_wt_2 = 4*Wt*Wt
+                f_wa_2 = 4*Wa*Wa
+                Ucospsi  = U*cos_psi
+                Usinpsi  = U*sin_psi
+                Utcospsi = Ut*cos_psi
+                Uasinpsi = Ua*sin_psi
+                
+                UapUsinpsi = (Ua + Usinpsi)
+                utpUcospsi = (Ut + Ucospsi)
+                
+                utpUcospsi2 = utpUcospsi*utpUcospsi
+                UapUsinpsi2 = UapUsinpsi*UapUsinpsi
+                
+                dR_dpsi = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B - 
+                           (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
+                           + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
+                           - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. - 
+                          (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R - 
+                           r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U + 
+                           Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5))) 
+                
+                dR_dpsi[np.isnan(dR_dpsi)] = 0.1
+                          
+                dpsi   = -Rsquiggly/dR_dpsi
+                psi    = psi + dpsi
+                diff   = np.max(abs(psiold-psi))
+                psiold = psi
+                
+                # If its really not going to converge
+                if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                    break
+                    
+                ii+=1
+                    
+                if ii>2000:
+                    broke = True
+                    break
+            
+            #There is also RE scaling
+            #This is an atrocious fit of DAE51 data at RE=50k for Cd
+            Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+            Cdval[alpha>=pi/2] = 2.
+            
+            #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
+            Tw_Tinf = 1. + 1.78*(Ma*Ma)
+            Tp_Tinf = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
+            Tp      = (Tp_Tinf)*T
+            Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
+            
+            Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 
+            
+            epsilon  = Cd/Cl
+            epsilon[epsilon==np.inf] = 10. 
+            deltar   = (r[1]-r[0])
+            thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
+            torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
            
-        U   = np.sqrt(ut**2 + up**2)
-        L   = 0.5 * rho * U**2 * local_chord * Cl
-        D   = 0.5 * rho * U**2 * local_chord * Cd
-        Fz  = L*np.cos(phi) - D*np.sin(phi)  
-        Fx  = L*np.sin(phi) - D*np.cos(phi) 
+            psi_2d       = np.tile(np.linspace(0,2*np.pi,N),(N ,1))
+            psi          = np.repeat(psi_2d[:, :, np.newaxis], ctrl_pts, axis=2) 
+            va_azi        = (np.tile(va.T,(1 ,N))) 
+            vt_azi        = (np.tile(vt.T,(1 ,N))) 
+            va_2d        = np.repeat(va_azi[:, :, np.newaxis], ctrl_pts, axis=2) 
+            vt_2d        = np.repeat(vt_azi[:, :, np.newaxis], ctrl_pts, axis=2) 
+            
+            chi_2d       = (np.tile(chi*R,(N,1))).T  
+            r            = np.repeat(chi_2d[:, :, np.newaxis], ctrl_pts, axis=2)  
         
-        # average thrust and torque over aximuth
-        thrust   = B * sum(np.mean(Fz, axis = 0).T) 
-        torque   = B * sum(np.mean(Fx, axis = 0).T * r_dim)
+        
         
         D        = 2*R 
         Ct       = thrust/(rho*(n*n)*(D*D*D*D))
@@ -1036,8 +1233,8 @@ class Propeller(Energy_Component):
             speed_of_sound            = conditions.freestream.speed_of_sound,
             density                   = conditions.freestream.density,
             velocity                  = Vv, 
-            vt                        = ut, 
-            va                        = up, 
+            vt                        = vt_2d, 
+            va                        = va_2d, 
             drag_coefficient          = Cd,
             lift_coefficient          = Cl,       
             omega                     = omega,          
@@ -1047,8 +1244,7 @@ class Propeller(Energy_Component):
             blade_T_distribution      = 0, 
             blade_T                   = thrust/B,  
             Ct                        = 0, 
-            Cts                       = 0,
-            r                         = r,
+            Cts                       = 0, 
             psi                       = psi,
             
             blade_dQ_dR               = 0,
