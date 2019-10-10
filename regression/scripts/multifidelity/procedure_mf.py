@@ -1,6 +1,6 @@
 # Procedure.py
 # 
-# Created:  Mar 2016, M. Vegh
+# Created:  May 2019, T. MacDonald
 # Modified: 
 
 # ----------------------------------------------------------------------        
