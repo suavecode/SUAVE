@@ -169,7 +169,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # Add all the influences together
     C_mn = C_AB_34_ll + C_AB_bv + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
     
-    DW_mn = C_AB_34_ll + C_AB_bv  + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
+    DW_mn = C_AB_34_ll + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
     
     return C_mn, DW_mn
 
