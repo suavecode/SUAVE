@@ -226,7 +226,6 @@ class Trust_Region_Optimization(Data):
                 for ii in range(len(con)):
                     gOpt_corr[ii] = opt_prob._solutions[0]._constraints[ii].value  
                     
-                aa = 0
 
             elif self.optimizer == 'SLSQP':
                 
@@ -248,8 +247,6 @@ class Trust_Region_Optimization(Data):
                     feasible_flag = True
                 else:
                     feasible_flag = False
-                    
-                aa = 0
                 
             else:
                 raise ValueError('Selected optimizer not implemented')
