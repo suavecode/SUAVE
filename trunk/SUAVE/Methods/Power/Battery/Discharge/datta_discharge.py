@@ -59,7 +59,7 @@ def datta_discharge(battery,numerics):
     
     #state of charge of the battery
     initial_discharge_state = np.dot(I,pbat) + battery.current_energy[0]
-    x = np.divide(initial_discharge_state,battery.max_energy)
+    x =  1 - np.divide(initial_discharge_state,battery.max_energy)
 
     # C rate
     C = np.abs(3600.*pbat/battery.max_energy)
@@ -82,21 +82,6 @@ def datta_discharge(battery,numerics):
     # Power going into the battery accounting for resistance losses
     P = pbat - np.abs(Ploss)
     
-    # Possible Energy going into the battery:
-    energy_unmodified = np.dot(I,P)
-    
-    # Available capacity
-    capacity_available = max_energy - battery.current_energy[0]
-   
-    # How much energy the battery could be overcharged by
-    delta           = energy_unmodified -capacity_available
-    delta[delta<0.] = 0.
-    
-    # Power that shouldn't go in
-    ddelta = np.dot(D,delta) 
-    
-    # Power actually going into the battery
-    P[P>0.] = P[P>0.] - ddelta[P>0.]
     ebat = np.dot(I,P)
     ebat = np.reshape(ebat,np.shape(battery.current_energy)) #make sure it's consistent
     
@@ -119,9 +104,10 @@ def datta_discharge(battery,numerics):
     voltage_under_load   = voltage_open_circuit  - Ibat*R
         
     # Pack outputs
-    battery.current_energy       = current_energy
-    battery.resistive_losses     = Ploss
-    battery.voltage_open_circuit = voltage_open_circuit
-    battery.voltage_under_load   = voltage_under_load
+    battery.current_energy          = current_energy
+    battery.resistive_losses        = Ploss
+    battery.state_of_charge         = new_x
+    battery.voltage_open_circuit    = voltage_open_circuit
+    battery.voltage_under_load      = voltage_under_load
     
     return

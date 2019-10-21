@@ -330,12 +330,7 @@ class Lift_Cruise(Propulsor):
         
         results = Data()
         results.thrust_force_vector = F_total
-        results.vehicle_mass_rate   = mdot   
-        
-     
-     
-        
-        
+        results.vehicle_mass_rate   = mdot         
         
         return results
     

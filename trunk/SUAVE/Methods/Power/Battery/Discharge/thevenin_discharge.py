@@ -22,89 +22,87 @@ def thevenin_discharge(battery,numerics):
        battery.
         resistance                      [Ohms]
         max_energy                      [Joules]
-        Ibatent_energy (to be modified) [Joules]
+        current_energy (to be modified) [Joules]
         inputs.
-            Ibatent                     [amps]
+            current                     [amps]
             power_in                    [Watts]
        
        Outputs:
        battery.
-        Ibatent energy                  [Joules]
+        current energy                  [Joules]
         resistive_losses                [Watts]
         voltage_open_circuit            [Volts]
         voltage_under_load              [Volts]
         
     """
  
-    Ibat           = battery.inputs.Ibatent
+    Ibat           = battery.inputs.current
     pbat           = battery.inputs.power_in
     Rbat           = battery.resistance
-    Tbat           = battery.temperature
-    v_max          = battery.max_voltage
+    Tbat           = battery.inputs.temperature 
+    time           = numerics.time.control_points
     I              = numerics.time.integrate
-    D              = numerics.time.differentiate
+    D              = numerics.time.differentiate    
     max_energy     = battery.max_energy
-    Ibatent_energy = battery.Ibatent_energy   
-    battery_data   = battery_performance_maps()    
+    current_energy = battery.current_energy  
+    battery_data   = battery_performance_maps()      
     
     
-    ttime        = np.arange(1.07*10000./Ibat) # time interval 
-    sim_states   = odeint(ode_func, y0=[1, 0], t=ttime, args=(Tbat, Ibat) ,hmax=0.4, atol=1e-12)    
-    SOC = y[:,0]
-    U_Th = y[:,1] 
-
-    I_Li = Ibat*(t>0.).astype(int)#Ibatent_interp(t) 
-    U_oc_vals = []
-    R_0_vals = []    
-    for i in range(len(SOC)):
-        # look up tables 
-        U_oc = battery_data.U_oc_interp(Tbat, SOC[i])[0]
-        C_Th = battery_data.C_Th_interp(Tbat, SOC[i])[0]
-        R_Th = battery_data.R_Th_interp(Tbat, SOC[i])[0]
-        R_0  = battery_data.R_0_interp(Tbat, SOC[i])[0]
-
-        U_oc_vals.append(U_oc[0])
-        R_0_vals.append(R_0[0])
-
-    U_oc = np.array(U_oc_vals)
-    R_0  = np.array(R_0_vals)
-  
+    # Maximum energy
+    max_energy = battery.max_energy
+    
+    #state of charge of the battery
+    initial_discharge_state = np.dot(I,pbat) + battery.current_energy[0]
+    SOC =  np.divide(initial_discharge_state,battery.max_energy)
+    SOC[SOC<0] = 0
+    
+    # look up tables 
+    V_oc = np.zeros_like(Ibat)
+    R_Th = np.zeros_like(Ibat)  
+    C_Th = np.zeros_like(Ibat)  
+    R_0  = np.zeros_like(Ibat) 
+    for i in range(len(SOC)): 
+        V_oc[i] = battery_data.V_oc_interp(Tbat, SOC[i])[0]
+        C_Th[i] = battery_data.C_Th_interp(Tbat, SOC[i])[0]
+        R_Th[i] = battery_data.R_Th_interp(Tbat, SOC[i])[0]
+        R_0[i]  = battery_data.R_0_interp(Tbat, SOC[i])[0] 
+     
+    V_Th = Ibat/(1/R_Th + C_Th*np.dot(D,np.ones_like(R_Th)))
+     
+    
+    # Calculate resistive losses
+    Ploss = 0 # (Ibat**2)*(R_0 + R_Th)
+    
+    #Implement model for heat 
+    
+    # Power going into the battery accounting for resistance losses
+    P = pbat # - np.abs(Ploss) 
+   
+    ebat = np.dot(I,P)
+    
+    # Add this to the current state
+    if np.isnan(ebat).any():
+        ebat=np.ones_like(ebat)*np.max(ebat)
+        if np.isnan(ebat.any()): #all nans; handle this instance
+            ebat=np.zeros_like(ebat)
+            
+    current_energy = ebat + current_energy[0]
+    
+    new_SOC = np.divide(current_energy, max_energy)
+    
+    # Voltage under load:
+    voltage_under_load   = V_oc - V_Th - (Ibat * R_0)
+    
     # Pack outputs
-    battery.Ibatent_energy       = Ibatent_energy
-    battery.resistive_losses     = (I_Li**2)*(R_0 + R_Th)
-    battery.voltage_open_circuit = U_oc
-    battery.voltage_under_load   = U_oc - U_Th - (I_Li * R_0)
+    battery.current_energy           = current_energy
+    battery.resistive_losses         = Ploss
+    battery.voltage_open_circuit     = V_oc
+    battery.battery_thevenin_voltage = V_Th
+    battery.voltage_under_load       = voltage_under_load
+    battery.state_of_charge          = new_SOC
     
     return battery
-
-def ode_func(y, t ,Tbat, Ibat):
-    battery_data = battery_performance_maps()
-    SOC  = y[0]
-    U_Th = y[1]
-    Q_max = 3.#y[2] # maximum charge 
- 
-    mass_cell = 0.045;
-    Cp_cell = 1020;
-    eff_cell = 0.95;
-    Pack_Loss = 1.0;
-
-    if t>0.:
-        I_Li = Ibat 
-    else:
-        I_Li = 0.
-
-    # look up values in table 
-    U_oc = battery_data.U_oc_interp(Tbat, SOC)
-    C_Th = battery_data.C_Th_interp(Tbat, SOC)
-    R_Th = battery_data.R_Th_interp(Tbat, SOC)
-    R_0  = battery_data.R_0_interp(Tbat, SOC)
-
-    # get derivatives 
-    dXdt_SOC = -I_Li / (3600.0 * Q_max);
-    dXdt_U_Th = -U_Th / (R_Th * C_Th) + I_Li / (C_Th); 
-
-    return [dXdt_SOC, dXdt_U_Th]
-  
+    
 def battery_performance_maps():
     battery_data = Data()
     T_bp = np.array([0., 20., 30., 45.])
@@ -115,7 +113,7 @@ def battery_performance_maps():
            0.8 , 0.83333333, 0.86666667, 0.9 , 0.93333333, 0.96666667,
            1. ] )
      
-    tU_oc = np.array([ [2.92334783,3.00653623,3.08972464,3.17291304,3.23989855,3.31010145, 3.3803913 ,
+    tV_oc = np.array([ [2.92334783,3.00653623,3.08972464,3.17291304,3.23989855,3.31010145, 3.3803913 ,
            3.44033333,3.49033333,3.52169565,3.54391304,3.58695652, 3.62095652,3.65437681,
            3.68604348,3.72430435,3.75531884,3.79102899, 3.82030435,3.84181159,3.86124638,
            3.88921739,3.91686957,3.96223188, 4.00169565,4.04117391,4.06849275,4.07573913,
@@ -172,7 +170,7 @@ def battery_performance_maps():
                        0.025 ,0.025 , 0.01218623,0.01,0.01 ,0.01890688,0.02451417,0.025 , 0.025 ,0.025 ,0.025 ,0.025 ,0.025 ,0.025 , 0.03] ])
     
     SMOOTHING = 0.1 # more is more smooth, less true to the data
-    battery_data.U_oc_interp = RectBivariateSpline(T_bp, SOC_bp, tU_oc, s=SMOOTHING) # % need Deg C
+    battery_data.V_oc_interp = RectBivariateSpline(T_bp, SOC_bp, tV_oc, s=SMOOTHING) # % need Deg C
     battery_data.C_Th_interp = RectBivariateSpline(T_bp, SOC_bp, tC_Th, s=SMOOTHING) # % need Deg C
     battery_data.R_Th_interp = RectBivariateSpline(T_bp, SOC_bp, tR_Th, s=SMOOTHING) # % need Deg C
     battery_data.R_0_interp = RectBivariateSpline(T_bp, SOC_bp, tR_0, s=SMOOTHING)   # % need Deg C

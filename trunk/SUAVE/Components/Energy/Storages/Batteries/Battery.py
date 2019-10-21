@@ -33,6 +33,7 @@ class Battery(Energy_Component):
         self.mass_properties.mass = 0.0
         self.energy_density       = 0.0
         self.current_energy       = 0.0
+        self.current_capacitor_charge = 0.0
         self.resistance           = 0.07446 #base internal resistance of battery in ohms
         self.max_energy           = 0.0
         self.max_power            = 0.0
@@ -43,9 +44,13 @@ class Battery(Energy_Component):
         self.ragone.const_1       = 0.0 #used for ragone functions; 
         self.ragone.const_2       = 0.0 #specific_power=ragone_const_1*10^(specific_energy*ragone_const_2)
         self.ragone.lower_bound   = 0.0 #lower bound specific energy for which ragone curves no longer make sense
-        self.ragone.upper_bound   = 0.0
+        self.ragone.i   = 0.0
         
-    def energy_calc(self,numerics):
-        self.discharge_model(self, numerics)
-        #self.thevenin_model(self, numerics)
+    def energy_calc(self,numerics,fidelity = 1):
+        if fidelity == 1:
+            self.discharge_model(self, numerics)
+        elif fidelity == 2:
+            self.thevenin_model(self, numerics)
+        else:
+            assert AttributeError("Fidelity must be '1' (datta discharge model) or '2' (thevenin discharge model")
         return  
