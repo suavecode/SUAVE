@@ -88,7 +88,6 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
                 furnishings        = vehicle.furnishings
                 passenger_weights  = vehicle.passenger_weights
                 air_conditioner    = vehicle.air_conditioner
-                fuel               = vehicle.fuel
                 apu                = vehicle.apu
                 hydraulics         = vehicle.hydraulics
                 optionals          = vehicle.optionals     
@@ -96,17 +95,25 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
 
                 # Control Sytems               
                 control_systems_cg        = control_systems.mass_properties.center_of_gravity
-                control_systems_moment    = (control_systems.origin+control_systems_cg )*control_systems.mass_properties.mass                
+                control_systems_moment    = (control_systems.origin+control_systems_cg )*control_systems.mass_properties.mass
 
-                # Fuel
-                fuel_cg                   = fuel.mass_properties.center_of_gravity
-                fuel_moment               = (fuel.origin+fuel_cg)*fuel.mass_properties.mass                
+                # Fuselage & Energy Store
                 fuse_key                  = list(vehicle.fuselages.keys())[0] #['fuselage']
-                fuselage                  = vehicle.fuselages[fuse_key]                   
+                fuselage                  = vehicle.fuselages[fuse_key]
 
-                # Fuselage
                 fuselage_cg               = fuselage.mass_properties.center_of_gravity
-                fuselage_moment           = (fuselage.origin+fuselage_cg)*fuselage.mass_properties.mass  
+                fuselage_moment           = (fuselage.origin+fuselage_cg)*fuselage.mass_properties.mass
+
+                if list(fuselage.Fuel_Tanks.keys()) != []:
+                        fuel = vehicle.fuel
+                        fuel_cg = fuel.mass_properties.center_of_gravity
+                        fuel_moment = (fuel.origin + fuel_cg) * fuel.mass_properties.mass
+
+                if list(fuselage.Batteries.keus()) != []:
+                        bat_key = list(fuselage.Batteries.keys())[0]
+                        battery = fuselage.Batteries[bat_key]
+                        bat_cg  = battery.mass_properties.center_of_gravity
+                        bat_moment = (battery.origin + bat_cg) * battery.mass_properties.mass
 
                 # Furnishings
                 furnishings_cg            = furnishings.mass_properties.center_of_gravity
@@ -150,7 +157,13 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
                 sum_moments              = (wing_moment+h_tail_moment+v_tail_moment+control_systems_moment+\
                                             fuselage_moment+propulsor_moment+electrical_systems_moment+\
                                             avionics_moment+furnishings_moment+passengers_moment+ac_moment+\
-                                            fuel_moment+apu_moment+ hydraulics_moment+optionals_moment  )
+                                            apu_moment+ hydraulics_moment+optionals_moment)
+
+                if list(fuselage.Fuel_Tanks.keys()) != []:
+                        sum_moments += fuel_moment
+
+                if list(fuselage.Batteries.keys()) != []:
+                        sum_moments += bat_moment
 
                 #took some algebra to get this
                 aft_gear_location                             = sum_moments \
@@ -166,10 +179,12 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
                 vehicle.mass_properties.center_of_gravity      = (sum_moments+landing_gear_moment)/vehicle.mass_properties.max_takeoff
                 vehicle.mass_properties.center_of_gravity[0,1] = 0 #symmetric aircraft
 
-                sum_moments_less_fuel = sum_moments-fuel_moment
+                if list(fuselage.Fuel_Tanks.keys()) != []:
 
-                vehicle.mass_properties.zero_fuel_center_of_gravity = \
-                        (sum_moments_less_fuel+landing_gear_moment)/vehicle.mass_properties.max_zero_fuel
+                        sum_moments_less_fuel = sum_moments-fuel_moment
+
+                        vehicle.mass_properties.zero_fuel_center_of_gravity = \
+                                (sum_moments_less_fuel+landing_gear_moment)/vehicle.mass_properties.max_zero_fuel
 
         # ---------------------------------------------------------------------------------        
         # Electric UAV Configurations without Fuselages/Landing Gear/Fuel
