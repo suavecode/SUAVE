@@ -100,6 +100,7 @@ class Fuselage(Lofted_Body):
         self.cabin_area           = 0.0
         
         self.Fuel_Tanks = Container()
+        self.Batteries  = Container()
 
         # For VSP
         self.vsp_data                = Data()
@@ -149,10 +150,34 @@ class Fuselage(Lofted_Body):
 
         # Assert database type
         if not isinstance(fuel_tank,Data):
-            raise Exception('input component must be of type Data()')
+            raise Exception('Fuel tanks appended to fuselages must be of type Data()')
 
         # Store data
         self.Fuel_Tanks.append(fuel_tank)
+
+        return
+
+    def append_battery(self, battery):
+        """ Adds a battery to the fuselage
+
+        Assumptions:
+        None
+        Source:
+        N/A
+        Inputs:
+        None
+        Outputs:
+        None
+        Properties Used:
+        N/A
+        """
+
+        #Assert database type
+        if not isinstance(battery, Data):
+            raise Exception('Batteries appended to fuselages must be of type Data()')
+
+        # Store data
+        self.Batteries.append(battery)
 
         return
     
