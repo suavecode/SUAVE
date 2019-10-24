@@ -131,7 +131,7 @@ def VLM(conditions,settings,geometry):
     tile_eye = np.broadcast_to(eye,(len_cps,len_aoa,len_aoa))
     tile_eye =  np.transpose(tile_eye,axes=[1,0,2])
     
-    # Compute induced velocities     
+    # Compute induced velocities
     u = np.dot(C_mn[:,:,:,0]*MCM[:,:,:,0],gamma[:,:].T)[:,:,0]
     v = np.dot(C_mn[:,:,:,1]*MCM[:,:,:,1],gamma[:,:].T)[:,:,0]
     w = np.sum(np.dot(C_mn[:,:,:,2]*MCM[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)

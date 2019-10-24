@@ -82,10 +82,15 @@ def compute_vortex_distribution(geometry,settings):
         # determine of vehicle has symmetry 
         if sym_para is True :
             span = span/2
-            
-        si  = np.arange(1,((n_sw*2)+2))
-        spacing = np.cos((2*si - 1)/(2*len(si))*np.pi)
-        y_coordinates  = span*spacing[0:int((len(si)+1)/2)][::-1]                 
+        
+        
+        n      = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
+        thetan = n*(np.pi/2)/(n_sw+1)                  # angular stations
+        y_coordinates     = span*np.cos(thetan)       # y locations based on the angular spacing    } ]   
+        
+        #si  = np.arange(1,((n_sw*2)+2))
+        #spacing = np.cos((2*si - 1)/(2*len(si))*np.pi)
+        #y_coordinates  = span*spacing[0:int((len(si)+1)/2)][::-1]                 
         y_a   = y_coordinates[:-1] 
         y_b   = y_coordinates[1:] 
         
@@ -656,10 +661,10 @@ def compute_vortex_distribution(geometry,settings):
             n_w += 1
             cs_w = np.concatenate([cs_w,cs_w])
             xah = np.concatenate([xah,xah])
-            yah = np.concatenate([yah,-yah])
+            yah = np.concatenate([yah,-ybh])
             zah = np.concatenate([zah,zah])
             xbh = np.concatenate([xbh,xbh])
-            ybh = np.concatenate([ybh,-ybh])
+            ybh = np.concatenate([ybh,-yah[0:int(len(yah)/2)]])
             zbh = np.concatenate([zbh,zbh])
             xch = np.concatenate([xch,xch])
             ych = np.concatenate([ych,-ych])

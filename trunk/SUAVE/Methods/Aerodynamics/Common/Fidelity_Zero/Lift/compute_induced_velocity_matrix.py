@@ -27,11 +27,17 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
     XAH  = np.atleast_3d(data.XAH*inv_root_beta)
+    XAHbv  = np.atleast_3d(data.XAH*inv_root_beta)
     YAH  = np.atleast_3d(data.YAH*ones)
+    YAHbv = np.atleast_3d(data.YAH*ones)
     ZAH  = np.atleast_3d(data.ZAH*ones)
+    ZAHbv  = np.atleast_3d(data.ZAH*ones)
     XBH  = np.atleast_3d(data.XBH*inv_root_beta)
+    XBHbv  = np.atleast_3d(data.XBH*inv_root_beta)
     YBH  = np.atleast_3d(data.YBH*ones)
+    YBHbv = np.atleast_3d(data.YBH*ones)
     ZBH  = np.atleast_3d(data.ZBH*ones)
+    ZBHbv  = np.atleast_3d(data.ZBH*ones)
 
     XA1  = np.atleast_3d(data.XA1*inv_root_beta)
     YA1  = np.atleast_3d(data.YA1*ones)
@@ -58,7 +64,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     ZC   = np.atleast_3d(data.ZC*ones)  
     n_w  = data.n_w
 
-    theta_w = np.atleast_3d(0)     # wake model set to freestream
+    theta_w = np.atleast_3d(theta_w)     # wake model set to freestream
     n_aoa   = np.shape(theta_w)[0]
     
     # -------------------------------------------------------------------------------------------
@@ -98,6 +104,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     ZA2[boolean], ZB2[boolean] = ZB2[boolean], ZA2[boolean]    
     XAH[boolean], XBH[boolean] = XBH[boolean], XAH[boolean]
     YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
+    #YAHbv[boolean], YBHbv[boolean] = YBHbv[boolean], YAHbv[boolean]
     ZAH[boolean], ZBH[boolean] = ZBH[boolean], ZAH[boolean]
 
     XA2_hats[boolean], XB2_hats[boolean] = XB2_hats[boolean], XA2_hats[boolean]
@@ -114,7 +121,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     ZC_hats = np.swapaxes(ZC_hats,1,2)     
 
     # compute influence of bound vortices 
-    C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAH, YAH, ZAH, XBH, YBH, ZBH),axes=[1,2,3,0])
+    C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAHbv, YAHbv, ZAHbv, XBHbv, YBHbv, ZBHbv),axes=[1,2,3,0])
 
     # compute influence of 3/4 left legs
     C_AB_34_ll = np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XAH, YAH, ZAH),axes=[1,2,3,0])
@@ -154,6 +161,17 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # Prime the arrays
     mask      = np.ones((n_aoa,n_cp,n_cp,3))
     C_AB_llrl = np.zeros((n_aoa,n_cp,n_cp,3))
+    #C_mn = np.zeros((n_cp,n_cp,3))
+    #for m in range(n_cp):
+        #cw_idx = 0 
+        #sw_idx = 1
+        #for n in range(n_cp):
+            #C_AB_rl_ll = np.sum(C_AB_ll[m,(n+1):(n_cw*sw_idx)] +  C_AB_rl[m,(n+1):(n_cw*sw_idx)])
+            #C_mn[m,n,:]  = ( C_AB_rl_ll + C_AB_34_ll[m,n] + C_AB_bv[m,n] + C_AB_34_rl[m,n] + C_Ainf[m,n] + C_Binf[m,n]) # induced velocity from panel m  with i,j,k components
+            #cw_idx += 1 
+            #if cw_idx == n_cw:
+                #cw_idx = 0 
+                #sw_idx += 1    
 
     for idx in range(n_cw-1):    
 
@@ -165,7 +183,11 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
 
         # Add in the components that we need
         C_AB_llrl = C_AB_llrl+ C_AB_llrl_roll*mask
-
+    
+    #Fixing C_AB_bv for y-direction:
+    #C_AB_bv[:,:,:,1][0][0][int(n_cp/2):n_cp] = -C_AB_bv[:,:,:,1][0][0][int(n_cp/2):n_cp]
+    
+    
     # Add all the influences together
     C_mn = C_AB_34_ll + C_AB_bv + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
     
