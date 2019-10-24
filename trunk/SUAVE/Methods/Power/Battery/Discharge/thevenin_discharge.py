@@ -54,7 +54,7 @@ def thevenin_discharge(battery,numerics):
     #state of charge of the battery
     initial_discharge_state = np.dot(I,pbat) + battery.current_energy[0]
     SOC =  np.divide(initial_discharge_state,battery.max_energy)
-    SOC[SOC<0] = 0
+    SOC[SOC < 0.] = 0.
     
     # look up tables 
     V_oc = np.zeros_like(Ibat)
@@ -71,7 +71,7 @@ def thevenin_discharge(battery,numerics):
      
     
     # Calculate resistive losses
-    Ploss = 0 # (Ibat**2)*(R_0 + R_Th)
+    Ploss = (Ibat**2)*(R_0 + R_Th)
     
     #Implement model for heat 
     
@@ -89,13 +89,22 @@ def thevenin_discharge(battery,numerics):
     current_energy = ebat + current_energy[0]
     
     new_SOC = np.divide(current_energy, max_energy)
+    new_SOC[new_SOC<0] = 0.
+    
     
     # Voltage under load:
     voltage_under_load   = V_oc - V_Th - (Ibat * R_0)
     
+    # if SOC is negative, voltage under load goes to zero 
+    voltage_under_load[new_SOC == 0.] = 0.
+    V_oc[new_SOC == 0.] = 0. 
+    Ploss[new_SOC == 0.] = 0.
+    V_Th[new_SOC == 0.] = 0.
+    
     # Pack outputs
     battery.current_energy           = current_energy
     battery.resistive_losses         = Ploss
+    battery.load_power               = voltage_under_load*Ibat
     battery.voltage_open_circuit     = V_oc
     battery.battery_thevenin_voltage = V_Th
     battery.voltage_under_load       = voltage_under_load

@@ -101,6 +101,7 @@ class Battery_Test(Propulsor):
             R_Th = np.zeros_like(SOC)  
             C_Th = np.zeros_like(SOC)  
             R_0  = np.zeros_like(SOC)
+            SOC[SOC<0] = 0
             for i in range(len(SOC)): 
                 V_oc[i] = battery_data.V_oc_interp(Tbat, SOC[i])[0]
                 C_Th[i] = battery_data.C_Th_interp(Tbat, SOC[i])[0]
@@ -128,6 +129,7 @@ class Battery_Test(Propulsor):
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
         state_of_charge      = battery.state_of_charge 
+        load_power           = battery.load_power
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
         battery_thevenin_voltage  = battery.battery_thevenin_voltage
@@ -137,7 +139,8 @@ class Battery_Test(Propulsor):
         conditions.propulsion.battery_energy          = battery_energy        
         conditions.propulsion.state_of_charge         = state_of_charge
         conditions.propulsion.voltage_open_circuit    = voltage_open_circuit
-        conditions.propulsion.voltage_under_load      = voltage_under_load   
+        conditions.propulsion.voltage_under_load      = voltage_under_load 
+        conditions.propulsion.load_power              = load_power  
         conditions.propulsion.battery_thevenin_voltage= battery_thevenin_voltage
         conditions.propulsion.battery_specfic_power   = -(battery_draw/1000)/battery.mass_properties.mass   
         
