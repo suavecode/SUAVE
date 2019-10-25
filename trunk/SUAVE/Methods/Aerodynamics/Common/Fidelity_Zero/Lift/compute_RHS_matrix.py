@@ -115,5 +115,5 @@ def compute_RHS_matrix(VD,n_sw,n_cw,delta,conditions,geometry):
                 V_distribution[:,locations]   = modified_V_inf[:,locations] 
                 aoa_distribution[:,locations] =  modified_aoa[:,locations]
  
-    RHS = np.tan(delta)*np.cos(aoa_distribution) - np.sin(aoa_distribution)
+    RHS = np.sin(aoa_distribution -  delta ) 
     return RHS

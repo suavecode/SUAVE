@@ -16,7 +16,8 @@ from SUAVE.Core import Units , Data
 def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
 
     # unpack 
-    ones = np.atleast_3d(np.ones_like(theta_w))
+    ctrl_pts = len(theta_w)
+    ones    = np.atleast_3d(np.ones_like(theta_w))
  
     # Prandtl Glauret Transformation for subsonic
     inv_root_beta = np.zeros_like(mach)
@@ -26,45 +27,45 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
         raise('Mach of 1 cannot be used in building compressibiliy corrections.')
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
-    XAH  = np.atleast_3d(data.XAH*inv_root_beta)
-    XAHbv  = np.atleast_3d(data.XAH*inv_root_beta)
-    YAH  = np.atleast_3d(data.YAH*ones)
+    XAH   = np.atleast_3d(data.XAH*inv_root_beta)
+    XAHbv = np.atleast_3d(data.XAH*inv_root_beta)
+    YAH   = np.atleast_3d(data.YAH*ones)
     YAHbv = np.atleast_3d(data.YAH*ones)
-    ZAH  = np.atleast_3d(data.ZAH*ones)
-    ZAHbv  = np.atleast_3d(data.ZAH*ones)
-    XBH  = np.atleast_3d(data.XBH*inv_root_beta)
-    XBHbv  = np.atleast_3d(data.XBH*inv_root_beta)
-    YBH  = np.atleast_3d(data.YBH*ones)
+    ZAH   = np.atleast_3d(data.ZAH*ones)
+    ZAHbv = np.atleast_3d(data.ZAH*ones)
+    XBH   = np.atleast_3d(data.XBH*inv_root_beta)
+    XBHbv = np.atleast_3d(data.XBH*inv_root_beta)
+    YBH   = np.atleast_3d(data.YBH*ones)
     YBHbv = np.atleast_3d(data.YBH*ones)
-    ZBH  = np.atleast_3d(data.ZBH*ones)
-    ZBHbv  = np.atleast_3d(data.ZBH*ones)
+    ZBH   = np.atleast_3d(data.ZBH*ones)
+    ZBHbv = np.atleast_3d(data.ZBH*ones)
 
-    XA1  = np.atleast_3d(data.XA1*inv_root_beta)
-    YA1  = np.atleast_3d(data.YA1*ones)
-    ZA1  = np.atleast_3d(data.ZA1*ones)
-    XA2  = np.atleast_3d(data.XA2*inv_root_beta)
-    YA2  = np.atleast_3d(data.YA2*ones)
-    ZA2  = np.atleast_3d(data.ZA2*ones)
+    XA1   = np.atleast_3d(data.XA1*inv_root_beta)
+    YA1   = np.atleast_3d(data.YA1*ones)
+    ZA1   = np.atleast_3d(data.ZA1*ones)
+    XA2   = np.atleast_3d(data.XA2*inv_root_beta)
+    YA2   = np.atleast_3d(data.YA2*ones)
+    ZA2   = np.atleast_3d(data.ZA2*ones)
 
-    XB1  = np.atleast_3d(data.XB1*inv_root_beta)
-    YB1  = np.atleast_3d(data.YB1*ones)
-    ZB1  = np.atleast_3d(data.ZB1*ones)
-    XB2  = np.atleast_3d(data.XB2*inv_root_beta)
-    YB2  = np.atleast_3d(data.YB2*ones)
-    ZB2  = np.atleast_3d(data.ZB2*ones)
+    XB1   = np.atleast_3d(data.XB1*inv_root_beta)
+    YB1   = np.atleast_3d(data.YB1*ones)
+    ZB1   = np.atleast_3d(data.ZB1*ones)
+    XB2   = np.atleast_3d(data.XB2*inv_root_beta)
+    YB2   = np.atleast_3d(data.YB2*ones)
+    ZB2   = np.atleast_3d(data.ZB2*ones)
+          
+    XAC   = np.atleast_3d(data.XAC*inv_root_beta)
+    YAC   = np.atleast_3d(data.YAC*ones)
+    ZAC   = np.atleast_3d(data.ZAC*ones)
+    XBC   = np.atleast_3d(data.XBC*inv_root_beta)
+    YBC   = np.atleast_3d(data.YBC*ones)
+    ZBC   = np.atleast_3d(data.ZBC*ones)
+    XC    = np.atleast_3d(data.XC*inv_root_beta)
+    YC    = np.atleast_3d(data.YC*ones) 
+    ZC    = np.atleast_3d(data.ZC*ones)  
+    n_w   = data.n_w
 
-    XAC  = np.atleast_3d(data.XAC*inv_root_beta)
-    YAC  = np.atleast_3d(data.YAC*ones)
-    ZAC  = np.atleast_3d(data.ZAC*ones)
-    XBC  = np.atleast_3d(data.XBC*inv_root_beta)
-    YBC  = np.atleast_3d(data.YBC*ones)
-    ZBC  = np.atleast_3d(data.ZBC*ones)
-    XC   = np.atleast_3d(data.XC*inv_root_beta)
-    YC   = np.atleast_3d(data.YC*ones) 
-    ZC   = np.atleast_3d(data.ZC*ones)  
-    n_w  = data.n_w
-
-    theta_w = np.atleast_3d(theta_w)     # wake model set to freestream
+    theta_w = np.atleast_3d(theta_w)   # wake model, use theta_w if setting to freestream, use 0 if setting to airfoil chord like
     n_aoa   = np.shape(theta_w)[0]
     
     # -------------------------------------------------------------------------------------------
@@ -103,8 +104,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     YA2[boolean], YB2[boolean] = YB2[boolean], YA2[boolean]
     ZA2[boolean], ZB2[boolean] = ZB2[boolean], ZA2[boolean]    
     XAH[boolean], XBH[boolean] = XBH[boolean], XAH[boolean]
-    YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
-    #YAHbv[boolean], YBHbv[boolean] = YBHbv[boolean], YAHbv[boolean]
+    YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean] 
     ZAH[boolean], ZBH[boolean] = ZBH[boolean], ZAH[boolean]
 
     XA2_hats[boolean], XB2_hats[boolean] = XB2_hats[boolean], XA2_hats[boolean]
@@ -122,7 +122,8 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
 
     # compute influence of bound vortices 
     C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAHbv, YAHbv, ZAHbv, XBHbv, YBHbv, ZBHbv),axes=[1,2,3,0])
-
+    #C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAH, YAH, ZAH, XBH, YBH, ZBH),axes=[1,2,3,0])
+    
     # compute influence of 3/4 left legs
     C_AB_34_ll = np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XAH, YAH, ZAH),axes=[1,2,3,0])
 
@@ -155,43 +156,24 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     C_Ainf      = C_Ainf     * MCM
     C_Binf      = C_Binf     * MCM  
     
-    # Add the right and left influences seperately
-    C_AB_llrl_roll = C_AB_ll+C_AB_rl
-
-    # Prime the arrays
-    mask      = np.ones((n_aoa,n_cp,n_cp,3))
-    C_AB_llrl = np.zeros((n_aoa,n_cp,n_cp,3))
-    #C_mn = np.zeros((n_cp,n_cp,3))
-    #for m in range(n_cp):
-        #cw_idx = 0 
-        #sw_idx = 1
-        #for n in range(n_cp):
-            #C_AB_rl_ll = np.sum(C_AB_ll[m,(n+1):(n_cw*sw_idx)] +  C_AB_rl[m,(n+1):(n_cw*sw_idx)])
-            #C_mn[m,n,:]  = ( C_AB_rl_ll + C_AB_34_ll[m,n] + C_AB_bv[m,n] + C_AB_34_rl[m,n] + C_Ainf[m,n] + C_Binf[m,n]) # induced velocity from panel m  with i,j,k components
-            #cw_idx += 1 
-            #if cw_idx == n_cw:
-                #cw_idx = 0 
-                #sw_idx += 1    
-
-    for idx in range(n_cw-1):    
-
-        # Make a mask
-        mask[:,n_cw-idx-1::n_cw,:]= np.zeros_like(mask[:,n_cw-idx-1::n_cw,:])  
-
-        # Roll it over to the next component
-        C_AB_llrl_roll = np.roll(C_AB_llrl_roll,-1,axis=1)   
-
-        # Add in the components that we need
-        C_AB_llrl = C_AB_llrl+ C_AB_llrl_roll*mask
-    
-    #Fixing C_AB_bv for y-direction:
-    #C_AB_bv[:,:,:,1][0][0][int(n_cp/2):n_cp] = -C_AB_bv[:,:,:,1][0][0][int(n_cp/2):n_cp]
-    
+    # the follow block of text adds up all the trailing legs of the vortices which are on the wing for the downwind panels   
+    idx       = 1
+    sw_idx    = 0
+    C_AB_llrl = np.zeros_like(C_AB_ll)
+    for m in range(n_cp): 
+        for n in range(n_cp): 
+            start =  (idx+(n_cw*sw_idx))  # the chordwise index of the panel of interest 
+            end   = (n_cw*(sw_idx+1))     # the chordwise index of the trailing edge of the current column of chordwise vortices 
+            C_AB_llrl[:,m,n,:] = np.sum((C_AB_ll[:,m,start:end,:] + C_AB_rl[:,m,start:end,:]),axis=1)
+            idx += 1 
+            if idx == n_cw: # once you get to the trailing edge, reset the idx and add increment the sw_idx, the spanwise index 
+                idx     = 1  
+                sw_idx += 1
     
     # Add all the influences together
-    C_mn = C_AB_34_ll + C_AB_bv + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
+    C_mn = C_AB_bv +  C_AB_34_rl + C_AB_34_ll + C_AB_llrl + C_Ainf + C_Binf 
     
-    DW_mn = C_AB_34_ll + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
+    DW_mn = C_AB_34_rl + C_AB_34_ll + C_AB_llrl + C_Ainf + C_Binf  
     
     return C_mn, DW_mn
 

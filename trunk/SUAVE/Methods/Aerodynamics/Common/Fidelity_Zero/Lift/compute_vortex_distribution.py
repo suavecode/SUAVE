@@ -84,13 +84,10 @@ def compute_vortex_distribution(geometry,settings):
             span = span/2
         
         
-        n      = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
-        thetan = n*(np.pi/2)/(n_sw+1)                  # angular stations
-        y_coordinates     = span*np.cos(thetan)       # y locations based on the angular spacing    } ]   
+        n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
+        thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
+        y_coordinates  = span*np.cos(thetan)                   # y locations based on the angular spacing
         
-        #si  = np.arange(1,((n_sw*2)+2))
-        #spacing = np.cos((2*si - 1)/(2*len(si))*np.pi)
-        #y_coordinates  = span*spacing[0:int((len(si)+1)/2)][::-1]                 
         y_a   = y_coordinates[:-1] 
         y_b   = y_coordinates[1:] 
         

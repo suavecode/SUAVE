@@ -84,6 +84,7 @@ def VLM(conditions,settings,geometry):
     n_cw       = settings.number_panels_chordwise   
     Sref       = geometry.reference_area
     
+    
     # define point about which moment coefficient is computed 
     c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
     x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0]
@@ -116,31 +117,27 @@ def VLM(conditions,settings,geometry):
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*inv_root_beta))   
    
     # Build Aerodynamic Influence Coefficient Matrix
-    A = C_mn[:,:,:,2] - np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.tan(delta)))- np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)))  # EDIT
+    A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta))) \
+        + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)*np.cos(delta))) \
+        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(delta)))  
     
     # Build the vector
     RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,conditions,geometry)
-    
+
     # Compute vortex strength  
+    n_cp  = VD.n_cp  
     gamma = np.linalg.solve(A,RHS)
+    GAMMA = np.repeat(np.atleast_3d(gamma), n_cp ,axis = 2 )
     
-    # Do some matrix magic
-    len_aoa = len(aoa)
-    len_cps = VD.n_cp
-    eye = np.eye(len_aoa)
-    tile_eye = np.broadcast_to(eye,(len_cps,len_aoa,len_aoa))
-    tile_eye =  np.transpose(tile_eye,axes=[1,0,2])
-    
-    # Compute induced velocities
-    u = np.dot(C_mn[:,:,:,0]*MCM[:,:,:,0],gamma[:,:].T)[:,:,0]
-    v = np.dot(C_mn[:,:,:,1]*MCM[:,:,:,1],gamma[:,:].T)[:,:,0]
-    w = np.sum(np.dot(C_mn[:,:,:,2]*MCM[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)
-    w_ind = np.sum(np.dot(DW_mn[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)
-    
+    u = np.sum(C_mn[:,:,:,0]*MCM[:,:,:,0]*GAMMA, axis = 2) 
+    v = np.sum(C_mn[:,:,:,1]*MCM[:,:,:,1]*GAMMA, axis = 2) 
+    w = np.sum(C_mn[:,:,:,2]*MCM[:,:,:,2]*GAMMA, axis = 2) 
+    w_ind =  np.sum(DW_mn[:,:,:,2]*MCM[:,:,:,2]*GAMMA, axis = 2) 
+     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
     # --------------------------------------------------------------------------------------- 
-    n_cp       = VD.n_cp   
+     
     n_cppw     = n_sw*n_cw
     n_w        = VD.n_w
     CS         = VD.CS*ones
@@ -181,16 +178,12 @@ def VLM(conditions,settings,geometry):
     Cd_wings = np.array(np.split(cdi_y,n_w,axis=1))
             
     # total lift and lift coefficient
-    L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T
-    CL_correction = np.atleast_2d(np.ones_like(aoa)) 
-    CL_correction[mach > 1] = CL_correction[mach > 1] * 16   
-    CL =  CL_correction * 2*L/(Sref)   
+    L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
+    CL = 4*L/(Sref)   
     
     # total drag and drag coefficient
-    D  =  -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T
-    CDi_correction = np.atleast_2d(np.ones_like(aoa)) 
-    CDi_correction[mach > 1] = CDi_correction[mach > 1] * 64   
-    CDi = CDi_correction* D/(2*Sref)  
+    D  =  -np.atleast_2d(np.sum(np.multiply(w,gamma*Del_Y),axis=1)).T 
+    CDi = 4*D/(Sref)  
 
     # pressure coefficient
     U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)
