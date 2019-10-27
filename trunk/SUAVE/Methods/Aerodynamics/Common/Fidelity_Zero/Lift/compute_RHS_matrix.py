@@ -14,7 +14,7 @@ from SUAVE.Core import Units , Data
 import pylab as plt
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_RHS_matrix(VD,n_sw,n_cw,delta,conditions,geometry):     
+def compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry):     
 
     # unpack 
     propulsors       = geometry.propulsors
@@ -115,5 +115,6 @@ def compute_RHS_matrix(VD,n_sw,n_cw,delta,conditions,geometry):
                 V_distribution[:,locations]   = modified_V_inf[:,locations] 
                 aoa_distribution[:,locations] =  modified_aoa[:,locations]
  
-    RHS = np.sin(aoa_distribution -  delta ) 
+    RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
+    
     return RHS

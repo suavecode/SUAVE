@@ -95,7 +95,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     YB2_hats = np.atleast_3d(np.repeat(YB2_hats,n_cw,axis=2))
     ZB2_hats = np.atleast_3d(np.repeat(ZB2_hats,n_cw,axis=2))
 
-    # If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
+    ## If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
     boolean = YBH<0.
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
     YA1[boolean], YB1[boolean] = YB1[boolean], YA1[boolean]
@@ -121,20 +121,19 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     ZC_hats = np.swapaxes(ZC_hats,1,2)     
 
     # compute influence of bound vortices 
-    C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAHbv, YAHbv, ZAHbv, XBHbv, YBHbv, ZBHbv),axes=[1,2,3,0])
-    #C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAH, YAH, ZAH, XBH, YBH, ZBH),axes=[1,2,3,0])
+    C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAH, YAH, ZAH, XBH, YBH, ZBH),axes=[1,2,3,0])
     
     # compute influence of 3/4 left legs
-    C_AB_34_ll = np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XAH, YAH, ZAH),axes=[1,2,3,0])
+    C_AB_34_ll = np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XAH, YAH, ZAH),axes=[1,2,3,0]) # original
 
     # compute influence of whole panel left legs 
-    C_AB_ll   =  np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XA1, YA1, ZA1),axes=[1,2,3,0])
+    C_AB_ll   =  np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XA1, YA1, ZA1),axes=[1,2,3,0]) # original
 
-    # compute influence of 3/4 right legs
-    C_AB_34_rl = np.transpose(vortex(XC, YC, ZC, XBH, YBH, ZBH, XB2, YB2, ZB2),axes=[1,2,3,0])
+    # compute influence of 3/4 right legs 
+    C_AB_34_rl = np.transpose(vortex(XC, YC, ZC, XBH, YBH, ZBH, XB2, YB2, ZB2),axes=[1,2,3,0]) # original 
 
-    # compute influence of whole right legs 
-    C_AB_rl = np.transpose(vortex(XC, YC, ZC, XB1, YB1, ZB1, XB2, YB2, ZB2),axes=[1,2,3,0])
+    # compute influence of whole right legs  
+    C_AB_rl = np.transpose(vortex(XC, YC, ZC, XB1, YB1, ZB1, XB2, YB2, ZB2),axes=[1,2,3,0]) # original 
 
     # velocity induced by left leg of vortex (A to inf)
     C_Ainf  = np.transpose(vortex_to_inf_l(XC_hats, YC_hats, ZC_hats, XA2_hats, YA2_hats, ZA2_hats,theta_w),axes=[1,2,3,0])
@@ -159,21 +158,25 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # the follow block of text adds up all the trailing legs of the vortices which are on the wing for the downwind panels   
     idx       = 1
     sw_idx    = 0
-    C_AB_llrl = np.zeros_like(C_AB_ll)
+    C_AB_ll_on_wing = np.zeros_like(C_AB_ll)
+    C_AB_rl_on_wing = np.zeros_like(C_AB_ll)
     for m in range(n_cp): 
         for n in range(n_cp): 
-            start =  (idx+(n_cw*sw_idx))  # the chordwise index of the panel of interest 
+            start = (idx+(n_cw*sw_idx))   # the chordwise index of the panel of interest 
             end   = (n_cw*(sw_idx+1))     # the chordwise index of the trailing edge of the current column of chordwise vortices 
-            C_AB_llrl[:,m,n,:] = np.sum((C_AB_ll[:,m,start:end,:] + C_AB_rl[:,m,start:end,:]),axis=1)
+            C_AB_ll_on_wing[:,m,n,:] = np.sum(C_AB_ll[:,m,start:end,:],axis=1) 
+            C_AB_rl_on_wing[:,m,n,:] = np.sum(C_AB_rl[:,m,start:end,:],axis=1)
             idx += 1 
             if idx == n_cw: # once you get to the trailing edge, reset the idx and add increment the sw_idx, the spanwise index 
                 idx     = 1  
                 sw_idx += 1
     
     # Add all the influences together
-    C_mn = C_AB_bv +  C_AB_34_rl + C_AB_34_ll + C_AB_llrl + C_Ainf + C_Binf 
+    C_AB_ll_tot = C_AB_ll_on_wing + C_AB_34_ll + C_Ainf  # verified from book using example 7.4 pg 399-404
+    C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
+    C_mn        = C_AB_bv +  C_AB_ll_tot  + C_AB_rl_tot  # verified from book using example 7.4 pg 399-404
     
-    DW_mn = C_AB_34_rl + C_AB_34_ll + C_AB_llrl + C_Ainf + C_Binf  
+    DW_mn = C_AB_ll_tot  + C_AB_rl_tot # summation of trailing vortices 
     
     return C_mn, DW_mn
 

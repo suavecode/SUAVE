@@ -113,26 +113,30 @@ def VLM(conditions,settings,geometry):
         raise('Mach of 1 cannot be used in building compressibiliy corrections.')
     inv_root_beta = np.atleast_2d(inv_root_beta)
     
-    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones
-    delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*inv_root_beta))   
+    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones          # dihedral angle 
+    delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*inv_root_beta)) # mean camber surface angle 
    
     # Build Aerodynamic Influence Coefficient Matrix
-    A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta))) \
-        + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)*np.cos(delta))) \
-        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(delta)))  
+    A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
+        + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
+        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # valdiated from book eqn 7.42 
     
     # Build the vector
-    RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,conditions,geometry)
+    RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry)
 
     # Compute vortex strength  
     n_cp  = VD.n_cp  
     gamma = np.linalg.solve(A,RHS)
     GAMMA = np.repeat(np.atleast_3d(gamma), n_cp ,axis = 2 )
     
+    B =   np.multiply(DW_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
+        + np.multiply(DW_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
+        - np.multiply(DW_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))     
+      
     u = np.sum(C_mn[:,:,:,0]*MCM[:,:,:,0]*GAMMA, axis = 2) 
     v = np.sum(C_mn[:,:,:,1]*MCM[:,:,:,1]*GAMMA, axis = 2) 
     w = np.sum(C_mn[:,:,:,2]*MCM[:,:,:,2]*GAMMA, axis = 2) 
-    w_ind =  np.sum(DW_mn[:,:,:,2]*MCM[:,:,:,2]*GAMMA, axis = 2) 
+    w_ind = np.sum(B*MCM[:,:,:,2]*GAMMA, axis = 2) 
      
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
@@ -179,11 +183,11 @@ def VLM(conditions,settings,geometry):
             
     # total lift and lift coefficient
     L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
-    CL = 4*L/(Sref)   
+    CL = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers 
     
     # total drag and drag coefficient
-    D  =  -np.atleast_2d(np.sum(np.multiply(w,gamma*Del_Y),axis=1)).T 
-    CDi = 4*D/(Sref)  
+    D  =  -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T 
+    CDi = D/(0.5*Sref)  
 
     # pressure coefficient
     U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)

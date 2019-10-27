@@ -19,7 +19,7 @@ def compute_vortex_distribution(geometry,settings):
     # STEP 1: Define empty vectors for coordinates of panes, control points and bound vortices
     # ---------------------------------------------------------------------------------------
     VD = Data()
- 
+
     VD.XAH = np.empty(shape=[0,1])
     VD.YAH = np.empty(shape=[0,1])
     VD.ZAH = np.empty(shape=[0,1])
@@ -54,7 +54,7 @@ def compute_vortex_distribution(geometry,settings):
     VD.X  = np.empty(shape=[0,1])
     VD.Y  = np.empty(shape=[0,1])
     VD.Z  = np.empty(shape=[0,1])
-    
+
     n_sw = settings.number_panels_spanwise 
     n_cw = settings.number_panels_chordwise     
 
@@ -78,19 +78,18 @@ def compute_vortex_distribution(geometry,settings):
         Sref        = wing.areas.reference
         vertical_wing = wing.vertical
         wing_origin = wing.origin
-    
+
         # determine of vehicle has symmetry 
         if sym_para is True :
             span = span/2
-        
-        
+
         n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
         thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
-        y_coordinates  = span*np.cos(thetan)                   # y locations based on the angular spacing
-        
+        y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing 
+         
         y_a   = y_coordinates[:-1] 
         y_b   = y_coordinates[1:] 
-        
+
         xah = np.zeros(n_cw*n_sw)
         yah = np.zeros(n_cw*n_sw)
         zah = np.zeros(n_cw*n_sw)
@@ -125,7 +124,7 @@ def compute_vortex_distribution(geometry,settings):
         y   = np.zeros((n_cw+1)*(n_sw+1)) 
         z   = np.zeros((n_cw+1)*(n_sw+1))         
         cs_w = np.zeros(n_sw)
-               
+
         # ---------------------------------------------------------------------------------------
         # STEP 3: Determine if wing segments are defined  
         # ---------------------------------------------------------------------------------------
@@ -145,7 +144,7 @@ def compute_vortex_distribution(geometry,settings):
             segment_chord_x_offset = np.zeros(n_segments)
             segment_chord_z_offset = np.zeros(n_segments)
             section_stations       = np.zeros(n_segments) 
-            
+
             # ---------------------------------------------------------------------------------------
             # STEP 5A: Obtain sweep, chord, dihedral and twist at the beginning/end of each segment.
             #          If applicable, append airfoil section VD and flap/aileron deflection angles.
@@ -156,7 +155,7 @@ def compute_vortex_distribution(geometry,settings):
                 segment_twist[i_seg]    = wing.Segments[i_seg].twist
                 section_stations[i_seg] = wing.Segments[i_seg].percent_span_location*span  
                 segment_dihedral[i_seg] = wing.Segments[i_seg].dihedral_outboard                    
-        
+
                 # change to leading edge sweep, if quarter chord sweep givent, convert to leading edge sweep 
                 if (i_seg == n_segments-1):
                     segment_sweep[i_seg] = 0                                  
@@ -170,7 +169,7 @@ def compute_vortex_distribution(geometry,settings):
                         seg_tip_chord        = root_chord*wing.Segments[i_seg+1].root_chord_percent
                         seg_span             = span*(wing.Segments[i_seg+1].percent_span_location - wing.Segments[i_seg].percent_span_location )
                         segment_sweep[i_seg] = np.arctan(((seg_root_chord*cf) + (np.tan(sweep_quarter_chord)*seg_span - cf*seg_tip_chord)) /seg_span)  
-        
+
                 if i_seg == 0:
                     segment_span[i_seg]           = 0.0
                     segment_chord_x_offset[i_seg] = 0.0  
@@ -180,7 +179,7 @@ def compute_vortex_distribution(geometry,settings):
                     segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
                     segment_chord_z_offset[i_seg] = segment_chord_z_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_dihedral[i_seg-1])
                     segment_area[i_seg]           = 0.5*(root_chord*wing.Segments[i_seg-1].root_chord_percent + root_chord*wing.Segments[i_seg].root_chord_percent)*segment_span[i_seg]
-                    
+
                 # Get airfoil section VD  
                 if wing.Segments[i_seg].Airfoil: 
                     airfoil_data = read_wing_airfoil(wing.Segments[i_seg].Airfoil.airfoil.coordinate_file )    
@@ -189,23 +188,23 @@ def compute_vortex_distribution(geometry,settings):
                 else:
                     segment_camber.append(np.zeros(30))              
                     segment_x_coord.append(np.linspace(0,1,30)) 
-               
+
                 # ** TO DO ** Get flap/aileron locations and deflection
-                
+
             wing_areas.append(np.sum(segment_area[:]))
             if sym_para is True :
                 wing_areas.append(np.sum(segment_area[:]))            
-            
+
             #Shift spanwise vortices onto section breaks  
             for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
                 y_coordinates[idx] = section_stations[i_seg]                
- 
+
             # ---------------------------------------------------------------------------------------
             # STEP 6A: Define coordinates of panels horseshoe vortices and control points 
             # ---------------------------------------------------------------------------------------
             del_y = y_coordinates[1:] - y_coordinates[:-1]
-        
+
             # define coordinates of horseshoe vortices and control points
             i_seg = 0           
             for idx_y in range(n_sw):
@@ -213,18 +212,18 @@ def compute_vortex_distribution(geometry,settings):
                 eta_a = (y_a[idx_y] - section_stations[i_seg])  
                 eta_b = (y_b[idx_y] - section_stations[i_seg]) 
                 eta   = (y_b[idx_y] - del_y[idx_y]/2 - section_stations[i_seg]) 
-                
+
                 segment_chord_ratio = (segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1]
                 segment_twist_ratio = (segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1]
-                
+
                 wing_chord_section_a  = segment_chord[i_seg] + (eta_a*segment_chord_ratio) 
                 wing_chord_section_b  = segment_chord[i_seg] + (eta_b*segment_chord_ratio)
                 wing_chord_section    = segment_chord[i_seg] + (eta*segment_chord_ratio)
-                
+
                 delta_x_a = wing_chord_section_a/n_cw  
                 delta_x_b = wing_chord_section_b/n_cw      
                 delta_x   = wing_chord_section/n_cw                                       
-                
+
                 xi_a1 = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x                  # x coordinate of top left corner of panel
                 xi_ah = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x + delta_x_a*0.25 # x coordinate of left corner of panel
                 xi_a2 = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x + delta_x_a      # x coordinate of bottom left corner of bound vortex 
@@ -243,7 +242,7 @@ def compute_vortex_distribution(geometry,settings):
                 section_x_coord_a = segment_x_coord[i_seg]*wing_chord_section_a
                 section_x_coord_b = segment_x_coord[i_seg]*wing_chord_section_b
                 section_x_coord   = segment_x_coord[i_seg]*wing_chord_section
-                
+
                 z_c_a1 = np.interp((idx_x    *delta_x_a)                  ,section_x_coord_a,section_camber_a) 
                 z_c_ah = np.interp((idx_x    *delta_x_a + delta_x_a*0.25) ,section_x_coord_a,section_camber_a)
                 z_c_a2 = np.interp(((idx_x+1)*delta_x_a)                  ,section_x_coord_a,section_camber_a) 
@@ -254,7 +253,7 @@ def compute_vortex_distribution(geometry,settings):
                 z_c_bc = np.interp((idx_x    *delta_x_b + delta_x_b*0.75) ,section_x_coord_b,section_camber_b) 
                 z_c    = np.interp((idx_x    *delta_x   + delta_x  *0.75) ,section_x_coord,section_camber_c) 
                 z_c_ch = np.interp((idx_x    *delta_x   + delta_x  *0.25) ,section_x_coord,section_camber_c) 
-                
+
                 zeta_a1 = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_a1  # z coordinate of top left corner of panel
                 zeta_ah = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_ah  # z coordinate of left corner of bound vortex  
                 zeta_a2 = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_a2  # z coordinate of bottom left corner of panel
@@ -265,21 +264,21 @@ def compute_vortex_distribution(geometry,settings):
                 zeta_b2 = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])  + z_c_b2  # z coordinate of bottom right corner of panel                 
                 zeta    = segment_chord_z_offset[i_seg] + eta*np.tan(segment_dihedral[i_seg])    + z_c     # z coordinate three-quarter chord control point for each panel
                 zeta_ch = segment_chord_z_offset[i_seg] + eta*np.tan(segment_dihedral[i_seg])    + z_c_ch  # z coordinate center of bound vortex on each panel
-                
+
                 # adjustment of panels for twist  
                 xi_LE_a = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg])               # x location of leading edge left corner of wing
                 xi_LE_b = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg])               # x location of leading edge right of wing
                 xi_LE   = segment_chord_x_offset[i_seg] + eta*np.tan(segment_sweep[i_seg])                 # x location of leading edge center of wing
-                
+
                 zeta_LE_a = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])          # z location of leading edge left corner of wing
                 zeta_LE_b = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])          # z location of leading edge right of wing
                 zeta_LE   = segment_chord_z_offset[i_seg] + eta*np.tan(segment_dihedral[i_seg])            # z location of leading edge center of wing
-                
+
                 # determine section twist
                 section_twist_a = segment_twist[i_seg] + (eta_a * segment_twist_ratio)                     # twist at left side of panel
                 section_twist_b = segment_twist[i_seg] + (eta_b * segment_twist_ratio)                     # twist at right side of panel
                 section_twist   = segment_twist[i_seg] + (eta* segment_twist_ratio)                        # twist at center local chord 
-                
+
                 xi_prime_a1  = xi_LE_a + np.cos(section_twist_a)*(xi_a1-xi_LE_a) + np.sin(section_twist_a)*(zeta_a1-zeta_LE_a)   # x coordinate transformation of top left corner
                 xi_prime_ah  = xi_LE_a + np.cos(section_twist_a)*(xi_ah-xi_LE_a) + np.sin(section_twist_a)*(zeta_ah-zeta_LE_a)   # x coordinate transformation of bottom left corner
                 xi_prime_a2  = xi_LE_a + np.cos(section_twist_a)*(xi_a2-xi_LE_a) + np.sin(section_twist_a)*(zeta_a2-zeta_LE_a)   # x coordinate transformation of bottom left corner
@@ -290,7 +289,7 @@ def compute_vortex_distribution(geometry,settings):
                 xi_prime_b2  = xi_LE_b + np.cos(section_twist_b)*(xi_b2-xi_LE_b) + np.sin(section_twist_b)*(zeta_b2-zeta_LE_b)   # x coordinate transformation of botton right corner 
                 xi_prime     = xi_LE   + np.cos(section_twist)  *(xi_c-xi_LE)    + np.sin(section_twist)*(zeta-zeta_LE)          # x coordinate transformation of control point
                 xi_prime_ch  = xi_LE   + np.cos(section_twist)  *(xi_ch-xi_LE)   + np.sin(section_twist)*(zeta_ch-zeta_LE)       # x coordinate transformation of center of horeshoe vortex 
-                
+
                 zeta_prime_a1  = zeta_LE_a - np.sin(section_twist_a)*(xi_a1-xi_LE_a) + np.cos(section_twist_a)*(zeta_a1-zeta_LE_a) # z coordinate transformation of top left corner
                 zeta_prime_ah  = zeta_LE_a - np.sin(section_twist_a)*(xi_ah-xi_LE_a) + np.cos(section_twist_a)*(zeta_ah-zeta_LE_a) # z coordinate transformation of bottom left corner
                 zeta_prime_a2  = zeta_LE_a - np.sin(section_twist_a)*(xi_a2-xi_LE_a) + np.cos(section_twist_a)*(zeta_a2-zeta_LE_a) # z coordinate transformation of bottom left corner
@@ -301,7 +300,7 @@ def compute_vortex_distribution(geometry,settings):
                 zeta_prime_b2  = zeta_LE_b - np.sin(section_twist_b)*(xi_b2-xi_LE_b) + np.cos(section_twist_b)*(zeta_b2-zeta_LE_b) # z coordinate transformation of botton right corner 
                 zeta_prime     = zeta_LE   - np.sin(section_twist)*(xi_c-xi_LE)      + np.cos(-section_twist)*(zeta-zeta_LE)            # z coordinate transformation of control point
                 zeta_prime_ch  = zeta_LE   - np.sin(section_twist)*(xi_ch-xi_LE)     + np.cos(-section_twist)*(zeta_ch-zeta_LE)            # z coordinate transformation of center of horseshoe
-                                       
+
                 # ** TO DO ** Get flap/aileron locations and deflection
                 # store coordinates of panels, horseshoeces vortices and control points relative to wing root 
                 if vertical_wing:
@@ -311,29 +310,29 @@ def compute_vortex_distribution(geometry,settings):
                     xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
                     za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     ya2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
-                        
+
                     xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
                     zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
                     yb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
                     xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
                     zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                        
                     yb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
-                         
+
                     xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
                     zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     yah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
                     xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
                     zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
                     ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
-                          
+
                     xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
                     zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
                     ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
-                          
+
                     xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
                     zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
                     yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
-                         
+
                     xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
                     zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     yac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
@@ -343,7 +342,7 @@ def compute_vortex_distribution(geometry,settings):
                     x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
                     z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
                     y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])
-                          
+
                 else:     
                     xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
                     ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
@@ -351,29 +350,29 @@ def compute_vortex_distribution(geometry,settings):
                     xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
                     ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
-                         
+
                     xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
                     yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
                     zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
                     yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
                     xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
                     zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
-                         
+
                     xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
                     yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
                     xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
                     ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
                     zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
-                         
+
                     xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
                     ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                    
                     zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
-                         
+
                     xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
                     yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)
                     zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
-                      
+
                     xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
                     yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
@@ -383,14 +382,14 @@ def compute_vortex_distribution(geometry,settings):
                     x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
                     y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
                     z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])                   
-                
+
                 idx += 1
-                
+
                 cs_w[idx_y] = wing_chord_section       
-            
+
                 if y_b[idx_y] == section_stations[i_seg+1]: 
                     i_seg += 1      
-                    
+
             if vertical_wing:    
                 x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
                 z[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
@@ -399,25 +398,25 @@ def compute_vortex_distribution(geometry,settings):
                 x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
                 y[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
                 z[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])                
-                                                    
+
         else:   # when no segments are defined on wing  
             # ---------------------------------------------------------------------------------------
             # STEP 6B: Define coordinates of panels horseshoe vortices and control points 
             # ---------------------------------------------------------------------------------------
-            
+
             if sweep_le != 0:
                 sweep = sweep_le
             else:                                                                
                 cf    = 0.25                          
                 sweep = np.arctan(((root_chord*cf) + (np.tan(sweep_qc)*span - cf*tip_chord)) /span)  
-     
+
             i    = np.arange(0,n_sw)             
             wing_chord_ratio = (tip_chord-root_chord)/span
             wing_twist_ratio = (twist_tc-twist_rc)/span                    
             wing_areas.append(0.5*(root_chord+tip_chord)*span) 
             if sym_para is True :
                 wing_areas.append(0.5*(root_chord+tip_chord)*span)   
-            
+
             # Get airfoil section VD  
             if wing.Airfoil: 
                 airfoil_data = read_wing_airfoil(wing.Airfoil.airfoil.coordinate_file)    
@@ -433,15 +432,15 @@ def compute_vortex_distribution(geometry,settings):
                 eta_a = (y_a[idx_y])  
                 eta_b = (y_b[idx_y]) 
                 eta   = (y_b[idx_y] - delta_y[idx_y]/2) 
-                 
+
                 wing_chord_section_a  = root_chord + (eta_a*wing_chord_ratio) 
                 wing_chord_section_b  = root_chord + (eta_b*wing_chord_ratio)
                 wing_chord_section    = root_chord + (eta*wing_chord_ratio)
-                
+
                 delta_x_a = wing_chord_section_a/n_cw   
                 delta_x_b = wing_chord_section_b/n_cw   
                 delta_x   = wing_chord_section/n_cw                                  
-                
+
                 xi_a1 = eta_a*np.tan(sweep) + delta_x_a*idx_x                  # x coordinate of top left corner of panel
                 xi_ah = eta_a*np.tan(sweep) + delta_x_a*idx_x + delta_x_a*0.25 # x coordinate of left corner of panel
                 xi_a2 = eta_a*np.tan(sweep) + delta_x_a*idx_x + delta_x_a      # x coordinate of bottom left corner of bound vortex 
@@ -452,15 +451,15 @@ def compute_vortex_distribution(geometry,settings):
                 xi_bc = eta_b*np.tan(sweep) + delta_x_b*idx_x + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
                 xi_c  =  eta *np.tan(sweep)  + delta_x  *idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
                 xi_ch =  eta *np.tan(sweep)  + delta_x  *idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
-                                  
+
                 section_camber_a  = wing_camber*wing_chord_section_a
                 section_camber_b  = wing_camber*wing_chord_section_b  
                 section_camber_c  = wing_camber*wing_chord_section
-                                       
+
                 section_x_coord_a = wing_x_coord*wing_chord_section_a
                 section_x_coord_b = wing_x_coord*wing_chord_section_b
                 section_x_coord   = wing_x_coord*wing_chord_section
-                
+
                 z_c_a1 = np.interp((idx_x    *delta_x_a)                  ,section_x_coord_a,section_camber_a) 
                 z_c_ah = np.interp((idx_x    *delta_x_a + delta_x_a*0.25) ,section_x_coord_a,section_camber_a)
                 z_c_a2 = np.interp(((idx_x+1)*delta_x_a)                  ,section_x_coord_a,section_camber_a) 
@@ -471,7 +470,7 @@ def compute_vortex_distribution(geometry,settings):
                 z_c_bc = np.interp((idx_x    *delta_x_b + delta_x_b*0.75) ,section_x_coord_b,section_camber_b) 
                 z_c    = np.interp((idx_x    *delta_x   + delta_x  *0.75) ,section_x_coord  ,section_camber_c) 
                 z_c_ch = np.interp((idx_x    *delta_x   + delta_x  *0.25) ,section_x_coord  ,section_camber_c) 
-                
+
                 zeta_a1 = eta_a*np.tan(dihedral)  + z_c_a1  # z coordinate of top left corner of panel
                 zeta_ah = eta_a*np.tan(dihedral)  + z_c_ah  # z coordinate of left corner of bound vortex  
                 zeta_a2 = eta_a*np.tan(dihedral)  + z_c_a2  # z coordinate of bottom left corner of panel
@@ -482,21 +481,21 @@ def compute_vortex_distribution(geometry,settings):
                 zeta_b2 = eta_b*np.tan(dihedral)  + z_c_b2  # z coordinate of bottom right corner of panel                 
                 zeta    =   eta*np.tan(dihedral)    + z_c     # z coordinate three-quarter chord control point for each panel
                 zeta_ch =   eta*np.tan(dihedral)    + z_c_ch  # z coordinate center of bound vortex on each panel
-                                                     
+
                 # adjustment of panels for twist  
                 xi_LE_a = eta_a*np.tan(sweep)               # x location of leading edge left corner of wing
                 xi_LE_b = eta_b*np.tan(sweep)               # x location of leading edge right of wing
                 xi_LE   = eta  *np.tan(sweep)               # x location of leading edge center of wing
-                
+
                 zeta_LE_a = eta_a*np.tan(dihedral)          # z location of leading edge left corner of wing
                 zeta_LE_b = eta_b*np.tan(dihedral)          # z location of leading edge right of wing
                 zeta_LE   = eta  *np.tan(dihedral)          # z location of leading edge center of wing
-                
+
                 # determine section twist
                 section_twist_a = twist_rc + (eta_a * wing_twist_ratio)                     # twist at left side of panel
                 section_twist_b = twist_rc + (eta_b * wing_twist_ratio)                     # twist at right side of panel
                 section_twist   = twist_rc + (eta   * wing_twist_ratio)                     # twist at center local chord 
-                
+
                 xi_prime_a1  = xi_LE_a + np.cos(section_twist_a)*(xi_a1-xi_LE_a) + np.sin(section_twist_a)*(zeta_a1-zeta_LE_a)   # x coordinate transformation of top left corner
                 xi_prime_ah  = xi_LE_a + np.cos(section_twist_a)*(xi_ah-xi_LE_a) + np.sin(section_twist_a)*(zeta_ah-zeta_LE_a)   # x coordinate transformation of bottom left corner
                 xi_prime_a2  = xi_LE_a + np.cos(section_twist_a)*(xi_a2-xi_LE_a) + np.sin(section_twist_a)*(zeta_a2-zeta_LE_a)   # x coordinate transformation of bottom left corner
@@ -507,7 +506,7 @@ def compute_vortex_distribution(geometry,settings):
                 xi_prime_b2  = xi_LE_b + np.cos(section_twist_b)*(xi_b2-xi_LE_b) + np.sin(section_twist_b)*(zeta_b2-zeta_LE_b)   # x coordinate transformation of botton right corner 
                 xi_prime     = xi_LE   + np.cos(section_twist)  *(xi_c-xi_LE)    + np.sin(section_twist)*(zeta-zeta_LE)          # x coordinate transformation of control point
                 xi_prime_ch  = xi_LE   + np.cos(section_twist)  *(xi_ch-xi_LE)   + np.sin(section_twist)*(zeta_ch-zeta_LE)       # x coordinate transformation of center of horeshoe vortex 
-                
+
                 zeta_prime_a1  = zeta_LE_a - np.sin(section_twist_a)*(xi_a1-xi_LE_a) + np.cos(section_twist_a)*(zeta_a1-zeta_LE_a) # z coordinate transformation of top left corner
                 zeta_prime_ah  = zeta_LE_a - np.sin(section_twist_a)*(xi_ah-xi_LE_a) + np.cos(section_twist_a)*(zeta_ah-zeta_LE_a) # z coordinate transformation of bottom left corner
                 zeta_prime_a2  = zeta_LE_a - np.sin(section_twist_a)*(xi_a2-xi_LE_a) + np.cos(section_twist_a)*(zeta_a2-zeta_LE_a) # z coordinate transformation of bottom left corner
@@ -518,9 +517,9 @@ def compute_vortex_distribution(geometry,settings):
                 zeta_prime_b2  = zeta_LE_b - np.sin(section_twist_b)*(xi_b2-xi_LE_b) + np.cos(section_twist_b)*(zeta_b2-zeta_LE_b) # z coordinate transformation of botton right corner 
                 zeta_prime     = zeta_LE   - np.sin(section_twist)  *(xi_c-xi_LE)    + np.cos(-section_twist) *(zeta-zeta_LE)      # z coordinate transformation of control point
                 zeta_prime_ch  = zeta_LE   - np.sin(section_twist)  *(xi_ch-xi_LE)   + np.cos(-section_twist) *(zeta_ch-zeta_LE)   # z coordinate transformation of center of horseshoe
-                           
+
                 # ** TO DO ** Get flap/aileron locations and deflection
-                
+
                 # store coordinates of panels, horseshoe vortices and control points relative to wing root 
                 if vertical_wing:
                     xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
@@ -529,29 +528,29 @@ def compute_vortex_distribution(geometry,settings):
                     xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
                     za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     ya2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
-                     
+
                     xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
                     zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
                     yb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
                     xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
                     zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                        
                     yb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
-             
+
                     xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
                     zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     yah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
                     xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
                     zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
                     ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
-                      
+
                     xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
                     zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2)                   
                     ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
-             
+
                     xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
                     zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2) 
                     yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
-                
+
                     xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
                     zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     yac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
@@ -561,7 +560,7 @@ def compute_vortex_distribution(geometry,settings):
                     x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
                     z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
                     y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])                    
-                     
+
                 else: 
                     xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
                     ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
@@ -569,29 +568,29 @@ def compute_vortex_distribution(geometry,settings):
                     xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
                     ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
-                        
+
                     xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
                     yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
                     zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
                     yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
                     xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
                     zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
-                       
+
                     xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
                     yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
                     xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
                     ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
                     zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
-                          
+
                     xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
                     ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2)                   
                     zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
-                        
+
                     xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
                     yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2) 
                     zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
-                          
+
                     xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
                     yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
                     zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
@@ -601,9 +600,9 @@ def compute_vortex_distribution(geometry,settings):
                     x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
                     y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
                     z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])              
-                
+
                 cs_w[idx_y] = wing_chord_section
-                
+
             if vertical_wing:    
                 x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
                 z[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
@@ -612,7 +611,7 @@ def compute_vortex_distribution(geometry,settings):
                 x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
                 y[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
                 z[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])   
-                
+
         # adjusting coordinate axis so reference point is at the nose of the aircraft
         xah = xah + wing_origin[0] # x coordinate of left corner of bound vortex 
         yah = yah + wing_origin[1] # y coordinate of left corner of bound vortex 
@@ -623,64 +622,64 @@ def compute_vortex_distribution(geometry,settings):
         xch = xch + wing_origin[0] # x coordinate of center of bound vortex on panel
         ych = ych + wing_origin[1] # y coordinate of center of bound vortex on panel
         zch = zch + wing_origin[2] # z coordinate of center of bound vortex on panel  
-        
+
         xa1 = xa1 + wing_origin[0] # x coordinate of top left corner of panel
         ya1 = ya1 + wing_origin[1] # y coordinate of bottom left corner of panel
         za1 = za1 + wing_origin[2] # z coordinate of top left corner of panel
         xa2 = xa2 + wing_origin[0] # x coordinate of bottom left corner of panel
         ya2 = ya2 + wing_origin[1] # x coordinate of bottom left corner of panel
         za2 = za2 + wing_origin[2] # z coordinate of bottom left corner of panel  
-        
+
         xb1 = xb1 + wing_origin[0] # x coordinate of top right corner of panel  
         yb1 = yb1 + wing_origin[1] # y coordinate of top right corner of panel 
         zb1 = zb1 + wing_origin[2] # z coordinate of top right corner of panel 
         xb2 = xb2 + wing_origin[0] # x coordinate of bottom rightcorner of panel 
         yb2 = yb2 + wing_origin[1] # y coordinate of bottom rightcorner of panel 
         zb2 = zb2 + wing_origin[2] # z coordinate of bottom right corner of panel                   
-        
+
         xac = xac + wing_origin[0]  # x coordinate of control points on panel
         yac = yac + wing_origin[1]  # y coordinate of control points on panel
         zac = zac + wing_origin[2]  # z coordinate of control points on panel
         xbc = xbc + wing_origin[0]  # x coordinate of control points on panel
         ybc = ybc + wing_origin[1]  # y coordinate of control points on panel
         zbc = zbc + wing_origin[2]  # z coordinate of control points on panel
-        
+
         xc  = xc + wing_origin[0]  # x coordinate of control points on panel
         yc  = yc + wing_origin[1]  # y coordinate of control points on panel
         zc  = zc + wing_origin[2]  # y coordinate of control points on panel
         x   = x + wing_origin[0]  # x coordinate of control points on panel
         y   = y + wing_origin[1]  # y coordinate of control points on panel
         z   = z + wing_origin[2]  # y coordinate of control points on panel
-        
+
         # if symmetry, store points of mirrored wing 
         n_w += 1
         if sym_para is True :
             n_w += 1
             cs_w = np.concatenate([cs_w,cs_w])
             xah = np.concatenate([xah,xah])
-            yah = np.concatenate([yah,-ybh])
+            yah = np.concatenate([yah,-yah])
             zah = np.concatenate([zah,zah])
             xbh = np.concatenate([xbh,xbh])
-            ybh = np.concatenate([ybh,-yah[0:int(len(yah)/2)]])
+            ybh = np.concatenate([ybh,-ybh])
             zbh = np.concatenate([zbh,zbh])
             xch = np.concatenate([xch,xch])
             ych = np.concatenate([ych,-ych])
             zch = np.concatenate([zch,zch])
-                                         
+
             xa1 = np.concatenate([xa1,xa1])
             ya1 = np.concatenate([ya1,-ya1])
             za1 = np.concatenate([za1,za1])
             xa2 = np.concatenate([xa2,xa2])
             ya2 = np.concatenate([ya2,-ya2])
             za2 = np.concatenate([za2,za2])
-                                      
+
             xb1 = np.concatenate([xb1,xb1])
             yb1 = np.concatenate([yb1,-yb1])    
             zb1 = np.concatenate([zb1,zb1])
             xb2 = np.concatenate([xb2,xb2])
             yb2 = np.concatenate([yb2,-yb2])            
             zb2 = np.concatenate([zb2,zb2])
-                                      
+
             xac = np.concatenate([xac ,xac ])
             yac = np.concatenate([yac ,-yac ])
             zac = np.concatenate([zac ,zac ])            
@@ -693,9 +692,9 @@ def compute_vortex_distribution(geometry,settings):
             x   = np.concatenate([x , x ])
             y   = np.concatenate([y ,-y])
             z   = np.concatenate([z , z ])            
-        
+
         n_cp += len(xch)        
-        
+
         # ---------------------------------------------------------------------------------------
         # STEP 7: Store wing in vehicle vector
         # ---------------------------------------------------------------------------------------       
@@ -733,7 +732,7 @@ def compute_vortex_distribution(geometry,settings):
         VD.Y    = np.append(VD.Y ,y)
         VD.Z    = np.append(VD.Z ,z)         
         VD.CS   = np.append(VD.CS,cs_w)        
-        
+
     # ---------------------------------------------------------------------------------------
     # STEP 8: Unpack aircraft fus geometry 
     # --------------------------------------------------------------------------------------- 
@@ -771,7 +770,7 @@ def compute_vortex_distribution(geometry,settings):
         fhs_x   = np.zeros((n_cw+1)*(n_sw+1))
         fhs_y   = np.zeros((n_cw+1)*(n_sw+1))
         fhs_z   = np.zeros((n_cw+1)*(n_sw+1))        
-           
+
         fvs_xa1 = np.zeros(n_cw*n_sw)
         fvs_za1 = np.zeros(n_cw*n_sw)
         fvs_ya1 = np.zeros(n_cw*n_sw)
@@ -807,11 +806,11 @@ def compute_vortex_distribution(geometry,settings):
         fvs_z   = np.zeros((n_cw+1)*(n_sw+1))          
         fus_h_cs = np.zeros(n_sw)
         fus_v_cs = np.zeros(n_sw)     
-        
+
         semispan_h = fus.width * 0.5  
         semispan_v = fus.heights.maximum * 0.5
         origin     = fus.origin[0]
-                      
+
         # Compute the curvature of the nose/tail given fineness ratio. Curvature is derived from general quadratic equation
         # This method relates the fineness ratio to the quadratic curve formula via a spline fit interpolation
         vec1 = [2 , 1.5, 1.2 , 1]
@@ -819,23 +818,23 @@ def compute_vortex_distribution(geometry,settings):
         x = np.linspace(0,1,4)
         fus_nose_curvature =  np.interp(np.interp(fus.fineness.nose,vec2,x), x , vec1)
         fus_tail_curvature =  np.interp(np.interp(fus.fineness.tail,vec2,x), x , vec1) 
-    
+
         # Horizontal Sections of fuselage
         fhs = Data()        
         fhs.origin        = np.zeros((n_sw+1,3))        
         fhs.chord         = np.zeros((n_sw+1))         
         fhs.sweep         = np.zeros((n_sw+1))     
-    
+
         fvs = Data()
         fvs.origin        = np.zeros((n_sw+1,3))
         fvs.chord         = np.zeros((n_sw+1)) 
         fvs.sweep         = np.zeros((n_sw+1)) 
-    
+
         si  = np.arange(1,((n_sw*2)+2))
         spacing = np.cos((2*si - 1)/(2*len(si))*np.pi)     
         h_array = semispan_h*spacing[0:int((len(si)+1)/2)][::-1]  
         v_array = semispan_v*spacing[0:int((len(si)+1)/2)][::-1]  
-        
+
         for i in range(n_sw+1): 
             fhs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
             fhs.nose_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus_nose_curvature ))**(1/fus_nose_curvature))*fus.lengths.nose
@@ -843,17 +842,17 @@ def compute_vortex_distribution(geometry,settings):
             fhs.nose_origin   = fus.lengths.nose - fhs.nose_length 
             fhs.origin[i][:]  = np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]])
             fhs.chord[i]      = fhs_cabin_length + fhs.nose_length + fhs.tail_length          
-             
+
             fvs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
             fvs.nose_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus_nose_curvature ))**(1/fus_nose_curvature))*fus.lengths.nose
             fvs.tail_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus_tail_curvature ))**(1/fus_tail_curvature))*fus.lengths.tail
             fvs.nose_origin   = fus.lengths.nose - fvs.nose_length 
             fvs.origin[i][:]  = np.array([origin[0] + fvs.nose_origin , origin[1] , origin[2]+  v_array[i]])
             fvs.chord[i]      = fvs_cabin_length + fvs.nose_length + fvs.tail_length
-        
+
         fhs.sweep[:]      = np.concatenate([np.arctan((fhs.origin[:,0][1:] - fhs.origin[:,0][:-1])/(fhs.origin[:,1][1:]  - fhs.origin[:,1][:-1])) ,np.zeros(1)])
         fvs.sweep[:]      = np.concatenate([np.arctan((fvs.origin[:,0][1:] - fvs.origin[:,0][:-1])/(fvs.origin[:,2][1:]  - fvs.origin[:,2][:-1])) ,np.zeros(1)])
-    
+
         # ---------------------------------------------------------------------------------------
         # STEP 9: Define coordinates of panels horseshoe vortices and control points np.concatenate([np.arctan((fhs.origin[:,0][1:] - fhs.origin[:,0][:-1])/(fhs.origin[:,1][1:]  - fhs.origin[:,1][:-1])) ,0])
         # ---------------------------------------------------------------------------------------        
@@ -861,15 +860,15 @@ def compute_vortex_distribution(geometry,settings):
         fhs_eta_b = h_array[1:]            
         fhs_del_y = h_array[1:] - h_array[:-1]
         fhs_eta   = h_array[1:] - fhs_del_y/2
-        
+
         fvs_eta_a = v_array[:-1] 
         fvs_eta_b = v_array[1:]                  
         fvs_del_y = v_array[1:] - v_array[:-1]
         fvs_eta   = v_array[1:] - fvs_del_y/2 
-        
+
         fhs_cs = np.concatenate([fhs.chord,fhs.chord])
         fvs_cs = np.concatenate([fvs.chord,fvs.chord])
-        
+
         fus_h_area = 0
         fus_v_area = 0
 
@@ -880,7 +879,7 @@ def compute_vortex_distribution(geometry,settings):
             delta_x_a = fhs.chord[idx_y]/n_cw      
             delta_x_b = fhs.chord[idx_y + 1]/n_cw    
             delta_x   = (fhs.chord[idx_y]+fhs.chord[idx_y + 1])/(2*n_cw)
-        
+
             fhs_xi_a1 = fhs.origin[idx_y][0] + delta_x_a*idx_x                  # x coordinate of top left corner of panel
             fhs_xi_ah = fhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.25 # x coordinate of left corner of panel
             fhs_xi_a2 = fhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a      # x coordinate of bottom left corner of bound vortex 
@@ -891,7 +890,7 @@ def compute_vortex_distribution(geometry,settings):
             fhs_xi_bc = fhs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
             fhs_xi_c  = (fhs.origin[idx_y][0] + fhs.origin[idx_y+1][0])/2  + delta_x*idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
             fhs_xi_ch = (fhs.origin[idx_y][0] + fhs.origin[idx_y+1][0])/2  + delta_x*idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
-            
+
             fhs_xa1[idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_a1                       + fus.origin[0][0]  
             fhs_ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta_a[idx_y]  + fus.origin[0][1]  
             fhs_za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]
@@ -925,16 +924,16 @@ def compute_vortex_distribution(geometry,settings):
             fhs_x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([fhs_xi_a1,np.array([fhs_xi_a2[-1]])])+ fus.origin[0][0]  
             fhs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*fhs_eta_a[idx_y]  + fus.origin[0][1]                             
             fhs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                  + fus.origin[0][2]
-            
-            
+
+
             # fuselage vertical section                      
             delta_x_a = fvs.chord[idx_y]/n_cw      
             delta_x_b = fvs.chord[idx_y + 1]/n_cw    
             delta_x   = (fvs.chord[idx_y]+fvs.chord[idx_y + 1])/(2*n_cw)                                            
-            
+
             fus_h_area += ((fhs.chord[idx_y]+fhs.chord[idx_y + 1])/2)*(fhs_eta_b[idx_y] - fhs_eta_a[idx_y])
             fus_v_area += ((fvs.chord[idx_y]+fvs.chord[idx_y + 1])/2)*(fvs_eta_b[idx_y] - fvs_eta_a[idx_y])
-            
+
             fvs_xi_a1 = fvs.origin[idx_y][0] + delta_x_a*idx_x                    # z coordinate of top left corner of panel
             fvs_xi_ah = fvs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.25   # z coordinate of left corner of panel
             fvs_xi_a2 = fvs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a        # z coordinate of bottom left corner of bound vortex 
@@ -945,7 +944,7 @@ def compute_vortex_distribution(geometry,settings):
             fvs_xi_bc = fvs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.75   # z coordinate of bottom right corner of control point vortex         
             fvs_xi_c  = (fvs.origin[idx_y][0] + fvs.origin[idx_y+1][0])/2 + delta_x *idx_x + delta_x*0.75     # z coordinate three-quarter chord control point for each panel
             fvs_xi_ch = (fvs.origin[idx_y][0] + fvs.origin[idx_y+1][0])/2 + delta_x *idx_x + delta_x*0.25     # z coordinate center of bound vortex of each panel 
-       
+
             fvs_xa1[idx_y*n_cw:(idx_y+1)*n_cw] = fvs_xi_a1                      + fus.origin[0][0]  
             fvs_za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fvs_eta_a[idx_y] + fus.origin[0][2]  
             fvs_ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                 + fus.origin[0][1]
@@ -979,21 +978,21 @@ def compute_vortex_distribution(geometry,settings):
             fvs_x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([fvs_xi_a1,np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0]  
             fvs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*fvs_eta_a[idx_y] + fus.origin[0][2]               
             fvs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                 + fus.origin[0][1]               
-          
+
         fhs_x[-(n_cw+1):] = np.concatenate([fhs_xi_b1,np.array([fhs_xi_b2[-1]])])+ fus.origin[0][0]  
         fhs_y[-(n_cw+1):] = np.ones(n_cw+1)*fhs_eta_b[idx_y]  + fus.origin[0][1]                             
         fhs_z[-(n_cw+1):] = np.zeros(n_cw+1)                  + fus.origin[0][2]        
         fvs_x[-(n_cw+1):] = np.concatenate([fvs_xi_a1,np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0]  
         fvs_z[-(n_cw+1):] = np.ones(n_cw+1)*fvs_eta_a[idx_y] + fus.origin[0][2]               
         fvs_y[-(n_cw+1):] = np.zeros(n_cw+1)                 + fus.origin[0][1]          
-        
+
         fhs_cs =  (fhs.chord[:-1]+fhs.chord[1:])/2
         fvs_cs =  (fvs.chord[:-1]+fvs.chord[1:])/2     
-        
+
         ## Horizontal Fuselage Sections 
         #wing_areas.append(fus_h_area)
         #wing_areas.append(fus_h_area)  
-        
+
         ## store points of horizontal section of fuselage 
         #fhs_cs  = np.concatenate([fhs_cs, fhs_cs])
         #fhs_xah = np.concatenate([fhs_xah, fhs_xah])
@@ -1029,10 +1028,10 @@ def compute_vortex_distribution(geometry,settings):
         fhs_x   = np.concatenate([fhs_x  , fhs_x  ])
         fhs_y   = np.concatenate([fhs_y  ,-fhs_y ])
         fhs_z   = np.concatenate([fhs_z  , fhs_z  ])           
-          
+
         #n_cp += len(fhs_xch)
         #n_w  += 2          
-           
+
         # Store fus in vehicle vector  
         #VD.XAH  = np.append(VD.XAH,fhs_xah)
         #VD.YAH  = np.append(VD.YAH,fhs_yah)
@@ -1068,13 +1067,13 @@ def compute_vortex_distribution(geometry,settings):
         #VD.X    = np.append(VD.X  ,fhs_x )  
         #VD.Y    = np.append(VD.Y  ,fhs_y )  
         #VD.Z    = np.append(VD.Z  ,fhs_z )
-                
+
         ## Vertical Fuselage Sections
         # Currently leads to large errors so ommitted. Will be used in the future to compute stability derivatives  
-        
+
         #wing_areas.append(fus_v_area)
         #wing_areas.append(fus_v_area)
-        
+
         ## store points of vertical section of fuselage 
         #fvs_cs  = np.concatenate([fvs_cs , fvs_cs])
         #fvs_xah = np.concatenate([fvs_xah, fvs_xah])
@@ -1112,7 +1111,7 @@ def compute_vortex_distribution(geometry,settings):
         fvs_z   = np.concatenate([fhs_z  , -fhs_z  ])         
         #n_cp += len(fvs_xch)
         #n_w  += 2 
-        
+
         ## Store fus in vehicle vector                         
         #VD.XAH  = np.append(VD.XAH,fvs_xah)
         #VD.YAH  = np.append(VD.YAH,fvs_yah)
@@ -1148,19 +1147,19 @@ def compute_vortex_distribution(geometry,settings):
         VD.X    = np.append(VD.X  ,fvs_x )
         VD.Y    = np.append(VD.Y  ,fvs_y )
         VD.Z    = np.append(VD.Z  ,fvs_z ) 
-        
+
     VD.n_w  = n_w
     VD.n_sw = n_sw
     VD.n_cw = n_cw    
     VD.n_cp = n_cp    
     VD.wing_areas = wing_areas     
     VD.Stot = sum(wing_areas)
-    
+
     geometry.vortex_distribution = VD
-    
+
     # Compute Panel Areas 
     VD.A_panel = compute_panel_area(VD)      
-    
+
     return VD 
 
 def compute_panel_area(VD):
