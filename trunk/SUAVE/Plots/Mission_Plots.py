@@ -287,7 +287,7 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         battery_amp_hr = (energy*0.000277778)/volts
         C_rating   = current/battery_amp_hr
         
-        axes = fig.add_subplot(2,2,1)
+        axes = fig.add_subplot(3,2,1)
         axes.plot(time,specific_power, 'bo-')
         axes.set_ylabel('Specific Power kW/hg')
         axes.get_yaxis().get_major_formatter().set_scientific(False)
@@ -295,14 +295,14 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         axes.grid(True)  
         axes.grid(True)       
     
-        axes = fig.add_subplot(2,2,2)
+        axes = fig.add_subplot(3,2,2)
         axes.plot(time, energy*0.000277778, line_color)
         axes.set_ylabel('Battery Energy (W-hr)',axis_font)
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)      
         axes.grid(True)   
     
-        axes = fig.add_subplot(2,2,3)
+        axes = fig.add_subplot(3,2,3)
         axes.plot(time, volts, 'bo-',label='Under Load')
         axes.plot(time,volts_oc, 'ro-',label='Open Circuit')
         axes.set_xlabel('Time (mins)',axis_font)
@@ -311,10 +311,19 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
         axes.grid(True)         
         
-        axes = fig.add_subplot(2,2,4)
+        axes = fig.add_subplot(3,2,4)
         axes.plot(time, C_rating, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('C-Rating (C)',axis_font)  
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.grid(True)
+ 
+         
+        axes = fig.add_subplot(3,2,3)
+        axes.plot(time, current, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('current (Amps)',axis_font)  
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.get_yaxis().get_major_formatter().set_useOffset(False)     
         axes.grid(True)

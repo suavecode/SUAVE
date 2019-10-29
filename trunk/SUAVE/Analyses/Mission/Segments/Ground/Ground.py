@@ -76,7 +76,7 @@ class Ground(Aerodynamic):
         self.throttle             = None
         self.velocity_start       = 0.0
         self.velocity_end         = 0.0 
-        
+        self.time                 = 0.01
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
@@ -86,10 +86,10 @@ class Ground(Aerodynamic):
     
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.unknowns.velocity_x            = ones_row(1) * 0.0
-        self.state.unknowns.time                  = 0.1
+        #self.state.unknowns.time                  = self.time
+        #self.state.unknowns.velocity_x            = ones_row(1) * 0.0
         self.state.residuals.acceleration_x       = ones_row(1) * 0.0
-        self.state.residuals.final_velocity_error = ones_row(1) * 0.0
+        #self.state.residuals.final_velocity_error = ones_row(1) * 0.0
     
         # Specific ground things
         self.state.conditions.ground = Data()

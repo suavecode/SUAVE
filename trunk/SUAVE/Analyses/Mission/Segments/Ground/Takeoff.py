@@ -66,7 +66,7 @@ class Takeoff(Ground):
         self.velocity_end         = 150 * Units.knots
         self.friction_coefficient = 0.04
         self.throttle             = 1.0
-
+        self.time                 = 1.0
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------

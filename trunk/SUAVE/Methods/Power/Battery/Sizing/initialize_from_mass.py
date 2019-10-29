@@ -38,3 +38,10 @@ def initialize_from_mass(battery, mass):
     battery.mass_properties.mass = mass
     battery.max_energy           = mass*battery.specific_energy
     battery.max_power            = mass*battery.specific_power
+    
+def initialize_from_module(battery, mass):
+    
+    battery.mass_properties.mass = mass
+    battery.max_energy           = mass*battery.specific_energy
+    battery.max_power            = mass*battery.specific_power
+    

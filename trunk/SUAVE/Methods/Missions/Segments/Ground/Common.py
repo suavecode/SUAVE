@@ -42,27 +42,20 @@ def unpack_unknowns(segment):
     """       
     
     # unpack unknowns
-    unknowns   = segment.state.unknowns
-    velocity_x = unknowns.velocity_x
-    time       = unknowns.time
+    unknowns   = segment.state.unknowns 
+    time       = segment.time  
     v0         = segment.velocity_start 
     vf         = segment.velocity_start 
     t_initial  = segment.state.conditions.frames.inertial.time[0,0]
     t_nondim   = segment.state.numerics.dimensionless.control_points    
-    
-    # Velocity cannot be zero
-    velocity_x[velocity_x==0.0,0] = 0.01
-    velocity_x[0,0]               = v0
-    
-    # time
+   
     t_final    = t_initial + time  
     time       = t_nondim * (t_final-t_initial) + t_initial  
 
-    #apply unknowns
-    conditions = segment.state.conditions
-    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
-    conditions.frames.inertial.time[:,0]            = time[:,0]
-
+    #apply unknowns    
+    segment.state.conditions.propulsion.throttle[:,0]     = segment.state.unknowns.throttle[:,0]
+    segment.state.conditions.frames.inertial.time[:,0]    = time[:,0]
+     
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
@@ -110,7 +103,7 @@ def initialize_conditions(segment):
     segment.velocity_end   = vf
 
     # pack conditions
-    segment.state.unknowns.velocity_x               = np.linspace(v0,vf,N)
+    #segment.state.unknowns.velocity_x               = np.linspace(v0,vf,N)
     conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
     conditions.ground.incline[:,0]                  = segment.ground_incline
     conditions.ground.friction_coefficient[:,0]     = segment.friction_coefficient
@@ -241,6 +234,5 @@ def solve_residuals(segment):
     # process and pack
     acceleration = np.dot(D , v)
     conditions.frames.inertial.acceleration_vector = acceleration
-
-    segment.state.residuals.final_velocity_error = (v[-1,0] - vf)
+ 
     segment.state.residuals.acceleration_x       = np.reshape(((FT[:,0]) / m[:,0] - acceleration[:,0]),np.shape(m))

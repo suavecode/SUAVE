@@ -14,6 +14,7 @@ import SUAVE
 # package imports
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Methods.Power.Battery.Discharge.thevenin_discharge import battery_performance_maps
 
 from SUAVE.Core import Data
 
@@ -65,6 +66,7 @@ class Battery_Propeller(Propulsor):
         self.number_of_engines = None
         self.voltage           = None
         self.thrust_angle      = 0.0
+        self.dischage_model_fidelity = 1
         self.use_surrogate     = False
     
     # manage process with a driver function
@@ -98,21 +100,56 @@ class Battery_Propeller(Propulsor):
         """          
     
         # unpack
-        conditions = state.conditions
-        numerics   = state.numerics
-        motor      = self.motor
-        propeller  = self.propeller
-        esc        = self.esc
-        avionics   = self.avionics
-        payload    = self.payload
-        battery    = self.battery
-        num_engines= self.number_of_engines
+        conditions         = state.conditions
+        numerics           = state.numerics
+        motor              = self.motor
+        propeller          = self.propeller
+        esc                = self.esc
+        avionics           = self.avionics
+        payload            = self.payload
+        battery            = self.battery
+        D                  = numerics.time.differentiate    
+        I                  = numerics.time.integrate        
+        dischage_fidelity  = self.dischage_model_fidelity 
+        battery_data       = battery_performance_maps() 
+        num_engines        = self.number_of_engines
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
 
+        if dischage_fidelity == 1: 
+            volts = state.unknowns.battery_voltage_under_load
+            battery.battery_thevenin_voltage = 0 
+        elif dischage_fidelity == 2: 
+            # calculate the current going into one cell 
+            n_series   = battery.module_config[0]  
+            n_parallel = battery.module_config[1]
+            n_total    = n_series * n_parallel  
+  
+            Tbat = battery.temperature
+            SOC  = state.unknowns.battery_state_of_charge 
+            V_Th = state.unknowns.battery_thevenin_voltage/n_series 
+            
+            # look up tables 
+            V_oc = np.zeros_like(SOC)
+            R_Th = np.zeros_like(SOC)  
+            C_Th = np.zeros_like(SOC)  
+            R_0  = np.zeros_like(SOC)
+            SOC[SOC<0] = 0
+            for i in range(len(SOC)): 
+                V_oc[i] = battery_data.V_oc_interp(Tbat, SOC[i])[0]
+                C_Th[i] = battery_data.C_Th_interp(Tbat, SOC[i])[0]
+                R_Th[i] = battery_data.R_Th_interp(Tbat, SOC[i])[0]
+                R_0[i]  = battery_data.R_0_interp(Tbat, SOC[i])[0]
+            
+            dV_TH_dt =  np.dot(D,V_Th)
+            Icell = V_Th/R_Th  + C_Th*dV_TH_dt
+            
+            # Voltage under load:
+            volts =  n_series*(V_oc - V_Th - (Icell * R_0))
+            
         # Step 1 battery power
-        esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
+        esc.inputs.voltagein = volts
         
         # Step 2
         esc.voltageout(conditions)
@@ -124,17 +161,12 @@ class Battery_Propeller(Propulsor):
         motor.omega(conditions)
         
         # link
-        propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle = self.thrust_angle
+        propeller.inputs.omega              = motor.outputs.omega
+        propeller.thrust_angle              = self.thrust_angle
+        conditions.propulsion.pitch_command = self.pitch_command
         
         # step 4
-        F, Q, P, Cp, outputs , etap = propeller.spin(conditions)
-        
-        if (self.use_surrogate == True) and (self.propeller.surrogate is not None):
-            F, Q, P, Cp ,  outputs  , etap  = propeller.spin_surrogate(conditions)
-        else:            
-            # step 4
-            F, Q, P, Cp , outputs  , etap   = propeller.spin(conditions)
+        F, Q, P, Cp, outputs , etap = propeller.spin_variable_pitch(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]
@@ -168,28 +200,33 @@ class Battery_Propeller(Propulsor):
         # link
         battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
         battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
-        battery.energy_calc(numerics)        
+        battery.energy_calc(numerics,fidelity = dischage_fidelity) 
     
         # Pack the conditions for outputs
-        a                    = conditions.freestream.speed_of_sound
-        R                    = propeller.tip_radius
-        rpm                  = motor.outputs.omega*60./(2.*np.pi)
-        current              = esc.outputs.currentin
-        battery_draw         = battery.inputs.power_in 
-        battery_energy       = battery.current_energy
-        voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load    
+        a                         = conditions.freestream.speed_of_sound
+        R                         = propeller.tip_radius
+        rpm                       = motor.outputs.omega*60./(2.*np.pi)
+        current                   = esc.outputs.currentin
+        battery_draw              = battery.inputs.power_in
+        state_of_charge           = battery.state_of_charge
+        battery_energy            = battery.current_energy
+        voltage_open_circuit      = battery.voltage_open_circuit
+        voltage_under_load        = battery.voltage_under_load 
+        battery_thevenin_voltage  = battery.battery_thevenin_voltage
           
-        conditions.propulsion.rpm                   = rpm
-        conditions.propulsion.current               = current
-        conditions.propulsion.battery_draw          = battery_draw
-        conditions.propulsion.battery_energy        = battery_energy
-        conditions.propulsion.voltage_open_circuit  = voltage_open_circuit
-        conditions.propulsion.voltage_under_load    = voltage_under_load  
-        conditions.propulsion.motor_torque          = motor.outputs.torque
-        conditions.propulsion.propeller_torque      = Q
-        conditions.propulsion.battery_specfic_power = -(battery_draw/1000)/battery.mass_properties.mass 
-        conditions.propulsion.propeller_tip_mach    = (R*rpm)/a
+        conditions.propulsion.rpm                      = rpm
+        conditions.propulsion.current                  = current
+        conditions.propulsion.battery_draw             = battery_draw
+        conditions.propulsion.battery_energy           = battery_energy
+        conditions.propulsion.voltage_open_circuit     = voltage_open_circuit
+        conditions.propulsion.voltage_under_load       = voltage_under_load  
+        conditions.propulsion.state_of_charge          = state_of_charge
+        conditions.propulsion.motor_torque             = motor.outputs.torque
+        conditions.propulsion.motor_temperature        = 0 # currently no motor temperature model
+        conditions.propulsion.propeller_torque         = Q
+        conditions.propulsion.battery_thevenin_voltage = battery_thevenin_voltage
+        conditions.propulsion.battery_specfic_power    = -(battery_draw/1000)/battery.mass_properties.mass 
+        conditions.propulsion.propeller_tip_mach       = (R*rpm)/a
         
         # Create the outputs
         F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
@@ -202,7 +239,6 @@ class Battery_Propeller(Propulsor):
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
-        
         
         return results
     
@@ -271,7 +307,33 @@ class Battery_Propeller(Propulsor):
         segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max
         
         return    
-            
+        
+        
+    
+    def unpack_unknowns_thevenin(self,segment): 
+        
+        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.battery_state_of_charge  = segment.state.unknowns.battery_state_of_charge
+        segment.state.conditions.propulsion.battery_thevenin_voltage = segment.state.unknowns.battery_thevenin_voltage 
+        
+        return
+    
+    def residuals_thevenin(self,segment):  
+        
+        # Unpack
+        q_motor   = segment.state.conditions.propulsion.motor_torque
+        q_prop    = segment.state.conditions.propulsion.propeller_torque 
+        SOC_actual  = segment.state.conditions.propulsion.state_of_charge
+        SOC_predict = segment.state.unknowns.battery_state_of_charge  
+        v_th_actual  = segment.state.conditions.propulsion.battery_thevenin_voltage
+        v_th_predict = segment.state.unknowns.battery_thevenin_voltage 
+        
+        # Return the residuals 
+        segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0] 
+        segment.state.residuals.network[:,1] = v_th_predict[:,0] - v_th_actual[:,0]     
+        segment.state.residuals.network[:,2] = SOC_predict[:,0] - SOC_actual[:,0]  
+        
+        
     __call__ = evaluate_thrust
 
 
