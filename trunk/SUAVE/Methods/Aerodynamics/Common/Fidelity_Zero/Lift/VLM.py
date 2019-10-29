@@ -128,15 +128,10 @@ def VLM(conditions,settings,geometry):
     n_cp  = VD.n_cp  
     gamma = np.linalg.solve(A,RHS)
     GAMMA = np.repeat(np.atleast_3d(gamma), n_cp ,axis = 2 )
-    
-    B =   np.multiply(DW_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
-        + np.multiply(DW_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
-        - np.multiply(DW_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))     
-      
     u = np.sum(C_mn[:,:,:,0]*MCM[:,:,:,0]*GAMMA, axis = 2) 
     v = np.sum(C_mn[:,:,:,1]*MCM[:,:,:,1]*GAMMA, axis = 2) 
     w = np.sum(C_mn[:,:,:,2]*MCM[:,:,:,2]*GAMMA, axis = 2) 
-    w_ind = np.sum(B*MCM[:,:,:,2]*GAMMA, axis = 2) 
+    w_ind = np.sum(DW_mn[:,:,:,2]*MCM[:,:,:,2]*GAMMA, axis = 2) 
      
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 

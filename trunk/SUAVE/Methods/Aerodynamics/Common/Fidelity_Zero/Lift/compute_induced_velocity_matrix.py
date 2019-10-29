@@ -123,16 +123,16 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # compute influence of bound vortices 
     C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAH, YAH, ZAH, XBH, YBH, ZBH),axes=[1,2,3,0])
     
-    # compute influence of 3/4 left legs
+    # compute influence of 3/4 left legs 
     C_AB_34_ll = np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XAH, YAH, ZAH),axes=[1,2,3,0]) # original
 
-    # compute influence of whole panel left legs 
+    # compute influence of whole panel left legs  
     C_AB_ll   =  np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XA1, YA1, ZA1),axes=[1,2,3,0]) # original
 
-    # compute influence of 3/4 right legs 
+    # compute influence of 3/4 right legs  
     C_AB_34_rl = np.transpose(vortex(XC, YC, ZC, XBH, YBH, ZBH, XB2, YB2, ZB2),axes=[1,2,3,0]) # original 
 
-    # compute influence of whole right legs  
+    # compute influence of whole right legs   
     C_AB_rl = np.transpose(vortex(XC, YC, ZC, XB1, YB1, ZB1, XB2, YB2, ZB2),axes=[1,2,3,0]) # original 
 
     # velocity induced by left leg of vortex (A to inf)
