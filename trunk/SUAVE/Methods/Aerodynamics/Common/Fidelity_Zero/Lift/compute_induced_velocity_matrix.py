@@ -160,6 +160,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     sw_idx    = 0
     C_AB_ll_on_wing = np.zeros_like(C_AB_ll)
     C_AB_rl_on_wing = np.zeros_like(C_AB_ll)
+    
     for m in range(n_cp): 
         for n in range(n_cp): 
             start = (idx+(n_cw*sw_idx))   # the chordwise index of the panel of interest 
@@ -176,15 +177,15 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
     C_mn        = C_AB_bv +  C_AB_ll_tot  + C_AB_rl_tot  # verified from book using example 7.4 pg 399-404
     
-    DW_mn = C_AB_ll_tot  + C_AB_rl_tot # summation of trailing vortices 
+    DW_mn = 2*(C_AB_ll_tot  + C_AB_rl_tot) # summation of trailing vortices for semi infinite 
     
-    return C_mn, DW_mn
+    return C_mn, DW_mn 
 
 # -------------------------------------------------------------------------------
 # vortex strength computation
 # -------------------------------------------------------------------------------
 def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
-    
+    # reference: page 584 Low speed aerodynamics 
     # Take all the differences
     X_X1  = X-X1
     X_X2  = X-X2

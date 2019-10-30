@@ -102,7 +102,7 @@ def VLM(conditions,settings,geometry):
     VD = compute_vortex_distribution(geometry,settings)  
     
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa,mach)
+    C_mn, DW_mn  = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa,mach)
     MCM = VD.MCM 
     
     # Compute flow tangency conditions   
@@ -121,6 +121,11 @@ def VLM(conditions,settings,geometry):
         + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
         - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # valdiated from book eqn 7.42 
     
+    B =   np.multiply(DW_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
+        + np.multiply(DW_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
+        - np.multiply(DW_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # valdiated from book eqn 7.42     
+   
+   
     # Build the vector
     RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry)
 
@@ -131,7 +136,7 @@ def VLM(conditions,settings,geometry):
     u = np.sum(C_mn[:,:,:,0]*MCM[:,:,:,0]*GAMMA, axis = 2) 
     v = np.sum(C_mn[:,:,:,1]*MCM[:,:,:,1]*GAMMA, axis = 2) 
     w = np.sum(C_mn[:,:,:,2]*MCM[:,:,:,2]*GAMMA, axis = 2) 
-    w_ind = np.sum(DW_mn[:,:,:,2]*MCM[:,:,:,2]*GAMMA, axis = 2) 
+    w_ind = -np.sum(B*MCM[:,:,:,2]*GAMMA, axis = 2) 
      
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
@@ -181,7 +186,7 @@ def VLM(conditions,settings,geometry):
     CL = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers 
     
     # total drag and drag coefficient
-    D  =  -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T 
+    D  =   -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T   
     CDi = D/(0.5*Sref)  
 
     # pressure coefficient
