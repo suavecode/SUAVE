@@ -65,7 +65,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     ZC    = np.atleast_3d(data.ZC*ones)  
     n_w   = data.n_w
 
-    theta_w = np.atleast_3d([0])   # wake model, use theta_w if setting to freestream, use 0 if setting to airfoil chord like
+    theta_w = np.atleast_3d(theta_w)   # wake model, use theta_w if setting to freestream, use 0 if setting to airfoil chord like
     n_aoa   = np.shape(theta_w)[0]
     
     # -------------------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     C_Binf      = C_Binf     * MCM  
     
     # the follow block of text adds up all the trailing legs of the vortices which are on the wing for the downwind panels   
-    idx       = 0
+    idx       = 1
     sw_idx    = 0
     C_AB_ll_on_wing = np.zeros_like(C_AB_ll)
     C_AB_rl_on_wing = np.zeros_like(C_AB_ll)
@@ -164,12 +164,12 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     for m in range(n_cp): 
         for n in range(n_cp): 
             start = (idx+(n_cw*sw_idx))   # the chordwise index of the panel of interest 
-            end   = (n_cw*(sw_idx+1)-1)     # the chordwise index of the trailing edge of the current column of chordwise vortices 
+            end   = (n_cw*(sw_idx+1))     # the chordwise index of the trailing edge of the current column of chordwise vortices 
             C_AB_ll_on_wing[:,m,n,:] = np.sum(C_AB_ll[:,m,start:end,:],axis=1) 
             C_AB_rl_on_wing[:,m,n,:] = np.sum(C_AB_rl[:,m,start:end,:],axis=1)
             idx += 1 
             if idx == n_cw: # once you get to the trailing edge, reset the idx and add increment the sw_idx, the spanwise index 
-                idx     = 0  
+                idx     = 1  
                 sw_idx += 1
     
     # Add all the influences together
