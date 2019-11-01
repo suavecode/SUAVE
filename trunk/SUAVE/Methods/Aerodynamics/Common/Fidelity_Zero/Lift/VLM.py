@@ -1,11 +1,7 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 # VLM.py
 # 
-# Created:  Dec 2013, SUAVE Team
-# Modified: Apr 2017, T. MacDonald
-#           Oct 2017, E. Botero
-#           Jun 2018, M. Clarke
-
+# Created:  May 2019, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,12 +11,11 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units
-import matplotlib.pyplot as plt #**** need to remove once complete 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import  compute_induced_velocity_matrix
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
-from SUAVE.Plots import plot_vehicle_vlm_panelization
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution     import compute_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix              import compute_RHS_matrix
 # ----------------------------------------------------------------------
-#  Weissinger Vortex Lattice
+#  Vortex Lattice
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
@@ -32,8 +27,10 @@ def VLM(conditions,settings,geometry):
 
     Source:
     1. Aerodynamics for Engineers, Sixth Edition by John Bertin & Russel Cummings 
+    Pgs. 379-397(Literature)
     
-    2. An Introduction to Theoretical and Computational Aerodynamics by Jack Moran
+    2. Low-Speed Aerodynamics, Second Edition by Joseph katz, Allen Plotkin
+    Pgs. 331-338(Literature), 579-586 (Fortran Code implementation)
     
     3. Yahyaoui, M. "Generalized Vortex Lattice Method for Predicting Characteristics of Wings
     with Flap and Aileron Deflection" , World Academy of Science, Engineering and Technology 
@@ -67,73 +64,85 @@ def VLM(conditions,settings,geometry):
         fineness.nose                          [Unitless]
         fineness.tail                          [Unitless]
         
-       settings.number_panels_spanwise    [Unitless]
-       settings.number_panels_chordwise   [Unitless]
+       settings.number_panels_spanwise         [Unitless]
+       settings.number_panels_chordwise        [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
-
-    Outputs:
-    CL                                      [Unitless]
-    Cl                                      [Unitless]
-    CDi                                     [Unitless]
-    Cdi                                     [Unitless]
+       conditions.freestream.mach_number       [Unitless]
+       
+    Outputs:                                   
+    CL                                         [Unitless]
+    Cl                                         [Unitless]
+    CDi                                        [Unitless]
+    Cdi                                        [Unitless]
 
     Properties Used:
     N/A
     """ 
    
     # unpack settings
-    n_sw   = settings.number_panels_spanwise    
-    n_cw   = settings.number_panels_chordwise   
-    Sref   = geometry.reference_area
+    n_sw       = settings.number_panels_spanwise    
+    n_cw       = settings.number_panels_chordwise   
+    Sref       = geometry.reference_area
+    
     
     # define point about which moment coefficient is computed 
-    c_bar  = geometry.wings['main_wing'].chords.mean_aerodynamic
-    x_mac  = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
-    x_cg   = geometry.mass_properties.center_of_gravity[0][0] 
+    c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
+    x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
+    x_cg       = geometry.mass_properties.center_of_gravity[0][0] 
     if x_cg == None:
         x_m = x_mac 
     else:
         x_m = x_cg
     
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
+    mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(aoa)) 
    
     # generate vortex distribution
-    VD = compute_vortex_distribution(geometry,settings)       
-        
+    VD = compute_vortex_distribution(geometry,settings)  
+    
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa)
-
+    theta_w = np.zeros_like(aoa)
+    C_mn, DW_mn  = compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach)
+    MCM = VD.MCM 
+    
     # Compute flow tangency conditions   
-    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones
-    delta = np.arctan((VD.ZC - VD.ZCH)/(VD.XC - VD.XCH))*ones
+    inv_root_beta = np.zeros_like(mach)
+    inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)     
+    inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
+    if np.any(mach==1):
+        raise('Mach of 1 cannot be used in building compressibiliy corrections.')
+    inv_root_beta = np.atleast_2d(inv_root_beta)
+    
+    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones          # dihedral angle 
+    delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*inv_root_beta)) # mean camber surface angle 
    
     # Build Aerodynamic Influence Coefficient Matrix
-    A = C_mn[:,:,:,2] - np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.tan(delta)))- np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.tan(phi)))
+    A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
+        + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
+        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # valdiated from book eqn 7.42 
     
+    B =   np.multiply(DW_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
+        + np.multiply(DW_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
+        - np.multiply(DW_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # valdiated from book eqn 7.42     
+   
+   
     # Build the vector
-    RHS = np.tan(delta)*np.cos(aoa) - np.sin(aoa)
-    
+    RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry)
+
     # Compute vortex strength  
+    n_cp  = VD.n_cp  
     gamma = np.linalg.solve(A,RHS)
-    
-    # Do some matrix magic
-    len_aoa = len(aoa)
-    len_cps = VD.n_cp
-    eye = np.eye(len_aoa)
-    tile_eye = np.broadcast_to(eye,(len_cps,len_aoa,len_aoa))
-    tile_eye =  np.transpose(tile_eye,axes=[1,0,2])
-    
-    # Compute induced velocities     
-    u = np.dot(C_mn[:,:,:,0],gamma[:,:].T)[:,:,0]
-    v = np.dot(C_mn[:,:,:,1],gamma[:,:].T)[:,:,0]
-    w = np.sum(np.dot(C_mn[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)
-    w_ind = np.sum(np.dot(DW_mn[:,:,:,2],gamma[:,:].T)*tile_eye,axis=2)
-    
+    GAMMA = np.repeat(np.atleast_3d(gamma), n_cp ,axis = 2 )
+    u = np.sum(C_mn[:,:,:,0]*MCM[:,:,:,0]*GAMMA, axis = 2) 
+    v = np.sum(C_mn[:,:,:,1]*MCM[:,:,:,1]*GAMMA, axis = 2) 
+    w = np.sum(C_mn[:,:,:,2]*MCM[:,:,:,2]*GAMMA, axis = 2) 
+    w_ind = -np.sum(B*MCM[:,:,:,2]*GAMMA, axis = 2) 
+     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
     # --------------------------------------------------------------------------------------- 
-    n_cp       = VD.n_cp   
+     
     n_cppw     = n_sw*n_cw
     n_w        = VD.n_w
     CS         = VD.CS*ones
@@ -166,26 +175,26 @@ def VLM(conditions,settings,geometry):
     CDi_wing = Di_wing/wing_areas
     
     # Calculate each spanwise set of Cls and Cds
-    cl_sec = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
-    cd_sec = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
+    cl_y = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
+    cdi_y = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
     
     # Split the Cls and Cds for each wing
-    Cl_wings = np.array(np.split(cl_sec,n_w,axis=1))
-    Cd_wings = np.array(np.split(cd_sec,n_w,axis=1))
+    Cl_wings = np.array(np.split(cl_y,n_w,axis=1))
+    Cd_wings = np.array(np.split(cdi_y,n_w,axis=1))
             
     # total lift and lift coefficient
-    L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T
-    CL = 2*L/(Sref) 
+    L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
+    CL = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers 
     
     # total drag and drag coefficient
-    D  =  -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T
-    CDi = D/(2*Sref)   
+    D  =   -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T   
+    CDi = D/(0.5*Sref)  
 
     # pressure coefficient
     U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)
-    CPi = 1 - (U_tot)*(U_tot)
+    CP = 1 - (U_tot)*(U_tot)
      
     # moment coefficient
     CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
     
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_sec , cd_sec , CPi 
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP 

@@ -13,43 +13,58 @@ import numpy as np
 from SUAVE.Core import Units , Data
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
+def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
 
     # unpack 
-    ones = np.atleast_3d(np.ones_like(theta_w))
-    XAH  = np.atleast_3d(data.XAH*ones)
-    YAH  = np.atleast_3d(data.YAH*ones)
-    ZAH  = np.atleast_3d(data.ZAH*ones)
-    XBH  = np.atleast_3d(data.XBH*ones)
-    YBH  = np.atleast_3d(data.YBH*ones)
-    ZBH  = np.atleast_3d(data.ZBH*ones)
+    ones    = np.atleast_3d(np.ones_like(theta_w))
+ 
+    # Prandtl Glauret Transformation for subsonic
+    inv_root_beta = np.zeros_like(mach)
+    inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)     
+    inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
+    if np.any(mach==1):
+        raise('Mach of 1 cannot be used in building compressibiliy corrections.')
+    inv_root_beta = np.atleast_3d(inv_root_beta)
+     
+    XAH   = np.atleast_3d(data.XAH*inv_root_beta)
+    XAHbv = np.atleast_3d(data.XAH*inv_root_beta)
+    YAH   = np.atleast_3d(data.YAH*ones)
+    YAHbv = np.atleast_3d(data.YAH*ones)
+    ZAH   = np.atleast_3d(data.ZAH*ones)
+    ZAHbv = np.atleast_3d(data.ZAH*ones)
+    XBH   = np.atleast_3d(data.XBH*inv_root_beta)
+    XBHbv = np.atleast_3d(data.XBH*inv_root_beta)
+    YBH   = np.atleast_3d(data.YBH*ones)
+    YBHbv = np.atleast_3d(data.YBH*ones)
+    ZBH   = np.atleast_3d(data.ZBH*ones)
+    ZBHbv = np.atleast_3d(data.ZBH*ones)
 
-    XA1  = np.atleast_3d(data.XA1*ones)
-    YA1  = np.atleast_3d(data.YA1*ones)
-    ZA1  = np.atleast_3d(data.ZA1*ones)
-    XA2  = np.atleast_3d(data.XA2*ones)
-    YA2  = np.atleast_3d(data.YA2*ones)
-    ZA2  = np.atleast_3d(data.ZA2*ones)
+    XA1   = np.atleast_3d(data.XA1*inv_root_beta)
+    YA1   = np.atleast_3d(data.YA1*ones)
+    ZA1   = np.atleast_3d(data.ZA1*ones)
+    XA2   = np.atleast_3d(data.XA2*inv_root_beta)
+    YA2   = np.atleast_3d(data.YA2*ones)
+    ZA2   = np.atleast_3d(data.ZA2*ones)
 
-    XB1  = np.atleast_3d(data.XB1*ones)
-    YB1  = np.atleast_3d(data.YB1*ones)
-    ZB1  = np.atleast_3d(data.ZB1*ones)
-    XB2  = np.atleast_3d(data.XB2*ones)
-    YB2  = np.atleast_3d(data.YB2*ones)
-    ZB2  = np.atleast_3d(data.ZB2*ones)
+    XB1   = np.atleast_3d(data.XB1*inv_root_beta)
+    YB1   = np.atleast_3d(data.YB1*ones)
+    ZB1   = np.atleast_3d(data.ZB1*ones)
+    XB2   = np.atleast_3d(data.XB2*inv_root_beta)
+    YB2   = np.atleast_3d(data.YB2*ones)
+    ZB2   = np.atleast_3d(data.ZB2*ones)
+          
+    XAC   = np.atleast_3d(data.XAC*inv_root_beta)
+    YAC   = np.atleast_3d(data.YAC*ones)
+    ZAC   = np.atleast_3d(data.ZAC*ones)
+    XBC   = np.atleast_3d(data.XBC*inv_root_beta)
+    YBC   = np.atleast_3d(data.YBC*ones)
+    ZBC   = np.atleast_3d(data.ZBC*ones)
+    XC    = np.atleast_3d(data.XC*inv_root_beta)
+    YC    = np.atleast_3d(data.YC*ones) 
+    ZC    = np.atleast_3d(data.ZC*ones)  
+    n_w   = data.n_w
 
-    XAC  = np.atleast_3d(data.XAC*ones)
-    YAC  = np.atleast_3d(data.YAC*ones)
-    ZAC  = np.atleast_3d(data.ZAC*ones)
-    XBC  = np.atleast_3d(data.XBC*ones)
-    YBC  = np.atleast_3d(data.YBC*ones)
-    ZBC  = np.atleast_3d(data.ZBC*ones)
-    XC   = np.atleast_3d(data.XC*ones)
-    YC   = np.atleast_3d(data.YC*ones) 
-    ZC   = np.atleast_3d(data.ZC*ones)  
-    n_w  = data.n_w
-
-    theta_w = np.atleast_3d(0) #wake model set to freestream
+    theta_w = np.atleast_3d(theta_w)   # wake model, use theta_w if setting to freestream, use 0 if setting to airfoil chord like
     n_aoa   = np.shape(theta_w)[0]
     
     # -------------------------------------------------------------------------------------------
@@ -79,7 +94,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     YB2_hats = np.atleast_3d(np.repeat(YB2_hats,n_cw,axis=2))
     ZB2_hats = np.atleast_3d(np.repeat(ZB2_hats,n_cw,axis=2))
 
-    # If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
+    ## If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
     boolean = YBH<0.
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
     YA1[boolean], YB1[boolean] = YB1[boolean], YA1[boolean]
@@ -88,7 +103,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     YA2[boolean], YB2[boolean] = YB2[boolean], YA2[boolean]
     ZA2[boolean], ZB2[boolean] = ZB2[boolean], ZA2[boolean]    
     XAH[boolean], XBH[boolean] = XBH[boolean], XAH[boolean]
-    YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
+    YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean] 
     ZAH[boolean], ZBH[boolean] = ZBH[boolean], ZAH[boolean]
 
     XA2_hats[boolean], XB2_hats[boolean] = XB2_hats[boolean], XA2_hats[boolean]
@@ -106,18 +121,18 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
 
     # compute influence of bound vortices 
     C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAH, YAH, ZAH, XBH, YBH, ZBH),axes=[1,2,3,0])
+    
+    # compute influence of 3/4 left legs 
+    C_AB_34_ll = np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XAH, YAH, ZAH),axes=[1,2,3,0]) # original
 
-    # compute influence of 3/4 left legs
-    C_AB_34_ll = np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XAH, YAH, ZAH),axes=[1,2,3,0])
+    # compute influence of whole panel left legs  
+    C_AB_ll   =  np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XA1, YA1, ZA1),axes=[1,2,3,0]) # original
 
-    # compute influence of whole panel left legs 
-    C_AB_ll   =  np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XA1, YA1, ZA1),axes=[1,2,3,0])
+    # compute influence of 3/4 right legs  
+    C_AB_34_rl = np.transpose(vortex(XC, YC, ZC, XBH, YBH, ZBH, XB2, YB2, ZB2),axes=[1,2,3,0]) # original 
 
-    # compute influence of 3/4 right legs
-    C_AB_34_rl = np.transpose(vortex(XC, YC, ZC, XBH, YBH, ZBH, XB2, YB2, ZB2),axes=[1,2,3,0])
-
-    # compute influence of whole right legs 
-    C_AB_rl = np.transpose(vortex(XC, YC, ZC, XB1, YB1, ZB1, XB2, YB2, ZB2),axes=[1,2,3,0])
+    # compute influence of whole right legs   
+    C_AB_rl = np.transpose(vortex(XC, YC, ZC, XB1, YB1, ZB1, XB2, YB2, ZB2),axes=[1,2,3,0]) # original 
 
     # velocity induced by left leg of vortex (A to inf)
     C_Ainf  = np.transpose(vortex_to_inf_l(XC_hats, YC_hats, ZC_hats, XA2_hats, YA2_hats, ZA2_hats,theta_w),axes=[1,2,3,0])
@@ -125,36 +140,51 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w):
     # velocity induced by right leg of vortex (B to inf)
     C_Binf  = np.transpose(vortex_to_inf_r(XC_hats, YC_hats, ZC_hats, XB2_hats, YB2_hats, ZB2_hats,theta_w),axes=[1,2,3,0])
 
-    # Add the right and left influences seperately
-    C_AB_llrl_roll = C_AB_ll+C_AB_rl
-
-    # Prime the arrays
-    mask      = np.ones((n_aoa,n_cp,n_cp,3))
-    C_AB_llrl = np.zeros((n_aoa,n_cp,n_cp,3))
-
-    for idx in range(n_cw-1):    
-
-        # Make a mask
-        mask[:,n_cw-idx-1::n_cw,:]= np.zeros_like(mask[:,n_cw-idx-1::n_cw,:])  
-
-        # Roll it over to the next component
-        C_AB_llrl_roll = np.roll(C_AB_llrl_roll,-1,axis=1)   
-
-        # Add in the components that we need
-        C_AB_llrl = C_AB_llrl+ C_AB_llrl_roll*mask
-
+    # compute Mach Cone Matrix
+    MCM = np.ones_like(C_AB_bv)
+    MCM = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
+    data.MCM = MCM 
+    
+    # multiply by mach cone 
+    C_AB_bv     = C_AB_bv    * MCM
+    C_AB_34_ll  = C_AB_34_ll * MCM
+    C_AB_ll     = C_AB_ll    * MCM
+    C_AB_34_rl  = C_AB_34_rl * MCM
+    C_AB_rl     = C_AB_rl    * MCM
+    C_Ainf      = C_Ainf     * MCM
+    C_Binf      = C_Binf     * MCM  
+    
+    # the follow block of text adds up all the trailing legs of the vortices which are on the wing for the downwind panels   
+    idx       = 1
+    sw_idx    = 0
+    C_AB_ll_on_wing = np.zeros_like(C_AB_ll)
+    C_AB_rl_on_wing = np.zeros_like(C_AB_ll)
+    
+    for m in range(n_cp): 
+        for n in range(n_cp): 
+            start = (idx+(n_cw*sw_idx))   # the chordwise index of the panel of interest 
+            end   = (n_cw*(sw_idx+1))     # the chordwise index of the trailing edge of the current column of chordwise vortices 
+            C_AB_ll_on_wing[:,m,n,:] = np.sum(C_AB_ll[:,m,start:end,:],axis=1) 
+            C_AB_rl_on_wing[:,m,n,:] = np.sum(C_AB_rl[:,m,start:end,:],axis=1)
+            idx += 1 
+            if idx == n_cw: # once you get to the trailing edge, reset the idx and add increment the sw_idx, the spanwise index 
+                idx     = 1  
+                sw_idx += 1
+    
     # Add all the influences together
-    C_mn = C_AB_34_ll + C_AB_bv + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
+    C_AB_ll_tot = C_AB_ll_on_wing + C_AB_34_ll + C_Ainf  # verified from book using example 7.4 pg 399-404
+    C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
+    C_mn        = C_AB_bv +  C_AB_ll_tot  + C_AB_rl_tot  # verified from book using example 7.4 pg 399-404
     
-    DW_mn = C_AB_34_ll + C_AB_bv  + C_AB_34_rl + C_Ainf + C_Binf + C_AB_llrl
+    DW_mn = 2*(C_AB_ll_tot  + C_AB_rl_tot) # summation of trailing vortices for semi infinite 
     
-    return C_mn, DW_mn
+    return C_mn, DW_mn 
 
 # -------------------------------------------------------------------------------
 # vortex strength computation
 # -------------------------------------------------------------------------------
 def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
-
+    # reference: page 584 Low speed aerodynamics 
     # Take all the differences
     X_X1  = X-X1
     X_X2  = X-X2
@@ -228,3 +258,16 @@ def vortex_to_inf_r(X,Y,Z,X1,Y1,Z1,tw):
         print('NaN!')   
         
     return COEF
+
+
+def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
+    for m_idx in range(len(mach)):
+        c = np.arcsin(1/mach[m_idx])
+        for cp_idx in range(len(XC[m_idx,:])):
+            del_x = XC[m_idx,:] - XC[m_idx,cp_idx] 
+            del_y = YC[m_idx,:] - YC[m_idx,cp_idx] 
+            del_z = ZC[m_idx,:] - ZC[m_idx,cp_idx] 
+            flag  = -c*del_x**2 + del_y**2 + del_z**2
+            idxs  = np.where(flag > 0.0)[0]
+            MCM[m_idx,cp_idx,idxs]  = [0.0, 0.0, 0.0]     
+    return MCM

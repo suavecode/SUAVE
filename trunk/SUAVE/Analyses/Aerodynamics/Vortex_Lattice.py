@@ -69,6 +69,7 @@ class Vortex_Lattice(Aerodynamics):
         # conditions table, used for surrogate model training
         self.training = Data()        
         self.training.angle_of_attack       = np.array([[-10.,-5.,-2.,0.,2.,5.,10.]]).T * Units.deg
+        self.training.mach                  = np.array([[0.]]).T
         self.training.lift_coefficient      = None
         self.training.wing_lift_coefficient = None
         self.training.drag_coefficient      = None
@@ -299,6 +300,8 @@ class Vortex_Lattice(Aerodynamics):
         konditions              = Data()
         konditions.aerodynamics = Data()
         konditions.aerodynamics.angle_of_attack = training.angle_of_attack
+        konditions.freestream = Data()
+        konditions.freestream.mach_number = training.mach
         
         # Get the training data        
         total_lift, total_drag, wing_lifts, wing_drags , wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
