@@ -161,16 +161,14 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     C_AB_ll_on_wing = np.zeros_like(C_AB_ll)
     C_AB_rl_on_wing = np.zeros_like(C_AB_ll)
     
-    for m in range(n_cp): 
-        for n in range(n_cp): 
-            start = (idx+(n_cw*sw_idx))   # the chordwise index of the panel of interest 
-            end   = (n_cw*(sw_idx+1))     # the chordwise index of the trailing edge of the current column of chordwise vortices 
-            C_AB_ll_on_wing[:,m,n,:] = np.sum(C_AB_ll[:,m,start:end,:],axis=1) 
-            C_AB_rl_on_wing[:,m,n,:] = np.sum(C_AB_rl[:,m,start:end,:],axis=1)
-            idx += 1 
-            if idx == n_cw: # once you get to the trailing edge, reset the idx and add increment the sw_idx, the spanwise index 
-                idx     = 1  
-                sw_idx += 1
+    for m in range(n_cp):
+        for n in range(n_cp):
+                n_te_p = (n_cw-(n+1)%n_cw)
+                if (n+1)%n_cw != 0:
+                    start = n+1
+                    end   = n+n_te_p
+                    C_AB_ll_on_wing[:,m,n,:] = np.sum(C_AB_ll[:,m,start:end,:],axis=1) 
+                    C_AB_rl_on_wing[:,m,n,:] = np.sum(C_AB_rl[:,m,start:end,:],axis=1)                
     
     # Add all the influences together
     C_AB_ll_tot = C_AB_ll_on_wing + C_AB_34_ll + C_Ainf  # verified from book using example 7.4 pg 399-404
