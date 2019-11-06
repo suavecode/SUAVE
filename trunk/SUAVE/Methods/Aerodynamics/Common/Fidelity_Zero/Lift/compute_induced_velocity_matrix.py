@@ -156,19 +156,16 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     C_Binf      = C_Binf     * MCM  
     
     # the follow block of text adds up all the trailing legs of the vortices which are on the wing for the downwind panels   
-    idx       = 1
-    sw_idx    = 0
     C_AB_ll_on_wing = np.zeros_like(C_AB_ll)
     C_AB_rl_on_wing = np.zeros_like(C_AB_ll)
-    
-    for m in range(n_cp):
-        for n in range(n_cp):
-                n_te_p = (n_cw-(n+1)%n_cw)
-                if (n+1)%n_cw != 0:
-                    start = n+1
-                    end   = n+n_te_p
-                    C_AB_ll_on_wing[:,m,n,:] = np.sum(C_AB_ll[:,m,start:end,:],axis=1) 
-                    C_AB_rl_on_wing[:,m,n,:] = np.sum(C_AB_rl[:,m,start:end,:],axis=1)                
+
+    for n in range(n_cp):
+            n_te_p = (n_cw-(n+1)%n_cw)
+            if (n+1)%n_cw != 0:
+                start = n+1
+                end   = n+n_te_p
+                C_AB_ll_on_wing[:,:,n,:] = np.sum(C_AB_ll[:,:,start:end,:],axis=2) 
+                C_AB_rl_on_wing[:,:,n,:] = np.sum(C_AB_rl[:,:,start:end,:],axis=2)                
     
     # Add all the influences together
     C_AB_ll_tot = C_AB_ll_on_wing + C_AB_34_ll + C_Ainf  # verified from book using example 7.4 pg 399-404
