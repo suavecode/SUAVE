@@ -8,7 +8,7 @@ Its purpose is to credibly produce conceptual-level design conclusions
 for future aircraft incorporating advanced technologies.
 
 [![Build Status](https://travis-ci.org/suavecode/SUAVE.svg?branch=master)](https://travis-ci.org/suavecode/SUAVE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.842938.svg)](https://doi.org/10.5281/zenodo.842938)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2564444.svg)](https://doi.org/10.5281/zenodo.2564444)
 
 License: LGPL-2.1
 
@@ -29,7 +29,7 @@ Contributing Developers
 * Michael Colonno
 * Michael Kruger
 * Michael Vegh
-* Pedro Gonçalves
+* Pedro Goncalves
 * Rick Fenrich
 * Tarik Orra
 * Theo St. Francis
@@ -54,7 +54,7 @@ cd SUAVE/trunk
 python setup.py install
 ```
 
-More information available at [download](http://suave.stanford.edu/download/).
+More information available at [download](http://suave.stanford.edu/download.html).
 
 
 Requirements
@@ -66,9 +66,4 @@ numpy, scipy, matplotlib, pip, scikit-learn
 Developer Install
 -----------------
 
-See [develop](http://suave.stanford.edu/develop/).
-
-Frequently Asked Questions
------------------
-
-See [FAQ](http://suave.stanford.edu/faq.html).
+See [develop](http://suave.stanford.edu/download/develop_install.html).

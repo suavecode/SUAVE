@@ -209,9 +209,9 @@ class AVL(Stability):
         
         # Unpack
         surrogates          = self.surrogates  
-        configuration       = self.configuration
         geometry            = self.geometry
         stability_model     = self.stability_model
+        configuration       = self.configuration
         
         q                   = conditions.freestream.dynamic_pressure
         Sref                = geometry.reference_area    
@@ -227,8 +227,7 @@ class AVL(Stability):
         Cn_beta_model       = surrogates.Cn_beta_moment_coefficient      
         neutral_point_model = surrogates.neutral_point
         
-        configuration       = self.configuration
-        stability_model     = self.stability_model
+        
 
 
         # set up data structures
@@ -246,7 +245,7 @@ class AVL(Stability):
             CM[ii]          = moment_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
             Cm_alpha[ii]    = Cm_alpha_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
             Cn_beta[ii]     = Cn_beta_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
-            NP[ii]          = neutral_point_model.predict([np.array([AoA[ii][0],mach[ii][0]])])    #sklearn fix        
+            NP[ii]          = neutral_point_model.predict([np.array([AoA[ii][0],mach[ii][0]])])         
 
         static_stability.CM       = CM
         static_stability.Cm_alpha = Cm_alpha 

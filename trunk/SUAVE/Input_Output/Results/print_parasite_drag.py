@@ -129,8 +129,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     
     # getting induced drag efficiency factor
     state.conditions.aerodynamics.lift_coefficient = 0.5 # dummy value
-    compute.induced(state,settings,vehicle)
-    eff_fact = state.conditions.aerodynamics.drag_breakdown.induced.efficiency_factor
+    
     # reynolds number
     
     Re_w = rho * Mc * a * mean_aerodynamic_chord/mu
@@ -142,7 +141,6 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     fid.write( '  ASPECT RATIO .................... ' + str('%5.1f' %   aspect_ratio       )   + '    ' + '\n')
     fid.write( '  WING SWEEP ...................... ' + str('%5.1f' %   sweep              )   + ' deg' + '\n')
     fid.write( '  WING THICKNESS RATIO ............ ' + str('%5.2f' %   t_c                )   + '    ' + '\n')
-    fid.write( '  INDUCED DRAG EFFICIENCY FACTOR .. ' + str('%5.3f' %   eff_fact             )   + '    '  + '\n')
     fid.write( '  MEAN AEROD. CHORD ............... ' + str('%5.3f' %mean_aerodynamic_chord)   + ' m ' + '\n')
     fid.write( '  REYNOLDS NUMBER ................. ' + str('%5.1f' %   (Re_w / (10**6))   )   + ' millions' + '\n')
     fid.write( '  MACH NUMBER ..................... ' + str('%5.3f' %   Mc                 )   + '    '  + '\n')

@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+#           Apr 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -75,12 +76,7 @@ class Fidelity_Zero(Markup):
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
         settings.maximum_lift_coefficient           = np.inf 
-        
-        # vortex lattice configurations
-        settings.number_panels_spanwise  = 5
-        settings.number_panels_chordwise = 1
-        
-        
+               
         # build the evaluation process
         compute = self.process.compute
         
@@ -93,10 +89,8 @@ class Fidelity_Zero(Markup):
         # then we'll figure out how to connect to a mission
         
         compute.lift = Process()
-
         compute.lift.inviscid_wings                = Vortex_Lattice()
         compute.lift.vortex                        = SUAVE.Methods.skip
-        compute.lift.compressible_wings            = Methods.Lift.wing_compressibility_correction
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         
@@ -140,6 +134,7 @@ class Fidelity_Zero(Markup):
         Properties Used:
         self.geometry
         """                  
+        super(Fidelity_Zero, self).initialize()
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
         self.process.compute.lift.inviscid_wings.initialize()
         

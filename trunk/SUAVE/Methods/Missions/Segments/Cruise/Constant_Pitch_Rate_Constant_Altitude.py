@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           May 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -51,7 +52,6 @@ def initialize_conditions(segment):
     if alt is None:
         if not segment.state.initials: raise AttributeError('altitude not set')
         alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude = alt
         
     # check for initial pitch
     if T0 is None:
@@ -67,7 +67,7 @@ def initialize_conditions(segment):
     # set the body angle
     body_angle = theta_dot*time + T0
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]    
-    
+
     # pack
     segment.state.conditions.freestream.altitude[:,0]             = alt
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down

@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           May 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -53,8 +54,7 @@ def initialize_conditions(segment):
     # check for initial altitude
     if alt is None:
         if not segment.state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude = alt        
+        alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]      
     
     # compute speed, constant with constant altitude
     air_speed = np.sqrt(q/(rho*0.5))

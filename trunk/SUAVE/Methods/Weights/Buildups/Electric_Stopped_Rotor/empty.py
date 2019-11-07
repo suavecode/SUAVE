@@ -75,14 +75,15 @@ def empty(config,
 # Unpack Inputs
 #-------------------------------------------------------------------------------
 
-    rProp               = config.propulsors.network.propeller.prop_attributes.tip_radius
-    mBattery            = config.propulsors.network.battery.mass_properties.mass
-    mPayload            = config.propulsors.network.payload.mass_properties.mass
+    rPropLift           = config.propulsors.propulsor.propeller_lift.tip_radius
+    rPropThrust         = config.propulsors.propulsor.propeller_forward.tip_radius
+    mBattery            = config.propulsors.propulsor.battery.mass_properties.mass
+    mPayload            = config.propulsors.propulsor.payload.mass_properties.mass
     MTOW                = config.mass_properties.max_takeoff
-    nLiftProps          = config.propulsors.network.number_of_engines/2
-    nThrustProps        = config.propulsors.network.number_of_engines/2
-    nLiftBlades         = config.propulsors.network.propeller.prop_attributes.number_blades
-    nThrustBlades       = config.propulsors.network.propeller.prop_attributes.number_blades
+    nLiftProps          = config.propulsors.propulsor.number_of_engines_lift
+    nThrustProps        = config.propulsors.propulsor.number_of_engines_forward
+    nLiftBlades         = config.propulsors.propulsor.propeller_lift.number_blades
+    nThrustBlades       = config.propulsors.propulsor.propeller_forward.number_blades
     fLength             = config.fuselages.fuselage.lengths.total
     fWidth              = config.fuselages.fuselage.width
     fHeight             = config.fuselages.fuselage.heights.maximum
@@ -97,11 +98,13 @@ def empty(config,
     output.payload          = mPayload * Units.kg
     output.seats            = 30. *Units.kg
     output.avionics         = 15. *Units.kg
-    output.motors           = config.propulsors.network.number_of_engines * 10. *Units.kg
+    output.motors           = (config.propulsors.propulsor.number_of_engines_lift * 10. *Units.kg 
+                               + config.propulsors.propulsor.number_of_engines_forward * 25. *Units.kg)
     output.battery          = mBattery *Units.kg
-    output.servos           = config.propulsors.network.number_of_engines * 0.65 *Units.kg
+    output.servos           = config.propulsors.propulsor.number_of_engines_lift * 0.65 *Units.kg
     output.brs              = 16. *Units.kg
-    output.hubs             = config.propulsors.network.number_of_engines * 2. *Units.kg
+    output.hubs             = (config.propulsors.propulsor.number_of_engines_lift * 2. *Units.kg
+                               + config.propulsors.propulsor.number_of_engines_forward * 5. *Units.kg)
     output.landing_gear     = MTOW * 0.02 *Units.kg
 
 #-------------------------------------------------------------------------------
@@ -127,8 +130,8 @@ def empty(config,
 
     # Component Weight Calculations
 
-    output.lift_rotors      = (prop(config.propulsors.network.propeller, maxLift) 
-                               * (len(config.wings['main_wing'].motor_spanwise_locations) 
+    output.lift_rotors      = (prop(config.propulsors.network.propeller, maxLift)
+                               * (len(config.wings['main_wing'].motor_spanwise_locations)
                                   + len(config.wings['main_wing'].motor_spanwise_locations))) *Units.kg
     output.thrust_rotors    = prop(config.propulsors.network.thrust_propeller, maxLift/5) *Units.kg
     output.fuselage         = fuselage(config) *Units.kg
@@ -136,12 +139,12 @@ def empty(config,
                                      np.ones(8)**0.25,
                                      maxLiftPower/etaMotor) *Units.kg
     output.main_wing = wing(config.wings['main_wing'],
-                            config, 
+                            config,
                             maxLift/5) *Units.kg
     output.sec_wing = wing(config.wings['secondary_wing'],
                             config,
                             maxLift/5) *Units.kg
-    
+
     
 #-------------------------------------------------------------------------------
 # Weight Summations

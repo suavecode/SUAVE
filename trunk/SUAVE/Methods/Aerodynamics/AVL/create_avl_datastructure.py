@@ -197,8 +197,8 @@ def populate_wing_sections(avl_wing,suave_wing):
                 for i_segs in range(n_segments):
                         if (i_segs == n_segments-1):
                                 segment_sweeps.append(0)                                  
-                        else: 
-                                if suave_wing.Segments[i_segs].sweeps.leading_edge > 0:
+                        else:   
+                                if suave_wing.Segments[i_segs].sweeps.leading_edge != None:
                                         segment_sweep       = suave_wing.Segments[i_segs].sweeps.leading_edge
                                 else:   
                                         # convert quarter chord sweep to leading edge sweep       
@@ -400,7 +400,7 @@ def populate_body_sections(avl_body,suave_body):
                         fuselage_h_section_nose_length   = ((1 - ((abs(section_width/semispan_h))**fuselage_nose_curvature ))**(1/fuselage_nose_curvature))*avl_body.lengths.nose
                         fuselage_h_section_tail_length   = ((1 - ((abs(section_width/semispan_h))**fuselage_tail_curvature ))**(1/fuselage_tail_curvature))*avl_body.lengths.tail
                         fuselage_h_section_nose_origin   = avl_body.lengths.nose - fuselage_h_section_nose_length
-                        fuselage_h_section.tag           =  'fuselage_horizontal_section_at_' +  str(section_width) + '_m'
+                        fuselage_h_section.tag           = 'fuselage_horizontal_section_at_' +  str(section_width) + '_m'
                         fuselage_h_section.origin        = [ origin[0] + fuselage_h_section_nose_origin , origin[1] + section_width, origin[2]]
                         fuselage_h_section.chord         = fuselage_h_section_cabin_length + fuselage_h_section_nose_length + fuselage_h_section_tail_length
                         avl_body.append_section(fuselage_h_section,'horizontal')

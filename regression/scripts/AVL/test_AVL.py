@@ -11,28 +11,14 @@
 
 import SUAVE
 from SUAVE.Core import Units
-
 import numpy as np
-import pylab as plt
-
 import copy, time
 
-from SUAVE.Core import (
-Data, Container,
-)
-
 import sys
-
 sys.path.append('../Vehicles')
-# the analysis functions
-
 from Boeing_737 import vehicle_setup, configs_setup
 
-
 sys.path.append('../B737')
-# the analysis functions
-
-
 from mission_B737 import vehicle_setup, configs_setup, analyses_setup, mission_setup, missions_setup, simple_sizing
 import copy
 
@@ -122,7 +108,7 @@ def main():
 
     # lift coefficient check
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true         = 0.6118979131570086
+    lift_coefficient_true         = 0.6117544479202479
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -132,8 +118,8 @@ def main():
     
     # moment coefficient check
     moment_coefficient            = results.segments.cruise.conditions.stability.static.CM[0][0]
-    moment_coefficient_true       = -0.6267104237340391
-
+    moment_coefficient_true       = -0.6265645495150238
+    
     print(moment_coefficient)
     diff_CM                       = np.abs(moment_coefficient - moment_coefficient_true)
     print('CM difference')
@@ -143,4 +129,7 @@ def main():
     return
 
 if __name__ == '__main__': 
+    
     main()    
+    
+    print('AVL regression test passed!')

@@ -27,7 +27,6 @@ from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
 from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
 
 # Package imports
-import time
 import pylab as plt
 import os
 import sklearn
@@ -82,7 +81,7 @@ class AVL_Inviscid(Aerodynamics):
         self.settings.filenames.log_filename = sys.stdout
         self.settings.filenames.err_filename = sys.stderr        
         self.settings.spanwise_vortices      = None 
-        self.settings.chordwise_vortices     = None         
+        self.settings.chordwise_vortices     = None
         
         # Conditions table, used for surrogate model training
         self.training                        = Data()   
@@ -192,20 +191,26 @@ class AVL_Inviscid(Aerodynamics):
             span_efficiency[ii] = e_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
         
         # Store inviscid lift results     
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()    
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = inviscid_lift
-        state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
-        state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = Data()
+        conditions.aerodynamics.lift_breakdown.compressible_wings  = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = inviscid_lift
+        conditions.aerodynamics.lift_coefficient                   = inviscid_lift
         
-        # Store inviscid drag results  
-        ar            = geometry.wings['main_wing'].aspect_ratio
-        state.conditions.aerodynamics.inviscid_drag_coefficient          = inviscid_drag
-        state.conditions.aerodynamics.drag_breakdown.induced = Data(
+        Sref = geometry.reference_area
+        for wing in geometry.wings.values():
+            wing_area                                                            = wing.areas.reference
+            conditions.aerodynamics.lift_breakdown.compressible_wings[wing.tag]  = inviscid_lift*(wing_area/Sref)
+        
+        # Store inviscid drag results
+        ar                                                      = geometry.wings['main_wing'].aspect_ratio
+        state.conditions.aerodynamics.inviscid_drag_coefficient = inviscid_drag
+        state.conditions.aerodynamics.drag_breakdown.induced    = Data(
             total                  = inviscid_drag   ,
             span_efficiency_factor = span_efficiency ,
         )        
-                
-        return inviscid_lift
+        
+
+        return inviscid_lift  
         
 
     def sample_training(self):
@@ -247,11 +252,11 @@ class AVL_Inviscid(Aerodynamics):
         table_size = len(AoA)*len(mach)
         xy         = np.zeros([table_size,2])  
         count      = 0
-        time0      = time.time()
         
         for i,_ in enumerate(mach):
             for j,_ in enumerate(AoA):
                 xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
+                
         for j,_ in enumerate(mach):
             # Set training conditions
             run_conditions = Aerodynamics()
@@ -271,10 +276,7 @@ class AVL_Inviscid(Aerodynamics):
             
             count += 1
         
-        time1 = time.time()
-        
-        print('The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds')
-        
+
         if self.training_file:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]

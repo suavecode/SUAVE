@@ -34,13 +34,13 @@ import matplotlib.pyplot as plt
 modules = [
 
     # ----------------------- Regression List --------------------------
-    'scripts/weights/eVTOL_Weights_Buildup_Regression.py',
     'scripts/aerodynamics/aerodynamics.py',
     #'scripts/aerodynamics_super/aerodynamics_super.py',
     #'scripts/regression/test_mission_AS2.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
+    'scripts/slipstream/Slipstream_Test.py',
     'scripts/B737/mission_B737.py',
     'scripts/battery/battery.py',
     'scripts/cmalpha/cmalpha.py',
@@ -50,6 +50,7 @@ modules = [
     'scripts/ducted_fan/ducted_fan_network.py',
     'scripts/dynamic_stability/dynamicstability.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
+    'scripts/fuel_cell/fuel_cell.py',     
     'scripts/gasturbine_network/gasturbine_network.py',
     'scripts/geometry/NACA_airfoil_compute.py',
     'scripts/geometry/NACA_volume_compute.py',
@@ -77,7 +78,8 @@ modules = [
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',    
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
-    'scripts/weights/weights.py',        
+    'scripts/weights/weights.py',  
+    'scripts/plots/test_plot.py',
 ]
 
 # ----------------------------------------------------------------------

@@ -141,9 +141,9 @@ class Ground(Aerodynamic):
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
-        iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
-        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
+        iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
+        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability        
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces_ground   = Methods.Ground.Common.compute_ground_forces
         iterate.conditions.forces          = Methods.Ground.Common.compute_forces

@@ -2,7 +2,7 @@
 # pyopt_setup.py
 #
 # Created:  Aug 2018, E. Botero
-# Modified: 
+# Modified: Mar 2019, M. Kruger
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -139,7 +139,7 @@ def Pyoptsparse_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  no
     if nonderivative_line_search==True:
         opt.setOption('Nonderivative linesearch')
     if FD == 'parallel':
-        outputs = opt(opt_prob, sens_type='FD',sens_mode='pgc')
+        outputs = opt(opt_prob, sens='FD',sensMode='pgc')
         
     elif solver == 'SNOPT' or solver == 'SLSQP':
         outputs = opt(opt_prob, sens='FD', sensStep = sense_step)
