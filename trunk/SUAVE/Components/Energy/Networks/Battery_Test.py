@@ -84,15 +84,16 @@ class Battery_Test(Propulsor):
         I                 = numerics.time.integrate
         dischage_fidelity = self.dischage_model_fidelity 
         battery_data      = battery_performance_maps() 
+        
         # Set battery energy
-        battery.current_energy = conditions.propulsion.battery_energy  
+        battery.current_energy   = conditions.propulsion.battery_energy  
+        battery.cell_temperature = battery.pack_temperature
         
         if dischage_fidelity == 1: 
             volts = state.unknowns.battery_voltage_under_load
             battery.battery_thevenin_voltage = 0 
-        elif dischage_fidelity == 2: 
-            battery.inputs.temperature = battery.temperature
-            Tbat = battery.inputs.temperature
+        elif dischage_fidelity == 2:   
+            Tbat = battery.pack_temperature 
             SOC  = state.unknowns.battery_state_of_charge 
             V_Th = state.unknowns.battery_thevenin_voltage 
             
@@ -128,10 +129,11 @@ class Battery_Test(Propulsor):
         # Pack the conditions for outputs   
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
-        state_of_charge      = battery.state_of_charge 
-        load_power           = battery.load_power
+        state_of_charge      = battery.state_of_charge  
         voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load    
+        voltage_under_load   = battery.voltage_under_load 
+        pack_temperature     = battery.pack_temperature
+        cell_temperature     = battery.cell_temperature
         battery_thevenin_voltage  = battery.battery_thevenin_voltage
         
         conditions.propulsion.current                 = avionics_current
@@ -139,9 +141,10 @@ class Battery_Test(Propulsor):
         conditions.propulsion.battery_energy          = battery_energy        
         conditions.propulsion.state_of_charge         = state_of_charge
         conditions.propulsion.voltage_open_circuit    = voltage_open_circuit
-        conditions.propulsion.voltage_under_load      = voltage_under_load 
-        conditions.propulsion.load_power              = load_power  
+        conditions.propulsion.voltage_under_load      = voltage_under_load  
         conditions.propulsion.battery_thevenin_voltage= battery_thevenin_voltage
+        conditions.propulsion.battery_temperature     = pack_temperature
+        conditions.propulsion.battery_cell_temperature= cell_temperature
         conditions.propulsion.battery_specfic_power   = -(battery_draw/1000)/battery.mass_properties.mass   
         
         return  
@@ -166,7 +169,7 @@ class Battery_Test(Propulsor):
     def unpack_unknowns_thevenin(self,segment): 
         
         segment.state.conditions.propulsion.battery_state_of_charge  = segment.state.unknowns.battery_state_of_charge
-        segment.state.conditions.propulsion.battery_thevenin_voltage = segment.state.unknowns.battery_thevenin_voltage 
+        segment.state.conditions.propulsion.battery_thevenin_voltage = segment.state.unknowns.battery_thevenin_voltage  
         
         return
     
@@ -176,11 +179,11 @@ class Battery_Test(Propulsor):
         SOC_predict = segment.state.unknowns.battery_state_of_charge 
         
         v_th_actual  = segment.state.conditions.propulsion.battery_thevenin_voltage
-        v_th_predict = segment.state.unknowns.battery_thevenin_voltage 
+        v_th_predict = segment.state.unknowns.battery_thevenin_voltage        
         
         # Return the residuals 
-        segment.state.residuals.network[:,0] = v_th_predict[:,0] - v_th_actual[:,0]     
-        segment.state.residuals.network[:,1] =  SOC_predict[:,0] - SOC_actual[:,0]  
+        segment.state.residuals.network[:,0] =  v_th_predict[:,0] - v_th_actual[:,0]     
+        segment.state.residuals.network[:,1] =  SOC_predict[:,0] - SOC_actual[:,0]   
         
                     
     __call__ = evaluate_thrust
