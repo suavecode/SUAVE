@@ -77,7 +77,7 @@ def compute_vortex_distribution(geometry,settings):
         sym_para    = wing.symmetric
         Sref        = wing.areas.reference
         vertical_wing = wing.vertical
-        wing_origin = wing.origin[0]
+        wing_origin = wing.origin
 
         # determine of vehicle has symmetry 
         if sym_para is True :
