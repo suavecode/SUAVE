@@ -22,7 +22,7 @@ def compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry):
     aoa_distribution = np.repeat(aoa, VD.n_cp, axis = 1) 
     V_inf            = conditions.freestream.velocity
     V_distribution   = np.repeat(V_inf , VD.n_cp, axis = 1)
-    m                = len(aoa)                                   # number of control points      
+    m                = len(aoa) # number of control points      
     
     #-------------------------------------------------------------------------------------------------------
     # PROPELLER SLIPSTREAM MODEL

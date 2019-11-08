@@ -139,14 +139,26 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # the follow block of text adds up all the trailing legs of the vortices which are on the wing for the downwind panels   
     C_AB_ll_on_wing = np.zeros_like(C_AB_ll)
     C_AB_rl_on_wing = np.zeros_like(C_AB_ll)
-
+    
+    # original 
     for n in range(n_cp):
-            n_te_p = (n_cw-(n+1)%n_cw)
-            if (n+1)%n_cw != 0:
-                start = n+1
-                end   = n+n_te_p
-                C_AB_ll_on_wing[:,:,n,:] = np.sum(C_AB_ll[:,:,start:end,:],axis=2) 
-                C_AB_rl_on_wing[:,:,n,:] = np.sum(C_AB_rl[:,:,start:end,:],axis=2)                
+        n_te_p = (n_cw-(n+1)%n_cw)
+        if (n+1)%n_cw != 0:
+            start = n+1
+            end   = n+n_te_p
+            C_AB_ll_on_wing[:,:,n,:] = np.sum(C_AB_ll[:,:,start:end,:],axis=2) 
+            C_AB_rl_on_wing[:,:,n,:] = np.sum(C_AB_rl[:,:,start:end,:],axis=2)                
+    
+    # new 
+    n_range = np.arange(n_cp)
+    n_te_p  = (n_cw-(n+1)%n_cw) 
+    idxs    = np.where((n_range+1)%n_cw != 0)[0]
+    start   = n_range+1
+    end     = n_range+n_te_p
+    C_AB_ll_on_wing[:,:,:,:] = np.sum(C_AB_ll[:,:,start:end,:],axis=2) 
+    C_AB_rl_on_wing[:,:,:,:] = np.sum(C_AB_rl[:,:,start:end,:],axis=2)       
+    C_AB_ll_on_wing[:,:,idxs,:] = 0
+    C_AB_ll_on_wing[:,:,idxs,:] = 0
     
     # Add all the influences together
     C_AB_ll_tot = C_AB_ll_on_wing + C_AB_34_ll + C_Ainf  # verified from book using example 7.4 pg 399-404
