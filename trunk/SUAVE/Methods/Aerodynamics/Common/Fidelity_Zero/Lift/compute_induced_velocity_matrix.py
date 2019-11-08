@@ -60,6 +60,14 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     XBC   = np.atleast_3d(data.XBC*inv_root_beta)
     YBC   = np.atleast_3d(data.YBC*ones)
     ZBC   = np.atleast_3d(data.ZBC*ones)
+    
+    XA_TE   = np.atleast_3d(data.XA_TE*inv_root_beta)
+    YA_TE   = np.atleast_3d(data.YA_TE*ones)
+    ZA_TE   = np.atleast_3d(data.ZA_TE*ones)
+    XB_TE   = np.atleast_3d(data.XB_TE*inv_root_beta)
+    YB_TE   = np.atleast_3d(data.YB_TE*ones)
+    ZB_TE   = np.atleast_3d(data.ZB_TE*ones) 
+    
     XC    = np.atleast_3d(data.XC*inv_root_beta)
     YC    = np.atleast_3d(data.YC*ones) 
     ZC    = np.atleast_3d(data.ZC*ones)  
@@ -71,30 +79,6 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
     # ------------------------------------------------------------------------------------------- 
-    n_cp     = n_w*n_cw*n_sw # total number of control points 
-
-    # Make all the hats
-    n_cw_1   = n_cw-1
-    XC_hats  = np.atleast_3d(np.cos(theta_w)*XC + np.sin(theta_w)*ZC)
-    YC_hats  = np.atleast_3d(YC)
-    ZC_hats  = np.atleast_3d(-np.sin(theta_w)*XC + np.cos(theta_w)*ZC)
-
-    XA2_hats = np.atleast_3d(np.cos(theta_w)*XA2[:,:,n_cw_1::n_cw]   + np.sin(theta_w)*ZA2[:,:,n_cw_1::n_cw])
-    YA2_hats = np.atleast_3d(YA2[:,:,n_cw_1::n_cw])
-    ZA2_hats = np.atleast_3d(-np.sin(theta_w)*XA2[:,:,n_cw_1::n_cw]  + np.cos(theta_w)*ZA2[:,:,n_cw_1::n_cw])
-
-    XB2_hats = np.atleast_3d(np.cos(theta_w)*XB2[:,:,n_cw_1::n_cw]   + np.sin(theta_w)*ZB2[:,:,n_cw_1::n_cw])
-    YB2_hats = np.atleast_3d(YB2[:,:,n_cw_1::n_cw]) 
-    ZB2_hats = np.atleast_3d(-np.sin(theta_w)*XB2[:,:,n_cw_1::n_cw]  + np.cos(theta_w)*ZB2[:,:,n_cw_1::n_cw])
-
-    # Expand out the hats to be of length n instead of n_sw
-    XA2_hats = np.atleast_3d(np.repeat(XA2_hats,n_cw,axis=2))
-    YA2_hats = np.atleast_3d(np.repeat(YA2_hats,n_cw,axis=2))
-    ZA2_hats = np.atleast_3d(np.repeat(ZA2_hats,n_cw,axis=2))
-    XB2_hats = np.atleast_3d(np.repeat(XB2_hats,n_cw,axis=2))
-    YB2_hats = np.atleast_3d(np.repeat(YB2_hats,n_cw,axis=2))
-    ZB2_hats = np.atleast_3d(np.repeat(ZB2_hats,n_cw,axis=2))
-
     ## If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
     boolean = YBH<0.
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
@@ -107,19 +91,15 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean] 
     ZAH[boolean], ZBH[boolean] = ZBH[boolean], ZAH[boolean]
 
-    XA2_hats[boolean], XB2_hats[boolean] = XB2_hats[boolean], XA2_hats[boolean]
-    YA2_hats[boolean], YB2_hats[boolean] = YB2_hats[boolean], YA2_hats[boolean]
-    ZA2_hats[boolean], ZB2_hats[boolean] = ZB2_hats[boolean], ZA2_hats[boolean]
+    XA_TE[boolean], XB_TE[boolean] = XB_TE[boolean], XA_TE[boolean]
+    YA_TE[boolean], YB_TE[boolean] = YB_TE[boolean], YA_TE[boolean]
+    ZA_TE[boolean], ZB_TE[boolean] = ZB_TE[boolean], ZA_TE[boolean]
 
     # Transpose thing
     XC = np.swapaxes(XC,1,2) 
     YC = np.swapaxes(YC,1,2) 
-    ZC = np.swapaxes(ZC,1,2) 
-
-    XC_hats = np.swapaxes(XC_hats,1,2) 
-    YC_hats = np.swapaxes(YC_hats,1,2) 
-    ZC_hats = np.swapaxes(ZC_hats,1,2)     
-
+    ZC = np.swapaxes(ZC,1,2)  
+    
     # compute influence of bound vortices 
     C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAH, YAH, ZAH, XBH, YBH, ZBH),axes=[1,2,3,0])
     
@@ -136,16 +116,16 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     C_AB_rl = np.transpose(vortex(XC, YC, ZC, XB1, YB1, ZB1, XB2, YB2, ZB2),axes=[1,2,3,0]) # original 
 
     # velocity induced by left leg of vortex (A to inf)
-    C_Ainf  = np.transpose(vortex_to_inf_l(XC_hats, YC_hats, ZC_hats, XA2_hats, YA2_hats, ZA2_hats,theta_w),axes=[1,2,3,0])
+    C_Ainf  = np.transpose(vortex_to_inf_l(XC, YC, ZC, XA_TE, YA_TE, ZA_TE,theta_w),axes=[1,2,3,0])
 
     # velocity induced by right leg of vortex (B to inf)
-    C_Binf  = np.transpose(vortex_to_inf_r(XC_hats, YC_hats, ZC_hats, XB2_hats, YB2_hats, ZB2_hats,theta_w),axes=[1,2,3,0])
+    C_Binf  = np.transpose(vortex_to_inf_r(XC, YC, ZC, XB_TE, YB_TE, ZB_TE,theta_w),axes=[1,2,3,0])
 
     # compute Mach Cone Matrix
     MCM = np.ones_like(C_AB_bv)
     MCM = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
     data.MCM = MCM 
-    
+    n_cp     = n_w*n_cw*n_sw 
     # multiply by mach cone 
     C_AB_bv     = C_AB_bv    * MCM
     C_AB_34_ll  = C_AB_34_ll * MCM
@@ -248,7 +228,7 @@ def vortex_to_inf_r(X,Y,Z,X1,Y1,Z1,tw):
 
     DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y
     DENUM[DENUM==0] = 1e-32
-    XVEC  = Y1_Y*np.sin(tw)/DENUM
+    XVEC  =  Y1_Y*np.sin(tw)/DENUM
     YVEC  = -Z_Z1/DENUM
     ZVEC  = -Y1_Y*np.cos(tw)/DENUM
     BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1+ Y_Y1*Y_Y1+ Z_Z1*Z_Z1)))
@@ -259,7 +239,6 @@ def vortex_to_inf_r(X,Y,Z,X1,Y1,Z1,tw):
         print('NaN!')   
         
     return COEF
-
 
 def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
     for m_idx in range(len(mach)):
