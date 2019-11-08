@@ -116,16 +116,17 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     C_AB_rl = np.transpose(vortex(XC, YC, ZC, XB1, YB1, ZB1, XB2, YB2, ZB2),axes=[1,2,3,0]) # original 
 
     # velocity induced by left leg of vortex (A to inf)
-    C_Ainf  = np.transpose(vortex_to_inf_l(XC, YC, ZC, XA_TE, YA_TE, ZA_TE,theta_w),axes=[1,2,3,0])
+    C_Ainf  = np.transpose(vortex_leg_from_A_to_inf(XC, YC, ZC, XA_TE, YA_TE, ZA_TE,theta_w),axes=[1,2,3,0])
 
     # velocity induced by right leg of vortex (B to inf)
-    C_Binf  = np.transpose(vortex_to_inf_r(XC, YC, ZC, XB_TE, YB_TE, ZB_TE,theta_w),axes=[1,2,3,0])
+    C_Binf  = np.transpose(vortex_leg_from_B_to_inf(XC, YC, ZC, XB_TE, YB_TE, ZB_TE,theta_w),axes=[1,2,3,0])
 
     # compute Mach Cone Matrix
-    MCM = np.ones_like(C_AB_bv)
-    MCM = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
+    MCM      = np.ones_like(C_AB_bv)
+    MCM      = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
     data.MCM = MCM 
     n_cp     = n_w*n_cw*n_sw 
+    
     # multiply by mach cone 
     C_AB_bv     = C_AB_bv    * MCM
     C_AB_34_ll  = C_AB_34_ll * MCM
@@ -152,7 +153,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
     C_mn        = C_AB_bv +  C_AB_ll_tot  + C_AB_rl_tot  # verified from book using example 7.4 pg 399-404
     
-    DW_mn = 2*(C_AB_ll_tot  + C_AB_rl_tot) # summation of trailing vortices for semi infinite 
+    DW_mn = 2*(C_AB_ll_tot + C_AB_rl_tot) # summation of trailing vortices for semi infinite 
     
     return C_mn, DW_mn 
 
@@ -174,9 +175,9 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
     Z_Z2  = Z-Z2 
     Z2_Z1 = Z2-Z1 
 
-    R1R2X  =   Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
+    R1R2X  =  Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
     R1R2Y  = -(X_X1*Z_Z2 - Z_Z1*X_X2)
-    R1R2Z  =   X_X1*Y_Y2 - Y_Y1*X_X2
+    R1R2Z  =  X_X1*Y_Y2 - Y_Y1*X_X2
     SQUARE = R1R2X*R1R2X + R1R2Y*R1R2Y + R1R2Z*R1R2Z
     SQUARE[SQUARE==0] = 1e-32
     R1     = np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1) 
@@ -191,7 +192,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
 
     return COEF
 
-def vortex_to_inf_l(X,Y,Z,X1,Y1,Z1,tw): 
+def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw): 
 
     # Take all the differences
     X_X1  = X-X1    
@@ -204,16 +205,15 @@ def vortex_to_inf_l(X,Y,Z,X1,Y1,Z1,tw):
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
     YVEC  =  (Z_Z1)/DENUM
     ZVEC  =  Y1_Y*np.cos(tw)/DENUM
-    BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1)))
-    RVEC   = np.array([XVEC, YVEC, ZVEC])
-    COEF  = (1/(4*np.pi))*RVEC*BRAC  
-    
+    RVEC  = np.array([XVEC, YVEC, ZVEC])
+    BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1)))    
+    COEF  = (1/(4*np.pi))*RVEC*BRAC   
     if np.isnan(COEF).any():
         print('NaN!')   
         
     return COEF
 
-def vortex_to_inf_r(X,Y,Z,X1,Y1,Z1,tw):
+def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
 
     # Take all the differences
     X_X1  = X-X1    
@@ -223,12 +223,12 @@ def vortex_to_inf_r(X,Y,Z,X1,Y1,Z1,tw):
 
     DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y
     DENUM[DENUM==0] = 1e-32
-    XVEC  =  Y1_Y*np.sin(tw)/DENUM
-    YVEC  = -Z_Z1/DENUM
-    ZVEC  = -Y1_Y*np.cos(tw)/DENUM
-    BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1+ Y_Y1*Y_Y1+ Z_Z1*Z_Z1)))
+    XVEC  = -Y1_Y*np.sin(tw)/DENUM
+    YVEC  = Z_Z1/DENUM
+    ZVEC  = Y1_Y*np.cos(tw)/DENUM
     RVEC   = np.array([XVEC, YVEC, ZVEC])
-    COEF  = (1/(4*np.pi))*RVEC*BRAC      
+    BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1+ Y_Y1*Y_Y1+ Z_Z1*Z_Z1)))    
+    COEF  = -(1/(4*np.pi))*RVEC*BRAC      
     
     if np.isnan(COEF).any():
         print('NaN!')   
