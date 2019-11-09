@@ -148,24 +148,13 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
             end   = n+n_te_p
             C_AB_ll_on_wing[:,:,n,:] = np.sum(C_AB_ll[:,:,start:end,:],axis=2) 
             C_AB_rl_on_wing[:,:,n,:] = np.sum(C_AB_rl[:,:,start:end,:],axis=2)                
-    
-    ## new 
-    #n_range = np.arange(n_cp)
-    #n_te_p  = (n_cw-(n+1)%n_cw) 
-    #idxs    = np.where((n_range+1)%n_cw != 0)[0]
-    #start   = n_range+1
-    #end     = n_range+n_te_p
-    #C_AB_ll_on_wing[:,:,:,:] = np.sum(C_AB_ll[:,:,start:end,:],axis=2) 
-    #C_AB_rl_on_wing[:,:,:,:] = np.sum(C_AB_rl[:,:,start:end,:],axis=2)       
-    #C_AB_ll_on_wing[:,:,idxs,:] = 0
-    #C_AB_ll_on_wing[:,:,idxs,:] = 0
-    
+
     # Add all the influences together
     C_AB_ll_tot = C_AB_ll_on_wing + C_AB_34_ll + C_Ainf  # verified from book using example 7.4 pg 399-404
     C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
     C_mn        = C_AB_bv +  C_AB_ll_tot  + C_AB_rl_tot  # verified from book using example 7.4 pg 399-404
     
-    DW_mn = 2*(C_AB_ll_tot + C_AB_rl_tot) # summation of trailing vortices for semi infinite 
+    DW_mn = 2*(C_AB_ll_tot + C_AB_rl_tot) # summation of trailing vortices for semi infinite
     
     return C_mn, DW_mn 
 

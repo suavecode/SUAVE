@@ -360,7 +360,7 @@ class Vortex_Lattice(Aerodynamics):
         for wing in geometry.wings.keys():
             CL_w_sub[wing]  = np.zeros([len(AoA)*len(Mach_sub),1])
             CL_w_sup[wing]  = np.zeros([len(AoA)*len(Mach_sup),1])
-            CDi_w_sub[wing] = np.zeros([len(AoA)*len(Mach_sub),1])            
+            CDi_w_sub[wing] = np.zeros([len(AoA)*len(Mach_sub),1])
             CDi_w_sup[wing] = np.zeros([len(AoA)*len(Mach_sup),1])
         
         # Calculate aerodynamics for table
