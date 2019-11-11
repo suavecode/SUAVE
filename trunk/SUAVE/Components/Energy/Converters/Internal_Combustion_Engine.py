@@ -91,7 +91,6 @@ class Internal_Combustion_Engine(Energy_Component):
         fuel_flow_rate   = np.fmax(output_power*SFC,a)
 
         #torque
-        ## SHP = torque * 2*pi * RPM / 33000        (UK units)
         torque = output_power/speed
         # store to outputs
         self.outputs.power                           = output_power
@@ -101,49 +100,3 @@ class Internal_Combustion_Engine(Energy_Component):
 
         return self.outputs
 
-if __name__ == '__main__':
-
-    import numpy as np
-    import pylab as plt
-    import SUAVE
-    from SUAVE.Core import Units, Data
-    conditions = Data()
-    atmo = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    ICE = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
-    ICE.sea_level_power = 250.0 * Units.horsepower
-    ICE.flat_rate_altitude = 5000. * Units.ft
-    ICE.speed = 2200. # rpm
-    ICE.throttle = 1.0
-    PSLS = 1.0
-    delta_isa = 0.0
-    i = 0
-    altitude = list()
-    rho = list()
-    sigma = list()
-    Pavailable = list()
-    torque = list()
-    for h in range(0,25000,500):
-        altitude.append(h * 0.3048)
-        atmo_values = atmo.compute_values(altitude[i],delta_isa)
-        rho.append(atmo_values.density[0,0])
-        sigma.append(rho[i] / 1.225)
-##        Pavailable.append(PSLS * (sigma[i] - 0.117) / 0.883)
-        conditions.altitude = altitude[i]
-        conditions.delta_isa = delta_isa
-        out = ICE.power(conditions)
-        Pavailable.append(out.power)
-        torque.append(out.torque)
-        i += 1
-    fig = plt.figure("Power and Torque vs altitude")
-    axes = fig.add_subplot(2,1,1)
-    axes.plot(np.multiply(altitude,1./Units.ft), np.multiply(Pavailable,1./Units.horsepower), 'bo-')
-    axes.set_xlabel('Altitude [ft]')
-    axes.set_ylabel('Output power [bhp]')
-    axes.grid(True)
-
-    axes = fig.add_subplot(2,1,2)
-    axes.plot(np.multiply(altitude,1./Units.ft), np.multiply(torque,1./(Units.ft * Units.lbf)), 'rs-')
-    axes.set_xlabel('Altitude [ft]')
-    axes.set_ylabel('Torque [lbf*ft]')
-    axes.grid(True)
-    plt.show()

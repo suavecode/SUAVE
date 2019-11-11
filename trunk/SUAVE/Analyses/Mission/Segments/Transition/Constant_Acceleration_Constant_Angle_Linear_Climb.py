@@ -1,5 +1,5 @@
 ## @ingroup Analyses-Mission-Segments-Transition
-# Constant_Accelerated_Climb_Constant_Angle.py
+# Constant_Acceleration_Constant_Angle_Linear_Climb.py
 #
 # Created:  Feb 2019, M. Clarke
 
@@ -24,7 +24,7 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission-Segments-Transition
-class Constant_Accelerated_Climb_Constant_Angle(Aerodynamic):
+class Constant_Acceleration_Constant_Angle_Linear_Climb(Aerodynamic):
     """ Vehicle accelerates at a constant rate between two airspeeds.
     
         Assumptions:

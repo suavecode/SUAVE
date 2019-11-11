@@ -11,7 +11,6 @@ import numpy as np
 from SUAVE.Core import Units, Data
 from SUAVE.Components.Energy.Networks.Lift_Cruise import Lift_Cruise
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
-from SUAVE.Plots.Mission_Plots import * 
 import SUAVE
 
 # ----------------------------------------------------------------------
@@ -210,25 +209,24 @@ def solve_constant_speed_constant_altitude_loiter(segment):
     """ 
     net = Lift_Cruise()
     net.voltage = 400.     
-    Vstall = 49.
     
     mini_mission = SUAVE.Analyses.Mission.Sequential_Segments()
     
     CACPCA = SUAVE.Analyses.Mission.Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude()   
     ones_row  = segment.state.ones_row  
     
-    #CACPCA.time             = segment.time
+    CACPCA.time             = segment.time
     CACPCA.analyses         = segment.analyses
     CACPCA.state.conditions = segment.state.conditions
     CACPCA.state.numerics   = segment.state.numerics      
     
     CACPCA.tag             = "transition"
     CACPCA.altitude        = 40.  * Units.ft
-    CACPCA.air_speed_start = np.sqrt((400 * Units['ft/min'])**2 + (1.2*Vstall)**2)
-    CACPCA.air_speed_end   = 1.2*Vstall 
-    CACPCA.acceleration    = -0.0035 # 10 second deceleration 
-    CACPCA.pitch_initial   = 9. * Units.degrees
-    CACPCA.pitch_final     = 10. * Units.degrees
+    CACPCA.air_speed_start = 0.   * Units['ft/min']
+    CACPCA.air_speed_end   = 45
+    CACPCA.acceleration    = 9.81/5
+    CACPCA.pitch_initial   = 0.0
+    CACPCA.pitch_final     = 7.75 * Units.degrees
     
     CACPCA.state.unknowns                              =  segment.state.unknowns   
     CACPCA.state.residuals.forces                      = 0.0  * ones_row(2) 
@@ -243,25 +241,7 @@ def solve_constant_speed_constant_altitude_loiter(segment):
     mini_mission.append_segment(CACPCA)
         
     results  = mini_mission.evaluate()
-    # Plot Flight Conditions 
-    plot_flight_conditions(results)
-    
-    # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results)
-    
-    # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results)
-    
-   
-    # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results)
-    
-    # Plot Velocities 
-    plot_aircraft_velocities(results)    
-    
-    plot_electronic_conditions(results)
-    
-    CACPCA_res = results.segments.transition
+    CACPCA_res = results.segments.analysis
      
     segment.state.unknowns.throttle                         = CACPCA_res.state.unknowns.throttle   
     segment.state.unknowns.throttle_lift                    = CACPCA_res.state.unknowns.throttle_lift

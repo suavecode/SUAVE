@@ -1,5 +1,5 @@
 ## @ingroup Methods-Missions-Segments-Transition
-# Constant_Accelerated_Climb_Constant_Angle.py
+# Constant_Acceleration_Constant_Angle_Linear_Climb.py
 # 
 # Created:  Feb 2019, M. Clarke
 
@@ -108,7 +108,6 @@ def initialize_conditions(segment):
     # set the body angle
     body_angle =time*(Tf-T0)/(t_final-t_initial)
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     
-
     
     # pack
     segment.state.conditions.freestream.altitude[:,0] = alt[:,0]

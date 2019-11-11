@@ -40,7 +40,6 @@ modules = [
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
-    'scripts/slipstream/Slipstream_Test.py',
     'scripts/B737/mission_B737.py',
     'scripts/battery/battery.py',
     'scripts/cmalpha/cmalpha.py',
@@ -78,7 +77,8 @@ modules = [
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',    
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
-    'scripts/weights/weights.py',        
+    'scripts/weights/weights.py',  
+    'scripts/plots/test_plot.py',
 ]
 
 # ----------------------------------------------------------------------
