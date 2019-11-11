@@ -73,10 +73,10 @@ def thevenin_discharge(battery,numerics):
     C_Th = np.zeros_like(Icell)  
     R_0  = np.zeros_like(Icell) 
     for i in range(len(SOC)): 
-        V_oc[i] = battery_data.V_oc_interp(T_bat, SOC[i])[0]
-        C_Th[i] = battery_data.C_Th_interp(T_bat, SOC[i])[0]
-        R_Th[i] = battery_data.R_Th_interp(T_bat, SOC[i])[0]
-        R_0[i]  = battery_data.R_0_interp(T_bat, SOC[i])[0] 
+        V_oc[i] = battery_data.V_oc_interp(T_bat[i], SOC[i])[0]
+        C_Th[i] = battery_data.C_Th_interp(T_bat[i], SOC[i])[0]
+        R_Th[i] = battery_data.R_Th_interp(T_bat[i], SOC[i])[0]
+        R_0[i]  =  battery_data.R_0_interp(T_bat[i], SOC[i])[0] 
      
     V_Th = Icell/(1/R_Th + C_Th*np.dot(D,np.ones_like(R_Th)))
      
