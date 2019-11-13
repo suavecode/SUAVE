@@ -38,13 +38,17 @@ def initialize_battery(segment):
     
     
     if segment.state.initials:
-        energy_initial  = segment.state.initials.conditions.propulsion.battery_energy[-1,0]
+        energy_initial       = segment.state.initials.conditions.propulsion.battery_energy[-1,0]
+        temperature_initial  = segment.state.initials.conditions.propulsion.battery_temperature[-1,0]
     elif 'battery_energy' in segment:
-        energy_initial  = segment.battery_energy
+        energy_initial      = segment.battery_energy
+        temperature_initial = segment.battery_temperature
     else:
-        energy_initial = 0.0
+        energy_initial      = 0.0
+        temperature_initial = 0.0
     
-    segment.state.conditions.propulsion.battery_energy[:,0] = energy_initial
+    segment.state.conditions.propulsion.battery_energy[:,0]      = energy_initial
+    segment.state.conditions.propulsion.battery_temperature[:,0] = temperature_initial
 
     return
 

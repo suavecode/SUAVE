@@ -36,11 +36,11 @@ def thevenin_discharge(battery,numerics):
         
     """
  
-    Ibat              = battery.inputs.current
-    pbat              = battery.inputs.power_in
-    Rbat              = battery.resistance
+    I_bat             = battery.inputs.current
+    P_bat             = battery.inputs.power_in
+    R_bat             = battery.resistance
     T_bat             = battery.temperature 
-    T_cell            = battery.cell.temperature
+    T_cell            = battery.cell_temperature
     time              = numerics.time.control_points
     I                 = numerics.time.integrate
     D                 = numerics.time.differentiate    
@@ -48,48 +48,51 @@ def thevenin_discharge(battery,numerics):
     cell_mass         = battery.mass_properties.mass                
     Cp                = battery.cell.specific_heat_capacity    
     h                 = battery.heat_transfer_coefficient   
-    T_ambient         = battery.coolant_temperature     
+    T_ambient         = battery.ambient_temperature     
     cell_surface_area = battery.cell.surface_area
-    current_energy    = battery.current_energy  
+    current_energy    = battery.current_energy 
+    T_init            = battery.current_temperature
+    T_cell            = battery.cell_temperature 
     battery_data      = battery_performance_maps()     
     
     # calculate the current going into one cell 
     n_series   = battery.module_config[0]  
     n_parallel = battery.module_config[1]
     n_total    = n_series * n_parallel 
-    Icell      = Ibat/n_parallel
+    I_cell      = I_bat/n_parallel
     
     # Maximum energy
     max_energy = battery.max_energy
     
     #state of charge of the battery
-    initial_discharge_state = np.dot(I,pbat) + battery.current_energy[0]
+    initial_discharge_state = np.dot(I,P_bat) + battery.current_energy[0]
     SOC =  np.divide(initial_discharge_state,battery.max_energy)
     SOC[SOC < 0.] = 0.
     
     # look up tables 
-    V_oc = np.zeros_like(Icell)
-    R_Th = np.zeros_like(Icell)  
-    C_Th = np.zeros_like(Icell)  
-    R_0  = np.zeros_like(Icell) 
+    V_oc = np.zeros_like(I_cell)
+    R_Th = np.zeros_like(I_cell)  
+    C_Th = np.zeros_like(I_cell)  
+    R_0  = np.zeros_like(I_cell) 
     for i in range(len(SOC)): 
-        V_oc[i] = battery_data.V_oc_interp(T_bat[i], SOC[i])[0]
-        C_Th[i] = battery_data.C_Th_interp(T_bat[i], SOC[i])[0]
-        R_Th[i] = battery_data.R_Th_interp(T_bat[i], SOC[i])[0]
-        R_0[i]  =  battery_data.R_0_interp(T_bat[i], SOC[i])[0] 
+        V_oc[i] = battery_data.V_oc_interp(T_cell[i], SOC[i])[0]
+        C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC[i])[0]
+        R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC[i])[0]
+        R_0[i]  =  battery_data.R_0_interp(T_cell[i], SOC[i])[0] 
      
-    V_Th = Icell/(1/R_Th + C_Th*np.dot(D,np.ones_like(R_Th)))
+    V_Th = I_cell/(1/R_Th + C_Th*np.dot(D,np.ones_like(R_Th)))
      
     # Calculate resistive losses
-    Ploss = n_total*(Icell**2)*(R_0 + R_Th)
+    P_heat = (I_cell**2)*(R_0 + R_Th)
     
-    ##Implement model for heat 
-    #P_net  = Ploss - h*cell_surface_area*n_total*(T_bat - T_ambient)
-    #dT_dt  = P_net/(n_total*cell_mass*Cp)
-    #T_cell = T_cell  + np.dot(I,dT_dt)
+    #Implement model for heat 
+    P_net  = P_heat - h*cell_surface_area*(T_cell - T_ambient)
+    dT_dt  = P_net/(cell_mass*Cp)
+    current_temperature  = T_init[0] + np.dot(I,dT_dt)
     
     # Power going into the battery accounting for resistance losses
-    P = pbat - np.abs(Ploss) 
+    P_loss = n_total*P_heat
+    P = P_bat - np.abs(P_loss) 
    
     ebat = np.dot(I,P)
     
@@ -105,22 +108,22 @@ def thevenin_discharge(battery,numerics):
     new_SOC[new_SOC<0] = 0. 
     
     # Voltage under load:
-    voltage_under_load   = (V_oc - V_Th - (Icell * R_0))
+    voltage_under_load   = (V_oc - V_Th - (I_cell * R_0))
     
     # if SOC is negative, voltage under load goes to zero 
     voltage_under_load[new_SOC == 0.] = 0.
-    V_oc[new_SOC == 0.] = 0. 
-    Ploss[new_SOC == 0.] = 0.
-    V_Th[new_SOC == 0.] = 0.
+    V_oc[new_SOC == 0.]   = 0. 
+    P_heat[new_SOC == 0.] = 0.
+    V_Th[new_SOC == 0.]   = 0.
     
     # Pack outputs
     battery.current_energy           = current_energy
-    battery.resistive_losses         = Ploss
-    battery.load_power               = voltage_under_load*n_series*Ibat
+    battery.current_temperature      = current_temperature
+    battery.resistive_losses         = P_loss
+    battery.load_power               = voltage_under_load*n_series*I_bat
     battery.voltage_open_circuit     = V_oc*n_series
     battery.battery_thevenin_voltage = V_Th*n_series
-    battery.battery_temperature      = T_bat
-    battery.cell_temperature         = T_cell
+    battery.battery_temperature      = T_bat 
     battery.voltage_under_load       = voltage_under_load*n_series
     battery.state_of_charge          = new_SOC
     

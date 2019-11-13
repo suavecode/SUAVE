@@ -86,18 +86,18 @@ class Battery_Test(Propulsor):
         battery_data      = battery_performance_maps() 
         
         # Set battery energy
-        battery.current_energy   = conditions.propulsion.battery_energy  
-        
+        battery.current_energy       = conditions.propulsion.battery_energy  
+        battery.current_temperature  = conditions.propulsion.battery_temperature
         
         if dischage_fidelity == 1: 
             volts = state.unknowns.battery_voltage_under_load
             battery.battery_thevenin_voltage = 0 
-            battery.cell_temperature = battery.pack_temperature
+            battery.cell_temperature = battery.temperature
             
         elif dischage_fidelity == 2:    
-            SOC  = state.unknowns.battery_state_of_charge 
-            Tbat = state.unknowns.battery_cell_temperature
-            battery.cell_temperature  = Tbat 
+            SOC    = state.unknowns.battery_state_of_charge 
+            T_cell = state.unknowns.battery_cell_temperature
+            battery.cell_temperature  = T_cell 
             V_Th = state.unknowns.battery_thevenin_voltage 
             
             # look up tables 
@@ -107,10 +107,10 @@ class Battery_Test(Propulsor):
             R_0  = np.zeros_like(SOC)
             SOC[SOC<0] = 0
             for i in range(len(SOC)): 
-                V_oc[i] = battery_data.V_oc_interp(Tbat[i], SOC[i])[0]
-                C_Th[i] = battery_data.C_Th_interp(Tbat[i], SOC[i])[0]
-                R_Th[i] = battery_data.R_Th_interp(Tbat[i], SOC[i])[0]
-                R_0[i]  =  battery_data.R_0_interp(Tbat[i], SOC[i])[0]
+                V_oc[i] = battery_data.V_oc_interp(T_cell[i], SOC[i])[0]
+                C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC[i])[0]
+                R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC[i])[0]
+                R_0[i]  =  battery_data.R_0_interp(T_cell[i], SOC[i])[0]
             
             dV_TH_dt =  np.dot(D,V_Th)
             I_0 = V_Th/R_Th  + C_Th*dV_TH_dt
@@ -134,9 +134,8 @@ class Battery_Test(Propulsor):
         battery_energy           = battery.current_energy
         state_of_charge          = battery.state_of_charge  
         voltage_open_circuit     = battery.voltage_open_circuit
-        voltage_under_load       = battery.voltage_under_load 
-        pack_temperature         = battery.pack_temperature
-        cell_temperature         = battery.cell_temperature
+        voltage_under_load       = battery.voltage_under_load  
+        cell_temperature         = battery.current_temperature    
         battery_thevenin_voltage = battery.battery_thevenin_voltage
         
         conditions.propulsion.current                  = avionics_current
@@ -145,8 +144,7 @@ class Battery_Test(Propulsor):
         conditions.propulsion.state_of_charge          = state_of_charge
         conditions.propulsion.voltage_open_circuit     = voltage_open_circuit
         conditions.propulsion.voltage_under_load       = voltage_under_load  
-        conditions.propulsion.battery_thevenin_voltage = battery_thevenin_voltage
-        conditions.propulsion.battery_pack_temperature = pack_temperature
+        conditions.propulsion.battery_thevenin_voltage = battery_thevenin_voltage 
         conditions.propulsion.battery_cell_temperature = cell_temperature
         conditions.propulsion.battery_specfic_power    = -(battery_draw/1000)/battery.mass_properties.mass   
         
@@ -154,6 +152,7 @@ class Battery_Test(Propulsor):
     
     def unpack_unknowns_datta(self,segment): 
         
+        segment.state.conditions.propulsion.battery_cell_temperature = segment.state.unknowns.battery_cell_temperature 
         segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
         
         return
@@ -162,9 +161,12 @@ class Battery_Test(Propulsor):
         # Unpack 
         v_actual  = segment.state.conditions.propulsion.voltage_under_load
         v_predict = segment.state.unknowns.battery_voltage_under_load
+        Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
+        Temp_predict = segment.state.unknowns.battery_cell_temperature           
         
         # Return the residuals 
-        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])
+        segment.state.residuals.network[:,0] = v_predict[:,0] - v_actual[:,0]
+        segment.state.residuals.network[:,1] =  Temp_predict[:,0] - Temp_actual[:,0]
         
         return   
     
@@ -191,7 +193,7 @@ class Battery_Test(Propulsor):
         # Return the residuals 
         segment.state.residuals.network[:,0] =  v_th_predict[:,0] - v_th_actual[:,0]     
         segment.state.residuals.network[:,1] =  SOC_predict[:,0]  - SOC_actual[:,0]  
-        segment.state.residuals.network[:,1] =  Temp_predict[:,0] - Temp_actual[:,0] 
+        segment.state.residuals.network[:,1] =  Temp_predict[:,0] - Temp_actual[:,0]
                     
     __call__ = evaluate_thrust
 
