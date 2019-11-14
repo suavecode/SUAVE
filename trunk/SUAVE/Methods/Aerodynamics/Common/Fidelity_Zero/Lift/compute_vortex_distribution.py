@@ -15,6 +15,28 @@ from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_wing_ai
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_vortex_distribution(geometry,settings):
+    ''' Compute the coordinates of panels, vortices , control points and geometry used to build 
+    the influence coefficient matrix. Below is a schematic of the coordinates of an arbitrary panel
+    
+    XA1 ____________________________ XB1    
+       |                            |
+       |        bound vortex        |
+    XAH|  ________________________  |XBH
+       | |           XCH          | |
+       | |                        | |
+       | |                        | |     
+       | |                        | |
+       | |                        | |
+       | |           0 <--control | |       
+       | |          XC     point  | |  
+       | |                        | |
+   XA2 |_|________________________|_|XB2
+         |                        |     
+         |       trailing         |  
+         |   <--  vortex   -->    |  
+         |         legs           |  
+         
+    '''
     # ---------------------------------------------------------------------------------------
     # STEP 1: Define empty vectors for coordinates of panes, control points and bound vortices
     # ---------------------------------------------------------------------------------------
@@ -70,10 +92,12 @@ def compute_vortex_distribution(geometry,settings):
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
     # ---------------------------------------------------------------------------------------    
-    n_w = 0 # number of wings 
-    n_cp = 0 # number of bound vortices        
-    wing_areas = [] # wing areas         
+    n_w = 0  # instantiate the number of wings counter  
+    n_cp = 0 # instantiate number of bound vortices counter     
+    wing_areas = [] # instantiate wing areas 
+    
     for wing in geometry.wings:
+        # get geometry of wing  
         span        = wing.spans.projected
         root_chord  = wing.chords.root
         tip_chord   = wing.chords.tip
@@ -88,17 +112,18 @@ def compute_vortex_distribution(geometry,settings):
         vertical_wing = wing.vertical
         wing_origin = wing.origin
 
-        # determine of vehicle has symmetry 
+        # determine if vehicle has symmetry 
         if sym_para is True :
             span = span/2
-
+        
+        # discretize wing using cosine spacing
         n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
         thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
         y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing 
-         
         y_a   = y_coordinates[:-1] 
         y_b   = y_coordinates[1:] 
-
+        
+        # create empty vectors for coordinates 
         xah   = np.zeros(n_cw*n_sw)
         yah   = np.zeros(n_cw*n_sw)
         zah   = np.zeros(n_cw*n_sw)
@@ -218,11 +243,10 @@ def compute_vortex_distribution(geometry,settings):
             # ---------------------------------------------------------------------------------------
             # STEP 6A: Define coordinates of panels horseshoe vortices and control points 
             # ---------------------------------------------------------------------------------------
-            del_y = y_coordinates[1:] - y_coordinates[:-1]
-
-            # define coordinates of horseshoe vortices and control points
+            del_y = y_coordinates[1:] - y_coordinates[:-1]           
             i_seg = 0           
             for idx_y in range(n_sw):
+                # define coordinates of horseshoe vortices and control points
                 idx_x = np.arange(n_cw) 
                 eta_a = (y_a[idx_y] - section_stations[i_seg])  
                 eta_b = (y_b[idx_y] - section_stations[i_seg]) 
@@ -250,7 +274,7 @@ def compute_vortex_distribution(geometry,settings):
                 xi_c  = segment_chord_x_offset[i_seg] + eta *np.tan(segment_sweep[i_seg])  + delta_x  *idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
                 xi_ch = segment_chord_x_offset[i_seg] + eta *np.tan(segment_sweep[i_seg])  + delta_x  *idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
 
-                # camber
+                # adjustment of coordinates for camber
                 section_camber_a  = segment_camber[i_seg]*wing_chord_section_a  
                 section_camber_b  = segment_camber[i_seg]*wing_chord_section_b  
                 section_camber_c    = segment_camber[i_seg]*wing_chord_section                
@@ -280,7 +304,7 @@ def compute_vortex_distribution(geometry,settings):
                 zeta    = segment_chord_z_offset[i_seg] + eta*np.tan(segment_dihedral[i_seg])    + z_c     # z coordinate three-quarter chord control point for each panel
                 zeta_ch = segment_chord_z_offset[i_seg] + eta*np.tan(segment_dihedral[i_seg])    + z_c_ch  # z coordinate center of bound vortex on each panel
 
-                # adjustment of panels for twist  
+                # adjustment of coordinates for twist  
                 xi_LE_a = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg])               # x location of leading edge left corner of wing
                 xi_LE_b = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg])               # x location of leading edge right of wing
                 xi_LE   = segment_chord_x_offset[i_seg] + eta*np.tan(segment_sweep[i_seg])                 # x location of leading edge center of wing
@@ -466,7 +490,8 @@ def compute_vortex_distribution(geometry,settings):
                 xi_bc = eta_b*np.tan(sweep) + delta_x_b*idx_x + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
                 xi_c  =  eta *np.tan(sweep)  + delta_x  *idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
                 xi_ch =  eta *np.tan(sweep)  + delta_x  *idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
-
+                
+                # adjustment of coordinates for camber
                 section_camber_a  = wing_camber*wing_chord_section_a
                 section_camber_b  = wing_camber*wing_chord_section_b  
                 section_camber_c  = wing_camber*wing_chord_section
@@ -497,7 +522,7 @@ def compute_vortex_distribution(geometry,settings):
                 zeta    =   eta*np.tan(dihedral)    + z_c     # z coordinate three-quarter chord control point for each panel
                 zeta_ch =   eta*np.tan(dihedral)    + z_c_ch  # z coordinate center of bound vortex on each panel
 
-                # adjustment of panels for twist  
+                # adjustment of coordinates for twist  
                 xi_LE_a = eta_a*np.tan(sweep)               # x location of leading edge left corner of wing
                 xi_LE_b = eta_b*np.tan(sweep)               # x location of leading edge right of wing
                 xi_LE   = eta  *np.tan(sweep)               # x location of leading edge center of wing
