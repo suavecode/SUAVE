@@ -56,19 +56,11 @@ class Vortex_Lattice(Aerodynamics):
         """  
         self.tag = 'Vortex_Lattice'
 
-        self.geometry = Data()
+        self.geometry = Data() 
         self.settings = Data()
-
-        # vortex lattice configurations
         self.settings.number_panels_spanwise   = 25
-        self.settings.number_panels_chordwise  = 5
-        self.settings.use_surrogate            = True
-        self.settings.use_weissinger           = True
-        self.settings.plot_vortex_distribution = False
-        self.settings.plot_vehicle             = False
-        self.settings.vortex_distribution      = Data()
-        self.settings.call_function            = None
-
+        self.settings.number_panels_chordwise  = 5 
+        self.settings.vortex_distribution      = Data() 
         
         # conditions table, used for surrogate model training
         self.training                             = Data()        
@@ -102,7 +94,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self):
+    def initialize(self,surrogate_flag , vortex_distribution_flag, n_sw ,  n_cw):
         """Drives functions to get training samples and build a surrogate.
         Assumptions:
         None
@@ -119,6 +111,12 @@ class Vortex_Lattice(Aerodynamics):
         geometry = self.geometry
         settings = self.settings  
         
+        if n_sw is not None:
+            settings.number_panels_spanwise  = n_sw
+        
+        if n_cw is not None:
+            settings.number_panels_chordwise = n_cw
+            
         # generate vortex distribution
         VD = compute_vortex_distribution(geometry,settings)      
         
@@ -126,11 +124,11 @@ class Vortex_Lattice(Aerodynamics):
         settings.vortex_distribution = VD
         
         # Plot vortex discretization of vehicle
-        if settings.plot_vortex_distribution == True:
+        if vortex_distribution_flag == True:
             plot_vehicle_vlm_panelization(VD)        
                 
         # If we are using the surrogate
-        if self.settings.use_surrogate == True:
+        if surrogate_flag == True:
             
             # sample training data
             self.sample_training()
@@ -278,16 +276,7 @@ class Vortex_Lattice(Aerodynamics):
         # unpack        
         conditions = state.conditions
         settings   = self.settings
-        geometry   = self.geometry
-        
-         
-        span_distributions  = Data()
-        for wing in geometry.wings:
-            wing_sym = 1
-            if wing.symmetric:
-                wing_sym = 2  
-            span_distributions[wing.tag] = np.linspace(0,(wing.spans.projected / wing_sym) , settings.number_panels_spanwise)
-        conditions.aerodynamics.span_distributions                           = span_distributions       
+        geometry   = self.geometry     
         
         # Evaluate the VLM
         # if in transonic regime, use surrogate

@@ -63,9 +63,7 @@ class AVL(Markup):
         settings.oswald_efficiency_factor           = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
-        settings.spoiler_drag_increment             = 0.00 
-        
-        # ------
+        settings.spoiler_drag_increment             = 0.00  
         settings.spanwise_vortices                  = None
         settings.chordwise_vortices                 = None        
         
@@ -125,9 +123,9 @@ class AVL(Markup):
         sv = self.settings.spanwise_vortices
         cv = self.settings.chordwise_vortices 
         
-        self.process.compute.lift.inviscid.geometry = self.geometry
+        self.process.compute.lift.inviscid.geometry = self.geometry 
         
-        # Generate the surrogate
+        # Initialize
         self.process.compute.lift.inviscid.initialize(sv,cv)
         
     finalize = initialize

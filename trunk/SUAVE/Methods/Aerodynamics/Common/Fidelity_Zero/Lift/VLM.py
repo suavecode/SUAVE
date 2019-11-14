@@ -194,5 +194,8 @@ def VLM(conditions,settings,geometry):
      
     # moment coefficient
     CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
-
+    
+    # delete MCM from VD data structure since it consumes memory
+    delattr(VD, 'MCM')   
+    
     return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP 

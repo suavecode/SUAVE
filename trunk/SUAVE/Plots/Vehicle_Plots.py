@@ -21,7 +21,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 def plot_vehicle_vlm_panelization(data, save_figure = False, save_filename = "VLM_Panelization"):     
     face_color = [0.9,0.9,0.9] # grey        
     edge_color = [0, 0, 0]     # black
-    alpha_val = 0.5  
+    alpha_val  = 0.5  
     fig = plt.figure(save_filename)
     axes = Axes3D(fig)    
     n_cp = data.n_cp 

@@ -25,7 +25,7 @@ from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_propell
 #   Altitude, SFC & Weight
 # ------------------------------------------------------------------
 def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, save_filename = "Altitude_SFC_Weight"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
     for segment in results.segments.values():
@@ -69,7 +69,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
 #   Aircraft Velocities
 # ------------------------------------------------------------------
 def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Velocities"):
-    axis_font = {'fontname':'Arial', 'size':'14'}  
+    axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
     for segment in results.segments.values():
@@ -116,7 +116,7 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
 #   Disc and Power Loadings
 # ------------------------------------------------------------------
 def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, save_filename = "Disc_Power_Loading"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10) 
     for i in range(len(results.segments)):  
@@ -150,7 +150,7 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
 #   Aerodynamic Coefficients
 # ------------------------------------------------------------------
 def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Coefficients"):
-    axis_font = {'fontname':'Arial', 'size':'14'}  
+    axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
     for segment in results.segments.values():
@@ -200,7 +200,7 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
 #   Aerodynamic Forces
 # ------------------------------------------------------------------
 def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Forces"):
-    axis_font = {'fontname':'Arial', 'size':'14'}  
+    axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
     for segment in results.segments.values():
@@ -251,62 +251,89 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
 # ------------------------------------------------------------------
 #   Pressure Coefficient
 # ------------------------------------------------------------------
-def plot_surface_pressure(vehicle,results,seg_idx,time_idx, line_color = 'bo-', save_figure = False, save_filename = "Surface_Pressure"):
-    
-    VD         = vehicle.base.vortex_distribution
-    n_cp       = VD.n_cp
-    n_cw       = VD.n_cw 
-    n_sw       = VD.n_sw 
-    axis_font  = {'fontname':'Arial', 'size':'14'}  
- 
-    fig        = plt.figure(save_filename)
-    axes       = fig.add_subplot(1, 1, 1)  
-    fig.set_size_inches(12, 10)    
-    time       = results.segments[seg_idx].conditions.frames.inertial.time[time_idx,0] / Units.min
-    CP         = results.segments[seg_idx].conditions.aerodynamics.pressure_coefficient[time_idx]                  
-    
-    for i in range(n_cp):
-        # Get Color Map for Wing and Fuselage
-        alpha_val = 1.
-        if i > (n_cp - (1 + 2*n_sw*n_cw)):
-            rgb_color  = [0.5,0.5,0.5]
-            edge_color = [0.5,0.5,0.5]
-        else:
-            norm = mpl.colors.Normalize(vmin = -0.03  , vmax = 0.0)   
-            rgba_color = cm.jet(norm(CP[i]),bytes=True) 
-            rgb_color  = [rgba_color[0]/255 ,rgba_color[1]/255 ,rgba_color[2]/255 ]             
-            edge_color = rgb_color
-    
-        # Plot Vehilce
-        axes.add_patch(Polygon([[VD.YA1[i],-VD.XA1[i]], [VD.YB1[i],-VD.XB1[i]], [VD.YB2[i],-VD.XB2[i]], [VD.YA2[i],-VD.XA2[i]]], closed=True, 
-                                           facecolor = rgb_color , edgecolor  = edge_color , alpha = alpha_val))		
-        
-        # Set Color bar
-        axins1 = inset_axes(axes,width="5%",height="30%", loc='lower left')
-        norm = mpl.colors.Normalize(vmin=0, vmax=0.2) 
-        rgba_color = cm.jet(norm(400),bytes=True) 
-        cbar = mpl.colorbar.ColorbarBase(ax = axins1 , cmap = 'jet' ,norm=norm)
-        cbar.set_label('$C_{P}$', rotation =  0)    
-        
-        # Set Axis Bounds     
-        axes.set_ylim((-42, 2))
-        axes.set_xlim((-18, 18)) 
-        axes.axis('off')
 
-    plt.axis('off')
-    plt.grid(None)        
-        
-    if save_figure:
-        plt.savefig(save_filename + ".png") 
+def plot_surface_pressure_contours(results,vehicle, save_figure = False):	
+    VD         = vehicle.vortex_distribution	 
+    n_cw       = VD.n_cw 	
+    n_sw       = VD.n_sw 
+    n_w        = VD.n_w
+    
+    axis_font  = {'size':'12'}  	
+    img_idx    = 1	
+    seg_idx    = 1	
+    for segment in results.segments.values():   	
+        num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
+        for ti in range(num_ctrl_pts):  
+            CP         = segment.conditions.aerodynamics.pressure_coefficient[ti]
             
-    return
+            fig        = plt.figure()	
+            axes       = fig.add_subplot(1, 1, 1)  
+            x_max      = max(VD.XC) + 2
+            y_max      = max(VD.YC) + 2
+            axes.set_ylim(x_max, 0)
+            axes.set_xlim(-y_max, y_max)            
+            fig.set_size_inches(12, 12)         	 
+            for i in range(n_w):
+                x_pts = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                y_pts = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                z_pts = np.reshape(np.atleast_2d(CP[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))  
+                levals = np.linspace(-.025,-0.0001,500)
+                CS = axes.contourf( y_pts, x_pts,z_pts, cmap = 'jet',levels=levals,extend='both')  
+                
+            # Set Color bar	
+            cbar = fig.colorbar(CS, ax=axes)
+            cbar.ax.set_ylabel('$C_{P}$', rotation =  0)  # angle   
+            plt.axis('off')	
+            plt.grid(None)            
+            
+            if save_figure: 
+                plt.savefig('CP_' + str(img_idx) +  ".png") 	
+            img_idx += 1	
+        seg_idx +=1
+        
+    return   
+
+
+# ------------------------------------------------------------------
+#   Sectional Lift Distribution
+# ------------------------------------------------------------------
+
+def plot_lift_distribution(results,vehicle, save_figure = False):	
+    VD         = vehicle.vortex_distribution	 	
+    n_sw       = VD.n_sw 
+    n_w        = VD.n_w
+    
+    axis_font  = {'size':'12'}  	
+    img_idx    = 1	
+    seg_idx    = 1	
+    for segment in results.segments.values():   	
+        num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
+        for ti in range(num_ctrl_pts):  
+            cl_y = segment.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[ti] 
+            line = ['-b','-b','-r','-r']
+            fig  = plt.figure()
+            fig.set_size_inches(12, 12)       
+            axes = fig.add_subplot(1,1,1)
+            for i in range(n_w): 
+                y_pts = VD.Y_SW[i*(n_sw):(i+1)*(n_sw)]
+                z_pts = cl_y[i*(n_sw):(i+1)*(n_sw)]
+                axes.plot(y_pts, z_pts, line[i] ) 
+            axes.set_xlabel("Spanwise Location (m)")
+            axes.set_title('$C_{Ly}$')  
+            
+            if save_figure: 
+                plt.savefig('CLy_' + str(img_idx) +  ".png") 	
+            img_idx += 1	
+        seg_idx +=1
+        
+    return      
 
 
 # ------------------------------------------------------------------
 #   Drag Components
 # ------------------------------------------------------------------
 def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_filename = "Drag_Components"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename,figsize=(8,10))
     axes = plt.gca()
     for i, segment in enumerate(results.segments.values()):
@@ -341,7 +368,7 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 #   Electronic Conditions
 # ------------------------------------------------------------------
 def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Electronic_Conditions"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
     for i in range(len(results.segments)):  
@@ -396,7 +423,7 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
 #   Flight Conditions
 # ------------------------------------------------------------------
 def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Flight_Conditions"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
     for segment in results.segments.values(): 
@@ -452,7 +479,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
 #   Propulsion Conditions
 # ------------------------------------------------------------------
 def plot_proppeller_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Prop_Propulsor"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)  
     for segment in results.segments.values(): 
@@ -502,7 +529,7 @@ def plot_proppeller_conditions(results, line_color = 'bo-', save_figure = False,
 #   Electric Propulsion efficiencies
 # ------------------------------------------------------------------
 def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = False, save_filename = "eMotor_Prop_Propulsor"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)  
     for segment in results.segments.values(): 
@@ -537,7 +564,7 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
 #   Stability Coefficients
 # ------------------------------------------------------------------
 def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Stability_Coefficients"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
     for segment in results.segments.values(): 
@@ -586,7 +613,7 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
 #   Solar Flux
 # ------------------------------------------------------------------
 def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filename = "Solar_Flux"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename) 
     for segment in results.segments.values():               
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -622,7 +649,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
     return
 
 def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, save_filename = "Lift_Cruise_Network"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     # ------------------------------------------------------------------
     #   Electronic Conditions
     # ------------------------------------------------------------------
@@ -799,4 +826,120 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         plt.savefig("Cruise_Propulsor.png")
         
     return   
+
+
+
+# ------------------------------------------------------------------
+#   VLM Video 
+# ------------------------------------------------------------------
+def create_video_frames(results,vehicle,flight_profile = True):	
+    VD         = vehicle.vortex_distribution	
+    n_cp       = VD.n_cp	
+    n_cw       = VD.n_cw 	
+    n_sw       = VD.n_sw 
+    n_w        = VD.n_w
+    n_fus      = VD.n_fus
+    
+    axis_font  = {'size':'12'}  	
+    img_idx    = 1	
+    seg_idx    = 1	
+    for segment in results.segments.values():   	
+        num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
+        for ti in range(num_ctrl_pts):  
+            CP         = segment.conditions.aerodynamics.pressure_coefficient[ti]
+            
+            fig        = plt.figure()	
+            axes       = fig.add_subplot(1, 1, 1) 
+            x_max = max(VD.XC) + 2
+            y_max = max(VD.YC) + 2
+            axes.set_ylim(x_max, 0)
+            axes.set_xlim(-y_max, y_max)            
+            fig.set_size_inches(12, 12)         
+            
+            # plot fuselage 
+            for i in range(n_fus):
+                x_pts = np.reshape(np.atleast_2d(VD.FUS_XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                y_pts = np.reshape(np.atleast_2d(VD.FUS_YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                z_pts = np.reshape(np.atleast_2d(VD.FUS_ZC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))   
+                CS_fus = axes.contourf( y_pts,x_pts, z_pts,cmap=plt.cm.bone)  
+            
+            # plot wing    
+            for i in range(n_w):
+                x_pts = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                y_pts = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                z_pts = np.reshape(np.atleast_2d(CP[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))  
+                levals = np.linspace(-.025,-0.0001,500)
+                CS = axes.contourf(x_pts, y_pts, z_pts, cmap = 'jet',levels=levals,extend='both')  
+                
+            # Set Color bar	
+            cbar = fig.colorbar(CS, ax=axes)
+            cbar.ax.set_ylabel('$C_{P}$', rotation =  0)  # angle   
+            plt.axis('off')	
+            plt.grid(None) 	 
+            
+            if flight_profile: 
+                time_vec      = np.empty(shape=[0,1])	
+                cl_vec        = np.empty(shape=[0,1])	
+                cd_vec        = np.empty(shape=[0,1])	
+                l_d_vec       = np.empty(shape=[0,1])	
+                altitude_vec  = np.empty(shape=[0,1])	
+                mass_vec      = np.empty(shape=[0,1])          	
+                for seg_i in range(seg_idx):	
+                    if seg_i == seg_idx-1:	
+                        t_vals  = results.segments[seg_i].conditions.frames.inertial.time[0:ti+1] / Units.min	
+                        cl_vals = results.segments[seg_i].conditions.aerodynamics.lift_coefficient[0:ti+1]	
+                        cd_vals = results.segments[seg_i].conditions.aerodynamics.drag_coefficient[0:ti+1]	
+                        l_d_vals = cl_vals/cd_vals	
+                        alt_vals = results.segments[seg_i].conditions.freestream.altitude[0:ti+1] / Units.ft	
+                        m_vals   = results.segments[seg_i].conditions.weights.total_mass[0:ti+1]/ Units.lb                  	
+                
+                    else:                    	
+                        t_vals  = results.segments[seg_i].conditions.frames.inertial.time / Units.min	
+                        cl_vals = results.segments[seg_i].conditions.aerodynamics.lift_coefficient	
+                        cd_vals = results.segments[seg_i].conditions.aerodynamics.drag_coefficient	
+                        l_d_vals = cl_vals/cd_vals 	
+                        alt_vals = results.segments[seg_i].conditions.freestream.altitude / Units.ft	
+                        m_vals   = results.segments[seg_i].conditions.weights.total_mass/ Units.lb	
+                
+                    time_vec      = np.append(time_vec     ,t_vals[:,0])	
+                    cl_vec        = np.append(cl_vec       ,cl_vals[:,0])	
+                    cd_vec        = np.append(cd_vec       ,cd_vals[:,0])	
+                    l_d_vec       = np.append(l_d_vec      , l_d_vals[:,0])	
+                    altitude_vec  = np.append(altitude_vec ,alt_vals[:,0])	
+                    mass_vec      = np.append(mass_vec     ,m_vals[:,0]) 	
+                
+                mini_axes1 = fig.add_subplot(4,4,4)	
+                mini_axes1.plot(time_vec, altitude_vec , 'ko-')	
+                mini_axes1.set_ylabel('Altitude (ft)',axis_font)	
+                mini_axes1.set_xlim(-10,420)	
+                mini_axes1.set_ylim(0,36000)        	
+                mini_axes1.grid(False)	
+                
+                mini_axes2 = fig.add_subplot(4,4,8)	
+                mini_axes2.plot(time_vec, mass_vec , 'ro-' )	
+                mini_axes2.set_ylabel('Weight (lb)',axis_font)       	
+                mini_axes2.grid(False)            	
+                mini_axes2.set_xlim(-10,420)	
+                mini_axes2.set_ylim(130000,180000)   	
+                
+                mini_axes3 = fig.add_subplot(4,4,12)	
+                mini_axes3.plot( time_vec, cl_vec, 'bo-'  )	
+                mini_axes3.set_ylabel('$C_{L}$',axis_font)	
+                mini_axes3.set_xlim(-10,420)	
+                mini_axes3.set_ylim(0.3,0.9)  	
+                mini_axes3.grid(False) 	
+                
+                mini_axes4 = fig.add_subplot(4,4,16)	
+                mini_axes4.plot(time_vec , l_d_vec ,'go-'  )	
+                mini_axes4.set_ylabel('L/D',axis_font)	
+                mini_axes4.set_xlabel('Time (mins)',axis_font)	
+                mini_axes4.set_xlim(-10,420)	
+                mini_axes4.set_ylim(15,20)  	
+                mini_axes4.grid(False)             	
+
+            plt.savefig('mission_' + str(img_idx) +  ".png") 	
+            img_idx += 1	
+        seg_idx +=1
+        
+    return  
 
