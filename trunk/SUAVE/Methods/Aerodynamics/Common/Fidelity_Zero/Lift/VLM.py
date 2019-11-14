@@ -102,8 +102,7 @@ def VLM(conditions,settings,geometry):
     VD = compute_vortex_distribution(geometry,settings)  
     
     # Build induced velocity matrix, C_mn
-    theta_w = np.zeros_like(aoa)
-    C_mn, DW_mn  = compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach)
+    C_mn, DW_mn  = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa,mach)
     MCM = VD.MCM 
     
     # Compute flow tangency conditions   
@@ -197,4 +196,6 @@ def VLM(conditions,settings,geometry):
     # moment coefficient
     CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
     
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP 
+    del VD['MCM']
+    
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP, wing_areas 

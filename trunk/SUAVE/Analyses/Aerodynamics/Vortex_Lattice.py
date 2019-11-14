@@ -390,24 +390,24 @@ def calculate_VLM(conditions,settings,geometry):
     
     """            
 
-    # unpack
-    vehicle_reference_area = geometry.reference_area
-
     # iterate over wings
     wing_lifts = Data()
     wing_drags = Data()
     
-    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_sec , cdi_sec , CPi = VLM(conditions,settings,geometry)
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_sec , cdi_sec , CPi, wing_areas = VLM(conditions,settings,geometry)
 
     ii = 0
     for wing in geometry.wings.values():
-        wing_lifts[wing.tag] = 1*(np.atleast_2d(CL_wing[:,ii]).T)
-        wing_drags[wing.tag] = 1*(np.atleast_2d(CDi_wing[:,ii]).T)
+        wing_lifts[wing.tag] = 1*(np.atleast_2d(CL_wing[:,ii]).T)  * 1*(wing_areas[ii])
+        wing_drags[wing.tag] = 1*(np.atleast_2d(CDi_wing[:,ii]).T) * 1*(wing_areas[ii])
         ii+=1
         if wing.symmetric:
-            wing_lifts[wing.tag] += 1*(np.atleast_2d(CL_wing[:,ii]).T)
-            wing_drags[wing.tag] += 1*(np.atleast_2d(CDi_wing[:,ii]).T)
+            wing_lifts[wing.tag] += 1*(np.atleast_2d(CL_wing[:,ii]).T)  * 1*(wing_areas[ii])
+            wing_drags[wing.tag] += 1*(np.atleast_2d(CDi_wing[:,ii]).T) * 1*(wing_areas[ii])
             ii+=1
+            
+        wing_lifts[wing.tag] = wing_lifts[wing.tag]/wing.areas.reference
+        wing_drags[wing.tag] = wing_drags[wing.tag]/wing.areas.reference
 
     return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_sec , cdi_sec , CPi
 
