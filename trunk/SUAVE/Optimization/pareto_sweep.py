@@ -11,9 +11,6 @@
 import SUAVE
 from SUAVE.Core import Data
 from .Package_Setups import pyoptsparse_setup
-from .Package_Setups import pyopt_setup
-from .Package_Setups import scipy_setup
-
 
 import numpy as np
 import matplotlib.pyplot as plt
