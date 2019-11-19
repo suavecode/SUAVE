@@ -88,6 +88,8 @@ class Battery_Test(Propulsor):
         # Set battery energy
         battery.current_energy       = conditions.propulsion.battery_energy  
         battery.current_temperature  = conditions.propulsion.battery_temperature
+        battery.charge_throughput    = conditions.propulsion.battery_charge_throughput
+        battery.time_in_days         = conditions.propulsion.battery_age_in_days
         
         if dischage_fidelity == 1: 
             volts = state.unknowns.battery_voltage_under_load
@@ -127,21 +129,27 @@ class Battery_Test(Propulsor):
         # link
         battery.inputs.current  = avionics_current
         battery.inputs.power_in = -avionics_power
+        battery.inputs.V_ul     = volts 
         battery.energy_calc(numerics,fidelity = dischage_fidelity)        
     
         # Pack the conditions for outputs   
         battery_draw             = battery.inputs.power_in 
         battery_energy           = battery.current_energy
-        state_of_charge          = battery.state_of_charge  
+        state_of_charge          = battery.state_of_charge    
+        charge_throughput        = battery.charge_throughput      
+        depth_of_discharge       = battery.depth_of_discharge    
         voltage_open_circuit     = battery.voltage_open_circuit
         voltage_under_load       = battery.voltage_under_load  
         cell_temperature         = battery.current_temperature    
         battery_thevenin_voltage = battery.battery_thevenin_voltage
+        current                  = battery.current 
         
-        conditions.propulsion.current                  = avionics_current
+        conditions.propulsion.current                  = current
         conditions.propulsion.battery_draw             = battery_draw
         conditions.propulsion.battery_energy           = battery_energy        
         conditions.propulsion.state_of_charge          = state_of_charge
+        conditions.propulsion.charge_throughput        = charge_throughput 
+        conditions.propulsion.depth_of_discharge       = depth_of_discharge
         conditions.propulsion.voltage_open_circuit     = voltage_open_circuit
         conditions.propulsion.voltage_under_load       = voltage_under_load  
         conditions.propulsion.battery_thevenin_voltage = battery_thevenin_voltage 

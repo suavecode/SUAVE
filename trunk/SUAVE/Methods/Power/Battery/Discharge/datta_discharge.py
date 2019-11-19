@@ -53,27 +53,27 @@ def datta_discharge(battery,numerics):
     v_max          = battery.max_voltage
     cell_mass      = battery.mass_properties.mass   
     Cp             = battery.cell.specific_heat_capacity  
-    A_cell         = battery.cell.surface_area
-    T_cell         = battery.cell_temperature
+    A_cell         = battery.cell.surface_area 
     h              = battery.heat_transfer_coefficient   
     T_ambient      = battery.ambient_temperature       
+    T_current      = battery.current_temperature
+    E_current      = battery.current_energy  
+    E_max          = battery.max_energy    
+    Q_prior        = battery.charge_throughput 
     I              = numerics.time.integrate
     D              = numerics.time.differentiate
-    T_init         = battery.current_temperature
-    current_energy = battery.current_energy  
-    max_energy     = battery.max_energy
     
     #state of charge of the battery
-    initial_discharge_state = np.dot(I,P_bat_in) + current_energy[0]
-    x =  1 - np.divide(initial_discharge_state,max_energy)
+    initial_discharge_state = np.dot(I,P_bat_in) + E_current[0]
+    DOD_old =  1 - np.divide(initial_discharge_state,E_max)
 
     # C rate
-    C = np.abs(3600.*P_bat_in/max_energy)
+    C = np.abs(3600.*P_bat_in/E_max)
     
     # Empirical value for discharge
-    x[x<-35.] = -35. # Fix x so it doesn't warn
+    DOD_old[DOD_old<-35.] = -35. # Fix DOD_old so it doesn't warn
     
-    f = 1-np.exp(-20.*x)-np.exp(-20.*(1.-x))
+    f = 1-np.exp(-20.*DOD_old)-np.exp(-20.*(1.-DOD_old))
     
     f[f<0.0] = 0.0 # Negative f's don't make sense
     f = np.reshape(f, np.shape(C))
@@ -89,14 +89,14 @@ def datta_discharge(battery,numerics):
     P = P_bat_in - np.abs(P_heat) 
     
     # Net heat load 
-    P_net  = P_heat - h*A_cell*(T_init[0] - T_ambient)
+    P_net  = P_heat - h*A_cell*(T_current[0] - T_ambient)
     
     # Cell temperature rise 
     dT_dt  =P_net/(cell_mass*Cp)
-    current_temperature = T_init[0] + np.dot(I,dT_dt)
+    T_current= T_current[0] + np.dot(I,dT_dt)
     
     ebat = np.dot(I,P)
-    ebat = np.reshape(ebat,np.shape(battery.current_energy)) #make sure it's consistent
+    ebat = np.reshape(ebat,np.shape(E_current)) #make sure it's consistent
     
     # Add this to the current state
     if np.isnan(ebat).any():
@@ -104,24 +104,32 @@ def datta_discharge(battery,numerics):
         if np.isnan(ebat.any()): #all nans; handle this instance
             ebat=np.zeros_like(ebat)
             
-    current_energy = ebat + battery.current_energy[0]
+    E_current = ebat + E_current[0]
     
-    new_x = np.divide(current_energy,battery.max_energy)
+    SOC_new = np.divide(E_current,E_max)
+    DOD_new = 1 - SOC_new
+     
+    # determine new charge throughput  
+    Q_current = np.dot(I,I_bat)
+    Q_total   = Q_prior + Q_current/3600    
             
     # A voltage model from Chen, M. and Rincon-Mora, G. A., "Accurate Electrical Battery Model Capable of Predicting
     # Runtime and I - V Performance" IEEE Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511
-    v_normalized         = (-1.031*np.exp(-35.*new_x) + 3.685 + 0.2156*new_x - 0.1178*(new_x**2.) + 0.3201*(new_x**3.))/4.1
+    v_normalized         = (-1.031*np.exp(-35.*SOC_new) + 3.685 + 0.2156*SOC_new - 0.1178*(SOC_new**2.) + 0.3201*(SOC_new**3.))/4.1
     voltage_open_circuit = v_normalized * v_max
     
     # Voltage under load:
     voltage_under_load   = voltage_open_circuit  - I_bat*R
         
     # Pack outputs
-    battery.current_energy          = current_energy
+    battery.current_energy          = E_current
     battery.resistive_losses        = P_heat
-    battery.current_temperature     = current_temperature
-    battery.state_of_charge         = new_x
+    battery.current_temperature     = T_current
+    battery.state_of_charge         = SOC_new 
+    battery.depth_of_discharge      = DOD_new
+    battery.charge_throughput       = Q_total
     battery.voltage_open_circuit    = voltage_open_circuit
     battery.voltage_under_load      = voltage_under_load
+    battery.current                 = I_bat
     
     return
