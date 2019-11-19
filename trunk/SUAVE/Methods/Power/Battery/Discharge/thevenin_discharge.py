@@ -52,11 +52,10 @@ def thevenin_discharge(battery,numerics):
     cell_mass         = battery.mass_properties.mass                
     Cp                = battery.cell.specific_heat_capacity    
     h                 = battery.heat_transfer_coefficient   
-    t                 = battery.time_in_days 
+    t                 = battery.age_in_days
     cell_surface_area = battery.cell.surface_area
     T_ambient         = battery.ambient_temperature    
-    T_current         = battery.current_temperature 
-    T_bat             = battery.temperature      
+    T_current         = battery.temperature      
     T_cell            = battery.cell_temperature     
     E_max             = battery.max_energy
     E_current         = battery.current_energy 
@@ -145,7 +144,7 @@ def thevenin_discharge(battery,numerics):
     
     # Pack outputs
     battery.current_energy           = E_current
-    battery.current_temperature      = T_current
+    battery.cell_temperature         = T_current  
     battery.resistive_losses         = P_loss
     battery.load_power               = voltage_under_load*n_series*I_bat
     battery.current                  = I_bat
@@ -154,7 +153,6 @@ def thevenin_discharge(battery,numerics):
     battery.charge_throughput        = Q_total 
     battery.state_of_charge          = SOC_new
     battery.depth_of_discharge       = DOD_new
-    battery.battery_temperature      = T_cell # T_bat 
     battery.voltage_under_load       = voltage_under_load*n_series 
     
     return battery

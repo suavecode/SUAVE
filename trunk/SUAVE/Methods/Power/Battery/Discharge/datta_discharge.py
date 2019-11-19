@@ -56,7 +56,7 @@ def datta_discharge(battery,numerics):
     A_cell         = battery.cell.surface_area 
     h              = battery.heat_transfer_coefficient   
     T_ambient      = battery.ambient_temperature       
-    T_current      = battery.current_temperature
+    T_current      = battery.temperature
     E_current      = battery.current_energy  
     E_max          = battery.max_energy    
     Q_prior        = battery.charge_throughput 
@@ -92,8 +92,8 @@ def datta_discharge(battery,numerics):
     P_net  = P_heat - h*A_cell*(T_current[0] - T_ambient)
     
     # Cell temperature rise 
-    dT_dt  =P_net/(cell_mass*Cp)
-    T_current= T_current[0] + np.dot(I,dT_dt)
+    dT_dt     = P_net/(cell_mass*Cp)
+    T_current = T_current[0] + np.dot(I,dT_dt)
     
     ebat = np.dot(I,P)
     ebat = np.reshape(ebat,np.shape(E_current)) #make sure it's consistent
@@ -124,7 +124,7 @@ def datta_discharge(battery,numerics):
     # Pack outputs
     battery.current_energy          = E_current
     battery.resistive_losses        = P_heat
-    battery.current_temperature     = T_current
+    battery.cell_temperature        = T_current
     battery.state_of_charge         = SOC_new 
     battery.depth_of_discharge      = DOD_new
     battery.charge_throughput       = Q_total
