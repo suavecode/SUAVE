@@ -159,7 +159,7 @@ class Vectored_Thrust(Propulsor):
         # link
         battery.inputs.current  = esc.outputs.currentin*num_engines+ avionics_payload_current
         battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*num_engines + avionics_payload_power)
-        battery.energy_calc(numerics)        
+        battery.energy_discharge(numerics)        
         
         # Pack the conditions for outputs
         rpm                  = motor.outputs.omega*60./(2.*np.pi)

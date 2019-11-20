@@ -189,7 +189,7 @@ class Lift_Cruise_Low_Fidelity(Propulsor):
         battery.inputs.power_in = - power_total
         
         # Run the battery
-        battery.energy_calc(numerics)   
+        battery.energy_discharge(numerics)   
         
         # Pack the conditions   
         battery_draw         = battery.inputs.power_in 

@@ -116,6 +116,7 @@ class Aerodynamics(Basic):
         self.propulsion.battery_voltage           = ones_1col * 0
         self.propulsion.battery_charge_throughput = 0.       
         self.propulsion.battery_age_in_days       = 1
+        self.propulsion.battery_discharge         = True
        
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0

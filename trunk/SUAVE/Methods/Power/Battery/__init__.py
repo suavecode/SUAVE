@@ -3,6 +3,7 @@
 # @ingroup Methods-Power
 
 from . import Discharge
+from . import Charge
 from . import Ragone
 from . import Sizing
 from . import Variable_Mass

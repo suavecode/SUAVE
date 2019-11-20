@@ -179,7 +179,7 @@ class Solar(Propulsor):
         
         # link
         battery.inputs = solar_logic.outputs
-        battery.energy_calc(numerics)
+        battery.energy_discharge(numerics)
         
         #Pack the conditions for outputs
         rpm                                  = motor.outputs.omega*60./(2.*np.pi)

@@ -1,4 +1,4 @@
-## @ingroup Methods-Power-Battery-Discharge
+## @ingroup Methods-Power-Battery-Charge
 # thevenin_discharge.py
 # 
 # Created:  Oct 2019, M. Clarke
@@ -11,7 +11,7 @@ import numpy as np
 from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 from scipy.integrate import odeint
 
-def thevenin_discharge(battery,numerics): 
+def thevenin_charge(battery,numerics): 
     """Discharge and Cell Ageing Model:
        Discharge Model uses a thevenin equavalent circuit with parameters taken from 
        pulse tests done by NASA Glen (referece below) of a Samsung (SDI 18650-30Q).
@@ -48,6 +48,7 @@ def thevenin_discharge(battery,numerics):
     P_bat             = battery.inputs.power_in
     V_ul              = battery.inputs.V_ul
     R_bat             = battery.resistance
+    V_max             = battery.max_voltage
     time              = numerics.time.control_points 
     cell_mass         = battery.mass_properties.mass                
     Cp                = battery.cell.specific_heat_capacity    
@@ -86,7 +87,8 @@ def thevenin_discharge(battery,numerics):
         C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC_old[i])[0]
         R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC_old[i])[0]
         R_0[i]  = battery_data.R_0_interp(T_cell[i], SOC_old[i])[0] 
-     
+        
+    # thevenin voltage
     V_Th = I_cell/(1/R_Th + C_Th*np.dot(D,np.ones_like(R_Th)))
     
     # aging model 
@@ -98,7 +100,7 @@ def thevenin_discharge(battery,numerics):
     beta_res  = 2.153E-4 * (rms_V_oc - 3.725)**2 - 1.521E-5 + 2.798E-4*delta_DOD_old
     
     # aging model 
-    E_max = E_max*(1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior))    
+    E_max = E_max*(1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior))  
     
     # resistive grown
     R_0  = R_0 *(1 + alpha_res*(t**0.75) + beta_res*Q_prior)
@@ -131,7 +133,7 @@ def thevenin_discharge(battery,numerics):
     DOD_new = 1 - SOC_new
     
     # Voltage under load:
-    voltage_under_load   = (V_oc - V_Th - (I_cell * R_0))
+    voltage_under_load   = (V_oc + V_Th + (I_cell * R_0))
     
     # determine new charge throughput  
     Q_current = np.dot(I,abs(I_cell))
@@ -150,9 +152,9 @@ def thevenin_discharge(battery,numerics):
     battery.voltage_open_circuit     = V_oc*n_series
     battery.battery_thevenin_voltage = V_Th*n_series
     battery.charge_throughput        = Q_total 
-    battery.internal_resistance      = R_0
     battery.state_of_charge          = SOC_new
     battery.depth_of_discharge       = DOD_new
+    battery.internal_resistance      = R_0
     battery.voltage_under_load       = voltage_under_load*n_series 
     
     return battery

@@ -165,7 +165,7 @@ class Solar_Low_Fidelity(Propulsor):
         solar_logic.logic(conditions,numerics)
         # link
         battery.inputs = solar_logic.outputs
-        battery.energy_calc(numerics)
+        battery.energy_discharge(numerics)
         
         #Pack the conditions for outputs
         rpm                                  = motor.outputs.omega*60./(2.*np.pi)

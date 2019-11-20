@@ -104,7 +104,7 @@ class Battery_Ducted_Fan(Propulsor):
         battery.inputs = battery_logic
         tol = 1e-6
         
-        battery.energy_calc(numerics)
+        battery.energy_discharge(numerics)
         #allow for mass gaining batteries
        
         try:

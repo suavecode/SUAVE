@@ -50,6 +50,7 @@ class Battery_Test(Propulsor):
         self.avionics                = None
         self.voltage                 = None 
         self.dischage_model_fidelity = 1
+        
     # manage process with a driver function
     def evaluate_thrust(self,state):
         """ Calculate thrust given the current state of the vehicle
@@ -80,6 +81,7 @@ class Battery_Test(Propulsor):
         numerics          = state.numerics 
         avionics          = self.avionics 
         battery           = self.battery  
+        time              = numerics.time.control_points
         D                 = numerics.time.differentiate    
         I                 = numerics.time.integrate
         dischage_fidelity = self.dischage_model_fidelity 
@@ -89,7 +91,8 @@ class Battery_Test(Propulsor):
         battery.current_energy    = conditions.propulsion.battery_energy  
         battery.temperature       = conditions.propulsion.battery_temperature
         battery.charge_throughput = conditions.propulsion.battery_charge_throughput
-        battery.age_in_days       = conditions.propulsion.battery_age_in_days
+        battery.age_in_days       = conditions.propulsion.battery_age_in_days 
+        discharge_flag            = conditions.propulsion.battery_discharge        
         
         if dischage_fidelity == 1: 
             volts = state.unknowns.battery_voltage_under_load
@@ -120,17 +123,28 @@ class Battery_Test(Propulsor):
             # Voltage under load:
             volts =  V_oc - V_Th - (I_0 * R_0) 
         
-        # Calculate avionics and payload power
-        avionics_power = np.ones((numerics.number_control_points,1))*avionics.current * volts
+        
+        if discharge_flag:
+            # Calculate avionics and payload power
+            avionics_power = np.ones((numerics.number_control_points,1))*avionics.current * volts
+    
+            # Calculate avionics and payload current
+            avionics_current =  np.ones((numerics.number_control_points,1))*avionics.current    
+            
+            # link
+            battery.inputs.current  = avionics_current
+            battery.inputs.power_in = -avionics_power
+            battery.inputs.V_ul     = volts 
+            battery.energy_discharge(numerics,fidelity = dischage_fidelity)    
+            
+        else: 
 
-        # Calculate avionics and payload current
-        avionics_current =  np.ones((numerics.number_control_points,1))*avionics.current 
-
-        # link
-        battery.inputs.current  = avionics_current
-        battery.inputs.power_in = -avionics_power
-        battery.inputs.V_ul     = volts 
-        battery.energy_calc(numerics,fidelity = dischage_fidelity)        
+            # link 
+            battery.inputs.current  = -battery.charging_current * np.ones_like(volts)
+            battery.inputs.power_in =  battery.charging_current * volts * np.ones_like(volts)
+            battery.inputs.V_ul     =  volts 
+        
+            battery.energy_charge(numerics,fidelity = dischage_fidelity)        
     
         # Pack the conditions for outputs   
         battery_draw             = battery.inputs.power_in 
@@ -139,18 +153,22 @@ class Battery_Test(Propulsor):
         voltage_open_circuit     = battery.voltage_open_circuit
         voltage_under_load       = battery.voltage_under_load  
         cell_temperature         = battery.cell_temperature
+        internal_resistance      = battery.internal_resistance
         battery_thevenin_voltage = battery.battery_thevenin_voltage
+        battery_charge_throughput= battery.charge_throughput
         current                  = battery.current 
         
-        conditions.propulsion.current                  = current
-        conditions.propulsion.battery_draw             = battery_draw
-        conditions.propulsion.battery_energy           = battery_energy        
-        conditions.propulsion.state_of_charge          = state_of_charge
-        conditions.propulsion.voltage_open_circuit     = voltage_open_circuit
-        conditions.propulsion.voltage_under_load       = voltage_under_load  
-        conditions.propulsion.battery_thevenin_voltage = battery_thevenin_voltage 
-        conditions.propulsion.battery_cell_temperature = cell_temperature
-        conditions.propulsion.battery_specfic_power    = -(battery_draw/1000)/battery.mass_properties.mass   
+        conditions.propulsion.current                     = abs(current)
+        conditions.propulsion.battery_draw                = battery_draw
+        conditions.propulsion.battery_energy              = battery_energy 
+        conditions.propulsion.battery_internal_resistance = internal_resistance
+        conditions.propulsion.battery_charge_throughput   = battery_charge_throughput   
+        conditions.propulsion.state_of_charge             = state_of_charge
+        conditions.propulsion.voltage_open_circuit        = voltage_open_circuit
+        conditions.propulsion.voltage_under_load          = voltage_under_load  
+        conditions.propulsion.battery_thevenin_voltage    = battery_thevenin_voltage 
+        conditions.propulsion.battery_cell_temperature    = cell_temperature
+        conditions.propulsion.battery_specfic_power       = -(battery_draw/1000)/battery.mass_properties.mass   
         
         return  
     
@@ -163,14 +181,14 @@ class Battery_Test(Propulsor):
     
     def residuals_datta(self,segment):  
         # Unpack 
-        v_actual  = segment.state.conditions.propulsion.voltage_under_load
-        v_predict = segment.state.unknowns.battery_voltage_under_load
+        v_actual     = segment.state.conditions.propulsion.voltage_under_load
+        v_predict    = segment.state.unknowns.battery_voltage_under_load
         Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
         Temp_predict = segment.state.unknowns.battery_cell_temperature           
         
         # Return the residuals 
         segment.state.residuals.network[:,0] = v_predict[:,0] - v_actual[:,0]
-        segment.state.residuals.network[:,1] =  Temp_predict[:,0] - Temp_actual[:,0]
+        segment.state.residuals.network[:,1] = Temp_predict[:,0] - Temp_actual[:,0]
         
         return   
     
