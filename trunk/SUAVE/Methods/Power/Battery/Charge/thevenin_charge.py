@@ -12,14 +12,14 @@ from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 from scipy.integrate import odeint
 
 def thevenin_charge(battery,numerics): 
-    """Discharge and Cell Ageing Model:
-       Discharge Model uses a thevenin equavalent circuit with parameters taken from 
+    """Charge and Cell Ageing Model:
+       Charge Model uses a thevenin equavalent circuit with parameters taken from 
        pulse tests done by NASA Glen (referece below) of a Samsung (SDI 18650-30Q).
        Cell Aging model was developed from fitting of experimental data of LiMNC 
        18650 cell.  
      
        Source: 
-       Cell Discharge: Chin, J. C., Schnulo, S. L., Miller, T. B., Prokopius, K., and Gray, 
+       Cell Charge: Chin, J. C., Schnulo, S. L., Miller, T. B., Prokopius, K., and Gray, 
        J., “"Battery Performance Modeling on Maxwell X-57",”AIAA Scitech, San Diego, CA,
        2019. URLhttp://openmdao.org/pubs/chin_battery_performance_x57_2019.pdf.
        
@@ -27,30 +27,47 @@ def thevenin_charge(battery,numerics):
        based 18650 lithium-ion batteries." Journal of Power Sources 257 (2014): 325-334.
        
        Inputs:
-       battery.
-        resistance                      [Ohms]
-        max_energy                      [Joules]
-        current_energy (to be modified) [Joules]
-        inputs.
-            current                     [amps]
-            power_in                    [Watts]
+         battery. 
+               I_bat             (max_energy)                          [Joules]
+               cell_mass         (battery cell mass)                   [kilograms]
+               Cp                (battery cell specific heat capacity) [J/(K kg)]
+               h                 (heat transfer coefficient)           [W/(m^2*K)]
+               t                 (battery age in days)                 [days]
+               cell_surface_area (battery cell surface area)           [meters^2]
+               T_ambient         (ambient temperature)                 [Degrees Celcius]
+               T_current         (pack temperature)                    [Degrees Celcius]
+               T_cell            (battery cell temperature)            [Degrees Celcius]
+               E_max             (max energy)                          [Joules]
+               E_current         (current energy)                      [Joules]
+               Q_prior           (charge throughput)                   [Amp-hrs]
+               R_growth_factor   (internal resistance growth factor)   [unitless]
+               E_growth_factor   (capactance (energy) growth factor)   [unitless] 
+           
+         inputs.
+               I_bat             (current)                             [amps]
+               P_bat             (power)                               [Watts]
        
        Outputs:
-       battery.
-        current energy                  [Joules]
-        resistive_losses                [Watts]
-        voltage_open_circuit            [Volts]
-        voltage_under_load              [Volts]
+         battery.          
+              current_energy                                           [Joules]
+              cell_temperature                                         [Degrees Celcius]
+              resistive_losses                                         [Watts] 
+              load_power                                               [Watts]
+              current                                                  [Amps]
+              voltage_open_circuit                                     [Volts]
+              battery_thevenin_voltage                                 [Volts]
+              charge_throughput                                        [Amp-hrs]
+              internal_resistance                                      [Ohms]
+              state_of_charge                                          [unitless]
+              depth_of_discharge                                       [unitless]
+              voltage_under_load                                       [Volts]   
         
     """
- 
+    
+    # Unpack varibles 
     I_bat             = battery.inputs.current
-    P_bat             = battery.inputs.power_in
-    V_ul              = battery.inputs.V_ul
-    R_bat             = battery.resistance
-    V_max             = battery.max_voltage
-    time              = numerics.time.control_points 
-    cell_mass         = battery.mass_properties.mass                
+    P_bat             = battery.inputs.power_in   
+    cell_mass         = battery.cell.mass            
     Cp                = battery.cell.specific_heat_capacity    
     h                 = battery.heat_transfer_coefficient   
     t                 = battery.age_in_days
@@ -61,23 +78,28 @@ def thevenin_charge(battery,numerics):
     E_max             = battery.max_energy
     E_current         = battery.current_energy 
     Q_prior           = battery.charge_throughput 
+    R_growth_factor   = battery.R_growth_factor
+    E_growth_factor   = battery.E_growth_factor
     battery_data      = battery_performance_maps()     
     I                 = numerics.time.integrate
     D                 = numerics.time.differentiate        
     
-    # calculate the current going into one cell 
+    # Update battery capacitance (energy) with aging factor
+    E_max = E_max*E_growth_factor
+    
+    # Calculate the current going into one cell 
     n_series   = battery.module_config[0]  
     n_parallel = battery.module_config[1]
     n_total    = n_series * n_parallel 
     I_cell      = I_bat/n_parallel
     
-    #state of charge of the battery
+    # State of charge of the battery
     initial_discharge_state = np.dot(I,P_bat) + E_current[0]
     SOC_old =  np.divide(initial_discharge_state,E_max)
     SOC_old[SOC_old < 0.] = 0.    
     DOD_old = 1 - SOC_old 
     
-    # look up tables 
+    # Look up tables for variables as a function of temperature and SOC
     V_oc = np.zeros_like(I_cell)
     R_Th = np.zeros_like(I_cell)  
     C_Th = np.zeros_like(I_cell)  
@@ -87,75 +109,67 @@ def thevenin_charge(battery,numerics):
         C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC_old[i])[0]
         R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC_old[i])[0]
         R_0[i]  = battery_data.R_0_interp(T_cell[i], SOC_old[i])[0] 
-        
-    # thevenin voltage
+    
+    # Compute thevening equivalent voltage  
     V_Th = I_cell/(1/R_Th + C_Th*np.dot(D,np.ones_like(R_Th)))
     
-    # aging model 
-    rms_V_oc = np.sqrt(np.mean(V_oc**2))
-    delta_DOD_old = DOD_old[-1][0]
-    alpha_cap = ((7.542*V_oc[0][0] - 23.75)*1E6) * np.exp(-6976/(V_oc[0][0]+273))
-    alpha_res = ((5.270*V_oc[0][0] - 16.32)*1E5) * np.exp(-5986/(V_oc[0][0]+273))
-    beta_cap  = 7.348E-3 * (rms_V_oc - 3.667)**2 +  7.60E-4 + 4.081E-3*delta_DOD_old
-    beta_res  = 2.153E-4 * (rms_V_oc - 3.725)**2 - 1.521E-5 + 2.798E-4*delta_DOD_old
-    
-    # aging model 
-    E_max = E_max*(1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior))  
-    
-    # resistive grown
-    R_0  = R_0 *(1 + alpha_res*(t**0.75) + beta_res*Q_prior)
+    # Update battery internal and thevenin resistance with aging factor
+    R_0  = R_0 * R_growth_factor
+    R_Th = R_Th* R_growth_factor
     
     # Calculate resistive losses
     P_heat = (I_cell**2)*(R_0 + R_Th)
     
-    #Implement model for heat 
+    # Determine temperature increase 
     P_net      = P_heat - h*cell_surface_area*(T_cell - T_ambient)
     dT_dt      = P_net/(cell_mass*Cp)
     T_current  = T_current[0] + np.dot(I,dT_dt)
     
-    # Power going into the battery accounting for resistance losses
+    # Determine actual power going into the battery accounting for resistance losses
     P_loss = n_total*P_heat
     P = P_bat - np.abs(P_loss) 
-   
-    ebat = np.dot(I,P)
+    
+    # Determine total energy coming from the battery in this segment
+    E_bat = np.dot(I,P)
     
     # Add this to the current state
-    if np.isnan(ebat).any():
-        ebat=np.ones_like(ebat)*np.max(ebat)
-        if np.isnan(ebat.any()): #all nans; handle this instance
-            ebat=np.zeros_like(ebat)
+    if np.isnan(E_bat).any():
+        E_bat=np.ones_like(E_bat)*np.max(E_bat)
+        if np.isnan(E_bat.any()): #all nans; handle this instance
+            E_bat = np.zeros_like(E_bat)
             
-    E_current = ebat + E_current[0]
+    # Determine current energy state of battery (from all previous segments)          
+    E_current = E_bat + E_current[0]
     
+    # Determine new State of Charge 
     SOC_new = np.divide(E_current, E_max)
     SOC_new[SOC_new<0] = 0. 
     SOC_new[SOC_new>1] = 1.
     DOD_new = 1 - SOC_new
     
-    # Voltage under load:
-    voltage_under_load   = (V_oc + V_Th + (I_cell * R_0))
+    # Determine voltage under load:
+    V_ul   = V_oc + V_Th + (I_cell * R_0)
     
-    # determine new charge throughput  
+    # Determine new charge throughput (the amount of charge gone through the battery)
     Q_current = np.dot(I,abs(I_cell))
     Q_total   = Q_prior + Q_current[-1][0]/3600
     
-    # if SOC is negative, voltage under load goes to zero 
-    voltage_under_load[SOC_new < 0.] = 0. 
+    # If SOC is negative, voltage under load goes to zero 
+    V_ul[SOC_new < 0.] = 0. 
     
     # Pack outputs
-    #battery.max_energy               = E_max
     battery.current_energy           = E_current
     battery.cell_temperature         = T_current  
     battery.resistive_losses         = P_loss
-    battery.load_power               = voltage_under_load*n_series*I_bat
+    battery.load_power               = V_ul*n_series*I_bat
     battery.current                  = I_bat
     battery.voltage_open_circuit     = V_oc*n_series
     battery.battery_thevenin_voltage = V_Th*n_series
     battery.charge_throughput        = Q_total 
+    battery.internal_resistance      = R_0
     battery.state_of_charge          = SOC_new
     battery.depth_of_discharge       = DOD_new
-    battery.internal_resistance      = R_0
-    battery.voltage_under_load       = voltage_under_load*n_series 
+    battery.voltage_under_load       = V_ul*n_series 
     
     return battery
     

@@ -108,5 +108,9 @@ class Idle(Aerodynamic):
         # --------------------------------------------------------------
         finalize = self.process.finalize
         
+        # Post Processing
+        finalize.post_process = Process()        
+        finalize.post_process.inertial_position = Methods.Ground.Idle.update_battery_age
+        
         return
 

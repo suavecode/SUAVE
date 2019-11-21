@@ -36,11 +36,13 @@ def initialize_battery(segment):
                                 
     """    
     if segment.state.initials:
-        energy_initial            = segment.state.initials.conditions.propulsion.battery_energy[-1,0]
-        temperature_initial       = segment.state.initials.conditions.propulsion.battery_temperature[-1,0]
-        battery_charge_throughput = segment.state.initials.conditions.propulsion.battery_charge_throughput 
-        battery_age_in_days       = segment.battery_age_in_days
-        battery_discharge         = segment.battery_discharge
+        energy_initial                   = segment.state.initials.conditions.propulsion.battery_energy[-1,0]
+        temperature_initial              = segment.state.initials.conditions.propulsion.battery_temperature[-1,0]
+        battery_charge_throughput        = segment.state.initials.conditions.propulsion.battery_charge_throughput 
+        battery_age_in_days              = segment.battery_age_in_days
+        battery_discharge                = segment.battery_discharge
+        battery_resistance_growth_factor = segment.battery_resistance_growth_factor 
+        battery_capacity_growth_factor   = segment.battery_capacity_growth_factor     
               
     elif 'battery_energy' in segment:
         energy_initial            = segment.battery_energy
@@ -48,19 +50,26 @@ def initialize_battery(segment):
         battery_age_in_days       = segment.battery_age_in_days
         battery_charge_throughput = segment.battery_charge_throughput
         battery_discharge         = segment.battery_discharge  
+        battery_resistance_growth_factor = segment.battery_resistance_growth_factor 
+        battery_capacity_growth_factor   = segment.battery_capacity_growth_factor            
         
     else:
-        energy_initial            = 0.0
-        temperature_initial       = 0.0
-        battery_age_in_days       = 1
-        battery_charge_throughput = 0.0
-        battery_discharge         = True
+        energy_initial                   = 0.0
+        temperature_initial              = 0.0
+        battery_age_in_days              = 1
+        battery_charge_throughput        = 0.0
+        battery_resistance_growth_factor = 1.0
+        battery_capacity_growth_factor   = 1.0  
+        battery_discharge                = True
         
     segment.state.conditions.propulsion.battery_energy[:,0]       = energy_initial
     segment.state.conditions.propulsion.battery_temperature[:,0]  = temperature_initial
     segment.state.conditions.propulsion.battery_age_in_days       = battery_age_in_days
     segment.state.conditions.propulsion.battery_charge_throughput = battery_charge_throughput 
     segment.state.conditions.propulsion.battery_discharge         = battery_discharge
+    segment.state.conditions.propulsion.battery_resistance_growth_factor = battery_resistance_growth_factor 
+    segment.state.conditions.propulsion.battery_capacity_growth_factor   = battery_capacity_growth_factor        
+    
     return
 
 # ----------------------------------------------------------------------
