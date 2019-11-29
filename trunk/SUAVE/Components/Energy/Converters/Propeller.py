@@ -685,7 +685,7 @@ class Propeller(Energy_Component):
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         
-        thrust[omega1<0.0] = - thrust[omega1<0.0]
+        #thrust[omega1<0.0] = - thrust[omega1<0.0]
 
         etap     = V*thrust/power     
         

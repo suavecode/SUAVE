@@ -78,25 +78,25 @@ def thevenin_discharge(battery,numerics):
     E_current         = battery.current_energy 
     Q_prior           = battery.charge_throughput 
     R_growth_factor   = battery.R_growth_factor
-    E_growth_factor   = battery.E_growth_factor
+    #E_growth_factor   = battery.E_growth_factor
     battery_data      = battery_performance_maps()     
     I                 = numerics.time.integrate
     D                 = numerics.time.differentiate        
     
     # Update battery capacitance (energy) with aging factor
-    E_max = E_max*E_growth_factor
+    #E_max = E_max*E_growth_factor
     
     # Calculate the current going into one cell 
     n_series   = battery.module_config[0]  
     n_parallel = battery.module_config[1]
     n_total    = n_series * n_parallel 
-    I_cell      = I_bat/n_parallel
+    I_cell     = I_bat/n_parallel
     
     # State of charge of the battery
     initial_discharge_state = np.dot(I,P_bat) + E_current[0]
     SOC_old =  np.divide(initial_discharge_state,E_max)
     SOC_old[SOC_old < 0.] = 0.    
-    DOD_old = 1 - SOC_old 
+    DOD_old = 1 - SOC_old          
     
     # Look up tables for variables as a function of temperature and SOC
     V_oc = np.zeros_like(I_cell)
@@ -115,12 +115,12 @@ def thevenin_discharge(battery,numerics):
     # Update battery internal and thevenin resistance with aging factor
     R_0  = R_0 * R_growth_factor
     R_Th = R_Th* R_growth_factor
-    
+   
     # Calculate resistive losses
     P_heat = (I_cell**2)*(R_0 + R_Th)
     
     # Determine temperature increase 
-    P_net      = P_heat - h*cell_surface_area*(T_cell - T_ambient)
+    P_net      = P_heat - h*cell_surface_area*(T_cell - T_ambient) 
     dT_dt      = P_net/(cell_mass*Cp)
     T_current  = T_current[0] + np.dot(I,dT_dt)
     
@@ -154,7 +154,7 @@ def thevenin_discharge(battery,numerics):
     Q_total   = Q_prior + Q_current[-1][0]/3600
     
     # If SOC is negative, voltage under load goes to zero 
-    V_ul[SOC_new < 0.] = 0. 
+    V_ul[SOC_new < 0.] = 0.
     
     # Pack outputs
     battery.current_energy           = E_current
@@ -165,7 +165,7 @@ def thevenin_discharge(battery,numerics):
     battery.voltage_open_circuit     = V_oc*n_series
     battery.battery_thevenin_voltage = V_Th*n_series
     battery.charge_throughput        = Q_total 
-    battery.internal_resistance      = R_0
+    battery.internal_resistance      = R_0*n_series 
     battery.state_of_charge          = SOC_new
     battery.depth_of_discharge       = DOD_new
     battery.voltage_under_load       = V_ul*n_series 

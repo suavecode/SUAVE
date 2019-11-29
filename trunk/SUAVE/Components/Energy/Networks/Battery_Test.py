@@ -80,37 +80,36 @@ class Battery_Test(Propulsor):
         conditions        = state.conditions
         numerics          = state.numerics 
         avionics          = self.avionics 
-        battery           = self.battery  
-        time              = numerics.time.control_points
+        battery           = self.battery   
         D                 = numerics.time.differentiate    
         I                 = numerics.time.integrate
         dischage_fidelity = self.dischage_model_fidelity 
         battery_data      = battery_performance_maps() 
         
         # Set battery energy
-        battery.current_energy    = conditions.propulsion.battery_energy  
-        battery.temperature       = conditions.propulsion.battery_temperature
-        battery.charge_throughput = conditions.propulsion.battery_charge_throughput
-        battery.age_in_days       = conditions.propulsion.battery_age_in_days 
-        discharge_flag            = conditions.propulsion.battery_discharge    
+        battery.current_energy      = conditions.propulsion.battery_energy  
+        battery.temperature         = conditions.propulsion.battery_temperature
+        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput
+        battery.ambient_temperature = conditions.propulsion.ambient_temperature          
+        battery.age_in_days         = conditions.propulsion.battery_age_in_days 
+        discharge_flag              = conditions.propulsion.battery_discharge    
 
-        R_growth_factor           = conditions.propulsion.battery_resistance_growth_factor
-        E_growth_factor           = conditions.propulsion.battery_capacity_growth_factor  
+        R_growth_factor             = conditions.propulsion.battery_resistance_growth_factor
+        E_growth_factor             = conditions.propulsion.battery_capacity_fade_factor  
         
         battery.R_growth_factor   = R_growth_factor
         battery.E_growth_factor   = E_growth_factor
         
         if dischage_fidelity == 1: 
             volts = state.unknowns.battery_voltage_under_load
-            battery.battery_thevenin_voltage = 0 
-            battery.cell_temperature = battery.temperature
+            battery.battery_thevenin_voltage = 0  
+            battery.temperature              = conditions.propulsion.battery_temperature             
+            battery.cell_temperature         = battery.temperature
             
         elif dischage_fidelity == 2:    
             SOC             = state.unknowns.battery_state_of_charge 
             T_cell          = state.unknowns.battery_cell_temperature 
-            V_Th            = state.unknowns.battery_thevenin_voltage             
-            Q_prior         = battery.charge_throughput 
-            t               = battery.age_in_days 
+            V_Th            = state.unknowns.battery_thevenin_voltage    
             
             battery.cell_temperature = T_cell 
             
@@ -132,6 +131,7 @@ class Battery_Test(Propulsor):
         
             # Voltage under load:
             volts =  V_oc - V_Th - (I_0 * R_0)        
+            battery.volts = volts 
             
         if discharge_flag:
             # Calculate avionics and payload power
@@ -143,7 +143,7 @@ class Battery_Test(Propulsor):
             # link
             battery.inputs.current  = avionics_current
             battery.inputs.power_in = -avionics_power
-            battery.inputs.V_ul     = volts 
+            battery.inputs.voltage  = volts
             battery.energy_discharge(numerics,fidelity = dischage_fidelity)          
             
         else: 
@@ -151,14 +151,14 @@ class Battery_Test(Propulsor):
             # link 
             battery.inputs.current  = -battery.charging_current * np.ones_like(volts)
             battery.inputs.power_in =  battery.charging_current * volts * np.ones_like(volts)
-            battery.inputs.V_ul     =  volts 
-        
+            battery.inputs.voltage  = volts
             battery.energy_charge(numerics,fidelity = dischage_fidelity)        
     
         # Pack the conditions for outputs   
         battery_draw             = battery.inputs.power_in 
         battery_energy           = battery.current_energy
         state_of_charge          = battery.state_of_charge  
+        
         voltage_open_circuit     = battery.voltage_open_circuit
         voltage_under_load       = battery.voltage_under_load  
         cell_temperature         = battery.cell_temperature
@@ -170,7 +170,8 @@ class Battery_Test(Propulsor):
         conditions.propulsion.current                                = abs(current)
         conditions.propulsion.battery_draw                           = battery_draw
         conditions.propulsion.battery_energy                         = battery_energy
-        conditions.propulsion.battery_charge_throughput              = battery_charge_throughput   
+        conditions.propulsion.battery_charge_throughput              = battery_charge_throughput 
+        conditions.propulsion.battery_OCV                            = voltage_open_circuit 
         conditions.propulsion.state_of_charge                        = state_of_charge
         conditions.propulsion.voltage_open_circuit                   = voltage_open_circuit
         conditions.propulsion.voltage_under_load                     = voltage_under_load    

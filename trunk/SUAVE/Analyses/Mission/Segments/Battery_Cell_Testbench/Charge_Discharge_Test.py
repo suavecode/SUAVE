@@ -1,5 +1,5 @@
-## @ingroup Analyses-Mission-Segments-Ground
-# Idle.py
+## @ingroup Analyses-Mission-Segments-Battery_Cell_Testbench
+# Charge_Discharge_Test.py
 #
 # Created:   
 
@@ -21,8 +21,8 @@ from SUAVE.Core import Units
 #  Class
 # ----------------------------------------------------------------------
 
-## @ingroup Analyses-Mission-Segments-Ground
-class Idle(Aerodynamic): 
+## @ingroup Analyses-Mission-Segments-Battery_Cell_Testbench
+class Charge_Discharge_Test(Aerodynamic): 
 
     # ------------------------------------------------------------------
     #   Data Defaults
@@ -76,7 +76,7 @@ class Idle(Aerodynamic):
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = Methods.Ground.Idle.initialize_conditions
+        initialize.conditions              = Methods.Battery_Cell_Testbench.Charge_Discharge_Test.initialize_conditions
 
         # --------------------------------------------------------------
         #   Converge - starts iteration
@@ -96,7 +96,7 @@ class Idle(Aerodynamic):
      
         # Unpack Unknowns
         iterate.unknowns = Process()
-        iterate.unknowns.mission           = Methods.Ground.Idle.unpack_unknowns
+        iterate.unknowns.mission           = Methods.Battery_Cell_Testbench.Charge_Discharge_Test.unpack_unknowns
     
         # Update Conditions
         iterate.conditions = Process()
@@ -109,8 +109,6 @@ class Idle(Aerodynamic):
         finalize = self.process.finalize
         
         # Post Processing
-        finalize.post_process = Process()        
-        finalize.post_process.inertial_position = Methods.Ground.Idle.update_battery_age
+        finalize.post_process = Process()         
         
         return
-
