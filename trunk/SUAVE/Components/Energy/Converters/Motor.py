@@ -108,8 +108,8 @@ class Motor(Energy_Component):
                     16.*Cp*rho*v*(Kv*Kv*Kv)*(R*R*R*R*R)*Res + (np.pi*np.pi*np.pi))**(0.5) - 
                     np.pi**(3./2.)))/(8.*Cp*(Kv*Kv)*(R*R*R*R*R)*Res*rho)
         
-        if np.isnan( omega1).any(): 
-            raise AssertionError('OMEGA IS NANING')       
+        #if np.isnan( omega1).any(): 
+            #raise AssertionError('OMEGA IS NANING')       
         
         omega1[np.isnan(omega1)] = 0.0
         
