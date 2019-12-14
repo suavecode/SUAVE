@@ -25,6 +25,11 @@ def thevenin_discharge(battery,numerics):
        Cell Aging:  Schmalstieg, Johannes, et al. "A holistic aging model for Li (NiMnCo) O2
        based 18650 lithium-ion batteries." Journal of Power Sources 257 (2014): 325-334.
        
+       Cell Heat Coefficient:  Wu et. al. "Determination of the optimum heat transfer 
+       coefficient and temperature rise analysis for a lithium-ion battery under 
+       the conditions of Harbin city bus driving cycles". Energies, 10(11). 
+       https://doi.org/10.3390/en10111723
+        
        Inputs:
          battery. 
                I_bat             (max_energy)                          [Joules]
@@ -67,8 +72,7 @@ def thevenin_discharge(battery,numerics):
     I_bat             = battery.inputs.current
     P_bat             = battery.inputs.power_in   
     cell_mass         = battery.cell.mass     
-    Cp                = battery.cell.specific_heat_capacity    
-    h                 = battery.heat_transfer_coefficient   
+    Cp                = battery.cell.specific_heat_capacity  
     t                 = battery.age_in_days
     cell_surface_area = battery.cell.surface_area
     T_ambient         = battery.ambient_temperature    
@@ -120,7 +124,8 @@ def thevenin_discharge(battery,numerics):
     P_heat = (I_cell**2)*(R_0 + R_Th)
     
     # Determine temperature increase 
-    P_net      = P_heat - h*cell_surface_area*(T_cell - T_ambient) 
+    h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)
+    P_net      = P_heat - h*0.5*cell_surface_area*(T_cell - T_ambient) 
     dT_dt      = P_net/(cell_mass*Cp)
     T_current  = T_current[0] + np.dot(I,dT_dt)
     

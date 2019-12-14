@@ -149,8 +149,8 @@ def update_battery_age(segment):
     # aging model  
     delta_DOD = abs(SOC[0][0] - SOC[-1][0])
     rms_V_oc  = np.sqrt(np.mean(V_oc**2)) 
-    alpha_cap = 0*((7.542*V_oc - 23.75)*1E6) * np.exp(-6976/(Temp +273))  # currently inactive
-    alpha_res = 0*((5.270*V_oc - 16.32)*1E5) * np.exp(-5986/(Temp +273))  # currently inactive
+    alpha_cap = ((7.542*V_oc - 23.75)*1E6) * np.exp(-6976/(Temp +273))  
+    alpha_res = ((5.270*V_oc - 16.32)*1E5) * np.exp(-5986/(Temp +273))  
     beta_cap  = 7.348E-3 * (rms_V_oc - 3.667)**2 +  7.60E-4 + 4.081E-3*delta_DOD
     beta_res  = 2.153E-4 * (rms_V_oc - 3.725)**2 - 1.521E-5 + 2.798E-4*delta_DOD
      
