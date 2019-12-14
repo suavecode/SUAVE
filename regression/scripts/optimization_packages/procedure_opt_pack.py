@@ -53,17 +53,7 @@ def post_process(nexus):
     x1 = nexus.vehicle_configurations.base.x1
     x2 = nexus.vehicle_configurations.base.x2
     
-    obj = np.array([x2**2+x1**2]) 
-    
-    # for differential evolution, a penalty function is needed if constraint is violated
-    if nexus.solver_name == 'differential_evolution':
-         
-        err1 = x1 + 10
-        err2 = x2 - 1
-        if err1 < 0.001:
-            obj = obj + abs(err1)*np.exp(5)
-        if err2 < 0.001:
-            obj = obj + abs(err2)*np.exp(5) 
+    obj = np.array([x2**2 + x1**2]) 
     nexus.obj = obj
     
     return nexus

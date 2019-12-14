@@ -51,9 +51,9 @@ def main():
     x2 = outputs.x[1] 
      
     #   Check Results 
-    assert( np.isclose(obj,  1, atol=1e-2) )
-    assert( np.isclose(x1 ,  0, atol=1e-1) )
-    assert( np.isclose(x2 ,  1, atol=1e-1) )     
+    assert( np.isclose(obj,  0, atol=1e-3) )
+    assert( np.isclose(x1 ,  0, atol=1e-2) )
+    assert( np.isclose(x2 ,  0, atol=1e-2) )     
  
  
     # ------------------------------------------------------------------
@@ -95,8 +95,8 @@ def setup(solver_name):
     # Inputs
     # -------------------------------------------------------------------
 
-    #   [ tag                            , initial, (lb,ub)             , scaling , units ]
     problem.inputs = np.array([
+    #   [ tag   , initial,(   lb   ,   ub   )     , scaling , units ]
         [ 'x1'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , Units.less],
         [ 'x2'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , Units.less],
     ])
