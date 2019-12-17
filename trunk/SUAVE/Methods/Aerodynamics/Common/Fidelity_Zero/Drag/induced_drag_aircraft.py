@@ -58,8 +58,6 @@ def induced_drag_aircraft(state,settings,geometry):
     # Inviscid osward efficiency factor
     if e_inv == None:
         e_inv   = CL**2/(CDi_inv*np.pi*ar)
-    else:
-        CDi_inv = CL**2/(e_inv*np.pi*ar)
     
     # Fuselage correction for induced drag (insicid + viscous)
     CDi = CDi_inv + K*CDp*(CL**2)    

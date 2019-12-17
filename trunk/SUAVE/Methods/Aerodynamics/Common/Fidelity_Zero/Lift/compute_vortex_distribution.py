@@ -807,85 +807,19 @@ def compute_vortex_distribution(geometry,settings):
         VD.CS     = np.append(VD.CS,cs_w)        
 
     # ---------------------------------------------------------------------------------------
-    # STEP 8: Unpack aircraft fuselage geometry 
+    # STEP 8.1: Unpack aircraft fuselage geometry NOTE THAT FUSELAGE GOMETRY IS OMITTED FROM VLM
     # --------------------------------------------------------------------------------------- 
-    for fus in geometry.fuselages:  
-        fhs_xa1   = np.zeros(n_cw*n_sw)
-        fhs_ya1   = np.zeros(n_cw*n_sw)
-        fhs_za1   = np.zeros(n_cw*n_sw)
-        fhs_xa2   = np.zeros(n_cw*n_sw)
-        fhs_ya2   = np.zeros(n_cw*n_sw)
-        fhs_za2   = np.zeros(n_cw*n_sw)
-        fhs_xb1   = np.zeros(n_cw*n_sw)
-        fhs_yb1   = np.zeros(n_cw*n_sw)
-        fhs_zb1   = np.zeros(n_cw*n_sw)
-        fhs_yb2   = np.zeros(n_cw*n_sw)
-        fhs_xb2   = np.zeros(n_cw*n_sw)
-        fhs_zb2   = np.zeros(n_cw*n_sw)
-        fhs_xah   = np.zeros(n_cw*n_sw)
-        fhs_yah   = np.zeros(n_cw*n_sw)
-        fhs_zah   = np.zeros(n_cw*n_sw)
-        fhs_xbh   = np.zeros(n_cw*n_sw)
-        fhs_ybh   = np.zeros(n_cw*n_sw)
-        fhs_zbh   = np.zeros(n_cw*n_sw)
-        fhs_xch   = np.zeros(n_cw*n_sw)
-        fhs_ych   = np.zeros(n_cw*n_sw)
-        fhs_zch   = np.zeros(n_cw*n_sw)
+    for fus in geometry.fuselages:   
         fhs_xc    = np.zeros(n_cw*n_sw)
         fhs_yc    = np.zeros(n_cw*n_sw)
-        fhs_zc    = np.zeros(n_cw*n_sw)
-        fhs_xac   = np.zeros(n_cw*n_sw)
-        fhs_yac   = np.zeros(n_cw*n_sw)
-        fhs_zac   = np.zeros(n_cw*n_sw)
-        fhs_xbc   = np.zeros(n_cw*n_sw)
-        fhs_ybc   = np.zeros(n_cw*n_sw)
-        fhs_zbc   = np.zeros(n_cw*n_sw)
-        fhs_xa_te = np.zeros(n_cw*n_sw)
-        fhs_ya_te = np.zeros(n_cw*n_sw)
-        fhs_za_te = np.zeros(n_cw*n_sw)
-        fhs_xb_te = np.zeros(n_cw*n_sw)
-        fhs_yb_te = np.zeros(n_cw*n_sw)
-        fhs_zb_te = np.zeros(n_cw*n_sw) 
+        fhs_zc    = np.zeros(n_cw*n_sw) 
         fhs_x     = np.zeros((n_cw+1)*(n_sw+1))
         fhs_y     = np.zeros((n_cw+1)*(n_sw+1))
         fhs_z     = np.zeros((n_cw+1)*(n_sw+1))        
-
-        fvs_xa1   = np.zeros(n_cw*n_sw)
-        fvs_za1   = np.zeros(n_cw*n_sw)
-        fvs_ya1   = np.zeros(n_cw*n_sw)
-        fvs_xa2   = np.zeros(n_cw*n_sw)
-        fvs_za2   = np.zeros(n_cw*n_sw)
-        fvs_ya2   = np.zeros(n_cw*n_sw)
-        fvs_xb1   = np.zeros(n_cw*n_sw)
-        fvs_zb1   = np.zeros(n_cw*n_sw)
-        fvs_yb1   = np.zeros(n_cw*n_sw)
-        fvs_xb2   = np.zeros(n_cw*n_sw)
-        fvs_zb2   = np.zeros(n_cw*n_sw)
-        fvs_yb2   = np.zeros(n_cw*n_sw)
-        fvs_xah   = np.zeros(n_cw*n_sw)
-        fvs_zah   = np.zeros(n_cw*n_sw)
-        fvs_yah   = np.zeros(n_cw*n_sw)
-        fvs_xbh   = np.zeros(n_cw*n_sw)
-        fvs_zbh   = np.zeros(n_cw*n_sw)
-        fvs_ybh   = np.zeros(n_cw*n_sw)
-        fvs_xch   = np.zeros(n_cw*n_sw)
-        fvs_zch   = np.zeros(n_cw*n_sw)
-        fvs_ych   = np.zeros(n_cw*n_sw)
+  
         fvs_xc    = np.zeros(n_cw*n_sw)
         fvs_zc    = np.zeros(n_cw*n_sw)
-        fvs_yc    = np.zeros(n_cw*n_sw) 
-        fvs_xac   = np.zeros(n_cw*n_sw)
-        fvs_zac   = np.zeros(n_cw*n_sw)
-        fvs_yac   = np.zeros(n_cw*n_sw)
-        fvs_xbc   = np.zeros(n_cw*n_sw)
-        fvs_zbc   = np.zeros(n_cw*n_sw)
-        fvs_ybc   = np.zeros(n_cw*n_sw) 
-        fvs_xa_te = np.zeros(n_cw*n_sw)
-        fvs_za_te = np.zeros(n_cw*n_sw)
-        fvs_ya_te = np.zeros(n_cw*n_sw)
-        fvs_xb_te = np.zeros(n_cw*n_sw)
-        fvs_zb_te = np.zeros(n_cw*n_sw)
-        fvs_yb_te = np.zeros(n_cw*n_sw)
+        fvs_yc    = np.zeros(n_cw*n_sw)   
         fvs_x     = np.zeros((n_cw+1)*(n_sw+1))
         fvs_y     = np.zeros((n_cw+1)*(n_sw+1))
         fvs_z     = np.zeros((n_cw+1)*(n_sw+1))          
@@ -939,7 +873,7 @@ def compute_vortex_distribution(geometry,settings):
         fvs.sweep[:]      = np.concatenate([np.arctan((fvs.origin[:,0][1:] - fvs.origin[:,0][:-1])/(fvs.origin[:,2][1:]  - fvs.origin[:,2][:-1])) ,np.zeros(1)])
 
         # ---------------------------------------------------------------------------------------
-        # STEP 9: Define coordinates of panels horseshoe vortices and control points np.concatenate([np.arctan((fhs.origin[:,0][1:] - fhs.origin[:,0][:-1])/(fhs.origin[:,1][1:]  - fhs.origin[:,1][:-1])) ,0])
+        # STEP 9: Define coordinates of panels horseshoe vortices and control points  
         # ---------------------------------------------------------------------------------------        
         fhs_eta_a = h_array[:-1] 
         fhs_eta_b = h_array[1:]            
@@ -963,10 +897,10 @@ def compute_vortex_distribution(geometry,settings):
             delta_x_b = fhs.chord[idx_y + 1]/n_cw    
             delta_x   = (fhs.chord[idx_y]+fhs.chord[idx_y + 1])/(2*n_cw)
     
-            fhs_xi_a1 = fhs.origin[idx_y][0] + delta_x_a*idx_x                  # x coordinate of top left corner of panel
-            fhs_xi_ah = fhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.25 # x coordinate of left corner of panel
-            fhs_xi_a2 = fhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a      # x coordinate of bottom left corner of bound vortex 
-            fhs_xi_ac = fhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.75 # x coordinate of bottom left corner of control point vortex  
+            fhs_xi_a1 = fhs.origin[idx_y][0] + delta_x_a*idx_x                    # x coordinate of top left corner of panel
+            fhs_xi_ah = fhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.25   # x coordinate of left corner of panel
+            fhs_xi_a2 = fhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a        # x coordinate of bottom left corner of bound vortex 
+            fhs_xi_ac = fhs.origin[idx_y][0] + delta_x_a*idx_x + delta_x_a*0.75   # x coordinate of bottom left corner of control point vortex  
             fhs_xi_b1 = fhs.origin[idx_y+1][0] + delta_x_b*idx_x                  # x coordinate of top right corner of panel      
             fhs_xi_bh = fhs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
             fhs_xi_b2 = fhs.origin[idx_y+1][0] + delta_x_b*idx_x + delta_x_b      # x coordinate of bottom right corner of panel

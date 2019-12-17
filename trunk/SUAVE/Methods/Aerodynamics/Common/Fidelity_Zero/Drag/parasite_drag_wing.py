@@ -81,8 +81,7 @@ def parasite_drag_wing(state,settings,geometry):
     Sref                      = wing.areas.reference
     num_segments              = len(wing.Segments.keys())     
     
-    # if wing has segments, compute and sum parasite drag of each segment
-    
+    # if wing has segments, compute and sum parasite drag of each segment 
     xtu       = wing.transition_x_upper
     xtl       = wing.transition_x_lower     
     

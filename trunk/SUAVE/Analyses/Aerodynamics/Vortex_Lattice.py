@@ -23,12 +23,8 @@ from SUAVE.Plots import plot_vehicle_vlm_panelization
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # package imports
-import numpy as np
-import sklearn
-from sklearn import gaussian_process
-from sklearn.gaussian_process import GaussianProcessRegressor 
-from sklearn.gaussian_process.kernels   import DotProduct,  RBF, WhiteKernel, RationalQuadratic ,  ConstantKernel
-
+import numpy as np 
+from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
@@ -209,20 +205,20 @@ class Vortex_Lattice(Aerodynamics):
         h_sup = lambda M:sup_trans_spline.compute(M)          
         
         for ii,_ in enumerate(AoA):
-            if Mach[ii][0] < 1:
-                inviscid_lift[ii] = h_sub(Mach[ii])*CL_surrogate_sub.predict([np.array([AoA[ii][0],Mach[ii][0]])])    +  (1- h_sub(Mach[ii]))*CL_surrogate_trans.predict([np.array([AoA[ii][0],Mach[ii][0]])]) 
-                inviscid_drag[ii] = h_sub(Mach[ii])*CDi_surrogate_sub.predict([np.array([AoA[ii][0],Mach[ii][0]])])   +  (1- h_sub(Mach[ii]))*CDi_surrogate_trans.predict([np.array([AoA[ii][0],Mach[ii][0]])]) 
-            else: 
-                inviscid_lift[ii] = h_sup(Mach[ii])*CL_surrogate_trans.predict([np.array([AoA[ii][0],Mach[ii][0]])])  +  (1- h_sup(Mach[ii]))*CL_surrogate_sup.predict([np.array([AoA[ii][0],Mach[ii][0]])])
-                inviscid_drag[ii] = h_sup(Mach[ii])*CDi_surrogate_trans.predict([np.array([AoA[ii][0],Mach[ii][0]])]) +  (1- h_sup(Mach[ii]))*CDi_surrogate_sup.predict([np.array([AoA[ii][0],Mach[ii][0]])])
+            if Mach[ii][0] < 1: # subsonic 
+                inviscid_lift[ii] = h_sub(Mach[ii])*CL_surrogate_sub(AoA[ii][0],Mach[ii][0])[0]    +  (1- h_sub(Mach[ii]))*CL_surrogate_trans(AoA[ii][0],Mach[ii][0])[0] 
+                inviscid_drag[ii] = h_sub(Mach[ii])*CDi_surrogate_sub(AoA[ii][0],Mach[ii][0])[0]   +  (1- h_sub(Mach[ii]))*CDi_surrogate_trans(AoA[ii][0],Mach[ii][0])[0] 
+            else: # supersonic 
+                inviscid_lift[ii] = h_sup(Mach[ii])*CL_surrogate_trans(AoA[ii][0],Mach[ii][0])[0]  +  (1- h_sup(Mach[ii]))*CL_surrogate_sup(AoA[ii][0],Mach[ii][0])[0]
+                inviscid_drag[ii] = h_sup(Mach[ii])*CDi_surrogate_trans(AoA[ii][0],Mach[ii][0])[0] +  (1- h_sup(Mach[ii]))*CDi_surrogate_sup(AoA[ii][0],Mach[ii][0])[0]
 
             for wing in geometry.wings.keys():
-                if Mach[ii][0] < 1:
-                    inviscid_wing_lifts = h_sub(Mach[ii])*wing_CL_surrogates_sub[wing].predict([np.array([AoA[ii][0],Mach[ii][0]])])    +  (1- h_sub(Mach[ii]))*wing_CL_surrogates_trans[wing].predict([np.array([AoA[ii][0],Mach[ii][0]])]) 
-                    inviscid_wing_drags = h_sub(Mach[ii])*wing_CDi_surrogates_sub[wing].predict([np.array([AoA[ii][0],Mach[ii][0]])])   +  (1- h_sub(Mach[ii]))*wing_CDi_surrogates_trans[wing].predict([np.array([AoA[ii][0],Mach[ii][0]])]) 
-                else: 
-                    inviscid_wing_lifts = h_sup(Mach[ii])*wing_CL_surrogates_trans[wing].predict([np.array([AoA[ii][0],Mach[ii][0]])])  +  (1- h_sup(Mach[ii]))*wing_CL_surrogates_sup[wing].predict([np.array([AoA[ii][0],Mach[ii][0]])])
-                    inviscid_wing_drags = h_sup(Mach[ii])*wing_CDi_surrogates_trans[wing].predict([np.array([AoA[ii][0],Mach[ii][0]])]) +  (1- h_sup(Mach[ii]))*wing_CDi_surrogates_sup[wing].predict([np.array([AoA[ii][0],Mach[ii][0]])])
+                if Mach[ii][0] < 1: # subsonic 
+                    inviscid_wing_lifts = h_sub(Mach[ii])*wing_CL_surrogates_sub[wing](AoA[ii][0],Mach[ii][0])[0]    +  (1- h_sub(Mach[ii]))*wing_CL_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0] 
+                    inviscid_wing_drags = h_sub(Mach[ii])*wing_CDi_surrogates_sub[wing](AoA[ii][0],Mach[ii][0])[0]  +  (1- h_sub(Mach[ii]))*wing_CDi_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0] 
+                else: # supersonic
+                    inviscid_wing_lifts = h_sup(Mach[ii])*wing_CL_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0]  +  (1- h_sup(Mach[ii]))*wing_CL_surrogates_sup[wing](AoA[ii][0],Mach[ii][0])[0]
+                    inviscid_wing_drags = h_sup(Mach[ii])*wing_CDi_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0] +  (1- h_sup(Mach[ii]))*wing_CDi_surrogates_sup[wing](AoA[ii][0],Mach[ii][0])[0]
                  
                 conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]          = inviscid_wing_lifts
                 conditions.aerodynamics.lift_breakdown.compressible_wings[wing]           = inviscid_wing_lifts      
@@ -338,30 +334,21 @@ class Vortex_Lattice(Aerodynamics):
         
         
         # Assign placeholders        
-        CL_sub    = np.zeros([len(AoA)*len(Mach_sub),1])
-        CL_sup    = np.zeros([len(AoA)*len(Mach_sup),1])
-        CDi_sub   = np.zeros([len(AoA)*len(Mach_sub),1])
-        CDi_sup   = np.zeros([len(AoA)*len(Mach_sup),1])
+        CL_sub    = np.zeros((len(AoA),len(Mach_sub)))
+        CL_sup    = np.zeros_like(CL_sub)  
+        CDi_sub   = np.zeros_like(CL_sub)
+        CDi_sup   = np.zeros_like(CL_sub)
         CL_w_sub  = Data()
         CL_w_sup  = Data()
         CDi_w_sub = Data()
         CDi_w_sup = Data() 
         for wing in geometry.wings.keys():
-            CL_w_sub[wing]  = np.zeros([len(AoA)*len(Mach_sub),1])
-            CL_w_sup[wing]  = np.zeros([len(AoA)*len(Mach_sup),1])
-            CDi_w_sub[wing] = np.zeros([len(AoA)*len(Mach_sub),1])
-            CDi_w_sup[wing] = np.zeros([len(AoA)*len(Mach_sup),1])
-        
-        # Calculate aerodynamics for table
-        table_size     = len(AoA)*len(Mach_sub)
-        xy_sub         = np.zeros([table_size,2])  
-        xy_sup         = np.zeros([table_size,2])  
-        for i,_ in enumerate(Mach_sub):
-            for j,_ in enumerate(AoA):
-                xy_sub[i*len(Mach_sub)+j,:] = np.array([AoA[j][0],Mach_sub[i][0]])
-                xy_sup[i*len(Mach_sup)+j,:] = np.array([AoA[j][0],Mach_sup[i][0]])
-        
-        # Get the training data        
+            CL_w_sub[wing]  = np.zeros_like(CL_sub)
+            CL_w_sup[wing]  = np.zeros_like(CL_sub)
+            CDi_w_sub[wing] = np.zeros_like(CL_sub)
+            CDi_w_sup[wing] = np.zeros_like(CL_sub)
+                
+        # Get the training data 
         count = 0
         for mach_sub, mach_sup in zip(Mach_sub, Mach_sup):
             konditions.freestream.mach_number = mach_sub*np.ones_like(AoA) 
@@ -375,22 +362,20 @@ class Vortex_Lattice(Aerodynamics):
                 calculate_VLM(konditions,settings,geometry)
             
             # store training data
-            CL_sub[count*len(Mach_sub):(count+1)*len(Mach_sub),0]                = total_lift_sub[:,0]
-            CL_sup[count*len(Mach_sup):(count+1)*len(Mach_sup),0]                = total_lift_sup[:,0]
-            CDi_sub[count*len(Mach_sub):(count+1)*len(Mach_sub),0]               = total_drag_sub[:,0]                
-            CDi_sup[count*len(Mach_sup):(count+1)*len(Mach_sup),0]               = total_drag_sup[:,0]           
+            CL_sub[:,count]   = total_lift_sub[:,0]
+            CL_sup[:,count]   = total_lift_sup[:,0]
+            CDi_sub[:,count]  = total_drag_sub[:,0]                
+            CDi_sup[:,count]  = total_drag_sup[:,0]           
             for wing in geometry.wings.keys():
-                CL_w_sub[wing][count*len(Mach_sub):(count+1)*len(Mach_sub),0]    = wing_lifts_sub[wing][:,0]
-                CL_w_sup[wing][count*len(Mach_sup):(count+1)*len(Mach_sup),0]    = wing_lifts_sup[wing][:,0]
-                CDi_w_sub[wing][count*len(Mach_sub):(count+1)*len(Mach_sub),0]   = wing_drags_sub[wing][:,0]                 
-                CDi_w_sup[wing][count*len(Mach_sup):(count+1)*len(Mach_sup),0]   = wing_drags_sup[wing][:,0]                
+                CL_w_sub[wing][:,count]    = wing_lifts_sub[wing][:,0]
+                CL_w_sup[wing][:,count]    = wing_lifts_sup[wing][:,0]
+                CDi_w_sub[wing][:,count]   = wing_drags_sub[wing][:,0]                 
+                CDi_w_sup[wing][:,count]   = wing_drags_sup[wing][:,0]                
             
             count += 1 
             
         # surrogate not run on sectional coefficients and pressure coefficients
-        # Store training data
-        training.grid_points_sub              = xy_sub
-        training.grid_points_sup              = xy_sup
+        # Store training data 
         training.lift_coefficient_sub         = CL_sub
         training.lift_coefficient_sup         = CL_sup
         training.wing_lift_coefficient_sub    = CL_w_sub        
@@ -439,52 +424,38 @@ class Vortex_Lattice(Aerodynamics):
         CL_w_data_sup  = training.wing_lift_coefficient_sup     
         CDi_w_data_sub = training.wing_drag_coefficient_sub         
         CDi_w_data_sup = training.wing_drag_coefficient_sup 
-        xy_sub         = training.grid_points_sub
-        xy_sup         = training.grid_points_sup
         
-        dim_mac_sub = len(mach_data_sub)
-        dim_mac_sup = len(mach_data_sup)
-        
-        # transonic regime 
-        edge_xy_sub          = xy_sub[-dim_mac_sup:,:]      
-        edge_xy_sup          = xy_sup[0:dim_mac_sub,:]           
-        edge_CL_data_sub     = CL_data_sub[-dim_mac_sup:,:]  
-        edge_CL_data_sup     = CL_data_sup[0:dim_mac_sub,:]    
-        edge_CDi_data_sub    = CDi_data_sub[-dim_mac_sup:,:]   
-        edge_CDi_data_sup    = CDi_data_sup[0:dim_mac_sub,:]  
-        
-        xy_trans             = np.atleast_2d(np.concatenate((edge_xy_sub        , edge_xy_sup        ), axis = 0))      
-        CL_data_trans        = np.atleast_2d(np.concatenate((edge_CL_data_sub   , edge_CL_data_sup   ), axis = 0))       
-        CDi_data_trans       = np.atleast_2d(np.concatenate((edge_CDi_data_sub  , edge_CDi_data_sup  ), axis = 0)) 
-        
+        # transonic regime   
+        CL_data_trans  = np.zeros((len(mach_data_sub),2))
+        CL_data_trans  = np.zeros_like(CL_data_trans)
+        CDi_data_trans = np.zeros_like(CL_data_trans)
+        CDi_data_trans = np.zeros_like(CL_data_trans)
         CL_w_data_trans      = Data()
-        CDi_w_data_trans     = Data()
+        CDi_w_data_trans     = Data()        
+        
+        CL_data_trans[:,0]   = CL_data_sub[:,-1]    
+        CL_data_trans[:,1]   = CL_data_sup[:,0] 
+        CDi_data_trans[:,0]  = CDi_data_sub[:,-1]
+        CDi_data_trans[:,1]  = CDi_data_sup[:,0]  
+        mach_data_trans      = np.array([mach_data_sub[-1],mach_data_sup[0]]) 
         for wing in geometry.wings.keys():
-            edge_CL_w_data_sub     = CL_w_data_sub[wing][-dim_mac_sup:,:]
-            edge_CL_w_data_sup     = CL_w_data_sup[wing][0:dim_mac_sub,:]  
-            edge_CDi_w_data_sub    = CDi_w_data_sub[wing][-dim_mac_sup:,:]
-            edge_CDi_w_data_sup    = CDi_w_data_sup[wing][0:dim_mac_sub,:] 
-            CL_w_data_trans[wing]  = np.atleast_2d(np.concatenate((edge_CL_w_data_sub , edge_CL_w_data_sup ), axis = 0)).T 
-            CDi_w_data_trans[wing] = np.atleast_2d(np.concatenate((edge_CDi_w_data_sub, edge_CDi_w_data_sup), axis = 0)).T 
+            CLw         = np.zeros((len(AoA_data),2))
+            CLw[:,0]    = CL_w_data_sub[wing][:,-1]   
+            CLw[:,1]    = CL_w_data_sup[wing][:,0] 
+            CDiw        = np.zeros((len(AoA_data),2))            
+            CDiw[:,0]   = CDi_w_data_sub[wing][:,-1]   
+            CDiw[:,1]   = CDi_w_data_sup[wing][:,0] 
             
+            CL_w_data_trans[wing]  = CDiw
+            CDi_w_data_trans[wing] = CDiw 
         
-        # Gaussian Process drag is noisy
-        gpr_kernel_sub  = RBF(length_scale=0.1, length_scale_bounds=(1e-05, 1e-3))  
-        gpr_kernel_sup  = RBF(length_scale=0.1, length_scale_bounds=(1e-05, 1e1)) + WhiteKernel(noise_level = 0.2, noise_level_bounds=(1e-06, 1e-03))
-        rbf             = RBF(length_scale= 0.1)
-        regr_cl_sub                    = GaussianProcessRegressor(kernel=rbf, alpha= 1e-3**2)
-        regr_cl_sup                    = GaussianProcessRegressor(kernel = gpr_kernel_sup)
-        regr_cl_trans                  = GaussianProcessRegressor() 
-        regr_cdi_sub                   = GaussianProcessRegressor(kernel = gpr_kernel_sub)        
-        regr_cdi_sup                   = GaussianProcessRegressor(kernel = gpr_kernel_sup)
-        regr_cdi_trans                 = GaussianProcessRegressor()
-        
-        CL_surrogate_sub               = regr_cl_sub.fit(xy_sub, CL_data_sub)
-        CL_surrogate_sup               = regr_cl_sup.fit(xy_sup, CL_data_sup)
-        CL_surrogate_trans             = regr_cl_trans.fit(xy_trans, CL_data_trans)
-        CDi_surrogate_sub              = regr_cdi_sub.fit(xy_sub, CDi_data_sub)       
-        CDi_surrogate_sup              = regr_cdi_sup.fit(xy_sup, CDi_data_sup)
-        CDi_surrogate_trans            = regr_cdi_trans.fit(xy_trans, CDi_data_trans) 
+        SMOOTHING = 0.1 
+        CL_surrogate_sub               = RectBivariateSpline(AoA_data, mach_data_sub, CL_data_sub, s=SMOOTHING)  
+        CL_surrogate_sup               = RectBivariateSpline(AoA_data, mach_data_sup, CL_data_sup, s=SMOOTHING) 
+        CL_surrogate_trans             = interp2d(AoA_data.T[0], mach_data_trans.T[0], CL_data_trans.T,kind = 'linear') 
+        CDi_surrogate_sub              = RectBivariateSpline(AoA_data, mach_data_sub, CDi_data_sub, s=SMOOTHING)  
+        CDi_surrogate_sup              = RectBivariateSpline(AoA_data, mach_data_sup, CDi_data_sup, s=SMOOTHING) 
+        CDi_surrogate_trans            = interp2d(AoA_data.T[0], mach_data_trans.T[0], CDi_data_trans.T,kind = 'linear')  
         
         CL_w_surrogates_sub            = Data() 
         CL_w_surrogates_sup            = Data() 
@@ -493,20 +464,14 @@ class Vortex_Lattice(Aerodynamics):
         CDi_w_surrogates_sup           = Data() 
         CDi_w_surrogates_trans         = Data()
         
-        for wing in geometry.wings.keys():
-            regr_cl_w_sub                = gaussian_process.GaussianProcessRegressor()
-            regr_cl_w_sup                = gaussian_process.GaussianProcessRegressor()
-            regr_cl_w_trans              = gaussian_process.GaussianProcessRegressor()
-            regr_cdi_w_sub               = gaussian_process.GaussianProcessRegressor()               
-            regr_cdi_w_sup               = gaussian_process.GaussianProcessRegressor()
-            regr_cdi_w_trans             = gaussian_process.GaussianProcessRegressor()    
-            CL_w_surrogates_sub[wing]    = regr_cl_w_sub.fit(xy_sub, CL_w_data_sub[wing])   
-            CL_w_surrogates_sup[wing]    = regr_cl_w_sup.fit(xy_sup, CL_w_data_sup[wing])   
-            CL_w_surrogates_trans[wing]  = regr_cl_w_sup.fit(xy_sup, CL_w_data_sup[wing])   
-            CDi_w_surrogates_sub[wing]   = regr_cdi_w_sub.fit(xy_sub, CDi_w_data_sub[wing])            
-            CDi_w_surrogates_sup[wing]   = regr_cdi_w_sup.fit(xy_sup, CDi_w_data_sup[wing])
-            CDi_w_surrogates_trans[wing] = regr_cdi_w_sub.fit(xy_sub, CDi_w_data_sub[wing])           
-   
+        for wing in geometry.wings.keys():    
+            CL_w_surrogates_sub[wing]    = RectBivariateSpline(AoA_data, mach_data_sub, CL_w_data_sub[wing], s=SMOOTHING) 
+            CL_w_surrogates_sup[wing]    = RectBivariateSpline(AoA_data, mach_data_sub, CL_w_data_sup[wing], s=SMOOTHING) 
+            CL_w_surrogates_trans[wing]  = interp2d(AoA_data.T[0], mach_data_trans.T[0], CL_w_data_trans[wing].T,kind = 'linear') 
+            CDi_w_surrogates_sub[wing]   = RectBivariateSpline(AoA_data, mach_data_sub, CDi_w_data_sub[wing], s=SMOOTHING)            
+            CDi_w_surrogates_sup[wing]   = RectBivariateSpline(AoA_data, mach_data_sub, CDi_w_data_sup[wing], s=SMOOTHING) 
+            CDi_w_surrogates_trans[wing] = interp2d(AoA_data.T[0], mach_data_trans.T[0], CDi_w_data_trans[wing].T,kind = 'linear')           
+    
         # Pack the outputs
         surrogates.lift_coefficient_sub        = CL_surrogate_sub  
         surrogates.lift_coefficient_sup        = CL_surrogate_sup  

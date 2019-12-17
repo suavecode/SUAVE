@@ -103,29 +103,4 @@ def read_results(avl_object):
         
             results.append(case_res)        
        
-        #------------------------------------------------------------------------------------------
-        #          SUAVE-AVL dynamic stability analysis under development
-        #          
-        #with open(case.eigen_result_filename,'r') as eigen_res_file:
-            #lines   = eigen_res_file.readlines()
-            #index = i*8
-            #case_res.stability.roll_mode_real             = float(lines[3+index][11:26].strip())
-            #case_res.stability.dutch_roll_mode_1_real     = float(lines[4+index][11:26].strip())
-            #case_res.stability.dutch_roll_mode_1_imag     = float(lines[4+index][29:40].strip())
-            #case_res.stability.dutch_roll_mode_2_real     = float(lines[5+index][11:26].strip())
-            #case_res.stability.dutch_roll_mode_2_imag     = float(lines[5+index][11:26].strip())
-            #case_res.stability.short_period_mode_1_real   = float(lines[6+index][29:40].strip())
-            #case_res.stability.short_period_mode_1_imag   = float(lines[6+index][11:26].strip())
-            #case_res.stability.short_period_mode_2_real   = float(lines[7+index][29:40].strip())
-            #case_res.stability.short_period_mode_2_imag   = float(lines[7+index][11:26].strip())
-            #case_res.stability.spiral_mode_real           = float(lines[8+index][29:40].strip())
-            #case_res.stability.phugoid_mode_1_real        = float(lines[9+index][11:26].strip())
-            #case_res.stability.phugoid_mode_1_imag        = float(lines[9+index][29:40].strip())
-            #case_res.stability.phugoid_mode_2_real        = float(lines[10+index][11:26].strip())                        
-            #case_res.stability.phugoid_mode_2_imag        = float(lines[10+index][29:40].strip())
-            
-        #i += 1
-        #results.append(case_res)
-        #
-        #------------------------------------------------------------------------------------------
     return results
