@@ -25,6 +25,8 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import
 # package imports
 import numpy as np 
 from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
+from scipy.optimize import curve_fit 
+
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
@@ -397,10 +399,10 @@ class Vortex_Lattice(Aerodynamics):
         see properties used
         Outputs:
         self.surrogates.
-          lift_coefficient            <np.poly1d>
-          wing_lift_coefficient       <np.poly1d> (multiple surrogates)
-          drag_coefficient            <np.poly2d>
-          wing_drag_coefficient       <np.poly2d> (multiple surrogates)
+          lift_coefficient            
+          wing_lift_coefficient       
+          drag_coefficient            
+          wing_drag_coefficient       
         Properties Used:
         self.training.
           lift_coefficient            [-] 
