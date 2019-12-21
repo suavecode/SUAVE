@@ -185,9 +185,9 @@ class AVL_Inviscid(Aerodynamics):
         span_efficiency = np.zeros([data_len,1]) 
         
         for ii,_ in enumerate(AoA):
-            inviscid_lift[ii]   = lift_model(AoA[ii][0],mach[ii]) 
-            inviscid_drag[ii]   = drag_model(AoA[ii][0],mach[ii]) 
-            span_efficiency[ii] = e_model(AoA[ii][0],mach[ii]) 
+            inviscid_lift[ii]   = lift_model(AoA[ii][0],mach[ii][0]) 
+            inviscid_drag[ii]   = drag_model(AoA[ii][0],mach[ii][0]) 
+            span_efficiency[ii] = e_model(AoA[ii][0],mach[ii][0]) 
         
         # Store inviscid lift results     
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift = Data()
@@ -253,31 +253,40 @@ class AVL_Inviscid(Aerodynamics):
             run_conditions.freestream.gravity           = 9.81        
             run_conditions.aerodynamics.angle_of_attack = AoA 
             run_conditions.freestream.mach_number       = mach[i]
-            
-            # Run Analysis at AoA[i] and mach[j]
+             
             results = self.evaluate_conditions(run_conditions)
             
             # Obtain CD , CL and e  
             CL[:,i] = results.aerodynamics.lift_coefficient[:,0]
             CD[:,i] = results.aerodynamics.drag_breakdown.induced.total[:,0]      
             e [:,i] = results.aerodynamics.drag_breakdown.induced.efficiency_factor[:,0]  
-             
-        if self.training_file:
-            data_array = np.loadtxt(self.training_file) 
-            CL         = data_array[0,:,:]
-            CD         = data_array[1,:,:]            
-            e          = data_array[2,:,:]
         
+        if self.training_file:
+            # load data 
+            data_array = np.loadtxt(self.training_file)  
+            CL_1D         = np.atleast_2d(data_array[:,0]) 
+            CD_1D         = np.atleast_2d(data_array[:,1])            
+            e_1D          = np.atleast_2d(data_array[:,2])
+            
+            # convert from 1D to 2D
+            CL = np.reshape(CL_1D, (len(AoA),-1))
+            CD = np.reshape(CD_1D, (len(AoA),-1))
+            e  = np.reshape(e_1D , (len(AoA),-1))
+        
+        # Save the data for regression
+        if self.save_regression_results: 
+            # convert from 2D to 1D
+            CL_1D = CL.reshape([len(AoA)*len(mach),1]) 
+            CD_1D = CD.reshape([len(AoA)*len(mach),1])  
+            e_1D  = e.reshape([len(AoA)*len(mach),1]) 
+            np.savetxt(geometry.tag+'_aero_data.txt',np.hstack([CL_1D,CD_1D,e_1D]),fmt='%10.8f',header='  CL      CD      e  ')
+          
         # Save the data for regression
         training_data = np.zeros((3,len(AoA),len(mach)))
         training_data[0,:,:] = CL 
         training_data[1,:,:] = CD 
         training_data[2,:,:] = e  
-        
-        # Uncomment the line below when running regression to update stored data,
-        # then re-comment the line below and rerun the regression 
-        #np.savetxt(geometry.tag+'_data_aerodynamics.txt',training_data,fmt='%10.8f',header='   AoA      Mach     CL     CD    e ')
-        
+            
         # Store training data
         training.coefficients = training_data
 

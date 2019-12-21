@@ -11,12 +11,11 @@
 
 import SUAVE
 import numpy as np
-from SUAVE.Core import Units
+from SUAVE.Core import Units , Data
 from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_propeller_airfoils
 # ----------------------------------------------------------------------
 #  Propeller Design
 # ----------------------------------------------------------------------
-    
 def propeller_design(prop,N=20):
     """ Optimizes propeller chord and twist given input parameters.
           
@@ -206,7 +205,7 @@ def propeller_design(prop,N=20):
         c_blade    = np.linspace(0,c[idx],20)          # local chord  
         t          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
         t_max[idx] = np.max(t)                       
-
+ 
     prop.max_thickness_distribution = t_max
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
@@ -221,5 +220,4 @@ def propeller_design(prop,N=20):
         if dim_sec != N:
             raise AssertionError("Number of sections not equal to number of stations")
         prop.airfoil_data = read_propeller_airfoils(a_sec)  
-    
     return prop

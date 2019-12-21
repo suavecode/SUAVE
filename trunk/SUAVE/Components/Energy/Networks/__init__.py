@@ -12,9 +12,10 @@ from .Turbojet_Super                          import Turbojet_Super
 from .Solar_Low_Fidelity                      import Solar_Low_Fidelity
 from .Battery_Ducted_Fan                      import Battery_Ducted_Fan
 from .Internal_Combustion_Propeller           import Internal_Combustion_Propeller
-from .Stopped_Rotor                           import Stopped_Rotor
-from .Stopped_Rotor_Low_Fidelity              import Stopped_Rotor_Low_Fidelity
-from .Tilt_Rotor                              import Tilt_Rotor
+from .Lift_Cruise                             import Lift_Cruise
+from .Lift_Cruise_Low_Fidelity                import Lift_Cruise_Low_Fidelity
+from .Vectored_Thrust                         import Vectored_Thrust
+from .Vectored_Thrust_Low_Fidelity            import Vectored_Thrust_Low_Fidelity
 from .Propulsor_Surrogate                     import Propulsor_Surrogate
 from .Battery_Propeller                       import Battery_Propeller
 from .Ramjet                                  import Ramjet

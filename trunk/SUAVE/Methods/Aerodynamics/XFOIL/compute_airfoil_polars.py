@@ -10,7 +10,6 @@ from SUAVE.Core import Data , Units
 import numpy as np
 
 ## @ingroup Methods-Aerodynamics-XFOIL
-
 def  compute_airfoil_polars(propeller,conditions,airfoils):
      num_airfoils = len(airfoils)
      # unpack 

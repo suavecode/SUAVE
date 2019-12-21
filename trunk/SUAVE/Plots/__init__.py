@@ -17,6 +17,6 @@ from .Mission_Plots import plot_solar_flux
 from .Mission_Plots import plot_lift_cruise_network  
 from .Mission_Plots import create_video_frames
 from .Mission_Plots import plot_lift_distribution
-
+from .Mission_Plots import plot_rotor_acoustics 
 from .Vehicle_Plots import plot_vehicle_vlm_panelization
 from .Vehicle_Plots import plot_propeller_geometry

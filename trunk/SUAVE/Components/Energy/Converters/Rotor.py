@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Converters
-# Propeller.py
+# Rotor.py
 #
 # Created:  Jun 2014, E. Botero
 # Modified: Jan 2016, T. MacDonald
@@ -8,24 +8,31 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import compute_airfoil_polars
-from SUAVE.Methods.Geometry.Three_Dimensional \
-     import angles_to_dcms, orientation_product, orientation_transpose
 
 # package imports
 import numpy as np
 import scipy as sp
+from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Core import Data, Units
 import scipy.optimize as opt
 from scipy.optimize import fsolve
+from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import compute_airfoil_polars
+from SUAVE.Methods.Geometry.Three_Dimensional \
+     import angles_to_dcms, orientation_product, orientation_transpose
+
 from warnings import warn
+
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
 
 # ----------------------------------------------------------------------
 #  Propeller Class
 # ----------------------------------------------------------------------    
 ## @ingroup Components-Energy-Converters
-class Propeller(Energy_Component):
+class Rotor(Energy_Component):
     """This is a propeller component.
     
     Assumptions:
@@ -59,8 +66,9 @@ class Propeller(Energy_Component):
         self.radius_distribution      = None
         self.rotation                 = None
         self.ducted                   = False
-        self.induced_power_factor     = 1.48  #accounts for interference effects
-        self.profile_drag_coefficient = .03        
+        self.induced_power_factor     = 1.15  #accounts for interference effeces
+        self.profile_drag_coefficient = .01
+        self.lift_curve_slope         = 2*np.pi
         self.tag                      = 'Propeller'
         
     def spin(self,conditions):
@@ -135,7 +143,8 @@ class Propeller(Energy_Component):
         
         BB     = B*B
         BBB    = BB*B
-            
+        disk_area  = np.pi*(R**2)
+        kappa    = self.induced_power_factor 
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
@@ -149,7 +158,7 @@ class Propeller(Energy_Component):
             body2thrust = np.zeros((len(theta),3,3))
             for i in range(len(theta)):
                 body2thrust[i,:,:] = [[np.cos(theta[i][0]), 0., np.sin(theta[i][0])],[0., 1., 0.], [-np.sin(theta[i][0]), 0., np.cos(theta[i][0])]]
-            T_body2thrust      = orientation_transpose(body2thrust)
+            T_body2thrust      = orientati88on_transpose(body2thrust)
        
         V_thrust      = orientation_product(T_body2thrust,V_body)
         
@@ -157,27 +166,36 @@ class Propeller(Energy_Component):
         V = V_thrust[:,0,None]
         
         ua = np.zeros_like(V)
+        power_ratio = np.zeros_like(V)
         if Vh != None:   
             for i in range(len(V)):
                 V_inf = V_thrust[i] 
                 V_Vh =  V_thrust[i][0]/Vh
-                if Vv[i,:].all()  == True :
+            
+                if Vv[i,:].all()  == 0 :
                     ua[i] = Vh
                 elif Vv[i][0]  == 0 and  Vv[i][2] != 0: # vertical / axial flight
                     if V_Vh > 0: # climbing 
-                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                        ua[i] =Vh*(-.5*V_Vh+np.sqrt((.5*V_Vh)**2+1)) #Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                        
                     elif -2 <= V_Vh and V_Vh <= 0:  # slow descent                 
-                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718*(V_Vh)**2 - 0.655*(V_Vh)**4 ) 
+                        ua[i] = Vh*(1.15-V_Vh)#Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718*(V_Vh)**2 - 0.655*(V_Vh)**4 ) 
                     else: # windmilling 
                         print("rotor is in the windmill break state!")
                         ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) - np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                
+                
                 else: # forward flight conditions                 
                     func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[2])**2 + (V_inf[0] + vi)**2)))
                     vi_initial_guess = V_inf[0]
                     ua[i]    = fsolve(func,vi_initial_guess)
+           
+                power_ratio[i] = ua[i]/Vh+V_Vh
+                
+               
         else: 
             ua = 0.0 
- 
+        
         ut = 0.0
         
         nu    = mu/rho
@@ -218,8 +236,7 @@ class Propeller(Energy_Component):
         J       = V/(2.*R*n)    
         #sigma   = np.multiply(B*c,1./(2.*pi*r))
         blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
-        sigma   = blade_area[-1]/(pi*r[-1]**2)   
-        
+        sigma   = blade_area[-1]/(pi*r[-1]**2)
         omegar = np.outer(omega,r)
         Ua = np.outer((V + ua),np.ones_like(r))
         Ut = omegar - ut
@@ -267,7 +284,7 @@ class Propeller(Energy_Component):
             Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-            Cl = 2.*pi*alpha
+            Cl = alpha*self.lift_curve_slope
             
             # By 90 deg, it's totally stalled.
             Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
@@ -333,31 +350,40 @@ class Propeller(Energy_Component):
         Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
         
         Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 
-        
         epsilon  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
         deltar   = (r[1]-r[0])
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
         D        = 2*R 
-        Ct       = thrust/(rho*(n*n)*(D*D*D*D))
-        Ct[Ct<0] = 0.        #prevent things from breaking
-        kappa    = self.induced_power_factor 
-        Cd0      = self.profile_drag_coefficient   
+        tip_speed = omega*R
+        #Leishman's thrust coefficient
+        #for rotor
+        Ctl       = thrust/(rho*disk_area*( tip_speed*tip_speed))   #thrust/(rho*(n*n)*(D*D*D*D))
+        Ctl[Ctl<0] = 0.        #prevent things from breaking
+        #motor thrust coefficient
+        Ct    = thrust/(rho*(n*n)*(D*D*D*D)) #used for motor model
+        Ct[Ct<0] = 0.  
+        Cd0    = self.profile_drag_coefficient   
         Cp    = np.zeros_like(Ct)
+        Cpl   = np.zeros_like(Ct)
         power = np.zeros_like(Ct)        
         for i in range(len(Vv)):
+
+            
             if -1. <Vv[i][0] <1.: # vertical/axial flight
-                Cp[i]       = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
-                power[i]    = Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
-                torque[i]   = power[i]/omega[i]  
-            else:  
+                #note Leishmann has a different definition of power and torque coefficient
+                Cpl[i]      = (kappa*(Ctl[i]**1.5)/(2**.5))+sigma*Cd0/8.
+                power[i]    =Cpl[i]* rho[i]*disk_area*(tip_speed[i]*tip_speed[i]*tip_speed[i])#Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+                torque[i]   = power[i]/omega[i]   #
+                
+                
+            else:     
+    
                 power[i]    = torque[i]*omega[i]   
-                Cp[i]       = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
-
-
+            Cp[i]       = (rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))#power[i]/rho[i]*disk_area*(tip_speed[i]*tip_speed[i]*tip_speed[i])#(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+               
         
-  
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         
@@ -387,12 +413,12 @@ class Propeller(Energy_Component):
             drag_coefficient          = Cd,
             lift_coefficient          = Cl,       
             omega                     = omega,          
-            
+            tip_speed                 = tip_speed,
             blade_dT_dR               = rho*(Gamma*(Wt-epsilon*Wa)),   
             blade_dT_dr               = rho*(Gamma*(Wt-epsilon*Wa))*R,  
             blade_T_distribution      = rho*(Gamma*(Wt-epsilon*Wa))*deltar, 
             blade_T                   = thrust/B,  
-            Ct                        = 0, 
+            Ct                        = Ct, #0, 
             Cts                       = 0, 
             
             blade_dQ_dR               = rho*(Gamma*(Wa+epsilon*Wt)*r), 
@@ -405,7 +431,9 @@ class Propeller(Energy_Component):
             
             mid_chord_aligment        = self.mid_chord_aligment     
         ) 
-        
+
+
+ 
         return thrust, torque, power, Cp, outputs  , etap  
 
 
@@ -434,27 +462,27 @@ class Propeller(Energy_Component):
        
            """
            
-        #Unpack            
-        B      = self.number_blades
-        R      = self.tip_radius
-        Rh     = self.hub_radius
+        #Unpack    
+        B       = self.number_blades
+        R       = self.tip_radius
+        Rh      = self.hub_radius        
         beta_in = self.twist_distribution
-        c      = self.chord_distribution
-        omega1 = self.inputs.omega 
+        c       = self.chord_distribution
+        Vh      = self.induced_hover_velocity 
+        omega1  = self.inputs.omega
         a_sec  = self.airfoil_sections        
-        a_secl = self.airfoil_section_location        
-        rho    = conditions.freestream.density[:,0,None]
-        mu     = conditions.freestream.dynamic_viscosity[:,0,None]
-        Vv     = conditions.frames.inertial.velocity_vector
-        Vh     = self.induced_hover_velocity 
-        a      = conditions.freestream.speed_of_sound[:,0,None]
-        T      = conditions.freestream.temperature[:,0,None]
-        theta  = self.thrust_angle
-        tc     = .12 # Thickness to chord
+        a_secl = self.airfoil_section_location         
+        rho     = conditions.freestream.density[:,0,None]
+        mu      = conditions.freestream.dynamic_viscosity[:,0,None]
+        Vv      = conditions.frames.inertial.velocity_vector
+        a       = conditions.freestream.speed_of_sound[:,0,None]
+        T       = conditions.freestream.temperature[:,0,None]
+        theta   = self.thrust_angle
+        tc      = .12 # Thickness to chord
         beta_c  = conditions.propulsion.pitch_command
         ducted  = self.ducted
         
-        beta   = beta_in + beta_c        
+        beta   = beta_in + beta_c
         
         BB     = B*B
         BBB    = BB*B
@@ -490,7 +518,7 @@ class Propeller(Energy_Component):
                     if V_Vh > 0: # climbing 
                         ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
                     elif -2 <= V_Vh and V_Vh <= 0:  # slow descent                 
-                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718*(V_Vh)**2 - 0.655*(V_Vh)**4 ) 
+                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718(V_Vh)**2 - 0.655(V_Vh)**4 ) 
                     else: # windmilling 
                         print("rotor is in the windmill break state!")
                         ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) - np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
@@ -500,15 +528,15 @@ class Propeller(Energy_Component):
                     ua[i]    = fsolve(func,vi_initial_guess)
         else: 
             ua = 0.0 
- 
-        ut = 0.0
+            
+        ut = 0.0 
         
         nu    = mu/rho
-        tol   = 1e-5 # Convergence tolerance
+        tol   = 1e-6 # Convergence tolerance
         
         omega = omega1*1.0
         omega = np.abs(omega)
-        
+           
         #Things that don't change with iteration
         N       = len(c) # Number of stations     
         
@@ -531,7 +559,7 @@ class Propeller(Energy_Component):
         
         else:
             chi = self.radius_distribution
-        
+            
         lamda   = V/(omega*R)              # Speed ratio
         r       = chi*R                    # Radial coordinate
         pi      = np.pi
@@ -539,10 +567,7 @@ class Propeller(Energy_Component):
         x       = r*np.multiply(omega,1/V) # Nondimensional distance
         n       = omega/(2.*pi)            # Cycles per second
         J       = V/(2.*R*n)    
-        #sigma   = np.multiply(B*c,1./(2.*pi*r))
-        blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
-        sigma   = blade_area[-1]/(pi*r[-1]**2)   
-        
+        sigma   = np.multiply(B*c,1./(2.*pi*r))          
         omegar = np.outer(omega,r)
         Ua = np.outer((V + ua),np.ones_like(r))
         Ut = omegar - ut
@@ -552,12 +577,12 @@ class Propeller(Energy_Component):
         size = (len(a),N)
     
         #Setup a Newton iteration
-        psi    = np.ones(size)
+        psi    = np.ones(size)*0.5
         psiold = np.zeros(size)
         diff   = 1.
         
         ii = 0
-        broke = False        
+        broke = False
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -595,13 +620,13 @@ class Propeller(Energy_Component):
             # By 90 deg, it's totally stalled.
             Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
             Cl[alpha>=pi/2] = 0.
-                
+            
             # Scale for Mach, this is Karmen_Tsien
             Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-        
+            
             # If the blade segments are supersonic, don't scale
             Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
-        
+            
             Rsquiggly = Gamma - 0.5*W*c*Cl
             
             #An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
@@ -636,6 +661,7 @@ class Propeller(Energy_Component):
             
             # If its really not going to converge
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                broke = True
                 break
                 
             ii+=1
@@ -643,8 +669,8 @@ class Propeller(Energy_Component):
             if ii>2000:
                 broke = True
                 break
-        
-        #There is also RE scaling
+            
+        # There is also RE scaling
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         Cdval[alpha>=pi/2] = 2.
@@ -655,32 +681,18 @@ class Propeller(Energy_Component):
         Tp      = (Tp_Tinf)*T
         Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
         
-        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 
+        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
         
         epsilon  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
         deltar   = (r[1]-r[0])
         thrust   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
-        D        = 2*R 
-        Ct       = thrust/(rho*(n*n)*(D*D*D*D))
-        Ct[Ct<0] = 0.        #prevent things from breaking
-        kappa    = self.induced_power_factor 
-        Cd0      = self.profile_drag_coefficient   
-        Cp    = np.zeros_like(Ct)
-        power = np.zeros_like(Ct)        
-        for i in range(len(Vv)):
-            if -1. <Vv[i][0] <1.: # vertical/axial flight
-                Cp[i]       = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
-                power[i]    = Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
-                torque[i]   = power[i]/omega[i]  
-            else:  
-                power[i]    = torque[i]*omega[i]   
-                Cp[i]       = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+        power    = torque*omega
 
+        D        = 2*R
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
 
-        
-  
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         
@@ -688,7 +700,7 @@ class Propeller(Energy_Component):
 
         etap     = V*thrust/power     
         
-        conditions.propulsion.etap = etap
+        conditions.propulsion.etap = etap        
         
         # store data
         results_conditions = Data     
@@ -729,7 +741,7 @@ class Propeller(Energy_Component):
             mid_chord_aligment        = self.mid_chord_aligment     
         ) 
         
-        return thrust, torque, power, Cp, outputs  , etap  
+        return thrust, torque, power, Cp, outputs , etap
 
     
     def spin_surrogate(self,conditions):
@@ -784,7 +796,3 @@ class Propeller(Energy_Component):
         power  = Cp*rho*(n**3)*(D**5)
         
         #thrust[omega<0.0] = - thrust[omega<0.0]
-        
-        conditions.propulsion.etap = eta
-
-        return thrust, torque, power, Cp

@@ -1,8 +1,8 @@
 ## @ingroup Analyses-Weights
 
-# Weights_Electric_Tiltrotor.py
+# Weights_Electric_Lift_Cruise.py
 #
-# Created: Mar, 2017, J. Smart
+# Created: Aug, 2017, J. Smart
 # Modified: Apr, 2018, J. Smart
 
 # ----------------------------------------------------------------------
@@ -19,8 +19,8 @@ from .Weights import Weights
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Weights
-class Weights_Electric_Tiltrotor(Weights):
-    """ SUAVE.Analyses.Weights.Weights_Electric_Tiltrotor()
+class Weights_Electric_Lift_Cruise(Weights):
+    """ SUAVE.Analyses.Weights.Weights_Electric_Lift_Cruise()
     
     Assumptions:
     None
@@ -37,9 +37,8 @@ class Weights_Electric_Tiltrotor(Weights):
     Properties Used:
     N/A
     """
-    
+
     def __defaults__(self):
-        
         """Sets the default parameters for the weight analysis
 
         Assumptions:
@@ -58,7 +57,7 @@ class Weights_Electric_Tiltrotor(Weights):
         N/A
         """
         
-        self.tag = 'weights_electric_tiltrotor'
+        self.tag = 'weights_electric_stopped_rotor'
         
         self.vehicle  = Data()
         self.settings = Data()
@@ -69,7 +68,7 @@ class Weights_Electric_Tiltrotor(Weights):
 
         Assumptions:
         Analysis has been assigned a vehicle.
-        Weight method to be used is default Electric Tiltrotor method.
+        Weight method to be used is default Electric Stopped Rotor method.
 
         Source:
         N/A
@@ -87,7 +86,7 @@ class Weights_Electric_Tiltrotor(Weights):
         
         # unpack
         vehicle = self.vehicle
-        empty   = SUAVE.Methods.Weights.Buildups.Electric_Tiltrotor.empty
+        empty   = SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty
 
         
         # evaluate

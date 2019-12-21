@@ -57,7 +57,7 @@ def prop(prop,
         elsewhere:
 
             Electric Helicopter
-            Electric Tiltrotor
+            Electric Vectored_Thrust
             Electric Stopped Rotor
 
         Originally written as part of an AA 290 project inteded for trade study

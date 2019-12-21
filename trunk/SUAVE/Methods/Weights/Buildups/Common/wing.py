@@ -55,7 +55,7 @@ def wing(wing,
         elsewhere:
 
             Electric Helicopter
-            Electric Tiltrotor
+            Electric Vectored_Thrust
             Electric Stopped Rotor
 
         Originally written as part of an AA 290 project intended for trade study
@@ -94,8 +94,10 @@ def wing(wing,
     thicknessToChord            = wing.thickness_to_chord, 
     wingletFraction             = wing.winglet_fraction, 
     wingArea                    = wing.areas.reference
-    totalWingArea               = (config.wings['main_wing'].areas.reference + 
-                                   config.wings['secondary_wing'].areas.reference)
+
+    totalWingArea = 0
+    for w in config.wings:
+        totalWingArea += w.areas.reference
     liftFraction                = wingArea/totalWingArea
     motor_spanwise_locations    = wing.motor_spanwise_locations
 
