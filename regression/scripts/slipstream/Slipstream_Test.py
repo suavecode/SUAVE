@@ -2,8 +2,7 @@
 # 
 # Created:  Mar 2019, M. Clarke
 
-""" setup file for a mission with a twin prop modified C172 SP NAV III with 
-propeller interaction 
+""" setup file for a cruise segment of the NASA X-57 Maxwell (Twin Engine Variant) Electric Aircraft 
 """
 # ----------------------------------------------------------------------
 #   Imports
@@ -17,6 +16,12 @@ import pylab as plt
 
 from SUAVE.Core import Data , Container
 from SUAVE.Methods.Propulsion import propeller_design
+
+import sys
+sys.path.append('../Vehicles') 
+from X57_Maxwell import vehicle_setup, configs_setup, simple_sizing
+
+import copy
 
 # ----------------------------------------------------------------------
 #   Main
@@ -35,8 +40,8 @@ def main():
     results = mission.evaluate()
      
     # lift coefficient  
-    lift_coefficient              = results.segments['cruise'].conditions.aerodynamics.lift_coefficient[2][0]
-    lift_coefficient_true         = 0.41762467780994167
+    lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0]
+    lift_coefficient_true         = 0.31879931419126495
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -44,17 +49,39 @@ def main():
     assert np.abs((lift_coefficient  - lift_coefficient_true)/lift_coefficient_true) < 1e-6
     
     # sectional lift coefficient check
-    sectional_lift_coeff            = results.segments['cruise'].conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift['main_wing'][2][:]
-    sectional_lift_coeff_true       = np.array([0.34935025, 0.35011958, 0.34961164, 0.34783967, 0.34475282,
-                                                0.34024304, 0.33413616, 0.32617002, 0.31595349, 0.30288773,
-                                                0.28600023, 0.26352935, 0.23149386, 0.17204689, 0.12254679,
-                                                0.08948738, 0.07627315, 0.08232899, 0.10608745, 0.1463558 ,
-                                                0.20774227, 0.2671046 , 0.32656151, 0.38825051, 0.45252571,
-                                                0.52057529, 0.59430199, 0.65460033, 0.70035069, 0.72967181,
-                                                0.74093248, 0.73122881, 0.69332514, 0.59674511, 0.54577161,
-                                                0.50909179, 0.47960062, 0.45437319, 0.43181762, 0.4109117 ,
-                                                0.39091123, 0.37120979, 0.35125568, 0.33048854, 0.3082745 ,
-                                                0.28381705, 0.25600218, 0.22306684, 0.18169993, 0.12350505])
+    sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[0]
+    sectional_lift_coeff_true       = np.array([8.10449702e-02, 7.54016010e-02, 6.43687599e-02, 2.66201837e-02,
+                                             4.77585486e-02, 7.56764672e-02, 5.75279914e-02, 5.05558433e-02,
+                                             4.48641577e-02, 2.56410823e-02, 5.06247203e-02, 3.41295369e-02,
+                                             3.15424389e-02, 2.89157714e-02, 2.61898619e-02, 2.33523357e-02,
+                                             2.04128915e-02, 1.74000220e-02, 1.43609316e-02, 1.13583867e-02,
+                                             8.46298498e-03, 5.75476361e-03, 3.35577286e-03, 1.45980010e-03,
+                                             2.88091664e-04, 8.17941103e-02, 7.78022624e-02, 6.91059517e-02,
+                                             3.73633082e-02, 6.35641862e-02, 9.34925571e-02, 6.45194641e-02,
+                                             5.47924043e-02, 4.77575898e-02, 2.70206128e-02, 5.28332269e-02,
+                                             3.53372162e-02, 3.24846399e-02, 2.96596558e-02, 2.67799691e-02,
+                                             2.38203101e-02, 2.07819577e-02, 1.76876794e-02, 1.45807606e-02,
+                                             1.15212920e-02, 8.57801097e-03, 5.82971314e-03, 3.39810138e-03,
+                                             1.47781185e-03, 2.91601787e-04, 3.25301003e-03, 3.23886941e-03,
+                                             3.34503763e-03, 3.56019195e-03, 3.86155288e-03, 4.22535781e-03,
+                                             4.62329858e-03, 5.01935830e-03, 5.36947070e-03, 5.62488413e-03,
+                                             5.73978095e-03, 5.68281274e-03, 5.44728675e-03, 5.05302969e-03,
+                                             4.53883338e-03, 3.95069625e-03, 3.33178496e-03, 2.71696429e-03,
+                                             2.13176049e-03, 1.59422076e-03, 1.11786628e-03, 7.14136395e-04,
+                                             3.93300783e-04, 1.63922439e-04, 3.17491303e-05, 1.81442840e-03,
+                                             2.01942079e-03, 2.26788087e-03, 2.56066842e-03, 2.89374016e-03,
+                                             3.25427638e-03, 3.62222571e-03, 3.96952507e-03, 4.26069577e-03,
+                                             4.45637371e-03, 4.52057609e-03, 4.43123441e-03, 4.18904405e-03,
+                                             3.81837941e-03, 3.35948636e-03, 2.85696148e-03, 2.35018105e-03,
+                                             1.86836710e-03, 1.43001818e-03, 1.04508106e-03, 7.18131069e-04,
+                                             4.51192705e-04, 2.45392178e-04, 1.01451849e-04, 1.95841648e-05,
+                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                             0.00000000e+00])
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
@@ -78,7 +105,7 @@ def full_setup():
     configs_analyses = analyses_setup(configs)
 
     # mission analyses
-    mission  = mission_setup(configs_analyses) 
+    mission  = mission_setup(configs_analyses,vehicle) 
     missions_analyses = missions_setup(mission)
 
     analyses = SUAVE.Analyses.Analysis.Container()
@@ -106,16 +133,6 @@ def analyses_setup(configs):
     # mission analysis
     mission = analyses.missions.base
     results = mission.evaluate()
-    
-    # Single point analysis
-    
-    
-    # save results 
-    #save_results(results, vec_configs)
-    
-    # plt the old results
-    plot_mission(results)
-
 
     return analyses
 # ----------------------------------------------------------------------
@@ -155,7 +172,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.process.compute.lift.inviscid_wings.settings.use_surrogate = False
+    aerodynamics.settings.use_surrogate = False
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -188,274 +205,10 @@ def base_analysis(vehicle):
 
 
 # ----------------------------------------------------------------------
-#   Define the Vehicle
-# ----------------------------------------------------------------------
-
-def vehicle_setup():
-
-    # ------------------------------------------------------------------
-    #   Initialize the Vehicle
-    # ------------------------------------------------------------------
-
-    vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Cessna_172_SP'
-
-
-    # ------------------------------------------------------------------
-    #   Vehicle-level Properties
-    # ------------------------------------------------------------------
-
-    # mass properties
-    vehicle.mass_properties.max_takeoff   = 2550. * Units.pounds
-    vehicle.mass_properties.takeoff       = 2550. * Units.pounds
-    vehicle.mass_properties.max_zero_fuel = 2550. * Units.pounds
-    vehicle.mass_properties.cargo         = 0.
-
-    # envelope properties
-    vehicle.envelope.ultimate_load = 5.7
-    vehicle.envelope.limit_load    = 3.8
-
-    # basic parameters
-    vehicle.reference_area         = 174. * Units.feet**2
-    vehicle.passengers             = 4
-
-    # ------------------------------------------------------------------
-    #   Main Wing
-    # ------------------------------------------------------------------
-
-    wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag = 'main_wing'
-
-    wing.sweeps.quarter_chord    = 0.0 * Units.deg
-    wing.thickness_to_chord      = 0.12
-    wing.span_efficiency         = 0.9
-    wing.areas.reference         = 174. * Units.feet**2
-    wing.spans.projected         = 36.  * Units.feet + 1. * Units.inches
-
-    wing.chords.root             = 66. * Units.inches
-    wing.chords.tip              = 45. * Units.inches
-    wing.chords.mean_aerodynamic = 58. * Units.inches # Guess
-    wing.taper                   = wing.chords.root/wing.chords.tip
-
-    wing.aspect_ratio            = wing.spans.projected**2. / wing.areas.reference
-
-    wing.twists.root             = 3.0 * Units.degrees
-    wing.twists.tip              = 1.5 * Units.degrees
-
-    wing.origin                  = [80.* Units.inches,0,0]
-    wing.aerodynamic_center      = [22.* Units.inches,0,0]
-
-    wing.vertical                = False
-    wing.symmetric               = True
-    wing.high_lift               = True
-
-    wing.dynamic_pressure_ratio  = 1.0
-
-    # add to vehicle
-    vehicle.append_component(wing)
-
-
-    # ------------------------------------------------------------------
-    #  Horizontal Stabilizer
-    # ------------------------------------------------------------------
-
-    wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'horizontal_stabilizer'
-
-    wing.sweeps.quarter_chord    = 0.0 * Units.deg
-    wing.thickness_to_chord      = 0.12
-    wing.span_efficiency         = 0.95
-    wing.areas.reference         = 5800. * Units.inches**2
-    wing.spans.projected         = 136.  * Units.inches
-
-    wing.chords.root             = 55. * Units.inches
-    wing.chords.tip              = 30. * Units.inches
-    wing.chords.mean_aerodynamic = 43. * Units.inches # Guess
-    wing.taper                   = wing.chords.root/wing.chords.tip
-
-    wing.aspect_ratio            = wing.spans.projected**2. / wing.areas.reference
-
-    wing.twists.root             = 0.0 * Units.degrees
-    wing.twists.tip              = 0.0 * Units.degrees
-
-    wing.origin                  = [246.* Units.inches,0,0]
-    wing.aerodynamic_center      = [20.* Units.inches,0,0]
-    wing.vertical                = False
-    wing.symmetric               = True
-    wing.high_lift               = False
-
-    wing.dynamic_pressure_ratio  = 0.9
-
-    # add to vehicle
-    vehicle.append_component(wing)
-
-
-    # ------------------------------------------------------------------
-    #   Vertical Stabilizer
-    # ------------------------------------------------------------------
-
-    wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'vertical_stabilizer'
-
-    wing.sweeps.quarter_chord    = 25. * Units.deg
-    wing.thickness_to_chord      = 0.12
-    wing.span_efficiency         = 0.9
-    wing.areas.reference         = 3500. * Units.inches**2
-    wing.spans.projected         = 73.   * Units.inches
-
-    wing.chords.root             = 66. * Units.inches
-    wing.chords.tip              = 27. * Units.inches
-    wing.chords.mean_aerodynamic = 48. * Units.inches # Guess
-    wing.taper                   = wing.chords.root/wing.chords.tip
-
-    wing.aspect_ratio            = wing.spans.projected**2. / wing.areas.reference
-
-    wing.twists.root             = 0.0 * Units.degrees
-    wing.twists.tip              = 0.0 * Units.degrees
-
-    wing.origin                  = [237.* Units.inches,0,  0.623]
-    wing.aerodynamic_center      = [20.* Units.inches,0,0]
-
-    wing.vertical                = True
-    wing.symmetric               = False
-    wing.t_tail                  = False
-
-    wing.dynamic_pressure_ratio  = 1.0
-
-    # add to vehicle
-    vehicle.append_component(wing)
-
-
-    # ------------------------------------------------------------------
-    #  Fuselage
-    # ------------------------------------------------------------------
-
-    fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag = 'fuselage'
-
-    fuselage.seats_abreast         = 2.
-
-    fuselage.fineness.nose         = 1.6
-    fuselage.fineness.tail         = 2.
-
-    fuselage.lengths.nose          = 60.  * Units.inches
-    fuselage.lengths.tail          = 161. * Units.inches
-    fuselage.lengths.cabin         = 105. * Units.inches
-    fuselage.lengths.total         = 326. * Units.inches
-    fuselage.lengths.fore_space    = 0.
-    fuselage.lengths.aft_space     = 0.
-
-    fuselage.width                 = 42. * Units.inches
-
-    fuselage.heights.maximum       = 62. * Units.inches
-    fuselage.heights.at_quarter_length          = 62. * Units.inches
-    fuselage.heights.at_three_quarters_length   = 62. * Units.inches
-    fuselage.heights.at_wing_root_quarter_chord = 23. * Units.inches
-
-    fuselage.areas.side_projected  = 8000.  * Units.inches**2.
-    fuselage.areas.wetted          = 30000. * Units.inches**2.
-    fuselage.areas.front_projected = 42.* 62. * Units.inches**2.
-
-    fuselage.effective_diameter    = 50. * Units.inches
-
-
-    # add to vehicle
-    vehicle.append_component(fuselage)
-
-    # ------------------------------------------------------------------
-    #   Piston Propeller Network
-    # ------------------------------------------------------------------
-
-    # build network
-    net = SUAVE.Components.Energy.Networks.Internal_Combustion_Propeller()
-    net.number_of_engines = 2.
-    net.nacelle_diameter  = 42 * Units.inches
-    net.engine_length     = 0.01 * Units.inches
-    net.areas             = Data()
-    net.rated_speed       = 2700. * Units.rpm
-    net.areas.wetted      = 0.01
-
-    # Component 1 the engine
-    net.engine = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
-    net.engine.sea_level_power    = 180. * Units.horsepower
-    net.engine.flat_rate_altitude = 0.0
-    net.engine.speed              = 2700. * Units.rpm
-    net.engine.BSFC               = 0.52
-
-
-    # Design the Propeller
-    prop  = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0
-    prop.freestream_velocity = 135.*Units['mph']
-    prop.angular_velocity    = 1250.  * Units.rpm
-    prop.tip_radius          = 76./2. * Units.inches
-    prop.hub_radius          = 8.     * Units.inches
-    prop.design_Cl           = 0.8
-    prop.design_altitude     = 12000. * Units.feet
-    prop.design_thrust       = 0.0
-    prop.design_power        = .32 * 180. * Units.horsepower
-    prop                     = propeller_design(prop)
-    prop.origin = [[2.,2.5,0.]]
-    net.propeller        = prop
-
-    # add the network to the vehicle
-    vehicle.append_component(net)
-
-
-
-    # ------------------------------------------------------------------
-    #   Vehicle Definition Complete
-    # ------------------------------------------------------------------
-
-    return vehicle
-
-
-# ----------------------------------------------------------------------
-#   Define the Configurations
-# ---------------------------------------------------------------------
-
-def configs_setup(vehicle):
-
-    # ------------------------------------------------------------------
-    #   Initialize Configurations
-    # ------------------------------------------------------------------
-
-    configs = SUAVE.Components.Configs.Config.Container()
-
-    base_config = SUAVE.Components.Configs.Config(vehicle)
-    base_config.tag = 'base'
-    configs.append(base_config)
- 
-     # done!
-    return configs
-
-# ----------------------------------------------------------------------
-#   Sizing for the Vehicle Configs
-# ----------------------------------------------------------------------
-def simple_sizing(configs):
-
-    base = configs.base
-    base.pull_base()
-
-    # wing areas
-    for wing in base.wings:
-        wing.areas.wetted   = 1.75 * wing.areas.reference
-        wing.areas.exposed  = 0.8  * wing.areas.wetted
-        wing.areas.affected = 0.6  * wing.areas.wetted
-
-
-    # diff the new data
-    base.store_diff()
-
-
-    # done!
-    return
-
-# ----------------------------------------------------------------------
 #   Define the Mission
 # ----------------------------------------------------------------------
 
-def mission_setup(analyses):
+def mission_setup(analyses,vehicle):
 
     # ------------------------------------------------------------------
     #   Initialize the Mission
@@ -475,25 +228,18 @@ def mission_setup(analyses):
     # unpack Segments module
     Segments = SUAVE.Analyses.Mission.Segments
 
-    # base segment
-    base_segment = Segments.Segment() 
-    
-    # ------------------------------------------------------------------
-    #   Climb 1 : constant Speed, constant rate segment 
-    # ------------------------------------------------------------------
+    # base segment 
+    base_segment = Segments.Segment()
+    ones_row     = base_segment.state.ones_row
+    base_segment.state.numerics.number_control_points = 5 
+    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals
+    base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.propulsor.battery.max_voltage * ones_row(1)  
+    base_segment.state.residuals.network                     = 0. * ones_row(2)       
 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "climb_1"
-
-    segment.analyses.extend( analyses.base )
-    segment.altitude_start = 0.0 * Units.feet
-    segment.altitude_end   = 8500. * Units.feet
-    segment.air_speed      = 105.  * Units['mph']  
-    segment.climb_rate     = 500.  * Units['ft/min']
-    
-    # add to misison
-    mission.append_segment(segment)
-    
     # ------------------------------------------------------------------
     #   Cruise Segment: constant Speed, constant altitude
     # ------------------------------------------------------------------
@@ -502,34 +248,15 @@ def mission_setup(analyses):
     segment.tag = "cruise"
 
     segment.analyses.extend(analyses.base)
-
+    
     segment.altitude  = 8500. * Units.feet
     segment.air_speed = 132.   *Units['mph']  
     segment.distance  = 50.   * Units.nautical_mile
+    segment.state.unknowns.throttle   = 0.75 * ones_row(1)  # for slipstream branch
     
     # add to misison
     mission.append_segment(segment)    
     
-    # ------------------------------------------------------------------
-    #   Descent Segment: constant Speed, constant rate segment 
-    # ------------------------------------------------------------------
-
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "decent"
-
-    segment.analyses.extend( analyses.base )
-
-    segment.altitude_start = 8500. * Units.feet
-    segment.altitude_end   = 0.      * Units.feet
-    segment.air_speed      = 80.    * Units['mph'] 
-    
-    segment.climb_rate     = -300.  * Units['ft/min']
-    # add to misison
-    mission.append_segment(segment)
-
-    # ------------------------------------------------------------------
-    #   Mission definition complete    
-    # ------------------------------------------------------------------
     return mission
 
 

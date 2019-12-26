@@ -251,7 +251,7 @@ def  read_wing_airfoil(airfoil):
      # Loop through each value: append to each column
      for line_count , line in enumerate(data_block):
           x_data[line_count] = float(data_block[line_count][2:10].strip())
-          y_data[line_count]  = float(data_block[line_count][11:21].strip())
+          y_data[line_count] = float(data_block[line_count][11:21].strip())
      
      if data_len % 2 == 0:
           x_upper_surface =  x_data[0:int((data_len)/2)]

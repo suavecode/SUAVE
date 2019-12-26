@@ -20,7 +20,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
 from .Aerodynamics import Aerodynamics
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
 from SUAVE.Plots import plot_vehicle_vlm_panelization  
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Aerodynamics.Supersonic.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # package imports
 import numpy as np 
@@ -92,7 +92,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,surrogate_flag , vortex_distribution_flag, n_sw ,  n_cw):
+    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw ,  n_cw):
         """Drives functions to get training samples and build a surrogate.
         Assumptions:
         None
@@ -120,13 +120,14 @@ class Vortex_Lattice(Aerodynamics):
         
         # Pack
         settings.vortex_distribution = VD
+        settings.use_surrogate      = use_surrogate
         
         # Plot vortex discretization of vehicle
         if vortex_distribution_flag == True:
             plot_vehicle_vlm_panelization(VD)        
                 
         # If we are using the surrogate
-        if surrogate_flag == True:
+        if use_surrogate == True:
             
             # sample training data
             self.sample_training()

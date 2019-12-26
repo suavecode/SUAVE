@@ -51,8 +51,8 @@ def unpack_unknowns(segment):
     t_nondim   = segment.state.numerics.dimensionless.control_points    
     
     # Velocity cannot be zero
-    velocity_x[velocity_x==0.0,0] = 0.01
-    velocity_x[0,0]               = v0
+    velocity_x[velocity_x==0.0] = 0.01
+    velocity_x[0]               = v0
     
     # time
     t_final    = t_initial + time  
@@ -235,7 +235,7 @@ def solve_residuals(segment):
     FT = conditions.frames.inertial.total_force_vector
     v  = conditions.frames.inertial.velocity_vector
     m  = conditions.weights.total_mass
-    D  = state.numerics.time.differentiate
+    D  = segment.state.numerics.time.differentiate
     vf = segment.velocity_end
 
     # process and pack

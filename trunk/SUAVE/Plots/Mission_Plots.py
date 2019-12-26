@@ -322,7 +322,7 @@ def plot_lift_distribution(results,vehicle, save_figure = False):
         num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
         for ti in range(num_ctrl_pts):  
             cl_y = segment.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[ti] 
-            line = ['-b','-b','-r','-r']
+            line = ['-b','-b','-r','-r','-k']
             fig  = plt.figure()
             fig.set_size_inches(12, 12)       
             axes = fig.add_subplot(1,1,1)
@@ -356,15 +356,21 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
         cdc = drag_breakdown.compressible.total[:,0]
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
-         
-        axes.plot( time , cdp , 'ko-', label='CD parasite' )
-        axes.plot( time , cdi , line_color, label='CD induced' )
-        axes.plot( time , cdc , 'go-', label='CD compressibility' )
-        axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
-        axes.plot( time , cd  , 'ro-', label='CD total'   )
+        
         if i == 0:
+            axes.plot( time , cdp , 'ko-', label='CD parasite' )
+            axes.plot( time , cdi , line_color, label='CD induced' )
+            axes.plot( time , cdc , 'go-', label='CD compressibility' )
+            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
+            axes.plot( time , cd  , 'ro-', label='CD total'   )    
             axes.legend(loc='upper center')   
-
+        else:
+            axes.plot( time , cdp , 'ko-')
+            axes.plot( time , cdi , line_color)
+            axes.plot( time , cdc , 'go-')
+            axes.plot( time , cdm , 'yo-')
+            axes.plot( time , cd  , 'ro-') 
+            
     axes.set_xlabel('Time (min)',axis_font)
     axes.set_ylabel('CD',axis_font)
     axes.grid(True)         
@@ -506,10 +512,10 @@ def plot_proppeller_conditions(results, line_color = 'bo-', save_figure = False,
     for segment in results.segments.values(): 
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm    = segment.conditions.propulsion.rpm  [:,0] 
+        rpm    = segment.conditions.propulsion.rpm[:,0] 
         thrust = segment.conditions.frames.body.thrust_force_vector[:,2]
-        torque = segment.conditions.propulsion.motor_torque 
-        ts     = segment.conditions.propulsion.tip_speed[:,0]
+        torque = segment.conditions.propulsion.motor_torque[:,0] 
+        tm     = segment.conditions.propulsion.propeller_tip_mach[:,0]
  
         axes = fig.add_subplot(2,2,1)
         axes.plot(time, -thrust, line_color)
@@ -537,9 +543,9 @@ def plot_proppeller_conditions(results, line_color = 'bo-', save_figure = False,
         axes.grid(True)   
         
         axes = fig.add_subplot(2,2,4)
-        axes.plot(time, ts, line_color )
+        axes.plot(time, tm, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Tip Speed (ft/s)',axis_font)
+        axes.set_ylabel('Tip Mach',axis_font)
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      

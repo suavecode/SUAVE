@@ -82,6 +82,7 @@ def VLM(conditions,settings,geometry):
     # unpack settings
     n_sw       = settings.number_panels_spanwise    
     n_cw       = settings.number_panels_chordwise   
+    sur_flag   = settings.use_surrogate
     Sref       = geometry.reference_area
     
     
@@ -127,7 +128,7 @@ def VLM(conditions,settings,geometry):
    
    
     # Build the vector
-    RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry)
+    RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry,sur_flag)
 
     # Compute vortex strength  
     n_cp  = VD.n_cp  
@@ -182,12 +183,12 @@ def VLM(conditions,settings,geometry):
             
     # total lift and lift coefficient
     L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
-    CL = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers # supersonic lift off by 2^3 
-    CL[mach>1] = CL[mach>1]*(2**3)
+    CL = L/(0.5*Sref)           # validated form page 402-404, aerodynamics for engineers # supersonic lift off by 2^3 
+    CL[mach>1] = CL[mach>1]*2*4 # supersonic lift off by a factor of 4 
     
     # total drag and drag coefficient
     D  =   -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T   
-    CDi = D/(0.5*Sref)  # supersonic drag off by 2 
+    CDi = D/(0.5*Sref)  
     CDi[mach>1] = CDi[mach>1]*2
     
     # pressure coefficient

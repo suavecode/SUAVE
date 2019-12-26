@@ -13,11 +13,15 @@
 
 import SUAVE
 from SUAVE.Core import Units
+
 import numpy as np
 import pylab as plt
 import copy, time
-from SUAVE.Core import Data, Container
 from SUAVE.Plots.Mission_Plots import * 
+from SUAVE.Core import (
+Data, Container,
+)
+
 import sys
 
 sys.path.append('../Vehicles')
@@ -74,8 +78,8 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results, line_color = 'bo-')
-    plot_mission(old_results, line_color = 'k-')
+    plot_mission(results)
+    #plot_mission(old_results)
     plt.show()
     
 
@@ -187,11 +191,6 @@ def base_analysis(vehicle):
     return analyses    
 
 
-
-
-
-
-
 # ----------------------------------------------------------------------
 #   Define the Mission
 # ----------------------------------------------------------------------
@@ -237,8 +236,10 @@ def mission_setup(analyses):
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 3.048 * Units.km
     segment.air_speed      = 250.0 * Units.knots
-    segment.throttle       = 1.0        
-
+    segment.throttle       = 0.7      
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg  
+    
     # add to misison
     mission.append_segment(segment)
 
@@ -261,8 +262,7 @@ def mission_setup(analyses):
     segment.throttle     = 1.0
 
     # dummy for post process script
-    segment.climb_rate   = 0.1
-    
+    #segment.climb_rate   = 0.1 
     ones_row = segment.state.ones_row
     segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg     
 
@@ -286,7 +286,8 @@ def mission_setup(analyses):
     segment.altitude_end = 35000. * Units.ft
     segment.air_speed    = 390.0  * Units.knots
     segment.throttle     = 1.0
-
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg  
     # add to mission
     mission.append_segment(segment)
 
@@ -294,92 +295,92 @@ def mission_setup(analyses):
     #   Cruise Segment: constant speed, constant altitude
     # ------------------------------------------------------------------
 
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude()
-    segment.tag = "cruise"
+    #segment = Segments.Cruise.Constant_Speed_Constant_Altitude()
+    #segment.tag = "cruise"
 
-    # connect vehicle configuration
-    segment.analyses.extend( analyses.cruise )
+    ## connect vehicle configuration
+    #segment.analyses.extend( analyses.cruise )
 
-    # segment attributes
-    segment.atmosphere = atmosphere
-    segment.planet     = planet
+    ## segment attributes
+    #segment.atmosphere = atmosphere
+    #segment.planet     = planet
 
-    segment.air_speed  = 450. * Units.knots #230.  * Units['m/s']
-    ## 35kft:
-    # 415. => M = 0.72
-    # 450. => M = 0.78
-    # 461. => M = 0.80
-    ## 37kft:
-    # 447. => M = 0.78
-    segment.distance   = 2100. * Units.nmi
+    #segment.air_speed  = 450. * Units.knots #230.  * Units['m/s']
+    ### 35kft:
+    ## 415. => M = 0.72
+    ## 450. => M = 0.78
+    ## 461. => M = 0.80
+    ### 37kft:
+    ## 447. => M = 0.78
+    #segment.distance   = 2100. * Units.nmi
 
-    # add to mission
-    mission.append_segment(segment)
+    ## add to mission
+    #mission.append_segment(segment)
 
-    # ------------------------------------------------------------------
-    #   First Descent Segment: consant speed, constant segment rate
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   First Descent Segment: consant speed, constant segment rate
+    ## ------------------------------------------------------------------
 
-    segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_m0_77"
+    #segment = Segments.Descent.Constant_Speed_Constant_Rate()
+    #segment.tag = "descent_m0_77"
 
-    # connect vehicle configuration
-    segment.analyses.extend( analyses.cruise )
+    ## connect vehicle configuration
+    #segment.analyses.extend( analyses.cruise )
 
-    # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet
+    ## segment attributes
+    #segment.atmosphere   = atmosphere
+    #segment.planet       = planet
 
-    segment.altitude_end = 9.31  * Units.km
-    segment.air_speed    = 440.0 * Units.knots
-    segment.descent_rate = 2600. * Units['ft/min']
+    #segment.altitude_end = 9.31  * Units.km
+    #segment.air_speed    = 440.0 * Units.knots
+    #segment.descent_rate = 2600. * Units['ft/min']
 
-    # add to mission
-    mission.append_segment(segment)
-
-
-    # ------------------------------------------------------------------
-    #   Second Descent Segment: consant speed, constant segment rate
-    # ------------------------------------------------------------------
-
-    segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_290kcas"
-
-    # connect vehicle configuration
-    segment.analyses.extend( analyses.cruise )
-
-    # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet
-
-    segment.altitude_end = 3.657 * Units.km
-    segment.air_speed    = 365.0 * Units.knots
-    segment.descent_rate = 2300. * Units['ft/min']
-
-    # append to mission
-    mission.append_segment(segment)
+    ## add to mission
+    #mission.append_segment(segment)
 
 
-    # ------------------------------------------------------------------
-    #   Third Descent Segment: consant speed, constant segment rate
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Second Descent Segment: consant speed, constant segment rate
+    ## ------------------------------------------------------------------
 
-    segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_250kcas"
+    #segment = Segments.Descent.Constant_Speed_Constant_Rate()
+    #segment.tag = "descent_290kcas"
 
-    # connect vehicle configuration
-    segment.analyses.extend( analyses.cruise )
+    ## connect vehicle configuration
+    #segment.analyses.extend( analyses.cruise )
 
-    # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet
+    ## segment attributes
+    #segment.atmosphere   = atmosphere
+    #segment.planet       = planet
 
-    segment.altitude_end = 0.0   * Units.km
-    segment.air_speed    = 250.0 * Units.knots
-    segment.descent_rate = 1500. * Units['ft/min']
+    #segment.altitude_end = 3.657 * Units.km
+    #segment.air_speed    = 365.0 * Units.knots
+    #segment.descent_rate = 2300. * Units['ft/min']
 
-    # append to mission
-    mission.append_segment(segment)
+    ## append to mission
+    #mission.append_segment(segment)
+
+
+    ## ------------------------------------------------------------------
+    ##   Third Descent Segment: consant speed, constant segment rate
+    ## ------------------------------------------------------------------
+
+    #segment = Segments.Descent.Constant_Speed_Constant_Rate()
+    #segment.tag = "descent_250kcas"
+
+    ## connect vehicle configuration
+    #segment.analyses.extend( analyses.cruise )
+
+    ## segment attributes
+    #segment.atmosphere   = atmosphere
+    #segment.planet       = planet
+
+    #segment.altitude_end = 0.0   * Units.km
+    #segment.air_speed    = 250.0 * Units.knots
+    #segment.descent_rate = 1500. * Units['ft/min']
+
+    ## append to mission
+    #mission.append_segment(segment)
 
 
     # ------------------------------------------------------------------
@@ -395,25 +396,25 @@ def mission_setup(analyses):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_color):
-    
+def plot_mission(results):
+
     # Plot Flight Conditions 
-    plot_flight_conditions(results,line_color)
+    plot_flight_conditions(results)
     
     # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results,line_color)
+    plot_aerodynamic_forces(results)
     
     # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results,line_color)
+    plot_aerodynamic_coefficients(results)
     
     # Drag Components
-    plot_drag_components(results,line_color)
+    plot_drag_components(results)
     
     # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results,line_color)
+    plot_altitude_sfc_weight(results)
     
     # Plot Velocities 
-    plot_aircraft_velocities(results,line_color)  
+    plot_aircraft_velocities(results) 
 
     return
 
