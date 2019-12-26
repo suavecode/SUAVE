@@ -36,11 +36,14 @@ def lifting_line(conditions,settings,geometry):
       aspect_ratio                          [Unitless]
       areas.reference                       [m^2]
       vertical                              [Boolean]
+
     settings.number_of_stations             [int]
     conditions.aerodynamics.angle_of_attack [radians]
+
     Outputs:
     CL                                      [Unitless]
     CD                                      [Unitless]
+
     Properties Used:
     N/A
     """  
@@ -95,8 +98,7 @@ def lifting_line(conditions,settings,geometry):
         c    = np.ones_like(etan) * wing.chords.root
         ageo = np.ones_like(etan) * wing.twists.root 
         for i_seg in range(n_segments):
-            
-            
+
             # Figure out where the segment starts
             X1 = wing.Segments[segment_keys[i_seg]].percent_span_location
             if X1>=1.:
@@ -131,7 +133,8 @@ def lifting_line(conditions,settings,geometry):
         ageo = (tip_twist-root_twist)*etan+root_twist
 
     k = c*cla/(4.*b) # Grouped term 
-    
+
+
     n_2d    = np.atleast_2d(n)
     n_trans = n_2d.T
         

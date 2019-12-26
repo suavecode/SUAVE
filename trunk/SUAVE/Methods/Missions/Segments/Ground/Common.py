@@ -51,8 +51,8 @@ def unpack_unknowns(segment):
     t_nondim   = segment.state.numerics.dimensionless.control_points    
     
     # Velocity cannot be zero
-    velocity_x[velocity_x==0.0] = 0.01
-    velocity_x[0]               = v0
+    velocity_x[velocity_x==0.0,0] = 0.01
+    velocity_x[0,0]               = v0
     
     # time
     t_final    = t_initial + time  

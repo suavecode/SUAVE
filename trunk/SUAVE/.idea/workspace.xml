@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cb49a8c8-5159-469b-a380-f8fcaf4ac6ec" name="Default" comment="">
+    <list default="true" id="3e195a4e-bcfe-44fd-98b6-4d61fc7a86aa" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/SUAVE.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SUAVE.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/AVL_Inviscid.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/AVL_Inviscid.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/Fidelity_Zero.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/Fidelity_Zero.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/Vortex_Lattice.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/Vortex_Lattice.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Analyses/Stability/AVL.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Stability/AVL.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Components/Fuselages/Fuselage.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components/Fuselages/Fuselage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Components/Fuselages/Segment.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components/Fuselages/Segment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/AVL/Data/Configuration.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/AVL/Data/Configuration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/AVL/Data/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/AVL/Data/Settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Lift/fuselage_correction.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Lift/fuselage_correction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Lifting_Line/Lifting_Line.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Lifting_Line/Lifting_Line.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Linear_Speed_Constant_Rate.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Linear_Speed_Constant_Rate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Cruise/Common.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Cruise/Common.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Cruise/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Cruise/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Ground/Common.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Ground/Common.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/converge_root.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/converge_root.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -12,13 +29,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="694" />
-    <option name="y" value="226" />
-    <option name="width" value="1024" />
-    <option name="height" value="768" />
-  </component>
-  <component name="ProjectId" id="1VGyuYkuhYxO9Hj5nuEbGcukTbd" />
+  <component name="ProjectId" id="1VX6guJOFL8E8kfWsu2SrVIVz2F" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -27,8 +38,8 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/Slipstream/SUAVE/Analyses/Mission" />
-    <property name="two.files.diff.last.used.folder" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/Slipstream/SUAVE" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/Develop/SUAVE" />
+    <property name="two.files.diff.last.used.folder" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/Develop/SUAVE" />
   </component>
   <component name="ServiceViewManager">
     <option name="viewStates">
@@ -47,22 +58,22 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="cb49a8c8-5159-469b-a380-f8fcaf4ac6ec" name="Default" comment="" />
-      <created>1537227891535</created>
+      <changelist id="3e195a4e-bcfe-44fd-98b6-4d61fc7a86aa" name="Default Changelist" comment="" />
+      <created>1577387210845</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1537227891535</updated>
+      <updated>1577387210845</updated>
     </task>
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="269" y="27" width="1200" height="800" maximized="true" key="DiffContextDialog" timestamp="1576894220490">
+    <state x="183" y="398" width="1200" height="800" key="DiffContextDialog" timestamp="1577389885887">
       <screen x="63" y="27" width="1857" height="1053" />
     </state>
-    <state x="269" y="27" width="1200" height="800" maximized="true" key="DiffContextDialog/63.27.1857.1053@63.27.1857.1053" timestamp="1576894220490" />
-    <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl" timestamp="1576894228278">
+    <state x="183" y="398" width="1200" height="800" key="DiffContextDialog/63.27.1857.1053@63.27.1857.1053" timestamp="1577389885887" />
+    <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl" timestamp="1577387291119">
       <screen x="63" y="27" width="1857" height="1053" />
     </state>
-    <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl/63.27.1857.1053@63.27.1857.1053" timestamp="1576894228278" />
+    <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl/63.27.1857.1053@63.27.1857.1053" timestamp="1577387291119" />
   </component>
 </project>

@@ -15,7 +15,7 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
 # local imports
 from .Aerodynamics import Aerodynamics
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
@@ -25,7 +25,6 @@ from SUAVE.Methods.Aerodynamics.Supersonic.Drag.Cubic_Spline_Blender import Cubi
 # package imports
 import numpy as np 
 from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
-from scipy.optimize import curve_fit 
 
 # ----------------------------------------------------------------------
 #  Class

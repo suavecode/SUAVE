@@ -36,7 +36,6 @@ import numpy as np
 import sys
 from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 from shutil import rmtree
-from warnings import warn
 
 # ----------------------------------------------------------------------
 #  Class

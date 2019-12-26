@@ -55,7 +55,7 @@ class Fidelity_Zero(Markup):
         Properties Used:
         N/A
         """          
-        self.tag    = 'fidelity_zero_markup'      
+        self.tag    = 'fidelity_zero_markup'
     
         # correction factors
         settings = self.settings
@@ -67,7 +67,7 @@ class Fidelity_Zero(Markup):
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
-        settings.maximum_lift_coefficient           = np.inf  
+        settings.maximum_lift_coefficient           = np.inf
         settings.number_panels_spanwise             = None 
         settings.number_panels_chordwise            = None 
         settings.use_surrogate                      = True 

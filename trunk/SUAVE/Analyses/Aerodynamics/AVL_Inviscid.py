@@ -33,7 +33,6 @@ import numpy as np
 import sys
 from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 from shutil import rmtree
-from warnings import warn
 
 # ----------------------------------------------------------------------
 #  Class
@@ -208,7 +207,7 @@ class AVL_Inviscid(Aerodynamics):
             span_efficiency_factor = span_efficiency ,
         )        
         
-        return inviscid_lift  
+        return inviscid_lift
         
 
     def sample_training(self):
