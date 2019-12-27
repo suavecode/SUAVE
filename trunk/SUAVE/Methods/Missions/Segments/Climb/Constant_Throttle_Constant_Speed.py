@@ -159,7 +159,7 @@ def update_velocity_vector_from_wind_angle(segment):
     # unpack
     conditions = segment.state.conditions 
     v_mag      = segment.air_speed 
-    alpha      = segment.state.unknowns.wind_angle[:,0][:,None]
+    alpha      = segment.state.unknowns.wind_angle[:,0][:,None]*0
     theta      = segment.state.unknowns.body_angle[:,0][:,None]
     
     # Flight path angle

@@ -2,24 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3e195a4e-bcfe-44fd-98b6-4d61fc7a86aa" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/SUAVE.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/SUAVE.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/AVL_Inviscid.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/AVL_Inviscid.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/Fidelity_Zero.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/Fidelity_Zero.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/Vortex_Lattice.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/Vortex_Lattice.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Stability/AVL.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Stability/AVL.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Components/Fuselages/Fuselage.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components/Fuselages/Fuselage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Components/Fuselages/Segment.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components/Fuselages/Segment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/AVL/Data/Configuration.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/AVL/Data/Configuration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/AVL/Data/Settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/AVL/Data/Settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Lift/fuselage_correction.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Lift/fuselage_correction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Lifting_Line/Lifting_Line.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Lifting_Line/Lifting_Line.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Linear_Speed_Constant_Rate.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Linear_Speed_Constant_Rate.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Cruise/Common.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Cruise/Common.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Cruise/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Cruise/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Ground/Common.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Ground/Common.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/converge_root.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/converge_root.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Constant_Throttle_Constant_Speed.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Constant_Throttle_Constant_Speed.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,10 +51,10 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="183" y="398" width="1200" height="800" key="DiffContextDialog" timestamp="1577389885887">
+    <state x="213" y="27" width="1200" height="800" maximized="true" key="DiffContextDialog" timestamp="1577447541498">
       <screen x="63" y="27" width="1857" height="1053" />
     </state>
-    <state x="183" y="398" width="1200" height="800" key="DiffContextDialog/63.27.1857.1053@63.27.1857.1053" timestamp="1577389885887" />
+    <state x="213" y="27" width="1200" height="800" maximized="true" key="DiffContextDialog/63.27.1857.1053@63.27.1857.1053" timestamp="1577447541498" />
     <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl" timestamp="1577387291119">
       <screen x="63" y="27" width="1857" height="1053" />
     </state>
