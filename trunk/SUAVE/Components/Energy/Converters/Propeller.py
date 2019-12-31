@@ -19,6 +19,7 @@ import numpy as np
 import scipy as sp
 import scipy.optimize as opt
 from scipy.optimize import fsolve
+
 from warnings import warn
 
 # ----------------------------------------------------------------------
@@ -354,6 +355,9 @@ class Propeller(Energy_Component):
             else:  
                 power[i]    = torque[i]*omega[i]   
                 Cp[i]       = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
+
+
+        
   
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0

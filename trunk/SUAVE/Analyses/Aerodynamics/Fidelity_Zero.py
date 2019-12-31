@@ -124,7 +124,7 @@ class Fidelity_Zero(Markup):
         """                  
         super(Fidelity_Zero, self).initialize()
         
-        use_surrogate           = self.settings.use_surrogate           
+        use_surrogate            = self.settings.use_surrogate
         vortex_distribution_flag = self.settings.plot_vortex_distribution 
         n_sw                     = self.settings.number_panels_spanwise    
         n_cw                     = self.settings.number_panels_chordwise 

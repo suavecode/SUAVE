@@ -73,7 +73,7 @@ class Lifting_Line(Aerodynamics):
         self.surrogates.drag_coefficient = None
  
         
-    def initialize(self):
+    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw ,  n_cw):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -90,7 +90,12 @@ class Lifting_Line(Aerodynamics):
 
         Properties Used:
         None
-        """                      
+        """ 
+        settings = self.settings
+        
+        if n_sw is not None:
+            settings.number_of_stations  = n_sw
+            
         # sample training data
         self.sample_training()
                     

@@ -13,7 +13,7 @@ import numpy as np
 import pylab as plt
 import matplotlib
 import copy, time
-
+from SUAVE.Plots.Mission_Plots import *
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
@@ -184,10 +184,10 @@ def mission_setup(analyses,vehicle):
     ones_row     = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.network.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.network.residuals
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals
     base_segment.state.unknowns.propeller_power_coefficient  = 0.001 * ones_row(1) 
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.network.battery.max_voltage * ones_row(1) 
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.propulsor.battery.max_voltage * ones_row(1) 
     base_segment.state.residuals.network                     = 0. * ones_row(2) 
 
     #------------------------------------------------------------------    
@@ -202,7 +202,7 @@ def mission_setup(analyses,vehicle):
     
     # segment attributes   
     ones_row = segment.state.ones_row
-    segment.battery_energy  = vehicle.propulsors.network.battery.max_energy
+    segment.battery_energy  = vehicle.propulsors.propulsor.battery.max_energy
     segment.altitude_start  = 0.
     segment.altitude_end    = 100. * Units.m
     segment.climb_rate      = 3.  * Units.m / Units.s 
@@ -338,209 +338,17 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 def plot_mission(results):
 
-    # ------------------------------------------------------------------    
-    #   Throttle
-    # ------------------------------------------------------------------
-    plt.figure("Throttle History")
-    axes = plt.gca()
-    for i in range(len(results.segments)):
-        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        eta  = results.segments[i].conditions.propulsion.throttle[:,0]
-        
-        axes.plot(time, eta, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Throttle')
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False)
-    #plt.ylim((0,1))
-    axes.grid(True)         
-
+    plot_aircraft_velocities(results)
     
-    # ------------------------------------------------------------------    
-    #   Battery Energy
-    # ------------------------------------------------------------------
-    plt.figure("Battery Energy")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        axes.plot(time, energy, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Battery Energy (J)')
-    axes.grid(True)   
+    plot_aerodynamic_coefficients(results)
     
-    ## ------------------------------------------------------------------    
-    ##   Current Draw
-    ## ------------------------------------------------------------------
-    #plt.figure("Current Draw")
-    #axes = plt.gca()    
-    #for i in range(len(results.segments)):     
-        #time    = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        #current = results.segments[i].conditions.propulsion.current[:,0] 
-        #axes.plot(time, current, 'bo-')
-    #axes.set_xlabel('Time (mins)')
-    #axes.set_ylabel('Current Draw (Amps)')
-    #axes.get_yaxis().get_major_formatter().set_scientific(False)
-    #axes.get_yaxis().get_major_formatter().set_useOffset(False)   
-    #axes.grid(True)  
+    plot_aerodynamic_forces(results) 
     
-    ## ------------------------------------------------------------------    
-    ##   C Rate
-    ## ------------------------------------------------------------------
-    #plt.figure("C Rating")
-    #axes = plt.gca()    
-    #capacity = 2.2
-    #for i in range(len(results.segments)):     
-        #time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        #current = results.segments[i].conditions.propulsion.current[:,0]  
-        #axes.plot(time, current/capacity, 'bo-')
-    #axes.set_xlabel('Time (mins)')
-    #axes.set_ylabel('Battery Discharging (C)')
-    #axes.get_yaxis().get_major_formatter().set_scientific(False)
-    #axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-    #axes.grid(True)        
+    plot_electronic_conditions(results)
     
-    # ------------------------------------------------------------------    
-    #   Motor RPM
-    # ------------------------------------------------------------------
-    plt.figure("Motor RPM")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.segments[i].conditions.propulsion.rpm[:,0] 
-        axes.plot(time, energy, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Motor RPM')
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False) 
-    axes.grid(True)
+    plot_flight_conditions(results) 
     
-    ## ------------------------------------------------------------------    
-    ##   Battery Draw
-    ## ------------------------------------------------------------------
-    #plt.figure("Battery Charging")
-    #axes = plt.gca()    
-    #for i in range(len(results.segments)):     
-        #time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        #energy = results.segments[i].conditions.propulsion.battery_draw[:,0] 
-        #axes.plot(time, energy, 'bo-')
-    #axes.set_xlabel('Time (mins)')
-    #axes.set_ylabel('Battery Discharging (Watts)')
-    #axes.get_yaxis().get_major_formatter().set_scientific(False)
-    #axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-    #axes.grid(True)   
-       
-    
-    ## ------------------------------------------------------------------    
-    ##   Battery Voltage
-    ## ------------------------------------------------------------------
-    #plt.figure("Battery Voltage")
-    #axes = plt.gca()    
-    #for i in range(len(results.segments)):     
-        #time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        #volts    = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
-        #volts_oc = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0] 
-        #axes.plot(time, volts, 'bo-')
-        #axes.plot(time,volts_oc, 'ro-')
-    #axes.set_xlabel('Time (mins)')
-    #axes.set_ylabel('Battery Voltage (Volts)')
-    #axes.get_yaxis().get_major_formatter().set_scientific(False)
-    #axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-    #axes.grid(True)       
-    
-    ## ------------------------------------------------------------------    
-    ##   Propulsive efficiency
-    ## ------------------------------------------------------------------
-    #plt.figure("Propeller Efficiency")
-    #axes = plt.gca()    
-    #for i in range(len(results.segments)):     
-        #time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        #etap = results.segments[i].conditions.propulsion.etap[:,0]
-        #axes.plot(time, etap, 'bo-')
-    #axes.set_xlabel('Time (mins)')
-    #axes.set_ylabel('Etap')
-    #axes.get_yaxis().get_major_formatter().set_scientific(False)
-    #axes.get_yaxis().get_major_formatter().set_useOffset(False)      
-    #axes.grid(True)      
-    #plt.ylim((0,1))
-
-    # ------------------------------------------------------------------
-    #   Flight Conditions
-    # ------------------------------------------------------------------
-    fig = plt.figure("Flight Conditions")
-    fig.set_size_inches(10, 8)
-    for segment in results.segments.values():
-
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        airspeed = segment.conditions.freestream.velocity[:,0] 
-        theta    = segment.conditions.frames.body.inertial_rotations[:,1,None] / Units.deg
-        cl       = segment.conditions.aerodynamics.lift_coefficient[:,0,None] 
-        cd       = segment.conditions.aerodynamics.drag_coefficient[:,0,None] 
-        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        altitude = segment.conditions.freestream.altitude[:,0]
-        
-        axes = fig.add_subplot(3,1,1)
-        axes.plot(time, altitude, 'bo-')
-        axes.set_ylabel('Altitude (m)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)         
-        axes.grid(True)            
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , airspeed , 'bo-' )
-        axes.set_ylabel('Airspeed (m/s)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , theta, 'bo-' )
-        axes.set_ylabel('Pitch Angle (deg)')
-        axes.set_xlabel('Time (min)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
-        axes.grid(True)    
-        
-        plt.savefig("Quadshot Mission Profile.pdf")
-        
-        
-    # ------------------------------------------------------------------
-    #   Aero Conditions
-    # ------------------------------------------------------------------
-    fig = plt.figure("Aero Conditions")
-    fig.set_size_inches(10, 8)
-    for segment in results.segments.values():
-
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        cl       = segment.conditions.aerodynamics.lift_coefficient[:,0,None] 
-        cd       = segment.conditions.aerodynamics.drag_coefficient[:,0,None] 
-        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , aoa , 'bo-' )
-        axes.set_ylabel('Angle of Attack (deg)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , cl, 'bo-' )
-        axes.set_ylabel('CL')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
-        axes.grid(True)    
-        
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , cd, 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('CD')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
-        axes.grid(True)    
-        
-        plt.savefig("Quadshot Mission Aero.pdf")
-
-
+    plot_lift_cruise_network(results) 
     
     return     
 

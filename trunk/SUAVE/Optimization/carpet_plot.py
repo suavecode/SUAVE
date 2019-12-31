@@ -78,7 +78,8 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
         for j in range(0,number_of_points):
             #problem.optimization_problem.inputs=base_inputs  #overwrite any previous modification
             opt_prob.inputs[:,1][idx0]= inputs[0,i]
-            opt_prob.inputs[:,1][idx1]= inputs[1,j]   
+            opt_prob.inputs[:,1][idx1]= inputs[1,j]
+
             obj[j,i]             = problem.objective()*obj_scaling
             constraint_val[:,j,i]= problem.all_constraints().tolist()
   
@@ -89,7 +90,7 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
         cbar.ax.set_ylabel(obj_name)
         plt.xlabel(names[idx0])
         plt.ylabel(names[idx1])
-        plt.savefig(obj_name +'.png')
+
        
     if plot_const==1:
         
@@ -109,7 +110,7 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
     np.save('names.npy',names)
     np.save('obj.npy',obj)
     np.save('obj_name.npy',obj_name)
-    
+
     #pack outputs
     outputs= Data()
     outputs.inputs         = inputs

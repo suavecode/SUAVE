@@ -122,7 +122,8 @@ class AVL(Stability):
         self.stability_model.dutch_roll.natural_frequency   = 0.0
 
         # Regression Status
-        self.regression_flag                                = False
+        self.regression_flag                                = False 
+        self.save_regression_results                        = False
 
     def finalize(self):
         """Drives functions to get training samples and build a surrogate.
@@ -288,9 +289,9 @@ class AVL(Stability):
         mach     = training.Mach
         
         CM       = np.zeros((len(AoA),len(mach)))
-        Cm_alpha = np.zeros_like(CM)  
-        Cn_beta  = np.zeros_like(CM)  
-        NP       = np.zeros_like(CM)  
+        Cm_alpha = np.zeros_like(CM)
+        Cn_beta  = np.zeros_like(CM)
+        NP       = np.zeros_like(CM)
 
         
         count      = 0 
@@ -301,8 +302,9 @@ class AVL(Stability):
             run_conditions.freestream.density               = 0    # Density not used in inviscid computation therefore set to zero. Used for dynamic analysis which is under development
             run_conditions.freestream.gravity               = 9.81          
             run_conditions.aerodynamics.angle_of_attack     = AoA
-            run_conditions.freestream.mach_number           = mach[i]
-             
+            run_conditions.freestream.mach_number           = mach[j]
+
+            #Run Analysis at AoA[i] and mach[j]
             results =  self.evaluate_conditions(run_conditions)
 
             # Obtain CM Cm_alpha, Cn_beta and the Neutral Point # Store other variables here as well 

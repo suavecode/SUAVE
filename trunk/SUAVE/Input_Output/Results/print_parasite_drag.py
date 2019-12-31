@@ -11,6 +11,7 @@ import SUAVE
 from SUAVE.Core import Units,Data
 
 from scipy.optimize import fsolve # for compatibility with scipy 0.10.0
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Drag.induced_drag_aircraft import induced_drag_aircraft
 import numpy as np
 
 
@@ -128,8 +129,19 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     compute.parasite.total(state,settings,vehicle)
     
     # getting induced drag efficiency factor
+    aerodynamics                                                                        = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics.settings.fuselage_lift_correction                                      = 1.
+    aerodynamics.process.compute.lift.inviscid_wings.settings.use_surrogate             = True
+    aerodynamics.process.compute.lift.inviscid_wings.settings.plot_vortex_distribution  = False
+    aerodynamics.process.compute.lift.inviscid_wings.settings.plot_vehicle              = False         
+    aerodynamics.geometry                                                               = copy.deepcopy(configs.base)      
+    aerodynamics.geometry = vehicle        
+    aerodynamics.initialize()     
+
     state.conditions.aerodynamics.lift_coefficient = 0.5 # dummy value
-    
+    results  = aerodynamics.evaluate(state) 
+    _ = induced_drag_aircraft(state,settings,vehicle)
+    eff_fact = state.conditions.aerodynamics.drag_breakdown.induced.efficiency_factor
     # reynolds number
     
     Re_w = rho * Mc * a * mean_aerodynamic_chord/mu
@@ -141,6 +153,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     fid.write( '  ASPECT RATIO .................... ' + str('%5.1f' %   aspect_ratio       )   + '    ' + '\n')
     fid.write( '  WING SWEEP ...................... ' + str('%5.1f' %   sweep              )   + ' deg' + '\n')
     fid.write( '  WING THICKNESS RATIO ............ ' + str('%5.2f' %   t_c                )   + '    ' + '\n')
+    fid.write( '  INDUCED DRAG EFFICIENCY FACTOR .. ' + str('%5.3f' %   eff_fact             )   + '    '  + '\n')
     fid.write( '  MEAN AEROD. CHORD ............... ' + str('%5.3f' %mean_aerodynamic_chord)   + ' m ' + '\n')
     fid.write( '  REYNOLDS NUMBER ................. ' + str('%5.1f' %   (Re_w / (10**6))   )   + ' millions' + '\n')
     fid.write( '  MACH NUMBER ..................... ' + str('%5.3f' %   Mc                 )   + '    '  + '\n')

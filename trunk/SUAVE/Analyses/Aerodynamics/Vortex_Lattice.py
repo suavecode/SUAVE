@@ -1,9 +1,12 @@
 ## @ingroup Analyses-Aerodynamics
 # Vortex_Lattice.py
 #
-# Created:  May 2019, E. Botero
-# Modified:    
-
+# Created:  Nov 2013, T. Lukaczyk
+# Modified:     2014, T. Lukaczyk, A. Variyar, T. Orra
+#           Feb 2016, A. Wendorff
+#           Apr 2017, T. MacDonald
+#           Nov 2017, E. Botero
+#           Dec 2018, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -40,14 +43,19 @@ class Vortex_Lattice(Aerodynamics):
 
     def __defaults__(self):
         """This sets the default values and methods for the analysis.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         None
+
         Outputs:
         None
+
         Properties Used:
         N/A
         """  
@@ -93,14 +101,19 @@ class Vortex_Lattice(Aerodynamics):
         
     def initialize(self,use_surrogate , vortex_distribution_flag, n_sw ,  n_cw):
         """Drives functions to get training samples and build a surrogate.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         None
+
         Outputs:
         None
+
         Properties Used:
         None
         """                      
@@ -142,16 +155,18 @@ class Vortex_Lattice(Aerodynamics):
 
     def evaluate_surrogate(self,state,settings,geometry):
         """Evaluates lift and drag using available surrogates.
+
         Assumptions:
-        no changes to initial geometry or settings
-        
+        None
+
         Source:
         N/A
-        
+
         Inputs:
         state.conditions.
-            angle_of_attack                       [radians]
-        
+          freestream.mach_number                  [-]
+          angle_of_attack                         [radians]
+
         Outputs:
         conditions.aerodynamics.lift_breakdown.
           inviscid_wings_lift[wings.*.tag]        [-] CL (wing specific)
@@ -190,17 +205,18 @@ class Vortex_Lattice(Aerodynamics):
         wing_CDi_surrogates_sub   = surrogates.wing_drag_coefficient_sub  
         wing_CDi_surrogates_sup   = surrogates.wing_drag_coefficient_sup  
         wing_CDi_surrogates_trans = surrogates.wing_drag_coefficient_trans
-                
-        data_len                 = len(AoA)
-        inviscid_lift            = np.zeros([data_len,1]) 
-        inviscid_drag            = np.zeros([data_len,1])        
         
+        # Create Result Data Structures         
+        data_len                                                           = len(AoA)
+        inviscid_lift                                                      = np.zeros([data_len,1]) 
+        inviscid_drag                                                      = np.zeros([data_len,1])  
         conditions.aerodynamics.drag_breakdown.induced                     = Data()
         conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag = Data()
         conditions.aerodynamics.lift_breakdown                             = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift         = Data()
-        conditions.aerodynamics.lift_breakdown.compressible_wings          = Data()
+        conditions.aerodynamics.lift_breakdown.compressible_wings          = Data() 
         
+        # Spline for Subsonic-to-Transonic-to-Supesonic Regimes
         sub_trans_spline = Cubic_Spline_Blender(0.85,0.95)
         h_sub = lambda M:sub_trans_spline.compute(M)          
         sup_trans_spline = Cubic_Spline_Blender(1.05,1.15)
@@ -213,27 +229,26 @@ class Vortex_Lattice(Aerodynamics):
             else: # supersonic 
                 inviscid_lift[ii] = h_sup(Mach[ii])*CL_surrogate_trans(AoA[ii][0],Mach[ii][0])[0]  +  (1- h_sup(Mach[ii]))*CL_surrogate_sup(AoA[ii][0],Mach[ii][0])[0]
                 inviscid_drag[ii] = h_sup(Mach[ii])*CDi_surrogate_trans(AoA[ii][0],Mach[ii][0])[0] +  (1- h_sup(Mach[ii]))*CDi_surrogate_sup(AoA[ii][0],Mach[ii][0])[0]
-
-            for wing in geometry.wings.keys():
-                if Mach[ii][0] < 1: # subsonic 
-                    inviscid_wing_lifts = h_sub(Mach[ii])*wing_CL_surrogates_sub[wing](AoA[ii][0],Mach[ii][0])[0]    +  (1- h_sub(Mach[ii]))*wing_CL_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0] 
-                    inviscid_wing_drags = h_sub(Mach[ii])*wing_CDi_surrogates_sub[wing](AoA[ii][0],Mach[ii][0])[0]  +  (1- h_sub(Mach[ii]))*wing_CDi_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0] 
-                else: # supersonic
-                    inviscid_wing_lifts = h_sup(Mach[ii])*wing_CL_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0]  +  (1- h_sup(Mach[ii]))*wing_CL_surrogates_sup[wing](AoA[ii][0],Mach[ii][0])[0]
-                    inviscid_wing_drags = h_sup(Mach[ii])*wing_CDi_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0] +  (1- h_sup(Mach[ii]))*wing_CDi_surrogates_sup[wing](AoA[ii][0],Mach[ii][0])[0]
-                 
-                conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]          = inviscid_wing_lifts
-                conditions.aerodynamics.lift_breakdown.compressible_wings[wing]           = inviscid_wing_lifts      
-                conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag[wing]  = inviscid_wing_drags
-         
-        # Lift    
-        conditions.aerodynamics.lift_coefficient                             = inviscid_lift*1.0
-        conditions.aerodynamics.lift_breakdown.total                         = inviscid_lift*1.0
+    
+        conditions.aerodynamics.lift_coefficient                             = inviscid_lift
+        conditions.aerodynamics.lift_breakdown.total                         = inviscid_lift 
+        conditions.aerodynamics.drag_breakdown.induced.total                 = inviscid_drag   
         
-        # Drag   
-        conditions.aerodynamics.drag_breakdown.induced                       = Data()
-        conditions.aerodynamics.drag_breakdown.induced.total                 = inviscid_drag*1.0   
-     
+        for wing in geometry.wings.keys(): 
+            inviscid_wing_lifts      = np.zeros([data_len,1])
+            inviscid_wing_drags      = np.zeros([data_len,1])            
+            for ii,_ in enumerate(AoA):
+                if Mach[ii][0] < 1: # subsonic 
+                    inviscid_wing_lifts[ii] = h_sub(Mach[ii])*wing_CL_surrogates_sub[wing](AoA[ii][0],Mach[ii][0])[0]    +  (1- h_sub(Mach[ii]))*wing_CL_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0] 
+                    inviscid_wing_drags[ii] = h_sub(Mach[ii])*wing_CDi_surrogates_sub[wing](AoA[ii][0],Mach[ii][0])[0]  +  (1- h_sub(Mach[ii]))*wing_CDi_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0] 
+                else: # supersonic
+                    inviscid_wing_lifts[ii] = h_sup(Mach[ii])*wing_CL_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0]  +  (1- h_sup(Mach[ii]))*wing_CL_surrogates_sup[wing](AoA[ii][0],Mach[ii][0])[0]
+                    inviscid_wing_drags[ii] = h_sup(Mach[ii])*wing_CDi_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0] +  (1- h_sup(Mach[ii]))*wing_CDi_surrogates_sup[wing](AoA[ii][0],Mach[ii][0])[0]
+                 
+            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]          = inviscid_wing_lifts
+            conditions.aerodynamics.lift_breakdown.compressible_wings[wing]           = inviscid_wing_lifts      
+            conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag[wing]  = inviscid_wing_drags
+         
         return inviscid_lift
     
     def evaluate_no_surrogate(self,state,settings,geometry):
@@ -302,12 +317,16 @@ class Vortex_Lattice(Aerodynamics):
     
     def sample_training(self):
         """Call methods to run vortex lattice for sample point evaluation.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         see properties used
+
         Outputs:
         self.training.
           lift_coefficient            [-] 
@@ -318,15 +337,14 @@ class Vortex_Lattice(Aerodynamics):
         self.geometry.wings.*.tag
         self.settings                 (passed to calculate vortex lattice)
         self.training.angle_of_attack [radians]
-        """  
-        
+        """
         # unpack
         geometry = self.geometry
         settings = self.settings
-        training = self.training        
+        training = self.training
         AoA      = training.angle_of_attack
         Mach_sub = training.Mach_subsonic
-        Mach_sup = training.Mach_supersonic 
+        Mach_sup = training.Mach_supersonic
         
         # Setup Konditions                      
         konditions                              = Data()
@@ -391,12 +409,16 @@ class Vortex_Lattice(Aerodynamics):
         
     def build_surrogate(self):
         """Build a surrogate using sample evaluation results.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         see properties used
+
         Outputs:
         self.surrogates.
           lift_coefficient            
@@ -489,21 +511,28 @@ class Vortex_Lattice(Aerodynamics):
         surrogates.wing_drag_coefficient_trans = CDi_w_surrogates_trans
         
         return
+
+
+
 # ----------------------------------------------------------------------
 #  Helper Functions
 # ----------------------------------------------------------------------
 def calculate_VLM(conditions,settings,geometry):
     """Calculate the total vehicle lift coefficient and specific wing coefficients (with specific wing reference areas)
     using a vortex lattice method.
+
     Assumptions:
     None
+
     Source:
     N/A
+
     Inputs:
     conditions                      (passed to vortex lattice method)
     settings                        (passed to vortex lattice method)
     geometry.reference_area         [m^2]
     geometry.wings.*.reference_area (each wing is also passed to the vortex lattice method)
+
     Outputs:
     total_lift_coeff                [array]
     total_induced_drag_coeff        [array]
@@ -513,7 +542,11 @@ def calculate_VLM(conditions,settings,geometry):
     
     """            
 
+    # unpack
+    vehicle_reference_area = geometry.reference_area
+
     # iterate over wings
+    total_lift_coeff = 0.0
     wing_lifts = Data()
     wing_drags = Data()
     

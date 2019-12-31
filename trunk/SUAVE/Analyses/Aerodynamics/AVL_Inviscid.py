@@ -96,8 +96,9 @@ class AVL_Inviscid(Aerodynamics):
         # Surrogate model
         self.surrogates                      = Data()
         
-        # Regression Status
-        self.regression_flag                 = False
+        # Regression Status 
+        self.regression_flag                 = False 
+        self.save_regression_results         = False
 
     def initialize(self,spanwise_vortices,chordwise_vortices):
         """Drives functions to get training samples and build a surrogate.
