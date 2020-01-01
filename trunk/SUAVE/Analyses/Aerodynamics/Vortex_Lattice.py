@@ -214,7 +214,8 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag = Data()
         conditions.aerodynamics.lift_breakdown                             = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift         = Data()
-        conditions.aerodynamics.lift_breakdown.compressible_wings          = Data() 
+        conditions.aerodynamics.lift_breakdown.compressible_wings          = Data()
+        conditions.aerodynamics.drag_breakdown.compressible                = Data()
         
         # Spline for Subsonic-to-Transonic-to-Supesonic Regimes
         sub_trans_spline = Cubic_Spline_Blender(0.85,0.95)

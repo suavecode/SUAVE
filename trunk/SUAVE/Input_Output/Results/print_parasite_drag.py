@@ -103,12 +103,12 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     state = Data()
     state.conditions = Data()
     state.conditions.freestream = Data()
-    state.conditions.freestream.mach_number       = np.atleast_1d(Mc)
-    state.conditions.freestream.density           = np.atleast_1d(rho)
-    state.conditions.freestream.dynamic_viscosity = np.atleast_1d(mu)
-    state.conditions.freestream.reynolds_number   = np.atleast_1d(re)
-    state.conditions.freestream.temperature       = np.atleast_1d(T)
-    state.conditions.freestream.pressure          = np.atleast_1d(p)
+    state.conditions.freestream.mach_number       = np.atleast_2d(Mc)
+    state.conditions.freestream.density           = np.atleast_2d(rho)
+    state.conditions.freestream.dynamic_viscosity = np.atleast_2d(mu)
+    state.conditions.freestream.reynolds_number   = np.atleast_2d(re)
+    state.conditions.freestream.temperature       = np.atleast_2d(T)
+    state.conditions.freestream.pressure          = np.atleast_2d(p)
     state.conditions.aerodynamics = Data()
     state.conditions.aerodynamics.drag_breakdown = Data()
     state.conditions.aerodynamics.drag_breakdown.parasite = Data()
@@ -129,16 +129,11 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     compute.parasite.total(state,settings,vehicle)
     
     # getting induced drag efficiency factor
-    aerodynamics                                                                        = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
-    aerodynamics.settings.fuselage_lift_correction                                      = 1.
-    aerodynamics.process.compute.lift.inviscid_wings.settings.use_surrogate             = True
-    aerodynamics.process.compute.lift.inviscid_wings.settings.plot_vortex_distribution  = False
-    aerodynamics.process.compute.lift.inviscid_wings.settings.plot_vehicle              = False         
-    aerodynamics.geometry                                                               = copy.deepcopy(configs.base)      
+    aerodynamics          = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()            
     aerodynamics.geometry = vehicle        
-    aerodynamics.initialize()     
-
-    state.conditions.aerodynamics.lift_coefficient = 0.5 # dummy value
+    aerodynamics.initialize()      
+    
+    state.conditions.aerodynamics.angle_of_attack = np.array([[2.]])*Units.degrees  
     results  = aerodynamics.evaluate(state) 
     _ = induced_drag_aircraft(state,settings,vehicle)
     eff_fact = state.conditions.aerodynamics.drag_breakdown.induced.efficiency_factor

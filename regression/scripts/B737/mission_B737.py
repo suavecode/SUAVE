@@ -53,7 +53,7 @@ def main():
     plot_mission(results, line_color = 'bo-')
  
     # load older results
-    save_results(results)
+    #save_results(results)
     old_results = load_results()
     plot_mission(old_results, line_color = 'bs:')
       
