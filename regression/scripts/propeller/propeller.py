@@ -89,9 +89,9 @@ def main():
     Cplast_truth = 0.00056596
     
     Fr_truth      = 98.33229685
-    Qr_truth      = 5.72637115
-    Pr_truth      = 1199.32836953
-    Cplastr_truth = 0.00010878
+    Qr_truth      = 1.8647076
+    Pr_truth      = 390.5434467
+    Cplastr_truth = 3.54234419e-05
     
     error = Data()
     error.Thrust   = np.max(np.abs(F-F_truth))

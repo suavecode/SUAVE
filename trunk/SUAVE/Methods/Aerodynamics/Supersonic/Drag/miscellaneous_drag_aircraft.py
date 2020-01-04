@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic-Drag
 # miscellaneous_drag_aircraft.py
 # 
 # Created:  Aug 2014, T. Macdonald
@@ -17,7 +17,7 @@ import numpy as np
 #  Miscellaneous Drag Aircraft
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
+## @ingroup Methods-Aerodynamics-Supersonic-Drag
 def miscellaneous_drag_aircraft(state,settings,geometry):
     """Computes the miscellaneous drag associated with an aircraft
 
@@ -25,7 +25,7 @@ def miscellaneous_drag_aircraft(state,settings,geometry):
     Basic fit
 
     Source:
-    adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    http://aerodesign.stanford.edu/aircraftdesign/aircraftdesign.html (Stanford AA241 A/B Course Notes)
 
     Inputs:
     configuration.trim_drag_correction_factor  [Unitless]

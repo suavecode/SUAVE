@@ -1,17 +1,31 @@
+## @ingroup Plots
+# Mission_Plots.py
+# 
+# Created:  May 2018, M. Clarke
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units 
-import pylab as plt 
-import matplotlib
 import matplotlib.pyplot as plt  
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_airfoil_geometry
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from matplotlib.patches import Ellipse, Polygon
+import colorsys 
+import matplotlib.animation as animation
+import matplotlib as mpl
+import matplotlib.cm as cm
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_propeller_airfoils
 
+## @ingroup Plots
 # ------------------------------------------------------------------
 #   Altitude, SFC & Weight
 # ------------------------------------------------------------------
 def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, save_filename = "Altitude_SFC_Weight"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
     for segment in results.segments.values():
@@ -27,23 +41,26 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , altitude , line_color)
         axes.set_ylabel('Altitude (ft)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)        
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')        
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,3)
         axes.plot( time , sfc , line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)        
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')          
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , mass , 'ro-' )
         axes.set_ylabel('Weight (lb)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)        
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')         
         axes.grid(True)
         
     if save_figure:
@@ -55,7 +72,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
 #   Aircraft Velocities
 # ------------------------------------------------------------------
 def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Velocities"):
-    axis_font = {'fontname':'Arial', 'size':'14'}  
+    axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
     for segment in results.segments.values():
@@ -73,24 +90,27 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , velocity / Units.kts, line_color)
         axes.set_ylabel('velocity (kts)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)        
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')         
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , EAS / Units.kts, line_color)
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Equivalent Airspeed',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)        
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')         
         axes.grid(True)    
         
         axes = fig.add_subplot(3,1,3)
         axes.plot( time , mach , line_color)
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Mach',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)        
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')         
         axes.grid(True)    
         
     if save_figure:
@@ -102,29 +122,31 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
 #   Disc and Power Loadings
 # ------------------------------------------------------------------
 def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, save_filename = "Disc_Power_Loading"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8) 
-    for segment in results.segments.values():
+    fig.set_size_inches(12, 10) 
+    for i in range(len(results.segments)):  
 
-        time  = segment.conditions.frames.inertial.time[:,0] / Units.min
-        DL    = segment.conditions.propulsion.disc_loading
-        PL    = segment.conditions.propulsion.power_loading   
+        time  = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        DL    = results.segments[i].conditions.propulsion.disc_loading
+        PL    = results.segments[i].conditions.propulsion.power_loading   
    
         axes = fig.add_subplot(2,1,1)
         axes.plot(time, DL, line_color)
-        axes.set_ylabel('Disc Loading lb/ft2',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
+        axes.set_ylabel('lift disc power lb/ft2',axis_font)
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
         axes.grid(True)       
   
         axes = fig.add_subplot(2,1,2)
         axes.plot(time, PL, line_color )       
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Power Loading (lb/hp)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)         
+        axes.set_ylabel('lift power loading (lb/hp)',axis_font)
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        #axes.grid(True)         
 
     if save_figure:
         plt.savefig(save_filename + ".png")          
@@ -136,9 +158,9 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
 #   Aerodynamic Coefficients
 # ------------------------------------------------------------------
 def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Coefficients"):
-    axis_font = {'fontname':'Arial', 'size':'14'}  
+    axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8)
+    fig.set_size_inches(12, 10)
     for segment in results.segments.values():
 
         time = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -147,34 +169,38 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
         aoa  = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
         l_d  = cl/cd
 
-        axes = fig.add_subplot(4,1,1)
+        axes = fig.add_subplot(2,2,1)
         axes.plot( time , aoa , line_color )
         axes.set_ylabel('Angle of Attack (deg)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
         axes.grid(True)
 
-        axes = fig.add_subplot(4,1,2)
+        axes = fig.add_subplot(2,2,2)
         axes.plot( time , cl, line_color )
         axes.set_ylabel('CL',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
         axes.grid(True)    
         
-        axes = fig.add_subplot(4,1,3)
+        axes = fig.add_subplot(2,2,3)
         axes.plot( time , cd, line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('CD',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
         axes.grid(True)    
         
-        axes = fig.add_subplot(4,1,4)
+        axes = fig.add_subplot(2,2,4)
         axes.plot( time , l_d, line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('L/D',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
         axes.grid(True)            
                 
     if save_figure:
@@ -186,79 +212,165 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
 #   Aerodynamic Forces
 # ------------------------------------------------------------------
 def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Forces"):
-    axis_font = {'fontname':'Arial', 'size':'14'}  
+    axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8)
+    fig.set_size_inches(12, 10)
     for segment in results.segments.values():
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]  
-        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]          
+        Lift     = -segment.conditions.frames.wind.lift_force_vector[:,2]
+        Drag     = -segment.conditions.frames.wind.drag_force_vector[:,0]          
         eta    = segment.conditions.propulsion.throttle[:,0]
 
         axes = fig.add_subplot(2,2,1)
         axes.plot( time , eta , line_color )
         axes.set_ylabel('Throttle',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)         
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')           
         axes.grid(True)	 
 
         axes = fig.add_subplot(2,2,2)
         axes.plot( time , Lift , line_color)
         axes.set_ylabel('Lift (N)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)         
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')          
         axes.grid(True)
         
-        axes = fig.add_subplot(2,2,1)
+        axes = fig.add_subplot(2,2,3)
         axes.plot( time , Thrust , line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)         
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')          
         axes.grid(True)
         
         axes = fig.add_subplot(2,2,4)
         axes.plot( time , Drag , line_color)
         axes.set_ylabel('Drag (N)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)         
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')          
         axes.grid(True)        
     
-        
     if save_figure:
         plt.savefig(save_filename + ".png") 
             
     return
 
+# ------------------------------------------------------------------
+#   Pressure Coefficient
+# ------------------------------------------------------------------
+def plot_surface_pressure_contours(results,vehicle, save_figure = False):	
+    VD         = vehicle.vortex_distribution	 
+    n_cw       = VD.n_cw 	
+    n_sw       = VD.n_sw 
+    n_w        = VD.n_w
+    
+    axis_font  = {'size':'12'}  	
+    img_idx    = 1	
+    seg_idx    = 1	
+    for segment in results.segments.values():   	
+        num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
+        for ti in range(num_ctrl_pts):  
+            CP         = segment.conditions.aerodynamics.pressure_coefficient[ti]
+            
+            fig        = plt.figure()	
+            axes       = fig.add_subplot(1, 1, 1)  
+            x_max      = max(VD.XC) + 2
+            y_max      = max(VD.YC) + 2
+            axes.set_ylim(x_max, 0)
+            axes.set_xlim(-y_max, y_max)            
+            fig.set_size_inches(12, 12)         	 
+            for i in range(n_w):
+                x_pts = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                y_pts = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                z_pts = np.reshape(np.atleast_2d(CP[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))  
+                levals = np.linspace(-.025,-0.0001,500)
+                CS = axes.contourf( y_pts, x_pts,z_pts, cmap = 'jet',levels=levals,extend='both')  
+                
+            # Set Color bar	
+            cbar = fig.colorbar(CS, ax=axes)
+            cbar.ax.set_ylabel('$C_{P}$', rotation =  0)  # angle   
+            plt.axis('off')	
+            plt.grid(None)            
+            
+            if save_figure: 
+                plt.savefig('CP_' + str(img_idx) +  ".png") 	
+            img_idx += 1	
+        seg_idx +=1
+        
+    return   
+
+
+# ------------------------------------------------------------------
+#   Sectional Lift Distribution
+# ------------------------------------------------------------------
+def plot_lift_distribution(results,vehicle, save_figure = False):	
+    VD         = vehicle.vortex_distribution	 	
+    n_sw       = VD.n_sw 
+    n_w        = VD.n_w
+    
+    axis_font  = {'size':'12'}  	
+    img_idx    = 1	
+    seg_idx    = 1	
+    for segment in results.segments.values():   	
+        num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
+        for ti in range(num_ctrl_pts):  
+            cl_y = segment.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[ti] 
+            line = ['-b','-b','-r','-r','-k']
+            fig  = plt.figure()
+            fig.set_size_inches(12, 12)       
+            axes = fig.add_subplot(1,1,1)
+            for i in range(n_w): 
+                y_pts = VD.Y_SW[i*(n_sw):(i+1)*(n_sw)]
+                z_pts = cl_y[i*(n_sw):(i+1)*(n_sw)]
+                axes.plot(y_pts, z_pts, line[i] ) 
+            axes.set_xlabel("Spanwise Location (m)")
+            axes.set_title('$C_{Ly}$')  
+            
+            if save_figure: 
+                plt.savefig('CLy_' + str(img_idx) +  ".png") 	
+            img_idx += 1	
+        seg_idx +=1
+        
+    return      
 
 # ------------------------------------------------------------------
 #   Drag Components
 # ------------------------------------------------------------------
 def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_filename = "Drag_Components"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename,figsize=(8,10))
     axes = plt.gca()
-    for segment in results.segments.values():
+    for i, segment in enumerate(results.segments.values()):
 
-        time           = segment.conditions.frames.inertial.time[:,0] / Units.min
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
-        cdp            = drag_breakdown.parasite.total[:,0]
-        cdi            = drag_breakdown.induced.total[:,0]
-        cdc            = drag_breakdown.compressible.total[:,0]
-        cdm            = drag_breakdown.miscellaneous.total[:,0]
-        cd             = drag_breakdown.total[:,0]
-         
-        axes.plot( time , cdp , 'ko-', label='CD parasite' )
-        axes.plot( time , cdi , line_color, label='CD induced' )
-        axes.plot( time , cdc , 'go-', label='CD compressibility' )
-        axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
-        axes.plot( time , cd  , 'ro-', label='CD total'   )
+        cdp = drag_breakdown.parasite.total[:,0]
+        cdi = drag_breakdown.induced.total[:,0]
+        cdc = drag_breakdown.compressible.total[:,0]
+        cdm = drag_breakdown.miscellaneous.total[:,0]
+        cd  = drag_breakdown.total[:,0]
+        
         if i == 0:
+            axes.plot( time , cdp , 'ko-', label='CD parasite' )
+            axes.plot( time , cdi , line_color, label='CD induced' )
+            axes.plot( time , cdc , 'go-', label='CD compressibility' )
+            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
+            axes.plot( time , cd  , 'ro-', label='CD total'   )    
             axes.legend(loc='upper center')   
-
+        else:
+            axes.plot( time , cdp , 'ko-')
+            axes.plot( time , cdi , line_color)
+            axes.plot( time , cdc , 'go-')
+            axes.plot( time , cdm , 'yo-')
+            axes.plot( time , cd  , 'ro-') 
+            
     axes.set_xlabel('Time (min)',axis_font)
     axes.set_ylabel('CD',axis_font)
     axes.grid(True)         
@@ -273,50 +385,55 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 #   Electronic Conditions
 # ------------------------------------------------------------------
 def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Electronic_Conditions"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8)
-    for segment in results.segments.values():  
+    fig.set_size_inches(12, 10)
+    for i in range(len(results.segments)):  
     
-        time           = segment.conditions.frames.inertial.time[:,0] / Units.min
-        energy         = segment.conditions.propulsion.battery_energy[:,0] 
-        specific_power = segment.conditions.propulsion.battery_specfic_power[:,0]
-        volts          = segment.conditions.propulsion.voltage_under_load[:,0] 
-        volts_oc       = segment.conditions.propulsion.voltage_open_circuit[:,0]     
-        current        = segment.conditions.propulsion.current[:,0]      
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        power    = results.segments[i].conditions.propulsion.battery_draw[:,0] 
+        energy   = results.segments[i].conditions.propulsion.battery_energy[:,0] 
+        volts    = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
+        volts_oc = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]     
+        current = results.segments[i].conditions.propulsion.current[:,0]      
         battery_amp_hr = (energy*0.000277778)/volts
         C_rating   = current/battery_amp_hr
         
         axes = fig.add_subplot(2,2,1)
-        axes.plot(time,specific_power, 'bo-')
-        axes.set_ylabel('Specific Power kW/hg')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)      
-        axes.grid(True)  
+        axes.plot(time, -power, line_color)
+        axes.set_ylabel('Battery Power (Watts)',axis_font)
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
         axes.grid(True)       
     
         axes = fig.add_subplot(2,2,2)
         axes.plot(time, energy*0.000277778, line_color)
         axes.set_ylabel('Battery Energy (W-hr)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)      
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
         axes.grid(True)   
     
         axes = fig.add_subplot(2,2,3)
         axes.plot(time, volts, 'bo-',label='Under Load')
-        axes.plot(time,volts_oc, 'ro-',label='Open Circuit')
+        axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
+        if i == 0:
+            axes.legend(loc='upper right')          
         axes.grid(True)         
         
         axes = fig.add_subplot(2,2,4)
         axes.plot(time, C_rating, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('C-Rating (C)',axis_font)  
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
         axes.grid(True)
  
     if save_figure:
@@ -324,48 +441,23 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         
     return
 
-def plot_residuals(results, line_color = 'bo-', save_figure = False, save_filename = "Residuals"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8)
-    for segment in results.segments.values():
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        if 'network' in segment.state.residuals:
-            network_res = len(segment.state.residuals.network[0]) 
-            for i in range(network_res-1):   
-                net_residuals = segment.state.residuals.network[:,i]
-                axes = fig.add_subplot(2,2,i+1)
-                axes.plot( time , net_residuals, line_color)    
-                axes.set_ylabel('Network Residuals ' + str(i+1),axis_font)
-                axes.set_xlabel('Time (min)',axis_font)   
-                axes.grid(True) 
-                
-        if 'forces' in segment.state.residuals:
-            forces_res  = len(segment.state.residuals.forces[0]) 
-            for j in range(network_res-1):
-                forces_residuals = segment.state.residuals.forces[:,j]
-                axes = fig.add_subplot(2,2,network_res+j)
-                axes.plot( time , forces_residuals, line_color)
-                axes.set_ylabel('Force Residuals ' + str(j+1) , axis_font)
-                axes.set_xlabel('Time (min)', axis_font) 
-                axes.grid(True) 
 
-    return 
 # ------------------------------------------------------------------
 #   Flight Conditions
 # ------------------------------------------------------------------
 def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Flight_Conditions"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8)
-    for segment in results.segments.values():
+    fig.set_size_inches(12, 10)
+    for segment in results.segments.values(): 
 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
         airspeed = segment.conditions.freestream.velocity[:,0] 
         theta    = segment.conditions.frames.body.inertial_rotations[:,1,None] / Units.deg
         cl       = segment.conditions.aerodynamics.lift_coefficient[:,0,None] 
         cd       = segment.conditions.aerodynamics.drag_coefficient[:,0,None] 
-        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg        
+        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        
         x        = segment.conditions.frames.inertial.position_vector[:,0]
         y        = segment.conditions.frames.inertial.position_vector[:,1]
         z        = segment.conditions.frames.inertial.position_vector[:,2]
@@ -374,31 +466,35 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         axes = fig.add_subplot(2,2,1)
         axes.plot(time, altitude, line_color)
         axes.set_ylabel('Altitude (m)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)         
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')          
         axes.grid(True)            
 
         axes = fig.add_subplot(2,2,2)
         axes.plot( time , airspeed , line_color )
         axes.set_ylabel('Airspeed (m/s)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
         axes.grid(True)
 
         axes = fig.add_subplot(2,2,3)
         axes.plot( time , theta, line_color )
         axes.set_ylabel('Pitch Angle (deg)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
         axes.grid(True)    
         
         axes = fig.add_subplot(2,2,4)
         axes.plot( time , x, 'bo-', time , y, 'go-' , time , z, 'ro-')
-        axes.set_ylabel('Displacement',axis_font)
+        axes.set_ylabel('Range (m)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
         axes.grid(True)           
         
     if save_figure:
@@ -406,132 +502,104 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         
     return
 
-
 # ------------------------------------------------------------------
 #   Propulsion Conditions
 # ------------------------------------------------------------------
-def plot_propulsor_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propulsor"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
-    save_filename1 = save_filename + '_Results_1'
-    save_filename2 = save_filename + '_Results_2'
-    save_filename3 = save_filename + '_Results_3'
-    fig = plt.figure(save_filename1)
-    fig.set_size_inches(10, 8)  
-    for segment in results.segments.values():
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min        
-        thrust   = segment.conditions.frames.body.thrust_force_vector[:,2]
-        torque   = segment.conditions.propulsion.motor_torque[:,0] 
-        effp     = segment.conditions.propulsion.etap[:,0]
-        effm     = segment.conditions.propulsion.etam[:,0]
-        
+def plot_proppeller_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propeller"):
+    axis_font = {'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(12, 10)  
+    for segment in results.segments.values(): 
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        rpm    = segment.conditions.propulsion.rpm[:,0] 
+        thrust = segment.conditions.frames.body.thrust_force_vector[:,2]
+        torque = segment.conditions.propulsion.motor_torque[:,0] 
+        tm     = segment.conditions.propulsion.propeller_tip_mach[:,0]
+ 
         axes = fig.add_subplot(2,2,1)
         axes.plot(time, -thrust, line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)      
-        axes.grid(True)   
-
-        axes = fig.add_subplot(2,2,2)
-        axes.plot(time, torque, line_color )
-        axes.set_ylabel('Torque (N-m)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
         axes.grid(True)   
         
-        axes = fig.add_subplot(2,2,3)
-        axes.plot(time, effm, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)
-        
-        axes = fig.add_subplot(2,2,4)
-        axes.plot(time, effp, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Propeller Efficiency (N-m)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)           
-        plt.ylim((0,1))
-        
-    fig = plt.figure(save_filename2)
-    fig.set_size_inches(10, 8)  
-    for segment in results.segments.values(): 
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm      = segment.conditions.propulsion.rpm  [:,0] 
-        tip_mach = segment.conditions.propulsion.propeller_tip_mach[:,0]  
-        throttle = segment.conditions.propulsion.throttle[:,0] 
-        Cp       = segment.conditions.propulsion.propeller_power_coefficient[:,0]        
-
-        axes = fig.add_subplot(2,2,1)
-        axes.plot(time, throttle, line_color)
-        axes.set_ylabel('Throttle',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
-        
         axes = fig.add_subplot(2,2,2)
-        axes.plot(time, Cp, line_color)       
-        axes.set_ylabel('Power Coefficient',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
-        
-        axes = fig.add_subplot(2,2,3)
         axes.plot(time, rpm, line_color)
-        axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('RPM',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
-        axes.grid(True)  
-                
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
+        axes.grid(True)      
+        
+        axes = fig.add_subplot(2,2,3)
+        axes.plot(time, torque, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Torque (N-m)',axis_font)
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)   
+        
         axes = fig.add_subplot(2,2,4)
-        axes.plot(time, tip_mach, line_color )
+        axes.plot(time, tm, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Tip Mach',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)
-        
-    fig = plt.figure(save_filename3)
-    fig.set_size_inches(10, 8) 
-    for segment in results.segments.values():
-        time  = segment.conditions.frames.inertial.time[:,0] / Units.min
-        DL    = segment.conditions.propulsion.disc_loading
-        PL    = -segment.conditions.propulsionVTr_loading  
-    
-        axes = fig.add_subplot(2,1,1)
-        axes.plot(time, DL, line_color)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Disc Loading lb/ft2',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
         axes.grid(True)       
-    
-        axes = fig.add_subplot(2,1,2)
-        axes.plot(time, -PL, line_color )       
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Power Loading (lb/hp)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
         
     if save_figure:
-        plt.savefig(save_filename1 + ".png") 
-        plt.savefig(save_filename2 + ".png")
-        plt.savefig(save_filename3 + ".png")
+        plt.savefig(save_filename + ".png")  
             
     return
 
+# ------------------------------------------------------------------
+#   Electric Propulsion efficiencies
+# ------------------------------------------------------------------
+def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = False, save_filename = "eMotor_Prop_Propulsor"):
+    axis_font = {'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(12, 10)  
+    for segment in results.segments.values(): 
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        effp   = segment.conditions.propulsion.etap[:,0]
+        effm   = segment.conditions.propulsion.etam[:,0]
+        
+        axes = fig.add_subplot(1,2,1)
+        axes.plot(time, effp, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Propeller Efficiency (N-m)',axis_font)
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)           
+        plt.ylim((0,1))
+        
+        axes = fig.add_subplot(1,2,2)
+        axes.plot(time, effm, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)
+        
+    if save_figure:
+        plt.savefig(save_filename + ".png")  
+            
+    return
 
 # ------------------------------------------------------------------
 #   Stability Coefficients
 # ------------------------------------------------------------------
 def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Stability_Coefficients"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8)
+    fig.set_size_inches(12, 10)
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
         cm       = segment.conditions.stability.static['CM'][:,0,None] 
@@ -542,31 +610,34 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
         axes = fig.add_subplot(2,2,1)
         axes.plot( time , aoa, line_color )
         axes.set_ylabel(r'$AoA$',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
         axes.grid(True)    
          
         axes = fig.add_subplot(2,2,2)
         axes.plot( time , cm, line_color )
         axes.set_ylabel(r'$C_M$',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
         axes.grid(True)    
         
         axes = fig.add_subplot(2,2,3)
         axes.plot( time , cm_alpha, line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel(r'$C_M\alpha$',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
         axes.grid(True)    
         
         axes = fig.add_subplot(2,2,4)
         axes.plot( time , SM, line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Static Margin (%)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False) 
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
         axes.grid(True) 
     
     if save_figure:
@@ -578,7 +649,7 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
 #   Solar Flux
 # ------------------------------------------------------------------
 def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filename = "Solar_Flux"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
+    axis_font = {'size':'14'} 
     fig = plt.figure(save_filename) 
     for segment in results.segments.values():               
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -589,23 +660,26 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , flux , line_color )
         axes.set_ylabel('Solar Flux (W/m$^2$)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)               
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')                
         axes.grid(True)
     
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , charge , line_color )
         axes.set_ylabel('Charging Power (W)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)               
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')                
         axes.grid(True)
     
         axes = fig.add_subplot(3,1,3)
         axes.plot( time , energy , line_color )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Battery Energy (MJ)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)               
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')                
         axes.grid(True)              
     
     if save_figure:
@@ -613,313 +687,475 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
         
     return
 
-# ------------------------------------------------------------------    
-#   Lift Propulsor (Lift + Cruise eVTOL Configurations)
 # ------------------------------------------------------------------
-def plot_lift_propulsor_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Lift_Propulsor"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
-    save_filename1 = save_filename + '_Results_Pt1'
-    save_filename2 = save_filename + '_Results_Pt2'
-    save_filename3 = save_filename + '_Results_Pt3'
-    fig = plt.figure(save_filename1)
-    fig.set_size_inches(10, 8)  
-    for segment in results.segments.values():
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min        
-        thrust   = segment.conditions.frames.body.thrust_force_vector[:,2]
-        torque   = segment.conditions.propulsion.motor_torque_lift[:,0] 
-        effp     = segment.conditions.propulsion.propeller_efficiency_lift[:,0]
-        effm     = segment.conditions.propulsion.motor_efficiency_lift[:,0]
-        
-        axes = fig.add_subplot(2,2,1)
-        axes.plot(time, -thrust, line_color)
-        axes.set_ylabel('Thrust (N)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)      
-        axes.grid(True)   
-    
-        axes = fig.add_subplot(2,2,2)
-        axes.plot(time, torque, line_color )
-        axes.set_ylabel('Torque (N-m)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)   
-        
-        axes = fig.add_subplot(2,2,3)
-        axes.plot(time, effm, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)
-        
-        axes = fig.add_subplot(2,2,4)
-        axes.plot(time, effp, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Propeller Efficiency (N-m)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)           
-        plt.ylim((0,1))
-        
-    fig = plt.figure(save_filename2)
-    fig.set_size_inches(10, 8)  
-    for segment in results.segments.values(): 
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm      = segment.conditions.propulsion.rpm_lift  [:,0] 
-        tip_mach = segment.conditions.propulsion.propeller_tip_mach_lift[:,0]  
-        throttle = segment.conditions.propulsion.throttle_lift[:,0] 
-        Cp       = segment.conditions.propulsion.propeller_power_coefficient_lift[:,0]        
-
-        axes = fig.add_subplot(2,2,1)
-        axes.plot(time, throttle, line_color)
-        axes.set_ylabel('Throttle')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
-        
-        axes = fig.add_subplot(2,2,2)
-        axes.plot(time, Cp, line_color )
-        axes.set_ylabel('Power Coefficient')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
-        
-        axes = fig.add_subplot(2,2,3)
-        axes.plot(time, rpm, line_color)
-        axes.set_ylabel('RPM',axis_font)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
-        axes.grid(True)  
-                
-        axes = fig.add_subplot(2,2,4)
-        axes.plot(time, tip_mach, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Mach',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
-    
-
-    fig = plt.figure(save_filename3)
-    fig.set_size_inches(10, 8) 
-    for segment in results.segments.values():
-        time  = segment.conditions.frames.inertial.time[:,0] / Units.min
-        DL    = segment.conditions.propulsion.disc_loading_lift
-        PL    = segment.conditions.propulsion.power_loading_lift  
-   
-        axes = fig.add_subplot(2,1,1)
-        axes.plot(time, DL, line_color)
-        axes.set_ylabel('Disc Loading lb/ft2',axis_font)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
-        axes.grid(True)       
-  
-        axes = fig.add_subplot(2,1,2)
-        axes.plot(time, -PL, line_color )       
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Power Loading (lb/hp)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
-        
-    if save_figure:
-        plt.savefig(save_filename1 + ".png") 
-        plt.savefig(save_filename2 + ".png")
-        plt.savefig(save_filename3 + ".png")
-            
-    return 
-
-# ------------------------------------------------------------------    
-#   Cruise Propulsor (Lift + Cruise eVTOL Configurations)
+#   Lift-Cruise Network
 # ------------------------------------------------------------------
-def plot_cruise_propulsor_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Cruise_Propulsor"):
-    axis_font = {'fontname':'Arial', 'size':'14'} 
-    save_filename1 = save_filename + '_Results_1'
-    save_filename2 = save_filename + '_Results_2'
-    save_filename3 = save_filename + '_Results_Pt3'
-    fig = plt.figure(save_filename1)
-    fig.set_size_inches(10, 8)  
-    for segment in results.segments.values():
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min        
-        thrust   = segment.conditions.frames.body.thrust_force_vector[:,2]
-        torque   = segment.conditions.propulsion.motor_torque_forward[:,0] 
-        effp     = segment.conditions.propulsion.propeller_efficiency_forward[:,0]
-        effm     = segment.conditions.propulsion.motor_efficiency_forward[:,0]
-        
-        axes = fig.add_subplot(2,2,1)
-        axes.plot(time, -thrust, line_color)
-        axes.set_ylabel('Thrust (N)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)      
-        axes.grid(True)   
-    
-        axes = fig.add_subplot(2,2,2)
-        axes.plot(time, torque, line_color )
-        axes.set_ylabel('Torque (N-m)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)   
-        
-        axes = fig.add_subplot(2,2,3)
-        axes.plot(time, effm, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)
-        
-        axes = fig.add_subplot(2,2,4)
-        axes.plot(time, effp, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Propeller Efficiency (N-m)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True)           
-        plt.ylim((0,1))
-        
-    fig = plt.figure(save_filename2)
-    fig.set_size_inches(10, 8)  
-    for segment in results.segments.values(): 
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm      = segment.conditions.propulsion.rpm_forward  [:,0] 
-        tip_mach = segment.conditions.propulsion.propeller_tip_mach_forward[:,0] 
-        throttle = segment.conditions.propulsion.throttle[:,0] 
-        Cp       = segment.conditions.propulsion.propeller_power_coefficient[:,0]        
-
-        axes = fig.add_subplot(2,2,1)
-        axes.plot(time, throttle, line_color)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Throttle',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
-        
-        axes = fig.add_subplot(2,2,2)
-        axes.plot(time, Cp, line_color )
-        axes.set_ylabel('Power Coefficient',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
-        
-        axes = fig.add_subplot(2,2,3)
-        axes.plot(time, rpm, line_color)
-        axes.set_ylabel('RPM',axis_font)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
-        axes.grid(True)  
-                
-        axes = fig.add_subplot(2,2,4)
-        axes.plot(time, tip_mach, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Mach',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
-        
-    fig = plt.figure(save_filename3)
-    fig.set_size_inches(10, 8) 
-    for segment in results.segments.values():
-        time  = segment.conditions.frames.inertial.time[:,0] / Units.min
-        DL    = segment.conditions.propulsion.disc_loading_forward
-        PL    = segment.conditions.propulsion.power_loading_forward  
-    
-        axes = fig.add_subplot(2,1,1)
-        axes.plot(time, DL, line_color)
-        axes.set_ylabel('Disc Loading lb/ft2',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)
-        axes.grid(True)       
-    
-        axes = fig.add_subplot(2,1,2)
-        axes.plot(time, -PL, line_color )       
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Power Loading (lb/hp)',axis_font)
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-        axes.grid(True) 
-        
-    if save_figure:
-        plt.savefig(save_filename1 + ".png") 
-        plt.savefig(save_filename2 + ".png")
-        plt.savefig(save_filename3 + ".png")
-    return 
-   
-# ------------------------------------------------------------------
-#   Propeller Geoemtry 
-# ------------------------------------------------------------------
-def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Geometry"):   
-    # unpack
-    Rt     = prop.tip_radius          
-    Rh     = prop.hub_radius          
-    num_B  = prop.number_blades       
-    a_sec  = prop.airfoil_sections           
-    a_secl = prop.airfoil_section_location   
-    beta   = prop.twist_distribution         
-    b      = prop.chord_distribution         
-    r      = prop.radius_distribution        
-    t      = prop.max_thickness_distribution
-    
-    # prepare plot parameters
-    dim = len(b)
-    theta = np.linspace(0,2*np.pi,num_B+1)
-
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8)     
-    ax = plt.axes(projection='3d') 
-    ax.set_zlim3d(-1, 1)        
-    ax.set_ylim3d(-1, 1)        
-    ax.set_xlim3d(-1, 1)     
-    
-    chord = np.outer(np.linspace(0,1,10),b)
-    for i in range(num_B):  
-        # plot propeller planfrom
-        surf_x = np.cos(theta[i]) * (chord*np.cos(beta)) - np.sin(theta[i]) * (r) 
-        surf_y = np.sin(theta[i]) * (chord*np.cos(beta)) + np.cos(theta[i]) * (r) 
-        surf_z = chord*np.sin(beta)                                
-        ax.plot_surface(surf_x ,surf_y ,surf_z, color = 'gray')
-        
-        if  a_sec != None and a_secl != None:
-            # check dimension of section  
-            dim_sec = len(a_secl)
-            if dim_sec != dim:
-                raise AssertionError("Number of sections not equal to number of stations") 
-                      
-            # get airfoil coordinate geometry     
-            airfoil_data = read_airfoil_geometry(a_sec)       
-            
-            #plot airfoils 
-            for j in range(dim):
-                airfoil_max_t = airfoil_data.thickness_to_chord[a_secl[j]]
-                airfoil_xp = b[j] - airfoil_data.x_coordinates[a_secl[j]]*b[j]
-                airfoil_yp = r[j]*np.ones_like(airfoil_xp)            
-                airfoil_zp = airfoil_data.y_coordinates[a_secl[j]]*b[j]  * (t[j]/(airfoil_max_t*b[j]))
-                
-                transformation_1 = [[np.cos(beta[j]),0 , -np.sin(beta[j])], [0 ,  1 , 0] , [np.sin(beta[j]) , 0 , np.cos(beta[j])]]
-                transformation_2 = [[np.cos(theta[i]) ,-np.sin(theta[i]), 0],[np.sin(theta[i]) , np.cos(theta[i]), 0], [0 ,0 , 1]] 
-                transformation  = np.matmul(transformation_2,transformation_1)
-                
-                airfoil_x = np.zeros(len(airfoil_yp))
-                airfoil_y = np.zeros(len(airfoil_yp))
-                airfoil_z = np.zeros(len(airfoil_yp))     
-                
-                for k in range(len(airfoil_yp)):
-                    vec_1 = [[airfoil_xp[k]],[airfoil_yp[k]], [airfoil_zp[k]]]
-                    vec_2  = np.matmul(transformation,vec_1)
-                    airfoil_x[k] = vec_2[0]
-                    airfoil_y[k] = vec_2[1]
-                    airfoil_z[k] = vec_2[2]
-                            
-                ax.plot3D(airfoil_x, airfoil_y, airfoil_z, color = 'gray')
-                
-    if save_figure:
-        plt.savefig(save_filename + ".png")  
+def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, save_filename = "Lift_Cruise_Network"):
+    axis_font = {'size':'14'} 
+    # ------------------------------------------------------------------
+    #   Electronic Conditions
+    # ------------------------------------------------------------------
+    fig = plt.figure("Lift_Cruise_Electric_Conditions")
+    fig.set_size_inches(16, 8)
+    for i in range(len(results.segments)):          
+        time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        eta            = results.segments[i].conditions.propulsion.throttle[:,0]
+        eta_l          = results.segments[i].conditions.propulsion.rotor_throttle[:,0]
+        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0]*0.000277778
+        specific_power = results.segments[i].conditions.propulsion.battery_specfic_power[:,0]
+        volts          = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
+        volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]  
                     
+        axes = fig.add_subplot(2,2,1)
+        axes.plot(time, eta, 'bo-',label='Forward Motor')
+        axes.plot(time, eta_l, 'r^-',label='Lift Motors')
+        axes.set_ylabel('Throttle')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
+        axes.grid(True)       
+        plt.ylim((0,1))
+        if i == 0:
+            axes.legend(loc='upper center')         
+    
+        axes = fig.add_subplot(2,2,2)
+        axes.plot(time, energy, 'bo-')
+        axes.set_ylabel('Battery Energy (W-hr)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,2,3)
+        axes.plot(time, volts, 'bo-',label='Under Load')
+        axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Battery Voltage (Volts)')  
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        axes.grid(True)
+        if i == 0:
+            axes.legend(loc='upper center')                
+        
+        axes = fig.add_subplot(2,2,4)
+        axes.plot(time, specific_power, 'bo-') 
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Specific Power')  
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)   
+        
+        
+    
+    if save_figure:
+        plt.savefig("Lift_Cruise_Electric_Conditions.png")
+    
+   
+    # ------------------------------------------------------------------
+    #   Propulsion Conditions
+    # ------------------------------------------------------------------
+    fig = plt.figure("Prop-Rotor Network")
+    fig.set_size_inches(16, 8)
+    for i in range(len(results.segments)):          
+        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        prop_rpm    = results.segments[i].conditions.propulsion.rpm_forward [:,0] 
+        prop_thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
+        prop_torque = results.segments[i].conditions.propulsion.motor_torque_forward
+        prop_effp   = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
+        prop_effm   = results.segments[i].conditions.propulsion.motor_efficiency_forward[:,0]
+        prop_Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
+        rotor_rpm    = results.segments[i].conditions.propulsion.rpm_lift [:,0] 
+        rotor_thrust = -results.segments[i].conditions.frames.body.thrust_force_vector[:,2]
+        rotor_torque = results.segments[i].conditions.propulsion.motor_torque_lift
+        rotor_effp   = results.segments[i].conditions.propulsion.rotor_efficiency[:,0]
+        rotor_effm   = results.segments[i].conditions.propulsion.motor_efficiency_lift[:,0]
+        rotor_FM     = results.segments[i].conditions.propulsion.rotor_figure_of_merit[:,0]
+        rotor_Cp = results.segments[i].conditions.propulsion.rotor_power_coefficient[:,0]        
+    
+        axes = fig.add_subplot(2,3,1)
+        axes.plot(time, prop_rpm, 'bo-')
+        axes.plot(time, rotor_rpm, 'r^-')
+        axes.set_ylabel('RPM')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
+        axes.grid(True)       
+    
+        axes = fig.add_subplot(2,3,2)
+        axes.plot(time, prop_thrust, 'bo-')
+        axes.plot(time, rotor_thrust, 'r^-')
+        axes.set_ylabel('Thrust (N)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,3,3)
+        axes.plot(time, prop_torque, 'bo-' )
+        axes.plot(time, rotor_torque, 'r^-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Torque (N-m)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,3,4)
+        axes.plot(time, prop_effp, 'bo-' )
+        axes.plot(time, rotor_effp, 'r^-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel(r'Propeller Efficiency, $\eta_{propeller}$')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)           
+        plt.ylim((0,1))
+    
+        axes = fig.add_subplot(2,3,5)
+        axes.plot(time, prop_effm, 'bo-' )
+        axes.plot(time, rotor_effm, 'r^-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel(r'Motor Efficiency, $\eta_{motor}$')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)         
+        plt.ylim((0,1))
+    
+        axes = fig.add_subplot(2,3,6)
+        axes.plot(time, prop_Cp, 'bo-' )
+        axes.plot(time, rotor_Cp, 'r^-'  )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Power Coefficient')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
+        axes.grid(True) 
+        
+    if save_figure:
+        plt.savefig("Propulsor Network.png")
+            
+    # ------------------------------------------------------------------
+    #   Propulsion Conditions
+    # ------------------------------------------------------------------
+    fig = plt.figure("Rotor")
+    fig.set_size_inches(16, 8)
+    for i in range(len(results.segments)):          
+        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        rpm    = results.segments[i].conditions.propulsion.rpm_lift [:,0] 
+        thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,2]
+        torque = results.segments[i].conditions.propulsion.motor_torque_lift
+        effp   = results.segments[i].conditions.propulsion.rotor_efficiency[:,0]
+        effm   = results.segments[i].conditions.propulsion.motor_efficiency_lift[:,0]
+        FM     = results.segments[i].conditions.propulsion.rotor_figure_of_merit[:,0]
+        Cp     = results.segments[i].conditions.propulsion.rotor_power_coefficient[:,0]
+    
+        axes = fig.add_subplot(2,3,1)
+        axes.plot(time, rpm, 'r^-')
+        axes.set_ylabel('RPM')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
+        axes.grid(True)       
+    
+        axes = fig.add_subplot(2,3,2)
+        axes.plot(time, -thrust, 'r^-')
+        axes.set_ylabel('Thrust (N)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,3,3)
+        axes.plot(time, torque, 'r^-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Torque (N-m)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,3,4)
+        axes.plot(time, effp, 'r^-',label= r'$\eta_{rotor}$' ) 
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel(r'Propeller Efficiency $\eta_{rotor}$')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
+        #if i == 0:
+            #axes.legend(loc='upper center')   
+        axes.grid(True)           
+        plt.ylim((0,1))
+    
+        axes = fig.add_subplot(2,3,5)
+        axes.plot(time, effm, 'r^-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel(r'Motor Efficiency $\eta_{mot}$')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        plt.ylim((0,1))
+        axes.grid(True)  
+    
+        axes = fig.add_subplot(2,3,6)
+        axes.plot(time, Cp , 'r^-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Power Coefficient')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')    
+        axes.grid(True)           
+    
+    if save_figure:
+        plt.savefig("Rotor.png")  
+        
+        
+    # ------------------------------------------------------------------
+    #   Propulsion Conditions
+    # ------------------------------------------------------------------
+    fig = plt.figure("Propeller")
+    fig.set_size_inches(16, 8)
+    for i in range(len(results.segments)):          
+        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        rpm    = results.segments[i].conditions.propulsion.rpm_forward [:,0] 
+        thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
+        torque = results.segments[i].conditions.propulsion.motor_torque_forward
+        effp   = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
+        effm   = results.segments[i].conditions.propulsion.motor_efficiency_forward[:,0]
+        Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
+    
+        axes = fig.add_subplot(2,3,1)
+        axes.plot(time, rpm, 'bo-')
+        axes.set_ylabel('RPM')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
+        axes.grid(True)       
+    
+        axes = fig.add_subplot(2,3,2)
+        axes.plot(time, thrust, 'bo-')
+        axes.set_ylabel('Thrust (N)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,3,3)
+        axes.plot(time, torque, 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Torque (N-m)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,3,4)
+        axes.plot(time, effp, 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel(r'Propeller Efficiency $\eta_{propeller}$')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)           
+        plt.ylim((0,1))
+    
+        axes = fig.add_subplot(2,3,5)
+        axes.plot(time, effm, 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel(r'Motor Efficiency $\eta_{motor}$')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)         
+        plt.ylim((0,1))
+    
+        axes = fig.add_subplot(2,3,6)
+        axes.plot(time, Cp, 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Power Coefficient')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
+        axes.grid(True) 
+        
+    if save_figure:
+        plt.savefig("Cruise_Propulsor.png")
+        
+        
+        
+       
+    # ------------------------------------------------------------------
+    #   Propulsion Conditions
+    # ------------------------------------------------------------------
+    fig = plt.figure("Tip_Mach") 
+    for i in range(len(results.segments)):          
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
+        rtm  = results.segments[i].conditions.propulsion.rotor_tip_mach[:,0]
+        ptm  = results.segments[i].conditions.propulsion.propeller_tip_mach[:,0] 
+        
+        axes = fig.add_subplot(1,1,1)
+        axes.plot(time, ptm, 'bo-',label='Propeller')
+        axes.plot(time, rtm, 'r^-',label='Rotor')
+        axes.set_ylabel('Mach')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
+        axes.grid(True)       
+        
+        if i == 0:
+            axes.legend(loc='upper center')     
+    
+    if save_figure:
+        plt.savefig("Tip_Mach.png")  
+        
+        
     return
 
+# ------------------------------------------------------------------
+#   Rotor/Propeller Acoustics
+# ------------------------------------------------------------------
+def plot_rotor_acoustics(results, line_color = 'bo-', save_figure = False, save_filename = "Rotor Acoustics"):
+    axis_font = {'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(10, 8) 
+    for i in range(len(results.segments)):          
+        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        SPL_BMv_dBA  = results.segments[i].conditions.propulsion.acoustic_outputs.acoustic_results.SPL_BMv_dBA[:,0]
+        SPL_Hv_dBA   = results.segments[i].conditions.propulsion.acoustic_outputs.acoustic_results.SPL_Hv_dBA[:,0] 
 
+        axes = fig.add_subplot(1,1,1)
+        axes.plot( time , SPL_BMv_dBA, 'bo-', label = 'Prediction Method: Barry & Magliozzi')
+        axes.plot( time , SPL_Hv_dBA , 'r^-', label = 'Prediction Method: Hanson')
+        axes.set_ylabel('dBA',axis_font)
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylim([60,130])
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')         
+        axes.grid(True) 
+        if i == 0:
+            axes.legend(loc='upper center')         
+        
+    if save_figure:
+        plt.savefig(save_filename + ".png")  
+        
+
+    return 
+
+# ------------------------------------------------------------------
+#   VLM Video 
+# ------------------------------------------------------------------
+def create_video_frames(results,vehicle,flight_profile = True):	
+    VD         = vehicle.vortex_distribution	
+    n_cp       = VD.n_cp	
+    n_cw       = VD.n_cw 	
+    n_sw       = VD.n_sw 
+    n_w        = VD.n_w
+    n_fus      = VD.n_fus
+    
+    axis_font  = {'size':'12'}  	
+    img_idx    = 1	
+    seg_idx    = 1	
+    for segment in results.segments.values():   	
+        num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
+        for ti in range(num_ctrl_pts):  
+            CP         = segment.conditions.aerodynamics.pressure_coefficient[ti]
+            
+            fig        = plt.figure()	
+            axes       = fig.add_subplot(1, 1, 1) 
+            x_max = max(VD.XC) + 2
+            y_max = max(VD.YC) + 2
+            axes.set_ylim(x_max, 0)
+            axes.set_xlim(-y_max, y_max)            
+            fig.set_size_inches(12, 12)         
+            
+            # plot fuselage 
+            for i in range(n_fus):
+                x_pts = np.reshape(np.atleast_2d(VD.FUS_XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                y_pts = np.reshape(np.atleast_2d(VD.FUS_YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                z_pts = np.reshape(np.atleast_2d(VD.FUS_ZC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))   
+                CS_fus = axes.contourf( y_pts,x_pts, z_pts,cmap=plt.cm.bone)  
+            
+            # plot wing    
+            for i in range(n_w):
+                x_pts = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                y_pts = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+                z_pts = np.reshape(np.atleast_2d(CP[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))  
+                levals = np.linspace(-.025,-0.0001,500)
+                CS = axes.contourf(x_pts, y_pts, z_pts, cmap = 'jet',levels=levals,extend='both')  
+                
+            # Set Color bar	
+            cbar = fig.colorbar(CS, ax=axes)
+            cbar.ax.set_ylabel('$C_{P}$', rotation =  0)  # angle   
+            plt.axis('off')	
+            plt.grid(None) 	 
+            
+            if flight_profile: 
+                time_vec      = np.empty(shape=[0,1])	
+                cl_vec        = np.empty(shape=[0,1])	
+                cd_vec        = np.empty(shape=[0,1])	
+                l_d_vec       = np.empty(shape=[0,1])	
+                altitude_vec  = np.empty(shape=[0,1])	
+                mass_vec      = np.empty(shape=[0,1])          	
+                for seg_i in range(seg_idx):	
+                    if seg_i == seg_idx-1:	
+                        t_vals  = results.segments[seg_i].conditions.frames.inertial.time[0:ti+1] / Units.min	
+                        cl_vals = results.segments[seg_i].conditions.aerodynamics.lift_coefficient[0:ti+1]	
+                        cd_vals = results.segments[seg_i].conditions.aerodynamics.drag_coefficient[0:ti+1]	
+                        l_d_vals = cl_vals/cd_vals	
+                        alt_vals = results.segments[seg_i].conditions.freestream.altitude[0:ti+1] / Units.ft	
+                        m_vals   = results.segments[seg_i].conditions.weights.total_mass[0:ti+1]/ Units.lb                  	
+                
+                    else:                    	
+                        t_vals  = results.segments[seg_i].conditions.frames.inertial.time / Units.min	
+                        cl_vals = results.segments[seg_i].conditions.aerodynamics.lift_coefficient	
+                        cd_vals = results.segments[seg_i].conditions.aerodynamics.drag_coefficient	
+                        l_d_vals = cl_vals/cd_vals 	
+                        alt_vals = results.segments[seg_i].conditions.freestream.altitude / Units.ft	
+                        m_vals   = results.segments[seg_i].conditions.weights.total_mass/ Units.lb	
+                
+                    time_vec      = np.append(time_vec     ,t_vals[:,0])	
+                    cl_vec        = np.append(cl_vec       ,cl_vals[:,0])	
+                    cd_vec        = np.append(cd_vec       ,cd_vals[:,0])	
+                    l_d_vec       = np.append(l_d_vec      , l_d_vals[:,0])	
+                    altitude_vec  = np.append(altitude_vec ,alt_vals[:,0])	
+                    mass_vec      = np.append(mass_vec     ,m_vals[:,0]) 	
+                
+                mini_axes1 = fig.add_subplot(4,4,4)	
+                mini_axes1.plot(time_vec, altitude_vec , 'ko-')	
+                mini_axes1.set_ylabel('Altitude (ft)',axis_font)	
+                mini_axes1.set_xlim(-10,420)	
+                mini_axes1.set_ylim(0,36000)        	
+                mini_axes1.grid(False)	
+                
+                mini_axes2 = fig.add_subplot(4,4,8)	
+                mini_axes2.plot(time_vec, mass_vec , 'ro-' )	
+                mini_axes2.set_ylabel('Weight (lb)',axis_font)       	
+                mini_axes2.grid(False)            	
+                mini_axes2.set_xlim(-10,420)	
+                mini_axes2.set_ylim(130000,180000)   	
+                
+                mini_axes3 = fig.add_subplot(4,4,12)	
+                mini_axes3.plot( time_vec, cl_vec, 'bo-'  )	
+                mini_axes3.set_ylabel('$C_{L}$',axis_font)	
+                mini_axes3.set_xlim(-10,420)	
+                mini_axes3.set_ylim(0.3,0.9)  	
+                mini_axes3.grid(False) 	
+                
+                mini_axes4 = fig.add_subplot(4,4,16)	
+                mini_axes4.plot(time_vec , l_d_vec ,'go-'  )	
+                mini_axes4.set_ylabel('L/D',axis_font)	
+                mini_axes4.set_xlabel('Time (mins)',axis_font)	
+                mini_axes4.set_xlim(-10,420)	
+                mini_axes4.set_ylim(15,20)  	
+                mini_axes4.grid(False)             	
+
+            plt.savefig('mission_' + str(img_idx) +  ".png") 	
+            img_idx += 1	
+        seg_idx +=1
+        
 # ------------------------------------------------------------------
 #   Propeller Performance
 # ------------------------------------------------------------------
@@ -935,11 +1171,42 @@ def plot_propeller_performance(noise, line_color = 'bo-', save_figure = False, s
     axes.plot(r, T , line_color)
     axes.set_ylabel('T (N)',axis_font)
     axes.set_xlabel('r (m)',axis_font)
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False)
+    axes.minorticks_on()
+    axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+    axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
     axes.grid(True)      
     
     if save_figure:
         plt.savefig(save_filename + ".png")  
         
-    return
+    return  
+
+
+# ------------------------------------------------------------------
+#   Rotor/Propeller Acoustics
+# ------------------------------------------------------------------
+def plot_rotor_acoustics(results, line_color = 'bo-', save_figure = False, save_filename = "Rotor Acoustics"):
+    axis_font = {'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(10, 8) 
+    for i in range(len(results.segments)):          
+        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        SPL_BMv_dBA  = results.segments[i].conditions.propulsion.acoustic_outputs.acoustic_results.SPL_BMv_dBA[:,0]
+        SPL_Hv_dBA   = results.segments[i].conditions.propulsion.acoustic_outputs.acoustic_results.SPL_Hv_dBA[:,0] 
+        axes = fig.add_subplot(1,1,1)
+        axes.plot( time , SPL_BMv_dBA, 'bo-', label = 'Prediction Method: Barry & Magliozzi')
+        axes.plot( time , SPL_Hv_dBA , 'r^-', label = 'Prediction Method: Hanson')
+        axes.set_ylabel('dBA',axis_font)
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylim([60,130])
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')          
+        axes.grid(True) 
+        if i == 0:
+            axes.legend(loc='upper center')         
+
+    if save_figure:
+        plt.savefig(save_filename + ".png")  
+
+    return 

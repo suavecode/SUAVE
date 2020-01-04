@@ -13,11 +13,15 @@
 
 import SUAVE
 from SUAVE.Core import Units
+
 import numpy as np
 import pylab as plt
 import copy, time
-from SUAVE.Core import Data, Container
 from SUAVE.Plots.Mission_Plots import * 
+from SUAVE.Core import (
+Data, Container,
+)
+
 import sys
 
 sys.path.append('../Vehicles')
@@ -74,11 +78,10 @@ def main():
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results, line_color = 'bo-')
-    plot_mission(old_results, line_color = 'k-')
+    plot_mission(results)
+    plot_mission(old_results)
     plt.show()
     
-
     # check the results
     check_results(results,old_results)
     
@@ -187,11 +190,6 @@ def base_analysis(vehicle):
     return analyses    
 
 
-
-
-
-
-
 # ----------------------------------------------------------------------
 #   Define the Mission
 # ----------------------------------------------------------------------
@@ -235,10 +233,13 @@ def mission_setup(analyses):
     segment.planet         = planet
 
     segment.altitude_start = 0.0   * Units.km
-    segment.altitude_end   = 3.048 * Units.km
+    segment.altitude_end   = 3.048 * Units.km  
     segment.air_speed      = 250.0 * Units.knots
-    segment.throttle       = 1.0        
-
+    segment.throttle       = 1.0    
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 12. * Units.degrees   
+    segment.state.unknowns.wind_angle = ones_row(1) * 4. * Units.degrees  
     # add to misison
     mission.append_segment(segment)
 
@@ -255,16 +256,15 @@ def mission_setup(analyses):
     # segment attributes
     segment.atmosphere   = atmosphere
     segment.planet       = planet
-
-    segment.altitude_end = 32000. * Units.ft
-    segment.air_speed    = 350.0  * Units.knots
-    segment.throttle     = 1.0
-
-    # dummy for post process script
-    segment.climb_rate   = 0.1
     
+    segment.altitude_start = 3.048 * Units.km  
+    segment.altitude_end   = 32000. * Units.ft
+    segment.air_speed      = 350.0  * Units.knots
+    segment.throttle       = 1.0  
+
     ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg     
+    segment.state.unknowns.body_angle = ones_row(1) * 12. * Units.degrees  
+    segment.state.unknowns.wind_angle = ones_row(1) * 4. * Units.degrees 
 
     # add to mission
     mission.append_segment(segment)
@@ -280,13 +280,17 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.cruise )
 
     # segment attributes
-    segment.atmosphere   = atmosphere
-    segment.planet       = planet
+    segment.atmosphere     = atmosphere
+    segment.planet         = planet
+    segment.altitude_start =  32000. * Units.ft
+    segment.altitude_end   = 35000. * Units.ft
+    segment.air_speed      = 390.0  * Units.knots
+    segment.throttle       = 1.0
 
-    segment.altitude_end = 35000. * Units.ft
-    segment.air_speed    = 390.0  * Units.knots
-    segment.throttle     = 1.0
-
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 12. * Units.degrees  
+    segment.state.unknowns.wind_angle = ones_row(1) * 4. * Units.degrees 
+    
     # add to mission
     mission.append_segment(segment)
 
@@ -395,25 +399,25 @@ def mission_setup(analyses):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_color):
-    
+def plot_mission(results):
+
     # Plot Flight Conditions 
-    plot_flight_conditions(results,line_color)
+    plot_flight_conditions(results)
     
     # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results,line_color)
+    plot_aerodynamic_forces(results)
     
     # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results,line_color)
+    plot_aerodynamic_coefficients(results)
     
     # Drag Components
-    plot_drag_components(results,line_color)
+    plot_drag_components(results)
     
     # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results,line_color)
+    plot_altitude_sfc_weight(results)
     
     # Plot Velocities 
-    plot_aircraft_velocities(results,line_color)  
+    plot_aircraft_velocities(results) 
 
     return
 

@@ -47,35 +47,17 @@ def main():
  
     # mission analysis
     mission = analyses.missions.base
-    results = mission.evaluate()
-
-    # print weight breakdown
-    #print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
-
-    # print engine data into file
-    #print_engine_data(configs.base,filename = 'B737_engine_data.dat')
-
-    # print parasite drag data into file
-    # define reference condition for parasite drag
-    ref_condition = Data()
-    ref_condition.mach_number = 0.3
-    ref_condition.reynolds_number = 12e6     
-    #print_parasite_drag(ref_condition,configs.cruise,analyses,'B737_parasite_drag.dat')
-
-    # print compressibility drag data into file
-    #print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
-
-    # print mission breakdown
-    #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
-
+    results = mission.evaluate() 
+    
+    # plot results 
+    plot_mission(results, line_color = 'bo-')
+ 
     # load older results
     #save_results(results)
-    old_results = load_results()   
-
-    # plt the old results
-    # save_results(results)
-    plot_mission(results, line_color = 'bo-')
-    plot_mission(old_results, line_color = 'k-')
+    old_results = load_results()
+    plot_mission(old_results, line_color = 'bs:')
+      
+    # plot the old results
     plt.show()
     
     # check the results
@@ -189,22 +171,22 @@ def base_analysis(vehicle):
 def plot_mission(results,line_color):
 
     # Plot Flight Conditions 
-    plot_flight_conditions(results,line_color, save_figure= True)
+    plot_flight_conditions(results,line_color)
     
     # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results,line_color, save_figure= True)
+    plot_aerodynamic_forces(results,line_color)
     
     # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results,line_color, save_figure= True)
+    plot_aerodynamic_coefficients(results,line_color)
     
     # Drag Components
-    plot_drag_components(results,line_color, save_figure= True)
+    plot_drag_components(results,line_color)
     
     # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results,line_color, save_figure= True)
+    plot_altitude_sfc_weight(results,line_color)
     
     # Plot Velocities 
-    plot_aircraft_velocities(results,line_color, save_figure= True)  
+    plot_aircraft_velocities(results,line_color)  
     return
 
 def simple_sizing(configs, analyses):
@@ -281,7 +263,7 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
-
+    base_segment.state.numerics.number_control_points        = 4  
 
     # ------------------------------------------------------------------
     #   First Climb Segment: constant Mach, constant segment angle 

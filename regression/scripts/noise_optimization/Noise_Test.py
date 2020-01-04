@@ -45,7 +45,7 @@ def main():
     noise_cumulative_margin = objectives[0]
     
     actual = Data()
-    actual.noise_cumulative_margin = 19.793817329395267
+    actual.noise_cumulative_margin = 19.79089356593667
 
 
     error = Data()
@@ -80,7 +80,7 @@ def setup():
         [ 'wing_area'                    ,    124.8 , (    70.    ,   200.   ) ,   124.8 , Units.meter**2],
         [ 'wing_aspect_ratio'            ,     10.18, (     5.    ,    20.   ) ,    10.18,     Units.less],
         [ 'wing_sweep'                   ,    25.   , (     0.    ,    35.   ) ,    25.  ,  Units.degrees],
-        [ 'wing_thickness'               ,     0.105 , (     0.07  ,     0.20 ) ,     0.105,     Units.less],
+        [ 'wing_thickness'               ,    0.105 , (     0.07  ,     0.20 ) ,     0.105,     Units.less],
         [ 'design_thrust'                , 52700.   , ( 10000.    , 70000.   ) , 52700.  ,        Units.N],
         [ 'MTOW'                         , 79090.   , ( 20000.    ,100000.   ) , 79090.  ,       Units.kg],
         [ 'MZFW_ratio'                   ,     0.77 , (     0.6   ,     0.99 ) ,    0.77 ,     Units.less],

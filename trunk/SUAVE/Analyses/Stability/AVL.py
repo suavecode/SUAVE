@@ -34,10 +34,8 @@ import pylab as plt
 import os
 import numpy as np
 import sys
-import sklearn
-from sklearn import gaussian_process
+from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 from shutil import rmtree
-from warnings import warn
 
 # ----------------------------------------------------------------------
 #  Class
@@ -124,7 +122,8 @@ class AVL(Stability):
         self.stability_model.dutch_roll.natural_frequency   = 0.0
 
         # Regression Status
-        self.regression_flag                                = False
+        self.regression_flag                                = False 
+        self.save_regression_results                        = False
 
     def finalize(self):
         """Drives functions to get training samples and build a surrogate.
@@ -209,9 +208,9 @@ class AVL(Stability):
         
         # Unpack
         surrogates          = self.surrogates  
-        configuration       = self.configuration
         geometry            = self.geometry
         stability_model     = self.stability_model
+        configuration       = self.configuration
         
         q                   = conditions.freestream.dynamic_pressure
         Sref                = geometry.reference_area    
@@ -226,11 +225,7 @@ class AVL(Stability):
         Cm_alpha_model      = surrogates.Cm_alpha_moment_coefficient
         Cn_beta_model       = surrogates.Cn_beta_moment_coefficient      
         neutral_point_model = surrogates.neutral_point
-        
-        configuration       = self.configuration
-        stability_model     = self.stability_model
-
-
+         
         # set up data structures
         static_stability    = Data()
         dynamic_stability   = Data()        
@@ -243,54 +238,15 @@ class AVL(Stability):
         NP                  = np.zeros([data_len,1]) 
 
         for ii,_ in enumerate(AoA):           
-            CM[ii]          = moment_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
-            Cm_alpha[ii]    = Cm_alpha_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
-            Cn_beta[ii]     = Cn_beta_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
-            NP[ii]          = neutral_point_model.predict([np.array([AoA[ii][0],mach[ii][0]])])    #sklearn fix        
+            CM[ii]          = moment_model(AoA[ii][0],mach[ii][0]) 
+            Cm_alpha[ii]    = Cm_alpha_model(AoA[ii][0],mach[ii][0]) 
+            Cn_beta[ii]     = Cn_beta_model(AoA[ii][0],mach[ii][0]) 
+            NP[ii]          = neutral_point_model(AoA[ii][0],mach[ii][0]) 
 
         static_stability.CM       = CM
         static_stability.Cm_alpha = Cm_alpha 
         static_stability.Cn_beta  = Cn_beta   
         static_stability.NP       = NP  
-
-        #-------------------------------------------------------------------------------------------------------------------------------------------------------------
-        #                         SUAVE-AVL dynamic stability analysis under development
-        #  
-        ## Dynamic Stability
-        #if np.count_nonzero(configuration.mass_properties.moments_of_inertia.tensor) > 0:    
-            ## Dynamic Stability Approximation Methods - valid for non-zero I tensor            
-
-            #for i,_ in enumerate(aero):
-
-                ## Dynamic Stability
-                #dynamic_stability.cn_r[i]             = case_results.aerodynamics.Cn_r
-                #dynamic_stability.cl_p[i]             = case_results.aerodynamics.Cl_p
-                #dynamic_stability.cl_beta[i]          = case_results.aerodynamics.cl_beta
-                #dynamic_stability.cy_beta[i]          = 0
-                #dynamic_stability.cm_q[i]             = case_results.aerodynamics.Cm_q
-                #dynamic_stability.cm_alpha_dot[i]     = static_stability.cm_alpha[i]*(2*run_conditions.freestream.velocity/mac)
-                #dynamic_stability.cz_alpha[i]         = case_results.aerodynamics.cz_alpha
-
-                #dynamic_stability.cl_psi[i]           = aero.lift_coefficient[i]
-                #dynamic_stability.cL_u[i]             = 0
-                #dynamic_stability.cz_u[i]             = -2(aero.lift_coefficient[i] - velocity[i]*dynamic_stability.cL_u[i])  
-                #dynamic_stability.cz_alpha_dot[i]     = static_stability.cz_alpha[i]*(2*run_conditions.freestream.velocity/mac)
-                #dynamic_stability.cz_q[i]             = 2. * 1.1 * static_stability.cm_alpha[i]
-                #dynamic_stability.cx_u[i]             = -2. * aero.drag_coefficient[i]
-                #dynamic_stability.cx_alpha[i]         = aero.lift_coefficient[i] - conditions.lift_curve_slope[i]
-
-                #stability_model.dutch_roll.damping_ratio[i]       = (1/(1 + (case_results.aerodynamics.dutch_roll_mode_1_imag /case_results.aerodynamics.dutch_roll_mode_1_real)**2))**0.5
-                #stability_model.dutch_roll.natural_frequency[i]   =  - (case_results.aerodynamics.dutch_roll_mode_1_real/stability_model.dutch_roll.damping_ratio)
-                #stability_model.dutch_roll.natural_frequency[i]   =  - (case_results.aerodynamics.short_period_mode_1_real/stability_model.short_period.damping_ratio)
-                #stability_model.spiral_tau[i]                     =  1/case_results.aerodynamics.spiral_mode_real 
-                #stability_model.roll_tau[i]                       =  1/case_results.aerodynamics.roll_mode_real
-                #stability_model.short_period.damping_ratio[i]     =  (1/(1 + (case_results.aerodynamics.short_period_mode_1_imag /case_results.aerodynamics.short_period_mode_1_real)**2))**0.5
-                #stability_model.short_period.natural_frequency[i] = - (case_results.aerodynamics.short_period_mode_1_real/stability_model.short_period.damping_ratio)
-                #stability_model.phugoid.damping_ratio[i]          =  (1/(1 + (case_results.aerodynamics.phugoid_mode_mode_1_imag /case_results.aerodynamics.phugoid_mode_mode_1_real )**2))**0.5
-                #stability_model.phugoid.natural_frequency[i]      = - ( case_results.aerodynamics.phugoid_mode_mode_1_real/stability_model.phugoid.damping_ratio)
-        #
-        #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-       
        
         # pack results
         results         = Data()
@@ -332,21 +288,14 @@ class AVL(Stability):
         AoA      = training.angle_of_attack
         mach     = training.Mach
         
-        CM       = np.zeros([len(AoA)*len(mach),1])
-        Cm_alpha = np.zeros([len(AoA)*len(mach),1])
-        Cn_beta  = np.zeros([len(AoA)*len(mach),1]) 
-        NP       = np.zeros([len(AoA)*len(mach),1]) 
+        CM       = np.zeros((len(AoA),len(mach)))
+        Cm_alpha = np.zeros_like(CM)
+        Cn_beta  = np.zeros_like(CM)
+        NP       = np.zeros_like(CM)
 
-        # Calculate aerodynamics for table
-        table_size = len(AoA)*len(mach)
-        xy         = np.zeros([table_size,2])
-        count      = 0
-        time0      = time.time()
-
+        
+        count      = 0 
         for i,_ in enumerate(mach):
-            for j,_ in enumerate(AoA):
-                xy[i*len(mach)+j,:] = np.array([AoA[j],mach[i]])
-        for j,_ in enumerate(mach):
             # Set training conditions
             run_conditions = Aerodynamics()
             run_conditions.weights.total_mass               = 0    # Currently set to zero. Used for dynamic analysis which is under development
@@ -354,36 +303,48 @@ class AVL(Stability):
             run_conditions.freestream.gravity               = 9.81          
             run_conditions.aerodynamics.angle_of_attack     = AoA
             run_conditions.freestream.mach_number           = mach[j]
-            
+
             #Run Analysis at AoA[i] and mach[j]
             results =  self.evaluate_conditions(run_conditions)
 
             # Obtain CM Cm_alpha, Cn_beta and the Neutral Point # Store other variables here as well 
-            CM[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.pitch_moment_coefficient[:,0]
-            Cm_alpha[count*len(mach):(count+1)*len(mach),0] = results.aerodynamics.cm_alpha[:,0]
-            Cn_beta[count*len(mach):(count+1)*len(mach),0]  = results.aerodynamics.cn_beta[:,0]
-            NP[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.neutral_point[:,0]
-
-            count += 1
-
-        time1 = time.time()
-
-        print('The total elapsed time to run AVL: '+ str(time1-time0) + '  Seconds')
+            CM [:,i]      = results.aerodynamics.pitch_moment_coefficient[:,0]
+            Cm_alpha[:,i] = results.aerodynamics.cm_alpha[:,0]
+            Cn_beta[:,i]  = results.aerodynamics.cn_beta[:,0]
+            NP[:,i]       = results.aerodynamics.neutral_point[:,0]
+  
         
         if self.training_file:
             data_array = np.loadtxt(self.training_file)
-            xy         = data_array[:,0:2]
-            CM         = data_array[:,2:3]
-            Cm_alpha   = data_array[:,3:4]
-            Cn_beta    = data_array[:,4:5]
-            NP         = data_array[:,5:6]
-        
-        # Save the data for regression
-        #np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([xy,CM,Cm_alpha, Cn_beta,NP ]),fmt='%10.8f',header='     AoA        Mach        CM       Cm_alpha       Cn_beta       NP ')
-        
+            CM_1D         = np.atleast_2d(data_array[:,0])
+            Cm_alpha_1D   = np.atleast_2d(data_array[:,1])
+            Cn_beta_1D    = np.atleast_2d(data_array[:,2])
+            NP_1D         = np.atleast_2d(data_array[:,3])
+            
+            # convert from 1D to 2D
+            CM       = np.reshape(CM_1D      , (len(AoA),-1))
+            Cm_alpha = np.reshape(Cm_alpha_1D, (len(AoA),-1))
+            Cn_beta  = np.reshape(Cn_beta_1D , (len(AoA),-1)) 
+            NP       = np.reshape(NP_1D      , (len(AoA),-1))   
+                                                              
+        # Save the data for regression                           
+        if self.save_regression_results: 
+            # convert from 2D to 1D
+            CM_1D       = CM.reshape([len(AoA)*len(mach),1]) 
+            Cm_alpha_1D = Cm_alpha.reshape([len(AoA)*len(mach),1]) 
+            Cn_beta_1D  = Cn_beta.reshape([len(AoA)*len(mach),1]) 
+            NP_1D       = NP.reshape([len(AoA)*len(mach),1]) 
+            np.savetxt(geometry.tag+'_stability_data.txt',np.hstack([CM_1D, Cm_alpha_1D,  Cn_beta_1D, NP_1D  ]),fmt='%10.8f',header='  CM       CM_alpha       CN_Beta      NP   ')
+          
+        # Save the data for regression 
+        training_data = np.zeros((4,len(AoA),len(mach)))
+        training_data[0,:,:] = CM      
+        training_data[1,:,:] = Cm_alpha
+        training_data[2,:,:] = Cn_beta 
+        training_data[3,:,:] = NP
+            
         # Store training data
-        training.coefficients = np.hstack([CM,Cm_alpha,Cn_beta,NP])
-        training.grid_points  = xy
+        training.coefficients = training_data
 
         
         return        
@@ -405,39 +366,29 @@ class AVL(Stability):
 
         Outputs:
         self.surrogates.
-          moment_coefficient             <Guassian process surrogate>
-          Cm_alpha_moment_coefficient    <Guassian process surrogate>
-          Cn_beta_moment_coefficient     <Guassian process surrogate>
-          neutral_point                  <Guassian process surrogate>       
+          moment_coefficient             
+          Cm_alpha_moment_coefficient    
+          Cn_beta_moment_coefficient     
+          neutral_point                     
 
         Properties Used:
         No others
         """  
+        
         # Unpack data
-        training                                    = self.training
-        AoA_data                                    = training.angle_of_attack
-        mach_data                                   = training.Mach
-        CM_data                                     = training.coefficients[:,0]
-        Cm_alpha_data                               = training.coefficients[:,1]
-        Cn_beta_data                                = training.coefficients[:,2]
-        NP_data                                     = training.coefficients[:,3]	
-        xy                                          = training.grid_points 
-
-        # Gaussian Process New
-        regr_cm                                     = gaussian_process.GaussianProcessRegressor()
-        regr_cm_alpha                               = gaussian_process.GaussianProcessRegressor()
-        regr_cn_beta                                = gaussian_process.GaussianProcessRegressor()
-        regr_np                                     = gaussian_process.GaussianProcessRegressor()
-
-        cm_surrogate                                = regr_cm.fit(xy, CM_data) 
-        cm_alpha_surrogate                          = regr_cm_alpha.fit(xy, Cm_alpha_data) 
-        cn_beta_surrogate                           = regr_cn_beta.fit(xy, Cn_beta_data)
-        neutral_point_surrogate                     = regr_np.fit(xy, NP_data)
-
-        self.surrogates.moment_coefficient          = cm_surrogate
-        self.surrogates.Cm_alpha_moment_coefficient = cm_alpha_surrogate
-        self.surrogates.Cn_beta_moment_coefficient  = cn_beta_surrogate   
-        self.surrogates.neutral_point               = neutral_point_surrogate
+        training  = self.training
+        AoA_data  = training.angle_of_attack
+        mach_data = training.Mach
+        CM_data       = training.coefficients[0,:,:]
+        Cm_alpha_data = training.coefficients[1,:,:]
+        Cn_beta_data  = training.coefficients[2,:,:] 
+        NP_data       = training.coefficients[3,:,:] 
+        
+        SMOOTHING = 0.1        
+        self.surrogates.moment_coefficient          = RectBivariateSpline(AoA_data, mach_data, CM_data      , s=SMOOTHING) 
+        self.surrogates.Cm_alpha_moment_coefficient = RectBivariateSpline(AoA_data, mach_data, Cm_alpha_data, s=SMOOTHING) 
+        self.surrogates.Cn_beta_moment_coefficient  = RectBivariateSpline(AoA_data, mach_data, Cn_beta_data , s=SMOOTHING)  
+        self.surrogates.neutral_point               = RectBivariateSpline(AoA_data, mach_data,  NP_data      , s=SMOOTHING) 
         
         return
 
@@ -506,13 +457,10 @@ class AVL(Stability):
         for case in cases:
             cases[case].stability_and_control.number_control_surfaces = num_cs
         self.current_status.cases        = cases 
-        
 
         # case filenames
         for case in cases:
             cases[case].result_filename  = output_template.format(case)
-            #case.eigen_result_filename  = stability_output_template.format(batch_index) # SUAVE-AVL dynamic stability under development 
-
 
         # write the input files
         with redirect.folder(run_folder,force=False):

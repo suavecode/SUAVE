@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Supersonic_Zero-Lift
+## @ingroup Methods-Aerodynamics-Supersonic-Lift
 # vortex_lift.py
 # 
 # Created:  Jun 2014, T. MacDonald
@@ -16,7 +16,7 @@ import numpy as np
 #   The Function
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Supersonic_Zero-Lift
+## @ingroup Methods-Aerodynamics-Supersonic-Lift
 def vortex_lift(state,settings,geometry):
     """Computes vortex lift according to the Polhamus Suction Analogy
 
@@ -50,7 +50,7 @@ def vortex_lift(state,settings,geometry):
 
     for wing in geometry.wings:
         
-        wing_lift = state.conditions.aerodynamics.lift_coefficient_wing[wing.tag]
+        wing_lift = state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag]
 
         if wing.vortex_lift is True:
             AR = wing.aspect_ratio

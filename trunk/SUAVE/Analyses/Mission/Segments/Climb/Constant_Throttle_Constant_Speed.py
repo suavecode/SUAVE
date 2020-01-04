@@ -73,7 +73,7 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.unknowns.body_angle = ones_row(1) * 5.0 * Units.deg
+        self.state.unknowns.body_angle = ones_row(1) * 4.0 * Units.deg
         self.state.unknowns.wind_angle = ones_row(1) * 0.0 * Units.deg
         self.state.residuals.forces    = ones_row(2) * 0.0
         
@@ -127,7 +127,7 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
-        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
+        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust        
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
         iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.weights         = Methods.Common.Weights.update_weights

@@ -235,7 +235,7 @@ def solve_residuals(segment):
     FT = conditions.frames.inertial.total_force_vector
     v  = conditions.frames.inertial.velocity_vector
     m  = conditions.weights.total_mass
-    D  = state.numerics.time.differentiate
+    D  = segment.state.numerics.time.differentiate
     vf = segment.velocity_end
 
     # process and pack
