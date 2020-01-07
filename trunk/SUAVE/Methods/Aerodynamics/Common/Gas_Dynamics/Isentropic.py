@@ -82,6 +82,8 @@ def get_m(f_m_array, gamma_array, subsonic_flag):
             f_m = round(f_m, 2)
             if f_m == 0.0:
                 M_list.append(0.0)
+            elif f_m == 1.0:
+                M_list.append(1.0)
             else:
                 # Symbolically solve for mach number
                 M = Symbol("M",real=True)

@@ -219,11 +219,10 @@ class Turbojet_Super_Inlet(Propulsor):
         thrust.inputs.flow_through_fan                         =  0.0 #scaled constant to turn on fan thrust computation        
 
         #compute the thrust
-        thrust(conditions)
+        thrust(conditions, self.inlet_drag)
 
-        #getting the network outputs from the thrust outputs
+        #getting f_MEthe network outputs from the thrust outputs
         F            = thrust.outputs.thrust*[1,0,0]
-        print(F)
         mdot         = thrust.outputs.fuel_flow_rate
         Isp          = thrust.outputs.specific_impulse
         output_power = thrust.outputs.power
@@ -236,6 +235,7 @@ class Turbojet_Super_Inlet(Propulsor):
         results.vehicle_mass_rate   = mdot
 
         return results
+    
     def unpack_unknowns(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
     
@@ -280,22 +280,20 @@ class Turbojet_Super_Inlet(Propulsor):
             """
             
             # Here we are going to pack the residuals (torque,voltage) from the network
-            mass_flow_rate_core = self.thrust.outputs.core_mass_flow_rate 
+            mass_flow_rate_core = segment.conditions.mass_flow
             mass_flow_rate_design = mass_flow_rate_core 
             mass_flow_rate_inlet = segment.state.conditions.mass_flow_rate
             
             A0 = segment.state.conditions.freestream.area_initial_streamtube
-            AC = self.inlet_nozzle.areas.inlet_entrance
+            AC = self.inlet_nozzle.areas.inlet_capture
             penalty = 0
-            ratio = A0/AC
-            if any(ratio > 1):
-                penalty = (max(ratio)-1)*1*10**10
+            #if any(ratio > 1):
+             #   penalty = (max(ratio)-1)*1*10**10
                 
-            if any(A0 <= 0):
-                penalty = abs(min(A0))*1*10**10
+            #if any(A0 <= 0):
+            #    penalty = abs(min(A0))*1*10**10
             
             delta = ((mass_flow_rate_design-mass_flow_rate_inlet)/mass_flow_rate_design).flatten()
-            print("delta",delta)
             # Return the residuals
             segment.state.residuals.network[:,0] = delta+penalty
             return    

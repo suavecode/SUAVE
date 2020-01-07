@@ -477,10 +477,6 @@ def configs_setup(vehicle):
     
     return configs
 
-# ----------------------------------------------------------------------
-#   Plot Mission
-# ----------------------------------------------------------------------
-
 def plot_mission(results,line_style='bo-'):
 
     axis_font = {'fontname':'Arial', 'size':'14'}    
@@ -488,14 +484,17 @@ def plot_mission(results,line_style='bo-'):
     # ------------------------------------------------------------------
     #   Propulsion
     # ------------------------------------------------------------------
-
-
+    t_list = []
+    thrust_list = []
+    eta_list = []
+    drag_list = []
     fig = plt.figure("Propulsion",figsize=(8,6))
     for segment in results.segments.values():
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0] /Units.lbf
         eta  = segment.conditions.propulsion.throttle[:,0]
+        drag = segment.conditions.freestream.inlet_drag/Units.lbf
 
         axes = fig.add_subplot(2,1,1)
         axes.plot( time , Thrust , line_style )
@@ -507,10 +506,26 @@ def plot_mission(results,line_style='bo-'):
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('eta (lb/lbf-hr)',axis_font)
         axes.grid(True)	
+        
+        # Store vector of data
+        eta_list.append([float(elem) for elem in eta])
+        thrust_list.append([float(elem) for elem in Thrust])
+        drag_list.append([float(elem) for elem in drag])
+        t_list.append([float(elem) for elem in time])
+            
+    fig.savefig('Propulsion_orig.png')
+    print("eta = ", np.array(eta_list).flatten())
+    print("thrust = ", np.array(thrust_list).flatten())
+    print("drag = ", np.array(drag_list).flatten())
+    print("time = ", np.array(t_list).flatten())
+    
 
     # ------------------------------------------------------------------
     #   Aerodynamics
     # ------------------------------------------------------------------
+    cl_list = []
+    ld_list = []
+    AoA_list = []
     fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
     for segment in results.segments.values():
 
@@ -535,45 +550,58 @@ def plot_mission(results,line_style='bo-'):
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('AOA (deg)',axis_font)
         axes.grid(True)
+        
+        cl_list.append([float(elem) for elem in CLift])
+        ld_list.append([float(elem) for elem in l_d])
+        AoA_list.append([float(elem) for elem in aoa])
+        
+    print("cl = ", np.array(cl_list).flatten())
+    print("ld = ", np.array(ld_list).flatten())
+    print("aoa = ", np.array(AoA_list).flatten())   
+    fig.savefig('AerodynamicCoefficients_orig.png')
 
     # ------------------------------------------------------------------
     #   Drag
     # ------------------------------------------------------------------
-    fig = plt.figure("Drag Components",figsize=(8,10))
-    axes = plt.gca()
-    for i, segment in enumerate(results.segments.values()):
+    #fig = plt.figure("Drag Components",figsize=(8,10))
+    #axes = plt.gca()
+    #for i, segment in enumerate(results.segments.values()):
 
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
-        cdp = drag_breakdown.parasite.total[:,0]
-        cdi = drag_breakdown.induced.total[:,0]
-        cdc = drag_breakdown.compressible.total[:,0]
-        cdm = drag_breakdown.miscellaneous.total[:,0]
-        cd  = drag_breakdown.total[:,0]
+        #time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        #drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
+        #cdp = drag_breakdown.parasite.total[:,0]
+        #cdi = drag_breakdown.induced.total[:,0]
+        #cdc = drag_breakdown.compressible.total[:,0]
+        #cdm = drag_breakdown.miscellaneous.total[:,0]
+        #cd  = drag_breakdown.total[:,0]
 
-        if line_style == 'bo-':
-            axes.plot( time , cdp , 'ko-', label='CD parasite' )
-            axes.plot( time , cdi , 'bo-', label='CD induced' )
-            axes.plot( time , cdc , 'go-', label='CD compressibility' )
-            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
-            axes.plot( time , cd  , 'ro-', label='CD total'   )
-            if i == 0:
-                axes.legend(loc='upper center')            
-        else:
-            axes.plot( time , cdp , line_style )
-            axes.plot( time , cdi , line_style )
-            axes.plot( time , cdc , line_style )
-            axes.plot( time , cdm , line_style )
-            axes.plot( time , cd  , line_style )            
+        #if line_style == 'bo-':
+            #axes.plot( time , cdp , 'ko-', label='CD parasite' )
+            #axes.plot( time , cdi , 'bo-', label='CD induced' )
+            #axes.plot( time , cdc , 'go-', label='CD compressibility' )
+            #axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
+            #axes.plot( time , cd  , 'ro-', label='CD total'   )
+            #if i == 0:
+                #axes.legend(loc='upper center')            
+        #else:
+            #axes.plot( time , cdp , line_style )
+            #axes.plot( time , cdi , line_style )
+            #axes.plot( time , cdc , line_style )
+            #axes.plot( time , cdm , line_style )
+            #axes.plot( time , cd  , line_style )            
 
-    axes.set_xlabel('Time (min)')
-    axes.set_ylabel('CD')
-    axes.grid(True)
+    #axes.set_xlabel('Time (min)')
+    #axes.set_ylabel('CD')
+    #axes.grid(True)
+    #fig.savefig('DragComponents_newdrag_ks2.png')
 
     # ------------------------------------------------------------------
     #   Altitude, Vehicle Weight, Mach Number
     # ------------------------------------------------------------------
 
+    m_list = []
+    mach_list = []
+    a_list = []
     fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
     for segment in results.segments.values():
 
@@ -596,7 +624,17 @@ def plot_mission(results,line_style='bo-'):
         axes.plot( time , mach , line_style )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('Mach Number',axis_font)
-        axes.grid(True)        
+        axes.grid(True)      
+        
+        m_list.append([float(elem) for elem in mass])
+        a_list.append([float(elem) for elem in altitude])
+        mach_list.append([float(elem) for elem in mach])
+        
+    print("mass = ", np.array(m_list).flatten())   
+    print("mach = ", np.array(mach_list).flatten())   
+    print("alt = ", np.array(a_list).flatten())   
+    
+    fig.savefig('Altitude_sfc_weight_orig.png')
 
     return
 
@@ -650,96 +688,97 @@ def mission_setup(analyses):
     
     # base segment
     base_segment = Segments.Segment()
+    base_segment.state.numerics.number_control_points        = 4
     
     
 #    # ------------------------------------------------------------------
 #    #   First Climb Segment
 #    # ------------------------------------------------------------------
 #    
-#    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-#    segment.tag = "climb_1"
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb_1"
 #    
-#    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.base )
 #    
-#    ones_row = segment.state.ones_row
-#    segment.state.unknowns.body_angle = ones_row(1) * 7. * Units.deg   
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 7. * Units.deg   
 #    
-#    segment.altitude_start = 0.0   * Units.km
-#    segment.altitude_end   = 3.05   * Units.km
-#    segment.air_speed      = 128.6 * Units['m/s']
-#    segment.climb_rate     = 20.32 * Units['m/s']
+    segment.altitude_start = 0.0   * Units.km
+    segment.altitude_end   = 3.05   * Units.km
+    segment.air_speed      = 128.6 * Units['m/s']
+    segment.climb_rate     = 20.32 * Units['m/s']
 #    
 #    # add to misison
-#    mission.append_segment(segment)
+    mission.append_segment(segment)
 #    
 #    
 #    # ------------------------------------------------------------------
 #    #   Second Climb Segment
 #    # ------------------------------------------------------------------    
 #    
-#    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-#    segment.tag = "climb_2"
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb_2"
 #    
-#    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.base )
 #    
-#    segment.altitude_end   = 4.57   * Units.km
-#    segment.air_speed      = 205.8  * Units['m/s']
-#    segment.climb_rate     = 10.16  * Units['m/s']
+    segment.altitude_end   = 4.57   * Units.km
+    segment.air_speed      = 205.8  * Units['m/s']
+    segment.climb_rate     = 10.16  * Units['m/s']
 #    
 #    # add to mission
-#    mission.append_segment(segment)
+    mission.append_segment(segment)
 #    
 #    
 #    # ------------------------------------------------------------------
 #    #   Third Climb Segment: linear Mach
 #    # ------------------------------------------------------------------    
 #    
-#    segment = Segments.Climb.Linear_Mach_Constant_Rate(base_segment)
-#    segment.tag = "climb_3"
+    segment = Segments.Climb.Linear_Mach_Constant_Rate(base_segment)
+    segment.tag = "climb_3"
 #    
-#    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.base )
 #    
-#    segment.altitude_end = 7.60   * Units.km
-#    segment.mach_start   = 0.64
-#    segment.mach_end     = 1.0
-#    segment.climb_rate   = 5.05  * Units['m/s']
-#    
-#    # add to mission
-#    mission.append_segment(segment)
+    segment.altitude_end = 7.60   * Units.km
+    segment.mach_start   = 0.64
+    segment.mach_end     = 1.0
+    segment.climb_rate   = 5.05  * Units['m/s']
+    
+    # add to mission
+    mission.append_segment(segment)
 #    
 #    # ------------------------------------------------------------------
 #    #   Fourth Climb Segment: linear Mach
 #    # ------------------------------------------------------------------    
 #    
-#    segment = Segments.Climb.Linear_Mach_Constant_Rate(base_segment)
-#    segment.tag = "climb_4"
+    segment = Segments.Climb.Linear_Mach_Constant_Rate(base_segment)
+    segment.tag = "climb_4"
 #    
-#    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.base )
 #    
-#    segment.altitude_end = 15.24   * Units.km
-#    segment.mach_start   = 1.0
-#    segment.mach_end     = 2.02
-#    segment.climb_rate   = 5.08  * Units['m/s']
+    segment.altitude_end = 15.24   * Units.km
+    segment.mach_start   = 1.0
+    segment.mach_end     = 2.02
+    segment.climb_rate   = 5.08  * Units['m/s']
 #    
 #    # add to mission
-#    mission.append_segment(segment)
+    mission.append_segment(segment)
 #    
 #
 #    # ------------------------------------------------------------------
 #    #   Fourth Climb Segment
 #    # ------------------------------------------------------------------    
 #
-#    segment = Segments.Climb.Constant_Mach_Constant_Rate(base_segment)
-#    segment.tag = "climb_5"
+    segment = Segments.Climb.Constant_Mach_Constant_Rate(base_segment)
+    segment.tag = "climb_5"
 #    
-#    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.base )
 #    
-#    segment.altitude_end = 18.288   * Units.km
-#    segment.mach_number  = 2.02
-#    segment.climb_rate   = 0.65  * Units['m/s']
+    segment.altitude_end = 18.288   * Units.km
+    segment.mach_number  = 2.02
+    segment.climb_rate   = 0.65  * Units['m/s']
 #    
 #    # add to mission
-#    mission.append_segment(segment)
+    mission.append_segment(segment)
     
     # ------------------------------------------------------------------    
     #   Cruise Segment
@@ -761,51 +800,51 @@ def mission_setup(analyses):
 #    #   First Descent Segment
 #    # ------------------------------------------------------------------    
 #    
-#    segment = Segments.Descent.Linear_Mach_Constant_Rate(base_segment)
-#    segment.tag = "descent_1"
+    segment = Segments.Descent.Linear_Mach_Constant_Rate(base_segment)
+    segment.tag = "descent_1"
 #    
-#    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.base )
 #    
-#    segment.altitude_end = 6.8   * Units.km
-#    segment.mach_start   = 2.02
-#    segment.mach_end     = 1.0
-#    segment.descent_rate = 5.0   * Units['m/s']
+    segment.altitude_end = 6.8   * Units.km
+    segment.mach_start   = 2.02
+    segment.mach_end     = 1.0
+    segment.descent_rate = 5.0   * Units['m/s']
 #    
 #    # add to mission
-#    mission.append_segment(segment)
+    mission.append_segment(segment)
 #    
 #    # ------------------------------------------------------------------    
 #    #   Second Descent Segment
 #    # ------------------------------------------------------------------    
 #    
-#    segment = Segments.Descent.Linear_Mach_Constant_Rate(base_segment)
-#    segment.tag = "descent_2"
+    segment = Segments.Descent.Linear_Mach_Constant_Rate(base_segment)
+    segment.tag = "descent_2"
 #    
-#    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.base )
 #    
-#    segment.altitude_end = 3.0   * Units.km
-#    segment.mach_start   = 1.0
-#    segment.mach_end     = 0.65
-#    segment.descent_rate = 5.0   * Units['m/s']
+    segment.altitude_end = 3.0   * Units.km
+    segment.mach_start   = 1.0
+    segment.mach_end     = 0.65
+    segment.descent_rate = 5.0   * Units['m/s']
 #    
 #    # add to mission
-#    mission.append_segment(segment)    
+    mission.append_segment(segment)    
 #    
 #    # ------------------------------------------------------------------    
 #    #   Third Descent Segment
 #    # ------------------------------------------------------------------    
 #
-#    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
-#    segment.tag = "descent_3"
+    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "descent_3"
 #
-#    segment.analyses.extend( analyses.base )
+    segment.analyses.extend( analyses.base )
 #    
-#    segment.altitude_end = 0.0   * Units.km
-#    segment.air_speed    = 130.0 * Units['m/s']
-#    segment.descent_rate = 5.0   * Units['m/s']
+    segment.altitude_end = 0.0   * Units.km
+    segment.air_speed    = 130.0 * Units['m/s']
+    segment.descent_rate = 5.0   * Units['m/s']
 #
 #    # append to mission
-#    mission.append_segment(segment)
+    mission.append_segment(segment)
     
     # ------------------------------------------------------------------    
     #   Mission definition complete    

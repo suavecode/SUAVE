@@ -51,18 +51,21 @@ class Two_Dimensional_Inlet(Energy_Component):
         """
         # setting the default values
         self.tag = '2D_inlet'
+        self.spillage_fraction               = 0.0 # fraction of mass flow lost to spillage
         self.areas                           = Data()
-        self.areas.capture                   = 0.0
-        self.areas.throat                    = 0.0
-        self.areas.inlet_entrance            = 0.0
+        self.areas.engine_face               = 0.0 
+        self.areas.inlet_throat              = 0.0
+        self.areas.ramp_area                 = 0.0
+        self.areas.inlet_capture             = 0.0
         self.areas.drag_direct_projection    = 0.0
         self.angles                          = Data()
-        self.angles.ramp_angle               = 0.0
+        self.angles.ramp_angle               = 0.0 # should be in radians
         self.inputs.stagnation_temperature   = np.array([0.0])
         self.inputs.stagnation_pressure      = np.array([0.0])
         self.outputs.stagnation_temperature  = np.array([0.0])
         self.outputs.stagnation_pressure     = np.array([0.0])
         self.outputs.stagnation_enthalpy     = np.array([0.0])
+        self.inlet_drag_calc                 = np.array([0.0])
 
     def compute(self, conditions):
         
@@ -103,76 +106,67 @@ class Two_Dimensional_Inlet(Energy_Component):
           pressure_recovery                   [-]
         """
 
-        # unpack from conditions
+        # unpack segment flow conditions
         gamma = conditions.freestream.isentropic_expansion_factor
-        Cp = conditions.freestream.specific_heat_at_constant_pressure
-        Po = conditions.freestream.pressure
-        M0 = np.atleast_2d(conditions.freestream.mach_number)
-        R = conditions.freestream.gas_specific_constant
+        Cp    = conditions.freestream.specific_heat_at_constant_pressure
+        R     = conditions.freestream.gas_specific_constant
+        P0    = conditions.freestream.pressure
+        M0    = np.atleast_2d(conditions.freestream.mach_number)
+        A0    = conditions.freestream.area_initial_streamtube
 
         # unpack from inputs
-        Tt_in = self.inputs.stagnation_temperature
-        Pt_in = self.inputs.stagnation_pressure
+        Tt0 = self.inputs.stagnation_temperature
+        Pt0 = self.inputs.stagnation_pressure
 
         # unpack from self
-        A0 = conditions.freestream.area_initial_streamtube
-        AE = self.areas.capture # engine face area
-        AC = self.areas.throat # narrowest part of inlet
-        theta = self.angles.ramp_angle # incoming angle for the shock in degrees
+        AE    = self.areas.engine_face # engine face area
+        AC    = self.areas.inlet_capture # inlet capture area
+        AT    = self.areas.inlet_throat # narrowest part of inlet (not used right now)
+        theta = self.angles.ramp_angle/Units.deg # incoming angle for the shock converted to degrees
+        Ks    = self.spillage_fraction # fraction of incoming mass lost to spillage
         
         # Compute the mass flow rate into the engine
-        T               = Isentropic.isentropic_relations(M0, gamma)[0]*Tt_in
-        v               = np.sqrt(gamma*R*T)*M0
-        mass_flow_rate  = conditions.freestream.density * A0 * v
+        T0              = Isentropic.isentropic_relations(M0, gamma)[0]*Tt0
+        v0              = np.sqrt(gamma*R*T0)*M0
+        m_dot0          = conditions.freestream.density * A0 * v0
+        m_dotC          = (1-Ks) * m_dot0
 
         f_M0            = Isentropic.isentropic_relations(M0, gamma)[-1]
-        f_ME_isentropic = (f_M0 * A0)/AE
         
-        f_MC_isentropic = (f_M0 * A0)/AC
-        i_sub_shock     = np.logical_and(M0 <= 1.0, f_MC_isentropic > 1)
-        i_sub_no_shock  = np.logical_and(M0 <= 1.0, f_MC_isentropic <= 1)
+        i_sub           = M0 <= 1.0
         i_sup           = M0 > 1.0
         
-            
         # initializing the arrays
-        Tt_out  = Tt_in
-        ht_out  = Cp*Tt_in
+        Tt_out  = Tt0
+        ht_out  = Cp*Tt0
         Pt_out  = np.ones_like(M0)
         Mach    = np.ones_like(M0)
         T_out   = np.ones_like(M0)
         f_ME    = np.ones_like(M0)
         MC      = np.ones_like(M0)
-        Pr_c    = np.ones_like(M0)
-        Tr_c    = np.ones_like(M0)
-        Ptr_c   = np.ones_like(M0)
+        PrC     = np.ones_like(M0)
+        TrC     = np.ones_like(M0)
+        PtrC    = np.ones_like(M0)
         f_MC    = np.ones_like(M0)
         beta    = np.ones_like(M0)
-
-        # Conservation of mass properties to evaluate subsonic case
-        Pt_out[i_sub_no_shock]   = Pt_in[i_sub_no_shock]
-        f_ME[i_sub_no_shock]     = f_ME_isentropic[i_sub_no_shock]
-        Mach[i_sub_no_shock]     = Isentropic.get_m(f_ME[i_sub_no_shock], gamma[i_sub_no_shock], 1)
-        T_out[i_sub_no_shock]    = Isentropic.isentropic_relations(Mach[i_sub_no_shock], gamma[i_sub_no_shock])[0]*Tt_out[i_sub_no_shock]
         
+        # Subsonic flow into inlet (Assuming no normal shock at throat)
+        Pt_out[i_sub]   = Pt0[i_sub]
+        f_ME[i_sub]     = (1-Ks)*(f_M0[i_sub] * A0[i_sub])/AE
+        Mach[i_sub]     = Isentropic.get_m(f_ME[i_sub], gamma[i_sub], 1)
+        T_out[i_sub]    = Isentropic.isentropic_relations(Mach[i_sub], gamma[i_sub])[0]*Tt_out[i_sub]        
         
-        # Analysis of shocks for the subsonic with shock case case (normal shock at throat)
-        MC[i_sub_shock], Pr_c[i_sub_shock], Tr_c[i_sub_shock], Ptr_c[i_sub_shock] = Oblique_Shock.oblique_shock_relations(M0[i_sub_shock],gamma[i_sub_shock],0,90*np.pi/180.)
-        Pt_out[i_sub_shock] = Ptr_c[i_sub_shock]*Pt_in[i_sub_shock]
-        f_MC[i_sub_shock] = Isentropic.isentropic_relations(MC[i_sub_shock], gamma[i_sub_shock])[-1]
-        f_ME[i_sub_shock] = f_MC[i_sub_shock]*AC/AE
-        
-        Mach[i_sub_shock] = Isentropic.get_m(f_ME[i_sub_shock], gamma[i_sub_shock], 1)
-        T_out[i_sub_shock] = Isentropic.isentropic_relations(Mach[i_sub_shock], gamma[i_sub_shock])[0]*Tt_out[i_sub_shock]
-        
-        # Analysis of shocks for the supersonic case
-        beta[i_sup] = Oblique_Shock.theta_beta_mach(M0[i_sup],gamma[i_sup],theta*Units.rad)
-        MC[i_sup], Pr_c[i_sup], Tr_c[i_sup], Ptr_c[i_sup] = Oblique_Shock.oblique_shock_relations(M0[i_sup],gamma[i_sup],theta*Units.rad,beta[i_sup])
-        Pt_out[i_sup] = Ptr_c[i_sup]*Pt_in[i_sup]
-        f_MC[i_sup] = Isentropic.isentropic_relations(MC[i_sup], gamma[i_sup])[-1]
-        f_ME[i_sup] = f_MC[i_sup]*AC/AE
-
-        Mach[i_sup] = Isentropic.get_m(f_ME[i_sup], gamma[i_sup], 1)
-        T_out[i_sup] = Isentropic.isentropic_relations(Mach[i_sup], gamma[i_sup])[0]*Tt_out[i_sup]
+        # Supersonic flow into inlet (Oblique shock on impact with ramp)
+        beta[i_sup]                                     = Oblique_Shock.theta_beta_mach(M0[i_sup],gamma[i_sup],theta*Units.deg,1)
+        MC[i_sup], PrC[i_sup], TrC[i_sup], PtrC[i_sup]  = Oblique_Shock.oblique_shock_relations(M0[i_sup],gamma[i_sup],theta*Units.deg,beta[i_sup])
+        Pt_out[i_sup]                                   = PtrC[i_sup]*Pt0[i_sup]
+        f_MC[i_sup]                                     = (1-Ks)*f_M0[i_sup]*A0[i_sup]*Pt0[i_sup]/(AC*Pt_out[i_sup]);
+        print(A0)
+        f_ME[i_sup]                                     = f_MC[i_sup]*AC/AE;
+        print(f_ME)
+        if any(np.isnan(f_ME)): 
+            print(f_ME)        
+        Mach[i_sup]                                     = Isentropic.get_m(f_ME[i_sup], gamma[i_sup], 1)
         
         # -- Compute exit velocity and enthalpy
         h_out = Cp * T_out
@@ -186,8 +180,7 @@ class Two_Dimensional_Inlet(Energy_Component):
         self.outputs.static_temperature = T_out
         self.outputs.static_enthalpy = h_out
         self.outputs.velocity = u_out
-        conditions.mass_flow_rate = mass_flow_rate
-
+        conditions.mass_flow_rate = m_dotC
 
     ### Buggy drag calculations
         
@@ -218,20 +211,19 @@ class Two_Dimensional_Inlet(Energy_Component):
     
         # unpack from self
         A_inf = conditions.freestream.area_initial_streamtube
-        AC    = self.areas.capture # engine face area
-        A1    = self.areas.inlet_entrance # area of the inlet entrance
+        AC    = self.areas.inlet_capture
+        A1    = self.areas.ramp_area  
         theta = self.angles.ramp_angle * Units.rad
         AS    = self.areas.drag_direct_projection
+        Ks    = self.spillage_fraction
         
         if all(M_inf >= 0.7):
-            if all(A_inf > 0) and all(A_inf <= A1):
+            if all(A_inf > 0) and all(A_inf <= AC):
                 
                 f_Minf          = Isentropic.isentropic_relations(M_inf, gamma)[-1]
                
-                f_MC_isentropic = (f_Minf * A_inf)/AC
-                i_sub_shock     = np.logical_and(f_Minf <= 1.0, f_MC_isentropic > 1)
-                i_sub_no_shock  = np.logical_and(f_Minf <= 1.0, f_MC_isentropic <= 1)
-                i_sup           = f_Minf > 1.0
+                i_sup           = M_inf > 1.0
+                i_sub           = M_inf <= 1.0
                 
                 
                 # initialize values
@@ -241,37 +233,28 @@ class Two_Dimensional_Inlet(Energy_Component):
                 P_ts = np.ones_like(Tt_inf)
                 Ms   = np.ones_like(Tt_inf)
                 f_M1 = np.ones_like(Tt_inf)
-                Pr_1 = np.ones_like(Tt_inf)
                 P1   = np.ones_like(Tt_inf)
                 M1   = np.ones_like(Tt_inf)
                 beta = np.ones_like(Tt_inf)
                 
+                # Subsonic flow into inlet (Assuming no normal shock at throat)
                 # subsonic case
-                f_M1[i_sub_no_shock]      = (f_Minf[i_sub_no_shock] * A_inf[i_sub_no_shock])/A1
-                M1[i_sub_no_shock]        = Isentropic.get_m(f_M1[i_sub_no_shock], gamma[i_sub_no_shock], 1)
-                P1[i_sub_no_shock]        = Isentropic.isentropic_relations(M1[i_sub_no_shock], gamma[i_sub_no_shock])[1] * Pt_inf[i_sub_no_shock]
-                
-                # subsonic with shock ->getting post shock quantities
-                Ms[i_sub_shock], Pr_s[i_sub_shock] = Oblique_Shock.oblique_shock_relations(M_inf[i_sub_shock],gamma[i_sub_shock],0,90*np.pi/180.)[0:2]
-                Pr_ts[i_sub_shock]                 = Oblique_Shock.oblique_shock_relations(M_inf[i_sub_shock],gamma[i_sub_shock],0,90*np.pi/180.)[3]
-                Ps[i_sub_shock]                    = Pr_s[i_sub_shock]*P_inf[i_sub_shock]
-                P_ts[i_sub_shock]                  = Pr_ts[i_sub_shock]*Pt_inf[i_sub_shock]
-                
-                f_M1[i_sub_shock] = 1/Pr_ts[i_sub_shock]*A_inf[i_sub_shock]/A1*f_Minf[i_sub_shock]
-                M1[i_sub_shock]   = Isentropic.get_m(f_M1[i_sub_shock], gamma[i_sub_shock], 1)
-                P1[i_sub_shock]   = Isentropic.isentropic_relations(M1[i_sub_shock],gamma[i_sub_shock])[1]*P_ts[i_sub_shock] 
-                
-                #M1[i_sub_shock], Pr_1[i_sub_shock] = Oblique_Shock.oblique_shock_relations(M_inf[i_sub_shock],gamma[i_sub_shock],0,90*np.pi/180.)[0:2]
-                #P1[i_sub_shock]              = Pr_1[i_sub_shock]*P_inf[i_sub_shock]
+                f_M1[i_sub]      = (1-Ks)*(f_Minf[i_sub] * A_inf[i_sub])/A1
+                M1[i_sub]        = Isentropic.get_m(f_M1[i_sub], gamma[i_sub], 1)
+                P1[i_sub]        = Isentropic.isentropic_relations(M1[i_sub], gamma[i_sub])[1] * Pt_inf[i_sub]
                 
                 # supersonic case
-                beta[i_sup]            = Oblique_Shock.theta_beta_mach(M_inf[i_sup],gamma[i_sup],theta)
+                beta[i_sup]            = Oblique_Shock.theta_beta_mach(M_inf[i_sup],gamma[i_sup],theta,1)
+                
                 # computing post shock quantities
                 Ms[i_sup], Pr_s[i_sup] = Oblique_Shock.oblique_shock_relations(M_inf[i_sup],gamma[i_sup],theta,beta[i_sup])[0:2]
                 Pr_ts[i_sup]           = Oblique_Shock.oblique_shock_relations(M_inf[i_sup],gamma[i_sup],theta,beta[i_sup])[3]
                 Ps[i_sup]              = Pr_s[i_sup]*P_inf[i_sup]
+                P_ts[i_sup]            = Pr_ts[i_sup]*Pt_inf[i_sup]
                 
-                f_M1[i_sup] = 1/Pr_ts[i_sup]*A_inf[i_sup]/A1*f_Minf[i_sup]
+                f_M1[i_sup] = (1-Ks)*A_inf[i_sup]*Pt_inf[i_sup]*f_Minf[i_sup]/(P_ts[i_sup] * A1)
+                if any(f_M1) > 1: 
+                    print(f_M1)
                 M1[i_sup]   = Isentropic.get_m(f_M1[i_sup], gamma[i_sup], 1)
                 P1[i_sup]   = Isentropic.isentropic_relations(M1[i_sup],gamma[i_sup])[1]*P_ts[i_sup] 
                 
@@ -325,10 +308,11 @@ class Two_Dimensional_Inlet(Energy_Component):
                 K_add[i_14] = 1.
         
                 D_add  = CD_add * q_inf* AC * K_add
-            
+                print("CD", CD_add)
+                print("Kadd", K_add)
             else:
                 factor = 1
-                ratio = A_inf/A1
+                ratio = A_inf/AC
                 if any(A_inf < 0):
                     factor = abs(min(A_inf))
                 else:
@@ -338,7 +322,9 @@ class Two_Dimensional_Inlet(Energy_Component):
         else:
             D_add = np.ones_like(Tt_inf)*0.0
         
-        print(D_add)
+        print("drag:",D_add)
+        self.inlet_drag_calc = D_add;
+        conditions.freestream.inlet_drag = D_add
         return D_add
 
     __call__ = compute

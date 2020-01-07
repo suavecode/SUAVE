@@ -183,11 +183,9 @@ class Thrust(Energy_Component):
         
         if inlet_drag:
             drag = inlet_nozzle.compute_drag(conditions)
-            print(drag)
             if all(drag) > 0:
                 drag_nd = drag*(gamma*M0)*1/(a0*(1.+bypass_ratio)*mdot_core)
                 Thrust_nd = Thrust_nd - drag_nd
-                print(drag_nd)
         
         #Computing Specifc Thrust
         Fsp              = 1./(gamma*M0)*Thrust_nd
@@ -200,7 +198,6 @@ class Thrust(Energy_Component):
 
         #computing the dimensional thrust
         FD2              = Fsp*a0*(1.+bypass_ratio)*mdot_core*no_eng*throttle
-        print(FD2)
         
 
         #fuel flow rate
@@ -216,6 +213,7 @@ class Thrust(Energy_Component):
         self.outputs.thrust_specific_fuel_consumption  = TSFC
         self.outputs.non_dimensional_thrust            = Fsp 
         self.outputs.core_mass_flow_rate               = mdot_core
+        conditions.mass_flow = mdot_core
         self.outputs.fuel_flow_rate                    = fuel_flow_rate    
         self.outputs.power                             = power  
         self.outputs.specific_impulse                  = Isp

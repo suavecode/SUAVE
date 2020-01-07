@@ -90,6 +90,7 @@ class Aerodynamics(Basic):
         self.freestream.dynamic_pressure   = ones_1col * 0
         # weird constant I need to figure out a better way of initializing
         self.freestream.area_initial_streamtube = ones_1col * 1.1/2.**2*np.pi* Units['meter**2'] 
+        self.freestream.inlet_drag          = ones_1col * 0
 
         # aerodynamics conditions
         self.aerodynamics = Conditions()        
