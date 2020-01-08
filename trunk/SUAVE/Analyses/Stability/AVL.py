@@ -302,9 +302,9 @@ class AVL(Stability):
             run_conditions.freestream.density               = 0    # Density not used in inviscid computation therefore set to zero. Used for dynamic analysis which is under development
             run_conditions.freestream.gravity               = 9.81          
             run_conditions.aerodynamics.angle_of_attack     = AoA
-            run_conditions.freestream.mach_number           = mach[j]
+            run_conditions.freestream.mach_number           = mach[i]
 
-            #Run Analysis at AoA[i] and mach[j]
+            #Run Analysis at AoA[i] and mach[i]
             results =  self.evaluate_conditions(run_conditions)
 
             # Obtain CM Cm_alpha, Cn_beta and the Neutral Point # Store other variables here as well 
