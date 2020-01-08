@@ -132,8 +132,7 @@ def lifting_line(conditions,settings,geometry):
         c    = root_chord+root_chord*(taper-1.)*etan
         ageo = (tip_twist-root_twist)*etan+root_twist
 
-    k = c*cla/(4.*b) # Grouped term 
-
+    k = c*cla/(4.*b) # Grouped term
 
     n_2d    = np.atleast_2d(n)
     n_trans = n_2d.T

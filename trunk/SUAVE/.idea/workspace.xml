@@ -2,43 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3e195a4e-bcfe-44fd-98b6-4d61fc7a86aa" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/B737/results_mission_B737.res" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/B737/results_mission_B737.res" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Embraer_E190_constThr/results_mission_E190_constThr.res" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Embraer_E190_constThr/results_mission_E190_constThr.res" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/VTOL/mission_QuadShot.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/VTOL/mission_QuadShot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/VTOL/test_VTOL.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/VTOL/test_VTOL.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/aerodynamics/aerodynamics.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/aerodynamics/aerodynamics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/concorde/results_mission_concorde.res" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/concorde/results_mission_concorde.res" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/noise_optimization/Missions.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/noise_optimization/Missions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/noise_optimization/Noise_Test.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/noise_optimization/Noise_Test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/noise_optimization/Procedure.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/noise_optimization/Procedure.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/propeller/propeller.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/propeller/propeller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/sweeps/test_sweeps.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/sweeps/test_sweeps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../regression/scripts/variable_cruise_distance/variable_cruise_distance.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/variable_cruise_distance/variable_cruise_distance.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/AVL_Inviscid.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/AVL_Inviscid.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/Fidelity_Zero.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/Fidelity_Zero.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/Lifting_Line.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/Lifting_Line.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/AVL.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/AVL.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/Vortex_Lattice.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/Vortex_Lattice.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Constant_Speed_Linear_Altitude.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Constant_Speed_Linear_Altitude.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Constant_Throttle_Constant_Speed.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Constant_Throttle_Constant_Speed.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Unknown_Throttle.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Unknown_Throttle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/Constant_Acceleration_Constant_Altitude.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/Constant_Acceleration_Constant_Altitude.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/Constant_Pitch_Rate_Constant_Altitude.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/Constant_Pitch_Rate_Constant_Altitude.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/Constant_Speed_Constant_Altitude.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/Constant_Speed_Constant_Altitude.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/Constant_Throttle_Constant_Altitude.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Cruise/Constant_Throttle_Constant_Altitude.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Ground/Ground.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Ground/Ground.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Single_Point/Set_Speed_Set_Altitude.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Single_Point/Set_Speed_Set_Altitude.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Hover/Climb.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Hover/Climb.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Analyses/Stability/AVL.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Stability/AVL.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Components/Energy/Converters/Propeller.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components/Energy/Converters/Propeller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Components/Energy/Networks/Battery_Propeller.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components/Energy/Networks/Battery_Propeller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Components/Energy/Networks/Solar.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components/Energy/Networks/Solar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Components/Fuselages/Segment.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components/Fuselages/Segment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Input_Output/Results/print_parasite_drag.py" beforeDir="false" afterPath="$PROJECT_DIR$/Input_Output/Results/print_parasite_drag.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/compressibility_drag_wing.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/compressibility_drag_wing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/OpenVSP_Wave_Drag/compressibility_drag_total.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/OpenVSP_Wave_Drag/compressibility_drag_total.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_wing.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_wing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Lifting_Line/Lifting_Line.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Lifting_Line/Lifting_Line.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Center_of_Gravity/compute_component_centers_of_gravity.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Center_of_Gravity/compute_component_centers_of_gravity.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Constant_Throttle_Constant_Speed.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Constant_Throttle_Constant_Speed.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Optimization/carpet_plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Optimization/carpet_plot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Optimized.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Optimized.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,7 +33,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/Develop/SUAVE" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="two.files.diff.last.used.folder" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/Develop/SUAVE" />
   </component>
   <component name="ServiceViewManager">
@@ -86,13 +62,14 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="213" y="27" width="1200" height="800" maximized="true" key="DiffContextDialog" timestamp="1577818755945">
+    <state x="213" y="27" width="1200" height="800" maximized="true" key="DiffContextDialog" timestamp="1578456515402">
       <screen x="63" y="27" width="1857" height="1053" />
     </state>
     <state x="213" y="27" width="1200" height="800" maximized="true" key="DiffContextDialog/63.27.1857.1053@63.27.1857.1053" timestamp="1577818755945" />
-    <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl" timestamp="1577818754446">
+    <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl" timestamp="1578460226462">
       <screen x="63" y="27" width="1857" height="1053" />
     </state>
+    <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl/63.27.1857.1053/1920.180.1440.900@63.27.1857.1053" timestamp="1578460226462" />
     <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl/63.27.1857.1053@63.27.1857.1053" timestamp="1577818754446" />
   </component>
 </project>

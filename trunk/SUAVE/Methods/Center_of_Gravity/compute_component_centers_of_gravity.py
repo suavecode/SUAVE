@@ -123,4 +123,4 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Fal
         hydraulics.origin                                       = fuselage.origin
         hydraulics.mass_properties.center_of_gravity            = .75*(wing.origin+wing.mass_properties.center_of_gravity) +.25*(propulsor.origin[0]+propulsor.mass_properties.center_of_gravity)       
     
-    return  
+    return 0

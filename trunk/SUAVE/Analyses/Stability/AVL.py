@@ -208,9 +208,9 @@ class AVL(Stability):
         
         # Unpack
         surrogates          = self.surrogates  
+        configuration       = self.configuration
         geometry            = self.geometry
         stability_model     = self.stability_model
-        configuration       = self.configuration
         
         q                   = conditions.freestream.dynamic_pressure
         Sref                = geometry.reference_area    
@@ -457,6 +457,7 @@ class AVL(Stability):
         for case in cases:
             cases[case].stability_and_control.number_control_surfaces = num_cs
         self.current_status.cases        = cases 
+
 
         # case filenames
         for case in cases:

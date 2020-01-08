@@ -73,7 +73,7 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.unknowns.body_angle = ones_row(1) * 4.0 * Units.deg
+        self.state.unknowns.body_angle = ones_row(1) * 5.0 * Units.deg
         self.state.unknowns.wind_angle = ones_row(1) * 0.0 * Units.deg
         self.state.residuals.forces    = ones_row(2) * 0.0
         

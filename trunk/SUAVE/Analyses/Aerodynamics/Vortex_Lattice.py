@@ -35,8 +35,10 @@ from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 ## @ingroup Analyses-Aerodynamics
 class Vortex_Lattice(Aerodynamics):
     """This builds a surrogate and computes lift using a basic vortex lattice.
+
     Assumptions:
     None
+
     Source:
     None
     """ 
@@ -61,7 +63,7 @@ class Vortex_Lattice(Aerodynamics):
         """  
         self.tag = 'Vortex_Lattice'
 
-        self.geometry = Data() 
+        self.geometry = Data()
         self.settings = Data()
         self.settings.number_panels_spanwise   = 25
         self.settings.number_panels_chordwise  = 5 
@@ -80,8 +82,7 @@ class Vortex_Lattice(Aerodynamics):
         self.training.drag_coefficient_sup        = None
         self.training.wing_drag_coefficient_sub   = None
         self.training.wing_drag_coefficient_sup   = None
-        
-         
+
         # surrogoate models
         self.surrogates                              = Data() 
         self.surrogates.lift_coefficient_sub         = None
@@ -164,8 +165,8 @@ class Vortex_Lattice(Aerodynamics):
 
         Inputs:
         state.conditions.
-          freestream.mach_number                  [-]
-          angle_of_attack                         [radians]
+          freestream.dynamics_pressure       [-]
+          angle_of_attack                    [radians]
 
         Outputs:
         conditions.aerodynamics.lift_breakdown.
@@ -216,6 +217,7 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift         = Data()
         conditions.aerodynamics.lift_breakdown.compressible_wings          = Data()
         conditions.aerodynamics.drag_breakdown.compressible                = Data()
+        inviscid_wings_CLs = Data()
         
         # Spline for Subsonic-to-Transonic-to-Supesonic Regimes
         sub_trans_spline = Cubic_Spline_Blender(0.85,0.95)
@@ -246,11 +248,13 @@ class Vortex_Lattice(Aerodynamics):
                     inviscid_wing_lifts[ii] = h_sup(Mach[ii])*wing_CL_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0]  +  (1- h_sup(Mach[ii]))*wing_CL_surrogates_sup[wing](AoA[ii][0],Mach[ii][0])[0]
                     inviscid_wing_drags[ii] = h_sup(Mach[ii])*wing_CDi_surrogates_trans[wing](AoA[ii][0],Mach[ii][0])[0] +  (1- h_sup(Mach[ii]))*wing_CDi_surrogates_sup[wing](AoA[ii][0],Mach[ii][0])[0]
                  
+            
+            inviscid_wings_CLs = inviscid_wing_lifts
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]          = inviscid_wing_lifts
             conditions.aerodynamics.lift_breakdown.compressible_wings[wing]           = inviscid_wing_lifts      
             conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag[wing]  = inviscid_wing_drags
          
-        return inviscid_lift
+        return inviscid_wings_CLs
     
     def evaluate_no_surrogate(self,state,settings,geometry):
         """Evaluates lift and drag directly using VLM
@@ -334,6 +338,7 @@ class Vortex_Lattice(Aerodynamics):
           wing_lift_coefficient       [-] (wing specific)
           drag_coefficient            [-] 
           wing_drag_coefficient       [-] (wing specific)
+
         Properties Used:
         self.geometry.wings.*.tag
         self.settings                 (passed to calculate vortex lattice)
@@ -425,7 +430,8 @@ class Vortex_Lattice(Aerodynamics):
           lift_coefficient            
           wing_lift_coefficient       
           drag_coefficient            
-          wing_drag_coefficient       
+          wing_drag_coefficient
+
         Properties Used:
         self.training.
           lift_coefficient            [-] 
