@@ -79,9 +79,10 @@ def main():
 
     # plt the old results
     plot_mission(results)
-    plot_mission(old_results)
+    #plot_mission(old_results)
     plt.show()
     
+
     # check the results
     check_results(results,old_results)
     
@@ -190,6 +191,11 @@ def base_analysis(vehicle):
     return analyses    
 
 
+
+
+
+
+
 # ----------------------------------------------------------------------
 #   Define the Mission
 # ----------------------------------------------------------------------
@@ -233,13 +239,10 @@ def mission_setup(analyses):
     segment.planet         = planet
 
     segment.altitude_start = 0.0   * Units.km
-    segment.altitude_end   = 3.048 * Units.km  
+    segment.altitude_end   = 3.048 * Units.km
     segment.air_speed      = 250.0 * Units.knots
-    segment.throttle       = 1.0    
-    
-    ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle = ones_row(1) * 12. * Units.degrees   
-    segment.state.unknowns.wind_angle = ones_row(1) * 4. * Units.degrees  
+    segment.throttle       = 1.0
+
     # add to misison
     mission.append_segment(segment)
 
@@ -256,15 +259,16 @@ def mission_setup(analyses):
     # segment attributes
     segment.atmosphere   = atmosphere
     segment.planet       = planet
-    
-    segment.altitude_start = 3.048 * Units.km  
-    segment.altitude_end   = 32000. * Units.ft
-    segment.air_speed      = 350.0  * Units.knots
-    segment.throttle       = 1.0  
+
+    segment.altitude_end = 32000. * Units.ft
+    segment.air_speed    = 350.0  * Units.knots
+    segment.throttle     = 1.0
+
+    # dummy for post process script
+    segment.climb_rate   = 0.1
 
     ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle = ones_row(1) * 12. * Units.degrees  
-    segment.state.unknowns.wind_angle = ones_row(1) * 4. * Units.degrees 
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg
 
     # add to mission
     mission.append_segment(segment)
@@ -280,17 +284,13 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.cruise )
 
     # segment attributes
-    segment.atmosphere     = atmosphere
-    segment.planet         = planet
-    segment.altitude_start =  32000. * Units.ft
-    segment.altitude_end   = 35000. * Units.ft
-    segment.air_speed      = 390.0  * Units.knots
-    segment.throttle       = 1.0
+    segment.atmosphere   = atmosphere
+    segment.planet       = planet
 
-    ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle = ones_row(1) * 12. * Units.degrees  
-    segment.state.unknowns.wind_angle = ones_row(1) * 4. * Units.degrees 
-    
+    segment.altitude_end = 35000. * Units.ft
+    segment.air_speed    = 390.0  * Units.knots
+    segment.throttle     = 1.0
+
     # add to mission
     mission.append_segment(segment)
 

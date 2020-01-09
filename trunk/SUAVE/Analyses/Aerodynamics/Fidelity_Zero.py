@@ -77,6 +77,7 @@ class Fidelity_Zero(Markup):
         compute = self.process.compute 
         
         compute.lift = Process()
+
         compute.lift.inviscid_wings                = Vortex_Lattice()
         compute.lift.vortex                        = SUAVE.Methods.skip
         compute.lift.fuselage                      = Common.Lift.fuselage_correction

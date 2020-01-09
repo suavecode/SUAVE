@@ -172,7 +172,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
                         (sum_moments_less_fuel+landing_gear_moment)/vehicle.mass_properties.max_zero_fuel
                 
                 # convert back to list 
-                vehicle.mass_properties.center_of_gravity            = vehicle.mass_properties.center_of_gravity[0]                
+                vehicle.mass_properties.center_of_gravity            = vehicle.mass_properties.center_of_gravity
                 vehicle.mass_properties.zero_fuel_center_of_gravity  = vehicle.mass_properties.zero_fuel_center_of_gravity[0]
                 
         # ---------------------------------------------------------------------------------        
@@ -185,7 +185,8 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
                 vehicle.mass_properties.center_of_gravity      = (sum_moments)/vehicle.mass_properties.max_takeoff
                 
                 # convert back to list 
-                vehicle.mass_properties.center_of_gravity            = vehicle.mass_properties.center_of_gravity[0]
+                vehicle.mass_properties.center_of_gravity            = vehicle.mass_properties.center_of_gravity
                 vehicle.mass_properties.zero_fuel_center_of_gravity  = vehicle.mass_properties.zero_fuel_center_of_gravity[0]
-        return 
+                
+        return  
 

@@ -65,14 +65,14 @@ class Vortex_Lattice(Aerodynamics):
 
         self.geometry = Data()
         self.settings = Data()
-        self.settings.number_panels_spanwise   = 25
-        self.settings.number_panels_chordwise  = 5 
+        self.settings.number_panels_spanwise   = 5
+        self.settings.number_panels_chordwise  = 1
         self.settings.vortex_distribution      = Data() 
         
         # conditions table, used for surrogate model training
         self.training                             = Data()        
         self.training.angle_of_attack             = np.array([[-5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.]]).T * Units.deg
-        self.training.Mach_subsonic               = np.array([[0.0, 0.1 , 0.2 , 0.3, 0.4 , 0.6, 0.85 , 0.9]]).T 
+        self.training.Mach_subsonic               = np.array([[0.0, 0.1 , 0.2 , 0.3, 0.4 , 0.6, 0.85 , 0.9]]).T
         self.training.Mach_supersonic             = np.array([[1.1, 1.15, 1.3 , 1.5, 1.8 , 2.0, 2.25 , 2.5]]).T            
         self.training.lift_coefficient_sub        = None
         self.training.lift_coefficient_sup        = None
