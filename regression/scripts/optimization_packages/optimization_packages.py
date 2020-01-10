@@ -1,4 +1,4 @@
-# Optimize.py
+# optimization_packages.py
 # Created: Sep. 2019, M. Clarke
 
 # ----------------------------------------------------------------------        
