@@ -62,6 +62,7 @@ modules = [
     'scripts/industrial_costs/industrial_costs.py',
     'scripts/landing_field_length/landing_field_length.py',
     'scripts/lifting_line/lifting_line.py',
+    'scripts/multifidelity/optimize_mf.py',
     'scripts/noise_optimization/Noise_Test.py',
     'scripts/payload_range/payload_range.py',
     'scripts/propeller/propeller.py',
