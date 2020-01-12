@@ -2,7 +2,7 @@
 # Data.py
 #
 # Created:  Jun 2016, E. Botero
-# Modified:
+# Modified: Jan 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #   Imports

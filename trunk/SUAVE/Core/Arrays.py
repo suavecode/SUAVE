@@ -3,7 +3,8 @@
 #
 # Created:  Aug 2015, T. Lukacyzk
 # Modified: Feb 2016, T. MacDonald
-#           Jun 2016, E.Botero
+#           Jun 2016, E. Botero
+#           Jan 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #   Imports
