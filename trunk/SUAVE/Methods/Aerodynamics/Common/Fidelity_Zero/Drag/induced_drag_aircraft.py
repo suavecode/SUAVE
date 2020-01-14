@@ -29,6 +29,8 @@ def induced_drag_aircraft(state,settings,geometry):
 
     Source:
     adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    M. Nita, D. Scholz, 'Estimating the Oswald Factor from Basic Aircraft Geometrical Parameters'
+        hamburg University of Applied Sciences, Aero - Aircraft Design and Systems Group
 
     Inputs:
     state.conditions.aerodynamics.lift_coefficient               [Unitless]
@@ -37,6 +39,9 @@ def induced_drag_aircraft(state,settings,geometry):
     configuration.viscous_lift_dependent_drag_factor             [Unitless]
     geometry.wings['main_wing'].span_efficiency                  [Unitless]
     geometry.wings['main_wing'].aspect_ratio                     [Unitless]
+    geometry.wings['main_wing'].spans.projected                  [m]
+    geometry.wings['main_wing'].taper                            [Unitless]
+    geometry.fuselages['fuselage'].width                         [m]
 
     Outputs:
     total_induced_drag                                           [Unitless]
