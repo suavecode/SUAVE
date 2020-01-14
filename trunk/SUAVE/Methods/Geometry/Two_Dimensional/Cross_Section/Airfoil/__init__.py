@@ -4,4 +4,4 @@
 from . import CST
 from .compute_naca_4series import compute_naca_4series
 from .import_airfoil_dat import import_airfoil_dat
-from .import_airfoil_dat_Xfoil import import_airfoil_dat_Xfoil
+
