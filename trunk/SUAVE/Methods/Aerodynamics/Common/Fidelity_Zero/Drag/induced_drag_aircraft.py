@@ -3,6 +3,7 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#                     S. Karpuk
        
 
 # ----------------------------------------------------------------------
@@ -52,12 +53,22 @@ def induced_drag_aircraft(state,settings,geometry):
     aircraft_lift = conditions.aerodynamics.lift_coefficient
     e             = configuration.oswald_efficiency_factor
     K             = configuration.viscous_lift_dependent_drag_factor
+    span          = geometry.wings['main_wing'].spans.projected 
     wing_e        = geometry.wings['main_wing'].span_efficiency
     ar            = geometry.wings['main_wing'].aspect_ratio 
     CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
+    taper         = geometry.wings['main_wing'].taper 
     
+    if 'fuselage' in geometry.fuselages:
+        d_f = geometry.fuselages['fuselage'].width
+    else:
+        d_f = 0
+        
     if e == None:
-        e = 1/((1/wing_e)+np.pi*ar*K*CDp)
+        s     = 1 - 2 * (d_f/span)**2
+        f     = 0.0524*taper**4 - 0.15*taper**3 + 0.1659*taper**2 - 0.0706*taper + 0.0119
+        u     = 1/(1+f*ar)
+        e     = 1/(1/(u*s)+np.pi*ar*K*CDp)
     
     # start the result
     total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
