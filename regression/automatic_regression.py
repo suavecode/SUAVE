@@ -65,7 +65,7 @@ modules = [
     'scripts/multifidelity/optimize_mf.py',
     'scripts/noise_optimization/Noise_Test.py',
     'scripts/payload_range/payload_range.py',
-    'scripts/propeller/propeller.py',
+    'scripts/propeller/propeller_test.py',
     'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/ramjet_network/ramjet_network.py',
     'scripts/Regional_Jet_Optimization/Optimize2.py',
