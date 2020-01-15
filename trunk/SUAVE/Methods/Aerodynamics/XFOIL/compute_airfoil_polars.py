@@ -193,8 +193,8 @@ def  read_propeller_airfoils(airfoils):
           
           # Loop through each value: append to each column
           for line_count , line in enumerate(data_block):
-               x_data[line_count] = float(data_block[line_count][2:10].strip())
-               y_data[line_count]  = float(data_block[line_count][11:21].strip())
+               x_data[line_count] =  float(data_block[line_count].strip().split()[0])
+               y_data[line_count]  = float(data_block[line_count].strip().split()[-1])
                
           if data_len % 2 == 0:
                x_upper_surface =  x_data[0:int((data_len)/2)]
@@ -250,8 +250,8 @@ def  read_wing_airfoil(airfoil):
      
      # Loop through each value: append to each column
      for line_count , line in enumerate(data_block):
-          x_data[line_count] = float(data_block[line_count][2:10].strip())
-          y_data[line_count] = float(data_block[line_count][11:21].strip())
+          x_data[line_count] = float(data_block[line_count].strip().split()[0])
+          y_data[line_count] = float(data_block[line_count].strip().split()[-1])
      
      if data_len % 2 == 0:
           x_upper_surface =  x_data[0:int((data_len)/2)]
@@ -300,9 +300,9 @@ def  read_airfoil_polars(airfoil_name):
      
      # Loop through each value: append to each column
      for line_count , line in enumerate(data_block):
-          xfoil_aoa[line_count] = float(data_block[line_count][2:8].strip())
-          xfoil_cl[line_count]  = float(data_block[line_count][10:17].strip())
-          xfoil_cd[line_count]  = float(data_block[line_count][20:27].strip())  
+          xfoil_aoa[line_count] = float(data_block[line_count].strip().split()[0])
+          xfoil_cl[line_count]  = float(data_block[line_count].strip().split()[1])
+          xfoil_cd[line_count]  = float(data_block[line_count].strip().split()[2])
                
      return xfoil_cl , xfoil_cd , xfoil_aoa
 

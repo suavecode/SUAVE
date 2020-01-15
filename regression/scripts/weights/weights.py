@@ -30,7 +30,7 @@ def main():
     
     # regression values    
     actual = Data()
-    actual.payload         = 27349.9081525 #includes cargo #17349.9081525 #without cargo
+    actual.payload         = 27349.9081525      # includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.587065500002
     actual.bag             = 2313.3210870000003
     actual.fuel            = 12977.803363592691 #includes cargo #22177.6377131 #without cargo

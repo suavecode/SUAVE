@@ -9,11 +9,16 @@
 """ setup file for a mission with Concorde
 """
 
+
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
+
 import SUAVE
+# Units allow any units to be specificied with SUAVE then automatically converting them the standard
 from SUAVE.Core import Units
+
+# Numpy is use extensively throughout SUAVE
 import numpy as np
 import copy, time
 from SUAVE.Core import Data, Container
@@ -232,8 +237,7 @@ def simple_sizing(configs):
 # ----------------------------------------------------------------------
     
 def mission_setup(analyses):
-    
- 
+
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
@@ -254,8 +258,7 @@ def mission_setup(analyses):
     
     # base segment
     base_segment = Segments.Segment()
-    
-    
+
     # ------------------------------------------------------------------
     #   First Climb Segment
     # ------------------------------------------------------------------

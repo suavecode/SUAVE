@@ -101,7 +101,7 @@ class Segment(Lofted_Body.Segment):
         # store data
         self.control_surfaces.append(control_surface)
         return    
-        
+
 
 ## @ingroup Components-Wings
 class SegmentContainer(Lofted_Body.Segment.Container):

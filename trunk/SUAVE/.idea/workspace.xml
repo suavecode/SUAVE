@@ -2,19 +2,41 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3e195a4e-bcfe-44fd-98b6-4d61fc7a86aa" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/base.avl" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/base.avl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_001.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_001.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_002.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_002.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_003.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_003.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_004.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_004.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_005.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_005.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_006.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_006.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/test_AVL.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/test_AVL.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/B737/mission_B737.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/B737/mission_B737.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/B737/results_mission_B737.res" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/B737/results_mission_B737.res" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/BWB.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/BWB.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Beech_99.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Beech_99.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_737.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_737.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_747.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_747.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_BWB_450.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_BWB_450.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Cessna_172.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Cessna_172.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Concorde.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Concorde.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Embraer_190.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Embraer_190.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/NACA65-203.dat" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/NACA65-203.dat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/SIAI_Marchetti_S211.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/SIAI_Marchetti_S211.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Solar_UAV.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Solar_UAV.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/aerodynamics/aerodynamics.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/aerodynamics/aerodynamics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/cmalpha/cmalpha.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/cmalpha/cmalpha.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/concorde/concorde.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/concorde/concorde.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/weights/weights.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/weights/weights.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/AVL.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/AVL.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Aerodynamics/Vortex_Lattice.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Aerodynamics/Vortex_Lattice.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Constant_Speed_Linear_Altitude.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Constant_Speed_Linear_Altitude.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Constant_Throttle_Constant_Speed.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Climb/Constant_Throttle_Constant_Speed.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Mission/Segments/Hover/Climb.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Mission/Segments/Hover/Climb.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analyses/Stability/AVL.py" beforeDir="false" afterPath="$PROJECT_DIR$/Analyses/Stability/AVL.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/compressibility_drag_wing.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/compressibility_drag_wing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_wing.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Common/Fidelity_Zero/Drag/parasite_drag_wing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Lifting_Line/Lifting_Line.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Lifting_Line/Lifting_Line.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Center_of_Gravity/compute_component_centers_of_gravity.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Center_of_Gravity/compute_component_centers_of_gravity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Constant_Throttle_Constant_Speed.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Constant_Throttle_Constant_Speed.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Optimized.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/Climb/Optimized.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Components/Wings/Segment.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components/Wings/Segment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Fidelity_Zero/Lift/compute_max_lift_coeff.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Fidelity_Zero/Lift/compute_max_lift_coeff.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/XFOIL/compute_airfoil_polars.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/XFOIL/compute_airfoil_polars.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Geometry/Two_Dimensional/Planform/wing_planform.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Geometry/Two_Dimensional/Planform/wing_planform.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/optimize.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/optimize.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Noise/Fidelity_One/Airframe/noise_airframe_Fink.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Noise/Fidelity_One/Airframe/noise_airframe_Fink.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Noise/Fidelity_One/Noise_Tools/noise_geometric.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Noise/Fidelity_One/Noise_Tools/noise_geometric.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Performance/estimate_take_off_field_length.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Performance/estimate_take_off_field_length.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Performance/payload_range.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Performance/payload_range.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +45,13 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
   </component>
   <component name="ProjectId" id="1VX6guJOFL8E8kfWsu2SrVIVz2F" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -33,8 +62,8 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="two.files.diff.last.used.folder" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/Develop/SUAVE" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/AVL_Dynamic_Stability/regression/scripts" />
+    <property name="two.files.diff.last.used.folder" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/AVL_Dynamic_Stability/trunk/SUAVE" />
   </component>
   <component name="ServiceViewManager">
     <option name="viewStates">
@@ -62,13 +91,15 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="213" y="27" width="1200" height="800" maximized="true" key="DiffContextDialog" timestamp="1578456515402">
-      <screen x="63" y="27" width="1857" height="1053" />
+    <state x="1510" y="167" width="1472" height="684" maximized="true" key="DiffContextDialog" timestamp="1579069071990">
+      <screen x="1920" y="180" width="1440" height="900" />
     </state>
+    <state x="1510" y="167" width="1472" height="684" maximized="true" key="DiffContextDialog/63.27.1857.1053/1920.180.1440.900@1920.180.1440.900" timestamp="1579069071990" />
     <state x="213" y="27" width="1200" height="800" maximized="true" key="DiffContextDialog/63.27.1857.1053@63.27.1857.1053" timestamp="1577818755945" />
-    <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl" timestamp="1578460226462">
-      <screen x="63" y="27" width="1857" height="1053" />
+    <state x="2471" y="423" width="374" height="414" key="FileChooserDialogImpl" timestamp="1579074803525">
+      <screen x="1920" y="180" width="1440" height="900" />
     </state>
+    <state x="2471" y="423" width="374" height="414" key="FileChooserDialogImpl/63.27.1857.1053/1920.180.1440.900@1920.180.1440.900" timestamp="1579074803525" />
     <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl/63.27.1857.1053/1920.180.1440.900@63.27.1857.1053" timestamp="1578460226462" />
     <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl/63.27.1857.1053@63.27.1857.1053" timestamp="1577818754446" />
   </component>

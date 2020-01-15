@@ -2,14 +2,19 @@
 # 
 # Created:  Aug 2014, SUAVE Team
 # Modified: Jun 2016, T. MacDonald
+#           May 2019, T. MacDonald
 
 """ setup file for a mission with a 737
 """
+
+
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
+
 import SUAVE
 from SUAVE.Core import Units
+
 import numpy as np
 import copy, time
 from SUAVE.Core import Data, Container
@@ -24,8 +29,13 @@ from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity import c
 
 # import vehicle and analyses
 import sys
+
 sys.path.append('../Vehicles')
+# the analysis functions
+
 from Boeing_737 import vehicle_setup, configs_setup
+
+
 
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
      print_compress_drag, \
@@ -43,7 +53,9 @@ def main():
     simple_sizing(configs, analyses)
 
     configs.finalize()
-    analyses.finalize()  
+    analyses.finalize()
+
+
  
     # mission analysis
     mission = analyses.missions.base
@@ -63,7 +75,10 @@ def main():
     # check the results
     check_results(results,old_results)
     
+
+
     return
+
 
 # ----------------------------------------------------------------------
 #   Analysis Setup
@@ -263,7 +278,7 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
-    base_segment.state.numerics.number_control_points        = 4  
+
 
     # ------------------------------------------------------------------
     #   First Climb Segment: constant Mach, constant segment angle 
@@ -537,7 +552,7 @@ def load_results():
     return SUAVE.Input_Output.SUAVE.load('results_mission_B737.res')
 
 def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_B737.res')  
+    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_B737.res')
     return
 
 def save_plot_data(results):    
