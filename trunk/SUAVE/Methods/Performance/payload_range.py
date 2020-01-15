@@ -172,7 +172,7 @@ def payload_range(vehicle,mission,cruise_segment_tag,reserves=0.):
     TOW.insert(0,0)
 
     # packing results
-    payload_range.range     = np.multiply(R,Units.nautical_mile / Units.m) # [m]
+    payload_range.range     = np.multiply(R,1.0*Units.nautical_mile / Units.m) # [m]
     payload_range.payload   = PLD
     payload_range.fuel      = FUEL
     payload_range.takeoff_weight = TOW

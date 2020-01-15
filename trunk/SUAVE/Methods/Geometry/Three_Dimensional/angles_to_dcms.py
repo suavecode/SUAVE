@@ -1,4 +1,8 @@
 ## @ingroup Methods-Geometry-Three_Dimensional
+#
+# Created:   
+# Modified: Jan 2020, M. Clarke
+
 import numpy as np
 from numpy import cos, sin
 from .orientation_product import orientation_product
@@ -163,7 +167,7 @@ def new_tensor(a):
     Properties Used:
     N/A
     """      
-    assert np.rank(a) == 1
+    assert a.ndim == 1
     n_a = len(a)
     
     T = np.eye(3)
