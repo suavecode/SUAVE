@@ -3,6 +3,7 @@
 # 
 # Created:            T. MacDonald
 # Modified: Apr 2017, T. MacDonald
+#           Apr 2019, T. MacDonald
 
 
 # ----------------------------------------------------------------------
@@ -120,7 +121,8 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
 
         Properties Used:
         self.geometry.tag (geometry in full is also attached to a process)
-        """          
+        """    
+        super(Supersonic_OpenVSP_Wave_Drag, self).initialize()
         import os
         
         # Remove old volume drag data so that new data can be appended without issues

@@ -3,6 +3,7 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Jan 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -35,7 +36,7 @@ def orientation_transpose(T):
     N/A
     """   
     
-    assert np.rank(T) == 3
+    assert T.ndim == 3
     
     Tt = np.swapaxes(T,1,2)
         

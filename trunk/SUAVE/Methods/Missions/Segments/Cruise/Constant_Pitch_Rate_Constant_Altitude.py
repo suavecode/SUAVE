@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           May 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -51,7 +52,6 @@ def initialize_conditions(segment):
     if alt is None:
         if not segment.state.initials: raise AttributeError('altitude not set')
         alt = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude = alt
         
     # check for initial pitch
     if T0 is None:

@@ -3,6 +3,7 @@
 #
 # Created:  Apr 2017, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
+#           Oct 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,6 +19,7 @@ from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as help_fun
 import os
 import sys
+from scipy.optimize import minimize
 
 # ----------------------------------------------------------------------
 #  Trust Region Optimization Class
@@ -64,7 +66,7 @@ class Trust_Region_Optimization(Data):
         self.optimizer_verify_level             = 0
         self.fidelity_levels                    = 2     # only two are currently supported
         self.evaluation_order                   = [1,2] # currently this order is necessary for proper functionality   
-        self.optimizer                          = 'SNOPT'
+        self.optimizer                          = 'SLSQP'
         
     def optimize(self,problem,print_output=False):
         """Optimizes the problem
@@ -223,11 +225,36 @@ class Trust_Region_Optimization(Data):
                 gOpt_corr = np.zeros([1,len(con)])[0]  
                 for ii in range(len(con)):
                     gOpt_corr[ii] = opt_prob._solutions[0]._constraints[ii].value  
+                    
 
+            elif self.optimizer == 'SLSQP':
+                
+                bounds = []
+                for lb, ub in zip(tr.lower_bound, tr.upper_bound):
+                    bounds.append((lb,ub))
+                
+                constraints = self.initialize_SLSQP_constraints(con,problem,corrections,tr)
+                # need corrections, tr
+    
+                res = minimize(self.evaluate_corrected_model, x, constraints=constraints, \
+                               args=(problem,corrections,tr), bounds=bounds)
+                
+                fOpt_corr = res['fun']
+                xOpt_corr = res['x']
+                gOpt_corr = problem.all_constraints(xOpt_corr)
+                
+                if res['success']:
+                    feasible_flag = True
+                else:
+                    feasible_flag = False
+                
             else:
                 raise ValueError('Selected optimizer not implemented')
             success_flag = feasible_flag            
         
+            f_out.write('fopt = ' + str(fOpt_corr)+'\n')
+            f_out.write('xopt = ' + str(xOpt_corr)+'\n')
+            f_out.write('gopt = ' + str(gOpt_corr)+'\n')
             
             
             # Constraint minization ------------------------------------------------------------------------
@@ -254,10 +281,27 @@ class Trust_Region_Optimization(Data):
                     xOpt_corr = con_outputs[1]
                     new_outputs = self.evaluate_corrected_model(x, problem=problem,corrections=corrections,tr=tr)
         
-                    fOpt_corr = new_outputs[0][0][0]
+                    fOpt_corr = new_outputs[0][0]
                     gOpt_corr = np.zeros([1,len(con)])[0]   
                     for ii in range(len(con)):
                         gOpt_corr[ii] = new_outputs[1][ii]
+                elif self.optimizer == 'SLSQP':
+                    bounds = []
+                    for lb, ub in zip(con_low_edge, con_up_edge):
+                        bounds.append((lb,ub)) 
+                        
+                    res = minimize(self.evaluate_constraints, x, \
+                                   args=(problem,corrections,tr,con_low_edge,con_up_edge), bounds=bounds, method='slsqp')                    
+                        
+                    xOpt_corr = res['x']
+                    new_outputs = self.evaluate_corrected_model(x, problem=problem,corrections=corrections,tr=tr,
+                                                                return_cons=True)
+                    
+                    fOpt_corr = new_outputs[0][0]
+                    gOpt_corr = np.zeros([1,len(con)])[0]   
+                    for ii in range(len(con)):
+                        gOpt_corr[ii] = new_outputs[1][ii]               
+                        
                 else:
                     raise ValueError('Selected optimizer not implemented')
                 
@@ -385,7 +429,7 @@ class Trust_Region_Optimization(Data):
         return (f,df,g,dg)
 
 
-    def evaluate_corrected_model(self,x,problem=None,corrections=None,tr=None):
+    def evaluate_corrected_model(self,x,problem=None,corrections=None,tr=None,return_cons=False):
         """Evaluates the SUAVE nexus problem and applies corrections to the results.
         
         Assumptions:
@@ -427,7 +471,12 @@ class Trust_Region_Optimization(Data):
         print('Con')
         print(const)
             
-        return obj,const,fail
+        if self.optimizer == 'SNOPT' or return_cons:
+            return obj,const,fail
+        elif self.optimizer == 'SLSQP':
+            return obj
+        else:
+            raise NotImplemented
     
     
     def evaluate_constraints(self,x,problem=None,corrections=None,tr=None,lb=None,ub=None):
@@ -475,8 +524,10 @@ class Trust_Region_Optimization(Data):
         print(x)
         print('Cons violation')
         print(obj_cons)         
-            
-        return obj_cons,const,fail    
+        if self.optimizer == 'SNOPT':
+            return obj_cons,const,fail  
+        else:
+            return obj_cons
         
         
     def calculate_constraint_violation(self,gval,lb,ub):
@@ -706,3 +757,37 @@ class Trust_Region_Optimization(Data):
             print('Trust region size remains the same at %f\n\n' % tr.size)        
             
         return tr_action
+    
+    def initialize_SLSQP_constraints(self,con,problem,corrections,tr):
+        # Initialize variables according to SLSQP requirements
+        slsqp_con_list = []
+        for i,c in enumerate(con):
+            c_dict = {}
+            if c[1] == '<' or c[1] == '>':
+                c_dict['type'] = 'ineq'
+            elif c[1] == '=':
+                c_dict['type'] = 'eq'
+            else:
+                raise ValueError('Constraint specification not recognized.')
+            c_dict['fun'] = self.unpack_constraints_slsqp
+            if c[1] == '<':
+                c_dict['args'] = [i,-1,c[2],problem,corrections,tr]
+            else:
+                c_dict['args'] = [i,1,c[2],problem,corrections,tr]
+            slsqp_con_list.append(c_dict)
+        
+        return slsqp_con_list
+    
+    def unpack_constraints_slsqp(self,x,con_ind,sign,edge,problem,corrections,tr):
+    
+        A, b = corrections
+        x0   = tr.center
+        
+        const = problem.all_constraints(x).tolist()
+        
+        const = const + np.matmul(A[1:,:],(x-x0))+b[1:]
+        const = const.tolist()   
+        
+        con = (const[con_ind]-edge)*sign
+        
+        return con
