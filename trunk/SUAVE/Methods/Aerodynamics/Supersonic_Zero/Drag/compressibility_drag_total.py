@@ -64,7 +64,7 @@ def compressibility_drag_total(state,settings,geometry):
     peak_factor      = settings.transonic_drag_multiplier
     scaling_factor   = settings.volume_wave_drag_scaling
     
-    if settings.cross_sectional_area_calculation_type is not 'Fixed':
+    if settings.cross_sectional_area_calculation_type != 'Fixed':
         raise NotImplementedError
     
     wings          = geometry.wings
