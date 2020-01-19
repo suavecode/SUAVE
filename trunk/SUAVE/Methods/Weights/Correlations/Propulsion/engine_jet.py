@@ -39,6 +39,6 @@ def engine_jet(thrust_sls):
     thrust_sls_en = thrust_sls / Units.force_pound # Convert N to lbs force  
     
     # process
-    weight = (0.4054*thrust_sls_en ** 0.9255) * Units.lb # Convert lbs to kg
+    weight =  (0.4054*thrust_sls_en ** 0.9255) * Units.lb # Convert lbs to kg
     
     return weight

@@ -155,8 +155,12 @@ class Ducted_Fan(Propulsor):
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
-        results.power               = np.divide(output_power[:,0],propulsive_efficiency[:,0])
         
+        # results.power               = np.divide(output_power[:,0],propulsive_efficiency[:,0])
+        # line above converts 2d arrays to 1d, this causes issues later. Line below aims to solve this
+        results.power               = np.divide(output_power,propulsive_efficiency)
+
+
         # store data
         results_conditions = Data
         

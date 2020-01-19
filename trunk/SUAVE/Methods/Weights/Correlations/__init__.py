@@ -4,7 +4,9 @@
 
 from . import Propulsion
 from . import Tube_Wing
+from . import Tube_Wing_TurboElectric
 from . import BWB
 from . import Human_Powered
 from . import UAV
 from . import Common
+from . import Cryogenics

@@ -1,11 +1,11 @@
 ## @ingroup Methods-Propulsion
-# ducted_fan_sizing.py
+# turboelectric_ducted_fan_sizing.py
 # 
-# Created:  Michael Vegh, July 2015
+# Created:  K. Hamilton Nov 2019
 # Modified: 
 #        
 
-""" create and evaluate a Ducted Fan network
+""" create and evaluate a turboelectric Ducted Fan network
 """
 
 # ----------------------------------------------------------------------
@@ -16,19 +16,20 @@ import numpy as np
 from SUAVE.Core import Data
 
 ## @ingroup Methods-Propulsion
-def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
+def turboelectric_ducted_fan_sizing(turboelectric_ducted_fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
     """
     creates and evaluates a ducted_fan network based on an atmospheric sizing condition
     
     Inputs:
-    ducted_fan       ducted fan network object (to be modified)
+    turboelectric_ducted_fan    turboelectric ducted fan network object (to be modified)
     mach_number
-    altitude         [meters]
-    delta_isa        temperature difference [K]
-    conditions       ordered dict object
+    altitude                    [meters]
+    delta_isa                   temperature difference [K]
+    conditions                  ordered dict object
     """
     
     #Unpack components
+    ducted_fan = turboelectric_ducted_fan.propulsor
     
     #check if altitude is passed or conditions is passed
     if(conditions):
@@ -82,7 +83,7 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     thrust                    = ducted_fan.thrust
     
     bypass_ratio              = ducted_fan.bypass_ratio #0
-    number_of_engines         = ducted_fan.number_of_engines
+    number_of_engines         = turboelectric_ducted_fan.number_of_engines
     
     # Creating the network by manually linking the different components
     
@@ -134,8 +135,8 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     thrust.size(conditions)
     mass_flow  = thrust.mass_flow_rate_design
 
-    # compute shaft power required by all the fans
-    ducted_fan.design_power = fan.outputs.work_done * mass_flow * number_of_engines
+    # compute shaft power required for each fan
+    turboelectric_ducted_fan.design_shaft_power = fan.outputs.work_done * mass_flow
 
     # update the design thrust value
     ducted_fan.design_thrust = thrust.total_design
@@ -177,4 +178,4 @@ def ducted_fan_sizing(ducted_fan,mach_number = None, altitude = None, delta_isa 
     state_sls.conditions = conditions_sls   
     results_sls = ducted_fan.evaluate_thrust(state_sls)
     
-    ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
+    turboelectric_ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
