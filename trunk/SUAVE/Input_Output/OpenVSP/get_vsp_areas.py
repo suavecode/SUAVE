@@ -6,7 +6,7 @@
 #           Mar 2018, T. MacDonald
 
 try:
-    import vsp_g as vsp
+    import vsp as vsp
 except ImportError:
     pass # This allows SUAVE to build without OpenVSP
 import numpy as np

@@ -12,7 +12,7 @@ import SUAVE
 from SUAVE.Core import Units, Data
 from SUAVE.Input_Output.OpenVSP import get_vsp_areas
 from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
-import vsp_g as vsp
+import vsp as vsp
 import numpy as np
 
 ## @ingroup Input_Output-OpenVSP
