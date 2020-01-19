@@ -3,6 +3,7 @@
 
 # Created:  Jun 2018, T. St Francis
 # Modified: Aug 2018, T. St Francis
+#           Jan 2020, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,7 +14,7 @@ from SUAVE.Core import Units, Data
 from SUAVE.Input_Output.OpenVSP import get_vsp_areas
 from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
 from SUAVE.Components.Fuselages.Fuselage import Fuselage
-import vsp_g as vsp
+import vsp as vsp
 import numpy as np
 
 
