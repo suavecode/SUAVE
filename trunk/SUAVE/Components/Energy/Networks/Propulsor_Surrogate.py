@@ -1,7 +1,8 @@
+## @ingroup Components-Energy-Networks
 # Propulsor_Surrogate.py
 #
 # Created:  Mar 2017, E. Botero
-# Modified:
+# Modified: Jan 2020, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,7 +15,7 @@ import SUAVE
 import numpy as np
 from copy import deepcopy
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 from SUAVE.Core import Data
 import sklearn
@@ -31,30 +32,30 @@ from sklearn import svm, linear_model
 class Propulsor_Surrogate(Propulsor):
     """ This is a way for you to load engine data from a source.
         A .csv file is read in, a surrogate made, that surrogate is used during the mission analysis.
-       
+        
         You need to use build surrogate first when setting up the vehicle to make this work.
-   
+        
         Assumptions:
         The input format for this should be Altitude, Mach, Throttle, Thrust, SFC
-       
+        
         Source:
         None
     """        
     def __defaults__(self):
-        """ This sets the default values for the network to function.
-   
+        """ This sets the default values for the network to function
+        
             Assumptions:
             None
-   
+            
             Source:
             N/A
-   
+            
             Inputs:
             None
-   
+            
             Outputs:
             None
-   
+            
             Properties Used:
             N/A
         """          
@@ -82,47 +83,37 @@ class Propulsor_Surrogate(Propulsor):
     # manage process with a driver function
     def evaluate_thrust(self,state):
         """ Calculate thrust given the current state of the vehicle
-   
+        
             Assumptions:
             None
-   
+            
             Source:
             N/A
-   
+            
             Inputs:
             state [state()]
-   
+            
             Outputs:
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
-   
+            
             Properties Used:
             Defaulted values
         """            
-       
+        
         # Unpack the surrogate
         sfc_surrogate = self.sfc_surrogate
         thr_surrogate = self.thrust_surrogate
-       
+        
         # Unpack the conditions
         conditions = state.conditions
         # rescale altitude for proper surrogate performance
         altitude   = conditions.freestream.altitude/self.altitude_input_scale
         mach       = conditions.freestream.mach_number
         throttle   = conditions.propulsion.throttle
-       
+        
         cond = np.hstack([altitude,mach,throttle])
-       
-        ## Run the surrogate for a range of altitudes
-        #data_len = len(altitude)
-        #sfc = np.zeros([data_len,1])  
-        #thr = np.zeros([data_len,1])
-        #for ii,_ in enumerate(altitude):            
-            #sfc[ii] = sfc_surrogate.predict([np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]])])\
-                #*self.sfc_input_scale*self.sfc_rubber_scale
-            #thr[ii] = thr_surrogate.predict([np.array([altitude[ii][0],mach[ii][0],throttle[ii][0]])])\
-                #*self.thrust_input_scale*self.thrust_rubber_scale
-            
+           
         if self.use_extended_surrogate:
             lo_blender = Cubic_Spline_Blender(0, .01)
             hi_blender = Cubic_Spline_Blender(0.99, 1)            
@@ -136,57 +127,52 @@ class Propulsor_Surrogate(Propulsor):
         thr = thr*self.thrust_input_scale*self.thrust_anchor_scale
        
         F    = thr
-        #from SUAVE.Core import Units
-        mdot = thr*sfc*self.number_of_engines#*Units.lb/Units.lbf/Units.hr
+        mdot = thr*sfc*self.number_of_engines
        
         # Save the output
         results = Data()
-        results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]    
+        results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]
         results.vehicle_mass_rate   = mdot
-        results.tsfc                = sfc
-        results.thrust_scalar_value = thr
    
         return results          
-   
+    
     def build_surrogate(self,my_data=None):
         """ Build a surrogate. Multiple options for models are available including:
             -Gaussian Processes
             -KNN
             -SVR
-   
+            
             Assumptions:
             None
-   
+            
             Source:
             N/A
-   
+            
             Inputs:
             state [state()]
-   
+            
             Outputs:
             self.sfc_surrogate    [fun()]
             self.thrust_surrogate [fun()]
-   
+            
             Properties Used:
             Defaulted values
         """          
        
-        if my_data is None:
-           
-            # file name to look for
-            file_name = self.input_file
-           
-            # Load the CSV file
-            my_data = np.genfromtxt(file_name, delimiter=',')
-           
-            # Remove the header line
-            my_data = np.delete(my_data,np.s_[0],axis=0)
-           
-            # Clean up to remove redundant lines
-            b = np.ascontiguousarray(my_data).view(np.dtype((np.void, my_data.dtype.itemsize * my_data.shape[1])))
-            _, idx = np.unique(b, return_index=True)
-           
-            my_data = my_data[idx]                
+        # file name to look for
+        file_name = self.input_file
+       
+        # Load the CSV file
+        my_data = np.genfromtxt(file_name, delimiter=',')
+       
+        # Remove the header line
+        my_data = np.delete(my_data,np.s_[0],axis=0)
+       
+        # Clean up to remove redundant lines
+        b = np.ascontiguousarray(my_data).view(np.dtype((np.void, my_data.dtype.itemsize * my_data.shape[1])))
+        _, idx = np.unique(b, return_index=True)
+       
+        my_data = my_data[idx]                
                
    
         xy  = my_data[:,:3] # Altitude, Mach, Throttle
@@ -206,7 +192,7 @@ class Propulsor_Surrogate(Propulsor):
         # Pick the type of process
         if self.surrogate_type  == 'gaussian':
             gp_kernel = Matern()
-            regr_sfc = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel,normalize_y=True)
+            regr_sfc = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel)
             regr_thr = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel)      
             thr_surrogate = regr_thr.fit(xy, thr)
             sfc_surrogate = regr_sfc.fit(xy, sfc)  
@@ -249,16 +235,37 @@ class Propulsor_Surrogate(Propulsor):
         self.sfc_surrogate    = sfc_surrogate
         self.thrust_surrogate = thr_surrogate   
         
-    def extended_thrust_surrogate(self, thr_surrogate, X, lo_blender, hi_blender):
+    def extended_thrust_surrogate(self, thr_surrogate, cond, lo_blender, hi_blender):
+        """ Fixes thrust values outside of the standard throttle range in order to provide
+            reasonable values outside of the typical surrogate coverage area. 
+            
+            Assumptions:
+            None
+            
+            Source:
+            N/A
+            
+            Inputs:
+            thr_surrogate     - Trained sklearn surrogate that outputs a scaled thrust value
+            cond              - nx3 numpy array with input conditions for the surrogate
+            lo_blender        - Cubic spline blending class that is used at the low throttle cutoff
+            hi_blender        - Cubic spline blending class that is used at the high throttle cutoff
+            
+            Outputs:
+            T                 [nondim]
+            
+            Properties Used:
+            None
+        """            
         # initialize
-        X_zero_eta = deepcopy(X)
-        X_one_eta = deepcopy(X)
-        X_zero_eta[:,2] = 0
-        X_one_eta[:,2] = 1
-        min_thrs = thr_surrogate.predict(X_zero_eta)
-        max_thrs = thr_surrogate.predict(X_one_eta)
+        cond_zero_eta = deepcopy(cond)
+        cond_one_eta = deepcopy(cond)
+        cond_zero_eta[:,2] = 0
+        cond_one_eta[:,2] = 1
+        min_thrs = thr_surrogate.predict(cond_zero_eta)
+        max_thrs = thr_surrogate.predict(cond_one_eta)
         dTdetas = max_thrs - min_thrs
-        etas = X[:,2]
+        etas = cond[:,2]
         mask_low = etas < 0
         mask_lo_blend = np.logical_and(etas >= 0, etas < 0.01)
         mask_mid = np.logical_and(etas >= 0.01, etas < 0.99)
@@ -274,27 +281,48 @@ class Propulsor_Surrogate(Propulsor):
         if np.sum(mask_lo_blend) > 0:
             lo_weight = lo_blender.compute(etas[mask_lo_blend])
             T[mask_lo_blend] = (min_thrs[mask_lo_blend] + etas[mask_lo_blend]*dTdetas[mask_lo_blend])*lo_weight + \
-                               thr_surrogate.predict(X[mask_lo_blend])*(1-lo_weight)
+                               thr_surrogate.predict(cond[mask_lo_blend])*(1-lo_weight)
         
         if np.sum(mask_mid) > 0:
-            T[mask_mid] = thr_surrogate.predict(X[mask_mid])
+            T[mask_mid] = thr_surrogate.predict(cond[mask_mid])
         
         if np.sum(mask_hi_blend) > 0:
             hi_weight = hi_blender.compute(etas[mask_hi_blend])
-            T[mask_hi_blend] = thr_surrogate.predict(X[mask_hi_blend])*hi_weight + \
+            T[mask_hi_blend] = thr_surrogate.predict(cond[mask_hi_blend])*hi_weight + \
                                (max_thrs[mask_hi_blend] + (etas[mask_hi_blend]-1)*dTdetas[mask_hi_blend])*(1-hi_weight)
         
         T[mask_high] = max_thrs[mask_high] + (etas[mask_high]-1)*dTdetas[mask_high]
         
         return T
     
-    def extended_sfc_surrogate(self, sfc_surrogate, X, lo_blender, hi_blender):
+    def extended_sfc_surrogate(self, sfc_surrogate, cond, lo_blender, hi_blender):
+        """ Fixes sfc values outside of the standard throttle range in order to provide
+            reasonable values outside of the typical surrogate coverage area. 
+            
+            Assumptions:
+            None
+            
+            Source:
+            N/A
+            
+            Inputs:
+            sfc_surrogate     - Trained sklearn surrogate that outputs a scaled sfc value
+            cond              - nx3 numpy array with input conditions for the surrogate
+            lo_blender        - Cubic spline blending class that is used at the low throttle cutoff
+            hi_blender        - Cubic spline blending class that is used at the high throttle cutoff
+            
+            Outputs:
+            sfcs              [nondim]
+            
+            Properties Used:
+            None
+        """           
         # initialize
-        X_zero_eta = deepcopy(X)
-        X_one_eta = deepcopy(X)
-        X_zero_eta[:,2] = 0
-        X_one_eta[:,2] = 1    
-        etas = X[:,2]
+        cond_zero_eta = deepcopy(cond)
+        cond_one_eta = deepcopy(cond)
+        cond_zero_eta[:,2] = 0
+        cond_one_eta[:,2] = 1    
+        etas = cond[:,2]
         mask_low = etas < 0
         mask_lo_blend = np.logical_and(etas >= 0, etas < 0.01)
         mask_mid = np.logical_and(etas >= 0.01, etas < 0.99)
@@ -306,23 +334,23 @@ class Propulsor_Surrogate(Propulsor):
         
         # compute sfc
         if np.sum(mask_low) > 0:
-            sfcs[mask_low] = sfc_surrogate.predict(X_zero_eta[mask_low])
+            sfcs[mask_low] = sfc_surrogate.predict(cond_zero_eta[mask_low])
         
         if np.sum(mask_lo_blend) > 0:
             lo_weight = lo_blender.compute(etas[mask_lo_blend])
-            sfcs[mask_lo_blend] = sfc_surrogate.predict(X_zero_eta[mask_lo_blend])*lo_weight + \
-                               sfc_surrogate.predict(X[mask_lo_blend])*(1-lo_weight)
+            sfcs[mask_lo_blend] = sfc_surrogate.predict(cond_zero_eta[mask_lo_blend])*lo_weight + \
+                               sfc_surrogate.predict(cond[mask_lo_blend])*(1-lo_weight)
         
         if np.sum(mask_mid) > 0:
-            sfcs[mask_mid] = sfc_surrogate.predict(X[mask_mid])
+            sfcs[mask_mid] = sfc_surrogate.predict(cond[mask_mid])
         
         if np.sum(mask_hi_blend) > 0:
             hi_weight = hi_blender.compute(etas[mask_hi_blend])
-            sfcs[mask_hi_blend] = sfc_surrogate.predict(X[mask_hi_blend])*hi_weight + \
-                               sfc_surrogate.predict(X_one_eta[mask_hi_blend])*(1-hi_weight)
+            sfcs[mask_hi_blend] = sfc_surrogate.predict(cond[mask_hi_blend])*hi_weight + \
+                               sfc_surrogate.predict(cond_one_eta[mask_hi_blend])*(1-hi_weight)
         
         if np.sum(mask_high) > 0:
-            sfcs[mask_high] = sfc_surrogate.predict(X_one_eta[mask_high])
+            sfcs[mask_high] = sfc_surrogate.predict(cond_one_eta[mask_high])
             
         return sfcs    
        
@@ -332,13 +360,13 @@ if __name__ == '__main__':
     
     from SUAVE.Core import Units
    
-    alt = np.array([[10000,10000,10000,10000,20000,20000,20000,20000]]).T
-    mach = np.array([[.7,.7,.8,.8,.7,.7,.8,.8]]).T
-    thr = np.array([[0,1,0,1,0,1,0,1]]).T
-    sfc = np.array([[.5,.5,.45,.45,.48,.48,.43,.43]]).T
-    thrust = np.array([[0,1000,0,900,0,800,0,700]]).T
+    #alt = np.array([[10000,10000,10000,10000,20000,20000,20000,20000]]).T
+    #mach = np.array([[.7,.7,.8,.8,.7,.7,.8,.8]]).T
+    #thr = np.array([[0,1,0,1,0,1,0,1]]).T
+    #sfc = np.array([[.5,.5,.45,.45,.48,.48,.43,.43]]).T
+    #thrust = np.array([[0,1000,0,900,0,800,0,700]]).T
    
-    my_data = np.hstack([alt,mach,thr,thrust,sfc])
+    #my_data = np.hstack([alt,mach,thr,thrust,sfc])
     my_data = None
    
     sur = Propulsor_Surrogate()
@@ -353,7 +381,7 @@ if __name__ == '__main__':
     sur.thrust_anchor_conditions = np.array([[15000*Units.ft,0.8,1]])
     sur.sfc_anchor_conditions = np.array([[15000*Units.ft,0.8,1]])
     
-    sur.build_surrogate(my_data=my_data)
+    sur.build_surrogate()
    
     x = np.atleast_2d(np.linspace(5000,25000))
     y = np.atleast_2d(np.linspace(.7, .8))
@@ -375,12 +403,17 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     
     res = sur.evaluate_thrust(state)
-    sfc = res.tsfc
-    thr = res.thrust_scalar_value
+    #sfc = res.tsfc
+    #thr = res.thrust_scalar_value
+    thr_vec = res.thrust_force_vector
+    mdot = res.vehicle_mass_rate
+    thr_calc = np.linalg.norm(res.thrust_force_vector,axis=1)[:,None]
+    sfc_calc = mdot/thr_calc/sur.number_of_engines
    
     fig = plt.figure()
     ax = plt.gca()
-    ax.plot(thr/Units.lbf, sfc*4.4*2.2*3600)
+    #ax.plot(thr/Units.lbf, sfc*4.4*2.2*3600)
+    ax.plot(thr_calc/Units.lbf, sfc_calc*4.4*2.2*3600, linestyle = '--')
     
     plt.show()
    
