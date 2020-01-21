@@ -1,7 +1,7 @@
 # propulsion_surrogate.py
 #
 # Created:  Jun 2017, E. Botero
-# Modified: 
+# Modified: Jan 2020, T. MacDonald
 
 #----------------------------------------------------------------------
 #   Imports

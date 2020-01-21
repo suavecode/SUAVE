@@ -1,7 +1,8 @@
 # turbojet_sizing.py
 # 
 # Created:  May 2015, T. MacDonald 
-# Modified: Jan 2016, E. Botero        
+# Modified: Jan 2016, E. Botero    
+#           Jan 2020, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports

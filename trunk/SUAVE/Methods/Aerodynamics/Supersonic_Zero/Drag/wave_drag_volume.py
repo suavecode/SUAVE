@@ -3,6 +3,7 @@
 # 
 # Created:  Jun 2014, T. MacDonald
 # Modified: Feb 2019, T. MacDonald
+#           Jan 2020, T. MacDonald
 
 import numpy as np
 from SUAVE.Core import Units

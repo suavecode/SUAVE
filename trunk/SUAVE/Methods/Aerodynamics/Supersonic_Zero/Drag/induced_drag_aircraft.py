@@ -2,7 +2,7 @@
 # induced_drag_aircraft.py
 # 
 # Created:  Feb 2019, T. MacDonald
-#         
+# Modified: Jan 2020, T. MacDonald
      
 # ----------------------------------------------------------------------
 #  Imports

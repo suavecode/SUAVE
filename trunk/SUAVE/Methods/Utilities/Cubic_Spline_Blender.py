@@ -2,7 +2,7 @@
 # Cubic_Spline_Blender.py
 # 
 # Created:  Feb 2019, T. MacDonald
-#
+# Modified: Jan 2020, T. MacDonald (moved from Method/Aerodynamics/Supersonic_Zero/Drag)
 
 import numpy as np
 

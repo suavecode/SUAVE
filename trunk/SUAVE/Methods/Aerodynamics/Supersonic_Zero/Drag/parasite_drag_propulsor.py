@@ -2,7 +2,7 @@
 # parasite_drag_propulsor.py
 # 
 # Created:  Feb 2019, T. MacDonald
-# Modified: 
+# Modified: Jan 2020, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
