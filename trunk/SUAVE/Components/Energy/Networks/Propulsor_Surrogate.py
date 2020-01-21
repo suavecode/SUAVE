@@ -136,7 +136,7 @@ class Propulsor_Surrogate(Propulsor):
    
         return results          
     
-    def build_surrogate(self,my_data=None):
+    def build_surrogate(self):
         """ Build a surrogate. Multiple options for models are available including:
             -Gaussian Processes
             -KNN
@@ -352,69 +352,4 @@ class Propulsor_Surrogate(Propulsor):
         if np.sum(mask_high) > 0:
             sfcs[mask_high] = sfc_surrogate.predict(cond_one_eta[mask_high])
             
-        return sfcs    
-       
-       
-       
-if __name__ == '__main__':
-    
-    from SUAVE.Core import Units
-   
-    #alt = np.array([[10000,10000,10000,10000,20000,20000,20000,20000]]).T
-    #mach = np.array([[.7,.7,.8,.8,.7,.7,.8,.8]]).T
-    #thr = np.array([[0,1,0,1,0,1,0,1]]).T
-    #sfc = np.array([[.5,.5,.45,.45,.48,.48,.43,.43]]).T
-    #thrust = np.array([[0,1000,0,900,0,800,0,700]]).T
-   
-    #my_data = np.hstack([alt,mach,thr,thrust,sfc])
-    my_data = None
-   
-    sur = Propulsor_Surrogate()
-    my_data = None
-    sur.input_file = 'sfc_hook_set_SI.csv'
-    sur.use_extended_surrogate = True
-    sur.number_of_engines = 1
-    sur.surrogate_type = 'gaussian'
-    
-    sur.thrust_anchor = 35000*Units.lbf
-    sur.sfc_anchor    = 1.65*Units.lb/Units.lbf/Units.hour
-    sur.thrust_anchor_conditions = np.array([[15000*Units.ft,0.8,1]])
-    sur.sfc_anchor_conditions = np.array([[15000*Units.ft,0.8,1]])
-    
-    sur.build_surrogate()
-   
-    x = np.atleast_2d(np.linspace(5000,25000))
-    y = np.atleast_2d(np.linspace(.7, .8))
-    t = np.atleast_2d(np.linspace(0,1))
-    x0 = 15000*np.ones_like(x)*Units.ft
-    y0 = .8*np.ones_like(x)
-    t0 = 1.*np.ones_like(x)
-    
-    cond = np.hstack([x0.T,y0.T,t.T])
-    
-    state = Data()
-    state.conditions = Data()
-    state.conditions.freestream = Data()
-    state.conditions.freestream.altitude    = x0.T
-    state.conditions.freestream.mach_number = y0.T
-    state.conditions.propulsion = Data()
-    state.conditions.propulsion.throttle    = t.T
-   
-    import matplotlib.pyplot as plt
-    
-    res = sur.evaluate_thrust(state)
-    #sfc = res.tsfc
-    #thr = res.thrust_scalar_value
-    thr_vec = res.thrust_force_vector
-    mdot = res.vehicle_mass_rate
-    thr_calc = np.linalg.norm(res.thrust_force_vector,axis=1)[:,None]
-    sfc_calc = mdot/thr_calc/sur.number_of_engines
-   
-    fig = plt.figure()
-    ax = plt.gca()
-    #ax.plot(thr/Units.lbf, sfc*4.4*2.2*3600)
-    ax.plot(thr_calc/Units.lbf, sfc_calc*4.4*2.2*3600, linestyle = '--')
-    
-    plt.show()
-   
-    aa = 0
+        return sfcs   
