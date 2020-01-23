@@ -84,7 +84,7 @@ def turboelectric_ducted_fan_sizing(turboelectric_ducted_fan,mach_number = None,
     
     bypass_ratio              = ducted_fan.bypass_ratio #0
     number_of_engines         = turboelectric_ducted_fan.number_of_engines
-    
+
     # Creating the network by manually linking the different components
     
     # set the working fluid to determine the fluid properties
@@ -135,8 +135,9 @@ def turboelectric_ducted_fan_sizing(turboelectric_ducted_fan,mach_number = None,
     thrust.size(conditions)
     mass_flow  = thrust.mass_flow_rate_design
 
-    # compute shaft power required for each fan
-    turboelectric_ducted_fan.design_shaft_power = fan.outputs.work_done * mass_flow
+    # compute shaft power required by all the fans
+    turboelectric_ducted_fan.design_shaft_power = fan.outputs.work_done * mass_flow * number_of_engines
+    # Shaft power seems to be half the expected. 3 MW expected per motor. 1.336 MW reported
 
     # update the design thrust value
     ducted_fan.design_thrust = thrust.total_design

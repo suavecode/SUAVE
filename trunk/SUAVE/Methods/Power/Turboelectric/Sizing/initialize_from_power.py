@@ -14,7 +14,7 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Power-Turboelectric-Sizing
-def initialize_from_power(turboelectric,power):
+def initialize_from_power(turboelectric,number_of_powersupplies,power):
     '''
     assigns the mass of the turboelectric generator based on the power and specific power
     Assumptions:
@@ -31,4 +31,6 @@ def initialize_from_power(turboelectric,power):
       mass_properties.
         mass         [kg]
     '''
-    turboelectric.mass_properties.mass = power/turboelectric.specific_power
+    individual_demand = power/number_of_powersupplies
+    powersupply_mass = individual_demand/turboelectric.specific_power
+    turboelectric.mass_properties.mass = number_of_powersupplies*powersupply_mass

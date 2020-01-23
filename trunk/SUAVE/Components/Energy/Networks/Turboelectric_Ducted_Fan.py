@@ -13,7 +13,6 @@ import SUAVE
 # package imports
 import numpy as np
 from SUAVE.Core import Data
-# from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------
@@ -33,7 +32,6 @@ class Turboelectric_Ducted_Fan(Propulsor):
     
     def __defaults__(self):
         """ This sets the default values for the network to function.
-            This network operates slightly different than most as it attaches a propulsor to the net.
     
             Assumptions:
             Your system always uses 90 amps...?
@@ -51,9 +49,9 @@ class Turboelectric_Ducted_Fan(Propulsor):
             N/A
         """         
         
-        self.propulsor          = None
-        self.motor              = None
-        self.powersupply        = None
+        self.propulsor          = None      # i.e. the ducted fan (not including the motor).
+        self.motor              = None      # the motor that drives the fan, which may be partial or fully HTS.
+        self.powersupply        = None      # i.e. the turboelectric generator, the generator of which may be partial or fully HTS
         # self.motor_efficiency   = .95
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0

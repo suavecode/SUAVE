@@ -139,20 +139,20 @@ def empty(vehicle,settings=None):
         wt_turbojet                     = Propulsion.integrated_propulsion(wt_engine_jet,num_eng,wt_factor)
 
         # Ducted fan mass is typically 15% of a conventional turbofan engine, however the mass of the turbofans as estimated by SUAVE is proportionally higher for smaller engines, i.e. small engines have lower specific power, which may not be true for electrofans as turbine blade clearance may be the cause of lower performance in smaller turbojet engines. 15% of the turbojet mass is used for now.
-        wt_ductedfan                    = wt_turbojet * 0.15
+        wt_ductedfans                    = wt_turbojet * 0.15
 
         # Size each HTS motor using the SUAVE corelation
-        wt_motor = num_eng * SUAVE.Methods.Weights.Correlations.Propulsion.hts_motor(propulsors.design_shaft_power)
-        propulsors.motor.mass_properties.mass = wt_motor
+        wt_motors = num_eng * SUAVE.Methods.Weights.Correlations.Propulsion.hts_motor(propulsors.design_shaft_power / num_eng)
+        propulsors.motor.mass_properties.mass = wt_motors
 
         # Size powersupply based on the max power draw. Powersupply is a energy converter not an energy storage
         # The max power draw is probably better done elsewhere but is here for now
-        max_power_draw = (propulsors.design_shaft_power/propulsors.motor.motor_efficiency) * num_eng
-        initialize_from_power(propulsors.powersupply, max_power_draw)
-        wt_powersupply = propulsors.powersupply.mass_properties.mass
+        max_power_draw = (propulsors.design_shaft_power/propulsors.motor.motor_efficiency)
+        initialize_from_power(propulsors.powersupply, propulsors.number_of_powersupplies, max_power_draw)
+        wt_powersupplies = propulsors.powersupply.mass_properties.mass
 
         # Total propulsor weight is the ducted fan and the attached HTS motor
-        wt_propulsion = wt_ductedfan + wt_motor + wt_powersupply
+        wt_propulsion = wt_ductedfans + wt_motors + wt_powersupplies
         propulsors.mass_properties.mass = wt_propulsion
 
     else: #propulsor used is not a turbo_fan; assume mass_properties defined outside model
