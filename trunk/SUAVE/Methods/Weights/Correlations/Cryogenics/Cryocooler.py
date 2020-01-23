@@ -14,47 +14,82 @@ from SUAVE.Core import Units, Data
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-Cryogenics 
-def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195*Units.lbs,wt_baggage = 30*Units.lbs):
+def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
     """ Calculate the weight of the cryocooler
     
     Assumptions:
-        based on mass data for Cryomech cryocoolers
+        Based on mass data for Cryomech cryocoolers as per the datasheets for ground based non-massreduced coolers available via the cryomech website: https://www.cryomech.com/cryocoolers/
         
     Source: 
-        N/A
+        https://www.cryomech.com/cryocoolers/
         
     Inputs:
-        TOW -                                                              [kilograms]
-        wt_empty - Operating empty weight of the aircraft                  [kilograms]
-        num_pax - number of passengers on the aircraft                     [dimensionless]
-        wt_cargo - weight of cargo being carried on the aircraft           [kilogram]
-        wt_passenger - weight of each passenger on the aircraft            [kilogram]
-        wt_baggage - weight of the baggage for each passenger              [kilogram]
+        max_power - maximum cooling power required of the cryocooler                            [watts]
+        cryo_temp - cryogenic output temperature required                                       [kelvin]
+        amb_temp - ambient temperature the cooler will reject heat to, defaults to 19C          [kelvin]
+        cooler_type - cryocooler type used.   
     
     Outputs:
         output - a data dictionary with fields:
-            payload - weight of the passengers plus baggage and paid cargo [kilograms]
-            pax - weight of all the passengers                             [kilogram]
-            bag - weight of all the baggage                                [kilogram]
-            fuel - weight of the fuel carried                              [kilogram]
-            empty - operating empty weight of the aircraft                 [kilograms]
+            mass - mass of the cryocooler and supporting components                 [kilogram]
+            input_power - electrical input power required by the cryocooler         [watts]
+            coolerName - Name of cooler type as a string
                
     Properties Used:
         N/A
     """ 
-    
+
     # process
-    wt_pax     = wt_passenger * num_pax
-    wt_bag     = wt_baggage * num_pax 
-    wt_payload = wt_pax + wt_bag + wt_cargo
-    wt_fuel    = TOW - wt_payload - empty
-    
+    # Initialise variables as null values
+    coolerName =    None    # Cryocooler type name
+    tempMin =       None    # Minimum temperature achievable by this type of cooler when rejecting to an ambient temperature of 19C (K)
+    eff =           None    # Efficiency function. This is a line fit from a survey of all the coolers available from Cryomech in November 2019
+    input_power =   None    # Electrical input power (W)
+    mass =          None    # Total cooler mass function. Fit from November 2019 Cryomech data. (kg)
+
+    # Set the parameters of the cooler based on the cooler type and the operating conditions. Presently only the default ambient operating temperature (19C) is supported.
+    if cooler_type = 'fps':
+        coolerName = "Free Piston Stirling"
+        tempMin = 35.0
+        eff = 0.0014*(cryo_temp-35.0)   
+        input_power = max_power/eff
+        mass = 0.0098*input_power+1.0769
+
+    elif cooler_type = 'GM':
+        coolerName = "Gifford McMahon"
+        tempMin = 5.4
+        eff = 0.0005*(cryo_temp-5.4)
+        input_power = max_power/eff
+        mass = 0.0129*input_power+63.08
+
+    elif cooler_type = 'sPT':
+        coolerName = "Single Pulsetube"
+        tempMin = 16.0
+        eff = 0.0002*(cryo_temp-16.0)
+        input_power = max_power/eff
+        mass = 0.0282*input_power+5.9442
+
+    elif cooler_type = 'dPT':
+        coolerName = "Double Pulsetube"
+        tempMin = 8.0
+        eff = 0.00001*(cryo_temp-8.0)
+        input_power = max_power/eff
+        mass = 0.0291*input_power+3.9345
+
+    else:
+        print("Warning: Unknown Cryocooler type")
+        coolerName = "Unknown"
+
+    if cryo_temp < tempMin:
+        eff =           0.0
+        input_power =   None
+        mass =          None
+        print("Warning: The required cryogenic temperature of " + str(cryo_temp) + " is not achievable using a " + coolerType + " cryocooler. The minimum temperature achievable is " + str(tempMin))
+            
     # packup outputs
     output = Data()
-    output.payload = wt_payload
-    output.pax     = wt_pax   
-    output.bag     = wt_bag
-    output.fuel    = wt_fuel
-    output.empty   = empty
+    output.name =           coolerName
+    output.mass =           mass
+    output.input_power =    input_power
   
     return output
