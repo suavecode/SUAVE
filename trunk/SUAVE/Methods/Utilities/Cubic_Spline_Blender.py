@@ -4,7 +4,15 @@
 # Created:  Feb 2019, T. MacDonald
 # Modified: Jan 2020, T. MacDonald (moved from Method/Aerodynamics/Supersonic_Zero/Drag)
 
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+
 import numpy as np
+
+# ----------------------------------------------------------------------
+#  Blender Class
+# ----------------------------------------------------------------------
 
 ## @ingroup Methods-Utilities
 class Cubic_Spline_Blender():

@@ -258,19 +258,21 @@ class Propulsor_Surrogate(Propulsor):
             None
         """            
         # initialize
-        cond_zero_eta = deepcopy(cond)
-        cond_one_eta = deepcopy(cond)
+        cond_zero_eta      = deepcopy(cond)
+        cond_one_eta       = deepcopy(cond)
         cond_zero_eta[:,2] = 0
-        cond_one_eta[:,2] = 1
+        cond_one_eta[:,2]  = 1
+        
         min_thrs = thr_surrogate.predict(cond_zero_eta)
         max_thrs = thr_surrogate.predict(cond_one_eta)
-        dTdetas = max_thrs - min_thrs
-        etas = cond[:,2]
-        mask_low = etas < 0
+        dTdetas  = max_thrs - min_thrs
+        
+        etas          = cond[:,2]
+        mask_low      = etas < 0
         mask_lo_blend = np.logical_and(etas >= 0, etas < 0.01)
-        mask_mid = np.logical_and(etas >= 0.01, etas < 0.99)
+        mask_mid      = np.logical_and(etas >= 0.01, etas < 0.99)
         mask_hi_blend = np.logical_and(etas >= 0.99, etas < 1)
-        mask_high = etas >= 1
+        mask_high     = etas >= 1
         
         etas = np.atleast_2d(etas).T
         T = np.zeros_like(etas)
@@ -318,16 +320,17 @@ class Propulsor_Surrogate(Propulsor):
             None
         """           
         # initialize
-        cond_zero_eta = deepcopy(cond)
-        cond_one_eta = deepcopy(cond)
+        cond_zero_eta      = deepcopy(cond)
+        cond_one_eta       = deepcopy(cond)
         cond_zero_eta[:,2] = 0
-        cond_one_eta[:,2] = 1    
-        etas = cond[:,2]
-        mask_low = etas < 0
+        cond_one_eta[:,2]  = 1  
+        
+        etas          = cond[:,2]
+        mask_low      = etas < 0
         mask_lo_blend = np.logical_and(etas >= 0, etas < 0.01)
-        mask_mid = np.logical_and(etas >= 0.01, etas < 0.99)
+        mask_mid      = np.logical_and(etas >= 0.01, etas < 0.99)
         mask_hi_blend = np.logical_and(etas >= 0.99, etas < 1)
-        mask_high = etas >= 1 
+        mask_high     = etas >= 1 
         
         etas = np.atleast_2d(etas).T
         sfcs = np.zeros_like(etas)
