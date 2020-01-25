@@ -122,33 +122,30 @@ def vehicle_setup():
     wing.append_segment(segment)     
        
     # control surfaces -------------------------------------------
-    control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'flap'
-    control_surface.function              = 'flap' 
-    control_surface.span_fraction_start   = 0.10 
-    control_surface.span_fraction_end     = 0.75   
-    control_surface.deflection            = 0.0 * Units.degrees
-    control_surface.configuration_type    = 'double_slotted'
-    control_surface.chord_fraction        = 0.30   
-    wing.append_control_surface(control_surface)   
+    flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
+    flap.tag                   = 'flap' 
+    flap.span_fraction_start   = 0.10 
+    flap.span_fraction_end     = 0.75   
+    flap.deflection            = 0.0 * Units.degrees
+    flap.configuration_type    = 'double_slotted'
+    flap.chord_fraction        = 0.30   
+    wing.append_control_surface(flap)   
         
-    control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'slat'
-    control_surface.function              = 'slat' 
-    control_surface.span_fraction_start   = 0.324 
-    control_surface.span_fraction_end     = 0.963     
-    control_surface.deflection            = 0.0 * Units.degrees
-    control_surface.chord_fraction        = 0.1  	 
-    wing.append_control_surface(control_surface)  
+    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
+    slat.tag                   = 'slat' 
+    slat.span_fraction_start   = 0.324 
+    slat.span_fraction_end     = 0.963     
+    slat.deflection            = 0.0 * Units.degrees
+    slat.chord_fraction        = 0.1  	 
+    wing.append_control_surface(slat)  
         
-    control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'aileron'
-    control_surface.function              = 'aileron'
-    control_surface.span_fraction_start   = 0.7 
-    control_surface.span_fraction_end     = 0.963 
-    control_surface.deflection            = 0.0 * Units.degrees
-    control_surface.chord_fraction        = 0.16    
-    wing.append_control_surface(control_surface)         
+    aileron                       = SUAVE.Components.Wings.Control_Surfaces.Aileron() 
+    aileron.tag                   = 'aileron' 
+    aileron.span_fraction_start   = 0.7 
+    aileron.span_fraction_end     = 0.963 
+    aileron.deflection            = 0.0 * Units.degrees
+    aileron.chord_fraction        = 0.16    
+    wing.append_control_surface(aileron)         
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -199,14 +196,13 @@ def vehicle_setup():
     wing.append_segment(segment) 
     
     # control surfaces -------------------------------------------
-    control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'elevator'
-    control_surface.function              = 'elevator'
-    control_surface.span_fraction_start   = 0.09 
-    control_surface.span_fraction_end     = 0.92
-    control_surface.deflection            = 0.0  * Units.deg
-    control_surface.chord_fraction        = 0.3   
-    wing.append_control_surface(control_surface)  
+    elevator                       = SUAVE.Components.Wings.Control_Surfaces.Elevator() 
+    elevator.tag                   = 'elevator' 
+    elevator.span_fraction_start   = 0.09 
+    elevator.span_fraction_end     = 0.92
+    elevator.deflection            = 0.0  * Units.deg
+    elevator.chord_fraction        = 0.3   
+    wing.append_control_surface(elevator)  
 
     # add to vehicle
     vehicle.append_component(wing)

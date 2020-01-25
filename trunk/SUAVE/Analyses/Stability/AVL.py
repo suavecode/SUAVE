@@ -25,7 +25,7 @@ from SUAVE.Methods.Aerodynamics.AVL.translate_data           import translate_co
 from SUAVE.Methods.Aerodynamics.AVL.purge_files              import purge_files
 from SUAVE.Methods.Aerodynamics.AVL.Data.Settings            import Settings
 from SUAVE.Methods.Aerodynamics.AVL.Data.Cases               import Run_Case
-from SUAVE.Components.Wings.Control_Surface                  import append_ctrl_surf_to_wing_segments  
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform.populate_control_sections import populate_control_sections  
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.compute_dynamic_flight_modes import  compute_dynamic_flight_modes
 
 # local imports 
@@ -442,7 +442,7 @@ class AVL(Stability):
         cs_functions = []
         for wing in self.geometry.wings: # this parses through the wings to determine how many control surfaces does the vehicle have 
             if wing.control_surfaces:
-                wing = append_ctrl_surf_to_wing_segments(wing)     
+                wing = populate_control_sections(wing)     
                 num_cs_on_wing = len(wing.control_surfaces)
                 num_cs +=  num_cs_on_wing
                 for cs in wing.control_surfaces:

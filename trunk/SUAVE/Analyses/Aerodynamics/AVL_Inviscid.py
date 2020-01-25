@@ -17,16 +17,16 @@ from SUAVE.Core import redirect
 from SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics import Aerodynamics
 from SUAVE.Analyses.Mission.Segments.Conditions.Conditions   import Conditions
 
-from SUAVE.Methods.Aerodynamics.AVL.write_geometry   import write_geometry
-from SUAVE.Methods.Aerodynamics.AVL.write_mass_file  import write_mass_file
-from SUAVE.Methods.Aerodynamics.AVL.write_run_cases  import write_run_cases
-from SUAVE.Methods.Aerodynamics.AVL.write_input_deck import write_input_deck
-from SUAVE.Methods.Aerodynamics.AVL.run_analysis     import run_analysis
-from SUAVE.Methods.Aerodynamics.AVL.translate_data   import translate_conditions_to_cases, translate_results_to_conditions
-from SUAVE.Methods.Aerodynamics.AVL.purge_files      import purge_files
-from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
-from SUAVE.Methods.Aerodynamics.AVL.Data.Cases       import Run_Case
-from SUAVE.Components.Wings.Control_Surface          import append_ctrl_surf_to_wing_segments 
+from SUAVE.Methods.Aerodynamics.AVL.write_geometry            import write_geometry
+from SUAVE.Methods.Aerodynamics.AVL.write_mass_file           import write_mass_file
+from SUAVE.Methods.Aerodynamics.AVL.write_run_cases           import write_run_cases
+from SUAVE.Methods.Aerodynamics.AVL.write_input_deck          import write_input_deck
+from SUAVE.Methods.Aerodynamics.AVL.run_analysis              import run_analysis
+from SUAVE.Methods.Aerodynamics.AVL.translate_data            import translate_conditions_to_cases, translate_results_to_conditions
+from SUAVE.Methods.Aerodynamics.AVL.purge_files               import purge_files
+from SUAVE.Methods.Aerodynamics.AVL.Data.Settings             import Settings
+from SUAVE.Methods.Aerodynamics.AVL.Data.Cases                import Run_Case
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform.populate_control_sections   import populate_control_sections  
 
 # Package imports
 import pylab as plt
@@ -398,7 +398,7 @@ class AVL_Inviscid(Aerodynamics):
         
         for wing in self.geometry.wings: # this parses through the wings to determine how many control surfaces does the vehicle have 
             if wing.control_surfaces:
-                wing = append_ctrl_surf_to_wing_segments(wing)     
+                wing = populate_control_sections (wing)     
                 num_cs_on_wing = len(wing.control_surfaces)
                 num_cs +=  num_cs_on_wing
                 for cs in wing.control_surfaces:

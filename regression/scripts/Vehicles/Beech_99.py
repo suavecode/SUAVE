@@ -57,23 +57,21 @@ def vehicle_setup():
     vehicle.reference_area                = wing.areas.reference
                                           
     # control surfaces -------------------------------------------
-    control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'flap'
-    control_surface.function              = 'flap' 
-    control_surface.span_fraction_start   = 0.15    # not correct, only placeholder
-    control_surface.span_fraction_end     = 0.324   # not correct, only placeholder 
-    control_surface.deflection            = 1.0 * Units.deg
-    control_surface.chord_fraction        = 0.19    # not correct, only placeholder
-    wing.append_control_surface(control_surface)    
+    flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
+    flap.tag                   = 'flap' 
+    flap.span_fraction_start   = 0.15    # not correct, only placeholder
+    flap.span_fraction_end     = 0.324   # not correct, only placeholder 
+    flap.deflection            = 1.0 * Units.deg
+    flap.chord_fraction        = 0.19    # not correct, only placeholder
+    wing.append_control_surface(flap)    
     
-    control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'slat'
-    control_surface.function              = 'slat' 
-    control_surface.span_fraction_start   = 0.324  # not correct, only placeholder 
-    control_surface.span_fraction_end     = 0.963  # not correct, only placeholder   
-    control_surface.deflection            = 1.0 * Units.deg
-    control_surface.chord_fraction        = 0.1    # not correct, only placeholder	 
-    wing.append_control_surface(control_surface)  
+    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
+    slat.tag                   = 'slat' 
+    slat.span_fraction_start   = 0.324  # not correct, only placeholder 
+    slat.span_fraction_end     = 0.963  # not correct, only placeholder   
+    slat.deflection            = 1.0 * Units.deg
+    slat.chord_fraction        = 0.1    # not correct, only placeholder	 
+    wing.append_control_surface(slat)  
     
     vehicle.append_component(wing)
     

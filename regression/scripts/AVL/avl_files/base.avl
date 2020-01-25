@@ -47,7 +47,7 @@ B737c.txt
 CONTROL
 flap    1.0   0.7   0. 0. 0.  1.0
 CONTROL
-slat    1.0   -0.9   0. 0. 0.  1.0
+slat    1.0   0.9   0. 0. 0.  -1.0
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
@@ -74,7 +74,7 @@ SECTION
 AFILE
 B737c.txt
 CONTROL
-slat    1.0   -0.9   0. 0. 0.  1.0
+slat    1.0   0.9   0. 0. 0.  -1.0
 CONTROL
 aileron    1.0   0.84   0. 0. 0.  -1.0
 

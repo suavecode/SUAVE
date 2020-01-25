@@ -63,23 +63,21 @@ def vehicle_setup():
     wing.CL_alpha               = conditions.lift_curve_slope
     vehicle.reference_area      = wing.areas.reference
     # control surfaces -------------------------------------------
-    control_surface                           = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                       = 'flap'
-    control_surface.function                  = 'flap' 
-    control_surface.span_fraction_start       = 0.15 
-    control_surface.span_fraction_end         = 0.324    
-    control_surface.deflection                = 0.0 * Units.deg
-    control_surface.chord_fraction            = 0.19    
-    wing.append_control_surface(control_surface)    
+    flap                           = SUAVE.Components.Wings.Control_Surfaces.Flap() 
+    flap.tag                       = 'flap' 
+    flap.span_fraction_start       = 0.15 
+    flap.span_fraction_end         = 0.324    
+    flap.deflection                = 0.0 * Units.deg
+    flap.chord_fraction            = 0.19    
+    wing.append_control_surface(flap)    
     
-    control_surface                           = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                       = 'slat'
-    control_surface.function                  = 'slat' 
-    control_surface.span_fraction_start       = 0.324 
-    control_surface.span_fraction_end         = 0.963     
-    control_surface.deflection                = 0.0 * Units.deg 
-    control_surface.chord_fraction            = 0.1  	 
-    wing.append_control_surface(control_surface)
+    slat                           = SUAVE.Components.Wings.Control_Surfaces.Slat() 
+    slat.tag                       = 'slat' 
+    slat.span_fraction_start       = 0.324 
+    slat.span_fraction_end         = 0.963     
+    slat.deflection                = 0.0 * Units.deg 
+    slat.chord_fraction            = 0.1  	 
+    wing.append_control_surface(slat)
     
     vehicle.append_component(wing)
     
