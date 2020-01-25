@@ -14,6 +14,7 @@
 from SUAVE.Core import Data
 
 # package imports
+import math  as m
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -40,6 +41,7 @@ def induced_drag_aircraft(state,settings,geometry):
     geometry.wings['main_wing'].span_efficiency                  [Unitless]
     geometry.wings['main_wing'].aspect_ratio                     [Unitless]
     geometry.wings['main_wing'].spans.projected                  [m]
+    geometry.wings['main_wing'].sweeps.quarter_chord             [rad]
     geometry.wings['main_wing'].taper                            [Unitless]
     geometry.fuselages['fuselage'].width                         [m]
 
@@ -54,7 +56,6 @@ def induced_drag_aircraft(state,settings,geometry):
     conditions    = state.conditions
     configuration = settings
     
-    
     aircraft_lift = conditions.aerodynamics.lift_coefficient
     e             = configuration.oswald_efficiency_factor
     K             = configuration.viscous_lift_dependent_drag_factor
@@ -62,7 +63,8 @@ def induced_drag_aircraft(state,settings,geometry):
     wing_e        = geometry.wings['main_wing'].span_efficiency
     ar            = geometry.wings['main_wing'].aspect_ratio 
     CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
-    taper         = geometry.wings['main_wing'].taper 
+    taper         = geometry.wings['main_wing'].taper
+    sweep         = geometry.wings['main_wing'].sweeps.quarter_chord 
     
     if 'fuselage' in geometry.fuselages:
         d_f = geometry.fuselages['fuselage'].width
@@ -70,11 +72,13 @@ def induced_drag_aircraft(state,settings,geometry):
         d_f = 0
         
     if e == None:
-        s     = 1 - 2 * (d_f/span)**2
-        f     = 0.0524*taper**4 - 0.15*taper**3 + 0.1659*taper**2 - 0.0706*taper + 0.0119
-        u     = 1/(1+f*ar)
-        e     = 1/(1/(u*s)+np.pi*ar*K*CDp)
-    
+        dtaper = -0.357+0.45*m.exp(0.0375*sweep) 
+        s      = 1 - 2 * (d_f/span)**2
+        f      = 0.0524*(taper-dtaper)**4 - 0.15*(taper-dtaper)**3 + \
+                 0.1659*(taper-dtaper)**2 - 0.0706*(taper-dtaper) + 0.0119
+        u      = 1/(1+f*ar) 
+        e      = 1/(1/(u*s)+np.pi*ar*K*CDp)
+
     # start the result
     total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
         
