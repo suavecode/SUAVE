@@ -11,6 +11,7 @@ from .Airfoil import Airfoil
 
 # functions
 from .load_airfoils import load_airfoils
+from .airfoil_from_CST import airfoil_from_CST
 
 # load airfoils
 import os
