@@ -17,7 +17,7 @@ import numpy as np
 #  Control Surfaces
 # ------------------------------------------------------------
 
-## @ingroup Components-Wings
+## @ingroup Components-Wings-Control_Surfaces
 class Control_Surface(Component):
     def __defaults__(self):
         """This sets the default values of control surfaces defined in SUAVE. 

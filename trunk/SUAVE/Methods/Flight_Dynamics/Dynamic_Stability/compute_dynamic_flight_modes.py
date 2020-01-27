@@ -15,9 +15,30 @@ from SUAVE.Core                                        import Data , Units
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.Full_Linearized_Equations import Supporting_Functions as Supporting_Functions
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
 ## @ingroup Analyses-AVL
+
 def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases): 
-    '''This function follows the stability axis EOM derivation in Etkin and Reid
-    to return the aircraft's dynamic modes and state space''' 
+    """This function follows the stability axis EOM derivation in Etkin and Reid
+    to return the aircraft's dynamic modes and state space 
+    
+    Assumptions:
+       Linerarized Equations are used following the reference below
+
+    Source:
+       Dynamics of Flight: Stability and Control (3rd Edition) by Etkin and Reid
+
+    Inputs:
+       results.aerodynamics  
+       results.stability.static  
+       results.stability.dynamic 
+
+    Outputs: 
+       results.dynamic_stability.LatModes
+       results.dynamic_stability.LongModes 
+
+    Properties Used:
+       N/A
+     """
+ 
     # unpack unit conversions  
     g    = flight_conditions.freestream.gravity 
     mach = flight_conditions.freestream.mach_number

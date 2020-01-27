@@ -34,27 +34,27 @@ def compute_max_lift_coeff(vehicle,conditions=None):
     Unknown
 
     Inputs:
-    vehicle.max_lift_coefficient_factor [Unitless]
-    vehicle.reference_area              [m^2]
-    vehicle.wings. 
-      areas.reference                   [m^2]
-      thickness_to_chord                [Unitless]
-      chords.mean_aerodynamic           [m]
-      sweeps.quarter_chord              [radians]
-      taper                             [Unitless]
-      flaps.chord                       [m]
-     control_surfaces.flap.deflection                       [radians]
-     control_surfaces.slat.deflection                       [radians]
-      areas.affected                    [m^2]
-      control_surfaces.flap.configuration_type                        [string]
-    conditions.freestream.
-      velocity                          [m/s]
-      density                           [kg/m^3]
-      dynamic_viscosity                 [N s/m^2]
-
-    Outputs:
-    Cl_max_ls (maximum CL)              [Unitless]
-    Cd_ind    (induced drag)            [Unitless]
+    vehicle.max_lift_coefficient_factor        [Unitless]
+    vehicle.reference_area                     [m^2]
+    vehicle.wings.                             
+      areas.reference                          [m^2]
+      thickness_to_chord                       [Unitless]
+      chords.mean_aerodynamic                  [m]
+      sweeps.quarter_chord                     [radians]
+      taper                                    [Unitless]
+      flaps.chord                              [m]
+     control_surfaces.flap.deflection          [radians]
+     control_surfaces.slat.deflection          [radians]
+      areas.affected                           [m^2]
+      control_surfaces.flap.configuration_type [string]
+    conditions.freestream.                     
+      velocity                                 [m/s]
+      density                                  [kg/m^3]
+      dynamic_viscosity                        [N s/m^2]
+                                               
+    Outputs:                                   
+    Cl_max_ls (maximum CL)                     [Unitless]
+    Cd_ind    (induced drag)                   [Unitless]
 
     Properties Used:
     N/A
@@ -78,11 +78,11 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         sweep      = wing.sweeps.quarter_chord
         sweep_deg  = wing.sweeps.quarter_chord / Units.degree # convert into degrees
         taper      = wing.taper
-        flap_chord = wing.control_surfaces.flap.chord_fraction # correct !!! 
-        flap_angle = wing.control_surfaces.flap.deflection
-        slat_angle = wing.control_surfaces.slat.deflection
-        Swf        = wing.areas.affected  #portion of wing area with flaps
-        flap_type  = wing.control_surfaces.flap.configuration_type
+        flap_chord = wing.control_surfaces['flap'].chord_fraction # correct !!! 
+        flap_angle = wing.control_surfaces['flap'].deflection
+        slat_angle = wing.control_surfaces['slat'].deflection
+        Swf        = wing.areas.affected  # portion of wing area with flaps
+        flap_type  = wing.control_surfaces['flap'].configuration_type
         
         # conditions data
         V    = conditions.freestream.velocity 

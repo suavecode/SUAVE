@@ -1,3 +1,4 @@
+## @ingroup Components-Wings-Control_Surfaces
 # Slat.py
 #
 # Created:  Jan 2020, M. Clarke
@@ -6,14 +7,13 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# SUAVE imports
-import SUAVE
+# SUAVE imports 
 from SUAVE.Components.Wings.Control_Surfaces.Control_Surface import Control_Surface  
 
 # ----------------------------------------------------------------------
 #  Attribute
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Wings-Control_Surfaces
 class Slat(Control_Surface):
     """This class is used to define slats in SUAVE
 

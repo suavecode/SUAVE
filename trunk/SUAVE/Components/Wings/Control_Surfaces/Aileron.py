@@ -1,3 +1,4 @@
+## @ingroup Components-Wings-Control_Surfaces
 # Aileron.py
 #
 # Created:  Jan 2020, M. Clarke
@@ -13,7 +14,7 @@ from SUAVE.Components.Wings.Control_Surfaces.Control_Surface import Control_Surf
 # ----------------------------------------------------------------------
 #  Attribute
 # ----------------------------------------------------------------------
-
+## @ingroup Components-Wings-Control_Surfaces
 class Aileron(Control_Surface):
     """This class is used to define slats in SUAVE
 
