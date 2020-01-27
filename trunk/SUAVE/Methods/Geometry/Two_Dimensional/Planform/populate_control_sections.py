@@ -10,10 +10,7 @@
 # ----------------------------------------------------------------------  
 from SUAVE.Core import Data , Units 
 import numpy as np 
-from SUAVE.Components.Wings.Control_Surfaces import Aileron   
-from SUAVE.Components.Wings.Control_Surfaces import Elevator  
-from SUAVE.Components.Wings.Control_Surfaces import Slat     
-from SUAVE.Components.Wings.Control_Surfaces import Flap  
+from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -123,7 +120,9 @@ def populate_control_sections(wing):
                     elif (type(w_cs[cs]) ==  Aileron):
                         control_surface = Aileron()                              
                     elif (type(w_cs[cs]) ==  Elevator):
-                        control_surface = Elevator()                         
+                        control_surface = Elevator() 
+                    elif (type(w_cs[cs]) ==  Rudder):
+                        control_surface = Rudder()                          
                         
                     control_surface.tag                   = w_cs[cs].tag 
                     control_surface.span_fraction_start   = s_sf[0] 

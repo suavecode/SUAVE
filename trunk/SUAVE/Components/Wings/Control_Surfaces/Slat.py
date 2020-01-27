@@ -51,6 +51,6 @@ class Slat(Control_Surface):
         N/A
         """ 
         
-        self.function = 'aileron' 
+        self.tag      = 'slat'
         
         pass 

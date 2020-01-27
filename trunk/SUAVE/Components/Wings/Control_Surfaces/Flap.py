@@ -50,7 +50,8 @@ class Flap(Control_Surface):
         Properties Used:
         N/A
         """ 
-        self.function = 'flap'
+        
+        self.tag      = 'flap'
         
         pass
  

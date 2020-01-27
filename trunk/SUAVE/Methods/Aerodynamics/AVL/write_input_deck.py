@@ -12,7 +12,7 @@
 from .purge_files import purge_files
 
 ## @ingroup Methods-Aerodynamics-AVL
-def write_input_deck(avl_object,Trim):
+def write_input_deck(avl_object,trim_aircraft):
     """ This fucntions writes the execution steps used in the AVL call
 
     Assumptions:
@@ -59,7 +59,7 @@ G
 
             # write and store aerodynamic and static stability result files 
             case = avl_object.current_status.cases[case_name]
-            case_command = make_case_command(avl_object,case,Trim)
+            case_command = make_case_command(avl_object,case,trim_aircraft)
             input_deck.write(case_command)
 
         input_deck.write('\nQUIT\n')
@@ -67,7 +67,7 @@ G
     return
 
 
-def make_case_command(avl_object,case,Trim):
+def make_case_command(avl_object,case,trim_aircraft):
     """ Makes commands for case execution in AVL
 
     Assumptions:
@@ -102,7 +102,7 @@ x
 {9}
 ''' 
     # if trim analysis is specified, this function writes the trim commands 
-    if Trim:
+    if trim_aircraft:
         trim_command = make_trim_text_command(case)
     else:
         trim_command = ''

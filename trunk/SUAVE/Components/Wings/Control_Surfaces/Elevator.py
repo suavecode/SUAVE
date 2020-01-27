@@ -51,6 +51,6 @@ class Elevator(Control_Surface):
         N/A
         """ 
         
-        self.function = 'elevator'
+        self.tag      = 'elevator'
         
         pass 

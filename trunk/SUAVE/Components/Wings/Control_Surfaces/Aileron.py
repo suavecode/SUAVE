@@ -52,6 +52,6 @@ class Aileron(Control_Surface):
         N/A
         """ 
         
-        self.function = 'aileron'
+        self.tag      = 'aileron'  
         
         pass 

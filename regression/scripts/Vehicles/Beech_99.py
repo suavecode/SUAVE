@@ -102,21 +102,22 @@ def vehicle_setup():
     fuselage.width                = 5.4   * Units.feet 
     vehicle.append_component(fuselage)
     
-    vehicle.mass_properties.center_of_gravity = np.array([17.2,0,0]) * Units.feet   
-    
-    fuel                                   = SUAVE.Components.Physical_Component()
-    fuel.origin                            = wing.origin
-    fuel.mass_properties.center_of_gravity = wing.mass_properties.center_of_gravity
-    fuel.mass_properties.mass              = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
+    vehicle.mass_properties.center_of_gravity = np.array([17.2,0,0]) * Units.feet  
+    fuel                                      = SUAVE.Components.Physical_Component()
+    fuel.origin                               = wing.origin
+    fuel.mass_properties.center_of_gravity    = wing.mass_properties.center_of_gravity
+    fuel.mass_properties.mass                 = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
     
     #find zero_fuel_center_of_gravity
-    cg                   =vehicle.mass_properties.center_of_gravity
-    MTOW                 =vehicle.mass_properties.max_takeoff
-    fuel_cg              =fuel.origin+fuel.mass_properties.center_of_gravity
-    fuel_mass            =fuel.mass_properties.mass 
-    sum_moments_less_fuel=(cg*MTOW-fuel_cg*fuel_mass)
-    vehicle.fuel = fuel
+    cg                     = vehicle.mass_properties.center_of_gravity
+    MTOW                   = vehicle.mass_properties.max_takeoff
+    fuel_cg                = fuel.origin+fuel.mass_properties.center_of_gravity
+    fuel_mass              = fuel.mass_properties.mass 
+    sum_moments_less_fuel  = (cg*MTOW-fuel_cg*fuel_mass)
+    vehicle.fuel           =  fuel
+    
     vehicle.mass_properties.zero_fuel_center_of_gravity = sum_moments_less_fuel/vehicle.mass_properties.max_zero_fuel
+    
     return vehicle
   
 def configs_setup(vehicle):

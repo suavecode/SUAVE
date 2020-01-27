@@ -51,6 +51,6 @@ class Rudder(Control_Surface):
         N/A
         """ 
         
-        self.function = 'rudder'
+        self.tag      = 'rudder'
         
         pass 

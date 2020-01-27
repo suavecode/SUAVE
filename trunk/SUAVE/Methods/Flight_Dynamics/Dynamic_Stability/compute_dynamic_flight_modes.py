@@ -1,4 +1,3 @@
-
 ## @ingroup Analyses-AVL
 # compute_dynamic_flight_modes.py
 # 
@@ -14,8 +13,9 @@ import numpy as np
 from SUAVE.Core                                        import Data , Units  
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.Full_Linearized_Equations import Supporting_Functions as Supporting_Functions
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.datcom import datcom
-## @ingroup Analyses-AVL
+from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 
+## @ingroup Analyses-AVL
 def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases): 
     """This function follows the stability axis EOM derivation in Etkin and Reid
     to return the aircraft's dynamic modes and state space 
@@ -127,7 +127,7 @@ def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases):
         if wing.control_surfaces :
             for cs in wing.control_surfaces:
                 ctrl_surf =  wing.control_surfaces[cs]
-                if ctrl_surf.function == 'elevator': 
+                if (type(ctrl_surf) ==  Elevator):
                     ele = st.control_surfaces_cases[cases[i].tag].control_surfaces[cs]
                     Xe  = 0 # Neglect
                     Ze  = 0.5 * rho * u0 * u0 * S_ref * ele.CL
@@ -220,7 +220,7 @@ def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases):
         if wing.control_surfaces :
             for cs in wing.control_surfaces:
                 ctrl_surf =  wing.control_surfaces[cs]
-                if ctrl_surf.function == 'aileron': 
+                if (type(ctrl_surf) ==  Aileron): 
                     ail = st.control_surfaces_cases[cases[i].tag].control_surfaces[cs]                      
                     Ya = 0.5 * rho * u0 * u0 * S_ref * ail.CY 
                     La = 0.5 * rho * u0 * u0 * S_ref * b_ref * ail.Cl 

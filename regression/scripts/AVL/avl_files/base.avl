@@ -47,7 +47,7 @@ B737c.txt
 CONTROL
 flap    1.0   0.7   0. 0. 0.  1.0
 CONTROL
-slat    1.0   0.9   0. 0. 0.  -1.0
+slat    1.0   -0.9   0. 0. 0.  1.0
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
@@ -74,7 +74,7 @@ SECTION
 AFILE
 B737c.txt
 CONTROL
-slat    1.0   0.9   0. 0. 0.  -1.0
+slat    1.0   -0.9   0. 0. 0.  1.0
 CONTROL
 aileron    1.0   0.84   0. 0. 0.  -1.0
 
@@ -129,11 +129,11 @@ SECTION
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-29.76107091420069  0.0    3.04738    4.4226    0.0     
+29.76109723934862  0.0    3.048738    4.4226    0.0     
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-30.565641101791456  0.0    9.31    1.43325    0.0     
+30.565718987919198  0.0    9.317    1.43325    0.0     
 
 
 #---------------------------------------------------------
@@ -144,23 +144,23 @@ fuselage_horizontal
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-8.0    -1.85     0.0     18.020000000000003     0.0      1        0
+6.4    -1.87     0.0     23.620000000000005     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-4.539790930781999    -1.48     0.0     25.06897245413288     0.0      1        0
+3.646120382510198    -1.496     0.0     29.57140016426987     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-2.7262025886408754    -1.11     0.0     29.55681745164894     0.0      1        0
+2.194368170585176    -1.122     0.0     32.84782365235238     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-1.4136629903663707    -0.7400000000000002     0.0     33.168981099005556     0.0      1        0
+1.1407677166920687    -0.7480000000000002     0.0     35.277380371132004     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-0.4844373188806417    -0.3700000000000001     0.0     36.067420667459814     0.0      1        0
+0.3924644135651958    -0.3740000000000001     0.0     37.04652091031138     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
@@ -168,23 +168,23 @@ SECTION
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-0.4844373188806408    0.36999999999999966     0.0     36.067420667459814     0.0      1        0
+0.3924644135651949    0.37399999999999967     0.0     37.04652091031138     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-1.4136629903663698    0.7399999999999998     0.0     33.168981099005556     0.0      1        0
+1.140767716692067    0.7479999999999998     0.0     35.27738037113201     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-2.7262025886408745    1.1099999999999999     0.0     29.55681745164894     0.0      1        0
+2.194368170585176    1.1219999999999999     0.0     32.84782365235238     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-4.539790930781999    1.48     0.0     25.06897245413288     0.0      1        0
+3.646120382510198    1.496     0.0     29.57140016426987     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-8.0    1.85     0.0     18.020000000000003     0.0      1        0
+6.4    1.87     0.0     23.620000000000005     0.0      1        0
 
 
 #---------------------------------------------------------
@@ -195,23 +195,23 @@ fuselage_vertical
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-8.0    0.0     -1.88     18.020000000000003     0.0      1        0
+6.4    0.0     -1.87     23.620000000000005     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-4.539790930782001    0.0     -1.504     25.068972454132876     0.0      1        0
+3.646120382510198    0.0     -1.496     29.57140016426987     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-2.7262025886408754    0.0     -1.128     29.55681745164894     0.0      1        0
+2.194368170585176    0.0     -1.122     32.84782365235238     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-1.4136629903663698    0.0     -0.7519999999999998     33.168981099005556     0.0      1        0
+1.1407677166920687    0.0     -0.7480000000000002     35.277380371132004     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-0.4844373188806417    0.0     -0.3759999999999999     36.067420667459814     0.0      1        0
+0.3924644135651958    0.0     -0.3740000000000001     37.04652091031138     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
@@ -219,20 +219,20 @@ SECTION
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-0.4844373188806417    0.0     0.37600000000000033     36.067420667459814     0.0      1        0
+0.3924644135651949    0.0     0.37399999999999967     37.04652091031138     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-1.4136629903663707    0.0     0.7520000000000002     33.16898109900555     0.0      1        0
+1.140767716692067    0.0     0.7479999999999998     35.27738037113201     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-2.7262025886408763    0.0     1.1280000000000001     29.556817451648932     0.0      1        0
+2.194368170585176    0.0     1.1219999999999999     32.84782365235238     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-4.539790930782001    0.0     1.504     25.068972454132876     0.0      1        0
+3.646120382510198    0.0     1.496     29.57140016426987     0.0      1        0
 
 SECTION
 #Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-8.0    0.0     1.88     18.020000000000003     0.0      1        0
+6.4    0.0     1.87     23.620000000000005     0.0      1        0

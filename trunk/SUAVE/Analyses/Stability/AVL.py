@@ -27,6 +27,7 @@ from SUAVE.Methods.Aerodynamics.AVL.Data.Settings            import Settings
 from SUAVE.Methods.Aerodynamics.AVL.Data.Cases               import Run_Case
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.populate_control_sections import populate_control_sections  
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.compute_dynamic_flight_modes import  compute_dynamic_flight_modes
+from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 
 # local imports 
 from .Stability import Stability
@@ -90,7 +91,7 @@ class AVL(Stability):
         self.settings.filenames.err_filename        = sys.stderr        
         self.settings.spanwise_vortices             = 20
         self.settings.chordwise_vortices            = 10
-        self.settings.Trim                          = False 
+        self.settings.trim_aircraft                 = False 
                                                     
         # Conditions table, used for surrogate model training
         self.training                               = Data()   
@@ -220,10 +221,10 @@ class AVL(Stability):
             Cn_beta[ii]     = Cn_beta_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
             NP[ii]          = neutral_point_model.predict([np.array([AoA[ii][0],mach[ii][0]])])     
             
-        static_stability.CM       = CM
-        static_stability.Cm_alpha = Cm_alpha 
-        static_stability.Cn_beta  = Cn_beta   
-        static_stability.NP       = NP 
+        static_stability.CM            = CM
+        static_stability.Cm_alpha      = Cm_alpha 
+        static_stability.Cn_beta       = Cn_beta   
+        static_stability.neutral_point = NP 
  
         results         = Data()
         results.static  = static_stability
@@ -258,23 +259,23 @@ class AVL(Stability):
         self.training_file (optional - file containing previous AVL data)
         """ 
         # Unpack
-        run_folder  = os.path.abspath(self.settings.filenames.run_folder)
-        geometry    = self.geometry
-        training    = self.training 
-        Trim        = self.settings.Trim            
+        run_folder    = os.path.abspath(self.settings.filenames.run_folder)
+        geometry      = self.geometry
+        training      = self.training 
+        trim_aircraft = self.settings.trim_aircraft            
         
-        AoA         = training.angle_of_attack
-        mach        = training.Mach
-        
-        CM          = np.zeros([len(AoA)*len(mach),1])
-        Cm_alpha    = np.zeros([len(AoA)*len(mach),1])
-        Cn_beta     = np.zeros([len(AoA)*len(mach),1]) 
-        NP          = np.zeros([len(AoA)*len(mach),1]) 
+        AoA           = training.angle_of_attack
+        mach          = training.Mach
+                      
+        CM            = np.zeros([len(AoA)*len(mach),1])
+        Cm_alpha      = np.zeros([len(AoA)*len(mach),1])
+        Cn_beta       = np.zeros([len(AoA)*len(mach),1]) 
+        NP            = np.zeros([len(AoA)*len(mach),1]) 
 
         # Calculate aerodynamics for table
-        table_size = len(AoA)*len(mach)
-        xy         = np.zeros([table_size,2])
-        count      = 0
+        table_size    = len(AoA)*len(mach)
+        xy            = np.zeros([table_size,2])
+        count         = 0
         
         # remove old files in run directory  
         if os.path.exists('avl_files'):
@@ -296,7 +297,7 @@ class AVL(Stability):
             run_conditions.freestream.mach_number       = mach[j] 
             
             #Run Analysis at AoA[i] and mach[j]
-            results =  self.evaluate_conditions(run_conditions, Trim)
+            results =  self.evaluate_conditions(run_conditions, trim_aircraft)
 
             # Obtain CM Cm_alpha, Cn_beta and the Neutral Point # Store other variables here as well 
             CM[count*len(mach):(count+1)*len(mach),0]       = results.aerodynamics.Cmtot[:,0]
@@ -383,7 +384,7 @@ class AVL(Stability):
 #  Helper Functions
 # ----------------------------------------------------------------------
         
-    def evaluate_conditions(self,run_conditions, Trim  ):
+    def evaluate_conditions(self,run_conditions, trim_aircraft  ):
         """Process vehicle to setup geometry, condititon, and configuration.
 
         Assumptions:
@@ -448,7 +449,17 @@ class AVL(Stability):
                 for cs in wing.control_surfaces:
                     ctrl_surf = wing.control_surfaces[cs]     
                     cs_names.append(ctrl_surf.tag)  
-                    cs_functions.append(ctrl_surf.function)   
+                    if (type(ctrl_surf) ==  Slat):
+                        ctrl_surf_function  = 'slat'
+                    elif (type(ctrl_surf) ==  Flap):
+                        ctrl_surf_function  = 'flap' 
+                    elif (type(ctrl_surf) ==  Aileron):
+                        ctrl_surf_function  = 'aileron'                          
+                    elif (type(ctrl_surf) ==  Elevator):
+                        ctrl_surf_function  = 'elevator' 
+                    elif (type(ctrl_surf) ==  Rudder):
+                        ctrl_surf_function = 'rudder'                      
+                    cs_functions.append(ctrl_surf_function)   
         
         # translate conditions
         cases                            = translate_conditions_to_cases(self, run_conditions)    
@@ -470,8 +481,8 @@ class AVL(Stability):
         with redirect.folder(run_folder,force=False):
             write_geometry(self,run_script_path)
             write_mass_file(self,run_conditions)
-            write_run_cases(self,Trim)
-            write_input_deck(self, Trim)
+            write_run_cases(self,trim_aircraft)
+            write_input_deck(self, trim_aircraft)
 
             # RUN AVL!
             results_avl = run_analysis(self)

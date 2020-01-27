@@ -24,6 +24,7 @@ from .Data.Body     import Body
 from .Data.Aircraft import Aircraft
 from .Data.Cases    import Run_Case
 from .Data.Configuration import Configuration
+from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 
 ## @ingroup Methods-Aerodynamics-AVL
 def create_avl_datastructure(geometry,conditions):
@@ -262,26 +263,27 @@ def populate_wing_sections(avl_wing,suave_wing):
                                         for index  , ctrl_surf in enumerate(segments[i_segs].control_surfaces):
                                                 if  semispan*ctrl_surf.span_fraction_start == ordered_section_spans[section_count] or ordered_section_spans[section_count] == semispan*ctrl_surf.span_fraction_end:
                                                         c                     = Control_Surface()
-                                                        c.tag                 = ctrl_surf.tag                # name of control surface 
-                                                        c.function            = ctrl_surf.function           # this is a string argument which defines the function of the control surface 
+                                                        c.tag                 = ctrl_surf.tag                # name of control surface   
                                                         c.sign_duplicate      = 1.0                          # this float indicates control surface deflection symmetry
                                                         c.x_hinge             = 1 - ctrl_surf.chord_fraction # this float is the % location of the control surface hinge on the wing 
                                                         c.gain                = 1.0
                                                         c.deflection          = ctrl_surf.deflection / Units.degrees 
                                                         c.order               = index
+                                                        
                                                         # if control surface is an aileron, the deflection is asymmetric. This is standard convention from AVL
-                                                        if ctrl_surf.function == 'aileron': 
-                                                                c.sign_duplicate = -c.sign_duplicate 
+                                                        if (type(ctrl_surf) ==  Aileron):
+                                                                c.sign_duplicate = -c.sign_duplicate
+                                                                c.function       = 'aileron'
                                                         # if control surface is a slat, the hinge is taken from the leading edge        
-                                                        elif ctrl_surf.function == 'slat':  
-                                                                c.x_hinge   =  -1 * c.x_hinge  
-                                                        # this makes sures that the control surface names are consistent with those used by AVL 
-                                                        elif ctrl_surf.function == 'flap':
-                                                                pass
-                                                        elif ctrl_surf.function == 'elevator':
-                                                                pass
-                                                        elif ctrl_surf.function == 'rudder':
-                                                                pass
+                                                        elif (type(ctrl_surf) ==  Slat):
+                                                                c.x_hinge        =  -1 * c.x_hinge  
+                                                                c.function       = 'slat'
+                                                        elif (type(ctrl_surf) ==  Flap):
+                                                                c.function       = 'flap'                       
+                                                        elif (type(ctrl_surf) ==  Elevator):
+                                                                c.function       = 'elevator'
+                                                        elif (type(ctrl_surf) ==  Rudder):
+                                                                c.function       = 'rudder'
                                                         else:
                                                                 raise AttributeError("Define control surface function as 'slat', 'flap', 'elevator' , 'aileron' or 'rudder'")
                                                         section.append_control_surface(c)                                          

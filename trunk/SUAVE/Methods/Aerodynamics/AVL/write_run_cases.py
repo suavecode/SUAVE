@@ -12,7 +12,7 @@
 from SUAVE.Methods.Aerodynamics.AVL.purge_files       import purge_files
 
 ## @ingroup Analyses-AVL
-def write_run_cases(avl_object,Trim):
+def write_run_cases(avl_object,trim_aircraft):
     """ This function writes the run cases used in the AVL batch analysis
 
     Assumptions:
@@ -112,7 +112,7 @@ def write_run_cases(avl_object,Trim):
             rho   = round(case.conditions.freestream.density,4)
             g     = case.conditions.freestream.gravitational_acceleration
             
-            if Trim == False: # this flag sets up a trim analysis if one is declared by the boolean "Trim"
+            if trim_aircraft == False: # this flag sets up a trim analysis if one is declared by the boolean "trim_aircraft"
                 controls_text = '' 
                 if CL is None: # if angle of attack is specified without trim, the appropriate fields are filled 
                     toggle_idx = 'alpha'
@@ -126,7 +126,7 @@ def write_run_cases(avl_object,Trim):
                     alpha_val  = '0.00000     deg'
                     CL_val     = '0.00000'
  
-            elif Trim: # trim is specified 
+            elif trim_aircraft: # trim is specified 
                 if CL is None: # if angle of attack is specified with trim, the appropriate fields are filled with the trim AoA
                     toggle_idx = 'alpha'
                     toggle_val = AoA
