@@ -17,6 +17,8 @@ from SUAVE.Optimization import Nexus, carpet_plot
 from SUAVE.Optimization.Package_Setups.additive_setup import Additive_Solver
 import SUAVE.Optimization.Package_Setups.TRMM.Trust_Region_Optimization as tro
 from SUAVE.Optimization.Package_Setups.TRMM.Trust_Region import Trust_Region
+import os
+
 # ----------------------------------------------------------------------        
 #   Run the whole thing
 # ----------------------------------------------------------------------  
@@ -257,6 +259,11 @@ def main():
     print(outputs)   
     obj,x1,x2 = get_results(outputs)
     
+
+    # removes files from folder after regression is completed 
+    os.remove("add_hist.txt")  
+    os.remove("TRM_hist.txt") 
+    
     # ------------------------------------------------------------------
     #   Check Results
     # ------------------------------------------------------------------    
@@ -264,7 +271,7 @@ def main():
     assert( np.isclose(obj,5.41, atol=1e-6) )
     assert( np.isclose(x1 ,   2, atol=1e-2) )
     assert( np.isclose(x2 ,  -1, atol=1e-2) )      
-        
+     
     return
 
 # ----------------------------------------------------------------------        
