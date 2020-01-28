@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="edbbae87-0b75-4197-90d3-a3fe71deef23" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectId" id="1Wxv2aflw3vq9zGxOMNpYX7szNF" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Pycharm_Comparisons/Develop/regression" />
+    <property name="two.files.diff.last.used.folder" value="$PROJECT_DIR$/../../Pycharm_Comparisons/Develop/regression" />
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="edbbae87-0b75-4197-90d3-a3fe71deef23" name="Default Changelist" comment="" />
+      <created>1580103853995</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1580103853995</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="1934" y="172" width="1077" height="700" key="DiffContextDialog" timestamp="1580147437448">
+      <screen x="1920" y="180" width="1440" height="900" />
+    </state>
+    <state x="1934" y="172" width="1077" height="700" key="DiffContextDialog/63.27.1857.1053/1920.180.1440.900@63.27.1857.1053" timestamp="1580147437448" />
+    <state x="808" y="295" width="424" height="484" key="FileChooserDialogImpl" timestamp="1580110993870">
+      <screen x="63" y="27" width="1857" height="1053" />
+    </state>
+    <state x="808" y="295" width="424" height="484" key="FileChooserDialogImpl/63.27.1857.1053/1920.180.1440.900@63.27.1857.1053" timestamp="1580110993870" />
+  </component>
+</project>
