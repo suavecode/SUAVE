@@ -17,14 +17,14 @@ from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , 
 
 ## @ingroup Analyses-AVL
 def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases): 
-    """This function follows the stability axis EOM derivation in Etkin and Reid
+    """This function follows the stability axis EOM derivation in Blakelock
     to return the aircraft's dynamic modes and state space 
     
     Assumptions:
        Linerarized Equations are used following the reference below
 
     Source:
-       Dynamics of Flight: Stability and Control (3rd Edition) by Etkin and Reid
+      Automatic Control of Aircraft and Missiles by J. Blakelock Pg 23 and 117 
 
     Inputs:
        results.aerodynamics  
