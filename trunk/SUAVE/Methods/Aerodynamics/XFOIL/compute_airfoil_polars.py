@@ -10,7 +10,6 @@ from SUAVE.Core import Data , Units
 import numpy as np
 
 ## @ingroup Methods-Aerodynamics-XFOIL
-
 def  compute_airfoil_polars(propeller,conditions,airfoils):
      num_airfoils = len(airfoils)
      # unpack 
@@ -20,7 +19,7 @@ def  compute_airfoil_polars(propeller,conditions,airfoils):
      cm = propeller.chord_distribution[round(n*0.5)] 
      
      # read airfoil geometry  
-     airfoil_data = read_airfoil_geometry(airfoils)
+     airfoil_data = read_propeller_airfoils(airfoils)
      
      AR = 2*(Rt - Rh)/cm
      
@@ -163,14 +162,13 @@ def  compute_airfoil_polars(propeller,conditions,airfoils):
      
      return airfoil_data  
 
-def  read_airfoil_geometry(airfoils):
+def  read_propeller_airfoils(airfoils):
     
-     """ This functions reads the results from the results text file created 
-     by XFOIL 
+     """ This functions reads the results from a text file of airfoil coordinate
+     geometry. Selig format is required
      """  
      
-     num_airfoils = len(airfoils)
-     # unpack      
+     num_airfoils = len(airfoils)  
      
      airfoil_data = Data()
      airfoil_data.x_coordinates = []
@@ -178,7 +176,7 @@ def  read_airfoil_geometry(airfoils):
      airfoil_data.thickness_to_chord = []
      
      for i in range(num_airfoils):  
-          fname = airfoils[i] + '.dat'
+          fname = airfoils[i]
           # Open file and read column names and data block
           f = open(fname)
           
@@ -196,14 +194,87 @@ def  read_airfoil_geometry(airfoils):
           # Loop through each value: append to each column
           for line_count , line in enumerate(data_block):
                x_data[line_count] = float(data_block[line_count][2:10].strip())
-               y_data[line_count]  = float(data_block[line_count][11:20].strip())
+               y_data[line_count]  = float(data_block[line_count][11:21].strip())
                
-          upper_surface =  y_data[0:int((data_len-1)/2)]
-          lower_surface =  y_data[int((data_len+1)/2):data_len]
-          thickness = upper_surface - lower_surface[::-1]
+          if data_len % 2 == 0:
+               x_upper_surface =  x_data[0:int((data_len)/2)]
+               x_lower_surface =  x_data[int((data_len)/2):data_len]           
+               y_upper_surface =  y_data[0:int((data_len)/2)]
+               y_lower_surface =  y_data[int((data_len)/2):data_len]
+               thickness = y_upper_surface - y_lower_surface[::-1]     
+          
+          else:
+               x_upper_surface =  x_data[0:int((data_len-1)/2)]
+               x_lower_surface =  x_data[int((data_len+1)/2):data_len]           
+               y_upper_surface =  y_data[0:int((data_len-1)/2)]
+               y_lower_surface =  y_data[int((data_len+1)/2):data_len]
+               thickness = y_upper_surface - y_lower_surface[::-1]
+
+          
           airfoil_data.thickness_to_chord.append(np.max(thickness))    
           airfoil_data.x_coordinates.append(x_data)  
-          airfoil_data.y_coordinates.append(y_data)     
+          airfoil_data.y_coordinates.append(y_data)  
+          airfoil_data.x_upper_surface.append(x_upper_surface)
+          airfoil_data.x_lower_surface.append(x_lower_surface)
+          airfoil_data.y_upper_surface.append(y_upper_surface)
+          airfoil_data.y_lower_surface.append(y_lower_surface)
+          airfoil_data.camber_coordinates.append(y_lower_surface[::-1] + thickness/2)
+          
+     return airfoil_data
+
+def  read_wing_airfoil(airfoil):
+    
+     """ This functions reads the results from a text file of airfoil coordinate
+     geometry. Selig format is required
+     """    
+     
+     airfoil_data = Data()
+     airfoil_data.x_coordinates = []
+     airfoil_data.y_coordinates = []
+     airfoil_data.thickness_to_chord = []     
+  
+     fname = airfoil
+     # Open file and read column names and data block
+     f = open(fname)
+     
+     # Ignore header
+     for header_line in range(1):
+          f.readline()     
+     
+     data_block = f.readlines()
+     f.close()
+     
+     data_len = len(data_block)
+     x_data = np.zeros(data_len)
+     y_data = np.zeros(data_len)      
+     
+     # Loop through each value: append to each column
+     for line_count , line in enumerate(data_block):
+          x_data[line_count] = float(data_block[line_count][2:10].strip())
+          y_data[line_count] = float(data_block[line_count][11:21].strip())
+     
+     if data_len % 2 == 0:
+          x_upper_surface =  x_data[0:int((data_len)/2)]
+          x_lower_surface =  x_data[int((data_len)/2):data_len]           
+          y_upper_surface =  y_data[0:int((data_len)/2)]
+          y_lower_surface =  y_data[int((data_len)/2):data_len]
+          thickness = y_upper_surface - y_lower_surface[::-1]     
+     
+     else:
+          x_upper_surface =  x_data[0:int((data_len-1)/2)]
+          x_lower_surface =  x_data[int((data_len+1)/2):data_len]           
+          y_upper_surface =  y_data[0:int((data_len-1)/2)]
+          y_lower_surface =  y_data[int((data_len+1)/2):data_len]
+          thickness = y_upper_surface - y_lower_surface[::-1]
+     
+     airfoil_data.thickness_to_chord = np.max(thickness)    
+     airfoil_data.x_coordinates = x_data  
+     airfoil_data.y_coordinates = y_data
+     airfoil_data.x_upper_surface = x_upper_surface
+     airfoil_data.x_lower_surface = x_lower_surface
+     airfoil_data.y_upper_surface = y_upper_surface
+     airfoil_data.y_lower_surface = y_lower_surface    
+     airfoil_data.camber_coordinates = y_lower_surface[::-1] + thickness/2    
           
      return airfoil_data
 

@@ -12,11 +12,10 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units , Data
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_airfoil_geometry
+from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_propeller_airfoils
 # ----------------------------------------------------------------------
 #  Propeller Design
 # ----------------------------------------------------------------------
-    
 def propeller_design(prop,N=20):
     """ Optimizes propeller chord and twist given input parameters.
           
@@ -220,5 +219,5 @@ def propeller_design(prop,N=20):
         dim_sec = len(a_secl)
         if dim_sec != N:
             raise AssertionError("Number of sections not equal to number of stations")
-        prop.airfoil_data = read_airfoil_geometry(a_sec)  
+        prop.airfoil_data = read_propeller_airfoils(a_sec)  
     return prop

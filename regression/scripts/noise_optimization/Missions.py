@@ -95,7 +95,8 @@ def base(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_1"
+    ones_row = segment.state.ones_row
+    segment.tag = "climb_1_base"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.base )
@@ -108,7 +109,8 @@ def base(analyses):
     segment.altitude_end   = 3.048 * Units.km
     segment.air_speed      = 138.0 * Units['m/s']
     segment.climb_rate     = 2900. * Units['ft/min']
-
+    segment.state.unknowns.throttle   = 0.8 * ones_row(1)
+    
     # add to misison
     mission.append_segment(segment)
 
@@ -117,7 +119,7 @@ def base(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_2"
+    segment.tag = "climb_2_base"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -138,7 +140,7 @@ def base(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_3"
+    segment.tag = "climb_3_base"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -159,7 +161,7 @@ def base(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_4"
+    segment.tag = "climb_4_base"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -213,7 +215,7 @@ def base(analyses):
 
     segment.air_speed  = 450. * Units.knots
     segment.distance   = 2050. * Units.nmi
-
+    segment.state.unknowns.throttle   = 0.9 * ones_row(1)
     # add to mission
     mission.append_segment(segment)
 
@@ -222,7 +224,7 @@ def base(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_1"
+    segment.tag = "descent_1_base"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -244,7 +246,7 @@ def base(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_2"
+    segment.tag = "descent_2_base"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -266,7 +268,7 @@ def base(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_3"
+    segment.tag = "descent_3_base"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -298,7 +300,7 @@ def base(analyses):
     
     #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment = Segments.Climb.Linear_Mach_Constant_Rate(base_segment)
-    segment.tag = "reserve_climb_1"
+    segment.tag = "reserve_climb_1_base"
     
     segment.analyses.extend( analyses.cruise )
     
@@ -307,7 +309,7 @@ def base(analyses):
     segment.climb_rate     = 1800.   * Units['ft/min']
     segment.mach_end       = 0.3
     segment.mach_start     = 0.2
-    
+    segment.state.unknowns.throttle   = 0.9 * ones_row(1)
     # add to misison
     mission.append_segment(segment)
     
@@ -318,7 +320,7 @@ def base(analyses):
     # ------------------------------------------------------------------
     
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "reserve_cruise"
+    segment.tag = "reserve_cruise_base"
     
     segment.analyses.extend( analyses.cruise )
     
@@ -331,7 +333,7 @@ def base(analyses):
     # ------------------------------------------------------------------
     
     segment = Segments.Cruise.Constant_Mach_Constant_Altitude_Loiter(base_segment)
-    segment.tag = "reserve_loiter"
+    segment.tag = "reserve_loiter_base"
     
     segment.analyses.extend( analyses.cruise )
     
@@ -398,8 +400,8 @@ def max_range_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_1"
-
+    segment.tag = "climb_1_mr"
+    ones_row = segment.state.ones_row
     # connect vehicle configuration
     segment.analyses.extend( analyses.takeoff )
 
@@ -411,7 +413,8 @@ def max_range_setup(analyses):
     segment.altitude_end   = 3.048 * Units.km
     segment.air_speed      = 138.0 * Units['m/s']
     segment.climb_rate     = 2900. * Units['ft/min']
-
+    segment.state.unknowns.throttle   = 0.75 * ones_row(1)
+    
     # add to misison
     mission.append_segment(segment)
 
@@ -420,7 +423,7 @@ def max_range_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_2"
+    segment.tag = "climb_2_mr"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -432,7 +435,8 @@ def max_range_setup(analyses):
     segment.altitude_end = 3.657 * Units.km
     segment.air_speed    = 168.0 * Units['m/s']
     segment.climb_rate   = 2500. * Units['ft/min']
-
+    segment.state.unknowns.throttle   = 0.75 * ones_row(1)
+    
     # add to mission
     mission.append_segment(segment)
 
@@ -441,7 +445,7 @@ def max_range_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_3"
+    segment.tag = "climb_3_mr"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -453,7 +457,7 @@ def max_range_setup(analyses):
     segment.altitude_end = 25000. * Units.ft
     segment.air_speed    = 200.0  * Units['m/s']
     segment.climb_rate   = 1700. * Units['ft/min']
-
+    segment.state.unknowns.throttle   = 0.75 * ones_row(1)
     # add to mission
     mission.append_segment(segment)
     
@@ -462,7 +466,7 @@ def max_range_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_4"
+    segment.tag = "climb_4_mr"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -474,7 +478,7 @@ def max_range_setup(analyses):
     segment.altitude_end = 32000. * Units.ft
     segment.air_speed    = 225.0* Units['m/s']
     segment.climb_rate   = 800. * Units['ft/min']
-
+    segment.state.unknowns.throttle   = 0.75 * ones_row(1)
     # add to mission
     mission.append_segment(segment)   
     
@@ -516,8 +520,7 @@ def max_range_setup(analyses):
 
     segment.air_speed  = 450. * Units.knots
     segment.distance   = 2050. * Units.nmi
-    
-    segment.state.numerics.number_control_points = 10
+    segment.state.unknowns.throttle   = 0.75 * ones_row(1)     
 
     # add to mission
     mission.append_segment(segment)
@@ -527,7 +530,7 @@ def max_range_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_1"
+    segment.tag = "descent_1_mr"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -549,7 +552,7 @@ def max_range_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_2"
+    segment.tag = "descent_2_mr"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -571,7 +574,7 @@ def max_range_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_3"
+    segment.tag = "descent_3_mr"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -602,7 +605,7 @@ def max_range_setup(analyses):
     
     #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment = Segments.Climb.Linear_Mach_Constant_Rate(base_segment)
-    segment.tag = "reserve_climb_1"
+    segment.tag = "reserve_climb_1_mr"
     
     segment.analyses.extend( analyses.cruise )
     
@@ -611,7 +614,7 @@ def max_range_setup(analyses):
     segment.climb_rate     = 1800.   * Units['ft/min']
     segment.mach_end       = 0.3
     segment.mach_start     = 0.2
-    
+    segment.state.unknowns.throttle   = 0.7 * ones_row(1) # 0.65 0.6 0.
     # add to misison
     mission.append_segment(segment)
     
@@ -622,7 +625,7 @@ def max_range_setup(analyses):
     # ------------------------------------------------------------------
     
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "reserve_cruise"
+    segment.tag = "reserve_cruise_mr"
     
     segment.analyses.extend( analyses.cruise )
     
@@ -635,7 +638,7 @@ def max_range_setup(analyses):
     # ------------------------------------------------------------------
     
     segment = Segments.Cruise.Constant_Mach_Constant_Altitude_Loiter(base_segment)
-    segment.tag = "reserve_loiter"
+    segment.tag = "reserve_loiter_mr"
     
     segment.analyses.extend( analyses.cruise )
     
@@ -650,7 +653,7 @@ def max_range_setup(analyses):
     # ------------------------------------------------------------------
     
     segment = Segments.Descent.Linear_Mach_Constant_Rate(base_segment)
-    segment.tag = "reserve_descent_1_max_range"
+    segment.tag = "reserve_descent_1_mr"
     
     segment.analyses.extend( analyses.landing )
     analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
@@ -702,8 +705,8 @@ def short_field_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_1"
-
+    segment.tag = "climb_1_sto"
+    ones_row = segment.state.ones_row
     # connect vehicle configuration
     segment.analyses.extend( analyses.short_field_takeoff )
 
@@ -715,7 +718,7 @@ def short_field_setup(analyses):
     segment.altitude_end   = 3.048 * Units.km
     segment.air_speed      = 138.0 * Units['m/s']
     segment.climb_rate     = 2900. * Units['ft/min']
-
+    segment.state.unknowns.throttle   = 0.8 * ones_row(1)
     # add to misison
     mission.append_segment(segment)
 
@@ -724,7 +727,7 @@ def short_field_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_2"
+    segment.tag = "climb_2_sto"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -745,7 +748,7 @@ def short_field_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_3"
+    segment.tag = "climb_3_sto"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -766,7 +769,7 @@ def short_field_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate()
-    segment.tag = "climb_4"
+    segment.tag = "climb_4_sto"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -830,7 +833,7 @@ def short_field_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_1"
+    segment.tag = "descent_1_sto"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -852,7 +855,7 @@ def short_field_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_2"
+    segment.tag = "descent_2_sto"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -874,7 +877,7 @@ def short_field_setup(analyses):
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
-    segment.tag = "descent_3"
+    segment.tag = "descent_3_sto"
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
@@ -905,7 +908,7 @@ def short_field_setup(analyses):
     
     #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment = Segments.Climb.Linear_Mach_Constant_Rate(base_segment)
-    segment.tag = "reserve_climb_1"
+    segment.tag = "reserve_climb_1_sto"
     
     segment.analyses.extend( analyses.cruise )
     
@@ -925,7 +928,7 @@ def short_field_setup(analyses):
     # ------------------------------------------------------------------
     
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "reserve_cruise"
+    segment.tag = "reserve_cruise_sto"
     
     segment.analyses.extend( analyses.cruise )
     
@@ -938,7 +941,7 @@ def short_field_setup(analyses):
     # ------------------------------------------------------------------
     
     segment = Segments.Cruise.Constant_Mach_Constant_Altitude_Loiter(base_segment)
-    segment.tag = "reserve_loiter"
+    segment.tag = "reserve_loiter_sto"
     
     segment.analyses.extend( analyses.cruise )
     
@@ -953,7 +956,7 @@ def short_field_setup(analyses):
     # ------------------------------------------------------------------
     
     segment = Segments.Descent.Linear_Mach_Constant_Rate(base_segment)
-    segment.tag = "reserve_descent_1_short_field"
+    segment.tag = "reserve_descent_1_sto"
     
     segment.analyses.extend( analyses.landing )
     analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00

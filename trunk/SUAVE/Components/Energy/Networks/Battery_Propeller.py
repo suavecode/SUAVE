@@ -113,20 +113,15 @@ class Battery_Propeller(Propulsor):
 
         # Step 1 battery power
         esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
-        
         # Step 2
         esc.voltageout(conditions)
-        
         # link
-        motor.inputs.voltage = esc.outputs.voltageout 
-        
+        motor.inputs.voltage = esc.outputs.voltageout
         # step 3
         motor.omega(conditions)
-        
         # link
         propeller.inputs.omega =  motor.outputs.omega
         propeller.thrust_angle = self.thrust_angle
-        
         # step 4
         F, Q, P, Cp, outputs , etap = propeller.spin(conditions)
         
@@ -152,7 +147,6 @@ class Battery_Propeller(Propulsor):
 
         # Run the motor for current
         motor.current(conditions)
-        
         # link
         esc.inputs.currentout =  motor.outputs.current
 
@@ -187,7 +181,7 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.voltage_open_circuit  = voltage_open_circuit
         conditions.propulsion.voltage_under_load    = voltage_under_load  
         conditions.propulsion.motor_torque          = motor.outputs.torque
-        conditions.propulsion.propeller_torque      = Q
+        conditions.propulsion.propeller_torque      = Q 
         conditions.propulsion.battery_specfic_power = -(battery_draw/1000)/battery.mass_properties.mass 
         conditions.propulsion.propeller_tip_mach    = (R*rpm)/a
         
@@ -273,5 +267,3 @@ class Battery_Propeller(Propulsor):
         return    
             
     __call__ = evaluate_thrust
-
-

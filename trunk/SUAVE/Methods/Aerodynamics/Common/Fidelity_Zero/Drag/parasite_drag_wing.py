@@ -18,7 +18,7 @@ from SUAVE.Core import Data
 # package imports
 import numpy as np
 
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Aerodynamics.Supersonic.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Wing
@@ -81,8 +81,7 @@ def parasite_drag_wing(state,settings,geometry):
     Sref                      = wing.areas.reference
     num_segments              = len(wing.Segments.keys())     
     
-    # if wing has segments, compute and sum parasite drag of each segment
-    
+    # if wing has segments, compute and sum parasite drag of each segment 
     xtu       = wing.transition_x_upper
     xtl       = wing.transition_x_lower     
     
