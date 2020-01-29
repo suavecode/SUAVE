@@ -121,7 +121,7 @@ class Propeller(Energy_Component):
         Rh                = self.hub_radius
         local_blade_pitch = self.twist_distribution
         c                 = self.chord_distribution
-        omega1            = self.inputs.omega 
+        omega             = self.inputs.omega 
         a_sec             = self.airfoil_sections        
         a_secl            = self.airfoil_section_location 
         rho               = conditions.freestream.density[:,0,None]
@@ -211,7 +211,6 @@ class Propeller(Energy_Component):
         else:
             chi = self.radius_distribution
             
-        omega = omega1*1.0
         omega = np.abs(omega)        
         r_dim = chi*R                        # Radial coordinate 
         pi    = np.pi
@@ -351,7 +350,10 @@ class Propeller(Energy_Component):
             torque               = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T         
     
             va_2d = up    
-            vt_2d = ut 
+            vt_2d = ut             
+            blade_T_distribution_2d = dFz*deltar
+            blade_Q_distribution_2d = dFx*chi*deltar
+            
             
         # Blade Element Momentum Theory : large angle approximation
         else:  
@@ -473,10 +475,13 @@ class Propeller(Energy_Component):
             thrust               = np.atleast_2d(B * np.sum(blade_T_distribution,  axis = 1 )).T
             torque               = np.atleast_2d(B * np.sum(blade_Q_distribution,  axis = 1 )).T
               
-            va_2d = np.repeat(up.T[ np.newaxis,:  , :], N, axis=0) 
-            vt_2d = np.repeat(ut.T[ np.newaxis,:  , :], N, axis=0)  
-                 
+            va_2d = np.repeat(up.T[ : , np.newaxis , :], N, axis=1).T
+            vt_2d = np.repeat(ut.T[ : , np.newaxis , :], N, axis=1).T
+            blade_T_distribution_2d = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], N, axis=0).T 
+            blade_Q_distribution_2d = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], N, axis=0).T                 
         
+
+        psi_2d   = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], N, axis=0).T        
         D        = 2*R 
         Cq       = torque/(rho*A*R*(omega*R)**2)
         Ct       = thrust/(rho*A*(omega*R)**2)
@@ -523,20 +528,23 @@ class Propeller(Energy_Component):
             speed_of_sound            = conditions.freestream.speed_of_sound,
             density                   = conditions.freestream.density,
             velocity                  = Vv, 
-            vt                        = vt_2d, 
-            va                        = va_2d, 
+            vt_2d                     = vt_2d, 
+            va_2d                     = va_2d, 
             drag_coefficient          = Cd,
             lift_coefficient          = Cl,       
             omega                     = omega, 
             blade_dT_dR               = blade_dT_dR,
             blade_dT_dr               = blade_dT_dr,
             blade_T_distribution      = blade_T_distribution, 
+            blade_T_distribution_2d   = blade_T_distribution_2d, 
             blade_T                   = thrust/B,  
             Ct                        = Ct, 
-            psi                       = psi,            
+            psi                       = psi,
+            psi_2d                    = psi_2d,
             blade_dQ_dR               = blade_dQ_dR ,
             blade_dQ_dr               = blade_dQ_dr ,
-            blade_Q_distribution      = blade_Q_distribution ,
+            blade_Q_distribution      = blade_Q_distribution , 
+            blade_Q_distribution_2d   = blade_Q_distribution_2d,       
             blade_Q                   = torque/B,   
             Cq                        = Cq,             
             power                     = power,            

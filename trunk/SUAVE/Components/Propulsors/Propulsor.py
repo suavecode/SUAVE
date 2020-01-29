@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Components import Physical_Component
-
+from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Propulsor
 # ----------------------------------------------------------------------
@@ -50,6 +50,15 @@ class Propulsor(Physical_Component):
                 N/A
         """
         self.tag = 'Propulsor'
+        self.number_of_engines = 1.0
+        self.nacelle_diameter  = 1.0
+        self.engine_length     = 1.0
+        
+        self.areas             = Data()
+        self.areas.wetted      = 0.0
+        self.areas.maximum     = 0.0
+        self.areas.exit        = 0.0
+        self.areas.inflow      = 0.0
         
 ## @ingroup Components-Propulsors
 class Container(Physical_Component.Container):

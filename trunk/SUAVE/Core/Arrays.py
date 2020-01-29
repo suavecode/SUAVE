@@ -3,7 +3,8 @@
 #
 # Created:  Aug 2015, T. Lukacyzk
 # Modified: Feb 2016, T. MacDonald
-#           Jun 2016, E.Botero
+#           Jun 2016, E. Botero
+#           Jan 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -86,7 +87,7 @@ def atleast_2d(A,oned_as='row'):
         A = np.array(A)
         
     # check rank
-    if np.rank(A) < 2:
+    if A.ndim < 2:
         # expand row or col
         if oned_as == 'row':
             A = A[None,:]

@@ -2,6 +2,7 @@
 # compute_industrial_costs.py
 #
 # Created:  Sep 2016, T. Orra
+# Modified: Aug 2019, T. MacDonald
 #
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,11 +12,14 @@ from SUAVE.Methods.Costs.Correlations.Industrial_Costs import ( estimate_escalat
                                                                 estimate_hourly_rates, \
                                                                 distribute_non_recurring_cost )
 
+lb_to_kg = 1*Units.lb
+lbf_to_N = 1*Units.lbf
+
 # ----------------------------------------------------------------------
 #  Compute costs to develop and produce the vehicle (only airplanes)
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Costs-Industrial_Costs
-def compute_industrial_costs(vehicle):
+def compute_industrial_costs(vehicle,determine_cash_flow=True):
     """Computes costs for design, development, test, and manufacturing of an airplane program
 
     Assumptions:
@@ -104,9 +108,9 @@ def compute_industrial_costs(vehicle):
     F_mat   = costs.material_factor #1 for conventional Al, 1.5 for stainless steel, 2~2.5 for composites, 3 for carbon fiber
 
     # general airplane data
-    weight            = 0.62 * vehicle.mass_properties.empty / Units.lb # correlation for AMPR weight, typical 62% * Empty weight
+    weight            = 0.62 * vehicle.mass_properties.empty / lb_to_kg # correlation for AMPR weight, typical 62% * Empty weight
     n_engines         = vehicle.propulsors.turbofan.number_of_engines
-    sls_thrust        = vehicle.propulsors.turbofan.sealevel_static_thrust / Units.lbf
+    sls_thrust        = vehicle.propulsors.turbofan.sealevel_static_thrust / lbf_to_N
     n_pax             = vehicle.passengers
 
     # estimate escalation factor
@@ -280,7 +284,8 @@ def compute_industrial_costs(vehicle):
     # distribute non-recurring costs on time
     if not development_total_years:
         vehicle.costs.industrial.development_total_years = 5.
-    distribute_non_recurring_cost(vehicle.costs) # returns costs.industrial.non_recurring.cash_flow
+    if determine_cash_flow:
+        distribute_non_recurring_cost(vehicle.costs) # returns costs.industrial.non_recurring.cash_flow
 
     return
 
