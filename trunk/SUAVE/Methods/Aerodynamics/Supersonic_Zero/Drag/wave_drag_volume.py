@@ -3,10 +3,11 @@
 # 
 # Created:  Jun 2014, T. MacDonald
 # Modified: Feb 2019, T. MacDonald
+#           Jan 2020, T. MacDonald
 
 import numpy as np
 from SUAVE.Core import Units
-from .Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 from SUAVE.Components.Wings import Main_Wing
 
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag

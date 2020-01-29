@@ -1,7 +1,7 @@
 # propulsion_surrogate.py
 #
 # Created:  Jun 2017, E. Botero
-# Modified: 
+# Modified: Jan 2020, T. MacDonald
 
 #----------------------------------------------------------------------
 #   Imports
@@ -20,36 +20,52 @@ import numpy as np
 def main():
     
     # Instantiate a propulsor
-    propulsion = Propulsor_Surrogate()
     
-    # Build the surrogate
-    propulsion.input_file = 'deck.csv'
-    propulsion.number_of_engines = 1.
-    propulsion.build_surrogate()
     
     # Setup the test point
     state = Data()
     state.conditions = Data()
     state.conditions.freestream = Data()
     state.conditions.propulsion = Data()
-    state.conditions.freestream.mach_number = np.array([[0.4]])
-    state.conditions.freestream.altitude    = np.array([[2500.]])
-    state.conditions.propulsion.throttle    = np.array([[0.75]])
+    state.conditions.freestream.mach_number = np.array([[0.4],[0.4],[0.4],[0.4],[0.4]])
+    state.conditions.freestream.altitude    = np.array([[2500.],[2500.],[2500.],[2500.],[2500.]]) # m
+    state.conditions.propulsion.throttle    = np.array([[-0.5],[0.005],[0.75],[0.995],[1.5]])    
     
-    # Evaluate the test point
-    results = propulsion.evaluate_thrust(state)
+    # Get linear build results
+    propulsion = Propulsor_Surrogate()
+    propulsion.input_file = 'deck.csv'
+    propulsion.number_of_engines = 1.
+    propulsion.surrogate_type = 'linear'
+    propulsion.build_surrogate()
+    results_linear = propulsion.evaluate_thrust(state)
     
-    F    = results.thrust_force_vector
-    mdot = results.vehicle_mass_rate
+    F_linear = results_linear.thrust_force_vector[:,0]
+    mdot_linear = results_linear.vehicle_mass_rate[:,0]    
+    
+    # Get gaussian build results with surrogate extension
+    propulsion = Propulsor_Surrogate()
+    propulsion.input_file = 'deck.csv'
+    propulsion.number_of_engines = 1.
+    propulsion.surrogate_type = 'gaussian'
+    propulsion.use_extended_surrogate = True
+    propulsion.build_surrogate()
+    results_gaussian = propulsion.evaluate_thrust(state)    
+    
+    F_gaussian = results_gaussian.thrust_force_vector[:,0]
+    mdot_gaussian = results_gaussian.vehicle_mass_rate[:,0]  
     
     # Truth values
-    F_truth    = np.array([[ 1193.02078318,     0.        ,    -0.        ]])
-    mdot_truth = np.array([[ 701.23126185]])
+    F_linear_true = np.array([ 4707.93176445,  7965.14481619, 12770.34030835, 14350.57238295, 17607.78543469])
+    mdot_linear_true = np.array([0.068364353 , 0.1231387392, 0.2151082426, 0.2482609107, 0.3211364166])
+    F_gaussian_true = np.array([ 8982.72694501,  9427.23973454, 11508.48532115, 10255.76061835, 10676.15981316])
+    mdot_gaussian_true = np.array([0.0794341934, 0.083640387 , 0.1928480953, 0.1626323538, 0.1691090013])  
 
     # Error check
     error = Data()
-    error.Thrust    = np.max(np.abs(F[0,0]-F_truth[0,0]))/F_truth[0,0]
-    error.Mass_Rate = np.max(np.abs(mdot[0,0]-mdot_truth[0,0]))/mdot_truth[0,0]
+    error.thrust_linear = np.max(np.abs((F_linear-F_linear_true)/F_linear))
+    error.mdot_linear = np.max(np.abs((mdot_linear-mdot_linear_true)/mdot_linear))
+    error.thrust_gaussian = np.max(np.abs((F_gaussian-F_gaussian_true)/F_gaussian))
+    error.mdot_gaussian = np.max(np.abs((mdot_gaussian-mdot_gaussian_true)/mdot_gaussian))
     
     print('Errors:')
     print(error)
@@ -58,6 +74,8 @@ def main():
         assert(np.abs(v)<1e-6)
      
     return
+
+
 
 # ----------------------------------------------------------------------        
 #   Call Main

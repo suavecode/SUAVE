@@ -4,6 +4,7 @@
 # Created:  Dec 2013, SUAVE Team
 # Modified: Jan 2016, E. Botero      
 #           Apr 2019, T. MacDonald
+#           Jan 2020, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,7 +19,7 @@ from SUAVE.Core import Data
 # package imports
 import numpy as np
 
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Wing
