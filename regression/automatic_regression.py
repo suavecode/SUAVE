@@ -4,6 +4,7 @@
 # Modified: Jun 2014, SUAVE Team
 #           Jul 2017, SUAVE Team
 #           Jan 2018, SUAVE Team
+#           May 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -34,6 +35,7 @@ import matplotlib.pyplot as plt
 modules = [
 
     # ----------------------- Regression List --------------------------
+    'scripts/weights/eVTOL_Weights_Buildup_Regression.py',
     'scripts/aerodynamics/aerodynamics.py',
     #'scripts/aerodynamics_super/aerodynamics_super.py',
     #'scripts/regression/test_mission_AS2.py',
@@ -47,6 +49,8 @@ modules = [
     'scripts/concorde/concorde.py',
     'scripts/DC_10_noise/DC_10_noise.py',
     'scripts/ducted_fan/ducted_fan_network.py',
+    'scripts/ducted_fan/battery_ducted_fan_network.py',
+    'scripts/ducted_fan/serial_hybrid_ducted_fan_network.py',
     'scripts/dynamic_stability/dynamicstability.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
     'scripts/fuel_cell/fuel_cell.py',     
@@ -58,9 +62,10 @@ modules = [
     'scripts/industrial_costs/industrial_costs.py',
     'scripts/landing_field_length/landing_field_length.py',
     'scripts/lifting_line/lifting_line.py',
+    'scripts/multifidelity/optimize_mf.py',
     'scripts/noise_optimization/Noise_Test.py',
     'scripts/payload_range/payload_range.py',
-    'scripts/propeller/propeller.py',
+    'scripts/propeller/propeller_test.py',
     'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/ramjet_network/ramjet_network.py',
     'scripts/Regional_Jet_Optimization/Optimize2.py',
@@ -69,6 +74,7 @@ modules = [
     'scripts/rocket_network/Rocketdyne_J2.py',   
     'scripts/sizing_loop/sizing_loop.py',
     'scripts/solar_network/solar_network.py',
+    'scripts/optimization_packages/optimization_packages.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
     'scripts/solar_radiation/solar_radiation.py',
     'scripts/SU2_surrogate/BWB-450.py',   
@@ -77,8 +83,8 @@ modules = [
     'scripts/test_input_output/test_xml_read_write.py',
     'scripts/test_input_output/test_freemind_write.py',    
     'scripts/variable_cruise_distance/variable_cruise_distance.py',
-    'scripts/weights/weights.py',  
-    'scripts/plots/test_plot.py',
+    'scripts/weights/weights.py', 
+    'scripts/V_n_diagram/V_n_diagram_regression.py',       
 ]
 
 # ----------------------------------------------------------------------

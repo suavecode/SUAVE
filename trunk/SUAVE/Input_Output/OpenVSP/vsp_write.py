@@ -7,6 +7,7 @@
 #           Oct 2018, T. MacDonald
 #           Nov 2018, T. MacDonald
 #           Jan 2019, T. MacDonald
+#           Jan 2020, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,7 +17,7 @@ import SUAVE
 from SUAVE.Core import Units, Data
 
 try:
-    import vsp_g as vsp
+    import vsp as vsp
 except ImportError:
     # This allows SUAVE to build without OpenVSP
     pass
