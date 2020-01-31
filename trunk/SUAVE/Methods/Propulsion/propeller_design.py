@@ -17,6 +17,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 # ----------------------------------------------------------------------
 #  Propeller Design
 # ----------------------------------------------------------------------
+
 def propeller_design(prop,N=20):
     """ Optimizes propeller chord and twist given input parameters.
           
@@ -30,13 +31,15 @@ def propeller_design(prop,N=20):
             number of blades               
             number of stations
             design lift coefficient
-            airfoil data                     
+            airfoil data
+            
           Outputs:
           Twist distribution                 [array of radians]
           Chord distribution                 [array of meters]
               
           Assumptions/ Source:
           Based on Design of Optimum Propellers by Adkins and Liebeck
+          
     """    
     # Unpack
     B      = prop.number_blades

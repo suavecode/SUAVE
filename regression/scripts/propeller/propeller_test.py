@@ -89,18 +89,19 @@ def main():
     Cplast_truth = 0.00056596
     
     Fr_truth      = 98.33229685
-    Qr_truth      = 5.72637115
-    Pr_truth      = 1199.32836953
-    Cplastr_truth = 0.00010878
+    Qr_truth      = 1.8647076
+    Pr_truth      = 390.5434467
+    Cplastr_truth = 3.54234419e-05
     
     error = Data()
     error.Thrust   = np.max(np.abs(F-F_truth))
+    error.Torque   = np.max(np.abs(Q-Q_truth))    
     error.Power    = np.max(np.abs(P-P_truth))
-    error.Torque   = np.max(np.abs(Q-Q_truth))
     error.Cp       = np.max(np.abs(Cplast-Cplast_truth))   
+    
     error.Thrustr  = np.max(np.abs(Fr-Fr_truth))
+    error.Torquer  = np.max(np.abs(Qr-Qr_truth))    
     error.Powerr   = np.max(np.abs(Pr-Pr_truth))
-    error.Torquer  = np.max(np.abs(Qr-Qr_truth))
     error.Cpr      = np.max(np.abs(Cplastr-Cplastr_truth)) 
     
     print('Errors:')

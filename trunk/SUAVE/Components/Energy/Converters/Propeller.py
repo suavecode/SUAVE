@@ -32,19 +32,25 @@ class Propeller(Energy_Component):
     
     Assumptions:
     None
+
     Source:
     None
     """     
     def __defaults__(self):
         """This sets the default values for the component to function.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         None
+
         Outputs:
         None
+
         Properties Used:
         None
         """         
@@ -67,13 +73,13 @@ class Propeller(Energy_Component):
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
-        
+
         Assumptions:
         per source
-        
+
         Source:
         Qprop theory document
-        
+
         Inputs:
         self.inputs.omega            [radian/s]
         conditions.freestream.
@@ -86,7 +92,7 @@ class Propeller(Energy_Component):
           inertial.velocity_vector   [m/s]
         conditions.propulsion.
           throttle                   [-]
-          
+
         Outputs:
         conditions.propulsion.acoustic_outputs.
           number_sections            [-]
@@ -106,6 +112,7 @@ class Propeller(Energy_Component):
         torque                       [Nm]
         power                        [W]
         Cp                           [-] (coefficient of power)
+
         Properties Used:
         self. 
           number_blades              [-]
@@ -521,7 +528,7 @@ class Propeller(Energy_Component):
             if dim_sec != N:
                 raise AssertionError("Number of sections not equal to number of stations")
             # compute airfoil polars for airfoils 
-            airfoil_polars = compute_airfoil_polars(self, a_sec)
+            airfoil_polars = compute_airfoil_polars(self,conditions, a_sec)
             airfoil_cl     = airfoil_polars.CL
             airfoil_cd     = airfoil_polars.CD
             AoA_range      = airfoil_polars.AoA_range
@@ -595,15 +602,14 @@ class Propeller(Energy_Component):
             Cl = 2.*pi*alpha
             
             # By 90 deg, it's totally stalled.
-            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
             Cl[alpha>=pi/2] = 0.
-                
+
             # Scale for Mach, this is Karmen_Tsien
             Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-        
+
             # If the blade segments are supersonic, don't scale
             Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
-        
+
             Rsquiggly = Gamma - 0.5*W*c*Cl
             
             #An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
@@ -657,7 +663,7 @@ class Propeller(Energy_Component):
         Tp      = (Tp_Tinf)*T
         Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
         
-        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 
+        Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
         
         epsilon  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
@@ -680,9 +686,6 @@ class Propeller(Energy_Component):
                 power[i]    = torque[i]*omega[i]   
                 Cp[i]       = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
 
-
-        
-  
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
         
