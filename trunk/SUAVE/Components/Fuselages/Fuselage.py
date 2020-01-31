@@ -94,7 +94,8 @@ class Fuselage(Lofted_Body):
         # for BWB 
         self.aft_centerbody_area  = 0.0
         self.aft_centerbody_taper = 0.0
-        self.cabin_area           = 0.0       
+        self.cabin_area           = 0.0
+
         self.Fuel_Tanks = Container()
 
         # For VSP

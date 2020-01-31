@@ -73,12 +73,12 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.drag_coefficient_increment         = 0.0000
 
         # vortex lattice configurations
-        self.settings.number_panels_spanwise             = 5
+        self.settings.number_panels_spanwise = 5
 
         # conditions table, used for surrogate model training
-        self.training                                    = Data()        
-        self.training.angle_of_attack                    = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
-        self.training.lift_coefficient                   = None
+        self.training = Data()        
+        self.training.angle_of_attack  = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
+        self.training.lift_coefficient = None
         
         # surrogoate models
         self.surrogates = Data()
@@ -151,13 +151,16 @@ class Vortex_Lattice(Aerodynamics):
         """
 
         # unpack
-        surrogates       = self.surrogates        
-        conditions       = state.conditions
-        q                = conditions.freestream.dynamic_pressure
-        AoA              = conditions.aerodynamics.angle_of_attack
-        Sref             = geometry.reference_area
-        wings_lift_model = surrogates.lift_coefficient
+
+        surrogates = self.surrogates        
+        conditions = state.conditions
         
+        # unpack        
+        q    = conditions.freestream.dynamic_pressure
+        AoA  = conditions.aerodynamics.angle_of_attack
+        Sref = geometry.reference_area
+        
+        wings_lift_model = surrogates.lift_coefficient
         
         # inviscid lift of wings only
         inviscid_wings_lift                                              = Data()
@@ -167,10 +170,10 @@ class Vortex_Lattice(Aerodynamics):
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_wings_lift.total
         
         # store model for lift coefficients of each wing
-        state.conditions.aerodynamics.lift_coefficient_wing              = Data()        
+        state.conditions.aerodynamics.lift_coefficient_wing             = Data()        
         for wing in geometry.wings.keys():
-            wings_lift_model                                                 = surrogates.wing_lift_coefficients[wing]
-            inviscid_wings_lift[wing]                                        = wings_lift_model(AoA)
+            wings_lift_model = surrogates.wing_lift_coefficients[wing]
+            inviscid_wings_lift[wing] = wings_lift_model(AoA)
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]
             state.conditions.aerodynamics.lift_coefficient_wing[wing]        = inviscid_wings_lift[wing]
 
@@ -202,13 +205,14 @@ class Vortex_Lattice(Aerodynamics):
         # unpack
         geometry = self.geometry
         settings = self.settings
-        training = self.training        
-        AoA      = training.angle_of_attack
-        CL       = np.zeros_like(AoA)
+        training = self.training
+        
+        AoA = training.angle_of_attack
+        CL  = np.zeros_like(AoA)
         
         wing_CLs = Data() 
         for wing in geometry.wings.values():
-            wing_CLs[wing.tag]  = np.zeros_like(AoA)
+            wing_CLs[wing.tag] = np.zeros_like(AoA)
 
         # condition input, local, do not keep
         konditions              = Data()
@@ -256,23 +260,25 @@ class Vortex_Lattice(Aerodynamics):
             wing_lift_coefficients [-] (wing specific)
         """        
         # unpack data
-        training           = self.training
-        AoA_data           = training.angle_of_attack
-        CL_data            = training.lift_coefficient
-        wing_CL_data       = training.wing_lift_coefficients
-                           
+        training = self.training
+        AoA_data = training.angle_of_attack
+        CL_data  = training.lift_coefficient
+        wing_CL_data = training.wing_lift_coefficients
+
         # pack for surrogate model
-        X_data             = np.array([AoA_data]).T
-        X_data             = np.reshape(X_data,-1)
+        X_data = np.array([AoA_data]).T
+        X_data = np.reshape(X_data,-1)
         
         # learn the model
-        cl_surrogate       = np.poly1d(np.polyfit(X_data, CL_data ,1))        
+        cl_surrogate = np.poly1d(np.polyfit(X_data, CL_data ,1))
+        
         wing_cl_surrogates = Data()
         
         for wing in wing_CL_data.keys():
             wing_cl_surrogates[wing] = np.poly1d(np.polyfit(X_data, wing_CL_data[wing] ,1))
 
-        self.surrogates.lift_coefficient       = cl_surrogate
+
+        self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.wing_lift_coefficients = wing_cl_surrogates
 
         return
@@ -312,7 +318,7 @@ def calculate_lift_vortex_lattice(conditions,settings,geometry):
 
     # iterate over wings
     total_lift_coeff = 0.0
-    wing_lifts       = Data()
+    wing_lifts = Data()
 
     for wing in geometry.wings.values():
 

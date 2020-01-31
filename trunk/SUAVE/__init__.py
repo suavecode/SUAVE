@@ -17,7 +17,6 @@ from . import Attributes
 from . import Components
 from . import Optimization
 from . import Input_Output
-from . import Plots
 
 # the vehicle class
 from .Vehicle import Vehicle

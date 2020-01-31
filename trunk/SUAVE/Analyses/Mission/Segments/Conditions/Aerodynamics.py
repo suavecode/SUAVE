@@ -87,7 +87,6 @@ class Aerodynamics(Basic):
         self.freestream.gravity            = ones_1col * 0
         self.freestream.reynolds_number    = ones_1col * 0
         self.freestream.dynamic_pressure   = ones_1col * 0
-        self.freestream.delta_ISA          = ones_1col * 0
 
         # aerodynamics conditions
         self.aerodynamics = Conditions()        
@@ -113,6 +112,8 @@ class Aerodynamics(Basic):
         self.propulsion.battery_voltage    = ones_1col * 0
         self.propulsion.thrust_breakdown       = Conditions()
         self.propulsion.acoustic_outputs       = Conditions()
+        self.propulsion.acoustic_outputs.fan   = Conditions()
+        self.propulsion.acoustic_outputs.core  = Conditions()
 
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0

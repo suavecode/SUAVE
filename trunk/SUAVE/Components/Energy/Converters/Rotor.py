@@ -16,7 +16,7 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data, Units
 import scipy.optimize as opt
 from scipy.optimize import fsolve
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import compute_airfoil_polars
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
 
@@ -214,7 +214,7 @@ class Rotor(Energy_Component):
             if dim_sec != N:
                 raise AssertionError("Number of sections not equal to number of stations")
             # compute airfoil polars for airfoils 
-            airfoil_polars = compute_airfoil_polars(self,conditions, a_sec)
+            airfoil_polars = compute_airfoil_polars(self, a_sec)
             airfoil_cl     = airfoil_polars.CL
             airfoil_cd     = airfoil_polars.CD
             AoA_range      = airfoil_polars.AoA_range
@@ -547,7 +547,7 @@ class Rotor(Energy_Component):
             if dim_sec != N:
                 raise AssertionError("Number of sections not equal to number of stations")
             # compute airfoil polars for airfoils 
-            airfoil_polars = compute_airfoil_polars(self,conditions, a_sec)
+            airfoil_polars = compute_airfoil_polars(self, a_sec)
             airfoil_cl     = airfoil_polars.CL
             airfoil_cd     = airfoil_polars.CD
             AoA_range      = airfoil_polars.AoA_range

@@ -2,9 +2,10 @@
 # These are the analyses that control aerodynamic evaluations.
 # @ingroup Analyses
 
+
 from .Aerodynamics                 import Aerodynamics
 from .AVL                          import AVL
-from .AVL_Inviscid                 import AVL_Inviscid 
+from .AVL_Inviscid                 import AVL_Inviscid
 from .Fidelity_Zero                import Fidelity_Zero
 from .Markup                       import Markup
 from .Process_Geometry             import Process_Geometry
