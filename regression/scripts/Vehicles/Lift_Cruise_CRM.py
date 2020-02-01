@@ -6,15 +6,59 @@
 #   Imports
 # ---------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units, Data 
 import copy
 from SUAVE.Components.Energy.Networks.Lift_Cruise import Lift_Cruise
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass
 from SUAVE.Methods.Propulsion import propeller_design   
 from SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty import empty
+
 import numpy as np
-from copy import deepcopy
+import pylab as plt
+from copy import deepcopy 
+
+# ----------------------------------------------------------------------
+#   Main
+# ----------------------------------------------------------------------
+def main():
+    
+    # build the vehicle, configs, and analyses
+    configs, analyses = full_setup()
+    
+    # configs.finalize()
+    analyses.finalize()    
+    
+    # weight analysis
+    weights = analyses.weights
+    breakdown = weights.evaluate()          
+    
+    # mission analysis
+    mission = analyses.mission
+    results = mission.evaluate()
+        
+    # plot results
+    plot_mission(results,configs)
+    
+    return
+
+# ----------------------------------------------------------------------
+#   Analysis Setup
+# ----------------------------------------------------------------------
+def full_setup():
+    
+    # vehicle data
+    vehicle  = vehicle_setup() 
+
+    # vehicle analyses
+    analyses = base_analysis(vehicle)
+
+    # mission analyses
+    mission  = mission_setup(analyses,vehicle)
+
+    analyses.mission = mission
+    
+    return  vehicle, analyses
 
 # ----------------------------------------------------------------------
 #   Build the Vehicle
@@ -31,14 +75,13 @@ def vehicle_setup():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
     # mass properties
-    vehicle.mass_properties.takeoff           = 3000. * Units.lb 
-    vehicle.mass_properties.operating_empty   = 2000. * Units.lb               # Approximate
-    vehicle.mass_properties.max_takeoff       = 3000. * Units.lb               # Approximate
-    vehicle.mass_properties.center_of_gravity = [8.5*0.3048 ,   0.  ,  0.*0.3048 ] # Approximate
+    vehicle.mass_properties.takeoff           = 2450. * Units.lb 
+    vehicle.mass_properties.operating_empty   = 2250. * Units.lb               # Approximate
+    vehicle.mass_properties.max_takeoff       = 2450. * Units.lb               # Approximate
+    vehicle.mass_properties.center_of_gravity = [2.0144,   0.  ,  0. ] # Approximate
     
-    # basic parameters
-    vehicle.passengers                        = 5
-    vehicle.reference_area                    = 11.13172471 * Units.feet**2		
+    # basic parameters 
+    vehicle.reference_area                    = 10.76 	
     vehicle.envelope.ultimate_load            = 5.7   
     vehicle.envelope.limit_load               = 3.  
     
@@ -188,7 +231,6 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(wing)   
     
-    
     # ------------------------------------------------------				
     # FUSELAGE				
     # ------------------------------------------------------				
@@ -306,8 +348,8 @@ def vehicle_setup():
     boom.y_pitch                                = (72/12)*0.3048
     boom.symmetric                              = True
     boom.boom_pitch                             = 6 * Units.feet
-    boom.index = 1 
-                                                
+    boom.index = 1
+    
     # add to vehicle
     vehicle.append_component(boom)    
     
@@ -339,7 +381,7 @@ def vehicle_setup():
     # PROPULSOR
     #------------------------------------------------------------------
     net = Lift_Cruise()
-    net.number_of_engines_lift    = 8
+    net.number_of_engines_lift    = 12
     net.number_of_engines_forward = 1
     net.thrust_angle_lift         = 90. * Units.degrees
     net.thrust_angle_forward      = 0. 
@@ -347,7 +389,7 @@ def vehicle_setup():
     net.engine_length             = 0.5 * Units.feet
     net.areas                     = Data()
     net.areas.wetted              = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
-    net.voltage = 400.
+    net.voltage                   = 500.
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
@@ -381,59 +423,69 @@ def vehicle_setup():
     bat                          = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.specific_energy          = 300. * Units.Wh/Units.kg
     bat.resistance               = 0.005
-    bat.max_voltage              = 400.
+    bat.max_voltage              = net.voltage 
     bat.mass_properties.mass     = 300. * Units.kg
     initialize_from_mass(bat, bat.mass_properties.mass)
     net.battery                  = bat
 
+
     #------------------------------------------------------------------
     # Design Rotors and Propellers
     #------------------------------------------------------------------
+    # atmosphere conditions 
+    speed_of_sound                   = 340
+    rho                              = 1.22 
+    rad_per_sec_to_rpm               = 9.549
+    
+    fligth_CL = 0.75
+    AR        = vehicle.wings.main_wing.aspect_ratio
+    Cd0       = 0.06
+    Cdi       = fligth_CL**2/(np.pi*AR*0.98)
+    Cd        = Cd0 + Cdi 
+    
     # Thrust Propeller
     prop_forward                     = SUAVE.Components.Energy.Converters.Propeller()
     prop_forward.tag                 = 'Forward_Prop'
-    prop_forward.symmetric           = False
-    prop_forward.tip_radius          = 3.0   * Units.feet
-    prop_forward.hub_radius          = 0.6   * Units.feet
     prop_forward.number_blades       = 3
-    prop_forward.freestream_velocity = 110.  * Units['mph']  
-    prop_forward.angular_velocity    = 2000. * Units['rpm']          
+    prop_forward.number_of_engines   = net.number_of_engines_forward
+    prop_forward.freestream_velocity = 110.   * Units['mph']
+    prop_forward.tip_radius          = 1.0668
+    prop_forward.hub_radius          = 0.21336 
+    prop_forward.design_tip_mach     = 0.65
+    prop_forward.angular_velocity    = (prop_forward.design_tip_mach *speed_of_sound*rad_per_sec_to_rpm /prop_forward.tip_radius)  * Units['rpm']  
     prop_forward.design_Cl           = 0.7
-    prop_forward.design_altitude     = 1000  * Units.feet                           
-    prop_forward.design_thrust       = 2500       
-    prop_forward.design_power        = 0.0                         
-    prop_forward                     = propeller_design(prop_forward)     
-    prop_forward.origin              = vehicle.fuselages['fuselage'].Segments['segment_5'].origin 
-    
-    if prop_forward.symmetric: 
-        for n in range(len(prop_forward.origin)):
-            prop_origin = [prop_forward.origin[n][0] , -prop_forward.origin[n][1] ,prop_forward.origin[n][2]]
-            prop_forward.origin.append(prop_origin)     
-    net.propeller_forward    = prop_forward
+    prop_forward.design_altitude     = 1. * Units.km 
+    Drag                             = vehicle.reference_area * (0.5*rho*prop_forward.freestream_velocity**2 )*Cd
+    prop_forward.design_thrust       = (Drag*2.5)/net.number_of_engines_forward
+    prop_forward.design_power        = 0. * Units.watts 
+    prop_forward                     = propeller_design(prop_forward)   
+    prop_forward.origin              = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
+    net.propeller_forward            = prop_forward
     
     # Lift Rotors
     prop_lift                        = SUAVE.Components.Energy.Converters.Propeller()
     prop_lift.tag                    = 'Lift_Prop'
     prop_lift.tip_radius             = 2.8 * Units.feet
-    prop_lift.hub_radius             = 0.6 * Units.feet      
-    prop_lift.number_blades          = 2    
-    vehicle_weight                   = vehicle.mass_properties.takeoff*9.81*0.453592    
-    rho                              = 1.2
-    prop_lift.disc_area              = np.pi*(prop_lift.tip_radius**2)    
-    prop_lift.induced_hover_velocity = np.sqrt(vehicle_weight/(2*rho*prop_lift.disc_area*net.number_of_engines_lift)) 
-    prop_lift.freestream_velocity    = prop_lift.induced_hover_velocity 
-    prop_lift.angular_velocity       = 3100. * Units['rpm']      
+    prop_lift.hub_radius             = 0.35 * Units.feet      
+    prop_lift.number_blades          = 2   
+    prop_lift.design_tip_mach        = 0.65
+    prop_lift.number_of_engines      = net.number_of_engines_lift
+    prop_lift.disc_area              = np.pi*(prop_lift.tip_radius**2)     
+    Lift                             = vehicle.mass_properties.takeoff*9.81     
+    prop_lift.induced_hover_velocity = np.sqrt(Lift/(2*rho*prop_lift.disc_area*net.number_of_engines_lift)) 
+    prop_lift.freestream_velocity    = 500. * Units['ft/min'] # hover and climb rate  
+    prop_lift.angular_velocity       = prop_lift.design_tip_mach* speed_of_sound* rad_per_sec_to_rpm /prop_lift.tip_radius  * Units['rpm']      
     prop_lift.design_Cl              = 0.7
-    prop_lift.design_altitude        = 20    * Units.feet                            
-    prop_lift.design_thrust          = (vehicle.mass_properties.takeoff/net.number_of_engines_lift)*0.453592*9.81*1.2
-    prop_lift.design_power           = 0.0                         
-    prop_lift.symmetric              = True
-    prop_lift.x_pitch_count          = 2
+    prop_lift.design_altitude        = 20 * Units.feet                            
+    prop_lift.design_thrust          = (Lift * 2.5 )/net.number_of_engines_lift 
+    prop_lift.design_power           = 0.0  
+    prop_lift.x_pitch_count          = 2 
     prop_lift.y_pitch_count          = vehicle.fuselages['boom_1r'].y_pitch_count
     prop_lift.y_pitch                = vehicle.fuselages['boom_1r'].y_pitch 
     prop_lift                        = propeller_design(prop_lift)          
     prop_lift.origin                 = vehicle.fuselages['boom_1r'].origin
-   
+    prop_lift.symmetric              = True
+    
     # populating propellers on one side of wing
     if prop_lift.y_pitch_count > 1 :
         for n in range(prop_lift.y_pitch_count):
@@ -457,51 +509,70 @@ def vehicle_setup():
             proppeller_origin = [prop_lift.origin[n][0] , -prop_lift.origin[n][1] ,prop_lift.origin[n][2] ]
             prop_lift.origin.append(proppeller_origin) 
     
-    # re compute number of lift propellers if changed 
+    # re-compute number of lift propellers if changed 
     net.number_of_engines_lift    = len(prop_lift.origin)        
     
     # append propellers to vehicle     
-    net.propeller_lift            = prop_lift
+    net.propeller_lift = prop_lift
     
     #------------------------------------------------------------------
     # Design Motors
     #------------------------------------------------------------------
-    # Thrust motor
-    etam                              = 0.95
-    v                                 = bat.max_voltage *3/4
-    omeg                              = 2500. * Units.rpm
-    kv                                = 8.5   * Units.rpm
-    io                                = 2.0                                      
-    res                               = ((v-omeg/kv)*(1.-etam*v*kv/omeg))/io
-    
+    # Propeller (Thrust) motor
     motor_forward                      = SUAVE.Components.Energy.Converters.Motor()
-    motor_forward.mass_properties.mass = 25. * Units.kg                         
-    motor_forward.origin               = vehicle.fuselages['fuselage'].Segments['segment_5'].origin 
+    etam                               = 0.95
+    v                                  = bat.max_voltage *3/4
+    omeg                               = prop_forward.angular_velocity  
+    io                                 = 2.0 
+    start_kv                           = 1
+    end_kv                             = 15 
+    # do optimization to find kv or just do a linspace then remove all negative values, take smallest one use 0.05 change
+    # essentially you are sizing the motor for a particular rpm which is sized for a design tip mach 
+    # this reduces the bookkeeping errors     
+    possible_kv_vals                   = np.linspace(start_kv,end_kv,(end_kv-start_kv)*20 +1 , endpoint = True) * Units.rpm
+    res_kv_vals                        = ((v-omeg/possible_kv_vals)*(1.-etam*v*possible_kv_vals/omeg))/io  
+    positive_res_vals                  = np.extract(res_kv_vals > 0 ,res_kv_vals) 
+    kv_idx                             = np.where(res_kv_vals == min(positive_res_vals))[0][0]   
+    kv                                 = possible_kv_vals[kv_idx]  
+    res                                = min(positive_res_vals) 
+    
+    motor_forward.mass_properties.mass = 2.0  * Units.kg
+    motor_forward.origin               = prop_forward.origin  
+    motor_forward.propeller_radius     = prop_forward.tip_radius   
     motor_forward.speed_constant       = kv
     motor_forward.resistance           = res
-    motor_forward.no_load_current      = io  
-    motor_forward.gear_ratio           = 1.0
-    motor_forward.propeller_radius     = prop_forward.tip_radius
+    motor_forward.no_load_current      = io 
+    motor_forward.gear_ratio           = 1. 
+    motor_forward.gearbox_efficiency   = 1. # Gear box efficiency     
     net.motor_forward                  = motor_forward
-
-    #Lift Motor
-    etam                              = 0.95
-    v                                 = bat.max_voltage 
-    omeg                              = 3000. * Units.rpm
-    kv                                = 7.6 * Units.rpm
-    io                                = 4.0
-    res                               = ((v-omeg/kv)*(1.-etam*v*kv/omeg))/io 
     
-    motor_lift                        = SUAVE.Components.Energy.Converters.Motor()
-    motor_lift.mass_properties.mass   = 3. * Units.kg
-    motor_lift.origin                 = prop_lift.origin    
-    motor_lift.speed_constant         = kv
-    motor_lift.resistance             = res
-    motor_lift.no_load_current        = io    
-    motor_lift.gear_ratio             = 1.0
-    motor_lift.gearbox_efficiency     = 1.0
-    motor_lift.propeller_radius       = prop_lift.tip_radius
-    net.motor_lift                    = motor_lift
+    # Rotor (Lift) Motor
+    motor_lift                         = SUAVE.Components.Energy.Converters.Motor()
+    etam                               = 0.95
+    v                                  = bat.max_voltage     
+    omeg                               = prop_lift.angular_velocity  
+    io                                 = 4.0
+    start_kv                           = 1
+    end_kv                             = 15 
+    # do optimization to find kv or just do a linspace then remove all negative values, take smallest one use 0.05 change
+    # essentially you are sizing the motor for a particular rpm which is sized for a design tip mach 
+    # this reduces the bookkeeping errors     
+    possible_kv_vals                   = np.linspace(start_kv,end_kv,(end_kv-start_kv)*20 +1 , endpoint = True) * Units.rpm
+    res_kv_vals                        = ((v-omeg/possible_kv_vals)*(1.-etam*v*possible_kv_vals/omeg))/io  
+    positive_res_vals                   = np.extract(res_kv_vals > 0 ,res_kv_vals) 
+    kv_idx                             = np.where(res_kv_vals == min(positive_res_vals))[0][0]   
+    kv                                 = possible_kv_vals[kv_idx]  
+    res                                = min(positive_res_vals)
+    
+    motor_lift.mass_properties.mass    = 3. * Units.kg 
+    motor_lift.origin                  = prop_lift.origin  
+    motor_lift.propeller_radius        = prop_lift.tip_radius
+    motor_lift.speed_constant          = kv
+    motor_lift.resistance              = res
+    motor_lift.no_load_current         = io    
+    motor_lift.gear_ratio              = 1.0
+    motor_lift.gearbox_efficiency      = 1.0
+    net.motor_lift                     = motor_lift 
 
     # append motor origin spanwise locations onto wing data structure 
     vehicle.append_component(net)
@@ -536,13 +607,12 @@ def vehicle_setup():
          5.435, 5.435, 9.891, 9.891, 14.157, 14.157])
 
     vehicle.wings['main_wing'].winglet_fraction = 0.0
-
     vehicle.wings['main_wing'].thickness_to_chord = 0.18
     vehicle.wings['main_wing'].chords.mean_aerodynamic = 0.9644599977664836
     
-    #----------------------------------------------------------------------------------------
-    # EVALUATE WEIGHTS using calculation (battery not updated) 
-    #----------------------------------------------------------------------------------------
+    ##----------------------------------------------------------------------------------------
+    ## EVALUATE WEIGHTS using calculation (battery not updated) 
+    ##----------------------------------------------------------------------------------------
     #vehicle.weight_breakdown                = empty(vehicle)
     #MTOW                                    = vehicle.weight_breakdown.total
     #Payload                                 = vehicle.weight_breakdown.payload
@@ -553,18 +623,745 @@ def vehicle_setup():
     
     return vehicle
 
-def configs_setup(vehicle):
-
+def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
-    #   Initialize Configurations
+    #   Initialize the Analyses
+    # ------------------------------------------------------------------     
+    analyses = SUAVE.Analyses.Vehicle()
+
+    # ------------------------------------------------------------------
+    #  Basic Geometry Relations
+    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing.features.vehicle = vehicle
+    analyses.append(sizing)
+
+    # ------------------------------------------------------------------
+    #  Weights
+    weights = SUAVE.Analyses.Weights.Weights_Electric_Lift_Cruise()
+    weights.vehicle = vehicle
+    analyses.append(weights)
+
+    # ------------------------------------------------------------------
+    #  Aerodynamics Analysis
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics.geometry = vehicle
+    aerodynamics.settings.drag_coefficient_increment = 0.4*vehicle.excrescence_area_spin / vehicle.reference_area
+    analyses.append(aerodynamics)
+
+    # ------------------------------------------------------------------
+    #  Energy
+    energy= SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.propulsors 
+    analyses.append(energy)
+
+    # ------------------------------------------------------------------
+    #  Planet Analysis
+    planet = SUAVE.Analyses.Planets.Planet()
+    analyses.append(planet)
+
+    # ------------------------------------------------------------------
+    #  Atmosphere Analysis
+    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere.features.planet = planet.features
+    analyses.append(atmosphere)   
+
+    return analyses    
+
+
+def mission_setup(analyses,vehicle):
+
+    # ------------------------------------------------------------------
+    #   Initialize the Mission
+    # ------------------------------------------------------------------
+    mission            = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission.tag        = 'the_mission'
+
+    # airport
+    airport            = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+
+    mission.airport    = airport    
+
+    # unpack Segments module
+    Segments                                                 = SUAVE.Analyses.Mission.Segments
+                                                             
+    # base segment                                           
+    base_segment                                             = Segments.Segment()
+    ones_row                                                 = base_segment.state.ones_row
+    base_segment.state.numerics.number_control_points        = 10
+    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns_transition
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals_transition
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.propulsor.battery.max_voltage * ones_row(1)  
+    base_segment.state.residuals.network                     = 0. * ones_row(2)    
+
+
+    # VSTALL Calculation
+    m     = vehicle.mass_properties.max_takeoff
+    g     = 9.81
+    S     = vehicle.reference_area
+    atmo  = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    rho   = atmo.compute_values(1000.*Units.feet,0.).density
+    CLmax = 1.2
+
+    Vstall = float(np.sqrt(2.*m*g/(rho*S*CLmax)))
+
+    # ------------------------------------------------------------------
+    #   First Taxi Segment: Constant Speed
+    # ------------------------------------------------------------------
+    segment     = Segments.Hover.Climb(base_segment)
+    segment.tag = "Ground_Taxi"
+
+    # ------------------------------------------------------------------
+    #   First Climb Segment: Constant Speed, Constant Rate
+    # ------------------------------------------------------------------
+    segment     = Segments.Hover.Climb(base_segment)
+    segment.tag = "climb_1"
+    segment.analyses.extend( analyses )                                                            
+    segment.altitude_start                                   = 0.0  * Units.ft
+    segment.altitude_end                                     = 40.  * Units.ft
+    segment.climb_rate                                       = 500. * Units['ft/min']
+    segment.battery_energy                                   = vehicle.propulsors.propulsor.battery.max_energy*0.95
+                                                             
+    segment.state.unknowns.propeller_power_coefficient_lift = 0.04 * ones_row(1)
+    segment.state.unknowns.throttle_lift                    = 0.85 * ones_row(1)
+    segment.state.unknowns.__delitem__('throttle')
+
+    segment.process.iterate.unknowns.network                 = vehicle.propulsors.propulsor.unpack_unknowns_no_forward
+    segment.process.iterate.residuals.network                = vehicle.propulsors.propulsor.residuals_no_forward       
+    segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability          = SUAVE.Methods.skip
+
+    # add to misison
+    mission.append_segment(segment)
+
+    # ------------------------------------------------------------------
+    #   First Cruise Segment: Transition
     # ------------------------------------------------------------------
 
-    configs = SUAVE.Components.Configs.Config.Container()
+    segment = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
+    segment.tag = "transition_1"
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
-    base_config.tag = 'base'
-    configs.append(base_config)
+    segment.analyses.extend( analyses )
 
-    return configs
+    segment.altitude        = 40.  * Units.ft
+    segment.air_speed_start = 0.   * Units['ft/min']
+    segment.air_speed_end   = 1.2 * Vstall
+    segment.acceleration    = 9.81/5
+    segment.pitch_initial   = 0.0
+    segment.pitch_final     = 5. * Units.degrees
+
+    segment.state.unknowns.propeller_power_coefficient_lift = 0.07 * ones_row(1)
+    segment.state.unknowns.throttle_lift                    = 0.70 * ones_row(1) 
+    segment.state.unknowns.propeller_power_coefficient      = 0.03 * ones_row(1)
+    segment.state.unknowns.throttle                         = .60  * ones_row(1)   
+    segment.state.residuals.network                         = 0.   * ones_row(3)    
+
+    segment.process.iterate.unknowns.network                = vehicle.propulsors.propulsor.unpack_unknowns_transition
+    segment.process.iterate.residuals.network               = vehicle.propulsors.propulsor.residuals_transition    
+    segment.process.iterate.unknowns.mission                = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability            = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability         = SUAVE.Methods.skip
+
+    # add to misison
+    mission.append_segment(segment)
+
+    # ------------------------------------------------------------------
+    #   Second Climb Segment: Constant Speed, Constant Rate
+    # ------------------------------------------------------------------
+
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb_2"
+
+    segment.analyses.extend( analyses )
+
+    segment.air_speed       = np.sqrt((500 * Units['ft/min'])**2 + (1.2*Vstall)**2)
+    segment.altitude_start  = 40.0 * Units.ft
+    segment.altitude_end    = 300. * Units.ft
+    segment.climb_rate      = 500. * Units['ft/min']
+
+    segment.state.unknowns.propeller_power_coefficient         = 0.01 * ones_row(1)
+    segment.state.unknowns.throttle                            = 0.70 * ones_row(1)
+    segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_no_lift
+    segment.process.iterate.residuals.network = vehicle.propulsors.propulsor.residuals_no_lift     
+
+    # add to misison
+    mission.append_segment(segment)
+
+    # ------------------------------------------------------------------
+    #   Second Cruise Segment: Constant Speed, Constant Altitude
+    # ------------------------------------------------------------------
+
+    segment = Segments.Cruise.Constant_Speed_Constant_Altitude_Loiter(base_segment)
+    segment.tag = "departure_terminal_procedures"
+
+    segment.analyses.extend( analyses )
+
+    segment.altitude  = 300.0 * Units.ft
+    segment.time      = 60.   * Units.second
+    segment.air_speed = 1.2*Vstall
+
+    segment.state.unknowns.propeller_power_coefficient = 0.01 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.50 * ones_row(1)
+
+    segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_no_lift
+    segment.process.iterate.residuals.network = vehicle.propulsors.propulsor.residuals_no_lift     
+
+
+    # add to misison
+    mission.append_segment(segment)
+
+    # ------------------------------------------------------------------
+    #   Third Climb Segment: Constant Acceleration, Constant Rate
+    # ------------------------------------------------------------------
+
+    segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
+    segment.tag = "accelerated_climb"
+
+    segment.analyses.extend( analyses )
+
+    segment.altitude_start  = 300.0 * Units.ft
+    segment.altitude_end    = 1000. * Units.ft
+    segment.climb_rate      = 500.  * Units['ft/min']
+    segment.air_speed_start = np.sqrt((500 * Units['ft/min'])**2 + (1.2*Vstall)**2)
+    segment.air_speed_end   = 110.  * Units['mph']                                            
+
+    segment.state.unknowns.propeller_power_coefficient = 0.01 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.50 * ones_row(1)
+
+    segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_no_lift
+    segment.process.iterate.residuals.network = vehicle.propulsors.propulsor.residuals_no_lift  
+
+
+    # add to misison
+    mission.append_segment(segment)    
+
+    # ------------------------------------------------------------------
+    #   Third Cruise Segment: Constant Acceleration, Constant Altitude
+    # ------------------------------------------------------------------
+
+    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    segment.tag = "cruise"
+
+    segment.analyses.extend( analyses )
+
+    segment.altitude  = 1000.0 * Units.ft
+    segment.air_speed = 110.   * Units['mph']
+    segment.distance  = 60.    * Units.miles                       
+
+    segment.state.unknowns.propeller_power_coefficient = 0.02 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.40 * ones_row(1)
+
+    segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_no_lift
+    segment.process.iterate.residuals.network = vehicle.propulsors.propulsor.residuals_no_lift    
+
+
+    # add to misison
+    mission.append_segment(segment)     
+
+    # ------------------------------------------------------------------
+    #   First Descent Segment: Constant Acceleration, Constant Rate
+    # ------------------------------------------------------------------
+
+    segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
+    segment.tag = "decelerating_descent"
+
+    segment.analyses.extend( analyses )  
+    segment.altitude_start  = 1000.0 * Units.ft
+    segment.altitude_end    = 300. * Units.ft
+    segment.climb_rate      = -500.  * Units['ft/min']
+    segment.air_speed_start = 110.  * Units['mph']
+    segment.air_speed_end   = 1.2*Vstall
+
+    segment.state.unknowns.propeller_power_coefficient = 0.03 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.5 * ones_row(1)
+
+    segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_no_lift
+    segment.process.iterate.residuals.network = vehicle.propulsors.propulsor.residuals_no_lift     
+
+    # add to misison
+    mission.append_segment(segment)        
+
+    # ------------------------------------------------------------------
+    #   Fourth Cruise Segment: Constant Speed, Constant Altitude
+    # ------------------------------------------------------------------
+
+    segment = Segments.Cruise.Constant_Speed_Constant_Altitude_Loiter(base_segment)
+    segment.tag = "arrival_terminal_procedures"
+
+    segment.analyses.extend( analyses )
+
+    segment.altitude        = 300.   * Units.ft
+    segment.air_speed       = 1.2*Vstall
+    segment.time            = 60 * Units.seconds
+
+    segment.state.unknowns.propeller_power_coefficient = 0.01 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.50 * ones_row(1)
+
+    segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_no_lift
+    segment.process.iterate.residuals.network = vehicle.propulsors.propulsor.residuals_no_lift   
+
+    # add to misison
+    mission.append_segment(segment)    
+
+    # ------------------------------------------------------------------
+    #   Second Descent Segment: Constant Speed, Constant Rate
+    # ------------------------------------------------------------------
+
+    segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
+    segment.tag = "descent_2"
+
+    segment.analyses.extend( analyses )
+
+    segment.altitude_start  = 300.0 * Units.ft
+    segment.altitude_end    = 40. * Units.ft
+    segment.climb_rate      = -400.  * Units['ft/min']  # Uber has 500->300
+    segment.air_speed_start = np.sqrt((400 * Units['ft/min'])**2 + (1.2*Vstall)**2)
+    segment.air_speed_end   = 1.2*Vstall                           
+
+    segment.state.unknowns.propeller_power_coefficient = 0.01 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.50 * ones_row(1)
+
+    segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_no_lift
+    segment.process.iterate.residuals.network = vehicle.propulsors.propulsor.residuals_no_lift 
+
+
+    # add to misison
+    mission.append_segment(segment)       
+
+    # ------------------------------------------------------------------
+    #   Fifth Cuise Segment: Transition
+    # ------------------------------------------------------------------ 
+    segment = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
+    segment.tag = "transition_2"
+
+    segment.analyses.extend( analyses )
+
+    segment.altitude        = 40. * Units.ft
+    segment.air_speed_start = 1.2 * Vstall      
+    segment.air_speed_end   = 0 
+    segment.acceleration    = -9.81/20
+    segment.pitch_initial   = 5. * Units.degrees   
+    segment.pitch_final     = 10. * Units.degrees      
+    
+
+    segment.state.unknowns.propeller_power_coefficient_lift = 0.04 * ones_row(1)
+    segment.state.unknowns.throttle_lift                    = 0.60 * ones_row(1) 
+    segment.state.unknowns.propeller_power_coefficient      = 0.05 * ones_row(1)
+    segment.state.unknowns.throttle                         = .40  * ones_row(1)   
+    segment.state.residuals.network                         = 0.   * ones_row(3)   
+    
+    
+    segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_transition
+    segment.process.iterate.residuals.network = vehicle.propulsors.propulsor.residuals_transition    
+    segment.process.iterate.unknowns.mission  = SUAVE.Methods.skip 
+    # add to misison
+    mission.append_segment(segment)
+
+      
+    # ------------------------------------------------------------------
+    #   Third Descent Segment: Constant Speed, Constant Rate
+    # ------------------------------------------------------------------
+
+    segment = Segments.Hover.Descent(base_segment)
+    segment.tag = "descent_1"
+
+    segment.analyses.extend( analyses )
+
+    segment.altitude_start  = 40.0  * Units.ft
+    segment.altitude_end    = 0.   * Units.ft
+    segment.descent_rate    = 300. * Units['ft/min']
+    segment.battery_energy  = vehicle.propulsors.propulsor.battery.max_energy
+
+    segment.state.unknowns.propeller_power_coefficient_lift = 0.03* ones_row(1)
+    segment.state.unknowns.throttle_lift                    = 0.9 * ones_row(1)
+
+    segment.state.unknowns.__delitem__('throttle')
+    segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_no_forward
+    segment.process.iterate.residuals.network = vehicle.propulsors.propulsor.residuals_no_forward    
+    segment.process.iterate.unknowns.mission  = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability   = SUAVE.Methods.skip
+
+    # add to misison
+    mission.append_segment(segment)       
+
+    return mission
+
+
+# ----------------------------------------------------------------------
+#   Plot Results
+# ----------------------------------------------------------------------
+def plot_mission(results,vec_configs):
+    plot_electronic_conditions(results) 
+    plot_lift_cruise_network(results) 
+           
+    return     
+        
+
+# ------------------------------------------------------------------
+#   Electronic Conditions
+# ------------------------------------------------------------------
+def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Electronic_Conditions"):
+    axis_font = {'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(12, 10)
+    for i in range(len(results.segments)):  
+    
+        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        power    = results.segments[i].conditions.propulsion.battery_draw[:,0] 
+        energy   = results.segments[i].conditions.propulsion.battery_energy[:,0] 
+        volts    = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
+        volts_oc = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]     
+        current = results.segments[i].conditions.propulsion.current[:,0]      
+        battery_amp_hr = (energy*0.000277778)/volts
+        C_rating   = current/battery_amp_hr
+        
+        axes = fig.add_subplot(2,2,1)
+        axes.plot(time, -power, line_color)
+        axes.set_ylabel('Battery Power (Watts)',axis_font)
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
+        axes.grid(True)       
+    
+        axes = fig.add_subplot(2,2,2)
+        axes.plot(time, energy*0.000277778, line_color)
+        axes.set_ylabel('Battery Energy (W-hr)',axis_font)
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,2,3)
+        axes.plot(time, volts, 'bo-',label='Under Load')
+        axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
+        if i == 0:
+            axes.legend(loc='upper right')          
+        axes.grid(True)         
+        
+        axes = fig.add_subplot(2,2,4)
+        axes.plot(time, C_rating, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('C-Rating (C)',axis_font)  
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)
  
+    if save_figure:
+        plt.savefig(save_filename + ".png")       
+        
+    return
+ 
+
+# ------------------------------------------------------------------
+#   Lift-Cruise Network
+# ------------------------------------------------------------------
+def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, save_filename = "Lift_Cruise_Network"):
+    axis_font = {'size':'14'} 
+    # ------------------------------------------------------------------
+    #   Electronic Conditions
+    # ------------------------------------------------------------------
+    fig = plt.figure("Lift_Cruise_Electric_Conditions")
+    fig.set_size_inches(16, 8)
+    for i in range(len(results.segments)):          
+        time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        eta            = results.segments[i].conditions.propulsion.throttle[:,0]
+        eta_l          = results.segments[i].conditions.propulsion.throttle_lift[:,0]
+        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0]*0.000277778
+        specific_power = results.segments[i].conditions.propulsion.battery_specfic_power[:,0]
+        volts          = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
+        volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]  
+                    
+        axes = fig.add_subplot(2,2,1)
+        axes.plot(time, eta, 'bo-',label='Forward Motor')
+        axes.plot(time, eta_l, 'r^-',label='Lift Motors')
+        axes.set_ylabel('Throttle')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
+        axes.grid(True)       
+        plt.ylim((0,1))
+        if i == 0:
+            axes.legend(loc='upper center')         
+    
+        axes = fig.add_subplot(2,2,2)
+        axes.plot(time, energy, 'bo-')
+        axes.set_ylabel('Battery Energy (W-hr)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,2,3)
+        axes.plot(time, volts, 'bo-',label='Under Load')
+        axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Battery Voltage (Volts)')  
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        axes.grid(True)
+        if i == 0:
+            axes.legend(loc='upper center')                
+        
+        axes = fig.add_subplot(2,2,4)
+        axes.plot(time, specific_power, 'bo-') 
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Specific Power')  
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)   
+        
+        
+    
+    if save_figure:
+        plt.savefig("Lift_Cruise_Electric_Conditions.png")
+    
+   
+    ## ------------------------------------------------------------------
+    ##   Propulsion Conditions
+    ## ------------------------------------------------------------------
+    #fig = plt.figure("Prop-Rotor Network")
+    #fig.set_size_inches(16, 8)
+    #for i in range(len(results.segments)):          
+        #time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        #prop_rpm    = results.segments[i].conditions.propulsion.rpm_forward [:,0] 
+        #prop_thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
+        #prop_torque = results.segments[i].conditions.propulsion.motor_torque_forward[:,0]
+        #prop_effp   = results.segments[i].conditions.propulsion.propeller_efficiency_forward[:,0]
+        #prop_effm   = results.segments[i].conditions.propulsion.motor_efficiency_forward[:,0]
+        #prop_Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
+        #rotor_rpm    = results.segments[i].conditions.propulsion.rpm_lift[:,0] 
+        #rotor_thrust = -results.segments[i].conditions.frames.body.thrust_force_vector[:,2]
+        #rotor_torque = results.segments[i].conditions.propulsion.motor_torque_lift
+        #rotor_effp   = results.segments[i].conditions.propulsion.propeller_efficiency_lift[:,0]
+        #rotor_effm   = results.segments[i].conditions.propulsion.motor_efficiency_lift[:,0] 
+        #rotor_Cp = results.segments[i].conditions.propulsion.propeller_power_coefficient_lift[:,0]        
+    
+        #axes = fig.add_subplot(2,3,1)
+        #axes.plot(time, prop_rpm, 'bo-')
+        #axes.plot(time, rotor_rpm, 'r^-')
+        #axes.set_ylabel('RPM')
+        #axes.minorticks_on()
+        #axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        #axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
+        #axes.grid(True)       
+    
+        #axes = fig.add_subplot(2,3,2)
+        #axes.plot(time, prop_thrust, 'bo-')
+        #axes.plot(time, rotor_thrust, 'r^-')
+        #axes.set_ylabel('Thrust (N)')
+        #axes.minorticks_on()
+        #axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        #axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        #axes.grid(True)   
+    
+        #axes = fig.add_subplot(2,3,3)
+        #axes.plot(time, prop_torque, 'bo-' )
+        #axes.plot(time, rotor_torque, 'r^-' )
+        #axes.set_xlabel('Time (mins)')
+        #axes.set_ylabel('Torque (N-m)')
+        #axes.minorticks_on()
+        #axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        #axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        #axes.grid(True)   
+    
+        #axes = fig.add_subplot(2,3,4)
+        #axes.plot(time, prop_effp, 'bo-' )
+        #axes.plot(time, rotor_effp, 'r^-' )
+        #axes.set_xlabel('Time (mins)')
+        #axes.set_ylabel(r'Propeller Efficiency, $\eta_{propeller}$')
+        #axes.minorticks_on()
+        #axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        #axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        #axes.grid(True)           
+        #plt.ylim((0,1))
+    
+        #axes = fig.add_subplot(2,3,5)
+        #axes.plot(time, prop_effm, 'bo-' )
+        #axes.plot(time, rotor_effm, 'r^-' )
+        #axes.set_xlabel('Time (mins)')
+        #axes.set_ylabel(r'Motor Efficiency, $\eta_{motor}$')
+        #axes.minorticks_on()
+        #axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        #axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        #axes.grid(True)         
+        #plt.ylim((0,1))
+    
+        #axes = fig.add_subplot(2,3,6)
+        #axes.plot(time, prop_Cp, 'bo-' )
+        #axes.plot(time, rotor_Cp, 'r^-'  )
+        #axes.set_xlabel('Time (mins)')
+        #axes.set_ylabel('Power Coefficient')
+        #axes.minorticks_on()
+        #axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        #axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
+        #axes.grid(True) 
+        
+    #if save_figure:
+        #plt.savefig("Propulsor Network.png")
+            
+    # ------------------------------------------------------------------
+    #   Propulsion Conditions
+    # ------------------------------------------------------------------
+    fig = plt.figure("Rotor")
+    fig.set_size_inches(16, 8)
+    for i in range(len(results.segments)):          
+        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        rpm    = results.segments[i].conditions.propulsion.rpm_lift [:,0] 
+        thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,2]
+        torque = results.segments[i].conditions.propulsion.motor_torque_lift[:,0]
+        effp   = results.segments[i].conditions.propulsion.propeller_efficiency_lift[:,0]
+        effm   = results.segments[i].conditions.propulsion.motor_efficiency_lift[:,0] 
+        Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient_lift[:,0]
+    
+        axes = fig.add_subplot(2,3,1)
+        axes.plot(time, rpm, 'r^-')
+        axes.set_ylabel('RPM')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
+        axes.grid(True)       
+    
+        axes = fig.add_subplot(2,3,2)
+        axes.plot(time, -thrust, 'r^-')
+        axes.set_ylabel('Thrust (N)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,3,3)
+        axes.plot(time, torque, 'r^-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Torque (N-m)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,3,4)
+        axes.plot(time, effp, 'r^-',label= r'$\eta_{rotor}$' ) 
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel(r'Propeller Efficiency $\eta_{rotor}$')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
+        #if i == 0:
+            #axes.legend(loc='upper center')   
+        axes.grid(True)           
+        plt.ylim((0,1))
+    
+        axes = fig.add_subplot(2,3,5)
+        axes.plot(time, effm, 'r^-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel(r'Motor Efficiency $\eta_{mot}$')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        plt.ylim((0,1))
+        axes.grid(True)  
+    
+        axes = fig.add_subplot(2,3,6)
+        axes.plot(time, Cp , 'r^-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Power Coefficient')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')    
+        axes.grid(True)           
+    
+    if save_figure:
+        plt.savefig("Rotor.png")  
+        
+        
+    # ------------------------------------------------------------------
+    #   Propulsion Conditions
+    # ------------------------------------------------------------------
+    fig = plt.figure("Propeller")
+    fig.set_size_inches(16, 8)
+    for i in range(len(results.segments)):          
+        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        rpm    = results.segments[i].conditions.propulsion.rpm_forward [:,0] 
+        thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
+        torque = results.segments[i].conditions.propulsion.motor_torque_forward
+        effp   = results.segments[i].conditions.propulsion.propeller_efficiency_forward[:,0]
+        effm   = results.segments[i].conditions.propulsion.motor_efficiency_forward[:,0]
+        Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
+    
+        axes = fig.add_subplot(2,3,1)
+        axes.plot(time, rpm, 'bo-')
+        axes.set_ylabel('RPM')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
+        axes.grid(True)       
+    
+        axes = fig.add_subplot(2,3,2)
+        axes.plot(time, thrust, 'bo-')
+        axes.set_ylabel('Thrust (N)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,3,3)
+        axes.plot(time, torque, 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Torque (N-m)')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)   
+    
+        axes = fig.add_subplot(2,3,4)
+        axes.plot(time, effp, 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel(r'Propeller Efficiency $\eta_{propeller}$')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)           
+        plt.ylim((0,1))
+    
+        axes = fig.add_subplot(2,3,5)
+        axes.plot(time, effm, 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel(r'Motor Efficiency $\eta_{motor}$')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+        axes.grid(True)         
+        plt.ylim((0,1))
+    
+        axes = fig.add_subplot(2,3,6)
+        axes.plot(time, Cp, 'bo-' )
+        axes.set_xlabel('Time (mins)')
+        axes.set_ylabel('Power Coefficient')
+        axes.minorticks_on()
+        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
+        axes.grid(True) 
+        
+    if save_figure:
+        plt.savefig("Cruise_Propulsor.png") 
+       
+        
+    return
+
+if __name__ == '__main__': 
+    main()    
+    plt.show()
