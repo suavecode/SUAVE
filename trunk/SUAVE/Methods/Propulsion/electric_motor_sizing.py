@@ -2,7 +2,7 @@
 # electric_motor_sizing.py
 # 
 # Created:  Jan 2016, E. Botero
-# Modified: 
+# Modified: Feb 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +19,7 @@ from SUAVE.Core import Units
 #  size_from_kv
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Propulsion
-def size_from_kv(motor,kv):
+def size_from_kv(motor):
     """
     Determines a motors mass based on the speed constant KV
     
@@ -28,7 +28,7 @@ def size_from_kv(motor,kv):
     
     Inputs:
     motor    (to be modified)
-    kv       motor speed constant
+      kv       motor speed constant
     
     Outputs:
     motor.
@@ -39,8 +39,8 @@ def size_from_kv(motor,kv):
     
     """
     
-    # Set the KV    
-    motor.speed_constant = kv 
+    # Set the KV     
+    kv = motor.speed_constant 
     
     # Correlations from Gur:
     # Gur, O., Rosen, A, AIAA 2008-5916. 
@@ -62,15 +62,23 @@ def size_from_kv(motor,kv):
     return motor
 
 
-def size_from_mass(motor,mass):
+def size_from_mass(motor):
+    """
+    Sizes motor from mass
     
-    # Unpack the motor
-    res  = motor.resistance
-    i0   = motor.no_load_current
-    kv   = motor.speed_constant
-
-    # Set the KV    
-    motor.mass_properties.mass = mass
+    Source:
+    Gur, O., Rosen, A, AIAA 2008-5916.
+    
+    Inputs:
+    motor.    (to be modified)
+      mass               [kg]
+    
+    Outputs:
+    motor.
+      resistance         [ohms]
+      no_load_current    [amps] 
+    """     
+    mass = motor.mass_properties.mass 
     
     # Correlations from Gur:
     # Gur, O., Rosen, A, AIAA 2008-5916.  
@@ -80,8 +88,49 @@ def size_from_mass(motor,mass):
     B_i0 = 0.2   * Units['amp*(ohm**0.6)']
     
     # Do the calculations from the regressions
-    kv = B_KV/mass
+    kv   = B_KV/mass
     res  = B_RA/(kv**2.)
-    i0   =  B_i0/(res**0.6)
+    i0   = B_i0/(res**0.6) 
+
+    # Unpack the motor
+    motor.resistance      = res 
+    motor.no_load_current = i0  
+    motor.speed_constant  = kv    
+
+    return motor
+
+
+def compute_optimal_motor_parameters(motor,prop):
+    ''' Optimizes the motor to obtain the best combination of speed constant and resistance values
+    by essentially you are sizing the motor for a design RPM value. Note that this design RPM 
+    value can be compute from design tip mach  
+    
+    Source:
+     
+    
+    Inputs:
+    motor    (to be modified)
+    
+    Outputs:
+    motor.
+      speed_constant     [untiless]
+      no_load_current    [amps]
+    '''    
+    
+    io                   = motor.no_load_current
+    v                    = motor.nominal_voltage 
+    omeg                 = prop.angular_velocity
+    etam                 = motor.efficiency
+    start_kv             = 1
+    end_kv               = 15     
+    possible_kv_vals     = np.linspace(start_kv,end_kv,(end_kv-start_kv)*20 +1 , endpoint = True) * Units.rpm
+    res_kv_vals          = ((v-omeg/possible_kv_vals)*(1.-etam*v*possible_kv_vals/omeg))/io  
+    positive_res_vals    = np.extract(res_kv_vals > 0 ,res_kv_vals) 
+    kv_idx               = np.where(res_kv_vals == min(positive_res_vals))[0][0]   
+    kv                   = possible_kv_vals[kv_idx]  
+    res                  = min(positive_res_vals) 
+    
+    motor.speed_constant = kv
+    motor.resistance     = res 
 
     return motor

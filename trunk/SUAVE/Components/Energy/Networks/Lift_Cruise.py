@@ -135,8 +135,7 @@ class Lift_Cruise(Propulsor):
         battery.current_energy = conditions.propulsion.battery_energy    
         
         volts = state.unknowns.battery_voltage_under_load * 1. 
-        volts[volts>self.voltage] = self.voltage
-        #volts = self.voltage
+        volts[volts>self.voltage] = self.voltage 
         
         # ESC Voltage
         esc_lift.inputs.voltagein    = volts      
@@ -153,14 +152,13 @@ class Lift_Cruise(Propulsor):
         
         # Run the motor
         motor_forward.omega(conditions)
+        
         # link
         propeller_forward.inputs.omega = motor_forward.outputs.omega
         propeller_forward.thrust_angle = self.thrust_angle_forward   
         
         # Run the propeller
-        #F_forward, Q_forward, P_forward, Cp_forward = propeller_forward.spin_surrogate(conditions)
         F_forward, Q_forward, P_forward, Cp_forward, noise_forward, etap_forward = propeller_forward.spin(conditions)
-        
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -214,7 +212,6 @@ class Lift_Cruise(Propulsor):
         propeller_lift.thrust_angle = self.thrust_angle_lift
         
         # Run the propeller
-        #F_lift, Q_lift, P_lift, Cp_lift = propeller_lift.spin_surrogate(konditions)
         F_lift, Q_lift, P_lift, Cp_lift, output_lift, etap_lift = propeller_lift.spin(konditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
