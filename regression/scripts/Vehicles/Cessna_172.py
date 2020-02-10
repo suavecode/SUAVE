@@ -211,12 +211,14 @@ def vehicle_setup():
     #   Fuel
     # ------------------------------------------------------------------    
     # define fuel weight needed to size fuel system
-    fuel                                  = SUAVE.Attributes.Propellants.Aviation_Gasoline()
-    fuel.mass_properties                  = SUAVE.Components.Mass_Properties()
-    fuel.mass_properties.mass             = 319 *Units.lbs
-    fuel.number_of_tanks                  = 1.
-    fuel.internal_volume                  = fuel.mass_properties.mass/fuel.density #all of the fuel volume is internal
-    vehicle.fuel                          = fuel
+    fuel                                   = SUAVE.Attributes.Propellants.Aviation_Gasoline()
+    fuel.mass_properties                   = SUAVE.Components.Mass_Properties() 
+    fuel.number_of_tanks                   = 1.
+    fuel.origin                            = wing.origin
+    fuel.internal_volume                   = fuel.mass_properties.mass/fuel.density #all of the fuel volume is internal
+    fuel.mass_properties.center_of_gravity = wing.mass_properties.center_of_gravity
+    fuel.mass_properties.mass              = 319 *Units.lbs
+    vehicle.fuel                           = fuel
 
     # ------------------------------------------------------------------
     #   Piston Propeller Network
@@ -242,13 +244,13 @@ def vehicle_setup():
 
     prop                     = SUAVE.Components.Energy.Converters.Propeller()
     prop.number_blades       = 2.0
-    prop.freestream_velocity = 119.   * Units.knots
-    prop.angular_velocity    = 2650.  * Units.rpm
+    prop.freestream_velocity = 140.   *Units['mph']
+    prop.angular_velocity    = 2200.  * Units.rpm
     prop.tip_radius          = 76./2. * Units.inches
     prop.hub_radius          = 8.     * Units.inches
     prop.design_Cl           = 0.8
-    prop.design_altitude     = 12000. * Units.feet
-    prop.design_power        = .64 * 180. * Units.horsepower
+    prop.design_altitude     = 13500. * Units.ft
+    prop.design_power        = 2. * 180. * Units.horsepower
     prop                     = propeller_design(prop) # propeller is designed using design parameters listed above
     net.propeller            = prop 
     
@@ -259,12 +261,7 @@ def vehicle_setup():
     Wuav                                   = 2. * Units.lbs
     avionics                               = SUAVE.Components.Energy.Peripherals.Avionics()
     avionics.mass_properties.uninstalled   = Wuav
-    vehicle.avionics                       = avionics 
-    fuel                                   = SUAVE.Components.Physical_Component()
-    fuel.origin                            = wing.origin
-    fuel.mass_properties.center_of_gravity = wing.mass_properties.center_of_gravity
-    fuel.mass_properties.mass              = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
-    
+    vehicle.avionics                       = avionics     
 
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete

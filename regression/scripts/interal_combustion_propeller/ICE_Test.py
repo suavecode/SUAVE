@@ -53,14 +53,14 @@ def main():
     plot_mission(results,configs.base) 
     
     # save, load and plot old results 
-    #save_results(results)
+    save_results(results)
     old_results = load_results()
     plot_mission(old_results,configs.base) 
  
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
-    RPM_true   = 3107.701528406484
+    RPM_true   = 1689.0341273520216
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -70,7 +70,8 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.6399281367700367
+    lift_coefficient_true   = 0.4379214920009708
+
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -153,12 +154,6 @@ def base_analysis(vehicle):
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
-    #  Stability Analysis
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
-    stability.geometry = vehicle
-    analyses.append(stability)
-
-    # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
     energy.network = vehicle.propulsors 
@@ -184,7 +179,7 @@ def base_analysis(vehicle):
 
 def plot_mission(results, configs ):
      
-    prop_radius_ft = configs.propulsors.propulsor.propeller.tip_radius*3.28084 # convert to ft      
+    prop_radius_ft = configs.propulsors.internal_combustion.propeller.tip_radius/Units.feet # convert to ft      
     
     # ------------------------------------------------------------------
     #   Aerodynamics
@@ -317,7 +312,7 @@ def plot_mission(results, configs ):
         axes.get_yaxis().get_major_formatter().set_scientific(False)
         axes.grid(True)
         plt.ylim((1800,2550))
-    #plt.savefig("Cessna_Piston_sfc_alt.png")     
+   
         
     # ------------------------------------------------------------------
     #   Aerodynamics 2
@@ -482,8 +477,8 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.takeoff )
 
     segment.altitude_start = 0.0   * Units.km
-    segment.altitude_end   = 8000. * Units.feet
-    segment.air_speed      = 73.5  * Units['knots']
+    segment.altitude_end   = 13500.* Units.ft
+    segment.air_speed      = 100  * Units['knots']
     segment.climb_rate     = 695.  * Units['ft/min']
 
     # add to misison
@@ -498,8 +493,8 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.altitude  = 8000. * Units.feet
-    segment.air_speed = 92.   * Units['knots']
+    segment.altitude  = 13500. * Units.ft
+    segment.air_speed = 140. *Units['mph']
     segment.distance  = 100.   * Units.nautical_mile
 
     # add to misison

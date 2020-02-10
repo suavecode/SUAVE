@@ -5,3 +5,5 @@ iteration = 0 , objective = 0.9999999999999978, inputs = [0.0, 0.999999999999998
 iteration = 0 , objective = 0.9999999999999978, inputs = [0.0, 0.9999999999999989], constraints = [0.0, 0.9999999999999989]
 iteration = 0 , objective = 0.9999999999999978, inputs = [0.0, 0.9999999999999989], constraints = [0.0, 0.9999999999999989]
 iteration = 0 , objective = 0.9999999999999978, inputs = [0.0, 0.9999999999999989], constraints = [0.0, 0.9999999999999989]
+iteration = 0 , objective = 0.9999999999999978, inputs = [0.0, 0.9999999999999989], constraints = [0.0, 0.9999999999999989]
+iteration = 0 , objective = 0.9999999999999978, inputs = [0.0, 0.9999999999999989], constraints = [0.0, 0.9999999999999989]
