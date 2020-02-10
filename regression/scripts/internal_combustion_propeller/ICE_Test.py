@@ -47,13 +47,12 @@ def main():
     results = mission.evaluate() 
     
     # save results 
-    save_results(results)
+    #save_results(results)
     
     # plt the old results
     plot_mission(results,configs.base) 
     
-    # save, load and plot old results 
-    save_results(results)
+    # load and plot old results v
     old_results = load_results()
     plot_mission(old_results,configs.base) 
  
