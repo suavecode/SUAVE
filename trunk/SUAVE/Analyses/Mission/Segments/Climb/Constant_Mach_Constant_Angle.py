@@ -74,11 +74,11 @@ class Constant_Mach_Constant_Angle(Unknown_Throttle):
     
         # only need to change one setup step from constant_speed_constant_ate
         initialize = self.process.initialize
-        initialize.conditions = Methods.Climb.Constant_Mach_Constant_Angle.initialize_conditions_unpack_unknowns
+        initialize.conditions = Methods.Climb.Constant_Mach_Constant_Angle.initialize_conditions 
         
         # Unpack Unknowns
         iterate = self.process.iterate
-        iterate.unknowns.mission           = Methods.Climb.Constant_Mach_Constant_Angle.initialize_conditions_unpack_unknowns
+        iterate.unknowns.mission           = Methods.Climb.Constant_Mach_Constant_Angle.initialize_conditions 
     
         iterate.conditions.differentials   = Methods.Climb.Optimized.update_differentials
     

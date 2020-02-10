@@ -47,6 +47,7 @@ def initialize_conditions(segment):
     Tf         = segment.pitch_final 
     theta_dot  = segment.pitch_rate   
     conditions = segment.state.conditions 
+    state      = segment.state
     
     # check for initial altitude
     if alt is None:

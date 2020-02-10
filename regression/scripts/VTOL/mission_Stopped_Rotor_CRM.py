@@ -18,7 +18,7 @@ from copy import deepcopy
 sys.path.append('../Vehicles')
 # the analysis functions
  
-from Stopped_Rotor_CRM import sr_vehicle_setup 
+from Stopped_Rotor_CRM import vehicle_setup 
 
 
 # ----------------------------------------------------------------------
@@ -27,7 +27,7 @@ from Stopped_Rotor_CRM import sr_vehicle_setup
 def sr_full_setup():
     
     # vehicle data
-    vehicle  = sr_vehicle_setup() 
+    vehicle  = vehicle_setup() 
 
     # vehicle analyses
     analyses = sr_base_analysis(vehicle)
@@ -118,13 +118,12 @@ def sr_mission_setup(analyses,vehicle):
 
 
     # VSTALL Calculation
-    m     = vehicle.mass_properties.max_takeoff
-    g     = 9.81
-    S     = vehicle.reference_area
-    atmo  = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    rho   = atmo.compute_values(1000.*Units.feet,0.).density
-    CLmax = 1.2
-
+    m      = vehicle.mass_properties.max_takeoff
+    g      = 9.81
+    S      = vehicle.reference_area
+    atmo   = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    rho    = atmo.compute_values(1000.*Units.feet,0.).density
+    CLmax  = 1.2 
     Vstall = float(np.sqrt(2.*m*g/(rho*S*CLmax)))
 
     # ------------------------------------------------------------------
@@ -138,14 +137,16 @@ def sr_mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     segment     = Segments.Hover.Climb(base_segment)
     segment.tag = "climb_1"
-    segment.analyses.extend( analyses )                                                            
+    
+    segment.analyses.extend( analyses ) 
+    
     segment.altitude_start                                   = 0.0  * Units.ft
     segment.altitude_end                                     = 40.  * Units.ft
     segment.climb_rate                                       = 500. * Units['ft/min']
     segment.battery_energy                                   = vehicle.propulsors.propulsor.battery.max_energy*0.95
                                                              
-    segment.state.unknowns.propeller_power_coefficient_lift = 0.04 * ones_row(1)
-    segment.state.unknowns.throttle_lift                    = 0.85 * ones_row(1)
+    segment.state.unknowns.propeller_power_coefficient_lift  = 0.04 * ones_row(1)
+    segment.state.unknowns.throttle_lift                     = 0.85 * ones_row(1)
     segment.state.unknowns.__delitem__('throttle')
 
     segment.process.iterate.unknowns.network                 = vehicle.propulsors.propulsor.unpack_unknowns_no_forward
@@ -161,22 +162,22 @@ def sr_mission_setup(analyses,vehicle):
     #   First Cruise Segment: Transition
     # ------------------------------------------------------------------
 
-    segment = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
+    segment     = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
     segment.tag = "transition_1"
 
     segment.analyses.extend( analyses )
 
     segment.altitude        = 40.  * Units.ft
     segment.air_speed_start = 0.   * Units['ft/min']
-    segment.air_speed_end   = 1.2 * Vstall
+    segment.air_speed_end   = 0.8 * Vstall
     segment.acceleration    = 9.81/5
     segment.pitch_initial   = 0.0
     segment.pitch_final     = 5. * Units.degrees
 
-    segment.state.unknowns.propeller_power_coefficient_lift = 0.07 * ones_row(1)
-    segment.state.unknowns.throttle_lift                    = 0.70 * ones_row(1) 
-    segment.state.unknowns.propeller_power_coefficient      = 0.03 * ones_row(1)
-    segment.state.unknowns.throttle                         = .60  * ones_row(1)   
+    segment.state.unknowns.propeller_power_coefficient_lift = 0.04 * ones_row(1)
+    segment.state.unknowns.throttle_lift                    = 0.80 * ones_row(1) 
+    segment.state.unknowns.propeller_power_coefficient      = 0.06 * ones_row(1)
+    segment.state.unknowns.throttle                         = .70  * ones_row(1)   
     segment.state.residuals.network                         = 0.   * ones_row(3)    
 
     segment.process.iterate.unknowns.network                = vehicle.propulsors.propulsor.unpack_unknowns_transition
@@ -189,16 +190,48 @@ def sr_mission_setup(analyses,vehicle):
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------
+    #   First Cruise Segment: Transition
+    # ------------------------------------------------------------------
+
+    segment     = Segments.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb(base_segment)
+    segment.tag = "transition_2"
+
+    segment.analyses.extend( analyses )
+     
+    segment.altitude_start         = 40.0 * Units.ft
+    segment.altitude_end           = 50.0 * Units.ft
+    segment.air_speed              = 0.8 * Vstall
+    segment.climb_angle            = 1 * Units.degrees
+    segment.acceleration           = 1. * Units['m/s/s']    
+    segment.pitch_initial          = 8. * Units.degrees  
+    segment.pitch_final            = 7. * Units.degrees       
+    
+    segment.state.unknowns.propeller_power_coefficient_lift = 0.05 * ones_row(1)
+    segment.state.unknowns.throttle_lift                    = 0.70 * ones_row(1) 
+    segment.state.unknowns.propeller_power_coefficient      = 0.06 * ones_row(1)
+    segment.state.unknowns.throttle                         = .40  * ones_row(1)   
+    segment.state.residuals.network                         = 0.   * ones_row(3)    
+
+    segment.process.iterate.unknowns.network                = vehicle.propulsors.propulsor.unpack_unknowns_transition
+    segment.process.iterate.residuals.network               = vehicle.propulsors.propulsor.residuals_transition    
+    segment.process.iterate.unknowns.mission                = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability            = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability         = SUAVE.Methods.skip
+
+    # add to misison
+    mission.append_segment(segment)
+    
+    # ------------------------------------------------------------------
     #   Second Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment     = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_2"
 
     segment.analyses.extend( analyses )
 
-    segment.air_speed       = np.sqrt((500 * Units['ft/min'])**2 + (1.2*Vstall)**2)
-    segment.altitude_start  = 40.0 * Units.ft
+    segment.air_speed       = 56.7362 
+    segment.altitude_end           = 50.0 * Units.ft
     segment.altitude_end    = 300. * Units.ft
     segment.climb_rate      = 500. * Units['ft/min']
 
@@ -214,7 +247,7 @@ def sr_mission_setup(analyses,vehicle):
     #   Second Cruise Segment: Constant Speed, Constant Altitude
     # ------------------------------------------------------------------
 
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude_Loiter(base_segment)
+    segment     = Segments.Cruise.Constant_Speed_Constant_Altitude_Loiter(base_segment)
     segment.tag = "departure_terminal_procedures"
 
     segment.analyses.extend( analyses )
@@ -237,7 +270,7 @@ def sr_mission_setup(analyses,vehicle):
     #   Third Climb Segment: Constant Acceleration, Constant Rate
     # ------------------------------------------------------------------
 
-    segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
+    segment     = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
     segment.tag = "accelerated_climb"
 
     segment.analyses.extend( analyses )
@@ -262,7 +295,7 @@ def sr_mission_setup(analyses,vehicle):
     #   Third Cruise Segment: Constant Acceleration, Constant Altitude
     # ------------------------------------------------------------------
 
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    segment     = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise"
 
     segment.analyses.extend( analyses )
@@ -285,7 +318,7 @@ def sr_mission_setup(analyses,vehicle):
     #   First Descent Segment: Constant Acceleration, Constant Rate
     # ------------------------------------------------------------------
 
-    segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
+    segment     = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
     segment.tag = "decelerating_descent"
 
     segment.analyses.extend( analyses )  
@@ -308,7 +341,7 @@ def sr_mission_setup(analyses,vehicle):
     #   Fourth Cruise Segment: Constant Speed, Constant Altitude
     # ------------------------------------------------------------------
 
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude_Loiter(base_segment)
+    segment     = Segments.Cruise.Constant_Speed_Constant_Altitude_Loiter(base_segment)
     segment.tag = "arrival_terminal_procedures"
 
     segment.analyses.extend( analyses )
@@ -330,7 +363,7 @@ def sr_mission_setup(analyses,vehicle):
     #   Second Descent Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
 
-    segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
+    segment     = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_2"
 
     segment.analyses.extend( analyses )
@@ -354,8 +387,8 @@ def sr_mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     #   Fifth Cuise Segment: Transition
     # ------------------------------------------------------------------ 
-    segment = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
-    segment.tag = "transition_2"
+    segment     = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
+    segment.tag = "transition_3"
 
     segment.analyses.extend( analyses )
 
@@ -366,7 +399,6 @@ def sr_mission_setup(analyses,vehicle):
     segment.pitch_initial   = 5. * Units.degrees   
     segment.pitch_final     = 10. * Units.degrees      
     
-
     segment.state.unknowns.propeller_power_coefficient_lift = 0.04 * ones_row(1)
     segment.state.unknowns.throttle_lift                    = 0.60 * ones_row(1) 
     segment.state.unknowns.propeller_power_coefficient      = 0.05 * ones_row(1)
@@ -392,18 +424,17 @@ def sr_mission_setup(analyses,vehicle):
 
     segment.altitude_start  = 40.0  * Units.ft
     segment.altitude_end    = 0.   * Units.ft
-    segment.descent_rate    = 300. * Units['ft/min']
-    segment.battery_energy  = vehicle.propulsors.propulsor.battery.max_energy
-
-    segment.state.unknowns.propeller_power_coefficient_lift = 0.03* ones_row(1)
+    segment.descent_rate    = 100. * Units['ft/min']
+    
+    segment.state.unknowns.propeller_power_coefficient_lift = 0.04* ones_row(1)
     segment.state.unknowns.throttle_lift                    = 0.9 * ones_row(1)
-
+  
     segment.state.unknowns.__delitem__('throttle')
-    segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_no_forward
-    segment.process.iterate.residuals.network = vehicle.propulsors.propulsor.residuals_no_forward    
-    segment.process.iterate.unknowns.mission  = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability   = SUAVE.Methods.skip
+    segment.process.iterate.unknowns.network        = vehicle.propulsors.propulsor.unpack_unknowns_no_forward
+    segment.process.iterate.residuals.network       = vehicle.propulsors.propulsor.residuals_no_forward    
+    segment.process.iterate.unknowns.mission        = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability = SUAVE.Methods.skip
 
     # add to misison
     mission.append_segment(segment)       
@@ -531,18 +562,18 @@ def sr_plot_mission(results,vec_configs):
     fig.set_size_inches(16, 8)
     for i in range(len(results.segments)):          
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        prop_rpm    = results.segments[i].conditions.propulsion.rpm_forward [:,0] 
-        prop_thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
-        prop_torque = results.segments[i].conditions.propulsion.motor_torque_forward[:,0]
-        prop_effp   = results.segments[i].conditions.propulsion.propeller_efficiency_forward[:,0]
-        prop_effm   = results.segments[i].conditions.propulsion.motor_efficiency_forward[:,0]
-        prop_Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
+        prop_rpm     = results.segments[i].conditions.propulsion.rpm_forward [:,0] 
+        prop_thrust  = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
+        prop_torque  = results.segments[i].conditions.propulsion.motor_torque_forward[:,0]
+        prop_effp    = results.segments[i].conditions.propulsion.propeller_efficiency_forward[:,0]
+        prop_effm    = results.segments[i].conditions.propulsion.motor_efficiency_forward[:,0]
+        prop_Cp      = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
         rotor_rpm    = results.segments[i].conditions.propulsion.rpm_lift[:,0] 
         rotor_thrust = -results.segments[i].conditions.frames.body.thrust_force_vector[:,2]
         rotor_torque = results.segments[i].conditions.propulsion.motor_torque_lift
         rotor_effp   = results.segments[i].conditions.propulsion.propeller_efficiency_lift[:,0]
         rotor_effm   = results.segments[i].conditions.propulsion.motor_efficiency_lift[:,0] 
-        rotor_Cp = results.segments[i].conditions.propulsion.propeller_power_coefficient_lift[:,0]        
+        rotor_Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient_lift[:,0]        
     
         axes = fig.add_subplot(2,3,1)
         axes.plot(time, prop_rpm, 'bo-')

@@ -30,6 +30,6 @@ def hts_motor(max_power):
            N/A
     """   
 
-    weight = (1./2.2)*2.28*((max_power/1000.)**.6616)  #weight in kg
+    mass = (1./2.2)*2.28*((max_power/1000.)**.6616)  # mass in kg
     
-    return weight
+    return mass

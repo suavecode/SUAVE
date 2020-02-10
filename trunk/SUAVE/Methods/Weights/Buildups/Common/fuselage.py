@@ -68,7 +68,7 @@ def fuselage(config,
     fLength = config.fuselages.fuselage.lengths.total
     fWidth  = config.fuselages.fuselage.width
     fHeight = config.fuselages.fuselage.heights.maximum
-    maxSpan = config.wings["main_wing"].spans.projected
+    maxSpan = config.wings['main_wing'].spans.projected
     MTOW    = config.mass_properties.max_takeoff
     G_max   = maximum_g_load
     LIF     = landing_impact_factor

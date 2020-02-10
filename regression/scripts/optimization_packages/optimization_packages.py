@@ -11,6 +11,7 @@ import vehicle_opt_pack
 import procedure_opt_pack 
 from SUAVE.Optimization import Nexus, carpet_plot 
 import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
+import SUAVE.Optimization.write_optimization_outputs as write_optimization_outputs
 # ----------------------------------------------------------------------        
 #   Run the whole thing
 # ----------------------------------------------------------------------  
@@ -36,8 +37,12 @@ def main():
     #   Check Results 
     assert( np.isclose(obj,  1, atol=1e-6) )
     assert( np.isclose(x1 ,  0, atol=1e-2) )
-    assert( np.isclose(x2 ,  1, atol=1e-2) )     
- 
+    assert( np.isclose(x2 ,  1, atol=1e-2))    
+    
+    # test writing output function 
+    filename = 'optimization_output.txt'
+    write_optimization_outputs(problem,filename)  
+    
     # ------------------------------------------------------------------
     #   Differential Evolution 
     # ------------------------------------------------------------------  
@@ -76,9 +81,8 @@ def main():
     assert( np.isclose(obj,  1, atol=1e-2) )
     assert( np.isclose(x1 ,  0, atol=1e-1) )
     assert( np.isclose(x2 ,  1, atol=1e-1) )     
- 
-      
     
+     
     return
 
 # ----------------------------------------------------------------------        

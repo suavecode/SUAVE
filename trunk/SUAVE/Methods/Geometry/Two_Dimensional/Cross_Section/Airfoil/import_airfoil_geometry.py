@@ -59,7 +59,6 @@ def  import_airfoil_geometry(airfoil_geometry_files):
         x_lo_surf = []
         y_lo_surf = []
         
-        
         # Loop through each value: append to each column
         upper_surface_flag = True
         for line_count , line in enumerate(data_block): 

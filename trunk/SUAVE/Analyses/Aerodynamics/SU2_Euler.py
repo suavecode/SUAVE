@@ -19,9 +19,6 @@ from SUAVE.Input_Output.OpenVSP.write_vsp_mesh import write_vsp_mesh
 from SUAVE.Input_Output.GMSH.write_geo_file import write_geo_file
 from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file
 
-# Default aero Results
-from .Results import Results
-
 # The aero methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 from .Process_Geometry import Process_Geometry

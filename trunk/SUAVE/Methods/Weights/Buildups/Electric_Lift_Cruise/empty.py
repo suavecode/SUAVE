@@ -139,8 +139,7 @@ def empty(config,
     
     
     for w in config.wings:
-        wing_tag = w.tag
-        #print('wing_tag =', wing_tag)
+        wing_tag = w.tag 
         if (wing_tag.find('main_wing') != -1):
             wing_weight = wing(config.wings[w.tag],
                                config, 

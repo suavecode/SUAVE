@@ -14,9 +14,6 @@ from .Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
 
-# Default aero Results
-from .Results import Results
-
 # The aero methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 from .Process_Geometry import Process_Geometry

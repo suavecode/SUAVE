@@ -264,8 +264,8 @@ class Lift_Cruise(Propulsor):
         a                    = conditions.freestream.speed_of_sound
         R_lift               = propeller_lift.tip_radius
         R_forward            = propeller_forward.tip_radius
-        rpm_lift             = motor_lift.outputs.omega*60./(2.*np.pi)
-        rpm_forward          = motor_forward.outputs.omega*60./(2.*np.pi)        
+        rpm_lift             = motor_lift.outputs.omega / Units.rpm
+        rpm_forward          = motor_forward.outputs.omega / Units.rpm 
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy 
         voltage_open_circuit = battery.voltage_open_circuit
@@ -304,7 +304,7 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.propeller_torque_forward          = Q_forward       
         conditions.propulsion.propeller_efficiency_forward      = etap_forward 
         conditions.propulsion.current                           = i_lift + i_forward 
-        conditions.propulsion.battery_specfic_power             = -(battery_draw/1000)/battery.mass_properties.mass    # kW/kg
+        conditions.propulsion.battery_specfic_power             = -(battery_draw/1000)/battery.mass_properties.mass    # kWh/kg
         conditions.propulsion.electronics_efficiency            = -(P_forward*num_forward+P_lift*num_lift)/battery_draw  
         conditions.propulsion.battery_current                   = current_total
         
@@ -313,13 +313,13 @@ class Lift_Cruise(Propulsor):
         F_forward_total = F_forward*num_forward * [np.cos(self.thrust_angle_forward),0,-np.sin(self.thrust_angle_forward)] 
 
 
-        F_lift_mag = np.atleast_2d(np.linalg.norm(F_lift_total, axis=1)*0.224809 ) # lb 
-        F_forward_mag =  np.atleast_2d(np.linalg.norm(F_forward_total, axis=1)*0.224809) # lb   
+        F_lift_mag = np.atleast_2d(np.linalg.norm(F_lift_total, axis=1)/Units.lbs ) # lb 
+        F_forward_mag =  np.atleast_2d(np.linalg.norm(F_forward_total, axis=1)/Units.lbs) # lb   
         
-        conditions.propulsion.disc_loading_lift                 = (F_lift_mag.T)/(self.number_of_engines_lift*np.pi*(R_lift *3.28084)**2) # lb/ft^2      
-        conditions.propulsion.disc_loading_forward              = (F_forward_mag.T)/(self.number_of_engines_forward*np.pi*(R_forward*3.28084)**2) # lb/ft^2       
+        conditions.propulsion.disc_loading_lift                 = (F_lift_mag.T)/(self.number_of_engines_lift*np.pi*(R_lift /Units.feet)**2) # lb/ft^2      
+        conditions.propulsion.disc_loading_forward              = (F_forward_mag.T)/(self.number_of_engines_forward*np.pi*(R_forward/Units.feet)**2) # lb/ft^2       
         conditions.propulsion.power_loading_lift                = (F_lift_mag.T)/(battery_draw*0.00134102)           # lb/hp         
-        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw*0.00134102)           # lb/hp 
+        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw*0.00134102)        # lb/hp 
         
         F_total = F_lift_total + F_forward_total
         mdot    = np.zeros_like(F_total)

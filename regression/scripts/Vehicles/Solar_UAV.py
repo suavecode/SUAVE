@@ -16,7 +16,7 @@ import time
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-
+from SUAVE.Methods.Weights.Correlations.UAV.empty import empty
 # ----------------------------------------------------------------------
 #   Build the Vehicle
 # ----------------------------------------------------------------------
@@ -185,7 +185,6 @@ def vehicle_setup():
     prop.hub_radius          = 0.05 * Units.meters
     prop.design_Cl           = 0.7
     prop.design_altitude     = 14.0 * Units.km
-    prop.design_thrust       = 0.0 
     prop.design_power        = 3500.0 * Units.watts
     prop                     = propeller_design(prop) 
     net.propeller            = prop
@@ -231,6 +230,9 @@ def vehicle_setup():
     # add the solar network to the vehicle
     vehicle.append_component(net)  
 
+    # define weights analysis
+    vehicle.weight_breakdown = empty(vehicle)
+    
     return vehicle
 
 # ----------------------------------------------------------------------

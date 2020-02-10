@@ -68,6 +68,6 @@ def  import_airfoil_polars(airfoil_polar_files):
     airfoil_data.CL  = CL 
     airfoil_data.CD  = CD 
        
-    return 
+    return airfoil_data
 
 

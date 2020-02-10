@@ -176,11 +176,9 @@ class Vectored_Thrust(Propulsor):
         battery.energy_calc(numerics)        
         
         # Pack the conditions for outputs
-        rpm                  = motor.outputs.omega*60./(2.*np.pi)
+        rpm                  = motor.outputs.omega / Units.rpm
         a                    = conditions.freestream.speed_of_sound
-        R                    = propeller.tip_radius      
-        
-        rpm                  = motor.outputs.omega*60./(2.*np.pi)
+        R                    = propeller.tip_radius       
         current              = esc.outputs.currentin
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
@@ -212,8 +210,8 @@ class Vectored_Thrust(Propulsor):
         # Compute force vector       
         F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
         
-        F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1)*2.20462)  # lb   
-        conditions.propulsion.disc_loading                       = (F_mag.T)/(num_engines*np.pi*(R*3.28084)**2) # lb/ft^2       
+        F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1)/Units.lbs)  # lb   
+        conditions.propulsion.disc_loading                       = (F_mag.T)/(num_engines*np.pi*(R/Units.feet)**2) # lb/ft^2       
         conditions.propulsion.power_loading                      = (F_mag.T)/(battery_draw*0.00134102)           # lb/hp 
         
         mdot = np.zeros_like(F_vec)
@@ -223,35 +221,6 @@ class Vectored_Thrust(Propulsor):
         results.vehicle_mass_rate   = mdot   
         
         return results
-          
-    def unpack_unknowns_hover(self,segment):
-        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
-    
-            Assumptions:
-            None
-    
-            Source:
-            N/A
-    
-            Inputs:
-            state.unknowns.propeller_power_coefficient [None]
-            state.unknowns.battery_voltage_under_load  [volts]
-    
-            Outputs:
-            state.conditions.propulsion.propeller_power_coefficient [None]
-            state.conditions.propulsion.battery_voltage_under_load  [volts]
-    
-            Properties Used:
-            N/A
-        """                  
-        ones = segment.state.ones_row
-       
-        # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle  
- 
-        return
       
     def unpack_unknowns(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
@@ -316,10 +285,7 @@ class Vectored_Thrust(Propulsor):
         
         # Return the residuals
         segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]
-        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max
-        
-        #print (segment.state.residuals.network[:,0])
-        #print (segment.state.residuals.network[:,1])
+        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max 
         
         return    
             

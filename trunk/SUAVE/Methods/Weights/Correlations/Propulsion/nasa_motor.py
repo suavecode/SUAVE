@@ -31,12 +31,12 @@ def nasa_motor(torque, kwt2=.3928, xwt=.8587):
             xwt
             
     Outputs:
-            weight- weight of the motor                                [kilograms]
+            mass- mass of the motor                                [kilograms]
         
     Properties Used:
             N/A
     """   
     trq  = torque/(Units.ft*Units.lbf)
-    weight = kwt2*(trq**xwt) * Units.pounds #weight in lbs.
-    
-    return weight
+    mass = kwt2*(trq**xwt) * Units.pounds # mass in kg
+     
+    return mass 

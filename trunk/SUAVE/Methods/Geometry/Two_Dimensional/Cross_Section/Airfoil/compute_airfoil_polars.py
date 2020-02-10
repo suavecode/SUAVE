@@ -12,8 +12,11 @@ from .import_airfoil_polars   import import_airfoil_polars
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_airfoil_polars(propeller,airfoils):
-    """This omputes models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils.
+def compute_airfoil_polars(propeller,a_geo,a_polar):
+    """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
+    characterstics and AERODAS formation for post stall characteristics. This is useful for 
+    obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
+    are obtained in the from of a text file of airfoil polar data obtained from airfoiltools.com
     
     Assumptions:
     Uses AERODAS forumatuon for post stall characteristics 
@@ -40,7 +43,7 @@ def compute_airfoil_polars(propeller,airfoils):
     N/A
     """  
     
-    num_airfoils = len(airfoils)
+    num_airfoils = len(a_polar)
     # unpack 
     Rh = propeller.hub_radius
     Rt = propeller.tip_radius
@@ -48,19 +51,19 @@ def compute_airfoil_polars(propeller,airfoils):
     cm = propeller.chord_distribution[round(n*0.5)] 
 
     # read airfoil geometry  
-    airfoil_data = import_airfoil_geometry(airfoils)
+    airfoil_data = import_airfoil_geometry(a_geo)
 
     AR = 2*(Rt - Rh)/cm
 
     # Get all of the coefficients for AERODAS wings
-    AoA_sweep = np.linspace(-10,90,101)
+    AoA_sweep = np.linspace(-20,90,111)
     CL = np.zeros((num_airfoils,len(AoA_sweep)))
     CD = np.zeros((num_airfoils,len(AoA_sweep)))
 
     # AERODAS
     for i in range(num_airfoils):           
         # read airfoil polars 
-        airfoil_polar_data =  import_airfoil_polars(airfoils)
+        airfoil_polar_data =  import_airfoil_polars(a_polar)
         airfoil_cl  = airfoil_polar_data.CL[i]
         airfoil_cd  = airfoil_polar_data.CD[i]
         airfoil_aoa = airfoil_polar_data.AoA[i]
@@ -188,8 +191,8 @@ def compute_airfoil_polars(propeller,airfoils):
                     CD[i,j]  = CD1max + (CD2max - CD1max) * np.sin(((alphan-ACD1)/(90.-ACD1))*Units.degrees)     
 
 
-    airfoil_data.cl_polars = CL
-    airfoil_data.cd_polars = CD
-    airfoil_data.aoa_sweep = AoA_sweep
+    airfoil_data.CL        = CL
+    airfoil_data.CD        = CD
+    airfoil_data.AoA_sweep = AoA_sweep*Units.degrees 
 
     return airfoil_data   

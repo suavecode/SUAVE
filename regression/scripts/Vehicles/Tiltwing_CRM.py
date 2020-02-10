@@ -22,31 +22,31 @@ from copy import deepcopy
 
 
 
-def tw_vehicle_setup():
+def vehicle_setup():
     
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
     # ------------------------------------------------------------------    
     
     #vehicle = SUAVE.Vehicle(SUAVE.Input_Output.SUAVE.load('cora_vehicle.res'))
-    vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Vahana'
+    vehicle               = SUAVE.Vehicle()
+    vehicle.tag           = 'Vahana'
     vehicle.configuration = 'eVTOL'
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
     # mass properties
-    vehicle.mass_properties.takeoff         = 2250. * Units.lb 
-    vehicle.mass_properties.operating_empty = 2250. * Units.lb
-    vehicle.mass_properties.max_takeoff     = 2250. * Units.lb
+    vehicle.mass_properties.takeoff           = 2250. * Units.lb 
+    vehicle.mass_properties.operating_empty   = 2250. * Units.lb
+    vehicle.mass_properties.max_takeoff       = 2250. * Units.lb
     vehicle.mass_properties.center_of_gravity = [ 2.0144,   0.  ,  0.]
     
      
     # This needs updating
     # basic parameters
-    vehicle.reference_area                    = 10.58275476  
-    vehicle.envelope.ultimate_load            = 5.7
-    vehicle.envelope.limit_load               = 3.    
+    vehicle.reference_area         = 10.58275476  
+    vehicle.envelope.ultimate_load = 5.7
+    vehicle.envelope.limit_load    = 3.    
   
     
     
@@ -54,60 +54,60 @@ def tw_vehicle_setup():
     # WINGS				
     # ------------------------------------------------------				
     # WING PROPERTIES	
-    wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag	                = 'main_wing'		
-    wing.aspect_ratio	        = 11.37706641		
-    wing.sweeps.quarter_chord	= 0.0
-    wing.thickness_to_chord	= 0.18		
-    wing.taper	                = 1.		
-    wing.span_efficiency	= 0.9		
-    wing.spans.projected	= 6.65	
-    wing.chords.root	        = 0.95	
-    wing.total_length	        = 0.95			
-    wing.chords.tip	        = 0.95	
-    wing.chords.mean_aerodynamic= 0.95			
-    wing.dihedral	        = 0.0		
-    wing.areas.reference	= 6.31		
-    wing.areas.wetted	        = 12.635		
-    wing.areas.exposed	        = 12.635		
-    wing.twists.root	        = 0.		
-    wing.twists.tip	        = 0.		
-    wing.origin	                = [0.0,  0.0 , 0.0]
-    wing.aerodynamic_center	= [0., 0., 0.]		   
-    wing.winglet_fraction       = 0.0  
-    wing.symmetric              = True
+    wing                         = SUAVE.Components.Wings.Main_Wing()
+    wing.tag	                 = 'main_wing'		
+    wing.aspect_ratio	         = 11.37706641		
+    wing.sweeps.quarter_chord	 = 0.0
+    wing.thickness_to_chord	 = 0.18		
+    wing.taper	                 = 1.		
+    wing.span_efficiency	 = 0.9		
+    wing.spans.projected	 = 6.65	
+    wing.chords.root	         = 0.95	
+    wing.total_length	         = 0.95			
+    wing.chords.tip	         = 0.95	
+    wing.chords.mean_aerodynamic = 0.95			
+    wing.dihedral	         = 0.0		
+    wing.areas.reference	 = 6.31		
+    wing.areas.wetted	         = 12.635		
+    wing.areas.exposed	         = 12.635		
+    wing.twists.root	         = 0.		
+    wing.twists.tip	         = 0.		
+    wing.origin	                 = [0.0,  0.0 , 0.0]
+    wing.aerodynamic_center	 = [0., 0., 0.]		   
+    wing.winglet_fraction        = 0.0  
+    wing.symmetric               = True
     
     # Segment 	
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag			= 'Section_1'		
-    segment.origin		= [0., 0. , 0.]	
+    segment                       = SUAVE.Components.Wings.Segment()
+    segment.tag			  = 'Section_1'		
+    segment.origin		  = [0., 0. , 0.]	
     segment.percent_span_location =	0.		
-    segment.twist		= 0.		
-    segment.root_chord_percent	= 1.		
-    segment.dihedral_outboard	= 0.	
-    segment.sweeps.quarter_chord= 0.	
-    segment.thickness_to_chord	= 0.18		
+    segment.twist		  = 0.		
+    segment.root_chord_percent	  = 1.		
+    segment.dihedral_outboard	  = 0.	
+    segment.sweeps.quarter_chord  = 0.	
+    segment.thickness_to_chord	  = 0.18		
     wing.Segments.append(segment)
     
    
     # Segment 	
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag			= 'Section_2'		
-    segment.origin		= [0. , 0.,  0.]		
+    segment                       = SUAVE.Components.Wings.Segment()
+    segment.tag			  = 'Section_2'		
+    segment.origin		  = [0. , 0.,  0.]		
     segment.percent_span_location = 1.	
-    segment.twist		= 0.		
-    segment.root_chord_percent	= 1.	
-    segment.dihedral_outboard	= 0.
-    segment.sweeps.quarter_chord= 0.	
-    segment.thickness_to_chord	= 0.18			
+    segment.twist		  = 0.		
+    segment.root_chord_percent	  = 1.	
+    segment.dihedral_outboard	  = 0.
+    segment.sweeps.quarter_chord  = 0.	
+    segment.thickness_to_chord	  = 0.18			
     wing.Segments.append(segment) 
     
     # add to vehicle
     vehicle.append_component(wing)       
 
     # WING PROPERTIES	
-    wing = SUAVE.Components.Wings.Main_Wing()
-    wing.tag	        = 'main_wing_2'		
+    wing                        = SUAVE.Components.Wings.Main_Wing()
+    wing.tag	                = 'main_wing_2'		
     wing.aspect_ratio	        = 11.37706641		
     wing.sweeps.quarter_chord	= 0.0
     wing.thickness_to_chord	= 0.18		
@@ -130,28 +130,28 @@ def tw_vehicle_setup():
     wing.symmetric              = True
     
     # Segment 	
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag			= 'Section_1'		
-    segment.origin		= [0., 0. , 0.]	
-    segment.percent_span_location =	0.		
-    segment.twist		= 0.		
-    segment.root_chord_percent	= 1.		
-    segment.dihedral_outboard	= 0.	
-    segment.sweeps.quarter_chord= 0.	
-    segment.thickness_to_chord	= 0.18		
+    segment                       = SUAVE.Components.Wings.Segment()
+    segment.tag			  = 'Section_1'		
+    segment.origin		  = [0., 0. , 0.]	
+    segment.percent_span_location = 0.		
+    segment.twist		  = 0.		
+    segment.root_chord_percent	  = 1.		
+    segment.dihedral_outboard	  = 0.	
+    segment.sweeps.quarter_chord  = 0.	
+    segment.thickness_to_chord	  = 0.18		
     wing.Segments.append(segment)
     
    
     # Segment 	
-    segment = SUAVE.Components.Wings.Segment()
-    segment.tag			= 'Section_2'		
-    segment.origin		= [0. , 0.,  0.]		
+    segment                       = SUAVE.Components.Wings.Segment()
+    segment.tag			  = 'Section_2'		
+    segment.origin		  = [0. , 0.,  0.]		
     segment.percent_span_location = 1.	
-    segment.twist		= 0.		
-    segment.root_chord_percent	= 1.	
-    segment.dihedral_outboard	= 0.
-    segment.sweeps.quarter_chord= 0.	
-    segment.thickness_to_chord	= 0.18			
+    segment.twist		  = 0.		
+    segment.root_chord_percent	  = 1.	
+    segment.dihedral_outboard	  = 0.
+    segment.sweeps.quarter_chord  = 0.	
+    segment.thickness_to_chord	  = 0.18			
     wing.Segments.append(segment) 
     
     # add to vehicle 
@@ -160,31 +160,31 @@ def tw_vehicle_setup():
     # ------------------------------------------------------				
     # FUSELAGE				
     # ------------------------------------------------------				
-    # FUSELAGE PROPERTIES
-    fuselage = SUAVE.Components.Fuselages.Fuselage()
-    fuselage.tag                = 'fuselage'
-    fuselage.configuration	= 'Tube_Wing'		
-    fuselage.origin	        = [0. , 0.,  0.]	
-    fuselage.seats_abreast	= 0.		
-    fuselage.seat_pitch  	= 1.		
-    fuselage.fineness.nose	= 1.5	
-    fuselage.fineness.tail	= 4.0	
-    fuselage.lengths.nose	= 1.7  	
-    fuselage.lengths.tail	= 2.7	
-    fuselage.lengths.cabin	= 1.7		
-    fuselage.lengths.total	= 6.1		
-    fuselage.width	        = 1.15 	
-    fuselage.heights.maximum	=  1.7	
+    # FUSELAGE PROPERTIES                       
+    fuselage                                    = SUAVE.Components.Fuselages.Fuselage()
+    fuselage.tag                                = 'fuselage'
+    fuselage.configuration	                = 'Tube_Wing'		
+    fuselage.origin	                        = [0. , 0.,  0.]	
+    fuselage.seats_abreast	                = 0.		
+    fuselage.seat_pitch  	                = 1.		
+    fuselage.fineness.nose	                = 1.5	
+    fuselage.fineness.tail	                = 4.0	
+    fuselage.lengths.nose	                = 1.7  	
+    fuselage.lengths.tail	                = 2.7	
+    fuselage.lengths.cabin	                = 1.7		
+    fuselage.lengths.total	                = 6.1		
+    fuselage.width	                        = 1.15 	
+    fuselage.heights.maximum	                =  1.7	
     fuselage.heights.at_quarter_length	        = 1.2		
     fuselage.heights.at_wing_root_quarter_chord	= 1.7		
     fuselage.heights.at_three_quarters_length	= 0.75	
-    fuselage.areas.wetted	        = 12.97989862		
-    fuselage.areas.front_projected	= 1.365211404		
-    fuselage.effective_diameter 	= 1.318423736		
-    fuselage.differential_pressure	= 0.		
+    fuselage.areas.wetted	                = 12.97989862		
+    fuselage.areas.front_projected	        = 1.365211404		
+    fuselage.effective_diameter 	        = 1.318423736		
+    fuselage.differential_pressure	        = 0.		
     
     # Segment 	
-    segment = SUAVE.Components.Fuselages.Segment() 
+    segment                     = SUAVE.Components.Fuselages.Segment() 
     segment.tag			= 'segment_1'		
     segment.origin	        = [0., 0. ,0.]		
     segment.percent_x_location	= 0.		
@@ -196,7 +196,7 @@ def tw_vehicle_setup():
     fuselage.Segments.append(segment)  
                           
     # Segment 
-    segment = SUAVE.Components.Fuselages.Segment()
+    segment                     = SUAVE.Components.Fuselages.Segment()
     segment.tag			= 'segment_2'		
     segment.origin		= [0., 0. ,0.]		
     segment.percent_x_location	= 0.275	
@@ -206,7 +206,7 @@ def tw_vehicle_setup():
     fuselage.Segments.append(segment)  
                           
     # Segment 
-    segment = SUAVE.Components.Fuselages.Segment()
+    segment                     = SUAVE.Components.Fuselages.Segment()
     segment.tag			=' segment_3'		
     segment.origin		= [0., 0. ,0.]		
     segment.percent_x_location	= 0.768	
@@ -216,7 +216,7 @@ def tw_vehicle_setup():
     fuselage.Segments.append(segment)  
                           
     # Segment 	
-    segment = SUAVE.Components.Fuselages.Segment()
+    segment                     = SUAVE.Components.Fuselages.Segment()
     segment.tag			= 'segment_4'		
     segment.origin		= [0., 0. ,0.]		
     segment.percent_x_location	= 0.25*6.2	
@@ -226,7 +226,7 @@ def tw_vehicle_setup():
     fuselage.Segments.append(segment)  
                           
     # Segment
-    segment = SUAVE.Components.Fuselages.Segment()
+    segment                     = SUAVE.Components.Fuselages.Segment()
     segment.tag			= 'segment_5'		
     segment.origin		= [0., 0. ,0.]		
     segment.percent_x_location	= 0.5*6.2		
@@ -238,7 +238,7 @@ def tw_vehicle_setup():
     
     
     # Segment 	
-    segment = SUAVE.Components.Fuselages.Segment()
+    segment                     = SUAVE.Components.Fuselages.Segment()
     segment.tag			= 'segment_6'		
     segment.origin		= [0., 0. ,0.]		
     segment.percent_x_location	= 0.75 	
@@ -248,7 +248,7 @@ def tw_vehicle_setup():
     fuselage.Segments.append(segment)  
                           
     # Segment
-    segment = SUAVE.Components.Fuselages.Segment()
+    segment                     = SUAVE.Components.Fuselages.Segment()
     segment.tag			= 'segment_7'		
     segment.origin		= [0., 0. ,0.]		
     segment.percent_x_location	= 1.*6.2		
@@ -264,7 +264,7 @@ def tw_vehicle_setup():
     #------------------------------------------------------------------
     # PROPULSOR
     #------------------------------------------------------------------
-    net = Vectored_Thrust()    
+    net                   = Vectored_Thrust()    
     net.number_of_engines = 8
     net.thrust_angle      = 90.0 * Units.degrees #  conversion to radians, 
     net.nacelle_diameter  = 0.2921  # https://www.magicall.biz/products/integrated-motor-controller-magidrive/
@@ -310,33 +310,18 @@ def tw_vehicle_setup():
 
     #------------------------------------------------------------------
     # Design Rotors and Propellers
-    #------------------------------------------------------------------
+    #------------------------------------------------------------------ 
     # atmosphere conditions 
-    speed_of_sound                   = 340
-    rho                              = 1.22 
-    rad_per_sec_to_rpm               = 9.549
-    
-    fligth_CL = 0.75
-    AR        = vehicle.wings.main_wing.aspect_ratio
-    Cd0       = 0.06
-    Cdi       = fligth_CL**2/(np.pi*AR*0.98)
-    Cd        = Cd0 + Cdi 
-    
-    # ----------------------------------------------------------
-    # PROPULSOR   
-    # ----------------------------------------------------------
-    # atmosphere conditions 
-    speed_of_sound                   = 340
-    rho                              = 1.22 
-    rad_per_sec_to_rpm               = 9.549
-    fligth_CL = 0.75
-    AR        = vehicle.wings.main_wing.aspect_ratio
-    Cd0       = 0.06
-    Cdi       = fligth_CL**2/(np.pi*AR*0.98)
-    Cd        = Cd0 + Cdi   
+    speed_of_sound = 340
+    rho            = 1.22 
+    fligth_CL      = 0.75
+    AR             = vehicle.wings.main_wing.aspect_ratio
+    Cd0            = 0.06
+    Cdi            = fligth_CL**2/(np.pi*AR*0.98)
+    Cd             = Cd0 + Cdi   
     
     # Create propeller geometry
-    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop                        = SUAVE.Components.Energy.Converters.Propeller()
     prop.tag                    = 'Vectored_Thrust_Propeller'    
     prop.y_pitch                = 1.850
     prop.tip_radius             = 0.8875  
@@ -345,13 +330,12 @@ def tw_vehicle_setup():
     prop.design_tip_mach        = 0.5
     prop.number_blades          = 3  
     prop.freestream_velocity    = 85. * Units['ft/min'] # 110 mph         
-    prop.angular_velocity       = prop.design_tip_mach* speed_of_sound* rad_per_sec_to_rpm /prop.tip_radius  * Units['rpm']      
+    prop.angular_velocity       = prop.design_tip_mach*speed_of_sound/prop.tip_radius      
     prop.design_Cl              = 0.7
     prop.design_altitude        = 500 * Units.feet                  
     Lift                        = vehicle.mass_properties.takeoff*9.81  
     prop.design_thrust          = (Lift * 1.5 )/net.number_of_engines 
-    prop.induced_hover_velocity = np.sqrt(Lift/(2*rho*prop.disc_area*net.number_of_engines))  
-    prop.design_power           = 0.0                         
+    prop.induced_hover_velocity = np.sqrt(Lift/(2*rho*prop.disc_area*net.number_of_engines))                     
     prop                        = propeller_design(prop)  
      
     # Front Propellers Locations
@@ -379,7 +363,7 @@ def tw_vehicle_setup():
             prop_front.origin.append(proppeller_origin) 
       
     # Rear Propellers Locations 
-    prop_rear = Data()
+    prop_rear                     = Data()
     prop_rear.origin              =  [[0.0 , 1.347 ,1.24 ]]  
     prop_rear.symmetric           = True
     prop_rear.x_pitch_count       = 1
@@ -454,7 +438,7 @@ def tw_vehicle_setup():
     total_excrescence_area_no_spin = total_excrescence_area_spin + 12*propeller_height*propeller_width 
     
     vehicle.excrescence_area_no_spin = total_excrescence_area_no_spin 
-    vehicle.excrescence_area_spin = total_excrescence_area_spin     
+    vehicle.excrescence_area_spin    = total_excrescence_area_spin     
     
     
     # append motor origin spanwise locations onto wing data structure 
@@ -472,7 +456,7 @@ def tw_vehicle_setup():
 #   Define the Configurations
 # ---------------------------------------------------------------------
 
-def tw_configs_setup(vehicle):
+def configs_setup(vehicle):
     '''
     The configration set up below the scheduling of the nacelle angle and vehicle speed.
     Since one propeller operates at varying flight conditions, one must perscribe  the 
@@ -485,24 +469,24 @@ def tw_configs_setup(vehicle):
 
     configs = SUAVE.Components.Configs.Config.Container()
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config     = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
     
     # ------------------------------------------------------------------
     #   Hover Configuration
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'hover'
+    config                                    = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                = 'hover'
     config.propulsors.propulsor.thrust_angle  = 90.0 * Units.degrees
-    config.propulsors.propulsor.pitch_command = -5.  * Units.degrees    
+    config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
     configs.append(config)
     
     # ------------------------------------------------------------------
     #   Hover Climb Configuration
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'hover_climb'
+    config                                    = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                = 'hover_climb'
     config.propulsors.propulsor.thrust_angle  = 90.0 * Units.degrees
     config.propulsors.propulsor.pitch_command = -5.  * Units.degrees    
     configs.append(config)
@@ -510,8 +494,8 @@ def tw_configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Cruise Configuration
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'cruise'
+    config                                       = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                   = 'cruise'
     config.propulsors.propulsor.thrust_angle     =  0. * Units.degrees
     config.propulsors.propulsor.pitch_command    = 5.  * Units.degrees  
     configs.append(config)  
@@ -519,8 +503,8 @@ def tw_configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Hover Configuration
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'hover_descent'
+    config                                    = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                = 'hover_descent'
     config.propulsors.propulsor.thrust_angle  = 90.0 * Units.degrees
     config.propulsors.propulsor.pitch_command = -5.  * Units.degrees    
     configs.append(config)

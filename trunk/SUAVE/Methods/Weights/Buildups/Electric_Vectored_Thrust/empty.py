@@ -88,17 +88,16 @@ def empty(config,
     tipMach             = max_tip_mach
     k                   = disk_area_factor
     ToverW              = max_thrust_to_weight_ratio
-    etaMotor            = motor_efficiency
-
-    Vtip        = sound * tipMach                               # Prop Tip Velocity
-    omega       = Vtip/0.8                                      # Prop Ang. Velocity
-    maxLift     = config.mass_properties.max_takeoff * ToverW   # Maximum Thrust
-    Ct          = maxLift/(1.225*np.pi*0.8**2*Vtip**2)          # Thrust Coefficient
-    bladeSol    = 0.1                                           # Blade Solidity
-    AvgCL       = 6 * Ct / bladeSol                             # Average Blade CL
-    AvgCD       = 0.012                                         # Average Blade CD
-
-    maxLiftPower    = 1.15*maxLift*(
+    etaMotor            = motor_efficiency 
+    Vtip                = sound * tipMach                               # Prop Tip Velocity
+    omega               = Vtip/0.8                                      # Prop Ang. Velocity
+    maxLift             = config.mass_properties.max_takeoff * ToverW   # Maximum Thrust
+    Ct                  = maxLift/(1.225*np.pi*0.8**2*Vtip**2)          # Thrust Coefficient
+    bladeSol            = 0.1                                           # Blade Solidity
+    AvgCL               = 6 * Ct / bladeSol                             # Average Blade CL
+    AvgCD               = 0.012                                         # Average Blade CD 
+    
+    maxLiftPower        = 1.15*maxLift*(
         k*np.sqrt(maxLift/(2*1.225*np.pi*0.8**2)) +
                     bladeSol*AvgCD/8*Vtip**3/(maxLift/(1.225*np.pi*0.8**2))
     )
@@ -106,10 +105,11 @@ def empty(config,
     maxTorque = maxLiftPower/omega
 
     # Component Weight Calculations
-
-    output.lift_rotors      = (prop(config.propulsors.propulsor.propeller, maxLift)
-                               * (len(config.wings['main_wing'].motor_spanwise_locations) 
-                                  + len(config.wings['main_wing_2'].motor_spanwise_locations))) # make more generic ash jordan about this
+    num_motors = 0
+    for w in config.wings:
+        num_motors += num_motors + len(w.motor_spanwise_locations)
+        
+    output.lift_rotors      = (prop(config.propulsors.propulsor.propeller, maxLift)* (num_motors)) # make more generic ash jordan about this
     output.fuselage         = fuselage(config)
     output.wiring           = wiring(config,
                                      np.ones(8)**0.25,
@@ -119,9 +119,7 @@ def empty(config,
     for w in config.wings:
         wing_tag = w.tag
         if (wing_tag.find('main_wing') != -1):
-            wing_weight = wing(config.wings[w.tag],
-                               config, 
-                               maxLift/5) *Units.kg
+            wing_weight = wing(config.wings[w.tag], config, maxLift/5) *Units.kg
             total_wing_weight = total_wing_weight + wing_weight
     output.total_wing_weight = total_wing_weight    
 

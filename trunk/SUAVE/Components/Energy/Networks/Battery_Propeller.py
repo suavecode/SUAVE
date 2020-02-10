@@ -15,7 +15,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 
 # ----------------------------------------------------------------------
 #  Network
@@ -173,7 +173,7 @@ class Battery_Propeller(Propulsor):
         # Pack the conditions for outputs
         a                    = conditions.freestream.speed_of_sound
         R                    = propeller.tip_radius
-        rpm                  = motor.outputs.omega*60./(2.*np.pi)
+        rpm                  = motor.outputs.omega / Units.rpm
         current              = esc.outputs.currentin
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
@@ -188,15 +188,15 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.voltage_under_load    = voltage_under_load  
         conditions.propulsion.motor_torque          = motor.outputs.torque
         conditions.propulsion.propeller_torque      = Q
-        conditions.propulsion.battery_specfic_power = -(battery_draw/1000)/battery.mass_properties.mass 
+        conditions.propulsion.battery_specfic_power = -(battery_draw/1000)/battery.mass_properties.mass # kWh/kg
         conditions.propulsion.propeller_tip_mach    = (R*rpm)/a
         
         # Create the outputs
         F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
         mdot = np.zeros_like(F)
 
-        F_mag = np.atleast_2d(np.linalg.norm(F, axis=1)*0.224809) # lb   
-        conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R*3.28084)**2) # lb/ft^2                     
+        F_mag = np.atleast_2d(np.linalg.norm(F, axis=1)/Units.lbs) # lb   
+        conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2) # lb/ft^2                     
         conditions.propulsion.power_loading         = (F_mag.T)/(battery_draw*0.00134102)           # lb/hp 
         
         results = Data()
