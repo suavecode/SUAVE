@@ -92,9 +92,9 @@ modules = [
     'scripts/test_input_output/test_freemind_write.py',    
     'scripts/variable_cruise_distance/variable_cruise_distance.py', 
     'scripts/V_n_diagram/V_n_diagram_regression.py',      
-    #'scripts/VTOL/test_Multicopter.py',  
+    'scripts/VTOL/test_Multicopter.py',
+    'scripts/VTOL/test_Tiltwing.py',    
     #'scripts/VTOL/test_Stopped_Rotor.py',
-    #'scripts/VTOL/test_Tiltwing.py',
     'scripts/weights/weights.py',       
 ]
 

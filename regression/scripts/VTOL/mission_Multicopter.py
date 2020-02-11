@@ -244,8 +244,7 @@ def missions_setup(base_mission):
 #   Plot Results
 # ----------------------------------------------------------------------
 def plot_mission(results): 
-    
-    axis_font = {'size':'14'} 
+     
     line_color = 'bo-'
     fig = plt.figure( )
     fig.set_size_inches(12, 10)
@@ -273,7 +272,7 @@ def plot_mission(results):
     
         axes = fig.add_subplot(2,2,2)
         axes.plot(time, energy*0.000277778, line_color)
-        axes.set_ylabel('Battery Energy (W-hr)',axis_font)
+        axes.set_ylabel('Battery Energy (W-hr)' )
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
@@ -282,8 +281,8 @@ def plot_mission(results):
         axes = fig.add_subplot(2,2,3)
         axes.plot(time, volts, 'bo-',label='Under Load')
         axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
+        axes.set_xlabel('Time (mins)' )
+        axes.set_ylabel('Battery Voltage (Volts)' )  
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
@@ -293,8 +292,8 @@ def plot_mission(results):
         
         axes = fig.add_subplot(2,2,4)
         axes.plot(time, C_rating, line_color)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('C-Rating (C)',axis_font)  
+        axes.set_xlabel('Time (mins)' )
+        axes.set_ylabel('C-Rating (C)' )  
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
@@ -313,7 +312,7 @@ def plot_mission(results):
  
         axes = fig.add_subplot(2,2,1)
         axes.plot(time, -thrust, line_color)
-        axes.set_ylabel('Thrust (N)',axis_font)
+        axes.set_ylabel('Thrust (N)' )
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
@@ -321,7 +320,7 @@ def plot_mission(results):
         
         axes = fig.add_subplot(2,2,2)
         axes.plot(time, rpm, line_color)
-        axes.set_ylabel('RPM',axis_font)
+        axes.set_ylabel('RPM' )
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
@@ -329,8 +328,8 @@ def plot_mission(results):
         
         axes = fig.add_subplot(2,2,3)
         axes.plot(time, torque, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Torque (N-m)',axis_font)
+        axes.set_xlabel('Time (mins)' )
+        axes.set_ylabel('Torque (N-m)' )
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
@@ -338,8 +337,8 @@ def plot_mission(results):
         
         axes = fig.add_subplot(2,2,4)
         axes.plot(time, tm, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Tip Mach',axis_font)
+        axes.set_xlabel('Time (mins)' )
+        axes.set_ylabel('Tip Mach' )
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
@@ -355,8 +354,8 @@ def plot_mission(results):
         
         axes = fig.add_subplot(1,2,1)
         axes.plot(time, effp, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Propeller Efficiency',axis_font)
+        axes.set_xlabel('Time (mins)' )
+        axes.set_ylabel('Propeller Efficiency' )
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
@@ -365,8 +364,8 @@ def plot_mission(results):
         
         axes = fig.add_subplot(1,2,2)
         axes.plot(time, effm, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Motor Efficiency',axis_font)
+        axes.set_xlabel('Time (mins)' )
+        axes.set_ylabel('Motor Efficiency' )
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      

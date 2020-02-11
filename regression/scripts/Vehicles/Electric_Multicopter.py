@@ -6,15 +6,12 @@
 #   Imports
 # ---------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units, Data
-import copy
+from SUAVE.Core import Units, Data 
 from SUAVE.Components.Energy.Networks.Vectored_Thrust import Vectored_Thrust
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass
+from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass 
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff 
-from SUAVE.Methods.Weights.Buildups.Electric_Helicopter.empty import empty
-from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
+from SUAVE.Methods.Weights.Buildups.Electric_Helicopter.empty import empty 
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , compute_optimal_motor_parameters
 from SUAVE.Methods.Weights.Correlations.Propulsion import nasa_motor, hts_motor , air_cooled_motor
 import numpy as np
@@ -39,7 +36,6 @@ def vehicle_setup():
     vehicle.mass_properties.max_takeoff       = 3000. * Units.lb               # Approximate
     vehicle.mass_properties.center_of_gravity = [8.5*0.3048 ,   0.  ,  0.*0.3048 ] # Approximate
     
-     
     # This needs updating
     vehicle.passengers                        = 5
     vehicle.reference_area                    = 73  * Units.feet**2	
@@ -289,8 +285,7 @@ def configs_setup(vehicle):
     #    Configuration
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'climb'
-    #config.propulsors.propulsor.thrust_angle  = 85 * Units.degrees    
+    config.tag = 'climb' 
     config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
     configs.append(config)
     
