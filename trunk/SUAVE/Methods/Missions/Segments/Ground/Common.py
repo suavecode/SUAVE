@@ -35,56 +35,6 @@ def unpack_unknowns(segment):
             segment.state.conditions:
                 frames.inertial.velocity_vector [meters/second]
                 frames.inertial.time            [second]
-
-        Properties Used:
-        N/A
-                                
-    """       
-    
-    # unpack unknowns
-    unknowns   = segment.state.unknowns
-    velocity_x = unknowns.velocity_x
-    time       = unknowns.time
-    v0         = segment.velocity_start 
-    vf         = segment.velocity_start 
-    t_initial  = segment.state.conditions.frames.inertial.time[0,0]
-    t_nondim   = segment.state.numerics.dimensionless.control_points    
-    
-    # Velocity cannot be zero
-    velocity_x[velocity_x==0.0] = 0.01
-    velocity_x[0]               = v0
-    
-    # time
-    t_final    = t_initial + time  
-    time       = t_nondim * (t_final-t_initial) + t_initial  
-
-    #apply unknowns
-    conditions = segment.state.conditions
-    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
-    conditions.frames.inertial.time[:,0]            = time[:,0]
-
-# ----------------------------------------------------------------------
-#  Unpack Unknowns
-# ----------------------------------------------------------------------
-
-## @ingroup Methods-Missions-Segments-Ground
-def unpack_unknowns(segment):
-    """ Unpacks the times and velocities from the solver to the mission
-    
-        Assumptions:
-        Overrides the velocities if they go to zero
-        
-        Inputs:
-            segment.state.unknowns:
-                velocity_x         [meters/second]
-                time               [second]
-            segment.velocity_start [meters/second]
-            segment.velocity_start [meters/second]
-            
-        Outputs:
-            segment.state.conditions:
-                frames.inertial.velocity_vector [meters/second]
-                frames.inertial.time            [second]
         Properties Used:
         N/A
                                 
