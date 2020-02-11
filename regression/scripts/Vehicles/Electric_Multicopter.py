@@ -84,7 +84,7 @@ def vehicle_setup():
     segment.width		                = 0.1	* Units.feet 	 		
     segment.length		                = 0.		
     segment.effective_diameter	                = 0.1	* Units.feet 		
-    fuselage.Segments.append(segment)  
+    fuselage.append_segment(segment)  
                           
     # Segment 
     segment = SUAVE.Components.Fuselages.Segment()
@@ -96,7 +96,7 @@ def vehicle_setup():
     segment.width		                = 5.65  * Units.feet 	
     segment.length		                = 3.2   * Units.feet 	
     segment.effective_diameter	                = 5.65 	* Units.feet 
-    fuselage.Segments.append(segment)  
+    fuselage.append_segment(segment)  
                           
     # Segment 
     segment = SUAVE.Components.Fuselages.Segment()
@@ -108,7 +108,7 @@ def vehicle_setup():
     segment.width		                = 5.55  * Units.feet 	
     segment.length		                = 3.2   * Units.feet
     segment.effective_diameter	                = 5.55  * Units.feet 
-    fuselage.Segments.append(segment)  
+    fuselage.append_segment(segment)  
                           
     # Segment 	
     segment = SUAVE.Components.Fuselages.Segment()
@@ -120,7 +120,7 @@ def vehicle_setup():
     segment.width		                = 4.26  * Units.feet 		
     segment.length		                = 3.2   * Units.feet 	
     segment.effective_diameter	                = 4.26  * Units.feet 
-    fuselage.Segments.append(segment)  
+    fuselage.append_segment(segment)  
                           
     # Segment
     segment = SUAVE.Components.Fuselages.Segment()
@@ -132,7 +132,7 @@ def vehicle_setup():
     segment.width		                = 0.33	* Units.feet
     segment.length		                = 3.2   * Units.feet	
     segment.effective_diameter	                = 0.33  * Units.feet
-    fuselage.Segments.append(segment)  
+    fuselage.append_segment(segment)  
 
     # add to vehicle
     vehicle.append_component(fuselage)   

@@ -6,7 +6,6 @@
 """
 
 from .create_avl_datastructure import translate_avl_wing, translate_avl_body , populate_wing_sections, populate_body_sections
-from .initialize_inputs        import initialize_inputs
 from .purge_files              import purge_files
 from .read_results             import read_results
 from .run_analysis             import run_analysis

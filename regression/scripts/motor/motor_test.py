@@ -49,6 +49,8 @@ def main():
     motor_low_fid.motor_efficiency     = 0.98
     motor_low_fid.rated_power          = 1000
     motor_low_fid.rated_voltage        = 200
+    motor_low_fid.mass_properties.mass = 9. * Units.kg 
+    size_from_mass(motor_low_fid)
     
     # Find the operating conditions
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
