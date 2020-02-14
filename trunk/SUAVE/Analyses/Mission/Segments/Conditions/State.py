@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+#           Jan 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -86,8 +87,11 @@ class State(Conditions):
         # store
         self._size = rows
         
-        for k,v in self.items():
-            
+        for k,v in self.items(): 
+            try:
+                rank = v.ndim
+            except:
+                rank = 0            
             # don't expand initials or numerics
             if k in ('initials','numerics'):
                 continue
@@ -96,7 +100,7 @@ class State(Conditions):
             elif isinstance(v,Conditions):
                 v.expand_rows(rows)
             # need arrays here
-            elif np.rank(v) == 2:
+            elif rank == 2:
                 self[k] = np.resize(v,[rows,v.shape[1]])
             #: if type
         #: for each key,value        

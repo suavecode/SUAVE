@@ -104,7 +104,7 @@ def lifting_line(conditions,settings,geometry):
             L1 = wing.Segments[segment_keys[i_seg]].root_chord_percent
             T1 = wing.Segments[segment_keys[i_seg]].twist 
 
-            if i_seg == n_segments-1 and X1 != 1.0:
+            if i_seg == n_segments-1 and X1 == 1.0:
                 X2 = 1.0
                 L2 = wing.chords.tip/wing.chords.root
                 T2 = wing.twists.tip

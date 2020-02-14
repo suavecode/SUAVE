@@ -4,7 +4,6 @@
 
 from .wave_drag_volume import wave_drag_volume
 from .compressibility_drag_total import compressibility_drag_total
-from .Cubic_Spline_Blender import Cubic_Spline_Blender
 from .parasite_drag_propulsor import parasite_drag_propulsor
 from .wave_drag_lift import wave_drag_lift
 from .parasite_drag_fuselage import parasite_drag_fuselage

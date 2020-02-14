@@ -59,8 +59,8 @@ def main():
     configs=configs_setup(vehicle)
     # --- Landing Configuration ---
     landing_config = configs.landing
-    landing_config.wings['main_wing'].flaps.angle =  30. * Units.deg
-    landing_config.wings['main_wing'].slats.angle = 25. * Units.deg
+    landing_config.wings['main_wing'].control_surfaces.flap.deflection = 30. * Units.deg
+    landing_config.wings['main_wing'].control_surfaces.slat.deflection = 25. * Units.deg
     landing_config.wings['main_wing'].high_lift  = True
     # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
     landing_config.Vref_VS_ratio = 1.23
