@@ -27,16 +27,16 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         https://www.cryomech.com/cryocoolers/
         
     Inputs:
-        max_power - cooling power required of the cryocooler                                    [watts]
-        cryo_temp - cryogenic output temperature required                                       [kelvin]
-        amb_temp - ambient temperature the cooler will reject heat to, defaults to 19C          [kelvin]
-        cooler_type - cryocooler type used.   
+        max_power -     cooling power required of the cryocooler                                [watts]
+        cryo_temp -     cryogenic output temperature required                                   [kelvin]
+        amb_temp -      ambient temperature the cooler will reject heat to, defaults to 19C     [kelvin]
+        cooler_type -   cryocooler type used.   
     
     Outputs:
         output - a data dictionary with fields:
-            mass - mass of the cryocooler and supporting components                 [kilogram]
-            input_power - electrical input power required by the cryocooler         [watts]
-            coolerName - Name of cooler type as a string
+            mass -          mass of the cryocooler and supporting components          [kilogram]
+            input_power -   electrical input power required by the cryocooler         [watts]
+            coolerName -    Name of cooler type as a string
                
     Properties Used:
         N/A

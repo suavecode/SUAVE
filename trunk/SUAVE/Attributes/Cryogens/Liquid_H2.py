@@ -20,6 +20,7 @@ class Liquid_H2(Cryogen):
     
     Source:
     Ekin - Experimental Techniques for Low Temperature Measurements, ISBN 0-19-857054-6
+    NIST Chemistry Webbook
     """
 
     def __defaults__(self):
@@ -72,7 +73,7 @@ class Liquid_H2(Cryogen):
         self.GCP_maxT                   =  300.0              # [K]
 
         # Antoine Equation Coefficients for calculatating the evaporation temperature.
-        # log10(P) = A - (B/(T+C)) where P is vapour pressure (bar) and T temperature (kelvin).
+        # log10(P) = A - (B/(T+C)) where P is vapour pressure (Pa) and T temperature (kelvin).
         # Data from NIST Chemistry Webbook, coefficients converted so as to use pressure in Pa.
         self.antoine.A                  =    8.54314
         self.antoine.B                  =   99.395
