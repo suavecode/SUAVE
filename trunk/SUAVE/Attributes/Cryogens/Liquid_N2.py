@@ -19,7 +19,7 @@ class Liquid_N2(Cryogen):
     None
     
     Source:
-    None
+    Ekin - Experimental Techniques for Low Temperature Measurements, ISBN 0-19-857054-6
     """
 
     def __defaults__(self):
@@ -42,5 +42,7 @@ class Liquid_N2(Cryogen):
         
         self.tag                        = 'Liquid_N2'
         self.density                    = 808.0             # [kg/m^3]
-        self.temperatures.freeze        = 63.15             # K
-        self.temperatures.boiling       = 77.355            # K
+        self.temperatures.freeze        = 63.15             # [K]
+        self.temperatures.boiling       = 77.355            # [K]
+        self.vaporization_enthalpy      =                   # [J/g]
+        
