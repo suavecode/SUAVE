@@ -61,7 +61,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         print("Warning: Suprisingly low ambient temperature, check altitude.")
 
     # Calculate the shift in achievable minimum temperature based on the the ambient temperature (temp_amb) and the datasheet operating temperature (19C, 292.15K)
-    tempOffset = temp_amb - 292.15
+    tempOffset = amb_temp - 292.15
 
     # calculate the required temperature difference the cryocooler must produce.
     tempDiff = amb_temp-cryo_temp
@@ -71,7 +71,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         print("Warning: Temperature conditions are not well suited to cryocooler use. Cryocooler disabled.")
 
     # Set the parameters of the cooler based on the cooler type and the operating conditions. The default ambient operating temperature (19C) is used as a base.
-    if cooler_type =    'fps':
+    if cooler_type ==   'fps':
         coolerName =    "Free Piston Stirling"
         tempMinRT =     35.0
         tempMin =       tempMinRT - tempOffset
@@ -79,7 +79,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         input_power =   max_power/eff
         mass =          0.0098*input_power+1.0769
 
-    elif cooler_type =  'GM':
+    elif cooler_type == 'GM':
         coolerName =    "Gifford McMahon"
         tempMinRT =     5.4
         tempMin =       tempMinRT - tempOffset
@@ -87,7 +87,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         input_power =   max_power/eff
         mass =          0.0129*input_power+63.08
 
-    elif cooler_type =  'sPT':
+    elif cooler_type == 'sPT':
         coolerName =    "Single Pulsetube"
         tempMinRT =     16.0
         tempMin =       tempMinRT - tempOffset
@@ -95,7 +95,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         input_power =   max_power/eff
         mass =          0.0282*input_power+5.9442
 
-    elif cooler_type =  'dPT':
+    elif cooler_type == 'dPT':
         coolerName =    "Double Pulsetube"
         tempMinRT =     8.0
         tempMin =       tempMinRT - tempOffset
@@ -112,7 +112,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         eff =           0.0
         input_power =   None
         mass =          None
-        print("Warning: The required cryogenic temperature of " + str(cryo_temp) + " is not achievable using a " + coolerType + " cryocooler at an ambiet temperature of " + str(amb_temp) + ". The minimum temperature achievable is " + str(tempMin))
+        print("Warning: The required cryogenic temperature of " + str(cryo_temp) + " is not achievable using a " + cooler_type + " cryocooler at an ambiet temperature of " + str(amb_temp) + ". The minimum temperature achievable is " + str(tempMin))
             
     # packup outputs
     output = Data()

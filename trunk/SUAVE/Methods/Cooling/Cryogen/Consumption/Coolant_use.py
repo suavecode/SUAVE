@@ -39,10 +39,13 @@ def Coolant_use(cryogen,cryogen_temp,equipment_temp,cooling_required,pressure):
     # T = B/(A-log10(P))-C
     boil_temp = (cryogen.antoine.B / (cryogen.antoine.A - math.log10(pressure))) - cryogen.antoine.C
 
-    # Define cooling type flags
+    # Define cooling type flags and initial values
     Liquid_Cooled       = False
     Evap_Cooled         = False
     Gas_Cooled          = False
+    liq_cooling         = 0.0
+    gas_cooling         = 0.0
+    evap_cooling        = 0.0
 
     # Calculate cooling type based on boiling temp and required temp
     # Then set the limits of each cooling type based on whether boiling occurs
@@ -62,15 +65,18 @@ def Coolant_use(cryogen,cryogen_temp,equipment_temp,cooling_required,pressure):
     # Calculate the cooling power per gram of coolant for each of the cooling modes
     # LIQUID COOLING
     # find the area under temperature*C_P vs temperature between the temperatures over which the cryogen is a liquid, as this will be the cooling available (in Joules) per gram, aka watts per gram per second.
-    liq_cooling = integrate.quad(lambda t: t*(cryogen.LCP_C3*t**3 + cryogen.LCP_C2*t**2 + cryogen.LCP_C1*t**1 + cryogen.LCP_C0*t**0), liq_Ti, liq_Tf)
+    if Liquid_Cooled:
+        liq_cooling = integrate.quad(lambda t: t*(cryogen.LCP_C3*t**3 + cryogen.LCP_C2*t**2 + cryogen.LCP_C1*t**1 + cryogen.LCP_C0*t**0), liq_Ti, liq_Tf)
 
     # GAS COOLING
     # find the area under temperature*C_P vs temperature between the temperatures over which the cryogen is a vapour, as this will be the cooling available (in Joules) per gram, aka watts per gram per second.
-    gas_cooling = integrate.quad(lambda t: t*(cryogen.GCP_C3*t**3 + cryogen.GCP_C2*t**2 + cryogen.GCP_C1*t**1 + cryogen.GCP_C0*t**0), gas_Ti, gas_Tf)
+    if Gas_Cooled:
+        gas_cooling = integrate.quad(lambda t: t*(cryogen.GCP_C3*t**3 + cryogen.GCP_C2*t**2 + cryogen.GCP_C1*t**1 + cryogen.GCP_C0*t**0), gas_Ti, gas_Tf)
 
     # EVAPORATION COOLING
     # Calculate the enthalpy using the polynomial fit to pressure.
-    evap_cooling = cryogen.H_C3*pressure**3 + cryogen.H_C2*pressure**2 + cryogen.H_C1*pressure**1 + cryogen.H_C0*pressure**0
+    if Evap_Cooled:
+        evap_cooling = cryogen.H_C3*pressure**3 + cryogen.H_C2*pressure**2 + cryogen.H_C1*pressure**1 + cryogen.H_C0*pressure**0
 
     # Sum the components of cooling to give the total cooling power per gram. X1000 to give per kg.
     cooling_power = 1000 * (liq_cooling + evap_cooling + gas_cooling)
