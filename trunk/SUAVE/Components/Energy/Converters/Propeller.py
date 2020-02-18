@@ -135,6 +135,7 @@ class Propeller(Energy_Component):
         ducted            = self.ducted  
         BB                = B*B
         BBB               = BB*B
+        test_BET          = conditions.test_BET
         
         try:
             pitch_command = conditions.propulsion.pitch_command
@@ -252,8 +253,10 @@ class Propeller(Energy_Component):
         
         # Momentum theory approximation of inflow for BET if the advance ratio is large
         mu_lamda = lamda_c/abs(mu_prop) 
-        if any(mu_lamda[:,0] < 10.0):
-            
+        
+        #if any(mu_lamda[:,0] < 10.0):
+    
+        if test_BET:             
             # create radial distribution and aximuthal distribution  
             theta_2d        = np.tile(total_blade_pitch,(N ,1))
             theta_blade_2d  = np.repeat(theta_2d[ np.newaxis,:, :], ctrl_pts, axis=0)    
