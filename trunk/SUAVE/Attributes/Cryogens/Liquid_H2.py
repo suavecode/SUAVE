@@ -1,4 +1,4 @@
-## @ingroup Attributes-Propellants
+## @ingroup Attributes-Cryogens
 # Liquid H2
 #
 # Created:  Feb 2020, K. Hamilton
@@ -73,19 +73,22 @@ class Liquid_H2(Cryogen):
 
         # Antoine Equation Coefficients for calculatating the evaporation temperature.
         # log10(P) = A - (B/(T+C)) where P is vapour pressure (bar) and T temperature (kelvin).
-        # Data from NIST Chemistry Webbook
-        self.antoine.A                  =    3.54314
+        # Data from NIST Chemistry Webbook, coefficients converted so as to use pressure in Pa.
+        self.antoine.A                  =    8.54314
         self.antoine.B                  =   99.395
         self.antoine.C                  =    7.726
+        # Range for which Antoine Equation is referenced
+        self.antoine_minT               =   21.01             # [K]
+        self.antoine_maxT               =   32.27             # [K]
 
         # Coefficiencts for polynomial fit of vapourisation enthalpy
-        # ΔH = H_C3*P^3 + H_C2*P^2 + H_C1*P^1 + H_C0*P^0 where ΔH is vapourisation enthalpy (kJ/kg) P is pressure (MPa).
+        # ΔH = H_C3*P^3 + H_C2*P^2 + H_C1*P^1 + H_C0*P^0 where ΔH is vapourisation enthalpy (kJ/kg) P is pressure (Pa).
         # Data from NIST Chemistry Webbook
-        self.H_C0                       =   459.83
-        self.H_C1                       =   -91.29
-        self.H_C2                       =  -243.28
-        self.H_C3                       =   138.58
+        self.H_C0                       =   464.
+        self.H_C1                       =  -176.0E6
+        self.H_C2                       =    52.3E12
+        self.H_C3                       =  -100.0E18
         # Range for which this polynomial fit holds
-        self.H_minP                     =     0.02             # [MPa]
-        self.H_maxP                     =     0.8              # [MPa]
+        self.H_minP                     =     0.02E-6         # [Pa]
+        self.H_maxP                     =     1.20E-6         # [Pa]
 
