@@ -23,10 +23,8 @@ class Weights_Tube_Wing(Weights):
     
     Assumptions:
         None
-
     Source:
         N/A
-
     Inputs:
         None
       
@@ -39,19 +37,14 @@ class Weights_Tube_Wing(Weights):
     def __defaults__(self):
         """This sets the default values and methods for the tube and wing 
         aircraft weight analysis.
-
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         N/A
         """           
@@ -65,28 +58,26 @@ class Weights_Tube_Wing(Weights):
         self.settings.weight_reduction_factors.fuselage  = 0.
         self.settings.weight_reduction_factors.empennage = 0. # applied to horizontal and vertical stabilizers
         
+        self.settings.empty = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
+        
     def evaluate(self,conditions=None):
         """Evaluate the weight analysis.
     
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         results
-
         Properties Used:
         N/A
         """         
         # unpack
         vehicle  = self.vehicle
         settings = self.settings
-        empty    = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
+        empty    = self.settings.empty
 
         
         # evaluate
@@ -107,20 +98,15 @@ class Weights_Tube_Wing(Weights):
     
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         N/A
         """           
         self.mass_properties = self.vehicle.mass_properties
         
         return
-        

@@ -11,6 +11,8 @@
 
 from SUAVE.Components import Physical_Component
 from SUAVE.Core import Data
+
+
 # ----------------------------------------------------------------------
 #  Propulsor
 # ----------------------------------------------------------------------
@@ -50,15 +52,8 @@ class Propulsor(Physical_Component):
                 N/A
         """
         self.tag = 'Propulsor'
-        self.number_of_engines = 1.0
-        self.nacelle_diameter  = 1.0
-        self.engine_length     = 1.0
-        
-        self.areas             = Data()
-        self.areas.wetted      = 0.0
-        self.areas.maximum     = 0.0
-        self.areas.exit        = 0.0
-        self.areas.inflow      = 0.0
+        self.max_per_vehicle = 1
+        self.non_dimensional_origin = [[0.0,0.0,0.0]]
         
 ## @ingroup Components-Propulsors
 class Container(Physical_Component.Container):
@@ -73,7 +68,33 @@ class Container(Physical_Component.Container):
             N/A
     
     """
-    pass
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """
+        import SUAVE.Components.Energy.Networks as Nw
+        
+        #return [Nw.Battery_Propeller,Nw.Battery_Ducted_Fan,Nw.Lift_Forward_Propulsor,Nw.Ramjet,Nw.Solar, \
+                #Nw.Turbofan,Nw.Turbojet_Super]
+                
+        return [Nw.Turbofan,Nw.Turbojet_Super]
+
+                
+
     
     def evaluate_thrust(self,state):
         """ This is used to evaluate the thrust produced by the propulsor.
@@ -93,9 +114,20 @@ class Container(Physical_Component.Container):
                 Properties Used:
                 N/A
         """
+        
+        ones_row = state.ones_row
+        
+        results = Data()
+        results.thrust_force_vector = 0.*ones_row(3)
+        results.vehicle_mass_rate   = 0.*ones_row(1)
 
         for propulsor in self.values():
-            results = propulsor.evaluate_thrust(state) 
+            results_p = propulsor.evaluate_thrust(state) 
+            
+            for key in results.keys():
+                results[key] += results_p[key]
+            
+            
             
         return results
 

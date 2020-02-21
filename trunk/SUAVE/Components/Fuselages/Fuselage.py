@@ -15,6 +15,8 @@
 import SUAVE
 from SUAVE.Core import Data, Container, ContainerOrdered
 from SUAVE.Components import Physical_Component, Lofted_Body
+from SUAVE.Components.Fuselages.Segment import Segment_Container
+import numpy as np
 
 # ------------------------------------------------------------
 #  Fuselage
@@ -53,12 +55,13 @@ class Fuselage(Lofted_Body):
         self.tag = 'fuselage'
         self.origin             = [[0.0,0.0,0.0]]
         self.aerodynamic_center = [0.0,0.0,0.0]
+        self.max_per_vehicle = 4
         self.Sections    = Lofted_Body.Section.Container()
-        self.Segments    = ContainerOrdered()
+        self.Segments    = SUAVE.Core.ContainerOrdered
         
         self.number_coach_seats = 0.0
         self.seats_abreast      = 0.0
-        self.seat_pitch         = 1.0
+        self.seat_pitch         = 0.0
 
         self.areas = Data()
         self.areas.front_projected = 0.0
@@ -72,6 +75,7 @@ class Fuselage(Lofted_Body):
         self.heights.maximum                        = 0.0
         self.heights.at_quarter_length              = 0.0
         self.heights.at_three_quarters_length       = 0.0
+        self.heights.at_wing_root_quarter_chord     = 0.0
         self.heights.at_vertical_root_quarter_chord = 0.0
         
         self.lengths = Data()
@@ -93,14 +97,20 @@ class Fuselage(Lofted_Body):
         self.aft_centerbody_taper = 0.0
         self.cabin_area           = 0.0
         
-        self.Fuel_Tanks = Container()
+        self.non_dimensional_origin = [[0.0,0.0,0.0]]
+        self.PGM_minimum            = 0
+        self.PGM_characteristics    = ['lengths.total','heights.maximum','width','fineness.nose','fineness.tail']
+        self.PGM_char_min_bounds    = [1.,0.001,0.001,0.001,0.001]   
+        self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
+        
+        self.Fuel_Tanks = Fuel_Tank_Container()
 
         # For VSP
         self.vsp_data                = Data()
         self.vsp_data.xsec_surf_id   = ''    # There is only one XSecSurf in each VSP geom.
         self.vsp_data.xsec_num       = None  # Number if XSecs in fuselage geom.
         
-        self.Segments           = SUAVE.Core.ContainerOrdered()
+        self.Segments                = Segment_Container()
         
     def append_segment(self,segment):
         """ Adds a segment to the fuselage. 
@@ -180,10 +190,48 @@ class Fuselage(Lofted_Body):
         
 
 class Container(Physical_Component.Container):
-    pass
+    def get_children(self):
+        """ Returns the components that can go inside
         
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """        
         
-
+        return [Fuselage]
+    
+class Fuel_Tank_Container(Physical_Component.Container):
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """        
+        
+        return []
 
 # ------------------------------------------------------------
 #  Handle Linking

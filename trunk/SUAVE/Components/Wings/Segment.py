@@ -8,9 +8,11 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Data
+from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties
 from SUAVE.Components.Wings.Control_Surfaces.Control_Surface import Control_Surface 
+
+import numpy as np
 # ------------------------------------------------------------ 
 #  Wing Segments
 # ------------------------------------------------------------
@@ -19,19 +21,14 @@ from SUAVE.Components.Wings.Control_Surfaces.Control_Surface import Control_Surf
 class Segment(Lofted_Body.Segment):
     def __defaults__(self):
         """This sets the default for wing segments in SUAVE.
-
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         N/A
         """         
@@ -40,6 +37,7 @@ class Segment(Lofted_Body.Segment):
         self.twist                 = 0.0
         self.root_chord_percent    = 0.0
         self.dihedral_outboard     = 0.0
+        self.thickness_to_chord    = 0.0
         self.sweeps                = Data()
         self.sweeps.quarter_chord  = 0.0
         self.sweeps.leading_edge   = None
@@ -48,24 +46,21 @@ class Segment(Lofted_Body.Segment):
         self.areas.exposed         = 0.0
         self.areas.wetted          = 0.0
         self.Airfoil               = SUAVE.Core.ContainerOrdered()
+        self.PGM_minimum           = 2
+        self.max_per_vehicle       = 10      
         
         self.control_surfaces      = Data()  
         
     def append_airfoil(self,airfoil):
         """ Adds an airfoil to the segment
-
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         N/A
         """  
@@ -78,19 +73,14 @@ class Segment(Lofted_Body.Segment):
 
     def append_control_surface(self,control_surface):
         """ Adds an control_surface to the segment
-        
         Assumptions:
         None
-        
         Source:
         N/A
-        
         Inputs:
         None
-        
         Outputs:
         None
-        
         Properties Used:
         N/A
         """  
@@ -101,26 +91,45 @@ class Segment(Lofted_Body.Segment):
         # store data
         self.control_surfaces.append(control_surface)
         return    
+        
+
+### @ingroup Components-Wings
+#class Segment_Container(ContainerOrdered):
+    #""" Container for wing segment
     
- 
-## @ingroup Components-Wings
-class SegmentContainer(Lofted_Body.Segment.Container):
-    """ Container for wing segment
+    #Assumptions:
+    #None
+
+    #Source:
+    #N/A
+
+    #Inputs:
+    #None
+
+    #Outputs:
+    #None
+
+    #Properties Used:
+    #N/A
+    #"""     
+
+    #def get_children(self):
+        #""" Returns the components that can go inside
+        
+        #Assumptions:
+        #None
     
-    Assumptions:
-    None
-
-    Source:
-    N/A
-
-    Inputs:
-    None
-
-    Outputs:
-    None
-
-    Properties Used:
-    N/A
-    """     
+        #Source:
+        #N/A
     
-    pass
+        #Inputs:
+        #None
+    
+        #Outputs:
+        #None
+    
+        #Properties Used:
+        #N/A
+        #"""       
+        
+        #return []

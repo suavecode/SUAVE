@@ -21,16 +21,12 @@ class Horizontal_Tail(Wing):
     
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         N/A
         """ 
@@ -40,20 +36,17 @@ class Horizontal_Tail(Wing):
     
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         N/A
         """ 
-        pass
+        self.tag = 'horizontal_stabilizer'
+        self.max_per_vehicle = 5
 
 
 # ----------------------------------------------------------------------

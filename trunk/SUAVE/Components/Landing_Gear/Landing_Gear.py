@@ -48,8 +48,46 @@ class Landing_Gear(Physical_Component):
        
         self.tag = 'landing_gear'
 
-     
-     
+## @ingroup Components-Propulsors
+class Container(Physical_Component.Container):
+    """ SUAVE.Components.Propulsor.Container()
+        
+        The Propulsor Container Class
+    
+            Assumptions:
+            None
+            
+            Source:
+            N/A
+    
+    """
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """
+                
+        return []     
+    
+# ----------------------------------------------------------------------
+#  Handle Linking
+# ----------------------------------------------------------------------
+
+Landing_Gear.Container = Container
+
 # ----------------------------------------------------------------------
 #   Unit Tests
 # ----------------------------------------------------------------------

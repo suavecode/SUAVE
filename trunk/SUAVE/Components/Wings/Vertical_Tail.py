@@ -9,6 +9,7 @@
 
 # SUave imports
 from .Wing import Wing
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Attribute
@@ -16,19 +17,14 @@ from .Wing import Wing
 
 class Vertical_Tail(Wing):
     """This class is used to define vertical tails SUAVE
-
     Assumptions:
     None
-
     Source:
     N/A
-
     Inputs:
     None
-
     Outputs:
     None
-
     Properties Used:
     N/A
     """ 
@@ -37,20 +33,21 @@ class Vertical_Tail(Wing):
     
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         N/A
         """ 
-        pass
+        self.tag       = 'vertical_stabilizer'
+        self.vertical  = True
+        self.symmetric = False
+        self.max_per_vehicle = 2
+        self.PGM_char_min_bounds    = [0,1.,0.001,0.1,0.001,-np.pi/4,0.7,-1.,-1.]   
+        self.PGM_char_max_bounds    = [5.,np.inf,1.0,np.inf,np.pi/3,np.pi/4,1.,1.,1.]        
 
 
 # ----------------------------------------------------------------------

@@ -21,19 +21,14 @@ from SUAVE.Components import Component, Lofted_Body, Mass_Properties
 class Segment(Lofted_Body.Segment):
     def __defaults__(self):
         """This sets the defaults for fuselage segments in SUAVE.
-
         Assumptions:
         None
-
         Source:
         N/A
-
         Inputs:
         None
-
         Outputs:
         None
-
         Properties Used:
         N/A
         """         
@@ -47,3 +42,40 @@ class Segment(Lofted_Body.Segment):
         self.vsp_data           = Data()
         self.vsp_data.xsec_id   = ''       # OpenVSP XSec ID such as 'MWLKSGTGDD'
         self.vsp_data.shape     = ''
+        
+## @ingroup Components-Wings
+class Segment_Container(Lofted_Body.Segment.Container):
+    """ Container for wing segment
+    
+    Assumptions:
+    None
+    Source:
+    N/A
+    Inputs:
+    None
+    Outputs:
+    None
+    Properties Used:
+    N/A
+    """     
+
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """       
+        
+        return []

@@ -28,7 +28,6 @@ import warnings
 ## @ingroup Methods-Weights-Correlations-Tube_Wing
 def empty(vehicle,settings=None):
     """ This is for a standard Tube and Wing aircraft configuration.        
-
     Assumptions:
         calculated aircraft weight from correlations created per component of historical aircraft
     
@@ -38,7 +37,6 @@ def empty(vehicle,settings=None):
     Inputs:
       engine - a data dictionary with the fields:                    
           thrust_sls - sea level static thrust of a single engine                [Newtons]
-
       wing - a data dictionary with the fields:
           gross_area - wing gross area                                           [meters**2]
           span - span of the wing                                                [meters]
@@ -47,7 +45,6 @@ def empty(vehicle,settings=None):
           sweep - sweep angle of the wing                                        [radians]
           mac - mean aerodynamic chord of the wing                               [meters]
           r_c - wing root chord                                                  [meters]
-
       aircraft - a data dictionary with the fields:                    
           Nult - ultimate load of the aircraft                                   [dimensionless]
           Nlim - limit load factor at zero fuel weight of the aircraft           [dimensionless]
@@ -61,14 +58,12 @@ def empty(vehicle,settings=None):
           ac - determines type of instruments, electronics, and operating items based on types: 
               "short-range", "medium-range", "long-range", "business", "cargo", "commuter", "sst"        [dimensionless]
           w2h - tail length (distance from the airplane c.g. to the horizontal tail aerodynamic center)  [meters]
-
       fuselage - a data dictionary with the fields:
           area - fuselage wetted area                                            [meters**2]
           diff_p - Maximum fuselage pressure differential                        [Pascal]
           width - width of the fuselage                                          [meters]
           height - height of the fuselage                                        [meters]
           length - length of the fuselage                                        [meters]                     
-
       horizontal
           area - area of the horizontal tail                                     [meters**2]
           span - span of the horizontal tail                                     [meters]
@@ -76,7 +71,6 @@ def empty(vehicle,settings=None):
           mac - mean aerodynamic chord of the horizontal tail                    [meters]
           t_c - thickness-to-chord ratio of the horizontal tail                  [dimensionless]
           exposed - exposed area ratio for the horizontal tail                   [dimensionless]
-
       vertical
           area - area of the vertical tail                                       [meters**2]
           span - sweight = weight * Units.lbpan of the vertical                  [meters]
@@ -89,7 +83,6 @@ def empty(vehicle,settings=None):
           empennage                                                              [dimensionless] (.1 is a 10% weight reduction)
           fuselage                                                               [dimensionless] (.1 is a 10% weight reduction)
           
-
     Outputs:
         output - a data dictionary with fields:
             wt_payload - weight of the passengers plus baggage and paid cargo    [kilograms]
@@ -186,6 +179,7 @@ def empty(vehicle,settings=None):
         output_3.wt_tail_vertical = 0.0
         output_3.wt_rudder        = 0.0
         S_v                       = 0.0
+        wt_vtail_tot              = 0.0
         warnings.warn("There is no Vertical Tail Weight being added to the Configuration", stacklevel=1)    
         
     else:     
