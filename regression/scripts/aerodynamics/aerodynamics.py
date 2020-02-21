@@ -14,11 +14,15 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
 
+import jax
+#import jax.numpy as np
+
 import numpy as np
 import pylab as plt
 
 import copy, time
 import random
+import timeit
 from SUAVE.Attributes.Gases.Air import Air
 import sys
 #import vehicle file
@@ -177,7 +181,7 @@ def main():
     lift_test = np.abs((lift-lift_r)/lift)
     
     print('\nCompute Lift Test Results\n')
-    #print lift_test
+    print(lift_test)
         
     assert(np.max(lift_test)<1e-6), 'Aero regression failed at compute lift test'    
     
@@ -214,7 +218,7 @@ def main():
     drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
     drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
     
-    print('\nCompute Drag Test Results\n')    
+    print('\nCompute Drag Test Results\n')
     print('cd_tot=', cd_tot)
    
     for i, tests in list(drag_tests.items()): 
@@ -246,7 +250,14 @@ def reg_values():
 
 if __name__ == '__main__':
 
-    main()
+    jit_main = jax.jit(main)
+    jit_main()
+
+    #reg_time = timeit.timeit(main, number = 10)/10
+    #print(reg_time)
+
+    #jit_time = timeit.timeit(jit_main, number = 10)/10
+    #print(jit_time)
     
-    print('Aero regression test passed!')
+    #print('Aero regression test passed!')
       

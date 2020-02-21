@@ -15,6 +15,9 @@
 import SUAVE
 from SUAVE.Core import Units
 
+import timeit
+import jax
+
 import numpy as np
 import copy, time
 from SUAVE.Core import Data, Container
@@ -62,18 +65,18 @@ def main():
     results = mission.evaluate() 
     
     # plot results 
-    plot_mission(results, line_color = 'bo-')
+    #plot_mission(results, line_color = 'bo-')
  
     # load older results
     #save_results(results)
-    old_results = load_results()
-    plot_mission(old_results, line_color = 'bs:')
+    #old_results = load_results()
+    #plot_mission(old_results, line_color = 'bs:')
       
     # plot the old results
-    plt.show()
+    #plt.show()
     
     # check the results
-    check_results(results,old_results)
+    #check_results(results,old_results)
     
 
 
@@ -560,5 +563,15 @@ def save_plot_data(results):
     return
 
 if __name__ == '__main__': 
-    main()    
+    main()
+    jit_main = jax.jit(main)
+
+    jit_main()
+
+    reg_time = timeit.timeit(main, number=10)/10
+
+    jit_time = timeit.timeit(jit_main, number=10)/10
+
+    print("The average time for the ordinary function was {} seconds".format(reg_time))
+    print("The average time for the JIT compiled function was {} seconds".format(jit_time))
     #plt.show()
