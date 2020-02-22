@@ -20,7 +20,14 @@ from SUAVE.Components.Energy.Energy_Component import Energy_Component
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Converters
 class Internal_Combustion_Engine(Energy_Component):
+    """This is an internal combustion engine component.
+    
+    Assumptions:
+    None
 
+    Source:
+    None
+    """           
     def __defaults__(self):
 
         self.sea_level_power                 = 0.0

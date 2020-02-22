@@ -319,75 +319,74 @@ def vehicle_setup():
     Cd             = Cd0 + Cdi   
     
     # Create propeller geometry
-    prop                        = SUAVE.Components.Energy.Converters.Propeller()
-    prop.tag                    = 'Vectored_Thrust_Propeller'    
-    prop.y_pitch                = 1.850
-    prop.tip_radius             = 0.8875  
-    prop.hub_radius             = 0.1 
-    prop.disc_area              = np.pi*(prop.tip_radius**2)   
-    prop.design_tip_mach        = 0.5
-    prop.number_blades          = 3  
-    prop.freestream_velocity    = 85. * Units['ft/min'] # 110 mph         
-    prop.angular_velocity       = prop.design_tip_mach*speed_of_sound/prop.tip_radius      
-    prop.design_Cl              = 0.7
-    prop.design_altitude        = 500 * Units.feet                  
-    Lift                        = vehicle.mass_properties.takeoff*9.81  
-    prop.design_thrust          = (Lift * 1.5 )/net.number_of_engines 
-    prop.induced_hover_velocity = np.sqrt(Lift/(2*rho*prop.disc_area*net.number_of_engines))                     
-    prop                        = propeller_design(prop)  
+    rot                        = SUAVE.Components.Energy.Converters.Rotor() 
+    rot.y_pitch                = 1.850
+    rot.tip_radius             = 0.8875  
+    rot.hub_radius             = 0.1 
+    rot.disc_area              = np.pi*(rot.tip_radius**2)   
+    rot.design_tip_mach        = 0.5
+    rot.number_blades          = 3  
+    rot.freestream_velocity    = 85. * Units['ft/min'] # 110 mph         
+    rot.angular_velocity       = rot.design_tip_mach*speed_of_sound/rot.tip_radius      
+    rot.design_Cl              = 0.7
+    rot.design_altitude        = 500 * Units.feet                  
+    Lift                       = vehicle.mass_properties.takeoff*9.81  
+    rot.design_thrust          = (Lift * 1.5 )/net.number_of_engines 
+    rot.induced_hover_velocity = np.sqrt(Lift/(2*rho*rot.disc_area*net.number_of_engines))                     
+    rot                        = propeller_design(rot)  
      
     # Front Propellers Locations
-    prop_front                = Data()
-    prop_front.origin         =  [[0.0 , 1.347 ,0.0 ]]
-    prop_front.symmetric      = True
-    prop_front.x_pitch_count  = 1
-    prop_front.y_pitch_count  = 2     
-    prop_front.y_pitch        = 1.85   
+    rot_front                = Data()
+    rot_front.origin         =  [[0.0 , 1.347 ,0.0 ]]
+    rot_front.symmetric      = True
+    rot_front.x_pitch_count  = 1
+    rot_front.y_pitch_count  = 2     
+    rot_front.y_pitch        = 1.85   
     
     # populating propellers on one side of wing
-    if prop_front.y_pitch_count > 1 :
-        for n in range(prop_front.y_pitch_count):
+    if rot_front.y_pitch_count > 1 :
+        for n in range(rot_front.y_pitch_count):
             if n == 0:
                 continue
-            for i in range(len(prop_front.origin)):
-                proppeller_origin = [prop_front.origin[i][0] , prop_front.origin[i][1] +  n*prop_front.y_pitch ,prop_front.origin[i][2]]
-                prop_front.origin.append(proppeller_origin)   
+            for i in range(len(rot_front.origin)):
+                proppeller_origin = [rot_front.origin[i][0] , rot_front.origin[i][1] +  n*rot_front.y_pitch ,rot_front.origin[i][2]]
+                rot_front.origin.append(proppeller_origin)   
    
                  
     # populating proptellers on the other side of the vehicle   
-    if prop_front.symmetric : 
-        for n in range(len(prop_front.origin)):
-            proppeller_origin = [prop_front.origin[n][0] , -prop_front.origin[n][1] ,prop_front.origin[n][2] ]
-            prop_front.origin.append(proppeller_origin) 
+    if rot_front.symmetric : 
+        for n in range(len(rot_front.origin)):
+            proppeller_origin = [rot_front.origin[n][0] , -rot_front.origin[n][1] ,rot_front.origin[n][2] ]
+            rot_front.origin.append(proppeller_origin) 
       
     # Rear Propellers Locations 
-    prop_rear                     = Data()
-    prop_rear.origin              =  [[0.0 , 1.347 ,1.24 ]]  
-    prop_rear.symmetric           = True
-    prop_rear.x_pitch_count       = 1
-    prop_rear.y_pitch_count       = 2     
-    prop_rear.y_pitch             = 1.85                   
+    rot_rear                     = Data()
+    rot_rear.origin              =  [[0.0 , 1.347 ,1.24 ]]  
+    rot_rear.symmetric           = True
+    rot_rear.x_pitch_count       = 1
+    rot_rear.y_pitch_count       = 2     
+    rot_rear.y_pitch             = 1.85                   
     # populating propellers on one side of wing
-    if prop_rear.y_pitch_count > 1 :
-        for n in range(prop_rear.y_pitch_count):
+    if rot_rear.y_pitch_count > 1 :
+        for n in range(rot_rear.y_pitch_count):
             if n == 0:
                 continue
-            for i in range(len(prop_rear.origin)):
-                proppeller_origin = [prop_rear.origin[i][0] , prop_rear.origin[i][1] +  n*prop_rear.y_pitch ,prop_rear.origin[i][2]]
-                prop_rear.origin.append(proppeller_origin)   
+            for i in range(len(rot_rear.origin)):
+                proppeller_origin = [rot_rear.origin[i][0] , rot_rear.origin[i][1] +  n*rot_rear.y_pitch ,rot_rear.origin[i][2]]
+                rot_rear.origin.append(proppeller_origin)   
 
 
     # populating proptellers on the other side of thevehicle   
-    if prop_rear.symmetric : 
-        for n in range(len(prop_rear.origin)):
-            proppeller_origin = [prop_rear.origin[n][0] , -prop_rear.origin[n][1] ,prop_rear.origin[n][2] ]
-            prop_rear.origin.append(proppeller_origin) 
+    if rot_rear.symmetric : 
+        for n in range(len(rot_rear.origin)):
+            proppeller_origin = [rot_rear.origin[n][0] , -rot_rear.origin[n][1] ,rot_rear.origin[n][2] ]
+            rot_rear.origin.append(proppeller_origin) 
       
     # Assign all propellers (front and rear) to network
-    prop.origin = prop_front.origin + prop_rear.origin   
+    rot.origin = rot_front.origin + rot_rear.origin   
     
     # append propellers to vehicle     
-    net.propeller            = prop
+    net.rotor   = rot
     
     # Motor
     #------------------------------------------------------------------
@@ -396,14 +395,14 @@ def vehicle_setup():
     # Propeller (Thrust) motor
     motor                      = SUAVE.Components.Energy.Converters.Motor()
     motor.mass_properties.mass = 9. * Units.kg
-    motor.origin               = prop_front.origin + prop_rear.origin  
+    motor.origin               = rot_front.origin + rot_rear.origin  
     motor.efficiency           = 0.935
     motor.gear_ratio           = 1. 
     motor.gearbox_efficiency   = 1. # Gear box efficiency        
     motor.nominal_voltage      = bat.max_voltage *3/4  
-    motor.propeller_radius     = prop.tip_radius 
+    motor.propeller_radius     = rot.tip_radius 
     motor.no_load_current      = 2.0 
-    motor                      = compute_optimal_motor_parameters(motor,prop) 
+    motor                      = compute_optimal_motor_parameters(motor,rot) 
     net.motor                  = motor 
     
     vehicle.append_component(net) 
@@ -440,10 +439,10 @@ def vehicle_setup():
     
     
     # append motor origin spanwise locations onto wing data structure 
-    motor_origins_front = np.array(prop_front.origin)
+    motor_origins_front = np.array(rot_front.origin)
     vehicle.wings['main_wing'].motor_spanwise_locations = np.multiply(
         0.19 ,motor_origins_front[:,1])
-    motor_origins_rear = np.array(prop_rear.origin)
+    motor_origins_rear = np.array(rot_rear.origin)
     vehicle.wings['main_wing_2'].motor_spanwise_locations = np.multiply(
         0.19 ,motor_origins_rear[:,1])    
     

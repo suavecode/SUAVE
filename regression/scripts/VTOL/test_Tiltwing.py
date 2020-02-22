@@ -50,7 +50,8 @@ def main():
    
     # RPM check during hover
     RPM        = results.segments.hover.conditions.propulsion.rpm[0][0]
-    RPM_true   = 574.0117525501447
+    RPM_true   = 1604.530911548276
+    
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -232,14 +233,14 @@ def mission_setup(analyses,vehicle):
     segment.altitude        = 40.  * Units.ft
     segment.time            = 2*60
 
-    segment.state.unknowns.propeller_power_coefficient      = 0.01 * ones_row(1)     
-    segment.state.unknowns.throttle                         = 0.42 * ones_row(1)
+    segment.state.unknowns.propeller_power_coefficient = 0.01 * ones_row(1)     
+    segment.state.unknowns.throttle                    = 0.42 * ones_row(1)
     
-    segment.process.iterate.unknowns.network          = vehicle.propulsors.propulsor.unpack_unknowns 
-    segment.process.iterate.residuals.network         = vehicle.propulsors.propulsor.residuals   
-    segment.process.iterate.unknowns.mission          = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability   = SUAVE.Methods.skip
+    segment.process.iterate.unknowns.network           = vehicle.propulsors.propulsor.unpack_unknowns 
+    segment.process.iterate.residuals.network          = vehicle.propulsors.propulsor.residuals   
+    segment.process.iterate.unknowns.mission           = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability    = SUAVE.Methods.skip
 
     # add to misison
     mission.append_segment(segment) 
@@ -377,15 +378,15 @@ def plot_mission(results):
     fig.set_size_inches(12, 10)
     for i in range(len(results.segments)):  
     
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        power    = results.segments[i].conditions.propulsion.battery_draw[:,0] 
-        eta      = results.segments[i].conditions.propulsion.throttle[:,0]
-        energy   = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        volts    = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
-        volts_oc = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]     
-        current = results.segments[i].conditions.propulsion.current[:,0]      
+        time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        power          = results.segments[i].conditions.propulsion.battery_draw[:,0] 
+        eta            = results.segments[i].conditions.propulsion.throttle[:,0]
+        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
+        volts          = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
+        volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]     
+        current        = results.segments[i].conditions.propulsion.current[:,0]      
         battery_amp_hr = (energy*0.000277778)/volts
-        C_rating   = current/battery_amp_hr 
+        C_rating       = current/battery_amp_hr 
         
         axes = fig.add_subplot(2,2,1)
         axes.plot(time, eta, 'bo-' ) 

@@ -101,8 +101,7 @@ def initialize_conditions(segment):
     segment.velocity_start = v0
     segment.velocity_end   = vf
 
-    # pack conditions
-    #segment.state.unknowns.velocity_x               = np.linspace(v0,vf,N)
+    # pack conditions 
     conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
     conditions.ground.incline[:,0]                  = segment.ground_incline
     conditions.ground.friction_coefficient[:,0]     = segment.friction_coefficient

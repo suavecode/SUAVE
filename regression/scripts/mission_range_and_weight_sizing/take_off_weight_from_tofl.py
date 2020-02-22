@@ -1,4 +1,4 @@
-# size_range_from_weights.py
+# take_off_weight_from_tofl.py
 #
 # Created:  Feb 2020 , M. Clarke
 

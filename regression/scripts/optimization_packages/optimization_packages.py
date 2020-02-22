@@ -47,6 +47,7 @@ def main():
     # test writing output function 
     filename = 'optimization_output.txt'
     write_optimization_outputs(problem,filename)  
+    os.remove('optimization_output.txt')
     
     # ------------------------------------------------------------------
     #   Differential Evolution 

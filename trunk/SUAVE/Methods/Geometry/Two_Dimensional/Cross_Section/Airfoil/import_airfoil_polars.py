@@ -64,9 +64,9 @@ def  import_airfoil_polars(airfoil_polar_files):
         CL.append(airfoil_cl)
         CD.append(airfoil_cd)
        
-    airfoil_data.AoA = AoA
-    airfoil_data.CL  = CL 
-    airfoil_data.CD  = CD 
+    airfoil_data.angle_of_attack_sweep   = AoA
+    airfoil_data.lift_coefficient_sweep  = CL 
+    airfoil_data.drag_coefficient_sweep  = CD 
        
     return airfoil_data
 

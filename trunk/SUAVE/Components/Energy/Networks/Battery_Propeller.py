@@ -188,7 +188,7 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.voltage_under_load    = voltage_under_load  
         conditions.propulsion.motor_torque          = motor.outputs.torque
         conditions.propulsion.propeller_torque      = Q
-        conditions.propulsion.battery_specfic_power = -(battery_draw/1000)/battery.mass_properties.mass # kWh/kg
+        conditions.propulsion.battery_specfic_power = -battery_draw/battery.mass_properties.mass # Wh/kg
         conditions.propulsion.propeller_tip_mach    = (R*rpm)/a
         
         # Create the outputs

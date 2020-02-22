@@ -154,7 +154,6 @@ def analyses_setup(configs):
 
     # landing analysis
     aerodynamics = analyses.landing.aerodynamics
-    # do something here eventually
 
     return analyses
 

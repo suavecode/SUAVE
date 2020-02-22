@@ -37,21 +37,20 @@ def empty(config,
         Calculates the empty fuselage mass for an electric helicopter including
         seats, avionics, servomotors, ballistic recovery system, rotor and hub
         assembly, transmission, and landing gear. Additionally incorporates
-        results of the following common buildup scripts:
-
+        results of the following common buildup scripts: 
             fuselage,py
             prop.py
             wing.py
             wiring.py
 
         Originally written as part of an AA 290 project inteded for trade study
-        of the Electric Helicopter along with the following defined SUAVE vehicle types:
-
+        of the Electric Helicopter along with the following defined SUAVE vehicle types: 
             Electric Vectored_Thrust
             Electric Stopped Rotor
             
         Sources:
         Project Vahana Conceptual Trade Study
+        https://github.com/VahanaOpenSource
 
         Inputs:
 
@@ -70,19 +69,19 @@ def empty(config,
 
     output = Data()
 
-#-------------------------------------------------------------------------------
-# Unpack Inputs
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # Unpack Inputs
+    #-------------------------------------------------------------------------------
 
-    rProp               = config.propulsors.propulsor.propeller.tip_radius
+    rRotor              = config.propulsors.propulsor.rotor.tip_radius 
+    rotor_bladeSol      = config.propulsors.propulsor.rotor.blade_solidity    
     mBattery            = config.propulsors.propulsor.battery.mass_properties.mass
     mPayload            = config.propulsors.propulsor.payload.mass_properties.mass
     MTOW                = config.mass_properties.max_takeoff
     fLength             = config.fuselages.fuselage.lengths.total
     fWidth              = config.fuselages.fuselage.width
     fHeight             = config.fuselages.fuselage.heights.maximum
-    
-    sound               = speed_of_sound
+     
     tipMach             = max_tip_mach
     k                   = disk_area_factor
     ToverW              = max_thrust_to_weight_ratio
@@ -98,41 +97,39 @@ def empty(config,
     output.hub          = MTOW * 0.04
     output.landing_gear = MTOW * 0.02
 
-#-------------------------------------------------------------------------------
-# Calculated Weights
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # Calculated Weights
+    #-------------------------------------------------------------------------------
 
     # Preparatory Calculations
-
-    Vtip        = sound * tipMach                           # Prop Tip Velocity
-    omega       = Vtip/rProp                                # Prop Ang. Velocity
-    maxThrust   = MTOW * ToverW * 9.8                       # Maximum Thrust
-    Ct          = maxThrust/(1.225*np.pi*rProp**2*Vtip**2)  # Thrust Coefficient
-    bladeSol    = 0.1                                       # Blade Solidity
-    AvgCL       = 6 * Ct / bladeSol                         # Average Blade CL
-    AvgCD       = 0.012                                     # Average Blade CD
-    V_AR        = 1.16*np.sqrt(maxThrust/(np.pi*rProp**2))  # Autorotation Descent Velocity
+    rho_ref     = 1.225
+    Vtip        = speed_of_sound * tipMach                     # Prop Tip Velocity
+    omega       = Vtip/rRotor                                  # Prop Ang. Velocity
+    maxThrust   = MTOW * ToverW * 9.8                          # Maximum Thrust
+    Ct          = maxThrust/(rho_ref *np.pi*rRotor**2*Vtip**2) # Thrust Coefficient 
+    AvgCL       = 6 * Ct / rotor_bladeSol                      # Average Blade CL
+    AvgCD       = 0.012                                        # Average Blade CD
+    V_AR        = 1.16*np.sqrt(maxThrust/(np.pi*rRotor**2))    # Autorotation Descent Velocity
 
     maxPower    = 1.15*maxThrust*(
-                    k*np.sqrt(maxThrust/(2*1.225*np.pi*rProp**2)) +
-                    bladeSol*AvgCD/8*Vtip**3/(maxThrust/(1.225*np.pi*rProp**2))
-                    )
+                    k*np.sqrt(maxThrust/(2*rho_ref *np.pi*rRotor**2)) +
+                    rotor_bladeSol*AvgCD/8*Vtip**3/(maxThrust/(rho_ref *np.pi*rRotor**2)))
 
     maxTorque = maxPower/omega
 
     # Component Weight Calculations
 
-    output.rotor         = prop(config.propulsors.propulsor.propeller,
+    output.rotor         = prop(config.propulsors.propulsor.rotor,
                                 maxThrust)
-    output.tail_rotor    = prop(config.propulsors.propulsor.propeller,
-                                1.5*maxTorque/(1.25*rProp))*0.2
+    output.tail_rotor    = prop(config.propulsors.propulsor.rotor,
+                                1.5*maxTorque/(1.25*rRotor))*0.2
     output.transmission  = maxPower * 1.5873e-4          # From NASA OH-58 Study
     output.fuselage      = fuselage(config)
     output.wiring        = wiring(config,np.ones(8),maxPower/etaMotor)
 
-#-------------------------------------------------------------------------------
-# Weight Summations
-#-------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------
+    # Weight Summations
+    #-------------------------------------------------------------------------------
 
     output.structural = (output.rotor +
                         output.hub +

@@ -151,7 +151,7 @@ def main():
                                                              [[ 1.,  0.,  0.],
                                                               [ 0.,  1.,  0.],
                                                               [ 0.,  0.,  1.]]])
-    conditions.propulsion.propeller_power_coefficient = np.array([[1.], [1.]]) * prop.Cp
+    conditions.propulsion.propeller_power_coefficient = np.array([[1.], [1.]]) * prop.power_coefficient
     
     # Run the network and print the results
     results = net(state)

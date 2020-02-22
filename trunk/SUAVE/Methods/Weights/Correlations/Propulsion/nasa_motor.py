@@ -23,7 +23,8 @@ def nasa_motor(torque, kwt2=.3928, xwt=.8587):
     Assumptions:
             calculated from fit of high power-to-weight motors
             
-    Source: NDARC Theory Manual
+    Source: NDARC Theory Manual, Page 213
+    https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20170011656.pdf
     
     Inputs:
             torque- maximum torque the motor can deliver safely      [N-m]

@@ -11,6 +11,7 @@
 
 import SUAVE
 import numpy as np
+import scipy as sp
 from SUAVE.Core import Units , Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
      import import_airfoil_geometry
@@ -228,13 +229,20 @@ def propeller_design(prop,number_of_stations=20):
     t_c               = t_max/c
     t_c_at_70_percent = t_c[int(N*0.7)]
     
+    # blade solidity
+    r          = chi*R                    # Radial coordinate   
+    blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
+    sigma      = blade_area[-1]/(np.pi*R**2)  
+    
+    
     prop.design_torque              = Power[0]/omega
     prop.max_thickness_distribution = t_max
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
-    prop.Cp                         = Cp
+    prop.power_coefficient          = Cp
     prop.mid_chord_aligment         = MCA
     prop.thickness_to_chord         = t_c_at_70_percent
+    prop.blade_solidity             = sigma
     
     # compute airfoil sections if given
     if  a_geo != None:

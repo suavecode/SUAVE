@@ -45,7 +45,7 @@ def main():
     plot_mission(results,configs)
       
     # save, load and plot old results 
-    save_stopped_rotor_results(results)
+    #save_stopped_rotor_results(results)
     old_results = load_stopped_rotor_results()
     plot_mission(old_results,configs) 
  
@@ -295,7 +295,7 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses )
 
     segment.air_speed       = 56.7362 
-    segment.altitude_end           = 50.0 * Units.ft
+    segment.altitude_start  = 50.0 * Units.ft
     segment.altitude_end    = 300. * Units.ft
     segment.climb_rate      = 500. * Units['ft/min']
 

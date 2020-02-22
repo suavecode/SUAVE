@@ -52,7 +52,7 @@ def vehicle_setup():
     # FUSELAGE				
     # ------------------------------------------------------				
     # FUSELAGE PROPERTIES
-    fuselage = SUAVE.Components.Fuselages.Fuselage()
+    fuselage                                    = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag                                = 'fuselage'
     fuselage.configuration	                = 'Tube_Wing'		
     fuselage.origin	                        = [[0. , 0.,  0.]]	
@@ -75,63 +75,63 @@ def vehicle_setup():
     fuselage.differential_pressure	        = 0.	
     
     # Segment 	
-    segment = SUAVE.Components.Fuselages.Segment() 
-    segment.tag			                = 'segment_1'		
-    segment.origin	                        = [0., 0. ,0.]		
-    segment.percent_x_location	                = 0.		
-    segment.percent_z_location	                = 0.0	
-    segment.height		                = 0.1   * Units.feet 		
-    segment.width		                = 0.1	* Units.feet 	 		
-    segment.length		                = 0.		
-    segment.effective_diameter	                = 0.1	* Units.feet 		
-    fuselage.append_segment(segment)  
+    segment                          = SUAVE.Components.Fuselages.Segment() 
+    segment.tag			     = 'segment_1'		
+    segment.origin	             = [0., 0. ,0.]		
+    segment.percent_x_location	     = 0.		
+    segment.percent_z_location	     = 0.0	
+    segment.height		     = 0.1   * Units.feet 		
+    segment.width		     = 0.1	* Units.feet 	 		
+    segment.length		     = 0.		
+    segment.effective_diameter	     = 0.1	* Units.feet 		
+    fuselage.append_segment(segment) 
                           
     # Segment 
-    segment = SUAVE.Components.Fuselages.Segment()
-    segment.tag			                = 'segment_2'		
-    segment.origin		                = [4.*0.3048 , 0. ,0.1*0.3048 ] 	
-    segment.percent_x_location	                = 0.25 	
-    segment.percent_z_location	                = 0.05 
-    segment.height		                = 3.75  * Units.feet 
-    segment.width		                = 5.65  * Units.feet 	
-    segment.length		                = 3.2   * Units.feet 	
-    segment.effective_diameter	                = 5.65 	* Units.feet 
-    fuselage.append_segment(segment)  
+    segment		             = SUAVE.Components.Fuselages.Segment()
+    segment.tag			     = 'segment_2'		
+    segment.origin		     = [4.*0.3048 , 0. ,0.1*0.3048 ] 	
+    segment.percent_x_location	     = 0.25 	
+    segment.percent_z_location	     = 0.05 
+    segment.height		     = 3.75  * Units.feet 
+    segment.width		     = 5.65  * Units.feet 	
+    segment.length		     = 3.2   * Units.feet 	
+    segment.effective_diameter	     = 5.65 	* Units.feet 
+    fuselage.append_segment(segment) 
                           
     # Segment 
-    segment = SUAVE.Components.Fuselages.Segment()
-    segment.tag			                =' segment_3'		
-    segment.origin		                = [8.*0.3048 , 0. ,0.34*0.3048 ] 	
-    segment.percent_x_location	                = 0.5 	
-    segment.percent_z_location	                = 0.071 
-    segment.height		                = 4.65  * Units.feet	
-    segment.width		                = 5.55  * Units.feet 	
-    segment.length		                = 3.2   * Units.feet
-    segment.effective_diameter	                = 5.55  * Units.feet 
-    fuselage.append_segment(segment)  
+    segment 		             = SUAVE.Components.Fuselages.Segment()
+    segment.tag			     =' segment_3'		
+    segment.origin		     = [8.*0.3048 , 0. ,0.34*0.3048 ] 	
+    segment.percent_x_location	     = 0.5 	
+    segment.percent_z_location	     = 0.071 
+    segment.height		     = 4.65  * Units.feet	
+    segment.width		     = 5.55  * Units.feet 	
+    segment.length		     = 3.2   * Units.feet
+    segment.effective_diameter	     = 5.55  * Units.feet 
+    fuselage.append_segment(segment) 
                           
     # Segment 	
-    segment = SUAVE.Components.Fuselages.Segment()
-    segment.tag			                = 'segment_4'		
-    segment.origin		                = [12.*0.3048 , 0. ,0.77*0.3048 ] 
-    segment.percent_x_location	                = 0.75 
-    segment.percent_z_location	                = 0.089 	
-    segment.height		                = 4.73  * Units.feet		
-    segment.width		                = 4.26  * Units.feet 		
-    segment.length		                = 3.2   * Units.feet 	
-    segment.effective_diameter	                = 4.26  * Units.feet 
-    fuselage.append_segment(segment)  
+    segment		             = SUAVE.Components.Fuselages.Segment()
+    segment.tag			     = 'segment_4'		
+    segment.origin		     = [12.*0.3048 , 0. ,0.77*0.3048 ] 
+    segment.percent_x_location	     = 0.75 
+    segment.percent_z_location	     = 0.089 	
+    segment.height		     = 4.73  * Units.feet		
+    segment.width		     = 4.26  * Units.feet 		
+    segment.length		     = 3.2   * Units.feet 	
+    segment.effective_diameter	     = 4.26  * Units.feet 
+    fuselage.append_segment(segment) 
                           
     # Segment
-    segment = SUAVE.Components.Fuselages.Segment()
-    segment.tag			                = 'segment_5'		
-    segment.origin		                = [16.*0.3048 , 0. ,2.02*0.3048 ] 
-    segment.percent_x_location	                = 1.0
-    segment.percent_z_location	                = 0.158 
-    segment.height		                = 0.67	* Units.feet
-    segment.width		                = 0.33	* Units.feet
-    segment.length		                = 3.2   * Units.feet	
-    segment.effective_diameter	                = 0.33  * Units.feet
+    segment                          = SUAVE.Components.Fuselages.Segment()
+    segment.tag			     = 'segment_5'		
+    segment.origin		     = [16.*0.3048 , 0. ,2.02*0.3048 ] 
+    segment.percent_x_location	     = 1.0
+    segment.percent_z_location	     = 0.158 
+    segment.height		     = 0.67	* Units.feet
+    segment.width		     = 0.33	* Units.feet
+    segment.length		     = 3.2   * Units.feet	
+    segment.effective_diameter	     = 0.33  * Units.feet
     fuselage.append_segment(segment)  
 
     # add to vehicle
@@ -140,14 +140,14 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # PROPULSOR
     #------------------------------------------------------------------
-    net = Vectored_Thrust()
-    net.number_of_engines         = 6
-    net.thrust_angle              = 90. * Units.degrees
-    net.nacelle_diameter          = 0.6 * Units.feet	# need to check	
-    net.engine_length             = 0.5 * Units.feet
-    net.areas                     = Data()
-    net.areas.wetted              = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
-    net.voltage                   =  500.
+    net                   = Vectored_Thrust()
+    net.number_of_engines = 6
+    net.thrust_angle      = 90. * Units.degrees
+    net.nacelle_diameter  = 0.6 * Units.feet	# need to check	
+    net.engine_length     = 0.5 * Units.feet
+    net.areas             = Data()
+    net.areas.wetted      = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
+    net.voltage           =  500.
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
@@ -185,8 +185,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Rotors  
     #------------------------------------------------------------------ 
-    rot                         = SUAVE.Components.Energy.Converters.Rotor()
-    rot.tag                     = 'Rotors'
+    rot                         = SUAVE.Components.Energy.Converters.Rotor() 
     rot.tip_radius              = 3.95  * Units.feet
     rot.hub_radius              = 0.6  * Units.feet
     rot.number_blades           = 3
@@ -212,23 +211,23 @@ def vehicle_setup():
             rot.origin.append(fuselage.origin[0])           
    
     # append propellers to vehicle           
-    net.propeller                     = rot
+    net.rotor                   = rot
     
     #------------------------------------------------------------------
     # Design Motors
     #------------------------------------------------------------------
     # Motor
-    motor = SUAVE.Components.Energy.Converters.Motor() 
-    motor.efficiency              = 0.95  
-    motor.nominal_voltage         = bat.max_voltage 
-    motor.mass_properties.mass    = 3. * Units.kg 
-    motor.origin                  = rot.origin  
-    motor.propeller_radius        = rot.tip_radius  
-    motor.gear_ratio              = 1.0
-    motor.gearbox_efficiency      = 1.0 
-    motor.no_load_current         = 4.0     
-    motor                         = compute_optimal_motor_parameters(motor,rot)
-    net.motor               = motor
+    motor		       = SUAVE.Components.Energy.Converters.Motor() 
+    motor.efficiency           = 0.95  
+    motor.nominal_voltage      = bat.max_voltage 
+    motor.mass_properties.mass = 3. * Units.kg 
+    motor.origin               = rot.origin  
+    motor.propeller_radius     = rot.tip_radius  
+    motor.gear_ratio           = 1.0
+    motor.gearbox_efficiency   = 1.0 
+    motor.no_load_current      = 4.0     
+    motor                      = compute_optimal_motor_parameters(motor,rot)
+    net.motor                  = motor
     
 
     # append motor origin spanwise locations onto wing data structure 
@@ -269,23 +268,23 @@ def configs_setup(vehicle):
 
     configs = SUAVE.Components.Configs.Config.Container()
 
-    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config     = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
     configs.append(base_config)
     
     # ------------------------------------------------------------------
     #   Hover Configuration
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'hover'
+    config                                    = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                = 'hover'
     config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
     configs.append(config)
     
     # ------------------------------------------------------------------
     #    Configuration
     # ------------------------------------------------------------------
-    config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'climb' 
+    config                                    = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                = 'climb' 
     config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
     configs.append(config)
     

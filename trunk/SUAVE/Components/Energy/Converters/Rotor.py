@@ -33,7 +33,7 @@ import matplotlib.cm as cm
 # ----------------------------------------------------------------------    
 ## @ingroup Components-Energy-Converters
 class Rotor(Energy_Component):
-    """This is a propeller component.
+    """This is a rotor component.
     
     Assumptions:
     None
@@ -42,23 +42,30 @@ class Rotor(Energy_Component):
     """     
     def __defaults__(self):
         """This sets the default values for the component to function.
+
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         None
+
         Outputs:
         None
+
         Properties Used:
         None
-        """         
+        """  
+        
         self.number_blades            = 0.0
         self.tip_radius               = 0.0
         self.hub_radius               = 0.0
         self.twist_distribution       = 0.0
         self.chord_distribution       = 0.0
         self.mid_chord_aligment       = 0.0
+        self.blade_solidity           = 0.0
         self.thrust_angle             = 0.0 
         self.design_power             = None
         self.design_thrust            = None           
@@ -72,7 +79,7 @@ class Rotor(Energy_Component):
         self.induced_power_factor     = 1.15  #accounts for interference effeces
         self.profile_drag_coefficient = .01
         self.lift_curve_slope         = 2*np.pi
-        self.tag                      = 'Propeller'
+        self.tag                      = 'Rotor'
         
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -132,7 +139,7 @@ class Rotor(Energy_Component):
         Rh     = self.hub_radius
         beta   = self.twist_distribution
         c      = self.chord_distribution
-        omega1 = self.inputs.omega 
+        omega = self.inputs.omega 
         a_geo  = self.airfoil_geometry
         a_pol  = self.airfoil_polars        
         a_loc  = self.airfoil_polar_stations             
@@ -144,6 +151,7 @@ class Rotor(Energy_Component):
         T      = conditions.freestream.temperature[:,0,None]
         theta  = self.thrust_angle
         tc     = self.thickness_to_chord
+        sigma  = self.blade_solidity     
         
         BB        = B*B
         BBB       = BB*B
@@ -200,7 +208,7 @@ class Rotor(Energy_Component):
         nu    = mu/rho
         tol   = 1e-5 # Convergence tolerance
         
-        omega = omega1*1.0
+        omega = omega*1.0
         omega = np.abs(omega)
         
         #Things that don't change with iteration
@@ -213,9 +221,9 @@ class Rotor(Energy_Component):
                 raise AssertionError('Dimension of airfoil sections must be equal to number of stations on propeller')
             # compute airfoil polars for airfoils 
             airfoil_polars = compute_airfoil_polars(self, a_geo, a_pol)
-            airfoil_cl     = airfoil_polars.CL
-            airfoil_cd     = airfoil_polars.CD
-            AoA_sweep      = airfoil_polars.AoA_sweep
+            airfoil_cl     = airfoil_polars.lift_coefficient_sweep
+            airfoil_cd     = airfoil_polars.drag_coefficient_sweep
+            AoA_sweep      = airfoil_polars.angle_of_attack_sweep
         
         if self.radius_distribution is None:
             chi0    = Rh/R   # Where the propeller blade actually starts
@@ -380,7 +388,7 @@ class Rotor(Energy_Component):
         
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0 
-        thrust[omega1<0.0] = - thrust[omega1<0.0]  
+        thrust[omega<0.0] = - thrust[omega<0.0]  
         
         etap     = V*thrust/power  
         conditions.propulsion.etap = etap
@@ -486,30 +494,31 @@ class Rotor(Energy_Component):
         """
            
         #Unpack    
-        B       = self.number_blades
-        R       = self.tip_radius
-        Rh      = self.hub_radius        
-        beta_in = self.twist_distribution
-        c       = self.chord_distribution
-        Vh      = self.induced_hover_velocity 
-        omega1  = self.inputs.omega
-        a_geo   = self.airfoil_geometry
-        a_pol   = self.airfoil_polars        
-        a_loc   = self.airfoil_polar_stations          
-        rho     = conditions.freestream.density[:,0,None]
-        mu      = conditions.freestream.dynamic_viscosity[:,0,None]
-        Vv      = conditions.frames.inertial.velocity_vector
-        a       = conditions.freestream.speed_of_sound[:,0,None]
-        T       = conditions.freestream.temperature[:,0,None]
-        theta   = self.thrust_angle
-        tc      = self.thickness_to_chord 
-        beta_c  = conditions.propulsion.pitch_command
-        ducted  = self.ducted 
+        B         = self.number_blades
+        R         = self.tip_radius
+        Rh        = self.hub_radius        
+        beta_in   = self.twist_distribution
+        c         = self.chord_distribution
+        Vh        = self.induced_hover_velocity 
+        omega     = self.inputs.omega
+        a_geo     = self.airfoil_geometry
+        a_pol     = self.airfoil_polars        
+        a_loc     = self.airfoil_polar_stations          
+        rho       = conditions.freestream.density[:,0,None]
+        mu        = conditions.freestream.dynamic_viscosity[:,0,None]
+        Vv        = conditions.frames.inertial.velocity_vector
+        a         = conditions.freestream.speed_of_sound[:,0,None]
+        T         = conditions.freestream.temperature[:,0,None]
+        theta     = self.thrust_angle
+        tc        = self.thickness_to_chord 
+        beta_c    = conditions.propulsion.pitch_command
+        sigma     = self.blade_solidity     
+        ducted    = self.ducted 
         
         beta      = beta_in + beta_c 
         BB        = B*B
         BBB       = BB*B
-        disk_area = np.pi*(R**2)
+        disk_area = np.pi*(R**2)     
         kappa     = self.induced_power_factor 
             
         # Velocity in the Body frame
@@ -526,38 +535,30 @@ class Rotor(Energy_Component):
         V_thrust        = orientation_product(T_body2thrust,V_body) 
         
         # Now just use the aligned velocity
-        V = V_thrust[:,0,None]
+        V     = V_thrust[:,0,None] 
+        V_inf = V_thrust   
+        ua    = np.zeros_like(V)
+        ut    = np.zeros_like(V)
         
-        ua = np.zeros_like(V)
-        if Vh != None:   
-            for i in range(len(V)):
-                V_inf = V_thrust[i] 
+        if Vh != None:     
+            for i in range(len(V)): 
                 V_Vh =  V_thrust[i][0]/Vh
                 if Vv[i,:].all()  == True :
                     ua[i] = Vh
                 elif Vv[i][0]  == 0 and  Vv[i][2] != 0: # vertical / axial flight
                     if V_Vh > 0: # climbing 
-                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                        ua[i] = Vh*(-(-V_inf[i][0]/(2*Vh)) + np.sqrt((-V_inf[i][0]/(2*Vh))**2 + 1))
                     elif -2 <= V_Vh and V_Vh <= 0:  # slow descent                 
-                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718(V_Vh)**2 - 0.655(V_Vh)**4 ) 
+                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718*(V_Vh)**2 - 0.655*(V_Vh)**4 ) 
                     else: # windmilling 
                         print("rotor is in the windmill break state!")
-                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) - np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                        ua[i] = Vh*(-(-V_inf[i][0]/(2*Vh)) - np.sqrt((-V_inf[i][0]/(2*Vh))**2 + 1))
                 else: # forward flight conditions                 
-                    func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[2])**2 + (V_inf[0] + vi)**2)))
-                    vi_initial_guess = V_inf[0]
+                    func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[i][2])**2 + (V_inf[i][0] + vi)**2)))
+                    vi_initial_guess = V_inf[i][0]
                     ua[i]    = fsolve(func,vi_initial_guess)
-        else: 
-            ua = 0.0 
-            
-        ut = 0.0 
-        
-        nu    = mu/rho
-        tol   = 1e-6 # Convergence tolerance
-        
-        omega = omega1*1.0
-        omega = np.abs(omega)
-           
+            lambda_i      = ua/(omega*R)
+ 
         #Things that don't change with iteration
         N       = len(c) # Number of stations     
         
@@ -568,9 +569,9 @@ class Rotor(Energy_Component):
                 raise AssertionError('Dimension of airfoil sections must be equal to number of stations on propeller')
             # compute airfoil polars for airfoils 
             airfoil_polars = compute_airfoil_polars(self, a_geo, a_pol)
-            airfoil_cl     = airfoil_polars.CL
-            airfoil_cd     = airfoil_polars.CD
-            AoA_sweep      = airfoil_polars.AoA_sweep
+            airfoil_cl     = airfoil_polars.lift_coefficient_sweep
+            airfoil_cd     = airfoil_polars.drag_coefficient_sweep
+            AoA_sweep      = airfoil_polars.angle_of_attack_sweep
         
         if self.radius_distribution is None:
             chi0    = Rh/R   # Where the propeller blade actually starts
@@ -579,7 +580,8 @@ class Rotor(Energy_Component):
         
         else:
             chi = self.radius_distribution
-                   
+        
+        nu         = mu/rho                         
         lamda      = V/(omega*R)              # Speed ratio
         r          = chi*R                    # Radial coordinate
         pi         = np.pi
@@ -603,8 +605,9 @@ class Rotor(Energy_Component):
         psiold = np.zeros(size)
         diff   = 1.
         
-        ii = 0
-        broke = False
+        ii    = 0
+        broke = False 
+        tol   = 1e-6    # Convergence tolerance         
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -736,7 +739,7 @@ class Rotor(Energy_Component):
             
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0 
-        thrust[omega1<0.0] = - thrust[omega1<0.0] 
+        thrust[omega<0.0] = - thrust[omega<0.0] 
 
         etap     = V*thrust/power     
         

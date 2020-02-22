@@ -22,7 +22,7 @@ from SUAVE.Core import  Units, Data
 
 ## @ingroup Components-Energy-Networks
 class Vectored_Thrust(Propulsor):
-    """ This is a simple network with a battery powering a propeller through
+    """ This is a simple network with a battery powering a rotor through
         an electric motor
 
         Assumptions:
@@ -50,7 +50,7 @@ class Vectored_Thrust(Propulsor):
             N/A
         """             
         self.motor               = None
-        self.propeller           = None
+        self.rotor               = None
         self.esc                 = None
         self.avionics            = None
         self.payload             = None
@@ -98,7 +98,7 @@ class Vectored_Thrust(Propulsor):
         conditions = state.conditions
         numerics   = state.numerics
         motor      = self.motor
-        propeller  = self.propeller
+        rotor      = self.rotor
         esc        = self.esc
         avionics   = self.avionics
         payload    = self.payload
@@ -131,12 +131,12 @@ class Vectored_Thrust(Propulsor):
         thrust_angle = self.thrust_angle
                 
         # link
-        propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle =  thrust_angle
+        rotor.inputs.omega =  motor.outputs.omega
+        rotor.thrust_angle =  thrust_angle
         conditions.propulsion.pitch_command = self.pitch_command
         
-        # Run the propeller     
-        F, Q, P, Cp , output, etap = propeller.spin_variable_pitch(conditions)
+        # Run the rotor     
+        F, Q, P, Cp , output, etap = rotor.spin_variable_pitch(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]
@@ -178,7 +178,7 @@ class Vectored_Thrust(Propulsor):
         # Pack the conditions for outputs
         rpm                  = motor.outputs.omega / Units.rpm
         a                    = conditions.freestream.speed_of_sound
-        R                    = propeller.tip_radius       
+        R                    = rotor.tip_radius       
         current              = esc.outputs.currentin
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
@@ -194,8 +194,8 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.motor_torque                    = motor.outputs.torque
         conditions.propulsion.propeller_torque                = Q
         conditions.propulsion.motor_efficiency                = etam
-        conditions.propulsion.acoustic_outputs[propeller.tag] = output
-        conditions.propulsion.battery_specfic_power           = -(battery_draw/1000)/battery.mass_properties.mass #kWh/kg
+        conditions.propulsion.acoustic_outputs[rotor.tag] = output
+        conditions.propulsion.battery_specfic_power           = -battery_draw/battery.mass_properties.mass #Wh/kg
         conditions.propulsion.electronics_efficiency          = -(P*num_engines)/battery_draw   
         conditions.propulsion.propeller_tip_mach              = (R*motor.outputs.omega)/a
         conditions.propulsion.battery_current                 = total_current

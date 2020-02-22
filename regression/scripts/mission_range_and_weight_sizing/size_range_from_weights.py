@@ -104,9 +104,8 @@ def analyses_setup(configs):
     analyses.takeoff.aerodynamics.drag_coefficient_increment = 0.1000
 
     # landing analysis
-    aerodynamics = analyses.landing.aerodynamics
-    # do something here eventually
-
+    aerodynamics = analyses.landing.aerodynamics 
+    
     return analyses
 
 def base_analysis(vehicle):
