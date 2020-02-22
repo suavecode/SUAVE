@@ -139,7 +139,8 @@ class Rotor(Energy_Component):
         Rh     = self.hub_radius
         beta   = self.twist_distribution
         c      = self.chord_distribution
-        omega = self.inputs.omega 
+        chi    = self.radius_distribution
+        omega  = self.inputs.omega 
         a_geo  = self.airfoil_geometry
         a_pol  = self.airfoil_polars        
         a_loc  = self.airfoil_polar_stations             
@@ -206,10 +207,7 @@ class Rotor(Energy_Component):
         ut = 0.0
         
         nu    = mu/rho
-        tol   = 1e-5 # Convergence tolerance
-        
-        omega = omega*1.0
-        omega = np.abs(omega)
+        tol   = 1e-5 # Convergence tolerance 
         
         #Things that don't change with iteration
         N       = len(c) # Number of stations     
@@ -228,10 +226,7 @@ class Rotor(Energy_Component):
         if self.radius_distribution is None:
             chi0    = Rh/R   # Where the propeller blade actually starts
             chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
-            chi     = chi[0:N]
-        
-        else:
-            chi = self.radius_distribution
+            chi     = chi[0:N] 
         
         lamda       = V/(omega*R)              # Speed ratio
         r           = chi*R                    # Radial coordinate
@@ -240,12 +235,12 @@ class Rotor(Energy_Component):
         x           = r*np.multiply(omega,1/V) # Nondimensional distance
         n           = omega/(2.*pi)            # Cycles per second
         J           = V/(2.*R*n)     
-        blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
-        sigma      = blade_area[-1]/(pi*r[-1]**2)
-        omegar     = np.outer(omega,r)
-        Ua         = np.outer((V + ua),np.ones_like(r))
-        Ut         = omegar - ut
-        U          = np.sqrt(Ua*Ua + Ut*Ut)
+        blade_area  = sp.integrate.cumtrapz(B*c, r-r[0])
+        sigma       = blade_area[-1]/(pi*r[-1]**2)
+        omegar      = np.outer(omega,r)
+        Ua          = np.outer((V + ua),np.ones_like(r))
+        Ut          = omegar - ut
+        U           = np.sqrt(Ua*Ua + Ut*Ut)
         
         #Things that will change with iteration
         size = (len(a),N)
@@ -499,6 +494,7 @@ class Rotor(Energy_Component):
         Rh        = self.hub_radius        
         beta_in   = self.twist_distribution
         c         = self.chord_distribution
+        chi       = self.radius_distribution
         Vh        = self.induced_hover_velocity 
         omega     = self.inputs.omega
         a_geo     = self.airfoil_geometry
@@ -578,9 +574,6 @@ class Rotor(Energy_Component):
             chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
             chi     = chi[0:N]
         
-        else:
-            chi = self.radius_distribution
-        
         nu         = mu/rho                         
         lamda      = V/(omega*R)              # Speed ratio
         r          = chi*R                    # Radial coordinate
@@ -598,7 +591,7 @@ class Rotor(Energy_Component):
         
         #Things that will change with iteration
         size = (len(a),N)
-        Cl = np.zeros((1,N))  
+        Cl   = np.zeros((1,N))  
         
         #Setup a Newton iteration
         psi    = np.ones(size)*0.5
@@ -747,7 +740,7 @@ class Rotor(Energy_Component):
         
         # store data
         results_conditions = Data     
-        outputs   = results_conditions(
+        outputs            = results_conditions(
             n_blades                  = B,
             R                         = R,
             D                         = D,

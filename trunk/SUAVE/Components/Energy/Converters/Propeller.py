@@ -136,7 +136,8 @@ class Propeller(Energy_Component):
         Rh     = self.hub_radius
         beta   = self.twist_distribution
         c      = self.chord_distribution
-        omega = self.inputs.omega 
+        chi    = self.radius_distribution
+        omega  = self.inputs.omega 
         a_geo  = self.airfoil_geometry
         a_pol  = self.airfoil_polars        
         a_loc  = self.airfoil_polar_stations        
@@ -162,37 +163,12 @@ class Propeller(Energy_Component):
         V_thrust        = orientation_product(T_body2thrust,V_body)
         
         # Now just use the aligned velocity
-        V = V_thrust[:,0,None]
-        
-        ua = np.zeros_like(V)
-        if Vh != None:   
-            for i in range(len(V)):
-                V_inf = V_thrust[i] 
-                V_Vh =  V_thrust[i][0]/Vh
-                if Vv[i,:].all()  == True :
-                    ua[i] = Vh
-                elif Vv[i][0]  == 0 and  Vv[i][2] != 0: # vertical / axial flight
-                    if V_Vh > 0: # climbing 
-                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
-                    elif -2 <= V_Vh and V_Vh <= 0:  # slow descent                 
-                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718*(V_Vh)**2 - 0.655*(V_Vh)**4 ) 
-                    else: # windmilling 
-                        print("rotor is in the windmill break state!")
-                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) - np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
-                else: # forward flight conditions                 
-                    func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[2])**2 + (V_inf[0] + vi)**2)))
-                    vi_initial_guess = V_inf[0]
-                    ua[i]    = fsolve(func,vi_initial_guess)
-        else: 
-            ua = 0.0 
- 
-        ut = 0.0
+        V  = V_thrust[:,0,None] 
+        ua = np.zeros_like(V)  
+        ut = np.zeros_like(V)  
         
         nu    = mu/rho
-        tol   = 1e-5 # Convergence tolerance
-        
-        omega = omega*1.0
-        omega = np.abs(omega)
+        tol   = 1e-5 # Convergence tolerance 
         
         #Things that don't change with iteration
         N       = len(c) # Number of stations     
@@ -211,10 +187,7 @@ class Propeller(Energy_Component):
         if self.radius_distribution is None:
             chi0    = Rh/R   # Where the propeller blade actually starts
             chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
-            chi     = chi[0:N]
-        
-        else:
-            chi = self.radius_distribution
+            chi     = chi[0:N] 
         
         lamda   = V/(omega*R)              # Speed ratio
         r       = chi*R                    # Radial coordinate
@@ -472,6 +445,7 @@ class Propeller(Energy_Component):
         Rh      = self.hub_radius
         beta_in = self.twist_distribution
         c       = self.chord_distribution
+        chi     = self.radius_distribution
         omega   = self.inputs.omega 
         a_geo   = self.airfoil_geometry
         a_pol   = self.airfoil_polars        
@@ -522,10 +496,7 @@ class Propeller(Energy_Component):
         if self.radius_distribution is None:
             chi0    = Rh/R   # Where the propeller blade actually starts
             chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
-            chi     = chi[0:N]
-        
-        else:
-            chi = self.radius_distribution
+            chi     = chi[0:N] 
          
         nu      = mu/rho          
         lamda   = V/(omega*R)              # Speed ratio
@@ -661,8 +632,8 @@ class Propeller(Energy_Component):
         Ct[Ct<0] = 0.        #prevent things from breaking
         kappa    = self.induced_power_factor 
         Cd0      = self.profile_drag_coefficient   
-        Cp    = np.zeros_like(Ct)
-        power = np.zeros_like(Ct)        
+        Cp       = np.zeros_like(Ct)
+        power    = np.zeros_like(Ct)        
         for i in range(len(Vv)):
             if -1. <Vv[i][0] <1.: # vertical/axial flight
                 Cp[i]       = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
