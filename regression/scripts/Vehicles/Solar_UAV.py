@@ -195,7 +195,7 @@ def vehicle_setup():
     motor.no_load_current      = 4.5  * Units.ampere
     motor.speed_constant       = 120. * Units['rpm'] # RPM/volt converted to (rad/s)/volt    
     motor.propeller_radius     = prop.tip_radius
-    motor.propeller_Cp         = prop.Cp
+    motor.propeller_Cp         = prop.power_coefficient
     motor.gear_ratio           = 12. # Gear ratio
     motor.gearbox_efficiency   = .98 # Gear box efficiency
     motor.expected_current     = 160. # Expected current
