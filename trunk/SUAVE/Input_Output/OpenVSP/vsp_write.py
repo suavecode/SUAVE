@@ -190,9 +190,9 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     Properties Used:
     N/A
     """       
-    wing_x = wing.origin[0]    
-    wing_y = wing.origin[1]
-    wing_z = wing.origin[2]
+    wing_x = wing.origin[0][0]    
+    wing_y = wing.origin[0][1]
+    wing_z = wing.origin[0][2]
     if wing.symmetric == True:
         span   = wing.spans.projected/2. # span of one side
     else:
@@ -594,7 +594,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         x_poses = []
         z_poses = []
         segs = fuselage.Segments
-        for seg_name in segs:
+        for seg_name in segs.keys():
             widths.append(segs[seg_name].width)
             heights.append(segs[seg_name].height)
             x_poses.append(segs[seg_name].percent_x_location)
