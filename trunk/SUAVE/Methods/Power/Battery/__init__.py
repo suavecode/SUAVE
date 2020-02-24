@@ -2,8 +2,8 @@
 # Functions pertaining to battery discharge and sizing
 # @ingroup Methods-Power
 
-from . import Discharge
-from . import Charge
+from . import Discharge_Models
+from . import Charge_Models
 from . import Ragone
 from . import Sizing
 from . import Variable_Mass

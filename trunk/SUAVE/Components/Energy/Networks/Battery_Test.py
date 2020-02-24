@@ -11,8 +11,7 @@ import SUAVE
 
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor 
-from SUAVE.Methods.Power.Battery.Discharge.thevenin_discharge import battery_performance_maps
+from SUAVE.Components.Propulsors.Propulsor import Propulsor  
 from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
@@ -84,7 +83,7 @@ class Battery_Test(Propulsor):
         D                 = numerics.time.differentiate    
         I                 = numerics.time.integrate
         dischage_fidelity = self.dischage_model_fidelity 
-        battery_data      = battery_performance_maps() 
+        battery_data      = battery.discharge_performance_map 
         
         # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy  

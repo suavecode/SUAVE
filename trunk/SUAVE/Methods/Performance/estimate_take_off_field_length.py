@@ -127,7 +127,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     state = Data()
     state.conditions = Aerodynamics() 
     state.numerics   = Numerics()
-    conditions = state.conditions    
+    conditions = state.conditions
 
     conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho * speed_for_thrust**2))
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
@@ -208,9 +208,9 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     
         # Compute 2nd segment climb gradient
         second_seg_climb_gradient = thrust / (weight*sea_level_gravity) - 1. / l_over_d_v2
-        
+
         return takeoff_field_length, second_seg_climb_gradient
-    
+
     else:
         # return only takeoff_field_length
         return takeoff_field_length

@@ -15,10 +15,10 @@ import SUAVE
 
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Methods.Power.Battery.Discharge.datta_discharge import datta_discharge
-from SUAVE.Methods.Power.Battery.Discharge.thevenin_discharge  import thevenin_discharge
-from SUAVE.Methods.Power.Battery.Charge.datta_charge import datta_charge
-from SUAVE.Methods.Power.Battery.Charge.thevenin_charge  import thevenin_charge
+from SUAVE.Methods.Power.Battery.Discharge_Models.datta_discharge import datta_discharge
+from SUAVE.Methods.Power.Battery.Discharge_Models.thevenin_discharge  import thevenin_discharge
+from SUAVE.Methods.Power.Battery.Charge_Models.datta_charge import datta_charge
+from SUAVE.Methods.Power.Battery.Charge_Models.thevenin_charge  import thevenin_charge
 
 
 # ---------------------------------------------------------------- ------

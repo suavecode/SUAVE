@@ -86,22 +86,23 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     # ==============================================
         # Unpack
     # ==============================================
-    wing = config.wings
-
-    Sw      =       wing.main_wing.areas.reference  / (Units.ft)**2              #wing area, sq.ft
-    bw      =       wing.main_wing.spans.projected / Units.ft                    #wing span, ft
-    Sht     =       wing.horizontal_stabilizer.areas.reference / (Units.ft)**2   #horizontal tail area, sq.ft
-    bht     =       wing.horizontal_stabilizer.spans.projected / Units.ft        #horizontal tail span, ft
-    Svt     =       wing.vertical_stabilizer.areas.reference / (Units.ft)**2     #vertical tail area, sq.ft
-    bvt     =       wing.vertical_stabilizer.spans.projected  / Units.ft         #vertical tail span, ft
-    deltaf  =       wing.main_wing.flaps.angle                                   #flap delection, rad
-    Sf      =       wing.main_wing.flaps.area  / (Units.ft)**2                   #flap area, sq.ft        
-    cf      =       wing.main_wing.flaps.chord_dimensional  / Units.ft           #flap chord, ft
-    Dp      =       config.landing_gear.main_tire_diameter  / Units.ft           #MLG tyre diameter, ft
-    Hp      =       config.landing_gear.nose_tire_diameter  / Units.ft           #MLG strut length, ft
-    Dn      =       config.landing_gear.main_strut_length   / Units.ft           #NLG tyre diameter, ft
-    Hn      =       config.landing_gear.nose_strut_length   / Units.ft           #NLG strut length, ft
-    gear    =       config.landing_gear.gear_condition                           #Gear up or gear down
+    wing     = config.wings
+    flap     = wing.main_wing.control_surfaces.flap
+    
+    Sw       = wing.main_wing.areas.reference  / (Units.ft)**2              #wing area, sq.ft
+    bw       = wing.main_wing.spans.projected / Units.ft                    #wing span, ft
+    Sht      = wing.horizontal_stabilizer.areas.reference / (Units.ft)**2   #horizontal tail area, sq.ft
+    bht      = wing.horizontal_stabilizer.spans.projected / Units.ft        #horizontal tail span, ft
+    Svt      = wing.vertical_stabilizer.areas.reference / (Units.ft)**2     #vertical tail area, sq.ft
+    bvt      = wing.vertical_stabilizer.spans.projected  / Units.ft         #vertical tail span, ft
+    deltaf   = flap.deflection                                              #flap delection, rad
+    Sf       = flap.area  / (Units.ft)**2                                   #flap area, sq.ft        
+    cf       = flap.chord_dimensional  / Units.ft                           #flap chord, ft
+    Dp       = config.landing_gear.main_tire_diameter  / Units.ft           #MLG tyre diameter, ft
+    Hp       = config.landing_gear.nose_tire_diameter  / Units.ft           #MLG strut length, ft
+    Dn       = config.landing_gear.main_strut_length   / Units.ft           #NLG tyre diameter, ft
+    Hn       = config.landing_gear.nose_strut_length   / Units.ft           #NLG strut length, ft
+    gear     = config.landing_gear.gear_condition                           #Gear up or gear down
     
     nose_wheels    =   config.landing_gear.nose_wheels                           #Number of wheels   
     main_wheels    =   config.landing_gear.main_wheels                           #Number of wheels   
@@ -114,12 +115,12 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     altitude = np.interp(noise_time,time,altitude)
 
     # determining flap slot number
-    if wing.main_wing.flaps.type   == 'single_slotted':
+    if wing.main_wing.control_surfaces.flap.configuration_type   == 'single_slotted':
         slots = 1
-    elif wing.main_wing.flaps.type == 'double_slotted':
+    elif wing.main_wing.control_surfaces.flap.configuration_type == 'double_slotted':
         slots = 2
-    elif wing.main_wing.flaps.type == 'triple_slotted':
-        slots = 3    
+    elif wing.main_wing.control_surfaces.flap.configuration_type == 'triple_slotted':
+        slots = 3  
 
     # Geometric information from the source to observer position
     distance_vector = noise_segment.dist    

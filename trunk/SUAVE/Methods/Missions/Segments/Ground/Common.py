@@ -58,7 +58,7 @@ def unpack_unknowns(segment):
      
 # ----------------------------------------------------------------------
 #  Initialize Conditions
-# ----------------------------------------------------------------------
+# --------------------------------------------------------------git st--------
 
 ## @ingroup Methods-Missions-Segments-Ground
 def initialize_conditions(segment):
