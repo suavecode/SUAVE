@@ -14,8 +14,7 @@ from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 class Lithium_Ion_LiNiMnCoO2_18650(Battery):
     """
-    Specifies discharge/specific energy characteristics specific tobytes
-    lithium-ion batteries
+    Text 
     """
     def __defaults__(self):
         self.cell                        = Data() 
@@ -36,11 +35,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         return 
 
 def discharge_performance_map():
-    '''
+    """
     Text 
-
-
-    '''
+    """
     
     # Get raw data 
     raw_data      = get_raw_data()

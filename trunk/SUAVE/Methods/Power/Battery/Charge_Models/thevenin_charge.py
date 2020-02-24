@@ -105,6 +105,7 @@ def thevenin_charge(battery,numerics):
     DOD_old = 1 - SOC_old 
     
     # Look up tables for variables as a function of temperature and SOC
+     # FLAG FOR BATTERY DISCHARGE
     V_oc = np.zeros_like(I_cell)
     R_Th = np.zeros_like(I_cell)  
     C_Th = np.zeros_like(I_cell)  

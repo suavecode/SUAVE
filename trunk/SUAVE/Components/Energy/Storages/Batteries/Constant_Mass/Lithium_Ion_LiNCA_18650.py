@@ -14,31 +14,33 @@ from SUAVE.Components.Energy.Storages.Batteries  import Battery
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 class Lithium_Ion_LiNCA_18650(Battery):
     """
-    Specifies discharge/specific energy characteristics specific tobytes
-    lithium-ion batteries
+    Text 
     """
     def __defaults__(self):
-        self.cell                        = Data() 
-        self.amp_hour_rating                  = 3
+        
+        self.amp_hour_rating             = 3
         self.nominal_voltage             = 3.6
         self.watt_hour_rating            = self.amp_hour_rating * self.nominal_voltage
         self.mass_properties.mass        = 0.048 * Units.kg
-        self.cell.mass                   = 0.048 * Units.kg
         self.specific_energy             = self.watt_hour_rating*Units.Wh/self.mass_properties.mass  # J/kg
         self.specific_power              = 1.      *Units.kW/Units.kg #  self.specific_energy/amp_hour_rating               
-        self.resistance                  = 0.025
-        self.cell.specific_heat_capacity = 1800. #1040  #Thermal properties of lithium-ion battery and components 950 https://pdfs.semanticscholar.org/6e93/0e0c4dc0cb256d8ae0aa85cacc2c383efc08.pdf  
-        self.specific_heat_capacity      = 1800. 
+        self.resistance                  = 0.025  
         self.heat_transfer_coefficient   = 20.   #  Determination of the optimum heat transfer coefficient and temperature rise analysis for a lithium-ion battery under the conditions of Harbin city bus driving cycles. Energies, 10(11). https://doi.org/10.3390/en10111723
+        
+        self.cell                        = Data() 
+        self.cell.tag                    = 'LiNCA'
+        self.cell.mass                   = 0.048 * Units.kg
+        self.cell.specific_heat_capacity = 1800. #1040  #Thermal properties of lithium-ion battery and components 950 https://pdfs.semanticscholar.org/6e93/0e0c4dc0cb256d8ae0aa85cacc2c383efc08.pdf  
         self.cell.surface_area           = 4.18E-3 
+        
         self.discharge_performance_map   = discharge_performance_map()
         
         return 
 
 def discharge_performance_map():
-    '''
+    """
     Text 
-    '''
+    """
     battery_data = Data()
     T_bp = np.array([0., 20., 30., 45.])
     SOC_bp = np.array( [0. , 0.03333333, 0.06666667, 0.1 , 0.13333333, 0.16666667,
