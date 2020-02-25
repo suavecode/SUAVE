@@ -25,7 +25,7 @@ class Motor_HTS_Rotor(Energy_Component):
     Assumptions:
     No ACLoss in the HTS,
     HTS is operated within the Ic and Tc limits.
-    i.e the power used by the coil is only due to solder resistances only.
+    i.e the power used by the coil is only due to solder resistances only, and is not affected by the motor output power or speed.
 
     Source:
     None
