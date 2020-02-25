@@ -62,7 +62,7 @@ class Basic_Power_Electronics(Energy_Component):
             None
         """
 
-    def voltageout(self,conditions):
+    def voltage_out(self,conditions):
         """ The voltage out of the electronic speed controller
         
             Assumptions:
@@ -100,7 +100,7 @@ class Basic_Power_Electronics(Energy_Component):
         
         return voltsout
     
-    def currentin(self,conditions):
+    def current_in(self,conditions):
         """ The current going into the speed controller
         
             Assumptions:
@@ -125,6 +125,6 @@ class Basic_Power_Electronics(Energy_Component):
         
         # Pack
         self.outputs.currentin = currentin
-        self.outputs.power_in  = self.outputs.voltageout*currentin
+        self.outputs.powerin  = self.outputs.voltageout*currentin
         
         return currentin
