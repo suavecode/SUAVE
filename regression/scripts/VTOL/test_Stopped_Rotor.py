@@ -47,8 +47,8 @@ def main():
     # save, load and plot old results 
     #save_stopped_rotor_results(results)
     old_results = load_stopped_rotor_results()
-    plot_mission(old_results,configs) 
- 
+    plot_mission(old_results,configs, 'k-')
+    plt.show(block=True)    
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.rpm_lift[0][0]
@@ -385,9 +385,8 @@ def mission_setup(analyses,vehicle):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results,vec_configs): 
-    line_color = 'bo-' 
-    fig = plt.figure( )
+def plot_mission(results,vec_configs,line_color='bo-'):  
+    fig =  plt.figure("Battery",figsize=(8,10))
     fig.set_size_inches(12, 10)
     for i in range(len(results.segments)):  
     
@@ -724,4 +723,5 @@ def save_stopped_rotor_results(results):
  
 
 if __name__ == '__main__': 
-    main()    
+    main()   
+    plt.show(block=True) 

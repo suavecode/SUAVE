@@ -18,7 +18,7 @@ import copy, time
 
 def main():
     '''This script checks the funciosn in in Motor.py used to compute motor toques 
-    and output volatage and currents'''
+    and output voltage and currents'''
     # Propeller 
     prop                     = SUAVE.Components.Energy.Converters.Propeller()
     prop.number_blades       = 2.0 
@@ -139,12 +139,12 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 193.89013783 
-    torque_1_truth   = 902.2859435653145 
-    current_2_truth  = 224.71910112359782 
-    torque_3_truth   = 401.2850475260864 
-    voltage_4_truth  = 428.0161450730094 
-    current_4_truth  = 502.78196420777573 
+    omega_1_truth    = 209.16689397
+    torque_1_truth   = 1050.0709590509298
+    current_2_truth  = 30.80332675252282
+    torque_3_truth   = 55.00606925732164
+    voltage_4_truth  = 400.520618667398
+    current_4_truth  = 551.8581766566256
     power_out_truth  = 1960.0 
     
     error = Data()

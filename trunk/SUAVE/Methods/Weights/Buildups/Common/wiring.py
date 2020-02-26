@@ -36,7 +36,7 @@ def wiring(config,
         Intended for use with the following SUAVE vehicle types, but may be used
         elsewhere:
 
-            Electric Helicopter
+            Electric Multicopter
             Electric Vectored_Thrust
             Electric Stopped Rotor
 

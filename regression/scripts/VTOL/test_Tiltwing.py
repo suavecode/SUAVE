@@ -45,8 +45,8 @@ def main():
     
     # save, load and plot old results 
     #save_tiltwing_results(results)
-    old_results = load_tiltwing_results()
-    plot_mission(old_results)   
+    old_results = load_tiltwing_results() 
+    plot_mission(old_results,'k-')
    
     # RPM check during hover
     RPM        = results.segments.hover.conditions.propulsion.rpm[0][0]
@@ -234,7 +234,7 @@ def mission_setup(analyses,vehicle):
     segment.time            = 2*60
 
     segment.state.unknowns.propeller_power_coefficient = 0.01 * ones_row(1)     
-    segment.state.unknowns.throttle                    = 0.42 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.5 * ones_row(1)
     
     segment.process.iterate.unknowns.network           = vehicle.propulsors.propulsor.unpack_unknowns 
     segment.process.iterate.residuals.network          = vehicle.propulsors.propulsor.residuals   
@@ -286,7 +286,7 @@ def mission_setup(analyses,vehicle):
     segment.distance  = 30.    * Units.miles                       
     
     segment.state.unknowns.propeller_power_coefficient = 0.03 * ones_row(1)
-    segment.state.unknowns.throttle                    = 0.60 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.95 * ones_row(1)
     
     segment.process.iterate.unknowns.network        = vehicle.propulsors.propulsor.unpack_unknowns
     segment.process.iterate.residuals.network       = vehicle.propulsors.propulsor.residuals    
@@ -296,59 +296,10 @@ def mission_setup(analyses,vehicle):
     
     # add to misison
     mission.append_segment(segment)     
-                
-    # ------------------------------------------------------------------
-    #   First Descent Segment: Constant Acceleration, Constant Altitude
-    # ------------------------------------------------------------------
-    
-    segment     = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
-    segment.tag = "Descent"
-    
-    segment.analyses.extend(analyses.cruise)
-    segment.climb_rate       = -600. * Units['ft/min']
-    segment.air_speed_start  = 110.   * Units['mph']
-    segment.air_speed_end    = 85.   * Units['mph']
-    segment.altitude_start   = 1000.0 * Units.ft
-    segment.altitude_end     = 40.0 * Units.ft
-    
-    segment.process.iterate.unknowns.network        = vehicle.propulsors.propulsor.unpack_unknowns
-    segment.process.iterate.residuals.network       = vehicle.propulsors.propulsor.residuals    
-    segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability = SUAVE.Methods.skip      
-        
-    
-    # add to misison
-    mission.append_segment(segment)     
-     
-    # ------------------------------------------------------------------
-    #   Descent Segment: Constant Speed, Constant Rate
-    # ------------------------------------------------------------------
 
-    segment     = Segments.Hover.Descent(base_segment)
-    segment.tag = "Arrival"
-
-    segment.analyses.extend( analyses.hover_descent )
-
-    segment.altitude_start  = 40.0  * Units.ft
-    segment.altitude_end    = 0.  * Units.ft
-    segment.descent_rate    = 300. * Units['ft/min']  
-    
-    segment.state.unknowns.propeller_power_coefficient = 0.04 * ones_row(1)
-    segment.state.unknowns.throttle                    = 0.8 * ones_row(1)
-    
-    segment.process.iterate.unknowns.network          = vehicle.propulsors.propulsor.unpack_unknowns 
-    segment.process.iterate.residuals.network         = vehicle.propulsors.propulsor.residuals   
-    segment.process.iterate.unknowns.mission          = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability   = SUAVE.Methods.skip
-
-    # add to misison
-    mission.append_segment(segment)
-
-
-    # ------------------------------------------------------------------
-    #   Mission definition complete    
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Mission definition complete    
+    ## ------------------------------------------------------------------
   
     return mission
 
@@ -371,10 +322,8 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results): 
-      
-    line_color = 'bo-'
-    fig = plt.figure( )
+def plot_mission(results,line_color = 'bo-'):  
+    fig = plt.figure("Battery",figsize=(8,10))
     fig.set_size_inches(12, 10)
     for i in range(len(results.segments)):  
     
@@ -428,7 +377,7 @@ def plot_mission(results):
         axes.grid(True) 
         
         
-    fig = plt.figure( )
+    fig = plt.figure("Performance",figsize=(8,10))
     fig.set_size_inches(12, 10)  
     for segment in results.segments.values(): 
 
@@ -472,7 +421,7 @@ def plot_mission(results):
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
         axes.grid(True) 
  
-    fig = plt.figure( )
+    fig = plt.figure("Powertrain_Efficiencies",figsize=(8,10))
     fig.set_size_inches(12, 10)  
     for segment in results.segments.values(): 
 
@@ -510,4 +459,5 @@ def save_tiltwing_results(results):
     return
 
 if __name__ == '__main__': 
-    main()    
+    main()     
+    plt.show(block=True)            

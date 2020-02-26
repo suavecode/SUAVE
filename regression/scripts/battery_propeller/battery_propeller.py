@@ -360,7 +360,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude                  = 8012   * Units.feet
     segment.air_speed                 = 140.91 * Units['mph'] 
     segment.distance                  =  20.   * Units.nautical_mile  
-    segment.state.unknowns.throttle   = 0.9 *  ones_row(1)  # for slipstream branch
+    segment.state.unknowns.throttle   = 0.9 *  ones_row(1)   
 
     # add to misison
     mission.append_segment(segment)    
@@ -375,7 +375,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude_end              = 2500  * Units.feet
     segment.air_speed                 = 140.91 * Units['mph']  
     segment.climb_rate                = - 500.401  * Units['ft/min']  
-    segment.state.unknowns.throttle  = 0.9 * ones_row(1)  # for slipstrea branch
+    segment.state.unknowns.throttle  = 0.9 * ones_row(1)  
     
     # add to misison
     mission.append_segment(segment) 

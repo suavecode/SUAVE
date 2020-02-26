@@ -124,7 +124,7 @@ def main():
     rot_a.inputs.omega   = copy.copy(prop.inputs.omega)
     rot.inputs.omega     = copy.copy(prop.inputs.omega)
     
-    # proppeller with airfoil results 
+    # propeller with airfoil results 
     F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)
       
     # propeller without airfoil results 

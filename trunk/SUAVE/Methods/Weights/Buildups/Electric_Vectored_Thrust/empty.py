@@ -44,7 +44,7 @@ def empty(config,
             wiring.py
         Originally written as part of an AA 290 project inteded for trade study
         of the Electric Vectored_Thrust along with the following defined SUAVE vehicle types:
-            Electric Helicopter
+            Electric Multicopter
             Electric Stopped Rotor
 
         Sources:

@@ -11,6 +11,7 @@ import SUAVE
 
 # package imports
 import numpy as np
+from scipy.optimize import minimize  
 from SUAVE.Core import Units
 
 
@@ -99,14 +100,13 @@ def size_from_mass(motor):
 
     return motor
 
-
 def compute_optimal_motor_parameters(motor,prop):
     ''' Optimizes the motor to obtain the best combination of speed constant and resistance values
     by essentially you are sizing the motor for a design RPM value. Note that this design RPM 
     value can be compute from design tip mach  
     
     Source:
-     
+    N/A
     
     Inputs:
     motor    (to be modified)
@@ -120,17 +120,38 @@ def compute_optimal_motor_parameters(motor,prop):
     io                   = motor.no_load_current
     v                    = motor.nominal_voltage 
     omeg                 = prop.angular_velocity
-    etam                 = motor.efficiency
-    start_kv             = 1
-    end_kv               = 15     
-    possible_kv_vals     = np.linspace(start_kv,end_kv,(end_kv-start_kv)*20 +1 , endpoint = True) * Units.rpm
-    res_kv_vals          = ((v-omeg/possible_kv_vals)*(1.-etam*v*possible_kv_vals/omeg))/io  
-    positive_res_vals    = np.extract(res_kv_vals > 0 ,res_kv_vals) 
-    kv_idx               = np.where(res_kv_vals == min(positive_res_vals))[0][0]   
-    kv                   = possible_kv_vals[kv_idx]  
-    res                  = min(positive_res_vals) 
+    etam                 = motor.efficiency 
+    motor.speed_constant = optimize_kv(io, v , omeg,  etam)
+    motor.resistance     = ((v-omeg/motor.speed_constant)*(1.-etam*v*motor.speed_constant/omeg))/io
     
-    motor.speed_constant = kv
-    motor.resistance     = res 
-
     return motor
+
+def optimize_kv(io, v , omeg,  etam): 
+    ''' Optimizer for compute_optimal_motor_parameters function  
+    
+    Source:
+    N/A
+    
+    Inputs:
+    motor    (to be modified)
+    
+    Outputs:
+    motor.
+      speed_constant     [untiless]
+      no_load_current    [amps]
+    '''        
+    # objective 
+    objective = lambda x: ((v-omeg/x[0])*(1.-etam*v*x[0]/omeg))/io
+    
+    # bounds 
+    bnds = [(0,100)]
+    
+    # constraints 
+    cons = ({'type': 'ineq', 'fun': lambda x: ((v-omeg/x[0])*(1.-etam*v*x[0]/omeg))/io - 0.001}) # Added a tolerance on resistance, cant be less than 0.001 ohms  
+    
+    # solve 
+    sol  = minimize(objective,(0.5), method = 'SLSQP',bounds = bnds, constraints = cons ) 
+
+    return sol.x[0]  
+ 
+ 

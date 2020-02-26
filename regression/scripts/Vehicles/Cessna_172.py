@@ -33,9 +33,9 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     # mass properties
-    vehicle.mass_properties.max_takeoff   = 2550. * Units.pounds
-    vehicle.mass_properties.takeoff       = 2550. * Units.pounds
-    vehicle.mass_properties.max_zero_fuel = 2550. * Units.pounds
+    vehicle.mass_properties.max_takeoff   = 3000. * Units.pounds
+    vehicle.mass_properties.takeoff       = 3000. * Units.pounds
+    vehicle.mass_properties.max_zero_fuel = 3000. * Units.pounds
     vehicle.mass_properties.cargo         = 0. 
 
     # envelope properties
@@ -232,7 +232,7 @@ def vehicle_setup():
     net.engine_length     = 0.01 * Units.inches
     net.areas             = Data()
     net.rated_speed       = 2700. * Units.rpm
-    net.rated_power       = 110 *Units.kW
+    net.rated_power       = 600 *Units.kW
     net.areas.wetted      = 0.01
 
     # Component 1 the engine
@@ -240,19 +240,7 @@ def vehicle_setup():
     net.engine.sea_level_power    = 180. * Units.horsepower
     net.engine.flat_rate_altitude = 0.0
     net.engine.speed              = 2700. * Units.rpm
-    net.engine.BSFC               = 0.52
-
-    prop                     = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0
-    prop.freestream_velocity = 140.   *Units['mph']
-    prop.angular_velocity    = 2200.  * Units.rpm
-    prop.tip_radius          = 76./2. * Units.inches
-    prop.hub_radius          = 8.     * Units.inches
-    prop.design_Cl           = 0.8
-    prop.design_altitude     = 13500. * Units.ft
-    prop.design_power        = 2. * 180. * Units.horsepower
-    prop                     = propeller_design(prop) # propeller is designed using design parameters listed above
-    net.propeller            = prop 
+    net.engine.BSFC               = 0.52 
     
     # add the network to the vehicle
     vehicle.append_component(net) 

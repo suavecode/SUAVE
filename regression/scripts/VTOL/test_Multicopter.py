@@ -26,7 +26,7 @@ from Electric_Multicopter  import vehicle_setup, configs_setup
 
 def main():  
     # ------------------------------------------------------------------------------------------------------------------
-    # Electric Helicopter  
+    # Electric Multicopter  
     # ------------------------------------------------------------------------------------------------------------------
     # build the vehicle, configs, and analyses 
     configs, analyses = full_setup() 
@@ -34,16 +34,16 @@ def main():
     weights      = analyses.configs.base.weights
     breakdown    = weights.evaluate()     
     mission      = analyses.missions.base  
-    results   = mission.evaluate()
+    results      = mission.evaluate()
         
     # plot results
     plot_mission(results)
     
     # save, load and plot old results 
-    #save_multicopter_results(results)
-    old_results = load_multicopter_results()
-    plot_mission(old_results) 
- 
+    save_multicopter_results(results)
+    old_results = load_multicopter_results() 
+    plot_mission(old_results,'k-')
+    plt.show(block=True)    
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
@@ -156,7 +156,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Electric_Helicopter()
+    weights = SUAVE.Analyses.Weights.Weights_Electric_Multicopter()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -297,10 +297,9 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results): 
-     
-    line_color = 'bo-'
-    fig = plt.figure( )
+def plot_mission(results,line_color='bo-'): 
+      
+    fig = plt.figure("Battery",figsize=(8,10))
     fig.set_size_inches(12, 10)
     for i in range(len(results.segments)):  
     
@@ -354,7 +353,7 @@ def plot_mission(results):
         axes.grid(True) 
         
         
-    fig = plt.figure( )
+    fig = plt.figure("Performance",figsize=(8,10))
     fig.set_size_inches(12, 10)  
     for segment in results.segments.values(): 
 
@@ -398,7 +397,7 @@ def plot_mission(results):
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
         axes.grid(True) 
  
-    fig = plt.figure( )
+    fig = plt.figure("Powertrain_Efficiencies",figsize=(8,10))
     fig.set_size_inches(12, 10)  
     for segment in results.segments.values(): 
 
