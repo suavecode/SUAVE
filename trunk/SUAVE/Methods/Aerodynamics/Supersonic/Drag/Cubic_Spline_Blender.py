@@ -64,7 +64,7 @@ class Cubic_Spline_Blender():
     
         y = 2*eta*eta*eta-3*eta*eta+1
         y = jax.ops.index_update(y, (eta<0).nonzero(), 1)
-        y = jax.ops.index_update(y, (eta>0).nonzero(), 0)
+        y = jax.ops.index_update(y, (eta>1).nonzero(), 0)
         #y[eta<0] = 1
         #y[eta>1] = 0
         return y
