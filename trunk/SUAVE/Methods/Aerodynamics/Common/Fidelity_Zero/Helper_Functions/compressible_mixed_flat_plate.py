@@ -10,7 +10,9 @@
 # ----------------------------------------------------------------------
 
 # package imports
-import numpy as np
+
+import jax
+import jax.numpy as np
 
 
 # ----------------------------------------------------------------------
@@ -53,7 +55,8 @@ def compressible_mixed_flat_plate(Re,Ma,Tc,xt):
         #pass
     
     Rex = Re*xt
-    Rex[Rex==0.0] = 0.0001
+    Rex = jax.ops.index_update(Rex, (Rex==0.0).nonzero(), 0.0001)
+    #Rex[Rex==0.0] = 0.0001
 
     theta = 0.671*xt/(Rex**0.5)
     xeff  = (27.78*theta*Re**0.2)**1.25

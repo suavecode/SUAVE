@@ -16,7 +16,8 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import com
 from SUAVE.Core import Data
 
 # package imports
-import numpy as np
+import jax
+import jax.numpy as np
 
 from SUAVE.Methods.Aerodynamics.Supersonic.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 
@@ -235,9 +236,14 @@ def compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C):
     ind = Mc <= 1.
     
     k_w = np.ones_like(Mc)
-    k_w[ind] = 1. + ( 2.* C * (t_c_w * cos2) ) / ( np.sqrt(1.- Mc[ind]*Mc[ind] * cos2) )  \
+    k_w_update = 1. + ( 2.* C * (t_c_w * cos2) ) / ( np.sqrt(1.- Mc[ind]*Mc[ind] * cos2) )  \
             + ( C*C * cos2 * t_c_w*t_c_w * (1. + 5.*(cos2)) ) \
-            / (2.*(1.-(Mc[ind]*cos_sweep)**2.))             
+            / (2.*(1.-(Mc[ind]*cos_sweep)**2.))
+    k_w = jax.ops.index_update(k_w, (ind).nonzero(), k_w_update)
+
+    #k_w[ind] = 1. + ( 2.* C * (t_c_w * cos2) ) / ( np.sqrt(1.- Mc[ind]*Mc[ind] * cos2) )  \
+    #        + ( C*C * cos2 * t_c_w*t_c_w * (1. + 5.*(cos2)) ) \
+    #        / (2.*(1.-(Mc[ind]*cos_sweep)**2.))
     
     spline = Cubic_Spline_Blender(.95,1.0)
     h00 = lambda M:spline.compute(M)

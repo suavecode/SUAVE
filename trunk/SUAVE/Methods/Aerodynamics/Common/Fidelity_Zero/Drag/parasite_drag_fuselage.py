@@ -11,7 +11,8 @@
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import compressible_turbulent_flat_plate
 from SUAVE.Core import Data
 
-import numpy as np
+import jax
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Fuselage
@@ -75,14 +76,24 @@ def parasite_drag_fuselage(state,settings,geometry):
     a = np.array([[0.0]] * len(Mc))
     du_max_u = np.array([[0.0]] * len(Mc))
     k_fus = np.array([[0.0]] * len(Mc))
+
+    D_Less = np.sqrt(1 - (1-Mc[Mc < 0.95]**2) * d_d**2)
+    D = jax.ops.index_update(D, (Mc < 0.95).nonzero(), D_Less)
+
+    a_Less = 2 * (1-Mc[Mc < 0.95]**2) * (d_d**2) *(np.arctanh(D[Mc < 0.95])-D[Mc < 0.95]) / (D[Mc < 0.95]**3)
+    a = jax.ops.index_update(a, (Mc<0.95).nonzero(), a_Less)
+
+    du_Less = a[Mc < 0.95] / ( (2-a[Mc < 0.95]) * (1-Mc[Mc < 0.95]**2)**0.5 )
+    du_max_u = jax.ops.index_update(du_max_u, (Mc<0.95).nonzero(), du_Less)
     
-    D[Mc < 0.95] = np.sqrt(1 - (1-Mc[Mc < 0.95]**2) * d_d**2)
-    a[Mc < 0.95] = 2 * (1-Mc[Mc < 0.95]**2) * (d_d**2) *(np.arctanh(D[Mc < 0.95])-D[Mc < 0.95]) / (D[Mc < 0.95]**3)
-    du_max_u[Mc < 0.95] = a[Mc < 0.95] / ( (2-a[Mc < 0.95]) * (1-Mc[Mc < 0.95]**2)**0.5 )
-    
-    D[Mc >= 0.95] = np.sqrt(1 - d_d**2)
-    a[Mc >= 0.95] = 2  * (d_d**2) *(np.arctanh(D[Mc >= 0.95])-D[Mc >= 0.95]) / (D[Mc >= 0.95]**3)
-    du_max_u[Mc >= 0.95] = a[Mc >= 0.95] / ( (2-a[Mc >= 0.95]) )
+    D_GEQ = np.sqrt(1 - d_d**2)
+    D = jax.ops.index_update(D, (Mc>=0.95).nonzero(), D_GEQ)
+
+    a_GEQ = 2  * (d_d**2) *(np.arctanh(D[Mc >= 0.95])-D[Mc >= 0.95]) / (D[Mc >= 0.95]**3)
+    a = jax.ops.index_update(a, (Mc>=0.95).nonzero(), a_GEQ)
+
+    du_GEQ = a[Mc >= 0.95] / ( (2-a[Mc >= 0.95]) )
+    du_max_u = jax.ops.index_update(du_max_u, (Mc>=0.95).nonzero(), du_GEQ)
     
     k_fus = (1 + form_factor*du_max_u)**2
 

@@ -15,16 +15,17 @@ from SUAVE.Core import Units
 from SUAVE.Core import Data
 
 import jax
-#import jax.numpy as np
+import jax.numpy as np
 
-import numpy as np
+#import numpy as np
 import pylab as plt
 
 import copy, time
 import random
-import timeit
+
 from SUAVE.Attributes.Gases.Air import Air
 import sys
+
 #import vehicle file
 sys.path.append('../Vehicles')
 from Boeing_737 import vehicle_setup
@@ -252,12 +253,6 @@ if __name__ == '__main__':
 
     jit_main = jax.jit(main)
     jit_main()
-
-    #reg_time = timeit.timeit(main, number = 10)/10
-    #print(reg_time)
-
-    #jit_time = timeit.timeit(jit_main, number = 10)/10
-    #print(jit_time)
     
-    #print('Aero regression test passed!')
+    print('Aero regression test passed!')
       

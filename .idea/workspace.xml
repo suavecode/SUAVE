@@ -25,9 +25,31 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
   </component>
-  <component name="RunManager" selected="Python.mission_B737">
+  <component name="RunManager" selected="Python.aerodynamics">
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="SUAVE" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="aerodynamics" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SUAVE" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -74,8 +96,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.mission_B737" />
         <item itemvalue="Python.aerodynamics" />
+        <item itemvalue="Python.mission_B737" />
       </list>
     </recent_temporary>
   </component>
@@ -89,7 +111,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1582078071698</updated>
-      <workItem from="1582078077276" duration="3985000" />
+      <workItem from="1582078077276" duration="4460000" />
+      <workItem from="1582914074094" duration="6236000" />
     </task>
     <servers />
   </component>
@@ -97,33 +120,60 @@
     <option name="version" value="1" />
   </component>
   <component name="WindowStateProjectService">
-    <state width="1874" height="384" key="GridCell.Tab.0.bottom" timestamp="1582173639555">
+    <state width="1874" height="324" key="GridCell.Tab.0.bottom" timestamp="1582929527698">
       <screen x="0" y="27" width="1920" height="1004" />
     </state>
-    <state width="1874" height="384" key="GridCell.Tab.0.bottom/0.27.1920.1004@0.27.1920.1004" timestamp="1582173639555" />
-    <state width="1874" height="384" key="GridCell.Tab.0.center" timestamp="1582173639555">
+    <state width="1874" height="324" key="GridCell.Tab.0.bottom/0.27.1920.1004@0.27.1920.1004" timestamp="1582929527698" />
+    <state width="1874" height="324" key="GridCell.Tab.0.center" timestamp="1582929527698">
       <screen x="0" y="27" width="1920" height="1004" />
     </state>
-    <state width="1874" height="384" key="GridCell.Tab.0.center/0.27.1920.1004@0.27.1920.1004" timestamp="1582173639555" />
-    <state width="1874" height="384" key="GridCell.Tab.0.left" timestamp="1582173639555">
+    <state width="1874" height="324" key="GridCell.Tab.0.center/0.27.1920.1004@0.27.1920.1004" timestamp="1582929527698" />
+    <state width="1874" height="324" key="GridCell.Tab.0.left" timestamp="1582929527698">
       <screen x="0" y="27" width="1920" height="1004" />
     </state>
-    <state width="1874" height="384" key="GridCell.Tab.0.left/0.27.1920.1004@0.27.1920.1004" timestamp="1582173639555" />
-    <state width="1874" height="384" key="GridCell.Tab.0.right" timestamp="1582173639555">
+    <state width="1874" height="324" key="GridCell.Tab.0.left/0.27.1920.1004@0.27.1920.1004" timestamp="1582929527698" />
+    <state width="1874" height="324" key="GridCell.Tab.0.right" timestamp="1582929527698">
       <screen x="0" y="27" width="1920" height="1004" />
     </state>
-    <state width="1874" height="384" key="GridCell.Tab.0.right/0.27.1920.1004@0.27.1920.1004" timestamp="1582173639555" />
-    <state x="449" y="163" key="SettingsEditor" timestamp="1582078122837">
+    <state width="1874" height="324" key="GridCell.Tab.0.right/0.27.1920.1004@0.27.1920.1004" timestamp="1582929527698" />
+    <state width="1874" height="324" key="GridCell.Tab.1.bottom" timestamp="1582929527623">
       <screen x="0" y="27" width="1920" height="1004" />
     </state>
-    <state x="449" y="163" key="SettingsEditor/0.27.1920.1004@0.27.1920.1004" timestamp="1582078122837" />
+    <state width="1874" height="324" key="GridCell.Tab.1.bottom/0.27.1920.1004@0.27.1920.1004" timestamp="1582929527623" />
+    <state width="1874" height="324" key="GridCell.Tab.1.center" timestamp="1582929527623">
+      <screen x="0" y="27" width="1920" height="1004" />
+    </state>
+    <state width="1874" height="324" key="GridCell.Tab.1.center/0.27.1920.1004@0.27.1920.1004" timestamp="1582929527623" />
+    <state width="1874" height="324" key="GridCell.Tab.1.left" timestamp="1582929527623">
+      <screen x="0" y="27" width="1920" height="1004" />
+    </state>
+    <state width="1874" height="324" key="GridCell.Tab.1.left/0.27.1920.1004@0.27.1920.1004" timestamp="1582929527623" />
+    <state width="1874" height="324" key="GridCell.Tab.1.right" timestamp="1582929527623">
+      <screen x="0" y="27" width="1920" height="1004" />
+    </state>
+    <state width="1874" height="324" key="GridCell.Tab.1.right/0.27.1920.1004@0.27.1920.1004" timestamp="1582929527623" />
+    <state x="449" y="163" key="SettingsEditor" timestamp="1582914234768">
+      <screen x="0" y="27" width="1920" height="1004" />
+    </state>
+    <state x="449" y="163" key="SettingsEditor/0.27.1920.1004@0.27.1920.1004" timestamp="1582914234768" />
     <state x="728" y="448" width="454" height="160" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1582081724101">
       <screen x="0" y="27" width="1920" height="1004" />
     </state>
     <state x="728" y="448" width="454" height="160" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.27.1920.1004@0.27.1920.1004" timestamp="1582081724101" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/SUAVE$aerodynamics.coverage" NAME="aerodynamics Coverage Results" MODIFIED="1582082341316" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/regression/scripts/aerodynamics" />
+    <SUITE FILE_PATH="coverage/SUAVE$aerodynamics.coverage" NAME="aerodynamics Coverage Results" MODIFIED="1582929527592" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/regression/scripts/aerodynamics" />
     <SUITE FILE_PATH="coverage/SUAVE$mission_B737.coverage" NAME="mission_B737 Coverage Results" MODIFIED="1582173639545" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/regression/scripts/B737" />
   </component>
 </project>
