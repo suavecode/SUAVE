@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+# Modified: Feb 2020, K. Hamilton
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -77,6 +78,8 @@ class Basic(Conditions):
         # weights conditions
         self.weights.total_mass            = ones_1col * 0
         self.weights.weight_breakdown      = Conditions()
+        self.weights.cryogen_mass          = ones_1col * 0
+        self.weights.fuel_mass             = ones_1col * 0
         
         # energy conditions
         self.energies.total_energy         = ones_1col * 0

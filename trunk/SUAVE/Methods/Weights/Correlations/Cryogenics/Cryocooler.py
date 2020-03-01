@@ -34,8 +34,8 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
     
     Outputs:
         output - a data dictionary with fields:
-            mass -          mass of the cryocooler and supporting components          [kilogram]
             input_power -   electrical input power required by the cryocooler         [watts]
+            mass -          mass of the cryocooler and supporting components          [kilogram]
             coolerName -    Name of cooler type as a string
                
     Properties Used:
@@ -116,8 +116,8 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
             
     # packup outputs
     output = Data()
-    output.name =           coolerName
-    output.mass =           mass
-    output.input_power =    input_power
+    output.input_power      = input_power
+    output.name             = coolerName
+    output.mass             = mass
   
     return output

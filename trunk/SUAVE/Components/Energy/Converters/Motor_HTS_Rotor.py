@@ -92,7 +92,7 @@ class Motor_HTS_Rotor(Energy_Component):
         coil_voltage    = current*coil_R
 
         # Estimate heating from external heat conducting through the cryostat wall.
-        # Given the non-cryogenic armature coils are very close to this external wall it is likely the temperature at the wall is above ambient.
+        # Given the non-cryogenic armature coils are usually very close to this external wall it is likely the temperature at the wall is above ambient.
         Q = (ambient_temp - cryo_temp)/(r_value/surface_area)
 
         # Sum the heat loads to give total rotor heat load.
