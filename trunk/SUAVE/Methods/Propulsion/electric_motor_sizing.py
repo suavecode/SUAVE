@@ -126,7 +126,7 @@ def compute_optimal_motor_parameters(motor,prop):
     
     return motor
 
-def optimize_kv(io, v , omeg,  etam): 
+def optimize_kv(io, v , omeg,  etam , lb = 0 , ub = 100): 
     ''' Optimizer for compute_optimal_motor_parameters function  
     
     Source:
@@ -144,7 +144,7 @@ def optimize_kv(io, v , omeg,  etam):
     objective = lambda x: ((v-omeg/x[0])*(1.-etam*v*x[0]/omeg))/io
     
     # bounds 
-    bnds = [(0,100)]
+    bnds = [(lb,ub)]
     
     # constraints 
     cons = ({'type': 'ineq', 'fun': lambda x: ((v-omeg/x[0])*(1.-etam*v*x[0]/omeg))/io - 0.001}) # Added a tolerance on resistance, cant be less than 0.001 ohms  

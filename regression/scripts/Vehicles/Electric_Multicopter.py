@@ -31,10 +31,10 @@ def vehicle_setup():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
     # mass properties
-    vehicle.mass_properties.takeoff             = 3000. * Units.lb 
-    vehicle.mass_properties.operating_empty     = 2000. * Units.lb               # Approximate
-    vehicle.mass_properties.max_takeoff         = 3000. * Units.lb               # Approximate
-    vehicle.mass_properties.center_of_gravity   = [8.5*0.3048 ,   0.  ,  0.*0.3048 ] # Approximate
+    vehicle.mass_properties.takeoff             = 2080. * Units.lb 
+    vehicle.mass_properties.operating_empty     = 1666. * Units.lb            
+    vehicle.mass_properties.max_takeoff         = 2080. * Units.lb               
+    vehicle.mass_properties.center_of_gravity   = [2.6, 0., 0. ]  
                                                 
     # This needs updating                       
     vehicle.passengers                          = 5

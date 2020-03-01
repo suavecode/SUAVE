@@ -319,208 +319,208 @@ def vehicle_setup():
             if n == 0:
                 continue
             else:
-                index             = n+1
-                boom              = deepcopy(vehicle.fuselages.boom_1r)
-                boom.origin[0][1] = n*boom.boom_pitch + original_boom_origin[0][1]
-                boom.tag          = 'Boom_' + str(index) + 'R'
-                boom.index        = n 
+                index                           = n+1
+                boom                            = deepcopy(vehicle.fuselages.boom_1r)
+                boom.origin[0][1]               = n*boom.boom_pitch + original_boom_origin[0][1]
+                boom.tag                        = 'Boom_' + str(index) + 'R'
+                boom.index                      = n 
                 vehicle.append_component(boom)
     
     if boom.symmetric : 
         for n in range(boom.y_pitch_count):
-            index             = n+1
-            boom              = deepcopy(vehicle.fuselages.boom_1r)
-            boom.origin[0][1] = -n*boom.boom_pitch - original_boom_origin[0][1]
-            boom.tag          = 'Boom_' + str(index) + 'L'
-            boom.index        = n 
+            index                               = n+1
+            boom                                = deepcopy(vehicle.fuselages.boom_1r)
+            boom.origin[0][1]                   = -n*boom.boom_pitch - original_boom_origin[0][1]
+            boom.tag                            = 'Boom_' + str(index) + 'L'
+            boom.index                          = n 
             vehicle.append_component(boom) 
             
             
     #------------------------------------------------------------------
     # PROPULSOR
     #------------------------------------------------------------------
-    net                           = Lift_Cruise()
-    net.number_of_engines_lift    = 12
-    net.number_of_engines_forward = 1
-    net.thrust_angle_lift         = 90. * Units.degrees
-    net.thrust_angle_forward      = 0. 
-    net.nacelle_diameter          = 0.6 * Units.feet	 
-    net.engine_length             = 0.5 * Units.feet
-    net.areas                     = Data()
-    net.areas.wetted              = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
-    net.voltage                   = 500.
+    net                                         = Lift_Cruise()
+    net.number_of_engines_lift                  = 12
+    net.number_of_engines_forward               = 1
+    net.thrust_angle_lift                       = 90. * Units.degrees
+    net.thrust_angle_forward                    = 0. 
+    net.nacelle_diameter                        = 0.6 * Units.feet	 
+    net.engine_length                           = 0.5 * Units.feet
+    net.areas                                   = Data()
+    net.areas.wetted                            = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
+    net.voltage                                 = 500.
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
     #------------------------------------------------------------------
-    esc_lift                      = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    esc_lift.efficiency           = 0.95
-    net.esc_lift                  = esc_lift
-                                  
-    esc_thrust                    = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    esc_thrust.efficiency         = 0.95
-    net.esc_forward               = esc_thrust
+    esc_lift                                    = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    esc_lift.efficiency                         = 0.95
+    net.esc_lift                                = esc_lift 
+    
+    esc_thrust                                  = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    esc_thrust.efficiency                       = 0.95
+    net.esc_forward                             = esc_thrust
 
     #------------------------------------------------------------------
     # Design Payload
     #------------------------------------------------------------------
-    payload                       = SUAVE.Components.Energy.Peripherals.Avionics()
-    payload.power_draw            = 0.
-    payload.mass_properties.mass  = 200. * Units.kg
-    net.payload                   = payload
+    payload                                     = SUAVE.Components.Energy.Peripherals.Avionics()
+    payload.power_draw                          = 0.
+    payload.mass_properties.mass                = 200. * Units.kg
+    net.payload                                 = payload
 
     #------------------------------------------------------------------
     # Design Avionics
     #------------------------------------------------------------------
-    avionics                      = SUAVE.Components.Energy.Peripherals.Avionics()
-    avionics.power_draw           = 200. * Units.watts
-    net.avionics                  = avionics
+    avionics                                    = SUAVE.Components.Energy.Peripherals.Avionics()
+    avionics.power_draw                         = 200. * Units.watts
+    net.avionics                                = avionics
 
     #------------------------------------------------------------------
     # Design Battery
     #------------------------------------------------------------------
-    bat                           = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.specific_energy           = 300. * Units.Wh/Units.kg
-    bat.resistance                = 0.005
-    bat.max_voltage               = net.voltage 
-    bat.mass_properties.mass      = 300. * Units.kg
+    bat                                         = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
+    bat.specific_energy                         = 300. * Units.Wh/Units.kg
+    bat.resistance                              = 0.005
+    bat.max_voltage                             = net.voltage 
+    bat.mass_properties.mass                    = 300. * Units.kg
     initialize_from_mass(bat, bat.mass_properties.mass)
-    net.battery                   = bat
+    net.battery                                 = bat
 
 
     #------------------------------------------------------------------
     # Design Rotors and Propellers
     #------------------------------------------------------------------
     # atmosphere conditions 
-    speed_of_sound                = 340
-    rho                           = 1.22  
-    fligth_CL                     = 0.75
-    AR                            = vehicle.wings.main_wing.aspect_ratio
-    Cd0                           = 0.06
-    Cdi                           = fligth_CL**2/(np.pi*AR*0.98)
-    Cd                            = Cd0 + Cdi 
-    
-    # Thrust Propeller
-    propeller                     = SUAVE.Components.Energy.Converters.Propeller() 
-    propeller.number_blades       = 3
-    propeller.number_of_engines   = net.number_of_engines_forward
-    propeller.freestream_velocity = 110.   * Units['mph']
-    propeller.tip_radius          = 1.0668
-    propeller.hub_radius          = 0.21336 
-    propeller.design_tip_mach     = 0.65
-    propeller.angular_velocity    =  propeller.design_tip_mach *speed_of_sound  /propeller.tip_radius   
-    propeller.design_Cl           = 0.7
-    propeller.design_altitude     = 1. * Units.km 
-    Drag                          = vehicle.reference_area * (0.5*rho*propeller.freestream_velocity**2 )*Cd
-    propeller.design_thrust       = (Drag*2.5)/net.number_of_engines_forward
-    propeller                     = propeller_design(propeller)   
-    propeller.origin              = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
-    net.propeller                 = propeller
-    
-    # Lift Rotors
-    rotor                         = SUAVE.Components.Energy.Converters.Rotor() 
-    rotor.tip_radius              = 2.8 * Units.feet
-    rotor.hub_radius              = 0.35 * Units.feet      
-    rotor.number_blades           = 2   
-    rotor.design_tip_mach         = 0.65
-    rotor.number_of_engines       = net.number_of_engines_lift
-    rotor.disc_area               = np.pi*(rotor.tip_radius**2)     
-    Lift                          = vehicle.mass_properties.takeoff*9.81     
-    rotor.induced_hover_velocity  = np.sqrt(Lift/(2*rho*rotor.disc_area*net.number_of_engines_lift)) 
-    rotor.freestream_velocity     = 500. * Units['ft/min'] # hover and climb rate  
-    rotor.angular_velocity        = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
-    rotor.design_Cl               = 0.7
-    rotor.design_altitude         = 20 * Units.feet                            
-    rotor.design_thrust           = (Lift * 2.5 )/net.number_of_engines_lift 
-    rotor.x_pitch_count           = 2 
-    rotor.y_pitch_count           = vehicle.fuselages['boom_1r'].y_pitch_count
-    rotor.y_pitch                 = vehicle.fuselages['boom_1r'].y_pitch 
-    rotor                         = propeller_design(rotor)          
-    rotor.origin                  = vehicle.fuselages['boom_1r'].origin
-    rotor.symmetric               = True
+    speed_of_sound                              = 340
+    rho                                         = 1.22  
+    fligth_CL                                   = 0.75
+    AR                                          = vehicle.wings.main_wing.aspect_ratio
+    Cd0                                         = 0.06
+    Cdi                                         = fligth_CL**2/(np.pi*AR*0.98)
+    Cd                                          = Cd0 + Cdi 
+                                                
+    # Thrust Propeller                          
+    propeller                                   = SUAVE.Components.Energy.Converters.Propeller() 
+    propeller.number_blades                     = 3
+    propeller.number_of_engines                 = net.number_of_engines_forward
+    propeller.freestream_velocity               = 110.   * Units['mph']
+    propeller.tip_radius                        = 1.0668
+    propeller.hub_radius                        = 0.21336 
+    propeller.design_tip_mach                   = 0.65
+    propeller.angular_velocity                  =  propeller.design_tip_mach *speed_of_sound  /propeller.tip_radius   
+    propeller.design_Cl                         = 0.7
+    propeller.design_altitude                   = 1. * Units.km 
+    Drag                                        = vehicle.reference_area * (0.5*rho*propeller.freestream_velocity**2 )*Cd
+    propeller.design_thrust                     = (Drag*2.5)/net.number_of_engines_forward
+    propeller                                   = propeller_design(propeller)   
+    propeller.origin                            = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
+    net.propeller                               = propeller
+                                                
+    # Lift Rotors                               
+    rotor                                       = SUAVE.Components.Energy.Converters.Rotor() 
+    rotor.tip_radius                            = 2.8 * Units.feet
+    rotor.hub_radius                            = 0.35 * Units.feet      
+    rotor.number_blades                         = 2   
+    rotor.design_tip_mach                       = 0.65
+    rotor.number_of_engines                     = net.number_of_engines_lift
+    rotor.disc_area                             = np.pi*(rotor.tip_radius**2)     
+    Lift                                        = vehicle.mass_properties.takeoff*9.81     
+    rotor.induced_hover_velocity                = np.sqrt(Lift/(2*rho*rotor.disc_area*net.number_of_engines_lift)) 
+    rotor.freestream_velocity                   = 500. * Units['ft/min'] # hover and climb rate  
+    rotor.angular_velocity                      = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
+    rotor.design_Cl                             = 0.7
+    rotor.design_altitude                       = 20 * Units.feet                            
+    rotor.design_thrust                         = (Lift * 2.5 )/net.number_of_engines_lift 
+    rotor.x_pitch_count                         = 2 
+    rotor.y_pitch_count                         = vehicle.fuselages['boom_1r'].y_pitch_count
+    rotor.y_pitch                               = vehicle.fuselages['boom_1r'].y_pitch 
+    rotor                                       = propeller_design(rotor)          
+    rotor.origin                                = vehicle.fuselages['boom_1r'].origin
+    rotor.symmetric                             = True
     
     # populating propellers on one side of wing
     if rotor.y_pitch_count > 1 :
         for n in range(rotor.y_pitch_count):
             if n == 0:
                 continue
-            propeller_origin = [rotor.origin[0][0] , rotor.origin[0][1] +  n*rotor.y_pitch ,rotor.origin[0][2]]
+            propeller_origin                    = [rotor.origin[0][0] , rotor.origin[0][1] +  n*rotor.y_pitch ,rotor.origin[0][2]]
             rotor.origin.append(propeller_origin)   
    
    
     # populating propellers on one side of the vehicle 
     if rotor.x_pitch_count > 1 :
-        relative_prop_origins = np.linspace(0,vehicle.fuselages['boom_1r'].lengths.total,rotor.x_pitch_count)
+        relative_prop_origins                   = np.linspace(0,vehicle.fuselages['boom_1r'].lengths.total,rotor.x_pitch_count)
         for n in range(len(rotor.origin)):
             for m in range(len(relative_prop_origins)-1):
-                propeller_origin = [rotor.origin[n][0] + relative_prop_origins[m+1] , rotor.origin[n][1] ,rotor.origin[n][2] ]
+                propeller_origin                = [rotor.origin[n][0] + relative_prop_origins[m+1] , rotor.origin[n][1] ,rotor.origin[n][2] ]
                 rotor.origin.append(propeller_origin)
                  
     # propulating propellers on the other side of thevehicle   
     if rotor.symmetric : 
         for n in range(len(rotor.origin)):
-            propeller_origin = [rotor.origin[n][0] , -rotor.origin[n][1] ,rotor.origin[n][2] ]
+            propeller_origin                    = [rotor.origin[n][0] , -rotor.origin[n][1] ,rotor.origin[n][2] ]
             rotor.origin.append(propeller_origin) 
     
     # re-compute number of lift propellers if changed 
-    net.number_of_engines_lift    = len(rotor.origin)        
+    net.number_of_engines_lift                  = len(rotor.origin)        
     
     # append propellers to vehicle     
-    net.rotor = rotor
+    net.rotor                                   = rotor
     
     #------------------------------------------------------------------
     # Design Motors
     #------------------------------------------------------------------
     # Propeller (Thrust) motor
-    motor_forward                      = SUAVE.Components.Energy.Converters.Motor()
-    motor_forward.efficiency           = 0.95
-    motor_forward.nominal_voltage      = bat.max_voltage *3/4 
-    motor_forward.mass_properties.mass = 2.0  * Units.kg
-    motor_forward.origin               = propeller.origin  
-    motor_forward.propeller_radius     = propeller.tip_radius    
-    motor_forward.gear_ratio           = 1. 
-    motor_forward.gearbox_efficiency   = 1. # Gear box efficiency    
-    motor_forward.no_load_current      = 2.0 
-    motor_forward                      = compute_optimal_motor_parameters(motor_forward,propeller)
-    net.motor_forward                  = motor_forward
-    
-    # Rotor (Lift) Motor
-    motor_lift                         = SUAVE.Components.Energy.Converters.Motor()
-    motor_lift.efficiency              = 0.95  
-    motor_lift.nominal_voltage         = bat.max_voltage 
-    motor_lift.mass_properties.mass    = 3. * Units.kg 
-    motor_lift.origin                  = rotor.origin  
-    motor_lift.propeller_radius        = rotor.tip_radius  
-    motor_lift.gear_ratio              = 1.0
-    motor_lift.gearbox_efficiency      = 1.0 
-    motor_lift.no_load_current         = 4.0     
-    motor_lift                         = compute_optimal_motor_parameters(motor_lift,rotor)
-    net.motor_lift                     = motor_lift  
+    motor_forward                               = SUAVE.Components.Energy.Converters.Motor()
+    motor_forward.efficiency                    = 0.95
+    motor_forward.nominal_voltage               = bat.max_voltage *3/4 
+    motor_forward.mass_properties.mass          = 2.0  * Units.kg
+    motor_forward.origin                        = propeller.origin  
+    motor_forward.propeller_radius              = propeller.tip_radius    
+    motor_forward.gear_ratio                    = 1. 
+    motor_forward.gearbox_efficiency            = 1. # Gear box efficiency    
+    motor_forward.no_load_current               = 2.0 
+    motor_forward                               = compute_optimal_motor_parameters(motor_forward,propeller)
+    net.motor_forward                           = motor_forward
+                                                
+    # Rotor (Lift) Motor                        
+    motor_lift                                  = SUAVE.Components.Energy.Converters.Motor()
+    motor_lift.efficiency                       = 0.95  
+    motor_lift.nominal_voltage                  = bat.max_voltage 
+    motor_lift.mass_properties.mass             = 3. * Units.kg 
+    motor_lift.origin                           = rotor.origin  
+    motor_lift.propeller_radius                 = rotor.tip_radius  
+    motor_lift.gear_ratio                       = 1.0
+    motor_lift.gearbox_efficiency               = 1.0 
+    motor_lift.no_load_current                  = 4.0     
+    motor_lift                                  = compute_optimal_motor_parameters(motor_lift,rotor)
+    net.motor_lift                              = motor_lift  
      
     # append motor origin spanwise locations onto wing data structure 
     vehicle.append_component(net)
      
     # Add extra drag sources from motors, props, and landing gear. All of these hand measured 
-    motor_height                            = .25 * Units.feet
-    motor_width                             = 1.6 * Units.feet    
-    propeller_width                         = 1. * Units.inches
-    propeller_height                        = propeller_width *.12    
-    main_gear_width                         = 1.5 * Units.inches
-    main_gear_length                        = 2.5 * Units.feet    
-    nose_gear_width                         = 2. * Units.inches
-    nose_gear_length                        = 2. * Units.feet    
-    nose_tire_height                        = (0.7 + 0.4) * Units.feet
-    nose_tire_width                         = 0.4 * Units.feet    
-    main_tire_height                        = (0.75 + 0.5) * Units.feet
-    main_tire_width                         = 4. * Units.inches    
-    total_excrescence_area_spin             = 12.*motor_height*motor_width + 2.*main_gear_length*main_gear_width \
-                                               + nose_gear_width*nose_gear_length + 2*main_tire_height*main_tire_width\
-                                               + nose_tire_height*nose_tire_width
-    
-    total_excrescence_area_no_spin          = total_excrescence_area_spin + 12*propeller_height*propeller_width 
+    motor_height                                = .25 * Units.feet
+    motor_width                                 = 1.6 * Units.feet    
+    propeller_width                             = 1. * Units.inches
+    propeller_height                            = propeller_width *.12    
+    main_gear_width                             = 1.5 * Units.inches
+    main_gear_length                            = 2.5 * Units.feet    
+    nose_gear_width                             = 2. * Units.inches
+    nose_gear_length                            = 2. * Units.feet    
+    nose_tire_height                            = (0.7 + 0.4) * Units.feet
+    nose_tire_width                             = 0.4 * Units.feet    
+    main_tire_height                            = (0.75 + 0.5) * Units.feet
+    main_tire_width                             = 4. * Units.inches    
+    total_excrescence_area_spin                 = 12.*motor_height*motor_width + 2.*main_gear_length*main_gear_width \
+                                                   + nose_gear_width*nose_gear_length + 2*main_tire_height*main_tire_width\
+                                                   + nose_tire_height*nose_tire_width
+                                                
+    total_excrescence_area_no_spin              = total_excrescence_area_spin + 12*propeller_height*propeller_width 
                                            
-    vehicle.excrescence_area_no_spin        = total_excrescence_area_no_spin 
-    vehicle.excrescence_area_spin           = total_excrescence_area_spin 
+    vehicle.excrescence_area_no_spin            = total_excrescence_area_no_spin 
+    vehicle.excrescence_area_spin               = total_excrescence_area_spin 
     
     vehicle.wings['main_wing'].motor_spanwise_locations = np.multiply(
         2./36.25,
