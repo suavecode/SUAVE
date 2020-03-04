@@ -36,7 +36,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         output - a data dictionary with fields:
             input_power -   electrical input power required by the cryocooler         [watts]
             mass -          mass of the cryocooler and supporting components          [kilogram]
-            cooler_type -    Name of cooler type as a string
+            coolerName -    Name of cooler type as a string
                
     Properties Used:
         N/A
@@ -44,7 +44,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
 
     # process
     # Initialise variables as null values
-    cooler_type =    None    # Cryocooler type name
+    coolerName =    None    # Cryocooler type name
     tempMinRT =     None    # Minimum temperature achievable by this type of cooler when rejecting to an ambient temperature of 19C (K)
     tempMin =       None    # Updated minimum achievable temperature based on the supplied ambient temperature (K)
     eff =           None    # Efficiency function. This is a line fit from a survey of Cryomech coolers in November 2019
@@ -72,7 +72,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
 
     # Set the parameters of the cooler based on the cooler type and the operating conditions. The default ambient operating temperature (19C) is used as a base.
     if cooler_type ==   'fps':
-        cooler_type =    "Free Piston Stirling"
+        coolerName =    "Free Piston Stirling"
         tempMinRT =     35.0
         tempMin =       tempMinRT - tempOffset
         eff =           0.0014*(cryo_temp-tempMin)   
@@ -80,7 +80,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         mass =          0.0098*input_power+1.0769
 
     elif cooler_type == 'GM':
-        cooler_type =    "Gifford McMahon"
+        coolerName =    "Gifford McMahon"
         tempMinRT =     5.4
         tempMin =       tempMinRT - tempOffset
         eff =           0.0005*(cryo_temp-tempMin)
@@ -88,7 +88,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         mass =          0.0129*input_power+63.08
 
     elif cooler_type == 'sPT':
-        cooler_type =    "Single Pulsetube"
+        coolerName =    "Single Pulsetube"
         tempMinRT =     16.0
         tempMin =       tempMinRT - tempOffset
         eff =           0.0002*(cryo_temp-tempMin)
@@ -96,7 +96,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         mass =          0.0282*input_power+5.9442
 
     elif cooler_type == 'dPT':
-        cooler_type =    "Double Pulsetube"
+        coolerName =    "Double Pulsetube"
         tempMinRT =     8.0
         tempMin =       tempMinRT - tempOffset
         eff =           0.00001*(cryo_temp-tempMin)
@@ -105,7 +105,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
 
     else:
         print("Warning: Unknown Cryocooler type")
-        cooler_type =    "Unknown"
+        coolerName =    "Unknown"
 
     # Warn if the cryogenic temperature is unachievable
     if cryo_temp < tempMin:
@@ -117,7 +117,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
     # packup outputs
     output = Data()
     output.input_power      = input_power
-    output.name             = cooler_type
+    output.name             = coolerName
     output.mass             = mass
   
     return output
