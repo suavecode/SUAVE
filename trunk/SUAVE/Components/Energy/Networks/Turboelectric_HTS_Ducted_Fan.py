@@ -166,7 +166,7 @@ class Turboelectric_Ducted_Fan(Propulsor):
         cryogen_mdot = 0
         if cooling_share_cryogen != 0:
             cryogen_load = cooling_share_cryogen * rotor_cryo_load
-            cryogen_mdot = heat_exchanger.mdot(cryogen_load, rotor.temperature)
+            cryogen_mdot = heat_exchanger.mdot(cryogen_load)
 
         # Sum all the power users to get the power required to be supplied by the powersupply, i.e. the turboelectric generator
         powersupply.inputs.power_in = motor_power_in + esc_power + rotor_power_in + lead_power + ccs_power + cryocooler_power
