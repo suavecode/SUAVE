@@ -132,6 +132,14 @@ class Turboelectric_Ducted_Fan(Propulsor):
         # Calculate the power used by the rotor's current supply.
         ccs_power             = (lead_power+rotor_power_in)/ccs.efficiency - (lead_power+rotor_power_in)
 
+        # # Calculate the power loss in the HTS Dynamo. This replaces the current supply leads.
+        # lead_power          = 0
+        # if rotor.current != 0:
+            # lead_power      = dynamo.shaft_power(rotor_power_in)
+
+        # # Calculate the power used by the HTS Dynamo powertrain, i.e. the esc, motor, and gearbox.
+        # ccs_power           = dynamo.power_in
+
         # Retreive the cryogenic heat load from the rotor components (not including the leads).
         rotor_cryo_cryostat   = rotor.results.cryo_load
 
@@ -139,6 +147,11 @@ class Turboelectric_Ducted_Fan(Propulsor):
         lead_cryo_load        = 2*lead.unpowered_Q
         if rotor.current != 0:
             lead_cryo_load    = 2*lead.minimum_Q
+
+        # # Retreive the cryogenic load due to the dynamo
+        # lead_cryo_load        = 0.0
+        # if rotor.current != 0:
+        #     lead_cryo_load    = dynamo.cryo_load
 
         # Sum the two rotor cryogenic heat loads to give the total rotor cryogenic load.
         rotor_cryo_load = rotor_cryo_cryostat + lead_cryo_load
