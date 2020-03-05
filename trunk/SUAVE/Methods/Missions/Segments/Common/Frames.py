@@ -4,6 +4,7 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jul 2016, E. Botero
 #           Jul 2017, E. Botero
+#           May 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -45,8 +46,13 @@ def initialize_inertial_position(segment):
         r_initial = segment.state.initials.conditions.frames.inertial.position_vector
         r_current = segment.state.conditions.frames.inertial.position_vector
         
+        if 'altitude' in segment.keys() and segment.altitude:
+            r_initial[-1,None,-1] = -segment.altitude
+        elif 'altitude_start' in segment.keys() and segment.altitude_start:
+            r_initial[-1,None,-1] = -segment.altitude_start
+            
         segment.state.conditions.frames.inertial.position_vector[:,:] = r_current + (r_initial[-1,None,:] - r_current[0,None,:])
-    
+        
     return
     
     

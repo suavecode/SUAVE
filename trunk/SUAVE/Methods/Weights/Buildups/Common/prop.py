@@ -23,7 +23,7 @@ import copy as cp
 def prop(prop,
          maximum_thrust,
          chord_to_radius_ratio = 0.1,
-         thickness_to_chord_ratio = 0.12,
+         thickness_to_chord = 0.12,
          root_to_radius_ratio = 0.1,
          moment_to_lift_ratio = 0.02,
          spanwise_analysis_points = 5,
@@ -37,7 +37,7 @@ def prop(prop,
             prop,
             maximum_thrust,
             chord_to_radius_ratio = 0.1,
-            thickness_to_chord_ratio = 0.12,
+            thickness_to_chord = 0.12,
             root_to_radius_ratio = 0.1,
             moment_to_lift_ratio = 0.02,
             spanwise_analysis_points = 5,
@@ -56,8 +56,8 @@ def prop(prop,
         Intended for use with the following SUAVE vehicle types, but may be used
         elsewhere:
 
-            Electric Helicopter
-            Electric Tiltrotor
+            Electric Multicopter
+            Electric Vectored_Thrust
             Electric Stopped Rotor
 
         Originally written as part of an AA 290 project inteded for trade study
@@ -71,7 +71,7 @@ def prop(prop,
             prop                        SUAVE Propeller Data Structure
             maximum_thrust              Maximum Design Thrust               [N]
             chord_to_radius_ratio       Chord to Blade Radius               [Unitless]
-            thickness_to_chord_ratio    Blade Thickness to Chord            [Unitless]
+            thickness_to_chord          Blade Thickness to Chord            [Unitless]
             root_to_radius_ratio        Root Structure to Blade Radius      [Unitless]
             moment_to_lift_ratio        Coeff. of Moment to Coeff. of Lift  [Unitless]
             spanwise_analysis_points    Analysis Points for Sizing          [Unitless]
@@ -100,7 +100,7 @@ def prop(prop,
     chord       = rProp * chord_to_radius_ratio
     N           = spanwise_analysis_points
     SF          = safety_factor
-    toc         = thickness_to_chord_ratio
+    toc         = thickness_to_chord
     fwdWeb      = cp.deepcopy(forward_web_locations)
     xShear      = shear_center
     rootLength  = rProp * root_to_radius_ratio

@@ -266,7 +266,7 @@ def post_process(nexus):
     # Static stability calculations
     CMA = -10.
     for segment in list(results.base.segments.values()):
-        max_CMA=np.max(segment.conditions.stability.static.cm_alpha[:,0])
+        max_CMA=np.max(segment.conditions.stability.static.Cm_alpha[:,0])
         if max_CMA>CMA:
             CMA=max_CMA
             

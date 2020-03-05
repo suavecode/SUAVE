@@ -2,7 +2,7 @@
 # AERODAS.py
 # 
 # Created:  Feb 2016, E. Botero
-# Modified: 
+# Modified: Apr 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -81,6 +81,7 @@ class AERODAS(Markup):
         compute.drag.total                             = Methods.AERODAS_setup.drag_total
         
         def initialize(self):
+            super(AERODAS, self).initialize()
             self.process.compute.lift.inviscid_wings.geometry = self.geometry
             self.process.compute.lift.inviscid_wings.initialize()
             

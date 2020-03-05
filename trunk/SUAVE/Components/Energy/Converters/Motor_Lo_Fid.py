@@ -99,7 +99,7 @@ class Motor_Lo_Fid(Energy_Component):
 
         # Omega
         omega1 = (Kv*v)/2. + (Kv*(Res*Res*io*io - 2.*Res*etam*io*v - 2.*Res*io*v + etam*etam*v*v - 2.*etam*v*v + v*v)**(1./2.))/2. - (Kv*Res*io)/2. + (Kv*etam*v)/2.
-        Q = ((v-omega1/Kv)/Res -io)/Kv
+        Q      = ((v-omega1/Kv)/Res -io)/Kv
         
         omega1[v==0] = 0.
 
@@ -139,12 +139,12 @@ class Motor_Lo_Fid(Energy_Component):
         """       
         
         # Unpack
-        G    = self.gear_ratio
-        Kv   = self.speed_constant
-        Res  = self.resistance
-        v    = self.inputs.voltage
-        omeg = self.omega(conditions)*G
-        etaG = self.gearbox_efficiency
+        G     = self.gear_ratio
+        Kv    = self.speed_constant
+        Res   = self.resistance
+        v     = self.inputs.voltage
+        omeg  = self.omega(conditions)*G
+        etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
         io    = self.no_load_current + exp_i*(1-etaG)
         
@@ -161,7 +161,30 @@ class Motor_Lo_Fid(Energy_Component):
         
         return i
     
-    def power_lo(self,conditions):
+    def power_lo(self,conditions): 
+        """Calculates the motor's power output
+    
+        Assumptions: 
+    
+        Source:
+        N/A
+    
+        Inputs: 
+        self.
+           inputs.voltage         [V] 
+    
+        Outputs:
+        self.outputs.
+           outputs.power          [W]
+           outputs.current        [A]
+           
+        Properties Used:
+        self.
+        
+          motor_efficiency        [-] 
+          rated_power             [W] 
+          rated_voltage           [V] 
+        """          
         
         etam   = self.motor_efficiency
         power  = self.rated_power

@@ -3,6 +3,7 @@
 #
 # Created:  Dec 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
+#           Apr 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,10 +17,7 @@ import numpy as np
 
 from SUAVE.Input_Output.OpenVSP.write_vsp_mesh import write_vsp_mesh
 from SUAVE.Input_Output.GMSH.write_geo_file import write_geo_file
-from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file
-
-# Default aero Results
-from .Results import Results
+from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file 
 
 # The aero methods
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
@@ -128,6 +126,7 @@ class SU2_Euler_Super(Markup):
           vsp_mesh_growth_ratio         [-] Determines how the mesh grows
           vsp_mesh_growth_limiting_flag <boolean> Determines if 3D growth limiting is used
         """              
+        super(SU2_Euler_Super, self).initialize()
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         tag = self.geometry.tag
