@@ -1,4 +1,4 @@
-## @ingroup Components-Energy-Converters
+## @ingroup Components-Energy-Cooling
 # Cryogenic_Heat_Exchanger.py
 #
 # Created:  Feb 2020, K. Hamilton
