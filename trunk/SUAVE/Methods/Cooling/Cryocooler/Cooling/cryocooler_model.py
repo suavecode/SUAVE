@@ -1,5 +1,5 @@
-## @ingroup Methods-Weights-Correlations-Cryogenics 
-# Cryocooler.py
+## @ingroup Methods-Cooling-Cryocooler-Cooling
+# Cryocooler_model.py
 # 
 # Created:  Nov 2019, K.Hamilton
 
@@ -10,12 +10,13 @@
 from SUAVE.Core import Units, Data
 
 # ----------------------------------------------------------------------
-#   Cryocooler
+#   Cryocooler Model
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Weights-Correlations-Cryogenics 
-def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
-    """ Calculate the weight of the cryocooler
+## @ingroup Methods-Cooling-Cryocooler-Cooling
+# def cryocooler_model(max_power, cooler_type, cryo_temp, amb_temp=292.2):
+def cryocooler_model(self, cooling_power, cryo_temp, amb_temp):
+    """ Calculate the power required by the cryocooler based on the cryocooler type, the required cooling power, and the temperature conditions.
     
     Assumptions:
         Based on mass data for Cryomech cryocoolers as per the datasheets for ground based non-massreduced coolers available via the cryomech website: https://www.cryomech.com/cryocoolers/.
@@ -44,12 +45,15 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
 
     # process
     # Initialise variables as null values
-    coolerName =    None    # Cryocooler type name
-    tempMinRT =     None    # Minimum temperature achievable by this type of cooler when rejecting to an ambient temperature of 19C (K)
-    tempMin =       None    # Updated minimum achievable temperature based on the supplied ambient temperature (K)
-    eff =           None    # Efficiency function. This is a line fit from a survey of Cryomech coolers in November 2019
-    input_power =   None    # Electrical input power (W)
-    mass =          None    # Total cooler mass function. Fit from November 2019 Cryomech data. (kg)
+    # coolerName =    None    # Cryocooler type name
+    # tempMinRT =     None    # Minimum temperature achievable by this type of cooler when rejecting to an ambient temperature of 19C (K)
+    # tempMin =       None    # Updated minimum achievable temperature based on the supplied ambient temperature (K)
+    # eff =           None    # Efficiency function. This is a line fit from a survey of Cryomech coolers in November 2019
+    # input_power =   None    # Electrical input power (W)
+    # mass =          None    # Total cooler mass function. Fit from November 2019 Cryomech data. (kg)
+
+    # unpack cryocooler properties
+    cooler_type     = self.cooler_type
 
     # Prevent unrealistic temperature changes.
     if cryo_temp < 1.:
@@ -76,7 +80,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         tempMinRT =     35.0
         tempMin =       tempMinRT - tempOffset
         eff =           0.0014*(cryo_temp-tempMin)   
-        input_power =   max_power/eff
+        input_power =   cooling_power/eff
         mass =          0.0098*input_power+1.0769
 
     elif cooler_type == 'GM':
@@ -84,7 +88,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         tempMinRT =     5.4
         tempMin =       tempMinRT - tempOffset
         eff =           0.0005*(cryo_temp-tempMin)
-        input_power =   max_power/eff
+        input_power =   cooling_power/eff
         mass =          0.0129*input_power+63.08
 
     elif cooler_type == 'sPT':
@@ -92,7 +96,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         tempMinRT =     16.0
         tempMin =       tempMinRT - tempOffset
         eff =           0.0002*(cryo_temp-tempMin)
-        input_power =   max_power/eff
+        input_power =   cooling_power/eff
         mass =          0.0282*input_power+5.9442
 
     elif cooler_type == 'dPT':
@@ -100,7 +104,7 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         tempMinRT =     8.0
         tempMin =       tempMinRT - tempOffset
         eff =           0.00001*(cryo_temp-tempMin)
-        input_power =   max_power/eff
+        input_power =   cooling_power/eff
         mass =          0.0291*input_power+3.9345
 
     else:
@@ -115,9 +119,6 @@ def cryocooler(max_power, cooler_type, cryo_temp, amb_temp=292.2):
         print("Warning: The required cryogenic temperature of " + str(cryo_temp) + " is not achievable using a " + cooler_type + " cryocooler at an ambiet temperature of " + str(amb_temp) + ". The minimum temperature achievable is " + str(tempMin))
             
     # packup outputs
-    output = Data()
-    output.input_power      = input_power
-    output.name             = coolerName
-    output.mass             = mass
+    self.name           = coolerName
   
-    return output
+    return [input_power, mass]
