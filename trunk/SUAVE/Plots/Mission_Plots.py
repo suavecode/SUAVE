@@ -18,7 +18,6 @@ import matplotlib.animation as animation
 import matplotlib as mpl
 import matplotlib.cm as cm
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_propeller_airfoils
 
 ## @ingroup Plots
 # ------------------------------------------------------------------
@@ -263,84 +262,6 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
     return
 
 # ------------------------------------------------------------------
-#   Pressure Coefficient
-# ------------------------------------------------------------------
-def plot_surface_pressure_contours(results,vehicle, save_figure = False):	
-    VD         = vehicle.vortex_distribution	 
-    n_cw       = VD.n_cw 	
-    n_sw       = VD.n_sw 
-    n_w        = VD.n_w
-    
-    axis_font  = {'size':'12'}  	
-    img_idx    = 1	
-    seg_idx    = 1	
-    for segment in results.segments.values():   	
-        num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
-        for ti in range(num_ctrl_pts):  
-            CP         = segment.conditions.aerodynamics.pressure_coefficient[ti]
-            
-            fig        = plt.figure()	
-            axes       = fig.add_subplot(1, 1, 1)  
-            x_max      = max(VD.XC) + 2
-            y_max      = max(VD.YC) + 2
-            axes.set_ylim(x_max, 0)
-            axes.set_xlim(-y_max, y_max)            
-            fig.set_size_inches(12, 12)         	 
-            for i in range(n_w):
-                x_pts = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                y_pts = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                z_pts = np.reshape(np.atleast_2d(CP[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))  
-                levals = np.linspace(-.025,-0.0001,500)
-                CS = axes.contourf( y_pts, x_pts,z_pts, cmap = 'jet',levels=levals,extend='both')  
-                
-            # Set Color bar	
-            cbar = fig.colorbar(CS, ax=axes)
-            cbar.ax.set_ylabel('$C_{P}$', rotation =  0)  # angle   
-            plt.axis('off')	
-            plt.grid(None)            
-            
-            if save_figure: 
-                plt.savefig('CP_' + str(img_idx) +  ".png") 	
-            img_idx += 1	
-        seg_idx +=1
-        
-    return   
-
-
-# ------------------------------------------------------------------
-#   Sectional Lift Distribution
-# ------------------------------------------------------------------
-def plot_lift_distribution(results,vehicle, save_figure = False):	
-    VD         = vehicle.vortex_distribution	 	
-    n_sw       = VD.n_sw 
-    n_w        = VD.n_w
-    
-    axis_font  = {'size':'12'}  	
-    img_idx    = 1	
-    seg_idx    = 1	
-    for segment in results.segments.values():   	
-        num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
-        for ti in range(num_ctrl_pts):  
-            cl_y = segment.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[ti] 
-            line = ['-b','-b','-r','-r','-k']
-            fig  = plt.figure()
-            fig.set_size_inches(12, 12)       
-            axes = fig.add_subplot(1,1,1)
-            for i in range(n_w): 
-                y_pts = VD.Y_SW[i*(n_sw):(i+1)*(n_sw)]
-                z_pts = cl_y[i*(n_sw):(i+1)*(n_sw)]
-                axes.plot(y_pts, z_pts, line[i] ) 
-            axes.set_xlabel("Spanwise Location (m)")
-            axes.set_title('$C_{Ly}$')  
-            
-            if save_figure: 
-                plt.savefig('CLy_' + str(img_idx) +  ".png") 	
-            img_idx += 1	
-        seg_idx +=1
-        
-    return      
-
-# ------------------------------------------------------------------
 #   Drag Components
 # ------------------------------------------------------------------
 def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_filename = "Drag_Components"):
@@ -505,7 +426,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
 # ------------------------------------------------------------------
 #   Propulsion Conditions
 # ------------------------------------------------------------------
-def plot_proppeller_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propeller"):
+def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propeller"):
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)  
@@ -1043,118 +964,6 @@ def plot_rotor_acoustics(results, line_color = 'bo-', save_figure = False, save_
         
 
     return 
-
-# ------------------------------------------------------------------
-#   VLM Video 
-# ------------------------------------------------------------------
-def create_video_frames(results,vehicle,flight_profile = True):	
-    VD         = vehicle.vortex_distribution	
-    n_cp       = VD.n_cp	
-    n_cw       = VD.n_cw 	
-    n_sw       = VD.n_sw 
-    n_w        = VD.n_w
-    n_fus      = VD.n_fus
-    
-    axis_font  = {'size':'12'}  	
-    img_idx    = 1	
-    seg_idx    = 1	
-    for segment in results.segments.values():   	
-        num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
-        for ti in range(num_ctrl_pts):  
-            CP         = segment.conditions.aerodynamics.pressure_coefficient[ti]
-            
-            fig        = plt.figure()	
-            axes       = fig.add_subplot(1, 1, 1) 
-            x_max = max(VD.XC) + 2
-            y_max = max(VD.YC) + 2
-            axes.set_ylim(x_max, 0)
-            axes.set_xlim(-y_max, y_max)            
-            fig.set_size_inches(12, 12)         
-            
-            # plot fuselage 
-            for i in range(n_fus):
-                x_pts = np.reshape(np.atleast_2d(VD.FUS_XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                y_pts = np.reshape(np.atleast_2d(VD.FUS_YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                z_pts = np.reshape(np.atleast_2d(VD.FUS_ZC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))   
-                CS_fus = axes.contourf( y_pts,x_pts, z_pts,cmap=plt.cm.bone)  
-            
-            # plot wing    
-            for i in range(n_w):
-                x_pts = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                y_pts = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                z_pts = np.reshape(np.atleast_2d(CP[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))  
-                levals = np.linspace(-.025,-0.0001,500)
-                CS = axes.contourf(x_pts, y_pts, z_pts, cmap = 'jet',levels=levals,extend='both')  
-                
-            # Set Color bar	
-            cbar = fig.colorbar(CS, ax=axes)
-            cbar.ax.set_ylabel('$C_{P}$', rotation =  0)  # angle   
-            plt.axis('off')	
-            plt.grid(None) 	 
-            
-            if flight_profile: 
-                time_vec      = np.empty(shape=[0,1])	
-                cl_vec        = np.empty(shape=[0,1])	
-                cd_vec        = np.empty(shape=[0,1])	
-                l_d_vec       = np.empty(shape=[0,1])	
-                altitude_vec  = np.empty(shape=[0,1])	
-                mass_vec      = np.empty(shape=[0,1])          	
-                for seg_i in range(seg_idx):	
-                    if seg_i == seg_idx-1:	
-                        t_vals  = results.segments[seg_i].conditions.frames.inertial.time[0:ti+1] / Units.min	
-                        cl_vals = results.segments[seg_i].conditions.aerodynamics.lift_coefficient[0:ti+1]	
-                        cd_vals = results.segments[seg_i].conditions.aerodynamics.drag_coefficient[0:ti+1]	
-                        l_d_vals = cl_vals/cd_vals	
-                        alt_vals = results.segments[seg_i].conditions.freestream.altitude[0:ti+1] / Units.ft	
-                        m_vals   = results.segments[seg_i].conditions.weights.total_mass[0:ti+1]/ Units.lb                  	
-                
-                    else:                    	
-                        t_vals  = results.segments[seg_i].conditions.frames.inertial.time / Units.min	
-                        cl_vals = results.segments[seg_i].conditions.aerodynamics.lift_coefficient	
-                        cd_vals = results.segments[seg_i].conditions.aerodynamics.drag_coefficient	
-                        l_d_vals = cl_vals/cd_vals 	
-                        alt_vals = results.segments[seg_i].conditions.freestream.altitude / Units.ft	
-                        m_vals   = results.segments[seg_i].conditions.weights.total_mass/ Units.lb	
-                
-                    time_vec      = np.append(time_vec     ,t_vals[:,0])	
-                    cl_vec        = np.append(cl_vec       ,cl_vals[:,0])	
-                    cd_vec        = np.append(cd_vec       ,cd_vals[:,0])	
-                    l_d_vec       = np.append(l_d_vec      , l_d_vals[:,0])	
-                    altitude_vec  = np.append(altitude_vec ,alt_vals[:,0])	
-                    mass_vec      = np.append(mass_vec     ,m_vals[:,0]) 	
-                
-                mini_axes1 = fig.add_subplot(4,4,4)	
-                mini_axes1.plot(time_vec, altitude_vec , 'ko-')	
-                mini_axes1.set_ylabel('Altitude (ft)',axis_font)	
-                mini_axes1.set_xlim(-10,420)	
-                mini_axes1.set_ylim(0,36000)        	
-                mini_axes1.grid(False)	
-                
-                mini_axes2 = fig.add_subplot(4,4,8)	
-                mini_axes2.plot(time_vec, mass_vec , 'ro-' )	
-                mini_axes2.set_ylabel('Weight (lb)',axis_font)       	
-                mini_axes2.grid(False)            	
-                mini_axes2.set_xlim(-10,420)	
-                mini_axes2.set_ylim(130000,180000)   	
-                
-                mini_axes3 = fig.add_subplot(4,4,12)	
-                mini_axes3.plot( time_vec, cl_vec, 'bo-'  )	
-                mini_axes3.set_ylabel('$C_{L}$',axis_font)	
-                mini_axes3.set_xlim(-10,420)	
-                mini_axes3.set_ylim(0.3,0.9)  	
-                mini_axes3.grid(False) 	
-                
-                mini_axes4 = fig.add_subplot(4,4,16)	
-                mini_axes4.plot(time_vec , l_d_vec ,'go-'  )	
-                mini_axes4.set_ylabel('L/D',axis_font)	
-                mini_axes4.set_xlabel('Time (mins)',axis_font)	
-                mini_axes4.set_xlim(-10,420)	
-                mini_axes4.set_ylim(15,20)  	
-                mini_axes4.grid(False)             	
-
-            plt.savefig('mission_' + str(img_idx) +  ".png") 	
-            img_idx += 1	
-        seg_idx +=1
         
 # ------------------------------------------------------------------
 #   Propeller Performance
@@ -1180,33 +989,3 @@ def plot_propeller_performance(noise, line_color = 'bo-', save_figure = False, s
         plt.savefig(save_filename + ".png")  
         
     return  
-
-
-# ------------------------------------------------------------------
-#   Rotor/Propeller Acoustics
-# ------------------------------------------------------------------
-def plot_rotor_acoustics(results, line_color = 'bo-', save_figure = False, save_filename = "Rotor Acoustics"):
-    axis_font = {'size':'14'} 
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8) 
-    for i in range(len(results.segments)):          
-        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        SPL_BMv_dBA  = results.segments[i].conditions.propulsion.acoustic_outputs.acoustic_results.SPL_BMv_dBA[:,0]
-        SPL_Hv_dBA   = results.segments[i].conditions.propulsion.acoustic_outputs.acoustic_results.SPL_Hv_dBA[:,0] 
-        axes = fig.add_subplot(1,1,1)
-        axes.plot( time , SPL_BMv_dBA, 'bo-', label = 'Prediction Method: Barry & Magliozzi')
-        axes.plot( time , SPL_Hv_dBA , 'r^-', label = 'Prediction Method: Hanson')
-        axes.set_ylabel('dBA',axis_font)
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylim([60,130])
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')          
-        axes.grid(True) 
-        if i == 0:
-            axes.legend(loc='upper center')         
-
-    if save_figure:
-        plt.savefig(save_filename + ".png")  
-
-    return 
