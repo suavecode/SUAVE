@@ -81,11 +81,11 @@ def main():
     weight.fuel    = vehicle.fuel.mass_properties.mass 
     actual         = Data()
     actual.bag     = 0.
-    actual.empty   = 716.1907505979462
+    actual.empty   = 718.1138612605073
     actual.fuel    = 144.69596603
 
-    actual.wing            = 152.07487006426
-    actual.fuselage        = 123.67852471645563
+    actual.wing            = 152.16209642521855
+    actual.fuselage        = 125.15207443119046
     actual.propulsion      = 224.40728553408732
     actual.landing_gear    = 67.81320006645151
     actual.furnishing      = 37.8341395817

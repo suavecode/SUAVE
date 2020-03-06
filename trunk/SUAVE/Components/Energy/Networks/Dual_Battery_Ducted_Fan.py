@@ -108,25 +108,22 @@ class Dual_Battery_Ducted_Fan(Propulsor):
        
        
         pbat=-Pe/self.motor_efficiency
-        pbat_primary=copy.copy(pbat) #prevent deep copy nonsense
-        pbat_auxiliary=np.zeros_like(pbat)
-        #print 'pbat=', pbat/10**6.
-        #print 'max_power prim=', primary_battery.max_power/10**6. 
-        #print 'max_power aux=', auxiliary_battery.max_power/10**6. 
+        pbat_primary=copy.copy(pbat)                           # prevent deep copy nonsense
+        pbat_auxiliary=np.zeros_like(pbat)  
         for i in range(len(pbat)):
-            if  pbat[i]<-primary_battery.max_power:   #limit power output of primary_battery
+            if  pbat[i]<-primary_battery.max_power:            # limit power output of primary_battery
                 pbat_primary[i]   = -primary_battery.max_power #-power means discharge
                 pbat_auxiliary[i] = pbat[i]-pbat_primary[i]
-            elif pbat[i]>primary_battery.max_power: #limit charging rate of battery
+            elif pbat[i]>primary_battery.max_power:            # limit charging rate of battery
                 pbat_primary[i]   = primary_battery.max_power
                 pbat_auxiliary[i] = pbat[i]-pbat_primary[i]
-            if pbat_primary[i]>0: #don't allow non-rechargable battery to charge
+            if pbat_primary[i]>0:                              #don't allow non-rechargable battery to charge
                 pbat_primary[i]   = 0
                 pbat_auxiliary[i] = pbat[i]
      
         primary_battery_logic            = Data()
         primary_battery_logic.power_in   = pbat_primary
-        primary_battery_logic.current    = 90.  #use 90 amps as a default for now; will change this for higher fidelity methods
+        primary_battery_logic.current    = 90.  # use 90 amps as a default for now; will change this for higher fidelity methods
         auxiliary_battery_logic          = copy.copy(primary_battery_logic)
         auxiliary_battery_logic.power_in = pbat_auxiliary
         primary_battery.inputs           = primary_battery_logic
@@ -134,8 +131,8 @@ class Dual_Battery_Ducted_Fan(Propulsor):
         tol                              = 1e-6
         primary_battery.energy_calc(numerics)
         auxiliary_battery.energy_calc(numerics)
-        #allow for mass gaining batteries
         
+        #allow for mass gaining batteries 
         try:
             mdot_primary = find_mass_gain_rate(primary_battery,-(pbat_primary-primary_battery.resistive_losses))
         except AttributeError:
@@ -147,6 +144,7 @@ class Dual_Battery_Ducted_Fan(Propulsor):
     
         mdot=mdot_primary+mdot_auxiliary
         mdot=np.reshape(mdot, np.shape(conditions.freestream.velocity))
+        
         #Pack the conditions for outputs
         primary_battery_draw                 = primary_battery.inputs.power_in
         primary_battery_energy               = primary_battery.current_energy

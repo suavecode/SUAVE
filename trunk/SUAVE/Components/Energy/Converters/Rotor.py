@@ -29,7 +29,7 @@ import matplotlib.cm as cm
 
 
 # ----------------------------------------------------------------------
-#  Propeller Class
+#  Rotor Class
 # ----------------------------------------------------------------------    
 ## @ingroup Components-Energy-Converters
 class Rotor(Energy_Component):
@@ -82,13 +82,14 @@ class Rotor(Energy_Component):
         self.tag                      = 'Rotor'
         
     def spin(self,conditions):
-        """Analyzes a propeller given geometry and operating conditions.
+        """Analyzes a rotor given geometry and operating conditions.
         
         Assumptions:
         per source
         
         Source:
-        Qprop theory document
+        Drela, M. "Qprop Formulation", MIT AeroAstro, June 2006
+        http://web.mit.edu/drela/Public/web/qprop/qprop_theory.pdf
         
         Inputs:
         self.inputs.omega            [radian/s]
@@ -109,7 +110,7 @@ class Rotor(Energy_Component):
           r0                         [m]
           airfoil_chord              [m]
           blades_number              [-]
-          propeller_diameter         [m]
+          rotor_diameter         [m]
           drag_coefficient           [-]
           lift_coefficient           [-]
           omega                      [radian/s]
@@ -216,15 +217,15 @@ class Rotor(Energy_Component):
             airfoil_polars = Data() 
             # check dimension of section
             if len(a_loc) != N:
-                raise AssertionError('Dimension of airfoil sections must be equal to number of stations on propeller')
+                raise AssertionError('Dimension of airfoil sections must be equal to number of stations on rotor')
             # compute airfoil polars for airfoils 
             airfoil_polars = compute_airfoil_polars(self, a_geo, a_pol)
-            airfoil_cl     = airfoil_polars.lift_coefficient_sweep
-            airfoil_cd     = airfoil_polars.drag_coefficient_sweep
-            AoA_sweep      = airfoil_polars.angle_of_attack_sweep
+            airfoil_cl     = airfoil_polars.lift_coefficients
+            airfoil_cd     = airfoil_polars.drag_coefficients
+            AoA_sweep      = airfoil_polars.angle_of_attacks
         
         if self.radius_distribution is None:
-            chi0    = Rh/R   # Where the propeller blade actually starts
+            chi0    = Rh/R   # Where the rotor blade actually starts
             chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
             chi     = chi[0:N] 
         
@@ -381,53 +382,51 @@ class Rotor(Energy_Component):
                 torque[i]   = power[i]/omega[i]  
             Cp[i] = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))   
         
+        # torque coefficient 
+        Cq = torque/(rho*(n*n)*(D*D*D*D)*R) 
+        
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0 
-        thrust[omega<0.0] = - thrust[omega<0.0]  
+        torque[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0 
+        thrust[omega<0.0] = - thrust[omega<0.0] 
         
         etap     = V*thrust/power  
         conditions.propulsion.etap = etap
-        
+         
         # store data
-        results_conditions = Data     
-        outputs   = results_conditions(
-            n_blades                  = B,
-            R                         = R,
-            D                         = D,
-            number_sections           = N,
-            radius_distribution       = np.linspace(Rh ,R, N),
-            chord_distribution        = c,     
-            twist_distribution        = beta,            
-            r0                        = r,
-            thrust_angle              = theta,
-            speed_of_sound            = conditions.freestream.speed_of_sound,
-            density                   = conditions.freestream.density,
-            velocity                  = Vv, 
-            vt                        = vt, 
-            va                        = va, 
-            drag_coefficient          = Cd,
-            lift_coefficient          = Cl,       
-            omega                     = omega,          
-            tip_speed                 = tip_speed,
-            blade_dT_dR               = rho*(Gamma*(Wt-epsilon*Wa)),   
-            blade_dT_dr               = rho*(Gamma*(Wt-epsilon*Wa))*R,  
-            blade_T_distribution      = rho*(Gamma*(Wt-epsilon*Wa))*deltar, 
-            blade_T                   = thrust/B,  
-            Ct                        = Ct, #0, 
-            Cts                       = 0, 
-            
-            blade_dQ_dR               = rho*(Gamma*(Wa+epsilon*Wt)*r), 
-            blade_dQ_dr               = rho*(Gamma*(Wa+epsilon*Wt)*r)*R,
-            blade_Q_distribution      = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar,
-            blade_Q                   = torque/B,   
-            Cq                        = 0, 
-            
-            power                     = power,
-            
-            mid_chord_aligment        = self.mid_chord_aligment     
+        results_conditions                   = Data     
+        outputs                              = results_conditions(
+            n_blades                         = B,
+            rotor_radius                     = R,
+            rotor_diameter                   = D,
+            number_sections                  = N,
+            radius_distribution              = np.linspace(Rh ,R, N),
+            chord_distribution               = c,     
+            twist_distribution               = beta,            
+            normalized_radial_distribution   = r,
+            thrust_angle                     = theta,
+            speed_of_sound                   = conditions.freestream.speed_of_sound,
+            density                          = conditions.freestream.density,
+            velocity                         = Vv, 
+            tangential_velocity_distribution = vt, 
+            axial_velocity_distribution      = va, 
+            drag_coefficient                 = Cd,
+            lift_coefficient                 = Cl,       
+            omega                            = omega, 
+            dT_dR                            = rho*(Gamma*(Wt-epsilon*Wa)),   
+            dT_dr                            = rho*(Gamma*(Wt-epsilon*Wa))*R,  
+            thrust_distribution              = rho*(Gamma*(Wt-epsilon*Wa))*deltar, 
+            thrust_per_blade                 = thrust/B,  
+            thrust_coefficient               = Ct,  
+            dQ_dR                            = rho*(Gamma*(Wa+epsilon*Wt)*r), 
+            dQ_dr                            = rho*(Gamma*(Wa+epsilon*Wt)*r)*R,
+            torque_distribution              = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar,
+            torque_per_blade                 = torque/B,   
+            torque_coefficient               = Cq,   
+            power                            = power,
+            power_coefficient                = Cp, 
+            mid_chord_aligment               = self.mid_chord_aligment     
         ) 
-
-
  
         return thrust, torque, power, Cp, outputs  , etap  
 
@@ -435,7 +434,7 @@ class Rotor(Energy_Component):
     
 
     def spin_variable_pitch(self,conditions):
-        """Analyzes a propeller given geometry and operating conditions.
+        """Analyzes a rotor given geometry and operating conditions.
 
         Assumptions:
         per source
@@ -463,7 +462,7 @@ class Rotor(Energy_Component):
           r0                         [m]
           airfoil_chord              [m]
           blades_number              [-]
-          propeller_diameter         [m]
+          rotor_diameter         [m]
           drag_coefficient           [-]
           lift_coefficient           [-]
           omega                      [radian/s]
@@ -562,15 +561,15 @@ class Rotor(Energy_Component):
             airfoil_polars = Data() 
             # check dimension of section
             if len(a_loc) != N:
-                raise AssertionError('Dimension of airfoil sections must be equal to number of stations on propeller')
+                raise AssertionError('Dimension of airfoil sections must be equal to number of stations on rotor')
             # compute airfoil polars for airfoils 
             airfoil_polars = compute_airfoil_polars(self, a_geo, a_pol)
-            airfoil_cl     = airfoil_polars.lift_coefficient_sweep
-            airfoil_cd     = airfoil_polars.drag_coefficient_sweep
-            AoA_sweep      = airfoil_polars.angle_of_attack_sweep
+            airfoil_cl     = airfoil_polars.lift_coefficients
+            airfoil_cd     = airfoil_polars.drag_coefficients
+            AoA_sweep      = airfoil_polars.angle_of_attacks
         
         if self.radius_distribution is None:
-            chi0    = Rh/R   # Where the propeller blade actually starts
+            chi0    = Rh/R   # Where the rotor blade actually starts
             chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
             chi     = chi[0:N]
         
@@ -708,7 +707,7 @@ class Rotor(Energy_Component):
         torque   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]
         D        = 2*R 
         tip_speed = omega*R
- 
+        
         # Leishman's thrust coefficient for rotor
         Ctl        = thrust/(rho*disk_area*( tip_speed*tip_speed))  # Eqn 2.36 Principles of Helicopter Aerodynamics 
         Ctl[Ctl<0] = 0.        # prevent things from breaking
@@ -729,9 +728,13 @@ class Rotor(Energy_Component):
                 power[i]    = torque[i]*omega[i]   
                 torque[i]   = power[i]/omega[i]  
             Cp[i] = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))  
-            
+        
+        # torque coefficient 
+        Cq = torque/(rho*(n*n)*(D*D*D*D)*R) 
+        
         thrust[conditions.propulsion.throttle[:,0] <=0.0] = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0 
+        torque[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0 
         thrust[omega<0.0] = - thrust[omega<0.0] 
 
         etap     = V*thrust/power     
@@ -739,42 +742,38 @@ class Rotor(Energy_Component):
         conditions.propulsion.etap = etap        
         
         # store data
-        results_conditions = Data     
-        outputs            = results_conditions(
-            n_blades                  = B,
-            R                         = R,
-            D                         = D,
-            number_sections           = N,
-            radius_distribution       = np.linspace(Rh ,R, N),
-            chord_distribution        = c,     
-            twist_distribution        = beta,            
-            r0                        = r,
-            thrust_angle              = theta,
-            speed_of_sound            = conditions.freestream.speed_of_sound,
-            density                   = conditions.freestream.density,
-            velocity                  = Vv, 
-            vt                        = vt, 
-            va                        = va, 
-            drag_coefficient          = Cd,
-            lift_coefficient          = Cl,       
-            omega                     = omega,          
-            
-            blade_dT_dR               = rho*(Gamma*(Wt-epsilon*Wa)),   
-            blade_dT_dr               = rho*(Gamma*(Wt-epsilon*Wa))*R,  
-            blade_T_distribution      = rho*(Gamma*(Wt-epsilon*Wa))*deltar, 
-            blade_T                   = thrust/B,  
-            Ct                        = 0, 
-            Cts                       = 0, 
-            
-            blade_dQ_dR               = rho*(Gamma*(Wa+epsilon*Wt)*r), 
-            blade_dQ_dr               = rho*(Gamma*(Wa+epsilon*Wt)*r)*R,
-            blade_Q_distribution      = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar,
-            blade_Q                   = torque/B,   
-            Cq                        = 0, 
-            
-            power                     = power,
-            
-            mid_chord_aligment        = self.mid_chord_aligment     
+        results_conditions                   = Data     
+        outputs                              = results_conditions(
+            n_blades                         = B,
+            rotor_radius                     = R,
+            rotor_diameter                   = D,
+            number_sections                  = N,
+            radius_distribution              = np.linspace(Rh ,R, N),
+            chord_distribution               = c,     
+            twist_distribution               = beta,            
+            normalized_radial_distribution   = r,
+            thrust_angle                     = theta,
+            speed_of_sound                   = conditions.freestream.speed_of_sound,
+            density                          = conditions.freestream.density,
+            velocity                         = Vv, 
+            tangential_velocity_distribution = vt, 
+            axial_velocity_distribution      = va, 
+            drag_coefficient                 = Cd,
+            lift_coefficient                 = Cl,       
+            omega                            = omega, 
+            dT_dR                            = rho*(Gamma*(Wt-epsilon*Wa)),   
+            dT_dr                            = rho*(Gamma*(Wt-epsilon*Wa))*R,  
+            thrust_distribution              = rho*(Gamma*(Wt-epsilon*Wa))*deltar, 
+            thrust_per_blade                 = thrust/B,  
+            thrust_coefficient               = Ct,  
+            dQ_dR                            = rho*(Gamma*(Wa+epsilon*Wt)*r), 
+            dQ_dr                            = rho*(Gamma*(Wa+epsilon*Wt)*r)*R,
+            torque_distribution              = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar,
+            torque_per_blade                 = torque/B,   
+            torque_coefficient               = Cq,   
+            power                            = power,
+            power_coefficient                = Cp, 
+            mid_chord_aligment               = self.mid_chord_aligment     
         ) 
         
         return thrust, torque, power, Cp, outputs , etap

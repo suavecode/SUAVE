@@ -64,9 +64,9 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
     for i in range(num_airfoils):           
         # read airfoil polars 
         airfoil_polar_data =  import_airfoil_polars(a_polar)
-        airfoil_cl  = airfoil_polar_data.lift_coefficient_sweep[i] 
-        airfoil_cd  = airfoil_polar_data.drag_coefficient_sweep[i] 
-        airfoil_aoa = airfoil_polar_data.angle_of_attack_sweep[i]   
+        airfoil_cl  = airfoil_polar_data.lift_coefficients[i] 
+        airfoil_cd  = airfoil_polar_data.drag_coefficients[i] 
+        airfoil_aoa = airfoil_polar_data.angle_of_attacks[i]   
 
         # computing approximate zero lift aoa
         airfoil_cl_plus = airfoil_cl[airfoil_cl>0]
@@ -191,8 +191,8 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
                     CD[i,j]  = CD1max + (CD2max - CD1max) * np.sin(((alphan-ACD1)/(90.-ACD1))*Units.degrees)     
 
 
-    airfoil_data.lift_coefficient_sweep  = CL
-    airfoil_data.drag_coefficient_sweep  = CD
-    airfoil_data.angle_of_attack_sweep   = AoA_sweep*Units.degrees 
+    airfoil_data.lift_coefficients  = CL
+    airfoil_data.drag_coefficients  = CD
+    airfoil_data.angle_of_attacks   = AoA_sweep*Units.degrees 
 
     return airfoil_data   

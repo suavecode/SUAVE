@@ -191,7 +191,7 @@ class Battery_Propeller(Propulsor):
 
         F_mag = np.atleast_2d(np.linalg.norm(F, axis=1)/Units.lbs) # lb   
         conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2) # lb/ft^2                     
-        conditions.propulsion.power_loading         = (F_mag.T)/(battery_draw*0.00134102)           # lb/hp 
+        conditions.propulsion.power_loading         = (F_mag.T)/(battery_draw/Units.hp)                # lb/hp 
         
         results = Data()
         results.thrust_force_vector = F
