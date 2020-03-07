@@ -1,7 +1,7 @@
 ## @ingroup methods-cooling-Leads
 
 ## @ingroup Methods-cooling-leads
-# initialize_copper_leads.py
+# copper_lead.py
 # 
 # Created:  Feb 2020, K. Hamilton
 
@@ -17,10 +17,10 @@ from scipy.misc import derivative
 
 
 # ----------------------------------------------------------------------
-#  Initialize Copper Leads
+#  Copper Lead
 # ----------------------------------------------------------------------
 ## @ingroup Methods-Cooling-Leads
-def initialize_copper_leads(lead):
+def initialize_copper_lead(lead):
     """
     Defines an optimum copper lead for supplying current to a cryogenic environment given the operating conditions and copper properties.
     
