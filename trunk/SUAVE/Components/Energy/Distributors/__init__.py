@@ -10,5 +10,7 @@
 
 from .Solar_Logic import Solar_Logic
 from .Electronic_Speed_Controller import Electronic_Speed_Controller
-from .Basic_Power_Electronics import Basic_Power_Electronics
 from .Cryogenic_Lead import Cryogenic_Lead
+from .HTS_DC_Supply import HTS_DC_Supply
+from .HTS_DC_Dynamo import HTS_DC_Dynamo
+from .HTS_Dynamo_Supply import HTS_Dynamo_Supply
