@@ -122,5 +122,5 @@ class Aerodynamics(Basic):
         
         # weights conditions
         self.weights.vehicle_mass_rate     = ones_1col * 0
-        self.weights.cryogen_mass_rate     = ones_1col * 0
-        self.weights.fuel_mass_rate        = ones_1col * 0
+        self.weights.vehicle_fuel_rate     = ones_1col * 0
+        self.weights.vehicle_cryogen_rate  = ones_1col * 0

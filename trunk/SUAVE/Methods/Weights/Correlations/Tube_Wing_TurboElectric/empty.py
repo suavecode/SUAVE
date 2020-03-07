@@ -146,9 +146,9 @@ def empty(vehicle,settings=None):
         propulsors.motor.mass_properties.mass = wt_motors
 
         # Size powersupply based on the max power draw. Powersupply is a energy converter not an energy storage
-        # The max power draw is probably better done elsewhere but is here for now
-        max_power_draw = (propulsors.design_shaft_power/propulsors.motor.motor_efficiency)
-        initialize_from_power(propulsors.powersupply, propulsors.number_of_powersupplies, max_power_draw)
+        # # The max power draw is probably better done elsewhere but is here for now
+        # max_power_draw = (propulsors.design_shaft_power/propulsors.motor.motor_efficiency)
+        # initialize_from_power(propulsors.powersupply, propulsors.number_of_powersupplies, max_power_draw)
         wt_powersupplies = propulsors.powersupply.mass_properties.mass
 
         # Total propulsor weight is the ducted fan and the attached HTS motor

@@ -160,7 +160,7 @@ class Turboelectric_Ducted_Fan(Propulsor):
         # results.vehicle_cryogen_mass_rate    = mdot      # <- Possible fix.
         # Methods-Missions-Segments-Common.update_weights uses results.vehicle_mass_rate to update the vehicle mass, calling this change in mass "mdot_fuel". To prevent breaking this it is suggested the total mass change be stored in results.vehicle_mass_rate as is done elsewhere for mass varying batteries. To track the individual contributions to the mass difference new variables in "results" will need to be updated.
         # Modification of Methods-Missions-Segments-Common.update_weights is required as this is called during iteration, i.e. it either must be modified to consider other weights here, or updated multiple other places. A "cryogenic" flag in results would prevent other simulations failing due to a missing results.vehicle_fuel_mass_rate, or just add results.vehicle_cryogen_mass_rate to Analyses-Mission-Segments-Conditions.Aerodynamics initialised as zero and apply the difference regardless as it will usually be zero.
-        results.vehicle_mass_rate   = mdot
+        results.vehicle_mass_rate       = mdot
 
         return results
             

@@ -77,9 +77,15 @@ def update_thrust(segment):
     results   = energy_model.evaluate_thrust(segment.state)
 
     # pack conditions
-    conditions = segment.state.conditions
-    conditions.frames.body.thrust_force_vector = results.thrust_force_vector
-    conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
+    conditions                                  = segment.state.conditions
+    conditions.frames.body.thrust_force_vector  = results.thrust_force_vector
+    conditions.weights.vehicle_mass_rate        = results.vehicle_mass_rate
+    if "vehicle_fuel_rate" in results:
+        print('ye4')
+        conditions.weights.vehicle_fuel_rate        = results.vehicle_fuel_rate
+    if "vehicle_cryogen_rate" in results:
+        print('ye5')
+        conditions.weights.vehicle_cryogen_rate     = results.vehicle_cryogen_rate
     
 
     

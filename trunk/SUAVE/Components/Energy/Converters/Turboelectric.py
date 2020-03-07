@@ -50,6 +50,7 @@ class Turboelectric(Energy_Component):
         """           
         self.propellant             = Liquid_Natural_Gas()
         self.oxidizer               = Air()
+        self.number_of_engines      = 2.0                           # number of turboelectric machines, not propulsors
         self.efficiency             = .37                           # Approximate average gross efficiency across the product range.
         self.volume                 = 2.36      *Units.m**3.        # 3m long from RB211 datasheet. 1m estimated radius.
         self.max_power              = 37400.0   *Units.kW

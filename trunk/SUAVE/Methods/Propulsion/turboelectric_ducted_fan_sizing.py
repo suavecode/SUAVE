@@ -14,6 +14,7 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Data
+from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initialize_from_power
 
 ## @ingroup Methods-Propulsion
 def turboelectric_ducted_fan_sizing(turboelectric_ducted_fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None):  
@@ -29,7 +30,8 @@ def turboelectric_ducted_fan_sizing(turboelectric_ducted_fan,mach_number = None,
     """
     
     #Unpack components
-    ducted_fan = turboelectric_ducted_fan.propulsor
+    ducted_fan      = turboelectric_ducted_fan.propulsor
+    turboelectric   = turboelectric_ducted_fan.powersupply
     
     #check if altitude is passed or conditions is passed
     if(conditions):
@@ -135,8 +137,9 @@ def turboelectric_ducted_fan_sizing(turboelectric_ducted_fan,mach_number = None,
     thrust.size(conditions)
     mass_flow  = thrust.mass_flow_rate_design
 
-    # compute shaft power required by all the fans
-    turboelectric_ducted_fan.design_shaft_power = fan.outputs.work_done * mass_flow * number_of_engines
+    # compute total shaft power required (i.e. the sum of the shaft power provided by all the fans)
+    spower = fan.outputs.work_done * mass_flow * number_of_engines
+    turboelectric_ducted_fan.design_shaft_power = spower
     # Shaft power seems to be half the expected. 3 MW expected per motor. 1.336 MW reported
 
     # update the design thrust value
@@ -180,3 +183,6 @@ def turboelectric_ducted_fan_sizing(turboelectric_ducted_fan,mach_number = None,
     results_sls = ducted_fan.evaluate_thrust(state_sls)
     
     turboelectric_ducted_fan.sealevel_static_thrust = results_sls.thrust_force_vector[0,0] / number_of_engines
+
+    # Size the turboelectric generator based on the ductied fan shaft power and the freestream conditions
+    initialize_from_power(turboelectric,turboelectric.number_of_engines,spower,conditions)
