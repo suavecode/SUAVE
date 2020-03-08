@@ -48,11 +48,11 @@ class Motor_HTS_Rotor(Energy_Component):
         Properties Used:
         None
         """              
-        self.temperature        = 0.0       # Operating temperature of the HTS, i.e. temperature inside the cryostat.                       [K]
-        self.current            = 0.0       # Current passing throught the coils, or rather through the resistive HTS joints.               [A]
-        self.resistance         = 0.0       # Resistance of the HTS coils.                                                                  [ohm]
-        self.surface_area       = 0.0       # Surface area of the rotor, used to estimate the conductive heating through the cryostat wall. [m2]
-        self.R_value            = 0.0       # R_Value of the cryostat wall, used to estimate heating of the cryostat from external heat.    [K.m2/W]
+        self.temperature    = 0.0   # Operating temperature of the HTS, i.e. temperature inside the cryostat.                       [K]
+        self.current        = 0.0   # Current passing throught the coils, or rather through the resistive HTS joints.               [A]
+        self.resistance     = 0.0   # Resistance of the HTS coils.                                                                  [ohm]
+        self.surface_area   = 0.0   # Surface area of the rotor, used to estimate the conductive heating through the cryostat wall. [m2]
+        self.R_value        = 0.0   # R_Value of the cryostat wall, used to estimate heating of the cryostat from external heat.    [K.m2/W]
     
     def power(self, current, ambient_temp):
         """ Calculates the electrical power draw from the HTS coils, and the total heating load on the HTS rotor cryostat.

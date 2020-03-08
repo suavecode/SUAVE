@@ -92,18 +92,18 @@ class Turboelectric_Ducted_Fan(Propulsor):
         
         # unpack
 
-        propulsor                   = self.propulsor
-        motor                       = self.motor
-        powersupply                 = self.powersupply
-        esc                         = self.esc
-        rotor                       = self.rotor
-        lead                        = self.lead
-        ccs                         = self.ccs
-        cryocooler                  = self.cryocooler
-        heat_exchanger              = self.cryogenic_heat_exchanger
-        skin_temp                   = self.ambient_temp
-        cooling_share_cryogen       = self.cryogen_proportion
-        cooling_share_cryocooler    = 1.0 - cooling_share_cryogen
+        propulsor                   = self.propulsor                    # Electric ducted fan(s) not including the motor
+        motor                       = self.motor                        # Motor(s) driving those fans
+        powersupply                 = self.powersupply                  # Powersupply(s) providing electricity for the motor(s)
+        esc                         = self.esc                          # Motor speed controller(s)
+        rotor                       = self.rotor                        # Rotor(s) of the motor(s)
+        lead                        = self.lead                         # Current supply leads supplying the rotor(s)
+        ccs                         = self.ccs                          # Rotor constant current supply
+        cryocooler                  = self.cryocooler                   # Rotor cryocoolers, powered by electricity
+        heat_exchanger              = self.cryogenic_heat_exchanger     # Rotor cryocooling, powered by cryogen
+        skin_temp                   = self.ambient_temp                 # Exterior temperature of the rotor
+        cooling_share_cryogen       = self.cryogen_proportion           # Proportion of rotor cryocooling provided by cryogen
+        cooling_share_cryocooler    = 1.0 - cooling_share_cryogen       # Proportion of rotor cryocooling provided by cryocooler
 
         amb_temp        = conditions.freestream.temperature
     
