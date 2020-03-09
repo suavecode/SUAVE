@@ -107,29 +107,10 @@ class Battery_Test(Propulsor):
             
         elif dischage_fidelity == 2:    
             SOC             = state.unknowns.battery_state_of_charge 
-            T_cell          = state.unknowns.battery_cell_temperature 
-            V_Th            = state.unknowns.battery_thevenin_voltage    
+            I_cell          = state.unknowns.battery_current  
+            T0_cell         = battery.temperature
             
-            battery.cell_temperature = T_cell 
-            
-            # look up tables 
-            V_oc = np.zeros_like(SOC)
-            R_Th = np.zeros_like(SOC)  
-            C_Th = np.zeros_like(SOC)  
-            R_0  = np.zeros_like(SOC)
-            SOC[SOC<0] = 0
-            for i in range(len(SOC)): 
-                V_oc[i] = battery_data.V_oc_interp(T_cell[i], SOC[i])[0]
-                C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC[i])[0]
-                R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC[i])[0]
-                R_0[i]  =  battery_data.R_0_interp(T_cell[i], SOC[i])[0]
-            
-            dV_TH_dt =  np.dot(D,V_Th)
-            I_0 = V_Th/R_Th  + C_Th*dV_TH_dt 
-            R_0  = R_0 * R_growth_factor  
-        
-            # Voltage under load:
-            volts =  V_oc - V_Th - (I_0 * R_0)        
+            volts  = battery_data.V_oc_interp(SOC , T0_cell , I_cell )      
             battery.volts = volts 
             
         if discharge_flag:
