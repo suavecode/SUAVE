@@ -88,7 +88,7 @@ def arbitrary(vehicle,settings=None):
     
     # Work through the propulsions systems
     for prop in vehicle.propulsors:
-        if isinstance(prop,Nets.Turbofan) or isinstance(prop,Nets.Turbojet_Super):
+        if isinstance(prop,Nets.Turbofan) or isinstance(prop,Nets.Turbojet_Super) or isinstance(prop, Nets.Propulsor_Surrogate):
             num_eng                   = prop.number_of_engines
             thrust_sls                = prop.sealevel_static_thrust
             wt_engine_jet             = Propulsion.engine_jet(thrust_sls)
