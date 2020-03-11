@@ -13,6 +13,7 @@ import numpy as np
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_location import compute_chord_length_from_span_location
 import SUAVE.Components as C
+from SUAVE.Components import Physical_Component
 
 # ----------------------------------------------------------------------
 #  Computer Aircraft Center of Gravity
@@ -157,7 +158,6 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     nose_gear.mass_properties.center_of_gravity[0][0]          = 0.0   
     
     def get_total_mass(vehicle):
-        from SUAVE.Components import Physical_Component
         total = 0.0
         for key in vehicle.keys():
             item = vehicle[key]
@@ -166,7 +166,6 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
         return total
     
     def get_CG(vehicle):
-        from SUAVE.Components import Physical_Component
         total = np.array([[0.0,0.0,0.0]])
         for key in vehicle.keys():
             item = vehicle[key]

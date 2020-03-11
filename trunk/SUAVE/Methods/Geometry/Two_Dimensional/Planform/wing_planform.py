@@ -8,7 +8,6 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions import convert_sweep
 
 # ----------------------------------------------------------------------
 #  Methods

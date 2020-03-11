@@ -74,8 +74,15 @@ def arbitrary(vehicle,settings=None):
         wt_factors.main_wing = 0.
         wt_factors.empennage = 0.
         wt_factors.fuselage  = 0.
+        wt_factors.structural = 0.
+        wt_factors.systems = 0.
     else:
         wt_factors = settings.weight_reduction_factors   
+        if 'structural' in wt_factors:
+            print('Overriding individual structural weight factors')
+            wt_factors.main_wing = 0.
+            wt_factors.empennage = 0.
+            wt_factors.fuselage  = 0.            
         
     # Prime the totals
     wt_main_wing       = 0.0
@@ -91,8 +98,11 @@ def arbitrary(vehicle,settings=None):
         if isinstance(prop,Nets.Turbofan) or isinstance(prop,Nets.Turbojet_Super) or isinstance(prop, Nets.Propulsor_Surrogate):
             num_eng                   = prop.number_of_engines
             thrust_sls                = prop.sealevel_static_thrust
-            wt_engine_jet             = Propulsion.engine_jet(thrust_sls)
-            wt_prop                   = Propulsion.integrated_propulsion(wt_engine_jet,num_eng)
+            if 'total_weight' in prop.keys():
+                wt_prop = prop.total_weight
+            else:
+                wt_engine_jet             = Propulsion.engine_jet(thrust_sls)
+                wt_prop                   = Propulsion.integrated_propulsion(wt_engine_jet,num_eng)
             
             if num_eng == 0.:
                 wt_prop = 0.
@@ -124,7 +134,7 @@ def arbitrary(vehicle,settings=None):
             wt_wing  = wing_main.wing_main(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction)
             
             # Apply weight factor
-            wt_wing  = wt_wing*(1.-wt_factors.main_wing)
+            wt_wing  = wt_wing*(1.-wt_factors.main_wing)*(1.-wt_factors.structural)
 
             if np.isnan(wt_wing):
                 wt_wing = 0.
@@ -151,7 +161,7 @@ def arbitrary(vehicle,settings=None):
             wt_horiz = tail_horizontal(b,sweep,Nult,S,TOW,mac_w,mac,l_w2h,t_c, h_tail_exposed)   
             
             # Apply weight factor
-            wt_horiz = wt_horiz*(1.-wt_factors.empennage)
+            wt_horiz = wt_horiz*(1.-wt_factors.empennage)*(1.-wt_factors.structural)
             
             # Pack and sum
             wing.mass_properties.mass = wt_horiz
@@ -169,8 +179,8 @@ def arbitrary(vehicle,settings=None):
             tv     = tail_vertical(S,Nult,b,TOW,t_c,sweep,S_gross_w,t_tail)
             
             # Apply weight factor
-            wt_rud      = tv.wt_rudder*(1.-wt_factors.empennage)
-            wt_vert_str = tv.wt_tail_vertical*(1.-wt_factors.empennage)
+            wt_rud      = tv.wt_rudder*(1.-wt_factors.empennage)*(1.-wt_factors.structural)
+            wt_vert_str = tv.wt_tail_vertical*(1.-wt_factors.empennage)*(1.-wt_factors.structural)
             
             # Pack and sum
             wt_vertical = wt_rud + wt_vert_str
@@ -195,16 +205,18 @@ def arbitrary(vehicle,settings=None):
         
         #
         wt_fuse = tube(S_fus,diff_p_fus,w_fus,h_fus,l_fus,Nlim,wt_zf,wt_main_wing,wt_propulsion,wing_c_r) 
-        wt_fuse = wt_fuse*(1.-wt_factors.fuselage)
+        wt_fuse = wt_fuse*(1.-wt_factors.fuselage)*(1.-wt_factors.structural)
         fuse.mass_properties.mass = wt_fuse
         
         wt_fuselage += wt_fuse 
         
     # Landing Gear
-    wt_landing_gear = landing_gear.landing_gear(TOW)   
+    wt_landing_gear = landing_gear.landing_gear(TOW)*(1.-wt_factors.structural)
         
     # Systems
     output_2        = systems(num_pax, ctrl_type, s_tail, S_gross_w, ac_type)
+    for item in output_2.keys():
+        output_2[item] *= (1.-wt_factors.systems)
     
     # Calculate the equipment empty weight of the aircraft
     wt_empty        = (wt_main_wing + wt_fuselage + wt_landing_gear + wt_propulsion + output_2.wt_systems + \
