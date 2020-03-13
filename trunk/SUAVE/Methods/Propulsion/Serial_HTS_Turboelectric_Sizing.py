@@ -26,7 +26,7 @@ from SUAVE.Methods.Cooling.Leads.copper_lead import Q_offdesign
 from SUAVE.Methods.Cooling.Cryocooler.Cooling.cryocooler_model import cryocooler_model
 
 ## @ingroup Methods-Propulsion
-def Serial_HTS_Turboelectric_Sizing(Turboelectric_HTS_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300):  
+def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300):  
     """
     creates and evaluates a ducted_fan network based on an atmospheric sizing condition
     creates and evaluates a serial hybrid network that includes a HTS motor driven ducted fan, turboelectric generator, and the required supporting equipment including cryogenic cooling
