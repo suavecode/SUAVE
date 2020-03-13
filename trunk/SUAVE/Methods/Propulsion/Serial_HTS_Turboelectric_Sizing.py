@@ -251,5 +251,4 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     esc.Rated_Current           = HTS_current
     ccs.Rated_Power             = ccs_output_power  / number_of_engines
     ccs.Rated_Current           = HTS_current
-    cryocooler.Rated_Power      = cooling_power     / number_of_engines
     turboelectric.Rated_Power   = all_power         / turboelectric.number_of_engines
