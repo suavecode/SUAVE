@@ -23,7 +23,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Power.Turboelectric.Sizing.initialize_from_power import initialize_from_power
 from SUAVE.Methods.Cooling.Leads.copper_lead import initialize_copper_lead
 from SUAVE.Methods.Cooling.Leads.copper_lead import Q_offdesign
-from SUAVE.Methods.Cooling.Cryocooler.Cooling.cryocooler_model import cryocooler_model
+from SUAVE.Methods.Cooling.Cryocooler.Sizing.size_cryocooler import size_cryocooler
 
 ## @ingroup Methods-Propulsion
 def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = None, altitude = None, delta_isa = 0, conditions = None, cryo_cold_temp = 50.0, cryo_amb_temp = 300):  
@@ -235,7 +235,7 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     cooling_power               = total_rotor_cooling_power + total_lead_cooling_power          # Cryocooler must cool both rotor and supply leads
     cryocooler_input_power      = 0.0
     if Turboelectric_HTS_Ducted_Fan.cryogen_proportion < 1.0:
-        cryocooler_input_power  = cryocooler_model(cryocooler, cooling_power/number_of_engines, cryo_cold_temp, cryo_amb_temp)[0]
+        cryocooler_input_power  = size_cryocooler(cryocooler, cooling_power/number_of_engines, cryo_cold_temp, cryo_amb_temp)[0]
     rotor_power                 = ccs_input_power + cryocooler_input_power * number_of_engines
 
     # Add power required by each stream
