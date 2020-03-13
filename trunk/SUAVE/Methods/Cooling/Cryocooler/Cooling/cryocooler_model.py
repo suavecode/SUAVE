@@ -116,7 +116,7 @@ def cryocooler_model(self, cooling_power, cryo_temp, amb_temp):
         eff =           0.0
         input_power =   None
         mass =          None
-        print("Warning: The required cryogenic temperature of " + str(cryo_temp) + " is not achievable using a " + cooler_type + " cryocooler at an ambiet temperature of " + str(amb_temp) + ". The minimum temperature achievable is " + str(tempMin))
+        print("Warning: The required cryogenic temperature of " + str(cryo_temp) + " is not achievable using a " + cooler_type + " cryocooler at an ambient temperature of " + str(amb_temp) + ". The minimum temperature achievable is " + str(tempMin))
             
     # packup outputs
     self.name           = coolerName
