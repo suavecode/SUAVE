@@ -5,6 +5,7 @@
 from . import Propulsion
 from . import Tube_Wing
 from . import Tube_Wing_TurboElectric
+from . import Tube_Wing_HTS_TurboElectric
 from . import BWB
 from . import Human_Powered
 from . import UAV

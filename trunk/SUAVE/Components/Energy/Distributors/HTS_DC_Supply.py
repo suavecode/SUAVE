@@ -41,6 +41,7 @@ class HTS_DC_Supply(Energy_Component):
         self.efficiency         =   0.0
         self.mass               = 100.0     # [kg]
         self.rated_current      = 100.0     # [A]
+        self.rated_power        = 100.0     # [W]
     
     def power(self, current, power_out):
         """ The power that must be supplied to the DC supply to power the HTS coils.
@@ -50,7 +51,7 @@ class HTS_DC_Supply(Energy_Component):
             Power supply has static efficiency across current output range.
 
             Source:
-            Specifications of the Agilent 6680A DC Power Supply
+            N/A
 
             Inputs:
             current             [A]
@@ -62,13 +63,13 @@ class HTS_DC_Supply(Energy_Component):
 
         """
         # Unpack
-        efficiency = self.efficiency
+        efficiency              = self.efficiency
 
         # Apply the efficiency of the current supply to get the total power required at the input of the current supply.
         power_in                = power_out/efficiency
 
-        # Store output values.
-        self.output.power_in    = power_in
+        # # Store output values.
+        # self.output.power_in    = power_in
 
         # Return basic result.
         return power_in
