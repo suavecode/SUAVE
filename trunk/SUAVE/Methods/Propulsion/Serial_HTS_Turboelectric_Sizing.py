@@ -235,7 +235,8 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     cooling_power               = total_rotor_cooling_power + total_lead_cooling_power          # Cryocooler must cool both rotor and supply leads
     cryocooler_input_power      = 0.0
     if Turboelectric_HTS_Ducted_Fan.cryogen_proportion < 1.0:
-        cryocooler_input_power  = size_cryocooler(cryocooler, cooling_power/number_of_engines, cryo_cold_temp, cryo_amb_temp)[0]
+        size_cryocooler(cryocooler, cooling_power/number_of_engines, cryo_cold_temp, cryo_amb_temp)
+        cryocooler_input_power  = cryocooler.Rated_Power
     rotor_power                 = ccs_input_power + cryocooler_input_power * number_of_engines
 
     # Add power required by each stream
