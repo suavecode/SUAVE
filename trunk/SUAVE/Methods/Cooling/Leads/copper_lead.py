@@ -82,7 +82,7 @@ def LARatio(copper, cold_temp, hot_temp, current, minimum_Q):
     # Calculate the optimum length to cross-sectional area ratio
     # Taken directly from McFee
     sigTL = copper.electrical_conductivity(cold_temp)
-    inte = integrate.quad(lambda T: Q_min(copper,T,hot_temp,current)*derivative(copper.electrical_conductivity,T), cold_temp, hot_temp)
+    inte = integrate.quad(lambda T: Q_min(copper,T,hot_temp,current)[0]*derivative(copper.electrical_conductivity,T), cold_temp, hot_temp)[0]
     la_ratio = (sigTL * minimum_Q - inte)/(current**2)
     return la_ratio
 
@@ -130,7 +130,7 @@ def Q_offdesign(lead, current):
     zero_Q              = lead.unpowered_Q
     cold_temp           = lead.cold_temp
     hot_temp            = lead.hot_temp
-    cs_area             = lead.cs_area
+    cs_area             = lead.cross_section
     length              = lead.length
     copper              = lead.material
 

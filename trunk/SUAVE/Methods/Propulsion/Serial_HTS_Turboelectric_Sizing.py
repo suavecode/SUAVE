@@ -41,7 +41,7 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     
     # Unpack components
     ducted_fan      = Turboelectric_HTS_Ducted_Fan.propulsor        # Propulsion fans
-    motor           = Turboelectric_HTS_Ducted_Fan.HTSmotor         # Propulsion fan motors
+    motor           = Turboelectric_HTS_Ducted_Fan.motor            # Propulsion fan motors
     turboelectric   = Turboelectric_HTS_Ducted_Fan.powersupply      # Electricity providers
     esc             = Turboelectric_HTS_Ducted_Fan.esc              # Propulsion motor speed controllers
     rotor           = Turboelectric_HTS_Ducted_Fan.rotor            # Propulsion motor HTS rotors
@@ -214,14 +214,14 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
 
     # Get total power required by the main powertrain stream by applying power loss of each component in sequence
     # Most components are considered aggregates, i.e. the efficiency of the multiple small instances of a component is considered the same as one large instance of that component and so the number of instances is not considered.
-    motor_input_power       = shaft_power/(motor.motor_efficiency * motor.gearbox_efficiency)
-    esc_input_power         = esc.power(esc, motor_current, motor_input_power)
-    drive_power             = esc_input_power
+    motor_input_power           = shaft_power/(motor.motor_efficiency * motor.gearbox_efficiency)
+    esc_input_power             = esc.power(motor_current, motor_input_power)
+    drive_power                 = esc_input_power
 
     # Get power required by the cryogenic rotor stream
     # The sizing conditions here are ground level conditions as this is highest cryocooler demand
     HTS_current                 = rotor.current
-    rotor_input_power           = rotor.power(HTS_current, cryo_cold_temp)
+    rotor_input_power           = rotor.power(HTS_current, rotor.skin_temp)
     total_rotor_input_power     = rotor_input_power * number_of_engines                         # HTS_rotor calculates power per rotor, multiply by number of motors to get total power
     initialize_copper_lead(current_lead)
     current_lead_powers         = Q_offdesign(current_lead, HTS_current)

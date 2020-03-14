@@ -75,9 +75,9 @@ class Liquid_H2(Cryogen):
         # Antoine Equation Coefficients for calculatating the evaporation temperature.
         # log10(P) = A - (B/(T+C)) where P is vapour pressure (Pa) and T temperature (kelvin).
         # Data from NIST Chemistry Webbook, coefficients converted so as to use pressure in Pa.
-        self.antoine.A                  =    8.54314
-        self.antoine.B                  =   99.395
-        self.antoine.C                  =    7.726
+        self.antoine_A                  =    8.54314
+        self.antoine_B                  =   99.395
+        self.antoine_C                  =    7.726
         # Range for which Antoine Equation is referenced
         self.antoine_minT               =   21.01             # [K]
         self.antoine_maxT               =   32.27             # [K]
