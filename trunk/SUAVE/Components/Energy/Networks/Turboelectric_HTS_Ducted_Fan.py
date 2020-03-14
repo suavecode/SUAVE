@@ -21,7 +21,7 @@ from SUAVE.Methods.Cooling.Leads.copper_lead import Q_offdesign
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Turboelectric_Ducted_Fan(Propulsor):
+class Turboelectric_HTS_Ducted_Fan(Propulsor):
     """ Simply connects a turboelectric power source to a ducted fan, with an assumed ducted fan motor efficiency
     
         Assumptions:
