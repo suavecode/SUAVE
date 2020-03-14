@@ -40,7 +40,7 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     """
     
     # Unpack components
-    ducted_fan      = Turboelectric_HTS_Ducted_Fan.propulsor        # Propulsion fans
+    ducted_fan      = Turboelectric_HTS_Ducted_Fan.ducted_fan       # Propulsion fans
     motor           = Turboelectric_HTS_Ducted_Fan.motor            # Propulsion fan motors
     turboelectric   = Turboelectric_HTS_Ducted_Fan.powersupply      # Electricity providers
     esc             = Turboelectric_HTS_Ducted_Fan.esc              # Propulsion motor speed controllers
