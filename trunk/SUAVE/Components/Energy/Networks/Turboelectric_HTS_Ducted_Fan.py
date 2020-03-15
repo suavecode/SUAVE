@@ -58,7 +58,7 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         self.lead                       = None  # the current leads that connect the rotor to the constant current supply
         self.ccs                        = None  # the electronics that supply the rotor field windings
         self.cryocooler                 = None  # cryocooler which cools the rotor using energy
-        self.cryogenic_heat_exchanger   = None  # heat exchanger that cools the rotor using cryogen
+        self.heat_exchanger             = None  # heat exchanger that cools the rotor using cryogen
         self.cryogen_proportion         = 1.0   # Proportion of cooling to be supplied by the cryogenic heat exchanger, rather than by the cryocooler
         self.leads                      = 2.0   # number of cryogenic leads supplying the rotor(s). Typically twice the number of rotors.
         self.number_of_engines          = 1.0   # number of ducted_fans, also the number of propulsion motors.
@@ -73,7 +73,7 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         self.ambient_temp               = 300.0     # [K]  This is the temp of the outside of the rotor cryostat. This may match the ambient air tem, but does not need to.
     
     # manage process with a driver function
-    def evaluate_thrust(self, conditions, state):
+    def evaluate_thrust(self, state):
         """ Calculate thrust given the current state of the vehicle
     
             Assumptions:
@@ -103,17 +103,17 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         lead                        = self.lead                     # Current leads supplying the rotor(s)
         ccs                         = self.ccs                      # Rotor constant current supply
         cryocooler                  = self.cryocooler               # Rotor cryocoolers, powered by electricity
-        heat_exchanger              = self.cryogenic_heat_exchanger # Rotor cryocooling, powered by cryogen
+        heat_exchanger              = self.heat_exchanger           # Rotor cryocooling, powered by cryogen
         skin_temp                   = self.ambient_temp             # Exterior temperature of the rotor
         cooling_share_cryogen       = self.cryogen_proportion       # Proportion of rotor cooling provided by cryogen
         cooling_share_cryocooler    = 1.0 - cooling_share_cryogen   # Proportion of rotor cooling provided by cryocooler
         leads                       = self.leads                    # number of rotor leads, typically twice the number of rotors
         number_of_engines           = self.number_of_engines        # number of propulsors and number of propulsion motors
-
-        amb_temp        = conditions.freestream.temperature
     
         conditions      = state.conditions
         numerics        = state.numerics
+
+        amb_temp        = conditions.freestream.temperature
 
         # Solve the thrust using the other network (i.e. the ducted fan network)
         results = ducted_fan.evaluate_thrust(state)
@@ -126,7 +126,7 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         # Calculate the power used by the power electronics. This does not include the power delivered by the power elctronics to the fan motor.
         esc_power             = motor_power_in/esc.efficiency - motor_power_in
 
-        # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.results.cryo_load
+        # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.outputs.cryo_load
         rotor_power_in        = rotor.power(rotor.current, skin_temp) * ducted_fan.number_of_engines
 
         # Calculate the power loss in the rotor current supply leads.
@@ -153,7 +153,7 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         # ccs_power           = dynamo.power_in
 
         # Retreive the cryogenic heat load from the rotor components (not including the leads).
-        rotor_cryo_cryostat   = rotor.results.cryo_load * number_of_engines
+        rotor_cryo_cryostat   = rotor.outputs.cryo_load * number_of_engines
 
         # # Retreive the cryogenic load due to the dynamo
         # lead_cryo_load        = 0.0
@@ -161,19 +161,19 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         #     lead_cryo_load    = dynamo.cryo_load
 
         # Sum the two rotor cryogenic heat loads to give the total rotor cryogenic load.
-        rotor_cryo_load = rotor_cryo_cryostat + lead_cryo_load
+        rotor_cryo_load             = rotor_cryo_cryostat + lead_cryo_load
 
         # Calculate the power required from the cryocooler (if present)
-        cryocooler_power = 0
-        if cooling_share_cryocooler != 0:
-            cryocooler_load = cooling_share_cryocooler * rotor_cryo_load
-            cryocooler_power = cryocooler.power(cryocooler_load, cryocooler.cooler_type, rotor.temperature, amb_temp)[0]
+        cryocooler_power = 0.0
+        if cooling_share_cryocooler != 0.0:
+            cryocooler_load         = cooling_share_cryocooler * rotor_cryo_load
+            cryocooler_power        = cryocooler.energy_calc(cryocooler_load, rotor.temperature, amb_temp)
 
         # Calculate the cryogen use required for cooling (if used)
-        cryogen_mdot = 0
-        if cooling_share_cryogen != 0:
-            cryogen_load = cooling_share_cryogen * rotor_cryo_load
-            cryogen_mdot = heat_exchanger.mdot(cryogen_load)
+        cryogen_mdot = 0.0
+        if cooling_share_cryogen != 0.0:
+            cryogen_load            = cooling_share_cryogen * rotor_cryo_load
+            cryogen_mdot            = heat_exchanger.energy_calc(cryogen_load)
 
         # Sum all the power users to get the power required to be supplied by the powersupply, i.e. the turboelectric generator
         powersupply.inputs.power_in = motor_power_in + esc_power + rotor_power_in + lead_power + ccs_power + cryocooler_power

@@ -38,5 +38,5 @@ class Cryocooler(Energy_Component):
         
     def energy_calc(self, cooling_power, cryo_temp, amb_temp):
         # Calculate the instantaneous required energy input
-        output = self.cryocooler_model(self, cooling_power, cryo_temp, amb_temp)
+        output = self.cooling_model(self, cooling_power, cryo_temp, amb_temp)
         return output[0]

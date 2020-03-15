@@ -58,7 +58,7 @@ class Cryogenic_Heat_Exchanger(Energy_Component):
         self.cryogen_pressure                = 100000.0     # [Pa]
 
     
-    def mdot(self,cooling_power):
+    def energy_calc(self,cooling_power):
         """ This calculates the mass of cryogen required to achieve the desired cooling power given the temperature of the cryogen supplied, and the desired temperature of the cryogenic equipment.
 
         Assumptions:

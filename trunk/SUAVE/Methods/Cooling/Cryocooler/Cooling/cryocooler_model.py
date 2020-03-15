@@ -7,6 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import numpy as np
 from SUAVE.Core import Units, Data
 
 # ----------------------------------------------------------------------
@@ -56,22 +57,22 @@ def cryocooler_model(self, cooling_power, cryo_temp, amb_temp):
     cooler_type     = self.cooler_type
 
     # Prevent unrealistic temperature changes.
-    if cryo_temp < 1.:
-        cryo_temp = 5.
+    if np.amin(cryo_temp) < 1.:
+        cryo_temp = np.maximum(cryo_temp, 5.)
         print("Warning: Less than zero kelvin not possible, setting cryogenic temperature target to 5K.")
 
     # Warn if ambient temperature is very low.
-    if amb_temp < 200.:
+    if np.amin(amb_temp) < 200.:
         print("Warning: Suprisingly low ambient temperature, check altitude.")
 
     # Calculate the shift in achievable minimum temperature based on the the ambient temperature (temp_amb) and the datasheet operating temperature (19C, 292.15K)
-    tempOffset = amb_temp - 292.15
+    tempOffset = 292.15 - amb_temp
 
     # calculate the required temperature difference the cryocooler must produce.
     tempDiff = amb_temp-cryo_temp
     # Disable if the target temperature is greater than the ambient temp. Technically cooling like this is possible, however there are better cooling technologies to use if this is the required scenario.
-    if tempDiff < 0.:
-        tempDiff = 0.
+    if np.amin(tempDiff) < 0.:
+        tempDiff = np.maximum(tempDiff, 0.)
         print("Warning: Temperature conditions are not well suited to cryocooler use. Cryocooler disabled.")
 
     # Set the parameters of the cooler based on the cooler type and the operating conditions. The default ambient operating temperature (19C) is used as a base.
@@ -112,7 +113,8 @@ def cryocooler_model(self, cooling_power, cryo_temp, amb_temp):
         coolerName =    "Unknown"
 
     # Warn if the cryogenic temperature is unachievable
-    if cryo_temp < tempMin:
+    diff = cryo_temp - tempMin
+    if np.amin(diff) < 0.0:
         eff =           0.0
         input_power =   None
         mass =          None
