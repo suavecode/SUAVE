@@ -73,12 +73,6 @@ def update_thrust(segment):
     # unpack
     energy_model = segment.analyses.energy
 
-    # Debug stuff to be deleted
-    print(segment.tag)
-    # print(segment, file=open('segment.txt','w'))
-    # print(energy_model, file=open('energy_model.txt','w'))
-    # print(segment.state, file=open('segment.state.txt','w'))
-
     # evaluate
     results   = energy_model.evaluate_thrust(segment.state)
 
