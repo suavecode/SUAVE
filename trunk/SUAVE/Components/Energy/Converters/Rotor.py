@@ -4,7 +4,7 @@
 # Created:  Jun 2014, E. Botero
 # Modified: Jan 2016, T. MacDonald
 #           Feb 2019, M. Vegh            
-
+#           Mar 2020, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -396,7 +396,7 @@ class Rotor(Energy_Component):
         # store data
         results_conditions                   = Data     
         outputs                              = results_conditions(
-            n_blades                         = B,
+            num_blades                       = B,
             rotor_radius                     = R,
             rotor_diameter                   = D,
             number_sections                  = N,
@@ -744,7 +744,7 @@ class Rotor(Energy_Component):
         # store data
         results_conditions                   = Data     
         outputs                              = results_conditions(
-            n_blades                         = B,
+            num_blades                       = B,
             rotor_radius                     = R,
             rotor_diameter                   = D,
             number_sections                  = N,

@@ -2,6 +2,7 @@
 #
 # Created:  Feb 2017, M. Vegh 
 # Modified: Feb 2018, M. Vegh 
+# Modified: Mar 2020, M. Clarke 
 
 """ setup file for the Cessna_172, current values only used to test General Aviation script
 """
