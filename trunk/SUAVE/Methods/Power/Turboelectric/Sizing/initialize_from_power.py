@@ -52,5 +52,8 @@ def initialize_from_power(turboelectric,number_of_powersupplies,power,conditions
     # Multiply mass by number of powersupplies to give the total mass of all powersupplies
     mass                = number_of_powersupplies*powersupply_mass
 
+    # Store sized turboelectric rated power
+    turboelectric.rated_power   = power
+
     # Modify turboelectric to include the newly created mass data
     turboelectric.mass_properties.mass  = mass

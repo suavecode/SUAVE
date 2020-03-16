@@ -95,7 +95,7 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         
         # unpack
 
-        ducted_fan                  = self.ducted_fan                # Electric ducted fan(s) excluding motor
+        ducted_fan                  = self.ducted_fan               # Electric ducted fan(s) excluding motor
         motor                       = self.motor                    # Motor(s) driving those fans
         powersupply                 = self.powersupply              # Electricity producer(s)
         esc                         = self.esc                      # Motor speed controller(s)

@@ -146,7 +146,7 @@ def empty(vehicle,settings=None):
         wt_ductedfan        = wt_turbojet * 0.15 / num_eng
 
         # Size each HTS motor using the SUAVE corelation
-        wt_motor            = hts_motor(propulsors.motor.Rated_Power)
+        wt_motor            = hts_motor(propulsors.motor.rated_power)
 
         # Size the motor speed controller(s) (esc)
         wt_esc              = SiC_mass(propulsors.esc)
