@@ -115,7 +115,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
         landing_constants[0] = 250.
         landing_constants[1] =   0.
         landing_constants[2] =  2.485  / sea_level_gravity  # Two-wheels truck : [ (1.56 / 0.40 + 1.07) / (2*sea_level_gravity) ]
- 
+        #landing_constants[2] =   2.9725 / sea_level_gravity  # Four-wheels truck: [ (1.56 / 0.32 + 1.07) / (2*sea_level_gravity) ] 
     # Calculating landing field length
     landing_field_length = 0.
     for idx,constant in enumerate(landing_constants):

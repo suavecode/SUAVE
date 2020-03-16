@@ -43,8 +43,8 @@ def vehicle_setup():
     vehicle.envelope.ultimate_load              = 5.7
     vehicle.envelope.limit_load                 = 3.8
                                                 
-    cruise_speed                                = 140. *Units['mph']
-    altitude                                    = 10500. * Units.ft
+    cruise_speed                                = 124. * Units.kts
+    altitude                                    = 8500. * Units.ft
     atmo                                        = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     freestream                                  = atmo.compute_values (0.)
     freestream0                                 = atmo.compute_values (altitude)
