@@ -2,7 +2,8 @@
 # Gearbox.py
 #
 # Created:  Aug 2016, C. Ilario
-# Modified: Feb 2020, M. Clarke
+# Modified: Feb 2020, M. Clarke 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

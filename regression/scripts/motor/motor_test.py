@@ -1,6 +1,7 @@
 # motor_test.py
 # 
-# Created:  M. Clarke, Feb 2020
+# Created:  M. Clarke, Feb 2020 
+#           Mar 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports

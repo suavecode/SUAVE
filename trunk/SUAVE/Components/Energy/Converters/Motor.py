@@ -2,7 +2,8 @@
 # Motor.py
 #
 # Created:  Jun 2014, E. Botero
-# Modified: Jan 2016, T. MacDonald
+# Modified: Jan 2016, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

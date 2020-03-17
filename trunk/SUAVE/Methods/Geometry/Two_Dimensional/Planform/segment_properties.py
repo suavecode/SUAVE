@@ -1,6 +1,7 @@
 # segment_properties.py
 #
-# Created:  Apr 2019, T. MacDonald
+# Created:  Apr 2019, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

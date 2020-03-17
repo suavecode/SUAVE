@@ -2,7 +2,8 @@
 # AVL.py
 #
 # Created:  Apr 2017, M. Clarke 
-# Modified: Apr 2019, T. MacDonald
+# Modified: Apr 2019, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

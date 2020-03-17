@@ -1,7 +1,7 @@
 # Embraer_190
 #
 # Created:  Feb 2017, M. Vegh (data taken from Embraer_E190_constThr/mission_Embraer_E190_constThr, and Regional_Jet_Optimization/Vehicles2.py), takeoff_field_length/takeoff_field_length.py, landing_field_length/landing_field_length.py
-# Modified:
+# Modified: Mar 2020, M. Clarke
 
 """ setup file for the E190 vehicle
 """
