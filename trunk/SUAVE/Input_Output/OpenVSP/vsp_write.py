@@ -8,7 +8,7 @@
 #           Nov 2018, T. MacDonald
 #           Jan 2019, T. MacDonald
 #           Jan 2020, T. MacDonald 
-#           Mar, 2020, M. Clarke
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -2,8 +2,8 @@
 
 # Weights_Electric_Multicopter.py
 #
-# Created: Mar, 2017, J. Smart
-# Modified Apr, 2018, J. Smart
+# Created: Mar 2017, J. Smart
+# Modified Apr 2018, J. Smart
 
 # ----------------------------------------------------------------------
 #  Imports

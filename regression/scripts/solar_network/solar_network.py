@@ -1,7 +1,7 @@
 # test_solar_network.py
 # 
-# Created:  Emilio Botero, Aug 2014
-#           Mar, 2020, M. Clarke
+# Created:  Aug 2014, Emilio Botero, 
+#           Mar 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports

@@ -2,8 +2,8 @@
 # Airfoil.py
 # 
 # Created:  
-# Modified: Sep, 2016, E. Botero
-#           Mar, 2020, M. Clarke
+# Modified: Sep 2016, E. Botero
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
