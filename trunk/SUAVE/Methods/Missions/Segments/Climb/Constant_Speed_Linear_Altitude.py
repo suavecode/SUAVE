@@ -48,7 +48,7 @@ def initialize_conditions(segment):
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
     t_final   = xf / air_speed + t_initial
-    t_nondim  = state.numerics.dimensionless.control_points
+    t_nondim  = segment.state.numerics.dimensionless.control_points
     time      = t_nondim * (t_final-t_initial) + t_initial
     
     # discretize on altitude

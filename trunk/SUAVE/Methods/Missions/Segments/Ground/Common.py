@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -35,34 +36,26 @@ def unpack_unknowns(segment):
             segment.state.conditions:
                 frames.inertial.velocity_vector [meters/second]
                 frames.inertial.time            [second]
-
         Properties Used:
         N/A
                                 
     """       
     
     # unpack unknowns
-    unknowns   = segment.state.unknowns
-    velocity_x = unknowns.velocity_x
-    time       = unknowns.time
+    unknowns   = segment.state.unknowns 
+    time       = segment.time  
     v0         = segment.velocity_start 
     vf         = segment.velocity_start 
     t_initial  = segment.state.conditions.frames.inertial.time[0,0]
     t_nondim   = segment.state.numerics.dimensionless.control_points    
-    
-    # Velocity cannot be zero
-    velocity_x[velocity_x==0.0] = 0.01
-    velocity_x[0,0]               = v0
-    
-    # time
+   
     t_final    = t_initial + time  
     time       = t_nondim * (t_final-t_initial) + t_initial  
 
-    #apply unknowns
-    conditions = segment.state.conditions
-    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
-    conditions.frames.inertial.time[:,0]            = time[:,0]
-
+    #apply unknowns    
+    segment.state.conditions.propulsion.throttle[:,0]     = segment.state.unknowns.throttle[:,0]
+    segment.state.conditions.frames.inertial.time[:,0]    = time[:,0]
+     
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
@@ -70,28 +63,28 @@ def unpack_unknowns(segment):
 ## @ingroup Methods-Missions-Segments-Ground
 def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
-
+    
     Assumptions:
-    Checks to make sure non of the velocities are exactly zero
-
+       Checks to make sure non of the velocities are exactly zero
+    
     Source:
-    N/A
-
+       N/A
+    
     Inputs:
-    segment.velocity_start             [meters]
-    segment.velocity_end               [meters]
-    segment.speed                      [meters/second]
-    segment.friction_coefficient       [unitless]
-    segment.ground_incline             [radians]
-
+       segment.velocity_start             [meters]
+       segment.velocity_end               [meters]
+       segment.speed                      [meters/second]
+       segment.friction_coefficient       [unitless]
+       segment.ground_incline             [radians]
+    
     Outputs:
-    conditions.frames.inertial.velocity_vector  [meters/second]
-    conditions.ground.incline                   [radians]
-    conditions.ground.friction_coefficient      [unitless]
-    state.unknowns.velocity_x                   [meters/second]
-
+       conditions.frames.inertial.velocity_vector  [meters/second]
+       conditions.ground.incline                   [radians]
+       conditions.ground.friction_coefficient      [unitless]
+       state.unknowns.velocity_x                   [meters/second]
+    
     Properties Used:
-    N/A
+       N/A
     """   
 
     conditions = segment.state.conditions
@@ -109,8 +102,7 @@ def initialize_conditions(segment):
     segment.velocity_start = v0
     segment.velocity_end   = vf
 
-    # pack conditions
-    segment.state.unknowns.velocity_x               = np.linspace(v0,vf,N)
+    # pack conditions 
     conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
     conditions.ground.incline[:,0]                  = segment.ground_incline
     conditions.ground.friction_coefficient[:,0]     = segment.friction_coefficient
@@ -124,22 +116,22 @@ def compute_ground_forces(segment):
     """ Compute the rolling friction on the aircraft 
     
     Assumptions:
-    Does a force balance to calculate the load on the wheels using only lift. Uses only a single friction coefficient.
-
+        Does a force balance to calculate the load on the wheels using only lift. Uses only a single friction coefficient.
+    
     Source:
-    N/A
-
+        N/A
+    
     Inputs:
     conditions:
         frames.inertial.gravity_force_vector       [meters/second^2]
         ground.friction_coefficient                [unitless]
         frames.wind.lift_force_vector              [newtons]
-
+    
     Outputs:
-    conditions.frames.inertial.ground_force_vector [newtons]
-
+        conditions.frames.inertial.ground_force_vector [newtons]
+    
     Properties Used:
-    N/A
+        N/A
     """   
 
     # unpack
@@ -172,20 +164,19 @@ def compute_forces(segment):
     
     Assumptions:
     
-
     Source:
     N/A
-
+    
     Inputs:
     conditions:
         frames.inertial.total_force_vector  [newtons]
         frames.inertial.ground_force_vector [newtons]
-
+    
     Outputs:
-    frames.inertial.ground_force_vector     [newtons]
-
+        frames.inertial.ground_force_vector     [newtons]
+    
     Properties Used:
-    N/A
+        N/A
     """       
 
 
@@ -224,7 +215,6 @@ def solve_residuals(segment):
             segment.state:
                 residuals.acceleration_x           [meters/second^2]
                 residuals.final_velocity_error     [meters/second]
-
         Properties Used:
         N/A
                                 
@@ -241,6 +231,5 @@ def solve_residuals(segment):
     # process and pack
     acceleration = np.dot(D , v)
     conditions.frames.inertial.acceleration_vector = acceleration
-
-    segment.state.residuals.final_velocity_error = (v[-1,0] - vf)
+ 
     segment.state.residuals.acceleration_x       = np.reshape(((FT[:,0]) / m[:,0] - acceleration[:,0]),np.shape(m))

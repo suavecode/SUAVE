@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -76,7 +77,7 @@ class Ground(Aerodynamic):
         self.throttle             = None
         self.velocity_start       = 0.0
         self.velocity_end         = 0.0 
-        
+        self.time                 = 0.01
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
@@ -85,11 +86,8 @@ class Ground(Aerodynamic):
         self.state.conditions.update( Conditions.Aerodynamics() )
     
         # initials and unknowns
-        ones_row = self.state.ones_row
-        self.state.unknowns.velocity_x            = ones_row(1) * 0.0
-        self.state.unknowns.time                  = 0.1
-        self.state.residuals.acceleration_x       = ones_row(1) * 0.0
-        self.state.residuals.final_velocity_error = ones_row(1) * 0.0
+        ones_row = self.state.ones_row 
+        self.state.residuals.acceleration_x       = ones_row(1) * 0.0 
     
         # Specific ground things
         self.state.conditions.ground = Data()
@@ -116,7 +114,7 @@ class Ground(Aerodynamic):
         converge = self.process.converge
     
         converge.converge_root             = Methods.converge_root    
-       
+    
         # --------------------------------------------------------------
         #   Iterate - this is iterated
         # --------------------------------------------------------------
@@ -141,14 +139,14 @@ class Ground(Aerodynamic):
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
-        iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
-        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
+        iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
+        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability        
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces_ground   = Methods.Ground.Common.compute_ground_forces
         iterate.conditions.forces          = Methods.Ground.Common.compute_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
-        
+    
         # Solve Residuals
         iterate.residuals = Process()     
         iterate.residuals.total_forces     = Methods.Ground.Common.solve_residuals
@@ -162,5 +160,5 @@ class Ground(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability  
-
+    
         return

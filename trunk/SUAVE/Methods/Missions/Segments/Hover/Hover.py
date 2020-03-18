@@ -3,6 +3,7 @@
 # 
 # Created:  Jan 2016, E. Botero
 # Modified: May 2019, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
@@ -47,7 +48,7 @@ def initialize_conditions(segment):
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
-    t_nondim  = state.numerics.dimensionless.control_points
+    t_nondim  = segment.state.numerics.dimensionless.control_points
     time      =  t_nondim * (duration) + t_initial
     
     # pack

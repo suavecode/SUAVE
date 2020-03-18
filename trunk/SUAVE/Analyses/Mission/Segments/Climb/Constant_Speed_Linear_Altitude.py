@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Jun 2017, E. Botero
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -57,11 +58,11 @@ class Constant_Speed_Linear_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude  = None
-        self.air_speed = 10. * Units['km/hr']
-        self.distance  = 10. * Units.km
+        self.altitude        = None
+        self.air_speed       = 10. * Units['km/hr']
+        self.distance        = 10. * Units.km
         self.altitude_start = None
-        self.altitude_end = None
+        self.altitude_end   = None
         
         
         # --------------------------------------------------------------
@@ -90,7 +91,7 @@ class Constant_Speed_Linear_Altitude(Aerodynamic):
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = Methods.Cruise.Constant_Speed_Linear_Altitude.initialize_conditions
+        initialize.conditions              = Methods.Climb.Constant_Speed_Linear_Altitude.initialize_conditions
 
         # --------------------------------------------------------------
         #   Converge - starts iteration

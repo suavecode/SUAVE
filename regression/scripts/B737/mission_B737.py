@@ -2,7 +2,8 @@
 # 
 # Created:  Aug 2014, SUAVE Team
 # Modified: Jun 2016, T. MacDonald
-#           May 2019, T. MacDonald
+#           May 2019, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 """ setup file for a mission with a 737
 """
@@ -412,7 +413,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   First Climb Segment: constant Mach, constant segment angle 
+    #   First Climb Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -430,7 +431,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Second Climb Segment: constant Speed, constant segment angle 
+    #   Second Climb Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------    
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -447,7 +448,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Third Climb Segment: constant Mach, constant segment angle 
+    #   Third Climb Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------    
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -464,7 +465,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------    
-    #   Cruise Segment: constant speed, constant altitude
+    #   Cruise Segment: Constant Speed Constant Altitude
     # ------------------------------------------------------------------    
 
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
@@ -483,7 +484,7 @@ def mission_setup(analyses):
 
 
 # ------------------------------------------------------------------
-#   First Descent Segment: consant speed, constant segment rate
+#   First Descent Segment: Constant Speed Constant Rate  
 # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -501,7 +502,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Second Descent Segment: consant speed, constant segment rate
+    #   Second Descent Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -520,7 +521,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Third Descent Segment: consant speed, constant segment rate
+    #   Third Descent Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -539,7 +540,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Fourth Descent Segment: consant speed, constant segment rate
+    #   Fourth Descent Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -560,7 +561,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Fifth Descent Segment: consant speed, constant segment rate
+    #   Fifth Descent Segment:Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)

@@ -1,7 +1,7 @@
 # Analyses.py
 # 
-# Created:  Mar, 2016, M. Vegh
-# Modified: Jul, 2017, M. Clarke
+# Created:  Mar 2016, M. Vegh
+# Modified: Jul 2017, M. Clarke
 
 # ----------------------------------------------------------------------        
 #   Imports
