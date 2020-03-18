@@ -83,7 +83,7 @@ def LARatio(copper, cold_temp, hot_temp, current, minimum_Q):
     # Taken directly from McFee
     sigTL = copper.electrical_conductivity(cold_temp)
     inte = integrate.quad(lambda T: Q_min(copper,T,hot_temp,current)[0]*derivative(copper.electrical_conductivity,T), cold_temp, hot_temp)[0]
-    la_ratio = (sigTL * minimum_Q - inte)/(current**2)
+    la_ratio = (sigTL * minimum_Q + inte)/(current**2)
     return la_ratio
 
 

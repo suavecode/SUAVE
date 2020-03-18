@@ -58,9 +58,9 @@ class Copper(Solid):
         None
         """
 
-        self.density                    = 8960.0 * Units['kg/(m**3)']
-        self.conductivity_electrical    = 583918.8609 * Units['mhos/cm']
-        self.conductivity_thermal       = 3.924 * Units['W/(cm*K)']
+        self.density                    =     8960.0        # [kg/(m**3)]
+        self.conductivity_electrical    = 58391886.09       # [mhos/m]
+        self.conductivity_thermal       =      392.4        # [W/(m*K)]
 
     def thermal_conductivity(self, temperature):
         # Lookup table arrays
@@ -81,7 +81,7 @@ class Copper(Solid):
         # If the temperature is within the range, interpolate the value from the nearest values in the range.
         else:
             conductivity = c(temperature)
-        return conductivity * Units['W/(cm*K)']
+        return conductivity
 
 
     # lookup table and interpolator for estimating the electrical conductivity of copper at cryogenic temperatures.
@@ -104,4 +104,4 @@ class Copper(Solid):
         # If the temperature is within the range, interpolate the value from the nearest values in the range.
         else:
             conductivity = c(temperature)
-        return conductivity * Units['mhos/cm']
+        return conductivity
