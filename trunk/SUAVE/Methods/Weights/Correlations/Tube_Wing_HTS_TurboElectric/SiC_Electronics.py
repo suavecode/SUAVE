@@ -38,7 +38,7 @@ def SiC_mass(HTS_DC_Supply):
     """
 
     # Unpack inputs
-    power           = HTS_DC_Supply.Rated_Power
+    power           = HTS_DC_Supply.rated_power
     current         = HTS_DC_Supply.Rated_Current
 
     # Calculate SiC specific power

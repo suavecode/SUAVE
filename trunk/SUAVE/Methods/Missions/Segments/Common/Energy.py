@@ -4,6 +4,7 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
 #           Jul 2017, E. Botero
+#           Mar 2020, K Hamilton
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -80,6 +81,7 @@ def update_thrust(segment):
     conditions                                  = segment.state.conditions
     conditions.frames.body.thrust_force_vector  = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate        = results.vehicle_mass_rate
+    # print(results.vehicle_fuel_rate)
     if "vehicle_fuel_rate" in results:
         conditions.weights.vehicle_fuel_rate        = results.vehicle_fuel_rate
     if "vehicle_cryogen_rate" in results:

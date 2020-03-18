@@ -91,7 +91,7 @@ class Weights_Tube_Wing_HTS_TurboElectric(Weights):
         # evaluate
         results = empty(vehicle,settings)
         
-        # storing weigth breakdown into vehicle
+        # storing weight breakdown into vehicle
         vehicle.weight_breakdown = results 
 
         # updating empty weight

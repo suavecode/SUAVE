@@ -1,8 +1,9 @@
 ## @ingroup Input_Output-Results
-# print_weights_multiengine.py 
+# print_hts_powertrain_weights.py 
 
 # Created: SUAVE team
-# Updated: K Hamilton 2019
+# Updated: Carlos Ilario, Feb 2016
+# Updated: K Hamilton, Mar 2020
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,11 +14,11 @@
 #  Print output file with weight breakdown
 # ----------------------------------------------------------------------
 ## @ingroup Input_Output-Results
-def print_weight_breakdown_multiengine(config,filename = 'weight_breakdown.dat'):
+def print_hts_powertrain_weights(config,filename = 'weight_powertrain_breakdown.dat'):
     """This creates a file showing weight information.
 
     Assumptions:
-    One or more propulsors (each can be multiple engines) with tags that start with 'turbofan'. For example 'turbofan1'
+    Turboelectric_HTS_Ducted_Fan propulsor.
 
     Source:
     N/A
@@ -75,7 +76,7 @@ def print_weight_breakdown_multiengine(config,filename = 'weight_breakdown.dat')
     
     fid.write(' EMPTY WEIGHT BREAKDOWN \n')       
     for tag,value in weight_breakdown.items():
-        if tag=='payload' or tag=='pax' or tag=='bag' or tag=='fuel' or tag=='empty' or tag=='systems_breakdown':
+        if tag=='payload' or tag=='pax' or tag=='bag' or tag=='fuel' or tag=='empty' or tag=='systems_breakdown' or tag=='propulsion_breakdown':
             continue
         tag = tag.replace('_',' ')
         string = ' ' + tag[0].upper() + tag[1:] + ' '
@@ -86,6 +87,14 @@ def print_weight_breakdown_multiengine(config,filename = 'weight_breakdown.dat')
     
     fid.write(' SYSTEMS WEIGHT BREAKDOWN  \n')       
     for tag,value in weight_breakdown.systems_breakdown.items():
+        tag = tag.replace('_',' ')
+        string = ' ' + tag[0].upper() + tag[1:] + ' '
+        string = string.ljust(33,'.') + ' :' 
+        fid.write( string + str( '%8.0F'   %   value)  + ' kg\n' )    
+    fid.write('\n')    
+    
+    fid.write(' PROPULSION WEIGHT BREAKDOWN  \n')
+    for tag,value in weight_breakdown.propulsion_breakdown.items():
         tag = tag.replace('_',' ')
         string = ' ' + tag[0].upper() + tag[1:] + ' '
         string = string.ljust(33,'.') + ' :' 

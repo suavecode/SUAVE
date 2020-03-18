@@ -185,8 +185,8 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         results.vehicle_mass_rate   = fuel_mdot + cryogen_mdot
 
         # Pack up the mass flow rate components so they can be tracked.
-        results.cryogen_mass_rate   = cryogen_mdot
-        results.fuel_mass_rate      = fuel_mdot
+        results.vehicle_cryogen_rate   = cryogen_mdot
+        results.vehicle_fuel_rate      = fuel_mdot
 
         return results
             

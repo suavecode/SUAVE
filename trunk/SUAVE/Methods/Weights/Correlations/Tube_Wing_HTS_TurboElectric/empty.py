@@ -172,7 +172,8 @@ def empty(vehicle,settings=None):
         wt_all_powersupplies    = propulsors.powersupply.mass_properties.mass
 
         # Total powertrain weight is the sum of the propulsors and the power suppliers
-        propulsors.mass_properties.mass         = wt_all_propulsors + wt_all_powersupplies
+        wt_propulsion = wt_all_propulsors + wt_all_powersupplies
+        propulsors.mass_properties.mass = wt_propulsion
 
         # pack up weight breakdown
         propulsors.motor.mass_properties.mass   = wt_motor * num_eng
@@ -272,15 +273,25 @@ def empty(vehicle,settings=None):
     output.rudder            = output_3.wt_rudder*(1.-wt_factors.empennage)
     output.systems           = output_2.wt_systems       
     output.systems_breakdown = Data()
-    output.systems_breakdown.control_systems   = output_2.wt_flt_ctrl    
-    output.systems_breakdown.apu               = output_2.wt_apu         
-    output.systems_breakdown.hydraulics        = output_2.wt_hyd_pnu     
-    output.systems_breakdown.instruments       = output_2.wt_instruments 
-    output.systems_breakdown.avionics          = output_2.wt_avionics    
-    output.systems_breakdown.optionals         = output_2.wt_opitems     
-    output.systems_breakdown.electrical        = output_2.wt_elec        
-    output.systems_breakdown.air_conditioner   = output_2.wt_ac          
-    output.systems_breakdown.furnish           = output_2.wt_furnish    
+    output.systems_breakdown.control_systems    = output_2.wt_flt_ctrl    
+    output.systems_breakdown.apu                = output_2.wt_apu         
+    output.systems_breakdown.hydraulics         = output_2.wt_hyd_pnu     
+    output.systems_breakdown.instruments        = output_2.wt_instruments 
+    output.systems_breakdown.avionics           = output_2.wt_avionics    
+    output.systems_breakdown.optionals          = output_2.wt_opitems     
+    output.systems_breakdown.electrical         = output_2.wt_elec        
+    output.systems_breakdown.air_conditioner    = output_2.wt_ac          
+    output.systems_breakdown.furnish            = output_2.wt_furnish
+
+    # serial HTS powertrain components       
+    output.propulsion_breakdown = Data()
+    output.propulsion_breakdown.ductedfan       = wt_ductedfan
+    output.propulsion_breakdown.motor           = wt_motor
+    output.propulsion_breakdown.esc             = wt_esc
+    output.propulsion_breakdown.leads           = wt_leads
+    output.propulsion_breakdown.ccs             = wt_ccs
+    output.propulsion_breakdown.cryocooler      = wt_cryocooler
+    output.propulsion_breakdown.powersupply     = wt_all_powersupplies / propulsors.number_of_powersupplies
     
     #define weights components
 
@@ -290,33 +301,33 @@ def empty(vehicle,settings=None):
         landing_gear_component=SUAVE.Components.Landing_Gear.Landing_Gear()
         vehicle.landing_gear=landing_gear_component
     
-    control_systems   = SUAVE.Components.Physical_Component()
-    electrical_systems= SUAVE.Components.Physical_Component()
-    passengers        = SUAVE.Components.Physical_Component()
-    furnishings       = SUAVE.Components.Physical_Component()
-    air_conditioner   = SUAVE.Components.Physical_Component()
-    fuel              = SUAVE.Components.Physical_Component()
-    apu               = SUAVE.Components.Physical_Component()
-    hydraulics        = SUAVE.Components.Physical_Component()
-    optionals         = SUAVE.Components.Physical_Component()
-    rudder            = SUAVE.Components.Physical_Component()
-    avionics          = SUAVE.Components.Energy.Peripherals.Avionics()
+    control_systems         = SUAVE.Components.Physical_Component()
+    electrical_systems      = SUAVE.Components.Physical_Component()
+    passengers              = SUAVE.Components.Physical_Component()
+    furnishings             = SUAVE.Components.Physical_Component()
+    air_conditioner         = SUAVE.Components.Physical_Component()
+    fuel                    = SUAVE.Components.Physical_Component()
+    apu                     = SUAVE.Components.Physical_Component()
+    hydraulics              = SUAVE.Components.Physical_Component()
+    optionals               = SUAVE.Components.Physical_Component()
+    rudder                  = SUAVE.Components.Physical_Component()
+    avionics                = SUAVE.Components.Energy.Peripherals.Avionics()
     
     
     #assign output weights to objects
-    landing_gear_component.mass_properties.mass                      = output.landing_gear
-    control_systems.mass_properties.mass                             = output.systems_breakdown.control_systems
-    electrical_systems.mass_properties.mass                          = output.systems_breakdown.electrical
-    passengers.mass_properties.mass                                  = output.pax + output.bag
-    furnishings.mass_properties.mass                                 = output.systems_breakdown.furnish
-    avionics.mass_properties.mass                                    = output.systems_breakdown.avionics \
+    landing_gear_component.mass_properties.mass         = output.landing_gear
+    control_systems.mass_properties.mass                = output.systems_breakdown.control_systems
+    electrical_systems.mass_properties.mass             = output.systems_breakdown.electrical
+    passengers.mass_properties.mass                     = output.pax + output.bag
+    furnishings.mass_properties.mass                    = output.systems_breakdown.furnish
+    avionics.mass_properties.mass                       = output.systems_breakdown.avionics \
         + output.systems_breakdown.instruments                  
-    air_conditioner.mass_properties.mass                             = output.systems_breakdown.air_conditioner
-    fuel.mass_properties.mass                                        = output.fuel
-    apu.mass_properties.mass                                         = output.systems_breakdown.apu
-    hydraulics.mass_properties.mass                                  = output.systems_breakdown.hydraulics
-    optionals.mass_properties.mass                                   = output.systems_breakdown.optionals
-    rudder.mass_properties.mass                                      = output.rudder
+    air_conditioner.mass_properties.mass                = output.systems_breakdown.air_conditioner
+    fuel.mass_properties.mass                           = output.fuel
+    apu.mass_properties.mass                            = output.systems_breakdown.apu
+    hydraulics.mass_properties.mass                     = output.systems_breakdown.hydraulics
+    optionals.mass_properties.mass                      = output.systems_breakdown.optionals
+    rudder.mass_properties.mass                         = output.rudder
     
     
     #assign components to vehicle
@@ -332,7 +343,5 @@ def empty(vehicle,settings=None):
     vehicle.optionals                           = optionals
     vehicle.landing_gear                        = landing_gear_component
     vehicle.wings['vertical_stabilizer'].rudder = rudder
-    
-    
 
     return output

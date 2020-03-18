@@ -72,15 +72,21 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
             HPf = -segment.conditions.frames.inertial.position_vector[-1,2] / Units.ft      #Final segment Altitude   [ft]
             HPi = -segment.conditions.frames.inertial.position_vector[0,2] / Units.ft       #Initial segment Altitude  [ft]
         elif SI:
-            HPf = -segment.conditions.frames.inertial.position_vector[-1, 2] / Units.m  # Final segment Altitude   [m]
-            HPi = -segment.conditions.frames.inertial.position_vector[0, 2] / Units.m  # Initial segment Altitude  [m]
+            HPf = -segment.conditions.frames.inertial.position_vector[-1, 2] / Units.m      # Final segment Altitude   [m]
+            HPi = -segment.conditions.frames.inertial.position_vector[0, 2] / Units.m       # Initial segment Altitude  [m]
 
-        CLf = segment.conditions.aerodynamics.lift_coefficient[-1]     #Final Segment CL [-]
-        CLi = segment.conditions.aerodynamics.lift_coefficient[0]      #Initial Segment CL [-]
-        Tf  =  segment.conditions.frames.inertial.time[-1]/ Units.min   #Final Segment Time [min]
-        Ti  =  segment.conditions.frames.inertial.time[0] / Units.min   #Initial Segment Time [min]
-        Wf  =  segment.conditions.weights.total_mass[-1]                  #Final Segment weight [kg]
-        Wi  =  segment.conditions.weights.total_mass[0]                   #Initial Segment weight [kg]
+        CLf = segment.conditions.aerodynamics.lift_coefficient[-1]          #Final Segment CL [-]
+        CLi = segment.conditions.aerodynamics.lift_coefficient[0]           #Initial Segment CL [-]
+        Tf  =  segment.conditions.frames.inertial.time[-1]/ Units.min       #Final Segment Time [min]
+        Ti  =  segment.conditions.frames.inertial.time[0] / Units.min       #Initial Segment Time [min]
+        Wf  =  segment.conditions.weights.total_mass[-1]                    #Final Segment weight [kg]
+        Wi  =  segment.conditions.weights.total_mass[0]                     #Initial Segment weight [kg]
+
+        WCf =  segment.conditions.weights.cryogen_mass[-1]                  #Final Segment Cryogen weight [kg]
+        WCi =  segment.conditions.weights.cryogen_mass[0]                   #Initial Segment Cryogen weight [kg]
+        WFf =  segment.conditions.weights.fuel_mass[-1]                     #Final Segment fuel (total - cryogen) weight [kg]
+        WFi =  segment.conditions.weights.fuel_mass[0]                      #Initial Segment fuel (total - cryogen) weight [kg]
+
         if imperial:
             Dist = (segment.conditions.frames.inertial.position_vector[-1,0] - segment.conditions.frames.inertial.position_vector[0,0] ) / Units.nautical_miles #Distance [nm]
         elif SI:
@@ -113,8 +119,31 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
             KCASf = VCf / Units.knots                   #Calibrated airspeed [knots]
         elif SI:
             KCASf = VCf
+        
+        # Total change in aircraft mass. Represents fuel in normal (non-cryogenic) case
+        Fuel    = Wi-Wf
 
-#       String formatting
+        # Cryogenic weight differences
+        CRYO    = WCi - WCf
+        FUEL_C  = WFi - WFf
+
+        # Only show cryogen use if cryogen used
+        # Strings for when there is no cryogenics
+        cryogen_data = ""
+        cryogen_unit = ""
+        CRYO_str     = ""
+        print("print_mission_breakdown")
+        # Test if cryogen data exists
+        if "vehicle_cryogen_rate" in results.segments[0].conditions.weights:
+            # Modify header strings
+            cryogen_data = " CRYOGEN "
+            cryogen_unit = "   kg    "
+            # Data for cyrogen column
+            CRYO_str =  str('%7.1f'   % CRYO)     + '|'
+            # Replace total mass difference with the fuel mass difference
+            Fuel = FUEL_C
+
+        # String formatting
         CLf_str =   str('%15.3f'   % CLf)     + '|'
         CLi_str =   str('%15.3f'   % CLi)     + '|'
         HPf_str =   str('%7.0f'    % HPf)     + '|'
@@ -123,48 +152,58 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         Wf_str =    str('%8.0f'    % Wf)      + '|'
         Wi_str =    str('%8.0f'    % Wi)      + '|'
         T_str =     str('%7.1f'   % (Tf-Ti))  + '|'
-        Fuel_str=   str('%8.0f'   % (Wi-Wf))  + '|'
         Mi_str =    str('%7.3f'   % Mi)       + '|'
         Mf_str =    str('%7.3f'   % Mf)       + '|'
         KCASi_str = str('%7.1f'   % KCASi)    + '|'
         KCASf_str = str('%7.1f'   % KCASf)    + '|'
+        Fuel_str=   str('%8.0f'   % Fuel)     + '|'
 
         Segment_str = '%- 31s |' % key 
-        
 
-        if i == 0:  #Write header
+        if i == 0:  # Write header
             if imperial:
-                fid.write( '         FLIGHT PHASE           |   ALTITUDE    |     WEIGHT      |  DIST.  | TIME  |  FUEL  |            SPEED              |\n')
-                fid.write( '                                | From  |   To  |Initial | Final  |         |       |        |Inicial| Final |Inicial| Final |\n')
-                fid.write( '                                |   ft  |   ft  |   kg   |   kg   |    nm   |  min  |   kg   | KCAS  | KCAS  |  Mach |  Mach |\n')
-                fid.write( '                                |       |       |        |        |         |       |        |       |       |       |       |\n')
+                fid.write( '         FLIGHT PHASE           |   ALTITUDE    |     WEIGHT      |  DIST.  | TIME  |            SPEED              |  FUEL  |' + cryogen_data + '\n')
+                fid.write( '                                | From  |   To  |Initial | Final  |         |       |Inicial| Final |Inicial| Final |        |\n')
+                fid.write( '                                |   ft  |   ft  |   kg   |   kg   |    nm   |  min  | KCAS  | KCAS  |  Mach |  Mach |   kg   |' + cryogen_unit + '\n')
+                fid.write( '                                |       |       |        |        |         |       |       |       |       |       |        |\n')
             elif SI:
-                fid.write('         FLIGHT PHASE           |   ALTITUDE    |     WEIGHT      |  DIST.  | TIME  |  FUEL  |            SPEED              |\n')
-                fid.write('                                | From  |   To  |Initial | Final  |         |       |        |Initial| Final |Initial| Final |\n')
-                fid.write('                                |   m   |   m   |   kg   |   kg   |    km   |  min  |   kg   | m/s   | m/s   |  Mach |  Mach |\n')
-                fid.write('                                |       |       |        |        |         |       |        |       |       |       |       |\n')
+                fid.write('         FLIGHT PHASE           |   ALTITUDE    |     WEIGHT      |  DIST.  | TIME  |            SPEED              |  FUEL  |' + cryogen_data + '\n')
+                fid.write('                                | From  |   To  |Initial | Final  |         |       |Initial| Final |Initial| Final |        |\n')
+                fid.write('                                |   m   |   m   |   kg   |   kg   |    km   |  min  | m/s   | m/s   |  Mach |  Mach |   kg   |' + cryogen_unit + '\n')
+                fid.write('                                |       |       |        |        |         |       |       |       |       |       |        |\n')
 
         # Print segment data
-        fid.write( Segment_str+HPi_str+HPf_str+Wi_str+Wf_str+Dist_str+T_str+Fuel_str+KCASi_str+KCASf_str+Mi_str+Mf_str+'\n')
+        fid.write( Segment_str+HPi_str+HPf_str+Wi_str+Wf_str+Dist_str+T_str+KCASi_str+KCASf_str+Mi_str+Mf_str+Fuel_str+CRYO_str+'\n')
         i = i+1
 
-    #Summary of results [nm]
-    TotalFuel = results.segments[0].conditions.weights.total_mass[0] - results.segments[-1].conditions.weights.total_mass[-1]   #[kg]
+    # Summary of results [nm]
     TotalTime = (results.segments[-1].conditions.frames.inertial.time[-1] - results.segments[0].conditions.frames.inertial.time[0])  #[min]
+    TotalFuel = results.segments[0].conditions.weights.total_mass[0] - results.segments[-1].conditions.weights.total_mass[-1]   #[kg]
+    # Summary for systems with cryogen mass usage. TotalFuel is modified to reflect this not being the only variable mass
+    if "vehicle_cryogen_rate" in results.segments[0].conditions.weights:
+        TotalCryogen = results.segments[0].conditions.weights.cryogen_mass[0] - results.segments[-1].conditions.weights.cryogen_mass[-1]
+        TotalConsumable = TotalFuel
+        TotalFuel = results.segments[0].conditions.weights.fuel_mass[0] - results.segments[-1].conditions.weights.fuel_mass[-1]
 
     fid.write(2*'\n')
     if imperial:
-        fid.write(' Total Range (nm) ........... '+ str('%9.0f'   % TotalRange)+'\n')
+        fid.write(' Total Range         (nm) ........... '+ str('%9.0f'   % TotalRange)+'\n')
     elif SI:
-        fid.write(' Total Range (km) ........... ' + str('%9.0f' % TotalRange) + '\n')
-    fid.write(' Total Fuel  (kg) ........... '+ str('%9.0f'   % TotalFuel)+'\n')
-    fid.write(' Total Time  (hh:mm) ........ '+ time.strftime('    %H:%M', time.gmtime(TotalTime))+'\n')
+        fid.write(' Total Range         (km) ........... ' + str('%9.0f' % TotalRange) + '\n')
+    fid.write(' Total Fuel          (kg) ........... '+ str('%9.0f'   % TotalFuel)+'\n')
+    
+    # Cryogen use results
+    if "vehicle_cryogen_rate" in results.segments[0].conditions.weights:
+        fid.write(' Total Cryogen       (kg) ........... '+ str('%9.0f'   % TotalCryogen)+'\n')
+        fid.write(' Total Consumables   (kg) ........... '+ str('%9.0f'   % TotalConsumable)+'\n')
+
+    fid.write(' Total Time       (hh:mm) ........... '+ time.strftime('    %H:%M', time.gmtime(TotalTime))+'\n')
     # Print timestamp
     fid.write(2*'\n'+ 43*'-'+ '\n' + datetime.datetime.now().strftime(" %A, %d. %B %Y %I:%M:%S %p"))
     
     fid.close
 
-    #done! 
+    # done! 
     return
 
 # ----------------------------------------------------------------------

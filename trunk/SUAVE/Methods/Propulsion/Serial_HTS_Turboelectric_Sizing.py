@@ -236,7 +236,7 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     cryocooler_input_power      = 0.0
     if Turboelectric_HTS_Ducted_Fan.cryogen_proportion < 1.0:
         size_cryocooler(cryocooler, cooling_power/number_of_engines, cryo_cold_temp, cryo_amb_temp)
-        cryocooler_input_power  = cryocooler.Rated_Power
+        cryocooler_input_power  = cryocooler.rated_power
     rotor_power                 = ccs_input_power + cryocooler_input_power * number_of_engines
 
     # Add power required by each stream
@@ -247,9 +247,9 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
 
     # Pack up each component rated power into each component
     # As this will be used for sizing the mass of these components the individual power is used
-    motor.Rated_Power           = shaft_power       / number_of_engines
-    esc.Rated_Power             = motor_input_power / number_of_engines
+    motor.rated_power           = shaft_power       / number_of_engines
+    esc.rated_power             = motor_input_power / number_of_engines
     esc.Rated_Current           = HTS_current
-    ccs.Rated_Power             = ccs_output_power  / number_of_engines
+    ccs.rated_power             = ccs_output_power  / number_of_engines
     ccs.Rated_Current           = HTS_current
-    turboelectric.Rated_Power   = all_power         / turboelectric.number_of_engines
+    turboelectric.rated_power   = all_power         / turboelectric.number_of_engines
