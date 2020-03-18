@@ -1,4 +1,6 @@
 # weights.py
+# Created:   
+# Modified: Mar, 2020, M. Clarke
 
 import SUAVE
 import numpy as np
