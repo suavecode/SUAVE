@@ -632,6 +632,9 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
         vsp.SetParmVal(fuse_id,"RightLStrength","XSec_0",vals.nose.side.strength)
         vsp.SetParmVal(fuse_id,"TBSym","XSec_0",vals.nose.TB_Sym)
         vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_0",vals.nose.z_pos)
+        if not vals.nose.TB_Sym:
+            vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_0",vals.nose.bottom.angle)
+            vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_0",vals.nose.bottom.strength)        
         
         
         # Tail

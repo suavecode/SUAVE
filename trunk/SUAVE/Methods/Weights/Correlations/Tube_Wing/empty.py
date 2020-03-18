@@ -169,8 +169,7 @@ def empty(vehicle,settings=None):
         mac_h          = vehicle.wings['horizontal_stabilizer'].chords.mean_aerodynamic
         t_c_h          = vehicle.wings['horizontal_stabilizer'].thickness_to_chord
         h_tail_exposed = vehicle.wings['horizontal_stabilizer'].areas.exposed / vehicle.wings['horizontal_stabilizer'].areas.wetted
-        l_w2h          = vehicle.wings['horizontal_stabilizer'].origin[0][0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0][0] - \
-            vehicle.wings['main_wing'].origin[0][0] - vehicle.wings['main_wing'].aerodynamic_center[0][0] #Need to check this is the length of the horizontal tail moment arm
+        l_w2h          = vehicle.wings['horizontal_stabilizer'].origin[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm
         wt_tail_horizontal = tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h, h_tail_exposed)   
         wt_tail_horizontal = wt_tail_horizontal*(1.-wt_factors.empennage)
         vehicle.wings['horizontal_stabilizer'].mass_properties.mass = wt_tail_horizontal        
