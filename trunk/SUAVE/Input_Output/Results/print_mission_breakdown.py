@@ -3,6 +3,7 @@
 
 # Created:  SUAVE team
 # Modified: Aug 2016, L. Kulik
+#           Mar 2020, K Hamilton
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -63,7 +64,9 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
     k1 = 1.727133242E-06                            # constant to airspeed conversion
     k2 = 0.2857142857                               # constant to airspeed conversion
 
-    TotalRange = 0
+    TotalRange      = 0.
+    total_fuel      = 0.
+    total_cryogen   = 0.
     i = 0
     for key in results.segments.keys():        #loop for all segments
         segment = results.segments[key]
@@ -98,7 +101,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         Mf = segment.conditions.freestream.mach_number[-1]          # Final segment mach number
         Mi = segment.conditions.freestream.mach_number[0]           # Initial segment mach number
 
-#       Aispeed conversion: KTAS to  KCAS
+        # Aispeed conversion: KTAS to  KCAS
         atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
         p0 , dummy , dummy , dummy , dummy  = atmosphere.compute_values(0)
         deltai = segment.conditions.freestream.pressure[0] / p0
@@ -132,7 +135,6 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         cryogen_data = ""
         cryogen_unit = ""
         CRYO_str     = ""
-        print("print_mission_breakdown")
         # Test if cryogen data exists
         if "vehicle_cryogen_rate" in results.segments[0].conditions.weights:
             # Modify header strings
@@ -174,6 +176,11 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
 
         # Print segment data
         fid.write( Segment_str+HPi_str+HPf_str+Wi_str+Wf_str+Dist_str+T_str+KCASi_str+KCASf_str+Mi_str+Mf_str+Fuel_str+CRYO_str+'\n')
+        
+        # Sum fule and cryogen usage for printing summary once mission complete
+        total_fuel      = total_fuel + FUEL_C
+        total_cryogen   = total_cryogen + CRYO
+        
         i = i+1
 
     # Summary of results [nm]
@@ -181,9 +188,8 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
     TotalFuel = results.segments[0].conditions.weights.total_mass[0] - results.segments[-1].conditions.weights.total_mass[-1]   #[kg]
     # Summary for systems with cryogen mass usage. TotalFuel is modified to reflect this not being the only variable mass
     if "vehicle_cryogen_rate" in results.segments[0].conditions.weights:
-        TotalCryogen = results.segments[0].conditions.weights.cryogen_mass[0] - results.segments[-1].conditions.weights.cryogen_mass[-1]
         TotalConsumable = TotalFuel
-        TotalFuel = results.segments[0].conditions.weights.fuel_mass[0] - results.segments[-1].conditions.weights.fuel_mass[-1]
+        TotalFuel = total_fuel
 
     fid.write(2*'\n')
     if imperial:
@@ -194,7 +200,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
     
     # Cryogen use results
     if "vehicle_cryogen_rate" in results.segments[0].conditions.weights:
-        fid.write(' Total Cryogen       (kg) ........... '+ str('%9.0f'   % TotalCryogen)+'\n')
+        fid.write(' Total Cryogen       (kg) ........... '+ str('%9.0f'   % total_cryogen)+'\n')
         fid.write(' Total Consumables   (kg) ........... '+ str('%9.0f'   % TotalConsumable)+'\n')
 
     fid.write(' Total Time       (hh:mm) ........... '+ time.strftime('    %H:%M', time.gmtime(TotalTime))+'\n')

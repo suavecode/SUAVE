@@ -68,8 +68,8 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
         else:
             # call the atmospheric model to get the conditions at the specified altitude
             atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-            atmo_data = atmosphere.compute_values(altitude,delta_isa)
-            planet    = SUAVE.Attributes.Planets.Earth()
+            atmo_data  = atmosphere.compute_values(altitude,delta_isa)
+            planet     = SUAVE.Attributes.Planets.Earth()
             
             p   = atmo_data.pressure          
             T   = atmo_data.temperature       
