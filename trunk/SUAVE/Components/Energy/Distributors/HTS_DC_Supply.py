@@ -39,7 +39,6 @@ class HTS_DC_Supply(Energy_Component):
             """         
         
         self.efficiency         =   0.0
-        self.mass               = 100.0     # [kg]
         self.rated_current      = 100.0     # [A]
         self.rated_power        = 100.0     # [W]
     

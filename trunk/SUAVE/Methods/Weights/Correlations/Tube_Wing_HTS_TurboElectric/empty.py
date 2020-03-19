@@ -138,12 +138,12 @@ def empty(vehicle,settings=None):
         # This first part here is copied directly from the turbofan empty.py. It is assumed an electrofan with the same diameter as a turbojet will produce the same thrust. Likely the turbofan will produce slightly more as some thrust will be produced directly from the engine core, however the elctrofan will likley have a smaller core, resulting in more thrust directly from the fan.
         thrust_sls                      = propulsors.sealevel_static_thrust
         wt_engine_jet                   = Propulsion.engine_jet(thrust_sls)
-        wt_factor                       = 1.0   # how many multiples of the dry engine weight is the operating engine.
-        wt_turbojet                     = Propulsion.integrated_propulsion(wt_engine_jet,num_eng,wt_factor)
+        # wt_factor                       = 1.0   # how many multiples of the dry engine weight is the operating engine.
+        # wt_turbojet                     = Propulsion.integrated_propulsion(wt_engine_jet,num_eng,wt_factor)
 
         # Ducted fan mass is typically 15% of a conventional turbofan engine, however the mass of the turbofans as estimated by SUAVE is proportionally higher for smaller engines, i.e. small engines have lower specific power, which may not be true for electrofans as turbine blade clearance may be the cause of lower performance in smaller turbojet engines. 15% of the turbojet mass is used for now.
         # Divided by the number of engines so the total can be added up later.
-        wt_ductedfan        = wt_turbojet * 0.15 / num_eng
+        wt_ductedfan        = wt_engine_jet * 0.15
 
         # Size each HTS motor using the SUAVE corelation
         wt_motor            = hts_motor(propulsors.motor.rated_power)
@@ -154,21 +154,21 @@ def empty(vehicle,settings=None):
         # The HTS motor rotor does not have a mass as it is considered part of the motor mass.
         # However, the current supply leads do have mass.
         # It is assumed each motor has two leads.
-        wt_leads            = propulsors.lead.mass * 2.0
+        wt_leads            = propulsors.lead.mass_properties.mass * 2.0
 
         # Size the rotor current supply (ccs)
         wt_ccs              = SiC_mass(propulsors.ccs)
 
         # Size the rotor cryocooler. Each rotor has a seperate cryocooler as defined in serial_hts_turboelectric_sizing
         # This is skipped if the rotor(s) are cooled wholly by cryogen. The mass of the components required to store and deliver the cryogen are not considered.
-        wt_cryocooler       = propulsors.cryocooler.mass
+        wt_cryocooler       = propulsors.cryocooler.mass_properties.mass
 
         # Sum the above propulsor components to give individual propulsor mass
         wt_propulsor        = wt_ductedfan + wt_motor + wt_esc + wt_leads + wt_ccs + wt_cryocooler
         # Multiply by the number of propulsors
         wt_all_propulsors   = wt_propulsor * num_eng
 
-        # Retreive Turboelectric mass calculated in serial_hts_turboelectric_sizing. This value is all the turboelectric machines combined.
+        # Retreive Turboelectric mass calculated in serial_hts_turboelectric_sizing.
         wt_all_powersupplies    = propulsors.powersupply.mass_properties.mass
 
         # Total powertrain weight is the sum of the propulsors and the power suppliers

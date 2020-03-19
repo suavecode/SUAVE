@@ -42,5 +42,5 @@ def size_cryocooler(cryocooler, max_power, cryo_temp, amb_temp=292.2):
     output = cryocooler_model(cryocooler, max_power, cryo_temp, amb_temp)
 
     # Pack up outputs
-    cryocooler.mass             = output[1]
-    cryocooler.rated_power      = output[0]
+    cryocooler.mass_properties.mass     = output[1]
+    cryocooler.rated_power              = output[0]

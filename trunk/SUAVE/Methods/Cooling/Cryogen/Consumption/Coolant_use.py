@@ -80,6 +80,10 @@ def Coolant_use(cryogen,cryogen_temp,equipment_temp,cooling_required,pressure):
 
     # Sum the components of cooling to give the total cooling power per gram. X1000 to give per kg.
     cooling_power = 1000. * (liq_cooling + evap_cooling + gas_cooling)
+    # print(liq_cooling)
+    # print(evap_cooling)
+    # print(gas_cooling)
+    # print("")
     
     # Divide the cooling power by the per kg cooling power to calculate the coolant mass flow rate    
     mdot = cooling_required/cooling_power       # [kg/s]

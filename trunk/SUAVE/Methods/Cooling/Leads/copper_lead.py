@@ -65,11 +65,11 @@ def initialize_copper_lead(lead):
     # 
 
     # Pack up results
-    lead.mass               = mass
-    lead.cross_section      = cs_area
-    lead.optimum_current    = current
-    lead.minimum_Q          = minimum_Q
-    lead.material           = copper
+    lead.mass_properties.mass   = mass
+    lead.cross_section          = cs_area
+    lead.optimum_current        = current
+    lead.minimum_Q              = minimum_Q
+    lead.material               = copper
 
     # find the heat conducted into the cryogenic environment if no current is flowing
     unpowered_Q             = Q_unpowered(lead)[0]
@@ -134,11 +134,12 @@ def Q_offdesign(lead, current):
     length              = lead.length
     copper              = lead.material
 
-    # If the current is lower than the design current the heat flow will drop proportional to the supplied current. I.e. the heat from conduction remains the same while the joule heating in the lead reduces.
+    # The thermal gradient along the lead is assumed to remain constant for all currents below the design current. The resistance remains constant if the temperature remains constant. The estimated heat flow is reduced in proportion with the carried current.
     if current <= design_current:
         proportion      = current/design_current
-        power           = (design_Q-zero_Q)*proportion
-        Q               = zero_Q + power
+        R               = design_Q/(design_current**2.0)
+        power           = R*current**2.0
+        Q               = zero_Q + proportion * (design_Q - zero_Q)
 
     # If the supplied current is higher than the design current the maximum temperature in the lead will be higher than ambient. Solve by dividing the lead at the maximum temperature point.
     else:

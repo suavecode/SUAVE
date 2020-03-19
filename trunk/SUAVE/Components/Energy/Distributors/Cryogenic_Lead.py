@@ -43,7 +43,6 @@ class Cryogenic_Lead(Energy_Component):
         self.current            = 1000.0    # [A]
         self.length             =    1.0    # [m]
     
-        self.mass               =    1.0    # [kg]
         self.cross_section      =    1.0    # [m2]
         self.optimum_current    = 1000.0    # [A]
         self.minimum_Q          = 1000.0    # [W]

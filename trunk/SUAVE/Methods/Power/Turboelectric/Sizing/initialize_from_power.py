@@ -14,9 +14,9 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Power-Turboelectric-Sizing
-def initialize_from_power(turboelectric,number_of_powersupplies,power,conditions):
+def initialize_from_power(turboelectric,power,conditions):
     '''
-    assigns the mass of the turboelectric generator based on the power and specific power
+    assigns the mass of a single turboelectric generator based on the power and specific power
     Assumptions:
     Power output is derated relative to the air pressure. 100% power is considered a mean sea level.
     
@@ -41,19 +41,14 @@ def initialize_from_power(turboelectric,number_of_powersupplies,power,conditions
     # Ambient pressure as proportion of sealevel pressure, for use in derating the gas turbine
     derate              = pressure/101325. 
     
-    # Divide power evenly between available powersupplies.
-    individual_demand   = power/number_of_powersupplies
     # Proportionally increase demand relative to the sizing altitude
-    demand_power        = individual_demand/derate
+    demand_power        = power/derate
 
     # Apply specific power specification to size individual powersupply
     powersupply_mass    = demand_power/specific_power
-    
-    # Multiply mass by number of powersupplies to give the total mass of all powersupplies
-    mass                = number_of_powersupplies*powersupply_mass
 
     # Store sized turboelectric rated power
     turboelectric.rated_power   = power
 
     # Modify turboelectric to include the newly created mass data
-    turboelectric.mass_properties.mass  = mass
+    turboelectric.mass_properties.mass  = powersupply_mass

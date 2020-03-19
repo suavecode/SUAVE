@@ -158,8 +158,9 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     mass_flow  = thrust.mass_flow_rate_design
 
     # compute total shaft power required (i.e. the sum of the shaft power provided by all the fans)
-    shaft_power = fan.outputs.work_done * mass_flow * number_of_engines
-    Turboelectric_HTS_Ducted_Fan.design_shaft_power = shaft_power
+    shaft_power = fan.outputs.work_done * mass_flow
+    total_shaft_power = shaft_power * number_of_engines
+    Turboelectric_HTS_Ducted_Fan.design_shaft_power = total_shaft_power
     # Shaft power seems to be half the expected. 3 MW expected per motor. 1.336 MW reported
 
     # update the design thrust value
@@ -213,7 +214,7 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     # The two streams only join at this final stage.
 
     # Get total power required by the main powertrain stream by applying power loss of each component in sequence
-    # Most components are considered aggregates, i.e. the efficiency of the multiple small instances of a component is considered the same as one large instance of that component and so the number of instances is not considered.
+    # Each component is considered as one instance, i.e. one engine
     motor_input_power           = shaft_power/(motor.motor_efficiency * motor.gearbox_efficiency)
     esc_input_power             = esc.power(motor_current, motor_input_power)
     drive_power                 = esc_input_power
@@ -222,34 +223,38 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     # The sizing conditions here are ground level conditions as this is highest cryocooler demand
     HTS_current                 = rotor.current
     rotor_input_power           = rotor.power(HTS_current, rotor.skin_temp)
-    total_rotor_input_power     = rotor_input_power * number_of_engines                         # HTS_rotor calculates power per rotor, multiply by number of motors to get total power
+    # initialize copper lead optimses the leads for the conditions set elsewhere, i.e. the lead is not sized here as it should be sized for the maximum ambient temperature
     initialize_copper_lead(current_lead)
     current_lead_powers         = Q_offdesign(current_lead, HTS_current)
+    print(HTS_current)
     lead_power                  = current_lead_powers[1]
-    total_lead_power            = lead_power * Turboelectric_HTS_Ducted_Fan.leads               # multiply lead loss by number of leads to get total loss
-    ccs_output_power            = total_lead_power + total_rotor_input_power
+    leads_power                 = 2 * lead_power             # multiply lead loss by number of leads to get total loss
+    ccs_output_power            = leads_power + rotor_input_power
     ccs_input_power             = ccs.power(HTS_current, ccs_output_power)
     # The cryogenic components are also part of the rotor power stream
-    total_lead_cooling_power    = current_lead_powers[0] * Turboelectric_HTS_Ducted_Fan.leads   # multiply lead cooling requirement by number of leads to get total cooling requirement
-    total_rotor_cooling_power   = rotor.outputs.cryo_load * number_of_engines                   # multiply rotor cooling by number of rotors to get total rotor cooling requirement
-    cooling_power               = total_rotor_cooling_power + total_lead_cooling_power          # Cryocooler must cool both rotor and supply leads
+    lead_cooling_power          = current_lead_powers[0]
+    leads_cooling_power         = 2 * lead_cooling_power   # multiply lead cooling requirement by number of leads to get total cooling requirement
+    total_lead_cooling_power    = leads_cooling_power * number_of_engines
+    rotor_cooling_power         = rotor.outputs.cryo_load
+    cooling_power               = rotor_cooling_power + leads_cooling_power  # Cryocooler must cool both rotor and supply leads
     cryocooler_input_power      = 0.0
     if Turboelectric_HTS_Ducted_Fan.cryogen_proportion < 1.0:
-        size_cryocooler(cryocooler, cooling_power/number_of_engines, cryo_cold_temp, cryo_amb_temp)
+        size_cryocooler(cryocooler, cooling_power, cryo_cold_temp, cryo_amb_temp)
         cryocooler_input_power  = cryocooler.rated_power
-    rotor_power                 = ccs_input_power + cryocooler_input_power * number_of_engines
+    rotor_power                 = ccs_input_power + cryocooler_input_power
 
     # Add power required by each stream
-    all_power                   = drive_power + rotor_power
+    engine_power                = drive_power + rotor_power
+    total_engine_power          = engine_power * number_of_engines
 
     # Size the turboelectric generator(s) based total power requirement
-    initialize_from_power(turboelectric,turboelectric.number_of_engines,all_power,conditions)
+    initialize_from_power(turboelectric,total_engine_power,conditions)
 
     # Pack up each component rated power into each component
     # As this will be used for sizing the mass of these components the individual power is used
-    motor.rated_power           = shaft_power       / number_of_engines
-    esc.rated_power             = motor_input_power / number_of_engines
-    esc.Rated_Current           = HTS_current
-    ccs.rated_power             = ccs_output_power  / number_of_engines
-    ccs.Rated_Current           = HTS_current
-    turboelectric.rated_power   = all_power         / turboelectric.number_of_engines
+    motor.rated_power           = shaft_power
+    esc.rated_power             = motor_input_power
+    esc.rated_current           = HTS_current
+    ccs.rated_power             = ccs_output_power
+    ccs.rated_current           = HTS_current
+    turboelectric.rated_power   = total_engine_power / turboelectric.number_of_engines

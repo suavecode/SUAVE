@@ -39,16 +39,16 @@ def SiC_mass(HTS_DC_Supply):
 
     # Unpack inputs
     power           = HTS_DC_Supply.rated_power
-    current         = HTS_DC_Supply.Rated_Current
+    current         = HTS_DC_Supply.rated_current
 
     # Calculate SiC specific power
-    specific_power  = 104.0/0.9     # kW/kg
+    specific_power  = 104000/0.9     # W/kg
 
     # Estimate mass
     mass = power / specific_power
 
     # Pack results
-    HTS_DC_Supply.mass              = mass          # [kg]
+    HTS_DC_Supply.mass_properties.mass  = mass          # [kg]
 
     # Return result.
     return mass
