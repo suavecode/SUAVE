@@ -4,6 +4,7 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
 #           May 2019, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -47,6 +48,7 @@ def initialize_conditions(segment):
     Tf         = segment.pitch_final 
     theta_dot  = segment.pitch_rate   
     conditions = segment.state.conditions 
+    state      = segment.state
     
     # check for initial altitude
     if alt is None:

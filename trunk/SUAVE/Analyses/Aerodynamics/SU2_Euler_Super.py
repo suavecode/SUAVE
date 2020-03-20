@@ -4,6 +4,7 @@
 # Created:  Dec 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
 #           Apr 2019, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,10 +18,7 @@ import numpy as np
 
 from SUAVE.Input_Output.OpenVSP.write_vsp_mesh import write_vsp_mesh
 from SUAVE.Input_Output.GMSH.write_geo_file import write_geo_file
-from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file
-
-# Default aero Results
-from .Results import Results
+from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file 
 
 # The aero methods
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods

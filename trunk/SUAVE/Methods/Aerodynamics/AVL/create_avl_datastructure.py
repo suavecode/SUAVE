@@ -6,6 +6,8 @@
 #           Apr 2017, M. Clarke
 #           Jul 2017, T. MacDonald
 #           Aug 2019, M. Clarke
+#           Mar 2020, M. Clarke
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -27,68 +29,6 @@ from .Data.Configuration import Configuration
 from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 
 ## @ingroup Methods-Aerodynamics-AVL
-def create_avl_datastructure(geometry,conditions):
-        """ This translates the aircraft geometry into the format used in the AVL run file
-
-        Assumptions:
-            None
-    
-        Source:
-            Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avle
-    
-        Inputs:
-            geometry    
-    
-        Outputs:
-            avl_inputs
-    
-        Properties Used:
-            N/A
-        """    
-        avl_aircraft             = translate_avl_geometry(geometry)
-        avl_configuration        = translate_avl_configuration(geometry,conditions)
-
-        # pack results in a new AVL inputs structure
-        avl_inputs               = Inputs()
-        avl_inputs.aircraft      = avl_aircraft
-        avl_inputs.configuration = avl_configuration
-        return avl_inputs
-
-
-def translate_avl_geometry(geometry):
-        """ Translates geometry from the vehicle setup to AVL format
-
-        Assumptions:
-            None
-
-        Source:
-            None
-
-        Inputs:
-            geometry
-                geometry.wing - passed into the translate_avl_wing function      [data stucture] 
-                geometry.fuselage - passed into the translate_avl_body function  [data stucture]
-
-        Outputs:
-            aircraft - aircraft geometry in AVL format                           [data stucture] 
-
-        Properties Used:
-            N/A
-        """ 
-        aircraft                 = Aircraft()
-        aircraft.tag             = geometry.tag
-
-        for wing in geometry.wings:
-                w  = translate_avl_wing(wing)
-                aircraft.append_wing(w)
-                
-        for body in geometry.fuselages:
-                b = translate_avl_body(body)
-                aircraft.append_body(b)
-
-        return aircraft
-
-
 def translate_avl_wing(suave_wing):
         """ Translates wing geometry from the vehicle setup to AVL format
 
@@ -444,43 +384,3 @@ def populate_body_sections(avl_body,suave_body):
 
         return avl_body
 
-def translate_avl_configuration(geometry,conditions):
-        """ Translates mass properties of the aircraft configuration into AVL format
-
-        Assumptions:
-            None
-
-        Source:
-            None
-
-        Inputs:
-            geometry.reference_area                              [meters**2]
-            geometry.wings['Main Wing'].spans.projected          [meters]
-            geometry.wings['Main Wing'].chords.mean_aerodynamic  [meters]
-            geometry.mass_properties.center_of_gravity           [meters]
-            geometry.mass_properties.moments_of_inertia.tensor   [kilograms-meters**2]
-                  
-        Outputs:
-            config                                               [-]
-
-        Properties Used:
-            N/A
-        """  
-        
-        config                                   = Configuration()
-        config.reference_values.sref             = geometry.reference_area
-        config.reference_values.bref             = geometry.wings['Main Wing'].spans.projected
-        config.reference_values.cref             = geometry.wings['Main Wing'].chords.mean_aerodynamic
-        config.reference_values.cg_coords        = geometry.mass_properties.center_of_gravity
-        config.mass_properties.mass              = 0 
-        moment_tensor                            = geometry.mass_properties.moments_of_inertia.tensor
-        config.mass_properties.inertial.Ixx      = moment_tensor[0][0]
-        config.mass_properties.inertial.Iyy      = moment_tensor[1][1]
-        config.mass_properties.inertial.Izz      = moment_tensor[2][2]
-        config.mass_properties.inertial.Ixy      = moment_tensor[0][1]
-        config.mass_properties.inertial.Iyz      = moment_tensor[1][2]
-        config.mass_properties.inertial.Izx      = moment_tensor[2][0]
-
-        #No Iysym, Izsym assumed for now
-
-        return config

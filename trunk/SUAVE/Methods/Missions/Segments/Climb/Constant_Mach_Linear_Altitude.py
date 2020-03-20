@@ -1,7 +1,9 @@
 ## @ingroup Methods-Missions-Segments-Climb
-# Constant_Mach_Linear_Altitude.py 
+# Constant_Mach_Linear_Altitude.py
+
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jun 2017, E. Botero
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -45,7 +47,9 @@ def initialize_conditions(segment):
     altf       = segment.altitude_end
     xf         = segment.distance
     mach       = segment.mach
-    conditions = segment.state.conditions
+    conditions = segment.state.conditions 
+    t_initial  = conditions.frames.inertial.time[0,0]    
+    t_nondim   = segment.state.numerics.dimensionless.control_points
     
     # check for initial altitude
     if alt0 is None:
@@ -54,7 +58,7 @@ def initialize_conditions(segment):
         
     # discretize on altitude
     alt = t_nondim * (altf-alt0) + alt0      
-    segment.state.conditions.freestream.altitude[:,0]             = alt[:,0]
+    segment.state.conditions.freestream.altitude[:,0] = alt[:,0]
         
     # Update freestream to get speed of sound
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment)
@@ -64,9 +68,7 @@ def initialize_conditions(segment):
     air_speed = mach * a
     
     # dimensionalize time
-    t_initial = conditions.frames.inertial.time[0,0]
-    t_final   = xf / air_speed + t_initial
-    t_nondim  = segment.state.numerics.dimensionless.control_points
+    t_final   = xf / air_speed + t_initial 
     time      = t_nondim * (t_final-t_initial) + t_initial
     
     segment.altitude = 0.5*(alt0 + altf)
