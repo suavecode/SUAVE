@@ -247,7 +247,8 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     total_engine_power          = engine_power * number_of_engines
 
     # Size the turboelectric generator(s) based total power requirement
-    initialize_from_power(turboelectric,total_engine_power,conditions)
+    turboelectric_output_power  = total_engine_power / turboelectric.number_of_engines
+    initialize_from_power(turboelectric,turboelectric_output_power,conditions)
 
     # Pack up each component rated power into each component
     # As this will be used for sizing the mass of these components the individual power is used
@@ -256,4 +257,4 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     esc.rated_current           = HTS_current
     ccs.rated_power             = ccs_output_power
     ccs.rated_current           = HTS_current
-    turboelectric.rated_power   = total_engine_power / turboelectric.number_of_engines
+    turboelectric.rated_power   = turboelectric_output_power

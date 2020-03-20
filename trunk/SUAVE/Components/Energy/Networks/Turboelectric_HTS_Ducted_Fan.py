@@ -109,6 +109,7 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         cooling_share_cryocooler    = 1.0 - cooling_share_cryogen   # Proportion of rotor cooling provided by cryocooler
         leads                       = self.leads                    # number of rotor leads, typically twice the number of rotors
         number_of_engines           = self.number_of_engines        # number of propulsors and number of propulsion motors
+        number_of_supplies          = self.powersupply.number_of_engines    # number of turboelectric generators
     
         conditions      = state.conditions
         numerics        = state.numerics
@@ -175,11 +176,11 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
             cryogen_load            = cooling_share_cryogen * rotor_cryo_load
             cryogen_mdot            = heat_exchanger.energy_calc(cryogen_load)
 
-        # Sum all the power users to get the power required to be supplied by the powersupply, i.e. the turboelectric generator
-        powersupply.inputs.power_in = motor_power_in + esc_power + rotor_power_in + lead_power + ccs_power + cryocooler_power
+        # Sum all the power users to get the power required to be supplied by each powersupply, i.e. the turboelectric generators
+        powersupply.inputs.power_in = (motor_power_in + esc_power + rotor_power_in + lead_power + ccs_power + cryocooler_power) / number_of_supplies
 
         # Calculate the fuel mass flow rate at the turboelectric power supply.
-        fuel_mdot                   = powersupply.energy_calc(conditions, numerics)
+        fuel_mdot                   = number_of_supplies * powersupply.energy_calc(conditions, numerics)
 
         # Sum the mass flow rates and store this total as vehicle_mass_rate so the vehicle mass change reflects both the fuel used and the cryogen used.
         results.vehicle_mass_rate   = fuel_mdot + cryogen_mdot

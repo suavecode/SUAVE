@@ -169,18 +169,16 @@ def empty(vehicle,settings=None):
         wt_all_propulsors   = wt_propulsor * num_eng
 
         # Retreive Turboelectric mass calculated in serial_hts_turboelectric_sizing.
-        wt_all_powersupplies    = propulsors.powersupply.mass_properties.mass
+        wt_powersupply          = propulsors.powersupply.mass_properties.mass
+        wt_all_powersupplies    = wt_powersupply * propulsors.powersupply.number_of_engines
 
         # Total powertrain weight is the sum of the propulsors and the power suppliers
         wt_propulsion = wt_all_propulsors + wt_all_powersupplies
         propulsors.mass_properties.mass = wt_propulsion
 
         # pack up weight breakdown
-        propulsors.motor.mass_properties.mass   = wt_motor * num_eng
-        # propulsors.esc
-        # propulsors.ccs
-        # propulsors.cryocooler
-        # propulsors.turboelectric
+        propulsors.ducted_fan.mass_properties.mass  = wt_ductedfan
+        propulsors.motor.mass_properties.mass       = wt_motor * num_eng
 
 
     else: #propulsor used is not a turbo_fan; assume mass_properties defined outside model
@@ -291,7 +289,7 @@ def empty(vehicle,settings=None):
     output.propulsion_breakdown.leads           = wt_leads
     output.propulsion_breakdown.ccs             = wt_ccs
     output.propulsion_breakdown.cryocooler      = wt_cryocooler
-    output.propulsion_breakdown.powersupply     = wt_all_powersupplies / propulsors.number_of_powersupplies
+    output.propulsion_breakdown.powersupply     = wt_powersupply
     
     #define weights components
 
