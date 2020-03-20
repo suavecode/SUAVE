@@ -126,6 +126,8 @@ def write_SU2_cfg(tag,SU2_settings):
     #f.write('CAUCHY_FUNC_FLOW = LIFT\n\n')
     
     # Input/Output
+    f.write('SCREEN_OUTPUT= ( LIFT, DRAG, INNER_ITER, WALL_TIME, RMS_DENSITY, RMS_ENERGY)\n\n')
+    f.write('HISTORY_OUTPUT= ( ITER, AERO_COEFF, RMS_RES )\n\n')
     f.write('MESH_FILENAME = ' + tag + '.su2\n\n')
     f.write('MESH_OUT_FILENAME = mesh_out.su2\n\n')
     f.write('SOLUTION_FILENAME = solution_flow.dat\n\n')

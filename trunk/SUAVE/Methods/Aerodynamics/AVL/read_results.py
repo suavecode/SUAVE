@@ -77,16 +77,16 @@ def read_results(avl_object):
             case_res.aerodynamics.induced_drag_coefficient                  = float(lines[25][32:42].strip())
             case_res.aerodynamics.oswald_efficiency                         = float(lines[27][32:42].strip())
                
-            case_res.stability.alpha_derivatives.lift_curve_slope           = float(lines[36+num_ctrl][24:34].strip()) # CL_a
-            case_res.stability.alpha_derivatives.side_force_derivative      = float(lines[37+num_ctrl][24:34].strip()) # CY_a
-            case_res.stability.alpha_derivatives.roll_moment_derivative     = float(lines[38+num_ctrl][24:34].strip()) # Cl_a
-            case_res.stability.alpha_derivatives.pitch_moment_derivative    = float(lines[39+num_ctrl][24:34].strip()) # Cm_a
-            case_res.stability.alpha_derivatives.yaw_moment_derivative      = float(lines[40+num_ctrl][24:34].strip()) # Cn_a
-            case_res.stability.beta_derivatives.lift_coefficient_derivative = float(lines[36+num_ctrl][43:54].strip()) # CL_b
-            case_res.stability.beta_derivatives.side_force_derivative       = float(lines[37+num_ctrl][43:54].strip()) # CY_b
-            case_res.stability.beta_derivatives.roll_moment_derivative      = float(lines[38+num_ctrl][43:54].strip()) # Cl_b
-            case_res.stability.beta_derivatives.pitch_moment_derivative     = float(lines[39+num_ctrl][43:54].strip()) # Cm_b
-            case_res.stability.beta_derivatives.yaw_moment_derivative       = float(lines[40+num_ctrl][43:54].strip()) # Cn_b
+            case_res.stability.alpha_derivatives.lift_curve_slope           = float(lines[36][24:34].strip()) # CL_a
+            case_res.stability.alpha_derivatives.side_force_derivative      = float(lines[37][24:34].strip()) # CY_a
+            case_res.stability.alpha_derivatives.roll_moment_derivative     = float(lines[38][24:34].strip()) # Cl_a
+            case_res.stability.alpha_derivatives.pitch_moment_derivative    = float(lines[39][24:34].strip()) # Cm_a
+            case_res.stability.alpha_derivatives.yaw_moment_derivative      = float(lines[40][24:34].strip()) # Cn_a
+            case_res.stability.beta_derivatives.lift_coefficient_derivative = float(lines[36][43:54].strip()) # CL_b
+            case_res.stability.beta_derivatives.side_force_derivative       = float(lines[37][43:54].strip()) # CY_b
+            case_res.stability.beta_derivatives.roll_moment_derivative      = float(lines[38][43:54].strip()) # Cl_b
+            case_res.stability.beta_derivatives.pitch_moment_derivative     = float(lines[39][43:54].strip()) # Cm_b
+            case_res.stability.beta_derivatives.yaw_moment_derivative       = float(lines[40][43:54].strip()) # Cn_b
         
             case_res.stability.CL_p                                         = float(lines[44+num_ctrl][24:34].strip())
             case_res.stability.CL_q                                         = float(lines[44+num_ctrl][43:54].strip())
