@@ -2,6 +2,7 @@
 # import_airfoil_polars.py
 # 
 # Created:  Mar 2019, M. Clarke
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -64,9 +65,9 @@ def  import_airfoil_polars(airfoil_polar_files):
         CL.append(airfoil_cl)
         CD.append(airfoil_cd)
        
-    airfoil_data.angle_of_attack_sweep   = AoA
-    airfoil_data.lift_coefficient_sweep  = CL 
-    airfoil_data.drag_coefficient_sweep  = CD 
+    airfoil_data.angle_of_attacks   = AoA
+    airfoil_data.lift_coefficients  = CL 
+    airfoil_data.drag_coefficients  = CD 
        
     return airfoil_data
 

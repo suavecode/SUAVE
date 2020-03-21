@@ -1,7 +1,9 @@
 # Solar_UAV.py
 # 
 # Created:  Jul 2014, E. Botero
-# Modified: Aug 2017, E. Botero
+# Modified: Aug 2017, E. Botero 
+#           Mar 2020, M. Clarke
+
 
 #----------------------------------------------------------------------
 #   Imports

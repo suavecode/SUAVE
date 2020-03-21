@@ -1,7 +1,8 @@
 # test_landing_field_length.py
 #
 # Created:  Tarik, Carlos, Celso, Jun 2014
-# Modified: Emilio Botero
+# Modified: Emilio Botero 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

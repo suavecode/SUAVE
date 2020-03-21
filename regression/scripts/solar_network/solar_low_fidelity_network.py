@@ -1,6 +1,7 @@
 # solar_low_fidelity_network.py
 # 
-# Created: April 2018, W. Maier
+# Created: April 2018, W. Maier 
+#          Mar 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports

@@ -2,8 +2,9 @@
 
 # wing.py
 #
-# Created: Jun, 2017, J. Smart
-# Modified: Apr, 2018, J. Smart
+# Created:  Jun 2017, J. Smart
+# Modified: Apr 2018, J. Smart
+#           Mar 2020, M. Clarke
 
 #-------------------------------------------------------------------------------
 # Imports

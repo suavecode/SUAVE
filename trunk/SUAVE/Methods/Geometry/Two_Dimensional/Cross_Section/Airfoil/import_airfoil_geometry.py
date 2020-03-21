@@ -2,6 +2,7 @@
 # import_airfoil_geometry .py
 # 
 # Created:  Mar 2019, M. Clarke
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

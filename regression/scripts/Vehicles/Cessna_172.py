@@ -2,6 +2,7 @@
 #
 # Created:  Feb 2017, M. Vegh 
 # Modified: Feb 2018, M. Vegh 
+# Modified: Mar 2020, M. Clarke 
 
 """ setup file for the Cessna_172, current values only used to test General Aviation script
 """
@@ -42,8 +43,8 @@ def vehicle_setup():
     vehicle.envelope.ultimate_load              = 5.7
     vehicle.envelope.limit_load                 = 3.8
                                                 
-    cruise_speed                                = 140. *Units['mph']
-    altitude                                    = 13500. * Units.ft
+    cruise_speed                                = 124. * Units.kts
+    altitude                                    = 8500. * Units.ft
     atmo                                        = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     freestream                                  = atmo.compute_values (0.)
     freestream0                                 = atmo.compute_values (altitude)
@@ -77,8 +78,7 @@ def vehicle_setup():
     wing.aerodynamic_center                     = [22.* Units.inches,0,0]
     wing.vertical                               = False
     wing.symmetric                              = True
-    wing.high_lift                              = True
-                                                
+    wing.high_lift                              = True 
     wing.dynamic_pressure_ratio                 = 1.0 
                                           
     # control surfaces -------------------------------------------
@@ -95,7 +95,7 @@ def vehicle_setup():
     slat.span_fraction_start                    = 0.324 
     slat.span_fraction_end                      = 0.963     
     slat.deflection                             = 1.0 * Units.deg
-    slat.chord_fraction                         = 0.1  	 
+    slat.chord_fraction                         = 0.1      
     wing.append_control_surface(slat)  
     
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing) 
@@ -153,8 +153,7 @@ def vehicle_setup():
     wing.aerodynamic_center                     = [20.* Units.inches,0,0] 
     wing.vertical                               = True 
     wing.symmetric                              = False
-    wing.t_tail                                 = False
-                                                
+    wing.t_tail                                 = False 
     wing.dynamic_pressure_ratio                 = 1.0
 
     # add to vehicle
@@ -240,7 +239,7 @@ def vehicle_setup():
     net.engine.sea_level_power                  = 180. * Units.horsepower
     net.engine.flat_rate_altitude               = 0.0
     net.engine.speed                            = 2700. * Units.rpm
-    net.engine.BSFC                             = 0.52 
+    net.engine.power_specific_fuel_consumption  = 0.52 
     
     # add the network to the vehicle
     vehicle.append_component(net) 

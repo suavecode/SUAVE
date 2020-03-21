@@ -2,6 +2,7 @@
 # Lift_Cruise.py
 # 
 # Created: Jan 2016, E. Botero
+#          Mar 2020, M. Clarke
 # Modified: 
 
 # ----------------------------------------------------------------------
@@ -285,7 +286,7 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.propeller_power_lift              = P_lift*num_lift
         conditions.propulsion.propeller_thrust_lift             = F_lift*num_lift        
         conditions.propulsion.propeller_power_coefficient_lift  = Cp_lift        
-        conditions.propulsion.propeller_thrust_coefficient_lift = output_lift.Ct   
+        conditions.propulsion.propeller_thrust_coefficient_lift = output_lift.thrust_coefficient  
         conditions.propulsion.battery_draw_lift                 = -i_lift * volts 
 
         conditions.propulsion.rpm_forward                       = rpm_forward        
@@ -318,8 +319,8 @@ class Lift_Cruise(Propulsor):
         
         conditions.propulsion.disc_loading_lift                 = (F_lift_mag.T)/(self.number_of_engines_lift*np.pi*(R_lift /Units.feet)**2) # lb/ft^2      
         conditions.propulsion.disc_loading_forward              = (F_forward_mag.T)/(self.number_of_engines_forward*np.pi*(R_forward/Units.feet)**2) # lb/ft^2       
-        conditions.propulsion.power_loading_lift                = (F_lift_mag.T)/(battery_draw*0.00134102)           # lb/hp         
-        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw*0.00134102)        # lb/hp 
+        conditions.propulsion.power_loading_lift                = (F_lift_mag.T)/(battery_draw/Units.hp)            # lb/hp         
+        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw/Units.hp)         # lb/hp 
         
         F_total = F_lift_total + F_forward_total
         mdot    = np.zeros_like(F_total)

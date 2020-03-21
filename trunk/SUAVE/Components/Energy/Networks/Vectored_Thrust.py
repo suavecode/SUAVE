@@ -2,7 +2,7 @@
 # Vectored_Thrust.py
 # 
 # Created:  Nov 2018, M.Clarke
-
+#           Mar 2020, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -95,16 +95,16 @@ class Vectored_Thrust(Propulsor):
         """          
     
         # unpack
-        conditions = state.conditions
-        numerics   = state.numerics
-        motor      = self.motor
-        rotor      = self.rotor
-        esc        = self.esc
-        avionics   = self.avionics
-        payload    = self.payload
-        battery    = self.battery
-        num_engines= self.number_of_engines
-        t_nondim   = state.numerics.dimensionless.control_points
+        conditions  = state.conditions
+        numerics    = state.numerics
+        motor       = self.motor
+        rotor       = self.rotor
+        esc         = self.esc
+        avionics    = self.avionics
+        payload     = self.payload
+        battery     = self.battery
+        num_engines = self.number_of_engines
+        t_nondim    = state.numerics.dimensionless.control_points
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
@@ -131,8 +131,8 @@ class Vectored_Thrust(Propulsor):
         thrust_angle = self.thrust_angle
                 
         # link
-        rotor.inputs.omega =  motor.outputs.omega
-        rotor.thrust_angle =  thrust_angle
+        rotor.inputs.omega                  = motor.outputs.omega
+        rotor.thrust_angle                  = thrust_angle
         conditions.propulsion.pitch_command = self.pitch_command
         
         # Run the rotor     
@@ -170,8 +170,7 @@ class Vectored_Thrust(Propulsor):
         # link
         propeller_current       = esc.outputs.currentin*num_engines
         total_current           = propeller_current + avionics_payload_current
-        battery.inputs.current  = total_current
-        
+        battery.inputs.current  = total_current 
         battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*num_engines + avionics_payload_power)
         battery.energy_calc(numerics)        
         
@@ -194,7 +193,7 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.motor_torque                    = motor.outputs.torque
         conditions.propulsion.propeller_torque                = Q
         conditions.propulsion.motor_efficiency                = etam
-        conditions.propulsion.acoustic_outputs[rotor.tag] = output
+        conditions.propulsion.acoustic_outputs[rotor.tag]     = output
         conditions.propulsion.battery_specfic_power           = -battery_draw/battery.mass_properties.mass #Wh/kg
         conditions.propulsion.electronics_efficiency          = -(P*num_engines)/battery_draw   
         conditions.propulsion.propeller_tip_mach              = (R*motor.outputs.omega)/a
@@ -204,15 +203,15 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.propeller_power                 = P*num_engines
         conditions.propulsion.propeller_thrust_coefficient    = Cp   
         conditions.propulsion.propeller_efficiency            = etap       
-        conditions.propulsion.propeller_thrust_coefficient    = output.Ct   
+        conditions.propulsion.propeller_thrust_coefficient    = output.thrust_coefficient  
         
         
         # Compute force vector       
         F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
         
         F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1)/Units.lbs)  # lb   
-        conditions.propulsion.disc_loading                       = (F_mag.T)/(num_engines*np.pi*(R/Units.feet)**2) # lb/ft^2       
-        conditions.propulsion.power_loading                      = (F_mag.T)/(battery_draw*0.00134102)           # lb/hp 
+        conditions.propulsion.disc_loading                    = (F_mag.T)/(num_engines*np.pi*(R/Units.feet)**2) # lb/ft^2       
+        conditions.propulsion.power_loading                   = (F_mag.T)/(battery_draw/Units.hp)               # lb/hp 
         
         mdot = np.zeros_like(F_vec)
 

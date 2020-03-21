@@ -1,7 +1,7 @@
 # ICE_Test.py
 # 
-# Created: Feb 2020, M. Clarke
-#
+# Created: Feb 2020, M. Clarke 
+ 
 """ setup file for a mission with a Cessna 172 with an internal combustion engine network
 """
 
@@ -46,9 +46,9 @@ def main():
 
     # Truth values for propeller with airfoil geometry defined 
     P_truth      = 81367.49237183
-    P_sfc_truth  = 0.36
-    FFR_truth    = 0.0049494
-    Q_truth      = 287.77863595
+    P_sfc_truth  = 0.52
+    FFR_truth    = 0.007149134158858348
+    Q_truth      = 287.7786359548746
     
     P            = ice_engine.outputs.power[0][0]                            
     P_sfc        = ice_engine.outputs.power_specific_fuel_consumption 

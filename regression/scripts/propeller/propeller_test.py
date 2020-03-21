@@ -1,7 +1,7 @@
 # propeller_test.py
 # 
-# Created:  E. Botero, Sep 2014
-# Modified: M. Clarke, Feb 2020
+# Created:  Sep 2014, E. Botero
+# Modified: Feb 2020, M. Clarke  
 
 #----------------------------------------------------------------------
 #   Imports
