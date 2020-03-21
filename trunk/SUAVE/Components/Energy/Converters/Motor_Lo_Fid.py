@@ -106,7 +106,7 @@ class Motor_Lo_Fid(Energy_Component):
         # If the voltage supplied is too low this function will NaN. However, that really means it won't spin
         omega1[np.isnan(omega1)] = 0.0
         
-        # The torqu
+        # The torque
         Q      = ((v-omega1/Kv)/Res -io)/Kv
         
         omega1[v==0] = 0.

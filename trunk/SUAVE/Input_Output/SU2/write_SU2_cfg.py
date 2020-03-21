@@ -123,7 +123,6 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('CONV_STARTITER = 25\n\n')
     f.write('CONV_CAUCHY_ELEMS = 100\n\n')
     f.write('CONV_CAUCHY_EPS = 1E-6\n\n')
-    #f.write('CAUCHY_FUNC_FLOW = LIFT\n\n')
     
     # Input/Output
     f.write('SCREEN_OUTPUT= ( LIFT, DRAG, INNER_ITER, WALL_TIME, RMS_DENSITY, RMS_ENERGY)\n\n')
