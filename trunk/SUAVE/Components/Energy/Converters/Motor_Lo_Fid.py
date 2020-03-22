@@ -4,10 +4,13 @@
 # Created:  Jun 2014, E. Botero
 # Modified: Jan 2016, T. MacDonald  
 #           Mar 2020, M. Clarke
+#           Mar 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+
+import numpy as np
 
 # suave imports
 import SUAVE
@@ -100,6 +103,11 @@ class Motor_Lo_Fid(Energy_Component):
 
         # Omega
         omega1 = (Kv*v)/2. + (Kv*(Res*Res*io*io - 2.*Res*etam*io*v - 2.*Res*io*v + etam*etam*v*v - 2.*etam*v*v + v*v)**(1./2.))/2. - (Kv*Res*io)/2. + (Kv*etam*v)/2.
+
+        # If the voltage supplied is too low this function will NaN. However, that really means it won't spin
+        omega1[np.isnan(omega1)] = 0.0
+        
+        # The torque
         Q      = ((v-omega1/Kv)/Res -io)/Kv
         
         omega1[v==0] = 0.
