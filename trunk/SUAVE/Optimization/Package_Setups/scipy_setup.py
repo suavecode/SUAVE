@@ -3,6 +3,7 @@
 # 
 # Created:  Aug 2015, E. Botero 
 # Modified: Feb 2017, M. Vegh
+#           Mar 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,7 +18,7 @@ from SUAVE.Optimization.Package_Setups.particle_swarm_optimization import partic
 # ----------------------------------------------------------------------
 
 ## @ingroup Optimization-Package_Setups
-def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08, pop_size =  10 , prob_seed = None ):  
+def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08, tolerance = 1e-6, pop_size =  10 , prob_seed = None ):  
     """ This converts your SUAVE Nexus problem into a SciPy optimization problem and solves it
         SciPy has many algorithms, they can be switched out by using the solver input. 
 
@@ -67,7 +68,7 @@ def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08, pop
 
     # Finalize problem statement and run
     if solver=='SLSQP':
-        outputs = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=problem.equality_constraint,f_ieqcons=problem.inequality_constraint,bounds=bnds,iter=200, epsilon = sense_step, acc  = sense_step**2)
+        outputs = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=problem.equality_constraint,f_ieqcons=problem.inequality_constraint,bounds=bnds,iter=200, epsilon = sense_step, acc  = tolerance)
     elif solver == 'differential_evolution':
         outputs = sp.optimize.differential_evolution(wrapper, bounds= de_bnds, strategy='best1bin', maxiter=1000, popsize = pop_size, tol=0.01, mutation=(0.5, 1), recombination=0.7, seed=prob_seed, callback=None, disp=False, polish=True, init='latinhypercube', atol=0, updating='immediate', workers=1)
     elif solver == 'particle_swarm_optimization':
