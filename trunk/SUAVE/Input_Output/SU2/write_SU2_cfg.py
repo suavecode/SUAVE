@@ -4,6 +4,7 @@
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
 #           Mar 2018, T. MacDonald
+#           Mar 2020, E. Botero
 
 ## @ingroup Input_Output-SU2
 def write_SU2_cfg(tag,SU2_settings):
