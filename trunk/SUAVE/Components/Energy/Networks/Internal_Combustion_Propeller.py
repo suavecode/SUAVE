@@ -85,6 +85,7 @@ class Internal_Combustion_Propeller(Propulsor):
         engine      = self.engine
         propeller   = self.propeller
         rated_speed = self.rated_speed
+        num_engines = self.number_of_engines
         
         # Throttle the engine
         eta = conditions.propulsion.throttle[:,0,None]
@@ -113,14 +114,20 @@ class Internal_Combustion_Propeller(Propulsor):
         propeller.outputs = outputs
     
         # Pack the conditions for outputs
-        rpm        = engine.speed / Units.rpm
+        a                                        = conditions.freestream.speed_of_sound
+        R                                        = propeller.tip_radius   
+        rpm                                      = engine.speed / Units.rpm
           
-        conditions.propulsion.rpm              = rpm
-        conditions.propulsion.propeller_torque = Q
-        conditions.propulsion.power            = P
+        conditions.propulsion.rpm                = rpm
+        conditions.propulsion.propeller_torque   = Q
+        conditions.propulsion.power              = P
+        conditions.propulsion.propeller_tip_mach = (R*rpm)/a
         
         # Create the outputs
-        F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
+        F                                        = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
+        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1)/Units.lbs) # lb   
+        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # lb/ft^2                     
+        conditions.propulsion.power_loading      = (F_mag.T)/(P/Units.hp)                  # lb/hp         
         
         results = Data()
         results.thrust_force_vector = F

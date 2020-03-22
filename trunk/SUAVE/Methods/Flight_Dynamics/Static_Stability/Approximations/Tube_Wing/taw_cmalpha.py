@@ -79,11 +79,9 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     span   = geometry.wings['main_wing'].spans.projected
     sweep  = geometry.wings['main_wing'].sweeps.quarter_chord
     C_Law  = conditions.lift_curve_slope
-    alpha  = conditions.aerodynamics.angle_of_attack
-
-    x_cg  = configuration.mass_properties.center_of_gravity[0]
-
-    M     = mach
+    alpha  = conditions.aerodynamics.angle_of_attack 
+    x_cg   = configuration.mass_properties.center_of_gravity[0] 
+    M      = mach
     
     weights      = conditions.weights.total_mass
     fuel_weights = weights-configuration.mass_properties.max_zero_fuel

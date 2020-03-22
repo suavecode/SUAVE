@@ -88,7 +88,7 @@ def vehicle_setup():
     slat.span_fraction_start   = 0.324 
     slat.span_fraction_end     = 0.963     
     slat.deflection            = 1.0 * Units.deg 
-    slat.chord_fraction        = 0.1  	 
+    slat.chord_fraction        = 0.1   
     wing.append_control_surface(slat) 
     
     wing                         = wing_planform(wing)

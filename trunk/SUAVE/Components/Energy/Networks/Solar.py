@@ -16,7 +16,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 
 # ----------------------------------------------------------------------
 #  Network
@@ -107,7 +107,8 @@ class Solar(Propulsor):
         payload     = self.payload
         solar_logic = self.solar_logic
         battery     = self.battery
-       
+        num_engines = self.number_of_engines
+        
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
         
@@ -174,7 +175,7 @@ class Solar(Propulsor):
         esc.currentin(conditions)
         
         # link
-        solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_of_engines
+        solar_logic.inputs.currentesc  = esc.outputs.currentin*num_engines
         solar_logic.inputs.volts_motor = esc.outputs.voltageout 
         solar_logic.logic(conditions,numerics)
         
@@ -183,21 +184,28 @@ class Solar(Propulsor):
         battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
-        rpm                                  = motor.outputs.omega*60./(2.*np.pi)
-        current                              = solar_logic.inputs.currentesc
-        battery_draw                         = battery.inputs.power_in 
-        battery_energy                       = battery.current_energy
+        a                                        = conditions.freestream.speed_of_sound
+        R                                        = propeller.tip_radius           
+        rpm                                      = motor.outputs.omega*60./(2.*np.pi)
+        current                                  = solar_logic.inputs.currentesc
+        battery_draw                             = battery.inputs.power_in 
+        battery_energy                           = battery.current_energy
         
-        conditions.propulsion.solar_flux       = solar_flux.outputs.flux  
-        conditions.propulsion.rpm              = rpm
-        conditions.propulsion.current          = current
-        conditions.propulsion.battery_draw     = battery_draw
-        conditions.propulsion.battery_energy   = battery_energy
-        conditions.propulsion.motor_torque     = motor.outputs.torque
-        conditions.propulsion.propeller_torque = Q        
+        conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
+        conditions.propulsion.rpm                = rpm
+        conditions.propulsion.current            = current
+        conditions.propulsion.battery_draw       = battery_draw
+        conditions.propulsion.battery_energy     = battery_energy
+        conditions.propulsion.motor_torque       = motor.outputs.torque
+        conditions.propulsion.propeller_torque   = Q        
+        conditions.propulsion.propeller_tip_mach = (R*rpm)/a
         
         #Create the outputs
-        F    = self.number_of_engines * F * [1,0,0]      
+        F                                        = num_engines * F * [1,0,0]   
+        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1)/Units.lbs) # lb   
+        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # lb/ft^2                     
+        conditions.propulsion.power_loading      = (F_mag.T)/(P/Units.hp)                  # lb/hp 
+        
         mdot = np.zeros_like(F)
 
         results = Data()

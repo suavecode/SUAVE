@@ -54,9 +54,7 @@ def main():
     simple_sizing(configs, analyses)
 
     configs.finalize()
-    analyses.finalize()
-
-  
+    analyses.finalize() 
  
     # mission analysis
     mission = analyses.missions.base

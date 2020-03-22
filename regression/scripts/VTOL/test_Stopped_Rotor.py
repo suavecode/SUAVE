@@ -399,14 +399,8 @@ def plot_mission(results,vec_configs,line_style='bo-'):
     # Plot Aircraft Electronics
     plot_electronic_conditions(results, line_style)
     
-    # Plot Propeller Conditions 
-    plot_propeller_conditions(results, line_style) 
-    
     # Plot Electric Motor and Propeller Efficiencies  of Lift Cruise Network
     plot_lift_cruise_network(results, line_style) 
-    
-    # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results, line_style)  
   
     return
 

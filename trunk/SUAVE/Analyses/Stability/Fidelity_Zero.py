@@ -122,9 +122,8 @@ class Fidelity_Zero(Stability):
         """         
 
         # unpack
-        configuration   = self.configuration
-        geometry        = self.geometry 
-
+        configuration = self.configuration
+        geometry      = self.geometry 
         q             = conditions.freestream.dynamic_pressure
         Sref          = geometry.reference_area    
         mach          = conditions.freestream.mach_number
@@ -161,6 +160,7 @@ class Fidelity_Zero(Stability):
         # calculate the static margin
         stability.static.static_margin = -stability.static.Cm_alpha/conditions.lift_curve_slope
         
+        # neutral point 
         stability.static.neutral_point = cg_x + mac*stability.static.static_margin
         
         # Dynamic Stability
@@ -239,8 +239,4 @@ class Fidelity_Zero(Stability):
                 stability.dynamic.phugoidFreqHz                 = longitudinal.phugoid_natural_frequency
                 stability.dynamic.phugoidDamp                   = longitudinal.phugoid_damping_ratio
                                                                         
-        # pack results
-        results = Data()
-        results = stability 
-        
-        return results
+        return stability 
