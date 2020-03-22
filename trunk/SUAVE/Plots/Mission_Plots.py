@@ -24,11 +24,29 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 #   Altitude, SFC & Weight
 # ------------------------------------------------------------------
 def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, save_filename = "Altitude_SFC_Weight"):
+    """This plots the altitude, speficic fuel comsumption and vehicle weight 
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.condtions.
+        freestream.altitude
+        weights.vehicle_mass_rate
+
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	  
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
-    for segment in results.segments.values():
-
+    for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
         aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
         mass     = segment.conditions.weights.total_mass[:,0] / Units.lb
@@ -71,15 +89,31 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
 #   Aircraft Velocities
 # ------------------------------------------------------------------
 def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Velocities"):
+    """This plots aircraft velocity, mach , true air speed 
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.condtions.freestream.
+        velocity
+        density
+        mach_number 
+
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
-    for segment in results.segments.values():
-
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Lift     = -segment.conditions.frames.wind.lift_force_vector[:,2]
-        Drag     = -segment.conditions.frames.wind.drag_force_vector[:,0] / Units.lbf
-        Thrust   = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lb
+    for segment in results.segments.values(): 
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
         velocity = segment.conditions.freestream.velocity[:,0]
         pressure = segment.conditions.freestream.pressure[:,0]
         density  = segment.conditions.freestream.density[:,0]
@@ -121,11 +155,30 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
 #   Disc and Power Loadings
 # ------------------------------------------------------------------
 def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, save_filename = "Disc_Power_Loading"):
+    """This plots the propeller disc and power loadings
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.condtions.propulsion.
+        disc_loadings
+        power_loading 
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	   
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10) 
-    for i in range(len(results.segments)):  
-
+    
+    for i in range(len(results.segments)): 
         time  = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         DL    = results.segments[i].conditions.propulsion.disc_loading
         PL    = results.segments[i].conditions.propulsion.power_loading   
@@ -157,11 +210,31 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
 #   Aerodynamic Coefficients
 # ------------------------------------------------------------------
 def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Coefficients"):
+    """This plots the aerodynamic coefficients 
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.condtions.aerodynamics.
+        lift_coefficient
+        drag_coefficient
+        angle_of_attack
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	    
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
-    for segment in results.segments.values():
-
+    
+    for segment in results.segments.values(): 
         time = segment.conditions.frames.inertial.time[:,0] / Units.min
         cl   = segment.conditions.aerodynamics.lift_coefficient[:,0,None] 
         cd   = segment.conditions.aerodynamics.drag_coefficient[:,0,None] 
@@ -211,11 +284,31 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
 #   Aerodynamic Forces
 # ------------------------------------------------------------------
 def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Forces"):
+    """This plots the aerodynamic forces
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.condtions.frames
+         body.thrust_force_vector 
+         wind.lift_force_vector        
+         wind.drag_force_vector   
+         
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	   
     axis_font = {'size':'14'}  
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
+    
     for segment in results.segments.values():
-
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]  
         Lift     = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -265,11 +358,32 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
 #   Drag Components
 # ------------------------------------------------------------------
 def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_filename = "Drag_Components"):
+    """This plots the drag components of the aircraft
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.condtions.aerodynamics.drag_breakdown
+          parasite.total 
+          induced.total 
+          compressible.total    
+          miscellaneous.total     
+    
+    Outputs: 
+    Plots
+    
+    Properties Used:
+    N/A	
+    """	  
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename,figsize=(8,10))
     axes = plt.gca()
+    
     for i, segment in enumerate(results.segments.values()):
-
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
         cdp = drag_breakdown.parasite.total[:,0]
@@ -306,19 +420,42 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 #   Electronic Conditions
 # ------------------------------------------------------------------
 def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Electronic_Conditions"):
+    """This plots the electronic conditions of the network
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.propulsion
+         battery_draw 
+         battery_energy    
+         voltage_under_load    
+         voltage_open_circuit    
+         current        
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	  
+    
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
-    for i in range(len(results.segments)):  
     
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        power    = results.segments[i].conditions.propulsion.battery_draw[:,0] 
-        energy   = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        volts    = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
-        volts_oc = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]     
-        current = results.segments[i].conditions.propulsion.current[:,0]      
-        battery_amp_hr = (energy*0.000277778)/volts
-        C_rating   = current/battery_amp_hr
+    for i in range(len(results.segments)):     
+        time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        power          = results.segments[i].conditions.propulsion.battery_draw[:,0] 
+        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
+        volts          = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
+        volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]     
+        current        = results.segments[i].conditions.propulsion.current[:,0]      
+        battery_amp_hr = (energy/ Units.Wh )/volts  
+        C_rating       = current/battery_amp_hr
         
         axes = fig.add_subplot(2,2,1)
         axes.plot(time, -power, line_color)
@@ -329,7 +466,7 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         axes.grid(True)       
     
         axes = fig.add_subplot(2,2,2)
-        axes.plot(time, energy*0.000277778, line_color)
+        axes.plot(time, energy/ Units.Wh, line_color)
         axes.set_ylabel('Battery Energy (W-hr)',axis_font)
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
@@ -367,11 +504,27 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
 #   Flight Conditions
 # ------------------------------------------------------------------
 def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Flight_Conditions"):
+    """This plots the flights the conditions 
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.frames.inertial.position_vector 
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	    
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
     for segment in results.segments.values(): 
-
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
         airspeed = segment.conditions.freestream.velocity[:,0] 
         theta    = segment.conditions.frames.body.inertial_rotations[:,1,None] / Units.deg
@@ -427,11 +580,34 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
 #   Propulsion Conditions
 # ------------------------------------------------------------------
 def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propeller"):
+    """This plots the propeller performance
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions. 
+        frames.inertial.time 
+        propulsion.rpm 
+        frames.body.thrust_force_vector 
+        propulsion.motor_torque 
+        propulsion.propeller_tip_mach 
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	 
+    
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)  
-    for segment in results.segments.values(): 
-
+    
+    for segment in results.segments.values():  
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         rpm    = segment.conditions.propulsion.rpm[:,0] 
         thrust = segment.conditions.frames.body.thrust_force_vector[:,2]
@@ -481,11 +657,29 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
 #   Electric Propulsion efficiencies
 # ------------------------------------------------------------------
 def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = False, save_filename = "eMotor_Prop_Propulsor"):
+    """This plots the electric driven network propeller efficiencies 
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.propulsion. 
+         etap
+         etam
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	   
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)  
-    for segment in results.segments.values(): 
-
+    for segment in results.segments.values():
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         effp   = segment.conditions.propulsion.etap[:,0]
         effm   = segment.conditions.propulsion.etam[:,0]
@@ -518,14 +712,34 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
 #   Stability Coefficients
 # ------------------------------------------------------------------
 def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Stability_Coefficients"):
+    """This plots the static stability characteristic of an aircraft
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.stability.static
+       #####
+       #### 
+       #### 
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """	    
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
     fig.set_size_inches(12, 10)
-    for segment in results.segments.values(): 
+    
+    for segment in results.segments.values():
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        cm       = segment.conditions.stability.static['CM'][:,0,None] 
-        cm_alpha = segment.conditions.stability.static['Cm_alpha'][:,0,None] 
-        SM       = ((segment.conditions.stability.static['NP'][:,0,None] - 2.0144 )/ 0.9644599977664836)*100  
+        cm       = segment.conditions.stability.static.CM[:,0]
+        cm_alpha = segment.conditions.stability.static.Cm_alpha[:,0]
+        SM       = segment.conditions.stability.static.neutral_point[:,0]
         aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
         
         axes = fig.add_subplot(2,2,1)
@@ -570,8 +784,30 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
 #   Solar Flux
 # ------------------------------------------------------------------
 def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filename = "Solar_Flux"):
+    """This plots the solar flux and power train performance of an solar powered aircraft 
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.propulsion
+        solar_flux 
+        battery_draw 
+        battery_energy 
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """
+    
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename) 
+    
     for segment in results.segments.values():               
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         flux   = segment.conditions.propulsion.solar_flux[:,0] 
@@ -612,6 +848,29 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
 #   Lift-Cruise Network
 # ------------------------------------------------------------------
 def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, save_filename = "Lift_Cruise_Network"):
+    """This plots the electronic and propulsor performance of a vehicle with a lift cruise network
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.conditions.propulsion
+         throttle 
+         rotor_throttle 
+         battery_energy[ 
+         battery_specfic_power 
+         voltage_under_load  
+         voltage_open_circuit   
+        
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """   
     axis_font = {'size':'14'} 
     # ------------------------------------------------------------------
     #   Electronic Conditions
@@ -622,7 +881,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         eta            = results.segments[i].conditions.propulsion.throttle[:,0]
         eta_l          = results.segments[i].conditions.propulsion.rotor_throttle[:,0]
-        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0]*0.000277778
+        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0]/ Units.Wh
         specific_power = results.segments[i].conditions.propulsion.battery_specfic_power[:,0]
         volts          = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
         volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]  
@@ -680,20 +939,20 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
     fig = plt.figure("Prop-Rotor Network")
     fig.set_size_inches(16, 8)
     for i in range(len(results.segments)):          
-        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        prop_rpm    = results.segments[i].conditions.propulsion.rpm_forward [:,0] 
-        prop_thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
-        prop_torque = results.segments[i].conditions.propulsion.motor_torque_forward
-        prop_effp   = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
-        prop_effm   = results.segments[i].conditions.propulsion.motor_efficiency_forward[:,0]
-        prop_Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
+        time         = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        prop_rpm     = results.segments[i].conditions.propulsion.rpm_forward [:,0] 
+        prop_thrust  = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
+        prop_torque  = results.segments[i].conditions.propulsion.motor_torque_forward
+        prop_effp    = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
+        prop_effm    = results.segments[i].conditions.propulsion.motor_efficiency_forward[:,0]
+        prop_Cp      = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
         rotor_rpm    = results.segments[i].conditions.propulsion.rpm_lift [:,0] 
         rotor_thrust = -results.segments[i].conditions.frames.body.thrust_force_vector[:,2]
         rotor_torque = results.segments[i].conditions.propulsion.motor_torque_lift
         rotor_effp   = results.segments[i].conditions.propulsion.rotor_efficiency[:,0]
         rotor_effm   = results.segments[i].conditions.propulsion.motor_efficiency_lift[:,0]
         rotor_FM     = results.segments[i].conditions.propulsion.rotor_figure_of_merit[:,0]
-        rotor_Cp = results.segments[i].conditions.propulsion.rotor_power_coefficient[:,0]        
+        rotor_Cp     = results.segments[i].conditions.propulsion.rotor_power_coefficient[:,0]        
     
         axes = fig.add_subplot(2,3,1)
         axes.plot(time, prop_rpm, 'bo-')
@@ -804,9 +1063,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         axes.set_ylabel(r'Propeller Efficiency $\eta_{rotor}$')
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
-        #if i == 0:
-            #axes.legend(loc='upper center')   
+        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')     
         axes.grid(True)           
         plt.ylim((0,1))
     
@@ -934,58 +1191,3 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         
     return
 
-# ------------------------------------------------------------------
-#   Rotor/Propeller Acoustics
-# ------------------------------------------------------------------
-def plot_rotor_acoustics(results, line_color = 'bo-', save_figure = False, save_filename = "Rotor Acoustics"):
-    axis_font = {'size':'14'} 
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8) 
-    for i in range(len(results.segments)):          
-        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        SPL_BMv_dBA  = results.segments[i].conditions.propulsion.acoustic_outputs.acoustic_results.SPL_BMv_dBA[:,0]
-        SPL_Hv_dBA   = results.segments[i].conditions.propulsion.acoustic_outputs.acoustic_results.SPL_Hv_dBA[:,0] 
-
-        axes = fig.add_subplot(1,1,1)
-        axes.plot( time , SPL_BMv_dBA, 'bo-', label = 'Prediction Method: Barry & Magliozzi')
-        axes.plot( time , SPL_Hv_dBA , 'r^-', label = 'Prediction Method: Hanson')
-        axes.set_ylabel('dBA',axis_font)
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylim([60,130])
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')         
-        axes.grid(True) 
-        if i == 0:
-            axes.legend(loc='upper center')         
-        
-    if save_figure:
-        plt.savefig(save_filename + ".png")  
-        
-
-    return 
-        
-# ------------------------------------------------------------------
-#   Propeller Performance
-# ------------------------------------------------------------------
-def plot_propeller_performance(noise, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Performance"): 
-    axis_font = {'fontname':'Arial', 'size':'14'} 
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8) 
-    T = noise.blade_T_distribution[:][0]
-    Q = noise.blade_Q_distribution[:][0]
-    r = noise.radius_distribution
-           
-    axes = fig.add_subplot(2,1,1)
-    axes.plot(r, T , line_color)
-    axes.set_ylabel('T (N)',axis_font)
-    axes.set_xlabel('r (m)',axis_font)
-    axes.minorticks_on()
-    axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-    axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
-    axes.grid(True)      
-    
-    if save_figure:
-        plt.savefig(save_filename + ".png")  
-        
-    return  

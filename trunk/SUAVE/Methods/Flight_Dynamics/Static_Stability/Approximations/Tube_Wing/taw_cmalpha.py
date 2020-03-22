@@ -88,7 +88,8 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     weights      = conditions.weights.total_mass
     fuel_weights = weights-configuration.mass_properties.max_zero_fuel
     cg           = compute_mission_center_of_gravity(configuration,fuel_weights)		
-    x_cg         = cg[:,0] #get cg location at every point in the mission    
+    x_cg         = np.atleast_2d(cg[:,0]).T # get cg location at every point in the mission    
+    
 
     #Evaluate the effect of the fuselage on the stability derivative
     if 'fuselage' in geometry.fuselages:

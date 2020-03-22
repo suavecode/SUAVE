@@ -1,5 +1,5 @@
 ## @ingroup Plots
-# Vehicle_Plots.py
+# Geometry_Plots.py
 # 
 # Created:  May 2018, M. Clarke
 
@@ -20,36 +20,71 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 # ------------------------------------------------------------------
 # Plot Airfol
 # ------------------------------------------------------------------
-def plot_airfoil(airfoil_name,  line_color = 'k-', save_figure = False, save_filename = "Airfoil_Geometry"):
+def plot_airfoil(airfoil_names,  line_color = 'k-', save_figure = False, save_filename = "Airfoil_Geometry"):
+	"""This plots all airfoil defined in the list "airfoil_names" 
 
+	Assumptions:
+	None
+
+	Source:
+	None
+
+	Inputs:
+	airfoil_geometry_files   <list of strings>
+
+	Outputs: 
+	Plots
+
+	Properties Used:
+	N/A	
+	"""
 	# get airfoil coordinate geometry     
-	airfoil_data = import_airfoil_geometry(airfoil_name)       
+	airfoil_data = import_airfoil_geometry(airfoil_names)       
 
-	# separate x and y coordinates 
-	airfoil_x  = airfoil_data.x_coordinates[0] 
-	airfoil_y  = airfoil_data.y_coordinates[0]   
+	for i in range(len(airfoil_names)):
+		# separate x and y coordinates 
+		airfoil_x  = airfoil_data.x_coordinates[i] 
+		airfoil_y  = airfoil_data.y_coordinates[i]    
 
-	fig = plt.figure(save_filename)
-	axes = fig.add_subplot(1,1,1)
-	axes.plot(airfoil_x, airfoil_y , line_color )                  
-
-	if save_figure:
-		plt.savefig(save_filename + ".png")          
+		name = save_filename + '_' + str(i)
+		fig  = plt.figure(name)
+		axes = fig.add_subplot(1,1,1)
+		axes.set_title(airfoil_names[i])
+		axes.plot(airfoil_x, airfoil_y , line_color )                  
+		#axes.set_aspect('equal')
+		axes.axis('equal')
+		if save_figure:
+			plt.savefig(name +".png")          
 
 	return
-
 
 # ------------------------------------------------------------------
 #   Propeller Geoemtry 
 # ------------------------------------------------------------------
 def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Geometry"):
+	"""This plots the geoemtry of a propeller or rotor
 
+	Assumptions:
+	None
+
+	Source:
+	None
+
+	Inputs:
+	prop
+
+	Outputs: 
+	Plots
+
+	Properties Used:
+	N/A	
+	"""	
 	# unpack
 	Rt     = prop.tip_radius          
 	Rh     = prop.hub_radius          
 	num_B  = prop.number_blades       
-	a_sec  = prop.airfoil_sections           
-	a_secl = prop.airfoil_section_location   
+	a_sec  = prop.airfoil_geometry          
+	a_secl = prop.airfoil_polar_stations
 	beta   = prop.twist_distribution         
 	b      = prop.chord_distribution         
 	r      = prop.radius_distribution        
@@ -67,6 +102,8 @@ def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_
 	axes.set_xlim3d(-1, 1)     
 
 	chord = np.outer(np.linspace(0,1,10),b)
+	if r == None:
+		r = np.linspace(Rh,Rt, len(b))
 	for i in range(num_B):  
 		# plot propeller planfrom
 		surf_x = np.cos(theta[i]) * (chord*np.cos(beta)) - np.sin(theta[i]) * (r) 

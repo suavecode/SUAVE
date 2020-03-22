@@ -10,6 +10,7 @@
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Plots.Mission_Plots import * 
+import matplotlib.pyplot as plt  
 
 def main():
     results = load_plt_data()
@@ -20,7 +21,7 @@ def main():
     # Compare Plot for  Aerodynamic Coefficients 
     plot_aerodynamic_coefficients(results)
     
-    # Compare Plot for  Drag Components
+    # Compare Plot for Drag Components
     plot_drag_components(results)
     
     # Compare Plot for  Altitude, sfc, vehicle weight 
@@ -39,4 +40,5 @@ def load_plt_data():
 
 if __name__ == '__main__':     
     main()  
+    plt.show()
     print('Plots regression test passed!')

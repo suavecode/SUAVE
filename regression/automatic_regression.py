@@ -72,7 +72,7 @@ modules = [
     'scripts/noise_optimization/Noise_Test.py', 
     'scripts/optimization_packages/optimization_packages.py',    
     'scripts/payload_range/payload_range.py', 
-    'scripts/plot/plot_test.py',    
+    'scripts/plots/plot_test.py',    
     'scripts/propeller/propeller_test.py',
     'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/ramjet_network/ramjet_network.py',
@@ -206,3 +206,4 @@ def test_module(module_path):
 
 if __name__ == '__main__':
     main()
+    
