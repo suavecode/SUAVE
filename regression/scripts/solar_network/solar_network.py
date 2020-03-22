@@ -1,6 +1,7 @@
 # test_solar_network.py
 # 
-# Created:  Emilio Botero, Aug 2014
+# Created:  Aug 2014, Emilio Botero, 
+#           Mar 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports
@@ -57,25 +58,21 @@ def main():
     Radius          = .4064
     Hub_Radius      = 0.05
     Design_Cl       = 0.7
-    Thrust          = 0.0 #Specify either thrust or power to design for
     Power           = 7500.  #Specify either thrust or power to design for
     
     # Design the Propeller
-    prop_attributes = Data()
-    prop_attributes.number_blades       = Blades 
-    prop_attributes.freestream_velocity = Velocity
-    prop_attributes.angular_velocity    = RPM*(2.*np.pi/60.0)
-    prop_attributes.tip_radius          = Radius
-    prop_attributes.hub_radius          = Hub_Radius
-    prop_attributes.design_Cl           = Design_Cl 
-    prop_attributes.design_altitude     = design_altitude
-    prop_attributes.design_thrust       = Thrust
-    prop_attributes.design_power        = Power
-    prop_attributes                     = propeller_design(prop_attributes)
+    prop                     = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_blades       = Blades 
+    prop.freestream_velocity = Velocity
+    prop.angular_velocity    = RPM*(2.*np.pi/60.0)
+    prop.tip_radius          = Radius
+    prop.hub_radius          = Hub_Radius
+    prop.design_Cl           = Design_Cl 
+    prop.design_altitude     = design_altitude
+    prop.design_power        = Power
+    prop                     = propeller_design(prop)
     
     # Create and attach this propeller
-    prop                 = SUAVE.Components.Energy.Converters.Propeller()
-    prop.prop_attributes = prop_attributes
     net.propeller        = prop
     
     # Component 4 the Motor
@@ -83,8 +80,7 @@ def main():
     motor.resistance           = 0.01
     motor.no_load_current      = 8.0
     motor.speed_constant       = 140.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
-    motor.propeller_radius     = prop.prop_attributes.tip_radius
-    #motor.propeller_Cp         = prop.prop_attributes.Cp
+    motor.propeller_radius     = prop.tip_radius
     motor.gear_ratio           = 1.
     motor.gearbox_efficiency   = 1.
     motor.expected_current     = 260.
@@ -128,7 +124,7 @@ def main():
     
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere_conditions =  atmosphere.compute_values(prop_attributes.design_altitude)
+    atmosphere_conditions =  atmosphere.compute_values(prop.design_altitude)
     
     rho = atmosphere_conditions.density[0,:]
     a   = atmosphere_conditions.speed_of_sound[0,:]
@@ -156,16 +152,16 @@ def main():
                                                              [[ 1.,  0.,  0.],
                                                               [ 0.,  1.,  0.],
                                                               [ 0.,  0.,  1.]]])
-    conditions.propulsion.propeller_power_coefficient = np.array([[1.], [1.]]) * prop.prop_attributes.Cp
+    conditions.propulsion.propeller_power_coefficient = np.array([[1.], [1.]]) * prop.power_coefficient
     
     # Run the network and print the results
     results = net(state)
     F       = results.thrust_force_vector
     
     # Truth results
-    truth_F   = [[ 545.35952329,  545.35952329]]
+    truth_F   = [[360.43835053, 360.43835053]]
     truth_i   = [[ 249.31622624], [ 249.31622624]]
-    truth_rpm = [[ 6668.4094191], [ 6668.4094191]]
+    truth_rpm = [[6668.4094191],[6668.4094191]]
     truth_bat = [[ 36000000.   ], [ 35987534.18868808]]
     
     error = Data()

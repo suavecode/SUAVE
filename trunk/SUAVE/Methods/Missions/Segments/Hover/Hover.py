@@ -2,7 +2,8 @@
 # Hover.py
 # 
 # Created:  Jan 2016, E. Botero
-# Modified:
+# Modified: May 2019, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
@@ -43,12 +44,11 @@ def initialize_conditions(segment):
     # check for initial altitude
     if alt is None:
         if not segment.state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude = alt        
+        alt = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]      
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
-    t_nondim  = state.numerics.dimensionless.control_points
+    t_nondim  = segment.state.numerics.dimensionless.control_points
     time      =  t_nondim * (duration) + t_initial
     
     # pack

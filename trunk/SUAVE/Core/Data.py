@@ -2,7 +2,7 @@
 # Data.py
 #
 # Created:  Jun 2016, E. Botero
-# Modified:
+# Modified: Jan 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -600,13 +600,18 @@ class Data(dict):
         
         # the packing function
         def do_pack(D):
-            for v in D.values():
+            for v in D.values(): 
+                try:
+                    rank = v.ndim
+                except:
+                    rank = 0
+                    
                 # type checking
                 if isinstance( v, dict ): 
                     do_pack(v) # recursion!
                     continue
                 elif not isinstance( v, valid_types ): continue
-                elif np.rank(v) > 2: continue
+                elif rank > 2: continue
                 # make column vectors
                 v = atleast_2d_col(v)
                 # handle output type
@@ -666,7 +671,7 @@ class Data(dict):
         from .Arrays import atleast_2d_col, array_type, matrix_type
         
         # check input type
-        vector = np.rank(M) == 1
+        vector = M.ndim  == 1
         
         # valid types for output
         valid_types = ( int, float,
@@ -679,15 +684,15 @@ class Data(dict):
         # the unpacking function
         def do_unpack(D):
             for k,v in D.items():
-                
+                try:
+                    rank = v.ndim
+                except:
+                    rank = 0
                 # type checking
                 if isinstance(v, dict): 
                     do_unpack(v) # recursion!
                     continue
                 elif not isinstance(v,valid_types): continue
-                
-                # get this value's rank
-                rank = np.rank(v)
                 
                 # get unpack index
                 index = _index[0]                
