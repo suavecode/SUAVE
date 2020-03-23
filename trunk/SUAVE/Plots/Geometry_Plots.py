@@ -20,7 +20,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 # Plot Airfol
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_airfoil(airfoil_names,  line_color = 'k-', save_figure = False, save_filename = "Airfoil_Geometry"):
+def plot_airfoil(airfoil_names,  line_color = 'k-', save_figure = False, save_filename = "Airfoil_Geometry", file_type = ".png"):
 	"""This plots all airfoil defined in the list "airfoil_names" 
 
 	Assumptions:
@@ -54,7 +54,7 @@ def plot_airfoil(airfoil_names,  line_color = 'k-', save_figure = False, save_fi
 		#axes.set_aspect('equal')
 		axes.axis('equal')
 		if save_figure:
-			plt.savefig(name +".png")          
+			plt.savefig(name + file_type)          
 
 	return
 
@@ -62,7 +62,7 @@ def plot_airfoil(airfoil_names,  line_color = 'k-', save_figure = False, save_fi
 #   Propeller Geoemtry 
 # ------------------------------------------------------------------
 ## @ingroup Plots
-def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Geometry"):
+def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Geometry", file_type = ".png"):
 	"""This plots the geoemtry of a propeller or rotor
 
 	Assumptions:
@@ -146,7 +146,7 @@ def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_
 				axes.plot3D(airfoil_x, airfoil_y, airfoil_z, color = 'gray')
 
 	if save_figure:
-		plt.savefig(save_filename + ".png")  
+		plt.savefig(save_filename + file_type)  
 
 	return
 
