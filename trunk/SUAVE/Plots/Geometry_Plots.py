@@ -16,10 +16,10 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
      import import_airfoil_geometry
 
-## @ingroup Plots
 # ------------------------------------------------------------------
 # Plot Airfol
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_airfoil(airfoil_names,  line_color = 'k-', save_figure = False, save_filename = "Airfoil_Geometry"):
 	"""This plots all airfoil defined in the list "airfoil_names" 
 
@@ -61,6 +61,7 @@ def plot_airfoil(airfoil_names,  line_color = 'k-', save_figure = False, save_fi
 # ------------------------------------------------------------------
 #   Propeller Geoemtry 
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Geometry"):
 	"""This plots the geoemtry of a propeller or rotor
 
@@ -71,7 +72,7 @@ def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_
 	None
 
 	Inputs:
-	prop
+	SUAVE.Components.Energy.Converters.Propeller()
 
 	Outputs: 
 	Plots

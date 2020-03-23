@@ -19,10 +19,10 @@ import matplotlib as mpl
 import matplotlib.cm as cm
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-## @ingroup Plots
 # ------------------------------------------------------------------
 #   Altitude, SFC & Weight
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, save_filename = "Altitude_SFC_Weight"):
     """This plots the altitude, speficic fuel comsumption and vehicle weight 
 
@@ -35,7 +35,9 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
     Inputs:
     results.segments.condtions.
         freestream.altitude
+        weights.total_mass
         weights.vehicle_mass_rate
+        frames.body.thrust_force_vector
 
     Outputs: 
     Plots
@@ -47,8 +49,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
     for segment in results.segments.values(): 
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
         mass     = segment.conditions.weights.total_mass[:,0] / Units.lb
         altitude = segment.conditions.freestream.altitude[:,0] / Units.ft
         mdot     = segment.conditions.weights.vehicle_mass_rate[:,0]
@@ -88,6 +89,7 @@ def plot_altitude_sfc_weight(results, line_color = 'bo-', save_figure = False, s
 # ------------------------------------------------------------------
 #   Aircraft Velocities
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, save_filename = "Aircraft_Velocities"):
     """This plots aircraft velocity, mach , true air speed 
 
@@ -154,6 +156,7 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
 # ------------------------------------------------------------------
 #   Disc and Power Loadings
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, save_filename = "Disc_Power_Loading"):
     """This plots the propeller disc and power loadings
 
@@ -198,7 +201,7 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
         axes.minorticks_on()
         axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
         axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
-        #axes.grid(True)         
+        axes.grid(True)         
 
     if save_figure:
         plt.savefig(save_filename + ".png")          
@@ -209,6 +212,7 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
 # ------------------------------------------------------------------
 #   Aerodynamic Coefficients
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Coefficients"):
     """This plots the aerodynamic coefficients 
 
@@ -283,6 +287,7 @@ def plot_aerodynamic_coefficients(results, line_color = 'bo-', save_figure = Fal
 # ------------------------------------------------------------------
 #   Aerodynamic Forces
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, save_filename = "Aerodynamic_Forces"):
     """This plots the aerodynamic forces
 
@@ -357,6 +362,7 @@ def plot_aerodynamic_forces(results, line_color = 'bo-', save_figure = False, sa
 # ------------------------------------------------------------------
 #   Drag Components
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_filename = "Drag_Components"):
     """This plots the drag components of the aircraft
 
@@ -419,6 +425,7 @@ def plot_drag_components(results, line_color = 'bo-', save_figure = False, save_
 # ------------------------------------------------------------------
 #   Electronic Conditions
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Electronic_Conditions"):
     """This plots the electronic conditions of the network
 
@@ -503,6 +510,7 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
 # ------------------------------------------------------------------
 #   Flight Conditions
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Flight_Conditions"):
     """This plots the flights the conditions 
 
@@ -513,7 +521,15 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
     None
 
     Inputs:
-    results.segments.conditions.frames.inertial.position_vector 
+    results.segments.conditions.
+         frames 
+             body.inertial_rotations
+             inertial.position_vector 
+         freestream.velocity
+         aerodynamics.
+             lift_coefficient
+             drag_coefficient
+             angle_of_attack
         
     Outputs: 
     Plots
@@ -579,6 +595,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
 # ------------------------------------------------------------------
 #   Propulsion Conditions
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, save_filename = "Propeller"):
     """This plots the propeller performance
 
@@ -656,6 +673,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
 # ------------------------------------------------------------------
 #   Electric Propulsion efficiencies
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = False, save_filename = "eMotor_Prop_Propulsor"):
     """This plots the electric driven network propeller efficiencies 
 
@@ -711,6 +729,7 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
 # ------------------------------------------------------------------
 #   Stability Coefficients
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False, save_filename = "Stability_Coefficients"):
     """This plots the static stability characteristics of an aircraft
 
@@ -721,10 +740,13 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
     None
 
     Inputs:
-    results.segments.conditions.stability.static
-       CM 
-       Cm_alpha 
-       static_margin 
+    results.segments.conditions.stability.
+       static
+           CM 
+           Cm_alpha 
+           static_margin 
+       aerodynamics.
+           angle_of_attack
     Outputs: 
     Plots
 
@@ -783,6 +805,7 @@ def plot_stability_coefficients(results, line_color = 'bo-', save_figure = False
 # ------------------------------------------------------------------    
 #   Solar Flux
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filename = "Solar_Flux"):
     """This plots the solar flux and power train performance of an solar powered aircraft 
 
@@ -848,6 +871,7 @@ def plot_solar_flux(results, line_color = 'bo-', save_figure = False, save_filen
 # ------------------------------------------------------------------
 #   Lift-Cruise Network
 # ------------------------------------------------------------------
+## @ingroup Plots
 def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, save_filename = "Lift_Cruise_Network"):
     """This plots the electronic and propulsor performance of a vehicle with a lift cruise network
 
@@ -861,7 +885,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
     results.segments.conditions.propulsion
          throttle 
          rotor_throttle 
-         battery_energy[ 
+         battery_energy
          battery_specfic_power 
          voltage_under_load  
          voltage_open_circuit   
