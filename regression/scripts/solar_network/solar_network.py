@@ -76,7 +76,7 @@ def main():
     truth_F   = 106.17898847678569
     truth_i   = 131.4126725716369
     truth_rpm = 160.7609500615196
-    truth_bat = 12498312.10614511
+    truth_bat = 12498312.106019929
     
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))
