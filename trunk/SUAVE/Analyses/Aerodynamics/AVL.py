@@ -1,7 +1,9 @@
 ## @ingroup Analyses-Aerodynamics
 # AVL.py
 #
-# Created: Apr 2017, M. Clarke 
+# Created:  Apr 2017, M. Clarke 
+# Modified: Apr 2019, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,9 +14,6 @@ from SUAVE.Core import Data
 from .Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
-
-# Default aero Results
-from .Results import Results
 
 # The aero methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
@@ -119,6 +118,7 @@ class AVL(Markup):
         Properties Used:
         self.geometry
         """  
+        super(AVL, self).initialize()
         # unpack
         sv = self.settings.spanwise_vortices
         cv = self.settings.chordwise_vortices 

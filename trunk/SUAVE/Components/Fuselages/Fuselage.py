@@ -6,7 +6,8 @@
 #           Jun 2017, M. Clarke
 #           Aug 2018, T St. Francis
 #           Oct 2018, T. MacDonald
-#           Dec 2018, T. MacDonald
+#           Dec 2018, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -69,10 +70,13 @@ class Fuselage(Lofted_Body):
         self.width              = 0.0
         
         self.heights = Data()
-        self.heights.maximum                        = 0.0
-        self.heights.at_quarter_length              = 0.0
-        self.heights.at_three_quarters_length       = 0.0
-        self.heights.at_vertical_root_quarter_chord = 0.0
+        self.heights.maximum                     = 0.0
+        self.heights.at_quarter_length           = 0.0
+        self.heights.at_three_quarters_length    = 0.0
+        self.heights.at_wing_root_quarter_chord  = 0.0
+        self.x_rotation  = 0.0
+        self.y_rotation  = 0.0
+        self.z_rotation  = 0.0      
         
         self.lengths = Data()
         self.lengths.nose       = 0.0
@@ -87,7 +91,7 @@ class Fuselage(Lofted_Body):
         self.fineness.tail = 0.0
         
         self.differential_pressure = 0.0
-
+        
         self.materials.skin_materials       = Container()
         self.materials.canopy_materials     = Container()
         self.materials.keel_materials       = Container()
@@ -98,7 +102,7 @@ class Fuselage(Lofted_Body):
         self.aft_centerbody_area  = 0.0
         self.aft_centerbody_taper = 0.0
         self.cabin_area           = 0.0
-        
+
         self.Fuel_Tanks = Container()
         self.Batteries  = Container()
 
@@ -108,7 +112,31 @@ class Fuselage(Lofted_Body):
         self.vsp_data.xsec_num       = None  # Number if XSecs in fuselage geom.
         
         self.Segments           = SUAVE.Core.ContainerOrdered()
-        
+    
+
+    def append_battery(self, battery):
+        """ Adds a battery to the fuselage
+        Assumptions:
+        None
+        Source:
+        N/A
+        Inputs:
+        None
+        Outputs:
+        None
+        Properties Used:
+        N/A
+        """
+
+        #Assert database type
+        if not isinstance(battery, Data):
+            raise Exception('Batteries appended to fuselages must be of type Data()')
+
+        # Store data
+        self.Batteries.append(battery)
+
+        return
+    
     def append_segment(self,segment):
         """ Adds a segment to the fuselage. 
     
@@ -150,63 +178,11 @@ class Fuselage(Lofted_Body):
 
         # Assert database type
         if not isinstance(fuel_tank,Data):
-            raise Exception('Fuel tanks appended to fuselages must be of type Data()')
-
+            raise Exception('input component must be of type Data()')
+    
         # Store data
         self.Fuel_Tanks.append(fuel_tank)
 
-        return
-
-    def append_battery(self, battery):
-        """ Adds a battery to the fuselage
-
-        Assumptions:
-        None
-        Source:
-        N/A
-        Inputs:
-        None
-        Outputs:
-        None
-        Properties Used:
-        N/A
-        """
-
-        #Assert database type
-        if not isinstance(battery, Data):
-            raise Exception('Batteries appended to fuselages must be of type Data()')
-
-        # Store data
-        self.Batteries.append(battery)
-
-        return
-    
-    def append_segment(self,segment):
-        """ Adds a segment to the fuselage. 
-    
-        Assumptions:
-        None
-        
-        Source:
-        N/A
-        
-        Inputs:
-        None
-        
-        Outputs:
-        None
-        
-        Properties Used:
-        N/A
-        """ 
-        
-        # Assert database type
-        if not isinstance(segment,Data):
-            raise Exception('input component must be of type Data()')
-        
-        # Store data
-        self.Segments.append(segment)
-        
         return
         
 

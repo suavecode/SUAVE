@@ -94,22 +94,22 @@ def wing_planform(wing):
     # Computing flap geometry
     affected_area = 0.
     if wing.high_lift:
-        flap = wing.flaps
+        flap = wing.control_surfaces.flap
         #compute wing chords at flap start and end
         delta_chord = chord_tip - chord_root
         
-        wing_chord_flap_start = chord_root + delta_chord * flap.span_start 
-        wing_chord_flap_end   = chord_root + delta_chord * flap.span_end  
+        wing_chord_flap_start = chord_root + delta_chord * flap.span_fraction_start 
+        wing_chord_flap_end   = chord_root + delta_chord * flap.span_fraction_end
         wing_mac_flap = 2./3.*( wing_chord_flap_start+wing_chord_flap_end - \
                                 wing_chord_flap_start*wing_chord_flap_end/  \
                                 (wing_chord_flap_start+wing_chord_flap_end) )
         
-        flap.chord_dimensional = wing_mac_flap * flap.chord
-        flap_chord_start = wing_chord_flap_start * flap.chord
-        flap_chord_end   = wing_chord_flap_end * flap.chord
-        flap.area        = (flap_chord_start + flap_chord_end) * (flap.span_end - flap.span_start)*span / 2.    
-        affected_area    = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_end - flap.span_start)*span / 2.          
-        
+        flap.chord_dimensional = wing_mac_flap * flap.chord_fraction
+        flap_chord_start        = wing_chord_flap_start * flap.chord_fraction
+        flap_chord_end          = wing_chord_flap_end * flap.chord_fraction
+        flap.area               = (flap_chord_start + flap_chord_end) * (flap.span_fraction_end- flap.span_fraction_start)*span / 2.    
+        affected_area           = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_fraction_end- flap.span_fraction_start)*span / 2.          
+         
     # update
     wing.chords.root                = chord_root
     wing.chords.tip                 = chord_tip

@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -39,7 +40,7 @@ def unpack_unknowns(segment):
     # unpack unknowns
     throttle   = segment.state.unknowns.throttle
     body_angle = segment.state.unknowns.body_angle
-    
+
     # apply unknowns
     segment.state.conditions.propulsion.throttle[:,0]            = throttle[:,0]
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]   

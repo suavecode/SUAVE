@@ -1,6 +1,7 @@
 # solar_low_fidelity_network.py
 # 
-# Created: April 2018, W. Maier
+# Created: April 2018, W. Maier 
+#          Mar 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports
@@ -58,9 +59,9 @@ def main():
     net.propeller        = prop
     
     # Component 4 the Motor
-    motor = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
-    kv                         = 800. * Units['rpm/volt'] # RPM/volt is standard
-    motor                      = size_from_kv(motor, kv)    
+    motor = SUAVE.Components.Energy.Converters.Motor_Lo_Fid() 
+    motor.speed_constant       = 800. * Units['rpm/volt'] # RPM/volt is standard
+    motor                      = size_from_kv(motor)    
     motor.gear_ratio           = 1. # Gear ratio, no gearbox
     motor.gearbox_efficiency   = 1. # Gear box efficiency, no gearbox
     motor.motor_efficiency     = 0.825;

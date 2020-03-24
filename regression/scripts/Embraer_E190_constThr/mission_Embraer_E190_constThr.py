@@ -1,7 +1,9 @@
 # mission_Embraer_E190_constThr.py
 #
 # Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2016, T. MacDonald
+# Modified: Jun 2016, T. MacDonald 
+#           Mar 2020, M. Clarke
+
 
 """ setup file for a mission with a E190
 """
@@ -392,10 +394,7 @@ def mission_setup(analyses):
     # ------------------------------------------------------------------
 
     return mission
-
-#: def define_mission()
-
-
+ 
 # ----------------------------------------------------------------------
 #   Plot Mission
 # ----------------------------------------------------------------------
@@ -603,8 +602,8 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.aerodynamics.angle_of_attack',
         'segments.cruise.conditions.aerodynamics.drag_coefficient',
         'segments.cruise.conditions.aerodynamics.lift_coefficient',
-        #'segments.cruise.conditions.stability.static.cm_alpha',
-        'segments.cruise.conditions.stability.static.cn_beta',
+        #'segments.cruise.conditions.stability.static.Cm_alpha',
+        'segments.cruise.conditions.stability.static.Cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
     ]

@@ -1,8 +1,8 @@
 ## @ingroup Attributes-Constants
 # Constant.py
 
-# Created:  Mar, 2014, SUAVE Team
-# Modified: Jan, 2016, M. Vegh
+# Created:  Mar 2014, SUAVE Team
+# Modified: Jan 2016, M. Vegh
 
 # ----------------------------------------------------------------------
 #  Imports

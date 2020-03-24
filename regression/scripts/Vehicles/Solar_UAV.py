@@ -1,7 +1,9 @@
 # Solar_UAV.py
 # 
 # Created:  Jul 2014, E. Botero
-# Modified: Aug 2017, E. Botero
+# Modified: Aug 2017, E. Botero 
+#           Mar 2020, M. Clarke
+
 
 #----------------------------------------------------------------------
 #   Imports
@@ -16,7 +18,7 @@ import time
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-
+from SUAVE.Methods.Weights.Correlations.UAV.empty import empty
 # ----------------------------------------------------------------------
 #   Build the Vehicle
 # ----------------------------------------------------------------------
@@ -177,29 +179,25 @@ def vehicle_setup():
     
     # Component 5 the Propeller
     # Design the Propeller
-    prop_attributes = Data()
-    prop_attributes.number_blades       = 2.0
-    prop_attributes.freestream_velocity = 40.0 * Units['m/s']# freestream
-    prop_attributes.angular_velocity    = 150. * Units['rpm']
-    prop_attributes.tip_radius          = 4.25 * Units.meters
-    prop_attributes.hub_radius          = 0.05 * Units.meters
-    prop_attributes.design_Cl           = 0.7
-    prop_attributes.design_altitude     = 14.0 * Units.km
-    prop_attributes.design_thrust       = 0.0 
-    prop_attributes.design_power        = 3500.0 * Units.watts
-    prop_attributes                     = propeller_design(prop_attributes)
-    
     prop = SUAVE.Components.Energy.Converters.Propeller()
-    prop.prop_attributes = prop_attributes
-    net.propeller        = prop
+    prop.number_blades       = 2.0
+    prop.freestream_velocity = 40.0 * Units['m/s']# freestream
+    prop.angular_velocity    = 150. * Units['rpm']
+    prop.tip_radius          = 4.25 * Units.meters
+    prop.hub_radius          = 0.05 * Units.meters
+    prop.design_Cl           = 0.7
+    prop.design_altitude     = 14.0 * Units.km
+    prop.design_power        = 3500.0 * Units.watts
+    prop                     = propeller_design(prop) 
+    net.propeller            = prop
 
     # Component 4 the Motor
     motor = SUAVE.Components.Energy.Converters.Motor()
     motor.resistance           = 0.008
     motor.no_load_current      = 4.5  * Units.ampere
     motor.speed_constant       = 120. * Units['rpm'] # RPM/volt converted to (rad/s)/volt    
-    motor.propeller_radius     = prop.prop_attributes.tip_radius
-    motor.propeller_Cp         = prop.prop_attributes.Cp
+    motor.propeller_radius     = prop.tip_radius
+    motor.propeller_Cp         = prop.power_coefficient
     motor.gear_ratio           = 12. # Gear ratio
     motor.gearbox_efficiency   = .98 # Gear box efficiency
     motor.expected_current     = 160. # Expected current
@@ -234,6 +232,9 @@ def vehicle_setup():
     # add the solar network to the vehicle
     vehicle.append_component(net)  
 
+    # define weights analysis
+    vehicle.weight_breakdown = empty(vehicle)
+    
     return vehicle
 
 # ----------------------------------------------------------------------

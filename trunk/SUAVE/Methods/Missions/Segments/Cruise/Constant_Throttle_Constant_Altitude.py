@@ -3,6 +3,8 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           May 2019, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -71,26 +73,33 @@ def initialize_conditions(segment):
     Properties Used:
     N/A
     """   
-
+    
+    state      = segment.state
     conditions = state.conditions
 
     # unpack inputs
-    alt      = segment.altitude
+    alt      = segment.altitude 
     v0       = segment.air_speed_start
-    vf       = segment.air_speed_end
+    vf       = segment.air_speed_end 
     throttle = segment.throttle	
     N        = segment.state.numerics.number_control_points   
     
     # check for initial altitude
     if alt is None:
         if not segment.state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude = alt    
+        alt = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]   
 
+    if v0  is None: 
+        v0 = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
+        
     # avoid having zero velocity since aero and propulsion models need non-zero Reynolds number
     if v0 == 0.0: v0 = 0.01
     if vf == 0.0: vf = 0.01
-
+    
+    # intial and final speed cannot be the same
+    if v0 == vf:
+        vf = vf + 0.01
+        
     # repack
     segment.air_speed_start = v0
     segment.air_speed_end   = vf
@@ -98,11 +107,11 @@ def initialize_conditions(segment):
     # Initialize the x velocity unknowns to speed convergence:
     segment.state.unknowns.velocity_x = np.linspace(v0,vf,N)
     
-    # pack conditions
+    # pack conditions  
     segment.state.conditions.propulsion.throttle[:,0] = throttle  
     segment.state.conditions.freestream.altitude[:,0] = alt
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down    
-
+    
 # ----------------------------------------------------------------------
 #  Solve Residuals
 # ----------------------------------------------------------------------    

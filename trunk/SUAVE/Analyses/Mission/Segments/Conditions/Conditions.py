@@ -4,6 +4,7 @@
 # Created:  
 # Modified: Feb 2016, A. Wendorff
 #           Jun 2017, E. Botero
+#           Jan 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -122,11 +123,15 @@ class Conditions(Data):
         # to have given row length
         
         for k,v in self.items():
+            try:
+                rank = v.ndim
+            except:
+                rank = 0
             # recursion
             if isinstance(v,Conditions):
                 v.expand_rows(rows)
             # need arrays here
-            elif np.rank(v) == 2:
+            elif rank == 2:
                 self[k] = np.resize(v,[rows,v.shape[1]])
             #: if type
         #: for each key,value
