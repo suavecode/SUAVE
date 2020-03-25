@@ -148,7 +148,7 @@ class Fuselage(Lofted_Body):
         # Assert database type
         if not isinstance(fuel_tank,Data):
             raise Exception('input component must be of type Data()')
-
+    
         # Store data
         self.Fuel_Tanks.append(fuel_tank)
 

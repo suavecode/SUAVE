@@ -13,7 +13,7 @@ from .purge_files import purge_files
 
 ## @ingroup Methods-Aerodynamics-AVL
 def write_input_deck(avl_object,trim_aircraft):
-    """ This fucntions writes the execution steps used in the AVL call
+    """ This function writes the execution steps used in the AVL call
 
     Assumptions:
         None

@@ -113,14 +113,11 @@ class Internal_Combustion_Propeller(Propulsor):
         propeller.outputs = outputs
     
         # Pack the conditions for outputs
-        a    = conditions.freestream.speed_of_sound
-        R    = propeller.tip_radius        
-        rpm  = engine.speed / Units.rpm
+        rpm        = engine.speed / Units.rpm
           
-        conditions.propulsion.rpm                = rpm
-        conditions.propulsion.propeller_torque   = Q
-        conditions.propulsion.power              = P
-        conditions.propulsion.propeller_tip_mach = (R*rpm)/a
+        conditions.propulsion.rpm              = rpm
+        conditions.propulsion.propeller_torque = Q
+        conditions.propulsion.power            = P
         
         # Create the outputs
         F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      

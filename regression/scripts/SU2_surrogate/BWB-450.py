@@ -54,7 +54,7 @@ def main():
     results = mission.evaluate()
     
     final_mass = results.segments[-1].conditions.weights.total_mass[-1,0]/Units.lb
-    final_mass_true = 563834.7913158655 # [lbs]
+    final_mass_true = 560526.3753613092 # [lbs]
 
     print(final_mass)
     
@@ -135,7 +135,7 @@ def base_analysis(vehicle):
      
     aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3, .5, .7, .85]) 
     aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.,3.,6.]) * Units.deg
-    aerodynamics.process.compute.lift.inviscid.training_file             = 'base_data.txt'
+    aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)

@@ -129,14 +129,14 @@ def main():
       
     # propeller without airfoil results 
     conditions.propulsion.pitch_command = np.array([[1.0]])*Units.degree
-    F, Q, P, Cplast ,output , etap      = prop.spin(conditions)
+    F, Q, P, Cplast ,output , etap      = prop.spin_variable_pitch(conditions)
     
     # rotor with airfoil results 
     Fr_a, Qr_a, Pr_a, Cplastr_a ,outputr_a , etapr = rot_a.spin(conditions_r)
     
     # rotor with out airfoil results 
     conditions_r.propulsion.pitch_command = np.array([[1.0]])*Units.degree
-    Fr, Qr, Pr, Cplastr ,outputr , etapr  = rot.spin(conditions_r)
+    Fr, Qr, Pr, Cplastr ,outputr , etapr  = rot.spin_variable_pitch(conditions_r)
     
     # Truth values for propeller with airfoil geometry defined 
     F_a_truth       = 97.95830293

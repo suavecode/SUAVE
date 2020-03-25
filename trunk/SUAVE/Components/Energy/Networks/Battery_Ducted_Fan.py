@@ -58,7 +58,7 @@ class Battery_Ducted_Fan(Propulsor):
         self.payload          = None
         self.voltage          = None
         self.tag              = 'Network'
-    
+
     # manage process with a driver function
     def evaluate_thrust(self,state):
         """ Calculate thrust given the current state of the vehicle
