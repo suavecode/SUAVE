@@ -158,8 +158,7 @@ class Rotor(Energy_Component):
         sigma  = self.blade_solidity   
         BB     = B*B
         BBB    = BB*B
-        
-        test_BET          = conditions.test_BET ################### REMOVE ######################### 
+         
         try:
             pitch_command = conditions.propulsion.pitch_command
             total_blade_pitch = beta_0 + pitch_command   
@@ -269,9 +268,8 @@ class Rotor(Energy_Component):
         r_2d         = np.repeat(chi_2d[ np.newaxis,:, :], ctrl_pts, axis=0) 
         
         # Momentum theory approximation of inflow for BET if the advance ratio is large
-        mu_lambda = lambda_c/abs(mu_prop)  
-        if test_BET:  ################### REMOVE ######################### 
-        #if any(mu_lambda[:,0] < 10.0): 
+        mu_lambda = lambda_c/abs(mu_prop)   
+        if any(mu_lambda[:,0] < 10.0): 
             '''Blade element theory (BET) assumes that each blade section acts as a two-dimensional
             airfoil for which the influence of the rotor wake consists entirely of an induced 
             velocity at the section. Two-dimensional airfoil characteristics can then be used

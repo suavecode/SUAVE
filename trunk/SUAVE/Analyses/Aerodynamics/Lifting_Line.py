@@ -65,15 +65,13 @@ class Lifting_Line(Aerodynamics):
         self.training = Data()        
         self.training.angle_of_attack  = np.array([-10.,-5.,0.,5.,10.]) * Units.deg
         self.training.lift_coefficient = None
-        self.training.drag_coefficient = None
         
         # surrogoate models
         self.surrogates = Data()
         self.surrogates.lift_coefficient = None
-        self.surrogates.drag_coefficient = None
  
         
-    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw ,  n_cw):
+    def initialize(self):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -90,12 +88,7 @@ class Lifting_Line(Aerodynamics):
 
         Properties Used:
         None
-        """ 
-        settings = self.settings
-        
-        if n_sw is not None:
-            settings.number_of_stations  = n_sw
-            
+        """                      
         # sample training data
         self.sample_training()
                     
@@ -121,18 +114,14 @@ class Lifting_Line(Aerodynamics):
         conditions.aerodynamics.lift_breakdown.
           inviscid_wings_lift[wings.*.tag]   [-] CL (wing specific)
           inviscid_wings_lift.total          [-] CL
-        conditions.aerodynamics.drag_breakdown.induced
-          inviscid_wings_drag[wings.*.tag]   [-] CDi (wing specific)
-          total                              [-] CDi
         conditions.aerodynamics.
-          inviscid_wings_lift                [-] CL
+          lift_coefficient_wing              [-] CL (wing specific)
+        inviscid_wings_lift                  [-] CL
 
         Properties Used:
         self.surrogates.
           lift_coefficient                   [-] CL
           wing_lift_coefficient[wings.*.tag] [-] CL (wing specific)
-          drag_coefficient                   [-] CDi
-          wing_drag_coefficient[wings.*.tag] [-] CDi (wing specific)
         """          
         # unpack
 
@@ -145,33 +134,23 @@ class Lifting_Line(Aerodynamics):
         Sref = geometry.reference_area
         
         wings_lift_model = surrogates.lift_coefficient
-        wings_drag_model = surrogates.drag_coefficient
         
         # inviscid lift of wings only
-        inviscid_wings_lift                                                = Data()
-        inviscid_wings_drag                                                = Data()
-        inviscid_wings_lift.total                                          = wings_lift_model(AoA)
-        inviscid_wings_drag.total                                          = wings_drag_model(AoA)        
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift         = Data()
-        conditions.aerodynamics.lift_breakdown.compressible_wings          = Data()
-        conditions.aerodynamics.drag_breakdown.induced                     = Data()
-        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag = Data()
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total   = inviscid_wings_lift.total
-        conditions.aerodynamics.lift_coefficient                           = inviscid_wings_lift.total
-        conditions.aerodynamics.drag_breakdown.induced.total               = inviscid_wings_drag.total
-        conditions.aerodynamics.drag_coefficient                           = inviscid_wings_drag.total        
+        inviscid_wings_lift                                              = Data()
+        inviscid_wings_lift.total                                        = wings_lift_model(AoA)
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_wings_lift.total
+        state.conditions.aerodynamics.lift_coefficient                   = inviscid_wings_lift.total
         
-        # store model for lift coefficients of each wing     
+        # store model for lift coefficients of each wing
+        state.conditions.aerodynamics.lift_coefficient_wing             = Data()        
         for wing in geometry.wings.keys():
-            wings_lift_model                                                         = surrogates.wing_lift_coefficients[wing] 
-            wings_drag_model                                                         = surrogates.wing_drag_coefficients[wing]
-            inviscid_wings_lift[wing]                                                = wings_lift_model(AoA)
-            inviscid_wings_drag[wing]                                                = wings_drag_model(AoA)
-            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]         = inviscid_wings_lift[wing] 
-            conditions.aerodynamics.lift_breakdown.compressible_wings[wing]          = inviscid_wings_lift[wing]
-            conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag[wing] = inviscid_wings_drag[wing] 
+            wings_lift_model = surrogates.wing_lift_coefficients[wing]
+            inviscid_wings_lift[wing] = wings_lift_model(AoA)
+            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing] = inviscid_wings_lift[wing]
+            state.conditions.aerodynamics.lift_coefficient_wing[wing]        = inviscid_wings_lift[wing]
 
-        return inviscid_wings_lift , inviscid_wings_drag
+        return inviscid_wings_lift
 
 
     def sample_training(self):
@@ -203,10 +182,12 @@ class Lifting_Line(Aerodynamics):
         
         AoA = training.angle_of_attack
         CL  = np.zeros_like(AoA)
-        CDi = np.zeros_like(AoA)
         
         wing_CLs = Data.fromkeys(geometry.wings.keys(), np.zeros_like(AoA))
-        wing_CDis = Data.fromkeys(geometry.wings.keys(), np.zeros_like(AoA)) 
+        # The above performs the function of:
+        #wing_CLs = Data() 
+        #for wing in geometry.wings.values():
+        #    wing_CLs[wing.tag] = np.zeros_like(AoA)
 
         # condition input, local, do not keep
         konditions              = Data()
@@ -219,16 +200,13 @@ class Lifting_Line(Aerodynamics):
             konditions.aerodynamics.angle_of_attack = AoA[i]
             
             # these functions are inherited from Aerodynamics() or overridden
-            CL[i], wing_lifts , CDi[i], wing_drags  = calculate_lift_lifting_line(konditions, settings, geometry)
+            CL[i], wing_lifts = calculate_lift_lifting_line(konditions, settings, geometry)
             for wing in geometry.wings.values():
                 wing_CLs[wing.tag][i] = wing_lifts[wing.tag]
-                wing_CDis[wing.tag][i] = wing_drags[wing.tag]
 
         # store training data
-        training.lift_coefficient       = CL
+        training.lift_coefficient = CL
         training.wing_lift_coefficients = wing_CLs
-        training.drag_coefficient       = CDi
-        training.wing_drag_coefficients = wing_CDis        
 
         return
 
@@ -255,36 +233,28 @@ class Lifting_Line(Aerodynamics):
             angle_of_attack        [radians]
             lift_coefficient       [-]
             wing_lift_coefficients [-] (wing specific)
-            drag_coefficient       [-]
-            wing_drag_coefficients [-] (wing specific)
         """        
         # unpack data
-        training      = self.training
-        AoA_data      = training.angle_of_attack
-        CL_data       = training.lift_coefficient
-        wing_CL_data  = training.wing_lift_coefficients
-        CDi_data      = training.drag_coefficient
-        wing_CDi_data = training.wing_drag_coefficients        
+        training = self.training
+        AoA_data = training.angle_of_attack
+        CL_data  = training.lift_coefficient
+        wing_CL_data = training.wing_lift_coefficients
 
         # pack for surrogate model
         X_data = np.array([AoA_data]).T
         X_data = np.reshape(X_data,-1)
         
         # learn the model
-        cl_surrogate  = np.poly1d(np.polyfit(X_data, CL_data  ,1))
-        cdi_surrogate = np.poly1d(np.polyfit(X_data, CDi_data ,2))
+        cl_surrogate = np.poly1d(np.polyfit(X_data, CL_data ,1))
         
         wing_cl_surrogates = Data()
-        wing_cdi_surrogates = Data()
         
         for wing in wing_CL_data.keys():
-            wing_cl_surrogates[wing]  = np.poly1d(np.polyfit(X_data, wing_CL_data[wing] ,1))
-            wing_cdi_surrogates[wing] = np.poly1d(np.polyfit(X_data, wing_CL_data[wing] ,2))
+            wing_cl_surrogates[wing] = np.poly1d(np.polyfit(X_data, wing_CL_data[wing] ,1))
 
-        self.surrogates.lift_coefficient       = cl_surrogate
-        self.surrogates.drag_coefficient       = cdi_surrogate
+
+        self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.wing_lift_coefficients = wing_cl_surrogates
-        self.surrogates.wing_drag_coefficients = wing_cdi_surrogates
 
         return
 
@@ -323,15 +293,11 @@ def calculate_lift_lifting_line(conditions,settings,geometry):
 
     # iterate over wings
     total_lift_coeff = 0.0
-    total_drag_coeff = 0.0
     wing_lifts = Data()
-    wing_drags = Data()
     for wing in geometry.wings.values():
 
         [wing_lift_coeff,wing_drag_coeff] = LL(conditions,settings,wing)
         total_lift_coeff += wing_lift_coeff * wing.areas.reference / vehicle_reference_area
-        total_drag_coeff += wing_drag_coeff * wing.areas.reference / vehicle_reference_area
         wing_lifts[wing.tag] = wing_lift_coeff
-        wing_drags[wing.tag] = wing_drag_coeff
 
-    return total_lift_coeff, wing_lifts , total_drag_coeff , wing_drags
+    return total_lift_coeff, wing_lifts

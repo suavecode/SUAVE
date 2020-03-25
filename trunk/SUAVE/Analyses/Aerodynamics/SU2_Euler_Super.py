@@ -21,7 +21,7 @@ from SUAVE.Input_Output.GMSH.write_geo_file import write_geo_file
 from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file 
 
 # The aero methods
-from SUAVE.Methods.Aerodynamics import Supersonic  as Methods
+from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 from .Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.SU2_inviscid_Super import SU2_inviscid_Super

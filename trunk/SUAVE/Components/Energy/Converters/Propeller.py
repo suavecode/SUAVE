@@ -153,8 +153,7 @@ class Propeller(Energy_Component):
         sigma  = self.blade_solidity   
         BB     = B*B
         BBB    = BB*B
-        
-        test_BET          = conditions.test_BET ################### REMOVE ######################### 
+         
         try:
             pitch_command = conditions.propulsion.pitch_command
             total_blade_pitch = beta_0 + pitch_command   

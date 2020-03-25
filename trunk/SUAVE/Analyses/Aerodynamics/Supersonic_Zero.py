@@ -1,9 +1,11 @@
 ## @ingroup Analyses-Aerodynamics
-# Supersonic_OpenVSP_Wave_Drag.py
+# Supersonic_Zero.py
 # 
 # Created:            T. MacDonald
-# Modified: Apr 2017, T. MacDonald
+# Modified: Nov 2016, T. MacDonald
 #           Apr 2019, T. MacDonald
+#
+# Based on Fidelity_Zero
 
 
 # ----------------------------------------------------------------------
@@ -18,24 +20,22 @@ from SUAVE.Analyses import Process
 from .Vortex_Lattice import Vortex_Lattice
 from .Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
-from SUAVE.Methods.Aerodynamics import OpenVSP_Wave_Drag as VSP_Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
-
 import numpy as np
 
 # ----------------------------------------------------------------------
 #  Class
 # ----------------------------------------------------------------------
 ## @ingroup Analyses-Aerodynamics
-class Supersonic_OpenVSP_Wave_Drag(Markup):
+class Supersonic_Zero(Markup):
     """This is an analysis based on low-fidelity models.
 
     Assumptions:
     None
 
     Source:
-    Many methods based on adg.stanford.edu, see methods for details
-    """     
+    Primarily based on adg.stanford.edu, see methods for details
+    """ 
     def __defaults__(self):
         """This sets the default values and methods for the analysis.
 
@@ -43,7 +43,9 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         None
 
         Source:
-        N/A
+        Concorde data used for determining defaults can be found in "Supersonic drag reduction technology in the 
+        scaled supersonic experimental airplane project by JAXA" by Kenji Yoshida
+        https://www.sciencedirect.com/science/article/pii/S0376042109000177
 
         Inputs:
         None
@@ -53,8 +55,8 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
 
         Properties Used:
         N/A
-        """           
-        self.tag = 'Supersonic_OpenVSP_Wave_Drag'
+        """         
+        self.tag = 'Fidelity_Zero_Supersonic'
         
         # correction factors
         settings =  self.settings
@@ -65,10 +67,24 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         settings.aircraft_span_efficiency_factor    = 0.78
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
+        settings.spoiler_drag_increment             = 0.00 
         settings.oswald_efficiency_factor           = None
-        settings.maximum_lift_coefficient           = np.inf
-        settings.number_slices                      = 20
-        settings.number_rotations                   = 10
+        settings.maximum_lift_coefficient           = np.inf 
+        settings.begin_drag_rise_mach_number        = 0.95
+        settings.end_drag_rise_mach_number          = 1.2
+        settings.transonic_drag_multiplier          = 1.25    
+        # this multiplier is used to determine the volume wave drag at the peak Mach number
+        # by multiplying the volume wave drag at the end drag rise Mach number
+        settings.peak_mach_number                      = 1.04
+        settings.cross_sectional_area_calculation_type = 'Fixed'
+        # 'Fixed' means that the area is not able to vary with Mach number, so the number at the desired cruise condition should
+        # be used
+        # 'OpenVSP' is a desired future possibility. This would allow the cross sectional area to vary with Mach number, but is 
+        # much more computationally intensive.        
+        settings.volume_wave_drag_scaling    = 3.7 # 1.8-2.2 are given as typical for an SST, but 3.7 was found to be more accurate 
+        # This may be due to added propulsion effects
+        settings.fuselage_parasite_drag_begin_blend_mach = 0.91
+        settings.fuselage_parasite_drag_end_blend_mach   = 0.99
         
         # vortex lattice configurations
         settings.number_panels_spanwise = 5
@@ -80,32 +96,33 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         
         compute.lift = Process()
         compute.lift.inviscid_wings                = Vortex_Lattice()
-        compute.lift.vortex                        = Methods.Lift.vortex_lift
-        compute.lift.compressible_wings            = Methods.Lift.wing_compressibility
+        compute.lift.vortex                        = Methods.Lift.vortex_lift  # SZ
+        compute.lift.compressible_wings            = Methods.Lift.wing_compressibility # SZ
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         
         compute.drag = Process()
         compute.drag.compressibility               = Process()
-        compute.drag.compressibility.total         = VSP_Methods.compressibility_drag_total       
+        compute.drag.compressibility.total         = Methods.Drag.compressibility_drag_total # SZ        
         compute.drag.parasite                      = Process()
         compute.drag.parasite.wings                = Process_Geometry('wings')
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
-        compute.drag.parasite.fuselages.fuselage   = Common.Drag.parasite_drag_fuselage
+        compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage 
         compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
-        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor
-        #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon # supersonic pylon methods not currently available
+        compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
+        #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
-        compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft
+        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft # SZ
+        compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
-        compute.drag.total                         = Methods.Drag.total_aircraft
+        compute.drag.spoiler                       = Common.Drag.spoiler_drag
+        compute.drag.total                         = Common.Drag.total_aircraft # SZ
         
         
     def initialize(self):
-        """Initializes the surrogate needed for lift calculation and removes old volume drag data files.
+        """Initializes the surrogate needed for lift calculation.
 
         Assumptions:
         None
@@ -120,18 +137,10 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         None
 
         Properties Used:
-        self.geometry.tag (geometry in full is also attached to a process)
-        """    
-        super(Supersonic_OpenVSP_Wave_Drag, self).initialize()
-        import os
-        
-        # Remove old volume drag data so that new data can be appended without issues
-        try:
-            os.remove('volume_drag_data_' + self.geometry.tag + '.npy')  
-        except:
-            pass
-        
+        self.geometry
+        """            
+        super(Supersonic_Zero, self).initialize()
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize()
+        self.process.compute.lift.inviscid_wings.initialize()  
         
     finalize = initialize        
