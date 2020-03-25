@@ -63,6 +63,9 @@ def prop(prop,
 
         Originally written as part of an AA 290 project inteded for trade study
         of the above vehicle types.
+
+        If vehicle model does not have material properties assigned, appropriate
+        assumptions are made based on SUAVE's Solids Attributes library.
         
         Sources:
         Project Vahana Conceptual Trade Study
@@ -114,41 +117,68 @@ def prop(prop,
 # Unpack Material Properties
 #-------------------------------------------------------------------------------
 
-    torsMat = prop.materials.skin_materials.torsion_carrier
+    try:
+        torsMat = prop.materials.skin_materials.torsion_carrier
+    except AttributeError:
+        torsMat = Bidirectional_Carbon_Fiber()
     torsUSS = torsMat.ultimate_shear_strength
     torsMGT = torsMat.minimum_gage_thickness
     torsDen = torsMat.density
 
-    shearMat = prop.materials.spar_materials.shear_carrier
+    try:
+        shearMat = prop.materials.spar_materials.shear_carrier
+    except AttributeError:
+        shearMat = Bidirectional_Carbon_Fiber()
     shearUSS = shearMat.ultimate_shear_strength
     shearMGT = shearMat.minimum_gage_thickness
     shearDen = shearMat.density
 
-    bendMat = prop.materials.flap_materials.bending_carrier
+    try:
+        bendMat = prop.materials.flap_materials.bending_carrier
+    except AttributeError:
+        bendMat = Unidirectional_Carbon_Fiber()
     bendDen = bendMat.density
     bendUTS = bendMat.ultimate_tensile_strength
     bendUSS = bendMat.ultimate_shear_strength
 
-    coreMat = prop.materials.skin_materials.core
+    try:
+        coreMat = prop.materials.skin_materials.core
+    except AttributeError:
+        coreMat = Carbon_Fiber_Honeycomb()
     coreDen = coreMat.density
 
-    ribMat = prop.materials.rib_materials.structural
+    try:
+        ribMat = prop.materials.rib_materials.structural
+    except AttributeError:
+        ribMat = Aluminum_Rib()
     ribWid = ribMat.minimum_width
     ribMGT = ribMat.minimum_gage_thickness
     ribDen = ribMat.density
 
-    rootMat = prop.materials.root_materials.structural
+    try:
+        rootMat = prop.materials.root_materials.structural
+    except AttributeError:
+        rootMat = Aluminum()
     rootDen = rootMat.density
     rootUTS = rootMat.UTS
 
-    leMat = prop.materials.skin_materials.leading_edge
+    try:
+        leMat = prop.materials.skin_materials.leading_edge
+    except:
+        leMat = Nickel()
     leDen = leMat.density
     
-    glueMat = prop.materials.skin_materials.adhesive
+    try:
+        glueMat = prop.materials.skin_materials.adhesive
+    except AttributeError:
+        glueMat = Epoxy()
     glueMGT = glueMat.minimum_gage_thickness
     glueDen = glueMat.density
     
-    coverMat = prop.materials.skin_materials.cover
+    try:
+        coverMat = prop.materials.skin_materials.cover
+    except:
+        coverMat = Paint()
     coverMGT = coverMat.minimum_gage_thickness
     coverDen = coverMat.density
 
