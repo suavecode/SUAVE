@@ -1,8 +1,9 @@
 ## @ingroup Analyses-Mission-Segments-Transition
-# Constant_Acceleration_Constant_Altitude.py
+# Constant_Acceleration_Constant_Pitchrate_Constant_Altitude.py
 #
 # Created:  Jan 2016, E. Botero
 # Modified: Jul 2017, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -1,5 +1,6 @@
 # optimization_packages.py
 # Created: Sep. 2019, M. Clarke
+#          Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -11,6 +12,8 @@ import vehicle_opt_pack
 import procedure_opt_pack 
 from SUAVE.Optimization import Nexus, carpet_plot 
 import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
+import SUAVE.Optimization.write_optimization_outputs as write_optimization_outputs
+import os , sys
 # ----------------------------------------------------------------------        
 #   Run the whole thing
 # ----------------------------------------------------------------------  
@@ -26,8 +29,12 @@ def main():
         [ 'x1' , '>', -10., 1., Units.less],
         [ 'x2' , '>',   1., 1., Units.less],
     ])        
-    print('Checking basic additive with one active constraint...')
+    print('Checking basic additive with one active constraint...') 
+    # suppress iteration printout 
+    sys.stdout = open(os.devnull,'w')  
     outputs = scipy_setup.SciPy_Solve(problem, solver='SLSQP' , sense_step = 1.4901161193847656e-08, pop_size =  10 , prob_seed = seed )  
+    # end suppression of interation printout
+    sys.stdout = sys.__stdout__  
     print(outputs)  
     obj = scipy_setup.SciPy_Problem(problem,outputs)[0]
     x1 = outputs[0]
@@ -36,15 +43,24 @@ def main():
     #   Check Results 
     assert( np.isclose(obj,  1, atol=1e-6) )
     assert( np.isclose(x1 ,  0, atol=1e-2) )
-    assert( np.isclose(x2 ,  1, atol=1e-2) )     
- 
+    assert( np.isclose(x2 ,  1, atol=1e-2))    
+    
+    # test writing output function 
+    filename = 'optimization_output.txt'
+    write_optimization_outputs(problem,filename)  
+    os.remove('optimization_output.txt')
+    
     # ------------------------------------------------------------------
     #   Differential Evolution 
     # ------------------------------------------------------------------  
     print('Checking differential evolution algorithm')
-    solver_name = 'differential_evolution'
+    solver_name = 'differential_evolution' 
     problem     = setup(solver_name)    
+    # suppress iteration printout 
+    sys.stdout = open(os.devnull,'w')      
     outputs = scipy_setup.SciPy_Solve(problem, solver='differential_evolution' , sense_step = 1.4901161193847656e-08, pop_size =  10 , prob_seed = seed )  
+    # end suppression of interation printout
+    sys.stdout = sys.__stdout__  
     print(outputs)   
     obj = outputs.fun
     x1 = outputs.x[0]
@@ -66,7 +82,11 @@ def main():
         [ 'x2' , '>',   1., 1., Units.less],
     ])     
     print('Checking particle swarm optimization algorithm')
+    # suppress iteration printout 
+    sys.stdout = open(os.devnull,'w')      
     outputs = scipy_setup.SciPy_Solve(problem, solver='particle_swarm_optimization' , sense_step = 1.4901161193847656e-08, pop_size =  10 , prob_seed = seed )  
+    # end suppression of interation printout
+    sys.stdout = sys.__stdout__  
     print(outputs)   
     obj = outputs[1][0]
     x1 = outputs[0][0]
@@ -76,9 +96,8 @@ def main():
     assert( np.isclose(obj,  1, atol=1e-2) )
     assert( np.isclose(x1 ,  0, atol=1e-1) )
     assert( np.isclose(x2 ,  1, atol=1e-1) )     
- 
-      
     
+     
     return
 
 # ----------------------------------------------------------------------        

@@ -2,7 +2,8 @@
 # Solar.py
 # 
 # Created:  Jun 2014, E. Botero
-# Modified: Feb 2016, T. MacDonald
+# Modified: Feb 2016, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

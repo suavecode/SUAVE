@@ -65,16 +65,16 @@ class Lift_Cruise_Optimized(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude        = None
-        self.air_speed_start = None
-        self.air_speed_end   = None
-        self.acceleration    = None
-        self.pitch_initial   = None
-        self.pitch_final     = None     
-        self.objective       = None # This will be a key
-        self.minimize        = True
-        self.CL_limit        = 1.e20 
-        self.algorithm       = 'SLSQP'
+        self.altitude                = None
+        self.air_speed_start         = None
+        self.air_speed_end           = None
+        self.acceleration            = None
+        self.pitch_initial           = None
+        self.pitch_final             = None     
+        self.objective               = None # This will be a key
+        self.minimize                = True
+        self.lift_coefficient_limit  =  1.e20  
+        self.algorithm               = 'SLSQP'
         
         
         # --------------------------------------------------------------

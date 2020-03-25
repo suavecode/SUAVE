@@ -39,61 +39,46 @@ def initialize_conditions(segment):
     alt0        = segment.altitude_start 
     altf        = segment.altitude_end 
     climb_angle = segment.climb_angle
-    v0          = segment.air_speed_start_vector
-    vf          = segment.air_speed_end_vector
+    v0          = segment.air_speed 
     ax          = segment.acceleration   
     T0          = segment.pitch_initial
     Tf          = segment.pitch_final     
     t_nondim    = segment.state.numerics.dimensionless.control_points
     conditions  = segment.state.conditions 
     
+    # check for climb angle     
+    if climb_angle is None:
+        raise AttributeError('set climb')
+    
+    if ax is None: 
+        raise AttributeError('set acceleration') 
+    
     # check for initial and final altitude 
     if alt0 is None:
         if not segment.state.initials: raise AttributeError('altitude not set')
-        alt0 = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude_start  = alt0
+        alt0 = -1.0 * segment.state.initials.conditions.frames.inertial.position_vector[-1,2] 
     
     if altf is None:
         raise AttributeError('final altitude not set')
         
     # check for initial pitch
     if T0 is None:
-        T0  =  segment.state.initials.conditions.frames.body.inertial_rotations[-1,1]
-        segment.pitch_initial = T0    
+        T0  =  segment.state.initials.conditions.frames.body.inertial_rotations[-1,1] 
         
     # check for initial velocity vector
     if v0 is None:
         v0  =  segment.state.initials.conditions.frames.inertial.velocity_vector[-1,:] 
-        segment.velocity_vector = v0  
+        segment.velocity_vector = v0
+        
          
     # discretize on altitude
-    alt = t_nondim * (altf-alt0) + alt0        
-        
-    # check for climb angle     
-    if climb_angle is None:
-        raise AttributeError('set climb')
-    
-    ground_distance = abs((altf-alt0)*np.arctan(climb_angle))
-    true_distance   = np.sqrt((altf-alt0)**2 + ground_distance**2)
-    t_initial       = conditions.frames.inertial.time[0,0]       
-    vf_mag          = np.linalg.norm(vf)
     v0_mag          = np.linalg.norm(v0)
-    
-    if vf != None and ax != None:        
-        elapsed_time =  (-v0_mag + np.sqrt(v0_mag**2 + 4*0.5*ax*true_distance))/(2*ax) 
-        vf_mag = v0_mag + ax* (elapsed_time)
-    
-    if vf is None:
-        if ax is None: raise AttributeError('set either final speed or acceleration')
-        else:
-            elapsed_time =  (-v0_mag + np.sqrt(v0_mag**2 + 4*0.5*ax*true_distance))/(2*ax)
-            vf_mag = v0_mag + ax* (elapsed_time)
-        
-    if ax is None:
-        if vf is None: raise AttributeError('set either final speed or acceleration')
-        else:
-            ax = (vf_mag**2 - v0_mag**2)/(2*true_distance)
-            elapsed_time = (vf_mag - v0_mag)/ax     
+    alt             = t_nondim * (altf-alt0) + alt0   
+    ground_distance = abs(altf-alt0)/np.tan(climb_angle)
+    true_distance   = np.sqrt((altf-alt0)**2 + ground_distance**2)
+    t_initial       = conditions.frames.inertial.time[0,0]   
+    elapsed_time    = (-v0_mag + np.sqrt(v0_mag**2 + 2*ax*true_distance))/(ax) 
+    vf_mag          = v0_mag + ax*(elapsed_time)   
     
     # dimensionalize time        
     t_final   = t_initial + elapsed_time
@@ -101,9 +86,9 @@ def initialize_conditions(segment):
     time      = t_nondim * (t_final-t_initial)
     
     # Figure out vx
-    V  = (vf_mag-v0_mag) + v0_mag
-    vx = t_nondim *  V  * np.cos(climb_angle)
-    vz = t_nondim *  V  * np.sin(climb_angle)
+    V  = (vf_mag-v0_mag) 
+    vx = t_nondim *  V  * np.cos(climb_angle) + v0 * np.cos(climb_angle) 
+    vz = t_nondim *  V  * np.sin(climb_angle) + v0 * np.sin(climb_angle)  
     
     # set the body angle
     body_angle =time*(Tf-T0)/(t_final-t_initial)
@@ -113,7 +98,7 @@ def initialize_conditions(segment):
     segment.state.conditions.freestream.altitude[:,0] = alt[:,0]
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     segment.state.conditions.frames.inertial.velocity_vector[:,0] = vx[:,0] 
-    segment.state.conditions.frames.inertial.velocity_vector[:,2] = vz[:,0] 
+    segment.state.conditions.frames.inertial.velocity_vector[:,2] = -vz[:,0] 
     segment.state.conditions.frames.inertial.time[:,0] = time[:,0]
         
 # ----------------------------------------------------------------------

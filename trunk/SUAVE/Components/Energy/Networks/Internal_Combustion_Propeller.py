@@ -3,6 +3,7 @@
 # 
 # Created:  Sep 2016, E. Botero
 # Modified: Apr 2018, M. Clarke 
+#           Mar 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -132,7 +133,23 @@ class Internal_Combustion_Propeller(Propulsor):
     
     
     def unpack_unknowns(self,segment,state):
-        """"""        
+        """Unpacks the unknowns set in the mission to be available for the mission.
+
+        Assumptions:
+        N/A
+        
+        Source:
+        N/A
+        
+        Inputs:
+        state.conditions.propulsion.propeller_power_coefficient    [Unitless] 
+        
+        Outputs:
+        state.unknowns.propeller_power_coefficient                 [Unitless] 
+        
+        Properties Used:
+        N/A
+        """            
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
         state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
@@ -140,8 +157,24 @@ class Internal_Combustion_Propeller(Propulsor):
         return
     
     def residuals(self,segment,state):
-        """"""        
+        """ Calculates a residual based on torques 
         
+        Assumptions:
+        
+        Inputs:
+            segment.state.conditions.propulsion.
+                motor_torque                       [newtom-meters]                 
+                propeller_torque                   [newtom-meters] 
+        
+        Outputs:
+            segment.state:
+                residuals.network                  [newtom-meters] 
+                
+        Properties Used:
+            N/A
+                                
+        """         
+            
         # Here we are going to pack the residuals (torque,voltage) from the network
         
         # Unpack

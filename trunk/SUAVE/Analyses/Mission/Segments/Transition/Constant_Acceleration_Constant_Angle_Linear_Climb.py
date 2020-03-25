@@ -60,8 +60,7 @@ class Constant_Acceleration_Constant_Angle_Linear_Climb(Aerodynamic):
         self.altitude_end           = None
         self.climb_angle            = 0.0 * Units['rad'] 
         self.acceleration           = 1.  * Units['m/s/s']
-        self.air_speed_start_vector = [0.0,0.0,0.0] * Units['m/s']
-        self.air_speed_end_vector   = [0.0,0.0,0.0] * Units['m/s']
+        self.air_speed_start_vector = 0.0 * Units['m/s'] 
         self.pitch_initial          = None
         self.pitch_final            = 0.0 * Units['rad']     
         
@@ -88,7 +87,7 @@ class Constant_Acceleration_Constant_Angle_Linear_Climb(Aerodynamic):
         
         initialize.expand_state            = Methods.expand_state
         initialize.differentials           = Methods.Common.Numerics.initialize_differentials_dimensionless
-        initialize.conditions              = Methods.Transition.Constant_Accelerated_Climb_Constant_Angle.initialize_conditions
+        initialize.conditions              = Methods.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb.initialize_conditions
 
         # --------------------------------------------------------------
         #   Converge - starts iteration
@@ -131,7 +130,7 @@ class Constant_Acceleration_Constant_Angle_Linear_Climb(Aerodynamic):
 
         # Solve Residuals
         iterate.residuals = Process()     
-        iterate.residuals.total_forces     = Methods.Transition.Constant_Accelerated_Climb_Constant_Angle.residual_total_forces
+        iterate.residuals.total_forces     = Methods.Transition.Constant_Acceleration_Constant_Angle_Linear_Climb.residual_total_forces
         
         # --------------------------------------------------------------
         #   Finalize - after iteration

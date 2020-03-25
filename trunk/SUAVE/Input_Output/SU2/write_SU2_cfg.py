@@ -4,6 +4,7 @@
 # Created:  Oct 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
 #           Mar 2018, T. MacDonald
+#           Mar 2020, E. Botero
 
 ## @ingroup Input_Output-SU2
 def write_SU2_cfg(tag,SU2_settings):
@@ -40,9 +41,14 @@ def write_SU2_cfg(tag,SU2_settings):
     f = open(filename,mode='w')
 
     # Problem definition
-    f.write('PHYSICAL_PROBLEM = EULER\n\n')
+    f.write('SOLVER = EULER\n\n')
+    f.write('KIND_TURB_MODEL = NONE\n\n')
+    f.write('KIND_VERIFICATION_SOLUTION= NO_VERIFICATION_SOLUTION\n\n')
     f.write('MATH_PROBLEM = DIRECT\n\n')
+    f.write('AXISYMMETRIC= NO\n\n')
     f.write('RESTART_SOL = NO\n\n')
+    f.write('DISCARD_INFILES= NO\n\n')
+    f.write('SYSTEM_MEASUREMENTS= SI\n\n')
     
     # Freestream definition
     f.write('MACH_NUMBER = ' + str(float(mach)) + '\n\n')
@@ -77,7 +83,7 @@ def write_SU2_cfg(tag,SU2_settings):
     f.write('CFL_ADAPT = YES\n\n')
     f.write('CFL_ADAPT_PARAM = ( 1.5, 0.5, 1.0, 100.0 )\n\n')
     f.write('RK_ALPHA_COEFF = ( 0.66667, 0.66667, 1.000000 )\n\n')
-    f.write('EXT_ITER ='+str(int(iters)) +'\n\n')
+    f.write('INNER_ITER ='+str(int(iters)) +'\n\n')
     f.write('LINEAR_SOLVER = FGMRES\n\n')
     f.write('LINEAR_SOLVER_ERROR = 1E-6\n\n')
     f.write('LINEAR_SOLVER_ITER = 2\n\n')
@@ -114,28 +120,28 @@ def write_SU2_cfg(tag,SU2_settings):
     
     # Convergence parameters
     f.write('CONV_CRITERIA = CAUCHY\n\n')
-    f.write('RESIDUAL_REDUCTION = 8\n\n')
-    f.write('RESIDUAL_MINVAL = -12\n\n')
-    f.write('STARTCONV_ITER = 25\n\n')
-    f.write('CAUCHY_ELEMS = 100\n\n')
-    f.write('CAUCHY_EPS = 1E-6\n\n')
-    f.write('CAUCHY_FUNC_FLOW = LIFT\n\n')
+    f.write('CONV_RESIDUAL_MINVAL = -12\n\n')
+    f.write('CONV_STARTITER = 25\n\n')
+    f.write('CONV_CAUCHY_ELEMS = 100\n\n')
+    f.write('CONV_CAUCHY_EPS = 1E-6\n\n')
     
     # Input/Output
+    f.write('SCREEN_OUTPUT= ( LIFT, DRAG, INNER_ITER, WALL_TIME, RMS_DENSITY, RMS_ENERGY)\n\n')
+    f.write('HISTORY_OUTPUT= ( ITER, AERO_COEFF, RMS_RES )\n\n')
     f.write('MESH_FILENAME = ' + tag + '.su2\n\n')
     f.write('MESH_OUT_FILENAME = mesh_out.su2\n\n')
-    f.write('SOLUTION_FLOW_FILENAME = solution_flow.dat\n\n')
+    f.write('SOLUTION_FILENAME = solution_flow.dat\n\n')
     f.write('SOLUTION_ADJ_FILENAME = solution_adj.dat\n\n')
     f.write('MESH_FORMAT = SU2\n\n')
-    f.write('OUTPUT_FORMAT = TECPLOT\n\n')
+    f.write('TABULAR_FORMAT = TECPLOT\n\n')
     f.write('CONV_FILENAME = ' + tag + '_history\n\n')
     f.write('BREAKDOWN_FILENAME = ' + tag + '_forces_breakdown.dat\n\n')
-    f.write('RESTART_FLOW_FILENAME = ' + tag + '_restart_flow.dat\n\n')
+    f.write('RESTART_FILENAME = ' + tag + '_restart_flow.dat\n\n')
     f.write('RESTART_ADJ_FILENAME = restart_adj.dat\n\n')
-    f.write('VOLUME_FLOW_FILENAME = ' + tag + '_flow\n\n')
+    f.write('VOLUME_FILENAME = ' + tag + '_flow\n\n')
     f.write('VOLUME_ADJ_FILENAME = adjoint\n\n')
     f.write('GRAD_OBJFUNC_FILENAME = of_grad.dat\n\n')
-    f.write('SURFACE_FLOW_FILENAME = ' + tag + '_surface_flow\n\n')
+    f.write('SURFACE_FILENAME = ' + tag + '_surface_flow\n\n')
     f.write('SURFACE_ADJ_FILENAME = surface_adjoint\n\n')
     f.write('WRT_SOL_FREQ = 1000\n\n')
     f.write('WRT_CON_FREQ = 1\n\n')

@@ -2,7 +2,8 @@
 # Gearbox.py
 #
 # Created:  Aug 2016, C. Ilario
-# Modified: 
+# Modified: Feb 2020, M. Clarke 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -103,9 +104,7 @@ class Gearbox(Energy_Component):
         # pack computed quantities into outputs
         self.outputs.speed  = w2
         self.outputs.torque = T2
-        self.outputs.power  = P2
-    
-    
+        self.outputs.power  = P2 
     
     __call__ = compute     
     
