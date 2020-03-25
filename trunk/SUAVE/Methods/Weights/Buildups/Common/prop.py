@@ -160,7 +160,7 @@ def prop(prop,
     except AttributeError:
         rootMat = Aluminum()
     rootDen = rootMat.density
-    rootUTS = rootMat.UTS
+    rootUTS = rootMat.ultimate_tensile_strength
 
     try:
         leMat = prop.materials.skin_materials.leading_edge

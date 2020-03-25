@@ -108,6 +108,7 @@ def empty(config,
     mBattery    = propulsor.battery.mass_properties.mass
     mPayload    = propulsor.payload.mass_properties.mass
     MTOW        = config.mass_properties.max_takeoff
+    MSL         = config.wings['main_wing'].motor_spanwise_locations
 
     # Conditional Inputs
 
@@ -131,7 +132,7 @@ def empty(config,
         rHubThrustProp  = propulsor.propeller.hub_radius
         cThrustProp     = propulsor.propeller.chord_distribution
     else:
-        warn("""eVTOL weight buildup only supports the Battery Propelle, Lift Cruise and Vectored Thrust energy networks.\n
+        warn("""eVTOL weight buildup only supports the Battery Propeller, Lift Cruise and Vectored Thrust energy networks.\n
         Weight buildup will not return information on propulsion system.""", stacklevel=1)
 
     sound       = speed_of_sound
@@ -159,7 +160,7 @@ def empty(config,
 
     elif isinstance(propulsor, Vectored_Thrust):
         output.servos   = 0.65  * (nLiftProps)      * Units.kg
-        output.hubs     = 2.    * (nLiftProps)      * Units.kg 
+        output.hubs     = 2.    * (nLiftProps)      * Units.kg
         output.BRS      = 16.                       * Units.kg
           
     elif isinstance(propulsor, Lift_Cruise):
@@ -198,28 +199,54 @@ def empty(config,
     #       express assumption that vehicle must be able to operate with 1 motor out
 
     output.fuselage = fuselage(config)                                          * Units.kg
-    output.wiring   = wiring(config, maxLiftPower/eta)                          * Units.kg
+    output.wiring   = wiring(config, MSL, maxLiftPower/eta)                     * Units.kg
 
-    if isinstance(propulsor, Battery_Propeller) or isinstance(propulsor, Vectored_Thrust) :
+    if isinstance(propulsor, Battery_Propeller):
         output.transmission = maxLiftPower * 1.5873e-4                          * Units.kg                   # From NASA OH-58 Study
-        output.lift_rotors  = nLiftProps * (propulsor.propeller, maxLift / max(nLiftProps - 1, 1))* Units.kg
+        output.lift_rotors  = nLiftProps * prop(propulsor.propeller, maxLift / max(nLiftProps - 1, 1))* Units.kg
         output.motors       = (nLiftProps * maxLiftPower/max(nLiftProps-1, 1)) / 3500 * Units.kg             # 3500 W/kg Power Density
         
         if nLiftProps == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor 
             maxLiftTorque     = maxLiftPower / maxLiftOmega
             output.tail_rotor = prop(propulsor.propeller, 1.5*maxLiftTorque/(1.25*rTipLiftProp))*0.2 * Units.kg
 
-    elif isinstance(propulsor, Lift_Cruise): 
+    elif isinstance(propulsor, Lift_Cruise) or isinstance(propulsor, Vectored_Thrust):
         maxThrustPower       = maxThrust * (k * np.sqrt(thrustPseudoCT / 2.) + thrustBladeSol * AvgBladeCD / 8. * maxVTip **3 / thrustPseudoCT) 
-        output.lift_rotors   = nLiftProps * (propulsor.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg
-        output.thrust_rotors = prop(propulsor.propeller, maxLift/5.) * Units.kg 
+        output.lift_rotors   = nLiftProps * prop(propulsor.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg
+        output.thrust_rotors = prop(propulsor.propeller, maxLift/5.) * Units.kg
         output.lift_motors   = (nLiftProps*maxLiftPower/max(nLiftProps-1, 1))/3500* Units.kg  # 3500 W/kg Power Density
-        output.thrust_motors = (maxThrustPower/nThrustProps)/3500               * Units.kg
+        output.thrust_motors = (maxThrustPower/nThrustProps)/3500 * Units.kg
+        output.motors        = output.lift_motors + output.thrust_motors
 
+        output.total_wing_weight = 0.0
         for w in config.wings:
             output[w.tag] = wing(w, config, maxThrust)
-
+            output.total_wing_weight += output[w.tag]
 #-------------------------------------------------------------------------------
 # Pack Up Outputs
 #-------------------------------------------------------------------------------
 
+
+    output.structural   = (output.lift_rotors +
+                            output.hubs +
+                            output.fuselage +
+                            output.landing_gear +
+                            output.total_wing_weight
+                            )
+
+    output.empty        = 1.1 * (
+                            output.structural +
+                            output.seats +
+                            output.avionics +
+                            output.battery +
+                            output.motors +
+                            output.servos +
+                            output.wiring +
+                            output.BRS +
+                            output.ECS
+                            )
+
+    output.total        = (output.empty +
+                           output.payload)
+
+    return output

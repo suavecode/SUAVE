@@ -95,16 +95,24 @@ def wing(wing,
 
     MTOW                        = config.mass_properties.max_takeoff
     wingspan                    = wing.spans.projected
-    chord                       = wing.chords.mean_aerodynamic,
-    thicknessToChord            = wing.thickness_to_chord, 
-    wingletFraction             = wing.winglet_fraction, 
+    chord                       = wing.chords.mean_aerodynamic
+    thicknessToChord            = wing.thickness_to_chord
     wingArea                    = wing.areas.reference
+
+    try:
+        wingletFraction = wing.winglet_fraction
+    except AttributeError:
+        wingletFraction = 0.0
 
     totalWingArea = 0
     for w in config.wings:
         totalWingArea += w.areas.reference
-    liftFraction                = wingArea/totalWingArea
-    motor_spanwise_locations    = wing.motor_spanwise_locations
+    liftFraction                    = wingArea/totalWingArea
+
+    try:
+        motor_spanwise_locations    = wing.motor_spanwise_locations
+    except AttributeError:
+        motor_spanwise_locations    = []
 
     N       = num_analysis_points                   # Number of spanwise points
     SF      = safety_factor                         # Safety Factor
@@ -163,7 +171,7 @@ def wing(wing,
         ribMat = wing.rib_materials.structural
     except AttributeError:
         ribMat = Aluminum_Rib()
-    ribWid = ribMat.minumum_width
+    ribWid = ribMat.minimum_width
     ribMGT = ribMat.minimum_gage_thickness
     ribDen = ribMat.density
 
@@ -192,7 +200,7 @@ def wing(wing,
 # Beam Geometry
 #-------------------------------------------------------------------------------
 
-    x = np.concatenate((np.linspace(0, 1, N), np.linspace(1, 1+wingletFraction[0], N)), axis=0)
+    x = np.concatenate((np.linspace(0, 1, N), np.linspace(1, 1+wingletFraction, N)), axis=0)
     x = x * wingspan/2
     x = np.sort(np.concatenate((x,motor_spanwise_locations), axis=0))
     dx = x[1] - x[0]
@@ -208,7 +216,7 @@ def wing(wing,
     L0 = 0.5*G_max*MTOW*9.8*liftFraction*SF # Total Design Lift Force
     L = L0/np.sum(L[0:-1]*np.diff(x))*L     # Net Lift Distribution
 
-    T = L * chord[0] * cmocl                # Torsion Distribution
+    T = L * chord * cmocl                # Torsion Distribution
     D = L/LoD                               # Drag Distribution
 
 #-------------------------------------------------------------------------------
@@ -245,7 +253,7 @@ def wing(wing,
     box = coord                        # Box Initally Matches Airfoil
     box = box[box[:, 0] <= aftWeb[1]]  # Inlcude Only Parts Fwd of Aftmost Spar
     box = box[box[:, 0] >= fwdWeb[0]]  # Include Only Parts Aft of Fwdmost Spar
-    box = box * chord[0]               # Scale by Chord Length
+    box = box * chord                  # Scale by Chord Length
 
     # Use Shoelace Formula to calculate box area
 
@@ -259,16 +267,16 @@ def wing(wing,
     box = coord                        # Box Initially Matches Airfoil
     box = box[box[:, 0] <= fwdWeb[1]]  # Include Only Parts Fwd of Aft Fwd Spar
     box = box[box[:, 0] >= fwdWeb[0]]  # Include Only Parts Aft of Fwdmost Spar
-    seg.append(box[box[:, 1] > np.mean(box[:, 1])]*chord[0])   # Upper Fwd Segment
-    seg.append(box[box[:, 1] < np.mean(box[:, 1])]*chord[0])   # Lower Fwd Segment
+    seg.append(box[box[:, 1] > np.mean(box[:, 1])]*chord)   # Upper Fwd Segment
+    seg.append(box[box[:, 1] < np.mean(box[:, 1])]*chord)   # Lower Fwd Segment
 
     # Drag
 
     box = coord                        # Box Initially Matches Airfoil
     box = box[box[:, 0] <= aftWeb[1]]  # Include Only Parts Fwd of Aftmost Spar
     box = box[box[:, 0] >= aftWeb[0]]  # Include Only Parts Aft of Fwd Aft Spar
-    seg.append(box[box[:, 1] > np.mean(box[:, 1])]*chord[0])   # Upper Aft Segment
-    seg.append(box[box[:, 1] < np.mean(box[:, 1])]*chord[0])   # Lower Aft Segment
+    seg.append(box[box[:, 1] > np.mean(box[:, 1])]*chord)   # Upper Aft Segment
+    seg.append(box[box[:, 1] < np.mean(box[:, 1])]*chord)   # Lower Aft Segment
 
     # Bending/Drag Inertia
 
@@ -294,8 +302,8 @@ def wing(wing,
     box = coord                     # Box Initially Matches Airfoil
     box = box[box[:,0]<=fwdWeb[1]]  # Include Only Parts Fwd of Aft Fwd Spar
     z = np.zeros(2)
-    z[0] = np.interp(fwdWeb[0], box[box[:, 1] > 0,0],box[box[:,1] > 0,1])*chord[0]  # Upper Surf of Box at Fwdmost Spar
-    z[1] = np.interp(fwdWeb[0], box[box[:, 1] < 0,0],box[box[:,1] < 0,1])*chord[0]  # Lower Surf of Box at Fwdmost Spar
+    z[0] = np.interp(fwdWeb[0], box[box[:, 1] > 0,0],box[box[:,1] > 0,1])*chord  # Upper Surf of Box at Fwdmost Spar
+    z[1] = np.interp(fwdWeb[0], box[box[:, 1] < 0,0],box[box[:,1] < 0,1])*chord  # Lower Surf of Box at Fwdmost Spar
     h = np.abs(z[0] - z[1])         # Height of Box at Fwdmost Spar
 
     # Skin

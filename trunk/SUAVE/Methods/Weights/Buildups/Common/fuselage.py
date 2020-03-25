@@ -109,7 +109,7 @@ def fuselage(config,
         boltMat = fuse.materials.bolt_materials.landing_pad_bolt
     except AttributeError:
         boltMat = Steel()
-    boltUSS = boltMat.USS
+    boltUSS = boltMat.ultimate_shear_strength
 
 
     # Calculate Skin & Canopy Weight Per Unit Area (arealWeight) based on material
