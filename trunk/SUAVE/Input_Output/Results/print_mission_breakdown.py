@@ -90,6 +90,8 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         WFf =  segment.conditions.weights.fuel_mass[-1]                     #Final Segment fuel (total - cryogen) weight [kg]
         WFi =  segment.conditions.weights.fuel_mass[0]                      #Initial Segment fuel (total - cryogen) weight [kg]
 
+        # print(WCi)
+
         if imperial:
             Dist = (segment.conditions.frames.inertial.position_vector[-1,0] - segment.conditions.frames.inertial.position_vector[0,0] ) / Units.nautical_miles #Distance [nm]
         elif SI:
@@ -177,7 +179,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         # Print segment data
         fid.write( Segment_str+HPi_str+HPf_str+Wi_str+Wf_str+Dist_str+T_str+KCASi_str+KCASf_str+Mi_str+Mf_str+Fuel_str+CRYO_str+'\n')
         
-        # Sum fule and cryogen usage for printing summary once mission complete
+        # Sum fuel and cryogen usage for printing summary once mission complete
         total_fuel      = total_fuel + FUEL_C
         total_cryogen   = total_cryogen + CRYO
         

@@ -7,7 +7,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import math
+# import math
+import numpy as np
 import scipy.integrate as integrate
 
 # ----------------------------------------------------------------------
@@ -37,7 +38,7 @@ def Coolant_use(cryogen,cryogen_temp,equipment_temp,cooling_required,pressure):
     # Method:
     # Given the cryogen pressure find the boiling temperature using the Antoine Equation.
     # T = B/(A-log10(P))-C
-    boil_temp = (cryogen.antoine_B / (cryogen.antoine_A - math.log10(pressure))) - cryogen.antoine_C
+    boil_temp = (cryogen.antoine_B / (cryogen.antoine_A - np.log10(pressure))) - cryogen.antoine_C
 
     # Define cooling type flags and initial values
     Liquid_Cooled       = False
@@ -66,27 +67,23 @@ def Coolant_use(cryogen,cryogen_temp,equipment_temp,cooling_required,pressure):
     # LIQUID COOLING
     # find the area under temperature*C_P vs temperature between the temperatures over which the cryogen is a liquid, as this will be the cooling available (in Joules) per gram, aka watts per gram per second.
     if Liquid_Cooled:
-        liq_cooling = integrate.quad(lambda t: t*(cryogen.LCP_C3*t**3. + cryogen.LCP_C2*t**2. + cryogen.LCP_C1*t**1. + cryogen.LCP_C0*t**0.), liq_Ti, liq_Tf)[0]
+        liq_cooling = integrate.quad(lambda t: (cryogen.LCP_C3*t**3. + cryogen.LCP_C2*t**2. + cryogen.LCP_C1*t**1. + cryogen.LCP_C0*t**0.), liq_Ti, liq_Tf)[0]
 
     # GAS COOLING
     # find the area under temperature*C_P vs temperature between the temperatures over which the cryogen is a vapour, as this will be the cooling available (in Joules) per gram, aka watts per gram per second.
     if Gas_Cooled:
-        gas_cooling = integrate.quad(lambda t: t*(cryogen.GCP_C3*t**3. + cryogen.GCP_C2*t**2. + cryogen.GCP_C1*t**1. + cryogen.GCP_C0*t**0.), gas_Ti, gas_Tf)[0]
+        gas_cooling = integrate.quad(lambda t: (cryogen.GCP_C3*t**3. + cryogen.GCP_C2*t**2. + cryogen.GCP_C1*t**1. + cryogen.GCP_C0*t**0.), gas_Ti, gas_Tf)[0]
 
     # EVAPORATION COOLING
-    # Calculate the enthalpy using the polynomial fit to pressure.
+    # Calculate the enthalpy using the polynomial fit to pressure. Enthalpy is in kJ/kg, i.e. J/g.
     if Evap_Cooled:
         evap_cooling = cryogen.H_C3*pressure**3. + cryogen.H_C2*pressure**2. + cryogen.H_C1*pressure**1. + cryogen.H_C0*pressure**0.
 
     # Sum the components of cooling to give the total cooling power per gram. X1000 to give per kg.
     cooling_power = 1000. * (liq_cooling + evap_cooling + gas_cooling)
-    # print(liq_cooling)
-    # print(evap_cooling)
-    # print(gas_cooling)
-    # print("")
-    
+
     # Divide the cooling power by the per kg cooling power to calculate the coolant mass flow rate    
-    mdot = cooling_required/cooling_power       # [kg/s]
-    
+    mdot = cooling_required/cooling_power       # [kg/s]    
+
     # Return mass flow rate of the cryogen         
     return mdot

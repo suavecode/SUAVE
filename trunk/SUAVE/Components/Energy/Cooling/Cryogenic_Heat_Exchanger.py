@@ -58,7 +58,7 @@ class Cryogenic_Heat_Exchanger(Energy_Component):
         self.cryogen_pressure                = 100000.0     # [Pa]
 
     
-    def energy_calc(self,cooling_power):
+    def energy_calc(self,cooling_power, conditions):
         """ This calculates the mass of cryogen required to achieve the desired cooling power given the temperature of the cryogen supplied, and the desired temperature of the cryogenic equipment.
 
         Assumptions:
@@ -80,13 +80,17 @@ class Cryogenic_Heat_Exchanger(Energy_Component):
         
         """         
         # unpack the values from self
-        temp_in     = self.cryogen_inlet_temperature 
-        temp_out    = self.cryogen_outlet_temperature
-        pressure    = self.cryogen_pressure
-        cryogen     = self.cryogen        
-        
+        temp_in         = self.cryogen_inlet_temperature 
+        temp_out        = self.cryogen_outlet_temperature
+        pressure        = self.cryogen_pressure
+        cryogen         = self.cryogen        
+        amb_pressure    = conditions.freestream.pressure
+
+        # If the heat exchanger does not vent to ambient, set the system pressure.
+        vent_pressure       = pressure
+
         # calculate the cryogen mass flow
-        mdot = Coolant_use(cryogen,temp_in,temp_out,cooling_power,pressure)
+        mdot = Coolant_use(cryogen,temp_in,temp_out,cooling_power,vent_pressure)
     
         return mdot
         

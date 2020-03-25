@@ -70,7 +70,8 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         self.areas                      = Data()
         self.tag                        = 'Network'
 
-        self.ambient_temp               = 300.0     # [K]  This is the temp of the outside of the rotor cryostat. This may match the ambient air tem, but does not need to.
+        self.ambient_skin               = 0         # flag to set whether the outer surface of the rotor is amnbient temperature or not.
+        self.skin_temp                  = 300.0     # [K]  if self.ambient_skin is false, this is the temperature of the rotor skin. 
     
     # manage process with a driver function
     def evaluate_thrust(self, state):
@@ -104,7 +105,8 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         ccs                         = self.ccs                      # Rotor constant current supply
         cryocooler                  = self.cryocooler               # Rotor cryocoolers, powered by electricity
         heat_exchanger              = self.heat_exchanger           # Rotor cryocooling, powered by cryogen
-        skin_temp                   = self.ambient_temp             # Exterior temperature of the rotor
+        ambient_skin                = self.ambient_skin             # flag to indicate rotor skin temp
+        rotor_surface_temp          = self.skin_temp                # Exterior temperature of the rotor
         cooling_share_cryogen       = self.cryogen_proportion       # Proportion of rotor cooling provided by cryogen
         cooling_share_cryocooler    = 1.0 - cooling_share_cryogen   # Proportion of rotor cooling provided by cryocooler
         leads                       = self.leads                    # number of rotor leads, typically twice the number of rotors
@@ -127,17 +129,28 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         # Calculate the power used by the power electronics. This does not include the power delivered by the power elctronics to the fan motor.
         esc_power             = motor_power_in/esc.efficiency - motor_power_in
 
+        # Set the rotor skin temp. Either it's ambient, or it's the temperature set in the rotor.
+        skin_temp           = np.empty_like(amb_temp)
+        skin_temp[:]        = amb_temp
+        if ambient_skin == 0:
+            skin_temp[:]    = rotor_surface_temp 
+
+        # If the rotor current is to be varied depending on the motor power here is the place to do it. For now the rotor current is set as constant.
+        rotor_current       = np.full_like(motor_power_in, rotor.current)
+
         # Calculate the power that must be supplied to the rotor. This also calculates the cryo load per rotor and stores this value as rotor.outputs.cryo_load
-        rotor_power_in        = rotor.power(rotor.current, skin_temp) * ducted_fan.number_of_engines
+        rotor_power_in        = rotor.power(rotor_current, skin_temp) * ducted_fan.number_of_engines
 
         # Calculate the power loss in the rotor current supply leads.
         # The cryogenic loading due to the leads is also calculated here.
-        lead_power            = 0.0
-        lead_cryo_load        = lead.unpowered_Q
-        if rotor.current != 0.0:
-            lead_powers     = Q_offdesign(lead, rotor.current)
-            lead_power      = lead_powers[1]
-            lead_cryo_load  = lead_powers[0]
+        lead_power            = np.zeros_like(rotor_current)
+        lead_cryo_load        = np.full_like(rotor_current, lead.unpowered_Q)
+        # Iterate through each element in the rotor_current array to build the cryo_load and lead_power array
+        for index, r_current in np.ndenumerate(rotor_current):
+            if r_current != 0.0:
+                lead_powers             = Q_offdesign(lead, r_current)
+                lead_power[index]       = lead_powers[1]
+                lead_cryo_load[index]   = lead_powers[0]
         # Multiply the lead powers by the number of leads, this is typically twice the number of motors
         lead_power          = lead_power * leads
         lead_cryo_load      = lead_cryo_load * leads
@@ -174,7 +187,7 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         cryogen_mdot = 0.0
         if cooling_share_cryogen != 0.0:
             cryogen_load            = cooling_share_cryogen * rotor_cryo_load
-            cryogen_mdot            = heat_exchanger.energy_calc(cryogen_load)
+            cryogen_mdot            = heat_exchanger.energy_calc(cryogen_load, conditions)
 
         # Sum all the power users to get the power required to be supplied by each powersupply, i.e. the turboelectric generators
         powersupply.inputs.power_in = (motor_power_in + esc_power + rotor_power_in + lead_power + ccs_power + cryocooler_power) / number_of_supplies
@@ -187,7 +200,7 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
 
         # Pack up the mass flow rate components so they can be tracked.
         results.vehicle_cryogen_rate   = cryogen_mdot
-        results.vehicle_fuel_rate      = fuel_mdot
+        results.vehicle_fuel_rate      = fuel_mdot   
 
         return results
             

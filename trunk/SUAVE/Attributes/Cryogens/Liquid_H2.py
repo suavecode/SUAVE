@@ -52,22 +52,22 @@ class Liquid_H2(Cryogen):
 
         # Coefficiencts for polynomial fit of Liquid Specific Heat Capacity (C_P) curve.
         # C_P = CP_C3*T^3 + CP_C2*T^2 + CP_C1*T^1 + CP_C0*T^0 where C_P is Specific Heat Capacity (J/gK) T is temperature (kelvin).
-        # Data from NIST Chemistry Webbook
-        self.LCP_C0                     =     0.346
-        self.LCP_C1                     =     0.766
-        self.LCP_C2                     =    -0.034
-        self.LCP_C3                     =     0.000879
+        # Data from NIST Chemistry Webbook. Pressure is 1.295MPa.
+        self.LCP_C0                     =   -31.2
+        self.LCP_C1                     =     5.56
+        self.LCP_C2                     =    -0.272
+        self.LCP_C3                     =     4.76E-03
         # Range for which this polynomial fit holds
         self.LCP_minT                   =    15.0              # [K]
-        self.LCP_maxT                   =    25.0              # [K]
+        self.LCP_maxT                   =    30.0              # [K]
 
         # Coefficiencts for polynomial fit of Gas Specific Heat Capacity (C_P) curve.
         # C_P = CP_C3*T^3 + CP_C2*T^2 + CP_C1*T^1 + CP_C0*T^0 where C_P is Specific Heat Capacity (J/gK) T is temperature (kelvin).
-        # Data from NIST Chemistry Webbook
-        self.GCP_C0                     =   20.5
-        self.GCP_C1                     =   -0.00979
-        self.GCP_C2                     =    0.000414
-        self.GCP_C3                     =   -0.000000985
+        # Data from NIST Chemistry Webbook. Pressure is 0.01 MPa
+        self.GCP_C0                     =   10.3
+        self.GCP_C1                     =   -7.39E-03
+        self.GCP_C2                     =    0.221E-03
+        self.GCP_C3                     =   -0.516E-06
         # Range for which this polynomial fit holds
         self.GCP_minT                   =   20.0              # [K]
         self.GCP_maxT                   =  300.0              # [K]
@@ -83,13 +83,13 @@ class Liquid_H2(Cryogen):
         self.antoine_maxT               =   32.27             # [K]
 
         # Coefficiencts for polynomial fit of vapourisation enthalpy
-        # ΔH = H_C3*P^3 + H_C2*P^2 + H_C1*P^1 + H_C0*P^0 where ΔH is vapourisation enthalpy (kJ/kg) P is pressure (Pa).
-        # Data from NIST Chemistry Webbook
+        # ΔH = H_C3*P^3 + H_C2*P^2 + H_C1*P^1 + H_C0*P^0 where ΔH is vapourisation enthalpy (kJ/kg), P is pressure (Pa).
+        # Data from NIST Chemistry Webbook -1.00E-16	5.23E-11	-0.000176	464
         self.H_C0                       =   464.
-        self.H_C1                       =  -176.0E6
-        self.H_C2                       =    52.3E12
-        self.H_C3                       =  -100.0E18
+        self.H_C1                       =    -0.000176
+        self.H_C2                       =    52.3E-12
+        self.H_C3                       =  -100.00E-18
         # Range for which this polynomial fit holds
-        self.H_minP                     =     0.02E-6         # [Pa]
-        self.H_maxP                     =     1.20E-6         # [Pa]
+        self.H_minP                     =     0.02E6         # [Pa]
+        self.H_maxP                     =     1.20E6         # [Pa]
 
