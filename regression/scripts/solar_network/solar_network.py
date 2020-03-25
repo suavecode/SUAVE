@@ -67,16 +67,16 @@ def main():
     plot_mission(old_results,'k-') 
     
     # Check Results 
-    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[10,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.rpm[10,0] 
-    current = results.segments.cruise1.conditions.propulsion.current[10,0] 
-    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[10,0]  
+    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[3,0]
+    rpm     = results.segments.cruise1.conditions.propulsion.rpm[3,0] 
+    current = results.segments.cruise1.conditions.propulsion.current[3,0] 
+    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[3,0]  
     
     # Truth results
-    truth_F   = 106.17898847678569
-    truth_i   = 131.4126725716369
-    truth_rpm = 160.7609500615196
-    truth_bat = 12498312.106019929
+    truth_F   = 106.17898847736741
+    truth_i   = 131.4126725724721
+    truth_rpm = 160.76095006185793
+    truth_bat = 319157.3538416773
     
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))
@@ -196,7 +196,7 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.cruise)
     
     # segment attributes     
-    segment.state.numerics.number_control_points = 64
+    segment.state.numerics.number_control_points = 4
     segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2020", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
