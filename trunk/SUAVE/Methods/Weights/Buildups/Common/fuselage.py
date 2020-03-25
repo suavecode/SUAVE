@@ -3,8 +3,9 @@
 # fuselage.py
 #
 # Created: Jun, 2017, J. Smart
-# Modified: Apr, 2018, J. Smart
+# Modified: Apr 2018, J. Smart
 #           Mar 2020, M. Clarke
+#           Mar 2020, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -44,6 +45,9 @@ def fuselage(config,
 
         Originally written as part of an AA 290 project intended for trade study
         of the above vehicle types.
+
+        If vehicle model does not have material properties assigned, appropriate
+        assumptions are made based on SUAVE's Solids Attributes library.
         
         Sources:
         Project Vahana Conceptual Trade Study
@@ -80,27 +84,45 @@ def fuselage(config,
 # Unpack Material Properties
 #-------------------------------------------------------------------------------
 
-
-    rbmMat = fuse.keel_materials.root_bending_moment_carrier
+    try:
+        rbmMat = fuse.keel_materials.root_bending_moment_carrier
+    except AttributeError:
+        rbmMat = Unidirectional_Carbon_Fiber()
     rbmDen = rbmMat.density
     rbmUTS = rbmMat.ultimate_tensile_strength
 
-    shearMat = fuse.keel_materials.shear_carrier
+    try:
+        shearMat = fuse.keel_materials.shear_carrier
+    except AttributeError:
+        shearMat = Bidirectional_Carbon_Fiber()
     shearDen = shearMat.density
     shearUSS = shearMat.ultimate_shear_strength
 
-    bearingMat = fuse.keel_materials.bearing_carrier
+    try:
+        bearingMat = fuse.keel_materials.bearing_carrier
+    except AttributeError:
+        bearingMat = Bidirectional_Carbon_Fiber()
     bearingDen = bearingMat.density
     bearingUBS = bearingMat.ultimate_bearing_strength
 
-    boltMat = fuse.materials.bolt_materials.landing_pad_bolt
+    try:
+        boltMat = fuse.materials.bolt_materials.landing_pad_bolt
+    except AttributeError:
+        boltMat = Steel()
     boltUSS = boltMat.USS
 
 
     # Calculate Skin & Canopy Weight Per Unit Area (arealWeight) based on material
 
-    skinArealWeight = np.sum([(mat.minimum_gage_thickness * mat.density) for mat in fuse.skin_materials])
-    canopyArealWeight = np.sum([(mat.minimum_gage_thickness * mat.density) for mat in fuse.canopy_materials])
+    try:
+        skinArealWeight = np.sum([(mat.minimum_gage_thickness * mat.density) for mat in fuse.skin_materials])
+    except AttributeError:
+        skinArealWeight = 1.2995 # Stack of bidirectional CFRP, Honeycomb Core, Paint
+
+    try:
+        canopyArealWeight = np.sum([(mat.minimum_gage_thickness * mat.density) for mat in fuse.canopy_materials])
+    except AttributeError:
+        canopyArealWeight = 3.7465 # Acrylic
 
     # Calculate fuselage area (using assumption of ellipsoid), and weight:
 
