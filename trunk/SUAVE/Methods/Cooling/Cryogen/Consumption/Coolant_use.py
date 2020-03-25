@@ -65,12 +65,12 @@ def Coolant_use(cryogen,cryogen_temp,equipment_temp,cooling_required,pressure):
 
     # Calculate the cooling power per gram of coolant for each of the cooling modes
     # LIQUID COOLING
-    # find the area under temperature*C_P vs temperature between the temperatures over which the cryogen is a liquid, as this will be the cooling available (in Joules) per gram, aka watts per gram per second.
+    # find the area under C_P vs temperature between the temperatures over which the cryogen is a liquid, as this will be the cooling available (in Joules) per gram, aka watts per gram per second.
     if Liquid_Cooled:
         liq_cooling = integrate.quad(lambda t: (cryogen.LCP_C3*t**3. + cryogen.LCP_C2*t**2. + cryogen.LCP_C1*t**1. + cryogen.LCP_C0*t**0.), liq_Ti, liq_Tf)[0]
 
     # GAS COOLING
-    # find the area under temperature*C_P vs temperature between the temperatures over which the cryogen is a vapour, as this will be the cooling available (in Joules) per gram, aka watts per gram per second.
+    # find the area under C_P vs temperature between the temperatures over which the cryogen is a vapour, as this will be the cooling available (in Joules) per gram, aka watts per gram per second.
     if Gas_Cooled:
         gas_cooling = integrate.quad(lambda t: (cryogen.GCP_C3*t**3. + cryogen.GCP_C2*t**2. + cryogen.GCP_C1*t**1. + cryogen.GCP_C0*t**0.), gas_Ti, gas_Tf)[0]
 
