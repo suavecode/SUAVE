@@ -5,6 +5,7 @@
 # Created:  Jun 2017, J. Smart
 # Modified: Apr 2018, J. Smart
 #           Mar 2020, M. Clarke
+#           Mar 2020, J. Smart
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -60,7 +61,10 @@ def wing(wing,
             Electric Stopped Rotor
 
         Originally written as part of an AA 290 project intended for trade study
-        of the above vehicle types plus an electric Multicopter.
+        of the above vehicle types plus an electric multicopter.
+
+        If no materials are assigned to vehicle model, appropriate assumptions
+        are made based on SUAVE's Solids Attributes library.
         
         Sources:
         Project Vahana Conceptual Trade Study
@@ -119,33 +123,54 @@ def wing(wing,
 # Unpack Material Properties
 #-------------------------------------------------------------------------------
 
-    torsMat = wing.materials.skin_materials.torsion_carrier
+    try:
+        torsMat = wing.materials.skin_materials.torsion_carrier
+    except AttributeError:
+        torsMat = Bidirectional_Carbon_Fiber()
     torsUSS = torsMat.ultimate_shear_strength
     torsDen = torsMat.density
     torsMGT = torsMat.minimum_gage_thickness
 
-    coreMat = wing.materials.skin_materials.core
+    try:
+        coreMat = wing.materials.skin_materials.core
+    except AttributeError:
+        coreMat = Carbon_Fiber_Honeycomb()
     coreDen = coreMat.density
     coreMGT = coreMat.minimum_gage_thickness
 
-    bendMat = wing.materials.flap_materials.bending_carrier
+    try:
+        bendMat = wing.materials.flap_materials.bending_carrier
+    except AttributeError:
+        bendMat = Unidirectional_Carbon_Fiber()
     bendUTS = bendMat.ultimate_tensile_strength
     bendDen = bendMat.density
 
-    glueMat = wing.materials.skin_materials.adhesive
+    try:
+        glueMat = wing.materials.skin_materials.adhesive
+    except AttributeError:
+        glueMat = Epoxy()
     glueMGT = glueMat.minimum_gage_thickness
     glueDen = glueMat.density
 
-    coverMat = wing.materials.skin_materials.covering
+    try:
+        coverMat = wing.materials.skin_materials.covering
+    except AttributeError:
+        coverMat = Paint()
     coverMGT = coverMat.minimum_gage_thickness
     coverDen = coverMat.density
 
-    ribMat = wing.rib_materials.structural
+    try:
+        ribMat = wing.rib_materials.structural
+    except AttributeError:
+        ribMat = Aluminum_Rib()
     ribWid = ribMat.minumum_width
     ribMGT = ribMat.minimum_gage_thickness
     ribDen = ribMat.density
 
-    shearMat = wing.spar_materials.shear_carrier
+    try:
+        shearMat = wing.spar_materials.shear_carrier
+    except AttributeError:
+        shearMat = Bidirectional_Carbon_Fiber()
     shearMGT = shearMat.minimum_gage_thickness
     shearDen = shearMat.density
     shearUSS = shearMat.ultimate_shear_strength
