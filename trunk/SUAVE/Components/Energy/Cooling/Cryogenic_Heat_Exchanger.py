@@ -52,11 +52,11 @@ class Cryogenic_Heat_Exchanger(Energy_Component):
         self.tag = 'Cryogenic_Heat_Exchanger'
         
         #-----setting the default values for the different components
-        self.cryogen                         = SUAVE.Attributes.Cryogens.Liquid_H2()
-        self.cryogen_inlet_temperature       =    300.0     # [K]
-        self.cryogen_outlet_temperature      =    300.0     # [K]
-        self.cryogen_pressure                = 100000.0     # [Pa]
-
+        self.cryogen                        = SUAVE.Attributes.Cryogens.Liquid_H2()
+        self.cryogen_inlet_temperature      =    300.0      # [K]
+        self.cryogen_outlet_temperature     =    300.0      # [K]
+        self.cryogen_pressure               = 100000.0      # [Pa]
+        self.cryogen_is_fuel                =      0.0      # Proportion of cryogen that is burned as fuel. Assumes the cryogen is the same as the fuel, e.g. that both are hydrogen.
     
     def energy_calc(self,cooling_power, conditions):
         """ This calculates the mass of cryogen required to achieve the desired cooling power given the temperature of the cryogen supplied, and the desired temperature of the cryogenic equipment.

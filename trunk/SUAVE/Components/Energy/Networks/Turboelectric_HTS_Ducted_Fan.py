@@ -112,6 +112,7 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         leads                       = self.leads                    # number of rotor leads, typically twice the number of rotors
         number_of_engines           = self.number_of_engines        # number of propulsors and number of propulsion motors
         number_of_supplies          = self.powersupply.number_of_engines    # number of turboelectric generators
+        cryogen_is_fuel             = self.heat_exchanger.cryogen_is_fuel   # Is the cryogen used as fuel.
     
         conditions      = state.conditions
         numerics        = state.numerics
@@ -195,8 +196,8 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         # Calculate the fuel mass flow rate at the turboelectric power supply.
         fuel_mdot                   = number_of_supplies * powersupply.energy_calc(conditions, numerics)
 
-        # Sum the mass flow rates and store this total as vehicle_mass_rate so the vehicle mass change reflects both the fuel used and the cryogen used.
-        results.vehicle_mass_rate   = fuel_mdot + cryogen_mdot
+        # Sum the mass flow rates and store this total as vehicle_mass_rate so the vehicle mass change reflects both the fuel used and the cryogen used, unless the cryogen is fuel.
+        results.vehicle_mass_rate   = fuel_mdot + (cryogen_mdot * (1.0-cryogen_is_fuel))
 
         # Pack up the mass flow rate components so they can be tracked.
         results.vehicle_cryogen_rate   = cryogen_mdot
