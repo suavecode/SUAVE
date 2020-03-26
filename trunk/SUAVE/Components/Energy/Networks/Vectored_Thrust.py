@@ -136,7 +136,7 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.pitch_command = self.pitch_command
         
         # Run the rotor     
-        F, Q, P, Cp , output, etap = rotor.spin_variable_pitch(conditions)
+        F, Q, P, Cp , output, etap = rotor.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]

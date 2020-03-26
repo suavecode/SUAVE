@@ -334,7 +334,7 @@ class Rotor(Energy_Component):
             Re         = (U_2d*chord_2d)/nu_2d 
             Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
             Re_ref     = 9.*10**6      
-            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1   #THIS IS INCORRECT
             
             # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl 
             # Compute blade CL distribution from the airfoil data 
@@ -345,10 +345,10 @@ class Rotor(Energy_Component):
                 # If not airfoil polar provided, use 2*pi as lift curve slope
                 Cl = 2.*pi*alpha
              
-            # By 90 deg, it's totally stalled.
-            Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]  
-            Cl[alpha>=pi/2] = 0.
-             
+                # By 90 deg, it's totally stalled.
+                Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]  
+                Cl[alpha>=pi/2] = 0.
+                 
             # Scale for Mach, this is Karmen_Tsien 
             a_2d  = np.tile(np.atleast_2d(a),(1,N))
             a_2d  = np.repeat(a_2d[:, np.newaxis,  :], N, axis=1)  
