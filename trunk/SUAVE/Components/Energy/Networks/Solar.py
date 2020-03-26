@@ -202,9 +202,9 @@ class Solar(Propulsor):
         
         #Create the outputs
         F                                        = num_engines * F * [1,0,0]   
-        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1)/Units.lbs) # lb   
-        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # lb/ft^2                     
-        conditions.propulsion.power_loading      = (F_mag.T)/(P/Units.hp)                  # lb/hp 
+        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))   
+        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R)**2) # N/m^2               
+        conditions.propulsion.power_loading      = (F_mag.T)/(P)  # N/W                  
         
         mdot = np.zeros_like(F)
 

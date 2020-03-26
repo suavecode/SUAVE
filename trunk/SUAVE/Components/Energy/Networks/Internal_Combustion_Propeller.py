@@ -125,9 +125,9 @@ class Internal_Combustion_Propeller(Propulsor):
         
         # Create the outputs
         F                                        = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
-        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1)/Units.lbs) # lb   
-        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # lb/ft^2                     
-        conditions.propulsion.power_loading      = (F_mag.T)/(P/Units.hp)                  # lb/hp         
+        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))   
+        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # N/m^2                      
+        conditions.propulsion.power_loading      = (F_mag.T)/(P)    # N/W       
         
         results = Data()
         results.thrust_force_vector = F
