@@ -170,13 +170,13 @@ def plot_disc_power_loading(results, line_color = 'bo-', save_figure = False, sa
    
         axes = fig.add_subplot(2,1,1)
         axes.plot(time, DL, line_color)
-        axes.set_ylabel('lift disc power lb/ft2',axis_font)
+        axes.set_ylabel('lift disc power N/m^2',axis_font)
         set_axes(axes)      
   
         axes = fig.add_subplot(2,1,2)
         axes.plot(time, PL, line_color )       
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('lift power loading (lb/hp)',axis_font)
+        axes.set_ylabel('lift power loading (N/W)',axis_font)
         set_axes(axes)       
 
     if save_figure:
