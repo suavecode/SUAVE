@@ -14,7 +14,7 @@ import scipy.interpolate as interp
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def  import_airfoil_geometry(airfoil_geometry_files):
     """This imports an airfoil geometry from a text file  and stores
-    the coordinates of upper and lower surfaces as well as the mean ]
+    the coordinates of upper and lower surfaces as well as the mean
     camberline
     
     Assumptions:
@@ -75,8 +75,8 @@ def  import_airfoil_geometry(airfoil_geometry_files):
                 x_lo_surf.append(float(data_block[line_count][1:10].strip())) 
                 y_lo_surf.append(float(data_block[line_count][11:20].strip()))     
             
-        x_data    = np.concatenate([np.array(x_up_surf) ,np.array(x_lo_surf)])
-        y_data    = np.concatenate([np.array(y_up_surf) ,np.array(y_lo_surf)]) 
+        x_data    = np.concatenate([np.array(x_up_surf) ,np.array(x_lo_surf)[::-1]])
+        y_data    = np.concatenate([np.array(y_up_surf) ,np.array(y_lo_surf)[::-1]]) 
         
         
         # determine the thickness to chord ratio - not that the upper and lower surface
