@@ -143,7 +143,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
             cryogen_data = " CRYOGEN "
             cryogen_unit = "   kg    "
             # Data for cyrogen column
-            CRYO_str =  str('%7.1f'   % CRYO)     + '|'
+            CRYO_str =  str('%8.2f'   % CRYO)     + '|'
             # Replace total mass difference with the fuel mass difference
             Fuel = FUEL_C
 
@@ -160,7 +160,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         Mf_str =    str('%7.3f'   % Mf)       + '|'
         KCASi_str = str('%7.1f'   % KCASi)    + '|'
         KCASf_str = str('%7.1f'   % KCASf)    + '|'
-        Fuel_str=   str('%8.0f'   % Fuel)     + '|'
+        Fuel_str=   str('%8.2f'   % Fuel)     + '|'
 
         Segment_str = '%- 31s |' % key 
 
@@ -198,12 +198,12 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         fid.write(' Total Range         (nm) ........... '+ str('%9.0f'   % TotalRange)+'\n')
     elif SI:
         fid.write(' Total Range         (km) ........... ' + str('%9.0f' % TotalRange) + '\n')
-    fid.write(' Total Fuel          (kg) ........... '+ str('%9.0f'   % TotalFuel)+'\n')
+    fid.write(' Total Fuel          (kg) ........... '+ str('%12.2f'   % TotalFuel)+'\n')
     
     # Cryogen use results
     if "vehicle_cryogen_rate" in results.segments[0].conditions.weights:
-        fid.write(' Total Cryogen       (kg) ........... '+ str('%9.0f'   % total_cryogen)+'\n')
-        fid.write(' Total Consumables   (kg) ........... '+ str('%9.0f'   % TotalConsumable)+'\n')
+        fid.write(' Total Cryogen       (kg) ........... '+ str('%12.2f'   % total_cryogen)+'\n')
+        fid.write(' Total Consumables   (kg) ........... '+ str('%12.2f'   % TotalConsumable)+'\n')
 
     fid.write(' Total Time       (hh:mm) ........... '+ time.strftime('    %H:%M', time.gmtime(TotalTime))+'\n')
     # Print timestamp
