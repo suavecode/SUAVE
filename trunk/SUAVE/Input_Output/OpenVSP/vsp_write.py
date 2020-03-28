@@ -13,6 +13,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import os
 import SUAVE
 from SUAVE.Core import Units, Data
 
@@ -145,9 +146,11 @@ def write(vehicle,tag,fuel_tank_set_ind=3,OML_set_ind=4,verbose=True):
             area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind, OML_set_ind)
     
     # Write the vehicle to the file
+    cwd = os.getcwd()
+    filename = tag + ".vsp3"
     if verbose:
-        print('Saving OpenVSP File')
-    vsp.WriteVSPFile(tag + ".vsp3")
+        print('Saving OpenVSP File at '+ cwd + '\\' + filename)
+    vsp.WriteVSPFile(filename)
     vsp.ExportFile(tag + ".igs", OML_set_ind, vsp.EXPORT_IGES)
     
     return area_tags
@@ -603,12 +606,17 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
         heights = []
         x_poses = []
         z_poses = []
+        alignment_angles = []
         segs = fuselage.Segments
         for seg_name in segs.keys():
             widths.append(segs[seg_name].width)
             heights.append(segs[seg_name].height)
             x_poses.append(segs[seg_name].percent_x_location)
             z_poses.append(segs[seg_name].percent_z_location)
+            if 'alignment_angle' in segs[seg_name].keys():
+                alignment_angles.append(segs[seg_name].alignment_angle)
+            else:
+                alignment_angles.append(0.)
             
         end_ind = num_segs-1
     
@@ -689,9 +697,10 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
             vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),x_poses[i+1])
             vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(i+1),z_poses[i+1])
             vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(i+1), widths[i+1])
-            vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(i+1), heights[i+1])   
+            vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(i+1), heights[i+1]/np.cos(alignment_angles[i+1]))  
+            vsp.SetParmVal(fuse_id, "YRotate", "XSec_"+str(i+1), alignment_angles[i+1]/Units.deg) 
             vsp.Update()             
-            set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)
+            set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id, alignment_angles)
         vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
         vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])
         vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(end_ind),x_poses[-1])
@@ -716,7 +725,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
     return area_tags
 
 ## ingroup Input_Output-OpenVSP
-def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end_ind,fuse_id):
+def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end_ind,fuse_id,alignment_angles):
     """Set fuselage section angles to create a smooth (in the non-technical sense) fuselage shape.
     Note that i of 0 corresponds to the first section that is not the end point.
     
@@ -747,6 +756,8 @@ def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end
     h2 = heights[i+2]
     x2 = x_poses[i+2]
     z2 = z_poses[i+2]
+    
+    alignment_angle = alignment_angles[i+1]
         
     x0 = x0*length
     x2 = x2*length
@@ -758,9 +769,10 @@ def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end
     y_diff     = w2/2-w0/2
     x_diff     = x2-x0
     
-    top_angle  = np.tan(top_z_diff/x_diff)/Units.deg
-    bot_angle  = np.tan(-bot_z_diff/x_diff)/Units.deg
-    side_angle = np.tan(y_diff/x_diff)/Units.deg
+    top_angle  = np.tan(top_z_diff/x_diff)/Units.deg + alignment_angle/Units.deg
+    bot_angle  = np.tan(-bot_z_diff/x_diff)/Units.deg - alignment_angle/Units.deg
+    side_angle = np.tan(y_diff/x_diff)/Units.deg 
+    slew_angle = -alignment_angle/Units.deg
         
     vsp.SetParmVal(fuse_id,"TBSym","XSec_"+str(i+1),0)
     vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(i+1),top_angle)
@@ -769,6 +781,8 @@ def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end
     vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_"+str(i+1),0.75)   
     vsp.SetParmVal(fuse_id,"RightLAngle","XSec_"+str(i+1),side_angle)
     vsp.SetParmVal(fuse_id,"RightLStrength","XSec_"+str(i+1),0.75)   
+    vsp.SetParmVal(fuse_id,"RightLSlew","XSec_"+str(i+1),slew_angle)
+    vsp.SetParmVal(fuse_id,"RightLRSlewEq","XSec_"+str(i+1),1)
     
     return
 
