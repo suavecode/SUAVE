@@ -9,7 +9,10 @@
 from SUAVE.Core import Units , Data 
 import numpy as np
 from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
-from SUAVE.Components.Energy.Storages.Batteries  import Battery
+
+from SUAVE.Components.Energy.Storages.Batteries                             import Battery 
+from SUAVE.Methods.Power.Battery.Discharge_Models.LiNCA_thevenin_discharge  import LiNCA_thevenin_discharge
+from SUAVE.Methods.Power.Battery.Charge_Models.LiNCA_thevenin_charge        import LiNCA_thevenin_charge
 
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 class Lithium_Ion_LiNCA_18650(Battery):
@@ -17,7 +20,8 @@ class Lithium_Ion_LiNCA_18650(Battery):
     Text 
     """
     def __defaults__(self):
-        
+        self.tag                         = 'Lithium_Ion_Battery'
+        self.chemistry                   = 'LiNCA'        
         self.amp_hour_rating             = 3
         self.nominal_voltage             = 3.6
         self.watt_hour_rating            = self.amp_hour_rating * self.nominal_voltage
@@ -26,18 +30,20 @@ class Lithium_Ion_LiNCA_18650(Battery):
         self.specific_power              = 1.      *Units.kW/Units.kg #  self.specific_energy/amp_hour_rating               
         self.resistance                  = 0.025  
         self.heat_transfer_coefficient   = 20.   #  Determination of the optimum heat transfer coefficient and temperature rise analysis for a lithium-ion battery under the conditions of Harbin city bus driving cycles. Energies, 10(11). https://doi.org/10.3390/en10111723
-        
+                                         
         self.cell                        = Data() 
-        self.cell.tag                    = 'LiNCA'
         self.cell.mass                   = 0.048 * Units.kg
         self.cell.specific_heat_capacity = 1800. #1040  #Thermal properties of lithium-ion battery and components 950 https://pdfs.semanticscholar.org/6e93/0e0c4dc0cb256d8ae0aa85cacc2c383efc08.pdf  
         self.cell.surface_area           = 4.18E-3 
         
-        self.discharge_performance_map   = discharge_performance_map()
+        self.discharge_model             = LiNCA_thevenin_discharge 
+        self.charge_model                = LiNCA_thevenin_charge  
+        
+        self.discharge_performance_map   = create_discharge_performance_map()
         
         return 
 
-def discharge_performance_map():
+def create_discharge_performance_map():
     """
     Text 
     """

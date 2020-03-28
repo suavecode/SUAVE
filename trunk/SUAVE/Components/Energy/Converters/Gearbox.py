@@ -2,7 +2,8 @@
 # Gearbox.py
 #
 # Created:  Aug 2016, C. Ilario
-# Modified: 
+# Modified: Feb 2020, M. Clarke 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -96,16 +97,14 @@ class Gearbox(Energy_Component):
 
         # method to compute gearbox properties
 
-        w2 = w1 * R1/R2 #* eta    # gear output speed
+        w2 = w1 * R1/R2          # gear output speed
         T2 = T1 * R1/R2 * eta    # gear output torque
         P2 = P1 * eta            # gear output horsepower
         
         # pack computed quantities into outputs
         self.outputs.speed  = w2
         self.outputs.torque = T2
-        self.outputs.power  = P2
-    
-    
+        self.outputs.power  = P2 
     
     __call__ = compute     
     

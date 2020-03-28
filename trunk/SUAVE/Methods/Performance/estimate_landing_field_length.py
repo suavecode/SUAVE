@@ -3,7 +3,8 @@
 #
 # Created:  Jun 2014, T. Orra, C. Ilario, Celso, 
 # Modified: Apr 2015, M. Vegh 
-#           Jan 2016, E. Botero
+#           Jan 2016, E. Botero 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -56,7 +57,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     weight          = vehicle.mass_properties.landing
     reference_area  = vehicle.reference_area
     try:
-        Vref_VS_ratio = config.Vref_VS_ratio
+        Vref_VS_ratio = vehicle.Vref_VS_ratio
     except:
         Vref_VS_ratio = 1.23
         
@@ -115,8 +116,7 @@ def estimate_landing_field_length(vehicle,analyses,airport):
         landing_constants[0] = 250.
         landing_constants[1] =   0.
         landing_constants[2] =  2.485  / sea_level_gravity  # Two-wheels truck : [ (1.56 / 0.40 + 1.07) / (2*sea_level_gravity) ]
-##        landing_constants[2] =   2.9725 / sea_level_gravity  # Four-wheels truck: [ (1.56 / 0.32 + 1.07) / (2*sea_level_gravity) ]
-
+        #landing_constants[2] =   2.9725 / sea_level_gravity  # Four-wheels truck: [ (1.56 / 0.32 + 1.07) / (2*sea_level_gravity) ] 
     # Calculating landing field length
     landing_field_length = 0.
     for idx,constant in enumerate(landing_constants):

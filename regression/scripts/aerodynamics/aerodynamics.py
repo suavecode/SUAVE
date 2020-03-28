@@ -13,7 +13,9 @@
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
+
 import numpy as np
+import pylab as plt
 
 import copy, time
 import random
@@ -156,8 +158,6 @@ def main():
     #call the aero model        
     results = aerodynamics.evaluate(state)
     
-    # save results for plots regression 
-    
     #build a polar for the markup aero
     polar = Data()    
     CL = results.lift.total
@@ -242,16 +242,10 @@ def reg_values():
                         9.88085452e-05,1.98202770e-05,9.14384129e-10,1.80326366e-11,
                         4.49667249e-05,4.00421207e-03,6.67689658e-14]]).T
 
-<<<<<<< HEAD
-    cd_i_r = np.array([[ 0.19063951, 0.02456685, 0.00774754, 0.00111272, 0.00155992,
-                         0.00974871, 0.01866957, 0.0368782 , 0.08198087, 0.17863787,
-                         0.12122115]]).T
-=======
            
     cd_i_r = np.array([[ 2.28100659e-01,3.54750736e-02,1.62244114e-02,7.14240342e-03,
                          3.48972960e-03,1.59691414e-04,3.18411319e-03,1.04353114e-02,
                          2.91672176e-02,7.25472784e-02,5.37425788e-02]]).T
->>>>>>> dbd476561158e8bc78ad5cc44cf515668daf9138
 
 
            
@@ -282,19 +276,11 @@ def reg_values():
                                   0.00653004,0.00501665,0.00599058,0.00759737,
                                   0.00600963,0.00556283,0.00602578]]).T
 
-<<<<<<< HEAD
-    cd_tot_r        = np.array([[0.21106775,0.04272497,0.03502064,0.01836063,0.02134071,
-                                0.02511415,0.03701438,0.05988822,0.10148327,0.19967312,
-                                0.14178233 ]]).T
-
-    
-=======
            
     cd_tot_r        = np.array([[ 0.24973292,0.0544701 ,0.04474086,0.02511415,
                                   0.0228575 ,0.0157194 ,0.02185773,0.03375335,
                                   0.04819338,0.09493473,0.07360264]]).T
          
->>>>>>> dbd476561158e8bc78ad5cc44cf515668daf9138
     return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, \
            cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 

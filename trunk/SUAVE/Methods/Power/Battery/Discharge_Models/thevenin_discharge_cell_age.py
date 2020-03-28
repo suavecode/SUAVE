@@ -1,5 +1,5 @@
 ## @ingroup Methods-Power-Battery-Discharge
-# thevenin_discharge.py
+# LiNCA_thevenin_discharge.py
 # 
 # Created:  Oct 2019, M. Clarke
 
@@ -11,7 +11,7 @@ import numpy as np
 from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 from scipy.integrate import odeint
 
-def thevenin_discharge(battery,numerics): 
+def LiNCA_thevenin_discharge(battery,numerics): 
     """Thevenin Model
     
      Assumptions:  

@@ -1,6 +1,7 @@
 # test_solar_network.py
 # 
-# Created:  Emilio Botero, Aug 2014
+# Created:  Aug 2014, Emilio Botero, 
+#           Mar 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports
@@ -57,7 +58,6 @@ def main():
     Radius          = .4064
     Hub_Radius      = 0.05
     Design_Cl       = 0.7
-    Thrust          = 0.0 #Specify either thrust or power to design for
     Power           = 7500.  #Specify either thrust or power to design for
     
     # Design the Propeller
@@ -69,7 +69,6 @@ def main():
     prop.hub_radius          = Hub_Radius
     prop.design_Cl           = Design_Cl 
     prop.design_altitude     = design_altitude
-    prop.design_thrust       = Thrust
     prop.design_power        = Power
     prop                     = propeller_design(prop)
     
@@ -82,7 +81,6 @@ def main():
     motor.no_load_current      = 8.0
     motor.speed_constant       = 140.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
     motor.propeller_radius     = prop.tip_radius
-    #motor.propeller_Cp         = prop.Cp
     motor.gear_ratio           = 1.
     motor.gearbox_efficiency   = 1.
     motor.expected_current     = 260.
@@ -154,16 +152,16 @@ def main():
                                                              [[ 1.,  0.,  0.],
                                                               [ 0.,  1.,  0.],
                                                               [ 0.,  0.,  1.]]])
-    conditions.propulsion.propeller_power_coefficient = np.array([[1.], [1.]]) * prop.Cp
+    conditions.propulsion.propeller_power_coefficient = np.array([[1.], [1.]]) * prop.power_coefficient
     
     # Run the network and print the results
     results = net(state)
     F       = results.thrust_force_vector
     
     # Truth results
-    truth_F   = [[363.27603854, 363.27603854]]
+    truth_F   = [[360.43835053, 360.43835053]]
     truth_i   = [[ 249.31622624], [ 249.31622624]]
-    truth_rpm = [[ 6668.4094191], [ 6668.4094191]]
+    truth_rpm = [[6668.4094191],[6668.4094191]]
     truth_bat = [[ 36000000.   ], [ 35987534.18868808]]
     
     error = Data()

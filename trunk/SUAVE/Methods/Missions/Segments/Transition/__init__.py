@@ -3,5 +3,4 @@
 # @ingroup Methods-Missions-Segments
 
 from . import Constant_Acceleration_Constant_Pitchrate_Constant_Altitude
-from . import Constant_Accelerated_Climb_Constant_Angle
-from . import Lift_Cruise_Optimized
+from . import Constant_Acceleration_Constant_Angle_Linear_Climb 

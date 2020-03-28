@@ -2,7 +2,7 @@
 
 # Weights_Electric_Lift_Cruise.py
 #
-# Created: Aug, 2017, J. Smart
+# Created:  Aug, 2017, J. Smart
 # Modified: Apr, 2018, J. Smart
 
 # ----------------------------------------------------------------------
