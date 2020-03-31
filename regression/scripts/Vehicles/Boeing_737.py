@@ -156,7 +156,7 @@ def vehicle_setup():
     slat.span_fraction_start   = 0.324 
     slat.span_fraction_end     = 0.963     
     slat.deflection            = 0.0 * Units.degrees
-    slat.chord_fraction        = 0.1  	 
+    slat.chord_fraction        = 0.1 
     wing.append_control_surface(slat)  
         
     aileron                       = SUAVE.Components.Wings.Control_Surfaces.Aileron() 

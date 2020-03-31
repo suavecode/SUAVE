@@ -4,7 +4,7 @@
 # Created:  Oct 2015, M. Vegh
 # Modified: Jan 2016, E. Botero
 # Modified: Apr 2017, M. Clarke
-
+#           Mar 2020, M. Clarke
 
 
 # ----------------------------------------------------------------------
@@ -163,13 +163,13 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
                 landing_gear.mass_properties.center_of_gravity = landing_gear_cg      
                 landing_gear_moment                            = (landing_gear.origin+landing_gear_cg)*landing_gear.mass_properties.mass
 
-                vehicle.mass_properties.center_of_gravity      = (sum_moments+landing_gear_moment)/vehicle.mass_properties.max_takeoff
-                vehicle.mass_properties.center_of_gravity[0,1] = 0 #symmetric aircraft
+                vehicle.mass_properties.center_of_gravity      = (sum_moments+landing_gear_moment)[0]/vehicle.mass_properties.max_takeoff
+                vehicle.mass_properties.center_of_gravity[1]   = 0 #symmetric aircraft
 
                 sum_moments_less_fuel = sum_moments-fuel_moment
 
                 vehicle.mass_properties.zero_fuel_center_of_gravity = \
-                        (sum_moments_less_fuel+landing_gear_moment)/vehicle.mass_properties.max_zero_fuel
+                        (sum_moments_less_fuel+landing_gear_moment)[0]/vehicle.mass_properties.max_zero_fuel
 
         # ---------------------------------------------------------------------------------        
         # Electric UAV Configurations without Fuselages/Landing Gear/Fuel
@@ -178,7 +178,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
 
                 sum_moments              = (wing_moment+h_tail_moment+v_tail_moment+ propulsor_moment)
 
-                vehicle.mass_properties.center_of_gravity      = (sum_moments)/vehicle.mass_properties.max_takeoff
+                vehicle.mass_properties.center_of_gravity      = (sum_moments)[0]/vehicle.mass_properties.max_takeoff
                 vehicle.mass_properties.zero_fuel_center_of_gravity     = vehicle.mass_properties.center_of_gravity
         return vehicle.mass_properties.center_of_gravity
 

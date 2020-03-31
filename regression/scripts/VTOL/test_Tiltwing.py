@@ -10,6 +10,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units , Data 
+from SUAVE.Plots.Mission_Plots import * 
 import numpy as np  
 import time  
 import sys 
@@ -322,132 +323,29 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 #   Plot Results
 # ----------------------------------------------------------------------
-def plot_mission(results,line_color = 'bo-'):  
-    fig = plt.figure("Battery",figsize=(8,10))
-    fig.set_size_inches(12, 10)
-    for i in range(len(results.segments)):  
+def plot_mission(results,line_style = 'bo-'):  
     
-        time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        power          = results.segments[i].conditions.propulsion.battery_draw[:,0] 
-        eta            = results.segments[i].conditions.propulsion.throttle[:,0]
-        energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        volts          = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
-        volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]     
-        current        = results.segments[i].conditions.propulsion.current[:,0]      
-        battery_amp_hr = (energy*0.000277778)/volts
-        C_rating       = current/battery_amp_hr 
-        
-        axes = fig.add_subplot(2,2,1)
-        axes.plot(time, eta, 'bo-' ) 
-        axes.set_ylabel('Throttle')
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
-        axes.grid(True)       
-        plt.ylim((0,1)) 
-            
+    # Plot Flight Conditions 
+    plot_flight_conditions(results, line_style) 
     
-        axes = fig.add_subplot(2,2,2)
-        axes.plot(time, energy*0.000277778, line_color)
-        axes.set_ylabel('Battery Energy (W-hr)' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
-        axes.grid(True)   
+    # Plot Aerodynamic Coefficients
+    plot_aerodynamic_coefficients(results, line_style)  
     
-        axes = fig.add_subplot(2,2,3)
-        axes.plot(time, volts, 'bo-',label='Under Load')
-        axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
-        axes.set_xlabel('Time (mins)' )
-        axes.set_ylabel('Battery Voltage (Volts)' )  
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
-        if i == 0:
-            axes.legend(loc='upper right')          
-        axes.grid(True)         
-        
-        axes = fig.add_subplot(2,2,4)
-        axes.plot(time, C_rating, line_color)
-        axes.set_xlabel('Time (mins)' )
-        axes.set_ylabel('C-Rating (C)' )  
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
-        axes.grid(True) 
-        
-        
-    fig = plt.figure("Performance",figsize=(8,10))
-    fig.set_size_inches(12, 10)  
-    for segment in results.segments.values(): 
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm    = segment.conditions.propulsion.rpm[:,0] 
-        thrust = segment.conditions.frames.body.thrust_force_vector[:,2]
-        torque = segment.conditions.propulsion.motor_torque[:,0] 
-        tm     = segment.conditions.propulsion.propeller_tip_mach[:,0]
- 
-        axes = fig.add_subplot(2,2,1)
-        axes.plot(time, -thrust, line_color)
-        axes.set_ylabel('Thrust (N)' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
-        axes.grid(True)   
-        
-        axes = fig.add_subplot(2,2,2)
-        axes.plot(time, rpm, line_color)
-        axes.set_ylabel('RPM' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
-        axes.grid(True)      
-        
-        axes = fig.add_subplot(2,2,3)
-        axes.plot(time, torque, line_color )
-        axes.set_xlabel('Time (mins)' )
-        axes.set_ylabel('Torque (N-m)' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
-        axes.grid(True)   
-        
-        axes = fig.add_subplot(2,2,4)
-        axes.plot(time, tm, line_color )
-        axes.set_xlabel('Time (mins)' )
-        axes.set_ylabel('Tip Mach' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
-        axes.grid(True) 
- 
-    fig = plt.figure("Powertrain_Efficiencies",figsize=(8,10))
-    fig.set_size_inches(12, 10)  
-    for segment in results.segments.values(): 
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        effp   = segment.conditions.propulsion.etap[:,0]
-        effm   = segment.conditions.propulsion.etam[:,0]
-        
-        axes = fig.add_subplot(1,2,1)
-        axes.plot(time, effp, line_color )
-        axes.set_xlabel('Time (mins)' )
-        axes.set_ylabel('Propeller Efficiency' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
-        axes.grid(True)           
-        plt.ylim((0,1))
-        
-        axes = fig.add_subplot(1,2,2)
-        axes.plot(time, effm, line_color )
-        axes.set_xlabel('Time (mins)' )
-        axes.set_ylabel('Motor Efficiency' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
-        axes.grid(True)
-         
+    # Plot Aircraft Flight Speed
+    plot_aircraft_velocities(results, line_style)
+    
+    # Plot Aircraft Electronics
+    plot_electronic_conditions(results, line_style)
+    
+    # Plot Propeller Conditions 
+    plot_propeller_conditions(results, line_style) 
+    
+    # Plot Electric Motor and Propeller Efficiencies 
+    plot_eMotor_Prop_efficiencies(results, line_style)
+    
+    # Plot propeller Disc and Power Loading
+    plot_disc_power_loading(results, line_style)  
+    
     return
   
 
