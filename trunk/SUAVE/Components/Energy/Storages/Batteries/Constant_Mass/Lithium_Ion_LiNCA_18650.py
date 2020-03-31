@@ -11,8 +11,8 @@ import numpy as np
 from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 
 from SUAVE.Components.Energy.Storages.Batteries                             import Battery 
-from SUAVE.Methods.Power.Battery.Discharge_Models.LiNCA_thevenin_discharge  import LiNCA_thevenin_discharge
-from SUAVE.Methods.Power.Battery.Charge_Models.LiNCA_thevenin_charge        import LiNCA_thevenin_charge
+from SUAVE.Methods.Power.Battery.Discharge_Models.LiNCA_discharge   import LiNCA_discharge 
+from SUAVE.Methods.Power.Battery.Charge_Models.LiNCA_charge         import LiNCA_charge 
 
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 class Lithium_Ion_LiNCA_18650(Battery):
@@ -36,8 +36,8 @@ class Lithium_Ion_LiNCA_18650(Battery):
         self.cell.specific_heat_capacity = 1800. #1040  #Thermal properties of lithium-ion battery and components 950 https://pdfs.semanticscholar.org/6e93/0e0c4dc0cb256d8ae0aa85cacc2c383efc08.pdf  
         self.cell.surface_area           = 4.18E-3 
         
-        self.discharge_model             = LiNCA_thevenin_discharge 
-        self.charge_model                = LiNCA_thevenin_charge  
+        self.discharge_model             = LiNCA_discharge  
+        self.charge_model                = LiNCA_charge   
         
         self.discharge_performance_map   = create_discharge_performance_map()
         

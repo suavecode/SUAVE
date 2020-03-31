@@ -95,25 +95,19 @@ class Battery_Test(Propulsor):
         E_growth_factor             = conditions.propulsion.battery_capacity_fade_factor   
         battery.R_growth_factor     = R_growth_factor
         battery.E_growth_factor     = E_growth_factor
-        
+        n_series                    = battery.module_config[0]  
+        n_parallel                  = battery.module_config[1]
+        n_total                     = n_series * n_parallel          
         #-------------------------------------------------------------------------------
         # PREDICT
         #-------------------------------------------------------------------------------        
         if battery.chemistry == 'LiNCA':  
-            n_series   = battery.module_config[0]  
-            n_parallel = battery.module_config[1]
-            n_total    = n_series * n_parallel  
+            SOC        = state.unknowns.battery_state_of_charge 
+            T_cell     = state.unknowns.battery_cell_temperature 
+            V_Th       = state.unknowns.battery_thevenin_voltage/n_series 
             
-            SOC    = state.unknowns.battery_state_of_charge 
-            T_cell = state.unknowns.battery_cell_temperature 
-            V_Th   = state.unknowns.battery_thevenin_voltage/n_series            
+            # link temperature 
             battery.cell_temperature = T_cell   
-            
-            if np.isnan(SOC ).any():
-                raise AssertionError('Error')
-            
-            if np.isnan(T_cell ).any():
-                raise AssertionError('Error')
             
             # look up tables  
             V_oc = np.zeros_like(SOC)
@@ -133,32 +127,37 @@ class Battery_Test(Propulsor):
             R_0   = R_0 * battery.R_growth_factor 
              
             # Voltage under load:
-            volts =  n_series*(V_oc - V_Th - (Icell * R_0))  
+            volts = n_series*(V_oc - V_Th - (Icell * R_0))  
             
         elif battery.chemistry == 'LiNiMnCoO2': 
+            # state of charge 
             SOC             = state.unknowns.battery_state_of_charge
             DOD             = 1 - SOC
             DOD[DOD<0.0]    = 0. 
             DOD[DOD>1.0]    = 1.
             DOD[np.isnan(DOD)] = 0.5
             
+            # temperature 
             T_cell                   = state.unknowns.battery_cell_temperature 
-            T_cell[np.isnan(T_cell)] = 30.0
-            T0_cell                  = battery.temperature             
+            T_cell[np.isnan(T_cell)] = 30.0            
             battery.cell_temperature = T_cell   
             T_cell[T_cell<0.0]       = 0. 
             T_cell[T_cell>50.0]      = 50.
-             
+            
+            # current 
             if discharge_flag:
-                I_cell                = state.unknowns.battery_current  
-                I_cell[I_cell<2.0]    = 2.0
-                I_cell[np.isnan(I_cell)] = 5.0
-                I_cell[I_cell>8.0]    = 8.0
+                I_cell                   = state.unknowns.battery_current  
+                I_cell[I_cell<0.0]       = 0.0
+                I_cell[np.isnan(I_cell)] = 4.0
+                I_cell[I_cell>8.0]       = 8.0
             else:
                 I_cell      = battery.charging_current * np.ones_like(DOD)
             
+            # create vector of conditions for battery data sheet reesponse surface 
             pts    = np.hstack((np.hstack((I_cell, T_cell)), DOD )) # amps, temp, SOC 
-            volts  = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T 
+            
+            # predict under load voltage 
+            volts  = np.atleast_2d(battery_data.Voltage(np.hstack((np.hstack((I_cell, T_cell)), DOD )) )[:,1]).T 
           
         #-------------------------------------------------------------------------------
         # DISCHARGE
@@ -180,41 +179,29 @@ class Battery_Test(Propulsor):
             
             # link 
             battery.inputs.current  = -battery.charging_current * np.ones_like(volts)
-            battery.inputs.power_in =  battery.charging_current * volts * np.ones_like(volts)
-            battery.inputs.voltage  = volts
+            battery.inputs.power_in =  battery.charging_current * battery.charging_voltage * np.ones_like(volts)
+            battery.inputs.voltage  = battery.charging_voltage #  volts 
             battery.energy_charge(numerics)        
     
-        # Pack the conditions for outputs   
-        battery_draw             = battery.inputs.power_in 
-        battery_energy           = battery.current_energy
-        state_of_charge          = battery.state_of_charge  
-        
-        voltage_open_circuit     = battery.voltage_open_circuit
-        voltage_under_load       = battery.voltage_under_load  
-        cell_temperature         = battery.cell_temperature
-        
+        # Pack the conditions for outputs    
         if battery.chemistry == 'LiNCA':   
-            conditions.propulsion.battery_thevenin_voltage               = battery.battery_thevenin_voltage 
-            
-        battery_charge_throughput= battery.charge_throughput
-        current                  = battery.current 
-        battery_age_in_days      = battery.age_in_days
+            conditions.propulsion.battery_thevenin_voltage               = battery.battery_thevenin_voltage  
         
-        conditions.propulsion.battery_current                        = abs(current)
-        conditions.propulsion.battery_draw                           = battery_draw
-        conditions.propulsion.battery_energy                         = battery_energy
-        conditions.propulsion.battery_charge_throughput              = battery_charge_throughput 
-        conditions.propulsion.battery_OCV                            = voltage_open_circuit 
-        conditions.propulsion.battery_state_of_charge                = state_of_charge
-        conditions.propulsion.voltage_open_circuit                   = voltage_open_circuit
-        conditions.propulsion.voltage_under_load                     = voltage_under_load    
-        conditions.propulsion.battery_age_in_days                    = battery_age_in_days
-        conditions.propulsion.battery_cell_temperature               = cell_temperature
-        conditions.propulsion.battery_specfic_power                  = -(battery_draw/1000)/battery.mass_properties.mass   
+        conditions.propulsion.battery_current                        = abs( battery.current )
+        conditions.propulsion.battery_draw                           =  battery.inputs.power_in 
+        conditions.propulsion.battery_energy                         = battery.current_energy  
+        conditions.propulsion.battery_charge_throughput              = battery.charge_throughput 
+        conditions.propulsion.battery_state_of_charge                = battery.state_of_charge
+        conditions.propulsion.battery_voltage_open_circuit                   = battery.voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load                     = battery.voltage_under_load 
+        conditions.propulsion.battery_internal_resistance                    = battery.internal_resistance
+        conditions.propulsion.battery_age_in_days                    = battery.age_in_days
+        conditions.propulsion.battery_cell_temperature               = battery.cell_temperature
+        conditions.propulsion.battery_specfic_power                  = -( battery.inputs.power_in /1000)/battery.mass_properties.mass   
         
         return  
     
-    def unpack_unknowns_linmco_discharge(self,segment): 
+    def unpack_unknowns_linmco(self,segment): 
         
         segment.state.conditions.propulsion.battery_cell_temperature = segment.state.unknowns.battery_cell_temperature
         segment.state.conditions.propulsion.battery_state_of_charge  = segment.state.unknowns.battery_state_of_charge
@@ -222,7 +209,7 @@ class Battery_Test(Propulsor):
         
         return
     
-    def residuals_linmco_discharge(self,segment):  
+    def residuals_linmco(self,segment):  
         # Unpack 
         SOC_actual  = segment.state.conditions.propulsion.battery_state_of_charge
         SOC_predict = segment.state.unknowns.battery_state_of_charge 
@@ -239,32 +226,7 @@ class Battery_Test(Propulsor):
         segment.state.residuals.network[:,2] =  Temp_predict[:,0] - Temp_actual[:,0]
 
         
-        return   
-    
-    
-    def unpack_unknowns_linmco_charge(self,segment): 
-
-        segment.state.conditions.propulsion.battery_cell_temperature = segment.state.unknowns.battery_cell_temperature
-        segment.state.conditions.propulsion.battery_state_of_charge  = segment.state.unknowns.battery_state_of_charge
-
-        return
-
-    def residuals_linmco_charge(self,segment):  
-        # Unpack 
-        SOC_actual  = segment.state.conditions.propulsion.battery_state_of_charge
-        SOC_predict = segment.state.unknowns.battery_state_of_charge 
-
-        Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
-        Temp_predict = segment.state.unknowns.battery_cell_temperature   
-
-        # Return the residuals 
-        segment.state.residuals.network[:,0] =  SOC_predict[:,0]  - SOC_actual[:,0]  
-        segment.state.residuals.network[:,1] =  Temp_predict[:,0] - Temp_actual[:,0]
-
-
-        return   
-    
-
+        return    
 
     def unpack_unknowns_thevenin(self,segment): 
         
