@@ -9,7 +9,7 @@
 
 # suave imports
 import SUAVE
-
+import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------
@@ -42,10 +42,11 @@ class HTS_Dynamo_Supply(Energy_Component):
             None
             """         
         
-        self.efficiency     =   0.0
-        self.mass           = 100.0
+        self.efficiency     =    0.0
+        self.mass           =  100.0
+        self.rated_RPM      = 1000.0
     
-    def power(self, power_out, RPM):
+    def power_in(self, power_out, RPM=None):
         """ The power supplied to this component based on that that this must deliver to the HTS dynamo as shaft power.
 
             Assumptions:
@@ -64,10 +65,18 @@ class HTS_Dynamo_Supply(Energy_Component):
 
         """
         # Unpack
-        efficiency = self.efficiency
+        efficiency  = self.efficiency
+        rated_RPM   = self.rated_RPM
+
+        # Assume rated RPM is no RPM value supplied
+        if RPM == None:
+            RPM = rated_RPM
+
+        # Create output array
+        power_in    = np.zeros_like(power_out)
 
         # Apply the efficiency of the current supply to get the total power required at the input of the current supply. For more precise results efficiency could be adjusted based on RPM.
-        power_in                = power_out/self.efficiency
+        power_in                = power_out/efficiency
 
         # Store output values.
         self.output.power_in    = power_in

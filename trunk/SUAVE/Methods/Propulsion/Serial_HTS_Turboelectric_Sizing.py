@@ -154,12 +154,12 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     thrust.inputs.core_nozzle.area_ratio                   = 0.
     thrust.inputs.core_nozzle.static_pressure              = 0.                                                                                                                
     # compute the thrust
-    thrust.size(conditions)
+    thrust.size(conditions) 
     mass_flow  = thrust.mass_flow_rate_design
 
     # compute total shaft power required (i.e. the sum of the shaft power provided by all the fans)
-    shaft_power = fan.outputs.work_done * mass_flow
-    total_shaft_power = shaft_power * number_of_engines
+    shaft_power                                     = fan.outputs.work_done * mass_flow
+    total_shaft_power                               = shaft_power * number_of_engines
     Turboelectric_HTS_Ducted_Fan.design_shaft_power = total_shaft_power
     # Shaft power seems to be half the expected. 3 MW expected per motor. 1.336 MW reported
 

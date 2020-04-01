@@ -20,3 +20,4 @@ from .Scramjet import Scramjet
 from .Liquid_Rocket import Liquid_Rocket
 from .Turboelectric_Ducted_Fan import Turboelectric_Ducted_Fan
 from .Turboelectric_HTS_Ducted_Fan import Turboelectric_HTS_Ducted_Fan
+from .Turboelectric_HTS_Dynamo_Ducted_Fan import Turboelectric_HTS_Dynamo_Ducted_Fan
