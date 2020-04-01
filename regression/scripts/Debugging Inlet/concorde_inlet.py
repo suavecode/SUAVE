@@ -278,9 +278,9 @@ def vehicle_setup():
     turbojet.nacelle_diameter  = 1.3 * Units.meter
     turbojet.inlet_diameter    = 1.1 * Units.meter
     turbojet.areas             = Data()
-    turbojet.areas.wetted      = 12.5*4.7*2. * Units['meter**2']  # 4.7 is outer perimeter on one side
+    turbojet.areas.wetted      = 12.5*4.7* Units['meter**2']  # 4.7 is outer perimeter on one side
     turbojet.origin            = [[37.,6.,-1.3],[37.,5.3,-1.3],[37.,-5.3,-1.3],[37.,-6.,-1.3]] # meters
-    turbojet.inlet_drag        = False
+    turbojet.inlet_drag        = True
     
     # working fluid
     turbojet.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -437,7 +437,7 @@ def vehicle_setup():
     turbojet.thrust = thrust
 
     #size the turbojet
-    turbojet_sizing(turbojet,mach_number,altitude, inlet_drag = False)   
+    turbojet_sizing(turbojet,mach_number,altitude, inlet_drag = True)   
     
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(turbojet)      

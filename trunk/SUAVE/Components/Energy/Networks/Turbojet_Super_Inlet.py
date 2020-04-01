@@ -283,17 +283,24 @@ class Turbojet_Super_Inlet(Propulsor):
             mass_flow_rate_core = segment.conditions.mass_flow
             mass_flow_rate_design = mass_flow_rate_core 
             mass_flow_rate_inlet = segment.state.conditions.mass_flow_rate
+            #print(mass_flow_rate_inlet)
             
             A0 = segment.state.conditions.freestream.area_initial_streamtube
+            M0 = segment.state.conditions.freestream.mach_number
             AC = self.inlet_nozzle.areas.inlet_capture
-            penalty = 0
-            #if any(ratio > 1):
-             #   penalty = (max(ratio)-1)*1*10**10
-                
-            #if any(A0 <= 0):
-            #    penalty = abs(min(A0))*1*10**10
             
+            penalty = 0
+            ratio = A0/AC
+            
+            for i, area in enumerate(A0):
+                if M0[i] > 1.0 and ratio[i] >1:
+                    penalty += abs(ratio[i]-1)*10**3
+
+            if any(A0 <= 0):
+                penalty += abs(min(A0))*1*10**3
+
             delta = ((mass_flow_rate_design-mass_flow_rate_inlet)/mass_flow_rate_design).flatten()
+            #print(mass_flow_rate_design, mass_flow_rate_inlet)
             # Return the residuals
             segment.state.residuals.network[:,0] = delta+penalty
             return    

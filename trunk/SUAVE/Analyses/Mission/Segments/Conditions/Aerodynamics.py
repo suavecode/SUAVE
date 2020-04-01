@@ -125,3 +125,7 @@ class Aerodynamics(Basic):
         
         # weights conditions
         self.weights.vehicle_mass_rate     = ones_1col * 0
+        
+        self.freestream.mach               = ones_1col * 0
+        self.freestream.Pt_out             = ones_1col * 0
+        self.freestream.Tout               = ones_1col * 0

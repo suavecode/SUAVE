@@ -182,10 +182,13 @@ class Thrust(Energy_Component):
         Thrust_nd                   = core_thrust_nondimensional + fan_thrust_nondimensional
         
         if inlet_drag:
-            drag = inlet_nozzle.compute_drag(conditions)
-            if all(drag) > 0:
+            drag, mass_flow = inlet_nozzle.compute_drag(conditions)
+            if all(mdot_core) == 0:
+                mdot_core = mass_flow
+            if any(drag) > 0:
                 drag_nd = drag*(gamma*M0)*1/(a0*(1.+bypass_ratio)*mdot_core)
-                Thrust_nd = Thrust_nd - drag_nd
+                
+                Thrust_nd = Thrust_nd + drag_nd
         
         #Computing Specifc Thrust
         Fsp              = 1./(gamma*M0)*Thrust_nd
@@ -207,13 +210,12 @@ class Thrust(Energy_Component):
         #computing the power 
         power            = FD2*u0
             
-
         #pack outputs
         self.outputs.thrust                            = FD2 
         self.outputs.thrust_specific_fuel_consumption  = TSFC
         self.outputs.non_dimensional_thrust            = Fsp 
         self.outputs.core_mass_flow_rate               = mdot_core
-        conditions.mass_flow = mdot_core
+        conditions.mass_flow                           = mdot_core
         self.outputs.fuel_flow_rate                    = fuel_flow_rate    
         self.outputs.power                             = power  
         self.outputs.specific_impulse                  = Isp
@@ -322,7 +324,7 @@ class Thrust(Energy_Component):
         # adding in inlet drag to thrust calculation
         if inlet_drag:
             drag = inlet_nozzle.compute_drag(conditions)
-            FD2 = FD2 - no_eng*drag
+            FD2 = FD2 + no_eng*drag
 
         #fuel flow rate 
         a = np.array([0.])         
@@ -391,8 +393,11 @@ class Thrust(Energy_Component):
 
         #compute dimensional mass flow rates
         if inlet_drag:
-            drag                    = inlet_nozzle.compute_drag(conditions)
-            mdot_core               = (design_thrust+no_eng*drag)/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)
+            drag, mass_flow         = inlet_nozzle.compute_drag(conditions)
+            if all(mass_flow) != 0.0:
+                mdot_core = 1.4*mass_flow
+            else:
+                mdot_core               = (design_thrust+no_eng*drag)/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)
         else:
             mdot_core               = design_thrust/(Fsp*a0*(1+bypass_ratio)*no_eng*throttle)  
         mdhc                        = mdot_core/ (np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref))

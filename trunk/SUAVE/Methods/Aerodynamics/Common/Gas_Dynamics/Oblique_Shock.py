@@ -44,7 +44,7 @@ def oblique_shock_relations(M0,gamma,theta,beta):
     Properties Used:
     N/A
     """
-
+    
     # determine normal component of machs 
     M0_n = M0*np.sin(beta)
     M1_n = np.sqrt(((gamma-1.)*M0_n*M0_n+2.)/(2.*gamma*M0_n*M0_n-(gamma-1.)))
@@ -79,7 +79,7 @@ def theta_beta_mach(M0,gamma,theta,n=0):
         Properties Used:
         N/A
         """
-    
+
     # Calculate wave angle
     mu   = np.arcsin(1./M0)
     c    = np.tan(mu)*np.tan(mu)

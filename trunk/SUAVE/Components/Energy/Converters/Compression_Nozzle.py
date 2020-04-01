@@ -179,6 +179,10 @@ class Compression_Nozzle(Energy_Component):
         self.outputs.static_temperature      = T_out
         self.outputs.static_enthalpy         = h_out
         self.outputs.velocity                = u_out
+        
+        conditions.freestream.mach = Mach
+        conditions.freestream.Pt_out = Pt_out
+        conditions.freestream.Tout   = T_out        
                 
     def compute_scramjet(self,conditions): 
         """This function computes the compression of a scramjet 
