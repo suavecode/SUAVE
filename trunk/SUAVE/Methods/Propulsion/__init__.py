@@ -5,6 +5,7 @@
 from .ducted_fan_sizing import ducted_fan_sizing
 from .turboelectric_ducted_fan_sizing import turboelectric_ducted_fan_sizing
 from .serial_hts_turboelectric_sizing import serial_hts_turboelectric_sizing
+from .serial_hts_dynamo_turboelectric_sizing import serial_hts_dynamo_turboelectric_sizing
 from .propeller_design import propeller_design
 from .turbofan_emission_index import turbofan_emission_index
 from .electric_motor_sizing import size_from_kv, size_from_mass
