@@ -86,6 +86,16 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
         power_in            = np.zeros_like(power_out)
         cryo_load           = np.zeros_like(power_out)
 
+        # force hts current to be an array if it isn't already
+        if type(hts_current) == float:
+            current     = hts_current
+            hts_current = np.ones_like(power_out) * current
+
+        # force hts current to be an array if it isn't already
+        if type(cryo_temp) == float:
+            temp     = cryo_temp
+            cryo_temp = np.ones_like(power_out) * temp
+
         # Iterate through the operating condition arrays
         for index, power in np.ndenumerate(power_out):
             # In this basic model the current and operating temperature are assumed constant, so warn if this is not true

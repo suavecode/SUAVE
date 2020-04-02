@@ -277,4 +277,6 @@ def serial_hts_dynamo_turboelectric_sizing(Turboelectric_HTS_Dynamo_Ducted_Fan,m
     esc.rated_current           = HTS_current
     # ccs.rated_power             = ccs_output_power
     # ccs.rated_current           = HTS_current
+    hts_dynamo.rated_power      = dynamo_input_power
+    dynamo_esc.rated_power      = dynamo_esc_input_power
     turboelectric.rated_power   = turboelectric_output_power

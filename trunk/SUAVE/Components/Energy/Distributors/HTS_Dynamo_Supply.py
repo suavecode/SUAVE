@@ -42,9 +42,9 @@ class HTS_Dynamo_Supply(Energy_Component):
             None
             """         
         
-        self.efficiency     =    0.0
-        self.mass           =  100.0
-        self.rated_RPM      = 1000.0
+        self.efficiency     =    0.5    # Basic estimated efficiency for small motor-gearbox combo. Larger motors have better efficiency.
+        self.mass           =  100.0    # [kg]
+        self.rated_RPM      = 1000.0    # [RPM]
     
     def power_in(self, power_out, RPM=None):
         """ The power supplied to this component based on that that this must deliver to the HTS dynamo as shaft power.
@@ -78,9 +78,44 @@ class HTS_Dynamo_Supply(Energy_Component):
         # Apply the efficiency of the current supply to get the total power required at the input of the current supply. For more precise results efficiency could be adjusted based on RPM.
         power_in                = power_out/efficiency
 
-        # Store output values.
-        self.output.power_in    = power_in
-
         # Return basic result.
         return power_in
 
+
+
+    def mass_estimation(self):
+        """ Basic mass estimation for HTS Dynamo supply. This supply includes all elements required to create the required shaft power from supplied electricity, i.e. the esc, brushless motor, and gearbox.
+
+        Assumptions:
+        Mass scales linearly with power and current
+
+        Source:
+        Maxon Motor drivetrains
+
+        Inputs:
+        current             [A]
+        power_out           [W]
+
+        Outputs:
+        mass                [kg]
+
+        """
+
+        # unpack
+        rated_power     = self.rated_power
+
+        # Estimate mass of motor and gearbox. Source: Maxon EC-max 12V brushless motors under 100W.
+        mass_motor      = 0.013 + 0.0046 * rated_power
+        mass_gearbox    = 0.0109 + 0.0015 * rated_power
+
+        # Estimate mass of motor driver (ESC). Source: Estimate
+        mass_esc        = 5.0 + rated_power/50.0
+
+        # Sum masses to give total mass
+        mass            = mass_esc + mass_motor + mass_gearbox
+
+        # Store results
+        self.mass       = mass
+
+        # Return results
+        return mass
