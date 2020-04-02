@@ -50,13 +50,13 @@ def datta_discharge(battery,numerics):
               resistive_losses                                         [Watts] 
               load_power                                               [Watts]
               current                                                  [Amps]
-              voltage_open_circuit                                     [Volts]
+              battery_voltage_open_circuit                                     [Volts]
               battery_thevenin_voltage                                 [Volts]
               charge_throughput                                        [Amp-hrs]
               internal_resistance                                      [Ohms]
-              state_of_charge                                          [unitless]
+              battery_state_of_charge                                          [unitless]
               depth_of_discharge                                       [unitless]
-              voltage_under_load                                       [Volts]   
+              battery_voltage_under_load                                        [Volts]   
         
         
     """

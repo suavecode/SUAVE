@@ -102,8 +102,8 @@ class Lift_Cruise(Propulsor):
                 current_forward          [amps]
                 battery_draw             [watts]
                 battery_energy           [joules]
-                voltage_open_circuit     [volts]
-                voltage_under_load       [volts]
+                battery_voltage_open_circuit     [volts]
+                battery_voltage_under_load        [volts]
                 motor_torque_lift        [N-M]
                 motor_torque_forward     [N-M]
                 propeller_torque_lift    [N-M]
@@ -270,7 +270,7 @@ class Lift_Cruise(Propulsor):
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy 
         voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load    
+        voltage_under_load   = battery.voltage_under_load     
         
         conditions.propulsion.acoustic_outputs[propeller.tag] = noise_forward
         conditions.propulsion.acoustic_outputs[rotor.tag]     = output_lift
@@ -293,8 +293,8 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.battery_draw                      = battery_draw
         conditions.propulsion.battery_draw_forward              = -i_forward * volts 
         conditions.propulsion.battery_energy                    = battery_energy
-        conditions.propulsion.voltage_open_circuit              = voltage_open_circuit
-        conditions.propulsion.voltage_under_load                = voltage_under_load   
+        conditions.propulsion.battery_voltage_open_circuit      = voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load        = voltage_under_load    
         conditions.propulsion.motor_efficiency_forward          = etam_forward
         conditions.propulsion.current_forward                   = i_forward 
         conditions.propulsion.battery_efficiency                = (battery_draw+battery.resistive_losses)/battery_draw
@@ -459,7 +459,7 @@ class Lift_Cruise(Propulsor):
                 motor_torque_lift                     [N-m]
                 propeller_torque_forward              [N-m]
                 propeller_torque_lift                 [N-m]
-                voltage_under_load                    [volts]
+                battery_voltage_under_load                     [volts]
             state.unknowns.battery_voltage_under_load [volts]
     
             Outputs:
@@ -475,7 +475,7 @@ class Lift_Cruise(Propulsor):
         q_motor_lift    = segment.state.conditions.propulsion.motor_torque_lift
         q_prop_lift     = segment.state.conditions.propulsion.propeller_torque_lift        
         
-        v_actual        = segment.state.conditions.propulsion.voltage_under_load
+        v_actual        = segment.state.conditions.propulsion.battery_voltage_under_load 
         v_predict       = segment.state.unknowns.battery_voltage_under_load
         v_max           = self.voltage        
         
@@ -503,7 +503,7 @@ class Lift_Cruise(Propulsor):
                 motor_torque_lift                     [N-m]
                 propeller_torque_forward              [N-m]
                 propeller_torque_lift                 [N-m]
-                voltage_under_load                    [volts]
+                battery_voltage_under_load                     [volts]
             state.unknowns.battery_voltage_under_load [volts]
             
             Outputs:
@@ -517,7 +517,7 @@ class Lift_Cruise(Propulsor):
         q_motor_forward = segment.state.conditions.propulsion.motor_torque_forward
         q_prop_forward  = segment.state.conditions.propulsion.propeller_torque_forward   
         
-        v_actual        = segment.state.conditions.propulsion.voltage_under_load
+        v_actual        = segment.state.conditions.propulsion.battery_voltage_under_load 
         v_predict       = segment.state.unknowns.battery_voltage_under_load
         v_max           = self.voltage        
         
@@ -542,7 +542,7 @@ class Lift_Cruise(Propulsor):
                 motor_torque_lift                     [N-m]
                 propeller_torque_forward              [N-m]
                 propeller_torque_lift                 [N-m]
-                voltage_under_load                    [volts]
+                battery_voltage_under_load                     [volts]
             state.unknowns.battery_voltage_under_load [volts]
     
             Outputs:
@@ -556,7 +556,7 @@ class Lift_Cruise(Propulsor):
         q_motor_lift    = segment.state.conditions.propulsion.motor_torque_lift
         q_prop_lift     = segment.state.conditions.propulsion.propeller_torque_lift        
 
-        v_actual        = segment.state.conditions.propulsion.voltage_under_load
+        v_actual        = segment.state.conditions.propulsion.battery_voltage_under_load 
         v_predict       = segment.state.unknowns.battery_voltage_under_load
         v_max           = self.voltage        
         

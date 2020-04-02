@@ -21,22 +21,30 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
     def __defaults__(self):
         self.tag                         = 'Lithium_Ion_Battery'
         self.chemistry                   = 'LiNiMnCoO2' 
-        self.amp_hour_rating             = 3
-        self.nominal_voltage             = 3.6
-        self.watt_hour_rating            = self.amp_hour_rating * self.nominal_voltage
+        self.cell                        = Data()   
+        
         self.mass_properties.mass        = 0.048 * Units.kg
+        self.cell.mass                   = 0.048 * Units.kg 
+        
+        self.cell.max_voltage            = 4.2
+        self.cell.nominal_capacity       = 3.55  # [Amp-Hrs]
+        self.cell.nominal_voltage        = 3.6   # [V]
+        self.watt_hour_rating            = self.cell.nominal_capacity  * self.cell.nominal_voltage        
         self.specific_energy             = self.watt_hour_rating*Units.Wh/self.mass_properties.mass  # J/kg
-        self.specific_power              = 1.      *Units.kW/Units.kg #  self.specific_energy/amp_hour_rating               
+        self.specific_power              = self.specific_energy/self.cell.nominal_capacity       
         self.resistance                  = 0.025 
-        self.specific_heat_capacity      = 1800. 
-        self.heat_transfer_coefficient   = 20.   #  Determination of the optimum heat transfer coefficient and temperature rise analysis for a lithium-ion battery under the conditions of Harbin city bus driving cycles. Energies, 10(11). https://doi.org/10.3390/en10111723
-        self.cell                        = Data() 
-        self.cell.mass                   = 0.048 * Units.kg
-        self.cell.specific_heat_capacity = 1800. #1040  #Thermal properties of lithium-ion battery and components 950 https://pdfs.semanticscholar.org/6e93/0e0c4dc0cb256d8ae0aa85cacc2c383efc08.pdf  
-        self.cell.surface_area           = 4.18E-3 
+        
+        self.specific_heat_capacity      = 837.4     # and "A review of lithium-ion battery thermal management system strategies and the evaluate criteria"  
+        self.heat_transfer_coefficient   = 20.       #  Determination of the optimum heat transfer coefficient and temperature rise analysis for a lithium-ion battery under the conditions of Harbin city bus driving cycles. Energies, 10(11). https://doi.org/10.3390/en10111723   
+        self.cell.specific_heat_capacity = 837.4     # [J/kgK] "Numerical investigation on cooling performance of Li-ion battery thermal management system at high galvanostatic discharge"  
        
+        self.cell.diameter               = 0.0018  # [m]
+        self.cell.height                 = 0.06485 # [m]
+        self.cell.surface_area           = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  
+        
+        self.charging_SOC_cutoff         = 1.          
         self.discharge_model             = LiNiMnCo_discharge
-        self.charge_model                = LiNiMnCo_charge
+        self.charge_model                = LiNiMnCo_charge 
         
         self.discharge_performance_map   = create_discharge_performance_map()
         

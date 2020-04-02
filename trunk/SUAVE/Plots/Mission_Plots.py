@@ -391,8 +391,8 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
     results.segments.conditions.propulsion
          battery_draw 
          battery_energy    
-         voltage_under_load    
-         voltage_open_circuit    
+         battery_voltage_under_load     
+         battery_voltage_open_circuit    
          current        
         
     Outputs: 
@@ -404,43 +404,56 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
     
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 10)
+    fig.set_size_inches(12, 16)
     
     for i in range(len(results.segments)):     
         time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         power          = results.segments[i].conditions.propulsion.battery_draw[:,0] 
         energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        volts          = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
-        volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]     
-        current        = results.segments[i].conditions.propulsion.current[:,0]      
+        volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load [:,0] 
+        volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]  
+        charge         = results.segments[i].conditions.propulsion.battery_charge_throughput[:,0]  
+        current        = results.segments[i].conditions.propulsion.battery_current[:,0]      
+        SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]
         battery_amp_hr = (energy/ Units.Wh )/volts  
         C_rating       = current/battery_amp_hr
         
-        axes = fig.add_subplot(2,2,1)
+        axes = fig.add_subplot(2,3,1)
         axes.plot(time, -power, line_color)
         axes.set_ylabel('Battery Power (Watts)',axis_font)
         set_axes(axes)       
     
-        axes = fig.add_subplot(2,2,2)
+        axes = fig.add_subplot(2,3,2)
         axes.plot(time, energy/ Units.Wh, line_color)
         axes.set_ylabel('Battery Energy (W-hr)',axis_font)
         set_axes(axes)  
     
-        axes = fig.add_subplot(2,2,3)
+        axes = fig.add_subplot(2,3,3)
         axes.plot(time, volts, 'bo-',label='Under Load')
-        axes.plot(time,volts_oc, 'ks--',label='Open Circuit')
-        axes.set_xlabel('Time (mins)',axis_font)
+        axes.plot(time,volts_oc, 'ks--',label='Open Circuit') 
         axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
         set_axes(axes) 
         if i == 0:
-            axes.legend(loc='upper right')          
-                
+            axes.legend(loc='upper right')  
         
-        axes = fig.add_subplot(2,2,4)
+        axes = fig.add_subplot(2,3,4)
         axes.plot(time, C_rating, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('C-Rating (C)',axis_font)  
         set_axes(axes)
+        
+        axes = fig.add_subplot(2,3,5)
+        axes.plot(time, current, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Current (A)',axis_font)  
+        set_axes(axes)
+        
+        axes = fig.add_subplot(2,3,6)
+        axes.plot(time, SOC, line_color)
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('State of Charge',axis_font)  
+        set_axes(axes)        
+        
  
     if save_figure:
         plt.savefig(save_filename + file_type)       
@@ -556,25 +569,26 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     for segment in results.segments.values():  
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         rpm    = segment.conditions.propulsion.rpm[:,0] 
-        thrust = segment.conditions.frames.body.thrust_force_vector[:,2]
-        torque = segment.conditions.propulsion.motor_torque[:,0] 
+        effp   = segment.conditions.propulsion.etap[:,0]
+        Cp     = segment.conditions.propulsion.propeller_power_coefficient[:,0] 
         tm     = segment.conditions.propulsion.propeller_tip_mach[:,0]
  
         axes = fig.add_subplot(2,2,1)
-        axes.plot(time, -thrust, line_color)
-        axes.set_ylabel('Thrust (N)',axis_font)
+        axes.plot(time, Cp, line_color)
+        axes.set_ylabel('Power Coefficient $(C_p)$',axis_font)
         set_axes(axes)
-        
+
         axes = fig.add_subplot(2,2,2)
+        axes.plot(time, effp , line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Propeller Efficiency $(\eta_P)$',axis_font)
+        set_axes(axes)  
+        
+            
+        axes = fig.add_subplot(2,2,3)
         axes.plot(time, rpm, line_color)
         axes.set_ylabel('RPM',axis_font)
         set_axes(axes)
-        
-        axes = fig.add_subplot(2,2,3)
-        axes.plot(time, torque, line_color )
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Torque (N-m)',axis_font)
-        set_axes(axes)  
         
         axes = fig.add_subplot(2,2,4)
         axes.plot(time, tm, line_color )
@@ -778,8 +792,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
          rotor_throttle 
          battery_energy
          battery_specfic_power 
-         voltage_under_load  
-         voltage_open_circuit   
+         battery_voltage_under_load   
+         battery_voltage_open_circuit   
         
     Outputs: 
     Plots
@@ -799,8 +813,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         eta_l          = results.segments[i].conditions.propulsion.throttle_lift[:,0]
         energy         = results.segments[i].conditions.propulsion.battery_energy[:,0]/ Units.Wh
         specific_power = results.segments[i].conditions.propulsion.battery_specfic_power[:,0]
-        volts          = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
-        volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]  
+        volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load [:,0] 
+        volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]  
                     
         axes = fig.add_subplot(2,2,1)
         axes.plot(time, eta, 'bo-',label='Forward Motor')

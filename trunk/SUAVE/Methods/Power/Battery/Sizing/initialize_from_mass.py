@@ -39,4 +39,4 @@ def initialize_from_mass(battery, mass ,SOC_start = 1, SOC_cutoff = 0.15 ):
     battery.max_energy           = mass*battery.specific_energy* SOC_start 
     battery.min_energy           = mass*battery.specific_energy* SOC_cutoff
     battery.max_power            = mass*battery.specific_power
-    
+    battery.initial_max_energy   = battery.max_energy    

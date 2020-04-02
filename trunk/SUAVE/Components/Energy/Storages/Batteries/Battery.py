@@ -32,15 +32,18 @@ class Battery(Energy_Component):
     that calculates discharge losses
     """
     def __defaults__(self):
+        self.chemistry                      = None 
         self.mass_properties.mass           = 0.0
         self.energy_density                 = 0.0
         self.current_energy                 = 0.0
         self.initial_temperature            = 20.0
         self.current_capacitor_charge       = 0.0
-        self.resistance                     = 0.07446 # base internal resistance of battery in ohms
+        self.resistance                     = 0.07446 # base internal resistance of battery in ohms  
+        self.specific_heat_capacity         = 20.  
         self.max_energy                     = 0.0
         self.max_power                      = 0.0
         self.max_voltage                    = 0.0
+        self.discharge_performance_map      = None 
         self.discharge_model                = datta_discharge  # default disharge
         self.charge_model                   = datta_charge     # default disharge
         self.ragone                         = Data()
@@ -48,7 +51,7 @@ class Battery(Energy_Component):
         self.ragone.const_2                 = 0.0     # specific_power=ragone_const_1*10^(specific_energy*ragone_const_2)
         self.ragone.lower_bound             = 0.0     # lower bound specific energy for which ragone curves no longer make sense
         self.ragone.i                       = 0.0
-        
+
     def energy_discharge(self,numerics): 
         self.discharge_model(self, numerics) 
         return  

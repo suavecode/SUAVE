@@ -81,8 +81,8 @@ class Vectored_Thrust_Low_Fidelity(Propulsor):
                 current              [amps]
                 battery_draw         [watts]
                 battery_energy       [joules]
-                voltage_open_circuit [volts]
-                voltage_under_load   [volts]
+                battery_voltage_open_circuit [volts]
+                battery_voltage_under_load    [volts]
                 motor_torque         [N-M]
                 propeller_torque     [N-M]
     
@@ -155,19 +155,14 @@ class Vectored_Thrust_Low_Fidelity(Propulsor):
         rpm                  = motor.outputs.omega*60./(2.*np.pi)
         a                    = conditions.freestream.speed_of_sound
         R                    = propeller.tip_radius      
-        
-        current              = esc.outputs.currentin
-        battery_draw         = battery.inputs.power_in 
-        battery_energy       = battery.current_energy
-        voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load    
+        battery_draw         = battery.inputs.power_in   
           
         conditions.propulsion.rpm                                = rpm
-        conditions.propulsion.current                            = current
+        conditions.propulsion.current                            = esc.outputs.currentin
         conditions.propulsion.battery_draw                       = battery_draw
-        conditions.propulsion.battery_energy                     = battery_energy
-        conditions.propulsion.voltage_open_circuit               = voltage_open_circuit
-        conditions.propulsion.voltage_under_load                 = voltage_under_load  
+        conditions.propulsion.battery_energy                     = battery.current_energy    
+        conditions.propulsion.battery_voltage_open_circuit       = battery.voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load         = battery.voltage_under_load
         conditions.propulsion.motor_torque                       = motor.outputs.torque
         conditions.propulsion.propeller_torque                   = Q
         conditions.propulsion.acoustic_outputs[propeller.tag]    = noise
@@ -233,7 +228,7 @@ class Vectored_Thrust_Low_Fidelity(Propulsor):
             state.conditions.propulsion:
                 motor_torque                          [N-m]
                 propeller_torque                      [N-m]
-                voltage_under_load                    [volts]
+                battery_voltage_under_load                     [volts]
             state.unknowns.battery_voltage_under_load [volts]
             
             Outputs:
@@ -248,7 +243,7 @@ class Vectored_Thrust_Low_Fidelity(Propulsor):
         # Unpack
         q_motor   = segment.state.conditions.propulsion.motor_torque
         q_prop    = segment.state.conditions.propulsion.propeller_torque
-        v_actual  = segment.state.conditions.propulsion.voltage_under_load
+        v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load 
         v_predict = segment.state.unknowns.battery_voltage_under_load
         v_max     = self.voltage
         

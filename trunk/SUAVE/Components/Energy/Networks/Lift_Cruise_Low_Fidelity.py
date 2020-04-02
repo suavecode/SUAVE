@@ -191,20 +191,13 @@ class Lift_Cruise_Low_Fidelity(Propulsor):
         # Run the battery
         battery.energy_discharge(numerics)   
         
-        # Pack the conditions   
-        battery_draw         = battery.inputs.power_in 
-        battery_energy       = battery.current_energy
-        voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load    
-    
-
-        conditions.propulsion.current_lift             = i_lift 
-        conditions.propulsion.current_forward          = i_forward 
-          
-        conditions.propulsion.battery_draw             = battery_draw
-        conditions.propulsion.battery_energy           = battery_energy
-        conditions.propulsion.voltage_open_circuit     = voltage_open_circuit
-        conditions.propulsion.voltage_under_load       = voltage_under_load      
+        # Pack the conditions     
+        conditions.propulsion.current_lift                 = i_lift 
+        conditions.propulsion.current_forward              = i_forward  
+        conditions.propulsion.battery_draw                 = battery.inputs.power_in 
+        conditions.propulsion.battery_energy               = battery.current_energy 
+        conditions.propulsion.battery_voltage_open_circuit =  battery.voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load   =  battery.voltage_under_load       
         
         # Calculate the thrust and mdot
         F_lift_total    = F_lift*num_lift * [np.cos(self.thrust_angle_lift),0,-np.sin(self.thrust_angle_lift)]    
@@ -257,7 +250,7 @@ class Lift_Cruise_Low_Fidelity(Propulsor):
         #q_motor_lift    = segment.state.conditions.propulsion.motor_torque_lift
         #q_prop_lift     = segment.state.conditions.propulsion.propeller_torque_lift        
         
-        #v_actual        = state.conditions.propulsion.voltage_under_load
+        #v_actual        = state.conditions.propulsion.battery_voltage_under_load 
         #v_predict       = state.unknowns.battery_voltage_under_load
         #v_max           = self.voltage        
         
@@ -275,7 +268,7 @@ class Lift_Cruise_Low_Fidelity(Propulsor):
         #q_motor_forward = state.conditions.propulsion.motor_torque_forward
         #q_prop_forward  = state.conditions.propulsion.propeller_torque_forward   
         
-        #v_actual        = state.conditions.propulsion.voltage_under_load
+        #v_actual        = state.conditions.propulsion.battery_voltage_under_load 
         #v_predict       = state.unknowns.battery_voltage_under_load
         #v_max           = self.voltage        
         
@@ -291,7 +284,7 @@ class Lift_Cruise_Low_Fidelity(Propulsor):
         #q_motor_lift    = state.conditions.propulsion.motor_torque_lift
         #q_prop_lift     = state.conditions.propulsion.propeller_torque_lift        
         
-        #v_actual        = state.conditions.propulsion.voltage_under_load
+        #v_actual        = state.conditions.propulsion.battery_voltage_under_load 
         #v_predict       = state.unknowns.battery_voltage_under_load
         #v_max           = self.voltage        
         

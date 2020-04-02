@@ -55,13 +55,13 @@ def LiNCA_charge (battery,numerics):
               resistive_losses                                         [Watts] 
               load_power                                               [Watts]
               current                                                  [Amps]
-              voltage_open_circuit                                     [Volts]
+              battery_voltage_open_circuit                                     [Volts]
               battery_thevenin_voltage                                 [Volts]
               charge_throughput                                        [Amp-hrs]
               internal_resistance                                      [Ohms]
-              state_of_charge                                          [unitless]
+              battery_state_of_charge                                          [unitless]
               depth_of_discharge                                       [unitless]
-              voltage_under_load                                       [Volts]   
+              battery_voltage_under_load                                        [Volts]   
         
     """
     
@@ -171,7 +171,7 @@ def LiNCA_charge (battery,numerics):
     battery.load_power               = V_ul*n_series*I_bat
     battery.current                  = I_bat
     battery.voltage_open_circuit     = V_oc*n_series
-    battery.battery_thevenin_voltage = V_Th*n_series
+    battery.thevenin_voltage         = V_Th*n_series
     battery.charge_throughput        = Q_total
     battery.internal_resistance      = R_0
     battery.state_of_charge          = SOC_new
