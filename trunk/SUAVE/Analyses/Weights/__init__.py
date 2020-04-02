@@ -12,3 +12,4 @@ from .Weights_Electric_Stopped_Rotor        import Weights_Electric_Stopped_Roto
 from .Weights_Electric_Tiltrotor            import Weights_Electric_Tiltrotor
 from .Weights_Tube_Wing_TurboElectric       import Weights_Tube_Wing_TurboElectric
 from .Weights_Tube_Wing_HTS_TurboElectric   import Weights_Tube_Wing_HTS_TurboElectric
+from .Weights_Tube_Wing_HTS_Dynamo_TurboElectric   import Weights_Tube_Wing_HTS_Dynamo_TurboElectric

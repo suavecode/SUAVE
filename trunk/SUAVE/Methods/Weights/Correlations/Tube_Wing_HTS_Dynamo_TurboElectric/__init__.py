@@ -4,3 +4,4 @@
 
 
 from .empty           import empty
+from .SiC_Electronics import SiC_mass
