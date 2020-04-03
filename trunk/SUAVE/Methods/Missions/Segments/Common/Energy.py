@@ -65,7 +65,7 @@ def initialize_battery(segment):
         battery_resistance_growth_factor = 1.0
         battery_capacity_fade_factor     = 1.0  
         battery_discharge                = True
-     
+        
     if 'battery_cell_temperature' in segment:
         temperature_initial              = segment.battery_cell_temperature 
      
@@ -77,7 +77,7 @@ def initialize_battery(segment):
     segment.state.conditions.propulsion.ambient_temperature              = ambient_temperature
     segment.state.conditions.propulsion.battery_resistance_growth_factor = battery_resistance_growth_factor 
     segment.state.conditions.propulsion.battery_capacity_fade_factor     = battery_capacity_fade_factor        
-    
+    segment.state.conditions.propulsion.battery_configuration            = segment.battery_configuration 
     return
 
 # ----------------------------------------------------------------------
@@ -158,11 +158,13 @@ def update_battery_age(segment):
             battery_resistance_growth_factor (capactance (energy) growth factor)   [unitless]  
             
     """
-    SOC     = segment.conditions.propulsion.battery_state_of_charge
-    V_ul    = segment.conditions.propulsion.battery_voltage_under_load
-    t       = segment.conditions.propulsion.battery_age_in_days 
-    Q_prior = segment.conditions.propulsion.battery_charge_throughput[-1,0] 
-    Temp    = np.mean(segment.conditions.propulsion.battery_cell_temperature) 
+    n_series   = segment.conditions.propulsion.battery_configuration[0]
+    n_parallel = segment.conditions.propulsion.battery_configuration[1]
+    SOC        = segment.conditions.propulsion.battery_state_of_charge
+    V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
+    t          = segment.conditions.propulsion.battery_age_in_days 
+    Q_prior    = segment.conditions.propulsion.battery_charge_throughput[-1,0]/n_parallel
+    Temp       = np.mean(segment.conditions.propulsion.battery_cell_temperature) 
     
     # aging model  
     delta_DOD = abs(SOC[0][0] - SOC[-1][0])
@@ -171,10 +173,6 @@ def update_battery_age(segment):
     alpha_res = ((5.270*np.mean(V_ul) - 16.32)*1E5) * np.exp(-5986/(Temp +273))  
     beta_cap  = 7.348E-3 * (rms_V_ul - 3.667)**2 +  7.60E-4 + 4.081E-3*delta_DOD
     beta_res  = 2.153E-4 * (rms_V_ul - 3.725)**2 - 1.521E-5 + 2.798E-4*delta_DOD
-    
- 
-    #if np.any(segment.conditions.propulsion.battery_cell_temperature[:,0] < 10):
-        #raise AssertionError('Error')   
     
     segment.conditions.propulsion.battery_capacity_fade_factor     = 1  +  (alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior))   
     segment.conditions.propulsion.battery_resistance_growth_factor = 1  +  (alpha_res*(t**0.75) + beta_res*Q_prior)

@@ -34,15 +34,17 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.specific_power              = self.specific_energy/self.cell.nominal_capacity       
         self.resistance                  = 0.025 
         
-        self.specific_heat_capacity      = 837.4     # and "A review of lithium-ion battery thermal management system strategies and the evaluate criteria"  
-        self.heat_transfer_coefficient   = 20.       #  Determination of the optimum heat transfer coefficient and temperature rise analysis for a lithium-ion battery under the conditions of Harbin city bus driving cycles. Energies, 10(11). https://doi.org/10.3390/en10111723   
-        self.cell.specific_heat_capacity = 837.4     # [J/kgK] "Numerical investigation on cooling performance of Li-ion battery thermal management system at high galvanostatic discharge"  
+        self.specific_heat_capacity      = 2000 # 837.4     # and "A review of lithium-ion battery thermal management system strategies and the evaluate criteria"  
+        self.heat_transfer_coefficient   = 35.       #  Determination of the optimum heat transfer coefficient and temperature rise analysis for a lithium-ion battery under the conditions of Harbin city bus driving cycles. Energies, 10(11). https://doi.org/10.3390/en10111723   
+        self.cell.specific_heat_capacity = 2000 # 837.4     # [J/kgK] "Numerical investigation on cooling performance of Li-ion battery thermal management system at high galvanostatic discharge"  
        
         self.cell.diameter               = 0.0018  # [m]
         self.cell.height                 = 0.06485 # [m]
         self.cell.surface_area           = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  
         
-        self.charging_SOC_cutoff         = 1.          
+        self.charging_SOC_cutoff         = 1.         
+        self.cell.charging_voltage       = self.cell.nominal_voltage    
+        self.cell.charging_current       = 5.0 
         self.discharge_model             = LiNiMnCo_discharge
         self.charge_model                = LiNiMnCo_charge 
         
@@ -212,7 +214,7 @@ def get_raw_data():
                                               [3380.7055807008915, 2.4980183391571495 ]])
 
 
-    raw_data.Voltage.Amps_0.Deg_40 = np.array([[0.0, 4.066121807649915  ],
+    raw_data.Voltage.Amps_0.Deg_40 = np.array([[0.0, 4.011948594076125   ],
                                                [100.62303104211128, 4.011948594076125 ],
                                               [266.7229505249252, 3.982587181351282  ],
                                               [468.51621678666083, 3.929973499683404 ],
@@ -235,7 +237,7 @@ def get_raw_data():
                                               [3391.665298656224, 2.6485659341947896 ],
                                               [3416.2113146189517, 2.5064257404845103]])
 
-    raw_data.Voltage.Amps_0.Deg_50 = np.array([[0.0, 4.176848572969678  ],
+    raw_data.Voltage.Amps_0.Deg_50 = np.array([[0.0,4.066039727023288  ],
                                                [5.487676180202243, 4.066039727023288  ],
                                               [130.20332543795894, 4.020273914776858 ],
                                               [302.2755876582007, 3.9830796651110436 ],
@@ -259,9 +261,6 @@ def get_raw_data():
                                               [3434.034536400805, 2.498757064796792  ]])
 
 
-
-    
-    
 
     raw_data.Voltage.Amps_2.Deg_0  = np.array([[0.0, 3.844504115757135 ],
                                                [48.51355893779851, 3.8054220116789006 ],
@@ -469,7 +468,7 @@ def get_raw_data():
     
 
     
-    raw_data.Voltage.Amps_4.Deg_30 = np.array([[0.0, 4.007811474579894  ],
+    raw_data.Voltage.Amps_4.Deg_30 = np.array([[0.0, 3.9535511645959818 ],
                                               [3.5438518857417876, 3.9535511645959818 ],
                                               [69.76138063969336, 3.900460888250537   ],
                                               [181.58959570087643, 3.8791865266126395 ],
@@ -499,7 +498,7 @@ def get_raw_data():
      
    
     
-    raw_data.Voltage.Amps_4.Deg_40 = np.array([[0.0, 4.023314420289583  ],
+    raw_data.Voltage.Amps_4.Deg_40 = np.array([[0.0, 3.9768055831605156   ],
                                               [3.4650996216142858, 3.9768055831605156 ],
                                               [44.20627093028929, 3.946519712441732   ],
                                               [181.53709419145798, 3.894689472322329  ],
@@ -522,7 +521,7 @@ def get_raw_data():
                                               [3350.9613401385286, 2.5089871333800846 ]])
 
   
-    raw_data.Voltage.Amps_4.Deg_50 = np.array([[0.0, 4.178433879974049   ],
+    raw_data.Voltage.Amps_4.Deg_50 = np.array([[0.0, 4.00006000172505    ],
                                               [3.3863473574866703, 4.00006000172505   ],
                                               [64.49810432049924, 3.9546311956468747  ],
                                               [186.56411371826937, 3.9102824206195925 ],
@@ -662,7 +661,7 @@ def get_raw_data():
                                               [3407.914344058724, 2.4906846010107784  ]])
                            
    
-    raw_data.Voltage.Amps_6.Deg_50 = np.array([[0.0, 4.15882301924578   ],
+    raw_data.Voltage.Amps_6.Deg_50 = np.array([[0.0, 3.8969471667468247   ],
                                               [2.455985429659563, 3.8969471667468247  ],
                                               [107.20790330592206, 3.8351178321099404 ],
                                               [284.8667144985927, 3.7903187656209347  ],
@@ -773,7 +772,7 @@ def get_raw_data():
                                               [3177.314683796535, 2.6247581905090502   ],
                                               [3265.6047078708752, 2.508038348368489   ]])
     
-    raw_data.Voltage.Amps_8.Deg_40 = np.array([[0.0, 4.165481040972899   ],
+    raw_data.Voltage.Amps_8.Deg_40 = np.array([[0.0, 3.7795937988222574   ],
                                               [9.37581168516499, 3.7795937988222574    ],
                                               [71.60080790537722, 3.725455609786355    ],
                                               [206.1728777946198, 3.6803307604932725   ],
@@ -797,7 +796,7 @@ def get_raw_data():
                                               [3141.046167683009, 2.6478090800190737   ],
                                               [3260.462258335885, 2.5000833491632135   ]])
     
-    raw_data.Voltage.Amps_8.Deg_50 = np.array([[0.0, 4.165399630162318    ],
+    raw_data.Voltage.Amps_8.Deg_50 = np.array([[0.0, 3.8110881524010374    ],
                                               [9.267263937724579, 3.8110881524010374   ],
                                               [102.59118979961306, 3.7338176630445323  ],
                                               [190.58270756849174, 3.7037072932456168  ],

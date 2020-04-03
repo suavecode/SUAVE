@@ -100,8 +100,7 @@ def LiNiMnCo_discharge(battery,numerics):
     SOC_old[SOC_old < 0.] = 0.  
     SOC_old[SOC_old > 1.] = 1.    
     DOD_old = 1 - SOC_old  
-
-    T_cell[np.isnan(T_cell)] = 30.0     
+    
     T_cell[T_cell<0.0]  = 0. 
     T_cell[T_cell>50.0] = 50.
      
@@ -113,8 +112,9 @@ def LiNiMnCo_discharge(battery,numerics):
     
     # predict under load voltage  
     V_ul = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T      
+    T_disharge = np.atleast_2d(battery_data.Temperature(pts)[:,1]).T
     
-    # Li-ion battery interal resistance 
+    # Li-ion battery interal resistance
     R_0   =  0.01483*(SOC_old**2) - 0.02518*SOC_old + 0.1036 
     
     # Update battery internal and thevenin resistance with aging factor
@@ -127,8 +127,8 @@ def LiNiMnCo_discharge(battery,numerics):
     h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)
     P_net      = P_heat - h*0.5*cell_surface_area*(T_cell - T_ambient) 
     dT_dt      = P_net/(cell_mass*Cp)
-    T_current  =  T_current[0] + np.dot(I,dT_dt) # np.atleast_2d(np.hstack(( T_current[0] , T_current[0] + cumtrapz(dT_dt[:,0], x = numerics.time.control_points[:,0]) ))).T
-    
+    T_current  = T_current[0] + np.dot(I,dT_dt)  
+        
     # Power going into the battery accounting for resistance losses
     P_loss = n_total*P_heat
     P = P_bat - np.abs(P_loss) 
@@ -152,7 +152,7 @@ def LiNiMnCo_discharge(battery,numerics):
     DOD_new = 1 - SOC_new
     
     # Determine voltage under load:
-    V_oc  = V_ul + (I_cell * R_0)
+    V_oc  = V_ul + (I_cell * R_0) 
     
     # Determine new charge throughput (the amount of charge gone through the battery)
     Q_total  = np.atleast_2d(np.hstack((  Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
