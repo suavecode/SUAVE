@@ -101,22 +101,6 @@ class Wing(Lofted_Body):
         self.twists.root = 0.0
         self.twists.tip  = 0.0
 
-        self.control_surfaces = Data()
-        self.flaps = Data()
-        self.flaps.chord      = 0.0
-        self.flaps.angle      = 0.0
-        self.flaps.span_start = 0.0
-        self.flaps.span_end   = 0.0
-        self.flaps.type       = None
-        self.flaps.area       = 0.0
-
-        self.slats = Data()
-        self.slats.chord      = 0.0
-        self.slats.angle      = 0.0
-        self.slats.span_start = 0.0
-        self.slats.span_end   = 0.0
-        self.slats.type       = None
-
         self.high_lift     = False
         self.high_mach     = False
         self.vortex_lift   = False
@@ -133,9 +117,10 @@ class Wing(Lofted_Body):
         self.PGM_characteristics    = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','dihedral','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
         self.PGM_char_min_bounds    = [0,1.,0.001,0.1,0.001,-np.pi/4,-1.,-1.,-1.]   
         self.PGM_char_max_bounds    = [5.,np.inf,1.0,np.inf,np.pi/3,np.pi/4,1.,1.,1.]
-        #self.Segments               = SUAVE.Components.Wings.Segment_Container()
-        self.Segments               = ContainerOrdered()
-        self.Fuel_Tanks             = SUAVE.Core.Container()
+        
+        self.Segments           = ContainerOrdered()
+        self.control_surfaces   = ContainerOrdered()
+        self.Fuel_Tanks         = SUAVE.Core.Container()
 
     def append_segment(self,segment):
         """ Adds a segment to the wing 

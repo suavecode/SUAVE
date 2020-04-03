@@ -2,7 +2,8 @@
 # Solar.py
 # 
 # Created:  Jun 2014, E. Botero
-# Modified: Feb 2016, T. MacDonald
+# Modified: Feb 2016, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,7 +16,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 
 # ----------------------------------------------------------------------
 #  Network
@@ -65,6 +66,7 @@ class Solar(Propulsor):
         self.number_of_engines = None
         self.tag               = 'Solar'
         self.PGM_minimum       = 0
+        self.use_surrogate     = False
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -107,80 +109,105 @@ class Solar(Propulsor):
         payload     = self.payload
         solar_logic = self.solar_logic
         battery     = self.battery
-       
+        num_engines = self.number_of_engines
+        
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
         
         # step 1
         solar_flux.solar_radiation(conditions)
+        
         # link
         solar_panel.inputs.flux = solar_flux.outputs.flux
+        
         # step 2
         solar_panel.power()
+        
         # link
         solar_logic.inputs.powerin = solar_panel.outputs.power
+        
         # step 3
         solar_logic.voltage()
+        
         # link
         esc.inputs.voltagein =  solar_logic.outputs.system_voltage
+        
         # Step 4
         esc.voltageout(conditions)
+        
         # link
-        motor.inputs.voltage = esc.outputs.voltageout 
+        motor.inputs.voltage = esc.outputs.voltageout
+        
         # step 5
         motor.omega(conditions)
+        
         # link
         propeller.inputs.omega =  motor.outputs.omega
+        
         # step 6
-        F, Q, P, Cplast = propeller.spin(conditions)
+        F, Q, P, Cplast ,  outputs  , etap   = propeller.spin(conditions)
      
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
         F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
         
+        # link
+        propeller.outputs = outputs
+        
         # Run the avionics
         avionics.power()
+        
         # link
         solar_logic.inputs.pavionics =  avionics.outputs.power
         
         # Run the payload
         payload.power()
+        
         # link
         solar_logic.inputs.ppayload = payload.outputs.power
         
         # Run the motor for current
         motor.current(conditions)
+        
         # link
         esc.inputs.currentout =  motor.outputs.current
         
         # Run the esc
         esc.currentin(conditions)
+        
         # link
-        solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_of_engines
+        solar_logic.inputs.currentesc  = esc.outputs.currentin*num_engines
         solar_logic.inputs.volts_motor = esc.outputs.voltageout 
-        #
         solar_logic.logic(conditions,numerics)
+        
         # link
         battery.inputs = solar_logic.outputs
         battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
-        rpm                                  = motor.outputs.omega*60./(2.*np.pi)
-        current                              = solar_logic.inputs.currentesc
-        battery_draw                         = battery.inputs.power_in 
-        battery_energy                       = battery.current_energy
+        a                                        = conditions.freestream.speed_of_sound
+        R                                        = propeller.tip_radius           
+        rpm                                      = motor.outputs.omega*60./(2.*np.pi)
+        current                                  = solar_logic.inputs.currentesc
+        battery_draw                             = battery.inputs.power_in 
+        battery_energy                           = battery.current_energy
         
-        conditions.propulsion.solar_flux       = solar_flux.outputs.flux  
-        conditions.propulsion.rpm              = rpm
-        conditions.propulsion.current          = current
-        conditions.propulsion.battery_draw     = battery_draw
-        conditions.propulsion.battery_energy   = battery_energy
-        conditions.propulsion.motor_torque     = motor.outputs.torque
-        conditions.propulsion.propeller_torque = Q        
+        conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
+        conditions.propulsion.rpm                = rpm
+        conditions.propulsion.current            = current
+        conditions.propulsion.battery_draw       = battery_draw
+        conditions.propulsion.battery_energy     = battery_energy
+        conditions.propulsion.motor_torque       = motor.outputs.torque
+        conditions.propulsion.propeller_torque   = Q        
+        conditions.propulsion.propeller_tip_mach = (R*rpm)/a
         
         #Create the outputs
-        F    = self.number_of_engines * F * [1,0,0]      
+        F                                        = num_engines * F * [1,0,0]   
+        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))   
+        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R)**2) # N/m^2               
+        conditions.propulsion.power_loading      = (F_mag.T)/(P)  # N/W                  
+        
         mdot = np.zeros_like(F)
 
         results = Data()
@@ -210,7 +237,7 @@ class Solar(Propulsor):
         """       
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
 
         return
     

@@ -104,4 +104,3 @@ class Propeller_Lo_Fid(Energy_Component):
         conditions.propulsion.etap = etap
         
         return thrust, Qm, power, Cp
-    

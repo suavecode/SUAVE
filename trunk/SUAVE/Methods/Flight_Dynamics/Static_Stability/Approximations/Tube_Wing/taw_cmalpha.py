@@ -5,6 +5,7 @@
 # Modified: Nov 2015, M. Vegh
 #           Jan 2016, E. Botero
 #           Jul 2017, M. Clarke
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -79,16 +80,15 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     span   = geometry.wings['main_wing'].spans.projected
     sweep  = geometry.wings['main_wing'].sweeps.quarter_chord
     C_Law  = conditions.lift_curve_slope
-    alpha  = conditions.aerodynamics.angle_of_attack
-
-    x_cg  = configuration.mass_properties.center_of_gravity[0]
-
-    M     = mach
+    alpha  = conditions.aerodynamics.angle_of_attack 
+    x_cg   = configuration.mass_properties.center_of_gravity[0] 
+    M      = mach
     
     weights      = conditions.weights.total_mass
     fuel_weights = weights-configuration.mass_properties.max_zero_fuel
     cg           = compute_mission_center_of_gravity(configuration,fuel_weights)		
-    x_cg         = cg[:,0] #get cg location at every point in the mission    
+    x_cg         = np.atleast_2d(cg[:,0]).T # get cg location at every point in the mission    
+    
 
     #Evaluate the effect of the fuselage on the stability derivative
     if 'fuselage' in geometry.fuselages:

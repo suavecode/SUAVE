@@ -14,6 +14,7 @@ from SUAVE.Components.Wings.Control_Surface import Control_Surface
 import SUAVE.Components.Wings.Main_Wing as Main_Wing
 
 import numpy as np
+
 # ------------------------------------------------------------ 
 #  Wing Segments
 # ------------------------------------------------------------
@@ -88,19 +89,19 @@ class Segment(Lofted_Body.Segment):
 
     def append_control_surface(self,control_surface):
         """ Adds an control_surface to the segment
-
+        
         Assumptions:
         None
-
+        
         Source:
         N/A
-
+        
         Inputs:
         None
-
+        
         Outputs:
         None
-
+        
         Properties Used:
         N/A
         """  
@@ -111,45 +112,45 @@ class Segment(Lofted_Body.Segment):
         # store data
         self.control_surfaces.append(control_surface)
         return    
+
         
-
-### @ingroup Components-Wings
-#class Segment_Container(ContainerOrdered):
-    #""" Container for wing segment
+## @ingroup Components-Wings
+class Segment_Container(ContainerOrdered):
+    """ Container for wing segment
     
-    #Assumptions:
-    #None
+    Assumptions:
+    None
 
-    #Source:
-    #N/A
+    Source:
+    N/A
 
-    #Inputs:
-    #None
+    Inputs:
+    None
 
-    #Outputs:
-    #None
+    Outputs:
+    None
 
-    #Properties Used:
-    #N/A
-    #"""     
+    Properties Used:
+    N/A
+    """     
 
-    #def get_children(self):
-        #""" Returns the components that can go inside
+    def get_children(self):
+        """ Returns the components that can go inside
         
-        #Assumptions:
-        #None
+        Assumptions:
+        None
     
-        #Source:
-        #N/A
+        Source:
+        N/A
     
-        #Inputs:
-        #None
+        Inputs:
+        None
     
-        #Outputs:
-        #None
+        Outputs:
+        None
     
-        #Properties Used:
-        #N/A
-        #"""       
+        Properties Used:
+        N/A
+        """       
         
-        #return []
+        return []
