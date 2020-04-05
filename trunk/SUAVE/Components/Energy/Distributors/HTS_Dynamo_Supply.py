@@ -109,7 +109,7 @@ class HTS_Dynamo_Supply(Energy_Component):
         mass_gearbox    = 0.0109 + 0.0015 * rated_power
 
         # Estimate mass of motor driver (ESC). Source: Estimate
-        mass_esc        = 5.0 + rated_power/50.0
+        mass_esc        = (5.0 + rated_power/50.0)/1000.0
 
         # Sum masses to give total mass
         mass            = mass_esc + mass_motor + mass_gearbox

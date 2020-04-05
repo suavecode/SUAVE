@@ -46,7 +46,7 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             None
             """         
         
-        self.efficiency         =   0.0
+        self.efficiency         =   0.1
         self.mass               = 100.0     # [kg]
         self.rated_current      = 100.0     # [A]
         self.rated_RPM          = 100.0     # [RPM]
@@ -91,7 +91,7 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             current     = hts_current
             hts_current = np.ones_like(power_out) * current
 
-        # force hts current to be an array if it isn't already
+        # force cryogenic temperature to be an array if it isn't already
         if type(cryo_temp) == float:
             temp     = cryo_temp
             cryo_temp = np.ones_like(power_out) * temp
