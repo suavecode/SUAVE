@@ -6,45 +6,82 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ---------------------------------------------------------------------- 
-from SUAVE.Core import Units , Data 
-from SUAVE.Components.Energy.Storages.Batteries  import Battery
+from   SUAVE.Core import Units , Data 
+from   SUAVE.Components.Energy.Storages.Batteries  import Battery
 import numpy as np
-from scipy.interpolate import interp1d, interp2d, RectBivariateSpline, RegularGridInterpolator
-from SUAVE.Methods.Power.Battery.Discharge_Models.LiNiMnCo_discharge  import LiNiMnCo_discharge
-from SUAVE.Methods.Power.Battery.Charge_Models.LiNiMnCo_charge        import LiNiMnCo_charge
+from   scipy.interpolate import interp1d, interp2d, RectBivariateSpline, RegularGridInterpolator
+from   SUAVE.Methods.Power.Battery.Discharge_Models.LiNiMnCo_discharge  import LiNiMnCo_discharge
+from   SUAVE.Methods.Power.Battery.Charge_Models.LiNiMnCo_charge        import LiNiMnCo_charge
 
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 class Lithium_Ion_LiNiMnCoO2_18650(Battery):
-    """
-    Text 
-    """
+    """ Specifies discharge/specific energy characteristics specific 
+        18650 lithium-nickel-manganese-cobalt-oxide battery cells     
+        
+        Assumptions:
+        Convective Thermal Conductivity Coefficient corresponds to forced
+        air cooling in 35 m/s air 
+        
+        Source:
+        Automotive Industrial Systems Company of Panasonic Group, “Technical Information of 
+        NCR18650G,” URLhttps://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
+        
+        convective  heat transfer coefficient, h 
+        Jeon, Dong Hyup, and Seung Man Baek. "Thermal modeling of cylindrical 
+        lithium ion battery during discharge cycle." Energy Conversion and Management
+        52.8-9 (2011): 2973-2981.
+        
+        thermal conductivity, k 
+        Yang, Shuting, et al. "A Review of Lithium-Ion Battery Thermal Management 
+        System Strategies and the Evaluate Criteria." Int. J. Electrochem. Sci 14
+        (2019): 6077-6107.
+        
+        specific heat capacity, Cp
+        Yang, Shuting, et al. "A Review of Lithium-Ion Battery Thermal Management 
+        System Strategies and the Evaluate Criteria." Int. J. Electrochem. Sci 14
+        (2019): 6077-6107.
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        
+        Properties Used:
+        N/A
+    """      
     def __defaults__(self):
         self.tag                         = 'Lithium_Ion_Battery'
         self.chemistry                   = 'LiNiMnCoO2' 
         self.cell                        = Data()   
+        self.module_config               = Data()
         
         self.mass_properties.mass        = 0.048 * Units.kg
         self.cell.mass                   = 0.048 * Units.kg 
         
-        self.cell.max_voltage            = 4.2
+        self.cell.max_voltage            = 4.2   # [V]
         self.cell.nominal_capacity       = 3.55  # [Amp-Hrs]
         self.cell.nominal_voltage        = 3.6   # [V]
-        self.watt_hour_rating            = self.cell.nominal_capacity  * self.cell.nominal_voltage        
-        self.specific_energy             = self.watt_hour_rating*Units.Wh/self.mass_properties.mass  # J/kg
-        self.specific_power              = self.specific_energy/self.cell.nominal_capacity       
-        self.resistance                  = 0.025 
+        self.watt_hour_rating            = self.cell.nominal_capacity  * self.cell.nominal_voltage  # [Watt-hours]      
+        self.specific_energy             = self.watt_hour_rating*Units.Wh/self.mass_properties.mass # [J/kg]
+        self.specific_power              = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
+        self.resistance                  = 0.025 # [Ohms]
         
-        self.specific_heat_capacity      = 2000 # 837.4     # and "A review of lithium-ion battery thermal management system strategies and the evaluate criteria"  
-        self.heat_transfer_coefficient   = 35.       #  Determination of the optimum heat transfer coefficient and temperature rise analysis for a lithium-ion battery under the conditions of Harbin city bus driving cycles. Energies, 10(11). https://doi.org/10.3390/en10111723   
-        self.cell.specific_heat_capacity = 2000 # 837.4     # [J/kgK] "Numerical investigation on cooling performance of Li-ion battery thermal management system at high galvanostatic discharge"  
-       
+        self.specific_heat_capacity      = 1108  # [J/kgK] 
+        self.heat_transfer_coefficient   = 75.   # [W/m^2K]       
+        self.cell.specific_heat_capacity = 1108  # [J/kgK]  
+        self.cell.thermal_conductivity   = 3.91  # [J/kgK] 
+        
         self.cell.diameter               = 0.0018  # [m]
         self.cell.height                 = 0.06485 # [m]
-        self.cell.surface_area           = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  
+        self.cell.surface_area           = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)   # [m^2]
+        
+        self.module_config.series        = 1
+        self.module_config.parallel      = 1  
         
         self.charging_SOC_cutoff         = 1.         
-        self.cell.charging_voltage       = self.cell.nominal_voltage    
-        self.cell.charging_current       = 5.0 
+        self.cell.charging_voltage       = self.cell.nominal_voltage   # [V]  
+        self.cell.charging_current       = 5.0                         # [Amps]
         self.discharge_model             = LiNiMnCo_discharge
         self.charge_model                = LiNiMnCo_charge 
         
@@ -53,9 +90,24 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         return 
 
 def create_discharge_performance_map():
-    """
-    Text 
-    """
+    """ Create discharge and charge response surface for 
+        LiNiMnCoO2 battery cells 
+        
+        Source:
+        N/A
+        
+        Assumptions:
+        N/A
+        
+        Inputs: 
+            
+        Outputs: 
+        battery_data
+
+        Properties Used:
+        N/A
+                                
+    """ 
     
     # Get raw data 
     raw_data      = get_raw_data()
@@ -70,18 +122,34 @@ def create_discharge_performance_map():
 
 def create_response_surface(processed_data):
     
-    battery_map = Data()
-    
-    amps = np.linspace(0, 8, 5)
-    temp = np.linspace(0, 50, 6)
-    SOC  = np.linspace(0, 1, 15) 
-    battery_map.Voltage = RegularGridInterpolator((amps, temp, SOC), processed_data.Voltage)
+    battery_map             = Data() 
+    amps                    = np.linspace(0, 8, 5)
+    temp                    = np.linspace(0, 50, 6)
+    SOC                     = np.linspace(0, 1, 15) 
+    battery_map.Voltage     = RegularGridInterpolator((amps, temp, SOC), processed_data.Voltage)
     battery_map.Temperature = RegularGridInterpolator((amps, temp, SOC), processed_data.Temperature)
      
     return battery_map 
 
 def process_raw_data(raw_data):
-    '''Takes raw data and formats voltage as a function of SOC, current and temperature'''
+    """ Takes raw data and formats voltage as a function of SOC, current and temperature
+        
+        Source 
+        N/A
+        
+        Assumptions:
+        N/A
+        
+        Inputs:
+        raw_Data     
+            
+        Outputs: 
+        procesed_data 
+
+        Properties Used:
+        N/A
+                                
+    """
     processed_data = Data()
      
     processed_data.Voltage        = np.zeros((5,6,15,2)) # current , operating temperature , SOC vs voltage      
@@ -114,7 +182,40 @@ def process_raw_data(raw_data):
     return  processed_data
 
 def get_raw_data():
-    '''Raw data for LiNiMnCoO2 battery'''
+    """ Obtain raw data of a 18650 lithium-nickel-manganese-cobalt-oxide 
+        battery cell my Panasonic
+        
+        Source 
+        Automotive Industrial Systems Company of Panasonic Group, “Technical Information of 
+        NCR18650G,” URLhttps://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
+        
+        Assumptions:
+        N/A
+        
+        Inputs:
+        N/A     
+            
+        Outputs:
+        raw_data.
+            Voltage        
+                Amps_0  
+                Amps_2  
+                Amps_4  
+                Amps_6  
+                Amps_8  
+        
+        raw_data.
+            Temperature.       
+                Amps_0
+                Amps_2
+                Amps_4
+                Amps_6
+                Amps_8 
+
+        Properties Used:
+        N/A
+                                
+    """    
     # Define Data Structure 
     raw_data = Data()
     

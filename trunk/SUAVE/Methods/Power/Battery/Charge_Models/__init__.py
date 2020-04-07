@@ -1,4 +1,4 @@
-## @defgroup Methods-Power-Battery-Charge Charge
+## @defgroup Methods-Power-Battery-Charge_Models Charge_Models
 # Functions to evaluate battery charge losses and voltage requirements
 # @ingroup Methods-Power-Battery
 

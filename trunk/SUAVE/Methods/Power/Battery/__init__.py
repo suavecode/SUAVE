@@ -4,6 +4,7 @@
 
 from . import Discharge_Models
 from . import Charge_Models
+from . import Idle_Model
 from . import Ragone
 from . import Sizing
 from . import Variable_Mass

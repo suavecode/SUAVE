@@ -1,4 +1,4 @@
-## @defgroup Methods-Power-Battery-Discharge Discharge
+## @defgroup Methods-Power-Battery-Discharge_Models Discharge_Models
 # Functions to evaluate battery discharge losses and voltage requirements
 # @ingroup Methods-Power-Battery
 

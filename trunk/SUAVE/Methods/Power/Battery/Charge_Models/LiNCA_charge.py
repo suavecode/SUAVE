@@ -84,8 +84,8 @@ def LiNCA_charge (battery,numerics):
     D                 = numerics.time.differentiate    
     
     # Calculate the current going into one cell 
-    n_series   = battery.module_config[0]  
-    n_parallel = battery.module_config[1]
+    n_series   = battery.module_config.series  
+    n_parallel = battery.module_config.parallel
     n_total    = n_series * n_parallel 
     I_cell     = I_bat/n_parallel
     
@@ -121,7 +121,7 @@ def LiNCA_charge (battery,numerics):
     h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)    
     P_net      = P_heat - h*0.5*cell_surface_area*(T_cell - T_ambient)
     dT_dt      = P_net/(cell_mass*Cp)
-    T_current  = np.atleast_2d(np.hstack(( T_current[0] , T_current[0] + cumtrapz(dT_dt[:,0], x = numerics.time.control_points[:,0]) ))).T
+    T_current  = T_current[0] + np.dot(I,dT_dt) 
     
     # Determine actual power going into the battery accounting for resistance losses
     P_loss = n_total*P_heat

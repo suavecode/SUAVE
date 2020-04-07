@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2015, E. Botero
 # Modified: Feb 2016, T. MacDonald
+# Modified: Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -122,11 +123,13 @@ class Battery_Propeller(Propulsor):
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
         battery.max_energy          = battery.initial_max_energy * battery.E_growth_factor       
-
         
+        # --------------------------------------------------------------------------------
+        # Predict Voltage and Battery Properties Depending on Battery Chemistry
+        # -------------------------------------------------------------------------------- 
         if battery.chemistry == 'LiNCA':  
-            n_series                    = battery.module_config[0]  
-            n_parallel                  = battery.module_config[1]
+            n_series                    = battery.module_config.series  
+            n_parallel                  = battery.module_config.parallel
             n_total                     = n_series * n_parallel  
             
             SOC    = state.unknowns.battery_state_of_charge 
@@ -157,17 +160,18 @@ class Battery_Propeller(Propulsor):
             # Voltage under load:
             volts =  n_series*(V_oc - V_Th - (Icell * R_0)) 
 
-
         elif battery.chemistry == 'LiNiMnCoO2':  
             volts                     = state.unknowns.battery_voltage_under_load 
             battery.cell_temperature  = state.unknowns.battery_cell_temperature   
  
         else: 
             volts                            = state.unknowns.battery_voltage_under_load
-            battery.battery_thevenin_voltage = 0  
-            #battery.temperature              = conditions.propulsion.battery_temperature             
-            battery.cell_temperature         = battery.temperature 
-
+            battery.battery_thevenin_voltage = 0             
+            battery.cell_temperature         = battery.temperature  
+            
+        # --------------------------------------------------------------------------------
+        # Run Motor, Avionics and Systems (Discharge Model)
+        # --------------------------------------------------------------------------------    
         if discharge_flag:     
             # Run the avionics
             avionics.power()
@@ -223,7 +227,10 @@ class Battery_Propeller(Propulsor):
             battery.inputs.power_in = -(volts *esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
             battery.inputs.voltage  = volts
             battery.energy_discharge(numerics)          
-            
+
+        # --------------------------------------------------------------------------------
+        # Run Charge Model 
+        # --------------------------------------------------------------------------------               
         else:  
             # link 
             battery.inputs.current  = -(battery.charging_current ) * np.ones_like(volts)
@@ -235,8 +242,11 @@ class Battery_Propeller(Propulsor):
             conditions.propulsion.propeller_power_coefficient  = np.zeros_like(volts)
             conditions.propulsion.etap  = np.zeros_like(volts)
             conditions.propulsion.etam  = np.zeros_like(volts)
-            
+ 
+ 
+        # --------------------------------------------------------------------------------
         # Pack the conditions for outputs
+        # -------------------------------------------------------------------------------- 
         a                         = conditions.freestream.speed_of_sound
         R                         = propeller.tip_radius
         rpm                       = motor.outputs.omega*60./(2.*np.pi)
@@ -256,23 +266,23 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.motor_temperature            = 0 # currently no motor temperature model
         conditions.propulsion.propeller_torque             = Q
         conditions.propulsion.battery_age_in_days          = battery.age_in_days 
-        # Pack the conditions for outputs    
+
         if battery.chemistry == 'LiNCA':   
-            conditions.propulsion.battery_thevenin_voltage               = battery.thevenin_voltage   
-        conditions.propulsion.propeller_tip_mach        = (R*motor.outputs.omega)/a
+            conditions.propulsion.battery_thevenin_voltage = battery.thevenin_voltage   
+        conditions.propulsion.propeller_tip_mach           = (R*motor.outputs.omega)/a
         
         # Create the outputs 
-        F                                           = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
-        mdot                                        = np.zeros_like(F) 
-        F_mag                                       = np.atleast_2d(np.linalg.norm(F, axis=1))  
-        conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R)**2) # N/m^2                  
+        F                                         = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
+        mdot                                      = np.zeros_like(F) 
+        F_mag                                     = np.atleast_2d(np.linalg.norm(F, axis=1))  
+        conditions.propulsion.disc_loading        = (F_mag.T)/ (num_engines*np.pi*(R)**2) # [N/m^2]                  
         
         if discharge_flag:   
-            conditions.propulsion.power_loading   = (F_mag.T)/(P)                         # N/W  
+            conditions.propulsion.power_loading   = (F_mag.T)/(P)                         # [N/W]  
         else:
             conditions.propulsion.power_loading   = np.zeros_like(volts)
          
-        results = Data()
+        results                     = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
         
@@ -344,22 +354,22 @@ class Battery_Propeller(Propulsor):
         
         return    
     
-    def unpack_unknowns_thevenin(self,segment):  
+    def unpack_unknowns_linca(self,segment):  
         segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.battery_cell_temperature = segment.state.unknowns.battery_cell_temperature 
-        segment.state.conditions.propulsion.battery_state_of_charge  = segment.state.unknowns.battery_state_of_charge
-        segment.state.conditions.propulsion.battery_thevenin_voltage = segment.state.unknowns.battery_thevenin_voltage  
+        segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
+        segment.state.conditions.propulsion.battery_state_of_charge     = segment.state.unknowns.battery_state_of_charge
+        segment.state.conditions.propulsion.battery_thevenin_voltage    = segment.state.unknowns.battery_thevenin_voltage  
   
         return
     
-    def residuals_thevenin(self,segment):  
+    def residuals_linca(self,segment):  
         
         # Unpack
         q_motor      = segment.state.conditions.propulsion.motor_torque
         q_prop       = segment.state.conditions.propulsion.propeller_torque 
         
-        SOC_actual  = segment.state.conditions.propulsion.battery_state_of_charge
-        SOC_predict = segment.state.unknowns.battery_state_of_charge 
+        SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
+        SOC_predict  = segment.state.unknowns.battery_state_of_charge 
         
         Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
         Temp_predict = segment.state.unknowns.battery_cell_temperature   

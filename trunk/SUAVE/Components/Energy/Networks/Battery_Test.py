@@ -89,16 +89,17 @@ class Battery_Test(Propulsor):
         battery.charge_throughput   = conditions.propulsion.battery_charge_throughput
         battery.ambient_temperature = conditions.propulsion.ambient_temperature          
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
-        discharge_flag              = conditions.propulsion.battery_discharge   
+        discharge_flag              = conditions.propulsion.battery_discharge 
         R_growth_factor             = conditions.propulsion.battery_resistance_growth_factor
         E_growth_factor             = conditions.propulsion.battery_capacity_fade_factor   
         battery.R_growth_factor     = R_growth_factor
         battery.E_growth_factor     = E_growth_factor
-        n_series                    = battery.module_config[0]  
-        n_parallel                  = battery.module_config[1]
-        n_total                     = n_series * n_parallel          
+        n_series                    = battery.module_config.series  
+        n_parallel                  = battery.module_config.parallel
+        n_total                     = n_series * n_parallel 
+         
         #-------------------------------------------------------------------------------
-        # PREDICT
+        # Predict Voltage and Battery Properties Depending on Battery Chemistry
         #-------------------------------------------------------------------------------        
         if battery.chemistry == 'LiNCA':  
             SOC        = state.unknowns.battery_state_of_charge 
@@ -139,12 +140,12 @@ class Battery_Test(Propulsor):
             battery.cell_temperature = T_cell          
             
         #-------------------------------------------------------------------------------
-        # DISCHARGE
+        # Discharge
         #-------------------------------------------------------------------------------
         if discharge_flag:
             # Calculate avionics and payload power
             avionics_power = np.ones((numerics.number_control_points,1))*avionics.current * volts
-    
+        
             # Calculate avionics and payload current
             avionics_current =  np.ones((numerics.number_control_points,1))*avionics.current    
             
@@ -161,7 +162,7 @@ class Battery_Test(Propulsor):
             battery.inputs.power_in =  battery.charging_current * battery.charging_voltage * np.ones_like(volts)
             battery.inputs.voltage  = battery.charging_voltage #  volts 
             battery.energy_charge(numerics)        
-    
+        
         # Pack the conditions for outputs    
         if battery.chemistry == 'LiNCA':   
             conditions.propulsion.battery_thevenin_voltage  = battery.thevenin_voltage  
@@ -200,7 +201,7 @@ class Battery_Test(Propulsor):
         
         return    
 
-    def unpack_unknowns_thevenin(self,segment): 
+    def unpack_unknowns_linca(self,segment): 
         
         segment.state.conditions.propulsion.battery_cell_temperature = segment.state.unknowns.battery_cell_temperature 
         segment.state.conditions.propulsion.battery_state_of_charge  = segment.state.unknowns.battery_state_of_charge
@@ -208,7 +209,7 @@ class Battery_Test(Propulsor):
         
         return
     
-    def residuals_thevenin(self,segment):   
+    def residuals_linca(self,segment):   
         # Unpack 
         SOC_actual  = segment.state.conditions.propulsion.battery_state_of_charge
         SOC_predict = segment.state.unknowns.battery_state_of_charge 
@@ -223,7 +224,8 @@ class Battery_Test(Propulsor):
         segment.state.residuals.network[:,0] =  v_th_predict[:,0] - v_th_actual[:,0]     
         segment.state.residuals.network[:,1] =  SOC_predict[:,0]  - SOC_actual[:,0]  
         segment.state.residuals.network[:,2] =  Temp_predict[:,0] - Temp_actual[:,0]
-                    
+                
+ 
     __call__ = evaluate_thrust
 
 

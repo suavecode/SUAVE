@@ -76,6 +76,7 @@ def LiNiMnCo_charge(battery,numerics):
     Cp                = battery.cell.specific_heat_capacity   
     t                 = battery.age_in_days
     cell_surface_area = battery.cell.surface_area
+    #h                 =  battery.heat_transfer_coefficient
     T_ambient         = battery.ambient_temperature    
     T_current         = battery.temperature      
     T_cell            = battery.cell_temperature     
@@ -87,8 +88,8 @@ def LiNiMnCo_charge(battery,numerics):
     I                 = numerics.time.integrate   
     
     # Calculate the current going into one cell 
-    n_series   = battery.module_config[0]  
-    n_parallel = battery.module_config[1]
+    n_series   = battery.module_config.series  
+    n_parallel = battery.module_config.parallel
     n_total    = n_series * n_parallel 
     I_cell     = -I_bat /n_parallel
     

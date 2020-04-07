@@ -10,38 +10,75 @@ from SUAVE.Core import Units , Data
 import numpy as np
 from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
 
-from SUAVE.Components.Energy.Storages.Batteries                             import Battery 
+from SUAVE.Components.Energy.Storages.Batteries                     import Battery 
 from SUAVE.Methods.Power.Battery.Discharge_Models.LiNCA_discharge   import LiNCA_discharge 
 from SUAVE.Methods.Power.Battery.Charge_Models.LiNCA_charge         import LiNCA_charge 
 
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
-class Lithium_Ion_LiNCA_18650(Battery):
-    """
-    Text 
-    """
+class Lithium_Ion_LiNCA_18650(Battery): 
+    """ Specifies discharge/specific energy characteristics specific 
+        18650 lithium-nickel-cobalt-aluminum oxide (LiNCA) battery cells   
+        
+        Assumptions:
+        Convective Thermal Conductivity Coefficient corresponds to forced
+        air cooling in 35 m/s air 
+        
+        Source:
+        Intriduction of INR18650-30Q. https://eu.nkon.nl/sk/k/30q.pdf
+        
+        convective  heat transfer coefficient, h 
+        Jeon, Dong Hyup, and Seung Man Baek. "Thermal modeling of cylindrical 
+        lithium ion battery during discharge cycle." Energy Conversion and Management
+        52.8-9 (2011): 2973-2981.
+        
+        thermal conductivity, k 
+        Yang, Shuting, et al. "A Review of Lithium-Ion Battery Thermal Management 
+        System Strategies and the Evaluate Criteria." Int. J. Electrochem. Sci 14
+        (2019): 6077-6107.
+        
+        specific heat capacity, Cp
+        Yang, Shuting, et al. "A Review of Lithium-Ion Battery Thermal Management 
+        System Strategies and the Evaluate Criteria." Int. J. Electrochem. Sci 14
+        (2019): 6077-6107.
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        
+        Properties Used:
+        N/A
+    """  
+    
     def __defaults__(self):
         self.tag                         = 'Lithium_Ion_Battery'
         self.chemistry                   = 'LiNCA'
         self.cell                        = Data()   
+        self.module_config               = Data()
         
         self.mass_properties.mass        = 0.048 * Units.kg
         self.cell.mass                   = 0.048 * Units.kg 
         
-        self.cell.max_voltage            = 4.2
-        self.cell.nominal_capacity       = 3.04  # [Amp-Hrs]
+        self.cell.max_voltage            = 4.2   # [V]
+        self.cell.nominal_capacity       = 3.00  # [Amp-Hrs]
         self.cell.nominal_voltage        = 3.6   # [V]
-        self.watt_hour_rating            = self.cell.nominal_capacity  * self.cell.nominal_voltage        
-        self.specific_energy             = self.watt_hour_rating*Units.Wh/self.mass_properties.mass  # J/kg
-        self.specific_power              = self.specific_energy/self.cell.nominal_capacity       
-        self.resistance                  = 0.025 
+        self.watt_hour_rating            = self.cell.nominal_capacity  * self.cell.nominal_voltage  # [Watt-hours]      
+        self.specific_energy             = self.watt_hour_rating*Units.Wh/self.mass_properties.mass # [J/kg]
+        self.specific_power              = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
+        self.resistance                  = 0.025 # [Ohms]
         
-        self.specific_heat_capacity      = 837.4     # and "A review of lithium-ion battery thermal management system strategies and the evaluate criteria"  
-        self.heat_transfer_coefficient   = 20.       #  Determination of the optimum heat transfer coefficient and temperature rise analysis for a lithium-ion battery under the conditions of Harbin city bus driving cycles. Energies, 10(11). https://doi.org/10.3390/en10111723   
-        self.cell.specific_heat_capacity = 837.4     # [J/kgK] "Numerical investigation on cooling performance of Li-ion battery thermal management system at high galvanostatic discharge"  
-       
-        self.cell.diameter               = 0.0018  # [m]
-        self.cell.height                 = 0.06485 # [m]
-        self.cell.surface_area           = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  
+        self.specific_heat_capacity      = 837.4   # [J/kgK] 
+        self.heat_transfer_coefficient   = 75.     # [W/m^2K]     
+        self.cell.specific_heat_capacity = 837.4   # [J/kgK] 
+        self.cell.thermal_conductivity   = 32.2    # [J/kgK] 
+        
+        self.module_config.series        = 1
+        self.module_config.parallel      = 1
+        
+        self.cell.diameter               = 0.001833  # [m]
+        self.cell.height                 = 0.06485   # [m] 
+        self.cell.surface_area           = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  # [m^2]
         
         self.charging_SOC_cutoff         = 1.           
         self.discharge_model             = LiNCA_discharge 
@@ -51,9 +88,24 @@ class Lithium_Ion_LiNCA_18650(Battery):
         return 
 
 def create_discharge_performance_map():
-    """
-    Text 
-    """
+    """ Create discharge and charge response surface for 
+        LiNCA  battery cells     
+        
+        Source:
+        N/A
+        
+        Assumptions:
+        N/A
+        
+        Inputs: 
+            
+        Outputs: 
+        battery_data
+
+        Properties Used:
+        N/A
+                                
+    """ 
     battery_data = Data()
     T_bp = np.array([0., 20., 30., 45.])
     SOC_bp = np.array( [0. , 0.03333333, 0.06666667, 0.1 , 0.13333333, 0.16666667,

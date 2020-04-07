@@ -21,16 +21,21 @@ from SUAVE.Components.Energy.Storages.Batteries  import Battery
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 class Lithium_Ion(Battery):
     """
-    Specifies discharge/specific energy characteristics specific tobytes
-    lithium-ion batteries
+    Specifies discharge/specific energy characteristics of the default 
+    lithium-ion battery in SUAVE. 
     """
     def __defaults__(self):
-        self.cell               = Data()
-        self.specific_energy    = 200.    *Units.Wh/Units.kg
-        self.specific_power     = 1.      *Units.kW/Units.kg
-        self.ragone.const_1     = 88.818  *Units.kW/Units.kg
-        self.ragone.const_2     = -.01533 /(Units.Wh/Units.kg)
-        self.ragone.lower_bound = 60.     *Units.Wh/Units.kg
-        self.ragone.upper_bound = 225.    *Units.Wh/Units.kg
+        self.cell                        = Data()
+        self.module_config               = Data()
         
+        self.specific_energy             = 200.    * Units.Wh/Units.kg
+        self.specific_power              = 1.      * Units.kW/Units.kg
+        self.ragone.const_1              = 88.818  * Units.kW/Units.kg
+        self.ragone.const_2              = -.01533 / (Units.Wh/Units.kg)
+        self.ragone.lower_bound          = 60.     * Units.Wh/Units.kg
+        self.ragone.upper_bound          = 225.    * Units.Wh/Units.kg
         
+        self.module_config.series        = 1
+        self.module_config.parallel      = 1   
+        self.specific_heat_capacity      = 2000 
+        self.heat_transfer_coefficient   = 35.  
