@@ -15,7 +15,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_horizontal import tail_horizontal
 from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_vertical import tail_vertical
 from SUAVE.Methods.Weights.Correlations.Tube_Wing.tube import tube
-from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
+from SUAVE.Methods.Weights.Correlations.Common import wing_main_raymer as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
 from SUAVE.Methods.Weights.Correlations.Common.systems import systems
@@ -131,7 +131,7 @@ def arbitrary(vehicle,settings=None):
             # Calculate the weights
             rho      = Aluminum().density
             sigma    = Aluminum().yield_tensile_strength            
-            wt_wing  = wing_main.wing_main(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction)
+            wt_wing  = wing_main.wing_main_raymer(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction)
             
             # Apply weight factor
             wt_wing  = wt_wing*(1.-wt_factors.main_wing)*(1.-wt_factors.structural)
