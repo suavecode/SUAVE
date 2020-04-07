@@ -38,14 +38,14 @@ def main():
     
     plot_results(results)
     
-    distance_regression = 4205234.429573149
+    distance_regression = 4107543.051277754
     distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
     error_distance      = abs((distance_regression - distance_calc )/distance_regression)
     assert error_distance < 1e-6
     
     error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
     print('landing weight error' , error_weight)
-    assert error_weight < 1e-6
+    assert error_weight < 1e-4
     
     return
     

@@ -129,7 +129,7 @@ def empty(vehicle):
         mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
         wing_c_r   = vehicle.wings['main_wing'].chords.root
         S_h        = vehicle.wings['main_wing'].areas.reference*0.01 # control surface area on bwb
-        wt_wing    = wing_main.wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
+        wt_wing    = wing_main.wing_main(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction)
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing        
     
 

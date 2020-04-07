@@ -9,9 +9,6 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Data
-#from .cabin          import cabin
-#from .aft_centerbody import aft_centerbody
-#from .systems        import systems
 from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_horizontal import tail_horizontal
 from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_vertical import tail_vertical
 from SUAVE.Methods.Weights.Correlations.Tube_Wing.tube import tube

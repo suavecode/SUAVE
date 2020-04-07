@@ -10,7 +10,6 @@
 import SUAVE
 from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Component, Lofted_Body, Mass_Properties
-from SUAVE.Components.Wings.Control_Surface import Control_Surface 
 import SUAVE.Components.Wings.Main_Wing as Main_Wing
 
 import numpy as np
