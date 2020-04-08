@@ -8,14 +8,15 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Diffed_Data
+from SUAVE.Core    import Diffed_Data
+from SUAVE.Vehicle import Vehicle
 
 # ----------------------------------------------------------------------
 #  Config
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Configs
-class Config(Diffed_Data):
+class Config(Diffed_Data,Vehicle):
     """ SUAVE.Components.Config()
     
         The Top Level Configuration Class
@@ -46,3 +47,5 @@ class Config(Diffed_Data):
                 N/A
         """
         self.tag    = 'config'
+        self._base  = Vehicle()
+        self._diff  = Vehicle()
