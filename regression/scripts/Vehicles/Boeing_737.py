@@ -586,8 +586,8 @@ def vehicle_setup():
     landing_gear.nose_tire_diameter       = 0.6858 * Units.m
     landing_gear.main_strut_length        = 1.8 * Units.m
     landing_gear.nose_strut_length        = 1.3 * Units.m
-    landing_gear.main_units               = 1      #number of nose landing gear
-    landing_gear.nose_units               = 1     #number of nose landing gear
+    landing_gear.main_units               = 1    #number of nose landing gear
+    landing_gear.nose_units               = 1    #number of nose landing gear
     landing_gear.main_wheels              = 2    #number of wheels on the main landing gear
     landing_gear.nose_wheels              = 2    #number of wheels on the nose landing gear      
     vehicle.landing_gear                  = landing_gear
