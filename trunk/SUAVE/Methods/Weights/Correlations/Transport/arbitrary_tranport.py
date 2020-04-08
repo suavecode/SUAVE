@@ -1,5 +1,5 @@
 ## @ingroup Methods-Weights-Correlations-Common
-# arbitrary.py
+# arbitrary_transport.py
 # 
 # Created:  Nov 2018, E. Botero 
 # Modified: 
@@ -9,9 +9,9 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Data
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_horizontal import tail_horizontal
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_vertical import tail_vertical
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.tube import tube
+from SUAVE.Methods.Weights.Correlations.Transport.tail_horizontal import tail_horizontal
+from SUAVE.Methods.Weights.Correlations.Transport.tail_vertical import tail_vertical
+from SUAVE.Methods.Weights.Correlations.Transport.tube import tube
 from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
@@ -27,8 +27,7 @@ import numpy as np
 #  Empty
 # ----------------------------------------------------------------------
 
-
-def arbitrary(vehicle,settings=None):
+def arbitrary_tranport(vehicle,settings=None):
     """ This is for an arbitrary aircraft configuration. 
     
     Assumptions:
@@ -63,8 +62,6 @@ def arbitrary(vehicle,settings=None):
     ac_type    = vehicle.systems.accessories
     S_gross_w  = vehicle.reference_area
     
-    
-    
     # Set the factors
     if settings == None:
         wt_factors = Data()
@@ -82,6 +79,9 @@ def arbitrary(vehicle,settings=None):
     wt_fuselage        = 0.0
     wt_rudder          = 0.0
     s_tail             = 0.0
+    S_main_sum         = 0.0
+    mac_main_w         = 0.0
+    main_origin        = np.array([0.,0.,0.])
     
     # Work through the propulsions systems
     for prop in vehicle.propulsors:
@@ -98,7 +98,7 @@ def arbitrary(vehicle,settings=None):
             
             wt_propulsion             += wt_prop
     
-    # Go through all the wings
+    # Go through all the wings, except horizontal tail
     for wing in vehicle.wings:
         
         # Common Wing Parameters
@@ -129,32 +129,9 @@ def arbitrary(vehicle,settings=None):
             # Pack and sum
             wing.mass_properties.mass = wt_wing
             wt_main_wing += wt_wing
-            
-        # Horizontal Tail    
-        if isinstance(wing,Wings.Horizontal_Tail):
-            
-            # Unpack horizontal tail specific parameters
-            h_tail_exposed = wing.areas.exposed / wing.areas.wetted
-            l_w2h          = wing.origin[0][0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0][0] - vehicle.wings['main_wing'].origin[0][0]
-            mac_w          = vehicle.wings['main_wing'].chords.mean_aerodynamic
-            
-            if np.isnan(mac_w):
-                mac_w = 0.
-                
-            if np.isnan(l_w2h):
-                l_w2h = 0.
-            
-            # Calculate the weights
-            wt_horiz = tail_horizontal(b,sweep,Nult,S,TOW,mac_w,mac,l_w2h,t_c, h_tail_exposed)   
-            
-            # Apply weight factor
-            wt_horiz = wt_horiz*(1.-wt_factors.empennage)
-            
-            # Pack and sum
-            wing.mass_properties.mass = wt_horiz
-            wt_tail_horizontal += wt_horiz
-            s_tail             += S
-            
+            S_main_sum   += S
+            mac_main_w   += mac
+            main_origin  += wing.origin[0]
             
         # Vertical Tail
         if isinstance(wing,Wings.Vertical_Tail):       
@@ -175,6 +152,36 @@ def arbitrary(vehicle,settings=None):
             wt_vtail_tot += wt_vertical
             wt_rudder    += wt_rud
             s_tail       += S
+            
+    mac_main_w  = mac_main_w/S_main_sum
+    main_origin = main_origin/S_main_sum
+            
+    # Go through all the wings and find horizontal tails
+    for wing in vehicle.wings:    
+            # Horizontal Tail    
+            if isinstance(wing,Wings.Horizontal_Tail):
+                
+                # Unpack horizontal tail specific parameters
+                h_tail_exposed = wing.areas.exposed / wing.areas.wetted
+                l_w2h          = wing.origin[0][0] + wing.aerodynamic_center[0] - main_origin[0]
+                
+                if np.isnan(mac_main_w):
+                    mac_w = 0.
+                    
+                if np.isnan(l_w2h):
+                    l_w2h = 0.
+                
+                # Calculate the weights
+                wt_horiz = tail_horizontal(b,sweep,Nult,S,TOW,mac_main_w,mac,l_w2h,t_c, h_tail_exposed)   
+                
+                # Apply weight factor
+                wt_horiz = wt_horiz*(1.-wt_factors.empennage)
+                
+                # Pack and sum
+                wing.mass_properties.mass = wt_horiz
+                wt_tail_horizontal += wt_horiz
+                s_tail             += S
+        
             
     # Fuselages
     for fuse in vehicle.fuselages:
@@ -228,8 +235,6 @@ def arbitrary(vehicle,settings=None):
     output.systems_breakdown.electrical        = output_2.wt_elec        
     output.systems_breakdown.air_conditioner   = output_2.wt_ac          
     output.systems_breakdown.furnish           = output_2.wt_furnish    
-    
-
     
     control_systems        = SUAVE.Components.Physical_Component()
     control_systems.tag    = 'control_systems'

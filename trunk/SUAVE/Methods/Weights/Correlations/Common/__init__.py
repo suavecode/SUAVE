@@ -5,4 +5,3 @@
 from . import landing_gear
 from . import payload
 from . import wing_main
-from . import arbitrary

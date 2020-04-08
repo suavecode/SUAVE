@@ -16,7 +16,7 @@ import SUAVE.Components as C
 
 # ----------------------------------------------------------------------
 #  Computer Aircraft Center of Gravity
-# ---------------origin-------------------------------------------------------
+# ----------------------------------------------------------------------
 
 ## @ingroup Methods-Center_of_Gravity
 def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):

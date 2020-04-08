@@ -138,7 +138,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -226,10 +226,9 @@ def simple_sizing(configs, analyses):
     weights = analyses.configs.base.weights
     breakdown = weights.evaluate()    
     
-    
     #compute centers of gravity
     #need to put here, otherwise, results won't be stored
-    compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
+    compute_component_centers_of_gravity(base)
     compute_aircraft_center_of_gravity(base)
     
     # diff the new data

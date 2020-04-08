@@ -3,6 +3,7 @@
 # 
 # Created:  Apr 2017, M. Clarke 
 # Modified: Jul 2017, M. Clarke
+#           Apr 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,6 +17,9 @@ from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
+import SUAVE.Components.Energy.Networks as Nets
+from SUAVE.Attributes.Solids.Aluminum import Aluminum
+
 import warnings
 
 # ----------------------------------------------------------------------
@@ -122,15 +126,13 @@ def empty(vehicle):
         warnings.warn("There is no Wing Weight being added to the Configuration", stacklevel=1)
         
     else:
-        b          = vehicle.wings['main_wing'].spans.projected
-        lambda_w   = vehicle.wings['main_wing'].taper
-        t_c_w      = vehicle.wings['main_wing'].thickness_to_chord
-        sweep_w    = vehicle.wings['main_wing'].sweeps.quarter_chord
-        mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
-        wing_c_r   = vehicle.wings['main_wing'].chords.root
         S_h        = vehicle.wings['main_wing'].areas.reference*0.01 # control surface area on bwb
-        wt_wing    = wing_main.wing_main(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction)
-        vehicle.wings['main_wing'].mass_properties.mass = wt_wing        
+        
+        # Calculate the weights
+        rho      = Aluminum().density
+        sigma    = Aluminum().yield_tensile_strength            
+        wt_wing    = wing_main.wing_main(vehicle.wings['main_wing'],Nult,TOW,wt_zf,rho,sigma)
+        vehicle.wings['main_wing'].mass_properties.mass = wt_wing       
     
 
     # Calculating Empty Weight of Aircraft
@@ -163,12 +165,12 @@ def empty(vehicle):
     output.systems_breakdown.furnish            = output_2.wt_furnish    
     
     #define weights components
-
-    try: 
-        landing_gear_component=vehicle.landing_gear #landing gear previously defined
-    except AttributeError: # landing gear not defined
+    
+    if vehicle.landing_gear:
+        landing_gear_component = vehicle.landing_gear[0] #landing gear previously defined
+    else: # landing gear not defined
         landing_gear_component=SUAVE.Components.Landing_Gear.Landing_Gear()
-        vehicle.landing_gear=landing_gear_component
+        vehicle.landing_gear.append(landing_gear_component)
     
     control_systems                             = SUAVE.Components.Physical_Component()
     electrical_systems                          = SUAVE.Components.Physical_Component()

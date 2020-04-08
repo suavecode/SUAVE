@@ -6,7 +6,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
-from SUAVE.Methods.Weights.Correlations import Common as Common
+from SUAVE.Methods.Weights.Correlations import Transport as Transport
 from SUAVE.Methods.Weights.Correlations import General_Aviation as General_Aviation
 from SUAVE.Methods.Weights.Correlations import BWB as BWB
 from SUAVE.Methods.Weights.Correlations import Human_Powered as HP
@@ -28,22 +28,22 @@ from Solar_UAV import vehicle_setup  as hp_setup
 def main():
   
     vehicle = vehicle_setup()    
-    weight = Common.arbitrary.arbitrary(vehicle)
+    weight = Transport.arbitrary_tranport(vehicle)
     
     # regression values    
     actual = Data()
     actual.payload         = 27349.9081525      # includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.587065500002
     actual.bag             = 2313.3210870000003
-    actual.fuel            = 15609.697237856548  # includes cargo #22177.6377131 #without cargo
-    actual.empty           = 36056.194609643455
+    actual.fuel            = 16532.79992901541  # includes cargo #22177.6377131 #without cargo
+    actual.empty           = 35133.09191848459
     actual.wing            = 3461.869204335895
     actual.fuselage        = 6700.709511002648
     actual.propulsion      = 6838.185174956626
     actual.landing_gear    = 3160.632
-    actual.systems         = 13479.10479056802
+    actual.systems         = 13390.723085494214
     actual.wt_furnish      = 6431.803728889001
-    actual.horizontal_tail = 1535.0396530899045
+    actual.horizontal_tail = 700.3186670048452
     actual.vertical_tail   = 880.6542756903633
     actual.rudder          = 251.61550734010382
     actual.nose_gear       = 316.06320000000005
@@ -131,9 +131,9 @@ def main():
     actual.payload         = 27349.9081525 #includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.587065500002
     actual.bag             = 2313.3210870000003
-    actual.fuel            = 24860.343951919327
-    actual.empty           = 26805.547895580676
-    actual.wing            = 6576.679767012152
+    actual.fuel            = 26119.117465169547
+    actual.empty           = 25546.774382330455
+    actual.wing            = 5317.906253761935
     actual.fuselage        = 1.0
     actual.propulsion      = 1413.8593105126783
     actual.landing_gear    = 3160.632

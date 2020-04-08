@@ -87,6 +87,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 0.88 
     segment.dihedral_outboard     = 10.0 * Units.deg
     segment.sweeps.quarter_chord  = 40.0*Units.deg
+    segment.thickness_to_chord    = 0.18
         
     wing.Segments.append(segment)
     
@@ -97,6 +98,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 0.35
     segment.dihedral_outboard     = 4.0 * Units.deg
     segment.sweeps.quarter_chord  = 20.0 * Units.deg
+    segment.thickness_to_chord    = 0.1
     
     wing.Segments.append(segment)    
 
