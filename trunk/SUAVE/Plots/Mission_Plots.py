@@ -1053,8 +1053,8 @@ def set_axes(axes):
     """   
     
     axes.minorticks_on()
-    axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-    axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+    axes.grid(which='major', linestyle='-', linewidth=0.5, color='grey')
+    axes.grid(which='minor', linestyle=':', linewidth=0.5, color='grey')      
     axes.grid(True)   
 
     return  
