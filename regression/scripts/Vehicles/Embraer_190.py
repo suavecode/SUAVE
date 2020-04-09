@@ -1,7 +1,7 @@
 # Embraer_190
 #
 # Created:  Feb 2017, M. Vegh (data taken from Embraer_E190_constThr/mission_Embraer_E190_constThr, and Regional_Jet_Optimization/Vehicles2.py), takeoff_field_length/takeoff_field_length.py, landing_field_length/landing_field_length.py
-# Modified:
+# Modified: Mar 2020, M. Clarke
 
 """ setup file for the E190 vehicle
 """
@@ -88,7 +88,7 @@ def vehicle_setup():
     slat.span_fraction_start   = 0.324 
     slat.span_fraction_end     = 0.963     
     slat.deflection            = 1.0 * Units.deg 
-    slat.chord_fraction        = 0.1  	 
+    slat.chord_fraction        = 0.1   
     wing.append_control_surface(slat) 
     
     wing                         = wing_planform(wing)

@@ -6,7 +6,8 @@
 #           Jun 2017, M. Clarke
 #           Aug 2018, T St. Francis
 #           Oct 2018, T. MacDonald
-#           Dec 2018, T. MacDonald
+#           Dec 2018, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -61,7 +62,7 @@ class Fuselage(Lofted_Body):
         
         self.number_coach_seats = 0.0
         self.seats_abreast      = 0.0
-        self.seat_pitch         = 0.0
+        self.seat_pitch         = 1.0
 
         self.areas = Data()
         self.areas.front_projected = 0.0
@@ -77,6 +78,9 @@ class Fuselage(Lofted_Body):
         self.heights.at_three_quarters_length       = 0.0
         self.heights.at_wing_root_quarter_chord     = 0.0
         self.heights.at_vertical_root_quarter_chord = 0.0
+        self.x_rotation  = 0.0
+        self.y_rotation  = 0.0
+        self.z_rotation  = 0.0      
         
         self.lengths = Data()
         self.lengths.nose       = 0.0
@@ -154,38 +158,10 @@ class Fuselage(Lofted_Body):
         # Assert database type
         if not isinstance(fuel_tank,Data):
             raise Exception('input component must be of type Data()')
-
+    
         # Store data
         self.Fuel_Tanks.append(fuel_tank)
 
-        return
-    
-    def append_segment(self,segment):
-        """ Adds a segment to the fuselage. 
-    
-        Assumptions:
-        None
-        
-        Source:
-        N/A
-        
-        Inputs:
-        None
-        
-        Outputs:
-        None
-        
-        Properties Used:
-        N/A
-        """ 
-        
-        # Assert database type
-        if not isinstance(segment,Data):
-            raise Exception('input component must be of type Data()')
-        
-        # Store data
-        self.Segments.append(segment)
-        
         return
         
 

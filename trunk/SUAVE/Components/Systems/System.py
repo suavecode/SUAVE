@@ -4,49 +4,53 @@
 # Created:  
 # Modified: Feb 2016, T. MacDonald
 #           Oct 2017, E. Botero
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
+<<<<<<< HEAD
 # ----------------------------------------------------------------------
 
 from SUAVE.Components import Component, Physical_Component
+=======
+# ----------------------------------------------------------------------
+
+from SUAVE.Components import Physical_Component
+>>>>>>> develop
 
 # ----------------------------------------------------------------------
 #  Payload Base Class
 # ----------------------------------------------------------------------
         
 ## @ingroup Components-Systems
-class System(Component):
-    """ SUAVE.Components.Systems.System()
+class System(Physical_Component):
+    """A class representing an aircraft system/systems.
     
-        The Top Level System Class
-        
-            Assumptions:
-            None
-            
-            Source:
-            N/A
-    """    
+    Assumptions:
+    None
+
+    Source:
+    N/A
+    """  
     
-    
-    def __defaults__(self):
+    def __defaults__(self): 
 
         """ This sets the default values for the system.
         
-                Assumptions:
-                None
-                
-                Source:
-                N/A
-                
-                Inputs:
-                None
-                
-                Outputs:
-                None
-                
-                Properties Used:
-                N/A
+        Assumptions:
+        None
+        
+        Source:
+        N/A
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        
+        Properties Used:
+        N/A
         """        
         
         self.tag             = 'System'

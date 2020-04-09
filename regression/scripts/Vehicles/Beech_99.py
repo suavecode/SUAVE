@@ -70,7 +70,7 @@ def vehicle_setup():
     slat.span_fraction_start   = 0.324  # not correct, only placeholder 
     slat.span_fraction_end     = 0.963  # not correct, only placeholder   
     slat.deflection            = 1.0 * Units.deg
-    slat.chord_fraction        = 0.1    # not correct, only placeholder	 
+    slat.chord_fraction        = 0.1    # not correct, only placeholder 
     wing.append_control_surface(slat)  
     
     vehicle.append_component(wing)
