@@ -2,7 +2,8 @@
 # AVL.py
 #
 # Created:  Apr 2017, M. Clarke 
-# Modified: Apr 2019, T. MacDonald
+# Modified: Apr 2019, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,9 +14,6 @@ from SUAVE.Core import Data
 from .Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
-
-# Default aero Results
-from .Results import Results
 
 # The aero methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
@@ -63,7 +61,9 @@ class AVL(Markup):
         settings.oswald_efficiency_factor           = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
-        settings.spoiler_drag_increment             = 0.00
+        settings.spoiler_drag_increment             = 0.00 
+        
+        # ------
         settings.spanwise_vortices                  = None
         settings.chordwise_vortices                 = None        
         
@@ -89,7 +89,6 @@ class AVL(Markup):
         compute.drag.parasite.propulsors.propulsor = Common.Drag.parasite_drag_propulsor
         compute.drag.parasite.pylons               = Common.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Common.Drag.induced_drag_aircraft
         compute.drag.compressibility               = Process()
         compute.drag.compressibility.wings         = Process_Geometry('wings')
         compute.drag.compressibility.wings.wing    = Common.Drag.compressibility_drag_wing

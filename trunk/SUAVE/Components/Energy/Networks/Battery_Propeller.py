@@ -3,7 +3,7 @@
 # 
 # Created:  Jul 2015, E. Botero
 # Modified: Feb 2016, T. MacDonald
-
+#           Mar 2020, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -15,7 +15,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 
 # ----------------------------------------------------------------------
 #  Network
@@ -113,23 +113,22 @@ class Battery_Propeller(Propulsor):
 
         # Step 1 battery power
         esc.inputs.voltagein = state.unknowns.battery_voltage_under_load
+        
         # Step 2
         esc.voltageout(conditions)
+        
         # link
-        motor.inputs.voltage = esc.outputs.voltageout
+        motor.inputs.voltage = esc.outputs.voltageout 
+        
         # step 3
         motor.omega(conditions)
+        
         # link
         propeller.inputs.omega =  motor.outputs.omega
         propeller.thrust_angle = self.thrust_angle
+        
         # step 4
         F, Q, P, Cp, outputs , etap = propeller.spin(conditions)
-        
-        if (self.use_surrogate == True) and (self.propeller.surrogate is not None):
-            F, Q, P, Cp ,  outputs  , etap  = propeller.spin_surrogate(conditions)
-        else:            
-            # step 4
-            F, Q, P, Cp , outputs  , etap   = propeller.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]
@@ -147,6 +146,7 @@ class Battery_Propeller(Propulsor):
 
         # Run the motor for current
         motor.current(conditions)
+        
         # link
         esc.inputs.currentout =  motor.outputs.current
 
@@ -160,14 +160,14 @@ class Battery_Propeller(Propulsor):
         avionics_payload_current = avionics_payload_power/self.voltage
 
         # link
-        battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
-        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
+        battery.inputs.current  = esc.outputs.currentin*num_engines + avionics_payload_current
+        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*num_engines + avionics_payload_power)
         battery.energy_calc(numerics)        
     
         # Pack the conditions for outputs
         a                    = conditions.freestream.speed_of_sound
         R                    = propeller.tip_radius
-        rpm                  = motor.outputs.omega*60./(2.*np.pi)
+        rpm                  = motor.outputs.omega / Units.rpm
         current              = esc.outputs.currentin
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
@@ -181,17 +181,16 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.voltage_open_circuit  = voltage_open_circuit
         conditions.propulsion.voltage_under_load    = voltage_under_load  
         conditions.propulsion.motor_torque          = motor.outputs.torque
-        conditions.propulsion.propeller_torque      = Q 
-        conditions.propulsion.battery_specfic_power = -(battery_draw/1000)/battery.mass_properties.mass 
+        conditions.propulsion.propeller_torque      = Q
+        conditions.propulsion.battery_specfic_power = -battery_draw/battery.mass_properties.mass # Wh/kg
         conditions.propulsion.propeller_tip_mach    = (R*rpm)/a
         
         # Create the outputs
-        F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
-        mdot = np.zeros_like(F)
-
-        F_mag = np.atleast_2d(np.linalg.norm(F, axis=1)*0.224809) # lb   
-        conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R*3.28084)**2) # lb/ft^2                     
-        conditions.propulsion.power_loading         = (F_mag.T)/(battery_draw*0.00134102)           # lb/hp 
+        F                                           = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
+        mdot                                        = np.zeros_like(F) 
+        F_mag                                       = np.atleast_2d(np.linalg.norm(F, axis=1))  
+        conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R)**2) # N/m^2                  
+        conditions.propulsion.power_loading         = (F_mag.T)/(P)                         # N/W 
         
         results = Data()
         results.thrust_force_vector = F
@@ -267,3 +266,5 @@ class Battery_Propeller(Propulsor):
         return    
             
     __call__ = evaluate_thrust
+
+

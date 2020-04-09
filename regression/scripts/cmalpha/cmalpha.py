@@ -64,7 +64,7 @@ def main():
     
     
     from SIAI_Marchetti_S211 import vehicle_setup, configs_setup
-
+    
     vehicle = vehicle_setup()
     configs = configs_setup(vehicle)
     Mach                          = np.array([0.111])

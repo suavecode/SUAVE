@@ -4,6 +4,7 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
 #           May 2019, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -47,6 +48,7 @@ def initialize_conditions(segment):
     Tf         = segment.pitch_final 
     theta_dot  = segment.pitch_rate   
     conditions = segment.state.conditions 
+    state      = segment.state
     
     # check for initial altitude
     if alt is None:
@@ -67,7 +69,7 @@ def initialize_conditions(segment):
     # set the body angle
     body_angle = theta_dot*time + T0
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]    
-
+    
     # pack
     segment.state.conditions.freestream.altitude[:,0]             = alt
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down

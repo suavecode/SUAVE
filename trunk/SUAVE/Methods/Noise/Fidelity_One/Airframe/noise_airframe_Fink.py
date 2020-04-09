@@ -88,7 +88,7 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     # ==============================================
     wing     = config.wings
     flap     = wing.main_wing.control_surfaces.flap
-
+    
     Sw       = wing.main_wing.areas.reference  / (Units.ft)**2              #wing area, sq.ft
     bw       = wing.main_wing.spans.projected / Units.ft                    #wing span, ft
     Sht      = wing.horizontal_stabilizer.areas.reference / (Units.ft)**2   #horizontal tail area, sq.ft
@@ -96,7 +96,7 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     Svt      = wing.vertical_stabilizer.areas.reference / (Units.ft)**2     #vertical tail area, sq.ft
     bvt      = wing.vertical_stabilizer.spans.projected  / Units.ft         #vertical tail span, ft
     deltaf   = flap.deflection                                              #flap delection, rad
-    Sf       = flap.area  / (Units.ft)**2                                   #flap area, sq.ft
+    Sf       = flap.area  / (Units.ft)**2                                   #flap area, sq.ft        
     cf       = flap.chord_dimensional  / Units.ft                           #flap chord, ft
     Dp       = config.landing_gear.main_tire_diameter  / Units.ft           #MLG tyre diameter, ft
     Hp       = config.landing_gear.nose_tire_diameter  / Units.ft           #MLG strut length, ft
@@ -120,7 +120,7 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     elif wing.main_wing.control_surfaces.flap.configuration_type == 'double_slotted':
         slots = 2
     elif wing.main_wing.control_surfaces.flap.configuration_type == 'triple_slotted':
-        slots = 3
+        slots = 3  
 
     # Geometric information from the source to observer position
     distance_vector = noise_segment.dist    

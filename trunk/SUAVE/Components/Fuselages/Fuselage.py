@@ -6,7 +6,8 @@
 #           Jun 2017, M. Clarke
 #           Aug 2018, T St. Francis
 #           Oct 2018, T. MacDonald
-#           Dec 2018, T. MacDonald
+#           Dec 2018, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -151,34 +152,6 @@ class Fuselage(Lofted_Body):
         # Store data
         self.Fuel_Tanks.append(fuel_tank)
 
-        return
-    
-    def append_segment(self,segment):
-        """ Adds a segment to the fuselage. 
-    
-        Assumptions:
-        None
-        
-        Source:
-        N/A
-        
-        Inputs:
-        None
-        
-        Outputs:
-        None
-        
-        Properties Used:
-        N/A
-        """ 
-        
-        # Assert database type
-        if not isinstance(segment,Data):
-            raise Exception('input component must be of type Data()')
-        
-        # Store data
-        self.Segments.append(segment)
-        
         return
         
 

@@ -4,6 +4,7 @@
 # Created:  Jul 2014, E. Botero
 # Modified: Feb 2016, E. Botero
 #           Jul 2017, M. Clarke
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,12 +12,15 @@
 
 import SUAVE
 import numpy as np
+import scipy as sp
 from SUAVE.Core import Units , Data
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_propeller_airfoils
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
+     import import_airfoil_geometry
 # ----------------------------------------------------------------------
 #  Propeller Design
 # ----------------------------------------------------------------------
-def propeller_design(prop,N=20):
+
+def propeller_design(prop,number_of_stations=20):
     """ Optimizes propeller chord and twist given input parameters.
           
           Inputs:
@@ -29,15 +33,18 @@ def propeller_design(prop,N=20):
             number of blades               
             number of stations
             design lift coefficient
-            airfoil data                     
+            airfoil data
+            
           Outputs:
           Twist distribution                 [array of radians]
           Chord distribution                 [array of meters]
               
           Assumptions/ Source:
           Based on Design of Optimum Propellers by Adkins and Liebeck
+          
     """    
     # Unpack
+    N      = number_of_stations       # this number determines the discretization of the propeller into stations 
     B      = prop.number_blades
     R      = prop.tip_radius
     Rh     = prop.hub_radius
@@ -47,9 +54,14 @@ def propeller_design(prop,N=20):
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
     Power  = prop.design_power
-    a_sec  = prop.airfoil_sections          
-    a_secl = prop.airfoil_section_location      
+    a_geo  = prop.airfoil_geometry          
     
+    if (Thrust == None) and (Power== None):
+        raise AssertionError('Specify either design thrust or design power!')
+    
+    elif (Thrust!= None) and (Power!= None):
+        raise AssertionError('Specify either design thrust or design power!')
+        
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data = atmosphere.compute_values(alt)
@@ -62,8 +74,13 @@ def propeller_design(prop,N=20):
     nu  = mu/rho
     
     # Nondimensional thrust
-    Tc = 2.*Thrust/(rho*(V*V)*np.pi*(R*R))
-    Pc = 2.*Power/(rho*(V*V*V)*np.pi*(R*R))    
+    if (Thrust!= None) and (Power == None):
+        Tc = 2.*Thrust/(rho*(V*V)*np.pi*(R*R))
+        Pc = 0.0 
+    
+    elif (Thrust== None) and (Power != None):
+        Tc = 0.0   
+        Pc = 2.*Power/(rho*(V*V*V)*np.pi*(R*R))     
     
     tol   = 1e-10 # Convergence tolerance
 
@@ -158,10 +175,7 @@ def propeller_design(prop,N=20):
 
         elif (Pc!=0.)&(Tc==0.): 
             #Second Case, Thrust is given
-            zetan    = -(J1/(J2*2.)) + ((J1/(J2*2.))**2.+Pc/J2)**0.5
-            
-        else:
-            print('Power and thrust are both specified!')
+            zetan    = -(J1/(J2*2.)) + ((J1/(J2*2.))**2.+Pc/J2)**0.5 
     
         #Step 10, repeat starting at step 2 with the new zeta
         diff = abs(zeta-zetan)
@@ -195,9 +209,9 @@ def propeller_design(prop,N=20):
     
     MCA = c/4. - c[0]/4.
     
-    
-    Power = Pc*rho*(V**3)*np.pi*(R**2)/2
-    Cp    = Power/(rho*(n**3)*(D**5))
+    Thrust = Tc*rho*(V**2)*np.pi*(R**2)/2
+    Power  = Pc*rho*(V**3)*np.pi*(R**2)/2
+    Cp     = Power/(rho*(n**3)*(D**5))
     
     # compute max thickness distribution using NACA 4 series eqn
     t_max          = np.zeros(20)
@@ -206,18 +220,33 @@ def propeller_design(prop,N=20):
         t          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
         t_max[idx] = np.max(t)                       
  
+    # Nondimensional thrust
+    if prop.design_power == None: 
+        prop.design_power = Power[0]        
+    elif prop.design_thrust == None: 
+        prop.design_thrust = Thrust[0]      
+    
+    # approximate thickness to chord ratio 
+    t_c               = t_max/c
+    t_c_at_70_percent = t_c[int(N*0.7)]
+    
+    # blade solidity
+    r          = chi*R                    # Radial coordinate   
+    blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
+    sigma      = blade_area[-1]/(np.pi*R**2)  
+    
+    
+    prop.design_torque              = Power[0]/omega
     prop.max_thickness_distribution = t_max
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
-    prop.Cp                         = Cp
+    prop.power_coefficient          = Cp
     prop.mid_chord_aligment         = MCA
-     
+    prop.thickness_to_chord         = t_c_at_70_percent
+    prop.blade_solidity             = sigma
+    
     # compute airfoil sections if given
-    if  a_sec != None and a_secl != None:
+    if  a_geo != None:
         airfoil_geometry = Data()
-        # check dimension of section  
-        dim_sec = len(a_secl)
-        if dim_sec != N:
-            raise AssertionError("Number of sections not equal to number of stations")
-        prop.airfoil_data = read_propeller_airfoils(a_sec)  
+        prop.airfoil_data = import_airfoil_geometry(a_geo)  
     return prop

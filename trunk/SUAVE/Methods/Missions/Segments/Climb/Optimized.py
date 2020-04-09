@@ -2,7 +2,7 @@
 # Optimized.py
 # 
 # Created:  Dec 2016, E. Botero
-# Modified: 
+# Modified: Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -100,13 +100,13 @@ def update_differentials(segment):
     # unpack
     numerics   = segment.state.numerics
     conditions = segment.state.conditions
-    x    = numerics.dimensionless.control_points
-    D    = numerics.dimensionless.differentiate
-    I    = numerics.dimensionless.integrate 
-    r    = segment.state.conditions.frames.inertial.position_vector
-    v    = segment.state.conditions.frames.inertial.velocity_vector
-    alt0 = segment.altitude_start
-    altf = segment.altitude_end    
+    x          = numerics.dimensionless.control_points
+    D          = numerics.dimensionless.differentiate
+    I          = numerics.dimensionless.integrate 
+    r          = segment.state.conditions.frames.inertial.position_vector
+    v          = segment.state.conditions.frames.inertial.velocity_vector
+    alt0       = segment.altitude_start
+    altf       = segment.altitude_end    
 
     dz = altf - alt0
     vz = -v[:,2,None] # maintain column array

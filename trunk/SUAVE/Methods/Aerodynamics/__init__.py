@@ -8,4 +8,3 @@ from . import Fidelity_Zero
 from . import Supersonic 
 from . import Common
 from . import Lifting_Line
-from . import XFOIL

@@ -85,7 +85,7 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
   
     if plot_obj==1:
         plt.figure(0)
-        CS = plt.contourf(inputs[0,:],inputs[1,:], obj, linewidths=2 , cmap=plt.cm.jet)
+        CS = plt.contourf(inputs[0,:],inputs[1,:], obj, linewidths=2)
         cbar = plt.colorbar(CS)
         cbar.ax.set_ylabel(obj_name)
         plt.xlabel(names[idx0])
@@ -94,22 +94,15 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
        
     if plot_const==1:
         
-        for i in range(0, constraint_num):
+        for i in range(0, constraint_num): #constraint_num):
             plt.figure(i+1)
-            CS_const=plt.contourf(inputs[0,:],inputs[1,:], constraint_val[i,:,:],linewidths=2 , cmap=plt.cm.jet)
+            CS_const=plt.contour(inputs[0,:],inputs[1,:], constraint_val[i,:,:])
             cbar = plt.colorbar(CS_const)
             cbar.ax.set_ylabel(constraint_names[i])
             plt.xlabel(names[idx0])
             plt.ylabel(names[idx1])
-            plt.savefig(constraint_names[i] +'.png')
     plt.show(block=True)      
        
-    np.save('inputs.npy',inputs)
-    np.save('constraint_val.npy',constraint_val)
-    np.save('constraint_names.npy',constraint_names)
-    np.save('names.npy',names)
-    np.save('obj.npy',obj)
-    np.save('obj_name.npy',obj_name)
 
     #pack outputs
     outputs= Data()

@@ -1,6 +1,7 @@
 # segment_properties.py
 #
-# Created:  Apr 2019, T. MacDonald
+# Created:  Apr 2019, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -99,6 +100,7 @@ def segment_properties(settings,wing):
             segment.taper                   = taper
             segment.chords                  = Data()
             segment.chords.mean_aerodynamic = mac_seg
+            segment.areas                   = Data()
             segment.areas.reference         = Sref_seg
             segment.areas.exposed           = S_exposed_seg
             segment.areas.wetted            = Swet_seg

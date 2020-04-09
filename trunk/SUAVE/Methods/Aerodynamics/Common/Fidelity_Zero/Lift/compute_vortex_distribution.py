@@ -2,6 +2,7 @@
 # compute_vortex_distribution.py
 # 
 # Created:  May 2018, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,7 +12,8 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units , Data
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_wing_airfoil
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+     import import_airfoil_geometry
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_vortex_distribution(geometry,settings):
@@ -222,9 +224,9 @@ def compute_vortex_distribution(geometry,settings):
 
                 # Get airfoil section VD  
                 if wing.Segments[i_seg].Airfoil: 
-                    airfoil_data = read_wing_airfoil(wing.Segments[i_seg].Airfoil.airfoil.coordinate_file )    
-                    segment_camber.append(airfoil_data.camber_coordinates)
-                    segment_x_coord.append(airfoil_data.x_lower_surface) 
+                    airfoil_data = import_airfoil_geometry([wing.Segments[i_seg].Airfoil.airfoil.coordinate_file])    
+                    segment_camber.append(airfoil_data.camber_coordinates[0])
+                    segment_x_coord.append(airfoil_data.x_lower_surface[0]) 
                 else:
                     segment_camber.append(np.zeros(30))              
                     segment_x_coord.append(np.linspace(0,1,30)) 
@@ -458,7 +460,7 @@ def compute_vortex_distribution(geometry,settings):
 
             # Get airfoil section VD  
             if wing.Airfoil: 
-                airfoil_data = read_wing_airfoil(wing.Airfoil.airfoil.coordinate_file)    
+                airfoil_data = import_airfoil_geometry(wing.Airfoil.airfoil.coordinate_file)    
                 wing_camber  = airfoil_data.camber_coordinates
                 wing_x_coord = airfoil_data.x_lower_surface
             else:

@@ -1,7 +1,7 @@
 # Embraer_190
 #
 # Created:  Feb 2017, M. Vegh (data taken from Embraer_E190_constThr/mission_Embraer_E190_constThr, and Regional_Jet_Optimization/Vehicles2.py), takeoff_field_length/takeoff_field_length.py, landing_field_length/landing_field_length.py
-# Modified:
+# Modified: Mar 2020, M. Clarke
 
 """ setup file for the E190 vehicle
 """
@@ -74,24 +74,22 @@ def vehicle_setup():
     wing.high_lift               = True
     
     # control surfaces -------------------------------------------
-    control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'flap'
-    control_surface.function              = 'flap' 
-    control_surface.span_fraction_start   = 0.11
-    control_surface.span_fraction_end     = 0.85
-    control_surface.deflection            = 0.0 * Units.deg 
-    control_surface.chord_fraction        = 0.28    
-    control_surface.configuration_type    = 'double_slotted'
-    wing.append_control_surface(control_surface)   
+    flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
+    flap.tag                   = 'flap' 
+    flap.span_fraction_start   = 0.11
+    flap.span_fraction_end     = 0.85
+    flap.deflection            = 0.0 * Units.deg 
+    flap.chord_fraction        = 0.28    
+    flap.configuration_type    = 'double_slotted'
+    wing.append_control_surface(flap)   
         
-    control_surface                       = SUAVE.Components.Wings.Control_Surface()
-    control_surface.tag                   = 'slat'
-    control_surface.function              = 'slat' 
-    control_surface.span_fraction_start   = 0.324 
-    control_surface.span_fraction_end     = 0.963     
-    control_surface.deflection            = 1.0 * Units.deg 
-    control_surface.chord_fraction        = 0.1  	 
-    wing.append_control_surface(control_surface) 
+    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat()
+    slat.tag                   = 'slat' 
+    slat.span_fraction_start   = 0.324 
+    slat.span_fraction_end     = 0.963     
+    slat.deflection            = 1.0 * Units.deg 
+    slat.chord_fraction        = 0.1   
+    wing.append_control_surface(slat) 
     
     wing                         = wing_planform(wing)
     

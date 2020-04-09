@@ -2,7 +2,7 @@
 # compressibility_drag_total.py
 # 
 # Created:  Jan 2019, T. MacDonald
-#
+# Modified: Jan 2020, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,7 +13,7 @@ from SUAVE.Core import Data
 
 from .wave_drag_lift import wave_drag_lift
 from .wave_drag_volume import wave_drag_volume
-from .Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 from SUAVE.Components.Wings import Main_Wing
 
 import copy
@@ -64,7 +64,7 @@ def compressibility_drag_total(state,settings,geometry):
     peak_factor      = settings.transonic_drag_multiplier
     scaling_factor   = settings.volume_wave_drag_scaling
     
-    if settings.cross_sectional_area_calculation_type is not 'Fixed':
+    if settings.cross_sectional_area_calculation_type != 'Fixed':
         raise NotImplementedError
     
     wings          = geometry.wings
