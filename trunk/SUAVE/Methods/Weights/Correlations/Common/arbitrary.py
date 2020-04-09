@@ -15,7 +15,8 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_horizontal import tail_horizontal
 from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_vertical import tail_vertical
 from SUAVE.Methods.Weights.Correlations.Tube_Wing.tube import tube
-from SUAVE.Methods.Weights.Correlations.Common import wing_main_raymer as wing_main
+from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
+from SUAVE.Methods.Weights.Correlations.Common import wing_main_raymer as wing_main_raymer
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
 from SUAVE.Methods.Weights.Correlations.Common.systems import systems
@@ -31,7 +32,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 
-def arbitrary(vehicle,settings=None):
+def arbitrary(vehicle,settings=None,main_wing_calc_type='SUAVE'):
     """ This is for an arbitrary aircraft configuration. 
     
     Assumptions:
@@ -78,11 +79,13 @@ def arbitrary(vehicle,settings=None):
         wt_factors.systems = 0.
     else:
         wt_factors = settings.weight_reduction_factors   
-        if 'structural' in wt_factors:
+        if 'structural' in wt_factors and wt_factors.structural != 0.:
             print('Overriding individual structural weight factors')
             wt_factors.main_wing = 0.
             wt_factors.empennage = 0.
-            wt_factors.fuselage  = 0.            
+            wt_factors.fuselage  = 0.  
+        else:
+            wt_factors.structural = 0.
         
     # Prime the totals
     wt_main_wing       = 0.0
@@ -130,8 +133,13 @@ def arbitrary(vehicle,settings=None):
             
             # Calculate the weights
             rho      = Aluminum().density
-            sigma    = Aluminum().yield_tensile_strength            
-            wt_wing  = wing_main.wing_main_raymer(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction)
+            sigma    = Aluminum().yield_tensile_strength 
+            if main_wing_calc_type == 'Raymer':
+                wt_wing  = wing_main_raymer.wing_main_raymer(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction)
+            elif main_wing_calc_type == 'SUAVE':
+                wt_wing  = wing_main.wing_main(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction)
+            else:
+                raise NotImplementedError('Main wing calculation setting not recognized.')
             
             # Apply weight factor
             wt_wing  = wt_wing*(1.-wt_factors.main_wing)*(1.-wt_factors.structural)

@@ -151,6 +151,9 @@ def write(vehicle,tag,fuel_tank_set_ind=3,OML_set_ind=4,verbose=True):
     if verbose:
         print('Saving OpenVSP File at '+ cwd + '\\' + filename)
     vsp.WriteVSPFile(filename)
+    vehicle_id = vsp.FindContainersWithName('Vehicle')[0]
+    parm_id = vsp.FindParm(vehicle_id,'LabelID','IGESSettings')
+    vsp.SetParmVal(parm_id, 0.)
     vsp.ExportFile(tag + ".igs", OML_set_ind, vsp.EXPORT_IGES)
     
     return area_tags
