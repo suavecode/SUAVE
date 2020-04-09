@@ -186,7 +186,7 @@ class Solar_Low_Fidelity(Propulsor):
         
         #Create the outputs
         F                                        = num_engines * F * [1,0,0]      
-        mdot                                     = np.zeros_like(F)
+        mdot                                     = state.ones_row(1)*0.0
         F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))  
         conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R)**2)   # N/m^2                 
         conditions.propulsion.power_loading      = (F_mag.T)/(P )  # N/W                        

@@ -38,7 +38,7 @@ def vehicle_setup():
     wing.aspect_ratio                        = wing.spans.projected**2/wing.areas.reference
     wing.symmetric                           = True
     wing.vertical                            = False
-    wing.origin                              = np.array([15.,0,0]) * Units.feet  
+    wing.origin                              = [[15.* Units.feet  ,0,0]]
     wing.aerodynamic_center                  = np.array([trapezoid_ac_x(wing), 0. , 0. ])
     wing.dynamic_pressure_ratio              = 1.0
     wing.ep_alpha                            = 0.0
@@ -86,7 +86,7 @@ def vehicle_setup():
     wing.sweeps.quarter_chord     = 21.0   * Units.deg # leading edge
     wing.taper                    = 3.1/6.17
     wing.aspect_ratio             = wing.spans.projected**2/wing.areas.reference
-    wing.origin                   = np.array([36.3,0,0])  * Units.feet
+    wing.origin                   = [[36.3* Units.feet,0,0]]
     wing.symmetric                = True
     wing.vertical                 = False
     wing.dynamic_pressure_ratio   = 0.95

@@ -447,7 +447,7 @@ class AVL(Stability):
                 num_cs_on_wing = len(wing.control_surfaces)
                 num_cs +=  num_cs_on_wing
                 for cs in wing.control_surfaces:
-                    ctrl_surf = wing.control_surfaces[cs]     
+                    ctrl_surf = cs   
                     cs_names.append(ctrl_surf.tag)  
                     if (type(ctrl_surf) ==  Slat):
                         ctrl_surf_function  = 'slat'

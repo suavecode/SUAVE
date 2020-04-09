@@ -141,10 +141,10 @@ def taw_cnbeta(geometry,conditions,configuration):
     other  = configuration.other
     vert   = extend_to_ref_area(geometry.wings['vertical_stabilizer'])
     S_v    = vert.extended.areas.reference
-    x_v    = vert.extended.origin[0]
+    x_v    = vert.extended.origin[0][0]
     b_v    = vert.extended.spans.projected
     ac_vLE = vert.aerodynamic_center[0]
-    x_cg   = configuration.mass_properties.center_of_gravity[0][0]
+    x_cg   = configuration.mass_properties.center_of_gravity[0]
     v_inf  = conditions.freestream.velocity
     mu     = conditions.freestream.dynamic_viscosity
     rho    = conditions.freestream.density

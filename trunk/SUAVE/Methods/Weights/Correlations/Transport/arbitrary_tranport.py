@@ -146,10 +146,17 @@ def arbitrary_tranport(vehicle,settings=None):
             wt_rud      = tv.wt_rudder*(1.-wt_factors.empennage)
             wt_vert_str = tv.wt_tail_vertical*(1.-wt_factors.empennage)
             
+            # See if there is a rudder attached, if not add one
+            if len(wing.control_surfaces)==0:
+                rudder = SUAVE.Components.Wings.Control_Surfaces.Rudder()
+                wing.append_control_surface(rudder)
+            else:
+                rudder = wing.control_surfaces[0]
+            
             # Pack and sum
-            wt_vertical = wt_rud + wt_vert_str
-            wing.mass_properties.mass = wt_vertical         
-            wt_vtail_tot += wt_vertical
+            wing.mass_properties.mass   = wt_vert_str
+            rudder.mass_properties.mass = wt_rudder
+            wt_vtail_tot += wt_vert_str + wt_rud
             wt_rudder    += wt_rud
             s_tail       += S
             
@@ -254,8 +261,6 @@ def arbitrary_tranport(vehicle,settings=None):
     hydraulics.tag         = 'hydraulics'
     optionals              = SUAVE.Components.Physical_Component()
     optionals.tag          = 'optionals'
-    rudder                 = SUAVE.Components.Physical_Component()
-    rudder.tag             = 'rudder'
     avionics               = SUAVE.Components.Energy.Peripherals.Avionics()
     main_gear              = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
     nose_gear              = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()

@@ -171,7 +171,6 @@ class AVL_Inviscid(Aerodynamics):
         lift_model          = surrogates.lift_coefficient
         drag_model          = surrogates.drag_coefficient
         e_model             = surrogates.span_efficiency_factor
-        neutral_point_model = surrogates.neutral_point
         
         # Inviscid lift
         data_len        = len(AoA)
@@ -184,14 +183,12 @@ class AVL_Inviscid(Aerodynamics):
             inviscid_lift[ii]   = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])])  
             inviscid_drag[ii]   = drag_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
             span_efficiency[ii] = e_model.predict([np.array([AoA[ii][0],mach[ii][0]])])
-            NP[ii]              = neutral_point_model.predict([np.array([AoA[ii][0],mach[ii][0]])]) 
         
         # Store inviscid lift results     
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()    
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = inviscid_lift
         state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
         state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
-        state.conditions.aerodynamics.neutral_point                      = NP
         
         # Store inviscid drag results  
         ar            = geometry.wings['main_wing'].aspect_ratio
@@ -266,12 +263,12 @@ class AVL_Inviscid(Aerodynamics):
             
             #Run Analysis at AoA[i] and mach[j]
             results =  self.evaluate_conditions(run_conditions, trim_aircraft)
+            len_AoA = len(AoA)
             
             # Obtain CD , CL and e  
             CL[count*len_AoA:(count+1)*len_AoA,0]   = results.aerodynamics.lift_coefficient[:,0]
             CD[count*len_AoA:(count+1)*len_AoA,0]   = results.aerodynamics.drag_breakdown.induced.total[:,0]      
             e[count*len_AoA:(count+1)*len_AoA,0]    = results.aerodynamics.drag_breakdown.induced.efficiency_factor[:,0]  
-            NP[count*len_AoA:(count+1)*len_AoA,0]   = results.aerodynamics.neutral_point[:,0]
             
             count += 1
         
@@ -323,24 +320,20 @@ class AVL_Inviscid(Aerodynamics):
         CL_data                          = training.coefficients[:,0]
         CD_data                          = training.coefficients[:,1]
         e_data                           = training.coefficients[:,2]
-        NP_data                          = training.coefficients[:,3]
         xy                               = training.grid_points 
         
         # Gaussian Process New
         regr_cl                          = gaussian_process.GaussianProcessRegressor()
         regr_cd                          = gaussian_process.GaussianProcessRegressor()
         regr_e                           = gaussian_process.GaussianProcessRegressor()
-        regr_np                          = gaussian_process.GaussianProcessRegressor()
         
         cl_surrogate                     = regr_cl.fit(xy, CL_data)
         cd_surrogate                     = regr_cd.fit(xy, CD_data)
         e_surrogate                      = regr_e.fit(xy, e_data)
-        neutral_point_surrogate          = regr_np.fit(xy, NP_data)
         
         self.surrogates.lift_coefficient = cl_surrogate
         self.surrogates.drag_coefficient = cd_surrogate
         self.surrogates.span_efficiency_factor = e_surrogate  
-        self.surrogates.neutral_point          = neutral_point_surrogate
         
         return
         
@@ -414,7 +407,7 @@ class AVL_Inviscid(Aerodynamics):
                 num_cs_on_wing = len(wing.control_surfaces)
                 num_cs +=  num_cs_on_wing
                 for cs in wing.control_surfaces:
-                    ctrl_surf = wing.control_surfaces[cs]     
+                    ctrl_surf = cs    
                     cs_names.append(ctrl_surf.tag)  
                     if (type(ctrl_surf) ==  Slat):
                         ctrl_surf_function  = 'slat'

@@ -73,7 +73,7 @@ def vehicle_setup():
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 1.5 * Units.degrees
 
-    wing.origin                  = [2.032, 0., 0.] 
+    wing.origin                  = [[2.032, 0., 0.]]
     wing.aerodynamic_center      = [0.558, 0., 0.]
 
     wing.vertical                = False
@@ -110,7 +110,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
 
-    wing.origin                  = [6.248, 0., 0.784] 
+    wing.origin                  = [[6.248, 0., 0.784]]
     wing.aerodynamic_center      = [0.508, 0., 0.]
     wing.vertical                = False
     wing.symmetric               = True
@@ -145,7 +145,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
 
-    wing.origin                  = [6.01 ,0,  0.623] 
+    wing.origin                  = [[6.01 ,0,  0.623]]
     wing.aerodynamic_center      = [0.508 ,0,0] 
 
     wing.vertical                = True 
@@ -311,7 +311,7 @@ def configs_setup(vehicle):
 
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
-    base_config.propulsors.propulsor.pitch_command = 0 
+    base_config.propulsors.battery_propeller.pitch_command = 0 
     configs.append(base_config) 
 
 

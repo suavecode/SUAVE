@@ -88,7 +88,6 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     # Select a length scale depending on what kind of vehicle this is
     length_scale = 1.
     nose_length  = 0.
-    m_wing_avg_origin = 0.0
      
     # Check if there is a fuselage
     if len(vehicle.fuselages) == 0.:
