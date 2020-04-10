@@ -76,10 +76,6 @@ def vehicle_setup():
     wing.vertical                = False
     wing.symmetric               = True       
     wing.high_lift               = True
-    wing.flaps.type              = 'double_slotted'
-    wing.flaps.chord             = 0.28
-    wing.flaps.span_start        = 0.11
-    wing.flaps.span_end          = 0.85
     wing.areas.exposed           = 0.80 * wing.areas.wetted        
     wing.twists.root             = 2.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees    

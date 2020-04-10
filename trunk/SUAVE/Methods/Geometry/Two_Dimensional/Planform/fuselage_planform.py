@@ -20,7 +20,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Planform
-def fuselage_planform(fuselage,length=None):
+def fuselage_planform(fuselage):
     """Calculates fuselage geometry values
 
     Assumptions:
@@ -65,8 +65,9 @@ def fuselage_planform(fuselage,length=None):
     aft_extra       = fuselage.lengths.aft_space
     fuselage_width  = fuselage.width
     fuselage_height = fuselage.heights.maximum
+    length          = fuselage.lengths.total
     
-    if length is not None:    
+    if length ==0.:    
         # process
         nose_length     = nose_fineness * fuselage_width
         tail_length     = tail_fineness * fuselage_width
@@ -109,9 +110,6 @@ def fuselage_planform(fuselage,length=None):
     # http://adg.stanford.edu/aa241/drag/wettedarea.html
     Deff = (a+b)*(64.-3.*R**4)/(64.-16.*R**2)
     wetted_area += 0.75*np.pi*Deff * (nose_length + tail_length)
-    
-    # reference area approximated with
-    reference_area = cross_section_area
     
     # update
     fuselage.lengths.nose          = nose_length

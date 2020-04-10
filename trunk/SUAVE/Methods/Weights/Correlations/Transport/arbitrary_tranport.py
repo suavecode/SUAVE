@@ -130,8 +130,8 @@ def arbitrary_tranport(vehicle,settings=None):
             wing.mass_properties.mass = wt_wing
             wt_main_wing += wt_wing
             S_main_sum   += S
-            mac_main_w   += mac
-            main_origin  += wing.origin[0]
+            mac_main_w   += mac*S
+            main_origin  += wing.origin[0][0]*S
             
         # Vertical Tail
         if isinstance(wing,Wings.Vertical_Tail):       
@@ -151,7 +151,7 @@ def arbitrary_tranport(vehicle,settings=None):
                 rudder = SUAVE.Components.Wings.Control_Surfaces.Rudder()
                 wing.append_control_surface(rudder)
             else:
-                rudder = wing.control_surfaces[0]
+                rudder = wing.control_surfaces.values()[0]
             
             # Pack and sum
             wing.mass_properties.mass   = wt_vert_str
@@ -173,7 +173,7 @@ def arbitrary_tranport(vehicle,settings=None):
                 l_w2h          = wing.origin[0][0] + wing.aerodynamic_center[0] - main_origin[0]
                 
                 if np.isnan(mac_main_w):
-                    mac_w = 0.
+                    mac_main_w = 0.
                     
                 if np.isnan(l_w2h):
                     l_w2h = 0.

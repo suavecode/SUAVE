@@ -314,7 +314,7 @@ def sizing_evaluation(y,nexus, scaling):
     #handle outputs
     segments         = results.segments
     fuel_out         = segments[0].conditions.weights.total_mass[0,0]-segments[-1].conditions.weights.total_mass[-1,0] 
-    passenger_weight = base.passenger_weights.mass_properties.mass
+    passenger_weight = base.systems.passengers.mass_properties.mass
     
     #sizing loop outputs
     mass_out     = base.mass_properties.operating_empty[0]+fuel_out+passenger_weight
