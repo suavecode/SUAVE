@@ -17,7 +17,7 @@ from SUAVE.Analyses import Process
 
 from .Vortex_Lattice import Vortex_Lattice
 from .Process_Geometry import Process_Geometry
-from SUAVE.Methods.Aerodynamics import Supersonic  as Methods
+from SUAVE.Methods.Aerodynamics import Supersonic_Zero  as Methods
 from SUAVE.Methods.Aerodynamics import OpenVSP_Wave_Drag as VSP_Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 

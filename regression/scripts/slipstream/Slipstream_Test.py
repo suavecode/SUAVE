@@ -19,7 +19,7 @@ from SUAVE.Methods.Propulsion import propeller_design
 
 import sys
 sys.path.append('../Vehicles') 
-from X57_Maxwell import vehicle_setup, configs_setup, simple_sizing
+from X57_Maxwell import vehicle_setup, configs_setup 
 
 import copy
 
@@ -28,10 +28,8 @@ import copy
 # ----------------------------------------------------------------------
 def main():
 
-    configs, analyses = full_setup()
-
-    simple_sizing(configs)
-
+    configs, analyses = full_setup() 
+    
     configs.finalize()
     analyses.finalize()  
 
@@ -41,7 +39,7 @@ def main():
      
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0]
-    lift_coefficient_true         = 0.31879931419126495
+    lift_coefficient_true         = 0.38334976763569456
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -50,38 +48,38 @@ def main():
     
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[0]
-    sectional_lift_coeff_true       = np.array([8.10449702e-02, 7.54016010e-02, 6.43687599e-02, 2.66201837e-02,
-                                             4.77585486e-02, 7.56764672e-02, 5.75279914e-02, 5.05558433e-02,
-                                             4.48641577e-02, 2.56410823e-02, 5.06247203e-02, 3.41295369e-02,
-                                             3.15424389e-02, 2.89157714e-02, 2.61898619e-02, 2.33523357e-02,
-                                             2.04128915e-02, 1.74000220e-02, 1.43609316e-02, 1.13583867e-02,
-                                             8.46298498e-03, 5.75476361e-03, 3.35577286e-03, 1.45980010e-03,
-                                             2.88091664e-04, 8.17941103e-02, 7.78022624e-02, 6.91059517e-02,
-                                             3.73633082e-02, 6.35641862e-02, 9.34925571e-02, 6.45194641e-02,
-                                             5.47924043e-02, 4.77575898e-02, 2.70206128e-02, 5.28332269e-02,
-                                             3.53372162e-02, 3.24846399e-02, 2.96596558e-02, 2.67799691e-02,
-                                             2.38203101e-02, 2.07819577e-02, 1.76876794e-02, 1.45807606e-02,
-                                             1.15212920e-02, 8.57801097e-03, 5.82971314e-03, 3.39810138e-03,
-                                             1.47781185e-03, 2.91601787e-04, 3.25301003e-03, 3.23886941e-03,
-                                             3.34503763e-03, 3.56019195e-03, 3.86155288e-03, 4.22535781e-03,
-                                             4.62329858e-03, 5.01935830e-03, 5.36947070e-03, 5.62488413e-03,
-                                             5.73978095e-03, 5.68281274e-03, 5.44728675e-03, 5.05302969e-03,
-                                             4.53883338e-03, 3.95069625e-03, 3.33178496e-03, 2.71696429e-03,
-                                             2.13176049e-03, 1.59422076e-03, 1.11786628e-03, 7.14136395e-04,
-                                             3.93300783e-04, 1.63922439e-04, 3.17491303e-05, 1.81442840e-03,
-                                             2.01942079e-03, 2.26788087e-03, 2.56066842e-03, 2.89374016e-03,
-                                             3.25427638e-03, 3.62222571e-03, 3.96952507e-03, 4.26069577e-03,
-                                             4.45637371e-03, 4.52057609e-03, 4.43123441e-03, 4.18904405e-03,
-                                             3.81837941e-03, 3.35948636e-03, 2.85696148e-03, 2.35018105e-03,
-                                             1.86836710e-03, 1.43001818e-03, 1.04508106e-03, 7.18131069e-04,
-                                             4.51192705e-04, 2.45392178e-04, 1.01451849e-04, 1.95841648e-05,
-                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-                                             0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-                                             0.00000000e+00])
+    sectional_lift_coeff_true       = np.array([ 6.58384044e-02,  6.58040160e-02,  6.51219648e-02,  6.39198461e-02,
+                                                 6.22727840e-02,  6.02383367e-02,  5.78644070e-02,  5.51925277e-02,
+                                                 5.22596905e-02,  4.90995483e-02,  4.57433655e-02,  4.22209521e-02,
+                                                 3.85617637e-02,  3.47962993e-02,  3.09578472e-02,  2.70844205e-02,
+                                                 2.32203126e-02,  1.94161501e-02,  1.57264275e-02,  1.22061312e-02,
+                                                 8.91378952e-03,  5.92974527e-03,  3.38156996e-03,  1.44245855e-03,
+                                                 2.80627201e-04,  6.58527202e-02,  6.58456267e-02,  6.51869030e-02,
+                                                 6.40026152e-02,  6.23673731e-02,  6.03390050e-02,  5.79661925e-02,
+                                                 5.52914906e-02,  5.23529502e-02,  4.91851880e-02,  4.58202711e-02,
+                                                 4.22886332e-02,  3.86201868e-02,  3.48457490e-02,  3.09988193e-02,
+                                                 2.71175481e-02,  2.32463209e-02,  1.94358337e-02,  1.57406406e-02,
+                                                 1.22157771e-02,  8.91979956e-03,  5.93304733e-03,  3.38305095e-03,
+                                                 1.44291171e-03,  2.80679619e-04, -1.53946964e-04, -1.50276583e-04,
+                                                -1.38933835e-04, -1.20431171e-04, -9.58611563e-05, -6.66806634e-05,
+                                                -3.45505036e-05, -1.20118198e-06,  3.16768305e-05,  6.25171515e-05,
+                                                 8.99395684e-05,  1.12796387e-04,  1.30206378e-04,  1.41577193e-04,
+                                                 1.46617328e-04,  1.45339516e-04,  1.38059243e-04,  1.25395696e-04,
+                                                 1.08283677e-04,  8.79966050e-05,  6.61579250e-05,  4.46902184e-05,
+                                                 2.56519613e-05,  1.09753067e-05,  2.14822950e-06, -1.53049312e-04,
+                                                -1.49806404e-04, -1.38618139e-04, -1.20211714e-04, -9.57151550e-05,
+                                                -6.65899536e-05, -3.44985757e-05, -1.17361608e-06,  3.16917277e-05,
+                                                 6.25280178e-05,  8.99520273e-05,  1.12813384e-04,  1.30228704e-04,
+                                                 1.41604079e-04,  1.46647040e-04,  1.45369888e-04,  1.38088118e-04,
+                                                 1.25421251e-04,  1.08304638e-04,  8.80123545e-05,  6.61685280e-05,
+                                                 4.46963596e-05,  2.56547889e-05,  1.09761718e-05,  2.14832890e-06,
+                                                 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+                                                 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+                                                 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+                                                 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+                                                 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+                                                 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+                                                 0.00000000e+00])
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
@@ -209,51 +207,62 @@ def base_analysis(vehicle):
 # ----------------------------------------------------------------------
 
 def mission_setup(analyses,vehicle):
-
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
-
     mission = SUAVE.Analyses.Mission.Sequential_Segments()
-    mission.tag = 'the_mission'
+    mission.tag = 'mission'
 
-    #airport
+    # airport
     airport = SUAVE.Attributes.Airports.Airport()
-    airport.altitude   =  0.0  * Units.ft
+    airport.altitude   =  0. * Units.ft
     airport.delta_isa  =  0.0
     airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
 
     mission.airport = airport    
 
     # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
-
-    # base segment 
+    Segments = SUAVE.Analyses.Mission.Segments 
+    
+    # base segment
     base_segment = Segments.Segment()
     ones_row     = base_segment.state.ones_row
-    base_segment.state.numerics.number_control_points = 5 
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment.state.numerics.number_control_points        = 4
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals
     base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
     base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.propulsor.battery.max_voltage * ones_row(1)  
-    base_segment.state.residuals.network                     = 0. * ones_row(2)       
+    base_segment.state.residuals.network                     = 0. * ones_row(2)        
+    
+    # ------------------------------------------------------------------
+    #   Climb 1 : constant Speed, constant rate segment 
+    # ------------------------------------------------------------------ 
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb_1"
+    segment.analyses.extend( analyses.base )
+    segment.battery_energy                   = vehicle.propulsors.propulsor.battery.max_energy * 0.89
+    segment.altitude_start                   = 2500.0  * Units.feet
+    segment.altitude_end                     = 8012    * Units.feet 
+    segment.air_speed                        = 96.4260 * Units['mph'] 
+    segment.climb_rate                       = 700.034 * Units['ft/min']  
+    segment.state.unknowns.throttle          = 0.85 * ones_row(1)  
+
+    # add to misison
+    mission.append_segment(segment)
 
     # ------------------------------------------------------------------
     #   Cruise Segment: constant Speed, constant altitude
-    # ------------------------------------------------------------------
-
+    # ------------------------------------------------------------------ 
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "cruise"
+    segment.tag = "cruise" 
+    segment.analyses.extend(analyses.base) 
+    segment.altitude                  = 8012   * Units.feet
+    segment.air_speed                 = 140.91 * Units['mph'] 
+    segment.distance                  =  20.   * Units.nautical_mile  
+    segment.state.unknowns.throttle   = 0.9 *  ones_row(1)   
 
-    segment.analyses.extend(analyses.base)
-    
-    segment.altitude  = 8500. * Units.feet
-    segment.air_speed = 132.   *Units['mph']  
-    segment.distance  = 50.   * Units.nautical_mile
-    segment.state.unknowns.throttle   = 0.75 * ones_row(1)  # for slipstream branch
-    
     # add to misison
     mission.append_segment(segment)    
     

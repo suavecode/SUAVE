@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Supersonic-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # Cubic_Spline_Blender.py
 # 
 # Created:  Feb 2019, T. MacDonald
@@ -6,7 +6,7 @@
 
 import numpy as np
 
-## @ingroup Methods-Aerodynamics-Supersonic-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 class Cubic_Spline_Blender():
     """This is a cubic spline function that can be used to blend two type of calculations
     without knowing the end points. It preserves continuous first derivatives.

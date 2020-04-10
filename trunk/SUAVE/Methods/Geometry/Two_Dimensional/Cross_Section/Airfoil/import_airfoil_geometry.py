@@ -98,8 +98,8 @@ def  import_airfoil_geometry(airfoil_geometry_files):
         # compute thickness, camber and concatenate coodinates 
         thickness     = y_up_surf_new - y_lo_surf_new
         camber        = y_lo_surf_new + thickness/2 
-        x_data        = np.concatenate([x_up_surf_new,x_lo_surf_new[::-1]])
-        y_data        = np.concatenate([y_up_surf_new,y_lo_surf_new[::-1]]) 
+        x_data        = np.concatenate([x_up_surf_new[::-1],x_lo_surf_new])
+        y_data        = np.concatenate([y_up_surf_new[::-1],y_lo_surf_new]) 
         
         airfoil_data.thickness_to_chord.append(np.max(thickness))    
         airfoil_data.x_coordinates.append(x_data)  

@@ -12,7 +12,6 @@
 from .purge_files import purge_files
 from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
 import numpy as np
-import shutil
 from .create_avl_datastructure import translate_avl_wing, translate_avl_body 
 
 ## @ingroup Methods-Aerodynamics-AVL
@@ -41,6 +40,7 @@ def write_geometry(avl_object,run_script_path):
     geometry_file       = avl_object.settings.filenames.features
     spanwise_vortices   = avl_object.settings.spanwise_vortices
     chordwise_vortices  = avl_object.settings.chordwise_vortices
+    
     # Open the geometry file after purging if it already exists
     purge_files([geometry_file]) 
     geometry             = open(geometry_file,'w')
@@ -53,18 +53,6 @@ def write_geometry(avl_object,run_script_path):
             avl_wing      = translate_avl_wing(w)
             wing_text     = make_surface_text(avl_wing,spanwise_vortices,chordwise_vortices)
             geometry.write(wing_text)  
-            
-            for section in avl_wing.sections:
-                if section.airfoil_coord_file is not None: 
-                    filename = section.airfoil_coord_file
-                    src      = run_script_path + '/' +  filename
-                    dst      = run_script_path + '/avl_files' + '/' + filename
-                    try: 
-                        shutil.copy2(src, dst)       
-                    except:
-                        print('Airfoil Not Located, Using AVL default settings')
-                        section.airfoil_coord_file = None
-                        
             
         for b in aircraft.fuselages:
             avl_body  = translate_avl_body(b)

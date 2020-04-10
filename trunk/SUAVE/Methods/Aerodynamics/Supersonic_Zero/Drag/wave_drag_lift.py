@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Supersonic-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # wave_drag_lift.py
 # 
 # Created:  Feb 2019, T. MacDonald
@@ -16,7 +16,7 @@ from SUAVE.Components.Wings import Main_Wing
 #   Wave Drag Lift
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Supersonic-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def wave_drag_lift(conditions,configuration,wing):
     """Computes wave drag due to lift
 

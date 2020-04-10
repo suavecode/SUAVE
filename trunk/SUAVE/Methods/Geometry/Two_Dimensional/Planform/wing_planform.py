@@ -120,32 +120,3 @@ def wing_planform(wing):
     wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
     
     return wing
-
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-if __name__ == '__main__':
-
-    from SUAVE.Core import Data,Units
-    from SUAVE.Components.Wings import Wing
-        
-    #imports
-    wing = Wing()
-    
-    wing.areas.reference        =  10.
-    wing.taper                  =  0.50
-    wing.sweeps.quarter_chord   =  45.  * Units.deg
-    wing.aspect_ratio           =  10.
-    wing.thickness_to_chord     =  0.13
-    wing.dihedral               =  45.  * Units.deg
-    wing.vertical               =  1
-    wing.symmetric              =  0
-    
-    wing.flaps.chord = 0.28
-    wing.flaps.span_start = 0.50
-    wing.flaps.span_end   = 1.00
-
-    wing_planform(wing)
-    print(wing)

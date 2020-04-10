@@ -614,7 +614,7 @@ def max_range_setup(analyses):
     segment.climb_rate     = 1800.   * Units['ft/min']
     segment.mach_end       = 0.3
     segment.mach_start     = 0.2
-    segment.state.unknowns.throttle   = 0.7 * ones_row(1) # 0.65 0.6 0.
+    segment.state.unknowns.throttle   = 0.6 * ones_row(1)  
     # add to misison
     mission.append_segment(segment)
     

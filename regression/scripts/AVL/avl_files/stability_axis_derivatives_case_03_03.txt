@@ -17,15 +17,15 @@
   Beta  =   0.00000     qc/2V =   0.00000
   Mach  =     0.250     rb/2V =  -0.00000     r'b/2V =  -0.00000
 
-  CXtot =  -0.60437     Cltot =   0.00000     Cl'tot =   0.00000
-  CYtot =   0.00000     Cmtot =  -1.04756
-  CZtot =   4.58751     Cntot =   0.00000     Cn'tot =   0.00000
+  CXtot =   0.00720     Cltot =  -0.00000     Cl'tot =  -0.00000
+  CYtot =   0.00000     Cmtot =  -0.09674
+  CZtot =  -0.29467     Cntot =  -0.00000     Cn'tot =  -0.00000
 
-  CLtot =  -4.60580
-  CDtot =   0.44390
-  CDvis =   0.00000     CDind = 0.4439042
-  CLff  =  -4.57835     CDff  = 0.7853034    | Trefftz
-  CYff  =  -0.00000         e =    0.9007    | Plane  
+  CLtot =   0.29474
+  CDtot =   0.00309
+  CDvis =   0.00000     CDind = 0.0030865
+  CLff  =   0.29500     CDff  = 0.0032635    | Trefftz
+  CYff  =   0.00000         e =    0.8998    | Plane  
 
    flap            =   0.00000
    slat            =   0.00000
@@ -38,32 +38,32 @@
 
                              alpha                beta
                   ----------------    ----------------
- z' force CL |    CLa =   5.819595    CLb =   0.000004
- y  force CY |    CYa =  -0.000000    CYb =  -0.864162
- x' mom.  Cl'|    Cla =  -0.000002    Clb =  -0.056866
- y  mom.  Cm |    Cma =  -4.068660    Cmb =   0.000015
- z' mom.  Cn'|    Cna =  -0.000005    Cnb =   0.128654
+ z' force CL |    CLa =   5.971853    CLb =  -0.000002
+ y  force CY |    CYa =   0.000001    CYb =  -0.784466
+ x' mom.  Cl'|    Cla =  -0.000004    Clb =  -0.086967
+ y  mom.  Cm |    Cma =  -3.341245    Cmb =   0.000006
+ z' mom.  Cn'|    Cna =  -0.000000    Cnb =   0.201991
 
                      roll rate  p'      pitch rate  q'        yaw rate  r'
                   ----------------    ----------------    ----------------
- z' force CL |    CLp =   0.000011    CLq =  15.259028    CLr =   0.000022
- y  force CY |    CYp =  -0.552960    CYq =  -0.000005    CYr =   0.703422
- x' mom.  Cl'|    Clp =  -0.522854    Clq =  -0.000007    Clr =  -1.093132
- y  mom.  Cm |    Cmp =  -0.000006    Cmq = -56.805851    Cmr =  -0.000009
- z' mom.  Cn'|    Cnp =   0.406345    Cnq =  -0.000000    Cnr =  -0.701450
+ z' force CL |    CLp =   0.000010    CLq =  19.223478    CLr =   0.000001
+ y  force CY |    CYp =  -0.061841    CYq =   0.000003    CYr =   0.802022
+ x' mom.  Cl'|    Clp =  -0.502821    Clq =  -0.000014    Clr =   0.131184
+ y  mom.  Cm |    Cmp =  -0.000006    Cmq = -56.753120    Cmr =  -0.000006
+ z' mom.  Cn'|    Cnp =   0.026195    Cnq =  -0.000001    Cnr =  -0.349758
 
                   flap         d1     slat         d2     aileron      d3     elevator     d4 
                   ----------------    ----------------    ----------------    ----------------
- z' force CL |   CLd1 =   0.012468   CLd2 =   0.000000   CLd3 =   0.000000   CLd4 =   0.012563
- y  force CY |   CYd1 =  -0.000000   CYd2 =   0.000000   CYd3 =   0.000000   CYd4 =   0.000000
+ z' force CL |   CLd1 =   0.011784   CLd2 =   0.000000   CLd3 =   0.000000   CLd4 =   0.012557
+ y  force CY |   CYd1 =   0.000000   CYd2 =   0.000000   CYd3 =   0.000000   CYd4 =   0.000000
  x' mom.  Cl'|   Cld1 =  -0.000000   Cld2 =  -0.000000   Cld3 =  -0.000000   Cld4 =  -0.000000
- y  mom.  Cm |   Cmd1 =   0.010130   Cmd2 =   0.000000   Cmd3 =   0.000000   Cmd4 =  -0.055236
+ y  mom.  Cm |   Cmd1 =   0.008631   Cmd2 =   0.000000   Cmd3 =   0.000000   Cmd4 =  -0.055414
  z' mom.  Cn'|   Cnd1 =  -0.000000   Cnd2 =  -0.000000   Cnd3 =  -0.000000   Cnd4 =  -0.000000
- Trefftz drag| CDffd1 =  -0.002878 CDffd2 =   0.000000 CDffd3 =   0.000000 CDffd4 =  -0.001230
- span eff.   |    ed1 =  -0.001506    ed2 =  -0.000000    ed3 =  -0.000000    ed4 =  -0.003572
+ Trefftz drag| CDffd1 =   0.000319 CDffd2 =   0.000000 CDffd3 =   0.000000 CDffd4 =   0.000360
+ span eff.   |    ed1 =  -0.016066    ed2 =   0.000000    ed3 =   0.000000    ed4 =  -0.022575
 
 
 
- Neutral point  Xnp =  18.270699
+ Neutral point  Xnp =  17.679358
 
- Clb Cnr / Clr Cnb  =  -0.283633    (  > 1 if spirally stable )
+ Clb Cnr / Clr Cnb  =   1.147903    (  > 1 if spirally stable )

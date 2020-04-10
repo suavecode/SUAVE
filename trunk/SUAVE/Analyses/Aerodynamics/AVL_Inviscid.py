@@ -31,8 +31,7 @@ from SUAVE.Methods.Aerodynamics.AVL.Data.Cases                import Run_Case
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.populate_control_sections   import populate_control_sections  
 from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 
-# Package imports
-import pylab as plt
+# Package imports 
 import os 
 import numpy as np
 import sys
@@ -70,9 +69,7 @@ class AVL_Inviscid(Aerodynamics):
         Properties Used:
         N/A
         """          
-        self.tag                             = 'avl'
-        self.keep_files                      = False
-        self.save_regression_results         = False     
+        self.tag                             = 'avl'    
         
         self.current_status                  = Data()        
         self.current_status.batch_index      = 0
@@ -92,8 +89,8 @@ class AVL_Inviscid(Aerodynamics):
         self.training                        = Data()   
         
         # Standard subsonic/transolic aircarft
-        self.training.angle_of_attack        = np.array([-5., 0., 2.,5., 7.,  12 ,  15.])*Units.degrees
-        self.training.Mach                   = np.array([0.05, 0.10,0.15,0.25, 0.45,0.65,0.85]) 
+        self.training.angle_of_attack        = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
+        self.training.Mach                   = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
         
         self.training.lift_coefficient       = None
         self.training.drag_coefficient       = None
@@ -104,7 +101,9 @@ class AVL_Inviscid(Aerodynamics):
         self.surrogates                      = Data()
         
         # Regression Status
-        self.regression_flag                 = False
+        self.keep_files                      = False
+        self.save_regression_results         = False          
+        self.regression_flag                 = False 
 
     def initialize(self,spanwise_vortices,chordwise_vortices):
         """Drives functions to get training samples and build a surrogate.
@@ -163,8 +162,7 @@ class AVL_Inviscid(Aerodynamics):
         """  
         # Unpack
         surrogates    = self.surrogates        
-        conditions    = state.conditions
-        
+        conditions    = state.conditions 
         Mach          = conditions.freestream.mach_number
         AoA           = conditions.aerodynamics.angle_of_attack
         lift_model    = surrogates.lift_coefficient
@@ -246,6 +244,7 @@ class AVL_Inviscid(Aerodynamics):
             run_conditions.freestream.density           = 1.2
             run_conditions.freestream.gravity           = 9.81        
             run_conditions.aerodynamics.angle_of_attack = AoA 
+            run_conditions.freestream.speed_of_sound    = 343.
             run_conditions.aerodynamics.side_slip_angle = 0 
             run_conditions.freestream.mach_number       = Mach[i]
             run_conditions.freestream.velocity          = Mach[i] * run_conditions.freestream.speed_of_sound
@@ -415,7 +414,7 @@ class AVL_Inviscid(Aerodynamics):
             cases[case].stability_and_control.control_surface_names   = cs_names
         self.current_status.cases        = cases  
         
-       # write case filenames using the templates defined in MACE/Analyses/AVL/AVL_Data_Classes/Settings.py 
+       # write case filenames using the templates defined in SUAVE/Analyses/Aerodynamics/AVL/Data/Settings.py 
         for case in cases:  
             cases[case].aero_result_filename_1     = aero_results_template_1.format(case)        # 'stability_axis_derivatives_{}.dat'  
             cases[case].aero_result_filename_2     = aero_results_template_2.format(case)        # 'surface_forces_{}.dat'

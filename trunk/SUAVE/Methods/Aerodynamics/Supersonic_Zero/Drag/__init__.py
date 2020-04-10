@@ -1,6 +1,6 @@
-## @defgroup Methods-Aerodynamics-Supersonic-Drag Drag
+## @defgroup Methods-Aerodynamics-Supersonic_Zero-Drag Drag
 # Functions to perform low-fidelity drag calculations including supersonic
-# @ingroup Methods-Aerodynamics-Supersonic
+# @ingroup Methods-Aerodynamics-Supersonic_Zero
 
 from .wave_drag_volume import wave_drag_volume
 from .compressibility_drag_total import compressibility_drag_total

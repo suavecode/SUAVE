@@ -33,9 +33,7 @@ def main():
     # ------------------------------------------------------------------------------------------------------------------
     # build the vehicle, configs, and analyses
     configs, analyses = full_setup() 
-    analyses.finalize()     
-    weights   = analyses.weights
-    breakdown = weights.evaluate() 
+    analyses.finalize()      
     mission   = analyses.mission  
     
     # evaluate mission     

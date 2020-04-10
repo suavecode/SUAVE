@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Supersonic-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_propulsor.py
 # 
 # Created:  Feb 2019, T. MacDonald
@@ -18,7 +18,7 @@ import numpy as np
 #   Parasite Drag Propulsors
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Supersonic-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def parasite_drag_propulsor(state,settings,geometry):
     """Computes the parasite drag due to the propulsor
 

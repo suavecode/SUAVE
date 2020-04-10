@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Supersonic-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # induced_drag_aircraft.py
 # 
 # Created:  Feb 2019, T. MacDonald
@@ -17,7 +17,7 @@ from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 #  Induced Drag Aicraft
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Supersonic-Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def induced_drag_aircraft(state,settings,geometry):
     """Determines induced drag for the full aircraft
 
@@ -46,35 +46,33 @@ def induced_drag_aircraft(state,settings,geometry):
     conditions = state.conditions
     configuration = settings    
     
-    aircraft_lift = conditions.aerodynamics.lift_coefficient
-    mach          = conditions.freestream.mach_number
+    CL       = conditions.aerodynamics.lift_coefficient
+    mach     = conditions.freestream.mach_number
+    CDi_inv  = conditions.aerodynamics.drag_breakdown.induced.total
+    e_inv    = configuration.oswald_efficiency_factor
+    wing_e   = geometry.wings['main_wing'].span_efficiency
+    ar       = geometry.wings['main_wing'].aspect_ratio 
     
-    e             = configuration.oswald_efficiency_factor
-    K             = configuration.viscous_lift_dependent_drag_factor
-    wing_e        = geometry.wings['main_wing'].span_efficiency
-    ar            = geometry.wings['main_wing'].aspect_ratio 
-    CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
-    
-    if e == None:
-        e = 1/((1/wing_e)+np.pi*ar*K*CDp)    
-        
-    spline = Cubic_Spline_Blender(.91,.99)
-    h00 = lambda M:spline.compute(M)      
-    
-    total_induced_drag_low  = aircraft_lift**2 / (np.pi*ar*e)
-    total_induced_drag_high = aircraft_lift**2 / (np.pi*ar*wing_e) # oswald factor would include wave drag due to lift
+    # Inviscid osward efficiency factor
+    if e_inv == None:
+        e_inv   = CL**2/(CDi_inv*np.pi*ar) 
+             
+    else:                                               
+        spline = Cubic_Spline_Blender(.91,.99)
+        h00 = lambda M:spline.compute(M)    
+        total_induced_drag_low  = CL**2 / (np.pi*ar*e_inv)
+        total_induced_drag_high = CL**2 / (np.pi*ar*wing_e) # oswald factor would include wave drag due to lift
                                                                                     # which is not computed here
-                                                                                    
-    total_induced_drag      = total_induced_drag_low*h00(mach) + total_induced_drag_high*(1-h00(mach))
+        CDi_inv       = total_induced_drag_low*h00(mach) + total_induced_drag_high*(1-h00(mach))
         
     # store data
     try:
         conditions.aerodynamics.drag_breakdown.induced = Data(
-            total             = total_induced_drag ,
-            efficiency_factor = e                  ,
-            aspect_ratio      = ar                 ,
+            total             = CDi_inv  ,
+            efficiency_factor = e_inv    ,
+            aspect_ratio      = ar       ,
         )
     except:
         print("Drag Polar Mode")     
-    
-    return total_induced_drag
+     
+    return CDi_inv

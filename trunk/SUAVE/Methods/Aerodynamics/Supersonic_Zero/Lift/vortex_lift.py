@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Supersonic-Lift
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Lift
 # vortex_lift.py
 # 
 # Created:  Jun 2014, T. MacDonald
@@ -16,7 +16,7 @@ import numpy as np
 #   The Function
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Supersonic-Lift
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Lift
 def vortex_lift(state,settings,geometry):
     """Computes vortex lift according to the Polhamus Suction Analogy
 

@@ -18,7 +18,7 @@ from SUAVE.Core import Data
 # package imports
 import numpy as np
 
-from SUAVE.Methods.Aerodynamics.Supersonic.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Wing
