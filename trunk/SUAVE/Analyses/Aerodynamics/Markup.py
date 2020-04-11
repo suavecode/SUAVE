@@ -52,6 +52,7 @@ class Markup(Aerodynamics):
         self.geometry = Data()
         self.settings.lift_to_drag_adjustment  = 0. # (.1 is a 10% increase in L/D over base analysis)
                                                     # this is applied directly to the final drag value
+        self.settings.engine_out = False
         
         self.process = Process()
         self.process.initialize = Process()

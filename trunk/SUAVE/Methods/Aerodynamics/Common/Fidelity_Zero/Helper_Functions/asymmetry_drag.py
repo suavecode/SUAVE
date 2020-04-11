@@ -74,14 +74,16 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
                 break
             
     # getting cg x position
-    xcg = vehicle.mass_properties.center_of_gravity[0] 
+    xcg = vehicle.mass_properties.center_of_gravity[0][0]
+    if xcg == 0.:
+        print('Warning: xcg is 0, asymmetric drag may be incorrect.')
     
     # getting engine y position and calculating thrust
     for idx,propulsor in enumerate(propulsors):
         y_engine = propulsor.origin[0][1]             
         # Getting engine thrust
-        results = propulsor(state) # total thrust
-        thrust  = results.thrust_force_vector[0,0] / propulsor.number_of_engines
+        results = propulsor.evaluate_thrust(state) # total thrust
+        thrust  = results.thrust_force_vector[:,0,None] / propulsor.number_of_engines
         break
     
     # finding vertical tail
@@ -97,7 +99,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
 
     # getting vertical tail data (span, distance to cg)
     vertical_height = wings[vertical_idx].spans.projected
-    vertical_dist   = wings[vertical_idx].aerodynamic_center[0] + wings[vertical_idx].origin[0] - xcg
+    vertical_dist   = wings[vertical_idx].aerodynamic_center[0] + wings[vertical_idx].origin[0][0] - xcg
     
     # colculating windmilling drag
     if windmilling_drag_coefficient == 0:
