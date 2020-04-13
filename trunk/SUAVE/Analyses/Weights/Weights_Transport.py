@@ -13,7 +13,6 @@ import SUAVE
 from SUAVE.Core import Data
 from .Weights import Weights
 
-
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
@@ -68,63 +67,3 @@ class Weights_Transport(Weights):
         self.settings.weight_reduction_factors.empennage = 0. # applied to horizontal and vertical stabilizers
         
         self.settings.empty = SUAVE.Methods.Weights.Correlations.Transport.arbitrary_tranport
-        
-    def evaluate(self,conditions=None):
-        """Evaluate the weight analysis.
-    
-        Assumptions:
-        None
-
-        Source:
-        N/A
-
-        Inputs:
-        None
-
-        Outputs:
-        results
-
-        Properties Used:
-        N/A
-        """         
-        # unpack
-        vehicle  = self.vehicle
-        settings = self.settings
-        empty    = self.settings.empty
-
-        
-        # evaluate
-        results = empty(vehicle,settings)
-        
-        # storing weigth breakdown into vehicle
-        vehicle.weight_breakdown = results 
-
-        # updating empty weight
-        vehicle.mass_properties.operating_empty = results.empty
-              
-        # done!
-        return results
-    
-    
-    def finalize(self):
-        """Finalize the weight analysis.
-    
-        Assumptions:
-        None
-
-        Source:
-        N/A
-
-        Inputs:
-        None
-
-        Outputs:
-        None
-
-        Properties Used:
-        N/A
-        """           
-        self.mass_properties = self.vehicle.mass_properties
-        
-        return
-        

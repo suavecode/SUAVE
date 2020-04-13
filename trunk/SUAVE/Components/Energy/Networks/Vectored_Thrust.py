@@ -213,7 +213,7 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.disc_loading                    = (F_mag.T)/(num_engines*np.pi*(R)**2) # N/m^2  
         conditions.propulsion.power_loading                   = (F_mag.T)/(battery_draw)       # N/W         
         
-        mdot = np.zeros_like(F_vec)
+        mdot = state.ones_row(1)*0.0
 
         results = Data()
         results.thrust_force_vector = F_vec

@@ -325,7 +325,7 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw)   # N/W    
                                                                                                         
         F_total = F_lift_total + F_forward_total
-        mdot    = np.zeros_like(F_total)
+        mdot = state.ones_row(1)*0.0
         
         results = Data()
         results.thrust_force_vector = F_total
