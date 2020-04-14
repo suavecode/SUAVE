@@ -191,9 +191,6 @@ class Thrust(Energy_Component):
 
         #computing the dimensional thrust
         FD2              = Fsp*a0*(1.+bypass_ratio)*mdot_core*no_eng*throttle
-        
-        #if np.isnan(FD2).any():
-            #print("NaN FD2")
 
         #fuel flow rate
         a = np.array([0.])        

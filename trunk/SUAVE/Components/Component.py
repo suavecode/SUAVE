@@ -45,7 +45,7 @@ class Component(Data):
             """         
         self.tag    = 'Component'
         self.origin = [[0.0,0.0,0.0]]
-        self.max_per_vehicle = 2
+        self.max_per_vehicle = 0
         self.PGM_characteristics = []
         self.PGM_special_parent  = None
 
