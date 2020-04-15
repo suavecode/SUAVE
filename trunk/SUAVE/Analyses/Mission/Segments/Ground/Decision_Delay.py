@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from .Ground import Ground
+from .Ground_Constant_Time import Ground_Constant_Time
 from SUAVE.Methods.Missions import Segments as Methods
 
 # Units
@@ -20,7 +20,7 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission-Segments-Hover
-class Takeoff(Ground):
+class Decision_Delay(Ground_Constant_Time):
     """ Segment for takeoff. Integrates equations of motion
         including rolling friction.
         
@@ -62,16 +62,14 @@ class Takeoff(Ground):
             None
         """         
 
-        self.velocity_start       = None
-        self.velocity_end         = 150 * Units.knots
+        self.velocity_start       = 1.0
+        self.time                 = 1.0
         self.friction_coefficient = 0.04
         self.throttle             = 1.0
         
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.velocity_x            = ones_row(1) * 0.0
-        self.state.unknowns.time                  = 100.
-        self.state.residuals.final_velocity_error = 0.0
         self.state.residuals.forces               = ones_row(1) * 0.0        
 
         # --------------------------------------------------------------
@@ -79,7 +77,7 @@ class Takeoff(Ground):
         # --------------------------------------------------------------
     
         initialize = self.process.initialize
-        initialize.conditions = Methods.Ground.Takeoff.initialize_conditions
+        initialize.conditions = Methods.Ground.Decision_Delay.initialize_conditions
         
         return
 

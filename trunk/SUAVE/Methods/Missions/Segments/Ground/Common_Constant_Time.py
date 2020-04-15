@@ -24,11 +24,10 @@ def unpack_unknowns(segment):
     # unpack unknowns
     unknowns   = segment.state.unknowns
     velocity_x = unknowns.velocity_x
-    time       = unknowns.time
     
     # unpack givens
-    v0         = segment.air_speed_start  
-    vf         = segment.air_speed_end  
+    v0         = segment.velocity_start  
+    time       = segment.time
     t_initial  = segment.state.conditions.frames.inertial.time[0,0]
     t_nondim   = segment.state.numerics.dimensionless.control_points
     
@@ -79,7 +78,6 @@ def initialize_conditions(segment):
     # unpack inputs
     alt      = segment.altitude 
     v0       = segment.velocity_start
-    vf       = segment.velocity_end 
     throttle = segment.throttle	
     N        = segment.state.numerics.number_control_points   
     
@@ -93,17 +91,12 @@ def initialize_conditions(segment):
         
     # avoid having zero velocity since aero and propulsion models need non-zero Reynolds number
     if v0 == 0.0: v0 = 0.01
-    if vf == 0.0: vf = 0.01
     
-    # intial and final speed cannot be the same
-    if v0 == vf:
-        vf = vf + 0.01
         
     # repack
     segment.air_speed_start = v0
-    segment.air_speed_end   = vf
     
-    initialized_velocity = (vf - v0)*segment.state.numerics.dimensionless.control_points + v0
+    initialized_velocity = v0*np.ones_like(segment.state.numerics.dimensionless.control_points)
     
     # Initialize the x velocity unknowns to speed convergence:
     segment.state.unknowns.velocity_x = initialized_velocity[:,0]
@@ -232,7 +225,6 @@ def solve_residuals(segment):
     # unpack inputs
     conditions = segment.state.conditions
     FT = conditions.frames.inertial.total_force_vector
-    vf = segment.velocity_end
     v  = conditions.frames.inertial.velocity_vector
     m  = conditions.weights.total_mass
     D  = segment.state.numerics.time.differentiate
@@ -241,11 +233,8 @@ def solve_residuals(segment):
     acceleration = np.dot(D , v)
     conditions.frames.inertial.acceleration_vector = acceleration
     
-    if vf == 0.0: vf = 0.01
-    
     a  = segment.state.conditions.frames.inertial.acceleration_vector
 
     segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
-    segment.state.residuals.final_velocity_error = (v[-1,0] - vf)
     
     return
