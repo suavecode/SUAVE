@@ -2,8 +2,7 @@
 # Lifting_Line.py
 # 
 # Created:  Aug 2017, E. Botero
-# Modified: 
-#           
+#           Apr 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -61,15 +60,13 @@ def lifting_line(conditions,settings,geometry):
         pass
         
     # Unpack fo'real
-    b           = wing.spans.projected
-    S           = wing.areas.reference
+    b           = wing.spans.projected 
     AR          = wing.aspect_ratio
     MAC         = wing.chords.mean_aerodynamic
     taper       = wing.taper
     tip_twist   = wing.twists.root
     root_twist  = wing.twists.tip 
-    root_chord  = wing.chords.root
-    tip_chord   = wing.chords.tip      
+    root_chord  = wing.chords.root     
     r           = settings.number_of_stations # Number of divisions
     alpha       = conditions.aerodynamics.angle_of_attack
     

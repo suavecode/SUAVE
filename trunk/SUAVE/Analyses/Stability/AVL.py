@@ -177,8 +177,7 @@ class AVL(Stability):
         """          
         
         # Unpack
-        surrogates          = self.surrogates   
-        geometry            = self.geometry         
+        surrogates          = self.surrogates       
         Mach                = conditions.freestream.mach_number
         AoA                 = conditions.aerodynamics.angle_of_attack 
         moment_model        = surrogates.moment_coefficient
@@ -299,7 +298,7 @@ class AVL(Stability):
             Cm_alpha_1D = Cm_alpha.reshape([len(AoA)*len(Mach),1])  
             Cn_beta_1D  = Cn_beta.reshape([len(AoA)*len(Mach),1])         
             NP_1D       = Cn_beta.reshape([len(AoA)*len(Mach),1]) 
-            np.savetxt(geometry.tag+'_data_stability.txt',np.hstack([CM_1D,Cm_alpha_1D, Cn_beta_1D,NP_1D ]),fmt='%10.8f',header='   CM       Cm_alpha       Cn_beta       NP ')
+            np.savetxt(geometry.tag+'_stability_data.txt',np.hstack([CM_1D,Cm_alpha_1D, Cn_beta_1D,NP_1D ]),fmt='%10.8f',header='   CM       Cm_alpha       Cn_beta       NP ')
         
         # Store training data
         # Save the data for regression

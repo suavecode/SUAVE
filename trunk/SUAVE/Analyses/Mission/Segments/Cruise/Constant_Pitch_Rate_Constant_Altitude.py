@@ -2,7 +2,7 @@
 # Constant_Pitch_Rate_Constant_Altitude.py
 # 
 # Created:  Jan 2016, E. Botero
-# Modified:
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

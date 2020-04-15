@@ -106,7 +106,7 @@ def update_freestream(segment):
         Outputs:
             segment.state.conditions:
                 freestream.dynamic pressure     [pascals]
-                freestream.Mach number          [Unitless]
+                freestream.mach number          [Unitless]
                 freestream.reynolds number      [1/meter]
                                
         Properties Used:

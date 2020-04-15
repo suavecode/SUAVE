@@ -3,3 +3,4 @@
 # @ingroup Methods-Aerodynamics-Supersonic_Zero
 
 from .vortex_lift import vortex_lift
+from .wing_compressibility import wing_compressibility

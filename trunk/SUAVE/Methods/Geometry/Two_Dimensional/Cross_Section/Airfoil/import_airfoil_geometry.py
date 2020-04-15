@@ -4,11 +4,12 @@
 # Created:  Mar 2019, M. Clarke
 #           Mar 2020, M. Clarke
 #           Apr 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data , Units
+from SUAVE.Core import Data  
 import numpy as np
 import scipy.interpolate as interp
 

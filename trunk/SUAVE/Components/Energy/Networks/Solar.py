@@ -114,24 +114,34 @@ class Solar(Propulsor):
         
         # step 1
         solar_flux.solar_radiation(conditions)
+        
         # link
         solar_panel.inputs.flux = solar_flux.outputs.flux
+        
         # step 2
         solar_panel.power()
+        
         # link
         solar_logic.inputs.powerin = solar_panel.outputs.power
+        
         # step 3
         solar_logic.voltage()
+        
         # link
         esc.inputs.voltagein =  solar_logic.outputs.system_voltage
+        
         # Step 4
         esc.voltageout(conditions)
+        
         # link
         motor.inputs.voltage = esc.outputs.voltageout
+        
         # step 5
         motor.omega(conditions)
+        
         # link
         propeller.inputs.omega =  motor.outputs.omega
+        
         # step 6
         F, Q, P, Cplast ,  outputs  , etap   = propeller.spin(conditions)
      
@@ -145,26 +155,30 @@ class Solar(Propulsor):
         
         # Run the avionics
         avionics.power()
+        
         # link
         solar_logic.inputs.pavionics =  avionics.outputs.power
         
         # Run the payload
         payload.power()
+        
         # link
         solar_logic.inputs.ppayload = payload.outputs.power
         
         # Run the motor for current
         motor.current(conditions)
+        
         # link
         esc.inputs.currentout =  motor.outputs.current
         
         # Run the esc
         esc.currentin(conditions)
+        
         # link
         solar_logic.inputs.currentesc  = esc.outputs.currentin*num_engines
         solar_logic.inputs.volts_motor = esc.outputs.voltageout 
-        #
         solar_logic.logic(conditions,numerics)
+        
         # link
         battery.inputs = solar_logic.outputs
         battery.energy_calc(numerics)

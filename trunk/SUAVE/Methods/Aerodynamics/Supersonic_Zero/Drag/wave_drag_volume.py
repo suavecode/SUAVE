@@ -4,6 +4,7 @@
 # Created:  Jun 2014, T. MacDonald
 # Modified: Feb 2019, T. MacDonald
 #           Jan 2020, T. MacDonald
+#           Apr 2020, M. Clarke
 
 import numpy as np
 from SUAVE.Core import Units
@@ -44,7 +45,7 @@ def wave_drag_volume(vehicle,mach,scaling_factor):
     
     main_wing = vehicle.wings.main_wing
     # estimation of leading edge sweep if not defined 
-    if main_wing.sweeps.leading_edge != None:                                                     
+    if main_wing.sweeps.leading_edge == None:                                                     
         QC_sweep                       = main_wing.sweeps.quarter_chord
         cf                             = 0.25   # chord fraction                                  
         rc                             = main_wing.chords.root 

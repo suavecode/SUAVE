@@ -1,4 +1,4 @@
-## @ingroup Methods-Aerodynamics-Supersonic_Zero -Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 # parasite_drag_fuselage.py
 # 
 # Created:  Aug 2014, T. MacDonald
@@ -20,7 +20,7 @@ import numpy as np
 #   Parasite Drag Fuselage
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Supersonic_Zero -Drag
+## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 def parasite_drag_fuselage(state,settings,geometry):
     """Computes the parasite drag due to the fuselage
 

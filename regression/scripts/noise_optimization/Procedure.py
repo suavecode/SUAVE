@@ -142,7 +142,7 @@ def weights_sizing(nexus):
     
         # Fuel margin and base fuel calculations
         operating_empty          = vehicle.mass_properties.operating_empty        
-        max_range_landing_weight = results.max_range.segments[-1].conditions.weights.total_mass[-1][0] 
+        max_range_landing_weight = results.max_range.segments[-1].conditions.weights.total_mass[-1]  
         final_weight_expected    = operating_empty + payload
         max_range_fuel_margin    = (max_range_landing_weight - final_weight_expected)
         residual = - max_range_fuel_margin 
@@ -299,15 +299,15 @@ def find_target_range(nexus,mission):
     
     segments=mission.segments
     cruise_altitude=mission.segments['climb_5'].altitude_end
-    climb_1=segments['climb_1_mr']
-    climb_2=segments['climb_2_mr']
-    climb_3=segments['climb_3_mr']
-    climb_4=segments['climb_4_mr']
+    climb_1=segments['climb_1']
+    climb_2=segments['climb_2']
+    climb_3=segments['climb_3']
+    climb_4=segments['climb_4']
     climb_5=segments['climb_5']
   
-    descent_1=segments['descent_1_mr']
-    descent_2=segments['descent_2_mr']
-    descent_3=segments['descent_3_mr']
+    descent_1=segments['descent_1']
+    descent_2=segments['descent_2']
+    descent_3=segments['descent_3']
 
     x_climb_1=climb_1.altitude_end/np.tan(np.arcsin(climb_1.climb_rate/climb_1.air_speed))
     x_climb_2=(climb_2.altitude_end-climb_1.altitude_end)/np.tan(np.arcsin(climb_2.climb_rate/climb_2.air_speed))

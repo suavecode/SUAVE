@@ -2,6 +2,7 @@
 # 
 # Created:  Aug 2014, Emilio Botero, 
 #           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports
@@ -51,8 +52,7 @@ def main():
     analyses.finalize()    
     
     # weight analysis
-    weights = analyses.configs.base.weights
-    breakdown = weights.evaluate()          
+    weights = analyses.configs.base.weights    
     
     # mission analysis
     mission = analyses.missions.base
@@ -73,10 +73,10 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[3,0]  
     
     # Truth results
-    truth_F   = 106.17898847736741
-    truth_i   = 131.4126725724721
-    truth_rpm = 160.76095006185793
-    truth_bat = 319157.3538416773
+    truth_F   = 106.18033638567213 
+    truth_rpm = 160.7611262798434 
+    truth_i   = 131.4125999291085  
+    truth_bat = 319134.40613269806
     
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))

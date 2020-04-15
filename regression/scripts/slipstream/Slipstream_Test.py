@@ -16,7 +16,7 @@ import pylab as plt
 
 from SUAVE.Core import Data , Container
 from SUAVE.Methods.Propulsion import propeller_design
-
+from SUAVE.Plots.Mission_Plots import *  
 import sys
 sys.path.append('../Vehicles') 
 from X57_Maxwell import vehicle_setup, configs_setup 
@@ -85,6 +85,11 @@ def main():
     print('Cl difference')
     print(diff_Cl)
     assert  max(np.abs((sectional_lift_coeff - sectional_lift_coeff_true)/sectional_lift_coeff_true)) < 1e-6 
+    
+    # Plot pressure and lift distribution of wings 
+    plot_surface_pressure_contours(results,configs.base)
+    plot_lift_distribution(results,configs.base)
+    create_video_frames(results,configs.base, save_figure = False)
     
     return
 

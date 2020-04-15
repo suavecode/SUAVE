@@ -485,13 +485,9 @@ class Vortex_Lattice(Aerodynamics):
          
         CL_surrogate_sub               = RectBivariateSpline(AoA_data, mach_data_sub, CL_data_sub)  
         CL_surrogate_sup               = RectBivariateSpline(AoA_data, mach_data_sup, CL_data_sup) 
-        #CL_surrogate_trans             = interp2d(AoA_data, mach_data_trans_CL, CL_data_trans.T,kind = 'linear') 
-        CL_surrogate_trans             = RectBivariateSpline(AoA_data, mach_data_trans_CL, CL_data_trans,ky = 2 ) 
+        CL_surrogate_trans             = interp2d(AoA_data, mach_data_trans_CL, CL_data_trans.T,kind = 'linear')  
         CDi_surrogate_sub              = RectBivariateSpline(AoA_data, mach_data_sub, CDi_data_sub)  
-        
-        #CDi_surrogate_sup              = RectBivariateSpline(AoA_data, mach_data_sup, CDi_data_sup) 
-        CDi_surrogate_sup              = interp2d(AoA_data, mach_data_sup, CDi_data_sup.T, kind = 'linear')  
-        #CDi_surrogate_trans            = RectBivariateSpline(AoA_data, mach_data_trans_CDi, CDi_data_trans)  
+        CDi_surrogate_sup              = RectBivariateSpline(AoA_data, mach_data_sup, CDi_data_sup)    
         CDi_surrogate_trans            = interp2d(AoA_data, mach_data_trans_CDi, CDi_data_trans.T, kind = 'linear')  
         
         CL_w_surrogates_sub            = Data() 
@@ -506,8 +502,7 @@ class Vortex_Lattice(Aerodynamics):
             CL_w_surrogates_sup[wing]    = RectBivariateSpline(AoA_data, mach_data_sub, CL_w_data_sup[wing])   
             CL_w_surrogates_trans[wing]  = interp2d(AoA_data, mach_data_trans_CL, CL_w_data_trans[wing].T,kind = 'linear') 
             CDi_w_surrogates_sub[wing]   = RectBivariateSpline(AoA_data, mach_data_sub, CDi_w_data_sub[wing])            
-            CDi_w_surrogates_sup[wing]   = RectBivariateSpline(AoA_data, mach_data_sub, CDi_w_data_sup[wing]) 
-            #CDi_w_surrogates_trans[wing] = RectBivariateSpline(AoA_data, mach_data_trans_CDi, CDi_w_data_trans[wing])
+            CDi_w_surrogates_sup[wing]   = RectBivariateSpline(AoA_data, mach_data_sub, CDi_w_data_sup[wing])  
             CDi_w_surrogates_trans[wing] = interp2d(AoA_data, mach_data_trans_CDi, CDi_w_data_trans[wing].T,kind = 'linear')           
     
         # Pack the outputs

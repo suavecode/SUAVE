@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -75,8 +76,6 @@ def initialize_conditions(segment):
     throttle   = segment.throttle
     air_speed  = segment.air_speed   
     alt0       = segment.altitude_start 
-    altf       = segment.altitude_end
-    t_nondim   = segment.state.numerics.dimensionless.control_points
     conditions = segment.state.conditions  
 
     # check for initial altitude

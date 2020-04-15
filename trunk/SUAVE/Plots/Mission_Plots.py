@@ -2,6 +2,7 @@
 # Mission_Plots.py
 # 
 # Created:  Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -1155,7 +1156,7 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
 # ------------------------------------------------------------------
 #   VLM Video 
 # ------------------------------------------------------------------
-def create_video_frames(results,vehicle, flight_profile = True, save_filename = "Flight_Mission_Frame", file_type = ".png"):
+def create_video_frames(results,vehicle, save_figure = True ,flight_profile = True,  save_filename = "Flight_Mission_Frame", file_type = ".png"):
     """This creates video frames of the aerodynamic conditions of the vehicle as well as the 
     surface pressure coefficient throughout a mission
 
@@ -1290,8 +1291,9 @@ def create_video_frames(results,vehicle, flight_profile = True, save_filename = 
                 mini_axes4.set_xlim(-10,420)	
                 mini_axes4.set_ylim(15,20)  	
                 mini_axes4.grid(False)             	
-
-            plt.savefig(save_filename + '_' + str(img_idx) + file_type) 	
+            
+            if save_figure:
+                plt.savefig(save_filename + '_' + str(img_idx) + file_type) 	
             img_idx += 1	
         seg_idx +=1 
 
