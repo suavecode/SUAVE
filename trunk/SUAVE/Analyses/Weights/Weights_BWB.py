@@ -8,6 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import SUAVE
 from SUAVE.Core import Data
 from .Weights import Weights
 

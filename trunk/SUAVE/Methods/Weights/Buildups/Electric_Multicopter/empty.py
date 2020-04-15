@@ -27,15 +27,7 @@ def empty(config,
           disk_area_factor              = 1.15,
           max_thrust_to_weight_ratio    = 1.1,
           motor_efficiency              = 0.85 * 0.98):
-    """weight = SUAVE.Methods.Weights.Buildups.Electric_Multicopter.empty(
-            config,
-            speed_of_sound              = 340.294,
-            maximumTipMach              = 0.65,
-            disk_area_factor            = 1.15,
-            max_thrust_to_weight_ratio  = 1.1,
-            motor_efficiency            = 0.85 * 0.98)
-
-        Calculates the empty fuselage mass for an electric helicopter including
+    """ Calculates the empty fuselage mass for an electric helicopter including
         seats, avionics, servomotors, ballistic recovery system, rotor and hub
         assembly, transmission, and landing gear. Additionally incorporates
         results of the following common buildup scripts: 
@@ -79,9 +71,6 @@ def empty(config,
     mBattery            = config.propulsors.propulsor.battery.mass_properties.mass
     mPayload            = config.propulsors.propulsor.payload.mass_properties.mass
     MTOW                = config.mass_properties.max_takeoff
-    fLength             = config.fuselages.fuselage.lengths.total
-    fWidth              = config.fuselages.fuselage.width
-    fHeight             = config.fuselages.fuselage.heights.maximum
      
     tipMach             = max_tip_mach
     k                   = disk_area_factor
