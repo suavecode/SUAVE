@@ -215,7 +215,7 @@ def base(analyses):
     segment.distance   = 2050. * Units.nmi
 
     ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle  = ones_row(1) * 5.
+    segment.state.unknowns.body_angle  = ones_row(1) * 4.
 
     # add to mission
     mission.append_segment(segment)
@@ -528,7 +528,7 @@ def max_range_setup(analyses):
     segment.distance   = 2050. * Units.nmi
      
     ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle  = ones_row(1) * 5.
+    segment.state.unknowns.body_angle  = ones_row(1) * 4.
     
     # add to mission
     mission.append_segment(segment)
@@ -842,7 +842,7 @@ def short_field_setup(analyses):
     segment.distance   = 2050. * Units.nmi
 
     ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle  = ones_row(1) * 5.
+    segment.state.unknowns.body_angle  = ones_row(1) * 4.
     
     # add to mission
     mission.append_segment(segment)
