@@ -76,7 +76,7 @@ def main():
     truth_F   = 106.17937888428949  
     truth_rpm = 160.76100043739908 
     truth_i   = 131.4126494489281  
-    truth_bat = 98064443.83585036
+    truth_bat = 98064443.83585036  # travis   98064443.83585292
     
     print('battery energy')
     print(energy)

@@ -70,8 +70,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.vortex_distribution            = Data()   
         
         # conditions table, used for surrogate model training
-        self.training                                = Data()     
-        self.training.reference_speed_of_sound       = 343.234   
+        self.training                                = Data()    
         self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.]]).T * Units.deg
         self.training.Mach_subsonic                  = np.array([[0.0, 0.1 , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9]]).T
         self.training.Mach_supersonic                = np.array([[1.2, 1.5, 1.8 , 2.0, 2.25 , 2.5, 3.0, 3.5]]).T            
@@ -353,7 +352,10 @@ class Vortex_Lattice(Aerodynamics):
         AoA      = training.angle_of_attack
         Mach_sub = training.Mach_subsonic
         Mach_sup = training.Mach_supersonic
-        a        = self.training.reference_speed_of_sound
+        
+        atmosphere                              = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmosphere.compute_values(self,altitude = np.array([[0.0]]))
+        a                                       = atmosphere.speed_of_sound   
         
         # Setup Konditions                      
         konditions                              = Data()
