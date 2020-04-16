@@ -45,7 +45,7 @@ def main():
     results = mission.evaluate() 
     
     # save results 
-    #save_results(results)
+    save_results(results)
     
     # plt the old results
     plot_mission(results,configs.base) 

@@ -134,8 +134,7 @@ def configs_setup(vehicle):
     #    Configuration
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'climb'
-    #config.propulsors.propulsor.thrust_angle  = 85 * Units.degrees    
+    config.tag = 'climb'   
     config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
     configs.append(config)
     

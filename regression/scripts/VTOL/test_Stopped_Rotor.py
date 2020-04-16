@@ -343,7 +343,7 @@ def mission_setup(analyses,vehicle):
     segment.air_speed_start = np.sqrt((500 * Units['ft/min'])**2 + (1.2*Vstall)**2)
     segment.air_speed_end   = 110.  * Units['mph']                                            
 
-    segment.state.unknowns.propeller_power_coefficient = 0.01 * ones_row(1)
+    segment.state.unknowns.propeller_power_coefficient = 0.08 * ones_row(1)
     segment.state.unknowns.throttle                    = 0.50 * ones_row(1)
 
     segment.process.iterate.unknowns.network  = vehicle.propulsors.propulsor.unpack_unknowns_no_lift

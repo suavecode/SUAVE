@@ -65,22 +65,22 @@ def main():
     descent_throttle_2 = results.segments.descent_2.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 1.0010262127548726 
-    climb_throttle_2_truth   = 0.8070956111806342 
-    climb_throttle_3_truth   = 0.5066507561738394 
-    climb_throttle_4_truth   = 0.8780768301731252 
-    climb_throttle_5_truth   = 1.0217310695850987 
-    climb_throttle_6_truth   = 0.712865800339194 
-    climb_throttle_7_truth   = 0.884842929627734
-    climb_throttle_8_truth   = 1.082701883608776 
-    cruise_CL_1_truth        = 0.634705890020887 
-    cruise_CL_2_truth        = 0.6250105826767022 
-    cruise_CL_3_truth        = 0.7077047533472071 
-    descent_throttle_1_truth = 0.17523953014764396 
-    single_pt_CL_1_truth     = 0.2588364044845198 
-    single_pt_CL_2_truth     = 0.25869743284599983 
-    loiter_CL_truth          = 0.5274339809123345 
-    descent_throttle_2_truth = 0.15536189059314065
+    climb_throttle_1_truth   = 0.9857468628944336 
+    climb_throttle_2_truth   = 0.7952188198483993 
+    climb_throttle_3_truth   = 0.5066828579416367 
+    climb_throttle_4_truth   = 0.878134600022338 
+    climb_throttle_5_truth   = 1.021806039249955 
+    climb_throttle_6_truth   = 0.7136864572517849 
+    climb_throttle_7_truth   = 0.8877493204092387 
+    climb_throttle_8_truth   = 1.0868679444818625 
+    cruise_CL_1_truth        = 0.634777526547744 
+    cruise_CL_2_truth        = 0.6250634424249245 
+    cruise_CL_3_truth        = 0.7081424772096907 
+    descent_throttle_1_truth = 0.17517658209416148 
+    single_pt_CL_1_truth     = 0.2588077147541633 
+    single_pt_CL_2_truth     = 0.25874688162066317
+    loiter_CL_truth          = 0.5273996120576298 
+    descent_throttle_2_truth = 0.15532873504026581 
     
     # Store errors 
     error = Data()
@@ -506,7 +506,7 @@ def mission_setup(analyses):
     segment.analyses.extend(analyses.base) 
     segment.altitude    =  2500. * Units.feet
     segment.air_speed   =  200. * Units['m/s']   
-    segment.throttle    =  0.6
+    segment.throttle    =  0.5
 
     # add to misison
     mission.append_segment(segment)    

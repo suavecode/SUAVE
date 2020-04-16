@@ -73,11 +73,11 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[3,0]  
     
     # Truth results
-    truth_F   = 106.18033638552076
-    truth_rpm = 160.7611262797558
-    truth_i   = 131.41259992890042
-    truth_bat = 319134.4063346982
-    
+    truth_F   = 106.17937888428949  
+    truth_rpm = 160.76100043739908 
+    truth_i   = 131.4126494489281  
+    truth_bat = 319152.6179743707  
+       
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))
     error.RPM = np.max(np.abs(rpm-truth_rpm))

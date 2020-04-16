@@ -65,8 +65,8 @@ class Vortex_Lattice(Aerodynamics):
         self.tag                                     = 'Vortex_Lattice' 
         self.geometry                                = Data()
         self.settings                                = Data()
-        self.settings.number_panels_spanwise         = 25
-        self.settings.number_panels_chordwise        = 5
+        self.settings.number_panels_spanwise         = 10
+        self.settings.number_panels_chordwise        = 2
         self.settings.vortex_distribution            = Data()   
         
         # conditions table, used for surrogate model training
