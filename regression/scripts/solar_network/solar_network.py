@@ -73,10 +73,10 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[3,0]  
     
     # Truth results
-    truth_F   = 106.18033638567213 
-    truth_rpm = 160.7611262798434 
-    truth_i   = 131.4125999291085  
-    truth_bat = 319134.40613269806
+    truth_F   = 106.18033638552076
+    truth_rpm = 160.7611262797558
+    truth_i   = 131.41259992890042
+    truth_bat = 319134.4063346982
     
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))
@@ -134,7 +134,8 @@ def base_analysis(vehicle): # --------------------------------------------------
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
+    aerodynamics.settings.plot_vortex_distribution   = True 
+    aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
     

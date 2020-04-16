@@ -100,19 +100,19 @@ def compute_vortex_distribution(geometry,settings):
     
     for wing in geometry.wings:
         # get geometry of wing  
-        span        = wing.spans.projected
-        root_chord  = wing.chords.root
-        tip_chord   = wing.chords.tip
-        sweep_qc    = wing.sweeps.quarter_chord
-        sweep_le    = wing.sweeps.leading_edge
-        taper       = wing.taper
-        twist_rc    = wing.twists.root
-        twist_tc    = wing.twists.tip
-        dihedral    = wing.dihedral
-        sym_para    = wing.symmetric
-        Sref        = wing.areas.reference
+        span          = wing.spans.projected
+        root_chord    = wing.chords.root
+        tip_chord     = wing.chords.tip
+        sweep_qc      = wing.sweeps.quarter_chord
+        sweep_le      = wing.sweeps.leading_edge
+        taper         = wing.taper
+        twist_rc      = wing.twists.root
+        twist_tc      = wing.twists.tip
+        dihedral      = wing.dihedral
+        sym_para      = wing.symmetric
+        Sref          = wing.areas.reference
         vertical_wing = wing.vertical
-        wing_origin = wing.origin
+        wing_origin   = wing.origin
 
         # determine if vehicle has symmetry 
         if sym_para is True :
@@ -727,50 +727,99 @@ def compute_vortex_distribution(geometry,settings):
         n_w += 1
         if sym_para is True :
             n_w += 1
-            cs_w = np.concatenate([cs_w,cs_w])
-            xah = np.concatenate([xah,xah])
-            yah = np.concatenate([yah,-yah])
-            zah = np.concatenate([zah,zah])
-            xbh = np.concatenate([xbh,xbh])
-            ybh = np.concatenate([ybh,-ybh])
-            zbh = np.concatenate([zbh,zbh])
-            xch = np.concatenate([xch,xch])
-            ych = np.concatenate([ych,-ych])
-            zch = np.concatenate([zch,zch])
-
-            xa1 = np.concatenate([xa1,xa1])
-            ya1 = np.concatenate([ya1,-ya1])
-            za1 = np.concatenate([za1,za1])
-            xa2 = np.concatenate([xa2,xa2])
-            ya2 = np.concatenate([ya2,-ya2])
-            za2 = np.concatenate([za2,za2])
-
-            xb1 = np.concatenate([xb1,xb1])
-            yb1 = np.concatenate([yb1,-yb1])    
-            zb1 = np.concatenate([zb1,zb1])
-            xb2 = np.concatenate([xb2,xb2])
-            yb2 = np.concatenate([yb2,-yb2])            
-            zb2 = np.concatenate([zb2,zb2])
-
-            xac   = np.concatenate([xac ,xac ])
-            yac   = np.concatenate([yac ,-yac ])
-            zac   = np.concatenate([zac ,zac ])            
-            xbc   = np.concatenate([xbc ,xbc ])
-            ybc   = np.concatenate([ybc ,-ybc ])
-            zbc   = np.concatenate([zbc ,zbc ]) 
-            xa_te = np.concatenate([xa_te , xa_te ])
-            ya_te = np.concatenate([ya_te ,-ya_te ])
-            za_te = np.concatenate([za_te , za_te ])            
-            xb_te = np.concatenate([xb_te , xb_te ])
-            yb_te = np.concatenate([yb_te ,-yb_te ])
-            zb_te = np.concatenate([zb_te , zb_te ]) 
-            y_sw  = np.concatenate([y_sw,-y_sw ])
-            xc    = np.concatenate([xc ,xc ])
-            yc    = np.concatenate([yc ,-yc]) 
-            zc    = np.concatenate([zc ,zc ])
-            x     = np.concatenate([x , x ])
-            y     = np.concatenate([y ,-y])
-            z     = np.concatenate([z , z ])            
+            if vertical_wing:
+                cs_w = np.concatenate([cs_w,cs_w])
+                xah = np.concatenate([xah,xah])
+                yah = np.concatenate([yah,yah])
+                zah = np.concatenate([zah,-zah])
+                xbh = np.concatenate([xbh,xbh])
+                ybh = np.concatenate([ybh,ybh])
+                zbh = np.concatenate([zbh,-zbh])
+                xch = np.concatenate([xch,xch])
+                ych = np.concatenate([ych,ych])
+                zch = np.concatenate([zch,-zch])
+    
+                xa1 = np.concatenate([xa1,xa1])
+                ya1 = np.concatenate([ya1,ya1])
+                za1 = np.concatenate([za1,-za1])
+                xa2 = np.concatenate([xa2,xa2])
+                ya2 = np.concatenate([ya2,ya2])
+                za2 = np.concatenate([za2,-za2])
+    
+                xb1 = np.concatenate([xb1,xb1])
+                yb1 = np.concatenate([yb1,yb1])    
+                zb1 = np.concatenate([zb1,-zb1])
+                xb2 = np.concatenate([xb2,xb2])
+                yb2 = np.concatenate([yb2,yb2])            
+                zb2 = np.concatenate([zb2,-zb2])
+    
+                xac   = np.concatenate([xac ,xac ])
+                yac   = np.concatenate([yac ,yac ])
+                zac   = np.concatenate([zac ,-zac ])            
+                xbc   = np.concatenate([xbc ,xbc ])
+                ybc   = np.concatenate([ybc ,ybc ])
+                zbc   = np.concatenate([zbc ,-zbc ]) 
+                xa_te = np.concatenate([xa_te , xa_te ])
+                ya_te = np.concatenate([ya_te ,ya_te ])
+                za_te = np.concatenate([za_te ,- za_te ])            
+                xb_te = np.concatenate([xb_te , xb_te ])
+                yb_te = np.concatenate([yb_te ,yb_te ])
+                zb_te = np.concatenate([zb_te ,- zb_te ])
+                
+                y_sw  = np.concatenate([y_sw,-y_sw ])
+                xc    = np.concatenate([xc ,xc ])
+                yc    = np.concatenate([yc ,yc]) 
+                zc    = np.concatenate([zc ,-zc ])
+                x     = np.concatenate([x , x ])
+                y     = np.concatenate([y ,y])
+                z     = np.concatenate([z ,-z ])                  
+                
+            else:
+                cs_w = np.concatenate([cs_w,cs_w])
+                xah = np.concatenate([xah,xah])
+                yah = np.concatenate([yah,-yah])
+                zah = np.concatenate([zah,zah])
+                xbh = np.concatenate([xbh,xbh])
+                ybh = np.concatenate([ybh,-ybh])
+                zbh = np.concatenate([zbh,zbh])
+                xch = np.concatenate([xch,xch])
+                ych = np.concatenate([ych,-ych])
+                zch = np.concatenate([zch,zch])
+    
+                xa1 = np.concatenate([xa1,xa1])
+                ya1 = np.concatenate([ya1,-ya1])
+                za1 = np.concatenate([za1,za1])
+                xa2 = np.concatenate([xa2,xa2])
+                ya2 = np.concatenate([ya2,-ya2])
+                za2 = np.concatenate([za2,za2])
+    
+                xb1 = np.concatenate([xb1,xb1])
+                yb1 = np.concatenate([yb1,-yb1])    
+                zb1 = np.concatenate([zb1,zb1])
+                xb2 = np.concatenate([xb2,xb2])
+                yb2 = np.concatenate([yb2,-yb2])            
+                zb2 = np.concatenate([zb2,zb2])
+    
+                xac   = np.concatenate([xac ,xac ])
+                yac   = np.concatenate([yac ,-yac ])
+                zac   = np.concatenate([zac ,zac ])            
+                xbc   = np.concatenate([xbc ,xbc ])
+                ybc   = np.concatenate([ybc ,-ybc ])
+                zbc   = np.concatenate([zbc ,zbc ]) 
+                xa_te = np.concatenate([xa_te , xa_te ])
+                ya_te = np.concatenate([ya_te ,-ya_te ])
+                za_te = np.concatenate([za_te , za_te ])            
+                xb_te = np.concatenate([xb_te , xb_te ])
+                yb_te = np.concatenate([yb_te ,-yb_te ])
+                zb_te = np.concatenate([zb_te , zb_te ]) 
+                
+                y_sw  = np.concatenate([y_sw,-y_sw ])
+                xc    = np.concatenate([xc ,xc ])
+                yc    = np.concatenate([yc ,-yc]) 
+                zc    = np.concatenate([zc ,zc ])
+                x     = np.concatenate([x , x ])
+                y     = np.concatenate([y ,-y])
+                z     = np.concatenate([z , z ])            
 
         n_cp += len(xch)        
 

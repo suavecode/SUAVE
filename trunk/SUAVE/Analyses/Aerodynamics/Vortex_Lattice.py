@@ -225,30 +225,31 @@ class Vortex_Lattice(Aerodynamics):
         sup_trans_spline = Cubic_Spline_Blender(1.05,1.25)
         h_sup = lambda M:sup_trans_spline.compute(M)          
         
-        for i,_ in enumerate(AoA):
-            if Mach[i][0] < 1: # subsonic 
-                inviscid_lift[i] = h_sub(Mach[i])*CL_surrogate_sub(AoA[i][0],Mach[i][0])[0]    +  (1- h_sub(Mach[i]))*CL_surrogate_trans(AoA[i][0],Mach[i][0])[0] 
-                inviscid_drag[i] = h_sub(Mach[i])*CDi_surrogate_sub(AoA[i][0],Mach[i][0])[0]   +  (1- h_sub(Mach[i]))*CDi_surrogate_trans(AoA[i][0],Mach[i][0])[0] 
-            else: # supersonic 
-                inviscid_lift[i] = h_sup(Mach[i])*CL_surrogate_trans(AoA[i][0],Mach[i][0])[0]  +  (1- h_sup(Mach[i]))*CL_surrogate_sup(AoA[i][0],Mach[i][0])[0]
-                inviscid_drag[i] = h_sup(Mach[i])*CDi_surrogate_trans(AoA[i][0],Mach[i][0])[0] +  (1- h_sup(Mach[i]))*CDi_surrogate_sup(AoA[i][0],Mach[i][0])[0]
+        for i in range(data_len): 
+            inviscid_lift[i] = h_sub(Mach[i])*CL_surrogate_sub(AoA[i][0],Mach[i][0])[0]    +\
+                              (h_sup(Mach[i]) - h_sub(Mach[i]))*CL_surrogate_trans(AoA[i][0],Mach[i][0])[0] + \
+                              (1- h_sup(Mach[i]))*CL_surrogate_sup(AoA[i][0],Mach[i][0])[0]
+            
+            inviscid_drag[i] = h_sub(Mach[i])*CDi_surrogate_sub(AoA[i][0],Mach[i][0])[0]   +\
+                              (h_sup(Mach[i]) - h_sub(Mach[i]))*CDi_surrogate_trans(AoA[i][0],Mach[i][0])[0] + \
+                              (1- h_sup(Mach[i]))*CDi_surrogate_sup(AoA[i][0],Mach[i][0])[0]
           
-        conditions.aerodynamics.lift_coefficient                             = inviscid_lift
-        conditions.aerodynamics.lift_breakdown.total                         = inviscid_lift 
-        conditions.aerodynamics.drag_breakdown.induced.total                 = inviscid_drag   
+        conditions.aerodynamics.lift_coefficient             = inviscid_lift
+        conditions.aerodynamics.lift_breakdown.total         = inviscid_lift 
+        conditions.aerodynamics.drag_breakdown.induced.total = inviscid_drag   
         
         for wing in geometry.wings.keys(): 
             inviscid_wing_lifts      = np.zeros([data_len,1])
             inviscid_wing_drags      = np.zeros([data_len,1])            
-            for i,_ in enumerate(AoA):
-                if Mach[i][0] < 1: # subsonic 
-                    inviscid_wing_lifts[i] = h_sub(Mach[i])*wing_CL_surrogates_sub[wing](AoA[i][0],Mach[i][0])[0]    +  (1- h_sub(Mach[i]))*wing_CL_surrogates_trans[wing](AoA[i][0],Mach[i][0])[0] 
-                    inviscid_wing_drags[i] = h_sub(Mach[i])*wing_CDi_surrogates_sub[wing](AoA[i][0],Mach[i][0])[0]  +  (1- h_sub(Mach[i])) *wing_CDi_surrogates_trans[wing](AoA[i][0],Mach[i][0])[0] 
-                else: # supersonic
-                    inviscid_wing_lifts[i] = h_sup(Mach[i])*wing_CL_surrogates_trans[wing](AoA[i][0],Mach[i][0])[0]  +  (1- h_sup(Mach[i]))*wing_CL_surrogates_sup[wing](AoA[i][0],Mach[i][0])[0]
-                    inviscid_wing_drags[i] = h_sup(Mach[i])*wing_CDi_surrogates_trans[wing](AoA[i][0],Mach[i][0])[0] +  (1- h_sup(Mach[i]))*wing_CDi_surrogates_sup[wing](AoA[i][0],Mach[i][0])[0]
-                 
-            
+            for i,_ in enumerate(AoA): 
+                inviscid_wing_lifts[i] = h_sub(Mach[i])*wing_CL_surrogates_sub[wing](AoA[i][0],Mach[i][0])[0]    + \
+                                         (h_sup(Mach[i]) - h_sub(Mach[i]))*wing_CL_surrogates_trans[wing](AoA[i][0],Mach[i][0])[0] + \
+                                         (1- h_sup(Mach[i]))*wing_CL_surrogates_sup[wing](AoA[i][0],Mach[i][0])[0]
+               
+                inviscid_wing_drags[i] = h_sub(Mach[i])*wing_CDi_surrogates_sub[wing](AoA[i][0],Mach[i][0])[0]  + \
+                                         (h_sup(Mach[i]) - h_sub(Mach[i]))*wing_CDi_surrogates_trans[wing](AoA[i][0],Mach[i][0])[0] + \
+                                         (1- h_sup(Mach[i]))*wing_CDi_surrogates_sup[wing](AoA[i][0],Mach[i][0])[0]
+              
             inviscid_wings_CLs = inviscid_wing_lifts
             conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]          = inviscid_wing_lifts
             conditions.aerodynamics.lift_breakdown.compressible_wings[wing]           = inviscid_wing_lifts      

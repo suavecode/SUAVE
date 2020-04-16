@@ -132,7 +132,7 @@ def vehicle_setup():
     wing.twists.tip              = 0.0 * Units.degrees  
     wing.origin                  = [10.,0.0,0.0] # meters
     wing.aerodynamic_center      = [0.5,0.0,0.0] # meters
-    wing.symmetric               = False  
+    wing.symmetric               = True  
     wing.vertical                = True 
     wing.t_tail                  = False
     wing.dynamic_pressure_ratio  = 1.0
