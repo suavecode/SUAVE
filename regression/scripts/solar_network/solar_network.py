@@ -59,7 +59,7 @@ def main():
     results = mission.evaluate()
 
     # load older results
-    #save_results(results)
+    save_results(results)
     old_results = load_results()   
 
     # plt the old results
@@ -67,17 +67,21 @@ def main():
     plot_mission(old_results,'k-') 
     
     # Check Results 
-    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[3,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.rpm[3,0] 
-    current = results.segments.cruise1.conditions.propulsion.current[3,0] 
-    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[3,0]  
+    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
+    rpm     = results.segments.cruise1.conditions.propulsion.rpm[1,0] 
+    current = results.segments.cruise1.conditions.propulsion.current[1,0] 
+    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[1,0]  
     
     # Truth results
     truth_F   = 106.17937888428949  
     truth_rpm = 160.76100043739908 
     truth_i   = 131.4126494489281  
-    truth_bat = 319152.6179743707  
-       
+    truth_bat = 98064443.83585036
+    
+    print('battery energy')
+    print(energy)
+    print('\n')
+    
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))
     error.RPM = np.max(np.abs(rpm-truth_rpm))
