@@ -1,51 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cb49a8c8-5159-469b-a380-f8fcaf4ac6ec" name="Default" comment="" />
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
-    <option name="TRACKING_ENABLED" value="true" />
+    <list default="true" id="3e195a4e-bcfe-44fd-98b6-4d61fc7a86aa" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/base.avl" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/base.avl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_001.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_001.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_002.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_002.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_003.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_003.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_004.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_004.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_005.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_005.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_006.run" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/avl_files/batch_006.run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/AVL/test_AVL.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/AVL/test_AVL.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/B737/mission_B737.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/B737/mission_B737.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/B737/results_mission_B737.res" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/B737/results_mission_B737.res" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/BWB.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/BWB.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Beech_99.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Beech_99.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_737.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_737.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_747.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_747.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_BWB_450.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Boeing_BWB_450.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Cessna_172.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Cessna_172.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Concorde.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Concorde.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Embraer_190.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Embraer_190.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/NACA65-203.dat" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/NACA65-203.dat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/SIAI_Marchetti_S211.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/SIAI_Marchetti_S211.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Solar_UAV.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/Vehicles/Solar_UAV.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/aerodynamics/aerodynamics.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/aerodynamics/aerodynamics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/cmalpha/cmalpha.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/cmalpha/cmalpha.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/concorde/concorde.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/concorde/concorde.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../regression/scripts/weights/weights.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../regression/scripts/weights/weights.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Components/Wings/Segment.py" beforeDir="false" afterPath="$PROJECT_DIR$/Components/Wings/Segment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/Fidelity_Zero/Lift/compute_max_lift_coeff.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/Fidelity_Zero/Lift/compute_max_lift_coeff.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Aerodynamics/XFOIL/compute_airfoil_polars.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Aerodynamics/XFOIL/compute_airfoil_polars.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Geometry/Two_Dimensional/Planform/wing_planform.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Geometry/Two_Dimensional/Planform/wing_planform.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Missions/Segments/optimize.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Missions/Segments/optimize.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Noise/Fidelity_One/Airframe/noise_airframe_Fink.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Noise/Fidelity_One/Airframe/noise_airframe_Fink.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Noise/Fidelity_One/Noise_Tools/noise_geometric.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Noise/Fidelity_One/Noise_Tools/noise_geometric.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Performance/estimate_take_off_field_length.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Performance/estimate_take_off_field_length.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Performance/payload_range.py" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Performance/payload_range.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="694" />
-    <option name="y" value="226" />
-    <option name="width" value="1024" />
-    <option name="height" value="768" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
-  <component name="ProjectView">
-    <navigator proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="SUAVE" type="b2602c69:ProjectViewProjectNode" />
-              <item name="SUAVE" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-    </panes>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectId" id="1VX6guJOFL8E8kfWsu2SrVIVz2F" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../SUAVE slipstream branch" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/AVL_Dynamic_Stability/regression/scripts" />
+    <property name="two.files.diff.last.used.folder" value="$PROJECT_DIR$/../../../../Pycharm_Comparisons/AVL_Dynamic_Stability/trunk/SUAVE" />
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
+  <component name="ServiceViewManager">
+    <option name="viewStates">
       <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
       </list>
     </option>
   </component>
@@ -54,47 +82,25 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="cb49a8c8-5159-469b-a380-f8fcaf4ac6ec" name="Default" comment="" />
-      <created>1537227891535</created>
+      <changelist id="3e195a4e-bcfe-44fd-98b6-4d61fc7a86aa" name="Default Changelist" comment="" />
+      <created>1577387210845</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1537227891535</updated>
+      <updated>1577387210845</updated>
     </task>
     <servers />
   </component>
-  <component name="ToolWindowManager">
-    <frame x="1981" y="-4" width="2499" height="1444" extended-state="6" />
-    <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14005603" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" side_tool="true" />
-      <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Version Control" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Python Console" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info id="Favorites" side_tool="true" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.34179688" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Python Console" order="7" />
-    </layout>
-  </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
+  <component name="WindowStateProjectService">
+    <state x="1510" y="167" width="1472" height="684" maximized="true" key="DiffContextDialog" timestamp="1579069071990">
+      <screen x="1920" y="180" width="1440" height="900" />
+    </state>
+    <state x="1510" y="167" width="1472" height="684" maximized="true" key="DiffContextDialog/63.27.1857.1053/1920.180.1440.900@1920.180.1440.900" timestamp="1579069071990" />
+    <state x="213" y="27" width="1200" height="800" maximized="true" key="DiffContextDialog/63.27.1857.1053@63.27.1857.1053" timestamp="1577818755945" />
+    <state x="2471" y="423" width="374" height="414" key="FileChooserDialogImpl" timestamp="1579074803525">
+      <screen x="1920" y="180" width="1440" height="900" />
+    </state>
+    <state x="2471" y="423" width="374" height="414" key="FileChooserDialogImpl/63.27.1857.1053/1920.180.1440.900@1920.180.1440.900" timestamp="1579074803525" />
+    <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl/63.27.1857.1053/1920.180.1440.900@63.27.1857.1053" timestamp="1578460226462" />
+    <state x="774" y="311" width="424" height="484" key="FileChooserDialogImpl/63.27.1857.1053@63.27.1857.1053" timestamp="1577818754446" />
   </component>
 </project>

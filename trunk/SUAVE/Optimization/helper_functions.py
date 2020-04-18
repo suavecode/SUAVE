@@ -271,8 +271,7 @@ def scale_const_values(inputs,x):
     """        
     
     provided_scale = np.array(inputs[:,3],dtype = float)
-    provided_units = inputs[:,-1]*1.0
-    scaled =  x/(provided_scale*provided_units)
+    scaled =  x/provided_scale
     
     return scaled
 

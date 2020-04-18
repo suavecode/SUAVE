@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+#           Mar 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -113,6 +114,8 @@ class Aerodynamics(Basic):
         self.propulsion.battery_voltage    = ones_1col * 0
         self.propulsion.thrust_breakdown       = Conditions()
         self.propulsion.acoustic_outputs       = Conditions()
+        self.propulsion.acoustic_outputs.fan   = Conditions()
+        self.propulsion.acoustic_outputs.core  = Conditions()
 
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0

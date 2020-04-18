@@ -6,6 +6,7 @@
 #           Jul 2017, M. Clarke
 #           Oct 2017, E. Botero
 #           Oct 2018, T. MacDonald
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -90,28 +91,12 @@ class Wing(Lofted_Body):
         
         self.sweeps               = Data()
         self.sweeps.quarter_chord = 0.0
-        self.sweeps.leading_edge  = 0.0
+        self.sweeps.leading_edge  = None
         self.sweeps.half_chord    = 0.0        
 
         self.twists = Data()
         self.twists.root = 0.0
         self.twists.tip  = 0.0
-
-        self.control_surfaces = Data()
-        self.flaps = Data()
-        self.flaps.chord      = 0.0
-        self.flaps.angle      = 0.0
-        self.flaps.span_start = 0.0
-        self.flaps.span_end   = 0.0
-        self.flaps.type       = None
-        self.flaps.area       = 0.0
-
-        self.slats = Data()
-        self.slats.chord      = 0.0
-        self.slats.angle      = 0.0
-        self.slats.span_start = 0.0
-        self.slats.span_end   = 0.0
-        self.slats.type       = None
 
         self.high_lift     = False
         self.high_mach     = False
@@ -122,6 +107,7 @@ class Wing(Lofted_Body):
         
         self.Airfoil            = Data()
         self.Segments           = SUAVE.Core.ContainerOrdered()
+        self.control_surfaces   = SUAVE.Core.ContainerOrdered()
         self.Fuel_Tanks         = SUAVE.Core.Container()
 
     def append_segment(self,segment):

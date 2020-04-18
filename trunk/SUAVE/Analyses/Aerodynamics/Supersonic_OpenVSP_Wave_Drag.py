@@ -4,7 +4,7 @@
 # Created:            T. MacDonald
 # Modified: Apr 2017, T. MacDonald
 #           Apr 2019, T. MacDonald
-
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,7 +17,7 @@ from SUAVE.Analyses import Process
 
 from .Vortex_Lattice import Vortex_Lattice
 from .Process_Geometry import Process_Geometry
-from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
+from SUAVE.Methods.Aerodynamics import Supersonic_Zero  as Methods
 from SUAVE.Methods.Aerodynamics import OpenVSP_Wave_Drag as VSP_Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 
@@ -81,7 +81,6 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         compute.lift = Process()
         compute.lift.inviscid_wings                = Vortex_Lattice()
         compute.lift.vortex                        = Methods.Lift.vortex_lift
-        compute.lift.compressible_wings            = Methods.Lift.wing_compressibility
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         

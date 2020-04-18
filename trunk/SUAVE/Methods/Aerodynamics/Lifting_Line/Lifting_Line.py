@@ -2,8 +2,7 @@
 # Lifting_Line.py
 # 
 # Created:  Aug 2017, E. Botero
-# Modified: 
-#           
+#           Apr 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -36,11 +35,14 @@ def lifting_line(conditions,settings,geometry):
       aspect_ratio                          [Unitless]
       areas.reference                       [m^2]
       vertical                              [Boolean]
+
     settings.number_of_stations             [int]
     conditions.aerodynamics.angle_of_attack [radians]
+
     Outputs:
     CL                                      [Unitless]
     CD                                      [Unitless]
+
     Properties Used:
     N/A
     """  
@@ -58,15 +60,13 @@ def lifting_line(conditions,settings,geometry):
         pass
         
     # Unpack fo'real
-    b           = wing.spans.projected
-    S           = wing.areas.reference
+    b           = wing.spans.projected 
     AR          = wing.aspect_ratio
     MAC         = wing.chords.mean_aerodynamic
     taper       = wing.taper
     tip_twist   = wing.twists.root
     root_twist  = wing.twists.tip 
-    root_chord  = wing.chords.root
-    tip_chord   = wing.chords.tip      
+    root_chord  = wing.chords.root     
     r           = settings.number_of_stations # Number of divisions
     alpha       = conditions.aerodynamics.angle_of_attack
     
@@ -95,8 +95,7 @@ def lifting_line(conditions,settings,geometry):
         c    = np.ones_like(etan) * wing.chords.root
         ageo = np.ones_like(etan) * wing.twists.root 
         for i_seg in range(n_segments):
-            
-            
+
             # Figure out where the segment starts
             X1 = wing.Segments[segment_keys[i_seg]].percent_span_location
             if X1>=1.:
@@ -105,7 +104,7 @@ def lifting_line(conditions,settings,geometry):
             L1 = wing.Segments[segment_keys[i_seg]].root_chord_percent
             T1 = wing.Segments[segment_keys[i_seg]].twist 
 
-            if i_seg == n_segments-1 and X1 != 1.0:
+            if i_seg == n_segments-1 and X1 == 1.0:
                 X2 = 1.0
                 L2 = wing.chords.tip/wing.chords.root
                 T2 = wing.twists.tip
@@ -130,8 +129,8 @@ def lifting_line(conditions,settings,geometry):
         c    = root_chord+root_chord*(taper-1.)*etan
         ageo = (tip_twist-root_twist)*etan+root_twist
 
-    k = c*cla/(4.*b) # Grouped term 
-    
+    k = c*cla/(4.*b) # Grouped term
+
     n_2d    = np.atleast_2d(n)
     n_trans = n_2d.T
         

@@ -3,7 +3,14 @@
 # 
 # Created:  Jan 2014, M. Vegh, 
 # Modified: Feb 2014, A. Wendorff
-#           Feb 2016, E. Botero     
+#           Feb 2016, E. Botero    
+#           Mar 2020, M. Clarke
+
+#-------------------------------------------------------------------------------
+# Imports
+#-------------------------------------------------------------------------------
+
+from SUAVE.Core import Units 
 
 # ----------------------------------------------------------------------
 #   HTS Motor
@@ -18,7 +25,7 @@ def hts_motor(max_power):
            
    Source: [10] Snyder, C., Berton, J., Brown, G. et all
            'Propulsion Investigation for Zero and Near-Zero Emissions Aircraft,' NASA STI Program,
-           NASA Glenn,  2009.012
+           NASA Glenn,  2009.012. page 12
            
    Inputs:
            max_power- maximum power the motor can deliver safely   [Watts]
@@ -30,6 +37,6 @@ def hts_motor(max_power):
            N/A
     """   
 
-    weight = (1./2.2)*2.28*((max_power/1000.)**.6616)  #weight in kg
+    mass = 2.28*((max_power/1000.)**.6616)*Units.lbs # conversion to kg
     
-    return weight
+    return mass

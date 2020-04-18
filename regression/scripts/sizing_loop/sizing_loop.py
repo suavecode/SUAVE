@@ -2,6 +2,7 @@
 #
 # Created:  Jun 2015, SUAVE Team
 # Modified: Jan 2018, W. Maier
+#           Apr 2020, M. Clarke
 
 """ setup file for a sizing loop with a 737-aircraft
 """
@@ -66,16 +67,16 @@ def main():
     
     nexus.total_number_of_iterations = 0
     evaluate_problem(nexus)
-    results = nexus.results
+    results  = nexus.results
     err      = nexus.sizing_loop.norm_error
 
-    err_true = 0.0009361942143498259 #for 1E-2 tol
+    err_true = 0.001728204155101654
     error    = abs((err-err_true)/err_true)
 
     data_inputs, data_outputs, read_success = read_sizing_residuals(sizing_loop, problem.inputs)
-    check_read_res = -0.06838028445724997
-
-    error_res      = (data_outputs[1][0]-check_read_res)/check_read_res
+    check_read_res = -0.15153760317230056
+    
+    error_res      = abs((data_outputs[1][0]-check_read_res)/check_read_res)
     
     #remove files for later
     os.remove('sizing_outputs.txt')
@@ -99,7 +100,8 @@ def evaluate_problem(nexus):
 #   Setup
 # ----------------------------------------------------------------------   
 
-def setup():
+def setup():  
+    
     # ------------------------------------------------------------------
     #   Analysis Procedure
     # ------------------------------------------------------------------ 

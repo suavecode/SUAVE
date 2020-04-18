@@ -3,6 +3,7 @@
 # 
 # Created:  Sep 2016, E. Botero
 # Modified: Apr 2018, M. Clarke 
+#           Mar 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -84,6 +85,7 @@ class Internal_Combustion_Propeller(Propulsor):
         engine      = self.engine
         propeller   = self.propeller
         rated_speed = self.rated_speed
+        num_engines = self.number_of_engines
         
         # Throttle the engine
         eta = conditions.propulsion.throttle[:,0,None]
@@ -112,14 +114,20 @@ class Internal_Combustion_Propeller(Propulsor):
         propeller.outputs = outputs
     
         # Pack the conditions for outputs
-        rpm        = engine.speed / Units.rpm
+        a                                        = conditions.freestream.speed_of_sound
+        R                                        = propeller.tip_radius   
+        rpm                                      = engine.speed / Units.rpm
           
-        conditions.propulsion.rpm              = rpm
-        conditions.propulsion.propeller_torque = Q
-        conditions.propulsion.power            = P
+        conditions.propulsion.rpm                = rpm
+        conditions.propulsion.propeller_torque   = Q
+        conditions.propulsion.power              = P
+        conditions.propulsion.propeller_tip_mach = (R*rpm)/a
         
         # Create the outputs
-        F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
+        F                                        = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
+        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))   
+        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # N/m^2                      
+        conditions.propulsion.power_loading      = (F_mag.T)/(P)    # N/W       
         
         results = Data()
         results.thrust_force_vector = F
@@ -129,7 +137,23 @@ class Internal_Combustion_Propeller(Propulsor):
     
     
     def unpack_unknowns(self,segment,state):
-        """"""        
+        """Unpacks the unknowns set in the mission to be available for the mission.
+
+        Assumptions:
+        N/A
+        
+        Source:
+        N/A
+        
+        Inputs:
+        state.conditions.propulsion.propeller_power_coefficient    [Unitless] 
+        
+        Outputs:
+        state.unknowns.propeller_power_coefficient                 [Unitless] 
+        
+        Properties Used:
+        N/A
+        """            
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
         state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
@@ -137,8 +161,24 @@ class Internal_Combustion_Propeller(Propulsor):
         return
     
     def residuals(self,segment,state):
-        """"""        
+        """ Calculates a residual based on torques 
         
+        Assumptions:
+        
+        Inputs:
+            segment.state.conditions.propulsion.
+                motor_torque                       [newtom-meters]                 
+                propeller_torque                   [newtom-meters] 
+        
+        Outputs:
+            segment.state:
+                residuals.network                  [newtom-meters] 
+                
+        Properties Used:
+            N/A
+                                
+        """         
+            
         # Here we are going to pack the residuals (torque,voltage) from the network
         
         # Unpack

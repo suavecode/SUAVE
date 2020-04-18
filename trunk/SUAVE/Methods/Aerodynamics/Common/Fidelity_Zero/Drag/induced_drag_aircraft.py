@@ -3,7 +3,7 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Jan 2016, E. Botero
-       
+#           Apr 2020, M. Clarke       
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -59,11 +59,10 @@ def induced_drag_aircraft(state,settings,geometry):
     if e_inv == None:
         e_inv   = CL**2/(CDi_inv*np.pi*ar)
     else:
-        CDi_inv = CL**2/(e_inv*np.pi*ar)
-    
+        CDi_inv = CL**2/(e_inv*np.pi*ar)    
     # Fuselage correction for induced drag (insicid + viscous)
     CDi = CDi_inv + K*CDp*(CL**2)    
-            
+
     # store data
     conditions.aerodynamics.drag_breakdown.induced.total =  CDi
     conditions.aerodynamics.drag_breakdown.induced.efficiency_factor = e_inv 

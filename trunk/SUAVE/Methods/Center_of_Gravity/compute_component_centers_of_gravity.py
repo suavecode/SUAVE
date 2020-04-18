@@ -4,6 +4,7 @@
 # Created:  Oct 2015, M. Vegh
 # Modified: Jan 2016, E. Botero
 # Mofified: Jun 2017, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -43,6 +44,15 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Fal
     
     #assume that 80% of the chord difference is from leading edge sweep
     #x distance from leading edge of root chord to leading edge of aerodynamic center
+    
+    if wing.sweeps.leading_edge == None:                                                     
+        QC_sweep                 = wing.sweeps.quarter_chord
+        cf                       = 0.25   # chord fraction                                  
+        rc                       = wing.chords.root 
+        tc                       = wing.chords.tip
+        semi_span                = wing.spans.projected/2
+        wing.sweeps.leading_edge = np.arctan(((rc*cf) + (np.tan(QC_sweep)*semi_span - cf*tc)) /semi_span)  
+    
     mac_le_offset                                               = .8*np.sin(wing.sweeps.leading_edge)*span_location_mac
     wing.mass_properties.center_of_gravity[0]                   = .3*wing.chords.mean_aerodynamic + mac_le_offset
     

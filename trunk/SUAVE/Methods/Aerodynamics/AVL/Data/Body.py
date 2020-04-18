@@ -59,7 +59,7 @@ class Body(Data):
 		""" 		
 		self.tag                      = 'body'
 		self.symmetric                = True
-		self.origin                   = [[0.,0.,0.]]
+		self.origin                   = [0.,0.,0.]
 
 		self.lengths                  = Data()
 		self.lengths.total            = 0.0

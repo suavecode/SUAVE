@@ -1,8 +1,8 @@
 ## @ingroup Attributes-Atmospheres-Earth
 #US_Standard_1976.py
 
-# Created:  Mar, 2014, SUAVE Team
-# Modified: Feb, 2015, T. MacDonald
+# Created:  Mar 2014, SUAVE Team
+# Modified: Feb 2015, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports

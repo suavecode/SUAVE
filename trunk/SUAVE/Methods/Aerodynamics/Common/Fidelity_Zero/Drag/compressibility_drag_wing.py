@@ -3,8 +3,8 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Nov 2016, T. MacDonald
-#        
-
+#           Apr 2020, M. Clarke        
+#           Apr 2020, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -53,10 +53,13 @@ def compressibility_drag_wing(state,settings,geometry):
     cl_w           = conditions.aerodynamics.lift_breakdown.compressible_wings[wing.tag]         
     mach           = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
-            
+
+    # start result
+    total_compressibility_drag = 0.0
+
     # unpack wing
     t_c_w   = wing.thickness_to_chord
-    sweep_w = wing.sweeps.quarter_chord    
+    sweep_w = wing.sweeps.quarter_chord
     cos_sweep = np.cos(sweep_w)
 
     # get effective Cl and sweep
@@ -86,6 +89,9 @@ def compressibility_drag_wing(state,settings,geometry):
     # compressibility drag
     cd_c = dcdc_cos3g * cos_sweep*cos_sweep*cos_sweep
     
+    # increment
+    #total_compressibility_drag += cd_c
+
     # dump data to conditions
     wing_results = Data(
         compressibility_drag      = cd_c    ,
@@ -95,5 +101,5 @@ def compressibility_drag_wing(state,settings,geometry):
         divergence_mach           = MDiv    ,
     )
     drag_breakdown.compressible[wing.tag] = wing_results
-  
-    return 
+
+    return total_compressibility_drag

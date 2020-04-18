@@ -2,7 +2,7 @@
 # induced_drag_aircraft.py
 # 
 # Created:  Feb 2019, T. MacDonald
-#         
+# Modified: Jan 2020, T. MacDonald
      
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,7 +11,7 @@
 from SUAVE.Core import Data
 
 import numpy as np
-from .Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # ----------------------------------------------------------------------
 #  Induced Drag Aicraft

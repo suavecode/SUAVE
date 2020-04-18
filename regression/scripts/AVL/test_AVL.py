@@ -1,7 +1,8 @@
 # test_AVL.py
 # 
 # Created:  May 2017, M. Clarke
-#
+#           Apr 2020, M. Clarke
+
 """ setup file for a mission with a 737 using AVL
 """
 
@@ -10,15 +11,27 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units
-import numpy as np
+from SUAVE.Core import Units 
+import numpy as np 
+
 import copy, time
 
+from SUAVE.Core import (
+Data, Container,
+)
+
 import sys
+
 sys.path.append('../Vehicles')
+# the analysis functions
+
 from Boeing_737 import vehicle_setup, configs_setup
 
+
 sys.path.append('../B737')
+# the analysis functions
+
+
 from mission_B737 import vehicle_setup, configs_setup, analyses_setup, mission_setup, missions_setup, simple_sizing
 import copy
 
@@ -36,21 +49,36 @@ def main():
     configs_analyses = analyses_setup(configs)
 
     # append AVL aerodynamic analysis
-    aerodynamics                                               = SUAVE.Analyses.Aerodynamics.AVL()
-    aerodynamics.process.compute.lift.inviscid.regression_flag = True
-    aerodynamics.process.compute.lift.inviscid.keep_files      = True
-    aerodynamics.geometry                                      = copy.deepcopy(configs.cruise) 
-    aerodynamics.process.compute.lift.inviscid.training_file   = 'cruise_data_aerodynamics.txt'    
-    configs_analyses.cruise.append(aerodynamics)     
+    get_new_data = False
     
-    # append AVL stability analysis
-    stability                                                  = SUAVE.Analyses.Stability.AVL()
-    stability.regression_flag                                  = True
-    stability.keep_files                                       = True
-    stability.geometry                                         = copy.deepcopy(configs.cruise)
-    stability.training_file                                    = 'cruise_data_stability.txt'    
+    aerodynamics                                                          = SUAVE.Analyses.Aerodynamics.AVL()   
+    aerodynamics.process.compute.lift.inviscid.settings.spanwise_vortices = 30
+    aerodynamics.process.compute.lift.inviscid.keep_files                 = True
+    aerodynamics.geometry                                                 = copy.deepcopy(configs.cruise)  
+    configs_analyses.cruise.append(aerodynamics)                       
+                                                                       
+    # append AVL stability analysis                                    
+    stability                                                             = SUAVE.Analyses.Stability.AVL()  
+    stability.settings.spanwise_vortices                                  = 30
+    stability.keep_files                                                  = True
+    stability.geometry                                                    = copy.deepcopy(configs.cruise) 
     configs_analyses.cruise.append(stability)
-
+    
+    if get_new_data: 
+        aerodynamics.process.compute.lift.inviscid.regression_flag            = False 
+        aerodynamics.process.compute.lift.inviscid.save_regression_results    = True      
+        stability.regression_flag                                             = False 
+        stability.save_regression_results                                     = True     
+    else:                                                                              
+        aerodynamics.process.compute.lift.inviscid.regression_flag            = True  
+        aerodynamics.process.compute.lift.inviscid.save_regression_results    = False  
+        stability.regression_flag                                             = True   
+        stability.save_regression_results                                     = False           
+        aerodynamics.process.compute.lift.inviscid.training_file              = 'cruise_aero_data.txt'    
+        stability.training_file                                               = 'cruise_stability_data.txt' 
+        
+    configs_analyses.cruise.append(aerodynamics)      
+    configs_analyses.cruise.append(stability)    
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
@@ -108,7 +136,7 @@ def main():
 
     # lift coefficient check
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true         = 0.6117544479202479
+    lift_coefficient_true         = 0.6123214515288644
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -118,7 +146,7 @@ def main():
     
     # moment coefficient check
     moment_coefficient            = results.segments.cruise.conditions.stability.static.CM[0][0]
-    moment_coefficient_true       = -0.6265645495150238
+    moment_coefficient_true       = -0.21731197254879664
     
     print(moment_coefficient)
     diff_CM                       = np.abs(moment_coefficient - moment_coefficient_true)
@@ -129,7 +157,4 @@ def main():
     return
 
 if __name__ == '__main__': 
-    
     main()    
-    
-    print('AVL regression test passed!')

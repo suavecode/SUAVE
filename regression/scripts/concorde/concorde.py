@@ -9,17 +9,38 @@
 """ setup file for a mission with Concorde
 """
 
+
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import SUAVE
-from SUAVE.Core import Units
-import numpy as np
-import copy, time
-from SUAVE.Core import Data, Container
 
-# Imports library to plot common figures
-from SUAVE.Plots.Mission_Plots import *
+import SUAVE
+# Units allow any units to be specificied with SUAVE then automatically converting them the standard
+from SUAVE.Core import Units
+from SUAVE.Plots.Mission_Plots import * 
+
+# Numpy is use extensively throughout SUAVE
+import numpy as np
+# Scipy is required here for integration functions used in post processing
+import scipy as sp
+from scipy import integrate
+
+# Post processing plotting tools are imported here
+import pylab as plt
+
+# copy is used to copy variable that should not be linked
+# time is used to measure run time if needed
+import copy, time
+
+# More basic SUAVE function
+from SUAVE.Core import (
+Data, Container,
+)
+
+import sys
+sys.path.append('../Vehicles')
+from Concorde import vehicle_setup, configs_setup
+
 
 # This is a sizing function to fill turbojet parameters
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
@@ -27,13 +48,6 @@ from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal
      import compute_fuel_center_of_gravity_longitudinal_range
 from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
      import plot_cg_map 
-
-# import vehicle and analyses
-import sys
-sys.path.append('../Vehicles')
-from Concorde import vehicle_setup, configs_setup
-
-
 
 # ----------------------------------------------------------------------
 #   Main
@@ -68,12 +82,12 @@ def main():
     results.fuel_tank_test.cg_maxes = cg_maxes
     
     # load older results
-    # save_results(results)
+    #save_results(results)
     old_results = load_results()   
 
     # plt the old results
-    plot_mission(results, line_color = 'bo-')
-    plot_mission(old_results, line_color = 'k-')
+    plot_mission(results)
+    plot_mission(old_results,'k-')
     plt.show()
 
     # check the results
@@ -172,26 +186,17 @@ def base_analysis(vehicle):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_color):
-    # Plot Flight Conditions 
-    plot_flight_conditions(results,line_color)
+def plot_mission(results,line_style='bo-'):
     
-    # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results,line_color)
+    plot_altitude_sfc_weight(results, line_style) 
     
-    # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results,line_color)
+    plot_flight_conditions(results, line_style) 
     
-    # Drag Components
-    plot_drag_components(results,line_color)
+    plot_aerodynamic_coefficients(results, line_style)  
     
-    # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results,line_color)
+    plot_aircraft_velocities(results, line_style)
     
-    # Plot Velocities 
-    plot_aircraft_velocities(results,line_color)  
- 
-        
+    plot_drag_components(results, line_style)
     return
 
 def simple_sizing(configs):
@@ -397,7 +402,7 @@ def mission_setup(analyses):
     segment.tag = "decel_1"
     
     segment.analyses.extend( analyses.cruise )
-    segment.acceleration      = -1.  * Units['m/s/s']
+    segment.acceleration      = -.5  * Units['m/s/s']
     segment.air_speed_start   = 2.02*573. * Units.kts
     segment.air_speed_end     = 1.5*573.  * Units.kts
     
