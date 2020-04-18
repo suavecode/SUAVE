@@ -2,6 +2,7 @@
 # compute_induced_velocity_matrix.py
 # 
 # Created:  May 2018, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,7 +19,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # unpack 
     ctrl_pts = len(theta_w)
     ones    = np.atleast_3d(np.ones_like(theta_w))
-
+ 
     # Prandtl Glauret Transformation for subsonic
     inv_root_beta = np.zeros_like(mach)
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)     
@@ -26,7 +27,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     if np.any(mach==1):
         raise('Mach of 1 cannot be used in building compressibiliy corrections.')
     inv_root_beta = np.atleast_3d(inv_root_beta)
-
+     
     XAH   = np.atleast_3d(data.XAH*inv_root_beta)
     XAHbv = np.atleast_3d(data.XAH*inv_root_beta)
     YAH   = np.atleast_3d(data.YAH*ones)
@@ -53,21 +54,21 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     XB2   = np.atleast_3d(data.XB2*inv_root_beta)
     YB2   = np.atleast_3d(data.YB2*ones)
     ZB2   = np.atleast_3d(data.ZB2*ones)
-
+          
     XAC   = np.atleast_3d(data.XAC*inv_root_beta)
     YAC   = np.atleast_3d(data.YAC*ones)
     ZAC   = np.atleast_3d(data.ZAC*ones)
     XBC   = np.atleast_3d(data.XBC*inv_root_beta)
     YBC   = np.atleast_3d(data.YBC*ones)
     ZBC   = np.atleast_3d(data.ZBC*ones)
-
+    
     XA_TE   = np.atleast_3d(data.XA_TE*inv_root_beta)
     YA_TE   = np.atleast_3d(data.YA_TE*ones)
     ZA_TE   = np.atleast_3d(data.ZA_TE*ones)
     XB_TE   = np.atleast_3d(data.XB_TE*inv_root_beta)
     YB_TE   = np.atleast_3d(data.YB_TE*ones)
     ZB_TE   = np.atleast_3d(data.ZB_TE*ones) 
-
+    
     XC    = np.atleast_3d(data.XC*inv_root_beta)
     YC    = np.atleast_3d(data.YC*ones) 
     ZC    = np.atleast_3d(data.ZC*ones)  
@@ -75,7 +76,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
 
     theta_w = np.atleast_3d(theta_w)   # wake model, use theta_w if setting to freestream, use 0 if setting to airfoil chord like
     n_aoa   = np.shape(theta_w)[0]
-
+    
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
     # ------------------------------------------------------------------------------------------- 
@@ -99,10 +100,10 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     XC = np.swapaxes(XC,1,2) 
     YC = np.swapaxes(YC,1,2) 
     ZC = np.swapaxes(ZC,1,2)  
-
+    
     # compute influence of bound vortices 
     C_AB_bv = np.transpose(vortex(XC, YC, ZC, XAH, YAH, ZAH, XBH, YBH, ZBH),axes=[1,2,3,0])
-
+    
     # compute influence of 3/4 left legs 
     C_AB_34_ll = np.transpose(vortex(XC, YC, ZC, XA2, YA2, ZA2, XAH, YAH, ZAH),axes=[1,2,3,0]) # original
 
@@ -126,7 +127,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     MCM      = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
     data.MCM = MCM 
     n_cp     = n_w*n_cw*n_sw 
-
+    
     # multiply by mach cone 
     C_AB_bv     = C_AB_bv    * MCM
     C_AB_34_ll  = C_AB_34_ll * MCM
@@ -135,11 +136,11 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     C_AB_rl     = C_AB_rl    * MCM
     C_Ainf      = C_Ainf     * MCM
     C_Binf      = C_Binf     * MCM  
-
+    
     # the follow block of text adds up all the trailing legs of the vortices which are on the wing for the downwind panels   
     C_AB_ll_on_wing = np.zeros_like(C_AB_ll)
     C_AB_rl_on_wing = np.zeros_like(C_AB_ll)
-
+    
     # original 
     for n in range(n_cp):
         n_te_p = (n_cw-(n+1)%n_cw)
@@ -149,24 +150,13 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
             C_AB_ll_on_wing[:,:,n,:] = np.sum(C_AB_ll[:,:,start:end,:],axis=2) 
             C_AB_rl_on_wing[:,:,n,:] = np.sum(C_AB_rl[:,:,start:end,:],axis=2)                
 
-    ## new 
-    #n_range = np.arange(n_cp)
-    #n_te_p  = (n_cw-(n+1)%n_cw) 
-    #idxs    = np.where((n_range+1)%n_cw != 0)[0]
-    #start   = n_range+1
-    #end     = n_range+n_te_p
-    #C_AB_ll_on_wing[:,:,:,:] = np.sum(C_AB_ll[:,:,start:end,:],axis=2) 
-    #C_AB_rl_on_wing[:,:,:,:] = np.sum(C_AB_rl[:,:,start:end,:],axis=2)       
-    #C_AB_ll_on_wing[:,:,idxs,:] = 0
-    #C_AB_ll_on_wing[:,:,idxs,:] = 0
-
     # Add all the influences together
     C_AB_ll_tot = C_AB_ll_on_wing + C_AB_34_ll + C_Ainf  # verified from book using example 7.4 pg 399-404
     C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
     C_mn        = C_AB_bv +  C_AB_ll_tot  + C_AB_rl_tot  # verified from book using example 7.4 pg 399-404
-
-    DW_mn = 2*(C_AB_ll_tot + C_AB_rl_tot) # summation of trailing vortices for semi infinite 
-
+    
+    DW_mn = 2*(C_AB_ll_tot + C_AB_rl_tot) # summation of trailing vortices for semi infinite
+    
     return C_mn, DW_mn 
 
 # -------------------------------------------------------------------------------
@@ -222,7 +212,7 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     COEF  = (1/(4*np.pi))*RVEC*BRAC   
     if np.isnan(COEF).any():
         print('NaN!')   
-
+        
     return COEF
 
 def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
@@ -241,10 +231,10 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     RVEC   = np.array([XVEC, YVEC, ZVEC])
     BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1+ Y_Y1*Y_Y1+ Z_Z1*Z_Z1)))    
     COEF  = -(1/(4*np.pi))*RVEC*BRAC      
-
+    
     if np.isnan(COEF).any():
         print('NaN!')   
-
+        
     return COEF
 
 def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):

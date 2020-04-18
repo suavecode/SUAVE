@@ -3,7 +3,7 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Jan 2016, E. Botero
-       
+#           Apr 2020, M. Clarke       
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -48,25 +48,23 @@ def induced_drag_aircraft(state,settings,geometry):
     conditions    = state.conditions
     configuration = settings
     
+    K       = configuration.viscous_lift_dependent_drag_factor
+    CDp     = state.conditions.aerodynamics.drag_breakdown.parasite.total
+    CL      = conditions.aerodynamics.lift_coefficient
+    CDi_inv = conditions.aerodynamics.drag_breakdown.induced.total
+    e_inv   = geometry.wings['main_wing'].span_efficiency     
+    ar      = geometry.wings['main_wing'].aspect_ratio
     
-    aircraft_lift = conditions.aerodynamics.lift_coefficient
-    e             = configuration.oswald_efficiency_factor
-    K             = configuration.viscous_lift_dependent_drag_factor
-    wing_e        = geometry.wings['main_wing'].span_efficiency
-    ar            = geometry.wings['main_wing'].aspect_ratio 
-    CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
-    
-    if e == None:
-        e = 1/((1/wing_e)+np.pi*ar*K*CDp)
-    
-    # start the result
-    total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
-        
-    # store data
-    conditions.aerodynamics.drag_breakdown.induced = Data(
-        total             = total_induced_drag ,
-        efficiency_factor = e                  ,
-        aspect_ratio      = ar                 ,
-    )
+    # Inviscid osward efficiency factor
+    if e_inv == None:
+        e_inv   = CL**2/(CDi_inv*np.pi*ar)
+    else:
+        CDi_inv = CL**2/(e_inv*np.pi*ar)    
+    # Fuselage correction for induced drag (insicid + viscous)
+    CDi = CDi_inv + K*CDp*(CL**2)    
 
-    return total_induced_drag
+    # store data
+    conditions.aerodynamics.drag_breakdown.induced.total =  CDi
+    conditions.aerodynamics.drag_breakdown.induced.efficiency_factor = e_inv 
+    
+    return CDi

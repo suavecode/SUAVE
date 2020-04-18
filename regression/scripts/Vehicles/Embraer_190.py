@@ -63,15 +63,13 @@ def vehicle_setup():
     wing.tag                     = 'main_wing'
     wing.areas.reference         = 92.0
     wing.aspect_ratio            = 8.4
-    wing.chords.root             = 5.17
+    wing.chords.root             = 6.2
     wing.chords.tip              = 1.44
     wing.sweeps.quarter_chord    = 23.0 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.28
     wing.dihedral                = 5.00 * Units.deg
-    wing.chords.root             = 6.2
     wing.spans.projected         = 28.72
-    
     wing.origin                  = [[13.0,0,-1.50]]
     wing.vertical                = False
     wing.symmetric               = True       

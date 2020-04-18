@@ -2,8 +2,7 @@
 # Lifting_Line.py
 # 
 # Created:  Aug 2017, E. Botero
-# Modified: 
-#           
+#           Apr 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -61,15 +60,13 @@ def lifting_line(conditions,settings,geometry):
         pass
         
     # Unpack fo'real
-    b           = wing.spans.projected
-    S           = wing.areas.reference
+    b           = wing.spans.projected 
     AR          = wing.aspect_ratio
     MAC         = wing.chords.mean_aerodynamic
     taper       = wing.taper
     tip_twist   = wing.twists.root
     root_twist  = wing.twists.tip 
-    root_chord  = wing.chords.root
-    tip_chord   = wing.chords.tip      
+    root_chord  = wing.chords.root     
     r           = settings.number_of_stations # Number of divisions
     alpha       = conditions.aerodynamics.angle_of_attack
     
@@ -98,9 +95,12 @@ def lifting_line(conditions,settings,geometry):
         c    = np.ones_like(etan) * wing.chords.root
         ageo = np.ones_like(etan) * wing.twists.root 
         for i_seg in range(n_segments):
-            
+
             # Figure out where the segment starts
             X1 = wing.Segments[segment_keys[i_seg]].percent_span_location
+            if X1>=1.:
+                continue
+            
             L1 = wing.Segments[segment_keys[i_seg]].root_chord_percent
             T1 = wing.Segments[segment_keys[i_seg]].twist 
 
@@ -129,37 +129,39 @@ def lifting_line(conditions,settings,geometry):
         c    = root_chord+root_chord*(taper-1.)*etan
         ageo = (tip_twist-root_twist)*etan+root_twist
 
-    k = c*cla/(4.*b) # Grouped term 
+    k = c*cla/(4.*b) # Grouped term
 
-    
-    n_trans = np.atleast_2d(n).T
+    n_2d    = np.atleast_2d(n)
+    n_trans = n_2d.T
         
     # Right hand side matrix
-    RHS = (np.sin(n_trans*thetan)*(np.sin(thetan)+n_trans*k))
-    
-    # Expand out for all the angles of attack
-    RHS2 = np.tile(RHS.T, (repeats,1,1))
+    RHS = ((np.sin(n_trans*thetan).T)*(np.sin(np.atleast_2d(thetan).T)+(n_trans*k).T))
 
     # Left hand side vector    
-    LHS = k*np.sin(thetan)*(alpha+ageo-azl)
+    LHS = (k*np.sin(thetan)*(alpha+ageo-azl)).T
+    
+    # Expand out for all the angles of attack
+    RHS2 = np.tile(RHS.T, (repeats,1,1))    
+    LHS2 = np.tile(LHS,(repeats,1,1))
         
-    # The Fourier Coefficients
-    A = np.linalg.solve(RHS2,LHS)
+    # The Fourier Coefficientsk
+    A = np.linalg.solve(RHS2,LHS2)
     
     # The 3-D Coefficient of lift
     CL = A[:,0]*np.pi*AR
     
     # Find the sectional coefficients of lift
-    Cl = b*np.cumsum(4*A*np.sin(n*thetan),axis=1)/c
+    Cl = b*np.sum(4*A*(np.sin(n*thetan)),axis=1)/c
     
     # induced alpha
-    alpha_i = np.cumsum(n*A*np.sin(n*A)/np.sin(thetan),axis=1)
+    alpha_i = np.sum(n_trans*A*np.sin(n*thetan)/np.sin(thetan),axis=1)
     
     # Sectional vortex drag
     Cdv = Cl*alpha_i
     
     # Total vortex drag
     CDv = np.sum(Cdv*AR*etam,axis=1)
+    CDv = np.dot(n,A**2)*np.pi*AR
     
     #############
     # Profile drag of a 2-D section

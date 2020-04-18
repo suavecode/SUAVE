@@ -5,6 +5,7 @@
 # Modified: Jan 2016, E. Botero
 #           Apr 2017, M. Clarke
 #           Aug 2019, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -85,13 +86,11 @@ def write_run_cases(avl_object,trim_aircraft):
     # Open the geometry file after purging if it already exists
     purge_files([batch_filename]) 
     with open(batch_filename,'w') as runcases:
-
         # extract C.G. coordinates and moment of intertia tensor
-        x_cg = aircraft.mass_properties.center_of_gravity[0]
-        y_cg = aircraft.mass_properties.center_of_gravity[1]
-        z_cg = aircraft.mass_properties.center_of_gravity[2]
-        mass = aircraft.mass_properties.mass
-
+        x_cg = round(aircraft.mass_properties.center_of_gravity[0],5)
+        y_cg = round(aircraft.mass_properties.center_of_gravity[1],5)
+        z_cg = round(aircraft.mass_properties.center_of_gravity[2],5)
+        mass = round(aircraft.mass_properties.mass,5)
         moments_of_inertia = aircraft.mass_properties.moments_of_inertia.tensor
         Ixx  = moments_of_inertia[0][0]
         Iyy  = moments_of_inertia[1][1]
@@ -106,12 +105,12 @@ def write_run_cases(avl_object,trim_aircraft):
             index = case.index
             name  = case.tag
             CL    = case.conditions.aerodynamics.flight_CL
-            AoA   = case.conditions.aerodynamics.angle_of_attack
-            CDp   = 0.
+            AoA   = round(case.conditions.aerodynamics.angle_of_attack,5)
+            CDp   = 0.00000
             beta  = case.conditions.aerodynamics.side_slip_angle
-            mach  = round(case.conditions.freestream.mach,4)
-            vel   = round(case.conditions.freestream.velocity,4)
-            rho   = round(case.conditions.freestream.density,4)
+            mach  = round(case.conditions.freestream.mach,5)
+            vel   = round(case.conditions.freestream.velocity,5)
+            rho   = round(case.conditions.freestream.density,5)
             g     = case.conditions.freestream.gravitational_acceleration
             
             if trim_aircraft == False: # this flag sets up a trim analysis if one is declared by the boolean "trim_aircraft"

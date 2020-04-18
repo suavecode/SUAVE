@@ -5,6 +5,7 @@
 # Modified: Jul 2014, T. MacDonald
 #           Jan 2016, E. Botero
 #           Aug 2018, T. MacDonald
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -55,11 +56,23 @@ def vortex_lift(state,settings,geometry):
         wing_lift = state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag]
 
         if wing.vortex_lift is True:
+            # compute leading edge sweek if not given
+            if wing.sweeps.leading_edge == None:                                                     
+                QC_sweep  = wing.sweeps.quarter_chord
+                cf        = 0.25   # chord fraction                                  
+                rc        = wing.chords.root 
+                tc        = wing.chords.tip
+                semi_span = wing.spans.projected/2
+                GAMMA     = np.arctan(((rc*cf) + (np.tan(QC_sweep)*semi_span - cf*tc)) /semi_span)   
+            else:
+                GAMMA     = wing.sweeps.leading_edge
+                
             AR = wing.aspect_ratio
-            GAMMA = wing.sweeps.leading_edge
             a = AoA[Mc < 1.0]
+            
             # Calculate vortex lift
-            vortex_cl[Mc < 1.0] += np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(GAMMA)-np.sin(a)/(2*np.cos(GAMMA)))
+            vortex_cl[Mc < 1.0] += np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(GAMMA) - np.sin(a)/(2*np.cos(GAMMA)))
+           
             # Apply to wing lift
             wing_lift[Mc < 1.0] = vortex_cl[Mc < 1.0]
         

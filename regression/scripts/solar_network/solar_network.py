@@ -2,6 +2,7 @@
 # 
 # Created:  Aug 2014, Emilio Botero, 
 #           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports
@@ -51,15 +52,14 @@ def main():
     analyses.finalize()    
     
     # weight analysis
-    weights = analyses.configs.base.weights
-    breakdown = weights.evaluate()          
+    weights = analyses.configs.base.weights    
     
     # mission analysis
     mission = analyses.missions.base
     results = mission.evaluate()
 
     # load older results
-    #save_results(results)
+    save_results(results)
     old_results = load_results()   
 
     # plt the old results
@@ -67,16 +67,20 @@ def main():
     plot_mission(old_results,'k-') 
     
     # Check Results 
-    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[3,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.rpm[3,0] 
-    current = results.segments.cruise1.conditions.propulsion.current[3,0] 
-    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[3,0]  
+    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
+    rpm     = results.segments.cruise1.conditions.propulsion.rpm[1,0] 
+    current = results.segments.cruise1.conditions.propulsion.current[1,0] 
+    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[1,0]  
     
     # Truth results
-    truth_F   = 106.17898847736741
-    truth_i   = 131.4126725724721
-    truth_rpm = 160.76095006185793
-    truth_bat = 319157.3538416773
+    truth_F   = 106.17937888428949  
+    truth_rpm = 160.76100043739908 
+    truth_i   = 131.4126494489281  
+    truth_bat = 98064443.83585036
+    
+    print('battery energy')
+    print(energy)
+    print('\n')
     
     error = Data()
     error.Thrust = np.max(np.abs(F-truth_F))
@@ -134,7 +138,8 @@ def base_analysis(vehicle): # --------------------------------------------------
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
+    aerodynamics.settings.plot_vortex_distribution   = True 
+    aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
     

@@ -154,7 +154,6 @@ def vehicle_setup():
     # FUSELAGE PROPERTIES                       
     fuselage                                    = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag                                = 'fuselage' 
-    fuselage.origin                             = [0. , 0.,  0.] 
     fuselage.seats_abreast                      = 0.  
     fuselage.seat_pitch                         = 1.  
     fuselage.fineness.nose                      = 1.5 

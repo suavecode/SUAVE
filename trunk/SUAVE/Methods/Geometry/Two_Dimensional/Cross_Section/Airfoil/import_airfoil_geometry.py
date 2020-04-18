@@ -3,11 +3,13 @@
 # 
 # Created:  Mar 2019, M. Clarke
 #           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data , Units
+from SUAVE.Core import Data  
 import numpy as np
 import scipy.interpolate as interp
 
@@ -39,11 +41,16 @@ def  import_airfoil_geometry(airfoil_geometry_files):
     num_airfoils = len(airfoil_geometry_files)
     # unpack      
 
-    airfoil_data = Data()
-    airfoil_data.x_coordinates = []
-    airfoil_data.y_coordinates = []
+    airfoil_data                    = Data()
+    airfoil_data.x_coordinates      = []
+    airfoil_data.y_coordinates      = []
     airfoil_data.thickness_to_chord = []
-
+    airfoil_data.camber_coordinates = []
+    airfoil_data.x_upper_surface    = []
+    airfoil_data.x_lower_surface    = []
+    airfoil_data.y_upper_surface    = []
+    airfoil_data.y_lower_surface    = []
+    
     for i in range(num_airfoils):  
         # Open file and read column names and data block
         f = open(airfoil_geometry_files[i]) 
@@ -69,26 +76,39 @@ def  import_airfoil_geometry(airfoil_geometry_files):
                 upper_surface_flag = False
                 continue
             if upper_surface_flag:
-                x_up_surf.append(float(data_block[line_count][1:10].strip())) 
-                y_up_surf.append(float(data_block[line_count][11:20].strip())) 
+                x_up_surf.append(float(data_block[line_count].strip().split()[0])) 
+                y_up_surf.append(float(data_block[line_count].strip().split()[1])) 
             else:                              
-                x_lo_surf.append(float(data_block[line_count][1:10].strip())) 
-                y_lo_surf.append(float(data_block[line_count][11:20].strip()))     
-            
-        x_data    = np.concatenate([np.array(x_up_surf) ,np.array(x_lo_surf)[::-1]])
-        y_data    = np.concatenate([np.array(y_up_surf) ,np.array(y_lo_surf)[::-1]]) 
+                x_lo_surf.append(float(data_block[line_count].strip().split()[0])) 
+                y_lo_surf.append(float(data_block[line_count].strip().split()[1]))             
         
+        # determine the thickness to chord ratio - note that the upper and lower surface
+        # may be of different lenghts so initial interpolation is required 
+        # x coordinates
+        x_up_surf_new = np.array(x_up_surf)     
+        arrx          = np.array(x_lo_surf) 
+        arrx_interp   = interp.interp1d(np.arange(arrx.size),arrx)
+        x_lo_surf_new = arrx_interp(np.linspace(0,arrx.size-1,x_up_surf_new.size)) 
         
-        # determine the thickness to chord ratio - not that the upper and lower surface
-        # may be of differnt lenghts
-        arr_ref      = np.array(y_up_surf)  
-        arr2         = np.array(y_lo_surf)       
-        arr2_interp  = interp.interp1d(np.arange(arr2.size),arr2)
-        arr2_stretch = arr2_interp(np.linspace(0,arr2.size-1,arr_ref.size)) 
-        thickness    = arr_ref - arr2_stretch
+        # y coordinates 
+        y_up_surf_new = np.array(y_up_surf)  
+        arry          = np.array(y_lo_surf)
+        arry_interp   = interp.interp1d(np.arange(arry.size),arry)
+        y_lo_surf_new = arry_interp(np.linspace(0,arry.size-1,y_up_surf_new.size)) 
+         
+        # compute thickness, camber and concatenate coodinates 
+        thickness     = y_up_surf_new - y_lo_surf_new
+        camber        = y_lo_surf_new + thickness/2 
+        x_data        = np.concatenate([x_up_surf_new[::-1],x_lo_surf_new])
+        y_data        = np.concatenate([y_up_surf_new[::-1],y_lo_surf_new]) 
         
         airfoil_data.thickness_to_chord.append(np.max(thickness))    
         airfoil_data.x_coordinates.append(x_data)  
         airfoil_data.y_coordinates.append(y_data)     
+        airfoil_data.x_upper_surface.append(x_up_surf_new)
+        airfoil_data.x_lower_surface.append(x_lo_surf_new)
+        airfoil_data.y_upper_surface.append(y_up_surf_new)
+        airfoil_data.y_lower_surface.append(y_lo_surf_new)          
+        airfoil_data.camber_coordinates.append(camber)
 
     return airfoil_data 

@@ -82,13 +82,14 @@ def VLM(conditions,settings,geometry):
     # unpack settings
     n_sw       = settings.number_panels_spanwise    
     n_cw       = settings.number_panels_chordwise   
+    sur_flag   = settings.use_surrogate
     Sref       = geometry.reference_area
     
     
     # define point about which moment coefficient is computed 
     c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
-    x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
-    x_cg       = geometry.mass_properties.center_of_gravity[0]
+    x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0]
+    x_cg       = geometry.mass_properties.center_of_gravity[0] 
     if x_cg == None:
         x_m = x_mac 
     else:
@@ -127,7 +128,7 @@ def VLM(conditions,settings,geometry):
    
    
     # Build the vector
-    RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry)
+    RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry,sur_flag)
 
     # Compute vortex strength  
     n_cp  = VD.n_cp  
@@ -140,26 +141,20 @@ def VLM(conditions,settings,geometry):
      
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
-    # --------------------------------------------------------------------------------------- 
-     
+    # ---------------------------------------------------------------------------------------  
     n_cppw     = n_sw*n_cw
     n_w        = VD.n_w
     CS         = VD.CS*ones
-    wing_areas = VD.wing_areas
+    wing_areas = np.array(VD.wing_areas)
     X_M        = np.ones(n_cp)*x_m  *ones
     CL_wing    = np.zeros(n_w)
     CDi_wing   = np.zeros(n_w)
     
-    Del_Y = np.abs(VD.YB1 - VD.YA1)*ones
-    
-    # Linspace out where breaks are
-    wing_space = np.linspace(0,n_cppw*n_w,n_w+1)
+    Del_Y = np.abs(VD.YB1 - VD.YA1)*ones 
     
     # Use split to divide u, w, gamma, and Del_y into more arrays
     u_n_w        = np.array(np.array_split(u,n_w,axis=1))
-    u_n_w_sw     = np.array(np.array_split(u,n_w*n_sw,axis=1))
-    w_n_w        = np.array(np.array_split(w,n_w,axis=1))
-    w_n_w_sw     = np.array(np.array_split(w,n_w*n_sw,axis=1))
+    u_n_w_sw     = np.array(np.array_split(u,n_w*n_sw,axis=1)) 
     w_ind_n_w    = np.array(np.array_split(w_ind,n_w,axis=1))
     w_ind_n_w_sw = np.array(np.array_split(w_ind,n_w*n_sw,axis=1))    
     gamma_n_w    = np.array(np.array_split(gamma,n_w,axis=1))
@@ -168,27 +163,27 @@ def VLM(conditions,settings,geometry):
     Del_Y_n_w_sw = np.array(np.array_split(Del_Y,n_w*n_sw,axis=1))
     
     # Calculate the Coefficients on each wing individually
-    L_wing   = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
-    CL_wing  = L_wing/wing_areas
-    Di_wing  = np.sum(np.multiply(-w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
-    CDi_wing = Di_wing/wing_areas
+    L_wing          = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
+    CL_wing         = L_wing/(0.5*wing_areas)
+    machw           = np.tile(mach,len(wing_areas))
+    CL_wing[machw>1] = CL_wing[machw>1]*2*4
+    Di_wing         = np.sum(np.multiply(-w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
+    CDi_wing        = Di_wing/(0.5*wing_areas)
     
     # Calculate each spanwise set of Cls and Cds
     cl_y = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
-    cdi_y = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
-    
-    # Split the Cls and Cds for each wing
-    Cl_wings = np.array(np.split(cl_y,n_w,axis=1))
-    Cd_wings = np.array(np.split(cdi_y,n_w,axis=1))
+    cdi_y = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS 
             
     # total lift and lift coefficient
     L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
-    CL = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers 
+    CL = L/(0.5*Sref)           # validated form page 402-404, aerodynamics for engineers # supersonic lift off by 2^3 
+    CL[mach>1] = CL[mach>1]*2*4 # supersonic lift off by a factor of 4 
     
     # total drag and drag coefficient
     D  =   -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T   
     CDi = D/(0.5*Sref)  
-
+    CDi[mach>1] = CDi[mach>1]*4
+    
     # pressure coefficient
     U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)
     CP = 1 - (U_tot)*(U_tot)
@@ -196,6 +191,7 @@ def VLM(conditions,settings,geometry):
     # moment coefficient
     CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
     
-    del VD['MCM']
+    # delete MCM from VD data structure since it consumes memory
+    delattr(VD, 'MCM')   
     
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP, wing_areas 
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP 

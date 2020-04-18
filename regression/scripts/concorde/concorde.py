@@ -401,7 +401,7 @@ def mission_setup(analyses):
     segment.tag = "decel_1"
     
     segment.analyses.extend( analyses.cruise )
-    segment.acceleration      = -1.  * Units['m/s/s']
+    segment.acceleration      = -.5  * Units['m/s/s']
     segment.air_speed_start   = 2.02*573. * Units.kts
     segment.air_speed_end     = 1.5*573.  * Units.kts
     

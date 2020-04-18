@@ -6,6 +6,7 @@
 #           Jul 2017, M. Clarke
 #           Oct 2017, E. Botero
 #           Oct 2018, T. MacDonald
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -94,7 +95,7 @@ class Wing(Lofted_Body):
         
         self.sweeps               = Data()
         self.sweeps.quarter_chord = 0.0
-        self.sweeps.leading_edge  = 0.0
+        self.sweeps.leading_edge  = None
         self.sweeps.half_chord    = 0.0        
 
         self.twists = Data()

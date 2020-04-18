@@ -17,7 +17,7 @@ def main():
     airfoil_polar_data =  import_airfoil_polars(airfoil_polar_names) 
 
     airfoil_geometry_names = ['airfoil_geometry_1.txt','airfoil_geometry_2.txt']    
-    airfoil_geometry_data = import_airfoil_geometry (airfoil_geometry_names)
+    airfoil_geometry_data = import_airfoil_geometry(airfoil_geometry_names)
     
     plot_airfoil(airfoil_geometry_names)
     return  

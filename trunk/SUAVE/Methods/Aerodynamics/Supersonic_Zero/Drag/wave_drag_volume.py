@@ -4,6 +4,7 @@
 # Created:  Jun 2014, T. MacDonald
 # Modified: Feb 2019, T. MacDonald
 #           Jan 2020, T. MacDonald
+#           Apr 2020, M. Clarke
 
 import numpy as np
 from SUAVE.Core import Units
@@ -41,6 +42,16 @@ def wave_drag_volume(vehicle,mach,scaling_factor):
             num_main_wings += 1
         if num_main_wings > 1:
             raise NotImplementedError('This function is not designed to handle multiple main wings.')
+    
+    main_wing = vehicle.wings.main_wing
+    # estimation of leading edge sweep if not defined 
+    if main_wing.sweeps.leading_edge == None:                                                     
+        QC_sweep                       = main_wing.sweeps.quarter_chord
+        cf                             = 0.25   # chord fraction                                  
+        rc                             = main_wing.chords.root 
+        tc                             = main_wing.chords.tip
+        semi_span                      = main_wing.spans.projected/2
+        main_wing.sweeps.leading_edge  = np.arctan(((rc*cf) + (np.tan(QC_sweep)*semi_span - cf*tc)) /semi_span)   
         
     LE_sweep = main_wing.sweeps.leading_edge / Units.deg
     L        = vehicle.total_length

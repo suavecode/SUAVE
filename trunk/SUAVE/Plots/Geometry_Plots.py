@@ -2,6 +2,7 @@
 # Geometry_Plots.py
 # 
 # Created:  Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,6 +16,60 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
      import import_airfoil_geometry
+
+
+## @ingroup Plots
+# ------------------------------------------------------------------
+# Vortex Lattice Method Panelization 
+# ------------------------------------------------------------------
+def plot_vehicle_vlm_panelization(vlm_geometry, save_figure = False, save_filename = "VLM_Panelization"):     
+	"""This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
+	Routine is initialized
+
+	Assumptions:
+	None
+
+	Source:
+	None
+
+	Inputs:
+	airfoil_geometry_files   <list of strings>
+
+	Outputs: 
+	Plots
+
+	Properties Used:
+	N/A	
+	"""	
+	face_color = [0.9,0.9,0.9] # grey        
+	edge_color = [0, 0, 0]     # black
+	alpha_val  = 0.5  
+	fig = plt.figure(save_filename)
+	axes = Axes3D(fig)    
+	n_cp = vlm_geometry.n_cp 
+	for i in range(n_cp): 
+		X = [vlm_geometry.XA1[i],vlm_geometry.XB1[i],vlm_geometry.XB2[i],vlm_geometry.XA2[i]]
+		Y = [vlm_geometry.YA1[i],vlm_geometry.YB1[i],vlm_geometry.YB2[i],vlm_geometry.YA2[i]]
+		Z = [vlm_geometry.ZA1[i],vlm_geometry.ZB1[i],vlm_geometry.ZB2[i],vlm_geometry.ZA2[i]] 
+		verts = [list(zip(X, Y, Z))]
+		collection = Poly3DCollection(verts)
+		collection.set_facecolor(face_color)
+		collection.set_edgecolor(edge_color)
+		collection.set_alpha(alpha_val)
+		axes.add_collection3d(collection)     
+		max_range = np.array([vlm_geometry.X.max()-vlm_geometry.X.min(), vlm_geometry.Y.max()-vlm_geometry.Y.min(), vlm_geometry.Z.max()-vlm_geometry.Z.min()]).max() / 2.0    
+		mid_x = (vlm_geometry.X .max()+vlm_geometry.X .min()) * 0.5
+		mid_y = (vlm_geometry.Y .max()+vlm_geometry.Y .min()) * 0.5
+		mid_z = (vlm_geometry.Z .max()+vlm_geometry.Z .min()) * 0.5
+		axes.set_xlim(mid_x - max_range, mid_x + max_range)
+		axes.set_ylim(mid_y - max_range, mid_y + max_range)
+		axes.set_zlim(mid_z - max_range, mid_z + max_range)          
+
+	axes.scatter(vlm_geometry.XC,vlm_geometry.YC,vlm_geometry.ZC, c='r', marker = 'o' )
+	plt.axis('off')
+	plt.grid(None)
+	return
+
 
 # ------------------------------------------------------------------
 # Plot Airfol
