@@ -1266,11 +1266,11 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
                 if plot_flag[i] == 1:
                     CS    = axes.contourf( y_pts,x_pts_p, z_pts, cmap = rev_cm,levels=levals,extend='both')   
                 
-                # Set Color bar	
-                sfmt = ticker.ScalarFormatter(useMathText=True) 
-                sfmt = ticker.FormatStrFormatter('%.3f')  
-                cbar = fig.colorbar(CS, ax=axes , format= sfmt ) 
-                cbar.ax.set_ylabel('$C_{P}$', labelpad  = 20, rotation =  0, fontsize =16)  
+            # Set Color bar	
+            sfmt = ticker.ScalarFormatter(useMathText=True) 
+            sfmt = ticker.FormatStrFormatter('%.3f')  
+            cbar = fig.colorbar(CS, ax=axes , format= sfmt ) 
+            cbar.ax.set_ylabel('$C_{P}$', labelpad  = 20, rotation =  0, fontsize =16)  
             
             # plot fuselage 
             for i in range(n_fus):

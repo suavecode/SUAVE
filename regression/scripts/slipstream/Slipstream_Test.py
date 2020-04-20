@@ -63,16 +63,22 @@ def main():
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
     print(diff_Cl)
-    assert  max(np.abs((sectional_lift_coeff - sectional_lift_coeff_true)/sectional_lift_coeff_true)) < 1e-6 
+    assert  max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6 
+    
+    plot_mission(results,configs.base) 
+    
+    return 
+
+def plot_mission(results,vehicle): 
     
     # Plot surface pressure coefficient 
-    plot_surface_pressure_contours(results,configs.base)
+    plot_surface_pressure_contours(results,vehicle)
     
     # Plot lift distribution 
-    plot_lift_distribution(results,configs.base)
+    plot_lift_distribution(results,vehicle)
     
     # Create Video Frames 
-    create_video_frames(results,configs.base, save_figure = False)
+    create_video_frames(results,vehicle)
     
     return
 
