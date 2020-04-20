@@ -59,7 +59,7 @@ def main():
     results = mission.evaluate()
 
     # load older results
-    save_results(results)
+    #save_results(results)
     old_results = load_results()   
 
     # plt the old results
@@ -70,13 +70,13 @@ def main():
     F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
     rpm     = results.segments.cruise1.conditions.propulsion.rpm[1,0] 
     current = results.segments.cruise1.conditions.propulsion.current[1,0] 
-    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[1,0]  
+    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
     truth_F   = 106.17937888428949  
     truth_rpm = 160.76100043739908 
     truth_i   = 131.4126494489281  
-    truth_bat = 98064443.83585036 
+    truth_bat = 88521341.18491648
     
     print('battery energy')
     print(energy)
@@ -201,7 +201,7 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.cruise)
     
     # segment attributes     
-    segment.state.numerics.number_control_points = 4
+    segment.state.numerics.number_control_points = 16
     segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2020", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
