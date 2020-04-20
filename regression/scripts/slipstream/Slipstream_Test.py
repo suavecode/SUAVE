@@ -39,7 +39,7 @@ def main():
      
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0]
-    lift_coefficient_true         = 0.3833975457464247
+    lift_coefficient_true         = 0.38322263437255183
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -48,28 +48,30 @@ def main():
     
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[0]
-    sectional_lift_coeff_true       = np.array([ 1.64433270e-01,  1.57827532e-01,  1.44844167e-01,  1.27634695e-01,
-                                                 1.07544588e-01,  8.56445585e-02,  6.27913440e-02,  3.98096066e-02,
-                                                 1.86463746e-02,  3.80542311e-03,  1.64520374e-01,  1.58034198e-01,
-                                                 1.45079209e-01,  1.27839703e-01,  1.07699318e-01,  8.57498891e-02,
-                                                 6.28553169e-02,  3.98414177e-02,  1.86567448e-02,  3.80663732e-03,
-                                                -1.20681888e-03, -1.14711337e-03, -9.27220502e-04, -6.11860077e-04,
-                                                -3.09376813e-04, -8.63997981e-05,  3.95751771e-05,  7.41171602e-05,
-                                                 4.81550060e-05,  1.08284673e-05, -1.20493427e-03, -1.14480884e-03,
-                                                -9.26044545e-04, -6.11432479e-04, -3.09263451e-04, -8.63792532e-05,
-                                                 3.95796045e-05,  7.41209311e-05,  4.81570487e-05,  1.08287533e-05,
-                                                 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
-                                                 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
-                                                 0.00000000e+00,  0.00000000e+00])
+    sectional_lift_coeff_true       = np.array([ 0.1565775 ,  0.13437074, -0.01123436,  0.24346778,  0.13091236,
+                                                 0.09685842,  0.06878895,  0.04291526,  0.02026495,  0.00419891,
+                                                 0.15729631,  0.1368693 , -0.00422328,  0.26075662,  0.13518419,
+                                                 0.09882707,  0.06981101,  0.04343102,  0.02047759,  0.00424002,
+                                                 0.00083411,  0.00124194,  0.00213876,  0.00341288,  0.00465383,
+                                                 0.00545423,  0.00538618,  0.004165  ,  0.00217208,  0.00046187,
+                                                 0.00086411,  0.00131384,  0.00221271,  0.00345573,  0.00465526,
+                                                 0.0054181 ,  0.00532603,  0.00410543,  0.00213642,  0.00045372,
+                                                 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+                                                 0.        ,  0.        ,  0.        ,  0.        ,  0.        ])
+
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
     print(diff_Cl)
     assert  max(np.abs((sectional_lift_coeff - sectional_lift_coeff_true)/sectional_lift_coeff_true)) < 1e-6 
     
-    # Plot pressure and lift distribution of wings 
+    # Plot surface pressure coefficient 
     plot_surface_pressure_contours(results,configs.base)
+    
+    # Plot lift distribution 
     plot_lift_distribution(results,configs.base)
+    
+    # Create Video Frames 
     create_video_frames(results,configs.base, save_figure = False)
     
     return
@@ -156,8 +158,11 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()     
-    aerodynamics.settings.use_surrogate = False
-    aerodynamics.geometry = vehicle
+    aerodynamics.settings.use_surrogate              = False
+    aerodynamics.settings.integrate_slipstream       = True 
+    aerodynamics.settings.number_panels_spanwise     = 10
+    aerodynamics.settings.number_panels_chordwise    = 4   
+    aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 

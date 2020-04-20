@@ -12,10 +12,43 @@
 import numpy as np
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry,sur_flag):     
+def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,slipstream):     
+    """ This computes the right hand side matrix for the VLM. In this
+    function, induced velocites from propeller wake are also included 
+    when relevent and where specified    
+
+    Assumptions:
+    Slipstream effect is not a function of time. 
+    Axial Variation of slipstream does not include swirl 
+
+    Source:  
+    Stone, R. Hugh. "Aerodynamic modeling of the wing-propeller 
+    interaction for a tail-sitter unmanned air vehicle." Journal 
+    of Aircraft 45.1 (2008): 198-210.
+
+    Inputs:
+    geometry
+        propulsors                               [Unitless]  
+        vehicle vortex distribution              [Unitless] 
+    conditions.
+        aerodynamics.angle_of_attack             [radians] 
+        freestream.velocity                      [m/s]
+    n_sw        - number_panels_spanwise         [Unitless]
+    n_cw        - number_panels_chordwise        [Unitless]
+    sur_flag    - use_surrogate flag             [Unitless]
+    slipstream  - integrate_slipstream flag      [Unitless] 
+    delta, phi  - flow tangency angles           [radians]
+       
+    Outputs:                                   
+    RHS                                        [Unitless] 
+
+    Properties Used:
+    N/A
+    """  
 
     # unpack 
     propulsors       = geometry.propulsors
+    VD               = geometry.vortex_distribution
     aoa              = conditions.aerodynamics.angle_of_attack 
     aoa_distribution = np.repeat(aoa, VD.n_cp, axis = 1) 
     V_inf            = conditions.freestream.velocity
@@ -24,15 +57,8 @@ def compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry,sur_flag):
     
     #-------------------------------------------------------------------------------------------------------
     # PROPELLER SLIPSTREAM MODEL
-    #-------------------------------------------------------------------------------------------------------
-    '''
-    SOURCE: Aerodynamic Modelling of the Wing-Propeller Interaction
-    Summary: This method uses the blade element momentum solution to modify the local angle of 
-    attach and axial velocity incident on the wing
-    The code below assumes that if the propeller is interacting with the wing, the wing is always situated at the 
-    center of the propeller 
-    '''
-    if (sur_flag == False) and ('propulsor' in propulsors):
+    #------------------------------------------------------------------------------------------------------- 
+    if ((sur_flag == False) and ('propulsor' in propulsors)) and slipstream:
         prop =  propulsors['propulsor'].propeller 
     
         # loop through propellers on aircraft to get combined effect of slipstreams
@@ -60,8 +86,8 @@ def compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry,sur_flag):
             VX                = np.repeat(np.atleast_3d(Vx[:,1:]), VD.n_cp, axis = 2) # dimension (num control points X propeller distribution X vortex distribution )
             Kv                = (2*VX + prop_dif) /(2*VX + Kd*prop_dif) # dimension (num control points X propeller distribution X vortex distribution )
     
-            r_diff           = np.ones((m,n_old-1))*(r_old[1:]**2 - r_old[:-1]**2 )
-            r_diff           = np.repeat(np.atleast_3d(r_diff), VD.n_cp, axis = 2)
+            r_diff            = np.ones((m,n_old-1))*(r_old[1:]**2 - r_old[:-1]**2 )
+            r_diff            = np.repeat(np.atleast_3d(r_diff), VD.n_cp, axis = 2)
             r_prime           = np.zeros((m,n_old,VD.n_cp))                
             r_prime[:,0,:]    = R0  
             r_prime[:,1:,:]   = np.sqrt(r_prime[:,:-1,:]**2 + r_diff*Kv)    
@@ -69,8 +95,8 @@ def compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry,sur_flag):
             r_div_r_prime_old = np.concatenate((r_div_r_prime_val[:,::-1], r_div_r_prime_val), axis=1)    
     
             # determine if slipstream wake interacts with wing in the z directions
-            locations   = np.where(((prop.origin[i][2] + r_div_r_prime_old[0,-1,:]*R0) - VD.ZC > 0.0 ) &  ((prop.origin[i][2] - r_div_r_prime_old[0,-1,:]*R0) - VD.ZC < 0.0) \
-                                   & ((prop.origin[i][1] + r_div_r_prime_old[0,-1,:]*R0) - VD.YC > 0.0 ) &  (VD.YC - (prop.origin[i][1] - r_div_r_prime_old[0,-1,:]*R0) > 0.0))        
+            locations   = np.where( ((prop.origin[i][2] + r_div_r_prime_old[0,-1,:]*R0) - VD.ZC > 0.0 ) &  ((prop.origin[i][2] - r_div_r_prime_old[0,-1,:]*R0) - VD.ZC < 0.0) \
+                                   & ((prop.origin[i][1] + r_div_r_prime_old[0,-1,:]*R0) - VD.YC > 0.0 ) &  (VD.YC - (prop.origin[i][1] - r_div_r_prime_old[0,-1,:]*R0) > 0.0) )        
     
             if len(locations[0]) > 0:
                 prop_y_discre = prop.origin[i][1] + d_old # add prop sym ****
@@ -104,7 +130,7 @@ def compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry,sur_flag):
                 # modifiy air speed distribution behind propeller 
                 V_distribution[:,locations]   = modified_V_inf[:,locations] 
                 aoa_distribution[:,locations] = modified_aoa[:,locations]
-     
+    
     RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
     
-    return RHS
+    return RHS 

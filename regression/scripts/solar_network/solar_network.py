@@ -76,17 +76,17 @@ def main():
     truth_F   = 106.17937888428949  
     truth_rpm = 160.76100043739908 
     truth_i   = 131.4126494489281  
-    truth_bat = 98064443.83585036  # travis   98064443.83585292
+    truth_bat = 98064443.83585036 
     
     print('battery energy')
     print(energy)
     print('\n')
     
     error = Data()
-    error.Thrust = np.max(np.abs(F-truth_F))
-    error.RPM = np.max(np.abs(rpm-truth_rpm))
+    error.Thrust   = np.max(np.abs(F-truth_F))
+    error.RPM      = np.max(np.abs(rpm-truth_rpm))
     error.Current  = np.max(np.abs(current-truth_i))
-    error.Battery = np.max(np.abs(energy-truth_bat))
+    error.Battery  = np.max(np.abs(energy-truth_bat))
     
     print(error)
     

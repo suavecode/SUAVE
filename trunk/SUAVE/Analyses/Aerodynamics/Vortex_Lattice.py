@@ -66,7 +66,7 @@ class Vortex_Lattice(Aerodynamics):
         self.geometry                                = Data()
         self.settings                                = Data()
         self.settings.number_panels_spanwise         = 10
-        self.settings.number_panels_chordwise        = 2
+        self.settings.number_panels_chordwise        = 2 
         self.settings.vortex_distribution            = Data()   
         
         # conditions table, used for surrogate model training
@@ -100,7 +100,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw , n_cw ):
+    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw , n_cw ,integrate_slipstream):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -132,8 +132,9 @@ class Vortex_Lattice(Aerodynamics):
         VD = compute_vortex_distribution(geometry,settings)      
         
         # Pack
-        settings.vortex_distribution = VD
-        settings.use_surrogate      = use_surrogate
+        settings.vortex_distribution   = VD
+        settings.use_surrogate         = use_surrogate
+        settings.integrate_slipstream  = integrate_slipstream
         
         # Plot vortex discretization of vehicle
         if vortex_distribution_flag == True:
@@ -346,16 +347,16 @@ class Vortex_Lattice(Aerodynamics):
         self.training.angle_of_attack [radians]
         """
         # unpack
-        geometry = self.geometry
-        settings = self.settings
-        training = self.training
-        AoA      = training.angle_of_attack
-        Mach_sub = training.Mach_subsonic
-        Mach_sup = training.Mach_supersonic
+        geometry   = self.geometry
+        settings   = self.settings
+        training   = self.training
+        AoA        = training.angle_of_attack
+        Mach_sub   = training.Mach_subsonic
+        Mach_sup   = training.Mach_supersonic
         
-        atmosphere                              = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmosphere.compute_values(self,altitude = np.array([[0.0]]))
-        a                                       = atmosphere.speed_of_sound   
+        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmo_data  = atmosphere.compute_values(altitude = 0.0)
+        a          = atmo_data.speed_of_sound[0,0]   
         
         # Setup Konditions                      
         konditions                              = Data()

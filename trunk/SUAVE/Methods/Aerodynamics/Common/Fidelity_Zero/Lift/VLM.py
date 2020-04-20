@@ -66,6 +66,8 @@ def VLM(conditions,settings,geometry):
         
        settings.number_panels_spanwise         [Unitless]
        settings.number_panels_chordwise        [Unitless]
+       settings.use_surrogate                  [Unitless]
+       settings.integrate_slipstream           [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
        conditions.freestream.mach_number       [Unitless]
        
@@ -83,6 +85,7 @@ def VLM(conditions,settings,geometry):
     n_sw       = settings.number_panels_spanwise    
     n_cw       = settings.number_panels_chordwise   
     sur_flag   = settings.use_surrogate
+    slipstream = settings.integrate_slipstream
     Sref       = geometry.reference_area
     
     
@@ -128,7 +131,7 @@ def VLM(conditions,settings,geometry):
    
    
     # Build the vector
-    RHS = compute_RHS_matrix(VD,n_sw,n_cw,delta,phi,conditions,geometry,sur_flag)
+    RHS = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,slipstream)
 
     # Compute vortex strength  
     n_cp  = VD.n_cp  
@@ -142,7 +145,6 @@ def VLM(conditions,settings,geometry):
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
     # ---------------------------------------------------------------------------------------  
-    n_cppw     = n_sw*n_cw
     n_w        = VD.n_w
     CS         = VD.CS*ones
     wing_areas = np.array(VD.wing_areas)
