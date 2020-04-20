@@ -5,8 +5,7 @@
 #           Jul 2017, SUAVE Team
 #           Jan 2018, SUAVE Team
 #           May 2019, T. MacDonald
-#           Mar 2020, M. Clarke
-#           Apr 2020, M. Clarke
+#           Mar 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -83,6 +82,7 @@ modules = [
     'scripts/rocket_network/Rocketdyne_J2.py',   
     'scripts/segments/segment_test.py',     
     'scripts/sizing_loop/sizing_loop.py',
+    'scripts/slipstream/slipstream_test.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
     'scripts/solar_radiation/solar_radiation.py',

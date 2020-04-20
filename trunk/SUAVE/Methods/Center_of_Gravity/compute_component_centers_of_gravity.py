@@ -13,7 +13,7 @@
 import numpy as np
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_location import compute_chord_length_from_span_location
-
+from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 # ----------------------------------------------------------------------
 #  Computer Aircraft Center of Gravity
 # ---------------origin-------------------------------------------------------
@@ -45,13 +45,8 @@ def compute_component_centers_of_gravity(vehicle, compute_propulsor_origin = Fal
     #assume that 80% of the chord difference is from leading edge sweep
     #x distance from leading edge of root chord to leading edge of aerodynamic center
     
-    if wing.sweeps.leading_edge == None:                                                     
-        QC_sweep                 = wing.sweeps.quarter_chord
-        cf                       = 0.25   # chord fraction                                  
-        rc                       = wing.chords.root 
-        tc                       = wing.chords.tip
-        semi_span                = wing.spans.projected/2
-        wing.sweeps.leading_edge = np.arctan(((rc*cf) + (np.tan(QC_sweep)*semi_span - cf*tc)) /semi_span)  
+    if wing.sweeps.leading_edge == None:                     
+        wing.sweeps.leading_edge = convert_sweep(wing,old_ref_chord_fraction = 0.25 ,new_ref_chord_fraction = 0.0)
     
     mac_le_offset                                               = .8*np.sin(wing.sweeps.leading_edge)*span_location_mac
     wing.mass_properties.center_of_gravity[0]                   = .3*wing.chords.mean_aerodynamic + mac_le_offset
