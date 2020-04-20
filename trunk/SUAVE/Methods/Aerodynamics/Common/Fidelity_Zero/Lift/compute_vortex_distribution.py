@@ -17,8 +17,12 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_vortex_distribution(geometry,settings):
-    ''' Compute the coordinates of panels, vortices , control points and geometry used to build 
-    the influence coefficient matrix. Below is a schematic of the coordinates of an arbitrary panel
+    ''' Compute the coordinates of panels, vortices , control points
+    and geometry used to build the influence coefficient matrix.
+    
+
+    Assumptions: 
+    Below is a schematic of the coordinates of an arbitrary panel  
     
     XA1 ____________________________ XB1    
        |                            |
@@ -36,7 +40,20 @@ def compute_vortex_distribution(geometry,settings):
          |                        |     
          |       trailing         |  
          |   <--  vortex   -->    |  
-         |         legs           |  
+         |         legs           | 
+             
+    
+    Source:  
+    None
+
+    Inputs:
+    geometry.wings                                [Unitless]  
+       
+    Outputs:                                   
+    VD - vehicle vortex distribution              [Unitless] 
+
+    Properties Used:
+    N/A 
          
     '''
     # ---------------------------------------------------------------------------------------

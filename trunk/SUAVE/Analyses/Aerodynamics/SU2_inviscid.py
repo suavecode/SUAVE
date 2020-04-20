@@ -151,7 +151,7 @@ class SU2_inviscid(Aerodynamics):
         conditions.aerodynamics.lift_breakdown.compressible_wings['main_wing']   = inviscid_lift # currently using vehicle drag for wing        
                                                                            
         # Inviscid drag, zeros are a placeholder for possible future implementation
-        inviscid_drag                                                      = (inviscid_lift**2)/(np.pi*AR) 
+        inviscid_drag                                                      = np.zeros([data_len,1])       
         conditions.aerodynamics.drag_breakdown.induced                     = Data()
         conditions.aerodynamics.drag_breakdown.induced.total               = inviscid_drag
         conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag = inviscid_drag     

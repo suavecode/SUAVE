@@ -8,17 +8,36 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# package imports
-import SUAVE
-import numpy as np
-from SUAVE.Core import Units , Data
+# package imports 
+import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
+def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
+    """ This computes the induced velocitys are each control point 
+    of the vehicle vortex lattice 
 
-    # unpack 
-    ctrl_pts = len(theta_w)
-    ones    = np.atleast_3d(np.ones_like(theta_w))
+    Assumptions: 
+    Trailing vortex legs infinity are alligned to freestream
+
+    Source:  
+    None
+
+    Inputs: 
+    VD       - vehicle vortex distribution      [Unitless] 
+    n_sw     - number_panels_spanwise           [Unitless]
+    n_cw     - number_panels_chordwise          [Unitless] 
+    mach                                        [Unitless] 
+    theta_w  - freestream wake angle            [radians]
+    
+    Outputs:                                
+    C_mn     - total induced velocity matrix    [Unitless] 
+    DW_mn    - induced downwash velocity matrix [Unitless] 
+
+    Properties Used:
+    N/A
+    """
+    # unpack  
+    ones     = np.atleast_3d(np.ones_like(theta_w))
  
     # Prandtl Glauret Transformation for subsonic
     inv_root_beta = np.zeros_like(mach)
@@ -28,54 +47,40 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
         raise('Mach of 1 cannot be used in building compressibiliy corrections.')
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
-    XAH   = np.atleast_3d(data.XAH*inv_root_beta)
-    XAHbv = np.atleast_3d(data.XAH*inv_root_beta)
-    YAH   = np.atleast_3d(data.YAH*ones)
-    YAHbv = np.atleast_3d(data.YAH*ones)
-    ZAH   = np.atleast_3d(data.ZAH*ones)
-    ZAHbv = np.atleast_3d(data.ZAH*ones)
-    XBH   = np.atleast_3d(data.XBH*inv_root_beta)
-    XBHbv = np.atleast_3d(data.XBH*inv_root_beta)
-    YBH   = np.atleast_3d(data.YBH*ones)
-    YBHbv = np.atleast_3d(data.YBH*ones)
-    ZBH   = np.atleast_3d(data.ZBH*ones)
-    ZBHbv = np.atleast_3d(data.ZBH*ones)
+    XAH   = np.atleast_3d(VD.XAH*inv_root_beta) 
+    YAH   = np.atleast_3d(VD.YAH*ones) 
+    ZAH   = np.atleast_3d(VD.ZAH*ones) 
+    XBH   = np.atleast_3d(VD.XBH*inv_root_beta) 
+    YBH   = np.atleast_3d(VD.YBH*ones) 
+    ZBH   = np.atleast_3d(VD.ZBH*ones) 
 
-    XA1   = np.atleast_3d(data.XA1*inv_root_beta)
-    YA1   = np.atleast_3d(data.YA1*ones)
-    ZA1   = np.atleast_3d(data.ZA1*ones)
-    XA2   = np.atleast_3d(data.XA2*inv_root_beta)
-    YA2   = np.atleast_3d(data.YA2*ones)
-    ZA2   = np.atleast_3d(data.ZA2*ones)
+    XA1   = np.atleast_3d(VD.XA1*inv_root_beta)
+    YA1   = np.atleast_3d(VD.YA1*ones)
+    ZA1   = np.atleast_3d(VD.ZA1*ones)
+    XA2   = np.atleast_3d(VD.XA2*inv_root_beta)
+    YA2   = np.atleast_3d(VD.YA2*ones)
+    ZA2   = np.atleast_3d(VD.ZA2*ones)
 
-    XB1   = np.atleast_3d(data.XB1*inv_root_beta)
-    YB1   = np.atleast_3d(data.YB1*ones)
-    ZB1   = np.atleast_3d(data.ZB1*ones)
-    XB2   = np.atleast_3d(data.XB2*inv_root_beta)
-    YB2   = np.atleast_3d(data.YB2*ones)
-    ZB2   = np.atleast_3d(data.ZB2*ones)
-          
-    XAC   = np.atleast_3d(data.XAC*inv_root_beta)
-    YAC   = np.atleast_3d(data.YAC*ones)
-    ZAC   = np.atleast_3d(data.ZAC*ones)
-    XBC   = np.atleast_3d(data.XBC*inv_root_beta)
-    YBC   = np.atleast_3d(data.YBC*ones)
-    ZBC   = np.atleast_3d(data.ZBC*ones)
+    XB1   = np.atleast_3d(VD.XB1*inv_root_beta)
+    YB1   = np.atleast_3d(VD.YB1*ones)
+    ZB1   = np.atleast_3d(VD.ZB1*ones)
+    XB2   = np.atleast_3d(VD.XB2*inv_root_beta)
+    YB2   = np.atleast_3d(VD.YB2*ones)
+    ZB2   = np.atleast_3d(VD.ZB2*ones) 
     
-    XA_TE   = np.atleast_3d(data.XA_TE*inv_root_beta)
-    YA_TE   = np.atleast_3d(data.YA_TE*ones)
-    ZA_TE   = np.atleast_3d(data.ZA_TE*ones)
-    XB_TE   = np.atleast_3d(data.XB_TE*inv_root_beta)
-    YB_TE   = np.atleast_3d(data.YB_TE*ones)
-    ZB_TE   = np.atleast_3d(data.ZB_TE*ones) 
+    XA_TE   = np.atleast_3d(VD.XA_TE*inv_root_beta)
+    YA_TE   = np.atleast_3d(VD.YA_TE*ones)
+    ZA_TE   = np.atleast_3d(VD.ZA_TE*ones)
+    XB_TE   = np.atleast_3d(VD.XB_TE*inv_root_beta)
+    YB_TE   = np.atleast_3d(VD.YB_TE*ones)
+    ZB_TE   = np.atleast_3d(VD.ZB_TE*ones) 
     
-    XC    = np.atleast_3d(data.XC*inv_root_beta)
-    YC    = np.atleast_3d(data.YC*ones) 
-    ZC    = np.atleast_3d(data.ZC*ones)  
-    n_w   = data.n_w
+    XC    = np.atleast_3d(VD.XC*inv_root_beta)
+    YC    = np.atleast_3d(VD.YC*ones) 
+    ZC    = np.atleast_3d(VD.ZC*ones)  
+    n_w   = VD.n_w
 
     theta_w = np.atleast_3d(theta_w)   # wake model, use theta_w if setting to freestream, use 0 if setting to airfoil chord like
-    n_aoa   = np.shape(theta_w)[0]
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
@@ -125,7 +130,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # compute Mach Cone Matrix
     MCM      = np.ones_like(C_AB_bv)
     MCM      = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
-    data.MCM = MCM 
+    VD.MCM = MCM 
     n_cp     = n_w*n_cw*n_sw 
     
     # multiply by mach cone 

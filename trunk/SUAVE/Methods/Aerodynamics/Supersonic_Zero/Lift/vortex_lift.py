@@ -12,7 +12,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-
+from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 # ----------------------------------------------------------------------
 #   The Function
 # ----------------------------------------------------------------------
@@ -57,13 +57,8 @@ def vortex_lift(state,settings,geometry):
 
         if wing.vortex_lift is True:
             # compute leading edge sweek if not given
-            if wing.sweeps.leading_edge == None:                                                     
-                QC_sweep  = wing.sweeps.quarter_chord
-                cf        = 0.25   # chord fraction                                  
-                rc        = wing.chords.root 
-                tc        = wing.chords.tip
-                semi_span = wing.spans.projected/2
-                GAMMA     = np.arctan(((rc*cf) + (np.tan(QC_sweep)*semi_span - cf*tc)) /semi_span)   
+            if wing.sweeps.leading_edge == None:         
+                GAMMA     = convert_sweep(wing,old_ref_chord_fraction = 0.25 ,new_ref_chord_fraction = 0.0)
             else:
                 GAMMA     = wing.sweeps.leading_edge
                 

@@ -246,6 +246,8 @@ class AVL(Stability):
         trim_aircraft = self.settings.trim_aircraft  
         AoA           = training.angle_of_attack
         Mach          = training.Mach
+        atmosphere    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmo_data     = atmosphere.compute_values(altitude = 0.0)         
                       
         CM            = np.zeros((len(AoA),len(Mach)))
         Cm_alpha      = np.zeros_like(CM)
@@ -260,10 +262,10 @@ class AVL(Stability):
         for i,_ in enumerate(Mach):
             # Set training conditions
             run_conditions = Aerodynamics()
-            run_conditions.freestream.density           = 1.2
-            run_conditions.freestream.gravity           = 9.81        
+            run_conditions.freestream.density           = atmo_data.density[0,0] 
+            run_conditions.freestream.gravity           = 9.81               
             run_conditions.aerodynamics.angle_of_attack = AoA 
-            run_conditions.freestream.speed_of_sound    = 343.
+            run_conditions.freestream.speed_of_sound    = atmo_data.density
             run_conditions.aerodynamics.side_slip_angle = 0
             run_conditions.freestream.velocity          = Mach[i] * run_conditions.freestream.speed_of_sound
             run_conditions.freestream.mach_number       = Mach[i] 

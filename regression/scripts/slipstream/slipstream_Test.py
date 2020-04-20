@@ -1,4 +1,4 @@
-# Cessna_172.py
+# Slipstream_Test.py
 # 
 # Created:  Mar 2019, M. Clarke
 
@@ -38,8 +38,8 @@ def main():
     results = mission.evaluate()
      
     # lift coefficient  
-    lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0]
-    lift_coefficient_true         = 0.3833975457464247
+    lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
+    lift_coefficient_true         = 0.3832379748507158
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -48,29 +48,38 @@ def main():
     
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[0]
-    sectional_lift_coeff_true       = np.array([ 1.64433270e-01,  1.57827532e-01,  1.44844167e-01,  1.27634695e-01,
-                                                 1.07544588e-01,  8.56445585e-02,  6.27913440e-02,  3.98096066e-02,
-                                                 1.86463746e-02,  3.80542311e-03,  1.64520374e-01,  1.58034198e-01,
-                                                 1.45079209e-01,  1.27839703e-01,  1.07699318e-01,  8.57498891e-02,
-                                                 6.28553169e-02,  3.98414177e-02,  1.86567448e-02,  3.80663732e-03,
-                                                -1.20681888e-03, -1.14711337e-03, -9.27220502e-04, -6.11860077e-04,
-                                                -3.09376813e-04, -8.63997981e-05,  3.95751771e-05,  7.41171602e-05,
-                                                 4.81550060e-05,  1.08284673e-05, -1.20493427e-03, -1.14480884e-03,
-                                                -9.26044545e-04, -6.11432479e-04, -3.09263451e-04, -8.63792532e-05,
-                                                 3.95796045e-05,  7.41209311e-05,  4.81570487e-05,  1.08287533e-05,
-                                                 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
-                                                 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
-                                                 0.00000000e+00,  0.00000000e+00])
+    sectional_lift_coeff_true       = np.array([0.1747388 , 0.15216616, 0.01856497, 0.16516365, 0.12636817,
+                                                0.10165584, 0.07475338, 0.04745916, 0.02260351, 0.00469499,
+                                                0.17504324, 0.15314658, 0.02153014, 0.16653651, 0.12701056,
+                                                0.10203353, 0.07497168, 0.04757085, 0.02264632, 0.00470214,
+                                                0.00264088, 0.00308172, 0.00388338, 0.00494114, 0.00586441,
+                                                0.00629807, 0.00589282, 0.00442264, 0.00227427, 0.0004815 ,
+                                                0.00264482, 0.00308789, 0.00387994, 0.00491939, 0.00582377,
+                                                0.00624383, 0.00583504, 0.00437515, 0.00224798, 0.00047557,
+                                                0.        , 0.        , 0.        , 0.        , 0.        ,
+                                                0.        , 0.        , 0.        , 0.        , 0.        ])
+
+    # plot results 
+    plot_mission(results,configs.base) 
+    
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
     print(diff_Cl)
-    assert  max(np.abs((sectional_lift_coeff - sectional_lift_coeff_true)/sectional_lift_coeff_true)) < 1e-6 
+    assert  max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6 
     
-    # Plot pressure and lift distribution of wings 
-    plot_surface_pressure_contours(results,configs.base)
-    plot_lift_distribution(results,configs.base)
-    create_video_frames(results,configs.base, save_figure = False)
+    return 
+
+def plot_mission(results,vehicle): 
+    
+    # Plot surface pressure coefficient 
+    plot_surface_pressure_contours(results,vehicle)
+    
+    # Plot lift distribution 
+    plot_lift_distribution(results,vehicle)
+    
+    # Create Video Frames 
+    create_video_frames(results,vehicle, save_figure = False)
     
     return
 
@@ -156,8 +165,11 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()     
-    aerodynamics.settings.use_surrogate = False
-    aerodynamics.geometry = vehicle
+    aerodynamics.settings.use_surrogate              = False
+    aerodynamics.settings.integrate_slipstream       = True 
+    aerodynamics.settings.number_panels_spanwise     = 10
+    aerodynamics.settings.number_panels_chordwise    = 4   
+    aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
@@ -215,28 +227,12 @@ def mission_setup(analyses,vehicle):
     ones_row     = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.state.numerics.number_control_points        = 4
+    base_segment.state.numerics.number_control_points        = 2
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals
     base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
     base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.propulsor.battery.max_voltage * ones_row(1)  
-    base_segment.state.residuals.network                     = 0. * ones_row(2)        
-    
-    # ------------------------------------------------------------------
-    #   Climb 1 : constant Speed, constant rate segment 
-    # ------------------------------------------------------------------ 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "climb_1"
-    segment.analyses.extend( analyses.base )
-    segment.battery_energy                   = vehicle.propulsors.propulsor.battery.max_energy * 0.89
-    segment.altitude_start                   = 2500.0  * Units.feet
-    segment.altitude_end                     = 8012    * Units.feet 
-    segment.air_speed                        = 96.4260 * Units['mph'] 
-    segment.climb_rate                       = 700.034 * Units['ft/min']  
-    segment.state.unknowns.throttle          = 0.85 * ones_row(1)  
-
-    # add to misison
-    mission.append_segment(segment)
+    base_segment.state.residuals.network                     = 0. * ones_row(2) 
 
     # ------------------------------------------------------------------
     #   Cruise Segment: constant Speed, constant altitude

@@ -66,12 +66,11 @@ class Vortex_Lattice(Aerodynamics):
         self.geometry                                = Data()
         self.settings                                = Data()
         self.settings.number_panels_spanwise         = 10
-        self.settings.number_panels_chordwise        = 2
+        self.settings.number_panels_chordwise        = 2 
         self.settings.vortex_distribution            = Data()   
         
         # conditions table, used for surrogate model training
-        self.training                                = Data()     
-        self.training.reference_speed_of_sound       = 343.234   
+        self.training                                = Data()    
         self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.]]).T * Units.deg
         self.training.Mach_subsonic                  = np.array([[0.0, 0.1 , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9]]).T
         self.training.Mach_supersonic                = np.array([[1.2, 1.5, 1.8 , 2.0, 2.25 , 2.5, 3.0, 3.5]]).T            
@@ -101,7 +100,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw , n_cw ):
+    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw , n_cw ,integrate_slipstream):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -133,8 +132,9 @@ class Vortex_Lattice(Aerodynamics):
         VD = compute_vortex_distribution(geometry,settings)      
         
         # Pack
-        settings.vortex_distribution = VD
-        settings.use_surrogate      = use_surrogate
+        settings.vortex_distribution   = VD
+        settings.use_surrogate         = use_surrogate
+        settings.integrate_slipstream  = integrate_slipstream
         
         # Plot vortex discretization of vehicle
         if vortex_distribution_flag == True:
@@ -347,13 +347,16 @@ class Vortex_Lattice(Aerodynamics):
         self.training.angle_of_attack [radians]
         """
         # unpack
-        geometry = self.geometry
-        settings = self.settings
-        training = self.training
-        AoA      = training.angle_of_attack
-        Mach_sub = training.Mach_subsonic
-        Mach_sup = training.Mach_supersonic
-        a        = self.training.reference_speed_of_sound
+        geometry   = self.geometry
+        settings   = self.settings
+        training   = self.training
+        AoA        = training.angle_of_attack
+        Mach_sub   = training.Mach_subsonic
+        Mach_sup   = training.Mach_supersonic
+        
+        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmo_data  = atmosphere.compute_values(altitude = 0.0)
+        a          = atmo_data.speed_of_sound[0,0]   
         
         # Setup Konditions                      
         konditions                              = Data()
