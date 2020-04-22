@@ -73,7 +73,7 @@ def vehicle_setup():
     wing.number_end_ribs         = 2.
     wing.transition_x_upper      = 0.6
     wing.transition_x_lower      = 1.0
-    wing.origin                  = [3.0,0.0,0.0] # meters
+    wing.origin                  = [[3.0,0.0,0.0]] # meters
     wing.aerodynamic_center      = [3.0,0.0,0.0] # meters
     
     # add to vehicle
@@ -103,7 +103,7 @@ def vehicle_setup():
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  
-    wing.origin                  = [10.,0.0,0.0] # meters
+    wing.origin                  = [[10.,0.0,0.0]] # meters
     wing.aerodynamic_center      = [0.5,0.0,0.0] # meters
   
     # add to vehicle
@@ -130,7 +130,7 @@ def vehicle_setup():
     wing.areas.affected          = 0.6 * wing.areas.wetted    
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
-    wing.origin                  = [10.,0.0,0.0] # meters
+    wing.origin                  = [[10.,0.0,0.0]] # meters
     wing.aerodynamic_center      = [0.5,0.0,0.0] # meters
     wing.symmetric               = True  
     wing.vertical                = True 

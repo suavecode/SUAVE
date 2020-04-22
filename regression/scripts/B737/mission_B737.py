@@ -5,6 +5,7 @@
 #           May 2019, T. MacDonald 
 #           Mar 2020, M. Clarke
 #           Apr 2020, M. Clarke
+#           Apr 2020, E. Botero
 
 """ setup file for a mission with a 737
 """
@@ -20,11 +21,8 @@ from SUAVE.Plots.Mission_Plots import *
 import matplotlib.pyplot as plt  
 import numpy as np 
 
-import copy, time
 
-from SUAVE.Core import (
-Data, Container,
-)
+from SUAVE.Core import Data
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
@@ -71,8 +69,6 @@ def main():
     
     # check the results
     check_results(results,old_results)
-    
-   
 
     return
 

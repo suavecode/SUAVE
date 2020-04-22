@@ -47,7 +47,7 @@ def vehicle_setup():
     
     span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
-    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    wing.mass_properties.center_of_gravity[0][0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
 
 
@@ -102,7 +102,7 @@ def vehicle_setup():
 
     span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
-    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    wing.mass_properties.center_of_gravity[0][0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
 
 
@@ -118,7 +118,7 @@ def vehicle_setup():
     fuselage.lengths.total        = 30.9  * Units.feet
     fuselage.width                = ((2.94+5.9)/2)   * Units.feet
     vehicle.append_component(fuselage)
-    vehicle.mass_properties.center_of_gravity = np.array([16.6,0,0]) * Units.feet
+    vehicle.mass_properties.center_of_gravity = np.array([[16.6,0,0]]) * Units.feet
 
 
 

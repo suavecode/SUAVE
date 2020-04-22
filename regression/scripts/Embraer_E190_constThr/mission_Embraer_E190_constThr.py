@@ -18,11 +18,8 @@ from SUAVE.Core import Units
 from SUAVE.Plots.Mission_Plots import *  
 import matplotlib.pyplot as plt  
 import numpy as np  
-import copy, time
 
-from SUAVE.Core import (
-Data, Container,
-)
+from SUAVE.Core import Data
 
 import sys
 

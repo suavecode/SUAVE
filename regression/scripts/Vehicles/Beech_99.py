@@ -44,7 +44,7 @@ def vehicle_setup():
     wing.ep_alpha                            = 0.0
     span_location_mac                        = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
-    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    wing.mass_properties.center_of_gravity[0][0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
    
     Mach                                  = np.array([0.152])
@@ -102,7 +102,7 @@ def vehicle_setup():
     fuselage.width                = 5.4   * Units.feet 
     vehicle.append_component(fuselage)
     
-    vehicle.mass_properties.center_of_gravity = np.array([17.2,0,0]) * Units.feet  
+    vehicle.mass_properties.center_of_gravity = np.array([[17.2,0,0]]) * Units.feet  
     fuel                                      = SUAVE.Components.Physical_Component()
     fuel.origin                               = wing.origin
     fuel.mass_properties.center_of_gravity    = wing.mass_properties.center_of_gravity
