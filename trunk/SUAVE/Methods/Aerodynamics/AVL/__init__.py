@@ -12,8 +12,7 @@ from .run_analysis             import run_analysis
 from .translate_data           import translate_conditions_to_cases, translate_results_to_conditions
 from .write_geometry           import write_geometry
 from .write_mass_file          import write_mass_file
-from .write_input_deck         import write_input_deck 
-from .write_avl_airfoil_file   import write_avl_airfoil_file
+from .write_input_deck         import write_input_deck
 from .write_run_cases          import write_run_cases
 
 from . import Data

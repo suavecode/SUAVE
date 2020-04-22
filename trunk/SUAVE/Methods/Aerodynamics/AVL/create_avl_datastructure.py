@@ -6,7 +6,7 @@
 #           Apr 2017, M. Clarke
 #           Jul 2017, T. MacDonald
 #           Aug 2019, M. Clarke
-#           Apr 2020, M. Clarke
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -20,14 +20,13 @@ from copy import deepcopy
 from SUAVE.Core import Data , Units
 
 # SUAVE-AVL Imports
-from .Data.Inputs                            import Inputs
-from .Data.Wing                              import Wing, Section, Control_Surface
-from .Data.Body                              import Body
-from .Data.Aircraft                          import Aircraft
-from .Data.Cases                             import Run_Case
-from .Data.Configuration                     import Configuration
+from .Data.Inputs   import Inputs
+from .Data.Wing     import Wing, Section, Control_Surface
+from .Data.Body     import Body
+from .Data.Aircraft import Aircraft
+from .Data.Cases    import Run_Case
+from .Data.Configuration import Configuration
 from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
-from .write_avl_airfoil_file                 import write_avl_airfoil_file
 
 ## @ingroup Methods-Aerodynamics-AVL
 def translate_avl_wing(suave_wing):
@@ -231,7 +230,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                         
                                         if segments[i_segs].Airfoil:
                                                 if segments[i_segs].Airfoil.airfoil.coordinate_file is not None:
-                                                        section.airfoil_coord_file   = write_avl_airfoil_file(segments[i_segs].Airfoil.airfoil.coordinate_file)
+                                                        section.airfoil_coord_file   = segments[i_segs].Airfoil.airfoil.coordinate_file
                                                 elif segments[i_segs].Airfoil.airfoil.naca_airfoil is not None:
                                                         section.naca_airfoil         = segments[i_segs].Airfoil.airfoil.naca_airfoil 
                                                         
@@ -251,7 +250,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                 section.origin = origin[i_segs]
                                 if segments[i_segs].Airfoil:
                                         if segments[i_segs].Airfoil.airfoil.coordinate_file is not None:
-                                                section.airfoil_coord_file   = write_avl_airfoil_file(segments[i_segs].Airfoil.airfoil.coordinate_file)
+                                                section.airfoil_coord_file   = segments[i_segs].Airfoil.airfoil.coordinate_file
                                         elif segments[i_segs].Airfoil.airfoil.naca_airfoil is not None:
                                                 section.naca_airfoil         = segments[i_segs].Airfoil.airfoil.naca_airfoil     
                                 # append section to wing
@@ -306,8 +305,8 @@ def populate_wing_sections(avl_wing,suave_wing):
                 
                 # assign wing airfoil
                 if suave_wing.Airfoil:
-                        root_section.airfoil_coord_file  =  write_avl_airfoil_file(suave_wing.Airfoil.airfoil.coordinate_file)          
-                        tip_section.airfoil_coord_file   =  write_avl_airfoil_file(suave_wing.Airfoil.airfoil.coordinate_file)    
+                        root_section.airfoil_coord_file  = suave_wing.Airfoil.airfoil.coordinate_file          
+                        tip_section.airfoil_coord_file   = suave_wing.Airfoil.airfoil.coordinate_file    
                           
                 
                 avl_wing.append_section(root_section)

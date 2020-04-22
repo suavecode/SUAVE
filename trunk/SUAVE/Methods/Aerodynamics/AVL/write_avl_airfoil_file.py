@@ -33,7 +33,7 @@ def write_avl_airfoil_file(suave_airfoil_filename):
     
 
     # unpack avl_inputs
-    avl_airfoil_filename = suave_airfoil_filename.split(".")[0] + '.dat'
+    avl_airfoil_filename =  suave_airfoil_filename.split(".")[-2].split("/")[-1] + '.dat'
     
     # purge file 
     purge_files([avl_airfoil_filename]) 
@@ -54,8 +54,11 @@ def write_avl_airfoil_file(suave_airfoil_filename):
     with open(avl_airfoil_filename,'w') as afile:
             afile.write(airfoil_name + "\n")  
             for i in range(len(airfoil_geometry_data.x_coordinates[0])):
-                case_text = '   ' + format(airfoil_geometry_data.x_coordinates[0][i], '.6f')+ "\t" + format(airfoil_geometry_data.y_coordinates[0][i], '.6f') + "\n" 
+                if airfoil_geometry_data.y_coordinates[0][i] < 0.0:
+                    case_text = '   ' + format(airfoil_geometry_data.x_coordinates[0][i], '.6f')+ "    " + format(airfoil_geometry_data.y_coordinates[0][i], '.6f') + "\n" 
+                else:
+                    case_text = '   ' + format(airfoil_geometry_data.x_coordinates[0][i], '.6f')+ "\t" + format(airfoil_geometry_data.y_coordinates[0][i], '.6f') + "\n" 
                 afile.write(case_text)
     afile.close()
-    return avl_airfoil_filename
+    return avl_airfoil_filename 
  
