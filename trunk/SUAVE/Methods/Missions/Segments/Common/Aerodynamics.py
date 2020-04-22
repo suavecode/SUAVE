@@ -10,6 +10,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+from jax.ops import index_update
 
 # ----------------------------------------------------------------------
 #  Update Altitude
@@ -186,7 +187,8 @@ def update_aerodynamics(segment):
     CD = results.drag.total
 
     CL[q<=0.0] = 0.0
-    CD[q<=0.0] = 0.0
+    #CD[q<=0.0] = 0.0
+    CD = index_update(CD, (q<=0.0).nonzero(), 0.0)
     
     # CL limit
     CL[CL>CLmax] = CLmax

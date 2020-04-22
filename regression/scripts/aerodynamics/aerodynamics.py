@@ -20,6 +20,7 @@ import jax.numpy as np
 #import numpy as np
 import pylab as plt
 
+import timeit
 import copy, time
 import random
 
@@ -250,9 +251,21 @@ def reg_values():
     return cd_c_r, cd_i_r, cd_m_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
 if __name__ == '__main__':
+    main()
+
+    print('Regular aero regression test passed!')
 
     jit_main = jax.jit(main)
+
     jit_main()
-    
-    print('Aero regression test passed!')
+
+    print('JIT aero regression test passed!')
+
+    reg_time = timeit.timeit(main, number=10)/10
+
+    jit_time = timeit.timeit(jit_main, number=10)/10
+
+    print("The average time for the ordinary function was {} seconds".format(reg_time))
+    print("The average time for the JIT compiled function was {} seconds".format(jit_time))
+
       
