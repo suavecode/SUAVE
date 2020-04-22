@@ -44,7 +44,7 @@ def main():
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
-    assert np.abs((lift_coefficient  - lift_coefficient_true)/lift_coefficient_true) < 1e-6
+    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
     
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[0]
@@ -59,15 +59,15 @@ def main():
                                                 0.        , 0.        , 0.        , 0.        , 0.        ,
                                                 0.        , 0.        , 0.        , 0.        , 0.        ])
 
-    # plot results 
-    plot_mission(results,configs.base) 
     
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
     print(diff_Cl)
     assert  max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6 
-    
+
+    # plot results 
+    plot_mission(results,configs.base)     
     return 
 
 def plot_mission(results,vehicle): 

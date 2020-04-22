@@ -162,15 +162,18 @@ def VLM(conditions,settings,geometry):
     gamma_n_w    = np.array(np.array_split(gamma,n_w,axis=1))
     gamma_n_w_sw = np.array(np.array_split(gamma,n_w*n_sw,axis=1))
     Del_Y_n_w    = np.array(np.array_split(Del_Y,n_w,axis=1))
-    Del_Y_n_w_sw = np.array(np.array_split(Del_Y,n_w*n_sw,axis=1))
+    Del_Y_n_w_sw = np.array(np.array_split(Del_Y,n_w*n_sw,axis=1)) 
     
-    # Calculate the Coefficients on each wing individually
-    L_wing          = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
-    CL_wing         = L_wing/(0.5*wing_areas)
-    machw           = np.tile(mach,len(wing_areas))
-    CL_wing[machw>1] = CL_wing[machw>1]*2*4
-    Di_wing         = np.sum(np.multiply(-w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
-    CDi_wing        = Di_wing/(0.5*wing_areas)
+    # lift coefficients on each wing   
+    machw             = np.tile(mach,len(wing_areas))     
+    L_wing            = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
+    CL_wing           = L_wing/(0.5*wing_areas)
+    CL_wing[machw>1]  = CL_wing[machw>1]*8
+    
+    # drag coefficients on each wing  
+    Di_wing           = np.sum(np.multiply(-w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
+    CDi_wing          = Di_wing/(0.5*wing_areas)
+    CDi_wing[machw>1] = CDi_wing[machw>1]*2  
     
     # Calculate each spanwise set of Cls and Cds
     cl_y = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
@@ -179,12 +182,12 @@ def VLM(conditions,settings,geometry):
     # total lift and lift coefficient
     L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
     CL = L/(0.5*Sref)           # validated form page 402-404, aerodynamics for engineers # supersonic lift off by 2^3 
-    CL[mach>1] = CL[mach>1]*2*4 # supersonic lift off by a factor of 4 
+    CL[mach>1] = CL[mach>1]*8   # supersonic lift off by a factor of 4 
     
     # total drag and drag coefficient
     D  =   -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T   
     CDi = D/(0.5*Sref)  
-    CDi[mach>1] = CDi[mach>1]*4
+    CDi[mach>1] = CDi[mach>1]*2 
     
     # pressure coefficient
     U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)

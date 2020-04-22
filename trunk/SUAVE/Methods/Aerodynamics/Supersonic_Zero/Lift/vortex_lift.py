@@ -49,8 +49,7 @@ def vortex_lift(state,settings,geometry):
     wings_lift = np.zeros_like(state.conditions.aerodynamics.lift_coefficient)
     vortex_cl  = np.zeros_like(wings_lift)
 
-    for wing in geometry.wings:
-        
+    for wing in geometry.wings: 
         wing_lift = state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag]
 
         if wing.vortex_lift is True:
