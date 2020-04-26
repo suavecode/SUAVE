@@ -158,7 +158,7 @@ def LiNiMnCo_charge(battery,numerics):
     V_oc  = V_ul - (-I_cell * R_0) 
     
     # Determine new charge throughput (the amount of charge gone through the battery)
-    Q_total  = np.atleast_2d(np.hstack((  Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
+    Q_total  =  np.atleast_2d(np.hstack((Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
     
     # If SOC is negative, voltage under load goes to zero 
     V_ul[SOC_new < 0.] = 0.     
@@ -170,7 +170,7 @@ def LiNiMnCo_charge(battery,numerics):
     battery.load_power               = V_ul*n_series*I_bat
     battery.current                  = I_bat
     battery.voltage_open_circuit     = V_oc*n_series 
-    battery.charge_throughput        = Q_total 
+    battery.cell_charge_throughput   = Q_total 
     battery.internal_resistance      = R_0
     battery.state_of_charge          = SOC_new
     battery.depth_of_discharge       = DOD_new

@@ -170,14 +170,14 @@ class Battery_Test(Propulsor):
         conditions.propulsion.battery_current               = abs( battery.current )
         conditions.propulsion.battery_draw                  = battery.inputs.power_in 
         conditions.propulsion.battery_energy                = battery.current_energy  
-        conditions.propulsion.battery_charge_throughput     = battery.charge_throughput 
+        conditions.propulsion.battery_charge_throughput     = battery.cell_charge_throughput 
         conditions.propulsion.battery_state_of_charge       = battery.state_of_charge
         conditions.propulsion.battery_voltage_open_circuit  = battery.voltage_open_circuit
         conditions.propulsion.battery_voltage_under_load    = battery.voltage_under_load  
         conditions.propulsion.battery_internal_resistance   = battery.internal_resistance
         conditions.propulsion.battery_age_in_days           = battery.age_in_days
         conditions.propulsion.battery_cell_temperature      = battery.cell_temperature
-        conditions.propulsion.battery_specfic_power         = -( battery.inputs.power_in /1000)/battery.mass_properties.mass   
+        conditions.propulsion.battery_specfic_power         = -(battery.inputs.power_in /1000)/battery.mass_properties.mass   
         
         return  
     

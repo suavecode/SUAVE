@@ -258,7 +258,7 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.battery_energy               = battery.current_energy
         conditions.propulsion.battery_voltage_open_circuit = battery.voltage_open_circuit 
         conditions.propulsion.battery_voltage_under_load   = battery.voltage_under_load  
-        conditions.propulsion.battery_charge_throughput    = battery.charge_throughput   
+        conditions.propulsion.battery_charge_throughput    = battery.cell_charge_throughput   
         conditions.propulsion.battery_state_of_charge      = battery.state_of_charge
         conditions.propulsion.battery_cell_temperature     = battery.cell_temperature
         conditions.propulsion.battery_specfic_power        = -battery_draw/battery.mass_properties.mass # Wh/kg
