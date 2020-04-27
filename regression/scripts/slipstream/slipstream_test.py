@@ -81,28 +81,14 @@ def main():
 
 def plot_mission(results,vehicle): 
     
-    # Plot Flight Conditions 
-    plot_flight_conditions(results)
-    
-    # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results)
-    
-    # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results)
-    
-    # Plot Velocities 
-    plot_aircraft_velocities(results)
-    
-    plot_electronic_conditions(results)
-    
-    #Plot surface pressure coefficient 
+    # Plot surface pressure coefficient 
     plot_surface_pressure_contours(results,vehicle)
     
-    ## Plot lift distribution 
-    #plot_lift_distribution(results,vehicle)
+    # Plot lift distribution 
+    plot_lift_distribution(results,vehicle)
     
-    ## Create Video Frames 
-    #create_video_frames(results,vehicle, save_figure = False)
+    # Create Video Frames 
+    create_video_frames(results,vehicle, save_figure = False)
     
     return
 
