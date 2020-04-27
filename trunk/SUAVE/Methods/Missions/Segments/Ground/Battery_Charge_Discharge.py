@@ -33,7 +33,7 @@ def initialize_conditions(segment):
     if segment.battery_discharge == False: 
         E_growth_factor = segment.conditions.propulsion.battery_capacity_fade_factor
         delta_energy    = segment.max_energy*E_growth_factor*segment.charging_SOC_cutoff - energy_initial
-        duration        = 10 # delta_energy*1.25/(segment.charging_current*segment.charging_voltage) 
+        duration        = delta_energy*1.25/(segment.charging_current*segment.charging_voltage) 
         
     t_nondim   = segment.state.numerics.dimensionless.control_points
     conditions = segment.state.conditions   
