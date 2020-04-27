@@ -67,7 +67,7 @@ def VLM(conditions,settings,geometry):
        settings.number_panels_spanwise         [Unitless]
        settings.number_panels_chordwise        [Unitless]
        settings.use_surrogate                  [Unitless]
-       settings.include_slipstream_effect           [Unitless]
+       settings.include_slipstream_effect      [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
        conditions.freestream.mach_number       [Unitless]
        

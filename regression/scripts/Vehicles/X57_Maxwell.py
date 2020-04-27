@@ -217,14 +217,14 @@ def vehicle_setup():
 
     prop.number_blades       = 2.0
     prop.freestream_velocity = 135.*Units['mph']    
-    prop.angular_velocity    = 1300.  * Units.rpm # 2400
+    prop.angular_velocity    = 1300.  * Units.rpm  
     prop.tip_radius          = 76./2. * Units.inches
     prop.hub_radius          = 8.     * Units.inches
     prop.design_Cl           = 0.8
     prop.design_altitude     = 12000. * Units.feet
     prop.design_altitude     = 12000. * Units.feet
     prop.design_thrust       = 1200.  
-    prop.origin              = [[2.,2.5,0.784],[2.,-2.5,0.784]]  #  prop influence               
+    prop.origin              = [[2.,2.5,0.784],[2.,-2.5,0.784]]                 
     prop.symmetry            = True
     prop                     = propeller_design(prop)    
     net.propeller            = prop    
