@@ -106,7 +106,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw , n_cw ,integrate_slipstream):
+    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw , n_cw ,include_slipstream_effect):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -138,9 +138,9 @@ class Vortex_Lattice(Aerodynamics):
         VD = compute_vortex_distribution(geometry,settings)      
         
         # Pack
-        settings.vortex_distribution   = VD
-        settings.use_surrogate         = use_surrogate
-        settings.integrate_slipstream  = integrate_slipstream
+        settings.vortex_distribution        = VD
+        settings.use_surrogate              = use_surrogate
+        settings.include_slipstream_effect  = include_slipstream_effect
         
         # Plot vortex discretization of vehicle
         if vortex_distribution_flag == True:

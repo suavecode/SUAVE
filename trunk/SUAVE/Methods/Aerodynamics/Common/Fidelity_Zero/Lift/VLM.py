@@ -67,7 +67,7 @@ def VLM(conditions,settings,geometry):
        settings.number_panels_spanwise         [Unitless]
        settings.number_panels_chordwise        [Unitless]
        settings.use_surrogate                  [Unitless]
-       settings.integrate_slipstream           [Unitless]
+       settings.include_slipstream_effect           [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
        conditions.freestream.mach_number       [Unitless]
        
@@ -85,7 +85,7 @@ def VLM(conditions,settings,geometry):
     n_sw       = settings.number_panels_spanwise    
     n_cw       = settings.number_panels_chordwise   
     sur_flag   = settings.use_surrogate
-    slipstream = settings.integrate_slipstream
+    slipstream = settings.include_slipstream_effect
     Sref       = geometry.reference_area
     
     

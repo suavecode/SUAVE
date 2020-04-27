@@ -1110,7 +1110,7 @@ def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_fi
                 
             # Set Color bar	
             cbar = fig.colorbar(CS, ax=axes)
-            cbar.ax.set_ylabel('$C_{P}$', rotation =  0)  # angle   
+            cbar.ax.set_ylabel('$C_{P}$', rotation =  0)  
             plt.axis('off')	
             plt.grid(None)            
             

@@ -39,7 +39,7 @@ def main():
      
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.3832379748507158
+    lift_coefficient_true         = 0.47277854912172756
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -48,16 +48,25 @@ def main():
     
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[0]
-    sectional_lift_coeff_true       = np.array([0.1747388 , 0.15216616, 0.01856497, 0.16516365, 0.12636817,
-                                                0.10165584, 0.07475338, 0.04745916, 0.02260351, 0.00469499,
-                                                0.17504324, 0.15314658, 0.02153014, 0.16653651, 0.12701056,
-                                                0.10203353, 0.07497168, 0.04757085, 0.02264632, 0.00470214,
-                                                0.00264088, 0.00308172, 0.00388338, 0.00494114, 0.00586441,
-                                                0.00629807, 0.00589282, 0.00442264, 0.00227427, 0.0004815 ,
-                                                0.00264482, 0.00308789, 0.00387994, 0.00491939, 0.00582377,
-                                                0.00624383, 0.00583504, 0.00437515, 0.00224798, 0.00047557,
-                                                0.        , 0.        , 0.        , 0.        , 0.        ,
-                                                0.        , 0.        , 0.        , 0.        , 0.        ])
+    sectional_lift_coeff_true       = np.array([1.30785100e-01, 1.29573061e-01, 1.25529913e-01, 1.19252449e-01,
+                                                1.11143124e-01, 1.01521133e-01, 9.06611205e-02, 7.88194883e-02,
+                                                6.62645393e-02, 5.33188318e-02, 4.04067325e-02, 2.80607103e-02,
+                                                1.68588961e-02, 7.56561908e-03, 1.51112918e-03, 1.30847294e-01,
+                                                1.29743713e-01, 1.25770313e-01, 1.19520253e-01, 1.11404695e-01,
+                                                1.01755340e-01, 9.08577590e-02, 7.89758953e-02, 6.63824787e-02,
+                                                5.34023668e-02, 4.04611083e-02, 2.80919505e-02, 1.68735644e-02,
+                                                7.57031938e-03, 1.51169375e-03, 2.28686698e-03, 2.39010336e-03,
+                                                2.48594024e-03, 2.56050765e-03, 2.59254004e-03, 2.56508092e-03,
+                                                2.46776333e-03, 2.29377774e-03, 2.04285167e-03, 1.72410497e-03,
+                                                1.35485739e-03, 9.60298290e-04, 5.77024161e-04, 2.55662292e-04,
+                                                5.08508154e-05, 2.28750242e-03, 2.39200290e-03, 2.48885107e-03,
+                                                2.56406472e-03, 2.59638239e-03, 2.56889806e-03, 2.47131117e-03,
+                                                2.29687440e-03, 2.04537787e-03, 1.72600969e-03, 1.35615751e-03,
+                                                9.61070620e-04, 5.77392626e-04, 2.55779663e-04, 5.08646276e-05,
+                                                0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                                0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                                0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                                0.00000000e+00, 0.00000000e+00, 0.00000000e+00])
 
     
     print(sectional_lift_coeff)
@@ -72,14 +81,28 @@ def main():
 
 def plot_mission(results,vehicle): 
     
-    # Plot surface pressure coefficient 
+    # Plot Flight Conditions 
+    plot_flight_conditions(results)
+    
+    # Plot Aerodynamic Forces 
+    plot_aerodynamic_forces(results)
+    
+    # Plot Aerodynamic Coefficients 
+    plot_aerodynamic_coefficients(results)
+    
+    # Plot Velocities 
+    plot_aircraft_velocities(results)
+    
+    plot_electronic_conditions(results)
+    
+    #Plot surface pressure coefficient 
     plot_surface_pressure_contours(results,vehicle)
     
-    # Plot lift distribution 
-    plot_lift_distribution(results,vehicle)
+    ## Plot lift distribution 
+    #plot_lift_distribution(results,vehicle)
     
-    # Create Video Frames 
-    create_video_frames(results,vehicle, save_figure = False)
+    ## Create Video Frames 
+    #create_video_frames(results,vehicle, save_figure = False)
     
     return
 
@@ -107,27 +130,6 @@ def full_setup():
 
     return configs, analyses
 
-# ----------------------------------------------------------------------
-#   Define the Vehicle Analyses
-# ----------------------------------------------------------------------
-def analyses_setup(configs):
-
-    configs, analyses = full_setup()
-
-    simple_sizing(configs)
-
-    configs.finalize()
-    analyses.finalize()
-
-    # weight analysis
-    weights = analyses.configs.base.weights
-    breakdown = weights.evaluate()      
-
-    # mission analysis
-    mission = analyses.missions.base
-    results = mission.evaluate()
-
-    return analyses
 # ----------------------------------------------------------------------
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
@@ -167,8 +169,8 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()     
     aerodynamics.settings.use_surrogate              = False
     aerodynamics.settings.integrate_slipstream       = True 
-    aerodynamics.settings.number_panels_spanwise     = 10
-    aerodynamics.settings.number_panels_chordwise    = 4   
+    aerodynamics.settings.number_panels_spanwise     = 15
+    aerodynamics.settings.number_panels_chordwise    = 5   
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -230,21 +232,24 @@ def mission_setup(analyses,vehicle):
     base_segment.state.numerics.number_control_points        = 2
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals
-    base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.propulsor.battery.max_voltage * ones_row(1)  
+    base_segment.state.unknowns.propeller_power_coefficient  = 0.2 * ones_row(1) 
+    bat                                                      = vehicle.propulsors.propulsor.battery 
+    base_segment.state.unknowns.battery_voltage_under_load   = bat.max_voltage * ones_row(1)  
     base_segment.state.residuals.network                     = 0. * ones_row(2) 
-
+    base_segment.max_energy                                  = bat.max_energy 
+    
     # ------------------------------------------------------------------
     #   Cruise Segment: constant Speed, constant altitude
     # ------------------------------------------------------------------ 
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise" 
     segment.analyses.extend(analyses.base) 
-    segment.altitude                  = 8012   * Units.feet
-    segment.air_speed                 = 140.91 * Units['mph'] 
+    segment.altitude                  = 12000  * Units.feet
+    segment.air_speed                 = 135.   * Units['mph'] 
     segment.distance                  =  20.   * Units.nautical_mile  
-    segment.state.unknowns.throttle   = 0.9 *  ones_row(1)   
-
+    segment.state.unknowns.throttle   = 0.85  *  ones_row(1)    
+    segment.battery_energy            = bat.max_energy   
+    
     # add to misison
     mission.append_segment(segment)    
     

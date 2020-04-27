@@ -74,7 +74,7 @@ def vehicle_setup():
     wing.twists.tip              = 1.5 * Units.degrees
 
     wing.origin                  = [2.032, 0., 0.784] 
-    wing.aerodynamic_center      = [2.59 , 0., 0.784]
+    wing.aerodynamic_center      = [0.558, 0., 0.784]
 
     wing.vertical                = False
     wing.symmetric               = True
@@ -110,8 +110,8 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
 
-    wing.origin                  = [6.248, 0.,  0.] 
-    wing.aerodynamic_center      = [6.756, 0., 0.]
+    wing.origin                  = [6.248, 0., 0 ] 
+    wing.aerodynamic_center      = [0.508, 0., 0.]
     wing.vertical                = False
     wing.symmetric               = True
     wing.high_lift               = False
@@ -214,22 +214,21 @@ def vehicle_setup():
     # Component 2 the Propeller
     # Design the Propeller
     prop = SUAVE.Components.Energy.Converters.Propeller() 
-    
+
     prop.number_blades       = 2.0
     prop.freestream_velocity = 135.*Units['mph']    
-    prop.angular_velocity    = 1400.  * Units.rpm
-    prop.tip_radius          = 2.75* Units.feet
-    prop.hub_radius          = 0.4* Units.feet
+    prop.angular_velocity    = 1300.  * Units.rpm # 2400
+    prop.tip_radius          = 76./2. * Units.inches
+    prop.hub_radius          = 8.     * Units.inches
     prop.design_Cl           = 0.8
-    prop.design_altitude     = 8000. * Units.feet
-    prop.design_altitude     = 8000. * Units.feet
-    prop.design_thrust       = 1000.   
-    prop.origin              = [[2.,2.5,0.784],[2.,-2.5,0.784]]  #  prop influence            
-    prop.rotation            = [1,-1]
+    prop.design_altitude     = 12000. * Units.feet
+    prop.design_altitude     = 12000. * Units.feet
+    prop.design_thrust       = 1200.  
+    prop.origin              = [[2.,2.5,0.784],[2.,-2.5,0.784]]  #  prop influence               
     prop.symmetry            = True
     prop                     = propeller_design(prop)    
-    net.propeller            = prop   
-        
+    net.propeller            = prop    
+    
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 500. * Units.kg  
