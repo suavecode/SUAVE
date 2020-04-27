@@ -158,8 +158,7 @@ def update_battery_age(segment):
             battery_resistance_growth_factor (capactance (energy) growth factor)   [unitless]  
             
     """
-    n_series   = segment.conditions.propulsion.battery_configuration.series 
-    n_parallel = segment.conditions.propulsion.battery_configuration.parallel
+    n_series   = segment.conditions.propulsion.battery_configuration.series  
     SOC        = segment.conditions.propulsion.battery_state_of_charge
     V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
     t          = segment.conditions.propulsion.battery_age_in_days 

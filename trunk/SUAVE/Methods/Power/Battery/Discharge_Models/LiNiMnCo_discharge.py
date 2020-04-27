@@ -168,7 +168,7 @@ def LiNiMnCo_discharge(battery,numerics):
     battery.load_power               = V_ul*n_series*I_bat
     battery.current                  = I_bat
     battery.voltage_open_circuit     = V_oc*n_series 
-    battery.cell_charge_throughput   = Q_total  
+    battery.cell_charge_throughput   = Q_total 
     battery.internal_resistance      = R_0*n_series 
     battery.state_of_charge          = SOC_new
     battery.depth_of_discharge       = DOD_new
