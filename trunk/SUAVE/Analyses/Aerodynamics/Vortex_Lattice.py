@@ -479,19 +479,7 @@ class Vortex_Lattice(Aerodynamics):
         
         mach_data_trans_CL   = np.array([mach_data_sub[-1],mach_data_sup[0],mach_data_sup[1]]) 
         mach_data_trans_CDi  = np.array([mach_data_sub[-1],mach_data_sup[0],mach_data_sup[1]]) 
-         
-        for wing in geometry.wings.keys():	        
-            CLw                    = np.zeros_like(CL_data_trans)
-            CDiw                   = np.zeros_like(CDi_data_trans)            
-            CLw[:,0]               = CL_w_data_sub[wing][:,-1]   	 
-            CLw[:,1]               = CL_w_data_sup[wing][:,0]  	
-            CLw[:,2]               = CL_w_data_sup[wing][:,1]  	
-            CDiw[:,0]              = CDi_w_data_sub[wing][:,-1]    
-            CDiw[:,1]              = CDi_w_data_sup[wing][:,0]   
-            CDiw[:,2]              = CDi_w_data_sup[wing][:,1]   
-            CL_w_data_trans[wing]  = CLw
-            CDi_w_data_trans[wing] = CDiw 
-         
+
         CL_surrogate_sub               = RectBivariateSpline(AoA_data, mach_data_sub, CL_data_sub)  
         CL_surrogate_sup               = RectBivariateSpline(AoA_data, mach_data_sup, CL_data_sup) 
         CL_surrogate_trans             = RegularGridInterpolator((AoA_data, mach_data_trans_CL), CL_data_trans, \
@@ -501,7 +489,7 @@ class Vortex_Lattice(Aerodynamics):
         CDi_surrogate_sup              = RectBivariateSpline(AoA_data, mach_data_sup, CDi_data_sup)    
         CDi_surrogate_trans            = RegularGridInterpolator((AoA_data, mach_data_trans_CDi), CDi_data_trans, \
                                                                  method = 'linear', bounds_error=False, fill_value=None)  
-        
+
         CL_w_surrogates_sub            = Data() 
         CL_w_surrogates_sup            = Data() 
         CL_w_surrogates_trans          = Data() 
@@ -509,7 +497,18 @@ class Vortex_Lattice(Aerodynamics):
         CDi_w_surrogates_sup           = Data() 
         CDi_w_surrogates_trans         = Data()
         
-        for wing in geometry.wings.keys():    
+        for wing in geometry.wings.keys():
+            CLw                    = np.zeros_like(CL_data_trans)
+            CDiw                   = np.zeros_like(CDi_data_trans)            
+            CLw[:,0]               = CL_w_data_sub[wing][:,-1]   	 
+            CLw[:,1]               = CL_w_data_sup[wing][:,0]  	
+            CLw[:,2]               = CL_w_data_sup[wing][:,1]  	
+            CDiw[:,0]              = CDi_w_data_sub[wing][:,-1]    
+            CDiw[:,1]              = CDi_w_data_sup[wing][:,0]   
+            CDiw[:,2]              = CDi_w_data_sup[wing][:,1]   
+            CL_w_data_trans[wing]  = CLw
+            CDi_w_data_trans[wing] = CDiw             
+            
             CL_w_surrogates_sub[wing]    = RectBivariateSpline(AoA_data, mach_data_sub, CL_w_data_sub[wing]) 
             CL_w_surrogates_sup[wing]    = RectBivariateSpline(AoA_data, mach_data_sup, CL_w_data_sup[wing])           
             CL_w_surrogates_trans[wing]  = RegularGridInterpolator((AoA_data, mach_data_trans_CL), CL_w_data_trans[wing], \
