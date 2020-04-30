@@ -361,18 +361,6 @@ class Vortex_Lattice(Aerodynamics):
         AoA           = training.angle_of_attack 
         Mach          = training.Mach
         data_len      = len(AoA) 
-        sub_sup_split = np.where(Mach < 1.0)[0][-1] + 1 
-        
-        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmo_data  = atmosphere.compute_values(altitude = 0.0)
-        a          = atmo_data.speed_of_sound[0,0]   
-        
-        # Setup Konditions                      
-        konditions                              = Data()
-        konditions.aerodynamics                 = Data()
-        konditions.freestream                   = Data()
-        konditions.aerodynamics.angle_of_attack = AoA 
-        
         
         # Assign placeholders        
         CL_sub    = np.zeros((data_len,data_len))
@@ -383,31 +371,55 @@ class Vortex_Lattice(Aerodynamics):
         CL_w_sup  = Data()
         CDi_w_sub = Data()
         CDi_w_sup = Data() 
-        for wing in geometry.wings.keys():
-            CL_w_sub[wing]  = np.zeros_like(CL_sub)
-            CL_w_sup[wing]  = np.zeros_like(CL_sub)
-            CDi_w_sub[wing] = np.zeros_like(CL_sub)
-            CDi_w_sup[wing] = np.zeros_like(CL_sub)
+            
+        # Setup new array shapes for vectorization
+        lenAoA = len(AoA)
+        lenM   = len(Mach)
+        AoAs   = np.atleast_2d(np.tile(AoA,lenM).T.flatten()).T
+        Machs  = np.atleast_2d(np.tile(Mach,lenAoA).flatten()).T
+        zeros  = np.zeros_like(Machs)
         
-        # Get the training data  
-        for i in range(data_len):
-            konditions.freestream.mach_number       = Mach
-            konditions.freestream.velocity          = Mach*a
-            konditions.aerodynamics.angle_of_attack = AoA[i]*np.ones_like(Mach)  
-            total_lift, total_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, pressure_coefficient = \
-                calculate_VLM(konditions,settings,geometry)
-             
-            # store training data
-            CL_sub[i,:]     = total_lift[0:sub_sup_split,0]
-            CL_sup[i,:]     = total_lift[sub_sup_split:,0]
-            CDi_sub[i,:]    = total_drag[0:sub_sup_split,0]        
-            CDi_sup[i,:]    = total_drag[sub_sup_split:,0]           
-            for wing in geometry.wings.keys():
-                CL_w_sub[wing][i,:]    = wing_lifts[wing][0:sub_sup_split,0]
-                CL_w_sup[wing][i,:]    = wing_lifts[wing][sub_sup_split:,0]
-                CDi_w_sub[wing][i,:]   = wing_drags[wing][0:sub_sup_split,0]                 
-                CDi_w_sup[wing][i,:]   = wing_drags[wing][sub_sup_split:,0]   
-                
+        # Setup Konditions                      
+        konditions                              = Data()
+        konditions.aerodynamics                 = Data()
+        konditions.freestream                   = Data()
+        konditions.aerodynamics.angle_of_attack = AoAs
+        konditions.freestream.mach_number       = Machs
+        konditions.freestream.velocity          = zeros
+        
+        total_lift, total_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, pressure_coefficient = \
+                        calculate_VLM(konditions,settings,geometry)     
+        
+        # Split subsonic from supersonic
+        sub_sup_split = np.where(Machs < 1.0)[0][-1] + 1 
+        
+        # Divide up the data to get ready to store
+        CL_sub  = total_lift[0:sub_sup_split,0]
+        CL_sup  = total_lift[sub_sup_split:,0]
+        CDi_sub = total_drag[0:sub_sup_split,0]
+        CDi_sup = total_drag[sub_sup_split:,0]
+        
+        # A little reshape to get into the right order
+        CL_sub  = np.reshape(CL_sub,(lenAoA,int(len(CL_sub)/lenAoA))).T
+        CL_sup  = np.reshape(CL_sup,(lenAoA,int(len(CL_sup)/lenAoA))).T
+        CDi_sub = np.reshape(CDi_sub ,(lenAoA,int(len(CDi_sub )/lenAoA))).T
+        CDi_sup = np.reshape(CDi_sup,(lenAoA,int(len(CDi_sup)/lenAoA))).T
+        
+        # Now do the same for each wing
+        for wing in geometry.wings.keys():
+            
+            # Slice out the sub and supersonic
+            CL_wing_sub  = wing_lifts[wing][0:sub_sup_split,0]
+            CL_wing_sup  = wing_lifts[wing][sub_sup_split:,0]
+            CDi_wing_sub = wing_drags[wing][0:sub_sup_split,0]  
+            CDi_wing_sup = wing_drags[wing][sub_sup_split:,0]  
+            
+            # Rearrange and pack
+            CL_w_sub[wing]  = np.reshape(CL_wing_sub,(lenAoA,int(len(CL_wing_sub)/lenAoA))).T
+            CL_w_sup[wing]  = np.reshape(CL_wing_sup,(lenAoA,int(len(CL_wing_sup)/lenAoA))).T
+            CDi_w_sub[wing] = np.reshape(CDi_wing_sub ,(lenAoA,int(len(CDi_wing_sub)/lenAoA))).T        
+            CDi_w_sup[wing] = np.reshape(CDi_wing_sup,(lenAoA,int(len(CDi_wing_sup)/lenAoA))).T       
+        
         # surrogate not run on sectional coefficients and pressure coefficients
         # Store training data 
         training.lift_coefficient_sub         = CL_sub
