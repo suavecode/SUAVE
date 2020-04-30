@@ -73,7 +73,7 @@ class Unknown_Throttle(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         self.state.unknowns.throttle   = ones_row(1) * 0.5
-        self.state.unknowns.body_angle = ones_row(1) * 1.0 * Units.degrees
+        self.state.unknowns.body_angle = ones_row(1) * 3.0 * Units.degrees
         self.state.residuals.forces    = ones_row(2) * 0.0
         
         # --------------------------------------------------------------

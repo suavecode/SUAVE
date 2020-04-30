@@ -36,7 +36,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,slipstre
     n_sw        - number_panels_spanwise         [Unitless]
     n_cw        - number_panels_chordwise        [Unitless]
     sur_flag    - use_surrogate flag             [Unitless]
-    slipstream  - integrate_slipstream flag      [Unitless] 
+    slipstream  - include_slipstream_effect flag [Unitless] 
     delta, phi  - flow tangency angles           [radians]
        
     Outputs:                                   
@@ -99,7 +99,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,slipstre
                                    & ((prop.origin[i][1] + r_div_r_prime_old[0,-1,:]*R0) - VD.YC > 0.0 ) &  (VD.YC - (prop.origin[i][1] - r_div_r_prime_old[0,-1,:]*R0) > 0.0) )        
     
             if len(locations[0]) > 0:
-                prop_y_discre = prop.origin[i][1] + d_old # add prop sym ****
+                prop_y_discre = prop.origin[i][1] + d_old
                 vt            = np.zeros((m,VD.n_cp))           
                 va            = np.zeros((m,VD.n_cp))
                 r_div_r_prime = np.zeros((m,VD.n_cp)) 

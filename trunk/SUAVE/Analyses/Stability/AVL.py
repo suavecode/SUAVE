@@ -131,7 +131,7 @@ class AVL(Stability):
         None
 
         Outputs:
-        self.tag = 'avl_analysis_of_{}'.format(geometry.tag)
+        self.tag = 'avl_analysis_of_{}'.format( )
 
         Properties Used:
         self.geometry.tag
@@ -265,8 +265,8 @@ class AVL(Stability):
             run_conditions.freestream.density           = atmo_data.density[0,0] 
             run_conditions.freestream.gravity           = 9.81               
             run_conditions.aerodynamics.angle_of_attack = AoA 
-            run_conditions.freestream.speed_of_sound    = atmo_data.density
-            run_conditions.aerodynamics.side_slip_angle = 0
+            run_conditions.freestream.speed_of_sound    = atmo_data.speed_of_sound[0,0] 
+            run_conditions.aerodynamics.side_slip_angle = 0.0
             run_conditions.freestream.velocity          = Mach[i] * run_conditions.freestream.speed_of_sound
             run_conditions.freestream.mach_number       = Mach[i] 
             

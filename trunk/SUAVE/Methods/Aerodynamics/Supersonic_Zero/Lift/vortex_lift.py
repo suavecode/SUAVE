@@ -49,22 +49,21 @@ def vortex_lift(state,settings,geometry):
     wings_lift = np.zeros_like(state.conditions.aerodynamics.lift_coefficient)
     vortex_cl  = np.zeros_like(wings_lift)
 
-    for wing in geometry.wings:
-        
+    for wing in geometry.wings: 
         wing_lift = state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag]
 
         if wing.vortex_lift is True:
             # compute leading edge sweek if not given
             if wing.sweeps.leading_edge == None:         
-                GAMMA     = convert_sweep(wing,old_ref_chord_fraction = 0.25 ,new_ref_chord_fraction = 0.0)
+                gamma     = convert_sweep(wing,old_ref_chord_fraction = 0.25 ,new_ref_chord_fraction = 0.0)
             else:
-                GAMMA     = wing.sweeps.leading_edge
+                gamma      = wing.sweeps.leading_edge
                 
             AR = wing.aspect_ratio
             a = AoA[Mc < 1.0]
             
             # Calculate vortex lift
-            vortex_cl[Mc < 1.0] += np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(GAMMA) - np.sin(a)/(2*np.cos(GAMMA)))
+            vortex_cl[Mc < 1.0] += np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(gamma) - np.sin(a)/(2*np.cos(gamma)))
            
             # Apply to wing lift
             wing_lift[Mc < 1.0] = vortex_cl[Mc < 1.0]
