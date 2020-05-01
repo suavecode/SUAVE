@@ -36,9 +36,7 @@ import matplotlib.pyplot as plt
 modules = [
 
     # ----------------------- Regression List --------------------------
-    'scripts/aerodynamics/aerodynamics.py',
-    #'scripts/aerodynamics_super/aerodynamics_super.py',
-    #'scripts/regression/test_mission_AS2.py', 
+    'scripts/aerodynamics/aerodynamics.py', 
     'scripts/airfoil_import/airfoil_import_test.py',    
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',

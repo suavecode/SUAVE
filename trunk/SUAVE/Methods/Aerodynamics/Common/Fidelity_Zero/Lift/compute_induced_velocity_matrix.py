@@ -43,6 +43,8 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
     inv_root_beta = np.zeros_like(mach)
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)     
     inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
+    mach[mach==1]         = 1.001
+    
     if np.any(mach==1):
         raise('Mach of 1 cannot be used in building compressibiliy corrections.')
     inv_root_beta = np.atleast_3d(inv_root_beta)

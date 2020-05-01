@@ -5,8 +5,6 @@
 # Modified: Jan 2016, E. Botero
 #           Dec 2017, M. Clarke
 #           Aug 2019, M. Clarke
-#           Apr 2020, M. Clarke
-
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -38,6 +36,7 @@ def read_results(avl_object):
     # unpack
     aircraft = avl_object.geometry
     results  = Data()
+    case_idx = 0  
     for case_name in avl_object.current_status.cases:
         case     = avl_object.current_status.cases[case_name]
         num_ctrl =  case.stability_and_control.number_control_surfaces

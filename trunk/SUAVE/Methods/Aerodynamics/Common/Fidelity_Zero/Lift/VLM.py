@@ -67,7 +67,7 @@ def VLM(conditions,settings,geometry):
        settings.number_panels_spanwise         [Unitless]
        settings.number_panels_chordwise        [Unitless]
        settings.use_surrogate                  [Unitless]
-       settings.integrate_slipstream           [Unitless]
+       settings.include_slipstream_effect      [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
        conditions.freestream.mach_number       [Unitless]
        
@@ -85,7 +85,7 @@ def VLM(conditions,settings,geometry):
     n_sw       = settings.number_panels_spanwise    
     n_cw       = settings.number_panels_chordwise   
     sur_flag   = settings.use_surrogate
-    slipstream = settings.integrate_slipstream
+    slipstream = settings.include_slipstream_effect
     Sref       = geometry.reference_area
     
     
@@ -136,11 +136,11 @@ def VLM(conditions,settings,geometry):
     # Compute vortex strength  
     n_cp  = VD.n_cp  
     gamma = np.linalg.solve(A,RHS)
-    GAMMA = np.repeat(np.atleast_3d(gamma), n_cp ,axis = 2 )
-    u = np.sum(C_mn[:,:,:,0]*MCM[:,:,:,0]*GAMMA, axis = 2) 
-    v = np.sum(C_mn[:,:,:,1]*MCM[:,:,:,1]*GAMMA, axis = 2) 
-    w = np.sum(C_mn[:,:,:,2]*MCM[:,:,:,2]*GAMMA, axis = 2) 
-    w_ind = -np.sum(B*MCM[:,:,:,2]*GAMMA, axis = 2) 
+    gamma_3d = np.repeat(np.atleast_3d(gamma), n_cp ,axis = 2 )
+    u = np.sum(C_mn[:,:,:,0]*MCM[:,:,:,0]*gamma_3d, axis = 2) 
+    v = np.sum(C_mn[:,:,:,1]*MCM[:,:,:,1]*gamma_3d, axis = 2) 
+    w = np.sum(C_mn[:,:,:,2]*MCM[:,:,:,2]*gamma_3d, axis = 2) 
+    w_ind = -np.sum(B*MCM[:,:,:,2]*gamma_3d, axis = 2) 
      
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
@@ -162,36 +162,39 @@ def VLM(conditions,settings,geometry):
     gamma_n_w    = np.array(np.array_split(gamma,n_w,axis=1))
     gamma_n_w_sw = np.array(np.array_split(gamma,n_w*n_sw,axis=1))
     Del_Y_n_w    = np.array(np.array_split(Del_Y,n_w,axis=1))
-    Del_Y_n_w_sw = np.array(np.array_split(Del_Y,n_w*n_sw,axis=1))
+    Del_Y_n_w_sw = np.array(np.array_split(Del_Y,n_w*n_sw,axis=1)) 
     
-    # Calculate the Coefficients on each wing individually
-    L_wing          = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
-    CL_wing         = L_wing/(0.5*wing_areas)
-    machw           = np.tile(mach,len(wing_areas))
-    CL_wing[machw>1] = CL_wing[machw>1]*2*4
-    Di_wing         = np.sum(np.multiply(-w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
-    CDi_wing        = Di_wing/(0.5*wing_areas)
+    # lift coefficients on each wing   
+    machw             = np.tile(mach,len(wing_areas))     
+    L_wing            = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
+    CL_wing           = L_wing/(0.5*wing_areas)
+    CL_wing[machw>1]  = CL_wing[machw>1]*8 # supersonic lift off by a factor of 8 
+    
+    # drag coefficients on each wing  
+    Di_wing           = np.sum(np.multiply(-w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
+    CDi_wing          = Di_wing/(0.5*wing_areas)
+    CDi_wing[machw>1] = CDi_wing[machw>1]*2   # supersonic drag off by a factor of 2 
     
     # Calculate each spanwise set of Cls and Cds
-    cl_y = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
-    cdi_y = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS 
+    cl_y        = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
+    cdi_y       = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS 
             
     # total lift and lift coefficient
-    L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
-    CL = L/(0.5*Sref)           # validated form page 402-404, aerodynamics for engineers # supersonic lift off by 2^3 
-    CL[mach>1] = CL[mach>1]*2*4 # supersonic lift off by a factor of 4 
+    L           = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
+    CL          = L/(0.5*Sref)           # validated form page 402-404, aerodynamics for engineers # supersonic lift off by 2^3 
+    CL[mach>1]  = CL[mach>1]*8   # supersonic lift off by a factor of 8 
     
     # total drag and drag coefficient
-    D  =   -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T   
-    CDi = D/(0.5*Sref)  
-    CDi[mach>1] = CDi[mach>1]*4
+    D           =   -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T   
+    CDi         = D/(0.5*Sref)  
+    CDi[mach>1] = CDi[mach>1]*2 # supersonic drag off by a factor of 2 
     
     # pressure coefficient
-    U_tot = np.sqrt((1+u)*(1+u) + v*v + w*w)
-    CP = 1 - (U_tot)*(U_tot)
+    U_tot       = np.sqrt((1+u)*(1+u) + v*v + w*w)
+    CP          = 1 - (U_tot)*(U_tot)
      
     # moment coefficient
-    CM  = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
+    CM          = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
     
     # delete MCM from VD data structure since it consumes memory
     delattr(VD, 'MCM')   

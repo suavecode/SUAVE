@@ -74,7 +74,7 @@ class Supersonic_Zero(Markup):
         settings.number_panels_spanwise             = None 
         settings.number_panels_chordwise            = None 
         settings.use_surrogate                      = True 
-        settings.integrate_slipstream               = False 
+        settings.include_slipstream_effect          = False 
         settings.plot_vortex_distribution           = False
         
         # this multiplier is used to determine the volume wave drag at the peak Mach number
@@ -143,14 +143,14 @@ class Supersonic_Zero(Markup):
         """            
         super(Supersonic_Zero, self).initialize()
         
-        use_surrogate            = self.settings.use_surrogate
-        integrate_slipstream     = self.settings.integrate_slipstream
-        vortex_distribution_flag = self.settings.plot_vortex_distribution 
-        n_sw                     = self.settings.number_panels_spanwise    
-        n_cw                     = self.settings.number_panels_chordwise  
+        use_surrogate             = self.settings.use_surrogate
+        include_slipstream_effect = self.settings.include_slipstream_effect
+        vortex_distribution_flag  = self.settings.plot_vortex_distribution 
+        n_sw                      = self.settings.number_panels_spanwise    
+        n_cw                      = self.settings.number_panels_chordwise  
         
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate , vortex_distribution_flag , n_sw ,  n_cw ,integrate_slipstream )     
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate , vortex_distribution_flag , n_sw ,  n_cw ,include_slipstream_effect )     
         
                 
     finalize = initialize        

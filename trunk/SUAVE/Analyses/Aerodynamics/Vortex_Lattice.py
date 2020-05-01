@@ -28,7 +28,7 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import
 
 # package imports
 import numpy as np 
-from scipy.interpolate import interp1d, interp2d, RectBivariateSpline 
+from scipy.interpolate import interp2d, RectBivariateSpline, RegularGridInterpolator
 
 # ----------------------------------------------------------------------
 #  Class
@@ -71,9 +71,9 @@ class Vortex_Lattice(Aerodynamics):
         
         # conditions table, used for surrogate model training
         self.training                                = Data()    
-        self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.]]).T * Units.deg
-        self.training.Mach_subsonic                  = np.array([[0.0, 0.1 , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9]]).T
-        self.training.Mach_supersonic                = np.array([[1.2, 1.5, 1.8 , 2.0, 2.25 , 2.5, 3.0, 3.5]]).T            
+        self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.]]).T * Units.deg 
+        self.training.Mach                           = np.array([[0.0, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9,\
+                                                                  1.3, 1.35 , 1.5 , 2.0, 2.25 , 2.5  , 3.0  , 3.5]]).T           
         self.training.lift_coefficient_sub           = None
         self.training.lift_coefficient_sup           = None
         self.training.wing_lift_coefficient_sub      = None
@@ -82,6 +82,12 @@ class Vortex_Lattice(Aerodynamics):
         self.training.drag_coefficient_sup           = None
         self.training.wing_drag_coefficient_sub      = None
         self.training.wing_drag_coefficient_sup      = None
+        
+        # blending function 
+        self.hsub_min                                = 0.85
+        self.hsub_max                                = 0.95
+        self.hsup_min                                = 1.05
+        self.hsup_max                                = 1.25 
 
         # surrogoate models
         self.surrogates                              = Data() 
@@ -100,7 +106,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw , n_cw ,integrate_slipstream):
+    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw , n_cw ,include_slipstream_effect):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -132,9 +138,9 @@ class Vortex_Lattice(Aerodynamics):
         VD = compute_vortex_distribution(geometry,settings)      
         
         # Pack
-        settings.vortex_distribution   = VD
-        settings.use_surrogate         = use_surrogate
-        settings.integrate_slipstream  = integrate_slipstream
+        settings.vortex_distribution        = VD
+        settings.use_surrogate              = use_surrogate
+        settings.include_slipstream_effect  = include_slipstream_effect
         
         # Plot vortex discretization of vehicle
         if vortex_distribution_flag == True:
@@ -186,12 +192,16 @@ class Vortex_Lattice(Aerodynamics):
         """          
         
         # unpack        
-        conditions          = state.conditions
-        settings            = self.settings
-        geometry            = self.geometry
-        surrogates          = self.surrogates
-        AoA                 = conditions.aerodynamics.angle_of_attack
-        Mach                = conditions.freestream.mach_number 
+        conditions  = state.conditions
+        settings    = self.settings
+        geometry    = self.geometry
+        surrogates  = self.surrogates
+        hsub_min    = self.hsub_min
+        hsub_max    = self.hsub_max
+        hsup_min    = self.hsup_min
+        hsup_max    = self.hsup_max
+        AoA         = conditions.aerodynamics.angle_of_attack.T[0]
+        Mach        = conditions.freestream.mach_number.T[0]
         
         # Unapck the surrogates
         CL_surrogate_sub          = surrogates.lift_coefficient_sub  
@@ -209,6 +219,8 @@ class Vortex_Lattice(Aerodynamics):
         
         # Create Result Data Structures         
         data_len                                                           = len(AoA)
+        eye                                                                = np.eye(data_len)
+        ones                                                               = np.ones(data_len)
         inviscid_lift                                                      = np.zeros([data_len,1]) 
         inviscid_drag                                                      = np.zeros([data_len,1])  
         conditions.aerodynamics.drag_breakdown.induced                     = Data()
@@ -216,46 +228,42 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.lift_breakdown                             = Data()
         conditions.aerodynamics.lift_breakdown.inviscid_wings_lift         = Data()
         conditions.aerodynamics.lift_breakdown.compressible_wings          = Data()
-        conditions.aerodynamics.drag_breakdown.compressible                = Data()
-        inviscid_wings_CLs = Data()
+        conditions.aerodynamics.drag_breakdown.compressible                = Data() 
         
         # Spline for Subsonic-to-Transonic-to-Supesonic Regimes
-        sub_trans_spline = Cubic_Spline_Blender(0.85,0.95)
-        h_sub = lambda M:sub_trans_spline.compute(M)          
-        sup_trans_spline = Cubic_Spline_Blender(1.05,1.25)
-        h_sup = lambda M:sup_trans_spline.compute(M)          
-        
-        for i in range(data_len): 
-            inviscid_lift[i] = h_sub(Mach[i])*CL_surrogate_sub(AoA[i][0],Mach[i][0])[0]    +\
-                              (h_sup(Mach[i]) - h_sub(Mach[i]))*CL_surrogate_trans(AoA[i][0],Mach[i][0])[0] + \
-                              (1- h_sup(Mach[i]))*CL_surrogate_sup(AoA[i][0],Mach[i][0])[0]
-            
-            inviscid_drag[i] = h_sub(Mach[i])*CDi_surrogate_sub(AoA[i][0],Mach[i][0])[0]   +\
-                              (h_sup(Mach[i]) - h_sub(Mach[i]))*CDi_surrogate_trans(AoA[i][0],Mach[i][0])[0] + \
-                              (1- h_sup(Mach[i]))*CDi_surrogate_sup(AoA[i][0],Mach[i][0])[0]
-          
-        conditions.aerodynamics.lift_coefficient             = inviscid_lift
-        conditions.aerodynamics.lift_breakdown.total         = inviscid_lift 
-        conditions.aerodynamics.drag_breakdown.induced.total = inviscid_drag   
+        sub_trans_spline = Cubic_Spline_Blender(hsub_min,hsub_max)
+        h_sub            = lambda M:sub_trans_spline.compute(M)          
+        sup_trans_spline = Cubic_Spline_Blender(hsup_min,hsup_max) 
+        h_sup            = lambda M:sup_trans_spline.compute(M)          
+    
+        inviscid_lift = h_sub(Mach)*CL_surrogate_sub(AoA,Mach,grid=False)    +\
+                          (h_sup(Mach) - h_sub(Mach))*CL_surrogate_trans((AoA,Mach))+ \
+                          (1- h_sup(Mach))*CL_surrogate_sup(AoA,Mach,grid=False)
+
+        inviscid_drag = h_sub(Mach)*CDi_surrogate_sub(AoA,Mach,grid=False)   +\
+                          (h_sup(Mach) - h_sub(Mach))*CDi_surrogate_trans((AoA,Mach))+ \
+                          (1- h_sup(Mach))*CDi_surrogate_sup(AoA,Mach,grid=False)
+    
+        conditions.aerodynamics.lift_coefficient             = np.atleast_2d(inviscid_lift).T
+        conditions.aerodynamics.lift_breakdown.total         = np.atleast_2d(inviscid_lift).T
+        conditions.aerodynamics.drag_breakdown.induced.total = np.atleast_2d(inviscid_drag).T
         
         for wing in geometry.wings.keys(): 
             inviscid_wing_lifts      = np.zeros([data_len,1])
             inviscid_wing_drags      = np.zeros([data_len,1])            
-            for i,_ in enumerate(AoA): 
-                inviscid_wing_lifts[i] = h_sub(Mach[i])*wing_CL_surrogates_sub[wing](AoA[i][0],Mach[i][0])[0]    + \
-                                         (h_sup(Mach[i]) - h_sub(Mach[i]))*wing_CL_surrogates_trans[wing](AoA[i][0],Mach[i][0])[0] + \
-                                         (1- h_sup(Mach[i]))*wing_CL_surrogates_sup[wing](AoA[i][0],Mach[i][0])[0]
-               
-                inviscid_wing_drags[i] = h_sub(Mach[i])*wing_CDi_surrogates_sub[wing](AoA[i][0],Mach[i][0])[0]  + \
-                                         (h_sup(Mach[i]) - h_sub(Mach[i]))*wing_CDi_surrogates_trans[wing](AoA[i][0],Mach[i][0])[0] + \
-                                         (1- h_sup(Mach[i]))*wing_CDi_surrogates_sup[wing](AoA[i][0],Mach[i][0])[0]
-              
-            inviscid_wings_CLs = inviscid_wing_lifts
-            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]          = inviscid_wing_lifts
-            conditions.aerodynamics.lift_breakdown.compressible_wings[wing]           = inviscid_wing_lifts      
-            conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag[wing]  = inviscid_wing_drags
+            inviscid_wing_lifts = h_sub(Mach)*wing_CL_surrogates_sub[wing](AoA,Mach,grid=False)    + \
+                                    (h_sup(Mach) - h_sub(Mach))*wing_CL_surrogates_trans[wing]((AoA,Mach))+ \
+                                    (1- h_sup(Mach))*wing_CL_surrogates_sup[wing](AoA,Mach,grid=False)
+            
+            inviscid_wing_drags = h_sub(Mach)*wing_CDi_surrogates_sub[wing](AoA,Mach,grid=False)  + \
+                                    (h_sup(Mach) - h_sub(Mach))*wing_CDi_surrogates_trans[wing]((AoA,Mach))+ \
+                                    (1- h_sup(Mach))*wing_CDi_surrogates_sup[wing](AoA,Mach,grid=False)
+             
+            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]          = np.atleast_2d(inviscid_wing_lifts).T
+            conditions.aerodynamics.lift_breakdown.compressible_wings[wing]           = np.atleast_2d(inviscid_wing_lifts).T
+            conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag[wing]  = np.atleast_2d(inviscid_wing_drags).T
          
-        return inviscid_wings_CLs
+        return     
     
     def evaluate_no_surrogate(self,state,settings,geometry):
         """Evaluates lift and drag directly using VLM
@@ -306,7 +314,7 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.lift_coefficient                             = inviscid_lift  
         conditions.aerodynamics.lift_breakdown.total                         = inviscid_lift        
         conditions.aerodynamics.lift_breakdown.compressible_wings            = wing_lifts
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lifts          = wing_lifts
+        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift           = wing_lifts
         conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift = wing_lift_distribution
         
         # Drag        
@@ -318,7 +326,7 @@ class Vortex_Lattice(Aerodynamics):
         # Pressure
         conditions.aerodynamics.pressure_coefficient                         = pressure_coefficient
         
-        return inviscid_lift
+        return  
     
     
     def sample_training(self):
@@ -347,26 +355,15 @@ class Vortex_Lattice(Aerodynamics):
         self.training.angle_of_attack [radians]
         """
         # unpack
-        geometry   = self.geometry
-        settings   = self.settings
-        training   = self.training
-        AoA        = training.angle_of_attack
-        Mach_sub   = training.Mach_subsonic
-        Mach_sup   = training.Mach_supersonic
-        
-        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmo_data  = atmosphere.compute_values(altitude = 0.0)
-        a          = atmo_data.speed_of_sound[0,0]   
-        
-        # Setup Konditions                      
-        konditions                              = Data()
-        konditions.aerodynamics                 = Data()
-        konditions.freestream                   = Data()
-        konditions.aerodynamics.angle_of_attack = AoA 
-        
+        geometry      = self.geometry
+        settings      = self.settings
+        training      = self.training
+        AoA           = training.angle_of_attack 
+        Mach          = training.Mach
+        data_len      = len(AoA) 
         
         # Assign placeholders        
-        CL_sub    = np.zeros((len(AoA),len(Mach_sub)))
+        CL_sub    = np.zeros((data_len,data_len))
         CL_sup    = np.zeros_like(CL_sub)  
         CDi_sub   = np.zeros_like(CL_sub)
         CDi_sup   = np.zeros_like(CL_sub)
@@ -374,38 +371,55 @@ class Vortex_Lattice(Aerodynamics):
         CL_w_sup  = Data()
         CDi_w_sub = Data()
         CDi_w_sup = Data() 
+            
+        # Setup new array shapes for vectorization
+        lenAoA = len(AoA)
+        lenM   = len(Mach)
+        AoAs   = np.atleast_2d(np.tile(AoA,lenM).T.flatten()).T
+        Machs  = np.atleast_2d(np.tile(Mach,lenAoA).flatten()).T
+        zeros  = np.zeros_like(Machs)
+        
+        # Setup Konditions                      
+        konditions                              = Data()
+        konditions.aerodynamics                 = Data()
+        konditions.freestream                   = Data()
+        konditions.aerodynamics.angle_of_attack = AoAs
+        konditions.freestream.mach_number       = Machs
+        konditions.freestream.velocity          = zeros
+        
+        total_lift, total_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, pressure_coefficient = \
+                        calculate_VLM(konditions,settings,geometry)     
+        
+        # Split subsonic from supersonic
+        sub_sup_split = np.where(Machs < 1.0)[0][-1] + 1 
+        
+        # Divide up the data to get ready to store
+        CL_sub  = total_lift[0:sub_sup_split,0]
+        CL_sup  = total_lift[sub_sup_split:,0]
+        CDi_sub = total_drag[0:sub_sup_split,0]
+        CDi_sup = total_drag[sub_sup_split:,0]
+        
+        # A little reshape to get into the right order
+        CL_sub  = np.reshape(CL_sub,(lenAoA,int(len(CL_sub)/lenAoA))).T
+        CL_sup  = np.reshape(CL_sup,(lenAoA,int(len(CL_sup)/lenAoA))).T
+        CDi_sub = np.reshape(CDi_sub ,(lenAoA,int(len(CDi_sub )/lenAoA))).T
+        CDi_sup = np.reshape(CDi_sup,(lenAoA,int(len(CDi_sup)/lenAoA))).T
+        
+        # Now do the same for each wing
         for wing in geometry.wings.keys():
-            CL_w_sub[wing]  = np.zeros_like(CL_sub)
-            CL_w_sup[wing]  = np.zeros_like(CL_sub)
-            CDi_w_sub[wing] = np.zeros_like(CL_sub)
-            CDi_w_sup[wing] = np.zeros_like(CL_sub)
-                
-        # Get the training data 
-        count = 0
-        for mach_sub, mach_sup in zip(Mach_sub, Mach_sup):
-            konditions.freestream.mach_number = mach_sub*np.ones_like(AoA) 
-            konditions.freestream.velocity    = mach_sub*a* np.ones_like(AoA) 
-            total_lift_sub, total_drag_sub, wing_lifts_sub, wing_drags_sub , wing_lift_distribution_sub , wing_drag_distribution_sub , pressure_coefficient_sub = \
-                calculate_VLM(konditions,settings,geometry)
             
-            konditions.freestream.mach_number = mach_sup*np.ones_like(AoA)
-            konditions.freestream.velocity    = mach_sup*a*np.ones_like(AoA)  
-            total_lift_sup, total_drag_sup, wing_lifts_sup, wing_drags_sup , wing_lift_distribution_sup , wing_drag_distribution_sup , pressure_coefficient_sup = \
-                calculate_VLM(konditions,settings,geometry)
+            # Slice out the sub and supersonic
+            CL_wing_sub  = wing_lifts[wing][0:sub_sup_split,0]
+            CL_wing_sup  = wing_lifts[wing][sub_sup_split:,0]
+            CDi_wing_sub = wing_drags[wing][0:sub_sup_split,0]  
+            CDi_wing_sup = wing_drags[wing][sub_sup_split:,0]  
             
-            # store training data
-            CL_sub[:,count]   = total_lift_sub[:,0]
-            CL_sup[:,count]   = total_lift_sup[:,0]
-            CDi_sub[:,count]  = total_drag_sub[:,0]                
-            CDi_sup[:,count]  = total_drag_sup[:,0]           
-            for wing in geometry.wings.keys():
-                CL_w_sub[wing][:,count]    = wing_lifts_sub[wing][:,0]
-                CL_w_sup[wing][:,count]    = wing_lifts_sup[wing][:,0]
-                CDi_w_sub[wing][:,count]   = wing_drags_sub[wing][:,0]                 
-                CDi_w_sup[wing][:,count]   = wing_drags_sup[wing][:,0]                
-            
-            count += 1 
-            
+            # Rearrange and pack
+            CL_w_sub[wing]  = np.reshape(CL_wing_sub,(lenAoA,int(len(CL_wing_sub)/lenAoA))).T
+            CL_w_sup[wing]  = np.reshape(CL_wing_sup,(lenAoA,int(len(CL_wing_sup)/lenAoA))).T
+            CDi_w_sub[wing] = np.reshape(CDi_wing_sub ,(lenAoA,int(len(CDi_wing_sub)/lenAoA))).T        
+            CDi_w_sup[wing] = np.reshape(CDi_wing_sup,(lenAoA,int(len(CDi_wing_sup)/lenAoA))).T       
+        
         # surrogate not run on sectional coefficients and pressure coefficients
         # Store training data 
         training.lift_coefficient_sub         = CL_sub
@@ -450,9 +464,11 @@ class Vortex_Lattice(Aerodynamics):
         surrogates     = self.surrogates
         training       = self.training
         geometry       = self.geometry
+        Mach           = training.Mach
         AoA_data       = training.angle_of_attack[:,0]
-        mach_data_sub  = training.Mach_subsonic[:,0] 
-        mach_data_sup  = training.Mach_supersonic[:,0]
+        sub_sup_split  = np.where(Mach < 1.0)[0][-1] + 1 
+        mach_data_sub  = training.Mach[0:sub_sup_split,0]
+        mach_data_sup  = training.Mach[sub_sup_split:,0]
         CL_data_sub    = training.lift_coefficient_sub   
         CL_data_sup    = training.lift_coefficient_sup      
         CDi_data_sub   = training.drag_coefficient_sub         
@@ -464,7 +480,7 @@ class Vortex_Lattice(Aerodynamics):
          
         # transonic regime   	                             
         CL_data_trans        = np.zeros((len(mach_data_sub),3))	      
-        CDi_data_trans       = np.zeros((len(mach_data_sub),2))	 	      
+        CDi_data_trans       = np.zeros((len(mach_data_sub),3))	 	      
         CL_w_data_trans      = Data()	                     
         CDi_w_data_trans     = Data()    
         CL_data_trans[:,0]   = CL_data_sub[:,-1]    	     
@@ -473,27 +489,19 @@ class Vortex_Lattice(Aerodynamics):
         CDi_data_trans[:,0]  = CDi_data_sub[:,-1]	     
         CDi_data_trans[:,1]  = CDi_data_sup[:,0] 
         
-        mach_data_trans_CL       = np.array([mach_data_sub[-1],mach_data_sup[0],mach_data_sup[1]]) 
-        mach_data_trans_CDi      = np.array([mach_data_sub[-1],mach_data_sup[0]]) 
-         
-        for wing in geometry.wings.keys():	        
-            CLw                    = np.zeros_like(CL_data_trans)
-            CDiw                   = np.zeros_like(CDi_data_trans)            
-            CLw[:,0]               = CL_w_data_sub[wing][:,-1]   	 
-            CLw[:,1]               = CL_w_data_sup[wing][:,0]  	
-            CLw[:,2]               = CL_w_data_sup[wing][:,1]  	
-            CDiw[:,0]              = CDi_w_data_sub[wing][:,-1]    
-            CDiw[:,1]              = CDi_w_data_sup[wing][:,0]   
-            CL_w_data_trans[wing]  = CLw
-            CDi_w_data_trans[wing] = CDiw 
-         
+        mach_data_trans_CL   = np.array([mach_data_sub[-1],mach_data_sup[0],mach_data_sup[1]]) 
+        mach_data_trans_CDi  = np.array([mach_data_sub[-1],mach_data_sup[0],mach_data_sup[1]]) 
+
         CL_surrogate_sub               = RectBivariateSpline(AoA_data, mach_data_sub, CL_data_sub)  
         CL_surrogate_sup               = RectBivariateSpline(AoA_data, mach_data_sup, CL_data_sup) 
-        CL_surrogate_trans             = interp2d(AoA_data, mach_data_trans_CL, CL_data_trans.T,kind = 'linear')  
+        CL_surrogate_trans             = RegularGridInterpolator((AoA_data, mach_data_trans_CL), CL_data_trans, \
+                                                                 method = 'linear', bounds_error=False, fill_value=None)  
+        
         CDi_surrogate_sub              = RectBivariateSpline(AoA_data, mach_data_sub, CDi_data_sub)  
         CDi_surrogate_sup              = RectBivariateSpline(AoA_data, mach_data_sup, CDi_data_sup)    
-        CDi_surrogate_trans            = interp2d(AoA_data, mach_data_trans_CDi, CDi_data_trans.T, kind = 'linear')  
-        
+        CDi_surrogate_trans            = RegularGridInterpolator((AoA_data, mach_data_trans_CDi), CDi_data_trans, \
+                                                                 method = 'linear', bounds_error=False, fill_value=None)  
+
         CL_w_surrogates_sub            = Data() 
         CL_w_surrogates_sup            = Data() 
         CL_w_surrogates_trans          = Data() 
@@ -501,13 +509,26 @@ class Vortex_Lattice(Aerodynamics):
         CDi_w_surrogates_sup           = Data() 
         CDi_w_surrogates_trans         = Data()
         
-        for wing in geometry.wings.keys():    
+        for wing in geometry.wings.keys():
+            CLw                    = np.zeros_like(CL_data_trans)
+            CDiw                   = np.zeros_like(CDi_data_trans)            
+            CLw[:,0]               = CL_w_data_sub[wing][:,-1]   	 
+            CLw[:,1]               = CL_w_data_sup[wing][:,0]  	
+            CLw[:,2]               = CL_w_data_sup[wing][:,1]  	
+            CDiw[:,0]              = CDi_w_data_sub[wing][:,-1]    
+            CDiw[:,1]              = CDi_w_data_sup[wing][:,0]   
+            CDiw[:,2]              = CDi_w_data_sup[wing][:,1]   
+            CL_w_data_trans[wing]  = CLw
+            CDi_w_data_trans[wing] = CDiw             
+            
             CL_w_surrogates_sub[wing]    = RectBivariateSpline(AoA_data, mach_data_sub, CL_w_data_sub[wing]) 
-            CL_w_surrogates_sup[wing]    = RectBivariateSpline(AoA_data, mach_data_sub, CL_w_data_sup[wing])   
-            CL_w_surrogates_trans[wing]  = interp2d(AoA_data, mach_data_trans_CL, CL_w_data_trans[wing].T,kind = 'linear') 
+            CL_w_surrogates_sup[wing]    = RectBivariateSpline(AoA_data, mach_data_sup, CL_w_data_sup[wing])           
+            CL_w_surrogates_trans[wing]  = RegularGridInterpolator((AoA_data, mach_data_trans_CL), CL_w_data_trans[wing], \
+                                                                             method = 'linear', bounds_error=False, fill_value=None)     
             CDi_w_surrogates_sub[wing]   = RectBivariateSpline(AoA_data, mach_data_sub, CDi_w_data_sub[wing])            
-            CDi_w_surrogates_sup[wing]   = RectBivariateSpline(AoA_data, mach_data_sub, CDi_w_data_sup[wing])  
-            CDi_w_surrogates_trans[wing] = interp2d(AoA_data, mach_data_trans_CDi, CDi_w_data_trans[wing].T,kind = 'linear')           
+            CDi_w_surrogates_sup[wing]   = RectBivariateSpline(AoA_data, mach_data_sup, CDi_w_data_sup[wing])  
+            CDi_w_surrogates_trans[wing] = RegularGridInterpolator((AoA_data, mach_data_trans_CL), CDi_w_data_trans[wing], \
+                                                                             method = 'linear', bounds_error=False, fill_value=None)           
     
         # Pack the outputs
         surrogates.lift_coefficient_sub        = CL_surrogate_sub  
