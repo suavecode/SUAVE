@@ -7,8 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data , Units 
-import numpy as np
-from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
+import numpy as np 
 from scipy.integrate import  cumtrapz 
 
 def LiNCA_discharge (battery,numerics): 

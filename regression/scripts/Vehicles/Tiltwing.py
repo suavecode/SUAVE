@@ -10,11 +10,9 @@ from SUAVE.Core import Units, Data
 import copy
 from SUAVE.Components.Energy.Networks.Vectored_Thrust import Vectored_Thrust
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , compute_optimal_motor_parameters
+from SUAVE.Methods.Propulsion.electric_motor_sizing import  compute_optimal_motor_parameters
 from SUAVE.Methods.Propulsion import propeller_design 
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff 
 from SUAVE.Methods.Weights.Buildups.Electric_Vectored_Thrust.empty import empty
-from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 
 import numpy as np
 import pylab as plt

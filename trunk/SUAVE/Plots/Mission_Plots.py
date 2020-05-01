@@ -403,8 +403,11 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
     """	  
     
     axis_font = {'size':'14'} 
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 16)
+    fig = plt.figure(save_filename + "_1")
+    fig.set_size_inches(12, 14)
+    
+    fig2 = plt.figure(save_filename + "_2")
+    fig2.set_size_inches(12, 14)    
     
     for i in range(len(results.segments)):     
         time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
@@ -413,22 +416,18 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load [:,0] 
         volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]  
         charge         = results.segments[i].conditions.propulsion.battery_charge_throughput[:,0]  
+        bat_temp       = results.segments[i].conditions.propulsion.battery_cell_temperature[:,0] 
         current        = results.segments[i].conditions.propulsion.battery_current[:,0]      
         SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]
         battery_amp_hr = (energy/ Units.Wh )/volts  
         C_rating       = current/battery_amp_hr
         
-        axes = fig.add_subplot(2,3,1)
-        axes.plot(time, -power, line_color)
-        axes.set_ylabel('Battery Power (Watts)',axis_font)
+        axes = fig.add_subplot(2,2,1)
+        axes.plot(time, -power/1000, line_color)
+        axes.set_ylabel('Battery Power (kilo-Watts)',axis_font)
         set_axes(axes)       
     
-        axes = fig.add_subplot(2,3,2)
-        axes.plot(time, energy/ Units.Wh, line_color)
-        axes.set_ylabel('Battery Energy (W-hr)',axis_font)
-        set_axes(axes)  
-    
-        axes = fig.add_subplot(2,3,3)
+        axes = fig.add_subplot(2,2,2)
         axes.plot(time, volts, 'bo-',label='Under Load')
         axes.plot(time,volts_oc, 'ks--',label='Open Circuit') 
         axes.set_ylabel('Battery Voltage (Volts)',axis_font)  
@@ -436,27 +435,44 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         if i == 0:
             axes.legend(loc='upper right')  
         
-        axes = fig.add_subplot(2,3,4)
+        axes = fig.add_subplot(2,2,3)
         axes.plot(time, C_rating, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('C-Rating (C)',axis_font)  
         set_axes(axes)
         
-        axes = fig.add_subplot(2,3,5)
+        axes = fig.add_subplot(2,2,4)
         axes.plot(time, current, line_color)
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Current (A)',axis_font)  
-        set_axes(axes)
+        set_axes(axes) 
+    
+        axes2 = fig2.add_subplot(2,2,1)
+        axes2.plot(time, energy/ Units.Wh/1000, line_color)
+        axes2.set_ylabel('Battery Energy (kW-hr)',axis_font)
+        set_axes(axes2)  
         
-        axes = fig.add_subplot(2,3,6)
-        axes.plot(time, SOC, line_color)
-        axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('State of Charge',axis_font)  
-        set_axes(axes)        
+        axes2 = fig2.add_subplot(2,2,2)
+        axes2.plot(time, SOC, line_color)
+        axes2.set_xlabel('Time (mins)',axis_font)
+        axes2.set_ylabel('State of Charge',axis_font)  
+        set_axes(axes2)        
+         
+        axes2 = fig2.add_subplot(2,2,3)
+        axes2.plot(time, charge, line_color)
+        axes2.set_xlabel('Time (mins)',axis_font)
+        axes2.set_ylabel('Charge Throughput (Ah)',axis_font)  
+        set_axes(axes2)  
         
- 
+        axes2 = fig2.add_subplot(2,2,4)
+        axes2.plot(time, bat_temp, line_color)
+        axes2.set_xlabel('Time (mins)',axis_font)
+        axes2.set_ylabel('Battery Tempertature ($\degree$ C)',axis_font)  
+        set_axes(axes2)     
+        
     if save_figure:
-        plt.savefig(save_filename + file_type)       
+        plt.savefig(save_filename + "_1" + file_type)   
+        plt.savefig(save_filename + "_2" + file_type) 
         
     return
 
@@ -524,7 +540,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         set_axes(axes)   
         
         axes = fig.add_subplot(2,2,4)
-        axes.plot( time , x, 'bo-', time , y, 'go-' , time , z, 'ro-')
+        axes.plot( time , x, 'bo-')      
         axes.set_ylabel('Range (m)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         set_axes(axes)         

@@ -226,7 +226,12 @@ class Battery_Propeller(Propulsor):
             battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
             battery.inputs.power_in = -(volts *esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
             battery.inputs.voltage  = volts
-            battery.energy_discharge(numerics)          
+            battery.energy_discharge(numerics)      
+            
+            conditions.propulsion.propeller_power_coefficient  = Cp
+            conditions.propulsion.propeller_efficiency         = etap
+            conditions.propulsion.motor_efficiency             = np.zeros_like(volts)
+            
 
         # --------------------------------------------------------------------------------
         # Run Charge Model 
@@ -240,8 +245,8 @@ class Battery_Propeller(Propulsor):
             F = np.zeros_like(volts) 
             battery.energy_charge(numerics)        
             conditions.propulsion.propeller_power_coefficient  = np.zeros_like(volts)
-            conditions.propulsion.etap  = np.zeros_like(volts)
-            conditions.propulsion.etam  = np.zeros_like(volts)
+            conditions.propulsion.propeller_efficiency         = np.zeros_like(volts)
+            conditions.propulsion.motor_efficiency             = np.zeros_like(volts)
  
  
         # --------------------------------------------------------------------------------

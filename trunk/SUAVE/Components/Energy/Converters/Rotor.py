@@ -487,39 +487,38 @@ class Rotor(Energy_Component):
           thrust_angle               [radians]
         """
            
-        #Unpack    
-        B         = self.number_blades
-        R         = self.tip_radius
-        Rh        = self.hub_radius        
-        beta_in   = self.twist_distribution
-        c         = self.chord_distribution
-        chi       = self.radius_distribution
-        Vh        = self.induced_hover_velocity 
-        omega     = self.inputs.omega
-        a_geo     = self.airfoil_geometry
-        a_pol     = self.airfoil_polars        
-        a_loc     = self.airfoil_polar_stations          
-        rho       = conditions.freestream.density[:,0,None]
-        mu        = conditions.freestream.dynamic_viscosity[:,0,None]
-        Vv        = conditions.frames.inertial.velocity_vector
-        a         = conditions.freestream.speed_of_sound[:,0,None]
-        T         = conditions.freestream.temperature[:,0,None]
-        theta     = self.thrust_angle
-        tc        = self.thickness_to_chord 
-        beta_c    = conditions.propulsion.pitch_command
-        sigma     = self.blade_solidity     
-        ducted    = self.ducted 
+        #Unpack                  
+        B      = self.number_blades
+        R      = self.tip_radius
+        Rh     = self.hub_radius
+        beta_in= self.twist_distribution
+        beta_c = conditions.propulsion.pitch_command
+        c      = self.chord_distribution
+        chi    = self.radius_distribution
+        omega  = self.inputs.omega 
+        a_geo  = self.airfoil_geometry
+        a_pol  = self.airfoil_polars        
+        a_loc  = self.airfoil_polar_stations             
+        rho    = conditions.freestream.density[:,0,None]
+        mu     = conditions.freestream.dynamic_viscosity[:,0,None]
+        Vv     = conditions.frames.inertial.velocity_vector
+        Vh     = self.induced_hover_velocity 
+        a      = conditions.freestream.speed_of_sound[:,0,None]
+        T      = conditions.freestream.temperature[:,0,None]
+        theta  = self.thrust_angle
+        tc     = self.thickness_to_chord
+        sigma  = self.blade_solidity     
         
         beta      = beta_in + beta_c 
         BB        = B*B
         BBB       = BB*B
-        disk_area = np.pi*(R**2)     
+        disk_area = np.pi*(R**2)
         kappa     = self.induced_power_factor 
-            
+        
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
-        V_body = orientation_product(T_inertial2body,Vv)
+        V_body          = orientation_product(T_inertial2body,Vv)
         
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
@@ -527,33 +526,45 @@ class Rotor(Energy_Component):
         V_body          = orientation_product(T_inertial2body,Vv)
         body2thrust     = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
-        V_thrust        = orientation_product(T_body2thrust,V_body) 
+        V_thrust        = orientation_product(T_body2thrust,V_body)
         
         # Now just use the aligned velocity
-        V     = V_thrust[:,0,None] 
-        V_inf = V_thrust   
-        ua    = np.zeros_like(V)
-        ut    = np.zeros_like(V)
+        V = V_thrust[:,0,None]
         
-        if Vh != None:     
-            for i in range(len(V)): 
+        ua = np.zeros_like(V)
+        power_ratio = np.zeros_like(V)
+        if Vh != None:   
+            for i in range(len(V)):
+                V_inf = V_thrust[i] 
                 V_Vh =  V_thrust[i][0]/Vh
-                if Vv[i,:].all()  == True :
+            
+                if Vv[i,:].all()  == 0 :
                     ua[i] = Vh
                 elif Vv[i][0]  == 0 and  Vv[i][2] != 0: # vertical / axial flight
                     if V_Vh > 0: # climbing 
-                        ua[i] = Vh*(-(-V_inf[i][0]/(2*Vh)) + np.sqrt((-V_inf[i][0]/(2*Vh))**2 + 1))
+                        ua[i] =Vh*(-.5*V_Vh+np.sqrt((.5*V_Vh)**2+1)) #Vh*(-(-V_inf[0]/(2*Vh)) + np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                        
                     elif -2 <= V_Vh and V_Vh <= 0:  # slow descent                 
-                        ua[i] = Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718*(V_Vh)**2 - 0.655*(V_Vh)**4 ) 
+                        ua[i] = Vh*(1.15-V_Vh)#Vh*(1.15 -1.125*(V_Vh) - 1.372*(V_Vh)**2 - 1.718*(V_Vh)**2 - 0.655*(V_Vh)**4 ) 
                     else: # windmilling 
                         print("rotor is in the windmill break state!")
-                        ua[i] = Vh*(-(-V_inf[i][0]/(2*Vh)) - np.sqrt((-V_inf[i][0]/(2*Vh))**2 + 1))
+                        ua[i] = Vh*(-(-V_inf[0]/(2*Vh)) - np.sqrt((-V_inf[0]/(2*Vh))**2 + 1))
+                
+                
                 else: # forward flight conditions                 
-                    func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[i][2])**2 + (V_inf[i][0] + vi)**2)))
-                    vi_initial_guess = V_inf[i][0]
+                    func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[2])**2 + (V_inf[0] + vi)**2)))
+                    vi_initial_guess = V_inf[0]
                     ua[i]    = fsolve(func,vi_initial_guess)
-            lambda_i      = ua/(omega*R)
- 
+           
+                power_ratio[i] = ua[i]/Vh+V_Vh 
+        else: 
+            ua = 0.0 
+        
+        ut = 0.0
+        
+        nu    = mu/rho
+        tol   = 1e-5 # Convergence tolerance 
+        
         #Things that don't change with iteration
         N       = len(c) # Number of stations     
         
@@ -571,35 +582,33 @@ class Rotor(Energy_Component):
         if self.radius_distribution is None:
             chi0    = Rh/R   # Where the rotor blade actually starts
             chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
-            chi     = chi[0:N]
+            chi     = chi[0:N] 
         
-        nu         = mu/rho                         
-        lamda      = V/(omega*R)              # Speed ratio
-        r          = chi*R                    # Radial coordinate
-        pi         = np.pi
-        pi2        = pi*pi
-        x          = r*np.multiply(omega,1/V) # Nondimensional distance
-        n          = omega/(2.*pi)            # Cycles per second
-        J          = V/(2.*R*n)    
-        blade_area = sp.integrate.cumtrapz(B*c, r-r[0])
-        sigma      = blade_area[-1]/(pi*r[-1]**2)          
-        omegar     = np.outer(omega,r)
-        Ua         = np.outer((V + ua),np.ones_like(r))
-        Ut         = omegar - ut
-        U          = np.sqrt(Ua*Ua + Ut*Ut)
+        lamda       = V/(omega*R)              # Speed ratio
+        r           = chi*R                    # Radial coordinate
+        pi          = np.pi
+        pi2         = pi*pi
+        x           = r*np.multiply(omega,1/V) # Nondimensional distance
+        n           = omega/(2.*pi)            # Cycles per second
+        J           = V/(2.*R*n)     
+        blade_area  = sp.integrate.cumtrapz(B*c, r-r[0])
+        sigma       = blade_area[-1]/(pi*r[-1]**2)
+        omegar      = np.outer(omega,r)
+        Ua          = np.outer((V + ua),np.ones_like(r))
+        Ut          = omegar - ut
+        U           = np.sqrt(Ua*Ua + Ut*Ut)
         
         #Things that will change with iteration
         size = (len(a),N)
-        Cl   = np.zeros((1,N))  
+        Cl = np.zeros((1,N)) 
         
         #Setup a Newton iteration
-        psi    = np.ones(size)*0.5
+        psi    = np.ones(size)
         psiold = np.zeros(size)
         diff   = 1.
         
-        ii    = 0
-        broke = False 
-        tol   = 1e-6    # Convergence tolerance         
+        ii = 0
+        broke = False        
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -638,13 +647,13 @@ class Rotor(Energy_Component):
             # By 90 deg, it's totally stalled.
             Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
             Cl[alpha>=pi/2] = 0.
-            
+                
             # Scale for Mach, this is Karmen_Tsien
             Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-            
+        
             # If the blade segments are supersonic, don't scale
             Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.] 
-            
+        
             Rsquiggly = Gamma - 0.5*W*c*Cl
             
             #An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
@@ -679,7 +688,6 @@ class Rotor(Energy_Component):
             
             # If its really not going to converge
             if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
-                broke = True
                 break
                 
             ii+=1
@@ -687,13 +695,13 @@ class Rotor(Energy_Component):
             if ii>2000:
                 broke = True
                 break
-            
-        # There is also RE scaling
+        
+        #There is also RE scaling
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         Cdval[alpha>=pi/2] = 2.
         
-        # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
+        #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf = 1. + 1.78*(Ma*Ma)
         Tp_Tinf = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
         Tp      = (Tp_Tinf)*T
@@ -708,10 +716,10 @@ class Rotor(Energy_Component):
         D        = 2*R 
         tip_speed = omega*R
         
-        # Leishman's thrust coefficient for rotor
-        Ctl        = thrust/(rho*disk_area*( tip_speed*tip_speed))  # Eqn 2.36 Principles of Helicopter Aerodynamics 
-        Ctl[Ctl<0] = 0.        # prevent things from breaking
-        
+        #Leishman's thrust coefficient for rotor
+        Ctl        = thrust/(rho*disk_area*( tip_speed*tip_speed))   
+        Ctl[Ctl<0] = 0. # prevent things from breaking
+         
         # motor thrust coefficient
         Ct       = thrust/(rho*(n*n)*(D*D*D*D)) # used for motor model
         Ct[Ct<0] = 0.  
@@ -727,7 +735,7 @@ class Rotor(Energy_Component):
             else:   
                 power[i]    = torque[i]*omega[i]   
                 torque[i]   = power[i]/omega[i]  
-            Cp[i] = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))  
+            Cp[i] = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))   
         
         # torque coefficient 
         Cq = torque/(rho*(n*n)*(D*D*D*D)*R) 
@@ -736,11 +744,10 @@ class Rotor(Energy_Component):
         power[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0 
         torque[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0 
         thrust[omega<0.0] = - thrust[omega<0.0] 
-
-        etap     = V*thrust/power     
         
-        conditions.propulsion.etap = etap        
-        
+        etap     = V*thrust/power  
+        conditions.propulsion.etap = etap
+         
         # store data
         results_conditions                   = Data     
         outputs                              = results_conditions(
@@ -775,6 +782,5 @@ class Rotor(Energy_Component):
             power_coefficient                = Cp, 
             mid_chord_aligment               = self.mid_chord_aligment     
         ) 
-        
-        return thrust, torque, power, Cp, outputs , etap
- 
+    
+        return thrust, torque, power, Cp, outputs  , etap   

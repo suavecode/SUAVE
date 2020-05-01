@@ -96,7 +96,7 @@ class Motor(Energy_Component):
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
-        io    = self.no_load_current + exp_i*(1-etaG)
+        io    = self.no_load_current + exp_i*(1-etaG)  
         G     = self.gear_ratio
         Kv    = self.speed_constant/G
         R     = self.propeller_radius
