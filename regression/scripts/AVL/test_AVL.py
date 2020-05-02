@@ -1,7 +1,8 @@
 # test_AVL.py
 # 
 # Created:  May 2017, M. Clarke
-#
+# Modified: Apr 2020, M. Clarke
+
 """ setup file for a mission with a 737 using AVL
 """
 
