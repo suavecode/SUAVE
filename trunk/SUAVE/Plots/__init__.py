@@ -14,6 +14,10 @@ from .Mission_Plots  import plot_eMotor_Prop_efficiencies
 from .Mission_Plots  import plot_disc_power_loading
 from .Mission_Plots  import plot_solar_flux
 from .Mission_Plots  import plot_lift_cruise_network  
+from .Mission_Plots  import plot_propeller_conditions 
+from .Mission_Plots  import plot_surface_pressure_contours
+from .Mission_Plots  import create_video_frames
 
 from .Geometry_Plots import plot_airfoil
 from .Geometry_Plots import plot_propeller_geometry
+from .Geometry_Plots import plot_vehicle_vlm_panelization

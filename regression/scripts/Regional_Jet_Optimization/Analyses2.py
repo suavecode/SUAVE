@@ -58,6 +58,8 @@ def base(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics.settings.number_panels_spanwise   = 5
+    aerodynamics.settings.number_panels_chordwise  = 1    
     aerodynamics.geometry = vehicle
 
     aerodynamics.settings.drag_coefficient_increment = 0.0000

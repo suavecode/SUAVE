@@ -319,7 +319,7 @@ def mission_setup(analyses):
     
     segment.altitude_end = 34000. * Units.ft
     segment.mach_start   = 0.95
-    segment.mach_end     = 1.0
+    segment.mach_end     = 1.1
     segment.climb_rate   = 2000.  * Units['ft/min']
     
     # add to mission
@@ -335,7 +335,7 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.climb )
     
     segment.altitude_end = 40000. * Units.ft
-    segment.mach_start   = 1.0
+    segment.mach_start   = 1.1
     segment.mach_end     = 1.7
     segment.climb_rate   = 1750.  * Units['ft/min']
     
@@ -402,7 +402,7 @@ def mission_setup(analyses):
     segment.tag = "decel_1"
     
     segment.analyses.extend( analyses.cruise )
-    segment.acceleration      = -1.  * Units['m/s/s']
+    segment.acceleration      = -.5  * Units['m/s/s']
     segment.air_speed_start   = 2.02*573. * Units.kts
     segment.air_speed_end     = 1.5*573.  * Units.kts
     

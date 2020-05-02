@@ -2,6 +2,7 @@
 # 
 # Created:  Aug 2014, Emilio Botero, 
 #           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports
@@ -51,8 +52,7 @@ def main():
     analyses.finalize()    
     
     # weight analysis
-    weights = analyses.configs.base.weights
-    breakdown = weights.evaluate()          
+    weights = analyses.configs.base.weights    
     
     # mission analysis
     mission = analyses.missions.base
@@ -67,22 +67,26 @@ def main():
     plot_mission(old_results,'k-') 
     
     # Check Results 
-    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[3,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.rpm[3,0] 
-    current = results.segments.cruise1.conditions.propulsion.current[3,0] 
-    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[3,0]  
+    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
+    rpm     = results.segments.cruise1.conditions.propulsion.rpm[1,0] 
+    current = results.segments.cruise1.conditions.propulsion.current[1,0] 
+    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 106.17898847736741
-    truth_i   = 131.4126725724721
-    truth_rpm = 160.76095006185793
-    truth_bat = 319157.3538416773
+    truth_F   = 106.17937888428949  
+    truth_rpm = 160.76100043739908 
+    truth_i   = 131.4126494489281  
+    truth_bat = 88521341.18491648
+    
+    print('battery energy')
+    print(energy)
+    print('\n')
     
     error = Data()
-    error.Thrust = np.max(np.abs(F-truth_F))
-    error.RPM = np.max(np.abs(rpm-truth_rpm))
+    error.Thrust   = np.max(np.abs(F-truth_F))
+    error.RPM      = np.max(np.abs(rpm-truth_rpm))
     error.Current  = np.max(np.abs(current-truth_i))
-    error.Battery = np.max(np.abs(energy-truth_bat))
+    error.Battery  = np.max(np.abs(energy-truth_bat))
     
     print(error)
     
@@ -134,7 +138,8 @@ def base_analysis(vehicle): # --------------------------------------------------
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
+    aerodynamics.settings.plot_vortex_distribution   = True 
+    aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
     
@@ -196,7 +201,7 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.cruise)
     
     # segment attributes     
-    segment.state.numerics.number_control_points = 4
+    segment.state.numerics.number_control_points = 16
     segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2020", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12

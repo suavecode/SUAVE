@@ -94,7 +94,7 @@ def vehicle_setup():
                                           
     # Wing Segments                       
     root_airfoil                          = SUAVE.Components.Wings.Airfoils.Airfoil()
-    root_airfoil.coordinate_file          = 'B737a.txt'   
+    root_airfoil.coordinate_file          = '../Vehicles/B737a.txt'   
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Root'
     segment.percent_span_location         = 0.0
@@ -106,7 +106,7 @@ def vehicle_setup():
     wing.append_segment(segment)    
     
     yehudi_airfoil                        = SUAVE.Components.Wings.Airfoils.Airfoil()
-    yehudi_airfoil.coordinate_file        = 'B737b.txt'   
+    yehudi_airfoil.coordinate_file        = '../Vehicles/B737b.txt'   
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Yehudi'
     segment.percent_span_location         = 0.324
@@ -118,7 +118,7 @@ def vehicle_setup():
     wing.append_segment(segment)
 
     mid_airfoil                           = SUAVE.Components.Wings.Airfoils.Airfoil()
-    mid_airfoil.coordinate_file           = 'B737c.txt' 
+    mid_airfoil.coordinate_file           = '../Vehicles/B737c.txt' 
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Section_2'
     segment.percent_span_location         = 0.963
@@ -130,7 +130,7 @@ def vehicle_setup():
     wing.append_segment(segment)
     
     tip_airfoil                           =  SUAVE.Components.Wings.Airfoils.Airfoil()
-    tip_airfoil.coordinate_file           = 'B737c.txt' 
+    tip_airfoil.coordinate_file           = '../Vehicles/B737d.txt' 
     segment                               = SUAVE.Components.Wings.Segment() 
     segment.tag                           = 'Tip'
     segment.percent_span_location         = 1.
@@ -142,22 +142,22 @@ def vehicle_setup():
     wing.append_segment(segment)     
        
     # control surfaces -------------------------------------------
+    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
+    slat.tag                   = 'slat' 
+    slat.span_fraction_start   = 0.2
+    slat.span_fraction_end     = 0.963     
+    slat.deflection            = 0.0 * Units.degrees
+    slat.chord_fraction        = 0.075 
+    wing.append_control_surface(slat)  
+    
     flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
     flap.tag                   = 'flap' 
-    flap.span_fraction_start   = 0.10 
-    flap.span_fraction_end     = 0.75   
+    flap.span_fraction_start   = 0.2
+    flap.span_fraction_end     = 0.7    
     flap.deflection            = 0.0 * Units.degrees
     flap.configuration_type    = 'double_slotted'
     flap.chord_fraction        = 0.30   
     wing.append_control_surface(flap)   
-        
-    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
-    slat.tag                   = 'slat' 
-    slat.span_fraction_start   = 0.324 
-    slat.span_fraction_end     = 0.963     
-    slat.deflection            = 0.0 * Units.degrees
-    slat.chord_fraction        = 0.1 
-    wing.append_control_surface(slat)  
         
     aileron                       = SUAVE.Components.Wings.Control_Surfaces.Aileron() 
     aileron.tag                   = 'aileron' 
