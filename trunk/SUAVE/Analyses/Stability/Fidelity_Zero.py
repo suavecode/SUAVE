@@ -4,7 +4,7 @@
 # Created:  Andrew, July 2014
 # Modified: M. Vegh, November 2015         
 # Modified: Feb 2016, Andrew Wendorff
-
+#           Mar 2020, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -89,7 +89,7 @@ class Fidelity_Zero(Stability):
         self.geometry
         """                         
         # unpack
-        geometry         = self.geometry #really a vehicle object
+        geometry         = self.geometry      # really a vehicle object
         configuration    = self.configuration 
 
         configuration.mass_properties = geometry.mass_properties
@@ -108,7 +108,7 @@ class Fidelity_Zero(Stability):
         None
 
         Source:
-        N/A
+        N/4
 
         Inputs:
         conditions - DataDict() of aerodynamic conditions
@@ -122,9 +122,8 @@ class Fidelity_Zero(Stability):
         """         
 
         # unpack
-        configuration   = self.configuration
-        geometry        = self.geometry 
-
+        configuration = self.configuration
+        geometry      = self.geometry 
         q             = conditions.freestream.dynamic_pressure
         Sref          = geometry.reference_area    
         mach          = conditions.freestream.mach_number
@@ -132,6 +131,7 @@ class Fidelity_Zero(Stability):
         density       = conditions.freestream.density
         Span          = geometry.wings['main_wing'].spans.projected
         mac           = geometry.wings['main_wing'].chords.mean_aerodynamic
+        cg_x          = geometry.mass_properties.center_of_gravity[0]  
         aero          = conditions.aerodynamics
 
         # set up data structures
@@ -159,7 +159,10 @@ class Fidelity_Zero(Stability):
 
         # calculate the static margin
         stability.static.static_margin = -stability.static.Cm_alpha/conditions.lift_curve_slope
-
+        
+        # neutral point 
+        stability.static.neutral_point = cg_x + mac*stability.static.static_margin
+        
         # Dynamic Stability
         if np.count_nonzero(configuration.mass_properties.moments_of_inertia.tensor) > 0:    
             # Dynamic Stability Approximation Methods - valid for non-zero I tensor
@@ -236,8 +239,4 @@ class Fidelity_Zero(Stability):
                 stability.dynamic.phugoidFreqHz                 = longitudinal.phugoid_natural_frequency
                 stability.dynamic.phugoidDamp                   = longitudinal.phugoid_damping_ratio
                                                                         
-        # pack results
-        results = Data()
-        results = stability 
-        
-        return results
+        return stability 

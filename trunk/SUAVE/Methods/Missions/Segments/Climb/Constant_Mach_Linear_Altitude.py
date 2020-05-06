@@ -2,8 +2,7 @@
 # Constant_Mach_Linear_Altitude.py
 
 # Created:  Jul 2014, SUAVE Team
-# Modified: Jun 2017, E. Botero
-#           Mar 2020, M. Clarke
+# Modified: Jun 2017, E. Botero 
 
 # ----------------------------------------------------------------------
 #  Imports

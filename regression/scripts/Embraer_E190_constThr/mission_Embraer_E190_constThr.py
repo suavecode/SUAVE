@@ -15,10 +15,9 @@
 
 import SUAVE
 from SUAVE.Core import Units
-
-import numpy as np
-import pylab as plt
-
+from SUAVE.Plots.Mission_Plots import *  
+import matplotlib.pyplot as plt  
+import numpy as np  
 import copy, time
 
 from SUAVE.Core import (
@@ -294,6 +293,12 @@ def mission_setup(analyses):
     segment.air_speed    = 390.0  * Units.knots
     segment.throttle     = 1.0
 
+<<<<<<< HEAD
+=======
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg   
+    
+>>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
     # add to mission
     mission.append_segment(segment)
 
@@ -311,13 +316,7 @@ def mission_setup(analyses):
     segment.atmosphere = atmosphere
     segment.planet     = planet
 
-    segment.air_speed  = 450. * Units.knots #230.  * Units['m/s']
-    ## 35kft:
-    # 415. => M = 0.72
-    # 450. => M = 0.78
-    # 461. => M = 0.80
-    ## 37kft:
-    # 447. => M = 0.78
+    segment.air_speed  = 450. * Units.knots #230.  * Units['m/s'] 
     segment.distance   = 2100. * Units.nmi
 
     # add to mission
@@ -361,7 +360,7 @@ def mission_setup(analyses):
 
     segment.altitude_end = 3.657 * Units.km
     segment.air_speed    = 365.0 * Units.knots
-    segment.descent_rate = 2300. * Units['ft/min']
+    segment.descent_rate = 2000. * Units['ft/min']
 
     # append to mission
     mission.append_segment(segment)
@@ -401,6 +400,7 @@ def mission_setup(analyses):
 
 def plot_mission(results,line_style='bo-'):
 
+<<<<<<< HEAD
     # ------------------------------------------------------------------
     #   Throttle
     # ------------------------------------------------------------------
@@ -592,6 +592,17 @@ def plot_mission(results,line_style='bo-'):
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
     axes.grid(True)
+=======
+    plot_altitude_sfc_weight(results, line_style) 
+    
+    plot_flight_conditions(results, line_style) 
+    
+    plot_aerodynamic_coefficients(results, line_style)  
+    
+    plot_aircraft_velocities(results, line_style)
+    
+    plot_drag_components(results, line_style)
+>>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 
     return
 
@@ -655,4 +666,4 @@ def save_results(results):
 
 if __name__ == '__main__':
     main()
-    #plt.show()
+    plt.show()

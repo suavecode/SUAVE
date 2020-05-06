@@ -2,7 +2,8 @@
 #print_compress_drag.py
 
 # Created: SUAVE team
-# Updated: Carlos Ilario, Feb 2016
+# Modified: Carlos Ilario, Feb 2016
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -5,7 +5,11 @@
 #           Jul 2017, SUAVE Team
 #           Jan 2018, SUAVE Team
 #           May 2019, T. MacDonald
+<<<<<<< HEAD
 #           Mar 2020, M. Clarke
+=======
+#           Mar 2020, M. Clarke 
+>>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -36,9 +40,7 @@ import matplotlib.pyplot as plt
 modules = [
 
     # ----------------------- Regression List --------------------------
-    'scripts/aerodynamics/aerodynamics.py',
-    #'scripts/aerodynamics_super/aerodynamics_super.py',
-    #'scripts/regression/test_mission_AS2.py', 
+    'scripts/aerodynamics/aerodynamics.py', 
     'scripts/airfoil_import/airfoil_import_test.py',    
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
@@ -67,12 +69,13 @@ modules = [
     'scripts/mission_range_and_weight_sizing/landing_field_length.py', 
     'scripts/mission_range_and_weight_sizing/take_off_field_length.py',
     'scripts/mission_range_and_weight_sizing/take_off_weight_from_tofl.py', 
+    'scripts/motor/motor_test.py',     
     'scripts/multifidelity/optimize_mf.py',
     'scripts/noise_optimization/Noise_Test.py', 
     'scripts/optimization_packages/optimization_packages.py',    
-    'scripts/payload_range/payload_range.py',
+    'scripts/payload_range/payload_range.py', 
+    'scripts/plots/plot_test.py',    
     'scripts/propeller/propeller_test.py',
-    'scripts/motor/motor_test.py', 
     'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/ramjet_network/ramjet_network.py',
     'scripts/Regional_Jet_Optimization/Optimize2.py',
@@ -81,6 +84,7 @@ modules = [
     'scripts/rocket_network/Rocketdyne_J2.py',   
     'scripts/segments/segment_test.py',     
     'scripts/sizing_loop/sizing_loop.py',
+    'scripts/slipstream/slipstream_test.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
     'scripts/solar_radiation/solar_radiation.py',
@@ -205,3 +209,4 @@ def test_module(module_path):
 
 if __name__ == '__main__':
     main()
+    

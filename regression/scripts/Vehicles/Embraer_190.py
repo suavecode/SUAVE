@@ -67,7 +67,7 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 23.0 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.28
-    wing.dihedral                = 5.00    
+    wing.dihedral                = 5.00 * Units.degrees   
     wing.origin                  = [13,0,0] 
     wing.vertical                = False
     wing.symmetric               = True       
@@ -88,7 +88,7 @@ def vehicle_setup():
     slat.span_fraction_start   = 0.324 
     slat.span_fraction_end     = 0.963     
     slat.deflection            = 1.0 * Units.deg 
-    slat.chord_fraction        = 0.1  	 
+    slat.chord_fraction        = 0.1   
     wing.append_control_surface(slat) 
     
     wing                         = wing_planform(wing)
@@ -111,7 +111,7 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 34.5 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.11
-    wing.dihedral                = 8.00  
+    wing.dihedral                = 8.00 * Units.degrees 
     wing.origin                  = [32,0,0] 
     wing.vertical                = False
     wing.symmetric               = True       
@@ -136,7 +136,7 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 35. * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.31
-    wing.dihedral                = 0.00
+    wing.dihedral                = 0.00 * Units.degrees
     wing.origin                  = [32,0,0] 
     wing.vertical                = True
     wing.symmetric               = False       

@@ -209,9 +209,9 @@ class Vectored_Thrust(Propulsor):
         # Compute force vector       
         F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
         
-        F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1)/Units.lbs)  # lb   
-        conditions.propulsion.disc_loading                    = (F_mag.T)/(num_engines*np.pi*(R/Units.feet)**2) # lb/ft^2       
-        conditions.propulsion.power_loading                   = (F_mag.T)/(battery_draw/Units.hp)               # lb/hp 
+        F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1))  
+        conditions.propulsion.disc_loading                    = (F_mag.T)/(num_engines*np.pi*(R)**2) # N/m^2  
+        conditions.propulsion.power_loading                   = (F_mag.T)/(battery_draw)       # N/W         
         
         mdot = np.zeros_like(F_vec)
 

@@ -4,6 +4,10 @@
 # Modified: Jun 2016, T. MacDonald
 #           May 2019, T. MacDonald 
 #           Mar 2020, M. Clarke
+<<<<<<< HEAD
+=======
+#           Apr 2020, M. Clarke
+>>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 
 """ setup file for a mission with a 737
 """
@@ -15,9 +19,9 @@
 
 import SUAVE
 from SUAVE.Core import Units
-
-import numpy as np
-import pylab as plt
+from SUAVE.Plots.Mission_Plots import *
+import matplotlib.pyplot as plt  
+import numpy as np 
 
 import copy, time
 
@@ -54,9 +58,7 @@ def main():
     simple_sizing(configs, analyses)
 
     configs.finalize()
-    analyses.finalize()
-
-  
+    analyses.finalize() 
  
     # mission analysis
     mission = analyses.missions.base
@@ -70,6 +72,10 @@ def main():
     plot_mission(results)
     plot_mission(old_results,'k-')
     plt.show(block=True)
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
     # check the results
     check_results(results,old_results)
     
@@ -147,7 +153,8 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
+    aerodynamics.settings.plot_vortex_distribution   = True 
+    aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
@@ -182,6 +189,7 @@ def base_analysis(vehicle):
 # ----------------------------------------------------------------------
 
 def plot_mission(results,line_style='bo-'):
+<<<<<<< HEAD
 
     axis_font = {'fontname':'Arial', 'size':'14'}    
 
@@ -333,6 +341,29 @@ def plot_mission(results,line_style='bo-'):
 
         #plt.savefig("B737_mission.pdf")
         #plt.savefig("B737_mission.png")
+=======
+    
+    # Plot Flight Conditions 
+    plot_flight_conditions(results, line_style)
+    
+    # Plot Aerodynamic Forces 
+    plot_aerodynamic_forces(results, line_style)
+    
+    # Plot Aerodynamic Coefficients 
+    plot_aerodynamic_coefficients(results, line_style)
+    
+    # Plot Static Stability Coefficients 
+    plot_stability_coefficients(results, line_style)    
+    
+    # Drag Components
+    plot_drag_components(results, line_style)
+    
+    # Plot Altitude, sfc, vehicle weight 
+    plot_altitude_sfc_weight(results, line_style)
+    
+    # Plot Velocities 
+    plot_aircraft_velocities(results, line_style)  
+>>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 
     return
 
@@ -691,4 +722,4 @@ def save_results(results):
 
 if __name__ == '__main__': 
     main()    
-    #plt.show()
+    plt.show()

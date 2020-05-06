@@ -5,6 +5,7 @@
 # Modified: Jan 2016, E. Botero
 #           Apr 2017, M. Clarke
 #           Aug 2019, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -104,9 +105,9 @@ def write_run_cases(avl_object,trim_aircraft):
             index = case.index
             name  = case.tag
             CL    = case.conditions.aerodynamics.flight_CL
-            AoA   = case.conditions.aerodynamics.angle_of_attack
+            AoA   = round(case.conditions.aerodynamics.angle_of_attack,4)
             CDp   = 0.
-            beta  = case.conditions.aerodynamics.side_slip_angle
+            beta  = round(case.conditions.aerodynamics.side_slip_angle,4)
             mach  = round(case.conditions.freestream.mach,4)
             vel   = round(case.conditions.freestream.velocity,4)
             rho   = round(case.conditions.freestream.density,4)
