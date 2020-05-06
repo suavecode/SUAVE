@@ -1,7 +1,7 @@
 ## @ingroup Methods-Aerodynamics-AVL
 # write_avl_airfoil_file.py
 # 
-# Created:  Mar 2020, M. Clarke 
+# Created:  Apr 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
