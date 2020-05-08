@@ -11,13 +11,14 @@
 #   Imports
 # ----------------------------------------------------------------------
 
+import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
 import SUAVE
 from SUAVE.Core.DataOrdered import DataOrdered
 import sys, os, traceback, time
-import matplotlib.pyplot as plt
+
 
 # ----------------------------------------------------------------------
 #   How This Works
