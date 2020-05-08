@@ -33,7 +33,12 @@ def  import_airfoil_geometry(airfoil_geometry_files):
     airfoil_data.
         thickness_to_chord 
         x_coordinates 
-        y_coordinates  
+        y_coordinates
+        x_upper_surface
+        x_lower_surface
+        y_upper_surface
+        y_lower_surface
+        camber_coordinates  
 
     Properties Used:
     N/A
