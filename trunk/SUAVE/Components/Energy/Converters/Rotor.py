@@ -8,24 +8,17 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
+from SUAVE.Components.Energy.Energy_Component import Energy_Component
+from SUAVE.Core import Data
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
+     import compute_airfoil_polars
+from SUAVE.Methods.Geometry.Three_Dimensional \
+     import orientation_product, orientation_transpose
 
 # package imports
 import numpy as np
 import scipy as sp
-from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Core import Data, Units
-import scipy.optimize as opt
 from scipy.optimize import fsolve
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars import compute_airfoil_polars
-from SUAVE.Methods.Geometry.Three_Dimensional \
-     import angles_to_dcms, orientation_product, orientation_transpose
-
-from warnings import warn
-
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 
 
 # ----------------------------------------------------------------------
@@ -157,7 +150,6 @@ class Rotor(Energy_Component):
         tc     = self.thickness_to_chord  
         sigma  = self.blade_solidity   
         BB     = B*B
-        BBB    = BB*B
          
         try:
             pitch_command = conditions.propulsion.pitch_command
@@ -231,7 +223,6 @@ class Rotor(Energy_Component):
         omega = np.abs(omega)        
         r_dim = chi*R                        # Radial coordinate 
         pi    = np.pi
-        pi2   = pi*pi   
         A     = pi*(R**2)
         x     = r_dim*np.multiply(omega,1/V) # Nondimensional distance
         n     = omega/(2.*pi)                # Cycles per second
@@ -246,13 +237,11 @@ class Rotor(Energy_Component):
         # compute lambda and mu 
         lambda_tot   = (np.atleast_2d(V_inf[:,0]).T + ua)/(omega*R)       # inflow advance ratio (page 30 Leishman)
         mu_prop      = (np.atleast_2d(V_inf[:,2]).T) /(omega*R)           # rotor advance ratio  (page 30 Leishman)
-        alpha_disc   = np.arctan(np.atleast_2d(V_inf[:,0]).T/V_inf[:,2])
         lambda_c     = (np.atleast_2d(V_inf[:,0]).T)/(omega*R)            # normal velocity ratio (page 30 Leishman)
         lambda_i     = ua/(omega*R)                                       # induced inflow ratio  (page 30 Leishman)
         
         # wake skew angle 
         X            = np.arctan(mu_prop/lambda_tot)
-        kx           = np.tan(X/2)
         
         # blade flap rate and sweep(cone) angle 
         beta_blade_dot = 0  # currently no flaping 
@@ -269,8 +258,7 @@ class Rotor(Energy_Component):
         
         # Momentum theory approximation of inflow for BET if the advance ratio is large
         mu_lambda = lambda_c/abs(mu_prop)   
-        #if any(mu_lambda[:,0] < 10.0):  
-        if conditions.test_BET == True:
+        if any(mu_lambda[:,0] < 10.0):  
             '''Blade element theory (BET) assumes that each blade section acts as a two-dimensional
             airfoil for which the influence of the rotor wake consists entirely of an induced 
             velocity at the section. Two-dimensional airfoil characteristics can then be used
@@ -315,8 +303,8 @@ class Rotor(Energy_Component):
             # axial, tangential and radial components of local blade flow [multiplied by omega*R to dimensionalize] 
             omega_R_2d  = np.tile(np.atleast_2d(omega*R),(1,N))
             omega_R_2d  = np.repeat(omega_R_2d[:, np.newaxis,  :], N, axis=1)  
-            vt_2d       = omega_R_2d * (r_2d  + mu_2d*np.sin(psi_2d))                                    # velocity tangential to the disk plane, positive toward the trailing edge eqn 6.34 pg 165           
-            vr_2d       = omega_R_2d * (mu_2d*np.cos(psi_2d))                                        # radial velocity , positive outward   eqn 6.35 pg 165                 
+            vt_2d       = omega_R_2d * (r_2d  + mu_2d*np.sin(psi_2d))                                        # velocity tangential to the disk plane, positive toward the trailing edge eqn 6.34 pg 165           
+            vr_2d       = omega_R_2d * (mu_2d*np.cos(psi_2d))                                                # radial velocity , positive outward   eqn 6.35 pg 165                 
             va_2d       = omega_R_2d * (lambda_2d + r_2d *beta_blade_dot + beta_blade*mu_2d*np.cos(psi_2d))  # velocity perpendicular to the disk plane, positive downward  eqn 6.36 pg 166  
                    
             # local total velocity 
@@ -335,36 +323,39 @@ class Rotor(Energy_Component):
             Re         = (U_2d*chord_2d)/nu_2d 
             Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
             Re_ref     = 9.*10**6      
-            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1   #THIS IS INCORRECT
-            
-            # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl 
-            # Compute blade CL distribution from the airfoil data 
-            if  a_pol != None and a_loc != None: 
-                for k in range(N):
-                    Cl[0,k] = np.interp(alpha[0,k],AoA_sweep,airfoil_cl[a_loc[k]])
+            Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1   #THIS IS INCORRECT            
+     
+            # Compute blade Cl and Cd distribution from the airfoil data if provided else use thin airfoil theory 
+            if  a_pol != None and a_loc != None:  
+                Cl    = np.zeros((ctrl_pts,N,N))              
+                Cdval = np.zeros((ctrl_pts,N,N))                 
+                for ii in range(ctrl_pts):
+                    for jj in range(N):                 
+                        Cl[ii,:,jj]    = np.interp(alpha[ii,:,jj],AoA_sweep,airfoil_cl[a_loc[jj]])
+                        Cdval[ii,:,jj] = np.interp(alpha[ii,:,jj],AoA_sweep,airfoil_cd[a_loc[jj]])    
             else:
                 # If not airfoil polar provided, use 2*pi as lift curve slope
                 Cl = 2.*pi*alpha
-             
+    
                 # By 90 deg, it's totally stalled.
                 Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]  
                 Cl[alpha>=pi/2] = 0.
-                 
+                
+                #There is also RE scaling
+                #This is an atrocious fit of DAE51 data at RE=50k for Cd
+                Cdval              = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+                Cdval[alpha>=pi/2] = 2.    
+                
             # Scale for Mach, this is Karmen_Tsien 
             a_2d  = np.tile(np.atleast_2d(a),(1,N))
             a_2d  = np.repeat(a_2d[:, np.newaxis,  :], N, axis=1)  
-            
+    
             Ma = (U_2d)/a_2d  # local mach number       
             Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-            
+    
             # If the blade segments are supersonic, don't scale
-            Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]     
-            
-            #There is also RE scaling
-            #This is an atrocious fit of DAE51 data at RE=50k for Cd
-            Cdval              = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-            Cdval[alpha>=pi/2] = 2.
-            
+            Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]    
+    
             #More Cd scaling from Mach from AA241ab notes for turbulent skin friction 
             T_2d    = np.tile(np.atleast_2d(T),(1,N))
             T_2d    = np.repeat(T_2d[:, np.newaxis,  :], N, axis=1)     
@@ -449,32 +440,40 @@ class Rotor(Energy_Component):
                 Re         = (U*local_chord )/nu 
                 Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
                 Re_ref     = 9.*10**6      
-                Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
-        
-                # Ok, from the airfoil data, given Re, Ma, alpha we need to find Cl
-                Cl = 2.*pi*alpha
-        
-                # By 90 deg, it's totally stalled.
-                Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]  
-                Cl[alpha>=pi/2] = 0.
-        
+                Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1 
+
+                # Compute blade Cl and Cd distribution from the airfoil data if provided else use thin airfoil theory   
+                if  a_pol != None and a_loc != None: 
+                    Cl    = np.zeros((ctrl_pts,N))              
+                    Cdval = np.zeros((ctrl_pts,N)) 
+                    for jj in range(N):                 
+                        Cl[:,jj]    = np.interp(alpha[:,jj],AoA_sweep,airfoil_cl[a_loc[jj]])
+                        Cdval[:,jj] = np.interp(alpha[:,jj],AoA_sweep,airfoil_cd[a_loc[jj]])    
+                else:
+                    # If not airfoil polar provided, use 2*pi as lift curve slope
+                    Cl = 2.*pi*alpha
+            
+                    # By 90 deg, it's totally stalled.
+                    Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]  
+                    Cl[alpha>=pi/2] = 0.
+            
+                    #There is also RE scaling
+                    #This is an atrocious fit of DAE51 data at RE=50k for Cd
+                    Cdval              = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+                    Cdval[alpha>=pi/2] = 2.  
+    
                 # Scale for Mach, this is Karmen_Tsien
                 Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-        
+    
                 # If the blade segments are supersonic, don't scale
-                Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]     
-        
-                #There is also RE scaling
-                #This is an atrocious fit of DAE51 data at RE=50k for Cd
-                Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-                Cdval[alpha>=pi/2] = 2.
-        
+                Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]      
+    
                 #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
                 Tw_Tinf = 1. + 1.78*(Ma*Ma)
                 Tp_Tinf = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
                 Tp      = (Tp_Tinf)*T
                 Rp_Rinf = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4)
-        
+    
                 Cd = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval 	
         
                 # force coefficient 	
