@@ -176,7 +176,7 @@ def import_tests():
         raise ImportError('scipy is required for this package')
     
     try:
-        import matplotlib
+        import matplotlib.pyplot
     except ImportError:
         raise ImportError('matplotlib is required for this package')
 

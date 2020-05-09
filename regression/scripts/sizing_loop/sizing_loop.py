@@ -16,8 +16,8 @@ from SUAVE.Core import Units, Data
 
 import numpy as np
 import copy, time
+import matplotlib.pyplot as plt
 import matplotlib
-import pylab as plt
 from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
