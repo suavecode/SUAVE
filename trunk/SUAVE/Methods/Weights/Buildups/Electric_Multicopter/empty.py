@@ -21,7 +21,7 @@ import numpy as np
 #-------------------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Buildups-Electric_Multicopter
-def empty(config,
+def empty(config,settings,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
           disk_area_factor              = 1.15,

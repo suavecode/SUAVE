@@ -37,7 +37,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff           = 2450. * Units.lb 
     vehicle.mass_properties.operating_empty   = 2250. * Units.lb               # Approximate
     vehicle.mass_properties.max_takeoff       = 2450. * Units.lb               # Approximate
-    vehicle.mass_properties.center_of_gravity = [2.0144,   0.  ,  0. ] # Approximate
+    vehicle.mass_properties.center_of_gravity = [[2.0144,   0.  ,  0. ]] # Approximate
 
     # basic parameters                          
     vehicle.reference_area         = 10.76  
@@ -66,7 +66,7 @@ def vehicle_setup():
     wing.areas.exposed            = 227.5  * Units.feet**2  
     wing.twists.root              = 4.0    * Units.degrees  
     wing.twists.tip               = 0.0    * Units.degrees   
-    wing.origin                   = [1.5, 0., 0. ] 
+    wing.origin                   = [[1.5, 0., 0. ]]
     wing.aerodynamic_center       = [1.975 , 0., 0.]    
     wing.winglet_fraction         = 0.0  
     wing.symmetric                = True
@@ -127,7 +127,7 @@ def vehicle_setup():
     wing.areas.exposed            = 32.0  * Units.feet**2  
     wing.twists.root              = 0. * Units.degrees  
     wing.twists.tip               = 0. * Units.degrees  
-    wing.origin                   = [14.0*0.3048 , 0.0 , 0.205 ]   
+    wing.origin                   = [[14.0*0.3048 , 0.0 , 0.205 ]]
     wing.aerodynamic_center       = [15.0*0.3048 ,  0.,  0.] 
     wing.symmetric                = True    
 
@@ -153,7 +153,7 @@ def vehicle_setup():
     wing.areas.exposed            = 9.0 * Units.feet**2 
     wing.twists.root              = 0. * Units.degrees 
     wing.twists.tip               = 0. * Units.degrees  
-    wing.origin                   = [14.0*0.3048 , 4.0*0.3048  , 0.205  ]   
+    wing.origin                   = [[14.0*0.3048 , 4.0*0.3048  , 0.205  ]]
     wing.aerodynamic_center       = 0.0   
     wing.winglet_fraction         = 0.0  
     wing.vertical                 = True 
@@ -181,7 +181,7 @@ def vehicle_setup():
     wing.areas.exposed           = 9.0 * Units.feet**2 
     wing.twists.root             = 0.0 * Units.degrees  
     wing.twists.tip              = 0.0 * Units.degrees   
-    wing.origin                  = [14.0*0.3048 , -4.0*0.3048  , 0.205   ]  
+    wing.origin                  = [[14.0*0.3048 , -4.0*0.3048  , 0.205   ]]
     wing.aerodynamic_center      = 0.0   
     wing.winglet_fraction        = 0.0  
     wing.vertical                = True   

@@ -22,6 +22,7 @@ import numpy as np
 
 ## @ingroup Methods-Weights-Buildups-Electric_Vectored_Thrust
 def empty(config,
+          settings,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
           disk_area_factor              = 1.15,
@@ -33,7 +34,7 @@ def empty(config,
             max_tip_mach                = 0.65,
             disk_area_factor            = 1.15,
             max_thrust_to_weight_ratio  = 1.1,
-            motor_efficience            = 0.85 * 0.98)
+            motor_efficiency            = 0.85 * 0.98)
         
         Calculates the empty fuselage mass for an electric tiltrotor including
         seats, avionics, servomotors, ballistic recovery system, rotor and hub

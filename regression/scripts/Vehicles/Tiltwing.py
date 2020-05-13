@@ -37,7 +37,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff             = 2250. * Units.lb 
     vehicle.mass_properties.operating_empty     = 2250. * Units.lb
     vehicle.mass_properties.max_takeoff         = 2250. * Units.lb
-    vehicle.mass_properties.center_of_gravity   = [ 2.0144,   0.  ,  0.] 
+    vehicle.mass_properties.center_of_gravity   = [[ 2.0144,   0.  ,  0.]]
                                                 
     vehicle.reference_area                      = 10.58275476  
     vehicle.envelope.ultimate_load              = 5.7
@@ -66,7 +66,7 @@ def vehicle_setup():
     wing.areas.exposed            = 12.635  
     wing.twists.root              = 0.  
     wing.twists.tip               = 0.  
-    wing.origin                   = [0.0,  0.0 , 0.0]
+    wing.origin                   = [[0.0,  0.0 , 0.0]]
     wing.aerodynamic_center       = [0., 0., 0.]     
     wing.winglet_fraction         = 0.0  
     wing.symmetric                = True
@@ -116,7 +116,7 @@ def vehicle_setup():
     wing.areas.exposed            = 12.635  
     wing.twists.root              = 0.  
     wing.twists.tip               = 0.  
-    wing.origin                   = [ 5.138, 0.0 ,1.24 ]
+    wing.origin                   = [[ 5.138, 0.0 ,1.24 ]]
     wing.aerodynamic_center       = [0., 0., 0.]     
     wing.winglet_fraction         = 0.0  
     wing.symmetric                = True

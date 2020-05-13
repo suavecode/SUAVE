@@ -77,7 +77,7 @@ class Lift_Cruise(Propulsor):
         self.voltage                   = None
         self.thrust_angle_lift         = 0.0
         self.thrust_angle_forward      = 0.0
-        self.tag                       = 'Lift_Forward'
+        self.tag                       = 'Lift_Cruise'
         self.PGM_minimum               = 0
         
         pass
