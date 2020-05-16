@@ -60,11 +60,11 @@ def wave_drag_lift(conditions,configuration,wing):
     
     # Computations
     x = np.pi*ARL/4
-    beta = np.array([[0.0]] * len(Mc))
+    beta = np.zeros_like(Mc)
     beta[Mc >= 1.01] = np.sqrt(Mc[Mc >= 1.01]**2-1)
-    wave_drag_lift = np.array([[0.0]] * len(Mc))
+    wave_drag_lift = np.zeros_like(Mc)
     wave_drag_lift[Mc >= 1.01] = CL[Mc >= 1.01]**2*x/4*(np.sqrt(1+(beta[Mc >= 1.01]/x)**2)-1)
-    wave_drag_lift[0:len(Mc[Mc >= 1.01]),0] = wave_drag_lift[Mc >= 1.01]
+    #wave_drag_lift[0:len(Mc[Mc >= 1.01]),0] = wave_drag_lift[Mc >= 1.01]
     
     # Dump data to conditions
     wave_lift_result = Data(

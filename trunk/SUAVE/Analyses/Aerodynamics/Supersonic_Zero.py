@@ -143,5 +143,6 @@ class Supersonic_Zero(Markup):
         super(Supersonic_Zero, self).initialize()
         self.process.compute.lift.inviscid_wings.geometry = self.geometry
         self.process.compute.lift.inviscid_wings.initialize()  
+        aa = 0
         
     finalize = initialize        

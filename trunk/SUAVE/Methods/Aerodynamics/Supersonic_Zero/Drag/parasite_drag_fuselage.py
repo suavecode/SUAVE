@@ -77,15 +77,15 @@ def parasite_drag_fuselage(state,settings,geometry):
     # form factor for cylindrical bodies
     d_d = float(d_fus)/float(l_fus)
     
-    D_low = np.array([[0.0]] * len(Mc))
-    a_low = np.array([[0.0]] * len(Mc))
-    du_max_u_low = np.array([[0.0]] * len(Mc))
+    D_low = np.zeros_like(Mc)
+    a_low = np.zeros_like(Mc)
+    du_max_u_low = np.zeros_like(Mc)
     
-    D_high = np.array([[0.0]] * len(Mc))
-    a_high = np.array([[0.0]] * len(Mc))
-    du_max_u_high = np.array([[0.0]] * len(Mc))    
+    D_high = np.zeros_like(Mc)
+    a_high = np.zeros_like(Mc)
+    du_max_u_high = np.zeros_like(Mc)    
     
-    k_fus = np.array([[0.0]] * len(Mc))
+    k_fus = np.zeros_like(Mc)
     
     low_inds  = Mc < high_cutoff
     high_inds = Mc > low_cutoff

@@ -169,14 +169,14 @@ def lift_wave_drag(conditions,configuration,wing,Sref_main):
     mach       = conditions.freestream.mach_number
 
     # Initalize cd arrays
-    cd_c_l = np.array([[0.0]] * len(mach)) # lift wave drag
+    cd_c_l = np.zeros_like(mach) # lift wave drag
 
     # Calculate wing values at all mach numbers
     # Note that these functions arrange the supersonic values at the beginning of the array
     cd_lift_wave = wave_drag_lift(conditions,configuration,wing)
 
     # Pack supersonic results into correct elements
-    cd_c_l[mach >= 1.01] = cd_lift_wave[0:len(mach[mach >= 1.01]),0]
+    cd_c_l[mach >= 1.01] = cd_lift_wave[mach >= 1.01]
 
     # Convert coefficient to full aircraft value
     cd_c_l = cd_c_l*wing.areas.reference/Sref_main

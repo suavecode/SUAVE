@@ -113,7 +113,8 @@ class Propulsor_Surrogate(Propulsor):
         mach       = conditions.freestream.mach_number
         throttle   = conditions.propulsion.throttle
         
-        cond = np.hstack([altitude,mach,throttle])
+        # may be useful for matrices
+        cond = np.hstack([altitude.flatten()[:,None],mach.flatten()[:,None],throttle.flatten()[:,None]])
            
         if self.use_extended_surrogate:
             lo_blender = Cubic_Spline_Blender(0, .01)
@@ -123,12 +124,17 @@ class Propulsor_Surrogate(Propulsor):
         else:
             sfc = sfc_surrogate.predict(cond)
             thr = thr_surrogate.predict(cond)
+            
+        # may be useful for matrices
+        sfc = sfc.reshape(altitude.shape)
+        thr = thr.reshape(altitude.shape)
 
         sfc = sfc*self.sfc_input_scale*self.sfc_anchor_scale
         thr = thr*self.thrust_input_scale*self.thrust_anchor_scale
        
         F    = thr
         mdot = thr*sfc*self.number_of_engines
+        mdot[mdot < 0] = 0
         
         if self.engine_out:
             remaining_ratio = (self.number_of_engines - 1)/self.number_of_engines
@@ -137,7 +143,11 @@ class Propulsor_Surrogate(Propulsor):
        
         # Save the output
         results = Data()
-        results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]
+        if altitude.shape[1] > 1:
+            vx, vy, vz = F * np.cos(self.thrust_angle), F * 0., F*-np.sin(self.thrust_angle)
+            results.thrust_force_vector = self.number_of_engines * np.array([vx,vy,vz])
+        else:
+            results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0.,-np.sin(self.thrust_angle)]
         results.vehicle_mass_rate   = mdot
    
         return results          

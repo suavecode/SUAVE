@@ -22,7 +22,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
     """Computes asymmetry drag due to engine failure
 
     Assumptions:
-    Two engine aircraft
+    Aircraft has only one propulsor group (i.e. a turbofan component with multiple origins)
 
     Source:
     Unknown source
