@@ -2,6 +2,10 @@
 # Provides structural weight correlations for aircraft components applicable to all aircraft configurations
 # @ingroup Methods-Weights-Correlations
 
-from . import landing_gear
-from . import payload
-from . import wing_main
+from .landing_gear import landing_gear
+from .payload import payload
+from .wing_main import wing_main
+from .wing_main_update import wing_main_update
+from .wing_main_raymer import wing_main_raymer
+from .arbitrary import arbitrary
+from .weight_transport import empty_weight

@@ -228,7 +228,7 @@ def empty(vehicle):
         wing_c_r   = vehicle.wings['main_wing'].chords.root
         #now run weight script for the wing
         wt_wing                                         = wing_main(S_gross_w, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW)
-        vehicle.wings['main_wing'].mass_properties.mass = wt_wing        
+        vehicle.wings['main_wing'].mass_properties.mass = wt_wing
    
     if 'horizontal_stabilizer' not in vehicle.wings:
         wt_tail_horizontal = 0.0

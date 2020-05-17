@@ -50,7 +50,9 @@ def vehicle_setup():
     vehicle.systems.accessories          = "long range"
     vehicle.maximum_cross_sectional_area = 13.9
     vehicle.total_length                 = 61.66
-    
+    vehicle.design_mach_number = 2.02
+    vehicle.design_range = 4505 * Units.miles
+    vehicle.design_cruise_alt = 60000.0 * Units.ft
     
     # ------------------------------------------------------------------        
     #   Main Wing
@@ -360,6 +362,7 @@ def vehicle_setup():
     
     # setup
     turbojet.number_of_engines = 4.0
+    turbojet.wing_mounted = [True] * int(turbojet.number_of_engines)
     turbojet.engine_length     = 12.0
     turbojet.nacelle_diameter  = 1.3
     turbojet.inlet_diameter    = 1.1

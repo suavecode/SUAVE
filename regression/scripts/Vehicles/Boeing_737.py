@@ -41,11 +41,13 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.operating_empty           = 62746.4   # kg
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
-    vehicle.mass_properties.max_zero_fuel             = 62732.0   # kg #0.9 * vehicle.mass_properties.max_takeoff
+    vehicle.mass_properties.max_zero_fuel             = 61690 * Units.kg #62732.0   # kg #0.9 * vehicle.mass_properties.max_takeoff
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     vehicle.mass_properties.center_of_gravity         = [ 15.30987849,   0.        ,  -0.48023939]
     vehicle.mass_properties.moments_of_inertia.tensor = [[3173074.17, 0 , 28752.77565],[0 , 3019041.443, 0],[0, 0, 5730017.433]] # estimated, not correct 
-    
+    vehicle.design_mach_number = 0.78
+    vehicle.design_range = 3582 * Units.miles
+    vehicle.design_cruise_alt = 35000.0 * Units.ft
  
     # envelope properties
     vehicle.envelope.ultimate_load = 2.5
@@ -100,6 +102,7 @@ def vehicle_setup():
     segment.percent_span_location         = 0.0
     segment.twist                         = 4. * Units.deg
     segment.root_chord_percent            = 1.
+    segment.thickness_to_chord            = 0.1
     segment.dihedral_outboard             = 2.5 * Units.degrees
     segment.sweeps.quarter_chord          = 28.225 * Units.degrees
     segment.append_airfoil(root_airfoil)
@@ -112,6 +115,7 @@ def vehicle_setup():
     segment.percent_span_location         = 0.324
     segment.twist                         = (wing.twists.root*(1-segment.percent_span_location)) * Units.deg
     segment.root_chord_percent            = 0.5
+    segment.thickness_to_chord = 0.1
     segment.dihedral_outboard             = 5.5 * Units.degrees
     segment.sweeps.quarter_chord          = 25. * Units.degrees
     segment.append_airfoil(yehudi_airfoil)
@@ -124,6 +128,7 @@ def vehicle_setup():
     segment.percent_span_location         = 0.963
     segment.twist                         = (wing.twists.root*(1-segment.percent_span_location)) * Units.deg
     segment.root_chord_percent            = 0.220
+    segment.thickness_to_chord = 0.1
     segment.dihedral_outboard             = 5.5 * Units.degrees
     segment.sweeps.quarter_chord          = 56.75 * Units.degrees
     segment.append_airfoil(mid_airfoil)
@@ -136,6 +141,7 @@ def vehicle_setup():
     segment.percent_span_location         = 1.
     segment.twist                         = 0. * Units.degrees
     segment.root_chord_percent            = 0.10077
+    segment.thickness_to_chord = 0.1
     segment.dihedral_outboard             = 0.
     segment.sweeps.quarter_chord          = 0.
     segment.append_airfoil(tip_airfoil)
@@ -175,7 +181,7 @@ def vehicle_setup():
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------        
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Horizontal_Tail()
     wing.tag = 'horizontal_stabilizer'
     
     wing.aspect_ratio            = 6.16      #
@@ -241,7 +247,7 @@ def vehicle_setup():
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
 
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Vertical_Tail()
     wing.tag = 'vertical_stabilizer'
 
     wing.aspect_ratio            = 1.91      #
@@ -250,7 +256,10 @@ def vehicle_setup():
     wing.taper                   = 0.25
     wing.span_efficiency         = 0.9
 
-    wing.spans.projected         = 7.777      #
+    wing.spans.projected         = 7.777
+    wing.total_length = 7.777
+
+    #
 
     wing.chords.root             = 8.19
     wing.chords.tip              = 0.95
@@ -354,6 +363,7 @@ def vehicle_setup():
 
     # setup
     turbofan.number_of_engines = 2.0
+    turbofan.wing_mounted = [True] * int(turbofan.number_of_engines)
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05

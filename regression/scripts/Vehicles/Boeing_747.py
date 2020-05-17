@@ -29,6 +29,9 @@ def vehicle_setup():
     #print vehicle
     vehicle.mass_properties.max_zero_fuel=238780*Units.kg
     vehicle.mass_properties.max_takeoff  =785000.*Units.lbs
+
+    vehicle.systems.control = "fully powered"
+    vehicle.systems.accessories = "longe range"
     
     # ------------------------------------------------------------------        
     #   Main Wing

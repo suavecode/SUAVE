@@ -11,12 +11,13 @@
 from SUAVE.Core import Units
 import numpy as np
 
+
 # ----------------------------------------------------------------------
 #   Tail Horizontal
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-Tube_Wing
-def tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h,exposed):      
+def tail_horizontal(vehicle, wing):
     """ Calculate the weight of the horizontal tail in a standard configuration
     
     Assumptions:
@@ -43,19 +44,27 @@ def tail_horizontal(b_h,sweep_h,Nult,S_h,TOW,mac_w,mac_h,l_w2h,t_c_h,exposed):
        
     Properties Used:
         N/A
-    """   
+    """
     # unpack inputs
-    span       = b_h / Units.ft # Convert meters to ft
-    sweep      = sweep_h # Convert deg to radians
-    area       = S_h / Units.ft**2 # Convert meters squared to ft squared
-    mtow       = TOW / Units.lb # Convert kg to lbs
-    l_w        = mac_w / Units.ft # Convert from meters to ft
-    l_h        = mac_h / Units.ft # Convert from meters to ft
-    length_w_h = l_w2h / Units.ft # Distance from mean aerodynamic center of wing to mean aerodynamic center of horizontal tail (Convert meters to ft)
+    span = wing.spans.projected / Units.ft  # Convert meters to ft
+    sweep = wing.sweeps.quarter_chord
+    area = wing.areas.reference / Units.ft ** 2  # Convert meters squared to ft squared
+    mtow = vehicle.mass_properties.max_takeoff / Units.lb  # Convert kg to lbs
+    exposed = wing.areas.exposed / wing.areas.wetted
+    l_w2h = wing.origin[0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - \
+            vehicle.wings['main_wing'].origin[0]
+    l_w = vehicle.wings['main_wing'].chords.mean_aerodynamic / Units.ft  # Convert from meters to ft
+    if np.isnan(l_w):
+        l_w = 0
+    if np.isnan(l_w2h):
+        l_w2h = 0.
+    length_w_h = l_w2h / Units.ft  # Distance from mean aerodynamic center of wing to mean aerodynamic center of
+    # horizontal tail (Convert meters to ft)
 
-    #Calculate weight of wing for traditional aircraft horizontal tail
-    weight_English = (5.25*area+0.8*10.**(-6.)*Nult*span**3.*mtow*l_w*(exposed*area)**(1./2.)/(t_c_h*(np.cos(sweep)**2.)*length_w_h*area**1.5))
+    # Calculate weight of wing for traditional aircraft horizontal tail
+    weight_English = 5.25 * area + 0.8 * 10. ** -6 * vehicle.envelope.ultimate_load * span ** 3. * mtow * l_w *\
+                     np.sqrt(exposed * area) / (wing.thickness_to_chord * (np.cos(sweep) ** 2.) * length_w_h * area ** 1.5)
 
-    weight = weight_English * Units.lbs # Convert from lbs to kg
+    weight = weight_English * Units.lbs  # Convert from lbs to kg
 
     return weight

@@ -73,24 +73,56 @@ def print_weight_breakdown(config,filename = 'weight_breakdown.dat'):
     fid.write( ' Flight Controls type ........... : ' + ctrl_type.upper() + '\n')    
     fid.write('\n')
     
-    fid.write(' EMPTY WEIGHT BREAKDOWN \n')       
-    for tag,value in weight_breakdown.items():
-        if tag=='payload' or tag=='pax' or tag=='bag' or tag=='fuel' or tag=='empty' or tag=='systems_breakdown':
-            continue
-        tag = tag.replace('_',' ')
-        string = ' ' + tag[0].upper() + tag[1:] + ' '
-        string = string.ljust(33,'.') + ' :' 
-        fid.write( string + str( '%8.0F'   %   value)  + ' kg\n' )   
-    fid.write( ' ........ EMPTY WEIGHT .......... :' + str( '%8.0F' % weight_breakdown.empty)    + ' kg\n') 
+    fid.write(' EMPTY WEIGHT BREAKDOWN \n')
+    fid.write(' ........ EMPTY WEIGHT .......... :' + str('%8.0F' % weight_breakdown.empty) + ' kg\n')
+    fid.write(' Structural Weight Breakdown \n')
+    fid.write(" Total structural weight".ljust(33, '.') + ' :' + str('%8.0F' % weight_breakdown.structures.total) + ' kg\n')
+    for tag,value in weight_breakdown.structures.items():
+        if tag != "total":
+            tag = tag.replace('_', ' ')
+            string = ' \t' + tag[0].upper() + tag[1:] + ' '
+            string = string.ljust(31, '.') + ' :'
+            fid.write(string + str('%8.0F' % value) + ' kg\n')
+    fid.write(' Propulsion Weight Breakdown \n')
+    fid.write(" Total propulsion weight".ljust(33, '.') + ' :' + str('%8.0F' % weight_breakdown.propulsion_breakdown.total) + ' kg\n')
+    for tag, value in weight_breakdown.propulsion_breakdown.items():
+        if tag != "total":
+            tag = tag.replace('_', ' ')
+            string = ' \t' + tag[0].upper() + tag[1:] + ' '
+            string = string.ljust(31, '.') + ' :'
+            fid.write(string + str('%8.0F' % value) + ' kg\n')
+    fid.write(' System Weight Breakdown \n')
+    fid.write(" Total system weight".ljust(33, '.') + ' :' + str('%8.0F' % weight_breakdown.systems_breakdown.total) + ' kg\n')
+    for tag, value in weight_breakdown.systems_breakdown.items():
+        if tag != "total":
+            tag = tag.replace('_', ' ')
+            string = ' \t' + tag[0].upper() + tag[1:] + ' '
+            string = string.ljust(31, '.') + ' :'
+            fid.write(string + str('%8.0F' % value) + ' kg\n')
     fid.write('\n')
-    
-    fid.write(' SYSTEMS WEIGHT BREAKDOWN  \n')       
-    for tag,value in weight_breakdown.systems_breakdown.items():
-        tag = tag.replace('_',' ')
-        string = ' ' + tag[0].upper() + tag[1:] + ' '
-        string = string.ljust(33,'.') + ' :' 
-        fid.write( string + str( '%8.0F'   %   value)  + ' kg\n' )    
-    fid.write('\n')    
+
+    fid.write(' OPERATING EMPTY WEIGHT BREAKDOWN \n')
+    fid.write(' .... OPERATING EMPTY WEIGHT .... :' + str('%8.0F' % weight_breakdown.operating_empty) + ' kg\n')
+    fid.write(' Operational Items Weight Breakdown \n')
+    fid.write(" Total operational items weight".ljust(33, '.') + ' :' + str('%8.0F' % weight_breakdown.operational_items.total) + ' kg\n')
+    for tag, value in weight_breakdown.operational_items.items():
+        if tag != "total":
+            tag = tag.replace('_', ' ')
+            string = ' \t' + tag[0].upper() + tag[1:] + ' '
+            string = string.ljust(31, '.') + ' :'
+            fid.write(string + str('%8.0F' % value) + ' kg\n')
+    fid.write('\n')
+
+    fid.write(' ZERO FUEL WEIGHT BREAKDOWN \n')
+    fid.write(' ...... ZERO FUEL WEIGHT ........ :' + str('%8.0F' % weight_breakdown.zero_fuel_weight) + ' kg\n')
+    fid.write(' Payload Weight Breakdown \n')
+    fid.write(" Total payload weight".ljust(33, '.') + ' :' + str('%8.0F' % weight_breakdown.payload) + ' kg\n')
+    for tag, value in weight_breakdown.payload_breakdown.items():
+        if tag != "total":
+            tag = tag.replace('_', ' ')
+            string = ' \t' + tag[0].upper() + tag[1:] + ' '
+            string = string.ljust(31, '.') + ' :'
+            fid.write(string + str('%8.0F' % value) + ' kg\n')
        
 
     # Print timestamp

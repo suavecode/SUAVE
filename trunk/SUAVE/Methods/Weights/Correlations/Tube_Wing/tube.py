@@ -12,12 +12,13 @@
 from SUAVE.Core import Units
 import numpy as np
 
+
 # ----------------------------------------------------------------------
 #   Tube
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-Tube_Wing
-def tube(S_fus, diff_p_fus, w_fus, h_fus, l_fus, Nlim, wt_zf, wt_wing, wt_propulsion, wing_c_r):
+def tube(vehicle, fuse, wt_wing, wt_propulsion):
     """ Calculate the weight of a fuselage in the state tube and wing configuration
     
     Assumptions:
@@ -43,30 +44,31 @@ def tube(S_fus, diff_p_fus, w_fus, h_fus, l_fus, Nlim, wt_zf, wt_wing, wt_propul
             
     Properties Used:
         N/A
-    """     
+    """
     # unpack inputs
-    
-    diff_p = diff_p_fus / (Units.force_pound / Units.ft**2) # Convert Pascals to lbs/ square ft
-    width = w_fus / Units.ft # Convert meters to ft
-    height = h_fus / Units.ft # Convert meters to ft
-   
+
+    diff_p = fuse.differential_pressure / (Units.force_pound / Units.ft ** 2)  # Convert Pascals to lbs/ square ft
+    width = fuse.width / Units.ft  # Convert meters to ft
+    height = fuse.heights.maximum / Units.ft  # Convert meters to ft
+
     # setup
-    length = l_fus - wing_c_r/2. 
-    length = length / Units.ft # Convert meters to ft
-    weight = (wt_zf - wt_wing - wt_propulsion) / Units.lb # Convert kg to lbs
-    area = S_fus / Units.ft**2 # Convert square meters to square ft 
-    
-    #process
-    
+    length = fuse.lengths.total - vehicle.wings.main_wing.chords.root / 2.
+    length = length / Units.ft  # Convert meters to ft
+    weight = (vehicle.mass_properties.max_zero_fuel - wt_wing - wt_propulsion) / Units.lb  # Convert kg to lbs
+    area = fuse.areas.wetted / Units.ft ** 2  # Convert square meters to square ft
+
+    # process
+
     # Calculate fuselage indices
-    I_p = 1.5 *10**-3. * diff_p * width
-    I_b = 1.91 *10 **-4. * Nlim * weight * length / height**2.
-   
-    
-    if I_p > I_b : I_f = I_p
-    else : I_f = (I_p**2. + I_b**2.)/(2.*I_b)
-        
-    #Calculate weight of wing for traditional aircraft vertical tail without rudder
-    fuselage_weight = ((1.051+0.102*I_f) * area)  * Units.lb # Convert from lbs to kg
-    
+    I_p = 1.5 * 10 ** -3. * diff_p * width
+    I_b = 1.91 * 10 ** -4. * vehicle.envelope.limit_load * weight * length / height ** 2.
+
+    if I_p > I_b:
+        I_f = I_p
+    else:
+        I_f = (I_p ** 2. + I_b ** 2.) / (2. * I_b)
+
+    # Calculate weight of wing for traditional aircraft vertical tail without rudder
+    fuselage_weight = ((1.051 + 0.102 * I_f) * area) * Units.lb  # Convert from lbs to kg
+
     return fuselage_weight
