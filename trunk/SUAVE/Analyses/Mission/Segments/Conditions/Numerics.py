@@ -53,7 +53,7 @@ class Numerics(Conditions):
         self.discretization_method = chebyshev_data
         
         self.solver_jacobian                  = "none"
-        self.tolerance_solution               = 1e-5
+        self.tolerance_solution               = 1e-8
         self.converged                        = None
         
         self.dimensionless = Conditions()

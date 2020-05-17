@@ -4,6 +4,8 @@
 # Created:  Jan 2015, T. Momose
 # Modified: Jan 2016, E. Botero 
 #           Jan 2020 M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Append Control Surfaces to Wing Segments

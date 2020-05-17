@@ -5,6 +5,8 @@
 # Modified: Jul 2017, M. Clarke
 #           Aug 2018, T. St Francis (for fuselages)
 #           Jan 2019, T. MacDonald
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports

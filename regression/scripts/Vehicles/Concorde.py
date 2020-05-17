@@ -93,12 +93,12 @@ def vehicle_setup():
     
     wing.dynamic_pressure_ratio    = 1.0
     
-    #wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
     
     # This airfoil is not a true Concorde airfoil
-    #wing_airfoil.coordinate_file   = '../Vehicles/NACA65-203.dat' 
+    wing_airfoil.coordinate_file   = '../Vehicles/NACA65-203.dat' 
     
-    #wing.append_airfoil(wing_airfoil)  
+    wing.append_airfoil(wing_airfoil)  
     
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()
@@ -121,7 +121,7 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 48. * Units.deg
     segment.thickness_to_chord    = 0.03
-    #segment.append_airfoil(wing_airfoil)
+    segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
     
@@ -134,7 +134,7 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 71. * Units.deg 
     segment.thickness_to_chord    = 0.03
-    #segment.append_airfoil(wing_airfoil)
+    segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)  
     
     # set tip
@@ -146,7 +146,7 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 0.
     segment.thickness_to_chord    = 0.03
-    #segment.append_airfoil(wing_airfoil)
+    segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)      
     
     # CG locations are approximate
@@ -242,11 +242,11 @@ def vehicle_setup():
     
     wing.dynamic_pressure_ratio  = 1.0
     
-    #tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
     # This airfoil is not a true Concorde airfoil
-    #tail_airfoil.coordinate_file = '../Vehicles/supersonic_tail.dat' 
+    tail_airfoil.coordinate_file = '../Vehicles/supersonic_tail.dat' 
     
-    #wing.append_airfoil(tail_airfoil)  
+    wing.append_airfoil(tail_airfoil)  
 
     # set root sweep with inner section
     segment = SUAVE.Components.Wings.Segment()
@@ -257,7 +257,7 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 63. * Units.deg
     segment.thickness_to_chord    = 0.03
-    #segment.append_airfoil(tail_airfoil)
+    segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
     # set mid section start point
@@ -269,7 +269,7 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 40. * Units.deg
     segment.thickness_to_chord    = 0.03
-    #segment.append_airfoil(tail_airfoil)
+    segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
     # set tip
@@ -281,7 +281,7 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 0.
     segment.thickness_to_chord    = 0.03
-    #segment.append_airfoil(tail_airfoil)
+    segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)    
     
     # add to vehicle

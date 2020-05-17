@@ -1,7 +1,7 @@
 ## @ingroup Sizing
 #size_from_PGM.py
 
-# Created : Jun 2016, M. Vegh
+# Created : May 2020, E. Botero
 # Modified:
 
 # ----------------------------------------------------------------------

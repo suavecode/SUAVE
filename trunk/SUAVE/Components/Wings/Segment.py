@@ -3,13 +3,15 @@
 # 
 # Created:  Sep 2016, E. Botero
 # Modified: Jul 2017, M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Data, ContainerOrdered
-from SUAVE.Components import Component, Lofted_Body, Mass_Properties
+from SUAVE.Components import Component, Lofted_Body
 import SUAVE.Components.Wings.Main_Wing as Main_Wing
 
 import numpy as np

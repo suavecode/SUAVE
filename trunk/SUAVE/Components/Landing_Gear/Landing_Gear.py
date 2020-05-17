@@ -3,6 +3,8 @@
 # 
 # Created:  Aug 2015, C. R. I. da Silva
 # Modified: Feb 2016, T. MacDonald
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports

@@ -3,6 +3,8 @@
 #
 # Created:  Feb 2014, T. Lukacyzk, T. Orra
 # Modified: Feb 2016, T. MacDonald
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,7 +12,7 @@
 
 # SUAVE imports
 from .Wing import Wing
-from SUAVE.Core import ContainerOrdered, Container
+from SUAVE.Core import ContainerOrdered
 from SUAVE.Components.Wings.Segment import Segment
 
 import numpy as np

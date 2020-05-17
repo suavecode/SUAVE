@@ -95,7 +95,6 @@ class AVL_Inviscid(Aerodynamics):
         self.training.lift_coefficient       = None
         self.training.drag_coefficient       = None
         self.training.span_efficiency_factor = None
-        self.training.neutral_point          = None
         self.training_file                   = None
         
         # Surrogate model
@@ -175,7 +174,6 @@ class AVL_Inviscid(Aerodynamics):
         inviscid_lift   = np.zeros([data_len,1])
         inviscid_drag   = np.zeros([data_len,1])    
         span_efficiency = np.zeros([data_len,1]) 
-        NP              = np.zeros([data_len,1]) 
         
         for i,_ in enumerate(AoA): 
             inviscid_lift[i]   = lift_model(AoA[i][0],Mach[i][0])[0] 
@@ -233,7 +231,10 @@ class AVL_Inviscid(Aerodynamics):
         atmosphere    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
         atmo_data     = atmosphere.compute_values(altitude = 0.0) 
         
-        CL = np.zeros((len(AoA),len(Mach)))
+        len_AoA = len(AoA)
+        len_Mach = len(Mach)
+        
+        CL = np.zeros((len_AoA,len_Mach))
         CD = np.zeros_like(CL)  
         e  = np.zeros_like(CL)
         
@@ -255,7 +256,6 @@ class AVL_Inviscid(Aerodynamics):
             
             #Run Analysis at AoA[i] and Mach[j]
             results =  self.evaluate_conditions(run_conditions, trim_aircraft)
-            len_AoA = len(AoA)
             
             # Obtain CD , CL and e
             CL[:,i] = results.aerodynamics.lift_coefficient[:,0]
@@ -270,20 +270,20 @@ class AVL_Inviscid(Aerodynamics):
             e_1D          = np.atleast_2d(data_array[:,2])
             
             # convert from 1D to 2D
-            CL = np.reshape(CL_1D, (len(AoA),-1))
-            CD = np.reshape(CD_1D, (len(AoA),-1))
-            e  = np.reshape(e_1D , (len(AoA),-1))
+            CL = np.reshape(CL_1D, (len_AoA,-1))
+            CD = np.reshape(CD_1D, (len_AoA,-1))
+            e  = np.reshape(e_1D , (len_AoA,-1))
         
         # Save the data for regression
         if self.save_regression_results: 
             # convert from 2D to 1D
-            CL_1D = CL.reshape([len(AoA)*len(Mach),1]) 
-            CD_1D = CD.reshape([len(AoA)*len(Mach),1])  
-            e_1D  = e.reshape([len(AoA)*len(Mach),1]) 
+            CL_1D = CL.reshape([len_AoA*len_Mach,1]) 
+            CD_1D = CD.reshape([len_AoA*len_Mach,1])  
+            e_1D  = e.reshape([len_AoA*len_Mach,1]) 
             np.savetxt(geometry.tag+'_aero_data.txt',np.hstack([CL_1D,CD_1D,e_1D]),fmt='%10.8f',header='  CL      CD      e  ')
           
         # Save the data for regression
-        training_data = np.zeros((3,len(AoA),len(Mach)))
+        training_data = np.zeros((3,len_AoA,len_Mach))
         training_data[0,:,:] = CL 
         training_data[1,:,:] = CD 
         training_data[2,:,:] = e  

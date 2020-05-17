@@ -2,6 +2,8 @@
 #
 # Created:  Feb 2017, M. Vegh (data taken from Embraer_E190_constThr/mission_Embraer_E190_constThr, and Regional_Jet_Optimization/Vehicles2.py), takeoff_field_length/takeoff_field_length.py, landing_field_length/landing_field_length.py
 # Modified: Mar 2020, M. Clarke
+#           May 2020, E. Botero
+
 
 """ setup file for the E190 vehicle
 """
@@ -42,8 +44,8 @@ def vehicle_setup():
     vehicle.mass_properties.max_fuel                  = 12971.   # kg
     vehicle.mass_properties.cargo                     =     0.0  # kg
 
-    vehicle.mass_properties.center_of_gravity         = [[16.8, 0, 1.6]]#[[60 * Units.feet, 0, 0]]  # Not correct
-    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
+    vehicle.mass_properties.center_of_gravity         = [[16.8, 0, 1.6]]
+    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] 
 
     # envelope properties
     vehicle.envelope.ultimate_load = 3.5

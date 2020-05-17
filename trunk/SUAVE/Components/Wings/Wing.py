@@ -7,6 +7,8 @@
 #           Oct 2017, E. Botero
 #           Oct 2018, T. MacDonald
 #           Apr 2020, M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,7 +16,7 @@
 
 import SUAVE
 from SUAVE.Core import Data, ContainerOrdered, Container
-from SUAVE.Components import Component, Lofted_Body, Mass_Properties, Physical_Component
+from SUAVE.Components import Lofted_Body, Mass_Properties, Physical_Component
 from .Airfoils import Airfoil
 
 import numpy as np

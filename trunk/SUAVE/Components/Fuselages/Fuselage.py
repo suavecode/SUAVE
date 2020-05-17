@@ -8,6 +8,7 @@
 #           Oct 2018, T. MacDonald
 #           Dec 2018, T. MacDonald 
 #           Mar 2020, M. Clarke
+#           May 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -58,7 +59,6 @@ class Fuselage(Lofted_Body):
         self.aerodynamic_center = [0.0,0.0,0.0]
         self.max_per_vehicle = 4
         self.Sections    = Lofted_Body.Section.Container()
-        self.Segments    = SUAVE.Core.ContainerOrdered
         
         self.number_coach_seats = 0.0
         self.seats_abreast      = 0.0
