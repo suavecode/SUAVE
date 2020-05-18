@@ -17,7 +17,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_l
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_location import compute_chord_length_from_span_location
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 
-import SUAVE.Components as C
+import SUAVE
 
 # ----------------------------------------------------------------------
 #  Computer Aircraft Center of Gravity
@@ -43,6 +43,8 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     Properties Used:
     N/A
     """  
+    
+    C =  SUAVE.Components
     
     # Go through all wings
     for wing in vehicle.wings:
