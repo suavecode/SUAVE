@@ -279,7 +279,6 @@ def arbitrary_tranport(vehicle,settings=None):
     apu.mass_properties.mass                                         = output.systems_breakdown.apu
     hydraulics.mass_properties.mass                                  = output.systems_breakdown.hydraulics
     optionals.mass_properties.mass                                   = output.systems_breakdown.optionals
-    rudder.mass_properties.mass                                      = output.rudder
     
     #assign components to vehicle
     vehicle.systems.control_systems        = control_systems

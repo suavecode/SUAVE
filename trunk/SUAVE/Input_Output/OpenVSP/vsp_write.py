@@ -587,7 +587,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         
         try:
             if main_wing != None:                
-                w_origin = main_wing.origin[0]
+                w_origin = main_wing.origin
                 w_c_4    = main_wing.chords.root/4.
             else:
                 w_origin = 0.5*length

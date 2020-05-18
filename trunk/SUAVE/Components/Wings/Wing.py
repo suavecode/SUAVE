@@ -122,7 +122,7 @@ class Wing(Lofted_Body):
         self.PGM_char_max_bounds    = [5.,np.inf,1.0,np.inf,np.pi/3,np.pi/4,1.,1.,1.]
         
         self.Segments           = ContainerOrdered()
-        self.control_surfaces   = Container()
+        self.control_surfaces   = SUAVE.Core.Container()
         self.Fuel_Tanks         = SUAVE.Core.Container()
 
     def append_segment(self,segment):

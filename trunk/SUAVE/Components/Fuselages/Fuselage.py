@@ -108,7 +108,7 @@ class Fuselage(Lofted_Body):
         self.PGM_char_min_bounds    = [1.,0.001,0.001,0.001,0.001]   
         self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
         
-        self.Fuel_Tanks = Container()
+        self.Fuel_Tanks = Fuel_Tank_Container()
 
         # For VSP
         self.vsp_data                = Data()
