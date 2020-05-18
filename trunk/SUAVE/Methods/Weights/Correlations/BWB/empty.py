@@ -17,7 +17,6 @@ from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
-import SUAVE.Components.Energy.Networks as Nets
 from SUAVE.Attributes.Solids.Aluminum import Aluminum
 
 import warnings
@@ -90,6 +89,8 @@ def empty(vehicle):
     num_pax    = vehicle.passengers
     ctrl_type  = vehicle.systems.control
     ac_type    = vehicle.systems.accessories
+    
+    Nets = SUAVE.Components.Energy.Networks
      
     num_seats                = vehicle.passengers
     bwb_aft_centerbody_area  = vehicle.fuselages['fuselage_bwb'].aft_centerbody_area
