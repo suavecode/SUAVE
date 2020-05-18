@@ -17,8 +17,6 @@ from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_ge
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
 from SUAVE.Methods.Weights.Correlations.Common.systems import systems
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
-import SUAVE.Components.Energy.Networks as Nets
-import SUAVE.Components.Wings as Wings
 from SUAVE.Attributes.Solids.Aluminum import Aluminum
 
 import numpy as np
@@ -61,6 +59,9 @@ def arbitrary_tranport(vehicle,settings=None):
     ctrl_type  = vehicle.systems.control
     ac_type    = vehicle.systems.accessories
     S_gross_w  = vehicle.reference_area
+    
+    Wings = SUAVE.Components.Wings
+    Nets  = SUAVE.Components.Energy.Networks
     
     # Set the factors
     if settings == None:
