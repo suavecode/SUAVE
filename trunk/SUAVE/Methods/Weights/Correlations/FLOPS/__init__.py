@@ -1,4 +1,3 @@
-from .empty import empty
 from .fuselage import fuselage_weight_FLOPS
 from .landing_gear import landing_gear_FLOPS
 from .operating_items import operating_system_FLOPS

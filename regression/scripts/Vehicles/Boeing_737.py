@@ -50,7 +50,7 @@ def vehicle_setup():
     vehicle.design_cruise_alt = 35000.0 * Units.ft
  
     # envelope properties
-    vehicle.envelope.ultimate_load = 2.5
+    vehicle.envelope.ultimate_load = 1.5*2.5
     vehicle.envelope.limit_load    = 1.5
 
     # basic parameters

@@ -155,20 +155,18 @@ def generate_wing_stations(vehicle):
     SWP = np.zeros(num_seg + 1)
     ETA[0] = wing.Segments[0].percent_span_location
     C[0] = root_chord * wing.Segments[0].root_chord_percent * 1 / SEMISPAN
+    SWP[0] = 0
     if hasattr(wing.Segments[0], 'thickness_to_chord'):
         T[0] = wing.Segments[0].thickness_to_chord
     else:
         T[0] = wing.thickness_to_chord
-    SWP[0] = wing.Segments[0].sweeps.quarter_chord / Units.deg
-
     ETA[1] = vehicle.fuselages.fuselage.width / 2 * 1 / Units.ft * 1 / SEMISPAN
     C[1] = determine_fuselage_chord(vehicle) * 1/SEMISPAN
+
     if hasattr(wing.Segments[0], 'thickness_to_chord'):
         T[1] = wing.Segments[0].thickness_to_chord
     else:
         T[1] = wing.thickness_to_chord
-    SWP[1] = wing.Segments[0].sweeps.quarter_chord / Units.deg
-
     for i in range(1, num_seg):
         ETA[i + 1] = wing.Segments[i].percent_span_location
         C[i + 1] = root_chord * wing.Segments[i].root_chord_percent * 1 / SEMISPAN
@@ -176,7 +174,8 @@ def generate_wing_stations(vehicle):
             T[i + 1] = wing.Segments[i].thickness_to_chord
         else:
             T[i + 1] = wing.thickness_to_chord
-        SWP[i + 1] = wing.Segments[i].sweeps.quarter_chord / Units.deg
+        SWP[i] = np.arctan(np.tan(wing.Segments[i-1].sweeps.quarter_chord) - (C[i-1] - C[i]))
+    SWP[-1] = np.arctan(np.tan(wing.Segments[-2].sweeps.quarter_chord) - (C[-2] - C[-1]))
     return ETA, C, T, SWP
 
 

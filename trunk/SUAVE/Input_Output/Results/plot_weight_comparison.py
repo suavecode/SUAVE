@@ -19,7 +19,7 @@ def plot_weight_comparison(lst_files, caseNames=[], units='kg'):
     lst_subsystems = ["Structural weight", "Propulsion weight",
                       "System weight", "Operational items weight",
                       "Payload weight"]
-    lst_n_systems = [8, 4, 8, 3, 3]
+    lst_n_systems = [8, 4, 9, 3, 3]
     lst_dicts = [{} for _ in range(len(lst_subsystems))]
     for j, file in enumerate(lst_files):
         data = pd.read_csv(file)

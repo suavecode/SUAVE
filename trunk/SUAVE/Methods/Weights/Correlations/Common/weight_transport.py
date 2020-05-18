@@ -29,10 +29,15 @@ from SUAVE.Methods.Weights.Correlations.Tube_Wing.operating_items import operati
 from SUAVE.Methods.Weights.Correlations.Tube_Wing.tube import tube
 from SUAVE.Methods.Weights.Correlations.Common import wing_main
 from SUAVE.Methods.Weights.Correlations.Common import wing_main_update
-from SUAVE.Methods.Weights.Correlations.Common import wing_main_raymer
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear_weight
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload_weight
 
+from SUAVE.Methods.Weights.Correlations.Raymer import wing_main_raymer
+from SUAVE.Methods.Weights.Correlations.Raymer.tail_weight import tail_horizontal_Raymer, tail_vertical_Raymer
+from SUAVE.Methods.Weights.Correlations.Raymer import fuselage_weight_Raymer
+from SUAVE.Methods.Weights.Correlations.Raymer import landing_gear_Raymer
+from SUAVE.Methods.Weights.Correlations.Raymer import systems_Raymer
+from SUAVE.Methods.Weights.Correlations.Raymer import total_prop_Raymer
 import SUAVE.Components.Wings as Wings
 
 
@@ -83,6 +88,9 @@ def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
             elif method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
                 wt_prop_data = total_prop_flops(vehicle, prop)
                 wt_prop = wt_prop_data.wt_prop
+            elif method_type == 'Raymer':
+                wt_prop_data = total_prop_Raymer(vehicle, prop)
+                wt_prop = wt_prop_data.wt_prop
 
             else:
                 wt_engine_jet = Propulsion.engine_jet(thrust_sls)
@@ -95,6 +103,12 @@ def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
 
             wt_prop_total += wt_prop
 
+    # Payload Weight
+    if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
+        payload = payload_FLOPS(vehicle)
+    else:
+        payload = payload_weight(vehicle)
+    vehicle.payload = payload.total
     # Operating Items Weight
     if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
         wt_oper = operating_system_FLOPS(vehicle)
@@ -104,6 +118,8 @@ def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
     # System Weight
     if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
         wt_sys = systems_FLOPS(vehicle)
+    elif method_type == 'Raymer':
+        wt_sys = systems_Raymer(vehicle)
     else:
         wt_sys = systems(vehicle)
     for item in wt_sys.keys():
@@ -146,6 +162,8 @@ def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
         if isinstance(wing, Wings.Horizontal_Tail):
             if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
                 wt_tail = tail_horizontal_FLOPS(vehicle, wing)
+            elif method_type == 'Raymer':
+                wt_tail = tail_horizontal_Raymer(vehicle, wing)
             else:
                 wt_tail = tail_horizontal(vehicle, wing)
             # Apply weight factor
@@ -156,6 +174,8 @@ def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
         if isinstance(wing, Wings.Vertical_Tail):
             if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
                 wt_tail = tail_vertical_FLOPS(vehicle, wing)
+            elif method_type == 'Raymer':
+                wt_tail = tail_vertical_Raymer(vehicle, wing)
             else:
                 wt_tail = tail_vertical(vehicle, wing)
             # Apply weight factor
@@ -169,6 +189,8 @@ def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
     for fuse in vehicle.fuselages:
         if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
             wt_fuse = fuselage_weight_FLOPS(vehicle)
+        elif method_type == 'Raymer':
+            wt_fuse = fuselage_weight_Raymer(vehicle, fuse)
         else:
             wt_fuse = tube(vehicle, fuse, wt_main_wing, wt_prop_total)
         wt_fuse = wt_fuse * (1. - wt_factors.fuselage) * (1. - wt_factors.structural)
@@ -178,14 +200,10 @@ def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
     # Landing Gear Weigth
     if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
         landing_gear = landing_gear_FLOPS(vehicle)
+    elif method_type == 'Raymer':
+        landing_gear = landing_gear_Raymer(vehicle)
     else:
         landing_gear = landing_gear_weight(vehicle)
-
-    # Payload Weight
-    if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
-        payload = payload_FLOPS(vehicle)
-    else:
-        payload = payload_weight(vehicle)
 
     output = Data()
     output.structures = Data()
@@ -227,10 +245,12 @@ def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
     output.systems_breakdown.furnish = wt_sys.wt_furnish
     output.systems_breakdown.air_conditioner = wt_sys.wt_ac
     output.systems_breakdown.instruments = wt_sys.wt_instruments
+    output.systems_breakdown.anti_ice = wt_sys.wt_anti_ice
     output.systems_breakdown.total = output.systems_breakdown.control_systems + output.systems_breakdown.apu \
                                      + output.systems_breakdown.electrical + output.systems_breakdown.avionics \
                                      + output.systems_breakdown.hydraulics + output.systems_breakdown.furnish \
-                                     + output.systems_breakdown.air_conditioner + output.systems_breakdown.instruments
+                                     + output.systems_breakdown.air_conditioner + output.systems_breakdown.instruments \
+                                     + output.systems_breakdown.anti_ice
 
     output.payload_breakdown = Data()
     output.payload_breakdown = payload

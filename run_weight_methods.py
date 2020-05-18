@@ -1,10 +1,10 @@
-# tut_Concorde.py
+# run_weight_methods.py
 #
 # Created:  Aug 2014, SUAVE Team
 # Modified: Jan 2017, T. MacDonald
 #           Aug 2017, E. Botero
 
-""" setup file for a mission with a concorde
+""" File to run all weight estimation methods
 """
 
 # ----------------------------------------------------------------------
