@@ -12,8 +12,6 @@
 import SUAVE
 from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Component, Lofted_Body
-import SUAVE.Components.Wings.Main_Wing as Main_Wing
-
 import numpy as np
 
 # ------------------------------------------------------------ 
@@ -56,7 +54,7 @@ class Segment(Lofted_Body.Segment):
         self.Airfoil               = SUAVE.Core.ContainerOrdered()
         self.PGM_minimum           = 2
         self.max_per_vehicle       = 10
-        self.PGM_special_parent    = Main_Wing.Main_Wing
+        self.PGM_special_parent    = SUAVE.Components.Wings.Main_Wing.Main_Wing
         self.PGM_characteristics   = ['percent_span_location','twist','root_chord_percent','dihedral_outboard','sweeps.quarter_chord','thickness_to_chord']
         self.PGM_char_min_bounds   = [0.,-np.pi/3,0.,-.1,-1.2,0.0001]   
         self.PGM_char_max_bounds   = [1.,np.pi/3,np.inf,1.,1.2,0.5]        
