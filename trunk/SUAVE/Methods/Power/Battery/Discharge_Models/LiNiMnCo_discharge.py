@@ -72,9 +72,10 @@ def LiNiMnCo_discharge(battery,numerics):
     # Unpack varibles 
     I_bat             = battery.inputs.current
     P_bat             = battery.inputs.power_in   
-    cell_mass         = battery.cell.mass     
+    cell_mass         = battery.cell.mass 
+    cell_volume       = battery.cell.volume
+    electrode_area    = battery.cell.electrode_area
     Cp                = battery.cell.specific_heat_capacity  
-    #h                 =  battery.heat_transfer_coefficient
     t                 = battery.age_in_days
     cell_surface_area = battery.cell.surface_area
     T_ambient         = battery.ambient_temperature    
@@ -112,8 +113,7 @@ def LiNiMnCo_discharge(battery,numerics):
     pts    = np.hstack((np.hstack((I_cell, T_cell)),DOD_old  )) # amps, temp, SOC 
     
     # predict under load voltage  
-    V_ul = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T      
-    T_disharge = np.atleast_2d(battery_data.Temperature(pts)[:,1]).T
+    V_ul = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T       
     
     # Li-ion battery interal resistance
     R_0   =  0.01483*(SOC_old**2) - 0.02518*SOC_old + 0.1036 
@@ -121,12 +121,43 @@ def LiNiMnCo_discharge(battery,numerics):
     # Update battery internal and thevenin resistance with aging factor
     R_0  = R_0 * R_growth_factor
    
-    # Calculate resistive losses
-    P_heat = (I_cell**2)*(R_0 )
-    
+    # ---------------------------------------------------------------------------------
+    # Compute battery cell temperature 
+    # ---------------------------------------------------------------------------------
     # Determine temperature increase 
     h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)
-    P_net      = P_heat - h*0.5*cell_surface_area*(T_cell - T_ambient) 
+    h = 7.17 # natural convection 
+    h = 75   # airfoul of 35 m/s  Holman JP. Heat transfer. 6th ed. Singapore: McGraw-Hill; 1986. 
+        
+    # COMPLEX MODEL 
+    sigma = 0.000139E6 # Electrical conductivity
+    n     = 1
+    F     = 96485 # C/mol Faraday constant
+    c0    = -496.66
+    c1    = 1729.4
+    c2    = -2278 
+    c3    = 1382.2 
+    c4    = -380.47 
+    c5    = 46.508
+    c6    =  -10.692 
+    R2a   = 0.99989 
+    
+    delta_S = c0*(SOC_old)**6 + c1*(SOC_old)**5 + c2*(SOC_old)**4 + c3*(SOC_old)**3 + \
+        c4*(SOC_old)**2 + c5*(SOC_old) + c6  # eqn 10 and , D. Jeon Thermal Modelling .. 
+    
+    i_cell        = I_cell/electrode_area # current intensity 
+    q_dot_entropy = (i_cell**2)/sigma  # eqn 12, D. Jeon Thermal Modelling ..   
+    q_dot_joule   = - T_cell*delta_S*i_cell /(n*F)
+    P_heat        = (q_dot_joule + q_dot_entropy)*cell_volume  
+    P_net         = P_heat - h*cell_surface_area*(T_cell - T_ambient) 
+    dT_dt         = P_net/(cell_mass*Cp)
+    T_current     = T_current[0] + np.dot(I,dT_dt)   
+     
+    ## SIMPLIFIED MODEL 
+    ## Calculate resistive losses
+    #P_heat = (I_cell**2)*(R_0 ) 
+    #P_net      = P_heat - h*0.5*cell_surface_area*(T_cell - T_ambient)  
+    
     dT_dt      = P_net/(cell_mass*Cp)
     T_current  = T_current[0] + np.dot(I,dT_dt)  
         

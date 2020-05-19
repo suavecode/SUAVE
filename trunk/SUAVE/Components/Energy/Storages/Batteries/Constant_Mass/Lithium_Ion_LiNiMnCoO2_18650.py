@@ -58,19 +58,22 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         
         self.mass_properties.mass        = 0.048 * Units.kg
         self.cell.mass                   = 0.048 * Units.kg 
+        self.cell.density                = 1500        # [kg/m^3] 
+        self.cell.volume                 = 3.2E-5      # [m^3] 
+        self.cell.electrode_area         = 0.91*0.065  # [m^2]
         
-        self.cell.max_voltage            = 4.2   # [V]
-        self.cell.nominal_capacity       = 3.55  # [Amp-Hrs]
-        self.cell.nominal_voltage        = 3.6   # [V]
+        self.cell.max_voltage            = 4.2     # [V]
+        self.cell.nominal_capacity       = 3.55    # [Amp-Hrs]
+        self.cell.nominal_voltage        = 3.6     # [V]
         self.watt_hour_rating            = self.cell.nominal_capacity  * self.cell.nominal_voltage  # [Watt-hours]      
         self.specific_energy             = self.watt_hour_rating*Units.Wh/self.mass_properties.mass # [J/kg]
         self.specific_power              = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
-        self.resistance                  = 0.025 # [Ohms]
-        
-        self.specific_heat_capacity      = 1108  # [J/kgK] 
-        self.heat_transfer_coefficient   = 75.   # [W/m^2K]       
-        self.cell.specific_heat_capacity = 1108  # [J/kgK]  
-        self.cell.thermal_conductivity   = 3.91  # [J/kgK] 
+        self.resistance                  = 0.025   # [Ohms]
+                                                   #
+        self.specific_heat_capacity      = 1108    # [J/kgK] 
+        self.heat_transfer_coefficient   = 75.     # [W/m^2K]       
+        self.cell.specific_heat_capacity = 1108    # [J/kgK]  
+        self.cell.thermal_conductivity   = 3.91    # [J/kgK] 
         
         self.cell.diameter               = 0.0018  # [m]
         self.cell.height                 = 0.06485 # [m]
