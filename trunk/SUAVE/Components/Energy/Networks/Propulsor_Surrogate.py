@@ -80,6 +80,11 @@ class Propulsor_Surrogate(Propulsor):
         self.sfc_rubber_scale         = 1.
         self.use_extended_surrogate   = False
         self.engine_out               = False
+        self.use_sea_level_correction = False
+        self.sea_level_correction_slope  = 0.
+        self.sea_level_correction_factor = 0.
+        self.sealevel_static_thrust     = 0.
+        
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -131,6 +136,10 @@ class Propulsor_Surrogate(Propulsor):
 
         sfc = sfc*self.sfc_input_scale*self.sfc_anchor_scale
         thr = thr*self.thrust_input_scale*self.thrust_anchor_scale
+        if self.use_sea_level_correction:
+            correction = self.sea_level_correction_slope*altitude*self.altitude_input_scale\
+                + self.sea_level_correction_factor
+            thr *= correction
        
         F    = thr
         mdot = thr*sfc*self.number_of_engines
@@ -246,6 +255,14 @@ class Propulsor_Surrogate(Propulsor):
             cons[0,0] /= self.altitude_input_scale
             base_sfc_at_anchor = sfc_surrogate.predict(cons)
             self.sfc_anchor_scale = self.sfc_anchor/(base_sfc_at_anchor*self.sfc_input_scale)
+            
+        if self.use_sea_level_correction:
+            SLS_thrust_est = thr_surrogate.predict(np.array([[0.,0.,1.]]))*self.thrust_anchor_scale\
+                *self.thrust_input_scale
+            SLS_thrust_anc = self.sealevel_static_thrust/self.number_of_engines # TODO: make this consistent with regular thrust anchor
+            anchor_alt = self.thrust_anchor_conditions[0,0]
+            self.sea_level_correction_factor = SLS_thrust_anc/SLS_thrust_est
+            self.sea_level_correction_slope = (1.-self.sea_level_correction_factor)/anchor_alt
        
         # Save the output
         self.sfc_surrogate    = sfc_surrogate
