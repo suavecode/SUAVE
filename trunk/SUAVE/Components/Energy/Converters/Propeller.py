@@ -206,10 +206,10 @@ class Propeller(Energy_Component):
             if len(a_loc) != N:
                 raise AssertionError('Dimension of airfoil sections must be equal to number of stations on rotor')
             # compute airfoil polars for airfoils 
-            airfoil_polars = compute_airfoil_polars(self, a_geo, a_pol) 
-            airfoil_cl     = airfoil_polars.lift_coefficients
-            airfoil_cd     = airfoil_polars.drag_coefficients
-            AoA_sweep      = airfoil_polars.angle_of_attacks
+            airfoil_polars  = compute_airfoil_polars(self, a_geo, a_pol) 
+            airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates
+            airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates
+            AoA_sweep       = airfoil_polars.angle_of_attacks
     
         # set up non dimensional radial distribution 
         if self.radius_distribution is None:
@@ -315,7 +315,14 @@ class Propeller(Energy_Component):
             # local blade angle of attack
             alpha  = theta_2d - phi_2d  # (page 166 Leishman)
     
-            # Estimate Cl max
+            # Scale for Mach, this is Karmen_Tsien 
+            a_2d  = np.tile(np.atleast_2d(a),(1,N))
+            a_2d  = np.repeat(a_2d[:, np.newaxis,  :], N, axis=1)  
+            
+            # local mach number
+            Ma         = (U_2d)/a_2d   
+            
+            # Estimate Cl max  
             nu         = mu/rho 
             nu_2d      = np.tile(np.atleast_2d(nu),(1,N))
             nu_2d      = np.repeat(nu_2d[:, np.newaxis,  :], N, axis=1)   
@@ -324,36 +331,31 @@ class Propeller(Energy_Component):
             Re_ref     = 9.*10**6      
             Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1   #THIS IS INCORRECT
      
+            
             # Compute blade Cl and Cd distribution from the airfoil data if provided else use thin airfoil theory 
             if  a_pol != None and a_loc != None:  
                 Cl    = np.zeros((ctrl_pts,N,N))              
                 Cdval = np.zeros((ctrl_pts,N,N))                 
                 for ii in range(ctrl_pts):
                     for jj in range(N):                 
-                        Cl[ii,:,jj]    = np.interp(alpha[ii,:,jj],AoA_sweep,airfoil_cl[a_loc[jj]])
-                        Cdval[ii,:,jj] = np.interp(alpha[ii,:,jj],AoA_sweep,airfoil_cd[a_loc[jj]])    
+                        Cl[ii,:,jj]    = airfoil_cl_surs[a_geo[a_loc[jj]]](Re[ii,:,jj],alpha[ii,:,jj],grid=False)  
+                        Cdval[ii,:,jj] = airfoil_cd_surs[a_geo[a_loc[jj]]](Re[ii,:,jj],alpha[ii,:,jj],grid=False)  
             else:
                 # If not airfoil polar provided, use 2*pi as lift curve slope
                 Cl = 2.*pi*alpha
     
                 # By 90 deg, it's totally stalled.
                 Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]  
-                Cl[alpha>=pi/2] = 0.
+                Cl[alpha>=pi/2] = 0.  
+                Cl[Ma[:,:]<1.]  = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
                 
+                # If the blade segments are supersonic, don't scale
+                Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]   
+            
                 #There is also RE scaling
                 #This is an atrocious fit of DAE51 data at RE=50k for Cd
                 Cdval              = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
                 Cdval[alpha>=pi/2] = 2.    
-                
-            # Scale for Mach, this is Karmen_Tsien 
-            a_2d  = np.tile(np.atleast_2d(a),(1,N))
-            a_2d  = np.repeat(a_2d[:, np.newaxis,  :], N, axis=1)  
-    
-            Ma = (U_2d)/a_2d  # local mach number       
-            Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-    
-            # If the blade segments are supersonic, don't scale
-            Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]    
     
             #More Cd scaling from Mach from AA241ab notes for turbulent skin friction 
             T_2d    = np.tile(np.atleast_2d(T),(1,N))
@@ -446,8 +448,9 @@ class Propeller(Energy_Component):
                     Cl    = np.zeros((ctrl_pts,N))              
                     Cdval = np.zeros((ctrl_pts,N)) 
                     for jj in range(N):                 
-                        Cl[:,jj]    = np.interp(alpha[:,jj],AoA_sweep,airfoil_cl[a_loc[jj]])
-                        Cdval[:,jj] = np.interp(alpha[:,jj],AoA_sweep,airfoil_cd[a_loc[jj]])    
+                        Cl[:,jj]    = airfoil_cl_surs[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False)  
+                        Cdval[:,jj] = airfoil_cd_surs[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False)    
+                        
                 else:
                     # If not airfoil polar provided, use 2*pi as lift curve slope
                     Cl = 2.*pi*alpha
@@ -455,17 +458,18 @@ class Propeller(Energy_Component):
                     # By 90 deg, it's totally stalled.
                     Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp]  
                     Cl[alpha>=pi/2] = 0.
+                    
+                    # Scale for Mach, this is Karmen_Tsien
+                    Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+                    
+                    # If the blade segments are supersonic, don't scale
+                    Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]              
             
                     #There is also RE scaling
                     #This is an atrocious fit of DAE51 data at RE=50k for Cd
                     Cdval              = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-                    Cdval[alpha>=pi/2] = 2.  
+                    Cdval[alpha>=pi/2] = 2. 
     
-                # Scale for Mach, this is Karmen_Tsien
-                Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-    
-                # If the blade segments are supersonic, don't scale
-                Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]      
     
                 #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
                 Tw_Tinf = 1. + 1.78*(Ma*Ma)
