@@ -299,7 +299,7 @@ def populate_wing_sections(avl_wing,suave_wing):
              
                 # assign location of wing tip         
                 if avl_wing.vertical:
-                        tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan*np.tan(dihedral),origin[1]+semispan]
+                        tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan*np.tan(dihedral),origin[2]+semispan]
                 else: 
                         tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
                 
