@@ -4,6 +4,7 @@
 # Modified: Jun 2016, T. MacDonald
 #           May 2019, T. MacDonald 
 #           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 """ setup file for a mission with a 737
 """
@@ -68,6 +69,7 @@ def main():
     plot_mission(results)
     plot_mission(old_results,'k-')
     plt.show(block=True)
+    
     # check the results
     check_results(results,old_results)
     
@@ -145,7 +147,8 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
+    aerodynamics.settings.plot_vortex_distribution   = True 
+    aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 

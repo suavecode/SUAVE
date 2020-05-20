@@ -3,7 +3,7 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Jan 2016, E. Botero
-       
+#           Apr 2020, M. Clarke       
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -48,25 +48,30 @@ def induced_drag_aircraft(state,settings,geometry):
     conditions    = state.conditions
     configuration = settings
     
-    
-    aircraft_lift = conditions.aerodynamics.lift_coefficient
-    e             = configuration.oswald_efficiency_factor
-    K             = configuration.viscous_lift_dependent_drag_factor
-    wing_e        = geometry.wings['main_wing'].span_efficiency
-    ar            = geometry.wings['main_wing'].aspect_ratio 
-    CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
-    
-    if e == None:
-        e = 1/((1/wing_e)+np.pi*ar*K*CDp)
-    
-    # start the result
-    total_induced_drag = aircraft_lift**2 / (np.pi*ar*e)
+    K       = configuration.viscous_lift_dependent_drag_factor
+    CDp     = state.conditions.aerodynamics.drag_breakdown.parasite.total
+    CL      = conditions.aerodynamics.lift_coefficient
+    e       = configuration.oswald_efficiency_factor	
+    CDi_inv = conditions.aerodynamics.drag_breakdown.induced.total
+    wing_e  = geometry.wings['main_wing'].span_efficiency     
+    ar      = geometry.wings['main_wing'].aspect_ratio
+     
+    # Inviscid osward efficiency factor
+    if wing_e  == None:
+        wing_e  = CL**2/(CDi_inv*np.pi*ar)
+    else:
+        CDi_inv = CL**2/(wing_e *np.pi*ar)  
         
-    # store data
-    conditions.aerodynamics.drag_breakdown.induced = Data(
-        total             = total_induced_drag ,
-        efficiency_factor = e                  ,
-        aspect_ratio      = ar                 ,
-    )
-
+    # Fuselage correction for induced drag (insicid + viscous)
+    if e == None:	
+        e = 1/((1/wing_e)+np.pi*ar*K*CDp)
+        total_induced_drag = CDi_inv + K*CDp*(CL**2)
+    else:
+        total_induced_drag = CL **2 / (np.pi*ar*e)     
+     
+    conditions.aerodynamics.drag_breakdown.induced.total             = total_induced_drag
+    conditions.aerodynamics.drag_breakdown.induced.efficiency_factor = wing_e 
+    
     return total_induced_drag
+
+ 

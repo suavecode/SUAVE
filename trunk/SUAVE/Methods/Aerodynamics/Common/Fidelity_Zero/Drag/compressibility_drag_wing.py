@@ -3,8 +3,8 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Nov 2016, T. MacDonald
-#        
-
+#           Apr 2020, M. Clarke        
+#           Apr 2020, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -48,33 +48,18 @@ def compressibility_drag_wing(state,settings,geometry):
     """ 
     
     # unpack
-    conditions    = state.conditions
-    configuration = settings    # unused
-    
-    wing = geometry
-    if wing.tag == 'main_wing':
-        wing_lifts = conditions.aerodynamics.lift_breakdown.compressible_wings # currently the total aircraft lift
-    elif wing.vertical:
-        wing_lifts = 0
-    else:
-        wing_lifts = 0.15 * conditions.aerodynamics.lift_breakdown.compressible_wings
-        
+    conditions     = state.conditions
+    wing           = geometry
+    cl_w           = conditions.aerodynamics.lift_breakdown.compressible_wings[wing.tag]         
     mach           = conditions.freestream.mach_number
     drag_breakdown = conditions.aerodynamics.drag_breakdown
-    
+
     # start result
     total_compressibility_drag = 0.0
-        
+
     # unpack wing
     t_c_w   = wing.thickness_to_chord
     sweep_w = wing.sweeps.quarter_chord
-    
-    # Currently uses vortex lattice model on all wings
-    if wing.tag=='main_wing':
-        cl_w = wing_lifts
-    else:
-        cl_w = 0
-        
     cos_sweep = np.cos(sweep_w)
 
     # get effective Cl and sweep
@@ -106,7 +91,7 @@ def compressibility_drag_wing(state,settings,geometry):
     
     # increment
     #total_compressibility_drag += cd_c
-    
+
     # dump data to conditions
     wing_results = Data(
         compressibility_drag      = cd_c    ,
@@ -116,5 +101,5 @@ def compressibility_drag_wing(state,settings,geometry):
         divergence_mach           = MDiv    ,
     )
     drag_breakdown.compressible[wing.tag] = wing_results
-    
+
     return total_compressibility_drag
