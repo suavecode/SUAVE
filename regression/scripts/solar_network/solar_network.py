@@ -73,10 +73,10 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 106.17937888428949  
-    truth_rpm = 160.76100043739908 
-    truth_i   = 131.4126494489281  
-    truth_bat = 88521341.18491648
+    truth_F   = 114.73336831195957 
+    truth_rpm = 165.59673653618515
+    truth_i   = 143.07813646966272
+    truth_bat = 88516016.69127846
     
     print('battery energy')
     print(energy)
