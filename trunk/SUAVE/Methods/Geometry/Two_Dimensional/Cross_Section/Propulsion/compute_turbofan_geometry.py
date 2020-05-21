@@ -1,5 +1,5 @@
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Propulsion
-# engine_geometry.py
+# compute_turbofan_geometry.py
 #
 # Created:  Jun 15, A. Variyar 
 # Modified: Mar 16, M. Vegh

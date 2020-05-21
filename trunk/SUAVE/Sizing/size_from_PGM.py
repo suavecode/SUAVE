@@ -249,9 +249,9 @@ def size_from_PGM(vehicle):
                 fuse.differential_pressure = 55. * 1000.* Units.pascals 
                 fuse.seat_pitch            = 31. * Units.inch
                 
-                # If we've got a concorde
-                if vehicle.performance.vector[0][2]>344.:
-                        fuse.seat_pitch            = 38. * Units.inch
+                ## If we've got a concorde
+                #if vehicle.performance.vector[0][2]>344.:
+                        #fuse.seat_pitch            = 38. * Units.inch
                         
                 
                 # Calculate seats abreast

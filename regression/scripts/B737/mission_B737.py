@@ -34,7 +34,7 @@ sys.path.append('../Vehicles')
 
 from Boeing_737 import vehicle_setup, configs_setup
 
-
+from SUAVE.Sizing.size_from_PGM import size_from_PGM
 
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
      print_compress_drag, \
