@@ -5,12 +5,12 @@
 # Modified: Oct 2018, T. MacDonald
 #           Jan 2019, T. MacDonald
 
-from SUAVE.Core import DataOrdered, Data
+from SUAVE.Core import DataOrdered, Data, Units
 import numpy as np
 from copy import copy
 
 ## @ingroup Methods-Center_of_Gravity
-def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0):
+def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0, units='metric'):
     """Plot possible longitudinal cg positions for the fuel (or full vehicle
     is empty mass is given)
     
@@ -34,29 +34,45 @@ def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0):
     N/A
     """    
     
-    ylabel_string = 'Fuel Mass (kg)'
+    if units == 'metric':
+        l_str = 'm'
+        m_str = 'kg'
+    elif units == 'imperial':
+        l_str = 'ft'
+        m_str = 'lb'
+    else:
+        raise NotImplementedError('Unit choice not recognized.')    
+    
+    
+    ylabel_string = 'Fuel Mass ('+m_str+')'
     
     if empty_mass != 0:
         cg_maxes = (cg_maxes*masses+empty_cg*empty_mass)/(masses+empty_mass)
         cg_mins  = (cg_mins*masses+empty_cg*empty_mass)/(masses+empty_mass)
         masses   = masses+empty_mass
-        ylabel_string = 'Total Mass (kg)'
+        ylabel_string = 'Total Mass ('+m_str+')'
     
     import pylab as plt
 
     fig = plt.figure("Available Fuel CG Distribution",figsize=(8,6))
     axes = plt.gca()
-    axes.plot(cg_maxes,masses,'g-') 
-    axes.plot(cg_mins,masses,'b-')
+    if units == 'metric':
+        axes.plot(cg_maxes,masses,'g-') 
+        axes.plot(cg_mins,masses,'b-')
+    elif units == 'imperial':
+        axes.plot(cg_maxes/Units.ft,masses/Units.lb,'g-',label='Maximum CG Position') 
+        axes.plot(cg_mins/Units.ft,masses/Units.lb,'b-',label='Minimum CG Position')
+    else:
+        raise NotImplementedError('Unit choice not recognized.')
     
-    axes.set_xlabel('CG Position (m)')
+    axes.set_xlabel('CG Position ('+l_str+')')
     axes.set_ylabel(ylabel_string)
     axes.set_title('Available Fuel CG Distribution')
     axes.grid(True)  
     
-    plt.show()
+    #plt.show()
     
-    return
+    return axes
 
 ## @ingroup Methods-Center_of_Gravity
 def compute_fuel_center_of_gravity_longitudinal_range(vehicle):
