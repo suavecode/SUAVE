@@ -163,7 +163,7 @@ def empty(vehicle,settings=None):
         # # --------------- Current Supply Leads end --------------
 
         # --------------- Current Supply HTS Dynamo -------------
-        wt_hts_dynamo   = propulsors.hts_dynamo.mass
+        wt_hts_dynamo   = propulsors.hts_dynamo.mass_properties.mass
         wt_dynamo_esc   = propulsors.dynamo_esc.mass_estimation()
 
         # Rename Dynamo components to simplify code edits

@@ -46,11 +46,11 @@ class HTS_DC_Dynamo_Basic(Energy_Component):
             None
             """         
         
-        self.efficiency         =   0.1
-        self.mass               = 100.0     # [kg]
-        self.rated_current      = 100.0     # [A]
-        self.rated_RPM          = 100.0     # [RPM]
-        self.rated_temp         =  77.0     # [K]
+        self.efficiency             =   0.1
+        self.mass_properties.mass   = 100.0     # [kg]
+        self.rated_current          = 100.0     # [A]
+        self.rated_RPM              = 100.0     # [RPM]
+        self.rated_temp             =  77.0     # [K]
     
     def shaft_power(self, cryo_temp, hts_current, power_out):
         """ The shaft power that must be supplied to the DC Dynamo supply to power the HTS coils.
