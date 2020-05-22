@@ -21,10 +21,6 @@ from SUAVE.Plots.Mission_Plots import *
 import matplotlib.pyplot as plt  
 import numpy as np 
 
-
-from SUAVE.Core import Data
-
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 
 import sys
@@ -34,7 +30,7 @@ sys.path.append('../Vehicles')
 
 from Boeing_737 import vehicle_setup, configs_setup
 
-from SUAVE.Sizing.size_from_PGM import size_from_PGM
+
 
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
      print_compress_drag, \

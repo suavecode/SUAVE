@@ -13,7 +13,6 @@ import numpy as np
 import scipy as sp
 
 from SUAVE.Core import Data, Units
-from SUAVE.Core.Diffed_Data import diff
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_segmented_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import fuselage_planform
