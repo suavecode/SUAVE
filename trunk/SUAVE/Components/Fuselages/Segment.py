@@ -13,7 +13,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from SUAVE.Components import Component, Lofted_Body, Mass_Properties
+from SUAVE.Components import Lofted_Body
 
 # ------------------------------------------------------------ 
 #  Fuselage Segments

@@ -9,10 +9,10 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core     import Units, Data
+from SUAVE.Core     import Data
 from .cabin          import cabin
 from .aft_centerbody import aft_centerbody
-from .systems        import systems
+from SUAVE.Methods.Weights.Correlations.Common import systems as systems
 from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
@@ -140,7 +140,7 @@ def empty(vehicle):
     wt_landing_gear    = landing_gear.landing_gear(TOW)
     wt_cabin           = cabin(bwb_cabin_area, TOW)
     wt_aft_centerbody  = aft_centerbody(num_eng, bwb_aft_centerbody_area, bwb_aft_centerbody_taper, TOW)
-    output_2           = systems(num_seats, ctrl_type, S_h , S_gross_w, ac_type)
+    output_2           = systems.systems(num_seats, ctrl_type, S_h , S_gross_w, ac_type)
 
     # Calculate the equipment empty weight of the aircraft
     wt_empty           = (wt_wing + wt_cabin + wt_aft_centerbody + wt_landing_gear + wt_propulsion + output_2.wt_systems)

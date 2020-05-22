@@ -92,7 +92,7 @@ def empty(config,
         n_cruise_motors     = propulsor.number_of_engines_forward
         
     if len(config.propulsors.items())>1:
-        warn('Using multiple propulsors in weight method method not prepared to handle')
+        warn('Using multiple propulsors, this method is not prepared to handle')
     
     MTOW                = config.mass_properties.max_takeoff
     fLength             = config.fuselages.fuselage.lengths.total

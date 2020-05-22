@@ -113,46 +113,10 @@ class Section(Component):
             None
         """         
         self.tag = 'Section'
-        
-        self.Curves = Curve_Container()
-        
+                
         self.prev = None
         self.next = None
         
-# ------------------------------------------------------------
-#  Curve
-# ------------------------------------------------------------
-
-## @ingroup Components
-class Curve(Component):
-    """ A class that stubs out what a curve is
-    
-    Assumptions:
-    None
-    
-    Source:
-    None
-    """       
-    def __defaults__(self):
-        """This sets the default values.
-    
-            Assumptions:
-            None
-    
-            Source:
-            N/A
-    
-            Inputs:
-            None
-    
-            Outputs:
-            None
-    
-            Properties Used:
-            None
-        """         
-        self.tag = 'Curve'
-        self.points = []
         
 # ------------------------------------------------------------
 #  Containers
@@ -189,26 +153,12 @@ class Section_Container(Component.Container):
         
         return []
 
-## @ingroup Components
-class Curve_Container(Component.Container):
-    """ This does nothing
-    
-    Assumptions:
-    None
-    
-    Source:
-    None
-    """      
-    pass
-
 
 # ------------------------------------------------------------
 #  Handle Linking
 # ------------------------------------------------------------
 
-Section.Curve       = Curve
 Section.Container   = Section_Container
-Curve.Container     = Curve_Container
 Lofted_Body.Section = Section
 Lofted_Body.Segment = Segment
 

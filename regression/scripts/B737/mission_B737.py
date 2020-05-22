@@ -81,6 +81,7 @@ def full_setup():
 
     # vehicle data
     vehicle  = vehicle_setup()
+    print_wing_segs(vehicle)
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
@@ -544,6 +545,16 @@ def check_results(new_results,old_results):
     #check_vals(old_results.output,new_results.output)
 
 
+    return
+
+
+
+def print_wing_segs(vehicle):
+    
+    """This prints the wing segments to provide coverage for dataordered printing"""
+    
+    print(vehicle.wings.main_wing.Segments)
+    
     return
 
 

@@ -58,7 +58,6 @@ class Fuselage(Lofted_Body):
         self.origin             = [[0.0,0.0,0.0]]
         self.aerodynamic_center = [0.0,0.0,0.0]
         self.max_per_vehicle = 4
-        self.Sections    = Lofted_Body.Section.Container()
         
         self.number_coach_seats = 0.0
         self.seats_abreast      = 0.0
@@ -108,7 +107,7 @@ class Fuselage(Lofted_Body):
         self.PGM_char_min_bounds    = [1.,0.001,0.001,0.001,0.001]   
         self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
         
-        self.Fuel_Tanks = Fuel_Tank_Container()
+        self.Fuel_Tanks = Physical_Component.Container()
 
         # For VSP
         self.vsp_data                = Data()
@@ -187,28 +186,6 @@ class Container(Physical_Component.Container):
         """        
         
         return [Fuselage]
-    
-class Fuel_Tank_Container(Physical_Component.Container):
-    def get_children(self):
-        """ Returns the components that can go inside
-        
-        Assumptions:
-        None
-    
-        Source:
-        N/A
-    
-        Inputs:
-        None
-    
-        Outputs:
-        None
-    
-        Properties Used:
-        N/A
-        """        
-        
-        return []
 
 # ------------------------------------------------------------
 #  Handle Linking
