@@ -23,7 +23,8 @@ from SUAVE.Methods.Propulsion import turbojet_sizing
 
 from SUAVE.Components.Wings.Main_Wing import Main_Wing, Segment_Container
 from SUAVE.Components.Wings.Segment import Segment
-
+from SUAVE.Components.Energy.Networks.Turbofan import Turbofan
+from SUAVE.Components.Energy.Networks.Turbojet_Super import Turbojet_Super
 
 
 # ----------------------------------------------------------------------
@@ -311,8 +312,8 @@ def size_from_PGM(vehicle):
                 prop.origin.clear()
                 for eng in range(prop.number_of_engines):
                         prop.origin.append(orig)
-                if prop.tag == 'Turbofan':
                         
+                if isinstance(prop, Turbofan):
                         turbofan = prop
                         
                         conditions = None
@@ -321,6 +322,10 @@ def size_from_PGM(vehicle):
                         #   Component 1 - Ram
                 
                         # to convert freestream static to stagnation quantities
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'ram'):
+                                delattr(prop,'ram')
                 
                         # instantiate
                         ram = SUAVE.Components.Energy.Converters.Ram()
@@ -332,6 +337,10 @@ def size_from_PGM(vehicle):
                 
                         # ------------------------------------------------------------------
                         #  Component 2 - Inlet Nozzle
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'inlet_nozzle'):
+                                delattr(prop,'inlet_nozzle')                
                 
                         # instantiate
                         inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
@@ -347,6 +356,10 @@ def size_from_PGM(vehicle):
                 
                         # ------------------------------------------------------------------
                         #  Component 3 - Low Pressure Compressor
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'low_pressure_compressor'):
+                                delattr(prop,'low_pressure_compressor')                                  
                 
                         # instantiate 
                         compressor = SUAVE.Components.Energy.Converters.Compressor()    
@@ -362,6 +375,10 @@ def size_from_PGM(vehicle):
                 
                         # ------------------------------------------------------------------
                         #  Component 4 - High Pressure Compressor
+
+                        # Overwrite if it exists
+                        if hasattr(prop,'high_pressure_compressor'):
+                                delattr(prop,'high_pressure_compressor')                            
                 
                         # instantiate
                         compressor = SUAVE.Components.Energy.Converters.Compressor()    
@@ -377,6 +394,10 @@ def size_from_PGM(vehicle):
                 
                         # ------------------------------------------------------------------
                         #  Component 5 - Low Pressure Turbine
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'low_pressure_turbine'):
+                                delattr(prop,'low_pressure_turbine')                   
                 
                         # instantiate
                         turbine = SUAVE.Components.Energy.Converters.Turbine()   
@@ -392,6 +413,10 @@ def size_from_PGM(vehicle):
                 
                         # ------------------------------------------------------------------
                         #  Component 6 - High Pressure Turbine
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'high_pressure_turbine'):
+                                delattr(prop,'high_pressure_turbine')                            
                 
                         # instantiate
                         turbine = SUAVE.Components.Energy.Converters.Turbine()   
@@ -407,6 +432,10 @@ def size_from_PGM(vehicle):
                 
                         # ------------------------------------------------------------------
                         #  Component 7 - Combustor
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'combustor'):
+                                delattr(prop,'combustor')                    
                 
                         # instantiate    
                         combustor = SUAVE.Components.Energy.Converters.Combustor()   
@@ -425,6 +454,10 @@ def size_from_PGM(vehicle):
                 
                         # ------------------------------------------------------------------
                         #  Component 8 - Core Nozzle
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'core_nozzle'):
+                                delattr(prop,'core_nozzle')                     
                 
                         # instantiate
                         nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
@@ -440,6 +473,10 @@ def size_from_PGM(vehicle):
                 
                         # ------------------------------------------------------------------
                         #  Component 9 - Fan Nozzle
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'fan_nozzle'):
+                                delattr(prop,'fan_nozzle')                     
                 
                         # instantiate
                         nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
@@ -455,6 +492,10 @@ def size_from_PGM(vehicle):
                 
                         # ------------------------------------------------------------------
                         #  Component 10 - Fan
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'fan'):
+                                delattr(prop,'fan')                         
                 
                         # instantiate
                         fan = SUAVE.Components.Energy.Converters.Fan()   
@@ -470,6 +511,11 @@ def size_from_PGM(vehicle):
                 
                         # ------------------------------------------------------------------
                         #Component 10 : thrust (to compute the thrust)
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'thrust'):
+                                delattr(prop,'thrust')                               
+                        
                         thrust = SUAVE.Components.Energy.Processes.Thrust()       
                         thrust.tag ='compute_thrust'
                 
@@ -491,12 +537,16 @@ def size_from_PGM(vehicle):
                                 
                         #prop.OpenVSP_flow_through = True
                         
-                if prop.tag == 'Turbojet':
+                if isinstance(prop,Turbojet_Super):
                         
                         # ------------------------------------------------------------------
                         #   Component 1 - Ram
                         
                         # to convert freestream static to stagnation quantities
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'ram'):
+                                delattr(prop,'ram')                        
                         
                         # instantiate
                         ram = SUAVE.Components.Energy.Converters.Ram()
@@ -508,6 +558,10 @@ def size_from_PGM(vehicle):
                     
                         # ------------------------------------------------------------------
                         #  Component 2 - Inlet Nozzle
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'inlet_nozzle'):
+                                delattr(prop,'inlet_nozzle')                              
                         
                         # instantiate
                         inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
@@ -525,6 +579,10 @@ def size_from_PGM(vehicle):
                         # ------------------------------------------------------------------
                         #  Component 3 - Low Pressure Compressor
                         
+                        # Overwrite if it exists
+                        if hasattr(prop,'low_pressure_compressor'):
+                                delattr(prop,'low_pressure_compressor')                              
+                        
                         # instantiate 
                         compressor = SUAVE.Components.Energy.Converters.Compressor()    
                         compressor.tag = 'low_pressure_compressor'
@@ -539,6 +597,10 @@ def size_from_PGM(vehicle):
                         
                         # ------------------------------------------------------------------
                         #  Component 4 - High Pressure Compressor
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'high_pressure_compressor'):
+                                delattr(prop,'high_pressure_compressor')                               
                         
                         # instantiate
                         compressor = SUAVE.Components.Energy.Converters.Compressor()    
@@ -555,6 +617,10 @@ def size_from_PGM(vehicle):
                         # ------------------------------------------------------------------
                         #  Component 5 - Low Pressure Turbine
                         
+                        # Overwrite if it exists
+                        if hasattr(prop,'low_pressure_turbine'):
+                                delattr(prop,'low_pressure_turbine')                                
+                        
                         # instantiate
                         turbine = SUAVE.Components.Energy.Converters.Turbine()   
                         turbine.tag='low_pressure_turbine'
@@ -570,6 +636,10 @@ def size_from_PGM(vehicle):
                         # ------------------------------------------------------------------
                         #  Component 6 - High Pressure Turbine
                         
+                        # Overwrite if it exists
+                        if hasattr(prop,'high_pressure_turbine'):
+                                delattr(prop,'high_pressure_turbine')                                    
+                        
                         # instantiate
                         turbine = SUAVE.Components.Energy.Converters.Turbine()   
                         turbine.tag='high_pressure_turbine'
@@ -584,6 +654,10 @@ def size_from_PGM(vehicle):
                         
                         # ------------------------------------------------------------------
                         #  Component 7 - Combustor
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'combustor'):
+                                delattr(prop,'combustor')                              
                         
                         # instantiate    
                         combustor = SUAVE.Components.Energy.Converters.Combustor()   
@@ -601,6 +675,10 @@ def size_from_PGM(vehicle):
                         
                         # ------------------------------------------------------------------
                         #  Afterburner
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'afterburner'):
+                                delattr(prop,'afterburner')                                  
                         
                         # instantiate    
                         afterburner = SUAVE.Components.Energy.Converters.Combustor()   
@@ -620,6 +698,10 @@ def size_from_PGM(vehicle):
                         # ------------------------------------------------------------------
                         #  Component 8 - Core Nozzle
                         
+                        # Overwrite if it exists
+                        if hasattr(prop,'core_nozzle'):
+                                delattr(prop,'core_nozzle')                                  
+                        
                         # instantiate
                         nozzle = SUAVE.Components.Energy.Converters.Supersonic_Nozzle()   
                         nozzle.tag = 'core_nozzle'
@@ -634,6 +716,11 @@ def size_from_PGM(vehicle):
                         
                         # ------------------------------------------------------------------
                         #Component 10 : thrust (to compute the thrust)
+                        
+                        # Overwrite if it exists
+                        if hasattr(prop,'thrust'):
+                                delattr(prop,'thrust')                              
+                        
                         thrust = SUAVE.Components.Energy.Processes.Thrust()       
                         thrust.tag ='compute_thrust'
                         
