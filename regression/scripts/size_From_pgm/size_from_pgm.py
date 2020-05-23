@@ -19,6 +19,7 @@ sys.path.append('../Vehicles')
 from Boeing_737 import vehicle_setup as B737_setup
 from Concorde import vehicle_setup as concorde_setup
 from Boeing_BWB_450 import vehicle_setup as BWB_setup
+from Yak54_wing_only import vehicle_setup as Yak_setup
 
 def main():
     
@@ -34,6 +35,15 @@ def main():
     # Now the BwB
     BWB = BWB_setup()
     check_a_vehicle(BWB)
+    
+    # Now the Yak
+    Yak = Yak_setup()
+    check_a_vehicle(Yak)    
+    
+    # Mess up one wing segment to test if it fixes it
+    b737.tag = 'Messed_Up_wing'
+    b737.wings.main_wing.Segments[-1].percent_span_location = .9999
+    check_a_vehicle(b737)
 
      
     return
@@ -52,11 +62,11 @@ def check_a_vehicle(vehicle_original):
     
     results = diff(vehicle_original, vehicle_PGM)
     
-    # load older results
+    # load older results, this should be commented out
     #save_results(results,tag+'diff.res')
     old_results = load_results(tag+'diff.res')   
     
-    # Need to save new results or formatting doesn't match
+    # Need to save new results or formatting doesn't match, this should not be commented out
     save_results(results,tag+'diff_new.res')
     new_results = load_results(tag+'diff_new.res')
     
