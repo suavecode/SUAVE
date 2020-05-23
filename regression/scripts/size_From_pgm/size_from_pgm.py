@@ -36,13 +36,19 @@ def main():
     BWB = BWB_setup()
     check_a_vehicle(BWB)
     
-    # Now the Yak
+    # Now the Yak, and make the wing really thick
     Yak = Yak_setup()
+    Yak.wings.main_wing.thickness_to_chord = 1.
+    Yak.wings.main_wing.taper              = 1.
+    Yak.wings.main_wing.chords.root        = 24
+    
     check_a_vehicle(Yak)    
     
     # Mess up one wing segment to test if it fixes it
     b737.tag = 'Messed_Up_wing'
-    b737.wings.main_wing.Segments[-1].percent_span_location = .9999
+    b737.wings.main_wing.Segments[-1].percent_span_location = .99
+    b737.wings.main_wing.Segments[-1].root_chord_percent    = -.0001
+    b737.wings.main_wing.Segments[-1].thickness_to_chord    = 0.
     check_a_vehicle(b737)
 
      
