@@ -37,7 +37,7 @@ def current_supply_mass(HTS_Current_Supply):
 
     # Unpack inputs
     power           = HTS_Current_Supply.rated_power    # [W]
-    current         = HTS_Current_Supply.rated_current  # [A]
+    current         = HTS_Current_Supply.rated_current  # [A] # not used as current does not appear to have an impact on current supply mass.
 
     # Estimate mass
     mass = 0.0035 * power + 5.5
