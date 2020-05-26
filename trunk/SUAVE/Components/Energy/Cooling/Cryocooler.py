@@ -29,7 +29,7 @@ class Cryocooler(Energy_Component):
     def __defaults__(self):
         # Initialise cryocooler properties as null values
         self.cooler_type        = 'GM'
-        self.max_cooling_power  =   0.0
+        self.rated_power        =   0.0
         self.min_cryo_temp      =  77.0
         self.ambient_temp       = 300.0
         self.cooling_model      = cryocooler_model
