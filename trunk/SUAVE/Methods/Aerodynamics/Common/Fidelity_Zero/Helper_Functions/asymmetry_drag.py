@@ -83,7 +83,7 @@ def asymmetry_drag(state, geometry, windmilling_drag_coefficient = 0.):
         y_engine = propulsor.origin[0][1]             
         # Getting engine thrust
         results = propulsor.evaluate_thrust(state) # total thrust
-        thrust  = results.thrust_force_vector[:,0,None] / propulsor.number_of_engines
+        thrust  = results.thrust_force_vector[:,0,None] / (propulsor.number_of_engines - 1)
         break
     
     # finding vertical tail
