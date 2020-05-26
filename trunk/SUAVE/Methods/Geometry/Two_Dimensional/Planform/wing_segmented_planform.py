@@ -153,7 +153,7 @@ def wing_segmented_planform(wing):
     total_length = np.tan(le_sweep_total)*semispan + chords[-1]*RC
     
     # Pack stuff
-    wing.areas.reference         = ref_area
+    #wing.areas.reference         = ref_area
     wing.areas.wetted            = wet_area
     wing.aspect_ratio            = AR
     wing.spans.total             = total_len
