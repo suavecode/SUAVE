@@ -24,7 +24,7 @@ def current_supply_mass(HTS_Current_Supply):
         Mass scales linearly with power and current according to Mass = 0.0035*Power + 5.5
 
         Source:
-        Survey of high current (100A+) supplies available from i-Sunam (NEOS series) and Ametek (SGE series).
+        Survey of high current (100A+) supplies available from i-Sunam (NEOS series) and Ametek (SGE series). Note these units are typically ~80-85% efficient according to the i-Sunam and Amemtek datasheets.
 
         Inputs:
         current             [A]
