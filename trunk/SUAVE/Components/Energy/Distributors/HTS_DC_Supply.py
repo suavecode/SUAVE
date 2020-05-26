@@ -48,6 +48,7 @@ class HTS_DC_Supply(Energy_Component):
             Assumptions:
             Supply cable is solid copper, i.e. not a rotating joint.
             Power supply has static efficiency across current output range.
+            Power supply performance is not affected by altitude or other environmental factors. This is not generally true (Ametek SGe datasheet should be derated by 10% per 1000 feet) for current supplies designed for ground use however a supply specifically designed for airborne use can be expected to have a more appropriate cooling design that would allow high altitude use.
 
             Source:
             N/A
