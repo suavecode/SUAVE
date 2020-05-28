@@ -1,16 +1,72 @@
+## @ingroup Methods-Weights-Correlations-FLOPS
+# prop_system.py
+#
+# Created:  May 2020, W. Van Gijseghem
+# Modified:
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 from SUAVE.Core import Units, Data
-from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 import numpy as np
 
+def total_prop_flops(vehicle, prop):
+    """ Calculate the weight of propulsion system, including:
+        - dry engine weight
+        - fuel system weight
+        - thurst reversers weight
+        - electrical system weight
+        - starter engine weight
+        - nacelle weight
+        - cargo containers
 
-# Assumptions
-# 1) Rated thrust per scaled engine and rated thurst for baseline are the same
-# 2) Engine weight scaling parameter is 1.15
-# 3) Enginge inlet weight scaling exponent is 1
-# 4) Baseline inlet weight is 0 lbs as in example files FLOPS
-# 5) Baseline nozzle weight is 0 lbs as in example files FLOPS
+        Assumptions:
+            1) Rated thrust per scaled engine and rated thurst for baseline are the same
+            2) Engine weight scaling parameter is 1.15
+            3) Enginge inlet weight scaling exponent is 1
+            4) Baseline inlet weight is 0 lbs as in example files FLOPS
+            5) Baseline nozzle weight is 0 lbs as in example files FLOPS
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+
+        Outputs:
+            output - data dictionary with weights                               [kilograms]
+                    - output.wt_prop: total propulsive system weight
+                    - output.wt_thrust_reverser: thurst reverser weight
+                    - output.starter: starter engine weight
+                    - output.wt_engine_controls: engine controls weight
+                    - output.fuel_system: fuel system weight
+                    - output.nacelle: nacelle weight
+                    - output.wt_eng: dry engine weight
+
+        Properties Used:
+            N/A
+    """
+    NENG = prop.number_of_engines
+    WNAC = nacelle_FLOPS(prop)
+    WFSYS = fuel_system_FLOPS(vehicle, NENG)
+    WENG = engine_FLOPS(vehicle, prop)
+    WEC, WSTART = misc_engine_FLOPS(vehicle, prop)
+    WTHR = thrust_reverser_FLOPS(prop)
+    WPRO = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
+
+    output = Data()
+    output.wt_prop = WPRO
+    output.wt_thrust_reverser = WTHR
+    output.wt_starter = WSTART
+    output.wt_engine_controls = WEC
+    output.fuel_system = WFSYS
+    output.nacelle = WNAC
+    output.wt_eng = WENG * NENG
+    return output
+
 
 def nacelle_FLOPS(prop):
+    """ Calculates the weight of the nacelle for all engines"""
     NENG = prop.number_of_engines
     TNAC = NENG + 1. / 2 * (NENG - 2 * np.floor(NENG / 2.))
     DNAC = prop.nacelle_diameter / Units.ft
@@ -21,6 +77,7 @@ def nacelle_FLOPS(prop):
 
 
 def thrust_reverser_FLOPS(prop):
+    """ Calculates the weight of the thurst reverser for all engines"""
     NENG = prop.number_of_engines
     TNAC = NENG + 1. / 2 * (NENG - 2 * np.floor(NENG / 2.))
     THRUST = prop.sealevel_static_thrust * 1 / Units.lbf
@@ -29,6 +86,7 @@ def thrust_reverser_FLOPS(prop):
 
 
 def misc_engine_FLOPS(vehicle, prop):
+    """ Calculates the miscellaneous weight for all engines"""
     NENG = prop.number_of_engines
     THRUST = prop.sealevel_static_thrust * 1 / Units.lbf
     WEC = 0.26 * NENG * THRUST ** 0.5
@@ -39,6 +97,7 @@ def misc_engine_FLOPS(vehicle, prop):
 
 
 def fuel_system_FLOPS(vehicle, NENG):
+    """ Calculates the weight of the fuel system """
     VMAX = vehicle.design_mach_number
     FMXTOT = vehicle.mass_properties.max_zero_fuel / Units.lbs
     WFSYS = 1.07 * FMXTOT ** 0.58 * NENG ** 0.43 * VMAX ** 0.34
@@ -46,38 +105,20 @@ def fuel_system_FLOPS(vehicle, NENG):
 
 
 def engine_FLOPS(vehicle, prop):
+    """ Calculates the weight of the dry engine"""
     EEXP = 1.15
     EINL = 1
     ENOZ = 1
     THRSO = prop.sealevel_static_thrust * 1 / Units.lbf
     THRUST = THRSO
     if vehicle.systems.accessories == "short-range" or vehicle.systems.accessories == "commuter":
-        WENGB = THRSO/10.5
+        WENGB = THRSO / 10.5
     else:
-        WENGB = THRSO/5.5
+        WENGB = THRSO / 5.5
     WINLB = 0 / Units.lbs
     WNOZB = 0 / Units.lbs
     WENGP = WENGB * (THRUST / THRSO) ** EEXP
-    WINL = WINLB * (THRUST/THRSO) ** EINL
-    WNOZ = WNOZB * (THRUST/THRSO) ** ENOZ
+    WINL = WINLB * (THRUST / THRSO) ** EINL
+    WNOZ = WNOZB * (THRUST / THRSO) ** ENOZ
     WENG = WENGP + WINL + WNOZ
     return WENG * Units.lbs
-
-def total_prop_flops(vehicle, prop):
-    NENG = prop.number_of_engines
-    WNAC = nacelle_FLOPS(prop)
-    WFSYS = fuel_system_FLOPS(vehicle, NENG)
-    WENG = engine_FLOPS(vehicle, prop)
-    WEC, WSTART = misc_engine_FLOPS(vehicle, prop)
-    WTHR = thrust_reverser_FLOPS(prop)
-    WPRO = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
-
-    output = Data()
-    output.wt_prop              = WPRO
-    output.wt_thrust_reverser   = WTHR
-    output.wt_starter           = WSTART
-    output.wt_engine_controls   = WEC
-    output.fuel_system          = WFSYS
-    output.nacelle              = WNAC
-    output.wt_eng               = WENG * NENG
-    return output

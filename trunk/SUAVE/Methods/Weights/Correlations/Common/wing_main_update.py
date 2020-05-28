@@ -10,7 +10,6 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
 from SUAVE.Core import Units
 import numpy as np
 from SUAVE.Attributes.Solids.Aluminum import Aluminum
@@ -34,18 +33,8 @@ def wing_main_update(vehicle, wing):
         search for: Derivation of the Wing Weight Index
 
     Inputs:
-        wing
-             .span.projected                         [meters**2]
-             .taper                                  [dimensionless]
-             .sweeps.quarter_chord                   [radians]
-             .thickness_to_chord                     [dimensionless]
-             .Segments
-                 .root_chord_percent                 [dimensionless]
-                 .thickness_to_chord                 [dimensionless]
-                 .percent_span_location              [dimensionless]
-        Nult - ultimate load factor of the aircraft  [dimensionless]
-        TOW - maximum takeoff weight of the aircraft [kilograms]
-        wt_zf - zero fuel weight of the aircraft     [kilograms]
+        vehicle - data dictionary with vehicle properties                   [dimensionless]
+        wing    - data dictionary with specific wing properties             [dimensionless]
 
     Outputs:
         weight - weight of the wing                  [kilograms]

@@ -1,10 +1,39 @@
-import SUAVE
-from SUAVE.Core import Units, Data
-import numpy as np
-import matplotlib.pyplot as plt
+## @ingroup Methods-Weights-Correlations-FLOPS
+# wing_weight.py
+#
+# Created:  May 2020, W. Van Gijseghem
+# Modified:
 
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+import SUAVE
+from SUAVE.Core import Units
+import numpy as np
 
 def wing_weight_FLOPS(vehicle, WPOD, complexity):
+    """ Calculate the wing weight based on the flops method. The wing weight consists of:
+        - Total Wing Shear Material and Control Surface Weight
+        - Total Wing Miscellaneous Items Weight
+        - Total Wing Bending Material Weight
+
+        Assumptions:
+            Wing is elliptically loaded
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+       Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+            WPOD - weight of engine pod including the nacelle                   [kilograms]
+            complexity - "simple" or "complex" depending on the wing weight method chosen
+
+       Outputs:
+            WWING - wing weight                                          [kilograms]
+
+        Properties Used:
+            N/A
+        """
     SW = vehicle.reference_area / (Units.ft ** 2)  # Reference wing area, ft^2
     GLOV = 0  # Gloved area, assumed 0
     SX = SW - GLOV  # Wing trapezoidal area
@@ -43,7 +72,7 @@ def wing_weight_FLOPS(vehicle, WPOD, complexity):
         ETA, C, T, SWP = generate_wing_stations(vehicle)
         NS, Y = generate_int_stations(NSD, ETA)
         EETA = get_spanwise_engine(propulsors, SEMISPAN)
-        P0 = calculate_load(ETA[-1], SEMISPAN)
+        P0 = calculate_load(ETA[-1])
         ASW = 0
         EM = 0
         EL = 0
@@ -60,7 +89,7 @@ def wing_weight_FLOPS(vehicle, WPOD, complexity):
         for i in range(NS - 1, 1, -1):
             Y1 = Y[i]
             DY = Y[i + 1] - Y1
-            P1 = calculate_load(Y1, SEMISPAN)
+            P1 = calculate_load(Y1)
             C1 = np.interp(Y1, ETA, C)
             T1 = np.interp(Y1, ETA, T)
             SWP1 = find_sweep(Y1, ETA, SWP)
@@ -105,7 +134,7 @@ def wing_weight_FLOPS(vehicle, WPOD, complexity):
 
     A = wing_weight_constants_FLOPS(vehicle.systems.accessories)  # Wing weight constants
     FCOMP = 0.5  # Composite utilization factor [0 no composite, 1 full composite]
-    ULF = 3.75  # vehicle.envelope.ultimate_load #vehicle.envelope.ultimate_load  # Structural ultimate load factor, 3.75 default
+    ULF = vehicle.envelope.ultimate_load
     CAYF = 1  # Multiple fuselage factor [1 one fuselage, 0.5 multiple fuselages]
     VFACT = 1  # Variable sweep factor (if wings can rotate)
     PCTL = 1  # Fraction of load carried by this wing
@@ -113,15 +142,17 @@ def wing_weight_FLOPS(vehicle, WPOD, complexity):
             1 - 0.1 * FAERT) * CAYF * VFACT * PCTL / 10.0 ** 6  # Wing bending material weight lb
     SFLAP = vehicle.flap_ratio * SX
 
-    W2 = A[2] * (1 - 0.17 * FCOMP) * SFLAP ** (A[3]) * DG ** (A[4])
-    W3 = A[5] * (1 - 0.3 * FCOMP) * SW ** (A[6])
-    W1 = (DG * CAYE * W1NIR + W2 + W3) / (1 + W1NIR) - W2 - W3
+    W2 = A[2] * (1 - 0.17 * FCOMP) * SFLAP ** (A[3]) * DG ** (A[4])  # shear material weight
+    W3 = A[5] * (1 - 0.3 * FCOMP) * SW ** (A[6])  # miscellaneous items weight
+    W1 = (DG * CAYE * W1NIR + W2 + W3) / (1 + W1NIR) - W2 - W3  # bending material weight
     WWING = W1 + W2 + W3  # Total wing weight
 
     return WWING * Units.lbs
 
 
 def generate_wing_stations(vehicle):
+    """ Divides half the wing in sections, using the defined sections
+     and adding a section at the intersection of wing and fuselage """
     wing = vehicle.wings['main_wing']
     SPAN = wing.spans.projected / Units.ft  # Wing span, ft
     SEMISPAN = SPAN / 2
@@ -161,7 +192,7 @@ def generate_wing_stations(vehicle):
     else:
         T[0] = wing.thickness_to_chord
     ETA[1] = vehicle.fuselages.fuselage.width / 2 * 1 / Units.ft * 1 / SEMISPAN
-    C[1] = determine_fuselage_chord(vehicle) * 1/SEMISPAN
+    C[1] = determine_fuselage_chord(vehicle) * 1 / SEMISPAN
 
     if hasattr(wing.Segments[0], 'thickness_to_chord'):
         T[1] = wing.Segments[0].thickness_to_chord
@@ -174,12 +205,13 @@ def generate_wing_stations(vehicle):
             T[i + 1] = wing.Segments[i].thickness_to_chord
         else:
             T[i + 1] = wing.thickness_to_chord
-        SWP[i] = np.arctan(np.tan(wing.Segments[i-1].sweeps.quarter_chord) - (C[i-1] - C[i]))
+        SWP[i] = np.arctan(np.tan(wing.Segments[i - 1].sweeps.quarter_chord) - (C[i - 1] - C[i]))
     SWP[-1] = np.arctan(np.tan(wing.Segments[-2].sweeps.quarter_chord) - (C[-2] - C[-1]))
     return ETA, C, T, SWP
 
 
 def generate_int_stations(NSD, ETA):
+    """ Divides half of the wing in integration stations"""
     Y = [ETA[1]]
     desired_int = (ETA[-1] - ETA[1]) / NSD
     NS = 0
@@ -194,12 +226,14 @@ def generate_int_stations(NSD, ETA):
     return NS, Y
 
 
-def calculate_load(ETA, semispan):
-    PS = np.sqrt(1. - (ETA) ** 2)
+def calculate_load(ETA):
+    """Returns load factor assuming elliptical load distribution"""
+    PS = np.sqrt(1. - ETA ** 2)
     return PS
 
 
 def find_sweep(y, lst_y, swp):
+    """Finds sweep angle for a certain y-location along the wing"""
     diff = lst_y - y
     for i in range(len(diff)):
         if diff[i] > 0:
@@ -210,6 +244,7 @@ def find_sweep(y, lst_y, swp):
 
 
 def get_spanwise_engine(propulsors, SEMISPAN):
+    """Returns EETA for the engine locations along the wing """
     N2 = int(sum(propulsors.wing_mounted) / 2)
     EETA = np.zeros(N2)
     idx = 0
@@ -221,6 +256,7 @@ def get_spanwise_engine(propulsors, SEMISPAN):
 
 
 def wing_weight_constants_FLOPS(ac_type):
+    """Defines wing weight constants as defined by FLOPS"""
     if ac_type == "short_range" or ac_type == "business" or \
             ac_type == "commuter":
         A = [30.0, 0., 0.25, 0.5, 0.5, 0.16, 1.2]
@@ -230,6 +266,7 @@ def wing_weight_constants_FLOPS(ac_type):
 
 
 def determine_fuselage_chord(vehicle):
+    """Determine chord at wing and fuselage intersection"""
     wing = vehicle.wings['main_wing']
     root_chord = wing.chords.root / Units.ft
     SPAN = wing.spans.projected / Units.ft  # Wing span, ft
@@ -241,5 +278,5 @@ def determine_fuselage_chord(vehicle):
     b = (y2 - y1) * SEMISPAN
     taper = c2 / c1
     y = vehicle.fuselages.fuselage.width / 2 * 1 / Units.ft
-    chord = c1 * (1 - (1-taper) * 2 * y/b)
+    chord = c1 * (1 - (1 - taper) * 2 * y / b)
     return chord

@@ -53,6 +53,8 @@ def tail_horizontal(vehicle, wing):
     exposed = wing.areas.exposed / wing.areas.wetted
     l_w2h = wing.origin[0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - \
             vehicle.wings['main_wing'].origin[0]
+    if type(l_w2h) == np.ndarray:
+        l_w2h = l_w2h[0]
     l_w = vehicle.wings['main_wing'].chords.mean_aerodynamic / Units.ft  # Convert from meters to ft
     if np.isnan(l_w):
         l_w = 0

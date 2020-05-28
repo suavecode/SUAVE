@@ -1,12 +1,35 @@
+## @ingroup Methods-Weights-Correlations-FLOPS
+# landing_gear.py
+#
+# Created:  May 2020, W. Van Gijseghem
+# Modified:
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 from SUAVE.Core import Units, Data
 import numpy as np
 
-
-# The following assumptions are made
-# 1) No fighter jet is sized, change DFTE to 1 for a fighter jet
-# 2) Size aircraft is not meant for carrier operations, change CARBAS to 1 for carrier-based aircraft
-
 def landing_gear_FLOPS(vehicle):
+    """ Calculate the weight of the main and nose landing gear of a transport aircraft
+
+        Assumptions:
+            No fighter jet, change DFTE to 1 for a fighter jet
+            Aircraft is not meant for carrier operations, change CARBAS to 1 for carrier-based aircraft
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+
+        Outputs:
+            output - data dictionary with main and nose landing gear weights    [kilograms]
+                    output.main, output.nose
+
+        Properties Used:
+            N/A
+    """
     DFTE = 0
     CARBAS = 0
     if vehicle.systems.accessories == "sst":
@@ -23,13 +46,13 @@ def landing_gear_FLOPS(vehicle):
         DIH = vehicle.wings['main_wing'].dihedral
         YEE = np.max(np.abs(np.array(propulsors.origin)[:, 1])) / Units.ft
         WF = vehicle.fuselages['fuselage'].width / Units.ft
-        XMLG = 12 * FNAC + (0.26 - np.tan(DIH)) * (YEE - 6 * WF)
+        XMLG = 12 * FNAC + (0.26 - np.tan(DIH)) * (YEE - 6 * WF)  # length of extended main landing gear
     else:
-        XMLG = 0.75 * vehicle.fuselages['fuselage'].lengths.total / Units.ft
+        XMLG = 0.75 * vehicle.fuselages['fuselage'].lengths.total / Units.ft  # length of extended nose landing gear
     XNLG = 0.7 * XMLG
-
     WLGM = (0.0117 - 0.0012 * DFTE) * WLDG ** 0.95 * XMLG ** 0.43
     WLGN = (0.048 - 0.0080 * DFTE) * WLDG ** 0.67 * XNLG ** 0.43 * (1 + 0.8 * CARBAS)
+
     output = Data()
     output.main = WLGM * Units.lbs
     output.nose = WLGN * Units.lbs

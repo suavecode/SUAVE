@@ -1,8 +1,35 @@
+## @ingroup Methods-Weights-Correlations-Raymer
+# fuselage.py
+#
+# Created:  May 2020, W. Van Gijseghem
+# Modified:
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 from SUAVE.Core import Units
 import numpy as np
 
-
 def fuselage_weight_Raymer(vehicle, fuse):
+    """ Calculate the weight of the fuselage of a transport aircraft based on the Raymer method
+
+        Assumptions:
+            No fuselage mounted landing gear
+            1 cargo door
+
+        Source:
+            Aircraft Design: A Conceptual Approach
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+            fuse - data dictionary with specific fuselage properties            [dimensionless]
+
+        Outputs:
+            weight_fuse - weight of the fuselage                                [kilograms]
+
+        Properties Used:
+            N/A
+    """
     Kdoor = 1.06  # Assuming 1 cargo door
     Klg = 1  # No fuselage mounted landing gear
     DG = vehicle.mass_properties.max_takeoff / Units.lbs

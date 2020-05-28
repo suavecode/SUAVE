@@ -1,50 +1,26 @@
-## @ingroup Methods-Weights-Correlations-Common
-# wing_main.py
+## @ingroup Methods-Weights-Correlations-Raymer
+# wing_main_raymer.py
 #
-# Created:  Jan 2014, A. Wendorff
-# Modified: Feb 2014, A. Wendorff
-#           Feb 2016, E. Botero
-#           Jul 2017, M. Clarke
-#           Mar 2019, E. Botero
+# Created:  May 2020, W. Van Gijseghem
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
 from SUAVE.Core import Units
 import numpy as np
 
-
-# ----------------------------------------------------------------------
-#   Wing Main
-# ----------------------------------------------------------------------
-
-## @ingroup Methods-Weights-Correlations-Common
 def wing_main_raymer(vehicle, wing):
-    """ Calculate the wing weight of the aircraft based on the fully-stressed
-    bending weight of the wing box
+    """ Calculate the wing weight of the aircraft based the Raymer method
 
     Assumptions:
-        calculated total wing weight based on a bending index and actual data
-        from 15 transport aircraft
 
     Source:
-        http://aerodesign.stanford.edu/aircraftdesign/AircraftDesign.html
-        search for: Derivation of the Wing Weight Index
+        Aircraft Design: A Conceptual Approach
 
     Inputs:
-        wing
-             .span.projected                         [meters**2]
-             .taper                                  [dimensionless]
-             .sweeps.quarter_chord                   [radians]
-             .thickness_to_chord                     [dimensionless]
-             .Segments
-                 .root_chord_percent                 [dimensionless]
-                 .thickness_to_chord                 [dimensionless]
-                 .percent_span_location              [dimensionless]
-        Nult - ultimate load factor of the aircraft  [dimensionless]
-        TOW - maximum takeoff weight of the aircraft [kilograms]
-        wt_zf - zero fuel weight of the aircraft     [kilograms]
+        vehicle - data dictionary with vehicle properties                    [dimensionless]
+        wing    - data dictionary with specific tail properties              [dimensionless]
 
     Outputs:
         weight - weight of the wing                  [kilograms]

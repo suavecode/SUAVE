@@ -1,12 +1,35 @@
-from SUAVE.Core import Units, Data
+## @ingroup Methods-Weights-Correlations-FLOPS
+# fuselage.py
+#
+# Created:  May 2020, W. Van Gijseghem
+# Modified:
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
+from SUAVE.Core import Units
 import numpy as np
 import SUAVE
 
-# The following assumption are made:
-# 1) NFUSE = 1, only one fuselage, please change the variable appropriately for multiple fuselages
-# 2) delta_isa = 0, for pressure calculations
-
 def fuselage_weight_FLOPS(vehicle):
+    """ Calculate the weight of the fuselage of a transport aircraft
+
+        Assumptions:
+            NFUSE = 1, only one fuselage, please change the variable appropriately for multiple fuselages
+            delta_isa = 0, for pressure calculations
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+
+        Outputs:
+            WFUSE - weight of the fuselage                                      [kilograms]
+
+        Properties Used:
+            N/A
+    """
     XL = vehicle.fuselages['fuselage'].lengths.total / Units.ft  # Fuselage length, ft
     DAV = (vehicle.fuselages['fuselage'].width +
            vehicle.fuselages['fuselage'].heights.maximum) / 2. * 1 / Units.ft  # Average fuselage diameter, ft

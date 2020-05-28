@@ -1,5 +1,5 @@
 ## @ingroup Methods-Weights-Correlations-Common
-# weight_transport.pu
+# weight_transport.py
 #
 # Created:  May 2020, W. Van Gijseghem
 # Modified:
@@ -40,8 +40,83 @@ from SUAVE.Methods.Weights.Correlations.Raymer import systems_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import total_prop_Raymer
 import SUAVE.Components.Wings as Wings
 
+def empty_weight(vehicle, settings=None, method_type='SUAVE'):
+    """ Main function that estimates the zero-fuel weight of a transport aircraft:
+        - MTOW = WZFW + FUEL
+        - WZFW = WOE + WPAYLOAD
+        - WOE = WE + WOPERATING_ITEMS
+        - WE = WSTRCT + WPROP + WSYS
+        Assumptions:
 
-def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
+        Source:
+            FLOPS method: The Flight Optimization System Weight Estimation Method
+            SUAVE method: http://aerodesign.stanford.edu/aircraftdesign/AircraftDesign.html
+            RAYMER method: Aircraft Design A Conceptual Approach
+       Inputs:
+            vehicle - data dictionary with vehicle properties           [dimensionless]
+            settings.weight_reduction_factors.
+                    main_wing                                           [dimensionless] (.1 is a 10% weight reduction)
+                    empennage                                           [dimensionless] (.1 is a 10% weight reduction)
+                    fuselage                                            [dimensionless] (.1 is a 10% weight reduction)
+            method_type - weight estimation method chosen, available:
+                            - FLOPS Simple
+                            - FLOPS Complex
+                            - SUAVE
+                            - New SUAVE
+                            - Raymer
+       Outputs:
+            output - data dictionary with the weight breakdown of the vehicle
+                        -.structures: structural weight
+                            -.wing: wing weight
+                            -.horizontal_tail: horizontal tail weight
+                            -.vertical_tail: vertical tail weight
+                            -.fuselage: fuselage weight
+                            -.main_landing_gear: main landing gear weight
+                            -.nose_landing_gear: nose landing gear weight
+                            -.nacelle: nacelle weight
+                            -.paint: paint weight
+                            -.total: total strucural weight
+
+                        -.propulsion_breakdown: propulsive system weight
+                            -.engines: dry engine weight
+                            -.thrust_reversers: thrust reversers weight
+                            -.miscellaneous: miscellaneous items includes electrical system for engines and starter engine
+                            -.fuel_system: fuel system weight
+                            -.total: total propulsive system weight
+
+                        -.systems_breakdown: system weight
+                            -.control_systems: control system weight
+                            -.apu: apu weight
+                            -.electrical: electrical system weight
+                            -.avionics: avionics weight
+                            -.hydraulics: hydraulics and pneumatic system weight
+                            -.furnish: furnishing weight
+                            -.air_conditioner: air conditioner weight
+                            -.instruments: instrumentation weight
+                            -.anti_ice: anti ice system weight
+                            -.total: total system weight
+
+                        -.payload_breakdown: payload weight
+                            -.passengers: passenger weight
+                            -.bagage: baggage weight
+                            -.cargo: cargo weight
+                            -.total: total payload weight
+
+                        -.operational_items: operational items weight
+                            -.oper_items: unusable fuel, engine oil, passenger service weight and cargo containers
+                            -.flight_crew: flight crew weight
+                            -.flight_attendants: flight attendants weight
+                            -.total: total operating items weight
+
+                        -.empty = structures.total + propulsion_breakdown.total + systems_breakdown.total
+                        -.operating_empty = empty + operational_items.total
+                        -.zero_fuel_weight = operating_empty + payload_breakdown.total
+                        -.fuel = vehicle.mass_properties.max_takeoff - zero_fuel_weight
+
+
+        Properties Used:
+            N/A
+        """
     if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
         if not hasattr(vehicle, 'design_mach_number'):
             raise ValueError("FLOPS requires a design mach number for sizing!")
@@ -166,6 +241,8 @@ def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
                 wt_tail = tail_horizontal_Raymer(vehicle, wing)
             else:
                 wt_tail = tail_horizontal(vehicle, wing)
+            if type(wt_tail) == np.ndarray:
+                wt_tail = sum(wt_tail)
             # Apply weight factor
             wt_tail = wt_tail * (1. - wt_factors.empennage) * (1. - wt_factors.structural)
             # Pack and sum
@@ -205,6 +282,7 @@ def empty_weight(vehicle, settings=None, conditions=None, method_type='SUAVE'):
     else:
         landing_gear = landing_gear_weight(vehicle)
 
+    # Distribute all weight in the output fields
     output = Data()
     output.structures = Data()
     output.structures.wing = wt_main_wing

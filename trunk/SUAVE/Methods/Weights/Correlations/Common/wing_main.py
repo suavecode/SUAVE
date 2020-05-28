@@ -31,14 +31,8 @@ def wing_main(vehicle, wing):
         N/A
         
     Inputs:
-        S_gross_w - area of the wing                 [meters**2]
-        b - span of the wing                         [meters**2]
-        lambda_w - taper ratio of the wing           [dimensionless]
-        t_c_w - thickness-to-chord ratio of the wing [dimensionless]
-        sweep_w - sweep of the wing                  [radians]
-        Nult - ultimate load factor of the aircraft  [dimensionless]
-        TOW - maximum takeoff weight of the aircraft [kilograms]
-        wt_zf - zero fuel weight of the aircraft     [kilograms]
+        vehicle - data dictionary with vehicle properties                   [dimensionless]
+        wing    - data dictionary with specific wing properties             [dimensionless]
     
     Outputs:
         weight - weight of the wing                  [kilograms]          

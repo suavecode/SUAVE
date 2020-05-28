@@ -1,8 +1,46 @@
+## @ingroup Methods-Weights-Correlations-Tube_Wing
+# operating_items.py
+#
+# Created:  Jan 2014, A. Wendorff
+# Modified: Feb 2014, A. Wendorff
+#           Feb 2016, E. Botero
+#           May 2020, W. Van Gijseghem
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 from SUAVE.Core import Units, Data
 import numpy as np
 
 
 def operating_system(vehicle):
+    """ Calculate the weight of operating items, including:
+        - crew
+        - baggage
+        - unusable fuel
+        - engine oil
+        - passenger service
+        - ammunition and non-fixed weapons
+        - cargo containers
+
+        Assumptions:
+
+        Source:
+            http://aerodesign.stanford.edu/aircraftdesign/AircraftDesign.html
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+
+        Outputs:
+            output - data dictionary with weights                               [kilograms]
+                    - output.oper_items: unusable fuel, engine oil, passenger service weight and cargo containers
+                    - output.flight_crew: flight crew weight
+                    - output.flight_attendants: flight attendants weight
+                    - output.total: total operating items weight
+
+        Properties Used:
+            N/A
+    """
     num_seats = vehicle.passengers
     ac_type = vehicle.systems.accessories
     if ac_type == "short-range":  # short-range domestic, austere accomodations
@@ -41,5 +79,4 @@ def operating_system(vehicle):
     output.flight_crew = WFLCRB * Units.lbs
     output.flight_attendants = WSTUAB * Units.lbs
     output.total = output.oper_items + output.flight_crew + output.flight_attendants
-
     return output

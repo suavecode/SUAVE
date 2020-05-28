@@ -1,8 +1,33 @@
+## @ingroup Methods-Weights-Correlations-FLOPS
+# tail_weight.py
+#
+# Created:  May 2020, W. Van Gijseghem
+# Modified:
+
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 from SUAVE.Core import Units
-import numpy as np
-import SUAVE
 
 def tail_vertical_FLOPS(vehicle, wing):
+    """ Calculate the vertical tail weight
+
+        Assumptions:
+           Conventional tail configuration
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+       Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+            wing - data dictionary with vertical tail properties                [dimensionless]
+
+       Outputs:
+            WVT - vertical tail weight                                          [kilograms]
+
+        Properties Used:
+            N/A
+        """
     DG = vehicle.mass_properties.max_takeoff / Units.lbs  # Design gross weight in lb
     TRVT = wing.taper
     NVERT = 1  # Number of vertical tails
@@ -10,10 +35,27 @@ def tail_vertical_FLOPS(vehicle, wing):
     return WVT * Units.lbs
 
 def tail_horizontal_FLOPS(vehicle, wing):
+    """ Calculate the horizontal tail weight
+
+        Assumptions:
+           Conventional tail configuration
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+       Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+            wing - data dictionary with horizontal tail properties              [dimensionless]
+
+       Outputs:
+            WHT - vertical tail weight                                          [kilograms]
+
+        Properties Used:
+            N/A
+        """
     SHT = wing.areas.reference / Units.ft **2
     DG = vehicle.mass_properties.max_takeoff / Units.lbs
     TRHT = wing.taper
     WHT = 0.53 * SHT * DG ** 0.2 * (TRHT + 0.5)
-
     return WHT * Units.lbs
 

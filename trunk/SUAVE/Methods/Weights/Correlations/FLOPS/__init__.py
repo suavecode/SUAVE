@@ -1,3 +1,7 @@
+## @defgroup Methods-Weights-Correlations-FLOPS
+# Provides structural weight correlations for aircraft components based on the FLOPS method
+# @ingroup Methods-Weights-Correlations
+
 from .fuselage import fuselage_weight_FLOPS
 from .landing_gear import landing_gear_FLOPS
 from .operating_items import operating_system_FLOPS
