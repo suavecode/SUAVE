@@ -28,7 +28,7 @@ from Solar_UAV import vehicle_setup  as hp_setup
 def main():
   
     vehicle = vehicle_setup()    
-    weight = Transport.arbitrary_tranport(vehicle)
+    weight = Transport.empty(vehicle)
     
     # regression values    
     actual = Data()
