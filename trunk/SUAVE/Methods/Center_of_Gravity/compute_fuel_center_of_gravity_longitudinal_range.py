@@ -37,20 +37,24 @@ def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0, units='metric')
     if units == 'metric':
         l_str = 'm'
         m_str = 'kg'
+        ylabel_string = 'Total Mass ('+m_str+')'
     elif units == 'imperial':
         l_str = 'ft'
         m_str = 'lb'
+        ylabel_string = 'Total Weight ('+m_str+')'
     else:
         raise NotImplementedError('Unit choice not recognized.')    
     
-    
-    ylabel_string = 'Fuel Mass ('+m_str+')'
     
     if empty_mass != 0:
         cg_maxes = (cg_maxes*masses+empty_cg*empty_mass)/(masses+empty_mass)
         cg_mins  = (cg_mins*masses+empty_cg*empty_mass)/(masses+empty_mass)
         masses   = masses+empty_mass
-        ylabel_string = 'Total Mass ('+m_str+')'
+    else:
+        if units == 'metric':
+            ylabel_string = 'Fuel Mass ('+m_str+')'
+        else:
+            ylabel_string = 'Fuel Weight ('+m_str+')'
     
     import pylab as plt
 

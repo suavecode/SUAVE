@@ -2,6 +2,7 @@
 # Functions needed to work with OpenVSP.
 # @ingroup Input_Output
 from .get_vsp_areas import get_vsp_areas
+from .get_vsp_volumes import get_vsp_volumes
 from .write_vsp_mesh import write_vsp_mesh
 from .vsp_write import write
 from .BEM_read import BEM_read
