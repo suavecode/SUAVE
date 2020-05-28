@@ -25,7 +25,7 @@ import numpy as np
 #  Empty
 # ----------------------------------------------------------------------
 
-def arbitrary_tranport(vehicle,settings=None):
+def empty(vehicle,settings=None):
     """ This is for an arbitrary aircraft configuration. 
     
     Assumptions:

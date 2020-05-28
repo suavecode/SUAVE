@@ -231,7 +231,7 @@ def simple_sizing(configs, analyses):
     #compute centers of gravity
     #need to put here, otherwise, results won't be stored
     compute_component_centers_of_gravity(base)
-    base.CG()
+    base.center_of_gravity()
     
     # diff the new data
     base.store_diff()

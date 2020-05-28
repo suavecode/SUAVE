@@ -214,7 +214,7 @@ class Vehicle(Data):
         return total
     
     
-    def CG(self):
+    def center_of_gravity(self):
         """ will recursively search the data tree and sum
             any Comp.Mass_Properties.mass, and return the total sum
             

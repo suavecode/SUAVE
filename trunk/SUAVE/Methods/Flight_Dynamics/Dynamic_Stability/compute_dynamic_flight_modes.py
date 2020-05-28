@@ -218,8 +218,7 @@ def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases):
     # Aileron effectiveness 
     for wing in aircraft.wings:
         if wing.control_surfaces :
-            for cs in wing.control_surfaces:
-                ctrl_surf =  cs
+            for ctrl_surf in wing.control_surfaces:
                 if (type(ctrl_surf) ==  Aileron): 
                     ail = st.control_surfaces_cases[cases[i].tag].control_surfaces[cs.tag]                      
                     Ya = 0.5 * rho * u0 * u0 * S_ref * ail.CY 

@@ -171,7 +171,7 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     nose_gear.mass_properties.center_of_gravity[0][0]          = 0.0   
     
     # Main gear
-    moment_sans_main = vehicle.CG()[0][0]*vehicle.sum_mass()-main_gear.mass_properties.mass
+    moment_sans_main = vehicle.center_of_gravity()[0][0]*vehicle.sum_mass()-main_gear.mass_properties.mass
     
     main_gear_location = moment_sans_main/(vehicle.mass_properties.takeoff-main_gear.mass_properties.mass)/(1-nose_load)
     main_gear.origin[0][0]                                     = main_gear_location

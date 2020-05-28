@@ -220,7 +220,7 @@ def weight(nexus):
    
     nose_load_fraction=.06
     compute_component_centers_of_gravity(vehicle, nose_load_fraction)
-    vehicle.CG()
+    vehicle.center_of_gravity()
    
     
     weights = nexus.analyses.cruise.weights.evaluate()
