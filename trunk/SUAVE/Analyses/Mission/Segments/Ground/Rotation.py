@@ -78,7 +78,7 @@ class Rotation(Ground_Constant_Time):
         # --------------------------------------------------------------
     
         initialize = self.process.initialize
-        initialize.conditions = Methods.Ground.Decision_Delay.initialize_conditions
+        initialize.conditions = Methods.Ground.Rotation.initialize_conditions
         
         return
 

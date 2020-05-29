@@ -43,13 +43,15 @@ def initialize_conditions(segment):
     conditions = segment.state.conditions    
     
     # unpack
-    throttle  = segment.throttle	
+    throttle  = segment.throttle
+    final_body_angle = segment.final_body_angle
     r_initial = conditions.frames.inertial.position_vector[0,:][None,:]
     m_initial = segment.analyses.weights.vehicle.mass_properties.takeoff    
 
     # default initial time, position, and mass
+    t_nondim  = segment.state.numerics.dimensionless.control_points
     # apply initials
     conditions.weights.total_mass[:,0]              = m_initial
     conditions.frames.inertial.position_vector[:,:] = r_initial[:,:]
     conditions.propulsion.throttle[:,0]             = throttle
-    conditions. = segment.state.numerics.dimensionless.control_points[:,0]
+    conditions.frames.body.inertial_rotations[:,1]  = t_nondim[:,0] * final_body_angle

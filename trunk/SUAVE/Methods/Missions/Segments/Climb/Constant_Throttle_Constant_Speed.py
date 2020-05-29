@@ -83,6 +83,12 @@ def initialize_conditions(segment):
     if alt0 is None:
         if not segment.state.initials: raise AttributeError('initial altitude not set')
         alt0 = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]
+        
+    # check for initial velocity
+    # check for initial altitude
+    if air_speed is None:
+        if not segment.state.initials: raise AttributeError('initial speed not set')
+        air_speed = segment.state.initials.conditions.freestream.velocity[-1,0]
 
     # pack conditions  
     conditions.propulsion.throttle[:,0] = throttle
@@ -158,7 +164,12 @@ def update_velocity_vector_from_wind_angle(segment):
     
     # unpack
     conditions = segment.state.conditions 
-    v_mag      = segment.air_speed 
+    if segment.air_speed is None:
+        if not segment.state.initials: raise AttributeError('initial speed not set')
+        v_mag = segment.state.initials.conditions.freestream.velocity[-1,0]    
+    else:
+        v_mag = segment.air_speed
+    #v_mag      = np.linalg.norm(segment.state.conditions.frames.inertial.velocity_vector,axis=1) 
     alpha      = segment.state.unknowns.wind_angle[:,0][:,None]
     theta      = segment.state.unknowns.body_angle[:,0][:,None]
     
