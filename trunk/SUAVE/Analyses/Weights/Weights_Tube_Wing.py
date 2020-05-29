@@ -86,27 +86,8 @@ class Weights_Tube_Wing(Weights):
         """
         # unpack
         vehicle = self.vehicle
-        settings = self.settings
-        results = SUAVE.Methods.Weights.Correlations.Common.empty_weight(vehicle, method_type=method)
-        # if method == "Tube_Wing":
-        #     results = SUAVE.Methods.Weights.Correlations.Tube_Wing.empty(vehicle, settings, conditions)
-        # elif method == "FLOPS Simple":
-        #     self.settings.complexity = "Simple"
-        #     results = SUAVE.Methods.Weights.Correlations.FLOPS.empty(vehicle, settings)
-        # elif method == "FLOPS Complex":
-        #     self.settings.complexity = "Complex"
-        #     results = SUAVE.Methods.Weights.Correlations.FLOPS.empty(vehicle, settings, conditions)
-        # elif method == "New SUAVE":
-        #     self.settings.complexity = "Complex"
-        #     results = SUAVE.Methods.Weights.Correlations.Common.arbitrary(vehicle, settings,conditions,
-        #                                                                   main_wing_calc_type="SUAVE" )
-        # elif method == "Raymer":
-        #     self.settings.complexity = "Complex"
-        #     results = SUAVE.Methods.Weights.Correlations.Common.arbitrary(vehicle, settings,
-        #                                                                  main_wing_calc_type="Raymer")
-
-        # else:
-        #     ValueError("This method has not been implemented")
+        results = SUAVE.Methods.Weights.Correlations.Common.empty_weight(vehicle, settings=self.settings,
+                                                                         method_type=method)
 
         # storing weigth breakdown into vehicle
         vehicle.weight_breakdown = results

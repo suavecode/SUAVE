@@ -41,7 +41,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.operating_empty           = 62746.4   # kg
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
-    vehicle.mass_properties.max_zero_fuel             = 61690 * Units.kg #62732.0   # kg #0.9 * vehicle.mass_properties.max_takeoff
+    vehicle.mass_properties.max_zero_fuel             = 62732.0   # kg #0.9 * vehicle.mass_properties.max_takeoff
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     vehicle.mass_properties.center_of_gravity         = [ 15.30987849,   0.        ,  -0.48023939]
     vehicle.mass_properties.moments_of_inertia.tensor = [[3173074.17, 0 , 28752.77565],[0 , 3019041.443, 0],[0, 0, 5730017.433]] # estimated, not correct 
@@ -115,7 +115,7 @@ def vehicle_setup():
     segment.percent_span_location         = 0.324
     segment.twist                         = (wing.twists.root*(1-segment.percent_span_location)) * Units.deg
     segment.root_chord_percent            = 0.5
-    segment.thickness_to_chord = 0.1
+    segment.thickness_to_chord            = 0.1
     segment.dihedral_outboard             = 5.5 * Units.degrees
     segment.sweeps.quarter_chord          = 25. * Units.degrees
     segment.append_airfoil(yehudi_airfoil)
@@ -128,7 +128,7 @@ def vehicle_setup():
     segment.percent_span_location         = 0.963
     segment.twist                         = (wing.twists.root*(1-segment.percent_span_location)) * Units.deg
     segment.root_chord_percent            = 0.220
-    segment.thickness_to_chord = 0.1
+    segment.thickness_to_chord            = 0.1
     segment.dihedral_outboard             = 5.5 * Units.degrees
     segment.sweeps.quarter_chord          = 56.75 * Units.degrees
     segment.append_airfoil(mid_airfoil)
@@ -141,7 +141,7 @@ def vehicle_setup():
     segment.percent_span_location         = 1.
     segment.twist                         = 0. * Units.degrees
     segment.root_chord_percent            = 0.10077
-    segment.thickness_to_chord = 0.1
+    segment.thickness_to_chord            = 0.1
     segment.dihedral_outboard             = 0.
     segment.sweeps.quarter_chord          = 0.
     segment.append_airfoil(tip_airfoil)
@@ -257,7 +257,7 @@ def vehicle_setup():
     wing.span_efficiency         = 0.9
 
     wing.spans.projected         = 7.777
-    wing.total_length = 7.777
+    wing.total_length            = wing.spans.projected
 
     #
 
