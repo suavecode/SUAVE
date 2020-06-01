@@ -32,6 +32,17 @@ def total_prop_flops(vehicle, prop):
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.design_mach_number: design mach number for cruise flight
+                -.mass_properties.max_zero_fuel: zero fuel weight               [kg]
+                -.systems.accessories: type of aircraft (short-range, commuter
+                                                        medium-range, long-range,
+                                                        sst, cargo)
+            prop - data dictionary with propulsion system properties
+                -.number_of_engines: number of engines
+                -.nacelle_diameter: diameter of nacelle                         [meters]
+                -.engine_length: length of complete engine assembly             [meters]
+                -.sealevel_static_thrust: thrust at sea level                   [N]
+
 
         Outputs:
             output - data dictionary with weights                               [kilograms]
@@ -46,22 +57,22 @@ def total_prop_flops(vehicle, prop):
         Properties Used:
             N/A
     """
-    NENG = prop.number_of_engines
-    WNAC = nacelle_FLOPS(prop)
-    WFSYS = fuel_system_FLOPS(vehicle, NENG)
-    WENG = engine_FLOPS(vehicle, prop)
+    NENG        = prop.number_of_engines
+    WNAC        = nacelle_FLOPS(prop)
+    WFSYS       = fuel_system_FLOPS(vehicle, NENG)
+    WENG        = engine_FLOPS(vehicle, prop)
     WEC, WSTART = misc_engine_FLOPS(vehicle, prop)
-    WTHR = thrust_reverser_FLOPS(prop)
-    WPRO = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
+    WTHR        = thrust_reverser_FLOPS(prop)
+    WPRO        = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
 
-    output = Data()
-    output.wt_prop = WPRO
-    output.wt_thrust_reverser = WTHR
-    output.wt_starter = WSTART
-    output.wt_engine_controls = WEC
-    output.fuel_system = WFSYS
-    output.nacelle = WNAC
-    output.wt_eng = WENG * NENG
+    output                      = Data()
+    output.wt_prop              = WPRO
+    output.wt_thrust_reverser   = WTHR
+    output.wt_starter           = WSTART
+    output.wt_engine_controls   = WEC
+    output.fuel_system          = WFSYS
+    output.nacelle              = WNAC
+    output.wt_eng               = WENG * NENG
     return output
 
 

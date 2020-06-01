@@ -41,8 +41,8 @@ def operating_system(vehicle):
         Properties Used:
             N/A
     """
-    num_seats = vehicle.passengers
-    ac_type = vehicle.systems.accessories
+    num_seats   = vehicle.passengers
+    ac_type     = vehicle.systems.accessories
     if ac_type == "short-range":  # short-range domestic, austere accomodations
         operitems_wt = 17.0 * num_seats * Units.lb
     elif ac_type == "medium-range":  # medium-range domestic
@@ -74,9 +74,9 @@ def operating_system(vehicle):
     WSTUAB = NSTU * (170 + 40)
     WFLCRB = NFLCR * (190 + 50)
 
-    output = Data()
-    output.oper_items = operitems_wt
-    output.flight_crew = WFLCRB * Units.lbs
-    output.flight_attendants = WSTUAB * Units.lbs
-    output.total = output.oper_items + output.flight_crew + output.flight_attendants
+    output                      = Data()
+    output.operating_items      = operitems_wt
+    output.flight_crew          = WFLCRB * Units.lbs
+    output.flight_attendants    = WSTUAB * Units.lbs
+    output.total                = output.oper_items + output.flight_crew + output.flight_attendants
     return output

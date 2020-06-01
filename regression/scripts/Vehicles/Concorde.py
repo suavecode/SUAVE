@@ -362,7 +362,6 @@ def vehicle_setup():
     
     # setup
     turbojet.number_of_engines = 4.0
-    turbojet.wing_mounted = [True] * int(turbojet.number_of_engines)
     turbojet.engine_length     = 12.0
     turbojet.nacelle_diameter  = 1.3
     turbojet.inlet_diameter    = 1.1

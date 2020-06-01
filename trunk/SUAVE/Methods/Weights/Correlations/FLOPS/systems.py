@@ -33,79 +33,93 @@ def systems_FLOPS(vehicle):
 
    Inputs:
         vehicle - data dictionary with vehicle properties                   [dimensionless]
+            -.propulsors: data dictionary containing all propulsion properties
+                -.number_of_engines: number of engines
+                -.sealevel_static_thrust: thrust at sea level               [N]
+            -.fuselages['fuselage'].lengths.total: fuselage total length    [meters]
+            -.fuselages['fuselage'].width: fuselage width                   [meters]
+            -.fuselages['fuselage'].heights.maximum: fuselage maximum height[meters]
+            -.mass_properties.max_takeoff: MTOW                             [kilograms]
+            -.design_mach_number: design mach number for cruise flight
+            -.design_range: design range of aircraft                        [nmi]
+            -.passengers: number of passengers in aircraft
+            -.flap_ratio: flap surface area over wing surface area
+            -.wings['main_wing']: data dictionary with main wing properties
+                -.sweeps.quarter_chord: quarter chord sweep                 [deg]
+                -.areas.reference: wing surface area                        [m^2]
+                -.spans.projected: projected span of wing                   [m]
 
    Outputs:
        output - a data dictionary with fields:
-                -
-                   wt_flt_ctrl - weight of the flight control system                                [kilograms]
-                   wt_apu - weight of the apu                                                       [kilograms]
-                   wt_hyd_pnu - weight of the hydraulics and pneumatics                             [kilograms]
-                   wt_instruments - weight of the instruments and navigational equipment            [kilograms]
-                   wt_avionics - weight of the avionics                                             [kilograms]
-                   wt_elec - weight of the electrical items                                         [kilograms]
-                   wt_ac - weight of the air conditioning and anti-ice system                       [kilograms]
-                   wt_furnish - weight of the furnishings in the fuselage                           [kilograms]
-                   wt_anti_ice - weight of anti-ice system                                          [kilograms]
+           wt_flt_ctrl - weight of the flight control system                                [kilograms]
+           wt_apu - weight of the apu                                                       [kilograms]
+           wt_hyd_pnu - weight of the hydraulics and pneumatics                             [kilograms]
+           wt_instruments - weight of the instruments and navigational equipment            [kilograms]
+           wt_avionics - weight of the avionics                                             [kilograms]
+           wt_elec - weight of the electrical items                                         [kilograms]
+           wt_ac - weight of the air conditioning and anti-ice system                       [kilograms]
+           wt_furnish - weight of the furnishings in the fuselage                           [kilograms]
+           wt_anti_ice - weight of anti-ice system                                          [kilograms]
 
     Properties Used:
         N/A
     """
-    propulsor_name = list(vehicle.propulsors.keys())[0]
-    propulsors = vehicle.propulsors[propulsor_name]
-    NENG = propulsors.number_of_engines
-    VMAX = vehicle.design_mach_number
-    SFLAP = vehicle.wings['main_wing'].areas.reference * vehicle.flap_ratio / Units.ft ** 2
-    DG = vehicle.mass_properties.max_takeoff / Units.lbs
-    WSC = 1.1 * VMAX ** 0.52 * SFLAP ** 0.6 * DG ** 0.32  # surface controls weight
+    propulsor_name  = list(vehicle.propulsors.keys())[0]
+    propulsors      = vehicle.propulsors[propulsor_name]
+    NENG            = propulsors.number_of_engines
+    VMAX            = vehicle.design_mach_number
+    SFLAP           = vehicle.wings['main_wing'].areas.reference * vehicle.flap_ratio / Units.ft ** 2
+    DG              = vehicle.mass_properties.max_takeoff / Units.lbs
+    WSC             = 1.1 * VMAX ** 0.52 * SFLAP ** 0.6 * DG ** 0.32  # surface controls weight
 
-    XL = vehicle.fuselages['fuselage'].lengths.total / Units.ft
-    WF = vehicle.fuselages['fuselage'].width / Units.ft
-    FPAREA = XL * WF
-    NPASS = vehicle.passengers
-    WAPU = 54 * FPAREA ** 0.3 + 5.4 * NPASS ** 0.9  # apu weight
+    XL          = vehicle.fuselages['fuselage'].lengths.total / Units.ft
+    WF          = vehicle.fuselages['fuselage'].width / Units.ft
+    FPAREA      = XL * WF
+    NPASS       = vehicle.passengers
+    WAPU        = 54 * FPAREA ** 0.3 + 5.4 * NPASS ** 0.9  # apu weight
 
     if vehicle.passengers >= 150:
         NFLCR = 3  # number of flight crew
     else:
         NFLCR = 2
 
-    FNEW = sum(propulsors.wing_mounted)
-    FNAC = propulsors.nacelle_diameter / Units.ft
-    FNEF = len(propulsors.wing_mounted) - FNEW
-    WIN = 0.48 * FPAREA ** 0.57 * VMAX ** 0.5 * (10 + 2.5 * NFLCR + FNEW + 1.5 * FNEF)  # instrumentation weight
+    FNEW    = sum(propulsors.wing_mounted)
+    FNAC    = propulsors.nacelle_diameter / Units.ft
+    FNEF    = len(propulsors.wing_mounted) - FNEW
+    WIN     = 0.48 * FPAREA ** 0.57 * VMAX ** 0.5 * (10 + 2.5 * NFLCR + FNEW + 1.5 * FNEF)  # instrumentation weight
 
-    SW = vehicle.reference_area / Units.ft ** 2
-    HYDR = 3000  # Hydraulic system pressure
-    VARSWP = 0
-    WHYD = 0.57 * (FPAREA + 0.27 * SW) * (1 + 0.03 * FNEW + 0.05 * FNEF) * (3000 / HYDR) ** 0.35 * \
-           (1 + 0.04 * VARSWP) * VMAX ** 0.33  # hydraulic and pneumatic system weight
+    SW      = vehicle.reference_area / Units.ft ** 2
+    HYDR    = 3000  # Hydraulic system pressure
+    VARSWP  = 0
+    WHYD    = 0.57 * (FPAREA + 0.27 * SW) * (1 + 0.03 * FNEW + 0.05 * FNEF) * (3000 / HYDR) ** 0.35 * \
+            (1 + 0.04 * VARSWP) * VMAX ** 0.33  # hydraulic and pneumatic system weight
 
-    NFUSE = len(vehicle.fuselages)
-    WELEC = 92. * XL ** 0.4 * WF ** 0.14 * NFUSE ** 0.27 * NENG ** 0.69 * \
+    NFUSE   = len(vehicle.fuselages)
+    WELEC   = 92. * XL ** 0.4 * WF ** 0.14 * NFUSE ** 0.27 * NENG ** 0.69 * \
             (1. + 0.044 * NFLCR + 0.0015 * NPASS)  # electrical system weight
 
-    DESRNG = vehicle.design_range / Units.nmi
-    WAVONC = 15.8 * DESRNG ** 0.1 * NFLCR ** 0.7 * FPAREA ** 0.43  # avionics weight
+    DESRNG  = vehicle.design_range / Units.nmi
+    WAVONC  = 15.8 * DESRNG ** 0.1 * NFLCR ** 0.7 * FPAREA ** 0.43  # avionics weight
 
-    XLP = 0.8 * XL
-    DF = vehicle.fuselages['fuselage'].heights.maximum / Units.ft
-    WFURN = 127 * NFLCR + 112 * vehicle.NPF + 78 * vehicle.NPB + 44 * vehicle.NPT \
-            + 2.6 * XLP * (WF + DF) * NFUSE  # furnishing weight
+    XLP     = 0.8 * XL
+    DF      = vehicle.fuselages['fuselage'].heights.maximum / Units.ft
+    WFURN   = 127 * NFLCR + 112 * vehicle.NPF + 78 * vehicle.NPB + 44 * vehicle.NPT \
+                + 2.6 * XLP * (WF + DF) * NFUSE  # furnishing weight
 
-    WAC = (3.2 * (FPAREA * DF) ** 0.6 + 9 * NPASS ** 0.83) * VMAX + 0.075 * WAVONC  # ac weight
+    WAC     = (3.2 * (FPAREA * DF) ** 0.6 + 9 * NPASS ** 0.83) * VMAX + 0.075 * WAVONC  # ac weight
 
-    WAI = vehicle.wings['main_wing'].spans.projected / Units.ft \
+    WAI     = vehicle.wings['main_wing'].spans.projected / Units.ft \
           * 1. / np.cos(vehicle.wings['main_wing'].sweeps.quarter_chord) + 3.8 * FNAC * NENG + 1.5 * WF  # anti-ice weight
 
-    output = Data()
-    output.wt_flt_ctrl = WSC * Units.lbs
-    output.wt_apu = WAPU * Units.lbs
-    output.wt_hyd_pnu = WHYD * Units.lbs
-    output.wt_instruments = WIN * Units.lbs
-    output.wt_avionics = WAVONC * Units.lbs
-    output.wt_elec = WELEC * Units.lbs
-    output.wt_ac = WAC * Units.lbs
-    output.wt_furnish = WFURN * Units.lbs
-    output.wt_anti_ice = WAI * Units.lbs
-    output.wt_systems = WSC + WAPU + WIN + WHYD + WELEC + WAVONC + WFURN + WAC + WAI
+    output                  = Data()
+    output.wt_flt_ctrl      = WSC * Units.lbs
+    output.wt_apu           = WAPU * Units.lbs
+    output.wt_hyd_pnu       = WHYD * Units.lbs
+    output.wt_instruments   = WIN * Units.lbs
+    output.wt_avionics      = WAVONC * Units.lbs
+    output.wt_elec          = WELEC * Units.lbs
+    output.wt_ac            = WAC * Units.lbs
+    output.wt_furnish       = WFURN * Units.lbs
+    output.wt_anti_ice      = WAI * Units.lbs
+    output.wt_systems       = WSC + WAPU + WIN + WHYD + WELEC + WAVONC + WFURN + WAC + WAI
     return output

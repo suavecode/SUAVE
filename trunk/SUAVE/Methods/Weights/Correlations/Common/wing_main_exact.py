@@ -20,7 +20,7 @@ from SUAVE.Attributes.Solids.Aluminum import Aluminum
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-Common
-def wing_main_update(vehicle, wing):
+def wing_main_exact(vehicle, wing):
     """ Calculate the wing weight of the aircraft based on the fully-stressed
     bending weight of the wing box
 
@@ -34,7 +34,16 @@ def wing_main_update(vehicle, wing):
 
     Inputs:
         vehicle - data dictionary with vehicle properties                   [dimensionless]
+            -.mass_properties.max_takeoff: MTOW                             [kilograms]
+            -.mass_properties.max_zero_fuel: zero fuel weight aircraft      [kilograms]
+            -.envelope.ultimate_load: ultimate load factor
         wing    - data dictionary with specific wing properties             [dimensionless]
+            -.areas.reference: wing reference surface area                  [m^2]
+            -.sweeps.quarter_chord: quarter chord sweep angle               [deg]
+            -.spans.projected: wing span                                    [m]
+            -.thickness_to_chord: thickness to chord of wing
+            -.taper: taper ratio of wing
+            -.chords.root: root chord                                       [m]
 
     Outputs:
         weight - weight of the wing                  [kilograms]
@@ -44,29 +53,29 @@ def wing_main_update(vehicle, wing):
     """
 
     # unpack inputs
-    span = wing.spans.projected
-    taper = wing.taper
-    sweep = wing.sweeps.quarter_chord
-    area = wing.areas.reference
-    t_c_w = wing.thickness_to_chord
-    RC = wing.chords.root
-    frac = wing.areas.reference / vehicle.reference_area
-    rho = Aluminum().density
-    sigma = Aluminum().yield_tensile_strength
-    rho_sigma = rho * 9.81 / sigma
-    Nult = vehicle.envelope.ultimate_load
-    TOW = vehicle.mass_properties.max_takeoff
-    wt_zf = vehicle.mass_properties.max_zero_fuel
+    span        = wing.spans.projected
+    taper       = wing.taper
+    sweep       = wing.sweeps.quarter_chord
+    area        = wing.areas.reference
+    t_c_w       = wing.thickness_to_chord
+    RC          = wing.chords.root
+    frac        = wing.areas.reference / vehicle.reference_area
+    rho         = Aluminum().density
+    sigma       = Aluminum().yield_tensile_strength
+    rho_sigma   = rho * 9.81 / sigma
+    Nult        = vehicle.envelope.ultimate_load
+    TOW         = vehicle.mass_properties.max_takeoff
+    wt_zf       = vehicle.mass_properties.max_zero_fuel
 
     # Start the calculations
-    l_tot = Nult * np.sqrt(TOW * wt_zf) * 9.81
-    L0 = frac * 2 * l_tot / (span * np.pi)
+    l_tot   = Nult * np.sqrt(TOW * wt_zf) * 9.81
+    L0      = frac * 2 * l_tot / (span * np.pi)
 
     if len(wing.Segments) > 0:
 
         # Prime some numbers
         run_sum = 0
-        b = span
+        b       = span
 
         for i in range(1, len(wing.Segments)):
 
@@ -76,9 +85,9 @@ def wing_main_update(vehicle, wing):
 
             if wing.Segments[i - 1].root_chord_percent == wing.Segments[i].root_chord_percent and \
                     wing.Segments[i - 1].thickness_to_chord == wing.Segments[i].thickness_to_chord:
-                C = wing.Segments[i].root_chord_percent * RC
-                G = wing.Segments[i].thickness_to_chord
-                SW = wing.Segments[i - 1].sweeps.quarter_chord
+                C   = wing.Segments[i].root_chord_percent * RC
+                G   = wing.Segments[i].thickness_to_chord
+                SW  = wing.Segments[i - 1].sweeps.quarter_chord
 
                 WB = (1 / (G * C * np.cos(SW) ** 2)) * 1 / 3 * (
                         1 / 8 * (-Y1 * (5 - 2 * Y1 ** 2) * np.sqrt(1 - Y1 ** 2) -
@@ -108,13 +117,13 @@ def wing_main_update(vehicle, wing):
 
     else:
 
-        area = wing.areas.reference / Units.ft ** 2
-        span = wing.spans.projected / Units.ft
-        mtow = TOW / Units.lb  # Convert kg to lbs
-        zfw = wt_zf / Units.lb  # Convert kg to lbs
+        area    = wing.areas.reference / Units.ft ** 2
+        span    = wing.spans.projected / Units.ft
+        mtow    = TOW / Units.lb  # Convert kg to lbs
+        zfw     = wt_zf / Units.lb  # Convert kg to lbs
 
         # Calculate weight of wing for traditional aircraft wing
-        weight = 4.22 * area + 1.642 * 10. ** -6. * Nult * (span) ** 3. * (mtow * zfw) ** 0.5 \
+        weight  = 4.22 * area + 1.642 * 10. ** -6. * Nult * (span) ** 3. * (mtow * zfw) ** 0.5 \
                  * (1. + 2. * taper) / (t_c_w * (np.cos(sweep)) ** 2. * area * (1. + taper))
 
     weight = weight * Units.lb  # Convert lb to kg

@@ -363,7 +363,6 @@ def vehicle_setup():
 
     # setup
     turbofan.number_of_engines = 2.0
-    turbofan.wing_mounted = [True] * int(turbofan.number_of_engines)
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71
     turbofan.nacelle_diameter  = 2.05

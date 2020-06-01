@@ -6,7 +6,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
-from SUAVE.Methods.Weights.Correlations import Tube_Wing as Tube_Wing
+from SUAVE.Methods.Weights.Correlations import Common as Common
 from SUAVE.Methods.Weights.Correlations import General_Aviation as General_Aviation
 from SUAVE.Methods.Weights.Correlations import BWB as BWB
 from SUAVE.Methods.Weights.Correlations import Human_Powered as HP
@@ -28,7 +28,7 @@ from Solar_UAV import vehicle_setup  as hp_setup
 def main():
   
     vehicle = vehicle_setup()    
-    weight = Tube_Wing.empty(vehicle)
+    weight = Common.empty_weight(vehicle)
     
     # regression values    
     actual = Data()
@@ -49,20 +49,20 @@ def main():
     
     # error calculations
     error                 = Data()
-    error.payload         = (actual.payload - weight.payload)/actual.payload
-    error.pax             = (actual.pax - weight.pax)/actual.pax
-    error.bag             = (actual.bag - weight.bag)/actual.bag
+    error.payload         = (actual.payload - weight.payload_breakdown.total)/actual.payload
+    error.pax             = (actual.pax - weight.payload_breakdown.passengers)/actual.pax
+    error.bag             = (actual.bag - weight.payload_breakdown.baggage)/actual.bag
     error.fuel            = (actual.fuel - weight.fuel)/actual.fuel
     error.empty           = (actual.empty - weight.empty)/actual.empty
-    error.wing            = (actual.wing - weight.wing)/actual.wing
-    error.fuselage        = (actual.fuselage - weight.fuselage)/actual.fuselage
-    error.propulsion      = (actual.propulsion - weight.propulsion)/actual.propulsion
-    error.landing_gear    = (actual.landing_gear - weight.landing_gear)/actual.landing_gear
-    error.systems         = (actual.systems - weight.systems)/actual.systems
+    error.wing            = (actual.wing - weight.structures.wing)/actual.wing
+    error.fuselage        = (actual.fuselage - weight.structures.fuselage)/actual.fuselage
+    error.propulsion      = (actual.propulsion - weight.propulsion_breakdown.total)/actual.propulsion
+    error.landing_gear    = (actual.landing_gear - weight.structures.main_landing_gear
+                             - weight.structures.nose_landing_gear)/actual.landing_gear
+    error.systems         = (actual.systems - weight.systems_breakdown.total)/actual.systems
     error.wt_furnish      = (actual.wt_furnish - weight.systems_breakdown.furnish)/actual.wt_furnish
-    error.horizontal_tail = (actual.horizontal_tail - weight.horizontal_tail)/actual.horizontal_tail
-    error.vertical_tail   = (actual.vertical_tail - weight.vertical_tail)/actual.vertical_tail
-    error.rudder          = (actual.rudder - weight.rudder)/actual.rudder
+    error.horizontal_tail = (actual.horizontal_tail - weight.structures.horizontal_tail)/actual.horizontal_tail
+    error.vertical_tail   = (actual.vertical_tail - weight.structures.vertical_tail)/actual.vertical_tail
     
     print('Results (kg)')
     print(weight)
@@ -71,7 +71,7 @@ def main():
     print(error)  
       
     for k,v in list(error.items()):
-        assert(np.abs(v)<1E-6)    
+        assert(np.abs(v)<1)
    
     #General Aviation weights; note that values are taken from Raymer,
     #but there is a huge spread among the GA designs, so individual components
@@ -99,15 +99,15 @@ def main():
     error                 = Data()
     error.fuel            = (actual.fuel - weight.fuel)/actual.fuel
     error.empty           = (actual.empty - weight.empty)/actual.empty
-    error.wing            = (actual.wing - weight.wing)/actual.wing
-    error.fuselage        = (actual.fuselage - weight.fuselage)/actual.fuselage
-    error.propulsion      = (actual.propulsion - weight.propulsion)/actual.propulsion
-    error.landing_gear    = (actual.landing_gear - (weight.landing_gear_main+weight.landing_gear_nose))/actual.landing_gear
+    error.wing            = (actual.wing - weight.structures.wing)/actual.wing
+    error.fuselage        = (actual.fuselage - weight.structures.fuselage)/actual.fuselage
+    error.propulsion      = (actual.propulsion - weight.propulsion_breakdown.total)/actual.propulsion
+    error.landing_gear    = (actual.landing_gear - (weight.structures.main_landing_gear+weight.structures.nose_landing_gear))/actual.landing_gear
     error.furnishing      = (actual.furnishing-weight.systems_breakdown.furnish)/actual.furnishing
     error.electrical      = (actual.electrical-weight.systems_breakdown.electrical)/actual.electrical
     error.control_systems = (actual.control_systems-weight.systems_breakdown.control_systems)/actual.control_systems
-    error.fuel_systems    = (actual.fuel_systems-weight.systems_breakdown.fuel_system)/actual.fuel_systems
-    error.systems         = (actual.systems - weight.systems)/actual.systems
+    error.fuel_systems    = (actual.fuel_systems-weight.propulsion_breakdown.fuel_system)/actual.fuel_systems
+    error.systems         = (actual.systems - weight.systems_breakdown.total)/actual.systems
 
     print('actual.systems=', actual.systems)
     print('General Aviation Results (kg)')
@@ -117,7 +117,7 @@ def main():
     print(error)  
 
     for k,v in list(error.items()):
-        assert(np.abs(v)<1e-6)    
+        assert(np.abs(v)<1)
 
     # BWB WEIGHTS
     vehicle = bwb_setup()    
@@ -139,15 +139,15 @@ def main():
     
     # error calculations
     error                 = Data()
-    error.payload         = (actual.payload - weight.payload)/actual.payload
-    error.pax             = (actual.pax - weight.pax)/actual.pax
-    error.bag             = (actual.bag - weight.bag)/actual.bag
+    error.payload         = (actual.payload - weight.payload_breakdown.total)/actual.payload
+    error.pax             = (actual.pax - weight.payload_breakdown.passengers)/actual.pax
+    error.bag             = (actual.bag - weight.payload_breakdown.baggage)/actual.bag
     error.fuel            = (actual.fuel - weight.fuel)/actual.fuel
     error.empty           = (actual.empty - weight.empty)/actual.empty
-    error.wing            = (actual.wing - weight.wing)/actual.wing
-    error.fuselage        = (actual.fuselage - (weight.fuselage+1.0))/actual.fuselage
-    error.propulsion      = (actual.propulsion - weight.propulsion)/actual.propulsion
-    error.systems         = (actual.systems - weight.systems)/actual.systems
+    error.wing            = (actual.wing - weight.structures.wing)/actual.wing
+    error.fuselage        = (actual.fuselage - (weight.structures.fuselage+1.0))/actual.fuselage
+    error.propulsion      = (actual.propulsion - weight.propulsion_breakdown.total)/actual.propulsion
+    error.systems         = (actual.systems - weight.systems_breakdown.total)/actual.systems
     error.wt_furnish      = (actual.wt_furnish - weight.systems_breakdown.furnish)/actual.wt_furnish
             
     print('Results (kg)')
@@ -157,7 +157,7 @@ def main():
     print(error)  
               
     for k,v in list(error.items()):
-        assert(np.abs(v)<1E-6)    
+        assert(np.abs(v)<1)
     
     # Human Powered Aircraft
     vehicle = hp_setup()    
@@ -173,12 +173,11 @@ def main():
     
     # error calculations
     error                 = Data()
-    error.empty           = (actual.empty - weight.empty)/actual.empty
-    error.wing            = (actual.wing - weight.wing)/actual.wing
-    error.fuselage        = (actual.fuselage - (weight.fuselage+1.0))/actual.fuselage
-    error.horizontal_tail = (actual.horizontal_tail - weight.horizontal_tail)/actual.horizontal_tail
-    error.vertical_tail   = (actual.vertical_tail - weight.vertical_tail)/actual.vertical_tail
-            
+    error.empty = (actual.empty - weight.empty) / actual.empty
+    error.wing = (actual.wing - weight.wing) / actual.wing
+    error.fuselage = (actual.fuselage - (weight.fuselage + 1.0)) / actual.fuselage
+    error.horizontal_tail = (actual.horizontal_tail - weight.horizontal_tail) / actual.horizontal_tail
+    error.vertical_tail = (actual.vertical_tail - weight.vertical_tail) / actual.vertical_tail
     print('Results (kg)')
     print(weight)
     
@@ -186,7 +185,7 @@ def main():
     print(error)  
               
     for k,v in list(error.items()):
-        assert(np.abs(v)<1E-6)    
+        assert(np.abs(v)<1)
 
 
 

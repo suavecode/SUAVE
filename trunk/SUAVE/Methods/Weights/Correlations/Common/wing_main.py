@@ -32,7 +32,16 @@ def wing_main(vehicle, wing):
         
     Inputs:
         vehicle - data dictionary with vehicle properties                   [dimensionless]
+            -.mass_properties.max_takeoff: MTOW                             [kilograms]
+            -.mass_properties.max_zero_fuel: zero fuel weight aircraft      [kilograms]
+            -.envelope.ultimate_load: ultimate load factor
         wing    - data dictionary with specific wing properties             [dimensionless]
+            -.areas.reference: wing reference surface area                  [m^2]
+            -.sweeps.quarter_chord: quarter chord sweep angle               [deg]
+            -.spans.projected: wing span                                    [m]
+            -.thickness_to_chord: thickness to chord of wing
+            -.taper: taper ratio of wing
+
     
     Outputs:
         weight - weight of the wing                  [kilograms]          
@@ -41,17 +50,17 @@ def wing_main(vehicle, wing):
         N/A
     """
 
-    S_gross_w = wing.areas.reference
-    sweep_w = wing.sweeps.quarter_chord
+    S_gross_w   = wing.areas.reference
+    sweep_w     = wing.sweeps.quarter_chord
     # unpack inputs
-    span = wing.spans.projected / Units.ft  # Convert meters to ft
-    sweep = sweep_w
-    area = S_gross_w / Units.ft ** 2  # Convert meters squared to ft squared
-    mtow = vehicle.mass_properties.max_takeoff / Units.lb  # Convert kg to lbs
-    zfw = vehicle.mass_properties.max_zero_fuel / Units.lb  # Convert kg to lbs
+    span        = wing.spans.projected / Units.ft  # Convert meters to ft
+    sweep       = sweep_w
+    area        = S_gross_w / Units.ft ** 2  # Convert meters squared to ft squared
+    mtow        = vehicle.mass_properties.max_takeoff / Units.lb  # Convert kg to lbs
+    zfw         = vehicle.mass_properties.max_zero_fuel / Units.lb  # Convert kg to lbs
     # Calculate weight of wing for traditional aircraft wing
-    weight = 4.22 * area + 1.642 * 10. ** -6. * vehicle.envelope.ultimate_load * span ** 3. * (mtow * zfw) ** 0.5 \
-             * (1. + 2. * wing.taper) / (wing.thickness_to_chord * (np.cos(sweep)) ** 2. * area * (1. + wing.taper))
-    weight = weight * Units.lb  # Convert lb to kg
+    weight      = 4.22 * area + 1.642 * 10. ** -6. * vehicle.envelope.ultimate_load * span ** 3. * (mtow * zfw) ** 0.5 \
+                * (1. + 2. * wing.taper) / (wing.thickness_to_chord * (np.cos(sweep)) ** 2. * area * (1. + wing.taper))
+    weight      = weight * Units.lb  # Convert lb to kg
 
     return weight

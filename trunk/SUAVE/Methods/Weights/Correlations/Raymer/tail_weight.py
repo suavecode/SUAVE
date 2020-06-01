@@ -63,17 +63,17 @@ def tail_horizontal_Raymer(vehicle, wing, elevator_fraction=0.4):
         Properties Used:
             N/A
     """
-    Kuht = 1 # not a all-moving unit horizontal tail
-    Fw = vehicle.fuselages['fuselage'].width / Units.ft
-    Bh = wing.spans.projected / Units.ft
-    DG = vehicle.mass_properties.max_takeoff / Units.lbs
-    Sht = wing.areas.reference / Units.ft ** 2
-    Lt = (wing.origin[0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] -
-          vehicle.wings['main_wing'].aerodynamic_center[0]) / Units.ft
-    Ky = 0.3 * Lt
-    sweep = wing.sweeps.quarter_chord
-    Ah = wing.aspect_ratio
-    Se = elevator_fraction * Sht
+    Kuht    = 1 # not a all-moving unit horizontal tail
+    Fw      = vehicle.fuselages['fuselage'].width / Units.ft
+    Bh      = wing.spans.projected / Units.ft
+    DG      = vehicle.mass_properties.max_takeoff / Units.lbs
+    Sht     = wing.areas.reference / Units.ft ** 2
+    Lt      = (wing.origin[0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] -
+                vehicle.wings['main_wing'].aerodynamic_center[0]) / Units.ft
+    Ky      = 0.3 * Lt
+    sweep   = wing.sweeps.quarter_chord
+    Ah      = wing.aspect_ratio
+    Se      = elevator_fraction * Sht
 
     tail_weight = 0.0379 * Kuht * (1 + Fw / Bh) ** (-0.25) * DG ** 0.639 *\
                   vehicle.envelope.ultimate_load ** 0.1 * Sht ** 0.75 * Lt ** -1 *\

@@ -30,20 +30,19 @@ def wing_main_raymer(vehicle, wing):
     """
 
     # unpack inputs
-    span = wing.spans.projected
-    taper = wing.taper
-    sweep = wing.sweeps.quarter_chord
-    area = wing.areas.reference
-    t_c_w = wing.thickness_to_chord
+    taper   = wing.taper
+    sweep   = wing.sweeps.quarter_chord
+    area    = wing.areas.reference
+    t_c_w   = wing.thickness_to_chord
 
-    Wdg = vehicle.mass_properties.max_takeoff / Units.lb
-    Nz = vehicle.envelope.ultimate_load
-    Sw = area / Units.ft ** 2
-    A = wing.aspect_ratio
+    Wdg     = vehicle.mass_properties.max_takeoff / Units.lb
+    Nz      = vehicle.envelope.ultimate_load
+    Sw      = area / Units.ft ** 2
+    A       = wing.aspect_ratio
     tc_root = t_c_w
-    taper = taper
-    sweep = sweep
-    Scsw = Sw * .1
+    taper   = taper
+    sweep   = sweep
+    Scsw    = Sw * .1
 
     if vehicle.systems.accessories == 'sst':
         sweep = 0

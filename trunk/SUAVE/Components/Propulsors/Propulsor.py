@@ -53,7 +53,7 @@ class Propulsor(Physical_Component):
         self.number_of_engines = 1.0
         self.nacelle_diameter  = 1.0
         self.engine_length     = 1.0
-        self.wing_mounted = [True]
+        self.wing_mounted = True
         
         self.areas             = Data()
         self.areas.wetted      = 0.0

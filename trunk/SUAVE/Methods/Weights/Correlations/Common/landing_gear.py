@@ -34,8 +34,8 @@ def landing_gear(vehicle, landing_gear_wt_factor=0.04):
     """
 
     # process
-    weight = landing_gear_wt_factor * vehicle.mass_properties.max_takeoff
-    output = Data()
-    output.main = weight
-    output.nose = 0
+    weight          = landing_gear_wt_factor * vehicle.mass_properties.max_takeoff
+    output          = Data()
+    output.main     = weight
+    output.nose     = 0
     return output

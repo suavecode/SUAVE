@@ -48,16 +48,16 @@ def payload(vehicle, wt_passenger=195 * Units.lbs, wt_baggage=30 * Units.lbs):
     """
 
     # process
-    num_pax = vehicle.passengers
-    wt_pax = wt_passenger * num_pax
-    wt_bag = wt_baggage * num_pax
-    wt_payload = wt_pax + wt_bag + vehicle.mass_properties.cargo
+    num_pax     = vehicle.passengers
+    wt_pax      = wt_passenger * num_pax
+    wt_bag      = wt_baggage * num_pax
+    wt_payload  = wt_pax + wt_bag + vehicle.mass_properties.cargo
 
     # packup outputs
-    output = Data()
-    output.total = wt_payload
-    output.passengers = wt_pax
-    output.baggage = wt_bag
-    output.cargo = vehicle.mass_properties.cargo
+    output              = Data()
+    output.total        = wt_payload
+    output.passengers   = wt_pax
+    output.baggage      = wt_bag
+    output.cargo        = vehicle.mass_properties.cargo
 
     return output

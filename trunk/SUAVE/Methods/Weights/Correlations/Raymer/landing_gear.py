@@ -34,26 +34,26 @@ def landing_gear_Raymer(vehicle):
         Properties Used:
             N/A
     """
-    Kmp = 1  # assuming not a kneeling gear
+    Kmp         = 1  # assuming not a kneeling gear
     if vehicle.systems.accessories == "sst":
-        RFACT = 0.00009
+        RFACT   = 0.00009
     else:
-        RFACT = 0.00004
-    DESRNG = vehicle.design_range / Units.nmi  # Design range in nautical miles
-    WLDG = vehicle.mass_properties.max_takeoff / Units.lbs * (1 - RFACT * DESRNG)
-    Ngear = 3  # gear load factor, usually around 3
-    Nl = Ngear * 1.5  # ultimate landing load factor
-    Lm = vehicle.landing_gear.main_strut_length / Units.inch
-    Nmss = 2  # number of main gear shock struts assumed to be 2
-    Nmw = vehicle.landing_gear.main_wheels * Nmss
-    Vstall = 51 * Units.kts  # stall speed
-    Knp = 1  # assuming not a reciprocating engine
-    Ln = vehicle.landing_gear.nose_strut_length / Units.inch
-    Nnw = vehicle.landing_gear.nose_wheels
+        RFACT   = 0.00004
+    DESRNG      = vehicle.design_range / Units.nmi  # Design range in nautical miles
+    WLDG        = vehicle.mass_properties.max_takeoff / Units.lbs * (1 - RFACT * DESRNG)
+    Ngear       = 3  # gear load factor, usually around 3
+    Nl          = Ngear * 1.5  # ultimate landing load factor
+    Lm          = vehicle.landing_gear.main_strut_length / Units.inch
+    Nmss        = 2  # number of main gear shock struts assumed to be 2
+    Nmw         = vehicle.landing_gear.main_wheels * Nmss
+    Vstall      = 51 * Units.kts  # stall speed
+    Knp         = 1  # assuming not a reciprocating engine
+    Ln          = vehicle.landing_gear.nose_strut_length / Units.inch
+    Nnw         = vehicle.landing_gear.nose_wheels
     WLGM = 0.0106 * Kmp * WLDG ** 0.888 * Nl ** 0.25 * Lm ** 0.4 * Nmw ** 0.321 * Nmss ** (-0.5) * Vstall ** 0.1
     WLGN = 0.032 * Knp * WLDG ** 0.646 * Nl ** 0.2 * Ln ** 0.5 * Nnw ** 0.45
 
-    output = Data()
-    output.main = WLGM * Units.lbs
-    output.nose = WLGN * Units.lbs
+    output          = Data()
+    output.main     = WLGM * Units.lbs
+    output.nose     = WLGN * Units.lbs
     return output

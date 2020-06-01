@@ -30,13 +30,13 @@ def tail_vertical(vehicle, wing, rudder_fraction=0.25):
         
     Inputs:
         S_v - area of the vertical tail (combined fin and rudder)                      [meters**2]
-        Nult - ultimate load of the aircraft                                           [dimensionless]
-        b_v - span of the vertical                                                     [meters]
-        TOW - maximum takeoff weight of the aircraft                                   [kilograms]
-        t_c_v - thickness-to-chord ratio of the vertical tail                          [dimensionless]
-        sweep_v - sweep angle of the vertical tail                                     [radians]
-        S_gross_w - wing gross area                                                    [meters**2]
-        t_tail - factor to determine if aircraft has a t-tail                          [dimensionless]
+        vehicle.envelope.ultimate_load - ultimate load of the aircraft                 [dimensionless]
+        wing.spans.projected - span of the vertical                                    [meters]
+        vehicle.mass_properties.max_takeoff - maximum takeoff weight of the aircraft   [kilograms]
+        wing.thickness_to_chord- thickness-to-chord ratio of the vertical tail         [dimensionless]
+        wing.sweeps.quarter_chord - sweep angle of the vertical tail                   [radians]
+        vehicle.reference_area - wing gross area                                       [meters**2]
+        wing.t_tail - factor to determine if aircraft has a t-tail                     [dimensionless]
         rudder_fraction - fraction of the vertical tail that is the rudder             [dimensionless]
     
     Outputs:
@@ -48,12 +48,12 @@ def tail_vertical(vehicle, wing, rudder_fraction=0.25):
         N/A
     """
     # unpack inputs
-    span = wing.spans.projected / Units.ft  # Convert meters to ft
-    sweep = wing.sweeps.quarter_chord  # Convert deg to radians
-    area = wing.areas.reference / Units.ft ** 2  # Convert meters squared to ft squared
-    mtow = vehicle.mass_properties.max_takeoff / Units.lb  # Convert kg to lbs
-    Sref = vehicle.reference_area / Units.ft ** 2  # Convert from meters squared to ft squared
-    t_c_v = wing.thickness_to_chord
+    span    = wing.spans.projected / Units.ft  # Convert meters to ft
+    sweep   = wing.sweeps.quarter_chord  # Convert deg to radians
+    area    = wing.areas.reference / Units.ft ** 2  # Convert meters squared to ft squared
+    mtow    = vehicle.mass_properties.max_takeoff / Units.lb  # Convert kg to lbs
+    Sref    = vehicle.reference_area / Units.ft ** 2  # Convert from meters squared to ft squared
+    t_c_v   = wing.thickness_to_chord
     # Determine weight of the vertical portion of the tail
     if wing.t_tail == "yes":
         T_tail_factor = 1.25  # Weight of vertical portion of the T-tail is 25% more than a conventional tail

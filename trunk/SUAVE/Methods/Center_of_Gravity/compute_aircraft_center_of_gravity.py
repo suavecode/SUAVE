@@ -58,7 +58,7 @@ def compute_aircraft_center_of_gravity(vehicle, nose_load_fraction=.06):
         if 'vertical_stabilizer' in vehicle.wings:
                 v_tail             = vehicle.wings['vertical_stabilizer']  
                 v_tail_cg                 = v_tail.mass_properties.center_of_gravity
-                v_tail_moment             = (v_tail.origin+ v_tail_cg)*(v_tail.mass_properties.mass+v_tail.rudder.mass_properties.mass)
+                v_tail_moment             = (v_tail.origin+ v_tail_cg)*v_tail.mass_properties.mass
         else:
                 v_tail_moment = 0
 

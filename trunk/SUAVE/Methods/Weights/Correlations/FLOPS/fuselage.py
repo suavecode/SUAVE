@@ -22,7 +22,17 @@ def fuselage_weight_FLOPS(vehicle):
             The Flight Optimization System Weight Estimation Method
 
         Inputs:
-            vehicle - data dictionary with vehicle properties                   [dimensionless]
+            vehicle - data dictionary with vehicle properties                    [dimensionless]
+                -.propulsors: data dictionary containing all propulsion properties
+                -.fuselages['fuselage'].lengths.total: fuselage total length      [meters]
+                -.fuselages['fuselage'].width: fuselage width                    [meters]
+                -.fuselages['fuselage'].heights.maximum: fuselage maximum height [meters]
+                -.envelope.ultimate_load: ultimate load factor (default: 3.75)
+                -.systems.accessories: type of aircraft (short-range, commuter
+                                                        medium-range, long-range,
+                                                        sst, cargo)
+                -.mass_properties.max_takeoff: MTOW                              [kilograms]
+                -.design_mach_number: design mach number for cruise flight
 
         Outputs:
             WFUSE - weight of the fuselage                                      [kilograms]
@@ -30,22 +40,22 @@ def fuselage_weight_FLOPS(vehicle):
         Properties Used:
             N/A
     """
-    XL = vehicle.fuselages['fuselage'].lengths.total / Units.ft  # Fuselage length, ft
+    XL  = vehicle.fuselages['fuselage'].lengths.total / Units.ft  # Fuselage length, ft
     DAV = (vehicle.fuselages['fuselage'].width +
-           vehicle.fuselages['fuselage'].heights.maximum) / 2. * 1 / Units.ft  # Average fuselage diameter, ft
+           vehicle.fuselages['fuselage'].heights.maximum) / 2. * 1 / Units.ft
     if vehicle.systems.accessories == "short-range" or vehicle.systems.accessories == "commuter":
-        SWFUS = np.pi * (XL / DAV - 1.7) * DAV ** 2  # Fuselage wetted area, ft**2
-        ULF = vehicle.envelope.ultimate_load  # Ultimate load factor
-        atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        atmo_data = atmosphere.compute_values(vehicle.design_cruise_alt, 0)
+        SWFUS           = np.pi * (XL / DAV - 1.7) * DAV ** 2  # Fuselage wetted area, ft**2
+        ULF             = vehicle.envelope.ultimate_load  # Ultimate load factor
+        atmosphere      = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        atmo_data       = atmosphere.compute_values(vehicle.design_cruise_alt, 0)
         atmo_data_floor = atmosphere.compute_values(0, 0)
-        DELTA = atmo_data.pressure/atmo_data_floor.pressure
-        QCRUS = 1481.35 * DELTA * vehicle.design_mach_number**2  # Cruise dynamic pressure, psf
-        DG = vehicle.mass_properties.max_takeoff / Units.lbs  # Design gross weight in lb
-        WFUSE = 0.052 * SWFUS ** 1.086 * (ULF * DG) ** 0.177 * QCRUS ** 0.241
+        DELTA           = atmo_data.pressure/atmo_data_floor.pressure
+        QCRUS           = 1481.35 * DELTA * vehicle.design_mach_number**2  # Cruise dynamic pressure, psf
+        DG              = vehicle.mass_properties.max_takeoff / Units.lbs  # Design gross weight in lb
+        WFUSE           = 0.052 * SWFUS ** 1.086 * (ULF * DG) ** 0.177 * QCRUS ** 0.241
     else:
-        propulsor_name = list(vehicle.propulsors.keys())[0]
-        propulsors = vehicle.propulsors[propulsor_name]
+        propulsor_name  = list(vehicle.propulsors.keys())[0]
+        propulsors      = vehicle.propulsors[propulsor_name]
         FNEF = len(propulsors.wing_mounted) - sum(propulsors.wing_mounted)   # Number of fuselage mounted engines
         if vehicle.systems.accessories == 'cargo':
             CARGF = 1

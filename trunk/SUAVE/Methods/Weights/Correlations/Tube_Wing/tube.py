@@ -10,8 +10,6 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Units
-import numpy as np
-
 
 # ----------------------------------------------------------------------
 #   Tube
@@ -28,34 +26,34 @@ def tube(vehicle, fuse, wt_wing, wt_propulsion):
         N/A 
         
     Inputs:
-        S_fus - fuselage wetted area                                           [meters**2]
-        diff_p_fus - Maximum fuselage pressure differential                    [Pascal]
-        w_fus - width of the fuselage                                          [meters]
-        h_fus - height of the fuselage                                         [meters]
-        l_fus - length of the fuselage                                         [meters]
-        Nlim - limit load factor at zero fuel weight of the aircraft           [dimensionless]
-        wt_zf - zero fuel weight of the aircraft                               [kilograms]
+        fuse.areas.wetted - fuselage wetted area                                                            [meters**2]
+        fuse.differential_pressure- Maximum fuselage pressure differential                                  [Pascal]
+        fuse.width - width of the fuselage                                                                  [meters]
+        fuse.heights.maximum - height of the fuselage                                                       [meters]
+        fuse.lengths.total - length of the fuselage                                                         [meters]
+        vehicle.envelope.limit_load - limit load factor at zero fuel weight of the aircraft                 [dimensionless]
+        vehicle.mass_properties.max_zero_fuel - zero fuel weight of the aircraft                            [kilograms]
         wt_wing - weight of the wing of the aircraft                           [kilograms]
-        wt_propulsion - weight of the entire propulsion system of the aircraft [kilograms]
-        wing_c_r - wing root chord                                             [meters]
+        wt_propulsion - weight of the entire propulsion system of the aircraft                              [kilograms]
+        vehicle.wings.main_wing.chords.root - wing root chord                                               [meters]
         
     Outputs:
-        weight - weight of the fuselage                                        [kilograms]
+        weight - weight of the fuselage                                                                     [kilograms]
             
     Properties Used:
         N/A
     """
     # unpack inputs
 
-    diff_p = fuse.differential_pressure / (Units.force_pound / Units.ft ** 2)  # Convert Pascals to lbs/ square ft
-    width = fuse.width / Units.ft  # Convert meters to ft
-    height = fuse.heights.maximum / Units.ft  # Convert meters to ft
+    diff_p  = fuse.differential_pressure / (Units.force_pound / Units.ft ** 2)  # Convert Pascals to lbs/ square ft
+    width   = fuse.width / Units.ft  # Convert meters to ft
+    height  = fuse.heights.maximum / Units.ft  # Convert meters to ft
 
     # setup
-    length = fuse.lengths.total - vehicle.wings.main_wing.chords.root / 2.
-    length = length / Units.ft  # Convert meters to ft
-    weight = (vehicle.mass_properties.max_zero_fuel - wt_wing - wt_propulsion) / Units.lb  # Convert kg to lbs
-    area = fuse.areas.wetted / Units.ft ** 2  # Convert square meters to square ft
+    length  = fuse.lengths.total - vehicle.wings.main_wing.chords.root / 2.
+    length  = length / Units.ft  # Convert meters to ft
+    weight  = (vehicle.mass_properties.max_zero_fuel - wt_wing - wt_propulsion) / Units.lb  # Convert kg to lbs
+    area    = fuse.areas.wetted / Units.ft ** 2  # Convert square meters to square ft
 
     # process
 

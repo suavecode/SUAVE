@@ -27,12 +27,14 @@ def systems(vehicle):
         N/A
                 
    Inputs:
-       num_seats - total number of seats on the aircraft                                                   [dimensionless]
-       ctrl_type - specifies if the control system is fully power, partially powered, or not powered       [dimensionless]
-       S_h - area of the horizontal tail                                                                   [meters**2]
-       S_v - area of the vertical tail                                                                     [meters**2]
-       S_gross_w - area of the wing                                                                        [meters**2]
-       ac_type - determines type of instruments, electronics, and operating items based on type of vehicle [dimensionless]
+       vehicle.passengers - total number of seats on the aircraft                                     [dimensionless]
+       vehicle.systems.control - specifies if the control system is fully power,
+                                    partially powered, or not powered                                 [dimensionless]
+       wing.areas.reference - area of the horizontal tail                                             [meters**2]
+       wing.areas.reference - area of the vertical tail                                               [meters**2]
+       vehicle.reference_area - area of the wing                                                      [meters**2]
+       vehicle.systems.accessories - determines type of instruments, electronics,
+                                        and operating items based on type of vehicle                  [dimensionless]
    
    Outputs:
        output - a data dictionary with fields:
@@ -49,12 +51,12 @@ def systems(vehicle):
     Properties Used:
         N/A
     """
-    num_seats = vehicle.passengers
-    ctrl_type = vehicle.systems.control
-    ac_type = vehicle.systems.accessories
-    S_gross_w = vehicle.reference_area
-    sref = S_gross_w / Units.ft ** 2  # Convert meters squared to ft squared
-    s_tail = 0
+    num_seats   = vehicle.passengers
+    ctrl_type   = vehicle.systems.control
+    ac_type     = vehicle.systems.accessories
+    S_gross_w   = vehicle.reference_area
+    sref        = S_gross_w / Units.ft ** 2  # Convert meters squared to ft squared
+    s_tail      = 0
     for wing in vehicle.wings:
         if isinstance(wing, Wings.Horizontal_Tail) or isinstance(wing, Wings.Vertical_Tail):
             s_tail += wing.areas.reference
@@ -124,17 +126,17 @@ def systems(vehicle):
 
     # packup outputs
     output = Data()
-    output.wt_flt_ctrl = flt_ctrl_wt
-    output.wt_apu = apu_wt
-    output.wt_hyd_pnu = hyd_pnu_wt
-    output.wt_instruments = instruments_wt
-    output.wt_avionics = avionics_wt
-    output.wt_elec = elec_wt
-    output.wt_ac = ac_wt
-    output.wt_furnish = furnish_wt
-    output.wt_anti_ice = ai_wt
-    output.wt_systems = output.wt_flt_ctrl + output.wt_apu + output.wt_hyd_pnu \
-                        + output.wt_ac + output.wt_avionics + output.wt_elec \
-                        + output.wt_furnish + output.wt_instruments + output.wt_anti_ice
+    output.wt_flt_ctrl      = flt_ctrl_wt
+    output.wt_apu           = apu_wt
+    output.wt_hyd_pnu       = hyd_pnu_wt
+    output.wt_instruments   = instruments_wt
+    output.wt_avionics      = avionics_wt
+    output.wt_elec          = elec_wt
+    output.wt_ac            = ac_wt
+    output.wt_furnish       = furnish_wt
+    output.wt_anti_ice      = ai_wt
+    output.wt_systems       = output.wt_flt_ctrl + output.wt_apu + output.wt_hyd_pnu \
+                            + output.wt_ac + output.wt_avionics + output.wt_elec \
+                            + output.wt_furnish + output.wt_instruments + output.wt_anti_ice
 
     return output
