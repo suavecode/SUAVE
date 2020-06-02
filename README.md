@@ -30,6 +30,7 @@ Contributing Developers
 * Michael Kruger
 * Michael Vegh
 * Pedro Goncalves
+* Racheal Erhard
 * Rick Fenrich
 * Tarik Orra
 * Theo St. Francis
