@@ -55,7 +55,7 @@ class Lithium_Ion_LiNCA_18650(Battery):
         self.tag                         = 'Lithium_Ion_Battery'
         self.chemistry                   = 'LiNCA'
         self.cell                        = Data()   
-        self.module_config               = Data()
+        self.pack_config               = Data()
         
         self.mass_properties.mass        = 0.048 * Units.kg
         self.cell.mass                   = 0.048 * Units.kg 
@@ -73,8 +73,8 @@ class Lithium_Ion_LiNCA_18650(Battery):
         self.cell.specific_heat_capacity = 837.4   # [J/kgK] 
         self.cell.thermal_conductivity   = 32.2    # [J/kgK] 
         
-        self.module_config.series        = 1
-        self.module_config.parallel      = 1
+        self.pack_config.series        = 1
+        self.pack_config.parallel      = 1
         
         self.cell.diameter               = 0.001833  # [m]
         self.cell.height                 = 0.06485   # [m] 

@@ -33,7 +33,7 @@ def initialize_from_module_packaging(battery):
     battery.cell
       nominal_capacity    [amp-hours]            
       nominal_voltage     [volts]
-      module_config       [unitless]
+      pack_config       [unitless]
       mass                [kilograms]
                           
     Outputs:              
@@ -51,13 +51,13 @@ def initialize_from_module_packaging(battery):
     
     amp_hour_rating              = battery.cell.nominal_capacity  # 
     nominal_voltage              = battery.cell.nominal_voltage       
-    total_battery_assemply_mass  = battery.cell.mass * battery.module_config.series * battery.module_config.parallel  
+    total_battery_assemply_mass  = battery.cell.mass * battery.pack_config.series * battery.pack_config.parallel  
     
     battery.mass_properties.mass = total_battery_assemply_mass*module_weight_factor  
     battery.specific_energy      = (amp_hour_rating*nominal_voltage)/battery.cell.mass  * Units.Wh/Units.kg   
     battery.max_energy           = total_battery_assemply_mass*battery.specific_energy    
-    battery.max_voltage          = battery.cell.max_voltage  * battery.module_config.series   
+    battery.max_voltage          = battery.cell.max_voltage  * battery.pack_config.series   
     battery.initial_max_energy   = battery.max_energy    
     
-    battery.charging_voltage     = battery.cell.charging_voltage * battery.module_config.series     
-    battery.charging_current     = battery.cell.charging_current * battery.module_config.parallel    
+    battery.charging_voltage     = battery.cell.charging_voltage * battery.pack_config.series     
+    battery.charging_current     = battery.cell.charging_current * battery.pack_config.parallel    

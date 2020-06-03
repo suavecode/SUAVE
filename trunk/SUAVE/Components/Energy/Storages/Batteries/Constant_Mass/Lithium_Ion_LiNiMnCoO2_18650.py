@@ -41,6 +41,11 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         System Strategies and the Evaluate Criteria." Int. J. Electrochem. Sci 14
         (2019): 6077-6107.
         
+        # Electrode Area
+        Muenzel, Valentin, et al. "A comparative testing study of commercial
+        18650-format lithium-ion battery cells." Journal of The Electrochemical
+        Society 162.8 (2015): A1592.
+        
         Inputs:
         None
         
@@ -54,13 +59,15 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.tag                         = 'Lithium_Ion_Battery'
         self.chemistry                   = 'LiNiMnCoO2' 
         self.cell                        = Data()   
+        self.module                      = Data()        
+        self.pack_config                 = Data()
         self.module_config               = Data()
         
         self.mass_properties.mass        = 0.048 * Units.kg
         self.cell.mass                   = 0.048 * Units.kg 
-        self.cell.density                = 1500        # [kg/m^3] 
+        self.cell.density                = 1760        # [kg/m^3] 
         self.cell.volume                 = 3.2E-5      # [m^3] 
-        self.cell.electrode_area         = 0.91*0.065  # [m^2]
+        self.cell.electrode_area         = 0.0346  # [m^2] 
         
         self.cell.max_voltage            = 4.2     # [V]
         self.cell.nominal_capacity       = 3.55    # [Amp-Hrs]
@@ -70,17 +77,21 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.specific_power              = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
         self.resistance                  = 0.025   # [Ohms]
                                                    #
-        self.specific_heat_capacity      = 1108    # [J/kgK] 
-        self.heat_transfer_coefficient   = 75.     # [W/m^2K]       
+        self.specific_heat_capacity      = 1108    # [J/kgK]  
+        #self.heat_transfer_coefficient   = 75    # [W/m^2K]   
+        #self.heat_transfer_coefficient   = 7.17    # [W/m^2K] Natural Free Air heat convection 
+        self.heat_transfer_coefficient   = 35    # [W/m^2K]  Thermal Performance of EV and HEV Battery Modules and Packs 
         self.cell.specific_heat_capacity = 1108    # [J/kgK]  
         self.cell.thermal_conductivity   = 3.91    # [J/kgK] 
         
-        self.cell.diameter               = 0.0018  # [m]
+        self.cell.diameter               = 0.018   # [m]
         self.cell.height                 = 0.06485 # [m]
         self.cell.surface_area           = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)   # [m^2]
         
+        self.pack_config.series          = 1
+        self.pack_config.parallel        = 1  
         self.module_config.series        = 1
-        self.module_config.parallel      = 1  
+        self.module_config.parallel      = 1
         
         self.charging_SOC_cutoff         = 1.         
         self.cell.charging_voltage       = self.cell.nominal_voltage   # [V]  

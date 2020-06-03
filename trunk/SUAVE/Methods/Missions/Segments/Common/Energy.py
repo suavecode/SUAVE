@@ -43,7 +43,8 @@ def initialize_battery(segment):
         battery_charge_throughput        = segment.battery_charge_throughput
         battery_discharge                = segment.battery_discharge   
         ambient_temperature              = segment.ambient_temperature
-        battery_resistance_growth_factor = segment.battery_resistance_growth_factor 
+        battery_resistance_growth_factor = segment.battery_resistance_growth_factor
+        battery_initial_thevenin_voltage = segment.battery_thevenin_voltage
         battery_capacity_fade_factor     = segment.battery_capacity_fade_factor     
     
     elif segment.state.initials:
@@ -54,6 +55,7 @@ def initialize_battery(segment):
         battery_discharge                = segment.battery_discharge 
         ambient_temperature              = segment.state.initials.conditions.propulsion.ambient_temperature
         battery_resistance_growth_factor = segment.state.initials.conditions.propulsion.battery_resistance_growth_factor
+        battery_initial_thevenin_voltage = segment.state.initials.conditions.propulsion.battery_thevenin_voltage[-1,0]  
         battery_capacity_fade_factor     = segment.state.initials.conditions.propulsion.battery_capacity_fade_factor
                   
     else:
@@ -64,6 +66,7 @@ def initialize_battery(segment):
         battery_charge_throughput        = 0.0 
         battery_resistance_growth_factor = 1.0
         battery_capacity_fade_factor     = 1.0  
+        battery_initial_thevenin_voltage = 0
         battery_discharge                = True
         
     if 'battery_cell_temperature' in segment:
@@ -76,6 +79,7 @@ def initialize_battery(segment):
     segment.state.conditions.propulsion.battery_discharge                = battery_discharge 
     segment.state.conditions.propulsion.ambient_temperature              = ambient_temperature
     segment.state.conditions.propulsion.battery_resistance_growth_factor = battery_resistance_growth_factor 
+    segment.state.conditions.propulsion.battery_initial_thevenin_voltage = battery_initial_thevenin_voltage 
     segment.state.conditions.propulsion.battery_capacity_fade_factor     = battery_capacity_fade_factor        
     segment.state.conditions.propulsion.battery_configuration            = segment.battery_configuration 
     return

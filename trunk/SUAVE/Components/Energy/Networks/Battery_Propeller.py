@@ -122,15 +122,16 @@ class Battery_Propeller(Propulsor):
         discharge_flag              = conditions.propulsion.battery_discharge    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
-        battery.max_energy          = battery.initial_max_energy * battery.E_growth_factor       
+        battery.max_energy          = battery.initial_max_energy * battery.E_growth_factor   
+        V_th0                       = conditions.propulsion.battery_initial_thevenin_voltage
+        n_series                    = battery.pack_config.series  
+        n_parallel                  = battery.pack_config.parallel
+        n_total                     = n_series * n_parallel          
         
         # --------------------------------------------------------------------------------
         # Predict Voltage and Battery Properties Depending on Battery Chemistry
         # -------------------------------------------------------------------------------- 
         if battery.chemistry == 'LiNCA':  
-            n_series                    = battery.module_config.series  
-            n_parallel                  = battery.module_config.parallel
-            n_total                     = n_series * n_parallel  
             
             SOC    = state.unknowns.battery_state_of_charge 
             T_cell = state.unknowns.battery_cell_temperature 
@@ -153,16 +154,38 @@ class Battery_Propeller(Propulsor):
                 R_0[i]  = battery_data.R_0_interp(T_cell[i], SOC[i])[0]  
                 
             dV_TH_dt =  np.dot(D,V_Th)
-            Icell = V_Th/(R_Th * battery.R_growth_factor)  + C_Th*dV_TH_dt 
-            I_tot = Icell * n_parallel 
+            Icell = V_Th/(R_Th * battery.R_growth_factor)  + C_Th*dV_TH_dt  
             R_0   = R_0 * battery.R_growth_factor 
              
             # Voltage under load:
             volts =  n_series*(V_oc - V_Th - (Icell * R_0)) 
 
         elif battery.chemistry == 'LiNiMnCoO2':  
-            volts                     = state.unknowns.battery_voltage_under_load 
-            battery.cell_temperature  = state.unknowns.battery_cell_temperature   
+
+            SOC        = state.unknowns.battery_state_of_charge 
+            T_cell     = state.unknowns.battery_cell_temperature
+            I_cell     = state.unknowns.battery_current/n_parallel 
+            
+            # Link Temperature 
+            battery.cell_temperature = T_cell  
+            battery.initial_thevenin_voltage = V_th0  
+            
+            # Make sure things do not break by limiting current, temperature and current 
+            SOC[SOC < 0.]       = 0.  
+            SOC[SOC > 1.]       = 1.    
+            DOD = 1 - SOC 
+            
+            T_cell[np.isnan(T_cell)] = 30.0 
+            T_cell[T_cell<0.0]  = 0. 
+            T_cell[T_cell>50.0] = 50.
+             
+            I_cell[I_cell<0.0]  = 0.0
+            I_cell[I_cell>8.0]  = 8.0   
+            
+            # create vector of conditions for battery data sheet response surface for OCV
+            pts   = np.hstack((np.hstack((I_cell, T_cell)),DOD  )) # amps, temp, SOC   
+            V_ul  = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T   
+            volts = n_series*V_ul  
  
         else: 
             volts                            = state.unknowns.battery_voltage_under_load
@@ -257,24 +280,25 @@ class Battery_Propeller(Propulsor):
         rpm                       = motor.outputs.omega*60./(2.*np.pi)
         battery_draw              = abs(battery.inputs.power_in)
         
-        conditions.propulsion.rpm                          = rpm
-        conditions.propulsion.battery_current              = abs(battery.inputs.current)
-        conditions.propulsion.battery_draw                 = -battery_draw
-        conditions.propulsion.battery_energy               = battery.current_energy
-        conditions.propulsion.battery_voltage_open_circuit = battery.voltage_open_circuit 
-        conditions.propulsion.battery_voltage_under_load   = battery.voltage_under_load  
-        conditions.propulsion.battery_charge_throughput    = battery.cell_charge_throughput   
-        conditions.propulsion.battery_state_of_charge      = battery.state_of_charge
-        conditions.propulsion.battery_cell_temperature     = battery.cell_temperature
-        conditions.propulsion.battery_specfic_power        = -battery_draw/battery.mass_properties.mass # Wh/kg
-        conditions.propulsion.motor_torque                 = motor.outputs.torque
-        conditions.propulsion.motor_temperature            = 0 # currently no motor temperature model
-        conditions.propulsion.propeller_torque             = Q
-        conditions.propulsion.battery_age_in_days          = battery.age_in_days 
-
-        if battery.chemistry == 'LiNCA':   
-            conditions.propulsion.battery_thevenin_voltage = battery.thevenin_voltage   
-        conditions.propulsion.propeller_tip_mach           = (R*motor.outputs.omega)/a
+        conditions.propulsion.rpm                                  = rpm
+        conditions.propulsion.battery_current                      = abs(battery.inputs.current)
+        conditions.propulsion.battery_draw                         = -battery_draw
+        conditions.propulsion.battery_energy                       = battery.current_energy
+        conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit 
+        conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load  
+        conditions.propulsion.battery_charge_throughput            = battery.cell_charge_throughput   
+        conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 
+        conditions.propulsion.battery_pack_temperature             = battery.pack_temperature
+        conditions.propulsion.battery_cell_temperature             = battery.cell_temperature
+        conditions.propulsion.battery_cell_joule_heat_fraction     = battery.cell_joule_heat_fraction   
+        conditions.propulsion.battery_cell_entropy_heat_fraction   = battery.cell_entropy_heat_fraction
+        conditions.propulsion.battery_specfic_power                = -battery_draw/battery.mass_properties.mass # Wh/kg
+        conditions.propulsion.motor_torque                         = motor.outputs.torque
+        conditions.propulsion.motor_temperature                    = 0 # currently no motor temperature model
+        conditions.propulsion.propeller_torque                     = Q
+        conditions.propulsion.battery_age_in_days                  = battery.age_in_days  
+        conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage   
+        conditions.propulsion.propeller_tip_mach                   = (R*motor.outputs.omega)/a
         
         # Create the outputs 
         F                                         = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
@@ -391,48 +415,56 @@ class Battery_Propeller(Propulsor):
     def unpack_unknowns_linmco(self,segment): 
   
         segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient        
-        segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature
-        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
+        segment.state.conditions.propulsion.battery_state_of_charge     = segment.state.unknowns.battery_state_of_charge
+        segment.state.conditions.propulsion.battery_current             = segment.state.unknowns.battery_current  
       
         return
     
     def residuals_linmco(self,segment):  
-        # Unpack 
+        # Unpack       
         q_motor      = segment.state.conditions.propulsion.motor_torque
-        q_prop       = segment.state.conditions.propulsion.propeller_torque 
-         
+        q_prop       = segment.state.conditions.propulsion.propeller_torque  
+        
+        SOC_actual  = segment.state.conditions.propulsion.battery_state_of_charge
+        SOC_predict = segment.state.unknowns.battery_state_of_charge 
+
         Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
         Temp_predict = segment.state.unknowns.battery_cell_temperature   
-        
-        v_actual     = segment.state.conditions.propulsion.battery_voltage_under_load 
-        v_predict    = segment.state.unknowns.battery_voltage_under_load               
-        v_max        = self.voltage
-        
-        # Return the residuals 
-        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])/v_max      
-        segment.state.residuals.network[:,1] = (Temp_predict[:,0] - Temp_actual[:,0])
-        segment.state.residuals.network[:,2] =  (q_motor[:,0] - q_prop[:,0] ) 
+
+        i_actual     = segment.state.conditions.propulsion.battery_current
+        i_predict    = segment.state.unknowns.battery_current      
+      
+        # Return the residuals  
+        segment.state.residuals.network[:,0] =  q_motor[:,0] - q_prop[:,0]     
+        segment.state.residuals.network[:,1] =  SOC_predict[:,0]  - SOC_actual[:,0]  
+        segment.state.residuals.network[:,2] =  Temp_predict[:,0] - Temp_actual[:,0]   
+        segment.state.residuals.network[:,3] =  i_predict[:,0] - i_actual[:,0]       
 
 
     def unpack_unknowns_linmco_charge(self,segment): 
-       
-        segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature
-        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.battery_cell_temperature = segment.state.unknowns.battery_cell_temperature 
+        segment.state.conditions.propulsion.battery_state_of_charge  = segment.state.unknowns.battery_state_of_charge
+        segment.state.conditions.propulsion.battery_current          = segment.state.unknowns.battery_current         
       
         return
     
     def residuals_linmco_charge(self,segment):  
-        # Unpack  
+        # Unpack 
+        SOC_actual  = segment.state.conditions.propulsion.battery_state_of_charge
+        SOC_predict = segment.state.unknowns.battery_state_of_charge 
+
         Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
         Temp_predict = segment.state.unknowns.battery_cell_temperature   
-        
-        v_actual     = segment.state.conditions.propulsion.battery_voltage_under_load 
-        v_predict    = segment.state.unknowns.battery_voltage_under_load               
-        v_max        = self.voltage
-        
+
+        i_actual     = segment.state.conditions.propulsion.battery_current
+        i_predict    = segment.state.unknowns.battery_current      
+
         # Return the residuals 
-        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])/v_max      
-        segment.state.residuals.network[:,1] = (Temp_predict[:,0] - Temp_actual[:,0]) 
+        segment.state.residuals.network[:,0] =  i_predict[:,0] - i_actual[:,0]    
+        segment.state.residuals.network[:,1] =  SOC_predict[:,0]  - SOC_actual[:,0]  
+        segment.state.residuals.network[:,2] =  Temp_predict[:,0] - Temp_actual[:,0] 
+
         
         return           
     __call__ = evaluate_thrust

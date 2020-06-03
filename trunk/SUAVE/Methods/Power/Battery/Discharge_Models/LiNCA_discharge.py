@@ -83,8 +83,8 @@ def LiNCA_discharge (battery,numerics):
     D                 = numerics.time.differentiate      
     
     # Calculate the current going into one cell 
-    n_series   = battery.module_config.series  
-    n_parallel = battery.module_config.parallel
+    n_series   = battery.pack_config.series  
+    n_parallel = battery.pack_config.parallel
     n_total    = n_series * n_parallel 
     I_cell     = I_bat/n_parallel
     

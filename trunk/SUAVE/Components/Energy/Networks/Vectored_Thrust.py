@@ -123,8 +123,8 @@ class Vectored_Thrust(Propulsor):
         # Predict Voltage and Battery Properties Depending on Battery Chemistry
         # -------------------------------------------------------------------------------- 
         if battery.chemistry == 'LiNCA':  
-            n_series                    = battery.module_config.series  
-            n_parallel                  = battery.module_config.parallel
+            n_series                    = battery.pack_config.series  
+            n_parallel                  = battery.pack_config.parallel
             n_total                     = n_series * n_parallel  
             
             SOC    = state.unknowns.battery_state_of_charge 

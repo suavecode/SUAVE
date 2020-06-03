@@ -415,8 +415,9 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
         volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load [:,0] 
         volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]  
-        charge         = results.segments[i].conditions.propulsion.battery_charge_throughput[:,0]  
-        bat_temp       = results.segments[i].conditions.propulsion.battery_cell_temperature[:,0] 
+        charge         = results.segments[i].conditions.propulsion.battery_charge_throughput[:,0] 
+        bat_pack_temp  = results.segments[i].conditions.propulsion.battery_pack_temperature[:,0] 
+        bat_cell_temp  = results.segments[i].conditions.propulsion.battery_cell_temperature[:,0]
         current        = results.segments[i].conditions.propulsion.battery_current[:,0]      
         SOC            = results.segments[i].conditions.propulsion.battery_state_of_charge[:,0]
         battery_amp_hr = (energy/ Units.Wh )/volts  
@@ -465,9 +466,12 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         set_axes(axes2)  
         
         axes2 = fig2.add_subplot(2,2,4)
-        axes2.plot(time, bat_temp, line_color)
+        axes2.plot(time, bat_pack_temp, line_color, label = 'pack') 
+        axes2.plot(time, bat_cell_temp, 'rs-', label = 'cell') 
         axes2.set_xlabel('Time (mins)',axis_font)
         axes2.set_ylabel('Battery Tempertature ($\degree$ C)',axis_font)  
+        if i == 0:
+            axes2.legend(loc='upper lefft')          
         set_axes(axes2)     
         
     if save_figure:
@@ -585,7 +589,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     for segment in results.segments.values():  
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         rpm    = segment.conditions.propulsion.rpm[:,0] 
-        effp   = segment.conditions.propulsion.etap[:,0]
+        effp   = segment.conditions.propulsion.propeller_efficiency[:,0]
         Cp     = segment.conditions.propulsion.propeller_power_coefficient[:,0] 
         tm     = segment.conditions.propulsion.propeller_tip_mach[:,0]
  

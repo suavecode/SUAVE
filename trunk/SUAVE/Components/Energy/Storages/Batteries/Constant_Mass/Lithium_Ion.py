@@ -26,7 +26,7 @@ class Lithium_Ion(Battery):
     """
     def __defaults__(self):
         self.cell                        = Data()
-        self.module_config               = Data()
+        self.pack_config               = Data()
         
         self.specific_energy             = 200.    * Units.Wh/Units.kg
         self.specific_power              = 1.      * Units.kW/Units.kg
@@ -35,7 +35,7 @@ class Lithium_Ion(Battery):
         self.ragone.lower_bound          = 60.     * Units.Wh/Units.kg
         self.ragone.upper_bound          = 225.    * Units.Wh/Units.kg
         
-        self.module_config.series        = 1
-        self.module_config.parallel      = 1   
+        self.pack_config.series        = 1
+        self.pack_config.parallel      = 1   
         self.specific_heat_capacity      = 2000 
         self.heat_transfer_coefficient   = 35.  
