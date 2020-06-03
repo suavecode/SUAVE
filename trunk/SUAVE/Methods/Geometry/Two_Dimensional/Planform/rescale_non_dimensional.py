@@ -17,7 +17,8 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def set_origin_non_dimensional(vehicle):
-    """ Places the origin of all components 
+    """ Places the origin of all major components in a 
+    non-dimensional fashion. This is useful for optimization or PGM
 
         Assumptions:
         None
@@ -27,9 +28,17 @@ def set_origin_non_dimensional(vehicle):
 
         Inputs:
         vehicle    [SUAVE Vehicle]
+              .fuselages.*.origin
+              .fuselages.fuselage.lengths.total
+              .wings.*.origin
+              .wings.main_wing.lengths.total
+              .propulsors.*.origin
 
         Outputs:
         vehicle    [SUAVE Vehicle]
+              .fuselages.*.non_dimensional_origin
+              .wings.*.non_dimensional_origin
+              .propulsors.*.non_dimensional_origin
 
         Properties Used:
         None

@@ -60,22 +60,22 @@ def main():
     descent_throttle_2 = results.segments.descent_2.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 1.2161368583680352 
-    climb_throttle_2_truth   = 1.0286455601603097
-    climb_throttle_3_truth   = 0.4914388256260948 
-    climb_throttle_4_truth   = 0.8571027568586671
-    climb_throttle_5_truth   = 0.9894122714719386 
-    climb_throttle_6_truth   = 0.6762603498943198 
-    climb_throttle_7_truth   = 0.8519667257766178 
-    climb_throttle_8_truth   = 1.0464547236050787 
-    cruise_CL_1_truth        = 0.6341101279210396 
-    cruise_CL_2_truth        = 0.6257545720064928 
-    cruise_CL_3_truth        = 0.705480454862047 
-    descent_throttle_1_truth = 0.0807508137286019 
-    single_pt_CL_1_truth     = 0.25937963745079545 
-    single_pt_CL_2_truth     = 1.4915004256240918
-    loiter_CL_truth          = 0.5284986930857494 
-    descent_throttle_2_truth = 0.13671073467701336
+    climb_throttle_1_truth   = 0.911474655746847
+    climb_throttle_2_truth   = 0.7122947679962881
+    climb_throttle_3_truth   = 0.4596689686857873
+    climb_throttle_4_truth   = 0.8231270056551976
+    climb_throttle_5_truth   = 0.949042559446748
+    climb_throttle_6_truth   = 0.6391305291890359 
+    climb_throttle_7_truth   = 0.7942372109821583
+    climb_throttle_8_truth   = 0.9647150206484498
+    cruise_CL_1_truth        = 0.6369816446472335
+    cruise_CL_2_truth        = 0.6298891457209168
+    cruise_CL_3_truth        = 0.7120442381723248
+    descent_throttle_1_truth = -0.03715911677400935
+    single_pt_CL_1_truth     = 0.2605689967307677
+    single_pt_CL_2_truth     = 0.26050076840142555
+    loiter_CL_truth          = 0.5311488325043675
+    descent_throttle_2_truth = 0.09489343097409836
     
     # Store errors 
     error = Data()

@@ -219,8 +219,6 @@ class Vortex_Lattice(Aerodynamics):
         
         # Create Result Data Structures         
         data_len                                                           = len(AoA)
-        eye                                                                = np.eye(data_len)
-        ones                                                               = np.ones(data_len)
         inviscid_lift                                                      = np.zeros([data_len,1]) 
         inviscid_drag                                                      = np.zeros([data_len,1])  
         conditions.aerodynamics.drag_breakdown.induced                     = Data()

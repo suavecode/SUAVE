@@ -70,10 +70,9 @@ def vortex_lift(state,settings,geometry):
             # Apply to wing lift
             wing_lift[Mc < 1.0] = vortex_cl[Mc < 1.0]
         
-        # THIS CANNOT WORK
-        #wings_lift += wing_lift
+        wings_lift += wing_lift
     
-    #state.conditions.aerodynamics.lift_coefficient           = wings_lift
+    state.conditions.aerodynamics.lift_coefficient           = wings_lift
     state.conditions.aerodynamics.lift_breakdown.vortex_lift = vortex_cl   
     
     return vortex_cl

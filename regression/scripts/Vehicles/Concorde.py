@@ -256,7 +256,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 14.5/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 63. * Units.deg
-    segment.thickness_to_chord    = 0.03
+    segment.thickness_to_chord    = 0.04
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
@@ -268,7 +268,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 7.5/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 40. * Units.deg
-    segment.thickness_to_chord    = 0.03
+    segment.thickness_to_chord    = 0.04
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)
     
@@ -280,7 +280,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 2.7/14.5
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 0.
-    segment.thickness_to_chord    = 0.03
+    segment.thickness_to_chord    = 0.04
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)    
     
