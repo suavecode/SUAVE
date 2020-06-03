@@ -4,6 +4,7 @@
 # Created:  Jan 2014, M. Vegh, 
 # Modified: Jan 2014, A. Wendorff
 #           Feb 2016, E. Botero
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -34,12 +35,12 @@ def air_cooled_motor(max_power, kwt2=1.96, xwt=.8897):
             xwt
             
     Outputs:
-            weight- weight of the motor                                [kilograms]
+            mass- weight of the motor                                [kilograms]
         
     Properties Used:
             N/A
     """   
     
-    mass = kwt2*((max_power/Units.kW)**xwt) * Units.pounds #weight in lbs.
+    mass = kwt2*((max_power/Units.kW)**xwt) * Units.pounds # mass in kg 
     
     return mass

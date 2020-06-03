@@ -4,7 +4,7 @@
 # Created:  Oct 2014, T. Momose
 # Modified: Jan 2016, E. Botero
 #           Jun 2017, M. Clarke
-
+#           Aug 2019, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -18,7 +18,7 @@ from SUAVE.Core import DataOrdered
 
 ## @ingroup Methods-Aerodynamics-AVL-Data
 class Run_Case(Data):
-    """ A data class defining the parameters for the analysis cases 
+    """ This data class defines the parameters for the analysis cases 
     including angle of attack and mach number 
 
     Assumptions:
@@ -39,7 +39,7 @@ class Run_Case(Data):
     
     def __defaults__(self):
         """Defines the data structure and defaults of aerodynamics coefficients, 
-        body derivatives and stability derivatives   
+        body axis derivatives and stability axis derivatives   
 
         Assumptions:
             None
@@ -57,7 +57,7 @@ class Run_Case(Data):
             N/A
         """ 
 
-        self.index                      = 0		# Will be overwritten when passed to an AVL_Callable object
+        self.index                      = 0		 
         self.tag                        = 'case'
         self.mass                       = 0.0
 
@@ -72,47 +72,26 @@ class Run_Case(Data):
         free.gravitational_acceleration = 9.81
 
         aero.parasite_drag              = 0.0
-        aero.angle_of_attack            = 0.0
+        aero.angle_of_attack            = None
+        aero.flight_CL                  = None
         aero.side_slip_angle            = 0.0
 
-        self.stability_and_control.control_deflections  = None
-        self.stability_and_control.number_control_surfaces = 0
+        self.stability_and_control.control_surface_names     = None
+        self.stability_and_control.control_surface_functions = None
+        self.stability_and_control.number_control_surfaces   = 0
         self.conditions.freestream      = free
         self.conditions.aerodynamics    = aero
 
-        self.result_filename            = None
-        self.eigen_result_filename      = None
- 
-
-    def append_control_deflection(self,control_tag,deflection):
-        """ Adds a control deflection case 
-
-	Assumptions:
-	    None
-    
-	Source:
-	    None
-    
-	Inputs:
-	    None
-    
-	Outputs:
-	    None
-    
-	Properties Used:
-	    N/A
-	"""         
-        control_deflection              = Data()
-        control_deflection.tag          = control_tag
-        control_deflection.deflection   = deflection
-        if self.stability_and_control.control_deflections is None:
-            self.stability_and_control.control_deflections = Data()
-        self.stability_and_control.control_deflections.append(control_deflection)
-
+        self.aero_result_filename_1     = None
+        self.aero_result_filename_2     = None
+        self.aero_result_filename_3     = None 
+        self.aero_result_filename_4     = None
+        self.eigen_result_filename_1    = None 
+        self.eigen_result_filename_2    = None 
         return
-
+ 
 class Container(DataOrdered):
-    """ A data class for the addition of a cases to the set of run cases
+    """ This is a data class for the addition of a cases to the set of run cases
 
     Assumptions:
         None

@@ -2,7 +2,8 @@
 # Optimized.py
 # 
 # Created:  Dec 2016, E. Botero
-# Modified: 
+# Modified: Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -53,7 +54,7 @@ def unpack_unknowns(segment):
     alt0     = segment.altitude_start
     altf     = segment.altitude_end
     vel0     = segment.air_speed_start
-    velf     = segment.air_speed_end 
+    velf     = segment.air_speed_end
 
     # Overide the speeds   
     if segment.air_speed_end is None:
@@ -73,9 +74,9 @@ def unpack_unknowns(segment):
 
     # apply unknowns and pack conditions   
     segment.state.conditions.propulsion.throttle[:,0]             = throttle[:,0]
-    segment.state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   
-    segment.state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
-    segment.state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
+    segment.state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
+    segment.state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
 
 ## @ingroup Methods-Missions-Segments-Climb   
 def update_differentials(segment):
@@ -100,13 +101,13 @@ def update_differentials(segment):
     # unpack
     numerics   = segment.state.numerics
     conditions = segment.state.conditions
-    x    = numerics.dimensionless.control_points
-    D    = numerics.dimensionless.differentiate
-    I    = numerics.dimensionless.integrate 
-    r    = segment.state.conditions.frames.inertial.position_vector
-    v    = segment.state.conditions.frames.inertial.velocity_vector
-    alt0 = segment.altitude_start
-    altf = segment.altitude_end    
+    x          = numerics.dimensionless.control_points
+    D          = numerics.dimensionless.differentiate
+    I          = numerics.dimensionless.integrate 
+    r          = segment.state.conditions.frames.inertial.position_vector
+    v          = segment.state.conditions.frames.inertial.velocity_vector
+    alt0       = segment.altitude_start
+    altf       = segment.altitude_end    
 
     dz = altf - alt0
     vz = -v[:,2,None] # maintain column array
@@ -127,7 +128,7 @@ def update_differentials(segment):
     numerics.time.control_points                    = x
     numerics.time.differentiate                     = D
     numerics.time.integrate                         = I
-    conditions.frames.inertial.time[1:,0]            = t_initial + x[1:,0] 
+    conditions.frames.inertial.time[1:,0]            = t_initial + x[1:,0]
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context    
 

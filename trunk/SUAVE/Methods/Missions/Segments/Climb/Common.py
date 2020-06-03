@@ -4,6 +4,8 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
 #           Jul 2017, E. Botero
+#           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -101,8 +103,7 @@ def update_differentials_altitude(segment):
     """
 
     # unpack
-    t = segment.state.numerics.dimensionless.control_points
-    D = segment.state.numerics.dimensionless.differentiate
+    t = segment.state.numerics.dimensionless.control_points 
     I = segment.state.numerics.dimensionless.integrate
     r = segment.state.conditions.frames.inertial.position_vector
     v = segment.state.conditions.frames.inertial.velocity_vector

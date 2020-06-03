@@ -4,7 +4,8 @@
 # Created:  Oct 2015, T. Momose
 # Modified: Jan 2016, E. Botero
 #           Oct 2018, M. Clarke
-
+#           Aug 2019, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,10 +13,11 @@
 from .purge_files import purge_files
 from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
 import numpy as np
+import shutil
 from .create_avl_datastructure import translate_avl_wing, translate_avl_body 
 
 ## @ingroup Methods-Aerodynamics-AVL
-def write_geometry(avl_object):
+def write_geometry(avl_object,run_script_path):
     """This function writes the translated aircraft geometry into text file read 
     by AVL when it is called
 
@@ -38,8 +40,8 @@ def write_geometry(avl_object):
     # unpack inputs
     aircraft            = avl_object.geometry
     geometry_file       = avl_object.settings.filenames.features
-    spanwise_vortices   = avl_object.settings.discretization.defaults.wing.spanwise_vortices
-    chordwise_vortices  = avl_object.settings.discretization.defaults.wing.chordwise_vortices
+    spanwise_vortices   = avl_object.settings.spanwise_vortices
+    chordwise_vortices  = avl_object.settings.chordwise_vortices
     # Open the geometry file after purging if it already exists
     purge_files([geometry_file]) 
     geometry             = open(geometry_file,'w')
@@ -52,7 +54,7 @@ def write_geometry(avl_object):
             avl_wing      = translate_avl_wing(w)
             wing_text     = make_surface_text(avl_wing,spanwise_vortices,chordwise_vortices)
             geometry.write(wing_text)  
-                     
+            
         for b in aircraft.fuselages:
             avl_body  = translate_avl_body(b)
             body_text = make_body_text(avl_body,chordwise_vortices)
@@ -88,8 +90,10 @@ def make_header_text(avl_object):
     """      
     header_base = \
 '''{0}
+
 #Mach
  {1}
+ 
 #Iysym   IZsym   Zsym
   {2}      {3}     {4}
   
@@ -273,22 +277,27 @@ SECTION
 {0}  {1}    {2}    {3}    {4}     
 '''
     airfoil_base = \
-'''
-AFILE
+'''AFILE
 {}
 '''
-
+    naca_airfoil_base = \
+'''NACA
+{}
+'''
     # Unpack inputs
-    x_le    = avl_section.origin[0]
-    y_le    = avl_section.origin[1]
-    z_le    = avl_section.origin[2]
-    chord   = avl_section.chord
-    ainc    = avl_section.twist
-    airfoil = avl_section.airfoil_coord_file
-
-    wing_section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
-    if airfoil:
-        wing_section_text = wing_section_text + airfoil_base.format(airfoil)
+    x_le          = avl_section.origin[0]
+    y_le          = avl_section.origin[1]
+    z_le          = avl_section.origin[2]
+    chord         = avl_section.chord
+    ainc          = avl_section.twist
+    airfoil_coord = avl_section.airfoil_coord_file
+    naca_airfoil  = avl_section.naca_airfoil 
+     
+    wing_section_text = section_base.format(round(x_le,4),round(y_le,4), round(z_le,4),round(chord,4),round(ainc,4))
+    if airfoil_coord:
+        wing_section_text = wing_section_text + airfoil_base.format(airfoil_coord)
+    if naca_airfoil:
+        wing_section_text = wing_section_text + naca_airfoil_base.format(naca_airfoil)        
     
     ordered_cs = []
     ordered_cs = sorted(avl_section.control_surfaces, key = lambda x: x.order)
@@ -327,8 +336,7 @@ SECTION
 {0}    {1}     {2}     {3}     {4}      1        0
 '''
     airfoil_base = \
-'''
-AFILE
+'''AFILE
 {}
 '''
 
@@ -340,7 +348,7 @@ AFILE
     ainc    = avl_body_section.twist
     airfoil = avl_body_section.airfoil_coord_file
 
-    body_section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
+    body_section_text = section_base.format(round(x_le,4),round(y_le,4), round(z_le,4),round(chord,4),round(ainc,4))
     if airfoil:
         body_section_text = body_section_text + airfoil_base.format(airfoil)
     

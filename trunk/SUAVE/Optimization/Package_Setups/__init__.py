@@ -9,3 +9,4 @@ from . import pyopt_surrogate_setup
 from . import TRMM
 from . import additive_setup
 from . import pyoptsparse_setup
+from . import particle_swarm_optimization

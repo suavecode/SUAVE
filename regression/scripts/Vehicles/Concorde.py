@@ -585,9 +585,6 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
     
-    config.wings['main_wing'].flaps.angle = 0. * Units.deg
-    config.wings['main_wing'].slats.angle = 0. * Units.deg
-    
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2.
     

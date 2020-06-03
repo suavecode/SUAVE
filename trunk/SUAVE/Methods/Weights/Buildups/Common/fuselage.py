@@ -4,6 +4,7 @@
 #
 # Created: Jun, 2017, J. Smart
 # Modified: Apr, 2018, J. Smart
+#           Mar 2020, M. Clarke
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -37,8 +38,8 @@ def fuselage(config,
         Assumes an elliptical fuselage. Intended for use with the following
         SUAVE vehicle types, but may be used elsewhere:
 
-            Electric Helicopter
-            Electric Tiltrotor
+            Electric Multicopter
+            Electric Vectored_Thrust
             Electric Stopped Rotor
 
         Originally written as part of an AA 290 project intended for trade study
@@ -68,7 +69,7 @@ def fuselage(config,
     fLength = config.fuselages.fuselage.lengths.total
     fWidth  = config.fuselages.fuselage.width
     fHeight = config.fuselages.fuselage.heights.maximum
-    maxSpan = config.wings["main_wing"].spans.projected
+    maxSpan = config.wings['main_wing'].spans.projected
     MTOW    = config.mass_properties.max_takeoff
     G_max   = maximum_g_load
     LIF     = landing_impact_factor

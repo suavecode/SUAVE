@@ -3,6 +3,7 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Jan 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -36,11 +37,11 @@ def orientation_product(T,Bb):
     N/A
     """            
     
-    assert np.rank(T) == 3
+    assert T.ndim == 3
     
-    if np.rank(Bb) == 3:
+    if Bb.ndim == 3:
         C = np.einsum('aij,ajk->aik', T, Bb )
-    elif np.rank(Bb) == 2:
+    elif Bb.ndim == 2:
         C = np.einsum('aij,aj->ai', T, Bb )
     else:
         raise Exception('bad B rank')

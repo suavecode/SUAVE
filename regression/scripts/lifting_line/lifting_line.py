@@ -147,21 +147,15 @@ def main():
     # --------------------------------------------------------------------    
             
     #call the aero model        
-    results = aerodynamics.evaluate(state)
-    
-    #build a polar for the markup aero 
-    CL = results.lift.total
-    CD = results.drag.total
+    results = aerodynamics.evaluate(state) 
     
     # --------------------------------------------------------------------
     # Test compute Lift
-    # --------------------------------------------------------------------
-    
-    #compute_aircraft_lift(conditions, configuration, geometry) 
-    
+    # -------------------------------------------------------------------- 
     lift = state.conditions.aerodynamics.lift_coefficient
-    lift_r = np.array([-2.84689226, -1.06501674, -0.63426096, -0.35809118, -0.04487569,
-        0.36343181, 0.61055156, 0.90742419, 1.43504496,  2.18401103,  1.81298486])[:,None]
+    lift_r = np.array([-1.27291303,-0.9966004 ,-0.72028776,-0.44397513,
+                       -0.16766249, 0.10865015, 0.38496278, 0.66127542,
+                       0.93758805, 1.21390069, 1.49021333])[:,None]  
     
     print('lift = ', lift)
     

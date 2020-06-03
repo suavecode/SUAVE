@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -60,7 +61,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         self.throttle        = None
         self.altitude        = None
-        self.air_speed_start = 0.0
+        self.air_speed_start = None
         self.air_speed_end   = 0.0 
         
         # --------------------------------------------------------------
@@ -74,7 +75,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         ones_row = self.state.ones_row
         self.state.unknowns.body_angle            = ones_row(1) * 0.0
         self.state.unknowns.velocity_x            = ones_row(1) * 0.0
-        self.state.unknowns.time                  = 0.1
+        self.state.unknowns.time                  = 100.
         self.state.residuals.final_velocity_error = 0.0
         self.state.residuals.forces               = ones_row(2) * 0.0
     
