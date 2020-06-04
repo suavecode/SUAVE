@@ -52,12 +52,12 @@ class Segment(Lofted_Body.Segment):
         self.areas.exposed         = 0.0
         self.areas.wetted          = 0.0
         self.Airfoil               = SUAVE.Core.ContainerOrdered()
-        self.PGM_minimum           = 2
-        self.max_per_vehicle       = 10
-        self.PGM_special_parent    = SUAVE.Components.Wings.Main_Wing
-        self.PGM_characteristics   = ['percent_span_location','twist','root_chord_percent','dihedral_outboard','sweeps.quarter_chord','thickness_to_chord']
-        self.PGM_char_min_bounds   = [0.,-np.pi/3,0.,-.1,-1.2,0.0001]   
-        self.PGM_char_max_bounds   = [1.,np.pi/3,np.inf,1.,1.2,0.5]        
+        self.generative_design_minimum           = 2
+        self.generative_design_max_per_vehicle   = 10
+        self.generative_design_special_parent    = SUAVE.Components.Wings.Main_Wing
+        self.generative_design_characteristics   = ['percent_span_location','twist','root_chord_percent','dihedral_outboard','sweeps.quarter_chord','thickness_to_chord']
+        self.generative_design_char_min_bounds   = [0.,-np.pi/3,0.,-.1,-1.2,0.0001]   
+        self.generative_design_char_max_bounds   = [1.,np.pi/3,np.inf,1.,1.2,0.5]        
         
         self.control_surfaces      = Data()  
         

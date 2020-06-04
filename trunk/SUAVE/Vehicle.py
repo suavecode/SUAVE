@@ -302,12 +302,12 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.center_of_gravity = [[0.0,0.0,0.0]]
         self.zero_fuel_center_of_gravity = np.array([[0.0,0.0,0.0]])
 
-        self.max_per_vehicle     = 1
-        self.PGM_special_parent  = None
-        self.PGM_characteristics = ['max_takeoff','max_zero_fuel']
-        self.PGM_minimum         = 1
-        self.PGM_char_min_bounds = [1,1]   
-        self.PGM_char_max_bounds = [np.inf,np.inf]        
+        self.generative_design_max_per_vehicle = 1
+        self.generative_design_special_parent  = None
+        self.generative_design_characteristics = ['max_takeoff','max_zero_fuel']
+        self.generative_design_minimum         = 1
+        self.generative_design_char_min_bounds = [1,1]   
+        self.generative_design_char_max_bounds = [np.inf,np.inf]        
 
 ## @ingroup Vehicle
 class Costs(Data):

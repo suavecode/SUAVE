@@ -1,5 +1,5 @@
 ## @ingroup Sizing
-#size_from_PGM.py
+#size_from_generative_design.py
 
 # Created : May 2020, E. Botero
 # Modified:
@@ -28,7 +28,7 @@ from SUAVE.Components.Energy.Networks.Turbojet_Super import Turbojet_Super
 
 
 # ----------------------------------------------------------------------
-#  Size from PGM
+#  Size from Generative Design
 # ----------------------------------------------------------------------
 
 
@@ -42,9 +42,9 @@ def loc(x,t_c,height):
         
         return val
 
-def size_from_PGM(vehicle):
+def size_from_generative_design(vehicle):
         """Completes the sizing of a SUAVE vehicle to determine fill out all of the dimensions of the vehicle.
-           This takes in the vehicle as it is provided from the PGM analysis
+           This takes in the vehicle as it is provided from the generative design tool
     
             Assumptions:
             Simple tapered wing (no sections)
@@ -876,9 +876,9 @@ def fix_wing_segments(wing):
 
                 
         # Check to ensure nothing exceeds the bounds
-        min_bounds = np.array(segs[0].PGM_char_min_bounds)
-        max_bounds = np.array(segs[0].PGM_char_max_bounds)
-        keys       = segs[0].PGM_characteristics
+        min_bounds = np.array(segs[0].generative_design_char_min_bounds)
+        max_bounds = np.array(segs[0].generative_design_char_max_bounds)
+        keys       = segs[0].generative_design_characteristics
         for seg in new_container:
                 for ii, key in enumerate(keys):
                         val = new_container[seg].deep_get(key)
@@ -888,10 +888,10 @@ def fix_wing_segments(wing):
                         if val > max_bounds[ii]: new_container[seg].deep_set(key,max_bounds[ii])
                         
         # If we have too many segs. I'll just blindly delete the middle one
-        if len(new_container)>new_container[seg].max_per_vehicle:
-                n_keys_to_del = len(new_container)-new_container[seg].max_per_vehicle
+        if len(new_container)>new_container[seg].generative_design_max_per_vehicle:
+                n_keys_to_del = len(new_container)-new_container[seg].generative_design_max_per_vehicle
                 for iiiii in range(n_keys_to_del):
-                        key_to_delete = new_container.keys()[int(np.floor(new_container[seg].max_per_vehicle/2))]
+                        key_to_delete = new_container.keys()[int(np.floor(new_container[seg].generative_design_max_per_vehicle/2))]
                         new_container.__delattr__(key_to_delete)
                         
 

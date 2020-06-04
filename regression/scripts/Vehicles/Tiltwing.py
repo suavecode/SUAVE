@@ -452,8 +452,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config                                      = SUAVE.Components.Configs.Config(base_config)
     config.tag                                  = 'hover'
-    config.propulsors.propulsor.thrust_angle    = 90.0 * Units.degrees
-    config.propulsors.propulsor.pitch_command   = 0.  * Units.degrees    
+    config.propulsors.vectored_thrust.thrust_angle    = 90.0 * Units.degrees
+    config.propulsors.vectored_thrust.pitch_command   = 0.  * Units.degrees    
     configs.append(config)
     
     # ------------------------------------------------------------------
@@ -461,8 +461,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config                                      = SUAVE.Components.Configs.Config(base_config)
     config.tag                                  = 'hover_climb'
-    config.propulsors.propulsor.thrust_angle    = 90.0 * Units.degrees
-    config.propulsors.propulsor.pitch_command   = -5.  * Units.degrees    
+    config.propulsors.vectored_thrust.thrust_angle    = 90.0 * Units.degrees
+    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees    
     configs.append(config)
     
     # ------------------------------------------------------------------
@@ -470,8 +470,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config                                      = SUAVE.Components.Configs.Config(base_config)
     config.tag                                  = 'cruise'
-    config.propulsors.propulsor.thrust_angle    =  0. * Units.degrees
-    config.propulsors.propulsor.pitch_command   = 10.  * Units.degrees  
+    config.propulsors.vectored_thrust.thrust_angle    =  0. * Units.degrees
+    config.propulsors.vectored_thrust.pitch_command   = 10.  * Units.degrees  
     configs.append(config)  
     
     return configs

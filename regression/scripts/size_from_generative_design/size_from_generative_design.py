@@ -9,7 +9,7 @@
 
 import SUAVE
 from SUAVE.Core.Diffed_Data import diff
-from SUAVE.Sizing.size_from_PGM import size_from_PGM
+from SUAVE.Sizing.size_from_generative_design import size_from_generative_design
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.rescale_non_dimensional import set_origin_non_dimensional
 
 from copy import deepcopy
@@ -57,16 +57,16 @@ def main():
 
 def check_a_vehicle(vehicle_original):
     
-    vehicle_PGM      = deepcopy(vehicle_original)
+    vehicle_GD      = deepcopy(vehicle_original)
     tag = vehicle_original.tag
     
     # Pull out the non dimensional origins
-    vehicle_PGM = set_origin_non_dimensional(vehicle_PGM)
+    vehicle_GD = set_origin_non_dimensional(vehicle_GD)
     
     # Run the sizing function
-    vehicle_PGM = size_from_PGM(vehicle_PGM)
+    vehicle_GD = size_from_generative_design(vehicle_GD)
     
-    results = diff(vehicle_original, vehicle_PGM)
+    results = diff(vehicle_original, vehicle_GD)
     
     # load older results, this should be commented out
     #save_results(results,tag+'diff.res')

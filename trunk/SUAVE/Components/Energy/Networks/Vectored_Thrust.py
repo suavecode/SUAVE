@@ -48,7 +48,8 @@ class Vectored_Thrust(Propulsor):
     
             Properties Used:
             N/A
-        """             
+        """      
+        self.tag = 'vectored_thrust'
         self.motor               = None
         self.rotor               = None
         self.esc                 = None

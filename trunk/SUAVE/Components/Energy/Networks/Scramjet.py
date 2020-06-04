@@ -60,10 +60,10 @@ class Scramjet(Propulsor):
 
         #setting the default values 
         self.tag = 'Scramjet' 
-        self.number_of_engines = 1.0 
-        self.nacelle_diameter  = 1.0 
-        self.engine_length     = 1.0  
-        self.PGM_minimum       = 0
+        self.number_of_engines         = 1.0 
+        self.nacelle_diameter          = 1.0 
+        self.engine_length             = 1.0  
+        self.generative_design_minimum = 0
 
     def evaluate_thrust(self,state): 
         """ Calculate thrust given the current state of the vehicle 

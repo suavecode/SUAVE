@@ -18,7 +18,8 @@ import numpy as np
 
 def set_origin_non_dimensional(vehicle):
     """ Places the origin of all major components in a 
-    non-dimensional fashion. This is useful for optimization or PGM
+    non-dimensional fashion. This is useful for optimization or
+    generative design 
 
         Assumptions:
         None

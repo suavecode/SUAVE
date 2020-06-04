@@ -54,20 +54,20 @@ class Battery_Propeller(Propulsor):
             Properties Used:
             N/A
         """             
-        self.motor             = None
-        self.propeller         = None
-        self.esc               = None
-        self.avionics          = None
-        self.payload           = None
-        self.battery           = None
-        self.nacelle_diameter  = None
-        self.engine_length     = None
-        self.number_of_engines = None
-        self.voltage           = None
-        self.thrust_angle      = 0.0
-        self.tag               = 'Battery_Propeller'
-        self.PGM_minimum       = 0
-        self.use_surrogate     = False
+        self.motor                     = None
+        self.propeller                 = None
+        self.esc                       = None
+        self.avionics                  = None
+        self.payload                   = None
+        self.battery                   = None
+        self.nacelle_diameter          = None
+        self.engine_length             = None
+        self.number_of_engines         = None
+        self.voltage                   = None
+        self.thrust_angle              = 0.0
+        self.tag                       = 'Battery_Propeller'
+        self.use_surrogate             = False
+        self.generative_design_minimum = 0
     
     # manage process with a driver function
     def evaluate_thrust(self,state):

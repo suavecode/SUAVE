@@ -52,21 +52,21 @@ class Solar(Propulsor):
             Properties Used:
             N/A
         """            
-        self.solar_flux        = None
-        self.solar_panel       = None
-        self.motor             = None
-        self.propeller         = None
-        self.esc               = None
-        self.avionics          = None
-        self.payload           = None
-        self.solar_logic       = None
-        self.battery           = None
-        self.nacelle_diameter  = None
-        self.engine_length     = None
-        self.number_of_engines = None
-        self.tag               = 'Solar'
-        self.PGM_minimum       = 0
-        self.use_surrogate     = False
+        self.solar_flux                = None
+        self.solar_panel               = None
+        self.motor                     = None
+        self.propeller                 = None
+        self.esc                       = None
+        self.avionics                  = None
+        self.payload                   = None
+        self.solar_logic               = None
+        self.battery                   = None
+        self.nacelle_diameter          = None
+        self.engine_length             = None
+        self.number_of_engines         = None
+        self.tag                       = 'Solar'
+        self.use_surrogate             = False
+        self.generative_design_minimum = 0
     
     # manage process with a driver function
     def evaluate_thrust(self,state):

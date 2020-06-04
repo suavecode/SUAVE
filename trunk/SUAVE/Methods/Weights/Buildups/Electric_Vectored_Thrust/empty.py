@@ -70,8 +70,8 @@ def empty(config,
     #-------------------------------------------------------------------------------
     # Unpack Inputs
     #------------------------------------------------------------------------------- 
-    rRotor              = config.propulsors.propulsor.rotor.tip_radius 
-    bladeSol            = config.propulsors.propulsor.rotor.blade_solidity
+    rRotor              = config.propulsors.vectored_thrust.rotor.tip_radius 
+    bladeSol            = config.propulsors.vectored_thrust.rotor.blade_solidity
     tipMach             = max_tip_mach
     k                   = disk_area_factor
     ToverW              = max_thrust_to_weight_ratio
@@ -81,14 +81,14 @@ def empty(config,
     # Assumed Weights
     #-------------------------------------------------------------------------------
     output = Data()
-    output.payload      = config.propulsors.propulsor.payload.mass_properties.mass
+    output.payload      = config.propulsors.vectored_thrust.payload.mass_properties.mass
     output.seats        = 30.
     output.avionics     = 15.
-    output.motors       = 10 * config.propulsors.propulsor.number_of_engines
-    output.battery      = config.propulsors.propulsor.battery.mass_properties.mass
-    output.servos       = 0.65 * config.propulsors.propulsor.number_of_engines 
+    output.motors       = 10 * config.propulsors.vectored_thrust.number_of_engines
+    output.battery      = config.propulsors.vectored_thrust.battery.mass_properties.mass
+    output.servos       = 0.65 * config.propulsors.vectored_thrust.number_of_engines 
     output.brs          = 16.
-    output.hubs         = 2 * config.propulsors.propulsor.number_of_engines
+    output.hubs         = 2 * config.propulsors.vectored_thrust.number_of_engines
     output.landing_gear = config.mass_properties.max_takeoff * 0.02
 
     #-------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ def empty(config,
         rotor_servos += 2*len(w.motor_spanwise_locations)
         
     output.rotor_servos     = rotor_servos
-    output.lift_rotors      = (prop(config.propulsors.propulsor.rotor, maxLift)* (num_motors)) # make more generic ash jordan about this
+    output.lift_rotors      = (prop(config.propulsors.vectored_thrust.rotor, maxLift)* (num_motors)) # make more generic ash jordan about this
     output.fuselage         = fuselage(config)
     output.wiring           = wiring(config, np.ones(8)**0.25, maxLiftPower/etaMotor)
 
