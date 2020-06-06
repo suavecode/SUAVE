@@ -17,3 +17,4 @@ from . import Constant_Mach_Linear_Altitude
 from . import Constant_Dynamic_Pressure_Constant_Angle
 from . import Constant_Speed_Linear_Altitude
 from . import Optimized
+from . import Constant_Throttle_Constant_Body_Angle
