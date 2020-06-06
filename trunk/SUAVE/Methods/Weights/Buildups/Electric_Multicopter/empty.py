@@ -66,10 +66,10 @@ def empty(config,settings,
     # Unpack Inputs
     #-------------------------------------------------------------------------------
 
-    rRotor              = config.propulsors.propulsor.rotor.tip_radius 
-    rotor_bladeSol      = config.propulsors.propulsor.rotor.blade_solidity    
-    mBattery            = config.propulsors.propulsor.battery.mass_properties.mass
-    mPayload            = config.propulsors.propulsor.payload.mass_properties.mass
+    rRotor              = config.propulsors.vectored_thrust.rotor.tip_radius 
+    rotor_bladeSol      = config.propulsors.vectored_thrust.rotor.blade_solidity    
+    mBattery            = config.propulsors.vectored_thrust.battery.mass_properties.mass
+    mPayload            = config.propulsors.vectored_thrust.payload.mass_properties.mass
     MTOW                = config.mass_properties.max_takeoff
      
     tipMach             = max_tip_mach
@@ -80,7 +80,7 @@ def empty(config,settings,
     output.payload      = mPayload
     output.seats        = 30.
     output.avionics     = 15.
-    output.motors       = config.propulsors.propulsor.number_of_engines * 20.
+    output.motors       = config.propulsors.vectored_thrust.number_of_engines * 20.
     output.battery      = mBattery
     output.servos       = 5.2
     output.brs          = 16.
@@ -109,9 +109,9 @@ def empty(config,settings,
 
     # Component Weight Calculations
 
-    output.rotor         = prop(config.propulsors.propulsor.rotor,
+    output.rotor         = prop(config.propulsors.vectored_thrust.rotor,
                                 maxThrust)
-    output.tail_rotor    = prop(config.propulsors.propulsor.rotor,
+    output.tail_rotor    = prop(config.propulsors.vectored_thrust.rotor,
                                 1.5*maxTorque/(1.25*rRotor))*0.2
     output.transmission  = maxPower * 1.5873e-4          # From NASA OH-58 Study
     output.fuselage      = fuselage(config)

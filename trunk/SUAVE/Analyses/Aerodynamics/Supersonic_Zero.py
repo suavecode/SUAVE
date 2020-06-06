@@ -62,7 +62,7 @@ class Supersonic_Zero(Markup):
         settings.trim_drag_correction_factor        = 1.02
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
-        settings.aircraft_span_efficiency_factor    = 0.78
+        settings.aircraft_span_efficiency_factor    = 0.0
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
@@ -116,6 +116,7 @@ class Supersonic_Zero(Markup):
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
+        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim

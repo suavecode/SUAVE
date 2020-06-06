@@ -70,17 +70,19 @@ def main():
     results  = nexus.results
     err      = nexus.sizing_loop.norm_error
 
-    err_true = 0.0013122902002767865
+    err_true = 0.12304325353362783
     error    = abs((err-err_true)/err_true)
 
     data_inputs, data_outputs, read_success = read_sizing_residuals(sizing_loop, problem.inputs)
-    check_read_res = -0.12885533520155001
+    check_read_res = -0.1163615525652359
     
     error_res      = abs((data_outputs[1][0]-check_read_res)/check_read_res)
     
     #remove files for later
     os.remove('sizing_outputs.txt')
     os.remove('y_err_values.txt')
+    print('err = ', err)
+    print('read_res = ', data_outputs[1][0])    
     print('error = ', error)
     print('error_res = ', error_res)
     assert(error<1e-4), 'sizing loop regression failed'    

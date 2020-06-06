@@ -52,7 +52,7 @@ def vortex_lift(state,settings,geometry):
     vortex_cl  = np.zeros_like(wings_lift)
 
     for wing in geometry.wings: 
-        wing_lift = state.conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing.tag]
+        wing_lift = state.conditions.aerodynamics.lift_breakdown.inviscid_wings[wing.tag]
 
         if wing.vortex_lift is True:
             # compute leading edge sweek if not given

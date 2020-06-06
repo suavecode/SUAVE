@@ -3,7 +3,8 @@
 # 
 # Created:  Dec 2013, SUAVE Team
 # Modified: Jan 2016, E. Botero
-#           Apr 2020, M. Clarke       
+#           Apr 2020, M. Clarke     
+#           Jun 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -47,31 +48,67 @@ def induced_drag_aircraft(state,settings,geometry):
     # unpack inputs
     conditions    = state.conditions
     configuration = settings
+    wings         = geometry.wings
     
     K       = configuration.viscous_lift_dependent_drag_factor
-    CDp     = state.conditions.aerodynamics.drag_breakdown.parasite.total
+    e_osw   = configuration.oswald_efficiency_factor	
     CL      = conditions.aerodynamics.lift_coefficient
-    e       = configuration.oswald_efficiency_factor	
-    CDi_inv = conditions.aerodynamics.drag_breakdown.induced.total
-    wing_e  = geometry.wings['main_wing'].span_efficiency     
-    ar      = geometry.wings['main_wing'].aspect_ratio
-     
-    # Inviscid osward efficiency factor
-    if wing_e  == None:
-        wing_e  = CL**2/(CDi_inv*np.pi*ar)
-    else:
-        CDi_inv = CL**2/(wing_e *np.pi*ar)  
+    CDi     = conditions.aerodynamics.drag_breakdown.induced.inviscid
+    S_ref   = geometry.reference_area
+
+    wing_viscous_induced_drags = Data()
+
+    # If the oswald efficiency factor is not specified (typical case)
+    if e_osw == None:
+
+        # Prime totals
+        area                        = 0.
+        AR                          = 0.01  
+        total_induced_viscous_drag  = 0.
         
-    # Fuselage correction for induced drag (insicid + viscous)
-    if e == None:	
-        e = 1/((1/wing_e)+np.pi*ar*K*CDp)
-        total_induced_drag = CDi_inv + K*CDp*(CL**2)
+        # Go through each wing, and make calculations
+        for wing in wings:
+            tag        = wing.tag
+            ar         = wing.aspect_ratio
+            s_wing     = conditions.aerodynamics.drag_breakdown.parasite[wing.tag].reference_area
+            cdp_wing   = conditions.aerodynamics.drag_breakdown.parasite[tag].parasite_drag_coefficient
+            cl_wing    = conditions.aerodynamics.lift_breakdown.inviscid_wings[tag]
+                
+            cdi_v_wing = K*cdp_wing*(cl_wing**2)
+            total_induced_viscous_drag  = total_induced_viscous_drag  + (cdi_v_wing)*(s_wing/S_ref)
+            
+            # pack the wing level viscous induced drag
+            wing_viscous_induced_drags[tag] = cdi_v_wing 
+            
+            # Save this for later
+            if s_wing > area:
+                area = s_wing
+                AR  = ar
+                
+        total_induced_drag = total_induced_viscous_drag + CDi
+        
+        # Now calculate the vehicle level oswald efficiency
+        e_osw = (CL**2)/(np.pi*AR*total_induced_drag)
+        
+        
+    # If the user specifies a vehicle level oswald efficiency factor
     else:
-        total_induced_drag = CL **2 / (np.pi*ar*e)     
-     
-    conditions.aerodynamics.drag_breakdown.induced.total             = total_induced_drag
-    conditions.aerodynamics.drag_breakdown.induced.efficiency_factor = wing_e 
+        
+        # Find the largest wing, use that for AR
+        S  = 0.
+        AR = 0.01        
+        for wing in wings:
+            if wing.areas.reference>S:
+                AR = wing.aspect_ratio
+                
+        # Calculate the induced drag       
+        total_induced_drag = CL **2 / (np.pi*AR*e_osw)
+        total_induced_viscous_drag = total_induced_drag - CDi
+    
+    
+    conditions.aerodynamics.drag_breakdown.induced.total              = total_induced_drag
+    conditions.aerodynamics.drag_breakdown.induced.viscous            = total_induced_viscous_drag
+    conditions.aerodynamics.drag_breakdown.induced.efficiency_factor  = e_osw
+    conditions.aerodynamics.drag_breakdown.induced.viscous_wings_drag = wing_viscous_induced_drags
     
     return total_induced_drag
-
- 
