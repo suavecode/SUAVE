@@ -3,6 +3,7 @@
 # 
 # Created:  May 2018, M. Clarke
 #           Apr 2020, M. Clarke
+#           Jun 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -258,5 +259,5 @@ def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
         idxs  = np.where(flag > 0.0)
         MCM[m_idx,idxs[0],idxs[1]]  = [0.0, 0.0, 0.0]      
     
-  
+    
     return MCM
