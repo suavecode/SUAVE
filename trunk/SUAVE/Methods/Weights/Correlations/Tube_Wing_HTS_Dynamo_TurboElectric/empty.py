@@ -23,7 +23,7 @@ from SUAVE.Methods.Weights.Correlations         import Propulsion   as Propulsio
 
 from SUAVE.Methods.Power.Turboelectric.Sizing                   import initialize_from_power
 from SUAVE.Methods.Weights.Correlations.Propulsion.hts_motor    import hts_motor
-from .SiC_Electronics import SiC_mass
+from .SiC_Electronics   import SiC_mass
 
 import warnings
 
@@ -159,7 +159,7 @@ def empty(vehicle,settings=None):
         # wt_leads            = propulsors.lead.mass_properties.mass * 2.0
 
         # # Size the rotor current supply (ccs)
-        # wt_ccs              = SiC_mass(propulsors.ccs)
+        # # wt_ccs              = current_supply_mass(propulsors.ccs)
         # # --------------- Current Supply Leads end --------------
 
         # --------------- Current Supply HTS Dynamo -------------
@@ -173,7 +173,7 @@ def empty(vehicle,settings=None):
 
         # Size the rotor cryocooler. Each rotor has a seperate cryocooler as defined in serial_hts_turboelectric_sizing
         # This is skipped if the rotor(s) are cooled wholly by cryogen. The mass of the components required to store and deliver the cryogen are not considered.
-        wt_cryocooler   = propulsors.cryocooler.mass_properties.mass
+        wt_cryocooler       = propulsors.cryocooler.mass_properties.mass
 
         # Sum the above propulsor components to give individual propulsor mass
         wt_propulsor        = wt_ductedfan + wt_motor + wt_esc + wt_leads + wt_ccs + wt_cryocooler
