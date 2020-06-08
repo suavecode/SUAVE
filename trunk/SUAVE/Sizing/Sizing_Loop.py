@@ -129,7 +129,7 @@ class Sizing_Loop(Data):
                             print('optimizing svr parameters')
                             x = [2.,-1.] #initial guess for 10**C, 10**eps
                         
-                            out = sp.optimize.minimize(check_svr_accuracy, x, method='Nelder-Mead', args=(data_inputs, data_outputs, imin_dist))
+                            out = sp.optimize.minimize(check_svr_accuracy, x, method='Nelder-Mead', args=(data_inputs, data_outputs, i_min_dist))
                             t2=time.time()
                             c_out = 10**out.x[0]
                             eps_out = 10**out.x[1]

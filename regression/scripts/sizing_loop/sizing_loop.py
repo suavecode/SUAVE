@@ -16,8 +16,6 @@ from SUAVE.Core import Units, Data
 
 import numpy as np
 import copy, time
-import matplotlib.pyplot as plt
-import matplotlib
 from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
@@ -36,7 +34,6 @@ sys.path.append('../Vehicles')
 import Analyses
 import Missions
 from Boeing_737 import vehicle_setup, configs_setup
-matplotlib.interactive(True)
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -70,11 +67,11 @@ def main():
     results  = nexus.results
     err      = nexus.sizing_loop.norm_error
 
-    err_true = 1.1317453474361936e-05
+    err_true = 0.006489143934376998
     error    = abs((err-err_true)/err_true)
 
     data_inputs, data_outputs, read_success = read_sizing_residuals(sizing_loop, problem.inputs)
-    check_read_res = --0.11763387439948744
+    check_read_res =  -0.11635929782437511
     
     error_res      = abs((data_outputs[1][0]-check_read_res)/check_read_res)
     
@@ -137,7 +134,7 @@ def run_sizing_loop(nexus):
     #assign to sizing loop
     
     sizing_loop.tolerance                                      = 1E-2 #fraction difference in mass and energy between iterations
-    sizing_loop.initial_step                                   = 'GPR' #Default, Table, SVR
+    sizing_loop.initial_step                                   = 'Default' #Default, Table, SVR
     sizing_loop.update_method                                  = 'newton-raphson' #'successive_substitution','newton-raphson', 'broyden'
     sizing_loop.default_y                                      = y
     sizing_loop.min_y                                          = min_y
@@ -346,4 +343,3 @@ def finalize(nexus):
 
 if __name__ == '__main__':
     main()
-    plt.show()
