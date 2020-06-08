@@ -67,6 +67,7 @@ class Supersonic_Zero(Markup):
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
         settings.oswald_efficiency_factor           = None
+        settings.span_efficiency                    = None
         settings.maximum_lift_coefficient           = np.inf 
         settings.begin_drag_rise_mach_number        = 0.95
         settings.end_drag_rise_mach_number          = 1.2

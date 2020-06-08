@@ -79,7 +79,6 @@ def vehicle_setup():
     wing.areas.exposed           = 0.80 * wing.areas.wetted        
     wing.twists.root             = 2.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees    
-    wing.span_efficiency         = 1.0
     wing.dynamic_pressure_ratio  = 1.0
     
     
@@ -146,7 +145,6 @@ def vehicle_setup():
     wing.areas.exposed           = 0.80 * wing.areas.wetted
     wing.twists.root             = 2.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees    
-    wing.span_efficiency         = 1.0
     wing.dynamic_pressure_ratio  = 1.0   
 
     # add to vehicle
@@ -172,7 +170,6 @@ def vehicle_setup():
     wing.areas.exposed           = 0.9 * wing.areas.wetted 
     wing.twists.root             = 2.0 * Units.degrees
     wing.twists.tip              = 2.0 * Units.degrees    
-    wing.span_efficiency         = 0.90
     wing.dynamic_pressure_ratio  = 0.90
 
     # add to vehicle
@@ -198,7 +195,6 @@ def vehicle_setup():
     wing.areas.exposed           = 0.9 * wing.areas.wetted
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees    
-    wing.span_efficiency         = 0.90
     wing.dynamic_pressure_ratio  = 1.00
     
     # add to vehicle

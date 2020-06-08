@@ -54,7 +54,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord     = 0.0  * Units.degrees
     wing.thickness_to_chord       = 0.18  
     wing.taper                    = 1.  
-    wing.span_efficiency          = 0.9  
     wing.spans.projected          = 35.0   * Units.feet
     wing.chords.root              = 3.25   * Units.feet
     wing.total_length             = 3.25   * Units.feet 
@@ -115,7 +114,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord     = 0.0  
     wing.thickness_to_chord       = 0.12  
     wing.taper                    = 1.0  
-    wing.span_efficiency          = 0.9  
     wing.spans.projected          = 8.0 * Units.feet
     wing.chords.root              = 2.0 * Units.feet 
     wing.total_length             = 2.0 * Units.feet 
@@ -142,7 +140,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord     = 20.0 * Units.degrees 
     wing.thickness_to_chord       = 0.12
     wing.taper                    = 0.5
-    wing.span_efficiency          = 0.9 
     wing.spans.projected          = 3.0 * Units.feet 
     wing.chords.root              = 2.0 * Units.feet  
     wing.total_length             = 2.0 * Units.feet 
@@ -170,7 +167,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 20.0 * Units.degrees 
     wing.thickness_to_chord      = 0.12
     wing.taper                   = 0.5
-    wing.span_efficiency         = 0.9 
     wing.spans.projected         = 3.0 * Units.feet 
     wing.chords.root             = 2.0 * Units.feet  
     wing.total_length            = 2.0 * Units.feet 

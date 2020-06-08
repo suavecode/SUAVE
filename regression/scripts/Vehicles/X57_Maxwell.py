@@ -59,7 +59,6 @@ def vehicle_setup():
 
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
     wing.thickness_to_chord      = 0.12
-    wing.span_efficiency         = 0.9
     wing.areas.reference         = 15.45 * Units['meters**2']  
     wing.spans.projected         = 11. * Units.meter  
 
@@ -95,7 +94,6 @@ def vehicle_setup():
 
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
     wing.thickness_to_chord      = 0.12
-    wing.span_efficiency         = 0.95
     wing.areas.reference         = 3.74 * Units['meters**2']  
     wing.spans.projected         = 3.454  * Units.meter 
     wing.sweeps.quarter_chord    = 12.5 * Units.deg
@@ -132,7 +130,6 @@ def vehicle_setup():
 
     wing.sweeps.quarter_chord    = 25. * Units.deg
     wing.thickness_to_chord      = 0.12
-    wing.span_efficiency         = 0.9
     wing.areas.reference         = 2.258 * Units['meters**2']  
     wing.spans.projected         = 1.854   * Units.meter 
 

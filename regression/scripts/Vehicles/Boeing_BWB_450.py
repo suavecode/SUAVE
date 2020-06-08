@@ -58,7 +58,6 @@ def vehicle_setup():
     wing.aspect_ratio            = 289.**2 / (7840. * 2)
     wing.thickness_to_chord      = 0.15
     wing.taper                   = 0.0138
-    wing.span_efficiency         = 0.95
     wing.spans.projected         = 289.0 * Units.feet  
     wing.chords.root             = 145.0 * Units.feet
     wing.chords.tip              = 3.5  * Units.feet

@@ -73,10 +73,10 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 111.48931418907301
-    truth_rpm = 163.79695329168177
-    truth_i   = 138.65432948099271
-    truth_bat = 88507772.36938155
+    truth_F   = 103.21142960101967
+    truth_rpm = 159.01582417530153
+    truth_i   = 127.37614381941135
+    truth_bat = 88527918.2771715
     
     print('battery energy')
     print(energy)
@@ -141,6 +141,7 @@ def base_analysis(vehicle): # --------------------------------------------------
     aerodynamics.settings.plot_vortex_distribution   = True 
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
+    aerodynamics.settings.span_efficiency = 0.98
     analyses.append(aerodynamics)
     
     # ------------------------------------------------------------------

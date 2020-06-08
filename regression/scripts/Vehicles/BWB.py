@@ -64,7 +64,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 15. * Units.deg
     wing.thickness_to_chord      = 0.14
     wing.taper                   = 0.1
-    wing.span_efficiency         = 0.9
     wing.dihedral                = 3.0 * Units.degrees
     wing.spans.projected         = 39.0
     wing.chords.root             = 17.0

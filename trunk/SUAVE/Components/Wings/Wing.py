@@ -74,7 +74,6 @@ class Wing(Lofted_Body):
         self.dihedral                  = 0.0
         self.aspect_ratio              = 0.0
         self.thickness_to_chord        = 0.0
-        self.span_efficiency           = None
         self.aerodynamic_center        = [0.0,0.0,0.0]
         self.exposed_root_chord_offset = 0.0
         self.total_length              = 0.0

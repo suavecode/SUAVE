@@ -65,7 +65,6 @@ def vehicle_setup():
     wing.sweeps.leading_edge     = 66.5 * Units.deg
     wing.thickness_to_chord      = 0.03
     wing.taper                   = 0.
-    wing.span_efficiency         = .95
     
     wing.spans.projected           = 25.6    
     
@@ -215,7 +214,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 60 * Units.deg
     wing.thickness_to_chord      = 0.04
     wing.taper                   = 0.14
-    wing.span_efficiency         = 0.9
     
     wing.spans.projected         = 6.0      #    
 

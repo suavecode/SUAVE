@@ -582,12 +582,22 @@ def calculate_VLM(conditions,settings,geometry):
     
     total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y , CPi = VLM(conditions,settings,geometry)
 
+    # Dimensionalize the lift and drag for each wing
+    areas = settings.vortex_distribution.wing_areas
+    dim_wing_lifts = CL_wing  * areas
+    dim_wing_drags = CDi_wing * areas
+    
     i = 0
+    # Assign the lift and drag and non-dimensionalize
     for wing in geometry.wings.values():
-        wing_lifts[wing.tag] = 1*(np.atleast_2d(CL_wing[:,i]).T)
-        wing_drags[wing.tag] = 1*(np.atleast_2d(CDi_wing[:,i]).T)
-        i+=1
+        ref = wing.areas.reference
         if wing.symmetric:
+            wing_lifts[wing.tag] = np.atleast_2d(np.sum(dim_wing_lifts[:,i:(i+2)],axis=1)).T/ref
+            wing_drags[wing.tag] = np.atleast_2d(np.sum(dim_wing_drags[:,i:(i+2)],axis=1)).T/ref
             i+=1
+        else:
+            wing_lifts[wing.tag] = np.atleast_2d(dim_wing_lifts[:,i]).T/ref
+            wing_drags[wing.tag] = np.atleast_2d(dim_wing_drags[:,i]).T/ref
+        i+=1
 
     return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_y , cdi_y , CPi
