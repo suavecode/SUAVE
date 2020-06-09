@@ -155,7 +155,7 @@ def wing_segmented_planform(wing):
     # Pack stuff
     #wing.areas.reference         = ref_area
     wing.areas.wetted            = wet_area
-    wing.aspect_ratio            = AR
+    #wing.aspect_ratio            = AR
     wing.spans.total             = total_len
     wing.chords.mean_geometric   = mgc
     wing.chords.mean_aerodynamic = MAC

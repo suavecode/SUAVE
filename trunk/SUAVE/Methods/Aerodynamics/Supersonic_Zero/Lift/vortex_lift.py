@@ -55,9 +55,10 @@ def vortex_lift(state,settings,geometry):
         if wing.vortex_lift is True:
             AR = wing.aspect_ratio
             GAMMA = wing.sweeps.leading_edge
-            a = AoA[Mc < 1.0]
+            a = np.abs(AoA[Mc < 1.0])
+            signs = np.sign(AoA[Mc < 1.0])
             # Calculate vortex lift
-            vortex_cl[Mc < 1.0] += np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(GAMMA)-np.sin(a)/(2*np.cos(GAMMA)))
+            vortex_cl[Mc < 1.0] += signs*(np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(GAMMA)-np.sin(a)/(2*np.cos(GAMMA))))
             # Apply to wing lift
             wing_lift[Mc < 1.0] = vortex_cl[Mc < 1.0]
         
