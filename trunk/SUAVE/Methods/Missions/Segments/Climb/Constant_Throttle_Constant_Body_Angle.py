@@ -102,6 +102,7 @@ def initialize_conditions(segment):
     if velocity_start is None:
         if not segment.state.initials: raise AttributeError('initial speed not set')
         velocity_start = segment.state.initials.conditions.freestream.velocity[-1,0]
+        segment.velocity_start = velocity_start
 
     # pack conditions  
     conditions.propulsion.throttle[:,0] = throttle

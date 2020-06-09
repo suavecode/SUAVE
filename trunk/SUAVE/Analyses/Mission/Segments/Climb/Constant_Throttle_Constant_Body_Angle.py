@@ -61,6 +61,7 @@ class Constant_Throttle_Constant_Body_Angle(Aerodynamic):
         # --------------------------------------------------------------
         self.altitude_start = None # Optional
         self.altitude_end   = 10. * Units.km
+        self.velocity_start = None
         self.throttle       = 0.5
         self.body_angle     = 0.
         
