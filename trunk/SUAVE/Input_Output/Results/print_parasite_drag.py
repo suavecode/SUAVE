@@ -137,7 +137,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     state.conditions.aerodynamics.angle_of_attack = np.array([[2.]])*Units.degrees  
     results  = aerodynamics.evaluate(state) 
     _ = induced_drag_aircraft(state,settings,vehicle)
-    eff_fact = state.conditions.aerodynamics.drag_breakdown.induced.efficiency_factor
+    eff_fact = state.conditions.aerodynamics.drag_breakdown.induced.oswald_efficiency_factor
     # reynolds number
     
     Re_w = rho * Mc * a * mean_aerodynamic_chord/mu
