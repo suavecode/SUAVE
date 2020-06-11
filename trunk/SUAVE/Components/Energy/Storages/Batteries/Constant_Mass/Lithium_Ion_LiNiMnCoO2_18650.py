@@ -81,6 +81,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         #self.heat_transfer_coefficient   = 75    # [W/m^2K]   
         #self.heat_transfer_coefficient   = 7.17    # [W/m^2K] Natural Free Air heat convection 
         self.heat_transfer_coefficient   = 35    # [W/m^2K]  Thermal Performance of EV and HEV Battery Modules and Packs 
+        #self.heat_transfer_coefficient   = 7.17
         self.cell.specific_heat_capacity = 1108    # [J/kgK]  
         self.cell.thermal_conductivity   = 3.91    # [J/kgK] 
         

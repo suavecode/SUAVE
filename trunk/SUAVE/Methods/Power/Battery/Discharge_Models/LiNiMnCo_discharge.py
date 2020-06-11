@@ -76,7 +76,6 @@ def LiNiMnCo_discharge(battery,numerics):
     Cp                       = battery.cell.specific_heat_capacity 
     h                        = battery.heat_transfer_coefficient
     cell_surface_area        = battery.cell.surface_area
-    module_surface_area      = battery.module.surface_area
     T_ambient                = battery.ambient_temperature 
     V_th0                    = battery.initial_thevenin_voltage 
     T_current                = battery.temperature      
@@ -118,7 +117,7 @@ def LiNiMnCo_discharge(battery,numerics):
     # Compute battery cell temperature 
     # ---------------------------------------------------------------------------------
     # Determine temperature increase 
-    h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)
+    #h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)
     #h = 75   # airfoil of 35 m/s  Holman JP. Heat transfer. 6th ed. Singapore: McGraw-Hill; 1986. 
         
     # COMPLEX MODEL 
@@ -142,7 +141,10 @@ def LiNiMnCo_discharge(battery,numerics):
     P_heat         = (q_dot_joule + q_dot_entropy)*cell_surface_area  
     q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
     q_entropy_frac = q_dot_entropy/(q_dot_joule + q_dot_entropy)
-    P_net          = P_heat*n_module - h*module_surface_area*(T_cell - T_ambient)  
+    P_net          = P_heat - h*cell_surface_area*0.5*(T_cell - T_ambient)  
+     
+    # Using lumped model  
+    P_net          = P_net*n_total 
     
     ## Calculate resistive losses
     #P_heat = (I_cell**2)*(R_0 ) 
@@ -152,8 +154,7 @@ def LiNiMnCo_discharge(battery,numerics):
     
     dT_dt      = P_net/(cell_mass*n_module *Cp)
     T_current = T_current[0] + np.dot(I,dT_dt)  
-    #T_current  = np.atleast_2d(np.hstack(( T_current[0] , T_current[0] + cumtrapz(dT_dt[:,0], x = numerics.time.control_points[:,0])))).T  
-
+    
     # Power going into the battery accounting for resistance losses
     P_loss = n_total*P_heat
     P = P_bat - np.abs(P_loss)     
