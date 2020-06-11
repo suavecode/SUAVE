@@ -76,7 +76,7 @@ class Container(Component.Container):
             None
     
             Outputs:
-            None
+            mass  [kg]
     
             Properties Used:
             None
@@ -104,7 +104,7 @@ class Container(Component.Container):
             None
     
             Outputs:
-            None
+            total moment [kg*m]
     
             Properties Used:
             None

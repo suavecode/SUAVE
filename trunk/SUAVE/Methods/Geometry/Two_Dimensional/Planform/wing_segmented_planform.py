@@ -20,8 +20,8 @@ def wing_segmented_planform(wing):
     """Computes standard wing planform values.
     
     Assumptions:
-    Multisigmented wing. We only find the first spanwise location of the mean aerodynamic chord.
-    There is no unexposed wetted area, ie wing that intersects a fuselage
+    Multisegmented wing. We only find the first spanwise location of the mean aerodynamic chord.
+    There is no unexposed wetted area, ie wing area that intersects inside a fuselage
     
     Source:
     None

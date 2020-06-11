@@ -31,7 +31,8 @@ def empty(vehicle):
     
     Assumptions:
          calculated aircraft weight from correlations created per component of historical aircraft
-      
+         The wings are made out of aluminum
+         
     Source: 
         N/A
          

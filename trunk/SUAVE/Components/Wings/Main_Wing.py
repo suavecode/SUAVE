@@ -115,6 +115,7 @@ class Segment_Container(ContainerOrdered):
     
     def append(self,val):
         """Appends the value to the containers
+          This overrides the basic data class append
     
             Assumptions:
             None

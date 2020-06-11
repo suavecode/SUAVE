@@ -76,6 +76,8 @@ class Container(Data):
     
     def append(self,val):
         """ Appends the value to the containers
+            This overrides the Data class append by allowing for duplicate named components
+            The following components will get new names.
         
             Assumptions:
             None

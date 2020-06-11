@@ -110,6 +110,7 @@ class Container(Physical_Component.Container):
         
                 Assumptions:
                 Propulsor has "evaluate_thrust" method
+                If multiple propulsors are attached their masses will be summed
                 
                 Source:
                 N/A

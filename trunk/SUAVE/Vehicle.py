@@ -95,13 +95,14 @@ class Vehicle(Data):
         super(Vehicle,self).__init__(*args,**kwarg)
 
         self._component_root_map = {
-            Components.Fuselages.Fuselage              : self['fuselages']              ,
-            Components.Wings.Wing                      : self['wings']                  ,
-            Components.Systems.System                  : self['systems']                ,
-            Components.Propulsors.Propulsor            : self['propulsors']             ,
-            Components.Envelope                        : self['envelope']               ,
-            Vehicle_Mass_Properties                    : self['mass_properties']        ,
-            #Components.Landing_Gear                    : self['landing_gear']           ,
+            Components.Fuselages.Fuselage              : self['fuselages']        ,
+            Components.Wings.Wing                      : self['wings']            ,
+            Components.Systems.System                  : self['systems']          ,
+            Components.Propulsors.Propulsor            : self['propulsors']       ,
+            Components.Envelope                        : self['envelope']         ,
+            Components.Landing_Gear.Landing_Gear       : self['landing_gear']     ,
+            Vehicle_Mass_Properties                    : self['mass_properties']  ,
+
         
         }
         
@@ -165,13 +166,6 @@ class Vehicle(Data):
 
         # find the place to store data
         component_root = self.find_component_root(component)
-        
-        ## Check if there are Mass_Properties already, can only be one
-        #if isinstance(component,Vehicle_Mass_Properties):
-            #try:
-                #self.__delattr__('mass_properties')
-            #except:
-                #pass        
         
         # See if the component exists, if it does modify the name
         keys = component_root.keys()

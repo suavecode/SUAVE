@@ -1,1 +1,0 @@
-{"envelope": {"limit_load": 0.0, "ultimate_load": 0.0}, "systems": {"control": null, "accessories": null}, "wings": {"main_wing": {"chords": {"mean_aerodynamic": 1.57, "tip": 0.0, "root": 24, "mean_geometric": 0.0}, "spans": {"projected": 8.16}, "sweeps": {"leading_edge": null}, "areas": {"wetted": 0.0}, "aerodynamic_center": [0.0, 0.0, 0.0], "total_length": 0.0}}}

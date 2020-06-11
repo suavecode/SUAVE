@@ -77,6 +77,7 @@ class Expansion_Nozzle(Energy_Component):
 
         Assumptions:
         Constant polytropic efficiency and pressure ratio
+        If pressures make the Mach number go negative, these values are corrected
 
         Source:
         https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/

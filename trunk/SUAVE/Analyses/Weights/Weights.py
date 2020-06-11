@@ -71,10 +71,13 @@ class Weights(Analysis):
         N/A
 
         Inputs:
-        None
+        self.vehicle           [Data]
+        self.settings          [Data]
+        self.settings.empty    [Data]
 
         Outputs:
-        results
+        self.weight_breakdown  [Data]
+        results                [Data]
 
         Properties Used:
         N/A
