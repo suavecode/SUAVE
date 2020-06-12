@@ -61,7 +61,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0] 
-    lift_coefficient_true   = 0.6502250978645797
+    lift_coefficient_true   = 0.6482812427145301
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -180,10 +180,10 @@ def mission_setup(analyses,vehicle):
     base_segment                                             = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row 
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.vectored_thrust.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.vectored_thrust.residuals
     base_segment.state.unknowns.propeller_power_coefficient  = 0.05 * ones_row(1) 
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.propulsor.battery.max_voltage * ones_row(1)  
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.vectored_thrust.battery.max_voltage * ones_row(1)  
     base_segment.state.residuals.network                     = 0. * ones_row(2)    
     
     
@@ -208,13 +208,13 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start  = 0.0  * Units.ft
     segment.altitude_end    = 40.  * Units.ft
     segment.climb_rate      = 300. * Units['ft/min']
-    segment.battery_energy  = vehicle.propulsors.propulsor.battery.max_energy  
+    segment.battery_energy  = vehicle.propulsors.vectored_thrust.battery.max_energy  
     
     segment.state.unknowns.propeller_power_coefficient = 0.04 * ones_row(1)
     segment.state.unknowns.throttle                    = 0.8 * ones_row(1)
     
-    segment.process.iterate.unknowns.network          = vehicle.propulsors.propulsor.unpack_unknowns 
-    segment.process.iterate.residuals.network         = vehicle.propulsors.propulsor.residuals   
+    segment.process.iterate.unknowns.network          = vehicle.propulsors.vectored_thrust.unpack_unknowns 
+    segment.process.iterate.residuals.network         = vehicle.propulsors.vectored_thrust.residuals   
     segment.process.iterate.unknowns.mission          = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability   = SUAVE.Methods.skip
@@ -237,8 +237,8 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.propeller_power_coefficient = 0.01 * ones_row(1)     
     segment.state.unknowns.throttle                    = 0.5 * ones_row(1)
     
-    segment.process.iterate.unknowns.network           = vehicle.propulsors.propulsor.unpack_unknowns 
-    segment.process.iterate.residuals.network          = vehicle.propulsors.propulsor.residuals   
+    segment.process.iterate.unknowns.network           = vehicle.propulsors.vectored_thrust.unpack_unknowns 
+    segment.process.iterate.residuals.network          = vehicle.propulsors.vectored_thrust.residuals   
     segment.process.iterate.unknowns.mission           = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability    = SUAVE.Methods.skip
@@ -264,8 +264,8 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.propeller_power_coefficient = 0.03 * ones_row(1)
     segment.state.unknowns.throttle                    = 0.80 * ones_row(1)
     
-    segment.process.iterate.unknowns.network        = vehicle.propulsors.propulsor.unpack_unknowns
-    segment.process.iterate.residuals.network       = vehicle.propulsors.propulsor.residuals    
+    segment.process.iterate.unknowns.network        = vehicle.propulsors.vectored_thrust.unpack_unknowns
+    segment.process.iterate.residuals.network       = vehicle.propulsors.vectored_thrust.residuals    
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability = SUAVE.Methods.skip      
         
@@ -289,8 +289,8 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.propeller_power_coefficient = 0.03 * ones_row(1)
     segment.state.unknowns.throttle                    = 0.95 * ones_row(1)
     
-    segment.process.iterate.unknowns.network        = vehicle.propulsors.propulsor.unpack_unknowns
-    segment.process.iterate.residuals.network       = vehicle.propulsors.propulsor.residuals    
+    segment.process.iterate.unknowns.network        = vehicle.propulsors.vectored_thrust.unpack_unknowns
+    segment.process.iterate.residuals.network       = vehicle.propulsors.vectored_thrust.residuals    
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability = SUAVE.Methods.skip      
         

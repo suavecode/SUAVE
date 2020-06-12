@@ -127,7 +127,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'hover'
-    config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
+    config.propulsors.vectored_thrust.pitch_command = 0.  * Units.degrees    
     configs.append(config)
     
     # ------------------------------------------------------------------
@@ -135,7 +135,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'climb'   
-    config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
+    config.propulsors.vectored_thrust.pitch_command = 0.  * Units.degrees    
     configs.append(config)
     
     return configs
@@ -204,10 +204,10 @@ def mission_setup(analyses,vehicle):
     base_segment                                             = Segments.Segment()
     ones_row                                                 = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery 
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.vectored_thrust.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.vectored_thrust.residuals
     base_segment.state.unknowns.propeller_power_coefficient  = 0.05 * ones_row(1) 
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.propulsor.battery.max_voltage * ones_row(1)     
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.vectored_thrust.battery.max_voltage * ones_row(1)     
     base_segment.state.unknowns.thurst_angle                 = 90. * Units.degrees * ones_row(1)
     base_segment.state.residuals.network                     = 0. * ones_row(3)    
     
@@ -231,13 +231,13 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start  = 0.0  * Units.ft
     segment.altitude_end    = 40.  * Units.ft
     segment.climb_rate      = 300. * Units['ft/min']
-    segment.battery_energy  = vehicle.propulsors.propulsor.battery.max_energy*0.95
+    segment.battery_energy  = vehicle.propulsors.vectored_thrust.battery.max_energy*0.95
     
     segment.state.unknowns.throttle                       = 0.5  * ones_row(1)
     segment.state.unknowns.propeller_power_coefficient    = 0.05 * ones_row(1) 
 
-    segment.process.iterate.unknowns.network          = vehicle.propulsors.propulsor.unpack_unknowns
-    segment.process.iterate.residuals.network         = vehicle.propulsors.propulsor.residuals
+    segment.process.iterate.unknowns.network          = vehicle.propulsors.vectored_thrust.unpack_unknowns
+    segment.process.iterate.residuals.network         = vehicle.propulsors.vectored_thrust.residuals
     segment.process.iterate.unknowns.mission          = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability   = SUAVE.Methods.skip 
@@ -258,8 +258,8 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.propeller_power_coefficient      = 0.04 * ones_row(1)     
     segment.state.unknowns.throttle                         = 0.7 * ones_row(1)
     
-    segment.process.iterate.unknowns.network          = vehicle.propulsors.propulsor.unpack_unknowns 
-    segment.process.iterate.residuals.network         = vehicle.propulsors.propulsor.residuals   
+    segment.process.iterate.unknowns.network          = vehicle.propulsors.vectored_thrust.unpack_unknowns 
+    segment.process.iterate.residuals.network         = vehicle.propulsors.vectored_thrust.residuals   
     segment.process.iterate.unknowns.mission          = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability   = SUAVE.Methods.skip 

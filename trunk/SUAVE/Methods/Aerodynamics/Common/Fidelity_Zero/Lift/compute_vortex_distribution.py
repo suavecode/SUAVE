@@ -129,7 +129,7 @@ def compute_vortex_distribution(geometry,settings):
         sym_para      = wing.symmetric
         Sref          = wing.areas.reference
         vertical_wing = wing.vertical
-        wing_origin   = wing.origin
+        wing_origin   = wing.origin[0]
 
         # determine if vehicle has symmetry 
         if sym_para is True :
@@ -232,18 +232,7 @@ def compute_vortex_distribution(geometry,settings):
                 if i_seg == 0:
                     segment_span[i_seg]           = 0.0
                     segment_chord_x_offset[i_seg] = 0.0  
-                    segment_chord_z_offset[i_seg] = 0.0
-                elif (i_seg == 1) and ('fuselage' in geometry.fuselages):  
-                    segment_span[i_seg]           = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
-                    segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
-                    segment_chord_z_offset[i_seg] = segment_chord_z_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_dihedral[i_seg-1]) 
-                    x_star            = geometry.fuselages.fuselage.width/2   
-                    y1 = wing.Segments[i_seg-1].root_chord_percent *root_chord  
-                    y2 = wing.Segments[i_seg].root_chord_percent*root_chord   
-                    x1 = wing.Segments[i_seg-1].percent_span_location*span
-                    x2 = wing.Segments[i_seg].percent_span_location*span 
-                    wing_root_chord               = ((y2-y1)/(x2-x1))*(x_star-x1)  + y1  
-                    segment_area[i_seg]           = 0.5*(wing_root_chord  + root_chord*wing.Segments[i_seg].root_chord_percent)*(x2-x_star)           
+                    segment_chord_z_offset[i_seg] = 0.0       
                 else:
                     segment_span[i_seg]           = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
                     segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])

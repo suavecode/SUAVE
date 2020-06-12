@@ -204,5 +204,3 @@ def plot_propeller_geometry(prop, line_color = 'bo-', save_figure = False, save_
 		plt.savefig(save_filename + file_type)  
 
 	return
-
-

@@ -144,17 +144,21 @@ class SU2_inviscid(Aerodynamics):
         for ii,_ in enumerate(AoA):
             inviscid_lift[ii] = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])]) #sklearn fix
             
-        conditions.aerodynamics.lift_coefficient                                 = inviscid_lift
-        conditions.aerodynamics.lift_breakdown                                   = Data()
-        conditions.aerodynamics.lift_breakdown.compressible_wings                = Data()
-        conditions.aerodynamics.lift_breakdown.total                             = inviscid_lift        
-        conditions.aerodynamics.lift_breakdown.compressible_wings['main_wing']   = inviscid_lift # currently using vehicle drag for wing        
+        conditions.aerodynamics.lift_coefficient                               = inviscid_lift
+        conditions.aerodynamics.lift_breakdown                                 = Data()
+        conditions.aerodynamics.lift_breakdown.compressible_wings              = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings                  = Data()
+        conditions.aerodynamics.lift_breakdown.total                           = inviscid_lift        
+        conditions.aerodynamics.lift_breakdown.compressible_wings['main_wing'] = inviscid_lift # currently using vehicle drag for wing     
+        conditions.aerodynamics.lift_breakdown.inviscid_wings['main_wing']     = inviscid_lift # currently using vehicle drag for wing  
                                                                            
         # Inviscid drag, zeros are a placeholder for possible future implementation
-        inviscid_drag                                                      = np.zeros([data_len,1])       
-        conditions.aerodynamics.drag_breakdown.induced                     = Data()
-        conditions.aerodynamics.drag_breakdown.induced.total               = inviscid_drag
-        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag = inviscid_drag     
+        inviscid_drag                                                               = np.zeros([data_len,1])       
+        conditions.aerodynamics.drag_breakdown.induced                              = Data()
+        conditions.aerodynamics.drag_breakdown.induced.total                        = inviscid_drag
+        conditions.aerodynamics.drag_breakdown.induced.inviscid                     = inviscid_drag
+        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings               = Data()
+        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings['main_wing']  = inviscid_drag     
         
         return inviscid_lift, inviscid_drag
 

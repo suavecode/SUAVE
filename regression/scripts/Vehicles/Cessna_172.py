@@ -64,7 +64,6 @@ def vehicle_setup():
     wing.tag                                    = 'main_wing'    
     wing.sweeps.quarter_chord                   = 0.0 * Units.deg
     wing.thickness_to_chord                     = 0.12
-    wing.span_efficiency                        = 0.9
     wing.areas.reference                        = 174. * Units.feet**2
     wing.spans.projected                        = 36.  * Units.feet + 1. * Units.inches
     wing.chords.root                            = 66. * Units.inches
@@ -112,7 +111,6 @@ def vehicle_setup():
     wing.tag                                    = 'horizontal_stabilizer' 
     wing.sweeps.quarter_chord                   = 0.0 * Units.deg
     wing.thickness_to_chord                     = 0.12
-    wing.span_efficiency                        = 0.95
     wing.areas.reference                        = 5800. * Units.inches**2
     wing.spans.projected                        = 136.  * Units.inches
     wing.chords.root                            = 55. * Units.inches
@@ -139,7 +137,6 @@ def vehicle_setup():
     wing.tag                                    = 'vertical_stabilizer' 
     wing.sweeps.quarter_chord                   = 25. * Units.deg
     wing.thickness_to_chord                     = 0.12
-    wing.span_efficiency                        = 0.9
     wing.areas.reference                        = 3500. * Units.inches**2
     wing.spans.projected                        = 73.   * Units.inches
     wing.chords.root                            = 66. * Units.inches

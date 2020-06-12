@@ -254,7 +254,7 @@ def vehicle_setup():
     motor_origins = np.array(rotor.origin) 
     vehicle.append_component(net)
     
-    vehicle.weight_breakdown  = empty(vehicle)
+    vehicle.weight_breakdown  = empty(vehicle,None)
     return vehicle
 
 

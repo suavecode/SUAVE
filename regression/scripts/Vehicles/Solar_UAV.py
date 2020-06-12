@@ -64,7 +64,6 @@ def vehicle_setup():
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
-    wing.span_efficiency         = 0.98 
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
     wing.highlift                = False  
@@ -73,7 +72,7 @@ def vehicle_setup():
     wing.number_end_ribs         = 2.
     wing.transition_x_upper      = 0.6
     wing.transition_x_lower      = 1.0
-    wing.origin                  = [3.0,0.0,0.0] # meters
+    wing.origin                  = [[3.0,0.0,0.0]] # meters
     wing.aerodynamic_center      = [3.0,0.0,0.0] # meters
     
     # add to vehicle
@@ -88,7 +87,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 0 * Units.deg
     wing.thickness_to_chord      = 0.12
     wing.taper                   = 1.0
-    wing.span_efficiency         = 0.95 
     wing.areas.reference         = vehicle.reference_area * .15
     wing.areas.wetted            = 2.0 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
@@ -103,7 +101,7 @@ def vehicle_setup():
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  
-    wing.origin                  = [10.,0.0,0.0] # meters
+    wing.origin                  = [[10.,0.0,0.0]] # meters
     wing.aerodynamic_center      = [0.5,0.0,0.0] # meters
   
     # add to vehicle
@@ -119,7 +117,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 0 * Units.deg
     wing.thickness_to_chord      = 0.12
     wing.taper                   = 1.0
-    wing.span_efficiency         = 0.97
     wing.areas.reference         = vehicle.reference_area * 0.1
     wing.spans.projected         = np.sqrt(wing.aspect_ratio*wing.areas.reference) 
     wing.chords.root             = wing.areas.reference/wing.spans.projected
@@ -130,7 +127,7 @@ def vehicle_setup():
     wing.areas.affected          = 0.6 * wing.areas.wetted    
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
-    wing.origin                  = [10.,0.0,0.0] # meters
+    wing.origin                  = [[10.,0.0,0.0]] # meters
     wing.aerodynamic_center      = [0.5,0.0,0.0] # meters
     wing.symmetric               = True  
     wing.vertical                = True 

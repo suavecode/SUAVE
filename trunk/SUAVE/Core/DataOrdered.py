@@ -3,6 +3,8 @@
 #
 # Created:  Jul 2016, E. Botero
 # Modified: Sep 2016, E. Botero
+#           May 2020, E. Botero
+
 
    
 # ----------------------------------------------------------------------
@@ -124,8 +126,7 @@ class Property(object):
 ## @ingroup Core
 class DataOrdered(OrderedDict):
     """ An extension of the Python dict which allows for both tag and '.' usage.
-        This is an unordered dictionary. So indexing it will not produce deterministic results.
-        This has less overhead than ordering. If ordering is needed use DataOrdered().
+        This is an ordered dictionary. So indexing it will produce deterministic results.
        
         Assumptions:
         N/A
@@ -203,7 +204,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """          
-        if not isinstance(k,int):
+        if not (isinstance(k,int) or isinstance(k,np.int64)):
             return super(DataOrdered,self).__getattribute__(k)
         else:
             return super(DataOrdered,self).__getattribute__(self.keys()[k])
@@ -251,7 +252,7 @@ class DataOrdered(OrderedDict):
     
     def hasattr(self,k):
         try:
-            elf.__getitem__(k)
+            self.__getitem__(k)
             return True
         except:
             return False
@@ -374,26 +375,6 @@ class DataOrdered(OrderedDict):
         args += self.__str2(indent)
         
         return args
-        
-    def __repr__(self):
-        """ This function is used for printing the dataname of the class
-    
-            Assumptions:
-            N/A
-    
-            Source:
-            N/A
-    
-            Inputs:
-            N/A
-    
-            Outputs:
-            N/A
-    
-            Properties Used:
-            N/A    
-        """            
-        return self.dataname()
     
     def get_bases(self):
         """ Finds the higher classes that may be built off of data
@@ -691,8 +672,8 @@ class DataOrdered(OrderedDict):
             N/A
     
             Inputs:
-            k        [key]
-            v        [value]
+            key        [key]
+            value        [value]
     
             Outputs:
             N/A
@@ -1002,45 +983,3 @@ def _reconstructor(klass,items):
     self = DataOrdered.__new__(klass)
     DataOrdered.__init__(self,items)
     return self
-            
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------        
-
-if __name__ == '__main__':
-    
-    d = DataOrdered()
-    d.tag = 'data name'
-    d['value'] = 132
-    d.options = DataOrdered()
-    d.options.field = 'of greens'
-    d.options.half  = 0.5
-    print(d)
-    
-    import numpy as np
-    ones = np.ones([10,1])
-        
-    m = DataOrdered()
-    m.tag = 'numerical data'
-    m.hieght = ones * 1.
-    m.rates = DataOrdered()
-    m.rates.angle  = ones * 3.14
-    m.rates.slope  = ones * 20.
-    m.rates.special = 'nope'
-    m.value = 1.0
-    
-    print(m)
-    
-    V = m.pack_array('vector')
-    M = m.pack_array('array')
-    
-    print(V)
-    print(M)
-    
-    V = V*10
-    M = M-10
-    
-    print(m.unpack_array(V))
-    print(m.unpack_array(M))
-    

@@ -3,6 +3,8 @@
 # 
 # Created:  
 # Modified: Feb 2016, T. MacDonald
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,6 +13,7 @@
 from .Component import Component
 from .Mass_Properties import Mass_Properties
 
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Physical Component
@@ -46,7 +49,7 @@ class Physical_Component(Component):
         """         
         self.tag = 'Component'
         self.mass_properties = Mass_Properties()
-        self.origin  = [[0.0,0.0,0.0]]
+        self.origin = np.array([[0.0,0.0,0.0]])
         self.symmetric = False
 
 ## @ingroup Components    
@@ -73,18 +76,46 @@ class Container(Component.Container):
             None
     
             Outputs:
-            None
+            mass  [kg]
     
             Properties Used:
             None
         """   
         total = 0.0
         for key,Comp in self.items():
-            if isinstance(Comp,PhysicalComponentContainer):
+            if isinstance(Comp,Physical_Component.Container):
                 total += Comp.sum_mass() # recursive!
             elif isinstance(Comp,Physical_Component):
                 total += Comp.mass_properties.mass
                 
+        return total
+    
+    def total_moment(self):
+        """ will recursively search the data tree and sum
+            any Comp.Mass_Properties.mass, and return the total sum of moments
+            
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            total moment [kg*m]
+    
+            Properties Used:
+            None
+        """   
+        total = np.array([[0.0,0.0,0.0]])
+        for key,Comp in self.items():
+            if isinstance(Comp,Physical_Component.Container):
+                total += Comp.total_moment() # recursive!
+            elif isinstance(Comp,Physical_Component):
+                total += Comp.mass_properties.mass*(np.sum(np.array(Comp.origin),axis=0)+Comp.mass_properties.center_of_gravity)/len(Comp.origin)
+
         return total
     
     

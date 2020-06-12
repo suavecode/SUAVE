@@ -11,7 +11,7 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import  compute_induced_velocity_matrix
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import compute_induced_velocity_matrix
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution     import compute_vortex_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix              import compute_RHS_matrix
 # ----------------------------------------------------------------------
@@ -91,8 +91,8 @@ def VLM(conditions,settings,geometry):
     
     # define point about which moment coefficient is computed 
     c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
-    x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0]
-    x_cg       = geometry.mass_properties.center_of_gravity[0] 
+    x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
+    x_cg       = geometry.mass_properties.center_of_gravity[0][0]
     if x_cg == None:
         x_m = x_mac 
     else:
@@ -114,7 +114,7 @@ def VLM(conditions,settings,geometry):
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)     
     inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
     if np.any(mach==1):
-        raise('Mach of 1 cannot be used in building compressibiliy corrections.')
+        raise('Mach of 1 cannot be used in building compressibility corrections.')
     inv_root_beta = np.atleast_2d(inv_root_beta)
     
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones          # dihedral angle 
