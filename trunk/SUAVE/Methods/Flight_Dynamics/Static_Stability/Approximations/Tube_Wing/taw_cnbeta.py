@@ -130,7 +130,7 @@ def taw_cnbeta(geometry,conditions,configuration):
     b      = geometry.wings['main_wing'].spans.projected
     sweep  = geometry.wings['main_wing'].sweeps.quarter_chord
     AR     = geometry.wings['main_wing'].aspect_ratio
-    z_w    = geometry.wings['main_wing'].origin[2]
+    z_w    = geometry.wings['main_wing'].origin[0][2]
     S_bs   = geometry.fuselages['fuselage'].areas.side_projected
     l_f    = geometry.fuselages['fuselage'].lengths.total
     h_max  = geometry.fuselages['fuselage'].heights.maximum
@@ -141,10 +141,10 @@ def taw_cnbeta(geometry,conditions,configuration):
     other  = configuration.other
     vert   = extend_to_ref_area(geometry.wings['vertical_stabilizer'])
     S_v    = vert.extended.areas.reference
-    x_v    = vert.extended.origin[0]
+    x_v    = vert.extended.origin[0][0]
     b_v    = vert.extended.spans.projected
     ac_vLE = vert.aerodynamic_center[0]
-    x_cg   = configuration.mass_properties.center_of_gravity[0]
+    x_cg   = configuration.mass_properties.center_of_gravity[0][0]
     v_inf  = conditions.freestream.velocity
     mu     = conditions.freestream.dynamic_viscosity
     rho    = conditions.freestream.density

@@ -46,13 +46,13 @@ def vehicle_setup():
     wing.aspect_ratio                         = wing.spans.projected**2/wing.areas.reference
     wing.symmetric                            = True
     wing.vertical                             = False
-    wing.origin                               = np.array([58.6,0,3.6]) * Units.feet  
-    wing.aerodynamic_center                   = np.array([112.2*Units.feet,0.,0.])-wing.origin#16.16 * Units.meters,0.,0,])
+    wing.origin                               = [[58.6* Units.feet ,0,3.6* Units.feet ]]  
+    wing.aerodynamic_center                   = np.array([112.2*Units.feet,0.,0.])-wing.origin[0]#16.16 * Units.meters,0.,0,])
     wing.dynamic_pressure_ratio               = 1.0
     wing.ep_alpha                             = 0.0 
     span_location_mac                         = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     mac_le_offset                             = .8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
-    wing.mass_properties.center_of_gravity[0] = .3*wing.chords.mean_aerodynamic+mac_le_offset
+    wing.mass_properties.center_of_gravity[0][0] = .3*wing.chords.mean_aerodynamic+mac_le_offset
     
     
     Mach                                  = np.array([0.198])
@@ -88,7 +88,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------        
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------  
-    wing                        = SUAVE.Components.Wings.Wing()
+    wing                        = SUAVE.Components.Wings.Horizontal_Tail()
     wing.tag                    = 'horizontal_stabilizer'
     wing.areas.reference        = 1490.55* Units.feet**2
     wing.spans.projected        = 71.6   * Units.feet
@@ -96,7 +96,7 @@ def vehicle_setup():
     wing.sweeps.leading_edge    = 44.0   * Units.deg # Same as the quarter chord sweep (ignore why EMB)
     wing.taper                  = 7.5/32.6
     wing.aspect_ratio           = wing.spans.projected**2/wing.areas.reference
-    wing.origin                 = np.array([187.0,0,0])  * Units.feet
+    wing.origin                 = [[187.0* Units.feet,0,0]]
     wing.symmetric              = True
     wing.vertical               = False
     wing.dynamic_pressure_ratio = 0.95
@@ -108,7 +108,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Vertical Stabilizer
     # ------------------------------------------------------------------ 
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Vertical_Tail()
     wing.tag                       = 'vertical_stabilizer'
     wing.spans.exposed             = 32.4  * Units.feet
     wing.chords.root               = 38.7  * Units.feet      # vertical.chords.fuselage_intersect
@@ -123,7 +123,7 @@ def vehicle_setup():
     wing.chords.root               = 14.9612585185
     dx_LE_vert                     = wing.extended.root_LE_change
     wing.taper                     = 0.272993077083
-    wing.origin                    = np.array([wing.x_root_LE1 + dx_LE_vert,0.,0.])
+    wing.origin                    = [[wing.x_root_LE1 + dx_LE_vert,0.,0.]]
     wing.aspect_ratio              = (wing.spans.projected**2)/wing.areas.reference
     wing.effective_aspect_ratio    = 2.2
     wing.symmetric                 = False
@@ -152,7 +152,7 @@ def vehicle_setup():
     fuselage.width                              = 20.9    * Units.feet  
     
     vehicle.append_component(fuselage)
-    vehicle.mass_properties.center_of_gravity=np.array([112.2,0,0]) * Units.feet  
+    vehicle.mass_properties.center_of_gravity=np.array([[112.2,0,0]]) * Units.feet  
     
     #configuration.mass_properties.zero_fuel_center_of_gravity=np.array([76.5,0,0])*Units.feet #just put a number here that got the expected value output; may want to change
     fuel                                                     =SUAVE.Components.Physical_Component()

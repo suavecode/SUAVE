@@ -161,7 +161,7 @@ class AVL_Inviscid(Aerodynamics):
           
         """  
         # Unpack
-        surrogates    = self.surrogates        
+        surrogates    = self.surrogates
         conditions    = state.conditions 
         Mach          = conditions.freestream.mach_number
         AoA           = conditions.aerodynamics.angle_of_attack
@@ -221,7 +221,7 @@ class AVL_Inviscid(Aerodynamics):
           Mach             [-]
         self.training_file (optional - file containing previous AVL data)
         """          
-        # Unpack 
+        # Unpack
         run_folder    = os.path.abspath(self.settings.filenames.run_folder)
         geometry      = self.geometry
         training      = self.training   
@@ -231,7 +231,10 @@ class AVL_Inviscid(Aerodynamics):
         atmosphere    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
         atmo_data     = atmosphere.compute_values(altitude = 0.0) 
         
-        CL = np.zeros((len(AoA),len(Mach)))
+        len_AoA = len(AoA)
+        len_Mach = len(Mach)
+        
+        CL = np.zeros((len_AoA,len_Mach))
         CD = np.zeros_like(CL)  
         e  = np.zeros_like(CL)
         
@@ -254,7 +257,7 @@ class AVL_Inviscid(Aerodynamics):
             #Run Analysis at AoA[i] and Mach[j]
             results =  self.evaluate_conditions(run_conditions, trim_aircraft)
             
-            # Obtain CD , CL and e  
+            # Obtain CD , CL and e
             CL[:,i] = results.aerodynamics.lift_coefficient[:,0]
             CD[:,i] = results.aerodynamics.drag_breakdown.induced.total[:,0]      
             e [:,i] = results.aerodynamics.drag_breakdown.induced.efficiency_factor[:,0]  
@@ -267,20 +270,20 @@ class AVL_Inviscid(Aerodynamics):
             e_1D          = np.atleast_2d(data_array[:,2])
             
             # convert from 1D to 2D
-            CL = np.reshape(CL_1D, (len(AoA),-1))
-            CD = np.reshape(CD_1D, (len(AoA),-1))
-            e  = np.reshape(e_1D , (len(AoA),-1))
+            CL = np.reshape(CL_1D, (len_AoA,-1))
+            CD = np.reshape(CD_1D, (len_AoA,-1))
+            e  = np.reshape(e_1D , (len_AoA,-1))
         
         # Save the data for regression
         if self.save_regression_results: 
             # convert from 2D to 1D
-            CL_1D = CL.reshape([len(AoA)*len(Mach),1]) 
-            CD_1D = CD.reshape([len(AoA)*len(Mach),1])  
-            e_1D  = e.reshape([len(AoA)*len(Mach),1]) 
+            CL_1D = CL.reshape([len_AoA*len_Mach,1]) 
+            CD_1D = CD.reshape([len_AoA*len_Mach,1])  
+            e_1D  = e.reshape([len_AoA*len_Mach,1]) 
             np.savetxt(geometry.tag+'_aero_data.txt',np.hstack([CL_1D,CD_1D,e_1D]),fmt='%10.8f',header='  CL      CD      e  ')
           
         # Save the data for regression
-        training_data = np.zeros((3,len(AoA),len(Mach)))
+        training_data = np.zeros((3,len_AoA,len_Mach))
         training_data[0,:,:] = CL 
         training_data[1,:,:] = CD 
         training_data[2,:,:] = e  
@@ -372,7 +375,7 @@ class AVL_Inviscid(Aerodynamics):
         dynamic_results_template_2       = self.settings.filenames.dynamic_output_template_2    # 'system_matrix_{}.dat'
         batch_template                   = self.settings.filenames.batch_template
         deck_template                    = self.settings.filenames.deck_template 
-        
+
         # rename defaul avl aircraft tag
         self.tag                         = 'avl_analysis_of_{}'.format(self.geometry.tag) 
         self.settings.filenames.features = self.geometry._base.tag + '.avl'
@@ -395,7 +398,7 @@ class AVL_Inviscid(Aerodynamics):
                 num_cs_on_wing = len(wing.control_surfaces)
                 num_cs +=  num_cs_on_wing
                 for cs in wing.control_surfaces:
-                    ctrl_surf = wing.control_surfaces[cs]     
+                    ctrl_surf = cs    
                     cs_names.append(ctrl_surf.tag)  
                     if (type(ctrl_surf) ==  Slat):
                         ctrl_surf_function  = 'slat'

@@ -3,6 +3,8 @@
 # Created:  Apr 2014, T. Orra
 # Modified: Jan 2016, E. Botero
 #           Apr 2020, M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -44,6 +46,7 @@ def wing_planform(wing):
       chords.root              [m]
       chords.tip               [m]
       chords.mean_aerodynamics [m]
+      chords.mean_geometric    [m]
       areas.wetted             [m^2]
       areas.affected           [m^2]
       spans.projected          [m]
@@ -71,6 +74,7 @@ def wing_planform(wing):
     span       = (ar*sref)**.5
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
+    mgc        = (chord_root+chord_tip)/2
     
     swet = 2.*span/2.*(chord_root+chord_tip) *  (1.0 + 0.2*t_c_w)
 
@@ -91,6 +95,9 @@ def wing_planform(wing):
 
     if symmetric:
         y_coord = 0    
+    
+    # Total length calculation
+    total_length = np.tan(le_sweep)*span/2. + chord_tip
         
     # Computing flap geometry
     affected_area = 0.
@@ -115,9 +122,12 @@ def wing_planform(wing):
     wing.chords.root                = chord_root
     wing.chords.tip                 = chord_tip
     wing.chords.mean_aerodynamic    = mac
+    wing.chords.mean_geometric      = mgc
+    wing.sweeps.leading_edge        = le_sweep
     wing.areas.wetted               = swet
     wing.areas.affected             = affected_area
     wing.spans.projected            = span
     wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
+    wing.total_length               = total_length
     
     return wing

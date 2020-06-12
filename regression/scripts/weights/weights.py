@@ -6,7 +6,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
-from SUAVE.Methods.Weights.Correlations import Tube_Wing as Tube_Wing
+from SUAVE.Methods.Weights.Correlations import Transport as Transport
 from SUAVE.Methods.Weights.Correlations import General_Aviation as General_Aviation
 from SUAVE.Methods.Weights.Correlations import BWB as BWB
 from SUAVE.Methods.Weights.Correlations import Human_Powered as HP
@@ -28,24 +28,26 @@ from Solar_UAV import vehicle_setup  as hp_setup
 def main():
   
     vehicle = vehicle_setup()    
-    weight = Tube_Wing.empty(vehicle)
+    weight = Transport.empty(vehicle)
     
     # regression values    
     actual = Data()
     actual.payload         = 27349.9081525      # includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.587065500002
     actual.bag             = 2313.3210870000003
-    actual.fuel            = 12977.803363592691  # includes cargo #22177.6377131 #without cargo
-    actual.empty           = 38688.08848390731
-    actual.wing            = 6649.709658738429
-    actual.fuselage        = 6642.061164271899
+    actual.fuel            = 16504.32206450931  # includes cargo #22177.6377131 #without cargo
+    actual.empty           = 35161.56978299069
+    actual.wing            = 3461.869204335895
+    actual.fuselage        = 6700.709511002648
     actual.propulsion      = 6838.185174956626
     actual.landing_gear    = 3160.632
-    actual.systems         = 13479.10479056802
+    actual.systems         = 13390.723085494214
     actual.wt_furnish      = 6431.803728889001
-    actual.horizontal_tail = 1037.7414196819743
-    actual.vertical_tail   = 629.0387683502595
+    actual.horizontal_tail = 728.7965315109458
+    actual.vertical_tail   = 880.6542756903633
     actual.rudder          = 251.61550734010382
+    actual.nose_gear       = 316.06320000000005
+    actual.main_gear       = 2844.5688
     
     # error calculations
     error                 = Data()
@@ -57,7 +59,8 @@ def main():
     error.wing            = (actual.wing - weight.wing)/actual.wing
     error.fuselage        = (actual.fuselage - weight.fuselage)/actual.fuselage
     error.propulsion      = (actual.propulsion - weight.propulsion)/actual.propulsion
-    error.landing_gear    = (actual.landing_gear - weight.landing_gear)/actual.landing_gear
+    error.nose_gear       = (actual.nose_gear - weight.nose_gear)/actual.nose_gear
+    error.main_gear       = (actual.main_gear - weight.main_gear)/actual.main_gear
     error.systems         = (actual.systems - weight.systems)/actual.systems
     error.wt_furnish      = (actual.wt_furnish - weight.systems_breakdown.furnish)/actual.wt_furnish
     error.horizontal_tail = (actual.horizontal_tail - weight.horizontal_tail)/actual.horizontal_tail
@@ -128,9 +131,9 @@ def main():
     actual.payload         = 27349.9081525 #includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.587065500002
     actual.bag             = 2313.3210870000003
-    actual.fuel            = 24860.343951919327
-    actual.empty           = 26805.547895580676
-    actual.wing            = 6576.679767012152
+    actual.fuel            = 26119.117465169547
+    actual.empty           = 25546.774382330455
+    actual.wing            = 5317.906253761935
     actual.fuselage        = 1.0
     actual.propulsion      = 1413.8593105126783
     actual.landing_gear    = 3160.632

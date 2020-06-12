@@ -129,7 +129,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -171,7 +171,8 @@ def base_analysis(vehicle):
 # ----------------------------------------------------------------------
 
 def plot_mission(results ,vec_configs):
-    prop_radius_ft = vec_configs.propulsors.propulsor.propeller.tip_radius*3.28084 # convert to ft 
+    for propulsor in vec_configs.propulsors:
+        prop_radius_ft = propulsor.propeller.tip_radius / Units.feet
     # ------------------------------------------------------------------
     #   Aero Conditions
     # ------------------------------------------------------------------
@@ -329,10 +330,10 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 4
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.battery_propeller.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.battery_propeller.residuals
     base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.propulsor.battery.max_voltage * ones_row(1)  
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.battery_propeller.battery.max_voltage * ones_row(1)  
     base_segment.state.residuals.network                     = 0. * ones_row(2)        
     
     # ------------------------------------------------------------------
@@ -341,7 +342,7 @@ def mission_setup(analyses,vehicle):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_1"
     segment.analyses.extend( analyses.base )
-    segment.battery_energy                   = vehicle.propulsors.propulsor.battery.max_energy * 0.89
+    segment.battery_energy                   = vehicle.propulsors.battery_propeller.battery.max_energy * 0.89
     segment.altitude_start                   = 2500.0  * Units.feet
     segment.altitude_end                     = 8012    * Units.feet 
     segment.air_speed                        = 96.4260 * Units['mph'] 
