@@ -18,10 +18,14 @@ from SUAVE.Core import Units
 
 # ----------------------------------------------------------------------
 #  Computer Aircraft Center of Gravity
-# ---------------origin-------------------------------------------------------
+# ----------------------------------------------------------------------
 
 ## @ingroup Methods-Center_of_Gravity
-def compute_component_centers_of_gravity_modified(vehicle, nose_load = 0.06):
+def compute_component_centers_of_gravity_modified(vehicle, nose_load = 0.06, 
+                                                  gear_pos_type = 'from_nose',
+                                                  tipback = 15. * Units.deg,
+                                                  rotation_angle = 14 * Units.deg,
+                                                  rake_angle = 3. * Units.deg):
     """ computes the CG of all of the vehicle components based on correlations 
     from AA241
     Assumptions:
@@ -140,7 +144,7 @@ def compute_component_centers_of_gravity_modified(vehicle, nose_load = 0.06):
     
     # Nose gear
     nose_gear.origin[0][0]                                     = cabin_origin_x - 20 * Units.ft
-    nose_gear.mass_properties.center_of_gravity[0][0]          = 0.0   
+    nose_gear.mass_properties.center_of_gravity[0][0]          = 0.0  
     
     def get_total_mass(vehicle):
         total = 0.0
@@ -178,5 +182,33 @@ def compute_component_centers_of_gravity_modified(vehicle, nose_load = 0.06):
     
     # set proper CG with main gear location
     get_CG(vehicle)
+    
+    if gear_pos_type == 'from_angles':
+        mm = main_gear.mass_properties.mass
+        mn = nose_gear.mass_properties.mass
+        mtot = get_total_mass(vehicle)
+        mv = mtot - mm - mn
+        f = nose_load
+        phi = rotation_angle
+        theta = np.pi/2-tipback
+        L = vehicle.total_length
+        
+        xv = (get_CG(vehicle)[0][0]*get_total_mass(vehicle) - mm*main_gear_location - mn*nose_gear_location)/mv
+        
+        A = np.array([[1,-mm/mtot,-mn/mtot,0,0,0],
+                      [1,-(1-f),-f,0,0,0],
+                      [0,0,0,1,-np.tan(theta)*np.tan(phi)/(np.tan(theta) + np.tan(phi)),-np.tan(theta)*np.tan(phi)/(np.tan(theta) + np.tan(phi))],
+                      [0,0,0,1,0,-np.tan(phi)],
+                      [1,-1,0,0,1,0],
+                      [0,1,0,0,0,1]])
+        
+        b = np.array([xv*mv/mtot,0,0,0,0,L])
+        
+        xcg, xm, xn, h, l1, l2 = np.linalg.solve(A, b)
+        
+        main_gear.origin[0][0] = xm
+        nose_gear.origin[0][0] = xn        
+        
+        get_CG(vehicle)
     
     return
