@@ -95,5 +95,5 @@ def operating_system_FLOPS(vehicle):
     output.operating_items      = WUF * Units.lbs + WOIL * Units.lbs + WSRV * Units.lbs + WCON * Units.lbs
     output.flight_crew          = WFLCRB * Units.lbs
     output.flight_attendants    = WSTUAB * Units.lbs
-    output.total                = output.oper_items + output.flight_crew + output.flight_attendants
+    output.total                = output.operating_items + output.flight_crew + output.flight_attendants
     return output

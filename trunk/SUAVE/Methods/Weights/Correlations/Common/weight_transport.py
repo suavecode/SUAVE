@@ -351,6 +351,7 @@ def empty_weight(vehicle, settings=None, method_type='SUAVE'):
     output.operating_empty      = output.empty + output.operational_items.total
     output.zero_fuel_weight     = output.operating_empty + output.payload_breakdown.total
     output.fuel                 = vehicle.mass_properties.max_takeoff - output.zero_fuel_weight
+    output.max_takeoff          = vehicle.mass_properties.max_takeoff
 
     control_systems         = SUAVE.Components.Physical_Component()
     electrical_systems      = SUAVE.Components.Physical_Component()
