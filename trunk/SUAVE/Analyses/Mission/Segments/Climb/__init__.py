@@ -18,3 +18,4 @@ from .Constant_EAS_Constant_Rate               import Constant_EAS_Constant_Rate
 from .Optimized                                import Optimized
 from .Unknown_Throttle                         import Unknown_Throttle
 from .Constant_Throttle_Constant_Body_Angle    import Constant_Throttle_Constant_Body_Angle
+from .Constant_Throttle_Linear_Mach            import Constant_Throttle_Linear_Mach
