@@ -85,9 +85,9 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         flap_type  = wing.control_surfaces.flap.configuration_type
         
         # conditions data
-        V    = conditions.freestream.velocity 
-        roc  = conditions.freestream.density 
-        nu   = conditions.freestream.dynamic_viscosity
+        V    = conditions.freestream.velocity
+        roc  = conditions.freestream.density[0]
+        nu   = conditions.freestream.dynamic_viscosity[0]
 
         #--cl max based on airfoil t_c
         Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005

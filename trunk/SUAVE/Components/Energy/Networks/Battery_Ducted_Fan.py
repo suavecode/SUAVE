@@ -49,15 +49,19 @@ class Battery_Ducted_Fan(Propulsor):
             Properties Used:
             N/A
         """         
-        
-        self.propulsor        = None
-        self.battery          = None
-        self.motor_efficiency = 0.0 
-        self.esc              = None
-        self.avionics         = None
-        self.payload          = None
-        self.voltage          = None
-        self.tag              = 'Network'
+
+        self.propulsor                 = None
+        self.battery                   = None
+        self.motor_efficiency          = 0.0
+        self.tag                       = 'Battery_Ducted_Fan'
+        self.number_of_engines         = 0.
+        self.nacelle_diameter          = 0.
+        self.esc                       = None
+        self.avionics                  = None
+        self.payload                   = None
+        self.voltage                   = None
+        self.tag                       = 'Network'
+        self.generative_design_minimum = 0
 
     # manage process with a driver function
     def evaluate_thrust(self,state):

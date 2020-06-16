@@ -61,8 +61,8 @@ class Lift_Cruise(Propulsor):
         """             
         self.motor_lift                = None
         self.motor_forward             = None
-        self.rotor            = None
-        self.propeller         = None
+        self.rotor                     = None
+        self.propeller                 = None
         self.esc_lift                  = None
         self.esc_forward               = None
         self.avionics                  = None
@@ -77,7 +77,8 @@ class Lift_Cruise(Propulsor):
         self.voltage                   = None
         self.thrust_angle_lift         = 0.0
         self.thrust_angle_forward      = 0.0
-        
+        self.tag                       = 'Lift_Cruise'
+        self.generative_design_minimum = 0        
         pass
         
     def evaluate_thrust(self,state):
@@ -323,7 +324,7 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw)   # N/W    
                                                                                                         
         F_total = F_lift_total + F_forward_total
-        mdot    = np.zeros_like(F_total)
+        mdot = state.ones_row(1)*0.0
         
         results = Data()
         results.thrust_force_vector = F_total

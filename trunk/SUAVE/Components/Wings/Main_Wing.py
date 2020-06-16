@@ -3,6 +3,8 @@
 #
 # Created:  Feb 2014, T. Lukacyzk, T. Orra
 # Modified: Feb 2016, T. MacDonald
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,7 +12,7 @@
 
 # SUAVE imports
 from .Wing import Wing
-from SUAVE.Core import ContainerOrdered, Container
+from SUAVE.Core import ContainerOrdered
 from SUAVE.Components.Wings.Segment import Segment
 
 import numpy as np
@@ -22,14 +24,19 @@ import numpy as np
 ## @ingroup Components-Wings
 class Main_Wing(Wing):
     """This class is used to define main wings SUAVE
+
     Assumptions:
     None
+
     Source:
     N/A
+
     Inputs:
     None
+
     Outputs:
     None
+
     Properties Used:
     N/A
     """
@@ -38,22 +45,27 @@ class Main_Wing(Wing):
     
         Assumptions:
         None
+
         Source:
         N/A
+
         Inputs:
         None
+
         Outputs:
         None
+
         Properties Used:
         N/A
         """ 
-        self.tag             = 'main_wing'
-        self.Segments        = Segment_Container()
-        self.max_per_vehicle = 3
-        self.PGM_minimum            = 1
-        #self.PGM_characteristics    = ['spans.projected','chords.root','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
-        #self.PGM_char_min_bounds    = [1.0,0.5,0,-np.inf,-np.inf]   
-        #self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
+        self.tag                 = 'main_wing'
+        self.Segments            = Segment_Container()
+        
+        self.generative_design_max_per_vehicle = 3
+        self.generative_design_minimum         = 1
+        self.generative_design_characteristics = ['spans.projected','chords.root','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
+        self.generative_design_char_min_bounds = [1.0,0.5,0,-np.inf,-np.inf]   
+        self.generative_design_char_max_bounds = [np.inf,np.inf,np.inf,np.inf,np.inf]        
         
         
         
@@ -63,12 +75,16 @@ class Segment_Container(ContainerOrdered):
     
     Assumptions:
     None
+
     Source:
     N/A
+
     Inputs:
     None
+
     Outputs:
     None
+
     Properties Used:
     N/A
     """     
@@ -92,13 +108,14 @@ class Segment_Container(ContainerOrdered):
         N/A
         """       
         
-        #return [Segment]
+        return [Segment]
         
-        return []
+        #return []
     
     
     def append(self,val):
         """Appends the value to the containers
+          This overrides the basic data class append
     
             Assumptions:
             None

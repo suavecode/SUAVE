@@ -5,6 +5,7 @@
 # Modified: Jan 2016, E. Botero
 #           Oct 2018, M. Clarke
 #           Aug 2019, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -54,18 +55,6 @@ def write_geometry(avl_object,run_script_path):
             wing_text     = make_surface_text(avl_wing,spanwise_vortices,chordwise_vortices)
             geometry.write(wing_text)  
             
-            for section in avl_wing.sections:
-                if section.airfoil_coord_file is not None: 
-                    filename = section.airfoil_coord_file
-                    src      = run_script_path + '/' +  filename
-                    dst      = run_script_path + '/avl_files' + '/' + filename
-                    try: 
-                        shutil.copy2(src, dst)       
-                    except:
-                        print('Airfoil Not Located, Using AVL default settings')
-                        section.airfoil_coord_file = None
-                        
-            
         for b in aircraft.fuselages:
             avl_body  = translate_avl_body(b)
             body_text = make_body_text(avl_body,chordwise_vortices)
@@ -101,8 +90,10 @@ def make_header_text(avl_object):
     """      
     header_base = \
 '''{0}
+
 #Mach
  {1}
+ 
 #Iysym   IZsym   Zsym
   {2}      {3}     {4}
   
@@ -121,9 +112,9 @@ def make_header_text(avl_object):
     Sref  = avl_object.geometry.wings['main_wing'].areas.reference
     Cref  = avl_object.geometry.wings['main_wing'].chords.mean_aerodynamic
     Bref  = avl_object.geometry.wings['main_wing'].spans.projected
-    Xref  = avl_object.geometry.mass_properties.center_of_gravity[0]
-    Yref  = avl_object.geometry.mass_properties.center_of_gravity[1]
-    Zref  = avl_object.geometry.mass_properties.center_of_gravity[2]
+    Xref  = avl_object.geometry.mass_properties.center_of_gravity[0][0]
+    Yref  = avl_object.geometry.mass_properties.center_of_gravity[0][1]
+    Zref  = avl_object.geometry.mass_properties.center_of_gravity[0][2]
     name  = avl_object.geometry.tag
 
     mach = 0.0
@@ -177,7 +168,7 @@ SURFACE
         # Define precision of analysis. See AVL documentation for reference 
         chordwise_vortex_spacing = 1.0
         spanwise_vortex_spacing  = -1.1                              # cosine distribution i.e. || |   |    |    |  | ||
-        ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[2])
+        ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[0][2])
         
         # Write text 
         surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices ,spanwise_vortex_spacing,ydup)
@@ -190,7 +181,7 @@ SURFACE
         # Define precision of analysis. See AVL documentation for reference
         chordwise_vortex_spacing = 1.0        
         spanwise_vortex_spacing  = 1.0                              # cosine distribution i.e. || |   |    |    |  | ||
-        ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[1])
+        ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[0][1])
     
         # Write text  
         surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices ,spanwise_vortex_spacing,ydup)
@@ -286,29 +277,27 @@ SECTION
 {0}  {1}    {2}    {3}    {4}     
 '''
     airfoil_base = \
-'''
-AFILE
+'''AFILE
 {}
 '''
     naca_airfoil_base = \
-'''
-NACA
+'''NACA
 {}
 '''
     # Unpack inputs
-    x_le          = avl_section.origin[0]
-    y_le          = avl_section.origin[1]
-    z_le          = avl_section.origin[2]
+    x_le          = avl_section.origin[0][0]
+    y_le          = avl_section.origin[0][1]
+    z_le          = avl_section.origin[0][2]
     chord         = avl_section.chord
     ainc          = avl_section.twist
     airfoil_coord = avl_section.airfoil_coord_file
     naca_airfoil  = avl_section.naca_airfoil 
      
-    wing_section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
+    wing_section_text = section_base.format(round(x_le,4),round(y_le,4), round(z_le,4),round(chord,4),round(ainc,4))
     if airfoil_coord:
         wing_section_text = wing_section_text + airfoil_base.format(airfoil_coord)
     if naca_airfoil:
-        wing_section_text = wing_section_text + airfoil_base.format(naca_airfoil)        
+        wing_section_text = wing_section_text + naca_airfoil_base.format(naca_airfoil)        
     
     ordered_cs = []
     ordered_cs = sorted(avl_section.control_surfaces, key = lambda x: x.order)
@@ -347,8 +336,7 @@ SECTION
 {0}    {1}     {2}     {3}     {4}      1        0
 '''
     airfoil_base = \
-'''
-AFILE
+'''AFILE
 {}
 '''
 
@@ -360,7 +348,7 @@ AFILE
     ainc    = avl_body_section.twist
     airfoil = avl_body_section.airfoil_coord_file
 
-    body_section_text = section_base.format(x_le,y_le,z_le,chord,ainc)
+    body_section_text = section_base.format(round(x_le,4),round(y_le,4), round(z_le,4),round(chord,4),round(ainc,4))
     if airfoil:
         body_section_text = body_section_text + airfoil_base.format(airfoil)
     

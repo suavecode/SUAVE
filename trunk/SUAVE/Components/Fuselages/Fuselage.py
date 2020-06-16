@@ -8,6 +8,7 @@
 #           Oct 2018, T. MacDonald
 #           Dec 2018, T. MacDonald 
 #           Mar 2020, M. Clarke
+#           May 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -57,12 +58,10 @@ class Fuselage(Lofted_Body):
         self.origin             = [[0.0,0.0,0.0]]
         self.aerodynamic_center = [0.0,0.0,0.0]
         self.max_per_vehicle = 4
-        self.Sections    = Lofted_Body.Section.Container()
-        self.Segments    = SUAVE.Core.ContainerOrdered
         
         self.number_coach_seats = 0.0
         self.seats_abreast      = 0.0
-        self.seat_pitch         = 1.0
+        self.seat_pitch         = 0.0
 
         self.areas = Data()
         self.areas.front_projected = 0.0
@@ -78,9 +77,10 @@ class Fuselage(Lofted_Body):
         self.heights.at_three_quarters_length       = 0.0
         self.heights.at_wing_root_quarter_chord     = 0.0
         self.heights.at_vertical_root_quarter_chord = 0.0
+        
         self.x_rotation  = 0.0
         self.y_rotation  = 0.0
-        self.z_rotation  = 0.0      
+        self.z_rotation  = 0.0
         
         self.lengths = Data()
         self.lengths.nose       = 0.0
@@ -102,12 +102,12 @@ class Fuselage(Lofted_Body):
         self.cabin_area           = 0.0
         
         self.non_dimensional_origin = [[0.0,0.0,0.0]]
-        self.PGM_minimum            = 0
-        self.PGM_characteristics    = ['lengths.total','heights.maximum','width','fineness.nose','fineness.tail']
-        self.PGM_char_min_bounds    = [1.,0.001,0.001,0.001,0.001]   
-        self.PGM_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]        
-        
-        self.Fuel_Tanks = Fuel_Tank_Container()
+        self.generative_design_minimum            = 0
+        self.generative_design_characteristics    = ['lengths.total','heights.maximum','width','fineness.nose','fineness.tail']
+        self.generative_design_char_min_bounds    = [1.,0.001,0.001,0.001,0.001]   
+        self.generative_design_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]    
+
+        self.Fuel_Tanks = Physical_Component.Container()
 
         # For VSP
         self.vsp_data                = Data()
@@ -186,28 +186,6 @@ class Container(Physical_Component.Container):
         """        
         
         return [Fuselage]
-    
-class Fuel_Tank_Container(Physical_Component.Container):
-    def get_children(self):
-        """ Returns the components that can go inside
-        
-        Assumptions:
-        None
-    
-        Source:
-        N/A
-    
-        Inputs:
-        None
-    
-        Outputs:
-        None
-    
-        Properties Used:
-        N/A
-        """        
-        
-        return []
 
 # ------------------------------------------------------------
 #  Handle Linking

@@ -5,12 +5,10 @@
 # Modified: Oct 2018, T. MacDonald
 #           Jan 2019, T. MacDonald
 
-from SUAVE.Core import DataOrdered, Data, Units
 import numpy as np
-from copy import copy
 
 ## @ingroup Methods-Center_of_Gravity
-def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0, units='metric'):
+def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0):
     """Plot possible longitudinal cg positions for the fuel (or full vehicle
     is empty mass is given)
     
@@ -34,49 +32,29 @@ def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0, units='metric')
     N/A
     """    
     
-    if units == 'metric':
-        l_str = 'm'
-        m_str = 'kg'
-        ylabel_string = 'Total Mass ('+m_str+')'
-    elif units == 'imperial':
-        l_str = 'ft'
-        m_str = 'lb'
-        ylabel_string = 'Total Weight ('+m_str+')'
-    else:
-        raise NotImplementedError('Unit choice not recognized.')    
-    
+    ylabel_string = 'Fuel Mass (kg)'
     
     if empty_mass != 0:
         cg_maxes = (cg_maxes*masses+empty_cg*empty_mass)/(masses+empty_mass)
         cg_mins  = (cg_mins*masses+empty_cg*empty_mass)/(masses+empty_mass)
         masses   = masses+empty_mass
-    else:
-        if units == 'metric':
-            ylabel_string = 'Fuel Mass ('+m_str+')'
-        else:
-            ylabel_string = 'Fuel Weight ('+m_str+')'
+        ylabel_string = 'Total Mass (kg)'
     
     import pylab as plt
 
     fig = plt.figure("Available Fuel CG Distribution",figsize=(8,6))
     axes = plt.gca()
-    if units == 'metric':
-        axes.plot(cg_maxes,masses,'g-') 
-        axes.plot(cg_mins,masses,'b-')
-    elif units == 'imperial':
-        axes.plot(cg_maxes/Units.ft,masses/Units.lb,'g-',label='Maximum CG Position') 
-        axes.plot(cg_mins/Units.ft,masses/Units.lb,'b-',label='Minimum CG Position')
-    else:
-        raise NotImplementedError('Unit choice not recognized.')
+    axes.plot(cg_maxes,masses,'g-') 
+    axes.plot(cg_mins,masses,'b-')
     
-    axes.set_xlabel('CG Position ('+l_str+')')
+    axes.set_xlabel('CG Position (m)')
     axes.set_ylabel(ylabel_string)
     axes.set_title('Available Fuel CG Distribution')
     axes.grid(True)  
     
-    #plt.show()
+    plt.show()
     
-    return fig, axes
+    return
 
 ## @ingroup Methods-Center_of_Gravity
 def compute_fuel_center_of_gravity_longitudinal_range(vehicle):
@@ -116,13 +94,13 @@ def compute_fuel_center_of_gravity_longitudinal_range(vehicle):
         for tank in fuse.Fuel_Tanks:
             fuel_tanks.append(tank)    
                     
-    fuel_tanks.sort(key=lambda x: x.mass_properties.center_of_gravity[0])
+    fuel_tanks.sort(key=lambda x: x.mass_properties.center_of_gravity[0][0])
     
     tank_cgs    = np.zeros(len(fuel_tanks))
     tank_masses = np.zeros(len(fuel_tanks))
     
     for i,tank in enumerate(fuel_tanks):
-        tank_cgs[i]    = tank.mass_properties.center_of_gravity[0]
+        tank_cgs[i]    = tank.mass_properties.center_of_gravity[0][0]
         tank_masses[i] = tank.mass_properties.fuel_mass_when_full
     
     max_mass = np.sum(tank_masses)

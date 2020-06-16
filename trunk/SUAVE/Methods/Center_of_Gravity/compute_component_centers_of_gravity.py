@@ -4,6 +4,9 @@
 # Created:  Oct 2015, M. Vegh
 # Modified: Jan 2016, E. Botero
 # Mofified: Jun 2017, M. Clarke
+#           Apr 2020, M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,31 +15,42 @@
 import numpy as np
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_location import compute_chord_length_from_span_location
-import SUAVE.Components as C
-from SUAVE.Components import Physical_Component
+from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
+
+import SUAVE
 
 # ----------------------------------------------------------------------
 #  Computer Aircraft Center of Gravity
-# ---------------origin-------------------------------------------------------
+# ----------------------------------------------------------------------
 
 ## @ingroup Methods-Center_of_Gravity
 def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     """ computes the CG of all of the vehicle components based on correlations 
     from AA241
+
     Assumptions:
     None
+
     Source:
     AA 241 Notes
+
     Inputs:
     vehicle
+
     Outputs:
     None
+
     Properties Used:
     N/A
     """  
     
+    C =  SUAVE.Components
+    
     # Go through all wings
     for wing in vehicle.wings:
+    
+        if wing.sweeps.leading_edge == None:
+            wing.sweeps.leading_edge = convert_sweep(wing,old_ref_chord_fraction = 0.25 ,new_ref_chord_fraction = 0.0)
         
         if isinstance(wing,C.Wings.Main_Wing):
                 wing.mass_properties.center_of_gravity[0][0] = .05*wing.chords.mean_aerodynamic +wing.aerodynamic_center[0]             
@@ -84,7 +98,6 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     # Select a length scale depending on what kind of vehicle this is
     length_scale = 1.
     nose_length  = 0.
-    m_wing_avg_origin = 0.0
      
     # Check if there is a fuselage
     if len(vehicle.fuselages) == 0.:
@@ -157,36 +170,11 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     nose_gear.origin[0][0]                                     = 0.25*nose_length
     nose_gear.mass_properties.center_of_gravity[0][0]          = 0.0   
     
-    def get_total_mass(vehicle):
-        total = 0.0
-        for key in vehicle.keys():
-            item = vehicle[key]
-            if isinstance(item,Physical_Component.Container):
-                total += item.sum_mass()
-        return total
-    
-    def get_CG(vehicle):
-        total = np.array([[0.0,0.0,0.0]])
-        for key in vehicle.keys():
-            item = vehicle[key]
-            if isinstance(item,Physical_Component.Container):
-                total += item.total_moment()
-        mass = get_total_mass(vehicle)
-        if mass ==0:
-            mass = 1.
-        CG = total/mass
-        vehicle.mass_properties.center_of_gravity = CG  
-        return CG
-        
-    
     # Main gear
-    full_vehicle_moment = get_CG(vehicle)[0][0]*get_total_mass(vehicle)
-    takeoff_weight      = vehicle.mass_properties.takeoff
-    assert np.isclose(takeoff_weight,get_total_mass(vehicle))
-    nose_gear_location  = nose_gear.origin[0][0]
+    moment_sans_main = vehicle.center_of_gravity()[0][0]*(vehicle.sum_mass()-main_gear.mass_properties.mass)
     
-    main_gear_location = (full_vehicle_moment - nose_load*takeoff_weight*nose_gear_location)/((1-nose_load)*takeoff_weight)
+    main_gear_location = moment_sans_main/(vehicle.mass_properties.takeoff-main_gear.mass_properties.mass)/(1-nose_load)
     main_gear.origin[0][0]                                     = main_gear_location
-    main_gear.mass_properties.center_of_gravity[0][0]          = 0.0
+    main_gear.mass_properties.center_of_gravity                = 0.0
     
     return

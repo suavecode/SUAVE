@@ -4,6 +4,7 @@
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
 #           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -141,7 +142,7 @@ class Ground(Aerodynamic):
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
-        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability        
+        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces_ground   = Methods.Ground.Common.compute_ground_forces
         iterate.conditions.forces          = Methods.Ground.Common.compute_forces

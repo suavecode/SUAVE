@@ -41,6 +41,7 @@ def wing_main(wing,Nult,TOW,wt_zf,rho,sigma,area_fraction=1):
                  .root_chord_percent                 [dimensionless]
                  .thickness_to_chord                 [dimensionless]
                  .percent_span_location              [dimensionless]
+
         Nult - ultimate load factor of the aircraft  [dimensionless]
         TOW - maximum takeoff weight of the aircraft [kilograms]
         wt_zf - zero fuel weight of the aircraft     [kilograms]

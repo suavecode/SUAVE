@@ -15,7 +15,6 @@ from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity import compute_aircraft_center_of_gravity
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_coeff import compute_max_lift_coeff
 
 
@@ -219,10 +218,9 @@ def weight(nexus):
     # weight analysis
     weights = nexus.analyses.base.weights.evaluate()
    
-    
-    compute_component_centers_of_gravity(vehicle)
     nose_load_fraction=.06
-    compute_aircraft_center_of_gravity(vehicle,nose_load_fraction)
+    compute_component_centers_of_gravity(vehicle, nose_load_fraction)
+    vehicle.center_of_gravity()
    
     
     weights = nexus.analyses.cruise.weights.evaluate()
@@ -231,9 +229,7 @@ def weight(nexus):
     weights = nexus.analyses.short_field_takeoff.weights.evaluate()
     
     empty_weight    =vehicle.mass_properties.operating_empty
-    passenger_weight=vehicle.passenger_weights.mass_properties.mass 
     for config in nexus.vehicle_configurations:
-        #config.mass_properties.max_zero_fuel                = empty_weight+passenger_weight
         config.mass_properties.zero_fuel_center_of_gravity  = vehicle.mass_properties.zero_fuel_center_of_gravity
         config.fuel                                         = vehicle.fuel
     return nexus
@@ -287,7 +283,7 @@ def post_process(nexus):
     # Fuel margin and base fuel calculations
 
     operating_empty          = vehicle.mass_properties.operating_empty
-    payload                  = vehicle.passenger_weights.mass_properties.mass 
+    payload                  = vehicle.systems.passengers.mass_properties.mass 
     design_landing_weight    = results.base.segments[-1].conditions.weights.total_mass[-1]
     design_takeoff_weight    = vehicle.mass_properties.takeoff
     max_takeoff_weight       = nexus.vehicle_configurations.takeoff.mass_properties.max_takeoff

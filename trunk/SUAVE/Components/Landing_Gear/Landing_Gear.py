@@ -3,6 +3,8 @@
 # 
 # Created:  Aug 2015, C. R. I. da Silva
 # Modified: Feb 2016, T. MacDonald
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -47,46 +49,12 @@ class Landing_Gear(Physical_Component):
         """
        
         self.tag = 'landing_gear'
-
-## @ingroup Components-Propulsors
-class Container(Physical_Component.Container):
-    """ SUAVE.Components.Propulsor.Container()
-        
-        The Propulsor Container Class
-    
-            Assumptions:
-            None
-            
-            Source:
-            N/A
-    
-    """
-    def get_children(self):
-        """ Returns the components that can go inside
-        
-        Assumptions:
-        None
-    
-        Source:
-        N/A
-    
-        Inputs:
-        None
-    
-        Outputs:
-        None
-    
-        Properties Used:
-        N/A
-        """
-                
-        return []     
     
 # ----------------------------------------------------------------------
 #  Handle Linking
 # ----------------------------------------------------------------------
 
-Landing_Gear.Container = Container
+Landing_Gear.Container = Physical_Component.Container
 
 # ----------------------------------------------------------------------
 #   Unit Tests

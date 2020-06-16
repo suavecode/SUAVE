@@ -248,8 +248,7 @@ def translate_results_to_conditions(cases,results):
         res.stability.static.Cm_r[i][0]                     = case_res.stability.Cm_r 
         res.stability.static.Cn_p[i][0]                     = case_res.stability.Cn_p 
         res.stability.static.Cn_q[i][0]                     = case_res.stability.Cn_q 
-        res.stability.static.Cn_r[i][0]                     = case_res.stability.Cn_r       
-        
+        res.stability.static.Cn_r[i][0]                     = case_res.stability.Cn_r
         res.stability.static.CX_u[i][0]                     = case_res.stability.CX_u
         res.stability.static.CX_v[i][0]                     = case_res.stability.CX_v
         res.stability.static.CX_w[i][0]                     = case_res.stability.CX_w
@@ -285,8 +284,7 @@ def translate_results_to_conditions(cases,results):
         res.stability.static.Cm_r[i][0]                     = case_res.stability.Cm_r
         res.stability.static.Cn_p[i][0]                     = case_res.stability.Cn_p
         res.stability.static.Cn_q[i][0]                     = case_res.stability.Cn_q
-        res.stability.static.Cn_r[i][0]                     = case_res.stability.Cn_r        
-        
+        res.stability.static.Cn_r[i][0]                     = case_res.stability.Cn_r
         res.stability.static.neutral_point[i][0]            = case_res.stability.neutral_point
         
         # aero surface forces file 

@@ -5,6 +5,7 @@
 # Modified: ### ####, M. Vegh
 #           Feb 2016, E. Botero
 #           Apr 2017, M. Clarke 
+#           Apr 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -94,13 +95,14 @@ class Vehicle(Data):
         super(Vehicle,self).__init__(*args,**kwarg)
 
         self._component_root_map = {
-            Components.Fuselages.Fuselage              : self['fuselages']              ,
-            Components.Wings.Wing                      : self['wings']                  ,
-            Components.Systems.System                  : self['systems']                ,
-            Components.Propulsors.Propulsor            : self['propulsors']             ,
-            Components.Envelope                        : self['envelope']               ,
-            Vehicle_Mass_Properties                    : self['mass_properties']        ,
-            #Components.Landing_Gear                    : self['landing_gear']           ,
+            Components.Fuselages.Fuselage              : self['fuselages']        ,
+            Components.Wings.Wing                      : self['wings']            ,
+            Components.Systems.System                  : self['systems']          ,
+            Components.Propulsors.Propulsor            : self['propulsors']       ,
+            Components.Envelope                        : self['envelope']         ,
+            Components.Landing_Gear.Landing_Gear       : self['landing_gear']     ,
+            Vehicle_Mass_Properties                    : self['mass_properties']  ,
+
         
         }
         
@@ -165,13 +167,6 @@ class Vehicle(Data):
         # find the place to store data
         component_root = self.find_component_root(component)
         
-        ## Check if there are Mass_Properties already, can only be one
-        #if isinstance(component,Vehicle_Mass_Properties):
-            #try:
-                #self.__delattr__('mass_properties')
-            #except:
-                #pass        
-        
         # See if the component exists, if it does modify the name
         keys = component_root.keys()
         if str.lower(component.tag) in keys:
@@ -213,7 +208,7 @@ class Vehicle(Data):
         return total
     
     
-    def CG(self):
+    def center_of_gravity(self):
         """ will recursively search the data tree and sum
             any Comp.Mass_Properties.mass, and return the total sum
             
@@ -255,6 +250,7 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
 
     """ Vehicle_Mass_Properties():
         The vehicle's mass properties.
+
     
     Assumptions:
     None
@@ -298,18 +294,19 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.fuel            = 0.0
         self.max_zero_fuel   = 0.0
         self.center_of_gravity = [[0.0,0.0,0.0]]
-        self.zero_fuel_center_of_gravity = np.array([0.0,0.0,0.0])
+        self.zero_fuel_center_of_gravity = np.array([[0.0,0.0,0.0]])
 
-        self.max_per_vehicle     = 1
-        self.PGM_special_parent  = None
-        self.PGM_characteristics = ['max_takeoff','max_zero_fuel']
-        self.PGM_minimum         = 1
-        self.PGM_char_min_bounds = [1,1]   
-        self.PGM_char_max_bounds = [np.inf,np.inf]        
+        self.generative_design_max_per_vehicle = 1
+        self.generative_design_special_parent  = None
+        self.generative_design_characteristics = ['max_takeoff','max_zero_fuel']
+        self.generative_design_minimum         = 1
+        self.generative_design_char_min_bounds = [1,1]   
+        self.generative_design_char_max_bounds = [np.inf,np.inf]        
 
 ## @ingroup Vehicle
 class Costs(Data):
     """ Costs class for organizing the costs of things
+
     Assumptions:
     None
     

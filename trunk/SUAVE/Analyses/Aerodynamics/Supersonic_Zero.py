@@ -4,9 +4,7 @@
 # Created:            T. MacDonald
 # Modified: Nov 2016, T. MacDonald
 #           Apr 2019, T. MacDonald
-#
-# Based on Fidelity_Zero
-
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -64,15 +62,21 @@ class Supersonic_Zero(Markup):
         settings.trim_drag_correction_factor        = 1.02
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
-        settings.aircraft_span_efficiency_factor    = 0.78
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
         settings.oswald_efficiency_factor           = None
+        settings.span_efficiency                    = None
         settings.maximum_lift_coefficient           = np.inf 
         settings.begin_drag_rise_mach_number        = 0.95
         settings.end_drag_rise_mach_number          = 1.2
-        settings.transonic_drag_multiplier          = 1.25    
+        settings.transonic_drag_multiplier          = 1.25 
+        settings.number_panels_spanwise             = None 
+        settings.number_panels_chordwise            = None 
+        settings.use_surrogate                      = True 
+        settings.include_slipstream_effect          = False 
+        settings.plot_vortex_distribution           = False
+        
         # this multiplier is used to determine the volume wave drag at the peak Mach number
         # by multiplying the volume wave drag at the end drag rise Mach number
         settings.peak_mach_number                      = 1.04
@@ -97,7 +101,6 @@ class Supersonic_Zero(Markup):
         compute.lift = Process()
         compute.lift.inviscid_wings                = Vortex_Lattice()
         compute.lift.vortex                        = Methods.Lift.vortex_lift  # SZ
-        compute.lift.compressible_wings            = Methods.Lift.wing_compressibility # SZ
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         
@@ -113,12 +116,11 @@ class Supersonic_Zero(Markup):
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft # SZ
+        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
-        compute.drag.engine_out                    = Common.Drag.engine_out
         compute.drag.total                         = Common.Drag.total_aircraft # SZ
         
         
@@ -141,8 +143,15 @@ class Supersonic_Zero(Markup):
         self.geometry
         """            
         super(Supersonic_Zero, self).initialize()
-        self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize()  
-        aa = 0
         
+        use_surrogate             = self.settings.use_surrogate
+        include_slipstream_effect = self.settings.include_slipstream_effect
+        vortex_distribution_flag  = self.settings.plot_vortex_distribution 
+        n_sw                      = self.settings.number_panels_spanwise    
+        n_cw                      = self.settings.number_panels_chordwise  
+        
+        self.process.compute.lift.inviscid_wings.geometry = self.geometry 
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate , vortex_distribution_flag , n_sw ,  n_cw ,include_slipstream_effect )     
+        
+                
     finalize = initialize        

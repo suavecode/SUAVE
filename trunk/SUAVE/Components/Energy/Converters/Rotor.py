@@ -23,7 +23,6 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 from warnings import warn
 
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 

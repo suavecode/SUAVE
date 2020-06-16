@@ -54,8 +54,8 @@ class Numerics(Conditions):
         
         self.solver_jacobian                  = "none"
         self.tolerance_solution               = 1e-8
-        self.tolerance_boundary_conditions    = 1e-8  
         self.converged                        = None
+        self.max_evaluations                  = 0.
         
         self.dimensionless = Conditions()
         self.dimensionless.control_points = np.empty([0,0])

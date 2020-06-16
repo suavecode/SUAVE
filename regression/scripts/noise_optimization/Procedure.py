@@ -233,8 +233,8 @@ def estimate_clmax(nexus):
     # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
     conditions = Data()
     conditions.freestream = Data()
-    conditions.freestream.density           = 0.90477283
-    conditions.freestream.dynamic_viscosity = 1.69220918e-05
+    conditions.freestream.density           = [0.90477283]
+    conditions.freestream.dynamic_viscosity = [1.69220918e-05]
     conditions.freestream.velocity          = 90. * Units.knots
     
     #Takeoff CL_max
