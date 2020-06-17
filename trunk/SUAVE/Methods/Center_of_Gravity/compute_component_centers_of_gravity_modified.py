@@ -12,7 +12,7 @@
 import numpy as np
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_span_location_from_chord_length import compute_span_location_from_chord_length
 from SUAVE.Methods.Geometry.Three_Dimensional.compute_chord_length_from_span_location import compute_chord_length_from_span_location
-import SUAVE.Components as C
+from SUAVE import Components as C
 from SUAVE.Components import Physical_Component
 from SUAVE.Core import Units
 

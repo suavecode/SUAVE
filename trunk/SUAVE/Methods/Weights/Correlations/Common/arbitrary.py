@@ -12,17 +12,17 @@ from SUAVE.Core import Data
 #from .cabin          import cabin
 #from .aft_centerbody import aft_centerbody
 #from .systems        import systems
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_horizontal import tail_horizontal
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_vertical import tail_vertical
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.tube import tube
+from SUAVE.Methods.Weights.Correlations.Transport.tail_horizontal import tail_horizontal
+from SUAVE.Methods.Weights.Correlations.Transport.tail_vertical import tail_vertical
+from SUAVE.Methods.Weights.Correlations.Transport.tube import tube
 from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import wing_main_raymer as wing_main_raymer
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
 from SUAVE.Methods.Weights.Correlations.Common.systems import systems
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
-import SUAVE.Components.Energy.Networks as Nets
-import SUAVE.Components.Wings as Wings
+from SUAVE.Components.Energy import Networks as Nets
+from SUAVE.Components import Wings as Wings
 from SUAVE.Attributes.Solids.Aluminum import Aluminum
 
 import numpy as np

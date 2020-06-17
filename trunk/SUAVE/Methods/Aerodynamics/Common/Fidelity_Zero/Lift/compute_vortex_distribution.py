@@ -213,7 +213,10 @@ def compute_vortex_distribution(geometry,settings):
                 segment_chord[i_seg]    = wing.Segments[i_seg].root_chord_percent*root_chord
                 segment_twist[i_seg]    = wing.Segments[i_seg].twist
                 section_stations[i_seg] = wing.Segments[i_seg].percent_span_location*span  
-                segment_dihedral[i_seg] = wing.Segments[i_seg].dihedral_outboard                    
+                if not vertical_wing:
+                    segment_dihedral[i_seg] = wing.Segments[i_seg].dihedral_outboard  
+                else:
+                    segment_dihedral[i_seg] = -wing.Segments[i_seg].dihedral_outboard  
 
                 # change to leading edge sweep, if quarter chord sweep givent, convert to leading edge sweep 
                 if (i_seg == n_segments-1):
@@ -247,6 +250,8 @@ def compute_vortex_distribution(geometry,settings):
                 else:
                     segment_camber.append(np.zeros(30))              
                     segment_x_coord.append(np.linspace(0,1,30)) 
+                    
+                aa = 0
 
                 # ** TO DO ** Get flap/aileron locations and deflection
 
@@ -257,7 +262,12 @@ def compute_vortex_distribution(geometry,settings):
             #Shift spanwise vortices onto section breaks  
             for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
-                y_coordinates[idx] = section_stations[i_seg]                
+                y_coordinates[idx] = section_stations[i_seg]   
+                
+            for i_seg in range(n_segments):
+                if section_stations[i_seg] not in y_coordinates:
+                    raise ValueError('VLM could not capture all section breaks, number of '+\
+                                     'spanwise panels must be increased.')
 
             # ---------------------------------------------------------------------------------------
             # STEP 6A: Define coordinates of panels horseshoe vortices and control points 
@@ -461,6 +471,9 @@ def compute_vortex_distribution(geometry,settings):
             # ---------------------------------------------------------------------------------------
             # STEP 6B: Define coordinates of panels horseshoe vortices and control points 
             # ---------------------------------------------------------------------------------------
+
+            if vertical_wing:
+                dihedral *= -1.
 
             if sweep_le != None:
                 sweep = sweep_le

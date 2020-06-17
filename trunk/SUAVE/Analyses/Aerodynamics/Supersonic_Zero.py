@@ -91,7 +91,7 @@ class Supersonic_Zero(Markup):
         settings.fuselage_parasite_drag_end_blend_mach   = 0.99
         
         # vortex lattice configurations
-        settings.number_panels_spanwise = 5
+        settings.number_panels_spanwise = 40
         settings.number_panels_chordwise = 1
         
         
@@ -121,6 +121,7 @@ class Supersonic_Zero(Markup):
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
+        compute.drag.engine_out                    = Common.Drag.engine_out
         compute.drag.total                         = Common.Drag.total_aircraft # SZ
         
         

@@ -11,10 +11,10 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core      import Units, Data
-from .tube            import tube
-from .systems         import systems
-from .tail_horizontal import tail_horizontal
-from .tail_vertical   import tail_vertical
+from SUAVE.Methods.Weights.Correlations.Transport.tube            import tube
+from SUAVE.Methods.Weights.Correlations.Common.systems         import systems
+from SUAVE.Methods.Weights.Correlations.Transport.tail_horizontal import tail_horizontal
+from SUAVE.Methods.Weights.Correlations.Transport.tail_vertical   import tail_vertical
 from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
