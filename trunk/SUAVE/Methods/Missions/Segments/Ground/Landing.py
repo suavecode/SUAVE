@@ -40,12 +40,14 @@ def initialize_conditions(segment):
     conditions = segment.state.conditions
     Common.initialize_conditions(segment)
     
-    # Unpack
-    throttle  = segment.throttle
-    m_initial = segment.analyses.weights.vehicle.mass_properties.landing
-          
-    # apply initials
-    conditions.weights.total_mass[:,0]  = m_initial
-    conditions.propulsion.throttle[:,0] = throttle        
+    # unpack
+    throttle  = segment.throttle	
+    r_initial = conditions.frames.inertial.position_vector[0,:][None,:]
+    m_initial = segment.analyses.weights.vehicle.mass_properties.takeoff    
 
-    return conditions
+    # default initial time, position, and mass
+    # apply initials
+    conditions.weights.total_mass[:,0]              = m_initial
+    conditions.frames.inertial.position_vector[:,:] = r_initial[:,:]
+    conditions.propulsion.throttle[:,0]             = throttle    
+      

@@ -76,10 +76,10 @@ class Dual_Battery_Ducted_Fan(Propulsor):
             Outputs:
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
-            conditions.propulsion.primary_battery_draw     [watts]
-            conditions.propulsion.primary_battery_energy   [joules]
-            conditions.propulsion.auxiliary_battery_draw   [watts]
-            conditions.propulsion.auxiliary_battery_energy [joules]
+            conditions.propulsion.primary_battery_power_draw     [watts]
+            conditions.propulsion.primary_battery_energy         [joules]
+            conditions.propulsion.auxiliary_battery_power_draw   [watts]
+            conditions.propulsion.auxiliary_battery_energy       [joules]
     
             Properties Used:
             Defaulted values
@@ -147,16 +147,16 @@ class Dual_Battery_Ducted_Fan(Propulsor):
         mdot=np.reshape(mdot, np.shape(conditions.freestream.velocity))
         
         #Pack the conditions for outputs
-        primary_battery_draw                 = primary_battery.inputs.power_in
+        primary_battery_power_draw           = primary_battery.inputs.power_in
         primary_battery_energy               = primary_battery.current_energy
-        auxiliary_battery_draw               = auxiliary_battery.inputs.power_in
+        auxiliary_battery_power_draw         = auxiliary_battery.inputs.power_in
         auxiliary_battery_energy             = auxiliary_battery.current_energy
       
-        conditions.propulsion.primary_battery_draw   = primary_battery_draw
-        conditions.propulsion.primary_battery_energy = primary_battery_energy
+        conditions.propulsion.primary_battery_power_draw   = primary_battery_power_draw
+        conditions.propulsion.primary_battery_energy       = primary_battery_energy
         
-        conditions.propulsion.auxiliary_battery_draw   = auxiliary_battery_draw
-        conditions.propulsion.auxiliary_battery_energy = auxiliary_battery_energy
+        conditions.propulsion.auxiliary_battery_power_draw   = auxiliary_battery_power_draw
+        conditions.propulsion.auxiliary_battery_energy       = auxiliary_battery_energy
    
         results.vehicle_mass_rate = mdot
 

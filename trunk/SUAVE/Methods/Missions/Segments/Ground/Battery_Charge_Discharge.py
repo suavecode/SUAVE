@@ -23,16 +23,16 @@ def initialize_conditions(segment):
     
     # unpack   
     if segment.state.initials:
-        energy_initial = segment.state.initials.conditions.propulsion.battery_energy[-1,0]  
+        intial_segment_energy = segment.state.initials.conditions.propulsion.battery_energy[-1,0]  
     elif 'battery_energy' in segment:
-        energy_initial = segment.battery_energy  
+        intial_segment_energy = segment.battery_energy  
     else:
-        energy_initial = 0.0
+        intial_segment_energy = 0.0
         
     duration   = segment.time 
     if segment.battery_discharge == False: 
         E_growth_factor = segment.conditions.propulsion.battery_capacity_fade_factor
-        delta_energy    = segment.max_energy*E_growth_factor*segment.charging_SOC_cutoff - energy_initial
+        delta_energy    = segment.max_energy*E_growth_factor*segment.charging_SOC_cutoff - intial_segment_energy
         duration        = delta_energy*1.25/(segment.charging_current*segment.charging_voltage) 
         
     t_nondim   = segment.state.numerics.dimensionless.control_points

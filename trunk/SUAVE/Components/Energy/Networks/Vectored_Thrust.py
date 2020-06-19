@@ -81,14 +81,14 @@ class Vectored_Thrust(Propulsor):
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                rpm                  [radians/sec]
-                current              [amps]
-                battery_draw         [watts]
-                battery_energy       [joules]
+                rpm                          [radians/sec]
+                current                      [amps]
+                battery_power_draw           [watts]
+                battery_energy               [joules]
                 battery_voltage_open_circuit [volts]
-                battery_voltage_under_load    [volts]
-                motor_torque         [N-M]
-                propeller_torque     [N-M]
+                battery_voltage_under_load   [volts]
+                motor_torque                 [N-M]
+                propeller_torque             [N-M]
     
             Properties Used:
             Defaulted values
@@ -250,11 +250,11 @@ class Vectored_Thrust(Propulsor):
         a                         = conditions.freestream.speed_of_sound
         R                         = rotor.tip_radius
         rpm                       = motor.outputs.omega*60./(2.*np.pi)
-        battery_draw              = abs(battery.inputs.power_in)
+        battery_power_draw              = abs(battery.inputs.power_in)
         
         conditions.propulsion.rpm                             = rpm  
         conditions.propulsion.battery_current                 = abs(battery.inputs.current)        
-        conditions.propulsion.battery_draw                    = -battery_draw
+        conditions.propulsion.battery_power_draw              = -battery_power_draw
         conditions.propulsion.battery_energy                  = battery.current_energy  
         conditions.propulsion.battery_voltage_open_circuit    = battery.voltage_open_circuit
         conditions.propulsion.battery_voltage_under_load      = battery.voltage_under_load    
@@ -264,11 +264,11 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.battery_state_of_charge         = battery.state_of_charge        
         conditions.propulsion.battery_charge_throughput       = battery.cell_charge_throughput          
         conditions.propulsion.battery_cell_temperature        = battery.cell_temperature        
-        conditions.propulsion.battery_specfic_power           = -battery_draw/battery.mass_properties.mass #Wh/kg
-        conditions.propulsion.electronics_efficiency          = -(P*num_engines)/battery_draw   
+        conditions.propulsion.battery_specfic_power           = -battery_power_draw/battery.mass_properties.mass #Wh/kg
+        conditions.propulsion.electronics_efficiency          = -(P*num_engines)/battery_power_draw   
         conditions.propulsion.rotor_tip_mach                  = (R*motor.outputs.omega)/a
-        conditions.propulsion.battery_efficiency              = (battery_draw+battery.resistive_losses)/battery_draw
-        conditions.propulsion.payload_efficiency              = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
+        conditions.propulsion.battery_efficiency              = (battery_power_draw+battery.resistive_losses)/battery_power_draw
+        conditions.propulsion.payload_efficiency              = (battery_power_draw+(avionics.outputs.power + payload.outputs.power))/battery_power_draw            
         conditions.propulsion.rotor_power                     = P*num_engines    
         conditions.propulsion.battery_age_in_days             = battery.age_in_days 
         

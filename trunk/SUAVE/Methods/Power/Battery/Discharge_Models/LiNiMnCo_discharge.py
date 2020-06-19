@@ -81,12 +81,11 @@ def LiNiMnCo_discharge(battery,numerics):
     T_current                = battery.temperature      
     T_cell                   = battery.cell_temperature     
     E_max                    = battery.max_energy
-    E_current                = battery.current_energy 
-    Q_prior                  = battery.charge_throughput 
     R_growth_factor          = battery.R_growth_factor 
+    E_current                = battery.current_energy 
+    Q_prior                  = battery.charge_throughput  
     battery_data             = battery.discharge_performance_map 
-    I                        = numerics.time.integrate    
-    D                        = numerics.time.differentiate    
+    I                        = numerics.time.integrate  
     
     # ---------------------------------------------------------------------------------
     # Compute battery electrical properties 
@@ -116,11 +115,7 @@ def LiNiMnCo_discharge(battery,numerics):
     # ---------------------------------------------------------------------------------
     # Compute battery cell temperature 
     # ---------------------------------------------------------------------------------
-    # Determine temperature increase 
-    #h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)
-    #h = 75   # airfoil of 35 m/s  Holman JP. Heat transfer. 6th ed. Singapore: McGraw-Hill; 1986. 
-        
-    # COMPLEX MODEL 
+    # Determine temperature increase         
     sigma = 0.000139E6 # Electrical conductivity
     n     = 1
     F     = 96485 # C/mol Faraday constant
@@ -136,7 +131,7 @@ def LiNiMnCo_discharge(battery,numerics):
         c4*(SOC_old)**2 + c5*(SOC_old) + c6  # eqn 10 and , D. Jeon Thermal Modelling .. 
     
     i_cell         = I_cell/electrode_area # current intensity 
-    q_dot_entropy  = -(T_cell+273)*delta_S*i_cell/(n*F) # temperature in Kelvin  
+    q_dot_entropy  = -(T_cell+273)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
     q_dot_joule    = (i_cell**2)/sigma                   # eqn 5 , D. Jeon Thermal Modelling ..
     P_heat         = (q_dot_joule + q_dot_entropy)*cell_surface_area  
     q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
@@ -145,12 +140,6 @@ def LiNiMnCo_discharge(battery,numerics):
      
     # Using lumped model  
     P_net          = P_net*n_total 
-    
-    ## Calculate resistive losses
-    #P_heat = (I_cell**2)*(R_0 ) 
-    ## Determine temperature increase 
-    #h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)
-    #P_net      = P_heat - h*0.5*cell_surface_area*(T_cell - T_ambient) 
     
     dT_dt      = P_net/(cell_mass*n_module *Cp)
     T_current = T_current[0] + np.dot(I,dT_dt)  
@@ -188,50 +177,6 @@ def LiNiMnCo_discharge(battery,numerics):
     # Voltage under load: 
     V_oc      = V_ul + V_Th + (I_cell * R_0_aged) 
     
-    ## ---------------------------------------------------------------------------------
-    ## Compute battery cell temperature 
-    ## ---------------------------------------------------------------------------------
-    ## Determine temperature increase 
-    ##h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)
-    ##h = 75   # airfoil of 35 m/s  Holman JP. Heat transfer. 6th ed. Singapore: McGraw-Hill; 1986. 
-        
-    ## COMPLEX MODEL 
-    #sigma = 0.000139E6 # Electrical conductivity
-    #n     = 1
-    #F     = 96485 # C/mol Faraday constant
-    #c0    = -496.66
-    #c1    = 1729.4
-    #c2    = -2278 
-    #c3    = 1382.2 
-    #c4    = -380.47 
-    #c5    = 46.508
-    #c6    = -10.692  
-    
-    #delta_S = c0*(SOC_old)**6 + c1*(SOC_old)**5 + c2*(SOC_old)**4 + c3*(SOC_old)**3 + \
-        #c4*(SOC_old)**2 + c5*(SOC_old) + c6  # eqn 10 and , D. Jeon Thermal Modelling .. 
-    
-    #i_cell         = I_cell/electrode_area # current intensity 
-    #q_dot_entropy  = -(T_cell+273)*delta_S*i_cell/(n*F) # temperature in Kelvin  
-    #q_dot_joule    = (i_cell**2)/sigma                   # eqn 5 , D. Jeon Thermal Modelling ..
-    #P_heat         = (q_dot_joule + q_dot_entropy)*cell_surface_area  
-    #q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
-    #q_entropy_frac = q_dot_entropy/(q_dot_joule + q_dot_entropy)
-    #P_net          = P_heat - h*cell_surface_area*cooling_surface_fraction*(T_cell - T_ambient)  
-    
-    ### Calculate resistive losses
-    ##P_heat = (I_cell**2)*(R_0 ) 
-    ### Determine temperature increase 
-    ##h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)
-    ##P_net      = P_heat - h*0.5*cell_surface_area*(T_cell - T_ambient) 
-    
-    #dT_dt      = P_net/(cell_mass*Cp)
-    #T_current = T_current[0] + np.dot(I,dT_dt)  
-    ##T_current  = np.atleast_2d(np.hstack(( T_current[0] , T_current[0] + cumtrapz(dT_dt[:,0], x = numerics.time.control_points[:,0])))).T  
-
-    ## Power going into the battery accounting for resistance losses
-    #P_loss = n_total*P_heat
-    #P = P_bat - np.abs(P_loss) 
-    
     # ---------------------------------------------------------------------------------
     # Compute updates state of battery 
     # ---------------------------------------------------------------------------------   
@@ -263,20 +208,22 @@ def LiNiMnCo_discharge(battery,numerics):
     # Pack outputs
     battery.current_energy              = E_current
     battery.cell_temperature            = T_current
-    battery.pack_temperature            = T_current
-    #battery.cell_temperature            = T_cell     
+    battery.pack_temperature            = T_current 
     battery.cell_joule_heat_fraction    = q_joule_frac
     battery.cell_entropy_heat_fraction  = q_entropy_frac
     battery.resistive_losses            = P_loss
     battery.load_power                  = V_ul*n_series*I_bat
     battery.current                     = I_bat
-    battery.voltage_open_circuit        = V_oc*n_series 
+    battery.voltage_open_circuit        = V_oc*n_series
+    battery.cell_voltage_open_circuit   = V_oc
+    battery.cell_current                = I_cell
     battery.thevenin_voltage            = V_Th*n_series
     battery.cell_charge_throughput      = Q_total 
     battery.internal_resistance         = R_0*n_series
     battery.state_of_charge             = SOC_new
     battery.depth_of_discharge          = DOD_new
     battery.voltage_under_load          = V_ul*n_series 
+    battery.cell_voltage_under_load     = V_ul
     
     return battery
 

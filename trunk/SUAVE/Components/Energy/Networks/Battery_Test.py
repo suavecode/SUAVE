@@ -65,7 +65,7 @@ class Battery_Test(Propulsor):
             Outputs: 
             conditions.propulsion: 
                 current                       [amps]
-                battery_draw                  [watts]
+                battery_power_draw            [watts]
                 battery_energy                [joules]
                 battery_voltage_open_circuit  [volts]
                 battery_voltage_under_load    [volts]  
@@ -185,7 +185,7 @@ class Battery_Test(Propulsor):
         # Pack the conditions for outputs     
         conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage 
         conditions.propulsion.battery_current                      = abs( battery.current )
-        conditions.propulsion.battery_draw                         = battery.inputs.power_in 
+        conditions.propulsion.battery_power_draw                   = battery.inputs.power_in 
         conditions.propulsion.battery_energy                       = battery.current_energy  
         conditions.propulsion.battery_charge_throughput            = battery.cell_charge_throughput 
         conditions.propulsion.battery_state_of_charge              = battery.state_of_charge

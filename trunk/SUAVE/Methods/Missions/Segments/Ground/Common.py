@@ -225,11 +225,10 @@ def solve_residuals(segment):
     FT = conditions.frames.inertial.total_force_vector
     v  = conditions.frames.inertial.velocity_vector
     m  = conditions.weights.total_mass
-    D  = segment.state.numerics.time.differentiate
-    vf = segment.velocity_end
-
+    D  = segment.state.numerics.time.differentiate 
+    
     # process and pack
     acceleration = np.dot(D , v)
     conditions.frames.inertial.acceleration_vector = acceleration
  
-    segment.state.residuals.acceleration_x       = np.reshape(((FT[:,0]) / m[:,0] - acceleration[:,0]),np.shape(m))
+    segment.state.residuals.acceleration_x       =  np.reshape(((FT[:,0]) / m[:,0] - acceleration[:,0]),np.shape(m)) 

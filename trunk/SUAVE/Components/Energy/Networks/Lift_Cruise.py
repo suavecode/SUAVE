@@ -96,18 +96,18 @@ class Lift_Cruise(Propulsor):
             results.thrust_force_vector [Newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                rpm_lift                 [radians/sec]
-                rpm _forward             [radians/sec]
-                current_lift             [amps]
-                current_forward          [amps]
-                battery_draw             [watts]
-                battery_energy           [joules]
-                battery_voltage_open_circuit     [volts]
-                battery_voltage_under_load        [volts]
-                motor_torque_lift        [N-M]
-                motor_torque_forward     [N-M]
-                propeller_torque_lift    [N-M]
-                propeller_torque_forward [N-M]
+                rpm_lift                       [radians/sec]
+                rpm _forward                   [radians/sec]
+                current_lift                   [amps]
+                current_forward                [amps]
+                battery_power_draw             [watts]
+                battery_energy                 [joules]
+                battery_voltage_open_circuit   [volts]
+                battery_voltage_under_load     [volts]
+                motor_torque_lift              [N-M]
+                motor_torque_forward           [N-M]
+                propeller_torque_lift          [N-M]
+                propeller_torque_forward       [N-M]
     
             Properties Used:
             Defaulted values
@@ -267,7 +267,7 @@ class Lift_Cruise(Propulsor):
         R_forward            = propeller.tip_radius
         rpm_lift             = motor_lift.outputs.omega / Units.rpm
         rpm_forward          = motor_forward.outputs.omega / Units.rpm 
-        battery_draw         = battery.inputs.power_in 
+        battery_power_draw   = battery.inputs.power_in 
         battery_energy       = battery.current_energy 
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load     
@@ -287,26 +287,26 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.propeller_thrust_lift             = F_lift*num_lift        
         conditions.propulsion.propeller_power_coefficient_lift  = Cp_lift        
         conditions.propulsion.propeller_thrust_coefficient_lift = output_lift.thrust_coefficient  
-        conditions.propulsion.battery_draw_lift                 = -i_lift * volts 
+        conditions.propulsion.battery_power_draw_lift           = -i_lift * volts 
 
         conditions.propulsion.rpm_forward                       = rpm_forward        
-        conditions.propulsion.battery_draw                      = battery_draw
-        conditions.propulsion.battery_draw_forward              = -i_forward * volts 
+        conditions.propulsion.battery_power_draw                = battery_power_draw
+        conditions.propulsion.battery_power_draw_forward        = -i_forward * volts 
         conditions.propulsion.battery_energy                    = battery_energy
         conditions.propulsion.battery_voltage_open_circuit      = voltage_open_circuit
         conditions.propulsion.battery_voltage_under_load        = voltage_under_load    
         conditions.propulsion.motor_efficiency_forward          = etam_forward
         conditions.propulsion.current_forward                   = i_forward 
-        conditions.propulsion.battery_efficiency                = (battery_draw+battery.resistive_losses)/battery_draw
-        conditions.propulsion.payload_efficiency                = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
+        conditions.propulsion.battery_efficiency                = (battery_power_draw+battery.resistive_losses)/battery_power_draw
+        conditions.propulsion.payload_efficiency                = (battery_power_draw+(avionics.outputs.power + payload.outputs.power))/battery_power_draw            
         conditions.propulsion.propeller_power_forward           = P_forward*num_forward
         conditions.propulsion.propeller_thrust_coefficient      = Cp_forward 
         conditions.propulsion.propeller_tip_mach_forward        = (motor_forward.outputs.omega * R_forward)/a
         conditions.propulsion.propeller_torque_forward          = Q_forward       
         conditions.propulsion.propeller_efficiency_forward      = etap_forward 
         conditions.propulsion.current                           = i_lift + i_forward 
-        conditions.propulsion.battery_specfic_power             = -battery_draw/battery.mass_properties.mass    # kWh/kg
-        conditions.propulsion.electronics_efficiency            = -(P_forward*num_forward+P_lift*num_lift)/battery_draw  
+        conditions.propulsion.battery_specfic_power             = -battery_power_draw/battery.mass_properties.mass    # kWh/kg
+        conditions.propulsion.electronics_efficiency            = -(P_forward*num_forward+P_lift*num_lift)/battery_power_draw  
         conditions.propulsion.battery_current                   = current_total
         
         # Calculate the thrust and mdot
@@ -319,8 +319,8 @@ class Lift_Cruise(Propulsor):
         
         conditions.propulsion.disc_loading_lift                 = (F_lift_mag.T)/(self.number_of_engines_lift*np.pi*(R_lift)**2) # N/m^2              
         conditions.propulsion.disc_loading_forward              = (F_forward_mag.T)/(self.number_of_engines_forward*np.pi*(R_forward)**2)  # N/m^2      
-        conditions.propulsion.power_loading_lift                = (F_lift_mag.T)/(battery_draw)      # N/W 
-        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw)   # N/W    
+        conditions.propulsion.power_loading_lift                = (F_lift_mag.T)/(battery_power_draw)      # N/W 
+        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_power_draw)   # N/W    
                                                                                                         
         F_total = F_lift_total + F_forward_total
         mdot    = np.zeros_like(F_total)

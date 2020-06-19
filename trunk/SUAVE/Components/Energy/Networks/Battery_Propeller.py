@@ -86,14 +86,14 @@ class Battery_Propeller(Propulsor):
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                rpm                  [radians/sec]
-                current              [amps]
-                battery_draw         [watts]
-                battery_energy       [joules]
+                rpm                          [radians/sec]
+                current                      [amps]
+                battery_power_draw           [watts]
+                battery_energy               [joules]
                 battery_voltage_open_circuit [volts]
-                battery_voltage_under_load    [volts]
-                motor_torque         [N-M]
-                propeller_torque     [N-M]
+                battery_voltage_under_load   [volts]
+                motor_torque                 [N-M]
+                propeller_torque             [N-M]
     
             Properties Used:
             Defaulted values
@@ -122,11 +122,11 @@ class Battery_Propeller(Propulsor):
         discharge_flag              = conditions.propulsion.battery_discharge    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
         battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
-        battery.max_energy          = battery.initial_max_energy * battery.E_growth_factor   
+        battery.max_energy          = conditions.propulsion.battery_max_aged_energy
         V_th0                       = conditions.propulsion.battery_initial_thevenin_voltage
         n_series                    = battery.pack_config.series  
         n_parallel                  = battery.pack_config.parallel
-        n_total                     = n_series * n_parallel          
+        n_total                     = n_series*n_parallel
         
         # --------------------------------------------------------------------------------
         # Predict Voltage and Battery Properties Depending on Battery Chemistry
@@ -278,30 +278,43 @@ class Battery_Propeller(Propulsor):
         a                         = conditions.freestream.speed_of_sound
         R                         = propeller.tip_radius
         rpm                       = motor.outputs.omega*60./(2.*np.pi)
-        battery_draw              = abs(battery.inputs.power_in)
+        battery_power_draw        = abs(battery.inputs.power_in)
         
-        conditions.propulsion.rpm                                  = rpm
-        conditions.propulsion.battery_current                      = abs(battery.inputs.current)
-        conditions.propulsion.battery_draw                         = -battery_draw
+        conditions.propulsion.battery_current                      = abs(battery.current)
+        conditions.propulsion.battery_power_draw                   = -battery_power_draw
         conditions.propulsion.battery_energy                       = battery.current_energy
+        conditions.propulsion.battery_max_aged_energy                   = battery.current_energy
         conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit 
         conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load  
         conditions.propulsion.battery_charge_throughput            = battery.cell_charge_throughput   
         conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 
-        conditions.propulsion.battery_pack_temperature             = battery.pack_temperature
+        conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 
+        conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage          
+        conditions.propulsion.battery_specfic_power                = -battery_power_draw/battery.mass_properties.mass # Wh/kg
+        conditions.propulsion.battery_age_in_days                  = battery.age_in_days  
+
+        conditions.propulsion.battery_cell_power_draw              = -battery_power_draw/n_series
+        conditions.propulsion.battery_cell_energy                  = battery.current_energy/n_total   
+        conditions.propulsion.battery_cell_voltage_under_load      = battery.cell_voltage_under_load    
+        conditions.propulsion.battery_cell_voltage_open_circuit    = battery.cell_voltage_open_circuit  
+        conditions.propulsion.battery_cell_current                 = abs(battery.cell_current)        
         conditions.propulsion.battery_cell_temperature             = battery.cell_temperature
         conditions.propulsion.battery_cell_joule_heat_fraction     = battery.cell_joule_heat_fraction   
         conditions.propulsion.battery_cell_entropy_heat_fraction   = battery.cell_entropy_heat_fraction
-        conditions.propulsion.battery_specfic_power                = -battery_draw/battery.mass_properties.mass # Wh/kg
+
+        conditions.propulsion.rpm                                  = rpm   
         conditions.propulsion.motor_torque                         = motor.outputs.torque
         conditions.propulsion.motor_temperature                    = 0 # currently no motor temperature model
         conditions.propulsion.propeller_torque                     = Q
-        conditions.propulsion.battery_age_in_days                  = battery.age_in_days  
-        conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage   
         conditions.propulsion.propeller_tip_mach                   = (R*motor.outputs.omega)/a
-        
+                
         # Create the outputs 
-        F                                         = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
+        if state.reverse_thrust:
+            rev_thrust = -1
+        else:
+            rev_thrust = 1
+            
+        F                                         = rev_thrust*num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
         mdot                                      = np.zeros_like(F) 
         F_mag                                     = np.atleast_2d(np.linalg.norm(F, axis=1))  
         conditions.propulsion.disc_loading        = (F_mag.T)/ (num_engines*np.pi*(R)**2) # [N/m^2]                  

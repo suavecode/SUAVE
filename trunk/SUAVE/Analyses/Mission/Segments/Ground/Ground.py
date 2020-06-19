@@ -86,7 +86,7 @@ class Ground(Aerodynamic):
         self.state.conditions.update( Conditions.Aerodynamics() )
     
         # initials and unknowns
-        ones_row = self.state.ones_row 
+        ones_row = self.state.ones_row  
         self.state.residuals.acceleration_x       = ones_row(1) * 0.0 
     
         # Specific ground things

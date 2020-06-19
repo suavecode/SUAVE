@@ -142,7 +142,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
 
         # Pack the conditions for outputs 
         conditions.propulsion.current                      = esc.outputs.currentin
-        conditions.propulsion.battery_draw                 = battery.inputs.power_in 
+        conditions.propulsion.battery_power_draw           = battery.inputs.power_in 
         conditions.propulsion.battery_energy               = battery.current_energy
         conditions.propulsion.battery_voltage_open_circuit = battery.voltage_open_circuit
         

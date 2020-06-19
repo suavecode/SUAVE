@@ -79,7 +79,7 @@ class Vectored_Thrust_Low_Fidelity(Propulsor):
             conditions.propulsion:
                 rpm                  [radians/sec]
                 current              [amps]
-                battery_draw         [watts]
+                battery_power_draw         [watts]
                 battery_energy       [joules]
                 battery_voltage_open_circuit [volts]
                 battery_voltage_under_load    [volts]
@@ -155,18 +155,18 @@ class Vectored_Thrust_Low_Fidelity(Propulsor):
         rpm                  = motor.outputs.omega*60./(2.*np.pi)
         a                    = conditions.freestream.speed_of_sound
         R                    = propeller.tip_radius      
-        battery_draw         = battery.inputs.power_in   
+        battery_power_draw         = battery.inputs.power_in   
           
         conditions.propulsion.rpm                                = rpm
         conditions.propulsion.current                            = esc.outputs.currentin
-        conditions.propulsion.battery_draw                       = battery_draw
+        conditions.propulsion.battery_power_draw                 = battery_power_draw
         conditions.propulsion.battery_energy                     = battery.current_energy    
         conditions.propulsion.battery_voltage_open_circuit       = battery.voltage_open_circuit
         conditions.propulsion.battery_voltage_under_load         = battery.voltage_under_load
         conditions.propulsion.motor_torque                       = motor.outputs.torque
         conditions.propulsion.propeller_torque                   = Q
         conditions.propulsion.acoustic_outputs[propeller.tag]    = noise
-        conditions.propulsion.battery_specfic_power              = -(battery_draw/1000)/battery.mass_properties.mass #kWh/kg
+        conditions.propulsion.battery_specfic_power              = -(battery_power_draw/1000)/battery.mass_properties.mass #kWh/kg
         conditions.propulsion.propeller_tip_mach                 = (R*rpm)/a
 
         
@@ -175,7 +175,7 @@ class Vectored_Thrust_Low_Fidelity(Propulsor):
         
         F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1)*2.20462)  # lb   
         conditions.propulsion.disc_loading                       = (F_mag.T)/(num_engines*np.pi*(R*3.28084)**2) # lb/ft^2       
-        conditions.propulsion.power_loading                      = (F_mag.T)/(battery_draw*0.00134102)           # lb/hp 
+        conditions.propulsion.power_loading                      = (F_mag.T)/(battery_power_draw*0.00134102)           # lb/hp 
 
         mdot = np.zeros_like(F_vec)
 
