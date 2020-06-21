@@ -115,16 +115,16 @@ def LiNCA_charge (battery,numerics):
     R_Th = R_Th* R_growth_factor
     
     # Calculate resistive losses
-    P_heat = (I_cell**2)*(R_0 + R_Th)
+    Q_heat_gen = (I_cell**2)*(R_0 + R_Th)
     
     # Determine temperature increase
     h = -290 + 39.036*T_cell - 1.725*(T_cell**2) + 0.026*(T_cell**3)    
-    P_net      = P_heat - h*0.5*cell_surface_area*(T_cell - T_ambient)
+    P_net      = Q_heat_gen - h*0.5*cell_surface_area*(T_cell - T_ambient)
     dT_dt      = P_net/(cell_mass*Cp)
     T_current  = T_current[0] + np.dot(I,dT_dt) 
     
     # Determine actual power going into the battery accounting for resistance losses
-    P_loss = n_total*P_heat
+    P_loss = n_total*Q_heat_gen
     P = P_bat - np.abs(P_loss)  
             
     # Determine total energy coming from the battery in this segment

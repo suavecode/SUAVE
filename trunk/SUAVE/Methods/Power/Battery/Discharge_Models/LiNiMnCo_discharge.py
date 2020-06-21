@@ -38,7 +38,7 @@ def LiNiMnCo_discharge(battery,numerics):
                Cp                (battery cell specific heat capacity) [J/(K kg)]
                h                 (heat transfer coefficient)           [W/(m^2*K)]
                t                 (battery age in days)                 [days]
-               cell_surface_area (battery cell surface area)           [meters^2]
+               As_cell(battery cell surface area)           [meters^2]
                T_ambient         (ambient temperature)                 [Degrees Celcius]
                T_current         (pack temperature)                    [Degrees Celcius]
                T_cell            (battery cell temperature)            [Degrees Celcius]
@@ -75,7 +75,9 @@ def LiNiMnCo_discharge(battery,numerics):
     electrode_area           = battery.cell.electrode_area
     Cp                       = battery.cell.specific_heat_capacity 
     h                        = battery.heat_transfer_coefficient
-    cell_surface_area        = battery.cell.surface_area
+    As_cell                  = battery.cell.surface_area 
+    D_cell                   = battery.cell.diameter                     
+    H_cell                   = battery.cell.height    
     T_ambient                = battery.ambient_temperature 
     V_th0                    = battery.initial_thevenin_voltage 
     T_current                = battery.temperature      
@@ -133,19 +135,72 @@ def LiNiMnCo_discharge(battery,numerics):
     i_cell         = I_cell/electrode_area # current intensity 
     q_dot_entropy  = -(T_cell+273)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
     q_dot_joule    = (i_cell**2)/sigma                   # eqn 5 , D. Jeon Thermal Modelling ..
-    P_heat         = (q_dot_joule + q_dot_entropy)*cell_surface_area  
+    Q_heat_gen     = (q_dot_joule + q_dot_entropy)*As_cell 
     q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
     q_entropy_frac = q_dot_entropy/(q_dot_joule + q_dot_entropy)
-    P_net          = P_heat - h*cell_surface_area*0.5*(T_cell - T_ambient)  
-     
-    # Using lumped model  
-    P_net          = P_net*n_total 
     
-    dT_dt      = P_net/(cell_mass*n_module *Cp)
+    ## ===============================================================================
+    ## OLD METHOD      
+    ## ===============================================================================
+    ## Using lumped model  
+    #Q_convec       = h*As_cell*(T_cell - T_ambient) 
+    #P_net          = Q_heat_gen - Q_convec
+    #P_net          = P_net*n_total 
+    
+    # ===============================================================================
+    # NEW METHOD 1 
+    # ===============================================================================
+    # Chapter 7 pg 437-446 of Fundamentals of heat and mass transfer : Frank P. Incropera ... Incropera, Fran
+    Nn      = battery.module_config.normal_count            
+    Np      = battery.module_config.parallel_count          
+    Ntot    = Nn*Np
+    Sn      = battery.module_config.normal_spacing          
+    Sp      = battery.module_config.parallel_spacing                       
+    K_air   = battery.cooling_fluid.thermal_conductivity    
+    Cp_air  = battery.cooling_fluid.specific_heat_capacity  
+    V_air   = battery.cooling_fluid.flowspeed     
+    rho_air = 2E-5*(T_ambient**2)- 0.0048**T_ambient + 1.2926
+    nu_fit  = battery.cooling_fluid.kinematic_viscosity_fit  
+    Pr_fit  = battery.cooling_fluid.prandlt_number_fit     
+    
+    Sd = np.sqrt(Sn**2+Sp**2)
+    if 2*(Sd-D_cell) < (Sn-D_cell):
+        V_max    = V_air*(Sn/(2*(Sd-D_cell)))
+    else:
+        V_max   = V_air*(Sn/(Sn-D_cell))
+         
+    # change T_cell to T_bat
+    T        = T_current # T_cell
+    T_film   = (T_ambient+T)/2 
+    nu_air   = nu_fit(T_ambient)
+    Re_max   = V_max*D_cell/nu_air
+    Pr       = Pr_fit(T_ambient)
+    Prw      = Pr_fit(T) # Pr_fit(T_film) 
+    if Re_max > 10E2: 
+        C        = 0.35*((Sn/Sp)**0.2) 
+        m        = 0.6 
+    else:
+        C = 0.51
+        m = 0.5 
+    Nu       =  C*(Re_max**m)*(Pr**0.36)*((Pr/Prw)**0.25)           
+    h        = Nu*K_air/D_cell
+    #h = -290 + 39.036*T_current - 1.725*(T_current**2) + 0.026*(T_current**3)
+    Tw_Ti    = (T - T_ambient)
+    Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*Ntot*h)/(rho_air*V_air*Nn*Sn*Cp_air))
+    dT_lm    = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
+    Q_convec = h*As_cell*Nn*dT_lm 
+    
+    if np.isnan(dT_lm).any():
+        raise AttributeError('Nan!! ')
+    
+    P_net    = Q_heat_gen*Ntot - Q_convec 
+  
+    ####################################################################################
+    dT_dt     = P_net/(cell_mass*Ntot*Cp)
     T_current = T_current[0] + np.dot(I,dT_dt)  
     
     # Power going into the battery accounting for resistance losses
-    P_loss = n_total*P_heat
+    P_loss = n_total*Q_heat_gen
     P = P_bat - np.abs(P_loss)     
      
     I_cell[I_cell<0.0]  = 0.0
