@@ -111,15 +111,15 @@ def systems_FLOPS(vehicle):
     WAI     = vehicle.wings['main_wing'].spans.projected / Units.ft \
           * 1. / np.cos(vehicle.wings['main_wing'].sweeps.quarter_chord) + 3.8 * FNAC * NENG + 1.5 * WF  # anti-ice weight
 
-    output                  = Data()
-    output.wt_flt_ctrl      = WSC * Units.lbs
-    output.wt_apu           = WAPU * Units.lbs
-    output.wt_hyd_pnu       = WHYD * Units.lbs
-    output.wt_instruments   = WIN * Units.lbs
-    output.wt_avionics      = WAVONC * Units.lbs
-    output.wt_elec          = WELEC * Units.lbs
-    output.wt_ac            = WAC * Units.lbs
-    output.wt_furnish       = WFURN * Units.lbs
-    output.wt_anti_ice      = WAI * Units.lbs
-    output.wt_systems       = WSC + WAPU + WIN + WHYD + WELEC + WAVONC + WFURN + WAC + WAI
+    output                      = Data()
+    output.wt_flight_control    = WSC * Units.lbs
+    output.wt_apu               = WAPU * Units.lbs
+    output.wt_hyd_pnu           = WHYD * Units.lbs
+    output.wt_instruments       = WIN * Units.lbs
+    output.wt_avionics          = WAVONC * Units.lbs
+    output.wt_elec              = WELEC * Units.lbs
+    output.wt_ac                = WAC * Units.lbs
+    output.wt_furnish           = WFURN * Units.lbs
+    output.wt_anti_ice          = WAI * Units.lbs
+    output.wt_systems           = WSC + WAPU + WIN + WHYD + WELEC + WAVONC + WFURN + WAC + WAI
     return output

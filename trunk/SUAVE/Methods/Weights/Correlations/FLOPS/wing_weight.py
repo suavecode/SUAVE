@@ -53,11 +53,11 @@ def wing_weight_FLOPS(vehicle, WPOD, complexity):
 
         Properties Used:
             N/A
-        """
-    SW          = vehicle.reference_area / (Units.ft ** 2)  # Reference wing area, ft^2
+    """
+    wing        = vehicle.wings['main_wing']
+    SW          = wing.areas.reference / (Units.ft ** 2)  # Reference wing area, ft^2
     GLOV        = 0  # Gloved area, assumed 0
     SX          = SW - GLOV  # Wing trapezoidal area
-    wing        = vehicle.wings['main_wing']
     SPAN        = wing.spans.projected / Units.ft  # Wing span, ft
     SEMISPAN    = SPAN / 2
     AR          = SPAN ** 2 / SX  # Aspect ratio
@@ -172,7 +172,35 @@ def wing_weight_FLOPS(vehicle, WPOD, complexity):
 
 def generate_wing_stations(vehicle):
     """ Divides half the wing in sections, using the defined sections
-     and adding a section at the intersection of wing and fuselage """
+        and adding a section at the intersection of wing and fuselage
+
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.wings['main_wing']: data dictionary with wing properties
+                    -.taper: taper ration wing
+                    -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
+                    -.thickness_to_chord: thickness to chord
+                    -.spans.projected: wing span                                [m]
+                    -.chords.root: root chord                                   [m]
+                    -.tip.root: tip chord                                       [m]
+                    -.twists.root: twist of wing at root                        [deg]
+                    -.twists.tip: twist of wing at tip                          [deg]
+                    -.Segments: trapezoidal segments of the wing
+
+       Outputs:
+           ETA: spanwise location of the sections normalized by half span
+           C: chord lengths at every spanwise location in ETA normalized by half span
+           T: thickness to chord ratio at every span wise location in ETA
+           SWP: quarter chord sweep angle at every span wise location in ETA
+
+        Properties Used:
+            N/A
+    """
     wing        = vehicle.wings['main_wing']
     SPAN        = wing.spans.projected / Units.ft  # Wing span, ft
     SEMISPAN    = SPAN / 2
@@ -231,7 +259,24 @@ def generate_wing_stations(vehicle):
 
 
 def generate_int_stations(NSD, ETA):
-    """ Divides half of the wing in integration stations"""
+    """ Divides half of the wing in integration stations
+
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            NSD: number of integration stations requested
+            ETA: list of spanwise locations of all sections of the wing
+
+       Outputs:
+           NS: actual number of integration stations
+           Y: spanwise locations of the integrations stations normalized by half span
+
+        Properties Used:
+            N/A
+    """
     Y           = [ETA[1]]
     desired_int = (ETA[-1] - ETA[1]) / NSD
     NS          = 0
@@ -247,13 +292,45 @@ def generate_int_stations(NSD, ETA):
 
 
 def calculate_load(ETA):
-    """Returns load factor assuming elliptical load distribution"""
+    """ Returns load factor assuming elliptical load distribution
+
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            ETA: list of spanwise locations of all sections of the wing
+
+       Outputs:
+           PS: load factor at every location in ETA assuming elliptical load distribution
+
+        Properties Used:
+            N/A
+    """
     PS = np.sqrt(1. - ETA ** 2)
     return PS
 
 
 def find_sweep(y, lst_y, swp):
-    """Finds sweep angle for a certain y-location along the wing"""
+    """ Finds sweep angle for a certain y-location along the wing
+
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            y: spanwise location
+            lst_y: list of spanwise stations where sweep is known (eg sections)
+            swp: list of quarter chord sweep angles at the locations listed in lst_y
+
+       Outputs:
+           swp: sweep angle at y
+
+        Properties Used:
+            N/A
+    """
     diff = lst_y - y
     for i in range(len(diff)):
         if diff[i] > 0:
@@ -264,7 +341,25 @@ def find_sweep(y, lst_y, swp):
 
 
 def get_spanwise_engine(propulsors, SEMISPAN):
-    """Returns EETA for the engine locations along the wing """
+    """ Returns EETA for the engine locations along the wing
+
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            propulsors: data dictionary with all the engine properties
+                -.wing_mounted: list of boolean if engine is mounted to wing
+                -.number_of_engines: number of engines
+                -.origin: origin of the engine
+            SEMISPAN: half span                                 [m]
+       Outputs:
+           EETA: span wise locations of the engines mounted to the wing normalized by the half span
+
+        Properties Used:
+            N/A
+    """
     N2      = int(sum(propulsors.wing_mounted) / 2)
     EETA    = np.zeros(N2)
     idx     = 0
@@ -276,7 +371,12 @@ def get_spanwise_engine(propulsors, SEMISPAN):
 
 
 def wing_weight_constants_FLOPS(ac_type):
-    """Defines wing weight constants as defined by FLOPS"""
+    """Defines wing weight constants as defined by FLOPS
+        Inputs: ac_type - determines type of instruments, electronics, and operating items based on types:
+                "short-range", "medium-range", "long-range", "business", "cargo", "commuter", "sst"
+        Outputs: list of coefficients used in weight estimations
+
+    """
     if ac_type == "short_range" or ac_type == "business" or \
             ac_type == "commuter":
         A = [30.0, 0., 0.25, 0.5, 0.5, 0.16, 1.2]
@@ -286,7 +386,28 @@ def wing_weight_constants_FLOPS(ac_type):
 
 
 def determine_fuselage_chord(vehicle):
-    """Determine chord at wing and fuselage intersection"""
+    """ Determine chord at wing and fuselage intersection
+
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.wings['main_wing']: data dictionary with wing properties
+                    -.taper: taper ration wing
+                    -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
+                    -.thickness_to_chord: thickness to chord
+                    -.spans.projected: wing span                                [m]
+                    -.chords.root: root chord                                   [m]
+                -.fuselages.fuselage.width: fuselage width                      [m]
+       Outputs:
+           chord: chord length of wing where wing intersects the fuselage wall [ft]
+
+        Properties Used:
+            N/A
+    """
     wing            = vehicle.wings['main_wing']
     root_chord      = wing.chords.root / Units.ft
     SPAN            = wing.spans.projected / Units.ft  # Wing span, ft

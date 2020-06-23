@@ -345,7 +345,7 @@ def empty(vehicle):
     output.propulsion_breakdown.fuel_system = output_2.wt_fuel_sys
 
     output.systems_breakdown                    = Data()
-    output.systems_breakdown.control_systems    = output_2.wt_flt_ctrl
+    output.systems_breakdown.control_systems    = output_2.wt_flight_control
     output.systems_breakdown.hydraulics         = output_2.wt_hyd_pnu
     output.systems_breakdown.avionics           = output_2.wt_avionics
     output.systems_breakdown.electrical         = output_2.wt_elec

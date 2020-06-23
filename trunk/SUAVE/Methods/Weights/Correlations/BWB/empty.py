@@ -81,19 +81,19 @@ def empty(vehicle):
     """
 
     # Unpack inputs
-    Nult = vehicle.envelope.ultimate_load
-    Nlim = vehicle.envelope.limit_load
-    TOW = vehicle.mass_properties.max_takeoff
-    wt_zf = vehicle.mass_properties.max_zero_fuel
-    wt_cargo = vehicle.mass_properties.cargo
-    num_pax = vehicle.passengers
-    ctrl_type = vehicle.systems.control
-    ac_type = vehicle.systems.accessories
+    Nult        = vehicle.envelope.ultimate_load
+    Nlim        = vehicle.envelope.limit_load
+    TOW         = vehicle.mass_properties.max_takeoff
+    wt_zf       = vehicle.mass_properties.max_zero_fuel
+    wt_cargo    = vehicle.mass_properties.cargo
+    num_pax     = vehicle.passengers
+    ctrl_type   = vehicle.systems.control
+    ac_type     = vehicle.systems.accessories
 
-    num_seats = vehicle.passengers
-    bwb_aft_centerbody_area = vehicle.fuselages['fuselage_bwb'].aft_centerbody_area
-    bwb_aft_centerbody_taper = vehicle.fuselages['fuselage_bwb'].aft_centerbody_taper
-    bwb_cabin_area = vehicle.fuselages['fuselage_bwb'].cabin_area
+    num_seats                   = vehicle.passengers
+    bwb_aft_centerbody_area     = vehicle.fuselages['fuselage_bwb'].aft_centerbody_area
+    bwb_aft_centerbody_taper    = vehicle.fuselages['fuselage_bwb'].aft_centerbody_taper
+    bwb_cabin_area              = vehicle.fuselages['fuselage_bwb'].cabin_area
 
     propulsor_name = list(vehicle.propulsors.keys())[0]  # obtain the key f
     # for the propulsor for assignment purposes
@@ -104,9 +104,9 @@ def empty(vehicle):
         # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor 
         # weight estimation. Engine sizing should return this value.
         # for now, using thrust_sls = design_thrust / 0.20, just for optimization evaluations
-        thrust_sls = propulsors.sealevel_static_thrust
-        wt_engine_jet = Propulsion.engine_jet(thrust_sls)
-        wt_propulsion = Propulsion.integrated_propulsion(wt_engine_jet, num_eng)
+        thrust_sls      = propulsors.sealevel_static_thrust
+        wt_engine_jet   = Propulsion.engine_jet(thrust_sls)
+        wt_propulsion   = Propulsion.integrated_propulsion(wt_engine_jet, num_eng)
         propulsors.mass_properties.mass = wt_propulsion
 
     else:  # propulsor used is not a turbo_fan; assume mass_properties defined outside model
@@ -129,10 +129,10 @@ def empty(vehicle):
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing
 
         # Calculating Empty Weight of Aircraft
-    landing_gear = landing_gear_weight(vehicle)
-    wt_cabin = cabin(bwb_cabin_area, TOW)
-    wt_aft_centerbody = aft_centerbody(num_eng, bwb_aft_centerbody_area, bwb_aft_centerbody_taper, TOW)
-    output_2 = systems(num_seats, ctrl_type, S_h, S_gross_w, ac_type)
+    landing_gear        = landing_gear_weight(vehicle)
+    wt_cabin            = cabin(bwb_cabin_area, TOW)
+    wt_aft_centerbody   = aft_centerbody(num_eng, bwb_aft_centerbody_area, bwb_aft_centerbody_taper, TOW)
+    output_2            = systems(num_seats, ctrl_type, S_h, S_gross_w, ac_type)
     # Calculate the equipment empty weight of the aircraft
     vehicle.fuselages['fuselage_bwb'].mass_properties.mass = wt_cabin
 
@@ -141,35 +141,35 @@ def empty(vehicle):
     wt_oper = operating_system(vehicle)
     # Distribute all weight in the output fields
     output = Data()
-    output.structures = Data()
-    output.structures.wing = wt_wing
-    output.structures.afterbody = wt_aft_centerbody
-    output.structures.fuselage = wt_cabin
+    output.structures                   = Data()
+    output.structures.wing              = wt_wing
+    output.structures.afterbody         = wt_aft_centerbody
+    output.structures.fuselage          = wt_cabin
     output.structures.main_landing_gear = landing_gear.main
     output.structures.nose_landing_gear = landing_gear.nose
-    output.structures.nacelle = 0
-    output.structures.paint = 0  # TODO change
-    output.structures.total = output.structures.wing + output.structures.afterbody \
-                              + output.structures.fuselage + output.structures.main_landing_gear + output.structures.nose_landing_gear \
-                              + output.structures.paint + output.structures.nacelle
+    output.structures.nacelle           = 0
+    output.structures.paint             = 0  # TODO change
+    output.structures.total   = output.structures.wing + output.structures.afterbody \
+                                + output.structures.fuselage + output.structures.main_landing_gear + output.structures.nose_landing_gear \
+                                + output.structures.paint + output.structures.nacelle
 
-    output.propulsion_breakdown = Data()
-    output.propulsion_breakdown.total = wt_propulsion
-    output.propulsion_breakdown.engines = 0
-    output.propulsion_breakdown.thrust_reversers = 0
-    output.propulsion_breakdown.miscellaneous = 0
-    output.propulsion_breakdown.fuel_system = 0
+    output.propulsion_breakdown                     = Data()
+    output.propulsion_breakdown.total               = wt_propulsion
+    output.propulsion_breakdown.engines             = 0
+    output.propulsion_breakdown.thrust_reversers    = 0
+    output.propulsion_breakdown.miscellaneous       = 0
+    output.propulsion_breakdown.fuel_system         = 0
 
-    output.systems_breakdown = Data()
-    output.systems_breakdown.control_systems = output_2.wt_flt_ctrl
-    output.systems_breakdown.apu = output_2.wt_apu
-    output.systems_breakdown.electrical = output_2.wt_elec
-    output.systems_breakdown.avionics = output_2.wt_avionics
-    output.systems_breakdown.hydraulics = output_2.wt_hyd_pnu
-    output.systems_breakdown.furnish = output_2.wt_furnish
-    output.systems_breakdown.air_conditioner = output_2.wt_ac
-    output.systems_breakdown.instruments = output_2.wt_instruments
-    output.systems_breakdown.anti_ice = 0
+    output.systems_breakdown                        = Data()
+    output.systems_breakdown.control_systems        = output_2.wt_flight_control
+    output.systems_breakdown.apu                    = output_2.wt_apu
+    output.systems_breakdown.electrical             = output_2.wt_elec
+    output.systems_breakdown.avionics               = output_2.wt_avionics
+    output.systems_breakdown.hydraulics             = output_2.wt_hyd_pnu
+    output.systems_breakdown.furnish                = output_2.wt_furnish
+    output.systems_breakdown.air_conditioner        = output_2.wt_ac
+    output.systems_breakdown.instruments            = output_2.wt_instruments
+    output.systems_breakdown.anti_ice                = 0
     output.systems_breakdown.total = output.systems_breakdown.control_systems + output.systems_breakdown.apu \
                                      + output.systems_breakdown.electrical + output.systems_breakdown.avionics \
                                      + output.systems_breakdown.hydraulics + output.systems_breakdown.furnish \
@@ -182,52 +182,52 @@ def empty(vehicle):
     output.operational_items = Data()
     output.operational_items = wt_oper
 
-    output.empty = output.structures.total + output.propulsion_breakdown.total + output.systems_breakdown.total
-    output.operating_empty = output.empty + output.operational_items.total
+    output.empty            = output.structures.total + output.propulsion_breakdown.total + output.systems_breakdown.total
+    output.operating_empty  = output.empty + output.operational_items.total
     output.zero_fuel_weight = output.operating_empty + output.payload_breakdown.total
-    output.fuel = vehicle.mass_properties.max_takeoff - output.zero_fuel_weight
+    output.fuel             = vehicle.mass_properties.max_takeoff - output.zero_fuel_weight
 
-    control_systems = SUAVE.Components.Physical_Component()
-    electrical_systems = SUAVE.Components.Physical_Component()
-    passengers = SUAVE.Components.Physical_Component()
-    furnishings = SUAVE.Components.Physical_Component()
-    air_conditioner = SUAVE.Components.Physical_Component()
-    fuel = SUAVE.Components.Physical_Component()
-    apu = SUAVE.Components.Physical_Component()
-    hydraulics = SUAVE.Components.Physical_Component()
-    avionics = SUAVE.Components.Energy.Peripherals.Avionics()
-    optionals = SUAVE.Components.Physical_Component()
+    control_systems         = SUAVE.Components.Physical_Component()
+    electrical_systems      = SUAVE.Components.Physical_Component()
+    passengers              = SUAVE.Components.Physical_Component()
+    furnishings             = SUAVE.Components.Physical_Component()
+    air_conditioner         = SUAVE.Components.Physical_Component()
+    fuel                    = SUAVE.Components.Physical_Component()
+    apu                     = SUAVE.Components.Physical_Component()
+    hydraulics              = SUAVE.Components.Physical_Component()
+    avionics                = SUAVE.Components.Energy.Peripherals.Avionics()
+    optionals               = SUAVE.Components.Physical_Component()
 
     # assign output weights to objects
     try:
         vehicle.landing_gear.mass_properties.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
     except AttributeError:  # landing gear not defined
-        landing_gear_component = SUAVE.Components.Landing_Gear.Landing_Gear()
-        vehicle.landing_gear = landing_gear_component
+        landing_gear_component  = SUAVE.Components.Landing_Gear.Landing_Gear()
+        vehicle.landing_gear    = landing_gear_component
         vehicle.landing_gear.mass_properties.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
 
-    control_systems.mass_properties.mass = output.systems_breakdown.control_systems
+    control_systems.mass_properties.mass    = output.systems_breakdown.control_systems
     electrical_systems.mass_properties.mass = output.systems_breakdown.electrical
-    passengers.mass_properties.mass = output.payload_breakdown.passengers + output.payload_breakdown.baggage
-    furnishings.mass_properties.mass = output.systems_breakdown.furnish
-    avionics.mass_properties.mass = output.systems_breakdown.avionics \
-                                    + output.systems_breakdown.instruments
-    air_conditioner.mass_properties.mass = output.systems_breakdown.air_conditioner
-    fuel.mass_properties.mass = output.fuel
-    apu.mass_properties.mass = output.systems_breakdown.apu
-    hydraulics.mass_properties.mass = output.systems_breakdown.hydraulics
-    optionals.mass_properties.mass = output.operational_items.oper_items
+    passengers.mass_properties.mass         = output.payload_breakdown.passengers + output.payload_breakdown.baggage
+    furnishings.mass_properties.mass        = output.systems_breakdown.furnish
+    avionics.mass_properties.mass           = output.systems_breakdown.avionics \
+                                            + output.systems_breakdown.instruments
+    air_conditioner.mass_properties.mass    = output.systems_breakdown.air_conditioner
+    fuel.mass_properties.mass               = output.fuel
+    apu.mass_properties.mass                = output.systems_breakdown.apu
+    hydraulics.mass_properties.mass         = output.systems_breakdown.hydraulics
+    optionals.mass_properties.mass          = output.operational_items.operating_items
 
     # assign components to vehicle
-    vehicle.control_systems = control_systems
-    vehicle.electrical_systems = electrical_systems
-    vehicle.avionics = avionics
-    vehicle.furnishings = furnishings
-    vehicle.passenger_weights = passengers
-    vehicle.air_conditioner = air_conditioner
-    vehicle.fuel = fuel
-    vehicle.apu = apu
-    vehicle.hydraulics = hydraulics
-    vehicle.optionals = optionals
+    vehicle.control_systems         = control_systems
+    vehicle.electrical_systems      = electrical_systems
+    vehicle.avionics                = avionics
+    vehicle.furnishings             = furnishings
+    vehicle.passenger_weights       = passengers
+    vehicle.air_conditioner         = air_conditioner
+    vehicle.fuel                    = fuel
+    vehicle.apu                     = apu
+    vehicle.hydraulics              = hydraulics
+    vehicle.optionals               = optionals
 
     return output

@@ -66,6 +66,28 @@ def total_prop_Raymer(vehicle, prop):
     return output
 
 def nacelle_Raymer(vehicle, prop, WENG):
+    """ Calculates the nacelle weight based on the Raymer method
+        Assumptions:
+
+        Source:
+            Aircraft Design: A Conceptual Approach
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.ultimate_load: ultimate load factor of aircraft
+            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+                -.number_of_engines: number of engines
+                -.engine_lenght: total length of engine                     [m]
+                -.nacelle_diameter: diameter of nacelle                     [m]
+            WENG    - dry engine weight                                     [kg]
+
+
+        Outputs:
+            WNAC: nacelle weight                                            [kg]
+
+        Properties Used:
+            N/A
+    """
     NENG    = prop.number_of_engines
     Kng     = 1 # assuming the engine is not pylon mounted
     Nlt     = prop.engine_length / Units.ft
@@ -78,6 +100,26 @@ def nacelle_Raymer(vehicle, prop, WENG):
 
 
 def misc_engine_Raymer(vehicle, prop, WENG):
+    """ Calculates the miscellaneous engine weight based on the Raymer method, electrical control system weight
+        and starter engine weight
+        Assumptions:
+
+        Source:
+            Aircraft Design: A Conceptual Approach
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.fuselages['fuselage'].lengths.total: length of fuselage   [m]
+            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+                -.number_of_engines: number of engines
+
+        Outputs:
+            WEC: electrical engine control system weight                    [kg]
+            WSTART: starter engine weight                                   [kg]
+
+        Properties Used:
+            N/A
+    """
     NENG    = prop.number_of_engines
     Lec     = NENG * vehicle.fuselages['fuselage'].lengths.total / Units.ft
     WEC     = 5 * NENG + 0.8 * Lec
@@ -86,12 +128,49 @@ def misc_engine_Raymer(vehicle, prop, WENG):
 
 
 def fuel_system_Raymer(vehicle, NENG):
+    """ Calculates the weight of the fuel system based on the Raymer method
+        Assumptions:
+
+        Source:
+            Aircraft Design: A Conceptual Approach
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.design_mach_number: design mach number
+                -.mass_properties.max_zero_fuel: maximum zero fuel weight   [kg]
+
+        Outputs:
+            WFSYS: Fuel system weight                                       [kg]
+
+        Properties Used:
+            N/A
+    """
     VMAX    = vehicle.design_mach_number
     FMXTOT  = vehicle.mass_properties.max_zero_fuel / Units.lbs
     WFSYS = 1.07 * FMXTOT ** 0.58 * NENG ** 0.43 * VMAX ** 0.34
     return WFSYS * Units.lbs
 
 def engine_Raymer(vehicle, prop):
+    """ Calculates the dry engine weight based on the FLOPS method
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.systems.accessories: type of aircraft (short-range, commuter
+                                                        medium-range, long-range,
+                                                        sst, cargo)
+            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+                -.sealevel_static_thrust: sealevel static thrust of engine  [N]
+
+        Outputs:
+            WENG: dry engine weight                                         [kg]
+
+        Properties Used:
+            N/A
+    """
     EEXP    = 1.15
     EINL    = 1
     ENOZ    = 1

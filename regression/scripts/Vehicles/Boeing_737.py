@@ -45,9 +45,9 @@ def vehicle_setup():
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     vehicle.mass_properties.center_of_gravity         = [ 15.30987849,   0.        ,  -0.48023939]
     vehicle.mass_properties.moments_of_inertia.tensor = [[3173074.17, 0 , 28752.77565],[0 , 3019041.443, 0],[0, 0, 5730017.433]] # estimated, not correct 
-    vehicle.design_mach_number = 0.78
-    vehicle.design_range = 3582 * Units.miles
-    vehicle.design_cruise_alt = 35000.0 * Units.ft
+    vehicle.design_mach_number                        = 0.78
+    vehicle.design_range                              = 3582 * Units.miles
+    vehicle.design_cruise_alt                         = 35000.0 * Units.ft
  
     # envelope properties
     vehicle.envelope.ultimate_load = 1.5*2.5

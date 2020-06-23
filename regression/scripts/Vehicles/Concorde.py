@@ -50,9 +50,9 @@ def vehicle_setup():
     vehicle.systems.accessories          = "sst"
     vehicle.maximum_cross_sectional_area = 13.9
     vehicle.total_length                 = 61.66
-    vehicle.design_mach_number = 2.02
-    vehicle.design_range = 4505 * Units.miles
-    vehicle.design_cruise_alt = 60000.0 * Units.ft
+    vehicle.design_mach_number           = 2.02
+    vehicle.design_range                 = 4505 * Units.miles
+    vehicle.design_cruise_alt            = 60000.0 * Units.ft
     
     # ------------------------------------------------------------------        
     #   Main Wing
@@ -538,17 +538,17 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Landing Gear
     # ------------------------------------------------------------------
-    landing_gear = SUAVE.Components.Landing_Gear.Landing_Gear()
-    landing_gear.tag = "main_landing_gear"
-    landing_gear.main_tire_diameter = 47 * Units.inch
-    landing_gear.nose_tire_diameter = 31 * Units.inch
-    landing_gear.main_strut_length = 18.19 * Units.m
-    landing_gear.nose_strut_length = 18.19 * Units.m
-    landing_gear.main_units = 1  # number of nose landing gear
-    landing_gear.nose_units = 1  # number of nose landing gear
-    landing_gear.main_wheels = 4  # number of wheels on the main landing gear
-    landing_gear.nose_wheels = 2  # number of wheels on the nose landing gear
-    vehicle.landing_gear = landing_gear
+    landing_gear                        = SUAVE.Components.Landing_Gear.Landing_Gear()
+    landing_gear.tag                    = "main_landing_gear"
+    landing_gear.main_tire_diameter     = 47 * Units.inch
+    landing_gear.nose_tire_diameter     = 31 * Units.inch
+    landing_gear.main_strut_length      = 18.19 * Units.m
+    landing_gear.nose_strut_length      = 18.19 * Units.m
+    landing_gear.main_units             = 1  # number of nose landing gear
+    landing_gear.nose_units             = 1  # number of nose landing gear
+    landing_gear.main_wheels            = 4  # number of wheels on the main landing gear
+    landing_gear.nose_wheels            = 2  # number of wheels on the nose landing gear
+    vehicle.landing_gear                = landing_gear
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete

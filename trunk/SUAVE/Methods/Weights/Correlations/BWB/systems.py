@@ -16,7 +16,7 @@ from SUAVE.Core import Units, Data
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-BWB
-def systems(num_seats,  ctrl_type,S_h,S_gross_w, ac_type):
+def systems(num_seats,  ctrl_type, S_h, S_gross_w, ac_type):
     """ Calculate the weight of the different engine systems on the aircraft
     
     Assumptions:
@@ -112,7 +112,7 @@ def systems(num_seats,  ctrl_type,S_h,S_gross_w, ac_type):
 
     # packup outputs
     output = Data()
-    output.wt_flt_ctrl    = flt_ctrl_wt
+    output.wt_flight_control    = flt_ctrl_wt
     output.wt_apu         = apu_wt
     output.wt_hyd_pnu     = hyd_pnu_wt
     output.wt_instruments = instruments_wt
@@ -120,7 +120,7 @@ def systems(num_seats,  ctrl_type,S_h,S_gross_w, ac_type):
     output.wt_elec        = elec_wt
     output.wt_ac          = ac_wt
     output.wt_furnish     = furnish_wt
-    output.wt_systems     = output.wt_flt_ctrl + output.wt_apu + output.wt_hyd_pnu \
+    output.wt_systems     = output.wt_flight_control  + output.wt_apu + output.wt_hyd_pnu \
                             + output.wt_ac + output.wt_avionics + output.wt_elec \
                             + output.wt_furnish + output.wt_instruments
     return output

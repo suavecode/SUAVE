@@ -77,7 +77,27 @@ def total_prop_flops(vehicle, prop):
 
 
 def nacelle_FLOPS(prop):
-    """ Calculates the weight of the nacelle for all engines"""
+    """ Calculates the nacelle weight based on the FLOPS method
+        Assumptions:
+
+        Source:
+            Aircraft Design: A Conceptual Approach
+
+        Inputs:
+            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+                -.number_of_engines: number of engines
+                -.engine_lenght: total length of engine                     [m]
+                -.nacelle_diameter: diameter of nacelle                     [m]
+                -.sealevel_static_thrust: sealevel static thrust of engine  [N]
+            WENG    - dry engine weight                                     [kg]
+
+
+        Outputs:
+            WNAC: nacelle weight                                            [kg]
+
+        Properties Used:
+            N/A
+    """
     NENG = prop.number_of_engines
     TNAC = NENG + 1. / 2 * (NENG - 2 * np.floor(NENG / 2.))
     DNAC = prop.nacelle_diameter / Units.ft
@@ -88,7 +108,23 @@ def nacelle_FLOPS(prop):
 
 
 def thrust_reverser_FLOPS(prop):
-    """ Calculates the weight of the thurst reverser for all engines"""
+    """ Calculates the weight of the thrust reversers of the aircraft
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+                -.number_of_engines: number of engines
+                -.sealevel_static_thrust: sealevel static thrust of engine  [N]
+
+        Outputs:
+            WTHR: Thrust reversers weight                                   [kg]
+
+        Properties Used:
+            N/A
+    """
     NENG = prop.number_of_engines
     TNAC = NENG + 1. / 2 * (NENG - 2 * np.floor(NENG / 2.))
     THRUST = prop.sealevel_static_thrust * 1 / Units.lbf
@@ -97,7 +133,28 @@ def thrust_reverser_FLOPS(prop):
 
 
 def misc_engine_FLOPS(vehicle, prop):
-    """ Calculates the miscellaneous weight for all engines"""
+    """ Calculates the miscellaneous engine weight based on the FLOPS method, electrical control system weight
+        and starter engine weight
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+                 -.design_mach_number: design mach number
+            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+                -.number_of_engines: number of engines
+                -.nacelle_diameter: diameter of nacelle                     [m]
+                -.sealevel_static_thrust: sealevel static thrust of engine  [N]
+
+        Outputs:
+            WEC: electrical engine control system weight                    [kg]
+            WSTART: starter engine weight                                   [kg]
+
+        Properties Used:
+            N/A
+    """
     NENG = prop.number_of_engines
     THRUST = prop.sealevel_static_thrust * 1 / Units.lbf
     WEC = 0.26 * NENG * THRUST ** 0.5
@@ -108,7 +165,23 @@ def misc_engine_FLOPS(vehicle, prop):
 
 
 def fuel_system_FLOPS(vehicle, NENG):
-    """ Calculates the weight of the fuel system """
+    """ Calculates the weight of the fuel system based on the FLOPS method
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.design_mach_number: design mach number
+                -.mass_properties.max_zero_fuel: maximum zero fuel weight   [kg]
+
+        Outputs:
+            WFSYS: Fuel system weight                                       [kg]
+
+        Properties Used:
+            N/A
+    """
     VMAX = vehicle.design_mach_number
     FMXTOT = vehicle.mass_properties.max_zero_fuel / Units.lbs
     WFSYS = 1.07 * FMXTOT ** 0.58 * NENG ** 0.43 * VMAX ** 0.34
@@ -116,7 +189,26 @@ def fuel_system_FLOPS(vehicle, NENG):
 
 
 def engine_FLOPS(vehicle, prop):
-    """ Calculates the weight of the dry engine"""
+    """ Calculates the dry engine weight based on the FLOPS method
+        Assumptions:
+
+        Source:
+            The Flight Optimization System Weight Estimation Method
+
+        Inputs:
+            vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.systems.accessories: type of aircraft (short-range, commuter
+                                                        medium-range, long-range,
+                                                        sst, cargo)
+            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+                -.sealevel_static_thrust: sealevel static thrust of engine  [N]
+
+        Outputs:
+            WENG: dry engine weight                                         [kg]
+
+        Properties Used:
+            N/A
+    """
     EEXP = 1.15
     EINL = 1
     ENOZ = 1

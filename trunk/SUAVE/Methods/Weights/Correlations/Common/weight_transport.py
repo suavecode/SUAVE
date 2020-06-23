@@ -326,7 +326,7 @@ def empty_weight(vehicle, settings=None, method_type='SUAVE'):
         output.propulsion_breakdown.fuel_system         = wt_prop_data.fuel_system
 
     output.systems_breakdown                        = Data()
-    output.systems_breakdown.control_systems        = wt_sys.wt_flt_ctrl
+    output.systems_breakdown.control_systems        = wt_sys.wt_flight_control
     output.systems_breakdown.apu                    = wt_sys.wt_apu
     output.systems_breakdown.electrical             = wt_sys.wt_elec
     output.systems_breakdown.avionics               = wt_sys.wt_avionics

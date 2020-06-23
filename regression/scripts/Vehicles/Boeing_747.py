@@ -28,17 +28,17 @@ def vehicle_setup():
     vehicle = SUAVE.Vehicle()
     
     #print vehicle
-    vehicle.mass_properties.max_zero_fuel=238780*Units.kg
-    vehicle.mass_properties.max_takeoff  =833000.*Units.lbs
+    vehicle.mass_properties.max_zero_fuel   = 238780*Units.kg
+    vehicle.mass_properties.max_takeoff     = 833000.*Units.lbs
 
-    vehicle.design_mach_number = 0.92
-    vehicle.design_range = 6560 * Units.miles
-    vehicle.design_cruise_alt = 35000.0 * Units.ft
-    vehicle.envelope.limit_load = 2.5
-    vehicle.envelope.ultimate_load = 3.75
+    vehicle.design_mach_number              = 0.92
+    vehicle.design_range                    = 6560 * Units.miles
+    vehicle.design_cruise_alt               = 35000.0 * Units.ft
+    vehicle.envelope.limit_load             = 2.5
+    vehicle.envelope.ultimate_load          = 3.75
 
-    vehicle.systems.control = "fully powered"
-    vehicle.systems.accessories = "longe range"
+    vehicle.systems.control                 = "fully powered"
+    vehicle.systems.accessories             = "longe range"
     
     # ------------------------------------------------------------------        
     #   Main Wing
@@ -181,10 +181,10 @@ def vehicle_setup():
     turbofan.tag = 'turbofan'
 
     # setup
-    turbofan.number_of_engines = 4.0
-    turbofan.bypass_ratio = 4.8
-    turbofan.engine_length = 3.934
-    turbofan.nacelle_diameter = 2.428
+    turbofan.number_of_engines  = 4.0
+    turbofan.bypass_ratio       = 4.8
+    turbofan.engine_length      = 3.934
+    turbofan.nacelle_diameter   = 2.428
     # This origin is overwritten by compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
     turbofan.origin = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]
 
@@ -287,11 +287,11 @@ def vehicle_setup():
     combustor.tag = 'combustor'
 
     # setup
-    combustor.efficiency = 0.99
-    combustor.alphac = 1.0
+    combustor.efficiency                = 0.99
+    combustor.alphac                    = 1.0
     combustor.turbine_inlet_temperature = 1450
-    combustor.pressure_ratio = 0.95
-    combustor.fuel_data = SUAVE.Attributes.Propellants.Jet_A()
+    combustor.pressure_ratio            = 0.95
+    combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()
 
     # add to network
     turbofan.append(combustor)
@@ -356,14 +356,14 @@ def vehicle_setup():
     # add to network
     turbofan.thrust = thrust
 
-    turbofan.core_nozzle_diameter = 0.92
-    turbofan.fan_nozzle_diameter = 1.659
-    turbofan.engine_height = 0.5  # Engine centerline heigh above the ground plane
-    turbofan.exa = 1  # distance from fan face to fan exit/ fan diameter)
-    turbofan.plug_diameter = 0.1  # dimater of the engine plug
-    turbofan.geometry_xe = 1.  # Geometry information for the installation effects function
-    turbofan.geometry_ye = 1.  # Geometry information for the installation effects function
-    turbofan.geometry_Ce = 2.  # Geometry information for the installation effects function
+    turbofan.core_nozzle_diameter   = 0.92
+    turbofan.fan_nozzle_diameter    = 1.659
+    turbofan.engine_height          = 0.5  # Engine centerline heigh above the ground plane
+    turbofan.exa                    = 1  # distance from fan face to fan exit/ fan diameter)
+    turbofan.plug_diameter          = 0.1  # dimater of the engine plug
+    turbofan.geometry_xe            = 1.  # Geometry information for the installation effects function
+    turbofan.geometry_ye            = 1.  # Geometry information for the installation effects function
+    turbofan.geometry_Ce            = 2.  # Geometry information for the installation effects function
 
     # size the turbofan
     turbofan_sizing(turbofan, mach_number, altitude)
@@ -374,17 +374,17 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Landing Gear
     # ------------------------------------------------------------------
-    landing_gear = SUAVE.Components.Landing_Gear.Landing_Gear()
-    landing_gear.tag = "main_landing_gear"
-    landing_gear.main_tire_diameter = 1.2446 * Units.m
-    landing_gear.nose_tire_diameter = 1.2446 * Units.m
-    landing_gear.main_strut_length = 1.8 * Units.m
-    landing_gear.nose_strut_length = 1.3 * Units.m
-    landing_gear.main_units = 2  # number of nose landing gear
-    landing_gear.nose_units = 1  # number of nose landing gear
-    landing_gear.main_wheels = 6  # number of wheels on the main landing gear
-    landing_gear.nose_wheels = 4  # number of wheels on the nose landing gear
-    vehicle.landing_gear = landing_gear
+    landing_gear                        = SUAVE.Components.Landing_Gear.Landing_Gear()
+    landing_gear.tag                    = "main_landing_gear"
+    landing_gear.main_tire_diameter     = 1.2446 * Units.m
+    landing_gear.nose_tire_diameter     = 1.2446 * Units.m
+    landing_gear.main_strut_length      = 1.8 * Units.m
+    landing_gear.nose_strut_length      = 1.3 * Units.m
+    landing_gear.main_units             = 2  # number of nose landing gear
+    landing_gear.nose_units             = 1  # number of nose landing gear
+    landing_gear.main_wheels            = 6  # number of wheels on the main landing gear
+    landing_gear.nose_wheels            = 4  # number of wheels on the nose landing gear
+    vehicle.landing_gear                = landing_gear
 
     #configuration.mass_properties.zero_fuel_center_of_gravity=np.array([76.5,0,0])*Units.feet #just put a number here that got the expected value output; may want to change
     fuel                                                     =SUAVE.Components.Physical_Component()

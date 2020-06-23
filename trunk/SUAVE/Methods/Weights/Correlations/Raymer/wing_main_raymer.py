@@ -24,6 +24,18 @@ def wing_main_raymer(vehicle, wing):
 
     Outputs:
         weight - weight of the wing                  [kilograms]
+                -.mass_properties.max_takeoff: MTOW                             [kilograms]
+                -.envelope.ultimate_load: ultimate load factor (default: 3.75)
+                -.systems.accessories: type of aircraft (short-range, commuter
+                                                        medium-range, long-range,
+                                                        sst, cargo)
+                -.wings['main_wing']: data dictionary with wing properties
+                    -.areas.reference: wing surface area                        [m^2]
+                    -.taper: taper ration wing
+                    -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
+                    -.thickness_to_chord: thickness to chord
+                    -.spans.projected: wing span                                [m]
+                    -.aspect_ratio: wing aspect ratio
 
     Properties Used:
         N/A
