@@ -45,6 +45,7 @@ def initialize_conditions(segment):
     alt        = segment.altitude
     xf         = segment.distance
     mach       = segment.mach
+    headwind   = segment.headwind
     conditions = segment.state.conditions    
     
     # check for initial altitude
@@ -59,10 +60,11 @@ def initialize_conditions(segment):
     
     # compute speed, constant with constant altitude
     air_speed = mach * a
+    ground_speed = air_speed - headwind
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
-    t_final   = xf / air_speed + t_initial
+    t_final   = xf / ground_speed + t_initial
     t_nondim  = segment.state.numerics.dimensionless.control_points
     time      =  t_nondim * (t_final-t_initial) + t_initial
     

@@ -254,7 +254,10 @@ def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
         del_z = ZC_sub*ones - ZC_sub.T
         
         # Flag certain indices
-        c     = np.arcsin(1/mach[m_idx])
+        if mach[m_idx] < 1.:
+            c = np.nan # discuss these errors with matthew
+        else:
+            c     = np.arcsin(1/mach[m_idx])
         flag  = -c*del_x**2 + del_y**2 + del_z**2
         idxs  = np.where(flag > 0.0)
         MCM[m_idx,idxs[0],idxs[1]]  = [0.0, 0.0, 0.0]      

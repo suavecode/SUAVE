@@ -91,8 +91,8 @@ class Supersonic_Zero(Markup):
         settings.fuselage_parasite_drag_end_blend_mach   = 0.99
         
         # vortex lattice configurations
-        settings.number_panels_spanwise = 40
-        settings.number_panels_chordwise = 1
+        settings.number_panels_spanwise = 10
+        settings.number_panels_chordwise = 2
         
         
         # build the evaluation process

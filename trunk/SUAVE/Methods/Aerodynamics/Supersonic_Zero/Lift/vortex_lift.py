@@ -57,12 +57,11 @@ def vortex_lift(state,settings,geometry):
         if wing.vortex_lift is True:
             # compute leading edge sweek if not given
             if wing.sweeps.leading_edge == None:         
-                gamma     = convert_sweep(wing,old_ref_chord_fraction = 0.25 ,new_ref_chord_fraction = 0.0)
+                GAMMA     = convert_sweep(wing,old_ref_chord_fraction = 0.25 ,new_ref_chord_fraction = 0.0)
             else:
-                gamma      = wing.sweeps.leading_edge
+                GAMMA      = wing.sweeps.leading_edge
                 
             AR = wing.aspect_ratio
-            GAMMA = wing.sweeps.leading_edge
             a = np.abs(AoA[Mc < 1.0])
             signs = np.sign(AoA[Mc < 1.0])
             # Calculate vortex lift
