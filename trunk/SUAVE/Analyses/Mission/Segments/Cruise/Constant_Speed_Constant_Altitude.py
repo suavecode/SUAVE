@@ -9,6 +9,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import numpy as np
+
 # SUAVE imports
 from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
@@ -63,7 +65,6 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         self.air_speed = 10. * Units['km/hr']
         self.distance  = 10. * Units.km
         
-        
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
@@ -107,7 +108,7 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         iterate.initials = Process()
         iterate.initials.time              = Methods.Common.Frames.initialize_time
         iterate.initials.weights           = Methods.Common.Weights.initialize_weights
-        iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position
+        iterate.initials.inertial_position = Methods.Common.Frames.initialize_inertial_position # check here
         iterate.initials.planet_position   = Methods.Common.Frames.initialize_planet_position
         
         # Unpack Unknowns
@@ -120,8 +121,8 @@ class Constant_Speed_Constant_Altitude(Aerodynamic):
         iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
-        iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
-        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
+        iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream # change velocity vector here
+        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations # check here
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
         iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability

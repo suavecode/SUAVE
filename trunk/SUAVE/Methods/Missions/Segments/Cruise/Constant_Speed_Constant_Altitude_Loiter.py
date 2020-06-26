@@ -45,6 +45,7 @@ def initialize_conditions(segment):
     final_time = segment.time
     air_speed  = segment.air_speed 
     conditions = segment.state.conditions   
+    headwind   = segment.headwind
     
     # check for initial altitude
     if alt is None:
@@ -60,6 +61,6 @@ def initialize_conditions(segment):
     # pack
     segment.state.conditions.freestream.altitude[:,0]             = alt
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    segment.state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = air_speed - segment.headwind[:,0]
     segment.state.conditions.frames.inertial.time[:,0]            = time[:,0]
     

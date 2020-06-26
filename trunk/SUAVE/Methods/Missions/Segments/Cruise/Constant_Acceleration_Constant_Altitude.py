@@ -42,6 +42,7 @@ def initialize_conditions(segment):
     v0  = segment.air_speed_start
     vf  = segment.air_speed_end
     ax  = segment.acceleration   
+    headwind   = segment.headwind
     conditions = segment.state.conditions 
     
     # check for initial altitude
@@ -56,7 +57,7 @@ def initialize_conditions(segment):
     time      = t_nondim * (t_final-t_initial) + t_initial
     
     # Figure out vx
-    vx = v0+time*ax
+    vx = v0+time*ax - headwind[:,0]
     
     # pack
     segment.state.conditions.freestream.altitude[:,0] = alt

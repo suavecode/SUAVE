@@ -8,6 +8,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import numpy as np
+
 # SUAVE imports
 from SUAVE.Analyses.Mission.Segments import Simple
 from SUAVE.Analyses.Mission.Segments import Conditions
@@ -64,6 +66,7 @@ class Aerodynamic(Simple):
         # conditions
         self.state.conditions.update( Conditions.Aerodynamics() )
         self.temperature_deviation = 0.0
+        self.headwind  = np.array([[0.,0.,0.]])
         
         # --------------------------------------------------------------
         #   The Solving Process

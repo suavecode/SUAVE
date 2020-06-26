@@ -115,7 +115,7 @@ def update_freestream(segment):
     
     # unpack
     conditions = segment.state.conditions
-    Vvec = conditions.frames.inertial.velocity_vector
+    Vvec = conditions.frames.inertial.velocity_vector + segment.headwind
     rho  = conditions.freestream.density
     a    = conditions.freestream.speed_of_sound
     mu   = conditions.freestream.dynamic_viscosity

@@ -48,6 +48,7 @@ def initialize_conditions(segment):
     alt0       = segment.altitude_start 
     altf       = segment.altitude_end
     t_nondim   = segment.state.numerics.dimensionless.control_points
+    headwind   = segment.headwind
     conditions = segment.state.conditions  
 
     # check for initial altitude
@@ -68,9 +69,9 @@ def initialize_conditions(segment):
     air_speed = eas/np.sqrt(density/MSL_data.density[0])    
     
     # process velocity vector
-    v_mag = air_speed
-    v_z   = -climb_rate # z points down
-    v_x   = np.sqrt( v_mag**2 - v_z**2 )
+    v_mag_wind = air_speed
+    v_z   = -climb_rate + headwind[:,2] # z points down
+    v_x   = np.sqrt( v_mag_wind**2 - v_z**2 ) - headwind[:,0]
     
     # pack conditions    
     conditions.frames.inertial.velocity_vector[:,0] = v_x
