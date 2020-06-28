@@ -41,7 +41,6 @@ import sys
 sys.path.append('../Vehicles')
 from Concorde import vehicle_setup, configs_setup
 
-
 # This is a sizing function to fill turbojet parameters
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
@@ -149,7 +148,7 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
     
@@ -157,8 +156,8 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
     aerodynamics.geometry = vehicle
-    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
+    aerodynamics.settings.span_efficiency = 0.95
     analyses.append(aerodynamics)
     
     

@@ -1,5 +1,5 @@
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Propulsion
-# engine_geometry.py
+# compute_turbofan_geometry.py
 #
 # Created:  Jun 15, A. Variyar 
 # Modified: Mar 16, M. Vegh
@@ -43,13 +43,7 @@ def compute_turbofan_geometry(turbofan, conditions):
     """    
 
     #unpack
-    thrust            = turbofan.thrust
-    core_nozzle       = turbofan.core_nozzle
-    fan_nozzle        = turbofan.fan_nozzle
-    bypass_ratio      = turbofan.bypass_ratio
-    
     slsthrust         = turbofan.sealevel_static_thrust*0.224809 #convert from N to lbs. in correlation
-    #slsthrust         = slsthrust*0.224809
 
     #note; this script doesn't actually use conditions; however, it takes it as input to maintain common interface
 
@@ -65,9 +59,12 @@ def compute_turbofan_geometry(turbofan, conditions):
 
     # pack
     turbofan.engine_length    = L_eng_m
-    turbofan.nacelle_diameter = nacelle_diameter
+    turbofan.nacelle_diameter = nacelle_diameter 
+    turbofan.inlet_diameter   = nacelle_diameter/np.sqrt(2.1)
   
     turbofan.areas.wetted     = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
+    
+    return turbofan
     
     
 # ----------------------------------------------------------------------

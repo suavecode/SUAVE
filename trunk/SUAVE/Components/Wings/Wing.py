@@ -7,15 +7,19 @@
 #           Oct 2017, E. Botero
 #           Oct 2018, T. MacDonald
 #           Apr 2020, M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data
-from SUAVE.Components import Component, Lofted_Body, Mass_Properties
+from SUAVE.Core import Data, ContainerOrdered, Container
+from SUAVE.Components import Lofted_Body, Mass_Properties, Physical_Component
 from .Airfoils import Airfoil
+
+import numpy as np
 
 # ------------------------------------------------------------
 #   Wing
@@ -70,12 +74,13 @@ class Wing(Lofted_Body):
         self.dihedral                  = 0.0
         self.aspect_ratio              = 0.0
         self.thickness_to_chord        = 0.0
-        self.span_efficiency           = 0.9
         self.aerodynamic_center        = [0.0,0.0,0.0]
         self.exposed_root_chord_offset = 0.0
+        self.total_length              = 0.0
 
         self.spans = Data()
         self.spans.projected = 0.0
+        self.spans.total     = 0.0
         
         self.areas = Data()
         self.areas.reference = 0.0
@@ -105,9 +110,18 @@ class Wing(Lofted_Body):
         self.transition_x_upper = 0.0
         self.transition_x_lower = 0.0
         
+        self.dynamic_pressure_ratio = 0.0
+        
         self.Airfoil            = Data()
-        self.Segments           = SUAVE.Core.ContainerOrdered()
-        self.control_surfaces   = SUAVE.Core.ContainerOrdered()
+        
+        self.non_dimensional_origin            = [[0.0,0.0,0.0]]
+        self.generative_design_minimum         = 1
+        self.generative_design_characteristics = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','dihedral','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
+        self.generative_design_char_min_bounds = [0,1.,0.001,0.1,0.001,-np.pi/4,-1.,-1.,-1.]   
+        self.generative_design_char_max_bounds = [5.,np.inf,1.0,np.inf,np.pi/3,np.pi/4,1.,1.,1.]
+        
+        self.Segments           = ContainerOrdered()
+        self.control_surfaces   = SUAVE.Core.Container()
         self.Fuel_Tanks         = SUAVE.Core.Container()
 
     def append_segment(self,segment):
@@ -221,4 +235,36 @@ class Wing(Lofted_Body):
         # Store data
         self.Fuel_Tanks.append(fuel_tank)
 
-        return
+        return    
+    
+class Container(Physical_Component.Container):
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """       
+        from . import Main_Wing
+        from . import Vertical_Tail
+        from . import Horizontal_Tail
+        
+        return [Main_Wing,Vertical_Tail,Horizontal_Tail]
+
+
+# ------------------------------------------------------------
+#  Handle Linking
+# ------------------------------------------------------------
+
+Wing.Container = Container

@@ -55,8 +55,6 @@ class Lifting_Line(Aerodynamics):
         self.settings.trim_drag_correction_factor        = 1.02
         self.settings.wing_parasite_drag_form_factor     = 1.1
         self.settings.fuselage_parasite_drag_form_factor = 2.3
-        self.settings.aircraft_span_efficiency_factor    = 0.78
-        self.settings.drag_coefficient_increment         = 0.0000
 
         # vortex lattice configurations
         self.settings.number_of_stations  = 100
@@ -119,11 +117,13 @@ class Lifting_Line(Aerodynamics):
 
         Outputs:
         conditions.aerodynamics.lift_breakdown.
-          inviscid_wings_lift[wings.*.tag]   [-] CL (wing specific)
-          inviscid_wings_lift.total          [-] CL
+          inviscid_wings[wings.*.tag]        [-] CL (wing specific)
+          inviscid_wings.total               [-] CL
         conditions.aerodynamics.drag_breakdown.induced
-          inviscid_wings_drag[wings.*.tag]   [-] CDi (wing specific)
+          inviscid_wings[wings.*.tag]        [-] CDi (wing specific)
           total                              [-] CDi
+          inviscid                           [-] CDi
+
         conditions.aerodynamics.
           inviscid_wings_lift                [-] CL
 
@@ -152,13 +152,14 @@ class Lifting_Line(Aerodynamics):
         inviscid_wings_drag                                                = Data()
         inviscid_wings_lift.total                                          = wings_lift_model(AoA)
         inviscid_wings_drag.total                                          = wings_drag_model(AoA)        
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift         = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings              = Data()
         conditions.aerodynamics.lift_breakdown.compressible_wings          = Data()
         conditions.aerodynamics.drag_breakdown.induced                     = Data()
-        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag = Data()
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total   = inviscid_wings_lift.total
+        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings      = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings.total        = inviscid_wings_lift.total
         conditions.aerodynamics.lift_coefficient                           = inviscid_wings_lift.total
         conditions.aerodynamics.drag_breakdown.induced.total               = inviscid_wings_drag.total
+        conditions.aerodynamics.drag_breakdown.induced.inviscid            = inviscid_wings_drag.total
         conditions.aerodynamics.drag_coefficient                           = inviscid_wings_drag.total        
         
         # store model for lift coefficients of each wing     
@@ -167,9 +168,9 @@ class Lifting_Line(Aerodynamics):
             wings_drag_model                                                         = surrogates.wing_drag_coefficients[wing]
             inviscid_wings_lift[wing]                                                = wings_lift_model(AoA)
             inviscid_wings_drag[wing]                                                = wings_drag_model(AoA)
-            conditions.aerodynamics.lift_breakdown.inviscid_wings_lift[wing]         = inviscid_wings_lift[wing] 
+            conditions.aerodynamics.lift_breakdown.inviscid_wings[wing]              = inviscid_wings_lift[wing] 
             conditions.aerodynamics.lift_breakdown.compressible_wings[wing]          = inviscid_wings_lift[wing]
-            conditions.aerodynamics.drag_breakdown.induced.inviscid_wings_drag[wing] = inviscid_wings_drag[wing] 
+            conditions.aerodynamics.drag_breakdown.induced.inviscid_wings[wing]      = inviscid_wings_drag[wing] 
 
         return inviscid_wings_lift , inviscid_wings_drag
 

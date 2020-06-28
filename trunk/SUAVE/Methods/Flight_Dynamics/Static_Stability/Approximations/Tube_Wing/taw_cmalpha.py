@@ -81,7 +81,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     sweep  = geometry.wings['main_wing'].sweeps.quarter_chord
     C_Law  = conditions.lift_curve_slope
     alpha  = conditions.aerodynamics.angle_of_attack 
-    x_cg   = configuration.mass_properties.center_of_gravity[0] 
+    x_cg   = configuration.mass_properties.center_of_gravity[0][0]
     M      = mach
     
     weights      = conditions.weights.total_mass
@@ -94,7 +94,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     if 'fuselage' in geometry.fuselages:
         w_f   = geometry.fuselages['fuselage'].width
         l_f   = geometry.fuselages['fuselage'].lengths.total
-        x_rqc = geometry.wings['main_wing'].origin[0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))    
+        x_rqc = geometry.wings['main_wing'].origin[0][0] + 0.5*w_f*np.tan(sweep) + 0.25*c_root*(1 - (w_f/span)*(1-taper))    
         
             
         p  = x_rqc/l_f
@@ -109,7 +109,7 @@ def taw_cmalpha(geometry,mach,conditions,configuration):
     for surf in geometry.wings:
         #Unpack inputs
         s         = surf.areas.reference
-        x_surf    = surf.origin[0]
+        x_surf    = surf.origin[0][0]
         x_ac_surf = surf.aerodynamic_center[0]
         eta       = surf.dynamic_pressure_ratio
         downw     = 1 - surf.ep_alpha

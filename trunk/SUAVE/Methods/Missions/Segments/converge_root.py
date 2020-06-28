@@ -51,15 +51,17 @@ def converge_root(segment):
                                          unknowns,
                                          args = segment,
                                          xtol = segment.state.numerics.tolerance_solution,
-                                         full_output=1)
-
+                                         maxfev = segment.state.numerics.max_evaluations,
+                                         full_output = 1)
+    
     if ier!=1:
         print("Segment did not converge. Segment Tag: " + segment.tag)
         print("Error Message:\n" + msg)
         segment.state.numerics.converged = False
+        segment.converged = False
     else:
         segment.state.numerics.converged = True
-         
+        segment.converged = True
                             
     return
     
