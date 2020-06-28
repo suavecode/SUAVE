@@ -154,8 +154,8 @@ def LiNiMnCo_discharge(battery,numerics):
     Nn      = battery.module_config.normal_count            
     Np      = battery.module_config.parallel_count          
     Ntot    = Nn*Np
-    Sn      = battery.module_config.normal_spacing          
-    Sp      = battery.module_config.parallel_spacing                       
+    S_T     = battery.module_config.normal_spacing          
+    S_L     = battery.module_config.parallel_spacing                       
     K_air   = battery.cooling_fluid.thermal_conductivity    
     Cp_air  = battery.cooling_fluid.specific_heat_capacity  
     V_air   = battery.cooling_fluid.flowspeed     
@@ -163,35 +163,32 @@ def LiNiMnCo_discharge(battery,numerics):
     nu_fit  = battery.cooling_fluid.kinematic_viscosity_fit  
     Pr_fit  = battery.cooling_fluid.prandlt_number_fit     
     
-    Sd = np.sqrt(Sn**2+Sp**2)
-    if 2*(Sd-D_cell) < (Sn-D_cell):
-        V_max    = V_air*(Sn/(2*(Sd-D_cell)))
+    S_D = np.sqrt(S_T**2+S_L**2)
+    if 2*(S_D-D_cell) < (S_T-D_cell):
+        V_max    = V_air*(S_T/(2*(S_D-D_cell)))
     else:
-        V_max   = V_air*(Sn/(Sn-D_cell))
-         
-    # change T_cell to T_bat
-    T        = T_current # T_cell
-    T_film   = (T_ambient+T)/2 
+        V_max   = V_air*(S_T/(S_T-D_cell))
+          
+    T        = (T_ambient+T_current)/2  # T_current  
     nu_air   = nu_fit(T_ambient)
     Re_max   = V_max*D_cell/nu_air
     Pr       = Pr_fit(T_ambient)
-    Prw      = Pr_fit(T) # Pr_fit(T_film) 
+    Prw      = Pr_fit(T)  
     if Re_max > 10E2: 
-        C        = 0.35*((Sn/Sp)**0.2) 
+        C        = 0.35*((S_T/S_L)**0.2) 
         m        = 0.6 
     else:
         C = 0.51
         m = 0.5 
-    Nu       =  C*(Re_max**m)*(Pr**0.36)*((Pr/Prw)**0.25)           
+    Nu       = C*(Re_max**m)*(Pr**0.36)*((Pr/Prw)**0.25)           
     h        = Nu*K_air/D_cell
-    #h = -290 + 39.036*T_current - 1.725*(T_current**2) + 0.026*(T_current**3)
     Tw_Ti    = (T - T_ambient)
-    Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*Ntot*h)/(rho_air*V_air*Nn*Sn*Cp_air))
+    Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*Ntot*h)/(rho_air*V_air*Nn*S_T*Cp_air))
     dT_lm    = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-    Q_convec = h*As_cell*Nn*dT_lm 
+    Q_convec = h*np.pi*D_cell*H_cell*0.8*Ntot*dT_lm 
     
     if np.isnan(dT_lm).any():
-        raise AttributeError('Nan!! ')
+        raise AttributeError('Nan!!')
     
     P_net    = Q_heat_gen*Ntot - Q_convec 
   

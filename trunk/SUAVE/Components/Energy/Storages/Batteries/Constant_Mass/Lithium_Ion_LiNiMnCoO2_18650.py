@@ -98,13 +98,13 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.module_config.parallel               = 1
         self.module_config.normal_count           = 1    # number of cells normal to flow
         self.module_config.parallel_count         = 1    # number of cells parallel to flow      
-        self.module_config.normal_spacing         = 0.035
-        self.module_config.parallel_spacing       = 0.03
+        self.module_config.normal_spacing         = 0.02
+        self.module_config.parallel_spacing       = 0.02
                                                   
         self.cooling_fluid.tag                    = 'air'
-        self.cooling_fluid.thermal_conductivity   = 0.0263 #W/mK
+        self.cooling_fluid.thermal_conductivity   = 0.0253 #W/mK
         self.cooling_fluid.specific_heat_capacity = 1007   # K/kgK
-        self.cooling_fluid.flowspeed              = 1.
+        self.cooling_fluid.flowspeed              = 0.1
         self.cooling_fluid.kinematic_viscosity_fit= kinematic_viscosity_model() # Pa/s
         self.cooling_fluid.prandlt_number_fit     = prandlt_number_model()
         
@@ -115,11 +115,14 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         
         return 
 def prandlt_number_model():
-    raw_Pr = np.array([[-213.2,4.138 ], [-193.2,1.7   ], [-173.2,0.780 ], [-153.2,0.759 ], [-133.2,0.747 ], [-93.2,0.731  ], [-73.2,0.726  ], [-53.2,0.721  ], 
+    raw_Pr = np.array([[-173.2,0.780 ], [-153.2,0.759 ], [-133.2,0.747 ], [-93.2,0.731  ], [-73.2,0.726  ], [-53.2,0.721  ], 
                        [-33.2,0.717  ], [-13.2,0.713  ], [0.0,0.711    ], [6.9,0.710    ],[15.6,0.709   ], [26.9,0.707   ],
                        [46.9,0.705   ], [66.9,0.703   ], [86.9,0.701   ], [106.9,0.700  ], [126.9,0.699  ], [226.9,0.698  ], 
-                       [326.9,0.703  ], [426.9,0.710  ], [526.9,0.717  ], [626.9,0.724  ], [  26.9,0.730 ]]) 
-    pnf = interp1d(raw_Pr[:,0],raw_Pr[:,1])  
+                       [326.9,0.703  ], [426.9,0.710  ], [526.9,0.717  ], [626.9,0.724  ], [  726.9,0.730 ],[826.9,0.734],[1226.9,0.743], [1626.9,0.742]]) 
+   
+    z1  = np.polyfit(raw_Pr[:,0],raw_Pr[:,1],4)
+    pnf = np.poly1d(z1)  
+    
     return pnf
 
 def kinematic_viscosity_model():
@@ -128,8 +131,9 @@ def kinematic_viscosity_model():
                        [50	,17.88E-6 ],[60	,18.86E-6 ],[80	,20.88E-6 ],[100	,22.97E-6 ],[125	,25.69E-6 ],[150	,28.51E-6 ],
                        [175	,31.44E-6 ],[200	,34.47E-6 ],[225	,37.60E-6 ],[300	,47.54E-6 ],[412	,63.82E-6 ],[500	,77.72E-6 ],
                        [600	,94.62E-6 ],[700	,112.6E-6 ],[800	,131.7E-6 ],[900	,151.7E-6 ],[1000,172.7E-6    ],[1100,194.6E-6    ]])
-        
-    kvf =  interp1d(raw_nu[:,0],raw_nu[:,1])   
+   
+    z2  = np.polyfit(raw_nu[:,0],raw_nu[:,1], 2)
+    kvf = np.poly1d(z2)   
     return kvf
 
 def create_discharge_performance_map():
