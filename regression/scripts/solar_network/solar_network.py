@@ -76,7 +76,7 @@ def main():
     truth_F   = 103.21142960021062
     truth_rpm = 159.01582417482118
     truth_i   = 127.37614381819269
-    truth_bat = 88527918.2771739
+    truth_bat = 88527918.2771849
     
     print('battery energy')
     print(energy)
