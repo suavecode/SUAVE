@@ -16,26 +16,25 @@ def wing_main_raymer(vehicle, wing):
     Assumptions:
 
     Source:
-        Aircraft Design: A Conceptual Approach
+        Aircraft Design: A Conceptual Approach (2nd edition)
 
     Inputs:
-        vehicle - data dictionary with vehicle properties                    [dimensionless]
-        wing    - data dictionary with specific tail properties              [dimensionless]
-
-    Outputs:
-        weight - weight of the wing                  [kilograms]
-                -.mass_properties.max_takeoff: MTOW                             [kilograms]
-                -.envelope.ultimate_load: ultimate load factor (default: 3.75)
+        vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.mass_properties.max_takeoff: MTOW                         [kg]
+                -.envelope.ultimate_load: ultimate loading factor
                 -.systems.accessories: type of aircraft (short-range, commuter
                                                         medium-range, long-range,
                                                         sst, cargo)
-                -.wings['main_wing']: data dictionary with wing properties
-                    -.areas.reference: wing surface area                        [m^2]
-                    -.taper: taper ration wing
-                    -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
-                    -.thickness_to_chord: thickness to chord
-                    -.spans.projected: wing span                                [m]
-                    -.aspect_ratio: wing aspect ratio
+        wing    - data dictionary with specific wing properties             [dimensionless]
+                -.taper: taper ration wing
+                -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
+                -.thickness_to_chord: thickness to chord
+                -.aspect_ratio: aspect ratio of wing
+                -.areas.reference: wing surface area                        [m^2]
+
+    Outputs:
+        weight - weight of the wing                  [kilograms]
+
 
     Properties Used:
         N/A

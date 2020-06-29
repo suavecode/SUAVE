@@ -70,7 +70,7 @@ def nacelle_Raymer(vehicle, prop, WENG):
         Assumptions:
 
         Source:
-            Aircraft Design: A Conceptual Approach
+            Aircraft Design: A Conceptual Approach (2nd edition)
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]

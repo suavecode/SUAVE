@@ -72,6 +72,50 @@ def main():
     for k, v in error.items():
         assert (np.abs(v) < 1E-6)
 
+    weight = Common.empty_weight(vehicle, method_type="FLOPS Simple")
+
+    # regression values FLOPS Complex
+    actual = Data()
+    actual.payload = 19164.047296928187  # includes cargo #17349.9081525 #without cargo
+    actual.pax = 5771.176369328185
+    actual.bag = 3392.8709276
+    actual.fuel = 20031.585931973066  # includes cargo #22177.6377131 #without cargo
+    actual.empty = 35276.43161054148
+    actual.wing = 6129.985979314519
+    actual.fuselage = 7304.86777971127
+    actual.propulsion = 6158.342445321374
+    actual.landing_gear = 2695.109360215617 + 335.5055180687866
+    actual.systems = 10968.186283406896
+    actual.wt_furnish = 6453.793837053036
+    actual.horizontal_tail = 657.5705301445911
+    actual.vertical_tail = 509.7069372086644
+
+    # error calculations
+    error = Data()
+    error.payload = (actual.payload - weight.payload_breakdown.total) / actual.payload
+    error.pax = (actual.pax - weight.payload_breakdown.passengers) / actual.pax
+    error.bag = (actual.bag - weight.payload_breakdown.baggage) / actual.bag
+    error.fuel = (actual.fuel - weight.fuel) / actual.fuel
+    error.empty = (actual.empty - weight.empty) / actual.empty
+    error.wing = (actual.wing - weight.structures.wing) / actual.wing
+    error.fuselage = (actual.fuselage - weight.structures.fuselage) / actual.fuselage
+    error.propulsion = (actual.propulsion - weight.propulsion_breakdown.total) / actual.propulsion
+    error.landing_gear = (actual.landing_gear - weight.structures.main_landing_gear
+                          - weight.structures.nose_landing_gear) / actual.landing_gear
+    error.systems = (actual.systems - weight.systems_breakdown.total) / actual.systems
+    error.wt_furnish = (actual.wt_furnish - weight.systems_breakdown.furnish) / actual.wt_furnish
+    error.horizontal_tail = (actual.horizontal_tail - weight.structures.horizontal_tail) / actual.horizontal_tail
+    error.vertical_tail = (actual.vertical_tail - weight.structures.vertical_tail) / actual.vertical_tail
+
+    print('Results (kg)')
+    print(weight)
+
+    print('Relative Errors')
+    print(error)
+
+    for k, v in error.items():
+        assert (np.abs(v) < 1E-6)
+
     weight = Common.empty_weight(vehicle, method_type="FLOPS Complex")
 
     # regression values FLOPS Complex

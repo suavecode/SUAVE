@@ -18,11 +18,19 @@ def fuselage_weight_Raymer(vehicle, fuse):
             1 cargo door
 
         Source:
-            Aircraft Design: A Conceptual Approach
+            Aircraft Design: A Conceptual Approach (2nd edition)
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.mass_properties.max_takeoff: MTOW                             [kg]
+                -.envelope.ultimate_load: ultimate load factor (default: 3.75)
+                -.wings['main_wing']: data dictionary with main wing properties
+                    -.taper: wing taper ratio
+                    -.sweeps.quarter_chord: quarter chord sweep                 [rad]
             fuse - data dictionary with specific fuselage properties            [dimensionless]
+                -.lenghts.total: total length                                   [m]
+                -.width: fuselage width                                         [m]
+                -.heights.maximum: maximum height of the fuselage               [m]
 
         Outputs:
             weight_fuse - weight of the fuselage                                [kilograms]

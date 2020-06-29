@@ -16,11 +16,21 @@ def tail_vertical_Raymer(vehicle, wing):
         Assumptions:
 
         Source:
-            Aircraft Design: A Conceptual Approach
+            Aircraft Design: A Conceptual Approach (2nd edition)
 
         Inputs:
             vehicle - data dictionary with vehicle properties                    [dimensionless]
+                -.mass_properties.max_takeoff: MTOW                             [kilograms]
+                -.envelope.ultimate_load: ultimate load factor (default: 3.75)
+                -.wings['main_wing']: data dictionary with properties of main wing
+                    -.aerodynamic_center: aerodynamic center as measured from root leading edge
+                    -.origin: root of main wing as measured from nose of aircraft
             wing    - data dictionary with specific tail properties              [dimensionless]
+                -.areas.reference: tail surface area                            [m^2}
+                -.origin: location of tail measured from nose
+                -.aerodynamic_center: location of ac measured from leading edge
+                -.sweeps.quarter_chord: quarter chord sweep of tail             [rad]
+                -.thickness_to_chord: t/c of tail
 
         Outputs:
               tail_weight: vertical tail weight                                [kilograms]
@@ -54,11 +64,24 @@ def tail_horizontal_Raymer(vehicle, wing, elevator_fraction=0.4):
 
         Inputs:
             vehicle - data dictionary with vehicle properties                    [dimensionless]
+                -.mass_properties.max_takeoff: MTOW                             [kilograms]
+                -.envelope.ultimate_load: ultimate load factor (default: 3.75)
+                -.wings['main_wing']: data dictionary with properties of main wing
+                    -.aerodynamic_center: aerodynamic center as measured from root leading edge
+                    -.origin: root of main wing as measured from nose of aircraft
+                -.fuselages['fuselage'].width: width of the fuselage
             wing    - data dictionary with specific tail properties              [dimensionless]
+                -.areas.reference: tail surface area                            [m^2}
+                -.origin: location of tail measured from nose
+                -.aerodynamic_center: location of ac measured from leading edge
+                -.sweeps.quarter_chord: quarter chord sweep of tail             [rad]
+                -.thickness_to_chord: t/c of tail
+                -.span.projected: project span of tail                          [m]
+                -.aspect_ratio: aspect ratio of wing
             elevator_fraction - fraction of horizontal tail for elevator = 0.4
 
         Outputs:
-            tail_weight: vertical tail weight                                [kilograms]
+            tail_weight: horizontal tail weight                                [kilograms]
 
         Properties Used:
             N/A

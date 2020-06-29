@@ -22,10 +22,26 @@ def systems_Raymer(vehicle):
             Uninstalled Avionics weight: 1400 lb (typically= 800-1400 lb)
 
         Source:
-            Aircraft Design: A Conceptual Approach
+            Aircraft Design: A Conceptual Approach (2nd edition)
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.propulsors: data dictionary containing all propulsion properties
+                -.number_of_engines: number of engines
+                -.sealevel_static_thrust: thrust at sea level               [N]
+                -.fuselages['fuselage'].lengths.total: fuselage total length    [meters]
+                -.fuselages['fuselage'].width: fuselage width                   [meters]
+                -.fuselages['fuselage'].heights.maximum: fuselage maximum height[meters]
+                -.mass_properties.max_takeoff: MTOW                             [kilograms]
+                -.design_mach_number: design mach number for cruise flight
+                -.design_range: design range of aircraft                        [nmi]
+                -.passengers: number of passengers in aircraft
+                -.flap_ratio: flap surface area over wing surface area
+                -.wings['main_wing']: data dictionary with main wing properties
+                    -.sweeps.quarter_chord: quarter chord sweep                 [deg]
+                    -.areas.reference: wing surface area                        [m^2]
+                    -.spans.projected: projected span of wing                   [m]
+                -.payload: payload weight of aircraft                           [kg]
 
         Outputs:
             output - a data dictionary with fields:
@@ -43,9 +59,9 @@ def systems_Raymer(vehicle):
             N/A
     """
     if vehicle.passengers >= 150:
-        NFLCR = 3 # number of flight crew
+        flight_crew = 3 # number of flight crew
     else:
-        NFLCR = 2
+        flight_crew = 2
     Ns      = 4  # Number of flight control systems (typically 4)
     Kr      = 1  # assuming not a reciprocating engine
     Ktp     = 1  # assuming not a turboprop
@@ -58,7 +74,7 @@ def systems_Raymer(vehicle):
     DG  = vehicle.mass_properties.max_takeoff / Units.lbs
     Scs = vehicle.flap_ratio * vehicle.reference_area / Units.ft**2
 
-    WSC = 36.28 * vehicle.design_mach_number**0.003 * Scs**0.489 * Ns**0.484 * NFLCR**0.124
+    WSC = 36.28 * vehicle.design_mach_number**0.003 * Scs**0.489 * Ns**0.484 * flight_crew**0.124
 
     if vehicle.passengers >= 6.:
         apu_wt = 7.0 * vehicle.passengers
@@ -68,7 +84,7 @@ def systems_Raymer(vehicle):
     propulsor_name  = list(vehicle.propulsors.keys())[0]
     propulsors      = vehicle.propulsors[propulsor_name]
     NENG            = propulsors.number_of_engines
-    WIN = 4.509 * Kr * Ktp * NFLCR ** 0.541 * NENG * (L + Bw) ** 0.5
+    WIN = 4.509 * Kr * Ktp * flight_crew ** 0.541 * NENG * (L + Bw) ** 0.5
     WHYD = 0.2673 * Nf * (L + Bw) ** 0.937
     WELEC = 7.291 * Rkva ** 0.782 * (2*L) ** 0.346 * NENG ** 0.1
     WAVONC = 1.73 * Wuav ** 0.983
@@ -77,8 +93,8 @@ def systems_Raymer(vehicle):
     D   = (vehicle.fuselages['fuselage'].width +
             vehicle.fuselages['fuselage'].heights.maximum) / 2. * 1 / Units.ft
     Sf  = np.pi * (L / D - 1.7) * D ** 2  # Fuselage wetted area, ft**2
-    WFURN = 0.0577 * NFLCR ** 0.1 * (vehicle.payload / Units.lbs) ** 0.393 * Sf ** 0.75 + 46 * vehicle.passengers
-    WFURN += 75 * NFLCR
+    WFURN = 0.0577 * flight_crew ** 0.1 * (vehicle.payload / Units.lbs) ** 0.393 * Sf ** 0.75 + 46 * vehicle.passengers
+    WFURN += 75 * flight_crew
     WFURN += 2.5 * vehicle.passengers**1.33
 
     Vpr = D ** 2 * np.pi / 4 * L

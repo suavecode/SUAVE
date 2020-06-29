@@ -22,10 +22,20 @@ def landing_gear_Raymer(vehicle):
             Not a reciprocating engine
 
         Source:
-            Aircraft Design: A Conceptual Approach
+            Aircraft Design: A Conceptual Approach (2nd edition)
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.design_range: design range of aircraft                        [m]
+                -.mass_properties.max_takeoff: MTOW                             [kg]
+                -.systems.accessories: type of aircraft (short-range, commuter
+                                                        medium-range, long-range,
+                                                        sst, cargo)
+                -.landing_gear.main_strut_length: main strut length              [m]
+                -.landing_gear.main_wheels: number of wheels on main landing gear
+                -.landing_gear.nose_strut_length: nose strut length              [m]
+                -.landing_gear.nose_wheels: number of wheels on nose landing gear
+
             fuse - data dictionary with specific fuselage properties            [dimensionless]
 
         Outputs:
@@ -50,10 +60,10 @@ def landing_gear_Raymer(vehicle):
     Knp         = 1  # assuming not a reciprocating engine
     Ln          = vehicle.landing_gear.nose_strut_length / Units.inch
     Nnw         = vehicle.landing_gear.nose_wheels
-    WLGM = 0.0106 * Kmp * WLDG ** 0.888 * Nl ** 0.25 * Lm ** 0.4 * Nmw ** 0.321 * Nmss ** (-0.5) * Vstall ** 0.1
-    WLGN = 0.032 * Knp * WLDG ** 0.646 * Nl ** 0.2 * Ln ** 0.5 * Nnw ** 0.45
+    wt_main_landing_gear = 0.0106 * Kmp * WLDG ** 0.888 * Nl ** 0.25 * Lm ** 0.4 * Nmw ** 0.321 * Nmss ** (-0.5) * Vstall ** 0.1
+    wt_nose_landing_gear = 0.032 * Knp * WLDG ** 0.646 * Nl ** 0.2 * Ln ** 0.5 * Nnw ** 0.45
 
     output          = Data()
-    output.main     = WLGM * Units.lbs
-    output.nose     = WLGN * Units.lbs
+    output.main     = wt_main_landing_gear * Units.lbs
+    output.nose     = wt_nose_landing_gear * Units.lbs
     return output

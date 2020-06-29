@@ -30,6 +30,10 @@ def operating_system(vehicle):
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
+                -.passengers: number of passengers
+                -.systems.accessories: type of aircraft (short-range, commuter
+                                                        medium-range, long-range,
+                                                        sst, cargo)
 
         Outputs:
             output - data dictionary with weights                               [kilograms]
@@ -61,22 +65,21 @@ def operating_system(vehicle):
         operitems_wt = 28.0 * num_seats * Units.lb
 
     if vehicle.passengers >= 150:
-        NFLCR = 3
-        NGALC = 1 + np.floor(vehicle.passengers / 250.)
+        flight_crew = 3  # FLOPS: NFLCR
     else:
-        NFLCR = 2
-        NGALC = 0
-    if vehicle.passengers < 51:
-        NSTU = 1
-    else:
-        NSTU = 1 + np.floor(vehicle.passengers / 40.)
+        flight_crew = 2
 
-    WSTUAB = NSTU * (170 + 40)
-    WFLCRB = NFLCR * (190 + 50)
+    if vehicle.passengers < 51:
+        flight_attendants = 1  # FLOPS: NSTU
+    else:
+        flight_attendants = 1 + np.floor(vehicle.passengers / 40.)
+
+    wt_flight_attendants = flight_attendants * (170 + 40)  # FLOPS: WSTUAB
+    wt_flight_crew = flight_crew * (190 + 50)  # FLOPS: WFLCRB
 
     output                      = Data()
     output.operating_items      = operitems_wt
-    output.flight_crew          = WFLCRB * Units.lbs
-    output.flight_attendants    = WSTUAB * Units.lbs
+    output.flight_crew          = wt_flight_crew * Units.lbs
+    output.flight_attendants    = wt_flight_attendants * Units.lbs
     output.total                = output.operating_items + output.flight_crew + output.flight_attendants
     return output
