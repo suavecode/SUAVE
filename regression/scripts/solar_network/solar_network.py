@@ -2,6 +2,7 @@
 # 
 # Created:  Aug 2014, Emilio Botero, 
 #           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports
@@ -51,8 +52,7 @@ def main():
     analyses.finalize()    
     
     # weight analysis
-    weights = analyses.configs.base.weights
-    breakdown = weights.evaluate()          
+    weights = analyses.configs.base.weights    
     
     # mission analysis
     mission = analyses.missions.base
@@ -67,22 +67,26 @@ def main():
     plot_mission(old_results,'k-') 
     
     # Check Results 
-    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[3,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.rpm[3,0] 
-    current = results.segments.cruise1.conditions.propulsion.current[3,0] 
-    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[3,0]  
+    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
+    rpm     = results.segments.cruise1.conditions.propulsion.rpm[1,0] 
+    current = results.segments.cruise1.conditions.propulsion.current[1,0] 
+    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 106.17898847736741
-    truth_i   = 131.4126725724721
-    truth_rpm = 160.76095006185793
-    truth_bat = 319157.3538416773
+    truth_F   = 103.21142960101967
+    truth_rpm = 159.01582417530153
+    truth_i   = 127.37614381941135
+    truth_bat = 88527918.27718388
+    
+    print('battery energy')
+    print(energy)
+    print('\n')
     
     error = Data()
-    error.Thrust = np.max(np.abs(F-truth_F))
-    error.RPM = np.max(np.abs(rpm-truth_rpm))
+    error.Thrust   = np.max(np.abs(F-truth_F))
+    error.RPM      = np.max(np.abs(rpm-truth_rpm))
     error.Current  = np.max(np.abs(current-truth_i))
-    error.Battery = np.max(np.abs(energy-truth_bat))
+    error.Battery  = np.max(np.abs(energy-truth_bat))
     
     print(error)
     
@@ -134,8 +138,10 @@ def base_analysis(vehicle): # --------------------------------------------------
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
+    aerodynamics.settings.plot_vortex_distribution   = True 
+    aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
+    aerodynamics.settings.span_efficiency = 0.98
     analyses.append(aerodynamics)
     
     # ------------------------------------------------------------------
@@ -179,10 +185,10 @@ def mission_setup(analyses,vehicle):
     # base segment
     base_segment = Segments.Segment()   
     ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals    
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.propulsor.propeller.power_coefficient  * ones_row(1)/15.
+    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.power_coefficient  * ones_row(1)/15.
     base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    
@@ -196,12 +202,12 @@ def mission_setup(analyses,vehicle):
     segment.analyses.extend( analyses.cruise)
     
     # segment attributes     
-    segment.state.numerics.number_control_points = 4
+    segment.state.numerics.number_control_points = 16
     segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2020", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
-    segment.battery_energy = vehicle.propulsors.propulsor.battery.max_energy*0.3 #Charge the battery to start
+    segment.battery_energy = vehicle.propulsors.solar.battery.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
     

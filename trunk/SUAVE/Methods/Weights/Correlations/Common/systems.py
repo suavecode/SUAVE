@@ -1,9 +1,9 @@
 ## @ingroup Methods-Weights-Correlations-Tube_Wing
 # systems.py
-# 
+#
 # Created:  Jan 2014, A. Wendorff
 # Modified: Jul 2014, A. Wendorff
-#           Feb 2016, E. Botero     
+#           Feb 2016, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,13 +19,13 @@ import SUAVE.Components.Wings as Wings
 ## @ingroup Methods-Weights-Correlations-Tube_Wing
 def systems(vehicle):
     """ Calculate the weight of the different engine systems on the aircraft
-    
-    Assumptions:
-        numbers based on FAA regulations and correlations from previous aircraft 
 
-    Source: 
+    Assumptions:
+        numbers based on FAA regulations and correlations from previous aircraft
+
+    Source:
         N/A
-                
+
    Inputs:
        vehicle.passengers - total number of seats on the aircraft                                     [dimensionless]
        vehicle.systems.control - specifies if the control system is fully power,
@@ -35,7 +35,7 @@ def systems(vehicle):
        vehicle.reference_area - area of the wing                                                      [meters**2]
        vehicle.systems.accessories - determines type of instruments, electronics,
                                         and operating items based on type of vehicle                  [dimensionless]
-   
+
    Outputs:
        output - a data dictionary with fields:
            wt_flt_ctrl - weight of the flight control system                                               [kilograms]
@@ -47,7 +47,7 @@ def systems(vehicle):
            wt_elec - weight of the electrical items                                                        [kilograms]
            wt_ac - weight of the air conditioning and anti-ice system                                      [kilograms]
            wt_furnish - weight of the furnishings in the fuselage                                          [kilograms]
-       
+
     Properties Used:
         N/A
     """
@@ -72,7 +72,7 @@ def systems(vehicle):
         flt_ctrl_scaler = 1.7  # fully aerodynamic controls
     flt_ctrl_wt = (flt_ctrl_scaler * (area_hv)) * Units.lb
 
-    # APU Group Wt   
+    # APU Group Wt
     if num_seats >= 6.:
         apu_wt = 7.0 * num_seats * Units.lb
     else:

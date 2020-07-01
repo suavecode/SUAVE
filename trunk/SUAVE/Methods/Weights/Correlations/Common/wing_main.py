@@ -5,6 +5,7 @@
 # Modified: Feb 2014, A. Wendorff
 #           Feb 2016, E. Botero
 #           Jul 2017, M. Clarke
+#           Mar 2019, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,18 +19,19 @@ import numpy as np
 #   Wing Main
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Weights-Correlations-Common 
+## @ingroup Methods-Weights-Correlations-Common
 def wing_main(vehicle, wing):
-    """ Calculate the wing weight of the aircraft based on the fully-stressed 
+    """ Calculate the wing weight of the aircraft based on the fully-stressed
     bending weight of the wing box
-    
+
     Assumptions:
-        calculated total wing weight based on a bending index and actual data 
-        from 15 transport aircraft 
-    
-    Source: 
-        N/A
-        
+        calculated total wing weight based on a bending index and actual data
+        from 15 transport aircraft
+
+    Source:
+        http://aerodesign.stanford.edu/aircraftdesign/AircraftDesign.html
+        search for: Derivation of the Wing Weight Index
+
     Inputs:
         vehicle - data dictionary with vehicle properties                   [dimensionless]
             -.mass_properties.max_takeoff: MTOW                             [kilograms]
@@ -42,10 +44,10 @@ def wing_main(vehicle, wing):
             -.thickness_to_chord: thickness to chord of wing
             -.taper: taper ratio of wing
 
-    
+
     Outputs:
-        weight - weight of the wing                  [kilograms]          
-        
+        weight - weight of the wing                  [kilograms]
+
     Properties Used:
         N/A
     """

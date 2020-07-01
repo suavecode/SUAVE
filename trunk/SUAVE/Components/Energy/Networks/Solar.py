@@ -52,19 +52,21 @@ class Solar(Propulsor):
             Properties Used:
             N/A
         """            
-        self.solar_flux        = None
-        self.solar_panel       = None
-        self.motor             = None
-        self.propeller         = None
-        self.esc               = None
-        self.avionics          = None
-        self.payload           = None
-        self.solar_logic       = None
-        self.battery           = None
-        self.nacelle_diameter  = None
-        self.engine_length     = None
-        self.number_of_engines = None
-        self.use_surrogate     = False
+        self.solar_flux                = None
+        self.solar_panel               = None
+        self.motor                     = None
+        self.propeller                 = None
+        self.esc                       = None
+        self.avionics                  = None
+        self.payload                   = None
+        self.solar_logic               = None
+        self.battery                   = None
+        self.nacelle_diameter          = None
+        self.engine_length             = None
+        self.number_of_engines         = None
+        self.tag                       = 'Solar'
+        self.use_surrogate             = False
+        self.generative_design_minimum = 0
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -206,7 +208,7 @@ class Solar(Propulsor):
         conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R)**2) # N/m^2               
         conditions.propulsion.power_loading      = (F_mag.T)/(P)  # N/W                  
         
-        mdot = np.zeros_like(F)
+        mdot = state.ones_row(1)*0.0
 
         results = Data()
         results.thrust_force_vector = F

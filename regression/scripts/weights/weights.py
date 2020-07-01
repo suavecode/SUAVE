@@ -1,11 +1,12 @@
 # weights.py
-# Created:   
+# Created:
 # Modified: Mar 2020, M. Clarke
 
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
+from SUAVE.Methods.Weights.Correlations import Transport as Transport
 from SUAVE.Methods.Weights.Correlations import Common as Common
 from SUAVE.Methods.Weights.Correlations import General_Aviation as General_Aviation
 from SUAVE.Methods.Weights.Correlations import BWB as BWB
@@ -252,7 +253,7 @@ def main():
     vehicle = bwb_setup()
     weight  = BWB.empty(vehicle)
 
-    # regression values    
+    # regression values
     actual = Data()
     actual.payload         = 27349.9081525 #includes cargo #17349.9081525 #without cargo
     actual.pax             = 15036.587065500002
@@ -292,7 +293,7 @@ def main():
     vehicle = hp_setup()
     weight = HP.empty(vehicle)
 
-    # regression values    
+    # regression values
     actual = Data()
     actual.empty           = 138.02737768459374
     actual.wing            = 89.86286881794777
@@ -322,7 +323,7 @@ def main():
 
 # ----------------------------------------------------------------------
 #   Call Main
-# ----------------------------------------------------------------------    
+# ----------------------------------------------------------------------
 
 if __name__ == '__main__':
     main()

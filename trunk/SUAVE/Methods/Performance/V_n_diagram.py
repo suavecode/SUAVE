@@ -19,7 +19,6 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations import datcom
 
 # package imports
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------

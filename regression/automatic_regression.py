@@ -11,13 +11,14 @@
 #   Imports
 # ----------------------------------------------------------------------
 
+import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
 import SUAVE
 from SUAVE.Core.DataOrdered import DataOrdered
 import sys, os, traceback, time
-import matplotlib.pyplot as plt
+
 
 # ----------------------------------------------------------------------
 #   How This Works
@@ -37,8 +38,6 @@ modules = [
 
     # ----------------------- Regression List --------------------------
     'scripts/aerodynamics/aerodynamics.py',
-    #'scripts/aerodynamics_super/aerodynamics_super.py',
-    #'scripts/regression/test_mission_AS2.py',
     'scripts/airfoil_import/airfoil_import_test.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
@@ -81,7 +80,7 @@ modules = [
     'scripts/rocket_network/Rocketdyne_F1.py',
     'scripts/rocket_network/Rocketdyne_J2.py',
     'scripts/segments/segment_test.py',
-    'scripts/sizing_loop/sizing_loop.py',
+    'scripts/slipstream/slipstream_test.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
     'scripts/solar_radiation/solar_radiation.py',
@@ -94,7 +93,7 @@ modules = [
     'scripts/VTOL/test_Multicopter.py',
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
-    'scripts/weights/weights.py',       
+    'scripts/weights/weights.py',
 ]
 
 # ----------------------------------------------------------------------
@@ -206,4 +205,3 @@ def test_module(module_path):
 
 if __name__ == '__main__':
     main()
-    

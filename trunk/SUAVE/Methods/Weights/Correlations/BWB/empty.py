@@ -1,8 +1,9 @@
 ## @ingroup Methods-Weights-Correlations-BWB
 # empty.py
-# 
-# Created:  Apr 2017, M. Clarke 
+#
+# Created:  Apr 2017, M. Clarke
 # Modified: Jul 2017, M. Clarke
+#           Apr 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -27,16 +28,17 @@ import warnings
 
 ## @ingroup Methods-Weights-Correlations-BWB
 def empty(vehicle):
-    """ This is for a BWB aircraft configuration. 
-    
+    """ This is for a BWB aircraft configuration.
+
     Assumptions:
          calculated aircraft weight from correlations created per component of historical aircraft
-      
-    Source: 
+         The wings are made out of aluminum
+
+    Source:
         N/A
-         
+
     Inputs:
-        engine - a data dictionary with the fields:                    
+        engine - a data dictionary with the fields:
             thrust_sls - sea level static thrust of a single engine                                        [Newtons]
 
         wing - a data dictionary with the fields:
@@ -48,7 +50,7 @@ def empty(vehicle):
             mac - mean aerodynamic chord of the wing                                                       [meters]
             r_c - wing root chord                                                                          [meters]
 
-        aircraft - a data dictionary with the fields:                    
+        aircraft - a data dictionary with the fields:
             Nult - ultimate load of the aircraft                                                           [dimensionless]
             Nlim - limit load factor at zero fuel weight of the aircraft                                   [dimensionless]
             TOW - maximum takeoff weight of the aircraft                                                   [kilograms]
@@ -58,7 +60,7 @@ def empty(vehicle):
             wt_cargo - weight of the bulk cargo being carried on the aircraft                              [kilograms]
             num_seats - number of seats installed on the aircraft                                          [dimensionless]
             ctrl - specifies if the control system is "fully powered", "partially powered", or not powered [dimensionless]
-            ac - determines type of instruments, electronics, and operating items based on types: 
+            ac - determines type of instruments, electronics, and operating items based on types:
                 "short-range", "medium-range", "long-range", "business", "cargo", "commuter", "sst"        [dimensionless]
 
          fuselage - a data dictionary with the fields:
@@ -66,8 +68,8 @@ def empty(vehicle):
             diff_p - Maximum fuselage pressure differential                                                [Pascal]
             width - width of the fuselage                                                                  [meters]
             height - height of the fuselage                                                                [meters]
-            length - length of the fuselage                                                                [meters]   
-        
+            length - length of the fuselage                                                                [meters]
+
     Outputs:
         output - a data dictionary with fields:
             wt_payload - weight of the passengers plus baggage and paid cargo                              [kilograms]
@@ -75,7 +77,7 @@ def empty(vehicle):
             wt_bag - weight of all the baggage                                                             [kilogram]
             wt_fuel - weight of the fuel carried                                                           [kilogram]
             wt_empty - operating empty weight of the aircraft                                              [kilograms]
-    
+
     Properties Used:
     N/A
     """
@@ -101,7 +103,7 @@ def empty(vehicle):
     propulsors = vehicle.propulsors[propulsor_name]
     num_eng = propulsors.number_of_engines
     if propulsor_name == 'turbofan' or propulsor_name == 'Turbofan':
-        # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor 
+        # thrust_sls should be sea level static thrust. Using design thrust results in wrong propulsor
         # weight estimation. Engine sizing should return this value.
         # for now, using thrust_sls = design_thrust / 0.20, just for optimization evaluations
         thrust_sls      = propulsors.sealevel_static_thrust

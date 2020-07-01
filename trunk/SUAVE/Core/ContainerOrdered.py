@@ -3,6 +3,8 @@
 # Created:  Jan 2015, T. Lukacyzk
 # Modified: Feb 2016, T. MacDonald
 #           Jun 2016, E. Botero
+#           May 2020, E. Botero
+
 
 
 # ----------------------------------------------------------------------
@@ -114,3 +116,24 @@ class ContainerOrdered(DataOrdered):
             self.update(vals)
         else:
             raise Exception('unrecognized data type')
+        
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """        
+        
+        return []  

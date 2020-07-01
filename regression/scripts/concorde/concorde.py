@@ -41,7 +41,6 @@ import sys
 sys.path.append('../Vehicles')
 from Concorde import vehicle_setup, configs_setup
 
-
 # This is a sizing function to fill turbojet parameters
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
@@ -149,7 +148,7 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
     
@@ -157,8 +156,8 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
     aerodynamics.geometry = vehicle
-    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
+    aerodynamics.settings.span_efficiency = 0.95
     analyses.append(aerodynamics)
     
     
@@ -319,7 +318,7 @@ def mission_setup(analyses):
     
     segment.altitude_end = 34000. * Units.ft
     segment.mach_start   = 0.95
-    segment.mach_end     = 1.0
+    segment.mach_end     = 1.1
     segment.climb_rate   = 2000.  * Units['ft/min']
     
     # add to mission
@@ -335,7 +334,7 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.climb )
     
     segment.altitude_end = 40000. * Units.ft
-    segment.mach_start   = 1.0
+    segment.mach_start   = 1.1
     segment.mach_end     = 1.7
     segment.climb_rate   = 1750.  * Units['ft/min']
     
@@ -402,7 +401,7 @@ def mission_setup(analyses):
     segment.tag = "decel_1"
     
     segment.analyses.extend( analyses.cruise )
-    segment.acceleration      = -1.  * Units['m/s/s']
+    segment.acceleration      = -.5  * Units['m/s/s']
     segment.air_speed_start   = 2.02*573. * Units.kts
     segment.air_speed_end     = 1.5*573.  * Units.kts
     

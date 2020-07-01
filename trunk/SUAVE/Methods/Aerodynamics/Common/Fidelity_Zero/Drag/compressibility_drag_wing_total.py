@@ -3,7 +3,7 @@
 # 
 # Created:  Jan 2014, SUAVE Team
 # Modified: Feb 2016, T. MacDonald
-#        
+#           Apr 2020, M. Clarke       
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -39,18 +39,14 @@ def compressibility_drag_wing_total(state,settings,geometry):
 
     # unpack
     conditions             = state.conditions
-    wings                  = geometry.wings
-    fuselages              = geometry.fuselages
-    propulsors             = geometry.propulsors
-    vehicle_reference_area = geometry.reference_area
+    wings                  = geometry.wings 
     
     #compute parasite drag total
     total_compressibility_drag = 0.0
     
     # from wings
     for wing in wings.values():
-        # scaled by reference area
-        compressibility_drag = conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag * wing.areas.reference / vehicle_reference_area
+        compressibility_drag = conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag
         conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag = compressibility_drag * 1. # avoid linking variables
         total_compressibility_drag += compressibility_drag 
 

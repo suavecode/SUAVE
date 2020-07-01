@@ -1,8 +1,9 @@
 ## @ingroup Analyses-Weights
-# Weights_Tube_Wing.py
+# Weights_Transport.py
 #
 # Created:  Apr 2017, Matthew Clarke
 # Modified: Oct 2017, T. MacDonald
+#           Apr 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,15 +13,14 @@ import SUAVE
 from SUAVE.Core import Data
 from .Weights import Weights
 
-
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Weights
-class Weights_Tube_Wing(Weights):
-    """ This is class that evaluates the weight of Tube and Wing aircraft
-    
+class Weights_Transport(Weights):
+    """ This is class that evaluates the weight of Transport class aircraft
+
     Assumptions:
         None
 
@@ -29,16 +29,16 @@ class Weights_Tube_Wing(Weights):
 
     Inputs:
         None
-      
+
     Outputs:
         None
-        
+
     Properties Used:
          N/A
     """
 
     def __defaults__(self):
-        """This sets the default values and methods for the tube and wing 
+        """This sets the default values and methods for the tube and wing
         aircraft weight analysis.
 
         Assumptions:
@@ -61,6 +61,7 @@ class Weights_Tube_Wing(Weights):
         self.vehicle = Data()
         self.settings = Data()
         self.settings.weight_reduction_factors = Data()
+
         # Reduction factors are proportional (.1 is a 10% weight reduction)
         self.settings.weight_reduction_factors.main_wing = 0.
         self.settings.weight_reduction_factors.fuselage = 0.
@@ -68,7 +69,7 @@ class Weights_Tube_Wing(Weights):
 
     def evaluate(self, method="SUAVE", conditions=None):
         """Evaluate the weight analysis.
-    
+
         Assumptions:
         None
 
@@ -100,7 +101,7 @@ class Weights_Tube_Wing(Weights):
 
     def finalize(self):
         """Finalize the weight analysis.
-    
+
         Assumptions:
         None
 
