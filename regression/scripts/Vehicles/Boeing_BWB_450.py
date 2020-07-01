@@ -12,9 +12,7 @@
 import numpy as np
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Core import (
-Data, Container
-)
+from SUAVE.Core import Data, Container
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
 
@@ -28,15 +26,12 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
     # ------------------------------------------------------------------    
-
     vehicle = SUAVE.Vehicle()
     vehicle.tag = 'Boeing_BWB_450'    
-
 
     # ------------------------------------------------------------------
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
-
     # mass properties
     vehicle.mass_properties.max_takeoff               = 823000. * Units.lb
     vehicle.mass_properties.takeoff                   = 823000. * Units.lb
@@ -57,44 +52,36 @@ def vehicle_setup():
     # ------------------------------------------------------------------        
     #   Main Wing
     # ------------------------------------------------------------------        
-
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 289.**2 / (7840. * 2)
     wing.thickness_to_chord      = 0.15
     wing.taper                   = 0.0138
-    wing.span_efficiency         = 0.95
-    
-    wing.spans.projected         = 289.0 * Units.feet    
-
+    wing.spans.projected         = 289.0 * Units.feet  
     wing.chords.root             = 145.0 * Units.feet
     wing.chords.tip              = 3.5  * Units.feet
     wing.chords.mean_aerodynamic = 80. * Units.feet
-
     wing.areas.reference         = 7840. * 2 * Units.feet**2
     wing.sweeps.quarter_chord    = 33. * Units.degrees
-
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
     wing.dihedral                = 2.5 * Units.degrees
-
-    wing.origin                  = [0.,0.,0]
+    wing.origin                  = [[0.,0.,0]]
     wing.aerodynamic_center      = [0,0,0] 
-
     wing.vertical                = False
     wing.symmetric               = True
     wing.high_lift               = True
-
     wing.dynamic_pressure_ratio  = 1.0
 
     segment = SUAVE.Components.Wings.Segment()
+
     segment.tag                   = 'section_1'
     segment.percent_span_location = 0.0
     segment.twist                 = 0. * Units.deg
     segment.root_chord_percent    = 1.
     segment.dihedral_outboard     = 0. * Units.degrees
-    segment.sweeps.quarter_chord  = 30.0 * Units.degrees
+    segment.sweeps.quarter_chord  = 40.0 * Units.degrees
     segment.thickness_to_chord    = 0.165
     segment.vsp_mesh              = Data()
     segment.vsp_mesh.inner_radius    = 4.
@@ -104,14 +91,14 @@ def vehicle_setup():
     wing.Segments.append(segment)    
     
     segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'section_2'
-    segment.percent_span_location = 0.052
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.921
-    segment.dihedral_outboard     = 0.   * Units.degrees
-    segment.sweeps.quarter_chord  = 52.5 * Units.degrees
-    segment.thickness_to_chord    = 0.167
-    segment.vsp_mesh              = Data()
+    segment.tag                      = 'section_2'
+    segment.percent_span_location    = 0.052
+    segment.twist                    = 0. * Units.deg
+    segment.root_chord_percent       = 0.921
+    segment.dihedral_outboard        = 0.   * Units.degrees
+    segment.sweeps.quarter_chord     = 52.5 * Units.degrees
+    segment.thickness_to_chord       = 0.167
+    segment.vsp_mesh                 = Data()
     segment.vsp_mesh.inner_radius    = 4.
     segment.vsp_mesh.outer_radius    = 4.
     segment.vsp_mesh.inner_length    = .14
@@ -119,14 +106,14 @@ def vehicle_setup():
     wing.Segments.append(segment)   
 
     segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'section_3'
-    segment.percent_span_location = 0.138
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.76
-    segment.dihedral_outboard     = 1.85 * Units.degrees
-    segment.sweeps.quarter_chord  = 36.9 * Units.degrees  
-    segment.thickness_to_chord    = 0.171
-    segment.vsp_mesh              = Data()
+    segment.tag                      = 'section_3'
+    segment.percent_span_location    = 0.138
+    segment.twist                    = 0. * Units.deg
+    segment.root_chord_percent       = 0.76
+    segment.dihedral_outboard        = 1.85 * Units.degrees
+    segment.sweeps.quarter_chord     = 36.9 * Units.degrees  
+    segment.thickness_to_chord       = 0.171
+    segment.vsp_mesh                 = Data()
     segment.vsp_mesh.inner_radius    = 4.
     segment.vsp_mesh.outer_radius    = 4.
     segment.vsp_mesh.inner_length    = .14
@@ -134,14 +121,14 @@ def vehicle_setup():
     wing.Segments.append(segment)   
     
     segment = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'section_4'
-    segment.percent_span_location = 0.221
-    segment.twist                 = 0. * Units.deg
-    segment.root_chord_percent    = 0.624
-    segment.dihedral_outboard     = 1.85 * Units.degrees
-    segment.sweeps.quarter_chord  = 30.4 * Units.degrees    
-    segment.thickness_to_chord    = 0.175
-    segment.vsp_mesh              = Data()
+    segment.tag                      = 'section_4'
+    segment.percent_span_location    = 0.221
+    segment.twist                    = 0. * Units.deg
+    segment.root_chord_percent       = 0.624
+    segment.dihedral_outboard        = 1.85 * Units.degrees
+    segment.sweeps.quarter_chord     = 30.4 * Units.degrees    
+    segment.thickness_to_chord       = 0.175
+    segment.vsp_mesh                 = Data()
     segment.vsp_mesh.inner_radius    = 4.
     segment.vsp_mesh.outer_radius    = 2.8
     segment.vsp_mesh.inner_length    = .14
@@ -194,12 +181,10 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Turbofan Network
     # ------------------------------------------------------------------
-    
     #instantiate the gas turbine network
-
     turbofan     = SUAVE.Components.Energy.Networks.Turbofan()
     turbofan.tag = 'turbofan1'
-    
+
     # setup
     turbofan.number_of_engines = 3.0
     turbofan.bypass_ratio      = 8.1
@@ -215,11 +200,9 @@ def vehicle_setup():
     #   Component 1 - Ram
     
     # to convert freestream static to stagnation quantities
-    
     # instantiate
     ram = SUAVE.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
-    
     # add to the network
     turbofan.append(ram)
     
@@ -229,11 +212,9 @@ def vehicle_setup():
     # instantiate
     inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
     inlet_nozzle.tag = 'inlet_nozzle'
-    
     # setup
     inlet_nozzle.polytropic_efficiency = 1.0
     inlet_nozzle.pressure_ratio        = 1.0
-    
     # add to network
     turbofan.append(inlet_nozzle)
     
@@ -243,11 +224,9 @@ def vehicle_setup():
     # instantiate
     compressor = SUAVE.Components.Energy.Converters.Compressor()
     compressor.tag = 'low_pressure_compressor'
-    
     # setup
     compressor.polytropic_efficiency = 0.91
     compressor.pressure_ratio        = 1.1
-    
     # add to network
     turbofan.append(compressor)
     
@@ -257,12 +236,10 @@ def vehicle_setup():
     # instantiate
     compressor = SUAVE.Components.Energy.Converters.Compressor()
     compressor.tag = 'high_pressure_compressor'
-    
     # setup
     compressor.polytropic_efficiency = 0.91
     compressor.pressure_ratio        = 23.0
     #compressor.hub_to_tip_ratio      = 0.325
-    
     # add to network
     turbofan.append(compressor)
     
@@ -272,11 +249,9 @@ def vehicle_setup():
     # instantiate
     turbine = SUAVE.Components.Energy.Converters.Turbine()
     turbine.tag='low_pressure_turbine'
-    
     # setup
     turbine.mechanical_efficiency = 0.99
     turbine.polytropic_efficiency = 0.93
-    
     # add to network
     turbofan.append(turbine)
     
@@ -286,11 +261,9 @@ def vehicle_setup():
     # instantiate
     turbine = SUAVE.Components.Energy.Converters.Turbine()
     turbine.tag='high_pressure_turbine'
-    
     # setup
     turbine.mechanical_efficiency = 0.99
     turbine.polytropic_efficiency = 0.93
-    
     # add to network
     turbofan.append(turbine)
     
@@ -300,14 +273,12 @@ def vehicle_setup():
     # instantiate
     combustor = SUAVE.Components.Energy.Converters.Combustor()
     combustor.tag = 'combustor'
-    
     # setup
     combustor.efficiency                = 1.0
     combustor.alphac                    = 1.0
     combustor.turbine_inlet_temperature = 1592. * Units.kelvin
     combustor.pressure_ratio            = 0.95
     combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()
-    
     # add to network
     turbofan.append(combustor)
     
@@ -317,11 +288,9 @@ def vehicle_setup():
     # instantiate
     nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()
     nozzle.tag = 'core_nozzle'
-    
     # setup
     nozzle.polytropic_efficiency = 0.95
     nozzle.pressure_ratio        = 0.99 
-    
     # add to network
     turbofan.append(nozzle)
     
@@ -331,11 +300,9 @@ def vehicle_setup():
     # instantiate
     nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()
     nozzle.tag = 'fan_nozzle'
-    
     # setup
     nozzle.polytropic_efficiency = 0.95
     nozzle.pressure_ratio        = 0.99 
-    
     # add to network
     turbofan.append(nozzle)
     
@@ -345,12 +312,9 @@ def vehicle_setup():
     # instantiate
     fan = SUAVE.Components.Energy.Converters.Fan()
     fan.tag = 'fan'
-    
     # setup
     fan.polytropic_efficiency = 0.93
     fan.pressure_ratio        = 1.58
-    #fan.hub_to_tip_ratio      = 0.325
-    
     # add to network
     turbofan.append(fan)
     

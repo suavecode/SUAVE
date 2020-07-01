@@ -5,15 +5,15 @@
 # 
 # Created:  
 # Modified: Feb 2016, T. MacDonald
+#           Jan 2020, M. Clarke
 
 # classes
 from .Wing import Wing
-from .Control_Surface import Control_Surface
 from .Main_Wing import Main_Wing
 from .Vertical_Tail import Vertical_Tail
 from .Horizontal_Tail import Horizontal_Tail
-from .Segment import Segment, SegmentContainer
+from .Segment import Segment, Segment_Container 
 
 # packages
 from . import Airfoils
-
+from . import Control_Surfaces

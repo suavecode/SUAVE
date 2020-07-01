@@ -2,8 +2,9 @@
 
 # wing.py
 #
-# Created: Jun, 2017, J. Smart
-# Modified: Apr, 2018, J. Smart
+# Created:  Jun 2017, J. Smart
+# Modified: Apr 2018, J. Smart
+#           Mar 2020, M. Clarke
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -54,12 +55,12 @@ def wing(wing,
         Intended for use with the following SUAVE vehicle types, but may be used
         elsewhere:
 
-            Electric Helicopter
-            Electric Tiltrotor
+            Electric Multicopter
+            Electric Vectored_Thrust
             Electric Stopped Rotor
 
         Originally written as part of an AA 290 project intended for trade study
-        of the above vehicle types plus an electricHelicopter.
+        of the above vehicle types plus an electric Multicopter.
         
         Sources:
         Project Vahana Conceptual Trade Study
@@ -94,8 +95,10 @@ def wing(wing,
     thicknessToChord            = wing.thickness_to_chord, 
     wingletFraction             = wing.winglet_fraction, 
     wingArea                    = wing.areas.reference
-    totalWingArea               = (config.wings['main_wing'].areas.reference + 
-                                   config.wings['secondary_wing'].areas.reference)
+
+    totalWingArea = 0
+    for w in config.wings:
+        totalWingArea += w.areas.reference
     liftFraction                = wingArea/totalWingArea
     motor_spanwise_locations    = wing.motor_spanwise_locations
 

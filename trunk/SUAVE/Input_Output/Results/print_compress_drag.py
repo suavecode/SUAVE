@@ -2,7 +2,8 @@
 #print_compress_drag.py
 
 # Created: SUAVE team
-# Updated: Carlos Ilario, Feb 2016
+# Modified: Carlos Ilario, Feb 2016
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -83,9 +84,9 @@ def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
 
     # call aerodynamic method for each CL
     for idcl, cl in enumerate(cl_vec):
-        state.conditions.aerodynamics.lift_breakdown.compressible_wings = np.atleast_1d(cl)
-        # call method
+        state.conditions.aerodynamics.lift_breakdown.compressible_wings   = Data()
         for wing in vehicle.wings:
+            state.conditions.aerodynamics.lift_breakdown.compressible_wings[wing.tag] = np.atleast_1d(cl) 
             analyses.configs.cruise.aerodynamics.process.compute.drag.compressibility.wings.wing(state,settings,wing)
         # process output for print
         drag_breakdown = state.conditions.aerodynamics.drag_breakdown.compressible

@@ -16,8 +16,8 @@ def main():
     import sys
     
     the_package = 'SUAVE'
-    version     = '2.0.0'
-    date        = 'February 14, 2019'
+    version     = '2.1.0'
+    date        = 'March 25, 2020'
     
     if len(sys.argv) >= 2:
         command = sys.argv[1]
@@ -176,7 +176,7 @@ def import_tests():
         raise ImportError('scipy is required for this package')
     
     try:
-        import matplotlib
+        import matplotlib.pyplot
     except ImportError:
         raise ImportError('matplotlib is required for this package')
 

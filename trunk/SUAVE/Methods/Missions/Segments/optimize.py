@@ -3,6 +3,8 @@
 # 
 # Created:  Dec 2016, E. Botero
 # Modified: Jun 2017, E. Botero
+#           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -218,7 +220,7 @@ def get_ieconstraints(unknowns, segment):
     else:
         segment.state.unknowns = unknowns
         
-    if not np.all(state.inputs_last == segment.state.unknowns):       
+    if not np.all(state.inputs_last == segment.state.unknowns):
         segment.process.iterate(segment)
     
     # Time goes forward, not backward
@@ -226,8 +228,8 @@ def get_ieconstraints(unknowns, segment):
     time_con = (segment.state.conditions.frames.inertial.time[1:,0] - segment.state.conditions.frames.inertial.time[0:-1,0])/t_final
     
     # Less than a specified CL limit
-    CL_limit = segment.CL_limit 
-    CL_con = (CL_limit  - segment.state.conditions.aerodynamics.lift_coefficient[:,0])/CL_limit
+    lift_coefficient_limit = segment.lift_coefficient_limit 
+    CL_con = (lift_coefficient_limit  - segment.state.conditions.aerodynamics.lift_coefficient[:,0])/lift_coefficient_limit
     
     # Altitudes are greater than 0
     alt_con = segment.state.conditions.freestream.altitude[:,0]/segment.altitude_end
@@ -237,7 +239,7 @@ def get_ieconstraints(unknowns, segment):
     return constraints
 
 ## @ingroup Methods-Missions-Segments
-def get_problem_pyopt(unknowns):
+def get_problem_pyopt(unknowns, segment):
     """ Runs the mission and obtains the objective and all constraints. This is formatted for pyopt
     
         Assumptions:
@@ -263,7 +265,7 @@ def get_problem_pyopt(unknowns):
     else:
         segment.state.unknowns = unknowns
         
-    if not np.all(state.inputs_last == segment.state.unknowns):       
+    if not np.all(state.inputs_last == segment.state.unknowns):
         segment.process.iterate(segment)
         
     obj      = segment.state.objective_value
@@ -273,8 +275,8 @@ def get_problem_pyopt(unknowns):
     time_con = (segment.state.conditions.frames.inertial.time[1:,0] - segment.state.conditions.frames.inertial.time[0:-1,0])/t_final
     
     # Less than a specified CL limit
-    CL_limit = segment.CL_limit 
-    CL_con   = (CL_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/CL_limit
+    lift_coefficient_limit = segment.lift_coefficient_limit 
+    CL_con   = (lift_coefficient_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/lift_coefficient_limit
     
     # Altitudes are greater than 0
     alt_con = segment.state.conditions.freestream.altitude[:,0]/segment.altitude_end

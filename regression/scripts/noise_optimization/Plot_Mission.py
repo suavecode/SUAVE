@@ -35,7 +35,7 @@ def plot_mission(results,line_style='bo-'):
         eta  = segment.conditions.propulsion.throttle[:,0]
         mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
         thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc    = 3600. * mdot / 0.1019715 / thrust	
+        sfc    = 3600. * mdot / 0.1019715 / thrust
 
 
         axes = fig.add_subplot(2,1,1)
@@ -47,7 +47,7 @@ def plot_mission(results,line_style='bo-'):
         axes.plot( time , sfc , line_style )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
-        axes.grid(True)	
+        axes.grid(True)
 
 
     # ------------------------------------------------------------------
@@ -133,7 +133,7 @@ def plot_mission(results,line_style='bo-'):
         altitude = segment.conditions.freestream.altitude[:,0] / Units.ft
         mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
         thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc    = 3600. * mdot / 0.1019715 / thrust	
+        sfc    = 3600. * mdot / 0.1019715 / thrust
 
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , altitude , line_style )

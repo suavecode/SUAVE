@@ -201,12 +201,23 @@ class Nexus(Data):
         if iqconstraints == []:
             scaled_constraints = []
         else:
-            constraint_values = help_fun.get_values(self,iqconstraints,aliases)
-            constraint_values[iqconstraints[:,1]=='<'] = -constraint_values[iqconstraints[:,1]=='<']
-            bnd_constraints   = constraint_values - help_fun.scale_const_bnds(iqconstraints)
-            scaled_constraints = help_fun.scale_const_values(iqconstraints,constraint_values)
 
-        return scaled_constraints      
+            # get constaint values 
+            constraint_values = help_fun.get_values(self,iqconstraints,aliases)          
+            
+            # scale bounds 
+            scaled_bnd_constraints  = help_fun.scale_const_bnds(iqconstraints)
+            
+            # scale constaits 
+            scaled_constraints = help_fun.scale_const_values(iqconstraints,constraint_values)
+            
+            # determine difference between bounds and constaints 
+            constraint_evaluations = scaled_constraints  - scaled_bnd_constraints
+            
+            # coorect constaints based on sign 
+            constraint_evaluations[iqconstraints[:,1]=='<'] = -constraint_evaluations[iqconstraints[:,1]=='<']
+            
+        return constraint_evaluations       
     
     def equality_constraint(self,x = None):
         """Retrieve the equality constraint values for your function
@@ -245,8 +256,8 @@ class Nexus(Data):
         if eqconstraints == []:
             scaled_constraints = []
         else:
-            constraint_values = help_fun.get_values(self,eqconstraints,aliases) - help_fun.scale_const_bnds(eqconstraints)
-            scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values)
+            constraint_values  = help_fun.get_values(self,eqconstraints,aliases)
+            scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values) - help_fun.scale_const_bnds(eqconstraints)
 
         return scaled_constraints   
     

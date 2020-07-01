@@ -3,10 +3,13 @@
 # 
 # Created:  Jun 2014, T. MacDonald
 # Modified: Feb 2019, T. MacDonald
+#           Jan 2020, T. MacDonald
+#           Apr 2020, M. Clarke
 
 import numpy as np
 from SUAVE.Core import Units
-from .Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 from SUAVE.Components.Wings import Main_Wing
 
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
@@ -40,6 +43,11 @@ def wave_drag_volume(vehicle,mach,scaling_factor):
             num_main_wings += 1
         if num_main_wings > 1:
             raise NotImplementedError('This function is not designed to handle multiple main wings.')
+    
+    main_wing = vehicle.wings.main_wing
+    # estimation of leading edge sweep if not defined 
+    if main_wing.sweeps.leading_edge == None:                           
+        main_wing.sweeps.leading_edge  = convert_sweep(main_wing,old_ref_chord_fraction = 0.25 ,new_ref_chord_fraction = 0.0) 
         
     LE_sweep = main_wing.sweeps.leading_edge / Units.deg
     L        = vehicle.total_length

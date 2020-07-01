@@ -2,7 +2,9 @@
 # Data.py
 #
 # Created:  Jun 2016, E. Botero
-# Modified:
+# Modified: Jan 2020, M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -519,8 +521,17 @@ class Data(dict):
             for k in keys[:-1]:
                 data = data[k]
         
-        data[ keys[-1] ] = val
-        
+        if keys[-1][-1] ==']':
+            splitkey = keys[-1].split('[')
+            thing = data[splitkey[0]]
+            for ii in range(1,len(splitkey)-1):
+                index    = int(splitkey[ii][:-1])
+                thing = thing[index]
+            index    = int(splitkey[-1][:-1])
+            thing[index] = val
+        else:
+            data[ keys[-1] ] = val
+            
         return data
 
     def deep_get(self,keys):
@@ -600,13 +611,18 @@ class Data(dict):
         
         # the packing function
         def do_pack(D):
-            for v in D.values():
+            for v in D.values(): 
+                try:
+                    rank = v.ndim
+                except:
+                    rank = 0
+                    
                 # type checking
                 if isinstance( v, dict ): 
                     do_pack(v) # recursion!
                     continue
                 elif not isinstance( v, valid_types ): continue
-                elif np.rank(v) > 2: continue
+                elif rank > 2: continue
                 # make column vectors
                 v = atleast_2d_col(v)
                 # handle output type
@@ -666,7 +682,7 @@ class Data(dict):
         from .Arrays import atleast_2d_col, array_type, matrix_type
         
         # check input type
-        vector = np.rank(M) == 1
+        vector = M.ndim  == 1
         
         # valid types for output
         valid_types = ( int, float,
@@ -679,15 +695,15 @@ class Data(dict):
         # the unpacking function
         def do_unpack(D):
             for k,v in D.items():
-                
+                try:
+                    rank = v.ndim
+                except:
+                    rank = 0
                 # type checking
                 if isinstance(v, dict): 
                     do_unpack(v) # recursion!
                     continue
                 elif not isinstance(v,valid_types): continue
-                
-                # get this value's rank
-                rank = np.rank(v)
                 
                 # get unpack index
                 index = _index[0]                
@@ -795,32 +811,3 @@ class Data(dict):
         do_operation(self,other,result)    
     
         return result
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------        
-
-if __name__ == '__main__':
-    
-    d = Data()
-    d.tag = 'data name'
-    d['value'] = 132
-    d.options = Data()
-    d.options.field = 'of greens'
-    d.options.half  = 0.5
-    print(d)
-    
-    import numpy as np
-    ones = np.ones([10,1])
-        
-    m = Data()
-    m.tag = 'numerical data'
-    m.height = ones * 1.
-    m.rates = Data()
-    m.rates.angle  = ones * 3.14
-    m.rates.slope  = ones * 20.
-    m.rates.special = 'nope'
-    m.value = 1.0
-    
-    print(m)
-    
