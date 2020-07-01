@@ -55,7 +55,6 @@ def vehicle_setup():
     fuselage                                    = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag                                = 'fuselage'
     fuselage.configuration                      = 'Tube_Wing'  
-    fuselage.origin                             = [[0. , 0.,  0.]] 
     fuselage.seats_abreast                      = 2.  
     fuselage.seat_pitch                         = 3.  
     fuselage.fineness.nose                      = 0.88   
@@ -255,7 +254,7 @@ def vehicle_setup():
     motor_origins = np.array(rotor.origin) 
     vehicle.append_component(net)
     
-    vehicle.weight_breakdown  = empty(vehicle)
+    vehicle.weight_breakdown  = empty(vehicle,None)
     return vehicle
 
 

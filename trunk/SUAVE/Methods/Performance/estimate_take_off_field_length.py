@@ -5,6 +5,8 @@
 # Modified: Apr 2015, M. Vegh 
 #           Jan 2016, E. Botero
 #           Mar 2020, M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,10 +17,11 @@ import SUAVE
 from SUAVE.Core            import Data
 from SUAVE.Core            import Units
 
-from SUAVE.Analyses.Mission.Segments.Conditions import Aerodynamics,Numerics
+from SUAVE.Analyses.Mission.Segments.Conditions import Aerodynamics, Numerics
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import windmilling_drag
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import estimate_2ndseg_lift_drag_ratio
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import asymmetry_drag
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
 # package imports
 import numpy as np
@@ -91,9 +94,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     try:   # aircraft maximum lift informed by user
         maximum_lift_coefficient = vehicle.maximum_lift_coefficient
     except:
-        # Using semi-empirical method for maximum lift coefficient calculation
-        from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
-
+        
         # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
         conditions  = atmo.compute_values(10000. * Units.ft)
         conditions.freestream=Data()
@@ -101,6 +102,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         conditions.freestream.dynamic_viscosity = conditions.dynamic_viscosity
         conditions.freestream.velocity  = 90. * Units.knots
         try:
+            # Using semi-empirical method for maximum lift coefficient calculation
             maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
             vehicle.maximum_lift_coefficient = maximum_lift_coefficient
         except:
@@ -125,10 +127,9 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     # ==============================================
     # Getting engine thrust
     # ==============================================    
-    state = Data()
-    state.conditions = Aerodynamics() 
-    state.numerics   = Numerics()
+    state = SUAVE.Analyses.Mission.Segments.Conditions.State()
     conditions = state.conditions
+    conditions.update( SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics() )
 
     conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho * speed_for_thrust**2))
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
@@ -210,8 +211,8 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         # Compute 2nd segment climb gradient
         second_seg_climb_gradient = thrust / (weight*sea_level_gravity) - 1. / l_over_d_v2
 
-        return takeoff_field_length, second_seg_climb_gradient
+        return takeoff_field_length[0][0], second_seg_climb_gradient[0][0]
 
     else:
         # return only takeoff_field_length
-        return takeoff_field_length
+        return takeoff_field_length[0][0]

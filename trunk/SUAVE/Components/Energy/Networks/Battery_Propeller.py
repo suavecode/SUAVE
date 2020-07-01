@@ -283,7 +283,7 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.battery_current                      = abs(battery.current)
         conditions.propulsion.battery_power_draw                   = -battery_power_draw
         conditions.propulsion.battery_energy                       = battery.current_energy
-        conditions.propulsion.battery_max_aged_energy                   = battery.current_energy
+        conditions.propulsion.battery_max_aged_energy              = battery.max_energy
         conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit 
         conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load  
         conditions.propulsion.battery_charge_throughput            = battery.cell_charge_throughput   
@@ -315,7 +315,7 @@ class Battery_Propeller(Propulsor):
             rev_thrust = 1
             
         F                                         = rev_thrust*num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
-        mdot                                      = np.zeros_like(F) 
+        mdot                                      = state.ones_row(1)*0.0
         F_mag                                     = np.atleast_2d(np.linalg.norm(F, axis=1))  
         conditions.propulsion.disc_loading        = (F_mag.T)/ (num_engines*np.pi*(R)**2) # [N/m^2]                  
         
@@ -326,7 +326,7 @@ class Battery_Propeller(Propulsor):
          
         results                     = Data()
         results.thrust_force_vector = F
-        results.vehicle_mass_rate   = mdot
+        results.vehicle_mass_rate   = mdot       
         
         return results
     

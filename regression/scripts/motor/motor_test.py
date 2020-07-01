@@ -18,7 +18,7 @@ import numpy as np
 import copy, time
 
 def main():
-    '''This script checks the funciosn in in Motor.py used to compute motor toques 
+    '''This script checks the functions in in Motor.py used to compute motor torques 
     and output voltage and currents'''
     # Propeller 
     prop                     = SUAVE.Components.Energy.Converters.Propeller()

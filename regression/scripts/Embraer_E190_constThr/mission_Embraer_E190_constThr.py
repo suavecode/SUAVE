@@ -18,11 +18,8 @@ from SUAVE.Core import Units
 from SUAVE.Plots.Mission_Plots import *  
 import matplotlib.pyplot as plt  
 import numpy as np  
-import copy, time
 
-from SUAVE.Core import (
-Data, Container,
-)
+from SUAVE.Core import Data
 
 import sys
 
@@ -154,7 +151,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -293,6 +290,9 @@ def mission_setup(analyses):
     segment.air_speed    = 390.0  * Units.knots
     segment.throttle     = 1.0
 
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg   
+    
     # add to mission
     mission.append_segment(segment)
 
@@ -310,13 +310,7 @@ def mission_setup(analyses):
     segment.atmosphere = atmosphere
     segment.planet     = planet
 
-    segment.air_speed  = 450. * Units.knots #230.  * Units['m/s']
-    ## 35kft:
-    # 415. => M = 0.72
-    # 450. => M = 0.78
-    # 461. => M = 0.80
-    ## 37kft:
-    # 447. => M = 0.78
+    segment.air_speed  = 450. * Units.knots #230.  * Units['m/s'] 
     segment.distance   = 2100. * Units.nmi
 
     # add to mission
@@ -360,7 +354,7 @@ def mission_setup(analyses):
 
     segment.altitude_end = 3.657 * Units.km
     segment.air_speed    = 365.0 * Units.knots
-    segment.descent_rate = 2300. * Units['ft/min']
+    segment.descent_rate = 2000. * Units['ft/min']
 
     # append to mission
     mission.append_segment(segment)

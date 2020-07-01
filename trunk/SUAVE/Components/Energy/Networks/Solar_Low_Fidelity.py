@@ -65,7 +65,7 @@ class Solar_Low_Fidelity(Propulsor):
         self.nacelle_dia       = None
         self.engine_length     = None
         self.number_of_engines = None
-        self.tag         = 'Network'
+        self.tag               = 'Solar_Low_Fidelity'
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -186,7 +186,7 @@ class Solar_Low_Fidelity(Propulsor):
         
         #Create the outputs
         F                                        = num_engines * F * [1,0,0]      
-        mdot                                     = np.zeros_like(F)
+        mdot                                     = state.conditions.ones_row(1)*0.0
         F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))  
         conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R)**2)   # N/m^2                 
         conditions.propulsion.power_loading      = (F_mag.T)/(P )  # N/W                        

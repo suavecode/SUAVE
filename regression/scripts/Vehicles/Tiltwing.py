@@ -35,7 +35,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff             = 2250. * Units.lb 
     vehicle.mass_properties.operating_empty     = 2250. * Units.lb
     vehicle.mass_properties.max_takeoff         = 2250. * Units.lb
-    vehicle.mass_properties.center_of_gravity   = [ 2.0144,   0.  ,  0.] 
+    vehicle.mass_properties.center_of_gravity   = [[ 2.0144,   0.  ,  0.]]
                                                 
     vehicle.reference_area                      = 10.58275476  
     vehicle.envelope.ultimate_load              = 5.7
@@ -52,7 +52,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord     = 0.0
     wing.thickness_to_chord       = 0.18  
     wing.taper                    = 1.  
-    wing.span_efficiency          = 0.9  
     wing.spans.projected          = 6.65 
     wing.chords.root              = 0.95 
     wing.total_length             = 0.95   
@@ -64,7 +63,7 @@ def vehicle_setup():
     wing.areas.exposed            = 12.635  
     wing.twists.root              = 0.  
     wing.twists.tip               = 0.  
-    wing.origin                   = [0.0,  0.0 , 0.0]
+    wing.origin                   = [[0.0,  0.0 , 0.0]]
     wing.aerodynamic_center       = [0., 0., 0.]     
     wing.winglet_fraction         = 0.0  
     wing.symmetric                = True
@@ -102,7 +101,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord     = 0.0
     wing.thickness_to_chord       = 0.18  
     wing.taper                    = 1.  
-    wing.span_efficiency          = 0.9  
     wing.spans.projected          = 6.65 
     wing.chords.root              = 0.95 
     wing.total_length             = 0.95   
@@ -114,7 +112,7 @@ def vehicle_setup():
     wing.areas.exposed            = 12.635  
     wing.twists.root              = 0.  
     wing.twists.tip               = 0.  
-    wing.origin                   = [ 5.138, 0.0 ,1.24 ]
+    wing.origin                   = [[ 5.138, 0.0 ,1.24 ]]
     wing.aerodynamic_center       = [0., 0., 0.]     
     wing.winglet_fraction         = 0.0  
     wing.symmetric                = True
@@ -152,7 +150,6 @@ def vehicle_setup():
     # FUSELAGE PROPERTIES                       
     fuselage                                    = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag                                = 'fuselage' 
-    fuselage.origin                             = [0. , 0.,  0.] 
     fuselage.seats_abreast                      = 0.  
     fuselage.seat_pitch                         = 1.  
     fuselage.fineness.nose                      = 1.5 
@@ -451,8 +448,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config                                      = SUAVE.Components.Configs.Config(base_config)
     config.tag                                  = 'hover'
-    config.propulsors.propulsor.thrust_angle    = 90.0 * Units.degrees
-    config.propulsors.propulsor.pitch_command   = 0.  * Units.degrees    
+    config.propulsors.vectored_thrust.thrust_angle    = 90.0 * Units.degrees
+    config.propulsors.vectored_thrust.pitch_command   = 0.  * Units.degrees    
     configs.append(config)
     
     # ------------------------------------------------------------------
@@ -460,8 +457,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config                                      = SUAVE.Components.Configs.Config(base_config)
     config.tag                                  = 'hover_climb'
-    config.propulsors.propulsor.thrust_angle    = 90.0 * Units.degrees
-    config.propulsors.propulsor.pitch_command   = -5.  * Units.degrees    
+    config.propulsors.vectored_thrust.thrust_angle    = 90.0 * Units.degrees
+    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees    
     configs.append(config)
     
     # ------------------------------------------------------------------
@@ -469,8 +466,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config                                      = SUAVE.Components.Configs.Config(base_config)
     config.tag                                  = 'cruise'
-    config.propulsors.propulsor.thrust_angle    =  0. * Units.degrees
-    config.propulsors.propulsor.pitch_command   = 10.  * Units.degrees  
+    config.propulsors.vectored_thrust.thrust_angle    =  0. * Units.degrees
+    config.propulsors.vectored_thrust.pitch_command   = 10.  * Units.degrees  
     configs.append(config)  
     
     return configs

@@ -14,8 +14,8 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
 
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Lift import compute_aircraft_lift
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag import compute_aircraft_drag
+from SUAVE.Methods.Aerodynamics.Supersonic.Lift import compute_aircraft_lift
+from SUAVE.Methods.Aerodynamics.Supersonic.Drag import compute_aircraft_drag
 
 import numpy as np
 import pylab as plt
@@ -36,7 +36,7 @@ def main():
         wing.areas.wetted   = 2.0 * wing.areas.reference
         wing.areas.exposed  = 0.8 * wing.areas.wetted
         wing.areas.affected = 0.6 * wing.areas.wetted    
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic()
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     vehicle.aerodynamics_model = aerodynamics   
@@ -414,7 +414,7 @@ if __name__ == '__main__':
         
         
     # initalize the aero model
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
     
     ## modify inviscid wings - linear model

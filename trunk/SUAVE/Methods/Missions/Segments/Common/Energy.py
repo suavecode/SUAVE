@@ -75,7 +75,10 @@ def initialize_battery(segment):
         battery_discharge                = True
         
     if 'battery_cell_temperature' in segment:
-        temperature_initial              = segment.battery_cell_temperature 
+        temperature_initial              = segment.battery_cell_temperature   
+    
+    if segment.battery_discharge == False: 
+        battery_max_aged_energy            = initial_mission_energy*battery_capacity_fade_factor
     
     segment.state.conditions.propulsion.battery_max_initial_energy       = initial_mission_energy
     segment.state.conditions.propulsion.battery_energy[:,0]              = intial_segment_energy 
@@ -169,8 +172,7 @@ def update_battery_age(segment):
             battery_resistance_growth_factor (capactance (energy) growth factor)   [unitless]  
             
     """
-
-    E_max0     = segment.conditions.propulsion.battery_max_initial_energy    
+   
     n_series   = segment.conditions.propulsion.battery_configuration.series  
     SOC        = segment.conditions.propulsion.battery_state_of_charge
     V_ul       = segment.conditions.propulsion.battery_voltage_under_load/n_series
@@ -188,6 +190,7 @@ def update_battery_age(segment):
     
     E_fade_factor   = 1 - alpha_cap*(t**0.75) - beta_cap*np.sqrt(Q_prior)   
     R_growth_factor = 1 + alpha_res*(t**0.75) + beta_res*Q_prior 
+    
     segment.conditions.propulsion.battery_capacity_fade_factor     = E_fade_factor  
     segment.conditions.propulsion.battery_resistance_growth_factor = R_growth_factor
-    segment.conditions.propulsion.battery_max_aged_energy          = E_max0*E_fade_factor
+    

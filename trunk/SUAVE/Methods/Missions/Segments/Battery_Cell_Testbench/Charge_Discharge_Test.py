@@ -28,7 +28,6 @@ def initialize_conditions(segment):
         intial_segment_energy = segment.battery_energy  
     else:
         intial_segment_energy = 0.0
-        
      
     if segment.battery_discharge == False: 
         E_growth_factor = segment.conditions.propulsion.battery_capacity_fade_factor
