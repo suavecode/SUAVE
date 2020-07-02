@@ -93,9 +93,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.cell.surface_area                             = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)   # [m^2]
                                                            
         self.pack_config.series                            = 1
-        self.pack_config.parallel                          = 1  
-        self.module_config.series                          = 1
-        self.module_config.parallel                        = 1
+        self.pack_config.parallel                          = 1   
         self.module_config.normal_count                    = 1    # number of cells normal to flow
         self.module_config.parallel_count                  = 1    # number of cells parallel to flow      
         self.module_config.normal_spacing                  = 0.02

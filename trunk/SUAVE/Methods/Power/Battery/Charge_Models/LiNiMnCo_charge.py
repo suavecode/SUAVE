@@ -92,10 +92,7 @@ def LiNiMnCo_charge(battery,numerics):
     # ---------------------------------------------------------------------------------
     # Compute battery electrical properties 
     # --------------------------------------------------------------------------------- 
-    # Calculate the current going into one cell 
-    n_module_series   = battery.module_config.series  
-    n_module_parallel = battery.module_config.parallel    
-    n_module          = n_module_series * n_module_parallel
+    # Calculate the current going into one cell  
     n_series          = battery.pack_config.series  
     n_parallel        = battery.pack_config.parallel
     n_total           = n_series * n_parallel 
