@@ -56,62 +56,63 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         N/A
     """      
     def __defaults__(self):
-        self.tag                                  = 'Lithium_Ion_Battery'
-        self.chemistry                            = 'LiNiMnCoO2' 
-        self.cell                                 = Data()   
-        self.module                               = Data()        
-        self.pack_config                          = Data()
-        self.module_config                        = Data()
-        self.cooling_fluid                        = Data()
-                                                  
-        self.mass_properties.mass                 = 0.048 * Units.kg
-        self.cell.mass                            = 0.048 * Units.kg 
-        self.cell.density                         = 1760        # [kg/m^3] 
-        self.cell.volume                          = 3.2E-5      # [m^3] 
-        self.cell.electrode_area                  = 0.0346  # [m^2] 
-                                                  
-        self.cell.max_voltage                     = 4.2     # [V]
-        self.cell.nominal_capacity                = 3.55    # [Amp-Hrs]
-        self.cell.nominal_voltage                 = 3.6     # [V]
-        self.cell.charging_SOC_cutoff             = 1.         
-        self.cell.charging_voltage                = self.cell.nominal_voltage   # [V]  
-        self.cell.charging_current                = 3.0                         # [Amps]        
-        self.watt_hour_rating                     = self.cell.nominal_capacity  * self.cell.nominal_voltage  # [Watt-hours]      
-        self.specific_energy                      = self.watt_hour_rating*Units.Wh/self.mass_properties.mass # [J/kg]
-        self.specific_power                       = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
-        self.resistance                           = 0.025   # [Ohms]
-                                                            #
-        self.specific_heat_capacity               = 1108    # [J/kgK]  
-        self.heat_transfer_coefficient            = 75      # [W/m^2K]   
-        #self.heat_transfer_coefficient            = 7.17    # [W/m^2K] Natural Free Air heat convection 
-        #self.heat_transfer_coefficient            = 35      # [W/m^2K]  Thermal Performance of EV and HEV Battery Modules and Packs 
-        self.cell.specific_heat_capacity          = 1108    # [J/kgK]  
-        self.cell.thermal_conductivity            = 3.91    # [J/kgK] 
-                                                  
-        self.cell.diameter                        = 0.018   # [m]
-        self.cell.height                          = 0.06485 # [m]
-        self.cell.surface_area                    = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)   # [m^2]
-                                                  
-        self.pack_config.series                   = 1
-        self.pack_config.parallel                 = 1  
-        self.module_config.series                 = 1
-        self.module_config.parallel               = 1
-        self.module_config.normal_count           = 1    # number of cells normal to flow
-        self.module_config.parallel_count         = 1    # number of cells parallel to flow      
-        self.module_config.normal_spacing         = 0.02
-        self.module_config.parallel_spacing       = 0.02
-                                                  
-        self.cooling_fluid.tag                    = 'air'
-        self.cooling_fluid.thermal_conductivity   = 0.0253 #W/mK
-        self.cooling_fluid.specific_heat_capacity = 1007   # K/kgK
-        self.cooling_fluid.flowspeed              = 0.1
-        self.cooling_fluid.kinematic_viscosity_fit= kinematic_viscosity_model() # Pa/s
-        self.cooling_fluid.prandlt_number_fit     = prandlt_number_model()
-        
-        self.discharge_model                      = LiNiMnCo_discharge
-        self.charge_model                         = LiNiMnCo_charge 
-                                                  
-        self.discharge_performance_map            = create_discharge_performance_map()
+        self.tag                                           = 'Lithium_Ion_Battery'
+        self.chemistry                                     = 'LiNiMnCoO2' 
+        self.cell                                          = Data()   
+        self.module                                        = Data()        
+        self.pack_config                                   = Data()
+        self.module_config                                 = Data()
+        self.cooling_fluid                                 = Data()
+                                                           
+        self.mass_properties.mass                          = 0.048 * Units.kg
+        self.cell.mass                                     = 0.048 * Units.kg 
+        self.cell.density                                  = 1760        # [kg/m^3] 
+        self.cell.volume                                   = 3.2E-5      # [m^3] 
+        self.cell.electrode_area                           = 0.0346  # [m^2] 
+                                                           
+        self.cell.max_voltage                              = 4.2     # [V]
+        self.cell.nominal_capacity                         = 3.55    # [Amp-Hrs]
+        self.cell.nominal_voltage                          = 3.6     # [V]
+        self.cell.charging_SOC_cutoff                      = 1.         
+        self.cell.charging_voltage                         = self.cell.nominal_voltage   # [V]  
+        self.cell.charging_current                         = 3.0                         # [Amps]        
+        self.watt_hour_rating                              = self.cell.nominal_capacity  * self.cell.nominal_voltage  # [Watt-hours]      
+        self.specific_energy                               = self.watt_hour_rating*Units.Wh/self.mass_properties.mass # [J/kg]
+        self.specific_power                                = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
+        self.resistance                                    = 0.025   # [Ohms]
+                                                                     #
+        self.specific_heat_capacity                        = 1108    # [J/kgK]  
+        self.heat_transfer_coefficient                     = 75      # [W/m^2K]   
+        #self.heat_transfer_coefficient                     = 7.17    # [W/m^2K] Natural Free Air heat convection 
+        #self.heat_transfer_coefficient                     = 35      # [W/m^2K]  Thermal Performance of EV and HEV Battery Modules and Packs 
+        self.cell.specific_heat_capacity                   = 1108    # [J/kgK]  
+        self.cell.thermal_conductivity                     = 3.91    # [J/kgK] 
+                                                           
+        self.cell.diameter                                 = 0.018   # [m]
+        self.cell.height                                   = 0.06485 # [m]
+        self.cell.surface_area                             = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)   # [m^2]
+                                                           
+        self.pack_config.series                            = 1
+        self.pack_config.parallel                          = 1  
+        self.module_config.series                          = 1
+        self.module_config.parallel                        = 1
+        self.module_config.normal_count                    = 1    # number of cells normal to flow
+        self.module_config.parallel_count                  = 1    # number of cells parallel to flow      
+        self.module_config.normal_spacing                  = 0.02
+        self.module_config.parallel_spacing                = 0.02
+                                                           
+        self.cooling_fluid.tag                             = 'air'
+        self.cooling_fluid.thermal_conductivity            = 0.0253 #W/mK
+        self.cooling_fluid.specific_heat_capacity          = 1007   # K/kgK
+        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.1
+        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.2
+        self.cooling_fluid.kinematic_viscosity_fit         = kinematic_viscosity_model() # Pa/s
+        self.cooling_fluid.prandlt_number_fit              = prandlt_number_model()
+                                                           
+        self.discharge_model                               = LiNiMnCo_discharge
+        self.charge_model                                  = LiNiMnCo_charge 
+                                                           
+        self.discharge_performance_map                     = create_discharge_performance_map()
         
         return 
 def prandlt_number_model():

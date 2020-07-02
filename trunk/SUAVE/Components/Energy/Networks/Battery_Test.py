@@ -86,7 +86,7 @@ class Battery_Test(Propulsor):
         # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy  
         battery.temperature         = conditions.propulsion.battery_temperature
-        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput
+        battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput
         battery.ambient_temperature = conditions.propulsion.ambient_temperature          
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
         discharge_flag              = conditions.propulsion.battery_discharge 
@@ -187,7 +187,7 @@ class Battery_Test(Propulsor):
         conditions.propulsion.battery_current                      = abs( battery.current )
         conditions.propulsion.battery_power_draw                   = battery.inputs.power_in 
         conditions.propulsion.battery_energy                       = battery.current_energy  
-        conditions.propulsion.battery_charge_throughput            = battery.cell_charge_throughput 
+        conditions.propulsion.battery_cumulative_charge_throughput = battery.cumulative_cell_charge_throughput 
         conditions.propulsion.battery_state_of_charge              = battery.state_of_charge
         conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
         conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load  

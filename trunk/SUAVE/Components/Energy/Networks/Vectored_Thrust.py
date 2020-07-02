@@ -111,7 +111,7 @@ class Vectored_Thrust(Propulsor):
         # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy  
         battery.temperature         = conditions.propulsion.battery_temperature
-        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput
+        battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput
         battery.ambient_temperature = conditions.propulsion.ambient_temperature          
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
         discharge_flag              = conditions.propulsion.battery_discharge    
@@ -252,25 +252,25 @@ class Vectored_Thrust(Propulsor):
         rpm                       = motor.outputs.omega*60./(2.*np.pi)
         battery_power_draw              = abs(battery.inputs.power_in)
         
-        conditions.propulsion.rpm                             = rpm  
-        conditions.propulsion.battery_current                 = abs(battery.inputs.current)        
-        conditions.propulsion.battery_power_draw              = -battery_power_draw
-        conditions.propulsion.battery_energy                  = battery.current_energy  
-        conditions.propulsion.battery_voltage_open_circuit    = battery.voltage_open_circuit
-        conditions.propulsion.battery_voltage_under_load      = battery.voltage_under_load    
-        conditions.propulsion.motor_torque                    = motor.outputs.torque
-        conditions.propulsion.rotor_torque                    = Q 
-        conditions.propulsion.acoustic_outputs[rotor.tag]     = outputs   
-        conditions.propulsion.battery_state_of_charge         = battery.state_of_charge        
-        conditions.propulsion.battery_charge_throughput       = battery.cell_charge_throughput          
-        conditions.propulsion.battery_cell_temperature        = battery.cell_temperature        
-        conditions.propulsion.battery_specfic_power           = -battery_power_draw/battery.mass_properties.mass #Wh/kg
-        conditions.propulsion.electronics_efficiency          = -(P*num_engines)/battery_power_draw   
-        conditions.propulsion.rotor_tip_mach                  = (R*motor.outputs.omega)/a
-        conditions.propulsion.battery_efficiency              = (battery_power_draw+battery.resistive_losses)/battery_power_draw
-        conditions.propulsion.payload_efficiency              = (battery_power_draw+(avionics.outputs.power + payload.outputs.power))/battery_power_draw            
-        conditions.propulsion.rotor_power                     = P*num_engines    
-        conditions.propulsion.battery_age_in_days             = battery.age_in_days 
+        conditions.propulsion.rpm                                  = rpm  
+        conditions.propulsion.battery_current                      = abs(battery.inputs.current)        
+        conditions.propulsion.battery_power_draw                   = -battery_power_draw
+        conditions.propulsion.battery_energy                       = battery.current_energy  
+        conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load    
+        conditions.propulsion.motor_torque                         = motor.outputs.torque
+        conditions.propulsion.rotor_torque                         = Q 
+        conditions.propulsion.acoustic_outputs[rotor.tag]          = outputs   
+        conditions.propulsion.battery_state_of_charge              = battery.state_of_charge        
+        conditions.propulsion.battery_cumulative_charge_throughput = battery.cumulative_cell_charge_throughput          
+        conditions.propulsion.battery_cell_temperature             = battery.cell_temperature        
+        conditions.propulsion.battery_specfic_power                = -battery_power_draw/battery.mass_properties.mass #Wh/kg
+        conditions.propulsion.electronics_efficiency               = -(P*num_engines)/battery_power_draw   
+        conditions.propulsion.rotor_tip_mach                       = (R*motor.outputs.omega)/a
+        conditions.propulsion.battery_efficiency                   = (battery_power_draw+battery.resistive_losses)/battery_power_draw
+        conditions.propulsion.payload_efficiency                   = (battery_power_draw+(avionics.outputs.power + payload.outputs.power))/battery_power_draw            
+        conditions.propulsion.rotor_power                          = P*num_engines    
+        conditions.propulsion.battery_age_in_days                  = battery.age_in_days 
         
         if battery.chemistry == 'LiNCA':   
             conditions.propulsion.battery_thevenin_voltage = battery.thevenin_voltage   

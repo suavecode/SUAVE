@@ -116,7 +116,7 @@ class Battery_Propeller(Propulsor):
         # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy
         battery.temperature         = conditions.propulsion.battery_temperature
-        battery.charge_throughput   = conditions.propulsion.battery_charge_throughput
+        battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput
         battery.ambient_temperature = conditions.propulsion.ambient_temperature          
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
         discharge_flag              = conditions.propulsion.battery_discharge    
@@ -286,7 +286,8 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.battery_max_aged_energy              = battery.max_energy
         conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit 
         conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load  
-        conditions.propulsion.battery_charge_throughput            = battery.cell_charge_throughput   
+        conditions.propulsion.battery_cumulative_charge_throughput = battery.cumulative_cell_charge_throughput 
+        conditions.propulsion.battery_charge_throughput            = battery.cell_charge_throughput 
         conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 
         conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 
         conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage          
@@ -299,6 +300,7 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.battery_cell_voltage_open_circuit    = battery.cell_voltage_open_circuit  
         conditions.propulsion.battery_cell_current                 = abs(battery.cell_current)        
         conditions.propulsion.battery_cell_temperature             = battery.cell_temperature
+        conditions.propulsion.battery_cell_heat_energy_generated   = battery.heat_energy_generated
         conditions.propulsion.battery_cell_joule_heat_fraction     = battery.cell_joule_heat_fraction   
         conditions.propulsion.battery_cell_entropy_heat_fraction   = battery.cell_entropy_heat_fraction
 

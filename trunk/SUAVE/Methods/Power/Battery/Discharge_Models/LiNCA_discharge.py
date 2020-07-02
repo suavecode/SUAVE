@@ -162,7 +162,7 @@ def LiNCA_discharge (battery,numerics):
     battery.current                  = I_bat 
     battery.voltage_open_circuit     = V_oc*n_series
     battery.thevenin_voltage         = V_Th*n_series
-    battery.cell_charge_throughput   = Q_total 
+    battery.cumulative_cell_charge_throughput   = Q_total 
     battery.internal_resistance      = R_0*n_series 
     battery.state_of_charge          = SOC_new
     battery.depth_of_discharge       = DOD_new

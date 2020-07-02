@@ -158,7 +158,7 @@ def LiNiMnCo_discharge(battery,numerics):
     S_L     = battery.module_config.parallel_spacing                       
     K_air   = battery.cooling_fluid.thermal_conductivity    
     Cp_air  = battery.cooling_fluid.specific_heat_capacity  
-    V_air   = battery.cooling_fluid.flowspeed     
+    V_air   = battery.cooling_fluid.discharge_air_cooling_flowspeed
     rho_air = 2E-5*(T_ambient**2)- 0.0048**T_ambient + 1.2926
     nu_fit  = battery.cooling_fluid.kinematic_viscosity_fit  
     Pr_fit  = battery.cooling_fluid.prandlt_number_fit     
@@ -252,30 +252,33 @@ def LiNiMnCo_discharge(battery,numerics):
     DOD_new = 1 - SOC_new 
     
     # Determine new charge throughput (the amount of charge gone through the battery)
-    Q_total  = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
+    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
+    Q_segment  = np.atleast_2d(np.hstack(( np.zeros_like(Q_prior[0]) , cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
     
     # If SOC is negative, voltage under load goes to zero 
     V_ul[SOC_new < 0.] = 0.
         
     # Pack outputs
-    battery.current_energy              = E_current
-    battery.cell_temperature            = T_current
-    battery.pack_temperature            = T_current 
-    battery.cell_joule_heat_fraction    = q_joule_frac
-    battery.cell_entropy_heat_fraction  = q_entropy_frac
-    battery.resistive_losses            = P_loss
-    battery.load_power                  = V_ul*n_series*I_bat
-    battery.current                     = I_bat
-    battery.voltage_open_circuit        = V_oc*n_series
-    battery.cell_voltage_open_circuit   = V_oc
-    battery.cell_current                = I_cell
-    battery.thevenin_voltage            = V_Th*n_series
-    battery.cell_charge_throughput      = Q_total 
-    battery.internal_resistance         = R_0*n_series
-    battery.state_of_charge             = SOC_new
-    battery.depth_of_discharge          = DOD_new
-    battery.voltage_under_load          = V_ul*n_series 
-    battery.cell_voltage_under_load     = V_ul
+    battery.current_energy                     = E_current
+    battery.cell_temperature                   = T_current
+    battery.pack_temperature                   = T_current 
+    battery.cell_joule_heat_fraction           = q_joule_frac
+    battery.cell_entropy_heat_fraction         = q_entropy_frac
+    battery.resistive_losses                   = P_loss
+    battery.load_power                         = V_ul*n_series*I_bat
+    battery.current                            = I_bat
+    battery.voltage_open_circuit               = V_oc*n_series
+    battery.cell_voltage_open_circuit          = V_oc
+    battery.cell_current                       = I_cell
+    battery.thevenin_voltage                   = V_Th*n_series
+    battery.cumulative_cell_charge_throughput  = Q_total 
+    battery.cell_charge_throughput             = Q_segment 
+    battery.heat_energy_generated              = Q_heat_gen*Ntot
+    battery.internal_resistance                = R_0*n_series
+    battery.state_of_charge                    = SOC_new
+    battery.depth_of_discharge                 = DOD_new
+    battery.voltage_under_load                 = V_ul*n_series 
+    battery.cell_voltage_under_load            = V_ul
     
     return battery
 
