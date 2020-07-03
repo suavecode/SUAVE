@@ -96,8 +96,7 @@ class Battery_Test(Propulsor):
         battery.E_growth_factor     = E_growth_factor
         V_th0                       = conditions.propulsion.battery_initial_thevenin_voltage
         n_series                    = battery.pack_config.series  
-        n_parallel                  = battery.pack_config.parallel
-        n_total                     = n_series * n_parallel          
+        n_parallel                  = battery.pack_config.parallel    
 
          
         #-------------------------------------------------------------------------------
@@ -198,8 +197,15 @@ class Battery_Test(Propulsor):
         conditions.propulsion.battery_cell_joule_heat_fraction     = battery.cell_joule_heat_fraction   
         conditions.propulsion.battery_cell_entropy_heat_fraction   = battery.cell_entropy_heat_fraction        
         conditions.propulsion.battery_specfic_power                = -(battery.inputs.power_in /1000)/battery.mass_properties.mass   
+          
+        F     = np.zeros_like(volts)  * [0,0,0]      
+        mdot  = state.ones_row(1)*0.0
+         
+        results                     = Data()
+        results.thrust_force_vector = F
+        results.vehicle_mass_rate   = mdot  
         
-        return  
+        return results 
     
 
     def unpack_unknowns_linmco(self,segment):         
