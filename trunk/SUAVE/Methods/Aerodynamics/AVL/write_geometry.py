@@ -112,9 +112,9 @@ def make_header_text(avl_object):
     Sref  = avl_object.geometry.wings['main_wing'].areas.reference
     Cref  = avl_object.geometry.wings['main_wing'].chords.mean_aerodynamic
     Bref  = avl_object.geometry.wings['main_wing'].spans.projected
-    Xref  = avl_object.geometry.mass_properties.center_of_gravity[0]
-    Yref  = avl_object.geometry.mass_properties.center_of_gravity[1]
-    Zref  = avl_object.geometry.mass_properties.center_of_gravity[2]
+    Xref  = avl_object.geometry.mass_properties.center_of_gravity[0][0]
+    Yref  = avl_object.geometry.mass_properties.center_of_gravity[0][1]
+    Zref  = avl_object.geometry.mass_properties.center_of_gravity[0][2]
     name  = avl_object.geometry.tag
 
     mach = 0.0
@@ -168,7 +168,7 @@ SURFACE
         # Define precision of analysis. See AVL documentation for reference 
         chordwise_vortex_spacing = 1.0
         spanwise_vortex_spacing  = -1.1                              # cosine distribution i.e. || |   |    |    |  | ||
-        ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[2])
+        ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[0][2])
         
         # Write text 
         surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices ,spanwise_vortex_spacing,ydup)
@@ -181,7 +181,7 @@ SURFACE
         # Define precision of analysis. See AVL documentation for reference
         chordwise_vortex_spacing = 1.0        
         spanwise_vortex_spacing  = 1.0                              # cosine distribution i.e. || |   |    |    |  | ||
-        ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[1])
+        ordered_tags = sorted(avl_wing.sections, key = lambda x: x.origin[0][1])
     
         # Write text  
         surface_text = surface_base.format(name,chordwise_vortices,chordwise_vortex_spacing,spanwise_vortices ,spanwise_vortex_spacing,ydup)
@@ -285,9 +285,9 @@ SECTION
 {}
 '''
     # Unpack inputs
-    x_le          = avl_section.origin[0]
-    y_le          = avl_section.origin[1]
-    z_le          = avl_section.origin[2]
+    x_le          = avl_section.origin[0][0]
+    y_le          = avl_section.origin[0][1]
+    z_le          = avl_section.origin[0][2]
     chord         = avl_section.chord
     ainc          = avl_section.twist
     airfoil_coord = avl_section.airfoil_coord_file

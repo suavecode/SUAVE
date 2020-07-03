@@ -26,12 +26,7 @@ YDUPLICATE
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-<<<<<<< HEAD
-13.61  0    -1.27    7.76    0.06981317007977318     
-
-=======
 13.61  0    -1.27    7.76    0.0698     
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 AFILE
 B737a.dat
 
@@ -61,20 +56,9 @@ SECTION
 AFILE
 B737c.dat
 CONTROL
-<<<<<<< HEAD
-aileron    1.0   0.84   0. 0. 0.  -1.0
-
-SECTION
-#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-15.045609061585779  12.870000000000001    -1.2535185160082583    2.4314666666666667    0.0005077931772188462     
-
-AFILE
-B737c.txt
-=======
 slat    -1.0   -0.075   0. 0. 0.  +1
 CONTROL
 flap    1.0   0.7   0. 0. 0.  +1
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 CONTROL
 aileron    -1.0   0.84   0. 0. 0.  -1
 
@@ -92,11 +76,7 @@ SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
 24.4559  17.16    0.0897    0.782    0.0     
 AFILE
-<<<<<<< HEAD
-B737c.txt
-=======
 B737d.dat
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 
 
 #---------------------------------------------------------
@@ -115,11 +95,7 @@ SECTION
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-<<<<<<< HEAD
-32.92176188194608  0.6389999999999999    1.141679837954334    4.362869    0.0     
-=======
 33.4279  0.639    1.237    4.3629    0.0     
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 CONTROL
 elevator    1.0   0.7   0. 0. 0.  +1
 
@@ -131,11 +107,7 @@ elevator    1.0   0.7   0. 0. 0.  +1
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-<<<<<<< HEAD
-33.84957646606764  7.1    1.1586648661592673    0.9541000000000001    0.0     
-=======
 39.4731  7.1    2.2176    0.9541    0.0     
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 
 
 #---------------------------------------------------------
@@ -150,19 +122,11 @@ SECTION
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-<<<<<<< HEAD
-29.76109723934862  0.0    3.048738    4.4226    0.0     
-
-SECTION
-#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
-30.565718987919198  0.0    9.317    1.43325    0.0     
-=======
 32.7752  0.0    3.0487    4.4226    0.0     
 
 SECTION
 #Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
 37.1415  0.0    9.317    1.4332    0.0     
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 
 
 #---------------------------------------------------------

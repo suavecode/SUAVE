@@ -73,10 +73,10 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 106.17937888428949  
-    truth_rpm = 160.76100043739908 
-    truth_i   = 131.4126494489281  
-    truth_bat = 88521341.18491648
+    truth_F   = 103.21142960021062
+    truth_rpm = 159.01582417482118
+    truth_i   = 127.37614381819269
+    truth_bat = 88527918.2771849
     
     print('battery energy')
     print(energy)
@@ -141,6 +141,7 @@ def base_analysis(vehicle): # --------------------------------------------------
     aerodynamics.settings.plot_vortex_distribution   = True 
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
+    aerodynamics.settings.span_efficiency = 0.98
     analyses.append(aerodynamics)
     
     # ------------------------------------------------------------------
@@ -184,10 +185,10 @@ def mission_setup(analyses,vehicle):
     # base segment
     base_segment = Segments.Segment()   
     ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals    
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.propulsor.propeller.power_coefficient  * ones_row(1)/15.
+    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.power_coefficient  * ones_row(1)/15.
     base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    
@@ -206,7 +207,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
-    segment.battery_energy = vehicle.propulsors.propulsor.battery.max_energy*0.3 #Charge the battery to start
+    segment.battery_energy = vehicle.propulsors.solar.battery.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
     

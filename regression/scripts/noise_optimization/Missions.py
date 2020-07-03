@@ -214,12 +214,9 @@ def base(analyses):
     segment.air_speed  = 450. * Units.knots
     segment.distance   = 2050. * Units.nmi
 
-<<<<<<< HEAD
-=======
     ones_row = segment.state.ones_row
     segment.state.unknowns.body_angle  = ones_row(1) * 4.  * Units.degrees  
 
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
     # add to mission
     mission.append_segment(segment)
 
@@ -314,13 +311,10 @@ def base(analyses):
     segment.mach_end       = 0.3
     segment.mach_start     = 0.2
     
-<<<<<<< HEAD
-=======
     ones_row = segment.state.ones_row
     segment.state.unknowns.throttle   = ones_row(1) * 1.0 
     segment.state.unknowns.body_angle  = ones_row(1) * 8. * Units.degrees 
     
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
     # add to misison
     mission.append_segment(segment)
     
@@ -532,16 +526,10 @@ def max_range_setup(analyses):
 
     segment.air_speed  = 450. * Units.knots
     segment.distance   = 2050. * Units.nmi
-<<<<<<< HEAD
-    
-    segment.state.numerics.number_control_points = 10
-
-=======
      
     ones_row = segment.state.ones_row
     segment.state.unknowns.body_angle  = ones_row(1) * 4. * Units.degrees  
     
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
     # add to mission
     mission.append_segment(segment)
 
@@ -635,13 +623,10 @@ def max_range_setup(analyses):
     segment.mach_end       = 0.3
     segment.mach_start     = 0.2
     
-<<<<<<< HEAD
-=======
     ones_row = segment.state.ones_row
     segment.state.unknowns.throttle   = ones_row(1) * 1.0  
     segment.state.unknowns.body_angle  = ones_row(1) * 8. * Units.degrees 
     
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
     # add to misison
     mission.append_segment(segment)
     

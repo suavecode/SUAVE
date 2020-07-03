@@ -87,9 +87,10 @@ def write_run_cases(avl_object,trim_aircraft):
     purge_files([batch_filename]) 
     with open(batch_filename,'w') as runcases:
         # extract C.G. coordinates and moment of intertia tensor
-        x_cg = aircraft.mass_properties.center_of_gravity[0]
-        y_cg = aircraft.mass_properties.center_of_gravity[1]
-        z_cg = aircraft.mass_properties.center_of_gravity[2]
+
+        x_cg = aircraft.mass_properties.center_of_gravity[0][0]
+        y_cg = aircraft.mass_properties.center_of_gravity[0][1]
+        z_cg = aircraft.mass_properties.center_of_gravity[0][2]
         mass = aircraft.mass_properties.mass
         moments_of_inertia = aircraft.mass_properties.moments_of_inertia.tensor
         Ixx  = moments_of_inertia[0][0]

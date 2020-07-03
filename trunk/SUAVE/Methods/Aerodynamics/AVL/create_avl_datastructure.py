@@ -134,6 +134,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                 n_segments           = len(segments.keys())
                 segment_sweeps       = []
                 origin               = []
+
                 origin.append(suave_wing.origin)
                 
                 for i_segs in range(n_segments):
@@ -198,7 +199,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                                 dz = dy*np.tan(dihedral_ob)
                                                 l  = dy/np.cos(dihedral_ob)
                                                 dx = l*np.tan(segment_sweeps[i_segs-1])
-                                        section.origin = ( [origin[i_segs-1][0] + dx , origin[i_segs-1][1] + dy, origin[i_segs-1][2] + dz])               
+                                        section.origin = [( [origin[i_segs-1][0][0] + dx , origin[i_segs-1][0][1] + dy, origin[i_segs-1][0][2] + dz])]              
                                         
                                         # this loop appends all the control surfaces within a particular wing section
                                         for index  , ctrl_surf in enumerate(segments[i_segs].control_surfaces):
@@ -309,7 +310,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                 dz = dy*np.tan(dihedral)
                                 l  = dy/np.cos(dihedral)
                                 dx = l*np.tan(segment_sweep)
-                        origin.append( [origin[i_segs][0] + dx , origin[i_segs][1] + dy, origin[i_segs][2] + dz])               
+                        origin.append( [[origin[i_segs][0][0] + dx , origin[i_segs][0][1] + dy, origin[i_segs][0][2] + dz]])               
          
         else:    
                 symm                  = avl_wing.symmetric
@@ -318,7 +319,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                 span                  = suave_wing.spans.projected
                 semispan              = suave_wing.spans.projected * 0.5 * (2 - symm)
                 avl_wing.semispan     = semispan
-                origin                = suave_wing.origin
+                origin                = suave_wing.origin[0]
                
                 # define root section 
                 root_section          = Section()
@@ -337,7 +338,7 @@ def populate_wing_sections(avl_wing,suave_wing):
              
                 # assign location of wing tip         
                 if avl_wing.vertical:
-                        tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan*np.tan(dihedral),origin[1]+semispan]
+                        tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan*np.tan(dihedral),origin[2]+semispan]
                 else: 
                         tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
                 

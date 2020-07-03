@@ -185,19 +185,11 @@ def vehicle_setup():
     wing.span_efficiency         = 0.9
     
     wing.spans.projected         = 14.2      
-<<<<<<< HEAD
 
     wing.chords.root             = 4.7
     wing.chords.tip              = .955   
     wing.chords.mean_aerodynamic = 8.0
 
-=======
-
-    wing.chords.root             = 4.7
-    wing.chords.tip              = .955   
-    wing.chords.mean_aerodynamic = 8.0
-
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
     wing.areas.reference         = 32.488    
     wing.areas.exposed           = 59.354                  # Exposed area of the horizontal tail
     wing.areas.wetted            = 64.976                    # Wetted area of the horizontal tail

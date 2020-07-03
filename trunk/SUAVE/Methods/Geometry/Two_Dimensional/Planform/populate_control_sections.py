@@ -4,6 +4,8 @@
 # Created:  Jan 2015, T. Momose
 # Modified: Jan 2016, E. Botero 
 #           Jan 2020 M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Append Control Surfaces to Wing Segments
@@ -57,8 +59,8 @@ def populate_control_sections(wing):
     # loop throught the control surfaces on the wing 
     for cs in w_cs :
         sf    = np.zeros(2) # set a temporary data structure to store the span fraction bounds
-        sf[0] = w_cs[cs].span_fraction_start
-        sf[1] = w_cs[cs].span_fraction_end
+        sf[0] = cs.span_fraction_start
+        sf[1] = cs.span_fraction_end
         
         # loop though the segments on the wing
         for i , seg in enumerate(w_seg):
@@ -113,23 +115,23 @@ def populate_control_sections(wing):
                 
                 if append_CS == True:
                     # initialize the data structure for control surfaces , store results, and append to the correct segment 
-                    if (type(w_cs[cs]) ==  Slat):
+                    if (type(cs) ==  Slat):
                         control_surface = Slat() 
-                    elif (type(w_cs[cs]) ==  Flap):
+                    elif (type(cs) ==  Flap):
                         control_surface = Flap() 
-                    elif (type(w_cs[cs]) ==  Aileron):
+                    elif (type(cs) ==  Aileron):
                         control_surface = Aileron()                              
-                    elif (type(w_cs[cs]) ==  Elevator):
+                    elif (type(cs) ==  Elevator):
                         control_surface = Elevator() 
-                    elif (type(w_cs[cs]) ==  Rudder):
+                    elif (type(cs) ==  Rudder):
                         control_surface = Rudder()                          
                         
-                    control_surface.tag                   = w_cs[cs].tag 
+                    control_surface.tag                   =cs.tag 
                     control_surface.span_fraction_start   = s_sf[0] 
                     control_surface.span_fraction_end     = s_sf[1]         
-                    control_surface.chord_fraction        = w_cs[cs].chord_fraction
-                    control_surface.hinge_fraction        = w_cs[cs].hinge_fraction
-                    control_surface.deflection            = w_cs[cs].deflection
+                    control_surface.chord_fraction        = cs.chord_fraction
+                    control_surface.hinge_fraction        = cs.hinge_fraction
+                    control_surface.deflection            = cs.deflection
                     w_seg[i].append_control_surface(control_surface)        
                 
     # returns an updated wing with control surfaces appended onto the wing segments                  

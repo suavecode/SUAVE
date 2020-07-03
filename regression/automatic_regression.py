@@ -5,23 +5,20 @@
 #           Jul 2017, SUAVE Team
 #           Jan 2018, SUAVE Team
 #           May 2019, T. MacDonald
-<<<<<<< HEAD
-#           Mar 2020, M. Clarke
-=======
 #           Mar 2020, M. Clarke 
->>>>>>> 7609450215881bb768e55fb99688a086b2b40c4f
 
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
 
+import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
 import SUAVE
 from SUAVE.Core.DataOrdered import DataOrdered
 import sys, os, traceback, time
-import matplotlib.pyplot as plt
+
 
 # ----------------------------------------------------------------------
 #   How This Works
