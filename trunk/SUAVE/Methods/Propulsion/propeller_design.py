@@ -16,6 +16,9 @@ import scipy as sp
 from SUAVE.Core import Units , Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
      import import_airfoil_geometry
+
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
+     import compute_airfoil_polars
 # ----------------------------------------------------------------------
 #  Propeller Design
 # ----------------------------------------------------------------------
@@ -53,8 +56,10 @@ def propeller_design(prop,number_of_stations=20):
     Cl     = prop.design_Cl           # Design Lift Coefficient
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
-    Power  = prop.design_power
-    a_geo  = prop.airfoil_geometry          
+    Power  = prop.design_power          
+    a_geo  = prop.airfoil_geometry
+    a_pol  = prop.airfoil_polars        
+    a_loc  = prop.airfoil_polar_stations    
     
     if (Thrust == None) and (Power== None):
         raise AssertionError('Specify either design thrust or design power!')
@@ -87,8 +92,7 @@ def propeller_design(prop,number_of_stations=20):
     #Step 1, assume a zeta
     zeta = 0.1 # Assume to be small initially
     
-    #Step 2, determine F and phi at each blade station
-    
+    #Step 2, determine F and phi at each blade station    
     chi0    = Rh/R # Where the propeller blade actually starts
     chi     = np.linspace(chi0,1,N+1) # Vector of nondimensional radii
     chi     = chi[0:N]
@@ -100,7 +104,17 @@ def propeller_design(prop,number_of_stations=20):
     D       = 2.*R
     J       = V/(D*n)
     
+    c = 0.2 * np.ones_like(chi)
+    
     while diff>tol:
+        
+        prop.chord_distribution = c 
+        
+        # compute airfoil polars for airfoils 
+        airfoil_polars  = compute_airfoil_polars(prop, a_geo, a_pol)  
+        airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates 
+        airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates 
+        
         #Things that need a loop
         Tcnew   = Tc
         tanphit = lamda*(1.+zeta/2.)   # Tangent of the flow angle at the tip
@@ -120,7 +134,40 @@ def propeller_design(prop,number_of_stations=20):
         
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         #There is also RE scaling
-        Cdval   = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./RE)**0.2)
+        
+        # NEED TO CORRECT
+        if  a_pol != None and a_loc != None: 
+            alpha = np.zeros_like(RE)
+            Cdval = np.zeros_like(RE)  
+            for i in range(N):
+                AoA_guess = 0.001
+                cl_diff  = 1  
+                broke  = False   
+                ii = 0
+                while cl_diff > 1E-3:
+                    Cl_guess = airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA_guess,grid=False)  
+                    
+                    dCL = (airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA_guess + 1E-6,grid=False) - airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA_guess- 1E-6 ,grid=False))/ (2E-6)
+                    
+                    # compute diff
+                    cl_diff = abs(Cl - Cl_guess)
+                    
+                    # update AoA guess 
+                    AoA_guess_new  = AoA_guess + dCL*(2E-6)
+                    AoA_guess   = AoA_guess_new 
+                    
+                    ii+=1 	
+                    if ii>5000:	
+                        # maximum iterations is 2000	
+                        broke = True	
+                        break                    
+                    
+                alpha[i] = AoA_guess     
+                Cdval[i] = airfoil_cd_surs[a_geo[a_loc[i]]](RE[i],alpha[i],grid=False)  
+        
+        else:       
+            alpha   = Cl/(2.*np.pi) 
+            Cdval   = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./RE)**0.2) 
 
         #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf = 1. + 1.78*(Ma**2)
@@ -130,10 +177,10 @@ def propeller_design(prop,number_of_stations=20):
         
         Cd      = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval
         
-        alpha   = Cl/(2.*np.pi)
+        #Step 5, change Cl and repeat steps 3 and 4 until epsilon is minimized
+        
         epsilon = Cd/Cl
         
-        #Step 5, change Cl and repeat steps 3 and 4 until epsilon is minimized
         
         #Step 6, determine a and a', and W
         

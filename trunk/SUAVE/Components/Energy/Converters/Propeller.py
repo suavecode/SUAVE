@@ -208,8 +208,7 @@ class Propeller(Energy_Component):
             # compute airfoil polars for airfoils 
             airfoil_polars  = compute_airfoil_polars(self, a_geo, a_pol) 
             airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates
-            airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates
-            AoA_sweep       = airfoil_polars.angle_of_attacks
+            airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates 
     
         # set up non dimensional radial distribution 
         if self.radius_distribution is None:
