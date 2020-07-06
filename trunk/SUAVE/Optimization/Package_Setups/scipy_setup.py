@@ -87,8 +87,10 @@ def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08, tol
                 return np.atleast_1d(constraint_val)
             
             bound  = help_fun.scale_const_bnds(con)
-            if con[ii][1]=='=': 
-                nlc = NonlinearConstraint(fun,bound[ii], bound[ii])
+            if con[ii][1]=='=':
+                print('Nonlinear constraints for scipy differential evoultion optimization has '
+                      'the general inequality form. Consider rewriting equality constraint as two '
+                      'separate inequality constraints')
             
             if con[ii][1]=='>':
                 nlc = NonlinearConstraint(fun,bound[ii], np.inf) 

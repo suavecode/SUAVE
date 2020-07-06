@@ -62,6 +62,7 @@ def main():
     problem     = setup(solver_name)
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., Units.less],
+        [ 'x1' , '=',   0., 1., Units.less],
         [ 'x2' , '>',   1., 1., Units.less],
         [ 'x2' , '<',   2., 1., Units.less],
     ])          
