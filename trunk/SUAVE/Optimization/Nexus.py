@@ -15,7 +15,6 @@ import SUAVE
 from SUAVE.Core import Data, DataOrdered
 from SUAVE.Analyses import Process
 from copy import deepcopy
-from scipy.optimize import NonlinearConstraint
 from . import helper_functions as help_fun
 import numpy as np
 
