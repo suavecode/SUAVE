@@ -69,32 +69,41 @@ def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08, tol
         bnds[ii] = (bnd[ii][0]/scl[ii]),(bnd[ii][1]/scl[ii])  
         lb[ii]   = bnd[ii][0]/scl[ii]
         ub[ii]   = bnd[ii][1]/scl[ii]
-        de_bnds.append((bnd[ii][0]/scl[ii],bnd[ii][1]/scl[ii]))      
-    
-    scaled_constraints = []
-    aliases            = problem.optimization_problem.aliases
-    for ii in range(0,len(con)):
-        de_constraint  = con[[ii]]
-        constraint_val = help_fun.get_values(problem,de_constraint,aliases)
-        bound          = help_fun.scale_const_bnds(con)
-        if con[ii][1]=='>':
-            nlc = NonlinearConstraint(constraint_val,bound, np.inf)  
-        elif con[ii][1]=='<':
-            nlc = NonlinearConstraint(constraint_val, -np.inf,bound)  
-        elif con[ii][1]=='=':
-            nlc = NonlinearConstraint(constraint_val, bound-1E-6, bound+1E-6) 
-        scaled_constraints.append(nlc)  
-    de_cons = tuple(scaled_constraints)   
+        de_bnds.append((bnd[ii][0]/scl[ii],bnd[ii][1]/scl[ii]))  
      
     # Finalize problem statement and run
     if solver=='SLSQP':
         outputs = sp.optimize.fmin_slsqp(wrapper,x,f_eqcons=problem.equality_constraint,f_ieqcons=problem.inequality_constraint,bounds=bnds,\
                                          iter=200, epsilon = sense_step, acc  = tolerance)
-    elif solver == 'differential_evolution':         
-        outputs = differential_evolution(wrapper, bounds= de_bnds, strategy='best1bin', maxiter=1000, popsize = pop_size, \
+    elif solver == 'differential_evolution':
+        # Define constraints as a tuple of nonlinear constraints 
+        scaled_constraints = []
+        aliases            = problem.optimization_problem.aliases
+        for ii in range(0,len(con)):
+            de_constraint  = con[[ii]] 
+            def fun(x):
+                problem.evaluate(x)
+                constraint_val = help_fun.get_values(problem,de_constraint,aliases)
+                return np.atleast_1d(constraint_val)
+            
+            bound  = help_fun.scale_const_bnds(con)
+            if con[ii][1]=='=': 
+                nlc = NonlinearConstraint(fun,bound[ii], bound[ii])
+            
+            if con[ii][1]=='>':
+                nlc = NonlinearConstraint(fun,bound[ii], np.inf) 
+                
+            elif con[ii][1]=='<':
+                nlc = NonlinearConstraint(fun, -np.inf,bound[ii])
+                
+            scaled_constraints.append(nlc) 
+            
+        diff_evo_cons = tuple(scaled_constraints)    
+        
+        outputs = sp.optimize.differential_evolution(wrapper, bounds= de_bnds, strategy='best1bin', maxiter=1000, popsize = pop_size, \
                                                      tol=0.01, mutation=(0.5, 1), recombination=0.7, seed=prob_seed, callback=None,\
                                                      disp=False, polish=True, init='latinhypercube', atol=0, updating='immediate',\
-                                                     workers=1,constraints=de_cons, de_problem = problem)
+                                                     workers=1,constraints=diff_evo_cons)
         
     elif solver == 'particle_swarm_optimization':
         outputs = particle_swarm_optimization(wrapper, lb, ub, f_ieqcons=problem.inequality_constraint, kwargs={}, swarmsize=pop_size ,\

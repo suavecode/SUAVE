@@ -62,10 +62,9 @@ def main():
     problem     = setup(solver_name)
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x1' , '=',   0., 1., Units.less],
         [ 'x2' , '>',   1., 1., Units.less],
         [ 'x2' , '<',   2., 1., Units.less],
-    ])         
+    ])          
     # suppress iteration printout 
     sys.stdout = open(os.devnull,'w')      
     outputs = scipy_setup.SciPy_Solve(problem, solver='differential_evolution' , sense_step = 1.4901161193847656e-08, pop_size =  10 , prob_seed = seed )  
@@ -90,6 +89,7 @@ def main():
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., Units.less],
         [ 'x2' , '>',   1., 1., Units.less],
+        [ 'x2' , '<',   2., 1., Units.less],
     ])     
     print('\n\n Checking particle swarm optimization algorithm')
     # suppress iteration printout 

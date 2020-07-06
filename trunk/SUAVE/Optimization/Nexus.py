@@ -166,7 +166,7 @@ class Nexus(Data):
         objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
-        return scaled_objective
+        return scaled_objective.astype('Float64') 
     
     def inequality_constraint(self,x = None):
         """Retrieve the inequality constraint values for your function
@@ -262,52 +262,6 @@ class Nexus(Data):
             scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values) - help_fun.scale_const_bnds(eqconstraints)
 
         return scaled_constraints   
-    
-    def diff_evo_constraints(self,x = None):
-        """Retrieves the constraint values in the format required for modified
-            differential evolution  
-    
-            Assumptions:
-            N/A
-    
-            Source:
-            N/A
-    
-            Inputs:
-            x             [vector]
-    
-            Outputs:
-            diff_evo_cons [tuple]
-    
-            Properties Used:
-            None
-        """         
-    
-        self.evaluate(x)
-
-        aliases     = self.optimization_problem.aliases
-        constraints = self.optimization_problem.constraints 
-        
-        # Setup constraints  
-        scaled_constraints = []
-        for ii in range(0,len(constraints)):
-            de_constraint  = constraints[[ii]]
-            constraint_val = help_fun.get_values(self,de_constraint,aliases)
-            bound          = help_fun.scale_const_bnds(constraints)
-            if constraints[ii][1]=='>':
-                nlc = NonlinearConstraint(constraint_val,bound, np.inf) 
-                
-            elif constraints[ii][1]=='<':
-                nlc = NonlinearConstraint(constraint_val, -np.inf,bound) 
-                
-            elif constraints[ii][1]=='=':
-                nlc = NonlinearConstraint(constraint_val, bound-1E-6, bound+1E-6)
-                
-            scaled_constraints.append(nlc) 
-            
-        diff_evo_cons = tuple(scaled_constraints)    
-        
-        return diff_evo_cons      
         
     def all_constraints(self,x = None):
         """Returns both the inequality and equality constraint values for your function
