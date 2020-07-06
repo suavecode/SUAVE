@@ -14,7 +14,6 @@
 import numpy as np
 import scipy as sp
 from SUAVE.Optimization.Package_Setups.particle_swarm_optimization import particle_swarm_optimization 
-from SUAVE.Optimization.Package_Setups.differential_evolution import differential_evolution
 from scipy.optimize import NonlinearConstraint
 from SUAVE.Optimization import helper_functions as help_fun
 
