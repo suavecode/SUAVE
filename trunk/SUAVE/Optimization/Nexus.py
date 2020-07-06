@@ -264,7 +264,8 @@ class Nexus(Data):
         return scaled_constraints   
     
     def diff_evo_constraints(self,x = None):
-        """Retrieve the constraint values in the formate for modified differential evolution  
+        """Retrieves the constraint values in the format required for modified
+            differential evolution  
     
             Assumptions:
             N/A
@@ -273,10 +274,10 @@ class Nexus(Data):
             N/A
     
             Inputs:
-            x                  [vector]
+            x             [vector]
     
             Outputs:
-            scaled_constraints [vector]
+            diff_evo_cons [tuple]
     
             Properties Used:
             None
