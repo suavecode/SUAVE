@@ -132,7 +132,7 @@ def VLM(conditions,settings,geometry):
    
     # Build the vector
     RHS = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,slipstream)
-
+    
     # Compute vortex strength  
     n_cp  = VD.n_cp  
     gamma = np.linalg.solve(A,RHS)

@@ -565,7 +565,7 @@ class Propeller(Energy_Component):
         # store data
         results_conditions                              = Data     
         outputs                                         = results_conditions(
-                num_blades                              = B,
+                    num_blades                              = int(B),
                     rotor_radius                            = R,
                     rotor_diameter                          = D,
                     number_sections                         = N,
