@@ -161,7 +161,6 @@ def serial_hts_turboelectric_sizing(Turboelectric_HTS_Ducted_Fan,mach_number = N
     shaft_power                                     = fan.outputs.work_done * mass_flow
     total_shaft_power                               = shaft_power * number_of_engines
     Turboelectric_HTS_Ducted_Fan.design_shaft_power = total_shaft_power
-    # Shaft power seems to be half the expected. 3 MW expected per motor. 1.336 MW reported
 
     # update the design thrust value
     ducted_fan.design_thrust = thrust.total_design
