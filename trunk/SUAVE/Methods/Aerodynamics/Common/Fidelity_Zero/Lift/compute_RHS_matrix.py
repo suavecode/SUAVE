@@ -64,8 +64,8 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,slipstre
             # loop through propellers on aircraft to get combined effect of slipstreams
             num_prop   = len(prop.origin)
             for i in range(num_prop): 
-                vt = np.mean(prop.outputs.tangential_velocity_distribution , axis=1)  # induced velocitied averaged around the azimuth
-                va = np.mean(prop.outputs.axial_velocity_distribution      , axis=1)  # induced velocitied averaged around the azimuth
+                vt = np.mean(prop.outputs.tangential_induced_velocity_2d, axis=1)  # induced velocitied averaged around the azimuth
+                va = np.mean(prop.outputs.axial_induced_velocity_2d     , axis=1)  # induced velocitied averaged around the azimuth
                 R0 = prop.hub_radius 
                 
                 # optain propeller and slipstream properties
