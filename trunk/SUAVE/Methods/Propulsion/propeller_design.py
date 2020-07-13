@@ -262,7 +262,7 @@ def propeller_design(prop,number_of_stations=20):
     Cp     = Power/(rho*(n**3)*(D**5))
     
     # compute max thickness distribution using NACA 4 series eqn
-    t_max          = np.zeros(20)
+    t_max          = np.zeros(N)
     for idx in range(20):
         c_blade    = np.linspace(0,c[idx],20)          # local chord  
         t          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
