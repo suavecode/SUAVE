@@ -162,6 +162,7 @@ def empty(vehicle,settings=None):
 
         # Size the rotor cryocooler. Each rotor has a seperate cryocooler as defined in serial_hts_turboelectric_sizing
         # This is skipped if the rotor(s) are cooled wholly by cryogen. The mass of the components required to store and deliver the cryogen are not considered.        wt_cryocooler   = 0.0
+        wt_cryocooler = 0.0
         if propulsors.cryogen_proportion < 1:
             wt_cryocooler       = propulsors.cryocooler.mass_properties.mass
 
