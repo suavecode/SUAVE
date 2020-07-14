@@ -42,9 +42,9 @@ class HTS_Dynamo_Supply(Energy_Component):
             None
             """         
         
-        self.efficiency     =    0.5    # Basic estimated efficiency for small motor-gearbox combo. Larger motors have better efficiency.
-        self.mass           =  100.0    # [kg]
-        self.rated_RPM      = 1000.0    # [RPM]
+        self.efficiency             =    0.5    # Basic estimated efficiency for small motor-gearbox combo. Larger motors have better efficiency.
+        self.mass_properties.mass   =  100.0    # [kg]
+        self.rated_RPM              = 1000.0    # [RPM]
     
     def power_in(self, power_out, RPM=None):
         """ The power supplied to this component based on that that this must deliver to the HTS dynamo as shaft power.
@@ -115,7 +115,7 @@ class HTS_Dynamo_Supply(Energy_Component):
         mass            = mass_esc + mass_motor + mass_gearbox
 
         # Store results
-        self.mass       = mass
+        self.mass_properties.mass       = mass
 
         # Return results
         return mass
