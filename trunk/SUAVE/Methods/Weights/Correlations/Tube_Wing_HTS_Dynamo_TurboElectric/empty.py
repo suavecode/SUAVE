@@ -190,7 +190,7 @@ def empty(vehicle,settings=None):
 
         # pack up weight breakdown
         propulsors.ducted_fan.mass_properties.mass  = wt_ductedfan
-        propulsors.motor.mass_properties.mass       = wt_motor * num_eng
+        propulsors.motor.mass_properties.mass       = wt_motor# * num_eng
 
 
     else: #propulsor used is not a turbo_fan; assume mass_properties defined outside model
