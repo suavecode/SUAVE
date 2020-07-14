@@ -161,8 +161,9 @@ def empty(vehicle,settings=None):
         wt_ccs              = current_supply_mass(propulsors.ccs)
 
         # Size the rotor cryocooler. Each rotor has a seperate cryocooler as defined in serial_hts_turboelectric_sizing
-        # This is skipped if the rotor(s) are cooled wholly by cryogen. The mass of the components required to store and deliver the cryogen are not considered.
-        wt_cryocooler       = propulsors.cryocooler.mass_properties.mass
+        # This is skipped if the rotor(s) are cooled wholly by cryogen. The mass of the components required to store and deliver the cryogen are not considered.        wt_cryocooler   = 0.0
+        if propulsors.cryogen_proportion < 1:
+            wt_cryocooler       = propulsors.cryocooler.mass_properties.mass
 
         # Sum the above propulsor components to give individual propulsor mass
         wt_propulsor        = wt_ductedfan + wt_motor + wt_esc + wt_leads + wt_ccs + wt_cryocooler
