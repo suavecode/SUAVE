@@ -87,7 +87,6 @@ def read_results(avl_object):
             case_res.stability.beta_derivatives.roll_moment_derivative      = float(lines[38+num_ctrl][43:54].strip()) # Cl_b
             case_res.stability.beta_derivatives.pitch_moment_derivative     = float(lines[39+num_ctrl][43:54].strip()) # Cm_b
             case_res.stability.beta_derivatives.yaw_moment_derivative       = float(lines[40+num_ctrl][43:54].strip()) # Cn_b
-        
             case_res.stability.CL_p                                         = float(lines[44+num_ctrl][24:34].strip())
             case_res.stability.CL_q                                         = float(lines[44+num_ctrl][43:54].strip())
             case_res.stability.CL_r                                         = float(lines[44+num_ctrl][65:74].strip())

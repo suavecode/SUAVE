@@ -39,7 +39,7 @@ def main():
      
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.47277854912172756
+    lift_coefficient_true         = 0.472549171541998
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -47,22 +47,22 @@ def main():
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
     
     # sectional lift coefficient check
-    sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[0]
-    sectional_lift_coeff_true       = np.array([1.30785100e-01, 1.29573061e-01, 1.25529913e-01, 1.19252449e-01,
-                                                1.11143124e-01, 1.01521133e-01, 9.06611205e-02, 7.88194883e-02,
-                                                6.62645393e-02, 5.33188318e-02, 4.04067325e-02, 2.80607103e-02,
-                                                1.68588961e-02, 7.56561908e-03, 1.51112918e-03, 1.30847294e-01,
-                                                1.29743713e-01, 1.25770313e-01, 1.19520253e-01, 1.11404695e-01,
-                                                1.01755340e-01, 9.08577590e-02, 7.89758953e-02, 6.63824787e-02,
-                                                5.34023668e-02, 4.04611083e-02, 2.80919505e-02, 1.68735644e-02,
-                                                7.57031938e-03, 1.51169375e-03, 2.28686698e-03, 2.39010336e-03,
-                                                2.48594024e-03, 2.56050765e-03, 2.59254004e-03, 2.56508092e-03,
-                                                2.46776333e-03, 2.29377774e-03, 2.04285167e-03, 1.72410497e-03,
-                                                1.35485739e-03, 9.60298290e-04, 5.77024161e-04, 2.55662292e-04,
-                                                5.08508154e-05, 2.28750242e-03, 2.39200290e-03, 2.48885107e-03,
-                                                2.56406472e-03, 2.59638239e-03, 2.56889806e-03, 2.47131117e-03,
-                                                2.29687440e-03, 2.04537787e-03, 1.72600969e-03, 1.35615751e-03,
-                                                9.61070620e-04, 5.77392626e-04, 2.55779663e-04, 5.08646276e-05,
+    sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
+    sectional_lift_coeff_true       = np.array([1.30731200e-01, 1.29518975e-01, 1.25476612e-01, 1.19200829e-01,
+                                                1.11094027e-01, 1.01475358e-01, 9.06194145e-02, 7.87825359e-02,
+                                                6.62329301e-02, 5.32930082e-02, 4.03869121e-02, 2.80468082e-02,
+                                                1.68504855e-02, 7.56183132e-03, 1.51037470e-03, 1.30793344e-01,
+                                                1.29689486e-01, 1.25716810e-01, 1.19468403e-01, 1.11355370e-01,
+                                                1.01709356e-01, 9.08158736e-02, 7.89387974e-02, 6.63507579e-02,
+                                                5.33764629e-02, 4.04412349e-02, 2.80780177e-02, 1.68651393e-02,
+                                                7.56652692e-03, 1.51093870e-03, 2.27948231e-03, 2.38250557e-03,
+                                                2.47826742e-03, 2.55290540e-03, 2.58516086e-03, 2.55807996e-03,
+                                                2.46129251e-03, 2.28797933e-03, 2.03784971e-03, 1.71999532e-03,
+                                                1.35169778e-03, 9.58096403e-04, 5.75716849e-04, 2.55087240e-04,
+                                                5.07367423e-05, 2.28011348e-03, 2.38439254e-03, 2.48115957e-03,
+                                                2.55644055e-03, 2.58898057e-03, 2.56187560e-03, 2.46482121e-03,
+                                                2.29105992e-03, 2.04036324e-03, 1.72189076e-03, 1.35299172e-03,
+                                                9.58865123e-04, 5.76083617e-04, 2.55204075e-04, 5.07504917e-05,
                                                 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
                                                 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
                                                 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
@@ -146,7 +146,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -216,10 +216,10 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 2
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.battery_propeller.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.battery_propeller.residuals
     base_segment.state.unknowns.propeller_power_coefficient  = 0.2 * ones_row(1) 
-    bat                                                      = vehicle.propulsors.propulsor.battery 
+    bat                                                      = vehicle.propulsors.battery_propeller.battery 
     base_segment.state.unknowns.battery_voltage_under_load   = bat.max_voltage * ones_row(1)  
     base_segment.state.residuals.network                     = 0. * ones_row(2) 
     base_segment.max_energy                                  = bat.max_energy 

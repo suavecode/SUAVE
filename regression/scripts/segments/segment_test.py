@@ -15,15 +15,10 @@ from SUAVE.Core import Units
 import numpy as np
 import pylab as plt
 
-import copy, time
 
-from SUAVE.Core import (
-Data, Container,
-)
+from SUAVE.Core import Data
 
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity import compute_aircraft_center_of_gravity
 
 import sys
 
@@ -65,22 +60,22 @@ def main():
     descent_throttle_2 = results.segments.descent_2.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 0.9857468628944336 
-    climb_throttle_2_truth   = 0.7952188198483993 
-    climb_throttle_3_truth   = 0.5066828579416367 
-    climb_throttle_4_truth   = 0.878134600022338 
-    climb_throttle_5_truth   = 1.021806039249955 
-    climb_throttle_6_truth   = 0.7136864572517849 
-    climb_throttle_7_truth   = 0.8877493204092387 
-    climb_throttle_8_truth   = 1.0868679444818625 
-    cruise_CL_1_truth        = 0.634777526547744 
-    cruise_CL_2_truth        = 0.6250634424249245 
-    cruise_CL_3_truth        = 0.7081424772096907 
-    descent_throttle_1_truth = 0.17517658209416148 
-    single_pt_CL_1_truth     = 0.2588077147541633 
-    single_pt_CL_2_truth     = 0.25874688162066317
-    loiter_CL_truth          = 0.5273996120576298 
-    descent_throttle_2_truth = 0.15532873504026581 
+    climb_throttle_1_truth   = 0.9200042100826
+    climb_throttle_2_truth   = 0.721796479779623
+    climb_throttle_3_truth   = 0.4657350593362212
+    climb_throttle_4_truth   = 0.8299984733621796
+    climb_throttle_5_truth   = 0.957338743331764
+    climb_throttle_6_truth   = 0.6354396783653986
+    climb_throttle_7_truth   = 0.7625523841526384
+    climb_throttle_8_truth   = 0.9108285499745723
+    cruise_CL_1_truth        = 0.6371536841102419
+    cruise_CL_2_truth        = 0.6297463048108202
+    cruise_CL_3_truth        = 0.7123141810005693
+    descent_throttle_1_truth = -0.013665403144510434
+    single_pt_CL_1_truth     = 0.2606697665364446
+    single_pt_CL_2_truth     = 0.2606037921464448
+    loiter_CL_truth          = 0.5313325921982026
+    descent_throttle_2_truth = 0.10255534368397488
     
     # Store errors 
     error = Data()
@@ -173,7 +168,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -235,8 +230,8 @@ def simple_sizing(configs, analyses):
     
     #compute centers of gravity
     #need to put here, otherwise, results won't be stored
-    compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
-    compute_aircraft_center_of_gravity(base)
+    compute_component_centers_of_gravity(base)
+    base.center_of_gravity()
     
     # diff the new data
     base.store_diff()

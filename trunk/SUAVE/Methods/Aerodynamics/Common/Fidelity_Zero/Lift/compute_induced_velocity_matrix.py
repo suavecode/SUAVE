@@ -3,6 +3,7 @@
 # 
 # Created:  May 2018, M. Clarke
 #           Apr 2020, M. Clarke
+#           Jun 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -184,20 +185,17 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
     Z_Z2  = Z-Z2 
     Z2_Z1 = Z2-Z1 
 
-    R1R2X  =  Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
-    R1R2Y  = -(X_X1*Z_Z2 - Z_Z1*X_X2)
-    R1R2Z  =  X_X1*Y_Y2 - Y_Y1*X_X2
-    SQUARE = R1R2X*R1R2X + R1R2Y*R1R2Y + R1R2Z*R1R2Z
+    R1R2X  = Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
+    R1R2Y  = Z_Z1*X_X2 - X_X1*Z_Z2
+    R1R2Z  = X_X1*Y_Y2 - Y_Y1*X_X2
+    SQUARE = np.square(R1R2X) + np.square(R1R2Y) + np.square(R1R2Z)
     SQUARE[SQUARE==0] = 1e-32
-    R1     = np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1) 
-    R2     = np.sqrt(X_X2*X_X2 + Y_Y2*Y_Y2 + Z_Z2*Z_Z2) 
+    R1     = np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1)) 
+    R2     = np.sqrt(np.square(X_X2) + np.square(Y_Y2) + np.square(Z_Z2)) 
     R0R1   = X2_X1*X_X1 + Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1
     R0R2   = X2_X1*X_X2 + Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])
-    COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)
-
-    if np.isnan(COEF).any():
-        print('NaN!')       
+    COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)    
 
     return COEF
 
@@ -209,17 +207,15 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     Y1_Y  = Y1-Y
     Z_Z1  = Z-Z1
 
-    DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y    
+    DENUM =  np.square(Z_Z1) + np.square(Y1_Y)
     DENUM[DENUM==0] = 1e-32
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
-    YVEC  =  (Z_Z1)/DENUM
-    ZVEC  =  Y1_Y*np.cos(tw)/DENUM
+    YVEC  = (Z_Z1)/DENUM
+    ZVEC  = Y1_Y*np.cos(tw)/DENUM
     RVEC  = np.array([XVEC, YVEC, ZVEC])
-    BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1)))    
+    BRAC  = 1 + (X_X1 / (np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1))))    
     COEF  = (1/(4*np.pi))*RVEC*BRAC   
-    if np.isnan(COEF).any():
-        print('NaN!')   
-        
+
     return COEF
 
 def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
@@ -230,28 +226,38 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     Y1_Y  = Y1-Y
     Z_Z1  = Z-Z1    
 
-    DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y
+    DENUM =  np.square(Z_Z1) + np.square(Y1_Y)
     DENUM[DENUM==0] = 1e-32
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
     YVEC  = Z_Z1/DENUM
     ZVEC  = Y1_Y*np.cos(tw)/DENUM
-    RVEC   = np.array([XVEC, YVEC, ZVEC])
-    BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1+ Y_Y1*Y_Y1+ Z_Z1*Z_Z1)))    
+    RVEC  = np.array([XVEC, YVEC, ZVEC])
+    BRAC  = 1 + (X_X1 / (np.sqrt(np.square(X_X1)+ np.square(Y_Y1)+ np.square(Z_Z1))))    
     COEF  = -(1/(4*np.pi))*RVEC*BRAC      
-    
-    if np.isnan(COEF).any():
-        print('NaN!')   
-        
+
     return COEF
 
 def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
+ 
     for m_idx in range(len(mach)):
-        c = np.arcsin(1/mach[m_idx])
-        for cp_idx in range(len(XC[m_idx,:])):
-            del_x = XC[m_idx,:] - XC[m_idx,cp_idx] 
-            del_y = YC[m_idx,:] - YC[m_idx,cp_idx] 
-            del_z = ZC[m_idx,:] - ZC[m_idx,cp_idx] 
-            flag  = -c*del_x**2 + del_y**2 + del_z**2
-            idxs  = np.where(flag > 0.0)[0]
-            MCM[m_idx,cp_idx,idxs]  = [0.0, 0.0, 0.0]     
+        
+        # Prep new vectors
+        XC_sub = XC[m_idx,:]
+        YC_sub = YC[m_idx,:]
+        ZC_sub = ZC[m_idx,:]
+        length = len(XC[m_idx,:])
+        ones   = np.ones((1,length))
+        
+        # Take differences
+        del_x = XC_sub*ones - XC_sub.T
+        del_y = YC_sub*ones - YC_sub.T
+        del_z = ZC_sub*ones - ZC_sub.T
+        
+        # Flag certain indices
+        c     = np.arcsin(1/mach[m_idx])
+        flag  = -c*del_x**2 + del_y**2 + del_z**2
+        idxs  = np.where(flag > 0.0)
+        MCM[m_idx,idxs[0],idxs[1]]  = [0.0, 0.0, 0.0]      
+    
+    
     return MCM

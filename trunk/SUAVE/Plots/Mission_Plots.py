@@ -1158,7 +1158,7 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
     for segment in results.segments.values():   	
         num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
         for ti in range(num_ctrl_pts):  
-            cl_y = segment.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional_lift[ti] 
+            cl_y = segment.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[ti] 
             line = ['-b','-b','-r','-r','-k']
             fig  = plt.figure()
             fig.set_size_inches(12, 12)       
@@ -1373,8 +1373,8 @@ def set_axes(axes):
     """   
     
     axes.minorticks_on()
-    axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-    axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')      
+    axes.grid(which='major', linestyle='-', linewidth=0.5, color='grey')
+    axes.grid(which='minor', linestyle=':', linewidth=0.5, color='grey')      
     axes.grid(True)   
 
     return  

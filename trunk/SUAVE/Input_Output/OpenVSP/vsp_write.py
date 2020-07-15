@@ -9,6 +9,8 @@
 #           Jan 2019, T. MacDonald
 #           Jan 2020, T. MacDonald 
 #           Mar 2020, M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -113,12 +115,9 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):
     vsp.SetSetName(fuel_tank_set_ind,'fuel_tanks')
     
     for wing in vehicle.wings:       
-
         if verbose:
             print('Writing '+wing.tag+' to OpenVSP Model')
         area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
-        if wing.tag == 'main_wing':
-            main_wing_id = wing_id         
     
     # -------------
     # Engines
@@ -131,6 +130,11 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):
             print('Writing '+vehicle.propulsors.turbofan.tag+' to OpenVSP Model')
         turbofan  = vehicle.propulsors.turbofan
         write_vsp_turbofan(turbofan)
+        
+    if 'turbojet' in vehicle.propulsors:
+        print('Warning: no meshing sources are currently implemented for the nacelle')
+        turbofan  = vehicle.propulsors.turbojet
+        write_vsp_turbofan(turbofan)    
     
     # -------------
     # Fuselage
@@ -191,9 +195,9 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     Properties Used:
     N/A
     """       
-    wing_x = wing.origin[0]    
-    wing_y = wing.origin[1]
-    wing_z = wing.origin[2]
+    wing_x = wing.origin[0][0]    
+    wing_y = wing.origin[0][1]
+    wing_z = wing.origin[0][2]
     if wing.symmetric == True:
         span   = wing.spans.projected/2. # span of one side
     else:
@@ -328,7 +332,7 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
         vsp.SetParmVal( wing_id,'Span',x_secs[1],local_span) 
         vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[1],sec_tip_chord)
     else:
-        vsp.SetParmVal( wing_id,'Span',x_secs[1],span) 
+        vsp.SetParmVal( wing_id,'Span',x_secs[1],span/np.cos(dihedral*Units.degrees)) 
 
     vsp.Update()
 
@@ -441,6 +445,7 @@ def write_vsp_turbofan(turbofan):
     length    = turbofan.engine_length
     width     = turbofan.nacelle_diameter
     origins   = turbofan.origin
+    tf_tag    = turbofan.tag
     
     # True will create a flow-through subsonic nacelle (which may have dimensional errors)
     # False will create a cylindrical stack (essentially a cylinder)
@@ -460,7 +465,7 @@ def write_vsp_turbofan(turbofan):
         
         if ft_flag == True:
             nac_id = vsp.AddGeom( "FUSELAGE")
-            vsp.SetGeomName(nac_id, 'turbofan_'+str(ii+1))
+            vsp.SetGeomName(nac_id, tf_tag+'_'+str(ii+1))
             
             # Origin
             vsp.SetParmVal(nac_id,'X_Location','XForm',x)
@@ -488,7 +493,7 @@ def write_vsp_turbofan(turbofan):
             
         else:
             stack_id = vsp.AddGeom("STACK")
-            vsp.SetGeomName(stack_id, 'turbofan_'+str(ii+1))
+            vsp.SetGeomName(stack_id, tf_tag+'_'+str(ii+1))
             
             # Origin
             vsp.SetParmVal(stack_id,'X_Location','XForm',x)
@@ -582,7 +587,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         
         try:
             if main_wing != None:                
-                w_origin = main_wing.origin[0]
+                w_origin = main_wing.origin
                 w_c_4    = main_wing.chords.root/4.
             else:
                 w_origin = 0.5*length
@@ -593,7 +598,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
         
         x1 = n_fine*width/length
-        x2 = (w_origin+w_c_4)/length
+        x2 = (w_origin[0][0]+w_c_4)/length
         x3 = 1-t_fine*width/length
         
         end_ind = 4
