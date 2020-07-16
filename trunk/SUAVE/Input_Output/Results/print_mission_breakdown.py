@@ -198,12 +198,12 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         fid.write(' Total Range         (nm) ........... '+ str('%9.0f'   % TotalRange)+'\n')
     elif SI:
         fid.write(' Total Range         (km) ........... ' + str('%9.0f' % TotalRange) + '\n')
-    fid.write(' Total Fuel          (kg) ........... '+ str('%12.2f'   % TotalFuel)+'\n')
+    fid.write(' Total Fuel          (kg) ........... '+ str(TotalFuel)+'\n')
     
     # Cryogen use results
     if "vehicle_cryogen_rate" in results.segments[0].conditions.weights:
-        fid.write(' Total Cryogen       (kg) ........... '+ str('%12.2f'   % total_cryogen)+'\n')
-        fid.write(' Total Consumables   (kg) ........... '+ str('%12.2f'   % TotalConsumable)+'\n')
+        fid.write(' Total Cryogen       (kg) ........... '+ str(total_cryogen)+'\n')
+        fid.write(' Total Consumables   (kg) ........... '+ str(TotalConsumable)+'\n')
 
     fid.write(' Total Time       (hh:mm) ........... '+ time.strftime('    %H:%M', time.gmtime(TotalTime))+'\n')
     # Print timestamp

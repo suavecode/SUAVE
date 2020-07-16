@@ -200,7 +200,7 @@ class Turboelectric_HTS_Ducted_Fan(Propulsor):
         rotor_cryo_load             = rotor_cryo_cryostat + all_leads_cryo
         # This is where to surrogate in the cryogenic load for hypothetical loading analysis.
         try:
-            rotor_cryo_load = number_of_engines * self.cryo_load
+            rotor_cryo_load = np.ones_like(rotor_cryo_load) * number_of_engines * self.cryo_load
             print("Surrogate cryo_load successfully implanted.")
         except:
             print("Testing code exists in Turboelectric_HTS_Ducted_Fan.")
