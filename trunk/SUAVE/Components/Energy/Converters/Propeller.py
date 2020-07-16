@@ -590,8 +590,8 @@ class Propeller(Energy_Component):
         results_conditions                              = Data     
         outputs                                         = results_conditions(
                     num_blades                              = int(B),
-                    rotor_radius                            = R,
-                    rotor_diameter                          = D,
+                    propeller_radius                        = R,
+                    propeller_diameter                      = D,
                     number_sections                         = N,
                     blade_radial_distribution_normalized    = chi,
                     blade_radial_distribution_normalized_2d = chi_2d,

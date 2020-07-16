@@ -23,7 +23,7 @@ from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
 # local imports
 from .Aerodynamics import Aerodynamics
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution import compute_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution import generate_wing_vortex_distribution
 from SUAVE.Plots import plot_vehicle_vlm_panelization  
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 
@@ -136,7 +136,7 @@ class Vortex_Lattice(Aerodynamics):
             settings.number_panels_chordwise = n_cw
             
         # generate vortex distribution
-        VD = compute_vortex_distribution(geometry,settings)      
+        VD = generate_wing_vortex_distribution(geometry,settings)      
         
         # Pack
         settings.vortex_distribution        = VD

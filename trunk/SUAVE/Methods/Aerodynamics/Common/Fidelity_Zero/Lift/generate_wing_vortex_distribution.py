@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_vortex_distribution.py
+# generate_wing_vortex_distribution.py
 # 
 # Created:  May 2018, M. Clarke
 #           Apr 2020, M. Clarke
@@ -16,7 +16,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
      import import_airfoil_geometry
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_vortex_distribution(geometry,settings):
+def generate_wing_vortex_distribution(geometry,settings):
     ''' Compute the coordinates of panels, vortices , control points
     and geometry used to build the influence coefficient matrix.
     

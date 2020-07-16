@@ -12,8 +12,9 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import compute_induced_velocity_matrix
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution     import compute_vortex_distribution
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix              import compute_RHS_matrix
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution     import generate_wing_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix              import compute_RHS_matrix 
+
 # ----------------------------------------------------------------------
 #  Vortex Lattice
 # ----------------------------------------------------------------------
@@ -85,7 +86,7 @@ def VLM(conditions,settings,geometry):
     n_sw       = settings.number_panels_spanwise    
     n_cw       = settings.number_panels_chordwise   
     sur_flag   = settings.use_surrogate
-    slipstream = settings.include_slipstream_effect
+    wake_model = settings.wake_model
     Sref       = geometry.reference_area
     
     
@@ -103,7 +104,7 @@ def VLM(conditions,settings,geometry):
     ones = np.atleast_2d(np.ones_like(aoa)) 
    
     # generate vortex distribution
-    VD = compute_vortex_distribution(geometry,settings)  
+    VD = generate_wing_vortex_distribution(geometry,settings)  
     
     # Build induced velocity matrix, C_mn
     C_mn, DW_mn  = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa,mach)
@@ -131,7 +132,7 @@ def VLM(conditions,settings,geometry):
    
    
     # Build the vector
-    RHS = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,slipstream)
+    RHS = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,wake_model) 
     
     # Compute vortex strength  
     n_cp  = VD.n_cp  
