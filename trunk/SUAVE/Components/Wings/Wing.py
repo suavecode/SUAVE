@@ -116,6 +116,7 @@ class Wing(Lofted_Body):
         
         self.non_dimensional_origin            = [[0.0,0.0,0.0]]
         self.generative_design_minimum         = 1
+        self.generative_design_max_per_vehicle = 5
         self.generative_design_characteristics = ['taper','aspect_ratio','thickness_to_chord','areas.reference','sweeps.quarter_chord','dihedral','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
         self.generative_design_char_min_bounds = [0,1.,0.001,0.1,0.001,-np.pi/4,-1.,-1.,-1.]   
         self.generative_design_char_max_bounds = [5.,np.inf,1.0,np.inf,np.pi/3,np.pi/4,1.,1.,1.]
