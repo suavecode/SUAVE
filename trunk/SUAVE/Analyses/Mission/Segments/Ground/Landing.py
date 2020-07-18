@@ -67,12 +67,20 @@ class Landing(Ground):
         self.velocity_end         = 0.0
         self.friction_coefficient = 0.4
         self.throttle             = 0.0
+        self.altitude             = 0.0
+        
+        # initials and unknowns
+        ones_row_m1 = self.state.ones_row_m1
+        self.state.unknowns.velocity_x            = ones_row_m1(1) * 0.0
+        self.state.unknowns.time                  = 100.
+        self.state.residuals.final_velocity_error = 0.0
+        self.state.residuals.forces               = ones_row_m1(1) * 0.0               
         
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------
     
         initialize = self.process.initialize
-        initialize.conditions = Methods.Ground.Landing.initialize_conditions
+        initialize.conditions_ground = Methods.Ground.Landing.initialize_conditions
 
         return
