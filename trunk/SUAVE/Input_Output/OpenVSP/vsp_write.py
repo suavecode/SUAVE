@@ -609,11 +609,11 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         x_poses = []
         z_poses = []
         segs = fuselage.Segments
-        for seg_name in segs:
-            widths.append(segs[seg_name].width)
-            heights.append(segs[seg_name].height)
-            x_poses.append(segs[seg_name].percent_x_location)
-            z_poses.append(segs[seg_name].percent_z_location)
+        for seg in segs:
+            widths.append(seg.width)
+            heights.append(seg.height)
+            x_poses.append(seg.percent_x_location)
+            z_poses.append(seg.percent_z_location)
             
         end_ind = num_segs-1
     
