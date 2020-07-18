@@ -36,9 +36,9 @@ def main():
     configuration.wings['main_wing'].flaps_angle = 20. * Units.deg
     configuration.wings['main_wing'].slats_angle = 25. * Units.deg 
     configuration.V2_VS_ratio                    = 1.21
-    configuration.max_lift_coefficient_factor    = 0.90
     analyses                                     = SUAVE.Analyses.Analysis.Container()
-    analyses.base                                = base_analysis(vehicle)
+    analyses                                     = base_analysis(configuration)
+    analyses.aerodynamics.settings.maximum_lift_coefficient_factor = 0.90
  
     # --- Airport definition ---
     airport            = SUAVE.Attributes.Airports.Airport()
@@ -51,9 +51,9 @@ def main():
     target_tofl = 1487.92650289 
     
     # Compute take off weight given tofl
-    max_tow = find_take_off_weight_given_tofl(vehicle,analyses,airport,target_tofl)
+    max_tow = find_take_off_weight_given_tofl(configuration,analyses,airport,target_tofl)
     
-    truth_max_tow = 34130.039822462786
+    truth_max_tow = 45684.81253231566
     max_tow_error = np.max(np.abs(max_tow[0]-truth_max_tow)) 
     print('Range Error = %.4e' % max_tow_error)
     assert(max_tow_error   < 1e-6 )

@@ -69,8 +69,6 @@ class Vehicle(Data):
         self.passengers             = 0.0
         self.performance            = DataOrdered()
 
-        self.max_lift_coefficient_factor = 1.0
-
     _component_root_map = None
 
     def __init__(self,*args,**kwarg):
