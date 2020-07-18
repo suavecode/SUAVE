@@ -677,6 +677,15 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);  
     else:
+        # OpenVSP vals do not exist:
+        vals = Data()
+        vals.nose = Data()
+        vals.tail = Data()
+        vals.tail.top = Data()
+        vals.nose.z_pos     = 0.0
+        vals.tail.top.angle = 0.0
+        vals.tail.top.strength = 0.0
+        
         if len(np.unique(x_poses)) != len(x_poses):
             raise ValueError('Duplicate fuselage section positions detected.')
         vsp.SetParmVal(fuse_id,"Length","Design",length)
