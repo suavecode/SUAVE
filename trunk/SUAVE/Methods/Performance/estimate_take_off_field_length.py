@@ -15,8 +15,7 @@
 
 # SUave Imports
 import SUAVE
-from SUAVE.Core            import Data
-from SUAVE.Core            import Units
+from SUAVE.Core            import Data, Units
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import windmilling_drag
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import estimate_2ndseg_lift_drag_ratio
@@ -95,8 +94,8 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     state = Data()
     state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     state.conditions.freestream = Data()
-    state.conditions.freestream.density  = rho
-    state.conditions.freestream.velocity = 90. * Units.knots
+    state.conditions.freestream.density           = rho
+    state.conditions.freestream.velocity          = 90. * Units.knots
     state.conditions.freestream.dynamic_viscosity = mu
     
     settings = analyses.aerodynamics.settings
@@ -186,7 +185,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         state.conditions.freestream.velocity          = np.array(np.atleast_1d(V2_speed))
         state.conditions.freestream.mach_number       = np.array(np.atleast_1d(V2_speed/ a))
         state.conditions.freestream.dynamic_viscosity = np.array(np.atleast_1d(mu))
-        state.conditions.freestream.density          =  np.array(np.atleast_1d(rho))
+        state.conditions.freestream.density           =  np.array(np.atleast_1d(rho))
         results = vehicle.propulsors['turbofan'].engine_out(state)
         thrust = results.thrust_force_vector[0][0]
 

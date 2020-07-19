@@ -12,8 +12,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from   SUAVE.Core import Data
-from   SUAVE.Core import Units
+from   SUAVE.Core import Data, Units
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
 import numpy as np
@@ -82,8 +81,8 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     state = Data()
     state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     state.conditions.freestream = Data()
-    state.conditions.freestream.density  = rho
-    state.conditions.freestream.velocity = 90. * Units.knots
+    state.conditions.freestream.density           = rho
+    state.conditions.freestream.velocity          = 90. * Units.knots
     state.conditions.freestream.dynamic_viscosity = mu
     
     settings = analyses.aerodynamics.settings
