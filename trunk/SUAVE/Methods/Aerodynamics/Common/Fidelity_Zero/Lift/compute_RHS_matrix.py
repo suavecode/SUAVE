@@ -180,7 +180,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,wake_mod
                 axes_2.set_xlim(-y_max, y_max) 
                 axes_3.set_xlim(-y_max, y_max)  
                 fig.set_size_inches(12, 8)         	 
-                for i in range(VD.n_w):
+                for i in range(VD.n_w-1):
                     x_pts = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
                     y_pts = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
                     z_pts_1 = np.reshape(np.atleast_2d(Vx_ind_total[0][i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))    

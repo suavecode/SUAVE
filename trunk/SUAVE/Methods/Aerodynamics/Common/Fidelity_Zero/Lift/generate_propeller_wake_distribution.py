@@ -30,7 +30,7 @@ def generate_propeller_wake_distribution(prop,m,VD):
     B            = prop.outputs.num_blades  
     gamma        = prop.outputs.blade_Gamma_2d
     blade_angles = np.linspace(0,2*np.pi,B+1)[:-1]        
-    dt           = (2*np.pi/N)/omega[0]
+    dt           = 0.0025 # (2*np.pi/N)/omega[0]
     nts          = int(time/dt)
     ts           = np.linspace(0,time,nts)
     num_prop     = len(prop.origin) 
