@@ -165,6 +165,9 @@ def import_tests():
     """ simple check for dependencies
     """
     
+    # imports
+    import sys    
+    
     if sys.version_info[:2] < (3, 6):
         raise RuntimeError("Python version >= 3.6 required.")    
     try:
