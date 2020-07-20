@@ -13,7 +13,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contraction_matrix import compute_wake_contraction_matrix
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift  
 
-def generate_propeller_wake_distribution(prop,m,VD):
+def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     # to put in settings 
     time = 0.1
     
@@ -30,11 +30,14 @@ def generate_propeller_wake_distribution(prop,m,VD):
     B            = prop.outputs.num_blades  
     gamma        = prop.outputs.blade_Gamma_2d
     blade_angles = np.linspace(0,2*np.pi,B+1)[:-1]        
-    dt           = 0.0025 # (2*np.pi/N)/omega[0]
+    dt           = (2*np.pi/N)/omega[0]
     nts          = int(time/dt)
     ts           = np.linspace(0,time,nts)
     num_prop     = len(prop.origin) 
     
+    t0           = dt*init_timestep_offset
+    rad_offset   = omega[0]*t0
+    blade_angles = blade_angles + rad_offset  
     
     # define points ( control point, time step , blade number , location on blade )
     # compute lambda and mu 
@@ -185,4 +188,4 @@ def generate_propeller_wake_distribution(prop,m,VD):
     WD.ZB2  =  np.reshape(np.reshape(np.reshape(WD_ZB2,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
     WD.GAMMA=  np.reshape(np.reshape(np.reshape(WD_GAMMA,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
     
-    return WD,ts,B,N 
+    return WD,dt, ts,B,N 

@@ -7,10 +7,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# package imports
-import SUAVE
-import numpy as np
-from SUAVE.Core import Units
+# package imports 
+import numpy as np 
+from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import compute_induced_velocity_matrix
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution     import generate_wing_vortex_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix              import compute_RHS_matrix 
@@ -20,7 +19,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def VLM(conditions,settings,geometry):
+def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
     Assumptions:
@@ -132,7 +131,7 @@ def VLM(conditions,settings,geometry):
    
    
     # Build the vector
-    RHS = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,wake_model) 
+    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,wake_model,initial_timestep_offset) 
     
     # Compute vortex strength  
     n_cp  = VD.n_cp  
@@ -200,4 +199,10 @@ def VLM(conditions,settings,geometry):
     # delete MCM from VD data structure since it consumes memory
     delattr(VD, 'MCM')   
     
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP 
+    Velocities = Data()
+    Velocities.Vx_ind   = Vx_ind_total
+    Velocities.Vz_ind   = Vz_ind_total
+    Velocities.V        = V_distribution 
+    Velocities.dt       = dt 
+    
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocities

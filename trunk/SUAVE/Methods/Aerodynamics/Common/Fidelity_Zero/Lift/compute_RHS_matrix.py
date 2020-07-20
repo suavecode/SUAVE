@@ -9,13 +9,12 @@
 # ----------------------------------------------------------------------
 
 # package imports
-import numpy as np
-import pylab as plt
+import numpy as np  
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,wake_model):     
+def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,wake_model,initial_timestep_offset):     
     """ This computes the right hand side matrix for the VLM. In this
     function, induced velocites from propeller wake are also included 
     when relevent and where specified    
@@ -56,6 +55,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,wake_mod
     V_inf            = conditions.freestream.velocity
     V_distribution   = np.repeat(V_inf , VD.n_cp, axis = 1)
     Vx_ind_total     = np.zeros_like(V_distribution)    
+    dt               = 0 
     Vz_ind_total     = np.zeros_like(V_distribution)    
     m                = len(aoa) # number of control points      
     
@@ -142,72 +142,35 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,wake_mod
                         
                 RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
                         
-                return  RHS 
+                return  RHS ,Vx_ind_total , Vz_ind_total , V_distribution  , dt 
             
-            elif wake_model == 'DVE_Fixed_Wake':        
+            elif wake_model == 'DVE_Fixed_Wake':         
+                 
                 # extract the propeller data struction 
                 prop = propulsor.propeller 
-            
+                
                 # generate the geometry of the propeller helical wake
-                wake_distribution, ts,B,N = generate_propeller_wake_distribution(prop,m,VD)
-            
+                wake_distribution, dt,  ts,B,N = generate_propeller_wake_distribution(prop,m,VD,initial_timestep_offset)
+                
                 # compute the induced velocity
                 V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,m,ts,B,N)
-            
+                
                 # update the total induced velocity distribution 
                 Vx_ind_total = Vx_ind_total + V_wake_ind[:,:,0]
-                Vz_ind_total = Vz_ind_total + V_wake_ind[:,:,2]
-            
-            
+                Vz_ind_total = Vz_ind_total + V_wake_ind[:,:,2] 
+                
                 Vx                = V_inf*np.cos(aoa) - Vx_ind_total 
                 Vz                = V_inf*np.sin(aoa) - Vz_ind_total 
                 V_distribution    = np.sqrt(Vx**2 + Vz**2 )                    
                 aoa_distribution  = np.arctan(Vz/Vx)     
-            
+                
                 RHS = np.sin(aoa_distribution - delta )*np.cos(phi)   
                 
-                
-                fig        = plt.figure('Slipstream_Influence_Velocities')	
-                axes_1     = fig.add_subplot(2, 2, 1)   
-                axes_2     = fig.add_subplot(2, 2, 2)
-                axes_3     = fig.add_subplot(2, 2, 3) 
-                x_max      = max(VD.XC)
-                y_max      = max(VD.YC)
-                axes_1.set_ylim(7.7, 0)
-                axes_2.set_ylim(7.7, 0)
-                axes_3.set_ylim(7.7, 0) 
-                axes_1.set_xlim(-y_max, y_max)            
-                axes_2.set_xlim(-y_max, y_max) 
-                axes_3.set_xlim(-y_max, y_max)  
-                fig.set_size_inches(12, 8)         	 
-                for i in range(VD.n_w-1):
-                    x_pts = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                    y_pts = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                    z_pts_1 = np.reshape(np.atleast_2d(Vx_ind_total[0][i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))    
-                    z_pts_2 = np.reshape(np.atleast_2d(Vz_ind_total[0][i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1)) 
-                    z_pts_3 = np.reshape(np.atleast_2d(V_distribution[0][i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))  
-                    CS_1 = axes_1.contourf( y_pts, x_pts,z_pts_1 , cmap = 'jet'  )   
-                    CS_2 = axes_2.contourf( y_pts, x_pts,z_pts_2 , cmap = 'jet'  ) 
-                    CS_3 = axes_3.contourf( y_pts, x_pts,z_pts_3 , cmap = 'jet'  ) 
-                    
-                # Set Color bar	
-                cbar_1 = fig.colorbar(CS_1, ax=axes_1)
-                cbar_2 = fig.colorbar(CS_2, ax=axes_2)
-                cbar_3 = fig.colorbar(CS_3, ax=axes_3)
-                cbar_1.ax.set_ylabel('$V_{X_{induced}}$', rotation =  0, labelpad= 30 ) 
-                cbar_2.ax.set_ylabel('$V_{Z_{induced}}$', rotation =  0, labelpad= 30 )
-                cbar_3.ax.set_ylabel('$V_{total}$' , rotation =  0, labelpad= 30 ) 
-                axes_1.set_title('$V_{X_{induced}}$')
-                axes_2.set_title('$V_{Z_{induced}}$')
-                axes_3.set_title('$V_{total}$')
-                axes_1.axis('off')	
-                axes_2.axis('off')
-                axes_3.axis('off')  
-                return  RHS 
+                return  RHS ,Vx_ind_total , Vz_ind_total , V_distribution , dt 
             
             else:
                 pass
              
     RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
     
-    return RHS 
+    return RHS ,Vx_ind_total , Vz_ind_total , V_distribution , dt 
