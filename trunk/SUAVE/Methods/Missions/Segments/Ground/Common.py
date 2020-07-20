@@ -130,8 +130,8 @@ def initialize_conditions(segment):
     segment.state.conditions.frames.inertial.velocity_vector[:,0] = initialized_velocity[:,0]
     segment.state.conditions.ground.incline[:,0]                  = segment.ground_incline
     segment.state.conditions.ground.friction_coefficient[:,0]     = segment.friction_coefficient
-    segment.state.conditions.propulsion.throttle[:,0] = throttle  
-    segment.state.conditions.freestream.altitude[:,0] = alt
+    segment.state.conditions.propulsion.throttle[:,0]             = throttle  
+    segment.state.conditions.freestream.altitude[:,0]             = alt
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down        
     
 # ----------------------------------------------------------------------
@@ -256,12 +256,12 @@ def solve_residuals(segment):
     D  = segment.state.numerics.time.differentiate
 
     # process and pack
-    acceleration = np.dot(D , v)
+    acceleration                                   = np.dot(D , v)
     conditions.frames.inertial.acceleration_vector = acceleration
     
     if vf == 0.0: vf = 0.01
 
-    segment.state.residuals.forces[:,0] = FT[1:,0]/m[1:,0] - acceleration[1:,0]
+    segment.state.residuals.forces[:,0]          = FT[1:,0]/m[1:,0] - acceleration[1:,0]
     segment.state.residuals.final_velocity_error = (v[-1,0] - vf)
     
     return
