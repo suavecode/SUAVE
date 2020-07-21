@@ -100,9 +100,8 @@ def write_run_cases(avl_object,trim_aircraft):
         Iyz  = moments_of_inertia[1][2]
         Izx  = moments_of_inertia[2][0]
 
-        for case_name in avl_object.current_status.cases:
+        for case in avl_object.current_status.cases:
             # extract flight conditions 
-            case  = avl_object.current_status.cases[case_name]
             index = case.index
             name  = case.tag
             CL    = case.conditions.aerodynamics.flight_CL

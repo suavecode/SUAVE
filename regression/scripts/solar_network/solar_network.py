@@ -83,10 +83,10 @@ def main():
     print('\n')
     
     error = Data()
-    error.Thrust   = np.max(np.abs(F-truth_F))
-    error.RPM      = np.max(np.abs(rpm-truth_rpm))
-    error.Current  = np.max(np.abs(current-truth_i))
-    error.Battery  = np.max(np.abs(energy-truth_bat))
+    error.Thrust   = np.max(np.abs((F-truth_F)/truth_F))
+    error.RPM      = np.max(np.abs((rpm-truth_rpm)/truth_rpm))
+    error.Current  = np.max(np.abs((current-truth_i)/truth_i))
+    error.Battery  = np.max(np.abs((energy-truth_bat)/truth_bat))
     
     print(error)
     

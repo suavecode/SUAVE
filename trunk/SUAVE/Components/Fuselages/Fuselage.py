@@ -102,10 +102,11 @@ class Fuselage(Lofted_Body):
         self.cabin_area           = 0.0
         
         self.non_dimensional_origin = [[0.0,0.0,0.0]]
-        self.generative_design_minimum            = 0
-        self.generative_design_characteristics    = ['lengths.total','heights.maximum','width','fineness.nose','fineness.tail']
-        self.generative_design_char_min_bounds    = [1.,0.001,0.001,0.001,0.001]   
-        self.generative_design_char_max_bounds    = [np.inf,np.inf,np.inf,np.inf,np.inf]    
+        self.generative_design_minimum         = 0
+        self.generative_design_max_per_vehicle = 3
+        self.generative_design_characteristics = ['lengths.total','heights.maximum','width','fineness.nose','fineness.tail']
+        self.generative_design_char_min_bounds = [1.,0.001,0.001,0.001,0.001]   
+        self.generative_design_char_max_bounds = [np.inf,np.inf,np.inf,np.inf,np.inf]    
 
         self.Fuel_Tanks = Physical_Component.Container()
 

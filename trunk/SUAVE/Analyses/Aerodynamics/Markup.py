@@ -50,6 +50,7 @@ class Markup(Aerodynamics):
         self.tag    = 'aerodynamics_markup'
         
         self.geometry = Data()
+        self.settings.maximum_lift_coefficient_factor = 1.0        
         self.settings.lift_to_drag_adjustment  = 0. # (.1 is a 10% increase in L/D over base analysis)
                                                     # this is applied directly to the final drag value
         

@@ -10,6 +10,7 @@
 #           Jan 2020, T. MacDonald 
 #           Mar 2020, M. Clarke
 #           May 2020, E. Botero
+#           Jul 2020, E. Botero 
 
 
 # ----------------------------------------------------------------------
@@ -609,11 +610,11 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         x_poses = []
         z_poses = []
         segs = fuselage.Segments
-        for seg_name in segs:
-            widths.append(segs[seg_name].width)
-            heights.append(segs[seg_name].height)
-            x_poses.append(segs[seg_name].percent_x_location)
-            z_poses.append(segs[seg_name].percent_z_location)
+        for seg in segs:
+            widths.append(seg.width)
+            heights.append(seg.height)
+            x_poses.append(seg.percent_x_location)
+            z_poses.append(seg.percent_z_location)
             
         end_ind = num_segs-1
     
@@ -677,6 +678,16 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_2", height2);
         vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_3", height3);  
     else:
+        # OpenVSP vals do not exist:
+        vals                   = Data()
+        vals.nose              = Data()
+        vals.tail              = Data()
+        vals.tail.top          = Data()
+        
+        vals.nose.z_pos        = 0.0
+        vals.tail.top.angle    = 0.0
+        vals.tail.top.strength = 0.0
+        
         if len(np.unique(x_poses)) != len(x_poses):
             raise ValueError('Duplicate fuselage section positions detected.')
         vsp.SetParmVal(fuse_id,"Length","Design",length)
