@@ -107,11 +107,19 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	# -----------------
 	
 	for ii in range(0, fuselage.vsp_data.xsec_num):
-		segment                    = SUAVE.Components.Fuselages.Segment()
-		segment.vsp_data.xsec_id   = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii)		   # VSP XSec ID.
-		segment.tag                = 'segment_' + str(ii)
-		segment.percent_x_location = vsp.GetParmVal(fuselage_id, 'XLocPercent', 'XSec_' + str(ii)) # Along fuselage length.
-		segment.percent_z_location = vsp.GetParmVal(fuselage_id, 'ZLocPercent', 'XSec_' + str(ii)) # Vertical deviation of fuselage center.
+		
+		# Create the segment
+		x_sec                     = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii) # VSP XSec ID.
+		segment                   = SUAVE.Components.Fuselages.Segment()
+		segment.vsp_data.xsec_id  = x_sec 
+		segment.tag               = 'segment_' + str(ii)
+		
+		# Pull out Parms that will be needed
+		X_Loc_P = vsp.GetXSecParm(x_sec, 'XLocPercent')
+		Z_Loc_P = vsp.GetXSecParm(x_sec, 'ZLocPercent')
+		
+		segment.percent_x_location = vsp.GetParmVal(X_Loc_P) # Along fuselage length.
+		segment.percent_z_location = vsp.GetParmVal(Z_Loc_P ) # Vertical deviation of fuselage center.
 		segment.height             = vsp.GetXSecHeight(segment.vsp_data.xsec_id) * units_factor
 		segment.width              = vsp.GetXSecWidth(segment.vsp_data.xsec_id) * units_factor
 		segment.effective_diameter = (segment.height+segment.width)/2. 
@@ -121,8 +129,11 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 		widths.append(segment.width)
 		eff_diams.append(segment.effective_diameter)
 		
-		if ii != (fuselage.vsp_data.xsec_num-1): # Segment length: stored as length since previous segment. (First segment will have length 0.0.)
-			segment.length = fuselage.lengths.total*(fuselage.Segments[ii+1].percent_x_location - segment.percent_x_location) * units_factor
+		if ii != (fuselage.vsp_data.xsec_num-1): # Segment length: stored as length since previous segment. (last segment will have length 0.0.)
+			next_xsec = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii)
+			X_Loc_P_p = vsp.GetXSecParm(next_xsec, 'XLocPercent')
+			percent_x_loc_p1 = vsp.GetParmVal(X_Loc_P_p) 
+			segment.length = fuselage.lengths.total*(percent_x_loc_p1 - segment.percent_x_location) * units_factor
 		else:
 			segment.length = 0.0
 		lengths.append(segment.length)

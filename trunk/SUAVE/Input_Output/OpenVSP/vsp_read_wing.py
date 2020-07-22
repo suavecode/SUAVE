@@ -75,9 +75,9 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	else: 
 		wing.tag = 'WingGeom'
 	
-	wing.origin[0] = vsp.GetParmVal(wing_id, 'X_Location', 'XForm') * units_factor 
-	wing.origin[1] = vsp.GetParmVal(wing_id, 'Y_Location', 'XForm') * units_factor 
-	wing.origin[2] = vsp.GetParmVal(wing_id, 'Z_Location', 'XForm') * units_factor 
+	wing.origin[0][0] = vsp.GetParmVal(wing_id, 'X_Location', 'XForm') * units_factor 
+	wing.origin[0][1] = vsp.GetParmVal(wing_id, 'Y_Location', 'XForm') * units_factor 
+	wing.origin[0][2] = vsp.GetParmVal(wing_id, 'Z_Location', 'XForm') * units_factor 
 	
 	sym_planar = vsp.GetParmVal(wing_id, 'Sym_Planar_Flag', 'Sym')
 	sym_origin = vsp.GetParmVal(wing_id, 'Sym_Ancestor', 'Sym')
@@ -87,10 +87,9 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	# Check if this is vertical tail and get the rotation
 	if  x_rot >=70:
 		wing.vertical = True
-		
 
-	
-	if sym_planar == 2. and sym_origin == 2.: #origin at wing, not vehicle
+	# Check for symmetry
+	if sym_planar == 2. and sym_origin == 1.: #origin at wing, not vehicle
 		wing.symmetric == True	
 	else:
 		wing.symmetric == False
@@ -98,9 +97,11 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	wing.aspect_ratio = vsp.GetParmVal(wing_id, 'TotalAR', 'WingGeom')
 	xsec_surf_id      = vsp.GetXSecSurf(wing_id, 0)			# This is how VSP stores surfaces.
 	segment_num       = vsp.GetNumXSec(xsec_surf_id)		# Get number of wing segments (is one more than the VSP GUI shows).
+	x_sec             = vsp.GetXSec(xsec_surf_id, 0)
+	chord_parm        = vsp.GetXSecParm(x_sec,'Root_Chord')
 	
-	total_chord      = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_1')	* units_factor
-	total_proj_span  = vsp.GetParmVal(wing_id, 'TotalProjectedSpan', 'WingGeom')  * units_factor
+	total_chord      = vsp.GetParmVal(chord_parm) * units_factor
+	total_proj_span  = vsp.GetParmVal(wing_id, 'TotalProjectedSpan', 'WingGeom') * units_factor
 	span_sum         = 0.				# Non-projected.
 	proj_span_sum    = 0.				# Projected.
 	segment_spans    = [None] * (segment_num) 	# Non-projected.
@@ -108,10 +109,15 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	segment_sweeps_quarter_chord = [None] * (segment_num)
 	
 	# Check for wing segment *inside* fuselage, then skip XSec_0 to start at first exposed segment.
-	if vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_0') == 1.:
+	if total_chord == 1.:
 		start = 1
+		xsec_surf_id = vsp.GetXSecSurf(wing_id, 1)	
+		x_sec        = vsp.GetXSec(xsec_surf_id, 0)
+		chord_parm   = vsp.GetXSecParm(x_sec,'Tip_Chord')
+		root_chord   = vsp.GetParmVal(chord_parm)* units_factor
 	else:
 		start = 0
+		root_chord = total_chord
 	
 	# -------------
 	# Wing segments
@@ -124,7 +130,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		thick_cord                    = vsp.GetParmVal(wing_id, 'ThickChord', 'XSecCurve_' + str(i-1))
 		segment.thickness_to_chord    = thick_cord	# Thick_cord stored for use in airfoil, below.		
 		segment_root_chord            = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_' + str(i)) * units_factor
-		segment.root_chord_percent    = segment_root_chord / total_chord		
+		segment.root_chord_percent    = segment_root_chord / root_chord		
 		segment.percent_span_location = proj_span_sum / (total_proj_span/2)
 		segment.twist                 = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(i-1)) * Units.deg
 		
