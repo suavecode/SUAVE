@@ -98,7 +98,7 @@ def cryocooler_model(self, cooling_power, cryo_temp, amb_temp):
         tempMin =       tempMinRT - tempOffset
         eff =           0.0002*(cryo_temp-tempMin)
         input_power =   cooling_power/eff
-        mass =          0.0282*input_power+5.9442
+        mass =          0.0079*input_power+51.124
 
     elif cooler_type == 'dPT':
         coolerName =    "Double Pulsetube"
@@ -106,7 +106,7 @@ def cryocooler_model(self, cooling_power, cryo_temp, amb_temp):
         tempMin =       tempMinRT - tempOffset
         eff =           0.00001*(cryo_temp-tempMin)
         input_power =   cooling_power/eff
-        mass =          0.0291*input_power+3.9345
+        mass =          0.0111*input_power+73.809
 
     else:
         print("Warning: Unknown Cryocooler type")
