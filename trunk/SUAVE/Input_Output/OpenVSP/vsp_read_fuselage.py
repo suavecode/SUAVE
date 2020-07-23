@@ -4,6 +4,7 @@
 # Created:  Jun 2018, T. St Francis
 # Modified: Aug 2018, T. St Francis
 #           Jan 2020, T. MacDonald
+#           Jul 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,6 +17,9 @@ from SUAVE.Components.Fuselages.Fuselage import Fuselage
 import vsp as vsp
 import numpy as np
 
+# ----------------------------------------------------------------------
+#  vsp read fuselage
+# ----------------------------------------------------------------------
 
 ## @ingroup Input_Output-OpenVSP
 def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
@@ -29,7 +33,7 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	   is a separate geometry and will NOT be processed.
 	4. Fuselage origin is located at nose. VSP file origin can be located anywhere, preferably at the forward tip
 	   of the vehicle or in front (to make all X-coordinates of vehicle positive).
-	5. Written for OpenVSP 3.16.1
+	5. Written for OpenVSP 3.21.1
 	
 	Source:
 	N/A
