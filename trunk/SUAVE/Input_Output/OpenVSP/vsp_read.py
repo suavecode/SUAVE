@@ -16,6 +16,7 @@ from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil
 from SUAVE.Components.Fuselages.Fuselage import Fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage import vsp_read_fuselage
 from SUAVE.Input_Output.OpenVSP.vsp_read_wing import vsp_read_wing
+from SUAVE.Input_Output.OpenVSP.vsp_write import write
 import vsp as vsp
 import numpy as np
 
@@ -164,5 +165,7 @@ def vsp_read(tag, units_type='SI'):
 	for wing_id in vsp_wings:
 		wing = vsp_read_wing(wing_id, units_type)
 		vehicle.append_component(wing)		
+		
+	write(vehicle,'cora_test')
 	
 	return vehicle
