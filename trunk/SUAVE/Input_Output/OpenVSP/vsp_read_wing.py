@@ -75,15 +75,22 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	N/A
 	"""  
 	
-	# Instantiate a wing
-	wing = SUAVE.Components.Wings.Wing()
+	# Check if this is vertical tail, this seems like a weird first step but it's necessary
+	# Get the initial rotation to get the dihedral angles
+	x_rot = vsp.GetParmVal( wing_id,'X_Rotation','XForm')		
+	if  x_rot >=70:
+		wing = SUAVE.Components.Wings.Vertical_Tail()
+		wing.vertical = True
+		x_rot = (90-x_rot) * Units.deg
+	else:
+		# Instantiate a wing
+		wing = SUAVE.Components.Wings.Wing()		
 	
 	# Set the units
 	if units_type == 'SI':
 		units_factor = Units.meter * 1.
 	else:
 		units_factor = Units.foot * 1.
-	
 
 	# Apply a tag to the wing
 	if vsp.GetGeomName(wing_id):
@@ -105,32 +112,23 @@ def vsp_read_wing(wing_id, units_type='SI'):
 
 	# Check for symmetry
 	if sym_planar == 2. and sym_origin == 1.: #origin at wing, not vehicle
-		wing.symmetric == True	
+		wing.symmetric = True	
 	else:
-		wing.symmetric == False
+		wing.symmetric = False
 		
-	# Get the initial rotation to get the dihedral angles
-	x_rot = vsp.GetParmVal( wing_id,'X_Rotation','XForm')	
-	
-	# Check if this is vertical tail
-	if  x_rot >=70:
-		wing.vertical = True
-		x_rot = (90-x_rot) * Units.deg
+
 	
 	#More top level parameters
+	total_proj_span      = vsp.GetParmVal(wing_id, 'TotalProjectedSpan', 'WingGeom') * units_factor
 	wing.aspect_ratio    = vsp.GetParmVal(wing_id, 'TotalAR', 'WingGeom')
 	wing.areas.reference = vsp.GetParmVal(wing_id, 'TotalArea', 'WingGeom') * units_factor**2 
-	wing.spans.projected = vsp.GetParmVal(wing_id, 'TotalProjectedSpan', 'WingGeom') * units_factor
+	wing.spans.projected = total_proj_span 
  
-	
-	total_proj_span = wing.spans.projected 
-	span_wing_check = vsp.GetParmVal(wing_id, 'TotalSpan', 'WingGeom')
-	
 	# Check if this is a single segment wing
 	xsec_surf_id      = vsp.GetXSecSurf(wing_id, 0)   # This is how VSP stores surfaces.
 	x_sec_1           = vsp.GetXSec(xsec_surf_id, 1)
 	x_sec_1_span_parm = vsp.GetXSecParm(x_sec_1,'Span')
-	x_sec_1_span      = vsp.GetParmVal(x_sec_1_span_parm)*(1+wing.symmetric)
+	x_sec_1_span      = vsp.GetParmVal(x_sec_1_span_parm)*(1+wing.symmetric) * units_factor
 	
 	if x_sec_1_span == wing.spans.projected:
 		single_seg = True
@@ -141,7 +139,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	x_sec             = vsp.GetXSec(xsec_surf_id, 0)
 	chord_parm        = vsp.GetXSecParm(x_sec,'Root_Chord')
 	
-	total_chord      = vsp.GetParmVal(chord_parm) * units_factor
+	total_chord      = vsp.GetParmVal(chord_parm) 
 
 	span_sum         = 0.				# Non-projected.
 	proj_span_sum    = 0.				# Projected.
@@ -158,7 +156,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		root_chord   = vsp.GetParmVal(chord_parm)* units_factor
 	else:
 		start = 0
-		root_chord = total_chord
+		root_chord = total_chord * units_factor
 	
 	# -------------
 	# Wing segments
@@ -190,7 +188,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 				segment.sweeps.quarter_chord    = segment_sweeps_quarter_chord[i]  # Used again, below
 				
 				# Used for dihedral computation, below.
-				segment_dihedral[i]	      = vsp.GetParmVal(wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg  -x_rot
+				segment_dihedral[i]	      = vsp.GetParmVal(wing_id, 'Dihedral', 'XSec_' + str(i)) * Units.deg  + x_rot
 				segment.dihedral_outboard     = segment_dihedral[i]
 		
 				segment_spans[i] 	      = vsp.GetParmVal(wing_id, 'Span', 'XSec_' + str(i)) * units_factor
@@ -253,9 +251,15 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		wing.dihedral              = np.arccos(proj_span_sum_alt / span_sum_alt) 
 		wing.sweeps.quarter_chord  = -np.arctan(sweeps_sum / span_sum_alt)  # Minus sign makes it positive sweep.
 		
+		# Add a tip segment, all values are zero except the tip chord
+		tc = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1)) * units_factor
+		segment = SUAVE.Components.Wings.Segment()
+		segment.percent_span_location = 1.0
+		segment.root_chord_percent    = tc / root_chord	
+		
 		# Chords
 		wing.chords.root              = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_0') * units_factor
-		wing.chords.tip               = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1)) * units_factor	
+		wing.chords.tip               = tc
 		wing.chords.mean_geometric    = wing.areas.reference / wing.spans.projected
 		
 		# Just double calculate and fix things:
@@ -282,7 +286,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		# Pull and pack
 		wing.sweeps.quarter_chord  = c_4_sweep
 		wing.taper                 = taper
-		wing.dihedral              = vsp.GetParmVal(x_sec_1_dih_parm) * Units.deg - x_rot
+		wing.dihedral              = vsp.GetParmVal(x_sec_1_dih_parm) * Units.deg + x_rot
 		wing.chords.root           = vsp.GetParmVal(x_sec_1_rc_parm)* units_factor
 		wing.chords.tip            = vsp.GetParmVal(x_sec_1_tc_parm) * units_factor	
 		wing.chords.mean_geometric = wing.areas.reference / wing.spans.projected

@@ -199,7 +199,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                                                 dz = dy*np.tan(dihedral_ob)
                                                 l  = dy/np.cos(dihedral_ob)
                                                 dx = l*np.tan(segment_sweeps[i_segs-1])
-                                        section.origin = [( [origin[i_segs-1][0][0] + dx , origin[i_segs-1][0][1] + dy, origin[i_segs-1][0][2] + dz])]              
+                                        section.origin = [[origin[i_segs-1][0][0] + dx , origin[i_segs-1][0][1] + dy, origin[i_segs-1][0][2] + dz]]              
                                         
                                         # this loop appends all the control surfaces within a particular wing section
                                         for index  , ctrl_surf in enumerate(segments[i_segs].control_surfaces):
@@ -324,7 +324,7 @@ def populate_wing_sections(avl_wing,suave_wing):
                 # define root section 
                 root_section          = Section()
                 root_section.tag      = 'root_section'
-                root_section.origin   = origin
+                root_section.origin   = [origin]
                 root_section.chord    = suave_wing.chords.root
                 root_section.twist    = suave_wing.twists.root
                 root_section.semispan  = semispan
@@ -338,9 +338,9 @@ def populate_wing_sections(avl_wing,suave_wing):
              
                 # assign location of wing tip         
                 if avl_wing.vertical:
-                        tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan*np.tan(dihedral),origin[2]+semispan]
+                        tip_section.origin    = [[origin[0]+semispan*np.tan(sweep),origin[1]+semispan*np.tan(dihedral),origin[2]+semispan]]
                 else: 
-                        tip_section.origin    = [origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]
+                        tip_section.origin    = [[origin[0]+semispan*np.tan(sweep),origin[1]+semispan,origin[2]+semispan*np.tan(dihedral)]]
                 
                 # assign wing airfoil
                 if suave_wing.Airfoil:

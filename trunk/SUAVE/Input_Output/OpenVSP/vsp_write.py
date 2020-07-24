@@ -238,7 +238,8 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     if wing.symmetric == False:
         vsp.SetParmVal( wing_id,'Sym_Planar_Flag','Sym',0)
     if wing.vertical == True:
-        vsp.SetParmVal( wing_id,'X_Rel_Rotation','XForm',90)     
+        vsp.SetParmVal( wing_id,'X_Rel_Rotation','XForm',90)
+        dihedral = -dihedral # check for vertical tail, direction reverses from SUAVE/AVL
 
     vsp.SetParmVal( wing_id,'X_Rel_Location','XForm',wing_x)
     vsp.SetParmVal( wing_id,'Y_Rel_Location','XForm',wing_y)
