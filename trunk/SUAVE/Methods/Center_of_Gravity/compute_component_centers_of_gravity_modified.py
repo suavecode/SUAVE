@@ -40,8 +40,12 @@ def compute_component_centers_of_gravity_modified(vehicle, nose_load = 0.06,
     N/A
     """  
     
-    cabin_origin_x = vehicle.fuselages.fuselage.cabin.origin[0][0]
-    cabin_length   = vehicle.fuselages.fuselage.cabin.length    
+    if 'cabin' in vehicle.fuselages.fuselage.keys():
+        cabin_origin_x = vehicle.fuselages.fuselage.cabin.origin[0][0]
+        cabin_length   = vehicle.fuselages.fuselage.cabin.length  
+    else:
+        cabin_origin_x = vehicle.fuselages.fuselage.origin[0][0]
+        cabin_length   = vehicle.fuselages.fuselage.lengths.total
     
     # Go through all wings
     for wing in vehicle.wings:

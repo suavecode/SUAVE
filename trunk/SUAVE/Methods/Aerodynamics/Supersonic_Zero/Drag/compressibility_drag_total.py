@@ -12,7 +12,8 @@
 from SUAVE.Core import Data
 
 from .wave_drag_lift import wave_drag_lift
-from .wave_drag_volume import wave_drag_volume
+from .wave_drag_volume import wave_drag_volume as wave_drag_volume_Raymer
+from .wave_drag_volume_sears_haack_3 import wave_drag_volume_sears_haack_3 as wave_drag_volume_SH
 from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 from SUAVE.Components.Wings import Main_Wing
 
@@ -63,6 +64,13 @@ def compressibility_drag_total(state,settings,geometry):
     peak_mach        = settings.peak_mach_number
     peak_factor      = settings.transonic_drag_multiplier
     scaling_factor   = settings.volume_wave_drag_scaling
+    
+    if settings.wave_drag_type == 'Raymer':
+        wave_drag_volume = wave_drag_volume_Raymer
+    elif settings.wave_drag_type == 'Sears-Haack-3':
+        wave_drag_volume = wave_drag_volume_SH
+    else:
+        raise NotImplementedError
     
     if settings.cross_sectional_area_calculation_type != 'Fixed':
         raise NotImplementedError

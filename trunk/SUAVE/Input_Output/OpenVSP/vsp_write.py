@@ -707,13 +707,42 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
         vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
         vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])
         vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(end_ind),x_poses[-1])
-        vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(end_ind),z_poses[-1])    
+        vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(end_ind),z_poses[-1]) 
         
-        # Tail
-        vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
-        vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
-        vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
-        vsp.Update()
+        if heights[-1] > 0.:
+            stdout = vsp.cvar.cstdout
+            errorMgr = vsp.ErrorMgrSingleton_getInstance()
+            errorMgr.PopErrorAndPrint(stdout)
+            
+            pos = len(heights)-1
+            vsp.InsertXSec(fuse_id, pos-1, vsp.XS_ELLIPSE)
+            vsp.Update()
+            vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(pos), widths[-1])
+            vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(pos), heights[-1]/np.cos(alignment_angles[-1]))             
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos),x_poses[-1])
+            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos),z_poses[-1])              
+            
+            xsecsurf = vsp.GetXSecSurf(fuse_id,0)
+            vsp.ChangeXSecShape(xsecsurf,pos+1,vsp.XS_POINT)
+            vsp.Update()           
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos+1),x_poses[-1])
+            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos+1),z_poses[-1])     
+            
+            # update strengths to make end flat
+            vsp.SetParmVal(fuse_id,"TopRStrength","XSec_"+str(pos)  , 0.)
+            vsp.SetParmVal(fuse_id,"RightRStrength","XSec_"+str(pos)  , 0.)
+            vsp.SetParmVal(fuse_id,"BottomRStrength","XSec_"+str(pos)  , 0.)
+            vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(pos+1), 0.)
+            vsp.SetParmVal(fuse_id,"RightLStrength","XSec_"+str(pos+1), 0.)            
+            
+        
+        else:
+            # Tail
+            vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
+            vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
+            vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
+            vsp.Update()
+        
         if 'z_pos' in vals.tail:
             tail_z_pos = vals.tail.z_pos
         else:

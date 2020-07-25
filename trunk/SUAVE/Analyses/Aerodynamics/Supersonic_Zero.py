@@ -34,7 +34,7 @@ class Supersonic_Zero(Markup):
     Source:
     Primarily based on adg.stanford.edu, see methods for details
     """ 
-    def __defaults__(self):
+    def __defaults__(self, wave_drag_type = 'Raymer'):
         """This sets the default values and methods for the analysis.
 
         Assumptions:
@@ -84,8 +84,14 @@ class Supersonic_Zero(Markup):
         # 'Fixed' means that the area is not able to vary with Mach number, so the number at the desired cruise condition should
         # be used
         # 'OpenVSP' is a desired future possibility. This would allow the cross sectional area to vary with Mach number, but is 
-        # much more computationally intensive.        
+        # much more computationally intensive.  
+        settings.wave_drag_type = wave_drag_type
+        
+        #if wave_drag_type == 'Raymer':
         settings.volume_wave_drag_scaling    = 3.7 # 1.8-2.2 are given as typical for an SST, but 3.7 was found to be more accurate 
+        #elif wave_drag_type == 'Sears-Haack-3':
+            #settings.volume_wave_drag_scaling    = 1.15
+            
         # This may be due to added propulsion effects
         settings.fuselage_parasite_drag_begin_blend_mach = 0.91
         settings.fuselage_parasite_drag_end_blend_mach   = 0.99
