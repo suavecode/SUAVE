@@ -24,7 +24,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
 # local imports
 from .Aerodynamics import Aerodynamics
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution import generate_wing_vortex_distribution
-from SUAVE.Plots import plot_vehicle_vlm_panelization  
+from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # package imports

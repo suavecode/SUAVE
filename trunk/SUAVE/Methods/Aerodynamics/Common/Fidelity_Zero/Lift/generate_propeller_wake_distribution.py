@@ -21,7 +21,8 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     R            = prop.outputs.propeller_radius
     r            = prop.outputs.blade_radial_distribution 
     c            = prop.outputs.blade_chord_distribution 
-    N            = len(r)
+    Na           = prop.outputs.number_azimuthal_stations
+    Nr           = prop.outputs.number_radial_stations
     omega        = prop.outputs.omega                        
     vt           = prop.outputs.tangential_induced_velocity_2d         
     va           = prop.outputs.axial_induced_velocity_2d  
@@ -30,14 +31,14 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     B            = prop.outputs.num_blades  
     gamma        = prop.outputs.blade_Gamma_2d
     blade_angles = np.linspace(0,2*np.pi,B+1)[:-1]        
-    dt           = (2*np.pi/N)/omega[0]
+    dt           = (2*np.pi/Na)/omega[0]
     nts          = int(time/dt)
     ts           = np.linspace(0,time,nts)
     num_prop     = len(prop.origin) 
     
     t0           = dt*init_timestep_offset
     rad_offset   = omega[0]*t0
-    blade_angles = blade_angles + rad_offset  
+    blade_angles = blade_angles - rad_offset 
     
     # define points ( control point, time step , blade number , location on blade )
     # compute lambda and mu 
@@ -50,13 +51,13 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     # wake skew angle 
     wake_skew_angle = np.arctan(mu_prop/lambda_tot)
     
-    # reshape gamma to fund the average between stations 
-    gamma_new = np.zeros((m,N,(N-1)))
+    # reshape gamma to find the average between stations 
+    gamma_new = np.zeros((m,Na,(Nr-1)))
     gamma_new = (gamma[:,:,:-1] + gamma[:,:,1:])*0.5
     
     # define empty arrays 
     WD      = Data()
-    n = N-1
+    n = Nr-1
     WD_XA1   = np.zeros((m,num_prop,nts-1,B,n))
     WD_YA1   = np.zeros((m,num_prop,nts-1,B,n))
     WD_ZA1   = np.zeros((m,num_prop,nts-1,B,n))
@@ -101,24 +102,24 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
      
     for i in range(num_prop): 
         Gamma  = np.zeros((m,nts-1,B,n))   
-        num = int(N/B) -1 
+        num = int(Na/B)  
         for t_idx in range(nts-1): 
             for B_idx in range(B): 
-                B_loc = (B_idx*num + t_idx)%N 
+                B_loc = (B_idx*num + t_idx)%Na  
                 Gamma[:,t_idx,B_idx,:] = gamma_new[:,B_loc,:]  
         
         #( control point, time step , blade number , location on blade )
         sx_inf0 = np.multiply(np.atleast_2d(V_prop*np.cos(wake_skew_angle)).T,np.atleast_2d(ts))
-        sx_inf  = np.repeat(np.repeat(sx_inf0[:, :,  np.newaxis], N, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)  
+        sx_inf  = np.repeat(np.repeat(sx_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)  
         
         sy_inf0 = np.multiply(np.atleast_2d(V_inf[:,1]).T,np.atleast_2d(ts)) # = zero since no crosswind
-        sy_inf  = np.repeat(np.repeat(sy_inf0[:, :,  np.newaxis], N, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)   
+        sy_inf  = np.repeat(np.repeat(sy_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)   
         
         sz_inf0 = np.multiply(np.atleast_2d(V_prop*np.sin(wake_skew_angle)).T,np.atleast_2d(ts))
-        sz_inf  = np.repeat(np.repeat(sz_inf0[:, :,  np.newaxis], N, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)           
+        sz_inf  = np.repeat(np.repeat(sz_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)           
         
-        omega_t = np.repeat(np.repeat(np.multiply(np.atleast_2d(omega),np.atleast_2d(ts))[:, :,  np.newaxis],B, axis = 2)[:, :,:, np.newaxis],N, axis = 3) 
-        ba      = np.repeat(np.repeat(np.tile(np.atleast_2d(blade_angles),(m,1))[:,  np.newaxis, :],nts, axis = 1) [:, :,:, np.newaxis],N, axis = 3) 
+        omega_t = np.repeat(np.repeat(np.multiply(np.atleast_2d(omega),np.atleast_2d(ts))[:, :,  np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 
+        ba      = np.repeat(np.repeat(np.tile(np.atleast_2d(blade_angles),(m,1))[:,  np.newaxis, :],nts, axis = 1) [:, :,:, np.newaxis],Nr, axis = 3) 
         
         azi_y   = np.sin(ba + omega_t)  
         azi_z   = np.cos(ba + omega_t)  
@@ -132,7 +133,7 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
         X_pts  = prop.origin[i][0] +  x_pts + sx_inf   
 
         # compute wake contraction CURRENTLY INCORRECT
-        wake_contraction , r_div_r_prime , Kd = compute_wake_contraction_matrix(i,ts,prop,N,m,nts,X_pts)          
+        wake_contraction , r_div_r_prime , Kd = compute_wake_contraction_matrix(i,ts,prop,Nr,m,nts,X_pts)          
         
         y0_pts = np.tile(np.atleast_2d(r),(B,1))
         y_pts  = np.repeat(np.repeat(y0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
@@ -188,4 +189,4 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     WD.ZB2  =  np.reshape(np.reshape(np.reshape(WD_ZB2,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
     WD.GAMMA=  np.reshape(np.reshape(np.reshape(WD_GAMMA,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
     
-    return WD,dt, ts,B,N 
+    return WD, dt, ts, B, Nr 

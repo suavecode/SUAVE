@@ -131,7 +131,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
    
    
     # Build the vector
-    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,wake_model,initial_timestep_offset) 
+    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
+                                                                                 sur_flag,wake_model,initial_timestep_offset) 
     
     # Compute vortex strength  
     n_cp  = VD.n_cp  

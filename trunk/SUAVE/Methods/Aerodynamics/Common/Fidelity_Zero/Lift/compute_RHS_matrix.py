@@ -150,7 +150,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,wake_mod
                 prop = propulsor.propeller 
                 
                 # generate the geometry of the propeller helical wake
-                wake_distribution, dt,  ts,B,N = generate_propeller_wake_distribution(prop,m,VD,initial_timestep_offset)
+                wake_distribution, dt,  ts,B, N = generate_propeller_wake_distribution(prop,m,VD,initial_timestep_offset)
                 
                 # compute the induced velocity
                 V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,m,ts,B,N)

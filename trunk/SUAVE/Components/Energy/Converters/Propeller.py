@@ -70,6 +70,7 @@ class Propeller(Energy_Component):
         self.radius_distribution      = None
         self.rotation                 = None
         self.ducted                   = False
+        self.number_azimuthal_stations= 24
         self.induced_power_factor     = 1.48  #accounts for interference effects
         self.profile_drag_coefficient = .03        
         self.tag                      = 'Propeller' 
@@ -148,6 +149,7 @@ class Propeller(Energy_Component):
         theta  = self.thrust_angle
         tc     = self.thickness_to_chord  
         sigma  = self.blade_solidity   
+        Na     = self.number_azimuthal_stations
         BB     = B*B    
         BBB    = BB*B
     
@@ -197,13 +199,13 @@ class Propeller(Energy_Component):
             ut       = 0.0  
     
         #Things that don't change with iteration
-        N        = len(c) # Number of stations     
+        Nr       = len(c) # Number of stations radially    
         ctrl_pts = len(Vv)  
             
         if  a_pol != None and a_loc != None:
             airfoil_polars = Data() 
             # check dimension of section
-            if len(a_loc) != N:
+            if len(a_loc) != Nr:
                 raise AssertionError('Dimension of airfoil sections must be equal to number of stations on rotor')
             # compute airfoil polars for airfoils 
             airfoil_polars  = compute_airfoil_polars(self, a_geo, a_pol) 
@@ -213,8 +215,8 @@ class Propeller(Energy_Component):
         # set up non dimensional radial distribution 
         if self.radius_distribution is None:
             chi0    = Rh/R   # Where the rotor blade actually starts
-            chi     = np.linspace(chi0,1,N+1)  # Vector of nondimensional radii
-            chi     = chi[0:N]
+            chi     = np.linspace(chi0,1,Nr+1)  # Vector of nondimensional radii
+            chi     = chi[0:Nr]
     
         else:
             chi = self.radius_distribution
@@ -246,15 +248,15 @@ class Propeller(Energy_Component):
         beta_blade     = 0  # currently no coning            
     
         # azimuth distribution 
-        psi          = np.linspace(0,2*pi,N)
-        psi_2d       = np.tile(np.atleast_2d(psi).T,(1,N))
+        psi          = np.linspace(0,2*pi,Na+1)[:-1]
+        psi_2d       = np.tile(np.atleast_2d(psi).T,(1,Nr))
         psi_2d       = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)  
     
         # 2 dimensiona radial distribution non dimensionalized
-        chi_2d       = np.tile(chi ,(N,1))            
+        chi_2d       = np.tile(chi ,(Na,1))            
         chi_2d       = np.repeat(chi_2d[ np.newaxis,:, :], ctrl_pts, axis=0) 
          
-        r_dim_2d     = np.tile(r_dim ,(N,1))  
+        r_dim_2d     = np.tile(r_dim ,(Na,1))  
         r_dim_2d     = np.repeat(r_dim_2d[ np.newaxis,:, :], ctrl_pts, axis=0)  
     
         # Momentum theory approximation of inflow for BET if the advance ratio is large
@@ -269,20 +271,20 @@ class Propeller(Energy_Component):
                 Leishman pg 165'''     
     
             # 2-D chord distribution 
-            chord     = np.tile(c,(N,1))  
+            chord     = np.tile(c,(Na,1))  
             chord_2d  = np.repeat(chord[np.newaxis,:, :], ctrl_pts, axis=0)
     
             # 2-D blade twist distribution 
-            theta_2d  = np.tile(total_blade_pitch,(N ,1))
+            theta_2d  = np.tile(total_blade_pitch,(Na ,1))
             theta_2d  = np.repeat(theta_2d[np.newaxis,:, :], ctrl_pts, axis=0)    
     
             # 2-D inflow ratio 
-            mu_2d     = np.tile(np.atleast_2d(mu_prop),(1,N))
-            mu_2d     = np.repeat(mu_2d[:, np.newaxis,  :], N, axis=1)         
+            mu_2d     = np.tile(np.atleast_2d(mu_prop),(1,Nr))
+            mu_2d     = np.repeat(mu_2d[:, np.newaxis,  :], Na, axis=1)         
     
             # 2-D inflow ratio 
-            lambda_2d = np.tile(np.atleast_2d(lambda_tot),(1,N))
-            lambda_2d = np.repeat(lambda_2d[:, np.newaxis,  :], N, axis=1)       
+            lambda_2d = np.tile(np.atleast_2d(lambda_tot),(1,Nr))
+            lambda_2d = np.repeat(lambda_2d[:, np.newaxis,  :], Na, axis=1)       
     
             # wake skew angle 
             X     = np.arctan(mu_2d/lambda_2d) # wake skew angle (Section 5.2 page 133 Leishman) 
@@ -290,24 +292,24 @@ class Propeller(Energy_Component):
             #kx_2d   = (4/3)*((1.8*mu_2d**2)*np.sqrt(1 + (lambda_2d/mu_2d)**2)  - lambda_2d/mu_2d)  # eqn 5.43 (page 136 Leishman)
             ky_2d = -2*mu_2d                # eqn 5.44 (page 136 Leishman) 
     
-            lambda_i_2d = np.tile(np.atleast_2d(lambda_i),(1,N))
-            lambda_i_2d = np.repeat(lambda_i_2d[:, np.newaxis,  :], N, axis=1) 
+            lambda_i_2d = np.tile(np.atleast_2d(lambda_i),(1,Nr))
+            lambda_i_2d = np.repeat(lambda_i_2d[:, np.newaxis,  :], Na, axis=1) 
     
-            lambda_c_2d = np.tile(np.atleast_2d(lambda_c),(1,N))
-            lambda_c_2d = np.repeat(lambda_c_2d[:, np.newaxis,  :], N, axis=1)         
+            lambda_c_2d = np.tile(np.atleast_2d(lambda_c),(1,Nr))
+            lambda_c_2d = np.repeat(lambda_c_2d[:, np.newaxis,  :], Na, axis=1)         
     
             # motification to initial radial inflow distribution  
             lambda_i_2d = lambda_i_2d*(1 + kx_2d*chi_2d*np.cos(psi_2d) + ky_2d*chi_2d*np.sin(psi_2d) )  # eqn 5.41 (page 136 Leishman)  
             lambda_2d   = lambda_c_2d + lambda_i_2d
     
-            omega_2d   = np.tile(np.atleast_2d(omega),(1,N))
-            omega_2d   = np.repeat(omega[:, np.newaxis,  :], N, axis=1)   
+            omega_2d   = np.tile(np.atleast_2d(omega),(1,Nr))
+            omega_2d   = np.repeat(omega[:, np.newaxis,  :], Na, axis=1)   
             Va_ind_2d  = lambda_i_2d*(omega_2d*R)     
             Vt_ind_2d  = np.zeros_like(Va_ind_2d)            
             
             # axial, tangential and radial components of local blade flow [multiplied by omega*R to dimensionalize] 
-            omega_R_2d  = np.tile(np.atleast_2d(omega*R),(1,N))
-            omega_R_2d  = np.repeat(omega_R_2d[:, np.newaxis,  :], N, axis=1)  
+            omega_R_2d  = np.tile(np.atleast_2d(omega*R),(1,Nr))
+            omega_R_2d  = np.repeat(omega_R_2d[:, np.newaxis,  :], Na, axis=1)  
             Vt_2d       = omega_R_2d * (chi_2d  + mu_2d*np.sin(psi_2d))                                        # velocity tangential to the disk plane, positive toward the trailing edge eqn 6.34 pg 165           
             Vr_2d       = omega_R_2d * (mu_2d*np.cos(psi_2d))                                                # radial velocity , positive outward   eqn 6.35 pg 165                 
             Va_2d       = omega_R_2d * (lambda_2d + chi_2d *beta_blade_dot + beta_blade*mu_2d*np.cos(psi_2d))  # velocity perpendicular to the disk plane, positive downward  eqn 6.36 pg 166  
@@ -322,15 +324,15 @@ class Propeller(Energy_Component):
             alpha  = theta_2d - phi_2d  # (page 166 Leishman)
     
             # Scale for Mach, this is Karmen_Tsien 
-            a_2d  = np.tile(np.atleast_2d(a),(1,N))
-            a_2d  = np.repeat(a_2d[:, np.newaxis,  :], N, axis=1)  
+            a_2d  = np.tile(np.atleast_2d(a),(1,Nr))
+            a_2d  = np.repeat(a_2d[:, np.newaxis,  :], Na, axis=1)  
             
             # local mach number
             Ma         = (U_2d)/a_2d   
             
             # Estimate Cl max  
-            nu_2d      = np.tile(np.atleast_2d(nu),(1,N))
-            nu_2d      = np.repeat(nu_2d[:, np.newaxis,  :], N, axis=1)   
+            nu_2d      = np.tile(np.atleast_2d(nu),(1,Nr))
+            nu_2d      = np.repeat(nu_2d[:, np.newaxis,  :], Na, axis=1)   
             Re         = (U_2d*chord_2d)/nu_2d 
             Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
             Re_ref     = 9.*10**6      
@@ -339,10 +341,10 @@ class Propeller(Energy_Component):
             
             # Compute blade Cl and Cd distribution from the airfoil data if provided else use thin airfoil theory 
             if  a_pol != None and a_loc != None:  
-                Cl    = np.zeros((ctrl_pts,N,N))              
-                Cdval = np.zeros((ctrl_pts,N,N))                 
+                Cl    = np.zeros((ctrl_pts,Na,Nr))              
+                Cdval = np.zeros((ctrl_pts,Na,Nr))                 
                 for ii in range(ctrl_pts):
-                    for jj in range(N):                 
+                    for jj in range(Nr):                 
                         Cl[ii,:,jj]    = airfoil_cl_surs[a_geo[a_loc[jj]]](Re[ii,:,jj],alpha[ii,:,jj],grid=False)  
                         Cdval[ii,:,jj] = airfoil_cd_surs[a_geo[a_loc[jj]]](Re[ii,:,jj],alpha[ii,:,jj],grid=False)  
             else:
@@ -363,8 +365,8 @@ class Propeller(Energy_Component):
                 Cdval[alpha>=pi/2] = 2.    
     
             #More Cd scaling from Mach from AA241ab notes for turbulent skin friction 
-            T_2d    = np.tile(np.atleast_2d(T),(1,N))
-            T_2d    = np.repeat(T_2d[:, np.newaxis,  :], N, axis=1)     
+            T_2d    = np.tile(np.atleast_2d(T),(1,Nr))
+            T_2d    = np.repeat(T_2d[:, np.newaxis,  :], Na, axis=1)     
             Tw_Tinf = 1. + 1.78*(Ma*Ma)
             Tp_Tinf = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
             Tp      = (Tp_Tinf)*T_2d
@@ -372,8 +374,8 @@ class Propeller(Energy_Component):
             Cd      = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval  
     
             # local blade lift and drag  
-            rho_2d = np.tile(np.atleast_2d(rho),(1,N))
-            rho_2d = np.repeat(rho_2d[:, np.newaxis,  :], N, axis=1)    
+            rho_2d = np.tile(np.atleast_2d(rho),(1,Nr))
+            rho_2d = np.repeat(rho_2d[:, np.newaxis,  :], Na, axis=1)    
             dL     = 0.5 * rho_2d * U_2d**2 * chord_2d * Cl # eqn 6.37 (page 167 Leishman) 
             dD     = 0.5 * rho_2d * U_2d**2 * chord_2d * Cd # eqn 6.38 (page 167 Leishman) 
     
@@ -387,7 +389,7 @@ class Propeller(Energy_Component):
     
             # average thrust and torque over aximuth
             deltar                  = chi_2d[:,:,1]-chi_2d[:,:,0]  
-            deltar_2d               = np.repeat(deltar[:, np.newaxis,  :], N, axis=1)  
+            deltar_2d               = np.repeat(deltar[:,  :, np.newaxis], Nr, axis=2) 
             blade_T_distribution    = np.mean((dFz*deltar_2d), axis = 1)
             blade_Q_distribution    = np.mean((dFx*chi_2d*deltar_2d), axis = 1)
             thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
@@ -395,10 +397,10 @@ class Propeller(Energy_Component):
             blade_T_distribution_2d = dFz*deltar_2d
             blade_Q_distribution_2d = dFx*chi_2d*deltar_2d  
             
-            blade_dT_dR = np.zeros_like(deltar)
-            blade_dT_dr = np.zeros_like(deltar)
-            blade_dQ_dR = np.zeros_like(deltar)
-            blade_dQ_dr = np.zeros_like(deltar)
+            blade_dT_dR = np.zeros((len(Vv),Nr))
+            blade_dT_dr = np.zeros_like(blade_dT_dR)
+            blade_dQ_dR = np.zeros_like(blade_dT_dR)
+            blade_dQ_dr = np.zeros_like(blade_dT_dR)
              
             blade_Gamma_2d  = 0.5*U_2d*chord_2d*Cl       
         
@@ -412,7 +414,7 @@ class Propeller(Energy_Component):
         # Blade Element Momentum Theory : large angle approximation
         else:   
             #Things that will change with iteration
-            size   = (len(a),N) 
+            size   = (len(a),Nr) 
             tol    = 1e-5
             omegar = np.outer(omega,r_dim)
             Ua     = np.outer((V + ua),np.ones_like(r_dim))
@@ -459,9 +461,9 @@ class Propeller(Energy_Component):
 
                 # Compute blade Cl and Cd distribution from the airfoil data if provided else use thin airfoil theory   
                 if  a_pol != None and a_loc != None: 
-                    Cl    = np.zeros((ctrl_pts,N))              
-                    Cdval = np.zeros((ctrl_pts,N)) 
-                    for jj in range(N):                 
+                    Cl    = np.zeros((ctrl_pts,Nr))              
+                    Cdval = np.zeros((ctrl_pts,Nr)) 
+                    for jj in range(Nr):                 
                         Cl[:,jj]    = airfoil_cl_surs[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False)  
                         Cdval[:,jj] = airfoil_cd_surs[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False)    
                         
@@ -543,20 +545,20 @@ class Propeller(Energy_Component):
             thrust               = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
             torque               = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r_dim*deltar,axis=1)[:,None]
     
-            Va_2d     = np.repeat(Wa.T[ : , np.newaxis , :], N, axis=1).T
-            Vt_2d     = np.repeat(Wt.T[ : , np.newaxis , :], N, axis=1).T
-            Vt_ind_2d = np.repeat(va.T[ : , np.newaxis , :], N, axis=1).T
-            Va_ind_2d = np.repeat(vt.T[ : , np.newaxis , :], N, axis=1).T
-            blade_T_distribution_2d = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], N, axis=0).T 
-            blade_Q_distribution_2d = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], N, axis=0).T                 
+            Va_2d     = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
+            Vt_2d     = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
+            Vt_ind_2d = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
+            Va_ind_2d = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T
+            blade_T_distribution_2d = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
+            blade_Q_distribution_2d = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T                 
              
-            blade_Gamma_2d  = np.repeat(Gamma.T[ : , np.newaxis , :], N, axis=1).T
+            blade_Gamma_2d  = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
             blade_dT_dR     = rho*(Gamma*(Wt-epsilon*Wa))
             blade_dT_dr     = rho*(Gamma*(Wt-epsilon*Wa))*R
             blade_dQ_dR     = rho*(Gamma*(Wa+epsilon*Wt)*r_dim)
             blade_dQ_dr     = rho*(Gamma*(Wa+epsilon*Wt)*r_dim)*R
             
-        psi_2d      = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], N, axis=0).T        
+        psi_2d      = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], Na, axis=0).T        
         D           = 2*R 
         Cq          = torque/(rho*A*R*(omega*R)**2)
         Ct          = thrust/(rho*A*(omega*R)**2)
@@ -592,7 +594,8 @@ class Propeller(Energy_Component):
                     num_blades                              = int(B),
                     propeller_radius                        = R,
                     propeller_diameter                      = D,
-                    number_sections                         = N,
+                    number_radial_stations                  = Nr,
+                    number_azimuthal_stations               = Na,
                     blade_radial_distribution_normalized    = chi,
                     blade_radial_distribution_normalized_2d = chi_2d,
                     blade_chord_distribution                = c,     

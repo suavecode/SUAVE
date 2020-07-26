@@ -288,6 +288,7 @@ def propeller_design(prop,number_of_stations=20):
     prop.max_thickness_distribution = t_max
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
+    prop.radius_distribution        = r
     prop.number_blades              = int(B)
     prop.power_coefficient          = Cp
     prop.mid_chord_aligment         = MCA
