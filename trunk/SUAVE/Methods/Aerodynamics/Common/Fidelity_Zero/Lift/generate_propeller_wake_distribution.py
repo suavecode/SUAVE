@@ -15,7 +15,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contracti
 
 def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     # to put in settings 
-    time = 0.1
+    time = 0.05
     
     # Unpack unknowns  
     R            = prop.outputs.propeller_radius
