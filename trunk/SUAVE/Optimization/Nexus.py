@@ -4,6 +4,7 @@
 # Created:  Jul 2015, E. Botero 
 # Modified: Feb 2016, M. Vegh
 #           Apr 2017, T. MacDonald
+#           Jul 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -164,7 +165,7 @@ class Nexus(Data):
         objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
-        return scaled_objective
+        return scaled_objective.astype('Float64') 
     
     def inequality_constraint(self,x = None):
         """Retrieve the inequality constraint values for your function
@@ -201,12 +202,23 @@ class Nexus(Data):
         if iqconstraints == []:
             scaled_constraints = []
         else:
-            constraint_values = help_fun.get_values(self,iqconstraints,aliases)
-            constraint_values[iqconstraints[:,1]=='<'] = -constraint_values[iqconstraints[:,1]=='<']
-            bnd_constraints   = constraint_values - help_fun.scale_const_bnds(iqconstraints)
-            scaled_constraints = help_fun.scale_const_values(iqconstraints,constraint_values)
 
-        return scaled_constraints      
+            # get constaint values 
+            constraint_values = help_fun.get_values(self,iqconstraints,aliases)          
+            
+            # scale bounds 
+            scaled_bnd_constraints  = help_fun.scale_const_bnds(iqconstraints)
+            
+            # scale constaits 
+            scaled_constraints = help_fun.scale_const_values(iqconstraints,constraint_values)
+            
+            # determine difference between bounds and constaints 
+            constraint_evaluations = scaled_constraints  - scaled_bnd_constraints
+            
+            # coorect constaints based on sign 
+            constraint_evaluations[iqconstraints[:,1]=='<'] = -constraint_evaluations[iqconstraints[:,1]=='<']
+            
+        return constraint_evaluations       
     
     def equality_constraint(self,x = None):
         """Retrieve the equality constraint values for your function
@@ -245,11 +257,11 @@ class Nexus(Data):
         if eqconstraints == []:
             scaled_constraints = []
         else:
-            constraint_values = help_fun.get_values(self,eqconstraints,aliases) - help_fun.scale_const_bnds(eqconstraints)
-            scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values)
+            constraint_values  = help_fun.get_values(self,eqconstraints,aliases)
+            scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values) - help_fun.scale_const_bnds(eqconstraints)
 
         return scaled_constraints   
-    
+        
     def all_constraints(self,x = None):
         """Returns both the inequality and equality constraint values for your function
     
@@ -276,8 +288,8 @@ class Nexus(Data):
         results     = self.results
     
         constraint_values  = help_fun.get_values(self,constraints,aliases) 
-        scaled_constraints = help_fun.scale_const_values(constraints,constraint_values)
-    
+        scaled_constraints = help_fun.scale_const_values(constraints,constraint_values) 
+
         return scaled_constraints     
     
     

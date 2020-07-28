@@ -2,7 +2,10 @@
 # 
 # Created:  Aug 2014, SUAVE Team
 # Modified: Jun 2016, T. MacDonald
-#           May 2019, T. MacDonald
+#           May 2019, T. MacDonald 
+#           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
+#           Apr 2020, E. Botero
 
 """ setup file for a mission with a 737
 """
@@ -14,6 +17,9 @@
 
 import SUAVE
 from SUAVE.Core import Units
+from SUAVE.Plots.Mission_Plots import *
+import matplotlib.pyplot as plt  
+import numpy as np 
 
 import timeit
 import jax
@@ -28,9 +34,7 @@ from SUAVE.Plots.Mission_Plots import *
 # This is a sizing function to fill turbojet parameters
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity import compute_aircraft_center_of_gravity
 
-# import vehicle and analyses
 import sys
 
 sys.path.append('../Vehicles')
@@ -56,29 +60,23 @@ def main():
     simple_sizing(configs, analyses)
 
     configs.finalize()
-    analyses.finalize()
-
-
+    analyses.finalize() 
  
     # mission analysis
     mission = analyses.missions.base
-    results = mission.evaluate() 
-    
-    # plot results 
-    #plot_mission(results, line_color = 'bo-')
- 
+    results = mission.evaluate()
+
     # load older results
     #save_results(results)
-    #old_results = load_results()
-    #plot_mission(old_results, line_color = 'bs:')
-      
-    # plot the old results
-    #plt.show()
+    old_results = load_results()   
+
+    # plt the old results
+    plot_mission(results)
+    plot_mission(old_results,'k-')
+    plt.show(block=True)
     
     # check the results
-    #check_results(results,old_results)
-    
-
+    check_results(results,old_results)
 
     return
 
@@ -91,6 +89,7 @@ def full_setup():
 
     # vehicle data
     vehicle  = vehicle_setup()
+    print_wing_segs(vehicle)
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
@@ -145,14 +144,15 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
+    aerodynamics.settings.plot_vortex_distribution   = True 
+    aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
@@ -186,25 +186,29 @@ def base_analysis(vehicle):
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_color):
-
+def plot_mission(results,line_style='bo-'):
+    
     # Plot Flight Conditions 
-    plot_flight_conditions(results,line_color)
+    plot_flight_conditions(results, line_style)
     
     # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results,line_color)
+    plot_aerodynamic_forces(results, line_style)
     
     # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results,line_color)
+    plot_aerodynamic_coefficients(results, line_style)
+    
+    # Plot Static Stability Coefficients 
+    plot_stability_coefficients(results, line_style)    
     
     # Drag Components
-    plot_drag_components(results,line_color)
+    plot_drag_components(results, line_style)
     
     # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results,line_color)
+    plot_altitude_sfc_weight(results, line_style)
     
     # Plot Velocities 
-    plot_aircraft_velocities(results,line_color)  
+    plot_aircraft_velocities(results, line_style)  
+
     return
 
 def simple_sizing(configs, analyses):
@@ -229,11 +233,10 @@ def simple_sizing(configs, analyses):
     weights = analyses.configs.base.weights
     breakdown = weights.evaluate()    
     
-    
     #compute centers of gravity
     #need to put here, otherwise, results won't be stored
-    compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
-    compute_aircraft_center_of_gravity(base)
+    compute_component_centers_of_gravity(base)
+    base.center_of_gravity()
     
     # diff the new data
     base.store_diff()
@@ -284,7 +287,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   First Climb Segment: constant Mach, constant segment angle 
+    #   First Climb Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -302,7 +305,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Second Climb Segment: constant Speed, constant segment angle 
+    #   Second Climb Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------    
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -319,7 +322,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Third Climb Segment: constant Mach, constant segment angle 
+    #   Third Climb Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------    
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -327,7 +330,7 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.altitude_end = 10.668 * Units.km
+    segment.altitude_end = 10.5   * Units.km
     segment.air_speed    = 226.0  * Units['m/s']
     segment.climb_rate   = 3.0    * Units['m/s']
 
@@ -336,7 +339,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------    
-    #   Cruise Segment: constant speed, constant altitude
+    #   Cruise Segment: Constant Speed Constant Altitude
     # ------------------------------------------------------------------    
 
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
@@ -344,8 +347,9 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.air_speed  = 230.412 * Units['m/s']
-    segment.distance   = (3933.65 + 770 - 92.6) * Units.km
+    segment.altitude  = 10.668 * Units.km # small jump to test altitude updating
+    segment.air_speed = 230.412 * Units['m/s']
+    segment.distance  = (3933.65 + 770 - 92.6) * Units.km
     
     segment.state.numerics.number_control_points = 10
 
@@ -354,7 +358,7 @@ def mission_setup(analyses):
 
 
 # ------------------------------------------------------------------
-#   First Descent Segment: consant speed, constant segment rate
+#   First Descent Segment: Constant Speed Constant Rate  
 # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -362,16 +366,17 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.altitude_end = 8.0   * Units.km
-    segment.air_speed    = 220.0 * Units['m/s']
-    segment.descent_rate = 4.5   * Units['m/s']
+    segment.altitude_start = 10.5 * Units.km # small jump to test altitude updating
+    segment.altitude_end   = 8.0   * Units.km
+    segment.air_speed      = 220.0 * Units['m/s']
+    segment.descent_rate   = 4.5   * Units['m/s']
 
     # add to mission
     mission.append_segment(segment)
 
 
     # ------------------------------------------------------------------
-    #   Second Descent Segment: consant speed, constant segment rate
+    #   Second Descent Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -390,7 +395,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Third Descent Segment: consant speed, constant segment rate
+    #   Third Descent Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -409,7 +414,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Fourth Descent Segment: consant speed, constant segment rate
+    #   Fourth Descent Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -430,7 +435,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Fifth Descent Segment: consant speed, constant segment rate
+    #   Fifth Descent Segment:Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -507,8 +512,8 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.aerodynamics.angle_of_attack',
         'segments.cruise.conditions.aerodynamics.drag_coefficient',
         'segments.cruise.conditions.aerodynamics.lift_coefficient',
-        'segments.cruise.conditions.stability.static.cm_alpha',
-        'segments.cruise.conditions.stability.static.cn_beta',
+        'segments.cruise.conditions.stability.static.Cm_alpha',
+        'segments.cruise.conditions.stability.static.Cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
     ]
@@ -551,15 +556,21 @@ def check_results(new_results,old_results):
     return
 
 
+
+def print_wing_segs(vehicle):
+    
+    """This prints the wing segments to provide coverage for dataordered printing"""
+    
+    print(vehicle.wings.main_wing.Segments)
+    
+    return
+
+
 def load_results():
     return SUAVE.Input_Output.SUAVE.load('results_mission_B737.res')
 
 def save_results(results):
     SUAVE.Input_Output.SUAVE.archive(results,'results_mission_B737.res')
-    return
-
-def save_plot_data(results):    
-    SUAVE.Input_Output.SUAVE.archive(results,'plot_data_B737.res')  
     return
 
 if __name__ == '__main__': 

@@ -2,6 +2,7 @@
 # compute_vortex_distribution.py
 # 
 # Created:  May 2018, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,12 +12,17 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Units , Data
-from SUAVE.Methods.Aerodynamics.XFOIL.compute_airfoil_polars import read_wing_airfoil
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+     import import_airfoil_geometry
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_vortex_distribution(geometry,settings):
-    ''' Compute the coordinates of panels, vortices , control points and geometry used to build 
-    the influence coefficient matrix. Below is a schematic of the coordinates of an arbitrary panel
+    ''' Compute the coordinates of panels, vortices , control points
+    and geometry used to build the influence coefficient matrix.
+    
+
+    Assumptions: 
+    Below is a schematic of the coordinates of an arbitrary panel  
     
     XA1 ____________________________ XB1    
        |                            |
@@ -34,7 +40,20 @@ def compute_vortex_distribution(geometry,settings):
          |                        |     
          |       trailing         |  
          |   <--  vortex   -->    |  
-         |         legs           |  
+         |         legs           | 
+             
+    
+    Source:  
+    None
+
+    Inputs:
+    geometry.wings                                [Unitless]  
+       
+    Outputs:                                   
+    VD - vehicle vortex distribution              [Unitless] 
+
+    Properties Used:
+    N/A 
          
     '''
     # ---------------------------------------------------------------------------------------
@@ -98,19 +117,19 @@ def compute_vortex_distribution(geometry,settings):
     
     for wing in geometry.wings:
         # get geometry of wing  
-        span        = wing.spans.projected
-        root_chord  = wing.chords.root
-        tip_chord   = wing.chords.tip
-        sweep_qc    = wing.sweeps.quarter_chord
-        sweep_le    = wing.sweeps.leading_edge
-        taper       = wing.taper
-        twist_rc    = wing.twists.root
-        twist_tc    = wing.twists.tip
-        dihedral    = wing.dihedral
-        sym_para    = wing.symmetric
-        Sref        = wing.areas.reference
+        span          = wing.spans.projected
+        root_chord    = wing.chords.root
+        tip_chord     = wing.chords.tip
+        sweep_qc      = wing.sweeps.quarter_chord
+        sweep_le      = wing.sweeps.leading_edge
+        taper         = wing.taper
+        twist_rc      = wing.twists.root
+        twist_tc      = wing.twists.tip
+        dihedral      = wing.dihedral
+        sym_para      = wing.symmetric
+        Sref          = wing.areas.reference
         vertical_wing = wing.vertical
-        wing_origin = wing.origin
+        wing_origin   = wing.origin[0]
 
         # determine if vehicle has symmetry 
         if sym_para is True :
@@ -213,7 +232,7 @@ def compute_vortex_distribution(geometry,settings):
                 if i_seg == 0:
                     segment_span[i_seg]           = 0.0
                     segment_chord_x_offset[i_seg] = 0.0  
-                    segment_chord_z_offset[i_seg] = 0.0
+                    segment_chord_z_offset[i_seg] = 0.0       
                 else:
                     segment_span[i_seg]           = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
                     segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
@@ -222,9 +241,9 @@ def compute_vortex_distribution(geometry,settings):
 
                 # Get airfoil section VD  
                 if wing.Segments[i_seg].Airfoil: 
-                    airfoil_data = read_wing_airfoil(wing.Segments[i_seg].Airfoil.airfoil.coordinate_file )    
-                    segment_camber.append(airfoil_data.camber_coordinates)
-                    segment_x_coord.append(airfoil_data.x_lower_surface) 
+                    airfoil_data = import_airfoil_geometry([wing.Segments[i_seg].Airfoil.airfoil.coordinate_file])    
+                    segment_camber.append(airfoil_data.camber_coordinates[0])
+                    segment_x_coord.append(airfoil_data.x_lower_surface[0]) 
                 else:
                     segment_camber.append(np.zeros(30))              
                     segment_x_coord.append(np.linspace(0,1,30)) 
@@ -443,7 +462,7 @@ def compute_vortex_distribution(geometry,settings):
             # STEP 6B: Define coordinates of panels horseshoe vortices and control points 
             # ---------------------------------------------------------------------------------------
 
-            if sweep_le != 0:
+            if sweep_le != None:
                 sweep = sweep_le
             else:                                                                
                 cf    = 0.25                          
@@ -458,7 +477,7 @@ def compute_vortex_distribution(geometry,settings):
 
             # Get airfoil section VD  
             if wing.Airfoil: 
-                airfoil_data = read_wing_airfoil(wing.Airfoil.airfoil.coordinate_file)    
+                airfoil_data = import_airfoil_geometry(wing.Airfoil.airfoil.coordinate_file)    
                 wing_camber  = airfoil_data.camber_coordinates
                 wing_x_coord = airfoil_data.x_lower_surface
             else:
@@ -714,50 +733,99 @@ def compute_vortex_distribution(geometry,settings):
         n_w += 1
         if sym_para is True :
             n_w += 1
-            cs_w = np.concatenate([cs_w,cs_w])
-            xah = np.concatenate([xah,xah])
-            yah = np.concatenate([yah,-yah])
-            zah = np.concatenate([zah,zah])
-            xbh = np.concatenate([xbh,xbh])
-            ybh = np.concatenate([ybh,-ybh])
-            zbh = np.concatenate([zbh,zbh])
-            xch = np.concatenate([xch,xch])
-            ych = np.concatenate([ych,-ych])
-            zch = np.concatenate([zch,zch])
-
-            xa1 = np.concatenate([xa1,xa1])
-            ya1 = np.concatenate([ya1,-ya1])
-            za1 = np.concatenate([za1,za1])
-            xa2 = np.concatenate([xa2,xa2])
-            ya2 = np.concatenate([ya2,-ya2])
-            za2 = np.concatenate([za2,za2])
-
-            xb1 = np.concatenate([xb1,xb1])
-            yb1 = np.concatenate([yb1,-yb1])    
-            zb1 = np.concatenate([zb1,zb1])
-            xb2 = np.concatenate([xb2,xb2])
-            yb2 = np.concatenate([yb2,-yb2])            
-            zb2 = np.concatenate([zb2,zb2])
-
-            xac   = np.concatenate([xac ,xac ])
-            yac   = np.concatenate([yac ,-yac ])
-            zac   = np.concatenate([zac ,zac ])            
-            xbc   = np.concatenate([xbc ,xbc ])
-            ybc   = np.concatenate([ybc ,-ybc ])
-            zbc   = np.concatenate([zbc ,zbc ]) 
-            xa_te = np.concatenate([xa_te , xa_te ])
-            ya_te = np.concatenate([ya_te ,-ya_te ])
-            za_te = np.concatenate([za_te , za_te ])            
-            xb_te = np.concatenate([xb_te , xb_te ])
-            yb_te = np.concatenate([yb_te ,-yb_te ])
-            zb_te = np.concatenate([zb_te , zb_te ]) 
-            y_sw  = np.concatenate([y_sw,-y_sw ])
-            xc    = np.concatenate([xc ,xc ])
-            yc    = np.concatenate([yc ,-yc]) 
-            zc    = np.concatenate([zc ,zc ])
-            x     = np.concatenate([x , x ])
-            y     = np.concatenate([y ,-y])
-            z     = np.concatenate([z , z ])            
+            if vertical_wing:
+                cs_w = np.concatenate([cs_w,cs_w])
+                xah = np.concatenate([xah,xah])
+                yah = np.concatenate([yah,yah])
+                zah = np.concatenate([zah,-zah])
+                xbh = np.concatenate([xbh,xbh])
+                ybh = np.concatenate([ybh,ybh])
+                zbh = np.concatenate([zbh,-zbh])
+                xch = np.concatenate([xch,xch])
+                ych = np.concatenate([ych,ych])
+                zch = np.concatenate([zch,-zch])
+    
+                xa1 = np.concatenate([xa1,xa1])
+                ya1 = np.concatenate([ya1,ya1])
+                za1 = np.concatenate([za1,-za1])
+                xa2 = np.concatenate([xa2,xa2])
+                ya2 = np.concatenate([ya2,ya2])
+                za2 = np.concatenate([za2,-za2])
+    
+                xb1 = np.concatenate([xb1,xb1])
+                yb1 = np.concatenate([yb1,yb1])    
+                zb1 = np.concatenate([zb1,-zb1])
+                xb2 = np.concatenate([xb2,xb2])
+                yb2 = np.concatenate([yb2,yb2])            
+                zb2 = np.concatenate([zb2,-zb2])
+    
+                xac   = np.concatenate([xac ,xac ])
+                yac   = np.concatenate([yac ,yac ])
+                zac   = np.concatenate([zac ,-zac ])            
+                xbc   = np.concatenate([xbc ,xbc ])
+                ybc   = np.concatenate([ybc ,ybc ])
+                zbc   = np.concatenate([zbc ,-zbc ]) 
+                xa_te = np.concatenate([xa_te , xa_te ])
+                ya_te = np.concatenate([ya_te ,ya_te ])
+                za_te = np.concatenate([za_te ,- za_te ])            
+                xb_te = np.concatenate([xb_te , xb_te ])
+                yb_te = np.concatenate([yb_te ,yb_te ])
+                zb_te = np.concatenate([zb_te ,- zb_te ])
+                
+                y_sw  = np.concatenate([y_sw,-y_sw ])
+                xc    = np.concatenate([xc ,xc ])
+                yc    = np.concatenate([yc ,yc]) 
+                zc    = np.concatenate([zc ,-zc ])
+                x     = np.concatenate([x , x ])
+                y     = np.concatenate([y ,y])
+                z     = np.concatenate([z ,-z ])                  
+                
+            else:
+                cs_w = np.concatenate([cs_w,cs_w])
+                xah = np.concatenate([xah,xah])
+                yah = np.concatenate([yah,-yah])
+                zah = np.concatenate([zah,zah])
+                xbh = np.concatenate([xbh,xbh])
+                ybh = np.concatenate([ybh,-ybh])
+                zbh = np.concatenate([zbh,zbh])
+                xch = np.concatenate([xch,xch])
+                ych = np.concatenate([ych,-ych])
+                zch = np.concatenate([zch,zch])
+    
+                xa1 = np.concatenate([xa1,xa1])
+                ya1 = np.concatenate([ya1,-ya1])
+                za1 = np.concatenate([za1,za1])
+                xa2 = np.concatenate([xa2,xa2])
+                ya2 = np.concatenate([ya2,-ya2])
+                za2 = np.concatenate([za2,za2])
+    
+                xb1 = np.concatenate([xb1,xb1])
+                yb1 = np.concatenate([yb1,-yb1])    
+                zb1 = np.concatenate([zb1,zb1])
+                xb2 = np.concatenate([xb2,xb2])
+                yb2 = np.concatenate([yb2,-yb2])            
+                zb2 = np.concatenate([zb2,zb2])
+    
+                xac   = np.concatenate([xac ,xac ])
+                yac   = np.concatenate([yac ,-yac ])
+                zac   = np.concatenate([zac ,zac ])            
+                xbc   = np.concatenate([xbc ,xbc ])
+                ybc   = np.concatenate([ybc ,-ybc ])
+                zbc   = np.concatenate([zbc ,zbc ]) 
+                xa_te = np.concatenate([xa_te , xa_te ])
+                ya_te = np.concatenate([ya_te ,-ya_te ])
+                za_te = np.concatenate([za_te , za_te ])            
+                xb_te = np.concatenate([xb_te , xb_te ])
+                yb_te = np.concatenate([yb_te ,-yb_te ])
+                zb_te = np.concatenate([zb_te , zb_te ]) 
+                
+                y_sw  = np.concatenate([y_sw,-y_sw ])
+                xc    = np.concatenate([xc ,xc ])
+                yc    = np.concatenate([yc ,-yc]) 
+                zc    = np.concatenate([zc ,zc ])
+                x     = np.concatenate([x , x ])
+                y     = np.concatenate([y ,-y])
+                z     = np.concatenate([z , z ])            
 
         n_cp += len(xch)        
 

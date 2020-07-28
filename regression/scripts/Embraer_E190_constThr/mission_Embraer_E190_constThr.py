@@ -1,7 +1,9 @@
 # mission_Embraer_E190_constThr.py
 #
 # Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2016, T. MacDonald
+# Modified: Jun 2016, T. MacDonald 
+#           Mar 2020, M. Clarke
+
 
 """ setup file for a mission with a E190
 """
@@ -13,14 +15,11 @@
 
 import SUAVE
 from SUAVE.Core import Units
+from SUAVE.Plots.Mission_Plots import *  
+import matplotlib.pyplot as plt  
+import numpy as np  
 
-import numpy as np
-import pylab as plt
-import copy, time
-from SUAVE.Plots.Mission_Plots import * 
-from SUAVE.Core import (
-Data, Container,
-)
+from SUAVE.Core import Data
 
 import sys
 
@@ -74,12 +73,12 @@ def main():
     print_mission_breakdown(results,filename='mission_breakdown.dat')
 
     # load older results
-    # save_results(results)
+    #save_results(results)
     old_results = load_results()   
 
     # plt the old results
     plot_mission(results)
-    #plot_mission(old_results)
+    plot_mission(old_results,'k-')
     plt.show()
     
 
@@ -152,7 +151,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -241,7 +240,7 @@ def mission_setup(analyses):
     segment.altitude_start = 0.0   * Units.km
     segment.altitude_end   = 3.048 * Units.km
     segment.air_speed      = 250.0 * Units.knots
-    segment.throttle       = 1.0
+    segment.throttle       = 1.0        
 
     # add to misison
     mission.append_segment(segment)
@@ -266,9 +265,9 @@ def mission_setup(analyses):
 
     # dummy for post process script
     segment.climb_rate   = 0.1
-
+    
     ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg     
 
     # add to mission
     mission.append_segment(segment)
@@ -291,6 +290,9 @@ def mission_setup(analyses):
     segment.air_speed    = 390.0  * Units.knots
     segment.throttle     = 1.0
 
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg   
+    
     # add to mission
     mission.append_segment(segment)
 
@@ -308,13 +310,7 @@ def mission_setup(analyses):
     segment.atmosphere = atmosphere
     segment.planet     = planet
 
-    segment.air_speed  = 450. * Units.knots #230.  * Units['m/s']
-    ## 35kft:
-    # 415. => M = 0.72
-    # 450. => M = 0.78
-    # 461. => M = 0.80
-    ## 37kft:
-    # 447. => M = 0.78
+    segment.air_speed  = 450. * Units.knots #230.  * Units['m/s'] 
     segment.distance   = 2100. * Units.nmi
 
     # add to mission
@@ -358,7 +354,7 @@ def mission_setup(analyses):
 
     segment.altitude_end = 3.657 * Units.km
     segment.air_speed    = 365.0 * Units.knots
-    segment.descent_rate = 2300. * Units['ft/min']
+    segment.descent_rate = 2000. * Units['ft/min']
 
     # append to mission
     mission.append_segment(segment)
@@ -391,33 +387,22 @@ def mission_setup(analyses):
     # ------------------------------------------------------------------
 
     return mission
-
-#: def define_mission()
-
-
+ 
 # ----------------------------------------------------------------------
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results):
+def plot_mission(results,line_style='bo-'):
 
-    # Plot Flight Conditions 
-    plot_flight_conditions(results)
+    plot_altitude_sfc_weight(results, line_style) 
     
-    # Plot Aerodynamic Forces 
-    plot_aerodynamic_forces(results)
+    plot_flight_conditions(results, line_style) 
     
-    # Plot Aerodynamic Coefficients 
-    plot_aerodynamic_coefficients(results)
+    plot_aerodynamic_coefficients(results, line_style)  
     
-    # Drag Components
-    plot_drag_components(results)
+    plot_aircraft_velocities(results, line_style)
     
-    # Plot Altitude, sfc, vehicle weight 
-    plot_altitude_sfc_weight(results)
-    
-    # Plot Velocities 
-    plot_aircraft_velocities(results) 
+    plot_drag_components(results, line_style)
 
     return
 
@@ -428,8 +413,8 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.aerodynamics.angle_of_attack',
         'segments.cruise.conditions.aerodynamics.drag_coefficient',
         'segments.cruise.conditions.aerodynamics.lift_coefficient',
-        #'segments.cruise.conditions.stability.static.cm_alpha',
-        'segments.cruise.conditions.stability.static.cn_beta',
+        #'segments.cruise.conditions.stability.static.Cm_alpha',
+        'segments.cruise.conditions.stability.static.Cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
     ]
@@ -481,4 +466,4 @@ def save_results(results):
 
 if __name__ == '__main__':
     main()
-    #plt.show()
+    plt.show()

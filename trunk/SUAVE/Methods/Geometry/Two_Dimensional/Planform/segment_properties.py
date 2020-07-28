@@ -1,6 +1,8 @@
 # segment_properties.py
 #
-# Created:  Apr 2019, T. MacDonald
+# Created:  Apr 2019, T. MacDonald 
+#           Mar 2020, M. Clarke
+#           Jun 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -27,7 +29,6 @@ def segment_properties(settings,wing):
       symmetric                 [-]
       spans.projected           [m]
       thickness_to_chord        [-]
-      areas.reference           [m^2]
       areas.wetted              [m^2]
       chords.root               [m]
       Segments.
@@ -36,6 +37,7 @@ def segment_properties(settings,wing):
 
     Outputs:
     wing.areas.wetted           [m^2]
+    wing.areas.reference        [m^2]
     wing.Segments.
       taper                     [-]
       chords.mean_aerodynamic   [m]
@@ -48,18 +50,16 @@ def segment_properties(settings,wing):
     Properties Used:
     N/A
     """  
-    
-    C = settings.wing_parasite_drag_form_factor
-    
+        
     # Unpack wing
     exposed_root_chord_offset = wing.exposed_root_chord_offset
     symm                      = wing.symmetric
     semispan                  = wing.spans.projected*0.5 * (2 - symm)
     t_c_w                     = wing.thickness_to_chord
-    Sref                      = wing.areas.reference
     num_segments              = len(wing.Segments.keys())      
     
-    total_wetted_area            = 0  
+    total_wetted_area            = 0.
+    total_reference_area         = 0.
     root_chord                   = wing.chords.root      
     
     for i_segs in range(num_segments):
@@ -99,12 +99,15 @@ def segment_properties(settings,wing):
             segment.taper                   = taper
             segment.chords                  = Data()
             segment.chords.mean_aerodynamic = mac_seg
+            segment.areas                   = Data()
             segment.areas.reference         = Sref_seg
             segment.areas.exposed           = S_exposed_seg
             segment.areas.wetted            = Swet_seg
             
-            total_wetted_area += Swet_seg
+            total_wetted_area    = total_wetted_area + Swet_seg
+            total_reference_area = total_reference_area + Sref_seg
             
-    wing.areas.wetted = total_wetted_area 
+    wing.areas.wetted    = total_wetted_area
+    wing.areas.reference = total_reference_area
         
     return

@@ -1,100 +1,139 @@
-# populate_control_sections.
+## @ingroup Methods-Geometry-Two_Dimensional.Planform
+# populate_control_sections 
 #
 # Created:  Jan 2015, T. Momose
-# Modified: Jan 2016, E. Botero
+# Modified: Jan 2016, E. Botero 
+#           Jan 2020 M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
-#  Imports
-# ----------------------------------------------------------------------
-
-import numpy as np
-from SUAVE.Components.Wings.Control_Surface import Control_Surface
+#  Append Control Surfaces to Wing Segments
+# ----------------------------------------------------------------------  
+from SUAVE.Core import Data , Units 
+import numpy as np 
+from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-def populate_control_sections(control_surface,span_fractions,chord_fractions,relative_twists,wing):
-    """
-    Creates Control_Surface_Sections defining a control surface such that:
-        -There are as many Control_Surface_Sections as the length of
-        span_fractions
-        -The i-th Control_Surface_Section has the local chord fraction
-        given in chord_fractions[i], the twist given in twists[i], and is
-        at the spanwise position, span_fractions[i]
-        -The control surface origin is defined based on the geometry of the
-        wing (i.e., dimensional projected span, LE sweep, root chord, taper)
-
-    Preconditions:
-        -span_fractions has as many sections as will be used to define the
-        control surface (at least two)
-        -relative_twists has the same length as span_fractions and
-        indicates the twist in the local chord frame of reference - twist
-        is zero if the control surface chord line is parallel to the local
-        chord line in the undeflected state.
-        -span_fractions and chord_fractions have the same length and
-        indicate the y- and x-coordinates of the section leading edge as
-        fractions of wingspan and local chord, repsectively
-
-    Postconditions:
-        -control_surface.sections contains len(span_fractions)
-        Control_Surface_Sections with size and position parameters filled
-        -Returns control_surface with the specified sections appended
-
-    Assumes a trailing-edge control surface
-    """
-
-    if len(span_fractions) < 2:
-        raise ValueError('Two or more sections required for control surface definition')
+def populate_control_sections(wing):
+    """This function takes the control surfaces defined on a wing and appends them to wing segments
+    Conditional statements are used to determine where the control surface bounds are in relation 
+    to the wing segments. For example, If a control surface extends beyond a wing segment, the bounds 
+    on the control surface span fraction are set to be the bounds of the wing section
     
-    assert len(span_fractions) == len(chord_fractions) == len(relative_twists) , 'dimension array length mismatch'
+    Assumptions: 
+       None
 
-    sw   = wing.sweeps.quarter_chord
-    di   = wing.dihedral
-    span = wing.spans.projected
-    c_r  = wing.chords.root
-    tpr  = wing.taper
-    orig = wing.origin
+    Source:
+       None
 
-    inboard = Control_Surface_Section()
-    inboard.tag = 'inboard_section'
-    inboard.origins.span_fraction  = span_fractions[0]
-    inboard.origins.chord_fraction = 1. - chord_fractions[0]
-    local_chord = c_r * (1 + 2. * span_fractions[0] * (tpr - 1))
-    inboard.origins.dimensional[0] = orig[0] + span*span_fractions[0]*np.tan(sw) + local_chord*inboard.origins.chord_fraction
-    inboard.origins.dimensional[1] = orig[1] + span*span_fractions[0]
-    inboard.origins.dimensional[2] = orig[2] + span*span_fractions[0]*np.tan(di)
-    inboard.chord_fraction = chord_fractions[0]
-    inboard.twist = relative_twists[0]
-    control_surface.append_section(inboard)
+    Inputs: 
+      wing.control_surface.tag                  [unitless]
+      wing.control_surface.span_fraction_start  [unitless]
+      wing.control_surface.span_fraction_end    [unitless]
+      wing.control_surface.chord_fraction       [unitless]
+      wing.control_surface.hinge_fraction       [unitless]
+      wing.control_surface.deflection           [degrees]
+      
+    Outputs: 
+      wing.control_surface.tag                  [unitless]    
+      wing.control_surface.span_fraction_start  [unitless]
+      wing.control_surface.span_fraction_end    [unitless]
+      wing.control_surface.chord_fraction       [unitless]
+      wing.control_surface.hinge_fraction       [unitless]
+      wing.control_surface.deflection           [degrees]
+        
 
-    outboard = Control_Surface_Section()
-    outboard.tag = 'outboard_section'
-    outboard.origins.span_fraction  = span_fractions[-1]
-    outboard.origins.chord_fraction = 1. - chord_fractions[-1]
-    local_chord = c_r * (1 + 2. * span_fractions[-1] * (tpr - 1))
-    outboard.origins.dimensional[0] = orig[0] + span*span_fractions[-1]*np.tan(sw) + local_chord*outboard.origins.chord_fraction
-    outboard.origins.dimensional[1] = orig[1] + span*span_fractions[-1]
-    outboard.origins.dimensional[2] = orig[2] + span*span_fractions[-1]*np.tan(di)
-    outboard.chord_fraction = chord_fractions[-1]
-    outboard.twist = relative_twists[-1]
-    control_surface.append_section(outboard)
+    Properties Used:
+    N/A
+    """
+    w_cs  = wing.control_surfaces  
+    w_seg = wing.Segments
+    
+    # loop though the segments on the wing and clear existing control surfaces 
+    for i , seg in enumerate(w_seg):    
+        w_seg[i].control_surfaces = Data() 
+          
+    # loop throught the control surfaces on the wing 
+    for cs in w_cs :
+        sf    = np.zeros(2) # set a temporary data structure to store the span fraction bounds
+        sf[0] = cs.span_fraction_start
+        sf[1] = cs.span_fraction_end
+        
+        # loop though the segments on the wing
+        for i , seg in enumerate(w_seg):
+            
+            append_CS = False
+            s_sf = np.zeros(2) 
+            if i == 0: # the first segment (root) cannot have any control surfaces 
+                pass
+            else: # the following block determines where the bounds of the control surface are in relation to the segment breaks
+                # Case 1 
+                if (sf[0] < w_seg[i-1].percent_span_location) and (sf[1] < w_seg[i].percent_span_location) and (sf[1] > w_seg[i-1].percent_span_location) :
+                    s_sf = np.array([w_seg[i-1].percent_span_location,sf[1]])   
+                    append_CS = True 
+                
+                # Case 2
+                elif (sf[0] < w_seg[i-1].percent_span_location) and (sf[1] == w_seg[i].percent_span_location):
+                    s_sf = np.array([w_seg[i-1].percent_span_location,w_seg[i].percent_span_location])       
+                    append_CS = True 
+                    
+                # Case 3   
+                elif (sf[0] < w_seg[i-1].percent_span_location) and (sf[1] > w_seg[i].percent_span_location):
+                    s_sf = np.array([w_seg[i-1].percent_span_location,w_seg[i].percent_span_location])       
+                    append_CS = True                 
+                
+                # Case 4 
+                elif (sf[0] == w_seg[i-1].percent_span_location) and (sf[1] < w_seg[i].percent_span_location):
+                    s_sf = np.array([w_seg[i-1].percent_span_location,sf[1]])   
+                    append_CS = True 
+                   
+                # Case 5 
+                elif (sf[0] == w_seg[i-1].percent_span_location) and (sf[1] == w_seg[i].percent_span_location): 
+                    s_sf = np.array([w_seg[i-1].percent_span_location,w_seg[i].percent_span_location])       
+                    append_CS = True
+                    
+                # Case 6 
+                elif (sf[0] > w_seg[i-1].percent_span_location) and (sf[1] < w_seg[i].percent_span_location):
+                    s_sf = np.array([sf[0],sf[1]])
+                    append_CS = True
+                    
+                # Case 7 
+                elif (sf[0] > w_seg[i-1].percent_span_location) and (sf[1] == w_seg[i].percent_span_location) :
+                    s_sf = np.array([sf[0],w_seg[i].percent_span_location]) 
+                    append_CS = True                    
+                    
+                # Case 8
+                elif (sf[0] > w_seg[i-1].percent_span_location) and (sf[1] > w_seg[i].percent_span_location) and (sf[0] < w_seg[i].percent_span_location):
+                    s_sf = np.array([sf[0],w_seg[i].percent_span_location]) 
+                    append_CS = True
+                    
+                else: 
+                    append_CS = False
+                
+                if append_CS == True:
+                    # initialize the data structure for control surfaces , store results, and append to the correct segment 
+                    if (type(cs) ==  Slat):
+                        control_surface = Slat() 
+                    elif (type(cs) ==  Flap):
+                        control_surface = Flap() 
+                    elif (type(cs) ==  Aileron):
+                        control_surface = Aileron()                              
+                    elif (type(cs) ==  Elevator):
+                        control_surface = Elevator() 
+                    elif (type(cs) ==  Rudder):
+                        control_surface = Rudder()                          
+                        
+                    control_surface.tag                   =cs.tag 
+                    control_surface.span_fraction_start   = s_sf[0] 
+                    control_surface.span_fraction_end     = s_sf[1]         
+                    control_surface.chord_fraction        = cs.chord_fraction
+                    control_surface.hinge_fraction        = cs.hinge_fraction
+                    control_surface.deflection            = cs.deflection
+                    w_seg[i].append_control_surface(control_surface)        
+                
+    # returns an updated wing with control surfaces appended onto the wing segments                  
+    return wing  
 
-    control_surface.span_fraction = abs(span_fractions[-1] - span_fractions[0])
-
-    if len(span_fractions) > 2:
-        i = 1
-        while i+1 < len(span_fractions):
-            section = Control_Surface_Section()
-            section.tag = ('inner_section{}'.format(i))
-            section.origins.span_fraction  = span_fractions[i]
-            section.origins.chord_fraction = 1. - chord_fractions[i]
-            local_chord = c_r * (1 + 2. * span_fractions[i] * (tpr - 1))
-            section.origins.dimensional[0] = orig[0] + span*span_fractions[i]*np.tan(sw) + local_chord*section.origins.chord_fraction
-            section.origins.dimensional[1] = orig[1] + span*span_fractions[i]
-            section.origins.dimensional[2] = orig[2] + span*span_fractions[i]*np.tan(di)
-            section.chord_fraction = chord_fractions[i]
-            section.twist = relative_twists[i]
-            control_surface.append_section(section)
-            i += 1
-
-    return control_surface

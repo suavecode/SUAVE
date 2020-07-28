@@ -2,7 +2,7 @@
 # Optimized.py
 #
 # Created:  Mar 2016, E. Botero 
-# Modified:
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -138,7 +138,7 @@ class Optimized(Aerodynamic):
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
-        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
+        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations 
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust        
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
         iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability

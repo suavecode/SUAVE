@@ -4,6 +4,7 @@
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
 #           Apr 2019, T. MacDonald
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,9 +15,6 @@ from SUAVE.Core import Data
 from .Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
-
-# default Aero Results
-from .Results import Results
 
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
@@ -64,6 +62,7 @@ class Fidelity_Zero(Markup):
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
         settings.oswald_efficiency_factor           = None
+        settings.span_efficiency                    = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
@@ -71,10 +70,11 @@ class Fidelity_Zero(Markup):
         settings.number_panels_spanwise             = None 
         settings.number_panels_chordwise            = None 
         settings.use_surrogate                      = True 
+        settings.include_slipstream_effect          = False 
         settings.plot_vortex_distribution           = False
         
         # build the evaluation process
-        compute = self.process.compute 
+        compute = self.process.compute
         
         compute.lift = Process()
 
@@ -125,12 +125,13 @@ class Fidelity_Zero(Markup):
         """                  
         super(Fidelity_Zero, self).initialize()
         
-        use_surrogate            = self.settings.use_surrogate
-        vortex_distribution_flag = self.settings.plot_vortex_distribution 
-        n_sw                     = self.settings.number_panels_spanwise    
-        n_cw                     = self.settings.number_panels_chordwise 
-        
+        use_surrogate             = self.settings.use_surrogate
+        include_slipstream_effect = self.settings.include_slipstream_effect 
+        vortex_distribution_flag  = self.settings.plot_vortex_distribution 
+        n_sw                      = self.settings.number_panels_spanwise    
+        n_cw                      = self.settings.number_panels_chordwise  
+                                  
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate , vortex_distribution_flag , n_sw ,  n_cw )          
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate , vortex_distribution_flag , n_sw ,  n_cw ,include_slipstream_effect )          
                                                             
     finalize = initialize                                          

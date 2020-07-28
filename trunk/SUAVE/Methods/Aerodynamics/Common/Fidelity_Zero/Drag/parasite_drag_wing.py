@@ -4,6 +4,7 @@
 # Created:  Dec 2013, SUAVE Team
 # Modified: Jan 2016, E. Botero      
 #           Apr 2019, T. MacDonald
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +20,7 @@ from SUAVE.Core import Data
 import jax
 import jax.numpy as np
 
-from SUAVE.Methods.Aerodynamics.Supersonic.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Wing
@@ -96,19 +97,16 @@ def parasite_drag_wing(state,settings,geometry):
         total_segment_k_comp_u       = 0
         total_segment_k_comp_l       = 0
         total_k_reyn_u               = 0          
-        total_k_reyn_l               = 0    
-        root_chord                   = wing.chords.root  
+        total_k_reyn_l               = 0     
         
         for i_segs in range(num_segments):
             segment = wing.Segments[i_segs]
             
             if i_segs == num_segments-1:
                 continue 
-            
-            taper         = segment.taper 
+             
             mac_seg       = segment.chords.mean_aerodynamic
-            Sref_seg      = segment.areas.reference
-            S_exposed_seg = segment.areas.exposed
+            Sref_seg      = segment.areas.reference 
             Swet_seg      = segment.areas.wetted
             sweep_seg     = segment.sweeps.quarter_chord
     
@@ -140,8 +138,7 @@ def parasite_drag_wing(state,settings,geometry):
     else:              
         # wing
         mac_w        = wing.chords.mean_aerodynamic
-        sweep_w      = wing.sweeps.quarter_chord
-        arw_w        = wing.aspect_ratio
+        sweep_w      = wing.sweeps.quarter_chord 
         span_w       = wing.spans.projected
         Sref         = wing.areas.reference
         

@@ -44,9 +44,8 @@ def main():
 
     noise_cumulative_margin = objectives[0]
     
-    actual = Data()
-    actual.noise_cumulative_margin = 19.801512859439526
-
+    actual = Data()    
+    actual.noise_cumulative_margin = 21.015986837402863
 
     error = Data()
     error.noise_cumulative_margin = abs(actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
@@ -80,7 +79,7 @@ def setup():
         [ 'wing_area'                    ,    124.8 , (    70.    ,   200.   ) ,   124.8 , Units.meter**2],
         [ 'wing_aspect_ratio'            ,     10.18, (     5.    ,    20.   ) ,    10.18,     Units.less],
         [ 'wing_sweep'                   ,    25.   , (     0.    ,    35.   ) ,    25.  ,  Units.degrees],
-        [ 'wing_thickness'               ,    0.105 , (     0.07  ,     0.20 ) ,     0.105,     Units.less],
+        [ 'wing_thickness'               ,     0.105 , (     0.07  ,     0.20 ) ,     0.105,     Units.less],
         [ 'design_thrust'                , 52700.   , ( 10000.    , 70000.   ) , 52700.  ,        Units.N],
         [ 'MTOW'                         , 79090.   , ( 20000.    ,100000.   ) , 79090.  ,       Units.kg],
         [ 'MZFW_ratio'                   ,     0.77 , (     0.6   ,     0.99 ) ,    0.77 ,     Units.less],
@@ -150,12 +149,12 @@ def setup():
                                                   'vehicle_configurations.*.mass_properties.max_takeoff'               ]],
         [ 'design_TOW'                       ,    'vehicle_configurations.base.mass_properties.takeoff'                 ],
         [ 'short_field_TOW'                  ,    'vehicle_configurations.short_field_takeoff.mass_properties.takeoff'  ],
-        [ 'flap_takeoff_angle'               ,    ['vehicle_configurations.takeoff.wings.main_wing.flaps.angle',
-                                                   'vehicle_configurations.short_field_takeoff.wings.main_wing.flaps.angle']],
-        [ 'flap_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.flaps.angle'          ],
-        [ 'slat_takeoff_angle'               ,    ['vehicle_configurations.takeoff.wings.main_wing.slats.angle',
-                                               'vehicle_configurations.short_field_takeoff.wings.main_wing.slats.angle']],
-        [ 'slat_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.slats.angle'          ],
+        [ 'flap_takeoff_angle'               ,   ['vehicle_configurations.takeoff.wings.main_wing.control_surfaces.flap.deflection',
+                                                  'vehicle_configurations.short_field_takeoff.wings.main_wing.control_surfaces.flap.deflection']],
+        [ 'flap_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.control_surfaces.flap.deflection'          ],
+        [ 'slat_takeoff_angle'               ,   ['vehicle_configurations.takeoff.wings.main_wing.control_surfaces.slat.deflection',
+                                                  'vehicle_configurations.short_field_takeoff.wings.main_wing.control_surfaces.slat.deflection']],
+        [ 'slat_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.control_surfaces.slat.deflection'          ],
         [ 'wing_span'                        ,    'vehicle_configurations.base.wings.main_wing.spans.projected'         ],
         [ 'noise_approach_margin'            ,    'summary.noise_approach_margin'                                       ],
         [ 'noise_sideline_margin'            ,    'summary.noise_sideline_margin'                                       ],

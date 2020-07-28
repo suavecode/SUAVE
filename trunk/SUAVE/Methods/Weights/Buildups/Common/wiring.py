@@ -4,6 +4,7 @@
 #
 # Created: Jun, 2017, J. Smart
 # Modified: Feb, 2018, J. Smart
+#           Mar 2020, M. Clarke
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -36,7 +37,7 @@ def wiring(config,
         Intended for use with the following SUAVE vehicle types, but may be used
         elsewhere:
 
-            Electric Helicopter
+            Electric Multicopter
             Electric Vectored_Thrust
             Electric Stopped Rotor
 

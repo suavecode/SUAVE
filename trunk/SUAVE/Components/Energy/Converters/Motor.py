@@ -2,7 +2,8 @@
 # Motor.py
 #
 # Created:  Jun 2014, E. Botero
-# Modified: Jan 2016, T. MacDonald
+# Modified: Jan 2016, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -119,7 +120,31 @@ class Motor(Energy_Component):
 
         return omega1
     
-    def torque(self,conditions):        
+    def torque(self,conditions): 
+        """Calculates the motor's torque
+
+        Assumptions:
+
+        Source:
+        N/A
+
+        Inputs:
+
+        Outputs:
+        self.outputs.torque    [N-m] 
+
+        Properties Used:
+        self.
+          gear_ratio           [-]
+          speed_constant       [radian/s/V]
+          resistance           [ohm]
+          outputs.omega        [radian/s]
+          gearbox_efficiency   [-]
+          expected_current     [A]
+          no_load_current      [A]
+          inputs.volage        [V]
+        """
+        
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
@@ -130,7 +155,7 @@ class Motor(Energy_Component):
         omega = self.inputs.omega
         
         # Torque
-        Q = ((v-omega1/Kv)/Res -io)/Kv
+        Q = ((v-omega/Kv)/Res -io)/Kv
         
         self.outputs.torque = Q
         self.outputs.omega  = omega
@@ -138,6 +163,33 @@ class Motor(Energy_Component):
         return Q
     
     def voltage_current(self,conditions):
+        """Calculates the motor's voltage and current
+
+        Assumptions:
+
+        Source:
+        N/A
+
+        Inputs:
+
+        Outputs:
+        self.outputs.current   [A]
+        conditions.
+          propulsion.volage    [V]
+        conditions.
+          propulsion.etam      [-] 
+
+        Properties Used:
+        self.
+          gear_ratio           [-]
+          speed_constant       [radian/s/V]
+          resistance           [ohm]
+          outputs.omega        [radian/s]
+          gearbox_efficiency   [-]
+          expected_current     [A]
+          no_load_current      [A]
+        """                      
+               
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
@@ -153,6 +205,9 @@ class Motor(Energy_Component):
         self.outputs.voltage = v
         self.outputs.current = i
         
+        etam=(1-io/i)*(1-i*Res/v)
+        conditions.propulsion.etam = etam        
+        
         return
     
     
@@ -160,7 +215,6 @@ class Motor(Energy_Component):
         """Calculates the motor's current
 
         Assumptions:
-        Cp (power coefficient) is constant
 
         Source:
         N/A
@@ -171,8 +225,7 @@ class Motor(Energy_Component):
         Outputs:
         self.outputs.current   [A]
         conditions.
-          propulsion.etam      [-]
-        i                      [A]
+          propulsion.etam      [-] 
 
         Properties Used:
         self.
@@ -207,45 +260,3 @@ class Motor(Energy_Component):
         conditions.propulsion.etam = etam
         
         return i, etam
-
-    def load_csv_data(self,file_name):
-        
-        # Load the CSV file
-        my_data = np.genfromtxt(file_name, delimiter=',')
-        
-        xy = my_data[11:,:2] # Speed and torque
-        z  = my_data[11:,2]  # Efficiency
-        
-        f  = sp.interpolate.CloughTocher2DInterpolator(xy,z)
-        
-        # Keep the interpolated function
-        self.interpolated_func = f
-        
-        return f
-        
-    def power_from_fit(self):
-        
-        # Unpack
-        omega  = self.inputs.omega
-        torque = self.inputs.torque
-        func   = self.interpolated_func
-        
-        # Find the values
-        efficiency = func(omega,torque)
-        
-        # Ensure the values make some sense
-        efficiency[efficiency<=0.]       = .01
-        efficiency[efficiency>1.]        = 1.
-        efficiency[np.isnan(efficiency)] = .01
-        
-        # Mechanical Power
-        mech_power = omega*torque
-        
-        # Electrical Power
-        elec_power = mech_power/efficiency
-        
-        # Pack the outputs
-        self.outputs.efficiency = efficiency
-        self.outputs.power_in   = elec_power
-        
-        return elec_power

@@ -2,79 +2,88 @@
 # compute_induced_velocity_matrix.py
 # 
 # Created:  May 2018, M. Clarke
+#           Apr 2020, M. Clarke
+#           Jun 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# package imports
-import SUAVE
-import numpy as np
-from SUAVE.Core import Units , Data
+# package imports 
+import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
+def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
+    """ This computes the induced velocitys are each control point 
+    of the vehicle vortex lattice 
 
-    # unpack 
-    ctrl_pts = len(theta_w)
-    ones    = np.atleast_3d(np.ones_like(theta_w))
+    Assumptions: 
+    Trailing vortex legs infinity are alligned to freestream
+
+    Source:  
+    None
+
+    Inputs: 
+    VD       - vehicle vortex distribution      [Unitless] 
+    n_sw     - number_panels_spanwise           [Unitless]
+    n_cw     - number_panels_chordwise          [Unitless] 
+    mach                                        [Unitless] 
+    theta_w  - freestream wake angle            [radians]
+    
+    Outputs:                                
+    C_mn     - total induced velocity matrix    [Unitless] 
+    DW_mn    - induced downwash velocity matrix [Unitless] 
+
+    Properties Used:
+    N/A
+    """
+    # unpack  
+    ones     = np.atleast_3d(np.ones_like(theta_w))
  
     # Prandtl Glauret Transformation for subsonic
     inv_root_beta = np.zeros_like(mach)
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)     
     inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
+    mach[mach==1]         = 1.001
+    
     if np.any(mach==1):
         raise('Mach of 1 cannot be used in building compressibiliy corrections.')
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
-    XAH   = np.atleast_3d(data.XAH*inv_root_beta)
-    XAHbv = np.atleast_3d(data.XAH*inv_root_beta)
-    YAH   = np.atleast_3d(data.YAH*ones)
-    YAHbv = np.atleast_3d(data.YAH*ones)
-    ZAH   = np.atleast_3d(data.ZAH*ones)
-    ZAHbv = np.atleast_3d(data.ZAH*ones)
-    XBH   = np.atleast_3d(data.XBH*inv_root_beta)
-    XBHbv = np.atleast_3d(data.XBH*inv_root_beta)
-    YBH   = np.atleast_3d(data.YBH*ones)
-    YBHbv = np.atleast_3d(data.YBH*ones)
-    ZBH   = np.atleast_3d(data.ZBH*ones)
-    ZBHbv = np.atleast_3d(data.ZBH*ones)
+    XAH   = np.atleast_3d(VD.XAH*inv_root_beta) 
+    YAH   = np.atleast_3d(VD.YAH*ones) 
+    ZAH   = np.atleast_3d(VD.ZAH*ones) 
+    XBH   = np.atleast_3d(VD.XBH*inv_root_beta) 
+    YBH   = np.atleast_3d(VD.YBH*ones) 
+    ZBH   = np.atleast_3d(VD.ZBH*ones) 
 
-    XA1   = np.atleast_3d(data.XA1*inv_root_beta)
-    YA1   = np.atleast_3d(data.YA1*ones)
-    ZA1   = np.atleast_3d(data.ZA1*ones)
-    XA2   = np.atleast_3d(data.XA2*inv_root_beta)
-    YA2   = np.atleast_3d(data.YA2*ones)
-    ZA2   = np.atleast_3d(data.ZA2*ones)
+    XA1   = np.atleast_3d(VD.XA1*inv_root_beta)
+    YA1   = np.atleast_3d(VD.YA1*ones)
+    ZA1   = np.atleast_3d(VD.ZA1*ones)
+    XA2   = np.atleast_3d(VD.XA2*inv_root_beta)
+    YA2   = np.atleast_3d(VD.YA2*ones)
+    ZA2   = np.atleast_3d(VD.ZA2*ones)
 
-    XB1   = np.atleast_3d(data.XB1*inv_root_beta)
-    YB1   = np.atleast_3d(data.YB1*ones)
-    ZB1   = np.atleast_3d(data.ZB1*ones)
-    XB2   = np.atleast_3d(data.XB2*inv_root_beta)
-    YB2   = np.atleast_3d(data.YB2*ones)
-    ZB2   = np.atleast_3d(data.ZB2*ones)
-          
-    XAC   = np.atleast_3d(data.XAC*inv_root_beta)
-    YAC   = np.atleast_3d(data.YAC*ones)
-    ZAC   = np.atleast_3d(data.ZAC*ones)
-    XBC   = np.atleast_3d(data.XBC*inv_root_beta)
-    YBC   = np.atleast_3d(data.YBC*ones)
-    ZBC   = np.atleast_3d(data.ZBC*ones)
+    XB1   = np.atleast_3d(VD.XB1*inv_root_beta)
+    YB1   = np.atleast_3d(VD.YB1*ones)
+    ZB1   = np.atleast_3d(VD.ZB1*ones)
+    XB2   = np.atleast_3d(VD.XB2*inv_root_beta)
+    YB2   = np.atleast_3d(VD.YB2*ones)
+    ZB2   = np.atleast_3d(VD.ZB2*ones) 
     
-    XA_TE   = np.atleast_3d(data.XA_TE*inv_root_beta)
-    YA_TE   = np.atleast_3d(data.YA_TE*ones)
-    ZA_TE   = np.atleast_3d(data.ZA_TE*ones)
-    XB_TE   = np.atleast_3d(data.XB_TE*inv_root_beta)
-    YB_TE   = np.atleast_3d(data.YB_TE*ones)
-    ZB_TE   = np.atleast_3d(data.ZB_TE*ones) 
+    XA_TE   = np.atleast_3d(VD.XA_TE*inv_root_beta)
+    YA_TE   = np.atleast_3d(VD.YA_TE*ones)
+    ZA_TE   = np.atleast_3d(VD.ZA_TE*ones)
+    XB_TE   = np.atleast_3d(VD.XB_TE*inv_root_beta)
+    YB_TE   = np.atleast_3d(VD.YB_TE*ones)
+    ZB_TE   = np.atleast_3d(VD.ZB_TE*ones) 
     
-    XC    = np.atleast_3d(data.XC*inv_root_beta)
-    YC    = np.atleast_3d(data.YC*ones) 
-    ZC    = np.atleast_3d(data.ZC*ones)  
-    n_w   = data.n_w
+    XC    = np.atleast_3d(VD.XC*inv_root_beta)
+    YC    = np.atleast_3d(VD.YC*ones) 
+    ZC    = np.atleast_3d(VD.ZC*ones)  
+    n_w   = VD.n_w
 
     theta_w = np.atleast_3d(theta_w)   # wake model, use theta_w if setting to freestream, use 0 if setting to airfoil chord like
-    n_aoa   = np.shape(theta_w)[0]
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
@@ -124,7 +133,7 @@ def compute_induced_velocity_matrix(data,n_sw,n_cw,theta_w,mach):
     # compute Mach Cone Matrix
     MCM      = np.ones_like(C_AB_bv)
     MCM      = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
-    data.MCM = MCM 
+    VD.MCM = MCM 
     n_cp     = n_w*n_cw*n_sw 
     
     # multiply by mach cone 
@@ -176,20 +185,17 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
     Z_Z2  = Z-Z2 
     Z2_Z1 = Z2-Z1 
 
-    R1R2X  =  Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
-    R1R2Y  = -(X_X1*Z_Z2 - Z_Z1*X_X2)
-    R1R2Z  =  X_X1*Y_Y2 - Y_Y1*X_X2
-    SQUARE = R1R2X*R1R2X + R1R2Y*R1R2Y + R1R2Z*R1R2Z
+    R1R2X  = Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
+    R1R2Y  = Z_Z1*X_X2 - X_X1*Z_Z2
+    R1R2Z  = X_X1*Y_Y2 - Y_Y1*X_X2
+    SQUARE = np.square(R1R2X) + np.square(R1R2Y) + np.square(R1R2Z)
     SQUARE[SQUARE==0] = 1e-32
-    R1     = np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1) 
-    R2     = np.sqrt(X_X2*X_X2 + Y_Y2*Y_Y2 + Z_Z2*Z_Z2) 
+    R1     = np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1)) 
+    R2     = np.sqrt(np.square(X_X2) + np.square(Y_Y2) + np.square(Z_Z2)) 
     R0R1   = X2_X1*X_X1 + Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1
     R0R2   = X2_X1*X_X2 + Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])
-    COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)
-
-    if np.isnan(COEF).any():
-        print('NaN!')       
+    COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)    
 
     return COEF
 
@@ -201,17 +207,15 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     Y1_Y  = Y1-Y
     Z_Z1  = Z-Z1
 
-    DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y    
+    DENUM =  np.square(Z_Z1) + np.square(Y1_Y)
     DENUM[DENUM==0] = 1e-32
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
-    YVEC  =  (Z_Z1)/DENUM
-    ZVEC  =  Y1_Y*np.cos(tw)/DENUM
+    YVEC  = (Z_Z1)/DENUM
+    ZVEC  = Y1_Y*np.cos(tw)/DENUM
     RVEC  = np.array([XVEC, YVEC, ZVEC])
-    BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1 + Y_Y1*Y_Y1 + Z_Z1*Z_Z1)))    
+    BRAC  = 1 + (X_X1 / (np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1))))    
     COEF  = (1/(4*np.pi))*RVEC*BRAC   
-    if np.isnan(COEF).any():
-        print('NaN!')   
-        
+
     return COEF
 
 def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
@@ -222,28 +226,38 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     Y1_Y  = Y1-Y
     Z_Z1  = Z-Z1    
 
-    DENUM =  Z_Z1*Z_Z1 + Y1_Y*Y1_Y
+    DENUM =  np.square(Z_Z1) + np.square(Y1_Y)
     DENUM[DENUM==0] = 1e-32
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
     YVEC  = Z_Z1/DENUM
     ZVEC  = Y1_Y*np.cos(tw)/DENUM
-    RVEC   = np.array([XVEC, YVEC, ZVEC])
-    BRAC  =  1 + (X_X1 / (np.sqrt(X_X1*X_X1+ Y_Y1*Y_Y1+ Z_Z1*Z_Z1)))    
+    RVEC  = np.array([XVEC, YVEC, ZVEC])
+    BRAC  = 1 + (X_X1 / (np.sqrt(np.square(X_X1)+ np.square(Y_Y1)+ np.square(Z_Z1))))    
     COEF  = -(1/(4*np.pi))*RVEC*BRAC      
-    
-    if np.isnan(COEF).any():
-        print('NaN!')   
-        
+
     return COEF
 
 def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
+ 
     for m_idx in range(len(mach)):
-        c = np.arcsin(1/mach[m_idx])
-        for cp_idx in range(len(XC[m_idx,:])):
-            del_x = XC[m_idx,:] - XC[m_idx,cp_idx] 
-            del_y = YC[m_idx,:] - YC[m_idx,cp_idx] 
-            del_z = ZC[m_idx,:] - ZC[m_idx,cp_idx] 
-            flag  = -c*del_x**2 + del_y**2 + del_z**2
-            idxs  = np.where(flag > 0.0)[0]
-            MCM[m_idx,cp_idx,idxs]  = [0.0, 0.0, 0.0]     
+        
+        # Prep new vectors
+        XC_sub = XC[m_idx,:]
+        YC_sub = YC[m_idx,:]
+        ZC_sub = ZC[m_idx,:]
+        length = len(XC[m_idx,:])
+        ones   = np.ones((1,length))
+        
+        # Take differences
+        del_x = XC_sub*ones - XC_sub.T
+        del_y = YC_sub*ones - YC_sub.T
+        del_z = ZC_sub*ones - ZC_sub.T
+        
+        # Flag certain indices
+        c     = np.arcsin(1/mach[m_idx])
+        flag  = -c*del_x**2 + del_y**2 + del_z**2
+        idxs  = np.where(flag > 0.0)
+        MCM[m_idx,idxs[0],idxs[1]]  = [0.0, 0.0, 0.0]      
+    
+    
     return MCM

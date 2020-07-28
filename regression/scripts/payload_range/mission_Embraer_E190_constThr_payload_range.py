@@ -154,7 +154,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -283,7 +283,7 @@ def mission_setup(analyses):
     segment.planet       = planet
 
     segment.altitude_end = 35000. * Units.ft
-    segment.air_speed    = 390.0  * Units.knots
+    segment.air_speed    = 380.0  * Units.knots
     segment.throttle     = 1.0
 
     # add to mission
@@ -599,8 +599,8 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.aerodynamics.angle_of_attack',
         'segments.cruise.conditions.aerodynamics.drag_coefficient',
         'segments.cruise.conditions.aerodynamics.lift_coefficient',
-        #'segments.cruise.conditions.stability.static.cm_alpha',
-        'segments.cruise.conditions.stability.static.cn_beta',
+        #'segments.cruise.conditions.stability.static.Cm_alpha',
+        'segments.cruise.conditions.stability.static.Cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
     ]

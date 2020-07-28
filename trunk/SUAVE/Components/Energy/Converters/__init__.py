@@ -14,6 +14,7 @@ from .Motor_Lo_Fid               import Motor_Lo_Fid
 from .Propeller                  import Propeller
 from .Rotor                      import Rotor
 from .Propeller_Lo_Fid           import Propeller_Lo_Fid
+from .Generator_Zero_Fid         import Generator_Zero_Fid
 from .Internal_Combustion_Engine import Internal_Combustion_Engine
 from .Ram                        import Ram
 from .Rocket_Combustor           import Rocket_Combustor

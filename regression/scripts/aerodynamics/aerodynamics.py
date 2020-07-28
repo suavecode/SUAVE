@@ -2,7 +2,8 @@
 # 
 # Created:  Sep 2014, T. MacDonald
 # Modified: Nov 2016, T. MacDonald
-#
+#           Apr 2020, M. Clarke
+
 # Modified to match compressibility drag updates
 
 # ----------------------------------------------------------------------
@@ -40,14 +41,14 @@ def main():
         wing.areas.wetted   = 2.0 * wing.areas.reference
         wing.areas.exposed  = 0.8 * wing.areas.wetted
         wing.areas.affected = 0.6 * wing.areas.wetted  
-                  
-    # initalize the standard vlm aero model  
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.process.compute.lift.inviscid_wings.settings.use_surrogate             = True
-    aerodynamics.process.compute.lift.inviscid_wings.settings.plot_vortex_distribution  = True
-    aerodynamics.process.compute.lift.inviscid_wings.settings.plot_vehicle              = True 
-    aerodynamics.geometry = vehicle        
+        
+        
+    # initalize the aero model
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()      
+    aerodynamics.geometry = vehicle
+        
     aerodynamics.initialize()    
+    
     
     #no of test points
     test_num = 11
@@ -171,13 +172,18 @@ def main():
     polar.lift = CL
     polar.drag = CD    
     
+    
     # --------------------------------------------------------------------
     # Test compute Lift
-    # --------------------------------------------------------------------    
-    lift = state.conditions.aerodynamics.lift_coefficient
-    lift_r = np.array([-0.81271571,-0.54878555,-0.50563137,-0.41216713,-0.2604832 ,
-                       0.05574102, 0.29318675, 0.52096983, 0.81432677, 1.19037128, 1.20181071  ])[:,None]  
-  
+    # --------------------------------------------------------------------
+     
+    #compute_aircraft_lift(conditions, configuration, geometry) 
+    
+    lift   = state.conditions.aerodynamics.lift_coefficient
+    lift_r =  np.array([-1.22715059, -0.48562864, -0.4312893 , -0.3442654 , -0.19773265,
+                        0.12732151,  0.37221063,  0.60102923,  0.90031948,  1.26978863,
+                        1.2846731 ])[:,None] 
+     
     print('lift = ', lift)
     
     lift_test = np.abs((lift-lift_r)/lift)
@@ -200,6 +206,10 @@ def main():
     cd_c           = drag_breakdown.compressible['main_wing'].compressibility_drag
     cd_i           = drag_breakdown.induced.total
     cd_m           = drag_breakdown.miscellaneous.total
+    # cd_m_fuse_base = drag_breakdown.miscellaneous.fuselage_base
+    # cd_m_fuse_up   = drag_breakdown.miscellaneous.fuselage_upsweep
+    # cd_m_nac_base  = drag_breakdown.miscellaneous.nacelle_base['turbofan']
+    # cd_m_ctrl      = drag_breakdown.miscellaneous.control_gaps
     cd_p_fuse      = drag_breakdown.parasite['fuselage'].parasite_drag_coefficient
     cd_p_wing      = drag_breakdown.parasite['main_wing'].parasite_drag_coefficient
     cd_tot         = drag_breakdown.total
@@ -207,7 +217,7 @@ def main():
     print('cd_m =', cd_m)
     
    
-    (cd_c_r, cd_i_r, cd_m_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
+    (cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r) = reg_values()
     
     drag_tests = Data()
     drag_tests.cd_c = np.abs((cd_c-cd_c_r)/cd_c)
@@ -216,6 +226,11 @@ def main():
             drag_tests.cd_c[ii] = np.abs((cd_c[ii]-cd_c_r[ii])/np.min(cd_c[cd_c!=0]))
     drag_tests.cd_i = np.abs((cd_i-cd_i_r)/cd_i)
     drag_tests.cd_m = np.abs((cd_m-cd_m_r)/cd_m)
+    ## Commented lines represent values not set by current drag functions, but to be recreated in the future
+    # Line below is not normalized since regression values are 0, insert commented line if this changes
+    # drag_tests.cd_m_fuse_base = np.abs((cd_m_fuse_base-cd_m_fuse_base_r)) # np.abs((cd_m_fuse_base-cd_m_fuse_base_r)/cd_m_fuse_base)
+    # drag_tests.cd_m_fuse_up   = np.abs((cd_m_fuse_up - cd_m_fuse_up_r)/cd_m_fuse_up)
+    # drag_tests.cd_m_ctrl      = np.abs((cd_m_ctrl - cd_m_ctrl_r)/cd_m_ctrl)
     drag_tests.cd_p_fuse      = np.abs((cd_p_fuse - cd_p_fuse_r)/cd_p_fuse)
     drag_tests.cd_p_wing      = np.abs((cd_p_wing - cd_p_wing_r)/cd_p_wing)
     drag_tests.cd_tot         = np.abs((cd_tot - cd_tot_r)/cd_tot)
@@ -229,26 +244,48 @@ def main():
         
     #return conditions, configuration, geometry, test_num
       
-def reg_values(): 
-    cd_c_r = np.array([[8.10627624e-04,5.32238016e-08,2.86029027e-22,4.03345325e-09,2.65558332e-04,
-                        1.72244621e-05,4.80688971e-10,6.20692196e-12,9.21190496e-06,8.35035892e-04,1.52647328e-14]]).T     
- 
-    cd_i_r = np.array([[0.02676262,0.01237179,0.01144083,0.00694995,0.00280848,
-                        0.00012447,0.00354149,0.01163453,0.0272684 ,0.05744919,0.05960104 ]]).T 
-            
-    cd_m_r = np.array([[0.00117511,0.00117511,0.00117511,0.00117511,0.00117511,
-                        0.00117511,0.00117511,0.00117511,0.00117511,0.00117511,0.00117511  ]]).T
-   
-    cd_p_fuse_r     = np.array([[0.00573497,0.00670141,0.01035105,0.00656857,0.00670352,
-                                 0.00560765,0.00687999,0.00852837,0.00669708,0.00600831,0.00697568  ]]).T        
-      
-    cd_p_wing_r     = np.array([[0.00579887,0.00592795,0.00942986,0.0057326 ,0.00653004,
-                                 0.00501665,0.00599058,0.00759737,0.00600963,0.00556283,0.00602578 ]]).T 
-           
-    cd_tot_r        = np.array([[0.04616812,0.03082864,0.03972979,0.02484412,0.02249526,
-                                 0.01562698,0.02214446,0.03487413,0.04614441,0.07629951,0.07949967]]).T
 
-    return cd_c_r, cd_i_r, cd_m_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
+def reg_values():
+    cd_c_r = np.array([[6.07511040e-06, 2.48815674e-08, 1.58158014e-22, 2.66842458e-09,
+                        2.34666021e-04, 3.06409892e-05, 1.30164975e-09, 2.23624811e-11,
+                        4.15720623e-05, 3.55554227e-03, 6.56586001e-14]]).T   
+    
+    cd_i_r = np.array([[0.02238827, 0.0085205 , 0.00763381, 0.00501302, 0.00170646,
+                        0.00111235, 0.00494403, 0.01190705, 0.02291917, 0.03944343,
+                        0.05096542]]).T   
+    
+    cd_m_r = np.array([[ 0.0011752,0.0011752,0.0011752,0.0011752,0.0011752,
+                         0.0011752,0.0011752,0.0011752,0.0011752,0.0011752,
+                         0.0011752]]).T
+                         
+    cd_m_fuse_base_r = np.array([[ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]]).T
+
+    cd_m_fuse_up_r   = np.array([[  4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
+                                    4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
+                                    4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
+                                    4.80530506e-05,   4.80530506e-05]]).T
+
+    cd_m_nac_base_r = np.array([[ 0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
+                                  0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
+                                  0.00033128]]).T
+
+    cd_m_ctrl_r     = np.array([[ 0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,
+                                  0.0001,  0.0001,  0.0001,  0.0001]]).T
+
+    cd_p_fuse_r     = np.array([[ 0.00573221,0.00669671,0.01034335,0.00656387,0.00669973,
+                                  0.00560398,0.00687499,0.0085221 ,0.00669252,0.0060046 ,
+                                  0.00697051]]).T
+
+    cd_p_wing_r     = np.array([[ 0.00579887,0.00592795,0.00942986,0.0057326 ,
+                                  0.00653004,0.00501665,0.00599058,0.00759737,
+                                  0.00600963,0.00556283,0.00602578]]).T
+           
+    cd_tot_r        = np.array([[0.04087955, 0.02697717, 0.03597939, 0.02294249, 0.02140734,
+                                 0.01670983, 0.02365267, 0.03525366, 0.04181656, 0.06078852,
+                                 0.07076369]]).T 
+    
+    return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, \
+           cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
 if __name__ == '__main__':
     main()

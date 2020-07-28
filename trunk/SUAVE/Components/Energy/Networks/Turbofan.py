@@ -58,10 +58,10 @@ class Turbofan(Propulsor):
         
         #setting the default values
         self.tag = 'Turbofan'
-        self.number_of_engines    = 1.0
-        self.nacelle_diameter     = 1.0
-        self.engine_length        = 1.0
-        self.bypass_ratio         = 1.0
+        self.number_of_engines    = 0.0
+        self.nacelle_diameter     = 0.0
+        self.engine_length        = 0.0
+        self.bypass_ratio         = 0.0
         self.SFC_adjustment       = 0.0 # Less than 1 is a reduction
         self.OpenVSP_flow_through = False
         
@@ -71,7 +71,12 @@ class Turbofan(Propulsor):
         self.areas.maximum     = 0.0
         self.areas.exit        = 0.0
         self.areas.inflow      = 0.0
-    _component_root_map = None
+        
+        self.generative_design_minimum         = 0
+        self.generative_design_max_per_vehicle = 1
+        self.generative_design_characteristics = ['sealevel_static_thrust','number_of_engines','bypass_ratio','non_dimensional_origin[0][0]','non_dimensional_origin[0][1]','non_dimensional_origin[0][2]']
+        self.generative_design_char_min_bounds = [1000.,2.,0.1,0.,-0.7,-0.7]   
+        self.generative_design_char_max_bounds = [np.inf,2,np.inf,0.7,0.7,0.7]    
         
     # linking the different network components
     def evaluate_thrust(self,state):

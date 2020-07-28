@@ -38,13 +38,13 @@ def vehicle_setup():
     wing.aspect_ratio                        = wing.spans.projected**2/wing.areas.reference
     wing.symmetric                           = True
     wing.vertical                            = False
-    wing.origin                              = np.array([15.,0,0]) * Units.feet  
+    wing.origin                              = [[15.* Units.feet  ,0,0]]
     wing.aerodynamic_center                  = np.array([trapezoid_ac_x(wing), 0. , 0. ])
     wing.dynamic_pressure_ratio              = 1.0
     wing.ep_alpha                            = 0.0
     span_location_mac                        = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
-    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    wing.mass_properties.center_of_gravity[0][0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
    
     Mach                                  = np.array([0.152])
@@ -57,23 +57,21 @@ def vehicle_setup():
     vehicle.reference_area                = wing.areas.reference
                                           
     # control surfaces -------------------------------------------
-    control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'flap'
-    control_surface.function              = 'flap' 
-    control_surface.span_fraction_start   = 0.15    # not correct, only placeholder
-    control_surface.span_fraction_end     = 0.324   # not correct, only placeholder 
-    control_surface.deflection            = 1.0 * Units.deg
-    control_surface.chord_fraction        = 0.19    # not correct, only placeholder
-    wing.append_control_surface(control_surface)    
+    flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
+    flap.tag                   = 'flap' 
+    flap.span_fraction_start   = 0.15    # not correct, only placeholder
+    flap.span_fraction_end     = 0.324   # not correct, only placeholder 
+    flap.deflection            = 1.0 * Units.deg
+    flap.chord_fraction        = 0.19    # not correct, only placeholder
+    wing.append_control_surface(flap)    
     
-    control_surface                       = SUAVE.Components.Wings.Control_Surface() 
-    control_surface.tag                   = 'slat'
-    control_surface.function              = 'slat' 
-    control_surface.span_fraction_start   = 0.324  # not correct, only placeholder 
-    control_surface.span_fraction_end     = 0.963  # not correct, only placeholder   
-    control_surface.deflection            = 1.0 * Units.deg
-    control_surface.chord_fraction        = 0.1    # not correct, only placeholder	 
-    wing.append_control_surface(control_surface)  
+    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
+    slat.tag                   = 'slat' 
+    slat.span_fraction_start   = 0.324  # not correct, only placeholder 
+    slat.span_fraction_end     = 0.963  # not correct, only placeholder   
+    slat.deflection            = 1.0 * Units.deg
+    slat.chord_fraction        = 0.1    # not correct, only placeholder 
+    wing.append_control_surface(slat)  
     
     vehicle.append_component(wing)
     
@@ -88,7 +86,7 @@ def vehicle_setup():
     wing.sweeps.quarter_chord     = 21.0   * Units.deg # leading edge
     wing.taper                    = 3.1/6.17
     wing.aspect_ratio             = wing.spans.projected**2/wing.areas.reference
-    wing.origin                   = np.array([36.3,0,0])  * Units.feet
+    wing.origin                   = [[36.3* Units.feet,0,0]]
     wing.symmetric                = True
     wing.vertical                 = False
     wing.dynamic_pressure_ratio   = 0.95
@@ -104,21 +102,22 @@ def vehicle_setup():
     fuselage.width                = 5.4   * Units.feet 
     vehicle.append_component(fuselage)
     
-    vehicle.mass_properties.center_of_gravity = np.array([17.2,0,0]) * Units.feet   
-    
-    fuel                                   = SUAVE.Components.Physical_Component()
-    fuel.origin                            = wing.origin
-    fuel.mass_properties.center_of_gravity = wing.mass_properties.center_of_gravity
-    fuel.mass_properties.mass              = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
+    vehicle.mass_properties.center_of_gravity = np.array([[17.2,0,0]]) * Units.feet  
+    fuel                                      = SUAVE.Components.Physical_Component()
+    fuel.origin                               = wing.origin
+    fuel.mass_properties.center_of_gravity    = wing.mass_properties.center_of_gravity
+    fuel.mass_properties.mass                 = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_zero_fuel
     
     #find zero_fuel_center_of_gravity
-    cg                   =vehicle.mass_properties.center_of_gravity
-    MTOW                 =vehicle.mass_properties.max_takeoff
-    fuel_cg              =fuel.origin+fuel.mass_properties.center_of_gravity
-    fuel_mass            =fuel.mass_properties.mass 
-    sum_moments_less_fuel=(cg*MTOW-fuel_cg*fuel_mass)
-    vehicle.fuel = fuel
+    cg                     = vehicle.mass_properties.center_of_gravity
+    MTOW                   = vehicle.mass_properties.max_takeoff
+    fuel_cg                = fuel.origin+fuel.mass_properties.center_of_gravity
+    fuel_mass              = fuel.mass_properties.mass 
+    sum_moments_less_fuel  = (cg*MTOW-fuel_cg*fuel_mass)
+    vehicle.fuel           =  fuel
+    
     vehicle.mass_properties.zero_fuel_center_of_gravity = sum_moments_less_fuel/vehicle.mass_properties.max_zero_fuel
+    
     return vehicle
   
 def configs_setup(vehicle):

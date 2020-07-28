@@ -1,7 +1,7 @@
 
 # full_setup.py
 #
-# Created:  SUave Team, Aug 2014
+# Created:  SUAVE Team, Aug 2014
 # Modified:
 
 """ setup file for a mission with a E190
