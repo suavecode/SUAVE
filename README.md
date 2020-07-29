@@ -30,6 +30,7 @@ Contributing Developers
 * Michael Kruger
 * Michael Vegh
 * Pedro Goncalves
+* Racheal Erhard
 * Rick Fenrich
 * Tarik Orra
 * Theo St. Francis
@@ -89,6 +90,7 @@ This respository may be cited via BibTex as:
     Kruger, M. and
     Vegh, J. M. and 
     Goncalves, P. and
+    Erhard, R. and
     Fenrich, R. and
     Orra, T. and 
     St. Francis, T. and
