@@ -30,7 +30,6 @@ def unpack_unknowns(segment):
                 velocity_x         [meters/second]
                 time               [second]
             segment.velocity_start [meters/second]
-            segment.velocity_start [meters/second]
             
         Outputs:
             segment.state.conditions:
@@ -42,19 +41,24 @@ def unpack_unknowns(segment):
     """       
     
     # unpack unknowns
-    unknowns   = segment.state.unknowns 
-    time       = segment.time  
-    v0         = segment.velocity_start 
-    vf         = segment.velocity_start 
+    unknowns   = segment.state.unknowns
+    velocity_x = unknowns.velocity_x
+    time       = unknowns.time
+    
+    # unpack givens
+    v0         = segment.air_speed_start  
     t_initial  = segment.state.conditions.frames.inertial.time[0,0]
-    t_nondim   = segment.state.numerics.dimensionless.control_points    
-   
+    t_nondim   = segment.state.numerics.dimensionless.control_points
+    
+    # time
     t_final    = t_initial + time  
-    time       = t_nondim * (t_final-t_initial) + t_initial  
+    times      = t_nondim * (t_final-t_initial) + t_initial     
 
-    #apply unknowns    
-    segment.state.conditions.propulsion.throttle[:,0]     = segment.state.unknowns.throttle[:,0]
-    segment.state.conditions.frames.inertial.time[:,0]    = time[:,0]
+    #apply unknowns
+    conditions = segment.state.conditions
+    conditions.frames.inertial.velocity_vector[1:,0] = velocity_x
+    conditions.frames.inertial.velocity_vector[0,0]  = v0
+    conditions.frames.inertial.time[:,0]             = times[:,0]
      
 # ----------------------------------------------------------------------
 #  Initialize Conditions
@@ -87,25 +91,48 @@ def initialize_conditions(segment):
        N/A
     """   
 
-    conditions = segment.state.conditions
-
     # unpack inputs
+    alt      = segment.altitude 
     v0       = segment.velocity_start
-    vf       = segment.velocity_end
-    N        = len(conditions.frames.inertial.velocity_vector[:,0])
+    vf       = segment.velocity_end 
+    throttle = segment.throttle	
+    
+    # check for initial altitude
+    if alt is None:
+        if not segment.state.initials: raise AttributeError('altitude not set')
+        alt = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]   
 
+    if v0  is None: 
+        v0 = np.linalg.norm(segment.state.initials.conditions.frames.inertial.velocity_vector[-1])
+        
     # avoid having zero velocity since aero and propulsion models need non-zero Reynolds number
     if v0 == 0.0: v0 = 0.01
     if vf == 0.0: vf = 0.01
-
+    
+    # intial and final speed cannot be the same
+    if v0 == vf:
+        vf = vf + 0.01
+        
     # repack
-    segment.velocity_start = v0
-    segment.velocity_end   = vf
+    segment.air_speed_start = v0
+    segment.air_speed_end   = vf
+    
+    initialized_velocity = (vf - v0)*segment.state.numerics.dimensionless.control_points + v0
+    
+    # Initialize the x velocity unknowns to speed convergence:
+    segment.state.unknowns.velocity_x = initialized_velocity[1:,0]
+    
+    # Setup the size of the residuals
+    ones_row_m1 = segment.state.ones_row_m1
+    segment.state.residuals.forces = ones_row_m1(1) * 0.0      
 
     # pack conditions 
-    conditions.frames.inertial.velocity_vector[:,0] = np.linspace(v0,vf,N)
-    conditions.ground.incline[:,0]                  = segment.ground_incline
-    conditions.ground.friction_coefficient[:,0]     = segment.friction_coefficient
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = initialized_velocity[:,0]
+    segment.state.conditions.ground.incline[:,0]                  = segment.ground_incline
+    segment.state.conditions.ground.friction_coefficient[:,0]     = segment.friction_coefficient
+    segment.state.conditions.propulsion.throttle[:,0]             = throttle  
+    segment.state.conditions.freestream.altitude[:,0]             = alt
+    segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down        
     
 # ----------------------------------------------------------------------
 #  Compute Ground Forces
@@ -191,7 +218,7 @@ def compute_forces(segment):
     F = total_aero_forces + inertial_ground_force_vector
 
     # pack
-    conditions.frames.inertial.ground_force_vector[:,:] = F[:,:]
+    conditions.frames.inertial.total_force_vector[:,:] = F[:,:]
 
 # ----------------------------------------------------------------------
 #  Solve Residual
@@ -223,13 +250,18 @@ def solve_residuals(segment):
     # unpack inputs
     conditions = segment.state.conditions
     FT = conditions.frames.inertial.total_force_vector
+    vf = segment.velocity_end
     v  = conditions.frames.inertial.velocity_vector
     m  = conditions.weights.total_mass
     D  = segment.state.numerics.time.differentiate
-    vf = segment.velocity_end
 
     # process and pack
-    acceleration = np.dot(D , v)
+    acceleration                                   = np.dot(D , v)
     conditions.frames.inertial.acceleration_vector = acceleration
- 
-    segment.state.residuals.acceleration_x       = np.reshape(((FT[:,0]) / m[:,0] - acceleration[:,0]),np.shape(m))
+    
+    if vf == 0.0: vf = 0.01
+
+    segment.state.residuals.forces[:,0]          = FT[1:,0]/m[1:,0] - acceleration[1:,0]
+    segment.state.residuals.final_velocity_error = (v[-1,0] - vf)
+    
+    return

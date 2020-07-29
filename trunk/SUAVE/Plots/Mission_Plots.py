@@ -1376,5 +1376,7 @@ def set_axes(axes):
     axes.grid(which='major', linestyle='-', linewidth=0.5, color='grey')
     axes.grid(which='minor', linestyle=':', linewidth=0.5, color='grey')      
     axes.grid(True)   
+    axes.get_yaxis().get_major_formatter().set_scientific(False)
+    axes.get_yaxis().get_major_formatter().set_useOffset(False)        
 
     return  
