@@ -486,7 +486,6 @@ class Data(dict):
         """          
         if key is None: key = value.tag
         key = key.translate(t_table)
-        if key is None: key = value.tag
         if key in self: raise KeyError('key "%s" already exists' % key)
         self[key] = value        
     

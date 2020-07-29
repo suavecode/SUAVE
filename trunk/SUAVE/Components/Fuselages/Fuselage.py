@@ -115,7 +115,7 @@ class Fuselage(Lofted_Body):
         self.vsp_data.xsec_surf_id   = ''    # There is only one XSecSurf in each VSP geom.
         self.vsp_data.xsec_num       = None  # Number if XSecs in fuselage geom.
         
-        self.Segments                = Segment_Container()
+        self.Segments                = ContainerOrdered()
         
     def append_segment(self,segment):
         """ Adds a segment to the fuselage. 
