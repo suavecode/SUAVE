@@ -12,6 +12,7 @@
 import SUAVE
 import jax
 import jax.numpy as np
+import numpy as onp
 from jax.ops import index_update
 from SUAVE.Core import Units , Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
@@ -277,7 +278,7 @@ def compute_vortex_distribution(geometry,settings):
             #Shift spanwise vortices onto section breaks  
             for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
-                
+                y_coordinates = index_update(y_coordinates, jax.ops.index[idx], section_stations[i_seg])
                 # y_coordinates[idx] = section_stations[i_seg]
 
             # ---------------------------------------------------------------------------------------
@@ -322,16 +323,16 @@ def compute_vortex_distribution(geometry,settings):
                 section_x_coord_b = segment_x_coord[i_seg]*wing_chord_section_b
                 section_x_coord   = segment_x_coord[i_seg]*wing_chord_section
 
-                z_c_a1 = np.interp((idx_x    *delta_x_a)                  ,section_x_coord_a,section_camber_a) 
-                z_c_ah = np.interp((idx_x    *delta_x_a + delta_x_a*0.25) ,section_x_coord_a,section_camber_a)
-                z_c_a2 = np.interp(((idx_x+1)*delta_x_a)                  ,section_x_coord_a,section_camber_a) 
-                z_c_ac = np.interp((idx_x    *delta_x_a + delta_x_a*0.75) ,section_x_coord_a,section_camber_a) 
-                z_c_b1 = np.interp((idx_x    *delta_x_b)                  ,section_x_coord_b,section_camber_b)   
-                z_c_bh = np.interp((idx_x    *delta_x_b + delta_x_b*0.25) ,section_x_coord_b,section_camber_b) 
-                z_c_b2 = np.interp(((idx_x+1)*delta_x_b)                  ,section_x_coord_b,section_camber_b) 
-                z_c_bc = np.interp((idx_x    *delta_x_b + delta_x_b*0.75) ,section_x_coord_b,section_camber_b) 
-                z_c    = np.interp((idx_x    *delta_x   + delta_x  *0.75) ,section_x_coord,section_camber_c) 
-                z_c_ch = np.interp((idx_x    *delta_x   + delta_x  *0.25) ,section_x_coord,section_camber_c) 
+                z_c_a1 = onp.interp((idx_x    *delta_x_a)                  ,section_x_coord_a,section_camber_a)
+                z_c_ah = onp.interp((idx_x    *delta_x_a + delta_x_a*0.25) ,section_x_coord_a,section_camber_a)
+                z_c_a2 = onp.interp(((idx_x+1)*delta_x_a)                  ,section_x_coord_a,section_camber_a)
+                z_c_ac = onp.interp((idx_x    *delta_x_a + delta_x_a*0.75) ,section_x_coord_a,section_camber_a)
+                z_c_b1 = onp.interp((idx_x    *delta_x_b)                  ,section_x_coord_b,section_camber_b)
+                z_c_bh = onp.interp((idx_x    *delta_x_b + delta_x_b*0.25) ,section_x_coord_b,section_camber_b) 
+                z_c_b2 = onp.interp(((idx_x+1)*delta_x_b)                  ,section_x_coord_b,section_camber_b)
+                z_c_bc = onp.interp((idx_x    *delta_x_b + delta_x_b*0.75) ,section_x_coord_b,section_camber_b)
+                z_c    = onp.interp((idx_x    *delta_x   + delta_x  *0.75) ,section_x_coord,section_camber_c)
+                z_c_ch = onp.interp((idx_x    *delta_x   + delta_x  *0.25) ,section_x_coord,section_camber_c)
 
                 zeta_a1 = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_a1  # z coordinate of top left corner of panel
                 zeta_ah = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_ah  # z coordinate of left corner of bound vortex  
@@ -383,100 +384,188 @@ def compute_vortex_distribution(geometry,settings):
                 # ** TO DO ** Get flap/aileron locations and deflection
                 # store coordinates of panels, horseshoeces vortices and control points relative to wing root 
                 if vertical_wing:
-                    xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
-                    za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                    ya1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
-                    xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
-                    za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                    ya2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
+                    xa1 = index_update(xa1,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],xi_prime_a1)
+                    za1 = index_update(za1,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],np.ones(n_cw) * y_a[idx_y])
+                    ya1 = index_update(ya1,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],zeta_prime_a1)
+                    xa2 = index_update(xa2,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],xi_prime_a2)
+                    za2 = index_update(za2,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],np.ones(n_cw) * y_a[idx_y])
+                    ya2 = index_update(ya2,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],zeta_prime_a2)
+                       
+                    xb1 = index_update(xb1,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],xi_prime_b1)
+                    zb1 = index_update(zb1,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],np.ones(n_cw) * y_b[idx_y])
+                    yb1 = index_update(yb1,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],zeta_prime_b1)
+                    xb2 = index_update(xb2,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],xi_prime_b2)
+                    zb2 = index_update(zb2,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],np.ones(n_cw) * y_b[idx_y])
+                    yb2 = index_update(yb2,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],zeta_prime_b2)
+                       
+                    xah = index_update(xah,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],xi_prime_ah)
+                    zah = index_update(zah,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],np.ones(n_cw) * y_a[idx_y])
+                    yah = index_update(yah,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],zeta_prime_ah)
+                    xbh = index_update(xbh,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],xi_prime_bh)
+                    zbh = index_update(zbh,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],np.ones(n_cw) * y_b[idx_y])
+                    ybh = index_update(ybh,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],zeta_prime_bh)
+                       
+                    xch = index_update(xch,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],xi_prime_ch)
+                    zch = index_update(zch,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],np.ones(n_cw) * (y_b[idx_y] - del_y[idx_y] / 2))
+                    ych = index_update(ych,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],zeta_prime_ch)
 
-                    xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
-                    zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                    yb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
-                    xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
-                    zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                        
-                    yb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
+                    xc = index_update(xc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime)
+                    zc = index_update(zc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * (y_b[idx_y] - del_y[idx_y] / 2))
+                    yc = index_update(yc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime)
 
-                    xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
-                    zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                    yah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
-                    xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
-                    zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                    ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
+                    xac = index_update(xac, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_ac)
+                    zac = index_update(zac, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_a[idx_y])
+                    yac = index_update(yac, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_ac)
+                    xbc = index_update(xbc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_bc)
+                    zbc = index_update(zbc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_b[idx_y])
+                    ybc = index_update(ybc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_bc)
+                    x   = index_update(x,   jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.concatenate([xi_prime_a1, np.array([xi_prime_a2[-1]])]))
+                    z   = index_update(z,   jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.ones(n_cw + 1) * y_a[idx_y])
+                    y   = index_update(y,   jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.concatenate([zeta_prime_a1, np.array([zeta_prime_a2[-1]])]))
 
-                    xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                    zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
-                    ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+                    # xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1
+                    # za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+                    # ya1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
+                    # xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
+                    # za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+                    # ya2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
+                    #
+                    # xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1
+                    # zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+                    # yb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
+                    # xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2
+                    # zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+                    # yb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2
+                    #
+                    # xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
+                    # zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+                    # yah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah
+                    # xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh
+                    # zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+                    # ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
+                    #
+                    # xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
+                    # zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)
+                    # ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+                    #
+                    # xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime
+                    # zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)
+                    # yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime
+                    #
+                    # xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac
+                    # zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+                    # yac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
+                    # xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
+                    # zbc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+                    # ybc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc
+                    # x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
+                    # z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y]
+                    # y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])
 
-                    xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                    zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
-                    yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
+                else:
+                    xa1 = index_update(xa1, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_a1)
+                    ya1 = index_update(ya1, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_a[idx_y])
+                    za1 = index_update(za1, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_a1)
+                    xa2 = index_update(xa2, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_a2)
+                    ya2 = index_update(ya2, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_a[idx_y])
+                    za2 = index_update(za2, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_a2)
 
-                    xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
-                    zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                    yac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
-                    xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
-                    zbc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                            
-                    ybc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc
-                    x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
-                    z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
-                    y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])
+                    xb1 = index_update(xb1, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_b1)
+                    yb1 = index_update(yb1, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_b[idx_y])
+                    zb1 = index_update(zb1, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_b1)
+                    yb2 = index_update(yb2, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_b[idx_y])
+                    xb2 = index_update(xb2, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_b2)
+                    zb2 = index_update(zb2, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_b2)
 
-                else:     
-                    xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
-                    ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                    za1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
-                    xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
-                    ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                    za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
+                    xah = index_update(xah, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_ah)
+                    yah = index_update(yah, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_a[idx_y])
+                    zah = index_update(zah, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_ah)
+                    xbh = index_update(xbh, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_bh)
+                    ybh = index_update(ybh, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_b[idx_y])
+                    zbh = index_update(zbh, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_bh)
 
-                    xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
-                    yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                    zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
-                    yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                    xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
-                    zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
+                    xch = index_update(xch, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_ch)
+                    ych = index_update(ych, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * (y_b[idx_y] - del_y[idx_y] / 2))
+                    zch = index_update(zch, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_ch)
 
-                    xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
-                    yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                    zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
-                    xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
-                    ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                    zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
+                    xc = index_update(xc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime)
+                    yc = index_update(yc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * (y_b[idx_y] - del_y[idx_y] / 2))
+                    zc = index_update(zc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime)
 
-                    xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                    ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                    
-                    zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+                    xac = index_update(xac, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_ac)
+                    yac = index_update(yac, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_a[idx_y])
+                    zac = index_update(zac, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_ac)
+                    xbc = index_update(xbc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_bc)
+                    ybc = index_update(ybc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_b[idx_y])
+                    zbc = index_update(zbc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_bc)
 
-                    xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                    yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)
-                    zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
+                    x = index_update(x, jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.concatenate([xi_prime_a1, np.array([xi_prime_a2[-1]])]))
+                    y = index_update(y, jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.ones(n_cw + 1) * y_a[idx_y])
+                    z = index_update(z, jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.concatenate([zeta_prime_a1, np.array([zeta_prime_a2[-1]])]))
 
-                    xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
-                    yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                    zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
-                    xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
-                    ybc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                            
-                    zbc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc   
-                    x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
-                    y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
-                    z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])                   
+                    # xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1
+                    # ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+                    # za1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
+                    # xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
+                    # ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+                    # za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
+                    #
+                    # xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1
+                    # yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+                    # zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
+                    # yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+                    # xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2
+                    # zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2
+                    #
+                    # xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
+                    # yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+                    # zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah
+                    # xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh
+                    # ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+                    # zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
+                    #
+                    # xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
+                    # ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)
+                    # zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+                    #
+                    # xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime
+                    # yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)
+                    # zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime
+                    #
+                    # xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac
+                    # yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+                    # zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
+                    # xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
+                    # ybc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+                    # zbc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc
+                    # x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
+                    # y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y]
+                    # z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])
 
                 idx += 1
 
-                cs_w[idx_y] = wing_chord_section       
+                cs_w = index_update(cs_w, jax.ops.index[idx_y], wing_chord_section)
+                # cs_w[idx_y] = wing_chord_section
 
                 if y_b[idx_y] == section_stations[i_seg+1]: 
                     i_seg += 1      
 
-            if vertical_wing:    
-                x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
-                z[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
-                y[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
-            else:    
-                x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
-                y[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
-                z[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])                
+            if vertical_wing:
+                x = index_update(x, jax.ops.index[-(n_cw + 1):], np.concatenate([xi_prime_b1, np.array([xi_prime_b2[-1]])]))
+                z = index_update(z, jax.ops.index[-(n_cw + 1):], np.ones(n_cw + 1) * y_b[idx_y])
+                y = index_update(y, jax.ops.index[-(n_cw + 1):], np.concatenate([zeta_prime_b1, np.array([zeta_prime_b2[-1]])]))
+
+                # x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
+                # z[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y]
+                # y[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
+            else:
+                x = index_update(x, jax.ops.index[-(n_cw + 1):], np.concatenate([xi_prime_b1, np.array([xi_prime_b2[-1]])]))
+                y = index_update(y, jax.ops.index[-(n_cw + 1):], np.ones(n_cw + 1) * y_b[idx_y])
+                z = index_update(z, jax.ops.index[-(n_cw + 1):], np.concatenate([zeta_prime_b1, np.array([zeta_prime_b2[-1]])]))
+
+                # x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
+                # y[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y]
+                # z[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
 
         else:   # when no segments are defined on wing  
             # ---------------------------------------------------------------------------------------
@@ -924,8 +1013,8 @@ def compute_vortex_distribution(geometry,settings):
         vec1 = [2 , 1.5, 1.2 , 1]
         vec2 = [1  ,1.57 , 3.2,  8]
         x = np.linspace(0,1,4)
-        fus_nose_curvature =  np.interp(np.interp(fus.fineness.nose,vec2,x), x , vec1)
-        fus_tail_curvature =  np.interp(np.interp(fus.fineness.tail,vec2,x), x , vec1) 
+        fus_nose_curvature =  onp.interp(onp.interp(fus.fineness.nose,vec2,x), x , vec1)
+        fus_tail_curvature =  onp.interp(onp.interp(fus.fineness.tail,vec2,x), x , vec1)
 
         # Horizontal Sections of fuselage
         fhs = Data()        
@@ -948,8 +1037,10 @@ def compute_vortex_distribution(geometry,settings):
             fhs.nose_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus_nose_curvature ))**(1/fus_nose_curvature))*fus.lengths.nose
             fhs.tail_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus_tail_curvature ))**(1/fus_tail_curvature))*fus.lengths.tail
             fhs.nose_origin   = fus.lengths.nose - fhs.nose_length 
-            fhs.origin[i][:]  = np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]])
-            fhs.chord[i]      = fhs_cabin_length + fhs.nose_length + fhs.tail_length          
+            fhs.origin        = index_update(fhs.origin, jax.ops.index[i,:], np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]]))
+            fhs.chord         = index_update(fhs.chord,  jax.ops.index[i], fhs_cabin_length + fhs.nose_length + fhs.tail_length)
+            # fhs.origin[i][:]  = np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]])
+            # fhs.chord[i]      = fhs_cabin_length + fhs.nose_length + fhs.tail_length
 
             fvs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
             fvs.nose_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus_nose_curvature ))**(1/fus_nose_curvature))*fus.lengths.nose
