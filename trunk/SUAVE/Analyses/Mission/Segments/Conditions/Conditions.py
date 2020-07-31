@@ -12,6 +12,7 @@
 
 # python imports
 import jax.numpy as np
+import numpy as onp
 
 # SUAVE imports
 from SUAVE.Core                    import Data
@@ -132,7 +133,7 @@ class Conditions(Data):
                 v.expand_rows(rows)
             # need arrays here
             elif rank == 2:
-                self[k] = np.resize(v,[rows,v.shape[1]])
+                self[k] = onp.resize(v,[rows,v.shape[1]])
             #: if type
         #: for each key,value
         
