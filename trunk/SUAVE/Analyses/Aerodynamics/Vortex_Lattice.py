@@ -29,7 +29,9 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import
 
 # package imports
 import math
+import jax
 import jax.numpy as np
+from jax.ops import index_update
 from scipy.interpolate import interp2d, RectBivariateSpline, RegularGridInterpolator
 
 # ----------------------------------------------------------------------
@@ -485,12 +487,17 @@ class Vortex_Lattice(Aerodynamics):
         CL_data_trans        = np.zeros((len(mach_data_sub),3))	      
         CDi_data_trans       = np.zeros((len(mach_data_sub),3))	 	      
         CL_w_data_trans      = Data()	                     
-        CDi_w_data_trans     = Data()    
-        CL_data_trans[:,0]   = CL_data_sub[:,-1]    	     
-        CL_data_trans[:,1]   = CL_data_sup[:,0] 
-        CL_data_trans[:,2]   = CL_data_sup[:,1] 
-        CDi_data_trans[:,0]  = CDi_data_sub[:,-1]	     
-        CDi_data_trans[:,1]  = CDi_data_sup[:,0] 
+        CDi_w_data_trans     = Data()
+        CL_data_trans  = index_update(CL_data_trans ,jax.ops.index[:, 0],CL_data_sub[:, -1])
+        CL_data_trans  = index_update(CL_data_trans ,jax.ops.index[:, 1],CL_data_sup[:, 0])
+        CL_data_trans  = index_update(CL_data_trans ,jax.ops.index[:, 2],CL_data_sup[:, 1])
+        CDi_data_trans = index_update(CDi_data_trans,jax.ops.index[:, 0],CDi_data_sub[:, -1])
+        CDi_data_trans = index_update(CDi_data_trans,jax.ops.index[:, 1],CDi_data_sup[:, 0])
+        # CL_data_trans[:,0]   = CL_data_sub[:,-1]
+        # CL_data_trans[:,1]   = CL_data_sup[:,0]
+        # CL_data_trans[:,2]   = CL_data_sup[:,1]
+        # CDi_data_trans[:,0]  = CDi_data_sub[:,-1]
+        # CDi_data_trans[:,1]  = CDi_data_sup[:,0]
         
         mach_data_trans_CL   = np.array([mach_data_sub[-1],mach_data_sup[0],mach_data_sup[1]]) 
         mach_data_trans_CDi  = np.array([mach_data_sub[-1],mach_data_sup[0],mach_data_sup[1]]) 
@@ -514,24 +521,31 @@ class Vortex_Lattice(Aerodynamics):
         
         for wing in geometry.wings.keys():
             CLw                    = np.zeros_like(CL_data_trans)
-            CDiw                   = np.zeros_like(CDi_data_trans)            
-            CLw[:,0]               = CL_w_data_sub[wing][:,-1]   	 
-            CLw[:,1]               = CL_w_data_sup[wing][:,0]  	
-            CLw[:,2]               = CL_w_data_sup[wing][:,1]  	
-            CDiw[:,0]              = CDi_w_data_sub[wing][:,-1]    
-            CDiw[:,1]              = CDi_w_data_sup[wing][:,0]   
-            CDiw[:,2]              = CDi_w_data_sup[wing][:,1]   
+            CDiw                   = np.zeros_like(CDi_data_trans)
+            CLw  = index_update(CLw ,jax.ops.index[:, 0],CL_w_data_sub[wing][:, -1])
+            CLw  = index_update(CLw ,jax.ops.index[:, 1],CL_w_data_sup[wing][:, 0])
+            CLw  = index_update(CLw ,jax.ops.index[:, 2],CL_w_data_sup[wing][:, 1])
+            CDiw = index_update(CDiw,jax.ops.index[:, 0],CDi_w_data_sub[wing][:, -1])
+            CDiw = index_update(CDiw,jax.ops.index[:, 1],CDi_w_data_sup[wing][:, 0])
+            CDiw = index_update(CDiw,jax.ops.index[:, 2],CDi_w_data_sup[wing][:, 1])
+            # CLw[:,0]               = CL_w_data_sub[wing][:,-1]
+            # CLw[:,1]               = CL_w_data_sup[wing][:,0]
+            # CLw[:,2]               = CL_w_data_sup[wing][:,1]
+            # CDiw[:,0]              = CDi_w_data_sub[wing][:,-1]
+            # CDiw[:,1]              = CDi_w_data_sup[wing][:,0]
+            # CDiw[:,2]              = CDi_w_data_sup[wing][:,1]
+
             CL_w_data_trans[wing]  = CLw
-            CDi_w_data_trans[wing] = CDiw             
-            
-            CL_w_surrogates_sub[wing]    = RectBivariateSpline(AoA_data, mach_data_sub, CL_w_data_sub[wing]) 
-            CL_w_surrogates_sup[wing]    = RectBivariateSpline(AoA_data, mach_data_sup, CL_w_data_sup[wing])           
+            CDi_w_data_trans[wing] = CDiw
+
+            CL_w_surrogates_sub[wing]    = RectBivariateSpline(AoA_data, mach_data_sub, CL_w_data_sub[wing])
+            CL_w_surrogates_sup[wing]    = RectBivariateSpline(AoA_data, mach_data_sup, CL_w_data_sup[wing])
             CL_w_surrogates_trans[wing]  = RegularGridInterpolator((AoA_data, mach_data_trans_CL), CL_w_data_trans[wing], \
-                                                                             method = 'linear', bounds_error=False, fill_value=None)     
-            CDi_w_surrogates_sub[wing]   = RectBivariateSpline(AoA_data, mach_data_sub, CDi_w_data_sub[wing])            
-            CDi_w_surrogates_sup[wing]   = RectBivariateSpline(AoA_data, mach_data_sup, CDi_w_data_sup[wing])  
+                                                                             method = 'linear', bounds_error=False, fill_value=None)
+            CDi_w_surrogates_sub[wing]   = RectBivariateSpline(AoA_data, mach_data_sub, CDi_w_data_sub[wing])
+            CDi_w_surrogates_sup[wing]   = RectBivariateSpline(AoA_data, mach_data_sup, CDi_w_data_sup[wing])
             CDi_w_surrogates_trans[wing] = RegularGridInterpolator((AoA_data, mach_data_trans_CL), CDi_w_data_trans[wing], \
-                                                                             method = 'linear', bounds_error=False, fill_value=None)           
+                                                                             method = 'linear', bounds_error=False, fill_value=None)
     
         # Pack the outputs
         surrogates.lift_coefficient_sub        = CL_surrogate_sub  
@@ -585,8 +599,8 @@ def calculate_VLM(conditions,settings,geometry):
 
     # Dimensionalize the lift and drag for each wing
     areas = settings.vortex_distribution.wing_areas
-    dim_wing_lifts = CL_wing  * areas
-    dim_wing_drags = CDi_wing * areas
+    dim_wing_lifts = CL_wing  * np.array(areas)
+    dim_wing_drags = CDi_wing * np.array(areas)
     
     i = 0
     # Assign the lift and drag and non-dimensionalize
