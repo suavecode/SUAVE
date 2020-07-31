@@ -12,7 +12,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import com
 from SUAVE.Core import Data
 from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Propulsors

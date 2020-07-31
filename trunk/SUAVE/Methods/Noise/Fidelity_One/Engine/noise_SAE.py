@@ -9,7 +9,7 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core            import Units
 
 from .angle_of_attack_effect import angle_of_attack_effect

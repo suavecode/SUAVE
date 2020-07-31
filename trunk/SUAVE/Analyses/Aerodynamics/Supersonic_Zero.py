@@ -19,7 +19,7 @@ from .Vortex_Lattice import Vortex_Lattice
 from .Process_Geometry import Process_Geometry
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Class

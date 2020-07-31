@@ -3,7 +3,7 @@
 # Created:   
 # Modified: Jan 2020, M. Clarke
 
-import numpy as np
+import jax.numpy as np
 from numpy import cos, sin
 from .orientation_product import orientation_product
 

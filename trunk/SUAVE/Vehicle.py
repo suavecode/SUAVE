@@ -14,7 +14,7 @@
 from SUAVE.Core import Data, Container, DataOrdered
 from SUAVE import Components
 from SUAVE.Components import Physical_Component
-import numpy as np
+import jax.numpy as np
 
 from warnings import warn
 import string

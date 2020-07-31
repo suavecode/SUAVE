@@ -15,7 +15,7 @@ import SUAVE
 from   SUAVE.Core import Data, Units
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Compute field length required for landing

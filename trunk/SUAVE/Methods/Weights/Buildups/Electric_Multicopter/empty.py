@@ -14,7 +14,7 @@ from SUAVE.Core import Units, Data
 from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
 from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
-import numpy as np
+import jax.numpy as np
 
 #-------------------------------------------------------------------------------
 # Empty

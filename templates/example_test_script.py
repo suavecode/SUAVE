@@ -13,7 +13,7 @@
 import SUAVE
 from SUAVE.Core import Units
 
-import numpy as np
+import jax.numpy as np
 import matplotlib.pyplot as plt
 
 

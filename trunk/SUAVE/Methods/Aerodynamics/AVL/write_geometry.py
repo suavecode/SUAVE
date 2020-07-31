@@ -12,7 +12,7 @@
 # ----------------------------------------------------------------------
 from .purge_files import purge_files
 from SUAVE.Methods.Aerodynamics.AVL.Data.Settings    import Settings
-import numpy as np
+import jax.numpy as np
 import shutil
 from .create_avl_datastructure import translate_avl_wing, translate_avl_body 
 

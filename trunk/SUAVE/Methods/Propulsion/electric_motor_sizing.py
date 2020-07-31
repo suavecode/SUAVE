@@ -11,7 +11,7 @@
 import SUAVE
 
 # package imports
-import numpy as np
+import jax.numpy as np
 from scipy.optimize import minimize  
 from SUAVE.Core import Units
 

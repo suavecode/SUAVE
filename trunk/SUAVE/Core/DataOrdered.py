@@ -21,7 +21,7 @@ t_table = str.maketrans( chars          + string.ascii_uppercase ,
                             '_'*len(chars) + string.ascii_lowercase )
 
 from warnings import warn
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #   Property Class

@@ -14,7 +14,7 @@ from SUAVE.Core import Units, Data
 from SUAVE.Input_Output.OpenVSP import get_vsp_areas
 from SUAVE.Components.Fuselages.Fuselage import Fuselage
 import vsp as vsp
-import numpy as np
+import jax.numpy as np
 
 
 ## @ingroup Input_Output-OpenVSP

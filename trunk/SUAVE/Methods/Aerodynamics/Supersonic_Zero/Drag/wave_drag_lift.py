@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Data
 from SUAVE.Components.Wings import Main_Wing
 

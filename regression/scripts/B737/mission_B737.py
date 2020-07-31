@@ -19,12 +19,12 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Plots.Mission_Plots import *
 import matplotlib.pyplot as plt  
-import numpy as np 
+import jax.numpy as np
 
 import timeit
 import jax
 
-import numpy as np
+import jax.numpy as np
 import copy, time
 from SUAVE.Core import Data, Container
 

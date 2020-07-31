@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import scipy
-import numpy as np 
+import jax.numpy as np
 
 # SUAVE Imports
 from SUAVE.Core                                        import Data , Units  

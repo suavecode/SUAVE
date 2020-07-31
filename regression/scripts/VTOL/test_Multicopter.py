@@ -11,7 +11,7 @@
 import SUAVE
 from SUAVE.Core import Units , Data
 from SUAVE.Plots.Mission_Plots import * 
-import numpy as np 
+import jax.numpy as np
 import time 
 import sys  
 

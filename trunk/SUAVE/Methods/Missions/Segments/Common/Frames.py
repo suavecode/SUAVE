@@ -10,7 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Units
 
 from SUAVE.Methods.Geometry.Three_Dimensional \

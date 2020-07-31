@@ -13,7 +13,7 @@ from SUAVE.Core import (
 Data, Container,
 )
 
-import numpy as np
+import jax.numpy as np
 import copy, time
 
 #from SUAVE.Components.Energy.Processes import Solar_Radiation as Solar_Radiation

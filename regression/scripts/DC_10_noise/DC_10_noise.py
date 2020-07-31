@@ -1,7 +1,7 @@
 # DC_10_noise.py
 
 import SUAVE
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Noise import Correlations as Correlations
 from SUAVE.Core import (

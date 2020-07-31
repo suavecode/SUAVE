@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-import numpy as np
+import jax.numpy as np
 
 # Suave imports
 from SUAVE.Core import Data

@@ -13,7 +13,7 @@
 import SUAVE
 
 # package imports
-import numpy as np
+import jax.numpy as np
 import scipy as sp
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 

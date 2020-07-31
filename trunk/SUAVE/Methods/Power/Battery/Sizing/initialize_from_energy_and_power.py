@@ -12,7 +12,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 from SUAVE.Methods.Utilities.soft_max import soft_max
 # ----------------------------------------------------------------------
 #  Initialize from Energy and Power

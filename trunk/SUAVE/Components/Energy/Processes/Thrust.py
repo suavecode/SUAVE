@@ -18,8 +18,9 @@ import SUAVE
 from SUAVE.Core import Units
 
 # package imports
-import numpy as np
+import jax.numpy as np
 import scipy as sp
+import numpy as onp
 
 
 from SUAVE.Core import Data
@@ -184,7 +185,7 @@ class Thrust(Energy_Component):
         Isp              = Fsp*a0*(1.+bypass_ratio)/(f*g)
 
         #Computing the TSFC
-        TSFC             = f*g/(Fsp*a0*(1.+bypass_ratio))*(1.-SFC_adjustment) * Units.hour # 1/s is converted to 1/hr here
+        TSFC             = f*g/(Fsp*a0*(1.+bypass_ratio))*(1.-SFC_adjustment) / 3600. #* Units.hour # 1/s is converted to 1/hr here
      
         #computing the core mass flow
         mdot_core        = mdhc*np.sqrt(Tref/total_temperature_reference)*(total_pressure_reference/Pref)
@@ -194,7 +195,7 @@ class Thrust(Energy_Component):
 
         #fuel flow rate
         a = np.array([0.])        
-        fuel_flow_rate   = np.fmax(FD2*TSFC/g,a)*1./Units.hour
+        fuel_flow_rate   = onp.fmax(FD2*TSFC/g,a)/3600.  #*1./Units.hour
 
         #computing the power 
         power            = FD2*u0

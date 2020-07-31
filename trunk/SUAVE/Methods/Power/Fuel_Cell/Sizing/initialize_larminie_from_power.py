@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 import scipy as sp
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Power.Fuel_Cell.Discharge.find_power_larminie import find_power_larminie
 

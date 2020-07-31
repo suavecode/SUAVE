@@ -6,7 +6,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-import numpy as np
+import jax.numpy as np
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Tube_Wing.taw_cmalpha import taw_cmalpha
 
 import sys

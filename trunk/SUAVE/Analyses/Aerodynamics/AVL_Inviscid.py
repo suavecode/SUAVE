@@ -33,7 +33,7 @@ from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , 
 
 # Package imports 
 import os 
-import numpy as np
+import jax.numpy as np
 import sys
 from shutil import rmtree 
 from scipy.interpolate import  RectBivariateSpline 

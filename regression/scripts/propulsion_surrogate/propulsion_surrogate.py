@@ -11,7 +11,7 @@ import SUAVE
 from SUAVE.Components.Energy.Networks.Propulsor_Surrogate import Propulsor_Surrogate
 from SUAVE.Core import Data
 
-import numpy as np
+import jax.numpy as np
 
 #----------------------------------------------------------------------
 #   The regression script

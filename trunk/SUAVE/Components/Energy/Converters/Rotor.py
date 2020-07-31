@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 # package imports
-import numpy as np
+import jax.numpy as np
 import scipy as sp
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data, Units
@@ -22,7 +22,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 
 from warnings import warn
 
-import numpy as np
+import jax.numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 

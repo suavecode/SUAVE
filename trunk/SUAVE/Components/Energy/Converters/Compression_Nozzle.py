@@ -17,7 +17,10 @@ import SUAVE
 from warnings import warn
 
 # package imports
-import numpy as np
+import jax
+import jax.numpy as np
+from jax.ops import index_update
+
 
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Propulsion.shock_train import shock_train
@@ -161,7 +164,8 @@ class Compression_Nozzle(Energy_Component):
             # in case pressures go too low
             if np.any(Pt_out<Po):
                 warn('Pt_out goes too low',RuntimeWarning)
-                Pt_out[Pt_out<Po] = Po[Pt_out<Po]
+                Pt_out = index_update(Pt_out, jax.ops.index[Pt_out<Po], Po[Pt_out<Po])
+                #Pt_out[Pt_out<Po] = Po[Pt_out<Po]
 
             Mach    = np.sqrt( (((Pt_out/Po)**((gamma-1.)/gamma))-1.) *2./(gamma-1.) )
             T_out  = Tt_out/(1.+(gamma-1.)/2.*Mach*Mach)

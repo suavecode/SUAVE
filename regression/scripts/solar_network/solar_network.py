@@ -16,7 +16,7 @@ from SUAVE.Core import (
 Data, Container,
 )
 
-import numpy as np
+import jax.numpy as np
 import copy, time
 
 from SUAVE.Components.Energy.Networks.Solar import Solar

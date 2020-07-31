@@ -16,7 +16,7 @@ from SUAVE.Core import Data, DataOrdered
 from SUAVE.Analyses import Process
 from copy import deepcopy
 from . import helper_functions as help_fun
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Nexus Class

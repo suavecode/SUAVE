@@ -12,7 +12,7 @@
 
 import SUAVE
 
-import numpy as np
+import jax.numpy as np
 import pylab as plt
 
 # ----------------------------------------------------------------------

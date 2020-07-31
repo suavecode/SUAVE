@@ -19,7 +19,7 @@ from SUAVE.Methods.Weights.Correlations.Common.systems import systems
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 from SUAVE.Attributes.Solids.Aluminum import Aluminum
 
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Empty

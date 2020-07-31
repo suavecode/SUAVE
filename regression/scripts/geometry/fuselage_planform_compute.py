@@ -9,7 +9,7 @@
 import SUAVE
 from SUAVE.Core import Data
 
-import numpy as np
+import jax.numpy as np
 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform import fuselage_planform
 

@@ -10,7 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 
 # suave imports
 import SUAVE

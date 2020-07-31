@@ -12,7 +12,7 @@ import SUAVE
 from SUAVE.Core import Units, Data
 
 
-import numpy as np
+import jax.numpy as np
 import time
 
 from SUAVE.Components.Energy.Networks.Solar_Low_Fidelity import Solar_Low_Fidelity

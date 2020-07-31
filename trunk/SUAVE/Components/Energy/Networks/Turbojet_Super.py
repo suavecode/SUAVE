@@ -15,7 +15,7 @@ import SUAVE
 from SUAVE.Core import Data, Units
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Turbojet Network

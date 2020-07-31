@@ -9,7 +9,7 @@
 
 # package imports
 import SUAVE
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import compute_induced_velocity_matrix
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution     import compute_vortex_distribution

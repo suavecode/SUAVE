@@ -14,7 +14,7 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import Data
 
-import numpy as np
+import jax.numpy as np
 
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing

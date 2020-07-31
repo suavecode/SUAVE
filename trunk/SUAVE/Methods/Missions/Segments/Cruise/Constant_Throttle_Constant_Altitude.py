@@ -10,7 +10,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
 

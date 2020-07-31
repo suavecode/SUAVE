@@ -22,7 +22,7 @@ import os, sys, shutil
 from warnings import warn
 
 # package imports
-import numpy as np
+import jax.numpy as np
 import scipy as sp
 # import pylab as plt
 

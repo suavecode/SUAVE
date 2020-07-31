@@ -9,7 +9,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 
 ## If needed for mapping to normal distribution:
 #from scipy.stats.distributions import norm 

@@ -9,7 +9,7 @@
 from SUAVE.Core               import Data , Units
 from .import_airfoil_geometry import import_airfoil_geometry 
 from .import_airfoil_polars   import import_airfoil_polars
-import numpy as np
+import jax.numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def compute_airfoil_polars(propeller,a_geo,a_polar):

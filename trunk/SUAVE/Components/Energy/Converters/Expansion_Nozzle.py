@@ -17,7 +17,9 @@ import SUAVE
 from SUAVE.Core import Units
 
 # package imports
-import numpy as np
+import jax
+from jax.ops import index_update
+import jax.numpy as np
 
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Propulsion.fm_id import fm_id
@@ -141,7 +143,8 @@ class Expansion_Nozzle(Energy_Component):
         ht_out   = Cp*Tt_out
         
         # A cap so pressure doesn't go negative
-        Pt_out[Pt_out<Po] = Po[Pt_out<Po]
+        Pt_out = index_update(Pt_out, jax.ops.index[Pt_out<Po], Po[Pt_out<Po])
+        #Pt_out[Pt_out<Po] = Po[Pt_out<Po]
         
         #compute the output Mach number, static quantities and the output velocity
         Mach          = np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
@@ -154,12 +157,19 @@ class Expansion_Nozzle(Energy_Component):
         P_out         = 1.0 *Mach/Mach
         
         #Computing output pressure and Mach number for the case Mach <1.0
-        P_out[i_low]  = Po[i_low]
-        Mach[i_low]   = np.sqrt((((Pt_out[i_low]/Po[i_low])**((gamma[i_low]-1.)/gamma[i_low]))-1.)*2./(gamma[i_low]-1.))
+        P_out = index_update(P_out, jax.ops.index[i_low], Po[i_low])
+        Mach = index_update(Mach, jax.ops.index[i_low], np.sqrt((((Pt_out[i_low]/Po[i_low])**\
+                            ((gamma[i_low]-1.)/gamma[i_low]))-1.)*2./(gamma[i_low]-1.)))
+        #P_out[i_low]  = Po[i_low]
+        #Mach[i_low]   = np.sqrt((((Pt_out[i_low]/Po[i_low])**((gamma[i_low]-1.)/gamma[i_low]))-1.)*2./(gamma[i_low]-1.))
         
         #Computing output pressure and Mach number for the case Mach >=1.0        
-        Mach[i_high]  = 1.0*Mach[i_high]/Mach[i_high]
-        P_out[i_high] = Pt_out[i_high]/(1.+(gamma[i_high]-1.)/2.*Mach[i_high]*Mach[i_high])**(gamma[i_high]/(gamma[i_high]-1.))
+        Mach = index_update(Mach, jax.ops.index[i_high], 1.0*Mach[i_high]/Mach[i_high])
+        P_out = index_update(P_out, jax.ops.index[i_high], Pt_out[i_high]/(1.+(gamma[i_high]-1.)/ \
+                            2.*Mach[i_high]*Mach[i_high])**(gamma[i_high]/(gamma[i_high]-1.)))
+
+        #Mach[i_high]  = 1.0*Mach[i_high]/Mach[i_high]
+        #P_out[i_high] = Pt_out[i_high]/(1.+(gamma[i_high]-1.)/2.*Mach[i_high]*Mach[i_high])**(gamma[i_high]/(gamma[i_high]-1.))
         
         # A cap to make sure Mach doesn't go to zero:
         if np.any(Mach<=0.0):

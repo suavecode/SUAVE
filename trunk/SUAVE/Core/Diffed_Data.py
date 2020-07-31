@@ -13,7 +13,7 @@ from copy import deepcopy
 from .Container import Container as ContainerBase
 from .Data import Data
 from .DataOrdered import DataOrdered
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Config

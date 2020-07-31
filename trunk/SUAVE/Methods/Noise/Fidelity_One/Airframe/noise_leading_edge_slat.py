@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------        
 #   Imports
 # ---------------------------------------------------------------------- 
-import numpy as np
+import jax.numpy as np
 
 from .noise_clean_wing import noise_clean_wing
 

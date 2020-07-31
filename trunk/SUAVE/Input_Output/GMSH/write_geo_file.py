@@ -5,7 +5,7 @@
 # Modified: Jan 2017, T. MacDonald
 
 from SUAVE.Core import Data
-import numpy as np
+import jax.numpy as np
 
 ## @ingroup Input_Output-GMSH
 def write_geo_file(tag):

@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-import numpy as np
+import jax.numpy as np
 import scipy as sp
 from SUAVE.Core import Units , Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \

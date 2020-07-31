@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 # python imports
-import numpy as np
+import jax.numpy as np
 
 # SUAVE imports
 from .Conditions import Conditions

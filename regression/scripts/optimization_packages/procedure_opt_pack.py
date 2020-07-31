@@ -9,7 +9,7 @@
 
 import SUAVE
 from SUAVE.Core import Units, Data
-import numpy as np
+import jax.numpy as np
 import copy
 from SUAVE.Analyses.Process import Process
 

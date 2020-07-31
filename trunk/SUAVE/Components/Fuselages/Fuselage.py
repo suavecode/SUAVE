@@ -18,7 +18,7 @@ import SUAVE
 from SUAVE.Core import Data, Container, ContainerOrdered
 from SUAVE.Components import Physical_Component, Lofted_Body
 from SUAVE.Components.Fuselages.Segment import Segment_Container
-import numpy as np
+import jax.numpy as np
 
 # ------------------------------------------------------------
 #  Fuselage

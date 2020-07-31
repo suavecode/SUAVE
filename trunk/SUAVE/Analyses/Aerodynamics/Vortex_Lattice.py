@@ -28,7 +28,8 @@ from SUAVE.Plots import plot_vehicle_vlm_panelization
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # package imports
-import numpy as np 
+import math
+import jax.numpy as np
 from scipy.interpolate import interp2d, RectBivariateSpline, RegularGridInterpolator
 
 # ----------------------------------------------------------------------
@@ -72,7 +73,7 @@ class Vortex_Lattice(Aerodynamics):
         
         # conditions table, used for surrogate model training
         self.training                                = Data()    
-        self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.]]).T * Units.deg 
+        self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0 , 8.0, 10.0 , 12.]]).T * math.pi/180. #Units.deg
         self.training.Mach                           = np.array([[0.0, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9,\
                                                                   1.3, 1.35 , 1.5 , 2.0, 2.25 , 2.5  , 3.0  , 3.5]]).T                                                                    
         self.training.lift_coefficient_sub           = None

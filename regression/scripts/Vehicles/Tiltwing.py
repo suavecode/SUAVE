@@ -16,7 +16,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 from SUAVE.Methods.Weights.Buildups.Electric_Vectored_Thrust.empty import empty
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 
-import numpy as np
+import jax.numpy as np
 import pylab as plt
 from copy import deepcopy
 

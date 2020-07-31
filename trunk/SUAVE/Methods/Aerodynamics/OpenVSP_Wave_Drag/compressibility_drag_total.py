@@ -18,7 +18,7 @@ from .wave_drag_volume import wave_drag_volume
 import copy
 
 # package imports
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Compressibility Drag Total

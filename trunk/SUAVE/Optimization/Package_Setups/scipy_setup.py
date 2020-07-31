@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-import numpy as np
+import jax.numpy as np
 import scipy as sp
 from SUAVE.Optimization.Package_Setups.particle_swarm_optimization import particle_swarm_optimization 
 from scipy.optimize import NonlinearConstraint

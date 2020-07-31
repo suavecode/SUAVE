@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 # SUAVE imports
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Computes the compressibility drag of the wings

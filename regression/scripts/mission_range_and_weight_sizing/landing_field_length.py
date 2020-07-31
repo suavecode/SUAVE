@@ -22,7 +22,7 @@ from Embraer_190 import vehicle_setup, configs_setup
 
 
 # package imports
-import numpy as np
+import jax.numpy as np
 import pylab as plt
 
   

@@ -11,7 +11,7 @@
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # package imports
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Shaft Power component

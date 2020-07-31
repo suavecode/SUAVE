@@ -9,7 +9,7 @@
 import SUAVE
 from SUAVE.Core import Data
 
-import numpy as np
+import jax.numpy as np
 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_fuel_volume
 

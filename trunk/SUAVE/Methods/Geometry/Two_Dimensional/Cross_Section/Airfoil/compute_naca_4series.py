@@ -1,6 +1,6 @@
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 from math import sqrt, sin, cos, atan
-import numpy as np
+import jax.numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def compute_naca_4series(camber,camber_loc,thickness,npoints=200):

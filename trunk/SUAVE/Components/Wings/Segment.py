@@ -12,7 +12,7 @@
 import SUAVE
 from SUAVE.Core import Data, ContainerOrdered
 from SUAVE.Components import Component, Lofted_Body
-import numpy as np
+import jax.numpy as np
 
 # ------------------------------------------------------------ 
 #  Wing Segments

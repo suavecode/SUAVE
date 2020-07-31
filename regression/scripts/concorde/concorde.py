@@ -20,7 +20,7 @@ from SUAVE.Core import Units
 from SUAVE.Plots.Mission_Plots import * 
 
 # Numpy is use extensively throughout SUAVE
-import numpy as np
+import jax.numpy as np
 # Scipy is required here for integration functions used in post processing
 import scipy as sp
 from scipy import integrate

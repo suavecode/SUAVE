@@ -25,7 +25,7 @@ try:
 except ImportError:
     # This allows SUAVE to build without OpenVSP
     pass
-import numpy as np
+import jax.numpy as np
 
 ## @ingroup Input_Output-OpenVSP
 def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):

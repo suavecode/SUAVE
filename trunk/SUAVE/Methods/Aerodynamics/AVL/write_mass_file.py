@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 from SUAVE.Methods.Aerodynamics.AVL.purge_files       import purge_files
 from SUAVE.Methods.Aerodynamics.AVL.Data.Settings     import Settings
-import numpy as np
+import jax.numpy as np
 
 ## @ingroup Analyses-AVL
 def write_mass_file(avl_object,run_conditions):

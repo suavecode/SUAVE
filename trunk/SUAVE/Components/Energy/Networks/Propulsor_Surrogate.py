@@ -12,7 +12,7 @@
 import SUAVE
 
 # package imports
-import numpy as np
+import jax.numpy as np
 from copy import deepcopy
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender

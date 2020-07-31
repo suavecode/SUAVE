@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 # Python Imports
-import numpy as np
+import jax.numpy as np
 
 # SUAVE Imports
 import SUAVE

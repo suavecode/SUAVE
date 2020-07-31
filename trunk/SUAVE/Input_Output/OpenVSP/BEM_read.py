@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Data, Units
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Reading BEM files

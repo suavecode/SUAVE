@@ -4,7 +4,7 @@
 # Created:  Sep 2017, P. Goncalves
 # Modified: 
 
-import numpy as np
+import jax.numpy as np
 from scipy.optimize import fsolve
 
 # ----------------------------------------------------------------------

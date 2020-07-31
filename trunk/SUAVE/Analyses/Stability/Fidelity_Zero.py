@@ -28,7 +28,7 @@ from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability import Full_Linearized_Equa
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.Full_Linearized_Equations import Supporting_Functions as Supporting_Functions
 
 # package imports
-import numpy as np
+import jax.numpy as np
 
 
 # ----------------------------------------------------------------------

@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Components import Lofted_Body
-import numpy as np
+import jax.numpy as np
 
 # ------------------------------------------------------------
 #   Airfoil

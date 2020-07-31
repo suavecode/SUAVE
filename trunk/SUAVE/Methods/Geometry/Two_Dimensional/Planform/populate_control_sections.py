@@ -11,7 +11,7 @@
 #  Append Control Surfaces to Wing Segments
 # ----------------------------------------------------------------------  
 from SUAVE.Core import Data , Units 
-import numpy as np 
+import jax.numpy as np
 from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 
 # ----------------------------------------------------------------------

@@ -6,7 +6,7 @@
 #           Jan 2020, T. MacDonald
 #           Apr 2020, M. Clarke
 
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep

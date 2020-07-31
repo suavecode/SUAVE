@@ -13,7 +13,7 @@ from SUAVE.Core import Units,Data
 
 from scipy.optimize import fsolve # for compatibility with scipy 0.10.0
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Drag.induced_drag_aircraft import induced_drag_aircraft
-import numpy as np
+import jax.numpy as np
 
 
 # ----------------------------------------------------------------------

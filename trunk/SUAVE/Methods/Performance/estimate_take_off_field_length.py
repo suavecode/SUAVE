@@ -23,7 +23,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import asy
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
 # package imports
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Compute field length required for takeoff

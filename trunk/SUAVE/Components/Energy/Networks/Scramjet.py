@@ -12,7 +12,7 @@
 import SUAVE
 
 # package imports
-import numpy as np
+import jax.numpy as np
 import scipy as sc
 
 from SUAVE.Core import Data, Units

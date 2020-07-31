@@ -10,7 +10,7 @@
 
 from SUAVE.Core import Data
 
-import numpy as np
+import jax.numpy as np
 from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # ----------------------------------------------------------------------

@@ -15,7 +15,7 @@ from SUAVE.Core import (
 Data, Container,
 )
 
-import numpy as np
+import jax.numpy as np
 import copy, time
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller

@@ -589,7 +589,7 @@ class Data(dict):
         """
         
         # dont require dict to have numpy
-        import numpy as np
+        import jax.numpy as np
         from .Arrays import atleast_2d_col, array_type, matrix_type
         
         # check output type
@@ -676,7 +676,7 @@ class Data(dict):
 
         
         # dont require dict to have numpy
-        import numpy as np
+        import jax.numpy as np
         from .Arrays import atleast_2d_col, array_type, matrix_type
         
         # check input type

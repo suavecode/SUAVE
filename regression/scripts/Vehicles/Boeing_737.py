@@ -12,7 +12,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing

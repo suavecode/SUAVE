@@ -14,7 +14,7 @@ from SUAVE.Core import (
 Data, Container,
 )
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , compute_optimal_motor_parameters
-import numpy as np
+import jax.numpy as np
 import copy, time
 
 def main():

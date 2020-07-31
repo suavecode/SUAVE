@@ -15,7 +15,7 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 
-import numpy as np
+import jax.numpy as np
 
 from SUAVE.Components.Energy.Networks.Liquid_Rocket import Liquid_Rocket
 from SUAVE.Methods.Propulsion.liquid_rocket_sizing  import liquid_rocket_sizing

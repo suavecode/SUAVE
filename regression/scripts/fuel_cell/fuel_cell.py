@@ -13,7 +13,7 @@ from SUAVE.Core import Units, Data
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Fuel_Cell.Discharge import larminie, setup_larminie, zero_fidelity
 from SUAVE.Methods.Power.Fuel_Cell.Sizing import initialize_from_power, initialize_larminie_from_power
-import numpy as np
+import jax.numpy as np
 import matplotlib.pyplot as plt
 
 

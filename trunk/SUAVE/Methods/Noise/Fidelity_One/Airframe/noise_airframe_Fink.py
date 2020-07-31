@@ -27,7 +27,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
 
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Noise Airframce Fink

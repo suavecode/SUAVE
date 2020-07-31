@@ -11,7 +11,7 @@ try:
     import vsp as vsp
 except ImportError:
     pass # This allows SUAVE to build without OpenVSP
-import numpy as np
+import jax.numpy as np
 import time
 import fileinput
 

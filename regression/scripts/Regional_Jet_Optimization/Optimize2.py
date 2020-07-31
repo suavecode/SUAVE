@@ -8,7 +8,7 @@
 
 import SUAVE
 from SUAVE.Core import Units, Data
-import numpy as np
+import jax.numpy as np
 import Analyses2
 import Missions2
 import Procedure2

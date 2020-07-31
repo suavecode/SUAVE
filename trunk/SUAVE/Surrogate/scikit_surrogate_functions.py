@@ -13,7 +13,7 @@
 from SUAVE.Core import Data
 from .Surrogate_Problem import Surrogate_Problem
 
-import numpy as np
+import jax.numpy as np
 import time
 
 # ----------------------------------------------------------------------

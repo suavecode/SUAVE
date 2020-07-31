@@ -21,7 +21,7 @@ from SUAVE.Methods.Aerodynamics import Supersonic_Zero  as Methods
 from SUAVE.Methods.Aerodynamics import OpenVSP_Wave_Drag as VSP_Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
 
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Class

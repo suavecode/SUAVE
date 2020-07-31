@@ -14,7 +14,7 @@ from SUAVE.Core import Data
 from SUAVE.Components import Wings
 
 # package imports
-import numpy as np
+import jax.numpy as np
 import scipy as sp
 
 

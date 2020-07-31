@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 # package imports 
-import numpy as np 
+import jax.numpy as np
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):

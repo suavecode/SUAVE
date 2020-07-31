@@ -12,7 +12,7 @@
 import SUAVE
 
 # package imports
-import numpy as np
+import jax.numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
 # ----------------------------------------------------------------------

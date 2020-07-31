@@ -9,7 +9,7 @@
 from SUAVE.Core import Data
 
 # general packages
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Distribute non recurring costs, for cash flow proposes

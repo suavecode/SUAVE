@@ -1,7 +1,7 @@
 # test_dynamicstability.py
 
 import SUAVE
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability import Approximations as Approximations
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability import Full_Linearized_Equations as Full_Linearized_Equations

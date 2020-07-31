@@ -14,7 +14,7 @@ from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_
 from SUAVE.Methods.Propulsion                                  import propeller_design   
 from SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty import empty
 
-import numpy as np
+import jax.numpy as np
 import pylab as plt
 from copy import deepcopy 
 

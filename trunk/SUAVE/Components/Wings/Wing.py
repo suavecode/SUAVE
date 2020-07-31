@@ -19,7 +19,7 @@ from SUAVE.Core import Data, ContainerOrdered, Container
 from SUAVE.Components import Lofted_Body, Mass_Properties, Physical_Component
 from .Airfoils import Airfoil
 
-import numpy as np
+import jax.numpy as np
 
 # ------------------------------------------------------------
 #   Wing

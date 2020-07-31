@@ -14,7 +14,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 from SUAVE.Methods.Weights.Buildups.Electric_Multicopter.empty import empty 
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , compute_optimal_motor_parameters
 from SUAVE.Methods.Weights.Correlations.Propulsion import nasa_motor, hts_motor , air_cooled_motor
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #   Build the Vehicle

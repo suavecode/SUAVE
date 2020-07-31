@@ -135,7 +135,7 @@ Units.__doc__ = \
 
 if __name__ == '__main__':
     
-    import numpy as np
+    import jax.numpy as np
     
     x = Units['miles/hour']
     y = Units.miles / Units.hour

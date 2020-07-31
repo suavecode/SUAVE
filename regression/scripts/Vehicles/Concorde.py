@@ -10,7 +10,7 @@
 """ setup file for the Concorde 
 """
 
-import numpy as np
+import jax.numpy as np
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import (

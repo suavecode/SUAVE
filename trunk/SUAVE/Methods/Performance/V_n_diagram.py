@@ -18,7 +18,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations import datcom
 
 # package imports
-import numpy as np
+import jax.numpy as np
 import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------

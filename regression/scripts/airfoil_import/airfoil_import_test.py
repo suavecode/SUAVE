@@ -7,7 +7,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_polars \
      import import_airfoil_polars
 
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #   Main

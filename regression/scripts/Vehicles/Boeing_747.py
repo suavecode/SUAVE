@@ -11,7 +11,7 @@ note that it does not include an engine; current values only used to test stabil
 #   Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Core import (

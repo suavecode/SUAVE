@@ -18,7 +18,7 @@ from SUAVE.Core import Data
 import jax
 import jax.numpy as np
 
-#import numpy as np
+#import jax.numpy as np
 import pylab as plt
 
 import timeit
@@ -292,17 +292,17 @@ if __name__ == '__main__':
 
     print('Regular aero regression test passed!')
 
-    jit_main = jax.jit(main)
-
-    jit_main()
-
-    print('JIT aero regression test passed!')
-
-    reg_time = timeit.timeit(main, number=10)/10
-
-    jit_time = timeit.timeit(jit_main, number=10)/10
-
-    print("The average time for the ordinary function was {} seconds".format(reg_time))
-    print("The average time for the JIT compiled function was {} seconds".format(jit_time))
+    # jit_main = jax.jit(main)
+    #
+    # jit_main()
+    #
+    # print('JIT aero regression test passed!')
+    #
+    # reg_time = timeit.timeit(main, number=10)/10
+    #
+    # jit_time = timeit.timeit(jit_main, number=10)/10
+    #
+    # print("The average time for the ordinary function was {} seconds".format(reg_time))
+    # print("The average time for the JIT compiled function was {} seconds".format(jit_time))
 
       

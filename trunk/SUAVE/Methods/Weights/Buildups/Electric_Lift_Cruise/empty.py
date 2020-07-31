@@ -15,7 +15,7 @@ from SUAVE.Methods.Weights.Buildups.Common.fuselage import fuselage
 from SUAVE.Methods.Weights.Buildups.Common.prop import prop
 from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
 from SUAVE.Methods.Weights.Buildups.Common.wing import wing
-import numpy as np
+import jax.numpy as np
 
 from warnings import warn
 

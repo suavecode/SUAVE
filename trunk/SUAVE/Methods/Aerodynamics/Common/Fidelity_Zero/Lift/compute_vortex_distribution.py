@@ -10,7 +10,9 @@
 
 # package imports
 import SUAVE
-import numpy as np
+import jax
+import jax.numpy as np
+from jax.ops import index_update
 from SUAVE.Core import Units , Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
@@ -210,34 +212,52 @@ def compute_vortex_distribution(geometry,settings):
             # ---------------------------------------------------------------------------------------
             segment_sweeps = []
             for i_seg in range(n_segments):   
-                segment_chord[i_seg]    = wing.Segments[i_seg].root_chord_percent*root_chord
-                segment_twist[i_seg]    = wing.Segments[i_seg].twist
-                section_stations[i_seg] = wing.Segments[i_seg].percent_span_location*span  
-                segment_dihedral[i_seg] = wing.Segments[i_seg].dihedral_outboard                    
+                segment_chord = index_update(segment_chord, jax.ops.index[i_seg], wing.Segments[i_seg].root_chord_percent*root_chord)
+                segment_twist = index_update(segment_twist, jax.ops.index[i_seg], wing.Segments[i_seg].twist)
+                section_stations = index_update(section_stations, jax.ops.index[i_seg], wing.Segments[i_seg].percent_span_location*span)
+                segment_dihedral = index_update(segment_dihedral, jax.ops.index[i_seg], wing.Segments[i_seg].dihedral_outboard)
+
+                #segment_chord[i_seg]    = wing.Segments[i_seg].root_chord_percent*root_chord
+                #segment_twist[i_seg]    = wing.Segments[i_seg].twist
+                #section_stations[i_seg] = wing.Segments[i_seg].percent_span_location*span
+                #segment_dihedral[i_seg] = wing.Segments[i_seg].dihedral_outboard
 
                 # change to leading edge sweep, if quarter chord sweep givent, convert to leading edge sweep 
                 if (i_seg == n_segments-1):
-                    segment_sweep[i_seg] = 0                                  
+                    segment_sweep = index_update(segment_sweep, jax.ops.index[i_seg], 0)
+                    # segment_sweep[i_seg] = 0
                 else: 
                     if wing.Segments[i_seg].sweeps.leading_edge != None:
-                        segment_sweep[i_seg] = wing.Segments[i_seg].sweeps.leading_edge
+                        segment_sweep = index_update(segment_sweep, jax.ops.index[i_seg], wing.Segments[i_seg].sweeps.leading_edge)
+                        # segment_sweep[i_seg] = wing.Segments[i_seg].sweeps.leading_edge
                     else:                                                                 
                         sweep_quarter_chord  = wing.Segments[i_seg].sweeps.quarter_chord
                         cf       = 0.25                          
                         seg_root_chord       = root_chord*wing.Segments[i_seg].root_chord_percent
                         seg_tip_chord        = root_chord*wing.Segments[i_seg+1].root_chord_percent
                         seg_span             = span*(wing.Segments[i_seg+1].percent_span_location - wing.Segments[i_seg].percent_span_location )
-                        segment_sweep[i_seg] = np.arctan(((seg_root_chord*cf) + (np.tan(sweep_quarter_chord)*seg_span - cf*seg_tip_chord)) /seg_span)  
+                        segment_sweep        = index_update(segment_sweep, jax.ops.index[i_seg], np.arctan(((seg_root_chord*cf) + \
+                                                            (np.tan(sweep_quarter_chord)*seg_span - cf*seg_tip_chord)) /seg_span))
+                        # segment_sweep[i_seg] = np.arctan(((seg_root_chord*cf) + (np.tan(sweep_quarter_chord)*seg_span - cf*seg_tip_chord)) /seg_span)
 
                 if i_seg == 0:
-                    segment_span[i_seg]           = 0.0
-                    segment_chord_x_offset[i_seg] = 0.0  
-                    segment_chord_z_offset[i_seg] = 0.0       
+                    segment_span            = index_update(segment_span, jax.ops.index[i_seg], 0.)
+                    segment_chord_x_offset  = index_update(segment_chord_x_offset, jax.ops.index[i_seg], 0.)
+                    segment_chord_z_offset  = index_update(segment_chord_z_offset, jax.ops.index[i_seg], 0.)
+
+                    # segment_span[i_seg]           = 0.0
+                    # segment_chord_x_offset[i_seg] = 0.0
+                    # segment_chord_z_offset[i_seg] = 0.0
                 else:
-                    segment_span[i_seg]           = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
-                    segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
-                    segment_chord_z_offset[i_seg] = segment_chord_z_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_dihedral[i_seg-1])
-                    segment_area[i_seg]           = 0.5*(root_chord*wing.Segments[i_seg-1].root_chord_percent + root_chord*wing.Segments[i_seg].root_chord_percent)*segment_span[i_seg]
+                    segment_span            = index_update(segment_span, jax.ops.index[i_seg], wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span)
+                    segment_chord_x_offset  = index_update(segment_chord_x_offset, jax.ops.index[i_seg], segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1]))
+                    segment_chord_z_offset  = index_update(segment_chord_z_offset, jax.ops.index[i_seg], segment_chord_z_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_dihedral[i_seg-1]))
+                    segment_area            = index_update(segment_area, jax.ops.index[i_seg], 0.5*(root_chord*wing.Segments[i_seg-1].root_chord_percent + root_chord*wing.Segments[i_seg].root_chord_percent)*segment_span[i_seg])
+
+                    # segment_span[i_seg]           = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
+                    # segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
+                    # segment_chord_z_offset[i_seg] = segment_chord_z_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_dihedral[i_seg-1])
+                    # segment_area[i_seg]           = 0.5*(root_chord*wing.Segments[i_seg-1].root_chord_percent + root_chord*wing.Segments[i_seg].root_chord_percent)*segment_span[i_seg]
 
                 # Get airfoil section VD  
                 if wing.Segments[i_seg].Airfoil: 
@@ -257,7 +277,8 @@ def compute_vortex_distribution(geometry,settings):
             #Shift spanwise vortices onto section breaks  
             for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
-                y_coordinates[idx] = section_stations[i_seg]                
+                
+                # y_coordinates[idx] = section_stations[i_seg]
 
             # ---------------------------------------------------------------------------------------
             # STEP 6A: Define coordinates of panels horseshoe vortices and control points 

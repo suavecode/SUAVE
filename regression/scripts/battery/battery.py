@@ -15,7 +15,7 @@ from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power,
 from SUAVE.Core import Data
 from SUAVE.Methods.Power.Battery.Ragone import find_ragone_properties, find_specific_power, find_ragone_optimum
 from SUAVE.Methods.Power.Battery.Variable_Mass import find_mass_gain_rate, find_total_mass_gain
-import numpy as np
+import jax.numpy as np
 import matplotlib.pyplot as plt
 
 

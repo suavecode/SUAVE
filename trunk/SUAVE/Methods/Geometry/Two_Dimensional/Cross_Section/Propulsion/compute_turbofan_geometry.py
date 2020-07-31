@@ -12,7 +12,7 @@
 from SUAVE.Core  import Data, Units
 
 # package imports
-import numpy as np
+import jax.numpy as np
 from math import pi, sqrt
 
 # ----------------------------------------------------------------------

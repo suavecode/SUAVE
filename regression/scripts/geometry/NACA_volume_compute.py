@@ -9,7 +9,7 @@
 import SUAVE
 from SUAVE.Core import Data
 
-import numpy as np
+import jax.numpy as np
 
 from SUAVE.Methods.Geometry.Three_Dimensional.estimate_naca_4_series_internal_volume import estimate_naca_4_series_internal_volume
 

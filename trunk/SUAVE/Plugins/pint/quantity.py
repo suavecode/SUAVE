@@ -19,7 +19,7 @@ from .measurement import Measurement
 from .util import string_types, NUMERIC_TYPES, ndarray
 
 try:
-    import numpy as np
+    import jax.numpy as np
 
     def _to_magnitude(value, force_ndarray=False):
         if isinstance(value, (dict, bool)) or value is None:

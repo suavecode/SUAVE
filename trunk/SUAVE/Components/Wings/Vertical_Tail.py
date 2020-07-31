@@ -11,7 +11,7 @@
 
 # SUave imports
 from .Wing import Wing
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Attribute

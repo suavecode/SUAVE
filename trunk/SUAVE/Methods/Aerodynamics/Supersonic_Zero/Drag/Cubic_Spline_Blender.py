@@ -5,7 +5,7 @@
 #
 
 import jax
-import numpy as np
+import jax.numpy as np
 
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
 class Cubic_Spline_Blender():
@@ -65,10 +65,10 @@ class Cubic_Spline_Blender():
         y = 2*eta*eta*eta-3*eta*eta+1
         jax_y = jax.ops.index_update(y, (eta<0), 1)
         jax_y = jax.ops.index_update(jax_y, (eta>1), 0)
-        y[eta<0] = 1
-        y[eta>1] = 0
+        #y[eta<0] = 1
+        #y[eta>1] = 0
         assert (y == jax_y).all()
-        return y
+        return jax_y
 
     def eta_transform(self,x):
         """Normalizes the transformation

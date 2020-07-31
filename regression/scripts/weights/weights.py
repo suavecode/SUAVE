@@ -3,7 +3,7 @@
 # Modified: Mar 2020, M. Clarke
 
 import SUAVE
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 from SUAVE.Methods.Weights.Correlations import Transport as Transport

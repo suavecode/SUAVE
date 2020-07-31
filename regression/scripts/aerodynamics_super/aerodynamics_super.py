@@ -17,7 +17,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Supersonic.Lift import compute_aircraft_lift
 from SUAVE.Methods.Aerodynamics.Supersonic.Drag import compute_aircraft_drag
 
-import numpy as np
+import jax.numpy as np
 import pylab as plt
 
 import copy, time

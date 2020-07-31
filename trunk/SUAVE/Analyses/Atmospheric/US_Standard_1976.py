@@ -9,7 +9,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax
+from jax.ops import index_update
+import jax.numpy as np
 from warnings import warn
 
 import SUAVE
@@ -144,18 +146,31 @@ class US_Standard_1976(Atmospheric):
         # this uses >= and <= to capture both edges and because values should be the same at the edges
         for i in range( len(self.breaks.altitude)-1 ): 
             i_inside = (zs >= self.breaks.altitude[i]) & (zs <= self.breaks.altitude[i+1])
-            z0[ i_inside ]    = self.breaks.altitude[i]
-            T0[ i_inside ]    = self.breaks.temperature[i]
-            p0[ i_inside ]    = self.breaks.pressure[i]
-            alpha[ i_inside ] = -(self.breaks.temperature[i+1] - self.breaks.temperature[i])/ \
-                                 (self.breaks.altitude[i+1]    - self.breaks.altitude[i])
+
+            z0 = index_update(z0, jax.ops.index[i_inside], self.breaks.altitude[i])
+            T0 = index_update(T0, jax.ops.index[i_inside], self.breaks.temperature[i])
+            p0 = index_update(p0, jax.ops.index[i_inside], self.breaks.pressure[i])
+            alpha = index_update(alpha, jax.ops.index[i_inside], (-(self.breaks.temperature[i+1] - \
+                                                                    self.breaks.temperature[i])/ \
+                                                                   (self.breaks.altitude[i+1]  \
+                                                                  - self.breaks.altitude[i])))
+
+            #z0[ i_inside ]    = self.breaks.altitude[i]
+            #T0[ i_inside ]    = self.breaks.temperature[i]
+            #p0[ i_inside ]    = self.breaks.pressure[i]
+            #alpha[ i_inside ] = -(self.breaks.temperature[i+1] - self.breaks.temperature[i])/ \
+            #                     (self.breaks.altitude[i+1]    - self.breaks.altitude[i])
         
         # interpolate the breaks
         dz = zs-z0
         i_isoth = (alpha == 0.)
         i_adiab = (alpha != 0.)
-        p[i_isoth] = p0[i_isoth] * np.exp(-1.*dz[i_isoth]*grav/(R*T0[i_isoth]))
-        p[i_adiab] = p0[i_adiab] * ( (1.-alpha[i_adiab]*dz[i_adiab]/T0[i_adiab]) **(1.*grav/(alpha[i_adiab]*R)) )
+        p = index_update(p, jax.ops.index[i_isoth], p0[i_isoth] * np.exp(-1.*dz[i_isoth]*grav/(R*T0[i_isoth])))
+        p = index_update(p, jax.ops.index[i_adiab], p0[i_adiab] * \
+                         ( (1.-alpha[i_adiab]*dz[i_adiab]/T0[i_adiab]) **(1.*grav/(alpha[i_adiab]*R)) ))
+
+        #p[i_isoth] = p0[i_isoth] * np.exp(-1.*dz[i_isoth]*grav/(R*T0[i_isoth]))
+        #p[i_adiab] = p0[i_adiab] * ( (1.-alpha[i_adiab]*dz[i_adiab]/T0[i_adiab]) **(1.*grav/(alpha[i_adiab]*R)) )
         
         T   = T0 - dz*alpha + delta_isa
         rho = gas.compute_density(T,p)

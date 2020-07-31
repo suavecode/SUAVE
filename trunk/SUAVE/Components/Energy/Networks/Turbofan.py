@@ -16,7 +16,9 @@
 import SUAVE
 
 # package imports
-import numpy as np
+import jax
+import jax.numpy as np
+from jax.ops import index_update
 
 from SUAVE.Core import Data
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
@@ -265,11 +267,12 @@ class Turbofan(Propulsor):
         thrust(conditions)
 
         #getting the network outputs from the thrust outputs
-        F            = thrust.outputs.thrust*[1,0,0]
+        F            = thrust.outputs.thrust*np.array([1,0,0])
         mdot         = thrust.outputs.fuel_flow_rate
         output_power = thrust.outputs.power
         F_vec        = conditions.ones_row(3) * 0.0
-        F_vec[:,0]   = F[:,0]
+        F_vec = index_update(F, jax.ops.index[:,0], F[:,0])
+        #F_vec[:,0]   = F[:,0]
         F            = F_vec
 
         results = Data()

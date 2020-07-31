@@ -15,7 +15,7 @@ from .Wing import Wing
 from SUAVE.Core import ContainerOrdered
 from SUAVE.Components.Wings.Segment import Segment
 
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Attribute

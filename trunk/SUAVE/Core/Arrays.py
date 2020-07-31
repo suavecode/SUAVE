@@ -9,14 +9,15 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
-import numpy as np
+import jax.numpy as np
+import numpy as onp
 
 # ----------------------------------------------------------------------
 #   Array
 # ----------------------------------------------------------------------       
 
 array_type  = np.ndarray
-matrix_type = np.matrixlib.defmatrix.matrix
+matrix_type = onp.matrixlib.defmatrix.matrix
 
 ## @ingroup Core
 def atleast_2d_col(A):

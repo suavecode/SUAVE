@@ -20,7 +20,7 @@ from SUAVE.Input_Output.SU2.write_SU2_cfg import write_SU2_cfg
 from sklearn.gaussian_process.kernels import ExpSineSquared
 
 # Package imports
-import numpy as np
+import jax.numpy as np
 import time
 import pylab as plt
 import sklearn

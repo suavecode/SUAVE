@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 # suave imports
-import numpy as np
+import jax.numpy as np
 import scipy as sp
  
 ## @ingroup Optimization-Package_Setups

@@ -11,7 +11,7 @@
 
 from SUAVE.Methods.Performance.estimate_take_off_field_length import estimate_take_off_field_length
 
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Find Takeoff Weight Given TOFL

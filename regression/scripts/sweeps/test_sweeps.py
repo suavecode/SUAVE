@@ -8,7 +8,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 from SUAVE.Optimization import carpet_plot, line_plot
 from SUAVE.Core import Units
 

@@ -19,7 +19,7 @@ import SUAVE
 from SUAVE.Core import Units
 
 # package imports
-import numpy as np
+import jax.numpy as np
 
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Propulsion.fm_id import fm_id

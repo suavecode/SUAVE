@@ -11,7 +11,7 @@
 
 from SUAVE.Core import Data
 from SUAVE.Analyses import Analysis  
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Analysis

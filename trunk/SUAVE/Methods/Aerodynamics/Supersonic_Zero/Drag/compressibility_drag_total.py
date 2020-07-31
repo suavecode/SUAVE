@@ -19,7 +19,7 @@ from SUAVE.Components.Wings import Main_Wing
 import copy
 
 # package imports
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Compressibility Drag Total

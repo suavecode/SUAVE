@@ -14,7 +14,7 @@ import SUAVE
 from SUAVE.Core import Data
 from .Markup import Markup
 from SUAVE.Analyses import Process
-import numpy as np
+import jax.numpy as np
 
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods

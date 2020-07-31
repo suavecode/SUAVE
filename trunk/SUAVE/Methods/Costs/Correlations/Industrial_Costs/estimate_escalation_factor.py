@@ -3,7 +3,7 @@
 #
 # Created:  Sep 2016, T. Orra
 
-import numpy as np
+import jax.numpy as np
 # ----------------------------------------------------------------------
 #  Estimate escalation factor according to United States Consumer Price Index
 # ----------------------------------------------------------------------

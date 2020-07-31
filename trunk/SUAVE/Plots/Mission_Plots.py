@@ -10,7 +10,7 @@
 import SUAVE
 from SUAVE.Core import Units 
 import matplotlib.pyplot as plt  
-import numpy as np
+import jax.numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib.patches import Ellipse, Polygon

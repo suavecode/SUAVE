@@ -14,7 +14,7 @@
 from SUAVE.Core import Data
 
 # package imports
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Induced Drag Aircraft

@@ -1,7 +1,7 @@
 # test_Weights.py
 
 import SUAVE
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Units
 from SUAVE.Methods.Performance  import V_n_diagram
 from SUAVE.Core import (

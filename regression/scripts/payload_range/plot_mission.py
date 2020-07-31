@@ -3,7 +3,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 import pylab as plt
 
 from SUAVE.Core import Units

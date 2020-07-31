@@ -9,7 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Units
 from .find_voltage_larminie import find_voltage_larminie
 

@@ -11,7 +11,7 @@ import SUAVE
 from SUAVE.Core import Units 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt  
-import numpy as np
+import jax.numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \

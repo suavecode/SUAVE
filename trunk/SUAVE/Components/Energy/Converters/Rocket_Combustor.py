@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-import numpy as np
+import jax.numpy as np
 
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component

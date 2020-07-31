@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import scipy.optimize
-import numpy as np
+import jax.numpy as np
 
 from SUAVE.Core.Arrays import array_type
 

@@ -11,7 +11,7 @@
 from SUAVE.Core       import Data , Units
 from SUAVE.Components import Physical_Component
 from SUAVE.Components import Lofted_Body
-import numpy as np 
+import jax.numpy as np
     
 # ------------------------------------------------------------
 #  Control Surfaces

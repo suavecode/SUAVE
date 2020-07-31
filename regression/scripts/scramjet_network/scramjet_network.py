@@ -14,7 +14,7 @@
 import SUAVE
 from SUAVE.Core import Units, Data
 
-import numpy as np
+import jax.numpy as np
 
 from SUAVE.Components.Energy.Networks.Scramjet import Scramjet
 from SUAVE.Methods.Propulsion.scramjet_sizing import scramjet_sizing

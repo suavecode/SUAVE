@@ -16,7 +16,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
      import angles_to_dcms, orientation_product, orientation_transpose
 
 # package imports
-import numpy as np
+import jax.numpy as np
 import scipy as sp
 import scipy.optimize as opt
 from scipy.optimize import fsolve

@@ -13,7 +13,7 @@
 from .Component import Component
 from .Mass_Properties import Mass_Properties
 
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Physical Component

@@ -10,7 +10,7 @@
 
 from SUAVE.Core import Units
 import time
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #  Calculate vehicle Payload Range Diagram

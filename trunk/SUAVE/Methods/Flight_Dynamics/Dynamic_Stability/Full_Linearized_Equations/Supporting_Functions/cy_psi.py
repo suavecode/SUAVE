@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Flight_Dynamics-Dynamic_Stability-Full_Linearized_Equations-Supporting_Functions
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #   Method

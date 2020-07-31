@@ -11,7 +11,7 @@
 
 import SUAVE
 from SUAVE.Core import Units 
-import numpy as np   
+import jax.numpy as np
 from SUAVE.Core import Data 
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Propulsion import propeller_design 

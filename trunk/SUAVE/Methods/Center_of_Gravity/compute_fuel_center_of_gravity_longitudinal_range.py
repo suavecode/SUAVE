@@ -5,7 +5,7 @@
 # Modified: Oct 2018, T. MacDonald
 #           Jan 2019, T. MacDonald
 
-import numpy as np
+import jax.numpy as np
 
 ## @ingroup Methods-Center_of_Gravity
 def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0):

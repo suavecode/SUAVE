@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 
 import scipy.optimize as opt
-import numpy as np
+import jax.numpy as np
 
 from SUAVE.Core.Arrays import array_type
 from SUAVE.Core import Units

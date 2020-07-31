@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 # package imports
-import numpy as np
+import jax.numpy as np
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,slipstream):     

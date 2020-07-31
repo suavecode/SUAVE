@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------    
 import SUAVE
 from SUAVE.Core import Units, Data
-import numpy as np
+import jax.numpy as np
 import vehicle_opt_pack
 import procedure_opt_pack 
 from SUAVE.Optimization import Nexus, carpet_plot 

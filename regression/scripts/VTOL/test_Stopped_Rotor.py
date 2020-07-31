@@ -15,7 +15,7 @@ import copy
 from SUAVE.Components.Energy.Networks.Lift_Cruise import Lift_Cruise 
 from SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty import empty
 import sys 
-import numpy as np  
+import jax.numpy as np
 
 sys.path.append('../Vehicles')
 # the analysis functions

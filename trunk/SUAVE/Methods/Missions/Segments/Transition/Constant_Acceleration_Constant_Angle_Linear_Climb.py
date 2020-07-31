@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
-import numpy as np
+import jax.numpy as np
 
 ## @ingroup Methods-Missions-Segments-Transition
 def initialize_conditions(segment):

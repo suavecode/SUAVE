@@ -12,7 +12,7 @@
 
 import json
 from SUAVE.Core import Data, DataOrdered
-import numpy as np
+import jax.numpy as np
 from collections import OrderedDict
 
 # ----------------------------------------------------------------------

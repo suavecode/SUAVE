@@ -16,7 +16,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import compressible_turbulent_flat_plate
 
 # package imports
-import numpy as np
+import jax.numpy as np
 
 # ----------------------------------------------------------------------
 #   Parasite Drag Propulsor

@@ -17,7 +17,7 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Plots.Mission_Plots import *  
 import matplotlib.pyplot as plt  
-import numpy as np  
+import jax.numpy as np
 
 from SUAVE.Core import Data
 

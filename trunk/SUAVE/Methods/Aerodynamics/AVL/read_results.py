@@ -11,7 +11,7 @@
 
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.AVL.Data.Wing import Control_Surface_Data ,  Control_Surface_Results 
-import numpy as np 
+import jax.numpy as np
 
 ## @ingroup Methods-Aerodynamics-AVL
 def read_results(avl_object):

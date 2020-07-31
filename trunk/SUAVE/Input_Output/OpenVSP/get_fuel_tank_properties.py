@@ -9,7 +9,7 @@ try:
     import vsp as vsp
 except ImportError:
     pass # This allows SUAVE to build without OpenVSP
-import numpy as np
+import jax.numpy as np
 from SUAVE.Core import Data
 
 ## @ingroup Input_Output-OpenVSP
