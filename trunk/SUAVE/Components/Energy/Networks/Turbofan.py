@@ -271,7 +271,7 @@ class Turbofan(Propulsor):
         mdot         = thrust.outputs.fuel_flow_rate
         output_power = thrust.outputs.power
         F_vec        = conditions.ones_row(3) * 0.0
-        F_vec = index_update(F, jax.ops.index[:,0], F[:,0])
+        F_vec        = index_update(F_vec, jax.ops.index[:,0], F[:,0])
         #F_vec[:,0]   = F[:,0]
         F            = F_vec
 
