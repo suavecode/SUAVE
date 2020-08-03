@@ -60,22 +60,22 @@ def main():
     descent_throttle_2 = results.segments.descent_2.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 0.9200042100826
-    climb_throttle_2_truth   = 0.721796479779623
-    climb_throttle_3_truth   = 0.4657350593362212
-    climb_throttle_4_truth   = 0.8299984733621796
-    climb_throttle_5_truth   = 0.957338743331764
-    climb_throttle_6_truth   = 0.6354396783653986
-    climb_throttle_7_truth   = 0.7625523841526384
-    climb_throttle_8_truth   = 0.9108285499745723
-    cruise_CL_1_truth        = 0.6371536841102419
-    cruise_CL_2_truth        = 0.6297463048108202
-    cruise_CL_3_truth        = 0.7123141810005693
-    descent_throttle_1_truth = -0.013665403144510434
-    single_pt_CL_1_truth     = 0.2606697665364446
-    single_pt_CL_2_truth     = 0.2606037921464448
-    loiter_CL_truth          = 0.5313325921982026
-    descent_throttle_2_truth = 0.10255534368397488
+    climb_throttle_1_truth   = 0.9199917416041296
+    climb_throttle_2_truth   = 0.7217864271439607
+    climb_throttle_3_truth   = 0.4657330987009798
+    climb_throttle_4_truth   = 0.8299949651546638
+    climb_throttle_5_truth   = 0.9573347845435974
+    climb_throttle_6_truth   = 0.6354384633764499
+    climb_throttle_7_truth   = 0.7625507604950996
+    climb_throttle_8_truth   = 0.9108259689875348
+    cruise_CL_1_truth        = 0.6371505038808766
+    cruise_CL_2_truth        = 0.629743155356129
+    cruise_CL_3_truth        = 0.7123106854397706
+    descent_throttle_1_truth = -0.013666278448757478
+    single_pt_CL_1_truth     = 0.260668433833384
+    single_pt_CL_2_truth     = 0.2606022596408357
+    loiter_CL_truth          = 0.5313298790697454
+    descent_throttle_2_truth = 0.10255453343577645
     
     # Store errors 
     error = Data()
@@ -279,24 +279,7 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment() 
-    ones_row     = base_segment.state.ones_row
-    
-    # ------------------------------------------------------------------
-    #  Ground
-    # ------------------------------------------------------------------
-
-    segment = Segments.Ground.Ground(base_segment)
-    segment.tag = "Ground"
-
-    segment.analyses.extend( analyses.takeoff )
-    segment.velocity_start           = 10 * Units.knots
-    segment.velocity_end             = 20.* Units.knots
-    segment.friction_coefficient     = 0.4
-    segment.time                     = 60 
-    segment.state.unknowns.throttle  = 0.3 * ones_row(1)  
-    
-    # add to misison
-    mission.append_segment(segment)    
+    ones_row     = base_segment.state.ones_row 
     
     # ------------------------------------------------------------------
     #   Takeoff Roll
@@ -309,8 +292,7 @@ def mission_setup(analyses):
     segment.velocity_start           = 100.* Units.knots
     segment.velocity_end             = 150 * Units.knots
     segment.friction_coefficient     = 0.04
-    segment.time                     = 20
-    segment.state.unknowns.throttle  = 1.0 * ones_row(1)  
+    segment.altitude                 = 0.0
 
     # add to misison
     mission.append_segment(segment)
@@ -540,10 +522,9 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.landing )
     segment.velocity_start           = 150 * Units.knots
-    segment.velocity_end             = 100
+    segment.velocity_end             = 100 * Units.knots
     segment.friction_coefficient     = 0.4
-    segment.time                     = 20
-    segment.state.unknowns.throttle  = 1.0 * ones_row(1)     
+    segment.altitude                 = 0.0
 
     # add to misison
     mission.append_segment(segment)     

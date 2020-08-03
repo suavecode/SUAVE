@@ -621,7 +621,6 @@ def configs_setup(vehicle):
     config.tag                                                       = 'takeoff'
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg
-    config.max_lift_coefficient_factor                               = 1. #0.95
     #Noise input for the landing gear                                
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Flyover_'
@@ -639,7 +638,6 @@ def configs_setup(vehicle):
     config.tag                                                       = 'cutback'
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
-    config.max_lift_coefficient_factor                               = 1. #0.95
     #Noise input for the landing gear                                
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Cutback_'
@@ -659,7 +657,6 @@ def configs_setup(vehicle):
 
     config.wings['main_wing'].control_surfaces.flap.deflection       = 30. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg  
-    config.max_lift_coefficient_factor                               = 1. #0.95
     #Noise input for the landing gear                              
     config.landing_gear.gear_condition                               = 'down'    
     config.output_filename                                           = 'Approach_'
@@ -679,7 +676,6 @@ def configs_setup(vehicle):
 
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
-    config.max_lift_coefficient_factor                               = 1. #0.95
   
     configs.append(config)
 

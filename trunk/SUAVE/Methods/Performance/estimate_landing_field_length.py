@@ -5,14 +5,15 @@
 # Modified: Apr 2015, M. Vegh 
 #           Jan 2016, E. Botero 
 #           Mar 2020, M. Clarke
+#           Jul 2020, E. Botero 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import SUAVE
-from   SUAVE.Core            import Data
-from   SUAVE.Core            import Units
+from   SUAVE.Core import Data, Units
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
 import numpy as np
 
@@ -65,7 +66,6 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     # Computing atmospheric conditions
     # ==============================================
     atmo_values     = atmo.compute_values(altitude,delta_isa)
-    conditions      = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
     p   = atmo_values.pressure
     T   = atmo_values.temperature
@@ -77,26 +77,18 @@ def estimate_landing_field_length(vehicle,analyses,airport):
     # ==============================================
     # Determining vehicle maximum lift coefficient
     # ==============================================
+    # Condition to CLmax calculation: 90KTAS @ airport
+    state = Data()
+    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    state.conditions.freestream = Data()
+    state.conditions.freestream.density           = rho
+    state.conditions.freestream.velocity          = 90. * Units.knots
+    state.conditions.freestream.dynamic_viscosity = mu
     
-    try:   # aircraft maximum lift informed by user
-        maximum_lift_coefficient = vehicle.maximum_lift_coefficient
-    except:
-        # Using semi-empirical method for maximum lift coefficient calculation
-        from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
+    settings = analyses.aerodynamics.settings
 
-        
-        conditions.freestream = Data()
-        conditions.freestream.density           = rho
-        conditions.freestream.dynamic_viscosity = mu
-        conditions.freestream.velocity          = 90. * Units.knots
-        
-        try:
-            maximum_lift_coefficient, induced_drag_high_lift =   compute_max_lift_coeff(vehicle,conditions)
-            vehicle.maximum_lift_coefficient                 =   maximum_lift_coefficient
-            
-        except:
-            raise ValueError("Maximum lift coefficient calculation error. Please, check inputs")
-        
+    maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(state,settings,vehicle)
+
     # ==============================================
     # Computing speeds (Vs, Vref)
     # ==============================================

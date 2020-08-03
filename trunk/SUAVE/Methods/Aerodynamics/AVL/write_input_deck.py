@@ -55,10 +55,8 @@ G
         input_deck.write(mass_file_input.format(mass_filename))
         input_deck.write(open_runs.format(batch))
         input_deck.write(base_input)
-        for case_name in avl_object.current_status.cases:
-
+        for case in avl_object.current_status.cases:
             # write and store aerodynamic and static stability result files 
-            case = avl_object.current_status.cases[case_name]
             case_command = make_case_command(avl_object,case,trim_aircraft)
             input_deck.write(case_command)
 
