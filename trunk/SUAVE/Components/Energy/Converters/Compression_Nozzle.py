@@ -148,6 +148,8 @@ class Compression_Nozzle(Energy_Component):
             Pt_out   = np.ones_like(Pt_in)
             P_out    = np.ones_like(Pt_in)
 
+            #TODO: Index Update for Lines 154-162? Only triggers if compressibility effects is flagged.
+
             #-- Inlet Mach <= 1.0, isentropic relations
             Pt_out[i_low]  = Pt_in[i_low]*pid
             Mach[i_low]    = np.sqrt( (((Pt_out[i_low]/Po[i_low])**((gamma[i_low]-1.)/gamma[i_low]))-1.) *2./(gamma[i_low]-1.) ) 

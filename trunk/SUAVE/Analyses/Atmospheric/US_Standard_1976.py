@@ -150,10 +150,10 @@ class US_Standard_1976(Atmospheric):
             z0 = index_update(z0, jax.ops.index[i_inside], self.breaks.altitude[i])
             T0 = index_update(T0, jax.ops.index[i_inside], self.breaks.temperature[i])
             p0 = index_update(p0, jax.ops.index[i_inside], self.breaks.pressure[i])
-            alpha = index_update(alpha, jax.ops.index[i_inside], (-(self.breaks.temperature[i+1] - \
+            alpha = index_update(alpha, jax.ops.index[i_inside], -(self.breaks.temperature[i+1] - \
                                                                     self.breaks.temperature[i])/ \
                                                                    (self.breaks.altitude[i+1]  \
-                                                                  - self.breaks.altitude[i])))
+                                                                  - self.breaks.altitude[i]))
 
             #z0[ i_inside ]    = self.breaks.altitude[i]
             #T0[ i_inside ]    = self.breaks.temperature[i]
