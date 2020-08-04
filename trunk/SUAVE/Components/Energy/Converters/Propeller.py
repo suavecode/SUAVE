@@ -70,6 +70,7 @@ class Propeller(Energy_Component):
         self.radius_distribution      = None
         self.rotation                 = None
         self.ducted                   = False
+        self.use_Blade_Element_Theory = False 
         self.number_azimuthal_stations= 24
         self.induced_power_factor     = 1.48  #accounts for interference effects
         self.profile_drag_coefficient = .03        
@@ -130,28 +131,29 @@ class Propeller(Energy_Component):
         """         
            
         #Unpack    
-        B      = self.number_blades
-        R      = self.tip_radius
-        Rh     = self.hub_radius
-        beta_0 = self.twist_distribution
-        c      = self.chord_distribution
-        chi    = self.radius_distribution
-        omega  = self.inputs.omega 
-        a_geo  = self.airfoil_geometry
-        a_pol  = self.airfoil_polars        
-        a_loc  = self.airfoil_polar_stations        
-        rho    = conditions.freestream.density[:,0,None]
-        mu     = conditions.freestream.dynamic_viscosity[:,0,None]
-        Vv     = conditions.frames.inertial.velocity_vector
-        Vh     = self.induced_hover_velocity 
-        a      = conditions.freestream.speed_of_sound[:,0,None]
-        T      = conditions.freestream.temperature[:,0,None]
-        theta  = self.thrust_angle
-        tc     = self.thickness_to_chord  
-        sigma  = self.blade_solidity   
-        Na     = self.number_azimuthal_stations
-        BB     = B*B    
-        BBB    = BB*B
+        B       = self.number_blades
+        R       = self.tip_radius
+        Rh      = self.hub_radius
+        beta_0  = self.twist_distribution
+        c       = self.chord_distribution
+        chi     = self.radius_distribution
+        omega   = self.inputs.omega 
+        a_geo   = self.airfoil_geometry
+        a_pol   = self.airfoil_polars        
+        a_loc   = self.airfoil_polar_stations        
+        rho     = conditions.freestream.density[:,0,None]
+        mu      = conditions.freestream.dynamic_viscosity[:,0,None]
+        Vv      = conditions.frames.inertial.velocity_vector
+        Vh      = self.induced_hover_velocity 
+        a       = conditions.freestream.speed_of_sound[:,0,None]
+        T       = conditions.freestream.temperature[:,0,None]
+        theta   = self.thrust_angle
+        tc      = self.thickness_to_chord  
+        sigma   = self.blade_solidity   
+        Na      = self.number_azimuthal_stations
+        use_BET = self.use_Blade_Element_Theory
+        BB      = B*B    
+        BBB     = BB*B
     
         try:
             pitch_command = conditions.propulsion.pitch_command
@@ -195,8 +197,9 @@ class Propeller(Energy_Component):
                     vi_initial_guess = V_inf[i][0]
                     ua[i]    = fsolve(func,vi_initial_guess)
             lambda_i      = ua/(omega*R)
-        else:              
-            ut       = 0.0  
+            
+        # tangential inflow induced velocity              
+        ut       = 0.0   
     
         #Things that don't change with iteration
         Nr       = len(c) # Number of stations radially    
@@ -260,7 +263,8 @@ class Propeller(Energy_Component):
         r_dim_2d     = np.repeat(r_dim_2d[ np.newaxis,:, :], ctrl_pts, axis=0)  
     
         # Momentum theory approximation of inflow for BET if the advance ratio is large
-        if conditions.use_Blade_Element_Theory :  
+        mu_lambda = lambda_c/abs(mu_prop)   
+        if any(mu_lambda[:,0] < 10.0) or use_BET:  
             '''Blade element theory (BET) assumes that each blade section acts as a two-dimensional
                 airfoil for which the influence of the rotor wake consists entirely of an induced 
                 velocity at the section. Two-dimensional airfoil characteristics can then be used
@@ -411,7 +415,7 @@ class Propeller(Energy_Component):
                 blade_dQ_dr[i,:] = np.gradient(blade_Q_distribution[i], deltar[i,0])  
                 
     
-        # Blade Element Momentum Theory : large angle approximation
+        # Blade Element Momentum Theory 
         else:   
             #Things that will change with iteration
             size   = (len(a),Nr) 
@@ -447,6 +451,7 @@ class Propeller(Energy_Component):
                 lamdaw[lamdaw<0.] = 0.
         
                 f            = (B/2.)*(1.-r_dim/R)/lamdaw
+                #f[f<0.]      = 0.
                 piece        = np.exp(-f)
                 arccos_piece = np.arccos(piece)
                 F            = 2.*arccos_piece/pi

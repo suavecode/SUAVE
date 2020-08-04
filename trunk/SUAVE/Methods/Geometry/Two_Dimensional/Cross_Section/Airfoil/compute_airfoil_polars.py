@@ -46,7 +46,9 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
     
     num_airfoils = len(a_geo)
     num_polars   = len(a_polar[0])
-    
+    if num_polars < 3:
+        raise AttributeError('Provide three or more airfoil polars to compute surrogate')
+        
     # unpack 
     Rh = propeller.hub_radius
     Rt = propeller.tip_radius

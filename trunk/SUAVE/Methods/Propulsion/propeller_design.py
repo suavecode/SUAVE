@@ -66,6 +66,9 @@ def propeller_design(prop,number_of_stations=20):
     
     elif (Thrust!= None) and (Power!= None):
         raise AssertionError('Specify either design thrust or design power!')
+    
+    if prop.rotation == None:
+        prop.rotation = list(np.ones(int(B))) 
         
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
@@ -131,39 +134,39 @@ def propeller_design(prop,number_of_stations=20):
         Ma      = Wc/a
         RE      = Wc/nu
 
-        #Step 4, determine epsilon and alpha from airfoil data
-        
-        #This is an atrocious fit of DAE51 data at RE=50k for Cd
-        #There is also RE scaling
-        
+        #Step 4, determine epsilon and alpha from airfoil data 
         # NEED TO CORRECT
         if  a_pol != None and a_loc != None: 
             alpha = np.zeros_like(RE)
             Cdval = np.zeros_like(RE)  
             for i in range(N):
-                AoA_guess = 0.001
+                AoA_old_guess = 0.01
                 cl_diff  = 1  
                 broke  = False   
                 ii = 0
-                while cl_diff > 1E-3:
-                    Cl_guess = airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA_guess,grid=False)  
+                # Newton Raphson Iteration 
+                while cl_diff > 1E-2:
                     
-                    dCL = (airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA_guess + 1E-6,grid=False) - airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA_guess- 1E-6 ,grid=False))/ (2E-6)
+                    Cl_guess = airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA_old_guess,grid=False) - Cl 
+                    
+                    # central difference 
+                    dx = 1E-5
+                    dCL = (airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA_old_guess + dx,grid=False) - airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA_old_guess- dx,grid=False))/ (2*dx)
+                     
+                    # update AoA guess 
+                    AoA_new_guess  = AoA_old_guess - Cl_guess/dCL
+                    AoA_old_guess  = AoA_new_guess 
                     
                     # compute diff
-                    cl_diff = abs(Cl - Cl_guess)
-                    
-                    # update AoA guess 
-                    AoA_guess_new  = AoA_guess + dCL*(2E-6)
-                    AoA_guess   = AoA_guess_new 
+                    cl_diff = abs(Cl_guess)      
                     
                     ii+=1 	
-                    if ii>5000:	
+                    if ii>10000:	
                         # maximum iterations is 2000	
                         broke = True	
                         break                    
                     
-                alpha[i] = AoA_guess     
+                alpha[i] = AoA_old_guess     
                 Cdval[i] = airfoil_cd_surs[a_geo[a_loc[i]]](RE[i],alpha[i],grid=False)  
         
         else:       
@@ -294,9 +297,5 @@ def propeller_design(prop,number_of_stations=20):
     prop.mid_chord_aligment         = MCA
     prop.thickness_to_chord         = t_c_at_70_percent
     prop.blade_solidity             = sigma
-    
-    # compute airfoil sections if given
-    if  a_geo != None:
-        airfoil_geometry = Data()
-        prop.airfoil_data = import_airfoil_geometry(a_geo)  
+
     return prop

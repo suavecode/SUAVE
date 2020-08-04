@@ -107,7 +107,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate , vortex_distribution_flag, n_sw , n_cw ,include_slipstream_effect):
+    def initialize(self,use_surrogate,vortex_distribution_flag,n_sw,n_cw,prop_wake_model):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -141,7 +141,7 @@ class Vortex_Lattice(Aerodynamics):
         # Pack
         settings.vortex_distribution        = VD
         settings.use_surrogate              = use_surrogate
-        settings.include_slipstream_effect  = include_slipstream_effect
+        settings.prop_wake_model            = prop_wake_model 
         
         # Plot vortex discretization of vehicle
         if vortex_distribution_flag == True:
@@ -389,7 +389,7 @@ class Vortex_Lattice(Aerodynamics):
         konditions.freestream.mach_number       = Machs
         konditions.freestream.velocity          = zeros
         
-        total_lift, total_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, pressure_coefficient = \
+        total_lift, total_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, pressure_coefficient ,vel_profile = \
                         calculate_VLM(konditions,settings,geometry)     
         
         # Split subsonic from supersonic
@@ -580,7 +580,7 @@ def calculate_VLM(conditions,settings,geometry):
     wing_lifts = Data()
     wing_drags = Data()
     
-    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y , CPi = VLM(conditions,settings,geometry)
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y , CPi , vel_profile = VLM(conditions,settings,geometry)
 
     # Dimensionalize the lift and drag for each wing
     areas = settings.vortex_distribution.wing_areas
@@ -600,4 +600,4 @@ def calculate_VLM(conditions,settings,geometry):
             wing_drags[wing.tag] = np.atleast_2d(dim_wing_drags[:,i]).T/ref
         i+=1
 
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_y , cdi_y , CPi
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_y , cdi_y , CPi , vel_profile

@@ -9,7 +9,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Geometry_Plots import plot_propeller_geometry
+from SUAVE.Plots.Geometry_Plots import plot_propeller_geometry 
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
@@ -50,7 +50,9 @@ def main():
     prop_a.design_Cl               = 0.7 
     prop_a.design_altitude         = 0.0 * Units.km 
     prop_a.airfoil_geometry        = ['NACA_4412_geo.txt']
-    prop_a.airfoil_polars          = ['NACA_4412_polar.txt']
+    prop_a.airfoil_polars           = [['NACA_4412_polar_Re_50000.txt','NACA_4412_polar_Re_100000.txt',
+                                     'NACA_4412_polar_Re_200000.txt','NACA_4412_polar_Re_500000.txt',
+                                     'NACA_4412_polar_Re_1000000.txt']]
     prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     prop_a.design_power            = gearbox.outputs.power # 7000  
     prop_a                         = propeller_design(prop_a)   
@@ -68,8 +70,8 @@ def main():
     prop.design_Cl                 = 0.7 
     prop.design_altitude           = 0.0 * Units.km 
     prop.design_power              = gearbox.outputs.power # 7000  
-    prop                           = propeller_design(prop)  
-
+    prop                           = propeller_design(prop)      
+    
     # Design a Rotor with airfoil  geometry defined 
     rot_a  = SUAVE.Components.Energy.Converters.Rotor()
     rot_a.number_blades            = 2.0 
@@ -79,9 +81,11 @@ def main():
     rot_a.hub_radius               = 0.05
     rot_a.design_Cl                = 0.7 
     rot_a.design_altitude          = 0.0 * Units.km
-    rot_a.design_thrust            = 1000.0
+    rot_a.design_thrust            = 1000.0 
     rot_a.airfoil_geometry         = ['NACA_4412_geo.txt']
-    rot_a.airfoil_polars           = ['NACA_4412_polar.txt']
+    rot_a.airfoil_polars           = [['NACA_4412_polar_Re_50000.txt','NACA_4412_polar_Re_100000.txt',
+                                     'NACA_4412_polar_Re_200000.txt','NACA_4412_polar_Re_500000.txt',
+                                     'NACA_4412_polar_Re_1000000.txt']]
     rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]    
     rot_a.induced_hover_velocity   = 13.5 #roughly equivalent to a Chinook at SL
     rot_a                          = propeller_design(rot_a) 
@@ -98,10 +102,10 @@ def main():
     rot.design_thrust              = 1000.0
     rot.induced_hover_velocity     = 13.5 #roughly equivalent to a Chinook at SL
     rot                            = propeller_design(rot) 
-                                   
+    
     # Find the operating conditions
     atmosphere            = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere_conditions =  atmosphere.compute_values(prop.design_altitude)
+    atmosphere_conditions =  atmosphere.compute_values(rot.design_altitude)
     
     V  = prop.freestream_velocity
     Vr = rot.freestream_velocity

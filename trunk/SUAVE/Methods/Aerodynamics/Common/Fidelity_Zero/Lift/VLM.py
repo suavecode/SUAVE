@@ -86,9 +86,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
     n_sw       = settings.number_panels_spanwise    
     n_cw       = settings.number_panels_chordwise   
     sur_flag   = settings.use_surrogate
-    wake_model = settings.wake_model
-    Sref       = geometry.reference_area
-    
+    pwm        = settings.prop_wake_model
+    Sref       = geometry.reference_area 
     
     # define point about which moment coefficient is computed
     if 'main_wing' in geometry.wings:
@@ -143,7 +142,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
    
     # Build the vector
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
-                                                                                 sur_flag,wake_model,initial_timestep_offset) 
+                                                                                 sur_flag,pwm,initial_timestep_offset) 
     
     # Compute vortex strength  
     n_cp  = VD.n_cp  
@@ -211,10 +210,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
     # delete MCM from VD data structure since it consumes memory
     delattr(VD, 'MCM')   
     
-    Velocities = Data()
-    Velocities.Vx_ind   = Vx_ind_total
-    Velocities.Vz_ind   = Vz_ind_total
-    Velocities.V        = V_distribution 
-    Velocities.dt       = dt 
+    Velocity_Profile = Data()
+    Velocity_Profile.Vx_ind   = Vx_ind_total
+    Velocity_Profile.Vz_ind   = Vz_ind_total
+    Velocity_Profile.V        = V_distribution 
+    Velocity_Profile.dt       = dt 
     
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocities
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile
