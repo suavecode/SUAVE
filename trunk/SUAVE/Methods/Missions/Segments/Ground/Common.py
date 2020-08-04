@@ -38,7 +38,8 @@ def unpack_unknowns(segment):
 
     #apply unknowns
     conditions = segment.state.conditions
-    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
+    #conditions.frames.inertial.velocity_vector[:,0] = velocity_x
+    conditions.frames.inertial.velocity_vector[1:,0] = velocity_x
     conditions.frames.inertial.velocity_vector[0,0] = v0
     conditions.frames.inertial.time[:,0]            = time[:,0]
      
@@ -106,7 +107,12 @@ def initialize_conditions(segment):
     initialized_velocity = (vf - v0)*segment.state.numerics.dimensionless.control_points + v0
     
     # Initialize the x velocity unknowns to speed convergence:
-    segment.state.unknowns.velocity_x = initialized_velocity[:,0]
+    #segment.state.unknowns.velocity_x = initialized_velocity[:,0]
+    segment.state.unknowns.velocity_x = initialized_velocity[1:,0]
+    
+    # Setup the size of the residuals
+    ones_row_m1 = segment.state.ones_row_m1
+    segment.state.residuals.forces = ones_row_m1(1) * 0.0
 
     # pack conditions 
     segment.state.conditions.frames.inertial.velocity_vector[:,0] = initialized_velocity[:,0]
@@ -245,7 +251,10 @@ def solve_residuals(segment):
     
     a  = segment.state.conditions.frames.inertial.acceleration_vector
 
-    segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
-    segment.state.residuals.final_velocity_error = (v[-1,0] - vf)
+    #segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
+    #segment.state.residuals.final_velocity_error = (v[-1,0] - vf)
+    
+    segment.state.residuals.forces[:,0]          = FT[1:,0]/m[1:,0] - acceleration[1:,0]
+    segment.state.residuals.final_velocity_error = (v[-1,0] - vf)    
     
     return
