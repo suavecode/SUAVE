@@ -36,7 +36,7 @@ def unpack_unknowns(segment):
 
     # unpack unknowns
     alpha = segment.state.unknowns.wind_angle
-    v_mag = segment.state.unknowns.velocity
+    v_mag = np.vstack([segment.velocity_start, segment.state.unknowns.velocity])
     
     # Flight path angle
     theta = segment.body_angle
@@ -103,11 +103,17 @@ def initialize_conditions(segment):
         if not segment.state.initials: raise AttributeError('initial speed not set')
         velocity_start = segment.state.initials.conditions.freestream.velocity[-1,0]
         segment.velocity_start = velocity_start
+        
+    ones_row_m1 = segment.state.ones_row_m1
+    segment.state.unknowns.velocity = ones_row_m1(1) * velocity_start
+        
+    # Setup the size of the residuals
+    #ones_row_m1 = segment.state.ones_row_m1
+    #segment.state.residuals.forces = ones_row_m1(1) * 0.0    
 
     # pack conditions  
     conditions.propulsion.throttle[:,0] = throttle
     conditions.frames.inertial.velocity_vector[:,0] = velocity_start # start up value
-    #segment.state.unknowns.velocity = np.linspace(velocity_start, velocity_start+0.01, N)
 
 ## @ingroup Methods-Missions-Segments-Climb
 def update_differentials_altitude(segment):
@@ -179,7 +185,7 @@ def update_velocity_vector_from_wind_angle(segment):
     
     # unpack
     conditions = segment.state.conditions 
-    v_mag      = segment.state.unknowns.velocity 
+    v_mag      = np.vstack([segment.velocity_start, segment.state.unknowns.velocity])
     #v_mag      = np.linalg.norm(segment.state.conditions.frames.inertial.velocity_vector,axis=1) 
     alpha      = segment.state.unknowns.wind_angle[:,0][:,None]
     theta      = segment.body_angle
@@ -238,7 +244,7 @@ def solve_residuals(segment):
     a  = segment.state.conditions.frames.inertial.acceleration_vector
 
     segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
-    segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] #- a[:,2]   
-    segment.state.residuals.initial_velocity_error = (v[0,0] - vi)
+    segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] - a[:,2]   
+    #segment.state.residuals.initial_velocity_error = (v[0,0] - vi)
 
     return
