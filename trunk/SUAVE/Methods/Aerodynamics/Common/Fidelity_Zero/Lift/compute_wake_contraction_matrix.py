@@ -22,7 +22,7 @@ def compute_wake_contraction_matrix(i,ts,prop,N,m,nts,X_pts):
     R_p               = prop.tip_radius  
     s                 = X_pts[:,:,0,-1] - prop.origin[i][0]                      
     Kd                = np.repeat(np.atleast_2d(1 + s/(np.sqrt(s**2 + R_p**2)))[:,:,np.newaxis], dim , axis = 2)   
-    VX                = np.repeat(np.repeat(np.atleast_2d(prop.outputs.velocity[:,0]), nts, axis = 1)[:,:,np.newaxis], dim , axis = 2) # dimension (num control points X propeller distribution X wake points )
+    VX                = np.repeat(np.repeat(np.atleast_2d(prop.outputs.velocity[:,0]).T, nts, axis = 1)[:,:,np.newaxis], dim , axis = 2) # dimension (num control points X propeller distribution X wake points )
    
     prop_dif          = np.atleast_2d(va[:,1:] +  va[:,:-1])
     prop_dif          = np.repeat(prop_dif[:,np.newaxis,  :], nts, axis=1) 

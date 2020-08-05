@@ -44,9 +44,9 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     # compute lambda and mu 
     mean_induced_velocity  = np.mean( np.mean(va,axis = 1),axis = 1)  
     
-    lambda_tot   =  (V_inf[:,0]  + mean_induced_velocity)/(omega*R)       # inflow advance ratio (page 30 Leishman)
-    mu_prop      =  V_inf[:,2] /(omega*R)                              # rotor advance ratio  (page 30 Leishman) 
-    V_prop       = np.sqrt((V_inf[:,0]  + mean_induced_velocity)**2 + (V_inf[:,2])**2)
+    lambda_tot   =  np.atleast_2d((V_inf[:,0]  + mean_induced_velocity)).T /(omega*R)       # inflow advance ratio (page 30 Leishman)
+    mu_prop      =  np.atleast_2d(V_inf[:,2]).T /(omega*R)                              # rotor advance ratio  (page 30 Leishman) 
+    V_prop       =  np.atleast_2d(np.sqrt((V_inf[:,0]  + mean_induced_velocity)**2 + (V_inf[:,2])**2)).T
     
     # wake skew angle 
     wake_skew_angle = np.arctan(mu_prop/lambda_tot)
@@ -109,16 +109,16 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
                 Gamma[:,t_idx,B_idx,:] = gamma_new[:,B_loc,:]  
         
         #( control point, time step , blade number , location on blade )
-        sx_inf0 = np.multiply(np.atleast_2d(V_prop*np.cos(wake_skew_angle)).T,np.atleast_2d(ts))
+        sx_inf0 = np.multiply(V_prop*np.cos(wake_skew_angle), np.atleast_2d(ts))
         sx_inf  = np.repeat(np.repeat(sx_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)  
         
         sy_inf0 = np.multiply(np.atleast_2d(V_inf[:,1]).T,np.atleast_2d(ts)) # = zero since no crosswind
         sy_inf  = np.repeat(np.repeat(sy_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)   
         
-        sz_inf0 = np.multiply(np.atleast_2d(V_prop*np.sin(wake_skew_angle)).T,np.atleast_2d(ts))
+        sz_inf0 = np.multiply(V_prop*np.sin(wake_skew_angle),np.atleast_2d(ts))
         sz_inf  = np.repeat(np.repeat(sz_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)           
         
-        omega_t = np.repeat(np.repeat(np.multiply(np.atleast_2d(omega),np.atleast_2d(ts))[:, :,  np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 
+        omega_t = np.repeat(np.repeat(np.multiply(omega,np.atleast_2d(ts))[:, :,  np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 
         ba      = np.repeat(np.repeat(np.tile(np.atleast_2d(blade_angles),(m,1))[:,  np.newaxis, :],nts, axis = 1) [:, :,:, np.newaxis],Nr, axis = 3) 
         
         azi_y   = np.sin(ba + omega_t)  

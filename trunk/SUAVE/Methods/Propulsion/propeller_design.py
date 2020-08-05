@@ -56,7 +56,7 @@ def propeller_design(prop,number_of_stations=20):
     Cl     = prop.design_Cl           # Design Lift Coefficient
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
-    Power  = prop.design_power          
+    Power  = prop.design_power
     a_geo  = prop.airfoil_geometry
     a_pol  = prop.airfoil_polars        
     a_loc  = prop.airfoil_polar_stations    
@@ -95,7 +95,8 @@ def propeller_design(prop,number_of_stations=20):
     #Step 1, assume a zeta
     zeta = 0.1 # Assume to be small initially
     
-    #Step 2, determine F and phi at each blade station    
+    #Step 2, determine F and phi at each blade station
+    
     chi0    = Rh/R # Where the propeller blade actually starts
     chi     = np.linspace(chi0,1,N+1) # Vector of nondimensional radii
     chi     = chi[0:N]

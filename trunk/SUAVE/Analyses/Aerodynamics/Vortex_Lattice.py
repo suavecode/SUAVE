@@ -29,7 +29,7 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import
 
 # package imports
 import numpy as np 
-from scipy.interpolate import RectBivariateSpline, RegularGridInterpolator
+from scipy.interpolate import interp2d, RectBivariateSpline, RegularGridInterpolator
 
 # ----------------------------------------------------------------------
 #  Class
@@ -308,7 +308,7 @@ class Vortex_Lattice(Aerodynamics):
         
         # Evaluate the VLM
         # if in transonic regime, use surrogate
-        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution , pressure_coefficient = \
+        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution , pressure_coefficient ,vel_profile = \
             calculate_VLM(conditions,settings,geometry)
         
         # Lift 
@@ -326,7 +326,7 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.drag_breakdown.induced.wings_sectional = wing_drag_distribution 
         
         # Pressure
-        conditions.aerodynamics.pressure_coefficient                         = pressure_coefficient
+        conditions.aerodynamics.pressure_coefficient                   = pressure_coefficient
         
         return  
     

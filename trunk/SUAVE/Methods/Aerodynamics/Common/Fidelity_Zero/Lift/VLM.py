@@ -85,10 +85,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
     # unpack settings
     n_sw       = settings.number_panels_spanwise    
     n_cw       = settings.number_panels_chordwise   
-    sur_flag   = settings.use_surrogate
     pwm        = settings.prop_wake_model
     Sref       = geometry.reference_area 
     
+
     # define point about which moment coefficient is computed
     if 'main_wing' in geometry.wings:
         c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
@@ -142,7 +142,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
    
     # Build the vector
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
-                                                                                 sur_flag,pwm,initial_timestep_offset) 
+                                                                                 pwm,initial_timestep_offset) 
     
     # Compute vortex strength  
     n_cp  = VD.n_cp  

@@ -14,7 +14,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wak
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,prop_wake_model,initial_timestep_offset):     
+def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,prop_wake_model,initial_timestep_offset):     
     """ This computes the right hand side matrix for the VLM. In this
     function, induced velocites from propeller wake are also included 
     when relevent and where specified    
@@ -63,34 +63,33 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,prop_wak
         #-------------------------------------------------------------------------------------------------------
         # PROPELLER SLIPSTREAM MODEL
         #-------------------------------------------------------------------------------------------------------         
-        if ((sur_flag == False) and 'propeller' in propulsor.keys()):  
-            if prop_wake_model:         
-                 
-                # extract the propeller data struction 
-                prop = propulsor.propeller 
-                
-                # generate the geometry of the propeller helical wake
-                wake_distribution, dt,  ts,B, N = generate_propeller_wake_distribution(prop,m,VD,initial_timestep_offset)
-                
-                # compute the induced velocity
-                V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,m,ts,B,N)
-                
-                # update the total induced velocity distribution 
-                Vx_ind_total = Vx_ind_total + V_wake_ind[:,:,0]
-                Vz_ind_total = Vz_ind_total + V_wake_ind[:,:,2] 
-                
-                Vx                = V_inf*np.cos(aoa) - Vx_ind_total 
-                Vz                = V_inf*np.sin(aoa) - Vz_ind_total 
-                V_distribution    = np.sqrt(Vx**2 + Vz**2 )                    
-                aoa_distribution  = np.arctan(Vz/Vx)     
-                
-                RHS = np.sin(aoa_distribution - delta )*np.cos(phi)   
-                
-                return  RHS ,Vx_ind_total , Vz_ind_total , V_distribution , dt 
+        if prop_wake_model and ('propeller' in propulsor.keys()):   
+        
+            # extract the propeller data struction 
+            prop = propulsor.propeller 
             
-            else:
-                pass
-             
+            # generate the geometry of the propeller helical wake
+            wake_distribution, dt,ts,B, N = generate_propeller_wake_distribution(prop,m,VD,initial_timestep_offset)
+            
+            # compute the induced velocity
+            V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,m,ts,B,N)
+            
+            # update the total induced velocity distribution 
+            Vx_ind_total = Vx_ind_total + V_wake_ind[:,:,0]
+            Vz_ind_total = Vz_ind_total + V_wake_ind[:,:,2] 
+            
+            Vx                = V_inf*np.cos(aoa) - Vx_ind_total 
+            Vz                = V_inf*np.sin(aoa) - Vz_ind_total 
+            V_distribution    = np.sqrt(Vx**2 + Vz**2 )                    
+            aoa_distribution  = np.arctan(Vz/Vx)     
+            
+            RHS = np.sin(aoa_distribution - delta )*np.cos(phi)   
+            
+            return  RHS ,Vx_ind_total , Vz_ind_total , V_distribution , dt 
+        
+        else:
+            pass
+         
     RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
     
     return RHS ,Vx_ind_total , Vz_ind_total , V_distribution , dt 
