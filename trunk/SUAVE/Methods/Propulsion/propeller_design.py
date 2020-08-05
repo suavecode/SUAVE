@@ -145,7 +145,7 @@ def propeller_design(prop,number_of_stations=20):
                 broke  = False   
                 ii = 0
                 # Newton Raphson Iteration 
-                while cl_diff > 1E-2:
+                while cl_diff > 1E-3:
                     
                     Cl_guess = airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA_old_guess,grid=False) - Cl 
                     

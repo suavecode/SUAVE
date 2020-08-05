@@ -105,7 +105,7 @@ def generate_propeller_geometry(prop, angle_offset = 0):
                 iba_max_t   = airfoil_data.thickness_to_chord[a_secl[j]]
                 iba_xp      = b[j] - MCA[j]- airfoil_data.x_coordinates[a_secl[j]]*b[j]             # x coord of airfoil
                 iba_yp      = r[j]*np.ones_like(iba_xp)                                             # radial location        
-                iba_zp      = airfoil_data.y_coordinates[a_secl[j]]*b[j]  * (t[j] /(iba_max_t*b[j])) # former airfoil y coord
+                iba_zp      = airfoil_data.y_coordinates[a_secl[j]]*b[j]  * (t[j] /iba_max_t) # former airfoil y coord
                 
                 iba_trans_1 = [[np.cos(beta[j]+ flip_3 ),0 , -np.sin(beta[j]+ flip_3 )], [0 ,  1 , 0] , [np.sin(beta[j]+ flip_3 ) , 0 , np.cos(beta[j]+ flip_3 )]]
                 
@@ -121,7 +121,7 @@ def generate_propeller_geometry(prop, angle_offset = 0):
                 oba_max_t   = airfoil_data.thickness_to_chord[a_secl[j+1]]
                 oba_xp      = b[j+1] - MCA[j+1]- airfoil_data.x_coordinates[a_secl[j+1]]*b[j+1]             # x coord of airfoil
                 oba_yp      = r[j+1]*np.ones_like(oba_xp)                                             # radial location        
-                oba_zp      = airfoil_data.y_coordinates[a_secl[j+1]]*b[j+1] * (t[j+1] /(oba_max_t*b[j+1])) # former airfoil y coord
+                oba_zp      = airfoil_data.y_coordinates[a_secl[j+1]]*b[j+1]  * (t[j+1]/oba_max_t) # former airfoil y coord
                 
                 oba_trans_1 = [[np.cos(beta[j+1] + flip_3 ),0 , -np.sin(beta[j+1] + flip_3 )], [0 ,  1 , 0] , [np.sin(beta[j+1] + flip_3 ) , 0 , np.cos(beta[j+1]+ flip_3 )]]
                 

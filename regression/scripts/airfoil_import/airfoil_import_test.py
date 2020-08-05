@@ -15,15 +15,17 @@ import numpy as np
 
 def main():   
     
-    airfoil_polar_names    = [['airfoil_polar_1.txt'],['airfoil_polar_2.txt']]   
-    airfoil_polar_data =  import_airfoil_polars(airfoil_polar_names) 
+    airfoil_polar_names  = [['NACA_4412_polar_Re_50000.txt','NACA_4412_polar_Re_100000.txt',
+                                     'NACA_4412_polar_Re_200000.txt','NACA_4412_polar_Re_500000.txt',
+                                     'NACA_4412_polar_Re_1000000.txt']]   
+    airfoil_polar_data   =  import_airfoil_polars(airfoil_polar_names) 
 
-    airfoil_geometry_names = ['airfoil_geometry_1.txt','airfoil_geometry_2.txt', 'airfoil_geometry_2-selig.txt']    
+    airfoil_geometry_names = ['NACA_4412_geo.txt','airfoil_geometry_2.txt', 'airfoil_geometry_2-selig.txt']    
     airfoil_geometry_data = import_airfoil_geometry(airfoil_geometry_names)
 
     # Actual t/c values 
 
-    airfoil_tc_actual = [0.11811004040404041, 0.11171495959595959, 0.11171495959595959]
+    airfoil_tc_actual = [0.12012222222222223, 0.11171495959595959, 0.11171495959595959]
 
 
     # Check t/c calculation against previously calculated values
