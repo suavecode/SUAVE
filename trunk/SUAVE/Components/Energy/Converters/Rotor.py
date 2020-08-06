@@ -558,13 +558,13 @@ class Rotor(Energy_Component):
                 psiold = PSI
         
                 # If its really not going to converge
-                if np.any(PSI>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                if np.any(PSI>pi/2) and np.any(dpsi>0.0):
                     print("Rotor BEMT did not converge to a solution")
                     break
         
                 ii+=1
         
-                if ii>2000:
+                if ii>10000:
                     broke = True
                     print("Rotor BEMT did not converge to a solution")
                     break
@@ -625,8 +625,8 @@ class Rotor(Energy_Component):
         results_conditions                              = Data     
         outputs                                         = results_conditions(
                     num_blades                              = int(B),
-                    rotor_radius                        = R,
-                    rotor_diameter                      = D,
+                    rotor_radius                            = R,
+                    rotor_diameter                          = D,
                     number_radial_stations                  = Nr,
                     number_azimuthal_stations               = Na,
                     blade_radial_distribution_normalized    = chi,

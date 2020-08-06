@@ -532,7 +532,7 @@ class Propeller(Energy_Component):
                 PSIold = PSI
         
                 # If its really not going to converge
-                if np.any(PSI>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                if np.any(PSI>pi/2) and np.any(dpsi>0.0):
                     print("Propeller BEMT did not converge to a solution")
                     break
         

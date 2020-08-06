@@ -111,9 +111,7 @@ class Motor(Energy_Component):
         omega1[np.isnan(omega1)] = 0.0
         
         Q = ((v-omega1/Kv)/Res -io)/Kv
-        # store to outputs
-       
-        #P = Q*omega1
+        # store to outputs 
         
         self.outputs.torque = Q
         self.outputs.omega = omega1

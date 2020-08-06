@@ -274,8 +274,7 @@ class Lift_Cruise(Propulsor):
         voltage_under_load   = battery.voltage_under_load    
         
         conditions.propulsion.acoustic_outputs[propeller.tag] = noise_forward
-        conditions.propulsion.acoustic_outputs[rotor.tag]     = output_lift
-    
+        conditions.propulsion.acoustic_outputs[rotor.tag]     = output_lift 
         conditions.propulsion.rpm_lift                          = rpm_lift
         conditions.propulsion.current_lift                      = i_lift 
         conditions.propulsion.motor_torque_lift                 = motor_lift.outputs.torque

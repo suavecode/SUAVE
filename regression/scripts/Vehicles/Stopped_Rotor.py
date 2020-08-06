@@ -390,7 +390,7 @@ def vehicle_setup():
     g              = 9.81                                   # gravitational acceleration 
     S              = vehicle.reference_area                 # reference area 
     speed_of_sound = 340                                    # speed of sound 
-    rho            = 1.22                                   # reference density
+    rho            = 1.2                                    # reference density
     fligth_CL      = 0.75                                   # cruise target lift coefficient 
     AR             = vehicle.wings.main_wing.aspect_ratio   # aspect ratio 
     Cd0            = 0.06                                   # profile drag
@@ -423,13 +423,13 @@ def vehicle_setup():
     rotor.number_blades           = 2   
     rotor.design_tip_mach         = 0.65
     rotor.number_of_engines       = net.number_of_engines_lift
-    rotor.disc_area               = np.pi*(rotor.tip_radius**2)        
+    rotor.disc_area               = np.pi*(rotor.tip_radius**2)     
     rotor.induced_hover_velocity  = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines_lift)) 
     rotor.freestream_velocity     = 500. * Units['ft/min']  
     rotor.angular_velocity        = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
     rotor.design_Cl               = 0.7
-    rotor.design_altitude         = 20 * Units.feet                            
-    rotor.design_thrust           = (Hover_Load * 2.5 )/net.number_of_engines_lift 
+    rotor.design_altitude         = 10 * Units.feet                            
+    rotor.design_power            = ((Hover_Load )/net.number_of_engines_lift )*rotor.freestream_velocity
     rotor.x_pitch_count           = 2 
     rotor.y_pitch_count           = vehicle.fuselages['boom_1r'].y_pitch_count
     rotor.y_pitch                 = vehicle.fuselages['boom_1r'].y_pitch 
