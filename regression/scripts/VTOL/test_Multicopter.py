@@ -40,7 +40,7 @@ def main():
     plot_mission(results)
     
     # save, load and plot old results 
-    save_multicopter_results(results)
+    #save_multicopter_results(results)
     old_results = load_multicopter_results() 
     plot_mission(old_results,'k-')
     plt.show(block=True)    
@@ -56,10 +56,10 @@ def main():
     
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
-    battery_energy_transition_true    = np.array([3.57925502e+08, 3.57739913e+08, 3.57191102e+08, 3.56302619e+08,
-                                                  3.55112663e+08, 3.53672533e+08, 3.52044519e+08, 3.50299289e+08,
-                                                  3.48512882e+08, 3.46763416e+08, 3.45127659e+08, 3.43677611e+08,
-                                                  3.42477272e+08, 3.41579738e+08, 3.41024780e+08, 3.40837016e+08])
+    battery_energy_transition_true    = np.array([3.58998500e+08, 3.58976467e+08, 3.58911330e+08, 3.58805930e+08,
+                                                  3.58664867e+08, 3.58494300e+08, 3.58301676e+08, 3.58095407e+08,
+                                                  3.57884505e+08, 3.57678188e+08, 3.57485477e+08, 3.57314798e+08,
+                                                  3.57173619e+08, 3.57068118e+08, 3.57002911e+08, 3.56980854e+08])
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true) 
     print('battery energy of transition')

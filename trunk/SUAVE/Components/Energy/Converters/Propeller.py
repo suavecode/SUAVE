@@ -86,6 +86,9 @@ class Propeller(Energy_Component):
         Source:
         Drela, M. "Qprop Formulation", MIT AeroAstro, June 2006
         http://web.mit.edu/drela/Public/web/qprop/qprop_theory.pdf
+        
+        Leishman, Gordon J. Principles of helicopter aerodynamics
+        Cambridge university press, 2006.      
 
         Inputs:
         self.inputs.omega            [radian/s]
@@ -101,25 +104,48 @@ class Propeller(Energy_Component):
           throttle                   [-]
 
         Outputs:
-        conditions.propulsion.acoustic_outputs.
-          number_sections            [-]
-          r0                         [m]
-          airfoil_chord              [m]
-          blades_number              [-]
-          propeller_diameter         [m]
-          drag_coefficient           [-]
-          lift_coefficient           [-]
-          omega                      [radian/s]
-          velocity                   [m/s]
-          thrust                     [N]
-          power                      [W]
-          mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
-        conditions.propulsion.etap   [-]
-        thrust                       [N]
-        torque                       [Nm]
-        power                        [W]
-        Cp                           [-] (coefficient of power)
-
+        conditions.propulsion.outputs. 
+           num_blades                           [-]
+           radius                               [m]
+           diameter                             [m]
+           number_radial_stations               [-]
+           number_azimuthal_stations            [rad]
+           radial_distribution_normalized       [-]
+           radial_distribution_normalized_2d    [-]
+           chord_distribution                   [m]
+           twist_distribution                   [rad]
+           radial_distribution                  [m]
+           radial_distribution_2d               [m]
+           thrust_angle                         [rad]
+           speed_of_sound                       [m/s]
+           density                              [kg/m-3]
+           velocity                             [m/s]
+           tangential_induced_velocity_2d       [m/s]
+           axial_induced_velocity_2d            [m/s]
+           tangential_velocity_2d               [m/s]
+           axial_velocity_2d                    [m/s]
+           drag_coefficient                     [-]
+           lift_coefficient                     [-]
+           omega                                [rad/s]
+           blade_Gamma_2d                       [-]
+           blade_dT_dR                          [N/m]
+           blade_dT_dr                          [N]
+           thrust_distribution                  [N]
+           thrust_distribution_2d               [N]
+           thrust_per_blade                     [N]
+           thrust_coefficient                   [-] 
+           azimuthal_distribution               [rad]
+           azimuthal_distribution_2d            [rad]
+           blade_dQ_dR                          [N]
+           blade_dQ_dr                          [Nm]
+           torque_distribution                  [Nm] 
+           torque_distribution_2d               [Nm] 
+           torque_per_blade                     [Nm] 
+           torque_coefficient                   [-] 
+           power                                [W]    
+           power_coefficient                    [-]
+           mid_chord_aligment                   [-] 
+           
         Properties Used:
         self. 
           number_blades              [-]
@@ -247,16 +273,7 @@ class Propeller(Energy_Component):
     
         # Momentum theory approximation of inflow for BET if the advance ratio is large
         mu_lambda = lambda_c/abs(mu_prop)   
-        if any(mu_lambda[:,0] < 10.0) or use_BET:  
-            '''Blade element theory (BET) assumes that each blade section acts as a two-dimensional
-                airfoil for which the influence of the rotor wake consists entirely of an induced 
-                velocity at the section. Two-dimensional airfoil characteristics can then be used
-                to evaluate the section loads in terms of the blade motion and aerodynamic 
-                environment at that section alone. The induced velocity can be obtained by various
-                means: momentum theory, vortex theory, or nonuniform inflow calculations.
-    
-                Leishman pg 165'''     
-    
+        if any(mu_lambda[:,0] < 10.0) or use_BET:    
             # 2-D chord distribution 
             chord     = np.tile(c,(Na,1))  
             chord_2d  = np.repeat(chord[np.newaxis,:, :], ctrl_pts, axis=0)
@@ -516,12 +533,14 @@ class Propeller(Energy_Component):
         
                 # If its really not going to converge
                 if np.any(PSI>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                    print("Propeller BEMT did not converge to a solution")
                     break
         
                 ii+=1
         
                 if ii>10000:
                     broke = True
+                    print("Propeller BEMT did not converge to a solution")
                     break
     
             epsilon  = Cd/Cl
@@ -578,48 +597,48 @@ class Propeller(Energy_Component):
         conditions.propulsion.etap = etap 
 
         # store data
-        results_conditions                              = Data     
-        outputs                                         = results_conditions(
-                    num_blades                              = int(B),
-                    propeller_radius                        = R,
-                    propeller_diameter                      = D,
-                    number_radial_stations                  = Nr,
-                    number_azimuthal_stations               = Na,
-                    blade_radial_distribution_normalized    = chi,
-                    blade_radial_distribution_normalized_2d = chi_2d,
-                    blade_chord_distribution                = c,     
-                    blade_twist_distribution                = beta_0,            
-                    blade_radial_distribution               = r,  
-                    blade_radial_distribution_2d            = r_dim_2d,  
-                    thrust_angle                            = theta,
-                    speed_of_sound                          = conditions.freestream.speed_of_sound,
-                    density                                 = conditions.freestream.density,
-                    velocity                                = Vv, 
-                    tangential_induced_velocity_2d          = Vt_ind_2d, 
-                    axial_induced_velocity_2d               = Va_ind_2d,  
-                    tangential_velocity_2d                  = Vt_2d, 
-                    axial_velocity_2d                       = Va_2d, 
-                    drag_coefficient                        = Cd,
-                    lift_coefficient                        = Cl,       
-                    omega                                   = omega,  
-                    blade_Gamma_2d                          = blade_Gamma_2d,
-                    blade_dT_dR                             = blade_dT_dR,
-                    blade_dT_dr                             = blade_dT_dr,
-                    thrust_distribution                     = blade_T_distribution, 
-                    thrust_distribution_2d                  = blade_T_distribution_2d, 
-                    thrust_per_blade                        = thrust/B, 
-                    thrust_coefficient                      = Ct,   
-                    azimuthal_distribution                  = psi, 
-                    azimuthal_distribution_2d               = psi_2d ,
-                    blade_dQ_dR                             = blade_dQ_dR ,
-                    blade_dQ_dr                             = blade_dQ_dr ,
-                    torque_distribution                     = blade_Q_distribution, 
-                    torque_distribution_2d                  = blade_Q_distribution_2d, 
-                    torque_per_blade                        = torque/B,   
-                    torque_coefficient                      = Cq,   
-                    power                                   = power,
-                    power_coefficient                       = Cp, 
-                    mid_chord_aligment                      = self.mid_chord_aligment     
+        results_conditions                            = Data     
+        outputs                                       = results_conditions(
+                    num_blades                        = int(B),
+                    radius                            = R,
+                    diameter                          = D,
+                    number_radial_stations            = Nr,
+                    number_azimuthal_stations         = Na,
+                    radial_distribution_normalized    = chi,
+                    radial_distribution_normalized_2d = chi_2d,
+                    chord_distribution                = c,     
+                    twist_distribution                = beta_0,            
+                    radial_distribution               = r,  
+                    radial_distribution_2d            = r_dim_2d,  
+                    thrust_angle                      = theta,
+                    speed_of_sound                    = conditions.freestream.speed_of_sound,
+                    density                           = conditions.freestream.density,
+                    velocity                          = Vv, 
+                    tangential_induced_velocity_2d    = Vt_ind_2d, 
+                    axial_induced_velocity_2d         = Va_ind_2d,  
+                    tangential_velocity_2d            = Vt_2d, 
+                    axial_velocity_2d                 = Va_2d, 
+                    drag_coefficient                  = Cd,
+                    lift_coefficient                  = Cl,       
+                    omega                             = omega,  
+                    blade_Gamma_2d                    = blade_Gamma_2d,
+                    blade_dT_dR                       = blade_dT_dR,
+                    blade_dT_dr                       = blade_dT_dr,
+                    thrust_distribution               = blade_T_distribution, 
+                    thrust_distribution_2d            = blade_T_distribution_2d, 
+                    thrust_per_blade                  = thrust/B, 
+                    thrust_coefficient                = Ct,   
+                    azimuthal_distribution            = psi, 
+                    azimuthal_distribution_2d         = psi_2d ,
+                    blade_dQ_dR                       = blade_dQ_dR ,
+                    blade_dQ_dr                       = blade_dQ_dr ,
+                    torque_distribution               = blade_Q_distribution, 
+                    torque_distribution_2d            = blade_Q_distribution_2d, 
+                    torque_per_blade                  = torque/B,   
+                    torque_coefficient                = Cq,   
+                    power                             = power,
+                    power_coefficient                 = Cp, 
+                    mid_chord_aligment                = self.mid_chord_aligment     
             ) 
     
         return thrust, torque, power, Cp, outputs  , etap 

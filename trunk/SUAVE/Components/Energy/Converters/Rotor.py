@@ -85,6 +85,9 @@ class Rotor(Energy_Component):
         Source:
         Drela, M. "Qprop Formulation", MIT AeroAstro, June 2006
         http://web.mit.edu/drela/Public/web/qprop/qprop_theory.pdf
+        
+        Leishman, Gordon J. Principles of helicopter aerodynamics
+        Cambridge university press, 2006.      
 
         Inputs:
         self.inputs.omega            [radian/s]
@@ -100,25 +103,48 @@ class Rotor(Energy_Component):
           throttle                   [-]
 
         Outputs:
-        conditions.propulsion.acoustic_outputs.
-          number_sections            [-]
-          r0                         [m]
-          airfoil_chord              [m]
-          blades_number              [-]
-          rotor_diameter         [m]
-          drag_coefficient           [-]
-          lift_coefficient           [-]
-          omega                      [radian/s]
-          velocity                   [m/s]
-          thrust                     [N]
-          power                      [W]
-          mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
-        conditions.propulsion.etap   [-]
-        thrust                       [N]
-        torque                       [Nm]
-        power                        [W]
-        Cp                           [-] (coefficient of power)
-
+        conditions.propulsion.outputs. 
+           num_blades                           [-]
+           radius                               [m]
+           diameter                             [m]
+           number_radial_stations               [-]
+           number_azimuthal_stations            [rad]
+           radial_distribution_normalized       [-]
+           radial_distribution_normalized_2d    [-]
+           chord_distribution                   [m]
+           twist_distribution                   [rad]
+           radial_distribution                  [m]
+           radial_distribution_2d               [m]
+           thrust_angle                         [rad]
+           speed_of_sound                       [m/s]
+           density                              [kg/m-3]
+           velocity                             [m/s]
+           tangential_induced_velocity_2d       [m/s]
+           axial_induced_velocity_2d            [m/s]
+           tangential_velocity_2d               [m/s]
+           axial_velocity_2d                    [m/s]
+           drag_coefficient                     [-]
+           lift_coefficient                     [-]
+           omega                                [rad/s]
+           blade_Gamma_2d                       [-]
+           blade_dT_dR                          [N/m]
+           blade_dT_dr                          [N]
+           thrust_distribution                  [N]
+           thrust_distribution_2d               [N]
+           thrust_per_blade                     [N]
+           thrust_coefficient                   [-] 
+           azimuthal_distribution               [rad]
+           azimuthal_distribution_2d            [rad]
+           blade_dQ_dR                          [N]
+           blade_dQ_dr                          [Nm]
+           torque_distribution                  [Nm] 
+           torque_distribution_2d               [Nm] 
+           torque_per_blade                     [Nm] 
+           torque_coefficient                   [-] 
+           power                                [W]    
+           power_coefficient                    [-]
+           mid_chord_aligment                   [-] 
+           
         Properties Used:
         self. 
           number_blades              [-]
@@ -126,10 +152,10 @@ class Rotor(Energy_Component):
           hub_radius                 [m]
           twist_distribution         [radians]
           chord_distribution         [m]
-          mid_chord_aligment         [m] (distance from the mid chord to the line axis out of the center of the blade)
+          mid_chord_aligment         [m]  
           thrust_angle               [radians]
-        """         
-           
+        """           
+        
         #Unpack    
         B       = self.number_blades
         R       = self.tip_radius
@@ -533,12 +559,14 @@ class Rotor(Energy_Component):
         
                 # If its really not going to converge
                 if np.any(PSI>(pi*85.0/180.)) and np.any(dpsi>0.0):
+                    print("Rotor BEMT did not converge to a solution")
                     break
         
                 ii+=1
         
                 if ii>2000:
                     broke = True
+                    print("Rotor BEMT did not converge to a solution")
                     break
     
             epsilon  = Cd/Cl
