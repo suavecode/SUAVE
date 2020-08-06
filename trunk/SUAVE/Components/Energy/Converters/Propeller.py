@@ -524,7 +524,6 @@ class Propeller(Energy_Component):
         ii    = 0
         broke = False  
         tol   = 1e-6    # Convergence tolerance  
-        print('Entering iteration')
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
