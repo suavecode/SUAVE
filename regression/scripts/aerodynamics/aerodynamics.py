@@ -43,7 +43,7 @@ def main():
         wing.areas.affected = 0.6 * wing.areas.wetted  
         
         
-    # initalize the aero model
+    # initialize the aero model
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()      
     aerodynamics.geometry = vehicle
         

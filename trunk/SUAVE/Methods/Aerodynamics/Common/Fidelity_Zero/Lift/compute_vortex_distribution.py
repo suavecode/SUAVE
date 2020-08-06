@@ -317,7 +317,7 @@ def compute_vortex_distribution(geometry,settings):
                 # adjustment of coordinates for camber
                 section_camber_a  = segment_camber[i_seg]*wing_chord_section_a  
                 section_camber_b  = segment_camber[i_seg]*wing_chord_section_b  
-                section_camber_c    = segment_camber[i_seg]*wing_chord_section                
+                section_camber_c  = segment_camber[i_seg]*wing_chord_section
                 section_x_coord_a = segment_x_coord[i_seg]*wing_chord_section_a
                 section_x_coord_b = segment_x_coord[i_seg]*wing_chord_section_b
                 section_x_coord   = segment_x_coord[i_seg]*wing_chord_section
@@ -487,9 +487,9 @@ def compute_vortex_distribution(geometry,settings):
                     ych = index_update(ych, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * (y_b[idx_y] - del_y[idx_y] / 2))
                     zch = index_update(zch, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime_ch)
 
-                    xc = index_update(xc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime)
-                    yc = index_update(yc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * (y_b[idx_y] - del_y[idx_y] / 2))
-                    zc = index_update(zc, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime)
+                    xc  = index_update(xc,  jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime)
+                    yc  = index_update(yc,  jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * (y_b[idx_y] - del_y[idx_y] / 2))
+                    zc  = index_update(zc,  jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], zeta_prime)
 
                     xac = index_update(xac, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], xi_prime_ac)
                     yac = index_update(yac, jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * y_a[idx_y])
@@ -554,17 +554,17 @@ def compute_vortex_distribution(geometry,settings):
                 z = index_update(z, jax.ops.index[-(n_cw + 1):], np.ones(n_cw + 1) * y_b[idx_y])
                 y = index_update(y, jax.ops.index[-(n_cw + 1):], np.concatenate([zeta_prime_b1, np.array([zeta_prime_b2[-1]])]))
 
-                # x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
-                # z[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y]
-                # y[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
+                # x[-(n_cw+1):] =                                np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
+                # z[-(n_cw+1):] =                                np.ones(n_cw+1)*y_b[idx_y]
+                # y[-(n_cw+1):] =                                np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
             else:
                 x = index_update(x, jax.ops.index[-(n_cw + 1):], np.concatenate([xi_prime_b1, np.array([xi_prime_b2[-1]])]))
                 y = index_update(y, jax.ops.index[-(n_cw + 1):], np.ones(n_cw + 1) * y_b[idx_y])
                 z = index_update(z, jax.ops.index[-(n_cw + 1):], np.concatenate([zeta_prime_b1, np.array([zeta_prime_b2[-1]])]))
 
-                # x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
-                # y[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y]
-                # z[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
+                # x[-(n_cw+1):] =                                np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
+                # y[-(n_cw+1):] =                                np.ones(n_cw+1)*y_b[idx_y]
+                # z[-(n_cw+1):] =                                np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
 
         else:   # when no segments are defined on wing  
             # ---------------------------------------------------------------------------------------
@@ -1036,24 +1036,24 @@ def compute_vortex_distribution(geometry,settings):
             fhs.nose_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus_nose_curvature ))**(1/fus_nose_curvature))*fus.lengths.nose
             fhs.tail_length   = ((1 - ((abs(h_array[i]/semispan_h))**fus_tail_curvature ))**(1/fus_tail_curvature))*fus.lengths.tail
             fhs.nose_origin   = fus.lengths.nose - fhs.nose_length 
-            fhs.origin        = index_update(fhs.origin, jax.ops.index[i,:], np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]]))
-            fhs.chord         = index_update(fhs.chord,  jax.ops.index[i], fhs_cabin_length + fhs.nose_length + fhs.tail_length)
-            # fhs.origin[i][:]  = np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]])
-            # fhs.chord[i]      = fhs_cabin_length + fhs.nose_length + fhs.tail_length
+            fhs.origin        = index_update(fhs.origin, jax.ops.index[i,:], np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]])) #TODO: Is the [i][:] index equivalent to [i,:]?
+            fhs.chord         = index_update(fhs.chord,  jax.ops.index[i],   fhs_cabin_length + fhs.nose_length + fhs.tail_length)
+            # fhs.origin[i][:]  =                                            np.array([origin[0] + fhs.nose_origin , origin[1] + h_array[i], origin[2]])
+            # fhs.chord[i]      =                                            fhs_cabin_length + fhs.nose_length + fhs.tail_length
 
             fvs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
             fvs.nose_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus_nose_curvature ))**(1/fus_nose_curvature))*fus.lengths.nose
             fvs.tail_length   = ((1 - ((abs(v_array[i]/semispan_v))**fus_tail_curvature ))**(1/fus_tail_curvature))*fus.lengths.tail
             fvs.nose_origin   = fus.lengths.nose - fvs.nose_length
             fvs.origin        = index_update(fvs.origin, jax.ops.index[i,:] , np.array([origin[0] + fvs.nose_origin, origin[1], origin[2] + v_array[i]]))
-            fvs.chord         = index_update(fvs.chord,  jax.ops.index[i] , fvs_cabin_length + fvs.nose_length + fvs.tail_length)
-            # fvs.origin[i][:]  = np.array([origin[0] + fvs.nose_origin , origin[1] , origin[2]+  v_array[i]])
-            # fvs.chord[i]      = fvs_cabin_length + fvs.nose_length + fvs.tail_length
+            fvs.chord         = index_update(fvs.chord,  jax.ops.index[i] ,   fvs_cabin_length + fvs.nose_length + fvs.tail_length)
+            # fvs.origin[i][:]  =                                             np.array([origin[0] + fvs.nose_origin , origin[1] , origin[2]+  v_array[i]])
+            # fvs.chord[i]      =                                             fvs_cabin_length + fvs.nose_length + fvs.tail_length
 
         fhs.sweep = index_update(fhs.sweep,jax.ops.index[:], np.concatenate([np.arctan((fhs.origin[:,0][1:] - fhs.origin[:,0][:-1])/(fhs.origin[:,1][1:]  - fhs.origin[:,1][:-1])) ,np.zeros(1)]))
         fvs.sweep = index_update(fvs.sweep,jax.ops.index[:], np.concatenate([np.arctan((fvs.origin[:,0][1:] - fvs.origin[:,0][:-1])/(fvs.origin[:,2][1:]  - fvs.origin[:,2][:-1])) ,np.zeros(1)]))
-        # fhs.sweep[:]  = np.concatenate([np.arctan((fhs.origin[:,0][1:] - fhs.origin[:,0][:-1])/(fhs.origin[:,1][1:]  - fhs.origin[:,1][:-1])) ,np.zeros(1)])
-        # fvs.sweep[:]  = np.concatenate([np.arctan((fvs.origin[:,0][1:] - fvs.origin[:,0][:-1])/(fvs.origin[:,2][1:]  - fvs.origin[:,2][:-1])) ,np.zeros(1)])
+        # fhs.sweep[:]  =                                    np.concatenate([np.arctan((fhs.origin[:,0][1:] - fhs.origin[:,0][:-1])/(fhs.origin[:,1][1:]  - fhs.origin[:,1][:-1])) ,np.zeros(1)])
+        # fvs.sweep[:]  =                                    np.concatenate([np.arctan((fvs.origin[:,0][1:] - fvs.origin[:,0][:-1])/(fvs.origin[:,2][1:]  - fvs.origin[:,2][:-1])) ,np.zeros(1)])
         # ---------------------------------------------------------------------------------------
         # STEP 9: Define coordinates of panels horseshoe vortices and control points  
         # ---------------------------------------------------------------------------------------        
@@ -1090,19 +1090,19 @@ def compute_vortex_distribution(geometry,settings):
             fhs_xi_c  = (fhs.origin[idx_y][0] + fhs.origin[idx_y+1][0])/2  + delta_x*idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
             fhs_xi_ch = (fhs.origin[idx_y][0] + fhs.origin[idx_y+1][0])/2  + delta_x*idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
 
-            fhs_xc = index_update(fhs_xc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], fhs_xi_c + fus.origin[0][0])
-            fhs_yc = index_update(fhs_yc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.ones(n_cw) * fhs_eta[idx_y] + fus.origin[0][1])
-            fhs_zc = index_update(fhs_zc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw], np.zeros(n_cw) + fus.origin[0][2])
-            fhs_x  = index_update(fhs_x ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)],np.concatenate([fhs_xi_a1, np.array([fhs_xi_a2[-1]])]) + fus.origin[0][0])
-            fhs_y  = index_update(fhs_y ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)],np.ones(n_cw + 1) * fhs_eta_a[idx_y] + fus.origin[0][1])
-            fhs_z  = index_update(fhs_z ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)],np.zeros(n_cw + 1) + fus.origin[0][2])
+            fhs_xc = index_update(fhs_xc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],             fhs_xi_c + fus.origin[0][0])
+            fhs_yc = index_update(fhs_yc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],             np.ones(n_cw) * fhs_eta[idx_y] + fus.origin[0][1])
+            fhs_zc = index_update(fhs_zc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],             np.zeros(n_cw) + fus.origin[0][2])
+            fhs_x  = index_update(fhs_x ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.concatenate([fhs_xi_a1, np.array([fhs_xi_a2[-1]])]) + fus.origin[0][0])
+            fhs_y  = index_update(fhs_y ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.ones(n_cw + 1) * fhs_eta_a[idx_y] + fus.origin[0][1])
+            fhs_z  = index_update(fhs_z ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.zeros(n_cw + 1) + fus.origin[0][2])
 
-            # fhs_xc [idx_y*n_cw:(idx_y+1)*n_cw]          = fhs_xi_c                        + fus.origin[0][0]
-            # fhs_yc [idx_y*n_cw:(idx_y+1)*n_cw]          = np.ones(n_cw)*fhs_eta[idx_y]    + fus.origin[0][1]
-            # fhs_zc [idx_y*n_cw:(idx_y+1)*n_cw]          = np.zeros(n_cw)                  + fus.origin[0][2]
-            # fhs_x  [idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]  = np.concatenate([fhs_xi_a1,np.array([fhs_xi_a2[-1]])])+ fus.origin[0][0]
-            # fhs_y  [idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]  = np.ones(n_cw+1)*fhs_eta_a[idx_y]  + fus.origin[0][1]
-            # fhs_z  [idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]  = np.zeros(n_cw+1)                  + fus.origin[0][2]
+            # fhs_xc                                  [idx_y*n_cw:(idx_y+1)*n_cw]          =         fhs_xi_c                        + fus.origin[0][0]
+            # fhs_yc                                  [idx_y*n_cw:(idx_y+1)*n_cw]          =         np.ones(n_cw)*fhs_eta[idx_y]    + fus.origin[0][1]
+            # fhs_zc                                  [idx_y*n_cw:(idx_y+1)*n_cw]          =         np.zeros(n_cw)                  + fus.origin[0][2]
+            # fhs_x                                   [idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]  =         np.concatenate([fhs_xi_a1,np.array([fhs_xi_a2[-1]])])+ fus.origin[0][0]
+            # fhs_y                                   [idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]  =         np.ones(n_cw+1)*fhs_eta_a[idx_y]  + fus.origin[0][1]
+            # fhs_z                                   [idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]  =         np.zeros(n_cw+1)                  + fus.origin[0][2]
 
 
             # fuselage vertical section                      
@@ -1121,33 +1121,34 @@ def compute_vortex_distribution(geometry,settings):
             fvs_xi_c  = (fvs.origin[idx_y][0] + fvs.origin[idx_y+1][0])/2 + delta_x *idx_x + delta_x*0.75     # z coordinate three-quarter chord control point for each panel
             fvs_xi_ch = (fvs.origin[idx_y][0] + fvs.origin[idx_y+1][0])/2 + delta_x *idx_x + delta_x*0.25     # z coordinate center of bound vortex of each panel 
 
-            fvs_xc = index_update(fvs_xc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],fvs_xi_c + fus.origin[0][0])
-            fvs_zc = index_update(fvs_zc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],np.ones(n_cw) * fvs_eta[idx_y] + fus.origin[0][2])
-            fvs_yc = index_update(fvs_yc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],np.zeros(n_cw) + fus.origin[0][1])
-            fvs_x  = index_update(fvs_x ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)],np.concatenate([fvs_xi_a1, np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0])
-            fvs_z  = index_update(fvs_z ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)],np.ones(n_cw + 1) * fvs_eta_a[idx_y] + fus.origin[0][2])
-            fvs_y  = index_update(fvs_y ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)],np.zeros(n_cw + 1) + fus.origin[0][1])
+            fvs_xc = index_update(fvs_xc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],             fvs_xi_c + fus.origin[0][0])
+            fvs_zc = index_update(fvs_zc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],             np.ones(n_cw) * fvs_eta[idx_y] + fus.origin[0][2])
+            fvs_yc = index_update(fvs_yc,jax.ops.index[idx_y * n_cw:(idx_y + 1) * n_cw],             np.zeros(n_cw) + fus.origin[0][1])
+            fvs_x  = index_update(fvs_x ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.concatenate([fvs_xi_a1, np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0])
+            fvs_z  = index_update(fvs_z ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.ones(n_cw + 1) * fvs_eta_a[idx_y] + fus.origin[0][2])
+            fvs_y  = index_update(fvs_y ,jax.ops.index[idx_y * (n_cw + 1):(idx_y + 1) * (n_cw + 1)], np.zeros(n_cw + 1) + fus.origin[0][1])
 
-            # fvs_xc [idx_y*n_cw:(idx_y+1)*n_cw]          = fvs_xi_c                       + fus.origin[0][0]
-            # fvs_zc [idx_y*n_cw:(idx_y+1)*n_cw]          = np.ones(n_cw)*fvs_eta[idx_y]   + fus.origin[0][2]
-            # fvs_yc [idx_y*n_cw:(idx_y+1)*n_cw]          = np.zeros(n_cw)                 + fus.origin[0][1]
-            # fvs_x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]    = np.concatenate([fvs_xi_a1,np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0]
-            # fvs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]    = np.ones(n_cw+1)*fvs_eta_a[idx_y] + fus.origin[0][2]
-            # fvs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]    = np.zeros(n_cw+1)                 + fus.origin[0][1]
+            # fvs_xc                                  [idx_y*n_cw:(idx_y+1)*n_cw]            =       fvs_xi_c                       + fus.origin[0][0]
+            # fvs_zc                                  [idx_y*n_cw:(idx_y+1)*n_cw]            =       np.ones(n_cw)*fvs_eta[idx_y]   + fus.origin[0][2]
+            # fvs_yc                                  [idx_y*n_cw:(idx_y+1)*n_cw]            =       np.zeros(n_cw)                 + fus.origin[0][1]
+            # fvs_x                                   [idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]    =       np.concatenate([fvs_xi_a1,np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0]
+            # fvs_z                                   [idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]    =       np.ones(n_cw+1)*fvs_eta_a[idx_y] + fus.origin[0][2]
+            # fvs_y                                   [idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)]    =       np.zeros(n_cw+1)                 + fus.origin[0][1]
 
-        fhs_x = index_update(fhs_x,jax.ops.index[-(n_cw + 1):],np.concatenate([fhs_xi_b1, np.array([fhs_xi_b2[-1]])]) + fus.origin[0][0])
-        fhs_y = index_update(fhs_y,jax.ops.index[-(n_cw + 1):],np.ones(n_cw + 1) * fhs_eta_b[idx_y] + fus.origin[0][1])
-        fhs_z = index_update(fhs_z,jax.ops.index[-(n_cw + 1):],np.zeros(n_cw + 1) + fus.origin[0][2])
-        fvs_x = index_update(fvs_x,jax.ops.index[-(n_cw + 1):],np.concatenate([fvs_xi_a1, np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0])
-        fvs_z = index_update(fvs_z,jax.ops.index[-(n_cw + 1):],np.ones(n_cw + 1) * fvs_eta_a[idx_y] + fus.origin[0][2])
-        fvs_y = index_update(fvs_y,jax.ops.index[-(n_cw + 1):],np.zeros(n_cw + 1) + fus.origin[0][1])
+        fhs_x = index_update(fhs_x,jax.ops.index[-(n_cw + 1):], np.concatenate([fhs_xi_b1, np.array([fhs_xi_b2[-1]])]) + fus.origin[0][0])
+        fhs_y = index_update(fhs_y,jax.ops.index[-(n_cw + 1):], np.ones(n_cw + 1) * fhs_eta_b[idx_y] + fus.origin[0][1])
+        fhs_z = index_update(fhs_z,jax.ops.index[-(n_cw + 1):], np.zeros(n_cw + 1) + fus.origin[0][2])
+        fvs_x = index_update(fvs_x,jax.ops.index[-(n_cw + 1):], np.concatenate([fvs_xi_a1, np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0])
+        fvs_z = index_update(fvs_z,jax.ops.index[-(n_cw + 1):], np.ones(n_cw + 1) * fvs_eta_a[idx_y] + fus.origin[0][2])
+        fvs_y = index_update(fvs_y,jax.ops.index[-(n_cw + 1):], np.zeros(n_cw + 1) + fus.origin[0][1])
 
-        # fhs_x[-(n_cw+1):] = np.concatenate([fhs_xi_b1,np.array([fhs_xi_b2[-1]])])+ fus.origin[0][0]
-        # fhs_y[-(n_cw+1):] = np.ones(n_cw+1)*fhs_eta_b[idx_y]  + fus.origin[0][1]
-        # fhs_z[-(n_cw+1):] = np.zeros(n_cw+1)                  + fus.origin[0][2]
-        # fvs_x[-(n_cw+1):] = np.concatenate([fvs_xi_a1,np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0]
-        # fvs_z[-(n_cw+1):] = np.ones(n_cw+1)*fvs_eta_a[idx_y] + fus.origin[0][2]
-        # fvs_y[-(n_cw+1):] = np.zeros(n_cw+1)                 + fus.origin[0][1]
+        # fhs_x                                 [-(n_cw+1):] =  np.concatenate([fhs_xi_b1,np.array([fhs_xi_b2[-1]])])+ fus.origin[0][0]
+        # fhs_y                                 [-(n_cw+1):] =  np.ones(n_cw+1)*fhs_eta_b[idx_y]  + fus.origin[0][1]
+        # fhs_z                                 [-(n_cw+1):] =  np.zeros(n_cw+1)                  + fus.origin[0][2]
+        # fvs_x                                 [-(n_cw+1):] =  np.concatenate([fvs_xi_a1,np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0]
+        # fvs_z                                 [-(n_cw+1):] =  np.ones(n_cw+1)*fvs_eta_a[idx_y] + fus.origin[0][2]
+        # fvs_y                                 [-(n_cw+1):] =  np.zeros(n_cw+1)                 + fus.origin[0][1]
+        
         fhs_cs =  (fhs.chord[:-1]+fhs.chord[1:])/2
         fvs_cs =  (fvs.chord[:-1]+fvs.chord[1:])/2     
 
