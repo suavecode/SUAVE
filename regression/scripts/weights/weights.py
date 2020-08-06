@@ -168,8 +168,8 @@ def main():
             
     # regression values    
     actual = Data()
-    actual.empty           = 138.02737768459374
-    actual.wing            = 89.86286881794777
+    actual.empty           = 143.59737768459374
+    actual.wing            = 95.43286881794776
     actual.fuselage        = 1.0
     actual.horizontal_tail = 31.749272074174737
     actual.vertical_tail   = 16.415236792471237

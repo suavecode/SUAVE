@@ -293,7 +293,7 @@ class Propeller(Energy_Component):
             psiold = psi
             
             # If its really not going to converge
-            if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+            if np.any(psi>pi/2) and np.any(dpsi>0.0):
                 break
                 
             ii+=1
@@ -601,7 +601,7 @@ class Propeller(Energy_Component):
             psiold = psi
             
             # If its really not going to converge
-            if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+            if np.any(psi>(pi/2)) and np.any(dpsi>0.0):
                 break
                 
             ii+=1
