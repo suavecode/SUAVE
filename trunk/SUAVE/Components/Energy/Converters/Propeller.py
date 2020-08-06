@@ -293,7 +293,7 @@ class Propeller(Energy_Component):
             psiold = psi
             
             # If its really not going to converge
-            if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+            if np.any(psi>pi/2) and np.any(dpsi>0.0):
                 break
                 
             ii+=1
@@ -524,6 +524,7 @@ class Propeller(Energy_Component):
         ii    = 0
         broke = False  
         tol   = 1e-6    # Convergence tolerance  
+        print('Entering iteration')
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -601,7 +602,7 @@ class Propeller(Energy_Component):
             psiold = psi
             
             # If its really not going to converge
-            if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+            if np.any(psi>(pi/2)) and np.any(dpsi>0.0):
                 break
                 
             ii+=1
