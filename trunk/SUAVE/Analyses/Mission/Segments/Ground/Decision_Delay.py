@@ -69,8 +69,9 @@ class Decision_Delay(Ground_Constant_Time):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.unknowns.velocity_x            = ones_row(1) * 0.0
-        self.state.residuals.forces               = ones_row(1) * 0.0        
+        ones_row_m1 = self.state.ones_row_m1
+        self.state.unknowns.velocity_x            = ones_row_m1(1) * 0.0
+        self.state.residuals.forces               = ones_row_m1(1) * 0.0        
 
         # --------------------------------------------------------------
         #   The Solving Process

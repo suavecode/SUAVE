@@ -61,7 +61,8 @@ class Constant_Throttle_Constant_Body_Angle(Aerodynamic):
         # --------------------------------------------------------------
         self.altitude_start = None # Optional
         self.altitude_end   = 10. * Units.km
-        self.velocity_start = None
+        self.velocity_x_start = None
+        self.velocity_z_start = None
         self.throttle       = 0.5
         self.body_angle     = 0.
         
@@ -75,10 +76,13 @@ class Constant_Throttle_Constant_Body_Angle(Aerodynamic):
         # initials and unknowns
         ones_row = self.state.ones_row
         ones_row_m1 = self.state.ones_row_m1
-        self.state.unknowns.velocity  = ones_row_m1(1) * 100.
-        self.state.unknowns.wind_angle = ones_row(1) * 0.0 * Units.deg
+        self.state.unknowns.velocity_x  = ones_row_m1(1) * 100.
+        self.state.unknowns.velocity_z  = ones_row_m1(1) * 100.
+        #self.state.unknowns.wind_angle = ones_row(1) * 0.0 * Units.deg
         self.state.unknowns.time       = 5.
-        self.state.residuals.forces    = ones_row(2) * 0.0     
+        self.state.residuals.force_x   = ones_row_m1(1) * 0.0     
+        self.state.residuals.force_y   = ones_row_m1(1) * 0.0
+        self.state.residuals.final_altitude = 0.0
         
         
         # --------------------------------------------------------------
@@ -123,6 +127,7 @@ class Constant_Throttle_Constant_Body_Angle(Aerodynamic):
         iterate.conditions = Process()
         iterate.conditions.differentials_a = Methods.Climb.Constant_Throttle_Constant_Body_Angle.update_differentials_altitude
         iterate.conditions.differentials_b = Methods.Common.Numerics.update_differentials_time
+        iterate.conditions.velocities      = Methods.Climb.Constant_Throttle_Constant_Body_Angle.update_velocity_vector_from_wind_angle
         iterate.conditions.acceleration    = Methods.Common.Frames.update_acceleration
         iterate.conditions.altitude        = Methods.Common.Aerodynamics.update_altitude
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere

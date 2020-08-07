@@ -37,8 +37,7 @@ def unpack_unknowns(segment):
 
     #apply unknowns
     conditions = segment.state.conditions
-    conditions.frames.inertial.velocity_vector[:,0] = velocity_x
-    conditions.frames.inertial.velocity_vector[0,0] = v0
+    conditions.frames.inertial.velocity_vector[:,0] = np.vstack([v0,velocity_x])[:,0]
     conditions.frames.inertial.time[:,0]            = time[:,0]
      
 # ----------------------------------------------------------------------
@@ -96,10 +95,12 @@ def initialize_conditions(segment):
     # repack
     segment.air_speed_start = v0
     
-    initialized_velocity = v0*np.ones_like(segment.state.numerics.dimensionless.control_points)
+    ones_row = segment.state.ones_row
+    ones_row_m1 = segment.state.ones_row_m1
+    initialized_velocity = v0*ones_row(1)
     
     # Initialize the x velocity unknowns to speed convergence:
-    segment.state.unknowns.velocity_x = initialized_velocity[:,0]
+    segment.state.unknowns.velocity_x = v0*ones_row_m1(1)
 
     # pack conditions 
     segment.state.conditions.frames.inertial.velocity_vector[:,0] = initialized_velocity[:,0]
@@ -235,6 +236,6 @@ def solve_residuals(segment):
     
     a  = segment.state.conditions.frames.inertial.acceleration_vector
 
-    segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
+    segment.state.residuals.forces = FT[1:,0]/m[1:,0] - a[1:,0]
     
     return
