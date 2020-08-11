@@ -12,7 +12,7 @@ branches:
     only:
         - master
         - develop
-        - feature-pseudo_vtol_develop
+        - jax-develop
 
 before_install:
     - sudo apt-get update
