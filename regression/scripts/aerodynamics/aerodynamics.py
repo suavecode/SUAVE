@@ -18,7 +18,11 @@ from SUAVE.Core import Data
 import jax
 import jax.numpy as np
 
-#import jax.numpy as np
+#Debugging NaNs TODO: Remove After Debugging
+
+from jax.config import config as jax_config
+jax_config.update("jax_debug_nans", True)
+
 import pylab as plt
 
 import timeit
