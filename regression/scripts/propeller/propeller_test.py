@@ -9,7 +9,8 @@
 
 import SUAVE
 from SUAVE.Core import Units
-
+from SUAVE.Plots.Geometry_Plots import plot_propeller_geometry
+import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
 )
@@ -36,13 +37,13 @@ def main():
     gearbox.efficiency        = 0.95
     gearbox.inputs.torque     = 800 # N-m
     gearbox.inputs.speed      = 209.43951023931953
-    gearbox.inputs.power      = 7000 
+    gearbox.inputs.power      = .64 * 180. * Units.horsepower
     gearbox.compute()
     
     # Design the Propeller with airfoil  geometry defined 
     prop_a                         = SUAVE.Components.Energy.Converters.Propeller()
-    prop_a.number_blades           = 2.0 
-    prop_a.freestream_velocity     = 50.0
+    prop_a.number_blades           = 2
+    prop_a.freestream_velocity     = 119.   * Units.knots
     prop_a.angular_velocity        = gearbox.inputs.speed # 209.43951023931953
     prop_a.tip_radius              = 1.5
     prop_a.hub_radius              = 0.05
@@ -53,6 +54,9 @@ def main():
     prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     prop_a.design_power            = gearbox.outputs.power # 7000  
     prop_a                         = propeller_design(prop_a)   
+    
+    # plot propeller 
+    plot_propeller_geometry(prop_a)
     
     # Design the Propeller with airfoil  geometry defined 
     prop                           = SUAVE.Components.Energy.Converters.Propeller()
@@ -139,28 +143,28 @@ def main():
     Fr, Qr, Pr, Cplastr ,outputr , etapr  = rot.spin_variable_pitch(conditions_r)
     
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 97.95830293
-    Q_a_truth       = 28.28338146
-    P_a_truth       = 5923.6575610
-    Cplast_a_truth  = 0.00053729
+    F_a_truth       = 1014.92402212
+    Q_a_truth       = 278.20652782
+    P_a_truth       = 58267.43893127
+    Cplast_a_truth  = 0.00528503
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 179.27020984
-    Q_truth         = 48.06170453
-    P_truth         = 10066.0198578
-    Cplast_truth    = 0.00091302
+    F_truth         = 1815.75252952
+    Q_truth         = 490.65810968
+    P_truth         = 102763.19418643
+    Cplast_truth    = 0.00932092
     
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 893.16859917
-    Qr_a_truth      = 77.57705597
-    Pr_a_truth      = 16247.70060823
-    Cplastr_a_truth = 0.00147371
+    Fr_a_truth      = 893.49222898
+    Qr_a_truth      = 77.63298515
+    Pr_a_truth      = 16259.4143889
+    Cplastr_a_truth = 0.00147478
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 900.63698565
-    Qr_truth        = 78.01972629
-    Pr_truth        = 16340.41326374
-    Cplastr_truth   = 0.00148212 
+    Fr_truth        = 900.96955037
+    Qr_truth        = 78.07626613
+    Pr_truth        = 16352.25493882
+    Cplastr_truth   = 0.0014832
     
     # Store errors 
     error = Data()
@@ -195,3 +199,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    plt.show()

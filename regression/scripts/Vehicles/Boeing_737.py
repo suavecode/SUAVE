@@ -43,7 +43,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.max_zero_fuel             = 62732.0   # kg #0.9 * vehicle.mass_properties.max_takeoff
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
-    vehicle.mass_properties.center_of_gravity         = [ 15.30987849,   0.        ,  -0.48023939]
+    vehicle.mass_properties.center_of_gravity         = [[ 15.30987849,   0.        ,  -0.48023939]]
     vehicle.mass_properties.moments_of_inertia.tensor = [[3173074.17, 0 , 28752.77565],[0 , 3019041.443, 0],[0, 0, 5730017.433]] # estimated, not correct 
     
  
@@ -69,7 +69,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.1
     wing.taper                   = 0.1
-    wing.span_efficiency         = 0.9
     
     wing.spans.projected         = 34.32   
     
@@ -82,7 +81,7 @@ def vehicle_setup():
     wing.twists.root             = 4.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
     
-    wing.origin                  = [13.61,0,-1.27]
+    wing.origin                  = [[13.61,0,-1.27]]
     wing.aerodynamic_center      = [0,0,0]  #[3,0,0]
     
     wing.vertical                = False
@@ -94,7 +93,7 @@ def vehicle_setup():
                                           
     # Wing Segments                       
     root_airfoil                          = SUAVE.Components.Wings.Airfoils.Airfoil()
-    root_airfoil.coordinate_file          = 'B737a.txt'   
+    root_airfoil.coordinate_file          = '../Vehicles/B737a.txt'   
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Root'
     segment.percent_span_location         = 0.0
@@ -102,11 +101,12 @@ def vehicle_setup():
     segment.root_chord_percent            = 1.
     segment.dihedral_outboard             = 2.5 * Units.degrees
     segment.sweeps.quarter_chord          = 28.225 * Units.degrees
+    segment.thickness_to_chord            = .1
     segment.append_airfoil(root_airfoil)
     wing.append_segment(segment)    
     
     yehudi_airfoil                        = SUAVE.Components.Wings.Airfoils.Airfoil()
-    yehudi_airfoil.coordinate_file        = 'B737b.txt'   
+    yehudi_airfoil.coordinate_file        = '../Vehicles/B737b.txt'   
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Yehudi'
     segment.percent_span_location         = 0.324
@@ -114,11 +114,12 @@ def vehicle_setup():
     segment.root_chord_percent            = 0.5
     segment.dihedral_outboard             = 5.5 * Units.degrees
     segment.sweeps.quarter_chord          = 25. * Units.degrees
+    segment.thickness_to_chord            = .1
     segment.append_airfoil(yehudi_airfoil)
     wing.append_segment(segment)
 
     mid_airfoil                           = SUAVE.Components.Wings.Airfoils.Airfoil()
-    mid_airfoil.coordinate_file           = 'B737c.txt' 
+    mid_airfoil.coordinate_file           = '../Vehicles/B737c.txt' 
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Section_2'
     segment.percent_span_location         = 0.963
@@ -126,11 +127,12 @@ def vehicle_setup():
     segment.root_chord_percent            = 0.220
     segment.dihedral_outboard             = 5.5 * Units.degrees
     segment.sweeps.quarter_chord          = 56.75 * Units.degrees
+    segment.thickness_to_chord            = .1
     segment.append_airfoil(mid_airfoil)
     wing.append_segment(segment)
     
     tip_airfoil                           =  SUAVE.Components.Wings.Airfoils.Airfoil()
-    tip_airfoil.coordinate_file           = 'B737c.txt' 
+    tip_airfoil.coordinate_file           = '../Vehicles/B737d.txt' 
     segment                               = SUAVE.Components.Wings.Segment() 
     segment.tag                           = 'Tip'
     segment.percent_span_location         = 1.
@@ -138,26 +140,27 @@ def vehicle_setup():
     segment.root_chord_percent            = 0.10077
     segment.dihedral_outboard             = 0.
     segment.sweeps.quarter_chord          = 0.
+    segment.thickness_to_chord            = .1
     segment.append_airfoil(tip_airfoil)
     wing.append_segment(segment)     
        
     # control surfaces -------------------------------------------
+    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
+    slat.tag                   = 'slat' 
+    slat.span_fraction_start   = 0.2
+    slat.span_fraction_end     = 0.963     
+    slat.deflection            = 0.0 * Units.degrees
+    slat.chord_fraction        = 0.075 
+    wing.append_control_surface(slat)  
+    
     flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
     flap.tag                   = 'flap' 
-    flap.span_fraction_start   = 0.10 
-    flap.span_fraction_end     = 0.75   
+    flap.span_fraction_start   = 0.2
+    flap.span_fraction_end     = 0.7    
     flap.deflection            = 0.0 * Units.degrees
     flap.configuration_type    = 'double_slotted'
     flap.chord_fraction        = 0.30   
     wing.append_control_surface(flap)   
-        
-    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
-    slat.tag                   = 'slat' 
-    slat.span_fraction_start   = 0.324 
-    slat.span_fraction_end     = 0.963     
-    slat.deflection            = 0.0 * Units.degrees
-    slat.chord_fraction        = 0.1  	 
-    wing.append_control_surface(slat)  
         
     aileron                       = SUAVE.Components.Wings.Control_Surfaces.Aileron() 
     aileron.tag                   = 'aileron' 
@@ -175,14 +178,13 @@ def vehicle_setup():
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------        
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Horizontal_Tail()
     wing.tag = 'horizontal_stabilizer'
     
     wing.aspect_ratio            = 6.16      #
     wing.sweeps.quarter_chord    = 40 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.2
-    wing.span_efficiency         = 0.9
     
     wing.spans.projected         = 14.2      
 
@@ -196,7 +198,7 @@ def vehicle_setup():
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
     
-    wing.origin                  = [32.83,0,1.14]
+    wing.origin                  = [[32.83,0,1.14]]
     wing.aerodynamic_center      = [0,0,0]
     
     wing.vertical                = False 
@@ -213,6 +215,7 @@ def vehicle_setup():
     segment.root_chord_percent            = 1.0
     segment.dihedral_outboard             = 8.63 * Units.degrees
     segment.sweeps.quarter_chord          = 38.42 * Units.degrees
+    segment.thickness_to_chord            = .1
     wing.append_segment(segment)                 
                                           
     segment                               = SUAVE.Components.Wings.Segment() 
@@ -222,6 +225,7 @@ def vehicle_setup():
     segment.root_chord_percent            = 0.203
     segment.dihedral_outboard             = 0 * Units.degrees
     segment.sweeps.quarter_chord          = 0 * Units.degrees
+    segment.thickness_to_chord            = .1
     wing.append_segment(segment) 
     
     # control surfaces -------------------------------------------
@@ -240,15 +244,14 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
-
-    wing = SUAVE.Components.Wings.Wing()
-    wing.tag = 'vertical_stabilizer'
-
+    
+    wing = SUAVE.Components.Wings.Vertical_Tail()
+    wing.tag = 'vertical_stabilizer'    
+    
     wing.aspect_ratio            = 1.91      #
     wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.25
-    wing.span_efficiency         = 0.9
 
     wing.spans.projected         = 7.777      #
 
@@ -261,8 +264,8 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
 
-    wing.origin                  = [28.79,0,1.54]
-    wing.aerodynamic_center      = [0,0,0]    #[2,0,0]
+    wing.origin                  = [[28.79,0,1.54]]
+    wing.aerodynamic_center      = [0,0,0]    
 
     wing.vertical                = True
     wing.symmetric               = False
@@ -279,6 +282,7 @@ def vehicle_setup():
     segment.root_chord_percent            = 1.
     segment.dihedral_outboard             = 0 * Units.degrees
     segment.sweeps.quarter_chord          = 63.63 * Units.degrees
+    segment.thickness_to_chord            = .1
     wing.append_segment(segment)              
                                           
     segment                               = SUAVE.Components.Wings.Segment() 
@@ -288,6 +292,7 @@ def vehicle_setup():
     segment.root_chord_percent            = 0.540
     segment.dihedral_outboard             = 0. * Units.degrees
     segment.sweeps.quarter_chord          = 30.0 * Units.degrees
+    segment.thickness_to_chord            = .1
     wing.append_segment(segment)          
                                           
     segment                               = SUAVE.Components.Wings.Segment() 
@@ -297,6 +302,7 @@ def vehicle_setup():
     segment.root_chord_percent            = 0.175
     segment.dihedral_outboard             = 0.0 * Units.degrees
     segment.sweeps.quarter_chord          = 51.0 * Units.degrees
+    segment.thickness_to_chord            = .1
     wing.append_segment(segment)        
     
     # add to vehicle
@@ -311,10 +317,8 @@ def vehicle_setup():
     fuselage.tag = 'fuselage'
 
     fuselage.number_coach_seats    = vehicle.passengers
-    #fuselage.number_coach_seats    = 200.
     fuselage.seats_abreast         = 6
-    fuselage.seat_pitch            = 1
-
+    fuselage.seat_pitch            = 31. * Units.inches
     fuselage.fineness.nose         = 1.6
     fuselage.fineness.tail         = 2.
 
@@ -579,8 +583,8 @@ def vehicle_setup():
     landing_gear.nose_tire_diameter       = 0.6858 * Units.m
     landing_gear.main_strut_length        = 1.8 * Units.m
     landing_gear.nose_strut_length        = 1.3 * Units.m
-    landing_gear.main_units               = 1      #number of nose landing gear
-    landing_gear.nose_units               = 1     #number of nose landing gear
+    landing_gear.main_units               = 1    #number of nose landing gear
+    landing_gear.nose_units               = 1    #number of nose landing gear
     landing_gear.main_wheels              = 2    #number of wheels on the main landing gear
     landing_gear.nose_wheels              = 2    #number of wheels on the nose landing gear      
     vehicle.landing_gear                  = landing_gear
@@ -621,7 +625,6 @@ def configs_setup(vehicle):
     config.tag                                                       = 'takeoff'
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg
-    config.max_lift_coefficient_factor                               = 1. #0.95
     #Noise input for the landing gear                                
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Flyover_'
@@ -639,7 +642,6 @@ def configs_setup(vehicle):
     config.tag                                                       = 'cutback'
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
-    config.max_lift_coefficient_factor                               = 1. #0.95
     #Noise input for the landing gear                                
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Cutback_'
@@ -659,7 +661,6 @@ def configs_setup(vehicle):
 
     config.wings['main_wing'].control_surfaces.flap.deflection       = 30. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg  
-    config.max_lift_coefficient_factor                               = 1. #0.95
     #Noise input for the landing gear                              
     config.landing_gear.gear_condition                               = 'down'    
     config.output_filename                                           = 'Approach_'
@@ -679,7 +680,6 @@ def configs_setup(vehicle):
 
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
-    config.max_lift_coefficient_factor                               = 1. #0.95
   
     configs.append(config)
 

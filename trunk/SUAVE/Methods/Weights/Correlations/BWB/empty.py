@@ -3,19 +3,22 @@
 # 
 # Created:  Apr 2017, M. Clarke 
 # Modified: Jul 2017, M. Clarke
+#           Apr 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core     import Units, Data
+from SUAVE.Core     import Data
 from .cabin          import cabin
 from .aft_centerbody import aft_centerbody
-from .systems        import systems
+from SUAVE.Methods.Weights.Correlations.Common import systems as systems
 from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
+from SUAVE.Attributes.Solids.Aluminum import Aluminum
+
 import warnings
 
 # ----------------------------------------------------------------------
@@ -28,7 +31,8 @@ def empty(vehicle):
     
     Assumptions:
          calculated aircraft weight from correlations created per component of historical aircraft
-      
+         The wings are made out of aluminum
+         
     Source: 
         N/A
          
@@ -86,6 +90,8 @@ def empty(vehicle):
     num_pax    = vehicle.passengers
     ctrl_type  = vehicle.systems.control
     ac_type    = vehicle.systems.accessories
+    
+    Nets = SUAVE.Components.Energy.Networks
      
     num_seats                = vehicle.passengers
     bwb_aft_centerbody_area  = vehicle.fuselages['fuselage_bwb'].aft_centerbody_area
@@ -122,22 +128,20 @@ def empty(vehicle):
         warnings.warn("There is no Wing Weight being added to the Configuration", stacklevel=1)
         
     else:
-        b          = vehicle.wings['main_wing'].spans.projected
-        lambda_w   = vehicle.wings['main_wing'].taper
-        t_c_w      = vehicle.wings['main_wing'].thickness_to_chord
-        sweep_w    = vehicle.wings['main_wing'].sweeps.quarter_chord
-        mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
-        wing_c_r   = vehicle.wings['main_wing'].chords.root
         S_h        = vehicle.wings['main_wing'].areas.reference*0.01 # control surface area on bwb
-        wt_wing    = wing_main.wing_main(S_gross_w,b,lambda_w,t_c_w,sweep_w,Nult,TOW,wt_zf)
-        vehicle.wings['main_wing'].mass_properties.mass = wt_wing        
+        
+        # Calculate the weights
+        rho      = Aluminum().density
+        sigma    = Aluminum().yield_tensile_strength            
+        wt_wing    = wing_main.wing_main(vehicle.wings['main_wing'],Nult,TOW,wt_zf,rho,sigma)
+        vehicle.wings['main_wing'].mass_properties.mass = wt_wing       
     
 
     # Calculating Empty Weight of Aircraft
     wt_landing_gear    = landing_gear.landing_gear(TOW)
     wt_cabin           = cabin(bwb_cabin_area, TOW)
     wt_aft_centerbody  = aft_centerbody(num_eng, bwb_aft_centerbody_area, bwb_aft_centerbody_taper, TOW)
-    output_2           = systems(num_seats, ctrl_type, S_h , S_gross_w, ac_type)
+    output_2           = systems.systems(num_seats, ctrl_type, S_h , S_gross_w, ac_type)
 
     # Calculate the equipment empty weight of the aircraft
     wt_empty           = (wt_wing + wt_cabin + wt_aft_centerbody + wt_landing_gear + wt_propulsion + output_2.wt_systems)
@@ -163,12 +167,12 @@ def empty(vehicle):
     output.systems_breakdown.furnish            = output_2.wt_furnish    
     
     #define weights components
-
-    try: 
-        landing_gear_component=vehicle.landing_gear #landing gear previously defined
-    except AttributeError: # landing gear not defined
+    
+    if vehicle.landing_gear:
+        landing_gear_component = vehicle.landing_gear[0] #landing gear previously defined
+    else: # landing gear not defined
         landing_gear_component=SUAVE.Components.Landing_Gear.Landing_Gear()
-        vehicle.landing_gear=landing_gear_component
+        vehicle.landing_gear.append(landing_gear_component)
     
     control_systems                             = SUAVE.Components.Physical_Component()
     electrical_systems                          = SUAVE.Components.Physical_Component()

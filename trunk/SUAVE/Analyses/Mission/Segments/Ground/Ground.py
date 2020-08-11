@@ -4,6 +4,7 @@
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
 #           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -77,7 +78,8 @@ class Ground(Aerodynamic):
         self.throttle             = None
         self.velocity_start       = 0.0
         self.velocity_end         = 0.0 
-        self.time                 = 0.01
+        self.altitude             = 0.0
+        
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
@@ -87,7 +89,6 @@ class Ground(Aerodynamic):
     
         # initials and unknowns
         ones_row = self.state.ones_row 
-        self.state.residuals.acceleration_x       = ones_row(1) * 0.0 
     
         # Specific ground things
         self.state.conditions.ground = Data()
@@ -141,7 +142,7 @@ class Ground(Aerodynamic):
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
-        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability        
+        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces_ground   = Methods.Ground.Common.compute_ground_forces
         iterate.conditions.forces          = Methods.Ground.Common.compute_forces

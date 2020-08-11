@@ -4,6 +4,7 @@
 # Created:  Dec 2016, E. Botero
 # Modified: Jun 2017, E. Botero
 #           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -121,7 +122,7 @@ def get_objective(unknowns, segment):
     if not np.all(segment.state.inputs_last == segment.state.unknowns):       
         segment.process.iterate(segment)
         
-    objective = segment.state.objective_value
+    objective = segment.objective_value
     
     return objective
 
@@ -219,7 +220,7 @@ def get_ieconstraints(unknowns, segment):
     else:
         segment.state.unknowns = unknowns
         
-    if not np.all(segment.state.inputs_last == segment.state.unknowns):       
+    if not np.all(state.inputs_last == segment.state.unknowns):
         segment.process.iterate(segment)
     
     # Time goes forward, not backward
@@ -264,7 +265,7 @@ def get_problem_pyopt(unknowns, segment):
     else:
         segment.state.unknowns = unknowns
         
-    if not np.all(segment.state.inputs_last == segment.state.unknowns):       
+    if not np.all(state.inputs_last == segment.state.unknowns):
         segment.process.iterate(segment)
         
     obj      = segment.state.objective_value

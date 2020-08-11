@@ -3,6 +3,7 @@
 # 
 # Created:  Dec 2016, E. Botero
 # Modified: Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -46,16 +47,14 @@ def unpack_unknowns(segment):
     """    
     
     # unpack unknowns and givens
-    conditions = segment.state.conditions
-    throttle   = segment.state.unknowns.throttle
-    theta      = segment.state.unknowns.body_angle
-    gamma      = segment.state.unknowns.flight_path_angle
-    vel        = segment.state.unknowns.velocity
-    alt0       = segment.altitude_start
-    altf       = segment.altitude_end
-    vel0       = segment.air_speed_start
-    velf       = segment.air_speed_end 
-    
+    throttle = segment.state.unknowns.throttle
+    theta    = segment.state.unknowns.body_angle
+    gamma    = segment.state.unknowns.flight_path_angle
+    vel      = segment.state.unknowns.velocity
+    alt0     = segment.altitude_start
+    altf     = segment.altitude_end
+    vel0     = segment.air_speed_start
+    velf     = segment.air_speed_end
 
     # Overide the speeds   
     if segment.air_speed_end is None:
@@ -74,10 +73,10 @@ def unpack_unknowns(segment):
     v_z   = -v_mag * np.sin(gamma)    
 
     # apply unknowns and pack conditions   
-    conditions.propulsion.throttle[:,0]             = throttle[:,0]
-    conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   
-    conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
-    conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
+    segment.state.conditions.propulsion.throttle[:,0]             = throttle[:,0]
+    segment.state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
+    segment.state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
 
 ## @ingroup Methods-Missions-Segments-Climb   
 def update_differentials(segment):
@@ -129,7 +128,7 @@ def update_differentials(segment):
     numerics.time.control_points                    = x
     numerics.time.differentiate                     = D
     numerics.time.integrate                         = I
-    conditions.frames.inertial.time[1:,0]           = t_initial + x[1:,0] 
+    conditions.frames.inertial.time[1:,0]            = t_initial + x[1:,0]
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context    
 
@@ -151,9 +150,9 @@ def objective(segment):
     # If you have an objective set, either maximize or minimize
     if segment.objective is not None:
         if segment.minimize ==True:
-            objective = eval('segment.state.'+segment.objective)
+            objective = eval('state.'+segment.objective)
         else:
-            objective = -eval('segment.state.'+segment.objective)
+            objective = -eval('state.'+segment.objective)
     else:
         objective = 0.
     # No objective is just solved constraint like a normal mission    
@@ -230,15 +229,15 @@ def solve_linear_speed_constant_rate(segment):
     LSCR.state.numerics   = segment.state.numerics
     mini_mission.append_segment(LSCR)
     
-    results  = mini_mission.evaluate()
+    results = mini_mission.evaluate()
     LSCR_res = results.segments.analysis
     
-    segment.state.unknowns.body_angle        = LSCR_res.state.unknowns.body_angle
-    segment.state.unknowns.throttle          = LSCR_res.state.unknowns.throttle
-    segment.state.unknowns.flight_path_angle = LSCR_res.state.unknowns.body_angle - LSCR_res.conditions.aerodynamics.angle_of_attack
+    segment.state.unknowns.body_angle        = LSCR_res.unknowns.body_angle
+    segment.state.unknowns.throttle          = LSCR_res.unknowns.throttle
+    segment.state.unknowns.flight_path_angle = LSCR_res.unknowns.body_angle - LSCR_res.conditions.aerodynamics.angle_of_attack
     
     # Make the velocity vector
-    v_mag = np.linalg.norm(LSCR_res.state.conditions.frames.inertial.velocity_vector,axis=1)
+    v_mag = np.linalg.norm(LSCR_res.conditions.frames.inertial.velocity_vector,axis=1)
     
     if segment.air_speed_end is None:
         segment.state.unknowns.velocity =  np.reshape(v_mag[1:],(-1, 1))

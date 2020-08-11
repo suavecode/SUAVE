@@ -5,9 +5,7 @@
 # Modified: Oct 2018, T. MacDonald
 #           Jan 2019, T. MacDonald
 
-from SUAVE.Core import DataOrdered, Data
 import numpy as np
-from copy import copy
 
 ## @ingroup Methods-Center_of_Gravity
 def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0):
@@ -96,13 +94,13 @@ def compute_fuel_center_of_gravity_longitudinal_range(vehicle):
         for tank in fuse.Fuel_Tanks:
             fuel_tanks.append(tank)    
                     
-    fuel_tanks.sort(key=lambda x: x.mass_properties.center_of_gravity[0])
+    fuel_tanks.sort(key=lambda x: x.mass_properties.center_of_gravity[0][0])
     
     tank_cgs    = np.zeros(len(fuel_tanks))
     tank_masses = np.zeros(len(fuel_tanks))
     
     for i,tank in enumerate(fuel_tanks):
-        tank_cgs[i]    = tank.mass_properties.center_of_gravity[0]
+        tank_cgs[i]    = tank.mass_properties.center_of_gravity[0][0]
         tank_masses[i] = tank.mass_properties.fuel_mass_when_full
     
     max_mass = np.sum(tank_masses)

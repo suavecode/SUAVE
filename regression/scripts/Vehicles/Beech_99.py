@@ -38,13 +38,13 @@ def vehicle_setup():
     wing.aspect_ratio                        = wing.spans.projected**2/wing.areas.reference
     wing.symmetric                           = True
     wing.vertical                            = False
-    wing.origin                              = np.array([15.,0,0]) * Units.feet  
+    wing.origin                              = [[15.* Units.feet  ,0,0]]
     wing.aerodynamic_center                  = np.array([trapezoid_ac_x(wing), 0. , 0. ])
     wing.dynamic_pressure_ratio              = 1.0
     wing.ep_alpha                            = 0.0
     span_location_mac                        = compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
-    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    wing.mass_properties.center_of_gravity[0][0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
    
     Mach                                  = np.array([0.152])
@@ -70,7 +70,7 @@ def vehicle_setup():
     slat.span_fraction_start   = 0.324  # not correct, only placeholder 
     slat.span_fraction_end     = 0.963  # not correct, only placeholder   
     slat.deflection            = 1.0 * Units.deg
-    slat.chord_fraction        = 0.1    # not correct, only placeholder	 
+    slat.chord_fraction        = 0.1    # not correct, only placeholder 
     wing.append_control_surface(slat)  
     
     vehicle.append_component(wing)
@@ -86,7 +86,7 @@ def vehicle_setup():
     wing.sweeps.quarter_chord     = 21.0   * Units.deg # leading edge
     wing.taper                    = 3.1/6.17
     wing.aspect_ratio             = wing.spans.projected**2/wing.areas.reference
-    wing.origin                   = np.array([36.3,0,0])  * Units.feet
+    wing.origin                   = [[36.3* Units.feet,0,0]]
     wing.symmetric                = True
     wing.vertical                 = False
     wing.dynamic_pressure_ratio   = 0.95
@@ -102,7 +102,7 @@ def vehicle_setup():
     fuselage.width                = 5.4   * Units.feet 
     vehicle.append_component(fuselage)
     
-    vehicle.mass_properties.center_of_gravity = np.array([17.2,0,0]) * Units.feet  
+    vehicle.mass_properties.center_of_gravity = np.array([[17.2,0,0]]) * Units.feet  
     fuel                                      = SUAVE.Components.Physical_Component()
     fuel.origin                               = wing.origin
     fuel.mass_properties.center_of_gravity    = wing.mass_properties.center_of_gravity

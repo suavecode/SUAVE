@@ -66,12 +66,12 @@ def propeller_design(prop,number_of_stations=20):
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data = atmosphere.compute_values(alt)
     
-    p   = atmo_data.pressure[0]
-    T   = atmo_data.temperature[0]
-    rho = atmo_data.density[0]
-    a   = atmo_data.speed_of_sound[0]
-    mu  = atmo_data.dynamic_viscosity[0]
-    nu  = mu/rho
+    p              = atmo_data.pressure[0]
+    T              = atmo_data.temperature[0]
+    rho            = atmo_data.density[0]
+    speed_of_sound = atmo_data.speed_of_sound[0]
+    mu             = atmo_data.dynamic_viscosity[0]
+    nu             = mu/rho
     
     # Nondimensional thrust
     if (Thrust!= None) and (Power == None):
@@ -113,7 +113,7 @@ def propeller_design(prop,number_of_stations=20):
         #Step 3, determine the product Wc, and RE
         G       = F*x*np.cos(phi)*np.sin(phi) #Circulation function
         Wc      = 4.*np.pi*lamda*G*V*R*zeta/(Cl*B)
-        Ma      = Wc/a
+        Ma      = Wc/speed_of_sound
         RE      = Wc/nu
 
         #Step 4, determine epsilon and alpha from airfoil data

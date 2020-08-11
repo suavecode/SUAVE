@@ -61,8 +61,8 @@ class Lift_Cruise(Propulsor):
         """             
         self.motor_lift                = None
         self.motor_forward             = None
-        self.rotor            = None
-        self.propeller         = None
+        self.rotor                     = None
+        self.propeller                 = None
         self.esc_lift                  = None
         self.esc_forward               = None
         self.avionics                  = None
@@ -77,7 +77,8 @@ class Lift_Cruise(Propulsor):
         self.voltage                   = None
         self.thrust_angle_lift         = 0.0
         self.thrust_angle_forward      = 0.0
-        
+        self.tag                       = 'Lift_Cruise'
+        self.generative_design_minimum = 0        
         pass
         
     def evaluate_thrust(self,state):
@@ -314,16 +315,16 @@ class Lift_Cruise(Propulsor):
         F_forward_total = F_forward*num_forward * [np.cos(self.thrust_angle_forward),0,-np.sin(self.thrust_angle_forward)] 
 
 
-        F_lift_mag = np.atleast_2d(np.linalg.norm(F_lift_total, axis=1)/Units.lbs ) # lb 
-        F_forward_mag =  np.atleast_2d(np.linalg.norm(F_forward_total, axis=1)/Units.lbs) # lb   
+        F_lift_mag    = np.atleast_2d(np.linalg.norm(F_lift_total, axis=1))
+        F_forward_mag = np.atleast_2d(np.linalg.norm(F_forward_total, axis=1))
         
-        conditions.propulsion.disc_loading_lift                 = (F_lift_mag.T)/(self.number_of_engines_lift*np.pi*(R_lift /Units.feet)**2) # lb/ft^2      
-        conditions.propulsion.disc_loading_forward              = (F_forward_mag.T)/(self.number_of_engines_forward*np.pi*(R_forward/Units.feet)**2) # lb/ft^2       
-        conditions.propulsion.power_loading_lift                = (F_lift_mag.T)/(battery_draw/Units.hp)            # lb/hp         
-        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw/Units.hp)         # lb/hp 
-        
+        conditions.propulsion.disc_loading_lift                 = (F_lift_mag.T)/(self.number_of_engines_lift*np.pi*(R_lift)**2) # N/m^2              
+        conditions.propulsion.disc_loading_forward              = (F_forward_mag.T)/(self.number_of_engines_forward*np.pi*(R_forward)**2)  # N/m^2      
+        conditions.propulsion.power_loading_lift                = (F_lift_mag.T)/(battery_draw)      # N/W 
+        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw)   # N/W    
+                                                                                                        
         F_total = F_lift_total + F_forward_total
-        mdot    = np.zeros_like(F_total)
+        mdot = state.ones_row(1)*0.0
         
         results = Data()
         results.thrust_force_vector = F_total

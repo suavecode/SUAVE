@@ -2,7 +2,7 @@
 # 
 # Created:  May 2015, T. Lukaczyk
 # Modified: Jan 2016, Carlos/Tarik
-
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -214,6 +214,9 @@ def base(analyses):
     segment.air_speed  = 450. * Units.knots
     segment.distance   = 2050. * Units.nmi
 
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle  = ones_row(1) * 4.  * Units.degrees  
+
     # add to mission
     mission.append_segment(segment)
 
@@ -308,6 +311,10 @@ def base(analyses):
     segment.mach_end       = 0.3
     segment.mach_start     = 0.2
     
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.throttle   = ones_row(1) * 1.0 
+    segment.state.unknowns.body_angle  = ones_row(1) * 8. * Units.degrees 
+    
     # add to misison
     mission.append_segment(segment)
     
@@ -325,6 +332,9 @@ def base(analyses):
     segment.air_speed  = 96.66 * Units['m/s']
     segment.distance   = 100.0 * Units.nautical_mile    
     mission.append_segment(segment)
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle  = ones_row(1) * 2. * Units.degrees 
     
     # ------------------------------------------------------------------
     #   Loiter Segment: constant mach, constant time
@@ -516,9 +526,10 @@ def max_range_setup(analyses):
 
     segment.air_speed  = 450. * Units.knots
     segment.distance   = 2050. * Units.nmi
+     
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle  = ones_row(1) * 4. * Units.degrees  
     
-    segment.state.numerics.number_control_points = 10
-
     # add to mission
     mission.append_segment(segment)
 
@@ -612,6 +623,10 @@ def max_range_setup(analyses):
     segment.mach_end       = 0.3
     segment.mach_start     = 0.2
     
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.throttle   = ones_row(1) * 1.0  
+    segment.state.unknowns.body_angle  = ones_row(1) * 8. * Units.degrees 
+    
     # add to misison
     mission.append_segment(segment)
     
@@ -628,6 +643,10 @@ def max_range_setup(analyses):
     
     segment.air_speed  = 96.66 * Units['m/s']
     segment.distance   = 100.0 * Units.nautical_mile    
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle  = ones_row(1) * 2. * Units.degrees 
+    
     mission.append_segment(segment)
     
     # ------------------------------------------------------------------
@@ -822,6 +841,9 @@ def short_field_setup(analyses):
     segment.air_speed  = 450. * Units.knots
     segment.distance   = 2050. * Units.nmi
 
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle  = ones_row(1) * 4. * Units.degrees  
+    
     # add to mission
     mission.append_segment(segment)
 
@@ -915,6 +937,10 @@ def short_field_setup(analyses):
     segment.mach_end       = 0.3
     segment.mach_start     = 0.2
     
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.throttle   = ones_row(1) * 1.0 
+    segment.state.unknowns.body_angle  = ones_row(1) * 8. * Units.degrees 
+    
     # add to misison
     mission.append_segment(segment)
     
@@ -931,6 +957,10 @@ def short_field_setup(analyses):
     
     segment.air_speed  = 96.66 * Units['m/s']
     segment.distance   = 100.0 * Units.nautical_mile    
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle  = ones_row(1) * 2. * Units.degrees 
+    
     mission.append_segment(segment)
     
     # ------------------------------------------------------------------
@@ -1006,8 +1036,11 @@ def takeoff_mission_setup(analyses):
     segment.altitude_end   = 304.8 *  Units.meter
     segment.air_speed      = 85.4 * Units['m/s']
     segment.throttle       = 1. 
-    segment.state.numerics.number_control_points = 10
-    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle             = ones_row(1) * 12. * Units.deg  
+    segment.state.unknowns.wind_angle             = ones_row(1) * 5. * Units.deg  
+    
     mission.append_segment(segment)
 
     # Cutback Segment: Constant speed, constant segment angle
@@ -1049,8 +1082,11 @@ def sideline_mission_setup(analyses):
     segment.altitude_end   = 1600 *  Units.fts
     segment.air_speed      = 85.4 * Units['m/s']
     segment.throttle       = 1. 
-    segment.state.numerics.number_control_points = 10
-    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle             = ones_row(1) * 12. * Units.deg  
+    segment.state.unknowns.wind_angle             = ones_row(1) * 5. * Units.deg  
+    
     mission.append_segment(segment)
     
     return mission    
@@ -1084,7 +1120,11 @@ def takeoff_mission_initialization(analyses):
     segment.altitude_end   = 300. * Units.meter
     segment.air_speed      =  85.4 * Units['m/s']
     segment.throttle       = 1. 
-    segment.state.numerics.number_control_points = 5
+     
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle             = ones_row(1) * 12. * Units.deg  
+    segment.state.unknowns.wind_angle             = ones_row(1) * 5. * Units.deg  
+    
     mission.append_segment(segment)    
     
     return mission
