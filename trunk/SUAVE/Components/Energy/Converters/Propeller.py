@@ -528,8 +528,8 @@ class Propeller(Energy_Component):
         kappa    = self.induced_power_factor 
         Cd0      = self.profile_drag_coefficient   
         Cp       = np.zeros_like(Ct)
-        power    = np.zeros_like(Ct)      
-    
+        power    = np.zeros_like(Ct) 
+        
         for i in range(len(Vv)):   
             if -1. <Vv[i][0] <1.: # vertical/axial flight
                 Cp[i]     = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
@@ -539,16 +539,24 @@ class Propeller(Energy_Component):
                 power[i]  = torque[i]*omega[i]
                 Cp[i]     = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
  
-        Cq = torque/(rho*(n*n)*(D*D*D*D)*R) # torque coefficient 
-
+        Cq   = torque/(rho*(n*n)*(D*D*D*D)*R) # torque coefficient 
+        etap = V*thrust/power                 # propeller efficiency
+        
         thrust[conditions.propulsion.throttle[:,0] <=0.0]  = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0]  = 0.0 
         torque[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        thrust[omega<0.0] = - thrust[omega<0.0]
-
-        etap                                  = V*thrust/power 
-        conditions.propulsion.etap            = etap   
+        thrust[omega<0.0] = - thrust[omega<0.0] 
         
+        # if omega = 0
+        thrust[omega==0.0] = 0.0
+        power[omega==0.0]  = 0.0
+        torque[omega==0.0] = 0.0
+        Ct[omega==0.0]     = 0.0
+        Cp[omega==0.0]     = 0.0 
+        etap[omega==0.0]     = 0.0 
+
+        conditions.propulsion.etap = etap   
+                
         # store data
         self.azimuthal_distribution                   = psi  
         results_conditions                            = Data     

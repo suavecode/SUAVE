@@ -115,7 +115,7 @@ class Motor(Energy_Component):
         # store to outputs        
         self.outputs.torque = Q
         self.outputs.omega  = omega1
-
+       
         return omega1
     
     def torque(self,conditions): 

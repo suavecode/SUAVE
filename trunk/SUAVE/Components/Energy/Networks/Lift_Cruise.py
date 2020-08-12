@@ -406,7 +406,7 @@ class Lift_Cruise(Propulsor):
         ones = segment.state.ones_row
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.rotor_throttle                       = 0.0 * ones(1)
+        segment.state.conditions.propulsion.rotor_throttle                      = 0.0 * ones(1)
         segment.state.conditions.propulsion.battery_voltage_under_load          = segment.state.unknowns.battery_voltage_under_load
         segment.state.conditions.propulsion.propeller_power_coefficient         = segment.state.unknowns.propeller_power_coefficient
         segment.state.conditions.propulsion.rotor_power_coefficient             = 0.0 * ones(1)
@@ -507,10 +507,10 @@ class Lift_Cruise(Propulsor):
     
             Inputs:
             state.conditions.propulsion:
-                propeller_torque                  [N-m]
-                rotor_torque                     [N-m]
+                propeller_torque                      [N-m]
+                rotor_torque                          [N-m]
                 propeller_torque_forward              [N-m]
-                rotor_torque                 [N-m]
+                rotor_torque                          [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
             
@@ -546,10 +546,10 @@ class Lift_Cruise(Propulsor):
     
             Inputs:
             state.conditions.propulsion:
-                propeller_torque                  [N-m]
-                rotor_torque                     [N-m]
+                propeller_torque                      [N-m]
+                rotor_torque                          [N-m]
                 propeller_torque_forward              [N-m]
-                rotor_torque                 [N-m]
+                rotor_torque                          [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
     
