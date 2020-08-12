@@ -7,16 +7,18 @@
 # ---------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units, Data 
-import copy
-from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
+import copy 
+from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise  
 from SUAVE.Methods.Power.Battery.Sizing                        import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , compute_optimal_motor_parameters
-from SUAVE.Methods.Propulsion                                  import propeller_design   
+from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_optimal_motor
+from SUAVE.Methods.Weights.Correlations.Propulsion             import nasa_motor
+from SUAVE.Methods.Propulsion                                  import propeller_design 
 from SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty import empty
 
 import numpy as np
 import pylab as plt
 from copy import deepcopy 
+import os 
 
 # ----------------------------------------------------------------------
 #   Build the Vehicle
@@ -335,10 +337,10 @@ def vehicle_setup():
     # PROPULSOR
     #------------------------------------------------------------------
     net                           = Lift_Cruise()
-    net.number_of_engines_lift    = 12
-    net.number_of_engines_forward = 1
-    net.thrust_angle_lift         = 90. * Units.degrees
-    net.thrust_angle_forward      = 0. 
+    net.number_of_rotor_engines   = 12
+    net.number_of_propeller_engines = 1
+    net.rotor_thrust_angle           = 90. * Units.degrees
+    net.propeller_thrust_angle    = 0. 
     net.nacelle_diameter          = 0.6 * Units.feet  
     net.engine_length             = 0.5 * Units.feet
     net.areas                     = Data()
@@ -401,41 +403,74 @@ def vehicle_setup():
     Hover_Load     = vehicle.mass_properties.takeoff*g      # hover load  
 
     # Thrust Propeller                          
-    propeller                     = SUAVE.Components.Energy.Converters.Propeller() 
-    propeller.number_blades       = 3
-    propeller.number_of_engines   = net.number_of_engines_forward
-    propeller.freestream_velocity = V_inf
-    propeller.tip_radius          = 1.0668
-    propeller.hub_radius          = 0.21336 
-    propeller.design_tip_mach     = 0.65
-    propeller.angular_velocity    = propeller.design_tip_mach *speed_of_sound  /propeller.tip_radius   
-    propeller.design_Cl           = 0.7
-    propeller.design_altitude     = 1. * Units.km  
-    propeller.design_thrust       = (Drag*2.5)/net.number_of_engines_forward
-    propeller                     = propeller_design(propeller)   
-    propeller.origin              = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
-    net.propeller                 = propeller
+    propeller                        = SUAVE.Components.Energy.Converters.Propeller() 
+    propeller.number_blades          = 3
+    propeller.number_of_engines      = net.number_of_propeller_engines
+    propeller.freestream_velocity    = V_inf
+    propeller.tip_radius             = 1.0668
+    propeller.hub_radius             = 0.21336 
+    propeller.design_tip_mach        = 0.65
+    propeller.angular_velocity       = propeller.design_tip_mach *speed_of_sound  /propeller.tip_radius   
+    propeller.design_Cl              = 0.7
+    propeller.design_altitude        = 1. * Units.km  
+    propeller.design_thrust          = (Drag*2.5)/net.number_of_propeller_engines
+    
+    # relative path only required for regression
+    ospath                           = os.path.abspath(__file__)
+    rel_path                         = ospath.split('Stopped_Rotor.py')[0] 
+    
+    propeller.airfoil_geometry       = [ rel_path + 'NACA_4412_geo.txt']
+    propeller.airfoil_polars         = [[rel_path + 'NACA_4412_polar_Re_50000.txt',
+                                     rel_path + 'NACA_4412_polar_Re_100000.txt',
+                                     rel_path + 'NACA_4412_polar_Re_200000.txt',
+                                     rel_path + 'NACA_4412_polar_Re_500000.txt',
+                                     rel_path + 'NACA_4412_polar_Re_1000000.txt']] # airfoil polars for at different reynolds numbers 
+    
+    # 0 represents the first airfoil, 1 represents the second airfoil etc. 
+    propeller.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]   
+    propeller                        = propeller_design(propeller)   
+    
+    propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
+    net.propeller                    = propeller
 
     # Lift Rotors                               
-    rotor                         = SUAVE.Components.Energy.Converters.Rotor() 
-    rotor.tip_radius              = 2.8 * Units.feet
-    rotor.hub_radius              = 0.35 * Units.feet      
-    rotor.number_blades           = 2   
-    rotor.design_tip_mach         = 0.65
-    rotor.number_of_engines       = net.number_of_engines_lift
-    rotor.disc_area               = np.pi*(rotor.tip_radius**2)     
-    rotor.induced_hover_velocity  = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines_lift)) 
-    rotor.freestream_velocity     = 500. * Units['ft/min']  
-    rotor.angular_velocity        = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
-    rotor.design_Cl               = 0.7
-    rotor.design_altitude         = 10 * Units.feet                            
-    rotor.design_power            = ((Hover_Load )/net.number_of_engines_lift )*rotor.freestream_velocity
-    rotor.x_pitch_count           = 2 
-    rotor.y_pitch_count           = vehicle.fuselages['boom_1r'].y_pitch_count
-    rotor.y_pitch                 = vehicle.fuselages['boom_1r'].y_pitch 
-    rotor                         = propeller_design(rotor)          
-    rotor.origin                  = vehicle.fuselages['boom_1r'].origin
-    rotor.symmetric               = True
+    rotor                            = SUAVE.Components.Energy.Converters.Rotor() 
+    rotor.tip_radius                 = 2.8 * Units.feet
+    rotor.hub_radius                 = 0.35 * Units.feet      
+    rotor.number_blades              = 2   
+    rotor.design_tip_mach            = 0.65
+    rotor.number_of_engines          = net.number_of_rotor_engines
+    rotor.disc_area                  = np.pi*(rotor.tip_radius**2)      
+    rotor.freestream_velocity        = 500. * Units['ft/min']  
+    rotor.angular_velocity           = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
+    rotor.design_Cl                  = 0.7
+    rotor.design_altitude            = 10 * Units.feet                             
+    rotor.design_power               = ((Hover_Load*rotor.freestream_velocity)/net.number_of_rotor_engines)
+    rotor.x_pitch_count              = 2 
+    rotor.y_pitch_count              = vehicle.fuselages['boom_1r'].y_pitch_count
+    rotor.y_pitch                    = vehicle.fuselages['boom_1r'].y_pitch     
+    
+    # relative path only required for regression
+    ospath                           = os.path.abspath(__file__)
+    rel_path                         = ospath.split('Stopped_Rotor.py')[0]  
+    rotor.airfoil_geometry           = [ rel_path + 'NACA_4412_geo.txt']
+    rotor.airfoil_polars             = [[rel_path + 'NACA_4412_polar_Re_50000.txt',
+                                         rel_path + 'NACA_4412_polar_Re_100000.txt',
+                                         rel_path + 'NACA_4412_polar_Re_200000.txt',
+                                         rel_path + 'NACA_4412_polar_Re_500000.txt',
+                                         rel_path + 'NACA_4412_polar_Re_1000000.txt']] # airfoil polars for at different reynolds numbers 
+    
+    # 0 represents the first airfoil, 1 represents the second airfoil etc. 
+    rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]   
+    rotor                            = propeller_design(rotor)  
+    
+    #sigma       = rotor.blade_solidity   
+    #kappa       =  1.15
+    #Ct          = rotor.design_thrust_coefficient
+    #FM          = ((Ct**1.5)/(2**.5))/(kappa*((Ct**1.5)/(2**.5))+ sigma*Cd0/8.)   
+    #print(FM)   
+    rotor.origin                     = vehicle.fuselages['boom_1r'].origin
+    rotor.symmetric                  = True
 
     # populating propellers on one side of wing
     if rotor.y_pitch_count > 1 :
@@ -461,7 +496,7 @@ def vehicle_setup():
             rotor.origin.append(propeller_origin) 
 
     # re-compute number of lift rotors if changed 
-    net.number_of_engines_lift = len(rotor.origin)        
+    net.number_of_rotor_engines= len(rotor.origin)        
 
     # append propellers to vehicle     
     net.rotor = rotor

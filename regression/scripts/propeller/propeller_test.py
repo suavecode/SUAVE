@@ -151,46 +151,45 @@ def main():
     
     # propeller with airfoil results 
     F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)  
-    plot_results(output_a, prop_a.tag,'blue','-','s')
+    plot_results(output_a, prop_a,'blue','-','s')
     
     # propeller without airfoil results 
     conditions.propulsion.pitch_command = np.array([[1.0]])*Units.degree
     F, Q, P, Cplast ,output , etap      = prop.spin(conditions)
-    plot_results(output, prop.tag,'red','-','o')
+    plot_results(output, prop,'red','-','o')
     
     # rotor with airfoil results 
     Fr_a, Qr_a, Pr_a, Cplastr_a ,outputr_a , etapr = rot_a.spin(conditions_r)
-    plot_results(outputr_a, rot_a.tag,'green','-','^')
+    plot_results(outputr_a, rot_a,'green','-','^')
     
     # rotor with out airfoil results 
     conditions_r.propulsion.pitch_command = np.array([[1.0]])*Units.degree
     Fr, Qr, Pr, Cplastr ,outputr , etapr  = rot.spin(conditions_r)
-    plot_results(outputr, rot.tag,'black','-','P')
+    plot_results(outputr, rot,'black','-','P')
     
-    plt.show()
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3358.54677635 
-    Q_a_truth       = 1008.60395097  
-    P_a_truth       = 208944.0130901 
-    Cplast_a_truth  = 0.10769482  
+    F_a_truth       = 3391.02026734 
+    Q_a_truth       = 1020.15077618 
+    P_a_truth       = 211336.07193081 
+    Cplast_a_truth  = 0.10892775 
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2894.91318419 
-    Q_truth         = 880.19304668 
-    P_truth         = 182342.20408269  
-    Cplast_truth    = 0.0939836  
+    F_truth         = 3398.7852089 
+    Q_truth         = 1025.90198345 
+    P_truth         = 212527.501259 
+    Cplast_truth    = 0.10954184 
     
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1515.11615776 
-    Qr_a_truth      = 10.10992957 
-    Pr_a_truth      = 2094.38923334  
-    Cplastr_a_truth = 0.00329437  
+    Fr_a_truth      = 1529.76888343 
+    Qr_a_truth      = 10.25960954 
+    Pr_a_truth      = 2125.39717596 
+    Cplastr_a_truth = 0.00334314 
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1267.41491623 
-    Qr_truth        = 8.39303394  
-    Pr_truth        = 1738.7143797 
-    Cplastr_truth   = 0.00273491 
+    Fr_truth        = 1622.8819419 
+    Qr_truth        = 10.95105882 
+    Pr_truth        = 2268.6389201 
+    Cplastr_truth   = 0.00356846
     
     # Store errors 
     error = Data()
@@ -216,18 +215,19 @@ def main():
     
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)
-     
+
     return
 
-def plot_results(results,tag,c,ls,m):
+def plot_results(results,prop,c,ls,m):
     
-    va_ind             = results.axial_induced_velocity_2d[0,0,:]
-    vt_ind             = results.tangential_induced_velocity_2d[0,0,:] 
-    r                  = results.blade_radial_distribution_normalized
-    T_distribution     = results.thrust_distribution[0] 
-    vt                 = results.tangential_velocity_2d[0,0,:] 
-    va                 = results.axial_velocity_2d[0,0,:] 
-    Q_distribution     = results.torque_distribution[0] 
+    tag                = prop.tag
+    va_ind             = results.blade_axial_induced_velocity[0]  
+    vt_ind             = results.blade_tangential_induced_velocity[0]  
+    r                  = prop.radius_distribution
+    T_distribution     = results.blade_thrust_distribution[0] 
+    vt                 = results.blade_tangential_velocity[0]  
+    va                 = results.blade_axial_velocity[0] 
+    Q_distribution     = results.blade_torque_distribution[0] 
         
     # ----------------------------------------------------------------------------
     # 2D - Plots  Plots    
@@ -267,8 +267,7 @@ def plot_results(results,tag,c,ls,m):
     plt.plot(r , vt ,color = c ,marker = m, linestyle = ls, label =  tag )         
     plt.xlabel('Radial Location')
     plt.ylabel('Tangential Velocity') 
-    plt.legend(loc='lower right') 
-    
+    plt.legend(loc='lower right')  
     
     return 
 

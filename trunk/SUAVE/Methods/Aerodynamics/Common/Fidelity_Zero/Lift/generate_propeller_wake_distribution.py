@@ -18,18 +18,18 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     time = 0.05
     
     # Unpack unknowns  
-    R            = prop.outputs.propeller_radius
-    r            = prop.outputs.blade_radial_distribution 
-    c            = prop.outputs.blade_chord_distribution 
+    R            = prop.tip_radius
+    r            = prop.radius_distribution 
+    c            = prop.chord_distribution 
     Na           = prop.outputs.number_azimuthal_stations
     Nr           = prop.outputs.number_radial_stations
     omega        = prop.outputs.omega                        
-    vt           = prop.outputs.tangential_induced_velocity_2d         
-    va           = prop.outputs.axial_induced_velocity_2d  
+    vt           = prop.outputs.disc_tangential_induced_velocity         
+    va           = prop.outputs.disc_axial_induced_velocity 
     V_inf        = prop.outputs.velocity
     MCA          = prop.mid_chord_aligment 
-    B            = prop.outputs.num_blades  
-    gamma        = prop.outputs.blade_Gamma_2d
+    B            = prop.number_blades
+    gamma        = prop.outputs.disc_circulation
     blade_angles = np.linspace(0,2*np.pi,B+1)[:-1]        
     dt           = (2*np.pi/Na)/omega[0]
     nts          = int(time/dt)

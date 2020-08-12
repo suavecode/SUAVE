@@ -12,10 +12,10 @@ import SUAVE
 
 # package imports
 import numpy as np
-from scipy.optimize import minimize  
+from scipy.optimize import minimize  , fsolve
 from SUAVE.Core import Units
 
-
+import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------
 #  size_from_kv
@@ -101,58 +101,62 @@ def size_from_mass(motor):
 
     return motor
 
-def compute_optimal_motor_parameters(motor,prop):
+def size_optimal_motor(motor,prop):
     ''' Optimizes the motor to obtain the best combination of speed constant and resistance values
-    by essentially you are sizing the motor for a design RPM value. Note that this design RPM 
+    by essentially sizing the motor for a design RPM value. Note that this design RPM 
     value can be compute from design tip mach  
     
+    Assumptions:
+    motor design performance occurs at 90% nominal voltage to account for off design conditions 
+    
     Source:
     N/A
     
     Inputs:
-    motor    (to be modified)
-    
+    prop.
+      design_torque          [Nm]
+      angular_velocity       [rad/s]
+      origin                 [m]
+      
+    motor.     
+      no_load_current        [amps]
+      mass_properties.mass   [kg]
+      
     Outputs:
     motor.
-      speed_constant     [untiless]
-      no_load_current    [amps]
+      speed_constant         [untiless]
+      design_torque          [Nm] 
+      motor.resistance       [Ohms]
+      motor.angular_velocity [rad/s]
+      motor.origin           [m]
     '''    
     
-    io                   = motor.no_load_current
-    v                    = motor.nominal_voltage 
-    omeg                 = prop.angular_velocity
-    etam                 = motor.efficiency 
-    motor.speed_constant = optimize_kv(io, v , omeg,  etam)
-    motor.resistance     = ((v-omeg/motor.speed_constant)*(1.-etam*v*motor.speed_constant/omeg))/io
+    # assign propeller radius
+    motor.propeller_radius      = prop.tip_radius
+   
+    # append motor locations based on propeller locations 
+    motor.origin                = prop.origin  
     
-    return motor
-
-def optimize_kv(io, v , omeg,  etam , lb = 0 , ub = 100): 
-    ''' Optimizer for compute_optimal_motor_parameters function  
+    # motor design torque 
+    motor.design_torque         = prop.design_torque  
     
-    Source:
-    N/A
+    # design conditions for motor 
+    io                          = motor.no_load_current
+    v                           = motor.nominal_voltage
+    omeg                        = prop.angular_velocity/motor.gear_ratio    
+    etam                        = motor.efficiency 
     
-    Inputs:
-    motor    (to be modified)
+    # motor design rpm 
+    motor.angular_velocity      = omeg
     
-    Outputs:
-    motor.
-      speed_constant     [untiless]
-      no_load_current    [amps]
-    '''        
-    # objective 
-    objective = lambda x: ((v-omeg/x[0])*(1.-etam*v*x[0]/omeg))/io
+    # solve for speed constant 
+    Res                         = motor.resistance
+    if Res == 0:
+        Kv = omeg/v
+    else:
+        objective = lambda x: (1 - io/((v - omeg/x)/Res))*(1 - ((v - omeg/x)/Res)*Res/v) - etam
+        Kv        = fsolve(objective , 0.5)    
+        
+    motor.speed_constant        = Kv[0] 
     
-    # bounds 
-    bnds = [(lb,ub)]
-    
-    # constraints 
-    cons = ({'type': 'ineq', 'fun': lambda x: ((v-omeg/x[0])*(1.-etam*v*x[0]/omeg))/io - 0.001}) # Added a tolerance on resistance, cant be less than 0.001 ohms  
-    
-    # solve 
-    sol  = minimize(objective,(0.5), method = 'SLSQP',bounds = bnds, constraints = cons ) 
-
-    return sol.x[0]  
- 
- 
+    return motor 

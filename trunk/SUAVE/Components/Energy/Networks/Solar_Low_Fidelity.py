@@ -182,14 +182,14 @@ class Solar_Low_Fidelity(Propulsor):
         conditions.propulsion.current            = current
         conditions.propulsion.battery_draw       = battery_draw
         conditions.propulsion.battery_energy     = battery_energy
-        conditions.propulsion.propeller_tip_mach = (R*rpm)/a
+        conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
         
         #Create the outputs
         F                                        = num_engines * F * [1,0,0]      
         mdot                                     = state.conditions.ones_row(1)*0.0
         F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))  
         conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R)**2)   # N/m^2                 
-        conditions.propulsion.power_loading      = (F_mag.T)/(P )  # N/W                        
+        conditions.propulsion.power_loading      = (F_mag.T)/(-battery_draw)  # N/W                        
     
         results = Data()
         results.thrust_force_vector = F

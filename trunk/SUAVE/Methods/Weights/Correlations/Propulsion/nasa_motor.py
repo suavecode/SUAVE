@@ -38,7 +38,8 @@ def nasa_motor(torque, kwt2=.3928, xwt=.8587):
     Properties Used:
             N/A
     """   
-    trq  = torque/(Units.ft*Units.lbf)
-    mass = kwt2*(trq**xwt) * Units.pounds # mass in kg
+    max_torque = torque*1.2
+    trq        = max_torque/(Units.ft*Units.lbf)
+    mass       = kwt2*(trq**xwt) * Units.pounds # mass in kg
      
     return mass 

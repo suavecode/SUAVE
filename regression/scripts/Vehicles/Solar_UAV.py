@@ -35,9 +35,9 @@ def vehicle_setup():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
     # mass properties
-    vehicle.mass_properties.takeoff           = 200. * Units.kg
-    vehicle.mass_properties.operating_empty   = 200. * Units.kg
-    vehicle.mass_properties.max_takeoff       = 200. * Units.kg 
+    vehicle.mass_properties.takeoff         = 250. * Units.kg
+    vehicle.mass_properties.operating_empty = 250. * Units.kg
+    vehicle.mass_properties.max_takeoff     = 250. * Units.kg 
     
     # basic parameters
     vehicle.reference_area                    = 80.       
@@ -206,10 +206,11 @@ def vehicle_setup():
     net.avionics        = avionics      
 
     # Component 8 the Battery
-    bat                      = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.mass_properties.mass = 55.0 * Units.kg
-    bat.specific_energy      = 450. * Units.Wh/Units.kg
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
+    bat.mass_properties.mass = 90.0 * Units.kg
+    bat.specific_energy      = 600. * Units.Wh/Units.kg
     bat.resistance           = 0.05
+    bat.max_voltage          = 45.0
     initialize_from_mass(bat,bat.mass_properties.mass)
     net.battery              = bat
    

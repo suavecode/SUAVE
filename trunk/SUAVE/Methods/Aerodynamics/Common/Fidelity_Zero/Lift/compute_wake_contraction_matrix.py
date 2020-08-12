@@ -14,10 +14,10 @@ import numpy as np
 def compute_wake_contraction_matrix(i,ts,prop,N,m,nts,X_pts):
     # ( control point, time step , blade number , location on blade )
     # compute slipstream development factor for all points along slipstream (in x direction)  
-    r                 = prop.outputs.blade_radial_distribution  
+    r                 = prop.radius_distribution  
     dim               = N-1
-    B                 = prop.outputs.num_blades 
-    va                = np.mean(prop.outputs.axial_induced_velocity_2d, axis=1)  # induced velocitied averaged around the azimuth
+    B                 = prop.number_blades
+    va                = np.mean(prop.outputs.disc_axial_induced_velocity, axis=1)  # induced velocitied averaged around the azimuth
     R0                = prop.hub_radius 
     R_p               = prop.tip_radius  
     s                 = X_pts[:,:,0,-1] - prop.origin[i][0]                      

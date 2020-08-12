@@ -121,13 +121,13 @@ class Internal_Combustion_Propeller(Propulsor):
         conditions.propulsion.rpm                = rpm
         conditions.propulsion.propeller_torque   = Q
         conditions.propulsion.power              = P
-        conditions.propulsion.propeller_tip_mach = (R*rpm)/a
+        conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
         
         # Create the outputs
         F                                        = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
         F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))   
         conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # N/m^2                      
-        conditions.propulsion.power_loading      = (F_mag.T)/(P)    # N/W       
+        conditions.propulsion.power_loading      = (F_mag.T)/(-battery_draw)    # N/W       
         
         results = Data()
         results.thrust_force_vector = F

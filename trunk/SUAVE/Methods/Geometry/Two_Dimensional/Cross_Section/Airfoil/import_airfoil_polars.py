@@ -37,9 +37,9 @@ def  import_airfoil_polars(airfoil_polar_files):
     # create empty data structures 
     airfoil_data = Data()
     dim_aoa = 89
-    CL  = np.zeros((num_airfoils,num_polars,dim_aoa ))
-    CD  = np.zeros((num_airfoils,num_polars,dim_aoa ))
-    AoA = np.zeros((num_airfoils,num_polars,dim_aoa ))
+    CL  = np.zeros((num_airfoils,num_polars,dim_aoa))
+    CD  = np.zeros((num_airfoils,num_polars,dim_aoa))
+    AoA = np.zeros((num_airfoils,num_polars,dim_aoa))
     Re  = np.zeros((num_airfoils,num_polars))
     
     AoA_interp = np.linspace(-6,16,dim_aoa) 

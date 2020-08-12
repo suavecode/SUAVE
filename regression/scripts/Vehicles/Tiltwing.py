@@ -19,9 +19,8 @@ from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 import numpy as np
 import pylab as plt
 from copy import deepcopy
-
-
-
+import os 
+ 
 def vehicle_setup():
     
     # ------------------------------------------------------------------
@@ -306,21 +305,34 @@ def vehicle_setup():
     Cd                           = Cd0 + Cdi   
                                  
     # Create propeller geometry  
-    rot                          = SUAVE.Components.Energy.Converters.Rotor() 
-    rot.y_pitch                  = 1.850
-    rot.tip_radius               = 0.8875  
-    rot.hub_radius               = 0.1 
-    rot.disc_area                = np.pi*(rot.tip_radius**2)   
-    rot.design_tip_mach          = 0.5
-    rot.number_blades            = 3  
-    rot.freestream_velocity      = 85. * Units['ft/min'] # 110 mph         
-    rot.angular_velocity         = rot.design_tip_mach*speed_of_sound/rot.tip_radius      
-    rot.design_Cl                = 0.7
-    rot.design_altitude          = 500 * Units.feet                  
-    Lift                         = vehicle.mass_properties.takeoff*9.81  
-    rot.design_thrust            = (Lift * 1.5 )/net.number_of_engines 
-    rot.induced_hover_velocity   = np.sqrt(Lift/(2*rho*rot.disc_area*net.number_of_engines))                     
-    rot                          = propeller_design(rot)  
+    rotor                          = SUAVE.Components.Energy.Converters.Rotor() 
+    rotor.y_pitch                  = 1.850
+    rotor.tip_radius               = 0.8875  
+    rotor.hub_radius               = 0.1 
+    rotor.disc_area                = np.pi*(rotor.tip_radius**2)   
+    rotor.design_tip_mach          = 0.5
+    rotor.number_blades            = 3  
+    rotor.freestream_velocity      = 85. * Units['ft/min'] # 110 mph         
+    rotor.angular_velocity         = rotor.design_tip_mach*speed_of_sound/rotor.tip_radius      
+    rotor.design_Cl                = 0.7
+    rotor.design_altitude          = 500 * Units.feet                  
+    Lift                           = vehicle.mass_properties.takeoff*9.81  
+    rotor.design_thrust            = (Lift * 1.5 )/net.number_of_engines 
+    rotor.induced_hover_velocity   = np.sqrt(Lift/(2*rho*rotor.disc_area*net.number_of_engines))      
+    # relative path only required for regression
+    ospath                         = os.path.abspath(__file__)
+    rel_path                       = ospath.split('Electric_Multicopter.py')[0] 
+                                     
+    rotor.airfoil_geometry         = [ rel_path + 'NACA_4412_geo.txt']
+    rotor.airfoil_polars           = [[rel_path + 'NACA_4412_polar_Re_50000.txt',
+                                       rel_path + 'NACA_4412_polar_Re_100000.txt',
+                                       rel_path + 'NACA_4412_polar_Re_200000.txt',
+                                       rel_path + 'NACA_4412_polar_Re_500000.txt',
+                                       rel_path + 'NACA_4412_polar_Re_1000000.txt']] # airfoil polars for at different reynolds numbers 
+    
+    # 0 represents the first airfoil, 1 represents the second airfoil etc. 
+    rotor.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]   
+    rotor                          = propeller_design(rotor)  
                                  
     # Front Rotors Locations 
     rot_front                    = Data()
@@ -370,10 +382,10 @@ def vehicle_setup():
             rot_rear.origin.append(propeller_origin) 
       
     # Assign all rotors (front and rear) to network
-    rot.origin = rot_front.origin + rot_rear.origin   
+    rotor.origin = rot_front.origin + rot_rear.origin   
     
     # append rotors to vehicle     
-    net.rotor = rot
+    net.rotor = rotor
     
     # Motor
     #------------------------------------------------------------------
@@ -387,9 +399,9 @@ def vehicle_setup():
     motor.gear_ratio           = 1. 
     motor.gearbox_efficiency   = 1. # Gear box efficiency        
     motor.nominal_voltage      = bat.max_voltage *3/4  
-    motor.propeller_radius     = rot.tip_radius 
+    motor.propeller_radius     = rotor.tip_radius 
     motor.no_load_current      = 2.0 
-    motor                      = compute_optimal_motor_parameters(motor,rot) 
+    motor                      = compute_optimal_motor_parameters(motor,rotor) 
     net.motor                  = motor 
     
     vehicle.append_component(net) 

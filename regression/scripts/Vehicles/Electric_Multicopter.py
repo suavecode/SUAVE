@@ -15,7 +15,7 @@ from SUAVE.Methods.Weights.Buildups.Electric_Multicopter.empty import empty
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , compute_optimal_motor_parameters
 from SUAVE.Methods.Weights.Correlations.Propulsion import nasa_motor, hts_motor , air_cooled_motor
 import numpy as np
-
+import os 
 # ----------------------------------------------------------------------
 #   Build the Vehicle
 # ----------------------------------------------------------------------
@@ -187,7 +187,7 @@ def vehicle_setup():
     # atmosphere and flight conditions for propeller/rotor design
     g               = 9.81                                   # gravitational acceleration  
     speed_of_sound  = 340                                    # speed of sound 
-    rho             = 1.22                                   # reference density
+    rho             = 1.21                                   # reference density
     Hover_Load      = vehicle.mass_properties.takeoff*g      # hover load   
     design_tip_mach = 0.7                                    # design tip mach number 
     
@@ -196,13 +196,27 @@ def vehicle_setup():
     rotor.hub_radius             = 0.6  * Units.feet 
     rotor.disc_area              = np.pi*(rotor.tip_radius**2) 
     rotor.number_blades          = 3
-    rotor.freestream_velocity    = 500. * Units['ft/min']  
+    rotor.freestream_velocity    = 10 # 500. * Units['ft/min']  
     rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/rotor.tip_radius   
-    rotor.design_Cl              = 0.8
+    rotor.design_Cl              = 0.7
     rotor.design_altitude        = 1000 * Units.feet                   
-    rotor.design_thrust          = (Hover_Load/net.number_of_engines)*2.
-    rotor                        = propeller_design(rotor)    
+    rotor.design_power           = (Hover_Load/net.number_of_engines)*rotor.freestream_velocity 
     rotor.induced_hover_velocity = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines))  
+    
+    # relative path only required for regression
+    ospath                       = os.path.abspath(__file__)
+    rel_path                     = ospath.split('Electric_Multicopter.py')[0] 
+    
+    rotor.airfoil_geometry       = [ rel_path + 'NACA_4412_geo.txt']
+    rotor.airfoil_polars         = [[rel_path + 'NACA_4412_polar_Re_50000.txt',
+                                     rel_path + 'NACA_4412_polar_Re_100000.txt',
+                                     rel_path + 'NACA_4412_polar_Re_200000.txt',
+                                     rel_path + 'NACA_4412_polar_Re_500000.txt',
+                                     rel_path + 'NACA_4412_polar_Re_1000000.txt']] # airfoil polars for at different reynolds numbers 
+    
+    # 0 represents the first airfoil, 1 represents the second airfoil etc. 
+    rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]   
+    rotor                        = propeller_design(rotor)        
     
     # propulating propellers on the other side of the vehicle    
     rotor.origin                 = []
