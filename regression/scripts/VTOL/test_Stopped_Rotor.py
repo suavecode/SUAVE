@@ -45,9 +45,9 @@ def main():
     plot_mission(results,configs)
       
     # save, load and plot old results 
-    save_stopped_rotor_results(results)
-    old_results = load_stopped_rotor_results()
-    plot_mission(old_results,configs, 'k-')
+    #save_stopped_rotor_results(results)
+    #old_results = load_stopped_rotor_results()
+    #plot_mission(old_results,configs, 'k-')
     plt.show(block=True)    
     
     # RPM of rotor check during hover
@@ -209,8 +209,8 @@ def mission_setup(analyses,vehicle):
     segment.climb_rate                                       = 500. * Units['ft/min']
     segment.battery_energy                                   = vehicle.propulsors.lift_cruise.battery.max_energy*0.95
                                                              
-    segment.state.unknowns.rotor_power_coefficient           = 0.01 * ones_row(1)
-    segment.state.unknowns.throttle_lift                     = 1.0 * ones_row(1)
+    segment.state.unknowns.propeller_power_coefficient_lift  = 0.04 * ones_row(1)
+    segment.state.unknowns.throttle_lift                     = 0.85 * ones_row(1)
     segment.state.unknowns.__delitem__('throttle')
 
     segment.process.iterate.unknowns.network                 = vehicle.propulsors.lift_cruise.unpack_unknowns_no_forward
@@ -238,7 +238,7 @@ def mission_setup(analyses,vehicle):
     #segment.pitch_initial   = 0.0
     #segment.pitch_final     = 5. * Units.degrees
 
-    #segment.state.unknowns.rotor_power_coefficient = 0.04 * ones_row(1)
+    #segment.state.unknowns.propeller_power_coefficient_lift = 0.04 * ones_row(1)
     #segment.state.unknowns.throttle_lift                    = 0.80 * ones_row(1) 
     #segment.state.unknowns.propeller_power_coefficient      = 0.06 * ones_row(1)
     #segment.state.unknowns.throttle                         = .70  * ones_row(1)   
@@ -270,7 +270,7 @@ def mission_setup(analyses,vehicle):
     #segment.pitch_initial          = 8. * Units.degrees  
     #segment.pitch_final            = 7. * Units.degrees       
     
-    #segment.state.unknowns.rotor_power_coefficient = 0.05 * ones_row(1)
+    #segment.state.unknowns.propeller_power_coefficient_lift = 0.05 * ones_row(1)
     #segment.state.unknowns.throttle_lift                    = 0.70 * ones_row(1) 
     #segment.state.unknowns.propeller_power_coefficient      = 0.06 * ones_row(1)
     #segment.state.unknowns.throttle                         = .40  * ones_row(1)   
@@ -368,8 +368,8 @@ def mission_setup(analyses,vehicle):
     #segment.air_speed = 110.   * Units['mph']
     #segment.distance  = 60.    * Units.miles                       
 
-    #segment.state.unknowns.propeller_power_coefficient = 0.05 * ones_row(1)
-    #segment.state.unknowns.throttle                    = 0.30 * ones_row(1)
+    #segment.state.unknowns.propeller_power_coefficient = 0.08 * ones_row(1)
+    #segment.state.unknowns.throttle                    = 0.50 * ones_row(1)
 
     #segment.process.iterate.unknowns.network  = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
     #segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift    

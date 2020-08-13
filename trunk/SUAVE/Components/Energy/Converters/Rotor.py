@@ -246,7 +246,7 @@ class Rotor(Energy_Component):
         r_dim_2d       = np.repeat(r_dim_2d[ np.newaxis,:, :], ctrl_pts, axis=0)  
     
         # Momentum theory approximation of inflow for BET if the advance ratio is large
-        edgewise = abs(V_thrust[:,0]/V_thrust[:,2])
+        edgewise = V_thrust[:,0]/V_thrust[:,2]  
         if any(edgewise[:] < 10.0) or use_BET:
             if Vh != None:     
                 for i in range(len(V)): 
@@ -555,8 +555,8 @@ class Rotor(Energy_Component):
         Cp[omega==0.0]     = 0.0 
         etap[omega==0.0]     = 0.0 
 
-        conditions.propulsion.etap = etap      
-        
+        conditions.propulsion.etap = etap   
+                
         # store data
         self.azimuthal_distribution                   = psi  
         results_conditions                            = Data     

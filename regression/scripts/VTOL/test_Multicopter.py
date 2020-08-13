@@ -47,7 +47,7 @@ def main():
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
-    RPM_true   = 1964.7521701299058
+    RPM_true   = 1376.1562852438526
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -56,10 +56,10 @@ def main():
     
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
-    battery_energy_transition_true    = np.array([3.58834581e+08, 3.58792854e+08, 3.58669485e+08, 3.58469829e+08,
-                                                  3.58202558e+08, 3.57879293e+08, 3.57514103e+08, 3.57122902e+08,
-                                                  3.56722764e+08, 3.56331177e+08, 3.55965279e+08, 3.55641109e+08,
-                                                  3.55372892e+08, 3.55172411e+08, 3.55048483e+08, 3.55006558e+08])
+    battery_energy_transition_true    = np.array([3.58992377e+08, 3.58977085e+08, 3.58931875e+08, 3.58858722e+08,
+                                                  3.58760819e+08, 3.58642442e+08, 3.58508761e+08, 3.58365615e+08,
+                                                  3.58219260e+08, 3.58076092e+08, 3.57942369e+08, 3.57823938e+08,
+                                                  3.57725980e+08, 3.57652778e+08, 3.57607535e+08, 3.57592231e+08])
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true) 
     print('battery energy of transition')
@@ -233,8 +233,8 @@ def mission_setup(analyses,vehicle):
     segment.climb_rate      = 300. * Units['ft/min']
     segment.battery_energy  = vehicle.propulsors.vectored_thrust.battery.max_energy*0.95
     
-    segment.state.unknowns.throttle                       = 0.9  * ones_row(1)
-    segment.state.unknowns.propeller_power_coefficient    = 0.04 * ones_row(1) 
+    segment.state.unknowns.throttle                       = 0.5 * ones_row(1)
+    segment.state.unknowns.propeller_power_coefficient    = 0.2 * ones_row(1) 
 
     segment.process.iterate.unknowns.network          = vehicle.propulsors.vectored_thrust.unpack_unknowns
     segment.process.iterate.residuals.network         = vehicle.propulsors.vectored_thrust.residuals

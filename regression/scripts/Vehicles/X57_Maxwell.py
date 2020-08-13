@@ -16,8 +16,7 @@ from SUAVE.Core import Data
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Propulsion import propeller_design 
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_optimal_motor
-from SUAVE.Methods.Weights.Correlations.Propulsion import nasa_motor
+from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -210,54 +209,26 @@ def vehicle_setup():
     esc.efficiency = 0.95 # Gundlach for brushless motors
     net.esc        = esc
 
-    # Component 2 the Propeller 
-    #------------------------------------------------------------------
-    # Design Rotors and Propellers
-    #------------------------------------------------------------------
-    # atmosphere and flight conditions for propeller/rotor design
-    speed_of_sound               = 340
-    g              = 9.81                                   # gravitational acceleration 
-    S              = vehicle.reference_area                 # reference area 
-    rho            = 1.2                                    # reference density
-    fligth_CL      = 0.75                                   # cruise target lift coefficient 
-    AR             = vehicle.wings.main_wing.aspect_ratio   # aspect ratio 
-    Cd0            = 0.06                                   # profile drag
-    Cdi            = fligth_CL**2/(np.pi*AR*0.98)           # induced drag
-    Cd             = Cd0 + Cdi                              # total drag
-    V_inf          = 140.* Units['mph']                     # freestream velocity 
-    Drag           = S * (0.5*rho*V_inf**2 )*Cd             # cruise drag 
-    
+    # Component 2 the Propeller
+    # Design the Propeller
     prop = SUAVE.Components.Energy.Converters.Propeller() 
 
     prop.number_blades       = 2.0
-    prop.freestream_velocity = V_inf
-    prop.design_tip_mach     = 0.5 
+    prop.freestream_velocity = 135.*Units['mph']    
+    prop.angular_velocity    = 1300.  * Units.rpm  
     prop.tip_radius          = 76./2. * Units.inches
-    prop.hub_radius          = 8.     * Units.inches    
-    prop.angular_velocity    = prop.design_tip_mach*speed_of_sound/prop.tip_radius  
-    prop.design_Cl           = 0.7
+    prop.hub_radius          = 8.     * Units.inches
+    prop.design_Cl           = 0.8
     prop.design_altitude     = 12000. * Units.feet
-    prop.design_thrust       = Drag/net.number_of_engines
+    prop.design_altitude     = 12000. * Units.feet
+    prop.design_thrust       = 1200.  
     prop.origin              = [[2.,2.5,0.784],[2.,-2.5,0.784]]                 
     prop.symmetry            = True
     prop                     = propeller_design(prop)    
     net.propeller            = prop    
-      
-    velocity    = prop.freestream_velocity
-    density     = 1.21  
-    rps         = prop.angular_velocity/(Units.rpm*60) # rev per sec 
-    design_Cq   = prop.design_power /(2*np.pi*density*(rps**3)*((prop.tip_radius*2)**5))
-    des_Cp      = 2*np.pi* design_Cq
-    des_etap    = (prop.design_thrust*velocity)/(2*np.pi*rps*prop.design_torque )  
-    print('\nPropeller Design Attributes')
-    print('Design Thrust         = ' + str(round(prop.design_thrust ,4)))
-    print('Design Torque         = ' + str(round(prop.design_torque,4)))
-    print('Design Power          = ' + str(round(prop.design_power ,4)))
-    print('Power Coefficient     = ' + str(round(des_Cp,4)))
-    print('Design Efficiency     = ' + str(round(des_etap,4))) 
     
     # Component 8 the Battery
-    bat                      = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 500. * Units.kg  
     bat.specific_energy      = 350. * Units.Wh/Units.kg
     bat.resistance           = 0.006
@@ -269,26 +240,41 @@ def vehicle_setup():
     
     # Component 9 Miscellaneous Systems 
     sys = SUAVE.Components.Systems.System()
-    sys.mass_properties.mass = 5  
+    sys.mass_properties.mass = 5 # kg
     
     #------------------------------------------------------------------
     # Design Motors
     #------------------------------------------------------------------
     # Propeller  motor
     # Component 4 the Motor
-    motor                         = SUAVE.Components.Energy.Converters.Motor() 
-    motor.mass_properties.mass    = nasa_motor(prop.design_torque) 
-    motor.efficiency              = 0.95  
-    motor.gear_ratio              = 1.0
-    motor.gearbox_efficiency      = 1.0  
-    motor.no_load_current         = 1.0     
-    motor.resistance              = 0.1
-    motor.nominal_voltage         = bat.max_voltage*0.9
-    motor                         = size_optimal_motor(motor,prop)   
-    net.motor                     = motor  
-    print('Motor Speed Constant')
-    print("\nMotor Speed Constant = " + str(round(motor.speed_constant, 4)))
-                                  
+    motor                              = SUAVE.Components.Energy.Converters.Motor()
+    etam                               = 0.95
+    v                                  = bat.max_voltage *3/4
+    omeg                               = prop.angular_velocity  
+    io                                 = 4.0 
+    start_kv                           = 1
+    end_kv                             = 25
+    # do optimization to find kv or just do a linspace then remove all negative values, take smallest one use 0.05 change
+    # essentially you are sizing the motor for a particular rpm which is sized for a design tip mach 
+    # this reduces the bookkeeping errors     
+    possible_kv_vals                   = np.linspace(start_kv,end_kv,(end_kv-start_kv)*20 +1 , endpoint = True) * Units.rpm
+    res_kv_vals                        = ((v-omeg/possible_kv_vals)*(1.-etam*v*possible_kv_vals/omeg))/io  
+    positive_res_vals                  = np.extract(res_kv_vals > 0 ,res_kv_vals) 
+    kv_idx                             = np.where(res_kv_vals == min(positive_res_vals))[0][0]   
+    kv                                 = possible_kv_vals[kv_idx]  
+    res                                = min(positive_res_vals) 
+
+    motor.mass_properties.mass         = 10. * Units.kg
+    motor.origin                       = prop.origin  
+    motor.propeller_radius             = prop.tip_radius   
+    motor.speed_constant               = 0.35 
+    motor.resistance                   = res
+    motor.no_load_current              = io 
+    motor.gear_ratio                   = 1. 
+    motor.gearbox_efficiency           = 1. # Gear box efficiency     
+    net.motor                          = motor 
+
+
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()
     payload.power_draw           = 10. #Watts 
@@ -307,13 +293,12 @@ def vehicle_setup():
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
 
-    return vehicle 
- 
+    return vehicle
 
 # ---------------------------------------------------------------------
 #   Define the Configurations
 # ---------------------------------------------------------------------
- 
+
 def configs_setup(vehicle):
 
     # ------------------------------------------------------------------
@@ -324,6 +309,7 @@ def configs_setup(vehicle):
 
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
+    base_config.propulsors.battery_propeller.pitch_command = 0 
     configs.append(base_config) 
 
 

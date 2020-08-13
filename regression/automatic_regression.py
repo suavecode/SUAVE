@@ -79,7 +79,7 @@ modules = [
     'scripts/scramjet_network/scramjet_network.py',
     'scripts/rocket_network/Rocketdyne_F1.py',
     'scripts/rocket_network/Rocketdyne_J2.py',   
-    'scripts/segments/segment_test.py',    
+    'scripts/segments/segment_test.py',     
     'scripts/slipstream/slipstream_test.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',

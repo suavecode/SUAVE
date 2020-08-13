@@ -84,12 +84,12 @@ def empty(config,
         mBattery            = propulsor.battery.mass_properties.mass
         mPayload            = propulsor.payload.mass_properties.mass
     
-        nLiftProps          = propulsor.number_of_rotor_engines
-        nThrustProps        = propulsor.number_of_propeller_engines
+        nLiftProps          = propulsor.number_of_engines_lift
+        nThrustProps        = propulsor.number_of_engines_forward
         nLiftBlades         = propulsor.rotor.number_blades
         nThrustBlades       = propulsor.propeller.number_blades
-        n_lift_motors       = propulsor.number_of_rotor_engines
-        n_cruise_motors     = propulsor.number_of_propeller_engines
+        n_lift_motors       = propulsor.number_of_engines_lift
+        n_cruise_motors     = propulsor.number_of_engines_forward
         
     if len(config.propulsors.items())>1:
         warn('Using multiple propulsors, this method is not prepared to handle')
