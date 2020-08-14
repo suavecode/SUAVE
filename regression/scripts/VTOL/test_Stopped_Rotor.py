@@ -191,13 +191,6 @@ def mission_setup(analyses,vehicle):
     Vstall = float(np.sqrt(2.*m*g/(rho*S*CLmax)))
 
     # ------------------------------------------------------------------
-    #   First Taxi Segment: Constant Speed
-    # ------------------------------------------------------------------
-    segment     = Segments.Hover.Climb(base_segment)
-    segment.tag = "Ground_Taxi"
-    
-   
-    # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
     segment     = Segments.Hover.Climb(base_segment)
@@ -210,7 +203,7 @@ def mission_setup(analyses,vehicle):
     segment.climb_rate                                       = 500. * Units['ft/min']
     segment.battery_energy                                   = vehicle.propulsors.lift_cruise.battery.max_energy*0.95
                                                              
-    segment.state.unknowns.propeller_power_coefficient_lift  = 0.2 * ones_row(1)
+    segment.state.unknowns.propeller_power_coefficient_lift  = 0.3 * ones_row(1)
     segment.state.unknowns.throttle_lift                     = 0.5 * ones_row(1)
     segment.state.unknowns.__delitem__('throttle')
 
@@ -222,38 +215,39 @@ def mission_setup(analyses,vehicle):
 
     # add to misison
     mission.append_segment(segment)
+    
+    ## ------------------------------------------------------------------
+    ##   First Cruise Segment: Transition
+    ## ------------------------------------------------------------------
 
-    # ------------------------------------------------------------------
-    #   First Cruise Segment: Transition
-    # ------------------------------------------------------------------
+    #segment     = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
+    #segment.tag = "transition_1"
 
-    segment     = Segments.Transition.Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(base_segment)
-    segment.tag = "transition_1"
+    #segment.analyses.extend( analyses )
 
-    segment.analyses.extend( analyses )
+    #segment.battery_energy                                   = vehicle.propulsors.lift_cruise.battery.max_energy*0.95
+    #segment.altitude        = 40.  * Units.ft
+    #segment.air_speed_start = 0.   * Units['ft/min']
+    #segment.air_speed_end   = 0.8 * Vstall
+    #segment.acceleration    = 9.81/5
+    #segment.pitch_initial   = 0.0
+    #segment.pitch_final     = 5. * Units.degrees
 
-    segment.altitude        = 40.  * Units.ft
-    segment.air_speed_start = 500. * Units['ft/min']
-    segment.air_speed_end   = 0.8 * Vstall
-    segment.acceleration    = 9.81/5
-    segment.pitch_initial   = 0.0
-    segment.pitch_final     = 5. * Units.degrees
+    #segment.state.unknowns.propeller_power_coefficient_lift = 0.03 * ones_row(1)  #  0.04
+    #segment.state.unknowns.throttle_lift                    = 0.65 * ones_row(1)  #  0.80
+    #segment.state.unknowns.propeller_power_coefficient      = 0.4 * ones_row(1)   #  0.4 
+    #segment.state.unknowns.throttle                         = 0.50  * ones_row(1)  #  .60  
+    #segment.state.residuals.network                         = 0.   * ones_row(3)  #  0.    
 
-    segment.state.unknowns.propeller_power_coefficient_lift = 0.2 *  ones_row(1)
-    segment.state.unknowns.throttle_lift                    = 0.5 * ones_row(1) 
-    segment.state.unknowns.propeller_power_coefficient      = 0.5   * ones_row(1)
-    segment.state.unknowns.throttle                         = 0.9 * ones_row(1)   
-    segment.state.residuals.network                         = 0.0   * ones_row(3)    
-
-    segment.process.iterate.unknowns.network                = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
-    segment.process.iterate.residuals.network               = vehicle.propulsors.lift_cruise.residuals_transition    
-    segment.process.iterate.unknowns.mission                = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability            = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability         = SUAVE.Methods.skip
-
-    # add to misison
-    mission.append_segment(segment)
-
+    #segment.process.iterate.unknowns.network                = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
+    #segment.process.iterate.residuals.network               = vehicle.propulsors.lift_cruise.residuals_transition    
+    #segment.process.iterate.unknowns.mission                = SUAVE.Methods.skip
+    #segment.process.iterate.conditions.stability            = SUAVE.Methods.skip
+    #segment.process.finalize.post_process.stability         = SUAVE.Methods.skip 
+    
+    ## add to misison
+    #mission.append_segment(segment)
+    
     ## ------------------------------------------------------------------
     ##   First Cruise Segment: Transition
     ## ------------------------------------------------------------------
@@ -262,7 +256,8 @@ def mission_setup(analyses,vehicle):
     #segment.tag = "transition_2"
 
     #segment.analyses.extend( analyses )
-     
+    
+    #segment.battery_energy                                   = vehicle.propulsors.lift_cruise.battery.max_energy*0.95 
     #segment.altitude_start         = 40.0 * Units.ft
     #segment.altitude_end           = 50.0 * Units.ft
     #segment.air_speed              = 0.8 * Vstall
@@ -273,8 +268,8 @@ def mission_setup(analyses,vehicle):
     
     #segment.state.unknowns.propeller_power_coefficient_lift = 0.005 * ones_row(1)
     #segment.state.unknowns.throttle_lift                    = 0.2 * ones_row(1) 
-    #segment.state.unknowns.propeller_power_coefficient      = 0.1  * ones_row(1)
-    #segment.state.unknowns.throttle                         = 0.60 * ones_row(1)   
+    #segment.state.unknowns.propeller_power_coefficient      = 0.5  * ones_row(1)
+    #segment.state.unknowns.throttle                         = 0.50 * ones_row(1)   
     #segment.state.residuals.network                         = 0.   * ones_row(3)    
 
     #segment.process.iterate.unknowns.network                = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
