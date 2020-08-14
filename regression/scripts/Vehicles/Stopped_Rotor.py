@@ -407,15 +407,15 @@ def vehicle_setup():
     propeller.freestream_velocity = V_inf
     propeller.tip_radius          = 1.0668
     propeller.hub_radius          = 0.21336 
-    propeller.design_tip_mach     = 0.65
+    propeller.design_tip_mach     = 0.35 # 0.4
     propeller.angular_velocity    = propeller.design_tip_mach *speed_of_sound  /propeller.tip_radius   
-    propeller.design_Cl           = 0.7
-    propeller.design_altitude     = 1. * Units.km  
-    propeller.design_thrust       = (Drag*2.5)/net.number_of_engines_forward
+    propeller.design_Cl           = 0.65
+    propeller.design_altitude     = 1000 * Units.feet   
+    propeller.design_thrust       = (Drag*2.5)/net.number_of_engines_forward # 2
     propeller                     = propeller_design(propeller)   
     propeller.origin              = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
     net.propeller                 = propeller
-
+ 
     # Lift Rotors                               
     rotor                         = SUAVE.Components.Energy.Converters.Rotor() 
     rotor.tip_radius              = 2.8 * Units.feet
@@ -429,13 +429,13 @@ def vehicle_setup():
     rotor.angular_velocity        = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
     rotor.design_Cl               = 0.7
     rotor.design_altitude         = 20 * Units.feet                            
-    rotor.design_thrust           = (Hover_Load*1.5)/net.number_of_engines_lift 
+    rotor.design_thrust           = (Hover_Load * 2.5 )/net.number_of_engines_lift 
     rotor.x_pitch_count           = 2 
     rotor.y_pitch_count           = vehicle.fuselages['boom_1r'].y_pitch_count
     rotor.y_pitch                 = vehicle.fuselages['boom_1r'].y_pitch 
     rotor                         = propeller_design(rotor)          
     rotor.origin                  = vehicle.fuselages['boom_1r'].origin
-    rotor.symmetric               = True
+    rotor.symmetric               = True 
 
     # populating propellers on one side of wing
     if rotor.y_pitch_count > 1 :

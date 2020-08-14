@@ -278,21 +278,21 @@ def propeller_design(prop,number_of_stations=20):
     Cp     = Power/(rho*(n**3)*(D**5))
     Ct     = Thrust/(rho*(np.pi*(R**2))*(omega**2)*(R**2))
     
-    # compute max thickness distribution using NACA 4 series eqn
-    t_max          = np.zeros(N) 
-    for idx in range(N):
-        c_blade    = np.linspace(0,c[idx],N)          # local chord   
-        t          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
-        t_max[idx] = np.max(t)                       
- 
+    # compute max thickness distribution  
+    t_max  = np.zeros(N)    
+    t_c    = np.zeros(N)    
+    airfoil_geometry_data = import_airfoil_geometry(a_geo)
+    for i in range(N):
+        t_c[i]   = airfoil_geometry_data.thickness_to_chord[a_loc[i]]    
+        t_max[i] = airfoil_geometry_data.max_thickness[a_loc[i]]*c[i]
+        
     # Nondimensional thrust
     if prop.design_power == None: 
         prop.design_power = Power[0]        
     elif prop.design_thrust == None: 
         prop.design_thrust = Thrust[0]      
     
-    # approximate thickness to chord ratio 
-    t_c               = t_max/c
+    # approximate thickness to chord ratio  
     t_c_at_70_percent = t_c[int(N*0.7)]
     
     # blade solidity
@@ -306,8 +306,8 @@ def propeller_design(prop,number_of_stations=20):
     prop.chord_distribution         = c
     prop.radius_distribution        = r 
     prop.number_blades              = int(B)
-    prop.design_power_coefficient          = Cp 
-    prop.design_thrust_coefficient         = Ct 
+    prop.design_power_coefficient   = Cp 
+    prop.design_thrust_coefficient  = Ct 
     prop.mid_chord_aligment         = MCA
     prop.thickness_to_chord         = t_c_at_70_percent
     prop.blade_solidity             = sigma  

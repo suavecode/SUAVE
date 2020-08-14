@@ -51,6 +51,7 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
     airfoil_data.x_coordinates      = []
     airfoil_data.y_coordinates      = []
     airfoil_data.thickness_to_chord = []
+    airfoil_data.max_thickness      = []
     airfoil_data.camber_coordinates = []
     airfoil_data.x_upper_surface    = []
     airfoil_data.x_lower_surface    = []
@@ -175,7 +176,12 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
         x_data        = np.concatenate([x_up_surf_new[::-1],x_lo_surf_new])
         y_data        = np.concatenate([y_up_surf_new[::-1],y_lo_surf_new]) 
         
-        airfoil_data.thickness_to_chord.append(np.max(thickness))    
+        max_t = np.max(thickness)
+        max_c = max(x_data) - min(x_data)
+        t_c   = max_t/max_c 
+        
+        airfoil_data.thickness_to_chord.append(t_c)
+        airfoil_data.max_thickness.append(max_t)    
         airfoil_data.x_coordinates.append(x_data)  
         airfoil_data.y_coordinates.append(y_data)     
         airfoil_data.x_upper_surface.append(x_up_surf_new)

@@ -200,7 +200,7 @@ def vehicle_setup():
     rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/rotor.tip_radius   
     rotor.design_Cl              = 0.8
     rotor.design_altitude        = 1000 * Units.feet                   
-    rotor.design_thrust          = (Hover_Load*2.)/net.number_of_engines
+    rotor.design_thrust          = (Hover_Load/net.number_of_engines)*2.
     rotor                        = propeller_design(rotor)    
     rotor.induced_hover_velocity = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines))  
     
