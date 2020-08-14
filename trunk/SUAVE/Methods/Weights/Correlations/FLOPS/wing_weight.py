@@ -11,7 +11,7 @@ import SUAVE
 from SUAVE.Core import Units
 import numpy as np
 
-def wing_weight_FLOPS(vehicle, WPOD, complexity):
+def wing_weight_FLOPS(vehicle, wing, WPOD, complexity):
     """ Calculate the wing weight based on the flops method. The wing weight consists of:
         - Total Wing Shear Material and Control Surface Weight
         - Total Wing Miscellaneous Items Weight
@@ -33,7 +33,7 @@ def wing_weight_FLOPS(vehicle, WPOD, complexity):
                                                         medium-range, long-range,
                                                         sst, cargo)
                 -.fuselages.fuselage.width: width of the fuselage               [m]
-                -.wings['main_wing']: data dictionary with wing properties
+             -wing: data dictionary with wing properties
                     -.taper: taper ration wing
                     -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
                     -.thickness_to_chord: thickness to chord
@@ -54,7 +54,6 @@ def wing_weight_FLOPS(vehicle, WPOD, complexity):
         Properties Used:
             N/A
     """
-    wing        = vehicle.wings['main_wing']
     SW          = wing.areas.reference / (Units.ft ** 2)  # Reference wing area, ft^2
     GLOV        = 0  # Gloved area, assumed 0
     SX          = SW - GLOV  # Wing trapezoidal area
@@ -89,7 +88,7 @@ def wing_weight_FLOPS(vehicle, WPOD, complexity):
     else:
         NSD             = 500
         N2              = int(sum(propulsors.wing_mounted) / 2)
-        ETA, C, T, SWP  = generate_wing_stations(vehicle)
+        ETA, C, T, SWP  = generate_wing_stations(vehicle.fuselages['fuselage'].width, wing)
         NS, Y           = generate_int_stations(NSD, ETA)
         EETA            = get_spanwise_engine(propulsors, SEMISPAN)
         P0              = calculate_load(ETA[-1])
@@ -170,7 +169,7 @@ def wing_weight_FLOPS(vehicle, WPOD, complexity):
     return WWING * Units.lbs
 
 
-def generate_wing_stations(vehicle):
+def generate_wing_stations(fuselage_width, wing):
     """ Divides half the wing in sections, using the defined sections
         and adding a section at the intersection of wing and fuselage
 
@@ -180,8 +179,8 @@ def generate_wing_stations(vehicle):
             The Flight Optimization System Weight Estimation Method
 
         Inputs:
-            vehicle - data dictionary with vehicle properties                   [dimensionless]
-                -.wings['main_wing']: data dictionary with wing properties
+            fuselage_width: fuselage width                                      [m]
+            wing: data dictionary with wing properties
                     -.taper: taper ration wing
                     -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
                     -.thickness_to_chord: thickness to chord
@@ -201,7 +200,6 @@ def generate_wing_stations(vehicle):
         Properties Used:
             N/A
     """
-    wing        = vehicle.wings['main_wing']
     SPAN        = wing.spans.projected / Units.ft  # Wing span, ft
     SEMISPAN    = SPAN / 2
     root_chord  = wing.chords.root / Units.ft
@@ -239,8 +237,8 @@ def generate_wing_stations(vehicle):
         T[0] = wing.Segments[0].thickness_to_chord
     else:
         T[0] = wing.thickness_to_chord
-    ETA[1] = vehicle.fuselages.fuselage.width / 2 * 1 / Units.ft * 1 / SEMISPAN
-    C[1] = determine_fuselage_chord(vehicle) * 1 / SEMISPAN
+    ETA[1] = fuselage_width / 2 * 1 / Units.ft * 1 / SEMISPAN
+    C[1] = determine_fuselage_chord(fuselage_width, wing) * 1 / SEMISPAN
 
     if hasattr(wing.Segments[0], 'thickness_to_chord'):
         T[1] = wing.Segments[0].thickness_to_chord
@@ -385,7 +383,7 @@ def wing_weight_constants_FLOPS(ac_type):
     return A
 
 
-def determine_fuselage_chord(vehicle):
+def determine_fuselage_chord(fuselage_width, wing):
     """ Determine chord at wing and fuselage intersection
 
         Assumptions:
@@ -394,8 +392,8 @@ def determine_fuselage_chord(vehicle):
             The Flight Optimization System Weight Estimation Method
 
         Inputs:
-            vehicle - data dictionary with vehicle properties                   [dimensionless]
-                -.wings['main_wing']: data dictionary with wing properties
+            fuselage_width: width of fuselage                                   [m]
+            wing: data dictionary with wing properties
                     -.taper: taper ration wing
                     -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
                     -.thickness_to_chord: thickness to chord
@@ -408,7 +406,6 @@ def determine_fuselage_chord(vehicle):
         Properties Used:
             N/A
     """
-    wing            = vehicle.wings['main_wing']
     root_chord      = wing.chords.root / Units.ft
     SPAN            = wing.spans.projected / Units.ft  # Wing span, ft
     SEMISPAN        = SPAN / 2
@@ -418,6 +415,6 @@ def determine_fuselage_chord(vehicle):
     y2              = wing.Segments[1].percent_span_location
     b               = (y2 - y1) * SEMISPAN
     taper           = c2 / c1
-    y               = vehicle.fuselages.fuselage.width / 2 * 1 / Units.ft
+    y               = fuselage_width / 2 * 1 / Units.ft
     chord           = c1 * (1 - (1 - taper) * 2 * y / b)
     return chord
