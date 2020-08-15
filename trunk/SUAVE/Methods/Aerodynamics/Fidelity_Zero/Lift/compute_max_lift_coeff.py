@@ -5,6 +5,7 @@
 # Modified: Feb 2014, T. Orra
 #           Jan 2016, E. Botero        
 #           Feb 2019, E. Botero      
+#           Jul 2020, E. Botero 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -24,7 +25,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_flap_lift import comp
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Fidelity_Zero-Lift
-def compute_max_lift_coeff(vehicle,conditions=None):
+def compute_max_lift_coeff(state,settings,geometry):
     """Computes the maximum lift coefficient associated with an aircraft high lift system
 
     Assumptions:
@@ -34,7 +35,7 @@ def compute_max_lift_coeff(vehicle,conditions=None):
     Unknown
 
     Inputs:
-    vehicle.max_lift_coefficient_factor        [Unitless]
+    analyses.max_lift_coefficient_factor       [Unitless]
     vehicle.reference_area                     [m^2]
     vehicle.wings.                             
       areas.reference                          [m^2]
@@ -64,9 +65,11 @@ def compute_max_lift_coeff(vehicle,conditions=None):
     # initializing Cl and CDi
     Cl_max_ls = 0
     Cd_ind    = 0
+    vehicle = geometry
+    conditions = state.conditions
 
     #unpack
-    max_lift_coefficient_factor = vehicle.max_lift_coefficient_factor
+    max_lift_coefficient_factor = settings.maximum_lift_coefficient_factor
     for wing in vehicle.wings:
     
         if not wing.high_lift: continue
@@ -86,8 +89,8 @@ def compute_max_lift_coeff(vehicle,conditions=None):
         
         # conditions data
         V    = conditions.freestream.velocity
-        roc  = conditions.freestream.density[0]
-        nu   = conditions.freestream.dynamic_viscosity[0]
+        roc  = conditions.freestream.density
+        nu   = conditions.freestream.dynamic_viscosity
 
         #--cl max based on airfoil t_c
         Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005

@@ -252,7 +252,7 @@ class Rotor(Energy_Component):
         diff   = 1.
         
         ii = 0
-        broke = False        
+        broke = False   
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -331,7 +331,7 @@ class Rotor(Energy_Component):
             psiold = psi
             
             # If its really not going to converge
-            if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+            if np.any(psi>(pi*2)) and np.any(dpsi>0.0):
                 break
                 
             ii+=1
@@ -598,7 +598,7 @@ class Rotor(Energy_Component):
         
         ii    = 0
         broke = False 
-        tol   = 1e-6    # Convergence tolerance         
+        tol   = 1e-6    # Convergence tolerance   
         while (diff>tol):
             sin_psi = np.sin(psi)
             cos_psi = np.cos(psi)
@@ -677,7 +677,7 @@ class Rotor(Energy_Component):
             psiold = psi
             
             # If its really not going to converge
-            if np.any(psi>(pi*85.0/180.)) and np.any(dpsi>0.0):
+            if np.any(psi>(pi/2)) and np.any(dpsi>0.0):
                 broke = True
                 break
                 

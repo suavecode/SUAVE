@@ -634,8 +634,8 @@ def configs_setup(vehicle):
     config.tag                                                       = 'takeoff'
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg
-    #Noise input for the landing gear
-    config.landing_gear.gear_condition                               = 'up'
+    #Noise input for the landing gear                                
+    config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Flyover_'
 
     config.propulsors['turbofan'].fan.rotation     = 3470. #N1 speed
@@ -651,8 +651,8 @@ def configs_setup(vehicle):
     config.tag                                                       = 'cutback'
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
-    #Noise input for the landing gear
-    config.landing_gear.gear_condition                               = 'up'
+    #Noise input for the landing gear                                
+    config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Cutback_'
 
     config.propulsors['turbofan'].fan.rotation     = 2780. #N1 speed
@@ -669,9 +669,9 @@ def configs_setup(vehicle):
     config.tag = 'landing'
 
     config.wings['main_wing'].control_surfaces.flap.deflection       = 30. * Units.deg
-    config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg
-    #Noise input for the landing gear
-    config.landing_gear.gear_condition                               = 'down'
+    config.wings['main_wing'].control_surfaces.slat.deflection       = 25. * Units.deg  
+    #Noise input for the landing gear                              
+    config.landing_gear.gear_condition                               = 'down'    
     config.output_filename                                           = 'Approach_'
 
     config.propulsors['turbofan'].fan.rotation     = 2030.  #N1 speed
@@ -689,7 +689,6 @@ def configs_setup(vehicle):
 
     config.wings['main_wing'].control_surfaces.flap.deflection       = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection       = 20. * Units.deg
-
     configs.append(config)
 
     return configs

@@ -558,12 +558,12 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     for segment in results.segments.values():  
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         rpm    = segment.conditions.propulsion.rpm[:,0] 
-        thrust = segment.conditions.frames.body.thrust_force_vector[:,2]
+        thrust = np.linalg.norm(segment.conditions.frames.body.thrust_force_vector[:,:],axis=1)
         torque = segment.conditions.propulsion.motor_torque[:,0] 
         tm     = segment.conditions.propulsion.propeller_tip_mach[:,0]
  
         axes = fig.add_subplot(2,2,1)
-        axes.plot(time, -thrust, line_color)
+        axes.plot(time, thrust, line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
         set_axes(axes)
         
@@ -1376,5 +1376,7 @@ def set_axes(axes):
     axes.grid(which='major', linestyle='-', linewidth=0.5, color='grey')
     axes.grid(which='minor', linestyle=':', linewidth=0.5, color='grey')      
     axes.grid(True)   
+    axes.get_yaxis().get_major_formatter().set_scientific(False)
+    axes.get_yaxis().get_major_formatter().set_useOffset(False)        
 
     return  

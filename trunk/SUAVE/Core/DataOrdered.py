@@ -4,6 +4,7 @@
 # Created:  Jul 2016, E. Botero
 # Modified: Sep 2016, E. Botero
 #           May 2020, E. Botero
+#           Jul 2020, E. Botero 
 
 
    
@@ -159,12 +160,10 @@ class DataOrdered(OrderedDict):
             N/A    
         """         
         if key is None: key = value.tag
-        key_in = key
         key = key.translate(t_table)
-        if key != key_in: warn("changing appended key '%s' to '%s'\n" % (key_in,key))
         if key is None: key = value.tag
         if key in self: raise KeyError('key "%s" already exists' % key)
-        self[key] = value    
+        self.__setattr__(key,value)    
 
     def __defaults__(self):
         """ A stub for all classes that come later
@@ -614,7 +613,7 @@ class DataOrdered(OrderedDict):
         """          
         return self.__dict__.__len__()   
 
-    def __iter__(self):
+    def __iter_basic__(self):
         """ Returns all the iterable values. Can be used in a for loop.
     
             Assumptions:
@@ -637,9 +636,9 @@ class DataOrdered(OrderedDict):
         while curr is not root:
             yield curr[2]
             curr = curr[1]
-
+            
     def __reduce__(self):
-        """ Reduction function used for pickling data
+        """ Reduction function used for making configs
     
             Assumptions:
             N/A
@@ -856,7 +855,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """         
-        return list(self.__iter())
+        return list(self.__iter_basic__())
     
     def values(self):
         """ Returns all values inside the Data() class.
@@ -876,7 +875,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """             
-        return [self[key] for key in self.__iter()]
+        return [self[key] for key in self.__iter_basic__()]
     
     def items(self):
         """ Returns all the items inside the data class
@@ -896,7 +895,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """          
-        return [(key, self[key]) for key in self.__iter()]
+        return [(key, self[key]) for key in self.__iter_basic__()]
     
     def iterkeys(self):
         """ Returns all the keys which may be iterated over
@@ -916,7 +915,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """         
-        return self.__iter()
+        return self.__iter_basic__()
     
     def itervalues(self):
         """ Finds all the values that can be iterated over.
@@ -936,7 +935,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """          
-        for k in self.__iter():
+        for k in self.__iter_basic__():
             yield self[k]
     
     def iteritems(self):

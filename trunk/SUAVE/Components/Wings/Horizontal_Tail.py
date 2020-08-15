@@ -54,7 +54,7 @@ class Horizontal_Tail(Wing):
         N/A
         """ 
         self.tag = 'horizontal_stabilizer'
-        self.max_per_vehicle = 5
+        self.generative_design_max_per_vehicle = 5
 
 
 # ----------------------------------------------------------------------

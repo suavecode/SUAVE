@@ -139,8 +139,6 @@ def compute_vortex_distribution(geometry,settings):
         n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
         thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
         y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing 
-        y_a   = y_coordinates[:-1] 
-        y_b   = y_coordinates[1:] 
         
         # create empty vectors for coordinates 
         xah   = np.zeros(n_cw*n_sw)
@@ -257,11 +255,13 @@ def compute_vortex_distribution(geometry,settings):
             #Shift spanwise vortices onto section breaks  
             for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
-                y_coordinates[idx] = section_stations[i_seg]                
-
+                y_coordinates[idx] = section_stations[i_seg] 
+                
             # ---------------------------------------------------------------------------------------
             # STEP 6A: Define coordinates of panels horseshoe vortices and control points 
-            # ---------------------------------------------------------------------------------------
+            # --------------------------------------------------------------------------------------- 
+            y_a   = y_coordinates[:-1] 
+            y_b   = y_coordinates[1:]             
             del_y = y_coordinates[1:] - y_coordinates[:-1]           
             i_seg = 0           
             for idx_y in range(n_sw):
@@ -461,7 +461,9 @@ def compute_vortex_distribution(geometry,settings):
             # ---------------------------------------------------------------------------------------
             # STEP 6B: Define coordinates of panels horseshoe vortices and control points 
             # ---------------------------------------------------------------------------------------
-
+            y_a   = y_coordinates[:-1] 
+            y_b   = y_coordinates[1:] 
+            
             if sweep_le != None:
                 sweep = sweep_le
             else:                                                                
