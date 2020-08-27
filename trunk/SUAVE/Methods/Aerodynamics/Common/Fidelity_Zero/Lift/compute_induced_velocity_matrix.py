@@ -96,33 +96,61 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
     ## If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
     boolean = YBH<0.
 
-    XA1 = index_update(XA1,jax.ops.index[boolean],XB1[boolean])
-    YA1 = index_update(YA1,jax.ops.index[boolean],YB1[boolean])
-    ZA1 = index_update(ZA1,jax.ops.index[boolean],ZB1[boolean])
-    XA2 = index_update(XA2,jax.ops.index[boolean],XB2[boolean])
-    YA2 = index_update(YA2,jax.ops.index[boolean],YB2[boolean])
-    ZA2 = index_update(ZA2,jax.ops.index[boolean],ZB2[boolean])
-    XAH = index_update(XAH,jax.ops.index[boolean],XBH[boolean])
-    YAH = index_update(YAH,jax.ops.index[boolean],YBH[boolean])
-    ZAH = index_update(ZAH,jax.ops.index[boolean],ZBH[boolean])
+    XB1_flip = XB1[boolean]
+    YB1_flip = YB1[boolean]
+    ZB1_flip = ZB1[boolean]
+    XB2_flip = XB2[boolean]
+    YB2_flip = YB2[boolean]
+    ZB2_flip = ZB2[boolean]
+    XBH_flip = XBH[boolean]
+    YBH_flip = YBH[boolean]
+    ZBH_flip = ZBH[boolean]
+   
+    XA1_flip = XA1[boolean]
+    YA1_flip = YA1[boolean]
+    ZA1_flip = ZA1[boolean]
+    XA2_flip = XA2[boolean]
+    YA2_flip = YA2[boolean]
+    ZA2_flip = ZA2[boolean]
+    XAH_flip = XAH[boolean]
+    YAH_flip = YAH[boolean]
+    ZAH_flip = ZAH[boolean]
 
-    XB1 = index_update(XB1,jax.ops.index[boolean],XA1[boolean])
-    YB1 = index_update(YB1,jax.ops.index[boolean],YA1[boolean])
-    ZB1 = index_update(ZB1,jax.ops.index[boolean],ZA1[boolean])
-    XB2 = index_update(XB2,jax.ops.index[boolean],XA2[boolean])
-    YB2 = index_update(YB2,jax.ops.index[boolean],YA2[boolean])
-    ZB2 = index_update(ZB2,jax.ops.index[boolean],ZA2[boolean])
-    XBH = index_update(XBH,jax.ops.index[boolean],XAH[boolean])
-    YBH = index_update(YBH,jax.ops.index[boolean],YAH[boolean])
-    ZBH = index_update(ZBH,jax.ops.index[boolean],ZAH[boolean])
+    XB_TE_flip = XB_TE[boolean]
+    YB_TE_flip = YB_TE[boolean]
+    ZB_TE_flip = ZB_TE[boolean]
 
-    XA_TE = index_update(XA_TE,jax.ops.index[boolean],XB_TE[boolean])
-    YA_TE = index_update(YA_TE,jax.ops.index[boolean],YB_TE[boolean])
-    ZA_TE = index_update(ZA_TE,jax.ops.index[boolean],ZB_TE[boolean])
+    XA_TE_flip = XA_TE[boolean]
+    YA_TE_flip = YA_TE[boolean]
+    ZA_TE_flip = ZA_TE[boolean]
 
-    XB_TE = index_update(XB_TE,jax.ops.index[boolean],XA_TE[boolean])
-    YB_TE = index_update(YB_TE,jax.ops.index[boolean],YA_TE[boolean])
-    ZB_TE = index_update(ZB_TE,jax.ops.index[boolean],ZA_TE[boolean])
+    XA1    = index_update(XA1,jax.ops.index[boolean], XB1_flip)
+    YA1    = index_update(YA1,jax.ops.index[boolean], YB1_flip)
+    ZA1    = index_update(ZA1,jax.ops.index[boolean], ZB1_flip)
+    XA2    = index_update(XA2,jax.ops.index[boolean], XB2_flip)
+    YA2    = index_update(YA2,jax.ops.index[boolean], YB2_flip)
+    ZA2    = index_update(ZA2,jax.ops.index[boolean], ZB2_flip)
+    XAH    = index_update(XAH,jax.ops.index[boolean], XBH_flip)
+    YAH    = index_update(YAH,jax.ops.index[boolean], YBH_flip)
+    ZAH    = index_update(ZAH,jax.ops.index[boolean], ZBH_flip)
+
+    XB1    = index_update(XB1,jax.ops.index[boolean], XA1_flip)
+    YB1    = index_update(YB1,jax.ops.index[boolean], YA1_flip)
+    ZB1    = index_update(ZB1,jax.ops.index[boolean], ZA1_flip)
+    XB2    = index_update(XB2,jax.ops.index[boolean], XA2_flip)
+    YB2    = index_update(YB2,jax.ops.index[boolean], YA2_flip)
+    ZB2    = index_update(ZB2,jax.ops.index[boolean], ZA2_flip)
+    XBH    = index_update(XBH,jax.ops.index[boolean], XAH_flip)
+    YBH    = index_update(YBH,jax.ops.index[boolean], YAH_flip)
+    ZBH    = index_update(ZBH,jax.ops.index[boolean], ZAH_flip)
+
+    XA_TE = index_update(XA_TE,jax.ops.index[boolean],XB_TE_flip)
+    YA_TE = index_update(YA_TE,jax.ops.index[boolean],YB_TE_flip)
+    ZA_TE = index_update(ZA_TE,jax.ops.index[boolean],ZB_TE_flip)
+
+    XB_TE = index_update(XB_TE,jax.ops.index[boolean],XA_TE_flip)
+    YB_TE = index_update(YB_TE,jax.ops.index[boolean],YA_TE_flip)
+    ZB_TE = index_update(ZB_TE,jax.ops.index[boolean],ZA_TE_flip)
 
     # XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
     # YA1[boolean], YB1[boolean] = YB1[boolean], YA1[boolean]

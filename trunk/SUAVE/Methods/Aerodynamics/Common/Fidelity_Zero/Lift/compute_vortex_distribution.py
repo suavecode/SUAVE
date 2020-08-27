@@ -280,6 +280,9 @@ def compute_vortex_distribution(geometry,settings):
                 y_coordinates = index_update(y_coordinates, jax.ops.index[idx], section_stations[i_seg])
                 # y_coordinates[idx] = section_stations[i_seg]
 
+            y_a = y_coordinates[:-1]
+            y_b = y_coordinates[1:]
+
             # ---------------------------------------------------------------------------------------
             # STEP 6A: Define coordinates of panels horseshoe vortices and control points 
             # ---------------------------------------------------------------------------------------
