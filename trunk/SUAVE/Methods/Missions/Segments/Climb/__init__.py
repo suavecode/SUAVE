@@ -19,3 +19,4 @@ from . import Constant_Speed_Linear_Altitude
 from . import Optimized
 from . import Constant_Throttle_Constant_Body_Angle
 from . import Constant_Throttle_Linear_Mach
+from . import Constant_Throttle_Constant_EAS

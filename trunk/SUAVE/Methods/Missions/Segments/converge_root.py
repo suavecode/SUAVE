@@ -65,6 +65,41 @@ def converge_root(segment):
                             
     return
     
+    #state = segment.state
+    #unknowns = state.unknowns.pack_array()
+    
+    #try:
+        #root_finder = segment.settings.root_finder
+    #except AttributeError:
+        ##root_finder = scipy.optimize.fsolve
+        #root_finder = scipy.optimize.root
+    
+    #sol = root_finder( iterate,
+                                         #unknowns,
+                                         #args = segment,
+                                         #tol = state.numerics.tolerance_solution,
+                                         #method='lm')
+    
+    #unknowns = sol.x
+    #print("Status: " + str(sol.success) + " Segment: " + segment.tag + " Message: " + sol.message)
+    
+    ##if sol.status!=1:
+        ##print "Segment did not converge. Segment Tag: " + segment.tag
+        ##print "Error Message:\n" + sol.message
+        ##segment.state.numerics.converged = False
+    ##else:
+        ##segment.state.numerics.converged = True    
+
+    ##if ier!=1:
+        ##print "Segment did not converge. Segment Tag: " + segment.tag
+        ##print "Error Message:\n" + msg
+        ##segment.state.numerics.converged = False
+    ##else:
+        ##segment.state.numerics.converged = True
+         
+                            
+    #return    
+    
 # ----------------------------------------------------------------------
 #  Helper Functions
 # ----------------------------------------------------------------------
