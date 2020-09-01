@@ -34,23 +34,13 @@ def compute_wake_induced_velocity(WD,VD,cpts,ts,B,N):
     WZB2   =   np.repeat(np.atleast_3d(WD.ZB2), num_w_cpts , axis = 2)       
     GAMMA  =  np.repeat(np.atleast_3d(WD.GAMMA), num_w_cpts , axis = 2)   
     
-       
     XC    =  np.repeat(np.atleast_2d(VD.XC*ones), num_v_cpts , axis = 1)   
     YC    =  np.repeat(np.atleast_2d(VD.YC*ones), num_v_cpts , axis = 1) 
     ZC    =  np.repeat(np.atleast_2d(VD.ZC*ones), num_v_cpts , axis = 1)
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
-    # ------------------------------------------------------------------------------------------- 
-    ## If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
-    boolean = YC<0.
-    WXA1[boolean], WXB1[boolean] = WXB1[boolean], WXA1[boolean]
-    WYA1[boolean], WYB1[boolean] = WYB1[boolean], WYA1[boolean]
-    WZA1[boolean], WZB1[boolean] = WZB1[boolean], WZA1[boolean]
-    WXA2[boolean], WXB2[boolean] = WXB2[boolean], WXA2[boolean]
-    WYA2[boolean], WYB2[boolean] = WYB2[boolean], WYA2[boolean]
-    WZA2[boolean], WZB2[boolean] = WZB2[boolean], WZA2[boolean]  
-    
+    # -------------------------------------------------------------------------------------------     
     # Create empty data structure
     V_ind = np.zeros((cpts,VD.n_cp,3))
      

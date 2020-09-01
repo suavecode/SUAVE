@@ -10,7 +10,7 @@ from SUAVE.Core import Units, Data
 import copy
 from SUAVE.Components.Energy.Networks.Vectored_Thrust import Vectored_Thrust
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , compute_optimal_motor_parameters
+from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Propulsion import propeller_design 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff 
 from SUAVE.Methods.Weights.Buildups.Electric_Vectored_Thrust.empty import empty
@@ -389,7 +389,7 @@ def vehicle_setup():
     motor.nominal_voltage      = bat.max_voltage *3/4  
     motor.propeller_radius     = rot.tip_radius 
     motor.no_load_current      = 2.0 
-    motor                      = compute_optimal_motor_parameters(motor,rot) 
+    motor                      = size_optimal_motor(motor,rot) 
     net.motor                  = motor 
     
     vehicle.append_component(net) 

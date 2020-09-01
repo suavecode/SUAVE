@@ -236,8 +236,9 @@ class Rotor(Energy_Component):
         # azimuth distribution 
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
-        psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)  
-    
+        psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
+        azimuth_2d     = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], Na, axis=0).T  
+        
         # 2 dimensiona radial distribution non dimensionalized
         chi_2d         = np.tile(chi ,(Na,1))            
         chi_2d         = np.repeat(chi_2d[ np.newaxis,:, :], ctrl_pts, axis=0) 
@@ -246,7 +247,7 @@ class Rotor(Energy_Component):
         r_dim_2d       = np.repeat(r_dim_2d[ np.newaxis,:, :], ctrl_pts, axis=0)  
     
         # Momentum theory approximation of inflow for BET if the advance ratio is large
-        edgewise = V_thrust[:,0]/V_thrust[:,2]  
+        edgewise = abs(V_thrust[:,0]/V_thrust[:,2])
         if any(edgewise[:] < 10.0) or use_BET:
             if Vh != None:     
                 for i in range(len(V)): 
@@ -379,6 +380,7 @@ class Rotor(Energy_Component):
             blade_Q_distribution    = np.mean((dFx*chi_2d*deltar_2d), axis = 1)
             thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
             torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T 
+            power                   = omega*torque  
             blade_T_distribution_2d = dFz*deltar_2d
             blade_Q_distribution_2d = dFx*chi_2d*deltar_2d  
             
@@ -501,7 +503,8 @@ class Rotor(Energy_Component):
             blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
             blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
             thrust                   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
-            torque                   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None] 
+            torque                   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]  
+            power                    = omega*torque                
             Va_2d                    = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
             Vt_2d                    = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
             Vt_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
@@ -519,42 +522,29 @@ class Rotor(Energy_Component):
             Va_ind_avg = va
             Vt_avg     = Wt
             Va_avg     = Wa
-            
-        psi_2d   = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], Na, axis=0).T        
-        D        = 2*R 
+        
+        # caculate coefficients 
         Cq       = torque/(rho*A*R*(omega*R)**2)
         Ct       = thrust/(rho*A*(omega*R)**2)
-        Ct[Ct<0] = 0.     # prevent things from breaking
-        kappa    = self.induced_power_factor 
-        Cd0      = self.profile_drag_coefficient   
-        Cp       = np.zeros_like(Ct)
-        power    = np.zeros_like(Ct) 
+        Cp       = power/(rho*A*((omega*R)**3)) 
+        etap     = V*thrust/power # efficiency           
         
-        for i in range(len(Vv)):   
-            if -1. <Vv[i][0] <1.: # vertical/axial flight
-                Cp[i]     = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
-                power[i]  = Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
-                torque[i] = power[i]/omega[i]  
-            else:         
-                power[i]  = torque[i]*omega[i]
-                Cp[i]     = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
- 
-        Cq   = torque/(rho*(n*n)*(D*D*D*D)*R) # torque coefficient 
-        etap = V*thrust/power                 # rotor efficiency
-        
+        # prevent things from breaking 
+        Cq[Cq<0]                                           = 0.  
+        Ct[Ct<0]                                           = 0.  
+        Cp[Cp<0]                                           = 0.  
         thrust[conditions.propulsion.throttle[:,0] <=0.0]  = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0]  = 0.0 
         torque[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        thrust[omega<0.0] = - thrust[omega<0.0] 
+        thrust[omega<0.0]                                  = - thrust[omega<0.0]  
+        thrust[omega==0.0]                                 = 0.0
+        power[omega==0.0]                                  = 0.0
+        torque[omega==0.0]                                 = 0.0
+        Ct[omega==0.0]                                     = 0.0
+        Cp[omega==0.0]                                     = 0.0 
+        etap[omega==0.0]                                   = 0.0 
         
-        # if omega = 0
-        thrust[omega==0.0] = 0.0
-        power[omega==0.0]  = 0.0
-        torque[omega==0.0] = 0.0
-        Ct[omega==0.0]     = 0.0
-        Cp[omega==0.0]     = 0.0 
-        etap[omega==0.0]     = 0.0 
-
+        # assign efficiency to network
         conditions.propulsion.etap = etap   
                 
         # store data
@@ -586,7 +576,7 @@ class Rotor(Energy_Component):
                     disc_thrust_distribution          = blade_T_distribution_2d, 
                     thrust_per_blade                  = thrust/B, 
                     thrust_coefficient                = Ct, 
-                    disc_azimuthal_distribution       = psi_2d ,
+                    disc_azimuthal_distribution       = azimuth_2d,
                     blade_dQ_dR                       = blade_dQ_dR,
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution, 

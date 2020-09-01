@@ -53,7 +53,7 @@ class Motor(Energy_Component):
         self.speed_constant     = 0.0
         self.propeller_radius   = 0.0
         self.propeller_Cp       = 0.0
-        self.gear_ratio         = 0.0
+        self.gear_ratio         = 1.0
         self.gearbox_efficiency = 1.0
         self.expected_current   = 0.0
         self.interpolated_func  = None
@@ -110,8 +110,8 @@ class Motor(Energy_Component):
                     np.pi**(3./2.)))/(8.*Cp*(Kv*Kv)*(R*R*R*R*R)*Res*rho)
         omega1[np.isnan(omega1)] = 0.0
         
-        Q = ((v-omega1/Kv)/Res -io)/Kv
-        
+        Q = ((v - omega1/Kv)/Res-io)/Kv
+         
         # store to outputs        
         self.outputs.torque = Q
         self.outputs.omega  = omega1

@@ -236,8 +236,9 @@ class Propeller(Energy_Component):
         # azimuth distribution 
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
-        psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)  
-    
+        psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
+        azimuth_2d     = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], Na, axis=0).T
+        
         # 2 dimensiona radial distribution non dimensionalized
         chi_2d         = np.tile(chi ,(Na,1))            
         chi_2d         = np.repeat(chi_2d[ np.newaxis,:, :], ctrl_pts, axis=0) 
@@ -246,7 +247,7 @@ class Propeller(Energy_Component):
         r_dim_2d       = np.repeat(r_dim_2d[ np.newaxis,:, :], ctrl_pts, axis=0)  
     
         # Momentum theory approximation of inflow for BET if the advance ratio is large
-        edgewise = V_thrust[:,0]/V_thrust[:,2]  
+        edgewise = abs(V_thrust[:,0]/V_thrust[:,2])
         if any(edgewise[:] < 10.0) or use_BET:
             if Vh != None:     
                 for i in range(len(V)): 
@@ -379,6 +380,7 @@ class Propeller(Energy_Component):
             blade_Q_distribution    = np.mean((dFx*chi_2d*deltar_2d), axis = 1)
             thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
             torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T 
+            power                   = omega*torque 
             blade_T_distribution_2d = dFz*deltar_2d
             blade_Q_distribution_2d = dFx*chi_2d*deltar_2d  
             

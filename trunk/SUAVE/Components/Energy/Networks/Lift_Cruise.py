@@ -215,7 +215,7 @@ class Lift_Cruise(Propulsor):
         
         # Run the propeller
         F_lift, Q_lift, P_lift, Cp_lift, output_lift, etap_lift = rotor.spin(konditions)
-            
+        
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = state.conditions.propulsion.throttle_lift
         P_lift[eta>1.0] = P_lift[eta>1.0]*eta[eta>1.0]
@@ -523,7 +523,7 @@ class Lift_Cruise(Propulsor):
         v_max           = self.voltage        
         
         # Return the residuals
-        segment.state.residuals.network[:,0] = q_motor_forward[:,0] - q_prop_forward[:,0]
+        segment.state.residuals.network[:,0] = (q_motor_forward[:,0] - q_prop_forward[:,0])/q_motor_forward[:,0] 
         segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max 
         return    
     

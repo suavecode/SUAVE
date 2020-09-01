@@ -37,8 +37,8 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     num_prop     = len(prop.origin) 
     
     t0           = dt*init_timestep_offset
-    rad_offset   = omega[0]*t0
-    blade_angles = blade_angles - rad_offset 
+    start_angle  = omega[0]*t0
+    blade_angles = blade_angles  
     
     # define points ( control point, time step , blade number , location on blade )
     # compute lambda and mu 
@@ -56,8 +56,8 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     gamma_new = (gamma[:,:,:-1] + gamma[:,:,1:])*0.5
     
     # define empty arrays 
-    WD      = Data()
-    n = Nr-1
+    WD       = Data()
+    n        = Nr-1
     WD_XA1   = np.zeros((m,num_prop,nts-1,B,n))
     WD_YA1   = np.zeros((m,num_prop,nts-1,B,n))
     WD_ZA1   = np.zeros((m,num_prop,nts-1,B,n))
@@ -109,24 +109,26 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
                 Gamma[:,t_idx,B_idx,:] = gamma_new[:,B_loc,:]  
         
         #( control point, time step , blade number , location on blade )
-        sx_inf0 = np.multiply(V_prop*np.cos(wake_skew_angle), np.atleast_2d(ts))
-        sx_inf  = np.repeat(np.repeat(sx_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)  
+        sx_inf0      = np.multiply(V_prop*np.cos(wake_skew_angle), np.atleast_2d(ts))
+        sx_inf       = np.repeat(np.repeat(sx_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)  
+                     
+        sy_inf0      = np.multiply(np.atleast_2d(V_inf[:,1]).T,np.atleast_2d(ts)) # = zero since no crosswind
+        sy_inf       = np.repeat(np.repeat(sy_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)   
+                     
+        sz_inf0      = np.multiply(V_prop*np.sin(wake_skew_angle),np.atleast_2d(ts))
+        sz_inf       = np.repeat(np.repeat(sz_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)           
         
-        sy_inf0 = np.multiply(np.atleast_2d(V_inf[:,1]).T,np.atleast_2d(ts)) # = zero since no crosswind
-        sy_inf  = np.repeat(np.repeat(sy_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)   
+        angle_offset       = np.repeat(np.repeat(np.multiply(omega,np.atleast_2d(ts))[:, :,  np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 
+        blade_angle_loc    = np.repeat(np.repeat(np.tile(np.atleast_2d(blade_angles),(m,1))[:,  np.newaxis, :],nts, axis = 1) [:, :,:, np.newaxis],Nr, axis = 3) 
+        start_angle_offset = np.repeat(np.repeat(np.atleast_2d(start_angle)[:, :, np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 
         
-        sz_inf0 = np.multiply(V_prop*np.sin(wake_skew_angle),np.atleast_2d(ts))
-        sz_inf  = np.repeat(np.repeat(sz_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)           
+        # adjust for clockwise/counter clockwise rotation
+        total_angle_offset = angle_offset - start_angle_offset
+        if (prop.rotation != None) and (prop.rotation[i] == 1):        
+            total_angle_offset = -total_angle_offset    
         
-        omega_t = np.repeat(np.repeat(np.multiply(omega,np.atleast_2d(ts))[:, :,  np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 
-        ba      = np.repeat(np.repeat(np.tile(np.atleast_2d(blade_angles),(m,1))[:,  np.newaxis, :],nts, axis = 1) [:, :,:, np.newaxis],Nr, axis = 3) 
-        
-        azi_y   = np.sin(ba + omega_t)  
-        azi_z   = np.cos(ba + omega_t)  
-        
-        #adjust for clockwise/counter clockwise rotation
-        if (prop.rotation != None) and (prop.rotation[i] == -1):        
-            azi_y   = -azi_y 
+        azi_y   = np.sin(blade_angle_loc + total_angle_offset) # try positive then negative
+        azi_z   = np.cos(blade_angle_loc + total_angle_offset)
          
         x0_pts = np.tile(np.atleast_2d(MCA-c/4),(B,1)) 
         x_pts  = np.repeat(np.repeat(x0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
@@ -145,18 +147,33 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
         
         # Store points  
         # ( control point,  prop ,  time step , blade number , location on blade )
-        WD_XA1[:,i,:,:,:] =  X_pts[: , :-1 , : , :-1 ]
-        WD_YA1[:,i,:,:,:] =  Y_pts[: , :-1 , : , :-1 ]
-        WD_ZA1[:,i,:,:,:] =  Z_pts[: , :-1 , : , :-1 ]
-        WD_XA2[:,i,:,:,:] =  X_pts[: ,  1: , : , :-1 ]
-        WD_YA2[:,i,:,:,:] =  Y_pts[: ,  1: , : , :-1 ]
-        WD_ZA2[:,i,:,:,:] =  Z_pts[: ,  1: , : , :-1 ]
-        WD_XB1[:,i,:,:,:] =  X_pts[: , :-1 , : , 1:  ]
-        WD_YB1[:,i,:,:,:] =  Y_pts[: , :-1 , : , 1:  ]
-        WD_ZB1[:,i,:,:,:] =  Z_pts[: , :-1 , : , 1:  ]
-        WD_XB2[:,i,:,:,:] =  X_pts[: ,  1: , : , 1:  ]
-        WD_YB2[:,i,:,:,:] =  Y_pts[: ,  1: , : , 1:  ]
-        WD_ZB2[:,i,:,:,:] =  Z_pts[: ,  1: , : , 1:  ] 
+        if (prop.rotation != None) and (prop.rotation[i] == -1):  
+            WD_XA1[:,i,:,:,:] =  X_pts[: , :-1 , : , :-1 ]
+            WD_YA1[:,i,:,:,:] =  Y_pts[: , :-1 , : , :-1 ]
+            WD_ZA1[:,i,:,:,:] =  Z_pts[: , :-1 , : , :-1 ]
+            WD_XA2[:,i,:,:,:] =  X_pts[: ,  1: , : , :-1 ]
+            WD_YA2[:,i,:,:,:] =  Y_pts[: ,  1: , : , :-1 ]
+            WD_ZA2[:,i,:,:,:] =  Z_pts[: ,  1: , : , :-1 ]
+            WD_XB1[:,i,:,:,:] =  X_pts[: , :-1 , : , 1:  ]
+            WD_YB1[:,i,:,:,:] =  Y_pts[: , :-1 , : , 1:  ]
+            WD_ZB1[:,i,:,:,:] =  Z_pts[: , :-1 , : , 1:  ]
+            WD_XB2[:,i,:,:,:] =  X_pts[: ,  1: , : , 1:  ]
+            WD_YB2[:,i,:,:,:] =  Y_pts[: ,  1: , : , 1:  ]
+            WD_ZB2[:,i,:,:,:] =  Z_pts[: ,  1: , : , 1:  ] 
+        else: 
+            WD_XA1[:,i,:,:,:] = X_pts[: , :-1 , : , 1:  ]
+            WD_YA1[:,i,:,:,:] = Y_pts[: , :-1 , : , 1:  ]
+            WD_ZA1[:,i,:,:,:] = Z_pts[: , :-1 , : , 1:  ]
+            WD_XA2[:,i,:,:,:] = X_pts[: ,  1: , : , 1:  ]
+            WD_YA2[:,i,:,:,:] = Y_pts[: ,  1: , : , 1:  ]
+            WD_ZA2[:,i,:,:,:] = Z_pts[: ,  1: , : , 1:  ] 
+            WD_XB1[:,i,:,:,:] = X_pts[: , :-1 , : , :-1 ]
+            WD_YB1[:,i,:,:,:] = Y_pts[: , :-1 , : , :-1 ]
+            WD_ZB1[:,i,:,:,:] = Z_pts[: , :-1 , : , :-1 ]
+            WD_XB2[:,i,:,:,:] = X_pts[: ,  1: , : , :-1 ]
+            WD_YB2[:,i,:,:,:] = Y_pts[: ,  1: , : , :-1 ]
+            WD_ZB2[:,i,:,:,:] = Z_pts[: ,  1: , : , :-1 ]
+        
         WD_GAMMA[:,i,:,:,:] = Gamma 
         
         # store points for plotting 

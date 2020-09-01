@@ -2,8 +2,6 @@
 # 
 # Created:  Feb 2020, M. Clarke
 #
-""" setup file for a mission with a  Stopped Rotor eVTOL 
-"""
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -48,7 +46,8 @@ def main():
     #save_stopped_rotor_results(results)
     #old_results = load_stopped_rotor_results()
     #plot_mission(old_results,configs, 'k-')
-    plt.show(block=True)    
+    
+    plt.show()    
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.rpm_lift[0][0]
@@ -194,17 +193,17 @@ def mission_setup(analyses,vehicle):
     #   First Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
     segment     = Segments.Hover.Climb(base_segment)
-    segment.tag = "climb_1"
+    segment.tag = "climb_1" 
     
     segment.analyses.extend( analyses ) 
     
     segment.altitude_start                                   = 0.0  * Units.ft
     segment.altitude_end                                     = 40.  * Units.ft
     segment.climb_rate                                       = 500. * Units['ft/min']
-    segment.battery_energy                                   = vehicle.propulsors.lift_cruise.battery.max_energy*0.95
+    segment.battery_energy                                   = vehicle.propulsors.lift_cruise.battery.max_energy
                                                              
-    segment.state.unknowns.propeller_power_coefficient_lift  = 0.3 * ones_row(1)
-    segment.state.unknowns.throttle_lift                     = 0.5 * ones_row(1)
+    segment.state.unknowns.propeller_power_coefficient_lift  = 0.0005 * ones_row(1) # 0.001
+    segment.state.unknowns.throttle_lift                     = 1.0  * ones_row(1) # 0.8 
     segment.state.unknowns.__delitem__('throttle')
 
     segment.process.iterate.unknowns.network                 = vehicle.propulsors.lift_cruise.unpack_unknowns_no_forward

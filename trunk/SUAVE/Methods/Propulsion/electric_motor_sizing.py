@@ -12,11 +12,8 @@ import SUAVE
 
 # package imports
 import numpy as np
-from scipy.optimize import minimize  
-from SUAVE.Core import Units
-
-
-
+from scipy.optimize import minimize 
+from SUAVE.Core import Units 
 # ----------------------------------------------------------------------
 #  size_from_kv
 # ----------------------------------------------------------------------
@@ -99,35 +96,70 @@ def size_from_mass(motor):
     motor.no_load_current = i0  
     motor.speed_constant  = kv    
 
-    return motor
+    return motor 
 
-def compute_optimal_motor_parameters(motor,prop):
+def size_optimal_motor(motor,prop):
     ''' Optimizes the motor to obtain the best combination of speed constant and resistance values
-    by essentially you are sizing the motor for a design RPM value. Note that this design RPM 
+    by essentially sizing the motor for a design RPM value. Note that this design RPM 
     value can be compute from design tip mach  
+    
+    Assumptions:
+    motor design performance occurs at 90% nominal voltage to account for off design conditions 
     
     Source:
     N/A
     
     Inputs:
-    motor    (to be modified)
-    
+    prop.
+      design_torque          [Nm]
+      angular_velocity       [rad/s]
+      origin                 [m]
+      
+    motor.     
+      no_load_current        [amps]
+      mass_properties.mass   [kg]
+      
     Outputs:
     motor.
-      speed_constant     [untiless]
-      no_load_current    [amps]
+      speed_constant         [untiless]
+      design_torque          [Nm] 
+      motor.resistance       [Ohms]
+      motor.angular_velocity [rad/s]
+      motor.origin           [m]
     '''    
     
-    io                   = motor.no_load_current
-    v                    = motor.nominal_voltage 
-    omeg                 = prop.angular_velocity
-    etam                 = motor.efficiency 
-    motor.speed_constant = optimize_kv(io, v , omeg,  etam)
-    motor.resistance     = ((v-omeg/motor.speed_constant)*(1.-etam*v*motor.speed_constant/omeg))/io
+    # assign propeller radius
+    motor.propeller_radius      = prop.tip_radius
+   
+    # append motor locations based on propeller locations 
+    motor.origin                = prop.origin  
     
-    return motor
+    # motor design torque 
+    motor.design_torque         = prop.design_torque  
+    
+    # design conditions for motor 
+    io                          = motor.no_load_current
+    v                           = motor.nominal_voltage
+    omeg                        = prop.angular_velocity/motor.gear_ratio    
+    etam                        = motor.efficiency 
+    Q                           = motor.design_torque 
+    
+    # motor design rpm 
+    motor.angular_velocity      = omeg
+    
+    # solve for speed constant   
+    opt_params = optimize_kv(io, v , omeg,  etam ,  Q)
+    
+    Kv  =  opt_params[0]
+    Res =  opt_params[1]    
+    
+    motor.speed_constant   = Kv 
+    motor.resistance       = Res 
+    
+    return motor 
+  
 
-def optimize_kv(io, v , omeg,  etam , lb = 0 , ub = 100): 
+def optimize_kv(io, v , omeg,  etam ,  Q): 
     ''' Optimizer for compute_optimal_motor_parameters function  
     
     Source:
@@ -141,18 +173,29 @@ def optimize_kv(io, v , omeg,  etam , lb = 0 , ub = 100):
       speed_constant     [untiless]
       no_load_current    [amps]
     '''        
-    # objective 
-    objective = lambda x: ((v-omeg/x[0])*(1.-etam*v*x[0]/omeg))/io
+    # objective  
     
-    # bounds 
-    bnds = [(lb,ub)]
+    args = (v , omeg,  etam , Q , io )
     
-    # constraints 
-    cons = ({'type': 'ineq', 'fun': lambda x: ((v-omeg/x[0])*(1.-etam*v*x[0]/omeg))/io - 0.001}) # Added a tolerance on resistance, cant be less than 0.001 ohms  
+    cons1 = [{'type':'eq', 'fun': constraint_1,'args': args},
+            {'type':'eq', 'fun': constraint_2,'args': args}]
     
-    # solve 
-    sol  = minimize(objective,(0.5), method = 'SLSQP',bounds = bnds, constraints = cons ) 
+    cons2 = [{'type':'eq', 'fun': constraint_2,'args': args}] 
+    
+    bnds = ((0.001, 100), (0.001, 10))
+    sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=cons1) 
+    
+    if sol.success == False:
+        sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=cons2)         
+    
+    return sol.x   
+  
+    
+def objective(x, v , omeg,  etam , Q , io ): 
+    return (v - omeg/x[0])/x[1]   
 
-    return sol.x[0]  
- 
- 
+def constraint_1(x, v , omeg,  etam , Q , io ): 
+    return etam - (1- (io*x[1])/(v - omeg/x[0]))*(omeg/(v*x[0]))   
+    
+def constraint_2(x, v , omeg,  etam , Q , io ): 
+    return ((v - omeg/x[0])/x[1] - io)/x[0] - Q

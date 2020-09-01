@@ -10,7 +10,7 @@ from SUAVE.Core import Units, Data
 import copy
 from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
 from SUAVE.Methods.Power.Battery.Sizing                        import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , compute_optimal_motor_parameters
+from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Propulsion                                  import propeller_design   
 from SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty import empty
 
@@ -335,7 +335,7 @@ def vehicle_setup():
     # PROPULSOR
     #------------------------------------------------------------------
     net                           = Lift_Cruise()
-    net.number_of_engines_lift   = 12
+    net.number_of_engines_lift    = 12
     net.number_of_engines_forward = 1
     net.thrust_angle_lift         = 90. * Units.degrees
     net.thrust_angle_forward      = 0. 
@@ -349,11 +349,11 @@ def vehicle_setup():
     # Design Electronic Speed Controller 
     #------------------------------------------------------------------
     esc_lift              = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    esc_lift.efficiency   = 0.95
+    esc_lift.efficiency   = 0.995
     net.esc_lift          = esc_lift 
 
     esc_thrust            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    esc_thrust.efficiency = 0.95
+    esc_thrust.efficiency = 0.995
     net.esc_forward       = esc_thrust
 
     #------------------------------------------------------------------
@@ -421,7 +421,7 @@ def vehicle_setup():
     rotor.tip_radius              = 2.8 * Units.feet
     rotor.hub_radius              = 0.35 * Units.feet      
     rotor.number_blades           = 2    
-    rotor.design_tip_mach         = 0.65
+    rotor.design_tip_mach         = 0.65 # try to change this
     rotor.number_of_engines       = net.number_of_engines_lift
     rotor.disc_area               = np.pi*(rotor.tip_radius**2)        
     rotor.induced_hover_velocity  = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines_lift)) 
@@ -429,7 +429,7 @@ def vehicle_setup():
     rotor.angular_velocity        = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
     rotor.design_Cl               = 0.7
     rotor.design_altitude         = 20 * Units.feet                            
-    rotor.design_thrust           = (Hover_Load )/net.number_of_engines_lift 
+    rotor.design_thrust           = (Hover_Load*1.05)/net.number_of_engines_lift # 1
     rotor.x_pitch_count           = 2 
     rotor.y_pitch_count           = vehicle.fuselages['boom_1r'].y_pitch_count
     rotor.y_pitch                 = vehicle.fuselages['boom_1r'].y_pitch 
@@ -472,27 +472,37 @@ def vehicle_setup():
     # Propeller (Thrust) motor
     motor_forward                      = SUAVE.Components.Energy.Converters.Motor()
     motor_forward.efficiency           = 0.95
-    motor_forward.nominal_voltage      = bat.max_voltage *3/4 
+    motor_forward.nominal_voltage      = bat.max_voltage 
     motor_forward.mass_properties.mass = 2.0  * Units.kg
     motor_forward.origin               = propeller.origin  
-    motor_forward.propeller_radius     = propeller.tip_radius    
-    motor_forward.gear_ratio           = 1. 
-    motor_forward.gearbox_efficiency   = 1. # Gear box efficiency    
-    motor_forward.no_load_current      = 2.0 
-    motor_forward                      = compute_optimal_motor_parameters(motor_forward,propeller)
+    motor_forward.propeller_radius     = propeller.tip_radius      
+    motor_forward.no_load_current      = 2.0  
+    motor_forward                      = size_optimal_motor(motor_forward,propeller)
     net.motor_forward                  = motor_forward
 
     # Rotor (Lift) Motor                        
-    motor_lift                      = SUAVE.Components.Energy.Converters.Motor()
-    motor_lift.efficiency           = 0.95  
-    motor_lift.nominal_voltage      = bat.max_voltage 
-    motor_lift.mass_properties.mass = 3. * Units.kg 
-    motor_lift.origin               = rotor.origin  
-    motor_lift.propeller_radius     = rotor.tip_radius   
-    motor_lift.gearbox_efficiency   = 1.0 
-    motor_lift.no_load_current      = 4.0     
-    motor_lift                      = compute_optimal_motor_parameters(motor_lift,rotor)
-    net.motor_lift                  = motor_lift  
+    motor_lift                         = SUAVE.Components.Energy.Converters.Motor()
+    motor_lift.efficiency              = 0.95  
+    motor_lift.nominal_voltage         = bat.max_voltage 
+    motor_lift.mass_properties.mass    = 3. * Units.kg 
+    motor_lift.origin                  = rotor.origin  
+    motor_lift.propeller_radius        = rotor.tip_radius   
+    motor_lift.gearbox_efficiency      = 1.0 
+    motor_lift.no_load_current         = 2.0   
+    motor_lift                         = size_optimal_motor(motor_lift,rotor)
+    net.motor_lift                     = motor_lift  
+
+
+
+    print('Design omega')
+    print(rotor.angular_velocity)
+    print('Design Voltage')
+    print(motor_lift.nominal_voltage)  
+    print('Design Torque')
+    print(motor_lift.design_torque)
+    print('Design Thrust')
+    print(rotor.design_thrust)
+
 
     # append motor origin spanwise locations onto wing data structure 
     vehicle.append_component(net)
@@ -527,3 +537,61 @@ def vehicle_setup():
     vehicle.wings['main_wing'].chords.mean_aerodynamic = 0.9644599977664836    
 
     return vehicle
+
+
+
+# ----------------------------------------------------------------------
+#   Define the Configurations
+# ---------------------------------------------------------------------
+
+def configs_setup(vehicle):
+    '''
+    The configration set up below the scheduling of the nacelle angle and vehicle speed.
+    Since one propeller operates at varying flight conditions, one must perscribe  the 
+    pitch command of the propeller which us used in the variable pitch model in the analyses
+    Note: low pitch at take off & low speeds, high pitch at cruise
+    '''
+    # ------------------------------------------------------------------
+    #   Initialize Configurations
+    # ------------------------------------------------------------------ 
+    configs                                     = SUAVE.Components.Configs.Config.Container() 
+    base_config                                 = SUAVE.Components.Configs.Config(vehicle)
+    base_config.tag                             = 'base'
+    configs.append(base_config)
+    
+    # ------------------------------------------------------------------
+    #   Hover Configuration
+    # ------------------------------------------------------------------
+    config                                          = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                      = 'rotor_hover'
+    config.propulsors.stopped_rotor.thrust_angle    = 90.0 * Units.degrees
+    config.propulsors.stopped_rotor.pitch_command   = 0.  * Units.degrees    
+    configs.append(config)
+    
+    # ------------------------------------------------------------------
+    #   Hover Climb Configuration
+    # ------------------------------------------------------------------
+    config                                          = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                      = 'rotor_hover_climb'
+    config.propulsors.stopped_rotor.thrust_angle    = 90.0 * Units.degrees
+    config.propulsors.stopped_rotor.pitch_command   = -5.  * Units.degrees    
+    configs.append(config)
+    
+    # ------------------------------------------------------------------
+    #   Cruise Configuration
+    # ------------------------------------------------------------------
+    config                                          = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                      = 'propeller_transition'
+    config.propulsors.stopped_rotor.thrust_angle    =  0. * Units.degrees
+    config.propulsors.stopped_rotor.pitch_command   = 10.  * Units.degrees  
+    configs.append(config)  
+ 
+    # ------------------------------------------------------------------
+    #   Cruise Configuration
+    # ------------------------------------------------------------------
+    config                                          = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                      = 'propeller_cruise'
+    config.propulsors.stopped_rotor.thrust_angle    =  0. * Units.degrees
+    config.propulsors.stopped_rotor.pitch_command   =  0.  * Units.degrees  
+    configs.append(config)      
+    return configs
