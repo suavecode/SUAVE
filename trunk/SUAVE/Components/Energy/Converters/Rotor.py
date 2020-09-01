@@ -504,7 +504,6 @@ class Rotor(Energy_Component):
             blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
             thrust                   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
             torque                   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]  
-            power                    = omega*torque                
             Va_2d                    = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
             Vt_2d                    = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
             Vt_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
@@ -523,12 +522,19 @@ class Rotor(Energy_Component):
             Vt_avg     = Wt
             Va_avg     = Wa
         
+                  
+        D      = 2*R         
+        power  = omega*torque  
+        #power  = Cp[0]*(rho[0]*(n[0]*n[0]*n[0])*(D*D*D*D*D))
+        #torque = power/omega
+                    
         # caculate coefficients 
         Cq       = torque/(rho*A*R*(omega*R)**2)
         Ct       = thrust/(rho*A*(omega*R)**2)
         Cp       = power/(rho*A*((omega*R)**3)) 
         etap     = V*thrust/power # efficiency           
         
+
         # prevent things from breaking 
         Cq[Cq<0]                                           = 0.  
         Ct[Ct<0]                                           = 0.  
