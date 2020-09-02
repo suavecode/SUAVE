@@ -40,14 +40,14 @@ def main():
     plot_mission(results)
     
     # save, load and plot old results 
-    save_multicopter_results(results)
+    #save_multicopter_results(results)
     old_results = load_multicopter_results() 
     plot_mission(old_results,'k-')
     plt.show(block=True)    
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
-    RPM_true   = 1376.1562852438526
+    RPM_true   = 1297.7075563591898
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -56,10 +56,10 @@ def main():
     
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
-    battery_energy_transition_true    = np.array([3.58992377e+08, 3.58977085e+08, 3.58931875e+08, 3.58858722e+08,
-                                                  3.58760819e+08, 3.58642442e+08, 3.58508761e+08, 3.58365615e+08,
-                                                  3.58219260e+08, 3.58076092e+08, 3.57942369e+08, 3.57823938e+08,
-                                                  3.57725980e+08, 3.57652778e+08, 3.57607535e+08, 3.57592231e+08])
+    battery_energy_transition_true    = np.array([3.58215688e+08, 3.58080579e+08, 3.57681082e+08, 3.57034446e+08,
+                                                  3.56168623e+08, 3.55121105e+08, 3.53937349e+08, 3.52668841e+08,
+                                                  3.51370897e+08, 3.50100256e+08, 3.48912599e+08, 3.47860089e+08,
+                                                  3.46989043e+08, 3.46337857e+08, 3.45935270e+08, 3.45799069e+08])
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true) 
     print('battery energy of transition')

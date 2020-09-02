@@ -352,8 +352,8 @@ class Propeller(Energy_Component):
         power                    = omega*torque 
         Va_2d                    = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
         Vt_2d                    = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
-        Vt_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
-        Va_ind_2d                = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T
+        Va_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
+        Vt_ind_2d                = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T
         blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         
