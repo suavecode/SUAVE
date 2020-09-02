@@ -274,9 +274,9 @@ def propeller_design(prop,number_of_stations=20):
     MCA    = c/4. - c[0]/4.
     
     Thrust = Tc*rho*(V**2)*np.pi*(R**2)/2
-    Power  = Pc*rho*(V**3)*np.pi*(R**2)/2
-    Cp     = Power/(rho*(n**3)*(D**5))
-    Ct     = Thrust/(rho*(np.pi*(R**2))*(omega**2)*(R**2))
+    Power  = Pc*rho*(V**3)*np.pi*(R**2)/2 
+    Ct     = Thrust/(rho*(n*n)*(D*D*D*D))
+    Cp     = Power/(rho*(n*n*n)*(D*D*D*D*D))  
     
     # compute max thickness distribution  
     t_max  = np.zeros(N)    

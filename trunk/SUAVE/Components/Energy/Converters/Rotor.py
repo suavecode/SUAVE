@@ -247,8 +247,9 @@ class Rotor(Energy_Component):
         r_dim_2d       = np.repeat(r_dim_2d[ np.newaxis,:, :], ctrl_pts, axis=0)  
     
         # Momentum theory approximation of inflow for BET if the advance ratio is large
-        edgewise = abs(V_thrust[:,0]/V_thrust[:,2])
-        if any(edgewise[:] < 10.0) or use_BET:
+        edgewise_flag = omega*R*0.05
+        print (abs(V_thrust[:,2]) > edgewise_flag[:,0])
+        if all(abs(V_thrust[:,2]) > edgewise_flag[:,0]) or use_BET:  
             if Vh != None:     
                 for i in range(len(V)): 
                     V_Vh =  V_thrust[i][0]/Vh
@@ -504,6 +505,7 @@ class Rotor(Energy_Component):
             blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
             thrust                   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
             torque                   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]  
+            power                    = omega*torque  
             Va_2d                    = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
             Vt_2d                    = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
             Vt_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
@@ -522,18 +524,13 @@ class Rotor(Energy_Component):
             Vt_avg     = Wt
             Va_avg     = Wa
         
-                  
-        D      = 2*R         
-        power  = omega*torque  
-        #power  = Cp[0]*(rho[0]*(n[0]*n[0]*n[0])*(D*D*D*D*D))
-        #torque = power/omega
                     
         # caculate coefficients 
-        Cq       = torque/(rho*A*R*(omega*R)**2)
-        Ct       = thrust/(rho*A*(omega*R)**2)
-        Cp       = power/(rho*A*((omega*R)**3)) 
-        etap     = V*thrust/power # efficiency           
-        
+        D        = 2*R 
+        Cq       = torque/(rho*(n*n)*(D*D*D*D*D)) 
+        Ct       = thrust/(rho*(n*n)*(D*D*D*D))
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))  # correct 
+        etap     = V*thrust/power # efficiency    
 
         # prevent things from breaking 
         Cq[Cq<0]                                           = 0.  

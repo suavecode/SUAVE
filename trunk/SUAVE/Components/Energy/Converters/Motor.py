@@ -108,6 +108,7 @@ class Motor(Energy_Component):
         omega1  =   ((np.pi**(3./2.))*((- 16.*Cp*io*rho*(Kv*Kv*Kv)*(R*R*R*R*R)*(Res*Res) +
                     16.*Cp*rho*v*(Kv*Kv*Kv)*(R*R*R*R*R)*Res + (np.pi*np.pi*np.pi))**(0.5) - 
                     np.pi**(3./2.)))/(8.*Cp*(Kv*Kv)*(R*R*R*R*R)*Res*rho)
+        
         omega1[np.isnan(omega1)] = 0.0
         
         Q = ((v - omega1/Kv)/Res-io)/Kv

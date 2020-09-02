@@ -182,7 +182,7 @@ def optimize_kv(io, v , omeg,  etam ,  Q):
     
     cons2 = [{'type':'eq', 'fun': constraint_2,'args': args}] 
     
-    bnds = ((0.001, 100), (0.001, 10))
+    bnds = ((0.01, 100), (0.001, 10))
     sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=cons1) 
     
     if sol.success == False:
