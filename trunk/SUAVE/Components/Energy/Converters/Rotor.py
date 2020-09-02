@@ -247,15 +247,22 @@ class Rotor(Energy_Component):
         r_dim_2d       = np.repeat(r_dim_2d[ np.newaxis,:, :], ctrl_pts, axis=0)  
     
         # Momentum theory approximation of inflow for BET if the advance ratio is large
-        edgewise_flag = omega*R*0.05
-        print (abs(V_thrust[:,2]) > edgewise_flag[:,0])
-        if all(abs(V_thrust[:,2]) > edgewise_flag[:,0]) or use_BET:  
+        edgewise_flag = omega*R*0.10
+        if all(abs(V_thrust[:,2]) > edgewise_flag[:,0]) and use_BET:  
             if Vh != None:     
                 for i in range(len(V)): 
                     V_Vh =  V_thrust[i][0]/Vh
-                    if Vv[i,:].all()  == True :
+                    if V_thrust[i,:].all()  == True :
                         ua[i] = Vh
-                    elif Vv[i][0]  == 0 and  Vv[i][2] != 0: # vertical / axial flight
+                    
+                    # condition for edgewise flight
+                    elif all(abs(V_thrust[:,2]) > edgewise_flag[:,0]):
+                        func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[i][2])**2 + (V_inf[i][0] + vi)**2)))
+                        vi_initial_guess = V_inf[i][0]
+                        ua[i]    = fsolve(func,vi_initial_guess)     
+                    
+                    # vertical / axial flight
+                    else: 
                         if V_Vh > 0: # climbing 
                             ua[i] = Vh*(-(-V_inf[i][0]/(2*Vh)) + np.sqrt((-V_inf[i][0]/(2*Vh))**2 + 1))
                         elif -2 <= V_Vh and V_Vh <= 0:  # slow descent                 
@@ -263,10 +270,7 @@ class Rotor(Energy_Component):
                         else: # windmilling 
                             print("rotor is in the windmill break state!")
                             ua[i] = Vh*(-(-V_inf[i][0]/(2*Vh)) - np.sqrt((-V_inf[i][0]/(2*Vh))**2 + 1))
-                    else: # forward flight conditions                 
-                        func = lambda vi: vi - (Vh**2)/(np.sqrt(((-V_inf[i][2])**2 + (V_inf[i][0] + vi)**2)))
-                        vi_initial_guess = V_inf[i][0]
-                        ua[i]    = fsolve(func,vi_initial_guess)
+                 
                 lambda_i  = ua/(omega*R)            
             
             # compute lambda and mu 
@@ -296,9 +300,7 @@ class Rotor(Energy_Component):
     
             # wake skew angle 
             X           = np.arctan(mu_2d/lambda_2d) # wake skew angle (Section 5.2 page 133 Leishman) 
-            kx_2d       = np.tan(X/2)             # slope of downwash at center of rotor disk for forward flight eqn 5.42 (page 136 Leishman)        
-            #kx_2d       = (4/3)*((1.8*mu_2d**2)*np.sqrt(1 + (lambda_2d/mu_2d)**2)  - lambda_2d/mu_2d)  # eqn 5.43 (page 136 Leishman)
-            ky_2d       = -2*mu_2d                # eqn 5.44 (page 136 Leishman) 
+            kx_2d       = np.tan(X/2)             # slope of downwash at center of rotor disk for forward flight eqn 5.42 (page 136 Leishman)     
     
             lambda_i_2d = np.tile(np.atleast_2d(lambda_i),(1,Nr))
             lambda_i_2d = np.repeat(lambda_i_2d[:, np.newaxis,  :], Na, axis=1) 
@@ -307,7 +309,7 @@ class Rotor(Energy_Component):
             lambda_c_2d = np.repeat(lambda_c_2d[:, np.newaxis,  :], Na, axis=1)         
     
             # motification to initial radial inflow distribution  
-            lambda_i_2d = lambda_i_2d*(1 + kx_2d*chi_2d*np.cos(psi_2d) + ky_2d*chi_2d*np.sin(psi_2d) )  # eqn 5.41 (page 136 Leishman)  
+            lambda_i_2d = lambda_i_2d*(1 + kx_2d*chi_2d*np.cos(psi_2d))  # eqn 5.41 (page 136 Leishman)  
             lambda_2d   = lambda_c_2d + lambda_i_2d
     
             omega_2d    = np.tile(np.atleast_2d(omega),(1,Nr))
@@ -377,7 +379,7 @@ class Rotor(Energy_Component):
             # average thrust and torque over aximuth
             deltar                  = chi_2d[:,:,1]-chi_2d[:,:,0]  
             deltar_2d               = np.repeat(deltar[:,  :, np.newaxis], Nr, axis=2) 
-            blade_T_distribution    = np.mean((dFz*deltar_2d), axis = 1)
+            blade_T_distribution    = np.mean((0.5*dFz*deltar_2d), axis = 1)
             blade_Q_distribution    = np.mean((dFx*chi_2d*deltar_2d), axis = 1)
             thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
             torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T 
@@ -485,7 +487,11 @@ class Rotor(Energy_Component):
                 PSI         = PSI + dpsi
                 diff        = np.max(abs(PSIold-PSI))
                 PSIold      = PSI
-        
+                
+                # omega = 0, do not run BEMT convergence loop 
+                if all(omega[:,0]) == 0. :
+                    break
+                
                 # If its really not going to converge
                 if np.any(PSI>pi/2) and np.any(dpsi>0.0):
                     print("Rotor BEMT did not converge to a solution")
@@ -523,7 +529,6 @@ class Rotor(Energy_Component):
             Va_ind_avg = va
             Vt_avg     = Wt
             Va_avg     = Wa
-        
                     
         # caculate coefficients 
         D        = 2*R 

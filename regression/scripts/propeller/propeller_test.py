@@ -181,16 +181,16 @@ def main():
     
     # Truth values for rotor with airfoil geometry defined 
     Fr_a_truth      = 1529.76888343 
-    Qr_a_truth      = 10.25960954 
-    Pr_a_truth      = 2125.39717596 
-    Cplastr_a_truth = 0.00334314 
+    Qr_a_truth      = 155.12167959 
+    Pr_a_truth      = 32135.25608371
+    Cplastr_a_truth = 0.05054715 
     
     # Truth values for rotor without airfoil geometry defined 
     Fr_truth        = 1631.0011232 
-    Qr_truth        = 11.00774812 
-    Pr_truth        = 2280.38276655 
-    Cplastr_truth   = 0.00358693  
-    
+    Qr_truth        = 172.14753581 
+    Pr_truth        = 35662.35978127 
+    Cplastr_truth   = 0.05609511 
+        
     # Store errors 
     error = Data()
     error.Thrust_a  = np.max(np.abs(F_a -F_a_truth))
@@ -201,6 +201,7 @@ def main():
     error.Torque    = np.max(np.abs(Q-Q_truth))    
     error.Power     = np.max(np.abs(P-P_truth))
     error.Cp        = np.max(np.abs(Cplast-Cplast_truth))  
+    
     error.Thrustr_a = np.max(np.abs(Fr_a-Fr_a_truth))
     error.Torquer_a = np.max(np.abs(Qr_a-Qr_a_truth))    
     error.Powerr_a  = np.max(np.abs(Pr_a-Pr_a_truth))

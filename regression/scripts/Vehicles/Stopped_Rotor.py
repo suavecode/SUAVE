@@ -407,11 +407,11 @@ def vehicle_setup():
     propeller.freestream_velocity = V_inf
     propeller.tip_radius          = 1.0668
     propeller.hub_radius          = 0.21336 
-    propeller.design_tip_mach     = 0.5 # 0.4
+    propeller.design_tip_mach     = 0.5  
     propeller.angular_velocity    = propeller.design_tip_mach *speed_of_sound  /propeller.tip_radius   
     propeller.design_Cl           = 0.7
     propeller.design_altitude     = 1000 * Units.feet   
-    propeller.design_thrust       = (Drag*2.5)/net.number_of_engines_forward # 2
+    propeller.design_thrust       = (Drag*2.5)/net.number_of_engines_forward 
     propeller                     = propeller_design(propeller)   
     propeller.origin              = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
     net.propeller                 = propeller
@@ -525,61 +525,3 @@ def vehicle_setup():
     vehicle.wings['main_wing'].chords.mean_aerodynamic = 0.9644599977664836    
 
     return vehicle
-
-
-
-# ----------------------------------------------------------------------
-#   Define the Configurations
-# ---------------------------------------------------------------------
-
-def configs_setup(vehicle):
-    '''
-    The configration set up below the scheduling of the nacelle angle and vehicle speed.
-    Since one propeller operates at varying flight conditions, one must perscribe  the 
-    pitch command of the propeller which us used in the variable pitch model in the analyses
-    Note: low pitch at take off & low speeds, high pitch at cruise
-    '''
-    # ------------------------------------------------------------------
-    #   Initialize Configurations
-    # ------------------------------------------------------------------ 
-    configs                                     = SUAVE.Components.Configs.Config.Container() 
-    base_config                                 = SUAVE.Components.Configs.Config(vehicle)
-    base_config.tag                             = 'base'
-    configs.append(base_config)
-    
-    # ------------------------------------------------------------------
-    #   Hover Configuration
-    # ------------------------------------------------------------------
-    config                                          = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                      = 'rotor_hover'
-    config.propulsors.stopped_rotor.thrust_angle    = 90.0 * Units.degrees
-    config.propulsors.stopped_rotor.pitch_command   = 0.  * Units.degrees    
-    configs.append(config)
-    
-    # ------------------------------------------------------------------
-    #   Hover Climb Configuration
-    # ------------------------------------------------------------------
-    config                                          = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                      = 'rotor_hover_climb'
-    config.propulsors.stopped_rotor.thrust_angle    = 90.0 * Units.degrees
-    config.propulsors.stopped_rotor.pitch_command   = -5.  * Units.degrees    
-    configs.append(config)
-    
-    # ------------------------------------------------------------------
-    #   Cruise Configuration
-    # ------------------------------------------------------------------
-    config                                          = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                      = 'propeller_transition'
-    config.propulsors.stopped_rotor.thrust_angle    =  0. * Units.degrees
-    config.propulsors.stopped_rotor.pitch_command   = 10.  * Units.degrees  
-    configs.append(config)  
- 
-    # ------------------------------------------------------------------
-    #   Cruise Configuration
-    # ------------------------------------------------------------------
-    config                                          = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                      = 'propeller_cruise'
-    config.propulsors.stopped_rotor.thrust_angle    =  0. * Units.degrees
-    config.propulsors.stopped_rotor.pitch_command   =  0.  * Units.degrees  
-    configs.append(config)      
-    return configs

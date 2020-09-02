@@ -326,6 +326,10 @@ class Propeller(Energy_Component):
             diff        = np.max(abs(PSIold-PSI))
             PSIold      = PSI
         
+            # omega = 0, do not run BEMT convergence loop 
+            if all(omega[:,0]) == 0. :
+                break
+            
             # If its really not going to converge
             if np.any(PSI>pi/2) and np.any(dpsi>0.0):
                 print("Propeller BEMT did not converge to a solution")
@@ -345,6 +349,7 @@ class Propeller(Energy_Component):
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
         thrust                   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
         torque                   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None] 
+        power                    = omega*torque 
         Va_2d                    = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
         Vt_2d                    = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
         Vt_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
@@ -362,44 +367,32 @@ class Propeller(Energy_Component):
         Va_ind_avg = va
         Vt_avg     = Wt
         Va_avg     = Wa
-        
-        psi_2d   = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], Na, axis=0).T        
+          
+        # caculate coefficients 
         D        = 2*R 
-        Cq       = torque/(rho*A*R*(omega*R)**2)
-        Ct       = thrust/(rho*A*(omega*R)**2)
-        Ct[Ct<0] = 0.     # prevent things from breaking
-        kappa    = self.induced_power_factor 
-        Cd0      = self.profile_drag_coefficient   
-        Cp       = np.zeros_like(Ct)
-        power    = np.zeros_like(Ct) 
-        
-        for i in range(len(Vv)):   
-            if -1. <Vv[i][0] <1.: # vertical/axial flight
-                Cp[i]     = (kappa*(Ct[i]**1.5)/(2**.5))+sigma*Cd0/8.
-                power[i]  = Cp[i]*(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
-                torque[i] = power[i]/omega[i]  
-            else:         
-                power[i]  = torque[i]*omega[i]
-                Cp[i]     = power[i]/(rho[i]*(n[i]*n[i]*n[i])*(D*D*D*D*D))
- 
-        Cq   = torque/(rho*(n*n)*(D*D*D*D*D)) # torque coefficient 
-        etap = V*thrust/power                 # propeller efficiency
-        
+        Cq       = torque/(rho*(n*n)*(D*D*D*D*D)) 
+        Ct       = thrust/(rho*(n*n)*(D*D*D*D))
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))  # correct 
+        etap     = V*thrust/power # efficiency    
+
+        # prevent things from breaking 
+        Cq[Cq<0]                                           = 0.  
+        Ct[Ct<0]                                           = 0.  
+        Cp[Cp<0]                                           = 0.  
         thrust[conditions.propulsion.throttle[:,0] <=0.0]  = 0.0
         power[conditions.propulsion.throttle[:,0]  <=0.0]  = 0.0 
         torque[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        thrust[omega<0.0] = - thrust[omega<0.0] 
+        thrust[omega<0.0]                                  = - thrust[omega<0.0]  
+        thrust[omega==0.0]                                 = 0.0
+        power[omega==0.0]                                  = 0.0
+        torque[omega==0.0]                                 = 0.0
+        Ct[omega==0.0]                                     = 0.0
+        Cp[omega==0.0]                                     = 0.0 
+        etap[omega==0.0]                                   = 0.0 
         
-        # if omega = 0
-        thrust[omega==0.0] = 0.0
-        power[omega==0.0]  = 0.0
-        torque[omega==0.0] = 0.0
-        Ct[omega==0.0]     = 0.0
-        Cp[omega==0.0]     = 0.0 
-        etap[omega==0.0]     = 0.0 
-
+        # assign efficiency to network
         conditions.propulsion.etap = etap   
-                
+        
         # store data
         self.azimuthal_distribution                   = psi  
         results_conditions                            = Data     
