@@ -9,12 +9,10 @@
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units , Data 
+from SUAVE.Core import Units 
 from SUAVE.Plots.Mission_Plots import * 
 import numpy as np  
-import time  
 import sys 
-import pylab as plt
 
 sys.path.append('../Vehicles')
 # the analysis functions
@@ -51,7 +49,7 @@ def main():
    
     # RPM check during hover
     RPM        = results.segments.hover.conditions.propulsion.rpm[0][0]
-    RPM_true   = 1346.1340112830583
+    RPM_true   = 1346.1340113995816
     
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
@@ -61,7 +59,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0] 
-    lift_coefficient_true   = 0.6482039847313482
+    lift_coefficient_true   = 0.6482051842323242
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')

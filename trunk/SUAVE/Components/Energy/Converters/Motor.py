@@ -16,7 +16,7 @@ import SUAVE
 import numpy as np
 import scipy as sp
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from scipy.optimize import minimize  
+
 # ----------------------------------------------------------------------
 #  Motor Class
 # ----------------------------------------------------------------------
@@ -104,19 +104,20 @@ class Motor(Energy_Component):
     
         # Omega
         # This is solved by setting the torque of the motor equal to the torque of the prop
-        # It assumes that the Cp is constant 
+        # It assumes that the Cp is constant
         omega1  =   ((np.pi**(3./2.))*((- 16.*Cp*io*rho*(Kv*Kv*Kv)*(R*R*R*R*R)*(Res*Res) +
                     16.*Cp*rho*v*(Kv*Kv*Kv)*(R*R*R*R*R)*Res + (np.pi*np.pi*np.pi))**(0.5) - 
                     np.pi**(3./2.)))/(8.*Cp*(Kv*Kv)*(R*R*R*R*R)*Res*rho)
-        
         omega1[np.isnan(omega1)] = 0.0
         
-        Q = ((v - omega1/Kv)/Res-io)/Kv
-         
-        # store to outputs        
-        self.outputs.torque = Q
-        self.outputs.omega  = omega1
+        Q = ((v-omega1/Kv)/Res -io)/Kv
+        # store to outputs
        
+        #P = Q*omega1
+        
+        self.outputs.torque = Q
+        self.outputs.omega = omega1
+
         return omega1
     
     def torque(self,conditions): 
@@ -247,14 +248,15 @@ class Motor(Energy_Component):
         exp_i = self.expected_current
         io    = self.no_load_current + exp_i*(1-etaG)
         
-        i     =(v-omeg/Kv)/Res
+        i=(v-omeg/Kv)/Res
         
         # This line means the motor cannot recharge the battery
         i[i < 0.0] = 0.0
 
         # Pack
-        self.outputs.current       = i 
-        etam                       =(1-io/i)*(1-i*Res/v)
+        self.outputs.current = i
+          
+        etam=(1-io/i)*(1-i*Res/v)
         conditions.propulsion.etam = etam
-         
+        
         return i, etam

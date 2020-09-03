@@ -70,7 +70,7 @@ class Fidelity_Zero(Markup):
         settings.number_panels_spanwise             = None 
         settings.number_panels_chordwise            = None 
         settings.use_surrogate                      = True 
-        settings.prop_wake_model                    = False  
+        settings.prop_wake_model                    = False
         settings.plot_vortex_distribution           = False
         
         # build the evaluation process

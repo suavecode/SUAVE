@@ -39,7 +39,7 @@ def main():
     results = mission.evaluate() 
     
     # save results 
-    save_results(results)
+    #save_results(results)
     
     # plot the results
     plot_results(results) 
