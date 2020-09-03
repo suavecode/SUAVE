@@ -310,8 +310,6 @@ def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
             operand   = mach[m_idx]
         )
 
-        # c     = np.arcsin(1/mach[m_idx])
-        # flag  = -c*del_x**2 + del_y**2 + del_z**2
         idxs  = np.where(flag > 0.0)
         MCM   = index_update(MCM,jax.ops.index[m_idx,idxs[0],idxs[1]],  [0.0, 0.0, 0.0])
     
