@@ -47,9 +47,7 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
     inv_root_beta = index_update(inv_root_beta, jax.ops.index[mach < 1],  1 / np.sqrt(1 - mach[mach < 1] ** 2))
     inv_root_beta = index_update(inv_root_beta, jax.ops.index[mach > 1],  1 / np.sqrt(mach[mach > 1] ** 2 - 1))
     mach          = index_update(mach,          jax.ops.index[mach==1],   1.001)
-    # inv_root_beta                                          [mach<1]  =  1/np.sqrt(1-mach[mach<1]**2)
-    # inv_root_beta                                          [mach>1]  =  1/np.sqrt(mach[mach>1]**2-1)
-    # mach                                                   [mach==1] =  1.001
+
     
     if np.any(mach==1):
         raise('Mach of 1 cannot be used in building compressibiliy corrections.')
@@ -152,19 +150,6 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
     YB_TE = index_update(YB_TE,jax.ops.index[boolean],YA_TE_flip)
     ZB_TE = index_update(ZB_TE,jax.ops.index[boolean],ZA_TE_flip)
 
-    # XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
-    # YA1[boolean], YB1[boolean] = YB1[boolean], YA1[boolean]
-    # ZA1[boolean], ZB1[boolean] = ZB1[boolean], ZA1[boolean]
-    # XA2[boolean], XB2[boolean] = XB2[boolean], XA2[boolean]
-    # YA2[boolean], YB2[boolean] = YB2[boolean], YA2[boolean]
-    # ZA2[boolean], ZB2[boolean] = ZB2[boolean], ZA2[boolean]
-    # XAH[boolean], XBH[boolean] = XBH[boolean], XAH[boolean]
-    # YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
-    # ZAH[boolean], ZBH[boolean] = ZBH[boolean], ZAH[boolean]
-    #
-    # XA_TE[boolean], XB_TE[boolean] = XB_TE[boolean], XA_TE[boolean]
-    # YA_TE[boolean], YB_TE[boolean] = YB_TE[boolean], YA_TE[boolean]
-    # ZA_TE[boolean], ZB_TE[boolean] = ZB_TE[boolean], ZA_TE[boolean]
 
     # Transpose thing
     XC = np.swapaxes(XC,1,2) 
@@ -219,8 +204,7 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
             end   = n+n_te_p
             C_AB_ll_on_wing = index_update(C_AB_ll_on_wing,jax.ops.index[:, :, n, :], np.sum(C_AB_ll[:, :, start:end, :], axis=2))
             C_AB_rl_on_wing = index_update(C_AB_rl_on_wing,jax.ops.index[:, :, n, :], np.sum(C_AB_rl[:, :, start:end, :], axis=2))
-            # C_AB_ll_on_wing                                           [:,:,n,:] =   np.sum(C_AB_ll[:,:,start:end,:],axis=2)
-            # C_AB_rl_on_wing                                           [:,:,n,:] =   np.sum(C_AB_rl[:,:,start:end,:],axis=2)
+
 
     # Add all the influences together
     C_AB_ll_tot = C_AB_ll_on_wing + C_AB_34_ll + C_Ainf  # verified from book using example 7.4 pg 399-404
@@ -254,7 +238,6 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
     R1R2Z  = X_X1*Y_Y2 - Y_Y1*X_X2
     SQUARE = np.square(R1R2X) + np.square(R1R2Y) + np.square(R1R2Z)
     SQUARE = index_update(SQUARE,jax.ops.index[SQUARE==0],  1e-32)
-    # SQUARE                                  [SQUARE==0] = 1e-32
     R1     = np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1)) 
     R2     = np.sqrt(np.square(X_X2) + np.square(Y_Y2) + np.square(Z_Z2)) 
     R0R1   = X2_X1*X_X1 + Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1
@@ -274,7 +257,6 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw):
 
     DENUM =  np.square(Z_Z1) + np.square(Y1_Y)
     DENUM = index_update(DENUM, jax.ops.index[DENUM==0], 1e-32)
-    # DENUM[DENUM==0] = 1e-32
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
     YVEC  = (Z_Z1)/DENUM
     ZVEC  = Y1_Y*np.cos(tw)/DENUM
@@ -294,7 +276,6 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
 
     DENUM =  np.square(Z_Z1) + np.square(Y1_Y)
     DENUM = index_update(DENUM, jax.ops.index[DENUM == 0], 1e-32)
-    # DENUM[DENUM==0] = 1e-32
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
     YVEC  = Z_Z1/DENUM
     ZVEC  = Y1_Y*np.cos(tw)/DENUM
@@ -333,7 +314,6 @@ def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
         # flag  = -c*del_x**2 + del_y**2 + del_z**2
         idxs  = np.where(flag > 0.0)
         MCM   = index_update(MCM,jax.ops.index[m_idx,idxs[0],idxs[1]],  [0.0, 0.0, 0.0])
-        #MCM                                  [m_idx,idxs[0],idxs[1]] = [0.0,0.0,0.0]
     
     
     return MCM
