@@ -133,7 +133,7 @@ def LiNiMnCo_discharge(battery,numerics):
         c4*(SOC_old)**2 + c5*(SOC_old) + c6  # eqn 10 and , D. Jeon Thermal Modelling .. 
     
     i_cell         = I_cell/electrode_area # current intensity 
-    q_dot_entropy  = -(T_cell+273)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
+    q_dot_entropy  = -(T_cell+272.65)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
     q_dot_joule    = (i_cell**2)/sigma                   # eqn 5 , D. Jeon Thermal Modelling ..
     Q_heat_gen     = (q_dot_joule + q_dot_entropy)*As_cell 
     q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
@@ -152,7 +152,7 @@ def LiNiMnCo_discharge(battery,numerics):
         K_air   = battery.cooling_fluid.thermal_conductivity    
         Cp_air  = battery.cooling_fluid.specific_heat_capacity  
         V_air   = battery.cooling_fluid.discharge_air_cooling_flowspeed
-        rho_air = 2E-5*(T_ambient**2)- 0.0048**T_ambient + 1.2926
+        rho_air = battery.cooling_fluid.density 
         nu_fit  = battery.cooling_fluid.kinematic_viscosity_fit  
         Pr_fit  = battery.cooling_fluid.prandlt_number_fit     
         
@@ -162,12 +162,12 @@ def LiNiMnCo_discharge(battery,numerics):
         else:
             V_max   = V_air*(S_T/(S_T-D_cell))
               
-        T        = (T_ambient+T_current)/2  # T_current  
+        T        = (T_ambient+T_current)/2  
         nu_air   = nu_fit(T_ambient)
         Re_max   = V_max*D_cell/nu_air
         Pr       = Pr_fit(T_ambient)
         Prw      = Pr_fit(T)  
-        if Re_max > 10E2: 
+        if all(Re_max) > 10E2: 
             C        = 0.35*((S_T/S_L)**0.2) 
             m        = 0.6 
         else:
@@ -178,7 +178,7 @@ def LiNiMnCo_discharge(battery,numerics):
         Tw_Ti    = (T - T_ambient)
         Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_air*V_air*Nn*S_T*Cp_air))
         dT_lm    = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-        Q_convec = h*np.pi*D_cell*H_cell*0.8*n_total_module*dT_lm 
+        Q_convec = h*np.pi*D_cell*H_cell*0.75*n_total_module*dT_lm
         
         if np.isnan(dT_lm).any():
             raise AttributeError('Nan!!')
@@ -190,7 +190,7 @@ def LiNiMnCo_discharge(battery,numerics):
     
     # Power going into the battery accounting for resistance losses
     P_loss = n_total*Q_heat_gen
-    P = P_bat - np.abs(P_loss)     
+    P      = P_bat - np.abs(P_loss)     
      
     I_cell[I_cell<0.0]  = 0.0
     I_cell[I_cell>8.0]  = 8.0    

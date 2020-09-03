@@ -109,8 +109,7 @@ def plot_aircraft_velocities(results, line_color = 'bo-', save_figure = False, s
     fig.set_size_inches(10, 8) 
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min 
-        velocity = segment.conditions.freestream.velocity[:,0]
-        pressure = segment.conditions.freestream.pressure[:,0]
+        velocity = segment.conditions.freestream.velocity[:,0] 
         density  = segment.conditions.freestream.density[:,0]
         EAS      = velocity * np.sqrt(density/1.225)
         mach     = segment.conditions.freestream.mach_number[:,0]

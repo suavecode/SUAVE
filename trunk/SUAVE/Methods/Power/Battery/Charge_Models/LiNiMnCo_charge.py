@@ -132,7 +132,7 @@ def LiNiMnCo_charge(battery,numerics):
         c4*(SOC_old)**2 + c5*(SOC_old) + c6  # eqn 10 and , D. Jeon Thermal Modelling .. 
     
     i_cell         = I_cell/electrode_area # current intensity 
-    q_dot_entropy  = -(T_cell+273)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
+    q_dot_entropy  = -(T_cell+272.65)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
     q_dot_joule    = (i_cell**2)/sigma                   # eqn 5 , D. Jeon Thermal Modelling ..
     Q_heat_gen     = (q_dot_joule + q_dot_entropy)*As_cell 
     q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
@@ -167,7 +167,7 @@ def LiNiMnCo_charge(battery,numerics):
         Re_max   = V_max*D_cell/nu_air
         Pr       = Pr_fit(T_ambient)
         Prw      = Pr_fit(T)  
-        if Re_max > 10E2: 
+        if all(Re_max) > 10E2: 
             C        = 0.35*((S_T/S_L)**0.2) 
             m        = 0.6 
         else:

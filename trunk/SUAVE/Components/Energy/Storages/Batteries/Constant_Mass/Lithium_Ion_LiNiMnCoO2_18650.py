@@ -68,7 +68,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.cell.mass                                     = 0.048 * Units.kg 
         self.cell.density                                  = 1760        # [kg/m^3] 
         self.cell.volume                                   = 3.2E-5      # [m^3] 
-        self.cell.electrode_area                           = 0.0346  # [m^2] 
+        self.cell.electrode_area                           = 0.0342  # [m^2] 
                                                            
         self.cell.max_voltage                              = 4.2     # [V]
         self.cell.nominal_capacity                         = 3.55    # [Amp-Hrs]
@@ -101,9 +101,9 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
                                                            
         self.cooling_fluid.tag                             = 'air'
         self.cooling_fluid.thermal_conductivity            = 0.0253 #W/mK
-        self.cooling_fluid.specific_heat_capacity          = 1007   # K/kgK
-        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.1
-        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.2
+        self.cooling_fluid.specific_heat_capacity          = 1006   # K/kgK
+        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.1  # 0.1
+        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.1  # 0.2
         self.cooling_fluid.kinematic_viscosity_fit         = kinematic_viscosity_model() # Pa/s
         self.cooling_fluid.prandlt_number_fit              = prandlt_number_model()
                                                            

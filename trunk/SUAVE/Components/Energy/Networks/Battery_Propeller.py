@@ -116,8 +116,7 @@ class Battery_Propeller(Propulsor):
         # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy
         battery.temperature         = conditions.propulsion.battery_temperature
-        battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput
-        battery.ambient_temperature = conditions.propulsion.ambient_temperature          
+        battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput     
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
         discharge_flag              = conditions.propulsion.battery_discharge    
         battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
@@ -127,6 +126,14 @@ class Battery_Propeller(Propulsor):
         n_series                    = battery.pack_config.series  
         n_parallel                  = battery.pack_config.parallel
         n_total                     = n_series*n_parallel
+        
+        # update ambient temperature based on altitude
+        atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+        alt                                           = conditions.freestream.altitude[:,0] 
+        atmos                                         = atmosphere.compute_values(altitude = alt, temperature_deviation = (conditions.propulsion.ambient_temperature - 15.5))
+        battery.ambient_temperature                   = atmos.temperature - 272.65  
+        battery.cooling_fluid.thermal_conductivity    = 1E-3 * (0.0737*battery.ambient_temperature + 24.4) 
+        battery.cooling_fluid.density                 = atmos.density
         
         # --------------------------------------------------------------------------------
         # Predict Voltage and Battery Properties Depending on Battery Chemistry
