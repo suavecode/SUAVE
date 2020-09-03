@@ -79,3 +79,6 @@ ide/Wing/SUAVE.wpr
 !/doc/suave_logo.png
 
 .idea/
+
+*.npy
+*.npz
