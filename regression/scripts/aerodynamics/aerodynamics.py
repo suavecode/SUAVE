@@ -195,7 +195,7 @@ def main():
     print('\nCompute Lift Test Results\n')
     print(lift_test)
         
-    assert(np.max(lift_test)<1e-6), 'Aero regression failed at compute lift test'    
+    assert(np.max(lift_test)<1e-6), 'Aero regression failed at compute lift test'
     
     
     # --------------------------------------------------------------------
@@ -296,17 +296,16 @@ if __name__ == '__main__':
 
     print('Regular aero regression test passed!')
 
-    # jit_main = jax.jit(main)
-    #
-    # jit_main()
-    #
-    # print('JIT aero regression test passed!')
-    #
-    # reg_time = timeit.timeit(main, number=10)/10
-    #
-    # jit_time = timeit.timeit(jit_main, number=10)/10
-    #
-    # print("The average time for the ordinary function was {} seconds".format(reg_time))
-    # print("The average time for the JIT compiled function was {} seconds".format(jit_time))
+    jit_main = jax.jit(main)
+
+    jit_main()
+
+    print('JIT aero regression test passed!')
+
+    reg_time = timeit.timeit(main, number=10)/10
+    jit_time = timeit.timeit(jit_main, number=10)/10
+
+    print("The average time for the ordinary function was {} seconds".format(reg_time))
+    print("The average time for the JIT compiled function was {} seconds".format(jit_time))
 
       
