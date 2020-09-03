@@ -119,8 +119,7 @@ def VLM(conditions,settings,geometry):
     inv_root_beta = np.zeros_like(mach)
     inv_root_beta = index_update(inv_root_beta,jax.ops.index[mach < 1],1 / np.sqrt(1 - mach[mach < 1] ** 2))
     inv_root_beta = index_update(inv_root_beta,jax.ops.index[mach > 1],1 / np.sqrt(mach[mach > 1] ** 2 - 1))
-    # inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)
-    # inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1)
+
     if np.any(mach==1):
         raise('Mach of 1 cannot be used in building compressibility corrections.')
     inv_root_beta = np.atleast_2d(inv_root_beta)
@@ -177,13 +176,11 @@ def VLM(conditions,settings,geometry):
     L_wing  = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CL_wing = L_wing/(0.5*wing_areas)
     CL_wing = index_update(CL_wing,jax.ops.index[machw>1],CL_wing[machw > 1] * 8)
-    # CL_wing[machw>1]  = CL_wing[machw>1]*8 # supersonic lift off by a factor of 8
     
     # drag coefficients on each wing  
     Di_wing  = np.sum(np.multiply(-w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CDi_wing = Di_wing/(0.5*wing_areas)
     CDi_wing = index_update(CDi_wing, jax.ops.index[machw>1], CDi_wing[machw>1]*2)
-    # CDi_wing[machw>1] = CDi_wing[machw>1]*2   # supersonic drag off by a factor of 2
     
     # Calculate each spanwise set of Cls and Cds
     cl_y        = np.sum(np.multiply(u_n_w_sw +1,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS
@@ -193,13 +190,11 @@ def VLM(conditions,settings,geometry):
     L  = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T
     CL = L/(0.5*Sref)           # validated form page 402-404, aerodynamics for engineers # supersonic lift off by 2^3
     CL = index_update(CL, jax.ops.index[mach>1], CL[mach>1]*8)
-    # CL[mach>1]  = CL[mach>1]*8   # supersonic lift off by a factor of 8
     
     # total drag and drag coefficient
     D   = -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T
     CDi = D/(0.5*Sref)
     CDi = index_update(CDi, jax.ops.index[mach>1], CDi[mach>1]*2)
-    # CDi[mach>1] = CDi[mach>1]*2 # supersonic drag off by a factor of 2
     
     # pressure coefficient
     U_tot       = np.sqrt((1+u)*(1+u) + v*v + w*w)
