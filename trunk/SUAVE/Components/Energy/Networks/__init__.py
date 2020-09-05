@@ -20,3 +20,4 @@ from .Battery_Propeller                       import Battery_Propeller
 from .Ramjet                                  import Ramjet
 from .Scramjet                                import Scramjet
 from .Liquid_Rocket                           import Liquid_Rocket
+from .PyCycle                                 import PyCycle
