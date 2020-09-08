@@ -192,7 +192,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
             
     # total lift and lift coefficient
     L           = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
-    CL          = L/(0.5*Sref)           # validated form page 402-404, aerodynamics for engineers # supersonic lift off by 2^3 
+    CL          = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers
     CL[mach>1]  = CL[mach>1]*8   # supersonic lift off by a factor of 8 
     
     # total drag and drag coefficient
