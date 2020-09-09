@@ -39,7 +39,7 @@ def main():
      
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.472445983624362
+    lift_coefficient_true         = 0.4173043406395182
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -49,25 +49,25 @@ def main():
     
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([1.29688770e-01, 1.27062010e-01, 1.17475514e-01, 8.79040514e-02,
-                                                1.01513513e-01, 1.32151643e-01, 9.85037769e-02, 8.24841088e-02,
-                                                6.88734269e-02, 5.52315679e-02, 4.17799744e-02, 2.89851867e-02,
-                                                1.74047431e-02, 7.80831344e-03, 1.55925790e-03, 1.29750105e-01,
-                                                1.27227083e-01, 1.17692139e-01, 8.80542309e-02, 1.01767927e-01,
-                                                1.32537249e-01, 9.87419811e-02, 8.26563194e-02, 6.90008771e-02,
-                                                5.53211660e-02, 4.18380816e-02, 2.90185050e-02, 1.74203700e-02,
-                                                7.81331793e-03, 1.55985887e-03, 2.63891028e-03, 2.78778300e-03,
-                                                2.96159769e-03, 3.14648715e-03, 3.31651256e-03, 3.44413705e-03,
-                                                3.49845348e-03, 3.44181021e-03, 3.24066400e-03, 2.87817371e-03,
-                                                2.36179238e-03, 1.73095079e-03, 1.06444010e-03, 4.78064244e-04,
-                                                9.55576389e-05, 2.63975276e-03, 2.79035301e-03, 2.96570145e-03,
-                                                3.15181760e-03, 3.32274794e-03, 3.45095632e-03, 3.50551295e-03,
-                                                3.44870599e-03, 3.24694555e-03, 2.88341780e-03, 2.36570234e-03,
-                                                1.73344511e-03, 1.06569420e-03, 4.78477014e-04, 9.56068099e-05,
+    sectional_lift_coeff_true       = np.array([1.16531519e-01, 1.14086291e-01, 1.05535238e-01, 7.85124995e-02,
+                                                9.08822630e-02, 1.19485592e-01, 8.77697294e-02, 7.31906878e-02,
+                                                6.08904574e-02, 4.86912709e-02, 3.67506997e-02, 2.54532473e-02,
+                                                1.52663824e-02, 6.84495785e-03, 1.36729824e-03, 1.16581255e-01,
+                                                1.14219948e-01, 1.05711066e-01, 7.86333359e-02, 9.10884223e-02,
+                                                1.19799632e-01, 8.79595880e-02, 7.33269302e-02, 6.09903908e-02,
+                                                4.87610852e-02, 3.67957628e-02, 2.54789937e-02, 1.52784262e-02,
+                                                6.84880804e-03, 1.36776025e-03, 7.70995633e-04, 8.60882571e-04,
+                                                1.00556937e-03, 1.19328454e-03, 1.40070768e-03, 1.60262326e-03,
+                                                1.77018326e-03, 1.86723644e-03, 1.85941542e-03, 1.72520087e-03,
+                                                1.46292602e-03, 1.09748942e-03, 6.85301070e-04, 3.10477860e-04,
+                                                6.22530156e-05, 7.71057535e-04, 8.61091760e-04, 1.00597803e-03,
+                                                1.19396188e-03, 1.40171470e-03, 1.60398910e-03, 1.77188362e-03,
+                                                1.86917000e-03, 1.86140403e-03, 1.72702598e-03, 1.46438870e-03,
+                                                1.09847352e-03, 6.85814472e-04, 3.10650676e-04, 6.22737752e-05,
                                                 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
                                                 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
                                                 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-                                                0.00000000e+00, 0.00000000e+00, 0.00000000e+00])  
+                                                0.00000000e+00, 0.00000000e+00, 0.00000000e+00])
     
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
@@ -225,19 +225,33 @@ def mission_setup(analyses,vehicle):
     base_segment.max_energy                                  = bat.max_energy 
     
     # ------------------------------------------------------------------
+    #   Climb 1 : constant Speed, constant rate segment 
+    # ------------------------------------------------------------------ 
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb_1"
+    segment.analyses.extend( analyses.base )
+    segment.battery_energy            =  bat.max_energy* 0.89
+    segment.altitude_start            = 2500.0  * Units.feet
+    segment.altitude_end              = 8012    * Units.feet 
+    segment.air_speed                 = 96.4260 * Units['mph'] 
+    segment.climb_rate                = 700.034 * Units['ft/min']  
+    segment.state.unknowns.throttle   = 0.85 * ones_row(1)  
+
+    # add to misison
+    mission.append_segment(segment)
+    
+    # ------------------------------------------------------------------
     #   Cruise Segment: constant Speed, constant altitude
     # ------------------------------------------------------------------ 
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise" 
-    segment.analyses.extend(analyses.base) 
-    segment.altitude                  = 12000  * Units.feet
+    segment.analyses.extend(analyses.base)  
     segment.air_speed                 = 135.   * Units['mph'] 
     segment.distance                  =  20.   * Units.nautical_mile  
-    segment.state.unknowns.throttle   = 0.85  *  ones_row(1)    
-    segment.battery_energy            = bat.max_energy   
+    segment.state.unknowns.throttle   = 0.85  *  ones_row(1)   
     
     # add to misison
-    mission.append_segment(segment)    
+    mission.append_segment(segment)        
     
     return mission
 

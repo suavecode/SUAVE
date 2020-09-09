@@ -42,6 +42,25 @@ def main():
      
     
     # Design the Propeller with airfoil  geometry defined                      
+    bad_prop                          = SUAVE.Components.Energy.Converters.Propeller() 
+    bad_prop.tag                      = "Prop_W_Aifoil"
+    bad_prop.number_blades            = 2
+    bad_prop.number_of_engines        = 1
+    bad_prop.freestream_velocity      = 1
+    bad_prop.tip_radius               = 0.3
+    bad_prop.hub_radius               = 0.21336 
+    bad_prop.design_tip_mach          = 0.1
+    bad_prop.angular_velocity         = gearbox.inputs.speed  
+    bad_prop.design_Cl                = 0.7
+    bad_prop.design_altitude          = 1. * Units.km      
+    bad_prop.airfoil_geometry         = ['NACA_4412_geo.txt']
+    bad_prop.airfoil_polars           = [['NACA_4412_polar_Re_50000.txt','NACA_4412_polar_Re_100000.txt',
+                                          'NACA_4412_polar_Re_200000.txt','NACA_4412_polar_Re_500000.txt',
+                                          'NACA_4412_polar_Re_1000000.txt']] 
+    bad_prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
+    bad_prop.design_thrust           = 100000
+    bad_prop                         = propeller_design(bad_prop)  
+    
     prop_a                          = SUAVE.Components.Energy.Converters.Propeller() 
     prop_a.tag                      = "Prop_W_Aifoil"
     prop_a.number_blades            = 3
@@ -57,10 +76,9 @@ def main():
     prop_a.airfoil_polars           = [['NACA_4412_polar_Re_50000.txt','NACA_4412_polar_Re_100000.txt',
                                      'NACA_4412_polar_Re_200000.txt','NACA_4412_polar_Re_500000.txt',
                                      'NACA_4412_polar_Re_1000000.txt']] 
-    prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] 
-    #prop_a.design_power            = gearbox.outputs.power
+    prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
     prop_a.design_thrust           = 3054.4809132125697
-    prop_a                         = propeller_design(prop_a)   
+    prop_a                         = propeller_design(prop_a)  
     
     # plot propeller 
     plot_propeller_geometry(prop_a)

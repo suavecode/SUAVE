@@ -263,10 +263,7 @@ def propeller_design(prop,number_of_stations=20):
         #Second Case, Thrust is given
         zeta    = -(J1/(2.*J2)) + ((J1/(2.*J2))**2.+Pc/J2)**0.5
         Tc      = I1*zeta - I2*(zeta**2.)
-        Pc      = J1*zeta + J2*(zeta**2.)
-        
-    else:
-        print('Power and thrust are both specified!')    
+        Pc      = J1*zeta + J2*(zeta**2.) 
         
     # Calculate mid-chord alignment angle, MCA
     # This is the distance from the mid chord to the line axis out of the center of the blade
