@@ -250,39 +250,3 @@ def vehicle_setup():
     
     vehicle.weight_breakdown  = empty(vehicle,None)
     return vehicle
-
-
-# ----------------------------------------------------------------------
-#   Define the Configurations
-# ---------------------------------------------------------------------
-
-def configs_setup(vehicle):
-    # ------------------------------------------------------------------
-    #   Initialize Configurations
-    # ------------------------------------------------------------------ 
-    configs = SUAVE.Components.Configs.Config.Container()
-    
-    # ------------------------------------------------------------------
-    #   Base Configuration
-    # ------------------------------------------------------------------                                                
-    base_config                = SUAVE.Components.Configs.Config(vehicle)
-    base_config.tag            = 'base'
-    configs.append(base_config)
-    
-    # ------------------------------------------------------------------
-    #   Hover Configuration
-    # ------------------------------------------------------------------
-    config                                    = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                = 'hover'
-    config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
-    configs.append(config)
-    
-    # ------------------------------------------------------------------
-    #    Configuration
-    # ------------------------------------------------------------------
-    config                                    = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                = 'climb' 
-    config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
-    configs.append(config)
-    
-    return configs

@@ -49,21 +49,21 @@ class Vectored_Thrust(Propulsor):
             Properties Used:
             N/A
         """      
-        self.tag = 'vectored_thrust'
-        self.motor               = None
-        self.rotor               = None
-        self.esc                 = None
-        self.avionics            = None
-        self.payload             = None
-        self.battery             = None
-        self.nacelle_diameter    = None
-        self.engine_length       = None
-        self.number_of_engines   = None
-        self.voltage             = None
-        self.thrust_angle        = 0.0 
-        self.pitch_command       = 0.0
-        self.thrust_angle_start  = None
-        self.thrust_angle_end    = None        
+        self.tag                      = 'vectored_thrust'
+        self.motor                    = None
+        self.rotor                    = None
+        self.esc                      = None
+        self.avionics                 = None
+        self.payload                  = None
+        self.battery                  = None
+        self.nacelle_diameter         = None
+        self.engine_length            = None
+        self.number_of_engines        = None
+        self.voltage                  = None
+        self.thrust_angle             = 0.0 
+        self.pitch_command            = 0.0 
+        self.thrust_angle_start       = None
+        self.thrust_angle_end         = None        
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -132,9 +132,9 @@ class Vectored_Thrust(Propulsor):
         thrust_angle = self.thrust_angle
                 
         # link
-        rotor.inputs.omega                  = motor.outputs.omega
-        rotor.thrust_angle                  = thrust_angle
-        conditions.propulsion.pitch_command = self.pitch_command
+        rotor.inputs.omega                             = motor.outputs.omega
+        rotor.thrust_angle                             = thrust_angle
+        conditions.propulsion.pitch_command            = self.pitch_command 
         
         # Run the rotor     
         F, Q, P, Cp , output, etap = rotor.spin(conditions)

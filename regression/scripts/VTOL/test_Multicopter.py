@@ -18,7 +18,7 @@ import sys
 sys.path.append('../Vehicles')
 # the analysis functions
 
-from Electric_Multicopter  import vehicle_setup, configs_setup  
+from Electric_Multicopter  import vehicle_setup
 
 # ----------------------------------------------------------------------
 #   Main
@@ -127,7 +127,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'hover'
-    config.propulsors.vectored_thrust.pitch_command = 0.  * Units.degrees    
+    config.propulsors.vectored_thrust.pitch_command            = 0.  * Units.degrees 
     configs.append(config)
     
     # ------------------------------------------------------------------
@@ -135,7 +135,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'climb'   
-    config.propulsors.vectored_thrust.pitch_command = 0.  * Units.degrees    
+    config.propulsors.vectored_thrust.pitch_command            = 0. * Units.degrees 
     configs.append(config)
     
     return configs
@@ -233,7 +233,7 @@ def mission_setup(analyses,vehicle):
     segment.climb_rate      = 300. * Units['ft/min']
     segment.battery_energy  = vehicle.propulsors.vectored_thrust.battery.max_energy*0.95
     
-    segment.state.unknowns.throttle                       = 0.5 * ones_row(1)
+    segment.state.unknowns.throttle                       = 1.0 * ones_row(1)
     segment.state.unknowns.propeller_power_coefficient    = 0.2 * ones_row(1) 
 
     segment.process.iterate.unknowns.network          = vehicle.propulsors.vectored_thrust.unpack_unknowns

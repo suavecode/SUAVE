@@ -40,7 +40,7 @@ def main():
     plot_mission(results,configs)
  
     # save, load and plot old results 
-    #save_stopped_rotor_results(results)
+    save_stopped_rotor_results(results)
     old_results = load_stopped_rotor_results()
     plot_mission(old_results,configs, 'k-')
     
@@ -76,9 +76,6 @@ def main():
     assert np.abs((lift_coefficient  - lift_coefficient_true)/lift_coefficient_true) < 1e-3    
     
     return
-
-
-
 
 # ----------------------------------------------------------------------
 #   Analysis Setup

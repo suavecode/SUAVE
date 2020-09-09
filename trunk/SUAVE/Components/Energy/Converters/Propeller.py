@@ -12,16 +12,11 @@
 # ----------------------------------------------------------------------
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
-     import compute_airfoil_polars
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
 
 # package imports
 import numpy as np
-import scipy as sp
-from scipy.optimize import fsolve
-
 
 # ----------------------------------------------------------------------
 #  Propeller Class
@@ -54,29 +49,28 @@ class Propeller(Energy_Component):
         Properties Used:
         None
         """         
-        
-        self.number_blades            = 0.0
-        self.tip_radius               = 0.0
-        self.hub_radius               = 0.0
-        self.twist_distribution       = 0.0
-        self.chord_distribution       = 0.0
-        self.mid_chord_aligment       = 0.0
-        self.blade_solidity           = 0.0
-        self.thrust_angle             = 0.0
-        self.design_power             = None
-        self.design_thrust            = None        
-        self.induced_hover_velocity   = None
-        self.airfoil_geometry         = None
-        self.airfoil_polars           = None
-        self.airfoil_polar_stations   = None 
-        self.radius_distribution      = None
-        self.rotation                 = None
-        self.ducted                   = False
-        self.use_Blade_Element_Theory = False 
-        self.number_azimuthal_stations= 24
-        self.induced_power_factor     = 1.48  #accounts for interference effects
-        self.profile_drag_coefficient = .03        
-        self.tag                      = 'Propeller'
+
+        self.tag                       = 'Propeller'        
+        self.number_blades             = 0.0
+        self.tip_radius                = 0.0
+        self.hub_radius                = 0.0
+        self.twist_distribution        = 0.0
+        self.chord_distribution        = 0.0
+        self.mid_chord_aligment        = 0.0
+        self.blade_solidity            = 0.0
+        self.thrust_angle              = 0.0
+        self.design_power              = None
+        self.design_thrust             = None        
+        self.induced_hover_velocity    = None
+        self.airfoil_geometry          = None
+        self.airfoil_polars            = None
+        self.airfoil_polar_stations    = None 
+        self.radius_distribution       = None
+        self.rotation                  = None
+        self.ducted                    = False 
+        self.number_azimuthal_stations = 24
+        self.induced_power_factor      = 1.48  #accounts for interference effects
+        self.profile_drag_coefficient  = .03        
 
 
     def spin(self,conditions):
@@ -165,28 +159,26 @@ class Propeller(Energy_Component):
         
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
-        Vv      = conditions.frames.inertial.velocity_vector
-        Vh      = self.induced_hover_velocity 
+        Vv      = conditions.frames.inertial.velocity_vector 
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
-        theta   = self.thrust_angle
-        tc      = self.thickness_to_chord  
-        sigma   = self.blade_solidity   
-        Na      = self.number_azimuthal_stations
-        use_BET = self.use_Blade_Element_Theory
+        theta   = self.thrust_angle 
+        Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B
     
+        # check if pitch command is defined  
         try:
             pitch_command     = conditions.propulsion.pitch_command
             total_blade_pitch = beta_0 + pitch_command   
         except:
             total_blade_pitch = beta_0 
         
+        # check if thrust angle is defined  
         try:
             theta = self.propeller_thrust_angle
         except:
-            pass
+            pass 
         
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
@@ -203,7 +195,6 @@ class Propeller(Energy_Component):
     
         # Now just use the aligned velocity
         V        = V_thrust[:,0,None] 
-        V_inf    = V_thrust 
         ua       = np.zeros_like(V)              
         ut       = np.zeros_like(V) 
     
@@ -223,16 +214,8 @@ class Propeller(Energy_Component):
         omega          = np.abs(omega)        
         r              = chi*R                              # Radial coordinate 
         pi             = np.pi                              
-        A              = pi*(R**2)                          
         n              = omega/(2.*pi)                      # Cycles per second  
         nu             = mu/rho     
-        blade_area     = sp.integrate.cumtrapz(B*c, r-r[0]) # blade area 
-        sigma          = blade_area[-1]/(pi*r[-1]**2)       # solidity   # (page 28 Leishman)      
-    
-        # blade flap rate and sweep(cone) angle 
-        beta_blade_dot = 0  # currently no flaping 
-        beta_blade     = 0  # currently no coning            
-    
         # azimuth distribution 
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
