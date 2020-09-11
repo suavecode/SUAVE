@@ -14,7 +14,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wak
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,prop_wake_model,initial_timestep_offset):     
+def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_model,initial_timestep_offset):     
     """ This computes the right hand side matrix for the VLM. In this
     function, induced velocites from propeller wake are also included 
     when relevent and where specified    
@@ -63,7 +63,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,prop_wake_model,i
         #-------------------------------------------------------------------------------------------------------
         # PROPELLER SLIPSTREAM MODEL
         #-------------------------------------------------------------------------------------------------------         
-        if prop_wake_model and ('propeller' in propulsor.keys()):   
+        if propeller_wake_model and ('propeller' in propulsor.keys()):   
         
             # extract the propeller data struction 
             prop = propulsor.propeller 

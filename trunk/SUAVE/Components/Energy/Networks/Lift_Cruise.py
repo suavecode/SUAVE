@@ -77,6 +77,8 @@ class Lift_Cruise(Propulsor):
         self.voltage                   = None
         self.thrust_angle_lift         = 0.0
         self.thrust_angle_forward      = 0.0
+        self.pitch_command_lift        = 0.0
+        self.pitch_command_forward     = 0.0
         self.tag                       = 'Lift_Cruise'
         self.generative_design_minimum = 0        
         pass
@@ -156,11 +158,12 @@ class Lift_Cruise(Propulsor):
         motor_forward.omega(conditions)
         
         # link
-        propeller.inputs.omega = motor_forward.outputs.omega
-        propeller.thrust_angle = self.thrust_angle_forward   
+        propeller.inputs.omega  = motor_forward.outputs.omega
+        propeller.thrust_angle  = self.thrust_angle_forward  
+        propeller.pitch_command = self.pitch_command_forward 
         
         # Run the propeller
-        F_forward, Q_forward, P_forward, Cp_forward, noise_forward, etap_forward = propeller.spin(conditions)
+        F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = propeller.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -209,12 +212,14 @@ class Lift_Cruise(Propulsor):
         
         # Run the motor
         motor_lift.omega(konditions)
+        
         # link
-        rotor.inputs.omega = motor_lift.outputs.omega
-        rotor.thrust_angle = self.thrust_angle_lift
+        rotor.inputs.omega  = motor_lift.outputs.omega
+        rotor.thrust_angle  = self.thrust_angle_lift
+        rotor.pitch_command = self.pitch_command_lift
         
         # Run the propeller
-        F_lift, Q_lift, P_lift, Cp_lift, output_lift, etap_lift = rotor.spin(konditions)
+        F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = rotor.spin(konditions)
         
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = state.conditions.propulsion.throttle_lift
@@ -273,8 +278,8 @@ class Lift_Cruise(Propulsor):
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
         
-        conditions.propulsion.acoustic_outputs[propeller.tag] = noise_forward
-        conditions.propulsion.acoustic_outputs[rotor.tag]     = output_lift
+        conditions.propulsion.acoustic_outputs[propeller.tag] = outputs_forward
+        conditions.propulsion.acoustic_outputs[rotor.tag]     = outputs_lift
     
         conditions.propulsion.rpm_lift                          = rpm_lift
         conditions.propulsion.current_lift                      = i_lift 
@@ -287,7 +292,7 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.propeller_power_lift              = P_lift*num_lift
         conditions.propulsion.propeller_thrust_lift             = F_lift*num_lift        
         conditions.propulsion.propeller_power_coefficient_lift  = Cp_lift        
-        conditions.propulsion.propeller_thrust_coefficient_lift = output_lift.thrust_coefficient  
+        conditions.propulsion.propeller_thrust_coefficient_lift = outputs_lift.thrust_coefficient  
         conditions.propulsion.battery_draw_lift                 = -i_lift * volts 
 
         conditions.propulsion.rpm_forward                       = rpm_forward        
@@ -320,8 +325,8 @@ class Lift_Cruise(Propulsor):
         
         conditions.propulsion.disc_loading_lift                 = (F_lift_mag.T)/(self.number_of_engines_lift*np.pi*(R_lift)**2) # N/m^2              
         conditions.propulsion.disc_loading_forward              = (F_forward_mag.T)/(self.number_of_engines_forward*np.pi*(R_forward)**2)  # N/m^2      
-        conditions.propulsion.power_loading_lift                = (F_lift_mag.T)/(battery_draw)      # N/W 
-        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(battery_draw)   # N/W    
+        conditions.propulsion.power_loading_lift                = (F_lift_mag.T)/(P_lift)      # N/W 
+        conditions.propulsion.power_loading_forward             = (F_forward_mag.T)/(P_forward)   # N/W    
                                                                                                         
         F_total = F_lift_total + F_forward_total
         mdot = state.ones_row(1)*0.0

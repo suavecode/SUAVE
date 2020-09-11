@@ -118,7 +118,7 @@ def propeller_design(prop,number_of_stations=20):
     
     else:
         # Import Airfoil from regression
-        print('\nNo airfoils specified for propeller or rotor airfoil specified. \nDefaulting to Eppler airfoils') 
+        print('\nNo airfoils specified for propeller or rotor airfoil specified. \nDefaulting to NACA 4412 airfoils that will provide conservative estimates.') 
         import os
         ospath = os.path.abspath(__file__) 
         path   = ospath.split('trunk/SUAVE/Methods/Propulsion/propeller_design.py')[0] + 'regression/scripts/Vehicles/' 

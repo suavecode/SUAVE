@@ -58,6 +58,7 @@ class Rotor(Energy_Component):
         self.mid_chord_aligment        = 0.0
         self.blade_solidity            = 0.0
         self.thrust_angle              = 0.0
+        self.pitch_command             = 0.0
         self.design_power              = None
         self.design_thrust             = None        
         self.induced_hover_velocity    = None
@@ -155,30 +156,20 @@ class Rotor(Energy_Component):
         a_geo   = self.airfoil_geometry      
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
-        cd_sur  = self.airfoil_cd_surrogates   
-        
+        cd_sur  = self.airfoil_cd_surrogates 
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
-        Vv      = conditions.frames.inertial.velocity_vector
+        Vv      = conditions.frames.inertial.velocity_vector 
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
+        pitch_c = self.pitch_command
         theta   = self.thrust_angle 
-        Na      = self.number_azimuthal_stations
+        Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B
-        
-        # check if pitch command is defined  
-        try:
-            pitch_command     = conditions.propulsion.pitch_command
-            total_blade_pitch = beta_0 + pitch_command   
-        except:
-            total_blade_pitch = beta_0 
-        
-        # check if thrust angle is defined  
-        try:
-            theta = self.propeller_thrust_angle
-        except:
-            pass 
+    
+        # calculate total blade pitch
+        total_blade_pitch = beta_0 + pitch_c  
             
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
@@ -273,14 +264,8 @@ class Rotor(Energy_Component):
             Cdval = np.zeros((ctrl_pts,Nr)) 
             for jj in range(Nr):                 
                 Cl[:,jj]    = cl_sur[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False)  
-                Cdval[:,jj] = cd_sur[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False)    
-                
-            # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
-            Tw_Tinf     = 1. + 1.78*(Ma*Ma)
-            Tp_Tinf     = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
-            Tp          = (Tp_Tinf)*T
-            Rp_Rinf     = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4) 
-            Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval  
+                Cdval[:,jj] = cd_sur[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False) 
+
             Rsquiggly   = Gamma - 0.5*W*c*Cl
         
             # An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
@@ -309,22 +294,29 @@ class Rotor(Energy_Component):
             PSI         = PSI + dpsi
             diff        = np.max(abs(PSIold-PSI))
             PSIold      = PSI
-            
+        
             # omega = 0, do not run BEMT convergence loop 
             if all(omega[:,0]) == 0. :
                 break
             
             # If its really not going to converge
             if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-                print("Rotor BEMT did not converge to a solution")
+                print("Propeller BEMT did not converge to a solution")
                 break
         
             ii+=1 
             if ii>10000:
                 broke = True
-                print("Rotor BEMT did not converge to a solution")
+                print("Propeller BEMT did not converge to a solution")
                 break
     
+        # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
+        Tw_Tinf     = 1. + 1.78*(Ma*Ma)
+        Tp_Tinf     = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
+        Tp          = (Tp_Tinf)*T
+        Rp_Rinf     = (Tp_Tinf**2.5)*(Tp+110.4)/(T+110.4) 
+        Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval  
+        
         epsilon                  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
         deltar                   = (r[1]-r[0])  
@@ -352,7 +344,7 @@ class Rotor(Energy_Component):
         Vt_avg     = Wt
         Va_avg     = Wa
                 
-        # caculate coefficients 
+        # calculate coefficients 
         D        = 2*R 
         Cq       = torque/(rho*(n*n)*(D*D*D*D*D)) 
         Ct       = thrust/(rho*(n*n)*(D*D*D*D))

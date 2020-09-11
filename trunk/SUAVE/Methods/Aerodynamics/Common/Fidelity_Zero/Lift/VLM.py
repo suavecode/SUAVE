@@ -85,7 +85,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
     # unpack settings
     n_sw       = settings.number_panels_spanwise    
     n_cw       = settings.number_panels_chordwise   
-    pwm        = settings.prop_wake_model
+    pwm        = settings.propeller_wake_model
     Sref       = geometry.reference_area 
     
 

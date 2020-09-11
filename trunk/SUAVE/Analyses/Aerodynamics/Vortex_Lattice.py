@@ -107,7 +107,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,vortex_distribution_flag,n_sw,n_cw,prop_wake_model):
+    def initialize(self,use_surrogate,vortex_distribution_flag,n_sw,n_cw,propeller_wake_model):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -141,7 +141,7 @@ class Vortex_Lattice(Aerodynamics):
         # Pack
         settings.vortex_distribution        = VD
         settings.use_surrogate              = use_surrogate
-        settings.prop_wake_model            = prop_wake_model 
+        settings.propeller_wake_model       = propeller_wake_model 
         
         # Plot vortex discretization of vehicle
         if vortex_distribution_flag == True:

@@ -154,7 +154,7 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()     
     aerodynamics.settings.use_surrogate              = False
-    aerodynamics.settings.prop_wake_model            = True 
+    aerodynamics.settings.propeller_wake_model       = True 
     aerodynamics.settings.number_panels_spanwise     = 15
     aerodynamics.settings.number_panels_chordwise    = 5   
     aerodynamics.geometry                            = vehicle

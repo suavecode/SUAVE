@@ -448,8 +448,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Hover Configuration
     # ------------------------------------------------------------------
-    config                                      = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                  = 'hover'
+    config                                            = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                        = 'hover'
     config.propulsors.vectored_thrust.thrust_angle    = 90.0 * Units.degrees
     config.propulsors.vectored_thrust.pitch_command   = 0.  * Units.degrees    
     configs.append(config)
@@ -457,8 +457,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Hover Climb Configuration
     # ------------------------------------------------------------------
-    config                                      = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                  = 'hover_climb'
+    config                                            = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                        = 'hover_climb'
     config.propulsors.vectored_thrust.thrust_angle    = 90.0 * Units.degrees
     config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees    
     configs.append(config)
@@ -466,8 +466,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Cruise Configuration
     # ------------------------------------------------------------------
-    config                                      = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                  = 'cruise'
+    config                                            = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                        = 'cruise'
     config.propulsors.vectored_thrust.thrust_angle    =  0. * Units.degrees
     config.propulsors.vectored_thrust.pitch_command   = 10.  * Units.degrees  
     configs.append(config)  
