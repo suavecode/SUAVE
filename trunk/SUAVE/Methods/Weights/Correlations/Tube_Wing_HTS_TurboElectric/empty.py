@@ -1,11 +1,8 @@
 ## @ingroup Methods-Weights-Correlations-Tube_Wing_HTS_TurboElectric
 # empty.py
 # 
-# Created:  Jan 2014, A. Wendorff
-# Modified: Feb 2016, M. Vegh
-#           Jul 2017, M. Clarke
-#           Jun 2018, T. MacDonald
-#           Mar 2020, K. Hamilton
+# Created: Mar 2020, K. Hamilton
+# Derived from: Methods-Weights-Correlations-Tube_Wing-empty.py
 
 # ----------------------------------------------------------------------
 #  Imports
