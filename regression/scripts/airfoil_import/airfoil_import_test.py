@@ -1,3 +1,12 @@
+# airfoil_import_test.py
+# 
+# Created:  
+# Modified: Sep 2020, M. Clarke 
+
+#----------------------------------------------------------------------
+#   Imports
+# ---------------------------------------------------------------------
+
 import SUAVE 
 import os
 from SUAVE.Core import Units, Data 

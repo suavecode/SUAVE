@@ -3,6 +3,7 @@
 # 
 # Created:  May 2019, M. Clarke
 #           Jul 2020, E. Botero
+#           Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -20,7 +21,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
+def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_development_time = 0.05 ):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
     Assumptions:
@@ -142,7 +143,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ):
    
     # Build the vector
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
-                                                                                 pwm,initial_timestep_offset) 
+                                                                                 pwm,initial_timestep_offset,wake_development_time ) 
     
     # Compute vortex strength  
     n_cp  = VD.n_cp  

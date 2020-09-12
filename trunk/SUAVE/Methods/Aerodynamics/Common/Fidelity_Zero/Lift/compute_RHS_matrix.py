@@ -14,19 +14,13 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wak
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_model,initial_timestep_offset):     
+def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_model,initial_timestep_offset,wake_development_time):     
     """ This computes the right hand side matrix for the VLM. In this
     function, induced velocites from propeller wake are also included 
-    when relevent and where specified    
-
-    Assumptions:
-    Slipstream effect is not a function of time. 
-    Axial Variation of slipstream does not include swirl 
+    when relevent and where specified     
 
     Source:  
-    Stone, R. Hugh. "Aerodynamic modeling of the wing-propeller 
-    interaction for a tail-sitter unmanned air vehicle." Journal 
-    of Aircraft 45.1 (2008): 198-210.
+    None
 
     Inputs:
     geometry
@@ -57,7 +51,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
     Vx_ind_total     = np.zeros_like(V_distribution)    
     dt               = 0 
     Vz_ind_total     = np.zeros_like(V_distribution)    
-    m                = len(aoa) # number of control points      
+    num_ctrl_pts     = len(aoa) # number of control points      
     
     for propulsor in geometry.propulsors:  
         #-------------------------------------------------------------------------------------------------------
@@ -69,10 +63,10 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
             prop = propulsor.propeller 
             
             # generate the geometry of the propeller helical wake
-            wake_distribution, dt,ts,B, N = generate_propeller_wake_distribution(prop,m,VD,initial_timestep_offset)
+            wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(prop,num_ctrl_pts,VD,initial_timestep_offset,wake_development_time)
             
             # compute the induced velocity
-            V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,m,ts,B,N)
+            V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts,time_steps,num_blades,num_radial_stations)
             
             # update the total induced velocity distribution 
             Vx_ind_total = Vx_ind_total + V_wake_ind[:,:,0]

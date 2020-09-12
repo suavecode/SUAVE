@@ -5,7 +5,7 @@
 # Modified: Feb 2016, E. Botero
 #           Jul 2017, M. Clarke
 #           Mar 2020, M. Clarke
-#           Aug 2020, M. Clarke
+#           Sep 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -188,7 +188,7 @@ def propeller_design(prop,number_of_stations=20):
                 ii+=1 	
                 if ii>10000:	
                     # maximum iterations is 10000
-                    print('Propeller/Rotor design not converging to solution')
+                    print('Propeller/Rotor section is not converging to solution')
                     broke = True	
                     break                    
                 

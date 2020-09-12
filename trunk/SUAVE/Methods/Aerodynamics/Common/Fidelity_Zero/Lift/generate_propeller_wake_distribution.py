@@ -1,7 +1,7 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 #  generate_propeller_wake_distribution.py
 # 
-# Created:  Jul 2020, M. Clarke 
+# Created:  Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,11 +11,29 @@
 import numpy as np
 from SUAVE.Core import Data 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contraction_matrix import compute_wake_contraction_matrix
+
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift  
 
-def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
-    # to put in settings 
-    time = 0.05
+def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time): 
+    """ This generates the propeller wake control points used to compute the 
+    influence of the week
+
+    Assumptions: 
+    None
+
+    Source:   
+    None
+    
+    Inputs:  
+    m                    - control point                     [Unitless] 
+    VD                   - vortex distribution               
+    prop                 - propeller/rotor data structure         
+    init_timestep_offset - intial time step                  [Unitless] 
+    time                 - time                              [s]
+
+    Properties Used:
+    N/A
+    """    
     
     # Unpack unknowns  
     R            = prop.tip_radius
@@ -23,8 +41,7 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     c            = prop.chord_distribution 
     Na           = prop.outputs.number_azimuthal_stations
     Nr           = prop.outputs.number_radial_stations
-    omega        = prop.outputs.omega                        
-    vt           = prop.outputs.disc_tangential_induced_velocity         
+    omega        = prop.outputs.omega                               
     va           = prop.outputs.disc_axial_induced_velocity 
     V_inf        = prop.outputs.velocity
     MCA          = prop.mid_chord_aligment 
@@ -42,9 +59,9 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     
     # define points ( control point, time step , blade number , location on blade )
     # compute lambda and mu 
-    mean_induced_velocity  = np.mean( np.mean(va,axis = 1),axis = 1)  
+    mean_induced_velocity  = np.mean( np.mean(va,axis = 1),axis = 1)   
     
-    lambda_tot   =  np.atleast_2d((V_inf[:,0]  + mean_induced_velocity)).T /(omega*R)       # inflow advance ratio (page 30 Leishman)
+    lambda_tot   =  np.atleast_2d((V_inf[:,0]  + mean_induced_velocity)).T /(omega*R)   # inflow advance ratio (page 30 Leishman)
     mu_prop      =  np.atleast_2d(V_inf[:,2]).T /(omega*R)                              # rotor advance ratio  (page 30 Leishman) 
     V_prop       =  np.atleast_2d(np.sqrt((V_inf[:,0]  + mean_induced_velocity)**2 + (V_inf[:,2])**2)).T
     
@@ -56,49 +73,51 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
     gamma_new = (gamma[:,:,:-1] + gamma[:,:,1:])*0.5
     
     # define empty arrays 
-    WD       = Data()
-    n        = Nr-1
-    WD_XA1   = np.zeros((m,num_prop,nts-1,B,n))
-    WD_YA1   = np.zeros((m,num_prop,nts-1,B,n))
-    WD_ZA1   = np.zeros((m,num_prop,nts-1,B,n))
-    WD_XA2   = np.zeros((m,num_prop,nts-1,B,n))
-    WD_YA2   = np.zeros((m,num_prop,nts-1,B,n))
-    WD_ZA2   = np.zeros((m,num_prop,nts-1,B,n))    
-    WD_XB1   = np.zeros((m,num_prop,nts-1,B,n))
-    WD_YB1   = np.zeros((m,num_prop,nts-1,B,n))
-    WD_ZB1   = np.zeros((m,num_prop,nts-1,B,n))
-    WD_XB2   = np.zeros((m,num_prop,nts-1,B,n)) 
-    WD_YB2   = np.zeros((m,num_prop,nts-1,B,n)) 
-    WD_ZB2   = np.zeros((m,num_prop,nts-1,B,n))   
-    WD_GAMMA = np.zeros((m,num_prop,nts-1,B,n))   
+    WD        = Data()
+    n         = Nr-1
+    mat1_size = (m,num_prop,nts-1,B,n)
+    WD_XA1    = np.zeros(mat1_size)  
+    WD_YA1    = np.zeros(mat1_size)  
+    WD_ZA1    = np.zeros(mat1_size)  
+    WD_XA2    = np.zeros(mat1_size)  
+    WD_YA2    = np.zeros(mat1_size)  
+    WD_ZA2    = np.zeros(mat1_size)      
+    WD_XB1    = np.zeros(mat1_size)  
+    WD_YB1    = np.zeros(mat1_size)  
+    WD_ZB1    = np.zeros(mat1_size)  
+    WD_XB2    = np.zeros(mat1_size)   
+    WD_YB2    = np.zeros(mat1_size)   
+    WD_ZB2    = np.zeros(mat1_size)     
+    WD_GAMMA  = np.zeros(mat1_size)     
     
-    WD.XA1   = np.zeros((m,num_prop*(nts-1)*B*n))
-    WD.YA1   = np.zeros((m,num_prop*(nts-1)*B*n))
-    WD.ZA1   = np.zeros((m,num_prop*(nts-1)*B*n))
-    WD.XA2   = np.zeros((m,num_prop*(nts-1)*B*n))
-    WD.YA2   = np.zeros((m,num_prop*(nts-1)*B*n))
-    WD.ZA2   = np.zeros((m,num_prop*(nts-1)*B*n))   
-    WD.XB1   = np.zeros((m,num_prop*(nts-1)*B*n))
-    WD.YB1   = np.zeros((m,num_prop*(nts-1)*B*n))
-    WD.ZB1   = np.zeros((m,num_prop*(nts-1)*B*n))
-    WD.XB2   = np.zeros((m,num_prop*(nts-1)*B*n))
-    WD.YB2   = np.zeros((m,num_prop*(nts-1)*B*n))
-    WD.ZB2   = np.zeros((m,num_prop*(nts-1)*B*n))  
+    mat2_size = (m,num_prop*(nts-1)*B*n)
+    WD.XA1    = np.zeros(mat2_size)
+    WD.YA1    = np.zeros(mat2_size)
+    WD.ZA1    = np.zeros(mat2_size)
+    WD.XA2    = np.zeros(mat2_size)
+    WD.YA2    = np.zeros(mat2_size)
+    WD.ZA2    = np.zeros(mat2_size)   
+    WD.XB1    = np.zeros(mat2_size)
+    WD.YB1    = np.zeros(mat2_size)
+    WD.ZB1    = np.zeros(mat2_size)
+    WD.XB2    = np.zeros(mat2_size)
+    WD.YB2    = np.zeros(mat2_size)
+    WD.ZB2    = np.zeros(mat2_size) 
     
-    
-    VD.Wake = Data()
-    VD.Wake.XA1   = np.zeros((num_prop,(nts-1),B,n))
-    VD.Wake.YA1   = np.zeros((num_prop,(nts-1),B,n))
-    VD.Wake.ZA1   = np.zeros((num_prop,(nts-1),B,n))
-    VD.Wake.XA2   = np.zeros((num_prop,(nts-1),B,n))
-    VD.Wake.YA2   = np.zeros((num_prop,(nts-1),B,n))
-    VD.Wake.ZA2   = np.zeros((num_prop,(nts-1),B,n))   
-    VD.Wake.XB1   = np.zeros((num_prop,(nts-1),B,n))
-    VD.Wake.YB1   = np.zeros((num_prop,(nts-1),B,n))
-    VD.Wake.ZB1   = np.zeros((num_prop,(nts-1),B,n))
-    VD.Wake.XB2   = np.zeros((num_prop,(nts-1),B,n))
-    VD.Wake.YB2   = np.zeros((num_prop,(nts-1),B,n))
-    VD.Wake.ZB2   = np.zeros((num_prop,(nts-1),B,n))    
+    VD.Wake       = Data()
+    mat3_size     = (num_prop,(nts-1),B,n)
+    VD.Wake.XA1   = np.zeros(mat3_size) 
+    VD.Wake.YA1   = np.zeros(mat3_size) 
+    VD.Wake.ZA1   = np.zeros(mat3_size) 
+    VD.Wake.XA2   = np.zeros(mat3_size) 
+    VD.Wake.YA2   = np.zeros(mat3_size) 
+    VD.Wake.ZA2   = np.zeros(mat3_size)    
+    VD.Wake.XB1   = np.zeros(mat3_size) 
+    VD.Wake.YB1   = np.zeros(mat3_size) 
+    VD.Wake.ZB1   = np.zeros(mat3_size) 
+    VD.Wake.XB2   = np.zeros(mat3_size) 
+    VD.Wake.YB2   = np.zeros(mat3_size) 
+    VD.Wake.ZB2   = np.zeros(mat3_size)     
      
     for i in range(num_prop): 
         Gamma  = np.zeros((m,nts-1,B,n))   
@@ -127,15 +146,15 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
         if (prop.rotation != None) and (prop.rotation[i] == 1):        
             total_angle_offset = -total_angle_offset    
         
-        azi_y   = np.sin(blade_angle_loc + total_angle_offset) # try positive then negative
+        azi_y   = np.sin(blade_angle_loc + total_angle_offset)  
         azi_z   = np.cos(blade_angle_loc + total_angle_offset)
          
-        x0_pts = np.tile(np.atleast_2d(MCA-c/4),(B,1)) 
+        x0_pts = np.tile(np.atleast_2d(MCA+c/4),(B,1))  
         x_pts  = np.repeat(np.repeat(x0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
         X_pts  = prop.origin[i][0] +  x_pts + sx_inf   
 
-        # compute wake contraction CURRENTLY INCORRECT
-        wake_contraction , r_div_r_prime , Kd = compute_wake_contraction_matrix(i,ts,prop,Nr,m,nts,X_pts)          
+        # compute wake contraction  
+        wake_contraction = compute_wake_contraction_matrix(i,prop,Nr,m,nts,X_pts)          
         
         y0_pts = np.tile(np.atleast_2d(r),(B,1))
         y_pts  = np.repeat(np.repeat(y0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
@@ -190,20 +209,23 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset):
         VD.Wake.YB2[i,:,:,:] =  Y_pts[0 ,  1: , : , 1:  ]
         VD.Wake.ZB2[i,:,:,:] =  Z_pts[0 ,  1: , : , 1:  ]  
           
-    
     # Compress Data into 1D Arrays  
-    WD.XA1  =  np.reshape(np.reshape(np.reshape(WD_XA1,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.YA1  =  np.reshape(np.reshape(np.reshape(WD_YA1,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.ZA1  =  np.reshape(np.reshape(np.reshape(WD_ZA1,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.XA2  =  np.reshape(np.reshape(np.reshape(WD_XA2,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.YA2  =  np.reshape(np.reshape(np.reshape(WD_YA2,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.ZA2  =  np.reshape(np.reshape(np.reshape(WD_ZA2,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.XB1  =  np.reshape(np.reshape(np.reshape(WD_XB1,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.YB1  =  np.reshape(np.reshape(np.reshape(WD_YB1,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.ZB1  =  np.reshape(np.reshape(np.reshape(WD_ZB1,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.XB2  =  np.reshape(np.reshape(np.reshape(WD_XB2,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.YB2  =  np.reshape(np.reshape(np.reshape(WD_YB2,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.ZB2  =  np.reshape(np.reshape(np.reshape(WD_ZB2,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
-    WD.GAMMA=  np.reshape(np.reshape(np.reshape(WD_GAMMA,(m,num_prop,(nts-1),B*n)),(m,num_prop,(nts-1)*B*n)),(m,num_prop*(nts-1)*B*n))
+    mat4_size = (m,num_prop,(nts-1),B*n)
+    mat5_size = (m,num_prop,(nts-1)*B*n)
+    mat6_size = (m,num_prop*(nts-1)*B*n) 
+    
+    WD.XA1    =  np.reshape(np.reshape(np.reshape(WD_XA1,mat4_size),mat5_size),mat6_size)
+    WD.YA1    =  np.reshape(np.reshape(np.reshape(WD_YA1,mat4_size),mat5_size),mat6_size)
+    WD.ZA1    =  np.reshape(np.reshape(np.reshape(WD_ZA1,mat4_size),mat5_size),mat6_size)
+    WD.XA2    =  np.reshape(np.reshape(np.reshape(WD_XA2,mat4_size),mat5_size),mat6_size)
+    WD.YA2    =  np.reshape(np.reshape(np.reshape(WD_YA2,mat4_size),mat5_size),mat6_size)
+    WD.ZA2    =  np.reshape(np.reshape(np.reshape(WD_ZA2,mat4_size),mat5_size),mat6_size)
+    WD.XB1    =  np.reshape(np.reshape(np.reshape(WD_XB1,mat4_size),mat5_size),mat6_size)
+    WD.YB1    =  np.reshape(np.reshape(np.reshape(WD_YB1,mat4_size),mat5_size),mat6_size)
+    WD.ZB1    =  np.reshape(np.reshape(np.reshape(WD_ZB1,mat4_size),mat5_size),mat6_size)
+    WD.XB2    =  np.reshape(np.reshape(np.reshape(WD_XB2,mat4_size),mat5_size),mat6_size)
+    WD.YB2    =  np.reshape(np.reshape(np.reshape(WD_YB2,mat4_size),mat5_size),mat6_size)
+    WD.ZB2    =  np.reshape(np.reshape(np.reshape(WD_ZB2,mat4_size),mat5_size),mat6_size)
+    WD.GAMMA  =  np.reshape(np.reshape(np.reshape(WD_GAMMA,mat4_size),mat5_size),mat6_size)
     
     return WD, dt, ts, B, Nr 

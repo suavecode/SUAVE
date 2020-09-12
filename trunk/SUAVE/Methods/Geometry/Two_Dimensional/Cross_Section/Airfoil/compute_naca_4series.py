@@ -2,6 +2,7 @@
 # 
 # Created:  Aug 2015, SUAVE Team
 # Modified: Jul 2020, M.Clarke
+#           Sep 2020, M. Clarke 
 
 from SUAVE.Core import Data 
 from math import sqrt, sin, cos, atan

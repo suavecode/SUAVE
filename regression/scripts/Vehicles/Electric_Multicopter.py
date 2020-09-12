@@ -1,6 +1,7 @@
 # Electric_Multicopter.py
 # 
 # Created: Feb 2020, M Clarke
+#          Sep 2020, M. Clarke 
 
 #----------------------------------------------------------------------
 #   Imports

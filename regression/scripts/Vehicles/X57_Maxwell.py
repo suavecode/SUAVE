@@ -1,6 +1,7 @@
 # Boeing_737.py
 #
 # Created: Feb 2020, M. Clarke
+#          Sep 2020, M. Clarke 
 
 """ setup file for the X57-Maxwell Electric Aircraft 
 """

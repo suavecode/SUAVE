@@ -1,7 +1,8 @@
 # test_VTOL.py
 # 
 # Created: Feb 2020, M. Clarke
-#
+#          Sep 2020, M. Clarke 
+
 """ setup file for electric aircraft regression """
 
 # ----------------------------------------------------------------------

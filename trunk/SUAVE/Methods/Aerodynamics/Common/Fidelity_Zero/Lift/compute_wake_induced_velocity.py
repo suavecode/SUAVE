@@ -1,15 +1,14 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 # compute_wake_induced_velocity.py
 # 
-# Created:  Jul 2020, M. Clarke 
+# Created:  Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 # package imports
-import numpy as np
-from SUAVE.Core import Data  
+import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_wake_induced_velocity(WD,VD,cpts,ts,B,N):  

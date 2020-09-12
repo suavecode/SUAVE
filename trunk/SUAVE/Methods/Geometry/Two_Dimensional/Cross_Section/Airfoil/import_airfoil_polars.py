@@ -3,11 +3,12 @@
 # 
 # Created:  Mar 2019, M. Clarke
 #           Mar 2020, M. Clarke
+#           Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data , Units
+from SUAVE.Core import Data  
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
@@ -36,11 +37,10 @@ def  import_airfoil_polars(airfoil_polar_files):
     
     # create empty data structures 
     airfoil_data = Data()
-    dim_aoa = 89
-    CL  = np.zeros((num_airfoils,num_polars,dim_aoa))
-    CD  = np.zeros((num_airfoils,num_polars,dim_aoa))
-    AoA = np.zeros((num_airfoils,num_polars,dim_aoa))
-    Re  = np.zeros((num_airfoils,num_polars))
+    dim_aoa      = 89 # this is done to get an AoA discretization of 0.25
+    CL           = np.zeros((num_airfoils,num_polars,dim_aoa))
+    CD           = np.zeros((num_airfoils,num_polars,dim_aoa)) 
+    Re           = np.zeros((num_airfoils,num_polars))
     
     AoA_interp = np.linspace(-6,16,dim_aoa) 
     

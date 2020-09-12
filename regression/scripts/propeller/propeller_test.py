@@ -2,6 +2,7 @@
 # 
 # Created:  Sep 2014, E. Botero
 # Modified: Feb 2020, M. Clarke  
+#           Sep 2020, M. Clarke 
 
 #----------------------------------------------------------------------
 #   Imports
@@ -192,11 +193,11 @@ def main():
     Cplast_a_truth  = 0.10892775 
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 3429.86233749  
-    Q_truth         = 1033.17562336  
-    P_truth         = 214034.32017436 
-    Cplast_truth    = 0.11031849  
-    
+    F_truth         = 3111.36298745 
+    Q_truth         = 921.87197212  
+    P_truth         = 190976.47716495 
+    Cplast_truth    = 0.09843392 
+     
     # Truth values for rotor with airfoil geometry defined 
     Fr_a_truth      = 1529.76888343 
     Qr_a_truth      = 155.12167959 
@@ -204,11 +205,11 @@ def main():
     Cplastr_a_truth = 0.05054715 
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1631.0011232 
-    Qr_truth        = 172.14753581 
-    Pr_truth        = 35662.35978127 
-    Cplastr_truth   = 0.05609511 
-        
+    Fr_truth        = 1529.76888343  
+    Qr_truth        = 155.12167959 
+    Pr_truth        = 32135.25608371  
+    Cplastr_truth   = 0.05054715  
+    
     # Store errors 
     error = Data()
     error.Thrust_a  = np.max(np.abs(F_a -F_a_truth))
@@ -219,7 +220,6 @@ def main():
     error.Torque    = np.max(np.abs(Q-Q_truth))    
     error.Power     = np.max(np.abs(P-P_truth))
     error.Cp        = np.max(np.abs(Cplast-Cplast_truth))  
-    
     error.Thrustr_a = np.max(np.abs(Fr_a-Fr_a_truth))
     error.Torquer_a = np.max(np.abs(Qr_a-Qr_a_truth))    
     error.Powerr_a  = np.max(np.abs(Pr_a-Pr_a_truth))

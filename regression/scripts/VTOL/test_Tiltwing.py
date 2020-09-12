@@ -1,7 +1,8 @@
 # test_Tiltwing.py
 # 
-# Created:  Feb 2020, M. Clarke
-#
+# Created: Feb 2020, M. Clarke
+#          Sep 2020, M. Clarke 
+
 """ setup file for a mission with Tiltwing eVTOL  
 """
 

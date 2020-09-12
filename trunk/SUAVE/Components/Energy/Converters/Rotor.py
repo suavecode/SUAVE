@@ -5,7 +5,7 @@
 # Modified: Jan 2016, T. MacDonald
 #           Feb 2019, M. Vegh            
 #           Mar 2020, M. Clarke
-#           Aug 2020, M. Clarke
+#           Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -204,7 +204,8 @@ class Rotor(Energy_Component):
     
         omega          = np.abs(omega)        
         r              = chi*R                              # Radial coordinate 
-        pi             = np.pi                               
+        pi             = np.pi        
+        pi2            = pi*pi       
         n              = omega/(2.*pi)                      # Cycles per second  
         nu             = mu/rho         
     
@@ -226,8 +227,7 @@ class Rotor(Energy_Component):
         omegar = np.outer(omega,r)
         Ua     = np.outer((V + ua),np.ones_like(r))
         Ut     = omegar - ut
-        U      = np.sqrt(Ua*Ua + Ut*Ut)
-        pi2    = pi*pi
+        U      = np.sqrt(Ua*Ua + Ut*Ut) 
         beta   = total_blade_pitch
         
         # Setup a Newton iteration

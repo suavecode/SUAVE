@@ -4,6 +4,7 @@
 # Created:  Jan 2016, E. Botero
 # Modified: Feb 2020, M. Clarke 
 #           Mar 2020, M. Clarke
+#           Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -159,7 +160,7 @@ def size_optimal_motor(motor,prop):
     return motor 
   
 
-def optimize_kv(io, v , omeg,  etam ,  Q): 
+def optimize_kv(io, v , omeg,  etam ,  Q, kv_lower_bound =  0.01, Res_lower_bound = 0.001, kv_upper_bound = 100, Res_upper_bound = 10 ): 
     ''' Optimizer for compute_optimal_motor_parameters function  
     
     Source:
@@ -182,7 +183,7 @@ def optimize_kv(io, v , omeg,  etam ,  Q):
     
     cons2 = [{'type':'eq', 'fun': constraint_2,'args': args}] 
     
-    bnds = ((0.01, 100), (0.001, 10))
+    bnds = ((kv_lower_bound, kv_upper_bound), (Res_lower_bound , Res_upper_bound))
     sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=cons1) 
     
     if sol.success == False:

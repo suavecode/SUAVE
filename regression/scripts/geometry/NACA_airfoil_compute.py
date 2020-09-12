@@ -1,7 +1,7 @@
 # NACA_airfoil_compute.py
 # 
 # Created:  April 2018, W. Maier
-# Modified: 
+# Modified: Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #   Imports
