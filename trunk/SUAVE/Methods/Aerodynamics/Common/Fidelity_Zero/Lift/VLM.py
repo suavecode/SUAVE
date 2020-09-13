@@ -168,6 +168,8 @@ def VLM(conditions,settings,geometry):
     # Use split to divide u, w, gamma, and Del_y into more arrays
     u_n_w        = np.array(np.array_split(u,n_w,axis=1))
     u_n_w_sw     = np.array(np.array_split(u,n_w*n_sw,axis=1)) 
+    w_n_w        = np.array(np.array_split(w,n_w,axis=1))
+    w_n_w_sw     = np.array(np.array_split(w,n_w*n_sw,axis=1))    
     w_ind_n_w    = np.array(np.array_split(w_ind,n_w,axis=1))
     w_ind_n_w_sw = np.array(np.array_split(w_ind,n_w*n_sw,axis=1))    
     gamma_n_w    = np.array(np.array_split(gamma,n_w,axis=1))
@@ -196,13 +198,16 @@ def VLM(conditions,settings,geometry):
     CL[mach>1]  = CL[mach>1]*8   # supersonic lift off by a factor of 8 
     
     # total drag and drag coefficient
-    D           =   -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T   
-    CDi         = D/(0.5*Sref)  
+    D           =   -np.atleast_2d(np.sum(np.multiply(w,gamma*Del_Y),axis=1)).T   
+    #D           =   -np.atleast_2d(np.sum(np.multiply(w_ind,gamma*Del_Y),axis=1)).T   
+    #CDi         = D/(0.5*Sref)  \
+    w_dely     = np.arctan(- np.sum(np.multiply(w_n_w_sw,Del_Y_n_w_sw),axis=2).T)
+    CDi        = np.atleast_2d((1/(Sref*0.5))* np.sum(  cl_y * CS * w_dely,axis=1)).T
     CDi[mach>1] = CDi[mach>1]*2 # supersonic drag off by a factor of 2 
     
     # pressure coefficient
-    U_tot       = np.sqrt((1+u)*(1+u) + v*v + w*w)
-    CP          = 1 - (U_tot)*(U_tot)
+    U_tot       = np.sqrt((1+u)*(1+u) + v*v + w*w) 
+    CP          = 1 - (U_tot)*(U_tot) # for incompressible 
      
     # moment coefficient
     CM          = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     

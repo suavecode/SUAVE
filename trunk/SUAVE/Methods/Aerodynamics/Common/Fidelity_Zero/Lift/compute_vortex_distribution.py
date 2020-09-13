@@ -469,8 +469,7 @@ def compute_vortex_distribution(geometry,settings):
             else:                                                                
                 cf    = 0.25                          
                 sweep = np.arctan(((root_chord*cf) + (np.tan(sweep_qc)*span - cf*tip_chord)) /span)  
-
-            i    = np.arange(0,n_sw)             
+           
             wing_chord_ratio = (tip_chord-root_chord)/span
             wing_twist_ratio = (twist_tc-twist_rc)/span                    
             wing_areas.append(0.5*(root_chord+tip_chord)*span) 
@@ -492,11 +491,13 @@ def compute_vortex_distribution(geometry,settings):
                 eta_a = (y_a[idx_y])  
                 eta_b = (y_b[idx_y]) 
                 eta   = (y_b[idx_y] - delta_y[idx_y]/2) 
-
+                
+                # get spanwise discretization points
                 wing_chord_section_a  = root_chord + (eta_a*wing_chord_ratio) 
                 wing_chord_section_b  = root_chord + (eta_b*wing_chord_ratio)
                 wing_chord_section    = root_chord + (eta*wing_chord_ratio)
-
+                
+                # get chordwise discretization points
                 delta_x_a = wing_chord_section_a/n_cw   
                 delta_x_b = wing_chord_section_b/n_cw   
                 delta_x   = wing_chord_section/n_cw                                  
