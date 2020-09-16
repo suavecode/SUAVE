@@ -113,8 +113,11 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(aoa)) 
    
-    # generate vortex distribution
-    VD = generate_wing_vortex_distribution(geometry,settings)  
+    # generate vortex distribution 
+    VD = generate_wing_vortex_distribution(geometry,settings)   
+    
+    # pack vortex distribution 
+    geometry.vortex_distribution = VD
     
     # Build induced velocity matrix, C_mn
     C_mn, DW_mn  = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa,mach)

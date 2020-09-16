@@ -24,8 +24,6 @@ from SUAVE.Core import Units
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
 # local imports
 from .Aerodynamics import Aerodynamics
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution import generate_wing_vortex_distribution
-from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # package imports
@@ -108,7 +106,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,vortex_distribution_flag,n_sw,n_cw,propeller_wake_model):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -134,19 +132,10 @@ class Vortex_Lattice(Aerodynamics):
             settings.number_panels_spanwise  = n_sw
         
         if n_cw is not None:
-            settings.number_panels_chordwise = n_cw
+            settings.number_panels_chordwise = n_cw 
             
-        # generate vortex distribution
-        VD = generate_wing_vortex_distribution(geometry,settings)      
-        
-        # Pack
-        settings.vortex_distribution        = VD
         settings.use_surrogate              = use_surrogate
-        settings.propeller_wake_model       = propeller_wake_model 
-        
-        # Plot vortex discretization of vehicle
-        if vortex_distribution_flag == True:
-            plot_vehicle_vlm_panelization(VD)        
+        settings.propeller_wake_model       = propeller_wake_model  
                 
         # If we are using the surrogate
         if use_surrogate == True: 
@@ -584,7 +573,7 @@ def calculate_VLM(conditions,settings,geometry):
     total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y , CPi , vel_profile = VLM(conditions,settings,geometry)
 
     # Dimensionalize the lift and drag for each wing
-    areas = settings.vortex_distribution.wing_areas
+    areas = geometry.vortex_distribution.wing_areas
     dim_wing_lifts = CL_wing  * areas
     dim_wing_drags = CDi_wing * areas
     

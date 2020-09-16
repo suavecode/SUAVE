@@ -14,7 +14,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
 
 ## @ingroup Plots-Geometry_Plots
-def plot_vehicle_vlm_panelization(VD, save_figure = False, plot_control_points = True, save_filename = "VLM_Panelization"):     
+def plot_vehicle_vlm_panelization(vehicle, save_figure = False, plot_control_points = True, save_filename = "VLM_Panelization"):     
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
     Routine is initialized
 
@@ -25,19 +25,25 @@ def plot_vehicle_vlm_panelization(VD, save_figure = False, plot_control_points =
     None
 
     Inputs:
-    airfoil_geometry_files   <list of strings>
+    vehicle.vortex_distribution
 
     Outputs: 
     Plots
 
     Properties Used:
     N/A	
-    """	
-    face_color = [0.9,0.9,0.9] # grey        
-    edge_color = [0, 0, 0]     # black
+    """
+    # unpack vortex distribution 
+    VD = vehicle.vortex_distribution
+    
+    face_color = 'grey'        
+    edge_color = 'black'
     alpha_val  = 0.5  
+    
+    # initalize figure 
     fig  = plt.figure(save_filename)
-    axes = Axes3D(fig)    
+    axes = Axes3D(fig) 
+    
     n_cp = VD.n_cp 
     for i in range(n_cp): 
         X = [VD.XA1[i],VD.XB1[i],VD.XB2[i],VD.XA2[i]]
@@ -59,42 +65,6 @@ def plot_vehicle_vlm_panelization(VD, save_figure = False, plot_control_points =
   
   
     if  plot_control_points:
-        axes.scatter(VD.XC,VD.YC,VD.ZC, c='r', marker = 'o' )
- 
-
-    if 'Wake' in VD: 
-        face_color = 'white'                
-        edge_color = 'blue' 
-        alpha      = 0.2
+        axes.scatter(VD.XC,VD.YC,VD.ZC, c='r', marker = 'o' ) 
         
-        num_prop = len(VD.Wake.XA1[:,0,0,0])
-        nts      = len(VD.Wake.XA1[0,:,0,0])
-        num_B    = len(VD.Wake.XA1[0,0,:,0])
-        dim_R    = len(VD.Wake.XA1[0,0,0,:])
-        for p_idx in range(num_prop): 
-            for t_idx in range(nts): 
-                for B_idx in range(num_B):
-                    for loc in range(dim_R): 
-                        X = [VD.Wake.XA1[p_idx,t_idx,B_idx,loc],
-                             VD.Wake.XB1[p_idx,t_idx,B_idx,loc],
-                             VD.Wake.XB2[p_idx,t_idx,B_idx,loc],
-                             VD.Wake.XA2[p_idx,t_idx,B_idx,loc]]
-                        Y = [VD.Wake.YA1[p_idx,t_idx,B_idx,loc],
-                             VD.Wake.YB1[p_idx,t_idx,B_idx,loc],
-                             VD.Wake.YB2[p_idx,t_idx,B_idx,loc],
-                             VD.Wake.YA2[p_idx,t_idx,B_idx,loc]]
-                        Z = [VD.Wake.ZA1[p_idx,t_idx,B_idx,loc],
-                             VD.Wake.ZB1[p_idx,t_idx,B_idx,loc],
-                             VD.Wake.ZB2[p_idx,t_idx,B_idx,loc],
-                             VD.Wake.ZA2[p_idx,t_idx,B_idx,loc]]                    
-                        verts = [list(zip(X, Y, Z))]
-                        collection = Poly3DCollection(verts)
-                        collection.set_facecolor(face_color)
-                        collection.set_edgecolor(edge_color) 
-                        collection.set_alpha(alpha)
-                        axes.add_collection3d(collection)                 
-                 
-    plt.axis('off') 
-    plt.grid(None)  
-    
     return 

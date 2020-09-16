@@ -14,7 +14,7 @@ from SUAVE.Core import Units
 import numpy as np
 import pylab as plt 
 import copy, time
-from SUAVE.Plots.Mission_Plots import * 
+from SUAVE.Plots.Mission_Plots import *
 from SUAVE.Core import Data, Container
 import sys
 
@@ -40,7 +40,8 @@ def main():
     results = mission.evaluate() 
     
     # save results 
-    #save_results(results)
+    # This should be always left uncommented to test the SUAVE's Input/Output archive functions
+    save_results(results)
     
     # plot the results
     plot_results(results) 
@@ -65,8 +66,8 @@ def main():
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
-    assert np.abs((lift_coefficient  - lift_coefficient_true)/lift_coefficient_true) < 1e-3    
-    
+    assert np.abs((lift_coefficient  - lift_coefficient_true)/lift_coefficient_true) < 1e-3   
+        
     return
 
 
@@ -78,6 +79,8 @@ def full_setup():
 
     # vehicle data
     vehicle  = vehicle_setup()
+    
+    # Set up configs
     configs  = configs_setup(vehicle)
 
     # vehicle analyses

@@ -8,15 +8,16 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------  
+from SUAVE.Core import Data
 import numpy as np 
 import matplotlib.pyplot as plt  
 from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry \
-     import import_airfoil_geometry 
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series  
 
 ## @ingroup Plots-Geometry_Plots
-def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_filename = "VLM_Panelization"):     
+def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
     Routine is initialized
 
@@ -27,7 +28,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     None
 
     Inputs:
-    airfoil_geometry_files   <list of strings>
+    vehicle 
 
     Outputs: 
     Plots
@@ -35,14 +36,17 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     Properties Used:
     N/A	
     """	
-    
+    # unpack vortex distribution 
     VD = vehicle.vortex_distribution
-    face_color = [0.9,0.9,0.9] # grey        
-    edge_color = [0, 0, 0]     # black
+    
+    face_color = 'grey'        
+    edge_color = 'black'
     alpha_val  = 0.5  
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(12, 12)
+    
+    # initalize figure 
+    fig = plt.figure(save_filename) 
     axes = Axes3D(fig)    
+    axes.view_init(elev= 20, azim= 210)  
     n_cp = VD.n_cp 
     for i in range(n_cp): 
         X = [VD.XA1[i],VD.XB1[i],VD.XB2[i],VD.XA2[i]]
@@ -98,78 +102,158 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
                         collection.set_alpha(alpha)
                         axes.add_collection3d(collection)  
     
-    
-    
-    for propulsor in vehicle.propulsors:    
-        if 'propeller' in propulsor.keys(): 
-            prop =  propulsor.propeller
+ 
+                        for propulsor in vehicle.propulsors:    
+                            if 'propeller' in propulsor.keys(): 
+                                prop =  propulsor.propeller
+                                
+                                # ------------------------------------------------------------------------
+                                # Generate Propeller Geoemtry  
+                                # ------------------------------------------------------------------------
+                                
+                                # unpack
+                                Rt     = prop.tip_radius          
+                                Rh     = prop.hub_radius          
+                                num_B  = prop.number_blades       
+                                a_sec  = prop.airfoil_geometry          
+                                a_secl = prop.airfoil_polar_stations
+                                beta   = prop.twist_distribution         
+                                b      = prop.chord_distribution         
+                                r      = prop.radius_distribution 
+                                MCA    = prop.mid_chord_aligment
+                                t      = prop.max_thickness_distribution
+                             
+                                n_points   = 20
+                                dim       = len(b)
+                                num_props = len(prop.origin) 
+                                theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]   
+                                
+                                # create empty arrays for storing geometry
+                                G = Data()
+                                G.XA1 = np.zeros((num_props,num_B,dim-1,2*n_points-1))
+                                G.YA1 = np.zeros_like(G.XA1)
+                                G.ZA1 = np.zeros_like(G.XA1)
+                                G.XA2 = np.zeros_like(G.XA1)
+                                G.YA2 = np.zeros_like(G.XA1)
+                                G.ZA2 = np.zeros_like(G.XA1)
+                                G.XB1 = np.zeros_like(G.XA1)
+                                G.YB1 = np.zeros_like(G.XA1)
+                                G.ZB1 = np.zeros_like(G.XA1)
+                                G.XB2 = np.zeros_like(G.XA1)
+                                G.YB2 = np.zeros_like(G.XA1)
+                                G.ZB2 = np.zeros_like(G.XA1)  
+                            
+                                for n_p in range(num_props): 
+                                    rot    = prop.rotation[n_p] 
+                                    a_o    = 0
+                                    flip_1 = (np.pi/2)  
+                                    flip_2 = (np.pi/2) 
+                                    
+                                    for i in range(num_B):   
+                                        # get airfoil coordinate geometry     
+                                        airfoil_data = import_airfoil_geometry(a_sec,npoints=n_points)  
+                                            
+                                        # store points of airfoil in similar format as Vortex Points (i.e. in vertices)
+                                        for j in range(dim-1): # loop through each radial station 
+                                            # iba - imboard airfoil section
+                                            iba_max_t   = airfoil_data.thickness_to_chord[a_secl[j]]
+                                            iba_xp      = rot*(- MCA[j] +  airfoil_data.x_coordinates[a_secl[j]]*b[j])             # x coord of airfoil
+                                            iba_yp      = r[j]*np.ones_like(iba_xp)                                             # radial location        
+                                            iba_zp      = (airfoil_data.y_coordinates[a_secl[j]]*(t[j]/iba_max_t)) # former airfoil y coord
+                                            
+                                            # rotation about y axis to create twist and position blade upright
+                                            iba_trans_1 = [[np.cos(rot*flip_1 - rot*beta[j]  ),0 , -np.sin(rot*flip_1 - rot*beta[j])], [0 ,  1 , 0] , [np.sin(rot*flip_1 - rot*beta[j]) , 0 , np.cos(rot*flip_1 - rot*beta[j])]] 
+                                        
+                                            # rotation about x axis to create azimuth locations 
+                                            iba_trans_2 = [[1 , 0 , 0],[0 , np.cos(theta[i] + rot*a_o + flip_2 ), np.sin(theta[i] + rot*a_o + flip_2)],[0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]] 
+                        
+                                            iba_trans   =  np.matmul(iba_trans_2,iba_trans_1)          
+                                    
+                                            # oba - outboard airfoil section 
+                                            oba_max_t   = airfoil_data.thickness_to_chord[a_secl[j+1]]
+                                            oba_xp      = - MCA[j+1] + airfoil_data.x_coordinates[a_secl[j+1]]*b[j+1]             # x coord of airfoil
+                                            oba_yp      = r[j+1]*np.ones_like(oba_xp)                                                   # radial location        
+                                            oba_zp      = airfoil_data.y_coordinates[a_secl[j+1]]*(t[j+1]/oba_max_t) # former airfoil y coord
+                                            
+                                            # rotation about y axis to create twist and position blade upright
+                                            oba_trans_1 = [[np.cos(rot*flip_1 - rot*beta[j]  ),0 , -np.sin(rot*flip_1 - rot*beta[j])], [0 ,  1 , 0] , [np.sin(rot*flip_1 - rot*beta[j]) , 0 , np.cos(rot*flip_1 - rot*beta[j])]] 
+                                        
+                                            # rotation about x axis to create azimuth locations 
+                                            oba_trans_2 = [[1 , 0 , 0],[0 , np.cos(theta[i] + rot*a_o + flip_2), np.sin(theta[i] + rot*a_o + flip_2)],[0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]] 
+                                        
+                                            oba_trans   =  np.matmul(oba_trans_2,oba_trans_1)   
+                                    
+                                            iba_x = np.zeros(len(iba_xp))
+                                            iba_y = np.zeros(len(iba_yp))
+                                            iba_z = np.zeros(len(iba_zp))                   
+                                            oba_x = np.zeros(len(oba_xp))
+                                            oba_y = np.zeros(len(oba_yp))
+                                            oba_z = np.zeros(len(oba_zp))     
+                                             
+                                            for k in range(len(iba_yp)):
+                                                iba_vec_1 = [[iba_xp[k]],[iba_yp[k]], [iba_zp[k]]]
+                                                iba_vec_2  = np.matmul(iba_trans,iba_vec_1)
+                                                
+                                                iba_x[k] = iba_vec_2[0]
+                                                iba_y[k] = iba_vec_2[1]
+                                                iba_z[k] = iba_vec_2[2] 
+                                                
+                                                oba_vec_1 = [[oba_xp[k]],[oba_yp[k]], [oba_zp[k]]]
+                                                oba_vec_2  = np.matmul(oba_trans,oba_vec_1)
+                                                oba_x[k] = oba_vec_2[0]
+                                                oba_y[k] = oba_vec_2[1]
+                                                oba_z[k] = oba_vec_2[2]       
+                                        
+                                            # store points
+                                            G.XA1[n_p,i,j,:] = iba_x[:-1] + prop.origin[n_p][0]
+                                            G.YA1[n_p,i,j,:] = iba_y[:-1] + prop.origin[n_p][1] 
+                                            G.ZA1[n_p,i,j,:] = iba_z[:-1] + prop.origin[n_p][2]
+                                            G.XA2[n_p,i,j,:] = iba_x[1:]  + prop.origin[n_p][0]
+                                            G.YA2[n_p,i,j,:] = iba_y[1:]  + prop.origin[n_p][1] 
+                                            G.ZA2[n_p,i,j,:] = iba_z[1:]  + prop.origin[n_p][2]
+                                                      
+                                            G.XB1[n_p,i,j,:] = oba_x[:-1] + prop.origin[n_p][0]
+                                            G.YB1[n_p,i,j,:] = oba_y[:-1] + prop.origin[n_p][1]  
+                                            G.ZB1[n_p,i,j,:] = oba_z[:-1] + prop.origin[n_p][2]
+                                            G.XB2[n_p,i,j,:] = oba_x[1:]  + prop.origin[n_p][0]
+                                            G.YB2[n_p,i,j,:] = oba_y[1:]  + prop.origin[n_p][1]
+                                            G.ZB2[n_p,i,j,:] = oba_z[1:]  + prop.origin[n_p][2]            
             
-            for p_idx in range(len(prop.origin)): 
-                # unpack
-                Rt     = prop.tip_radius          
-                Rh     = prop.hub_radius          
-                num_B  = prop.number_blades       
-                a_sec  = prop.airfoil_geometry          
-                a_secl = prop.airfoil_polar_stations
-                beta   = prop.twist_distribution         
-                b      = prop.chord_distribution         
-                r      = prop.radius_distribution 
-                MCA    = prop.mid_chord_aligment
-                t      = prop.max_thickness_distribution
-                
-                # prepare plot parameters
-                dim = len(b)
-                theta = np.linspace(0,2*np.pi,num_B+1)  
-                chord = np.repeat(np.atleast_2d(b/2),10, axis = 0) - np.outer(np.linspace(0,1,10),b) - np.outer(np.linspace(0,1,10),MCA)
-                  
-                if r == None:
-                    r = np.linspace(Rh,Rt, len(b))
-                for i in range(num_B):  
+            
+            # ------------------------------------------------------------------------
+            # Plot Propellers 
+            # ------------------------------------------------------------------------
+            prop_face_color = 'red'
+            prop_edge_color = 'red'
+            prop_alpha      = 1
+            
+            num_prop = len(G.XA1[:,0,0,0])
+            num_B    = len(G.XA1[0,:,0,0])
+            num_sec  = len(G.XA1[0,0,:,0])
+            num_surf = len(G.XA1[0,0,0,:])
+            for p_idx in range(num_prop):  
+                    for B_idx in range(num_B):
+                        for sec in range(num_sec): 
+                            for loc in range(num_surf): 
+                                X = [G.XA1[p_idx,B_idx,sec,loc],
+                                     G.XB1[p_idx,B_idx,sec,loc],
+                                     G.XB2[p_idx,B_idx,sec,loc],
+                                     G.XA2[p_idx,B_idx,sec,loc]]
+                                Y = [G.YA1[p_idx,B_idx,sec,loc],
+                                     G.YB1[p_idx,B_idx,sec,loc],
+                                     G.YB2[p_idx,B_idx,sec,loc],
+                                     G.YA2[p_idx,B_idx,sec,loc]]
+                                Z = [G.ZA1[p_idx,B_idx,sec,loc],
+                                     G.ZB1[p_idx,B_idx,sec,loc],
+                                     G.ZB2[p_idx,B_idx,sec,loc],
+                                     G.ZA2[p_idx,B_idx,sec,loc]]                    
+                                prop_verts = [list(zip(X, Y, Z))]
+                                prop_collection = Poly3DCollection(prop_verts)
+                                prop_collection.set_facecolor(prop_face_color)
+                                prop_collection.set_edgecolor(prop_edge_color) 
+                                prop_collection.set_alpha(prop_alpha)
+                                axes.add_collection3d(prop_collection)   
                     
-                    surf_x = np.cos(theta[i]) * (chord*np.cos(beta)) - np.sin(theta[i]) * (r) 
-                    surf_y = np.sin(theta[i]) * (chord*np.cos(beta)) + np.cos(theta[i]) * (r) 
-                    surf_z = chord*np.sin(beta)    
-                    
-                    # plot propeller planfrom
-                    surf_X = prop.origin[p_idx][0] + surf_x  
-                    surf_Y = prop.origin[p_idx][1] + np.cos(np.pi/2)*surf_y - np.sin(np.pi/2)*surf_z 
-                    surf_Z = prop.origin[p_idx][2] + np.sin(np.pi/2)*surf_y + np.cos(np.pi/2)*surf_z 
-                    
-                    axes.plot_surface(surf_X ,surf_Y ,surf_Z , color = 'black')
-                
-                    if  a_sec != None and a_secl != None:
-                        # check dimension of section  
-                        dim_sec = len(a_secl)
-                        if dim_sec != dim:
-                            raise AssertionError("Number of sections not equal to number of stations") 
-                
-                        # get airfoil coordinate geometry     
-                        airfoil_data = import_airfoil_geometry(a_sec)       
-                
-                        #plot airfoils 
-                        for j in range(dim):
-                            airfoil_max_t = airfoil_data.thickness_to_chord[a_secl[j]]
-                            airfoil_xp = (b/2) - b[j] - MCA[j] - airfoil_data.x_coordinates[a_secl[j]]*b[j]
-                            airfoil_yp = r[j]*np.ones_like(airfoil_xp)            
-                            airfoil_zp = airfoil_data.y_coordinates[a_secl[j]]*b[j]  * (t[j]/(airfoil_max_t*b[j]))
-                
-                            transformation_1 = [[np.cos(beta[j]),0 , -np.sin(beta[j])], [0 ,  1 , 0] , [np.sin(beta[j]) , 0 , np.cos(beta[j])]]
-                            transformation_2 = [[np.cos(theta[i]) ,-np.sin(theta[i]), 0],[np.sin(theta[i]) , np.cos(theta[i]), 0], [0 ,0 , 1]]    
-                            transformation_3 = [[ 1 , 0 , 0] , [0 , np.cos(np.pi/2) ,-np.sin(np.pi/2)], [0 , np.sin(np.pi/2) , np.cos(np.pi/2)]]   
-                            transformation  = np.matmul(transformation_3,np.matmul(transformation_2,transformation_1))
-                
-                            airfoil_x = np.zeros(len(airfoil_yp))
-                            airfoil_y = np.zeros(len(airfoil_yp))
-                            airfoil_z = np.zeros(len(airfoil_yp))     
-                
-                            for k in range(len(airfoil_yp)):
-                                vec_1 = [[airfoil_xp[k]],[airfoil_yp[k]], [airfoil_zp[k]]]
-                                vec_2  = np.matmul(transformation,vec_1)
-                                airfoil_x[k] = prop.origin[p_idx][0] + vec_2[0]
-                                airfoil_y[k] = prop.origin[p_idx][1] + vec_2[1]
-                                airfoil_z[k] = prop.origin[p_idx][2] + vec_2[2]
-                
-                            axes.plot(airfoil_x, airfoil_y, airfoil_z, color = 'black')  
                 
             
     plt.axis('off') 
