@@ -32,7 +32,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
     n_sw        - number_panels_spanwise         [Unitless]
     n_cw        - number_panels_chordwise        [Unitless]
     sur_flag    - use_surrogate flag             [Unitless]
-    slipstream  - include_slipstream_effect flag [Unitless] 
+    slipstream  - propeller_wake_model flag      [Unitless] 
     delta, phi  - flow tangency angles           [radians]
        
     Outputs:                                   

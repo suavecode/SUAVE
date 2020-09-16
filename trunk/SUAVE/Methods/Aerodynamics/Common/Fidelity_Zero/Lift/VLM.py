@@ -69,7 +69,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
        settings.number_panels_spanwise         [Unitless]
        settings.number_panels_chordwise        [Unitless]
        settings.use_surrogate                  [Unitless]
-       settings.include_slipstream_effect      [Unitless]
+       settings.propeller_wake_model           [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
        conditions.freestream.mach_number       [Unitless]
        
