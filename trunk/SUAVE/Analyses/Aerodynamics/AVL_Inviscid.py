@@ -69,43 +69,43 @@ class AVL_Inviscid(Aerodynamics):
         Properties Used:
         N/A
         """          
-        self.tag                             = 'avl'    
-        
-        self.current_status                  = Data()        
-        self.current_status.batch_index      = 0
-        self.current_status.batch_file       = None
-        self.current_status.deck_file        = None
-        self.current_status.cases            = None      
-        self.geometry                        = None   
-        
-        self.settings                        = Settings()
-        self.settings.filenames.log_filename = sys.stdout
-        self.settings.filenames.err_filename = sys.stderr        
-        self.settings.spanwise_vortices      = 20
-        self.settings.chordwise_vortices     = 10
-        self.settings.trim_aircraft          = False 
+        self.tag                                = 'avl'    
+                                                
+        self.current_status                     = Data()        
+        self.current_status.batch_index         = 0
+        self.current_status.batch_file          = None
+        self.current_status.deck_file           = None
+        self.current_status.cases               = None      
+        self.geometry                           = None   
+                                                
+        self.settings                           = Settings()
+        self.settings.filenames.log_filename    = sys.stdout
+        self.settings.filenames.err_filename    = sys.stderr        
+        self.settings.number_spanwise_vortices  = 20
+        self.settings.number_chordwise_vortices = 10
+        self.settings.trim_aircraft             = False 
         
         # Conditions table, used for surrogate model training
-        self.training                        = Data()   
+        self.training                           = Data()   
         
         # Standard subsonic/transolic aircarft
-        self.training.angle_of_attack        = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
-        self.training.Mach                   = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
-        
-        self.training.lift_coefficient       = None
-        self.training.drag_coefficient       = None
-        self.training.span_efficiency_factor = None
-        self.training_file                   = None
+        self.training.angle_of_attack           = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
+        self.training.Mach                      = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
+                                                
+        self.training.lift_coefficient          = None
+        self.training.drag_coefficient          = None
+        self.training.span_efficiency_factor    = None
+        self.training_file                      = None
         
         # Surrogate model
-        self.surrogates                      = Data()
+        self.surrogates                         = Data()
         
         # Regression Status
-        self.keep_files                      = False
-        self.save_regression_results         = False          
-        self.regression_flag                 = False 
+        self.keep_files                         = False
+        self.save_regression_results            = False          
+        self.regression_flag                    = False 
 
-    def initialize(self,spanwise_vortices,chordwise_vortices):
+    def initialize(self,number_spanwise_vortices,number_chordwise_vortices):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:

@@ -25,8 +25,8 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
 
     Inputs: 
     VD       - vehicle vortex distribution      [Unitless] 
-    n_sw     - number_panels_spanwise           [Unitless]
-    n_cw     - number_panels_chordwise          [Unitless] 
+    n_sw     - number_spanwise_vortices           [Unitless]
+    n_cw     - number_chordwise_vortices          [Unitless] 
     mach                                        [Unitless] 
     theta_w  - freestream wake angle            [radians]
     
@@ -164,7 +164,7 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
     C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
     C_mn        = C_AB_bv +  C_AB_ll_tot  + C_AB_rl_tot  # verified from book using example 7.4 pg 399-404
     
-    DW_mn = 2*(C_AB_ll_tot + C_AB_rl_tot) # summation of trailing vortices for semi infinite
+    DW_mn = C_AB_ll_tot + C_AB_rl_tot # summation of trailing vortices for semi infinite
     
     return C_mn, DW_mn 
 

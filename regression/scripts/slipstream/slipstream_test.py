@@ -155,8 +155,8 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()     
     aerodynamics.settings.use_surrogate              = False
     aerodynamics.settings.integrate_slipstream       = True 
-    aerodynamics.settings.number_panels_spanwise     = 15
-    aerodynamics.settings.number_panels_chordwise    = 5   
+    aerodynamics.settings.number_spanwise_vortices     = 15
+    aerodynamics.settings.number_chordwise_vortices    = 5   
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)

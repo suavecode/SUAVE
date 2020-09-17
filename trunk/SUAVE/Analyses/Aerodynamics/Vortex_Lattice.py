@@ -66,8 +66,8 @@ class Vortex_Lattice(Aerodynamics):
         self.tag                                     = 'Vortex_Lattice' 
         self.geometry                                = Data()
         self.settings                                = Data()
-        self.settings.number_panels_spanwise         = 10
-        self.settings.number_panels_chordwise        = 2 
+        self.settings.number_spanwise_vortices         = 10
+        self.settings.number_chordwise_vortices        = 2 
         self.settings.vortex_distribution            = Data()   
         
         # conditions table, used for surrogate model training
@@ -130,10 +130,10 @@ class Vortex_Lattice(Aerodynamics):
         settings = self.settings      
         
         if n_sw is not None:
-            settings.number_panels_spanwise  = n_sw
+            settings.number_spanwise_vortices  = n_sw
         
         if n_cw is not None:
-            settings.number_panels_chordwise = n_cw
+            settings.number_chordwise_vortices = n_cw
             
         # generate vortex distribution
         VD = compute_vortex_distribution(geometry,settings)      

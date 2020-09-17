@@ -53,14 +53,14 @@ def main():
     
     # append AVL aerodynamic analysis
     aerodynamics                                                          = SUAVE.Analyses.Aerodynamics.AVL() 
-    aerodynamics.process.compute.lift.inviscid.settings.spanwise_vortices = 30
+    aerodynamics.process.compute.lift.inviscid.settings.number_spanwise_vortices = 30
     aerodynamics.process.compute.lift.inviscid.keep_files                 = True
     aerodynamics.geometry                                                 = copy.deepcopy(configs.cruise)    
     configs_analyses.cruise.append(aerodynamics)                       
                                                                        
     # append AVL stability analysis                                    
     stability                                                             = SUAVE.Analyses.Stability.AVL() 
-    stability.settings.spanwise_vortices                                  = 30
+    stability.settings.number_spanwise_vortices                                  = 30
     stability.keep_files                                                  = True
     stability.geometry                                                    = copy.deepcopy(configs.cruise) 
     
@@ -68,11 +68,11 @@ def main():
         # append AVL aerodynamic analysis 
         aerodynamics.process.compute.lift.inviscid.regression_flag            = False  
         aerodynamics.process.compute.lift.inviscid.save_regression_results    = True   
-        aerodynamics.process.compute.lift.inviscid.settings.spanwise_vortices = 30     
+        aerodynamics.process.compute.lift.inviscid.settings.number_spanwise_vortices = 30     
         aerodynamics.process.compute.lift.inviscid.keep_files                 = True     
         stability.regression_flag                                             = False 
         stability.save_regression_results                                     = True   
-        stability.settings.spanwise_vortices                                  = 30
+        stability.settings.number_spanwise_vortices                                  = 30
         stability.keep_files                                                  = True  
     else:   
         aerodynamics.process.compute.lift.inviscid.regression_flag            = True   

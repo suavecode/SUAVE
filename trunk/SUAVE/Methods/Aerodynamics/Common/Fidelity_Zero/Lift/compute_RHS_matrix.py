@@ -33,8 +33,8 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,slipstre
     conditions.
         aerodynamics.angle_of_attack             [radians] 
         freestream.velocity                      [m/s]
-    n_sw        - number_panels_spanwise         [Unitless]
-    n_cw        - number_panels_chordwise        [Unitless]
+    n_sw        - number_spanwise_vortices       [Unitless]
+    n_cw        - number_chordwise_vortices      [Unitless]
     sur_flag    - use_surrogate flag             [Unitless]
     slipstream  - include_slipstream_effect flag [Unitless] 
     delta, phi  - flow tangency angles           [radians]

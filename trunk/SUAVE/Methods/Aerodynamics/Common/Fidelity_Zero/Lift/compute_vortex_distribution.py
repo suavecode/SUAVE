@@ -105,14 +105,14 @@ def compute_vortex_distribution(geometry,settings):
     VD.Y      = np.empty(shape=[0,1])
     VD.Z      = np.empty(shape=[0,1])
     VD.Y_SW   = np.empty(shape=[0,1])
-    n_sw = settings.number_panels_spanwise 
-    n_cw = settings.number_panels_chordwise     
+    n_sw = settings.number_spanwise_vortices 
+    n_cw = settings.number_chordwise_vortices     
 
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
     # ---------------------------------------------------------------------------------------    
-    n_w = 0  # instantiate the number of wings counter  
-    n_cp = 0 # instantiate number of bound vortices counter     
+    n_w        = 0  # instantiate the number of wings counter  
+    n_cp       = 0 # instantiate number of bound vortices counter     
     wing_areas = [] # instantiate wing areas 
     
     for wing in geometry.wings:
@@ -1036,7 +1036,10 @@ def compute_vortex_distribution(geometry,settings):
         fvs_zc    = np.concatenate([fvs_zc[::-1],-fvs_zc ])
         fvs_x     = np.concatenate([fhs_x  , fhs_x  ])
         fvs_y     = np.concatenate([fhs_y  , fhs_y ])
-        fvs_z     = np.concatenate([fhs_z  , -fhs_z ])    
+        fvs_z     = np.concatenate([fhs_z  , -fhs_z ])  
+        
+        # Currently, fuselage is only used for plotting not analysis 
+        
         VD.FUS_XC = np.append(VD.FUS_XC ,fvs_xc)
         VD.FUS_YC = np.append(VD.FUS_YC ,fvs_yc)
         VD.FUS_ZC = np.append(VD.FUS_ZC ,fvs_zc)   
@@ -1056,7 +1059,7 @@ def compute_vortex_distribution(geometry,settings):
     geometry.vortex_distribution = VD
 
     # Compute Panel Areas 
-    VD.A_panel = compute_panel_area(VD)      
+    VD.panel_areas = compute_panel_area(VD)      
 
     return VD 
 
@@ -1065,5 +1068,6 @@ def compute_panel_area(VD):
     P1P3 = np.array([VD.XA2 - VD.XA1,VD.YA2 - VD.YA1,VD.ZA2 - VD.ZA1]).T
     P2P3 = np.array([VD.XA2 - VD.XB1,VD.YA2 - VD.YB1,VD.ZA2 - VD.ZB1]).T
     P2P4 = np.array([VD.XB2 - VD.XB1,VD.YB2 - VD.YB1,VD.ZB2 - VD.ZB1]).T   
+    
     A_panel = 0.5*(np.linalg.norm(np.cross(P1P2,P1P3)) + np.linalg.norm(np.cross(P2P3, P2P4)))
     return A_panel
