@@ -10,6 +10,7 @@
 
 import numpy as np
 import SUAVE
+from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
 
 # ----------------------------------------------------------------------
 #  Unpack Unknowns
@@ -121,7 +122,7 @@ def update_differentials_altitude(segment):
     """   
 
     # unpack
-    t = segment.state.numerics.dimensionless.control_points
+    x = segment.state.numerics.dimensionless.control_points
     D = segment.state.numerics.dimensionless.differentiate
     I = segment.state.numerics.dimensionless.integrate
 
@@ -140,14 +141,16 @@ def update_differentials_altitude(segment):
     # get overall time step
     vz = -v[:,2,None] # Inertial velocity is z down
     dz = altf- alt0    
+    #dt = segment.state.unknowns.time
     #dt = dz / np.dot(I[-1,:],vz)[-1] # maintain column array
-    dt = segment.state.unknowns.time
     
-    # Integrate vz to get altitudes
-    alt = alt0 + np.dot(I*dt,vz)
+    alt = x * dz + alt0
+    
+    ## Integrate vz to get altitudes
+    #alt = alt0 + np.dot(I*dt,vz)
 
     # rescale operators
-    t = t * dt
+    t = (I @ (1/vz)) * dz
 
     # pack
     t_initial = segment.state.conditions.frames.inertial.time[0,0]
@@ -216,9 +219,60 @@ def residual_total_forces(segment):
     a  = segment.state.conditions.frames.inertial.acceleration_vector
     m  = segment.state.conditions.weights.total_mass    
     final_alt = -segment.state.conditions.frames.inertial.position_vector[-1,2]
+    time = segment.state.conditions.frames.inertial.time
     
     segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
     segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] - a[:,2]       
-    segment.state.residuals.final_altitude = (final_alt - segment.altitude_end)
+    #segment.state.residuals.final_altitude = (final_alt - segment.altitude_end)
+
+    return
+
+## @ingroup Methods-Missions-Segments-Climb
+def update_differentials_time(segment):
+    """ Scales the differential operators (integrate and differentiate) based on mission time
+    
+        Assumptions:
+        N/A
+        
+        Inputs:
+            numerics.dimensionless:           
+                control_points                    [array]
+                differentiate                     [array]
+                integrate                         [array]
+            state.conditions.frames.inertial.time [seconds]
+            
+        Outputs:
+            numerics.time:           
+                control_points        [array]
+                differentiate         [array]
+                integrate             [array]
+
+        Properties Used:
+        N/A
+                                
+    """     
+    
+    # unpack
+    numerics = segment.state.numerics
+    x = numerics.dimensionless.control_points
+    D = numerics.dimensionless.differentiate
+    I = numerics.dimensionless.integrate
+    
+    # rescale time
+    time = segment.state.conditions.frames.inertial.time[:,0]
+    t_initial = time[0]
+    t    = time - t_initial
+    T    = time[-1] - time[0]
+    
+    t, D, I = chebyshev_data(N=len(time), x=t/t[-1])
+    
+    # rescale operators
+    D = D / T
+    I = I * T
+    
+    # pack
+    numerics.time.control_points = t
+    numerics.time.differentiate  = D
+    numerics.time.integrate      = I
 
     return

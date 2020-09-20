@@ -10,7 +10,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Utilities-Chebyshev
-def chebyshev_data(N = 16, integration = True, **options):
+def chebyshev_data(N = 16, integration = True, x = None, **options):
     """Calculates the differentiation and integration matricies
     using chebyshev's pseudospectral algorithm, based on cosine
     spaced samples in x.
@@ -49,7 +49,8 @@ def chebyshev_data(N = 16, integration = True, **options):
     # --- X vector
     
     # cosine spaced in range [0,1]
-    x = 0.5*(1 - np.cos(np.pi*np.arange(0,N)/(N-1)))    
+    if x is None:
+        x = 0.5*(1 - np.cos(np.pi*np.arange(0,N)/(N-1)))    
 
 
     # --- Differentiation Operator
@@ -97,7 +98,8 @@ def chebyshev_data(N = 16, integration = True, **options):
 if __name__ == '__main__':
     
     # get the data
-    x,D,I = chebyshev_data(16)
+    x_new = np.linspace(0,1,100)
+    x,D,I = chebyshev_data(100,x = None)
     
     # can work either with 1D vector or 2d column array
     x = x[:,None]

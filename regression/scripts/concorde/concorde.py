@@ -73,7 +73,8 @@ def main():
     results = mission.evaluate()
     
     masses, cg_mins, cg_maxes = compute_fuel_center_of_gravity_longitudinal_range(configs.base)
-    plot_cg_map(masses, cg_mins, cg_maxes)  
+    plot_cg_map(masses, cg_mins, cg_maxes, empty_mass=configs.base.mass_properties.operating_empty,
+                empty_cg = 35.8)  
     
     results.fuel_tank_test = Data()
     results.fuel_tank_test.masses   = masses

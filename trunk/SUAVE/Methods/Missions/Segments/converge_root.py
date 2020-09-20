@@ -38,14 +38,59 @@ def converge_root(segment):
 
     Properties Used:
     N/A
-    """       
+    """      
+    
+    ## ----------------------------------------------------------------------------------------------
+    ## minimize 
+    
+    #unknowns = segment.state.unknowns.pack_array()
+    
+    #try:
+        #root_finder = segment.settings.root_finder
+    #except AttributeError:
+        #root_finder = scipy.optimize.minimize     
+        
+    #def minimize_iterate(unknowns, segment):
+        #residuals = iterate(unknowns, segment)
+        #ret = scipy.linalg.norm(residuals)
+        #print(ret)
+        #return ret
+    
+    #res = root_finder( minimize_iterate,
+                    #unknowns,
+                    #args = segment,
+                    #tol = segment.state.numerics.tolerance_solution,
+                    #method = 'Powell')
+    
+    #raise NotImplementedError
+    
+    #if ier!=1:
+        #print("Segment did not converge. Segment Tag: " + segment.tag)
+        #print("Error Message:\n" + msg)
+        #segment.state.numerics.converged = False
+        #segment.converged = False
+    #else:
+        #segment.state.numerics.converged = True
+        #segment.converged = True
+                            
+    #return
+    ## ----------------------------------------------------------------------------------------------    
+    
+    # ----------------------------------------------------------------------------------------------
+    # fsolve 
     
     unknowns = segment.state.unknowns.pack_array()
     
     try:
         root_finder = segment.settings.root_finder
     except AttributeError:
-        root_finder = scipy.optimize.fsolve 
+        root_finder = scipy.optimize.fsolve     
+        
+    def add_unknowns(body_a, wind_a, pos):
+        a = np.array([5.23598776e-02, 5.23598776e-02, 5.23598776e-02, 5.23598776e-02, 1.74532925e-02, 1.74532925e-02, 1.74532925e-02, 1.74532925e-02, 8.00000000e+01])
+        a[pos] = body_a*np.pi/180
+        a[pos+4] = wind_a*np.pi/180
+        return a
     
     unknowns,infodict,ier,msg = root_finder( iterate,
                                          unknowns,
@@ -64,6 +109,10 @@ def converge_root(segment):
         segment.converged = True
                             
     return
+    # ----------------------------------------------------------------------------------------------
+    
+    # ----------------------------------------------------------------------------------------------
+    # root 
     
     #state = segment.state
     #unknowns = state.unknowns.pack_array()
@@ -99,6 +148,8 @@ def converge_root(segment):
          
                             
     #return    
+    
+    # ----------------------------------------------------------------------------------------------
     
 # ----------------------------------------------------------------------
 #  Helper Functions
