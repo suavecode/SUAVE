@@ -10,7 +10,6 @@
 import SUAVE
 import numpy as np
 from SUAVE.Core import Data
-import SUAVE.Components.Energy.Networks as Nets
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 from SUAVE.Methods.Weights.Correlations.FLOPS.prop_system import total_prop_flops
 from SUAVE.Methods.Weights.Correlations.FLOPS.systems import systems_FLOPS
@@ -38,7 +37,6 @@ from SUAVE.Methods.Weights.Correlations.Raymer import fuselage_weight_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import landing_gear_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import systems_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import total_prop_Raymer
-import SUAVE.Components.Wings as Wings
 
 def empty_weight(vehicle, settings=None, method_type='SUAVE'):
     """ Main function that estimates the zero-fuel weight of a transport aircraft:
@@ -123,6 +121,10 @@ def empty_weight(vehicle, settings=None, method_type='SUAVE'):
         Properties Used:
             N/A
     """
+    
+    Wings = SUAVE.Components.Wings
+    Nets  = SUAVE.Components.Energy.Networks    
+    
     if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
         if not hasattr(vehicle, 'design_mach_number'):
             raise ValueError("FLOPS requires a design mach number for sizing!")
