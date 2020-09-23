@@ -119,6 +119,8 @@ def wing_planform(wing):
         affected_area           = (wing_chord_flap_start + wing_chord_flap_end) * (flap.span_fraction_end- flap.span_fraction_start)*span / 2.          
          
     # update
+    wing.chords.root                = chord_root	
+    wing.chords.tip                 = chord_tip    
     wing.chords.mean_aerodynamic    = mac
     wing.chords.mean_geometric      = mgc
     wing.sweeps.leading_edge        = le_sweep
