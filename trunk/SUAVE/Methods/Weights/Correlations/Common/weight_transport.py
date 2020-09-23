@@ -38,7 +38,7 @@ from SUAVE.Methods.Weights.Correlations.Raymer import landing_gear_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import systems_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import total_prop_Raymer
 
-def empty_weight(vehicle, settings=None, method_type='SUAVE'):
+def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     """ Main function that estimates the zero-fuel weight of a transport aircraft:
         - MTOW = WZFW + FUEL
         - WZFW = WOE + WPAYLOAD
@@ -334,14 +334,12 @@ def empty_weight(vehicle, settings=None, method_type='SUAVE'):
     output.systems_breakdown.avionics               = wt_sys.wt_avionics
     output.systems_breakdown.hydraulics             = wt_sys.wt_hyd_pnu
     output.systems_breakdown.furnish                = wt_sys.wt_furnish
-    output.systems_breakdown.air_conditioner        = wt_sys.wt_ac
+    output.systems_breakdown.air_conditioner        = wt_sys.wt_ac + wt_sys.wt_anti_ice # Anti-ice is sometimes included in ECS
     output.systems_breakdown.instruments            = wt_sys.wt_instruments
-    output.systems_breakdown.anti_ice               = wt_sys.wt_anti_ice
     output.systems_breakdown.total                  = output.systems_breakdown.control_systems + output.systems_breakdown.apu \
                                                     + output.systems_breakdown.electrical + output.systems_breakdown.avionics \
                                                     + output.systems_breakdown.hydraulics + output.systems_breakdown.furnish \
-                                                    + output.systems_breakdown.air_conditioner + output.systems_breakdown.instruments \
-                                                    + output.systems_breakdown.anti_ice
+                                                    + output.systems_breakdown.air_conditioner + output.systems_breakdown.instruments
 
     output.payload_breakdown = Data()
     output.payload_breakdown = payload

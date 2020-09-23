@@ -67,7 +67,7 @@ class Weights_Transport(Weights):
         self.settings.weight_reduction_factors.fuselage = 0.
         self.settings.weight_reduction_factors.empennage = 0.  # applied to horizontal and vertical stabilizers
 
-    def evaluate(self, method="SUAVE", conditions=None):
+    def evaluate(self, method="New SUAVE", conditions=None):
         """Evaluate the weight analysis.
 
         Assumptions:

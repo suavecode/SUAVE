@@ -24,7 +24,7 @@ def systems(vehicle):
         numbers based on FAA regulations and correlations from previous aircraft
 
     Source:
-        N/A
+        http://aerodesign.stanford.edu/aircraftdesign/structures/componentweight.html
 
    Inputs:
        vehicle.passengers - total number of seats on the aircraft                                     [dimensionless]
@@ -93,9 +93,6 @@ def systems(vehicle):
     # Environmental Control
     ac_wt = (15.0 * num_seats) * Units.lb
 
-    # Anti-ice system
-    ai_wt = 0.002 * vehicle.mass_properties.max_takeoff
-
     # Instruments, Electronics, Operating Items based on Type of Vehicle
 
     if ac_type == "short-range":  # short-range domestic, austere accomodations
@@ -137,9 +134,9 @@ def systems(vehicle):
     output.wt_elec              = elec_wt
     output.wt_ac                = ac_wt
     output.wt_furnish           = furnish_wt
-    output.wt_anti_ice          = ai_wt
+    output.wt_anti_ice          = 0 # included in AC
     output.wt_systems           = output.wt_flight_control + output.wt_apu + output.wt_hyd_pnu \
                                 + output.wt_ac + output.wt_avionics + output.wt_elec \
-                                + output.wt_furnish + output.wt_instruments + output.wt_anti_ice
+                                + output.wt_furnish + output.wt_instruments
 
     return output
