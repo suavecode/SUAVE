@@ -66,7 +66,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
             wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(prop,num_ctrl_pts,VD,initial_timestep_offset,wake_development_time)
             
             # compute the induced velocity
-            V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts,time_steps,num_blades,num_radial_stations)
+            V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
             
             # update the total induced velocity distribution 
             Vx_ind_total = Vx_ind_total + V_wake_ind[:,:,0]

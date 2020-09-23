@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_induced_velocity_matrix.py
+# compute_wing_induced_velocity.py
 # 
 # Created:  May 2018, M. Clarke
 #           Apr 2020, M. Clarke
@@ -13,7 +13,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
+def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     """ This computes the induced velocitys are each control point 
     of the vehicle vortex lattice 
 
@@ -171,8 +171,25 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
 # vortex strength computation
 # -------------------------------------------------------------------------------
 def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
-    # reference: page 584 Low speed aerodynamics 
-    # Take all the differences
+    """ This computes the velocity induced on a control point by a segment
+    of a horseshoe vortex from point 1 to point 2 
+
+    Assumptions:  
+    None 
+    
+    Source: 
+    Low-Speed Aerodynamics, Second Edition by Joseph katz, Allen Plotkin
+    Pgs. 584(Literature), 579-586 (Fortran Code implementation)
+    
+    Inputs:
+    [X,Y,Z]     - location of control point  
+    [X1,Y1,Z1]  - location of point 1 
+    [X2,Y2,Z2]  - location of point 2
+
+    Properties Used:
+    N/A
+    
+    """      
     X_X1  = X-X1
     X_X2  = X-X2
     X2_X1 = X2-X1
@@ -200,7 +217,24 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
     return COEF
 
 def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw): 
+    """ This computes the velocity induced on a control point the left leg of a 
+    a semi-infinite horseshoe vortex from point 1 to infinity
 
+    Assumptions:  
+    None 
+    
+    Source:    
+    Low-Speed Aerodynamics, Second Edition by Joseph katz, Allen Plotkin
+    Pgs. 584(Literature), 579-586 (Fortran Code implementation)
+    
+    Inputs:
+    [X,Y,Z]     - location of control point  
+    [X1,Y1,Z1]  - location of point 1  
+
+    Properties Used:
+    N/A
+    
+    """      
     # Take all the differences
     X_X1  = X-X1    
     Y_Y1  = Y-Y1
@@ -219,7 +253,24 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     return COEF
 
 def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
+    """ This computes the velocity induced on a control point the right leg of a 
+    a semi-infinite horseshoe vortex from point 1 to infinity
 
+    Assumptions:  
+    None 
+    
+    Source:  
+    Low-Speed Aerodynamics, Second Edition by Joseph katz, Allen Plotkin
+    Pgs. 584(Literature), 579-586 (Fortran Code implementation)
+    
+    Inputs:
+    [X,Y,Z]     - location of control point  
+    [X1,Y1,Z1]  - location of point 1  
+
+    Properties Used:
+    N/A
+    
+    """      
     # Take all the differences
     X_X1  = X-X1    
     Y_Y1  = Y-Y1
@@ -238,7 +289,21 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     return COEF
 
 def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
- 
+    """ This computes the mach cone influence matrix for supersonic 
+    speeds. 
+    
+    Assumptions:  
+    None 
+    
+    Source:    
+    Garrido Estrada, Ester. "Tornado supersonic module development." (2011).
+    
+    Inputs: 
+
+    Properties Used:
+    N/A
+    
+    """       
     for m_idx in range(len(mach)):
         
         # Prep new vectors

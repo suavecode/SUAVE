@@ -421,8 +421,8 @@ def vehicle_setup():
     rotor                         = SUAVE.Components.Energy.Converters.Rotor() 
     rotor.tip_radius              = 2.8 * Units.feet
     rotor.hub_radius              = 0.35 * Units.feet      
-    rotor.number_blades           = 2    
-    rotor.design_tip_mach         = 0.65 # try to change this
+    rotor.number_blades           = 2
+    rotor.design_tip_mach         = 0.65
     rotor.number_of_engines       = net.number_of_engines_lift
     rotor.disc_area               = np.pi*(rotor.tip_radius**2)        
     rotor.induced_hover_velocity  = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines_lift)) 
