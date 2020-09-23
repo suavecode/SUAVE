@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_induced_velocity_matrix.py
+# compute_wing_induced_velocity.py
 # 
 # Created:  May 2018, M. Clarke
 #           Apr 2020, M. Clarke
@@ -13,7 +13,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
+def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     """ This computes the induced velocitys are each control point 
     of the vehicle vortex lattice 
 
@@ -45,7 +45,7 @@ def compute_induced_velocity_matrix(VD,n_sw,n_cw,theta_w,mach):
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)  # note that this applies to all Machs below 1 and does not to take into consideration the common assumtion of no compressibility under mach 0.3   
     inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
     mach[mach==1]         = 1.001
-    #inv_root_beta[mach<0.3] = 1.
+    inv_root_beta[mach<0.3] = 1.
     
     if np.any(mach==1):
         raise('Mach of 1 cannot be used in building compressibiliy corrections.')
@@ -190,7 +190,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2):
     R1R2Y  = Z_Z1*X_X2 - X_X1*Z_Z2
     R1R2Z  = X_X1*Y_Y2 - Y_Y1*X_X2
     SQUARE = np.square(R1R2X) + np.square(R1R2Y) + np.square(R1R2Z)
-    SQUARE[SQUARE==0] = 1e-32
+    SQUARE[SQUARE==0] = 1e-12
     R1     = np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1)) 
     R2     = np.sqrt(np.square(X_X2) + np.square(Y_Y2) + np.square(Z_Z2)) 
     R0R1   = X2_X1*X_X1 + Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1
@@ -209,7 +209,7 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     Z_Z1  = Z-Z1
 
     DENUM =  np.square(Z_Z1) + np.square(Y1_Y)
-    DENUM[DENUM==0] = 1e-32
+    DENUM[DENUM==0] = 1e-12  
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
     YVEC  = (Z_Z1)/DENUM
     ZVEC  = Y1_Y*np.cos(tw)/DENUM
@@ -228,7 +228,7 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     Z_Z1  = Z-Z1    
 
     DENUM =  np.square(Z_Z1) + np.square(Y1_Y)
-    DENUM[DENUM==0] = 1e-32
+    DENUM[DENUM==0] = 1e-12  
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
     YVEC  = Z_Z1/DENUM
     ZVEC  = Y1_Y*np.cos(tw)/DENUM

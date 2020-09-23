@@ -417,7 +417,7 @@ class AVL_Inviscid(Aerodynamics):
         for case in cases:
             case.stability_and_control.number_control_surfaces = num_cs
             case.stability_and_control.control_surface_names   = cs_names
-        self.current_status.cases        = cases  
+        self.current_status.cases                              = cases  
         
        # write case filenames using the templates defined in SUAVE/Analyses/Aerodynamics/AVL/Data/Settings.py 
         for case in cases:  

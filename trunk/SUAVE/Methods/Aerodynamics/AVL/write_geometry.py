@@ -38,8 +38,8 @@ def write_geometry(avl_object,run_script_path):
     """    
     
     # unpack inputs
-    aircraft            = avl_object.geometry
-    geometry_file       = avl_object.settings.filenames.features
+    aircraft                   = avl_object.geometry
+    geometry_file              = avl_object.settings.filenames.features
     number_spanwise_vortices   = avl_object.settings.number_spanwise_vortices
     number_chordwise_vortices  = avl_object.settings.number_chordwise_vortices
     # Open the geometry file after purging if it already exists

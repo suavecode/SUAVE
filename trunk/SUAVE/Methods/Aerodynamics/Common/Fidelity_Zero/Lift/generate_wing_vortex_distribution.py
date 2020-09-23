@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_vortex_distribution.py
+# generate_wing_vortex_distribution.py
 # 
 # Created:  May 2018, M. Clarke
 #           Apr 2020, M. Clarke
@@ -8,15 +8,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# package imports
-import SUAVE
+# package imports 
 import numpy as np
-from SUAVE.Core import Units , Data
+from SUAVE.Core import  Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_vortex_distribution(geometry,settings):
+def generate_wing_vortex_distribution(geometry,settings):
     ''' Compute the coordinates of panels, vortices , control points
     and geometry used to build the influence coefficient matrix.
     
@@ -112,8 +111,8 @@ def compute_vortex_distribution(geometry,settings):
     # STEP 2: Unpack aircraft wing geometry 
     # ---------------------------------------------------------------------------------------    
     n_w        = 0  # instantiate the number of wings counter  
-    n_cp       = 0 # instantiate number of bound vortices counter     
-    wing_areas = [] # instantiate wing areas 
+    n_cp       = 0  # instantiate number of bound vortices counter     
+    wing_areas = [] # instantiate wing areas  
     
     for wing in geometry.wings:
         # get geometry of wing  
@@ -121,16 +120,14 @@ def compute_vortex_distribution(geometry,settings):
         root_chord    = wing.chords.root
         tip_chord     = wing.chords.tip
         sweep_qc      = wing.sweeps.quarter_chord
-        sweep_le      = wing.sweeps.leading_edge
-        taper         = wing.taper
+        sweep_le      = wing.sweeps.leading_edge 
         twist_rc      = wing.twists.root
         twist_tc      = wing.twists.tip
         dihedral      = wing.dihedral
-        sym_para      = wing.symmetric
-        Sref          = wing.areas.reference
+        sym_para      = wing.symmetric 
         vertical_wing = wing.vertical
-        wing_origin   = wing.origin[0]
-
+        wing_origin   = wing.origin[0] 
+        
         # determine if vehicle has symmetry 
         if sym_para is True :
             span = span/2
@@ -138,7 +135,7 @@ def compute_vortex_distribution(geometry,settings):
         # discretize wing using cosine spacing
         n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
         thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
-        y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing 
+        y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing
         
         # create empty vectors for coordinates 
         xah   = np.zeros(n_cw*n_sw)
@@ -205,8 +202,7 @@ def compute_vortex_distribution(geometry,settings):
             # ---------------------------------------------------------------------------------------
             # STEP 5A: Obtain sweep, chord, dihedral and twist at the beginning/end of each segment.
             #          If applicable, append airfoil section VD and flap/aileron deflection angles.
-            # ---------------------------------------------------------------------------------------
-            segment_sweeps = []
+            # --------------------------------------------------------------------------------------- 
             for i_seg in range(n_segments):   
                 segment_chord[i_seg]    = wing.Segments[i_seg].root_chord_percent*root_chord
                 segment_twist[i_seg]    = wing.Segments[i_seg].twist
@@ -733,9 +729,10 @@ def compute_vortex_distribution(geometry,settings):
         y_sw = yc[locations]        
 
         # if symmetry, store points of mirrored wing 
-        n_w += 1
+        n_w += 1  
         if sym_para is True :
-            n_w += 1
+            n_w += 1 
+            # append wing spans          
             if vertical_wing:
                 cs_w = np.concatenate([cs_w,cs_w])
                 xah = np.concatenate([xah,xah])
@@ -1053,7 +1050,7 @@ def compute_vortex_distribution(geometry,settings):
     VD.n_sw       = n_sw
     VD.n_cw       = n_cw    
     VD.n_cp       = n_cp    
-    VD.wing_areas = wing_areas     
+    VD.wing_areas = np.array(wing_areas)   
     VD.Stot       = sum(wing_areas)
 
     geometry.vortex_distribution = VD

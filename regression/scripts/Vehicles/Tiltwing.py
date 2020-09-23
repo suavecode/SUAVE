@@ -1,6 +1,7 @@
 # Tiltwing.py
 # 
 # Created: May 2019, M Clarke
+#          Sep 2020, M. Clarke 
 
 #----------------------------------------------------------------------
 #   Imports
@@ -10,7 +11,7 @@ from SUAVE.Core import Units, Data
 import copy
 from SUAVE.Components.Energy.Networks.Vectored_Thrust import Vectored_Thrust
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , compute_optimal_motor_parameters
+from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Propulsion import propeller_design 
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff 
 from SUAVE.Methods.Weights.Buildups.Electric_Vectored_Thrust.empty import empty
@@ -313,7 +314,7 @@ def vehicle_setup():
     rot.disc_area                = np.pi*(rot.tip_radius**2)   
     rot.design_tip_mach          = 0.5
     rot.number_blades            = 3  
-    rot.freestream_velocity      = 85. * Units['ft/min'] # 110 mph         
+    rot.freestream_velocity      = 10 # 110 mph         
     rot.angular_velocity         = rot.design_tip_mach*speed_of_sound/rot.tip_radius      
     rot.design_Cl                = 0.7
     rot.design_altitude          = 500 * Units.feet                  
@@ -389,7 +390,7 @@ def vehicle_setup():
     motor.nominal_voltage      = bat.max_voltage *3/4  
     motor.propeller_radius     = rot.tip_radius 
     motor.no_load_current      = 2.0 
-    motor                      = compute_optimal_motor_parameters(motor,rot) 
+    motor                      = size_optimal_motor(motor,rot) 
     net.motor                  = motor 
     
     vehicle.append_component(net) 
@@ -448,8 +449,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Hover Configuration
     # ------------------------------------------------------------------
-    config                                      = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                  = 'hover'
+    config                                            = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                        = 'hover'
     config.propulsors.vectored_thrust.thrust_angle    = 90.0 * Units.degrees
     config.propulsors.vectored_thrust.pitch_command   = 0.  * Units.degrees    
     configs.append(config)
@@ -457,8 +458,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Hover Climb Configuration
     # ------------------------------------------------------------------
-    config                                      = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                  = 'hover_climb'
+    config                                            = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                        = 'hover_climb'
     config.propulsors.vectored_thrust.thrust_angle    = 90.0 * Units.degrees
     config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees    
     configs.append(config)
@@ -466,8 +467,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     #   Cruise Configuration
     # ------------------------------------------------------------------
-    config                                      = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                  = 'cruise'
+    config                                            = SUAVE.Components.Configs.Config(base_config)
+    config.tag                                        = 'cruise'
     config.propulsors.vectored_thrust.thrust_angle    =  0. * Units.degrees
     config.propulsors.vectored_thrust.pitch_command   = 10.  * Units.degrees  
     configs.append(config)  

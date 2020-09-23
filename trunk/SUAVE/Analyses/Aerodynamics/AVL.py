@@ -65,8 +65,8 @@ class AVL(Markup):
         settings.spoiler_drag_increment             = 0.00 
         
         # ------
-        settings.number_spanwise_vortices                  = None
-        settings.number_chordwise_vortices                 = None        
+        settings.number_spanwise_vortices           = None
+        settings.number_chordwise_vortices          = None        
         
         settings.maximum_lift_coefficient           = np.inf 
         
