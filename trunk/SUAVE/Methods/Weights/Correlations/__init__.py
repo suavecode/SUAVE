@@ -3,7 +3,7 @@
 # @ingroup Methods-Weights
 
 from . import Propulsion
-from . import Tube_Wing
+from . import Transport
 from . import BWB
 from . import Human_Powered
 from . import UAV

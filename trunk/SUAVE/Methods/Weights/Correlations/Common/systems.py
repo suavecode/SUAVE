@@ -9,8 +9,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
+import SUAVE
 from SUAVE.Core import Units, Data
-import SUAVE.Components.Wings as Wings
 
 # ----------------------------------------------------------------------
 #   Systems
@@ -51,6 +51,9 @@ def systems(vehicle):
     Properties Used:
         N/A
     """
+    
+    Wings = SUAVE.Components.Wings
+    
     num_seats   = vehicle.passengers
     ctrl_type   = vehicle.systems.control
     ac_type     = vehicle.systems.accessories

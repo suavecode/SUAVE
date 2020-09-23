@@ -21,11 +21,11 @@ from SUAVE.Methods.Weights.Correlations.FLOPS.fuselage import fuselage_weight_FL
 from SUAVE.Methods.Weights.Correlations.FLOPS.landing_gear import landing_gear_FLOPS
 from SUAVE.Methods.Weights.Correlations.FLOPS.payload import payload_FLOPS
 
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.systems import systems
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_horizontal import tail_horizontal
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.tail_vertical import tail_vertical
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.operating_items import operating_system
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.tube import tube
+from SUAVE.Methods.Weights.Correlations.Common.systems import systems
+from SUAVE.Methods.Weights.Correlations.Transport.tail_horizontal import tail_horizontal
+from SUAVE.Methods.Weights.Correlations.Transport.tail_vertical import tail_vertical
+from SUAVE.Methods.Weights.Correlations.Transport.operating_items import operating_system
+from SUAVE.Methods.Weights.Correlations.Transport.tube import tube
 from SUAVE.Methods.Weights.Correlations.Common import wing_main
 from SUAVE.Methods.Weights.Correlations.Common import wing_main_exact
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear_weight
@@ -236,7 +236,7 @@ def empty_weight(vehicle, settings=None, method_type='SUAVE'):
                 wt_wing = wing_main_exact(vehicle, wing)
             elif method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
                 complexity = method_type.split()[1]
-                wt_wing = wing_weight_FLOPS(vehicle, WPOD, complexity)
+                wt_wing = wing_weight_FLOPS(vehicle, wing, WPOD, complexity)
             elif method_type == 'Raymer':
                 wt_wing = wing_main_raymer(vehicle, wing)
             else:
@@ -371,8 +371,12 @@ def empty_weight(vehicle, settings=None, method_type='SUAVE'):
         vehicle.landing_gear.mass_properties.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
     except AttributeError:  # landing gear not defined
         landing_gear_component  = SUAVE.Components.Landing_Gear.Landing_Gear()
-        vehicle.landing_gear    = landing_gear_component
-        vehicle.landing_gear.mass_properties.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
+        vehicle.landing_gear.total    = landing_gear_component
+        vehicle.landing_gear.total.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
+    vehicle.landing_gear.nose_landing_gear       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
+    vehicle.landing_gear.nose_landing_gear.mass  = output.structures.nose_landing_gear
+    vehicle.landing_gear.main_landing_gear       = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()   
+    vehicle.landing_gear.main_landing_gear.mass  = output.structures.main_landing_gear  
 
     control_systems.mass_properties.mass        = output.systems_breakdown.control_systems
     electrical_systems.mass_properties.mass     = output.systems_breakdown.electrical
@@ -387,15 +391,15 @@ def empty_weight(vehicle, settings=None, method_type='SUAVE'):
     optionals.mass_properties.mass              = output.operational_items.operating_items
 
     # assign components to vehicle
-    vehicle.control_systems         = control_systems
-    vehicle.electrical_systems      = electrical_systems
-    vehicle.avionics                = avionics
-    vehicle.furnishings             = furnishings
-    vehicle.passenger_weights       = passengers
-    vehicle.air_conditioner         = air_conditioner
-    vehicle.fuel                    = fuel
-    vehicle.apu                     = apu
-    vehicle.hydraulics              = hydraulics
-    vehicle.optionals               = optionals
+    vehicle.systems.control_systems         = control_systems
+    vehicle.systems.electrical_systems      = electrical_systems
+    vehicle.systems.avionics                = avionics
+    vehicle.systems.furnishings             = furnishings
+    vehicle.systems.passenger_weights       = passengers
+    vehicle.systems.air_conditioner         = air_conditioner
+    vehicle.systems.fuel                    = fuel
+    vehicle.systems.apu                     = apu
+    vehicle.systems.hydraulics              = hydraulics
+    vehicle.systems.optionals               = optionals   
 
     return output

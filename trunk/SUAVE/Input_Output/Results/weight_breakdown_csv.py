@@ -1,4 +1,3 @@
-import pandas as pd
 import os.path
 import datetime
 import numpy as np

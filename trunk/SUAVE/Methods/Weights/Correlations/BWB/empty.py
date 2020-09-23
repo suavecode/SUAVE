@@ -17,7 +17,7 @@ from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear_weight
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload_weight
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
-from SUAVE.Methods.Weights.Correlations.Tube_Wing.operating_items import operating_system
+from SUAVE.Methods.Weights.Correlations.Transport.operating_items import operating_system
 
 import warnings
 

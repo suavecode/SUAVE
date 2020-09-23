@@ -42,7 +42,7 @@ def tail_vertical_Raymer(vehicle, wing):
     if wing.t_tail:
         H = 1
     DG = vehicle.mass_properties.max_takeoff / Units.lbs
-    Lt = (wing.origin[0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] -
+    Lt = (wing.origin[0][0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0][0] -
           vehicle.wings['main_wing'].aerodynamic_center[0]) / Units.ft
     Svt = wing.areas.reference / Units.ft ** 2
     Kz = Lt
@@ -91,7 +91,7 @@ def tail_horizontal_Raymer(vehicle, wing, elevator_fraction=0.4):
     Bh      = wing.spans.projected / Units.ft
     DG      = vehicle.mass_properties.max_takeoff / Units.lbs
     Sht     = wing.areas.reference / Units.ft ** 2
-    Lt      = (wing.origin[0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] -
+    Lt      = (wing.origin[0][0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0][0] -
                 vehicle.wings['main_wing'].aerodynamic_center[0]) / Units.ft
     Ky      = 0.3 * Lt
     sweep   = wing.sweeps.quarter_chord
