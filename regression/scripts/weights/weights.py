@@ -33,18 +33,18 @@ def main():
 
     # regression values SUAVE
     actual = Data()
-    actual.payload         = 27349.9081525      # includes cargo #17349.9081525 #without cargo
+    actual.payload         = 27349.9081525      
     actual.pax             = 15036.587065500002
     actual.bag             = 2313.3210870000003
-    actual.fuel            = 8964.067406365866  # includes cargo #22177.6377131 #without cargo
-    actual.empty           = 39739.86626503414
+    actual.fuel            = 9868.04635647776
+    actual.empty           = 38835.88731492225
     actual.wing            = 8688.245864290779
     actual.fuselage        = 6612.201567847215
     actual.propulsion      = 6838.185174956626
     actual.landing_gear    = 3160.632
-    actual.systems         = 11478.036709368022
+    actual.systems         = 11320.005109368021
     actual.wt_furnish      = 6431.803728889001
-    actual.horizontal_tail = 1886.1811683764736
+    actual.horizontal_tail = 1140.2338182645788
     actual.vertical_tail   = 1076.3837801950292
 
     # error calculations

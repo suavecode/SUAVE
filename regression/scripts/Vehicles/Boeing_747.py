@@ -170,7 +170,7 @@ def vehicle_setup():
     fuselage.areas.wetted = 688.64 * Units.feet**2
     fuselage.differential_pressure = 5.0e4 * Units.pascal
     vehicle.append_component(fuselage)
-    vehicle.mass_properties.center_of_gravity=np.array([112.2,0,0]) * Units.feet
+    vehicle.mass_properties.center_of_gravity=np.array([[112.2,0,0]]) * Units.feet
 
     # ------------------------------------------------------------------
     #   Turbofan Network
