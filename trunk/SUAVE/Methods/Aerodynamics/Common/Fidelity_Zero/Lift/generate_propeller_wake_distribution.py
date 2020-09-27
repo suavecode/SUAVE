@@ -14,7 +14,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contracti
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift  
 
-def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time): 
+def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_offset, time): 
     """ This generates the propeller wake control points used to compute the 
     influence of the week
 
@@ -54,8 +54,7 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time):
     num_prop     = len(prop.origin) 
     
     t0           = dt*init_timestep_offset
-    start_angle  = omega[0]*t0
-    blade_angles = blade_angles  
+    start_angle  = omega[0]*t0  
     
     # define points ( control point, time step , blade number , location on blade )
     # compute lambda and mu 
@@ -121,20 +120,20 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time):
      
     for i in range(num_prop): 
         Gamma  = np.zeros((m,nts-1,B,n))   
-        num = int(Na/B)  
+        num    = int(Na/B)  
         for t_idx in range(nts-1): 
             for B_idx in range(B): 
                 B_loc = (B_idx*num + t_idx)%Na  
                 Gamma[:,t_idx,B_idx,:] = gamma_new[:,B_loc,:]  
         
         #( control point, time step , blade number , location on blade )
-        sx_inf0      = np.multiply(V_prop*np.cos(wake_skew_angle), np.atleast_2d(ts))
+        sx_inf0      = np.multiply(V_prop*np.cos(-(wake_skew_angle + thrust_angle)), np.atleast_2d(ts))
         sx_inf       = np.repeat(np.repeat(sx_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)  
                      
         sy_inf0      = np.multiply(np.atleast_2d(V_inf[:,1]).T,np.atleast_2d(ts)) # = zero since no crosswind
         sy_inf       = np.repeat(np.repeat(sy_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)   
                      
-        sz_inf0      = np.multiply(V_prop*np.sin(wake_skew_angle),np.atleast_2d(ts))
+        sz_inf0      = np.multiply(V_prop*np.sin(-(wake_skew_angle + thrust_angle)),np.atleast_2d(ts))
         sz_inf       = np.repeat(np.repeat(sz_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)           
         
         angle_offset       = np.repeat(np.repeat(np.multiply(omega,np.atleast_2d(ts))[:, :,  np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 

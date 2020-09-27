@@ -188,7 +188,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     CDi_wing[machw>1] = CDi_wing[machw>1]*2   # supersonic drag off by a factor of 2 
     
     # Calculate each spanwise set of Cls and Cds
-    cl_y        = (2*np.sum(gamma_n_w_sw,axis=2).T)/CS
+    cl_y        = (2*np.sum(gamma_n_w_sw*Del_Y_n_w_sw,axis=2).T)/CS
     cdi_y       = np.sum(np.multiply(-w_ind_n_w_sw,(gamma_n_w_sw*Del_Y_n_w_sw)),axis=2).T/CS 
             
     # total lift and lift coefficient

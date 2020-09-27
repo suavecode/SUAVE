@@ -66,34 +66,10 @@ def vehicle_setup():
     wing.areas.exposed            = 12.635  
     wing.twists.root              = 0.  
     wing.twists.tip               = 0.  
-    wing.origin                   = [[0.0,  0.0 , 0.0]]
+    wing.origin                   = [[0.1,  0.0 , 0.0]]
     wing.aerodynamic_center       = [0., 0., 0.]     
     wing.winglet_fraction         = 0.0  
-    wing.symmetric                = True
-                                                
-    # Segment                                  
-    segment                       = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'Section_1'  
-    segment.origin                = [0., 0. , 0.] 
-    segment.percent_span_location = 0.  
-    segment.twist                 = 0.  
-    segment.root_chord_percent    = 1.  
-    segment.dihedral_outboard     = 0. 
-    segment.sweeps.quarter_chord  = 0. 
-    segment.thickness_to_chord    = 0.18  
-    wing.Segments.append(segment)   
-                                                
-    # Segment                                  
-    segment                       = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'Section_2'  
-    segment.origin                = [0. , 0.,  0.]  
-    segment.percent_span_location = 1. 
-    segment.twist                 = 0.  
-    segment.root_chord_percent    = 1. 
-    segment.dihedral_outboard     = 0.
-    segment.sweeps.quarter_chord  = 0. 
-    segment.thickness_to_chord    = 0.18   
-    wing.Segments.append(segment)               
+    wing.symmetric                = True        
                                                 
     # add to vehicle                            
     vehicle.append_component(wing)              
@@ -118,31 +94,7 @@ def vehicle_setup():
     wing.origin                   = [[ 5.138, 0.0 ,1.24 ]]
     wing.aerodynamic_center       = [0., 0., 0.]     
     wing.winglet_fraction         = 0.0  
-    wing.symmetric                = True
-                                         
-    # Segment                           
-    segment                       = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'Section_1'  
-    segment.origin                = [0., 0. , 0.] 
-    segment.percent_span_location = 0.  
-    segment.twist                 = 0.  
-    segment.root_chord_percent    = 1.  
-    segment.dihedral_outboard     = 0. 
-    segment.sweeps.quarter_chord  = 0. 
-    segment.thickness_to_chord    = 0.18  
-    wing.Segments.append(segment)    
-                                                
-    # Segment                                  
-    segment                       = SUAVE.Components.Wings.Segment()
-    segment.tag                   = 'Section_2'  
-    segment.origin                = [0. , 0.,  0.]  
-    segment.percent_span_location = 1. 
-    segment.twist                 = 0.  
-    segment.root_chord_percent    = 1. 
-    segment.dihedral_outboard     = 0.
-    segment.sweeps.quarter_chord  = 0. 
-    segment.thickness_to_chord    = 0.18   
-    wing.Segments.append(segment) 
+    wing.symmetric                = True 
     
     # add to vehicle 
     vehicle.append_component(wing)   
@@ -177,8 +129,8 @@ def vehicle_setup():
     segment.origin                              = [0., 0. ,0.]  
     segment.percent_x_location                  = 0.  
     segment.percent_z_location                  = 0.  
-    segment.height                              = 0.  
-    segment.width                               = 0.  
+    segment.height                              = 0.09  
+    segment.width                               = 0.23473  
     segment.length                              = 0.  
     segment.effective_diameter                  = 0. 
     fuselage.Segments.append(segment)             
@@ -186,62 +138,51 @@ def vehicle_setup():
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
     segment.tag                                 = 'segment_2'  
-    segment.origin                              = [0., 0. ,0.]  
-    segment.percent_x_location                  = 0.275 
-    segment.percent_z_location                  = -0.009  
-    segment.height                              = 0.309*2  
-    segment.width                               = 0.28*2
+    segment.origin                              = [0.97675, 0. ,0.21977]  
+    segment.percent_x_location                  = 0.97675/6.1 
+    segment.percent_z_location                  = 0.21977/1.19622 
+    segment.height                              = 0.9027  
+    segment.width                               = 1.01709  
     fuselage.Segments.append(segment)             
                                                 
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
     segment.tag                                 ='segment_3'  
-    segment.origin                              = [0., 0. ,0.]  
-    segment.percent_x_location                  = 0.768 
-    segment.percent_z_location                  = 0.046  
-    segment.height                              = 0.525*2 
-    segment.width                               = 0.445*2
+    segment.origin                              = [ 1.85281, 0. , 0.41960]  
+    segment.percent_x_location                  = 1.85281/6.1 
+    segment.percent_z_location                  = 0.41960/1.19622
+    segment.height                              = 1.27667  
+    segment.width                               = 0.41960 
     fuselage.Segments.append(segment)             
                                                 
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
     segment.tag                                 = 'segment_4'  
-    segment.origin                              = [0., 0. ,0.]  
-    segment.percent_x_location                  = 0.25*6.2 
-    segment.percent_z_location                  = 0.209  
-    segment.height                              = 0.7*2  
-    segment.width                               = 0.55*2
+    segment.origin                              = [ 3.44137, 0. , 0.57143]  
+    segment.percent_x_location                  = 3.44137/6.1 
+    segment.percent_z_location                  = 0.57143/1.19622
+    segment.height                              = 1.52588 
+    segment.width                               = 1.47074 
     fuselage.Segments.append(segment)             
                                                 
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
     segment.tag                                 = 'segment_5'  
-    segment.origin                              = [0., 0. ,0.]  
-    segment.percent_x_location                  = 0.5*6.2  
-    segment.percent_z_location                  = 0.407   
-    segment.height                              = 0.850*2   
-    segment.width                               = 0.61*2 
-    segment.effective_diameter                  = 0.  
+    segment.origin                              = [ 4.61031, 0. , 0.81577]  
+    segment.percent_x_location                  = 4.61031/6.1
+    segment.percent_z_location                  = 0.81577/1.19622 
+    segment.height                              = 1.14788 
+    segment.width                               = 1.11463  
     fuselage.Segments.append(segment)              
                                                 
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
     segment.tag                                 = 'segment_6'  
-    segment.origin                              = [0., 0. ,0.]  
-    segment.percent_x_location                  = 0.75  
-    segment.percent_z_location                  = 0.771  
-    segment.height                              = 0.63*2 
-    segment.width                               = 0.442*2 
-    fuselage.Segments.append(segment)             
-                                                
-    # Segment                                   
-    segment                                     = SUAVE.Components.Fuselages.Segment()
-    segment.tag                                 = 'segment_7'  
-    segment.origin                              = [0., 0. ,0.]  
-    segment.percent_x_location                  = 1.*6.2  
-    segment.percent_z_location                  = 1.192   
-    segment.height                              = 0.165*2  
-    segment.width                               = 0.125*2 
+    segment.origin                              = [ 6.1, 0. ,1.19622]  
+    segment.percent_x_location                  = 1. 
+    segment.percent_z_location                  = 1.  
+    segment.height                              = 0.31818 
+    segment.width                               = 0.23443  
     fuselage.Segments.append(segment)             
     
     # add to vehicle
