@@ -576,6 +576,10 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
     N/A
     """     
     
+    fuse_x = fuselage.origin[0][0]    
+    fuse_y = fuselage.origin[0][1]
+    fuse_z = fuselage.origin[0][2]    
+    
     num_segs = len(fuselage.Segments)
     length   = fuselage.lengths.total
     
@@ -635,6 +639,11 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
 
         # for wave drag testing
         fuselage.OpenVSP_ID = fuse_id
+        
+        # Origin
+        vsp.SetParmVal( fuse_id,'X_Rel_Location','XForm',fuse_x)
+        vsp.SetParmVal( fuse_id,'Y_Rel_Location','XForm',fuse_y)
+        vsp.SetParmVal( fuse_id,'Z_Rel_Location','XForm',fuse_z)        
         
         # Nose
         vsp.SetParmVal(fuse_id,"TopLAngle","XSec_0",vals.nose.top.angle)
