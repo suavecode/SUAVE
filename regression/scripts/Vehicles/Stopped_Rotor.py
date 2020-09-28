@@ -1,6 +1,7 @@
 # Stopped_Rotor_CRM.py
 # 
 # Created: May 2019, M Clarke
+#          Sep 2020, M. Clarke 
 
 #----------------------------------------------------------------------
 #   Imports
@@ -10,7 +11,7 @@ from SUAVE.Core import Units, Data
 import copy
 from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
 from SUAVE.Methods.Power.Battery.Sizing                        import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , compute_optimal_motor_parameters
+from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Propulsion                                  import propeller_design   
 from SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty import empty
 
@@ -407,20 +408,20 @@ def vehicle_setup():
     propeller.freestream_velocity = V_inf
     propeller.tip_radius          = 1.0668
     propeller.hub_radius          = 0.21336 
-    propeller.design_tip_mach     = 0.65
+    propeller.design_tip_mach     = 0.5  
     propeller.angular_velocity    = propeller.design_tip_mach *speed_of_sound  /propeller.tip_radius   
     propeller.design_Cl           = 0.7
-    propeller.design_altitude     = 1. * Units.km  
-    propeller.design_thrust       = (Drag*2.5)/net.number_of_engines_forward
+    propeller.design_altitude     = 1000 * Units.feet   
+    propeller.design_thrust       = (Drag*2.5)/net.number_of_engines_forward 
     propeller                     = propeller_design(propeller)   
     propeller.origin              = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
     net.propeller                 = propeller
-
+ 
     # Lift Rotors                               
     rotor                         = SUAVE.Components.Energy.Converters.Rotor() 
     rotor.tip_radius              = 2.8 * Units.feet
     rotor.hub_radius              = 0.35 * Units.feet      
-    rotor.number_blades           = 2   
+    rotor.number_blades           = 2
     rotor.design_tip_mach         = 0.65
     rotor.number_of_engines       = net.number_of_engines_lift
     rotor.disc_area               = np.pi*(rotor.tip_radius**2)        
@@ -429,13 +430,13 @@ def vehicle_setup():
     rotor.angular_velocity        = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
     rotor.design_Cl               = 0.7
     rotor.design_altitude         = 20 * Units.feet                            
-    rotor.design_thrust           = (Hover_Load * 2.5 )/net.number_of_engines_lift 
+    rotor.design_thrust           = (Hover_Load* 2.5)/net.number_of_engines_lift  
     rotor.x_pitch_count           = 2 
     rotor.y_pitch_count           = vehicle.fuselages['boom_1r'].y_pitch_count
     rotor.y_pitch                 = vehicle.fuselages['boom_1r'].y_pitch 
     rotor                         = propeller_design(rotor)          
     rotor.origin                  = vehicle.fuselages['boom_1r'].origin
-    rotor.symmetric               = True
+    rotor.symmetric               = True 
 
     # populating propellers on one side of wing
     if rotor.y_pitch_count > 1 :
@@ -472,28 +473,25 @@ def vehicle_setup():
     # Propeller (Thrust) motor
     motor_forward                      = SUAVE.Components.Energy.Converters.Motor()
     motor_forward.efficiency           = 0.95
-    motor_forward.nominal_voltage      = bat.max_voltage *3/4 
+    motor_forward.nominal_voltage      = bat.max_voltage 
     motor_forward.mass_properties.mass = 2.0  * Units.kg
     motor_forward.origin               = propeller.origin  
-    motor_forward.propeller_radius     = propeller.tip_radius    
-    motor_forward.gear_ratio           = 1. 
-    motor_forward.gearbox_efficiency   = 1. # Gear box efficiency    
-    motor_forward.no_load_current      = 2.0 
-    motor_forward                      = compute_optimal_motor_parameters(motor_forward,propeller)
+    motor_forward.propeller_radius     = propeller.tip_radius      
+    motor_forward.no_load_current      = 2.0  
+    motor_forward                      = size_optimal_motor(motor_forward,propeller)
     net.motor_forward                  = motor_forward
 
     # Rotor (Lift) Motor                        
-    motor_lift                      = SUAVE.Components.Energy.Converters.Motor()
-    motor_lift.efficiency           = 0.95  
-    motor_lift.nominal_voltage      = bat.max_voltage 
-    motor_lift.mass_properties.mass = 3. * Units.kg 
-    motor_lift.origin               = rotor.origin  
-    motor_lift.propeller_radius     = rotor.tip_radius  
-    motor_lift.gear_ratio           = 1.0
-    motor_lift.gearbox_efficiency   = 1.0 
-    motor_lift.no_load_current      = 4.0     
-    motor_lift                      = compute_optimal_motor_parameters(motor_lift,rotor)
-    net.motor_lift                  = motor_lift  
+    motor_lift                         = SUAVE.Components.Energy.Converters.Motor()
+    motor_lift.efficiency              = 0.95  
+    motor_lift.nominal_voltage         = bat.max_voltage 
+    motor_lift.mass_properties.mass    = 3. * Units.kg 
+    motor_lift.origin                  = rotor.origin  
+    motor_lift.propeller_radius        = rotor.tip_radius   
+    motor_lift.gearbox_efficiency      = 1.0 
+    motor_lift.no_load_current         = 4.0   
+    motor_lift                         = size_optimal_motor(motor_lift,rotor)
+    net.motor_lift                     = motor_lift  
 
     # append motor origin spanwise locations onto wing data structure 
     vehicle.append_component(net)

@@ -1,6 +1,7 @@
 # Boeing_737.py
 #
 # Created: Feb 2020, M. Clarke
+#          Sep 2020, M. Clarke 
 
 """ setup file for the X57-Maxwell Electric Aircraft 
 """
@@ -222,7 +223,8 @@ def vehicle_setup():
     prop.design_altitude     = 12000. * Units.feet
     prop.design_altitude     = 12000. * Units.feet
     prop.design_thrust       = 1200.  
-    prop.origin              = [[2.,2.5,0.784],[2.,-2.5,0.784]]                 
+    prop.origin              = [[2.,2.5,0.784],[2.,-2.5,0.784]]         
+    prop.rotation            = [-1,1] 
     prop.symmetry            = True
     prop                     = propeller_design(prop)    
     net.propeller            = prop    
