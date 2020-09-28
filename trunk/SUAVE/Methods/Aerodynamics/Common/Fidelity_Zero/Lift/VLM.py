@@ -12,15 +12,15 @@
 # package imports 
 import numpy as np 
 from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import compute_induced_velocity_matrix
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution     import generate_wing_vortex_distribution
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix              import compute_RHS_matrix 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
 
 # ----------------------------------------------------------------------
 #  Vortex Lattice
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
 def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_development_time = 0.05 ):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
@@ -120,7 +120,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     geometry.vortex_distribution = VD
     
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn  = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa,mach)
+    C_mn, DW_mn  = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach)
     MCM = VD.MCM 
     
     # Compute flow tangency conditions   

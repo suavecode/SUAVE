@@ -4,8 +4,7 @@
 # Modified: Jul 2020, M.Clarke
 #           Sep 2020, M. Clarke 
 
-from SUAVE.Core import Data 
-from math import sqrt, sin, cos, atan
+from SUAVE.Core import Data  
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
@@ -56,19 +55,19 @@ def compute_naca_4series(camber,camber_loc,thickness,npoints=100):
     
     for i in range(1,half_pnts):
         x = float(i) / float(half_pnts);
-        x = x*sqrt(x)
+        x = x*np.sqrt(x)
         
         # lines
         zt,zc,th = compute_naca_4series_lines(x,camber,camber_loc,thickness)
         
         # upper surface
-        xu = x  - zt*sin(th)
-        zu = zc + zt*cos(th)
+        xu = x  - zt*np.sin(th)
+        zu = zc + zt*np.cos(th)
         upper.append([xu,zu])
         
         # lower surface
-        xl = x  + zt*sin(th)
-        zl = zc - zt*cos(th)
+        xl = x  + zt*np.sin(th)
+        zl = zc - zt*np.cos(th)
         lower.append([xl,zl])
     
     upper = [[0.0,0.0]] + upper + [[1.0,0.0]]
@@ -128,7 +127,7 @@ def compute_naca_4series_lines(x,camber,camber_loc,thickness):
     xx = x*x
 
     # thickness
-    zt = thickness/0.2 * (  0.2969*sqrt(x) 
+    zt = thickness/0.2 * (  0.2969*np.sqrt(x) 
                           - 0.1260*(x)
                           - 0.3516*(xx) 
                           + 0.2843*(x*xx) 
@@ -159,6 +158,6 @@ def compute_naca_4series_lines(x,camber,camber_loc,thickness):
             zo = (camber/((1.0 - camber_loc)*(1.0 - camber_loc))) * \
                  (1.0 - 2.0*camber_loc + 2.0*camber_loc*xo - xoxo)
             
-        th = atan( (zo - zc)/0.00001 )
+        th = np.arctan( (zo - zc)/0.00001 )
         
     return zt,zc,th

@@ -348,8 +348,8 @@ class Propeller(Energy_Component):
         D        = 2*R 
         Cq       = torque/(rho*(n*n)*(D*D*D*D*D)) 
         Ct       = thrust/(rho*(n*n)*(D*D*D*D))
-        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))  # correct 
-        etap     = V*thrust/power # efficiency    
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
+        etap     = V*thrust/power 
 
         # prevent things from breaking 
         Cq[Cq<0]                                           = 0.  
