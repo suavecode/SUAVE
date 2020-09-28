@@ -107,7 +107,7 @@ def segment_properties(settings,wing):
             total_wetted_area    = total_wetted_area + Swet_seg
             total_reference_area = total_reference_area + Sref_seg
             
-    wing.areas.wetted    = total_wetted_area
-    wing.areas.reference = total_reference_area
+    #wing.areas.wetted    = total_wetted_area
+    #wing.areas.reference = total_reference_area
         
     return
