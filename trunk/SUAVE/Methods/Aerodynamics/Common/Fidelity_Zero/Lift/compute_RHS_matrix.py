@@ -13,7 +13,7 @@ import numpy as np
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
 def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_model,initial_timestep_offset,wake_development_time):     
     """ This computes the right hand side matrix for the VLM. In this
     function, induced velocites from propeller wake are also included 

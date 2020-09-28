@@ -9,8 +9,8 @@
 
 # package imports
 import numpy as np 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
 def compute_wake_contraction_matrix(i,prop,N,m,nts,X_pts):
     """ This computes slipstream development factor for all points 
     along slipstream
