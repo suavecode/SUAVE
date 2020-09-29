@@ -404,7 +404,7 @@ def empty(vehicle):
     vehicle.electrical_systems                          = electrical_systems
     vehicle.avionics                                    = avionics
     vehicle.furnishings                                 = furnishings
-    vehicle.passenger_weights                           = passengers
+    vehicle.passengers                                  = passengers
     vehicle.fuel                                        = fuel
     vehicle.hydraulics                                  = hydraulics
     if has_air_conditioner:

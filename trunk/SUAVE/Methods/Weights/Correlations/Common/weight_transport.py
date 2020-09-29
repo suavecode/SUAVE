@@ -393,7 +393,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     vehicle.systems.electrical_systems      = electrical_systems
     vehicle.systems.avionics                = avionics
     vehicle.systems.furnishings             = furnishings
-    vehicle.systems.passenger_weights       = passengers
+    vehicle.systems.passengers              = passengers
     vehicle.systems.air_conditioner         = air_conditioner
     vehicle.systems.fuel                    = fuel
     vehicle.systems.apu                     = apu

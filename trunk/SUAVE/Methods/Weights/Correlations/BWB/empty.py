@@ -225,7 +225,7 @@ def empty(vehicle):
     vehicle.electrical_systems      = electrical_systems
     vehicle.avionics                = avionics
     vehicle.furnishings             = furnishings
-    vehicle.passenger_weights       = passengers
+    vehicle.passengers              = passengers
     vehicle.air_conditioner         = air_conditioner
     vehicle.fuel                    = fuel
     vehicle.apu                     = apu

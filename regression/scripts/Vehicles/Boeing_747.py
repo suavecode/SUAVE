@@ -1,7 +1,7 @@
 # Boeing_747.py
 #
 # Created:  Feb 2017, M. Vegh (taken from data originally in cmalpha/cmalpha.py and cnbeta/cnbeta.py)
-# Modified:
+# Modified: May 2020, W. Van Gijseghem 
 
 """ setup file for the Boeing 747 vehicle
 note that it does not include an engine; current values only used to test stability cmalpha and cnbeta
@@ -185,7 +185,6 @@ def vehicle_setup():
     turbofan.bypass_ratio       = 4.8
     turbofan.engine_length      = 3.934
     turbofan.nacelle_diameter   = 2.428
-    # This origin is overwritten by compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
     turbofan.origin = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]
 
     # compute engine areas
@@ -344,7 +343,8 @@ def vehicle_setup():
     thrust.tag = 'compute_thrust'
 
     # total design thrust (includes all the engines)
-    thrust.total_design = 4 * 0.25 * 243000. * Units.N  # Newtons
+    # picked lower range of 747-400 at https://en.wikipedia.org/wiki/Boeing_747
+    thrust.total_design = 276000. * Units.N  # Newtons
 
     # design sizing conditions
     altitude = 35000.0 * Units.ft
@@ -356,35 +356,11 @@ def vehicle_setup():
     # add to network
     turbofan.thrust = thrust
 
-    turbofan.core_nozzle_diameter   = 0.92
-    turbofan.fan_nozzle_diameter    = 1.659
-    turbofan.engine_height          = 0.5  # Engine centerline heigh above the ground plane
-    turbofan.exa                    = 1  # distance from fan face to fan exit/ fan diameter)
-    turbofan.plug_diameter          = 0.1  # dimater of the engine plug
-    turbofan.geometry_xe            = 1.  # Geometry information for the installation effects function
-    turbofan.geometry_ye            = 1.  # Geometry information for the installation effects function
-    turbofan.geometry_Ce            = 2.  # Geometry information for the installation effects function
-
     # size the turbofan
     turbofan_sizing(turbofan, mach_number, altitude)
 
     # add  gas turbine network turbofan to the vehicle
     vehicle.append_component(turbofan)
-
-    # ------------------------------------------------------------------
-    #  Landing Gear
-    # ------------------------------------------------------------------
-    landing_gear                        = SUAVE.Components.Landing_Gear.Landing_Gear()
-    landing_gear.tag                    = "main_landing_gear"
-    landing_gear.main_tire_diameter     = 1.2446 * Units.m
-    landing_gear.nose_tire_diameter     = 1.2446 * Units.m
-    landing_gear.main_strut_length      = 1.8 * Units.m
-    landing_gear.nose_strut_length      = 1.3 * Units.m
-    landing_gear.main_units             = 2  # number of nose landing gear
-    landing_gear.nose_units             = 1  # number of nose landing gear
-    landing_gear.main_wheels            = 6  # number of wheels on the main landing gear
-    landing_gear.nose_wheels            = 4  # number of wheels on the nose landing gear
-    vehicle.landing_gear                = landing_gear
 
     #configuration.mass_properties.zero_fuel_center_of_gravity=np.array([76.5,0,0])*Units.feet #just put a number here that got the expected value output; may want to change
     fuel                                                     =SUAVE.Components.Physical_Component()
