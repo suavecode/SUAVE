@@ -825,18 +825,18 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
     fig.set_size_inches(16, 8)
     for i in range(len(results.segments)):          
         time         = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        prop_rpm     = results.segments[i].conditions.propulsion.rpm_forward[:,0] 
+        prop_rpm     = results.segments[i].conditions.propulsion.propeller_rpm[:,0] 
         prop_thrust  = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
-        prop_torque  = results.segments[i].conditions.propulsion.motor_torque_forward
-        prop_effp    = results.segments[i].conditions.propulsion.propeller_efficiency_forward[:,0]
-        prop_effm    = results.segments[i].conditions.propulsion.motor_efficiency_forward[:,0]
+        prop_torque  = results.segments[i].conditions.propulsion.propeller_motor_torque
+        prop_effp    = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
+        prop_effm    = results.segments[i].conditions.propulsion.propeller_motor_efficiency[:,0]
         prop_Cp      = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
-        rotor_rpm    = results.segments[i].conditions.propulsion.rpm_lift[:,0] 
+        rotor_rpm    = results.segments[i].conditions.propulsion.rotor_rpm[:,0] 
         rotor_thrust = -results.segments[i].conditions.frames.body.thrust_force_vector[:,2]
-        rotor_torque = results.segments[i].conditions.propulsion.motor_torque_lift[:,0]
-        rotor_effp   = results.segments[i].conditions.propulsion.propeller_efficiency_lift[:,0]
-        rotor_effm   = results.segments[i].conditions.propulsion.motor_efficiency_lift[:,0] 
-        rotor_Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient_lift[:,0]        
+        rotor_torque = results.segments[i].conditions.propulsion.rotor_motor_torque[:,0]
+        rotor_effp   = results.segments[i].conditions.propulsion.rotor_efficiency[:,0]
+        rotor_effm   = results.segments[i].conditions.propulsion.rotor_motor_efficiency[:,0] 
+        rotor_Cp     = results.segments[i].conditions.propulsion.rotor_power_coefficient[:,0]        
     
         axes = fig.add_subplot(2,3,1)
         axes.plot(time, prop_rpm, 'bo-')
@@ -890,12 +890,12 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
     fig.set_size_inches(16, 8)
     for i in range(len(results.segments)):          
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        rpm    = results.segments[i].conditions.propulsion.rpm_lift [:,0] 
+        rpm    = results.segments[i].conditions.propulsion.rotor_rpm [:,0] 
         thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,2]
-        torque = results.segments[i].conditions.propulsion.motor_torque_lift
-        effp   = results.segments[i].conditions.propulsion.propeller_efficiency_lift[:,0]
-        effm   = results.segments[i].conditions.propulsion.motor_efficiency_lift[:,0] 
-        Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient_lift[:,0]
+        torque = results.segments[i].conditions.propulsion.rotor_motor_torque
+        effp   = results.segments[i].conditions.propulsion.rotor_efficiency[:,0]
+        effm   = results.segments[i].conditions.propulsion.rotor_motor_efficiency[:,0] 
+        Cp     = results.segments[i].conditions.propulsion.rotor_power_coefficient[:,0]
     
         axes = fig.add_subplot(2,3,1)
         axes.plot(time, rpm, 'r^-')
@@ -943,11 +943,11 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
     fig.set_size_inches(16, 8)
     for i in range(len(results.segments)):          
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        rpm    = results.segments[i].conditions.propulsion.rpm_forward [:,0] 
+        rpm    = results.segments[i].conditions.propulsion.propeller_rpm [:,0] 
         thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
-        torque = results.segments[i].conditions.propulsion.motor_torque_forward[:,0]
-        effp   = results.segments[i].conditions.propulsion.propeller_efficiency_forward[:,0]
-        effm   = results.segments[i].conditions.propulsion.motor_efficiency_forward[:,0]
+        torque = results.segments[i].conditions.propulsion.propeller_motor_torque[:,0]
+        effp   = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
+        effm   = results.segments[i].conditions.propulsion.propeller_motor_efficiency[:,0]
         Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
     
         axes = fig.add_subplot(2,3,1)
@@ -994,8 +994,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
     fig = plt.figure("Tip_Mach") 
     for i in range(len(results.segments)):          
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
-        rtm  = results.segments[i].conditions.propulsion.propeller_tip_mach_lift[:,0]
-        ptm  = results.segments[i].conditions.propulsion.propeller_tip_mach_forward[:,0] 
+        rtm  = results.segments[i].conditions.propulsion.rotor_tip_mach[:,0]
+        ptm  = results.segments[i].conditions.propulsion.propeller_tip_mach[:,0] 
         
         axes = fig.add_subplot(1,1,1)
         axes.plot(time, ptm, 'bo-',label='Propeller')

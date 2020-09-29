@@ -45,7 +45,7 @@ def main():
     plot_mission(old_results,configs, 'k-')
     
     # RPM of rotor check during hover
-    RPM        = results.segments.climb_1.conditions.propulsion.rpm_lift[0][0]
+    RPM        = results.segments.climb_1.conditions.propulsion.rotor_rpm[0][0]
     RPM_true   = 1915.6234148515541
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
@@ -194,7 +194,7 @@ def mission_setup(analyses,vehicle):
     segment.climb_rate                                       = 500. * Units['ft/min']
     segment.battery_energy                                   = vehicle.propulsors.lift_cruise.battery.max_energy
                                                              
-    segment.state.unknowns.propeller_power_coefficient_lift  = 0.04 * ones_row(1) 
+    segment.state.unknowns.rotor_power_coefficient  = 0.04 * ones_row(1) 
     segment.state.unknowns.throttle_lift                     = 0.85 * ones_row(1) 
     segment.state.unknowns.__delitem__('throttle')
 
@@ -222,7 +222,7 @@ def mission_setup(analyses,vehicle):
     segment.pitch_initial   = 0.0
     segment.pitch_final     = 5. * Units.degrees
     
-    segment.state.unknowns.propeller_power_coefficient_lift =  0.04 *  ones_row(1) 
+    segment.state.unknowns.rotor_power_coefficient =  0.04 *  ones_row(1) 
     segment.state.unknowns.throttle_lift                    =  0.85 *  ones_row(1) 
     segment.state.unknowns.propeller_power_coefficient      =  0.01 *  ones_row(1) 
     segment.state.unknowns.throttle                         =  1.0  *  ones_row(1) 
@@ -253,7 +253,7 @@ def mission_setup(analyses,vehicle):
     segment.pitch_initial          = 8. * Units.degrees  
     segment.pitch_final            = 7. * Units.degrees       
     
-    segment.state.unknowns.propeller_power_coefficient_lift = 0.04  * ones_row(1)
+    segment.state.unknowns.rotor_power_coefficient = 0.04  * ones_row(1)
     segment.state.unknowns.throttle_lift                    = 0.85  * ones_row(1) 
     segment.state.unknowns.propeller_power_coefficient      = 0.16  * ones_row(1)
     segment.state.unknowns.throttle                         = 0.80  * ones_row(1)   
