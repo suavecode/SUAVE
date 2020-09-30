@@ -275,7 +275,7 @@ def post_process(nexus):
     # Fuel margin and base fuel calculations
 
     operating_empty          = vehicle.mass_properties.operating_empty
-    payload                  = vehicle.systems.passenger_weights.mass_properties.mass 
+    payload                  = vehicle.systems.passengers.mass_properties.mass 
     design_landing_weight    = results.base.segments[-1].conditions.weights.total_mass[-1]
     design_takeoff_weight    = vehicle.mass_properties.takeoff
     max_takeoff_weight       = nexus.vehicle_configurations.takeoff.mass_properties.max_takeoff

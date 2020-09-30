@@ -125,8 +125,8 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     fuel                                                    = vehicle.systems.fuel 
     control_systems                                         = vehicle.systems.control_systems
     electrical_systems                                      = vehicle.systems.electrical_systems
-    main_gear                                               = vehicle.landing_gear.main_landing_gear    
-    nose_gear                                               = vehicle.landing_gear.nose_landing_gear 
+    main_gear                                               = vehicle.landing_gear.main    
+    nose_gear                                               = vehicle.landing_gear.nose 
     hydraulics                                              = vehicle.systems.hydraulics
         
     avionics.origin[0][0]                                      = 0.4 * nose_length
@@ -139,7 +139,7 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     apu.origin[0][0]                                           = 0.9 * length_scale   
     apu.mass_properties.center_of_gravity[0][0]                = 0.0
     
-    passenger.origin[0][0]                                     = 0.51 * length_scale  
+    passengers.origin[0][0]                                     = 0.51 * length_scale  
     passengers.mass_properties.center_of_gravity[0][0]         = 0.0
     
     air_conditioner.origin[0][0]                               = nose_length

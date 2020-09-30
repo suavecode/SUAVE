@@ -205,10 +205,10 @@ def empty(vehicle):
     avionics                = SUAVE.Components.Energy.Peripherals.Avionics()
     optionals               = SUAVE.Components.Physical_Component()
 
-    vehicle.landing_gear.nose_landing_gear       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
-    vehicle.landing_gear.nose_landing_gear.mass  = output.structures.nose_landing_gear
-    vehicle.landing_gear.main_landing_gear       = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()   
-    vehicle.landing_gear.main_landing_gear.mass  = output.structures.main_landing_gear  
+    vehicle.landing_gear.nose       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
+    vehicle.landing_gear.nose.mass  = output.structures.nose_landing_gear
+    vehicle.landing_gear.main       = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()   
+    vehicle.landing_gear.main.mass  = output.structures.main_landing_gear  
 
     control_systems.mass_properties.mass    = output.systems_breakdown.control_systems
     electrical_systems.mass_properties.mass = output.systems_breakdown.electrical
