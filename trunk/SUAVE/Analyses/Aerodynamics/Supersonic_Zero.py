@@ -74,8 +74,7 @@ class Supersonic_Zero(Markup):
         settings.number_panels_spanwise             = None 
         settings.number_panels_chordwise            = None 
         settings.use_surrogate                      = True 
-        settings.include_slipstream_effect          = False 
-        settings.plot_vortex_distribution           = False
+        settings.propeller_wake_model               = False  
         
         # this multiplier is used to determine the volume wave drag at the peak Mach number
         # by multiplying the volume wave drag at the end drag rise Mach number
@@ -145,13 +144,12 @@ class Supersonic_Zero(Markup):
         super(Supersonic_Zero, self).initialize()
         
         use_surrogate             = self.settings.use_surrogate
-        include_slipstream_effect = self.settings.include_slipstream_effect
-        vortex_distribution_flag  = self.settings.plot_vortex_distribution 
+        propeller_wake_model      = self.settings.propeller_wake_model 
         n_sw                      = self.settings.number_panels_spanwise    
         n_cw                      = self.settings.number_panels_chordwise  
         
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate , vortex_distribution_flag , n_sw ,  n_cw ,include_slipstream_effect )     
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate , n_sw ,  n_cw ,propeller_wake_model)     
         
                 
     finalize = initialize        

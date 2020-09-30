@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_vortex_distribution.py
+# generate_wing_vortex_distribution.py
 # 
 # Created:  May 2018, M. Clarke
 #           Apr 2020, M. Clarke
@@ -15,8 +15,8 @@ from SUAVE.Core import Units , Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_vortex_distribution(geometry,settings):
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
+def generate_wing_vortex_distribution(geometry,settings):
     ''' Compute the coordinates of panels, vortices , control points
     and geometry used to build the influence coefficient matrix.
     
@@ -1059,7 +1059,22 @@ def compute_vortex_distribution(geometry,settings):
 
     return VD 
 
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
 def compute_panel_area(VD):
+    """ This computed the area of the panels on the lifting surface of the vehicle 
+
+    Assumptions: 
+    None
+
+    Source:   
+    None
+    
+    Inputs:   
+    VD                   - vortex distribution    
+    
+    Properties Used:
+    N/A
+    """        
     P1P2 = np.array([VD.XB1 - VD.XA1,VD.YB1 - VD.YA1,VD.ZB1 - VD.ZA1]).T
     P1P3 = np.array([VD.XA2 - VD.XA1,VD.YA2 - VD.YA1,VD.ZA2 - VD.ZA1]).T
     P2P3 = np.array([VD.XA2 - VD.XB1,VD.YA2 - VD.YB1,VD.ZA2 - VD.ZB1]).T
