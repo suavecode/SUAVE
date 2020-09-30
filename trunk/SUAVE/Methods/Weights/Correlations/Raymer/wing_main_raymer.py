@@ -10,6 +10,7 @@
 from SUAVE.Core import Units
 import numpy as np
 
+## @ingroup Methods-Weights-Correlations-Raymer
 def wing_main_raymer(vehicle, wing):
     """ Calculate the wing weight of the aircraft based the Raymer method
 
@@ -26,7 +27,7 @@ def wing_main_raymer(vehicle, wing):
                                                         medium-range, long-range,
                                                         sst, cargo)
         wing    - data dictionary with specific wing properties             [dimensionless]
-                -.taper: taper ration wing
+                -.taper: taper ratio
                 -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
                 -.thickness_to_chord: thickness to chord
                 -.aspect_ratio: aspect ratio of wing

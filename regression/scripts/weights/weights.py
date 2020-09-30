@@ -40,10 +40,15 @@ def main():
         print('Testing Method: '+method_type)
         if 'FLOPS' in method_type:
             settings = Data()
-            settings.aeroelastic_tailoring_factor = 0.
-            settings.strut_braced_wing_factor     = 0.
-            settings.composite_utilization_factor = 0.5
-            settings.variable_sweep_factor = 1.
+            settings.FLOPS = Data()
+            settings.FLOPS.aeroelastic_tailoring_factor = 0.
+            settings.FLOPS.strut_braced_wing_factor     = 0.
+            settings.FLOPS.composite_utilization_factor = 0.5
+            settings.FLOPS.variable_sweep_factor = 1.
+        elif 'Raymer' in method_type:
+            settings = Data()
+            settings.Raymer = Data()
+            settings.Raymer.fuselage_mounted_landing_gear_factor = 1.
         else:
             settings = None
         weight = Common.empty_weight(vehicle, settings = settings, method_type = method_type)
@@ -54,9 +59,7 @@ def main():
         check_list = [
             'payload_breakdown.total',        
             'payload_breakdown.passengers',             
-            'payload_breakdown.baggage',             
-            'fuel',            
-            'empty',           
+            'payload_breakdown.baggage',                                   
             'structures.wing',            
             'structures.fuselage',        
             'propulsion_breakdown.total',      
@@ -65,7 +68,9 @@ def main():
             'systems_breakdown.total',         
             'systems_breakdown.furnish',      
             'structures.horizontal_tail', 
-            'structures.vertical_tail'   
+            'structures.vertical_tail',
+            'empty', 
+            'fuel'
         ]
     
         # do the check

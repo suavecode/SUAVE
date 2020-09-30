@@ -66,9 +66,9 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings, num_main_wings)
     AR          = SPAN ** 2 / SX  # Aspect ratio
     TR          = wing.taper  # Taper
     
-    aeroelastic_tailoring_factor = settings.aeroelastic_tailoring_factor
-    strut_braced_wing_factor     = settings.strut_braced_wing_factor
-    composite_utilization_factor = settings.composite_utilization_factor
+    aeroelastic_tailoring_factor = settings.FLOPS.aeroelastic_tailoring_factor
+    strut_braced_wing_factor     = settings.FLOPS.strut_braced_wing_factor
+    composite_utilization_factor = settings.FLOPS.composite_utilization_factor
     
     if AR <= 5:
         CAYA = 0
@@ -185,7 +185,7 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings, num_main_wings)
 
     return WWING * Units.lbs
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def generate_wing_stations(fuselage_width, wing):
     """ Divides half the wing in sections, using the defined sections
         and adding a section at the intersection of wing and fuselage
@@ -274,7 +274,7 @@ def generate_wing_stations(fuselage_width, wing):
     SWP[-1] = np.arctan(np.tan(wing.Segments[-2].sweeps.quarter_chord) - (C[-2] - C[-1]))
     return ETA, C, T, SWP
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def generate_int_stations(NSD, ETA):
     """ Divides half of the wing in integration stations
 
@@ -307,7 +307,7 @@ def generate_int_stations(NSD, ETA):
             Y.append(Y[-1] + AINT)
     return NS, Y
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def calculate_load(ETA):
     """ Returns load factor assuming elliptical load distribution
 
@@ -328,7 +328,7 @@ def calculate_load(ETA):
     PS = np.sqrt(1. - ETA ** 2)
     return PS
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def find_sweep(y, lst_y, swp):
     """ Finds sweep angle for a certain y-location along the wing
 
@@ -356,7 +356,7 @@ def find_sweep(y, lst_y, swp):
             return swp[i]
     return swp[-1]
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def get_spanwise_engine(propulsors, SEMISPAN):
     """ Returns EETA for the engine locations along the wing
 
@@ -386,7 +386,7 @@ def get_spanwise_engine(propulsors, SEMISPAN):
             idx += 1
     return EETA
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def wing_weight_constants_FLOPS(ac_type):
     """Defines wing weight constants as defined by FLOPS
         Inputs: ac_type - determines type of instruments, electronics, and operating items based on types:
@@ -401,7 +401,7 @@ def wing_weight_constants_FLOPS(ac_type):
         A = [8.8, 6.25, 0.68, 0.34, 0.6, 0.035, 1.5]
     return A
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def determine_fuselage_chord(fuselage_width, wing):
     """ Determine chord at wing and fuselage intersection
 

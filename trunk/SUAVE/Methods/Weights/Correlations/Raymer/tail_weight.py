@@ -10,6 +10,7 @@
 import numpy as np
 from SUAVE.Core import Units
 
+## @ingroup Methods-Weights-Correlations-Raymer
 def tail_vertical_Raymer(vehicle, wing):
     """ Calculates vertical tail weight based on Raymer method
 
@@ -38,22 +39,28 @@ def tail_vertical_Raymer(vehicle, wing):
         Properties Used:
             N/A
     """
+    DG          = vehicle.mass_properties.max_takeoff / Units.lbs
+    t_tail_flag = wing.t_tail
+    wing_origin = wing.origin[0][0] / Units.ft
+    wing_ac     = wing.aerodynamic_center[0] / Units.ft
+    main_origin = vehicle.wings['main_wing'].origin[0][0] / Units.ft
+    main_ac     = vehicle.wings['main_wing'].aerodynamic_center[0] / Units.ft
+    Svt         = wing.areas.reference / Units.ft ** 2
+    sweep       = wing.sweeps.quarter_chord
+    Av          = wing.aspect_ratio
+    t_c         = wing.thickness_to_chord 
+    Nult        = vehicle.envelope.ultimate_load
+    
     H = 0
-    if wing.t_tail:
+    if t_tail_flag:
         H = 1
-    DG = vehicle.mass_properties.max_takeoff / Units.lbs
-    Lt = (wing.origin[0][0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0][0] -
-          vehicle.wings['main_wing'].aerodynamic_center[0]) / Units.ft
-    Svt = wing.areas.reference / Units.ft ** 2
+    Lt = (wing_origin + wing_ac - main_origin - main_ac)
     Kz = Lt
-    sweep = wing.sweeps.quarter_chord
-    Av = wing.aspect_ratio
-    t_c = wing.thickness_to_chord
-    tail_weight = 0.0026 * (1 + H) ** 0.225 * DG ** 0.556 * vehicle.envelope.ultimate_load ** 0.536 \
+    tail_weight = 0.0026 * (1 + H) ** 0.225 * DG ** 0.556 * Nult ** 0.536 \
                   * Lt ** (-0.5) * Svt ** 0.5 * Kz ** 0.875 * np.cos(sweep) ** (-1) * Av ** 0.35 * t_c ** (-0.5)
     return tail_weight * Units.lbs
 
-
+## @ingroup Methods-Weights-Correlations-Raymer
 def tail_horizontal_Raymer(vehicle, wing, elevator_fraction=0.4):
     """ Calculates horizontal tail weight based on Raymer method
 

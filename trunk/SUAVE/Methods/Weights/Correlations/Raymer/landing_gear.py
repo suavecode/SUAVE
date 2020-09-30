@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Units, Data
 
-
+## @ingroup Methods-Weights-Correlations-Raymer
 def landing_gear_Raymer(vehicle):
     """ Calculate the weight of the landing gear of a transport aircraft based on the Raymer method
 

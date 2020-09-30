@@ -381,14 +381,13 @@ def empty(vehicle):
     fuel                = SUAVE.Components.Physical_Component()
     hydraulics          = SUAVE.Components.Physical_Component()
 
-    # assign output weights to objects
-    try:
-        vehicle.landing_gear.mass_properties.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
-    except AttributeError:  # landing gear not defined
-        landing_gear_component  = SUAVE.Components.Landing_Gear.Landing_Gear()
-        vehicle.landing_gear    = landing_gear_component
-        vehicle.landing_gear.mass_properties.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
-
+    if not hasattr(vehicle.landing_gear, 'nose'):
+        vehicle.landing_gear.nose       = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
+    vehicle.landing_gear.nose.mass  = output.structures.nose_landing_gear
+    if not hasattr(vehicle.landing_gear, 'main'):
+        vehicle.landing_gear.main       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()   
+    vehicle.landing_gear.main.mass  = output.structures.main_landing_gear 
+    
     control_systems.mass_properties.mass    = output.systems_breakdown.control_systems
     electrical_systems.mass_properties.mass = output.systems_breakdown.electrical
     passengers.mass_properties.mass         = output.payload_breakdown.passengers + output.payload_breakdown.baggage

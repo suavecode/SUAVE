@@ -10,7 +10,8 @@
 from SUAVE.Core import Units
 import numpy as np
 
-def fuselage_weight_Raymer(vehicle, fuse):
+## @ingroup Methods-Weights-Correlations-Raymer
+def fuselage_weight_Raymer(vehicle, fuse, settings):
     """ Calculate the weight of the fuselage of a transport aircraft based on the Raymer method
 
         Assumptions:
@@ -38,12 +39,14 @@ def fuselage_weight_Raymer(vehicle, fuse):
         Properties Used:
             N/A
     """
-    Kdoor   = 1.06  # Assuming 1 cargo door
-    Klg     = 1  # No fuselage mounted landing gear
+    Klg     = settings.Raymer.fuselage_mounted_landing_gear_factor
     DG      = vehicle.mass_properties.max_takeoff / Units.lbs
     L       = fuse.lengths.total / Units.ft
-    D       = (fuse.width +
-                fuse.heights.maximum) / 2. * 1 / Units.ft
+    fuse_w  = fuse.width / Units.ft
+    fuse_h  = fuse.heights.maximum / Units.ft
+    
+    Kdoor   = 1.06  # Assuming 1 cargo door
+    D       = (fuse_w + fuse_h) / 2.
     Sf      = np.pi * (L / D - 1.7) * D ** 2  # Fuselage wetted area, ft**2
     wing    = vehicle.wings['main_wing']
     Kws     = 0.75 * (1 + 2 * wing.taper) / (1 + wing.taper) * (wing.spans.projected / Units.ft *

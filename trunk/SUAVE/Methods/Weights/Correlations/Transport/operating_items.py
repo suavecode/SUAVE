@@ -1,4 +1,4 @@
-## @ingroup Methods-Weights-Correlations-Tube_Wing
+## @ingroup Methods-Weights-Correlations-Transport
 # operating_items.py
 #
 # Created:  Jan 2014, A. Wendorff
@@ -12,7 +12,7 @@
 from SUAVE.Core import Units, Data
 import numpy as np
 
-
+## @ingroup Methods-Weights-Correlations-Transport
 def operating_items(vehicle):
     """ Calculate the weight of operating items, including:
         - crew

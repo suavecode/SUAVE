@@ -298,7 +298,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
         if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
             wt_fuse = fuselage_weight_FLOPS(vehicle)
         elif method_type == 'Raymer':
-            wt_fuse = fuselage_weight_Raymer(vehicle, fuse)
+            wt_fuse = fuselage_weight_Raymer(vehicle, fuse, settings)
         else:
             wt_fuse = tube(vehicle, fuse, wt_main_wing, wt_prop_total)
         wt_fuse = wt_fuse * (1. - wt_factors.fuselage) * (1. - wt_factors.structural)

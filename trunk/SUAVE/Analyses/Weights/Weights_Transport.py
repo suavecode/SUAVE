@@ -68,12 +68,17 @@ class Weights_Transport(Weights):
         self.settings.weight_reduction_factors.empennage = 0.  # applied to horizontal and vertical stabilizers
         
         # FLOPS settings
+        self.settings.FLOPS = Data()
         # Aeroelastic tailoring factor [0 no aeroelastic tailoring, 1 maximum aeroelastic tailoring]
         self.settings.FLOPS.aeroelastic_tailoring_factor = 0.
         # Wing strut bracing factor [0 for no struts, 1 for struts]
         self.settings.FLOPS.strut_braced_wing_factor = 0.
         # Composite utilization factor [0 no composite, 1 full composite]
         self.settings.FLOPS.composite_utilization_factor = 0.5
+        
+        # Raymer settings
+        self.settings.Raymer = Data()
+        self.settings.Raymer.fuselage_mounted_landing_gear_factor = 1. # 1. if false, 1.12 if true
 
     def evaluate(self, method="SUAVE"):
         """Evaluate the weight analysis.

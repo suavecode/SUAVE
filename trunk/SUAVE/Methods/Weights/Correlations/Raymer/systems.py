@@ -10,7 +10,7 @@
 from SUAVE.Core import Units, Data
 import numpy as np
 
-
+## @ingroup Methods-Weights-Correlations-Raymer
 def systems_Raymer(vehicle):
     """ Calculates the system weight based on the Raymer method
 
@@ -58,6 +58,18 @@ def systems_Raymer(vehicle):
         Properties Used:
             N/A
     """
+    L              = vehicle.fuselages['fuselage'].lengths.total / Units.ft
+    Bw             = vehicle.wings['main_wing'].spans.projected / Units.ft
+    DG             = vehicle.mass_properties.max_takeoff / Units.lbs
+    Scs            = vehicle.wings['main_wing'].flap_ratio * vehicle.reference_area / Units.ft**2
+    design_mach    = vehicle.design_mach_number
+    num_pax        = vehicle.passengers
+    propulsor_name = list(vehicle.propulsors.keys())[0]
+    propulsors     = vehicle.propulsors[propulsor_name]    
+    fuse_w         = vehicle.fuselages['fuselage'].width / Units.ft
+    fuse_h         = vehicle.fuselages['fuselage'].heights.maximum / Units.ft   
+    payload_weight = vehicle.payload / Units.lbs
+    
     if vehicle.passengers >= 150:
         flight_crew = 3 # number of flight crew
     else:
@@ -69,36 +81,27 @@ def systems_Raymer(vehicle):
     Rkva    = 60  # system electrical rating
     Wuav    = 1400  # uninstalled avionics weight
 
-    L   = vehicle.fuselages['fuselage'].lengths.total / Units.ft
-    Bw  = vehicle.wings['main_wing'].spans.projected / Units.ft
-    DG  = vehicle.mass_properties.max_takeoff / Units.lbs
-    Scs = vehicle.wings['main_wing'].flap_ratio * vehicle.reference_area / Units.ft**2
+    WSC = 36.28 * design_mach**0.003 * Scs**0.489 * Ns**0.484 * flight_crew**0.124
 
-    WSC = 36.28 * vehicle.design_mach_number**0.003 * Scs**0.489 * Ns**0.484 * flight_crew**0.124
-
-    if vehicle.passengers >= 6.:
-        apu_wt = 7.0 * vehicle.passengers
+    if num_pax >= 6.:
+        apu_wt = 7.0 * num_pax
     else:
         apu_wt = 0.0  # no apu if less than 9 seats
     WAPU            = max(apu_wt, 70./Units.lbs)
-    propulsor_name  = list(vehicle.propulsors.keys())[0]
-    propulsors      = vehicle.propulsors[propulsor_name]
     NENG            = propulsors.number_of_engines
     WIN = 4.509 * Kr * Ktp * flight_crew ** 0.541 * NENG * (L + Bw) ** 0.5
     WHYD = 0.2673 * Nf * (L + Bw) ** 0.937
     WELEC = 7.291 * Rkva ** 0.782 * (2*L) ** 0.346 * NENG ** 0.1
     WAVONC = 1.73 * Wuav ** 0.983
 
-    L   = vehicle.fuselages['fuselage'].lengths.total / Units.ft
-    D   = (vehicle.fuselages['fuselage'].width +
-            vehicle.fuselages['fuselage'].heights.maximum) / 2. * 1 / Units.ft
+    D   = (fuse_w + fuse_h) / 2.
     Sf  = np.pi * (L / D - 1.7) * D ** 2  # Fuselage wetted area, ft**2
-    WFURN = 0.0577 * flight_crew ** 0.1 * (vehicle.payload / Units.lbs) ** 0.393 * Sf ** 0.75 + 46 * vehicle.passengers
+    WFURN = 0.0577 * flight_crew ** 0.1 * (payload_weight) ** 0.393 * Sf ** 0.75 + 46 * num_pax
     WFURN += 75 * flight_crew
-    WFURN += 2.5 * vehicle.passengers**1.33
+    WFURN += 2.5 * num_pax**1.33
 
     Vpr = D ** 2 * np.pi / 4 * L
-    WAC = 62.36 * vehicle.passengers ** 0.25 * (Vpr / 1000) ** 0.604 * Wuav ** 0.1
+    WAC = 62.36 * num_pax ** 0.25 * (Vpr / 1000) ** 0.604 * Wuav ** 0.1
 
     WAI = 0.002 * DG
 

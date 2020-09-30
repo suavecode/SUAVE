@@ -9,23 +9,20 @@ from SUAVE.Core import Units, Data
 #  Imports
 # ----------------------------------------------------------------------
 import numpy as np
+from SUAVE.Methods.Weights.Correlations.FLOPS.prop_system import engine_FLOPS
 
+## @ingroup Methods-Weights-Correlations-Raymer
 def total_prop_Raymer(vehicle, prop):
     """ Calculate the weight of propulsion system using Raymer method, including:
-        - dry engine weight
         - fuel system weight
         - thurst reversers weight
         - electrical system weight
         - starter engine weight
         - nacelle weight
         - cargo containers
+        The dry engine weight comes from the FLOPS relations since it is not listed in Raymer
 
         Assumptions:
-            1) Rated thrust per scaled engine and rated thurst for baseline are the same
-            2) Engine weight scaling parameter is 1.15
-            3) Enginge inlet weight scaling exponent is 1
-            4) Baseline inlet weight is 0 lbs as in example files FLOPS
-            5) Baseline nozzle weight is 0 lbs as in example files FLOPS
 
         Source:
             Aircraft Design: A Conceptual Approach
@@ -49,7 +46,7 @@ def total_prop_Raymer(vehicle, prop):
     """
     NENG            = prop.number_of_engines
     WFSYS           = fuel_system_Raymer(vehicle, NENG)
-    WENG            = engine_Raymer(vehicle, prop)
+    WENG            = engine_FLOPS(vehicle, prop)
     WNAC            = nacelle_Raymer(vehicle, prop, WENG)
     WEC, WSTART     = misc_engine_Raymer(vehicle, prop, WENG)
     WTHR            = 0
@@ -65,6 +62,7 @@ def total_prop_Raymer(vehicle, prop):
     output.wt_eng               = WENG * NENG
     return output
 
+## @ingroup Methods-Weights-Correlations-Raymer
 def nacelle_Raymer(vehicle, prop, WENG):
     """ Calculates the nacelle weight based on the Raymer method
         Assumptions:
@@ -98,7 +96,7 @@ def nacelle_Raymer(vehicle, prop, WENG):
            * Wec ** 0.611 * NENG * 0.984 * Sn ** 0.224
     return WNAC * Units.lbs
 
-
+## @ingroup Methods-Weights-Correlations-Raymer
 def misc_engine_Raymer(vehicle, prop, WENG):
     """ Calculates the miscellaneous engine weight based on the Raymer method, electrical control system weight
         and starter engine weight
@@ -126,7 +124,7 @@ def misc_engine_Raymer(vehicle, prop, WENG):
     WSTART  = 49.19*(NENG*WENG/1000)**0.541
     return WEC * Units.lbs, WSTART * Units.lbs
 
-
+## @ingroup Methods-Weights-Correlations-Raymer
 def fuel_system_Raymer(vehicle, NENG):
     """ Calculates the weight of the fuel system based on the Raymer method
         Assumptions:
@@ -149,41 +147,3 @@ def fuel_system_Raymer(vehicle, NENG):
     FMXTOT  = vehicle.mass_properties.max_zero_fuel / Units.lbs
     WFSYS = 1.07 * FMXTOT ** 0.58 * NENG ** 0.43 * VMAX ** 0.34
     return WFSYS * Units.lbs
-
-def engine_Raymer(vehicle, prop):
-    """ Calculates the dry engine weight based on the FLOPS method
-        Assumptions:
-
-        Source:
-            The Flight Optimization System Weight Estimation Method
-
-        Inputs:
-            vehicle - data dictionary with vehicle properties                   [dimensionless]
-                -.systems.accessories: type of aircraft (short-range, commuter
-                                                        medium-range, long-range,
-                                                        sst, cargo)
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
-                -.sealevel_static_thrust: sealevel static thrust of engine  [N]
-
-        Outputs:
-            WENG: dry engine weight                                         [kg]
-
-        Properties Used:
-            N/A
-    """
-    EEXP    = 1.15
-    EINL    = 1
-    ENOZ    = 1
-    THRSO   = prop.sealevel_static_thrust * 1 / Units.lbf
-    THRUST  = THRSO
-    if vehicle.systems.accessories == "short-range" or vehicle.systems.accessories == "commuter":
-        WENGB = THRSO / 10.5
-    else:
-        WENGB = THRSO / 5.5
-    WINLB   = 0 / Units.lbs
-    WNOZB   = 0 / Units.lbs
-    WENGP   = WENGB * (THRUST / THRSO) ** EEXP
-    WINL    = WINLB * (THRUST / THRSO) ** EINL
-    WNOZ    = WNOZB * (THRUST / THRSO) ** ENOZ
-    WENG    = WENGP + WINL + WNOZ
-    return WENG * Units.lbs

@@ -192,7 +192,11 @@ def fuel_system_FLOPS(vehicle, NENG):
 def engine_FLOPS(vehicle, prop):
     """ Calculates the dry engine weight based on the FLOPS method
         Assumptions:
-            The baseline engine is being used, so scaled factors are not active.
+            Rated thrust per scaled engine and rated thurst for baseline are the same
+            Engine weight scaling parameter is 1.15
+            Enginge inlet weight scaling exponent is 1
+            Baseline inlet weight is 0 lbs as in example files FLOPS
+            Baseline nozzle weight is 0 lbs as in example files FLOPS
 
         Source:
             The Flight Optimization System Weight Estimation Method
