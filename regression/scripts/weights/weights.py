@@ -38,7 +38,15 @@ def main():
     
     for method_type in method_types:
         print('Testing Method: '+method_type)
-        weight = Common.empty_weight(vehicle, method_type = method_type)
+        if 'FLOPS' in method_type:
+            settings = Data()
+            settings.aeroelastic_tailoring_factor = 0.
+            settings.strut_braced_wing_factor     = 0.
+            settings.composite_utilization_factor = 0.5
+            settings.variable_sweep_factor = 1.
+        else:
+            settings = None
+        weight = Common.empty_weight(vehicle, settings = settings, method_type = method_type)
     
         #save_results(weight, 'weights_'+method_type.replace(' ','_')+'.res')
         old_weight = load_results('weights_'+method_type.replace(' ','_')+'.res')

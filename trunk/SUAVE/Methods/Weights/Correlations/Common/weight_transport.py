@@ -146,7 +146,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
                     wing.flap_ratio = flap_ratio
 
     # Set the factors
-    if settings is None:
+    if not hasattr(settings, 'weight_reduction_factors'):
         wt_factors = Data()
         wt_factors.main_wing    = 0.
         wt_factors.empennage    = 0.
@@ -240,6 +240,11 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     rho      = Aluminum().density
     sigma    = Aluminum().yield_tensile_strength      
     
+    num_main_wings = 0
+    for wing in vehicle.wings:
+        if isinstance(wing, Wings.Main_Wing):
+            num_main_wings += 1
+    
     for wing in vehicle.wings:
         if isinstance(wing, Wings.Main_Wing):
             if method_type == 'SUAVE':
@@ -248,7 +253,8 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
                 wt_wing = wing_main(vehicle, wing, rho, sigma)
             elif method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
                 complexity = method_type.split()[1]
-                wt_wing = wing_weight_FLOPS(vehicle, wing, WPOD, complexity)
+                wt_wing = wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings,
+                                            num_main_wings)
             elif method_type == 'Raymer':
                 wt_wing = wing_main_raymer(vehicle, wing)
             else:

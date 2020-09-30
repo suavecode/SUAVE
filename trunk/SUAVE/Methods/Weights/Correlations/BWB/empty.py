@@ -132,7 +132,7 @@ def empty(vehicle):
         rho      = Aluminum().density
         sigma    = Aluminum().yield_tensile_strength           
         S_h = vehicle.wings['main_wing'].areas.reference * 0.01  # control surface area on bwb
-        wt_wing = wing_main(vehicle, vehicle.wings['main_wing'], computation_type='simple')
+        wt_wing = wing_main(vehicle, vehicle.wings['main_wing'], rho, sigma, computation_type='simple')
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing
 
         # Calculating Empty Weight of Aircraft

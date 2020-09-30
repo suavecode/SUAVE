@@ -12,9 +12,7 @@ from SUAVE.Core import Units
 import numpy as np
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
-def wing_weight_FLOPS(vehicle, wing, WPOD, complexity,
-                      aeroelastic_tailoring_factor = 0.,
-                      strut_braced_wing_factor = 0.):
+def wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings, num_main_wings):
     """ Calculate the wing weight based on the flops method. The wing weight consists of:
         - Total Wing Shear Material and Control Surface Weight
         - Total Wing Miscellaneous Items Weight
@@ -23,6 +21,8 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity,
         Assumptions:
             Wing is elliptically loaded
             Gloved wing area is 0
+            Load between multiple main wings is distributed equally
+            Wing sweep is fixed
 
         Source:
             The Flight Optimization System Weight Estimation Method
@@ -37,7 +37,7 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity,
                                                         sst, cargo)
                 -.fuselages.fuselage.width: width of the fuselage               [m]
              -wing: data dictionary with wing properties
-                    -.taper: taper ration wing
+                    -.taper: taper ratio
                     -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
                     -.thickness_to_chord: thickness to chord
                     -.spans.projected: wing span                                [m]
@@ -65,6 +65,11 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity,
     SEMISPAN    = SPAN / 2
     AR          = SPAN ** 2 / SX  # Aspect ratio
     TR          = wing.taper  # Taper
+    
+    aeroelastic_tailoring_factor = settings.aeroelastic_tailoring_factor
+    strut_braced_wing_factor     = settings.strut_braced_wing_factor
+    composite_utilization_factor = settings.composite_utilization_factor
+    
     if AR <= 5:
         CAYA = 0
     else:
@@ -79,16 +84,16 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity,
     DG              = vehicle.mass_properties.max_takeoff / Units.lbs  # Design gross weight in lb
 
     if complexity == 'Simple':
-        EMS = 1 - 0.25 * FSTRT  # Wing strut bracing factor
+        EMS  = 1 - 0.25 * FSTRT  # Wing strut bracing factor
         TLAM = np.tan(wing.sweeps.quarter_chord) \
                - 2 * (1 - TR) / (AR * (1 + TR))  # Tangent of the 3/4 chord sweep angle
         SLAM = TLAM / np.sqrt(1 + TLAM ** 2)  # sine of 3/4 chord wing sweep angle
-        C6 = 0.5 * FAERT - 0.16 * FSTRT
-        C4 = 1 - 0.5 * FAERT
+        C6   = 0.5 * FAERT - 0.16 * FSTRT
+        C4   = 1 - 0.5 * FAERT
         CAYL = (1.0 - SLAM ** 2) * \
                (1.0 + C6 * SLAM ** 2 + 0.03 * CAYA * C4 * SLAM)  # Wing sweep factor due to aeroelastic tailoring
-        TCA = wing.thickness_to_chord
-        BT = 0.215 * (0.37 + 0.7 * TR) * (SPAN ** 2 / SW) ** EMS / (CAYL * TCA)  # Bending factor
+        TCA  = wing.thickness_to_chord
+        BT   = 0.215 * (0.37 + 0.7 * TR) * (SPAN ** 2 / SW) ** EMS / (CAYL * TCA)  # Bending factor
         CAYE = 1 - 0.03 * NEW
 
     else:
@@ -158,11 +163,17 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity,
             CAYE = 1 - BTE / BT * WPOD / DG
 
     A       = wing_weight_constants_FLOPS(vehicle.systems.accessories)  # Wing weight constants
-    FCOMP   = 0.5  # Composite utilization factor [0 no composite, 1 full composite]
+    # Composite utilization factor [0 no composite, 1 full composite]
+    FCOMP   = composite_utilization_factor  
     ULF     = vehicle.envelope.ultimate_load
-    CAYF    = 1  # Multiple fuselage factor [1 one fuselage, 0.5 multiple fuselages]
-    VFACT   = 1  # Variable sweep factor (if wings can rotate)
-    PCTL    = 1  # Fraction of load carried by this wing
+    if len(vehicle.fuselages) == 1:
+        CAYF    = 1  # Multiple fuselage factor [1 one fuselage, 0.5 multiple fuselages]
+    elif len(vehicle.fuselage) > 1:
+        CAYF    = 0.5
+    else:
+        raise NotImplementedError
+    VFACT   = 1  # Variable sweep factor, TODO: add equation to allow variable sweep penalty
+    PCTL    = 1/num_main_wings  # Fraction of load carried by this wing
     W1NIR   = A[0] * BT * (1 + np.sqrt(A[1] / SPAN)) * ULF * SPAN * (1 - 0.4 * FCOMP) * (
                 1 - 0.1 * FAERT) * CAYF * VFACT * PCTL / 10.0 ** 6  # Wing bending material weight lb
     SFLAP   = wing.flap_ratio * SX
@@ -232,13 +243,15 @@ def generate_wing_stations(fuselage_width, wing):
         segment.thickness_to_chord      = wing.thickness_to_chord
         wing.Segments.append(segment)
         num_seg = len(wing.Segments.keys())
-    ETA = np.zeros(num_seg + 1)
-    C = np.zeros(num_seg + 1)
-    T = np.zeros(num_seg + 1)
-    SWP = np.zeros(num_seg + 1)
+        
+    ETA    = np.zeros(num_seg + 1)
+    C      = np.zeros(num_seg + 1)
+    T      = np.zeros(num_seg + 1)
+    SWP    = np.zeros(num_seg + 1)
     ETA[0] = wing.Segments[0].percent_span_location
-    C[0] = root_chord * wing.Segments[0].root_chord_percent * 1 / SEMISPAN
+    C[0]   = root_chord * wing.Segments[0].root_chord_percent * 1 / SEMISPAN
     SWP[0] = 0
+    
     if hasattr(wing.Segments[0], 'thickness_to_chord'):
         T[0] = wing.Segments[0].thickness_to_chord
     else:
@@ -393,6 +406,7 @@ def determine_fuselage_chord(fuselage_width, wing):
     """ Determine chord at wing and fuselage intersection
 
         Assumptions:
+            Fuselage side of body is between first and second wing segments.
 
         Source:
             The Flight Optimization System Weight Estimation Method
@@ -400,7 +414,7 @@ def determine_fuselage_chord(fuselage_width, wing):
         Inputs:
             fuselage_width: width of fuselage                                   [m]
             wing: data dictionary with wing properties
-                    -.taper: taper ration wing
+                    -.taper: taper ratio
                     -.sweeps.quarter_chord: quarter chord sweep angle           [deg]
                     -.thickness_to_chord: thickness to chord
                     -.spans.projected: wing span                                [m]
