@@ -10,7 +10,7 @@
 from SUAVE.Core import Units, Data
 import numpy as np
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def systems_FLOPS(vehicle):
     """ Calculate the system weight of the aircraft including:
         -  flight control system
@@ -26,7 +26,8 @@ def systems_FLOPS(vehicle):
     Assumptions:
         1) No variable sweep, change VARSWP to 1 is variable sweep in aicraft
         2) Hydraulic pressure is 3000 psf (HYDR)
-        3) 1 fuselage, change NFUSE is multiple fuselages
+        3) 1 fuselage named fuselage. Function could be modified to allow multiple fuselages by
+           relaxing this assumption.
 
     Source:
         The Flight Optimization System Weight Estimation Method
@@ -43,11 +44,11 @@ def systems_FLOPS(vehicle):
             -.design_mach_number: design mach number for cruise flight
             -.design_range: design range of aircraft                        [nmi]
             -.passengers: number of passengers in aircraft
-            -.flap_ratio: flap surface area over wing surface area
             -.wings['main_wing']: data dictionary with main wing properties
                 -.sweeps.quarter_chord: quarter chord sweep                 [deg]
                 -.areas.reference: wing surface area                        [m^2]
                 -.spans.projected: projected span of wing                   [m]
+                -.flap_ratio: flap surface area over wing surface area
 
    Outputs:
        output - a data dictionary with fields:
@@ -68,7 +69,7 @@ def systems_FLOPS(vehicle):
     propulsors      = vehicle.propulsors[propulsor_name]
     NENG            = propulsors.number_of_engines
     VMAX            = vehicle.design_mach_number
-    SFLAP           = vehicle.wings['main_wing'].areas.reference * vehicle.flap_ratio / Units.ft ** 2
+    SFLAP           = vehicle.wings['main_wing'].areas.reference * vehicle.wings['main_wing'].flap_ratio / Units.ft ** 2
     DG              = vehicle.mass_properties.max_takeoff / Units.lbs
     WSC             = 1.1 * VMAX ** 0.52 * SFLAP ** 0.6 * DG ** 0.32  # surface controls weight
 
@@ -102,7 +103,7 @@ def systems_FLOPS(vehicle):
     WAVONC  = 15.8 * DESRNG ** 0.1 * NFLCR ** 0.7 * FPAREA ** 0.43  # avionics weight
 
     XLP     = 0.8 * XL
-    DF      = vehicle.fuselages['fuselage'].heights.maximum / Units.ft
+    DF      = vehicle.fuselages['fuselage'].heights.maximum / Units.ft # D stands for depth
     WFURN   = 127 * NFLCR + 112 * vehicle.NPF + 78 * vehicle.NPB + 44 * vehicle.NPT \
                 + 2.6 * XLP * (WF + DF) * NFUSE  # furnishing weight
 

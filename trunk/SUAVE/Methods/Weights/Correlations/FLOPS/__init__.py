@@ -4,7 +4,7 @@
 
 from .fuselage import fuselage_weight_FLOPS
 from .landing_gear import landing_gear_FLOPS
-from .operating_items import operating_system_FLOPS
+from .operating_items import operating_items_FLOPS
 from .payload import payload_FLOPS
 from .prop_system import fuel_system_FLOPS, nacelle_FLOPS, thrust_reverser_FLOPS, misc_engine_FLOPS, engine_FLOPS
 from .systems import systems_FLOPS

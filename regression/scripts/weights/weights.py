@@ -11,6 +11,8 @@ from SUAVE.Methods.Weights.Correlations import Common as Common
 from SUAVE.Methods.Weights.Correlations import General_Aviation as General_Aviation
 from SUAVE.Methods.Weights.Correlations import BWB as BWB
 from SUAVE.Methods.Weights.Correlations import Human_Powered as HP
+from SUAVE.Input_Output.SUAVE.load import load as load_results
+from SUAVE.Input_Output.SUAVE.archive import archive as save_results
 
 from SUAVE.Core import (Data, Container,)
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
@@ -28,226 +30,47 @@ from Solar_UAV import vehicle_setup  as hp_setup
 
 def main():
 
+
+    # Transport Weights
     vehicle = vehicle_setup()
-    weight = Common.empty_weight(vehicle, method_type = "SUAVE")
-
-    # regression values SUAVE
-    actual = Data()
-    actual.payload         = 27349.9081525      
-    actual.pax             = 15036.587065500002
-    actual.bag             = 2313.3210870000003
-    actual.fuel            = 9868.04635647776
-    actual.empty           = 38835.88731492225
-    actual.wing            = 8688.245864290779
-    actual.fuselage        = 6612.201567847215
-    actual.propulsion      = 6838.185174956626
-    actual.landing_gear    = 3160.632
-    actual.systems         = 11320.005109368021
-    actual.wt_furnish      = 6431.803728889001
-    actual.horizontal_tail = 1140.2338182645788
-    actual.vertical_tail   = 1076.3837801950292
-
-    # error calculations
-    error                 = Data()
-    error.payload         = (actual.payload - weight.payload_breakdown.total)/actual.payload
-    error.pax             = (actual.pax - weight.payload_breakdown.passengers)/actual.pax
-    error.bag             = (actual.bag - weight.payload_breakdown.baggage)/actual.bag
-    error.fuel            = (actual.fuel - weight.fuel)/actual.fuel
-    error.empty           = (actual.empty - weight.empty)/actual.empty
-    error.wing            = (actual.wing - weight.structures.wing)/actual.wing
-    error.fuselage        = (actual.fuselage - weight.structures.fuselage)/actual.fuselage
-    error.propulsion      = (actual.propulsion - weight.propulsion_breakdown.total)/actual.propulsion
-    error.landing_gear    = (actual.landing_gear - weight.structures.main_landing_gear
-                             - weight.structures.nose_landing_gear)/actual.landing_gear
-    error.systems         = (actual.systems - weight.systems_breakdown.total)/actual.systems
-    error.wt_furnish      = (actual.wt_furnish - weight.systems_breakdown.furnish)/actual.wt_furnish
-    error.horizontal_tail = (actual.horizontal_tail - weight.structures.horizontal_tail)/actual.horizontal_tail
-    error.vertical_tail   = (actual.vertical_tail - weight.structures.vertical_tail)/actual.vertical_tail
-
-    print('Results (kg)')
-    print(weight)
-
-    print('Relative Errors')
-    print(error)
-
-    for k, v in error.items():
-        assert (np.abs(v) < 1E-6)
-
-    weight = Common.empty_weight(vehicle, method_type="FLOPS Simple")
-
-    # regression values FLOPS Complex
-    actual = Data()
-    actual.payload = 19164.047296928187  # includes cargo #17349.9081525 #without cargo
-    actual.pax = 5771.176369328185
-    actual.bag = 3392.8709276
-    actual.fuel = 20031.585931973066  # includes cargo #22177.6377131 #without cargo
-    actual.empty = 35276.43161054148
-    actual.wing = 6129.985979314519
-    actual.fuselage = 7304.86777971127
-    actual.propulsion = 6158.342445321374
-    actual.landing_gear = 2695.109360215617 + 335.5055180687866
-    actual.systems = 10968.186283406896
-    actual.wt_furnish = 6453.793837053036
-    actual.horizontal_tail = 657.5705301445911
-    actual.vertical_tail = 509.7069372086644
-
-    # error calculations
-    error = Data()
-    error.payload = (actual.payload - weight.payload_breakdown.total) / actual.payload
-    error.pax = (actual.pax - weight.payload_breakdown.passengers) / actual.pax
-    error.bag = (actual.bag - weight.payload_breakdown.baggage) / actual.bag
-    error.fuel = (actual.fuel - weight.fuel) / actual.fuel
-    error.empty = (actual.empty - weight.empty) / actual.empty
-    error.wing = (actual.wing - weight.structures.wing) / actual.wing
-    error.fuselage = (actual.fuselage - weight.structures.fuselage) / actual.fuselage
-    error.propulsion = (actual.propulsion - weight.propulsion_breakdown.total) / actual.propulsion
-    error.landing_gear = (actual.landing_gear - weight.structures.main_landing_gear
-                          - weight.structures.nose_landing_gear) / actual.landing_gear
-    error.systems = (actual.systems - weight.systems_breakdown.total) / actual.systems
-    error.wt_furnish = (actual.wt_furnish - weight.systems_breakdown.furnish) / actual.wt_furnish
-    error.horizontal_tail = (actual.horizontal_tail - weight.structures.horizontal_tail) / actual.horizontal_tail
-    error.vertical_tail = (actual.vertical_tail - weight.structures.vertical_tail) / actual.vertical_tail
-
-    print('Results (kg)')
-    print(weight)
-
-    print('Relative Errors')
-    print(error)
-
-    for k, v in error.items():
-        assert (np.abs(v) < 1E-6)
-
-    weight = Common.empty_weight(vehicle, method_type="FLOPS Complex")
-
-    # regression values FLOPS Complex
-    actual                  = Data()
-    actual.payload          = 19164.047296928187  # includes cargo #17349.9081525 #without cargo
-    actual.pax              = 5771.176369328185
-    actual.bag              = 3392.8709276
-    actual.fuel             = 19123.46037492172  # includes cargo #22177.6377131 #without cargo
-    actual.empty            = 36184.55716759282
-    actual.wing             = 7038.111536365861
-    actual.fuselage         = 7304.86777971127
-    actual.propulsion       = 6158.342445321374
-    actual.landing_gear     = 2695.109360215617 + 335.5055180687866
-    actual.systems          = 10968.186283406896
-    actual.wt_furnish       = 6453.793837053036
-    actual.horizontal_tail  = 657.5705301445911
-    actual.vertical_tail    = 509.7069372086644
-
-    # error calculations
-    error                       = Data()
-    error.payload               = (actual.payload - weight.payload_breakdown.total) / actual.payload
-    error.pax                   = (actual.pax - weight.payload_breakdown.passengers) / actual.pax
-    error.bag                   = (actual.bag - weight.payload_breakdown.baggage) / actual.bag
-    error.fuel                  = (actual.fuel - weight.fuel) / actual.fuel
-    error.empty                 = (actual.empty - weight.empty) / actual.empty
-    error.wing                  = (actual.wing - weight.structures.wing) / actual.wing
-    error.fuselage              = (actual.fuselage - weight.structures.fuselage) / actual.fuselage
-    error.propulsion            = (actual.propulsion - weight.propulsion_breakdown.total) / actual.propulsion
-    error.landing_gear          = (actual.landing_gear - weight.structures.main_landing_gear
-                                - weight.structures.nose_landing_gear) / actual.landing_gear
-    error.systems               = (actual.systems - weight.systems_breakdown.total) / actual.systems
-    error.wt_furnish            = (actual.wt_furnish - weight.systems_breakdown.furnish) / actual.wt_furnish
-    error.horizontal_tail       = (actual.horizontal_tail - weight.structures.horizontal_tail) / actual.horizontal_tail
-    error.vertical_tail         = (actual.vertical_tail - weight.structures.vertical_tail) / actual.vertical_tail
-
-    print('Results (kg)')
-    print(weight)
-
-    print('Relative Errors')
-    print(error)
-
-    for k, v in error.items():
-        assert (np.abs(v) < 1E-6)
-
-    weight = Common.empty_weight(vehicle, method_type="Raymer")
-
-    # regression values Raymer
-    actual                  = Data()
-    actual.payload          = 27349.9081525  # includes cargo #17349.9081525 #without cargo
-    actual.pax              = 15036.587065500002
-    actual.bag              = 2313.3210870000003
-    actual.fuel             = 15291.689207249146  # includes cargo #22177.6377131 #without cargo
-    actual.empty            = 33412.244464150855
-    actual.wing             = 6268.223851650347
-    actual.fuselage         = 6655.851643473622
-    actual.propulsion       = 5444.68675310034
-    actual.landing_gear     = 2359.709779278413 + 427.45355397385555
-    actual.systems          = 10121.900868622723
-    actual.wt_furnish       = 5810.9423987753435
-    actual.horizontal_tail  = 766.8742732883632
-    actual.vertical_tail    = 713.7539324202631
-
-    # error calculations
-    error                   = Data()
-    error.payload           = (actual.payload - weight.payload_breakdown.total) / actual.payload
-    error.pax               = (actual.pax - weight.payload_breakdown.passengers) / actual.pax
-    error.bag               = (actual.bag - weight.payload_breakdown.baggage) / actual.bag
-    error.fuel              = (actual.fuel - weight.fuel) / actual.fuel
-    error.empty             = (actual.empty - weight.empty) / actual.empty
-    error.wing              = (actual.wing - weight.structures.wing) / actual.wing
-    error.fuselage          = (actual.fuselage - weight.structures.fuselage) / actual.fuselage
-    error.propulsion        = (actual.propulsion - weight.propulsion_breakdown.total) / actual.propulsion
-    error.landing_gear      = (actual.landing_gear - weight.structures.main_landing_gear
-                            - weight.structures.nose_landing_gear) / actual.landing_gear
-    error.systems           = (actual.systems - weight.systems_breakdown.total) / actual.systems
-    error.wt_furnish        = (actual.wt_furnish - weight.systems_breakdown.furnish) / actual.wt_furnish
-    error.horizontal_tail   = (actual.horizontal_tail - weight.structures.horizontal_tail) / actual.horizontal_tail
-    error.vertical_tail     = (actual.vertical_tail - weight.structures.vertical_tail) / actual.vertical_tail
-
-    print('Results (kg)')
-    print(weight)
-
-    print('Relative Errors')
-    print(error)
-
-    for k, v in error.items():
-        assert (np.abs(v) < 1E-6)
-
-    #General Aviation weights; note that values are taken from Raymer,
-    #but there is a huge spread among the GA designs, so individual components
-    #differ a good deal from the actual design
-
-    vehicle        = vehicle_setup_general_aviation()
-    weight         = General_Aviation.empty(vehicle)
-    weight.fuel    = vehicle.fuel.mass_properties.mass
-    actual         = Data()
-    actual.bag     = 0.
-    actual.empty   = 700.0097482541994
-    actual.fuel    = 48.417662245800784
-
-    actual.wing            = 152.25407206578896
-    actual.fuselage        = 126.7421108234472
-    actual.propulsion      = 224.40728553408732
-    actual.landing_gear    = 67.81320006645151
-    actual.furnishing      = 37.8341395817
-    actual.electrical      = 41.28649399649684
-    actual.control_systems = 20.51671046011007
-    actual.fuel_systems    = 20.173688786768366
-    actual.systems         = 102.62736387596043
-
-    error                 = Data()
-    error.fuel            = (actual.fuel - weight.fuel)/actual.fuel
-    error.empty           = (actual.empty - weight.empty)/actual.empty
-    error.wing            = (actual.wing - weight.structures.wing)/actual.wing
-    error.fuselage        = (actual.fuselage - weight.structures.fuselage)/actual.fuselage
-    error.propulsion      = (actual.propulsion - weight.propulsion_breakdown.total)/actual.propulsion
-    error.landing_gear    = (actual.landing_gear - (weight.structures.main_landing_gear+weight.structures.nose_landing_gear))/actual.landing_gear
-    error.furnishing      = (actual.furnishing-weight.systems_breakdown.furnish)/actual.furnishing
-    error.electrical      = (actual.electrical-weight.systems_breakdown.electrical)/actual.electrical
-    error.control_systems = (actual.control_systems-weight.systems_breakdown.control_systems)/actual.control_systems
-    error.fuel_systems    = (actual.fuel_systems-weight.propulsion_breakdown.fuel_system)/actual.fuel_systems
-    error.systems         = (actual.systems - weight.systems_breakdown.total)/actual.systems
-
-    print('Results (kg)')
-    print(weight)
-
-    print('Relative Errors')
-    print(error)
-
-    for k, v in error.items():
-        assert (np.abs(v) < 1E-6)
+    
+    method_types = ['SUAVE', 'New SUAVE', 'FLOPS Simple', 'FLOPS Complex', 'Raymer']
+    
+    for method_type in method_types:
+        print('Testing Method: '+method_type)
+        weight = Common.empty_weight(vehicle, method_type = method_type)
+    
+        #save_results(weight, 'weights_'+method_type.replace(' ','_')+'.res')
+        old_weight = load_results('weights_'+method_type.replace(' ','_')+'.res')
+    
+        check_list = [
+            'payload_breakdown.total',        
+            'payload_breakdown.passengers',             
+            'payload_breakdown.baggage',             
+            'fuel',            
+            'empty',           
+            'structures.wing',            
+            'structures.fuselage',        
+            'propulsion_breakdown.total',      
+            'structures.nose_landing_gear',    
+            'structures.main_landing_gear',                   
+            'systems_breakdown.total',         
+            'systems_breakdown.furnish',      
+            'structures.horizontal_tail', 
+            'structures.vertical_tail'   
+        ]
+    
+        # do the check
+        for k in check_list:
+            print(k)
+    
+            old_val = old_weight.deep_get(k)
+            new_val = weight.deep_get(k)
+            err = (new_val-old_val)/old_val
+            print('Error:' , err)
+            assert np.abs(err) < 1e-6 , 'Check Failed : %s' % k     
+    
+            print('')    
 
     # BWB WEIGHTS
     vehicle = bwb_setup()

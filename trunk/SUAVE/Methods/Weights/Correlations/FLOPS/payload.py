@@ -9,14 +9,15 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Units, Data
 
-def payload_FLOPS(vehicle):
+## @ingroup Methods-Weights-Correlations-FLOPS
+def payload_FLOPS(vehicle, weight_per_passenger = 165. * Units.lb):
     """ Calculate the payload weight, including:
         - passenger and carry-on weight
         - baggage weight
         - cargo weight
 
         Assumptions:
-            The weight of the average passenger is assumed to be 165 lbs
+            None
 
         Source:
             The Flight Optimization System Weight Estimation Method
@@ -37,7 +38,7 @@ def payload_FLOPS(vehicle):
         Properties Used:
             N/A
     """
-    WPPASS  = 165 * Units.lbs  # 1 passenger weight
+    WPPASS  = weight_per_passenger
     WPASS   = vehicle.passengers * WPPASS
     DESRNG  = vehicle.design_range / Units.nmi
     if DESRNG <= 900:

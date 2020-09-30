@@ -10,6 +10,7 @@
 from SUAVE.Core import Units, Data
 import numpy as np
 
+## @ingroup Methods-Weights-Correlations-FLOPS
 def landing_gear_FLOPS(vehicle):
     """ Calculate the weight of the main and nose landing gear of a transport aircraft
 

@@ -11,12 +11,14 @@ from SUAVE.Core import Units
 import numpy as np
 import SUAVE
 
+## @ingroup Methods-Weights-Correlations-FLOPS
 def fuselage_weight_FLOPS(vehicle):
     """ Calculate the weight of the fuselage of a transport aircraft
 
         Assumptions:
             NFUSE = 1, only one fuselage, please change the variable appropriately for multiple fuselages
             delta_isa = 0, for pressure calculations
+            Fuselage is tagged as 'fuselage'
 
         Source:
             The Flight Optimization System Weight Estimation Method
@@ -40,9 +42,12 @@ def fuselage_weight_FLOPS(vehicle):
         Properties Used:
             N/A
     """
-    XL  = vehicle.fuselages['fuselage'].lengths.total / Units.ft  # Fuselage length, ft
-    DAV = (vehicle.fuselages['fuselage'].width +
-           vehicle.fuselages['fuselage'].heights.maximum) / 2. * 1 / Units.ft
+    total_length = vehicle.fuselages['fuselage'].lengths.total
+    width        = vehicle.fuselages['fuselage'].width
+    max_height   = vehicle.fuselages['fuselage'].heights.maximum
+    
+    XL  = total_length / Units.ft  # Fuselage length, ft
+    DAV = (width + max_height) / 2. * 1 / Units.ft
     if vehicle.systems.accessories == "short-range" or vehicle.systems.accessories == "commuter":
         SWFUS           = np.pi * (XL / DAV - 1.7) * DAV ** 2  # Fuselage wetted area, ft**2
         ULF             = vehicle.envelope.ultimate_load  # Ultimate load factor

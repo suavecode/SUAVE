@@ -1,4 +1,4 @@
-## @ingroup Methods-Weights-Correlations-Tube_Wing
+## @ingroup Methods-Weights-Correlations-Common
 # systems.py
 #
 # Created:  Jan 2014, A. Wendorff
@@ -16,7 +16,7 @@ from SUAVE.Core import Units, Data
 #   Systems
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Weights-Correlations-Tube_Wing
+## @ingroup Methods-Weights-Correlations-Common
 def systems(vehicle):
     """ Calculate the weight of the different engine systems on the aircraft
 
@@ -63,6 +63,10 @@ def systems(vehicle):
     for wing in vehicle.wings:
         if isinstance(wing, Wings.Horizontal_Tail) or isinstance(wing, Wings.Vertical_Tail):
             s_tail += wing.areas.reference
+    if s_tail == 0: # assume flight control only on wing, for example on a BWB
+        for wing in vehicle.wings:
+            if isinstance(wing, Wings.Main_Wing):
+                s_tail += wing.areas.reference * 0.01
     area_hv = s_tail / Units.ft ** 2  # Convert meters squared to ft squared
 
     # process

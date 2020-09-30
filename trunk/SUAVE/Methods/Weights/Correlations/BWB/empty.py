@@ -12,12 +12,13 @@ import SUAVE
 from SUAVE.Core import Units, Data
 from .cabin import cabin
 from .aft_centerbody import aft_centerbody
-from .systems import systems
+from SUAVE.Methods.Weights.Correlations.Common.systems import systems
 from SUAVE.Methods.Weights.Correlations.Common import wing_main as wing_main
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear_weight
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload_weight
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
-from SUAVE.Methods.Weights.Correlations.Transport.operating_items import operating_system
+from SUAVE.Methods.Weights.Correlations.Transport.operating_items import operating_items
+from SUAVE.Attributes.Solids.Aluminum import Aluminum
 
 import warnings
 
@@ -31,8 +32,9 @@ def empty(vehicle):
     """ This is for a BWB aircraft configuration.
 
     Assumptions:
-         calculated aircraft weight from correlations created per component of historical aircraft
-         The wings are made out of aluminum
+         Calculated aircraft weight from correlations created per component of historical aircraft
+         The wings are made out of aluminum.
+         A wing with the tag 'main_wing' exists.
 
     Source:
         N/A
@@ -126,21 +128,24 @@ def empty(vehicle):
         warnings.warn("There is no Wing Weight being added to the Configuration", stacklevel=1)
 
     else:
+        
+        rho      = Aluminum().density
+        sigma    = Aluminum().yield_tensile_strength           
         S_h = vehicle.wings['main_wing'].areas.reference * 0.01  # control surface area on bwb
-        wt_wing = wing_main(vehicle, vehicle.wings['main_wing'])
+        wt_wing = wing_main(vehicle, vehicle.wings['main_wing'], computation_type='simple')
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing
 
         # Calculating Empty Weight of Aircraft
     landing_gear        = landing_gear_weight(vehicle)
     wt_cabin            = cabin(bwb_cabin_area, TOW)
     wt_aft_centerbody   = aft_centerbody(num_eng, bwb_aft_centerbody_area, bwb_aft_centerbody_taper, TOW)
-    output_2            = systems(num_seats, ctrl_type, S_h, S_gross_w, ac_type)
+    output_2            = systems(vehicle)
     # Calculate the equipment empty weight of the aircraft
     vehicle.fuselages['fuselage_bwb'].mass_properties.mass = wt_cabin
 
     # packup outputs
     payload = payload_weight(vehicle)
-    wt_oper = operating_system(vehicle)
+    wt_oper = operating_items(vehicle)
     # Distribute all weight in the output fields
     output = Data()
     output.structures                   = Data()
@@ -200,13 +205,10 @@ def empty(vehicle):
     avionics                = SUAVE.Components.Energy.Peripherals.Avionics()
     optionals               = SUAVE.Components.Physical_Component()
 
-    # assign output weights to objects
-    try:
-        vehicle.landing_gear.mass_properties.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
-    except AttributeError:  # landing gear not defined
-        landing_gear_component  = SUAVE.Components.Landing_Gear.Landing_Gear()
-        vehicle.landing_gear    = landing_gear_component
-        vehicle.landing_gear.mass_properties.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
+    vehicle.landing_gear.nose_landing_gear       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
+    vehicle.landing_gear.nose_landing_gear.mass  = output.structures.nose_landing_gear
+    vehicle.landing_gear.main_landing_gear       = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()   
+    vehicle.landing_gear.main_landing_gear.mass  = output.structures.main_landing_gear  
 
     control_systems.mass_properties.mass    = output.systems_breakdown.control_systems
     electrical_systems.mass_properties.mass = output.systems_breakdown.electrical
@@ -218,7 +220,7 @@ def empty(vehicle):
     fuel.mass_properties.mass               = output.fuel
     apu.mass_properties.mass                = output.systems_breakdown.apu
     hydraulics.mass_properties.mass         = output.systems_breakdown.hydraulics
-    optionals.mass_properties.mass          = output.operational_items.operating_items
+    optionals.mass_properties.mass          = output.operational_items.operating_items_less_crew
 
     # assign components to vehicle
     vehicle.control_systems         = control_systems

@@ -36,11 +36,11 @@ def systems_Raymer(vehicle):
                 -.design_mach_number: design mach number for cruise flight
                 -.design_range: design range of aircraft                        [nmi]
                 -.passengers: number of passengers in aircraft
-                -.flap_ratio: flap surface area over wing surface area
                 -.wings['main_wing']: data dictionary with main wing properties
                     -.sweeps.quarter_chord: quarter chord sweep                 [deg]
                     -.areas.reference: wing surface area                        [m^2]
                     -.spans.projected: projected span of wing                   [m]
+                    -.flap_ratio: flap surface area over wing surface area
                 -.payload: payload weight of aircraft                           [kg]
 
         Outputs:
@@ -72,7 +72,7 @@ def systems_Raymer(vehicle):
     L   = vehicle.fuselages['fuselage'].lengths.total / Units.ft
     Bw  = vehicle.wings['main_wing'].spans.projected / Units.ft
     DG  = vehicle.mass_properties.max_takeoff / Units.lbs
-    Scs = vehicle.flap_ratio * vehicle.reference_area / Units.ft**2
+    Scs = vehicle.wings['main_wing'].flap_ratio * vehicle.reference_area / Units.ft**2
 
     WSC = 36.28 * vehicle.design_mach_number**0.003 * Scs**0.489 * Ns**0.484 * flight_crew**0.124
 

@@ -10,7 +10,8 @@
 from SUAVE.Core import Units, Data
 import numpy as np
 
-def operating_system_FLOPS(vehicle):
+## @ingroup Methods-Weights-Correlations-FLOPS
+def operating_items_FLOPS(vehicle):
     """ Calculate the weight of operating items, including:
         - crew
         - baggage
@@ -21,7 +22,7 @@ def operating_system_FLOPS(vehicle):
         - cargo containers
 
         Assumptions:
-            Every plane has 5 fuel tanks (includes main and auxiliary tanks)
+            If no tanks are specified, 5 fuel tanks are assumed (includes main and auxiliary tanks)
             If the number of coach seats is not defined, then it assumed that 5% of
                 of the seats are first class and an additional 10 % are business class.
             If the number of coach seats is defined, then the additional seats are 1/4 first class
@@ -57,8 +58,18 @@ def operating_system_FLOPS(vehicle):
     NENG            = propulsors.number_of_engines
     THRUST          = propulsors.sealevel_static_thrust * 1 / Units.lbf
     SW              = vehicle.reference_area / Units.ft ** 2
-    NTANK           = 5  # Number of fuel tanks
     FMXTOT          = vehicle.mass_properties.max_zero_fuel / Units.lbs
+    DESRNG          = vehicle.design_range / Units.nmi
+    VMAX            = vehicle.design_mach_number   
+    
+    NTANK = 0 # number of fuel tanks
+    for wing in vehicle.wings:
+        NTANK += len(wing.Fuel_Tanks)
+    for fuselage in vehicle.fuselages:
+        NTANK += len(fuselage.Fuel_Tanks)
+    if NTANK == 0:
+        NTANK = 5    
+    
     WUF             = 11.5 * NENG * THRUST ** 0.2 + 0.07 * SW + 1.6 * NTANK * FMXTOT ** 0.28  # unusable fuel weight
     WOIL            = 0.082 * NENG * THRUST ** 0.65  # engine oil weight
     if hasattr(vehicle.fuselages['fuselage'], 'number_coach_seats'):
@@ -72,8 +83,6 @@ def operating_system_FLOPS(vehicle):
     vehicle.NPF = NPF
     vehicle.NPB = NPB
     vehicle.NPT = NPT
-    DESRNG      = vehicle.design_range / Units.nmi
-    VMAX        = vehicle.design_mach_number
     WSRV        = (5.164 * NPF + 3.846 * NPB + 2.529 * NPT) * (DESRNG / VMAX) ** 0.255  # passenger service weight
     WCON        = 175 * np.ceil(vehicle.mass_properties.cargo / Units.lbs * 1. / 950)  # cargo container weight
 
@@ -84,16 +93,17 @@ def operating_system_FLOPS(vehicle):
         NFLCR = 2
         NGALC = 0
     if vehicle.passengers < 51:
-        NSTU = 1  # number of flight attendants
+        NFLA = 1  # number of flight attendants, NSTU in FLOPS
     else:
-        NSTU = 1 + np.floor(vehicle.passengers / 40.)
+        NFLA = 1 + np.floor(vehicle.passengers / 40.)
 
-    WSTUAB = NSTU * 155 + NGALC * 200  # flight attendant weight
+    WFLAAB = NFLA * 155 + NGALC * 200  # flight attendant weight, WSTUAB in FLOPS
     WFLCRB = NFLCR * 225  # flight crew and baggage weight
 
-    output                      = Data()
-    output.operating_items      = WUF * Units.lbs + WOIL * Units.lbs + WSRV * Units.lbs + WCON * Units.lbs
-    output.flight_crew          = WFLCRB * Units.lbs
-    output.flight_attendants    = WSTUAB * Units.lbs
-    output.total                = output.operating_items + output.flight_crew + output.flight_attendants
+    output                           = Data()
+    output.operating_items_less_crew = WUF * Units.lbs + WOIL * Units.lbs + WSRV * Units.lbs + WCON * Units.lbs
+    output.flight_crew               = WFLCRB * Units.lbs
+    output.flight_attendants         = WFLAAB * Units.lbs
+    output.total                     = output.operating_items_less_crew + output.flight_crew + \
+                                       output.flight_attendants
     return output

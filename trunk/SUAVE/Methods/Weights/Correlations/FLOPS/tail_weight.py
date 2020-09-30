@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Units
 
+## @ingroup Methods-Weights-Correlations-FLOPS
 def tail_vertical_FLOPS(vehicle, wing):
     """ Calculate the vertical tail weight
 

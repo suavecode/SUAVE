@@ -10,6 +10,7 @@
 from SUAVE.Core import Units, Data
 import numpy as np
 
+## @ingroup Methods-Weights-Correlations-FLOPS
 def total_prop_flops(vehicle, prop):
     """ Calculate the weight of propulsion system, including:
         - dry engine weight
@@ -75,7 +76,7 @@ def total_prop_flops(vehicle, prop):
     output.wt_eng               = WENG * NENG
     return output
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def nacelle_FLOPS(prop):
     """ Calculates the nacelle weight based on the FLOPS method
         Assumptions:
@@ -106,7 +107,7 @@ def nacelle_FLOPS(prop):
     WNAC = 0.25 * TNAC * DNAC * XNAC * FTHRST ** 0.36
     return WNAC * Units.lbs
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def thrust_reverser_FLOPS(prop):
     """ Calculates the weight of the thrust reversers of the aircraft
         Assumptions:
@@ -131,7 +132,7 @@ def thrust_reverser_FLOPS(prop):
     WTHR = 0.034 * THRUST * TNAC
     return WTHR * Units.lbs
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def misc_engine_FLOPS(vehicle, prop):
     """ Calculates the miscellaneous engine weight based on the FLOPS method, electrical control system weight
         and starter engine weight
@@ -163,7 +164,7 @@ def misc_engine_FLOPS(vehicle, prop):
     WSTART = 11.0 * NENG * VMAX ** 0.32 * FNAC ** 1.6
     return WEC * Units.lbs, WSTART * Units.lbs
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def fuel_system_FLOPS(vehicle, NENG):
     """ Calculates the weight of the fuel system based on the FLOPS method
         Assumptions:
@@ -187,10 +188,11 @@ def fuel_system_FLOPS(vehicle, NENG):
     WFSYS = 1.07 * FMXTOT ** 0.58 * NENG ** 0.43 * VMAX ** 0.34
     return WFSYS * Units.lbs
 
-
+## @ingroup Methods-Weights-Correlations-FLOPS
 def engine_FLOPS(vehicle, prop):
     """ Calculates the dry engine weight based on the FLOPS method
         Assumptions:
+            The baseline engine is being used, so scaled factors are not active.
 
         Source:
             The Flight Optimization System Weight Estimation Method

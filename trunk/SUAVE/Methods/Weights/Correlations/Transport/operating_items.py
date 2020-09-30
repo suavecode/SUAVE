@@ -13,7 +13,7 @@ from SUAVE.Core import Units, Data
 import numpy as np
 
 
-def operating_system(vehicle):
+def operating_items(vehicle):
     """ Calculate the weight of operating items, including:
         - crew
         - baggage
@@ -77,9 +77,10 @@ def operating_system(vehicle):
     wt_flight_attendants = flight_attendants * (170 + 40)  # FLOPS: WSTUAB
     wt_flight_crew = flight_crew * (190 + 50)  # FLOPS: WFLCRB
 
-    output                      = Data()
-    output.operating_items      = operitems_wt
-    output.flight_crew          = wt_flight_crew * Units.lbs
-    output.flight_attendants    = wt_flight_attendants * Units.lbs
-    output.total                = output.operating_items + output.flight_crew + output.flight_attendants
+    output                           = Data()
+    output.operating_items_less_crew = operitems_wt
+    output.flight_crew               = wt_flight_crew * Units.lbs
+    output.flight_attendants         = wt_flight_attendants * Units.lbs
+    output.total                     = output.operating_items_less_crew + output.flight_crew + \
+                                       output.flight_attendants
     return output

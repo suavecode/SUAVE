@@ -11,7 +11,10 @@ import SUAVE
 from SUAVE.Core import Units
 import numpy as np
 
-def wing_weight_FLOPS(vehicle, wing, WPOD, complexity):
+## @ingroup Methods-Weights-Correlations-FLOPS
+def wing_weight_FLOPS(vehicle, wing, WPOD, complexity,
+                      aeroelastic_tailoring_factor = 0.,
+                      strut_braced_wing_factor = 0.):
     """ Calculate the wing weight based on the flops method. The wing weight consists of:
         - Total Wing Shear Material and Control Surface Weight
         - Total Wing Miscellaneous Items Weight
@@ -19,6 +22,7 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity):
 
         Assumptions:
             Wing is elliptically loaded
+            Gloved wing area is 0
 
         Source:
             The Flight Optimization System Weight Estimation Method
@@ -28,7 +32,6 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity):
                 -.reference_area: wing surface area                             [m^2]
                 -.mass_properties.max_takeoff: MTOW                             [kilograms]
                 -.envelope.ultimate_load: ultimate load factor (default: 3.75)
-                -.flap_ratio: ratio of flap surface area to total wing area
                 -.systems.accessories: type of aircraft (short-range, commuter
                                                         medium-range, long-range,
                                                         sst, cargo)
@@ -42,6 +45,7 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity):
                     -.tip.root: tip chord                                       [m]
                     -.twists.root: twist of wing at root                        [deg]
                     -.twists.tip: twist of wing at tip                          [deg]
+                    -.flap_ratio: flap surface area over wing surface area
                  -.propulsors: data dictionary containing all propulsion properties
                     -.number_of_engines: number of engines
                     -.sealevel_static_thrust: thrust at sea level               [N]
@@ -55,7 +59,7 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity):
             N/A
     """
     SW          = wing.areas.reference / (Units.ft ** 2)  # Reference wing area, ft^2
-    GLOV        = 0  # Gloved area, assumed 0
+    GLOV        = 0 
     SX          = SW - GLOV  # Wing trapezoidal area
     SPAN        = wing.spans.projected / Units.ft  # Wing span, ft
     SEMISPAN    = SPAN / 2
@@ -65,8 +69,10 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity):
         CAYA = 0
     else:
         CAYA = AR - 5
-    FAERT           = 0  # Aeroelastic tailoring factor [0 no aeroelastic tailoring, 1 maximum aeroelastic tailoring]
-    FSTRT           = 0  # Wing strut bracing factor [0 for no struts, 1 for struts]
+    # Aeroelastic tailoring factor [0 no aeroelastic tailoring, 1 maximum aeroelastic tailoring]
+    FAERT           = aeroelastic_tailoring_factor  
+    # Wing strut bracing factor [0 for no struts, 1 for struts]
+    FSTRT           = strut_braced_wing_factor
     propulsor_name  = list(vehicle.propulsors.keys())[0]
     propulsors      = vehicle.propulsors[propulsor_name]
     NEW             = sum(propulsors.wing_mounted)
@@ -159,7 +165,7 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity):
     PCTL    = 1  # Fraction of load carried by this wing
     W1NIR   = A[0] * BT * (1 + np.sqrt(A[1] / SPAN)) * ULF * SPAN * (1 - 0.4 * FCOMP) * (
                 1 - 0.1 * FAERT) * CAYF * VFACT * PCTL / 10.0 ** 6  # Wing bending material weight lb
-    SFLAP   = vehicle.flap_ratio * SX
+    SFLAP   = wing.flap_ratio * SX
 
     W2 = A[2] * (1 - 0.17 * FCOMP) * SFLAP ** (A[3]) * DG ** (A[4])  # shear material weight
     W3 = A[5] * (1 - 0.3 * FCOMP) * SW ** (A[6])  # miscellaneous items weight

@@ -13,7 +13,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 from SUAVE.Methods.Weights.Correlations.FLOPS.prop_system import total_prop_flops
 from SUAVE.Methods.Weights.Correlations.FLOPS.systems import systems_FLOPS
-from SUAVE.Methods.Weights.Correlations.FLOPS.operating_items import operating_system_FLOPS
+from SUAVE.Methods.Weights.Correlations.FLOPS.operating_items import operating_items_FLOPS
 from SUAVE.Methods.Weights.Correlations.FLOPS.wing_weight import wing_weight_FLOPS
 from SUAVE.Methods.Weights.Correlations.FLOPS.tail_weight import tail_horizontal_FLOPS
 from SUAVE.Methods.Weights.Correlations.FLOPS.tail_weight import tail_vertical_FLOPS
@@ -24,10 +24,9 @@ from SUAVE.Methods.Weights.Correlations.FLOPS.payload import payload_FLOPS
 from SUAVE.Methods.Weights.Correlations.Common.systems import systems
 from SUAVE.Methods.Weights.Correlations.Transport.tail_horizontal import tail_horizontal
 from SUAVE.Methods.Weights.Correlations.Transport.tail_vertical import tail_vertical
-from SUAVE.Methods.Weights.Correlations.Transport.operating_items import operating_system
+from SUAVE.Methods.Weights.Correlations.Transport.operating_items import operating_items
 from SUAVE.Methods.Weights.Correlations.Transport.tube import tube
 from SUAVE.Methods.Weights.Correlations.Common import wing_main
-from SUAVE.Methods.Weights.Correlations.Common import wing_main_exact
 from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_gear_weight
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload_weight
 
@@ -37,6 +36,8 @@ from SUAVE.Methods.Weights.Correlations.Raymer import fuselage_weight_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import landing_gear_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import systems_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import total_prop_Raymer
+
+from SUAVE.Attributes.Solids.Aluminum import Aluminum
 
 def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     """ Main function that estimates the zero-fuel weight of a transport aircraft:
@@ -51,17 +52,20 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
             SUAVE method: http://aerodesign.stanford.edu/aircraftdesign/AircraftDesign.html
             RAYMER method: Aircraft Design A Conceptual Approach
        Inputs:
-            vehicle - data dictionary with vehicle properties           [dimensionless]
+            vehicle - data dictionary with vehicle properties               [dimensionless]
                 -.propulsors: data dictionary with all the propulsor elements and properties
-                -.flap_ratio: ratio of flaps to wing surface area ratio
+                    -.total_weight: total weight of the propulsion system   [kg] 
+                      (optional, calculated if not included)
                 -.fuselages: data dictionary with the fuselage properties of the vehicle
                 -.wings: data dictionary with all the wing properties of the vehicle, including horzinotal and vertical stabilizers
+                -.wings['main_wing']: data dictionary with main wing properties
+                    -.flap_ratio: flap surface area over wing surface area
                 -.mass_properties: data dictionary with all the main mass properties of the vehicle including MTOW, ZFW, EW and OEW
 
             settings.weight_reduction_factors.
-                    main_wing                                           [dimensionless] (.1 is a 10% weight reduction)
-                    empennage                                           [dimensionless] (.1 is a 10% weight reduction)
-                    fuselage                                            [dimensionless] (.1 is a 10% weight reduction)
+                    main_wing                                               [dimensionless] (.1 is a 10% weight reduction)
+                    empennage                                               [dimensionless] (.1 is a 10% weight reduction)
+                    fuselage                                                [dimensionless] (.1 is a 10% weight reduction)
             method_type - weight estimation method chosen, available:
                             - FLOPS Simple
                             - FLOPS Complex
@@ -107,7 +111,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
                             -.total: total payload weight
 
                         -.operational_items: operational items weight
-                            -.oper_items: unusable fuel, engine oil, passenger service weight and cargo containers
+                            -.operating_items_less_crew: unusable fuel, engine oil, passenger service weight and cargo containers
                             -.flight_crew: flight crew weight
                             -.flight_attendants: flight attendants weight
                             -.total: total operating items weight
@@ -134,16 +138,12 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
             raise ValueError("FLOPS requires a cruise altitude for sizing!")
         if not hasattr(vehicle, 'flap_ratio'):
             if vehicle.systems.accessories == "sst":
-                vehicle.flap_ratio = 0.22
+                flap_ratio = 0.22
             else:
-                vehicle.flap_ratio = 0.33
-    propulsor_name = list(vehicle.propulsors.keys())[0]
-    propulsors = vehicle.propulsors[propulsor_name]
-    if not isinstance(propulsors.wing_mounted,list):
-        propulsors.wing_mounted = [propulsors.wing_mounted] * int(propulsors.number_of_engines)
-    else:
-        if len(propulsors.wing_mounted) != int(propulsors.number_of_engines):
-            raise ValueError("Lenght of wing_mounted list does not match number of engines")
+                flap_ratio = 0.33
+            for wing in vehicle.wings:
+                if isinstance(wing, Wings.Main_Wing):
+                    wing.flap_ratio = flap_ratio
 
     # Set the factors
     if settings is None:
@@ -171,6 +171,13 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     for prop in vehicle.propulsors:
         if isinstance(prop, Nets.Turbofan) or isinstance(prop, Nets.Turbojet_Super) or isinstance(prop,
                                                                                                   Nets.Propulsor_Surrogate):
+            
+            if not isinstance(prop.wing_mounted,list):
+                prop.wing_mounted = [prop.wing_mounted] * int(prop.number_of_engines)
+            else:
+                if len(prop.wing_mounted) != int(prop.number_of_engines):
+                    raise ValueError("Length of wing_mounted list does not match number of engines")            
+            
             num_eng     = prop.number_of_engines
             thrust_sls  = prop.sealevel_static_thrust
             if 'total_weight' in prop.keys():
@@ -197,11 +204,12 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     else:
         payload = payload_weight(vehicle)
     vehicle.payload = payload.total
+    
     # Operating Items Weight
     if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
-        wt_oper = operating_system_FLOPS(vehicle)
+        wt_oper = operating_items_FLOPS(vehicle)
     else:
-        wt_oper = operating_system(vehicle)
+        wt_oper = operating_items(vehicle)
 
     # System Weight
     if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
@@ -228,12 +236,16 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     wt_main_wing        = 0.0
     wt_tail_horizontal  = 0.0
     wt_tail_vertical    = 0.0
+    
+    rho      = Aluminum().density
+    sigma    = Aluminum().yield_tensile_strength      
+    
     for wing in vehicle.wings:
         if isinstance(wing, Wings.Main_Wing):
             if method_type == 'SUAVE':
-                wt_wing = wing_main(vehicle, wing)
+                wt_wing = wing_main(vehicle, wing, rho, sigma, computation_type='simple')
             elif method_type == 'New SUAVE':
-                wt_wing = wing_main_exact(vehicle, wing)
+                wt_wing = wing_main(vehicle, wing, rho, sigma)
             elif method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
                 complexity = method_type.split()[1]
                 wt_wing = wing_weight_FLOPS(vehicle, wing, WPOD, complexity)
@@ -287,7 +299,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
         fuse.mass_properties.mass = wt_fuse
         wt_fuse_total += wt_fuse
 
-    # Landing Gear Weigth
+    # Landing Gear Weight
     if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
         landing_gear = landing_gear_FLOPS(vehicle)
     elif method_type == 'Raymer':
@@ -308,7 +320,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
         output.structures.nacelle = 0
     else:
         output.structures.nacelle = wt_prop_data.nacelle
-    output.structures.paint = 0  # TODO change
+    output.structures.paint = 0  # TODO reconcile FLOPS paint calculations with Raymer and SUAVE baseline
     output.structures.total = output.structures.wing + output.structures.horizontal_tail + output.structures.vertical_tail \
                               + output.structures.fuselage + output.structures.main_landing_gear + output.structures.nose_landing_gear \
                               + output.structures.paint + output.structures.nacelle
@@ -364,17 +376,12 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     avionics                = SUAVE.Components.Energy.Peripherals.Avionics()
     optionals               = SUAVE.Components.Physical_Component()
 
-    # assign output weights to objects
-    try:
-        vehicle.landing_gear.mass_properties.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
-    except AttributeError:  # landing gear not defined
-        landing_gear_component  = SUAVE.Components.Landing_Gear.Landing_Gear()
-        vehicle.landing_gear.total    = landing_gear_component
-        vehicle.landing_gear.total.mass = output.structures.main_landing_gear + output.structures.nose_landing_gear
-    vehicle.landing_gear.nose_landing_gear       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()
-    vehicle.landing_gear.nose_landing_gear.mass  = output.structures.nose_landing_gear
-    vehicle.landing_gear.main_landing_gear       = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()   
-    vehicle.landing_gear.main_landing_gear.mass  = output.structures.main_landing_gear  
+    if not hasattr(vehicle.landing_gear, 'nose'):
+        vehicle.landing_gear.nose       = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
+    vehicle.landing_gear.nose.mass  = output.structures.nose_landing_gear
+    if not hasattr(vehicle.landing_gear, 'main'):
+        vehicle.landing_gear.main       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()   
+    vehicle.landing_gear.main.mass  = output.structures.main_landing_gear  
 
     control_systems.mass_properties.mass        = output.systems_breakdown.control_systems
     electrical_systems.mass_properties.mass     = output.systems_breakdown.electrical
@@ -386,7 +393,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     fuel.mass_properties.mass                   = output.fuel
     apu.mass_properties.mass                    = output.systems_breakdown.apu
     hydraulics.mass_properties.mass             = output.systems_breakdown.hydraulics
-    optionals.mass_properties.mass              = output.operational_items.operating_items
+    optionals.mass_properties.mass              = output.operational_items.operating_items_less_crew
 
     # assign components to vehicle
     vehicle.systems.control_systems         = control_systems
