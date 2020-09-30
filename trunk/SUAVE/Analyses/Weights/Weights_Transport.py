@@ -80,7 +80,7 @@ class Weights_Transport(Weights):
         self.settings.Raymer = Data()
         self.settings.Raymer.fuselage_mounted_landing_gear_factor = 1. # 1. if false, 1.12 if true
 
-    def evaluate(self, method="SUAVE"):
+    def evaluate(self, method="New SUAVE"):
         """Evaluate the weight analysis.
 
         Assumptions:

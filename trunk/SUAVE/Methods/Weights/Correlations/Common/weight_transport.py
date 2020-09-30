@@ -165,7 +165,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
             wt_factors.structural   = 0.
             wt_factors.systems      = 0.
 
-    # Prop weight
+    # Prop weight (propulsion pod weight is calculated separately)
     wt_prop_total   = 0
     wt_prop_data    = None
     for prop in vehicle.propulsors:
@@ -221,6 +221,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     for item in wt_sys.keys():
         wt_sys[item] *= (1. - wt_factors.systems)
 
+    # Prop pod weight
     WPOD = 0.0
     if method_type == 'FLOPS Complex':
         propulsor_name  = list(vehicle.propulsors.keys())[0]
@@ -326,6 +327,8 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
         output.structures.nacelle = 0
     else:
         output.structures.nacelle = wt_prop_data.nacelle
+    if 'FLOPS' in method_type:
+        print('Paint weight is currently ignored in FLOPS calculations.')
     output.structures.paint = 0  # TODO reconcile FLOPS paint calculations with Raymer and SUAVE baseline
     output.structures.total = output.structures.wing + output.structures.horizontal_tail + output.structures.vertical_tail \
                               + output.structures.fuselage + output.structures.main_landing_gear + output.structures.nose_landing_gear \
