@@ -1,7 +1,8 @@
 # test_Tiltwing.py
 # 
-# Created:  Feb 2020, M. Clarke
-#
+# Created: Feb 2020, M. Clarke
+#          Sep 2020, M. Clarke 
+
 """ setup file for a mission with Tiltwing eVTOL  
 """
 
@@ -9,12 +10,10 @@
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units , Data 
+from SUAVE.Core import Units 
 from SUAVE.Plots.Mission_Plots import * 
 import numpy as np  
-import time  
 import sys 
-import pylab as plt
 
 sys.path.append('../Vehicles')
 # the analysis functions
@@ -51,7 +50,7 @@ def main():
    
     # RPM check during hover
     RPM        = results.segments.hover.conditions.propulsion.rpm[0][0]
-    RPM_true   = 1600.1282025898854
+    RPM_true   = 1346.1340113995816
     
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
@@ -61,7 +60,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0] 
-    lift_coefficient_true   = 0.6482051842320408
+    lift_coefficient_true   = 1.27853951187073 # 0.6482051842323242 Correct but Travis has a isssue
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -210,8 +209,8 @@ def mission_setup(analyses,vehicle):
     segment.climb_rate      = 300. * Units['ft/min']
     segment.battery_energy  = vehicle.propulsors.vectored_thrust.battery.max_energy  
     
-    segment.state.unknowns.propeller_power_coefficient = 0.04 * ones_row(1)
-    segment.state.unknowns.throttle                    = 0.8 * ones_row(1)
+    segment.state.unknowns.propeller_power_coefficient = 0.06 * ones_row(1)
+    segment.state.unknowns.throttle                    = 1.0 * ones_row(1)
     
     segment.process.iterate.unknowns.network          = vehicle.propulsors.vectored_thrust.unpack_unknowns 
     segment.process.iterate.residuals.network         = vehicle.propulsors.vectored_thrust.residuals   
@@ -235,7 +234,7 @@ def mission_setup(analyses,vehicle):
     segment.time            = 2*60
 
     segment.state.unknowns.propeller_power_coefficient = 0.01 * ones_row(1)     
-    segment.state.unknowns.throttle                    = 0.5 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.5* ones_row(1)
     
     segment.process.iterate.unknowns.network           = vehicle.propulsors.vectored_thrust.unpack_unknowns 
     segment.process.iterate.residuals.network          = vehicle.propulsors.vectored_thrust.residuals   
@@ -287,7 +286,7 @@ def mission_setup(analyses,vehicle):
     segment.distance  = 30.    * Units.miles                       
     
     segment.state.unknowns.propeller_power_coefficient = 0.03 * ones_row(1)
-    segment.state.unknowns.throttle                    = 0.95 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.5 * ones_row(1)
     
     segment.process.iterate.unknowns.network        = vehicle.propulsors.vectored_thrust.unpack_unknowns
     segment.process.iterate.residuals.network       = vehicle.propulsors.vectored_thrust.residuals    

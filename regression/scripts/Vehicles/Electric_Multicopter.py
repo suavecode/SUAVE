@@ -1,6 +1,7 @@
 # Electric_Multicopter.py
 # 
 # Created: Feb 2020, M Clarke
+#          Sep 2020, M. Clarke 
 
 #----------------------------------------------------------------------
 #   Imports
@@ -12,7 +13,7 @@ from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff 
 from SUAVE.Methods.Weights.Buildups.Electric_Multicopter.empty import empty 
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , compute_optimal_motor_parameters
+from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Weights.Correlations.Propulsion import nasa_motor, hts_motor , air_cooled_motor
 import numpy as np
 
@@ -228,12 +229,8 @@ def vehicle_setup():
     motor.gear_ratio           = 1.0
     motor.gearbox_efficiency   = 1.0 
     motor.no_load_current      = 4.0     
-    motor                      = compute_optimal_motor_parameters(motor,rotor)
-    net.motor                  = motor
-    
-
-    # append motor origin spanwise locations onto wing data structure 
-    motor_origins = np.array(rotor.origin)   
+    motor                      = size_optimal_motor(motor,rotor)
+    net.motor                  = motor 
                                                 
     # Define motor sizing parameters            
     max_power  = rotor.design_power * 1.2
@@ -248,47 +245,9 @@ def vehicle_setup():
     # test air cooled motor weight function 
     mass                        = air_cooled_motor(max_power) 
     motor.mass_properties.mass  = mass 
-    net.motor                   = motor
-
-    # append motor origin spanwise locations onto wing data structure 
-    motor_origins = np.array(rotor.origin) 
+    net.motor                   = motor 
+    
     vehicle.append_component(net)
     
     vehicle.weight_breakdown  = empty(vehicle,None)
     return vehicle
-
-
-# ----------------------------------------------------------------------
-#   Define the Configurations
-# ---------------------------------------------------------------------
-
-def configs_setup(vehicle):
-    # ------------------------------------------------------------------
-    #   Initialize Configurations
-    # ------------------------------------------------------------------ 
-    configs = SUAVE.Components.Configs.Config.Container()
-    
-    # ------------------------------------------------------------------
-    #   Base Configuration
-    # ------------------------------------------------------------------                                                
-    base_config                = SUAVE.Components.Configs.Config(vehicle)
-    base_config.tag            = 'base'
-    configs.append(base_config)
-    
-    # ------------------------------------------------------------------
-    #   Hover Configuration
-    # ------------------------------------------------------------------
-    config                                    = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                = 'hover'
-    config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
-    configs.append(config)
-    
-    # ------------------------------------------------------------------
-    #    Configuration
-    # ------------------------------------------------------------------
-    config                                    = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                = 'climb' 
-    config.propulsors.propulsor.pitch_command = 0.  * Units.degrees    
-    configs.append(config)
-    
-    return configs
