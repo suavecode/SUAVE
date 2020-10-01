@@ -344,7 +344,7 @@ def vehicle_setup():
 
     # total design thrust (includes all the engines)
     # picked lower range of 747-400 at https://en.wikipedia.org/wiki/Boeing_747
-    thrust.total_design = 276000. * Units.N  # Newtons
+    thrust.total_design = 4 * 276000. * Units.N  # Newtons
 
     # design sizing conditions
     altitude = 35000.0 * Units.ft

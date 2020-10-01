@@ -85,6 +85,50 @@ def main():
     
             print('')    
 
+    #General Aviation weights; note that values are taken from Raymer,	
+    #but there is a huge spread among the GA designs, so individual components	
+    #differ a good deal from the actual design	
+
+    vehicle        = vehicle_setup_general_aviation()	
+    weight         = General_Aviation.empty(vehicle)	
+    weight.fuel    = vehicle.fuel.mass_properties.mass	
+    actual         = Data()	
+    actual.bag     = 0.	
+    actual.empty   = 700.0097482541994	
+    actual.fuel    = 48.417662245800784	
+
+    actual.wing            = 152.25407206578896	
+    actual.fuselage        = 126.7421108234472	
+    actual.propulsion      = 224.40728553408732	
+    actual.landing_gear    = 67.81320006645151	
+    actual.furnishing      = 37.8341395817	
+    actual.electrical      = 41.28649399649684	
+    actual.control_systems = 20.51671046011007	
+    actual.fuel_systems    = 20.173688786768366	
+    actual.systems         = 102.62736387596043	
+
+    error                 = Data()	
+    error.fuel            = (actual.fuel - weight.fuel)/actual.fuel	
+    error.empty           = (actual.empty - weight.empty)/actual.empty	
+    error.wing            = (actual.wing - weight.structures.wing)/actual.wing	
+    error.fuselage        = (actual.fuselage - weight.structures.fuselage)/actual.fuselage	
+    error.propulsion      = (actual.propulsion - weight.propulsion_breakdown.total)/actual.propulsion	
+    error.landing_gear    = (actual.landing_gear - (weight.structures.main_landing_gear+weight.structures.nose_landing_gear))/actual.landing_gear	
+    error.furnishing      = (actual.furnishing-weight.systems_breakdown.furnish)/actual.furnishing	
+    error.electrical      = (actual.electrical-weight.systems_breakdown.electrical)/actual.electrical	
+    error.control_systems = (actual.control_systems-weight.systems_breakdown.control_systems)/actual.control_systems	
+    error.fuel_systems    = (actual.fuel_systems-weight.propulsion_breakdown.fuel_system)/actual.fuel_systems	
+    error.systems         = (actual.systems - weight.systems_breakdown.total)/actual.systems	
+
+    print('Results (kg)')	
+    print(weight)	
+
+    print('Relative Errors')	
+    print(error)	
+
+    for k, v in error.items():	
+        assert (np.abs(v) < 1E-6)
+
     # BWB WEIGHTS
     vehicle = bwb_setup()
     weight  = BWB.empty(vehicle)
