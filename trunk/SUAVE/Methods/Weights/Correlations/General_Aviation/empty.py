@@ -323,6 +323,14 @@ def empty(vehicle):
 
     # packup outputs
     wt_payload = payload(TOW, wt_empty, num_pax,wt_cargo)
+    
+    vehicle.payload.passengers = SUAVE.Components.Physical_Component()
+    vehicle.payload.baggage    = SUAVE.Components.Physical_Component()
+    vehicle.payload.cargo      = SUAVE.Components.Physical_Component()
+    
+    vehicle.payload.passengers.mass_properties.mass = wt_payload.passengers
+    vehicle.payload.baggage.mass_properties.mass    = wt_payload.baggage
+    vehicle.payload.cargo.mass_properties.mass      = wt_payload.cargo        
 
 
     # Distribute all weight in the output fields
@@ -375,7 +383,6 @@ def empty(vehicle):
 
     control_systems     = SUAVE.Components.Physical_Component()
     electrical_systems  = SUAVE.Components.Physical_Component()
-    passengers          = SUAVE.Components.Physical_Component()
     furnishings         = SUAVE.Components.Physical_Component()
     air_conditioner     = SUAVE.Components.Physical_Component()
     fuel                = SUAVE.Components.Physical_Component()
@@ -390,7 +397,6 @@ def empty(vehicle):
     
     control_systems.mass_properties.mass    = output.systems_breakdown.control_systems
     electrical_systems.mass_properties.mass = output.systems_breakdown.electrical
-    passengers.mass_properties.mass         = output.payload_breakdown.passengers + output.payload_breakdown.baggage
     furnishings.mass_properties.mass        = output.systems_breakdown.furnish
     avionics.mass_properties.mass           = output.systems_breakdown.avionics \
                                             + output.systems_breakdown.instruments
@@ -403,7 +409,6 @@ def empty(vehicle):
     vehicle.electrical_systems                          = electrical_systems
     vehicle.avionics                                    = avionics
     vehicle.furnishings                                 = furnishings
-    vehicle.passengers                                  = passengers
     vehicle.fuel                                        = fuel
     vehicle.hydraulics                                  = hydraulics
     if has_air_conditioner:

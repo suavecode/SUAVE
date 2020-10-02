@@ -68,7 +68,7 @@ def systems_Raymer(vehicle):
     propulsors     = vehicle.propulsors[propulsor_name]    
     fuse_w         = vehicle.fuselages['fuselage'].width / Units.ft
     fuse_h         = vehicle.fuselages['fuselage'].heights.maximum / Units.ft   
-    payload_weight = vehicle.payload / Units.lbs
+    cargo_weight   = vehicle.payload.cargo.mass_properties.mass / Units.lbs
     
     if vehicle.passengers >= 150:
         flight_crew = 3 # number of flight crew
@@ -96,7 +96,7 @@ def systems_Raymer(vehicle):
 
     D   = (fuse_w + fuse_h) / 2.
     Sf  = np.pi * (L / D - 1.7) * D ** 2  # Fuselage wetted area, ft**2
-    WFURN = 0.0577 * flight_crew ** 0.1 * (payload_weight) ** 0.393 * Sf ** 0.75 + 46 * num_pax
+    WFURN = 0.0577 * flight_crew ** 0.1 * (cargo_weight) ** 0.393 * Sf ** 0.75 + 46 * num_pax
     WFURN += 75 * flight_crew
     WFURN += 2.5 * num_pax**1.33
 
