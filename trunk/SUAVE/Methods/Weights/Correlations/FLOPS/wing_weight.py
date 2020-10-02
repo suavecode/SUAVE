@@ -115,41 +115,115 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings, num_main_wings)
         EEM             = 0
         EA0             = 0
         EW              = 0
+        
+        
+        # Replaced FOR LOOP
+        # Reverse Order
+        Y  = np.flip(Y)
+        
+        # DY distance
+        DY = np.diff(Y)
+        
+        # Trim the vectors away from the tip and center
+        Y  = Y[1:-2]
+        DY = -DY[0:-2]
+        
+        P1     = calculate_load(Y)
+        P0     = np.zeros_like(P1)
+        P0[1:] = P1[0:-1]
+        
+        C1     = np.interp(Y, ETA, C)
+        C0     = np.zeros_like(C1)
+        C0[0]  = C[-1]
+        C0[1:] = C1[0:-1]
+        
+        T1   = np.interp(Y, ETA, T)
+        SWP1 = find_sweep(Y,ETA,SWP)
+        DELP = DY / 6 * (C0 * (2 * P0 + P1) + C1 * (2 * P1 + P0))
+        DELM = DY ** 2 * (C0 * (3.0 * P0 + P1) + C1 * (P1 + P0)) / 12.
+        
+        EL     = np.zeros_like(DELP) 
+        EL[1:] = np.cumsum(DELP[0:-1])
+        
+        EM     = np.cumsum((DELM + DY * EL) * 1 / np.cos(SWP1* np.pi / 180))
+        
+        A1     = EM * 1 / np.cos(SWP1* np.pi / 180) * 1 / (C1 * T1)
+        
+        A0     = np.zeros_like(A1)
+        A0[1:] = A1[0:-1]
+        
+        ASW  = np.cumsum((DY + 2 * Y) * DY * SWP1)
+        W    = np.cumsum((A0 + A1) * DY / 2.)
+        S    = np.cumsum((C0 + C1) * DY / 2.)
 
-        for i in range(NS - 1, 1, -1):
-            Y1 = Y[i]
-            DY = Y[i + 1] - Y1
-            P1 = calculate_load(Y1)
-            C1 = np.interp(Y1, ETA, C)
-            T1 = np.interp(Y1, ETA, T)
-            SWP1 = find_sweep(Y1, ETA, SWP)
-            ASW = ASW + (DY + 2 * Y1) * DY * SWP1
-            DELP = DY / 6 * (C0 * (2 * P0 + P1) + C1 * (2 * P1 + P0))
-            DELM = DY ** 2 * (C0 * (3.0 * P0 + P1) + C1 * (P1 + P0)) / 12.
-            EM = EM + (DELM + DY * EL) * 1 / np.cos(SWP1 * np.pi / 180)
-            A1 = EM * 1 / np.cos(SWP1 * np.pi / 180) * 1 / (C1 * T1)
-            W = W + (A0 + A1) * DY / 2.
-            S = S + (C0 + C1) * DY / 2.
-            EL = EL + DELP
-            A0 = A1
-            C0 = C1
-            P0 = P1
-            if N2 > 0:
-                DELM = DY * EEL
-                if NE < N2:
-                    if Y1 <= EETA[N2 - NE - 1]:
-                        DELM = DELM - Y1 + EETA[N2 - NE - 1]
-                        EEL = EEL + 1
-                        NE = NE + 1
-                EEM = EEM + DELM * 1 / np.cos(SWP1 * np.pi / 180)
-                EA1 = EEM * 1 / np.cos(SWP1 * np.pi / 180) * 1 / (C1 * T1)
-                EW = EW + (EA0 + EA1) * DY / 2
-                EA0 = EA1
-        EM = EM / EL
-        W = 4. * W / EL
+
+        # Adjust for engine loads
+        if N2>0: # If there are engines
+            EEL   = np.zeros_like(Y)
+            DELM2 = np.zeros_like(Y)
+            
+            # Do a for loop over engine stations
+            for ii in range(len(EETA)):
+                # Find the station closest to the engine but inboard
+                distances = EETA[ii]-Y
+                distances[distances<0] = np.inf
+                distance = np.min(distances)
+                loc      = np.argmin(distances)
+                DELM2[loc] = DELM2[loc] + distance
+                EEL[loc+1:] = EEL[loc+1:] + 1
+
+            DELM2 = DELM2 + EEL*DY
+
+            EEM = np.cumsum(DELM2/np.cos(SWP1 * np.pi / 180))
+            EA1 = EEM * 1 / np.cos(SWP1 * np.pi / 180) * 1 / (C1 * T1)
+            
+            EA0 = np.zeros_like(Y)
+            EA0[1:] = EA1[0:-1]
+            
+            EW  = np.sum((EA0 + EA1) * DY / 2)
+            
+        EL = EL[-1] + DELP[-1]    
+        EM = EM[-1] / EL
+        W  = 4. * W[-1] / EL
         EW = 8. * EW
-        SA = np.sin(ASW * np.pi / 180)
-        AR = 2 / S
+        SA = np.sin(ASW[-1] * np.pi / 180)
+        AR = 2 / S[-1]       
+        
+        
+        
+        
+        
+
+        #for i in range(NS - 1, 1, -1):
+            #Y1 = Y[i]
+            #DY = Y[i + 1] - Y1
+            #P1 = calculate_load(Y1)
+            #C1 = np.interp(Y1, ETA, C)
+            #T1 = np.interp(Y1, ETA, T)
+            #SWP1 = find_sweep(Y1, ETA, SWP)
+            #ASW = ASW + (DY + 2 * Y1) * DY * SWP1
+            #DELP = DY / 6 * (C0 * (2 * P0 + P1) + C1 * (2 * P1 + P0))
+            #DELM = DY ** 2 * (C0 * (3.0 * P0 + P1) + C1 * (P1 + P0)) / 12.
+            #EM = EM + (DELM + DY * EL) * 1 / np.cos(SWP1 * np.pi / 180)
+            #A1 = EM * 1 / np.cos(SWP1 * np.pi / 180) * 1 / (C1 * T1)
+            #W = W + (A0 + A1) * DY / 2.
+            #S = S + (C0 + C1) * DY / 2.
+            #EL = EL + DELP
+            #A0 = A1
+            #C0 = C1
+            #P0 = P1
+            #if N2 > 0:
+                #DELM = DY * EEL
+                #if NE < N2:
+                    #if Y1 <= EETA[N2 - NE - 1]:
+                        #DELM = DELM - Y1 + EETA[N2 - NE - 1]
+                        #EEL = EEL + 1
+                        #NE = NE + 1
+                #EEM = EEM + DELM * 1 / np.cos(SWP1 * np.pi / 180)
+                #EA1 = EEM * 1 / np.cos(SWP1 * np.pi / 180) * 1 / (C1 * T1)
+                #EW = EW + (EA0 + EA1) * DY / 2
+                #EA0 = EA1
+                
         if AR <= 5:
             CAYA = 0
         else:
@@ -343,18 +417,21 @@ def find_sweep(y, lst_y, swp):
             swp: list of quarter chord sweep angles at the locations listed in lst_y
 
        Outputs:
-           swp: sweep angle at y
+           swps: sweep angle at y
 
         Properties Used:
             N/A
     """
-    diff = lst_y - y
-    for i in range(len(diff)):
-        if diff[i] > 0:
-            return swp[i - 1]
-        elif diff[i] == 0:
-            return swp[i]
-    return swp[-1]
+    
+    # All initial sweeps are the root chord sweep
+    swps = np.ones_like(y)*swp[0]
+    
+    for i in range(len(lst_y)-1):
+        e       = lst_y[i]
+        swps[y>=e] = swp[i]
+        
+
+    return swps
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
 def get_spanwise_engine(propulsors, SEMISPAN):
