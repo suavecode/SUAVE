@@ -13,7 +13,7 @@ import numpy as np
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
 def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_model,initial_timestep_offset,wake_development_time):     
     """ This computes the right hand side matrix for the VLM. In this
     function, induced velocites from propeller wake are also included 
@@ -66,10 +66,11 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
                 prop = propulsor.rotor 
             
             # generate the geometry of the propeller helical wake
-            wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(prop,propulsor.thrust_angle,num_ctrl_pts,VD,initial_timestep_offset,wake_development_time)
+            wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(prop,propulsor.thrust_angle,num_ctrl_pts,\
+                                                                                                                    VD,initial_timestep_offset,wake_development_time)
             
             # compute the induced velocity
-            V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts,time_steps,num_blades,num_radial_stations)
+            V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
             
             # update the total induced velocity distribution 
             Vx_ind_total = Vx_ind_total + V_wake_ind[:,:,0]
@@ -78,7 +79,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
             Vx                = V_inf*np.cos(aoa) - Vx_ind_total 
             Vz                = V_inf*np.sin(aoa) - Vz_ind_total 
             V_distribution    = np.sqrt(Vx**2 + Vz**2 )                    
-            aoa_distribution  = np.arctan(Vz/Vx)     
+            aoa_distribution  = np.arctan(Vz/Vx)
             
             RHS = np.sin(aoa_distribution - delta )*np.cos(phi)   
             

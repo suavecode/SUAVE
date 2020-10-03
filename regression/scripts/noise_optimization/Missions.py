@@ -1037,9 +1037,7 @@ def takeoff_mission_setup(analyses):
     segment.air_speed      = 85.4 * Units['m/s']
     segment.throttle       = 1. 
 
-    ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle             = ones_row(1) * 12. * Units.deg  
-    segment.state.unknowns.wind_angle             = ones_row(1) * 5. * Units.deg  
+    ones_row = segment.state.ones_row 
     
     mission.append_segment(segment)
 
@@ -1083,9 +1081,7 @@ def sideline_mission_setup(analyses):
     segment.air_speed      = 85.4 * Units['m/s']
     segment.throttle       = 1. 
 
-    ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle             = ones_row(1) * 12. * Units.deg  
-    segment.state.unknowns.wind_angle             = ones_row(1) * 5. * Units.deg  
+    ones_row = segment.state.ones_row 
     
     mission.append_segment(segment)
     
@@ -1121,9 +1117,7 @@ def takeoff_mission_initialization(analyses):
     segment.air_speed      =  85.4 * Units['m/s']
     segment.throttle       = 1. 
      
-    ones_row = segment.state.ones_row
-    segment.state.unknowns.body_angle             = ones_row(1) * 12. * Units.deg  
-    segment.state.unknowns.wind_angle             = ones_row(1) * 5. * Units.deg  
+    ones_row = segment.state.ones_row 
     
     mission.append_segment(segment)    
     

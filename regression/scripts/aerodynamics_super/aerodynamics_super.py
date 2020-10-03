@@ -301,7 +301,7 @@ def main():
     
     ## Only one wing is evaluated since they rely on the same function
     #cd_c           = drag_breakdown.compressible['main_wing'].compressibility_drag
-    #cd_i           = drag_breakdown.induced.total
+    #cd_i           = 
     #cd_m           = drag_breakdown.miscellaneous.total
     #cd_m_fuse_base = drag_breakdown.miscellaneous.fuselage_base
     #cd_m_fuse_up   = drag_breakdown.miscellaneous.fuselage_upsweep

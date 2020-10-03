@@ -335,16 +335,16 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # PROPULSOR
     #------------------------------------------------------------------
-    net                           = Lift_Cruise()
-    net.number_of_rotor_engines    = 12
+    net                             = Lift_Cruise()
+    net.number_of_rotor_engines     = 12
     net.number_of_propeller_engines = 1
-    net.rotor_thrust_angle         = 90. * Units.degrees
+    net.rotor_thrust_angle          = 90. * Units.degrees
     net.propeller_thrust_angle      = 0. 
-    net.nacelle_diameter          = 0.6 * Units.feet  
-    net.engine_length             = 0.5 * Units.feet
-    net.areas                     = Data()
-    net.areas.wetted              = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
-    net.voltage                   = 500.
+    net.nacelle_diameter            = 0.6 * Units.feet  
+    net.engine_length               = 0.5 * Units.feet
+    net.areas                       = Data()
+    net.areas.wetted                = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
+    net.voltage                     = 500.
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
@@ -353,9 +353,9 @@ def vehicle_setup():
     rotor_esc.efficiency   = 0.95
     net.rotor_esc          = rotor_esc 
 
-    esc_thrust            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    esc_thrust.efficiency = 0.95
-    net.propeller_esc       = esc_thrust
+    propeller_esc            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    propeller_esc.efficiency = 0.95
+    net.propeller_esc        = propeller_esc
 
     #------------------------------------------------------------------
     # Design Payload
@@ -409,7 +409,7 @@ def vehicle_setup():
     propeller.tip_radius          = 1.0668
     propeller.hub_radius          = 0.21336 
     propeller.design_tip_mach     = 0.5  
-    propeller.angular_velocity    = propeller.design_tip_mach *speed_of_sound  /propeller.tip_radius   
+    propeller.angular_velocity    = propeller.design_tip_mach *speed_of_sound/propeller.tip_radius   
     propeller.design_Cl           = 0.7
     propeller.design_altitude     = 1000 * Units.feet   
     propeller.design_thrust       = (Drag*2.5)/net.number_of_propeller_engines 
@@ -421,8 +421,8 @@ def vehicle_setup():
     rotor                         = SUAVE.Components.Energy.Converters.Rotor() 
     rotor.tip_radius              = 2.8 * Units.feet
     rotor.hub_radius              = 0.35 * Units.feet      
-    rotor.number_blades           = 2    
-    rotor.design_tip_mach         = 0.65 # try to change this
+    rotor.number_blades           = 2
+    rotor.design_tip_mach         = 0.65
     rotor.number_of_engines       = net.number_of_rotor_engines
     rotor.disc_area               = np.pi*(rotor.tip_radius**2)        
     rotor.induced_hover_velocity  = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_rotor_engines)) 

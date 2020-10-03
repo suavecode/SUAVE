@@ -99,10 +99,10 @@ class Lift_Cruise(Propulsor):
             results.thrust_force_vector [Newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                rotor_rpm                 [radians/sec]
+                rotor_rpm                [radians/sec]
                 rpm _forward             [radians/sec]
-                rotor_current_draw             [amps]
-                propeller_current_draw          [amps]
+                rotor_current_draw       [amps]
+                propeller_current_draw   [amps]
                 battery_draw             [watts]
                 battery_energy           [joules]
                 voltage_open_circuit     [volts]
@@ -426,14 +426,14 @@ class Lift_Cruise(Propulsor):
             Inputs:
             state.unknowns.propeller_power_coefficient [None]
             state.unknowns.battery_voltage_under_load  [volts]
-            state.unknowns.throttle_lift              [0-1]
-            state.unknowns.throttle            [0-1]
+            state.unknowns.throttle_lift               [0-1]
+            state.unknowns.throttle                    [0-1]
     
             Outputs:
             state.conditions.propulsion.propeller_power_coefficient [None]
             state.conditions.propulsion.battery_voltage_under_load  [volts]
-            state.conditions.propulsion.throttle_lift              [0-1]
-            state.conditions.propulsion.throttle            [0-1]
+            state.conditions.propulsion.throttle_lift               [0-1]
+            state.conditions.propulsion.throttle                    [0-1]
     
             Properties Used:
             N/A
@@ -442,11 +442,11 @@ class Lift_Cruise(Propulsor):
         ones = segment.state.ones_row
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.throttle_lift                        = segment.state.unknowns.throttle_lift
-        segment.state.conditions.propulsion.battery_voltage_under_load           = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.propeller_power_coefficient          = 0.0 * ones(1)
-        segment.state.conditions.propulsion.rotor_power_coefficient              = segment.state.unknowns.rotor_power_coefficient
-        segment.state.conditions.propulsion.throttle                             = 0.0 * ones(1)
+        segment.state.conditions.propulsion.throttle_lift               = segment.state.unknowns.throttle_lift
+        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.propeller_power_coefficient = 0.0 * ones(1)
+        segment.state.conditions.propulsion.rotor_power_coefficient     = segment.state.unknowns.rotor_power_coefficient
+        segment.state.conditions.propulsion.throttle                    = 0.0 * ones(1)
         
         return    
     
@@ -462,10 +462,10 @@ class Lift_Cruise(Propulsor):
     
             Inputs:
             state.conditions.propulsion:
-                propeller_motor_torque                  [N-m]
-                rotor_motor_torque                     [N-m]
-                propeller_torque              [N-m]
-                rotor_torque                 [N-m]
+                propeller_motor_torque                [N-m]
+                rotor_motor_torque                    [N-m]
+                propeller_torque                      [N-m]
+                rotor_torque                          [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
     
@@ -478,9 +478,9 @@ class Lift_Cruise(Propulsor):
         
         # Here we are going to pack the residuals (torque,voltage) from the network
         q_propeller_motor = segment.state.conditions.propulsion.propeller_motor_torque
-        q_prop_forward  = segment.state.conditions.propulsion.propeller_torque
-        q_rotor_motor    = segment.state.conditions.propulsion.rotor_motor_torque
-        q_prop_lift     = segment.state.conditions.propulsion.rotor_torque        
+        q_prop_forward    = segment.state.conditions.propulsion.propeller_torque
+        q_rotor_motor     = segment.state.conditions.propulsion.rotor_motor_torque
+        q_prop_lift       = segment.state.conditions.propulsion.rotor_torque        
         
         v_actual        = segment.state.conditions.propulsion.voltage_under_load
         v_predict       = segment.state.unknowns.battery_voltage_under_load
@@ -506,10 +506,10 @@ class Lift_Cruise(Propulsor):
     
             Inputs:
             state.conditions.propulsion:
-                propeller_motor_torque                  [N-m]
-                rotor_motor_torque                     [N-m]
-                propeller_torque              [N-m]
-                rotor_torque                 [N-m]
+                propeller_motor_torque                [N-m]
+                rotor_motor_torque                    [N-m]
+                propeller_torque                      [N-m]
+                rotor_torque                          [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
             
@@ -522,11 +522,11 @@ class Lift_Cruise(Propulsor):
         
         # Here we are going to pack the residuals (torque,voltage) from the network
         q_propeller_motor = segment.state.conditions.propulsion.propeller_motor_torque
-        q_prop_forward  = segment.state.conditions.propulsion.propeller_torque   
+        q_prop_forward    = segment.state.conditions.propulsion.propeller_torque   
         
-        v_actual        = segment.state.conditions.propulsion.voltage_under_load
-        v_predict       = segment.state.unknowns.battery_voltage_under_load
-        v_max           = self.voltage        
+        v_actual          = segment.state.conditions.propulsion.voltage_under_load
+        v_predict         = segment.state.unknowns.battery_voltage_under_load
+        v_max             = self.voltage        
         
         # Return the residuals
         segment.state.residuals.network[:,0] = (q_propeller_motor[:,0] - q_prop_forward[:,0])/q_propeller_motor[:,0] 
@@ -545,10 +545,10 @@ class Lift_Cruise(Propulsor):
     
             Inputs:
             state.conditions.propulsion:
-                propeller_motor_torque                  [N-m]
-                rotor_motor_torque                     [N-m]
-                propeller_torque              [N-m]
-                rotor_torque                 [N-m]
+                propeller_motor_torque                [N-m]
+                rotor_motor_torque                    [N-m]
+                propeller_torque                      [N-m]
+                rotor_torque                          [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
     
@@ -560,7 +560,7 @@ class Lift_Cruise(Propulsor):
         """            
         
         # Here we are going to pack the residuals (torque,voltage) from the network
-        q_rotor_motor    = segment.state.conditions.propulsion.rotor_motor_torque
+        q_rotor_motor   = segment.state.conditions.propulsion.rotor_motor_torque
         q_prop_lift     = segment.state.conditions.propulsion.rotor_torque        
 
         v_actual        = segment.state.conditions.propulsion.voltage_under_load

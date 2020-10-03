@@ -49,10 +49,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     fig = plt.figure(save_filename) 
     fig.set_size_inches(8, 8) 
     axes = Axes3D(fig)    
-    axes.view_init(elev= 20, azim= 210)  
-    axes.set_xlim(-4, 4)
-    axes.set_ylim(-4, 4)
-    axes.set_zlim(-4, 4)  
+    axes.view_init(elev= 30, azim= 210)   
     
     n_cp = VD.n_cp 
     for i in range(n_cp): 
@@ -69,9 +66,9 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
         mid_x = (VD.X .max()+VD.X .min()) * 0.5
         mid_y = (VD.Y .max()+VD.Y .min()) * 0.5
         mid_z = (VD.Z .max()+VD.Z .min()) * 0.5
-        #axes.set_xlim(mid_x - max_range, mid_x + max_range)
-        #axes.set_ylim(mid_y - max_range, mid_y + max_range)
-        #axes.set_zlim(mid_z - max_range, mid_z + max_range)    
+        axes.set_xlim(mid_x - max_range, mid_x + max_range)
+        axes.set_ylim(mid_y - max_range, mid_y + max_range)
+        axes.set_zlim(mid_z - max_range, mid_z + max_range)    
         
     if  plot_control_points:
         axes.scatter(VD.XC,VD.YC,VD.ZC, c='r', marker = 'o' )
@@ -160,7 +157,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
             r      = prop.radius_distribution 
             MCA    = prop.mid_chord_aligment
             t      = prop.max_thickness_distribution
-            ta     = propulsor.thrust_angle
+            ta     = -propulsor.thrust_angle
          
             n_points  = 10
             af_pts    = (2*n_points)-1
@@ -214,14 +211,20 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
                         
                         # ROTATION MATRICES FOR INNER SECTION     
                         # rotation about y axis to create twist and position blade upright
-                        iba_trans_1 = [[np.cos(rot*flip_1 - rot*beta[j]  ),0 , -np.sin(rot*flip_1 - rot*beta[j])], [0 ,  1 , 0] , [np.sin(rot*flip_1 - rot*beta[j]) , 0 , np.cos(rot*flip_1 - rot*beta[j])]] 
-                        #iba_trans_1 = [[np.cos(- rot*beta[j]),0 , -np.sin(- rot*beta[j])], [0 ,  1 , 0] , [np.sin(- rot*beta[j]) , 0 , np.cos( - rot*beta[j])]] 
+                        iba_trans_1 = [[np.cos(rot*flip_1 - rot*beta[j]  ),0 , -np.sin(rot*flip_1 - rot*beta[j])],
+                                       [0 ,  1 , 0] ,
+                                       [np.sin(rot*flip_1 - rot*beta[j]) , 0 , np.cos(rot*flip_1 - rot*beta[j])]] 
+                        
          
                         # rotation about x axis to create azimuth locations 
-                        iba_trans_2 = [[1 , 0 , 0],[0 , np.cos(theta[i] + rot*a_o + flip_2 ), np.sin(theta[i] + rot*a_o + flip_2)],[0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]] 
-                        #iba_trans_2 = [[1 , 0 , 0],[0 , np.cos(theta[i] ),-np.sin(theta[i])],[0,np.sin(theta[i]), np.cos(theta[i])]] 
-     
-                        iba_trans_3 = [[np.cos(ta),0 , -np.sin(ta)], [0 ,  1 , 0] , [np.sin(ta) , 0 , np.cos(ta)]] 
+                        iba_trans_2 = [[1 , 0 , 0],
+                                       [0 , np.cos(theta[i] + rot*a_o + flip_2 ), np.sin(theta[i] + rot*a_o + flip_2)],
+                                       [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]] 
+                    
+                        # roation about y to orient propeller/rotor to thrust angle 
+                        iba_trans_3 = [[np.cos(ta),0 , -np.sin(ta)],
+                                       [0 ,  1 , 0] ,
+                                       [np.sin(ta) , 0 , np.cos(ta)]] 
                         
                         iba_trans  =  np.matmul(iba_trans_3,np.matmul(iba_trans_2,iba_trans_1))
                         irot_mat    = np.repeat(iba_trans[ np.newaxis,:,: ],len(iba_yp),axis=0)
@@ -234,9 +237,9 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
                         ozpts = airfoil_data.y_coordinates[a_secl[j+1]]
                         
                         oba_max_t   = airfoil_data.thickness_to_chord[a_secl[j+1]]
-                        oba_xp      = - MCA[j+1] + oxpts*b[j+1]             # x coord of airfoil
-                        oba_yp      = r[j+1]*np.ones_like(oba_xp)                                                   # radial location        
-                        oba_zp      = ozpts*(t[j+1]/oba_max_t) # former airfoil y coord 
+                        oba_xp      = - MCA[j+1] + oxpts*b[j+1]   # x coord of airfoil
+                        oba_yp      = r[j+1]*np.ones_like(oba_xp) # radial location        
+                        oba_zp      = ozpts*(t[j+1]/oba_max_t)    # former airfoil y coord 
                
                         oba_matrix = np.zeros((len(oba_zp),3))     
                         oba_matrix[:,0] = oba_xp
@@ -245,14 +248,20 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
                         
                         # ROTATION MATRICES FOR OUTER SECTION                         
                         # rotation about y axis to create twist and position blade upright
-                        oba_trans_1 = [[np.cos(rot*flip_1 - rot*beta[j]  ),0 , -np.sin(rot*flip_1 - rot*beta[j])], [0 ,  1 , 0] , [np.sin(rot*flip_1 - rot*beta[j]) , 0 , np.cos(rot*flip_1 - rot*beta[j])]] 
-                        #oba_trans_1 = [[np.cos(-rot*beta[j]  ),0 , -np.sin(-rot*beta[j])], [0 ,  1 , 0] , [np.sin(- rot*beta[j]) , 0 , np.cos(- rot*beta[j])]] 
+                        oba_trans_1 = [[np.cos(rot*flip_1 - rot*beta[j]  ),0 , -np.sin(rot*flip_1 - rot*beta[j])],
+                                       [0 ,  1 , 0] ,
+                                       [np.sin(rot*flip_1 - rot*beta[j]) , 0 , np.cos(rot*flip_1 - rot*beta[j])]]  
                                          
                         # rotation about x axis to create azimuth locations 
-                        oba_trans_2 = [[1 , 0 , 0],[0 , np.cos(theta[i] + rot*a_o + flip_2), np.sin(theta[i] + rot*a_o + flip_2)],[0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]] 
-                        #oba_trans_2 = [[1 , 0 , 0],[0 , np.cos(theta[i]),-np.sin(theta[i])],[0,np.sin(theta[i]), np.cos(theta[i])]] 
-                    
-                        oba_trans_3 = [[np.cos(ta),0 , -np.sin(ta)], [0 ,  1 , 0] , [np.sin(ta) , 0 , np.cos(ta)]]      
+                        oba_trans_2 = [[1 , 0 , 0],
+                                       [0 , np.cos(theta[i] + rot*a_o + flip_2), np.sin(theta[i] + rot*a_o + flip_2)],
+                                       [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]  
+                        
+                        # roation about y to orient propeller/rotor to thrust angle 
+                        oba_trans_3 = [[np.cos(ta),0 , -np.sin(ta)],
+                                       [0 ,  1 , 0] ,
+                                       [np.sin(ta) , 0 , np.cos(ta)]]   
+                        
                         oba_trans  =  np.matmul(oba_trans_3,np.matmul(oba_trans_2,oba_trans_1))
                         orot_mat    = np.repeat(oba_trans[ np.newaxis,:,: ],len(oba_yp) , axis=0)
                  
@@ -287,17 +296,17 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
                     for sec in range(dim-1): 
                         for loc in range(af_pts): 
                             X = [G.XA1[sec,loc],
-                                 G.XA2[sec,loc],
+                                 G.XB1[sec,loc],
                                  G.XB2[sec,loc],
-                                 G.XB1[sec,loc]]
+                                 G.XA2[sec,loc]]
                             Y = [G.YA1[sec,loc],
-                                 G.YA2[sec,loc],
+                                 G.YB1[sec,loc],
                                  G.YB2[sec,loc],
-                                 G.YB1[sec,loc]]
+                                 G.YA2[sec,loc]]
                             Z = [G.ZA1[sec,loc],
-                                 G.ZA2[sec,loc],
+                                 G.ZB1[sec,loc],
                                  G.ZB2[sec,loc],
-                                 G.ZB1[sec,loc]]                    
+                                 G.ZA2[sec,loc]]                    
                             prop_verts = [list(zip(X, Y, Z))]
                             prop_collection = Poly3DCollection(prop_verts)
                             prop_collection.set_facecolor(prop_face_color)

@@ -87,6 +87,9 @@ def generate_wing_vortex_distribution(geometry,settings):
     VD.XBC    = np.empty(shape=[0,1])
     VD.YBC    = np.empty(shape=[0,1])
     VD.ZBC    = np.empty(shape=[0,1]) 
+    VD.XC_TE  = np.empty(shape=[0,1])
+    VD.YC_TE  = np.empty(shape=[0,1])
+    VD.ZC_TE  = np.empty(shape=[0,1])     
     VD.XA_TE  = np.empty(shape=[0,1])
     VD.YA_TE  = np.empty(shape=[0,1])
     VD.ZA_TE  = np.empty(shape=[0,1]) 
@@ -711,13 +714,19 @@ def generate_wing_vortex_distribution(geometry,settings):
  
         # find the location of the trailing edge panels of each wing
         locations = ((np.linspace(1,n_sw,n_sw, endpoint = True) * n_cw) - 1).astype(int)
+        xc_te1 = np.repeat(np.atleast_2d(xc[locations]), n_cw , axis = 0)
+        yc_te1 = np.repeat(np.atleast_2d(yc[locations]), n_cw , axis = 0)
+        zc_te1 = np.repeat(np.atleast_2d(zc[locations]), n_cw , axis = 0)        
         xa_te1 = np.repeat(np.atleast_2d(xa2[locations]), n_cw , axis = 0)
         ya_te1 = np.repeat(np.atleast_2d(ya2[locations]), n_cw , axis = 0)
         za_te1 = np.repeat(np.atleast_2d(za2[locations]), n_cw , axis = 0)
         xb_te1 = np.repeat(np.atleast_2d(xb2[locations]), n_cw , axis = 0)
         yb_te1 = np.repeat(np.atleast_2d(yb2[locations]), n_cw , axis = 0)
         zb_te1 = np.repeat(np.atleast_2d(zb2[locations]), n_cw , axis = 0)     
-         
+        
+        xc_te = np.hstack(xc_te1.T)
+        yc_te = np.hstack(yc_te1.T)
+        zc_te = np.hstack(zc_te1.T)        
         xa_te = np.hstack(xa_te1.T)
         ya_te = np.hstack(ya_te1.T)
         za_te = np.hstack(za_te1.T)
@@ -765,12 +774,15 @@ def generate_wing_vortex_distribution(geometry,settings):
                 xbc   = np.concatenate([xbc ,xbc ])
                 ybc   = np.concatenate([ybc ,ybc ])
                 zbc   = np.concatenate([zbc ,-zbc ]) 
+                xc_te = np.concatenate([xc_te , xc_te ])
+                yc_te = np.concatenate([yc_te , yc_te ])
+                zc_te = np.concatenate([zc_te ,-zc_te ])                 
                 xa_te = np.concatenate([xa_te , xa_te ])
-                ya_te = np.concatenate([ya_te ,ya_te ])
-                za_te = np.concatenate([za_te ,- za_te ])            
+                ya_te = np.concatenate([ya_te , ya_te ])
+                za_te = np.concatenate([za_te ,-za_te ])            
                 xb_te = np.concatenate([xb_te , xb_te ])
-                yb_te = np.concatenate([yb_te ,yb_te ])
-                zb_te = np.concatenate([zb_te ,- zb_te ])
+                yb_te = np.concatenate([yb_te , yb_te ])
+                zb_te = np.concatenate([zb_te ,-zb_te ])
                 
                 y_sw  = np.concatenate([y_sw,-y_sw ])
                 xc    = np.concatenate([xc ,xc ])
@@ -812,6 +824,9 @@ def generate_wing_vortex_distribution(geometry,settings):
                 xbc   = np.concatenate([xbc ,xbc ])
                 ybc   = np.concatenate([ybc ,-ybc ])
                 zbc   = np.concatenate([zbc ,zbc ]) 
+                xc_te = np.concatenate([xc_te , xc_te ])
+                yc_te = np.concatenate([yc_te ,-yc_te ])
+                zc_te = np.concatenate([zc_te , zc_te ])                   
                 xa_te = np.concatenate([xa_te , xa_te ])
                 ya_te = np.concatenate([ya_te ,-ya_te ])
                 za_te = np.concatenate([za_te , za_te ])            
@@ -853,6 +868,9 @@ def generate_wing_vortex_distribution(geometry,settings):
         VD.XB2    = np.append(VD.XB2,xb2)                
         VD.YB2    = np.append(VD.YB2,yb2)        
         VD.ZB2    = np.append(VD.ZB2,zb2)    
+        VD.XC_TE  = np.append(VD.XC_TE,xc_te)
+        VD.YC_TE  = np.append(VD.YC_TE,yc_te) 
+        VD.ZC_TE  = np.append(VD.ZC_TE,zc_te)          
         VD.XA_TE  = np.append(VD.XA_TE,xa_te)
         VD.YA_TE  = np.append(VD.YA_TE,ya_te) 
         VD.ZA_TE  = np.append(VD.ZA_TE,za_te) 
@@ -877,17 +895,16 @@ def generate_wing_vortex_distribution(geometry,settings):
     # ---------------------------------------------------------------------------------------
     # STEP 8.1: Unpack aircraft fuselage geometry NOTE THAT FUSELAGE GOMETRY IS OMITTED FROM VLM
     # --------------------------------------------------------------------------------------- 
+    n_fus = 0
     for fus in geometry.fuselages:   
-        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw)
-        
-        VD = generate_fuselage_surface_points(VD,fus)
-        
-     
+        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,n_fus) 
+        VD = generate_fuselage_surface_points(VD,fus)     
+         
     VD.n_w        = n_w
-    VD.n_fus      = 4
     VD.n_sw       = n_sw
     VD.n_cw       = n_cw    
-    VD.n_cp       = n_cp    
+    VD.n_cp       = n_cp  
+    VD.n_fus      = n_fus
     VD.wing_areas = np.array(wing_areas)   
     VD.Stot       = sum(wing_areas)
 
@@ -898,21 +915,37 @@ def generate_wing_vortex_distribution(geometry,settings):
 
     return VD 
 
-def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,n_fus):
+    """ This generates the vortex distribution points on the fuselage 
+
+    Assumptions: 
+    None
+
+    Source:   
+    None
+    
+    Inputs:   
+    VD                   - vortex distribution    
+    
+    Properties Used:
+    N/A
+    """    
+    
     fhs_xc    = np.zeros(n_cw*n_sw)
     fhs_yc    = np.zeros(n_cw*n_sw)
     fhs_zc    = np.zeros(n_cw*n_sw) 
     fhs_x     = np.zeros((n_cw+1)*(n_sw+1))
     fhs_y     = np.zeros((n_cw+1)*(n_sw+1))
-    fhs_z     = np.zeros((n_cw+1)*(n_sw+1))        
+    fhs_z     = np.zeros((n_cw+1)*(n_sw+1))          
+    fus_h_cs  = np.zeros(n_sw)     
 
     fvs_xc    = np.zeros(n_cw*n_sw)
     fvs_zc    = np.zeros(n_cw*n_sw)
     fvs_yc    = np.zeros(n_cw*n_sw)   
     fvs_x     = np.zeros((n_cw+1)*(n_sw+1))
     fvs_y     = np.zeros((n_cw+1)*(n_sw+1))
-    fvs_z     = np.zeros((n_cw+1)*(n_sw+1))          
-    fus_h_cs  = np.zeros(n_sw)
+    fvs_z     = np.zeros((n_cw+1)*(n_sw+1))   
     fus_v_cs  = np.zeros(n_sw)     
 
     semispan_h = fus.width * 0.5  
@@ -921,27 +954,27 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
 
     # Compute the curvature of the nose/tail given fineness ratio. Curvature is derived from general quadratic equation
     # This method relates the fineness ratio to the quadratic curve formula via a spline fit interpolation
-    vec1 = [2 , 1.5, 1.2 , 1]
-    vec2 = [1  ,1.57 , 3.2,  8]
-    x = np.linspace(0,1,4)
+    vec1               = [2 , 1.5, 1.2 , 1]
+    vec2               = [1  ,1.57 , 3.2,  8]
+    x                  = np.linspace(0,1,4)
     fus_nose_curvature =  np.interp(np.interp(fus.fineness.nose,vec2,x), x , vec1)
     fus_tail_curvature =  np.interp(np.interp(fus.fineness.tail,vec2,x), x , vec1) 
 
     # Horizontal Sections of fuselage
-    fhs = Data()        
-    fhs.origin        = np.zeros((n_sw+1,3))        
-    fhs.chord         = np.zeros((n_sw+1))         
-    fhs.sweep         = np.zeros((n_sw+1))     
+    fhs        = Data()        
+    fhs.origin = np.zeros((n_sw+1,3))        
+    fhs.chord  = np.zeros((n_sw+1))         
+    fhs.sweep  = np.zeros((n_sw+1))     
+                 
+    fvs        = Data() 
+    fvs.origin = np.zeros((n_sw+1,3))
+    fvs.chord  = np.zeros((n_sw+1)) 
+    fvs.sweep  = np.zeros((n_sw+1)) 
 
-    fvs = Data()
-    fvs.origin        = np.zeros((n_sw+1,3))
-    fvs.chord         = np.zeros((n_sw+1)) 
-    fvs.sweep         = np.zeros((n_sw+1)) 
-
-    si      = np.arange(1,((n_sw*2)+2))
-    spacing = np.cos((2*si - 1)/(2*len(si))*np.pi)     
-    h_array = semispan_h*spacing[0:int((len(si)+1)/2)][::-1]  
-    v_array = semispan_v*spacing[0:int((len(si)+1)/2)][::-1]  
+    si         = np.arange(1,((n_sw*2)+2))
+    spacing    = np.cos((2*si - 1)/(2*len(si))*np.pi)     
+    h_array    = semispan_h*spacing[0:int((len(si)+1)/2)][::-1]  
+    v_array    = semispan_v*spacing[0:int((len(si)+1)/2)][::-1]  
 
     for i in range(n_sw+1): 
         fhs_cabin_length  = fus.lengths.total - (fus.lengths.nose + fus.lengths.tail)
@@ -958,8 +991,8 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
         fvs.origin[i][:]  = np.array([origin[0] + fvs.nose_origin , origin[1] , origin[2]+  v_array[i]])
         fvs.chord[i]      = fvs_cabin_length + fvs.nose_length + fvs.tail_length
 
-    fhs.sweep[:]      = np.concatenate([np.arctan((fhs.origin[:,0][1:] - fhs.origin[:,0][:-1])/(fhs.origin[:,1][1:]  - fhs.origin[:,1][:-1])) ,np.zeros(1)])
-    fvs.sweep[:]      = np.concatenate([np.arctan((fvs.origin[:,0][1:] - fvs.origin[:,0][:-1])/(fvs.origin[:,2][1:]  - fvs.origin[:,2][:-1])) ,np.zeros(1)])
+    fhs.sweep[:] = np.concatenate([np.arctan((fhs.origin[:,0][1:] - fhs.origin[:,0][:-1])/(fhs.origin[:,1][1:]  - fhs.origin[:,1][:-1])) ,np.zeros(1)])
+    fvs.sweep[:] = np.concatenate([np.arctan((fvs.origin[:,0][1:] - fvs.origin[:,0][:-1])/(fvs.origin[:,2][1:]  - fvs.origin[:,2][:-1])) ,np.zeros(1)])
 
     # ---------------------------------------------------------------------------------------
     # STEP 9: Define coordinates of panels horseshoe vortices and control points  
@@ -1054,21 +1087,37 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
     fvs_zc    = np.concatenate([fvs_zc[::-1],-fvs_zc ])
     fvs_x     = np.concatenate([fhs_x  , fhs_x  ])
     fvs_y     = np.concatenate([fhs_y  , fhs_y ])
-    fvs_z     = np.concatenate([fhs_z  , -fhs_z ])  
-
+    fvs_z     = np.concatenate([fhs_z  , -fhs_z ])   
+    
+    # increment fuslage lifting surface sections 
+    n_fus  += 4    
+    
     # Currently, fuselage is only used for plotting not analysis 
     VD.FUS_XC = np.append(VD.FUS_XC ,fvs_xc)
     VD.FUS_YC = np.append(VD.FUS_YC ,fvs_yc)
-    VD.FUS_ZC = np.append(VD.FUS_ZC ,fvs_zc)   
-
-    VD.X     = np.append(VD.X  ,fvs_x )
-    VD.Y     = np.append(VD.Y  ,fvs_y )
-    VD.Z     = np.append(VD.Z  ,fvs_z )     
+    VD.FUS_ZC = np.append(VD.FUS_ZC ,fvs_zc) 
+    VD.X      = np.append(VD.X  ,fvs_x )
+    VD.Y      = np.append(VD.Y  ,fvs_y )
+    VD.Z      = np.append(VD.Z  ,fvs_z )     
     
     return VD
 
-
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def generate_fuselage_surface_points(VD,fus):
+    """ This generates the coordinate points on the surface of the fuselage
+
+    Assumptions: 
+    None
+
+    Source:   
+    None
+    
+    Inputs:   
+    VD                   - vortex distribution    
+    
+    Properties Used:
+    N/A
+    """      
     num_fus_segs = len(fus.Segments.keys())
     tessellation = 24
     if num_fus_segs > 0:  
@@ -1083,20 +1132,37 @@ def generate_fuselage_surface_points(VD,fus):
             fus_pts[i_seg,:,0] = fus.Segments[i_seg].origin[0]
             fus_pts[i_seg,:,1] = fus_ypts + fus.Segments[i_seg].origin[1]
             fus_pts[i_seg,:,2] = fus_zpts + fus.Segments[i_seg].origin[2]
-            # store points
+        
+        # store points
         VD.FUS_SURF_PTS = fus_pts
     else:
         VD.FUS_SURF_PTS = None # future work
         
     return VD
 
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_panel_area(VD):
+    """ This computed the area of the panels on the lifting surface of the vehicle 
+
+    Assumptions: 
+    None
+
+    Source:   
+    None
+    
+    Inputs:   
+    VD                   - vortex distribution    
+    
+    Properties Used:
+    N/A
+    """     
+    
+    # create vectors for panel corders
     P1P2 = np.array([VD.XB1 - VD.XA1,VD.YB1 - VD.YA1,VD.ZB1 - VD.ZA1]).T
     P1P3 = np.array([VD.XA2 - VD.XA1,VD.YA2 - VD.YA1,VD.ZA2 - VD.ZA1]).T
     P2P3 = np.array([VD.XA2 - VD.XB1,VD.YA2 - VD.YB1,VD.ZA2 - VD.ZB1]).T
     P2P4 = np.array([VD.XB2 - VD.XB1,VD.YB2 - VD.YB1,VD.ZB2 - VD.ZB1]).T   
     
+    # compute area of quadrilateral panel
     A_panel = 0.5*(np.linalg.norm(np.cross(P1P2,P1P3)) + np.linalg.norm(np.cross(P2P3, P2P4)))
     return A_panel
-
-
