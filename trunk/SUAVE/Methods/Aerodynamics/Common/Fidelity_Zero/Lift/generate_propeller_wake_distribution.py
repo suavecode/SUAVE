@@ -166,7 +166,7 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
         z_pts  = np.repeat(np.repeat(z0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0)
         Z_pts0 = (z_pts*wake_contraction)*azi_z + sz_inf     
  
-        # Rotate wake my thrust angle 
+        # Rotate wake by thrust angle 
         X_pts  = prop.origin[i][0] + X_pts0*np.cos(-thrust_angle) - Z_pts0*np.sin(-thrust_angle)
         Y_pts  = prop.origin[i][1] + Y_pts0
         Z_pts  = prop.origin[i][2] + X_pts0*np.sin(-thrust_angle) + Z_pts0*np.cos(-thrust_angle) 
