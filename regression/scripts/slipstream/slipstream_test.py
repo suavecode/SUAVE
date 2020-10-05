@@ -16,8 +16,7 @@ import pylab as plt
 
 from SUAVE.Core import Data , Container
 from SUAVE.Methods.Propulsion import propeller_design
-from SUAVE.Plots.Mission_Plots import * 
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
+from SUAVE.Plots.Mission_Plots import *  
 from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 import sys
 sys.path.append('../Vehicles') 
@@ -79,9 +78,6 @@ def main():
 
     # plot results 
     plot_mission(results,configs.base)  
-
-    # Plot vehicle 
-    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
     
     # Plot vortex distribution
     plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)

@@ -11,7 +11,8 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units 
-from SUAVE.Plots.Mission_Plots import * 
+from SUAVE.Plots.Mission_Plots import *  
+from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle 
 import numpy as np  
 import sys 
 
@@ -35,7 +36,10 @@ def main():
     analyses.finalize()
     weights   = analyses.configs.base.weights
     breakdown = weights.evaluate()    
-    mission   = analyses.missions.base
+    mission   = analyses.missions.base 
+
+    # Plot vehicle 
+    plot_vehicle(configs.cruise, save_figure = False, plot_control_points = False)
     
     # evaluate mission    
     results = mission.evaluate()  

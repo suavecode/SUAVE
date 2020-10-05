@@ -84,9 +84,6 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
             RHS = np.sin(aoa_distribution - delta )*np.cos(phi)   
             
             return  RHS ,Vx_ind_total , Vz_ind_total , V_distribution , dt 
-        
-        else:
-            pass
          
     RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
     

@@ -24,7 +24,7 @@ from copy import deepcopy
 
 
 def vehicle_setup():
-    
+
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
     # ------------------------------------------------------------------     
@@ -42,9 +42,7 @@ def vehicle_setup():
                                                 
     vehicle.reference_area                      = 10.58275476  
     vehicle.envelope.ultimate_load              = 5.7
-    vehicle.envelope.limit_load                 = 3.    
-  
-    
+    vehicle.envelope.limit_load                 = 3.     
     
     # ------------------------------------------------------    
     # WINGS    
@@ -66,7 +64,7 @@ def vehicle_setup():
     wing.areas.exposed            = 12.635  
     wing.twists.root              = 0.  
     wing.twists.tip               = 0.  
-    wing.origin                   = [[0.1,  0.0 , 0.0]]
+    wing.origin                   = [[0.1,  0.0 , 0.5]]  
     wing.aerodynamic_center       = [0., 0., 0.]     
     wing.winglet_fraction         = 0.0  
     wing.symmetric                = True        
@@ -91,13 +89,14 @@ def vehicle_setup():
     wing.areas.exposed            = 12.635  
     wing.twists.root              = 0.  
     wing.twists.tip               = 0.  
-    wing.origin                   = [[ 5.138, 0.0 ,1.24 ]]
+    wing.origin                   = [[ 5.138, 0.0 ,1.54 ]] 
     wing.aerodynamic_center       = [0., 0., 0.]     
     wing.winglet_fraction         = 0.0  
     wing.symmetric                = True 
     
     # add to vehicle 
     vehicle.append_component(wing)   
+    
         
     # ------------------------------------------------------    
     # FUSELAGE    
@@ -145,16 +144,18 @@ def vehicle_setup():
     segment.width                               = 1.01709  
     fuselage.Segments.append(segment)             
                                                 
+ 
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
-    segment.tag                                 ='segment_3'  
-    segment.origin                              = [ 1.85281, 0. , 0.41960]  
-    segment.percent_x_location                  = 1.85281/6.1 
-    segment.percent_z_location                  = 0.41960/1.19622
-    segment.height                              = 1.27667  
-    segment.width                               = 0.41960 
+    segment.tag                                 = 'segment_3'  
+    segment.origin                              = [ 1.93556, 0. ,  0.39371]  
+    segment.percent_x_location                  = 1.93556/6.1 
+    segment.percent_z_location                  = 0.39371/1.19622
+    segment.height                              = 1.30558   
+    segment.width                               = 1.38871  
     fuselage.Segments.append(segment)             
-                                                
+ 
+   
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
     segment.tag                                 = 'segment_4'  
@@ -255,7 +256,7 @@ def vehicle_setup():
     rot.disc_area                = np.pi*(rot.tip_radius**2)   
     rot.design_tip_mach          = 0.5
     rot.number_blades            = 3  
-    rot.freestream_velocity      = 10        
+    rot.freestream_velocity      = 10     
     rot.angular_velocity         = rot.design_tip_mach*speed_of_sound/rot.tip_radius      
     rot.design_Cl                = 0.7
     rot.design_altitude          = 500 * Units.feet                  
@@ -263,10 +264,11 @@ def vehicle_setup():
     rot.design_thrust            = (Lift * 1.5 )/net.number_of_engines 
     rot.induced_hover_velocity   = np.sqrt(Lift/(2*rho*rot.disc_area*net.number_of_engines))                     
     rot                          = propeller_design(rot)  
+    rot.rotation                 = [1,1,1,1,1,1,1,1]
                                  
     # Front Rotors Locations 
     rot_front                    = Data()
-    rot_front.origin             =  [[0.0 , 1.347 ,0.0 ]]
+    rot_front.origin             =  [[0.0 , 1.347 ,0.5 ]]
     rot_front.symmetric          = True
     rot_front.x_pitch_count      = 1
     rot_front.y_pitch_count      = 2     
@@ -290,7 +292,7 @@ def vehicle_setup():
       
     # Rear Rotors Locations 
     rot_rear               = Data()
-    rot_rear.origin        =  [[0.0 , 1.347 ,1.24 ]]  
+    rot_rear.origin        =  [[ 5.138, 1.347 ,1.54 ]]  
     rot_rear.symmetric     = True
     rot_rear.x_pitch_count = 1
     rot_rear.y_pitch_count = 2     
@@ -409,10 +411,9 @@ def configs_setup(vehicle):
     #   Cruise Configuration
     # ------------------------------------------------------------------
     config                                            = SUAVE.Components.Configs.Config(base_config)
-    config.tag                                        = 'cruise'
+    config.tag                                        = 'cruise' 
     config.propulsors.vectored_thrust.thrust_angle    =  0. * Units.degrees
     config.propulsors.vectored_thrust.pitch_command   = 10.  * Units.degrees  
     configs.append(config)  
     
     return configs
- 

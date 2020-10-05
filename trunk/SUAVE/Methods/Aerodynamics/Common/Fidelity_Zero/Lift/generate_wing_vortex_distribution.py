@@ -895,16 +895,15 @@ def generate_wing_vortex_distribution(geometry,settings):
     # ---------------------------------------------------------------------------------------
     # STEP 8.1: Unpack aircraft fuselage geometry NOTE THAT FUSELAGE GOMETRY IS OMITTED FROM VLM
     # --------------------------------------------------------------------------------------- 
-    n_fus = 0
+    VD.n_fus = 0
     for fus in geometry.fuselages:   
-        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,n_fus) 
+        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw) 
         VD = generate_fuselage_surface_points(VD,fus)     
          
     VD.n_w        = n_w
     VD.n_sw       = n_sw
     VD.n_cw       = n_cw    
     VD.n_cp       = n_cp  
-    VD.n_fus      = n_fus
     VD.wing_areas = np.array(wing_areas)   
     VD.Stot       = sum(wing_areas)
 
@@ -916,7 +915,7 @@ def generate_wing_vortex_distribution(geometry,settings):
     return VD 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,n_fus):
+def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
     """ This generates the vortex distribution points on the fuselage 
 
     Assumptions: 
@@ -1089,8 +1088,8 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,n_fus):
     fvs_y     = np.concatenate([fhs_y  , fhs_y ])
     fvs_z     = np.concatenate([fhs_z  , -fhs_z ])   
     
-    # increment fuslage lifting surface sections 
-    n_fus  += 4    
+    # increment fuslage lifting surface sections  
+    VD.n_fus  += 4    
     
     # Currently, fuselage is only used for plotting not analysis 
     VD.FUS_XC = np.append(VD.FUS_XC ,fvs_xc)

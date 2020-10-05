@@ -248,9 +248,9 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
                         
                         # ROTATION MATRICES FOR OUTER SECTION                         
                         # rotation about y axis to create twist and position blade upright
-                        oba_trans_1 = [[np.cos(rot*flip_1 - rot*beta[j]  ),0 , -np.sin(rot*flip_1 - rot*beta[j])],
+                        oba_trans_1 = [[np.cos(rot*flip_1 - rot*beta[j+1]  ),0 , -np.sin(rot*flip_1 - rot*beta[j+1])],
                                        [0 ,  1 , 0] ,
-                                       [np.sin(rot*flip_1 - rot*beta[j]) , 0 , np.cos(rot*flip_1 - rot*beta[j])]]  
+                                       [np.sin(rot*flip_1 - rot*beta[j+1]) , 0 , np.cos(rot*flip_1 - rot*beta[j+1])]]  
                                          
                         # rotation about x axis to create azimuth locations 
                         oba_trans_2 = [[1 , 0 , 0],
