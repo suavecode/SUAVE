@@ -1,5 +1,5 @@
 ## @ingroup Methods-Weights-Correlations-Raymer
-# tail_weight.py
+# tail.py
 #
 # Created:  May 2020, W. Van Gijseghem
 # Modified:

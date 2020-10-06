@@ -1,5 +1,5 @@
 ## @ingroup Methods-Weights-Correlations-FLOPS
-# wing_weight.py
+# wing.py
 #
 # Created:  May 2020, W. Van Gijseghem
 # Modified:

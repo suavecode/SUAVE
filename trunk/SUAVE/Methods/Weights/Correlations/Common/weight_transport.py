@@ -14,9 +14,9 @@ from SUAVE.Methods.Weights.Correlations import Propulsion as Propulsion
 from SUAVE.Methods.Weights.Correlations.FLOPS.prop_system import total_prop_flops
 from SUAVE.Methods.Weights.Correlations.FLOPS.systems import systems_FLOPS
 from SUAVE.Methods.Weights.Correlations.FLOPS.operating_items import operating_items_FLOPS
-from SUAVE.Methods.Weights.Correlations.FLOPS.wing_weight import wing_weight_FLOPS
-from SUAVE.Methods.Weights.Correlations.FLOPS.tail_weight import tail_horizontal_FLOPS
-from SUAVE.Methods.Weights.Correlations.FLOPS.tail_weight import tail_vertical_FLOPS
+from SUAVE.Methods.Weights.Correlations.FLOPS.wing import wing_weight_FLOPS
+from SUAVE.Methods.Weights.Correlations.FLOPS.tail import tail_horizontal_FLOPS
+from SUAVE.Methods.Weights.Correlations.FLOPS.tail import tail_vertical_FLOPS
 from SUAVE.Methods.Weights.Correlations.FLOPS.fuselage import fuselage_weight_FLOPS
 from SUAVE.Methods.Weights.Correlations.FLOPS.landing_gear import landing_gear_FLOPS
 from SUAVE.Methods.Weights.Correlations.FLOPS.payload import payload_FLOPS
@@ -31,7 +31,7 @@ from SUAVE.Methods.Weights.Correlations.Common import landing_gear as landing_ge
 from SUAVE.Methods.Weights.Correlations.Common import payload as payload_weight
 
 from SUAVE.Methods.Weights.Correlations.Raymer import wing_main_raymer
-from SUAVE.Methods.Weights.Correlations.Raymer.tail_weight import tail_horizontal_Raymer, tail_vertical_Raymer
+from SUAVE.Methods.Weights.Correlations.Raymer.tail import tail_horizontal_Raymer, tail_vertical_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import fuselage_weight_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import landing_gear_Raymer
 from SUAVE.Methods.Weights.Correlations.Raymer import systems_Raymer

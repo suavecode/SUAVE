@@ -16,7 +16,7 @@ def fuselage_weight_FLOPS(vehicle):
     """ Calculate the weight of the fuselage of a transport aircraft
 
         Assumptions:
-            NFUSE = 1, only one fuselage, please change the variable appropriately for multiple fuselages
+            NFUSE = 1, only one fuselage (it's possible to modify this in future work)
             delta_isa = 0, for pressure calculations
             Fuselage is tagged as 'fuselage'
 
