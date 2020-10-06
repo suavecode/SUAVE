@@ -111,25 +111,3 @@ class Weights_Transport(Weights):
 
         # done!
         return results
-
-    def finalize(self):
-        """Finalize the weight analysis.
-
-        Assumptions:
-        None
-
-        Source:
-        N/A
-
-        Inputs:
-        None
-
-        Outputs:
-        None
-
-        Properties Used:
-        N/A
-        """
-        self.mass_properties = self.vehicle.mass_properties
-
-        return
