@@ -48,10 +48,12 @@ def vehicle_setup():
     vehicle.reference_area               = 358.25      
     vehicle.passengers                   = 100
     vehicle.systems.control              = "fully powered" 
-    vehicle.systems.accessories          = "long range"
+    vehicle.systems.accessories          = "sst"
     vehicle.maximum_cross_sectional_area = 13.9
     vehicle.total_length                 = 61.66
-    
+    vehicle.design_mach_number           = 2.02
+    vehicle.design_range                 = 4505 * Units.miles
+    vehicle.design_cruise_alt            = 60000.0 * Units.ft
     
     # ------------------------------------------------------------------        
     #   Main Wing
@@ -531,7 +533,7 @@ def vehicle_setup():
     turbojet_sizing(turbojet,mach_number,altitude)   
     
     # add  gas turbine network gt_engine to the vehicle
-    vehicle.append_component(turbojet)      
+    vehicle.append_component(turbojet)
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete

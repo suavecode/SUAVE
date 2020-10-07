@@ -16,8 +16,8 @@ def main():
     import sys
     
     the_package = 'SUAVE'
-    version     = '2.1.0'
-    date        = 'March 25, 2020'
+    version     = '2.2.0'
+    date        = 'July 24, 2020'
     
     if len(sys.argv) >= 2:
         command = sys.argv[1]
@@ -165,6 +165,11 @@ def import_tests():
     """ simple check for dependencies
     """
     
+    # imports
+    import sys    
+    
+    if sys.version_info[:2] < (3, 6):
+        raise RuntimeError("Python version >= 3.6 required.")    
     try:
         import numpy
     except ImportError:
@@ -176,9 +181,14 @@ def import_tests():
         raise ImportError('scipy is required for this package')
     
     try:
-        import matplotlib.pyplot
+        import matplotlib
     except ImportError:
         raise ImportError('matplotlib is required for this package')
+    
+    try:
+        import sklearn
+    except ImportError:
+        raise ImportError('scikit-learn is required for this package')    
 
     return
     

@@ -2,24 +2,26 @@
 # VLM.py
 # 
 # Created:  May 2019, M. Clarke
+#           Jul 2020, E. Botero
+#           Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# package imports
-import SUAVE
-import numpy as np
-from SUAVE.Core import Units
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_induced_velocity_matrix import compute_induced_velocity_matrix
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_vortex_distribution     import compute_vortex_distribution
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix              import compute_RHS_matrix
+# package imports 
+import numpy as np 
+from SUAVE.Core import Data
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
+
 # ----------------------------------------------------------------------
 #  Vortex Lattice
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def VLM(conditions,settings,geometry):
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
+def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_development_time = 0.05 ):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
     Assumptions:
@@ -67,7 +69,7 @@ def VLM(conditions,settings,geometry):
        settings.number_panels_spanwise         [Unitless]
        settings.number_panels_chordwise        [Unitless]
        settings.use_surrogate                  [Unitless]
-       settings.include_slipstream_effect      [Unitless]
+       settings.propeller_wake_model           [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
        conditions.freestream.mach_number       [Unitless]
        
@@ -84,14 +86,23 @@ def VLM(conditions,settings,geometry):
     # unpack settings
     n_sw       = settings.number_panels_spanwise    
     n_cw       = settings.number_panels_chordwise   
-    sur_flag   = settings.use_surrogate
-    slipstream = settings.include_slipstream_effect
-    Sref       = geometry.reference_area
+    pwm        = settings.propeller_wake_model
+    Sref       = geometry.reference_area 
     
-    
-    # define point about which moment coefficient is computed 
-    c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
-    x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
+
+    # define point about which moment coefficient is computed
+    if 'main_wing' in geometry.wings:
+        c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
+        x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
+    else:
+        c_bar = 0.
+        x_mac = 0.
+        for wing in geometry.wings:
+            if wing.vertical == False:
+                if c_bar <= wing.chords.mean_aerodynamic:
+                    c_bar = wing.chords.mean_aerodynamic
+                    x_mac = wing.aerodynamic_center[0] + wing.origin[0][0]
+            
     x_cg       = geometry.mass_properties.center_of_gravity[0][0]
     if x_cg == None:
         x_m = x_mac 
@@ -102,11 +113,14 @@ def VLM(conditions,settings,geometry):
     mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(aoa)) 
    
-    # generate vortex distribution
-    VD = compute_vortex_distribution(geometry,settings)  
+    # generate vortex distribution 
+    VD = generate_wing_vortex_distribution(geometry,settings)   
+    
+    # pack vortex distribution 
+    geometry.vortex_distribution = VD
     
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn  = compute_induced_velocity_matrix(VD,n_sw,n_cw,aoa,mach)
+    C_mn, DW_mn  = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach)
     MCM = VD.MCM 
     
     # Compute flow tangency conditions   
@@ -131,8 +145,9 @@ def VLM(conditions,settings,geometry):
    
    
     # Build the vector
-    RHS = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,sur_flag,slipstream)
-
+    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
+                                                                                 pwm,initial_timestep_offset,wake_development_time ) 
+    
     # Compute vortex strength  
     n_cp  = VD.n_cp  
     gamma = np.linalg.solve(A,RHS)
@@ -181,7 +196,7 @@ def VLM(conditions,settings,geometry):
             
     # total lift and lift coefficient
     L           = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
-    CL          = L/(0.5*Sref)           # validated form page 402-404, aerodynamics for engineers # supersonic lift off by 2^3 
+    CL          = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers
     CL[mach>1]  = CL[mach>1]*8   # supersonic lift off by a factor of 8 
     
     # total drag and drag coefficient
@@ -199,4 +214,10 @@ def VLM(conditions,settings,geometry):
     # delete MCM from VD data structure since it consumes memory
     delattr(VD, 'MCM')   
     
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP 
+    Velocity_Profile = Data()
+    Velocity_Profile.Vx_ind   = Vx_ind_total
+    Velocity_Profile.Vz_ind   = Vz_ind_total
+    Velocity_Profile.V        = V_distribution 
+    Velocity_Profile.dt       = dt 
+    
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile

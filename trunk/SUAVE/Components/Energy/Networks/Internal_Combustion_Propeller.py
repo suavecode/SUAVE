@@ -121,7 +121,7 @@ class Internal_Combustion_Propeller(Propulsor):
         conditions.propulsion.rpm                = rpm
         conditions.propulsion.propeller_torque   = Q
         conditions.propulsion.power              = P
-        conditions.propulsion.propeller_tip_mach = (R*rpm)/a
+        conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
         
         # Create the outputs
         F                                        = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
