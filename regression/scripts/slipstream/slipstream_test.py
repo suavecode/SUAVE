@@ -75,7 +75,7 @@ def main():
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
     print(diff_Cl)
-    assert  max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6 
+    assert  max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
 
     # plot results 
     plot_mission(results,configs.base)  

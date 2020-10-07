@@ -66,7 +66,7 @@ def systems(W_uav, V_fuel, V_int, N_tank, N_eng, l_fuselage, span, TOW, Nult, nu
     avionics_wt = 2.117*((W_uav/Units.lbs)**.933)*Units.lb 
 
     # Electrical Group Wt
-    elec_wt = 12.57*((avionics_wt/Units.lb +fuel_sys_wt/Units.lb)**.51)*Units.lb
+    elec_wt = 12.57*((avionics_wt/Units.lb + fuel_sys_wt/Units.lb)**.51)*Units.lb
 
     # Environmental Control 
     ac_wt = has_air_conditioner*.265*(W_0**.52)*((1. * num_seats)**.68)*((avionics_wt/Units.lb)**.17)*(mach_number**.08)*Units.lb
@@ -76,15 +76,15 @@ def systems(W_uav, V_fuel, V_int, N_tank, N_eng, l_fuselage, span, TOW, Nult, nu
 
     # packup outputs
     output = Data()   
-    output.wt_flt_ctrl    = flt_ctrl_wt 
-    output.wt_hyd_pnu     = hyd_pnu_wt
-    output.wt_avionics    = avionics_wt
-    output.wt_elec        = elec_wt
-    output.wt_ac          = ac_wt
-    output.wt_furnish     = furnish_wt
-    output.wt_fuel_sys    = fuel_sys_wt
-    output.wt_systems     = output.wt_flt_ctrl + output.wt_hyd_pnu \
-                            + output.wt_ac + output.wt_avionics + output.wt_elec \
-                            + output.wt_furnish +output.wt_fuel_sys
+    output.wt_flight_control    = flt_ctrl_wt
+    output.wt_hyd_pnu           = hyd_pnu_wt
+    output.wt_avionics          = avionics_wt
+    output.wt_elec              = elec_wt
+    output.wt_ac                = ac_wt
+    output.wt_furnish           = furnish_wt
+    output.wt_fuel_sys          = fuel_sys_wt
+    output.wt_systems           = output.wt_flight_control + output.wt_hyd_pnu \
+                                  + output.wt_ac + output.wt_avionics + output.wt_elec \
+                                  + output.wt_furnish + output.wt_fuel_sys
 
     return output
