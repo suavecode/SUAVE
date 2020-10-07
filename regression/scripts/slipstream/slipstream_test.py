@@ -17,6 +17,7 @@ import pylab as plt
 from SUAVE.Core import Data , Container
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Plots.Mission_Plots import *  
+from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
 from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 import sys
 sys.path.append('../Vehicles') 
@@ -40,7 +41,7 @@ def main():
      
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.4174375595465422
+    lift_coefficient_true         = 0.41743798579661046
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -50,25 +51,25 @@ def main():
     
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 2.32632735e-01,  2.28290275e-01,  2.13144905e-01,  1.55483780e-01,
-                                                 1.87077228e-01,  2.39284803e-01,  1.68730106e-01,  1.45392600e-01,
-                                                 1.21224236e-01,  9.70229762e-02,  7.32812606e-02,  5.07879015e-02,
-                                                 3.04833302e-02,  1.36817850e-02,  2.74300409e-03,  2.32632735e-01,
-                                                 2.28290275e-01,  2.13144905e-01,  1.55483780e-01,  1.87077228e-01,
-                                                 2.39284803e-01,  1.68730106e-01,  1.45392600e-01,  1.21224236e-01,
-                                                 9.70229762e-02,  7.32812606e-02,  5.07879015e-02,  3.04833302e-02,
-                                                 1.36817850e-02,  2.74300409e-03,  1.44517565e-03,  1.61473585e-03,
-                                                 1.88807405e-03,  2.24294739e-03,  2.63568749e-03,  3.02041357e-03,
-                                                 3.34539534e-03,  3.54366613e-03,  3.54757261e-03,  3.30990480e-03,
-                                                 2.82074032e-03,  2.12428281e-03,  1.32987088e-03,  6.03369170e-04,
-                                                 1.21035599e-04,  1.44517565e-03,  1.61473585e-03,  1.88807405e-03,
-                                                 2.24294739e-03,  2.63568749e-03,  3.02041357e-03,  3.34539534e-03,
-                                                 3.54366613e-03,  3.54757261e-03,  3.30990480e-03,  2.82074032e-03,
-                                                 2.12428281e-03,  1.32987088e-03,  6.03369170e-04,  1.21035599e-04,
-                                                -0.00000000e+00, -0.00000000e+00, -0.00000000e+00, -0.00000000e+00,
-                                                -0.00000000e+00, -0.00000000e+00, -0.00000000e+00, -0.00000000e+00,
-                                                -0.00000000e+00, -0.00000000e+00, -0.00000000e+00, -0.00000000e+00,
-                                                -0.00000000e+00, -0.00000000e+00, -0.00000000e+00])
+    sectional_lift_coeff_true       = np.array([2.32634310e-01, 2.28290617e-01, 2.13143635e-01, 1.55476287e-01,
+                                                1.87073861e-01, 2.39286956e-01, 1.68723682e-01, 1.45389452e-01,
+                                                1.21221875e-01, 9.70213169e-02, 7.32801907e-02, 5.07871797e-02,
+                                                3.04826913e-02, 1.36812289e-02, 2.74283139e-03, 2.32634310e-01,
+                                                2.28290617e-01, 2.13143635e-01, 1.55476287e-01, 1.87073861e-01,
+                                                2.39286956e-01, 1.68723682e-01, 1.45389452e-01, 1.21221875e-01,
+                                                9.70213169e-02, 7.32801907e-02, 5.07871797e-02, 3.04826913e-02,
+                                                1.36812289e-02, 2.74283139e-03, 1.44905607e-03, 1.61869404e-03,
+                                                1.89199961e-03, 2.24673241e-03, 2.63923336e-03, 3.02363302e-03,
+                                                3.34821712e-03, 3.54604318e-03, 3.54948545e-03, 3.31135982e-03,
+                                                2.82176670e-03, 2.12493072e-03, 1.33021260e-03, 6.03500456e-04,
+                                                1.21059675e-04, 1.44905607e-03, 1.61869404e-03, 1.89199961e-03,
+                                                2.24673241e-03, 2.63923336e-03, 3.02363302e-03, 3.34821712e-03,
+                                                3.54604318e-03, 3.54948545e-03, 3.31135982e-03, 2.82176670e-03,
+                                                2.12493072e-03, 1.33021260e-03, 6.03500456e-04, 1.21059675e-04,
+                                                0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                                0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                                0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+                                                0.00000000e+00, 0.00000000e+00, 0.00000000e+00])
 
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
@@ -78,6 +79,9 @@ def main():
 
     # plot results 
     plot_mission(results,configs.base)  
+
+    # Plot vehicle 
+    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
     
     # Plot vortex distribution
     plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)

@@ -39,6 +39,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     International Journal of Mechanical, Aerospace, Industrial and Mechatronics Engineering 
     Vol:8 No:10, 2014
     
+    4. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
+    lattice method for subsonic and supersonic flow applications." (1977). (NASA CR)
 
     Inputs:
     geometry.
@@ -141,6 +143,11 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
                                                                                  pwm,initial_timestep_offset,wake_development_time ) 
     
+    # Spersonic Vortex Lattice - Validated from NASA CR, page 3 
+    locs = np.where(mach>1)[0]
+    DW_mn[locs]  = DW_mn[locs]*2
+    C_mn[locs]   = C_mn[locs]*2
+    
     # Compute vortex strength  
     n_cp     = VD.n_cp  
     gamma    = np.linalg.solve(A,RHS)
@@ -175,7 +182,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     machw             = np.tile(mach,len(wing_areas))     
     L_wing            = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CL_wing           = L_wing/(0.5*wing_areas)
-    CL_wing[machw>1]  = CL_wing[machw>1]*4  # supersonic lift off by a factor of 4 
+    CL_wing[machw>1]  = CL_wing[machw>1]*4  # supersonic lift off by a factor of  4 compared to Panair results at Mach 2 for delta wing  
     
     # Calculate spanwise lift 
     spanwise_Del_y    = Del_Y_n_w_sw[:,:,0]
@@ -187,7 +194,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # total lift and lift coefficient
     L                 = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
     CL                = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers
-    CL[mach>1]        = CL[mach>1]*4   # supersonic lift off by a factor of 4  
+    CL[mach>1]        = CL[mach>1]*4   # supersonic lift off by a factor of 4 compared to Panair results at Mach 2 for delta wing
     
     # --------------------------------------------------------------------------------------------------------
     # DRAG                                                                          
@@ -195,13 +202,13 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # drag coefficients on each wing   
     w_ind_sw_w        = np.array(np.array_split(np.sum(w_ind_n_w_sw,axis = 2).T ,n_w,axis = 1))
     Di_wing           = np.sum(w_ind_sw_w*spanwise_Del_y_w*cl_y_w*CS_w,axis = 2) 
-    CDi_wing          = Di_wing.T/(wing_areas) 
+    CDi_wing          = Di_wing.T/(wing_areas)  
     
     # total drag and drag coefficient 
     spanwise_w_ind    = np.sum(w_ind_n_w_sw,axis=2).T    
     D                 = np.sum(spanwise_w_ind*spanwise_Del_y.T*cl_y*CS,axis = 1) 
     cdi_y             = spanwise_w_ind*spanwise_Del_y.T*cl_y*CS
-    CDi               = np.atleast_2d(D/(Sref)).T 
+    CDi               = np.atleast_2d(D/(Sref)).T  
     
     # --------------------------------------------------------------------------------------------------------
     # PRESSURE                                                                      

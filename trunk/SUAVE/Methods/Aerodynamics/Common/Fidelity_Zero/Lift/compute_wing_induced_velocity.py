@@ -256,7 +256,7 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     DENUM[DENUM==0] = 1e-12  
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
     YVEC  = (Z_Z1)/DENUM
-    ZVEC  = Y1_Y/DENUM
+    ZVEC  = Y1_Y*np.cos(tw)/DENUM 
     RVEC  = np.array([XVEC, YVEC, ZVEC])
     BRAC  = 1 + (X_X1 / (np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1))))    
     COEF  = (1/(4*np.pi))*RVEC*BRAC   
@@ -293,7 +293,7 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     DENUM[DENUM==0] = 1e-12  
     XVEC  = -Y1_Y*np.sin(tw)/DENUM
     YVEC  = Z_Z1/DENUM
-    ZVEC  = Y1_Y/DENUM
+    ZVEC  = Y1_Y*np.cos(tw)/DENUM 
     RVEC  = np.array([XVEC, YVEC, ZVEC])
     BRAC  = 1 + (X_X1 / (np.sqrt(np.square(X_X1)+ np.square(Y_Y1)+ np.square(Z_Z1))))    
     COEF  = -(1/(4*np.pi))*RVEC*BRAC      

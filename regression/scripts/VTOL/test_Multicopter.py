@@ -41,14 +41,14 @@ def main():
     plot_mission(results)
     
     # save, load and plot old results 
-    #save_multicopter_results(results)
+    save_multicopter_results(results)
     old_results = load_multicopter_results() 
     plot_mission(old_results,'k-')
     plt.show(block=True)    
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
-    RPM_true   = 1297.7075563591898
+    RPM_true   = 1297.7075562435484
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')

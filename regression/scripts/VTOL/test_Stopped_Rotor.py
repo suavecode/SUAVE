@@ -56,9 +56,9 @@ def main():
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
     battery_energy_hover_to_transition_true = np.array([3.22760354e+08, 3.22712620e+08, 3.22571255e+08, 3.22340527e+08,
-                                                        3.22027509e+08, 3.21643253e+08, 3.21203270e+08, 3.20726156e+08,
-                                                        3.20234557e+08, 3.19753979e+08, 3.19309396e+08, 3.18922654e+08,
-                                                        3.18610119e+08, 3.18382144e+08, 3.18244020e+08, 3.18197819e+08])
+                                                        3.22027509e+08, 3.21643253e+08, 3.21203271e+08, 3.20726158e+08,
+                                                        3.20234563e+08, 3.19753994e+08, 3.19309430e+08, 3.18922718e+08,
+                                                        3.18610220e+08, 3.18382285e+08, 3.18244189e+08, 3.18197999e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true) 
