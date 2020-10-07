@@ -71,8 +71,8 @@ class Supersonic_Zero(Markup):
         settings.begin_drag_rise_mach_number        = 0.95
         settings.end_drag_rise_mach_number          = 1.2
         settings.transonic_drag_multiplier          = 1.25 
-        settings.number_panels_spanwise             = None 
-        settings.number_panels_chordwise            = None 
+        settings.number_spanwise_vortices           = None 
+        settings.number_chordwise_vortices          = None 
         settings.use_surrogate                      = True 
         settings.propeller_wake_model               = False  
         
@@ -90,8 +90,8 @@ class Supersonic_Zero(Markup):
         settings.fuselage_parasite_drag_end_blend_mach   = 0.99
         
         # vortex lattice configurations
-        settings.number_panels_spanwise = 5
-        settings.number_panels_chordwise = 1
+        settings.number_spanwise_vortices = 5
+        settings.number_chordwise_vortices = 1
         
         
         # build the evaluation process
@@ -145,8 +145,8 @@ class Supersonic_Zero(Markup):
         
         use_surrogate             = self.settings.use_surrogate
         propeller_wake_model      = self.settings.propeller_wake_model 
-        n_sw                      = self.settings.number_panels_spanwise    
-        n_cw                      = self.settings.number_panels_chordwise  
+        n_sw                      = self.settings.number_spanwise_vortices    
+        n_cw                      = self.settings.number_chordwise_vortices  
         
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
         self.process.compute.lift.inviscid_wings.initialize(use_surrogate , n_sw ,  n_cw ,propeller_wake_model)     

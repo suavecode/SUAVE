@@ -11,9 +11,10 @@
 import numpy as np
 from SUAVE.Core import Data 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contraction_matrix import compute_wake_contraction_matrix
+from SUAVE.Methods.Geometry.Three_Dimensional import  orientation_product, orientation_transpose
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time): 
+def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_offset, time): 
     """ This generates the propeller wake control points used to compute the 
     influence of the wake
 
@@ -53,8 +54,7 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time):
     num_prop     = len(prop.origin) 
 
     t0           = dt*init_timestep_offset
-    start_angle  = omega[0]*t0
-    blade_angles = blade_angles  
+    start_angle  = omega[0]*t0 
 
     # define points ( control point, time step , blade number , location on blade )
     # compute lambda and mu 
@@ -153,34 +153,39 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time):
 
         x0_pts = np.tile(np.atleast_2d(MCA+c/4),(B,1))  
         x_pts  = np.repeat(np.repeat(x0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
-        X_pts  = prop.origin[i][0] +  x_pts + sx_inf   
+        X_pts0 = x_pts + sx_inf   
 
         # compute wake contraction  
-        wake_contraction = compute_wake_contraction_matrix(i,prop,Nr,m,nts,X_pts)          
+        wake_contraction = compute_wake_contraction_matrix(i,prop,Nr,m,nts,X_pts0)          
 
         y0_pts = np.tile(np.atleast_2d(r),(B,1))
         y_pts  = np.repeat(np.repeat(y0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
-        Y_pts  = prop.origin[i][1] + (y_pts*wake_contraction)*azi_y  + sy_inf    
+        Y_pts0 = (y_pts*wake_contraction)*azi_y  + sy_inf    
 
         z0_pts = np.tile(np.atleast_2d(r),(B,1))
         z_pts  = np.repeat(np.repeat(z0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0)
-        Z_pts  = prop.origin[i][2] + (z_pts*wake_contraction)*azi_z + sz_inf     
+        Z_pts0 = (z_pts*wake_contraction)*azi_z + sz_inf     
+ 
+        # Rotate wake by thrust angle 
+        X_pts  = prop.origin[i][0] + X_pts0*np.cos(-thrust_angle) - Z_pts0*np.sin(-thrust_angle)
+        Y_pts  = prop.origin[i][1] + Y_pts0
+        Z_pts  = prop.origin[i][2] + X_pts0*np.sin(-thrust_angle) + Z_pts0*np.cos(-thrust_angle) 
 
         # Store points  
         # ( control point,  prop ,  time step , blade number , location on blade )
         if (prop.rotation != None) and (prop.rotation[i] == -1):  
-            WD_XA1[:,i,:,:,:] =  X_pts[: , :-1 , : , :-1 ]
-            WD_YA1[:,i,:,:,:] =  Y_pts[: , :-1 , : , :-1 ]
-            WD_ZA1[:,i,:,:,:] =  Z_pts[: , :-1 , : , :-1 ]
-            WD_XA2[:,i,:,:,:] =  X_pts[: ,  1: , : , :-1 ]
-            WD_YA2[:,i,:,:,:] =  Y_pts[: ,  1: , : , :-1 ]
-            WD_ZA2[:,i,:,:,:] =  Z_pts[: ,  1: , : , :-1 ]
-            WD_XB1[:,i,:,:,:] =  X_pts[: , :-1 , : , 1:  ]
-            WD_YB1[:,i,:,:,:] =  Y_pts[: , :-1 , : , 1:  ]
-            WD_ZB1[:,i,:,:,:] =  Z_pts[: , :-1 , : , 1:  ]
-            WD_XB2[:,i,:,:,:] =  X_pts[: ,  1: , : , 1:  ]
-            WD_YB2[:,i,:,:,:] =  Y_pts[: ,  1: , : , 1:  ]
-            WD_ZB2[:,i,:,:,:] =  Z_pts[: ,  1: , : , 1:  ] 
+            WD_XA1[:,i,:,:,:] = X_pts[: , :-1 , : , :-1 ]
+            WD_YA1[:,i,:,:,:] = Y_pts[: , :-1 , : , :-1 ]
+            WD_ZA1[:,i,:,:,:] = Z_pts[: , :-1 , : , :-1 ]
+            WD_XA2[:,i,:,:,:] = X_pts[: ,  1: , : , :-1 ]
+            WD_YA2[:,i,:,:,:] = Y_pts[: ,  1: , : , :-1 ]
+            WD_ZA2[:,i,:,:,:] = Z_pts[: ,  1: , : , :-1 ]
+            WD_XB1[:,i,:,:,:] = X_pts[: , :-1 , : , 1:  ]
+            WD_YB1[:,i,:,:,:] = Y_pts[: , :-1 , : , 1:  ]
+            WD_ZB1[:,i,:,:,:] = Z_pts[: , :-1 , : , 1:  ]
+            WD_XB2[:,i,:,:,:] = X_pts[: ,  1: , : , 1:  ]
+            WD_YB2[:,i,:,:,:] = Y_pts[: ,  1: , : , 1:  ]
+            WD_ZB2[:,i,:,:,:] = Z_pts[: ,  1: , : , 1:  ] 
         else: 
             WD_XA1[:,i,:,:,:] = X_pts[: , :-1 , : , 1:  ]
             WD_YA1[:,i,:,:,:] = Y_pts[: , :-1 , : , 1:  ]
