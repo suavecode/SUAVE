@@ -230,7 +230,9 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
 
     # Prop pod weight
     WPOD = 0.0
-    if method_type == 'FLOPS Complex':
+    if 'total_weight' in prop.keys() and method_type == 'FLOPS Complex':
+        WPOD = wt_prop
+    elif method_type == 'FLOPS Complex':
         propulsor_name  = list(vehicle.propulsors.keys())[0]
         propulsors      = vehicle.propulsors[propulsor_name]
         NENG            = propulsors.number_of_engines
