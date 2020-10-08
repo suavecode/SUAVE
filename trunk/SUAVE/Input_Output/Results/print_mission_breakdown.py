@@ -150,7 +150,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
 
     #Summary of results [nm]
     TotalFuel = results.segments[0].conditions.weights.total_mass[0] - results.segments[-1].conditions.weights.total_mass[-1]   #[kg]
-    TotalTime = (results.segments[-1].conditions.frames.inertial.time[-1] - results.segments[0].conditions.frames.inertial.time[0])  #[min]
+    TotalTime = (results.segments[-1].conditions.frames.inertial.time[-1][0] - results.segments[0].conditions.frames.inertial.time[0][0])  #[min]
 
     fid.write(2*'\n')
     if imperial:

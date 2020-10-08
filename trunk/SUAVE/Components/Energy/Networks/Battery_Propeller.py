@@ -185,7 +185,7 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.motor_torque          = motor.outputs.torque
         conditions.propulsion.propeller_torque      = Q
         conditions.propulsion.battery_specfic_power = -battery_draw/battery.mass_properties.mass # Wh/kg
-        conditions.propulsion.propeller_tip_mach    = (R*rpm)/a
+        conditions.propulsion.propeller_tip_mach    = (R*rpm*Units.rpm)/a
         
         # Create the outputs
         F                                           = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      

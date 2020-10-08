@@ -60,22 +60,22 @@ def main():
     descent_throttle_2 = results.segments.descent_2.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 0.9199917416041296
-    climb_throttle_2_truth   = 0.7217864271439607
-    climb_throttle_3_truth   = 0.4657330987009798
-    climb_throttle_4_truth   = 0.8299949651546638
-    climb_throttle_5_truth   = 0.9573347845435974
-    climb_throttle_6_truth   = 0.6354384633764499
-    climb_throttle_7_truth   = 0.7625507604950996
-    climb_throttle_8_truth   = 0.9108259689875348
-    cruise_CL_1_truth        = 0.6371505038808766
-    cruise_CL_2_truth        = 0.629743155356129
-    cruise_CL_3_truth        = 0.7123106854397706
-    descent_throttle_1_truth = -0.013666278448757478
-    single_pt_CL_1_truth     = 0.260668433833384
-    single_pt_CL_2_truth     = 0.2606022596408357
-    loiter_CL_truth          = 0.5313298790697454
-    descent_throttle_2_truth = 0.10255453343577645
+    climb_throttle_1_truth   = 1.0496566472370832 
+    climb_throttle_2_truth   = 0.8593399482913113 
+    climb_throttle_3_truth   = 0.554225876096577 
+    climb_throttle_4_truth   = 0.9280243609603119 
+    climb_throttle_5_truth   = 1.0728767733778228 
+    climb_throttle_6_truth   = 0.7242365880065347 
+    climb_throttle_7_truth   = 0.8473685964195364 
+    climb_throttle_8_truth   = 1.0082845324269998 
+    cruise_CL_1_truth        = 0.6342361677856956 
+    cruise_CL_2_truth        = 0.6241454239282105 
+    cruise_CL_3_truth        = 0.7066565371295667 
+    descent_throttle_1_truth = 0.2676353746029248 
+    single_pt_CL_1_truth     = 0.25820064211796545 
+    single_pt_CL_2_truth     = 0.2581648020658249 
+    loiter_CL_truth          = 0.5259929615196276 
+    descent_throttle_2_truth = 0.20406220700465058 
     
     # Store errors 
     error = Data()
@@ -95,7 +95,7 @@ def main():
     error.single_pt_CL_2     = np.max(np.abs(single_pt_CL_2       - single_pt_CL_2_truth ))  
     error.loiter_CL          = np.max(np.abs(loiter_CL            - loiter_CL_truth ))         
     error.descent_throttle_2 = np.max(np.abs(descent_throttle_2   - descent_throttle_2_truth))  
-    
+     
     print('Errors:')
     print(error)
     

@@ -73,10 +73,10 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 103.21142960021062
-    truth_rpm = 159.01582417482118
-    truth_i   = 127.37614381819269
-    truth_bat = 88527918.2771849
+    truth_F   = 105.97391697180569
+    truth_rpm = 236.41412349855702
+    truth_i   = 175.20906685293815
+    truth_bat = 188634807.30459636
     
     print('battery energy')
     print(energy)
@@ -137,8 +137,7 @@ def base_analysis(vehicle): # --------------------------------------------------
     
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.settings.plot_vortex_distribution   = True 
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     aerodynamics.settings.span_efficiency = 0.98
@@ -188,7 +187,7 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.power_coefficient  * ones_row(1)/15.
+    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/15.
     base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    

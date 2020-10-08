@@ -72,8 +72,8 @@ class Supersonic_OpenVSP_Wave_Drag(Markup):
         settings.number_rotations                   = 10
         
         # vortex lattice configurations
-        settings.number_panels_spanwise = 5
-        settings.number_panels_chordwise = 1
+        settings.number_spanwise_vortices = 5
+        settings.number_chordwise_vortices = 1
         
         
         # build the evaluation process
