@@ -222,7 +222,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     CM                = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
     
     # delete MCM from VD data structure since it consumes memory
-    delattr(VD, 'MCM')   
+    #delattr(VD, 'MCM')   
     
     Velocity_Profile = Data()
     Velocity_Profile.Vx_ind   = Vx_ind_total
