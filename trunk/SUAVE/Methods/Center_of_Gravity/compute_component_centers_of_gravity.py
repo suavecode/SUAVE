@@ -119,14 +119,16 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     avionics                                                = vehicle.systems.avionics
     furnishings                                             = vehicle.systems.furnishings
     apu                                                     = vehicle.systems.apu
-    passenger_weights                                       = vehicle.systems.passengers
+    passengers                                              = vehicle.payload.passengers
+    baggage                                                 = vehicle.payload.baggage
+    cargo                                                   = vehicle.payload.cargo
     air_conditioner                                         = vehicle.systems.air_conditioner
     optionals                                               = vehicle.systems.optionals  
     fuel                                                    = vehicle.systems.fuel 
     control_systems                                         = vehicle.systems.control_systems
     electrical_systems                                      = vehicle.systems.electrical_systems
-    main_gear                                               = vehicle.landing_gear.main_landing_gear    
-    nose_gear                                               = vehicle.landing_gear.nose_landing_gear 
+    main_gear                                               = vehicle.landing_gear.main    
+    nose_gear                                               = vehicle.landing_gear.nose 
     hydraulics                                              = vehicle.systems.hydraulics
         
     avionics.origin[0][0]                                      = 0.4 * nose_length
@@ -139,8 +141,14 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     apu.origin[0][0]                                           = 0.9 * length_scale   
     apu.mass_properties.center_of_gravity[0][0]                = 0.0
     
-    passenger_weights.origin[0][0]                             = 0.51 * length_scale  
-    passenger_weights.mass_properties.center_of_gravity[0][0]  = 0.0
+    passengers.origin[0][0]                                    = 0.51 * length_scale  
+    passengers.mass_properties.center_of_gravity[0][0]         = 0.0
+    
+    baggage.origin[0][0]                                       = 0.51 * length_scale  
+    baggage.mass_properties.center_of_gravity[0][0]            = 0.0
+    
+    cargo.origin[0][0]                                         = 0.51 * length_scale  
+    cargo.mass_properties.center_of_gravity[0][0]              = 0.0    
     
     air_conditioner.origin[0][0]                               = nose_length
     air_conditioner.mass_properties.center_of_gravity[0][0]    = 0.0

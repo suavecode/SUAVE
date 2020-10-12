@@ -40,7 +40,7 @@ def translate_conditions_to_cases(avl ,conditions):
     """    
     # set up aerodynamic Conditions object
     aircraft = avl.geometry
-    cases = Run_Case.Container()
+    cases    = Run_Case.Container()
     for i in range(len(conditions.aerodynamics.angle_of_attack)):      
         case                                                  = Run_Case()
         case.tag                                              = avl.settings.filenames.case_template.format(avl.current_status.batch_index,i+1)
@@ -58,7 +58,7 @@ def translate_conditions_to_cases(avl ,conditions):
             if wing.symmetric == True:
                 n_wings += 1                
         case.num_wings                                        = n_wings
-        case.n_sw                                             = avl.settings.spanwise_vortices  
+        case.n_sw                                             = avl.settings.number_spanwise_vortices  
                 
         cases.append_case(case)
     

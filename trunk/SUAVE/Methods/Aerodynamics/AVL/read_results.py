@@ -119,7 +119,7 @@ def read_results(avl_object):
             case_res.stability.neutral_point      = float(lines[50+12*(num_ctrl>0)+num_ctrl][22:33].strip())    
         
         # get number of wings, spanwise discretization for surface and strip force result extraction
-        n_sw    = avl_object.settings.spanwise_vortices
+        n_sw    = avl_object.settings.number_spanwise_vortices
         n_wings = 0 
         for wing in aircraft.wings:
             n_wings += 1

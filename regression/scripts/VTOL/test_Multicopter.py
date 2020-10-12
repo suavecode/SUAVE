@@ -1,7 +1,8 @@
 # test_Multicopter.py
 # 
-# Created:  Feb 2020, M. Clarke
-#
+# Created: Feb 2020, M. Clarke
+#          Sep 2020, M. Clarke 
+
 """ setup file for a mission with an Electic Multicopter
 """
 
@@ -18,7 +19,7 @@ import sys
 sys.path.append('../Vehicles')
 # the analysis functions
 
-from Electric_Multicopter  import vehicle_setup, configs_setup  
+from Electric_Multicopter  import vehicle_setup
 
 # ----------------------------------------------------------------------
 #   Main
@@ -47,7 +48,7 @@ def main():
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
-    RPM_true   = 1566.1021667076357
+    RPM_true   = 1297.7075562435484
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -56,10 +57,10 @@ def main():
     
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
-    battery_energy_transition_true    = np.array([3.57930608e+08, 3.57746146e+08, 3.57200666e+08, 3.56317580e+08,
-                                                  3.55134857e+08, 3.53703492e+08, 3.52085397e+08, 3.50350813e+08,
-                                                  3.48575318e+08, 3.46836552e+08, 3.45210809e+08, 3.43769647e+08,
-                                                  3.42576670e+08, 3.41684644e+08, 3.41133093e+08, 3.40946482e+08])
+    battery_energy_transition_true    = np.array([3.58215688e+08, 3.58080579e+08, 3.57681082e+08, 3.57034446e+08,
+                                                  3.56168623e+08, 3.55121105e+08, 3.53937349e+08, 3.52668841e+08,
+                                                  3.51370897e+08, 3.50100256e+08, 3.48912599e+08, 3.47860089e+08,
+                                                  3.46989043e+08, 3.46337857e+08, 3.45935270e+08, 3.45799069e+08])
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true) 
     print('battery energy of transition')
@@ -127,7 +128,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'hover'
-    config.propulsors.vectored_thrust.pitch_command = 0.  * Units.degrees    
+    config.propulsors.vectored_thrust.pitch_command            = 0.  * Units.degrees 
     configs.append(config)
     
     # ------------------------------------------------------------------
@@ -135,7 +136,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'climb'   
-    config.propulsors.vectored_thrust.pitch_command = 0.  * Units.degrees    
+    config.propulsors.vectored_thrust.pitch_command            = 0. * Units.degrees 
     configs.append(config)
     
     return configs
@@ -233,8 +234,8 @@ def mission_setup(analyses,vehicle):
     segment.climb_rate      = 300. * Units['ft/min']
     segment.battery_energy  = vehicle.propulsors.vectored_thrust.battery.max_energy*0.95
     
-    segment.state.unknowns.throttle                       = 0.5  * ones_row(1)
-    segment.state.unknowns.propeller_power_coefficient    = 0.05 * ones_row(1) 
+    segment.state.unknowns.throttle                       = 1.0 * ones_row(1)
+    segment.state.unknowns.propeller_power_coefficient    = 0.2 * ones_row(1) 
 
     segment.process.iterate.unknowns.network          = vehicle.propulsors.vectored_thrust.unpack_unknowns
     segment.process.iterate.residuals.network         = vehicle.propulsors.vectored_thrust.residuals
