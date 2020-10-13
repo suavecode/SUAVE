@@ -20,7 +20,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM
 #   Equivalent Area from lift for Sonic Boom
 # ----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Boom
-def lift_equivalent_area(config,analyses):
+def lift_equivalent_area(config,analyses,mach,aoa,altitude):
     
     conditions = Data()
     settings   = Data()
@@ -28,13 +28,20 @@ def lift_equivalent_area(config,analyses):
     settings.number_chordwise_vortices = analyses.aerodynamics.settings.number_chordwise_vortices
     settings.model_fuselage            = True
     settings.propeller_wake_model      = None
+
+
+    atmo_values = analyses.atmosphere.compute_values(altitude)
+    p     = atmo_values.pressure
+    a     = atmo_values.speed_of_sound
+    gamma = atmo_values.ratio_of_specific_heats
+    q     = 0.5*(mach**2)*gamma*p
+    
     conditions.aerodynamics = Data()
     conditions.freestream   = Data()
-    conditions.aerodynamics.angle_of_attack = np.array([[0.03270489]])
-    conditions.freestream.mach_number       = np.array([[2.02]])
-    conditions.freestream.velocity          = np.array([[596.04038125]])
-    q                                       = np.array([[24415.0099073]])
-    
+    conditions.freestream.velocity          = np.array(mach*a)
+    conditions.aerodynamics.angle_of_attack = np.array([aoa])
+    conditions.freestream.mach_number       = np.array([mach])    
+        
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
     
     S   =  config.reference_area
