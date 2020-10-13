@@ -68,6 +68,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.number_spanwise_vortices       = 15
         self.settings.number_chordwise_vortices      = 3 
         self.settings.vortex_distribution            = Data()   
+        self.settings.model_fuselage                 = False
         
         # conditions table, used for surrogate model training
         self.training                                = Data()    

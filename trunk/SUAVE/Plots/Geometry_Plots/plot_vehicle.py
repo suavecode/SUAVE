@@ -20,7 +20,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 
 ## @ingroup Plots-Geometry_Plots
 def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
-    """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
+    """This plots vortex lattice panels created when Fidelity Zero Aerodynamics 
     Routine is initialized
 
     Assumptions:

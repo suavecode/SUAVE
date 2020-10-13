@@ -137,7 +137,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # Build Aerodynamic Influence Coefficient Matrix
     A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
         + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
-        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # valdiated from book eqn 7.42  
+        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42  
    
     # Build the vector
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
@@ -222,7 +222,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     CM                = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
     
     # delete MCM from VD data structure since it consumes memory
-    #delattr(VD, 'MCM')   
+    delattr(VD, 'MCM')   
     
     Velocity_Profile = Data()
     Velocity_Profile.Vx_ind   = Vx_ind_total

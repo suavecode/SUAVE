@@ -26,6 +26,7 @@ def lift_equivalent_area(config,analyses):
     settings   = Data()
     settings.number_spanwise_vortices  = analyses.aerodynamics.settings.number_spanwise_vortices
     settings.number_chordwise_vortices = analyses.aerodynamics.settings.number_chordwise_vortices
+    settings.model_fuselage            = True
     settings.propeller_wake_model      = None
     conditions.aerodynamics = Data()
     conditions.freestream   = Data()
@@ -39,9 +40,6 @@ def lift_equivalent_area(config,analyses):
     S   =  config.reference_area
     
     VD = analyses.aerodynamics.geometry.vortex_distribution
-    
-    # delete MCM from VD data structure since it consumes memory
-    delattr(VD, 'MCM')       
     
     areas      = VD.panel_areas
     normal_vec = VD.unit_normals
