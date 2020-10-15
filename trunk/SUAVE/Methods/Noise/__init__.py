@@ -2,5 +2,5 @@
 # Description
 # @ingroup Methods
 
-from . import Correlations
+from . import Fidelity_Zero
 from . import Fidelity_One

@@ -81,7 +81,7 @@ class Scramjet(Propulsor):
         results.thrust_force_vector                   [N] 
         results.vehicle_mass_rate                     [kg/s] 
 
-        conditions.propulsion.acoustic_outputs: 
+        conditions.noise: 
         core: 
         exit_static_temperature                  [K]  
         exit_static_pressure                     [K]  

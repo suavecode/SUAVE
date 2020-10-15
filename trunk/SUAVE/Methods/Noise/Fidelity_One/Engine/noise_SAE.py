@@ -12,13 +12,13 @@
 import numpy as np
 from SUAVE.Core            import Units
 
-from .angle_of_attack_effect import angle_of_attack_effect
-from .external_plug_effect import external_plug_effect
-from .ground_proximity_effect import ground_proximity_effect
-from .jet_installation_effect import jet_installation_effect
-from .mixed_noise_component import mixed_noise_component
-from .noise_source_location import noise_source_location
-from .primary_noise_component import primary_noise_component
+from .angle_of_attack_effect    import angle_of_attack_effect
+from .external_plug_effect      import external_plug_effect
+from .ground_proximity_effect   import ground_proximity_effect
+from .jet_installation_effect   import jet_installation_effect
+from .mixed_noise_component     import mixed_noise_component
+from .noise_source_location     import noise_source_location
+from .primary_noise_component   import primary_noise_component
 from .secondary_noise_component import secondary_noise_component
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
@@ -35,79 +35,75 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 # ----------------------------------------------------------------------    
 
 ## @ingroupMethods-Noise-Fidelity_One-Engine
-def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0): 
-
-    #SAE ARP*876D 1994
+def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0):  
     """This method predicts the free-field 1/3 Octave Band SPL of coaxial subsonic
-    jets for turbofan engines under the following conditions:
-        a) Flyover (observer on ground)
-        b) Static (observer on ground)
-        c) In-flight or in-flow (observer on airplane or in a wind tunnel)
+       jets for turbofan engines under the following conditions:
+       a) Flyover (observer on ground)
+       b) Static (observer on ground)
+       c) In-flight or in-flow (observer on airplane or in a wind tunnel)
 
-        Inputs:
-                    vehicle	 - SUAVE type vehicle
+    Assumptions:
+        SAE ARP876D: Gas Turbine Jet Exhaust Noise Prediction
+        
+    Inputs:
+        vehicle	 - SUAVE type vehicle 
+        includes these fields:
+            Velocity_primary           - Primary jet flow velocity
+            Temperature_primary        - Primary jet flow temperature
+            Pressure_primary           - Primary jet flow pressure
+            Area_primary               - Area of the primary nozzle
+            Velocity_secondary         - Secondary jet flow velocity
+            Temperature_secondary      - Secondary jet flow temperature
+            Pressure_secondary         - Secondary jet flow pressure
+            Area_secondary             - Area of the secondary nozzle
+            AOA                        - Angle of attack
+            Velocity_aircraft          - Aircraft velocity
+            Altitude                   - Altitude
+            N1                         - Fan rotational speed [rpm]
+            EXA                        - Distance from fan face to fan exit/ fan diameter
+            Plug_diameter              - Diameter of the engine external plug [m]
+            Engine_height              - Engine centerline height above the ground plane
+            distance_microphone        - Distance from the nozzle exhaust to the microphones
+            angles                     - Array containing the desired polar angles
+        
+        
+        airport   - SUAVE type airport data, with followig fields:
+            atmosphere                  - Airport atmosphere (SUAVE type)
+            altitude                    - Airport altitude
+            delta_isa                   - ISA Temperature deviation
+        
 
-                    includes these fields:
-                        Velocity_primary           - Primary jet flow velocity
-                        Temperature_primary        - Primary jet flow temperature
-                        Pressure_primary           - Primary jet flow pressure
-                        Area_primary               - Area of the primary nozzle
-                        Velocity_secondary         - Secondary jet flow velocity
-                        Temperature_secondary      - Secondary jet flow temperature
-                        Pressure_secondary         - Secondary jet flow pressure
-                        Area_secondary             - Area of the secondary nozzle
-                        AOA                        - Angle of attack
-                        Velocity_aircraft          - Aircraft velocity
-                        Altitude                   - Altitude
-                        N1                         - Fan rotational speed [rpm]
-                        EXA                        - Distance from fan face to fan exit/ fan diameter
-                        Plug_diameter              - Diameter of the engine external plug [m]
-                        Engine_height              - Engine centerline height above the ground plane
-                        distance_microphone        - Distance from the nozzle exhaust to the microphones
-                        angles                     - Array containing the desired polar angles
-
-
-                    airport   - SUAVE type airport data, with followig fields:
-                        atmosphere                  - Airport atmosphere (SUAVE type)
-                        altitude                    - Airport altitude
-                        delta_isa                   - ISA Temperature deviation
-
-
-                Outputs: One Third Octave Band SPL [dB]
-                    SPL_p                           - Sound Pressure Level of the primary jet
-                    SPL_s                           - Sound Pressure Level of the secondary jet
-                    SPL_m                           - Sound Pressure Level of the mixed jet
-                    SPL_total                       - Sound Pressure Level of the total jet noise
-
-                Assumptions:
-                    ."""
-
-
-    #unpack
+    Outputs: One Third Octave Band SPL [dB]
+        SPL_p                           - Sound Pressure Level of the primary jet
+        SPL_s                           - Sound Pressure Level of the secondary jet
+        SPL_m                           - Sound Pressure Level of the mixed jet
+        SPL_total                       - Sound Pressure Level of the total jet noise 
+     
+    """ 
+    # unpack 
+    Velocity_primary_1     = np.float(turbofan.core_nozzle.noise_speed * 0.92*(turbofan.design_thrust/52700.))   
+    Temperature_primary    = noise_segment.conditions.noise.sources.core.exit_stagnation_temperature[:,0] 
+    Pressure_primary       = noise_segment.conditions.noise.sources.core.exit_stagnation_pressure[:,0] 
     
-    Velocity_primary_1      =       np.float(turbofan.core_nozzle.noise_speed * 0.92*(turbofan.design_thrust/52700.))   
-    Temperature_primary     =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_stagnation_temperature[:,0] 
-    Pressure_primary        =       noise_segment.conditions.propulsion.acoustic_outputs.core.exit_stagnation_pressure[:,0] 
+    Velocity_secondary_1   = np.float(turbofan.fan_nozzle.noise_speed * (turbofan.design_thrust/52700.)) 
+    Temperature_secondary  = noise_segment.conditions.noise.sources.fan.exit_stagnation_temperature[:,0] 
+    Pressure_secondary     = noise_segment.conditions.noise.sources.fan.exit_stagnation_pressure[:,0] 
     
-    Velocity_secondary_1    =       np.float(turbofan.fan_nozzle.noise_speed * (turbofan.design_thrust/52700.)) 
-    Temperature_secondary   =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_stagnation_temperature[:,0] 
-    Pressure_secondary      =       noise_segment.conditions.propulsion.acoustic_outputs.fan.exit_stagnation_pressure[:,0] 
+    N1                     = np.float(turbofan.fan.rotation * 0.92*(turbofan.design_thrust/52700.))
+    Diameter_primary       = turbofan.core_nozzle_diameter
+    Diameter_secondary     = turbofan.fan_nozzle_diameter
+    engine_height          = turbofan.engine_height
+    EXA                    = turbofan.exa
+    Plug_diameter          = turbofan.plug_diameter 
+    Xe                     = turbofan.geometry_xe
+    Ye                     = turbofan.geometry_ye
+    Ce                     = turbofan.geometry_Ce
     
-    N1                      =       np.float(turbofan.fan.rotation * 0.92*(turbofan.design_thrust/52700.))
-    Diameter_primary        =       turbofan.core_nozzle_diameter
-    Diameter_secondary      =       turbofan.fan_nozzle_diameter
-    engine_height           =       turbofan.engine_height
-    EXA                     =       turbofan.exa
-    Plug_diameter           =       turbofan.plug_diameter 
-    Xe                      =       turbofan.geometry_xe
-    Ye                      =       turbofan.geometry_ye
-    Ce                      =       turbofan.geometry_Ce
+    Velocity_aircraft      = np.float(noise_segment.conditions.freestream.velocity[0,0]) 
+    Altitude               = noise_segment.conditions.freestream.altitude[:,0] 
+    AOA                    = np.mean(noise_segment.conditions.aerodynamics.angle_of_attack / Units.deg)
     
-    Velocity_aircraft       =       np.float(noise_segment.conditions.freestream.velocity[0,0]) 
-    Altitude                =       noise_segment.conditions.freestream.altitude[:,0] 
-    AOA                     =       np.mean(noise_segment.conditions.aerodynamics.angle_of_attack / Units.deg)
-    
-    time                    =       noise_segment.conditions.frames.inertial.time[:,0]  
+    time                   = noise_segment.conditions.frames.inertial.time[:,0]  
     
     noise_time = np.arange(0.,time[-1],.5)
     
@@ -118,12 +114,13 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
     Altitude              = np.interp(noise_time,time,Altitude)
     
     # Calls the function noise_geometric to calculate all the distance and emission angles
-   # geometric = noise_counterplot(noise_segment,analyses,config) #noise_geometric(noise_segment,analyses,config)
+    geometric = noise_counterplot(noise_segment,analyses,config)
+    noise_geometric(noise_segment,analyses,config)
     
     #unpack
-    distance_microphone = noise_segment.dist #geometric[:][0]    
-    angles              = noise_segment.theta #geometric[:][1]
-    phi                 = noise_segment.phi #geometric[:][2]      
+    distance_microphone = noise_segment.dist  # geometric[:][0]    
+    angles              = noise_segment.theta # geometric[:][1]
+    phi                 = noise_segment.phi   # geometric[:][2]      
     
     distance_microphone = np.interp(noise_time,time,distance_microphone)
     angles = np.interp(noise_time,time,angles)
@@ -156,18 +153,18 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
         pressure_amb[id]        =   np.float(atmo_data.pressure)
     
     #Base parameters necessary input for the noise code
-    pressure_isa = 101325 #[Pa]
-    R_gas        = 287.1  #[J/kg K]
-    gama_primary = 1.37   #Corretion for the primary jet
+    pressure_isa = 101325 # [Pa]
+    R_gas        = 287.1  # [J/kg K]
+    gama_primary = 1.37   # Corretion for the primary jet
     gama         = 1.4
 
     #Calculation of nozzle areas
     Area_primary   = np.pi*(Diameter_primary/2)**2 
     Area_secondary =  np.pi*(Diameter_secondary/2)**2 
 
-    Xo=0 #Acoustic center of reference [m] - Used for wind tunnel acoustic data
+    Xo = 0 # Acoustic center of reference [m] - Used for wind tunnel acoustic data
 
-    #Flags for definition of near-fiel or wind-tunnel data
+    # Flags for definition of near-fiel or wind-tunnel data
     near_field = 0
     tunnel     = 0
 
@@ -182,7 +179,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
             2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000))
 
 
-#Defining each array before the main loop
+    # Defining each array before the main loop
     B       = np.zeros(24)
     theta_p = np.ones(24)*np.pi/2
     theta_s = np.ones(24)*np.pi/2
@@ -290,10 +287,10 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
 
         theta = angles[id]
     
-      #Call function noise source location for the calculation of theta
+        # Call function noise source location for the calculation of theta
         thetaj = noise_source_location(B,Xo,zk,Diameter_primary,theta_p,Area_primary,Area_secondary,distance_microphone[id],Diameter_secondary,theta,theta_s,theta_m,Diameter_mixed,Velocity_primary[id],Velocity_secondary[id],Velocity_mixed,Velocity_aircraft,sound_ambient[id],Str_m,Str_s)
     
-      # Loop for the frequency array range
+        # Loop for the frequency array range
         for i in range(0,24):
                #Calculation of the Directivity Factor
                 if (theta_m[i] <=1.4):
@@ -334,7 +331,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
                 dspl_geometric_s = -10*np.log10(1+(2*Diameter_mixed+(Diameter_mixed*sound_ambient[id]/frequency))/distance_secondary)
                 dspl_geometric_m = -10*np.log10(1+(2*Diameter_mixed+(Diameter_mixed*sound_ambient[id]/frequency))/distance_mixed)
     
-       #Noise attenuation due to Acoustic Near-Field
+        # Noise attenuation due to Acoustic Near-Field
         if near_field ==0:
                 dspl_acoustic_p = 0.0;
                 dspl_acoustic_s = 0.0;
@@ -344,7 +341,7 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
                 dspl_acoustic_s = 10*np.log10(1+0.13*(sound_ambient[id]/(distance_secondary*frequency))**2)
                 dspl_acoustic_m = 10*np.log10(1+0.13*(sound_ambient[id]/(distance_mixed*frequency))**2)
     
-        #Atmospheric attenuation coefficient
+        # Atmospheric attenuation coefficient
         if tunnel==0:
                 f_primary   = frequency/(1-Mach_aircraft[id]*np.cos(theta_p))
                 f_secondary = frequency/(1-Mach_aircraft[id]*np.cos(theta_s))
@@ -370,58 +367,58 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
                 EX_p = 0
                 EX_s = 0
     
-       #Calculation of the total noise attenuation (p-primary, s-secondary, m-mixed components)
+        # Calculation of the total noise attenuation (p-primary, s-secondary, m-mixed components)
         DSPL_p = dspl_ambient_pressure+dspl_density_p+dspl_geometric_p+dspl_acoustic_p+dspl_attenuation_p+dspl_spherical_p
         DSPL_s = dspl_ambient_pressure+dspl_density_s+dspl_geometric_s+dspl_acoustic_s+dspl_attenuation_s+dspl_spherical_s
         DSPL_m = dspl_ambient_pressure+dspl_density_m+dspl_geometric_m+dspl_acoustic_m+dspl_attenuation_m+dspl_spherical_m
     
     
-      #Calculation of interference effects on jet noise
+        # Calculation of interference effects on jet noise
         ATK_m   = angle_of_attack_effect(AOA,Mach_aircraft[id],theta_m)
         INST_s  = jet_installation_effect(Xe,Ye,Ce,theta_s,Diameter_mixed)
         Plug    = external_plug_effect(Velocity_primary[id],Velocity_secondary[id], Velocity_mixed, Diameter_primary,Diameter_secondary,Diameter_mixed, Plug_diameter, sound_ambient[id], theta_p,theta_s,theta_m)
         GPROX_m = ground_proximity_effect(Velocity_mixed,sound_ambient[id],theta_m,engine_height,Diameter_mixed,frequency)
     
-      #Calculation of the sound pressure level for each jet component
+        # Calculation of the sound pressure level for each jet component
         SPL_p = primary_noise_component(SPL_p,Velocity_primary[id],Temperature_primary[id],R_gas,theta_p,DVPS,sound_ambient[id],Velocity_secondary[id],Velocity_aircraft,Area_primary,Area_secondary,DSPL_p,EX_p,Str_p) + Plug[0]
         
         SPL_s = secondary_noise_component(SPL_s,Velocity_primary[id],theta_s,sound_ambient[id],Velocity_secondary[id],Velocity_aircraft,Area_primary,Area_secondary,DSPL_s,EX_s,Str_s) + Plug[1] + INST_s
         
         SPL_m = mixed_noise_component(SPL_m,Velocity_primary[id],theta_m,sound_ambient[id],Velocity_secondary[id],Velocity_aircraft,Area_primary,Area_secondary,DSPL_m,EX_m,Str_m,Velocity_mixed,XBPR) + Plug[2] + ATK_m + GPROX_m
     
-     #Sum of the Total Noise
+        # Sum of the Total Noise
         SPL_total = 10 * np.log10(10**(0.1*SPL_p)+10**(0.1*SPL_s)+10**(0.1*SPL_m))
         
-     #Store the SPL history     
+        # Store the SPL history     
         SPL_total_history[id][:]     = SPL_total[:]
         SPL_primary_history[id][:]   = SPL_p[:]
         SPL_secondary_history[id][:] = SPL_s[:]
         SPL_mixed_history[id][:]     = SPL_m[:]
         
-        #Calculation of dBA based on the sound pressure time history
+        # Calculation of dBA based on the sound pressure time history
         SPLt_dBA = dbA_noise(SPL_total)
         SPLt_dBA_history[i][:] = SPLt_dBA[:]
         SPLt_dBA_max[i] = max(SPLt_dBA)          
      
-    #Calculation of the Perceived Noise Level EPNL based on the sound time history
+    # Calculation of the Perceived Noise Level EPNL based on the sound time history
     PNL_total               =  pnl_noise(SPL_total_history)    
     PNL_primary             =  pnl_noise(SPL_primary_history)  
     PNL_secondary           =  pnl_noise(SPL_secondary_history)  
     PNL_mixed               =  pnl_noise(SPL_mixed_history)  
     
-   #Calculation of the tones corrections on the SPL for each component and total
+    # Calculation of the tones corrections on the SPL for each component and total
     tone_correction_total     = noise_tone_correction(SPL_total_history) 
     tone_correction_primary   = noise_tone_correction(SPL_primary_history) 
     tone_correction_secondary = noise_tone_correction(SPL_secondary_history) 
     tone_correction_mixed     = noise_tone_correction(SPL_mixed_history) 
     
-    #Calculation of the PLNT for each component and total
+    # Calculation of the PLNT for each component and total
     PNLT_total     = PNL_total+tone_correction_total
     PNLT_primary   = PNL_primary+tone_correction_primary
     PNLT_secondary = PNL_secondary+tone_correction_secondary
     PNLT_mixed     = PNL_mixed+tone_correction_mixed
     
-    #Calculation of the EPNL for each component and total
+    # Calculation of the EPNL for each component and total
     EPNL_total     = epnl_noise(PNLT_total)
     EPNL_primary   = epnl_noise(PNLT_primary)
     EPNL_secondary = epnl_noise(PNLT_secondary)
@@ -431,9 +428,9 @@ def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0)
     SENEL_total = senel_noise(SPLt_dBA_max)
     
     if ioprint:
-       # print EPNL_total
+        # print EPNL_total
         
-         #Printing the output solution for the engine noise calculation
+        # Printing the output solution for the engine noise calculation
          
         fid.write('Engine noise module - SAE Model for Turbofan' + '\n')
         fid.write('Certification point = FLYOVER' + '\n')

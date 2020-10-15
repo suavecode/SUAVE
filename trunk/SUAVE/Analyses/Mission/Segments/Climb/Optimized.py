@@ -141,7 +141,7 @@ class Optimized(Aerodynamic):
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations 
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust        
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
-        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
+        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability 
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position
@@ -165,6 +165,7 @@ class Optimized(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
         
         return
 

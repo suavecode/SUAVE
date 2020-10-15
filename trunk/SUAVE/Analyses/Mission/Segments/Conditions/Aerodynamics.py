@@ -116,9 +116,6 @@ class Aerodynamics(Basic):
         self.propulsion.voltage_under_load     = ones_1col * 0
         self.propulsion.voltage_open_circuit   = ones_1col * 0
         self.propulsion.thrust_breakdown       = Conditions()
-        self.propulsion.acoustic_outputs       = Conditions()
-        self.propulsion.acoustic_outputs.fan   = Conditions()
-        self.propulsion.acoustic_outputs.core  = Conditions()
 
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0
@@ -126,3 +123,12 @@ class Aerodynamics(Basic):
         
         # weights conditions
         self.weights.vehicle_mass_rate     = ones_1col * 0
+        
+        # noise conditions
+        self.noise                          = Conditions() 
+        self.noise.total                    = Conditions() 
+        self.noise.sources                  = Conditions() 
+        self.noise.sources.propeller        = Conditions()
+        self.noise.sources.rotor            = Conditions()
+        self.noise.sources.fan              = Conditions()
+        self.noise.sources.core             = Conditions()

@@ -80,7 +80,7 @@ class Liquid_Rocket(Propulsor):
         	results.thrust_force_vector                      [newtons]
         	results.vehicle_mass_rate                        [kg/s]
         	results.specific_impulse                         [s]
-        	conditions.propulsion.acoustic_outputs:
+        	conditions.noise:
         	    core:
         		exit_static_temperature                  [K]
         		exit_static_pressure                     [K]

@@ -1,1 +1,6 @@
-from .propeller_noise_frequency import propeller_noise_frequency
+## @defgroup Methods-Noise-Fidelity Zero Fidelity Zero
+# Correlation type methods for calculating noise
+# @ingroup Methods-Noise
+ 
+from .propeller_noise_sae         import propeller_noise_sae 
+from .propeller_low_fidelity      import propeller_low_fidelity

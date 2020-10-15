@@ -15,8 +15,37 @@ import numpy as np
 # ---------------------------------------------------------------------- 
 
 ## @ingroupMethods-Noise-Fidelity_One-Engine
-def mixed_noise_component (SPL_m,Velocity_primary,theta_m,sound_ambient,Velocity_secondary,Velocity_aircraft,Area_primary,Area_secondary,DSPL_m,EX_m,Str_m,Velocity_mixed,XBPR):
-    """This function calculates the noise contribution of the mixed jet component"""
+def mixed_noise_component(SPL_m,Velocity_primary,theta_m,sound_ambient,Velocity_secondary,
+                          Velocity_aircraft,Area_primary,Area_secondary,DSPL_m,EX_m,Str_m,Velocity_mixed,XBPR):
+    """This function calculates the noise contribution of the mixed jet component
+    
+    Assumptions:
+        N/A
+
+    Source:
+        None
+
+    Inputs:
+        SPL_m               [dB]
+        Velocity_primary    [m/s]
+        theta_m             [rad]
+        sound_ambient       [SPL]
+        Velocity_secondary  [m/s]
+        Velocity_aircraft   [m/s]
+        Area_primary        [m^2]
+        Area_secondary      [m^2]
+        DSPL_m              [SPL]
+        EX_m
+        Str_m
+        Velocity_mixed      [m/s]
+        XBPR                   
+
+    Outputs:
+        SPL_m                [dB]
+
+    Properties Used: 
+        N/A 
+    """ 
 
     #Calculation of the velocity exponent
     velocity_exponent = (Velocity_mixed/sound_ambient)**0.5*(0.6+(0.2/(0.2+Str_m) * \

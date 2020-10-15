@@ -10,8 +10,10 @@
 
 # SUAVE imports
 from SUAVE.Methods.Missions import Segments as Methods
-
 from .Constant_Speed_Constant_Altitude import Constant_Speed_Constant_Altitude
+
+# Package imports
+import numpy as np 
 
 # Units
 from SUAVE.Core import Units
@@ -53,9 +55,10 @@ class Constant_Dynamic_Pressure_Constant_Altitude(Constant_Speed_Constant_Altitu
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude         = 0.0
-        self.dynamic_pressure = 1600 * Units.pascals 
-        self.distance         = 1.0 * Units.km
+        self.altitude                 = 0.0
+        self.dynamic_pressure         = 1600 * Units.pascals 
+        self.distance                 = 1.0 * Units.km
+        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
         
         # --------------------------------------------------------------
         #   The Solving Process

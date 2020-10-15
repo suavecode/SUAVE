@@ -58,6 +58,7 @@ class Basic(Conditions):
         self.frames   = Conditions()
         self.weights  = Conditions()
         self.energies = Conditions()
+        self.noise    = Conditions()
         
         # inertial conditions
         self.frames.inertial = Conditions()        

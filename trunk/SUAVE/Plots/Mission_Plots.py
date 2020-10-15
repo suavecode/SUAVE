@@ -10,6 +10,7 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Units 
 import matplotlib.pyplot as plt  
+import mpl_toolkits.mplot3d as plt3d
 import numpy as np
 import matplotlib.ticker as ticker 
 # ------------------------------------------------------------------
@@ -1327,6 +1328,184 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
                 plt.savefig(save_filename + '_' + str(img_idx) + file_type) 	
             img_idx += 1	
         seg_idx +=1 
+
+
+# ------------------------------------------------------------------
+#   Rotor/Propeller Acoustics
+# ------------------------------------------------------------------
+def plot_noise_levels(results, line_color = 'bo-', save_figure = False, save_filename = "Noise Level"):
+    """This plots the A-weighted Sound Pressure of 
+    on all lifting surfaces of the aircraft
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.aerodynamics.
+        inviscid_wings_sectional_lift
+    vehicle.vortex_distribution.
+       n_sw
+       n_w
+       
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """       
+    
+    axis_font = {'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(10, 8) 
+    for i in range(len(results.segments)):    
+        angles       = results.segments[i].conditions.noise.microphone_angles/Units.degrees
+        time         = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
+        SPL_Hv_dBA   = results.segments[i].conditions.noise.sources.propeller.SPL_Hv_dBA
+        
+        axes = fig.add_subplot(1,1,1)
+        axes.fill_between(time, 0, SPL_Hv_dBA[:,0]               , facecolor= 'lightcyan'   , label= str(round(angles[0],1)) + r' $\degree$' )
+        axes.fill_between(time, SPL_Hv_dBA[:,0], SPL_Hv_dBA[:,1] , facecolor= 'cyan', label= str(round(angles[1],1)) + r' $\degree$' )
+        axes.fill_between(time, SPL_Hv_dBA[:,1], SPL_Hv_dBA[:,2] , facecolor= 'dodgerblue', label= str(round(angles[2],1)) + r' $\degree$' )
+        axes.fill_between(time, SPL_Hv_dBA[:,2], SPL_Hv_dBA[:,3] , facecolor= 'blue' , label= str(round(angles[3],1)) + r' $\degree$' )
+        axes.fill_between(time, SPL_Hv_dBA[:,3], SPL_Hv_dBA[:,4] , facecolor= 'darkblue'  , label= str(round(angles[4],1)) + r' $\degree$' )
+        axes.fill_between(time, SPL_Hv_dBA[:,4], SPL_Hv_dBA[:,5] , facecolor= 'midnightblue', label= str(round(angles[5],1)) + r' $\degree$' )    
+  
+        axes.set_ylabel('dBA',axis_font)
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_title('SPL Prediction Method: Hanson')
+        axes.set_ylim([50,150])  
+        if i == 0:
+            axes.legend(loc='upper center')         
+        
+    if save_figure:
+        plt.savefig(save_filename + ".png")  
+        
+
+    return 
+
+def plot_noise_contour(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour"):
+    """This plots the A-weighted Sound Pressure of 
+    on all lifting surfaces of the aircraft
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.aerodynamics.
+        inviscid_wings_sectional_lift
+    vehicle.vortex_distribution.
+       n_sw
+       n_w
+       
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """       
+    
+    axis_font = {'size':'14'} 
+    fig = plt.figure(save_filename)
+    axes = fig.gca(projection='3d')
+    fig.set_size_inches(12, 8) 
+    dim_seg      = len(results.segments)
+    dim_ctrl_pts = len(results.segments[0].conditions.frames.inertial.time[:,0])
+    dim_mic      = len(results.segments[0].conditions.noise.sources.propeller.SPL_Hv_dBA[0,:])
+    dim_mat      = dim_seg*dim_ctrl_pts 
+    SPL_contour  = np.zeros((dim_mat,dim_mic)) 
+    Range        = np.zeros((dim_mat,dim_mic)) 
+    Span         = np.zeros((dim_mat,dim_mic)) 
+    
+    
+    Aircraft_pos = np.zeros((dim_mat,3)) 
+    
+    for i in range(len(results.segments)): 
+        Aircraft_pos[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),0]   = results.segments[i].conditions.frames.inertial.position_vector[:,0]
+        Aircraft_pos[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),2]   = -results.segments[i].conditions.frames.inertial.position_vector[:,2]
+        SPL_contour[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),:]  = results.segments[i].conditions.noise.sources.propeller.SPL_Hv_dBA
+        Range[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),:]        = np.repeat(np.atleast_2d(results.segments[i].conditions.frames.inertial.position_vector[:,0]).T,dim_mic, axis = 1)
+        Span[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),:]         = results.segments[i].conditions.noise.microphone_locations[:,:,1] 
+        
+     
+    axes.scatter(Aircraft_pos[:,0],Aircraft_pos[:,1],Aircraft_pos[:,2], c='k', marker = 'o' )
+    CS = axes.contourf(Range,Span,SPL_contour, levels = 20, zdir='z', offset= 0) 
+    axes.view_init(elev= 8, azim= -166)  
+    axes.set_xlim(0, 20000)
+    axes.set_ylim(-4000, 4000)
+    axes.set_zlim(0, 3000)
+    
+    #plot the lines
+    for i in range(dim_mat-1): 
+        xs = Aircraft_pos[i,0], Aircraft_pos[i+1,0]
+        ys = Aircraft_pos[i,1], Aircraft_pos[i+1,1]
+        zs = Aircraft_pos[i,2], Aircraft_pos[i+1,2]
+        line = plt3d.art3d.Line3D(xs, ys, zs, color = 'black', linewidth = 3)
+        axes.add_line(line)    
+      
+    cbar = fig.colorbar(CS, ax=axes)
+    cbar.ax.set_ylabel('SPL', rotation =  0)  
+    plt.axis('off')	
+    plt.grid(None)        
+    
+    if save_figure:
+        plt.savefig(save_filename + ".png")  
+        
+
+    return 
+
+# ------------------------------------------------------------------
+#   Propeller Performance
+# ------------------------------------------------------------------
+def plot_propeller_performance(noise, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Performance"): 
+    """This plots the sectional lift distrubtion at all control points
+    on all lifting surfaces of the aircraft
+
+    Assumptions:
+    None
+
+    Source:
+    None
+
+    Inputs:
+    results.segments.aerodynamics.
+        inviscid_wings_sectional_lift
+    vehicle.vortex_distribution.
+       n_sw
+       n_w
+       
+    Outputs: 
+    Plots
+
+    Properties Used:
+    N/A	
+    """       
+    
+    axis_font = {'fontname':'Arial', 'size':'14'} 
+    fig = plt.figure(save_filename)
+    fig.set_size_inches(10, 8) 
+    T = noise.blade_T_distribution[:][0]
+    Q = noise.blade_Q_distribution[:][0]
+    r = noise.radius_distribution
+           
+    axes = fig.add_subplot(2,1,1)
+    axes.plot(r, T , line_color)
+    axes.set_ylabel('T (N)',axis_font)
+    axes.set_xlabel('r (m)',axis_font)
+    axes.minorticks_on()
+    axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
+    axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
+    axes.grid(True)      
+    
+    if save_figure:
+        plt.savefig(save_filename + ".png")  
+        
+    return  
 
 # ------------------------------------------------------------------
 #   Set Axis Parameters 

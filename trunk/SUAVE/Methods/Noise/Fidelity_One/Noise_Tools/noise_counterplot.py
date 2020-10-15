@@ -15,22 +15,28 @@ import numpy as np
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def noise_counterplot(noise_segment,analyses,config):
-    """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_counterplot(noise_segment,analyses,config):
-            Computes the geometric parameters for the noise tools at any microphone potsition, not only the certification points:
-            distance and emission angles for both polar and azimuthal angles.
+    """ This computes the geometric parameters for the noise tools at any microphone potsition, not only the certification points:
+    distance and emission angles for both polar and azimuthal angles.
+    
+    Assumptions:
+        None 
+ 
+    Source:
+       SAE ARP876D: Gas Turbine Jet Exhaust Noise Prediction
+       
+    Inputs:
+        noise_segment	 - SUAVE type vehicle
+        analyses
+        config
 
-            Inputs:
-                noise_segment	 - SUAVE type vehicle
-                analyses
-                config
+    Outputs:
+        dist            - Distance vector from the aircraft position in relation to the microphone coordinates,    [meters]
+        theta           - Polar angle emission vector relatively to the aircraft to the microphone coordinates,    [rad]
+        phi             - Azimuthal angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
 
-            Outputs:
-                dist            - Distance vector from the aircraft position in relation to the microphone coordinates, [meters]
-                theta           - Polar angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
-                phi             - Azimuthal angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
-
-            Assumptions:
-                None."""
+    Properties Used:
+        None 
+    """
     
     #unpack
     position_vector = noise_segment.conditions.frames.inertial.position_vector
@@ -40,14 +46,12 @@ def noise_counterplot(noise_segment,analyses,config):
     x_aircraft = position_vector[:,0]
     altitude   = - position_vector[:,2]
     z_aircraft = position_vector[:,1]
-    
-
+     
     n_steps = len(altitude)  #number of time steps (space discretization)
     
     # Preparing the matrix: Angles
     phi = np.zeros(n_steps)
-    theta = np.zeros(n_steps)  
-    
+    theta = np.zeros(n_steps)   
    
     #X,Y,Z position of each microphone
     x_mic = np.float(mic_position[0])
@@ -61,17 +65,11 @@ def noise_counterplot(noise_segment,analyses,config):
         if (x_aircraft[i]-x_mic)< 0.:
             theta[i] = np.arctan(np.abs(altitude[i]/(x_aircraft[i]-x_mic)))
         else:
-            theta[i] = np.pi - np.arctan(np.abs(altitude[i]/(x_aircraft[i]-x_mic)))
-            
+            theta[i] = np.pi - np.arctan(np.abs(altitude[i]/(x_aircraft[i]-x_mic))) 
                 
     #Pack the results
     noise_segment.dist  = dist
     noise_segment.theta = theta
-    noise_segment.phi   = phi
-          
+    noise_segment.phi   = phi 
 
-    return (dist,theta,phi)
-
-
-#if __name__ == '__main__':
-        #main()
+    return (dist,theta,phi) 

@@ -15,10 +15,29 @@ import numpy as np
 # ---------------------------------------------------------------------- 
 
 ## @ingroupMethods-Noise-Fidelity_One-Engine
-def angle_of_attack_effect (AOA,Mach_aircraft,theta_m):
-    """This function calculates the angle of attack effect, in decibels, to be added to the predicted mixed jet noise level."""
+def angle_of_attack_effect (AoA,Mach_aircraft,theta_m):
+    """This calculates the angle of attack effect, in decibels, to be added 
+    to the predicted mixed jet noise level. 
+        
+    Assumptions:
+        N/A
 
-    #Angle of attack effect
-    ATK_m = 0.5*AOA*Mach_aircraft*((1.8*theta_m/np.pi)-0.6)**2
+    Source:
+        SAE Model
+    
+    Inputs:   
+        AoA            [rad]
+        Mach_aircraft  [-]
+        theta_m        [rad]
+    
+    Outputs:
+        ATK_m          [-]    
+    
+    Properties Used:
+        None 
+    """
+
+    # Angle of attack effect
+    ATK_m = 0.5*AoA*Mach_aircraft*((1.8*theta_m/np.pi)-0.6)**2
 
     return(ATK_m)

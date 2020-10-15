@@ -23,7 +23,6 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
-
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
 
@@ -34,61 +33,63 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroupMethods-Noise-Fidelity_One-Airframe
-def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0): 
+def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0):  
+    """ This computes the noise from different sources of the airframe for a given vehicle for a constant altitude flight. 
 
-    """ SUAVE.Methods.Noise.Fidelity_One.noise_fidelity_one(config, analyses, noise_segment):
-            Computes the noise from different sources of the airframe for a given vehicle for a constant altitude flight.
+    Assumptions:
+        Correlation based 
+ 
+    Source:
+        Fink, Martin R. Airframe noise prediction method. No. UTRC/R77-912607-11. UNITED 
+        TECHNOLOGIES RESEARCH CENTER EAST HARTFORD CT, 1977.  
+               
+    Inputs:
+        vehicle	 - SUAVE type vehicle
 
-            Inputs:
-                vehicle	 - SUAVE type vehicle
+        includes these fields:
+            S                          - Wing Area
+            bw                         - Wing Span
+            Sht                        - Horizontal tail area
+            bht                        - Horizontal tail span
+            Svt                        - Vertical tail area
+            bvt                        - Vertical tail span
+            deltaf                     - Flap deflection
+            Sf                         - Flap area
+            cf                         - Flap chord
+            slots                      - Number of slots (Flap type)
+            Dp                         - Main landing gear tyre diameter
+            Hp                         - Main lading gear strut length
+            Dn                         - Nose landing gear tyre diameter
+            Hn                         - Nose landing gear strut length
+            wheels                     - Number of wheels
 
-                includes these fields:
-                    S                          - Wing Area
-                    bw                         - Wing Span
-                    Sht                        - Horizontal tail area
-                    bht                        - Horizontal tail span
-                    Svt                        - Vertical tail area
-                    bvt                        - Vertical tail span
-                    deltaf                     - Flap deflection
-                    Sf                         - Flap area
-                    cf                         - Flap chord
-                    slots                      - Number of slots (Flap type)
-                    Dp                         - Main landing gear tyre diameter
-                    Hp                         - Main lading gear strut length
-                    Dn                         - Nose landing gear tyre diameter
-                    Hn                         - Nose landing gear strut length
-                    wheels                     - Number of wheels
-
-                airport   - SUAVE type airport data, with followig fields:
-                    atmosphere                  - Airport atmosphere (SUAVE type)
-                    altitude                    - Airport altitude
-                    delta_isa                   - ISA Temperature deviation
-                    
-                noise segment - flight path data, containing:
-                    distance_vector             - distance from the source location to observer
-                    angle                       - polar angle from the source to the observer
-                    phi                         - azimuthal angle from the source to the observer
-
-
-            Outputs: One Third Octave Band SPL [dB]
-                SPL_wing                         - Sound Pressure Level of the clean wing
-                SPLht                            - Sound Pressure Level of the horizontal tail
-                SPLvt                            - Sound Pressure Level of the vertical tail
-                SPL_flap                         - Sound Pressure Level of the flaps trailing edge
-                SPL_slat                         - Sound Pressure Level of the slat leading edge
-                SPL_main_landing_gear            - Sound Pressure Level og the main landing gear
-                SPL_nose_landing_gear            - Sound Pressure Level of the nose landing gear
-
-            Assumptions:
-                Correlation based."""
+        airport   - SUAVE type airport data, with followig fields:
+            atmosphere                  - Airport atmosphere (SUAVE type)
+            altitude                    - Airport altitude
+            delta_isa                   - ISA Temperature deviation
+            
+        noise segment - flight path data, containing:
+            distance_vector             - distance from the source location to observer
+            angle                       - polar angle from the source to the observer
+            phi                         - azimuthal angle from the source to the observer
 
 
-    # ==============================================
-        # Unpack
-    # ==============================================
+    Outputs: One Third Octave Band SPL [dB]
+        SPL_wing                         - Sound Pressure Level of the clean wing
+        SPLht                            - Sound Pressure Level of the horizontal tail
+        SPLvt                            - Sound Pressure Level of the vertical tail
+        SPL_flap                         - Sound Pressure Level of the flaps trailing edge
+        SPL_slat                         - Sound Pressure Level of the slat leading edge
+        SPL_main_landing_gear            - Sound Pressure Level og the main landing gear
+        SPL_nose_landing_gear            - Sound Pressure Level of the nose landing gear
+
+    Properties Used:
+        N/A      
+        
+    """  
+    # Unpack 
     wing     = config.wings
-    flap     = wing.main_wing.control_surfaces.flap
-    
+    flap     = wing.main_wing.control_surfaces.flap 
     Sw       = wing.main_wing.areas.reference  / (Units.ft)**2              #wing area, sq.ft
     bw       = wing.main_wing.spans.projected / Units.ft                    #wing span, ft
     Sht      = wing.horizontal_stabilizer.areas.reference / (Units.ft)**2   #horizontal tail area, sq.ft
@@ -124,12 +125,11 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
 
     # Geometric information from the source to observer position
     distance_vector = noise_segment.dist    
-    angle = noise_segment.theta 
-    phi   = noise_segment.phi
-    
+    angle           = noise_segment.theta 
+    phi             = noise_segment.phi  
     distance_vector = np.interp(noise_time,time,distance_vector)
-    angle = np.interp(noise_time,time,angle)
-    phi   = np.interp(noise_time,time,phi)
+    angle           = np.interp(noise_time,time,angle)
+    phi             = np.interp(noise_time,time,phi)
         
     # Number of points on the discretize segment   
     nsteps=len(noise_time)
@@ -144,62 +144,54 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     
     # ==============================================
     #         Computing atmospheric conditions
-    # ==============================================
-    
+    # ============================================== 
     for id in range (0,nsteps):
         atmo_data = analyses.atmosphere.compute_values(altitude[id])
         
-        #unpack    
-        sound_speed[id] =    np.float(atmo_data.speed_of_sound)
-        density[id]     =    np.float(atmo_data.density)
-        viscosity[id]   =    np.float(atmo_data.dynamic_viscosity*10.7639) #units converstion - m2 to ft2
-        temperature[id] =    np.float(atmo_data.temperature)
+        # unpack    
+        sound_speed[id] = np.float(atmo_data.speed_of_sound)
+        density[id]     = np.float(atmo_data.density)
+        viscosity[id]   = np.float(atmo_data.dynamic_viscosity*Units.ft*Units.ft) # units converstion - m2 to ft2
+        temperature[id] = np.float(atmo_data.temperature)
         
-        #Mach number
+        # Mach number
         M[id] = velocity/np.sqrt(1.4*287*temperature[id])
     
         #Wing Turbulent Boundary Layer thickness, ft
         deltaw[id] = 0.37*(Sw/bw)*((velocity/Units.ft)*Sw/(bw*viscosity[id]))**(-0.2)
-    
-
-    #Units conversion - knots to ft/s
-    kt2fts = 1.6878098571 
 
     #Generate array with the One Third Octave Band Center Frequencies
     frequency = np.array((50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, \
             2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000))
-
-
-    # Velocity in fts
-    velocity_fst = velocity * Units.knot
     
     #number of positions of the aircraft to calculate the noise
-    nrange = len(angle) 
-    i=0
-    SPL_wing_history = np.zeros((nrange,24))
-    SPLht_history    = np.zeros((nrange,24))
-    SPLvt_history    = np.zeros((nrange,24))
-    SPL_flap_history = np.zeros((nrange,24))
-    SPL_slat_history = np.zeros((nrange,24))
+    nrange = len(angle)  
+    SPL_wing_history              = np.zeros((nrange,24))
+    SPLht_history                 = np.zeros((nrange,24))
+    SPLvt_history                 = np.zeros((nrange,24))
+    SPL_flap_history              = np.zeros((nrange,24))
+    SPL_slat_history              = np.zeros((nrange,24))
     SPL_main_landing_gear_history = np.zeros((nrange,24))
     SPL_nose_landing_gear_history = np.zeros((nrange,24))
-    SPL_total_history = np.zeros((nrange,24))
+    SPL_total_history             = np.zeros((nrange,24))
     
     #Noise history in dBA
     SPLt_dBA_history = np.zeros((nrange,24))  
     SPLt_dBA_max = np.zeros(nrange)    
     
     #START LOOP FOR EACH POSITION OF AIRCRAFT   
-    for i in range(0,nrange-1):
-        #Emission angle theta   
-        theta = angle[i] 
-        #Distance from airplane to observer, evaluated at retarded time
+    for i in range(nrange-1):
+        
+        # Emission angle theta   
+        theta = angle[i]
+        
+        #D istance from airplane to observer, evaluated at retarded time
         distance = distance_vector[i]    
        
-         #Atmospheric attenuation
+        # Atmospheric attenuation
         delta_atmo=atmospheric_attenuation(distance)
 
-        #Call each noise source model
+        # Call each noise source model
         SPL_wing = noise_clean_wing(Sw,bw,0,1,deltaw[i],velocity,viscosity[i],M[i],phi[i],theta,distance,frequency) - delta_atmo    #Wing Noise
         SPLht    = noise_clean_wing(Sht,bht,0,1,deltaw[i],velocity,viscosity[i],M[i],phi[i],theta,distance,frequency)  -delta_atmo    #Horizontal Tail Noise
         SPLvt    = noise_clean_wing(Svt,bvt,0,0,deltaw[i],velocity,viscosity[i],M[i],phi[i],theta,distance,frequency)  -delta_atmo    #Vertical Tail Noise
@@ -221,69 +213,63 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
             SPL_main_landing_gear = SPL_main_landing_gear+3*(main_units-1)
  
  
-         #Total Airframe Noise
+        # Total Airframe Noise
         SPL_total = 10.*np.log10(10.0**(0.1*SPL_wing)+10.0**(0.1*SPLht)+10**(0.1*SPL_flap)+ \
              10.0**(0.1*SPL_slat)+10.0**(0.1*SPL_main_landing_gear)+10.0**(0.1*SPL_nose_landing_gear))
             
-        SPL_total_history[i][:] = SPL_total[:]
-        SPL_wing_history[i][:]  = SPL_wing[:]
-        SPLvt_history[i][:]     = SPLvt[:]
-        SPLht_history[i][:]     = SPLht[:]
-        SPL_flap_history[i][:]  = SPL_flap[:]
-        SPL_slat_history[i][:]  = SPL_slat[:]
+        SPL_total_history[i][:]             = SPL_total[:]
+        SPL_wing_history[i][:]              = SPL_wing[:]
+        SPLvt_history[i][:]                 = SPLvt[:]
+        SPLht_history[i][:]                 = SPLht[:]
+        SPL_flap_history[i][:]              = SPL_flap[:]
+        SPL_slat_history[i][:]              = SPL_slat[:]
         SPL_nose_landing_gear_history[i][:] = SPL_nose_landing_gear[:]
-        SPL_main_landing_gear_history[i][:] = SPL_main_landing_gear[:]
+        SPL_main_landing_gear_history[i][:] = SPL_main_landing_gear[:] 
         
-        
-        #Calculation of dBA based on the sound pressure time history
+        # Calculation of dBA based on the sound pressure time history
         SPLt_dBA = dbA_noise(SPL_total)
         SPLt_dBA_history[i][:] = SPLt_dBA[:]
-        SPLt_dBA_max[i] = max(SPLt_dBA)        
-       
-       
-   #Calculation of dBA based on the sound pressure time history
-    dbA_total               =       np.max(SPLt_dBA_history)    #(Not used to certification point)
+        SPLt_dBA_max[i] = max(SPLt_dBA)         
           
-   #Calculation of the Perceived Noise Level EPNL based on the sound time history
-    PNL_total               =       pnl_noise(SPL_total_history)
-    PNL_wing                =       pnl_noise(SPL_wing_history)
-    PNL_ht                  =       pnl_noise(SPLht_history)
-    PNL_vt                  =       pnl_noise(SPLvt_history)
-    PNL_nose_landing_gear   =       pnl_noise(SPL_nose_landing_gear_history)
-    PNL_main_landing_gear   =       pnl_noise(SPL_main_landing_gear_history)
-    PNL_slat                =       pnl_noise(SPL_slat_history)
-    PNL_flap                =       pnl_noise(SPL_flap_history)
-    
-    
-   #Calculation of the tones corrections on the SPL for each component and total
-    tone_correction_total = noise_tone_correction(SPL_total_history) 
-    tone_correction_wing  = noise_tone_correction(SPL_wing_history)
-    tone_correction_ht    = noise_tone_correction(SPLht_history)
-    tone_correction_vt    = noise_tone_correction(SPLvt_history)
-    tone_correction_flap  = noise_tone_correction(SPL_flap_history)
-    tone_correction_slat  = noise_tone_correction(SPL_slat_history)
+    # Calculation of the Perceived Noise Level EPNL based on the sound time history
+    PNL_total             = pnl_noise(SPL_total_history)
+    PNL_wing              = pnl_noise(SPL_wing_history)
+    PNL_ht                = pnl_noise(SPLht_history)
+    PNL_vt                = pnl_noise(SPLvt_history)
+    PNL_nose_landing_gear = pnl_noise(SPL_nose_landing_gear_history)
+    PNL_main_landing_gear = pnl_noise(SPL_main_landing_gear_history)
+    PNL_slat              = pnl_noise(SPL_slat_history)
+    PNL_flap              = pnl_noise(SPL_flap_history)
+     
+    # Calculation of the tones corrections on the SPL for each component and total
+    tone_correction_total             = noise_tone_correction(SPL_total_history) 
+    tone_correction_wing              = noise_tone_correction(SPL_wing_history)
+    tone_correction_ht                = noise_tone_correction(SPLht_history)
+    tone_correction_vt                = noise_tone_correction(SPLvt_history)
+    tone_correction_flap              = noise_tone_correction(SPL_flap_history)
+    tone_correction_slat              = noise_tone_correction(SPL_slat_history)
     tone_correction_nose_landing_gear = noise_tone_correction(SPL_nose_landing_gear_history)
     tone_correction_main_landing_gear = noise_tone_correction(SPL_main_landing_gear_history)
     
-    #Calculation of the PLNT for each component and total
-    PNLT_total = PNL_total+tone_correction_total
-    PNLT_wing  = PNL_wing+tone_correction_wing
-    PNLT_ht    = PNL_ht+tone_correction_ht
-    PNLT_vt    = PNL_vt+tone_correction_vt
+    # Calculation of the PLNT for each component and total
+    PNLT_total             = PNL_total+tone_correction_total
+    PNLT_wing              = PNL_wing+tone_correction_wing
+    PNLT_ht                = PNL_ht+tone_correction_ht
+    PNLT_vt                = PNL_vt+tone_correction_vt
     PNLT_nose_landing_gear = PNL_nose_landing_gear+tone_correction_nose_landing_gear
     PNLT_main_landing_gear = PNL_main_landing_gear+tone_correction_main_landing_gear
-    PNLT_slat = PNL_slat+tone_correction_slat
-    PNLT_flap = PNL_flap+tone_correction_flap
+    PNLT_slat              = PNL_slat+tone_correction_slat
+    PNLT_flap              = PNL_flap+tone_correction_flap
     
     #Calculation of the EPNL for each component and total
-    EPNL_total = epnl_noise(PNLT_total)
-    EPNL_wing  = epnl_noise(PNLT_wing)
-    EPNL_ht    = epnl_noise(PNLT_ht)
-    EPNL_vt    = epnl_noise(PNLT_vt)    
+    EPNL_total             = epnl_noise(PNLT_total)
+    EPNL_wing              = epnl_noise(PNLT_wing)
+    EPNL_ht                = epnl_noise(PNLT_ht)
+    EPNL_vt                = epnl_noise(PNLT_vt)    
     EPNL_nose_landing_gear = epnl_noise(PNLT_nose_landing_gear)
     EPNL_main_landing_gear = epnl_noise(PNLT_main_landing_gear)
-    EPNL_slat = epnl_noise(PNLT_slat)
-    EPNL_flap = epnl_noise(PNLT_flap)
+    EPNL_slat              = epnl_noise(PNLT_slat)
+    EPNL_flap              = epnl_noise(PNLT_flap)
     
     #Calculation of the SENEL total
     SENEL_total = senel_noise(SPLt_dBA_max)

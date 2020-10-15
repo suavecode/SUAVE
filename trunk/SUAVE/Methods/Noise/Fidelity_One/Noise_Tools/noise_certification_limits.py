@@ -17,20 +17,27 @@ import numpy as np
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def noise_certification_limits(results,vehicle):
-    """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_certification_limits(results,vehicle):
-            Computes the certification noise limits as a function of the aircraft weight [lbs] and number of engines for each segment.
+    """ This computes the certification noise limits as a function of the aircraft weight [lbs] 
+    and number of engines for each segment.
 
-            Inputs:
-                vehicle	 - SUAVE type vehicle
-                results
+    Assumptions:
+        None
+    
+    Source:
+        SAE 
+        
+    Inputs:
+        vehicle	 - SUAVE type vehicle
+        results
 
-            Outputs: Noise limits in EPNL
-                noise_approach_limit             - Approach noise limit as a function of the landing weight, [EPNdB]
-                noise_flyover_limit              - Flyover noise limit as a function of the takeoff weight, [EPNdB]
-                noise_sideline_limit             - Sideline noise limit as a function of the takeoff weight, [EPNdB]
+    Outputs: Noise limits in EPNL
+        noise_approach_limit  - Approach noise limit as a function of the landing weight, [EPNdB]
+        noise_flyover_limit   - Flyover noise limit as a function of the takeoff weight,  [EPNdB]
+        noise_sideline_limit  - Sideline noise limit as a function of the takeoff weight, [EPNdB]
 
-            Assumptions:
-                None."""
+    Properties Used:
+        None
+    """
     
     #unpack
     weight_approach     = np.float(results.approach.segments.descent.conditions.weights.total_mass[-1]) / Units.lbs

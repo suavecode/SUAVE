@@ -94,7 +94,7 @@ class Turbofan(Propulsor):
             Outputs:
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
-            conditions.propulsion.acoustic_outputs:
+            conditions.noise:
                 core:
                     exit_static_temperature      
                     exit_static_pressure       
@@ -278,7 +278,7 @@ class Turbofan(Propulsor):
         
         # store data
         results_conditions = Data
-        conditions.propulsion.acoustic_outputs.core = results_conditions(
+        conditions.noise.sources.core = results_conditions(
         exit_static_temperature             = core_nozzle.outputs.static_temperature,
         exit_static_pressure                = core_nozzle.outputs.static_pressure,
         exit_stagnation_temperature         = core_nozzle.outputs.stagnation_temperature,
@@ -286,7 +286,7 @@ class Turbofan(Propulsor):
         exit_velocity                       = core_nozzle.outputs.velocity
         )
         
-        conditions.propulsion.acoustic_outputs.fan = results_conditions(
+        conditions.noise.sources.fan = results_conditions(
         exit_static_temperature             = fan_nozzle.outputs.static_temperature,
         exit_static_pressure                = fan_nozzle.outputs.static_pressure,
         exit_stagnation_temperature         = fan_nozzle.outputs.stagnation_temperature,

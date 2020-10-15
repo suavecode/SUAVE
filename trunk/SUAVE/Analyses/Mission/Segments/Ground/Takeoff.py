@@ -12,6 +12,9 @@
 from .Ground import Ground
 from SUAVE.Methods.Missions import Segments as Methods
 
+# Package imports
+import numpy as np  
+
 # Units
 from SUAVE.Core import Units
 
@@ -62,11 +65,12 @@ class Takeoff(Ground):
             None
         """         
 
-        self.velocity_start       = None
-        self.velocity_end         = 150 * Units.knots
-        self.friction_coefficient = 0.04
-        self.throttle             = 1.0
-        self.altitude             = 0.0
+        self.velocity_start           = None
+        self.velocity_end             = 150 * Units.knots
+        self.friction_coefficient     = 0.04
+        self.throttle                 = 1.0
+        self.altitude                 = 0.0
+        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
         
         # initials and unknowns
         ones_row_m1 = self.state.ones_row_m1

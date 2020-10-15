@@ -194,7 +194,6 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.motor_torque                    = motor.outputs.torque
         conditions.propulsion.propeller_torque                = Q
         conditions.propulsion.motor_efficiency                = etam
-        conditions.propulsion.acoustic_outputs[rotor.tag]     = outputs
         conditions.propulsion.battery_specfic_power           = -battery_draw/battery.mass_properties.mass #Wh/kg
         conditions.propulsion.electronics_efficiency          = -(P*num_engines)/battery_draw   
         conditions.propulsion.propeller_tip_mach              = (R*rpm*Units.rpm)/a
@@ -202,10 +201,11 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.battery_efficiency              = (battery_draw+battery.resistive_losses)/battery_draw
         conditions.propulsion.payload_efficiency              = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
         conditions.propulsion.propeller_power                 = P*num_engines
-        conditions.propulsion.propeller_thrust_coefficient    = Cp   
+        conditions.propulsion.propeller_power_coefficient     = Cp   
         conditions.propulsion.propeller_efficiency            = etap       
         conditions.propulsion.propeller_thrust_coefficient    = outputs.thrust_coefficient  
         
+        conditions.noise.sources.rotor[rotor.tag]                     = outputs
         
         # Compute force vector       
         F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   

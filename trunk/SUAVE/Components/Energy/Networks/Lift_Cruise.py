@@ -172,7 +172,7 @@ class Lift_Cruise(Propulsor):
         
         # Run the motor for current
         i, etam_forward = propeller_motor.current(conditions)  
-        
+        outputs_forward
         # Fix the current for the throttle cap
         propeller_motor.outputs.current[eta>1.0] = propeller_motor.outputs.current[eta>1.0]*eta[eta>1.0]
         
@@ -192,8 +192,7 @@ class Lift_Cruise(Propulsor):
         konditions.freestream                             = Data()
         konditions.frames                                 = Data()
         konditions.frames.inertial                        = Data()
-        konditions.frames.body                            = Data()
-        konditions.propulsion.acoustic_outputs            = Data()                
+        konditions.frames.body                            = Data()               
         konditions.propulsion.throttle                    = conditions.propulsion.throttle_lift* 1.
         konditions.propulsion.propeller_power_coefficient = conditions.propulsion.rotor_power_coefficient * 1.
         konditions.freestream.density                     = conditions.freestream.density * 1.
@@ -297,8 +296,7 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.electronics_efficiency            = -(P_forward*num_forward+P_lift*num_lift)/battery_draw  
         conditions.propulsion.battery_current                   = current_total
         
-        # Store rotor specific performance 
-        conditions.propulsion.acoustic_outputs[rotor.tag]       = outputs_lift  
+        # Store rotor specific performance   
         conditions.propulsion.rotor_rpm                         = rotor_rpm
         conditions.propulsion.rotor_current_draw                = i_lift 
         conditions.propulsion.rotor_motor_torque                = rotor_motor.outputs.torque
@@ -314,8 +312,7 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.rotor_disc_loading                = (F_lift_mag.T)/(self.number_of_rotor_engines*np.pi*(R_lift)**2) # N/m^2             
         conditions.propulsion.rotor_power_loading               = (F_lift_mag.T)/(P_lift)      # N/W 
         
-        # Store propeller specific performance  
-        conditions.propulsion.acoustic_outputs[propeller.tag]   = outputs_forward              
+        # Store propeller specific performance           
         conditions.propulsion.propeller_current_draw            = i_forward         
         conditions.propulsion.propeller_power_draw              = -i_forward * volts         
         conditions.propulsion.propeller_power_forward           = P_forward*num_forward 
@@ -328,7 +325,10 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.propeller_efficiency              = etap_forward 
         conditions.propulsion.propeller_disc_loading            = (F_forward_mag.T)/(self.number_of_propeller_engines*np.pi*(R_forward)**2)  # N/m^2      
         conditions.propulsion.propeller_power_loading           = (F_forward_mag.T)/(P_forward)   # N/W          
-                                                                                                        
+         
+        conditions.noise.sources.propeller[propeller.tag]               = outputs_forward
+        conditions.noise.sources.rotor[rotor.tag]                       = outputs_lift
+        
         F_total = F_lift_total + F_forward_total
         mdot = state.ones_row(1)*0.0
         

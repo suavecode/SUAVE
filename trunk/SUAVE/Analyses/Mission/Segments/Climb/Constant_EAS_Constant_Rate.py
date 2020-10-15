@@ -11,9 +11,11 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from SUAVE.Methods.Missions import Segments as Methods
-
+from SUAVE.Methods.Missions import Segments as Methods 
 from .Unknown_Throttle import Unknown_Throttle
+
+# Package imports
+import numpy as np 
 
 # Units
 from SUAVE.Core import Units
@@ -55,10 +57,11 @@ class Constant_EAS_Constant_Rate(Unknown_Throttle):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start       = None # Optional
-        self.altitude_end         = 10. * Units.km
-        self.climb_rate           = 3.  * Units.m / Units.s
-        self.equivalent_air_speed = 100 * Units.m / Units.s
+        self.altitude_start           = None # Optional
+        self.altitude_end             = 10. * Units.km
+        self.climb_rate               = 3.  * Units.m / Units.s
+        self.equivalent_air_speed     = 100 * Units.m / Units.s
+        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
         
         # --------------------------------------------------------------
         #   The Solving Process

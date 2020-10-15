@@ -29,17 +29,20 @@ from Boeing_737 import vehicle_setup, configs_setup
 # ----------------------------------------------------------------------
 def main():
     
+    # optimization problem set up 
     problem = setup()
-
-    n_des_var = 13
-
-    var = np.zeros(n_des_var)
-
+    
+    # define input variables for noise optimization 
+    n_des_var = 13 
+    var = np.zeros(n_des_var) 
     var = [134.6,9.6105641082,35.0,0.123,49200.0,70000.0,0.75,6.6,30.0,70000.0,70000.0,11.5,283.0]
-
-    input_vec = var / problem.optimization_problem.inputs[:,3]
-
-    problem.objective(input_vec)
+    
+    # scale inputs
+    input_vec = var / problem.optimization_problem.inputs[:,3] 
+    
+    # print performance of initial conditions 
+    problem.objective(input_vec) 
+     
     objectives  = problem.objective()* problem.optimization_problem.objective[:,1]
 
     noise_cumulative_margin = objectives[0]
@@ -66,8 +69,8 @@ def main():
 
 def setup():
 
-    nexus = Nexus()
-    problem = Data()
+    nexus                      = Nexus()
+    problem                    = Data()
     nexus.optimization_problem = problem
 
     # -------------------------------------------------------------------
@@ -79,7 +82,7 @@ def setup():
         [ 'wing_area'                    ,    124.8 , (    70.    ,   200.   ) ,   124.8 , Units.meter**2],
         [ 'wing_aspect_ratio'            ,     10.18, (     5.    ,    20.   ) ,    10.18,     Units.less],
         [ 'wing_sweep'                   ,    25.   , (     0.    ,    35.   ) ,    25.  ,  Units.degrees],
-        [ 'wing_thickness'               ,     0.105 , (     0.07  ,     0.20 ) ,     0.105,     Units.less],
+        [ 'wing_thickness'               ,    0.105 , (   0.07  ,     0.20   ) ,    0.105,     Units.less],
         [ 'design_thrust'                , 52700.   , ( 10000.    , 70000.   ) , 52700.  ,        Units.N],
         [ 'MTOW'                         , 79090.   , ( 20000.    ,100000.   ) , 79090.  ,       Units.kg],
         [ 'MZFW_ratio'                   ,     0.77 , (     0.6   ,     0.99 ) ,    0.77 ,     Units.less],
@@ -108,21 +111,21 @@ def setup():
 
     # [ tag, sense, edge, scaling, units ]
     problem.constraints = np.array([
-        [ 'MZFW consistency' , '>' , 0. , 10 , Units.less],
-        [ 'design_range_fuel_margin' , '>', 0., 10, Units.less],
-        [ 'short_field_fuel_margin' , '>' , 0. , 10, Units.less],
-        [ 'max_range_fuel_margin' , '>' , 0. , 10, Units.less], 
-        [ 'wing_span' , '<', 35.9664, 35.9664, Units.less],
-        [ 'noise_flyover_margin' , '>', 0. , 10., Units.less],
-        [ 'noise_sideline_margin' , '>', 0. , 10. , Units.less],
-        [ 'noise_approach_margin' , '>', 0., 10., Units.less],
-        [ 'takeoff_field_length' , '<', 1985., 1985., Units.meters],
-        [ 'landing_field_length' , '<', 1385., 1385., Units.meters],
-        [ '2nd_segment_climb_max_range' , '>', 0.024, 0.024, Units.less],
-        [ '2nd_segment_climb_short_field' , '>', 0.024, 0.024, Units.less],
-        [ 'max_throttle' , '<', 1., 1., Units.less],
-        [ 'short_takeoff_field_length' , '<', 1330., 1330., Units.meters],
-        [ 'noise_cumulative_margin' , '>', 10., 10., Units.less],
+        [ 'MZFW consistency'              , '>', 0. , 10         , Units.less],
+        [ 'design_range_fuel_margin'      , '>', 0. , 10         , Units.less],
+        [ 'short_field_fuel_margin'       , '>', 0. , 10         , Units.less],
+        [ 'max_range_fuel_margin'         , '>', 0. , 10         , Units.less], 
+        [ 'wing_span'                     , '<', 35.9664, 35.9664, Units.less],
+        [ 'noise_flyover_margin'          , '>', 0. , 10.        , Units.less],
+        [ 'noise_sideline_margin'         , '>', 0. , 10.        , Units.less],
+        [ 'noise_approach_margin'         , '>', 0., 10.         , Units.less],
+        [ 'takeoff_field_length'          , '<', 1985., 1985.    , Units.meters],
+        [ 'landing_field_length'          , '<', 1385., 1385.    , Units.meters],
+        [ '2nd_segment_climb_max_range'   , '>', 0.024, 0.024    , Units.less],
+        [ '2nd_segment_climb_short_field' , '>', 0.024, 0.024    , Units.less],
+        [ 'max_throttle'                  , '<', 1., 1.          , Units.less],
+        [ 'short_takeoff_field_length'    , '<', 1330., 1330.    , Units.meters],
+        [ 'noise_cumulative_margin'       , '>', 10., 10.        , Units.less],
     ])
 
     # -------------------------------------------------------------------

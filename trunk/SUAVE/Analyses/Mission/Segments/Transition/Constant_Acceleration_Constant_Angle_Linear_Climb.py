@@ -10,11 +10,12 @@
 
 # SUAVE imports
 from SUAVE.Analyses.Mission.Segments import Aerodynamic
-from SUAVE.Analyses.Mission.Segments import Conditions
+from SUAVE.Analyses.Mission.Segments import Conditions 
+from SUAVE.Methods.Missions          import Segments as Methods 
+from SUAVE.Analyses                  import Process
 
-from SUAVE.Methods.Missions import Segments as Methods
-
-from SUAVE.Analyses import Process
+# Package imports
+import numpy as np  
 
 # Units
 from SUAVE.Core import Units
@@ -57,13 +58,14 @@ class Constant_Acceleration_Constant_Angle_Linear_Climb(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start         = None
-        self.altitude_end           = None
-        self.climb_angle            = 0.0 * Units['rad'] 
-        self.acceleration           = 1.  * Units['m/s/s']
-        self.air_speed_start_vector = 0.0 * Units['m/s'] 
-        self.pitch_initial          = None
-        self.pitch_final            = 0.0 * Units['rad']     
+        self.altitude_start           = None
+        self.altitude_end             = None
+        self.climb_angle              = 0.0 * Units['rad'] 
+        self.acceleration             = 1.  * Units['m/s/s']
+        self.air_speed_start_vector   = 0.0 * Units['m/s'] 
+        self.pitch_initial            = None
+        self.pitch_final              = 0.0 * Units['rad']     
+        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
         
         # --------------------------------------------------------------
         #   State
@@ -141,6 +143,7 @@ class Constant_Acceleration_Constant_Angle_Linear_Climb(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
         
         return
 

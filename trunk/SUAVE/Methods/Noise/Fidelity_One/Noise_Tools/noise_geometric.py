@@ -18,33 +18,37 @@ import numpy as np
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def noise_geometric(noise_segment,analyses,config):
-    """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric(noise_segment,analyses,config):
-            Computes the geometric parameters for the noise tools: distance and emission angles for both polar and azimuthal angles.
-
-            Inputs:
-                noise_segment	 - SUAVE type vehicle
-                analyses
-                config
-
-            Outputs:
-                dist                         - Distance vector from the aircraft position in relation to the microphone coordinates, [meters]
-                theta                        - Polar angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
-                phi                          - Azimuthal angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
-
-            Assumptions:
-                For sideline condition we assume the maximum noise at takeoff occurs at 1000ft from the ground."""
+    """ This computes the geometric parameters for the noise tools: distance and emission angles for 
+    both polar and azimuthal angles.
+     
+    Assumptions:
+        For sideline condition we assume the maximum noise at takeoff occurs at 1000ft from the ground.     
+        
+    Inputs:
+        noise_segment	 - SUAVE type vehicle
+        analyses
+        config
     
-    #unpack
+    Outputs:
+        dist  - Distance vector from the aircraft position in relation to the microphone coordinates,    [meters]
+        theta - Polar angle emission vector relatively to the aircraft to the microphone coordinates,     [rad]
+        phi   - Azimuthal angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
+
+    Properties Used:
+        None     
+    """
+    
+    # unpack
     sideline = analyses.noise.settings.sideline
     flyover  = analyses.noise.settings.flyover
     approach = analyses.noise.settings.approach
-    x0       = analyses.noise.settings.mic_x_position #only sideline
+    x0       = analyses.noise.settings.mic_x_position # only sideline
     
     position_vector = noise_segment.conditions.frames.inertial.position_vector 
     altitude        = -noise_segment.conditions.frames.inertial.position_vector[:,2]
     
     s       = position_vector[:,0]
-    n_steps = len(altitude)  #number of time steps (space discretization)
+    n_steps = len(altitude)  # number of time steps (space discretization)
        
     if approach==1:
         
@@ -53,13 +57,13 @@ def noise_geometric(noise_segment,analyses,config):
         #--------------------------------------------------------
         
         # Azimuthal angle is zero for approach condition
-        phi = np.zeros(n_steps)
+        phi   = np.zeros(n_steps)
         theta = np.zeros(n_steps)  
         
-        #Microphone position from the approach threshold
-        x0= 2000.
+        # Microphone position from the approach threshold
+        x0 = 2000.
        
-        #Calculation of the distance vector and emission angle
+        # Calculation of the distance vector and emission angle
         dist  = np.sqrt(altitude**2+(s-x0)**2)
 
         for i in range(0, n_steps):
@@ -75,23 +79,24 @@ def noise_geometric(noise_segment,analyses,config):
         #--------------------------------------------------------
         
         # Azimuthal angle is zero for flyover condition
-        phi=np.zeros(n_steps)    
+        phi   = np.zeros(n_steps)    
         theta = np.zeros(n_steps)  
         
-        #Lift-off position from the brake release    
+        # Lift-off position from the brake release    
         estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
     
-        # defining required data for tofl evaluation S0
-        takeoff_airport = SUAVE.Attributes.Airports.Airport()        
-        atmo = Data()
-        atmo.base = Data()
+        # Defining required data for tofl evaluation S0
+        takeoff_airport      = SUAVE.Attributes.Airports.Airport()        
+        atmo                 = Data()
+        atmo.base            = Data()
         atmo.base.atmosphere = analyses.atmosphere
+        
         S_0 = estimate_tofl(config,atmo,takeoff_airport)           
 
-        #Microphone position from the brake release point
-        x0= np.float(6500. - S_0)
+        # Microphone position from the brake release point
+        x0 = np.float(6500. - S_0)
         
-        #Calculation of the distance vector and emission angle
+        # Calculation of the distance vector and emission angle
         dist  = np.sqrt(altitude**2+(s-x0)**2)
 
         for i in range(0, n_steps):
@@ -108,17 +113,18 @@ def noise_geometric(noise_segment,analyses,config):
         
         theta = np.zeros(n_steps) 
 
-        z0 = 450.  #position on the z-direction of the sideline microphone (lateral coordinate)
-        y0 =   0.  #position on the y-direction of the sideline microphone (altitude coordinate)
+        z0 = 450.  # position on the z-direction of the sideline microphone (lateral coordinate)
+        y0 =   0.  # position on the y-direction of the sideline microphone (altitude coordinate)
         
 
         estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
         
         # defining required data for tofl evaluation
-        takeoff_airport = SUAVE.Attributes.Airports.Airport()        
-        atmo = Data()
-        atmo.base = Data()
+        takeoff_airport      = SUAVE.Attributes.Airports.Airport()        
+        atmo                 = Data()
+        atmo.base            = Data()
         atmo.base.atmosphere = analyses.atmosphere
+        
         S_0 = estimate_tofl(config,atmo,takeoff_airport)        
  
         
@@ -142,8 +148,7 @@ def noise_geometric(noise_segment,analyses,config):
             if (s[i]-x0)< 0.:
                 theta[i] = np.arccos(np.abs((x0-s[i])/dist[i]))
             else:
-                theta[i] = np.pi - np.arccos(np.abs((x0-s[i])/dist[i])) 
-                
+                theta[i] = np.pi - np.arccos(np.abs((x0-s[i])/dist[i]))  
     
     #Pack the results in Noise Segments    
     noise_segment.dist  = dist
@@ -152,28 +157,30 @@ def noise_geometric(noise_segment,analyses,config):
 
     return (dist,theta,phi)
 
+## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def geometric_propeller(noise_data):
-    """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.geometric_propeller(noise_data):
-                Computes the geometric parameters for the noise tools: distance and emission angles for both polar and azimuthal angles.
+    """This computes the geometric parameters for the noise tools: distance and emission angles for both polar and azimuthal angles.
     
-                Inputs:
-                    noise_data	 - SUAVE type vehicle
+    Assumptions:
+        Propeller-driven aircraft has to comply only with the take-off noise limit.   
+        
+    Inputs:
+        noise_data	 - SUAVE type vehicle
     
-                Outputs:
-                    dist                         - Distance vector from the aircraft position in relation to the microphone coordinates, [meters]
-                    theta                        - Polar angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
-                    phi                          - Azimuthal angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
-    
-                Assumptions:
-                    Propeller-driven aircraft has to comply only with the take-off noise limit."""    
-    
-    
+    Outputs:
+        dist  - Distance vector from the aircraft position in relation to the microphone coordinates, [meters]
+        theta - Polar angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
+        phi   - Azimuthal angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
+
+        
+    Properties Used:
+        None           
+    """     
     # unpack
     position_vector = noise_data.position
     altitude        = noise_data.altitude
     S_0             = noise_data.tofl * Units.ft
-    
- #   s       = position_vector
+ 
     n_steps = len(altitude)  #number of time steps (space discretization)    
     
     
@@ -182,13 +189,13 @@ def geometric_propeller(noise_data):
     #--------------------------------------------------------
     
     # Azimuthal angle is zero for flyover condition
-    phi=np.zeros(n_steps)    
+    phi   = np.zeros(n_steps)    
     theta = np.zeros(n_steps)  
        
-    #Microphone position from the start of the takeoff roll
-    x0= np.float(2500. - S_0)
+    # Microphone position from the start of the takeoff roll
+    x0    = np.float(2500. - S_0)
     
-    #Calculation of the distance vector and emission angle
+    # Calculation of the distance vector and emission angle
     dist  = np.sqrt(altitude**2+(position_vector-x0)**2)
 
     for i in range(0, n_steps):
