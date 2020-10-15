@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -120,12 +120,8 @@ def noise_geometric(noise_segment,analyses,config):
         estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
         
         # defining required data for tofl evaluation
-        takeoff_airport      = SUAVE.Attributes.Airports.Airport()        
-        atmo                 = Data()
-        atmo.base            = Data()
-        atmo.base.atmosphere = analyses.atmosphere
-        
-        S_0 = estimate_tofl(config,atmo,takeoff_airport)        
+        takeoff_airport      = SUAVE.Attributes.Airports.Airport()    
+        S_0 = estimate_tofl(config,analyses,takeoff_airport)   
  
         
         # looking for X coordinate for 1000ft altitude

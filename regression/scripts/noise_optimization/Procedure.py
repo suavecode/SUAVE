@@ -371,7 +371,6 @@ def noise_sideline(nexus):
     else:
         noise_result_takeoff_SL = compute_noise(noise_config,noise_analyse,noise_segment)    
     
-    
     nexus.summary.noise = Data()
     nexus.summary.noise.sideline = noise_result_takeoff_SL     
     
@@ -461,14 +460,11 @@ def compute_noise(config,analyses,noise_segment):
     print_output      = config.print_output
     engine_flag       = config.engine_flag  #remove engine noise component from the approach segment
     
-    geometric      = noise_geometric(noise_segment,analyses,config)
-    
     airframe_noise = noise_airframe_Fink(config,analyses,noise_segment,print_output,outputfile)  
 
     engine_noise   = noise_SAE(turbofan,noise_segment,config,analyses,print_output,outputfile_engine)
 
     noise_sum      = 10. * np.log10(10**(airframe_noise[0]/10)+ (engine_flag)*10**(engine_noise[0]/10))
-
 
     return noise_sum
 

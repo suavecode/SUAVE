@@ -168,6 +168,5 @@ def noise_tone_correction(SPL):
         #------------------------------------------------------------
         tone_correction_max[j] = np.max(tone_correction)
     
-    
-    return (tone_correction_max)
+        return (tone_correction_max)
     

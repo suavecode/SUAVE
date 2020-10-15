@@ -1,5 +1,5 @@
 ## @ingroupMethods-Noise-Fidelity_One-Airframe
-# noise_airframce_Fink.py
+# noise_airframe_Fink.py
 # 
 # Created:  Jun 2015, Carlos Ilario
 # Modified: Jan 2016, E. Botero

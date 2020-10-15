@@ -16,7 +16,7 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 ## @ingroupMethods-Noise-Fidelity_One-Airframe
-def noise_trailing_edge_flap (Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,frequency):
+def noise_trailing_edge_flap(Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,frequency):
     """ This calculates the noise from the flap trailing edge as a 1/3 octave band sound pressure level.
 
     Assumptions:
@@ -44,7 +44,6 @@ def noise_trailing_edge_flap (Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,f
 
     # Process
     G      = np.zeros(24)
-    kt2fts = 1.6878098571
 
     test   = frequency*cf/(velocity/Units.ft*(1-M*np.cos(theta)))
 

@@ -23,10 +23,10 @@ def compute_total_aircraft_noise(conditions):
     
     # create empty arrays for results  
     num_src          = len(conditions.noise.sources)
-    source_SPLs_dBA  = np.zeros(ctrl_pts,num_src,num_mic) 
+    source_SPLs_dBA  = np.zeros((ctrl_pts,num_src,num_mic)) 
     
     # iterate through sources 
-    for source, i  in conditions.noise.sources.keys():
+    for  i, source in enumerate(conditions.noise.sources.values()):
         
         noise_src = conditions.noise.sources[source]    
         

@@ -8,10 +8,10 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE 
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 from .Noise     import Noise  
-# package imports
-import numpy as np
+
+from SUAVE.Methods.Noise.Fidelity_Zero.shevell import shevell
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -50,14 +50,11 @@ class Fidelity_Zero(Noise):
                 N/A
         """
         
-        # Initialize quantities
-
-        self.configuration    = Data()
+        # Initialize quantities 
         self.geometry         = Data()    
         self.flyover          = 0     
         self.approach         = 0
-        self.sideline         = 0
-        self.mic_x_position   = 0 
+        self.sideline         = 0 
         
         return
         
@@ -76,13 +73,10 @@ class Fidelity_Zero(Noise):
         Outputs:
         None
     
-        Properties Used:
-        self.geometry
+        Properties Used: 
+        None
         """                          
-    
-        # unpack
-        geometry         = self.geometry      # really a vehicle object
-        configuration    = self.configuration  
+     
     
     def evaluate_noise(self,conditions):
         """ Process vehicle to setup geometry, condititon and configuration
@@ -102,7 +96,22 @@ class Fidelity_Zero(Noise):
     
         Properties Used:
         self.geometry
-        """         
-     
         
-        return   0
+        """         
+        # unpack 
+        geometry = self.geometry   
+        
+        if 'turbofan' in geometry.propulsors: 
+            weight_landing    = conditions.weights.total_mass[-1,0]
+            number_of_engines = geometry.propulsors['turbofan'].number_of_engines
+            thrust_sea_level  = geometry.propulsors['turbofan'].sealevel_static_thrust * Units.force_pounds
+            thrust_landing    = 0.45 * thrust_sea_level
+            
+            # Run Shevell Correlations  
+            outputs = shevell(weight_landing, number_of_engines, thrust_sea_level, thrust_landing) 
+            
+            self.flyover          = outputs.takeoff  
+            self.approach         = outputs.landing
+            self.sideline         = outputs.side_line
+        
+        return    

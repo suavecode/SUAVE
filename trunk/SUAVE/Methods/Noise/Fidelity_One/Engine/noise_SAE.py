@@ -35,7 +35,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 # ----------------------------------------------------------------------    
 
 ## @ingroupMethods-Noise-Fidelity_One-Engine
-def noise_SAE (turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0):  
+def noise_SAE(turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0):  
     """This method predicts the free-field 1/3 Octave Band SPL of coaxial subsonic
        jets for turbofan engines under the following conditions:
        a) Flyover (observer on ground)

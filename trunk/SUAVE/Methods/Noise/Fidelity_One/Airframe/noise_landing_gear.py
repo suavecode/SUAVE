@@ -15,7 +15,7 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 ## @ingroupMethods-Noise-Fidelity_One-Airframe
-def noise_landing_gear (D,H,wheels,M,velocity,phi,theta,distance,frequency):
+def noise_landing_gear(D,H,wheels,M,velocity,phi,theta,distance,frequency):
     """This calculates the Landing gear 1/3 octave band sound pressure level and overall sound pressure level
     for a tyre diameter D, a strut length H and WHEELS number of  wheels per unit.
 

@@ -23,28 +23,28 @@ def shevell(weight_landing, number_of_engines, thrust_sea_level, thrust_landing)
     None
 
     Source:
-    Stanford AA 241A/B Notes
+    Stanford AA 241A/B Notes : http://aerodesign.stanford.edu/aircraftdesign/aircraftdesign.html
 
     Inputs:
-    weight_landing     [newtons]
-    number_of_engines  [int]
-    thrust_sea_level   [newtons]
-    thrust_landing     [newtons]
+        weight_landing     [newtons]
+        number_of_engines  [int]
+        thrust_sea_level   [newtons]
+        thrust_landing     [newtons]
     
     Outputs:
-    output.
-        takeoff        [float]
-        side_line      [float]
-        landing        [float]
+        output.
+            takeoff        [float]
+            side_line      [float]
+            landing        [float]
 
     Properties Used:
-    baseline noise = 101.
-    various tuned correlations
+        baseline noise = 101.
+        various tuned correlations
     """         
     
     
 
-    #process
+    # process
     baseline_noise    = 101. 
     thrust_percentage = (thrust_sea_level/ Units.force_pound)/25000 * 100.
     thrust_reduction  = thrust_landing/thrust_sea_level * 100.

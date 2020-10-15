@@ -611,7 +611,7 @@ def vehicle_setup():
 
 def configs_setup(vehicle):
 
-  # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     #   Initialize Configurations
     # ------------------------------------------------------------------
     configs = SUAVE.Components.Configs.Config.Container()

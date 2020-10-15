@@ -11,6 +11,17 @@
 import SUAVE 
 from SUAVE.Core import Data
 from .Noise     import Noise 
+
+# noise imports 
+from SUAVE.Methods.Noise.Fidelity_One.Airframe    import noise_airframe_Fink
+from SUAVE.Methods.Noise.Fidelity_One.Engine      import noise_SAE 
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_certification_limits
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
+
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_low_fidelity import propeller_low_fidelity
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_noise_sae    import propeller_noise_sae
 from SUAVE.Methods.Noise.Fidelity_One.compute_total_aircraft_noise     import compute_total_aircraft_noise
@@ -60,10 +71,12 @@ class Fidelity_One(Noise):
         self.configuration    = Data()
         self.geometry         = Data()   
         self.harmonics        = np.empty(shape=[0, 1])
-        self.flyover          = 0     
-        self.approach         = 0
-        self.sideline         = 0
-        self.mic_x_position   = 0 
+      
+        settings = self.settings
+        settings.flyover        = 0     
+        settings.approach       = 0
+        settings.sideline       = 0
+        settings.mic_x_position = 0 
         
         return
         
@@ -116,7 +129,7 @@ class Fidelity_One(Noise):
         geometry      = self.geometry      # to be used in the future 
         
         # Compute Propeller Noise 
-        propeller_low_fidelity(conditions,harmonics) 
+        #propeller_low_fidelity(conditions,harmonics) 
         
         # Compute Fan Noise 
         
@@ -125,8 +138,27 @@ class Fidelity_One(Noise):
         # Compute Airframe Noise 
         
         # Sum Noise Sources   
-        total_noise = compute_total_aircraft_noise(conditions)
+        #total_noise = compute_total_aircraft_noise(conditions)
         
-        conditions.noise.total = total_noise
+        #conditions.noise.total = total_noise
+        # Noise 
+        #self.sideline_init     = noise_sideline_init
+        #self.takeoff_init      = noise_takeoff_init
+        #self.sideline          = noise_sideline
+        #self.flyover           = noise_flyover
+        #self.approach          = noise_approach 
         
+    
+        #turbofan = config.propulsors['turbofan']
+        
+        #engine_flag       = config.engine_flag  #remove engine noise component from the approach segment
+        
+        #geometric      = noise_geometric(noise_segment,analyses,config)
+        
+        #airframe_noise = noise_airframe_Fink(config,analyses,noise_segment)  
+    
+        #engine_noise   = noise_SAE(turbofan,noise_segment,config,analyses) 
+        
+         
         return   
+
