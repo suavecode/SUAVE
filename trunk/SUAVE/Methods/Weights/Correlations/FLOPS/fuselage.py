@@ -54,7 +54,7 @@ def fuselage_weight_FLOPS(vehicle):
         atmosphere      = SUAVE.Analyses.Atmospheric.US_Standard_1976()
         atmo_data       = atmosphere.compute_values(vehicle.design_cruise_alt, 0)
         atmo_data_floor = atmosphere.compute_values(0, 0)
-        DELTA           = atmo_data.pressure/atmo_data_floor.pressure
+        DELTA           = (atmo_data.pressure/atmo_data_floor.pressure)[0,0]
         QCRUS           = 1481.35 * DELTA * vehicle.design_mach_number**2  # Cruise dynamic pressure, psf
         DG              = vehicle.mass_properties.max_takeoff / Units.lbs  # Design gross weight in lb
         WFUSE           = 0.052 * SWFUS ** 1.086 * (ULF * DG) ** 0.177 * QCRUS ** 0.241

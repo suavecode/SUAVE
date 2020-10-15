@@ -10,6 +10,7 @@
 import SUAVE
 from SUAVE.Core import Units
 import numpy as np
+from copy import deepcopy
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
 def wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings, num_main_wings):
@@ -267,6 +268,7 @@ def generate_wing_stations(fuselage_width, wing):
     num_seg     = len(wing.Segments.keys())
 
     if num_seg == 0:
+        wing = deepcopy(wing)
         segment                         = SUAVE.Components.Wings.Segment()
         segment.tag                     = 'root'
         segment.percent_span_location   = 0.
