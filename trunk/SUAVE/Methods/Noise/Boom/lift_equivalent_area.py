@@ -9,7 +9,6 @@
 # ----------------------------------------------------------------------
 
 
-import matplotlib.pyplot as plt
 import numpy as np
 from SUAVE.Core import Data, Units
 
@@ -38,11 +37,14 @@ def lift_equivalent_area(config,analyses,mach,aoa,altitude):
     
     conditions.aerodynamics = Data()
     conditions.freestream   = Data()
-    conditions.freestream.velocity          = np.array(mach*a)
-    conditions.aerodynamics.angle_of_attack = np.array([aoa])
-    conditions.freestream.mach_number       = np.array([mach])    
+    conditions.freestream.velocity          = np.array([mach*a]).T
+    conditions.aerodynamics.angle_of_attack = np.array([aoa]).T
+    conditions.freestream.mach_number       = np.array([mach]).T    
         
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
+    
+    print(CL)
+    print(CDi)
     
     S   =  config.reference_area
     
@@ -53,10 +55,12 @@ def lift_equivalent_area(config,analyses,mach,aoa,altitude):
     XC         = VD.XC
     z_comp     = normal_vec[:,2]
 
-    # Why do I need a 2 here????? But it works perfectly otherwise!
+    # Why do I need a 2 here????? But it works perfectly otherwise! Multiplied by 4 because the vlm multiplies by 4?
     lift_force_per_panel = 2*CP*q*z_comp*areas
     
     L_CP = np.sum(lift_force_per_panel)
+    
+    print(L_CP)
     
     # Check the lift forces
     L_CL = q*CL*S
@@ -83,11 +87,5 @@ def lift_equivalent_area(config,analyses,mach,aoa,altitude):
     
     X_locs = np.concatenate([[0],X_locations,[X_max]])
     AE_x   = np.concatenate([[0],Ae_lift_at_each_x,[Ae_lift_at_each_x[-1]]])
-
-    
-    fig  = plt.figure('boom')
-    axes = fig.add_subplot(1,1,1)
-    axes.plot(X_locs,AE_x)
-    
     
     return X_locs, AE_x

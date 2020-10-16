@@ -44,6 +44,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     inv_root_beta = np.zeros_like(mach)
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)  # note that this applies to all Machs below 1 and does not to take into consideration the common assumtion of no compressibility under mach 0.3   
     inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
+    #inv_root_beta[mach>1] = 1
     mach[mach==1]         = 1.001  
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
@@ -145,13 +146,13 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     n_cp             = n_w*n_cw*n_sw 
     
     # multiply by mach cone 
-    C_AB_bv          = C_AB_bv    * MCM
-    C_AB_34_ll       = C_AB_34_ll * MCM
-    C_AB_ll          = C_AB_ll    * MCM
-    C_AB_34_rl       = C_AB_34_rl * MCM
-    C_AB_rl          = C_AB_rl    * MCM
-    C_Ainf           = C_Ainf     * MCM
-    C_Binf           = C_Binf     * MCM  
+    C_AB_bv          = C_AB_bv    #* MCM
+    C_AB_34_ll       = C_AB_34_ll #* MCM
+    C_AB_ll          = C_AB_ll    #* MCM
+    C_AB_34_rl       = C_AB_34_rl #* MCM
+    C_AB_rl          = C_AB_rl    #* MCM
+    C_Ainf           = C_Ainf     #* MCM
+    C_Binf           = C_Binf     #* MCM  
     
     # the follow block of text adds up all the trailing legs of the vortices which are on the wing for the downwind panels   
     C_AB_ll_on_wing  = np.zeros_like(C_AB_ll)
@@ -171,6 +172,10 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
     C_mn        = C_AB_bv + C_AB_ll_tot  + C_AB_rl_tot   # verified from book using example 7.4 pg 399-404 
     DW_mn       = C_AB_ll_tot + C_AB_rl_tot              # summation of trailing vortices for semi infinite 
+    
+    #DW_mn = DW_mn*MCM
+    #C_mn  = C_mn*MCM
+    
     
     return C_mn, DW_mn
 
@@ -331,11 +336,19 @@ def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
         del_y = YC_sub*ones - YC_sub.T
         del_z = ZC_sub*ones - ZC_sub.T
         
-        # Flag certain indices
+        # Flag certain indices outside the cone
         c     = np.arcsin(1/mach[m_idx])
         flag  = -c*del_x**2 + del_y**2 + del_z**2
         idxs  = np.where(flag > 0.0)
-        MCM[m_idx,idxs[0],idxs[1]]  = [0.0, 0.0, 0.0]      
-    
-    
+        MCM[m_idx,idxs[0],idxs[1]]  = [0.0, 0.0, 0.0] 
+        
+        # Control points in the back don't influence ahead, upstream affects downstream but not vice versa
+        idx2  = np.where(del_x < 0.0)
+        if mach[m_idx]>1.:
+            MCM[m_idx,idx2[0],idx2[1]]  = [0.0, 0.0, 0.0] 
+            
+            
+    #MCM = np.swapaxes(MCM,1,2)
+                    
+        
     return MCM

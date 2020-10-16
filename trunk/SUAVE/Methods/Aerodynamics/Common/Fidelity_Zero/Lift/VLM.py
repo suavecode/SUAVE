@@ -24,8 +24,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_development_time = 0.05 ):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
-    Assumptions:
-    None
+    Assumptions: None
 
     Source:
     1. Aerodynamics for Engineers, Sixth Edition by John Bertin & Russel Cummings 
@@ -152,8 +151,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     n_cp     = VD.n_cp  
     gamma    = np.linalg.solve(A,RHS)
     gamma_3d = np.repeat(np.atleast_3d(gamma), n_cp ,axis = 2 )
-    u        = np.sum(C_mn[:,:,:,0]*MCM[:,:,:,0]*gamma_3d, axis = 2)  
-    w_ind    = -np.sum(DW_mn[:,:,:,2]*MCM[:,:,:,2]*gamma_3d, axis = 2) 
+    #u        = np.sum(C_mn[:,:,:,0]*MCM[:,:,:,0]*gamma_3d, axis = 2)  
+    #w_ind    = -np.sum(DW_mn[:,:,:,2]*MCM[:,:,:,2]*gamma_3d, axis = 2)     
+    u        = np.sum(C_mn[:,:,:,0]*gamma_3d, axis = 2)  
+    w_ind    = -np.sum(DW_mn[:,:,:,2]*gamma_3d, axis = 2)         
      
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
@@ -194,7 +195,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # total lift and lift coefficient
     L                 = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
     CL                = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers
-    CL[mach>1]        = CL[mach>1]*4   # supersonic lift off by a factor of 4 compared to Panair results at Mach 2 for delta wing
+    #CL[mach>1]        = CL[mach>1]   # supersonic lift off by a factor of 4 compared to Panair results at Mach 2 for delta wing
     
     # --------------------------------------------------------------------------------------------------------
     # DRAG                                                                          
