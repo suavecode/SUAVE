@@ -42,9 +42,9 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
  
     # Prandtl Glauret Transformation for subsonic
     inv_root_beta = np.zeros_like(mach)
+    mach[mach==1]         = 1.001  
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)  # note that this applies to all Machs below 1 and does not to take into consideration the common assumtion of no compressibility under mach 0.3   
     inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
-    mach[mach==1]         = 1.001  
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
     XAH   = np.atleast_3d(VD.XAH*inv_root_beta) 
