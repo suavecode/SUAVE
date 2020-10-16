@@ -181,7 +181,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     machw             = np.tile(mach,len(wing_areas))     
     L_wing            = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CL_wing           = L_wing/(0.5*wing_areas)
-    CL_wing[machw>1]  = CL_wing[machw>1]*4  # supersonic lift off by a factor of  4 compared to Panair results at Mach 2 for delta wing  
     
     # Calculate spanwise lift 
     spanwise_Del_y    = Del_Y_n_w_sw[:,:,0]
