@@ -42,10 +42,9 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
  
     # Prandtl Glauret Transformation for subsonic
     inv_root_beta = np.zeros_like(mach)
-    inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)  # note that this applies to all Machs below 1 and does not to take into consideration the common assumtion of no compressibility under mach 0.3   
-    inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
-    #inv_root_beta[mach>1] = 1
     mach[mach==1]         = 1.001  
+    inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)  # note that this applies to all Machs below 1 and does not to take into consideration the common assumtion of no compressibility under mach 0.3   
+    inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1)
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
     XAH   = np.atleast_3d(VD.XAH*inv_root_beta) 
@@ -139,26 +138,12 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     # velocity induced by right leg of vortex (B to inf)
     C_Binf           = np.transpose(vortex_leg_from_B_to_inf(XC, YC, ZC, XB_TE, YB_TE, ZB_TE,theta_w),axes=[1,2,3,0])
 
-    # compute Mach Cone Matrix
-    MCM              = np.ones_like(C_AB_bv)
-    MCM              = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)
-    VD.MCM           = MCM 
-    n_cp             = n_w*n_cw*n_sw 
-    
-    # multiply by mach cone 
-    C_AB_bv          = C_AB_bv    #* MCM
-    C_AB_34_ll       = C_AB_34_ll #* MCM
-    C_AB_ll          = C_AB_ll    #* MCM
-    C_AB_34_rl       = C_AB_34_rl #* MCM
-    C_AB_rl          = C_AB_rl    #* MCM
-    C_Ainf           = C_Ainf     #* MCM
-    C_Binf           = C_Binf     #* MCM  
-    
     # the follow block of text adds up all the trailing legs of the vortices which are on the wing for the downwind panels   
     C_AB_ll_on_wing  = np.zeros_like(C_AB_ll)
     C_AB_rl_on_wing  = np.zeros_like(C_AB_ll)
     
-    # original 
+    n_cp             = n_w*n_cw*n_sw 
+    
     for n in range(n_cp):
         n_te_p = (n_cw-(n+1)%n_cw)
         if (n+1)%n_cw != 0:
@@ -304,51 +289,3 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     COEF  = -(1/(4*np.pi))*RVEC*BRAC      
 
     return COEF
-
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
-    """ This computes the mach cone influence matrix for supersonic 
-    speeds. 
-    
-    Assumptions:  
-    None 
-    
-    Source:    
-    Garrido Estrada, Ester. "Tornado supersonic module development." (2011).
-    
-    Inputs: 
-
-    Properties Used:
-    N/A
-    
-    """       
-    for m_idx in range(len(mach)):
-        
-        # Prep new vectors
-        XC_sub = XC[m_idx,:]
-        YC_sub = YC[m_idx,:]
-        ZC_sub = ZC[m_idx,:]
-        length = len(XC[m_idx,:])
-        ones   = np.ones((1,length))
-        
-        # Take differences
-        del_x = XC_sub*ones - XC_sub.T
-        del_y = YC_sub*ones - YC_sub.T
-        del_z = ZC_sub*ones - ZC_sub.T
-        
-        # Flag certain indices outside the cone
-        c     = np.arcsin(1/mach[m_idx])
-        flag  = -c*del_x**2 + del_y**2 + del_z**2
-        idxs  = np.where(flag > 0.0)
-        MCM[m_idx,idxs[0],idxs[1]]  = [0.0, 0.0, 0.0] 
-        
-        # Control points in the back don't influence ahead, upstream affects downstream but not vice versa
-        idx2  = np.where(del_x < 0.0)
-        if mach[m_idx]>1.:
-            MCM[m_idx,idx2[0],idx2[1]]  = [0.0, 0.0, 0.0] 
-            
-            
-    #MCM = np.swapaxes(MCM,1,2)
-                    
-        
-    return MCM
