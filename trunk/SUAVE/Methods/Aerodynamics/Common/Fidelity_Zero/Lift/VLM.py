@@ -141,7 +141,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
                                                                                  pwm,initial_timestep_offset,wake_development_time ) 
     
-    # Spersonic Vortex Lattice - Validated from NASA CR, page 3 
+    # Supersonic Vortex Lattice - Validated from NASA CR, page 3 
     locs = np.where(mach>1)[0]
     DW_mn[locs]  = DW_mn[locs]*2
     C_mn[locs]   = C_mn[locs]*2
