@@ -10,12 +10,11 @@
 
 # SUAVE imports
 from SUAVE.Analyses.Mission.Segments import Aerodynamic
-from SUAVE.Analyses.Mission.Segments import Conditions 
-from SUAVE.Methods.Missions          import Segments as Methods 
-from SUAVE.Analyses                  import Process
+from SUAVE.Analyses.Mission.Segments import Conditions
 
-# Package imports
-import numpy as np  
+from SUAVE.Methods.Missions import Segments as Methods
+
+from SUAVE.Analyses import Process
 
 # Units
 from SUAVE.Core import Units
@@ -58,14 +57,13 @@ class Constant_Acceleration_Constant_Angle_Linear_Climb(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start           = None
-        self.altitude_end             = None
-        self.climb_angle              = 0.0 * Units['rad'] 
-        self.acceleration             = 1.  * Units['m/s/s']
-        self.air_speed_start_vector   = 0.0 * Units['m/s'] 
-        self.pitch_initial            = None
-        self.pitch_final              = 0.0 * Units['rad']     
-        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
+        self.altitude_start         = None
+        self.altitude_end           = None
+        self.climb_angle            = 0.0 * Units['rad'] 
+        self.acceleration           = 1.  * Units['m/s/s']
+        self.air_speed_start_vector = 0.0 * Units['m/s'] 
+        self.pitch_initial          = None
+        self.pitch_final            = 0.0 * Units['rad']     
         
         # --------------------------------------------------------------
         #   State

@@ -10,10 +10,8 @@
 
 # SUAVE imports
 from SUAVE.Methods.Missions import Segments as Methods
-from .Unknown_Throttle import Unknown_Throttle
 
-# Package imports
-import numpy as np  
+from .Unknown_Throttle import Unknown_Throttle
 
 # Units
 from SUAVE.Core import Units
@@ -56,11 +54,10 @@ class Constant_Mach_Constant_Angle(Unknown_Throttle):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start           = None # Optional
-        self.altitude_end             = 10. * Units.km
-        self.climb_angle              = 3.  * Units.deg
-        self.mach                     = 0.7
-        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
+        self.altitude_start = None # Optional
+        self.altitude_end   = 10. * Units.km
+        self.climb_angle    = 3.  * Units.deg
+        self.mach           = 0.7
         
         # --------------------------------------------------------------
         #   State

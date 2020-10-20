@@ -13,4 +13,4 @@ from .noise_counterplot          import noise_counterplot
 from .senel_noise                import senel_noise
 from .decibel_arithmetic         import pressure_ratio_to_SPL_arithmetic
 from .decibel_arithmetic         import SPL_arithmetic
-from .compute_noise              import compute_noise
+#from .compute_noise              import compute_noise

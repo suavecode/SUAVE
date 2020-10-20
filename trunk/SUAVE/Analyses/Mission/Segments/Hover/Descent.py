@@ -11,13 +11,11 @@
 # SUAVE imports
 import SUAVE
 from SUAVE.Analyses.Mission.Segments import Aerodynamic
-from SUAVE.Analyses.Mission.Segments import Conditions 
-from SUAVE.Methods.Missions          import Segments as Methods 
-from SUAVE.Analyses                  import Process
+from SUAVE.Analyses.Mission.Segments import Conditions
 
-# Package imports
-import numpy as np  
+from SUAVE.Methods.Missions import Segments as Methods
 
+from SUAVE.Analyses import Process
 from .Hover import Hover
 
 # Units
@@ -60,10 +58,9 @@ class Descent(Hover):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start           = None # Optional
-        self.altitude_end             = 1. * Units.km
-        self.descent_rate             = 1.  * Units.m / Units.s
-        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
+        self.altitude_start = None # Optional
+        self.altitude_end   = 1. * Units.km
+        self.descent_rate   = 1.  * Units.m / Units.s
         
         # --------------------------------------------------------------
         #   The Solving Process

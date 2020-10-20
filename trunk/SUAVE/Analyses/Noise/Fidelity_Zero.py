@@ -51,11 +51,10 @@ class Fidelity_Zero(Noise):
         """
         
         # Initialize quantities 
-        self.geometry         = Data()    
-        self.flyover          = 0     
-        self.approach         = 0
-        self.sideline         = 0 
-        
+        self.geometry                 = Data()    
+        self.flyover                  = False     
+        self.approach                 = False
+        self.sideline                 = False
         return
         
     def finalize(self):

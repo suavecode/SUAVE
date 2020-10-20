@@ -1361,17 +1361,17 @@ def plot_noise_levels(results, line_color = 'bo-', save_figure = False, save_fil
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
     for i in range(len(results.segments)):    
-        angles       = results.segments[i].conditions.noise.microphone_angles/Units.degrees
-        time         = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
-        SPL_Hv_dBA   = results.segments[i].conditions.noise.sources.propeller.SPL_Hv_dBA
+        angles = results.segments[i].conditions.noise.microphone_angles/Units.degrees
+        time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
+        SPL    = results.segments[i].conditions.noise.total_SPL_dBA 
         
         axes = fig.add_subplot(1,1,1)
-        axes.fill_between(time, 0, SPL_Hv_dBA[:,0]               , facecolor= 'lightcyan'   , label= str(round(angles[0],1)) + r' $\degree$' )
-        axes.fill_between(time, SPL_Hv_dBA[:,0], SPL_Hv_dBA[:,1] , facecolor= 'cyan', label= str(round(angles[1],1)) + r' $\degree$' )
-        axes.fill_between(time, SPL_Hv_dBA[:,1], SPL_Hv_dBA[:,2] , facecolor= 'dodgerblue', label= str(round(angles[2],1)) + r' $\degree$' )
-        axes.fill_between(time, SPL_Hv_dBA[:,2], SPL_Hv_dBA[:,3] , facecolor= 'blue' , label= str(round(angles[3],1)) + r' $\degree$' )
-        axes.fill_between(time, SPL_Hv_dBA[:,3], SPL_Hv_dBA[:,4] , facecolor= 'darkblue'  , label= str(round(angles[4],1)) + r' $\degree$' )
-        axes.fill_between(time, SPL_Hv_dBA[:,4], SPL_Hv_dBA[:,5] , facecolor= 'midnightblue', label= str(round(angles[5],1)) + r' $\degree$' )    
+        axes.fill_between(time, 0, SPL[:,0]               , facecolor= 'lightcyan'   , label= str(round(angles[0],1)) + r' $\degree$' )
+        axes.fill_between(time, SPL[:,0], SPL[:,1] , facecolor= 'cyan', label= str(round(angles[1],1)) + r' $\degree$' )
+        axes.fill_between(time, SPL[:,1], SPL[:,2] , facecolor= 'dodgerblue', label= str(round(angles[2],1)) + r' $\degree$' )
+        axes.fill_between(time, SPL[:,2], SPL[:,3] , facecolor= 'blue' , label= str(round(angles[3],1)) + r' $\degree$' )
+        axes.fill_between(time, SPL[:,3], SPL[:,4] , facecolor= 'darkblue'  , label= str(round(angles[4],1)) + r' $\degree$' )
+        axes.fill_between(time, SPL[:,4], SPL[:,5] , facecolor= 'midnightblue', label= str(round(angles[5],1)) + r' $\degree$' )    
   
         axes.set_ylabel('dBA',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
@@ -1412,11 +1412,11 @@ def plot_noise_contour(results, line_color = 'bo-', save_figure = False, save_fi
     
     axis_font = {'size':'14'} 
     fig = plt.figure(save_filename)
-    axes = fig.gca(projection='3d')
+    axes = fig.gca(projection='3d') 
     fig.set_size_inches(12, 8) 
     dim_seg      = len(results.segments)
     dim_ctrl_pts = len(results.segments[0].conditions.frames.inertial.time[:,0])
-    dim_mic      = len(results.segments[0].conditions.noise.sources.propeller.SPL_Hv_dBA[0,:])
+    dim_mic      = len(results.segments[0].conditions.noise.total_SPL_dBA [0,:])
     dim_mat      = dim_seg*dim_ctrl_pts 
     SPL_contour  = np.zeros((dim_mat,dim_mic)) 
     Range        = np.zeros((dim_mat,dim_mic)) 
@@ -1428,13 +1428,13 @@ def plot_noise_contour(results, line_color = 'bo-', save_figure = False, save_fi
     for i in range(len(results.segments)): 
         Aircraft_pos[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),0]   = results.segments[i].conditions.frames.inertial.position_vector[:,0]
         Aircraft_pos[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),2]   = -results.segments[i].conditions.frames.inertial.position_vector[:,2]
-        SPL_contour[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),:]  = results.segments[i].conditions.noise.sources.propeller.SPL_Hv_dBA
+        SPL_contour[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),:]  = results.segments[i].conditions.noise.total_SPL_dBA 
         Range[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),:]        = np.repeat(np.atleast_2d(results.segments[i].conditions.frames.inertial.position_vector[:,0]).T,dim_mic, axis = 1)
         Span[dim_ctrl_pts*i:dim_ctrl_pts*(i+1),:]         = results.segments[i].conditions.noise.microphone_locations[:,:,1] 
         
      
     axes.scatter(Aircraft_pos[:,0],Aircraft_pos[:,1],Aircraft_pos[:,2], c='k', marker = 'o' )
-    CS = axes.contourf(Range,Span,SPL_contour, levels = 20, zdir='z', offset= 0) 
+    CS = axes.contourf(Range,Span,SPL_contour, levels = 20, zdir='z', offset= 0 , cmap=plt.cm.jet) 
     axes.view_init(elev= 8, azim= -166)  
     axes.set_xlim(0, 20000)
     axes.set_ylim(-4000, 4000)

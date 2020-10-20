@@ -278,20 +278,20 @@ class Turbofan(Propulsor):
         
         # store data
         results_conditions = Data
-        conditions.noise.sources.core = results_conditions(
-        exit_static_temperature             = core_nozzle.outputs.static_temperature,
-        exit_static_pressure                = core_nozzle.outputs.static_pressure,
-        exit_stagnation_temperature         = core_nozzle.outputs.stagnation_temperature,
-        exit_stagnation_pressure            = core_nozzle.outputs.static_pressure,
-        exit_velocity                       = core_nozzle.outputs.velocity
+        conditions.noise.sources.turbofan.core = results_conditions(
+        exit_static_temperature                = core_nozzle.outputs.static_temperature,
+        exit_static_pressure                   = core_nozzle.outputs.static_pressure,
+        exit_stagnation_temperature            = core_nozzle.outputs.stagnation_temperature,
+        exit_stagnation_pressure               = core_nozzle.outputs.static_pressure,
+        exit_velocity                          = core_nozzle.outputs.velocity
         )
         
-        conditions.noise.sources.fan = results_conditions(
-        exit_static_temperature             = fan_nozzle.outputs.static_temperature,
-        exit_static_pressure                = fan_nozzle.outputs.static_pressure,
-        exit_stagnation_temperature         = fan_nozzle.outputs.stagnation_temperature,
-        exit_stagnation_pressure            = fan_nozzle.outputs.static_pressure,
-        exit_velocity                       = fan_nozzle.outputs.velocity
+        conditions.noise.sources.turbofan.fan = results_conditions(
+        exit_static_temperature               = fan_nozzle.outputs.static_temperature,
+        exit_static_pressure                  = fan_nozzle.outputs.static_pressure,
+        exit_stagnation_temperature           = fan_nozzle.outputs.stagnation_temperature,
+        exit_stagnation_pressure              = fan_nozzle.outputs.static_pressure,
+        exit_velocity                         = fan_nozzle.outputs.velocity
         )
         
         return results

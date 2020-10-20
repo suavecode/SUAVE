@@ -9,21 +9,18 @@
 # ----------------------------------------------------------------------
 
 # SUAVE Imports
-from SUAVE.Core            import Data
-from SUAVE.Core            import Units
+from SUAVE.Core            import Data , Units
 
-from .noise_clean_wing import noise_clean_wing
-from .noise_landing_gear import noise_landing_gear
-from .noise_leading_edge_slat import noise_leading_edge_slat
+from .noise_clean_wing         import noise_clean_wing
+from .noise_landing_gear       import noise_landing_gear
+from .noise_leading_edge_slat  import noise_leading_edge_slat
 from .noise_trailing_edge_flap import noise_trailing_edge_flap
 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
 
 import numpy as np
@@ -33,7 +30,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroupMethods-Noise-Fidelity_One-Airframe
-def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0):  
+def noise_airframe_Fink(segment,analyses,config,ioprint = 0, filename=0):  
     """ This computes the noise from different sources of the airframe for a given vehicle for a constant altitude flight. 
 
     Assumptions:
@@ -90,30 +87,30 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     # Unpack 
     wing     = config.wings
     flap     = wing.main_wing.control_surfaces.flap 
-    Sw       = wing.main_wing.areas.reference  / (Units.ft)**2              #wing area, sq.ft
-    bw       = wing.main_wing.spans.projected / Units.ft                    #wing span, ft
-    Sht      = wing.horizontal_stabilizer.areas.reference / (Units.ft)**2   #horizontal tail area, sq.ft
-    bht      = wing.horizontal_stabilizer.spans.projected / Units.ft        #horizontal tail span, ft
-    Svt      = wing.vertical_stabilizer.areas.reference / (Units.ft)**2     #vertical tail area, sq.ft
-    bvt      = wing.vertical_stabilizer.spans.projected  / Units.ft         #vertical tail span, ft
-    deltaf   = flap.deflection                                              #flap delection, rad
-    Sf       = flap.area  / (Units.ft)**2                                   #flap area, sq.ft        
-    cf       = flap.chord_dimensional  / Units.ft                           #flap chord, ft
-    Dp       = config.landing_gear.main_tire_diameter  / Units.ft           #MLG tyre diameter, ft
-    Hp       = config.landing_gear.nose_tire_diameter  / Units.ft           #MLG strut length, ft
-    Dn       = config.landing_gear.main_strut_length   / Units.ft           #NLG tyre diameter, ft
-    Hn       = config.landing_gear.nose_strut_length   / Units.ft           #NLG strut length, ft
-    gear     = config.landing_gear.gear_condition                           #Gear up or gear down
+    Sw       = wing.main_wing.areas.reference  / (Units.ft)**2              # wing area, sq.ft
+    bw       = wing.main_wing.spans.projected / Units.ft                    # wing span, ft
+    Sht      = wing.horizontal_stabilizer.areas.reference / (Units.ft)**2   # horizontal tail area, sq.ft
+    bht      = wing.horizontal_stabilizer.spans.projected / Units.ft        # horizontal tail span, ft
+    Svt      = wing.vertical_stabilizer.areas.reference / (Units.ft)**2     # vertical tail area, sq.ft
+    bvt      = wing.vertical_stabilizer.spans.projected  / Units.ft         # vertical tail span, ft
+    deltaf   = flap.deflection                                              # flap delection, rad
+    Sf       = flap.area  / (Units.ft)**2                                   # flap area, sq.ft        
+    cf       = flap.chord_dimensional  / Units.ft                           # flap chord, ft
+    Dp       = config.landing_gear.main_tire_diameter  / Units.ft           # MLG tyre diameter, ft
+    Hp       = config.landing_gear.nose_tire_diameter  / Units.ft           # MLG strut length, ft
+    Dn       = config.landing_gear.main_strut_length   / Units.ft           # NLG tyre diameter, ft
+    Hn       = config.landing_gear.nose_strut_length   / Units.ft           # NLG strut length, ft
+    gear     = config.landing_gear.gear_condition                           # Gear up or gear down
     
-    nose_wheels    =   config.landing_gear.nose_wheels                           #Number of wheels   
-    main_wheels    =   config.landing_gear.main_wheels                           #Number of wheels   
-    main_units     =   config.landing_gear.main_units                            #Number of main units   
-    velocity       =   np.float(noise_segment.conditions.freestream.velocity[0,0]) #aircraft velocity 
-    altitude       =   noise_segment.conditions.freestream.altitude[:,0]           #aircraft altitude
-    time           =   noise_segment.conditions.frames.inertial.time[:,0]          #time discretization
-
+    nose_wheels    =   config.landing_gear.nose_wheels                      # Number of wheels   
+    main_wheels    =   config.landing_gear.main_wheels                      # Number of wheels   
+    main_units     =   config.landing_gear.main_units                       # Number of main units   
+    velocity       =   np.float(segment.conditions.freestream.velocity[0,0])# aircraft velocity 
+    altitude       =   segment.conditions.freestream.altitude[:,0]          # aircraft altitude
+    time           =   segment.conditions.frames.inertial.time[:,0]         # time discretization
+                                                                            
     noise_time = np.arange(0.,time[-1],.5)  
-    altitude = np.interp(noise_time,time,altitude)
+    altitude   = np.interp(noise_time,time,altitude)
 
     # determining flap slot number
     if wing.main_wing.control_surfaces.flap.configuration_type   == 'single_slotted':
@@ -124,9 +121,9 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
         slots = 3  
 
     # Geometric information from the source to observer position
-    distance_vector = noise_segment.dist    
-    angle           = noise_segment.theta 
-    phi             = noise_segment.phi  
+    distance_vector = segment.dist    
+    angle           = segment.theta 
+    phi             = segment.phi  
     distance_vector = np.interp(noise_time,time,distance_vector)
     angle           = np.interp(noise_time,time,angle)
     phi             = np.interp(noise_time,time,phi)
@@ -175,7 +172,7 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     SPL_nose_landing_gear_history = np.zeros((nrange,24))
     SPL_total_history             = np.zeros((nrange,24))
     
-    #Noise history in dBA
+    # Noise history in dBA
     SPLt_dBA_history = np.zeros((nrange,24))  
     SPLt_dBA_max = np.zeros(nrange)    
     
@@ -209,7 +206,7 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
         else:
             SPL_main_landing_gear = noise_landing_gear(Dp,Hp,main_wheels,M[i],velocity,phi[i],theta,distance,frequency)  - delta_atmo     #Main Landing Gear Noise
             SPL_nose_landing_gear = noise_landing_gear(Dn,Hn,nose_wheels,M[i],velocity,phi[i],theta,distance,frequency)  - delta_atmo     #Nose Landing Gear Noise
-        if main_units>1: #Incoherent summation of each main landing gear unit
+        if main_units>1: # Incoherent summation of each main landing gear unit
             SPL_main_landing_gear = SPL_main_landing_gear+3*(main_units-1)
  
  
@@ -357,4 +354,4 @@ def noise_airframe_Fink(config, analyses, noise_segment,ioprint = 0, filename=0)
     
         fid.close
     
-    return (EPNL_total,SPL_total_history,SENEL_total)
+    return (EPNL_total,SPL_total_history,SENEL_total,noise_time)

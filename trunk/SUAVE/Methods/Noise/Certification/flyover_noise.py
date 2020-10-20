@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np 
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import compute_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise import compute_noise
 
 # ----------------------------------------------------------------------        
 #   Approach noise
@@ -42,22 +42,23 @@ def flyover_noise(mission,noise_config):
     mission.segments.climb.state.numerics.number_control_points = np.minimum(200, np.abs(n_points))
 
     # Set up analysis 
-    noise_segment   = mission.segments.climb
-    noise_analyses  = noise_segment.analyses
-    noise_segment.analyses.takeoff.noise.settings.flyover  = 1
-    noise_segment.analyses.takeoff.noise.settings.sideline = 0  
-    noise_config.engine_flag = 1 
+    noise_segment                                  = mission.segments.climb 
+    noise_analyses                                 = noise_segment.analyses 
+    noise_segment.analyses.noise.settings.sideline = False  
+    noise_segment.analyses.noise.settings.flyover  = True
+    
+    noise_config.engine_flag = True
 
     if mission.npoints_takeoff_sign == -1:
         noise_result_takeoff_FL_clb = 500. + noise_segment.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points
     else:    
-        noise_result_takeoff_FL_clb = compute_noise(noise_config,noise_analyses,noise_segment)    
+        noise_result_takeoff_FL_clb = compute_noise(noise_config,noise_segment,noise_analyses)   
 
 
     if mission.npoints_takeoff_sign == -1:
         noise_result_takeoff_FL_cutback = 500. + noise_segment.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points
     else:                                       
-        noise_result_takeoff_FL_cutback = compute_noise(noise_config,noise_analyses,noise_segment)  
+        noise_result_takeoff_FL_cutback = compute_noise(noise_config,noise_segment,noise_analyses)   
 
     noise_result_takeoff_FL = 10. * np.log10(10**(noise_result_takeoff_FL_clb/10)+10**(noise_result_takeoff_FL_cutback/10))
 

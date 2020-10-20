@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import numpy as np 
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import compute_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise import compute_noise
 
 # ----------------------------------------------------------------------        
 #   Approach noise
@@ -45,8 +45,8 @@ def sideline_noise(mission,noise_config):
     # Set up analysis 
     noise_segment                                  = mission.segments.climb  
     noise_analyses                                 = noise_segment.analyses 
-    noise_segment.analyses.noise.settings.sideline = 1
-    noise_segment.analyses.noise.settings.flyover  = 0 
+    noise_segment.analyses.noise.settings.sideline = True
+    noise_segment.analyses.noise.settings.flyover  = False 
 
     # Determine the x0
     x0              = 0.    
@@ -57,11 +57,11 @@ def sideline_noise(mission,noise_config):
         x0 += coef * 304.8 ** (degree-idx) 
 
     noise_segment.analyses.noise.settings.mic_x_position = x0   
-    noise_config.engine_flag                             = 1 
+    noise_config.engine_flag                             = True 
 
     if mission.npoints_sideline_sign == -1:
         noise_result_takeoff_SL = 500. + noise_segment.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points
     else:
-        noise_result_takeoff_SL = compute_noise(noise_config,noise_analyses,noise_segment)    
+        noise_result_takeoff_SL = compute_noise(noise_config,noise_segment,noise_analyses)    
 
     return noise_result_takeoff_SL

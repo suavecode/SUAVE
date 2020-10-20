@@ -11,11 +11,9 @@
 # SUAVE imports
 import SUAVE
 
-from SUAVE.Methods.Missions import Segments as Methods 
-from SUAVE.Analyses.Mission.Segments.Climb.Unknown_Throttle import Unknown_Throttle
+from SUAVE.Methods.Missions import Segments as Methods
 
-# Package imports
-import numpy as np 
+from SUAVE.Analyses.Mission.Segments.Climb.Unknown_Throttle import Unknown_Throttle
 
 # Units
 from SUAVE.Core import Units
@@ -61,10 +59,10 @@ class Constant_Speed_Constant_Angle_Noise(Unknown_Throttle):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start                       = None # Optional
-        self.altitude_end                         = 0.0 * Units.km
-        self.descent_angle                        = 3.  * Units.deg
-        self.air_speed                            = 100 * Units.m / Units.s
+        self.altitude_start = None # Optional
+        self.altitude_end   = 0.0 * Units.km
+        self.descent_angle  = 3.  * Units.deg
+        self.air_speed      = 100 * Units.m / Units.s
         self.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
         # --------------------------------------------------------------
         #   The Solving Process

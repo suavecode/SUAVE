@@ -8,10 +8,21 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Units
+
+# package imports 
 import numpy as np
 
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
+
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_noise_sae(noise_data, ioprint = 0):
+def propeller_noise_sae(propeller,segment ,ioprint = 0):
     """ Computes the Far-field noise for propeller noise following SAE AIR1407 procedure.
 
     Assumptions:
@@ -21,7 +32,7 @@ def propeller_noise_sae(noise_data, ioprint = 0):
         None
         
     Inputs:
-        noise_data     - SUAVE type vehicle
+        conditions
 
     Outputs:
         OASPL          - Overall Sound Pressure Level            [dB]
@@ -36,17 +47,22 @@ def propeller_noise_sae(noise_data, ioprint = 0):
     """     
   
     # unpack
-    diameter     = noise_data.diameter / Units.ft
-    n_blades     = noise_data.n_blades
-    n_propellers = noise_data.n_engines
-    HP           = noise_data.power / Units.horsepower
-    RPM          = noise_data.omega / Units.rpm
-    speed        = noise_data.speed / Units.fts
-    sound_speed  = noise_data.sound_speed / Units.fts
-    dist         = noise_data.distance
-    theta        = noise_data.angle / Units.degrees
+    conditions   = segment.state.conditions  
+    auc_opts     = conditions.noise.sources[propeller.tag].acoustic_outputs 
+    time         = segment.conditions.frames.inertial.time[:,0]
+    altitude     = segment.conditions.freestream.altitude[:,0]
+    
+    diameter     = (propeller.tip_radius*2) / Units.ft
+    n_blades     = propeller.number_of_blades  
+    n_propellers = propeller.number_of_engines 
+    HP           = auc_opts.power / Units.horsepower
+    RPM          = auc_opts.omega / Units.rpm
+    speed        = auc_opts.velocity/ Units.fts
+    sound_speed  = conditions.freestream.sound_speed / Units.fts
+    dist         = segment.dist
+    theta        = segment.theta / Units.degrees
      
-    #Correction for the number of propellers:
+    # Correction for the number of propellers:
     if n_propellers == 1:
         NC = 0
     elif n_propellers == 2:
@@ -71,7 +87,7 @@ def propeller_noise_sae(noise_data, ioprint = 0):
     PNL_factor = np.zeros(nsteps)
     PNL        = np.zeros(nsteps)
     PNL_dBA    = np.zeros(nsteps)
-    
+  
    #***************************************************************    
    # Farfield Partial Noise Level Based on Blade count and Propeller diameter 
     if n_blades == 2:
@@ -153,8 +169,20 @@ def propeller_noise_sae(noise_data, ioprint = 0):
         OASPL = FL1[id]+FL2+FL3_2[id]+DI[id]+NC
         PNL[id] = OASPL + PNL_factor[id]
         PNL_dBA[id] = PNL[id] - 14 
-        # *********************** END OF LOOP  *******************************    
-        
+        # *********************** END OF LOOP  *******************************          
+    
+    # Calculation of the tones corrections on the SPL for each component and total
+    tone_correction_total     = noise_tone_correction(OASPL)  
+    
+    # Calculation of the PLNT for each component and total
+    PNLT_total     = PNL + tone_correction_total 
+    
+    # Calculation of the EPNL for each component and total
+    EPNL_total     = epnl_noise(PNLT_total) 
+    
+    # Calculation of the SENEL total
+    SENEL_total    = senel_noise( max(OASPL))
+    
     # Effective Perceived Noise Level for takeoff and landing:
     EPNdB_takeoff = np.max(PNL) - 4
     EPNdB_landing = np.max(PNL) - 2
@@ -175,8 +203,8 @@ def propeller_noise_sae(noise_data, ioprint = 0):
         fid.write('\n')
         
         for id in range (0,nsteps):
-            fid.write(str('%2.2f' % noise_data.time[id])+'        ')
-            fid.write(str('%2.2f' % noise_data.altitude[id])+'        ')
+            fid.write(str('%2.2f' % time[id])+'        ')
+            fid.write(str('%2.2f' % altitude [id])+'        ')
             fid.write(str('%2.2f' % speed[id])+'        ')
             fid.write(str('%2.2f' % (RPM[id]))+'        ')
             fid.write(str('%2.2f' % (theta[id]*180/np.pi))+'        ')
@@ -192,6 +220,6 @@ def propeller_noise_sae(noise_data, ioprint = 0):
         fid.write(str('%2.2f' % (np.max(PNL_dBA)))+'  dBA')             
         fid.close  
     
-    return (np.max(PNL_dBA), EPNdB_takeoff, EPNdB_landing)
+    return (np.max(PNL_dBA), EPNdB_takeoff, EPNdB_landing, OASPL , EPNL_total , SENEL_total )
 
 

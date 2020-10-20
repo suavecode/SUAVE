@@ -10,12 +10,11 @@
 
 # SUAVE imports
 from SUAVE.Analyses.Mission.Segments import Aerodynamic
-from SUAVE.Analyses.Mission.Segments import Conditions 
-from SUAVE.Methods.Missions          import Segments as Methods 
-from SUAVE.Analyses                  import Process
+from SUAVE.Analyses.Mission.Segments import Conditions
 
-# Package imports
-import numpy as np  
+from SUAVE.Methods.Missions import Segments as Methods
+
+from SUAVE.Analyses import Process
 
 # Units
 from SUAVE.Core import Units
@@ -66,17 +65,17 @@ class Lift_Cruise_Optimized(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude                 = None
-        self.air_speed_start          = None
-        self.air_speed_end            = None
-        self.acceleration             = None
-        self.pitch_initial            = None
-        self.pitch_final              = None     
-        self.objective                = None # This will be a key
-        self.minimize                 = True
-        self.lift_coefficient_limit   =  1.e20  
-        self.algorithm                = 'SLSQP'
-        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
+        self.altitude                = None
+        self.air_speed_start         = None
+        self.air_speed_end           = None
+        self.acceleration            = None
+        self.pitch_initial           = None
+        self.pitch_final             = None     
+        self.objective               = None # This will be a key
+        self.minimize                = True
+        self.lift_coefficient_limit  =  1.e20  
+        self.algorithm               = 'SLSQP'
+        
         
         # --------------------------------------------------------------
         #   State
@@ -144,7 +143,7 @@ class Lift_Cruise_Optimized(Aerodynamic):
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
         iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust        
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
-        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability 
+        iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position

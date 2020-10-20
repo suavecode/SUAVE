@@ -342,8 +342,8 @@ def max_range_mission(nexus):
 # ----------------------------------------------------------------------      
 def noise_sideline(nexus):         
     
-    nexus.analyses.takeoff.noise.settings.sideline = 1
-    nexus.analyses.takeoff.noise.settings.flyover  = 0
+    nexus.analyses.takeoff.noise.settings.sideline = True
+    nexus.analyses.takeoff.noise.settings.flyover  = False
     results                                        = nexus.results 
     results.sideline                               = SUAVE.Input_Output.SUAVE.load('sideline.res')   
     
@@ -359,7 +359,7 @@ def noise_sideline(nexus):
     noise_segment                                        = results.sideline.segments.climb 
     noise_config                                         = nexus.vehicle_configurations.takeoff
     noise_analyse                                        = nexus.analyses.takeoff
-    noise_config.engine_flag                             = 1
+    noise_config.engine_flag                             = True
     
     noise_config.print_output       = 0
     noise_config.output_file        = 'Noise_Sideline.dat'
@@ -384,15 +384,15 @@ def noise_sideline(nexus):
 def noise_flyover(nexus):       
     
     mission                                        = nexus.missions.takeoff
-    nexus.analyses.takeoff.noise.settings.flyover  = 1
-    nexus.analyses.takeoff.noise.settings.sideline = 0
+    nexus.analyses.takeoff.noise.settings.flyover  = True
+    nexus.analyses.takeoff.noise.settings.sideline = False
     results                                        = nexus.results 
     results.flyover                                = SUAVE.Input_Output.SUAVE.load('flyover.res')   
     
     noise_segment            = results.flyover.segments.climb
     noise_config             = nexus.vehicle_configurations.takeoff
     noise_analyse            = nexus.analyses.takeoff
-    noise_config.engine_flag = 1
+    noise_config.engine_flag = True
     
     noise_config.print_output       = 0
     noise_config.output_file        = 'Noise_Flyover_climb.dat'
@@ -406,7 +406,7 @@ def noise_flyover(nexus):
     noise_segment                   = results.flyover.segments.cutback
     noise_config                    = nexus.vehicle_configurations.cutback
     noise_config.print_output       = 0
-    noise_config.engine_flag        = 1
+    noise_config.engine_flag        = True
     noise_config.output_file        = 'Noise_Flyover_cutback.dat'
     noise_config.output_file_engine = 'Noise_Flyover_cutback_Engine.dat'
     
@@ -440,7 +440,7 @@ def noise_approach(nexus):
     noise_config.output_file        = 'Noise_Approach.dat'
     noise_config.output_file_engine = 'Noise_Approach_Engine.dat'
     
-    noise_config.engine_flag = 1 
+    noise_config.engine_flag = True
    
     noise_result_approach = compute_noise(noise_config,noise_analyse,noise_segment)
        

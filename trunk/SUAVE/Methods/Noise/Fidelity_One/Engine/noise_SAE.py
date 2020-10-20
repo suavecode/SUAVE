@@ -35,7 +35,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 # ----------------------------------------------------------------------    
 
 ## @ingroupMethods-Noise-Fidelity_One-Engine
-def noise_SAE(turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0):  
+def noise_SAE(turbofan,segment,analyses,config,ioprint = 0, filename = 0):  
     """This method predicts the free-field 1/3 Octave Band SPL of coaxial subsonic
        jets for turbofan engines under the following conditions:
        a) Flyover (observer on ground)
@@ -82,12 +82,12 @@ def noise_SAE(turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0):
     """ 
     # unpack 
     Velocity_primary_1     = np.float(turbofan.core_nozzle.noise_speed * 0.92*(turbofan.design_thrust/52700.))   
-    Temperature_primary    = noise_segment.conditions.noise.sources.core.exit_stagnation_temperature[:,0] 
-    Pressure_primary       = noise_segment.conditions.noise.sources.core.exit_stagnation_pressure[:,0] 
+    Temperature_primary    = segment.conditions.noise.sources.turbofan.core.exit_stagnation_temperature[:,0] 
+    Pressure_primary       = segment.conditions.noise.sources.turbofan.core.exit_stagnation_pressure[:,0] 
     
     Velocity_secondary_1   = np.float(turbofan.fan_nozzle.noise_speed * (turbofan.design_thrust/52700.)) 
-    Temperature_secondary  = noise_segment.conditions.noise.sources.fan.exit_stagnation_temperature[:,0] 
-    Pressure_secondary     = noise_segment.conditions.noise.sources.fan.exit_stagnation_pressure[:,0] 
+    Temperature_secondary  = segment.conditions.noise.sources.turbofan.fan.exit_stagnation_temperature[:,0] 
+    Pressure_secondary     = segment.conditions.noise.sources.turbofan.fan.exit_stagnation_pressure[:,0] 
     
     N1                     = np.float(turbofan.fan.rotation * 0.92*(turbofan.design_thrust/52700.))
     Diameter_primary       = turbofan.core_nozzle_diameter
@@ -99,11 +99,11 @@ def noise_SAE(turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0):
     Ye                     = turbofan.geometry_ye
     Ce                     = turbofan.geometry_Ce
     
-    Velocity_aircraft      = np.float(noise_segment.conditions.freestream.velocity[0,0]) 
-    Altitude               = noise_segment.conditions.freestream.altitude[:,0] 
-    AOA                    = np.mean(noise_segment.conditions.aerodynamics.angle_of_attack / Units.deg)
+    Velocity_aircraft      = np.float(segment.conditions.freestream.velocity[0,0]) 
+    Altitude               = segment.conditions.freestream.altitude[:,0] 
+    AOA                    = np.mean(segment.conditions.aerodynamics.angle_of_attack / Units.deg)
     
-    time                   = noise_segment.conditions.frames.inertial.time[:,0]  
+    time                   = segment.conditions.frames.inertial.time[:,0]  
     
     noise_time = np.arange(0.,time[-1],.5)
     
@@ -114,13 +114,13 @@ def noise_SAE(turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0):
     Altitude              = np.interp(noise_time,time,Altitude)
     
     # Calls the function noise_geometric to calculate all the distance and emission angles
-    geometric = noise_counterplot(noise_segment,analyses,config)
-    noise_geometric(noise_segment,analyses,config)
+    #geometric = noise_counterplot(segment,config) 
+    noise_geometric(segment,analyses,config)
     
-    #unpack
-    distance_microphone = noise_segment.dist  # geometric[:][0]    
-    angles              = noise_segment.theta # geometric[:][1]
-    phi                 = noise_segment.phi   # geometric[:][2]      
+    # unpack
+    distance_microphone = segment.dist   
+    angles              = segment.theta  
+    phi                 = segment.phi    
     
     distance_microphone = np.interp(noise_time,time,distance_microphone)
     angles = np.interp(noise_time,time,angles)
@@ -144,8 +144,7 @@ def noise_SAE(turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0):
     # ==============================================
     
     for id in range (0,nsteps):
-        atmo_data = analyses.atmosphere.compute_values(Altitude[id])        
-    
+        atmo_data =  analyses.atmosphere.compute_values(Altitude[id])    
         sound_ambient[id]       =   np.float(atmo_data.speed_of_sound)
         density_ambient[id]     =   np.float(atmo_data.density)
         viscosity[id]           =   np.float(atmo_data.dynamic_viscosity)
@@ -215,7 +214,7 @@ def noise_SAE(turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0):
             
         fid      = open(filename,'w')
     
- #START LOOP FOR EACH POSITION OF AIRCRAFT   
+    #START LOOP FOR EACH POSITION OF AIRCRAFT   
     for id in range(0,nsteps):
 
         # Jet Flow Parameters
@@ -500,4 +499,4 @@ def noise_SAE(turbofan,noise_segment,config,analyses,ioprint = 0, filename = 0):
               
         fid.close
     
-    return(EPNL_total,SPL_total_history,SENEL_total)
+    return (EPNL_total,SPL_total_history,SENEL_total)

@@ -125,10 +125,11 @@ class Aerodynamics(Basic):
         self.weights.vehicle_mass_rate     = ones_1col * 0
         
         # noise conditions
-        self.noise                          = Conditions() 
-        self.noise.total                    = Conditions() 
-        self.noise.sources                  = Conditions() 
+        self.noise                          = Conditions()
+        self.noise.total                    = Conditions()
+        self.noise.sources                  = Conditions()
         self.noise.sources.propeller        = Conditions()
         self.noise.sources.rotor            = Conditions()
-        self.noise.sources.fan              = Conditions()
-        self.noise.sources.core             = Conditions()
+        self.noise.sources.turbofan         = Conditions()
+        self.noise.sources.turbofan.fan     = Conditions()
+        self.noise.sources.turbofan.core    = Conditions()

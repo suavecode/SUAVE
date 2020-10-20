@@ -40,12 +40,12 @@ def noise_counterplot(noise_segment,analyses,config):
     
     #unpack
     position_vector = noise_segment.conditions.frames.inertial.position_vector
-    mic_position = analyses.mic_array
+    mic_position    = analyses.mic_array
     
     #X,Y,Z position of the aircraft
-    x_aircraft = position_vector[:,0]
-    altitude   = - position_vector[:,2]
-    z_aircraft = position_vector[:,1]
+    x_aircraft      = position_vector[:,0]
+    altitude        = -position_vector[:,2]
+    z_aircraft      = position_vector[:,1]
      
     n_steps = len(altitude)  #number of time steps (space discretization)
     

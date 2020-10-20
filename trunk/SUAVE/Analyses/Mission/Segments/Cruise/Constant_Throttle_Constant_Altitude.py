@@ -12,11 +12,10 @@
 # SUAVE imports
 from SUAVE.Analyses.Mission.Segments import Aerodynamic
 from SUAVE.Analyses.Mission.Segments import Conditions
-from SUAVE.Methods.Missions import Segments as Methods
-from SUAVE.Analyses import Process
 
-# Package imports
-import numpy as np 
+from SUAVE.Methods.Missions import Segments as Methods
+
+from SUAVE.Analyses import Process
 
 # ----------------------------------------------------------------------
 #  Segment
@@ -60,11 +59,11 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.throttle                 = None
-        self.altitude                 = None
-        self.air_speed_start          = None
-        self.air_speed_end            = 0.0 
-        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
+        self.throttle        = None
+        self.altitude        = None
+        self.air_speed_start = None
+        self.air_speed_end   = 0.0 
+        
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
@@ -126,7 +125,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
         iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
-        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust 
+        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position

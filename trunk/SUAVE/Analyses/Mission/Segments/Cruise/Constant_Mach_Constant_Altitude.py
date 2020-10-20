@@ -10,10 +10,8 @@
 
 # SUAVE imports
 from SUAVE.Methods.Missions import Segments as Methods
-from .Constant_Speed_Constant_Altitude import Constant_Speed_Constant_Altitude
 
-# Package imports
-import numpy as np 
+from .Constant_Speed_Constant_Altitude import Constant_Speed_Constant_Altitude
 
 # Units
 from SUAVE.Core import Units
@@ -55,10 +53,10 @@ class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude                 = None
-        self.mach                     = 0.5 
-        self.distance                 = 10. * Units.km
-        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
+        self.altitude  = None
+        self.mach      = 0.5 
+        self.distance  = 10. * Units.km
+        
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------

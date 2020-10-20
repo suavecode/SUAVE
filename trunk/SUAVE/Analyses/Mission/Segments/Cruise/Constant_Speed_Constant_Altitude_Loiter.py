@@ -10,10 +10,8 @@
 
 # SUAVE imports
 from SUAVE.Methods.Missions import Segments as Methods
-from .Constant_Speed_Constant_Altitude import Constant_Speed_Constant_Altitude
 
-# Package imports
-import numpy as np 
+from .Constant_Speed_Constant_Altitude import Constant_Speed_Constant_Altitude
 
 # Units
 from SUAVE.Core import Units
@@ -56,10 +54,9 @@ class Constant_Speed_Constant_Altitude_Loiter(Constant_Speed_Constant_Altitude):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude                 = None
-        self.air_speed                = 1.0
-        self.time                     = 1.0 * Units.sec
-        self.ground_microphone_angles = np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees
+        self.altitude  = None
+        self.air_speed = 1.0
+        self.time      = 1.0 * Units.sec
         
         # --------------------------------------------------------------
         #   The Solving Process
