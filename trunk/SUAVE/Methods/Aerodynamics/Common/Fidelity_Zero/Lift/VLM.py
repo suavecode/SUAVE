@@ -123,7 +123,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     # Build induced velocity matrix, C_mn
     C_mn, DW_mn = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
-    MCM         = VD.MCM 
      
     # Compute flow tangency conditions   
     inv_root_beta           = np.zeros_like(mach)
@@ -152,8 +151,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     n_cp     = VD.n_cp  
     gamma    = np.linalg.solve(A,RHS)
     gamma_3d = np.repeat(np.atleast_3d(gamma), n_cp ,axis = 2 )
-    u        = np.sum(C_mn[:,:,:,0]*MCM[:,:,:,0]*gamma_3d, axis = 2)  
-    w_ind    = -np.sum(DW_mn[:,:,:,2]*MCM[:,:,:,2]*gamma_3d, axis = 2) 
+    u        = np.sum(C_mn[:,:,:,0]*gamma_3d, axis = 2)  
+    w_ind    = -np.sum(DW_mn[:,:,:,2]*gamma_3d, axis = 2) 
      
     # ---------------------------------------------------------------------------------------
     # STEP 10: Compute aerodynamic coefficients 
@@ -182,7 +181,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     machw             = np.tile(mach,len(wing_areas))     
     L_wing            = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CL_wing           = L_wing/(0.5*wing_areas)
-    CL_wing[machw>1]  = CL_wing[machw>1]*4  # supersonic lift off by a factor of  4 compared to Panair results at Mach 2 for delta wing  
     
     # Calculate spanwise lift 
     spanwise_Del_y    = Del_Y_n_w_sw[:,:,0]
@@ -194,7 +192,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # total lift and lift coefficient
     L                 = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
     CL                = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers
-    CL[mach>1]        = CL[mach>1]*4   # supersonic lift off by a factor of 4 compared to Panair results at Mach 2 for delta wing
     
     # --------------------------------------------------------------------------------------------------------
     # DRAG                                                                          
@@ -220,9 +217,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # MOMENT                                                                        
     # --------------------------------------------------------------------------------------------------------             
     CM                = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
-    
-    # delete MCM from VD data structure since it consumes memory
-    delattr(VD, 'MCM')   
     
     Velocity_Profile = Data()
     Velocity_Profile.Vx_ind   = Vx_ind_total

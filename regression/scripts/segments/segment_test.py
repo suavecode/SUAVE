@@ -68,14 +68,14 @@ def main():
     climb_throttle_6_truth   = 0.7242365880065347 
     climb_throttle_7_truth   = 0.8473685964195364 
     climb_throttle_8_truth   = 1.0082845324269998 
-    cruise_CL_1_truth        = 0.6342361677856956 
-    cruise_CL_2_truth        = 0.6241454239282105 
-    cruise_CL_3_truth        = 0.7066565371295667 
-    descent_throttle_1_truth = 0.2676353746029248 
-    single_pt_CL_1_truth     = 0.25820064211796545 
-    single_pt_CL_2_truth     = 0.2581648020658249 
-    loiter_CL_truth          = 0.5259929615196276 
-    descent_throttle_2_truth = 0.20406220700465058 
+    cruise_CL_1_truth        = 0.634233677253148
+    cruise_CL_2_truth        = 0.6241429606481604
+    cruise_CL_3_truth        = 0.7066538388860613
+    descent_throttle_1_truth = 0.26763270958794305
+    single_pt_CL_1_truth     = 0.2581996153501819
+    single_pt_CL_2_truth     = 0.25816377507143445
+    loiter_CL_truth          = 0.5259908749142164
+    descent_throttle_2_truth = 0.2040608698706395
     
     # Store errors 
     error = Data()
