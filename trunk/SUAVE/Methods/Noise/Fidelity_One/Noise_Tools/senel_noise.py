@@ -66,4 +66,4 @@ def senel_noise(SPLt_dBA_max):
         
     SENEL = 10*np.log10(sumation)
     
-    return (SENEL)    
+    return SENEL    

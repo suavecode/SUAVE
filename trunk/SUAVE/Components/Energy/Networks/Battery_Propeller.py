@@ -126,10 +126,11 @@ class Battery_Propeller(Propulsor):
         motor.omega(conditions)
         
         # link
-        propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle = self.thrust_angle
+        propeller.inputs.omega      =  motor.outputs.omega
+        propeller.thrust_angle      = self.thrust_angle
+        propeller.number_of_engines = num_engines
         
-        # step 4
+        # step 4 
         F, Q, P, Cp, outputs , etap = propeller.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already

@@ -75,4 +75,4 @@ def noise_trailing_edge_flap(Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,fr
     SPL = G+10*np.log10(Sf*(np.sin(deltaf))**2/(distance**2))+ \
         60*np.log10((velocity/Units.kts)/100.0)+directivity
 
-    return(SPL)
+    return SPL 

@@ -7,7 +7,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units , Data
 
 # package imports 
 import numpy as np
@@ -20,9 +20,10 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import print_propeller_output 
 
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_noise_sae(propeller,segment ,ioprint = 0):
+def propeller_noise_sae(propeller,segment,settings ,ioprint = 0):
     """ Computes the Far-field noise for propeller noise following SAE AIR1407 procedure.
 
     Assumptions:
@@ -186,40 +187,20 @@ def propeller_noise_sae(propeller,segment ,ioprint = 0):
     # Effective Perceived Noise Level for takeoff and landing:
     EPNdB_takeoff = np.max(PNL) - 4
     EPNdB_landing = np.max(PNL) - 2
-    
-    # ********************************************************    
-    # Write output file
-    # ********************************************************  
-    if ioprint:
-
-        fid = open('prop_test.dat','w')   # Open output file    
+     
+    # Write output file 
+    if ioprint: 
+        print_propeller_output(speed,nsteps,time,altitude, RPM,theta ,dist ,PNL,PNL_dBA)
         
-        fid.write('Reference speed =  ')
-        fid.write(str('%2.2f' % (speed[-1]/Units.kts))+'  kts')
-        fid.write('\n')
-        fid.write('PNLT history')
-        fid.write('\n')
-        fid.write('time       altitude      Mach    RPM     Polar_angle    distance        PNL  	   dBA')
-        fid.write('\n')
+    # Pack Results
+    propeller_noise = Data()
+    propeller_noise.PNL_dBA_max   = np.max(PNL_dBA)
+    propeller_noise.EPNdB_takeoff = EPNdB_takeoff
+    propeller_noise.EPNdB_landing = EPNdB_landing
+    propeller_noise.OASPL         = OASPL
+    propeller_noise.EPNL_total    = EPNL_total   
+    propeller_noise.SENEL_total   = SENEL_total      
         
-        for id in range (0,nsteps):
-            fid.write(str('%2.2f' % time[id])+'        ')
-            fid.write(str('%2.2f' % altitude [id])+'        ')
-            fid.write(str('%2.2f' % speed[id])+'        ')
-            fid.write(str('%2.2f' % (RPM[id]))+'        ')
-            fid.write(str('%2.2f' % (theta[id]*180/np.pi))+'        ')
-            fid.write(str('%2.2f' % dist[id])+'        ')
-            fid.write(str('%2.2f' % PNL[id])+'        ')
-            fid.write(str('%2.2f' % PNL_dBA[id])+'        ')
-            fid.write('\n')
-        fid.write('\n')
-        fid.write('PNLT max =  ')
-        fid.write(str('%2.2f' % (np.max(PNL)))+'  dB')
-        fid.write('\n')
-        fid.write('dBA max =  ')
-        fid.write(str('%2.2f' % (np.max(PNL_dBA)))+'  dBA')             
-        fid.close  
-    
-    return (np.max(PNL_dBA), EPNdB_takeoff, EPNdB_landing, OASPL , EPNL_total , SENEL_total )
+    return propeller_noise
 
 

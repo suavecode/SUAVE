@@ -65,5 +65,5 @@ def secondary_noise_component(SPL_s,Velocity_primary,theta_s,sound_ambient,Veloc
     # Determination of Sound Pressure Level for the secondary jet component
     SPL_s = (Z1*np.log10(FV)+Z2)*(np.log10(Str_s)-Z3*np.log10(FV)-Z4)**2 + Z5*np.log10(FV) + Z6
 
-    return(SPL_s)
+    return SPL_s 
 

@@ -67,16 +67,23 @@ class Fidelity_One(Noise):
         """
         
         # Initialize quantities    
-        self.harmonics                     = np.empty(shape=[0, 1])
-        
-        settings                           = self.settings
-        settings.propeller_SAE_noise_model = False 
-        settings.flyover                   = False    
-        settings.approach                  = False
-        settings.sideline                  = False
-        settings.mic_x_position            = 0    
-        settings.ground_microphone_angles  = np.array([45. , 30. , 15. , 10. , 5. , 0.1 , -0.1 , -5 , -10 , -15, -30 , -45])*Units.degrees
-        #np.array([0.1,15.,30.,45.,60.,75.,90.1,105.,120.,135.,150.,165., 179.9])*Units.degrees       
+        self.harmonics                          = np.empty(shape=[0, 1])
+                                                
+        settings                                = self.settings
+        settings.propeller_SAE_noise_model      = False 
+        settings.flyover                        = False    
+        settings.approach                       = False
+        settings.sideline                       = False
+        settings.mic_x_position                 = 0    
+        settings.ground_microphone_phi_angles   = np.array([30.,45.,60.,75.,89.9,90.1,105.,120.,135.,150.])*Units.degrees
+        settings.ground_microphone_theta_angles = np.array([90.,90.,90.,90.,90. ,90. ,90. , 90., 90., 90. ])*Units.degrees
+        settings.center_frequencies             = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
+                                                            500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
+                                                            4000, 5000, 6300, 8000, 10000])        
+        settings.lower_frequencies              = np.array([14,18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,\
+                                                            900,1120,1400,1800,2240,2800,3550,4500,5600,7100,9000 ])
+        settings.upper_frequencies              = np.array([18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,900,1120,\
+                                                            1400,1800,2240,2800,3550,4500,5600,7100,9000,11200 ])
         
         return
             
@@ -111,19 +118,24 @@ class Fidelity_One(Noise):
         # unpack 
         alt         = -conditions.frames.inertial.position_vector[:,2]  
         dist        = conditions.frames.inertial.position_vector[:,0] 
-        gma         = settings.ground_microphone_angles 
+        gm_phi      = settings.ground_microphone_phi_angles 
+        gm_theta    = settings.ground_microphone_theta_angles 
+        cf          = settings.center_frequencies
         
         dim_alt = len(alt)
-        num_mic = len(gma)  
+        num_mic = len(gm_phi)  
+        dim_cf  = len(cf)
         
-        angles   = np.repeat(np.atleast_2d(gma), dim_alt, axis = 0)
+        theta    = np.repeat(np.atleast_2d(gm_theta), dim_alt, axis = 0) 
+        phi      = np.repeat(np.atleast_2d(gm_phi), dim_alt, axis = 0) 
         altitude = np.repeat(np.atleast_2d(alt).T, num_mic, axis = 1)
         
         mic_locations        = np.zeros((dim_alt,num_mic,3)) 
-        mic_locations[:,:,1] = np.tan(angles)*altitude  
+        mic_locations[:,:,0] = altitude/np.tan(theta)
+        mic_locations[:,:,1] = altitude/np.tan(phi)
         mic_locations[:,:,2] = altitude 
         
-        conditions.noise.microphone_angles     = gma
+        conditions.noise.microphone_phi_angles = gm_phi
         conditions.noise.microphone_locations  = mic_locations
         conditions.noise.number_of_microphones = num_mic
          
@@ -132,54 +144,49 @@ class Fidelity_One(Noise):
         # create empty arrays for results  
         num_src            = len(config.propulsors) + 1 
         source_SPLs_dBA    = np.zeros((ctrl_pts,num_src,num_mic)) 
-        source_EPNLs       = np.zeros((ctrl_pts,num_src,num_mic))
-        source_SENELs      = np.zeros((ctrl_pts,num_src,num_mic))        
+        source_SPL_spectra = np.zeros((ctrl_pts,num_src,dim_cf ,num_mic))  
         total_SPL_dBA      = np.zeros((ctrl_pts,num_mic))  
         
         # loop for microphone locations 
         for mic_loc in range(num_mic):  
             # calcuate location and geometric angles of noise sources 
-            geometric          = noise_geometric(segment,analyses,config,mic_loc)
+            geometric = noise_geometric(segment,analyses,config,mic_loc)
             
+            si = 1 
             # make flag to skip if flaps not present        
             if 'flap' in config.wings.main_wing.control_surfaces:            
-                airframe_noise     = noise_airframe_Fink(segment,analyses,config,mic_loc )  # (EPNL_total,SPL_total_history,SENEL_total)
-                #source_EPNLs[:,0,mic_loc]  = airframe_noise[0]            
-                #source_SPLs_dBA[:,0,mic_loc]   = airframe_noise[1]  # histroy in 0.5 time steps at 25 differnt frequencies  
-                #source_SENELs[:,0,mic_loc] = airframe_noise[2]        
-             
+                airframe_noise                     = noise_airframe_Fink(segment,analyses,config,settings,mic_loc )  
+                source_SPLs_dBA[:,si,mic_loc]      = airframe_noise.SPL_dBA          
+                source_SPL_spectra[:,si,5:,mic_loc] = airframe_noise.SPL_spectrum
+                
             # iterate through sources 
-            si = 1 
-            for source in conditions.noise.sources.keys():
-                 
+            for source in conditions.noise.sources.keys(): 
                 if source  == 'turbofan':   
                     if bool(conditions.noise.sources[source].fan) and bool(conditions.noise.sources[source].core): 
                         config.propulsors[source].fan.rotation            = 0 # NEED TO UPDATE ENGINE MODEL WITH FAN SPEED in RPM
                         config.propulsors[source].fan_nozzle.noise_speed  = conditions.noise.sources.turbofan.fan.exit_velocity 
                         config.propulsors[source].core_nozzle.noise_speed = conditions.noise.sources.turbofan.core.exit_velocity 
-                        engine_noise   = noise_SAE(source,segment,analyses,config)  # EPNL_total,SPL_total_history,SENEL_total
-                        source_EPNLs[:,si,mic_loc]  = engine_noise[0]
-                        #source_SPLs_dBA[:,si,mic_loc]   = engine_noise[1]
-                        #source_SENELs[:,si,mic_loc] = engine_noise[2]                    
+                        engine_noise                                      = noise_SAE(config.propulsors[source],segment,analyses,config,settings)  
+                        source_SPLs_dBA[:,si,mic_loc]                     = engine_noise.SPL_dBA      
+                        source_SPL_spectra[:,si,5:,mic_loc]               = engine_noise.SPL_spectrum   
                         
                 elif (source  == 'propeller') or (source   == 'rotor'): 
                     if bool(conditions.noise.sources[source]) == True : 
                         # Compute Propeller Noise 
                         if settings.propeller_SAE_noise_model:
-                            propeller_noise = propeller_noise_sae(source,segment, ioprint = 0) #  (np.max(PNL_dBA), EPNdB_takeoff, EPNdB_landing, OASPL ,PNL )
-                            source_EPNLs[:,si,mic_loc]  = propeller_noise[0]
-                            #source_SPLs_dBA[:,si,mic_loc]   = propeller_noise[3]   
-                            #source_SENELs[:,si,mic_loc] = propeller_noise[4]      
+                            propeller_noise                    = propeller_noise_sae(source,segment,settings,ioprint = 0) 
+                            source_SPLs_dBA[:,si,mic_loc]      = propeller_noise.SPL_dBA   
+                            source_SPL_spectra[:,si,:,mic_loc] = propeller_noise.SPL_spectrum     
                         else:
-                            propeller_noise = propeller_low_fidelity(source,segment,mic_loc,harmonics) 
-                            #source_EPNLs[:,si,mic_loc]  = propeller_noise[0]
-                            source_SPLs_dBA[:,si,mic_loc]   = propeller_noise.SPL_Hv_dBA
-                            #source_SENELs[:,si,mic_loc] = propeller_noise[2]      
+                            propeller_noise                    = propeller_low_fidelity(source,segment,settings,mic_loc,harmonics)  
+                            source_SPLs_dBA[:,si,mic_loc]      = propeller_noise.SPL_dBA 
+                            source_SPL_spectra[:,si,:,mic_loc] = propeller_noise.SPL_spectrum      
                         
                 si += 1
                 
             total_SPL_dBA[:,mic_loc]  = SPL_arithmetic(source_SPLs_dBA[:,:,mic_loc])
         
         conditions.noise.total_SPL_dBA = total_SPL_dBA
+        
         return   
 

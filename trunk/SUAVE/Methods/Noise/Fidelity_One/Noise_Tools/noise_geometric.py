@@ -174,7 +174,7 @@ def noise_geometric(noise_segment,analyses,config,mic_loc = 0):
     noise_segment.theta = theta
     noise_segment.phi   = phi
 
-    return (dist,theta,phi)
+    return noise_segment
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def geometric_propeller(noise_data):

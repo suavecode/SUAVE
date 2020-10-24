@@ -50,4 +50,4 @@ def noise_leading_edge_slat(SPL_wing,Sw,bw,velocity,deltaw,viscosity,M,phi,theta
 
     SPL        = 10.*np.log10(10.0**(0.1*SPLslat1)+10.0**(0.1*SPLslat2))
 
-    return (SPL)
+    return SPL

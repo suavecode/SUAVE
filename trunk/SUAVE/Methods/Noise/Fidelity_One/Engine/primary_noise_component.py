@@ -15,7 +15,7 @@ import numpy as np
 # ----------------------------------------------------------------------  
 
 ## @ingroupMethods-Noise-Fidelity_One-Engine
-def primary_noise_component (SPL_p,Velocity_primary,Temperature_primary,R_gas,theta_p,DVPS,sound_ambient,Velocity_secondary,Velocity_aircraft,Area_primary,Area_secondary,DSPL_p,EX_p,Str_p):
+def primary_noise_component(SPL_p,Velocity_primary,Temperature_primary,R_gas,theta_p,DVPS,sound_ambient,Velocity_secondary,Velocity_aircraft,Area_primary,Area_secondary,DSPL_p,EX_p,Str_p):
     """This function calculates the noise contribution of the primary jet component
     
         Assumptions:
@@ -67,5 +67,5 @@ def primary_noise_component (SPL_p,Velocity_primary,Temperature_primary,R_gas,th
         # Determination of Sound Pressure Level for the primary jet component
         SPL_p[i] = (Z1*np.log10(FV)+Z2) * (np.log10(Str_p[i])-Z3*np.log10(FV)-Z4)**2 + Z5*np.log10(FV) + Z6
 
-    return(SPL_p)
+    return SPL_p
 

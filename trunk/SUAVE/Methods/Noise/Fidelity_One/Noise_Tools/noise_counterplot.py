@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
+from SUAVE.Core import Data 
 import numpy as np    
 
 # ----------------------------------------------------------------------
@@ -67,9 +68,9 @@ def noise_counterplot(noise_segment,analyses,config):
         else:
             theta[i] = np.pi - np.arctan(np.abs(altitude[i]/(x_aircraft[i]-x_mic))) 
                 
-    #Pack the results
+    # Pack the results
     noise_segment.dist  = dist
     noise_segment.theta = theta
     noise_segment.phi   = phi 
 
-    return (dist,theta,phi) 
+    return noise_segment

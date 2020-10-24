@@ -8,7 +8,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Units
+from SUAVE.Core import Units , Data 
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -64,4 +64,9 @@ def noise_certification_limits(results,vehicle):
     noise_flyover_limit  = np.around(np.log((weight_tow_mission/C_flyover)) * T_flyover  /np.log(2),decimals=1)
     noise_approach_limit = np.around(np.log((weight_approach   /C_approach))* T_approach /np.log(2),decimals=1)
 
-    return (noise_approach_limit,noise_flyover_limit,noise_sideline_limit)
+    certification_limits = Data()
+    certification_limits.noise_sideline_limit  = noise_sideline_limit
+    certification_limits.noise_flyover_limit   = noise_flyover_limit 
+    certification_limits.noise_approach_limit  = noise_approach_limit 
+
+    return certification_limits

@@ -1333,7 +1333,7 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
 # ------------------------------------------------------------------
 #   Rotor/Propeller Acoustics
 # ------------------------------------------------------------------
-def plot_noise_levels(results, line_color = 'bo-', save_figure = False, save_filename = "Noise Level"):
+def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_filename = "Noise Level"):
     """This plots the A-weighted Sound Pressure of 
     on all lifting surfaces of the aircraft
 
@@ -1361,24 +1361,28 @@ def plot_noise_levels(results, line_color = 'bo-', save_figure = False, save_fil
     fig = plt.figure(save_filename)
     fig.set_size_inches(10, 8) 
     for i in range(len(results.segments)):    
-        angles = results.segments[i].conditions.noise.microphone_angles/Units.degrees
+        angles = abs(results.segments[i].conditions.noise.microphone_phi_angles/Units.degrees - 90.)
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min 
+        alt    = results.segments[i].conditions.freestream.altitude[:,0] / Units.ft
         SPL    = results.segments[i].conditions.noise.total_SPL_dBA 
         
         axes = fig.add_subplot(1,1,1)
-        axes.fill_between(time, 0, SPL[:,0]               , facecolor= 'lightcyan'   , label= str(round(angles[0],1)) + r' $\degree$' )
+        axes.fill_between(time, 0, SPL[:,0]        , facecolor= 'lightcyan'   , label= str(round(angles[0],1)) + r' $\degree$' )
         axes.fill_between(time, SPL[:,0], SPL[:,1] , facecolor= 'cyan', label= str(round(angles[1],1)) + r' $\degree$' )
         axes.fill_between(time, SPL[:,1], SPL[:,2] , facecolor= 'dodgerblue', label= str(round(angles[2],1)) + r' $\degree$' )
         axes.fill_between(time, SPL[:,2], SPL[:,3] , facecolor= 'blue' , label= str(round(angles[3],1)) + r' $\degree$' )
-        axes.fill_between(time, SPL[:,3], SPL[:,4] , facecolor= 'darkblue'  , label= str(round(angles[4],1)) + r' $\degree$' )
-        axes.fill_between(time, SPL[:,4], SPL[:,5] , facecolor= 'midnightblue', label= str(round(angles[5],1)) + r' $\degree$' )    
-  
-        axes.set_ylabel('dBA',axis_font)
+        axes.fill_between(time, SPL[:,3], SPL[:,4] , facecolor= 'darkblue'  , label= str(round(angles[4],1)) + r' $\degree$' ) 
+
+        axes2 = axes.twinx()
+        axes2.plot(time, alt, 'r-')
+        
+        axes.set_ylim([50,120]) 
+        axes.set_ylabel('SPL (dBA)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
-        axes.set_title('SPL Prediction Method: Hanson')
-        axes.set_ylim([50,150])  
+        axes2.set_ylabel('Altitude (ft)',axis_font) 
+        axes2.set_ylim([0,5500])
         if i == 0:
-            axes.legend(loc='upper center')         
+            axes.legend(loc='upper right')         
         
     if save_figure:
         plt.savefig(save_filename + ".png")  
@@ -1434,7 +1438,7 @@ def plot_noise_contour(results, line_color = 'bo-', save_figure = False, save_fi
         
      
     axes.scatter(Aircraft_pos[:,0],Aircraft_pos[:,1],Aircraft_pos[:,2], c='k', marker = 'o' )
-    CS = axes.contourf(Range,Span,SPL_contour, levels = 20, zdir='z', offset= 0 , cmap=plt.cm.jet) 
+    CS = axes.contourf(Range,Span,SPL_contour, levels = 50, zdir='z', offset= 0 , cmap=plt.cm.jet) 
     axes.view_init(elev= 8, azim= -166)  
     axes.set_xlim(0, 20000)
     axes.set_ylim(-4000, 4000)

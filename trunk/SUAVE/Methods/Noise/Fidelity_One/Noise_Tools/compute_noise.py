@@ -45,6 +45,6 @@ def compute_noise(config,noise_segment,noise_analyses):
     
     airframe_noise = noise_airframe_Fink(noise_segment,noise_analyses,config ) 
 
-    noise_sum      = 10. * np.log10(10**(airframe_noise[0]/10)+ (engine_flag)*10**(engine_noise[0]/10))
+    noise_sum      = 10. * np.log10(10**(airframe_noise.EPNL_total/10)+ (engine_flag)*10**(engine_noise.EPNL_total/10))
 
     return noise_sum

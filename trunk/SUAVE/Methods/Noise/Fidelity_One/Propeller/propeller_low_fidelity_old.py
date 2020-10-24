@@ -24,7 +24,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_harmonic_to_third_octave
 
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
+def propeller_low_old_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
     ''' This computes the SPL of rotors and propellers using Frequency based methods'
     
     Source:
@@ -57,77 +57,69 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
     velocity_vector      = conditions.frames.inertial.velocity_vector
     freestream           = conditions.freestream
     ctrl_pts             = len(angle_of_attack) 
-    num_f                = len(settings.center_frequencies)
     
     # create empty arrays for results  
-    SPL                  = np.zeros(ctrl_pts)
-    SPL_v                = np.zeros_like(SPL)  
-    SPL_dBA              = np.zeros_like(SPL)    
-    SPL_v_dBA            = np.zeros_like(SPL)
-    SPL_dBA_tot          = np.zeros_like(SPL)
-    SPL_v_spectrum       = np.zeros((ctrl_pts,num_f)) 
-    SPL_v_dBA_spectrum   = np.zeros((ctrl_pts,num_f))  
-    SPL_h_spectrum       = np.zeros((ctrl_pts,num_f)) 
-    SPL_h_dBA_spectrum   = np.zeros((ctrl_pts,num_f))  
-    SPL_spectrum         = np.zeros((ctrl_pts,num_f))
-    SPL_tot_spectrum     = np.zeros((ctrl_pts,num_f)) 
-    SPL_tot_dBA_spectrum = np.zeros((ctrl_pts,num_f))
-    SPL_tot_bps_spectrum = np.zeros((ctrl_pts,num_f))
-                                       
+    SPL         = np.zeros(ctrl_pts)
+    SPL_v       = np.zeros_like(SPL)  
+    SPL_dBA     = np.zeros_like(SPL)    
+    SPL_v_dBA   = np.zeros_like(SPL)
+    
     if harmonic_test.any():  
         SPL  = np.zeros((ctrl_pts,len(harmonic_test)))
         SPL_v  = np.zeros_like(SPL) 
 
     # loop for control points  
-    for i in range(ctrl_pts):     
-        total_p_pref_dBA       = []        
+    for i in range(ctrl_pts):    
+        total_p_pref_r_H          = []   
+        total_p_pref_Hv_dBA       = []
+         
         auc_opts = conditions.noise.sources[propeller].acoustic_outputs 
         
         if harmonic_test.any():
             harmonics    = harmonic_test
         else:
-            harmonics    = np.arange(1,30) 
+            harmonics    = np.arange(1,21) 
             
         num_h = len(harmonics)
           
-        SPL_r         = np.zeros(num_h)  
-        SPL_r_dBA     = np.zeros_like(SPL_r)   
-        p_pref_r    = np.zeros_like(SPL_r)    ##  
-        p_pref_r_dBA= np.zeros_like(SPL_r)    ##      
-        f             = np.zeros_like(SPL_r)
+        SPL_r_H         = np.zeros(num_h) 
+        p_pref_r_H      = np.zeros_like(SPL_r_H)  
+        SPL_r_H_dBA     = np.zeros_like(SPL_r_H)   
+        p_pref_r_H_dBA  = np.zeros_like(SPL_r_H)
+        f               = np.zeros_like(SPL_r_H)
 
-        # ----------------------------------------------------------------------------------
+        # -----------------------------------------------------------------------
         # Rotational Noise 
-        # ----------------------------------------------------------------------------------        
+        # -----------------------------------------------------------------------        
         for h in range(num_h):
-            m              = harmonics[h]                                      # harmonic number 
-            p_ref          = 2e-5                                              # referece atmospheric pressure
-            a              = freestream.speed_of_sound[i][0]                   # speed of sound
-            rho            = freestream.density[i][0]                          # air density 
-            x              = microphone_location[i,mic_loc,0]                  # x relative position from observer
-            y              = microphone_location[i,mic_loc,1]                  # y relative position from observer 
-            z              = microphone_location[i,mic_loc,2]                  # z relative position from observer
-            Vx             = velocity_vector[i][0]                             # x velocity of propeller  
-            Vy             = velocity_vector[i][1]                             # y velocity of propeller 
-            Vz             = velocity_vector[i][2]                             # z velocity of propeller 
-            thrust_angle   = auc_opts.thrust_angle                             # propeller thrust angle
-            AoA            = angle_of_attack[i][0]                             # vehicle angle of attack                                            
-            N              = auc_opts.number_of_engines                        # numner of Rotors
-            B              = auc_opts.number_of_blades                         # number of rotor blades
-            omega          = auc_opts.omega[i]                                 # angular velocity          
-            T              = auc_opts.blade_thrust[i]                          # propeller/rotor blade thrust     
-            T_distribution = auc_opts.blade_thrust_distribution[i]             # propeller/rotor blade thrust distribution  
-            dT_dR          = auc_opts.blade_dT_dR[i]                           # differential thrust distribution
-            dT_dr          = auc_opts.blade_dT_dr[i]                           # nondimensionalized differential thrust distribution 
-            Q              = auc_opts.blade_torque[i]                          # propeller/rotor blade torque    
-            Q_distribution = auc_opts.blade_torque_distribution[i]             # propeller/rotor blade torque distribution  
-            dQ_dR          = auc_opts.blade_dT_dR[i]                           # differential torque distribution
-            dQ_dr          = auc_opts.blade_dT_dr[i]                           # nondimensionalized differential torque distribution
-            R              = auc_opts.radius_distribution                      # radial location     
-            c              = auc_opts.chord_distribution                       # blade chord    
-            beta           = auc_opts.twist_distribution                       # twist distribution  
-            t              = auc_opts.max_thickness_distribution               # twist distribution
-            MCA            = auc_opts.mid_chord_aligment                       # Mid Chord Alighment 
+            m              = harmonics[h]                                     # harmonic number 
+            p_ref          = 2e-5                                             # referece atmospheric pressure
+            a              = freestream.speed_of_sound[i][0]                  # speed of sound
+            rho            = freestream.density[i][0]                         # air density 
+            x              = microphone_location[i,mic_loc,0]                 # x relative position from observer
+            y              = microphone_location[i,mic_loc,1]                 # y relative position from observer 
+            z              = microphone_location[i,mic_loc,2]                 # z relative position from observer
+            Vx             = velocity_vector[i][0]                            # x velocity of propeller  
+            Vy             = velocity_vector[i][1]                            # y velocity of propeller 
+            Vz             = velocity_vector[i][2]                            # z velocity of propeller 
+            thrust_angle   = auc_opts.thrust_angle                            # propeller thrust angle
+            AoA            = angle_of_attack[i][0]                            # vehicle angle of attack                                            
+            N              = auc_opts.number_of_engines                       # numner of Rotors
+            B              = auc_opts.number_of_blades                        # number of rotor blades
+            omega          = auc_opts.omega[i]                                # angular velocity          
+            T              = auc_opts.blade_thrust[i]                         # propeller/rotor blade thrust     
+            T_distribution = auc_opts.blade_thrust_distribution[i]            # propeller/rotor blade thrust distribution  
+            dT_dR          = auc_opts.blade_dT_dR[i]                          # differential thrust distribution
+            dT_dr          = auc_opts.blade_dT_dr[i]                          # nondimensionalized differential thrust distribution 
+            Q              = auc_opts.blade_torque[i]                         # propeller/rotor blade torque    
+            Q_distribution = auc_opts.blade_torque_distribution[i]            # propeller/rotor blade torque distribution  
+            dQ_dR          = auc_opts.blade_dT_dR[i]                          # differential torque distribution
+            dQ_dr          = auc_opts.blade_dT_dr[i]                          # nondimensionalized differential torque distribution
+            R              = auc_opts.radius_distribution                     # radial location     
+            c              = auc_opts.chord_distribution                      # blade chord    
+            beta           = auc_opts.twist_distribution                      # twist distribution  
+            t              = auc_opts.max_thickness_distribution              # twist distribution
+            MCA            = auc_opts.mid_chord_aligment                      # Mid Chord Alighment 
                                                                               
             f[h]          = B*omega*m/(2*np.pi)   
             n             = len(R)
@@ -190,17 +182,11 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
             p_mT_H  = abs(p_mT_H)
             
             # unweighted rotational sound pressure level
-            SPL_r[h]        = 10*np.log10(N*((p_mL_H**2 + p_mT_H**2)/(p_ref**2)))
-            p_pref_r[h]     = 10**(SPL_r[h]/10)   ## 
-            SPL_r_dBA[h]    = A_weighting(SPL_r[h],f[h]) 
-            p_pref_r_dBA[h] = 10**(SPL_r_dBA[h]/10)    ## 
-        
-        SPL_tot_bps_spectrum[i,:]  = SPL_r 
-        
-        # convert to 1/3 octave spectrum 
-        SPL_h_spectrum[i,:]      = SPL_harmonic_to_third_octave(SPL_r,f,settings)         
-        SPL_h_dBA_spectrum[i,:]  = SPL_harmonic_to_third_octave(SPL_r_dBA,f,settings)     
-        
+            SPL_r_H[h]        = 10*np.log10(N*((p_mL_H**2 + p_mT_H**2 )/(p_ref**2)))  
+            p_pref_r_H[h]     = 10**(SPL_r_H[h]/10)  
+            SPL_r_H_dBA[h]    = A_weighting(SPL_r_H[h],f[h])
+            p_pref_r_H_dBA[h] = 10**(SPL_r_H_dBA[h]/10)   
+            
         # ------------------------------------------------------------------------------------
         # Broadband Noise (Vortex Noise)   
         # ------------------------------------------------------------------------------------ 
@@ -218,47 +204,54 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
         SPL_v     = SPL_300ft - 20*np.log10(S_feet/300)                          # CORRECT 
         
         # estimation of A-Weighting for Vortex Noise  
-        f_v         = np.array([0.5*f_peak[0],1*f_peak[0],2*f_peak[0],4*f_peak[0],8*f_peak[0],16*f_peak[0]]) # spectrum
-        fr          = f_v/f_peak                                          # frequency ratio  
+        f_spectrum  = [0.5*f_peak,1*f_peak,2*f_peak,4*f_peak,8*f_peak,16*f_peak] # spectrum
+        fr          = f_spectrum/f_peak                                          # frequency ratio  
         SPL_weight  = [7.92 , 4.17 , 8.33 , 8.75 ,12.92 , 13.33]                 # SPL weight
         SPL_v       = np.ones_like(SPL_weight)*SPL_v - SPL_weight                # SPL correction
         
-        dim         = len(f_v)
+        dim         = len(f_spectrum)
         C           = np.zeros(dim) 
         p_pref_v_dBA= np.zeros(dim-1)
         SPL_v_dbAi  = np.zeros(dim)
         
         for j in range(dim):
-            SPL_v_dbAi[j] = A_weighting(SPL_v[j],f_v[j])
+            SPL_v_dbAi[j] = A_weighting(SPL_v[j],f_spectrum[j])
         
         for j in range(dim-1):
-            C[j]            = (SPL_v_dbAi[j+1] - SPL_v_dbAi[j])/(np.log10(fr[j+1]) - np.log10(fr[j])) 
-            C[j+1]          = SPL_v_dbAi[j+1] - C[j]*np.log10(fr[j+1])   
-            p_pref_v_dBA[j] = (10**(0.1*C[j+1]))* (  ((fr[j+1]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) - ((fr[j]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) ) 
+            C[j]        = (SPL_v_dbAi[j+1] - SPL_v_dbAi[j])/(np.log10(fr[j+1]) - np.log10(fr[j])) 
+            C[j+1]      = SPL_v_dbAi[j+1] - C[j]*np.log10(fr[j+1])   
+            p_pref_v_dBA[j] = (10**(0.1*C[j+1]))* (  ((fr[j+1]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) - ((fr[j]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) )
+            
+            
+        # collecting unweighted pressure ratios   
+        total_p_pref_r_H.append(p_pref_r_H)    
         
-        # ---------------------------------------------------------------------------
-        # convert to 1/3 octave spectrum  
-        # ---------------------------------------------------------------------------
-        SPL_v_spectrum[i,:]     = SPL_harmonic_to_third_octave(SPL_v,f_v,settings)
+        # collecting weighted pressure ratios with vortex noise included  
+        total_p_pref_Hv_dBA.append(np.concatenate([p_pref_r_H_dBA,p_pref_v_dBA])) 
+         
+        SPL_v_dBA[i] = pressure_ratio_to_SPL_arithmetic(p_pref_v_dBA)
         
-        # ---------------------------------------------------------------------------
-        # Combining Rotational(periodic) and Vortex (broadband)
-        # ---------------------------------------------------------------------------   
-        SPL_tot_bps_spectrum[i,:]  = SPL_r 
-        SPL_tot_spectrum[i,:]      = 10*np.log10( 10**(SPL_h_spectrum[i,:]/10) +  10**(SPL_v_spectrum[i,:]/10) )
+        if harmonic_test.any():  
+            SPL[i]  = SPL_r_H 
+            
+        else:
+            # Rotational SPL (Unweighted)     
+            SPL[i]       = pressure_ratio_to_SPL_arithmetic(total_p_pref_r_H)  
+            SPL_v[i]     = SPL_arithmetic(np.atleast_2d(SPL_v)) 
         
-        # pressure ratios used to combine A weighted sound since decibel arithmetic does not work for broadband noise since it is a continuous spectrum 
-        total_p_pref_dBA.append(np.concatenate([p_pref_r_dBA,p_pref_v_dBA])) 
-        SPL_dBA_tot[i]       = pressure_ratio_to_SPL_arithmetic(total_p_pref_dBA)  
-        
-    # Summation of spectrum into one SPL
-    SPL_tot      =  SPL_arithmetic(SPL_tot_spectrum) 
+        # A- Weighted Rotational and Vortex SPL  
+        SPL_dBA[i]       = pressure_ratio_to_SPL_arithmetic(total_p_pref_Hv_dBA)
+    
+    # total noise , adding vortex and rotational noise
+    SPL_tot     =  SPL_arithmetic(np.atleast_2d(np.concatenate((SPL,SPL_v))))
+    
+    # convert to 1/3 octave spectrum 
+    SPL_spectrum = SPL_harmonic_to_third_octave(SPL,f,settings)
     
     # Pack Results
-    propeller_noise                  = Data() 
-    propeller_noise.SPL              = SPL_tot
-    propeller_noise.SPL_spectrum     = SPL_tot_spectrum     # 1/3 octave band 
-    propeller_noise.SPL_bps_spectrum = SPL_tot_bps_spectrum # blade passing frequency specturm (only rotational noise)
-    propeller_noise.SPL_dBA          = SPL_dBA_tot   
+    propeller_noise = Data() 
+    propeller_noise.SPL          = SPL_tot
+    propeller_noise.SPL_spectrum = SPL_spectrum
+    propeller_noise.SPL_dBA      = SPL_dBA   
     
     return propeller_noise

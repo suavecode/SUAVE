@@ -34,7 +34,7 @@ def pnl_noise (SPL):
     """
    
 
-    #Definition of the noisineess matrix for each octave band
+    #Definition of the noisinees matrix for each octave band
     noy = [[1, 50, 91, 64, 52, 49, 55, 0.043478, 0.030103, 0.07952, 0.058098],
             [2,	63, 85.9, 60, 51, 44, 51, 0.04057, 0.030103, 0.06816, 0.058098],
             [3,	80, 87.3, 56, 49, 39,	46,	0.036831, 0.030103, 0.06816, 0.052288],
@@ -97,4 +97,4 @@ def pnl_noise (SPL):
             Perceived_noisinees = 0.0625
         PNL[j] = 40+(10/np.log10(2))*np.log10(Perceived_noisinees)
         
-    return (PNL)
+    return PNL

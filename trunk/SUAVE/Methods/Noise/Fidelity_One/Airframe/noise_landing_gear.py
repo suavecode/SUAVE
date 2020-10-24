@@ -80,4 +80,4 @@ def noise_landing_gear(D,H,wheels,M,velocity,phi,theta,distance,frequency):
     SPL   = 60.*np.log10(velocity_kts/194.0)+20.*np.log10(D/distance)+10.*np.log10(10.0**G1+10.0**G2)
     OASPL = 60.*np.log10(velocity_kts/194.0)+20.*np.log10(D/distance)+10.*np.log10(10.0**12.52+10.0**G3)
 
-    return(SPL)
+    return SPL

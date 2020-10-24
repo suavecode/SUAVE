@@ -44,4 +44,4 @@ def ground_proximity_effect (Velocity_mixed,sound_ambient,theta_m,engine_height,
         ((engine_height/Diameter_mixed)-2.5)**2)*(1+(np.sin((np.pi*engine_height*frequency/sound_ambient)-np.pi/2))**2)/ \
         (2+np.abs((engine_height*frequency/sound_ambient)-1))
 
-    return(GPROX_m)
+    return GPROX_m

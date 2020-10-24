@@ -357,6 +357,7 @@ def noise_sideline(nexus):
 
     nexus.analyses.takeoff.noise.settings.mic_x_position = x0  
     noise_segment                                        = results.sideline.segments.climb 
+    noise_settings                                       = 0
     noise_config                                         = nexus.vehicle_configurations.takeoff
     noise_analyse                                        = nexus.analyses.takeoff
     noise_config.engine_flag                             = True
@@ -369,7 +370,7 @@ def noise_sideline(nexus):
     if nexus.npoints_sideline_sign == -1:
         noise_result_takeoff_SL = 500. + nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points
     else:
-        noise_result_takeoff_SL = compute_noise(noise_config,noise_analyse,noise_segment)    
+        noise_result_takeoff_SL = compute_noise(noise_config,noise_analyse,noise_segment,noise_settings)    
     
     nexus.summary.noise = Data()
     nexus.summary.noise.sideline = noise_result_takeoff_SL     
@@ -390,8 +391,9 @@ def noise_flyover(nexus):
     results.flyover                                = SUAVE.Input_Output.SUAVE.load('flyover.res')   
     
     noise_segment            = results.flyover.segments.climb
+    noise_settings           = 0 #  Correct
     noise_config             = nexus.vehicle_configurations.takeoff
-    noise_analyse            = nexus.analyses.takeoff
+    noise_analyses           = nexus.analyses.takeoff
     noise_config.engine_flag = True
     
     noise_config.print_output       = 0
@@ -401,9 +403,10 @@ def noise_flyover(nexus):
     if nexus.npoints_takeoff_sign == -1:
         noise_result_takeoff_FL_clb = 500. + nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points
     else:    
-        noise_result_takeoff_FL_clb = compute_noise(noise_config,noise_analyse,noise_segment)    
+        noise_result_takeoff_FL_clb = compute_noise(noise_config,noise_analyses,noise_segment,noise_settings)    
 
     noise_segment                   = results.flyover.segments.cutback
+    noise_settings                  = 0 #  Correct 
     noise_config                    = nexus.vehicle_configurations.cutback
     noise_config.print_output       = 0
     noise_config.engine_flag        = True
@@ -413,7 +416,7 @@ def noise_flyover(nexus):
     if nexus.npoints_takeoff_sign == -1:
         noise_result_takeoff_FL_cutback = 500. + nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points
     else:        
-        noise_result_takeoff_FL_cutback = compute_noise(noise_config,noise_analyse,noise_segment)  
+        noise_result_takeoff_FL_cutback = compute_noise(noise_config,noise_analyses,noise_segment,noise_settings)  
 
     noise_result_takeoff_FL = 10. * np.log10(10**(noise_result_takeoff_FL_clb/10)+10**(noise_result_takeoff_FL_cutback/10))
    
@@ -432,9 +435,10 @@ def noise_approach(nexus):
     results.approach                               = mission.evaluate() 
     results.approach                               = SUAVE.Input_Output.SUAVE.load('approach.res')   
     
-    noise_segment = results.approach.segments.descent
-    noise_config  = nexus.vehicle_configurations.landing
-    noise_analyse = nexus.analyses.landing
+    noise_segment  = results.approach.segments.descent
+    noise_config   = nexus.vehicle_configurations.landing
+    noise_analyses = nexus.analyses.landing
+    noise_settings           = 0 #  Correct
     
     noise_config.print_output       = 0
     noise_config.output_file        = 'Noise_Approach.dat'
@@ -442,7 +446,7 @@ def noise_approach(nexus):
     
     noise_config.engine_flag = True
    
-    noise_result_approach = compute_noise(noise_config,noise_analyse,noise_segment)
+    noise_result_approach = compute_noise(noise_config,noise_analyses,noise_segment,noise_settings)
        
     nexus.summary.noise.approach = noise_result_approach
     
@@ -451,7 +455,7 @@ def noise_approach(nexus):
 # ----------------------------------------------------------------------        
 #   NOISE CALCULATION
 # ----------------------------------------------------------------------
-def compute_noise(config,analyses,noise_segment):
+def compute_noise(config,analyses,noise_segment,noise_settings):
 
     turbofan = config.propulsors['turbofan']
     
@@ -460,11 +464,11 @@ def compute_noise(config,analyses,noise_segment):
     print_output      = config.print_output
     engine_flag       = config.engine_flag  #remove engine noise component from the approach segment
     
-    airframe_noise = noise_airframe_Fink(config,analyses,noise_segment,print_output,outputfile)  
+    airframe_noise = noise_airframe_Fink(config,analyses,noise_segment,noise_settings,print_output,outputfile)   
+    
+    engine_noise   = noise_SAE(turbofan,noise_segment,config,analyses,noise_settings,print_output,outputfile_engine)
 
-    engine_noise   = noise_SAE(turbofan,noise_segment,config,analyses,print_output,outputfile_engine)
-
-    noise_sum      = 10. * np.log10(10**(airframe_noise[0]/10)+ (engine_flag)*10**(engine_noise[0]/10))
+    noise_sum      = 10. * np.log10(10**(airframe_noise.EPNL_total/10)+ (engine_flag)*10**(engine_noise.EPNL_total/10))
 
     return noise_sum
 
@@ -607,9 +611,9 @@ def post_process(nexus):
    
     #calculation of noise certification limits based on the aircraft weight
     noise_limits                  = noise_certification_limits(results, vehicle)
-    summary.noise_approach_margin = noise_limits[0] - summary.noise.approach 
-    summary.noise_flyover_margin  = noise_limits[1] - summary.noise.flyover  
-    summary.noise_sideline_margin = noise_limits[2] - summary.noise.sideline 
+    summary.noise_approach_margin = noise_limits.noise_approach_limit - summary.noise.approach 
+    summary.noise_flyover_margin  = noise_limits.noise_flyover_limit - summary.noise.flyover  
+    summary.noise_sideline_margin = noise_limits.noise_sideline_limit - summary.noise.sideline 
     
     summary.noise_margin  =  summary.noise_approach_margin + summary.noise_sideline_margin + summary.noise_flyover_margin
     

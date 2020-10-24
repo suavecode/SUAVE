@@ -45,4 +45,4 @@ def jet_installation_effect (Xe,Ye,Ce,theta_s,Diameter_mixed):
         if INST_s[i]>2.5:
             INST_s[i]=2.5
 
-    return (INST_s)
+    return INST_s

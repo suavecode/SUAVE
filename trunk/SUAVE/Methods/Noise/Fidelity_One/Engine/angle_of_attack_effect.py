@@ -40,4 +40,4 @@ def angle_of_attack_effect (AoA,Mach_aircraft,theta_m):
     # Angle of attack effect
     ATK_m = 0.5*AoA*Mach_aircraft*((1.8*theta_m/np.pi)-0.6)**2
 
-    return(ATK_m)
+    return ATK_m

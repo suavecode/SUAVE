@@ -43,4 +43,4 @@ def atmospheric_attenuation(dist):
     # Calculates de delta SPL as a function of the distance
     delta_spl = Att_dB*(dist)/1000
     
-    return (delta_spl)
+    return delta_spl

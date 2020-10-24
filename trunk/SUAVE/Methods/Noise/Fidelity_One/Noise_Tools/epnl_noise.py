@@ -71,4 +71,4 @@ def epnl_noise(PNLT):
     # Final EPNL calculation
     EPNL = PNLT_max+duration_correction
     
-    return (EPNL)    
+    return EPNL   

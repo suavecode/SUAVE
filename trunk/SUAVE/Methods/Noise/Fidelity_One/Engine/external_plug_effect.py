@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------        
 #   Imports
 # ---------------------------------------------------------------------- 
-
+from SUAVE.Core  import Data
 import numpy as np
 
 # ----------------------------------------------------------------------        
@@ -56,5 +56,11 @@ def external_plug_effect(Velocity_primary,Velocity_secondary, Velocity_mixed, Di
     
     # Mixed jet
     PG_m = 0.1*(Velocity_primary*Velocity_mixed/(sound_ambient**2))*(9-(18*theta_m/np.pi))*Plug_diameter/Diameter_mixed
+    
+    # Pack Results 
+    jet_plug_effects = Data()
+    jet_plug_effects.PG_p = PG_p
+    jet_plug_effects.PG_s = PG_s
+    jet_plug_effects.PG_m = PG_m 
 
-    return(PG_p,PG_s,PG_m)
+    return jet_plug_effects

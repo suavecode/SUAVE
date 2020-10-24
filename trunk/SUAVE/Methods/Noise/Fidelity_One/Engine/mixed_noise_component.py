@@ -72,4 +72,4 @@ def mixed_noise_component(SPL_m,Velocity_primary,theta_m,sound_ambient,Velocity_
     #Determination of Sound Pressure Level for the mixed jet component
     SPL_m = (Z1*np.log10(FV)+Z2)*(np.log10(Str_m)-Z3*np.log10(FV)-Z4)**2 + Z5*np.log10(FV) + Z6
 
-    return(SPL_m)
+    return SPL_m 

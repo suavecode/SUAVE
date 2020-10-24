@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
-
+from SUAVE.Core  import  Data 
 import numpy as np
 
 # ----------------------------------------------------------------------        
@@ -155,5 +155,11 @@ def noise_source_location(B,Xo,zk,Diameter_primary,theta_p,Area_primary,Area_sec
                 *(Velocity_mixed/(Velocity_mixed-Velocity_aircraft))
             
             residual   = abs(XJ_old-XJ[i])
-
-    return(theta_p,theta_s,theta_m)
+   
+   
+    source_location = Data()
+    source_location.theta_p = theta_p
+    source_location.theta_s = theta_s
+    source_location.theta_m = theta_m
+    
+    return source_location

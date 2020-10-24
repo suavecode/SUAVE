@@ -40,7 +40,7 @@ def dbA_noise(SPL):
     #Calculation the SPL_dbA
     SPL_dbA = SPL+dbA_attenuation
         
-    return (SPL_dbA)
+    return SPL_dbA
 
 def A_weighting(SPL,f): 
     """This method calculates the A-weighted weighted level SPL given its stectra
