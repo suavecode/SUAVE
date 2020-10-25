@@ -69,43 +69,43 @@ class AVL_Inviscid(Aerodynamics):
         Properties Used:
         N/A
         """          
-        self.tag                             = 'avl'    
-        
-        self.current_status                  = Data()        
-        self.current_status.batch_index      = 0
-        self.current_status.batch_file       = None
-        self.current_status.deck_file        = None
-        self.current_status.cases            = None      
-        self.geometry                        = None   
-        
-        self.settings                        = Settings()
-        self.settings.filenames.log_filename = sys.stdout
-        self.settings.filenames.err_filename = sys.stderr        
-        self.settings.spanwise_vortices      = 20
-        self.settings.chordwise_vortices     = 10
-        self.settings.trim_aircraft          = False 
+        self.tag                                = 'avl'    
+                                                
+        self.current_status                     = Data()        
+        self.current_status.batch_index         = 0
+        self.current_status.batch_file          = None
+        self.current_status.deck_file           = None
+        self.current_status.cases               = None      
+        self.geometry                           = None   
+                                                
+        self.settings                           = Settings()
+        self.settings.filenames.log_filename    = sys.stdout
+        self.settings.filenames.err_filename    = sys.stderr        
+        self.settings.number_spanwise_vortices  = 20
+        self.settings.number_chordwise_vortices = 10
+        self.settings.trim_aircraft             = False 
         
         # Conditions table, used for surrogate model training
-        self.training                        = Data()   
+        self.training                           = Data()   
         
         # Standard subsonic/transolic aircarft
-        self.training.angle_of_attack        = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
-        self.training.Mach                   = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
-        
-        self.training.lift_coefficient       = None
-        self.training.drag_coefficient       = None
-        self.training.span_efficiency_factor = None
-        self.training_file                   = None
+        self.training.angle_of_attack           = np.array([-2.,0., 2.,5., 7., 10.])*Units.degrees
+        self.training.Mach                      = np.array([0.05,0.15,0.25, 0.45,0.65,0.85]) 
+                                                
+        self.training.lift_coefficient          = None
+        self.training.drag_coefficient          = None
+        self.training.span_efficiency_factor    = None
+        self.training_file                      = None
         
         # Surrogate model
-        self.surrogates                      = Data()
+        self.surrogates                         = Data()
         
         # Regression Status
-        self.keep_files                      = False
-        self.save_regression_results         = False          
-        self.regression_flag                 = False 
+        self.keep_files                         = False
+        self.save_regression_results            = False          
+        self.regression_flag                    = False 
 
-    def initialize(self,spanwise_vortices,chordwise_vortices):
+    def initialize(self,number_spanwise_vortices,number_chordwise_vortices):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -415,18 +415,18 @@ class AVL_Inviscid(Aerodynamics):
         # translate conditions
         cases                            = translate_conditions_to_cases(self,run_conditions)    
         for case in cases:
-            cases[case].stability_and_control.number_control_surfaces = num_cs
-            cases[case].stability_and_control.control_surface_names   = cs_names
-        self.current_status.cases        = cases  
+            case.stability_and_control.number_control_surfaces = num_cs
+            case.stability_and_control.control_surface_names   = cs_names
+        self.current_status.cases                              = cases  
         
        # write case filenames using the templates defined in SUAVE/Analyses/Aerodynamics/AVL/Data/Settings.py 
         for case in cases:  
-            cases[case].aero_result_filename_1     = aero_results_template_1.format(case)        # 'stability_axis_derivatives_{}.dat'  
-            cases[case].aero_result_filename_2     = aero_results_template_2.format(case)        # 'surface_forces_{}.dat'
-            cases[case].aero_result_filename_3     = aero_results_template_3.format(case)        # 'strip_forces_{}.dat'          
-            cases[case].aero_result_filename_4     = aero_results_template_4.format(case)        # 'body_axis_derivatives_{}.dat'            
-            cases[case].eigen_result_filename_1    = dynamic_results_template_1.format(case)     # 'eigen_mode_{}.dat'
-            cases[case].eigen_result_filename_2    = dynamic_results_template_2.format(case)     # 'system_matrix_{}.dat'
+            case.aero_result_filename_1     = aero_results_template_1.format(case.tag)        # 'stability_axis_derivatives_{}.dat'  
+            case.aero_result_filename_2     = aero_results_template_2.format(case.tag)        # 'surface_forces_{}.dat'
+            case.aero_result_filename_3     = aero_results_template_3.format(case.tag)        # 'strip_forces_{}.dat'          
+            case.aero_result_filename_4     = aero_results_template_4.format(case.tag)        # 'body_axis_derivatives_{}.dat'            
+            case.eigen_result_filename_1    = dynamic_results_template_1.format(case.tag)     # 'eigen_mode_{}.dat'
+            case.eigen_result_filename_2    = dynamic_results_template_2.format(case.tag)     # 'system_matrix_{}.dat'
         
         # write the input files
         with redirect.folder(run_folder,force=False):

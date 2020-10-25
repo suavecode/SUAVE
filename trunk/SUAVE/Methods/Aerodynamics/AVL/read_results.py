@@ -37,8 +37,7 @@ def read_results(avl_object):
     aircraft = avl_object.geometry
     results  = Data()
     case_idx = 0  
-    for case_name in avl_object.current_status.cases:
-        case     = avl_object.current_status.cases[case_name]
+    for case in avl_object.current_status.cases:
         num_ctrl =  case.stability_and_control.number_control_surfaces
         # open newly written result files and read in aerodynamic properties 
         with open(case.aero_result_filename_1,'r') as stab_der_vile:
@@ -120,7 +119,7 @@ def read_results(avl_object):
             case_res.stability.neutral_point      = float(lines[50+12*(num_ctrl>0)+num_ctrl][22:33].strip())    
         
         # get number of wings, spanwise discretization for surface and strip force result extraction
-        n_sw    = avl_object.settings.spanwise_vortices
+        n_sw    = avl_object.settings.number_spanwise_vortices
         n_wings = 0 
         for wing in aircraft.wings:
             n_wings += 1

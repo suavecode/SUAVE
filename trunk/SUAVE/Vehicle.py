@@ -62,14 +62,13 @@ class Vehicle(Data):
         self.energy                 = Components.Energy.Energy()
         self.systems                = Components.Systems.System.Container()
         self.mass_properties        = Vehicle_Mass_Container()
+        self.payload                = Components.Payloads.Payload.Container()
         self.costs                  = Costs()
         self.envelope               = Components.Envelope()
         self.landing_gear           = Components.Landing_Gear.Landing_Gear.Container()
         self.reference_area         = 0.0
         self.passengers             = 0.0
         self.performance            = DataOrdered()
-
-        self.max_lift_coefficient_factor = 1.0
 
     _component_root_map = None
 

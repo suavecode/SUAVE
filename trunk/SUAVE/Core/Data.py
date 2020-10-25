@@ -485,10 +485,7 @@ class Data(dict):
             N/A    
         """          
         if key is None: key = value.tag
-        key_in = key
         key = key.translate(t_table)
-        if key != key_in: warn("changing appended key '%s' to '%s'\n" % (key_in,key))
-        if key is None: key = value.tag
         if key in self: raise KeyError('key "%s" already exists' % key)
         self[key] = value        
     
