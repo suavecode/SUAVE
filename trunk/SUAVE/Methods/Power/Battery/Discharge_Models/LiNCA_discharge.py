@@ -82,11 +82,18 @@ def LiNCA_discharge (battery,numerics):
     I                 = numerics.time.integrate
     D                 = numerics.time.differentiate      
     
-    # Calculate the current going into one cell 
-    n_series   = battery.pack_config.series  
-    n_parallel = battery.pack_config.parallel
-    n_total    = n_series * n_parallel 
-    I_cell     = I_bat/n_parallel
+    # ---------------------------------------------------------------------------------
+    # Compute battery electrical properties 
+    # ---------------------------------------------------------------------------------
+    
+    # Calculate the current going into one cell  
+    n_series          = battery.pack_config.series  
+    n_parallel        = battery.pack_config.parallel
+    n_total           = n_series * n_parallel 
+    Nn                = battery.module_config.normal_count            
+    Np                = battery.module_config.parallel_count          
+    n_total_module    = Nn*Np    
+    I_cell            = I_bat/n_parallel 
     
     # State of charge of the battery
     initial_discharge_state = np.dot(I,P_bat) + E_current[0]
@@ -147,25 +154,34 @@ def LiNCA_discharge (battery,numerics):
     
     # Determine voltage under load:
     V_ul   = V_oc - V_Th - (I_cell * R_0)
-    
+     
     # Determine new charge throughput (the amount of charge gone through the battery)
-    Q_total  = np.atleast_2d(np.hstack((  Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
-    
+    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
+    Q_segment  = np.atleast_2d(np.hstack(( np.zeros_like(Q_prior[0]) , cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
+  
     # If SOC is negative, voltage under load goes to zero 
     V_ul[SOC_new < 0.] = 0.
     
     # Pack outputs
-    battery.current_energy           = E_current
-    battery.cell_temperature         = T_current  
-    battery.resistive_losses         = P_loss
-    battery.load_power               = V_ul*n_series*I_bat
-    battery.current                  = I_bat 
-    battery.voltage_open_circuit     = V_oc*n_series
-    battery.thevenin_voltage         = V_Th*n_series
+    battery.current_energy                      = E_current
+    battery.cell_temperature                    = T_current  
+    battery.pack_temperature                    = T_current
+    battery.resistive_losses                    = P_loss
+    battery.load_power                          = V_ul*n_series*I_bat
+    battery.current                             = I_bat 
+    battery.voltage_open_circuit                = V_oc*n_series
+    battery.thevenin_voltage                    = V_Th*n_series
     battery.cumulative_cell_charge_throughput   = Q_total 
-    battery.internal_resistance      = R_0*n_series 
-    battery.state_of_charge          = SOC_new
-    battery.depth_of_discharge       = DOD_new
-    battery.voltage_under_load       = V_ul*n_series 
+    battery.cell_charge_throughput              = Q_segment
+    battery.internal_resistance                 = R_0*n_series 
+    battery.state_of_charge                     = SOC_new
+    battery.depth_of_discharge                  = DOD_new
+    battery.voltage_under_load                  = V_ul*n_series  
+    battery.cell_voltage_open_circuit           = V_oc
+    battery.cell_current                        = I_cell 
+    battery.heat_energy_generated               = Q_heat_gen*n_total_module 
+    battery.cell_voltage_under_load             = V_ul
+    battery.cell_joule_heat_fraction            = np.zeros_like(V_ul)
+    battery.cell_entropy_heat_fraction          = np.zeros_like(V_ul)
     
     return battery

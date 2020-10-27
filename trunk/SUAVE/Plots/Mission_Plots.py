@@ -470,7 +470,7 @@ def plot_battery_pack_conditions(results, line_color = 'bo-', save_figure = Fals
         axes2.set_xlabel('Time (mins)',axis_font)
         axes2.set_ylabel('Battery Tempertature ($\degree$ C)',axis_font)  
         if i == 0:
-            axes2.legend(loc='upper lefft')          
+            axes2.legend(loc='upper left')          
         set_axes(axes2)     
         
     if save_figure:

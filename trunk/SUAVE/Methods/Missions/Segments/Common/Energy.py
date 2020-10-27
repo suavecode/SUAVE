@@ -38,7 +38,7 @@ def initialize_battery(segment):
     
     if 'battery_energy' in segment:
         intial_segment_energy                = segment.battery_energy
-        battery_max_aged_energy              = segment.battery_energy 
+        battery_max_aged_energy              = segment.max_energy           # segment.battery_energy 
         initial_mission_energy               = segment.battery_energy 
         temperature_initial                  = segment.battery_cell_temperature
         battery_age_in_days                  = segment.battery_age_in_days
@@ -78,7 +78,7 @@ def initialize_battery(segment):
         temperature_initial              = segment.battery_cell_temperature   
     
     if segment.battery_discharge == False: 
-        battery_max_aged_energy            = initial_mission_energy*battery_capacity_fade_factor
+        battery_max_aged_energy          = initial_mission_energy*battery_capacity_fade_factor
     
     segment.state.conditions.propulsion.battery_max_initial_energy                 = initial_mission_energy
     segment.state.conditions.propulsion.battery_energy[:,0]                        = intial_segment_energy 

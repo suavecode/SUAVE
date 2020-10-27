@@ -66,8 +66,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
                                                            
         self.mass_properties.mass                          = 0.048 * Units.kg
         self.cell.mass                                     = 0.048 * Units.kg 
-        self.cell.density                                  = 1760        # [kg/m^3] 
-        self.cell.volume                                   = 3.2E-5      # [m^3] 
+        self.cell.density                                  = 1760    # [kg/m^3] 
+        self.cell.volume                                   = 3.2E-5  # [m^3] 
         self.cell.electrode_area                           = 0.0342  # [m^2] 
                                                            
         self.cell.max_voltage                              = 4.2     # [V]
@@ -82,10 +82,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.resistance                                    = 0.025   # [Ohms]
                                                                      #
         self.specific_heat_capacity                        = 1108    # [J/kgK]  
-        self.heat_transfer_coefficient                     = 75      # [W/m^2K]   
-        #self.heat_transfer_coefficient                     = 7.17    # [W/m^2K] Natural Free Air heat convection 
-        #self.heat_transfer_coefficient                     = 35      # [W/m^2K]  Thermal Performance of EV and HEV Battery Modules and Packs 
         self.cell.specific_heat_capacity                   = 1108    # [J/kgK]  
+        self.heat_transfer_coefficient                     = 75      # [W/m^2K]          self.cell.specific_heat_capacity                   = 1108    # [J/kgK]  
         self.cell.thermal_conductivity                     = 3.91    # [J/kgK] 
                                                            
         self.cell.diameter                                 = 0.018   # [m]
@@ -113,6 +111,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.discharge_performance_map                     = create_discharge_performance_map()
         
         return 
+    
 def prandlt_number_model():
     raw_Pr = np.array([[-173.2,0.780 ], [-153.2,0.759 ], [-133.2,0.747 ], [-93.2,0.731  ], [-73.2,0.726  ], [-53.2,0.721  ], 
                        [-33.2,0.717  ], [-13.2,0.713  ], [0.0,0.711    ], [6.9,0.710    ],[15.6,0.709   ], [26.9,0.707   ],

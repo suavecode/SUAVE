@@ -52,41 +52,86 @@ class Lithium_Ion_LiNCA_18650(Battery):
     """  
     
     def __defaults__(self):
-        self.tag                         = 'Lithium_Ion_Battery'
-        self.chemistry                   = 'LiNCA'
-        self.cell                        = Data()   
-        self.pack_config               = Data()
-        
-        self.mass_properties.mass        = 0.048 * Units.kg
-        self.cell.mass                   = 0.048 * Units.kg 
-        
-        self.cell.max_voltage            = 4.2   # [V]
-        self.cell.nominal_capacity       = 3.00  # [Amp-Hrs]
-        self.cell.nominal_voltage        = 3.6   # [V]
-        self.watt_hour_rating            = self.cell.nominal_capacity  * self.cell.nominal_voltage  # [Watt-hours]      
-        self.specific_energy             = self.watt_hour_rating*Units.Wh/self.mass_properties.mass # [J/kg]
-        self.specific_power              = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
-        self.resistance                  = 0.025 # [Ohms]
-        
-        self.specific_heat_capacity      = 837.4   # [J/kgK] 
-        self.heat_transfer_coefficient   = 75.     # [W/m^2K]     
-        self.cell.specific_heat_capacity = 837.4   # [J/kgK] 
-        self.cell.thermal_conductivity   = 32.2    # [J/kgK] 
-        
-        self.pack_config.series        = 1
-        self.pack_config.parallel      = 1
-        
-        self.cell.diameter               = 0.001833  # [m]
-        self.cell.height                 = 0.06485   # [m] 
-        self.cell.surface_area           = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  # [m^2]
-        
-        self.charging_SOC_cutoff         = 1.           
-        self.discharge_model             = LiNCA_discharge 
-        self.charge_model                = LiNCA_charge 
-        
-        self.discharge_performance_map   = create_discharge_performance_map()        
+        self.tag                                          = 'Lithium_Ion_Battery'
+        self.chemistry                                    = 'LiNCA'
+        self.cell                                         = Data()   
+        self.module                                       = Data()        
+        self.pack_config                                  = Data()
+        self.module_config                                = Data()
+        self.cooling_fluid                                = Data()
+                                              
+        self.mass_properties.mass                         = 0.048 * Units.kg
+        self.cell.mass                                    = 0.048 * Units.kg 
+        self.cell.density                                 = 760       # [kg/m^3] 
+        self.cell.volume                                  = 3.2E-5    # [m^3] 
+        self.cell.electrode_area                          = 0.0342    # [m^2] 
+                                                          
+        self.cell.max_voltage                             = 4.2   # [V]
+        self.cell.nominal_capacity                        = 3.00  # [Amp-Hrs]
+        self.cell.nominal_voltage                         = 3.6   # [V]
+        self.cell.charging_SOC_cutoff                     = 1.         
+        self.cell.charging_voltage                        = self.cell.nominal_voltage   # [V]  
+        self.cell.charging_current                        = 3.0    
+        self.watt_hour_rating                             = self.cell.nominal_capacity  * self.cell.nominal_voltage  # [Watt-hours]      
+        self.specific_energy                              = self.watt_hour_rating*Units.Wh/self.mass_properties.mass # [J/kg]
+        self.specific_power                               = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
+        self.resistance                                   = 0.025 # [Ohms]
+                                                          
+        self.specific_heat_capacity                       = 837.4   # [J/kgK] 
+        self.cell.specific_heat_capacity                  = 837.4   # [J/kgK] 
+        self.heat_transfer_coefficient                    = 75.     # [W/m^2K]   
+        self.cell.thermal_conductivity                    = 32.2    # [J/kgK]  
+                                                          
+        self.cell.diameter                                = 0.001833  # [m]
+        self.cell.height                                  = 0.06485   # [m] 
+        self.cell.surface_area                            = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)  # [m^2]
+                                                         
+        self.pack_config.series                           = 1
+        self.pack_config.parallel                         = 1   
+        self.module_config.normal_count                   = 1    # number of cells normal to flow
+        self.module_config.parallel_count                 = 1    # number of cells parallel to flow      
+        self.module_config.normal_spacing                 = 0.02
+        self.module_config.parallel_spacing               = 0.02
+
+                                                   
+        self.cooling_fluid.tag                             = 'air'
+        self.cooling_fluid.thermal_conductivity            = 0.0253 #W/mK
+        self.cooling_fluid.specific_heat_capacity          = 1006   # K/kgK
+        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.1  # 0.1
+        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.1  # 0.2
+        self.cooling_fluid.kinematic_viscosity_fit         = kinematic_viscosity_model() # Pa/s
+        self.cooling_fluid.prandlt_number_fit              = prandlt_number_model()
+                                                           
+           
+        self.discharge_model                               = LiNCA_discharge 
+        self.charge_model                                  = LiNCA_charge 
+                                                           
+        self.discharge_performance_map                     = create_discharge_performance_map()        
         return 
 
+        
+def prandlt_number_model():
+    raw_Pr = np.array([[-173.2,0.780 ], [-153.2,0.759 ], [-133.2,0.747 ], [-93.2,0.731  ], [-73.2,0.726  ], [-53.2,0.721  ], 
+                       [-33.2,0.717  ], [-13.2,0.713  ], [0.0,0.711    ], [6.9,0.710    ],[15.6,0.709   ], [26.9,0.707   ],
+                       [46.9,0.705   ], [66.9,0.703   ], [86.9,0.701   ], [106.9,0.700  ], [126.9,0.699  ], [226.9,0.698  ], 
+                       [326.9,0.703  ], [426.9,0.710  ], [526.9,0.717  ], [626.9,0.724  ], [  726.9,0.730 ],[826.9,0.734],[1226.9,0.743], [1626.9,0.742]]) 
+   
+    z1  = np.polyfit(raw_Pr[:,0],raw_Pr[:,1],4)
+    pnf = np.poly1d(z1)  
+    
+    return pnf
+
+def kinematic_viscosity_model():
+    raw_nu = np.array([[-75	,7.40E-6  ],[-50	,9.22E-6  ],[-25	,11.18E-6 ],[-15	,12.01E-6 ],[-10	,12.43E-6 ],[-5	,12.85E-6 ],[0	,13.28E-6 ],[5	,13.72E-6 ],
+                       [10	,14.16E-6 ],[15	,14.61E-6 ],[20	,15.06E-6 ],[25	,15.52E-6 ],[30	,15.98E-6 ],[40	,16.92E-6 ],
+                       [50	,17.88E-6 ],[60	,18.86E-6 ],[80	,20.88E-6 ],[100	,22.97E-6 ],[125	,25.69E-6 ],[150	,28.51E-6 ],
+                       [175	,31.44E-6 ],[200	,34.47E-6 ],[225	,37.60E-6 ],[300	,47.54E-6 ],[412	,63.82E-6 ],[500	,77.72E-6 ],
+                       [600	,94.62E-6 ],[700	,112.6E-6 ],[800	,131.7E-6 ],[900	,151.7E-6 ],[1000,172.7E-6    ],[1100,194.6E-6    ]])
+   
+    z2  = np.polyfit(raw_nu[:,0],raw_nu[:,1], 2)
+    kvf = np.poly1d(z2)   
+    return kvf
+    
 def create_discharge_performance_map():
     """ Create discharge and charge response surface for 
         LiNCA  battery cells     
