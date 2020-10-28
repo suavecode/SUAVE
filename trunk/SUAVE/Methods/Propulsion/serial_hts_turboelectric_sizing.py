@@ -1,5 +1,5 @@
 ## @ingroup Methods-Propulsion
-# Serial_HTS_Turboelectric_Sizing.py
+# serial_hts_turboelectric_sizing.py
 # 
 # Created:  K. Hamilton Mar 2020
 # Modified: 
