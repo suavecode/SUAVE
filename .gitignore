@@ -43,7 +43,8 @@ nosetests.xml
 
 # local directories
 /workspace
-
+.idea
+ 
 # latex
 *.aux
 *.log

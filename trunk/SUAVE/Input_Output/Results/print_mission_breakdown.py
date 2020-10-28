@@ -124,7 +124,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
             KCASf = VCf / Units.knots                   #Calibrated airspeed [knots]
         elif SI:
             KCASf = VCf
-        
+
         # Total change in aircraft mass. Represents fuel in normal (non-cryogenic) case
         Fuel    = Wi-Wf
 
@@ -163,6 +163,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
         Fuel_str=   str('%8.2f'   % Fuel)     + '|'
 
         Segment_str = '%- 31s |' % key 
+        
 
         if i == 0:  # Write header
             if imperial:
@@ -178,16 +179,17 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
 
         # Print segment data
         fid.write( Segment_str+HPi_str+HPf_str+Wi_str+Wf_str+Dist_str+T_str+KCASi_str+KCASf_str+Mi_str+Mf_str+Fuel_str+CRYO_str+'\n')
-        
+
         # Sum fuel and cryogen usage for printing summary once mission complete
         total_fuel      = total_fuel + FUEL_C
         total_cryogen   = total_cryogen + CRYO
-        
+
         i = i+1
 
     # Summary of results [nm]
-    TotalTime = (results.segments[-1].conditions.frames.inertial.time[-1] - results.segments[0].conditions.frames.inertial.time[0])  #[min]
-    TotalFuel = results.segments[0].conditions.weights.total_mass[0] - results.segments[-1].conditions.weights.total_mass[-1]   #[kg]
+    TotalFuel = results.segments[0].conditions.weights.total_mass[0] - results.segments[-1].conditions.weights.total_mass[-1]  # [kg]
+    TotalTime = (results.segments[-1].conditions.frames.inertial.time[-1][0] - results.segments[0].conditions.frames.inertial.time[0][0])  # [min]
+
     # Summary for systems with cryogen mass usage. TotalFuel is modified to reflect this not being the only variable mass
     if "vehicle_cryogen_rate" in results.segments[0].conditions.weights:
         TotalConsumable = TotalFuel
@@ -199,7 +201,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
     elif SI:
         fid.write(' Total Range         (km) ........... ' + str('%9.0f' % TotalRange) + '\n')
     fid.write(' Total Fuel          (kg) ........... '+ str(TotalFuel)+'\n')
-    
+
     # Cryogen use results
     if "vehicle_cryogen_rate" in results.segments[0].conditions.weights:
         fid.write(' Total Cryogen       (kg) ........... '+ str(total_cryogen)+'\n')
@@ -211,7 +213,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
     
     fid.close
 
-    # done! 
+    # done!
     return
 
 # ----------------------------------------------------------------------

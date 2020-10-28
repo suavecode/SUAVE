@@ -4,6 +4,7 @@
 # Created:  Apr 2017, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
 #           Oct 2019, T. MacDonald
+#           Jun 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -313,8 +314,15 @@ class Additive_Solver():
         f_out.close()
         print(fOpt,xOpt)
         if print_output == False:
-            sys.stdout = sys.__stdout__     
-        return (fOpt,xOpt)
+            sys.stdout = sys.__stdout__
+        
+        # Format objective function to array, ensure output consistency
+        if np.isscalar(fOpt):
+            FOpt = np.array([fOpt])
+        else:
+            FOpt = fOpt.astype('Float64')
+        
+        return (FOpt,xOpt)
         
     ## @ingroup Optimization-Package_Setups    
     def evaluate_model(self,problem,x,cons):

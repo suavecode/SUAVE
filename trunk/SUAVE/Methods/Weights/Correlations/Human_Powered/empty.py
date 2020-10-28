@@ -20,7 +20,7 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-Human_Powered
-def empty(vehicle):
+def empty(vehicle,settings=None):
     """ Computes weights estimates for human powered aircraft
     
     Assumptions:

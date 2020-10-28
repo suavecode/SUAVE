@@ -2,7 +2,7 @@
 # induced_drag_aircraft.py
 # 
 # Created:  Feb 2019, T. MacDonald
-#         
+# Modified: Jan 2020, T. MacDonald
      
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,7 +11,7 @@
 from SUAVE.Core import Data
 
 import numpy as np
-from .Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # ----------------------------------------------------------------------
 #  Induced Drag Aicraft
@@ -50,8 +50,8 @@ def induced_drag_aircraft(state,settings,geometry):
     mach          = conditions.freestream.mach_number
     
     e             = configuration.oswald_efficiency_factor
+    wing_e        = configuration.span_efficiency
     K             = configuration.viscous_lift_dependent_drag_factor
-    wing_e        = geometry.wings['main_wing'].span_efficiency
     ar            = geometry.wings['main_wing'].aspect_ratio 
     CDp           = state.conditions.aerodynamics.drag_breakdown.parasite.total
     

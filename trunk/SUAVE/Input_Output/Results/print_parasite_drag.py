@@ -2,7 +2,8 @@
 # print_parasite_drag.py 
 
 # Created: SUAVE team
-# Updated: Carlos Ilario, Feb 2016
+# Modified: Carlos Ilario, Feb 2016
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,6 +12,7 @@ import SUAVE
 from SUAVE.Core import Units,Data
 
 from scipy.optimize import fsolve # for compatibility with scipy 0.10.0
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Drag.induced_drag_aircraft import induced_drag_aircraft
 import numpy as np
 
 
@@ -102,12 +104,12 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     state = Data()
     state.conditions = Data()
     state.conditions.freestream = Data()
-    state.conditions.freestream.mach_number       = np.atleast_1d(Mc)
-    state.conditions.freestream.density           = np.atleast_1d(rho)
-    state.conditions.freestream.dynamic_viscosity = np.atleast_1d(mu)
-    state.conditions.freestream.reynolds_number   = np.atleast_1d(re)
-    state.conditions.freestream.temperature       = np.atleast_1d(T)
-    state.conditions.freestream.pressure          = np.atleast_1d(p)
+    state.conditions.freestream.mach_number       = np.atleast_2d(Mc)
+    state.conditions.freestream.density           = np.atleast_2d(rho)
+    state.conditions.freestream.dynamic_viscosity = np.atleast_2d(mu)
+    state.conditions.freestream.reynolds_number   = np.atleast_2d(re)
+    state.conditions.freestream.temperature       = np.atleast_2d(T)
+    state.conditions.freestream.pressure          = np.atleast_2d(p)
     state.conditions.aerodynamics = Data()
     state.conditions.aerodynamics.drag_breakdown = Data()
     state.conditions.aerodynamics.drag_breakdown.parasite = Data()
@@ -128,9 +130,14 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     compute.parasite.total(state,settings,vehicle)
     
     # getting induced drag efficiency factor
-    state.conditions.aerodynamics.lift_coefficient = 0.5 # dummy value
-    compute.induced(state,settings,vehicle)
-    eff_fact = state.conditions.aerodynamics.drag_breakdown.induced.efficiency_factor
+    aerodynamics          = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()            
+    aerodynamics.geometry = vehicle        
+    aerodynamics.initialize()      
+    
+    state.conditions.aerodynamics.angle_of_attack = np.array([[2.]])*Units.degrees  
+    results  = aerodynamics.evaluate(state) 
+    _ = induced_drag_aircraft(state,settings,vehicle)
+    eff_fact = state.conditions.aerodynamics.drag_breakdown.induced.oswald_efficiency_factor
     # reynolds number
     
     Re_w = rho * Mc * a * mean_aerodynamic_chord/mu
@@ -142,10 +149,10 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
     fid.write( '  ASPECT RATIO .................... ' + str('%5.1f' %   aspect_ratio       )   + '    ' + '\n')
     fid.write( '  WING SWEEP ...................... ' + str('%5.1f' %   sweep              )   + ' deg' + '\n')
     fid.write( '  WING THICKNESS RATIO ............ ' + str('%5.2f' %   t_c                )   + '    ' + '\n')
-    fid.write( '  INDUCED DRAG EFFICIENCY FACTOR .. ' + str('%5.3f' %   eff_fact             )   + '    '  + '\n')
-    fid.write( '  MEAN AEROD. CHORD ............... ' + str('%5.3f' %mean_aerodynamic_chord)   + ' m ' + '\n')
+    fid.write( '  INDUCED DRAG EFFICIENCY FACTOR .. ' + str('%5.3f' %   eff_fact           )   + '    ' + '\n')
+    fid.write( '  MEAN AEROD. CHORD ............... ' + str('%5.3f' %mean_aerodynamic_chord)   + ' m '  + '\n')
     fid.write( '  REYNOLDS NUMBER ................. ' + str('%5.1f' %   (Re_w / (10**6))   )   + ' millions' + '\n')
-    fid.write( '  MACH NUMBER ..................... ' + str('%5.3f' %   Mc                 )   + '    '  + '\n')
+    fid.write( '  MACH NUMBER ..................... ' + str('%5.3f' %   Mc                 )   + '    ' + '\n')
 
     fid.write( '\n\n' )
     fid.write( '            COMPONENT                 |      CDO      |  WETTED AREA  |  FORM FACTOR  | FLAT PLATE CF.| REYNOLDS FACT.| COMPRES. FACT.|\n')

@@ -231,22 +231,25 @@ def short_field_mission(nexus):
 def estimate_clmax(nexus):
     
     # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
-    conditions = Data()
-    conditions.freestream = Data()
-    conditions.freestream.density           = 0.90477283
-    conditions.freestream.dynamic_viscosity = 1.69220918e-05
-    conditions.freestream.velocity          = 90. * Units.knots
+    state = Data()
+    state.conditions = Data()
+    state.conditions.freestream = Data()
+    state.conditions.freestream.density           = 0.90477283
+    state.conditions.freestream.dynamic_viscosity = 1.69220918e-05
+    state.conditions.freestream.velocity          = 90. * Units.knots
     
     #Takeoff CL_max
     config = nexus.vehicle_configurations.takeoff
-    maximum_lift_coefficient,CDi = compute_max_lift_coeff(config,conditions) 
+    settings = nexus.analyses.takeoff.aerodynamics.settings
+    maximum_lift_coefficient,CDi = compute_max_lift_coeff(state,settings,config)
     config.maximum_lift_coefficient = maximum_lift_coefficient 
     # diff the new data
     config.store_diff()  
     
     #Takeoff CL_max - for short field config
     config = nexus.vehicle_configurations.short_field_takeoff
-    maximum_lift_coefficient,CDi = compute_max_lift_coeff(config,conditions) 
+    settings = nexus.analyses.short_field_takeoff.aerodynamics.settings
+    maximum_lift_coefficient,CDi = compute_max_lift_coeff(state,settings,config)
     config.maximum_lift_coefficient = maximum_lift_coefficient 
     # diff the new data
     config.store_diff()  
@@ -277,7 +280,8 @@ def estimate_clmax(nexus):
     landing.mass_properties.landing = 0.85 * config.mass_properties.takeoff
       
     # Landing CL_max
-    maximum_lift_coefficient,CDi = compute_max_lift_coeff(landing,conditions) 
+    settings = nexus.analyses.landing.aerodynamics.settings
+    maximum_lift_coefficient,CDi = compute_max_lift_coeff(state,settings,landing)
     landing.maximum_lift_coefficient = maximum_lift_coefficient 
     
     # compute approach speed

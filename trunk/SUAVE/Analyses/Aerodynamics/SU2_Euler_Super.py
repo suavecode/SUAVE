@@ -4,6 +4,7 @@
 # Created:  Dec 2016, T. MacDonald
 # Modified: Jan 2017, T. MacDonald
 #           Apr 2019, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -17,10 +18,7 @@ import numpy as np
 
 from SUAVE.Input_Output.OpenVSP.write_vsp_mesh import write_vsp_mesh
 from SUAVE.Input_Output.GMSH.write_geo_file import write_geo_file
-from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file
-
-# Default aero Results
-from .Results import Results
+from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file 
 
 # The aero methods
 from SUAVE.Methods.Aerodynamics import Supersonic_Zero as Methods
@@ -67,6 +65,7 @@ class SU2_Euler_Super(Markup):
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
         settings.oswald_efficiency_factor           = None
+        settings.span_efficiency                    = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 

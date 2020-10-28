@@ -4,6 +4,10 @@
 # Created:  Jun 2014, T. Orra, C. Ilario, Celso, 
 # Modified: Apr 2015, M. Vegh 
 #           Jan 2016, E. Botero
+#           Mar 2020, M. Clarke
+#           May 2020, E. Botero
+#           Jul 2020, E. Botero 
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -11,13 +15,12 @@
 
 # SUave Imports
 import SUAVE
-from SUAVE.Core            import Data
-from SUAVE.Core            import Units
+from SUAVE.Core            import Data, Units
 
-from SUAVE.Analyses.Mission.Segments.Conditions import Aerodynamics,Numerics
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import windmilling_drag
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import estimate_2ndseg_lift_drag_ratio
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Helper_Functions import asymmetry_drag
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 
 # package imports
 import numpy as np
@@ -61,7 +64,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     # ==============================================
         # Unpack
     # ==============================================
-    atmo            = analyses.base.atmosphere
+    atmo            = analyses.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
     weight          = vehicle.mass_properties.takeoff
@@ -87,23 +90,17 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     # ==============================================
     # Determining vehicle maximum lift coefficient
     # ==============================================
-    try:   # aircraft maximum lift informed by user
-        maximum_lift_coefficient = vehicle.maximum_lift_coefficient
-    except:
-        # Using semi-empirical method for maximum lift coefficient calculation
-        from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
+    # Condition to CLmax calculation: 90KTAS @ airport
+    state = Data()
+    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    state.conditions.freestream = Data()
+    state.conditions.freestream.density           = rho
+    state.conditions.freestream.velocity          = 90. * Units.knots
+    state.conditions.freestream.dynamic_viscosity = mu
+    
+    settings = analyses.aerodynamics.settings
 
-        # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
-        conditions  = atmo.compute_values(10000. * Units.ft)
-        conditions.freestream=Data()
-        conditions.freestream.density   = conditions.density
-        conditions.freestream.dynamic_viscosity = conditions.dynamic_viscosity
-        conditions.freestream.velocity  = 90. * Units.knots
-        try:
-            maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(vehicle,conditions)
-            vehicle.maximum_lift_coefficient = maximum_lift_coefficient
-        except:
-            raise ValueError("Maximum lift coefficient calculation error. Please, check inputs")
+    maximum_lift_coefficient, induced_drag_high_lift = compute_max_lift_coeff(state,settings,vehicle)
 
     # ==============================================
     # Computing speeds (Vs, V2, 0.7*V2)
@@ -124,10 +121,9 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     # ==============================================
     # Getting engine thrust
     # ==============================================    
-    state = Data()
-    state.conditions = Aerodynamics() 
-    state.numerics   = Numerics()
-    conditions = state.conditions    
+    state = SUAVE.Analyses.Mission.Segments.Conditions.State()
+    conditions = state.conditions
+    conditions.update( SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics() )
 
     conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho * speed_for_thrust**2))
     conditions.freestream.gravity          = np.array([np.atleast_1d(sea_level_gravity)])
@@ -185,9 +181,11 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     # calculating second segment climb gradient, if required by user input
     if compute_2nd_seg_climb:
         # Getting engine thrust at V2 (update only speed related conditions)
-        state.conditions.freestream.dynamic_pressure = np.array(np.atleast_1d(0.5 * rho * V2_speed**2))
-        state.conditions.freestream.velocity         = np.array(np.atleast_1d(V2_speed))
-        state.conditions.freestream.mach_number      = np.array(np.atleast_1d(V2_speed/ a))
+        state.conditions.freestream.dynamic_pressure  = np.array(np.atleast_1d(0.5 * rho * V2_speed**2))
+        state.conditions.freestream.velocity          = np.array(np.atleast_1d(V2_speed))
+        state.conditions.freestream.mach_number       = np.array(np.atleast_1d(V2_speed/ a))
+        state.conditions.freestream.dynamic_viscosity = np.array(np.atleast_1d(mu))
+        state.conditions.freestream.density           =  np.array(np.atleast_1d(rho))
         results = vehicle.propulsors['turbofan'].engine_out(state)
         thrust = results.thrust_force_vector[0][0]
 
@@ -198,7 +196,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
         asymmetry_drag_coefficient = asymmetry_drag(state, vehicle, windmilling_drag_coefficient)
            
         # Compute l over d ratio for takeoff condition, NO engine failure
-        l_over_d = estimate_2ndseg_lift_drag_ratio(vehicle) 
+        l_over_d = estimate_2ndseg_lift_drag_ratio(state,settings,vehicle) 
         
         # Compute L over D ratio for takeoff condition, WITH engine failure
         clv2 = maximum_lift_coefficient / (V2_VS_ratio) **2
@@ -208,9 +206,9 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     
         # Compute 2nd segment climb gradient
         second_seg_climb_gradient = thrust / (weight*sea_level_gravity) - 1. / l_over_d_v2
-        
-        return takeoff_field_length, second_seg_climb_gradient
-    
+
+        return takeoff_field_length[0][0], second_seg_climb_gradient[0][0]
+
     else:
         # return only takeoff_field_length
-        return takeoff_field_length
+        return takeoff_field_length[0][0]

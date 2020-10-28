@@ -15,7 +15,6 @@ import SUAVE
 
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
-from SUAVE.Methods.Power.Battery.Discharge.datta_discharge import datta_discharge
 
 # ----------------------------------------------------------------------
 #  Battery
@@ -36,7 +35,7 @@ class Battery(Energy_Component):
         self.max_energy           = 0.0
         self.max_power            = 0.0
         self.max_voltage          = 0.0
-        self.discharge_model      = datta_discharge
+        self.discharge_model      = SUAVE.Methods.Power.Battery.Discharge.datta_discharge
         self.ragone               = Data()
         self.ragone.const_1       = 0.0 #used for ragone functions; 
         self.ragone.const_2       = 0.0 #specific_power=ragone_const_1*10^(specific_energy*ragone_const_2)

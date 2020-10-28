@@ -2,7 +2,7 @@
 # Climb.py
 # 
 # Created:  Jan 2016, E. Botero
-# Modified:
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

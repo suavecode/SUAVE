@@ -14,7 +14,6 @@
 import SUAVE
 
 import numpy as np
-from scipy.optimize import fsolve
 
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component

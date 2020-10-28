@@ -2,7 +2,7 @@
 # compressibility_drag_total.py
 # 
 # Created:  Jan 2019, T. MacDonald
-#
+# Modified: Jan 2020, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,7 +13,7 @@ from SUAVE.Core import Data
 
 from .wave_drag_lift import wave_drag_lift
 from .wave_drag_volume import wave_drag_volume
-from .Cubic_Spline_Blender import Cubic_Spline_Blender
+from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 from SUAVE.Components.Wings import Main_Wing
 
 import copy

@@ -1,6 +1,8 @@
 # test_solar_network.py
 # 
-# Created:  Emilio Botero, Aug 2014
+# Created:  Aug 2014, Emilio Botero, 
+#           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 #----------------------------------------------------------------------
 #   Imports
@@ -8,7 +10,8 @@
 
 import SUAVE
 from SUAVE.Core import Units
-
+from SUAVE.Plots.Mission_Plots import *  
+import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
 )
@@ -20,167 +23,241 @@ from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
 
+import sys
+
+sys.path.append('../Vehicles')
+# the analysis functions
+
+from Solar_UAV import vehicle_setup, configs_setup
+
 def main():
+    
+ 
+    # vehicle data
+    vehicle  = vehicle_setup()
+    configs  = configs_setup(vehicle)
+    
+    # vehicle analyses
+    configs_analyses = analyses_setup(configs)
+    
+    # mission analyses
+    mission  = mission_setup(configs_analyses,vehicle)
+    missions_analyses = missions_setup(mission)
 
-    # ------------------------------------------------------------------
-    #   Propulsor
-    # ------------------------------------------------------------------
+    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses.configs  = configs_analyses
+    analyses.missions = missions_analyses
     
-    # build network
-    net = Solar()
-    net.number_of_engines = 1.
-    net.nacelle_dia       = 0.2
+    configs.finalize()
+    analyses.finalize()    
     
-    # Component 1 the Sun?
-    sun = SUAVE.Components.Energy.Processes.Solar_Radiation()
-    net.solar_flux = sun
+    # weight analysis
+    weights = analyses.configs.base.weights    
     
-    # Component 2 the solar panels
-    panel = SUAVE.Components.Energy.Converters.Solar_Panel()
-    panel.area                 = 100 * Units.m
-    panel.efficiency           = 0.18
-    panel.mass_properties.mass = panel.area*.600
-    net.solar_panel            = panel
-    
-    # Component 3 the ESC
-    esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    esc.efficiency = 0.95 # Gundlach for brushless motors
-    net.esc       = esc
-    
-    # Component 5 the Propeller
-    
-    # Propeller design specs
-    design_altitude = 0.0 * Units.km
-    Velocity        = 10.0  # freestream m/s
-    RPM             = 5887
-    Blades          = 2.0
-    Radius          = .4064
-    Hub_Radius      = 0.05
-    Design_Cl       = 0.7
-    Thrust          = 0.0 #Specify either thrust or power to design for
-    Power           = 7500.  #Specify either thrust or power to design for
-    
-    # Design the Propeller
-    prop_attributes = Data()
-    prop_attributes.number_blades       = Blades 
-    prop_attributes.freestream_velocity = Velocity
-    prop_attributes.angular_velocity    = RPM*(2.*np.pi/60.0)
-    prop_attributes.tip_radius          = Radius
-    prop_attributes.hub_radius          = Hub_Radius
-    prop_attributes.design_Cl           = Design_Cl 
-    prop_attributes.design_altitude     = design_altitude
-    prop_attributes.design_thrust       = Thrust
-    prop_attributes.design_power        = Power
-    prop_attributes                     = propeller_design(prop_attributes)
-    
-    # Create and attach this propeller
-    prop                 = SUAVE.Components.Energy.Converters.Propeller()
-    prop.prop_attributes = prop_attributes
-    net.propeller        = prop
-    
-    # Component 4 the Motor
-    motor = SUAVE.Components.Energy.Converters.Motor()
-    motor.resistance           = 0.01
-    motor.no_load_current      = 8.0
-    motor.speed_constant       = 140.*(2.*np.pi/60.) # RPM/volt converted to rad/s     
-    motor.propeller_radius     = prop.prop_attributes.tip_radius
-    #motor.propeller_Cp         = prop.prop_attributes.Cp
-    motor.gear_ratio           = 1.
-    motor.gearbox_efficiency   = 1.
-    motor.expected_current     = 260.
-    motor.mass_properties.mass = 2.0
-    net.motor                  = motor   
-    
-    # Component 6 the Payload
-    payload = SUAVE.Components.Energy.Peripherals.Payload()
-    payload.power_draw           = 0. #Watts 
-    payload.mass_properties.mass = 0. * Units.kg
-    net.payload                  = payload
-    
-    # Component 7 the Avionics
-    avionics = SUAVE.Components.Energy.Peripherals.Avionics()
-    avionics.power_draw = 0. #Watts  
-    net.avionics        = avionics      
-    
-    # Component 8 the Battery
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    batterymass = 50.  #kg
-    bat.type = 'Li-Ion'
-    bat.resistance = 0.0
-    bat.energy_density = 250.
-    initialize_from_mass(bat,batterymass)
-    bat.current_energy = bat.max_energy
-    net.battery = bat
-    
-    #Component 9 the system logic controller and MPPT
-    logic = SUAVE.Components.Energy.Distributors.Solar_Logic()
-    logic.system_voltage  = 50.0
-    logic.MPPT_efficiency = 0.95
-    net.solar_logic       = logic
-    
-    # Setup the conditions to run the network
-    state            = Data()
-    state.conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-    state.numerics   = SUAVE.Analyses.Mission.Segments.Conditions.Numerics()
-    
-    conditions = state.conditions
-    numerics   = state.numerics
-    
-    # Calculate atmospheric properties
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmosphere_conditions =  atmosphere.compute_values(prop_attributes.design_altitude)
-    
-    rho = atmosphere_conditions.density[0,:]
-    a   = atmosphere_conditions.speed_of_sound[0,:]
-    mu  = atmosphere_conditions.dynamic_viscosity[0,:]
-    T   = atmosphere_conditions.temperature[0,:]
+    # mission analysis
+    mission = analyses.missions.base
+    results = mission.evaluate()
 
-    conditions.propulsion.throttle            = np.array([[1.0],[1.0]])
-    conditions.freestream.velocity            = np.array([[1.0],[1.0]])
-    conditions.freestream.density             = np.array([rho,rho])
-    conditions.freestream.dynamic_viscosity   = np.array([mu, mu])
-    conditions.freestream.speed_of_sound      = np.array([a, a])
-    conditions.freestream.altitude            = np.array([[design_altitude], [design_altitude]])
-    conditions.propulsion.battery_energy      = bat.max_energy*np.ones_like(conditions.freestream.altitude)
-    conditions.frames.body.inertial_rotations = np.zeros([2,3])
-    conditions.frames.inertial.time           = np.array([[0.0],[1.0]])
-    numerics.time.integrate                   = np.array([[0, 0],[0, 1]])
-    numerics.time.differentiate               = np.array([[0, 0],[0, 1]])
-    conditions.frames.planet.start_time       = time.strptime("Sat, Jun 21 06:00:00  2014", "%a, %b %d %H:%M:%S %Y",) 
-    conditions.frames.planet.latitude         = np.array([[0.0],[0.0]])
-    conditions.frames.planet.longitude        = np.array([[0.0],[0.0]])
-    conditions.freestream.temperature         = np.array([T, T])
-    conditions.frames.body.transform_to_inertial = np.array([[[ 1.,  0.,  0.],
-                                                              [ 0.,  1.,  0.],
-                                                              [ 0.,  0.,  1.]],
-                                                             [[ 1.,  0.,  0.],
-                                                              [ 0.,  1.,  0.],
-                                                              [ 0.,  0.,  1.]]])
-    conditions.propulsion.propeller_power_coefficient = np.array([[1.], [1.]]) * prop.prop_attributes.Cp
+    # load older results
+    #save_results(results)
+    old_results = load_results()   
+
+    # plt the old results
+    plot_mission(results)
+    plot_mission(old_results,'k-') 
     
-    # Run the network and print the results
-    results = net(state)
-    F       = results.thrust_force_vector
+    # Check Results 
+    F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
+    rpm     = results.segments.cruise1.conditions.propulsion.rpm[1,0] 
+    current = results.segments.cruise1.conditions.propulsion.current[1,0] 
+    energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = [[ 545.35952329,  545.35952329]]
-    truth_i   = [[ 249.31622624], [ 249.31622624]]
-    truth_rpm = [[ 6668.4094191], [ 6668.4094191]]
-    truth_bat = [[ 36000000.   ], [ 35987534.18868808]]
+    truth_F   = 105.97391697180569
+    truth_rpm = 236.41412349855702
+    truth_i   = 175.20906685293815
+    truth_bat = 188634807.30459636
+    
+    print('battery energy')
+    print(energy)
+    print('\n')
     
     error = Data()
-    error.Thrust = np.max(np.abs(F[:,0]-truth_F))
-    error.RPM = np.max(np.abs(conditions.propulsion.rpm-truth_rpm))
-    error.Current  = np.max(np.abs(conditions.propulsion.current-truth_i))
-    error.Battery = np.max(np.abs(bat.current_energy-truth_bat))
+    error.Thrust   = np.max(np.abs((F-truth_F)/truth_F))
+    error.RPM      = np.max(np.abs((rpm-truth_rpm)/truth_rpm))
+    error.Current  = np.max(np.abs((current-truth_i)/truth_i))
+    error.Battery  = np.max(np.abs((energy-truth_bat)/truth_bat))
     
     print(error)
     
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)
-        
+ 
     
     return
+
+
+# ----------------------------------------------------------------------        
+#   Setup Analyses
+# ----------------------------------------------------------------------  
+
+def analyses_setup(configs):
+    
+    analyses = SUAVE.Analyses.Analysis.Container()
+    
+    # build a base analysis for each config
+    for tag,config in configs.items():
+        analysis = base_analysis(config)
+        analyses[tag] = analysis
+    
+    return analyses
+
+# ----------------------------------------------------------------------        
+#   Define Base Analysis
+# ----------------------------------------------------------------------  
+
+def base_analysis(vehicle): # ------------------------------------------------------------------
+    #   Initialize the Analyses
+    # ------------------------------------------------------------------     
+    analyses = SUAVE.Analyses.Vehicle()
+    
+    # ------------------------------------------------------------------
+    #  Basic Geometry Relations
+    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing.features.vehicle = vehicle
+    analyses.append(sizing)
+    
+    # ------------------------------------------------------------------
+    #  Weights
+    weights = SUAVE.Analyses.Weights.Weights_UAV()
+    weights.settings.empty_weight_method = \
+        SUAVE.Methods.Weights.Correlations.Human_Powered.empty
+    weights.vehicle = vehicle
+    analyses.append(weights)
+    
+    # ------------------------------------------------------------------
+    #  Aerodynamics Analysis
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics.geometry                            = vehicle
+    aerodynamics.settings.drag_coefficient_increment = 0.0000
+    aerodynamics.settings.span_efficiency = 0.98
+    analyses.append(aerodynamics)
+    
+    # ------------------------------------------------------------------
+    #  Energy
+    energy = SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    analyses.append(energy)
+    
+    # ------------------------------------------------------------------
+    #  Planet Analysis
+    planet = SUAVE.Analyses.Planets.Planet()
+    analyses.append(planet)
+    
+    # ------------------------------------------------------------------
+    #  Atmosphere Analysis
+    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere.features.planet = planet.features
+    analyses.append(atmosphere)   
+ 
+    return analyses    
+
+
+# ----------------------------------------------------------------------
+#   Define the Mission
+# ----------------------------------------------------------------------
+def mission_setup(analyses,vehicle):
+    
+    # ------------------------------------------------------------------
+    #   Initialize the Mission
+    # ------------------------------------------------------------------
+
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission.tag = 'The Test Mission'
+
+    mission.atmosphere  = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    mission.planet      = SUAVE.Attributes.Planets.Earth()
+    
+    # unpack Segments module
+    Segments = SUAVE.Analyses.Mission.Segments
+    
+    # base segment
+    base_segment = Segments.Segment()   
+    ones_row     = base_segment.state.ones_row
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
+    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/15.
+    base_segment.state.residuals.network                     = 0. * ones_row(1)      
+    
+    # ------------------------------------------------------------------    
+    #   Cruise Segment: constant speed, constant altitude
+    # ------------------------------------------------------------------    
+    
+    segment = SUAVE.Analyses.Mission.Segments.Cruise.Constant_Mach_Constant_Altitude(base_segment)
+    segment.tag = "cruise1"
+    
+    # connect vehicle configuration
+    segment.analyses.extend( analyses.cruise)
+    
+    # segment attributes     
+    segment.state.numerics.number_control_points = 16
+    segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2020", "%a, %b %d %H:%M:%S %Y",)
+    segment.altitude       = 15.0  * Units.km 
+    segment.mach           = 0.12
+    segment.distance       = 3050.0 * Units.km
+    segment.battery_energy = vehicle.propulsors.solar.battery.max_energy*0.3 #Charge the battery to start
+    segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
+    segment.longitude      = -122.1700 # this defaults to degrees
+    
+    mission.append_segment(segment)    
+
+    # ------------------------------------------------------------------    
+    #   Mission definition complete    
+    # ------------------------------------------------------------------
+    
+    return mission
+
+
+def missions_setup(base_mission):
+
+    # the mission container
+    missions = SUAVE.Analyses.Mission.Mission.Container()
+
+    # ------------------------------------------------------------------
+    #   Base Mission
+    # ------------------------------------------------------------------
+    missions.base = base_mission 
+    
+    # done!
+    return missions  
+
+# ----------------------------------------------------------------------
+#   Plot Mission
+# ----------------------------------------------------------------------
+
+def plot_mission(results,line_style='bo-'):     
+    
+    # Plot Propeller Performance 
+    plot_propeller_conditions(results,line_style)
+    
+    # Plot Power and Disc Loading
+    plot_disc_power_loading(results,line_style)
+    
+    # Plot Solar Radiation Flux
+    plot_solar_flux(results,line_style) 
+    
+    return
+
+
+
+def load_results():
+    return SUAVE.Input_Output.SUAVE.load('solar_uav_mission.res')
+
+def save_results(results):
+    SUAVE.Input_Output.SUAVE.archive(results,'solar_uav_mission.res')
+    return
+
 
 # ----------------------------------------------------------------------        
 #   Call Main
@@ -188,4 +265,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
+    plt.show()

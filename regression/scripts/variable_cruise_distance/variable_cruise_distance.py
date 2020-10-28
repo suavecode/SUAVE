@@ -38,7 +38,7 @@ def main():
     
     plot_results(results)
     
-    distance_regression = 4317710.33719722
+    distance_regression = 3966186.5678927945
     distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
     error_distance      = abs((distance_regression - distance_calc )/distance_regression)
     assert error_distance < 1e-6
@@ -69,6 +69,8 @@ def mission_setup(configs,analyses):
     # base segment
     base_segment = Segments.Segment()
     base_segment.state.numerics.number_control_points = 4
+    base_segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
+    base_segment.process.finalize.post_process.stability   = SUAVE.Methods.skip    
         
     
     # ------------------------------------------------------------------

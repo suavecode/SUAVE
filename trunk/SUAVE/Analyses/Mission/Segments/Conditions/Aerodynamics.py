@@ -3,7 +3,8 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
-# Modified: Feb 2020, K. Hamilton
+#           Mar 2020, M. Clarke
+#           Feb 2020, K. Hamilton
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -88,6 +89,7 @@ class Aerodynamics(Basic):
         self.freestream.gravity            = ones_1col * 0
         self.freestream.reynolds_number    = ones_1col * 0
         self.freestream.dynamic_pressure   = ones_1col * 0
+        self.freestream.delta_ISA          = ones_1col * 0
 
         # aerodynamics conditions
         self.aerodynamics = Conditions()        
@@ -100,6 +102,7 @@ class Aerodynamics(Basic):
         self.aerodynamics.drag_breakdown              = Conditions()
         self.aerodynamics.drag_breakdown.parasite     = Conditions()
         self.aerodynamics.drag_breakdown.compressible = Conditions()
+        self.aerodynamics.drag_breakdown.induced      = Conditions()
 
         # stability conditions
         self.stability         = Conditions()        
@@ -108,9 +111,11 @@ class Aerodynamics(Basic):
 
         # propulsion conditions
         self.propulsion = Conditions()
-        self.propulsion.throttle           = ones_1col * 0
-        self.propulsion.battery_energy     = ones_1col * 0
-        self.propulsion.battery_voltage    = ones_1col * 0
+        self.propulsion.throttle               = ones_1col * 0
+        self.propulsion.battery_energy         = ones_1col * 0
+        self.propulsion.battery_voltage        = ones_1col * 0
+        self.propulsion.voltage_under_load     = ones_1col * 0
+        self.propulsion.voltage_open_circuit   = ones_1col * 0
         self.propulsion.thrust_breakdown       = Conditions()
         self.propulsion.acoustic_outputs       = Conditions()
         self.propulsion.acoustic_outputs.fan   = Conditions()

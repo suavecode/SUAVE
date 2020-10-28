@@ -38,6 +38,7 @@ def vehicle_setup():
     vehicle.mass_properties.operating_empty           = 78700.   # kg
     vehicle.mass_properties.takeoff                   = 183000.   # kg, adjusted due to significant fuel burn on runway
     vehicle.mass_properties.cargo                     = 1000.  * Units.kilogram   
+    vehicle.mass_properties.max_zero_fuel             = 92000.
         
     # envelope properties
     vehicle.envelope.ultimate_load = 3.75
@@ -47,10 +48,12 @@ def vehicle_setup():
     vehicle.reference_area               = 358.25      
     vehicle.passengers                   = 100
     vehicle.systems.control              = "fully powered" 
-    vehicle.systems.accessories          = "long range"
+    vehicle.systems.accessories          = "sst"
     vehicle.maximum_cross_sectional_area = 13.9
     vehicle.total_length                 = 61.66
-    
+    vehicle.design_mach_number           = 2.02
+    vehicle.design_range                 = 4505 * Units.miles
+    vehicle.design_cruise_alt            = 60000.0 * Units.ft
     
     # ------------------------------------------------------------------        
     #   Main Wing
@@ -64,7 +67,6 @@ def vehicle_setup():
     wing.sweeps.leading_edge     = 66.5 * Units.deg
     wing.thickness_to_chord      = 0.03
     wing.taper                   = 0.
-    wing.span_efficiency         = .95
     
     wing.spans.projected           = 25.6    
     
@@ -81,7 +83,7 @@ def vehicle_setup():
     wing.twists.root               = 0.0 * Units.degrees
     wing.twists.tip                = 0.0 * Units.degrees
     
-    wing.origin                    = [14,0,-.8]
+    wing.origin                    = [[14,0,-.8]]
     wing.aerodynamic_center        = [35,0,0] 
     
     wing.vertical                  = False
@@ -93,6 +95,7 @@ def vehicle_setup():
     wing.dynamic_pressure_ratio    = 1.0
     
     wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    
     # This airfoil is not a true Concorde airfoil
     wing_airfoil.coordinate_file   = '../Vehicles/NACA65-203.dat' 
     
@@ -107,7 +110,7 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 67. * Units.deg
     segment.thickness_to_chord    = 0.03
-    segment.append_airfoil(wing_airfoil)
+    #segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)
     
     # set section 2 start point
@@ -151,49 +154,49 @@ def vehicle_setup():
     # Masses from http://www.concordesst.com/fuelsys.html
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'tank_9'
-    fuel_tank.mass_properties.center_of_gravity    = np.array([26.5,0,0])
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[26.5,0,0]])
     fuel_tank.mass_properties.fuel_mass_when_full  = 11096
     fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     wing.Fuel_Tanks.append(fuel_tank)
     
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'tank_10'
-    fuel_tank.mass_properties.center_of_gravity    = np.array([28.7,0,0])
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[28.7,0,0]])
     fuel_tank.mass_properties.fuel_mass_when_full  = 11943
     fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     wing.Fuel_Tanks.append(fuel_tank)
     
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'tank_1_and_4'
-    fuel_tank.mass_properties.center_of_gravity    = np.array([31.0,0,0])
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[31.0,0,0]])
     fuel_tank.mass_properties.fuel_mass_when_full  = 4198+4198
     fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     wing.Fuel_Tanks.append(fuel_tank)   
     
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'tank_5_and_8'
-    fuel_tank.mass_properties.center_of_gravity    = np.array([32.9,0,0])
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[32.9,0,0]])
     fuel_tank.mass_properties.fuel_mass_when_full  = 7200+12838
     fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     wing.Fuel_Tanks.append(fuel_tank)
     
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'tank_6_and_7'
-    fuel_tank.mass_properties.center_of_gravity    = np.array([37.4,0,0])
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[37.4,0,0]])
     fuel_tank.mass_properties.fuel_mass_when_full  = 11587+7405
     fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     wing.Fuel_Tanks.append(fuel_tank)
     
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'tank_5A_and_7A'
-    fuel_tank.mass_properties.center_of_gravity    = np.array([40.2,0,0])
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[40.2,0,0]])
     fuel_tank.mass_properties.fuel_mass_when_full  = 2225+2225
     fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     wing.Fuel_Tanks.append(fuel_tank)
     
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'tank_2_and_3'
-    fuel_tank.mass_properties.center_of_gravity    = np.array([40.2,0,0])
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[40.2,0,0]])
     fuel_tank.mass_properties.fuel_mass_when_full  = 4570+4570
     fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     wing.Fuel_Tanks.append(fuel_tank)    
@@ -213,7 +216,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 60 * Units.deg
     wing.thickness_to_chord      = 0.04
     wing.taper                   = 0.14
-    wing.span_efficiency         = 0.9
     
     wing.spans.projected         = 6.0      #    
 
@@ -230,7 +232,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
     
-    wing.origin                  = [42.,0,1.]
+    wing.origin                  = [[42.,0,1.]]
     wing.aerodynamic_center      = [50,0,0]    
     
     wing.vertical                = True 
@@ -294,7 +296,7 @@ def vehicle_setup():
     fuselage.tag = 'fuselage'
     
     fuselage.seats_abreast         = 4
-    fuselage.seat_pitch            = 1
+    fuselage.seat_pitch            = 38. * Units.inches
     
     fuselage.fineness.nose         = 4.3
     fuselage.fineness.tail         = 6.4
@@ -341,7 +343,7 @@ def vehicle_setup():
     # Masses from http://www.concordesst.com/fuelsys.html
     fuel_tank = SUAVE.Components.Energy.Storages.Fuel_Tanks.Fuel_Tank()
     fuel_tank.tag                  = 'tank_11'
-    fuel_tank.mass_properties.center_of_gravity    = np.array([49.8,0,0])
+    fuel_tank.mass_properties.center_of_gravity    = np.array([[49.8,0,0]])
     fuel_tank.mass_properties.fuel_mass_when_full  = 10415
     fuel_tank.fuel_type            = SUAVE.Attributes.Propellants.Jet_A()
     fuselage.Fuel_Tanks.append(fuel_tank)     
@@ -531,7 +533,7 @@ def vehicle_setup():
     turbojet_sizing(turbojet,mach_number,altitude)   
     
     # add  gas turbine network gt_engine to the vehicle
-    vehicle.append_component(turbojet)      
+    vehicle.append_component(turbojet)
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
@@ -584,9 +586,6 @@ def configs_setup(vehicle):
     
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
-    
-    config.wings['main_wing'].flaps.angle = 0. * Units.deg
-    config.wings['main_wing'].slats.angle = 0. * Units.deg
     
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2.

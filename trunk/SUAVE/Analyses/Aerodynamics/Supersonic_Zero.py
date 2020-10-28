@@ -4,9 +4,7 @@
 # Created:            T. MacDonald
 # Modified: Nov 2016, T. MacDonald
 #           Apr 2019, T. MacDonald
-#
-# Based on Fidelity_Zero
-
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -64,15 +62,20 @@ class Supersonic_Zero(Markup):
         settings.trim_drag_correction_factor        = 1.02
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
-        settings.aircraft_span_efficiency_factor    = 0.78
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
         settings.oswald_efficiency_factor           = None
+        settings.span_efficiency                    = None
         settings.maximum_lift_coefficient           = np.inf 
         settings.begin_drag_rise_mach_number        = 0.95
         settings.end_drag_rise_mach_number          = 1.2
-        settings.transonic_drag_multiplier          = 1.25    
+        settings.transonic_drag_multiplier          = 1.25 
+        settings.number_spanwise_vortices           = None 
+        settings.number_chordwise_vortices          = None 
+        settings.use_surrogate                      = True 
+        settings.propeller_wake_model               = False  
+        
         # this multiplier is used to determine the volume wave drag at the peak Mach number
         # by multiplying the volume wave drag at the end drag rise Mach number
         settings.peak_mach_number                      = 1.04
@@ -87,8 +90,8 @@ class Supersonic_Zero(Markup):
         settings.fuselage_parasite_drag_end_blend_mach   = 0.99
         
         # vortex lattice configurations
-        settings.number_panels_spanwise = 5
-        settings.number_panels_chordwise = 1
+        settings.number_spanwise_vortices = 5
+        settings.number_chordwise_vortices = 1
         
         
         # build the evaluation process
@@ -97,7 +100,6 @@ class Supersonic_Zero(Markup):
         compute.lift = Process()
         compute.lift.inviscid_wings                = Vortex_Lattice()
         compute.lift.vortex                        = Methods.Lift.vortex_lift  # SZ
-        compute.lift.compressible_wings            = Methods.Lift.wing_compressibility # SZ
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         
@@ -113,7 +115,7 @@ class Supersonic_Zero(Markup):
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft # SZ
+        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
@@ -140,7 +142,14 @@ class Supersonic_Zero(Markup):
         self.geometry
         """            
         super(Supersonic_Zero, self).initialize()
-        self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize()  
         
+        use_surrogate             = self.settings.use_surrogate
+        propeller_wake_model      = self.settings.propeller_wake_model 
+        n_sw                      = self.settings.number_spanwise_vortices    
+        n_cw                      = self.settings.number_chordwise_vortices  
+        
+        self.process.compute.lift.inviscid_wings.geometry = self.geometry 
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate , n_sw ,  n_cw ,propeller_wake_model)     
+        
+                
     finalize = initialize        
