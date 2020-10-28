@@ -117,7 +117,7 @@ class Fan(Energy_Component):
         Tt_out    = Tt_in*pid**((gamma-1)/(gamma*etapold))
         ht_out    = Cp*Tt_out    
         
-        #computing the wok done by the fan (for matching with turbine)
+        #computing the work done by the fan (for matching with turbine)
         work_done = ht_out- ht_in
         
         #pack the computed quantities into outputs

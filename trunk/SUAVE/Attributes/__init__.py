@@ -8,3 +8,5 @@ from . import Planets
 from . import Atmospheres
 from . import Propellants
 from . import Airports
+from . import Liquids
+from . import Cryogens

@@ -3,6 +3,7 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+# Modified: Feb 2020, K. Hamilton
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -121,3 +122,5 @@ class Aerodynamics(Basic):
         
         # weights conditions
         self.weights.vehicle_mass_rate     = ones_1col * 0
+        self.weights.vehicle_fuel_rate     = ones_1col * 0
+        self.weights.vehicle_cryogen_rate  = ones_1col * 0

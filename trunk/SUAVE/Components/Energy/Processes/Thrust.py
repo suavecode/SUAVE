@@ -198,6 +198,7 @@ class Thrust(Energy_Component):
 
         #computing the power 
         power            = FD2*u0
+        #print(power, file=open("power.txt", "a"))
 
         #pack outputs
 

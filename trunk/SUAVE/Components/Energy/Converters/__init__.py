@@ -22,3 +22,5 @@ from .Supersonic_Nozzle import Supersonic_Nozzle
 from .Shaft_Power_Off_Take import Shaft_Power_Off_Take
 from .Gearbox import Gearbox
 from .Generator_Zero_Fid import Generator_Zero_Fid
+from .Turboelectric import Turboelectric
+from .Motor_HTS_Rotor import Motor_HTS_Rotor

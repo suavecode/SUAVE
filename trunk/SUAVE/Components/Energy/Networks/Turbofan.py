@@ -130,12 +130,12 @@ class Turbofan(Propulsor):
         ram.inputs.working_fluid                               = self.working_fluid
         
         #Flow through the ram , this computes the necessary flow quantities and stores it into conditions
-        ram(conditions) 
+        ram(conditions)
         
         #link inlet nozzle to ram 
         inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature 
         inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure
-        
+
         #Flow through the inlet nozzle
         inlet_nozzle(conditions)
 
