@@ -477,9 +477,9 @@ def generate_wing_vortex_distribution(geometry,settings):
 
             # Get airfoil section VD  
             if wing.Airfoil: 
-                airfoil_data = import_airfoil_geometry(wing.Airfoil.airfoil.coordinate_file)    
-                wing_camber  = airfoil_data.camber_coordinates
-                wing_x_coord = airfoil_data.x_lower_surface
+                airfoil_data = import_airfoil_geometry([wing.Airfoil.airfoil.coordinate_file])    
+                wing_camber  = airfoil_data.camber_coordinates[0]
+                wing_x_coord = airfoil_data.x_lower_surface[0]
             else:
                 wing_camber  = np.zeros(30) # dimension of Selig airfoil VD file
                 wing_x_coord = np.linspace(0,1,30)
