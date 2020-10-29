@@ -19,7 +19,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-Common
-def wing_main(vehicle, wing, rho, sigma, computation_type = 'segmented'):
+def wing_main(vehicle, wing, rho, sigma, computation_type = 'simple'):
     """ Calculate the wing weight of the aircraft based on the fully-stressed
     bending weight of the wing box
 
