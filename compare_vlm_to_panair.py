@@ -26,14 +26,15 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 
 def main():
     
-    # Straight biconvex
-    length            = 5
-    biconvex_file     = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/straight_biconvex.csv'
-    panair_biconvex   = import_csv(biconvex_file)
-    straight_biconvex = strt_biconvex()
-    conditions        = setup_conditions(panair_biconvex)
-    results_biconvex  = analyze(straight_biconvex, conditions)
-    plot_results('biconvex',results_biconvex,panair_biconvex,length)
+    ## Straight biconvex
+    #length            = 5
+    #biconvex_file     = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/straight_biconvex.csv'
+    #panair_biconvex   = import_csv(biconvex_file)
+    #straight_biconvex = strt_biconvex()
+    #conditions        = setup_conditions(panair_biconvex)
+    #results_biconvex  = analyze(straight_biconvex, conditions)
+    #plot_results_2D('biconvex',results_biconvex,panair_biconvex,length)
+    #plot_results('biconvex',results_biconvex,panair_biconvex,length)
     
     ## Straight NACA
     #length            = 5
@@ -44,14 +45,47 @@ def main():
     #results_strt_NACA = analyze(straight_NACA, conditions)
     #plot_results('Straight NACA',results_strt_NACA,panair_strt_NACA,length)    
     
-    # Arrow NACA
+    ## Arrow NACA
+    #length             = 5
+    #arrow_NACA_file    = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_NACA.csv'
+    #panair_arrow_NACA  = import_csv(arrow_NACA_file)
+    #arrow_NACA         = arrw_naca()
+    #conditions         = setup_conditions(panair_arrow_NACA)
+    #results_arrow_NACA = analyze(arrow_NACA, conditions)
+    ##plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
+    #plot_results_2D('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
+    
+    
+    # Arrow biconvex
     length             = 5
-    arrow_NACA_file    = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/straight_biconvex.csv'
-    panair_arrow_NACA  = import_csv(arrow_NACA_file)
-    arrow_NACA         = arrw_naca()
-    conditions         = setup_conditions(panair_arrow_NACA)
-    results_arrow_NACA = analyze(arrow_NACA, conditions)
-    plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
+    arrow_biconvex_file    = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex.csv'
+    panair_arrow_biconvex  = import_csv(arrow_biconvex_file)
+    arrow_biconvex         = arrw_biconvex()
+    conditions             = setup_conditions(panair_arrow_biconvex)
+    results_arrow_biconvex = analyze(arrow_biconvex, conditions)
+    #plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
+    plot_results_2D('Arrow biconvex',results_arrow_biconvex,panair_arrow_biconvex,length)    
+    
+    
+    ## Arrow NACA Twist
+    #length             = 5
+    #arrow_NACA_twist_file    = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_NACA_twist.csv'
+    #panair_arrow_NACA_twist  = import_csv(arrow_NACA_twist_file)
+    #arrow_NACA_twist         = arrw_naca_twist()
+    #conditions               = setup_conditions(panair_arrow_NACA_twist)
+    #results_arrow_NACA_twist = analyze(arrow_NACA_twist, conditions)
+    #plot_results('Arrow NACA Twist',results_arrow_NACA_twist,panair_arrow_NACA_twist,length)
+    
+    ## Arrow NACA Twist Dihedral
+    #length             = 5
+    #arrow_NACA_twist_dih_file    = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_NACA_dihedral.csv'
+    #panair_arrow_NACA_twist_dih  = import_csv(arrow_NACA_twist_dih_file)
+    #arrow_NACA_twist_dih         = arrw_naca_twist_dih()
+    #conditions                   = setup_conditions(panair_arrow_NACA_twist_dih)
+    #results_arrow_NACA_twist_dih = analyze(arrow_NACA_twist_dih, conditions)
+    #plot_results('Arrow NACA Twist Dihedral',results_arrow_NACA_twist_dih,panair_arrow_NACA_twist_dih,length)
+        
+    
     
 
     
@@ -98,15 +132,15 @@ def plot_results(name,vlm_results,panair_results,length):
     ax.set_ylabel('AoA')
     ax.set_zlabel('CL')
     
-    fig.colorbar(vlm_cl, shrink=1, aspect=1,label='VLM')
-    fig.colorbar(pan_cl, shrink=1, aspect=1,label='Panair')
+    fig.colorbar(vlm_cl, shrink=0.5, aspect=5,label='VLM')
+    fig.colorbar(pan_cl, shrink=0.5, aspect=5,label='Panair')
     
     
     # CD
     fig2 = plt.figure(name+' CD no Wave from VLM')
     ax2 = fig2.gca(projection='3d')    
     
-    vlm_cd = ax2.plot_surface(mach, v_CL, v_CD, cmap=cm.Reds,
+    vlm_cd = ax2.plot_surface(mach, v_CL, v_CDi, cmap=cm.Reds,
                            linewidth=0, antialiased=False)  
     
     pan_cd = ax2.plot_surface(mach, p_CL, p_CD, cmap=cm.Blues,
@@ -139,6 +173,51 @@ def plot_results(name,vlm_results,panair_results,length):
     
     return
 
+def plot_results_2D(name,vlm_results,panair_results,length):
+    
+    mach  = panair_results.mach.reshape((-1,length))
+    aoa   = panair_results.aoa.reshape((-1,length))
+    v_CL  = vlm_results.CL.reshape((-1,length))
+    v_CD  = vlm_results.CD.reshape((-1,length))
+    v_CDi = vlm_results.CDi.reshape((-1,length))
+    p_CL  = panair_results.CL.reshape((-1,length))
+    p_CD  = panair_results.CD.reshape((-1,length))
+    
+    fig_CL  = plt.figure(name+' 2D CL')
+    fig_CDi = plt.figure(name+' 2D CD no Wave from VLM')
+    fig_CD  = plt.figure(name+' 2D CD with Wave due to Lift')
+    fig_CL.set_size_inches(12, 10)
+    fig_CD.set_size_inches(12, 10)
+    fig_CDi.set_size_inches(12, 10)
+    n_plots = np.shape(mach)[0]
+    for ii in range(n_plots):
+        a_mach = mach[ii,0]
+        axes_CL = fig_CL.add_subplot(n_plots,1,ii+1)
+        axes_CL.plot( aoa[ii,:] / Units.degrees, v_CL[ii,:] , 'ro-',label='VLM')
+        axes_CL.plot( aoa[ii,:] / Units.degrees, p_CL[ii,:] , 'bo-',label='Panair')
+        axes_CL.set_ylabel('CL Mach = ' + str(a_mach))
+        axes_CL.set_xlabel('AoA')
+        
+        axes_CDi = fig_CDi.add_subplot(n_plots,1,ii+1)
+        axes_CDi.plot( v_CL[ii,:], v_CDi[ii,:] , 'ro-',label='VLM')
+        axes_CDi.plot( p_CL[ii,:], p_CD[ii,:] , 'bo-',label='Panair')
+        axes_CDi.set_ylabel('CDi Mach = ' + str(a_mach))
+        axes_CDi.set_xlabel('CL')
+        
+        axes_CD = fig_CD.add_subplot(n_plots,1,ii+1)
+        axes_CD.plot( v_CL[ii,:], v_CD[ii,:] , 'ro-',label='VLM')
+        axes_CD.plot( p_CL[ii,:], p_CD[ii,:] , 'bo-',label='Panair')
+        axes_CD.set_ylabel('CD Mach = ' + str(a_mach))
+        axes_CD.set_xlabel('CL')     
+        
+        if ii == 0: 
+            axes_CL.legend(loc='upper left')   
+            axes_CD.legend(loc='upper left')    
+            axes_CDi.legend(loc='upper left')  
+
+    return
+
+
 
 def analyze(config,conditions):
     
@@ -147,8 +226,8 @@ def analyze(config,conditions):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 20
-    settings.number_chordwise_vortices = 5
+    settings.number_spanwise_vortices  = 40
+    settings.number_chordwise_vortices = 10
     settings.propeller_wake_model      = None
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
@@ -366,6 +445,172 @@ def arrw_naca():
     return vehicle
 
 
+def arrw_biconvex():
+    
+    # ------------------------------------------------------------------
+    #   Initialize the Vehicle
+    # ------------------------------------------------------------------
+
+    vehicle = SUAVE.Vehicle()
+    vehicle.tag = 'arrow_biconvex'   
+    
+    # basic parameters
+    vehicle.reference_area = 198
+    
+    # ------------------------------------------------------------------
+    #   Main Wing
+    # ------------------------------------------------------------------
+
+    wing = SUAVE.Components.Wings.Main_Wing()
+    wing.tag = 'main_wing'    
+    wing.aspect_ratio            = 2.44444
+    wing.sweeps.leading_edge     = 60. * Units.degrees
+    wing.thickness_to_chord      = 0.01
+    wing.taper                   = 1./17.
+    wing.spans.projected         = 22.
+
+    wing.chords.root             = 17. * Units.meter
+    wing.chords.tip              = 1. * Units.meter
+
+    wing.areas.reference         = 198.
+
+    wing.twists.root             = 0.0 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees
+
+    wing.origin                  = [[0.,0.,0.]]
+    wing.aerodynamic_center      = [0,0,0]
+
+    wing.vertical                = False
+    wing.symmetric               = True
+    wing.high_lift               = False
+
+    wing.dynamic_pressure_ratio  = 1.0    
+    
+    
+    wing.sweeps.quarter_chord = convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25)    
+    
+    wing =  wing_planform(wing)
+        
+    vehicle.append_component(wing)
+    
+    vehicle.total_length = wing.total_length
+    
+    return vehicle
+
+
+def arrw_naca_twist():
+    
+    # ------------------------------------------------------------------
+    #   Initialize the Vehicle
+    # ------------------------------------------------------------------
+
+    vehicle = SUAVE.Vehicle()
+    vehicle.tag = 'arrow_naca_twist'   
+    
+    # basic parameters
+    vehicle.reference_area = 198
+    
+    # ------------------------------------------------------------------
+    #   Main Wing
+    # ------------------------------------------------------------------
+
+    wing = SUAVE.Components.Wings.Main_Wing()
+    wing.tag = 'main_wing'    
+    wing.aspect_ratio            = 2.44444
+    wing.sweeps.leading_edge     = 60. * Units.degrees
+    wing.thickness_to_chord      = 0.03
+    wing.taper                   = 1./17.
+    wing.spans.projected         = 22.
+
+    wing.chords.root             = 17. * Units.meter
+    wing.chords.tip              = 1. * Units.meter
+
+    wing.areas.reference         = 198.
+
+    wing.twists.root             = 0.0 * Units.degrees
+    wing.twists.tip              = -2.0 * Units.degrees
+
+    wing.origin                  = [[0.,0.,0.]]
+    wing.aerodynamic_center      = [0,0,0]
+
+    wing.vertical                = False
+    wing.symmetric               = True
+    wing.high_lift               = False
+
+    wing.dynamic_pressure_ratio  = 1.0    
+    
+    wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    wing_airfoil.coordinate_file = '/Users/emiliobotero/Dropbox/SUAVE/SUAVE/naca64203.dat' 
+    
+    wing.sweeps.quarter_chord = convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25)    
+    
+    wing =  wing_planform(wing)
+    
+    wing.append_airfoil(wing_airfoil)      
+    
+    vehicle.append_component(wing)
+    
+    vehicle.total_length = wing.total_length
+    
+    return vehicle
+
+
+def arrw_naca_twist_dih():
+    
+    # ------------------------------------------------------------------
+    #   Initialize the Vehicle
+    # ------------------------------------------------------------------
+
+    vehicle = SUAVE.Vehicle()
+    vehicle.tag = 'arrow_naca_twist_dihedral'   
+    
+    # basic parameters
+    vehicle.reference_area = 198
+    
+    # ------------------------------------------------------------------
+    #   Main Wing
+    # ------------------------------------------------------------------
+
+    wing = SUAVE.Components.Wings.Main_Wing()
+    wing.tag = 'main_wing'    
+    wing.aspect_ratio            = 2.44444
+    wing.sweeps.leading_edge     = 60. * Units.degrees
+    wing.thickness_to_chord      = 0.03
+    wing.taper                   = 1./17.
+    wing.spans.projected         = 22.
+    wing.dihedral                = 10. * Units.degrees
+
+    wing.chords.root             = 17. * Units.meter
+    wing.chords.tip              = 1. * Units.meter
+
+    wing.areas.reference         = 198.
+
+    wing.twists.root             = 0.0 * Units.degrees
+    wing.twists.tip              = -2.0 * Units.degrees
+
+    wing.origin                  = [[0.,0.,0.]]
+    wing.aerodynamic_center      = [0,0,0]
+
+    wing.vertical                = False
+    wing.symmetric               = True
+    wing.high_lift               = False
+
+    wing.dynamic_pressure_ratio  = 1.0    
+    
+    wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
+    wing_airfoil.coordinate_file = '/Users/emiliobotero/Dropbox/SUAVE/SUAVE/naca64203.dat' 
+    
+    wing.sweeps.quarter_chord = convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25)    
+    
+    wing =  wing_planform(wing)
+    
+    wing.append_airfoil(wing_airfoil)      
+    
+    vehicle.append_component(wing)
+    
+    vehicle.total_length = wing.total_length
+    
+    return vehicle
 
 
 if __name__ == '__main__': 
