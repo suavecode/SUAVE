@@ -122,7 +122,7 @@ def get_objective(unknowns, segment):
     if not np.all(segment.state.inputs_last == segment.state.unknowns):       
         segment.process.iterate(segment)
         
-    objective = segment.objective_value
+    objective = segment.state.objective_value
     
     return objective
 
@@ -220,7 +220,7 @@ def get_ieconstraints(unknowns, segment):
     else:
         segment.state.unknowns = unknowns
         
-    if not np.all(state.inputs_last == segment.state.unknowns):
+    if not np.all(segment.state.inputs_last == segment.state.unknowns):
         segment.process.iterate(segment)
     
     # Time goes forward, not backward
@@ -228,7 +228,7 @@ def get_ieconstraints(unknowns, segment):
     time_con = (segment.state.conditions.frames.inertial.time[1:,0] - segment.state.conditions.frames.inertial.time[0:-1,0])/t_final
     
     # Less than a specified CL limit
-    lift_coefficient_limit = segment.lift_coefficient_limit 
+    lift_coefficient_limit = segment.CL_limit 
     CL_con = (lift_coefficient_limit  - segment.state.conditions.aerodynamics.lift_coefficient[:,0])/lift_coefficient_limit
     
     # Altitudes are greater than 0
