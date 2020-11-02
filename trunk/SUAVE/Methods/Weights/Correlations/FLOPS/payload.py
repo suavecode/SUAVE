@@ -38,7 +38,7 @@ def payload_FLOPS(vehicle, weight_per_passenger = 165. * Units.lb):
         Properties Used:
             N/A
     """
-    WPPASS  = weight_per_passenger
+    WPPASS  = weight_per_passenger / Units.lb
     WPASS   = vehicle.passengers * WPPASS
     DESRNG  = vehicle.design_range / Units.nmi
     if DESRNG <= 900:

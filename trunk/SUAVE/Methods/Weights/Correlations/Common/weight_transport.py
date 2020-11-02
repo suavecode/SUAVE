@@ -153,6 +153,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
         wt_factors.fuselage     = 0.
         wt_factors.structural   = 0.
         wt_factors.systems      = 0.
+        wt_factors.operating_items = 0.
     else:
         wt_factors = settings.weight_reduction_factors
         if 'structural' in wt_factors and wt_factors.structural != 0.:
@@ -161,9 +162,13 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
             wt_factors.empennage    = 0.
             wt_factors.fuselage     = 0.
             wt_factors.systems      = 0.
+            wt_factors.operating_items = 0.
         else:
             wt_factors.structural   = 0.
+        if 'systems' not in wt_factors:
             wt_factors.systems      = 0.
+        if 'operating_items' not in wt_factors:
+            wt_factors.operating_items = 0.
 
     # Prop weight (propulsion pod weight is calculated separately)
     wt_prop_total   = 0
@@ -217,6 +222,8 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
         wt_oper = operating_items_FLOPS(vehicle)
     else:
         wt_oper = operating_items(vehicle)
+    for item in wt_oper.keys():
+        wt_oper[item] *= (1. - wt_factors.operating_items)    
 
     # System Weight
     if method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
@@ -395,10 +402,10 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
 
     if not hasattr(vehicle.landing_gear, 'nose'):
         vehicle.landing_gear.nose       = SUAVE.Components.Landing_Gear.Nose_Landing_Gear()
-    vehicle.landing_gear.nose.mass  = output.structures.nose_landing_gear
+    vehicle.landing_gear.nose.mass_properties.mass  = output.structures.nose_landing_gear
     if not hasattr(vehicle.landing_gear, 'main'):
         vehicle.landing_gear.main       = SUAVE.Components.Landing_Gear.Main_Landing_Gear()   
-    vehicle.landing_gear.main.mass  = output.structures.main_landing_gear  
+    vehicle.landing_gear.main.mass_properties.mass  = output.structures.main_landing_gear  
 
     control_systems.mass_properties.mass        = output.systems_breakdown.control_systems
     electrical_systems.mass_properties.mass     = output.systems_breakdown.electrical
@@ -409,7 +416,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
     fuel.mass_properties.mass                   = output.fuel
     apu.mass_properties.mass                    = output.systems_breakdown.apu
     hydraulics.mass_properties.mass             = output.systems_breakdown.hydraulics
-    optionals.mass_properties.mass              = output.operational_items.operating_items_less_crew
+    optionals.mass_properties.mass              = output.operational_items.total
 
     # assign components to vehicle
     vehicle.systems.control_systems         = control_systems

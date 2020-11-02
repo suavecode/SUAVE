@@ -54,7 +54,29 @@ class Landing_Gear(Physical_Component):
 #  Handle Linking
 # ----------------------------------------------------------------------
 
-Landing_Gear.Container = Physical_Component.Container
+class Container(Physical_Component.Container):
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """       
+        from . import Main_Landing_Gear
+        from . import Nose_Landing_Gear
+        
+        return [Main_Landing_Gear,Nose_Landing_Gear]
 
 # ----------------------------------------------------------------------
 #   Unit Tests

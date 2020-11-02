@@ -102,6 +102,7 @@ def compute_component_centers_of_gravity_modified(vehicle, nose_load = 0.06,
     furnishings                                             = vehicle.systems.furnishings
     apu                                                     = vehicle.systems.apu
     passenger_weights                                       = vehicle.payload.passengers
+    baggage_weights                                         = vehicle.payload.baggage
     air_conditioner                                         = vehicle.systems.air_conditioner
     optionals                                               = vehicle.systems.optionals  
     fuel                                                    = vehicle.systems.fuel 
@@ -123,6 +124,9 @@ def compute_component_centers_of_gravity_modified(vehicle, nose_load = 0.06,
     
     passenger_weights.origin[0][0]                             = 0.51 * cabin_length + cabin_origin_x  
     passenger_weights.mass_properties.center_of_gravity[0][0]  = 0.0
+    
+    baggage_weights.origin[0][0]                               = 0.51 * cabin_length + cabin_origin_x  
+    baggage_weights.mass_properties.center_of_gravity[0][0]    = 0.0    
     
     air_conditioner.origin[0][0]                               = cabin_origin_x
     air_conditioner.mass_properties.center_of_gravity[0][0]    = 0.0

@@ -87,6 +87,7 @@ class Container(Component.Container):
                 total += Comp.sum_mass() # recursive!
             elif isinstance(Comp,Physical_Component):
                 total += Comp.mass_properties.mass
+                print(key, Comp.mass_properties.mass)
                 
         return total
     

@@ -74,6 +74,7 @@ def systems_FLOPS(vehicle):
     WSC             = 1.1 * VMAX ** 0.52 * SFLAP ** 0.6 * DG ** 0.32  # surface controls weight
 
     XL          = vehicle.fuselages['fuselage'].lengths.total / Units.ft
+    XLP         = vehicle.fuselages.fuselage.cabin.length / Units.ft
     WF          = vehicle.fuselages['fuselage'].width / Units.ft
     FPAREA      = XL * WF
     NPASS       = vehicle.passengers
@@ -102,7 +103,6 @@ def systems_FLOPS(vehicle):
     DESRNG  = vehicle.design_range / Units.nmi
     WAVONC  = 15.8 * DESRNG ** 0.1 * NFLCR ** 0.7 * FPAREA ** 0.43  # avionics weight
 
-    XLP     = 0.8 * XL
     DF      = vehicle.fuselages['fuselage'].heights.maximum / Units.ft # D stands for depth
     WFURN   = 127 * NFLCR + 112 * vehicle.NPF + 78 * vehicle.NPB + 44 * vehicle.NPT \
                 + 2.6 * XLP * (WF + DF) * NFUSE  # furnishing weight
