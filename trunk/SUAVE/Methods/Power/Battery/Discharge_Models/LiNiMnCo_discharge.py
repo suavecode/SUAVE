@@ -118,7 +118,7 @@ def LiNiMnCo_discharge(battery,numerics):
     # Compute battery cell temperature 
     # ---------------------------------------------------------------------------------
     # Determine temperature increase         
-    sigma = 0.000139E6 # Electrical conductivity
+    sigma = 139 # Electrical conductivity
     n     = 1
     F     = 96485 # C/mol Faraday constant
     c0    = -496.66
@@ -218,7 +218,7 @@ def LiNiMnCo_discharge(battery,numerics):
     V_th0  = V_th0/n_series
     V_Th   = compute_thevenin_votlage(V_th0,I_cell,C_Th ,R_Th,numerics)
     
-    # Voltage under load: 
+    # Open Circuit Voltage
     V_oc      = V_ul + V_Th + (I_cell * R_0_aged) 
     
     # ---------------------------------------------------------------------------------
