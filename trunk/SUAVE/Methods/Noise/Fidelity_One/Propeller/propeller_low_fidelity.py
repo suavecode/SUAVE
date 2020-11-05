@@ -79,8 +79,7 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
         SPL_v  = np.zeros_like(SPL) 
 
     # loop for control points  
-    for i in range(ctrl_pts):     
-        total_p_pref_dBA       = []        
+    for i in range(ctrl_pts):           
         auc_opts = conditions.noise.sources[propeller].acoustic_outputs 
         
         if harmonic_test.any():
@@ -177,6 +176,7 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
                            (jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r))))) \
                            * psi_L  ),x = r,dx = dr)
             
+            p_mL_H[np.isnan(p_mL_H)] = 0
             p_mL_H[np.isinf(p_mL_H)] = 0
             p_mL_H = abs(p_mL_H)
             
@@ -186,6 +186,7 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
                     *np.trapz(((M_s**2)*(t/c)*np.exp(1j*phi_s)*(jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))\
                     /(1 - M*np.cos(theta_r)))))*(k_x**2)*psi_V ),x = r,dx = dr)
             
+            p_mT_H[np.isnan(p_mT_H)] = 0 
             p_mT_H[np.isinf(p_mT_H)] = 0  
             p_mT_H  = abs(p_mT_H)
             
@@ -236,6 +237,8 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
             C[j+1]          = SPL_v_dbAi[j+1] - C[j]*np.log10(fr[j+1])   
             p_pref_v_dBA[j] = (10**(0.1*C[j+1]))* (  ((fr[j+1]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) - ((fr[j]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) ) 
         
+        p_pref_v_dBA[np.isnan(p_pref_v_dBA)] = 0
+        
         # ---------------------------------------------------------------------------
         # convert to 1/3 octave spectrum  
         # ---------------------------------------------------------------------------
@@ -248,8 +251,9 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
         SPL_tot_spectrum[i,:]      = 10*np.log10( 10**(SPL_h_spectrum[i,:]/10) +  10**(SPL_v_spectrum[i,:]/10) )
         
         # pressure ratios used to combine A weighted sound since decibel arithmetic does not work for broadband noise since it is a continuous spectrum 
-        total_p_pref_dBA.append(np.concatenate([p_pref_r_dBA,p_pref_v_dBA])) 
-        SPL_dBA_tot[i]       = pressure_ratio_to_SPL_arithmetic(total_p_pref_dBA)  
+        total_p_pref_dBA = np.concatenate([p_pref_r_dBA,p_pref_v_dBA])
+        SPL_dBA_tot[i]   = pressure_ratio_to_SPL_arithmetic(total_p_pref_dBA)  
+        SPL_dBA_tot[np.isinf(SPL_dBA_tot)] = 0 
         
     # Summation of spectrum into one SPL
     SPL_tot      =  SPL_arithmetic(SPL_tot_spectrum) 

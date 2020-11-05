@@ -211,7 +211,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # PRESSURE                                                                      
     # --------------------------------------------------------------------------------------------------------          
     L_ij              = np.multiply((1+u),gamma*Del_Y) 
-    CP                = L_ij/VD.panel_areas  
+    CP                = -L_ij/(0.5*VD.panel_areas)
     
     # --------------------------------------------------------------------------------------------------------
     # MOMENT                                                                        

@@ -76,7 +76,7 @@ class Fidelity_One(Noise):
         settings.sideline                       = False
         settings.mic_x_position                 = 0    
         settings.ground_microphone_phi_angles   = np.array([30.,45.,60.,75.,89.9,90.1,105.,120.,135.,150.])*Units.degrees
-        settings.ground_microphone_theta_angles = np.array([90.,90.,90.,90.,90. ,90. ,90. , 90., 90., 90. ])*Units.degrees
+        settings.ground_microphone_theta_angles = np.array([89.9,89.9,89.9,89.9,89.9,89.9,89.9,89.9, 89.9,89.9 ])*Units.degrees
         settings.center_frequencies             = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
                                                             500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
                                                             4000, 5000, 6300, 8000, 10000])        
@@ -143,6 +143,8 @@ class Fidelity_One(Noise):
         
         # create empty arrays for results  
         num_src            = len(config.propulsors) + 1 
+        if 'lift_cruise' in config.propulsors.keys():
+            num_src += 1
         source_SPLs_dBA    = np.zeros((ctrl_pts,num_src,num_mic)) 
         source_SPL_spectra = np.zeros((ctrl_pts,num_src,dim_cf ,num_mic))  
         total_SPL_dBA      = np.zeros((ctrl_pts,num_mic))  
@@ -182,7 +184,7 @@ class Fidelity_One(Noise):
                             source_SPLs_dBA[:,si,mic_loc]      = propeller_noise.SPL_dBA 
                             source_SPL_spectra[:,si,:,mic_loc] = propeller_noise.SPL_spectrum      
                         
-                si += 1
+                        si += 1
                 
             total_SPL_dBA[:,mic_loc]  = SPL_arithmetic(source_SPLs_dBA[:,:,mic_loc])
         

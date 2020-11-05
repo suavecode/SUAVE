@@ -55,6 +55,9 @@ class Internal_Combustion_Propeller(Propulsor):
         self.number_of_engines = None
         self.thrust_angle      = 0.0
         self.rated_speed       = 0.0
+        self.nacelle_start     = 0.2
+        self.nacelle_end       = 1.0
+        self.nacelle_offset    = 0.5
     
     # manage process with a driver function
     def evaluate_thrust(self,state):

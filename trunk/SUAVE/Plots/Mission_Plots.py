@@ -398,9 +398,9 @@ def plot_electronic_conditions(results, line_color = 'bo-', save_figure = False,
         time           = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         power          = results.segments[i].conditions.propulsion.battery_draw[:,0] 
         energy         = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        volts          = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
-        volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]     
-        current        = results.segments[i].conditions.propulsion.current[:,0]      
+        volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
+        volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]     
+        current        = results.segments[i].conditions.propulsion.battery_current[:,0]      
         battery_amp_hr = (energy/ Units.Wh )/volts  
         C_rating       = current/battery_amp_hr
         
@@ -470,22 +470,22 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
     fig.set_size_inches(12, 10)
     for segment in results.segments.values(): 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        airspeed = segment.conditions.freestream.velocity[:,0] 
+        airspeed = segment.conditions.freestream.velocity[:,0] /   Units['mph']  
         theta    = segment.conditions.frames.body.inertial_rotations[:,1,None] / Units.deg
         
-        x        = segment.conditions.frames.inertial.position_vector[:,0]
+        x        = segment.conditions.frames.inertial.position_vector[:,0]/ Units.mile
         y        = segment.conditions.frames.inertial.position_vector[:,1]
         z        = segment.conditions.frames.inertial.position_vector[:,2]
-        altitude = segment.conditions.freestream.altitude[:,0]
+        altitude = segment.conditions.freestream.altitude[:,0] / Units.feet
         
         axes = fig.add_subplot(2,2,1)
         axes.plot(time, altitude, line_color)
-        axes.set_ylabel('Altitude (m)',axis_font)
+        axes.set_ylabel('Altitude (ft)',axis_font)
         set_axes(axes)            
 
         axes = fig.add_subplot(2,2,2)
         axes.plot( time , airspeed , line_color )
-        axes.set_ylabel('Airspeed (m/s)',axis_font)
+        axes.set_ylabel('Airspeed (mph)',axis_font)
         set_axes(axes)
 
         axes = fig.add_subplot(2,2,3)
@@ -495,8 +495,8 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         set_axes(axes)   
         
         axes = fig.add_subplot(2,2,4)
-        axes.plot( time , x, 'bo-', time , y, 'go-' , time , z, 'ro-')
-        axes.set_ylabel('Range (m)',axis_font)
+        axes.plot( time , x, 'bo-')
+        axes.set_ylabel('Range (miles)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         set_axes(axes)         
         
@@ -539,32 +539,45 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     
     for segment in results.segments.values():  
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm    = segment.conditions.propulsion.rpm[:,0] 
+        rpm    = segment.conditions.propulsion.propeller_rpm[:,0] 
         thrust = np.linalg.norm(segment.conditions.frames.body.thrust_force_vector[:,:],axis=1)
-        torque = segment.conditions.propulsion.motor_torque[:,0] 
+        torque = segment.conditions.propulsion.propeller_motor_torque[:,0] 
         tm     = segment.conditions.propulsion.propeller_tip_mach[:,0]
+        Cp     = segment.conditions.propulsion.propeller_power_coefficient[:,0]
+        eta    = segment.conditions.propulsion.throttle[:,0]
  
-        axes = fig.add_subplot(2,2,1)
+        axes = fig.add_subplot(2,3,1)
         axes.plot(time, thrust, line_color)
         axes.set_ylabel('Thrust (N)',axis_font)
         set_axes(axes)
         
-        axes = fig.add_subplot(2,2,2)
+        axes = fig.add_subplot(2,3,2)
         axes.plot(time, rpm, line_color)
         axes.set_ylabel('RPM',axis_font)
         set_axes(axes)
         
-        axes = fig.add_subplot(2,2,3)
+        axes = fig.add_subplot(2,3,3)
         axes.plot(time, torque, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Torque (N-m)',axis_font)
         set_axes(axes)  
         
-        axes = fig.add_subplot(2,2,4)
+        axes = fig.add_subplot(2,3,4)
+        axes.plot( time , eta , line_color )
+        axes.set_ylabel('Throttle',axis_font)
+        set_axes(axes)	 
+        
+        axes = fig.add_subplot(2,3,5)
+        axes.plot(time, Cp, line_color )
+        axes.set_xlabel('Time (mins)',axis_font)
+        axes.set_ylabel('Power Coefficient',axis_font)
+        set_axes(axes)   
+        
+        axes = fig.add_subplot(2,3,6)
         axes.plot(time, tm, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Tip Mach',axis_font)
-        set_axes(axes)     
+        set_axes(axes)   
         
     if save_figure:
         plt.savefig(save_filename + file_type)  
@@ -606,14 +619,14 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
         axes = fig.add_subplot(1,2,1)
         axes.plot(time, effp, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Propeller Efficiency (N-m)',axis_font)
+        axes.set_ylabel(r'Propeller Efficiency ($\eta_p$)',axis_font)
         set_axes(axes)         
         plt.ylim((0,1))
         
         axes = fig.add_subplot(1,2,2)
         axes.plot(time, effm, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
+        axes.set_ylabel(r'Motor Efficiency ($\eta_m$)',axis_font)
         set_axes(axes)
         
     if save_figure:
@@ -787,8 +800,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]  
                     
         axes = fig.add_subplot(2,2,1)
-        axes.plot(time, eta, 'bo-',label='Forward Motor')
-        axes.plot(time, eta_l, 'r^-',label='Lift Motors')
+        axes.plot(time, eta, 'bo-',label='Propeller Motor')
+        axes.plot(time, eta_l, 'r^-',label='Rotor Motor')
         axes.set_ylabel('Throttle',axis_font)
         set_axes(axes)     
         plt.ylim((0,1))
@@ -1134,8 +1147,7 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
     n_w        = VD.n_w
     
     axis_font  = {'size':'12'}  	
-    img_idx    = 1	
-    seg_idx    = 1	
+    img_idx    = 1 	
     for segment in results.segments.values():   	
         num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
         for ti in range(num_ctrl_pts):  
@@ -1153,8 +1165,7 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
             
             if save_figure: 
                 plt.savefig( save_filename + '_' + str(img_idx) + file_type) 	
-            img_idx += 1	
-        seg_idx +=1
+            img_idx += 1 
         
     return      
  
@@ -1330,19 +1341,17 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
         seg_idx +=1 
 
 
+
 # ------------------------------------------------------------------
 #   Rotor/Propeller Acoustics
 # ------------------------------------------------------------------
 def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_filename = "Noise Level"):
     """This plots the A-weighted Sound Pressure of 
     on all lifting surfaces of the aircraft
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs:
     results.segments.aerodynamics.
         inviscid_wings_sectional_lift
@@ -1352,7 +1361,6 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
        
     Outputs: 
     Plots
-
     Properties Used:
     N/A	
     """       
@@ -1393,13 +1401,10 @@ def plot_noise_level(results, line_color = 'bo-', save_figure = False, save_file
 def plot_noise_contour(results, line_color = 'bo-', save_figure = False, save_filename = "Ground Noise Contour"):
     """This plots the A-weighted Sound Pressure of 
     on all lifting surfaces of the aircraft
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs:
     results.segments.aerodynamics.
         inviscid_wings_sectional_lift
@@ -1409,7 +1414,6 @@ def plot_noise_contour(results, line_color = 'bo-', save_figure = False, save_fi
        
     Outputs: 
     Plots
-
     Properties Used:
     N/A	
     """       
@@ -1452,8 +1456,8 @@ def plot_noise_contour(results, line_color = 'bo-', save_figure = False, save_fi
         line = plt3d.art3d.Line3D(xs, ys, zs, color = 'black', linewidth = 3)
         axes.add_line(line)    
       
-    cbar = fig.colorbar(CS, ax=axes)
-    cbar.ax.set_ylabel('SPL', rotation =  0)  
+    cbar = fig.colorbar(CS, ax=axes, shrink=0.5)
+    cbar.ax.set_ylabel('SPL', rotation =  0, labelpad=20)  
     plt.axis('off')	
     plt.grid(None)        
     
@@ -1469,13 +1473,10 @@ def plot_noise_contour(results, line_color = 'bo-', save_figure = False, save_fi
 def plot_propeller_performance(noise, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Performance"): 
     """This plots the sectional lift distrubtion at all control points
     on all lifting surfaces of the aircraft
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs:
     results.segments.aerodynamics.
         inviscid_wings_sectional_lift
@@ -1485,7 +1486,6 @@ def plot_propeller_performance(noise, line_color = 'bo-', save_figure = False, s
        
     Outputs: 
     Plots
-
     Properties Used:
     N/A	
     """       
