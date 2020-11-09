@@ -13,7 +13,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
+def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach,use_MCM = False, grid_stretch_super = True):
     """ This computes the induced velocitys are each control point 
     of the vehicle vortex lattice 
 
@@ -45,6 +45,8 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     mach[mach==1]         = 1.001  
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)  # note that this applies to all Machs below 1 and does not to take into consideration the common assumtion of no compressibility under mach 0.3   
     inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
+    if grid_stretch_super==False:
+        inv_root_beta[mach>1] = 1.
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
     XAH   = np.atleast_3d(VD.XAH*inv_root_beta) 
@@ -157,6 +159,14 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
     C_mn        = C_AB_bv + C_AB_ll_tot  + C_AB_rl_tot   # verified from book using example 7.4 pg 399-404 
     DW_mn       = C_AB_ll_tot + C_AB_rl_tot              # summation of trailing vortices for semi infinite 
+    
+
+    
+    if use_MCM == True:
+        MCM   = np.ones_like(C_AB_bv)
+        MCM   = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)          
+        DW_mn = DW_mn * MCM
+        C_mn  = C_mn  * MCM    
     
     return C_mn, DW_mn
 
@@ -285,3 +295,48 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     COEF  = -(1/(4*np.pi))*RVEC*BRAC      
 
     return COEF
+
+
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
+    """ This computes the mach cone influence matrix for supersonic 
+    speeds. 
+    
+    Assumptions:  
+    None 
+    
+    Source:    
+    Garrido Estrada, Ester. "Tornado supersonic module development." (2011).
+    
+    Inputs: 
+    Properties Used:
+    N/A
+    
+    """       
+    for m_idx in range(len(mach)):
+        
+        # Prep new vectors
+        XC_sub = XC[m_idx,:]
+        YC_sub = YC[m_idx,:]
+        ZC_sub = ZC[m_idx,:]
+        length = len(XC[m_idx,:])
+        ones   = np.ones((1,length))
+        
+        # Take differences
+        del_x = XC_sub*ones - XC_sub.T
+        del_y = YC_sub*ones - YC_sub.T
+        del_z = ZC_sub*ones - ZC_sub.T
+        
+        # Flag certain indices outside the cone
+        c     = np.arcsin(1/mach[m_idx])
+        flag  = -c*del_x**2 + del_y**2 + del_z**2
+        idxs  = np.where(flag > 0.0)
+        MCM[m_idx,idxs[0],idxs[1]]  = [0.0, 0.0, 0.0] 
+        
+        # Control points in the back don't influence ahead, upstream affects downstream but not vice versa
+        idx2  = np.where(del_x < 0.0)
+        if mach[m_idx]>1.:
+            MCM[m_idx,idx2[0],idx2[1]]  = [0.0, 0.0, 0.0] 
+            
+        
+    return MCM

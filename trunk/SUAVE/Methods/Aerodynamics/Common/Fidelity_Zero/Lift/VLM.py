@@ -89,6 +89,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     n_sw       = settings.number_spanwise_vortices    
     n_cw       = settings.number_chordwise_vortices   
     pwm        = settings.propeller_wake_model
+    use_MCM    = settings.use_mach_cone_matrix
+    grid_stretch_super = settings.stretch_supersonic_grid
     Sref       = geometry.reference_area 
     
 
@@ -122,7 +124,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     geometry.vortex_distribution = VD
     
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
+    C_mn, DW_mn = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach,use_MCM,grid_stretch_super) 
      
     # Compute flow tangency conditions   
     inv_root_beta           = np.zeros_like(mach)

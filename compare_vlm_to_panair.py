@@ -58,13 +58,15 @@ def main():
     
     # Arrow biconvex
     length             = 5
-    arrow_biconvex_file    = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex.csv'
-    panair_arrow_biconvex  = import_csv(arrow_biconvex_file)
+    arrow_biconvex_file_vsp = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex_vspaero.csv'
+    arrow_biconvex_file_pan = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex.csv'
+    vsp_arrow_biconvex     = import_csv(arrow_biconvex_file_vsp)
+    pan_arrow_biconvex     = import_csv(arrow_biconvex_file_pan)
     arrow_biconvex         = arrw_biconvex()
-    conditions             = setup_conditions(panair_arrow_biconvex)
-    results_arrow_biconvex = analyze(arrow_biconvex, conditions)
+    conditions             = setup_conditions(pan_arrow_biconvex)
+    results_arrow_biconvex = analyze(arrow_biconvex, conditions, use_MCM = False, grid_stretch_super = False)
     #plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
-    plot_results_2D('Arrow biconvex',results_arrow_biconvex,panair_arrow_biconvex,length)    
+    plot_results_2D('Arrow biconvex',results_arrow_biconvex,pan_arrow_biconvex,vsp_arrow_biconvex,length)    
     
     
     ## Arrow NACA Twist
@@ -106,23 +108,23 @@ def import_csv(filename):
     
     return results
 
-def plot_results(name,vlm_results,panair_results,length):
+def plot_results(name,vlm_results,panair_results,length,label_name='Panair'):
     
     
     mach  = panair_results.mach.reshape((-1,length))
     aoa   = panair_results.aoa.reshape((-1,length))
-    v_CL  = vlm_results.CL.reshape((-1,length))
-    v_CD  = vlm_results.CD.reshape((-1,length))
-    v_CDi = vlm_results.CDi.reshape((-1,length))
+    s_CL  = vlm_results.CL.reshape((-1,length))
+    s_CD  = vlm_results.CD.reshape((-1,length))
+    s_CDi = vlm_results.CDi.reshape((-1,length))
     p_CL  = panair_results.CL.reshape((-1,length))
     p_CD  = panair_results.CD.reshape((-1,length))
-
+    
 
     # CL
     fig = plt.figure(name+' CL')
     ax = fig.gca(projection='3d')    
     
-    vlm_cl = ax.plot_surface(mach, aoa, v_CL, cmap=cm.Reds,
+    vlm_cl = ax.plot_surface(mach, aoa, s_CL, cmap=cm.Reds,
                            linewidth=0, antialiased=False)  
     
     pan_cl = ax.plot_surface(mach, aoa, p_CL, cmap=cm.Blues,
@@ -133,14 +135,14 @@ def plot_results(name,vlm_results,panair_results,length):
     ax.set_zlabel('CL')
     
     fig.colorbar(vlm_cl, shrink=0.5, aspect=5,label='VLM')
-    fig.colorbar(pan_cl, shrink=0.5, aspect=5,label='Panair')
+    fig.colorbar(pan_cl, shrink=0.5, aspect=5,label=label_name)
     
     
     # CD
     fig2 = plt.figure(name+' CD no Wave from VLM')
     ax2 = fig2.gca(projection='3d')    
     
-    vlm_cd = ax2.plot_surface(mach, v_CL, v_CDi, cmap=cm.Reds,
+    vlm_cd = ax2.plot_surface(mach, s_CL, s_CDi, cmap=cm.Reds,
                            linewidth=0, antialiased=False)  
     
     pan_cd = ax2.plot_surface(mach, p_CL, p_CD, cmap=cm.Blues,
@@ -151,14 +153,14 @@ def plot_results(name,vlm_results,panair_results,length):
     ax2.set_zlabel('CD')    
     
     fig2.colorbar(vlm_cd, shrink=0.5, aspect=5,label='VLM')
-    fig2.colorbar(pan_cd, shrink=0.5, aspect=5,label='Panair')        
+    fig2.colorbar(pan_cd, shrink=0.5, aspect=5,label=label_name)        
     
     
     # CD
     fig3 = plt.figure(name+' CD with Wave due to Lift')
     ax3  = fig3.gca(projection='3d')    
     
-    vlm_cd = ax3.plot_surface(mach, v_CL, v_CD, cmap=cm.Reds,
+    vlm_cd = ax3.plot_surface(mach, s_CL, s_CD, cmap=cm.Reds,
                            linewidth=0, antialiased=False)  
     
     pan_cd = ax3.plot_surface(mach, p_CL, p_CD, cmap=cm.Blues,
@@ -169,44 +171,49 @@ def plot_results(name,vlm_results,panair_results,length):
     ax3.set_zlabel('CD')    
     
     fig3.colorbar(vlm_cd, shrink=0.5, aspect=5,label='VLM')
-    fig3.colorbar(pan_cd, shrink=0.5, aspect=5,label='Panair')    
+    fig3.colorbar(pan_cd, shrink=0.5, aspect=5,label=label_name)    
     
     return
 
-def plot_results_2D(name,vlm_results,panair_results,length):
+def plot_results_2D(name,vlm_results,panair_results,vsp_results,length):
     
     mach  = panair_results.mach.reshape((-1,length))
     aoa   = panair_results.aoa.reshape((-1,length))
-    v_CL  = vlm_results.CL.reshape((-1,length))
-    v_CD  = vlm_results.CD.reshape((-1,length))
-    v_CDi = vlm_results.CDi.reshape((-1,length))
+    s_CL  = vlm_results.CL.reshape((-1,length))
+    s_CD  = vlm_results.CD.reshape((-1,length))
+    s_CDi = vlm_results.CDi.reshape((-1,length))
     p_CL  = panair_results.CL.reshape((-1,length))
     p_CD  = panair_results.CD.reshape((-1,length))
+    v_CL  = vsp_results.CL.reshape((-1,length))
+    v_CD  = vsp_results.CD.reshape((-1,length))
     
     fig_CL  = plt.figure(name+' 2D CL')
     fig_CDi = plt.figure(name+' 2D CD no Wave from VLM')
     fig_CD  = plt.figure(name+' 2D CD with Wave due to Lift')
-    fig_CL.set_size_inches(12, 10)
-    fig_CD.set_size_inches(12, 10)
-    fig_CDi.set_size_inches(12, 10)
+    fig_CL.set_size_inches(12, 12)
+    fig_CD.set_size_inches(12, 12)
+    fig_CDi.set_size_inches(12, 12)
     n_plots = np.shape(mach)[0]
     for ii in range(n_plots):
         a_mach = mach[ii,0]
         axes_CL = fig_CL.add_subplot(n_plots,1,ii+1)
-        axes_CL.plot( aoa[ii,:] / Units.degrees, v_CL[ii,:] , 'ro-',label='VLM')
+        axes_CL.plot( aoa[ii,:] / Units.degrees, s_CL[ii,:] , 'ro-',label='VLM')
         axes_CL.plot( aoa[ii,:] / Units.degrees, p_CL[ii,:] , 'bo-',label='Panair')
+        axes_CL.plot( aoa[ii,:] / Units.degrees, v_CL[ii,:] , 'go-',label='VSPaero VLM')
         axes_CL.set_ylabel('CL Mach = ' + str(a_mach))
         axes_CL.set_xlabel('AoA')
         
         axes_CDi = fig_CDi.add_subplot(n_plots,1,ii+1)
-        axes_CDi.plot( v_CL[ii,:], v_CDi[ii,:] , 'ro-',label='VLM')
+        axes_CDi.plot( s_CL[ii,:], s_CDi[ii,:] , 'ro-',label='VLM')
         axes_CDi.plot( p_CL[ii,:], p_CD[ii,:] , 'bo-',label='Panair')
+        axes_CDi.plot( v_CL[ii,:], v_CD[ii,:] , 'go-',label='VSPaero VLM')
         axes_CDi.set_ylabel('CDi Mach = ' + str(a_mach))
         axes_CDi.set_xlabel('CL')
         
         axes_CD = fig_CD.add_subplot(n_plots,1,ii+1)
-        axes_CD.plot( v_CL[ii,:], v_CD[ii,:] , 'ro-',label='VLM')
+        axes_CD.plot( s_CL[ii,:], s_CD[ii,:] , 'ro-',label='VLM')
         axes_CD.plot( p_CL[ii,:], p_CD[ii,:] , 'bo-',label='Panair')
+        axes_CD.plot( v_CL[ii,:], v_CD[ii,:] , 'go-',label='VSPaero VLM')
         axes_CD.set_ylabel('CD Mach = ' + str(a_mach))
         axes_CD.set_xlabel('CL')     
         
@@ -219,7 +226,7 @@ def plot_results_2D(name,vlm_results,panair_results,length):
 
 
 
-def analyze(config,conditions):
+def analyze(config,conditions, use_MCM = False, grid_stretch_super = True):
     
     
     results = Data()
@@ -229,6 +236,8 @@ def analyze(config,conditions):
     settings.number_spanwise_vortices  = 40
     settings.number_chordwise_vortices = 10
     settings.propeller_wake_model      = None
+    settings.use_mach_cone_matrix      = use_MCM 
+    settings.stretch_supersonic_grid   = grid_stretch_super
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
     
