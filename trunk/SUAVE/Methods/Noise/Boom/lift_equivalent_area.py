@@ -23,6 +23,7 @@ def lift_equivalent_area(config,analyses,conditions):
     
     S                                  = config.reference_area
     q                                  = conditions.freestream.dynamic_pressure
+    mach                               = conditions.freestream.mach_number
     settings                           = Data()
     settings.number_spanwise_vortices  = analyses.aerodynamics.settings.number_spanwise_vortices
     settings.number_chordwise_vortices = analyses.aerodynamics.settings.number_chordwise_vortices
@@ -31,21 +32,21 @@ def lift_equivalent_area(config,analyses,conditions):
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
     
-
     VD = analyses.aerodynamics.geometry.vortex_distribution
     
     areas      = VD.panel_areas
     normal_vec = VD.unit_normals
     XC         = VD.XC
+    ZC         = VD.ZC
     z_comp     = normal_vec[:,2]
 
     # The 2 is used because the CP acts on both the top and bottom of the panel
     lift_force_per_panel = 2*CP*q*z_comp*areas
     
-    L_CP = np.sum(lift_force_per_panel)
+    X_shift = XC + ZC/mach[0]
     
     # Order the values
-    sort_order = np.argsort(XC)
+    sort_order = np.argsort(X_shift)
     X  = np.take(XC,sort_order)
     Y  = np.take(lift_force_per_panel, sort_order)
 

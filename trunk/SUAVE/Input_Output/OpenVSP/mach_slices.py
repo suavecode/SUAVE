@@ -20,7 +20,7 @@ import numpy as np
 #  Mach Slices
 # ----------------------------------------------------------------------
 
-def mach_slices(vehicle,mach,angle_of_attack=0.,number_slices = 100):
+def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 100):
     
     # Write the vehicle
     write(vehicle,vehicle.tag,write_file=False)
@@ -30,8 +30,8 @@ def mach_slices(vehicle,mach,angle_of_attack=0.,number_slices = 100):
     roty = mach_angle - angle_of_attack[0]
     
     # Take the components of the X and Z axis to get the slicing plane
-    x_component = np.sin(roty)
-    z_component = np.cos(roty)
+    x_component = np.cos(roty)
+    z_component = np.sin(roty)
     
     # Now slice it 
     slice_mesh_id = vsp.ComputePlaneSlice( 0, number_slices, vsp.vec3d(x_component, 0.0, z_component), True)
@@ -39,7 +39,22 @@ def mach_slices(vehicle,mach,angle_of_attack=0.,number_slices = 100):
     # Pull out the areas from the slices
     pslice_results = vsp.FindLatestResultsID("Slice")
     slice_areas    = vsp.GetDoubleResults( pslice_results, "Slice_Area" )
+    vec3d          = vsp.GetVec3dResults(pslice_results, "Slice_Area_Center")
     
-    X_locs = np.linspace(0,vehicle.total_length,number_slices,)
+    X = []
+    Z = []
     
+    for v in vec3d:
+        X.append(v.x())
+        Z.append(v.z())
+        
+    X = np.array(X)
+    Z = np.array(Z)
+        
+    X_locs = X + Z/mach
+    
+    if slice_areas[-1]==0.:
+        slice_areas = slice_areas[0:-1]
+        X_locs      = X_locs[0:-1]
+        
     return X_locs, slice_areas
