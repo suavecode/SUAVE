@@ -68,8 +68,8 @@ class Fidelity_Zero(Markup):
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
         settings.maximum_lift_coefficient           = np.inf
-        settings.number_panels_spanwise             = None 
-        settings.number_panels_chordwise            = None 
+        settings.number_spanwise_vortices           = None 
+        settings.number_chordwise_vortices          = None 
         settings.use_surrogate                      = True 
         settings.propeller_wake_model               = False 
         
@@ -127,8 +127,8 @@ class Fidelity_Zero(Markup):
         
         use_surrogate             = self.settings.use_surrogate
         propeller_wake_model      = self.settings.propeller_wake_model 
-        n_sw                      = self.settings.number_panels_spanwise
-        n_cw                      = self.settings.number_panels_chordwise
+        n_sw                      = self.settings.number_spanwise_vortices
+        n_cw                      = self.settings.number_chordwise_vortices
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
         self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model)          

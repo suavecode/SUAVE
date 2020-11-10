@@ -29,8 +29,8 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
     conditions.
         aerodynamics.angle_of_attack             [radians] 
         freestream.velocity                      [m/s]
-    n_sw        - number_panels_spanwise         [Unitless]
-    n_cw        - number_panels_chordwise        [Unitless]
+    n_sw        - number_spanwise_vortices       [Unitless]
+    n_cw        - number_chordwise_vortices      [Unitless]
     sur_flag    - use_surrogate flag             [Unitless]
     slipstream  - propeller_wake_model flag      [Unitless] 
     delta, phi  - flow tangency angles           [radians]
@@ -57,13 +57,17 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
         #-------------------------------------------------------------------------------------------------------
         # PROPELLER SLIPSTREAM MODEL
         #-------------------------------------------------------------------------------------------------------         
-        if propeller_wake_model and ('propeller' in propulsor.keys()):   
+        if propeller_wake_model and (('propeller' in propulsor.keys()) or ('rotor' in propulsor.keys())):   
         
             # extract the propeller data struction 
-            prop = propulsor.propeller 
+            try:
+                prop = propulsor.propeller 
+            except:
+                prop = propulsor.rotor 
             
             # generate the geometry of the propeller helical wake
-            wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(prop,num_ctrl_pts,VD,initial_timestep_offset,wake_development_time)
+            wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(prop,propulsor.thrust_angle,num_ctrl_pts,\
+                                                                                                                    VD,initial_timestep_offset,wake_development_time)
             
             # compute the induced velocity
             V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
@@ -75,14 +79,11 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
             Vx                = V_inf*np.cos(aoa) - Vx_ind_total 
             Vz                = V_inf*np.sin(aoa) - Vz_ind_total 
             V_distribution    = np.sqrt(Vx**2 + Vz**2 )                    
-            aoa_distribution  = np.arctan(Vz/Vx)     
+            aoa_distribution  = np.arctan(Vz/Vx)
             
             RHS = np.sin(aoa_distribution - delta )*np.cos(phi)   
             
             return  RHS ,Vx_ind_total , Vz_ind_total , V_distribution , dt 
-        
-        else:
-            pass
          
     RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
     
