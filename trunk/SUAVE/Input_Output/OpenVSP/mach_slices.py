@@ -51,7 +51,7 @@ def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 100):
     X = np.array(X)
     Z = np.array(Z)
         
-    X_locs = X + Z/mach
+    X_locs = X + Z*np.tan(mach_angle)
     
     if slice_areas[-1]==0.:
         slice_areas = slice_areas[0:-1]

@@ -43,11 +43,15 @@ def lift_equivalent_area(config,analyses,conditions):
     # The 2 is used because the CP acts on both the top and bottom of the panel
     lift_force_per_panel = 2*CP*q*z_comp*areas
     
-    X_shift = XC + ZC/mach[0]
+    # Mach angle
+    mach_angle = np.arcsin(1/mach[0])
+    
+    # Shift all points onto the X axis
+    X_shift = XC + ZC*np.tan(mach_angle)
     
     # Order the values
     sort_order = np.argsort(X_shift)
-    X  = np.take(XC,sort_order)
+    X  = np.take(X_shift,sort_order)
     Y  = np.take(lift_force_per_panel, sort_order)
 
     u, inv = np.unique(X, return_inverse=True)
