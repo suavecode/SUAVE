@@ -52,21 +52,24 @@ def main():
     #arrow_NACA         = arrw_naca()
     #conditions         = setup_conditions(panair_arrow_NACA)
     #results_arrow_NACA = analyze(arrow_NACA, conditions)
-    ##plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
+    #plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
     #plot_results_2D('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
     
     
     # Arrow biconvex
     length             = 5
-    arrow_biconvex_file_vsp = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex_vspaero.csv'
-    arrow_biconvex_file_pan = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex.csv'
-    vsp_arrow_biconvex     = import_csv(arrow_biconvex_file_vsp)
-    pan_arrow_biconvex     = import_csv(arrow_biconvex_file_pan)
+    #arrow_biconvex_file_vsp = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex_vspaero.csv'
+    #arrow_biconvex_file_pan = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex.csv'
+    #arrow_biconvex_file_su2 = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex_su2.csv'
+    #vsp_arrow_biconvex     = import_csv(arrow_biconvex_file_vsp)
+    #pan_arrow_biconvex     = import_csv(arrow_biconvex_file_pan)
+    #su2_arrow_biconvex     = import_csv(arrow_biconvex_file_su2)
     arrow_biconvex         = arrw_biconvex()
-    conditions             = setup_conditions(pan_arrow_biconvex)
-    results_arrow_biconvex = analyze(arrow_biconvex, conditions, use_MCM = False, grid_stretch_super = False)
+    conditions             = setup_conditions()
+    results_arrow_biconvex = analyze(arrow_biconvex, conditions, use_MCM = False, grid_stretch_super = True, use_sup = True)
+    print('stop')
     #plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
-    plot_results_2D('Arrow biconvex',results_arrow_biconvex,pan_arrow_biconvex,vsp_arrow_biconvex,length)    
+    #plot_results_2D('Arrow biconvex',results_arrow_biconvex,pan_arrow_biconvex,vsp_arrow_biconvex,length)    
     
     
     ## Arrow NACA Twist
@@ -226,7 +229,7 @@ def plot_results_2D(name,vlm_results,panair_results,vsp_results,length):
 
 
 
-def analyze(config,conditions, use_MCM = False, grid_stretch_super = True):
+def analyze(config,conditions, use_MCM = False, grid_stretch_super = True, use_sup = False):
     
     
     results = Data()
@@ -234,10 +237,11 @@ def analyze(config,conditions, use_MCM = False, grid_stretch_super = True):
     S                                  = config.reference_area
     settings                           = Data()
     settings.number_spanwise_vortices  = 40
-    settings.number_chordwise_vortices = 10
+    settings.number_chordwise_vortices = 20
     settings.propeller_wake_model      = None
     settings.use_mach_cone_matrix      = use_MCM 
     settings.stretch_supersonic_grid   = grid_stretch_super
+    settings.use_supersonic_correction = use_sup 
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
     
@@ -268,10 +272,10 @@ def analyze(config,conditions, use_MCM = False, grid_stretch_super = True):
 #def plots(conditions,results):
     
 
-def setup_conditions(panair_results):
+def setup_conditions():
         
-    aoas  = panair_results.aoa
-    machs = panair_results.mach
+    aoas  = np.array([-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6]) * Units.degrees
+    machs = np.array([0.4,0.4,0.4,0.4,0.4,0.8,0.8,0.8,0.8,0.8,1.4,1.4,1.4,1.4,1.4,1.6,1.6,1.6,1.6,1.6,1.8,1.8,1.8,1.8,1.8,2,2,2,2,2])
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()
@@ -280,8 +284,8 @@ def setup_conditions(panair_results):
     conditions.aerodynamics = Data()
     conditions.freestream   = Data()
     conditions.freestream.velocity          = np.atleast_2d(100.*np.ones_like(aoas))
-    conditions.aerodynamics.angle_of_attack = np.atleast_2d(aoas)
-    conditions.freestream.mach_number       = np.atleast_2d(machs)
+    conditions.aerodynamics.angle_of_attack = np.atleast_2d(aoas).T
+    conditions.freestream.mach_number       = np.atleast_2d(machs).T
 
     return conditions
 

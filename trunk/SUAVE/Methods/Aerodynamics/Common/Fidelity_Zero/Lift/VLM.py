@@ -90,6 +90,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     n_cw       = settings.number_chordwise_vortices   
     pwm        = settings.propeller_wake_model
     use_MCM    = settings.use_mach_cone_matrix
+    use_sup    = settings.use_supersonic_correction
     grid_stretch_super = settings.stretch_supersonic_grid
     Sref       = geometry.reference_area 
     
@@ -145,9 +146,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
                                                                                  pwm,initial_timestep_offset,wake_development_time ) 
     
     # Spersonic Vortex Lattice - Validated from NASA CR, page 3 
-    locs = np.where(mach>1)[0]
-    DW_mn[locs]  = DW_mn[locs]*2
-    C_mn[locs]   = C_mn[locs]*2
+    if use_sup:
+        locs = np.where(mach>1)[0]
+        DW_mn[locs]  = DW_mn[locs]*2
+        C_mn[locs]   = C_mn[locs]*2
     
     # Compute vortex strength  
     n_cp     = VD.n_cp  
