@@ -66,7 +66,7 @@ def main():
     #su2_arrow_biconvex     = import_csv(arrow_biconvex_file_su2)
     arrow_biconvex         = arrw_biconvex()
     conditions             = setup_conditions()
-    results_arrow_biconvex = analyze(arrow_biconvex, conditions, use_MCM = False, grid_stretch_super = True, use_sup = True)
+    results_arrow_biconvex = analyze(arrow_biconvex, conditions, use_MCM = False, grid_stretch_super = False, use_sup = True)
     print('stop')
     #plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
     #plot_results_2D('Arrow biconvex',results_arrow_biconvex,pan_arrow_biconvex,vsp_arrow_biconvex,length)    

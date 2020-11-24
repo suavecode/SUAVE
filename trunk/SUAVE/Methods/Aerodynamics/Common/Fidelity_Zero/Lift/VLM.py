@@ -144,13 +144,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # Build the vector
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
                                                                                  pwm,initial_timestep_offset,wake_development_time ) 
-    
-    # Spersonic Vortex Lattice - Validated from NASA CR, page 3 
-    if use_sup:
-        locs = np.where(mach>1)[0]
-        DW_mn[locs]  = DW_mn[locs]*2
-        C_mn[locs]   = C_mn[locs]*2
-    
     # Compute vortex strength  
     n_cp     = VD.n_cp  
     gamma    = np.linalg.solve(A,RHS)

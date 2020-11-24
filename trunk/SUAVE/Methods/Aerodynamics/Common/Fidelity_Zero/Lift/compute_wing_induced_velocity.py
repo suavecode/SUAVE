@@ -48,6 +48,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach,use_MCM = False, gri
     if grid_stretch_super==False:
         inv_root_beta[mach>1] = 1.
     inv_root_beta = np.atleast_3d(inv_root_beta)
+    
      
     XAH   = np.atleast_3d(VD.XAH*inv_root_beta) 
     YAH   = np.atleast_3d(VD.YAH*ones) 
@@ -84,6 +85,12 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach,use_MCM = False, gri
     YC    = np.atleast_3d(VD.YC*ones) 
     ZC    = np.atleast_3d(VD.ZC*ones)  
     n_w   = VD.n_w
+    
+    # supersonic corrections
+    kappa = np.ones_like(XAH)
+    kappa[mach>1.,:] = 2.
+    beta_2 = np.ones_like(XAH)
+    beta_2[mach>1.,:] = ((1. - mach[mach>1]**2)*np.atleast_2d(np.ones_like(VD.XAH)).T).T
 
     theta_w = np.atleast_3d(theta_w)   # wake model, use theta_w if setting to freestream, use 0 if setting to airfoil chord like
     
@@ -115,30 +122,30 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach,use_MCM = False, gri
     ZC_TE = np.swapaxes(ZC_TE,1,2)     
     
     # compute influence of bound vortices 
-    res_C_AB_bv , _   = vortex(XC, YC, ZC, XAH, YAH, ZAH, XBH, YBH, ZBH)
+    res_C_AB_bv , _   = vortex(XC, YC, ZC, XAH, YAH, ZAH, XBH, YBH, ZBH, kappa, beta_2)
     C_AB_bv           = np.transpose(res_C_AB_bv,axes=[1,2,3,0])
     
     # compute influence of 3/4 left legs 
-    res_C_AB_34_ll,_ = vortex(XC, YC, ZC, XA2, YA2, ZA2, XAH, YAH, ZAH) 
+    res_C_AB_34_ll,_ = vortex(XC, YC, ZC, XA2, YA2, ZA2, XAH, YAH, ZAH, kappa, beta_2) 
     C_AB_34_ll       = np.transpose(res_C_AB_34_ll,axes=[1,2,3,0])  
 
     # compute influence of whole panel left legs  
-    res_C_AB_ll,_    = vortex(XC, YC, ZC, XA2, YA2, ZA2, XA1, YA1, ZA1) 
+    res_C_AB_ll,_    = vortex(XC, YC, ZC, XA2, YA2, ZA2, XA1, YA1, ZA1, kappa, beta_2) 
     C_AB_ll          =  np.transpose(res_C_AB_ll,axes=[1,2,3,0])  
 
     # compute influence of 3/4 right legs  
-    res_C_AB_34_rl,_ = vortex(XC, YC, ZC, XBH, YBH, ZBH, XB2, YB2, ZB2)   
+    res_C_AB_34_rl,_ = vortex(XC, YC, ZC, XBH, YBH, ZBH, XB2, YB2, ZB2, kappa, beta_2)   
     C_AB_34_rl       = np.transpose(res_C_AB_34_rl,axes=[1,2,3,0])  
 
     # compute influence of whole right legs   
-    res_C_AB_rl, _   = vortex(XC, YC, ZC, XB1, YB1, ZB1, XB2, YB2, ZB2)  
+    res_C_AB_rl, _   = vortex(XC, YC, ZC, XB1, YB1, ZB1, XB2, YB2, ZB2, kappa, beta_2)  
     C_AB_rl          = np.transpose(res_C_AB_rl,axes=[1,2,3,0])  
 
     # velocity induced by left leg of vortex (A to inf)
-    C_Ainf           = np.transpose(vortex_leg_from_A_to_inf(XC, YC, ZC, XA_TE, YA_TE, ZA_TE,theta_w),axes=[1,2,3,0])
+    C_Ainf           = np.transpose(vortex_leg_from_A_to_inf(XC, YC, ZC, XA_TE, YA_TE, ZA_TE,theta_w, kappa, beta_2),axes=[1,2,3,0])
 
     # velocity induced by right leg of vortex (B to inf)
-    C_Binf           = np.transpose(vortex_leg_from_B_to_inf(XC, YC, ZC, XB_TE, YB_TE, ZB_TE,theta_w),axes=[1,2,3,0])
+    C_Binf           = np.transpose(vortex_leg_from_B_to_inf(XC, YC, ZC, XB_TE, YB_TE, ZB_TE,theta_w, kappa, beta_2),axes=[1,2,3,0])
 
     # the follow block of text adds up all the trailing legs of the vortices which are on the wing for the downwind panels   
     C_AB_ll_on_wing  = np.zeros_like(C_AB_ll)
@@ -174,7 +181,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach,use_MCM = False, gri
 # vortex strength computation
 # -------------------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1):
+def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,kappa, beta_2, GAMMA = 1):
     """ This computes the velocity induced on a control point by a segment
     of a horseshoe vortex from point 1 to point 2 
 
@@ -204,26 +211,28 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2, GAMMA = 1):
     Y2_Y1 = Y2-Y1
 
     Z_Z1  = Z-Z1
-    Z_Z2  = Z-Z2 
-    Z2_Z1 = Z2-Z1 
+    Z_Z2  = Z-Z2
+    Z2_Z1 = Z2-Z1
 
     R1R2X  = Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
     R1R2Y  = Z_Z1*X_X2 - X_X1*Z_Z2
     R1R2Z  = X_X1*Y_Y2 - Y_Y1*X_X2
     SQUARE = np.square(R1R2X) + np.square(R1R2Y) + np.square(R1R2Z)
     SQUARE[SQUARE==0] = 1e-12
-    R1     = np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1)) 
-    R2     = np.sqrt(np.square(X_X2) + np.square(Y_Y2) + np.square(Z_Z2)) 
-    R0R1   = X2_X1*X_X1 + Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1
-    R0R2   = X2_X1*X_X2 + Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2
+    R1     = np.real(np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1)) + 0j))
+    R2     = np.real(np.sqrt(np.square(X_X2) + beta_2*(np.square(Y_Y2) + np.square(Z_Z2)) + 0j))
+    R1[R1==0.] = 1e-12
+    R2[R2==0]  = 1e-12
+    R0R1   = X2_X1*X_X1 + beta_2*(Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1)
+    R0R2   = X2_X1*X_X2 + beta_2*(Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2)
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])
-    COEF   = (1/(4*np.pi))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)    
+    COEF   = (1/(4*np.pi*kappa))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)    
     V_IND  = GAMMA * COEF
     
     return COEF , V_IND
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw): 
+def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw,kappa,beta_2): 
     """ This computes the velocity induced on a control point the left leg of a 
     a semi-infinite horseshoe vortex from point 1 to infinity
 
@@ -254,13 +263,20 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     YVEC  = (Z_Z1)/DENUM
     ZVEC  = Y1_Y*np.cos(tw)/DENUM 
     RVEC  = np.array([XVEC, YVEC, ZVEC])
-    BRAC  = 1 + (X_X1 / (np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1))))    
-    COEF  = (1/(4*np.pi))*RVEC*BRAC   
+    
+    BRAC_DENUM = (np.real(np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1))+ 0j)))
+    BRAC_DENUM[BRAC_DENUM==0.] = 1e-12
+    BRAC = X_X1 / BRAC_DENUM
+    
+    # Subsonic add 1
+    BRAC[beta_2>0.]  = 1 + BRAC[beta_2>0.]
+    
+    COEF  = (1/(4*np.pi*kappa))*RVEC*BRAC   
 
     return COEF
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
+def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw,kappa,beta_2):
     """ This computes the velocity induced on a control point the right leg of a 
     a semi-infinite horseshoe vortex from point 1 to infinity
 
@@ -283,7 +299,7 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     X_X1  = X-X1    
     Y_Y1  = Y-Y1
     Y1_Y  = Y1-Y
-    Z_Z1  = Z-Z1    
+    Z_Z1  = Z-Z1
 
     DENUM =  np.square(Z_Z1) + np.square(Y1_Y)
     DENUM[DENUM==0] = 1e-12  
@@ -291,8 +307,17 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw):
     YVEC  = Z_Z1/DENUM
     ZVEC  = Y1_Y*np.cos(tw)/DENUM 
     RVEC  = np.array([XVEC, YVEC, ZVEC])
-    BRAC  = 1 + (X_X1 / (np.sqrt(np.square(X_X1)+ np.square(Y_Y1)+ np.square(Z_Z1))))    
-    COEF  = -(1/(4*np.pi))*RVEC*BRAC      
+    
+    BRAC_DENUM = np.real(np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1))+0j))
+    BRAC_DENUM[BRAC_DENUM==0.] = 1e-12
+    
+    BRAC  = X_X1 / BRAC_DENUM
+    
+    # Subsonic add 1
+    BRAC[beta_2>0.]  = 1 + BRAC[beta_2>0.]    
+    
+    
+    COEF  = -(1/(4*np.pi*kappa))*RVEC*BRAC      
 
     return COEF
 
