@@ -606,16 +606,20 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         end_ind = 4
         
     else: # Fuselage shaping based on sections
-        widths  = []
-        heights = []
-        x_poses = []
-        z_poses = []
+        widths        = []
+        heights       = []
+        x_poses       = []
+        z_poses       = []
+        top_angles    = []
+        bottom_angles = []
         segs = fuselage.Segments
         for seg in segs:
             widths.append(seg.width)
             heights.append(seg.height)
             x_poses.append(seg.percent_x_location)
             z_poses.append(seg.percent_z_location)
+            top_angles.append(seg.vsp_data.top_angle)
+            bottom_angles.append(seg.vsp_data.bottom_angle) 
             
         end_ind = num_segs-1
     
@@ -713,7 +717,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
             vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(i+1), widths[i+1])
             vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(i+1), heights[i+1])   
             vsp.Update()             
-            set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)            
+            set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id,top_angles[1:-1],bottom_angles[1:-1])            
             
         vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
         vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])
@@ -737,7 +741,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     return area_tags
 
 ## ingroup Input_Output-OpenVSP
-def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end_ind,fuse_id):
+def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end_ind,fuse_id,top_angles,bottom_angles):
     """Set fuselage section angles to create a smooth (in the non-technical sense) fuselage shape.
     Note that i of 0 corresponds to the first section that is not the end point.
     
@@ -779,8 +783,16 @@ def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end
     y_diff     = w2/2-w0/2
     x_diff     = x2-x0
     
-    top_angle  = np.tan(top_z_diff/x_diff)/Units.deg
-    bot_angle  = np.tan(-bot_z_diff/x_diff)/Units.deg
+    if top_angles[i] == None:
+        top_angle  = np.tan(top_z_diff/x_diff)/Units.deg
+    else:
+        top_angle = top_angles[i] / Units.degrees 
+        
+    if bottom_angles[i] == None:
+        bot_angle  = np.tan(-bot_z_diff/x_diff)/Units.deg
+    else:
+        bot_angle = bottom_angles[i] / Units.degrees 
+         
     side_angle = np.tan(y_diff/x_diff)/Units.deg
         
     vsp.SetParmVal(fuse_id,"TBSym","XSec_"+str(i+1),0)

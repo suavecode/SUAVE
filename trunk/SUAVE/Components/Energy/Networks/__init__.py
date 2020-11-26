@@ -11,6 +11,7 @@ from .Turbofan                                import Turbofan
 from .Turbojet_Super                          import Turbojet_Super
 from .Solar_Low_Fidelity                      import Solar_Low_Fidelity
 from .Battery_Ducted_Fan                      import Battery_Ducted_Fan
+from .Battery_Dual_Propeller                  import Battery_Dual_Propeller
 from .Internal_Combustion_Propeller           import Internal_Combustion_Propeller
 from .Lift_Cruise                             import Lift_Cruise
 from .Serial_Hybrid_Ducted_Fan                import Serial_Hybrid_Ducted_Fan

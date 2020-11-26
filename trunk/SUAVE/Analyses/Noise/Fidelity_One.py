@@ -143,7 +143,7 @@ class Fidelity_One(Noise):
         
         # create empty arrays for results  
         num_src            = len(config.propulsors) + 1 
-        if 'lift_cruise' in config.propulsors.keys():
+        if ('lift_cruise' or 'battery_dual_propeller') in config.propulsors.keys():
             num_src += 1
         source_SPLs_dBA    = np.zeros((ctrl_pts,num_src,num_mic)) 
         source_SPL_spectra = np.zeros((ctrl_pts,num_src,dim_cf ,num_mic))  
@@ -172,7 +172,7 @@ class Fidelity_One(Noise):
                         source_SPLs_dBA[:,si,mic_loc]                     = engine_noise.SPL_dBA      
                         source_SPL_spectra[:,si,5:,mic_loc]               = engine_noise.SPL_spectrum   
                         
-                elif (source  == 'propeller') or (source   == 'rotor'): 
+                elif (source  == 'propeller')  or (source   == 'rotor'): 
                     if bool(conditions.noise.sources[source]) == True : 
                         # Compute Propeller Noise 
                         if settings.propeller_SAE_noise_model:

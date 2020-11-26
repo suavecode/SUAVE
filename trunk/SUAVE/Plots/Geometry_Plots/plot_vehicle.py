@@ -278,35 +278,33 @@ def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,p
     """          
     
     if ('propeller' in propulsor.keys()):  
-        prop = propulsor.propeller
-        propulsor.origin   = prop.origin 
+        prop = propulsor.propeller 
         try:
             propulsor.thrust_angle = propulsor.propeller_thrust_angle     
         except:
             pass 
         
         # Generate And Plot Propeller/Rotor Geoemtry   
-        plot_propeller_geometry(axes,prop,propulsor)
+        plot_propeller_geometry(axes,prop,propulsor,'propeller')
 
         # Generate Nacelle Geoemtry
-        nac_geo = generate_nacelle_points(VD,propulsor)
+        nac_geo = generate_nacelle_points(VD,propulsor,'propeller')
         
         # Plot Nacel Geometry 
         plot_nacelle(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha)
-
+           
     if ('rotor' in propulsor.keys()):  
-        prop = propulsor.rotor  
-        propulsor.origin       = prop.origin
+        prop = propulsor.rotor   
         try:
             propulsor.thrust_angle = propulsor.rotor_thrust_angle     
         except:
             pass
         
         # Generate And Plot Propeller/Rotor Geoemtry   
-        plot_propeller_geometry(axes,prop,propulsor)
+        plot_propeller_geometry(axes,prop,propulsor,'rotor')
     
         # Generate Nacelle Geoemtry 
-        nac_geo = generate_nacelle_points(VD,propulsor)
+        nac_geo = generate_nacelle_points(VD,propulsor,'rotor')
         
         # Plot Nacel Geometry 
         plot_nacelle(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha) 
@@ -315,14 +313,14 @@ def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,p
     elif 'turbofan' ==  propulsor.tag: 
         
         # Generate Nacelle Geoemtry
-        nac_geo = generate_nacelle_points(VD,propulsor, start = 0.4, end = 0.8)
+        nac_geo = generate_nacelle_points(VD,propulsor,propulsor.tag)
         
         # Plot Nacel Geometry 
         plot_nacelle(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha)        
     
     return 
 
-def plot_propeller_geometry(axes,prop,propulsor):
+def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     
     # unpack
     Rt     = prop.tip_radius          
@@ -340,10 +338,18 @@ def plot_propeller_geometry(axes,prop,propulsor):
     except:
         ta = 0 
     
+    if propulsor.tag == 'Battery_Dual_Propeller' or 'Lift_Cruise':
+        if propulsor_name == 'propeller': 
+            origin = propulsor.propeller.origin
+            
+        elif propulsor_name == 'rotor': 
+            origin = propulsor.rotor.origin
+    else:
+        origin = prop.origin
     n_points  = 10
     af_pts    = (2*n_points)-1
     dim       = len(b)
-    num_props = len(prop.origin) 
+    num_props = len(origin) 
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]   
     
     # create empty arrays for storing geometry
@@ -453,19 +459,19 @@ def plot_propeller_geometry(axes,prop,propulsor):
                 
                 # ---------------------------------------------------------------------------------------------
                 # store points
-                G.XA1[j,:] = iba_mat[:-1,0] + prop.origin[n_p][0]
-                G.YA1[j,:] = iba_mat[:-1,1] + prop.origin[n_p][1] 
-                G.ZA1[j,:] = iba_mat[:-1,2] + prop.origin[n_p][2]
-                G.XA2[j,:] = iba_mat[1:,0]  + prop.origin[n_p][0]
-                G.YA2[j,:] = iba_mat[1:,1]  + prop.origin[n_p][1] 
-                G.ZA2[j,:] = iba_mat[1:,2]  + prop.origin[n_p][2]
-                                 
-                G.XB1[j,:] = oba_mat[:-1,0] + prop.origin[n_p][0]
-                G.YB1[j,:] = oba_mat[:-1,1] + prop.origin[n_p][1]  
-                G.ZB1[j,:] = oba_mat[:-1,2] + prop.origin[n_p][2]
-                G.XB2[j,:] = oba_mat[1:,0]  + prop.origin[n_p][0]
-                G.YB2[j,:] = oba_mat[1:,1]  + prop.origin[n_p][1]
-                G.ZB2[j,:] = oba_mat[1:,2]  + prop.origin[n_p][2]    
+                G.XA1[j,:] = iba_mat[:-1,0] + origin[n_p][0]
+                G.YA1[j,:] = iba_mat[:-1,1] + origin[n_p][1] 
+                G.ZA1[j,:] = iba_mat[:-1,2] + origin[n_p][2]
+                G.XA2[j,:] = iba_mat[1:,0]  + origin[n_p][0]
+                G.YA2[j,:] = iba_mat[1:,1]  + origin[n_p][1] 
+                G.ZA2[j,:] = iba_mat[1:,2]  + origin[n_p][2]
+                                              
+                G.XB1[j,:] = oba_mat[:-1,0] + origin[n_p][0]
+                G.YB1[j,:] = oba_mat[:-1,1] + origin[n_p][1]  
+                G.ZB1[j,:] = oba_mat[:-1,2] + origin[n_p][2]
+                G.XB2[j,:] = oba_mat[1:,0]  + origin[n_p][0]
+                G.YB2[j,:] = oba_mat[1:,1]  + origin[n_p][1]
+                G.ZB2[j,:] = oba_mat[1:,2]  + origin[n_p][2]    
                  
             # ------------------------------------------------------------------------
             # Plot Propeller Blade 
@@ -495,7 +501,7 @@ def plot_propeller_geometry(axes,prop,propulsor):
                     axes.add_collection3d(prop_collection) 
     return 
 
-def generate_nacelle_points(VD,propulsor):
+def generate_nacelle_points(VD,propulsor,propulsor_name):
     """ This generates the coordinate points on the surface of the fuselage
 
     Assumptions: 
@@ -515,9 +521,23 @@ def generate_nacelle_points(VD,propulsor):
     
     tessellation = 24  
     
-    h = propulsor.nacelle_diameter/2
-    l = propulsor.engine_length
-    end = propulsor.nacelle_end
+    if (propulsor.tag == 'Battery_Dual_Propeller') or (propulsor.tag =='Lift_Cruise'):
+        if propulsor_name == 'propeller':
+            l = propulsor.propeller_engine_length
+            h = propulsor.propeller_nacelle_diameter/2 
+            origin = propulsor.propeller.origin
+            
+        if propulsor_name == 'rotor':
+            l = propulsor.rotor_engine_length
+            h = propulsor.rotor_nacelle_diameter/2  
+            origin = propulsor.rotor.origin
+            
+    else: 
+        h = propulsor.nacelle_diameter/2
+        l = propulsor.engine_length
+        origin = propulsor.origin
+        
+    end    = propulsor.nacelle_end
     start  = propulsor.nacelle_start
     elipse_length = l/(end-start)
     
@@ -549,9 +569,9 @@ def generate_nacelle_points(VD,propulsor):
             Y = nac_ypts  
             Z = -np.sin(ta)*nac_loc[i_seg]  +  np.cos(ta)*nac_zpts 
                      
-            nac_pts[ip,i_seg,:,0] = X + propulsor.origin[ip][0]
-            nac_pts[ip,i_seg,:,1] = Y + propulsor.origin[ip][1]
-            nac_pts[ip,i_seg,:,2] = Z + propulsor.origin[ip][2] 
+            nac_pts[ip,i_seg,:,0] = X + origin[ip][0]
+            nac_pts[ip,i_seg,:,1] = Y + origin[ip][1]
+            nac_pts[ip,i_seg,:,2] = Z + origin[ip][2] 
        
     # store points
     VD.NAC_SURF_PTS = nac_pts  
