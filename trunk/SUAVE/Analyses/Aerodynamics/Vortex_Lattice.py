@@ -68,6 +68,8 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.number_spanwise_vortices       = 15
         self.settings.number_chordwise_vortices      = 3 
         self.settings.vortex_distribution            = Data()   
+        self.settings.initial_timestep_offset        = 0 
+        self.settings.wake_development_time          = 0.05
         
         # conditions table, used for surrogate model training
         self.training                                = Data()    
@@ -106,7 +108,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -124,8 +126,7 @@ class Vortex_Lattice(Aerodynamics):
         Properties Used:
         None
         """                      
-        # Unpack:
-        geometry = self.geometry
+        # Unpack: 
         settings = self.settings      
         
         if n_sw is not None:
@@ -134,9 +135,17 @@ class Vortex_Lattice(Aerodynamics):
         if n_cw is not None:
             settings.number_chordwise_vortices = n_cw 
             
+        if ito is not None:  
+            settings.initial_timestep_offset = ito
+            
+        if wdt is not None:  
+            settings.wake_development_time = wdt
+            
         settings.use_surrogate              = use_surrogate
         settings.propeller_wake_model       = propeller_wake_model  
-                
+        
+    
+        
         # If we are using the surrogate
         if use_surrogate == True: 
             # sample training data
@@ -380,7 +389,7 @@ class Vortex_Lattice(Aerodynamics):
         konditions.freestream.velocity          = zeros
         
         total_lift, total_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, pressure_coefficient ,vel_profile = \
-                        calculate_VLM(konditions,settings,geometry)     
+                        calculate_VLM(konditions,settings,geometry )     
         
         # Split subsonic from supersonic
         sub_sup_split = np.where(Machs < 1.0)[0][-1] + 1 
