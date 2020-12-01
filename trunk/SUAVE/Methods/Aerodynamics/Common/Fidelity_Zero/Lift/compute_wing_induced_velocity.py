@@ -89,8 +89,12 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach,use_MCM = False, gri
     # supersonic corrections
     kappa = np.ones_like(XAH)
     kappa[mach>1.,:] = 2.
-    beta_2 = np.ones_like(XAH)
-    beta_2[mach>1.,:] = ((1. - mach[mach>1]**2)*np.atleast_2d(np.ones_like(VD.XAH)).T).T
+    beta_2 = 1-mach**2
+    beta_2[beta_2>0] = 1
+    sized_ones = np.ones((np.shape(mach)[0],np.shape(XAH)[-1],np.shape(XAH)[-1]))
+    beta_2 = np.atleast_3d(beta_2)
+    beta_2 = beta_2*sized_ones
+    
 
     theta_w = np.atleast_3d(theta_w)   # wake model, use theta_w if setting to freestream, use 0 if setting to airfoil chord like
     
@@ -173,7 +177,8 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach,use_MCM = False, gri
         MCM   = np.ones_like(C_AB_bv)
         MCM   = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)          
         DW_mn = DW_mn * MCM
-        C_mn  = C_mn  * MCM    
+        C_mn  = C_mn  * MCM
+        
     
     return C_mn, DW_mn
 
@@ -219,16 +224,16 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,kappa, beta_2, GAMMA = 1):
     R1R2Z  = X_X1*Y_Y2 - Y_Y1*X_X2
     SQUARE = np.square(R1R2X) + np.square(R1R2Y) + np.square(R1R2Z)
     SQUARE[SQUARE==0] = 1e-12
-    R1     = np.real(np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1)) + 0j))
-    R2     = np.real(np.sqrt(np.square(X_X2) + beta_2*(np.square(Y_Y2) + np.square(Z_Z2)) + 0j))
-    R1[R1==0.] = 1e-12
-    R2[R2==0]  = 1e-12
+    R1     = np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1)) + 0j)
+    R2     = np.sqrt(np.square(X_X2) + beta_2*(np.square(Y_Y2) + np.square(Z_Z2)) + 0j)
+    #R1[R1==0.] = 1e-12
+    #R2[R2==0]  = 1e-12
     R0R1   = X2_X1*X_X1 + beta_2*(Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1)
     R0R2   = X2_X1*X_X2 + beta_2*(Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2)
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])
     COEF   = (1/(4*np.pi*kappa))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)    
     V_IND  = GAMMA * COEF
-    
+        
     return COEF , V_IND
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
@@ -264,15 +269,15 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw,kappa,beta_2):
     ZVEC  = Y1_Y*np.cos(tw)/DENUM 
     RVEC  = np.array([XVEC, YVEC, ZVEC])
     
-    BRAC_DENUM = (np.real(np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1))+ 0j)))
-    BRAC_DENUM[BRAC_DENUM==0.] = 1e-12
+    BRAC_DENUM = np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1))+ 0j)
+    #BRAC_DENUM[BRAC_DENUM==0.] = 1e-12
     BRAC = X_X1 / BRAC_DENUM
     
     # Subsonic add 1
     BRAC[beta_2>0.]  = 1 + BRAC[beta_2>0.]
     
     COEF  = (1/(4*np.pi*kappa))*RVEC*BRAC   
-
+    
     return COEF
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
@@ -308,17 +313,16 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw,kappa,beta_2):
     ZVEC  = Y1_Y*np.cos(tw)/DENUM 
     RVEC  = np.array([XVEC, YVEC, ZVEC])
     
-    BRAC_DENUM = np.real(np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1))+0j))
-    BRAC_DENUM[BRAC_DENUM==0.] = 1e-12
+    BRAC_DENUM = np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1))+0j)
+    #BRAC_DENUM[BRAC_DENUM==0.] = 1e-12
     
     BRAC  = X_X1 / BRAC_DENUM
     
     # Subsonic add 1
     BRAC[beta_2>0.]  = 1 + BRAC[beta_2>0.]    
     
+    COEF  = -(1/(4*np.pi*kappa))*RVEC*BRAC  
     
-    COEF  = -(1/(4*np.pi*kappa))*RVEC*BRAC      
-
     return COEF
 
 
