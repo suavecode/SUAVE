@@ -207,8 +207,7 @@ def propeller_design(prop,number_of_stations=20):
         epsilon = Cd/Cl  
         
         #Step 6, determine a and a', and W 
-        a       = (zeta/2.)*(np.cos(phi)**2.)*(1.-epsilon*np.tan(phi))
-        aprime  = (zeta/(2.*x))*np.cos(phi)*np.sin(phi)*(1.+epsilon/np.tan(phi))
+        a       = (zeta/2.)*(np.cos(phi)**2.)*(1.-epsilon*np.tan(phi)) 
         W       = V*(1.+a)/np.sin(phi)
         
         #Step 7, compute the chord length and blade twist angle  
@@ -220,9 +219,7 @@ def propeller_design(prop,number_of_stations=20):
         Iprime2 = lamda*(Iprime1/(2.*chi))*(1.+epsilon/np.tan(phi)
                                             )*np.sin(phi)*np.cos(phi)
         Jprime1 = 4.*chi*G*(1.+epsilon/np.tan(phi))
-        Jprime2 = (Jprime1/2.)*(1.-epsilon*np.tan(phi))*(np.cos(phi)**2.)
-        
-        dR      = (r[1]-r[0])*np.ones_like(Jprime1)
+        Jprime2 = (Jprime1/2.)*(1.-epsilon*np.tan(phi))*(np.cos(phi)**2.) 
         dchi    = (chi[1]-chi[0])*np.ones_like(Jprime1)
         
         #Integrate derivatives from chi=chi0 to chi=1 
