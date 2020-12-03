@@ -184,6 +184,8 @@ class Vectored_Thrust(Propulsor):
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
+        state_of_charge      = battery.state_of_charge
+        
           
         conditions.propulsion.rpm                             = rpm
         conditions.propulsion.current                         = current
@@ -191,6 +193,7 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.battery_energy                  = battery_energy 
         conditions.propulsion.voltage_open_circuit            = voltage_open_circuit
         conditions.propulsion.voltage_under_load              = voltage_under_load  
+        conditions.propulsion.state_of_charge                 = state_of_charge        
         conditions.propulsion.motor_torque                    = motor.outputs.torque
         conditions.propulsion.propeller_torque                = Q
         conditions.propulsion.motor_efficiency                = etam
