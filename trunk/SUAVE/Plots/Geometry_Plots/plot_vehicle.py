@@ -424,7 +424,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
                 ozpts = airfoil_data.y_coordinates[a_secl[j+1]]
                 
                 oba_max_t   = airfoil_data.thickness_to_chord[a_secl[j+1]]
-                oba_xp      = - MCA[j+1] + oxpts*b[j+1]   # x coord of airfoil
+                oba_xp      = rot*(- MCA[j+1] + oxpts*b[j+1])   # x coord of airfoil
                 oba_yp      = r[j+1]*np.ones_like(oba_xp) # radial location        
                 oba_zp      = ozpts*(t[j+1]/oba_max_t)    # former airfoil y coord 
        
