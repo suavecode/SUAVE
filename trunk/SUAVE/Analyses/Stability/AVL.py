@@ -85,8 +85,8 @@ class AVL(Stability):
         self.settings                               = Settings()
         self.settings.filenames.log_filename        = sys.stdout
         self.settings.filenames.err_filename        = sys.stderr        
-        self.settings.spanwise_vortices             = 20
-        self.settings.chordwise_vortices            = 10
+        self.settings.number_spanwise_vortices      = 20
+        self.settings.number_chordwise_vortices     = 10
         self.settings.trim_aircraft                 = False 
                                                     
         # Conditions table, used for surrogate model training

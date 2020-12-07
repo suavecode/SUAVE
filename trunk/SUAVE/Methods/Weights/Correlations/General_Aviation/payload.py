@@ -44,9 +44,9 @@ def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 225.*Units.lbs,wt_bagg
 
     # packup outputs
     output = Data()
-    output.payload = wt_payload
-    output.pax     = wt_pax   
-    output.bag     = wt_bag
-    output.empty   = empty
+    output.total        = wt_payload
+    output.passengers   = wt_pax
+    output.baggage      = wt_bag
+    output.cargo        = wt_cargo
 
     return output
