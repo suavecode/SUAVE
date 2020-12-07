@@ -22,8 +22,7 @@ from SUAVE.Core import Data, Units
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
 class Internal_Combustion_Propeller_Constant_Speed(Propulsor):
-    """ A simple mock up of an internal combustion propeller engine. Tis network adds an extra
-        unknowns to the mission, the torque matching between motor and propeller.
+    """ An internal combustion engine with a constant speed propeller.
     
         Assumptions:
         None
@@ -81,113 +80,49 @@ class Internal_Combustion_Propeller_Constant_Speed(Propulsor):
         """           
         # unpack
         conditions  = state.conditions
-        numerics    = state.numerics
         engine      = self.engine
         propeller   = self.propeller
-        rated_speed = self.rated_speed
         num_engines = self.number_of_engines
-        speed       = conditions.propulsion.rpm 
+        rpm       = conditions.propulsion.rpm 
+
         
-    
-        
-        # Run the engine
-        engine.speed = speed
-        engine.power(conditions)
-        power_output = engine.outputs.power
-        sfc          = engine.outputs.power_specific_fuel_consumption
-        mdot         = engine.outputs.fuel_flow_rate
-        torque       = engine.outputs.torque     
-        
-        # link and modulate the propeller beta angle as an adjustment to the throttle
-        propeller.pitch_command = eta
-        propeller.inputs.omega  = engine.speed
+        # Run the propeller to get the power
+        propeller.pitch_command = conditions.propulsion.throttle
+        propeller.inputs.omega  = rpm
         propeller.thrust_angle  = self.thrust_angle
         
         # step 4
         F, Q, P, Cp ,  outputs  , etap  = propeller.spin(conditions)
         
-        # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-        P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
-        F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]   
+        # Run the engine to calculate the throttle setting and the fuel burn
         
-        # link
-        propeller.outputs = outputs
+        # Run the engine
+        engine.inputs.power = P
+        engine.calculate_throttle(conditions)
+        mdot            = engine.outputs.fuel_flow_rate
+        engine_throttle = engine.outputs.throttle
+
     
         # Pack the conditions for outputs
         a                                        = conditions.freestream.speed_of_sound
         R                                        = propeller.tip_radius   
-        rpm                                      = engine.speed / Units.rpm
           
-        conditions.propulsion.rpm                = rpm
         conditions.propulsion.propeller_torque   = Q
         conditions.propulsion.power              = P
         conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
         
         # Create the outputs
-        F                                        = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
-        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))   
-        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # N/m^2                      
-        conditions.propulsion.power_loading      = (F_mag.T)/(P)    # N/W       
+        F                                                = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
+        F_mag                                            = np.atleast_2d(np.linalg.norm(F, axis=1))   
+        conditions.propulsion.disc_loading               = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # N/m^2                      
+        conditions.propulsion.power_loading              = (F_mag.T)/(P)    # N/W       
+        conditions.propulsion.combustion_engine_throttle = engine_throttle
+        
         
         results = Data()
         results.thrust_force_vector = F
         results.vehicle_mass_rate   = mdot
         
         return results
-    
-    
-    def unpack_unknowns(self,segment,state):
-        """Unpacks the unknowns set in the mission to be available for the mission.
 
-        Assumptions:
-        N/A
-        
-        Source:
-        N/A
-        
-        Inputs:
-        state.conditions.propulsion.propeller_power_coefficient    [Unitless] 
-        
-        Outputs:
-        state.unknowns.propeller_power_coefficient                 [Unitless] 
-        
-        Properties Used:
-        N/A
-        """            
-        
-        # Here we are going to unpack the unknowns (Cp) provided for this network
-        state.conditions.propulsion.propeller_power_coefficient = state.unknowns.propeller_power_coefficient
-        
-        return
-    
-    def residuals(self,segment,state):
-        """ Calculates a residual based on torques 
-        
-        Assumptions:
-        
-        Inputs:
-            segment.state.conditions.propulsion.
-                motor_torque                       [newtom-meters]                 
-                propeller_torque                   [newtom-meters] 
-        
-        Outputs:
-            segment.state:
-                residuals.network                  [newtom-meters] 
-                
-        Properties Used:
-            N/A
-                                
-        """         
-            
-        # Here we are going to pack the residuals (torque,voltage) from the network
-        
-        # Unpack
-        q_motor   = state.conditions.propulsion.motor_torque
-        q_prop    = state.conditions.propulsion.propeller_torque
-        
-        # Return the residuals
-        state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]    
-        
-        return    
-            
     __call__ = evaluate_thrust
