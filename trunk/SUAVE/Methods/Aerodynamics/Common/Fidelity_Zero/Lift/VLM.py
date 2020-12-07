@@ -90,7 +90,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     n_cw       = settings.number_chordwise_vortices   
     pwm        = settings.propeller_wake_model
     use_MCM    = settings.use_mach_cone_matrix
-    use_sup    = settings.use_supersonic_correction
     grid_stretch_super = settings.stretch_supersonic_grid
     Sref       = geometry.reference_area 
     

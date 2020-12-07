@@ -236,8 +236,8 @@ def analyze(config,conditions, use_MCM = False, grid_stretch_super = True, use_s
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 40
-    settings.number_chordwise_vortices = 20
+    settings.number_spanwise_vortices  = 1
+    settings.number_chordwise_vortices = 1
     settings.propeller_wake_model      = None
     settings.use_mach_cone_matrix      = use_MCM 
     settings.stretch_supersonic_grid   = grid_stretch_super
