@@ -78,6 +78,13 @@ class PyCycle(Propulsor):
         self.thrust_anchor_conditions = np.array([[1.,1.,1.]])
         self.sfc_rubber_scale         = 1.
         self.use_extended_surrogate   = False
+        self.evaluation_mach_alt      = [(0.8, 35000), (0.7, 35000),
+                                         (0.7, 25000), (0.6, 25000),
+                                         (0.6, 20000), (0.5, 20000), 
+                                         (0.5, 10000), (0.4, 10000), (0.2, 10000),
+                                         (0.2, 1000),  (0.4, 1000),  (0.6, 1000),
+                                         (0.6, 0),     (0.4, 0),     (0.2, 0),     (0.001, 0)]
+        self.evaluation_throttles     = [1, 0.9, 0.8, .7]
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -161,44 +168,64 @@ class PyCycle(Propulsor):
         # unpack
         pycycle_problem = self.model
         
-        # Run the model
+        
         pycycle_problem.set_solver_print(level=-1)
-        pycycle_problem.set_solver_print(level=2, depth=1)
-        pycycle_problem.run_model()
+        pycycle_problem.set_solver_print(level=2, depth=0)        
         
         
         # Extract the data
         # Create lists that will turn into arrays
         Altitudes = []
         Machs     = []
-        tt4s      = []
+        PCs       = []
         Thrust    = []
         TSFC      = []
         
-        # the name of all points
-        points = ['DESIGN'] + pycycle_problem.model.od_pts
         
-        # Loop through to extact
-        for point in points:
-            mach   = pycycle_problem[point+'.fc.Fl_O:stat:MN']
-            alt    = pycycle_problem[point+'.fc.alt']    * Units.feet
-            thru   = pycycle_problem[point+'.perf.Fg']   * Units.lb
-            tsf    = pycycle_problem[point+'.perf.TSFC'] * Units['lbm/hr/lbf'] # lbm/hr/lbf converted to (kg/N/s)
-            tt4    = pycycle_problem[point+'.burner.Fl_O:tot:T']
-            
-            # Append
-            Altitudes.append(alt)
-            Machs.append(mach)
-            tt4s.append(tt4)
-            Thrust.append(thru)
-            TSFC.append(tsf)
-            
-        # Now setup into vectors and scale tt4s into throttles
-        Altitudes = np.array(Altitudes)
-        Mach      = np.array(Machs)
-        Throttle  = np.array(tt4s/np.max(tt4s))
-        thr       = np.array(Thrust)
-        sfc       = np.array(TSFC)
+
+        for MN, alt in self.evaluation_mach_alt: 
+    
+            # NOTE: You never change the MN,alt for the 
+            # design point because that is a fixed reference condition.
+    
+            print('***'*10)
+            print(f'* MN: {MN}, alt: {alt}')
+            print('***'*10)
+            pycycle_problem['OD_full_pwr.fc.MN'] = MN
+            pycycle_problem['OD_full_pwr.fc.alt'] = alt
+            pycycle_problem['OD_part_pwr.fc.MN'] = MN
+            pycycle_problem['OD_part_pwr.fc.alt'] = alt
+    
+            for PC in self.evaluation_throttles: 
+                print(f'## PC = {PC}')
+                pycycle_problem['OD_part_pwr.PC'] = PC
+                pycycle_problem.run_model()
+                #Save to our list for SUAVE
+                Altitudes.append(alt)
+                Machs.append(MN)
+                PCs.append(PC)
+                TSFC.append(pycycle_problem['OD_part_pwr.perf.TSFC'][0])
+                Thrust.append(pycycle_problem['OD_part_pwr.perf.Fn'][0])
+    
+            # run throttle back up to full power
+            for PC in reversed(self.evaluation_throttles): 
+                pycycle_problem['OD_part_pwr.PC'] = PC
+                pycycle_problem.run_model()
+                if PC not in self.evaluation_throttles:
+                    #Save to our list for SUAVE
+                    Altitudes.append(alt)
+                    Machs.append(MN)
+                    PCs.append(PC)
+                    TSFC.append(pycycle_problem['OD_part_pwr.perf.TSFC'][0])
+                    Thrust.append(pycycle_problem['OD_part_pwr.perf.Fn'][0])                    
+
+        # Now setup into vectors
+        Altitudes = np.atleast_2d(np.array(Altitudes)).T * Units.feet
+        Mach      = np.atleast_2d(np.array(Machs)).T
+        Throttle  = np.atleast_2d(np.array(PCs)).T
+        thr       = np.atleast_2d(np.array(Thrust)).T * Units.lbf
+        sfc       = np.atleast_2d(np.array(TSFC)).T   * Units['lbm/hr/lbf'] # lbm/hr/lbf converted to (kg/N/s)
+        
         
         # Once we have the data the model must be deleted because pycycle models can't be deepcopied
         self.pop('model')
@@ -206,12 +233,13 @@ class PyCycle(Propulsor):
         # Concatenate all together and things will start to look like the propuslor surrogate soon
         my_data = np.concatenate([Altitudes,Mach,Throttle,thr,sfc],axis=1)
         
+        print(my_data)
+        
         # Clean up to remove redundant lines
         b = np.ascontiguousarray(my_data).view(np.dtype((np.void, my_data.dtype.itemsize * my_data.shape[1])))
         _, idx = np.unique(b, return_index=True)
        
         my_data = my_data[idx]                
-               
    
         xy  = my_data[:,:3] # Altitude, Mach, Throttle
         thr = np.transpose(np.atleast_2d(my_data[:,3])) # Thrust
