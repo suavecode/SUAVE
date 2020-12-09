@@ -78,6 +78,7 @@ class PyCycle(Propulsor):
         self.thrust_anchor_conditions = np.array([[1.,1.,1.]])
         self.sfc_rubber_scale         = 1.
         self.use_extended_surrogate   = False
+        self.save_deck                = True
         self.evaluation_mach_alt      = [(0.8, 35000), (0.7, 35000),
                                          (0.7, 25000), (0.6, 25000),
                                          (0.6, 20000), (0.5, 20000), 
@@ -85,6 +86,7 @@ class PyCycle(Propulsor):
                                          (0.2, 1000),  (0.4, 1000),  (0.6, 1000),
                                          (0.6, 0),     (0.4, 0),     (0.2, 0),     (0.001, 0)]
         self.evaluation_throttles     = [1, 0.9, 0.8, .7]
+        self.throttles_back           = [0.7, 0.85, 1]
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -182,42 +184,49 @@ class PyCycle(Propulsor):
         TSFC      = []
         
         
+        last_MN  = self.evaluation_mach_alt[-1][0] 
+        last_alt = self.evaluation_mach_alt[-1][1]
+        
+        
+        # if we added fc.dTS this would handle the deltaISA
 
         for MN, alt in self.evaluation_mach_alt: 
-    
-            # NOTE: You never change the MN,alt for the 
-            # design point because that is a fixed reference condition.
     
             print('***'*10)
             print(f'* MN: {MN}, alt: {alt}')
             print('***'*10)
-            pycycle_problem['OD_full_pwr.fc.MN'] = MN
-            pycycle_problem['OD_full_pwr.fc.alt'] = alt
-            pycycle_problem['OD_part_pwr.fc.MN'] = MN
-            pycycle_problem['OD_part_pwr.fc.alt'] = alt
+            pycycle_problem['OD.fc.MN'] = MN
+            pycycle_problem['OD.fc.alt'] = alt
+            pycycle_problem.set_val('OD.bleeds.cust:frac_W', 0.0, units=None)
+            pycycle_problem['ptpwr.fc.MN'] = MN
+            pycycle_problem['ptpwr.fc.alt'] = alt
+            pycycle_problem.set_val('ptpwr.bleeds.cust:frac_W', 0.0, units=None)
     
             for PC in self.evaluation_throttles: 
                 print(f'## PC = {PC}')
-                pycycle_problem['OD_part_pwr.PC'] = PC
+                pycycle_problem['ptpwr.pc'] = PC
                 pycycle_problem.run_model()
                 #Save to our list for SUAVE
                 Altitudes.append(alt)
                 Machs.append(MN)
                 PCs.append(PC)
-                TSFC.append(pycycle_problem['OD_part_pwr.perf.TSFC'][0])
-                Thrust.append(pycycle_problem['OD_part_pwr.perf.Fn'][0])
+                TSFC.append(pycycle_problem['ptpwr.perf.TSFC'][0])
+                Thrust.append(pycycle_problem['ptpwr.perf.Fn'][0])
     
             # run throttle back up to full power
-            for PC in reversed(self.evaluation_throttles): 
-                pycycle_problem['OD_part_pwr.PC'] = PC
+            # If we're at the last tuple skip the throttle up
+            if MN==last_MN and alt==last_alt:
+                continue
+            for PC in self.throttles_back: 
+                pycycle_problem['ptpwr.pc'] = PC
                 pycycle_problem.run_model()
                 if PC not in self.evaluation_throttles:
                     #Save to our list for SUAVE
                     Altitudes.append(alt)
                     Machs.append(MN)
                     PCs.append(PC)
-                    TSFC.append(pycycle_problem['OD_part_pwr.perf.TSFC'][0])
-                    Thrust.append(pycycle_problem['OD_part_pwr.perf.Fn'][0])                    
+                    TSFC.append(pycycle_problem['ptpwr.perf.TSFC'][0])
+                    Thrust.append(pycycle_problem['ptpwr.perf.Fn'][0])                    
 
         # Now setup into vectors
         Altitudes = np.atleast_2d(np.array(Altitudes)).T * Units.feet
@@ -232,6 +241,11 @@ class PyCycle(Propulsor):
         
         # Concatenate all together and things will start to look like the propuslor surrogate soon
         my_data = np.concatenate([Altitudes,Mach,Throttle,thr,sfc],axis=1)
+        
+        if self.save_deck :
+            # Write an engine deck
+            np.savetxt("pyCycle_deck.csv", my_data, delimiter=",")
+        
         
         print(my_data)
         

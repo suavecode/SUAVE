@@ -79,6 +79,7 @@ class Propulsor_Surrogate(Propulsor):
         self.thrust_anchor_conditions = np.array([[1.,1.,1.]])
         self.sfc_rubber_scale         = 1.
         self.use_extended_surrogate   = False
+        self.sealevel_static_thrust   = 0.0
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
