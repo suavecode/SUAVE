@@ -13,7 +13,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
+def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach,use_MCM = False, grid_stretch_super = False):
     """ This computes the induced velocitys are each control point 
     of the vehicle vortex lattice 
 
@@ -43,50 +43,54 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     # Prandtl Glauert Transformation for subsonic
     inv_root_beta = np.zeros_like(mach)
     mach[mach==1]         = 1.001  
-    inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)
+    inv_root_beta[mach<1] = 1.
     inv_root_beta[mach<0.3] = 1.0
+    inv_root_beta[mach>1]   = 1.0
+    yz_stretch = ones*1.0
     
+    if grid_stretch_super==False:
+        inv_root_beta[mach>1] = 1.
     inv_root_beta = np.atleast_3d(inv_root_beta)
     
      
     XAH   = np.atleast_3d(VD.XAH*inv_root_beta) 
-    YAH   = np.atleast_3d(VD.YAH*ones) 
-    ZAH   = np.atleast_3d(VD.ZAH*ones) 
+    YAH   = np.atleast_3d(VD.YAH*yz_stretch) 
+    ZAH   = np.atleast_3d(VD.ZAH*yz_stretch) 
     XBH   = np.atleast_3d(VD.XBH*inv_root_beta) 
-    YBH   = np.atleast_3d(VD.YBH*ones) 
-    ZBH   = np.atleast_3d(VD.ZBH*ones) 
+    YBH   = np.atleast_3d(VD.YBH*yz_stretch) 
+    ZBH   = np.atleast_3d(VD.ZBH*yz_stretch) 
 
     XA1   = np.atleast_3d(VD.XA1*inv_root_beta)
-    YA1   = np.atleast_3d(VD.YA1*ones)
-    ZA1   = np.atleast_3d(VD.ZA1*ones)
+    YA1   = np.atleast_3d(VD.YA1*yz_stretch)
+    ZA1   = np.atleast_3d(VD.ZA1*yz_stretch)
     XA2   = np.atleast_3d(VD.XA2*inv_root_beta)
-    YA2   = np.atleast_3d(VD.YA2*ones)
-    ZA2   = np.atleast_3d(VD.ZA2*ones)
+    YA2   = np.atleast_3d(VD.YA2*yz_stretch)
+    ZA2   = np.atleast_3d(VD.ZA2*yz_stretch)
 
     XB1   = np.atleast_3d(VD.XB1*inv_root_beta)
-    YB1   = np.atleast_3d(VD.YB1*ones)
-    ZB1   = np.atleast_3d(VD.ZB1*ones)
+    YB1   = np.atleast_3d(VD.YB1*yz_stretch)
+    ZB1   = np.atleast_3d(VD.ZB1*yz_stretch)
     XB2   = np.atleast_3d(VD.XB2*inv_root_beta)
-    YB2   = np.atleast_3d(VD.YB2*ones)
-    ZB2   = np.atleast_3d(VD.ZB2*ones) 
+    YB2   = np.atleast_3d(VD.YB2*yz_stretch)
+    ZB2   = np.atleast_3d(VD.ZB2*yz_stretch) 
     
     XC_TE   = np.atleast_3d(VD.XC_TE*inv_root_beta)
-    YC_TE   = np.atleast_3d(VD.YC_TE*ones)
-    ZC_TE   = np.atleast_3d(VD.ZC_TE*ones)    
+    YC_TE   = np.atleast_3d(VD.YC_TE*yz_stretch)
+    ZC_TE   = np.atleast_3d(VD.ZC_TE*yz_stretch)    
     XA_TE   = np.atleast_3d(VD.XA_TE*inv_root_beta)
-    YA_TE   = np.atleast_3d(VD.YA_TE*ones)
-    ZA_TE   = np.atleast_3d(VD.ZA_TE*ones)
+    YA_TE   = np.atleast_3d(VD.YA_TE*yz_stretch)
+    ZA_TE   = np.atleast_3d(VD.ZA_TE*yz_stretch)
     XB_TE   = np.atleast_3d(VD.XB_TE*inv_root_beta)
-    YB_TE   = np.atleast_3d(VD.YB_TE*ones)
-    ZB_TE   = np.atleast_3d(VD.ZB_TE*ones) 
+    YB_TE   = np.atleast_3d(VD.YB_TE*yz_stretch)
+    ZB_TE   = np.atleast_3d(VD.ZB_TE*yz_stretch) 
     
     XC    = np.atleast_3d(VD.XC*inv_root_beta)
-    YC    = np.atleast_3d(VD.YC*ones) 
-    ZC    = np.atleast_3d(VD.ZC*ones)  
+    YC    = np.atleast_3d(VD.YC*yz_stretch) 
+    ZC    = np.atleast_3d(VD.ZC*yz_stretch)  
     
     # supersonic corrections
     kappa = np.ones_like(XAH)
-    kappa[mach>1.,:] = 2.
+    kappa[mach<1.,:] = 2.
     beta_2 = 1-mach**2
     sized_ones = np.ones((np.shape(mach)[0],np.shape(XAH)[-1],np.shape(XAH)[-1]))
     beta_2 = np.atleast_3d(beta_2)
@@ -185,16 +189,18 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     V_rot = v(F1, F2, t, G1, G2, denom, y1, y2, zo)
     W_rot = w(xs, F1, F2, denom, y1, y2, G1, G2, zo)
     
-    U = (U_rot)/(4*np.pi*kappa)
-    V = (V_rot*costheta - W_rot*sintheta)/(4*np.pi*kappa)
-    W = (V_rot*sintheta + W_rot*costheta)/(4*np.pi*kappa)
+    U = (U_rot)/(2*np.pi*kappa)
+    V = (V_rot*costheta - W_rot*sintheta)/(2*np.pi*kappa)
+    W = (V_rot*sintheta + W_rot*costheta)/(2*np.pi*kappa)
 
-    C_mn = np.empty(np.shape(kappa)+(3,))
+    C_mn = np.zeros(np.shape(kappa)+(3,))
     C_mn[:,:,:,0] = U
     C_mn[:,:,:,1] = V
     C_mn[:,:,:,2] = W
     
     DW_mn = np.zeros_like(C_mn)
+
+
 
     return C_mn, DW_mn
     
@@ -203,23 +209,32 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
 
 def F(t,x,b2,y,z):
     
-    F = (t*x+b2*y+0j)/np.sqrt(x**2+b2*(y**2 + z**2)+0j)    
+    denum = np.real(np.sqrt(x**2+b2*(y**2 + z**2)+0j))
+    
+    F = (t*x+b2*y)/denum
+    
+    F[F==np.inf]  = 0.
+    F[F==-np.inf] = 0.
     
     return F
 
 def G(x,b2,y,z):
     
-    G = x/np.sqrt(x**2 + (b2**2)*(y**2 + z**2) +0j)
+    denum = np.real(np.sqrt(x**2 + (b2**2)*(y**2 + z**2) +0j))
+    
+    G = x/denum
+    
+    G[G==np.inf]  = 0.
+    G[G==-np.inf] = 0.    
     
     G[b2>0] = G[b2>0] + 1
-    
+        
     return G
 
 def bnd_vortex_denom(xs,t,b2,z):
     
-    denom = xs**2 + (t**2+b2)*(z**2) +0j
-    
-    
+    denom = xs**2 + (t**2+b2)*(z**2)
+
     return denom
     
     

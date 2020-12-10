@@ -90,8 +90,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     n_sw       = settings.number_spanwise_vortices    
     n_cw       = settings.number_chordwise_vortices   
     pwm        = settings.propeller_wake_model
-    use_MCM    = settings.use_mach_cone_matrix
-    grid_stretch_super = settings.stretch_supersonic_grid
     Sref       = geometry.reference_area 
     
 
@@ -130,7 +128,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # Compute flow tangency conditions   
     inv_root_beta           = np.zeros_like(mach)
     inv_root_beta[mach<1]   = 1/np.sqrt(1-mach[mach<1]**2)     
-    inv_root_beta[mach>1]   = 1/np.sqrt(mach[mach>1]**2-1)   
+    inv_root_beta[mach>1]   = 1./np.sqrt(mach[mach>1]**2-1)   
     inv_root_beta           = np.atleast_2d(inv_root_beta)
     
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones          # dihedral angle 

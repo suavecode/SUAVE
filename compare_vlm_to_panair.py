@@ -236,8 +236,8 @@ def analyze(config,conditions, use_MCM = False, grid_stretch_super = True, use_s
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 1
-    settings.number_chordwise_vortices = 1
+    settings.number_spanwise_vortices  = 50
+    settings.number_chordwise_vortices = 10
     settings.propeller_wake_model      = None
     settings.use_mach_cone_matrix      = use_MCM 
     settings.stretch_supersonic_grid   = grid_stretch_super
@@ -278,7 +278,7 @@ def setup_conditions():
     #machs = np.array([0.4,0.4,0.4,0.4,0.4,0.8,0.8,0.8,0.8,0.8,1.4,1.4,1.4,1.4,1.4,1.6,1.6,1.6,1.6,1.6,1.8,1.8,1.8,1.8,1.8,2,2,2,2,2])
     
     aoas  = np.array([6.,6.]) * Units.degrees
-    machs = np.array([0.4,2.])    
+    machs = np.array([0.4,2.0])    
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()

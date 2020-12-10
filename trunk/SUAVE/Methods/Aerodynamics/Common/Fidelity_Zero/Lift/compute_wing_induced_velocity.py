@@ -44,12 +44,10 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     inv_root_beta = np.zeros_like(mach)
     mach[mach==1]         = 1.001  
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)
-    inv_root_beta[mach<0.3] = 1.
-    inv_root_beta[mach>1] = 1.0#np.sqrt(mach[mach>1]**2-1)
-    yz_stretch = ones*1.
+    inv_root_beta[mach<0.3] = 1.0
+    inv_root_beta[mach>1]   = 1.0
+    yz_stretch = ones*1.0
     
-    if grid_stretch_super==False:
-        inv_root_beta[mach>1] = 1.
     inv_root_beta = np.atleast_3d(inv_root_beta)
     
      
@@ -88,10 +86,11 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     YC    = np.atleast_3d(VD.YC*yz_stretch) 
     ZC    = np.atleast_3d(VD.ZC*yz_stretch)  
     n_w   = VD.n_w
+
     
     # supersonic corrections
-    kappa = np.ones_like(XAH)
-    kappa[mach>1.,:] = 2.
+    kappa = np.ones_like(XAH)*2
+    kappa[mach>1.,:] = 1.
     beta_2 = 1-mach**2
     sized_ones = np.ones((np.shape(mach)[0],np.shape(XAH)[-1],np.shape(XAH)[-1]))
     beta_2 = np.atleast_3d(beta_2)
@@ -227,7 +226,7 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,kappa, beta_2, GAMMA = 1):
     R0R1   = X2_X1*X_X1 + beta_2*(Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1)
     R0R2   = X2_X1*X_X2 + beta_2*(Y2_Y1*Y_Y2 + Z2_Z1*Z_Z2)
     RVEC   = np.array([R1R2X,R1R2Y,R1R2Z])
-    COEF   = (1/(4*np.pi*kappa))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)
+    COEF   = (1/(2*np.pi*kappa))*(RVEC/SQUARE) * (R0R1/R1 - R0R2/R2)
     V_IND  = GAMMA * COEF
     
         
@@ -272,7 +271,7 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw,kappa,beta_2):
     # Subsonic add 1
     BRAC[beta_2>0.]  = 1 + BRAC[beta_2>0.]
     
-    COEF  = (1/(4*np.pi*kappa))*RVEC*BRAC
+    COEF  = (1/(2*np.pi*kappa))*RVEC*BRAC
     
     
     return COEF
@@ -316,53 +315,8 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw,kappa,beta_2):
     BRAC[beta_2>0.]  = 1 + BRAC[beta_2>0.]
     
     
-    COEF  = -(1/(4*np.pi*kappa))*RVEC*BRAC
+    COEF  = -(1/(2*np.pi*kappa))*RVEC*BRAC
     
     COEF = np.real(COEF)
     
     return COEF
-
-
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_mach_cone_matrix(XC,YC,ZC,MCM,mach):
-    """ This computes the mach cone influence matrix for supersonic 
-    speeds. 
-    
-    Assumptions:  
-    None 
-    
-    Source:    
-    Garrido Estrada, Ester. "Tornado supersonic module development." (2011).
-    
-    Inputs: 
-    Properties Used:
-    N/A
-    
-    """       
-    for m_idx in range(len(mach)):
-        
-        # Prep new vectors
-        XC_sub = XC[m_idx,:]
-        YC_sub = YC[m_idx,:]
-        ZC_sub = ZC[m_idx,:]
-        length = len(XC[m_idx,:])
-        ones   = np.ones((1,length))
-        
-        # Take differences
-        del_x = XC_sub*ones - XC_sub.T
-        del_y = YC_sub*ones - YC_sub.T
-        del_z = ZC_sub*ones - ZC_sub.T
-        
-        # Flag certain indices outside the cone
-        c     = np.arcsin(1/mach[m_idx])
-        flag  = -c*del_x**2 + del_y**2 + del_z**2
-        idxs  = np.where(flag > 0.0)
-        MCM[m_idx,idxs[0],idxs[1]]  = [0.0, 0.0, 0.0] 
-        
-        # Control points in the back don't influence ahead, upstream affects downstream but not vice versa
-        idx2  = np.where(del_x < 0.0)
-        if mach[m_idx]>1.:
-            MCM[m_idx,idx2[0],idx2[1]]  = [0.0, 0.0, 0.0] 
-            
-        
-    return MCM
