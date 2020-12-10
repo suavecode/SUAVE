@@ -13,7 +13,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach,use_MCM = False, grid_stretch_super = False):
+def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     """ This computes the induced velocitys are each control point 
     of the vehicle vortex lattice 
 
@@ -173,19 +173,10 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach,use_MCM = False, gri
     C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
     C_mn        = C_AB_bv + C_AB_ll_tot  + C_AB_rl_tot   # verified from book using example 7.4 pg 399-404 
     DW_mn       = C_AB_ll_tot + C_AB_rl_tot              # summation of trailing vortices for semi infinite 
-    
 
-    
-    if use_MCM == True:
-        MCM   = np.ones_like(C_AB_bv)
-        MCM   = compute_mach_cone_matrix(XC,YC,ZC,MCM,mach)          
-        DW_mn = DW_mn * MCM
-        C_mn  = C_mn  * MCM
-
-    #C_mn  = np.real(C_mn)
-    #DW_mn = np.real(DW_mn)
     
     return C_mn, DW_mn
+
 
 # -------------------------------------------------------------------------------
 # vortex strength computation
@@ -224,13 +215,13 @@ def vortex(X,Y,Z,X1,Y1,Z1,X2,Y2,Z2,kappa, beta_2, GAMMA = 1):
     Z_Z2  = Z-Z2
     Z2_Z1 = Z2-Z1
 
-    R1R2X  = Y_Y1*beta_2*Z_Z2 - Z_Z1*beta_2*Y_Y2 
+    R1R2X  = Y_Y1*Z_Z2 - Z_Z1*Y_Y2 
     R1R2Y  = Z_Z1*X_X2 - X_X1*Z_Z2
-    R1R2Z  = X_X1*Y_Y2*beta_2 - Y_Y1*X_X2*beta_2
+    R1R2Z  = X_X1*Y_Y2 - Y_Y1*X_X2
     SQUARE = np.square(R1R2X) + np.square(R1R2Y) + np.square(R1R2Z)
     SQUARE[SQUARE==0] = 1e-12
-    R1     = np.real(np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1)) + 0j))
-    R2     = np.real(np.sqrt(np.square(X_X2) + beta_2*(np.square(Y_Y2) + np.square(Z_Z2)) + 0j))
+    R1     = np.sqrt(np.square(X_X1) + (np.square(Y_Y1) + np.square(Z_Z1)))
+    R2     = np.sqrt(np.square(X_X2) + (np.square(Y_Y2) + np.square(Z_Z2)))
     R1[R1==0.] = np.inf
     R2[R2==0]  = np.inf
     R0R1   = X2_X1*X_X1 + beta_2*(Y2_Y1*Y_Y1 + Z2_Z1*Z_Z1)
@@ -275,14 +266,14 @@ def vortex_leg_from_A_to_inf(X,Y,Z,X1,Y1,Z1,tw,kappa,beta_2):
     ZVEC  = Y1_Y*np.cos(tw)/DENUM 
     RVEC  = np.array([XVEC, YVEC, ZVEC])
     
-    BRAC_DENUM = np.real(np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1))+ 0j))
-    BRAC_DENUM[BRAC_DENUM==0.] = np.inf
+    BRAC_DENUM = np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1))
     BRAC = X_X1 / BRAC_DENUM
     
     # Subsonic add 1
     BRAC[beta_2>0.]  = 1 + BRAC[beta_2>0.]
     
     COEF  = (1/(4*np.pi*kappa))*RVEC*BRAC
+    
     
     return COEF
 
@@ -318,16 +309,16 @@ def vortex_leg_from_B_to_inf(X,Y,Z,X1,Y1,Z1,tw,kappa,beta_2):
     YVEC  = Z_Z1/DENUM
     ZVEC  = Y1_Y*np.cos(tw)/DENUM 
     RVEC  = np.array([XVEC, YVEC, ZVEC])
-    
-    BRAC_DENUM = np.real(np.sqrt(np.square(X_X1) + beta_2*(np.square(Y_Y1) + np.square(Z_Z1))+0j))
-    BRAC_DENUM[BRAC_DENUM==0.] = np.inf
-    
+    BRAC_DENUM = np.sqrt(np.square(X_X1) + np.square(Y_Y1) + np.square(Z_Z1))    
     BRAC  = X_X1 / BRAC_DENUM
     
     # Subsonic add 1
-    BRAC[beta_2>0.]  = 1 + BRAC[beta_2>0.]    
+    BRAC[beta_2>0.]  = 1 + BRAC[beta_2>0.]
+    
     
     COEF  = -(1/(4*np.pi*kappa))*RVEC*BRAC
+    
+    COEF = np.real(COEF)
     
     return COEF
 
