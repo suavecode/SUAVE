@@ -66,7 +66,7 @@ def main():
     #su2_arrow_biconvex     = import_csv(arrow_biconvex_file_su2)
     arrow_biconvex         = arrw_biconvex()
     conditions             = setup_conditions()
-    results_arrow_biconvex = analyze(arrow_biconvex, conditions, use_MCM = False, grid_stretch_super = False, use_sup = True)
+    results_arrow_biconvex = analyze(arrow_biconvex, conditions)
     print('stop')
     #plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
     #plot_results_2D('Arrow biconvex',results_arrow_biconvex,pan_arrow_biconvex,vsp_arrow_biconvex,length)    
@@ -229,19 +229,16 @@ def plot_results_2D(name,vlm_results,panair_results,vsp_results,length):
 
 
 
-def analyze(config,conditions, use_MCM = False, grid_stretch_super = True, use_sup = False):
+def analyze(config,conditions, use_MCM = False):
     
     
     results = Data()
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 50
-    settings.number_chordwise_vortices = 10
+    settings.number_spanwise_vortices  = 5
+    settings.number_chordwise_vortices = 3
     settings.propeller_wake_model      = None
-    settings.use_mach_cone_matrix      = use_MCM 
-    settings.stretch_supersonic_grid   = grid_stretch_super
-    settings.use_supersonic_correction = use_sup 
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
     
@@ -265,6 +262,14 @@ def analyze(config,conditions, use_MCM = False, grid_stretch_super = True, use_s
     results.mach = conditions.freestream.mach_number
     results.aoa  = conditions.aerodynamics.angle_of_attack
     
+    print('CL')
+    print(CL)
+    
+    print('CDi')
+    print(CDi)
+    
+    
+    
     
     return results
 
@@ -277,8 +282,9 @@ def setup_conditions():
     #aoas  = np.array([-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6]) * Units.degrees
     #machs = np.array([0.4,0.4,0.4,0.4,0.4,0.8,0.8,0.8,0.8,0.8,1.4,1.4,1.4,1.4,1.4,1.6,1.6,1.6,1.6,1.6,1.8,1.8,1.8,1.8,1.8,2,2,2,2,2])
     
+    
     aoas  = np.array([6.,6.]) * Units.degrees
-    machs = np.array([0.4,2.0])    
+    machs = np.array([0.4,1.6])    
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()
