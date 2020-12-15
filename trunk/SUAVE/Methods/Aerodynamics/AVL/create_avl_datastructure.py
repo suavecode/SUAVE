@@ -313,14 +313,19 @@ def populate_wing_sections(avl_wing,suave_wing):
             origin.append( [[origin[i_segs][0][0] + dx , origin[i_segs][0][1] + dy, origin[i_segs][0][2] + dz]])               
 
     else:    
-        symm                  = avl_wing.symmetric
-        sweep                 = suave_wing.sweeps.quarter_chord
+        symm                  = avl_wing.symmetric  
         dihedral              = suave_wing.dihedral
         span                  = suave_wing.spans.projected
         semispan              = suave_wing.spans.projected * 0.5 * (2 - symm)
+        ar                    = suave_wing.aspect_ratio 
+        taper                 = suave_wing.taper      
         avl_wing.semispan     = semispan
-        origin                = suave_wing.origin[0]
-
+        origin                = suave_wing.origin[0] 
+        if suave_wing.sweeps.leading_edge is not None:  
+            sweep             = suave_wing.sweeps.leading_edge
+        else: 
+            sweep_qc          = suave_wing.sweeps.quarter_chord
+            sweep             = np.arctan( np.tan(sweep_qc) - (4./ar)*(0.-0.25)*(1.-taper)/(1.+taper) )
         # define root section 
         root_section          = Section()
         root_section.tag      = 'root_section'
