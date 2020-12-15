@@ -46,8 +46,9 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     inv_root_beta[mach<1] = 1.
     inv_root_beta[mach<0.3] = 1.0
     inv_root_beta[mach>1]   = 1.0
-    yz_stretch = ones*1.0
+    yz_stretch = np.ones_like(mach)
     
+    yz_stretch = np.atleast_3d(yz_stretch)
     inv_root_beta = np.atleast_3d(inv_root_beta)
     
     # Control points from the VLM 
@@ -94,7 +95,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     yb = YBH
     zb = ZBH
     
-    # This is not the control point for the panel
+    # This is not the control point for the panel, its the middle front of the vortex
     xc = 0.5*(xa+xb)
     yc = 0.5*(ya+yb)
     zc = 0.5*(za+zb)
@@ -132,15 +133,23 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     F1, G1 = F_and_G(t, x1, beta_2, y1, zobar)
     F2, G2 = F_and_G(t, x2, beta_2, y2, zobar)
     
+    d1 = d(y1, zobar)
+    d2 = d(y2, zobar)
+    
     denom = bnd_vortex_denom(xs, t, beta_2, zobar)
     
     # Velocities in the frame of the vortex
     U_rot = u(zo, denom, F1, F2)
-    V_rot = v(F1, F2, t, G1, G2, denom, y1, y2, zobar)
-    W_rot = w(xs, F1, F2, denom, y1, y2, G1, G2, zobar)
+    V_rot = v(F1, F2, t, G1, G2, denom, zobar,d1,d2)
+    W_rot = w(xs, F1, F2, denom, y1, y2, G1, G2, zobar,d1,d2)
     
     v_dw_rot = zobar*(G1/(y1**2+zobar**2) - G2/(y2**2+zobar**2))
-    w_dw_rot = -(y1*G1/(y1**2+zobar**2) - y2*G2/(y2**2+zobar**2))    
+    w_dw_rot = -(y1*G1/(y1**2+zobar**2) - y2*G2/(y2**2+zobar**2))        
+    
+
+    #w_dw_rot = (-1/xs)*(np.sqrt(x1**2+beta_2*(y1**2))/y1-np.sqrt(x2**2+beta_2*(y2**2))/y2)
+    #v_dw_rot = np.zeros_like(w_dw_rot)
+    #w_dw_rot[np.isnan(w_dw_rot)] = 0.
     
     # Velocities in the vehicles frame
     U = (U_rot)/(2*np.pi*kappa)
@@ -174,15 +183,15 @@ def F_and_G(t,x,b2,y,z):
     g = x/denum
     
     # Adding 1 takes the trailing legs to infinity. Supersonically the legs shouldn't extend forever
-    #g[b2>0] = g[b2>0] + 1
+    g[b2>0] = g[b2>0] + 1
     
-    g = g + 1
+    #g = g + 1
 
     return f, g
 
 def bnd_vortex_denom(xs,t,b2,z):
     
-    denom = xs**2 + (t**2+b2)*(z**2)
+    denom = xs**2 + (t**2 + b2)*(z**2)
 
     return denom
 
@@ -192,14 +201,20 @@ def u(zo,denom,F1,F2):
     
     return u
 
-def v(F1,F2,t,G1,G2,denom,y1,y2,z):
+def v(F1,F2,t,G1,G2,denom,z,d1,d2):
     
-    v = z*(-(F1-F2)*t/denom + G1/(y1**2+z**2) - G2/(y2**2+z**2))
+    v = z*(-(F1-F2)*t/denom + G1/d1 - G2/d2)
     
     return v
 
-def w(xs,F1,F2,denom,y1,y2,G1,G2,z):
+def w(xs,F1,F2,denom,y1,y2,G1,G2,z,d1,d2):
     
-    w = -(xs*(F1-F2)/denom + y1*G1/(y1**2+z**2) - y2*G2/(y2**2+z**2))
+    w = -(xs*(F1-F2)/denom + y1*G1/d1 - y2*G2/d2)
     
     return w
+
+
+def d(y,z):
+    
+    
+    return y**2+z**2

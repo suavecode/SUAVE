@@ -114,7 +114,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
     mach = conditions.freestream.mach_number         # mach number
-    ones = np.atleast_2d(np.ones_like(aoa)) 
+    ones = np.atleast_2d(np.ones_like(mach)) 
    
     # generate vortex distribution 
     VD   = generate_wing_vortex_distribution(geometry,settings)   
@@ -123,12 +123,12 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     geometry.vortex_distribution = VD
     
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
+    C_mn, DW_mn = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
      
     # Compute flow tangency conditions   
     inv_root_beta           = np.zeros_like(mach)
     inv_root_beta[mach<1]   = 1/np.sqrt(1-mach[mach<1]**2)     
-    inv_root_beta[mach>1]   = 1#/np.sqrt(mach[mach>1]**2-1)   
+    inv_root_beta[mach>1]   = 1.#1/np.sqrt(mach[mach>1]**2-1)   
     inv_root_beta           = np.atleast_2d(inv_root_beta)
     
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones          # dihedral angle 
@@ -137,7 +137,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # Build Aerodynamic Influence Coefficient Matrix
     A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
         + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
-        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # valdiated from book eqn 7.42  
+        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42  
    
     # Build the vector
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
