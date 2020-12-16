@@ -286,7 +286,7 @@ def setup_conditions():
     #machs = np.array([0.4,1.,2.0,2.0])    
     
     aoas  = np.array([6.,6.]) * Units.degrees
-    machs = np.array([0.4,1.4])        
+    machs = np.array([0.4,1.8])        
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()
