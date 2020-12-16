@@ -45,7 +45,7 @@ def main():
     # Design the Propeller with airfoil  geometry defined                      
     bad_prop                          = SUAVE.Components.Energy.Converters.Propeller() 
     bad_prop.tag                      = "Prop_W_Aifoil"
-    bad_prop.number_blades            = 2
+    bad_prop.number_of_blades         = 2
     bad_prop.number_of_engines        = 1
     bad_prop.freestream_velocity      = 1
     bad_prop.tip_radius               = 0.3
@@ -64,7 +64,7 @@ def main():
     
     prop_a                          = SUAVE.Components.Energy.Converters.Propeller() 
     prop_a.tag                      = "Prop_W_Aifoil"
-    prop_a.number_blades            = 3
+    prop_a.number_of_blades         = 3
     prop_a.number_of_engines        = 1
     prop_a.freestream_velocity      = 49.1744 
     prop_a.tip_radius               = 1.0668
@@ -87,7 +87,7 @@ def main():
     # Design the Propeller with airfoil  geometry defined 
     prop                          = SUAVE.Components.Energy.Converters.Propeller()
     prop.tag                      = "Prop_No_Aifoil"
-    prop.number_blades            = 3
+    prop.number_of_blades         = 3
     prop.number_of_engines        = 1
     prop.freestream_velocity      = 49.1744 
     prop.tip_radius               = 1.0668
@@ -105,7 +105,7 @@ def main():
     rot_a.tag                      = "Rot_W_Aifoil"
     rot_a.tip_radius               = 2.8 * Units.feet
     rot_a.hub_radius               = 0.35 * Units.feet      
-    rot_a.number_blades            = 2   
+    rot_a.number_of_blades         = 2   
     rot_a.design_tip_mach          = 0.65
     rot_a.number_of_engines        = 12
     rot_a.disc_area                = np.pi*(rot_a.tip_radius**2)        
@@ -127,7 +127,7 @@ def main():
     rot.tag                      = "Rot_No_Aifoil"
     rot.tip_radius               = 2.8 * Units.feet
     rot.hub_radius               = 0.35 * Units.feet      
-    rot.number_blades            = 2   
+    rot.number_of_blades         = 2   
     rot.design_tip_mach          = 0.65
     rot.number_of_engines        = 12
     rot.disc_area                = np.pi*(rot.tip_radius**2)        

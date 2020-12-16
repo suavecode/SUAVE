@@ -196,7 +196,7 @@ def vehicle_setup():
     rotor.tip_radius             = 3.95 * Units.feet
     rotor.hub_radius             = 0.6  * Units.feet 
     rotor.disc_area              = np.pi*(rotor.tip_radius**2) 
-    rotor.number_blades          = 3
+    rotor.number_of_blades       = 3
     rotor.freestream_velocity    = 500. * Units['ft/min']  
     rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/rotor.tip_radius   
     rotor.design_Cl              = 0.8

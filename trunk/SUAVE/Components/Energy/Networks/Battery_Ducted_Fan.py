@@ -49,16 +49,20 @@ class Battery_Ducted_Fan(Propulsor):
             Properties Used:
             N/A
         """         
-        
-        self.propulsor        = None
-        self.battery          = None
-        self.motor_efficiency = 0.0 
-        self.esc              = None
-        self.avionics         = None
-        self.payload          = None
-        self.voltage          = None
-        self.tag              = 'Network'
-    
+
+        self.propulsor                 = None
+        self.battery                   = None
+        self.motor_efficiency          = 0.0
+        self.tag                       = 'Battery_Ducted_Fan'
+        self.number_of_engines         = 0.
+        self.nacelle_diameter          = 0.
+        self.esc                       = None
+        self.avionics                  = None
+        self.payload                   = None
+        self.voltage                   = None
+        self.tag                       = 'Network'
+        self.generative_design_minimum = 0
+
     # manage process with a driver function
     def evaluate_thrust(self,state):
         """ Calculate thrust given the current state of the vehicle
@@ -127,11 +131,16 @@ class Battery_Ducted_Fan(Propulsor):
         # No mass gaining batteries
         mdot = np.zeros(np.shape(conditions.freestream.velocity))
 
-        # Pack the conditions for outputs          
-        conditions.propulsion.battery_current              = esc.outputs.currentin
-        conditions.propulsion.battery_power_draw           = battery.inputs.power_in 
-        conditions.propulsion.battery_energy               = battery.current_energy
-        conditions.propulsion.battery_voltage_open_circuit = battery.voltage_open_circuit
+        # Pack the conditions for outputs
+        current              = esc.outputs.currentin
+        battery_draw         = battery.inputs.power_in
+        battery_energy       = battery.current_energy
+        voltage_open_circuit = battery.voltage_open_circuit
+
+        conditions.propulsion.current              = current
+        conditions.propulsion.battery_draw         = battery_draw
+        conditions.propulsion.battery_energy       = battery_energy
+        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
         
         results.vehicle_mass_rate   = mdot
         return results

@@ -801,8 +801,8 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
     fig.set_size_inches(12, 10)  
     for segment in results.segments.values():
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        effp   = segment.conditions.propulsion.etap[:,0]
-        effm   = segment.conditions.propulsion.etam[:,0]
+        effp   = segment.conditions.propulsion.propeller_efficiency[:,0]
+        effm   = segment.conditions.propulsion.motor_efficiency[:,0]
         
         axes = fig.add_subplot(1,2,1)
         axes.plot(time, effp, line_color )

@@ -113,7 +113,7 @@ def LiNCA_discharge (battery,numerics):
     n       = 1
     F       = 96485      # C/mol Faraday constant    
     delta_S = -18046*(SOC_old)**6 + 52735*(SOC_old)**5 - 57196*(SOC_old)**4 + \
-        28030*(SOC_old)**3 -6023*(SOC_old)**2 +  514*(SOC_old) -27
+               28030*(SOC_old)**3 -6023*(SOC_old)**2 +  514*(SOC_old) -27
     
     i_cell         = I_cell/electrode_area # current intensity 
     q_dot_entropy  = -(T_cell+272.65)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
@@ -161,11 +161,7 @@ def LiNCA_discharge (battery,numerics):
         Tw_Ti    = (T - T_ambient)
         Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_air*V_air*Nn*S_T*Cp_air))
         dT_lm    = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-        Q_convec = h*np.pi*D_cell*H_cell*0.75*n_total_module*dT_lm
-
-        if np.isnan(dT_lm).any():
-            raise AttributeError('Nan!!')
-
+        Q_convec = h*np.pi*D_cell*H_cell*0.75*n_total_module*dT_lm 
         P_net    = Q_heat_gen*n_total_module - Q_convec 
 
     dT_dt     = P_net/(cell_mass*n_total_module*Cp)
@@ -197,11 +193,10 @@ def LiNCA_discharge (battery,numerics):
     V_Th = I_cell/(1/R_Th + C_Th*np.dot(D,np.ones_like(R_Th)))
     
     # Update battery internal and thevenin resistance with aging factor
-    R_0  = R_0 * R_growth_factor 
-    R_Th = R_Th* R_growth_factor
+    R_0_aged  = R_0 * R_growth_factor  
    
     # Calculate resistive losses
-    Q_heat_gen = (I_cell**2)*(R_0 + R_Th)
+    Q_heat_gen = (I_cell**2)*(R_0_aged + R_Th)
       
     # Power going into the battery accounting for resistance losses
     P_loss = n_total*Q_heat_gen
@@ -230,7 +225,7 @@ def LiNCA_discharge (battery,numerics):
     DOD_new = 1 - SOC_new
     
     # Determine voltage under load:
-    V_ul   = V_oc - V_Th - (I_cell * R_0)
+    V_ul   = V_oc - V_Th - (I_cell * R_0_aged)
      
     # Determine new charge throughput (the amount of charge gone through the battery)
     Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  

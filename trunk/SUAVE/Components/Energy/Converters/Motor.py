@@ -97,7 +97,7 @@ class Motor(Energy_Component):
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
-        io    = self.no_load_current + exp_i*(1-etaG)  
+        io    = self.no_load_current + exp_i*(1-etaG)
         G     = self.gear_ratio
         Kv    = self.speed_constant/G
         R     = self.propeller_radius
@@ -109,10 +109,6 @@ class Motor(Energy_Component):
         omega1  =   ((np.pi**(3./2.))*((- 16.*Cp*io*rho*(Kv*Kv*Kv)*(R*R*R*R*R)*(Res*Res) +
                     16.*Cp*rho*v*(Kv*Kv*Kv)*(R*R*R*R*R)*Res + (np.pi*np.pi*np.pi))**(0.5) - 
                     np.pi**(3./2.)))/(8.*Cp*(Kv*Kv)*(R*R*R*R*R)*Res*rho)
-        
-        #if np.isnan( omega1).any(): 
-            #raise AssertionError('OMEGA IS NANING')       
-        
         omega1[np.isnan(omega1)] = 0.0
         
         Q = ((v-omega1/Kv)/Res -io)/Kv
@@ -253,7 +249,7 @@ class Motor(Energy_Component):
         exp_i = self.expected_current
         io    = self.no_load_current + exp_i*(1-etaG)
         
-        i=(v-omeg/Kv)/Res     
+        i=(v-omeg/Kv)/Res
         
         # This line means the motor cannot recharge the battery
         i[i < 0.0] = 0.0
