@@ -116,21 +116,13 @@ def LiNiMnCo_discharge(battery,numerics):
     
     # ---------------------------------------------------------------------------------
     # Compute battery cell temperature 
-    # ---------------------------------------------------------------------------------
-    # Determine temperature increase         
-    sigma = 139 # Electrical conductivity
-    n     = 1
-    F     = 96485 # C/mol Faraday constant
-    c0    = -496.66
-    c1    = 1729.4
-    c2    = -2278 
-    c3    = 1382.2 
-    c4    = -380.47 
-    c5    = 46.508
-    c6    = -10.692  
+    # --------------------------------------------------------------------------------- 
+    sigma   = 139 # Electrical conductivity
+    n       = 1
+    F       = 96485 # C/mol Faraday constant    
+    delta_S = -496.66*(SOC_old)**6 +  1729.4*(SOC_old)**5 + -2278 *(SOC_old)**4 +  1382.2 *(SOC_old)**3 + \
+              -380.47*(SOC_old)**2 + 46.508*(SOC_old) + -10.692  # eqn 10 and , D. Jeon Thermal Modelling .. 
     
-    delta_S = c0*(SOC_old)**6 + c1*(SOC_old)**5 + c2*(SOC_old)**4 + c3*(SOC_old)**3 + \
-        c4*(SOC_old)**2 + c5*(SOC_old) + c6  # eqn 10 and , D. Jeon Thermal Modelling .. 
     
     i_cell         = I_cell/electrode_area # current intensity 
     q_dot_entropy  = -(T_cell+272.65)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
@@ -178,11 +170,7 @@ def LiNiMnCo_discharge(battery,numerics):
         Tw_Ti    = (T - T_ambient)
         Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_air*V_air*Nn*S_T*Cp_air))
         dT_lm    = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-        Q_convec = h*np.pi*D_cell*H_cell*0.75*n_total_module*dT_lm
-        
-        if np.isnan(dT_lm).any():
-            raise AttributeError('Nan!!')
-        
+        Q_convec = h*np.pi*D_cell*H_cell*0.75*n_total_module*dT_lm  
         P_net    = Q_heat_gen*n_total_module - Q_convec 
    
     dT_dt     = P_net/(cell_mass*n_total_module*Cp)

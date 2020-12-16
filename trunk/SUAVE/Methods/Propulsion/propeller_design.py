@@ -49,7 +49,7 @@ def propeller_design(prop,number_of_stations=20):
     """    
     # Unpack
     N      = number_of_stations       # this number determines the discretization of the propeller into stations 
-    B      = prop.number_blades
+    B      = prop.number_of_blades
     R      = prop.tip_radius
     Rh     = prop.hub_radius
     omega  = prop.angular_velocity    # Rotation Rate in rad/s
@@ -303,7 +303,7 @@ def propeller_design(prop,number_of_stations=20):
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
     prop.radius_distribution        = r 
-    prop.number_blades              = int(B)
+    prop.number_of_blades           = int(B)
     prop.design_power_coefficient   = Cp 
     prop.design_thrust_coefficient  = Ct 
     prop.mid_chord_aligment         = MCA

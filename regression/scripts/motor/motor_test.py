@@ -24,7 +24,7 @@ def main():
     and output voltage and currents'''
     # Propeller 
     prop                     = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0 
+    prop.number_of_blades    = 2.0 
     prop.freestream_velocity = 50.0
     prop.angular_velocity    = 209.43951023931953
     prop.tip_radius          = 1.5

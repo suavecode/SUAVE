@@ -83,7 +83,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
                                                                      #
         self.specific_heat_capacity                        = 1108    # [J/kgK]  
         self.cell.specific_heat_capacity                   = 1108    # [J/kgK]  
-        self.heat_transfer_coefficient                     = 75      # [W/m^2K]          self.cell.specific_heat_capacity                   = 1108    # [J/kgK]  
+        self.heat_transfer_coefficient                     = 75      # [W/m^2K]          
         self.cell.thermal_conductivity                     = 3.91    # [J/kgK] 
                                                            
         self.cell.diameter                                 = 0.018   # [m]
@@ -100,8 +100,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.cooling_fluid.tag                             = 'air'
         self.cooling_fluid.thermal_conductivity            = 0.0253 #W/mK
         self.cooling_fluid.specific_heat_capacity          = 1006   # K/kgK
-        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.1  # 0.1
-        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.1  # 0.2
+        self.cooling_fluid.discharge_air_cooling_flowspeed = 0.05   
+        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.05   
         self.cooling_fluid.kinematic_viscosity_fit         = kinematic_viscosity_model() # Pa/s
         self.cooling_fluid.prandlt_number_fit              = prandlt_number_model()
                                                            

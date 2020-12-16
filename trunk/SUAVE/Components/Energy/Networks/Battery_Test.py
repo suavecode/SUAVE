@@ -124,8 +124,8 @@ class Battery_Test(Propulsor):
                 R_0[i]  = battery_data.R_0_interp(T_cell[i], SOC[i])[0]  
                 
             dV_TH_dt =  np.dot(D,V_Th)
-            Icell = V_Th/(R_Th * battery.R_growth_factor)  + C_Th*dV_TH_dt  
-            R_0   = R_0 * battery.R_growth_factor 
+            Icell    = V_Th/(R_Th * battery.R_growth_factor)  + C_Th*dV_TH_dt  
+            R_0      = R_0 * battery.R_growth_factor 
              
             # Voltage under load:
             volts = n_series*(V_oc - V_Th - (Icell * R_0))  
@@ -137,25 +137,25 @@ class Battery_Test(Propulsor):
             I_cell     = state.unknowns.battery_current/n_parallel 
             
             # Link Temperature 
-            battery.cell_temperature = T_cell  
+            battery.cell_temperature         = T_cell  
             battery.initial_thevenin_voltage = V_th0  
             
             # Make sure things do not break by limiting current, temperature and current 
-            SOC[SOC < 0.]       = 0.  
-            SOC[SOC > 1.]       = 1.    
-            DOD = 1 - SOC 
+            SOC[SOC < 0.]            = 0.  
+            SOC[SOC > 1.]            = 1.    
+            DOD                      = 1 - SOC 
             
             T_cell[np.isnan(T_cell)] = 30.0 
-            T_cell[T_cell<0.0]  = 0. 
-            T_cell[T_cell>50.0] = 50.
+            T_cell[T_cell<0.0]       = 0. 
+            T_cell[T_cell>50.0]      = 50.
              
-            I_cell[I_cell<0.0]  = 0.0
-            I_cell[I_cell>8.0]  = 8.0   
+            I_cell[I_cell<0.0]       = 0.0
+            I_cell[I_cell>8.0]       = 8.0    
             
             # create vector of conditions for battery data sheet response surface for OCV
             pts   = np.hstack((np.hstack((I_cell, T_cell)),DOD  )) # amps, temp, SOC   
             V_ul  = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T  
-            volts = V_ul 
+            volts = n_series*V_ul 
  
         #-------------------------------------------------------------------------------
         # Discharge

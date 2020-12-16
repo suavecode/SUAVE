@@ -16,8 +16,7 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Power.Battery.Discharge_Models.datta_discharge import datta_discharge
-from SUAVE.Methods.Power.Battery.Charge_Models.datta_charge import datta_charge
-from SUAVE.Methods.Power.Battery.Idle_Model.idle_battery import idle_battery
+from SUAVE.Methods.Power.Battery.Charge_Models.datta_charge import datta_charge 
 
 
 # ---------------------------------------------------------------- ------
