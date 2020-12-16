@@ -117,6 +117,11 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     yobar = (yo - yc)*costheta + (zo - zc)*sintheta
     zobar =-(yo - yc)*sintheta + (zo - zc)*costheta
     
+    
+    
+    # I ARBITRARILY SET THIS TOLERANCE:
+    tol = 0.1
+    
     #dimensions
     s = np.abs(y1bar)
     t = x1bar/y1bar
@@ -128,11 +133,13 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     y2 = yobar - s
     
     xs = xobar - t*yobar
-    
+        
     # Calculate coefficients
-    F1, G1 = F_and_G(t, x1, beta_2, y1, zobar)
-    F2, G2 = F_and_G(t, x2, beta_2, y2, zobar)
+    F1, G1, cone1 = F_and_G(t, x1, beta_2, y1, zobar)
+    F2, G2, cone2 = F_and_G(t, x2, beta_2, y2, zobar)
     
+    cone = np.logical_or(cone1,cone2)
+
     d1 = d(y1, zobar)
     d2 = d(y2, zobar)
     
@@ -143,12 +150,27 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     V_rot = v(F1, F2, t, G1, G2, denom, zobar,d1,d2)
     W_rot = w(xs, F1, F2, denom, y1, y2, G1, G2, zobar,d1,d2)
     
-    v_dw_rot = zobar*(G1/(y1**2+zobar**2) - G2/(y2**2+zobar**2))
-    w_dw_rot = -(y1*G1/(y1**2+zobar**2) - y2*G2/(y2**2+zobar**2))        
+    boolean = np.logical_and(((zobar**2) < (tol**2)),(beta_2<0))
     
+    RAD1 = np.sqrt(x1**2+beta_2*(y1**2))
+    RAD2 = np.sqrt(x2**2+beta_2*(y2**2))
+    
+    RAD1[np.isnan(RAD1)] = 0.
+    RAD2[np.isnan(RAD2)] = 0.
+    
+    F1_new = RAD1/y1
+    F2_new = RAD2/y2
+    
+    U_rot[boolean] = 0.
+    V_rot[boolean] = 0.
+    W_rot[boolean] = (-1/xs[boolean])*(F1_new[boolean]-F2_new[boolean])
+    
+    
+    #v_dw_rot = zobar*(G1/(y1**2+zobar**2) - G2/(y2**2+zobar**2))
+    #w_dw_rot = -(y1*G1/(y1**2+zobar**2) - y2*G2/(y2**2+zobar**2))
 
-    #w_dw_rot = (-1/xs)*(np.sqrt(x1**2+beta_2*(y1**2))/y1-np.sqrt(x2**2+beta_2*(y2**2))/y2)
-    #v_dw_rot = np.zeros_like(w_dw_rot)
+    #w_dw_rot[beta_2<0] = ((-1/xs)*(cone1*np.sqrt(x1**2+beta_2*(y1**2))/y1-cone2*np.sqrt(x2**2+beta_2*(y2**2))/y2))[beta_2<0]
+    #v_dw_rot[beta_2<0]  = np.zeros_like(w_dw_rot)[beta_2<0]
     #w_dw_rot[np.isnan(w_dw_rot)] = 0.
     
     # Velocities in the vehicles frame
@@ -156,8 +178,8 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     V = (V_rot*costheta - W_rot*sintheta)/(2*np.pi*kappa)
     W = (V_rot*sintheta + W_rot*costheta)/(2*np.pi*kappa)
     
-    v_dw = (v_dw_rot*costheta - w_dw_rot*sintheta)/(2*np.pi*kappa)
-    w_dw = (v_dw_rot*sintheta + w_dw_rot*costheta)/(2*np.pi*kappa)
+    #v_dw = (v_dw_rot*costheta - w_dw_rot*sintheta)/(2*np.pi*kappa)
+    #w_dw = (v_dw_rot*sintheta + w_dw_rot*costheta)/(2*np.pi*kappa)
         
     # Pack into matrices
     C_mn = np.zeros(np.shape(kappa)+(3,))
@@ -166,28 +188,32 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     C_mn[:,:,:,2] = W
 
     DW_mn = np.zeros_like(C_mn)
-    DW_mn[:,:,:,1] = v_dw
-    DW_mn[:,:,:,2] = w_dw 
+    #DW_mn[:,:,:,1] = v_dw
+    #DW_mn[:,:,:,2] = w_dw 
+    DW_mn[:,:,:,1] = V
+    DW_mn[:,:,:,2] = W
     
 
     return C_mn, DW_mn
 
 def F_and_G(t,x,b2,y,z):
     
+    c = 0.8
+    
+    cone = x**2 + b2*(y**2 + z**2)/c
+    cone = np.heaviside(cone,0.)
+
     denum = np.sqrt(x**2 + b2*(y**2 + z**2))
+    denum[cone==0] = np.inf
     
-    denum[np.isnan(denum)] = np.inf
+    f = (t*x + b2*y)/denum #FB
     
-    f = (t*x + b2*y)/denum
-    
-    g = x/denum
-    
+    g = x/denum #FT
+
     # Adding 1 takes the trailing legs to infinity. Supersonically the legs shouldn't extend forever
     g[b2>0] = g[b2>0] + 1
-    
-    #g = g + 1
 
-    return f, g
+    return f, g, cone
 
 def bnd_vortex_denom(xs,t,b2,z):
     

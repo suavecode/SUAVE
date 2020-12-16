@@ -57,7 +57,6 @@ def main():
     
     
     # Arrow biconvex
-    length             = 5
     #arrow_biconvex_file_vsp = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex_vspaero.csv'
     #arrow_biconvex_file_pan = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex.csv'
     #arrow_biconvex_file_su2 = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex_su2.csv'
@@ -287,7 +286,7 @@ def setup_conditions():
     #machs = np.array([0.4,1.,2.0,2.0])    
     
     aoas  = np.array([6.,6.]) * Units.degrees
-    machs = np.array([0.4,2.0])        
+    machs = np.array([0.4,1.4])        
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()

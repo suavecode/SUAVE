@@ -123,7 +123,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     geometry.vortex_distribution = VD
     
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
+    C_mn, DW_mn = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
      
     # Compute flow tangency conditions   
     inv_root_beta           = np.zeros_like(mach)
