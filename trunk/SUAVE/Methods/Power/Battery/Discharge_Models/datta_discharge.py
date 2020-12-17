@@ -10,6 +10,8 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+from scipy.integrate import  cumtrapz
+from SUAVE.Core import  Units 
 
 # ----------------------------------------------------------------------
 #  Datta Discharge
@@ -123,10 +125,10 @@ def datta_discharge(battery,numerics):
     SOC_new[SOC_new>1] = 1.
     SOC_new[SOC_new<0] = 0. 
     DOD_new = 1 - SOC_new
-     
-    # determine new charge throughput  
-    Q_current = np.dot(I,abs(I_bat))
-    Q_total   = Q_prior + Q_current[-1][0]/3600    
+      
+    # Determine new charge throughput (the amount of charge gone through the battery)
+    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(abs(I_bat)[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
+    Q_segment  = np.atleast_2d(np.hstack(( np.zeros_like(Q_prior[0]) , cumtrapz(abs(I_bat)[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T      
             
     # A voltage model from Chen, M. and Rincon-Mora, G. A., "Accurate Electrical Battery Model Capable of Predicting
     # Runtime and I - V Performance" IEEE Transactions on Energy Conversion, Vol. 21, No. 2, June 2006, pp. 504-511
@@ -136,17 +138,27 @@ def datta_discharge(battery,numerics):
     
     # Voltage under load:
     V_ul   = V_oc - I_bat*R_0
-        
+         
     # Pack outputs
-    battery.current_energy          = E_current
-    battery.resistive_losses        = Q_heat_gen
-    battery.cell_temperature        = T_current
-    battery.load_power              = V_ul*I_bat
-    battery.state_of_charge         = SOC_new 
-    battery.depth_of_discharge      = DOD_new
-    battery.charge_throughput       = Q_total
-    battery.voltage_open_circuit    = V_oc
-    battery.voltage_under_load      = V_ul
-    battery.current                 = I_bat
+    battery.current_energy                     = E_current
+    battery.resistive_losses                   = Q_heat_gen
+    battery.cell_temperature                   = T_current
+    battery.load_power                         = V_ul*I_bat
+    battery.state_of_charge                    = SOC_new 
+    battery.depth_of_discharge                 = DOD_new
+    battery.cumulative_cell_charge_throughput  = Q_total 
+    battery.cell_charge_throughput             = Q_segment 
+    battery.voltage_open_circuit               = V_oc
+    battery.voltage_under_load                 = V_ul
+    battery.current                            = I_bat 
+    battery.pack_temperature                   = T_current 
+    battery.cell_joule_heat_fraction           = np.zeros_like(V_ul)
+    battery.cell_entropy_heat_fraction         = np.zeros_like(V_ul)  
+    battery.cell_voltage_open_circuit          = np.zeros_like(V_ul)
+    battery.cell_current                       = np.zeros_like(V_ul)
+    battery.thevenin_voltage                   = np.zeros_like(V_ul)
+    battery.heat_energy_generated              = Q_heat_gen 
+    battery.internal_resistance                = R_0 
+    battery.cell_voltage_under_load            = V_ul
 
     return

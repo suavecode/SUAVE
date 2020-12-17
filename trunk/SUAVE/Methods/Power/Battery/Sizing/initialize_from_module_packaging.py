@@ -25,7 +25,7 @@ def initialize_from_module_packaging(battery):
     
     Source:
     Cell Charge: Chin, J. C., Schnulo, S. L., Miller, T. B., Prokopius, K., and Gray, 
-    J., “Battery Performance Modeling on Maxwell X-57",”AIAA Scitech, San Diego, CA,
+    J., Battery Performance Modeling on Maxwell X-57",AIAA Scitech, San Diego, CA,
     2019. URLhttp://openmdao.org/pubs/chin_battery_performance_x57_2019.pdf.     
 
     Inputs:

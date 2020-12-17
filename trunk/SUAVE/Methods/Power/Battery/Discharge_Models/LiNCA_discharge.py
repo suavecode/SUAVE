@@ -19,7 +19,7 @@ def LiNCA_discharge (battery,numerics):
      
        Source: 
        Cell Charge: Chin, J. C., Schnulo, S. L., Miller, T. B., Prokopius, K., and Gray, 
-       J., “Battery Performance Modeling on Maxwell X-57",”AIAA Scitech, San Diego, CA,
+       J., "Battery Performance Modeling on Maxwell X-57","AIAA Scitech, San Diego, CA,
        2019. URLhttp://openmdao.org/pubs/chin_battery_performance_x57_2019.pdf.     
        
        Cell Heat Coefficient:  Wu et. al. "Determination of the optimum heat transfer 
@@ -172,31 +172,31 @@ def LiNCA_discharge (battery,numerics):
     P      = P_bat - np.abs(P_loss)      
     
     # Look up tables for variables as a function of temperature and SOC 
-    V_oc = np.zeros_like(I_cell)
-    R_Th = np.zeros_like(I_cell)  
-    C_Th = np.zeros_like(I_cell)  
-    R_0  = np.zeros_like(I_cell) 
+    V_oc_cell = np.zeros_like(I_cell)
+    R_Th_cell = np.zeros_like(I_cell)  
+    C_Th_cell = np.zeros_like(I_cell)  
+    R_0_cell  = np.zeros_like(I_cell) 
     for i in range(len(SOC_old)): 
         # Open Circuit Voltage
-        V_oc[i] = battery_data.V_oc_interp(T_cell[i], SOC_old[i])[0]
+        V_oc_cell[i] = battery_data.V_oc_interp(T_cell[i], SOC_old[i])[0]
         
         # Thevenin Capacitance 
-        C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC_old[i])[0]
+        C_Th_cell[i] = battery_data.C_Th_interp(T_cell[i], SOC_old[i])[0]
         
         # Thevenin Resistance 
-        R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC_old[i])[0]
+        R_Th_cell[i] = battery_data.R_Th_interp(T_cell[i], SOC_old[i])[0]
         
         # Li-ion battery interal resistance
-        R_0[i]  = battery_data.R_0_interp(T_cell[i], SOC_old[i])[0] 
+        R_0_cell[i]  = battery_data.R_0_interp(T_cell[i], SOC_old[i])[0] 
     
     # Compute thevening equivalent voltage  
-    V_Th = I_cell/(1/R_Th + C_Th*np.dot(D,np.ones_like(R_Th)))
+    V_Th_cell = I_cell/(1/R_Th_cell + C_Th_cell*np.dot(D,np.ones_like(R_Th_cell)))
     
     # Update battery internal and thevenin resistance with aging factor
-    R_0_aged  = R_0 * R_growth_factor  
+    R_0_cell_aged  = R_0_cell * R_growth_factor  
    
     # Calculate resistive losses
-    Q_heat_gen = (I_cell**2)*(R_0_aged + R_Th)
+    Q_heat_gen = (I_cell**2)*(R_0_cell_aged + R_Th_cell)
       
     # Power going into the battery accounting for resistance losses
     P_loss = n_total*Q_heat_gen
@@ -225,35 +225,35 @@ def LiNCA_discharge (battery,numerics):
     DOD_new = 1 - SOC_new
     
     # Determine voltage under load:
-    V_ul   = V_oc - V_Th - (I_cell * R_0_aged)
+    V_ul_cell   = V_oc_cell - V_Th_cell - (I_cell * R_0_cell_aged)
      
     # Determine new charge throughput (the amount of charge gone through the battery)
     Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
     Q_segment  = np.atleast_2d(np.hstack(( np.zeros_like(Q_prior[0]) , cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
   
     # If SOC is negative, voltage under load goes to zero 
-    V_ul[SOC_new < 0.] = 0.
+    V_ul_cell[SOC_new < 0.] = 0.
     
     # Pack outputs
     battery.current_energy                      = E_current
     battery.cell_temperature                    = T_current  
     battery.pack_temperature                    = T_current
     battery.resistive_losses                    = P_loss
-    battery.load_power                          = V_ul*n_series*I_bat
+    battery.load_power                          = V_ul_cell*n_series*I_bat
     battery.current                             = I_bat 
-    battery.voltage_open_circuit                = V_oc*n_series
-    battery.thevenin_voltage                    = V_Th*n_series
+    battery.voltage_open_circuit                = V_oc_cell*n_series
+    battery.thevenin_voltage                    = V_Th_cell*n_series
     battery.cumulative_cell_charge_throughput   = Q_total 
     battery.cell_charge_throughput              = Q_segment
-    battery.internal_resistance                 = R_0*n_series 
+    battery.internal_resistance                 = R_0_cell*n_series 
     battery.state_of_charge                     = SOC_new
     battery.depth_of_discharge                  = DOD_new
-    battery.voltage_under_load                  = V_ul*n_series  
-    battery.cell_voltage_open_circuit           = V_oc
+    battery.voltage_under_load                  = V_ul_cell*n_series  
+    battery.cell_voltage_open_circuit           = V_oc_cell
     battery.cell_current                        = I_cell 
     battery.heat_energy_generated               = Q_heat_gen*n_total_module 
-    battery.cell_voltage_under_load             = V_ul
-    battery.cell_joule_heat_fraction            = np.zeros_like(V_ul)
-    battery.cell_entropy_heat_fraction          = np.zeros_like(V_ul)
+    battery.cell_voltage_under_load             = V_ul_cell
+    battery.cell_joule_heat_fraction            = np.zeros_like(V_ul_cell)
+    battery.cell_entropy_heat_fraction          = np.zeros_like(V_ul_cell)
     
     return battery

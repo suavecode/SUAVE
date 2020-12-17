@@ -127,47 +127,53 @@ class Battery_Propeller(Propulsor):
         n_parallel                  = battery.pack_config.parallel
         n_total                     = n_series*n_parallel
         
-        # update ambient temperature based on altitude
-        atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        alt                                           = conditions.freestream.altitude[:,0] 
-        atmos                                         = atmosphere.compute_values(altitude = alt, temperature_deviation = (conditions.propulsion.ambient_temperature - 15.5))
-        battery.ambient_temperature                   = atmos.temperature - 272.65  
-        battery.cooling_fluid.thermal_conductivity    = 1E-3 * (0.0737*battery.ambient_temperature + 24.4) 
-        battery.cooling_fluid.density                 = atmos.density
-        
         # --------------------------------------------------------------------------------
         # Predict Voltage and Battery Properties Depending on Battery Chemistry
         # -------------------------------------------------------------------------------- 
         if battery.chemistry == 'LiNCA':  
+            # update ambient temperature based on altitude
+            atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+            alt                                           = conditions.freestream.altitude[:,0] 
+            atmos                                         = atmosphere.compute_values(altitude = alt, temperature_deviation = (conditions.propulsion.ambient_temperature - 15.5))
+            battery.ambient_temperature                   = atmos.temperature - 272.65  
+            battery.cooling_fluid.thermal_conductivity    = 1E-3 * (0.0737*battery.ambient_temperature + 24.4) 
+            battery.cooling_fluid.density                 = atmos.density   
             
             SOC    = state.unknowns.battery_state_of_charge 
             T_cell = state.unknowns.battery_cell_temperature 
-            V_Th   = state.unknowns.battery_thevenin_voltage/n_series 
+            V_Th_cell   = state.unknowns.battery_thevenin_voltage/n_series 
             
             # link temperature 
             battery.cell_temperature = T_cell     
             
             # look up tables  
-            V_oc = np.zeros_like(SOC)
-            R_Th = np.zeros_like(SOC)  
-            C_Th = np.zeros_like(SOC)  
-            R_0  = np.zeros_like(SOC)
+            V_oc_cell = np.zeros_like(SOC)
+            R_Th_cell = np.zeros_like(SOC)  
+            C_Th_cell = np.zeros_like(SOC)  
+            R_0_cell  = np.zeros_like(SOC)
             SOC[SOC<0.] = 0.
             SOC[SOC>1.] = 1.
             for i in range(len(SOC)): 
-                V_oc[i] = battery_data.V_oc_interp(T_cell[i], SOC[i])[0]
-                C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC[i])[0]
-                R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC[i])[0]
-                R_0[i]  = battery_data.R_0_interp(T_cell[i], SOC[i])[0]  
+                V_oc_cell[i] = battery_data.V_oc_interp(T_cell[i], SOC[i])[0]
+                C_Th_cell[i] = battery_data.C_Th_interp(T_cell[i], SOC[i])[0]
+                R_Th_cell[i] = battery_data.R_Th_interp(T_cell[i], SOC[i])[0]
+                R_0_cell[i]  = battery_data.R_0_interp(T_cell[i], SOC[i])[0]  
                 
-            dV_TH_dt =  np.dot(D,V_Th)
-            Icell    = V_Th/(R_Th * battery.R_growth_factor)  + C_Th*dV_TH_dt  
-            R_0      = R_0 * battery.R_growth_factor 
+            dV_TH_dt =  np.dot(D,V_Th_cell)
+            I_cell     = V_Th_cell/(R_Th_cell * battery.R_growth_factor)  + C_Th_cell*dV_TH_dt  
+            R_0_cell = R_0_cell * battery.R_growth_factor 
              
             # Voltage under load:
-            volts =  n_series*(V_oc - V_Th - (Icell * R_0)) 
+            volts =  n_series*(V_oc_cell - V_Th_cell - (I_cell  * R_0_cell)) 
 
         elif battery.chemistry == 'LiNiMnCoO2':  
+            # update ambient temperature based on altitude
+            atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+            alt                                           = conditions.freestream.altitude[:,0] 
+            atmos                                         = atmosphere.compute_values(altitude = alt, temperature_deviation = (conditions.propulsion.ambient_temperature - 15.5))
+            battery.ambient_temperature                   = atmos.temperature - 272.65  
+            battery.cooling_fluid.thermal_conductivity    = 1E-3 * (0.0737*battery.ambient_temperature + 24.4) 
+            battery.cooling_fluid.density                 = atmos.density               
 
             SOC        = state.unknowns.battery_state_of_charge 
             T_cell     = state.unknowns.battery_cell_temperature
@@ -191,8 +197,8 @@ class Battery_Propeller(Propulsor):
             
             # create vector of conditions for battery data sheet response surface for OCV
             pts   = np.hstack((np.hstack((I_cell, T_cell)),DOD  )) # amps, temp, SOC   
-            V_ul  = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T   
-            volts = n_series*V_ul  
+            V_ul_cell  = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T   
+            volts = n_series*V_ul_cell  
  
         else: 
             volts                            = state.unknowns.battery_voltage_under_load
@@ -317,13 +323,8 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.propeller_torque                     = Q
         conditions.propulsion.propeller_tip_mach                   = (R*motor.outputs.omega)/a
                 
-        # Create the outputs 
-        if state.reverse_thrust:
-            rev_thrust = -1
-        else:
-            rev_thrust = 1
-            
-        F                                         = rev_thrust*num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
+        # Create the outputs  
+        F                                         = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
         mdot                                      = state.ones_row(1)*0.0
         F_mag                                     = np.atleast_2d(np.linalg.norm(F, axis=1))  
         conditions.propulsion.disc_loading        = (F_mag.T)/ (num_engines*np.pi*(R)**2) # [N/m^2]                  
@@ -368,6 +369,29 @@ class Battery_Propeller(Propulsor):
         
         return
     
+    def unpack_unknowns_charge(self,segment):
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs: 
+            state.unknowns.battery_voltage_under_load  [volts]
+    
+            Outputs: 
+            state.conditions.propulsion.battery_voltage_under_load  [volts]
+    
+            Properties Used:
+            N/A
+        """                  
+         
+        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        
+        return
+    
     def residuals(self,segment):
         """ This packs the residuals to be send to the mission solver.
     
@@ -403,6 +427,39 @@ class Battery_Propeller(Propulsor):
         # Return the residuals
         segment.state.residuals.network[:,0] = (q_motor[:,0] - q_prop[:,0])/500
         segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max      
+        
+        return    
+    
+    def residuals_charge(self,segment):
+        """ This packs the residuals to be send to the mission solver.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.conditions.propulsion: 
+                battery_voltage_under_load            [volts]
+            state.unknowns.battery_voltage_under_load [volts]
+            
+            Outputs:
+            None
+    
+            Properties Used:
+            self.voltage                              [volts]
+        """        
+        
+        # Here we are going to pack the residuals (torque,voltage) from the network
+        
+        # Unpack 
+        v_actual     = segment.state.conditions.propulsion.battery_voltage_under_load 
+        v_predict    = segment.state.unknowns.battery_voltage_under_load               
+        v_max        = self.voltage
+        
+        # Return the residuals 
+        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])/v_max      
         
         return    
     

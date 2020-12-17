@@ -17,13 +17,13 @@ def LiNiMnCo_discharge(battery,numerics):
        
        Source: 
        Discharge Model: 
-       Automotive Industrial Systems Company of Panasonic Group, “Technical Information of 
-       NCR18650G,” URLhttps://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
+       Automotive Industrial Systems Company of Panasonic Group, "Technical Information of 
+       NCR18650G,"URLhttps://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
        
        Internal Resistance Model: 
-       Zou, Y., Hu, X., Ma, H., and Li, S. E., “Combined State of Charge and State of
+       Zou, Y., Hu, X., Ma, H., and Li, S. E., "Combined State of Charge and State of
        Health estimation over lithium-ion battery cellcycle lifespan for electric 
-       vehicles,”Journal of Power Sources, Vol. 273, 2015, pp. 793–803. 
+       vehicles,"Journal of Power Sources, Vol. 273, 2015, pp. 793-803. 
        doi:10.1016/j.jpowsour.2014.09.146,URLhttp://dx.doi.org/10.1016/j.jpowsour.2014.09.146.
        
        Cell Heat Coefficient:  Wu et. al. "Determination of the optimum heat transfer 
@@ -185,29 +185,29 @@ def LiNiMnCo_discharge(battery,numerics):
         
     # create vector of conditions for battery data sheet reesponse surface 
     pts    = np.hstack((np.hstack((I_cell, T_cell)),DOD_old  )) # amps, temp, SOC  
-    V_ul   = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T
+    V_ul_cell   = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T
         
     # Thevenin Time Constnat 
     tau_Th  =   2.151* np.exp(2.132 *SOC_old) + 27.2 
     
     # Thevenin Resistance 
-    R_Th    =  -1.212* np.exp(-0.03383*SOC_old) + 1.258
+    R_Th_cell    =  -1.212* np.exp(-0.03383*SOC_old) + 1.258
      
     # Thevenin Capacitance 
-    C_Th     = tau_Th/R_Th
+    C_Th_cell     = tau_Th/R_Th_cell
     
     # Li-ion battery interal resistance
-    R_0      =  0.01483*(SOC_old**2) - 0.02518*SOC_old + 0.1036 
+    R_0_cell      =  0.01483*(SOC_old**2) - 0.02518*SOC_old + 0.1036 
     
     # Update battery internal and thevenin resistance with aging factor
-    R_0_aged = R_0 * R_growth_factor
+    R_0_cell_aged = R_0_cell * R_growth_factor
      
     # Compute thevening equivalent voltage   
     V_th0  = V_th0/n_series
-    V_Th   = compute_thevenin_votlage(V_th0,I_cell,C_Th ,R_Th,numerics)
+    V_Th_cell   = compute_thevenin_votlage(V_th0,I_cell,C_Th_cell ,R_Th_cell,numerics)
     
     # Open Circuit Voltage
-    V_oc      = V_ul + V_Th + (I_cell * R_0_aged) 
+    V_oc_cell      = V_ul_cell + V_Th_cell + (I_cell * R_0_cell_aged) 
     
     # ---------------------------------------------------------------------------------
     # Compute updates state of battery 
@@ -236,7 +236,7 @@ def LiNiMnCo_discharge(battery,numerics):
     Q_segment  = np.atleast_2d(np.hstack(( np.zeros_like(Q_prior[0]) , cumtrapz(I_cell[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
     
     # If SOC is negative, voltage under load goes to zero 
-    V_ul[SOC_new < 0.] = 0.
+    V_ul_cell[SOC_new < 0.] = 0.
         
     # Pack outputs
     battery.current_energy                     = E_current
@@ -245,25 +245,25 @@ def LiNiMnCo_discharge(battery,numerics):
     battery.cell_joule_heat_fraction           = q_joule_frac
     battery.cell_entropy_heat_fraction         = q_entropy_frac
     battery.resistive_losses                   = P_loss
-    battery.load_power                         = V_ul*n_series*I_bat
+    battery.load_power                         = V_ul_cell*n_series*I_bat
     battery.current                            = I_bat
-    battery.voltage_open_circuit               = V_oc*n_series
-    battery.cell_voltage_open_circuit          = V_oc
+    battery.voltage_open_circuit               = V_oc_cell*n_series
+    battery.cell_voltage_open_circuit          = V_oc_cell
     battery.cell_current                       = I_cell
-    battery.thevenin_voltage                   = V_Th*n_series
+    battery.thevenin_voltage                   = V_Th_cell*n_series
     battery.cumulative_cell_charge_throughput  = Q_total 
     battery.cell_charge_throughput             = Q_segment 
     battery.heat_energy_generated              = Q_heat_gen*n_total_module
-    battery.internal_resistance                = R_0*n_series
+    battery.internal_resistance                = R_0_cell*n_series
     battery.state_of_charge                    = SOC_new
     battery.depth_of_discharge                 = DOD_new
-    battery.voltage_under_load                 = V_ul*n_series 
-    battery.cell_voltage_under_load            = V_ul
+    battery.voltage_under_load                 = V_ul_cell*n_series 
+    battery.cell_voltage_under_load            = V_ul_cell
     
     return battery
 
 
-def compute_thevenin_votlage(V_th0,I_cell,C_Th, R_Th, numerics):
+def compute_thevenin_votlage(V_th0,I_cell,C_Th_cell, R_Th_cell, numerics):
     t = numerics.time.control_points[:,0]
     n = len(t)
     x = np.zeros(n)
@@ -271,13 +271,13 @@ def compute_thevenin_votlage(V_th0,I_cell,C_Th, R_Th, numerics):
     # Initial conditition
     x[0] = V_th0 
     for i in range(1,n): 
-        z = odeint(model, V_th0, t, args=(I_cell[i][0],C_Th[i][0], R_Th[i][0])) 
+        z = odeint(model, V_th0, t, args=(I_cell[i][0],C_Th_cell[i][0], R_Th_cell[i][0])) 
         z0 = z[1] 
         x[i] = z0[0] 
         
     return np.atleast_2d(x).T
      
-def model(z,t,I_cell,C_Th, R_Th,):
+def model(z,t,I_cell,C_Th_cell, R_Th_cell,):
     V_th    = z[0]
-    dVth_dt = I_cell/C_Th - (V_th/(R_Th*C_Th))
+    dVth_dt = I_cell/C_Th_cell - (V_th/(R_Th_cell*C_Th_cell))
     return [dVth_dt]
