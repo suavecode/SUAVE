@@ -235,8 +235,8 @@ def analyze(config,conditions, use_MCM = False):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 50
-    settings.number_chordwise_vortices = 30
+    settings.number_spanwise_vortices  = 10
+    settings.number_chordwise_vortices = 1
     settings.propeller_wake_model      = None
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
@@ -286,7 +286,7 @@ def setup_conditions():
     #machs = np.array([0.4,1.,2.0,2.0])    
     
     aoas  = np.array([6.,6.]) * Units.degrees
-    machs = np.array([0.4,1.8])        
+    machs = np.array([0.4,2.0])        
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()
