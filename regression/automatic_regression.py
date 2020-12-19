@@ -73,6 +73,7 @@ modules = [
     'scripts/payload_range/payload_range.py',
     'scripts/plots/plot_test.py',
     'scripts/propeller/propeller_test.py',
+    'scripts/propeller_speeds/range_endurance_speeds.py',
     'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/ramjet_network/ramjet_network.py',
     'scripts/Regional_Jet_Optimization/Optimize2.py',

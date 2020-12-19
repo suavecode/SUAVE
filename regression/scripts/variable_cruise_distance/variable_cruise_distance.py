@@ -6,11 +6,15 @@
 
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units, Data
 
 from time import time
 
 import pylab as plt
+
+import scipy as sp
+import numpy as np
+
 
 #SUAVE.Analyses.Process.verbose = True
 import sys
@@ -28,27 +32,27 @@ def main():
     
     # Setup for converging on weight
     
-    vehicle  = vehicle_setup()
-    configs  = configs_setup(vehicle)
-    analyses = mission_B737.analyses_setup(configs)
-    mission  = mission_setup(configs,analyses)
+    #vehicle  = vehicle_setup()
+    #configs  = configs_setup(vehicle)
+    #analyses = mission_B737.analyses_setup(configs)
+    #mission  = mission_setup(configs,analyses)
     
-    configs.finalize()
-    analyses.finalize()
+    #configs.finalize()
+    #analyses.finalize()
     
-    results = mission.evaluate()
-    results = results.merged()
+    #results = mission.evaluate()
+    #results = results.merged()
     
-    plot_results(results)
+    #plot_results(results)
     
-    distance_regression = 3966186.5678927945
-    distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
-    error_distance      = abs((distance_regression - distance_calc )/distance_regression)
-    assert error_distance < 1e-6
+    #distance_regression = 3966186.5678927945
+    #distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
+    #error_distance      = abs((distance_regression - distance_calc )/distance_regression)
+    #assert error_distance < 1e-6
     
-    error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
-    print('landing weight error' , error_weight)
-    assert error_weight < 1e-6
+    #error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
+    #print('landing weight error' , error_weight)
+    #assert error_weight < 1e-6
     
     
     
@@ -57,9 +61,18 @@ def main():
     
     vehicle_SR, analyses_SR = full_setup_SR()
     analyses_SR.finalize()
-    mission_SR              = analyses_SR.mission   
-    results_SR              = mission_SR.evaluate()
-    results_SR              = results_SR.merged()
+    
+    altitude = 100.
+    CL_max = 5.
+    up_bnd = 250. * Units['mph']
+    delta_isa = 0.
+    
+    find_propeller_max_range_endurance_speeds(analyses_SR,altitude,CL_max,up_bnd,delta_isa)
+    
+    
+    #mission_SR              = analyses_SR.mission   
+    #results_SR              = mission_SR.evaluate()
+    #results_SR              = results_SR.merged()
     
     distance_regression_SR = 126309.83688626593
     distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
@@ -72,6 +85,133 @@ def main():
     
     
     return
+
+
+def find_propeller_max_range_endurance_speeds(analyses,altitude,CL_max,up_bnd,delta_isa):
+    
+    
+    # setup a mission that runs a single point segment without propulsion
+    def mini_mission():
+        
+        # ------------------------------------------------------------------
+        #   Initialize the Mission
+        # ------------------------------------------------------------------
+        mission = SUAVE.Analyses.Mission.Sequential_Segments()
+        mission.tag = 'the_mission'
+        
+        # ------------------------------------------------------------------
+        #  Single Point Segment 1: constant Speed, constant altitude
+        # ------------------------------------------------------------------ 
+        segment = SUAVE.Analyses.Mission.Segments.Single_Point.Set_Speed_Set_Altitude_No_Propulsion()
+        segment.tag = "single_point" 
+        segment.analyses.extend(analyses) 
+        segment.altitude    = altitude
+        segment.air_speed   = 100.
+        segment.temperature_deviation = delta_isa
+        segment.state.numerics.tolerance_solution = 1e-6
+        segment.state.numerics.max_evaluations    = 500
+    
+        # add to misison
+        mission.append_segment(segment)    
+
+        return mission
+        
+    
+    # This is what's called by the optimizer for CL**3/2 /CD Max
+    def single_point_3_halves(X):
+        
+        # Update the mission
+        mission.segments.single_point.air_speed = X
+        mission.segments.single_point.state.unknowns.body_angle = np.array([[15.0]]) * Units.degrees
+        
+        # Run the Mission      
+        point_results = mission.evaluate()    
+                
+        CL = point_results.segments.single_point.conditions.aerodynamics.lift_coefficient
+        CD = point_results.segments.single_point.conditions.aerodynamics.drag_coefficient
+        
+        three_halves = -(CL**(3/2))/CD # Negative because optimizers want to make things small
+        
+        if not point_results.segments.single_point.converged:
+            three_halves = 1.      
+        
+        return three_halves
+    
+    
+    
+    # This is what's called by the optimizer for L/D Max
+    def single_point_LDmax(X):
+        
+        # Modify the mission for the next iteration
+        mission.segments.single_point.air_speed = X
+        mission.segments.single_point.state.unknowns.body_angle = np.array([[15.0]]) * Units.degrees
+        
+        # Run the Mission      
+        point_results = mission.evaluate()    
+                
+        CL = point_results.segments.single_point.conditions.aerodynamics.lift_coefficient
+        CD = point_results.segments.single_point.conditions.aerodynamics.drag_coefficient
+        
+        L_D = -CL/CD # Negative because optimizers want to make things small
+        
+        if not point_results.segments.single_point.converged:
+            L_D = 1.
+
+        return L_D
+
+
+    # ------------------------------------------------------------------
+    #   Run the optimizer to solve
+    # ------------------------------------------------------------------    
+    
+    # Setup the a mini mission
+    mission = mini_mission()
+    
+    # Takeoff mass:
+    mass = analyses.aerodynamics.geometry.mass_properties.takeoff
+    
+    # Calculate the stall speed
+    Vs = stall_speed(analyses,mass,CL_max,altitude,delta_isa)[0][0]
+    
+    # The final results to save
+    results = Data()
+    
+    # Wrap an optimizer around both functions to solve for CL**3/2 /CD max
+    outputs_32 = sp.optimize.minimize_scalar(single_point_3_halves,bounds=(Vs,up_bnd),method='bounded')    
+    
+    # Pack the results
+    results.cl32_cd = Data()
+    results.cl32_cd.air_speed = outputs_32.x
+    results.cl32_cd.cl32_cd   = -outputs_32.fun[0][0]
+    
+    # Wrap an optimizer around both functions to solve for L/D Max
+    outputs_ld = sp.optimize.minimize_scalar(single_point_LDmax,bounds=(Vs,up_bnd),method='bounded')    
+        
+    # Pack the results
+    results.ld_max = Data()
+    results.ld_max.air_speed = outputs_ld.x
+    results.ld_max.L_D_max   = -outputs_ld.fun[0][0]    
+  
+    return results
+
+
+def stall_speed(analyses,mass,CL_max,altitude,delta_isa):
+    
+    # Unpack
+    atmo  = analyses.atmosphere 
+    S     = analyses.aerodynamics.geometry.reference_area
+    
+    # Calculations
+    atmo_values       = atmo.compute_values(altitude,delta_isa)
+    rho               = atmo_values.density
+    sea_level_gravity = atmo.planet.sea_level_gravity
+    
+    W = mass*sea_level_gravity 
+
+    V = np.sqrt(2*W/(rho*S*CL_max))
+    
+    return V
+    
     
     
 def mission_setup(configs,analyses):
