@@ -193,3 +193,23 @@ class Air(Gas):
         C1 = 1.458e-6               # kg/m-s-sqrt(K), constant (Sutherland's Formula)
 
         return C1*(T**(1.5))/(T + S)
+    
+    def compute_thermal_conductivity(self,T=300.,p=101325.):
+        """Compute the thermal conductivity
+            
+        Assumptions:
+        Properties computed at 1 bar (14.5 psia)
+
+        Source:
+        https://www.engineeringtoolbox.com/air-properties-viscosity-conductivity-heat-capacity-d_1509.html 
+
+        Inputs:
+        T                  [K]       - Temperature
+
+        Outputs:
+        thermal conductivity [W/(m-K)]
+
+        Properties Used:
+        None
+        """ 
+        return 3.99E-4 + 9.89E-5*(T) -4.57E-8*(T**2) + 1.4E-11*(T**3)

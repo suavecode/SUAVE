@@ -157,15 +157,16 @@ class Constant_Temperature(Atmospheric):
         rho = gas.compute_density(T,p)
         a   = gas.compute_speed_of_sound(T)
         mu  = gas.compute_absolute_viscosity(T)
-        
+        K   = gas.computer_thermal_conductivity(T)
 
                 
         atmo_data = Conditions()
         atmo_data.expand_rows(zs.shape[0])
-        atmo_data.pressure          = p
-        atmo_data.temperature       = T
-        atmo_data.density           = rho
-        atmo_data.speed_of_sound    = a
-        atmo_data.dynamic_viscosity = mu
+        atmo_data.pressure             = p
+        atmo_data.temperature          = T
+        atmo_data.density              = rho
+        atmo_data.speed_of_sound       = a
+        atmo_data.dynamic_viscosity    = mu
+        atmo_data.thermal_conductivity = K
         
         return atmo_data

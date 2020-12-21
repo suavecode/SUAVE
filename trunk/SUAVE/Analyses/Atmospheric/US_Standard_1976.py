@@ -83,6 +83,7 @@ class US_Standard_1976(Atmospheric):
           temperature                            [K]
           speed_of_sound                         [m/s]
           dynamic_viscosity                      [kg/(m*s)]
+          thermal_conductivity                   [W/(m-K)]
 
         Properties Used:
         self.
@@ -161,14 +162,16 @@ class US_Standard_1976(Atmospheric):
         rho = gas.compute_density(T,p)
         a   = gas.compute_speed_of_sound(T,p,var_gamma)
         mu  = gas.compute_absolute_viscosity(T)
-                
+        K   = gas.compute_thermal_conductivity(T)       
+        
         atmo_data = Conditions()
         atmo_data.expand_rows(zs.shape[0])
-        atmo_data.pressure          = p
-        atmo_data.temperature       = T
-        atmo_data.density           = rho
-        atmo_data.speed_of_sound    = a
-        atmo_data.dynamic_viscosity = mu
+        atmo_data.pressure             = p
+        atmo_data.temperature          = T
+        atmo_data.density              = rho
+        atmo_data.speed_of_sound       = a
+        atmo_data.dynamic_viscosity    = mu
+        atmo_data.thermal_conductivity = K
         
         return atmo_data
 
@@ -190,7 +193,8 @@ if __name__ == '__main__':
     T   = data.temperature
     rho = data.density
     a   = data.speed_of_sound
-    mu = data.dynamic_viscosity
+    mu  = data.dynamic_viscosity
+    K   = data.thermal_conductivity
     
     print(data)
     

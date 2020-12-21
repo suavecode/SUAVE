@@ -128,12 +128,9 @@ class Battery_Propeller(Propulsor):
         n_total                     = n_series*n_parallel
         
         # update ambient temperature based on altitude
-        atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        alt                                           = conditions.freestream.altitude[:,0] 
-        atmos                                         = atmosphere.compute_values(altitude = alt, temperature_deviation = (conditions.propulsion.ambient_temperature - 15.5))
-        battery.ambient_temperature                   = atmos.temperature   
-        battery.cooling_fluid.thermal_conductivity    = 1E-3 * (0.0737*(battery.ambient_temperature- 272.65) + 24.4) 
-        battery.cooling_fluid.density                 = atmos.density
+        battery.ambient_temperature                   = conditions.freestream.temperature   
+        battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
+        battery.cooling_fluid.density                 = conditions.freestream.density
         
         # --------------------------------------------------------------------------------
         # Predict Voltage and Battery Properties Depending on Battery Chemistry

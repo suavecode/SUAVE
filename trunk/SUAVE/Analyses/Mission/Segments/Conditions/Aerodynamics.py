@@ -71,32 +71,33 @@ class Aerodynamics(Basic):
 
         # planet frame conditions
         self.frames.planet = Conditions()
-        self.frames.planet.start_time      = None
-        self.frames.planet.latitude        = ones_1col * 0
-        self.frames.planet.longitude       = ones_1col * 0
+        self.frames.planet.start_time        = None
+        self.frames.planet.latitude          = ones_1col * 0
+        self.frames.planet.longitude         = ones_1col * 0
 
         # freestream conditions
         self.freestream = Conditions()        
-        self.freestream.velocity           = ones_1col * 0
-        self.freestream.mach_number        = ones_1col * 0
-        self.freestream.pressure           = ones_1col * 0
-        self.freestream.temperature        = ones_1col * 0
-        self.freestream.density            = ones_1col * 0
-        self.freestream.speed_of_sound     = ones_1col * 0
-        self.freestream.dynamic_viscosity  = ones_1col * 0
-        self.freestream.altitude           = ones_1col * 0
-        self.freestream.gravity            = ones_1col * 0
-        self.freestream.reynolds_number    = ones_1col * 0
-        self.freestream.dynamic_pressure   = ones_1col * 0
-        self.freestream.delta_ISA          = ones_1col * 0
+        self.freestream.velocity             = ones_1col * 0
+        self.freestream.mach_number          = ones_1col * 0
+        self.freestream.pressure             = ones_1col * 0
+        self.freestream.temperature          = ones_1col * 0
+        self.freestream.density              = ones_1col * 0
+        self.freestream.speed_of_sound       = ones_1col * 0
+        self.freestream.dynamic_viscosity    = ones_1col * 0
+        self.freestream.altitude             = ones_1col * 0
+        self.freestream.thermal_conductivity = ones_1col * 0
+        self.freestream.gravity              = ones_1col * 0
+        self.freestream.reynolds_number      = ones_1col * 0
+        self.freestream.dynamic_pressure     = ones_1col * 0
+        self.freestream.delta_ISA            = ones_1col * 0
 
         # aerodynamics conditions
         self.aerodynamics = Conditions()        
-        self.aerodynamics.angle_of_attack  = ones_1col * 0
-        self.aerodynamics.side_slip_angle  = ones_1col * 0
-        self.aerodynamics.roll_angle       = ones_1col * 0
-        self.aerodynamics.lift_coefficient = ones_1col * 0
-        self.aerodynamics.drag_coefficient = ones_1col * 0
+        self.aerodynamics.angle_of_attack    = ones_1col * 0
+        self.aerodynamics.side_slip_angle    = ones_1col * 0
+        self.aerodynamics.roll_angle         = ones_1col * 0
+        self.aerodynamics.lift_coefficient   = ones_1col * 0
+        self.aerodynamics.drag_coefficient   = ones_1col * 0
         self.aerodynamics.lift_breakdown              = Conditions()
         self.aerodynamics.drag_breakdown              = Conditions()
         self.aerodynamics.drag_breakdown.parasite     = Conditions()
