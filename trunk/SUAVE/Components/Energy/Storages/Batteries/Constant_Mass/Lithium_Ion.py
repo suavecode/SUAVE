@@ -35,7 +35,11 @@ class Lithium_Ion(Battery):
         self.ragone.lower_bound          = 60.     * Units.Wh/Units.kg
         self.ragone.upper_bound          = 225.    * Units.Wh/Units.kg
         
-        self.pack_config.series        = 1
-        self.pack_config.parallel      = 1   
+        self.pack_config.series          = 1
+        self.pack_config.parallel        = 1   
         self.specific_heat_capacity      = 2000 
         self.heat_transfer_coefficient   = 35.  
+        
+        self.charging_SOC_cutoff         = 1. 
+        self.charging_voltage            = 340.
+        self.charging_current            = 200.

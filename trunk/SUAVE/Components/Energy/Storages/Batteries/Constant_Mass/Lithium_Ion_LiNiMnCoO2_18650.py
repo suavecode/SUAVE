@@ -23,8 +23,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         air cooling in 35 m/s air 
         
         Source:
-        Automotive Industrial Systems Company of Panasonic Group, “Technical Information of 
-        NCR18650G,” URL https://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
+        Automotive Industrial Systems Company of Panasonic Group, Technical Information of 
+        NCR18650G, URL https://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
         
         convective  heat transfer coefficient, h 
         Jeon, Dong Hyup, and Seung Man Baek. "Thermal modeling of cylindrical 
@@ -231,8 +231,8 @@ def get_raw_data():
         battery cell my Panasonic
         
         Source 
-        Automotive Industrial Systems Company of Panasonic Group, “Technical Information of 
-        NCR18650G,” URLhttps://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
+        Automotive Industrial Systems Company of Panasonic Group, Technical Information of 
+        NCR18650G, URLhttps://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
         
         Assumptions:
         N/A
