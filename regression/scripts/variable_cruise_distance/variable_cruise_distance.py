@@ -32,49 +32,39 @@ def main():
     
     # Setup for converging on weight
     
-    #vehicle  = vehicle_setup()
-    #configs  = configs_setup(vehicle)
-    #analyses = mission_B737.analyses_setup(configs)
-    #mission  = mission_setup(configs,analyses)
+    vehicle  = vehicle_setup()
+    configs  = configs_setup(vehicle)
+    analyses = mission_B737.analyses_setup(configs)
+    mission  = mission_setup(configs,analyses)
     
-    #configs.finalize()
-    #analyses.finalize()
+    configs.finalize()
+    analyses.finalize()
     
-    #results = mission.evaluate()
-    #results = results.merged()
+    results = mission.evaluate()
+    results = results.merged()
     
-    #plot_results(results)
+    plot_results(results)
     
-    #distance_regression = 3966186.5678927945
-    #distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
-    #error_distance      = abs((distance_regression - distance_calc )/distance_regression)
-    #assert error_distance < 1e-6
+    distance_regression = 3966195.8052043817
+    distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
+    error_distance      = abs((distance_regression - distance_calc )/distance_regression)
+    assert error_distance < 1e-6
     
-    #error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
-    #print('landing weight error' , error_weight)
-    #assert error_weight < 1e-6
-    
+    error_weight = abs(mission.target_landing_weight - results.conditions.weights.total_mass[-1,0])
+    print('landing weight error' , error_weight)
+    assert error_weight < 1e-6
     
     
     
     # Setup for converging on SOC, using the stopped rotor vehicle
-    
     vehicle_SR, analyses_SR = full_setup_SR()
-    analyses_SR.finalize()
+    analyses_SR.finalize()    
+
+    mission_SR              = analyses_SR.mission   
+    results_SR              = mission_SR.evaluate()
+    results_SR              = results_SR.merged()
     
-    altitude = 100.
-    CL_max = 5.
-    up_bnd = 250. * Units['mph']
-    delta_isa = 0.
-    
-    find_propeller_max_range_endurance_speeds(analyses_SR,altitude,CL_max,up_bnd,delta_isa)
-    
-    
-    #mission_SR              = analyses_SR.mission   
-    #results_SR              = mission_SR.evaluate()
-    #results_SR              = results_SR.merged()
-    
-    distance_regression_SR = 126309.83688626593
+    distance_regression_SR = 126311.01585638824
     distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
     error_distance_SR      = abs((distance_regression_SR - distance_calc_SR )/distance_regression_SR)
     assert error_distance_SR < 1e-6   
