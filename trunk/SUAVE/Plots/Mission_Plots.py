@@ -1014,7 +1014,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
 # ------------------------------------------------------------------
 #   Pressure Coefficient
 # ------------------------------------------------------------------
-def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_filename = "Surface_Pressure", file_type = ".png"):
+def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_filename = "Surface_Pressure", file_type = ".png",
+                                   levals = None):
     """This plots the surface pressure distrubtion at all control points
     on all lifting surfaces of the aircraft
 
@@ -1082,7 +1083,8 @@ def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_fi
                 x_pts_p   = x_pts*((n_cw+1)/n_cw) - x_pts[0,0]*((n_cw+1)/n_cw)  +  xc_pts[0] 
                 points    = np.linspace(0.001,1,50)
                 A         = np.cumsum(np.sin(np.pi/2*points))
-                levals    = -(np.concatenate([-A[::-1],A[1:]])/(2*A[-1])  + A[-1]/(2*A[-1]) )[::-1]*0.015  
+                if levals is None:
+                    levals    = -(np.concatenate([-A[::-1],A[1:]])/(2*A[-1])  + A[-1]/(2*A[-1]) )[::-1]*0.015  
                 color_map = plt.cm.get_cmap('jet')
                 rev_cm    = color_map.reversed()
                 if plot_flag[i] == 1:

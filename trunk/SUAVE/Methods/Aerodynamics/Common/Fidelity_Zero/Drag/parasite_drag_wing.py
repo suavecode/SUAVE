@@ -123,7 +123,7 @@ def parasite_drag_wing(state,settings,geometry):
             total_k_reyn_l               += k_reyn_l*Sref_seg  
                 
         Swet              = total_wetted_area     
-        wing.areas.wetted = total_wetted_area 
+        #wing.areas.wetted = total_wetted_area 
         wing_parasite_drag= total_segment_parasite_drag  / Sref
         k_w               = total_segment_k_w / Sref
         cf_w_u            = total_segment_cf_w_u  / Sref
@@ -157,7 +157,7 @@ def parasite_drag_wing(state,settings,geometry):
             Swet = (1.977 + 0.52*t_c_w) * S_exposed_w
         
         # compute wetted area of segment
-        wing.areas.wetted = Swet                           
+        #wing.areas.wetted = Swet                           
 
         # compute parasite drag coef., form factor, skin friction coef., compressibility factor and reynolds number for wing
         wing_parasite_drag , k_w, cf_w_u, cf_w_l, k_comp_u, k_comp_l, k_reyn_u, k_reyn_l = compute_parasite_drag(re,mac_w,Mc,Tc,xtu,xtl,sweep_w,t_c_w,Sref,Swet,C)             

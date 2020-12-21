@@ -606,7 +606,7 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
         # Figure out the location x location of each section, 3 sections, end of nose, wing origin, and start of tail
         
         x1 = n_fine*width/length
-        x2 = (w_origin[0]+w_c_4)/length
+        x2 = (w_origin[0][0]+w_c_4)/length
         x3 = 1-t_fine*width/length
         
         end_ind = 4

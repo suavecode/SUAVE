@@ -16,7 +16,7 @@ import numpy as np
 #  Methods
 # ----------------------------------------------------------------------
 
-def wing_segmented_planform(wing):
+def wing_segmented_planform(wing, overwrite_reference = False):
     """Computes standard wing planform values.
     
     Assumptions:
@@ -146,6 +146,7 @@ def wing_segmented_planform(wing):
     aerodynamic_center= (np.dot(np.transpose(Cxys),As)/(ref_area/(1+sym))).tolist()
     
     # If necessary the location of the MAC in the Y-direction could be outputted before overwriting
+    half_span_aerodynamic_center = (np.array(aerodynamic_center)*1.).tolist()
     if sym== True:
         aerodynamic_center[1] = 0
     
@@ -153,19 +154,22 @@ def wing_segmented_planform(wing):
     total_length = np.tan(le_sweep_total)*semispan + chords[-1]*RC
     
     # Pack stuff
-    #wing.areas.reference         = ref_area
-    wing.areas.wetted            = wet_area
-    #wing.aspect_ratio            = AR
-    wing.spans.total             = total_len
-    wing.chords.mean_geometric   = mgc
-    wing.chords.mean_aerodynamic = MAC
-    wing.chords.tip              = ct
-    wing.taper                   = lamda
-    wing.sweeps.quarter_chord    = c_4_sweep
-    wing.sweeps.leading_edge     = le_sweep_total
-    wing.thickness_to_chord      = t_c
-    wing.aerodynamic_center      = aerodynamic_center
-    wing.total_length            = total_length
+    if overwrite_reference:
+        wing.areas.reference         = ref_area
+        wing.areas.wetted            = wet_area
+        wing.aspect_ratio            = AR
+        
+    wing.spans.total                  = total_len
+    wing.chords.mean_geometric        = mgc
+    wing.chords.mean_aerodynamic      = MAC
+    wing.chords.tip                   = ct
+    wing.taper                        = lamda
+    wing.sweeps.quarter_chord         = c_4_sweep
+    wing.sweeps.leading_edge          = le_sweep_total
+    wing.thickness_to_chord           = t_c
+    wing.aerodynamic_center           = aerodynamic_center
+    #wing.half_span_aerodynamic_center = half_span_aerodynamic_center
+    wing.total_length                 = total_length
     
     return wing
 

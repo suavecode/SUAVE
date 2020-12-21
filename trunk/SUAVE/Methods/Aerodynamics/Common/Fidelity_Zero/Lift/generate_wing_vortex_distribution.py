@@ -1356,9 +1356,9 @@ def generate_fuselage_surface_points(VD,fus):
             r        = np.sqrt((b*np.sin(theta))**2  + (a*np.cos(theta))**2)  
             fus_ypts = r*np.cos(theta)
             fus_zpts = r*np.sin(theta) 
-            fus_pts[i_seg,:,0] = fus.Segments[i_seg].origin[0]
-            fus_pts[i_seg,:,1] = fus_ypts + fus.Segments[i_seg].origin[1]
-            fus_pts[i_seg,:,2] = fus_zpts + fus.Segments[i_seg].origin[2]
+            fus_pts[i_seg,:,0] = fus.Segments[i_seg].origin[0][0]
+            fus_pts[i_seg,:,1] = fus_ypts + fus.Segments[i_seg].origin[0][1]
+            fus_pts[i_seg,:,2] = fus_zpts + fus.Segments[i_seg].origin[0][2]
         
         # store points
         VD.FUS_SURF_PTS = fus_pts

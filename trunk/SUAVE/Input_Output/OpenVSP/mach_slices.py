@@ -20,10 +20,10 @@ import numpy as np
 #  Mach Slices
 # ----------------------------------------------------------------------
 
-def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 100):
+def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 100, write_file = False):
     
     # Write the vehicle
-    write(vehicle,vehicle.tag,write_file=False)
+    write(vehicle,vehicle.tag,write_file=write_file)
     
     # Calculate the mach angle and adjust for AoA
     mach_angle = np.arcsin(1/mach[0])

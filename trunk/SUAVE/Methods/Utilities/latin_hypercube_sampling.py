@@ -84,8 +84,8 @@ if __name__ == '__main__':
     # 2D test is performed with samples chosen randomly in segment
     # 3D test is performed with samples chosen at the center of the segment
     
-    num_2d_samples = 5
-    num_3d_samples = 5
+    num_2d_samples = 15
+    num_3d_samples = 15
     
     # Imports for display
     from mpl_toolkits.mplot3d import Axes3D

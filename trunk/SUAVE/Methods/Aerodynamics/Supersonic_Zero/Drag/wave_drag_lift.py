@@ -58,13 +58,36 @@ def wave_drag_lift(conditions,configuration,wing):
     
     mach_ind = Mc >= 1.01
     
-    # Computations
-    x = np.pi*ARL/4
-    beta = np.zeros_like(Mc)
-    beta[Mc >= 1.01] = np.sqrt(Mc[Mc >= 1.01]**2-1)
+    ## Computations
+    #x = np.pi*ARL/4
+    #beta = np.zeros_like(Mc)
+    #beta[Mc >= 1.01] = np.sqrt(Mc[Mc >= 1.01]**2-1)
+    #wave_drag_lift = np.zeros_like(Mc)
+    #wave_drag_lift[Mc >= 1.01] = CL[Mc >= 1.01]**2*x/4*(np.sqrt(1+(beta[Mc >= 1.01]/x)**2)-1)
+    ##wave_drag_lift[0:len(Mc[Mc >= 1.01]),0] = wave_drag_lift[Mc >= 1.01]
+    
+    #Mc = np.ones_like(Mc)*2.02
+    
+    # JAXA method
+    s  = wing.spans.projected / 2
+    l  = wing.total_length
+    AR = wing.aspect_ratio
+    Sw = wing.areas.reference # (not wetted)
+    p  = 2/AR*s/l
+    beta = np.sqrt(Mc[Mc >= 1.01]**2-1)
+    
+    def fw(x):
+        ret = np.zeros_like(x)
+        ret[x > 0.178] = 0.4935 - 0.2382*x[x > 0.178] + 1.6306*x[x > 0.178]**2 - \
+            0.86*x[x > 0.178]**3 + 0.2232*x[x > 0.178]**4 - 0.0365*x[x > 0.178]**5 - 0.5
+        return ret
+    
+    Kw = (1+1/p)*fw(beta*s/l)/(2*beta**2*(s/l)**2)
+    
+    # ignore area comparison since this is main wing only
+    CDwl = CL[Mc >= 1.01]**2 * (beta**2/np.pi*p*(s/l)*Kw)
     wave_drag_lift = np.zeros_like(Mc)
-    wave_drag_lift[Mc >= 1.01] = CL[Mc >= 1.01]**2*x/4*(np.sqrt(1+(beta[Mc >= 1.01]/x)**2)-1)
-    #wave_drag_lift[0:len(Mc[Mc >= 1.01]),0] = wave_drag_lift[Mc >= 1.01]
+    wave_drag_lift[Mc >= 1.01] = CDwl
     
     # Dump data to conditions
     wave_lift_result = Data(
