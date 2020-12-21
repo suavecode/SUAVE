@@ -65,8 +65,8 @@ def initialize_battery(segment):
     else:
         initial_mission_energy               = 0.0
         intial_segment_energy                = 0.0
-        temperature_initial                  = 20.0
-        ambient_temperature                  = 20
+        temperature_initial                  = 292.65
+        ambient_temperature                  = 292.65
         battery_age_in_days                  = 1
         battery_cumulative_charge_throughput = 0.0 
         battery_resistance_growth_factor     = 1.0
@@ -183,8 +183,8 @@ def update_battery_age(segment):
     # aging model  
     delta_DOD = abs(SOC[0][0] - SOC[-1][0])
     rms_V_ul  = np.sqrt(np.mean(V_ul**2)) 
-    alpha_cap = (7.542*np.mean(V_ul) - 23.75) * 1E6 * np.exp(-6976/(Temp +273))  
-    alpha_res = (5.270*np.mean(V_ul) - 16.32) * 1E5 * np.exp(-5986/(Temp +273))  
+    alpha_cap = (7.542*np.mean(V_ul) - 23.75) * 1E6 * np.exp(-6976/(Temp))  
+    alpha_res = (5.270*np.mean(V_ul) - 16.32) * 1E5 * np.exp(-5986/(Temp))  
     beta_cap  = 7.348E-3 * (rms_V_ul - 3.667)**2 +  7.60E-4 + 4.081E-3*delta_DOD
     beta_res  = 2.153E-4 * (rms_V_ul - 3.725)**2 - 1.521E-5 + 2.798E-4*delta_DOD
     

@@ -116,7 +116,7 @@ def LiNCA_discharge (battery,numerics):
                28030*(SOC_old)**3 -6023*(SOC_old)**2 +  514*(SOC_old) -27
     
     i_cell         = I_cell/electrode_area # current intensity 
-    q_dot_entropy  = -(T_cell+272.65)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
+    q_dot_entropy  = -(T_cell)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
     q_dot_joule    = (i_cell**2)/sigma                   # eqn 5 , D. Jeon Thermal Modelling ..
     Q_heat_gen     = (q_dot_joule + q_dot_entropy)*As_cell 
     q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
@@ -146,10 +146,10 @@ def LiNCA_discharge (battery,numerics):
             V_max   = V_air*(S_T/(S_T-D_cell))
 
         T        = (T_ambient+T_current)/2  
-        nu_air   = nu_fit(T_ambient)
+        nu_air   = nu_fit(T_ambient- 272.65)
         Re_max   = V_max*D_cell/nu_air
-        Pr       = Pr_fit(T_ambient)
-        Prw      = Pr_fit(T)  
+        Pr       = Pr_fit(T_ambient - 272.65)
+        Prw      = Pr_fit(T- 272.65)  
         if all(Re_max) > 10E2: 
             C        = 0.35*((S_T/S_L)**0.2) 
             m        = 0.6 
@@ -177,17 +177,18 @@ def LiNCA_discharge (battery,numerics):
     C_Th = np.zeros_like(I_cell)  
     R_0  = np.zeros_like(I_cell) 
     for i in range(len(SOC_old)): 
+        T_cell_Celcius = T_cell[i]- 272.65
         # Open Circuit Voltage
-        V_oc[i] = battery_data.V_oc_interp(T_cell[i], SOC_old[i])[0]
+        V_oc[i] = battery_data.V_oc_interp(T_cell_Celcius, SOC_old[i])[0]
         
         # Thevenin Capacitance 
-        C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC_old[i])[0]
+        C_Th[i] = battery_data.C_Th_interp(T_cell_Celcius, SOC_old[i])[0]
         
         # Thevenin Resistance 
-        R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC_old[i])[0]
+        R_Th[i] = battery_data.R_Th_interp(T_cell_Celcius, SOC_old[i])[0]
         
         # Li-ion battery interal resistance
-        R_0[i]  = battery_data.R_0_interp(T_cell[i], SOC_old[i])[0] 
+        R_0[i]  = battery_data.R_0_interp(T_cell_Celcius, SOC_old[i])[0] 
     
     # Compute thevening equivalent voltage  
     V_Th = I_cell/(1/R_Th + C_Th*np.dot(D,np.ones_like(R_Th)))

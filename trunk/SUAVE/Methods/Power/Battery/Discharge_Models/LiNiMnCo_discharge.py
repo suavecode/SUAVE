@@ -111,8 +111,8 @@ def LiNiMnCo_discharge(battery,numerics):
     SOC_old[SOC_old > 1.] = 1.    
     DOD_old = 1 - SOC_old  
     
-    T_cell[T_cell<0.0]  = 0. 
-    T_cell[T_cell>50.0] = 50.
+    T_cell[T_cell<272.65]  = 272.65
+    T_cell[T_cell>322.65]  = 322.65
     
     # ---------------------------------------------------------------------------------
     # Compute battery cell temperature 
@@ -125,7 +125,7 @@ def LiNiMnCo_discharge(battery,numerics):
     
     
     i_cell         = I_cell/electrode_area # current intensity 
-    q_dot_entropy  = -(T_cell+272.65)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
+    q_dot_entropy  = -(T_cell)*delta_S*i_cell/(n*F)  # temperature in Kelvin  
     q_dot_joule    = (i_cell**2)/sigma                   # eqn 5 , D. Jeon Thermal Modelling ..
     Q_heat_gen     = (q_dot_joule + q_dot_entropy)*As_cell 
     q_joule_frac   = q_dot_joule/(q_dot_joule + q_dot_entropy)
@@ -155,10 +155,10 @@ def LiNiMnCo_discharge(battery,numerics):
             V_max   = V_air*(S_T/(S_T-D_cell))
               
         T        = (T_ambient+T_current)/2  
-        nu_air   = nu_fit(T_ambient)
+        nu_air   = nu_fit(T_ambient - 272.65 )
         Re_max   = V_max*D_cell/nu_air
-        Pr       = Pr_fit(T_ambient)
-        Prw      = Pr_fit(T)  
+        Pr       = Pr_fit(T_ambient - 272.65 )
+        Prw      = Pr_fit(T - 272.65 )  
         if all(Re_max) > 10E2: 
             C        = 0.35*((S_T/S_L)**0.2) 
             m        = 0.6 
@@ -184,7 +184,8 @@ def LiNiMnCo_discharge(battery,numerics):
     I_cell[I_cell>8.0]  = 8.0    
         
     # create vector of conditions for battery data sheet reesponse surface 
-    pts    = np.hstack((np.hstack((I_cell, T_cell)),DOD_old  )) # amps, temp, SOC  
+    T_cell_Celcius = T_cell - 272.65 
+    pts    = np.hstack((np.hstack((I_cell, T_cell_Celcius)),DOD_old  )) # amps, temp, SOC  
     V_ul   = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T
         
     # Thevenin Time Constnat 

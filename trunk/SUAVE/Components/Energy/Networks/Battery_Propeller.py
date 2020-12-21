@@ -131,8 +131,8 @@ class Battery_Propeller(Propulsor):
         atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
         alt                                           = conditions.freestream.altitude[:,0] 
         atmos                                         = atmosphere.compute_values(altitude = alt, temperature_deviation = (conditions.propulsion.ambient_temperature - 15.5))
-        battery.ambient_temperature                   = atmos.temperature - 272.65  
-        battery.cooling_fluid.thermal_conductivity    = 1E-3 * (0.0737*battery.ambient_temperature + 24.4) 
+        battery.ambient_temperature                   = atmos.temperature   
+        battery.cooling_fluid.thermal_conductivity    = 1E-3 * (0.0737*(battery.ambient_temperature- 272.65) + 24.4) 
         battery.cooling_fluid.density                 = atmos.density
         
         # --------------------------------------------------------------------------------
@@ -155,10 +155,11 @@ class Battery_Propeller(Propulsor):
             SOC[SOC<0.] = 0.
             SOC[SOC>1.] = 1.
             for i in range(len(SOC)): 
-                V_oc[i] = battery_data.V_oc_interp(T_cell[i], SOC[i])[0]
-                C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC[i])[0]
-                R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC[i])[0]
-                R_0[i]  = battery_data.R_0_interp(T_cell[i], SOC[i])[0]  
+                T_cell_Celcius = T_cell[i] - 272.65
+                V_oc[i] = battery_data.V_oc_interp(T_cell_Celcius, SOC[i])[0]
+                C_Th[i] = battery_data.C_Th_interp(T_cell_Celcius, SOC[i])[0]
+                R_Th[i] = battery_data.R_Th_interp(T_cell_Celcius, SOC[i])[0]
+                R_0[i]  = battery_data.R_0_interp( T_cell_Celcius, SOC[i])[0]  
                 
             dV_TH_dt =  np.dot(D,V_Th)
             Icell    = V_Th/(R_Th * battery.R_growth_factor)  + C_Th*dV_TH_dt  
@@ -183,14 +184,15 @@ class Battery_Propeller(Propulsor):
             DOD                      = 1 - SOC 
             
             T_cell[np.isnan(T_cell)] = 30.0 
-            T_cell[T_cell<0.0]       = 0. 
-            T_cell[T_cell>50.0]      = 50.
+            T_cell[T_cell<272.65]  = 272.65
+            T_cell[T_cell>322.65]  = 322.65
              
             I_cell[I_cell<0.0]       = 0.0
             I_cell[I_cell>8.0]       = 8.0   
             
             # create vector of conditions for battery data sheet response surface for OCV
-            pts   = np.hstack((np.hstack((I_cell, T_cell)),DOD  )) # amps, temp, SOC   
+            T_cell_Celcius = T_cell  - 272.65
+            pts   = np.hstack((np.hstack((I_cell, T_cell_Celcius)),DOD  )) # amps, temp, SOC   
             V_ul  = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T   
             volts = n_series*V_ul  
  
@@ -433,7 +435,7 @@ class Battery_Propeller(Propulsor):
         segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0] 
         segment.state.residuals.network[:,1] = v_th_predict[:,0] - v_th_actual[:,0]     
         segment.state.residuals.network[:,2] = SOC_predict[:,0] - SOC_actual[:,0]  
-        segment.state.residuals.network[:,3] = Temp_predict[:,0] - Temp_actual[:,0]
+        segment.state.residuals.network[:,3] = (Temp_predict[:,0] - Temp_actual[:,0]) 
     
     def unpack_unknowns_linca_charge(self,segment):   
         segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
@@ -457,7 +459,7 @@ class Battery_Propeller(Propulsor):
         # Return the residuals  
         segment.state.residuals.network[:,0] = v_th_predict[:,0] - v_th_actual[:,0]     
         segment.state.residuals.network[:,1] = SOC_predict[:,0] - SOC_actual[:,0]  
-        segment.state.residuals.network[:,2] = Temp_predict[:,0] - Temp_actual[:,0]
+        segment.state.residuals.network[:,2] = (Temp_predict[:,0] - Temp_actual[:,0]) 
         
     def unpack_unknowns_linmco(self,segment): 
   
@@ -485,7 +487,7 @@ class Battery_Propeller(Propulsor):
         # Return the residuals  
         segment.state.residuals.network[:,0] =  q_motor[:,0] - q_prop[:,0]     
         segment.state.residuals.network[:,1] =  SOC_predict[:,0]  - SOC_actual[:,0]  
-        segment.state.residuals.network[:,2] =  Temp_predict[:,0] - Temp_actual[:,0]   
+        segment.state.residuals.network[:,2] =  (Temp_predict[:,0] - Temp_actual[:,0]) 
         segment.state.residuals.network[:,3] =  i_predict[:,0] - i_actual[:,0]       
 
 
@@ -510,7 +512,7 @@ class Battery_Propeller(Propulsor):
         # Return the residuals 
         segment.state.residuals.network[:,0] =  i_predict[:,0] - i_actual[:,0]    
         segment.state.residuals.network[:,1] =  SOC_predict[:,0]  - SOC_actual[:,0]  
-        segment.state.residuals.network[:,2] =  Temp_predict[:,0] - Temp_actual[:,0] 
+        segment.state.residuals.network[:,2] =  (Temp_predict[:,0] - Temp_actual[:,0]) 
 
         
         return
