@@ -2,6 +2,7 @@
 # 
 # Created:  M. Clarke, Feb 2020 
 #           Mar 2020, M. Clarke
+#           Sep 2020, M. Clarke 
 
 #----------------------------------------------------------------------
 #   Imports
@@ -13,12 +14,13 @@ from SUAVE.Core import Units
 from SUAVE.Core import (
 Data, Container,
 )
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , compute_optimal_motor_parameters
+from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , size_optimal_motor
+from SUAVE.Methods.Propulsion                       import propeller_design
 import numpy as np
 import copy, time
 
 def main():
-    '''This script checks the funciosn in in Motor.py used to compute motor toques 
+    '''This script checks the functions in in Motor.py used to compute motor torques 
     and output voltage and currents'''
     # Propeller 
     prop                     = SUAVE.Components.Energy.Converters.Propeller()
@@ -29,6 +31,8 @@ def main():
     prop.hub_radius          = 0.05
     prop.design_Cl           = 0.7 
     prop.design_altitude     = 0.0 * Units.km
+    prop.design_thrust       = 2271.2220451593753 
+    prop                     = propeller_design(prop)   
     
     # Motor
     #------------------------------------------------------------------
@@ -43,7 +47,7 @@ def main():
     motor.no_load_current      = 2.0 
     motor.propeller_radius     = prop.tip_radius
     motor.nominal_voltage      = 400
-    motor                      = compute_optimal_motor_parameters(motor,prop)  
+    motor                      = size_optimal_motor(motor,prop)  
   
     # Propeller (Thrust) motor
     motor_low_fid                      = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
@@ -129,8 +133,6 @@ def main():
     voltage_4 = motor_4.outputs.voltage[0][0]
     current_4 = motor_4.outputs.current[0][0]
     
-    
-    
     #------------------------------------
     # Low Fidelity Motor  
     #------------------------------------    
@@ -140,14 +142,14 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 209.16689397
-    torque_1_truth   = 1050.0709590509298
-    current_2_truth  = 30.80332675252282
-    torque_3_truth   = 55.00606925732164
-    voltage_4_truth  = 400.520618667398
-    current_4_truth  = 551.8581766566256
-    power_out_truth  = 1960.0 
-    
+    omega_1_truth    = 209.31976194
+    torque_1_truth   = 1051.6063921247808 
+    current_2_truth  = 324.5501068473118 
+    torque_3_truth   = 615.5254990807443 
+    voltage_4_truth  = 400.22851683456736 
+    current_4_truth  = 553.06694141467 
+    power_out_truth  = 1960.0
+      
     error = Data()
     error.omega_test     = np.max(np.abs(omega_1_truth   - omega_1[0]  ))
     error.torque_test_1  = np.max(np.abs(torque_1_truth  - torque_1 ))

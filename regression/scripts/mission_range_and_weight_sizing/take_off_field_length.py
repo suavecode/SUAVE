@@ -33,16 +33,16 @@ def main():
     #   Main
     # ----------------------------------------------------------------------    
     vehicle = vehicle_setup()
-    configs=configs_setup(vehicle)
+    configs = configs_setup(vehicle)
     # --- Takeoff Configuration ---
     configuration = configs.takeoff
     configuration.wings['main_wing'].flaps_angle =  20. * Units.deg
     configuration.wings['main_wing'].slats_angle  = 25. * Units.deg
     # V2_V2_ratio may be informed by user. If not, use default value (1.2)
     configuration.V2_VS_ratio = 1.21
-    configuration.max_lift_coefficient_factor = 0.90
     analyses = SUAVE.Analyses.Analysis.Container()
-    analyses.base = base_analysis(vehicle)
+    analyses = base_analysis(vehicle)
+    analyses.aerodynamics.settings.maximum_lift_coefficient_factor = 0.90
 
     # CLmax for a given configuration may be informed by user
     # configuration.maximum_lift_coefficient = 2.XX
@@ -70,31 +70,31 @@ def main():
             takeoff_field_length[id_w,id_eng],second_seg_clb_grad[id_w,id_eng] = \
                     estimate_take_off_field_length(configuration,analyses,airport,compute_clb_grad)
     
-    truth_TOFL = np.array([[1188.96105839,  769.70626688,  556.7892293 ],
-                           [1258.89622705,  811.03166826,  586.22911148],
-                           [1331.98245573,  854.04157057,  616.81833361],
-                           [1408.2986729 ,  898.76345152,  648.5709987 ],
-                           [1487.92650289,  945.22556064,  681.5015251 ],
-                           [1570.95030987,  993.45693386,  715.62465361],
-                           [1657.45724176, 1043.48740797,  750.95545452],
-                           [1747.53727375, 1095.34763481,  787.50933445],
-                           [1841.28325183, 1149.06909545,  825.30204308],
-                           [1938.7909361 , 1204.68411412,  864.34967986]])
+    truth_TOFL = np.array([[1173.30474724,  760.43161763,  550.17542593],
+                           [1241.97048851,  801.0454711 ,  579.11942109],
+                           [1313.71925195,  843.31076941,  609.19124856],
+                           [1388.62740991,  887.25412516,  640.40457932],
+                           [1466.77393275,  932.90289417,  672.77338767],
+                           [1548.24043104,  980.28518949,  706.31195806],
+                           [1633.11119749, 1029.42989526,  741.03489188],
+                           [1721.47324876, 1080.36668034,  776.95711399],
+                           [1813.41636696, 1133.12601188,  814.09387926],
+                           [1909.0331412 , 1187.7391687 ,  852.46077892]])
 
     
     print(' takeoff_field_length = ',  takeoff_field_length)
     print(' second_seg_clb_grad  = ', second_seg_clb_grad)                      
                              
-    truth_clb_grad =  np.array([[0.0802881 , 0.25686068, 0.43343326],
-                                [0.07416381, 0.2446121 , 0.41506038],
-                                [0.0684322 , 0.23314888, 0.39786556],
-                                [0.06305712, 0.22239872, 0.38174032],
-                                [0.05800668, 0.21229785, 0.36658901],
-                                [0.0532527 , 0.20278987, 0.35232705],
-                                [0.04877011, 0.19382471, 0.3388793 ],
-                                [0.04453662, 0.18535773, 0.32617884],
-                                [0.04053228, 0.17734905, 0.31416581],
-                                [0.03673921, 0.16976291, 0.3027866 ]])
+    truth_clb_grad =  np.array([[0.07244437, 0.24921567, 0.42598697],
+                                [0.06651232, 0.23715452, 0.40779672],
+                                [0.06094702, 0.22585304, 0.39075907],
+                                [0.05571568, 0.21524227, 0.37476886],
+                                [0.0507893 , 0.20526131, 0.35973331],
+                                [0.04614213, 0.19585619, 0.34557024],
+                                [0.04175123, 0.18697891, 0.33220659],
+                                [0.03759607, 0.17858664, 0.3195772 ],
+                                [0.03365829, 0.17064104, 0.30762378],
+                                [0.02992135, 0.16310768, 0.29629402]])
 
 
     TOFL_error = np.max(np.abs(truth_TOFL-takeoff_field_length)/truth_TOFL)                           
@@ -117,7 +117,6 @@ def main():
     legend = plt.legend(loc='lower right', shadow = 'true')
     plt.xlabel('Weight (kg)')
     plt.ylabel('Takeoff field length (m)')    
-        
     
     title = "2nd Segment Climb Gradient vs W"
     plt.figure(2); 

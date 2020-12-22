@@ -4,7 +4,7 @@
 # Created:  Andrew, July 2014
 # Modified: M. Vegh, November 2015         
 # Modified: Feb 2016, Andrew Wendorff
-
+#           Mar 2020, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -89,7 +89,7 @@ class Fidelity_Zero(Stability):
         self.geometry
         """                         
         # unpack
-        geometry         = self.geometry #really a vehicle object
+        geometry         = self.geometry      # really a vehicle object
         configuration    = self.configuration 
 
         configuration.mass_properties = geometry.mass_properties
@@ -108,7 +108,7 @@ class Fidelity_Zero(Stability):
         None
 
         Source:
-        N/A
+        N/4
 
         Inputs:
         conditions - DataDict() of aerodynamic conditions
@@ -122,9 +122,8 @@ class Fidelity_Zero(Stability):
         """         
 
         # unpack
-        configuration   = self.configuration
-        geometry        = self.geometry 
-
+        configuration = self.configuration
+        geometry      = self.geometry 
         q             = conditions.freestream.dynamic_pressure
         Sref          = geometry.reference_area    
         mach          = conditions.freestream.mach_number
@@ -132,6 +131,7 @@ class Fidelity_Zero(Stability):
         density       = conditions.freestream.density
         Span          = geometry.wings['main_wing'].spans.projected
         mac           = geometry.wings['main_wing'].chords.mean_aerodynamic
+        cg_x          = geometry.mass_properties.center_of_gravity[0]  
         aero          = conditions.aerodynamics
 
         # set up data structures
@@ -159,14 +159,17 @@ class Fidelity_Zero(Stability):
 
         # calculate the static margin
         stability.static.static_margin = -stability.static.Cm_alpha/conditions.lift_curve_slope
-
+        
+        # neutral point 
+        stability.static.neutral_point = cg_x + mac*stability.static.static_margin
+        
         # Dynamic Stability
         if np.count_nonzero(configuration.mass_properties.moments_of_inertia.tensor) > 0:    
             # Dynamic Stability Approximation Methods - valid for non-zero I tensor
 
             # Derivative of yawing moment with respect to the rate of yaw
             cDw = aero.drag_breakdown.parasite['main_wing'].parasite_drag_coefficient # Might not be the correct value
-            l_v = geometry.wings['vertical_stabilizer'].origin[0] + geometry.wings['vertical_stabilizer'].aerodynamic_center[0] - geometry.wings['main_wing'].origin[0] - geometry.wings['main_wing'].aerodynamic_center[0]
+            l_v = geometry.wings['vertical_stabilizer'].origin[0][0] + geometry.wings['vertical_stabilizer'].aerodynamic_center[0] - geometry.wings['main_wing'].origin[0][0] - geometry.wings['main_wing'].aerodynamic_center[0]
             stability.static.Cn_r = Supporting_Functions.cn_r(cDw, geometry.wings['vertical_stabilizer'].areas.reference, Sref, l_v, span, geometry.wings['vertical_stabilizer'].dynamic_pressure_ratio, geometry.wings['vertical_stabilizer'].CL_alpha)
 
             # Derivative of rolling moment with respect to roll rate
@@ -181,7 +184,7 @@ class Fidelity_Zero(Stability):
             stability.static.Cy_beta = 0
 
             # Derivative of pitching moment with respect to pitch rate
-            l_t                    = geometry.wings['horizontal_stabilizer'].origin[0] + geometry.wings['horizontal_stabilizer'].aerodynamic_center[0] - geometry.wings['main_wing'].origin[0] - geometry.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm       
+            l_t                    = geometry.wings['horizontal_stabilizer'].origin[0][0] + geometry.wings['horizontal_stabilizer'].aerodynamic_center[0] - geometry.wings['main_wing'].origin[0][0] - geometry.wings['main_wing'].aerodynamic_center[0] #Need to check this is the length of the horizontal tail moment arm       
             stability.static.Cm_q  = Supporting_Functions.cm_q(conditions.lift_curve_slope, l_t,mac) # Need to check Cm_i versus Cm_alpha
 
             # Derivative of pitching rate with respect to d(alpha)/d(t)
@@ -236,8 +239,4 @@ class Fidelity_Zero(Stability):
                 stability.dynamic.phugoidFreqHz                 = longitudinal.phugoid_natural_frequency
                 stability.dynamic.phugoidDamp                   = longitudinal.phugoid_damping_ratio
                                                                         
-        # pack results
-        results = Data()
-        results = stability 
-        
-        return results
+        return stability 

@@ -5,6 +5,7 @@
 # Modified: Jan 2016, E. Botero
 #           Apr 2017, M. Clarke
 #           Aug 2019, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -86,9 +87,10 @@ def write_run_cases(avl_object,trim_aircraft):
     purge_files([batch_filename]) 
     with open(batch_filename,'w') as runcases:
         # extract C.G. coordinates and moment of intertia tensor
-        x_cg = aircraft.mass_properties.center_of_gravity[0]
-        y_cg = aircraft.mass_properties.center_of_gravity[1]
-        z_cg = aircraft.mass_properties.center_of_gravity[2]
+
+        x_cg = aircraft.mass_properties.center_of_gravity[0][0]
+        y_cg = aircraft.mass_properties.center_of_gravity[0][1]
+        z_cg = aircraft.mass_properties.center_of_gravity[0][2]
         mass = aircraft.mass_properties.mass
         moments_of_inertia = aircraft.mass_properties.moments_of_inertia.tensor
         Ixx  = moments_of_inertia[0][0]
@@ -98,15 +100,14 @@ def write_run_cases(avl_object,trim_aircraft):
         Iyz  = moments_of_inertia[1][2]
         Izx  = moments_of_inertia[2][0]
 
-        for case_name in avl_object.current_status.cases:
+        for case in avl_object.current_status.cases:
             # extract flight conditions 
-            case  = avl_object.current_status.cases[case_name]
             index = case.index
             name  = case.tag
             CL    = case.conditions.aerodynamics.flight_CL
-            AoA   = case.conditions.aerodynamics.angle_of_attack
+            AoA   = round(case.conditions.aerodynamics.angle_of_attack,4)
             CDp   = 0.
-            beta  = case.conditions.aerodynamics.side_slip_angle
+            beta  = round(case.conditions.aerodynamics.side_slip_angle,4)
             mach  = round(case.conditions.freestream.mach,4)
             vel   = round(case.conditions.freestream.velocity,4)
             rho   = round(case.conditions.freestream.density,4)

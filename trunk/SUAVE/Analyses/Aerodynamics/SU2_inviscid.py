@@ -3,6 +3,7 @@
 #
 # Created:  Sep 2016, E. Botero
 # Modified: Jan 2017, T. MacDonald
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -21,7 +22,7 @@ from sklearn.gaussian_process.kernels import ExpSineSquared
 # Package imports
 import numpy as np
 import time
-import pylab as plt
+import matplotlib.pyplot as plt  
 import sklearn
 from sklearn import gaussian_process
 from sklearn import neighbors
@@ -131,10 +132,11 @@ class SU2_inviscid(Aerodynamics):
         surrogates = self.surrogates        
         conditions = state.conditions
         
-        mach = conditions.freestream.mach_number
-        AoA  = conditions.aerodynamics.angle_of_attack
+        mach       = conditions.freestream.mach_number
+        AoA        = conditions.aerodynamics.angle_of_attack
         lift_model = surrogates.lift_coefficient
         drag_model = surrogates.drag_coefficient
+        AR         = geometry.wings['main_wing'].aspect_ratio
         
         # Inviscid lift
         data_len = len(AoA)
@@ -142,14 +144,21 @@ class SU2_inviscid(Aerodynamics):
         for ii,_ in enumerate(AoA):
             inviscid_lift[ii] = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])]) #sklearn fix
             
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_lift
-        state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
-        state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
-        
+        conditions.aerodynamics.lift_coefficient                               = inviscid_lift
+        conditions.aerodynamics.lift_breakdown                                 = Data()
+        conditions.aerodynamics.lift_breakdown.compressible_wings              = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings                  = Data()
+        conditions.aerodynamics.lift_breakdown.total                           = inviscid_lift        
+        conditions.aerodynamics.lift_breakdown.compressible_wings['main_wing'] = inviscid_lift # currently using vehicle drag for wing     
+        conditions.aerodynamics.lift_breakdown.inviscid_wings['main_wing']     = inviscid_lift # currently using vehicle drag for wing  
+                                                                           
         # Inviscid drag, zeros are a placeholder for possible future implementation
-        inviscid_drag                                              = np.zeros([data_len,1])       
-        state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
+        inviscid_drag                                                               = np.zeros([data_len,1])       
+        conditions.aerodynamics.drag_breakdown.induced                              = Data()
+        conditions.aerodynamics.drag_breakdown.induced.total                        = inviscid_drag
+        conditions.aerodynamics.drag_breakdown.induced.inviscid                     = inviscid_drag
+        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings               = Data()
+        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings['main_wing']  = inviscid_drag     
         
         return inviscid_lift, inviscid_drag
 

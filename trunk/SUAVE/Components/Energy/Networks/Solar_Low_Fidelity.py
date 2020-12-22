@@ -3,6 +3,7 @@
 # 
 # Created:  Jun 2014, E. Botero
 # Modified: Feb 2016, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -15,7 +16,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
 
-from SUAVE.Core import Data
+from SUAVE.Core import Data , Units
 
 # ----------------------------------------------------------------------
 #  Network
@@ -64,7 +65,7 @@ class Solar_Low_Fidelity(Propulsor):
         self.nacelle_dia       = None
         self.engine_length     = None
         self.number_of_engines = None
-        self.tag         = 'Network'
+        self.tag               = 'Solar_Low_Fidelity'
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -105,7 +106,8 @@ class Solar_Low_Fidelity(Propulsor):
         payload     = self.payload
         solar_logic = self.solar_logic
         battery     = self.battery
-       
+        num_engines = self.number_of_engines
+        
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
         
@@ -156,7 +158,7 @@ class Solar_Low_Fidelity(Propulsor):
         # Run the esc
         esc.currentin(conditions)
         # link
-        solar_logic.inputs.currentesc  = esc.outputs.currentin*self.number_of_engines
+        solar_logic.inputs.currentesc  = esc.outputs.currentin*num_engines
         solar_logic.inputs.volts_motor = esc.outputs.voltageout 
         
         # Adjust power usage for magic thrust
@@ -168,20 +170,26 @@ class Solar_Low_Fidelity(Propulsor):
         battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
-        rpm                                  = motor.outputs.omega*60./(2.*np.pi)
-        current                              = solar_logic.inputs.currentesc
-        battery_draw                         = battery.inputs.power_in 
-        battery_energy                       = battery.current_energy
-    
-        conditions.propulsion.solar_flux     = solar_flux.outputs.flux  
-        conditions.propulsion.rpm            = rpm
-        conditions.propulsion.current        = current
-        conditions.propulsion.battery_draw   = battery_draw
-        conditions.propulsion.battery_energy = battery_energy
-    
+        a                                        = conditions.freestream.speed_of_sound
+        R                                        = propeller.tip_radius        
+        rpm                                      = motor.outputs.omega*60./(2.*np.pi)
+        current                                  = solar_logic.inputs.currentesc
+        battery_draw                             = battery.inputs.power_in 
+        battery_energy                           = battery.current_energy
+                                                 
+        conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
+        conditions.propulsion.rpm                = rpm
+        conditions.propulsion.current            = current
+        conditions.propulsion.battery_draw       = battery_draw
+        conditions.propulsion.battery_energy     = battery_energy
+        conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
+        
         #Create the outputs
-        F    = self.number_of_engines * F * [1,0,0]      
-        mdot = np.zeros_like(F)
+        F                                        = num_engines * F * [1,0,0]      
+        mdot                                     = state.conditions.ones_row(1)*0.0
+        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))  
+        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R)**2)   # N/m^2                 
+        conditions.propulsion.power_loading      = (F_mag.T)/(P )  # N/W                        
     
         results = Data()
         results.thrust_force_vector = F

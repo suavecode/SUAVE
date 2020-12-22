@@ -40,7 +40,7 @@ def translate_conditions_to_cases(avl ,conditions):
     """    
     # set up aerodynamic Conditions object
     aircraft = avl.geometry
-    cases = Run_Case.Container()
+    cases    = Run_Case.Container()
     for i in range(len(conditions.aerodynamics.angle_of_attack)):      
         case                                                  = Run_Case()
         case.tag                                              = avl.settings.filenames.case_template.format(avl.current_status.batch_index,i+1)
@@ -58,7 +58,7 @@ def translate_conditions_to_cases(avl ,conditions):
             if wing.symmetric == True:
                 n_wings += 1                
         case.num_wings                                        = n_wings
-        case.n_sw                                             = avl.settings.spanwise_vortices  
+        case.n_sw                                             = avl.settings.number_spanwise_vortices  
                 
         cases.append_case(case)
     
@@ -248,8 +248,7 @@ def translate_results_to_conditions(cases,results):
         res.stability.static.Cm_r[i][0]                     = case_res.stability.Cm_r 
         res.stability.static.Cn_p[i][0]                     = case_res.stability.Cn_p 
         res.stability.static.Cn_q[i][0]                     = case_res.stability.Cn_q 
-        res.stability.static.Cn_r[i][0]                     = case_res.stability.Cn_r       
-        
+        res.stability.static.Cn_r[i][0]                     = case_res.stability.Cn_r
         res.stability.static.CX_u[i][0]                     = case_res.stability.CX_u
         res.stability.static.CX_v[i][0]                     = case_res.stability.CX_v
         res.stability.static.CX_w[i][0]                     = case_res.stability.CX_w
@@ -285,8 +284,7 @@ def translate_results_to_conditions(cases,results):
         res.stability.static.Cm_r[i][0]                     = case_res.stability.Cm_r
         res.stability.static.Cn_p[i][0]                     = case_res.stability.Cn_p
         res.stability.static.Cn_q[i][0]                     = case_res.stability.Cn_q
-        res.stability.static.Cn_r[i][0]                     = case_res.stability.Cn_r        
-        
+        res.stability.static.Cn_r[i][0]                     = case_res.stability.Cn_r
         res.stability.static.neutral_point[i][0]            = case_res.stability.neutral_point
         
         # aero surface forces file 

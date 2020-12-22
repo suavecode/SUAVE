@@ -2,7 +2,8 @@
 # 
 # Created:  Sep 2014, T. MacDonald
 # Modified: Nov 2016, T. MacDonald
-#
+#           Apr 2020, M. Clarke
+
 # Modified to match compressibility drag updates
 
 # ----------------------------------------------------------------------
@@ -17,6 +18,7 @@ from SUAVE.Core import Data
 import numpy as np
 import pylab as plt
 
+from concurrent.futures import ProcessPoolExecutor
 import copy, time
 import random
 from SUAVE.Attributes.Gases.Air import Air
@@ -37,7 +39,7 @@ def main():
         
         
     # initalize the aero model
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()      
     aerodynamics.geometry = vehicle
         
     aerodynamics.initialize()    
@@ -172,10 +174,11 @@ def main():
      
     #compute_aircraft_lift(conditions, configuration, geometry) 
     
-    lift = state.conditions.aerodynamics.lift_coefficient
-    lift_r = np.array( [-2.37193091,-0.92896235,-0.60179935,-0.41769481,-0.29025691,
-                        0.06311908, 0.27790296, 0.49317134, 0.84190929, 1.33725435, 1.14081317 ])[:,None]
-   
+    lift   = state.conditions.aerodynamics.lift_coefficient
+    lift_r =  np.array([-1.21776694,-0.48854139,-0.43529644,-0.34913136,-0.20409426,
+                        0.11639443, 0.35889528, 0.58542141, 0.88029083, 1.24354982,    
+                        1.26293412   ])[:,None]   
+    
     print('lift = ', lift)
     
     lift_test = np.abs((lift-lift_r)/lift)
@@ -238,55 +241,43 @@ def main():
       
 
 def reg_values():
-    cd_c_r = np.array([[2.77841166e-09,9.54913908e-10,3.09611169e-23,1.00920702e-09,
-                        9.88085452e-05,1.98202770e-05,9.14384129e-10,1.80326366e-11,
-                        4.49667249e-05,4.00421207e-03,6.67689658e-14]]).T
+    cd_c_r = np.array([[6.13612922e-06,2.39245373e-08,1.51468452e-22,2.54647860e-09,2.22699731e-04,
+                        2.87294510e-05,1.22068187e-09,2.10390592e-11,3.93978347e-05,3.45211595e-03,
+                        6.40126656e-14]]).T   
 
-           
-    cd_i_r = np.array([[ 2.28100659e-01,3.54750736e-02,1.62244114e-02,7.14240342e-03,
-                         3.48972960e-03,1.59691414e-04,3.18411319e-03,1.04353114e-02,
-                         2.91672176e-02,7.25472784e-02,5.37425788e-02]]).T
-
-
-           
+    cd_i_r = np.array([[0.03016324,0.01070789,0.00929508,0.00581828,0.00174489,
+                        0.00159063,0.0083172 ,0.01971968,0.0371695 ,0.06249228,
+                        0.08192402]]).T     
+    
     cd_m_r = np.array([[ 0.0011752,0.0011752,0.0011752,0.0011752,0.0011752,
                          0.0011752,0.0011752,0.0011752,0.0011752,0.0011752,
                          0.0011752]]).T
-
-           
+                         
     cd_m_fuse_base_r = np.array([[ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]]).T
 
-    cd_m_fuse_up_r   = np.array([[  4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
-                                    4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
-                                    4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
-                                    4.80530506e-05,   4.80530506e-05]]).T
+    procs = 3
+    evals = 5 * procs
 
-    cd_m_nac_base_r = np.array([[ 0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
-                                  0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
-                                  0.00033128]]).T
+    start_time = time.perf_counter()
 
-    cd_m_ctrl_r     = np.array([[ 0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,
-                                  0.0001,  0.0001,  0.0001,  0.0001]]).T
+    with ProcessPoolExecutor(max_workers=procs) as executor:
+        results = [executor.submit(main) for _ in range(evals)]
 
     cd_p_fuse_r     = np.array([[ 0.00573221,0.00669671,0.01034335,0.00656387,0.00669973,
                                   0.00560398,0.00687499,0.0085221 ,0.00669252,0.0060046 ,
                                   0.00697051]]).T
-
-    cd_p_wing_r     = np.array([[ 0.00579887,0.00592795,0.00942986,0.0057326 ,
-                                  0.00653004,0.00501665,0.00599058,0.00759737,
-                                  0.00600963,0.00556283,0.00602578]]).T
-
-           
-    cd_tot_r        = np.array([[ 0.24973292,0.0544701 ,0.04474086,0.02511415,
-                                  0.0228575 ,0.0157194 ,0.02185773,0.03375335,
-                                  0.04819338,0.09493473,0.07360264]]).T
-         
+ 
+    cd_p_wing_r     = np.array([[0.00579887,0.00592795, 0.00942986, 0.0057326 ,0.00653004, 
+                                 0.00501665, 0.00599058, 0.00759737, 0.00600963, 0.00556283, 
+                                 0.00602578 ]]).T 
+ 
+    cd_tot_r        = np.array([[0.04880922,0.02920768,0.03767294,0.02376355,0.02143475,
+                                 0.01719576,0.02709348,0.04322341,0.05635135,0.08419896,
+                                 0.10234771]]).T  
+    
     return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, \
            cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
-if __name__ == '__main__':
-
-    main()
-    
-    print('Aero regression test passed!')
+    print("Total Execution Time: {}".format(duration))
+    print("Average Execution Time: {}".format(duration/evals))
       

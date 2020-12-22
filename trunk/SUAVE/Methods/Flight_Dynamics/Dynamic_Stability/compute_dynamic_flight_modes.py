@@ -111,7 +111,7 @@ def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases):
     
     # Derivative of pitching rate with respect to d(alpha)/d(t)
     if aircraft.wings['horizontal_stabilizer'] and aircraft.wings['main_wing']:
-        l_t             = aircraft.wings['horizontal_stabilizer'].origin[0] + aircraft.wings['horizontal_stabilizer'].aerodynamic_center[0] - aircraft.wings['main_wing'].origin[0] - aircraft.wings['main_wing'].aerodynamic_center[0] 
+        l_t             = aircraft.wings['horizontal_stabilizer'].origin[0][0] + aircraft.wings['horizontal_stabilizer'].aerodynamic_center[0] - aircraft.wings['main_wing'].origin[0][0] - aircraft.wings['main_wing'].aerodynamic_center[0] 
         mac             = aircraft.wings['main_wing'].chords.mean_aerodynamic
         st.Cm_alpha_dot = Supporting_Functions.cm_alphadot(st.Cm_alpha, aircraft.wings['horizontal_stabilizer'].ep_alpha, l_t, mac) 
         st.Cz_alpha_dot = Supporting_Functions.cz_alphadot(st.Cm_alpha, aircraft.wings['horizontal_stabilizer'].ep_alpha)
@@ -126,9 +126,9 @@ def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases):
     for wing in aircraft.wings:
         if wing.control_surfaces :
             for cs in wing.control_surfaces:
-                ctrl_surf =  wing.control_surfaces[cs]
+                ctrl_surf =  cs
                 if (type(ctrl_surf) ==  Elevator):
-                    ele = st.control_surfaces_cases[cases[i].tag].control_surfaces[cs]
+                    ele = st.control_surfaces_cases[cases[i].tag].control_surfaces[cs.tag]
                     Xe  = 0 # Neglect
                     Ze  = 0.5 * rho * u0 * u0 * S_ref * ele.CL
                     Me  = 0.5 * rho * u0 * u0 * S_ref * c_ref * ele.Cm
@@ -218,10 +218,9 @@ def compute_dynamic_flight_modes(results,aircraft,flight_conditions,cases):
     # Aileron effectiveness 
     for wing in aircraft.wings:
         if wing.control_surfaces :
-            for cs in wing.control_surfaces:
-                ctrl_surf =  wing.control_surfaces[cs]
+            for ctrl_surf in wing.control_surfaces:
                 if (type(ctrl_surf) ==  Aileron): 
-                    ail = st.control_surfaces_cases[cases[i].tag].control_surfaces[cs]                      
+                    ail = st.control_surfaces_cases[cases[i].tag].control_surfaces[cs.tag]                      
                     Ya = 0.5 * rho * u0 * u0 * S_ref * ail.CY 
                     La = 0.5 * rho * u0 * u0 * S_ref * b_ref * ail.Cl 
                     Na = 0.5 * rho * u0 * u0 * S_ref * b_ref * ail.Cn  

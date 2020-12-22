@@ -59,13 +59,14 @@ class AVL(Markup):
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
         settings.oswald_efficiency_factor           = None
+        settings.span_efficiency                    = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
         
         # ------
-        settings.spanwise_vortices                  = None
-        settings.chordwise_vortices                 = None        
+        settings.number_spanwise_vortices           = None
+        settings.number_chordwise_vortices          = None        
         
         settings.maximum_lift_coefficient           = np.inf 
         
@@ -120,8 +121,8 @@ class AVL(Markup):
         """  
         super(AVL, self).initialize()
         # unpack
-        sv = self.settings.spanwise_vortices
-        cv = self.settings.chordwise_vortices 
+        sv = self.settings.number_spanwise_vortices
+        cv = self.settings.number_chordwise_vortices 
         
         self.process.compute.lift.inviscid.geometry = self.geometry
         
