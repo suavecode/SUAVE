@@ -48,7 +48,8 @@ class Battery_Test(Propulsor):
         """             
         self.avionics                = None
         self.voltage                 = None  
-        
+        self.tag                     = 'Battery_Test'
+
     # manage process with a driver function
     def evaluate_thrust(self,state):
         """ Calculate thrust given the current state of the vehicle
@@ -88,50 +89,62 @@ class Battery_Test(Propulsor):
         battery.temperature         = conditions.propulsion.battery_temperature
         battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput
         battery.ambient_temperature = conditions.propulsion.ambient_temperature          
-        battery.age_in_days         = conditions.propulsion.battery_age_in_days 
-        discharge_flag              = conditions.propulsion.battery_discharge 
-        R_growth_factor             = conditions.propulsion.battery_resistance_growth_factor
-        E_growth_factor             = conditions.propulsion.battery_capacity_fade_factor   
-        battery.R_growth_factor     = R_growth_factor
-        battery.E_growth_factor     = E_growth_factor
+        battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput
+        battery.age_in_days         = conditions.propulsion.battery_age_in_days
+        discharge_flag              = conditions.propulsion.battery_discharge
+        battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor
+        battery.max_energy          = conditions.propulsion.battery_max_aged_energy
         V_th0                       = conditions.propulsion.battery_initial_thevenin_voltage
         n_series                    = battery.pack_config.series  
-        n_parallel                  = battery.pack_config.parallel    
-
+        n_parallel                  = battery.pack_config.parallel
          
         #-------------------------------------------------------------------------------
         # Predict Voltage and Battery Properties Depending on Battery Chemistry
         #-------------------------------------------------------------------------------        
-        if battery.chemistry == 'LiNCA':  
+        if battery.chemistry == 'LiNCA':
+            # update ambient temperature based on altitude
+            battery.ambient_temperature                   = conditions.propulsion.ambient_temperature
+            battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
+            battery.cooling_fluid.kinematic_viscosity     = conditions.freestream.kinematic_viscosity
+            battery.cooling_fluid.density                 = conditions.freestream.density
+
             SOC        = state.unknowns.battery_state_of_charge 
             T_cell     = state.unknowns.battery_cell_temperature 
-            V_Th       = state.unknowns.battery_thevenin_voltage/n_series 
+            V_Th_cell  = state.unknowns.battery_thevenin_voltage/n_series
             
             # link temperature 
-            battery.cell_temperature = T_cell   
+            battery.cell_temperature = T_cell
             
             # look up tables  
-            V_oc = np.zeros_like(SOC)
-            R_Th = np.zeros_like(SOC)  
-            C_Th = np.zeros_like(SOC)  
-            R_0  = np.zeros_like(SOC)
+            V_oc_cell = np.zeros_like(SOC)
+            R_Th_cell = np.zeros_like(SOC)
+            C_Th_cell = np.zeros_like(SOC)
+            R_0_cell  = np.zeros_like(SOC)
             SOC[SOC<0.] = 0.
             SOC[SOC>1.] = 1.
             for i in range(len(SOC)): 
                 T_cell_Celcius = T_cell[i] - 272.65
-                V_oc[i] = battery_data.V_oc_interp(T_cell_Celcius, SOC[i])[0]
-                C_Th[i] = battery_data.C_Th_interp(T_cell_Celcius, SOC[i])[0]
-                R_Th[i] = battery_data.R_Th_interp(T_cell_Celcius, SOC[i])[0]
-                R_0[i]  = battery_data.R_0_interp( T_cell_Celcius, SOC[i])[0]  
+                V_oc_cell[i] = battery_data.V_oc_interp(T_cell_Celcius, SOC[i])[0]
+                C_Th_cell[i] = battery_data.C_Th_interp(T_cell_Celcius, SOC[i])[0]
+                R_Th_cell[i] = battery_data.R_Th_interp(T_cell_Celcius, SOC[i])[0]
+                R_0_cell[i]  = battery_data.R_0_interp( T_cell_Celcius, SOC[i])[0]  
                 
-            dV_TH_dt =  np.dot(D,V_Th)
-            Icell    = V_Th/(R_Th * battery.R_growth_factor)  + C_Th*dV_TH_dt  
-            R_0      = R_0 * battery.R_growth_factor 
+            dV_TH_dt =  np.dot(D,V_Th_cell)
+            I_cell   = V_Th_cell/(R_Th_cell * battery.R_growth_factor)  + C_Th_cell*dV_TH_dt
+            R_0_cell = R_0_cell * battery.R_growth_factor
              
             # Voltage under load:
-            volts = n_series*(V_oc - V_Th - (Icell * R_0))  
+            volts = n_series*(V_oc_cell - V_Th_cell - (I_cell * R_0_cell))
+            
+            battery.charging_current = battery.cell.charging_current * n_parallel 
             
         elif battery.chemistry == 'LiNiMnCoO2': 
+            # update ambient temperature based on altitude
+            battery.ambient_temperature                   = conditions.propulsion.ambient_temperature
+            battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
+            battery.cooling_fluid.kinematic_viscosity     = conditions.freestream.kinematic_viscosity 
+            battery.cooling_fluid.density                 = conditions.freestream.density
 
             SOC        = state.unknowns.battery_state_of_charge 
             T_cell     = state.unknowns.battery_cell_temperature
@@ -146,19 +159,26 @@ class Battery_Test(Propulsor):
             SOC[SOC > 1.]            = 1.    
             DOD                      = 1 - SOC 
             
-            T_cell[np.isnan(T_cell)] = 30.0 
-            T_cell[T_cell<272.65]  = 272.65
-            T_cell[T_cell>322.65]  = 322.65
+            T_cell[np.isnan(T_cell)] = 302.65
+            T_cell[T_cell<272.65]    = 272.65 # model does not fit for below 0  degrees
+            T_cell[T_cell>322.65]    = 322.65 # model does not fit for above 50 degrees
              
             I_cell[I_cell<0.0]       = 0.0
             I_cell[I_cell>8.0]       = 8.0    
             
             # create vector of conditions for battery data sheet response surface for OCV
-            T_cell_Celcius = T_cell  - 272.65
-            pts   = np.hstack((np.hstack((I_cell, T_cell_Celcius)),DOD  )) # amps, temp, SOC   
-            V_ul  = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T  
-            volts = n_series*V_ul 
- 
+            T_cell_Celcius           = T_cell-272.65
+            pts                      = np.hstack((np.hstack((I_cell, T_cell_Celcius)),DOD  )) # amps, temp, SOC
+            V_ul_cell                = np.atleast_2d(battery_data.Voltage(pts)[:,1]).T
+            volts                    = n_series*V_ul_cell
+          
+            battery.charging_current = battery.cell.charging_current * n_parallel 
+            
+        else:
+            battery.cell_temperature         = conditions.propulsion.battery_cell_temperature
+            volts                            = state.unknowns.battery_voltage_under_load
+            battery.battery_thevenin_voltage = 0
+
         #-------------------------------------------------------------------------------
         # Discharge
         #-------------------------------------------------------------------------------
@@ -180,7 +200,7 @@ class Battery_Test(Propulsor):
             # link 
             battery.inputs.current  = -battery.charging_current * np.ones_like(volts)
             battery.inputs.power_in =  battery.charging_current * battery.charging_voltage * np.ones_like(volts)
-            battery.inputs.voltage  = battery.charging_voltage #  volts 
+            battery.inputs.voltage  =  battery.charging_voltage 
             battery.energy_charge(numerics)        
         
         # Pack the conditions for outputs     

@@ -17,13 +17,13 @@ def LiNiMnCo_discharge(battery,numerics):
        
        Source: 
        Discharge Model: 
-       Automotive Industrial Systems Company of Panasonic Group, “Technical Information of 
-       NCR18650G,” URLhttps://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
+       Automotive Industrial Systems Company of Panasonic Group, "Technical Information of
+       NCR18650G,"URLhttps://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
        
        Internal Resistance Model: 
-       Zou, Y., Hu, X., Ma, H., and Li, S. E., “Combined State of Charge and State of
+       Zou, Y., Hu, X., Ma, H., and Li, S. E., "Combined State of Charge and State of
        Health estimation over lithium-ion battery cellcycle lifespan for electric 
-       vehicles,”Journal of Power Sources, Vol. 273, 2015, pp. 793–803. 
+       vehicles,"Journal of Power Sources, Vol. 273, 2015, pp. 793-803.
        doi:10.1016/j.jpowsour.2014.09.146,URLhttp://dx.doi.org/10.1016/j.jpowsour.2014.09.146.
        
        Cell Heat Coefficient:  Wu et. al. "Determination of the optimum heat transfer 
@@ -87,6 +87,7 @@ def LiNiMnCo_discharge(battery,numerics):
     E_current                = battery.current_energy 
     Q_prior                  = battery.charge_throughput  
     battery_data             = battery.discharge_performance_map 
+    heat_transfer_efficiency = battery.heat_transfer_efficiency
     I                        = numerics.time.integrate  
     
     # ---------------------------------------------------------------------------------
@@ -145,7 +146,7 @@ def LiNiMnCo_discharge(battery,numerics):
         Cp_air  = battery.cooling_fluid.specific_heat_capacity  
         V_air   = battery.cooling_fluid.discharge_air_cooling_flowspeed
         rho_air = battery.cooling_fluid.density 
-        nu_fit  = battery.cooling_fluid.kinematic_viscosity_fit  
+        nu_air  = battery.cooling_fluid.kinematic_viscosity 
         Pr_fit  = battery.cooling_fluid.prandlt_number_fit     
         
         S_D = np.sqrt(S_T**2+S_L**2)
@@ -154,8 +155,7 @@ def LiNiMnCo_discharge(battery,numerics):
         else:
             V_max   = V_air*(S_T/(S_T-D_cell))
               
-        T        = (T_ambient+T_current)/2  
-        nu_air   = nu_fit(T_ambient - 272.65 )
+        T        = (T_ambient+T_current)/2   
         Re_max   = V_max*D_cell/nu_air
         Pr       = Pr_fit(T_ambient - 272.65 )
         Prw      = Pr_fit(T - 272.65 )  
@@ -170,7 +170,7 @@ def LiNiMnCo_discharge(battery,numerics):
         Tw_Ti    = (T - T_ambient)
         Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_air*V_air*Nn*S_T*Cp_air))
         dT_lm    = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-        Q_convec = h*np.pi*D_cell*H_cell*0.75*n_total_module*dT_lm  
+        Q_convec = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm  
         P_net    = Q_heat_gen*n_total_module - Q_convec 
    
     dT_dt     = P_net/(cell_mass*n_total_module*Cp)

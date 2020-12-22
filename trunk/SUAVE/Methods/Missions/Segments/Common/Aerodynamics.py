@@ -55,11 +55,13 @@ def update_atmosphere(segment):
             
         Outputs:
             state.conditions:
-                freestream.pressure          [pascals]
-                freestream.temperature       [kelvin]
-                freestream.density           [kilogram/meter^3]
-                freestream.speed_of_sound    [meter/second]
-                freestream.dynamic_viscosity [pascals-seconds]
+                freestream.pressure             [pascals]
+                freestream.temperature          [kelvin]
+                freestream.density              [kilogram/meter^3]
+                freestream.speed_of_sound       [meter/second]
+                freestream.dynamic_viscosity    [pascals-seconds]
+                freestream.kinematic_viscosity  [meters^2/second]
+                freestream.thermal_conductivity [Watt/meter-Kelvin]
                 
         Properties Used:
         N/A
@@ -82,6 +84,7 @@ def update_atmosphere(segment):
     conditions.freestream.density                = atmo_data.density
     conditions.freestream.speed_of_sound         = atmo_data.speed_of_sound
     conditions.freestream.dynamic_viscosity      = atmo_data.dynamic_viscosity
+    conditions.freestream.kinematic_viscosity    = atmo_data.kinematic_viscosity
     
     return
     

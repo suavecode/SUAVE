@@ -19,7 +19,7 @@ def LiNCA_discharge (battery,numerics):
      
        Source: 
        Cell Charge: Chin, J. C., Schnulo, S. L., Miller, T. B., Prokopius, K., and Gray, 
-       J., “Battery Performance Modeling on Maxwell X-57",”AIAA Scitech, San Diego, CA,
+       J., "Battery Performance Modeling on Maxwell X-57","AIAA Scitech, San Diego, CA,
        2019. URLhttp://openmdao.org/pubs/chin_battery_performance_x57_2019.pdf.     
        
        Cell Heat Coefficient:  Wu et. al. "Determination of the optimum heat transfer 
@@ -82,6 +82,7 @@ def LiNCA_discharge (battery,numerics):
     E_current                = battery.current_energy 
     Q_prior                  = battery.charge_throughput  
     battery_data             = battery.discharge_performance_map 
+    heat_transfer_efficiency = battery.heat_transfer_efficiency
     I                        = numerics.time.integrate  
     D                        = numerics.time.differentiate      
     
@@ -136,7 +137,7 @@ def LiNCA_discharge (battery,numerics):
         Cp_air  = battery.cooling_fluid.specific_heat_capacity  
         V_air   = battery.cooling_fluid.discharge_air_cooling_flowspeed
         rho_air = battery.cooling_fluid.density 
-        nu_fit  = battery.cooling_fluid.kinematic_viscosity_fit  
+        nu_air  = battery.cooling_fluid.kinematic_viscosity 
         Pr_fit  = battery.cooling_fluid.prandlt_number_fit     
 
         S_D = np.sqrt(S_T**2+S_L**2)
@@ -145,8 +146,7 @@ def LiNCA_discharge (battery,numerics):
         else:
             V_max   = V_air*(S_T/(S_T-D_cell))
 
-        T        = (T_ambient+T_current)/2  
-        nu_air   = nu_fit(T_ambient- 272.65)
+        T        = (T_ambient+T_current)/2   
         Re_max   = V_max*D_cell/nu_air
         Pr       = Pr_fit(T_ambient - 272.65)
         Prw      = Pr_fit(T- 272.65)  
@@ -161,7 +161,7 @@ def LiNCA_discharge (battery,numerics):
         Tw_Ti    = (T - T_ambient)
         Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_air*V_air*Nn*S_T*Cp_air))
         dT_lm    = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-        Q_convec = h*np.pi*D_cell*H_cell*0.75*n_total_module*dT_lm 
+        Q_convec = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
         P_net    = Q_heat_gen*n_total_module - Q_convec 
 
     dT_dt     = P_net/(cell_mass*n_total_module*Cp)

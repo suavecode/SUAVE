@@ -83,7 +83,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
                                                                      #
         self.specific_heat_capacity                        = 1108    # [J/kgK]  
         self.cell.specific_heat_capacity                   = 1108    # [J/kgK]  
-        self.heat_transfer_coefficient                     = 75      # [W/m^2K]          
+        self.heat_transfer_coefficient                     = 75      # [W/m^2K]  
+        self.heat_transfer_efficiency                      = 1.0
         self.cell.thermal_conductivity                     = 3.91    # [J/kgK] 
                                                            
         self.cell.diameter                                 = 0.018   # [m]
@@ -98,11 +99,10 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.module_config.parallel_spacing                = 0.02
                                                            
         self.cooling_fluid.tag                             = 'air'
-        self.cooling_fluid.thermal_conductivity            = 0.0253 #W/mK
+        self.cooling_fluid.thermal_conductivity            = 0.0253 # W/mK
         self.cooling_fluid.specific_heat_capacity          = 1006   # K/kgK
         self.cooling_fluid.discharge_air_cooling_flowspeed = 0.05   
         self.cooling_fluid.charge_air_cooling_flowspeed    = 0.05   
-        self.cooling_fluid.kinematic_viscosity_fit         = kinematic_viscosity_model() # Pa/s
         self.cooling_fluid.prandlt_number_fit              = prandlt_number_model()
                                                            
         self.discharge_model                               = LiNiMnCo_discharge
@@ -121,18 +121,7 @@ def prandlt_number_model():
     z1  = np.polyfit(raw_Pr[:,0],raw_Pr[:,1],4)
     pnf = np.poly1d(z1)  
     
-    return pnf
-
-def kinematic_viscosity_model():
-    raw_nu = np.array([[-75	,7.40E-6  ],[-50	,9.22E-6  ],[-25	,11.18E-6 ],[-15	,12.01E-6 ],[-10	,12.43E-6 ],[-5	,12.85E-6 ],[0	,13.28E-6 ],[5	,13.72E-6 ],
-                       [10	,14.16E-6 ],[15	,14.61E-6 ],[20	,15.06E-6 ],[25	,15.52E-6 ],[30	,15.98E-6 ],[40	,16.92E-6 ],
-                       [50	,17.88E-6 ],[60	,18.86E-6 ],[80	,20.88E-6 ],[100	,22.97E-6 ],[125	,25.69E-6 ],[150	,28.51E-6 ],
-                       [175	,31.44E-6 ],[200	,34.47E-6 ],[225	,37.60E-6 ],[300	,47.54E-6 ],[412	,63.82E-6 ],[500	,77.72E-6 ],
-                       [600	,94.62E-6 ],[700	,112.6E-6 ],[800	,131.7E-6 ],[900	,151.7E-6 ],[1000,172.7E-6    ],[1100,194.6E-6    ]])
-   
-    z2  = np.polyfit(raw_nu[:,0],raw_nu[:,1], 2)
-    kvf = np.poly1d(z2)   
-    return kvf
+    return pnf 
 
 def create_discharge_performance_map():
     """ Create discharge and charge response surface for 

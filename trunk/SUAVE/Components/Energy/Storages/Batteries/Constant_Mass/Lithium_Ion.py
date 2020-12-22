@@ -25,6 +25,8 @@ class Lithium_Ion(Battery):
     lithium-ion battery in SUAVE. 
     """
     def __defaults__(self):
+        self.tag                         = 'Lithium_Ion_Battery'
+        self.chemistry                   = 'Li_Generic'
         self.cell                        = Data()
         self.pack_config               = Data()
         
@@ -40,6 +42,6 @@ class Lithium_Ion(Battery):
         self.specific_heat_capacity      = 2000 
         self.heat_transfer_coefficient   = 35.  
         
-        self.charging_SOC_cutoff         = 1. 
-        self.charging_voltage            = 340.
-        self.charging_current            = 200.
+        self.cell.charging_SOC_cutoff    = 1.
+        self.cell.charging_voltage       = 340.
+        self.cell.charging_current       = 200.

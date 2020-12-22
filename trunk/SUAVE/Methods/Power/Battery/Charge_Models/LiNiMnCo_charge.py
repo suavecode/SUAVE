@@ -10,64 +10,64 @@ from SUAVE.Core import  Units
 import numpy as np 
 from scipy.integrate import  cumtrapz , odeint
 
-def LiNiMnCo_charge(battery,numerics): 
-    """This is a discharge model for 18650 lithium-nickel-manganese-cobalt-oxide 
-       battery cells. The discharge model uses experimental data performed
-       by the Automotive Industrial Systems Company of Panasonic Group 
-       
-       Source: 
-       Discharge Model: 
-       Automotive Industrial Systems Company of Panasonic Group, “Technical Information of 
-       NCR18650G,” URLhttps://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
-       
-       Internal Resistance Model: 
-       Zou, Y., Hu, X., Ma, H., and Li, S. E., “Combined State of Charge and State of
-       Health estimation over lithium-ion battery cellcycle lifespan for electric 
-       vehicles,”Journal of Power Sources, Vol. 273, 2015, pp. 793–803. 
-       doi:10.1016/j.jpowsour.2014.09.146,URLhttp://dx.doi.org/10.1016/j.jpowsour.2014.09.146.
-       
-       Cell Heat Coefficient:  Wu et. al. "Determination of the optimum heat transfer 
-       coefficient and temperature rise analysis for a lithium-ion battery under 
-       the conditions of Harbin city bus driving cycles". Energies, 10(11). 
-       https://doi.org/10.3390/en10111723
-       
-       Inputs:
-         battery. 
-               I_bat             (max_energy)                          [Joules]
-               cell_mass         (battery cell mass)                   [kilograms]
-               Cp                (battery cell specific heat capacity) [J/(K kg)]
-               h                 (heat transfer coefficient)           [W/(m^2*K)]
-               t                 (battery age in days)                 [days]
-               cell_surface_area (battery cell surface area)           [meters^2]
-               T_ambient         (ambient temperature)                 [Degrees Celcius]
-               T_current         (pack temperature)                    [Degrees Celcius]
-               T_cell            (battery cell temperature)            [Degrees Celcius]
-               E_max             (max energy)                          [Joules]
-               E_current         (current energy)                      [Joules]
-               Q_prior           (charge throughput)                   [Amp-hrs]
-               R_growth_factor   (internal resistance growth factor)   [unitless] 
-           
-         inputs.
-               I_bat             (current)                             [amps]
-               P_bat             (power)                               [Watts]
-       
-       Outputs:
-         battery.          
-              current_energy                                           [Joules]
-              cell_temperature                                         [Degrees Celcius]
-              resistive_losses                                         [Watts] 
-              load_power                                               [Watts]
-              current                                                  [Amps]
-              battery_voltage_open_circuit                                     [Volts]
-              battery_thevenin_voltage                                 [Volts]
-              charge_throughput                                        [Amp-hrs]
-              internal_resistance                                      [Ohms]
-              battery_state_of_charge                                          [unitless]
-              depth_of_discharge                                       [unitless]
-              battery_voltage_under_load                                        [Volts]   
-        
-    """
-    
+def LiNiMnCo_charge(battery,numerics):
+    '''This is a discharge model for 18650 lithium-nickel-manganese-cobalt-oxide
+    battery cells. The discharge model uses experimental data performed
+    by the Automotive Industrial Systems Company of Panasonic Group
+
+    Source:
+    Discharge Model:
+    Automotive Industrial Systems Company of Panasonic Group, Technical Information of
+    NCR18650G, URLhttps://www.imrbatteries.com/content/panasonic_ncr18650g.pdf
+
+    Internal Resistance Model:
+    Zou, Y., Hu, X., Ma, H., and Li, S. E., Combined State of Charge and State of
+    Health estimation over lithium-ion battery cellcycle lifespan for electric
+    vehicles,Journal of Power Sources, Vol. 273, 2015, pp. 793-803.
+    doi:10.1016/j.jpowsour.2014.09.146,URLhttp://dx.doi.org/10.1016/j.jpowsour.2014.09.146.
+
+    Cell Heat Coefficient:  Wu et. al. "Determination of the optimum heat transfer
+    coefficient and temperature rise analysis for a lithium-ion battery under
+    the conditions of Harbin city bus driving cycles". Energies, 10(11).
+    https://doi.org/10.3390/en10111723
+
+    Inputs:
+      battery.
+            I_bat             (max_energy)                          [Joules]
+            cell_mass         (battery cell mass)                   [kilograms]
+            Cp                (battery cell specific heat capacity) [J/(K kg)]
+            h                 (heat transfer coefficient)           [W/(m^2*K)]
+            t                 (battery age in days)                 [days]
+            As_cell           (battery cell surface area)           [meters^2]
+            T_ambient         (ambient temperature)                 [Degrees Celcius]
+            T_current         (pack temperature)                    [Degrees Celcius]
+            T_cell            (battery cell temperature)            [Degrees Celcius]
+            E_max             (max energy)                          [Joules]
+            E_current         (current energy)                      [Joules]
+            Q_prior           (charge throughput)                   [Amp-hrs]
+            R_growth_factor   (internal resistance growth factor)   [unitless]
+
+      inputs.
+            I_bat             (current)                             [amps]
+            P_bat             (power)                               [Watts]
+
+    Outputs:
+      battery.
+           current_energy                                           [Joules]
+           cell_temperature                                         [Degrees Celcius]
+           resistive_losses                                         [Watts]
+           load_power                                               [Watts]
+           current                                                  [Amps]
+           battery_voltage_open_circuit                             [Volts]
+           battery_thevenin_voltage                                 [Volts]
+           charge_throughput                                        [Amp-hrs]
+           internal_resistance                                      [Ohms]
+           battery_state_of_charge                                  [unitless]
+           depth_of_discharge                                       [unitless]
+           battery_voltage_under_load                               [Volts]
+
+    '''
+
     # Unpack varibles 
     I_bat                    = battery.inputs.current
     P_bat                    = battery.inputs.power_in   
@@ -87,6 +87,7 @@ def LiNiMnCo_charge(battery,numerics):
     E_current                = battery.current_energy 
     Q_prior                  = battery.charge_throughput  
     battery_data             = battery.discharge_performance_map 
+    heat_transfer_efficiency = battery.heat_transfer_efficiency
     I                        = numerics.time.integrate  
       
     # ---------------------------------------------------------------------------------
@@ -145,7 +146,7 @@ def LiNiMnCo_charge(battery,numerics):
         Cp_air  = battery.cooling_fluid.specific_heat_capacity  
         V_air   = battery.cooling_fluid.discharge_air_cooling_flowspeed
         rho_air = battery.cooling_fluid.density 
-        nu_fit  = battery.cooling_fluid.kinematic_viscosity_fit  
+        nu_air  = battery.cooling_fluid.kinematic_viscosity 
         Pr_fit  = battery.cooling_fluid.prandlt_number_fit     
         
         S_D = np.sqrt(S_T**2+S_L**2)
@@ -154,8 +155,7 @@ def LiNiMnCo_charge(battery,numerics):
         else:
             V_max   = V_air*(S_T/(S_T-D_cell))
                
-        T        = (T_ambient+T_current)/2  # T_current  
-        nu_air   = nu_fit(T_ambient - 272.65 )
+        T        = (T_ambient+T_current)/2  # T_current   
         Re_max   = V_max*D_cell/nu_air
         Pr       = Pr_fit(T_ambient - 272.65 )
         Prw      = Pr_fit(T - 272.65 )  
@@ -170,7 +170,7 @@ def LiNiMnCo_charge(battery,numerics):
         Tw_Ti    = (T - T_ambient)
         Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_air*V_air*Nn*S_T*Cp_air))
         dT_lm    = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-        Q_convec = h*np.pi*D_cell*H_cell*0.8*n_total_module*dT_lm   
+        Q_convec = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm   
         P_net    = Q_heat_gen*n_total_module -Q_convec  
     
     dT_dt     = P_net/(cell_mass*n_total_module*Cp)

@@ -168,5 +168,6 @@ class Constant_Temperature(Atmospheric):
         atmo_data.speed_of_sound       = a
         atmo_data.dynamic_viscosity    = mu
         atmo_data.thermal_conductivity = K
+        atmo_data.kinematic_viscosity  = mu/rho
         
         return atmo_data

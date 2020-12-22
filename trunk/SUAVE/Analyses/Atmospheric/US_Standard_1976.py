@@ -83,8 +83,9 @@ class US_Standard_1976(Atmospheric):
           temperature                            [K]
           speed_of_sound                         [m/s]
           dynamic_viscosity                      [kg/(m*s)]
-          thermal_conductivity                   [W/(m-K)]
-
+          kinematic_viscosity                    [m^2/s]
+          thermal_conductivity                   [W/(m*K)]
+           
         Properties Used:
         self.
           fluid_properties.gas_specific_constant [J/(kg*K)]
@@ -171,6 +172,7 @@ class US_Standard_1976(Atmospheric):
         atmo_data.density              = rho
         atmo_data.speed_of_sound       = a
         atmo_data.dynamic_viscosity    = mu
+        atmo_data.kinematic_viscosity  = mu/rho
         atmo_data.thermal_conductivity = K
         
         return atmo_data
