@@ -269,7 +269,7 @@ def update_orientations(segment):
     V_body = orientation_product(T_inertial2body,V_inertial)
 
     # project inertial velocity into body x-z plane
-    V_stability = V_body
+    V_stability = V_body * 1.
     V_stability[:,1] = 0
     V_stability_magnitude = np.sqrt( np.sum(V_stability**2,axis=1) )[:,None]
 
@@ -281,7 +281,7 @@ def update_orientations(segment):
 
     # pack aerodynamics angles
     conditions.aerodynamics.angle_of_attack[:,0] = alpha[:,0]
-    conditions.aerodynamics.side_slip_angle[:,0] = beta[:,0]
+    conditions.aerodynamics.side_slip_angle[:,0] = -beta[:,0]
     conditions.aerodynamics.roll_angle[:,0]      = phi[:,0]
 
     # pack transformation tensor
