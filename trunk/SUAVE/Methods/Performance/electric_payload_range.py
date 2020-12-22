@@ -8,9 +8,10 @@
 # Imports
 #------------------------------------------------------------------------------
 
-from SUAVE.Core import Units
+from SUAVE.Core import Units, Data
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 #------------------------------------------------------------------------------
 # Determine Max Payload Range and Ferry Range
@@ -18,7 +19,8 @@ import numpy as np
 
 def electric_payload_range(vehicle,
                            mission,
-                           cruise_segment_tag):
+                           cruise_segment_tag,
+                           display_plot=True):
 
     """Calculates and plots a payload range diagram for an electric vehicle.
 
@@ -49,11 +51,14 @@ def electric_payload_range(vehicle,
 
         reserve_soc:                                            [0-1, Percentage]
 
+        display_plot                                            [True/False]
+
     Outputs:
 
         payload_range.
-            max_payload_range                                   [m]
-            ferry_range                                         [m]
+            range                                               [m]
+            payload                                             [m]
+            takeoff_weight                                      [kg]
 
     Properties Used:
 
@@ -97,5 +102,27 @@ def electric_payload_range(vehicle,
         results = mission.evaluate()
         segment = results.segments[cruise_segment_tag]
         R[i]    = results.segments[-1].conditions.frames.inertial.position_vector[-1,0]
+
+    # Insert Starting Point for Diagram Construction
+
+    R.insert(0, 0)
+    PLD.insert(0, MaxPLD)
+    TOW.insert(0, 0)
+
+    # Pack Results
+
+    payload_range = Data()
+    payload_range.range             = R
+    payload_range.payload           = PLD
+    payload_range.takeoff_weight    = TOW
+
+    if display_plot:
+
+        plt.plot(R, PLD, 'r')
+        plt.xlabel('Range (m)')
+        plt.ylabel('Payload (kg)')
+        plt.title('Payload Range Diagram')
+        plt.grid(True)
+        plt.show()
 
     return payload_range
