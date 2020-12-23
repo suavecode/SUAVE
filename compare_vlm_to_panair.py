@@ -20,6 +20,7 @@ from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.wave_drag_lift import wave_
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.wave_drag_volume import wave_drag_volume
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
+from SUAVE.Input_Output.OpenVSP.vsp_write import write
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -64,6 +65,7 @@ def main():
     #pan_arrow_biconvex     = import_csv(arrow_biconvex_file_pan)
     #su2_arrow_biconvex     = import_csv(arrow_biconvex_file_su2)
     arrow_biconvex         = arrw_biconvex()
+    write(arrow_biconvex,'Check')
     conditions             = setup_conditions()
     results_arrow_biconvex = analyze(arrow_biconvex, conditions)
     print('stop')
@@ -235,8 +237,8 @@ def analyze(config,conditions, use_MCM = False):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 10
-    settings.number_chordwise_vortices = 1
+    settings.number_spanwise_vortices  = 2
+    settings.number_chordwise_vortices = 2
     settings.propeller_wake_model      = None
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
@@ -285,8 +287,8 @@ def setup_conditions():
     #aoas  = np.array([6.,2.,2.,6.]) * Units.degrees
     #machs = np.array([0.4,1.,2.0,2.0])    
     
-    aoas  = np.array([6.,6.]) * Units.degrees
-    machs = np.array([0.4,2.0])        
+    aoas  = np.array([2.,4.,6.]) * Units.degrees
+    machs = np.array([1.4,1.4,1.4])        
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()

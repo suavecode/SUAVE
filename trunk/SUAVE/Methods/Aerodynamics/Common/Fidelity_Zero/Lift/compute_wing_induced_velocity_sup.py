@@ -263,22 +263,22 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     V[sup] = V_sup
     W[sup] = W_sup
     
-    # Do vortex splitting for the U velocity 
-    RNMAX       = n_cw # number of chordwise panels
-    panel_front = np.array(XA2+XA1)/2
-    panel_back  = np.array(XB2+XB1)/2
-    DELX        = np.abs(panel_back - panel_front) # chordwise length of the panel
-    DELX        = np.repeat(DELX,length,axis=1)
-    LE_A_pts    = XA1[:,:,0:2*n_cp:n_cw]
-    LE_B_pts    = XB1[:,:,0:2*n_cp:n_cw]
-    LE          = (LE_A_pts+LE_B_pts)/2
-    LE          = np.repeat(LE,n_cw,axis=2)
-    TE          = (XB_TE + XA_TE)/2
-    CHORD       = TE-LE
-    CHORD       = np.repeat(CHORD,length,axis=1)
-    J           = np.linspace(1,n_cw,n_cw)  # NOTE THIS ASSUMES SYMMETRY
-    J           = np.tile(J,n_sw*2)
-    J           = np.broadcast_to(J,np.shape(CHORD))
+    ## Do vortex splitting for the U velocity 
+    #RNMAX       = n_cw # number of chordwise panels
+    #panel_front = np.array(XA2+XA1)/2
+    #panel_back  = np.array(XB2+XB1)/2
+    #DELX        = np.abs(panel_back - panel_front) # chordwise length of the panel
+    #DELX        = np.repeat(DELX,length,axis=1)
+    #LE_A_pts    = XA1[:,:,0:2*n_cp:n_cw]
+    #LE_B_pts    = XB1[:,:,0:2*n_cp:n_cw]
+    #LE          = (LE_A_pts+LE_B_pts)/2
+    #LE          = np.repeat(LE,n_cw,axis=2)
+    #TE          = (XB_TE + XA_TE)/2
+    #CHORD       = TE-LE
+    #CHORD       = np.repeat(CHORD,length,axis=1)
+    #J           = np.linspace(1,n_cw,n_cw)  # NOTE THIS ASSUMES SYMMETRY
+    #J           = np.tile(J,n_sw*2)
+    #J           = np.broadcast_to(J,np.shape(CHORD))
 
          
     
