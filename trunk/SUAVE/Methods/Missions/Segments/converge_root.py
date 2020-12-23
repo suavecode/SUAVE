@@ -52,6 +52,7 @@ def converge_root(segment):
                                          args = segment,
                                          xtol = segment.state.numerics.tolerance_solution,
                                          maxfev = segment.state.numerics.max_evaluations,
+                                         epsfcn = segment.state.numerics.step_size,
                                          full_output = 1)
     
     if ier!=1:
