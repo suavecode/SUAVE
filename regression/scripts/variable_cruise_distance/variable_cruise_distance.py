@@ -210,7 +210,7 @@ def mission_setup(configs,analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    mission = SUAVE.Analyses.Mission.Vary_Cruise.Given_Weight()
+    mission = SUAVE.Analyses.Mission.Variable_Range_Cruise.Given_Weight()
     mission.tag = 'the_mission'
     
     # the cruise tag to vary cruise distance
@@ -284,7 +284,7 @@ def mission_setup_SR(vehicle,analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    mission = SUAVE.Analyses.Mission.Vary_Cruise.Given_State_of_Charge()
+    mission = SUAVE.Analyses.Mission.Variable_Range_Cruise.Given_State_of_Charge()
     mission.tag = 'the_mission'
     
     # the cruise tag to vary cruise distance
