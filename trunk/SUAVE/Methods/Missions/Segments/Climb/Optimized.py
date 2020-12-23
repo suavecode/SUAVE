@@ -150,9 +150,9 @@ def objective(segment):
     # If you have an objective set, either maximize or minimize
     if segment.objective is not None:
         if segment.minimize ==True:
-            objective = eval('state.'+segment.objective)
+            objective = eval('segment.state.'+segment.objective)
         else:
-            objective = -eval('state.'+segment.objective)
+            objective = -eval('segment.state.'+segment.objective)
     else:
         objective = 0.
     # No objective is just solved constraint like a normal mission    
@@ -232,12 +232,12 @@ def solve_linear_speed_constant_rate(segment):
     results = mini_mission.evaluate()
     LSCR_res = results.segments.analysis
     
-    segment.state.unknowns.body_angle        = LSCR_res.unknowns.body_angle
-    segment.state.unknowns.throttle          = LSCR_res.unknowns.throttle
-    segment.state.unknowns.flight_path_angle = LSCR_res.unknowns.body_angle - LSCR_res.conditions.aerodynamics.angle_of_attack
+    segment.state.unknowns.body_angle        = LSCR_res.state.unknowns.body_angle
+    segment.state.unknowns.throttle          = LSCR_res.state.unknowns.throttle
+    segment.state.unknowns.flight_path_angle = LSCR_res.state.unknowns.body_angle - LSCR_res.conditions.aerodynamics.angle_of_attack
     
     # Make the velocity vector
-    v_mag = np.linalg.norm(LSCR_res.conditions.frames.inertial.velocity_vector,axis=1)
+    v_mag = np.linalg.norm(LSCR_res.state.conditions.frames.inertial.velocity_vector,axis=1)
     
     if segment.air_speed_end is None:
         segment.state.unknowns.velocity =  np.reshape(v_mag[1:],(-1, 1))
