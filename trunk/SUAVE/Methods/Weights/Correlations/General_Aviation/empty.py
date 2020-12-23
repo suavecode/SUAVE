@@ -243,7 +243,7 @@ def empty(vehicle):
         sweep_h            = vehicle.wings['horizontal_stabilizer'].sweeps.quarter_chord
         mac_h              = vehicle.wings['horizontal_stabilizer'].chords.mean_aerodynamic
         t_c_h              = vehicle.wings['horizontal_stabilizer'].thickness_to_chord
-        l_w2h              = vehicle.wings['horizontal_stabilizer'].origin[0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0] - vehicle.wings['main_wing'].aerodynamic_center[0] #used for fuselage weight
+        l_w2h              = vehicle.wings['horizontal_stabilizer'].origin[0][0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0][0] - vehicle.wings['main_wing'].aerodynamic_center[0] #used for fuselage weight
         wt_tail_horizontal = tail_horizontal(S_h, AR_h, sweep_h, q_c, taper_h, t_c_h,Nult,TOW)                
         
         vehicle.wings['horizontal_stabilizer'].mass_properties.mass = wt_tail_horizontal        
