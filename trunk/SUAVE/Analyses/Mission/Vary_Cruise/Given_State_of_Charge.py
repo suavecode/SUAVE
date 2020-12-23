@@ -1,8 +1,8 @@
 ## @ingroup Analyses-Mission-Vary_Cruise
-# Given_Weight.py
+# Given_State_of_Charge.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created: Dec 2020, E. Botero
+# Modified: 
 
 
 # ----------------------------------------------------------------------
