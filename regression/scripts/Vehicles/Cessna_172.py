@@ -73,7 +73,7 @@ def vehicle_setup():
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 3.0 * Units.degrees
     wing.twists.tip                             = 1.5 * Units.degrees
-    wing.origin                                 = [80.* Units.inches,0,0] 
+    wing.origin                                 = [[80.* Units.inches,0,0]]
     wing.aerodynamic_center                     = [22.* Units.inches,0,0]
     wing.vertical                               = False
     wing.symmetric                              = True
@@ -120,7 +120,7 @@ def vehicle_setup():
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 0.0 * Units.degrees
     wing.twists.tip                             = 0.0 * Units.degrees
-    wing.origin                                 = [246.* Units.inches,0,0] 
+    wing.origin                                 = [[246.* Units.inches,0,0]]
     wing.aerodynamic_center                     = [20.* Units.inches,0,0]
     wing.vertical                               = False
     wing.symmetric                              = True
@@ -146,7 +146,7 @@ def vehicle_setup():
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 0.0 * Units.degrees
     wing.twists.tip                             = 0.0 * Units.degrees
-    wing.origin                                 = [237.* Units.inches,0,0] 
+    wing.origin                                 = [[237.* Units.inches,0,0]]
     wing.aerodynamic_center                     = [20.* Units.inches,0,0] 
     wing.vertical                               = True 
     wing.symmetric                              = False

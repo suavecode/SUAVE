@@ -62,6 +62,7 @@ modules = [
     'scripts/geometry/fuselage_planform_compute.py',
     'scripts/industrial_costs/industrial_costs.py',
     'scripts/internal_combustion_propeller/ICE_Test.py',
+    'scripts/internal_combustion_propeller/ICE_CS_Test.py',
     'scripts/lifting_line/lifting_line.py',
     'scripts/mission_range_and_weight_sizing/landing_field_length.py',
     'scripts/mission_range_and_weight_sizing/take_off_field_length.py',
