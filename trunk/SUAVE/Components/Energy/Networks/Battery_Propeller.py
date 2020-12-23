@@ -115,7 +115,7 @@ class Battery_Propeller(Propulsor):
          
         # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy
-        battery.temperature         = conditions.propulsion.battery_temperature
+        battery.pack_temperature    = conditions.propulsion.battery_temperature
         battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput     
         battery.age_in_days         = conditions.propulsion.battery_age_in_days 
         discharge_flag              = conditions.propulsion.battery_discharge    

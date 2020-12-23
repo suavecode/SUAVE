@@ -80,7 +80,7 @@ def LiNiMnCo_charge(battery,numerics):
     H_cell                   = battery.cell.height    
     T_ambient                = battery.ambient_temperature 
     V_th0                    = battery.initial_thevenin_voltage 
-    T_current                = battery.temperature      
+    T_current                = battery.pack_temperature      
     T_cell                   = battery.cell_temperature     
     E_max                    = battery.max_energy
     R_growth_factor          = battery.R_growth_factor 
@@ -242,7 +242,7 @@ def LiNiMnCo_charge(battery,numerics):
         
     # Pack outputs
     battery.current_energy                     = E_current
-    battery.cell_temperature                   = T_current
+    battery.cell_temperature                   = T_current #T_cell
     battery.pack_temperature                   = T_current 
     battery.cell_joule_heat_fraction           = q_joule_frac
     battery.cell_entropy_heat_fraction         = q_entropy_frac

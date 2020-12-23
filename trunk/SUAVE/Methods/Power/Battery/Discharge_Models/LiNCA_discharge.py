@@ -75,7 +75,7 @@ def LiNCA_discharge (battery,numerics):
     D_cell                   = battery.cell.diameter                     
     H_cell                   = battery.cell.height    
     T_ambient                = battery.ambient_temperature 
-    T_current                = battery.temperature      
+    T_current                = battery.pack_temperature      
     T_cell                   = battery.cell_temperature     
     E_max                    = battery.max_energy
     R_growth_factor          = battery.R_growth_factor 
@@ -237,7 +237,7 @@ def LiNCA_discharge (battery,numerics):
     
     # Pack outputs
     battery.current_energy                      = E_current
-    battery.cell_temperature                    = T_current  
+    battery.cell_temperature                    = T_current #T_cell  
     battery.pack_temperature                    = T_current
     battery.resistive_losses                    = P_loss
     battery.load_power                          = V_ul*n_series*I_bat
