@@ -29,7 +29,7 @@ def initialize_conditions(segment):
 
     Inputs:
     segment.climb_rate                                  [meters/second]
-    segment.equivalent_air_speed                        [meters/second]
+    segment.calibrated_air_speed                        [meters/second]
     segment.altitude_start                              [meters]
     segment.altitude_end                                [meters]
     segment.state.numerics.dimensionless.control_points [Unitless]
