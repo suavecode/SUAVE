@@ -1,4 +1,4 @@
-## @defgroup Analyses-Mission-Vary_Cruise Vary_Cruise
+## @defgroup Analyses-Mission-Variable_Range_Cruise Vary_Range_Cruise
 # Variable cruise mission setups
 # @ingroup Analyses-Mission
 
