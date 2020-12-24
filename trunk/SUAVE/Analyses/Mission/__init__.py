@@ -9,4 +9,4 @@ from .Sequential_Segments import Sequential_Segments
 
 # packages
 from . import Segments
-from . import Vary_Cruise
+from . import Variable_Range_Cruise
