@@ -245,6 +245,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     TOLSQ2_sup = TOLSQ2[sup] 
     zobar_sub  = zobar[sub]
     zobar_sup  = zobar[sup]
+
     
     
     # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
@@ -265,13 +266,11 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     CHORD       = TE-LE
     CHORD       = np.repeat(CHORD,length,axis=1)
     EYE         = np.eye(np.shape(CHORD)[-1]).flatten()
-    CHORD       = CHORD.flatten()
+    CHORD_sup   = CHORD[sup]
     FLAX        = n_sw
-    t           = t.flatten()
+
     
-    
-    
-    U_sup, V_sup, W_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,t,CHORD,RNMAX,FLAX,EYE)
+    U_sup, V_sup, W_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,t,CHORD_sup,RNMAX,FLAX,EYE)
     
     # Update the velocities
     U[sup] = U_sup
@@ -312,7 +311,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     DW_mn[:,:,:,2] = W
     
 
-    return C_mn, DW_mn    
+    return C_mn, DW_mn, s, CHORD    
     
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2):
@@ -433,7 +432,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     # COMPUTE THE GENERALIZED PRINCIPAL PART OF THE VORTEX-INDUCED VELOCITY INTEGRAL, WWAVE.
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
     WWAVE = np.zeros_like(W)
-    T2    = t*t
+    T2    = T*T
     COX   = 1.0 - FLAX + FLAX *CHORD /RNMAX
     WWAVE[B2>T2] = - 0.5 *np.sqrt(B2[B2>T2] -T2[B2>T2] )/COX[B2>T2] 
     

@@ -911,6 +911,9 @@ def generate_wing_vortex_distribution(geometry,settings):
 
     # Compute Panel Areas 
     VD.panel_areas = compute_panel_area(VD)      
+    
+    # Compute Panel Normals
+    VD.normals = compute_unit_normal(VD)          
 
     return VD 
 
@@ -1163,7 +1166,8 @@ def compute_panel_area(VD):
     P2P4 = np.array([VD.XB2 - VD.XB1,VD.YB2 - VD.YB1,VD.ZB2 - VD.ZB1]).T   
     
     # compute area of quadrilateral panel
-    A_panel = 0.5*(np.linalg.norm(np.cross(P1P2,P1P3)) + np.linalg.norm(np.cross(P2P3, P2P4)))
+    A_panel = 0.5*(np.linalg.norm(np.cross(P1P2,P1P3),axis=1) + np.linalg.norm(np.cross(P2P3, P2P4),axis=1))
+    
     return A_panel
 
 

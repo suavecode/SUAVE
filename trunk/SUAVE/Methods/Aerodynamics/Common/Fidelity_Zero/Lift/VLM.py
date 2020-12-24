@@ -123,7 +123,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     geometry.vortex_distribution = VD
     
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
+    C_mn, DW_mn, s, CHORD = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
      
     # Compute flow tangency conditions   
     inv_root_beta           = np.zeros_like(mach)
@@ -163,7 +163,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     # Use split to divide u, w, gamma, and Del_y into more arrays
     u_n_w        = np.array(np.array_split(u,n_w,axis=1))  
-    w_ind_n_w_sw = np.array(np.array_split(w_ind,n_w*n_sw,axis=1))    
+    w_ind_n_w    = np.array(np.array_split(w_ind,n_w,axis=1)) 
+    w_ind_n_w_sw = np.array(np.array_split(w_ind,n_w*n_sw,axis=1)) 
     gamma_n_w    = np.array(np.array_split(gamma,n_w,axis=1))
     gamma_n_w_sw = np.array(np.array_split(gamma,n_w*n_sw,axis=1))
     Del_Y_n_w    = np.array(np.array_split(Del_Y,n_w,axis=1))
@@ -174,6 +175,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # --------------------------------------------------------------------------------------------------------    
     # lift coefficients on each wing   
     L_wing            = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
+    D_wing            = np.sum(np.multiply(w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
     CL_wing           = L_wing/(0.5*wing_areas)
     
     # Calculate spanwise lift 
@@ -185,27 +187,35 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     # total lift and lift coefficient
     L                 = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
+    D                 = np.atleast_2d(np.sum(np.multiply(w_ind,Del_Y),axis=1)).T 
     CL                = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers
     
-    # --------------------------------------------------------------------------------------------------------
-    # DRAG                                                                          
-    # --------------------------------------------------------------------------------------------------------         
-    # drag coefficients on each wing   
-    w_ind_sw_w        = np.array(np.array_split(np.sum(w_ind_n_w_sw,axis = 2).T ,n_w,axis = 1))
-    Di_wing           = np.sum(w_ind_sw_w*spanwise_Del_y_w*cl_y_w*CS_w,axis = 2) 
-    CDi_wing          = Di_wing.T/(wing_areas)  
+    ## --------------------------------------------------------------------------------------------------------
+    ## DRAG                                                                          
+    ## --------------------------------------------------------------------------------------------------------         
+    ## drag coefficients on each wing   
+    #w_ind_sw_w        = np.array(np.array_split(np.sum(w_ind_n_w_sw,axis = 2).T ,n_w,axis = 1))
+    #Di_wing           = np.sum(w_ind_sw_w*spanwise_Del_y_w*cl_y_w*CS_w,axis = 2) 
+    #CDi_wing          = Di_wing.T/(wing_areas)  
     
-    # total drag and drag coefficient 
-    spanwise_w_ind    = np.sum(w_ind_n_w_sw,axis=2).T    
-    D                 = np.sum(spanwise_w_ind*spanwise_Del_y.T*cl_y*CS,axis = 1) 
-    cdi_y             = spanwise_w_ind*spanwise_Del_y.T*cl_y*CS
-    CDi               = np.atleast_2d(D/(Sref)).T  
+    ## total drag and drag coefficient 
+    #spanwise_w_ind    = np.sum(w_ind_n_w_sw,axis=2).T    
+    #D                 = np.sum(spanwise_w_ind*spanwise_Del_y.T*cl_y*CS,axis = 1) 
+    #cdi_y             = spanwise_w_ind*spanwise_Del_y.T*cl_y*CS
+    #CDi               = np.atleast_2d(D/(Sref)).T
+    
+    CDC   = 0.
+    CDC   = CHORD*CDC
+    ES    = 2*s
+    DRAG  = CDC*ES
+    AX    = 1/Sref
+    CDTOT = np.sum(DRAG)*AX 
     
     # --------------------------------------------------------------------------------------------------------
     # PRESSURE                                                                      
     # --------------------------------------------------------------------------------------------------------          
     L_ij              = np.multiply((1+u),gamma*Del_Y) 
-    CP                = L_ij/VD.panel_areas  
+    CP                = 2*L_ij/VD.panel_areas  
     
     # Check the CL values
     normal_vec = compute_unit_normal(VD)
