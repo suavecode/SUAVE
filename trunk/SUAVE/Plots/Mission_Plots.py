@@ -494,7 +494,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         set_axes(axes)   
         
         axes = fig.add_subplot(2,2,4)
-        axes.plot( time , x, 'bo-', time , y, 'go-' , time , z, 'ro-')
+        axes.plot( time , x, 'bo-') #, time , y, 'go-' , time , z, 'ro-')
         axes.set_ylabel('Range (m)',axis_font)
         axes.set_xlabel('Time (min)',axis_font)
         set_axes(axes)         

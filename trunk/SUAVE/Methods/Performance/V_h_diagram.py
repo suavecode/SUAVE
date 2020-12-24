@@ -22,11 +22,10 @@ import matplotlib.pyplot as plt
 def V_h_diagram(vehicle,
                 analyses,
                 load_factor = 1.,
-                excess_power_contours = [0.],
                 grid_points = 50.,
-                altitude_ceiling = 5e4,
-                supersonic = False,
-                display_plot = True):
+                altitude_ceiling = 5e4 * Units.ft,
+                max_speed = 500 * Units['m/s']
+                ):
 
     """
 
@@ -79,29 +78,30 @@ def V_h_diagram(vehicle,
 
     # Specify Altitude Range
 
-    alt_range       = np.linspace(0., altitude_ceiling, num=grid_points, endpoint=True) * Units.ft
+    alt_range       = np.linspace(0., altitude_ceiling, num=grid_points, endpoint=True)
 
-    # Specify Mach Number Range
+    # Specify Airspeed Range
 
-    if supersonic:
-        mach_range  = np.linspace(0, 3., num = grid_points, endpoint=False)
-    else:
-        mach_range  = np.linspace(0, 1., num = grid_points, endpoint=False)
+    speed_range     = np.linspace(0., max_speed, num = grid_points, endpoint=False)
+
+    # Initialize Excess Power and Climb Rate
 
     excess_power = np.zeros((grid_points, grid_points))
+    climb_rate = np.zeros((grid_points, grid_points))
 
 
     for alt_idx in range(grid_points):
 
         atmo_data = atmo.compute_values(alt_range[alt_idx])
 
-        for mach_idx in range(grid_points):
+        for speed_idx in range(grid_points):
 
-            V = mach_range[mach_idx] * atmo_data.speed_of_sound
+            V = speed_range[speed_idx]
 
-            excess_power[mach_idx, alt_idx] = V[T / W - V * 0.02 / (W / S) - load_factor ** 2 * (K / V) * (W / S)]
+            excess_power[speed_idx, alt_idx] = V[T / W - V * 0.02 / (W / S) - load_factor ** 2 * (K / V) * (W / S)]
+            climb_rate[speed_idx, alt_idx] = (P-D*V)/w
 
-    mach_space, alt_space = np.meshgrid(mach_range, alt_range)
+    mach_space, alt_space = np.meshgrid(speed_range, alt_range)
 
     if display_plot:
 
@@ -111,7 +111,7 @@ def V_h_diagram(vehicle,
         plt.title('Excess Power')
         plt.show()
 
-    return excess_power
+    return excess_power, climb_rate
 
 
 
