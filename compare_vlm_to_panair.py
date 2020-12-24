@@ -237,7 +237,7 @@ def analyze(config,conditions, use_MCM = False):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 2
+    settings.number_spanwise_vortices  = 1
     settings.number_chordwise_vortices = 2
     settings.propeller_wake_model      = None
 
@@ -287,8 +287,8 @@ def setup_conditions():
     #aoas  = np.array([6.,2.,2.,6.]) * Units.degrees
     #machs = np.array([0.4,1.,2.0,2.0])    
     
-    aoas  = np.array([2.,4.,6.]) * Units.degrees
-    machs = np.array([1.4,1.4,1.4])        
+    aoas  = np.array([6.]) * Units.degrees
+    machs = np.array([1.4])        
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()

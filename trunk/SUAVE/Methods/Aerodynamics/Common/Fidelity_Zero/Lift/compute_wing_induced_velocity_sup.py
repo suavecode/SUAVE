@@ -256,7 +256,22 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     W[sub] = W_sub
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX
-    U_sup, V_sup, W_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF)
+    RNMAX       = n_cw # number of chordwise panels
+    LE_A_pts    = XA1[:,:,0:2*n_cp:n_cw]
+    LE_B_pts    = XB1[:,:,0:2*n_cp:n_cw]
+    LE          = (LE_A_pts+LE_B_pts)/2
+    LE          = np.repeat(LE,n_cw,axis=2)
+    TE          = (XB_TE + XA_TE)/2
+    CHORD       = TE-LE
+    CHORD       = np.repeat(CHORD,length,axis=1)
+    EYE         = np.eye(np.shape(CHORD)[-1]).flatten()
+    CHORD       = CHORD.flatten()
+    FLAX        = n_sw
+    t           = t.flatten()
+    
+    
+    
+    U_sup, V_sup, W_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,t,CHORD,RNMAX,FLAX,EYE)
     
     # Update the velocities
     U[sup] = U_sup
@@ -264,18 +279,11 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     W[sup] = W_sup
     
     ## Do vortex splitting for the U velocity 
-    #RNMAX       = n_cw # number of chordwise panels
+    #
     #panel_front = np.array(XA2+XA1)/2
     #panel_back  = np.array(XB2+XB1)/2
     #DELX        = np.abs(panel_back - panel_front) # chordwise length of the panel
     #DELX        = np.repeat(DELX,length,axis=1)
-    #LE_A_pts    = XA1[:,:,0:2*n_cp:n_cw]
-    #LE_B_pts    = XB1[:,:,0:2*n_cp:n_cw]
-    #LE          = (LE_A_pts+LE_B_pts)/2
-    #LE          = np.repeat(LE,n_cw,axis=2)
-    #TE          = (XB_TE + XA_TE)/2
-    #CHORD       = TE-LE
-    #CHORD       = np.repeat(CHORD,length,axis=1)
     #J           = np.linspace(1,n_cw,n_cw)  # NOTE THIS ASSUMES SYMMETRY
     #J           = np.tile(J,n_sw*2)
     #J           = np.broadcast_to(J,np.shape(CHORD))
@@ -337,10 +345,11 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,R
     V[ZSQ<TOLSQ] = 0.
     W = - (QB *XTY + FT1 *Y1 - FT2 *Y2) /CPI
     
+    
     return U, V, W
 
     
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2,CUTOFF):
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2,CUTOFF,t,CHORD,RNMAX,FLAX,EYE):
     
     CPI  = 2 * np.pi
     ARG1 = XSQ1 - RO1
@@ -363,6 +372,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     bool1 = np.ones_like(B2) * True
     bool1[X1<TOL]   = False
     bool1[RAD1==0.] = False
+    RAD1[X1<TOL]    = 0.0
     
     REPS = CUTOFF*XSQ1
     FRAD = RAD1
@@ -383,6 +393,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     bool2 = np.ones_like(B2) * True
     bool2[X2<TOL]   = False
     bool2[RAD2==0.] = False
+    RAD2[X2<TOL]    = 0.0
+
     
     REPS = CUTOFF *XSQ2
     FRAD = RAD2    
@@ -418,6 +430,16 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     W[ZSQ<TOLSQ2] = W_in
     
     
+    # COMPUTE THE GENERALIZED PRINCIPAL PART OF THE VORTEX-INDUCED VELOCITY INTEGRAL, WWAVE.
+    # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
+    WWAVE = np.zeros_like(W)
+    T2    = t*t
+    COX   = 1.0 - FLAX + FLAX *CHORD /RNMAX
+    WWAVE[B2>T2] = - 0.5 *np.sqrt(B2[B2>T2] -T2[B2>T2] )/COX[B2>T2] 
+    
+    W = W + EYE*WWAVE
+    
+    
     return U, V, W
 
 
@@ -439,56 +461,54 @@ def supersonic_in_plane(RAD1,RAD2,Y1,Y2,TOL,XTY,CPI):
     return U, V, W
 
 
-def vortex_split(RNMAX,CHORD,DELX,J,B2,X1,X2,Y1,Y2,Z1,Z2,XCNTL,XLOAD,U,n_cw,n_cp):
+#def vortex_split(RNMAX,CHORD,DELX,J,B2,X1,X2,Y1,Y2,Z1,Z2,XCNTL,XLOAD,U,n_cw,n_cp):
     
-    boolean = np.ones_like(CHORD)*True
+    #boolean = np.ones_like(CHORD)*True
     
-    PION2  = 0.5*np.pi/RNMAX
-    PION3  = 0.5*PION2
-    PION4  = PION2/8.
-    RJ     = 2*J -1
-    RJ1    = 4*J -3
-    WEIGHT = PION2 *np.sin(RJ*PION2) *CHORD
-    WT1    = PION3*np.sin(RJ1*PION3) *CHORD
-    XU1    = XLOAD -WT1
-    RYZ1   = Y1*Y1 + Z1*Z1
-    RYZ2   = Y2*Y2 + Z2*Z2
-    X1SQ   = X1*X1
-    RS1    = X1SQ - B2 *RYZ1
-    RS2    = X1SQ - B2 *RYZ2
+    #PION2  = 0.5*np.pi/RNMAX
+    #PION3  = 0.5*PION2
+    #PION4  = PION2/8.
+    #RJ     = 2*J -1
+    #RJ1    = 4*J -3
+    #WEIGHT = PION2 *np.sin(RJ*PION2) *CHORD
+    #WT1    = PION3*np.sin(RJ1*PION3) *CHORD
+    #XU1    = XLOAD -WT1
+    #RYZ1   = Y1*Y1 + Z1*Z1
+    #RYZ2   = Y2*Y2 + Z2*Z2
+    #X1SQ   = X1*X1
+    #RS1    = X1SQ - B2 *RYZ1
+    #RS2    = X1SQ - B2 *RYZ2
     
-    RS1[RS1>0] = np.square(RS1[RS1>0])
-    RS2[RS2>0] = np.square(RS2[RS2>0])
+    #RS1[RS1>0] = np.square(RS1[RS1>0])
+    #RS2[RS2>0] = np.square(RS2[RS2>0])
     
-    RNF = 4.0 *WEIGHT *DELX
+    #RNF = 4.0 *WEIGHT *DELX
     
-    boolean[RS1<0.]  = False
-    boolean[RS1>RNF] = False
+    #boolean[RS1<0.]  = False
+    #boolean[RS1>RNF] = False
     
-    RJM = J-1
-    COSM = np.cos(2*PION2*RJM)
-    
-    
-    L      = np.linspace(1,8,8)
-    RVL_a  = 4*L-3
-    XDIF_a = RVL_a*DELX/32.
-    WFR_a  = 0.1250
-    XINT_a = XCNTL-XU1-XDIF_a
-    
-    # If it's a LE vortex
-    RVL_b  = 16*(J-1)+2*L-1
-    XDIF_b = 0.5 *(COSM - np.cos(PION4 *RVL_b))*CHORD
-    WFR_b  = PION4 *np.sin(PION4 *RVL_b)
-    XINT_b = XCNTL - XU1 -XDIF_b
-    
-    # indices for LE, [:,:,0:n_cw:n_cp*2] update and make consistent vectors
-    XINT = XINT_a
-    XINT[:,:,0:n_cw:n_cp*2] = XINT_b[:,:,0:n_cw:n_cp*2]
-    
-    WFR  = np.ones_like(WFR_b)
-    WFR[:,:,0:n_cw:n_cp*2]  = WFR_B[:,:,0:n_cw:n_cp*2]
+    #RJM = J-1
+    #COSM = np.cos(2*PION2*RJM)
     
     
+    #L      = np.linspace(1,8,8)
+    #RVL_a  = 4*L-3
+    #XDIF_a = RVL_a*DELX/32.
+    #WFR_a  = 0.1250
+    #XINT_a = XCNTL-XU1-XDIF_a
+    
+    ## If it's a LE vortex
+    #RVL_b  = 16*(J-1)+2*L-1
+    #XDIF_b = 0.5 *(COSM - np.cos(PION4 *RVL_b))*CHORD
+    #WFR_b  = PION4 *np.sin(PION4 *RVL_b)
+    #XINT_b = XCNTL - XU1 -XDIF_b
+    
+    ## indices for LE, [:,:,0:n_cw:n_cp*2] update and make consistent vectors
+    #XINT = XINT_a
+    #XINT[:,:,0:n_cw:n_cp*2] = XINT_b[:,:,0:n_cw:n_cp*2]
+    
+    #WFR  = np.ones_like(WFR_b)
+    #WFR[:,:,0:n_cw:n_cp*2]  = WFR_B[:,:,0:n_cw:n_cp*2]
     
     
     
@@ -496,7 +516,9 @@ def vortex_split(RNMAX,CHORD,DELX,J,B2,X1,X2,Y1,Y2,Z1,Z2,XCNTL,XLOAD,U,n_cw,n_cp
     
     
     
-    return U
+    
+    
+    #return U
     
     
     
