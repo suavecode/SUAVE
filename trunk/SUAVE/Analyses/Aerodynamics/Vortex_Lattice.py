@@ -413,9 +413,9 @@ class Vortex_Lattice(Aerodynamics):
             
             # Rearrange and pack
             CL_w_sub[wing]  = np.reshape(CL_wing_sub,(len_sub_mach,lenAoA)).T
-            CL_w_sup[wing]  = np.reshape(CL_wing_sup,(len_sub_mach,lenAoA)).T
+            CL_w_sup[wing]  = np.reshape(CL_wing_sup,(len_sup_mach,lenAoA)).T
             CDi_w_sub[wing] = np.reshape(CDi_wing_sub,(len_sub_mach,lenAoA)).T   
-            CDi_w_sup[wing] = np.reshape(CDi_wing_sup,(len_sub_mach,lenAoA)).T   
+            CDi_w_sup[wing] = np.reshape(CDi_wing_sup,(len_sup_mach,lenAoA)).T   
         
         # surrogate not run on sectional coefficients and pressure coefficients
         # Store training data 

@@ -117,7 +117,6 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
             
                 # Equation 5b
                 S1 = S1p/(1+18.2*S1p*AR**-0.9)
-                # S1 = S1p*AR/(2+np.sqrt(4+AR**2))
             
                 # Equation 5c
                 ACD1   =  ACD1p + 18.2*CL1maxp*(AR**(-0.9))
