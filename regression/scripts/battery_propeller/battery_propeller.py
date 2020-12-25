@@ -189,7 +189,7 @@ def mission_setup(analyses,vehicle):
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission = SUAVE.Analyses.Mission.All_At_Once()
     mission.tag = 'mission'
 
     # airport

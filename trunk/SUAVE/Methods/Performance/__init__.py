@@ -9,4 +9,6 @@ from .estimate_landing_field_length    import estimate_landing_field_length
 from .find_take_off_weight_given_tofl  import find_take_off_weight_given_tofl 
 from .V_n_diagram                      import V_n_diagram
 from .propeller_range_endurance_speeds import propeller_range_endurance_speeds, stall_speed
+from .V_h_diagram                      import V_h_diagram
+from .electric_payload_range           import electric_payload_range
 

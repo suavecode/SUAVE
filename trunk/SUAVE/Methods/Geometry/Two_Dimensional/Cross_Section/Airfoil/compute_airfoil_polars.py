@@ -53,7 +53,9 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
     Rh = propeller.hub_radius
     Rt = propeller.tip_radius
     n  = len(propeller.chord_distribution)
-    cm = propeller.chord_distribution[round(n*0.5)] 
+    Rm = np.sqrt((Rt**2+Rh**2)/2)
+    # cm_idx = np.max(np.where(propeller.radius_distribution<(Rm/Rt)))
+    cm = propeller.chord_distribution[round(n*0.5)]
 
     # read airfoil geometry  
     airfoil_data = import_airfoil_geometry(a_geo)
@@ -85,16 +87,15 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
             A0  = airfoil_aoa[idx_zero_lift]
 
             # max lift coefficent and associated aoa
-            CL1max  = np.max(airfoil_cl)
+            CL1max = np.max(airfoil_cl)
             idx_aoa_max_prestall_cl = np.where(airfoil_cl == CL1max)[0][0]
-            ACL1  = airfoil_aoa[idx_aoa_max_prestall_cl]
-            
+            ACL1 = airfoil_aoa[idx_aoa_max_prestall_cl]
+
             # computing approximate lift curve slope
             cl_range = airfoil_cl[idx_zero_lift:idx_aoa_max_prestall_cl]
             aoa_range = airfoil_aoa[idx_zero_lift:idx_aoa_max_prestall_cl]
             S1 = np.mean(np.diff(cl_range)/np.diff(aoa_range))  
 
-            
             # max drag coefficent and associated aoa
             CD1max  = np.max(airfoil_cd) 
             idx_aoa_max_prestall_cd = np.where(airfoil_cd == CD1max)[0][0]
@@ -112,13 +113,14 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
                 t_c = airfoil_data.thickness_to_chord[i]
             
                 # Equation 5a
-                ACL1   = ACL1p + 18.2*CL1maxp*(AR**(-0.9)) 
+                ACL1   = ACL1p + 18.2*CL1maxp*(AR**(-0.9))
             
-                # From McCormick
-                S1 = S1p*AR/(2+np.sqrt(4+AR**2)) 
+                # Equation 5b
+                S1 = S1p/(1+18.2*S1p*AR**-0.9)
+                # S1 = S1p*AR/(2+np.sqrt(4+AR**2))
             
                 # Equation 5c
-                ACD1   =  ACD1p + 18.2*CL1maxp*(AR**(-0.9)) 
+                ACD1   =  ACD1p + 18.2*CL1maxp*(AR**(-0.9))
             
                 # Equation 5d
                 CD1max = CD1maxp + 0.280*(CL1maxp*CL1maxp)*(AR**(-0.9))
