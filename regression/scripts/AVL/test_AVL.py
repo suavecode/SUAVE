@@ -12,8 +12,7 @@
 
 import SUAVE
 from SUAVE.Core import Units 
-import numpy as np
-from concurrent.futures import  ProcessPoolExecutor
+import numpy as np 
 
 import copy, time
 
@@ -166,18 +165,4 @@ def main():
     return
 
 if __name__ == '__main__': 
-
-    procs = 3
-    evals = 20 * procs
-
-    start_time = time.perf_counter()
-
-    with ProcessPoolExecutor(max_workers=procs) as executor:
-        executor.submit(main)
-
-    end_time = time.perf_counter()
-
-    duration = end_time - start_time
-
-    print("Total Execution Time: {}".format(duration))
-    print("Average Execution Time: {}".format(duration/evals))
+    main()    

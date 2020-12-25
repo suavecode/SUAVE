@@ -23,8 +23,7 @@ import numpy as np
 
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 
-from concurrent.futures import  ProcessPoolExecutor
-import sys, time
+import sys
 
 sys.path.append('../Vehicles')
 # the analysis functions
@@ -57,15 +56,7 @@ def main():
 
     # load older results
     #save_results(results)
-    # old_results = load_results()
-    #
-    # # plt the old results
-    # plot_mission(results)
-    # plot_mission(old_results,'k-')
-    # plt.show(block=True)
-    #
-    # # check the results
-    # check_results(results,old_results)
+    old_results = load_results()   
 
     # plt the old results
     plot_mission(results)
@@ -569,19 +560,6 @@ def save_results(results):
     SUAVE.Input_Output.SUAVE.archive(results,'results_mission_B737.res')
     return
 
-if __name__ == '__main__':
-
-    procs = 24
-    evals = 5 * procs
-
-    start_time = time.perf_counter()
-
-    with ProcessPoolExecutor(max_workers=procs) as executor:
-        results = [executor.submit(main) for _ in range(evals)]
-
-    end_time = time.perf_counter()
-
-    duration = end_time - start_time
-
-    print("Total Execution Time: {}".format(duration))
-    print("Average Execution Time: {}".format(duration / evals))
+if __name__ == '__main__': 
+    main()    
+    plt.show()

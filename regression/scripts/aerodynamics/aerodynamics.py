@@ -18,7 +18,6 @@ from SUAVE.Core import Data
 import numpy as np
 import pylab as plt
 
-from concurrent.futures import ProcessPoolExecutor
 import copy, time
 import random
 from SUAVE.Attributes.Gases.Air import Air
@@ -255,13 +254,17 @@ def reg_values():
                          
     cd_m_fuse_base_r = np.array([[ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.]]).T
 
-    procs = 3
-    evals = 5 * procs
+    cd_m_fuse_up_r   = np.array([[  4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
+                                    4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
+                                    4.80530506e-05,   4.80530506e-05,   4.80530506e-05,
+                                    4.80530506e-05,   4.80530506e-05]]).T
 
-    start_time = time.perf_counter()
+    cd_m_nac_base_r = np.array([[ 0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
+                                  0.00033128,  0.00033128,  0.00033128,  0.00033128,  0.00033128,
+                                  0.00033128]]).T
 
-    with ProcessPoolExecutor(max_workers=procs) as executor:
-        results = [executor.submit(main) for _ in range(evals)]
+    cd_m_ctrl_r     = np.array([[ 0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,  0.0001,
+                                  0.0001,  0.0001,  0.0001,  0.0001]]).T
 
     cd_p_fuse_r     = np.array([[ 0.00573221,0.00669671,0.01034335,0.00656387,0.00669973,
                                   0.00560398,0.00687499,0.0085221 ,0.00669252,0.0060046 ,
@@ -278,6 +281,9 @@ def reg_values():
     return cd_c_r, cd_i_r, cd_m_r, cd_m_fuse_base_r, cd_m_fuse_up_r, \
            cd_m_nac_base_r, cd_m_ctrl_r, cd_p_fuse_r, cd_p_wing_r, cd_tot_r
 
-    print("Total Execution Time: {}".format(duration))
-    print("Average Execution Time: {}".format(duration/evals))
+if __name__ == '__main__':
+
+    main()
+    
+    print('Aero regression test passed!')
       
