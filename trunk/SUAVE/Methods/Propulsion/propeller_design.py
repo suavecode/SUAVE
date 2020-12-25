@@ -93,10 +93,10 @@ def propeller_design(prop,number_of_stations=20):
     
     tol   = 1e-10 # Convergence tolerance
 
-    #Step 1, assume a zeta
+    # Step 1, assume a zeta
     zeta = 0.1 # Assume to be small initially
     
-    #Step 2, determine F and phi at each blade station
+    # Step 2, determine F and phi at each blade station
     
     chi0    = Rh/R # Where the propeller blade actually starts
     chi     = np.linspace(chi0,1,N+1) # Vector of nondimensional radii
@@ -120,9 +120,10 @@ def propeller_design(prop,number_of_stations=20):
         # Import Airfoil from regression
         print('\nNo airfoils specified for propeller or rotor airfoil specified. \nDefaulting to NACA 4412 airfoils that will provide conservative estimates.') 
         import os
-        ospath = os.path.abspath(__file__)
-        path   = ospath.replace('\\','/').split('trunk/SUAVE/Methods/Propulsion/propeller_design.py')[0] \
-            + 'regression/scripts/Vehicles/' 
+        ospath    = os.path.abspath(__file__)
+        separator = os.path.sep
+        path      = ospath.replace('\\','/').split('trunk/SUAVE/Methods/Propulsion/propeller_design.py')[0] \
+            + 'regression' + separator + 'scripts' + separator + 'Vehicles' + separator 
         a_geo  = [ path +  'NACA_4412.txt'] 
         a_pol  = [[path +  'NACA_4412_polar_Re_50000.txt' ,
                    path +  'NACA_4412_polar_Re_100000.txt' ,

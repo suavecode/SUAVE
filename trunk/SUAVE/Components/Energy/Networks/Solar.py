@@ -193,7 +193,9 @@ class Solar(Propulsor):
         battery_draw                             = battery.inputs.power_in 
         battery_energy                           = battery.current_energy
         voltage_open_circuit                     = battery.voltage_open_circuit
-        voltage_under_load                       = battery.voltage_under_load           
+        voltage_under_load                       = battery.voltage_under_load        
+        state_of_charge                          = battery.state_of_charge
+        
         
         conditions.propulsion.solar_flux           = solar_flux.outputs.flux  
         conditions.propulsion.rpm                  = rpm
@@ -202,6 +204,7 @@ class Solar(Propulsor):
         conditions.propulsion.current              = current
         conditions.propulsion.battery_draw         = battery_draw
         conditions.propulsion.battery_energy       = battery_energy
+        conditions.propulsion.state_of_charge      = state_of_charge
         conditions.propulsion.motor_torque         = motor.outputs.torque
         conditions.propulsion.propeller_torque     = Q        
         conditions.propulsion.propeller_tip_mach   = (R*rpm*Units.rpm)/a

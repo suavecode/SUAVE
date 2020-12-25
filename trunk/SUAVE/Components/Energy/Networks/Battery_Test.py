@@ -86,7 +86,7 @@ class Battery_Test(Propulsor):
         
         # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy  
-        battery.pack_temperature    = conditions.propulsion.battery_temperature
+        battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
         battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput
         battery.ambient_temperature = conditions.propulsion.ambient_temperature          
         battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput
@@ -159,7 +159,6 @@ class Battery_Test(Propulsor):
             SOC[SOC > 1.]            = 1.    
             DOD                      = 1 - SOC 
             
-            T_cell[np.isnan(T_cell)] = 302.65
             T_cell[T_cell<272.65]    = 272.65 # model does not fit for below 0  degrees
             T_cell[T_cell>322.65]    = 322.65 # model does not fit for above 50 degrees
              

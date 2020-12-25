@@ -242,7 +242,7 @@ def LiNiMnCo_charge(battery,numerics):
         
     # Pack outputs
     battery.current_energy                     = E_current
-    battery.cell_temperature                   = T_current #T_cell
+    battery.cell_temperature                   = T_current 
     battery.pack_temperature                   = T_current 
     battery.cell_joule_heat_fraction           = q_joule_frac
     battery.cell_entropy_heat_fraction         = q_entropy_frac

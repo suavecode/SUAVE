@@ -807,14 +807,14 @@ def plot_eMotor_Prop_efficiencies(results, line_color = 'bo-', save_figure = Fal
         axes = fig.add_subplot(1,2,1)
         axes.plot(time, effp, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Propeller Efficiency (N-m)',axis_font)
+        axes.set_ylabel('Propeller Efficiency',axis_font)
         set_axes(axes)         
         plt.ylim((0,1))
         
         axes = fig.add_subplot(1,2,2)
         axes.plot(time, effm, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
-        axes.set_ylabel('Motor Efficiency (N-m)',axis_font)
+        axes.set_ylabel('Motor Efficiency',axis_font)
         set_axes(axes)
         
     if save_figure:

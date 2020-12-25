@@ -237,7 +237,7 @@ def LiNCA_discharge (battery,numerics):
     
     # Pack outputs
     battery.current_energy                      = E_current
-    battery.cell_temperature                    = T_current #T_cell  
+    battery.cell_temperature                    = T_current   
     battery.pack_temperature                    = T_current
     battery.resistive_losses                    = P_loss
     battery.load_power                          = V_ul*n_series*I_bat
