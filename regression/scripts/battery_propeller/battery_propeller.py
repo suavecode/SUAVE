@@ -52,7 +52,7 @@ def main():
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.rpm[3][0]
-    RPM_true   = 880.2614944605407
+    RPM_true   = 885.0679647987255
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')

@@ -48,13 +48,13 @@ def main():
     plot_mission(results)   
     
     # save, load and plot old results 
-    #save_tiltwing_results(results)
+    save_tiltwing_results(results)
     old_results = load_tiltwing_results() 
     plot_mission(old_results,'k-')
    
     # RPM check during hover
     RPM        = results.segments.hover.conditions.propulsion.rpm[0][0]
-    RPM_true   = 1346.1340113995816
+    RPM_true   = 1330.7027826017165
     
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
@@ -64,7 +64,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.climb.conditions.aerodynamics.lift_coefficient[0][0] 
-    lift_coefficient_true   = 1.0347110211377193
+    lift_coefficient_true   = 1.0347110317088328
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')

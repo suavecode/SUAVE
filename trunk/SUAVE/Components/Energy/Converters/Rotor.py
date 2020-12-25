@@ -301,13 +301,12 @@ class Rotor(Energy_Component):
             
             # If its really not going to converge
             if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-                print("Propeller BEMT did not converge to a solution")
+                print("Rotor BEMT did not converge to a solution (Stall)")
                 break
         
             ii+=1 
             if ii>10000:
-                broke = True
-                print("Propeller BEMT did not converge to a solution")
+                print("Rotor BEMT did not converge to a solution (Iteration Limit)")
                 break
     
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction

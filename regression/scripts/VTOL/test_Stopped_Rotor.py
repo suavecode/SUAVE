@@ -40,13 +40,13 @@ def main():
     plot_mission(results,configs)
  
     # save, load and plot old results 
-    #save_stopped_rotor_results(results)
+    save_stopped_rotor_results(results)
     old_results = load_stopped_rotor_results()
     plot_mission(old_results,configs, 'k-')
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.rotor_rpm[0][0]
-    RPM_true   = 1915.6234148515541
+    RPM_true   = 1917.9784206335826
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -55,10 +55,10 @@ def main():
     
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([3.22760354e+08, 3.22712620e+08, 3.22571255e+08, 3.22340527e+08,
-                                                        3.22027509e+08, 3.21643253e+08, 3.21203271e+08, 3.20726158e+08,
-                                                        3.20234563e+08, 3.19753994e+08, 3.19309430e+08, 3.18922718e+08,
-                                                        3.18610220e+08, 3.18382285e+08, 3.18244189e+08, 3.18197999e+08])
+    battery_energy_hover_to_transition_true = np.array([3.22785194e+08, 3.22633347e+08, 3.22802953e+08, 3.22349452e+08,
+                                                        3.21802517e+08, 3.20070443e+08, 3.17829129e+08, 3.16540951e+08,
+                                                        3.15506697e+08, 3.14739192e+08, 3.14159121e+08, 3.13671689e+08,
+                                                        3.13336561e+08, 3.13160512e+08, 3.13061720e+08, 3.13029200e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true) 
@@ -68,7 +68,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.6973520939590806
+    lift_coefficient_true   = 0.6973633354447637
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
