@@ -142,14 +142,14 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 209.31976194
-    torque_1_truth   = 1051.6063921247808 
-    current_2_truth  = 324.5501068473118 
-    torque_3_truth   = 615.5254990807443 
-    voltage_4_truth  = 400.22851683456736 
-    current_4_truth  = 553.06694141467 
-    power_out_truth  = 1960.0
-      
+    omega_1_truth    = 209.32373481
+    torque_1_truth   = 1051.64631117327
+    current_2_truth  = 332.1671891793585
+    torque_3_truth   = 630.0492434009769  
+    voltage_4_truth  = 400.22093117369883 
+    current_4_truth  = 553.0983628781883  
+    power_out_truth  = 1960.0   
+
     error = Data()
     error.omega_test     = np.max(np.abs(omega_1_truth   - omega_1[0]  ))
     error.torque_test_1  = np.max(np.abs(torque_1_truth  - torque_1 ))

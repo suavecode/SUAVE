@@ -157,6 +157,7 @@ class Rotor(Energy_Component):
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
         cd_sur  = self.airfoil_cd_surrogates 
+        V0      = self.induced_hover_velocity
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector 
@@ -185,7 +186,7 @@ class Rotor(Energy_Component):
         V_thrust        = orientation_product(T_body2thrust,V_body) 
     
         # Now just use the aligned velocity
-        V        = V_thrust[:,0,None] 
+        V        = V_thrust[:,0,None] + V0 
         ua       = np.zeros_like(V)              
         ut       = np.zeros_like(V) 
     
@@ -301,13 +302,13 @@ class Rotor(Energy_Component):
             
             # If its really not going to converge
             if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-                print("Propeller BEMT did not converge to a solution")
+                print("Rotor BEMT did not converge to a solution")
                 break
         
             ii+=1 
             if ii>10000:
                 broke = True
-                print("Propeller BEMT did not converge to a solution")
+                print("Rotor BEMT did not converge to a solution (Iteration Limit)")
                 break
     
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
