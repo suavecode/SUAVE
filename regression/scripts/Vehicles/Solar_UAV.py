@@ -176,8 +176,7 @@ def vehicle_setup():
     prop.hub_radius          = 0.05 * Units.meters
     prop.design_Cl           = 0.7
     prop.design_altitude     = 14.0 * Units.km
-    prop.design_thrust       = None
-    prop.design_power        = 3500.0 * Units.watts
+    prop.design_thrust       = 110. 
     prop                     = propeller_design(prop) 
     net.propeller            = prop
 
