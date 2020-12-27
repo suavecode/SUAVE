@@ -17,6 +17,8 @@ import pylab as plt
 from SUAVE.Core import Data , Container
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Plots.Mission_Plots import *  
+from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
+from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 import sys
 sys.path.append('../Vehicles') 
 from X57_Maxwell import vehicle_setup, configs_setup 
@@ -39,7 +41,8 @@ def main():
      
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.472549171541998
+    lift_coefficient_true         = 0.4174466196930525
+
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -48,35 +51,41 @@ def main():
     
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([1.30731200e-01, 1.29518975e-01, 1.25476612e-01, 1.19200829e-01,
-                                                1.11094027e-01, 1.01475358e-01, 9.06194145e-02, 7.87825359e-02,
-                                                6.62329301e-02, 5.32930082e-02, 4.03869121e-02, 2.80468082e-02,
-                                                1.68504855e-02, 7.56183132e-03, 1.51037470e-03, 1.30793344e-01,
-                                                1.29689486e-01, 1.25716810e-01, 1.19468403e-01, 1.11355370e-01,
-                                                1.01709356e-01, 9.08158736e-02, 7.89387974e-02, 6.63507579e-02,
-                                                5.33764629e-02, 4.04412349e-02, 2.80780177e-02, 1.68651393e-02,
-                                                7.56652692e-03, 1.51093870e-03, 2.27948231e-03, 2.38250557e-03,
-                                                2.47826742e-03, 2.55290540e-03, 2.58516086e-03, 2.55807996e-03,
-                                                2.46129251e-03, 2.28797933e-03, 2.03784971e-03, 1.71999532e-03,
-                                                1.35169778e-03, 9.58096403e-04, 5.75716849e-04, 2.55087240e-04,
-                                                5.07367423e-05, 2.28011348e-03, 2.38439254e-03, 2.48115957e-03,
-                                                2.55644055e-03, 2.58898057e-03, 2.56187560e-03, 2.46482121e-03,
-                                                2.29105992e-03, 2.04036324e-03, 1.72189076e-03, 1.35299172e-03,
-                                                9.58865123e-04, 5.76083617e-04, 2.55204075e-04, 5.07504917e-05,
+    sectional_lift_coeff_true       = np.array([2.32392834e-01, 2.28104306e-01, 2.12704460e-01, 1.61048098e-01,
+                                                1.85886690e-01, 2.32215381e-01, 1.73859435e-01, 1.45611742e-01,
+                                                1.21106999e-01, 9.68476104e-02, 7.31154004e-02, 5.06589862e-02,
+                                                3.04007093e-02, 1.36432227e-02, 2.73512939e-03, 2.32392834e-01,
+                                                2.28104306e-01, 2.12704460e-01, 1.61048098e-01, 1.85886690e-01,
+                                                2.32215381e-01, 1.73859435e-01, 1.45611742e-01, 1.21106999e-01,
+                                                9.68476104e-02, 7.31154004e-02, 5.06589862e-02, 3.04007093e-02,
+                                                1.36432227e-02, 2.73512939e-03, 1.34882455e-03, 1.51399475e-03,
+                                                1.78289418e-03, 2.13295965e-03, 2.51997071e-03, 2.89718700e-03,
+                                                3.21229460e-03, 3.39944933e-03, 3.39501676e-03, 3.15790195e-03,
+                                                2.68327692e-03, 2.01597274e-03, 1.25999431e-03, 5.71118820e-04,
+                                                1.14526507e-04, 1.34882455e-03, 1.51399475e-03, 1.78289418e-03,
+                                                2.13295965e-03, 2.51997071e-03, 2.89718700e-03, 3.21229460e-03,
+                                                3.39944933e-03, 3.39501676e-03, 3.15790195e-03, 2.68327692e-03,
+                                                2.01597274e-03, 1.25999431e-03, 5.71118820e-04, 1.14526507e-04,
                                                 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
                                                 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
                                                 0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
                                                 0.00000000e+00, 0.00000000e+00, 0.00000000e+00])
 
-    
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
     print(diff_Cl)
-    assert  max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6 
+    assert  max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
 
     # plot results 
-    plot_mission(results,configs.base)     
+    plot_mission(results,configs.base)  
+
+    # Plot vehicle 
+    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
+    
+    # Plot vortex distribution
+    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
+    
     return 
 
 def plot_mission(results,vehicle): 
@@ -154,9 +163,9 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()     
     aerodynamics.settings.use_surrogate              = False
-    aerodynamics.settings.integrate_slipstream       = True 
-    aerodynamics.settings.number_panels_spanwise     = 15
-    aerodynamics.settings.number_panels_chordwise    = 5   
+    aerodynamics.settings.propeller_wake_model       = True 
+    aerodynamics.settings.number_spanwise_vortices   = 15
+    aerodynamics.settings.number_chordwise_vortices  = 5   
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -225,19 +234,33 @@ def mission_setup(analyses,vehicle):
     base_segment.max_energy                                  = bat.max_energy 
     
     # ------------------------------------------------------------------
+    #   Climb 1 : constant Speed, constant rate segment 
+    # ------------------------------------------------------------------ 
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb_1"
+    segment.analyses.extend( analyses.base )
+    segment.battery_energy            =  bat.max_energy* 0.89
+    segment.altitude_start            = 2500.0  * Units.feet
+    segment.altitude_end              = 8012    * Units.feet 
+    segment.air_speed                 = 96.4260 * Units['mph'] 
+    segment.climb_rate                = 700.034 * Units['ft/min']  
+    segment.state.unknowns.throttle   = 0.85 * ones_row(1)  
+
+    # add to misison
+    mission.append_segment(segment)
+    
+    # ------------------------------------------------------------------
     #   Cruise Segment: constant Speed, constant altitude
     # ------------------------------------------------------------------ 
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
     segment.tag = "cruise" 
-    segment.analyses.extend(analyses.base) 
-    segment.altitude                  = 12000  * Units.feet
+    segment.analyses.extend(analyses.base)  
     segment.air_speed                 = 135.   * Units['mph'] 
     segment.distance                  =  20.   * Units.nautical_mile  
-    segment.state.unknowns.throttle   = 0.85  *  ones_row(1)    
-    segment.battery_energy            = bat.max_energy   
+    segment.state.unknowns.throttle   = 0.85  *  ones_row(1)   
     
     # add to misison
-    mission.append_segment(segment)    
+    mission.append_segment(segment)        
     
     return mission
 
