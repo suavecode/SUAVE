@@ -15,6 +15,7 @@ from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff
 from SUAVE.Methods.Weights.Buildups.Electric_Multicopter.empty import empty 
 from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Weights.Correlations.Propulsion import nasa_motor, hts_motor , air_cooled_motor
+from SUAVE.Plots.Geometry_Plots import * 
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -196,7 +197,7 @@ def vehicle_setup():
     rotor.tip_radius             = 3.95 * Units.feet
     rotor.hub_radius             = 0.6  * Units.feet 
     rotor.disc_area              = np.pi*(rotor.tip_radius**2) 
-    rotor.number_blades          = 3
+    rotor.number_of_blades       = 3
     rotor.freestream_velocity    = 500. * Units['ft/min']  
     rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/rotor.tip_radius   
     rotor.design_Cl              = 0.8
@@ -250,4 +251,12 @@ def vehicle_setup():
     vehicle.append_component(net)
     
     vehicle.weight_breakdown  = empty(vehicle,None)
+    
+    # ------------------------------------------------------------------
+    #   Vehicle Definition Complete
+    # ------------------------------------------------------------------
+    
+    # plot vehicle 
+    plot_vehicle(vehicle,plot_control_points = False) 
+    
     return vehicle

@@ -17,7 +17,8 @@ from SUAVE.Core import Data
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Propulsion import propeller_design 
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv
+from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv   
+from SUAVE.Plots.Geometry_Plots import * 
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -214,7 +215,7 @@ def vehicle_setup():
     # Design the Propeller
     prop = SUAVE.Components.Energy.Converters.Propeller() 
 
-    prop.number_blades       = 2.0
+    prop.number_of_blades    = 2.0
     prop.freestream_velocity = 135.*Units['mph']    
     prop.angular_velocity    = 1300.  * Units.rpm  
     prop.tip_radius          = 76./2. * Units.inches
@@ -289,12 +290,15 @@ def vehicle_setup():
     net.avionics        = avionics      
 
     # add the solar network to the vehicle
-    vehicle.append_component(net)          
+    vehicle.append_component(net)           
 
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
-
+    
+    # plot vehicle 
+    plot_vehicle(vehicle,plot_control_points = False) 
+    
     return vehicle
 
 # ---------------------------------------------------------------------

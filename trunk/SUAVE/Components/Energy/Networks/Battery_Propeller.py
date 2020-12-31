@@ -65,6 +65,10 @@ class Battery_Propeller(Propulsor):
         self.number_of_engines         = None
         self.voltage                   = None
         self.thrust_angle              = 0.0
+        self.pitch_command             = 0.0
+        self.nacelle_start             = 0.2
+        self.nacelle_end               = 1.0
+        self.nacelle_offset            = 0.5
         self.tag                       = 'Battery_Propeller'
         self.use_surrogate             = False
         self.generative_design_minimum = 0

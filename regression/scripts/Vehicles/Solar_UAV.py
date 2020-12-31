@@ -169,7 +169,7 @@ def vehicle_setup():
     # Component 5 the Propeller
     # Design the Propeller
     prop                     = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0
+    prop.number_of_blades    = 2.0
     prop.freestream_velocity = 40.0 * Units['m/s']# freestream
     prop.angular_velocity    = 150. * Units['rpm']
     prop.tip_radius          = 4.25 * Units.meters

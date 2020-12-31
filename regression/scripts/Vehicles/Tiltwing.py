@@ -16,6 +16,7 @@ from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff 
 from SUAVE.Methods.Weights.Buildups.Electric_Vectored_Thrust.empty import empty
 from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
+from SUAVE.Plots.Geometry_Plots import * 
 
 import numpy as np
 import pylab as plt
@@ -255,7 +256,7 @@ def vehicle_setup():
     rot.hub_radius               = 0.1 
     rot.disc_area                = np.pi*(rot.tip_radius**2)   
     rot.design_tip_mach          = 0.5
-    rot.number_blades            = 3  
+    rot.number_of_blades         = 3  
     rot.freestream_velocity      = 10     
     rot.angular_velocity         = rot.design_tip_mach*speed_of_sound/rot.tip_radius      
     rot.design_Cl                = 0.7
@@ -366,6 +367,13 @@ def vehicle_setup():
     motor_origins_rear = np.array(rot_rear.origin)
     vehicle.wings['main_wing'].motor_spanwise_locations = np.multiply(
         0.19 ,motor_origins_rear[:,1])    
+    
+    # ------------------------------------------------------------------
+    #   Vehicle Definition Complete
+    # ------------------------------------------------------------------
+    
+    # plot vehicle 
+    plot_vehicle(vehicle,plot_control_points = False) 
     
     return vehicle
 

@@ -22,7 +22,7 @@ from SUAVE.Analyses import Process
 
 ## @ingroup Analyses-Mission-Segments
 class Aerodynamic(Simple):
-    """ Thethird basic piece of a mission which each segment will expand upon
+    """ The third basic piece of a mission which each segment will expand upon
     
         Assumptions:
         There's a detailed process flow outline in defaults. A mission must be solved in that order.

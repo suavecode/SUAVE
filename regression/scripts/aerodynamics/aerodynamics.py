@@ -13,7 +13,8 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Core import Data
+from SUAVE.Core import Data 
+from SUAVE.Plots.Geometry_Plots import * 
 
 import numpy as np
 import pylab as plt
@@ -235,8 +236,15 @@ def main():
     for i, tests in list(drag_tests.items()): 
        
         assert(np.max(tests)<1e-4),'Aero regression test failed at ' + i
-        
-    #return conditions, configuration, geometry, test_num
+    
+    # ------------------------------------------------------------------
+    #   Vehicle Definition Complete
+    # ------------------------------------------------------------------
+    
+    # plot vehicle 
+    plot_vehicle(vehicle,plot_control_points = True)  
+    
+    return  
       
 
 def reg_values():

@@ -68,7 +68,9 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.number_spanwise_vortices       = 15
         self.settings.number_chordwise_vortices      = 3 
         self.settings.vortex_distribution            = Data()   
-        
+        self.settings.initial_timestep_offset        = 0
+        self.settings.wake_development_time          = 0.05
+
         # conditions table, used for surrogate model training
         self.training                                = Data()    
         self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0, 8.0, 10.0 , 12., 45., 75.]]).T * Units.deg 
@@ -106,7 +108,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:

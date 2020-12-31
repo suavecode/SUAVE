@@ -70,6 +70,9 @@ class Lift_Cruise(Propulsor):
         self.battery                     = None
         self.rotor_nacelle_diameter      = None
         self.propeller_nacelle_diameter  = None
+        self.nacelle_start               = 0.2
+        self.nacelle_end                 = 1.0
+        self.nacelle_offset              = 0.5
         self.rotor_engine_length         = None
         self.propeller_engine_length     = None
         self.number_of_rotor_engines     = None

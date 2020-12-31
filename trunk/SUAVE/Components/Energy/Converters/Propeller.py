@@ -50,8 +50,9 @@ class Propeller(Energy_Component):
         None
         """         
 
-        self.tag                       = 'Propeller'        
-        self.number_blades             = 0.0
+        self.tag                       = 'propeller'
+        self.number_of_blades          = 0.0
+        self.number_of_engines         = 0.0
         self.tip_radius                = 0.0
         self.hub_radius                = 0.0
         self.twist_distribution        = 0.0
@@ -136,7 +137,7 @@ class Propeller(Energy_Component):
                                              
         Properties Used:                     
         self.                                
-          number_blades                      [-]
+          number_of_blades                   [-]
           tip_radius                         [m]
           hub_radius                         [m]
           twist_distribution                 [radians]
@@ -146,13 +147,16 @@ class Propeller(Energy_Component):
         """         
            
         #Unpack    
-        B       = self.number_blades
+        B       = self.number_of_blades
+        E       = self.number_of_engines
         R       = self.tip_radius
         Rh      = self.hub_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
         chi     = self.radius_distribution
-        omega   = self.inputs.omega 
+        MCA     = self.mid_chord_aligment
+        t_max   = self.max_thickness_distribution
+        omega   = self.inputs.omega
         a_geo   = self.airfoil_geometry      
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
@@ -334,10 +338,10 @@ class Propeller(Energy_Component):
         blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         
         blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
-        blade_dT_dR              = rho*(Gamma*(Wt-epsilon*Wa))
-        blade_dT_dr              = rho*(Gamma*(Wt-epsilon*Wa))*R
-        blade_dQ_dR              = rho*(Gamma*(Wa+epsilon*Wt)*r)
-        blade_dQ_dr              = rho*(Gamma*(Wa+epsilon*Wt)*r)*R
+        blade_dT_dR              = rho*(Gamma*(Wt-epsilon*Wa))/R
+        blade_dT_dr              = rho*(Gamma*(Wt-epsilon*Wa))
+        blade_dQ_dR              = rho*(Gamma*(Wa+epsilon*Wt)*r)/R
+        blade_dQ_dr              = rho*(Gamma*(Wa+epsilon*Wt)*r)
         
         Vt_ind_avg = vt
         Va_ind_avg = va
@@ -372,7 +376,14 @@ class Propeller(Energy_Component):
         # store data
         self.azimuthal_distribution                   = psi  
         results_conditions                            = Data     
-        outputs                                       = results_conditions( 
+        outputs                                       = results_conditions(
+                    number_of_engines                 = E,
+                    number_of_blades                  = B,
+                    radius_distribution               = r,
+                    chord_distribution                = c,
+                    twist_distribution                = total_blade_pitch,
+                    mid_chord_aligment                = MCA,
+                    max_thickness_distribution        = t_max,
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,   
                     disc_radial_distribution          = r_dim_2d,  

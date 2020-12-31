@@ -45,7 +45,7 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
     va           = prop.outputs.disc_axial_induced_velocity 
     V_inf        = prop.outputs.velocity
     MCA          = prop.mid_chord_aligment 
-    B            = prop.number_blades
+    B            = prop.number_of_blades
     gamma        = prop.outputs.disc_circulation
     blade_angles = np.linspace(0,2*np.pi,B+1)[:-1]        
     dt           = (2*np.pi/Na)/omega[0]
