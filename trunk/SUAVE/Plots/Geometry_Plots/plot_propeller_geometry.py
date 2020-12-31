@@ -65,8 +65,8 @@ def plot_propeller_geometry(prop, face_color = 'red', edge_color = 'black' , sav
                              G.ZA2[p_idx,B_idx,sec,loc]]                    
                         prop_verts = [list(zip(X, Y, Z))]
                         prop_collection = Poly3DCollection(prop_verts)
-                        prop_collection.set_facecolor(face_color)
-                        prop_collection.set_edgecolor(edge_color)
+                        prop_collection.set_facecolor(face_color[p_idx])
+                        prop_collection.set_edgecolor(edge_color[p_idx]) 
                         prop_collection.set_alpha(alpha)
                         axes.add_collection3d(prop_collection)    
 
