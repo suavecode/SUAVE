@@ -294,14 +294,14 @@ def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,p
         plot_nacelle(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha)
            
     if ('rotor' in propulsor.keys()):  
-        prop = propulsor.rotor   
+        rot = propulsor.rotor   
         try:
             propulsor.thrust_angle = propulsor.rotor_thrust_angle     
         except:
             pass
         
         # Generate And Plot Propeller/Rotor Geoemtry   
-        plot_propeller_geometry(axes,prop,propulsor,'rotor')
+        plot_propeller_geometry(axes,rot,propulsor,'rotor')
     
         # Generate Nacelle Geoemtry 
         nac_geo = generate_nacelle_points(VD,propulsor,'rotor')
@@ -547,7 +547,7 @@ def generate_nacelle_points(VD,propulsor,propulsor_name):
     nac_loc       = x[int(start*10) : int(end*10)] + elipse_length*propulsor.nacelle_offset
     num_nac_segs  = len(nac_height)
     
-    num_p   = len(propulsor.origin)
+    num_p   = len(origin)
     nac_pts = np.zeros((num_p,num_nac_segs,tessellation ,3)) 
     
     try:

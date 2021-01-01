@@ -352,7 +352,99 @@ def vehicle_setup():
     fuselage.effective_diameter    = 3.74 #4.0
 
     fuselage.differential_pressure = 5.0e4 * Units.pascal # Maximum differential pressure
+    # Segment  
+    segment                                     = SUAVE.Components.Fuselages.Segment() 
+    segment.tag                                 = 'segment_1'  
+    segment.origin                              = [0,0,0]	 
+    segment.percent_x_location                  = 0	 
+    segment.percent_z_location                  = 0	 
+    segment.height                              = 0.4677018634 
+    segment.width                               = 0.05  
+    fuselage.Segments.append(segment)             
 
+    # Segment                                   
+    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment.tag                                 = 'segment_2'  
+    segment.origin                              = [0.9485239085,0,0 ]
+    segment.percent_x_location                  = 0.02494802495
+    segment.percent_z_location                  = 0	
+    segment.height                              = 1.636956522
+    segment.width                               = 1.40310559
+    fuselage.Segments.append(segment)             
+
+
+    # Segment                                   
+    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment.tag                                 = 'segment_3'  
+    segment.origin                              = [1.897047817,0,0.1559006211]
+    segment.percent_x_location                  = 0.0498960499
+    segment.percent_z_location                  = 0.08695652174
+    segment.height                              = 2.72826087	
+    segment.width                               = 2.182608696
+    fuselage.Segments.append(segment)             
+
+
+    # Segment                                   
+    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment.tag                                 = 'segment_4'  
+    segment.origin                              = [3.873139293,0,0.3118012422]
+    segment.percent_x_location                  = 0.1018711019	
+    segment.percent_z_location                  = 0.1739130435
+    segment.height                              = 3.585714286	
+    segment.width                               = 3.118012422
+    fuselage.Segments.append(segment)             
+
+    # Segment                                   
+    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment.tag                                 = 'segment_5'  
+    segment.origin                              = [7.588191268,0,0.5456521739] 
+    segment.percent_x_location                  = 0.1995841996 
+    segment.percent_z_location                  = 0.3043478261	 
+    segment.height                              = 3.741614907	 
+    segment.width                               = 3.741614907 
+    fuselage.Segments.append(segment)              
+
+    # Segment                                   
+    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment.tag                                 = 'segment_6'  
+    segment.origin                              = [26.71675676,0,0.5456521739]
+    segment.percent_x_location                  = 0.7027027027
+    segment.percent_z_location                  = 0.3043478261
+    segment.height                              = 3.741614907
+    segment.width                               = 3.741614907
+    fuselage.Segments.append(segment)             
+
+    # Segment                                   
+    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment.tag                                 = 'segment_7'  
+    segment.origin                              = [30.51085239,0,0.7795031056]
+    segment.percent_x_location                  = 0.8024948025	
+    segment.percent_z_location                  = 0.4347826087
+    segment.height                              = 3.351863354	
+    segment.width                               = 3.585714286
+    fuselage.Segments.append(segment)     
+
+    # Segment                                   
+    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment.tag                                 = 'segment_8'  
+    segment.origin                              = [34.38399168,0,1.169254658] 
+    segment.percent_x_location                  = 0.9043659044	 
+    segment.percent_z_location                  = 0.652173913	 
+    segment.height                              = 2.416459627	 
+    segment.width                               = 2.182608696 
+    fuselage.Segments.append(segment)              
+
+
+    # Segment                                   
+    segment                                     = SUAVE.Components.Fuselages.Segment()
+    segment.tag                                 = 'segment_9'  
+    segment.origin                              = [38.02,0,1.7 ]   
+    segment.percent_x_location                  = 1	 
+    segment.percent_z_location                  = 1 
+    segment.height                              = 1.013 
+    segment.width                               = 0.155 
+    fuselage.Segments.append(segment)              
+    
     # add to vehicle
     vehicle.append_component(fuselage)
 

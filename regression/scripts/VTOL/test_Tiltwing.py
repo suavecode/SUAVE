@@ -54,7 +54,7 @@ def main():
    
     # RPM check during hover
     RPM        = results.segments.hover.conditions.propulsion.rpm[0][0]
-    RPM_true   = 1620.7781015441856
+    RPM_true   = 1259.185828413959
     
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
@@ -64,7 +64,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.climb.conditions.aerodynamics.lift_coefficient[0][0] 
-    lift_coefficient_true   = 1.0347110363176253
+    lift_coefficient_true   = 1.0348641412440596
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')

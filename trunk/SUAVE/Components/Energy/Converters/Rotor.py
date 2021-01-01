@@ -190,7 +190,10 @@ class Rotor(Energy_Component):
         V_thrust        = orientation_product(T_body2thrust,V_body) 
     
         # Now just use the aligned velocity
-        V        = V_thrust[:,0,None] + V0 
+        if np.any(theta  > np.pi/3):
+            V        = V_thrust[:,0,None] + V0 
+        else:
+            V        = V_thrust[:,0,None]
         ua       = np.zeros_like(V)              
         ut       = np.zeros_like(V) 
     
