@@ -78,10 +78,11 @@ class Lift_Cruise(Propulsor):
         self.number_of_rotor_engines     = None
         self.number_of_propeller_engines = None
         self.voltage                     = None
-        self.rotor_thrust_angle          = 0.0
         self.propeller_thrust_angle      = 0.0
+        self.propeller_pitch_command     = 0.0 
+        self.rotor_thrust_angle          = 0.0
         self.rotor_pitch_command         = 0.0
-        self.propeller_pitch_command     = 0.0
+        self.rotor_VTOL_flag             = True       
         self.tag                         = 'Lift_Cruise'
         self.generative_design_minimum   = 0        
         pass
@@ -219,7 +220,8 @@ class Lift_Cruise(Propulsor):
         # link
         rotor.inputs.omega  = rotor_motor.outputs.omega
         rotor.thrust_angle  = self.rotor_thrust_angle
-        rotor.pitch_command = self.rotor_pitch_command
+        rotor.pitch_command = self.rotor_pitch_command 
+        rotor.VTOL_flag     = self.rotor_VTOL_flag      
         
         # Run the propeller
         F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = rotor.spin(konditions)

@@ -77,8 +77,7 @@ def vehicle_setup():
     
     # Segment  
     segment                          = SUAVE.Components.Fuselages.Segment() 
-    segment.tag                      = 'segment_1'  
-    segment.origin                   = [0., 0. ,0.]  
+    segment.tag                      = 'segment_1'    
     segment.percent_x_location       = 0.  
     segment.percent_z_location       = 0.0 
     segment.height                   = 0.1   * Units.feet   
@@ -89,10 +88,9 @@ def vehicle_setup():
                                                 
     # Segment                                   
     segment                         = SUAVE.Components.Fuselages.Segment()
-    segment.tag                     = 'segment_2'  
-    segment.origin                  = [4.*0.3048 , 0. ,0.1*0.3048 ]  
-    segment.percent_x_location      = 0.25  
-    segment.percent_z_location      = 0.05 
+    segment.tag                     = 'segment_2'   
+    segment.percent_x_location      = 1.2192  /fuselage.lengths.total
+    segment.percent_z_location      = 0.03048 /fuselage.lengths.total
     segment.height                  = 3.75  * Units.feet 
     segment.width                   = 5.65  * Units.feet  
     segment.length                  = 3.2   * Units.feet  
@@ -101,10 +99,9 @@ def vehicle_setup():
                                                 
     # Segment                                   
     segment                         = SUAVE.Components.Fuselages.Segment()
-    segment.tag                     = 'segment_3'  
-    segment.origin                  = [8.*0.3048 , 0. ,0.34*0.3048 ]  
-    segment.percent_x_location      = 0.5  
-    segment.percent_z_location      = 0.071 
+    segment.tag                     = 'segment_3'    
+    segment.percent_x_location      = 8.2.4384 /fuselage.lengths.total
+    segment.percent_z_location      = 0.103632 /fuselage.lengths.total
     segment.height                  = 4.65  * Units.feet 
     segment.width                   = 5.55  * Units.feet  
     segment.length                  = 3.2   * Units.feet
@@ -113,10 +110,9 @@ def vehicle_setup():
                                                 
     # Segment                                  
     segment                         = SUAVE.Components.Fuselages.Segment()
-    segment.tag                     = 'segment_4'  
-    segment.origin                  = [12.*0.3048 , 0. ,0.77*0.3048 ] 
-    segment.percent_x_location      = 0.75 
-    segment.percent_z_location      = 0.089  
+    segment.tag                     = 'segment_4'   
+    segment.percent_x_location      = 3.6576  /fuselage.lengths.total
+    segment.percent_z_location      = 0.23469 /fuselage.lengths.total 
     segment.height                  = 4.73  * Units.feet  
     segment.width                   = 4.26  * Units.feet   
     segment.length                  = 3.2   * Units.feet  
@@ -125,10 +121,9 @@ def vehicle_setup():
                                                 
     # Segment                                   
     segment                         = SUAVE.Components.Fuselages.Segment()
-    segment.tag                     = 'segment_5'  
-    segment.origin                  = [16.*0.3048 , 0. ,2.02*0.3048 ] 
+    segment.tag                     = 'segment_5'   
     segment.percent_x_location      = 1.0
-    segment.percent_z_location      = 0.158 
+    segment.percent_z_location      = 0.61569/fuselage.lengths.total 
     segment.height                  = 0.67 * Units.feet
     segment.width                   = 0.33 * Units.feet
     segment.length                  = 3.2   * Units.feet 

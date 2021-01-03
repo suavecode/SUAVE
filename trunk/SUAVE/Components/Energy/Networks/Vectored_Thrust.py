@@ -65,6 +65,7 @@ class Vectored_Thrust(Propulsor):
         self.voltage                  = None
         self.thrust_angle             = 0.0 
         self.pitch_command            = 0.0 
+        self.VTOL_flag                = True
         self.thrust_angle_start       = None
         self.thrust_angle_end         = None        
     
@@ -137,7 +138,8 @@ class Vectored_Thrust(Propulsor):
         # link
         rotor.inputs.omega  = motor.outputs.omega
         rotor.thrust_angle  = thrust_angle
-        rotor.pitch_command = self.pitch_command 
+        rotor.pitch_command = self.pitch_command  
+        rotor.VTOL_flag     = self.VTOL_flag    
         
         # Run the rotor     
         F, Q, P, Cp , outputs, etap = rotor.spin(conditions)

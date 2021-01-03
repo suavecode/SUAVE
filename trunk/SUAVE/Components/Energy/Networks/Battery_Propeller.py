@@ -130,8 +130,9 @@ class Battery_Propeller(Propulsor):
         motor.omega(conditions)
         
         # link
-        propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle = self.thrust_angle
+        propeller.inputs.omega = motor.outputs.omega
+        propeller.thrust_angle  = self.thrust_angle
+        propeller.pitch_command = self.pitch_command 
         
         # step 4
         F, Q, P, Cp, outputs , etap = propeller.spin(conditions)

@@ -54,7 +54,7 @@ def empty(vehicle):
                         internal_combustion
                             rated_power - maximum rated power of the internal combustion engine [Watts]
                         
-                    number_engines - integer indicating the number of engines on the aircraft
+                    number_of_engines - integer indicating the number of engines on the aircraft
 
                 wt_cargo - weight of the bulk cargo being carried on the aircraft [kilograms]
                 num_seats - number of seats installed on the aircraft [dimensionless]

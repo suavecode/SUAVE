@@ -69,7 +69,8 @@ class Propeller(Energy_Component):
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
         self.rotation                  = None
-        self.ducted                    = False 
+        self.ducted                    = False  
+        self.VTOL_flag                 = False        
         self.number_azimuthal_stations = 24
         self.induced_power_factor      = 1.48  #accounts for interference effects
         self.profile_drag_coefficient  = .03        

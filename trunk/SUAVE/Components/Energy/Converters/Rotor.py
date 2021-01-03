@@ -68,7 +68,8 @@ class Rotor(Energy_Component):
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
         self.rotation                  = None
-        self.ducted                    = False
+        self.ducted                    = False 
+        self.VTOL_flag                 = False
         self.number_azimuthal_stations = 24
         self.induced_power_factor      = 1.48  #accounts for interference effects
         self.profile_drag_coefficient  = .03        
@@ -161,7 +162,8 @@ class Rotor(Energy_Component):
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
         cd_sur  = self.airfoil_cd_surrogates 
-        V0      = self.induced_hover_velocity
+        ua      = self.induced_hover_velocity
+        VTOL    = self.VTOL_flag
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector 
@@ -188,14 +190,12 @@ class Rotor(Energy_Component):
         body2thrust     = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
         V_thrust        = orientation_product(T_body2thrust,V_body) 
-    
-        # Now just use the aligned velocity
-        if np.any(theta  > np.pi/3):
-            V        = V_thrust[:,0,None] + V0 
+     
+        if VTOL:    
+            V        = V_thrust[:,0,None] + ua
         else:
-            V        = V_thrust[:,0,None]
-        ua       = np.zeros_like(V)              
-        ut       = np.zeros_like(V) 
+            V        = V_thrust[:,0,None]   
+        ut  = np.zeros_like(V) 
     
         #Things that don't change with iteration
         Nr       = len(c) # Number of stations radially    

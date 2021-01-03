@@ -18,7 +18,8 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution
-
+from SUAVE.Components.Energy.Networks import Lift_Cruise , Turbofan 
+from SUAVE.Components.Energy.Converters import Propeller, Rotor 
 ## @ingroup Plots-Geometry_Plots
 def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
@@ -50,7 +51,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
         
     # initalize figure 
     fig = plt.figure(save_filename) 
-    fig.set_size_inches(12, 12) 
+    fig.set_size_inches(8,8) 
     axes = Axes3D(fig)    
     axes.view_init(elev= 30, azim= 210)     
     
@@ -79,9 +80,12 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     fuselage_face_color = 'grey'                
     fuselage_edge_color = 'black' 
     fuselage_alpha      = 1      
-    for fus in vehicle.fuselages:     
-        plot_fuselage(axes, fus ,fuselage_face_color,fuselage_edge_color,fuselage_alpha)     
-  
+    for fus in vehicle.fuselages: 
+        # Generate Fuselage Geoemtry
+        fus_pts = generate_fuselage_points(axes, fus) 
+        
+        # Plot Fuselage Geometry          
+        plot_fuselage_geometry(axes,fus_pts,fuselage_face_color,fuselage_edge_color,fuselage_alpha)  
     # -------------------------------------------------------------------------
     # PLOT ENGINE
     # -------------------------------------------------------------------------        
@@ -106,7 +110,11 @@ def plot_wing(axes,VD,face_color,edge_color,alpha_val):
     None
     
     Inputs:   
-    VD                   - vortex distribution    
+    VD.
+       XA1...ZB2         - coordinates of wing vortex distribution  
+    face_color           - color of panel
+    edge_color           - color of panel edge
+    alpha_color          - translucency:  1 = opaque , 0 = transparent 
     
     Properties Used:
     N/A
@@ -149,7 +157,11 @@ def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
     None
     
     Inputs:   
-    VD                   - vortex distribution    
+    VD.Wake. 
+       XA1...ZB2         - coordinates of wake vortex distribution   
+    face_color           - color of panel
+    edge_color           - color of panel edge
+    alpha_color          - translucency:  1 = opaque , 0 = transparent 
     
     Properties Used:
     N/A
@@ -183,8 +195,8 @@ def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
     return 
     
 
-def plot_fuselage(axes, fus ,face_color,edge_color,alpha):
-    """ This generates the coordinate points on the surface of the fuselage
+def generate_fuselage_points(axes, fus ,tessellation = 24 ):
+    """ This generates the coordinate points on the surface of the fuselage 
 
     Assumptions: 
     None
@@ -193,12 +205,11 @@ def plot_fuselage(axes, fus ,face_color,edge_color,alpha):
     None
     
     Inputs:  
+    fus                  - fuselage data structure
     
     Properties Used:
     N/A
-    """      
-     
-    tessellation = 24 
+    """        
     num_fus_segs = len(fus.Segments.keys()) 
     fus_pts      = np.zeros((num_fus_segs,tessellation ,3))
     
@@ -210,14 +221,11 @@ def plot_fuselage(axes, fus ,face_color,edge_color,alpha):
             r        = np.sqrt((b*np.sin(theta))**2  + (a*np.cos(theta))**2)  
             fus_ypts = r*np.cos(theta)
             fus_zpts = r*np.sin(theta) 
-            fus_pts[i_seg,:,0] = fus.Segments[i_seg].origin[0]  + fus.origin[0][0]
-            fus_pts[i_seg,:,1] = fus_ypts + fus.Segments[i_seg].origin[1] + fus.origin[0][1]
-            fus_pts[i_seg,:,2] = fus_zpts + fus.Segments[i_seg].origin[2] + fus.origin[0][2]
+            fus_pts[i_seg,:,0] = fus.Segments[i_seg].percent_x_location*fus.lengths.total + fus.origin[0][0]
+            fus_pts[i_seg,:,1] = fus_ypts + fus.Segments[i_seg].percent_y_location*fus.lengths.total + fus.origin[0][1]
+            fus_pts[i_seg,:,2] = fus_zpts + fus.Segments[i_seg].percent_z_location*fus.lengths.total + fus.origin[0][2]
         
-        # store points
-        plot_fuselage_geometry(axes,fus_pts, face_color,edge_color,alpha)
-        
-    return 
+    return fus_pts
 
   
 def plot_fuselage_geometry(axes,fus_pts, face_color,edge_color,alpha):  
@@ -230,38 +238,44 @@ def plot_fuselage_geometry(axes,fus_pts, face_color,edge_color,alpha):
     None
     
     Inputs:     
+    fus_pts              - coordinates of fuselage points
+    face_color           - color of panel
+    edge_color           - color of panel edge
+    alpha_color          - translucency:  1 = opaque , 0 = transparent 
+    
     
     Properties Used:
     N/A
     """      
-     
-    num_fus_segs = len(fus_pts[:,0,0])
-    tesselation  = len(fus_pts[0,:,0]) 
-    for i_seg in range(num_fus_segs-1):
-        for i_tes in range(tesselation-1):
-            X = [fus_pts[i_seg  ,i_tes  ,0],
-                 fus_pts[i_seg  ,i_tes+1,0],
-                 fus_pts[i_seg+1,i_tes+1,0],
-                 fus_pts[i_seg+1,i_tes  ,0]]
-            Y = [fus_pts[i_seg  ,i_tes  ,1],
-                 fus_pts[i_seg  ,i_tes+1,1],
-                 fus_pts[i_seg+1,i_tes+1,1],
-                 fus_pts[i_seg+1,i_tes  ,1]]
-            Z = [fus_pts[i_seg  ,i_tes  ,2],
-                 fus_pts[i_seg  ,i_tes+1,2],
-                 fus_pts[i_seg+1,i_tes+1,2],
-                 fus_pts[i_seg+1,i_tes  ,2]]                 
-            verts = [list(zip(X, Y, Z))]
-            collection = Poly3DCollection(verts)
-            collection.set_facecolor(face_color)
-            collection.set_edgecolor(edge_color) 
-            collection.set_alpha(alpha)
-            axes.add_collection3d(collection)  
+    
+    num_fus_segs = len(fus_pts[:,0,0])  
+    if num_fus_segs > 0:  
+        tesselation  = len(fus_pts[0,:,0]) 
+        for i_seg in range(num_fus_segs-1):
+            for i_tes in range(tesselation-1):
+                X = [fus_pts[i_seg  ,i_tes  ,0],
+                     fus_pts[i_seg  ,i_tes+1,0],
+                     fus_pts[i_seg+1,i_tes+1,0],
+                     fus_pts[i_seg+1,i_tes  ,0]]
+                Y = [fus_pts[i_seg  ,i_tes  ,1],
+                     fus_pts[i_seg  ,i_tes+1,1],
+                     fus_pts[i_seg+1,i_tes+1,1],
+                     fus_pts[i_seg+1,i_tes  ,1]]
+                Z = [fus_pts[i_seg  ,i_tes  ,2],
+                     fus_pts[i_seg  ,i_tes+1,2],
+                     fus_pts[i_seg+1,i_tes+1,2],
+                     fus_pts[i_seg+1,i_tes  ,2]]                 
+                verts = [list(zip(X, Y, Z))]
+                collection = Poly3DCollection(verts)
+                collection.set_facecolor(face_color)
+                collection.set_edgecolor(edge_color) 
+                collection.set_alpha(alpha)
+                axes.add_collection3d(collection)  
     
     return 
 
 
-def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,propulsor_alpha):  
+def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,propulsor_alpha,tessellation = 24):  
     """ This plots a 3D surface of the fuselage
 
     Assumptions: 
@@ -272,6 +286,10 @@ def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,p
     
     Inputs:   
     VD                   - vortex distribution    
+    propulsor            - propulsor data structure
+    propulsor_face_color - color of panel
+    propulsor_edge_color - color of panel edge
+    propulsor_alpha      - translucency:  1 = opaque , 0 = transparent 
     
     Properties Used:
     N/A
@@ -288,10 +306,10 @@ def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,p
         plot_propeller_geometry(axes,prop,propulsor,'propeller')
 
         # Generate Nacelle Geoemtry
-        nac_geo = generate_nacelle_points(VD,propulsor,'propeller')
+        nac_geo = generate_nacelle_points(VD,propulsor,'propeller',tessellation)
         
-        # Plot Nacel Geometry 
-        plot_nacelle(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha)
+        # Plot Nacelle Geometry 
+        plot_nacelle_geometry(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha)
            
     if ('rotor' in propulsor.keys()):  
         rot = propulsor.rotor   
@@ -300,31 +318,44 @@ def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,p
         except:
             pass
         
-        # Generate And Plot Propeller/Rotor Geoemtry   
+        # Generate and Plot Propeller/Rotor Geometry   
         plot_propeller_geometry(axes,rot,propulsor,'rotor')
     
         # Generate Nacelle Geoemtry 
-        nac_geo = generate_nacelle_points(VD,propulsor,'rotor')
+        nac_geo = generate_nacelle_points(VD,propulsor,'rotor',tessellation)
         
         # Plot Nacel Geometry 
-        plot_nacelle(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha) 
+        plot_nacelle_geometry(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha) 
 
     
-    elif 'turbofan' ==  propulsor.tag: 
+    elif isinstance(propulsor,Turbofan): 
         
         # Generate Nacelle Geoemtry
-        nac_geo = generate_nacelle_points(VD,propulsor,propulsor.tag)
+        nac_geo = generate_nacelle_points(VD,propulsor,propulsor.tag,tessellation)
         
         # Plot Nacel Geometry 
-        plot_nacelle(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha)        
+        plot_nacelle_geometry(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha)        
     
     return 
 
 def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
+    """ This plots a 3D surface of the  propeller
+
+    Assumptions: 
+    None
+
+    Source:   
+    None
     
-    # unpack
-    Rt     = prop.tip_radius          
-    Rh     = prop.hub_radius          
+    Inputs:   
+    VD                   - vortex distribution    
+    propulsor            - propulsor data structure 
+    
+    Properties Used:
+    N/A
+    """          
+        
+    # unpack         
     num_B  = prop.number_of_blades      
     a_sec  = prop.airfoil_geometry          
     a_secl = prop.airfoil_polar_stations
@@ -333,12 +364,9 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     r      = prop.radius_distribution 
     MCA    = prop.mid_chord_aligment
     t      = prop.max_thickness_distribution
-    try:
-        ta = -propulsor.thrust_angle
-    except:
-        ta = 0 
+    ta     = -propulsor.thrust_angle
     
-    if propulsor.tag == 'Battery_Dual_Propeller' or 'Lift_Cruise':
+    if isinstance(propulsor,Lift_Cruise):
         if propulsor_name == 'propeller': 
             origin = propulsor.propeller.origin
             
@@ -501,7 +529,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
                     axes.add_collection3d(prop_collection) 
     return 
 
-def generate_nacelle_points(VD,propulsor,propulsor_name):
+def generate_nacelle_points(VD,propulsor,propulsor_name,tessellation):
     """ This generates the coordinate points on the surface of the fuselage
 
     Assumptions: 
@@ -517,11 +545,8 @@ def generate_nacelle_points(VD,propulsor,propulsor_name):
     N/A
     
     
-    """      
-    
-    tessellation = 24  
-    
-    if (propulsor.tag == 'Battery_Dual_Propeller') or (propulsor.tag =='Lift_Cruise'):
+    """    
+    if isinstance(propulsor,Lift_Cruise):
         if propulsor_name == 'propeller':
             l = propulsor.propeller_engine_length
             h = propulsor.propeller_nacelle_diameter/2 
@@ -577,7 +602,7 @@ def generate_nacelle_points(VD,propulsor,propulsor_name):
     VD.NAC_SURF_PTS = nac_pts  
     return VD 
 
-def plot_nacelle(axes,VD,face_color,edge_color,alpha):
+def plot_nacelle_geometry(axes,VD,face_color,edge_color,alpha):
     """ This plots a 3D surface of the nacelle of the propulsor
 
     Assumptions: 

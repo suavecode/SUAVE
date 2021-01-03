@@ -124,8 +124,7 @@ def vehicle_setup():
 
     # Segment  
     segment                                     = SUAVE.Components.Fuselages.Segment() 
-    segment.tag                                 = 'segment_0'  
-    segment.origin                              = [0., 0. ,0.]  
+    segment.tag                                 = 'segment_0'   
     segment.percent_x_location                  = 0.  
     segment.percent_z_location                  = 0.  
     segment.height                              = 0.09  
@@ -136,8 +135,7 @@ def vehicle_setup():
 
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
-    segment.tag                                 = 'segment_1'  
-    segment.origin                              = [0.97675, 0. ,0.21977]  
+    segment.tag                                 = 'segment_1'    
     segment.percent_x_location                  = 0.97675/6.1 
     segment.percent_z_location                  = 0.21977/6.1
     segment.height                              = 0.9027  
@@ -147,8 +145,7 @@ def vehicle_setup():
 
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
-    segment.tag                                 = 'segment_2'  
-    segment.origin                              = [ 1.93556, 0. ,  0.39371]  
+    segment.tag                                 = 'segment_2'    
     segment.percent_x_location                  = 1.93556/6.1 
     segment.percent_z_location                  = 0.39371/6.1
     segment.height                              = 1.30558   
@@ -158,8 +155,7 @@ def vehicle_setup():
 
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
-    segment.tag                                 = 'segment_3'  
-    segment.origin                              = [ 3.44137, 0. , 0.57143]  
+    segment.tag                                 = 'segment_3'    
     segment.percent_x_location                  = 3.44137/6.1 
     segment.percent_z_location                  = 0.57143/6.1
     segment.height                              = 1.52588 
@@ -168,8 +164,7 @@ def vehicle_setup():
 
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
-    segment.tag                                 = 'segment_4'  
-    segment.origin                              = [ 4.61031, 0. , 0.81577]  
+    segment.tag                                 = 'segment_4'     
     segment.percent_x_location                  = 4.61031/6.1
     segment.percent_z_location                  = 0.81577/6.1
     segment.height                              = 1.14788 
@@ -178,8 +173,7 @@ def vehicle_setup():
 
     # Segment                                   
     segment                                     = SUAVE.Components.Fuselages.Segment()
-    segment.tag                                 = 'segment_5'  
-    segment.origin                              = [ 6.1, 0. ,1.19622]  
+    segment.tag                                 = 'segment_5'    
     segment.percent_x_location                  = 1. 
     segment.percent_z_location                  = 1.19622/6.1  
     segment.height                              = 0.31818 
@@ -408,6 +402,7 @@ def configs_setup(vehicle):
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle  
     config.propulsors.vectored_thrust.pitch_command   = 0.  * Units.degrees
+    config.propulsors.vectored_thrust.VTOL_flag       = True 
     configs.append(config)         
 
     # ------------------------------------------------------------------
@@ -421,7 +416,8 @@ def configs_setup(vehicle):
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle   
-    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees    
+    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees  
+    config.propulsors.vectored_thrust.VTOL_flag       = True   
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -436,6 +432,7 @@ def configs_setup(vehicle):
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle
     config.propulsors.vectored_thrust.pitch_command   = 3.  * Units.degrees 
+    config.propulsors.vectored_thrust.VTOL_flag       = True 
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -449,7 +446,8 @@ def configs_setup(vehicle):
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle 
-    config.propulsors.vectored_thrust.pitch_command   = 5.  * Units.degrees     
+    config.propulsors.vectored_thrust.pitch_command   = 5.  * Units.degrees    
+    config.propulsors.vectored_thrust.VTOL_flag       = False 
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -464,6 +462,7 @@ def configs_setup(vehicle):
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle  
     config.propulsors.vectored_thrust.pitch_command   = 10.  * Units.degrees  
+    config.propulsors.vectored_thrust.VTOL_flag       = False    
     configs.append(config)    
 
 
@@ -479,7 +478,8 @@ def configs_setup(vehicle):
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle     
-    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees     
+    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees 
+    config.propulsors.vectored_thrust.VTOL_flag       = True     
     configs.append(config)
 
     return configs
