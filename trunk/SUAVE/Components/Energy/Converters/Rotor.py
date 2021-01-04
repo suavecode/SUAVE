@@ -68,7 +68,8 @@ class Rotor(Energy_Component):
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
         self.rotation                  = None
-        self.ducted                    = False
+        self.ducted                    = False 
+        self.VTOL_flag                 = False
         self.number_azimuthal_stations = 24
         self.induced_power_factor      = 1.48  #accounts for interference effects
         self.profile_drag_coefficient  = .03        
@@ -122,7 +123,7 @@ class Rotor(Energy_Component):
            blade_dT_dr                       [N]
            blade_thrust_distribution         [N]
            disc_thrust_distribution          [N]
-           blade_thrust                      [N]
+           thrust_per_blade                  [N]
            thrust_coefficient                [-] 
            azimuthal_distribution            [rad]
            disc_azimuthal_distribution       [rad]
@@ -130,7 +131,7 @@ class Rotor(Energy_Component):
            blade_dQ_dr                       [Nm]
            blade_torque_distribution         [Nm] 
            disc_torque_distribution          [Nm] 
-           blade_torque                      [Nm] 
+           torque_per_blade                  [Nm] 
            torque_coefficient                [-] 
            power                             [W]    
            power_coefficient                 [-] 
@@ -155,12 +156,14 @@ class Rotor(Energy_Component):
         c       = self.chord_distribution
         chi     = self.radius_distribution
         MCA     = self.mid_chord_aligment
-        t_max   = self.max_thickness_distribution 
-        omega   = self.inputs.omega 
+        t_max   = self.max_thickness_distribution
+        omega   = self.inputs.omega
         a_geo   = self.airfoil_geometry      
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
         cd_sur  = self.airfoil_cd_surrogates 
+        ua      = self.induced_hover_velocity
+        VTOL    = self.VTOL_flag
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector 
@@ -187,11 +190,12 @@ class Rotor(Energy_Component):
         body2thrust     = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
         V_thrust        = orientation_product(T_body2thrust,V_body) 
-    
-        # Now just use the aligned velocity
-        V        = V_thrust[:,0,None] 
-        ua       = np.zeros_like(V)              
-        ut       = np.zeros_like(V) 
+     
+        if VTOL:    
+            V        = V_thrust[:,0,None] + ua
+        else:
+            V        = V_thrust[:,0,None]   
+        ut  = np.zeros_like(V) 
     
         #Things that don't change with iteration
         Nr       = len(c) # Number of stations radially    
@@ -305,13 +309,13 @@ class Rotor(Energy_Component):
             
             # If its really not going to converge
             if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-                print("Propeller BEMT did not converge to a solution")
+                print("Rotor BEMT did not converge to a solution")
                 break
         
             ii+=1 
             if ii>10000:
                 broke = True
-                print("Propeller BEMT did not converge to a solution")
+                print("Rotor BEMT did not converge to a solution (Iteration Limit)")
                 break
     
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
@@ -339,9 +343,9 @@ class Rotor(Energy_Component):
         
         blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
         blade_dT_dR              = rho*(Gamma*(Wt-epsilon*Wa))/R
-        blade_dT_dr              = rho*(Gamma*(Wt-epsilon*Wa)) 
+        blade_dT_dr              = rho*(Gamma*(Wt-epsilon*Wa))
         blade_dQ_dR              = rho*(Gamma*(Wa+epsilon*Wt)*r)/R
-        blade_dQ_dr              = rho*(Gamma*(Wa+epsilon*Wt)*r) 
+        blade_dQ_dr              = rho*(Gamma*(Wa+epsilon*Wt)*r)
         
         Vt_ind_avg = vt
         Va_ind_avg = va
@@ -352,7 +356,7 @@ class Rotor(Energy_Component):
         D        = 2*R 
         Cq       = torque/(rho*(n*n)*(D*D*D*D*D)) 
         Ct       = thrust/(rho*(n*n)*(D*D*D*D))
-        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))  
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
         etap     = V*thrust/power # efficiency    
 
         # prevent things from breaking 
@@ -378,12 +382,12 @@ class Rotor(Energy_Component):
         results_conditions                            = Data     
         outputs                                       = results_conditions(
                     number_of_engines                 = E,
-                    number_of_blades                  = B, 
+                    number_of_blades                  = B,
                     radius_distribution               = r,
                     chord_distribution                = c,
-                    twist_distribution                = total_blade_pitch, 
-                    mid_chord_aligment                = MCA,  
-                    max_thickness_distribution        = t_max,           
+                    twist_distribution                = total_blade_pitch,
+                    mid_chord_aligment                = MCA,
+                    max_thickness_distribution        = t_max,
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,   
                     disc_radial_distribution          = r_dim_2d,  
@@ -407,14 +411,14 @@ class Rotor(Energy_Component):
                     blade_dT_dr                       = blade_dT_dr,
                     blade_thrust_distribution         = blade_T_distribution, 
                     disc_thrust_distribution          = blade_T_distribution_2d, 
-                    blade_thrust                      = thrust/B, 
+                    thrust_per_blade                  = thrust/B, 
                     thrust_coefficient                = Ct, 
                     disc_azimuthal_distribution       = azimuth_2d,
                     blade_dQ_dR                       = blade_dQ_dR,
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution, 
                     disc_torque_distribution          = blade_Q_distribution_2d, 
-                    blade_torque                      = torque/B,   
+                    torque_per_blade                  = torque/B,   
                     torque_coefficient                = Cq,   
                     power                             = power,
                     power_coefficient                 = Cp,                      

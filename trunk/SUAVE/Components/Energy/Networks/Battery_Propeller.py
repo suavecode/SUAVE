@@ -180,14 +180,16 @@ class Battery_Propeller(Propulsor):
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load    
-          
+        voltage_under_load   = battery.voltage_under_load     
+        state_of_charge      = battery.state_of_charge
+              
         conditions.propulsion.propeller_rpm                 = rpm
         conditions.propulsion.battery_current               = current
         conditions.propulsion.battery_draw                  = battery_draw
         conditions.propulsion.battery_energy                = battery_energy
         conditions.propulsion.battery_voltage_open_circuit  = voltage_open_circuit
         conditions.propulsion.battery_voltage_under_load    = voltage_under_load
+        conditions.propulsion.state_of_charge               = state_of_charge     
         conditions.propulsion.propeller_motor_torque        = motor.outputs.torque
         conditions.propulsion.propeller_torque              = Q
         conditions.propulsion.propeller_thrust              = F *num_engines

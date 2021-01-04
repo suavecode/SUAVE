@@ -785,6 +785,7 @@ class Data(dict):
                     if k in B:
                         b = B[k]
                     else: 
+                        C[k] = a
                         continue
                 else:
                     b = B

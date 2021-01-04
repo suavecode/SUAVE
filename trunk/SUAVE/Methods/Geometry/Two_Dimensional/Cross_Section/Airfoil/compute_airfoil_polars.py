@@ -53,15 +53,12 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
     Rh = propeller.hub_radius
     Rt = propeller.tip_radius
     n  = len(propeller.chord_distribution)
-    cm = propeller.chord_distribution[round(n*0.5)] 
 
     # read airfoil geometry  
     airfoil_data = import_airfoil_geometry(a_geo)
 
-    AR = 2*(Rt - Rh)/cm
-
     # Get all of the coefficients for AERODAS wings
-    AoA_sweep_deg = np.linspace(-20,90,111)
+    AoA_sweep_deg = np.linspace(-14,90,105)
     CL = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
     CD = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
     
@@ -83,17 +80,18 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
             airfoil_cl_plus = airfoil_cl[airfoil_cl>0]
             idx_zero_lift = np.where(airfoil_cl == min(airfoil_cl_plus))[0][0]
             A0  = airfoil_aoa[idx_zero_lift]
-            
-            # computing approximate lift curve slope
-            cl_range = airfoil_aoa[idx_zero_lift:idx_zero_lift+50]
-            aoa_range = airfoil_cl[idx_zero_lift:idx_zero_lift+50]
-            S1 = np.mean(np.diff(cl_range)/np.diff(aoa_range))  
-            
+
             # max lift coefficent and associated aoa
-            CL1max  = np.max(airfoil_cl) 
+            CL1max = np.max(airfoil_cl)
             idx_aoa_max_prestall_cl = np.where(airfoil_cl == CL1max)[0][0]
-            ACL1  = airfoil_aoa[idx_aoa_max_prestall_cl]
-            
+            ACL1 = airfoil_aoa[idx_aoa_max_prestall_cl]
+
+            # computing approximate lift curve slope
+            linear_idxs = [int(np.where(airfoil_aoa==0)[0]),int(np.where(airfoil_aoa==4)[0])]
+            cl_range = airfoil_cl[linear_idxs]
+            aoa_range = airfoil_aoa[linear_idxs]
+            S1 = (cl_range[1]-cl_range[0])/(aoa_range[1]-aoa_range[0])
+
             # max drag coefficent and associated aoa
             CD1max  = np.max(airfoil_cd) 
             idx_aoa_max_prestall_cd = np.where(airfoil_cd == CD1max)[0][0]
@@ -111,19 +109,19 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
                 t_c = airfoil_data.thickness_to_chord[i]
             
                 # Equation 5a
-                ACL1   = ACL1p + 18.2*CL1maxp*(AR**(-0.9)) 
+                ACL1   = ACL1p 
             
-                # From McCormick
-                S1 = S1p*AR/(2+np.sqrt(4+AR**2)) 
+                # Equation 5b
+                S1 = S1p
             
                 # Equation 5c
-                ACD1   =  ACD1p + 18.2*CL1maxp*(AR**(-0.9)) 
+                ACD1   =  ACD1p 
             
                 # Equation 5d
-                CD1max = CD1maxp + 0.280*(CL1maxp*CL1maxp)*(AR**(-0.9))
+                CD1max = CD1maxp 
             
                 # Equation 5e
-                CL1max = CL1maxp*(0.67+0.33*np.exp(-(4.0/AR)**2.))
+                CL1max = CL1maxp
             
                 # ------------------------------------------------------
                 # Equations for coefficients in pre-stall regime 
@@ -154,11 +152,11 @@ def compute_airfoil_polars(propeller,a_geo,a_polar):
                 # ------------------------------------------------------               
                 # Equation 9a and b
                 F1        = 1.190*(1.0-(t_c**2))
-                F2        = 0.65 + 0.35*np.exp(-(9.0/AR)**2.3)
+                F2        = 1
             
                 # Equation 10b and c
                 G1        = 2.3*np.exp(-(0.65*t_c)**0.9)
-                G2        = 0.52 + 0.48*np.exp(-(6.5/AR)**1.1)
+                G2        = 1.
             
                 # Equation 8a and b
                 CL2max    = F1*F2

@@ -93,10 +93,10 @@ def propeller_design(prop,number_of_stations=20):
     
     tol   = 1e-10 # Convergence tolerance
 
-    #Step 1, assume a zeta
+    # Step 1, assume a zeta
     zeta = 0.1 # Assume to be small initially
     
-    #Step 2, determine F and phi at each blade station
+    # Step 2, determine F and phi at each blade station
     
     chi0    = Rh/R # Where the propeller blade actually starts
     chi     = np.linspace(chi0,1,N+1) # Vector of nondimensional radii
@@ -120,9 +120,10 @@ def propeller_design(prop,number_of_stations=20):
         # Import Airfoil from regression
         print('\nNo airfoils specified for propeller or rotor airfoil specified. \nDefaulting to NACA 4412 airfoils that will provide conservative estimates.') 
         import os
-        ospath = os.path.abspath(__file__)
-        path   = ospath.replace('\\','/').split('trunk/SUAVE/Methods/Propulsion/propeller_design.py')[0] \
-            + 'regression/scripts/Vehicles/' 
+        ospath    = os.path.abspath(__file__)
+        separator = os.path.sep
+        path      = ospath.replace('\\','/').split('trunk/SUAVE/Methods/Propulsion/propeller_design.py')[0] \
+            + 'regression' + separator + 'scripts' + separator + 'Vehicles' + separator 
         a_geo  = [ path +  'NACA_4412.txt'] 
         a_pol  = [[path +  'NACA_4412_polar_Re_50000.txt' ,
                    path +  'NACA_4412_polar_Re_100000.txt' ,
@@ -207,7 +208,8 @@ def propeller_design(prop,number_of_stations=20):
         epsilon = Cd/Cl  
         
         #Step 6, determine a and a', and W 
-        a       = (zeta/2.)*(np.cos(phi)**2.)*(1.-epsilon*np.tan(phi)) 
+        a       = (zeta/2.)*(np.cos(phi)**2.)*(1.-epsilon*np.tan(phi))
+        aprime  = (zeta/(2.*x))*np.cos(phi)*np.sin(phi)*(1.+epsilon/np.tan(phi))
         W       = V*(1.+a)/np.sin(phi)
         
         #Step 7, compute the chord length and blade twist angle  
@@ -219,7 +221,9 @@ def propeller_design(prop,number_of_stations=20):
         Iprime2 = lamda*(Iprime1/(2.*chi))*(1.+epsilon/np.tan(phi)
                                             )*np.sin(phi)*np.cos(phi)
         Jprime1 = 4.*chi*G*(1.+epsilon/np.tan(phi))
-        Jprime2 = (Jprime1/2.)*(1.-epsilon*np.tan(phi))*(np.cos(phi)**2.) 
+        Jprime2 = (Jprime1/2.)*(1.-epsilon*np.tan(phi))*(np.cos(phi)**2.)
+        
+        dR      = (r[1]-r[0])*np.ones_like(Jprime1)
         dchi    = (chi[1]-chi[0])*np.ones_like(Jprime1)
         
         #Integrate derivatives from chi=chi0 to chi=1 
@@ -300,7 +304,7 @@ def propeller_design(prop,number_of_stations=20):
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
     prop.radius_distribution        = r 
-    prop.number_of_blades           = int(B)
+    prop.number_blades              = int(B)
     prop.design_power_coefficient   = Cp 
     prop.design_thrust_coefficient  = Ct 
     prop.mid_chord_aligment         = MCA

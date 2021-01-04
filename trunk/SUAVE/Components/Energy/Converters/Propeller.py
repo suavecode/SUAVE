@@ -153,7 +153,7 @@ class Propeller(Energy_Component):
         Rh      = self.hub_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
-        chi     = self.radius_distribution
+        r       = self.radius_distribution
         MCA     = self.mid_chord_aligment
         t_max   = self.max_thickness_distribution 
         omega   = self.inputs.omega 
@@ -198,16 +198,8 @@ class Propeller(Energy_Component):
         ctrl_pts = len(Vv)
                  
         # set up non dimensional radial distribution 
-        if self.radius_distribution is None:
-            chi0= Rh/R                      # Where the rotor blade actually starts
-            chi = np.linspace(chi0,1,Nr+1)  # Vector of nondimensional radii
-            chi = chi[0:Nr]
-    
-        else:
-            chi = self.radius_distribution/R
-    
-        omega          = np.abs(omega)        
-        r              = chi*R                              # Radial coordinate 
+        chi            = self.radius_distribution/R 
+        omega          = np.abs(omega)         
         pi             = np.pi              
         pi2            = pi*pi        
         n              = omega/(2.*pi)                      # Cycles per second  
@@ -305,13 +297,13 @@ class Propeller(Energy_Component):
             
             # If its really not going to converge
             if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-                print("Propeller BEMT did not converge to a solution")
+                print("Propeller BEMT did not converge to a solution (Stall)")
                 break
         
             ii+=1 
             if ii>10000:
                 broke = True
-                print("Propeller BEMT did not converge to a solution")
+                print("Propeller BEMT did not converge to a solution (Iteration Limit)")
                 break
     
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
@@ -337,7 +329,7 @@ class Propeller(Energy_Component):
         blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         
-        blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
+        blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T 
         
         blade_dT_dR = np.zeros((ctrl_pts,Nr))
         blade_dT_dr = np.zeros((ctrl_pts,Nr))

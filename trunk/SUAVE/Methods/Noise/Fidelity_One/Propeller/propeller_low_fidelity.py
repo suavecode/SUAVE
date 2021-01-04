@@ -176,8 +176,8 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
                            (jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r))))) \
                            * psi_L  ),x = r,dx = dr)
              
-            p_mL_H[np.isnan(p_mL_H)] = 0
-            p_mL_H[np.isinf(p_mL_H)] = 0
+            p_mL_H[np.isnan(p_mL_H)] = p_ref
+            p_mL_H[np.isinf(p_mL_H)] = p_ref
             p_mL_H = abs(p_mL_H)
             
             # sound pressure for thickness noise 
@@ -186,8 +186,8 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
                     *np.trapz(((M_s**2)*(t/c)*np.exp(1j*phi_s)*(jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))\
                     /(1 - M*np.cos(theta_r)))))*(k_x**2)*psi_V ),x = r,dx = dr)
              
-            p_mT_H[np.isnan(p_mT_H)] = 0 
-            p_mT_H[np.isinf(p_mT_H)] = 0  
+            p_mT_H[np.isnan(p_mT_H)] = p_ref
+            p_mT_H[np.isinf(p_mT_H)] = p_ref 
             p_mT_H  = abs(p_mT_H)
             
             # unweighted rotational sound pressure level
