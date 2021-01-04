@@ -163,7 +163,7 @@ class Rotor(Energy_Component):
         cl_sur  = self.airfoil_cl_surrogates
         cd_sur  = self.airfoil_cd_surrogates 
         ua      = self.induced_hover_velocity
-        VTOL    = False # self.VTOL_flag
+        VTOL    = self.VTOL_flag
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector 
