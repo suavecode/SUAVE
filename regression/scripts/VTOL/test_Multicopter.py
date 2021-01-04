@@ -316,7 +316,6 @@ def plot_mission(results,line_style='bo-'):
     plot_disc_power_loading(results, line_style)    
          
     return
- 
 
 
 def load_multicopter_results():
