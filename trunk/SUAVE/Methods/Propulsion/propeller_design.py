@@ -143,7 +143,7 @@ def propeller_design(prop,number_of_stations=20):
         prop.chord_distribution = c 
                          
         # compute airfoil polars for airfoils 
-        airfoil_polars  = compute_airfoil_polars(prop, a_geo, a_pol)  
+        airfoil_polars  = compute_airfoil_polars(a_geo, a_pol)  
         airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates 
         airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates 
                          
