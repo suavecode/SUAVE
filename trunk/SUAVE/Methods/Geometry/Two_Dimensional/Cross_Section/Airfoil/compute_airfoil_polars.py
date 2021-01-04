@@ -116,19 +116,24 @@ def compute_airfoil_polars(a_geo,a_polar):
             idx_aoa_max_prestall_cd = np.where(airfoil_cd == CD1max)[0][0]
             ACD1   = airfoil_aoa[idx_aoa_max_prestall_cd] * Units.degrees     
             
-            CD0     = airfoil_cd[idx_zero_lift]       
+            # Find the point of lowest drag and the CD
+            CD_min_loc = np.where(airfoil_cd==min(airfoil_cd))
+            ACDmin     = airfoil_aoa[CD_min_loc] * Units.degrees
+            CDmin      = airfoil_cd[CD_min_loc]    
+            CD0        = airfoil_cd[idx_zero_lift]
             AoA_sweep_radians = AoA_sweep_deg*Units.degrees
             
             # Setup data structures for this run
             ones = np.ones_like(AoA_sweep_radians)
-            settings.section_zero_lift_angle_of_attack        = A0
-            state.conditions.aerodynamics.angle_of_attack     = AoA_sweep_radians * ones 
-            geometry.section.angle_attack_max_prestall_lift   = ACL1 * ones 
-            geometry.pre_stall_maximum_drag_coefficient_angle = ACD1 * ones 
-            geometry.pre_stall_maximum_lift_coefficient       = CL1max * ones 
-            geometry.pre_stall_maximum_lift_drag_coefficient  = CD1max * ones 
-            geometry.section.zero_lift_drag_coefficient       = CD0 * ones 
-            geometry.pre_stall_lift_curve_slope               = S1
+            settings.section_zero_lift_angle_of_attack                = A0
+            state.conditions.aerodynamics.angle_of_attack             = AoA_sweep_radians * ones 
+            geometry.section.angle_attack_max_prestall_lift           = ACL1 * ones 
+            geometry.pre_stall_maximum_drag_coefficient_angle         = ACD1 * ones 
+            geometry.pre_stall_maximum_lift_coefficient               = CL1max * ones 
+            geometry.pre_stall_maximum_lift_drag_coefficient          = CD1max * ones 
+            geometry.section.minimum_drag_coefficient                 = CDmin * ones 
+            geometry.section.minimum_drag_coefficient_angle_of_attack = ACDmin
+            geometry.pre_stall_lift_curve_slope                       = S1
             
             # Get prestall coefficients
             CL1, CD1 = pre_stall_coefficients(state,settings,geometry)
@@ -145,6 +150,26 @@ def compute_airfoil_polars(a_geo,a_polar):
             # Pack this loop
             CL[i,j,:] = CL_ij
             CD[i,j,:] = CD_ij
+            
+            
+            ##################
+            ## Stuff to delete later
+            #from pylab import plt
+            #name  = 'Lift' + str(i) + ' + ' + str(j)
+            #fig  = plt.figure(name)
+            #axes = fig.add_subplot(1,1,1)    
+            #axes.plot(AoA_sweep_deg, CL_ij, 'k-')
+            #axes.plot(airfoil_aoa,airfoil_cl, 'r-')   
+            
+            #name2 ='Drag' + str(i) + ' + ' + str(j)
+            #fig2  = plt.figure(name2)
+            #axes2 = fig2.add_subplot(1,1,1)    
+            #axes2.plot(AoA_sweep_deg,CD_ij,  'k-')
+            #axes2.plot(airfoil_aoa,airfoil_cd,'r-')              
+            
+            
+            #plt.show()
+            
             
            
         CL_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CL[i,:,:])  

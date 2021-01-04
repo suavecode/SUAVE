@@ -54,12 +54,16 @@ def pre_stall_coefficients(state,settings,geometry):
     ACL1   = wing.section.angle_attack_max_prestall_lift 
     ACD1   = wing.pre_stall_maximum_drag_coefficient_angle
     CL1max = wing.pre_stall_maximum_lift_coefficient
-    CD0    = wing.section.zero_lift_drag_coefficient
     S1     = wing.pre_stall_lift_curve_slope  
     CD1max = wing.pre_stall_maximum_lift_drag_coefficient
+    CDmin  = wing.section.minimum_drag_coefficient 
+    ACDmin = wing.section.minimum_drag_coefficient_angle_of_attack 
     
     if wing.vertical == True:
         alpha = 0. * np.ones_like(alpha)
+        
+        
+    
         
         
     # Equation 6c
@@ -81,7 +85,7 @@ def pre_stall_coefficients(state,settings,geometry):
     # Equation 7a
     con      = np.logical_and((2*A0-ACD1)<=alpha,alpha<=ACD1)
     CD1      = np.ones_like(alpha)
-    CD1[con] = CD0[con] + (CD1max[con]-CD0[con])*((alpha[con] -A0)/(ACD1[con]-A0))**M    
+    CD1[con] = CDmin[con] + (CD1max[con]-CDmin[con])*((alpha[con] - ACDmin)/(ACD1[con]-ACDmin))**M    
     
     # Equation 7b
     CD1[np.logical_not(con)] = 0.
