@@ -60,8 +60,7 @@ class Constant_Pitch_Rate_Constant_Altitude(Aerodynamic):
         self.altitude      = None
         self.pitch_rate    = 1.  * Units['rad/s/s']
         self.pitch_initial = None
-        self.pitch_final   = 0.0 * Units['rad']
-        
+        self.pitch_final   = 0.0 * Units['rad']  
         
         # --------------------------------------------------------------
         #   State
@@ -75,7 +74,7 @@ class Constant_Pitch_Rate_Constant_Altitude(Aerodynamic):
         self.state.unknowns.throttle = ones_row(1) * 0.5
         self.state.unknowns.velocity = ones_row(1) * 1.0
         self.state.residuals.forces  = ones_row(2) * 0.0
-        
+        self.state.VTOL_flag     = False 
         
         # --------------------------------------------------------------
         #   The Solving Process

@@ -60,7 +60,7 @@ class Descent(Hover):
         # --------------------------------------------------------------
         self.altitude_start = None # Optional
         self.altitude_end   = 1. * Units.km
-        self.descent_rate   = 1.  * Units.m / Units.s
+        self.descent_rate   = 1.  * Units.m / Units.s 
         
         # --------------------------------------------------------------
         #   The Solving Process

@@ -63,7 +63,7 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         self.altitude_start = None # Optional
         self.altitude_end   = 10. * Units.km
         self.throttle       = 0.5
-        self.air_speed      = 100 * Units.m / Units.s
+        self.air_speed      = 100 * Units.m / Units.s  
         
         # --------------------------------------------------------------
         #   State
@@ -77,6 +77,7 @@ class Constant_Throttle_Constant_Speed(Aerodynamic):
         self.state.unknowns.body_angle = ones_row(1) * 5.0 * Units.deg
         self.state.unknowns.wind_angle = ones_row(1) * 1.0 * Units.deg
         self.state.residuals.forces    = ones_row(2) * 0.0
+        self.state.VTOL_flag           = False           
         
         
         # --------------------------------------------------------------

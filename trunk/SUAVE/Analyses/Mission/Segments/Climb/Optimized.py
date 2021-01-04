@@ -74,8 +74,7 @@ class Optimized(Aerodynamic):
         self.minimize               = True
         self.lift_coefficient_limit = 1.e20 
         self.seed_climb_rate        = 100. * Units['feet/min']
-        self.algorithm              = 'SLSQP'
-        
+        self.algorithm              = 'SLSQP'  
         
         # --------------------------------------------------------------
         #   State
@@ -90,6 +89,7 @@ class Optimized(Aerodynamic):
         self.state.unknowns.flight_path_angle = ones_row(1) * 3.0 * Units.degrees
         self.state.unknowns.velocity          = ones_row(1) * 1.0
         self.state.residuals.forces           = ones_row(2) * 0.0
+        self.state.VTOL_flag                  = False            
         self.state.inputs_last                = None
         self.state.objective_value            = 0.0
         self.state.constraint_values          = 0.0

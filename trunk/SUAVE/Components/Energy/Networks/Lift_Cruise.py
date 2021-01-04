@@ -69,10 +69,7 @@ class Lift_Cruise(Propulsor):
         self.payload                     = None
         self.battery                     = None
         self.rotor_nacelle_diameter      = None
-        self.propeller_nacelle_diameter  = None
-        self.nacelle_start               = 0.2
-        self.nacelle_end                 = 1.0
-        self.nacelle_offset              = 0.5
+        self.propeller_nacelle_diameter  = None 
         self.rotor_engine_length         = None
         self.propeller_engine_length     = None
         self.number_of_rotor_engines     = None
@@ -81,8 +78,7 @@ class Lift_Cruise(Propulsor):
         self.propeller_thrust_angle      = 0.0
         self.propeller_pitch_command     = 0.0 
         self.rotor_thrust_angle          = 0.0
-        self.rotor_pitch_command         = 0.0
-        self.rotor_VTOL_flag             = True       
+        self.rotor_pitch_command         = 0.0     
         self.tag                         = 'Lift_Cruise'
         self.generative_design_minimum   = 0        
         pass

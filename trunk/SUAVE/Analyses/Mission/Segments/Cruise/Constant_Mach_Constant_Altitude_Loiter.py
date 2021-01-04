@@ -56,7 +56,7 @@ class Constant_Mach_Constant_Altitude_Loiter(Constant_Speed_Constant_Altitude):
         # --------------------------------------------------------------
         self.altitude  = None
         self.mach      = 0.5 
-        self.time      = 1.0 * Units.sec
+        self.time      = 1.0 * Units.sec         
         
         # --------------------------------------------------------------
         #   The Solving Process

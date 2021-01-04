@@ -52,8 +52,7 @@ class Given_State_of_Charge(All_At_Once):
         #   User inputs
         # --------------------------------------------------------------
         self.cruise_tag  = 'cruise'
-        self.target_state_of_charge = .25
-        
+        self.target_state_of_charge = .25          
         
         # --------------------------------------------------------------
         #   State

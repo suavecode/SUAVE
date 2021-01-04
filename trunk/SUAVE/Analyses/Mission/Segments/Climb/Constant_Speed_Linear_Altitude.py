@@ -64,7 +64,6 @@ class Constant_Speed_Linear_Altitude(Aerodynamic):
         self.altitude_start = None
         self.altitude_end   = None
         
-        
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
@@ -77,6 +76,7 @@ class Constant_Speed_Linear_Altitude(Aerodynamic):
         self.state.unknowns.throttle   = ones_row(1) * 0.5
         self.state.unknowns.body_angle = ones_row(1) * 0.0
         self.state.residuals.forces    = ones_row(2) * 0.0
+        self.state.VTOL_flag           = False    
         
         
         # --------------------------------------------------------------

@@ -401,8 +401,7 @@ def configs_setup(vehicle):
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle  
-    config.propulsors.vectored_thrust.pitch_command   = 0.  * Units.degrees
-    config.propulsors.vectored_thrust.VTOL_flag       = True 
+    config.propulsors.vectored_thrust.pitch_command   = 0.  * Units.degrees 
     configs.append(config)         
 
     # ------------------------------------------------------------------
@@ -416,8 +415,7 @@ def configs_setup(vehicle):
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle   
-    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees  
-    config.propulsors.vectored_thrust.VTOL_flag       = True   
+    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees   
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -431,8 +429,7 @@ def configs_setup(vehicle):
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle
-    config.propulsors.vectored_thrust.pitch_command   = 3.  * Units.degrees 
-    config.propulsors.vectored_thrust.VTOL_flag       = True 
+    config.propulsors.vectored_thrust.pitch_command   = 3.  * Units.degrees  
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -446,8 +443,7 @@ def configs_setup(vehicle):
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle 
-    config.propulsors.vectored_thrust.pitch_command   = 5.  * Units.degrees    
-    config.propulsors.vectored_thrust.VTOL_flag       = False 
+    config.propulsors.vectored_thrust.pitch_command   = 5.  * Units.degrees     
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -461,8 +457,7 @@ def configs_setup(vehicle):
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle  
-    config.propulsors.vectored_thrust.pitch_command   = 10.  * Units.degrees  
-    config.propulsors.vectored_thrust.VTOL_flag       = False    
+    config.propulsors.vectored_thrust.pitch_command   = 10.  * Units.degrees   
     configs.append(config)    
 
 
@@ -478,8 +473,7 @@ def configs_setup(vehicle):
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle     
-    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees 
-    config.propulsors.vectored_thrust.VTOL_flag       = True     
+    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees  
     configs.append(config)
 
     return configs

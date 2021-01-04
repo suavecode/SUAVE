@@ -62,7 +62,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         self.throttle        = None
         self.altitude        = None
         self.air_speed_start = None
-        self.air_speed_end   = 0.0 
+        self.air_speed_end   = 0.0  
         
         # --------------------------------------------------------------
         #   State
@@ -78,6 +78,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         self.state.unknowns.time                  = 100.
         self.state.residuals.final_velocity_error = 0.0
         self.state.residuals.forces               = ones_row(2) * 0.0
+        self.state.VTOL_flag                      = False 
     
         # --------------------------------------------------------------
         #   The Solving Process

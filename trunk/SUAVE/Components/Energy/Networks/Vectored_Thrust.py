@@ -56,16 +56,12 @@ class Vectored_Thrust(Propulsor):
         self.avionics                 = None
         self.payload                  = None
         self.battery                  = None
-        self.nacelle_diameter         = None
-        self.nacelle_start            = 0.2
-        self.nacelle_end              = 1.0
-        self.nacelle_offset           = 0.5
+        self.nacelle_diameter         = None 
         self.engine_length            = None
         self.number_of_engines        = None
         self.voltage                  = None
         self.thrust_angle             = 0.0 
-        self.pitch_command            = 0.0 
-        self.VTOL_flag                = True
+        self.pitch_command            = 0.0  
         self.thrust_angle_start       = None
         self.thrust_angle_end         = None        
     
@@ -139,7 +135,7 @@ class Vectored_Thrust(Propulsor):
         rotor.inputs.omega  = motor.outputs.omega
         rotor.thrust_angle  = thrust_angle
         rotor.pitch_command = self.pitch_command  
-        rotor.VTOL_flag     = self.VTOL_flag    
+        rotor.VTOL_flag     = state.VTOL_flag    
         
         # Run the rotor     
         F, Q, P, Cp , outputs, etap = rotor.spin(conditions)

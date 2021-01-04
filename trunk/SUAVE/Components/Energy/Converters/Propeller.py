@@ -69,8 +69,7 @@ class Propeller(Energy_Component):
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
         self.rotation                  = None
-        self.ducted                    = False  
-        self.VTOL_flag                 = False        
+        self.ducted                    = False         
         self.number_azimuthal_stations = 24
         self.induced_power_factor      = 1.48  #accounts for interference effects
         self.profile_drag_coefficient  = .03        
@@ -148,15 +147,12 @@ class Propeller(Energy_Component):
         """         
            
         #Unpack    
-        B       = self.number_of_blades
-        E       = self.number_of_engines
+        B       = self.number_of_blades 
         R       = self.tip_radius
         Rh      = self.hub_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
-        chi     = self.radius_distribution
-        MCA     = self.mid_chord_aligment
-        t_max   = self.max_thickness_distribution
+        chi     = self.radius_distribution 
         omega   = self.inputs.omega
         a_geo   = self.airfoil_geometry      
         a_loc   = self.airfoil_polar_stations  
@@ -377,14 +373,7 @@ class Propeller(Energy_Component):
         # store data
         self.azimuthal_distribution                   = psi  
         results_conditions                            = Data     
-        outputs                                       = results_conditions(
-                    number_of_engines                 = E,
-                    number_of_blades                  = B,
-                    radius_distribution               = r,
-                    chord_distribution                = c,
-                    twist_distribution                = total_blade_pitch,
-                    mid_chord_aligment                = MCA,
-                    max_thickness_distribution        = t_max,
+        outputs                                       = results_conditions( 
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,   
                     disc_radial_distribution          = r_dim_2d,  

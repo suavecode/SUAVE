@@ -64,7 +64,7 @@ class Set_Speed_Set_Altitude_No_Propulsion(Aerodynamic):
         self.altitude  = None
         self.air_speed = 10. * Units['km/hr']
         self.distance  = 1.  * Units.km
-        self.z_accel   = 0. # note that down is positive
+        self.z_accel   = 0. # note that down is positive 
         self.state.numerics.number_control_points = 1
         
         
@@ -77,8 +77,8 @@ class Set_Speed_Set_Altitude_No_Propulsion(Aerodynamic):
         
         # initials and unknowns
         self.state.unknowns.body_angle = np.array([[0.0]])
-        self.state.residuals.force     = np.array([[0.0]])
-        
+        self.state.residuals.force     = np.array([[0.0]]) 
+        self.state.VTOL_flag = False        
         
         # --------------------------------------------------------------
         #   The Solving Process

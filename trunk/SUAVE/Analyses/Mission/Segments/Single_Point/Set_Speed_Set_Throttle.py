@@ -65,7 +65,7 @@ class Set_Speed_Set_Throttle(Aerodynamic):
         self.air_speed = 10. * Units['km/hr']
         self.throttle  = 1.
         self.z_accel   = 0. # note that down is positive
-        self.state.numerics.number_control_points = 1
+        self.state.numerics.number_control_points = 1 
         
         
         # --------------------------------------------------------------
@@ -79,6 +79,7 @@ class Set_Speed_Set_Throttle(Aerodynamic):
         self.state.unknowns.x_accel    = np.array([[0.0]])
         self.state.unknowns.body_angle = np.array([[0.5]])
         self.state.residuals.forces    = np.array([[0.0,0.0]])
+        self.state.VTOL_flag           = False  
         
         
         # --------------------------------------------------------------

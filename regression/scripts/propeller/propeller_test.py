@@ -108,8 +108,7 @@ def main():
     rot_a.number_of_blades         = 2   
     rot_a.design_tip_mach          = 0.65
     rot_a.number_of_engines        = 12
-    rot_a.disc_area                = np.pi*(rot_a.tip_radius**2)        
-    rot_a.induced_hover_velocity   = 12.756071638899549
+    rot_a.disc_area                = np.pi*(rot_a.tip_radius**2)     
     rot_a.freestream_velocity      = 500. * Units['ft/min']  
     rot_a.angular_velocity         = 258.9520059992501
     rot_a.design_Cl                = 0.7
@@ -119,7 +118,7 @@ def main():
     rot_a.airfoil_polars           = [['NACA_4412_polar_Re_50000.txt','NACA_4412_polar_Re_100000.txt',
                                      'NACA_4412_polar_Re_200000.txt','NACA_4412_polar_Re_500000.txt',
                                      'NACA_4412_polar_Re_1000000.txt']]
-    rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]    
+    rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]   
     rot_a                          = propeller_design(rot_a) 
     
     # Design a Rotor without airfoil geometry defined 
@@ -130,13 +129,12 @@ def main():
     rot.number_of_blades         = 2   
     rot.design_tip_mach          = 0.65
     rot.number_of_engines        = 12
-    rot.disc_area                = np.pi*(rot.tip_radius**2)        
-    rot.induced_hover_velocity   = 12.756071638899549
+    rot.disc_area                = np.pi*(rot.tip_radius**2)    
     rot.freestream_velocity      = 500. * Units['ft/min']  
     rot.angular_velocity         = 258.9520059992501
     rot.design_Cl                = 0.7
     rot.design_altitude          = 20 * Units.feet                            
-    rot.design_thrust            = 2271.2220451593753  
+    rot.design_thrust            = 2271.2220451593753   
     rot                          = propeller_design(rot) 
     
     # Find the operating conditions

@@ -56,7 +56,7 @@ class Constant_Speed_Constant_Altitude_Loiter(Constant_Speed_Constant_Altitude):
         # --------------------------------------------------------------
         self.altitude  = None
         self.air_speed = 1.0
-        self.time      = 1.0 * Units.sec
+        self.time      = 1.0 * Units.sec 
         
         # --------------------------------------------------------------
         #   The Solving Process

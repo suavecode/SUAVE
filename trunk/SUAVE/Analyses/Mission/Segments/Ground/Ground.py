@@ -95,6 +95,7 @@ class Ground(Aerodynamic):
         self.state.conditions.ground.incline                      = ones_row(1) * 0.0
         self.state.conditions.ground.friction_coefficient         = ones_row(1) * 0.0
         self.state.conditions.frames.inertial.ground_force_vector = ones_row(3) * 0.0
+        self.state.VTOL_flag                                      = False  
     
         # --------------------------------------------------------------
         #   The Solving Process
