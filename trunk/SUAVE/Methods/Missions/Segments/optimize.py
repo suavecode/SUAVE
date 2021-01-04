@@ -265,7 +265,7 @@ def get_problem_pyopt(unknowns, segment):
     else:
         segment.state.unknowns = unknowns
         
-    if not np.all(state.inputs_last == segment.state.unknowns):
+    if not np.all(segment.state.inputs_last == segment.state.unknowns):
         segment.process.iterate(segment)
         
     obj      = segment.state.objective_value
@@ -276,7 +276,7 @@ def get_problem_pyopt(unknowns, segment):
     
     # Less than a specified CL limit
     lift_coefficient_limit = segment.lift_coefficient_limit 
-    CL_con   = (lift_coefficient_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/lift_coefficient_limit
+    CL_con   = (lift_coefficient_limit  - segment.state.conditions.aerodynamics.lift_coefficient[:,0])/lift_coefficient_limit
     
     # Altitudes are greater than 0
     alt_con = segment.state.conditions.freestream.altitude[:,0]/segment.altitude_end

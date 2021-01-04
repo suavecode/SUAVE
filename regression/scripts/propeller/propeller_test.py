@@ -82,7 +82,7 @@ def main():
     prop_a                         = propeller_design(prop_a)  
     
     # plot propeller 
-    #plot_propeller_geometry(prop_a)
+    plot_propeller_geometry(prop_a)
  
     # Design a Rotor with airfoil  geometry defined  
     rot_a                          = SUAVE.Components.Energy.Converters.Rotor() 
@@ -135,11 +135,11 @@ def main():
     
     # propeller with airfoil results 
     F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)  
-    #plot_results(output_a, prop_a,'blue','-','s')
+    plot_results(output_a, prop_a,'blue','-','s')
     
     # rotor with airfoil results 
     Fr_a, Qr_a, Pr_a, Cplastr_a ,outputr_a , etapr = rot_a.spin(conditions_r)
-    #plot_results(outputr_a, rot_a,'green','-','^')
+    plot_results(outputr_a, rot_a,'green','-','^')
     
     # Truth values for propeller with airfoil geometry defined 
     F_a_truth       = 3383.41788013
