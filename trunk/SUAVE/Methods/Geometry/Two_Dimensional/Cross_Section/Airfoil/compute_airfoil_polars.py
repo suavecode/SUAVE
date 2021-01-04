@@ -117,10 +117,9 @@ def compute_airfoil_polars(a_geo,a_polar):
             ACD1   = airfoil_aoa[idx_aoa_max_prestall_cd] * Units.degrees     
             
             # Find the point of lowest drag and the CD
-            CD_min_loc = np.where(airfoil_cd==min(airfoil_cd))
-            ACDmin     = airfoil_aoa[CD_min_loc] * Units.degrees
-            CDmin      = airfoil_cd[CD_min_loc]    
-            CD0        = airfoil_cd[idx_zero_lift]
+            idx_CD_min = np.where(airfoil_cd==min(airfoil_cd))[0][0]
+            ACDmin     = airfoil_aoa[idx_CD_min] * Units.degrees
+            CDmin      = airfoil_cd[idx_CD_min]    
             AoA_sweep_radians = AoA_sweep_deg*Units.degrees
             
             # Setup data structures for this run
@@ -150,27 +149,6 @@ def compute_airfoil_polars(a_geo,a_polar):
             # Pack this loop
             CL[i,j,:] = CL_ij
             CD[i,j,:] = CD_ij
-            
-            
-            ##################
-            ## Stuff to delete later
-            #from pylab import plt
-            #name  = 'Lift' + str(i) + ' + ' + str(j)
-            #fig  = plt.figure(name)
-            #axes = fig.add_subplot(1,1,1)    
-            #axes.plot(AoA_sweep_deg, CL_ij, 'k-')
-            #axes.plot(airfoil_aoa,airfoil_cl, 'r-')   
-            
-            #name2 ='Drag' + str(i) + ' + ' + str(j)
-            #fig2  = plt.figure(name2)
-            #axes2 = fig2.add_subplot(1,1,1)    
-            #axes2.plot(AoA_sweep_deg,CD_ij,  'k-')
-            #axes2.plot(airfoil_aoa,airfoil_cd,'r-')              
-            
-            
-            #plt.show()
-            
-            
            
         CL_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CL[i,:,:])  
         CD_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CD[i,:,:])   
