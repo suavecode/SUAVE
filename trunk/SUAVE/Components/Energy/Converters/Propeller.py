@@ -329,8 +329,7 @@ class Propeller(Energy_Component):
         blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         
-        blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T 
-        
+        blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T  
         blade_dT_dR = np.zeros((ctrl_pts,Nr))
         blade_dT_dr = np.zeros((ctrl_pts,Nr))
         blade_dQ_dR = np.zeros((ctrl_pts,Nr))
