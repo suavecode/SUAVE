@@ -286,6 +286,6 @@ def get_problem_pyopt(unknowns, segment):
     
     obj   = segment.state.objective_value
     const = constraints.tolist()
-    fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)    
+    fail  = np.array(np.isnan(obj) or np.isnan(np.array(const).any())).astype(int)    
     
     return obj,const,fail
