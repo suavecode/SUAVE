@@ -46,7 +46,7 @@ def main():
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.rotor_rpm[0][0]
-    RPM_true   = 1949.2288316902263
+    RPM_true   = 2280.507731502943
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -55,10 +55,10 @@ def main():
     
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([3.58750577e+08, 3.58709906e+08, 3.58589362e+08, 3.58393440e+08,
-                                                        3.58129021e+08, 3.57805339e+08, 3.57435179e+08, 3.57035505e+08,
-                                                        3.56624855e+08, 3.56224529e+08, 3.55855053e+08, 3.55533840e+08,
-                                                        3.55274344e+08, 3.55085030e+08, 3.54970334e+08, 3.54931970e+08])
+    battery_energy_hover_to_transition_true = np.array([3.22328865e+08, 3.22269671e+08, 3.22094177e+08, 3.21808450e+08,
+                                                        3.21422810e+08, 3.20951026e+08, 3.20412459e+08, 3.19831954e+08,
+                                                        3.19237870e+08, 3.18661086e+08, 3.18131527e+08, 3.17674439e+08,
+                                                        3.17307902e+08, 3.17042399e+08, 3.16882405e+08, 3.16829048e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true) 
@@ -68,7 +68,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.5931232020688374
+    lift_coefficient_true   = 0.6973633354447635
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
