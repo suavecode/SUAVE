@@ -59,10 +59,9 @@ class Turbofan(Propulsor):
         #setting the default values
         self.tag = 'Turbofan'
         self.number_of_engines    = 0.0
-        self.nacelle_diameter     = 0.0 
+        self.nacelle_diameter     = 0.0
         self.engine_length        = 0.0
         self.bypass_ratio         = 0.0
-        self.thrust_angle         = 0.0
         self.SFC_adjustment       = 0.0 # Less than 1 is a reduction
         self.OpenVSP_flow_through = False
         

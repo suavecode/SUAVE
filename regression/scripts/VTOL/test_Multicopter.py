@@ -41,7 +41,7 @@ def main():
     plot_mission(results)
     
     # save, load and plot old results 
-    save_multicopter_results(results)
+    #save_multicopter_results(results)
     old_results = load_multicopter_results() 
     plot_mission(old_results,'k-')
     plt.show(block=True)    
@@ -316,6 +316,7 @@ def plot_mission(results,line_style='bo-'):
     plot_disc_power_loading(results, line_style)    
          
     return
+ 
 
 
 def load_multicopter_results():

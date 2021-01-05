@@ -73,7 +73,7 @@ def main():
     print_mission_breakdown(results,filename='mission_breakdown.dat')
 
     # load older results
-    #save_results(results)
+    save_results(results)
     old_results = load_results()   
 
     # plt the old results
@@ -312,7 +312,8 @@ def mission_setup(analyses):
 
     segment.air_speed  = 450. * Units.knots #230.  * Units['m/s'] 
     segment.distance   = 2100. * Units.nmi
-
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg 
+    
     # add to mission
     mission.append_segment(segment)
 

@@ -64,7 +64,7 @@ class Set_Speed_Set_Altitude_No_Propulsion(Aerodynamic):
         self.altitude  = None
         self.air_speed = 10. * Units['km/hr']
         self.distance  = 1.  * Units.km
-        self.z_accel   = 0. # note that down is positive 
+        self.z_accel   = 0. # note that down is positive
         self.state.numerics.number_control_points = 1
         
         

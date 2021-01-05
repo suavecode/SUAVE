@@ -74,8 +74,9 @@ class Lift_Cruise_Optimized(Aerodynamic):
         self.objective               = None # This will be a key
         self.minimize                = True
         self.lift_coefficient_limit  =  1.e20  
-        self.algorithm               = 'SLSQP'     
+        self.algorithm               = 'SLSQP'
         
+
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------

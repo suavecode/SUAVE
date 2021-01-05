@@ -74,8 +74,9 @@ class Optimized(Aerodynamic):
         self.minimize               = True
         self.lift_coefficient_limit = 1.e20 
         self.seed_climb_rate        = 100. * Units['feet/min']
-        self.algorithm              = 'SLSQP'  
+        self.algorithm              = 'SLSQP'
         
+
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------

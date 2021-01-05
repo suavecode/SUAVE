@@ -56,12 +56,12 @@ class Vectored_Thrust(Propulsor):
         self.avionics                 = None
         self.payload                  = None
         self.battery                  = None
-        self.nacelle_diameter         = None 
+        self.nacelle_diameter         = None
         self.engine_length            = None
         self.number_of_engines        = None
         self.voltage                  = None
         self.thrust_angle             = 0.0 
-        self.pitch_command            = 0.0  
+        self.pitch_command            = 0.0
         self.thrust_angle_start       = None
         self.thrust_angle_end         = None        
     

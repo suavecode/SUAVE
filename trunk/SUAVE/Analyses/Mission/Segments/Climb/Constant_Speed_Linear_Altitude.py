@@ -64,6 +64,7 @@ class Constant_Speed_Linear_Altitude(Aerodynamic):
         self.altitude_start = None
         self.altitude_end   = None
         
+
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------

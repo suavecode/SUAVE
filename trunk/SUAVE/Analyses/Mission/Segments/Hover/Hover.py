@@ -56,8 +56,8 @@ class Hover(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude  = None
-        self.time      = 1.0 * Units.seconds
+        self.altitude = None
+        self.time     = 1.0 * Units.seconds
         
         # --------------------------------------------------------------
         #   State
