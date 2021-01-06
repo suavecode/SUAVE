@@ -378,8 +378,7 @@ class Rotor(Energy_Component):
         # store data
         self.azimuthal_distribution                   = psi  
         results_conditions                            = Data     
-        outputs                                       = results_conditions(
-      number_of_engines                 = E,
+        outputs                                       = results_conditions( 
                     number_of_blades                  = B, 
                     radius_distribution               = r,
                     chord_distribution                = c,

@@ -60,7 +60,7 @@ def unpack_unknowns(segment):
     if segment.air_speed_end is None:
         v_mag =  np.concatenate([[[vel0]],vel*vel0])
     elif segment.air_speed_end is not None:
-        v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
+        v_mag = np.concatenate([[[vel0]],vel*vel0,[[velf]]])
         
     if np.all(gamma == 0.):
         gamma[gamma==0.] = 1.e-16
