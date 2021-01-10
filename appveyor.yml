@@ -27,7 +27,7 @@ on_success:
   coveralls
 
 
-build:
+build_script:
   verbosity: normal
   
   
