@@ -25,9 +25,3 @@ test_script:
      
 on_success:
   coveralls
-
-
-build_script:
-  verbosity: normal
-  
-  
