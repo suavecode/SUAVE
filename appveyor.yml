@@ -21,7 +21,7 @@ install:
     - cd ../regression
     
 test_script:
-  coverage run automatic_regression.py test
+  ~/.local/bin/coverage run automatic_regression.py test
      
 on_success:
   coveralls
