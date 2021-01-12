@@ -68,7 +68,7 @@ def main():
     prop_a.tip_radius               = 1.0668
     prop_a.hub_radius               = 0.21336 
     prop_a.design_tip_mach          = 0.65
-    prop_a.angular_velocity         = gearbox.inputs.speed # 207.16160479940007 
+    prop_a.angular_velocity         = gearbox.inputs.speed  
     prop_a.design_Cl                = 0.7
     prop_a.design_altitude          = 1. * Units.km      
     prop_a.rotation                 = [1]
@@ -147,10 +147,10 @@ def main():
     Cplast_a_truth  = 0.10662024
     
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1047.14847118
-    Qr_a_truth      = 124.97572991
-    Pr_a_truth      = 25890.17276992
-    Cplastr_a_truth = 0.04072395
+    Fr_a_truth      = 1447.95378214
+    Qr_a_truth      = 191.08844467
+    Pr_a_truth      = 39586.18885581
+    Cplastr_a_truth = 0.0622671
 
     # Store errors 
     error = Data()

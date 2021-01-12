@@ -62,7 +62,7 @@ class Constant_Throttle_Constant_Altitude(Aerodynamic):
         self.throttle        = None
         self.altitude        = None
         self.air_speed_start = None
-        self.air_speed_end   = 0.0  
+        self.air_speed_end   = 0.0
         
         # --------------------------------------------------------------
         #   State

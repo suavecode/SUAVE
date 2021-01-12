@@ -53,7 +53,8 @@ def propeller_design(prop,number_of_stations=20):
     R      = prop.tip_radius
     Rh     = prop.hub_radius
     omega  = prop.angular_velocity    # Rotation Rate in rad/s
-    V      = prop.freestream_velocity # Freestream Velocity
+    Va     = prop.induced_hover_velocity
+    Vinf   = prop.freestream_velocity # Freestream Velocity
     Cl     = prop.design_Cl           # Design Lift Coefficient
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
@@ -70,7 +71,9 @@ def propeller_design(prop,number_of_stations=20):
     
     if prop.rotation == None:
         prop.rotation = list(np.ones(int(B))) 
-        
+    
+    # Calculated total velocity 
+    V  = Vinf + Va
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data = atmosphere.compute_values(alt)

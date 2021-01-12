@@ -217,7 +217,7 @@ class Lift_Cruise(Propulsor):
         rotor.inputs.omega  = rotor_motor.outputs.omega
         rotor.thrust_angle  = self.rotor_thrust_angle
         rotor.pitch_command = self.rotor_pitch_command 
-        rotor.VTOL_flag     = self.rotor_VTOL_flag      
+        rotor.VTOL_flag     = state.VTOL_flag   
         
         # Run the propeller
         F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = rotor.spin(konditions)

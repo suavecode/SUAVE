@@ -55,7 +55,7 @@ class Constant_Mach_Constant_Altitude(Constant_Speed_Constant_Altitude):
         # --------------------------------------------------------------
         self.altitude  = None
         self.mach      = 0.5 
-        self.distance  = 10. * Units.km 
+        self.distance  = 10. * Units.km
         
         # --------------------------------------------------------------
         #   The Solving Process
