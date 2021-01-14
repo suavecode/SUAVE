@@ -143,10 +143,19 @@ def wing_segmented_planform(wing, overwrite_reference = False):
     for i in range(len(lengths_dim)):
         Cxys.append(segment_centroid(le_sweeps[i],lengths_dim[i]*(1+sym),dxs[i],dys[i],dzs[i], tapers[i], As[i], panel_mac[i], dihedrals[i]))
 
+    for i in range(len(lengths_dim)):
+        sweep = le_sweeps[i]
+        h = lengths_dim[i]
+        a = chords_dim[i+1]
+        b = chords_dim[i]
+        dx = dxs[i]
+        Cxys[i][0] = correct_x_position(sweep, h, a, b, dx)
+
     aerodynamic_center= (np.dot(np.transpose(Cxys),As)/(ref_area/(1+sym))).tolist()
     
     # If necessary the location of the MAC in the Y-direction could be outputted before overwriting
     half_span_aerodynamic_center = (np.array(aerodynamic_center)*1.).tolist()
+    half_span_aerodynamic_center[0] = half_span_aerodynamic_center[0] - MAC*.25
     if sym== True:
         aerodynamic_center[1] = 0
     
@@ -168,7 +177,7 @@ def wing_segmented_planform(wing, overwrite_reference = False):
     wing.sweeps.leading_edge          = le_sweep_total
     wing.thickness_to_chord           = t_c
     wing.aerodynamic_center           = aerodynamic_center
-    #wing.half_span_aerodynamic_center = half_span_aerodynamic_center
+    wing.half_span_aerodynamic_center = half_span_aerodynamic_center
     wing.total_length                 = total_length
     
     return wing
@@ -199,7 +208,13 @@ def segment_centroid(le_sweep,seg_span,dx,dy,dz,taper,A,mac,dihedral):
     """    
     
     cy = seg_span / 6. * (( 1. + 2. * taper ) / (1. + taper))
-    cx = mac * 0.25 + cy * np.tan(le_sweep)
+    cx = mac * 0.5 + cy * np.tan(le_sweep)
     cz = cy * np.tan(dihedral)    
     
     return np.array([cx+dx,cy+dy,cz+dz])
+
+def correct_x_position(sweep, h, a, b, dx):
+    c = np.tan(sweep)*h
+    x = (2*a*c + a**2 + c*b + a*b + b**2) / (3*(a+b))
+    x += dx
+    return x

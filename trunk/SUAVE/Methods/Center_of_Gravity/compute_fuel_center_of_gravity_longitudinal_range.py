@@ -10,7 +10,7 @@ import numpy as np
 from copy import copy
 
 ## @ingroup Methods-Center_of_Gravity
-def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0, units='metric'):
+def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0, units='metric',special_length=None):
     """Plot possible longitudinal cg positions for the fuel (or full vehicle
     is empty mass is given)
     
@@ -39,7 +39,10 @@ def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0, units='metric')
         m_str = 'kg'
         ylabel_string = 'Total Mass ('+m_str+')'
     elif units == 'imperial':
-        l_str = 'ft'
+        if special_length is None:
+            l_str = 'ft'
+        elif special_length == 'inches':
+            l_str = 'in'
         m_str = 'lb'
         ylabel_string = 'Total Weight ('+m_str+')'
     else:
@@ -61,11 +64,14 @@ def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0, units='metric')
     fig = plt.figure("Available Fuel CG Distribution",figsize=(8,6))
     axes = plt.gca()
     if units == 'metric':
-        axes.plot(cg_maxes,masses,'g-') 
-        axes.plot(cg_mins,masses,'b-')
-    elif units == 'imperial':
-        axes.plot(cg_maxes/Units.ft,masses/Units.lb,'g-',label='Maximum CG Position') 
-        axes.plot(cg_mins/Units.ft,masses/Units.lb,'b-',label='Minimum CG Position')
+        axes.plot(cg_maxes,masses,color=plt.cm.Greys(.8)) 
+        axes.plot(cg_mins,masses,color=plt.cm.Greys(.8))
+    elif units == 'imperial' and special_length is None:
+        axes.plot(cg_maxes/Units.ft,masses/Units.lb,color=plt.cm.Greys(.8),label='Maximum CG Position') 
+        axes.plot(cg_mins/Units.ft,masses/Units.lb,color=plt.cm.Greys(.8),label='Minimum CG Position')
+    elif units == 'imperial' and special_length == 'inches':
+        axes.plot(cg_maxes/Units.inch,masses/Units.lb,color=plt.cm.Greys(.8),label='Maximum CG Position') 
+        axes.plot(cg_mins/Units.inch,masses/Units.lb,color=plt.cm.Greys(.8),label='Minimum CG Position')        
     else:
         raise NotImplementedError('Unit choice not recognized.')
     

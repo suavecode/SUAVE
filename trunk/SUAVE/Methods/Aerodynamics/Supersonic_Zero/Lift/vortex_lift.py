@@ -61,7 +61,7 @@ def vortex_lift(state,settings,geometry):
             else:
                 GAMMA      = wing.sweeps.leading_edge
                 
-            AR = wing.aspect_ratio
+            AR = wing.aspect_ratio * wing.areas.reference / wing.areas.gross
             a = np.abs(AoA[Mc < 1.0])
             signs = np.sign(AoA[Mc < 1.0])
             # Calculate vortex lift
