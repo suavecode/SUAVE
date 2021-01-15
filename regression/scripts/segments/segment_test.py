@@ -73,16 +73,16 @@ def main():
     climb_throttle_7_truth   = 0.922353427477479
     climb_throttle_8_truth   = 1.1239082126543347
     climb_throttle_9_truth   = 1.2183947968106865
-    climb_throttle_10_truth  = 1.0
-    cruise_CL_1_truth        = 0.6834366269854595
-    cruise_CL_2_truth        = 0.6840678340263833
-    cruise_CL_3_truth        = 0.685302599156716
-    descent_throttle_1_truth = 0.09049398639906232
-    descent_throttle_2_truth = 0.22891090274935624
-    single_pt_CL_1_truth     = 0.24670646411960648
-    single_pt_CL_2_truth     = 0.24666864092935115
-    loiter_CL_truth          = 0.5026267553837497
-    descent_throttle_3_truth = 0.17053912077296246
+    climb_throttle_10_truth  = 0.23503451698233277
+    cruise_CL_1_truth        = 0.6979951882955766
+    cruise_CL_2_truth        = 0.6987006641518372
+    cruise_CL_3_truth        = 0.6909537251217169
+    descent_throttle_1_truth = 0.09294921147132666
+    descent_throttle_2_truth = 0.23596745328819035
+    single_pt_CL_1_truth     = 0.25198967410816725
+    single_pt_CL_2_truth     = 0.251952625381008
+    loiter_CL_truth          = 0.5133664373096885
+    descent_throttle_3_truth = 0.17617653225405205
     
     # Store errors 
     error = Data()
@@ -442,9 +442,9 @@ def mission_setup(analyses):
     segment.altitude_start         = 10.9   * Units.km   
     segment.altitude_end           = 11.0   * Units.km   
     segment.air_speed_start        = 160. * Units.m / Units.s
-    segment.air_speed_end          = 165. * Units.m / Units.s
-    segment.objective              = 'conditions.weights.total_mass[-1,0]'
-    segment.minimize               = False
+    segment.air_speed_end          = None
+    segment.objective              = 'conditions.frames.inertial.time[-1,0]'
+    segment.minimize               = True
     segment.state.numerics.number_control_points = 3
     # add to misison
     mission.append_segment(segment)
