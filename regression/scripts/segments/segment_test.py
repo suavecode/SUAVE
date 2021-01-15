@@ -73,16 +73,16 @@ def main():
     climb_throttle_7_truth   = 0.922353427477479
     climb_throttle_8_truth   = 1.1239082126543347
     climb_throttle_9_truth   = 1.2183947968106865
-    climb_throttle_10_truth  = 0.23503451698233277
-    cruise_CL_1_truth        = 0.6979951882955766
-    cruise_CL_2_truth        = 0.6987006641518372
-    cruise_CL_3_truth        = 0.6909537251217169
-    descent_throttle_1_truth = 0.09294921147132666
-    descent_throttle_2_truth = 0.23596745328819035
-    single_pt_CL_1_truth     = 0.25198967410816725
-    single_pt_CL_2_truth     = 0.251952625381008
-    loiter_CL_truth          = 0.5133664373096885
-    descent_throttle_3_truth = 0.17617653225405205
+    climb_throttle_10_truth  = 0.9999997218756403
+    cruise_CL_1_truth        = 0.6979920081899249
+    cruise_CL_2_truth        = 0.6986974673436628
+    cruise_CL_3_truth        = 0.6909524889254498
+    descent_throttle_1_truth = 0.09294865103075164
+    descent_throttle_2_truth = 0.23596589297788614
+    single_pt_CL_1_truth     = 0.25198852015945655
+    single_pt_CL_2_truth     = 0.25195147123799116
+    loiter_CL_truth          = 0.5133640917717192
+    descent_throttle_3_truth = 0.17617528339560964
     
     # Store errors 
     error = Data()
@@ -443,7 +443,7 @@ def mission_setup(analyses):
     segment.altitude_end           = 11.0   * Units.km   
     segment.air_speed_start        = 160. * Units.m / Units.s
     segment.air_speed_end          = None
-    segment.objective              = 'conditions.frames.inertial.time[-1,0]'
+    segment.objective              = 'conditions.frames.inertial.time[-1,0]*1000'
     segment.minimize               = True
     segment.state.numerics.number_control_points = 3
     # add to misison
