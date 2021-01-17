@@ -77,8 +77,8 @@ class Set_Speed_Set_Altitude_No_Propulsion(Aerodynamic):
         
         # initials and unknowns
         self.state.unknowns.body_angle = np.array([[0.0]])
-        self.state.residuals.force     = np.array([[0.0]]) 
-        self.state.VTOL_flag = False        
+        self.state.residuals.force     = np.array([[0.0]])
+        
         
         # --------------------------------------------------------------
         #   The Solving Process

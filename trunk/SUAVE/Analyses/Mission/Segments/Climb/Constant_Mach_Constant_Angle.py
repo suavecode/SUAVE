@@ -66,8 +66,7 @@ class Constant_Mach_Constant_Angle(Unknown_Throttle):
         # initials and unknowns
         ones_row = self.state.ones_row        
         self.state.unknowns.altitudes  = ones_row(1) * 0.0
-        self.state.residuals.forces    = ones_row(3) * 0.0    
-        self.state.VTOL_flag           = False          
+        self.state.residuals.forces    = ones_row(3) * 0.0           
         
         # --------------------------------------------------------------
         #   The Solving Process

@@ -73,8 +73,7 @@ class Takeoff(Ground):
         self.state.unknowns.velocity_x            = ones_row_m1(1) * 0.0
         self.state.unknowns.time                  = 100.
         self.state.residuals.final_velocity_error = 0.0
-        self.state.residuals.forces               = ones_row_m1(1) * 0.0   
-        self.state.VTOL_flag                      = False       
+        self.state.residuals.forces               = ones_row_m1(1) * 0.0        
 
         # --------------------------------------------------------------
         #   The Solving Process

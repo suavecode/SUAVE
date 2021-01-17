@@ -59,7 +59,7 @@ class Constant_Mach_Linear_Altitude(Constant_Speed_Linear_Altitude):
         self.altitude_start = None
         self.altitude_end = None
         
-
+        
         # --------------------------------------------------------------
         #   The Solving Process
         # --------------------------------------------------------------

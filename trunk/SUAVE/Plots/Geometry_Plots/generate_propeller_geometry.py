@@ -17,7 +17,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4
 ## @ingroup Plots-Geometry_Plots 
 def generate_propeller_geometry(prop, angle_offset = 0):
     
-    """This plots the geoemtry of a propeller or rotor
+    """This plots the geometry of a propeller or rotor
 
     Assumptions:
     None
@@ -37,7 +37,7 @@ def generate_propeller_geometry(prop, angle_offset = 0):
     
     # unpack 
     # ------------------------------------------------------------------------
-    # Generate Propeller Geoemtry  
+    # Generate Propeller Geometry  
     # ------------------------------------------------------------------------
     
     # unpack

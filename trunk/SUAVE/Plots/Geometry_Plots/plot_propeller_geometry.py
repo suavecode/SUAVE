@@ -15,7 +15,7 @@ from SUAVE.Plots.Geometry_Plots import generate_propeller_geometry
 
 ## @ingroup Plots-Geometry_Plots
 def plot_propeller_geometry(prop, face_color = 'red', edge_color = 'black' , save_figure = False, save_filename = "Propeller_Geometry", file_type = ".png"):
-    """This plots the geoemtry of a propeller or rotor
+    """This plots the geometry of a propeller or rotor
 
     Assumptions:
     None

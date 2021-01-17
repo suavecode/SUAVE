@@ -79,7 +79,6 @@ class Set_Speed_Set_Throttle(Aerodynamic):
         self.state.unknowns.x_accel    = np.array([[0.0]])
         self.state.unknowns.body_angle = np.array([[0.5]])
         self.state.residuals.forces    = np.array([[0.0,0.0]])
-        self.state.VTOL_flag           = False  
         
         
         # --------------------------------------------------------------

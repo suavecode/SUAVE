@@ -63,7 +63,7 @@ class Constant_Acceleration_Constant_Altitude(Aerodynamic):
         self.air_speed_start   = 0.0 * Units['m/s']
         self.air_speed_end     = 1.0 * Units['m/s']
         
-
+        
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
@@ -76,7 +76,7 @@ class Constant_Acceleration_Constant_Altitude(Aerodynamic):
         self.state.unknowns.throttle   = ones_row(1) * 0.5
         self.state.unknowns.body_angle = ones_row(1) * 0.0
         self.state.residuals.forces    = ones_row(2) * 0.0
-        self.state.VTOL_flag         = False        
+        
         
         # --------------------------------------------------------------
         #   The Solving Process
