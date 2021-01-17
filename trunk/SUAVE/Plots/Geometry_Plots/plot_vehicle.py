@@ -53,8 +53,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     fig = plt.figure(save_filename) 
     fig.set_size_inches(8,8) 
     axes = Axes3D(fig)    
-    #axes.view_init(elev= 30, azim= 210)   
-    axes.view_init(elev= 0, azim= 270)  
+    axes.view_init(elev= 30, azim= 210)   
     
     # -------------------------------------------------------------------------
     # PLOT WING
@@ -406,24 +405,28 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
             matrix[:,:,2] = zp
             
             # ROTATION MATRICES FOR INNER SECTION     
-            # rotation about y axis to create twist and position blade upright
-            trans_1 = [[np.cos(rot*flip_1 - rot*beta  ),0 , -np.sin(rot*flip_1 - rot*beta)],
-                           [0 ,  1 , 0] ,
-                           [np.sin(rot*flip_1 - rot*beta) , 0 , np.cos(rot*flip_1 - rot*beta)]] 
-            
+            # rotation about y axis to create twist and position blade upright  
+            trans_1 = np.zeros((dim,3,3))
+            trans_1[:,0,0] = np.cos(rot*flip_1 - rot*beta)           
+            trans_1[:,0,2] = -np.sin(rot*flip_1 - rot*beta)                 
+            trans_1[:,1,1] = 1
+            trans_1[:,2,0] = np.sin(rot*flip_1 - rot*beta) 
+            trans_1[:,2,2] = np.cos(rot*flip_1 - rot*beta) 
     
             # rotation about x axis to create azimuth locations 
             trans_2 = np.array([[1 , 0 , 0],
                            [0 , np.cos(theta[i] + rot*a_o + flip_2 ), np.sin(theta[i] + rot*a_o + flip_2)],
                            [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]) 
+            trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
             
             # roation about y to orient propeller/rotor to thrust angle 
             trans_3 = np.array([[np.cos(ta),0 , -np.sin(ta)],
                            [0 ,  1 , 0] ,
                            [np.sin(ta) , 0 , np.cos(ta)]])
+            trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0)
             
             trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
-            rot_mat   = np.repeat(np.repeat(trans[ np.newaxis,:,: ],len(yp),axis=0)[ :, np.newaxis,:,: ],dim,axis=1) 
+            rot_mat   = np.repeat(trans[:, np.newaxis,:,:],len(yp),axis=1)
              
             # ---------------------------------------------------------------------------------------------
             # ROTATE POINTS
@@ -453,18 +456,18 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
             prop_alpha      = 1
             for sec in range(dim-1): 
                 for loc in range(af_pts): 
-                    X = [G.XA1[sec,loc][0],
-                         G.XB1[sec,loc][0],
-                         G.XB2[sec,loc][0],
-                         G.XA2[sec,loc][0]]
-                    Y = [G.YA1[sec,loc][0],
-                         G.YB1[sec,loc][0],
-                         G.YB2[sec,loc][0],
-                         G.YA2[sec,loc][0]]
-                    Z = [G.ZA1[sec,loc][0],
-                         G.ZB1[sec,loc][0],
-                         G.ZB2[sec,loc][0],
-                         G.ZA2[sec,loc][0]]                    
+                    X = [G.XA1[sec,loc],
+                         G.XB1[sec,loc],
+                         G.XB2[sec,loc],
+                         G.XA2[sec,loc]]
+                    Y = [G.YA1[sec,loc],
+                         G.YB1[sec,loc],
+                         G.YB2[sec,loc],
+                         G.YA2[sec,loc]]
+                    Z = [G.ZA1[sec,loc],
+                         G.ZB1[sec,loc],
+                         G.ZB2[sec,loc],
+                         G.ZA2[sec,loc]]                    
                     prop_verts = [list(zip(X, Y, Z))]
                     prop_collection = Poly3DCollection(prop_verts)
                     prop_collection.set_facecolor(prop_face_color)

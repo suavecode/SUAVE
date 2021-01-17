@@ -63,24 +63,24 @@ def main():
     descent_throttle_3 = results.segments.descent_3.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 1.0004005573202317
-    climb_throttle_2_truth   = 0.8370627391936398
-    climb_throttle_3_truth   = 0.5543006430866031
-    climb_throttle_4_truth   = 0.9281437190954835 
-    climb_throttle_5_truth   = 1.0730131738983995 
-    climb_throttle_6_truth   = 0.7242890473239981
-    climb_throttle_7_truth   = 0.847430655847636
-    climb_throttle_8_truth   = 1.0083766803426517 
-    climb_throttle_9_truth   = 1.0214520031249623
-    cruise_CL_1_truth        = 0.7088845553459023
-    cruise_CL_2_truth        = 0.6977025041559467
-    cruise_CL_3_truth        = 0.7703010824962130
-    descent_throttle_1_truth = 0.2945633889122051
-    descent_throttle_2_truth = 0.3840175961924712
-    single_pt_CL_1_truth     = 0.2516288222490612
-    single_pt_CL_2_truth     = 0.2515917158924371
-    loiter_CL_truth          = 0.5126361812481235
-    descent_throttle_3_truth = 0.1956410501749512
+    climb_throttle_1_truth   = 1.001536626777425 
+    climb_throttle_2_truth   = 0.838116235727868 
+    climb_throttle_3_truth   = 0.5491559850225199 
+    climb_throttle_4_truth   = 0.9209033050467145 
+    climb_throttle_5_truth   = 1.0638877540435963 
+    climb_throttle_6_truth   = 0.7093736662969302 
+    climb_throttle_7_truth   = 0.8309015230737373 
+    climb_throttle_8_truth   = 0.9918017017786935 
+    climb_throttle_9_truth   = 1.0055100231629683 
+    cruise_CL_1_truth        = 0.709280522012989 
+    cruise_CL_2_truth        = 0.698235288582886 
+    cruise_CL_3_truth        = 0.7710069708843298 
+    descent_throttle_1_truth = 0.2921261606923216 
+    descent_throttle_2_truth = 0.38152957316424313 
+    single_pt_CL_1_truth     = 0.2518251752178678 
+    single_pt_CL_2_truth     = 0.25177898236715757 
+    loiter_CL_truth          = 0.5130694500861924 
+    descent_throttle_3_truth = 0.19442516515478242
     
     # Store errors 
     error = Data()
@@ -111,7 +111,6 @@ def main():
     
     plt.show()    
     return
-
 
 # ----------------------------------------------------------------------
 #   Analysis Setup
