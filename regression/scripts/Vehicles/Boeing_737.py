@@ -187,8 +187,8 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Horizontal_Tail()
     wing.tag = 'horizontal_stabilizer'
 
-    wing.aspect_ratio            = 4.66604  
-    wing.sweeps.leading_edge     = 34.982885 * Units.deg # CHANGE BACK TO quarter_chord
+    wing.aspect_ratio            = 4.99
+    wing.sweeps.quarter_chord    = 28.2250 * Units.deg  
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.3333 
 
@@ -198,13 +198,13 @@ def vehicle_setup():
     wing.chords.tip              = 1.4243 
     wing.chords.mean_aerodynamic = 8.0
 
-    wing.areas.reference         = 32.488 
+    wing.areas.reference         = 41.49
     wing.areas.exposed           = 59.354    # Exposed area of the horizontal tail
     wing.areas.wetted            = 64.976    # Wetted area of the horizontal tail
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees
 
-    wing.origin                  = [[33.02,0,1.14]]
+    wing.origin                  = [[33.02,0,1.466]]
     wing.aerodynamic_center      = [0,0,0]
 
     wing.vertical                = False
@@ -220,7 +220,7 @@ def vehicle_setup():
     segment.twist                  = 0. * Units.deg
     segment.root_chord_percent     = 1.0
     segment.dihedral_outboard      = 8.63 * Units.degrees
-    segment.sweeps.leading_edge    = 34.982885  * Units.degrees # CHANGE BACK TO quarter_chord
+    segment.sweeps.quarter_chord   = 28.2250  * Units.degrees 
     segment.thickness_to_chord     = .1
     wing.append_segment(segment)
 
@@ -230,7 +230,7 @@ def vehicle_setup():
     segment.twist                  = 0. * Units.deg
     segment.root_chord_percent     = 0.3333               
     segment.dihedral_outboard      = 0 * Units.degrees
-    segment.sweeps.leading_edge    = 0 * Units.degrees # CHANGE BACK TO quarter_chord
+    segment.sweeps.quarter_chord   = 0 * Units.degrees  
     segment.thickness_to_chord     = .1
     wing.append_segment(segment)
 
@@ -254,8 +254,8 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Vertical_Tail()
     wing.tag = 'vertical_stabilizer'
 
-    wing.aspect_ratio            = 2.123 
-    wing.sweeps.leading_edge     = 25 * Units.deg  # CHANGE BACK TO quarter_chord
+    wing.aspect_ratio            = 1.98865
+    wing.sweeps.quarter_chord    = 31.2  * Units.deg   
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.1183
 
@@ -266,7 +266,7 @@ def vehicle_setup():
     wing.chords.tip              = 1.20 
     wing.chords.mean_aerodynamic = 4.0
 
-    wing.areas.reference         = 32.37
+    wing.areas.reference         = 34.89
 
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
@@ -288,7 +288,7 @@ def vehicle_setup():
     segment.twist                         = 0. * Units.deg
     segment.root_chord_percent            = 1.
     segment.dihedral_outboard             = 0 * Units.degrees
-    segment.sweeps.leading_edge           = 67.884 * Units.degrees # CHANGE BACK TO quarter_chord
+    segment.sweeps.quarter_chord          = 61.485 * Units.degrees  
     segment.thickness_to_chord            = .1
     wing.append_segment(segment)
 
@@ -298,7 +298,7 @@ def vehicle_setup():
     segment.twist                         = 0. * Units.deg
     segment.root_chord_percent            = 0.45
     segment.dihedral_outboard             = 0. * Units.degrees
-    segment.sweeps.leading_edge           = 37.0 * Units.degrees  # CHANGE BACK TO quarter_chord
+    segment.sweeps.quarter_chord          = 31.2 * Units.degrees   
     segment.thickness_to_chord            = .1
     wing.append_segment(segment)
 
@@ -308,7 +308,7 @@ def vehicle_setup():
     segment.twist                         = 0. * Units.deg
     segment.root_chord_percent            = 0.1183 
     segment.dihedral_outboard             = 0.0 * Units.degrees
-    segment.sweeps.leading_edge           = 0.0    # CHANGE BACK TO quarter_chord
+    segment.sweeps.quarter_chord          = 0.0    
     segment.thickness_to_chord            = .1  
     wing.append_segment(segment)
 
