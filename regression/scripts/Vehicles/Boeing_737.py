@@ -58,8 +58,7 @@ def vehicle_setup():
     vehicle.passengers             = 170
     vehicle.systems.control        = "fully powered"
     vehicle.systems.accessories    = "medium range"
-
-
+  
     # ------------------------------------------------------------------
     #   Main Wing
     # ------------------------------------------------------------------
@@ -79,7 +78,8 @@ def vehicle_setup():
     wing.chords.mean_aerodynamic = 4.235 * Units.meter
 
     wing.areas.reference         = 124.862
-
+    wing.areas.wetted            = 225.08
+    
     wing.twists.root             = 4.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
 
@@ -113,7 +113,7 @@ def vehicle_setup():
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Yehudi'
     segment.percent_span_location         = 0.324
-    segment.twist                         = (wing.twists.root*(1-segment.percent_span_location)) * Units.deg
+    segment.twist                         = 0.047193 * Units.deg
     segment.root_chord_percent            = 0.5
     segment.thickness_to_chord            = 0.1
     segment.dihedral_outboard             = 5.5 * Units.degrees
@@ -127,7 +127,7 @@ def vehicle_setup():
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Section_2'
     segment.percent_span_location         = 0.963
-    segment.twist                         = (wing.twists.root*(1-segment.percent_span_location)) * Units.deg
+    segment.twist                         = 0.00258 * Units.deg
     segment.root_chord_percent            = 0.220
     segment.thickness_to_chord            = 0.1
     segment.dihedral_outboard             = 5.5 * Units.degrees
@@ -200,7 +200,7 @@ def vehicle_setup():
 
     wing.areas.reference         = 41.49
     wing.areas.exposed           = 59.354    # Exposed area of the horizontal tail
-    wing.areas.wetted            = 64.976    # Wetted area of the horizontal tail
+    wing.areas.wetted            = 71.81     # Wetted area of the horizontal tail
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees
 
@@ -267,7 +267,8 @@ def vehicle_setup():
     wing.chords.mean_aerodynamic = 4.0
 
     wing.areas.reference         = 34.89
-
+    wing.areas.wetted            = 57.25 
+    
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
 
@@ -344,7 +345,7 @@ def vehicle_setup():
     fuselage.heights.at_wing_root_quarter_chord = 3.74 
 
     fuselage.areas.side_projected  = 142.1948 
-    fuselage.areas.wetted          = 446.718 
+    fuselage.areas.wetted          = 385.51
     fuselage.areas.front_projected = 12.57
 
     fuselage.effective_diameter    = 3.74 
@@ -487,8 +488,7 @@ def vehicle_setup():
     fuselage.Segments.append(segment)                  
     
     # add to vehicle
-    vehicle.append_component(fuselage)
-   
+    vehicle.append_component(fuselage) 
     
     # ------------------------------------------------------------------
     #   Turbofan Network

@@ -390,102 +390,60 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
             # get airfoil coordinate geometry     
             airfoil_data = import_airfoil_geometry(a_sec,npoints=n_points)   
             
-            # store points of airfoil in similar format as Vortex Points (i.e. in vertices) 
-            # --------------------------------------------
-            # INNER SECTION
-            # --------------------------------------------                        
-            # INNER SECTION POINTS    
-            ixpts       = np.take(airfoil_data.x_coordinates,a_secl[:-1],axis=0)
-            izpts       = np.take(airfoil_data.y_coordinates,a_secl[:-1],axis=0) 
-            iba_max_t   = np.take(airfoil_data.thickness_to_chord,a_secl[:-1],axis=0) 
-            iba_max_t2d = np.repeat(np.atleast_2d(iba_max_t).T ,dim,axis=1)
+            # store points of airfoil in similar format as Vortex Points (i.e. in vertices)  
+            xpts    = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
+            zpts    = np.take(airfoil_data.y_coordinates,a_secl,axis=0) 
+            max_t   = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0) 
+            max_t2d = np.repeat(np.atleast_2d(max_t).T ,dim,axis=1)
             
-            iba_xp      = rot*(- MCA_2d[:-1,:] + ixpts*b_2d[:-1,:])             # x coord of airfoil
-            iba_yp      = r_2d[:-1,:]*np.ones_like(iba_xp)                                             # radial location        
-            iba_zp      = izpts*(t_2d[:-1,:]/iba_max_t2d) # former airfoil y coord 
-    
-            iba_matrix = np.zeros((len(iba_zp),dim,3))    
-            iba_matrix[:,:,0] = iba_xp
-            iba_matrix[:,:,1] = iba_yp
-            iba_matrix[:,:,2] = iba_zp
+            xp      = rot*(- MCA_2d + xpts*b_2d)             # x coord of airfoil
+            yp      = r_2d*np.ones_like(xp)                                             # radial location        
+            zp      = zpts*(t_2d/max_t2d) # former airfoil y coord 
+                              
+            matrix = np.zeros((len(zp),dim,3)) # radial location, airfoil pts (same y)   
+            matrix[:,:,0] = xp
+            matrix[:,:,1] = yp
+            matrix[:,:,2] = zp
             
             # ROTATION MATRICES FOR INNER SECTION     
             # rotation about y axis to create twist and position blade upright
-            iba_trans_1 = [[np.cos(rot*flip_1 - rot*beta[:-1]  ),0 , -np.sin(rot*flip_1 - rot*beta[:-1])],
+            trans_1 = [[np.cos(rot*flip_1 - rot*beta  ),0 , -np.sin(rot*flip_1 - rot*beta)],
                            [0 ,  1 , 0] ,
-                           [np.sin(rot*flip_1 - rot*beta[:-1]) , 0 , np.cos(rot*flip_1 - rot*beta[:-1])]] 
+                           [np.sin(rot*flip_1 - rot*beta) , 0 , np.cos(rot*flip_1 - rot*beta)]] 
             
     
             # rotation about x axis to create azimuth locations 
-            iba_trans_2 = [[1 , 0 , 0],
+            trans_2 = np.array([[1 , 0 , 0],
                            [0 , np.cos(theta[i] + rot*a_o + flip_2 ), np.sin(theta[i] + rot*a_o + flip_2)],
-                           [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]] 
+                           [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]) 
             
             # roation about y to orient propeller/rotor to thrust angle 
-            iba_trans_3 = [[np.cos(ta),0 , -np.sin(ta)],
+            trans_3 = np.array([[np.cos(ta),0 , -np.sin(ta)],
                            [0 ,  1 , 0] ,
-                           [np.sin(ta) , 0 , np.cos(ta)]] 
+                           [np.sin(ta) , 0 , np.cos(ta)]])
             
-            iba_trans  = np.matmul(iba_trans_3,np.matmul(iba_trans_2,iba_trans_1))
-            irot_mat   = np.repeat(np.repeat(iba_trans[ np.newaxis,:,: ],len(iba_yp),axis=0)[ :, np.newaxis,:,: ],dim,axis=1) 
-            
-            # --------------------------------------------
-            # OUTER SECTION
-            # -------------------------------------------- 
-            # OUTER SECTION POINTS    
-            oxpts       = np.take(airfoil_data.x_coordinates,a_secl[1:],axis=0)
-            ozpts       = np.take(airfoil_data.y_coordinates,a_secl[1:],axis=0) 
-            oba_max_t   = np.take(airfoil_data.thickness_to_chord,a_secl[1:],axis=0)
-            oba_max_t2d = np.repeat(np.atleast_2d(oba_max_t).T ,dim,axis=1)
-            
-            oba_xp      = rot*(- MCA_2d[1:,:] + oxpts*b_2d[1:,:])   # x coord of airfoil
-            oba_yp      = r_2d[1:,:]*np.ones_like(oba_xp)           # radial location        
-            oba_zp      = ozpts*(t_2d[1:,:]/oba_max_t2d)            # former airfoil y coord 
-       
-            oba_matrix = np.zeros((len(oba_zp),dim,3))     
-            oba_matrix[:,:,0] = oba_xp
-            oba_matrix[:,:,1] = oba_yp
-            oba_matrix[:,:,2] = oba_zp                        
-            
-            # ROTATION MATRICES FOR OUTER SECTION                         
-            # rotation about y axis to create twist and position blade upright
-            oba_trans_1 = [[np.cos(rot*flip_1 - rot*beta[1:]  ),0 , -np.sin(rot*flip_1 - rot*beta[1:])],
-                           [0 ,  1 , 0] ,
-                           [np.sin(rot*flip_1 - rot*beta[1:]) , 0 , np.cos(rot*flip_1 - rot*beta[1:])]]  
-                             
-            # rotation about x axis to create azimuth locations 
-            oba_trans_2 = [[1 , 0 , 0],
-                           [0 , np.cos(theta[i] + rot*a_o + flip_2), np.sin(theta[i] + rot*a_o + flip_2)],
-                           [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]  
-            
-            # roation about y to orient propeller/rotor to thrust angle 
-            oba_trans_3 = [[np.cos(ta),0 , -np.sin(ta)],
-                           [0 ,  1 , 0] ,
-                           [np.sin(ta) , 0 , np.cos(ta)]]   
-            
-            oba_trans  =  np.matmul(oba_trans_3,np.matmul(oba_trans_2,oba_trans_1))
-            orot_mat    = np.repeat(np.repeat(oba_trans[ np.newaxis,:,: ],len(oba_yp),axis=0)[ :, np.newaxis,:,: ],dim,axis=1) 
-         
+            trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
+            rot_mat   = np.repeat(np.repeat(trans[ np.newaxis,:,: ],len(yp),axis=0)[ :, np.newaxis,:,: ],dim,axis=1) 
+             
             # ---------------------------------------------------------------------------------------------
             # ROTATE POINTS
-            iba_mat  =  np.matmul(irot_mat,iba_matrix[...,None]).squeeze()
-            oba_mat  =  np.matmul(orot_mat,oba_matrix[...,None]).squeeze() 
+            mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze() 
             
             # ---------------------------------------------------------------------------------------------
             # store points
-            G.XA1  = iba_mat[:,:-1,0] + origin[n_p][0]
-            G.YA1  = iba_mat[:,:-1,1] + origin[n_p][1] 
-            G.ZA1  = iba_mat[:,:-1,2] + origin[n_p][2]
-            G.XA2  = iba_mat[:,1:,0]  + origin[n_p][0]
-            G.YA2  = iba_mat[:,1:,1]  + origin[n_p][1] 
-            G.ZA2  = iba_mat[:,1:,2]  + origin[n_p][2]
-                                          
-            G.XB1  = oba_mat[:,:-1,0] + origin[n_p][0]
-            G.YB1  = oba_mat[:,:-1,1] + origin[n_p][1]  
-            G.ZB1  = oba_mat[:,:-1,2] + origin[n_p][2]
-            G.XB2  = oba_mat[:,1:,0]  + origin[n_p][0]
-            G.YB2  = oba_mat[:,1:,1]  + origin[n_p][1]
-            G.ZB2  = oba_mat[:,1:,2]  + origin[n_p][2]    
+            G.XA1  = mat[:,:-1,0] + origin[n_p][0]
+            G.YA1  = mat[:,:-1,1] + origin[n_p][1] 
+            G.ZA1  = mat[:,:-1,2] + origin[n_p][2]
+            G.XA2  = mat[:,1:,0]  + origin[n_p][0]
+            G.YA2  = mat[:,1:,1]  + origin[n_p][1] 
+            G.ZA2  = mat[:,1:,2]  + origin[n_p][2]
+                                         
+            G.XB1  = mat[:,:-1,0] + origin[n_p][0]
+            G.YB1  = mat[:,:-1,1] + origin[n_p][1]  
+            G.ZB1  = mat[:,:-1,2] + origin[n_p][2]
+            G.XB2  = mat[:,1:,0]  + origin[n_p][0]
+            G.YB2  = mat[:,1:,1]  + origin[n_p][1]
+            G.ZB2  = mat[:,1:,2]  + origin[n_p][2]    
              
             # ------------------------------------------------------------------------
             # Plot Propeller Blade 
