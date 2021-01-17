@@ -65,7 +65,7 @@ def main():
     #pan_arrow_biconvex     = import_csv(arrow_biconvex_file_pan)
     #su2_arrow_biconvex     = import_csv(arrow_biconvex_file_su2)
     arrow_biconvex         = arrw_biconvex()
-    write(arrow_biconvex,'Check')
+    #write(arrow_biconvex,'Check')
     conditions             = setup_conditions()
     results_arrow_biconvex = analyze(arrow_biconvex, conditions)
     print('stop')
