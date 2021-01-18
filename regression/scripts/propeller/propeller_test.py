@@ -10,7 +10,7 @@
 
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Plots.Geometry_Plots import plot_propeller_geometry 
+from SUAVE.Plots.Geometry_Plots import plot_propeller
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
@@ -45,43 +45,35 @@ def main():
     # Design the Propeller with airfoil  geometry defined                      
     bad_prop                          = SUAVE.Components.Energy.Converters.Propeller() 
     bad_prop.tag                      = "Prop_W_Aifoil"
-    bad_prop.number_of_blades         = 2 
+    bad_prop.number_of_blades         = 2
+    bad_prop.number_of_engines        = 1
     bad_prop.freestream_velocity      = 1
     bad_prop.tip_radius               = 0.3
     bad_prop.hub_radius               = 0.21336 
     bad_prop.design_tip_mach          = 0.1
     bad_prop.angular_velocity         = gearbox.inputs.speed  
     bad_prop.design_Cl                = 0.7
-    bad_prop.design_altitude          = 1. * Units.km      
-    bad_prop.airfoil_geometry         = ['NACA_4412_geo.txt']
-    bad_prop.airfoil_polars           = [['NACA_4412_polar_Re_50000.txt','NACA_4412_polar_Re_100000.txt',
-                                          'NACA_4412_polar_Re_200000.txt','NACA_4412_polar_Re_500000.txt',
-                                          'NACA_4412_polar_Re_1000000.txt']] 
-    bad_prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
+    bad_prop.design_altitude          = 1. * Units.km        
     bad_prop.design_thrust           = 100000
     bad_prop                         = propeller_design(bad_prop)  
     
     prop_a                          = SUAVE.Components.Energy.Converters.Propeller() 
     prop_a.tag                      = "Prop_W_Aifoil"
-    prop_a.number_of_blades         = 3 
+    prop_a.number_of_blades         = 3
+    prop_a.number_of_engines        = 1
     prop_a.freestream_velocity      = 49.1744 
     prop_a.tip_radius               = 1.0668
     prop_a.hub_radius               = 0.21336 
     prop_a.design_tip_mach          = 0.65
-    prop_a.angular_velocity         = gearbox.inputs.speed  
+    prop_a.angular_velocity         = gearbox.inputs.speed # 207.16160479940007 
     prop_a.design_Cl                = 0.7
     prop_a.design_altitude          = 1. * Units.km      
-    prop_a.rotation                 = [1]
-    prop_a.airfoil_geometry         = ['NACA_4412_geo.txt']
-    prop_a.airfoil_polars           = [['NACA_4412_polar_Re_50000.txt','NACA_4412_polar_Re_100000.txt',
-                                     'NACA_4412_polar_Re_200000.txt','NACA_4412_polar_Re_500000.txt',
-                                     'NACA_4412_polar_Re_1000000.txt']] 
-    prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
-    prop_a.design_thrust           = 3054.4809132125697
-    prop_a                         = propeller_design(prop_a)  
+    prop_a.rotation                 = [1] 
+    prop_a.design_thrust            = 3054.4809132125697
+    prop_a                          = propeller_design(prop_a)  
     
     # plot propeller 
-    plot_propeller_geometry(prop_a)
+    plot_propeller(prop_a)
  
     # Design a Rotor with airfoil  geometry defined  
     rot_a                          = SUAVE.Components.Energy.Converters.Rotor() 
@@ -98,11 +90,6 @@ def main():
     rot_a.design_Cl                = 0.7
     rot_a.design_altitude          = 20 * Units.feet                            
     rot_a.design_thrust            = 2271.2220451593753 
-    rot_a.airfoil_geometry         = ['NACA_4412_geo.txt']
-    rot_a.airfoil_polars           = [['NACA_4412_polar_Re_50000.txt','NACA_4412_polar_Re_100000.txt',
-                                     'NACA_4412_polar_Re_200000.txt','NACA_4412_polar_Re_500000.txt',
-                                     'NACA_4412_polar_Re_1000000.txt']]
-    rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]    
     rot_a                          = propeller_design(rot_a) 
     
     # Find the operating conditions

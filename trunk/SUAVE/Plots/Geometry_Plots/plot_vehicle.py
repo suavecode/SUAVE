@@ -53,7 +53,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     fig = plt.figure(save_filename) 
     fig.set_size_inches(8,8) 
     axes = Axes3D(fig)    
-    axes.view_init(elev= 30, azim= 210)   
+    axes.view_init(elev= 30, azim= 210)  
     
     # -------------------------------------------------------------------------
     # PLOT WING
@@ -434,19 +434,19 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
             
             # ---------------------------------------------------------------------------------------------
             # store points
-            G.XA1  = mat[:,:-1,0] + origin[n_p][0]
-            G.YA1  = mat[:,:-1,1] + origin[n_p][1] 
-            G.ZA1  = mat[:,:-1,2] + origin[n_p][2]
-            G.XA2  = mat[:,1:,0]  + origin[n_p][0]
-            G.YA2  = mat[:,1:,1]  + origin[n_p][1] 
-            G.ZA2  = mat[:,1:,2]  + origin[n_p][2]
-                                         
-            G.XB1  = mat[:,:-1,0] + origin[n_p][0]
-            G.YB1  = mat[:,:-1,1] + origin[n_p][1]  
-            G.ZB1  = mat[:,:-1,2] + origin[n_p][2]
-            G.XB2  = mat[:,1:,0]  + origin[n_p][0]
-            G.YB2  = mat[:,1:,1]  + origin[n_p][1]
-            G.ZB2  = mat[:,1:,2]  + origin[n_p][2]    
+            G.XA1[:,:]  = mat[:-1,:-1,0] + origin[n_p][0]
+            G.YA1[:,:]  = mat[:-1,:-1,1] + origin[n_p][1] 
+            G.ZA1[:,:]  = mat[:-1,:-1,2] + origin[n_p][2]
+            G.XA2[:,:]  = mat[:-1,1:,0]  + origin[n_p][0]
+            G.YA2[:,:]  = mat[:-1,1:,1]  + origin[n_p][1] 
+            G.ZA2[:,:]  = mat[:-1,1:,2]  + origin[n_p][2]
+                                 
+            G.XB1[:,:]  = mat[1:,:-1,0] + origin[n_p][0]
+            G.YB1[:,:]  = mat[1:,:-1,1] + origin[n_p][1]  
+            G.ZB1[:,:]  = mat[1:,:-1,2] + origin[n_p][2]
+            G.XB2[:,:]  = mat[1:,1:,0]  + origin[n_p][0]
+            G.YB2[:,:]  = mat[1:,1:,1]  + origin[n_p][1]
+            G.ZB2[:,:]  = mat[1:,1:,2]  + origin[n_p][2]    
              
             # ------------------------------------------------------------------------
             # Plot Propeller Blade 
