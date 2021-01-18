@@ -239,15 +239,19 @@ def vehicle_setup():
     
     # the prop
     prop = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0
-    prop.freestream_velocity = 119.   * Units.knots
-    prop.angular_velocity    = 2650.  * Units.rpm
-    prop.tip_radius          = 76./2. * Units.inches
-    prop.hub_radius          = 8.     * Units.inches
-    prop.design_Cl           = 0.8
-    prop.design_altitude     = 12000. * Units.feet
-    prop.design_power        = .64 * 180. * Units.horsepower
-    prop                     = propeller_design(prop)   
+    prop.number_blades           = 2.0
+    prop.freestream_velocity     = 119.   * Units.knots
+    prop.angular_velocity        = 2650.  * Units.rpm
+    prop.tip_radius              = 76./2. * Units.inches
+    prop.hub_radius              = 8.     * Units.inches
+    prop.design_Cl               = 0.8
+    prop.design_altitude         = 12000. * Units.feet
+    prop.design_power            = .64 * 180. * Units.horsepowe 
+    prop.airfoil_geometry        =  ['NACA_4412.txt'] 
+    prop.airfoil_polars          = [['NACA_4412_polar_Re_50000.txt' ,'NACA_4412_polar_Re_100000.txt' ,'NACA_4412_polar_Re_200000.txt' ,
+                                     'NACA_4412_polar_Re_500000.txt' ,'NACA_4412_polar_Re_1000000.txt' ]]
+    prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
+    prop                         = propeller_design(prop)   
     
     net.propeller = prop
      

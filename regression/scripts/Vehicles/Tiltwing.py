@@ -262,7 +262,11 @@ def vehicle_setup():
     rot.design_altitude          = 500 * Units.feet                  
     Lift                         = vehicle.mass_properties.takeoff*9.81  
     rot.design_thrust            = (Lift * 1.5 )/net.number_of_engines 
-    rot.induced_hover_velocity   = np.sqrt(Lift/(2*rho*rot.disc_area*net.number_of_engines))                     
+    rot.induced_hover_velocity   = np.sqrt(Lift/(2*rho*rot.disc_area*net.number_of_engines))      
+    rot.airfoil_geometry         =  ['../Vehicles/NACA_4412.txt'] 
+    rot.airfoil_polars           = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    rot.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     rot                          = propeller_design(rot)  
     rot.rotation                 = [1,1,1,1,1,1,1,1]
                                  
