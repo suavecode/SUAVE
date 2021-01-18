@@ -48,21 +48,20 @@ def main():
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
-    RPM_true   = 886.4798866213529
+    RPM_true   = 1823.3628235671545
 
     print(RPM) 
-    diff_RPM   = np.abs(RPM - RPM_true)
+    diff_RPM = np.abs(RPM - RPM_true)
     print('RPM difference')
     print(diff_RPM)
     assert np.abs((RPM - RPM_true)/RPM_true) < 1e-3  
     
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
-    battery_energy_transition_true    = np.array([3.39320694e+08, 3.39080177e+08, 3.38368917e+08, 3.37217375e+08,
-                                                  3.35674975e+08, 3.33808116e+08, 3.31697457e+08, 3.29434551e+08,
-                                                  3.27117959e+08, 3.24848987e+08, 3.22727239e+08, 3.20846176e+08,
-                                                  3.19288906e+08, 3.18124400e+08, 3.17404334e+08, 3.17160702e+08])
-
+    battery_energy_transition_true    = np.array([3.55667608e+08, 3.55194906e+08, 3.53791956e+08, 3.51504579e+08,
+                                                  3.48410299e+08, 3.44619079e+08, 3.40273111e+08, 3.35544351e+08,
+                                                  3.30629924e+08, 3.25745016e+08, 3.21113205e+08, 3.16955097e+08,
+                                                  3.13475763e+08, 3.10851930e+08, 3.09220000e+08, 3.08666190e+08])
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true) 
     print('battery energy of transition')

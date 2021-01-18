@@ -92,7 +92,7 @@ def ICE_CS(vehicle):
     
     # 
     prop = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0
+    prop.number_of_blades    = 2.0
     prop.freestream_velocity = 119.   * Units.knots
     prop.angular_velocity    = 2650.  * Units.rpm
     prop.tip_radius          = 76./2. * Units.inches

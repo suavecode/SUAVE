@@ -50,7 +50,8 @@ class Rotor(Energy_Component):
         None
         """         
         
-        self.number_blades             = 0.0
+        self.tag                       = 'rotor'
+        self.number_of_blades          = 0.0 
         self.tip_radius                = 0.0
         self.hub_radius                = 0.0
         self.twist_distribution        = 0.0
@@ -61,17 +62,17 @@ class Rotor(Energy_Component):
         self.pitch_command             = 0.0
         self.design_power              = None
         self.design_thrust             = None        
-        self.induced_hover_velocity    = None
+        self.induced_hover_velocity    = 0.0
         self.airfoil_geometry          = None
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
         self.rotation                  = None
-        self.ducted                    = False
+        self.ducted                    = False 
+        self.VTOL_flag                 = False
         self.number_azimuthal_stations = 24
         self.induced_power_factor      = 1.48  #accounts for interference effects
         self.profile_drag_coefficient  = .03        
-        self.tag                       = 'Rotor'
 
 
     def spin(self,conditions):
@@ -136,7 +137,7 @@ class Rotor(Energy_Component):
                                              
         Properties Used:                     
         self.                                
-          number_blades                      [-]
+          number_of_blades                   [-]
           tip_radius                         [m]
           hub_radius                         [m]
           twist_distribution                 [radians]
@@ -146,18 +147,19 @@ class Rotor(Energy_Component):
         """         
            
         #Unpack    
-        B       = self.number_blades
+        B       = self.number_of_blades 
         R       = self.tip_radius
         Rh      = self.hub_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
-        chi     = self.radius_distribution
-        omega   = self.inputs.omega 
+        chi     = self.radius_distribution 
+        omega   = self.inputs.omega
         a_geo   = self.airfoil_geometry      
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
         cd_sur  = self.airfoil_cd_surrogates 
-        V0      = self.induced_hover_velocity
+        ua      = self.induced_hover_velocity
+        VTOL    = self.VTOL_flag
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector 
@@ -184,11 +186,12 @@ class Rotor(Energy_Component):
         body2thrust     = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
         V_thrust        = orientation_product(T_body2thrust,V_body) 
-    
-        # Now just use the aligned velocity
-        V        = V_thrust[:,0,None] + V0 
-        ua       = np.zeros_like(V)              
-        ut       = np.zeros_like(V) 
+     
+        if VTOL:    
+            V        = V_thrust[:,0,None] + ua
+        else:
+            V        = V_thrust[:,0,None]   
+        ut  = np.zeros_like(V) 
     
         #Things that don't change with iteration
         Nr       = len(c) # Number of stations radially    
@@ -320,8 +323,8 @@ class Rotor(Energy_Component):
         
         epsilon                  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
-        deltar                   = (r[1]-r[0])  
-        
+        deltar                   = (r[1]-r[0])   
+        deltachi                 = (chi[1]-chi[0])          
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
         thrust                   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
@@ -335,10 +338,16 @@ class Rotor(Energy_Component):
         blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         
         blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
-        blade_dT_dR              = rho*(Gamma*(Wt-epsilon*Wa))
-        blade_dT_dr              = rho*(Gamma*(Wt-epsilon*Wa))*R
-        blade_dQ_dR              = rho*(Gamma*(Wa+epsilon*Wt)*r)
-        blade_dQ_dr              = rho*(Gamma*(Wa+epsilon*Wt)*r)*R
+        blade_dT_dR = np.zeros((ctrl_pts,Nr))
+        blade_dT_dr = np.zeros((ctrl_pts,Nr))
+        blade_dQ_dR = np.zeros((ctrl_pts,Nr))
+        blade_dQ_dr = np.zeros((ctrl_pts,Nr))
+        
+        for i in range(ctrl_pts):
+            blade_dT_dR[i,:] = np.gradient(blade_T_distribution[i],deltar)
+            blade_dT_dr[i,:] = np.gradient(blade_T_distribution[i],deltachi)
+            blade_dQ_dR[i,:] = np.gradient(blade_Q_distribution[i],deltar)
+            blade_dQ_dr[i,:] = np.gradient(blade_Q_distribution[i],deltachi)
         
         Vt_ind_avg = vt
         Va_ind_avg = va
@@ -349,7 +358,7 @@ class Rotor(Energy_Component):
         D        = 2*R 
         Cq       = torque/(rho*(n*n)*(D*D*D*D*D)) 
         Ct       = thrust/(rho*(n*n)*(D*D*D*D))
-        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))  # correct 
+        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
         etap     = V*thrust/power # efficiency    
 
         # prevent things from breaking 
