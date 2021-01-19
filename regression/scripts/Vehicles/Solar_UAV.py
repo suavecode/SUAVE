@@ -176,11 +176,7 @@ def vehicle_setup():
     prop.hub_radius              = 0.05 * Units.meters
     prop.design_Cl               = 0.7
     prop.design_altitude         = 14.0 * Units.km
-    prop.design_thrust           = 110. 
-    prop.airfoil_geometry        =  ['../Vehicles/NACA_4412.txt'] 
-    prop.airfoil_polars          = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
-                                     '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
-    prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
+    prop.design_thrust           = 110.  
     prop                         = propeller_design(prop) 
     net.propeller                = prop
 
