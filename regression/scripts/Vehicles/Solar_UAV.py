@@ -168,17 +168,21 @@ def vehicle_setup():
     
     # Component 5 the Propeller
     # Design the Propeller
-    prop                     = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0
-    prop.freestream_velocity = 40.0 * Units['m/s']# freestream
-    prop.angular_velocity    = 150. * Units['rpm']
-    prop.tip_radius          = 4.25 * Units.meters
-    prop.hub_radius          = 0.05 * Units.meters
-    prop.design_Cl           = 0.7
-    prop.design_altitude     = 14.0 * Units.km
-    prop.design_thrust       = 110. 
-    prop                     = propeller_design(prop) 
-    net.propeller            = prop
+    prop                         = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_of_blades        = 2.0
+    prop.freestream_velocity     = 40.0 * Units['m/s']# freestream
+    prop.angular_velocity        = 150. * Units['rpm']
+    prop.tip_radius              = 4.25 * Units.meters
+    prop.hub_radius              = 0.05 * Units.meters
+    prop.design_Cl               = 0.7
+    prop.design_altitude         = 14.0 * Units.km
+    prop.design_thrust           = 110. 
+    prop.airfoil_geometry        =  ['../Vehicles/NACA_4412.txt'] 
+    prop.airfoil_polars          = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
+    prop                         = propeller_design(prop) 
+    net.propeller                = prop
 
     # Component 4 the Motor
     motor                      = SUAVE.Components.Energy.Converters.Motor()

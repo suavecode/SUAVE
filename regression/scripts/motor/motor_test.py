@@ -23,16 +23,20 @@ def main():
     '''This script checks the functions in in Motor.py used to compute motor torques 
     and output voltage and currents'''
     # Propeller 
-    prop                     = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0 
-    prop.freestream_velocity = 50.0
-    prop.angular_velocity    = 209.43951023931953
-    prop.tip_radius          = 1.5
-    prop.hub_radius          = 0.05
-    prop.design_Cl           = 0.7 
-    prop.design_altitude     = 0.0 * Units.km
-    prop.design_thrust       = 2271.2220451593753 
-    prop                     = propeller_design(prop)   
+    prop                         = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_of_blades        = 2.0 
+    prop.freestream_velocity     = 50.0
+    prop.angular_velocity        = 209.43951023931953
+    prop.tip_radius              = 1.5
+    prop.hub_radius              = 0.05
+    prop.design_Cl               = 0.7 
+    prop.design_altitude         = 0.0 * Units.km
+    prop.design_thrust           = 2271.2220451593753 
+    prop.airfoil_geometry        =  ['../Vehicles/NACA_4412.txt'] 
+    prop.airfoil_polars          = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
+    prop                         = propeller_design(prop)   
     
     # Motor
     #------------------------------------------------------------------

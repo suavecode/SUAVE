@@ -65,6 +65,7 @@ class Battery_Propeller(Propulsor):
         self.number_of_engines         = None
         self.voltage                   = None
         self.thrust_angle              = 0.0
+        self.pitch_command             = 0.0 
         self.tag                       = 'Battery_Propeller'
         self.use_surrogate             = False
         self.generative_design_minimum = 0
@@ -126,8 +127,9 @@ class Battery_Propeller(Propulsor):
         motor.omega(conditions)
         
         # link
-        propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle = self.thrust_angle
+        propeller.inputs.omega = motor.outputs.omega
+        propeller.thrust_angle  = self.thrust_angle
+        propeller.pitch_command = self.pitch_command 
         
         # step 4
         F, Q, P, Cp, outputs , etap = propeller.spin(conditions)

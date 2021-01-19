@@ -49,11 +49,12 @@ def propeller_design(prop,number_of_stations=20):
     """    
     # Unpack
     N      = number_of_stations       # this number determines the discretization of the propeller into stations 
-    B      = prop.number_blades
+    B      = prop.number_of_blades
     R      = prop.tip_radius
     Rh     = prop.hub_radius
     omega  = prop.angular_velocity    # Rotation Rate in rad/s
-    V      = prop.freestream_velocity # Freestream Velocity
+    Va     = prop.induced_hover_velocity
+    Vinf   = prop.freestream_velocity # Freestream Velocity
     Cl     = prop.design_Cl           # Design Lift Coefficient
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
@@ -70,7 +71,9 @@ def propeller_design(prop,number_of_stations=20):
     
     if prop.rotation == None:
         prop.rotation = list(np.ones(int(B))) 
-        
+    
+    # Calculated total velocity 
+    V  = Vinf + Va
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data = atmosphere.compute_values(alt)
@@ -182,6 +185,7 @@ def propeller_design(prop,number_of_stations=20):
                 Cdval[i] = airfoil_cd_surs[a_geo[a_loc[i]]](RE[i],alpha[i],grid=False)  
         else:    
             Cdval   = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./RE)**0.2)
+            alpha   = Cl/(2.*np.pi)
             
         #More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf = 1. + 1.78*(Ma**2)
@@ -265,12 +269,19 @@ def propeller_design(prop,number_of_stations=20):
     
     # compute max thickness distribution  
     t_max  = np.zeros(N)    
-    t_c    = np.zeros(N)    
-    airfoil_geometry_data = import_airfoil_geometry(a_geo)
-    for i in range(N):
-        t_c[i]   = airfoil_geometry_data.thickness_to_chord[a_loc[i]]    
-        t_max[i] = airfoil_geometry_data.max_thickness[a_loc[i]]*c[i]
-        
+    t_c    = np.zeros(N)   
+    if airfoil_flag:     
+        airfoil_geometry_data = import_airfoil_geometry(a_geo)
+        for i in range(N):
+            t_max[i] = airfoil_geometry_data.max_thickness[a_loc[i]]*c[i]
+            t_c[i]   = airfoil_geometry_data.thickness_to_chord[a_loc[i]]    
+    else:  
+        for i in range(N):
+            c_blade    = np.linspace(0,c[i],N)        
+            t          = (5*c_blade)*(0.2969*np.sqrt(c_blade) - 0.1260*c_blade - 0.3516*(c_blade**2) + 0.2843*(c_blade**3) - 0.1015*(c_blade**4)) # local thickness distribution
+            t_max[i]   = np.max(t) 
+            t_c[i]     = t_max[i]/c[i]
+            
     # Nondimensional thrust
     if prop.design_power == None: 
         prop.design_power = Power[0]        
@@ -290,7 +301,7 @@ def propeller_design(prop,number_of_stations=20):
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
     prop.radius_distribution        = r 
-    prop.number_blades              = int(B)
+    prop.number_of_blades           = int(B)
     prop.design_power_coefficient   = Cp 
     prop.design_thrust_coefficient  = Ct 
     prop.mid_chord_aligment         = MCA
