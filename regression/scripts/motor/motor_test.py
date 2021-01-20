@@ -24,7 +24,7 @@ def main():
     and output voltage and currents'''
     # Propeller 
     prop                     = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0 
+    prop.number_of_blades    = 2.0 
     prop.freestream_velocity = 50.0
     prop.angular_velocity    = 209.43951023931953
     prop.tip_radius          = 1.5
@@ -142,14 +142,14 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 209.31976194
-    torque_1_truth   = 1051.6063921247808 
-    current_2_truth  = 324.5501068473118 
-    torque_3_truth   = 615.5254990807443 
-    voltage_4_truth  = 400.22851683456736 
-    current_4_truth  = 553.06694141467 
-    power_out_truth  = 1960.0
-      
+    omega_1_truth    = 209.31458785
+    torque_1_truth   = 1051.554404214838
+    current_2_truth  = 314.6294875086255
+    torque_3_truth   = 596.6086933894907 
+    voltage_4_truth  = 400.2383965335998
+    current_4_truth  = 553.026021108451
+    power_out_truth  = 1960.0   
+
     error = Data()
     error.omega_test     = np.max(np.abs(omega_1_truth   - omega_1[0]  ))
     error.torque_test_1  = np.max(np.abs(torque_1_truth  - torque_1 ))

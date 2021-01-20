@@ -49,11 +49,12 @@ def propeller_design(prop,number_of_stations=20):
     """    
     # Unpack
     N      = number_of_stations       # this number determines the discretization of the propeller into stations 
-    B      = prop.number_blades
+    B      = prop.number_of_blades
     R      = prop.tip_radius
     Rh     = prop.hub_radius
     omega  = prop.angular_velocity    # Rotation Rate in rad/s
-    V      = prop.freestream_velocity # Freestream Velocity
+    Va     = prop.induced_hover_velocity
+    Vinf   = prop.freestream_velocity # Freestream Velocity
     Cl     = prop.design_Cl           # Design Lift Coefficient
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
@@ -70,7 +71,9 @@ def propeller_design(prop,number_of_stations=20):
     
     if prop.rotation == None:
         prop.rotation = list(np.ones(int(B))) 
-        
+    
+    # Calculated total velocity 
+    V  = Vinf + Va
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data = atmosphere.compute_values(alt)
@@ -93,10 +96,10 @@ def propeller_design(prop,number_of_stations=20):
     
     tol   = 1e-10 # Convergence tolerance
 
-    #Step 1, assume a zeta
+    # Step 1, assume a zeta
     zeta = 0.1 # Assume to be small initially
     
-    #Step 2, determine F and phi at each blade station
+    # Step 2, determine F and phi at each blade station
     
     chi0    = Rh/R # Where the propeller blade actually starts
     chi     = np.linspace(chi0,1,N+1) # Vector of nondimensional radii
@@ -120,9 +123,10 @@ def propeller_design(prop,number_of_stations=20):
         # Import Airfoil from regression
         print('\nNo airfoils specified for propeller or rotor airfoil specified. \nDefaulting to NACA 4412 airfoils that will provide conservative estimates.') 
         import os
-        ospath = os.path.abspath(__file__)
-        path   = ospath.replace('\\','/').split('trunk/SUAVE/Methods/Propulsion/propeller_design.py')[0] \
-            + 'regression/scripts/Vehicles/' 
+        ospath    = os.path.abspath(__file__)
+        separator = os.path.sep
+        path      = ospath.replace('\\','/').split('trunk/SUAVE/Methods/Propulsion/propeller_design.py')[0] \
+            + 'regression' + separator + 'scripts' + separator + 'Vehicles' + separator 
         a_geo  = [ path +  'NACA_4412.txt'] 
         a_pol  = [[path +  'NACA_4412_polar_Re_50000.txt' ,
                    path +  'NACA_4412_polar_Re_100000.txt' ,
@@ -142,7 +146,7 @@ def propeller_design(prop,number_of_stations=20):
         prop.chord_distribution = c 
                          
         # compute airfoil polars for airfoils 
-        airfoil_polars  = compute_airfoil_polars(prop, a_geo, a_pol)  
+        airfoil_polars  = compute_airfoil_polars(a_geo, a_pol)  
         airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates 
         airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates 
                          
@@ -303,7 +307,7 @@ def propeller_design(prop,number_of_stations=20):
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
     prop.radius_distribution        = r 
-    prop.number_blades              = int(B)
+    prop.number_of_blades           = int(B)
     prop.design_power_coefficient   = Cp 
     prop.design_thrust_coefficient  = Ct 
     prop.mid_chord_aligment         = MCA

@@ -24,9 +24,9 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def main():   
-    ospath   = os.path.abspath(__file__)
-    rel_path = ospath.split('airfoil_import/airfoil_import_test.py')[0] + 'Vehicles/'
-    
+    ospath    = os.path.abspath(__file__)
+    separator = os.path.sep
+    rel_path  = ospath.split('airfoil_import' + separator + 'airfoil_import_test.py')[0] + 'Vehicles' + separator
     airfoil_polar_names  =  [[rel_path + 'NACA_4412_polar_Re_50000.txt',
                               rel_path + 'NACA_4412_polar_Re_100000.txt',
                               rel_path + 'NACA_4412_polar_Re_200000.txt',

@@ -403,7 +403,7 @@ def vehicle_setup():
 
     # Thrust Propeller                          
     propeller                     = SUAVE.Components.Energy.Converters.Propeller() 
-    propeller.number_blades       = 3
+    propeller.number_of_blades    = 3
     propeller.number_of_engines   = net.number_of_propeller_engines
     propeller.freestream_velocity = V_inf
     propeller.tip_radius          = 1.0668
@@ -421,7 +421,7 @@ def vehicle_setup():
     rotor                         = SUAVE.Components.Energy.Converters.Rotor() 
     rotor.tip_radius              = 2.8 * Units.feet
     rotor.hub_radius              = 0.35 * Units.feet      
-    rotor.number_blades           = 2
+    rotor.number_of_blades        = 2
     rotor.design_tip_mach         = 0.65
     rotor.number_of_engines       = net.number_of_rotor_engines
     rotor.disc_area               = np.pi*(rotor.tip_radius**2)        

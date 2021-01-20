@@ -52,7 +52,7 @@ def size_from_kv(motor):
     # Do the calculations from the regressions
     mass = B_KV/kv
     res  = B_RA/(kv**2.)
-    i0   =  B_i0/(res**0.6)
+    i0   = B_i0/(res**0.6)
     
     # pack
     motor.resistance           = res

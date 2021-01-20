@@ -73,10 +73,10 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 105.97391697180569
-    truth_rpm = 236.41412349855702
-    truth_i   = 175.20906685293815
-    truth_bat = 188634807.30459636
+    truth_F   = 105.97391695640917
+    truth_rpm = 144.2830838608744
+    truth_i   = 128.75886549766932
+    truth_bat = 195121546.6789977
     
     print('battery energy')
     print(energy)
@@ -187,7 +187,7 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/15.
+    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/20.
     base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    
