@@ -164,31 +164,24 @@ def vehicle_setup():
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
 
-    fuselage.seats_abreast         = 2.
-
-    fuselage.fineness.nose         = 1.6
-    fuselage.fineness.tail         = 2.
-
-    fuselage.lengths.nose          = 60.  * Units.inches
-    fuselage.lengths.tail          = 161. * Units.inches
-    fuselage.lengths.cabin         = 105. * Units.inches
-    fuselage.lengths.total         = 326. * Units.inches
-    fuselage.lengths.fore_space    = 0.
-    fuselage.lengths.aft_space     = 0.    
-
-    fuselage.width                 = 42. * Units.inches
-
-    fuselage.heights.maximum       = 62. * Units.inches
+    fuselage.seats_abreast                      = 2. 
+    fuselage.fineness.nose                      = 1.6
+    fuselage.fineness.tail                      = 2. 
+    fuselage.lengths.nose                       = 60.  * Units.inches
+    fuselage.lengths.tail                       = 161. * Units.inches
+    fuselage.lengths.cabin                      = 105. * Units.inches
+    fuselage.lengths.total                      = 326. * Units.inches
+    fuselage.lengths.fore_space                 = 0.
+    fuselage.lengths.aft_space                  = 0.     
+    fuselage.width                              = 42. * Units.inches 
+    fuselage.heights.maximum                    = 62. * Units.inches
     fuselage.heights.at_quarter_length          = 62. * Units.inches
     fuselage.heights.at_three_quarters_length   = 62. * Units.inches
-    fuselage.heights.at_wing_root_quarter_chord = 23. * Units.inches
-
-    fuselage.areas.side_projected  = 8000.  * Units.inches**2.
-    fuselage.areas.wetted          = 30000. * Units.inches**2.
-    fuselage.areas.front_projected = 42.* 62. * Units.inches**2.
-
-    fuselage.effective_diameter    = 50. * Units.inches
-
+    fuselage.heights.at_wing_root_quarter_chord = 23. * Units.inches 
+    fuselage.areas.side_projected               = 8000.  * Units.inches**2.
+    fuselage.areas.wetted                       = 30000. * Units.inches**2.
+    fuselage.areas.front_projected              = 42.* 62. * Units.inches**2. 
+    fuselage.effective_diameter                 = 50. * Units.inches 
 
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -298,7 +291,10 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
-
+    
+    # plot vehicle 	
+    plot_vehicle(vehicle,plot_control_points = False) 
+    
     return vehicle
 
 # ---------------------------------------------------------------------
