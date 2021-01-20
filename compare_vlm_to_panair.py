@@ -237,7 +237,7 @@ def analyze(config,conditions, use_MCM = False):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 1
+    settings.number_spanwise_vortices  = 3
     settings.number_chordwise_vortices = 2
     settings.propeller_wake_model      = None
 

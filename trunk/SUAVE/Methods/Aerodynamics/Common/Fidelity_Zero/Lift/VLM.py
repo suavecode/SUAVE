@@ -198,7 +198,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     ## ------------------ -------------------------------------------------------------------- 
     
     # PSI is 0 for zero yaw, we also are doing zero roll and no pitch rate
-    SINALFA = np.tile(np.sin(aoa),n_cp)
+    SINALF  = np.tile(np.sin(aoa),n_cp)
     COSALF  = np.tile(np.cos(aoa),n_cp)
     SINPSI  = 0.
     COPSI   = 1.
@@ -231,6 +231,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     T2  = TLE**2
     STB = np.zeros_like(u)
     STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
+    STB = STB[:,0::n_cw]
     
     # Panel Dihedral Angle, using AH and BH location
     YAH = VD.YAH*ones
@@ -241,8 +242,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
     
-    SID = (ZBH-ZAH)/D
-    COD = (YBH-YAH)/D
+    SID = ((ZBH-ZAH)/D)[:,0::n_cw] # Just the LE values
+    COD = ((YBH-YAH)/D)[:,0::n_cw] # Just the LE values
     
     
     # Now on to each strip
@@ -253,6 +254,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # XLE = LOCATION OF FIRST VORTEX MIDPOINT IN FRACTION OF CHORD.
     XLE =.5 *(1.0 -np.cos (.5 *PION)) *(1.0 - FLAX) + 0.125 *PION *FLAX
     
+    SICPLE = 0.0 #  COUPLE (ABOUT STRIP CENTERLINE) DUE TO SIDESLIP (no sideslip)
     RJTS = JTS
     GAF  = 0.5 + 0.5 *RJTS **2
     
@@ -266,12 +268,13 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     SINF = ADC * DCP *VST /VSS
     
     # Split into chordwise strengths and sum into strips
-    CNC = np.sum(np.array(np.array_split(SINF,n_cw,axis=1)),axis=2).T
+    n_w  = VD.n_w    
+    #CNC = np.sum(np.array(np.array_split(SINF,n_cw,axis=1)),axis=2).T
+    CNC = np.array(np.split(np.reshape(SINF,(-1,n_cw)).sum(axis=1),len(mach)))
     
     # COMPUTE SLOPE (TX) WITH RESPECT TO X-AXIS AT LOAD POINTS BY INTER
     # POLATING BETWEEN CONTROL POINTS AND TAKING INTO ACCOUNT THE LOCAL
     # INCIDENCE.    
-    n_w  = VD.n_w    
     RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)*ones
     IRT  = np.tile(np.linspace(1,n_sw,n_sw),n_cw*n_w)*ones
     XX   = .5 *(1. - np.cos ((RK - .5) *PION))
@@ -322,113 +325,100 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
     TX   = TANX - ZETA
     CAXL = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
+    BMLE = (XLE-XX)*SINF        # These are moment on each panel
     
-    # Leading edge suction is skipped for linear chord spacing
-    CLE = np.zeros_like(u)
+    # Sum onto the panel
+    #CAXL = np.sum(np.array(np.array_split(CAXL,n_cw*n_w,axis=1)),axis=0)
+    #BMLE = np.sum(np.array(np.array_split(BMLE,n_cw*n_w,axis=1)),axis=0)
+    #CAXL  = np.sum(np.array(np.array_split(CAXL,n_cw,axis=1)),axis=2).T
+    #BMLE  = np.sum(np.array(np.array_split(BMLE,n_cw,axis=1)),axis=2).T
+    #CAXL  = np.reshape(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),(-1,len(mach)*n_w))
+    #BMLE  = np.reshape(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),(-1,len(mach)*n_w))
+    CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len(mach)))
+    BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len(mach)))
     
     XX = XLE
     
     
-    ### SPC NEEDS TO BE SET!!
+    SPC  = 0. # Leading edge suction multiplier. See documentation. This is a negative integer
+    DCP_LE = DCP[:,0::n_cw]
+    CLE  = 0.5* DCP_LE *np.sqrt(XX)*FLAX
+    CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
     
-    CLE  = CLE + 0.5*DCP *np.sqrt(XX)*FLAX
-    CSUC =  0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
+    # SLE is slope at leading edge
+    SLE  = SLOPE[:,0::n_cw]
+    
+    FKEY = 1. - JTS*(1+JTS)
+    XCOS = 1./np.sqrt(1+(SLE-ZETA)**2)
+    XSIN = (SLE-ZETA)*XCOS
+    TFX  = XCOS
+    
+    if SPC<0.:
+        TFX = XSIN*np.sign(DCP[:,0:n_cw])*FKEY
+    CAXL = CAXL -TFX*CSUC
+    TFZ  = - XSIN
+    if SPC<0.:
+        TFZ = np.abs(XCOS)*np.sign(DCP[:,0:n_cw])*FKEY
+    # Add a dimension into the suction to be chordwise
+    T2_LE = T2[:,0::n_cw]
+    CNC = CNC + CSUC*np.sqrt(1+T2_LE)*TFZ
+    
+    # FCOS AND FSIN ARE THE COSINE AND SINE OF THE ANGLE BETWEEN
+    # THE CHORDLINE OF THE IR-STRIP AND THE X-AXIS    
 
+    FCOS = 1./np.sqrt(1.+ ZETA*ZETA)
+    FSIN = FCOS*ZETA
     
-    # Do a wing by wing summation
+    # BFX, BFY, AND BFZ ARE THE COMPONENTS ALONG THE BODY AXES
+    # OF THE STRIP FORCE CONTRIBUTION.
+    BFX = - CNC *FSIN + CAXL *FCOS
+    BFY = - (CNC *FCOS + CAXL *FSIN) *SID
+    BFZ = (CNC *FCOS + CAXL *FSIN) *COD
     
+    # CONVERT CNC FROM CN INTO CNC (COEFF. *CHORD).
+    CHORD_strip = CHORD[:,0::n_cw]
+    CNC  = CNC  * CHORD_strip
+    BMLE = BMLE * CHORD_strip
     
+    # BMX, BMY, AND BMZ ARE THE COMPONENTS ALONG THE BODY AXES
+    # OF THE STRIP MOMENT (ABOUT MOM. REF. POINT) CONTRIBUTION.
+    X    = VD.XC[0::n_cw]  # These are all LE values
+    Y    = VD.YC[0::n_cw]  # These are all LE values
+    Z    = VD.ZC[0::n_cw]  # These are all LE values
+    SINALF = SINALF[:,0::n_cw]
+    COSALF = COSALF[:,0::n_cw]   
+    ZBAR = 0.0 # Moment reference center in the Z axis, need to update
+    XBAR = np.ones(n_sw*n_w) * x_m
+    BMX  = BFZ * Y - BFY * (Z - ZBAR)
+    BMX  = BMX + SICPLE
+    BMY  = BMLE * COD + BFX * (Z - ZBAR) - BFZ * (X - XBAR)
+    BMZ  = BMLE * SID - BFX *Y + BFY * (X - XBAR)
+    CDC  = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) *COSALF
+    CDC  = CDC * CHORD_strip
+    CMTC = BMLE + CNC * (0.25 - XLE)
     
+    ES    = 2*s[:,:,0]
+    ES    = ES[:,0::n_cw]
+    STRIP = ES *CHORD_strip
+    LIFT  = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
+    DRAG  = CDC*ES 
+    FY    = (BFY *COPSI - BFX *SINPSI) *STRIP
+    FN    = CNC *ES
     
+    MOMENT = STRIP *(BMY *COPSI - BMX *SINPSI)
+    RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF * SINPSI + BMZ *SINALF)    
+    YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)  
+    
+    # Now calculate the coefficients in total and for each wing
+    cl_y     = LIFT/CHORD_strip/ES
+    cdi_y    = DRAG/CHORD_strip/ES
+    CL_wing  = np.array(np.split(np.reshape(LIFT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
+    CDi_wing = np.array(np.split(np.reshape(DRAG,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
+    CM_wing  = np.array(np.split(np.reshape(MOMENT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
+    CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T
+    CD       = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
+    CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T
 
-    
-     
-    
-    
-    
-    
-    
-     
-    ## ---------------------------------------------------------------------------------------
-    ## STEP 10: Compute aerodynamic coefficients 
-    ## ------------------ -------------------------------------------------------------------- 
-    #n_w        = VD.n_w
-    #CS         = VD.CS*ones
-    #CS_w       = np.array(np.array_split(CS,n_w,axis=1)) 
-    #wing_areas = np.array(VD.wing_areas)
-    #X_M        = np.ones(n_cp)*x_m  *ones
-    #CL_wing    = np.zeros(n_w)
-    #CDi_wing   = np.zeros(n_w) 
-    #Del_Y      = np.abs(VD.YB1 - VD.YA1)*ones  
-    
-    ## Use split to divide u, w, gamma, and Del_y into more arrays
-    #u_n_w        = np.array(np.array_split(u,n_w,axis=1))  
-    #w_ind_n_w    = np.array(np.array_split(w_ind,n_w,axis=1)) 
-    #w_ind_n_w_sw = np.array(np.array_split(w_ind,n_w*n_sw,axis=1)) 
-    #gamma_n_w    = np.array(np.array_split(gamma,n_w,axis=1))
-    #gamma_n_w_sw = np.array(np.array_split(gamma,n_w*n_sw,axis=1))
-    #Del_Y_n_w    = np.array(np.array_split(Del_Y,n_w,axis=1))
-    #Del_Y_n_w_sw = np.array(np.array_split(Del_Y,n_w*n_sw,axis=1)) 
-    
-    ## --------------------------------------------------------------------------------------------------------
-    ## LIFT                                                                          
-    ## --------------------------------------------------------------------------------------------------------    
-    ## lift coefficients on each wing   
-    #L_wing            = np.sum(np.multiply(u_n_w+1,(gamma_n_w*Del_Y_n_w)),axis=2).T
-    #D_wing            = np.sum(np.multiply(w_ind_n_w,(gamma_n_w*Del_Y_n_w)),axis=2).T
-    #CL_wing           = L_wing/(0.5*wing_areas)
-    
-    ## Calculate spanwise lift 
-    #spanwise_Del_y    = Del_Y_n_w_sw[:,:,0]
-    #spanwise_Del_y_w  = np.array(np.array_split(Del_Y_n_w_sw[:,:,0].T,n_w,axis = 1))
-    
-    #cl_y              = (2*(np.sum(gamma_n_w_sw,axis=2)*spanwise_Del_y).T)/CS
-    #cl_y_w            = np.array(np.array_split(cl_y ,n_w,axis=1)) 
-    
-    ## total lift and lift coefficient
-    #L                 = np.atleast_2d(np.sum(np.multiply((1+u),gamma*Del_Y),axis=1)).T 
-    #D                 = np.atleast_2d(np.sum(np.multiply(w_ind,Del_Y),axis=1)).T 
-    #CL                = L/(0.5*Sref)   # validated form page 402-404, aerodynamics for engineers
-    
-    ### --------------------------------------------------------------------------------------------------------
-    ### DRAG                                                                          
-    ### --------------------------------------------------------------------------------------------------------         
-    ### drag coefficients on each wing   
-    ##w_ind_sw_w        = np.array(np.array_split(np.sum(w_ind_n_w_sw,axis = 2).T ,n_w,axis = 1))
-    ##Di_wing           = np.sum(w_ind_sw_w*spanwise_Del_y_w*cl_y_w*CS_w,axis = 2) 
-    ##CDi_wing          = Di_wing.T/(wing_areas)  
-    
-    ### total drag and drag coefficient 
-    ##spanwise_w_ind    = np.sum(w_ind_n_w_sw,axis=2).T    
-    ##D                 = np.sum(spanwise_w_ind*spanwise_Del_y.T*cl_y*CS,axis = 1) 
-    ##cdi_y             = spanwise_w_ind*spanwise_Del_y.T*cl_y*CS
-    ##CDi               = np.atleast_2d(D/(Sref)).T
-    
-    #CDC   = 0.
-    #CDC   = CHORD*CDC
-    #ES    = 2*s
-    #DRAG  = CDC*ES
-    #AX    = 1/Sref
-    #CDTOT = np.sum(DRAG)*AX 
-    
-    ## --------------------------------------------------------------------------------------------------------
-    ## PRESSURE                                                                      
-    ## --------------------------------------------------------------------------------------------------------          
-    #L_ij              = np.multiply((1+u),gamma*Del_Y) 
-    #CP                = 2*L_ij/VD.panel_areas  
-    
-    ## Check the CL values
-    #normal_vec = compute_unit_normal(VD)
-    #Z_vec      = normal_vec[:,2]
-    
-    #CL_check = 2*np.sum(L_ij*Z_vec,axis=1)/Sref
-    
-    
-    ## --------------------------------------------------------------------------------------------------------
-    ## MOMENT                                                                        
-    ## --------------------------------------------------------------------------------------------------------             
-    #CM                = np.atleast_2d(np.sum(np.multiply((X_M - VD.XCH*ones),Del_Y*gamma),axis=1)/(Sref*c_bar)).T     
-    
     #Velocity_Profile = Data()
     #Velocity_Profile.Vx_ind   = Vx_ind_total
     #Velocity_Profile.Vz_ind   = Vz_ind_total
