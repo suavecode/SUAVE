@@ -14,7 +14,7 @@ import numpy as np
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity_sup  import compute_wing_induced_velocity_sup
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution, compute_unit_normal
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution, compute_panel_area, compute_unit_normal
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
 
 # ----------------------------------------------------------------------
@@ -415,20 +415,47 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)  
     
     # Now calculate the coefficients in total and for each wing
-    cl_y     = LIFT/CHORD_strip/ES
-    cdi_y    = DRAG/CHORD_strip/ES
-    CL_wing  = np.array(np.split(np.reshape(LIFT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
-    CDi_wing = np.array(np.split(np.reshape(DRAG,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
-    CM_wing  = np.array(np.split(np.reshape(MOMENT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF/c_bar
-    CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T
-    CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
-    CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
+    #cl_y     = LIFT/CHORD_strip/ES
+    #cdi_y    = DRAG/CHORD_strip/ES
+    #CL_wing  = np.array(np.split(np.reshape(LIFT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
+    #CDi_wing = np.array(np.split(np.reshape(DRAG,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
+    #CM_wing  = np.array(np.split(np.reshape(MOMENT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF/c_bar
+    #CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T
+    #CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
+    #CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
 
     #Velocity_Profile = Data()
     #Velocity_Profile.Vx_ind   = Vx_ind_total
     #Velocity_Profile.Vz_ind   = Vz_ind_total
     #Velocity_Profile.V        = V_distribution 
-    #Velocity_Profile.dt       = dt 
+    #Velocity_Profile.dt       = dt
+    
+    # Trying to see if we can integrate pressures to get CL and CD
+    panel_areas = compute_panel_area(VD)
+    normals     = compute_unit_normal(VD)
+    normals     = np.broadcast_to(normals,(len(mach),n_cp,3))
+    wing_areas  = np.array(VD.wing_areas)
+    
+    force_per_panel = np.atleast_3d(panel_areas*CP)
+    dir_f_panel     = force_per_panel*normals
+    cosalpha        = np.cos(aoa)
+    sinalpha        = np.sin(aoa)
+    
+    lift_force_panel = dir_f_panel[:,:,2]*cosalpha + dir_f_panel[:,:,0]*sinalpha
+    drag_force_panel = dir_f_panel[:,:,2]*sinalpha + dir_f_panel[:,:,0]*cosalpha
+    
+    lift_strip  = np.array(np.split(np.reshape(lift_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
+    drag_strip  = np.array(np.split(np.reshape(drag_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
+    chord_strip = np.array(np.split(panel_areas,n_sw*n_w)).sum(axis=1) # area of a chordwise strip
+    
+    cl_y     = lift_strip/chord_strip
+    cdi_y    = drag_strip/chord_strip
+    CL_wing  = np.array(np.split(np.reshape(lift_strip,(-1,n_sw)).sum(axis=1),len(mach)))/wing_areas
+    CDi_wing = np.array(np.split(np.reshape(drag_strip,(-1,n_sw)).sum(axis=1),len(mach)))/wing_areas
+    CL       = np.atleast_2d(np.sum(lift_force_panel,axis=1)/SREF).T
+    CDi      = np.atleast_2d(np.sum(drag_force_panel,axis=1)/SREF).T
+    
+    
     
     return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile
 
