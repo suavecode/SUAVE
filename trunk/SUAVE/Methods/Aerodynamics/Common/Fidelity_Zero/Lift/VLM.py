@@ -117,10 +117,15 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     ones = np.atleast_2d(np.ones_like(mach)) 
    
     # generate vortex distribution 
-    VD   = generate_wing_vortex_distribution(geometry,settings)   
+    VD   = generate_wing_vortex_distribution(geometry,settings)  
     
     # pack vortex distribution 
     geometry.vortex_distribution = VD
+    
+    #from SUAVE.Plots.Geometry_Plots import plot_vehicle
+    #plot_vehicle(geometry)    
+    #import matplotlib.pyplot as plt  
+    #plt.show()
     
     # Build induced velocity matrix, C_mn
     C_mn, DW_mn, s, CHORD = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
@@ -382,9 +387,9 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     # BMX, BMY, AND BMZ ARE THE COMPONENTS ALONG THE BODY AXES
     # OF THE STRIP MOMENT (ABOUT MOM. REF. POINT) CONTRIBUTION.
-    X    = VD.XC[0::n_cw]  # These are all LE values
-    Y    = VD.YC[0::n_cw]  # These are all LE values
-    Z    = VD.ZC[0::n_cw]  # These are all LE values
+    X    = ((VD.XAH+VD.XBH)/2)[0::n_cw]  # These are all LE values
+    Y    = ((VD.YAH+VD.YBH)/2)[0::n_cw]   # These are all LE values
+    Z    = ((VD.ZAH+VD.ZBH)/2)[0::n_cw]  # These are all LE values
     SINALF = SINALF[:,0::n_cw]
     COSALF = COSALF[:,0::n_cw]   
     ZBAR = 0.0 # Moment reference center in the Z axis, need to update
@@ -414,10 +419,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     cdi_y    = DRAG/CHORD_strip/ES
     CL_wing  = np.array(np.split(np.reshape(LIFT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
     CDi_wing = np.array(np.split(np.reshape(DRAG,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
-    CM_wing  = np.array(np.split(np.reshape(MOMENT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
+    CM_wing  = np.array(np.split(np.reshape(MOMENT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF/c_bar
     CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T
-    CD       = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
-    CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T
+    CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
+    CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
 
     #Velocity_Profile = Data()
     #Velocity_Profile.Vx_ind   = Vx_ind_total

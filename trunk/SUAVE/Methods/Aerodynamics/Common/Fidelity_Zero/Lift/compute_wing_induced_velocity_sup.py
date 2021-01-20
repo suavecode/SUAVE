@@ -436,8 +436,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     COX   = 1.0 - FLAX + FLAX *CHORD /RNMAX
     WWAVE[B2>T2] = - 0.5 *np.sqrt(B2[B2>T2] -T2[B2>T2] )/COX[B2>T2] 
     
-    W = W + EYE*WWAVE
-    
+    W = W + EYE*WWAVE    
     
     return U, V, W
 
