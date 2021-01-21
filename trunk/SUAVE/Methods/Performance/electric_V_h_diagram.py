@@ -19,6 +19,7 @@ import numpy as np
 
 def electric_V_h_diagram(vehicle,
                          analyses,
+                         delta_isa = 0.
                          grid_points = 20.,
                          altitude_ceiling = 2e4 * Units.ft,
                          max_speed = 130 * Units['m/s'],
@@ -67,7 +68,7 @@ def electric_V_h_diagram(vehicle,
     for alt_idx in range(grid_points):
 
         altitude    = alt_range[alt_idx]
-        atmo_data   = analyses.atmosphere.compute_values(altitude, 15.)
+        atmo_data   = analyses.atmosphere.compute_values(altitude, delta_isa)
         rho         = atmo_data.density
         Vs          = np.sqrt(2*W/(rho*S*1.4)) # Determine Vehicle Stall Speed
 
