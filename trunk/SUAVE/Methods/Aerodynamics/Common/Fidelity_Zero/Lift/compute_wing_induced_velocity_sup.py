@@ -40,6 +40,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     # unpack  
     ones     = np.atleast_3d(np.ones_like(theta_w))
     n_cp     = n_sw*n_cw
+    n_w      = VD.n_w
  
     # Prandtl Glauert Transformation for subsonic
     inv_root_beta = np.ones_like(mach)
@@ -200,6 +201,9 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     RAD2   = np.zeros_like(beta_2)
     XSQ1   = X1 *X1
     XSQ2   = X2 *X2
+    RFLAG  = np.ones((len(mach),n_cp*n_w))
+    mach_f = np.broadcast_to(mach,np.shape(RFLAG))
+    
     
     # Split the vectors into subsonic and supersonic
     sub = beta_2>0
@@ -245,6 +249,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     TOLSQ2_sup = TOLSQ2[sup] 
     zobar_sub  = zobar[sub]
     zobar_sup  = zobar[sup]
+    RFLAG_sup  = RFLAG[mach_f>1]
 
     
     
@@ -270,12 +275,14 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     FLAX        = n_sw
 
     
-    U_sup, V_sup, W_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,t,CHORD_sup,RNMAX,FLAX,EYE)
+    U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,t,CHORD_sup,RNMAX,FLAX,EYE,n_cw,n_cp,n_w,RFLAG_sup)
     
     # Update the velocities
     U[sup] = U_sup
     V[sup] = V_sup
     W[sup] = W_sup
+    
+    RFLAG[mach_f>1] = RFLAG_sup
     
     ## Do vortex splitting for the U velocity 
     #
@@ -286,7 +293,8 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     #J           = np.linspace(1,n_cw,n_cw)  # NOTE THIS ASSUMES SYMMETRY
     #J           = np.tile(J,n_sw*2)
     #J           = np.broadcast_to(J,np.shape(CHORD))
-
+    #PION2       = 0.5*np.pi/RNMAX
+    #RJ          = 2 *J - 1
          
     
     
@@ -311,7 +319,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     DW_mn[:,:,:,2] = W
     
 
-    return C_mn, DW_mn, s, CHORD    
+    return C_mn, DW_mn, s, CHORD, RFLAG  
     
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2):
@@ -348,7 +356,7 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,R
     return U, V, W
 
     
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2,CUTOFF,t,CHORD,RNMAX,FLAX,EYE):
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2,CUTOFF,t,CHORD,RNMAX,FLAX,EYE,n_cw,n_cp,n_w,RFLAG):
     
     CPI  = 2 * np.pi
     ARG1 = XSQ1 - RO1
@@ -428,17 +436,79 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     V[ZSQ<TOLSQ2] = V_in
     W[ZSQ<TOLSQ2] = W_in
     
+    # DETERMINE IF TRANSVERSE VORTEX LEG OF HORSESHOE ASSOCIATED TO THE
+    # CONTROL POINT UNDER CONSIDERATION IS SONIC (SWEPT PARALLEL TO MACH
+    # LINE)? IF SO THEN RFLAG = 0.0, OTHERWISE RFLAG = 1.0.
+    size   = n_cp*n_w
+    T2     = T*T
+    T2_1d  = T2[0:size]
+    T2F    = np.zeros_like(T2_1d)
+    T2A    = np.zeros_like(T2_1d)    
     
+    F_ind  = np.linspace(0,size-1,size,dtype=int)
+    F_mask = np.ones_like(F_ind,dtype=bool)
+    F_mask[(n_cw-1)::n_cw] = False
+    F_ind  = F_ind[F_mask]   
+
+    
+    A_ind  = np.linspace(0,size-1,size,dtype=int)
+    A_mask = np.ones_like(A_ind,dtype=bool)
+    A_mask[::n_cw] = False
+    A_ind  = A_ind[A_mask]
+    
+    T2F[A_ind] = T2_1d[F_ind]
+    T2A[F_ind] = T2_1d[A_ind]
+    
+    # Zero out terms on the LE and TE
+    T2F[(n_cw-1)::n_cw] = 0.
+    T2A[0::n_cw]        = 0.
+
+    ##################
+    ##################
+    ##################
+    # UPDATE ME!!!
+    B2_1D = B2[0]
+    ##################
+    ##################
+    ##################
+    
+    TRANS = (B2_1D-T2F)*(B2_1D-T2A)
+    FLAG  = np.zeros_like(TRANS)
+    FLAG[TRANS<0] = 1
+    FLAG_bool = np.array(FLAG,dtype=bool)
+    RFLAG[TRANS<0] = 0.
+
     # COMPUTE THE GENERALIZED PRINCIPAL PART OF THE VORTEX-INDUCED VELOCITY INTEGRAL, WWAVE.
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
     WWAVE = np.zeros_like(W)
-    T2    = T*T
     COX   = 1.0 - FLAX + FLAX *CHORD /RNMAX
     WWAVE[B2>T2] = - 0.5 *np.sqrt(B2[B2>T2] -T2[B2>T2] )/COX[B2>T2] 
     
     W = W + EYE*WWAVE    
     
-    return U, V, W
+    # IF CONTROL POINT BELONGS TO A SONIC HORSESHOE VORTEX, AND THE
+    # SENDING ELEMENT IS SUCH HORSESHOE, THEN MODIFY THE NORMALWASH
+    # COEFFICIENTS IN SUCH A WAY THAT THE STRENGTH OF THE SONIC VORTEX
+    # WILL BE THE AVERAGE OF THE STRENGTHS OF THE HORSESHOES IMMEDIATELY
+    # IN FRONT OF AND BEHIND IT.
+    
+    # Zero out the row
+    FLAG_bool_rep     = np.repeat(FLAG_bool,size)
+    W[FLAG_bool_rep]  = 0. # Default to zero
+
+    # The self velocity goes to 2
+    FLAG_ind      = np.where(FLAG_bool)[0]
+    FLAG_bool_self    = FLAG_ind*size + FLAG_ind
+    W[FLAG_bool_self] = 2. # It's own value, -2
+    
+    # The panels before and after go to -1
+    FLAG_bool_bef = FLAG_bool_self - 1
+    FLAG_bool_aft = FLAG_bool_self + 1
+    W[FLAG_bool_bef] = -1.
+    W[FLAG_bool_aft] = -1.
+
+    
+    return U, V, W, RFLAG
 
 
 def supersonic_in_plane(RAD1,RAD2,Y1,Y2,TOL,XTY,CPI):
