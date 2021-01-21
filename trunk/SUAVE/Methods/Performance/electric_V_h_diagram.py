@@ -19,7 +19,7 @@ import numpy as np
 
 def electric_V_h_diagram(vehicle,
                          analyses,
-                         delta_isa = 0.
+                         delta_isa = 0.,
                          grid_points = 20.,
                          altitude_ceiling = 2e4 * Units.ft,
                          max_speed = 130 * Units['m/s'],
