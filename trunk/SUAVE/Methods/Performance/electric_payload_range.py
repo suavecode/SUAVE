@@ -56,6 +56,8 @@ def electric_payload_range(vehicle,
 
     R = np.zeros(2)
 
+    # Calculate Vehicle Range for Max Payload and Ferry Conditions
+
     for i in range(2):
         mission.segments[0].analyses.weights.vehicle.mass_properties.takeoff = TOW[i]
         results = mission.evaluate()

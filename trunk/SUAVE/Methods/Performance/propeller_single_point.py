@@ -42,6 +42,8 @@ def propeller_single_point(energy_network,
     density             = atmo_data.density
     dynamic_viscosity   = atmo_data.dynamic_viscosity
 
+    # Setup Pseudo-Mission for Prop Evaluation
+
     ctrl_pts = 3
     prop.inputs.omega                               = np.ones((ctrl_pts, 1)) * omega * Units.rpm
     conditions                                      = Data()
