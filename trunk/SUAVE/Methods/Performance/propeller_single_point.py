@@ -36,7 +36,7 @@ def propeller_single_point(energy_network,
     prop.pitch_command          = pitch
     energy_network.propeller    = prop
 
-    atmo_data           = atmo.compute_values(altitude, delta_isa)
+    atmo_data           = atmosphere.compute_values(altitude, delta_isa)
     T                   = atmo_data.temperature
     a                   = atmo_data.speed_of_sound
     density             = atmo_data.density
@@ -123,7 +123,5 @@ def propeller_single_point(energy_network,
     results.torque_distribution         = Q_distribution_BEMT
     results.tangential_velocity         = vt_BEMT
     results.axial_velocity              = va_BEMT
-
-
 
     return results

@@ -8,15 +8,19 @@
 # Imports
 #------------------------------------------------------------------------------
 
+import SUAVE
 from SUAVE.Core import Units, Data
 
 from SUAVE.Methods.Performance.propeller_single_point import propeller_single_point
 
 import numpy as np
+import matplotlib as plt
+
 #------------------------------------------------------------------------------
 # Flight Envelope Function
 #------------------------------------------------------------------------------
 
+## @ingroup Methods-Performance
 def electric_V_h_diagram(vehicle,
                          analyses,
                          delta_isa = 0.,
@@ -27,9 +31,49 @@ def electric_V_h_diagram(vehicle,
                          display_plot = True,
                          climb_rate_contours = [0.]
                          ):
-    '''
-    TODO: Add docstring
-    '''
+    """electric_V_h_diagram(vehicle,
+                            analyses,
+                            delta_isa = 0.,
+                            grid_points = 20.,
+                            altitude_ceiling = 2e4 * Units.ft,
+                            max_speed = 130 * Units['m/s'],
+                            test_omega = 800. * Units.rpm,
+                            display_plot = True,
+                            climb_rate_contours = [0.]
+                            ):
+
+        Calculates and optionally displays climb rate and contours thereof over
+        a specified airspeed and altitude range. Climb rate determination ref.
+        Raymer, "Aircraft Design: A Conceptual Approach"
+
+        Sources:
+        D. Raymer, "Aircraft Design: A Conceptual Approach"
+
+        Assumptions:
+
+        Assumes use of Battery Propeller Energy Network
+
+        Inputs:
+
+            vehicle                         SUAVE Vehicle Structure
+                .mass_properties
+                    .takeoff                                            [kg]
+            analyses                        SUAVE Analyses Structure
+                .atmosphere
+                    .planet
+                        .sea_level_gravity                              [m/s^2]
+            delta_isa                       ISA Temperature Offset      [deg. K/C]
+            grid_points                     Num. Test Points per Dim.   [Unitless]
+            altitude_ceiling                Maximum Test Altitude       [User Set]
+            max_speed                       Maximum Test Speed          [User Set]
+            test_omega                      Maximum Power Prop Speed    [User Set]
+            display_plot                    Flag for Plot Generation    [Boolean]
+            climb_rate_contours             Climb Rates to Display      [ft/min]
+
+        Outputs:
+
+            climb_rate                      Climb Rates at Test Points  [ft/min]
+    """
 
     # Unpack Inputs
 
