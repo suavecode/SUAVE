@@ -271,6 +271,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     CHORD       = TE-LE
     CHORD       = np.repeat(CHORD,length,axis=1)
     EYE         = np.eye(np.shape(CHORD)[-1]).flatten()
+    EYE         = np.tile(EYE,np.sum(mach>1))
     CHORD_sup   = CHORD[sup]
     FLAX        = n_sw
 
@@ -440,18 +441,19 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     # CONTROL POINT UNDER CONSIDERATION IS SONIC (SWEPT PARALLEL TO MACH
     # LINE)? IF SO THEN RFLAG = 0.0, OTHERWISE RFLAG = 1.0.
     size   = n_cp*n_w
+    n_mach = int(len(B2)/(size**2))
     T2     = T*T
-    T2_1d  = T2[0:size]
+    T2_1d  = T2[0:size*n_mach]
     T2F    = np.zeros_like(T2_1d)
     T2A    = np.zeros_like(T2_1d)    
     
-    F_ind  = np.linspace(0,size-1,size,dtype=int)
+    F_ind  = np.linspace(0,size*n_mach-1,size*n_mach,dtype=int)
     F_mask = np.ones_like(F_ind,dtype=bool)
     F_mask[(n_cw-1)::n_cw] = False
     F_ind  = F_ind[F_mask]   
 
     
-    A_ind  = np.linspace(0,size-1,size,dtype=int)
+    A_ind  = np.linspace(0,size*n_mach-1,size*n_mach,dtype=int)
     A_mask = np.ones_like(A_ind,dtype=bool)
     A_mask[::n_cw] = False
     A_ind  = A_ind[A_mask]
@@ -463,15 +465,10 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     T2F[(n_cw-1)::n_cw] = 0.
     T2A[0::n_cw]        = 0.
 
-    ##################
-    ##################
-    ##################
-    # UPDATE ME!!!
-    B2_1D = B2[0]
-    ##################
-    ##################
-    ##################
-    
+    # Create a smaller B2 vectors
+    B2_inds = np.array(np.ravel(np.atleast_2d(np.linspace(0,size-1,size)).T + (size**2)*np.linspace(0,n_mach-1,n_mach),order='F'),dtype=int)
+    B2_1D   = B2[B2_inds]
+
     TRANS = (B2_1D-T2F)*(B2_1D-T2A)
     FLAG  = np.zeros_like(TRANS)
     FLAG[TRANS<0] = 1
@@ -497,8 +494,13 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     W[FLAG_bool_rep]  = 0. # Default to zero
 
     # The self velocity goes to 2
-    FLAG_ind      = np.where(FLAG_bool)[0]
-    FLAG_bool_self    = FLAG_ind*size + FLAG_ind
+    FLAG_bool_split   = np.array(np.split(FLAG_bool,n_mach))
+    FLAG_ind          = np.array(np.where(FLAG_bool_split))
+    squares           = np.tile(np.atleast_3d(np.zeros((size,size))),n_mach)
+    squares[FLAG_ind[1],FLAG_ind[1],FLAG_ind[0]] = 1
+    squares           = np.ravel(squares,order='F')
+    
+    FLAG_bool_self    = np.where(squares==1)[0]
     W[FLAG_bool_self] = 2. # It's own value, -2
     
     # The panels before and after go to -1
