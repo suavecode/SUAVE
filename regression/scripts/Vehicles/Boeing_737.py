@@ -314,7 +314,7 @@ def vehicle_setup():
     wing.append_segment(segment)
 
     # add to vehicle
-    #vehicle.append_component(wing)
+    vehicle.append_component(wing)
 
 
     # ------------------------------------------------------------------

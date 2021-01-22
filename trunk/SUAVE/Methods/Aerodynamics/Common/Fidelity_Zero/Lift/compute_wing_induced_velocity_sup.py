@@ -130,7 +130,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     zo = ZC
     
     # Incline the vortex
-    theta = np.arctan2(za-za,yb-ya)
+    theta = np.arctan2(zb-za,yb-ya)
     costheta = np.cos(theta)
     sintheta = np.sin(theta)
     
@@ -393,6 +393,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     # Use the boolean to turn things off
     FB1[np.isnan(FB1)] = 1.
     FT1[np.isnan(FT1)] = 1.
+    FB1[np.isinf(FB1)] = 1.
+    FT1[np.isinf(FT1)] = 1.    
     FB1 = FB1*bool1
     FT1 = FT1*bool1
     
@@ -415,6 +417,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     # Use the boolean to turn things off
     FB2[np.isnan(FB2)] = 1.
     FT2[np.isnan(FT2)] = 1.
+    FB2[np.isinf(FB2)] = 1.
+    FT2[np.isinf(FT2)] = 1.    
     FB2 = FB2*bool2
     FT2 = FT2*bool2
     
