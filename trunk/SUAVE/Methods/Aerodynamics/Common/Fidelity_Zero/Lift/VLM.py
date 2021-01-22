@@ -271,7 +271,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # STRIP NOMINAL AREA, I.E., AREA OF STRIP ASSUMING CONSTANT
     # (CHORDWISE) HORSESHOE SPAN.    
     
-    VST = np.abs((VD.YBH - VD.YAH)*ones)
+    VST = s[:,0,:]
     VSS = s[:,0,:]
     
     SINF = ADC * DCP *VST /VSS

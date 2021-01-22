@@ -64,7 +64,7 @@ def main():
     #vsp_arrow_biconvex     = import_csv(arrow_biconvex_file_vsp)
     #pan_arrow_biconvex     = import_csv(arrow_biconvex_file_pan)
     #su2_arrow_biconvex     = import_csv(arrow_biconvex_file_su2)
-    arrow_biconvex         = arrw_biconvex()
+    arrow_biconvex         = arrw_biconvex_dih()
     #write(arrow_biconvex,'Check')
     conditions             = setup_conditions()
     results_arrow_biconvex = analyze(arrow_biconvex, conditions)
@@ -637,6 +637,61 @@ def arrw_naca_twist_dih():
     vehicle.total_length = wing.total_length
     
     return vehicle
+
+
+def arrw_biconvex_dih():
+    
+    # ------------------------------------------------------------------
+    #   Initialize the Vehicle
+    # ------------------------------------------------------------------
+
+    vehicle = SUAVE.Vehicle()
+    vehicle.tag = 'arrow_biconvex'   
+    
+    # basic parameters
+    vehicle.reference_area = 198
+    
+    # ------------------------------------------------------------------
+    #   Main Wing
+    # ------------------------------------------------------------------
+
+    wing = SUAVE.Components.Wings.Main_Wing()
+    wing.tag = 'main_wing'    
+    wing.aspect_ratio            = 2.44444
+    wing.sweeps.leading_edge     = 60. * Units.degrees
+    wing.thickness_to_chord      = 0.01
+    wing.taper                   = 1./17.
+    wing.spans.projected         = 22.
+
+    wing.chords.root             = 17. * Units.meter
+    wing.chords.tip              = 1. * Units.meter
+
+    wing.areas.reference         = 198.
+    wing.dihedral                = 30. * Units.degrees
+
+    wing.twists.root             = 0.0 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees
+
+    wing.origin                  = [[0.,0.,0.]]
+    wing.aerodynamic_center      = [0,0,0]
+
+    wing.vertical                = False
+    wing.symmetric               = True
+    wing.high_lift               = False
+
+    wing.dynamic_pressure_ratio  = 1.0    
+    
+    
+    wing.sweeps.quarter_chord = convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25)    
+    
+    wing =  wing_planform(wing)
+        
+    vehicle.append_component(wing)
+    
+    vehicle.total_length = wing.total_length
+    
+    return vehicle
+
 
 
 if __name__ == '__main__': 
