@@ -194,7 +194,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     RNMAX   = n_cw*1.
     #PION    = np.pi/RNMAX
     FACTOR  = FORAXL
-    CHORD   = CHORD[:,:,0]
+    CHORD   = CHORD[:,0,:]
     
     # COMPUTE LOAD COEFFICIENT
     GNET = gamma*FACTOR*RNMAX/CHORD

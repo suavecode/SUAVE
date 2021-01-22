@@ -237,8 +237,8 @@ def analyze(config,conditions, use_MCM = False):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 1
-    settings.number_chordwise_vortices = 5
+    settings.number_spanwise_vortices  = 2
+    settings.number_chordwise_vortices = 2
     settings.propeller_wake_model      = None
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
