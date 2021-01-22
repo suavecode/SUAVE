@@ -121,7 +121,7 @@ def propeller_design(prop,number_of_stations=20):
             raise AssertionError('\nDimension of airfoil sections must be equal to number of stations on propeller')
         airfoil_flag = True  
     else:
-        print('Defaulting to scaled DAE51')
+        print('\nDefaulting to scaled DAE51')
         airfoil_flag    = False   
         airfoil_cl_surs = None
         airfoil_cd_surs = None

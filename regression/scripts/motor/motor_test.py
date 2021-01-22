@@ -76,8 +76,7 @@ def main():
     conditions.freestream.velocity                      = np.array([[V,0,0]])
     conditions.propulsion.throttle                      = np.array([[1.0]])
     conditions.frames.body.transform_to_inertial        = np.array([np.eye(3)]) 
-    conditions.propulsion.propeller_power_coefficient   = np.array([[0.02]])
-    
+    conditions.propulsion.propeller_power_coefficient   = np.array([[0.02]]) 
     
     #------------------------------------
     # Motor Omega Function  
@@ -91,8 +90,7 @@ def main():
     
     # Run Motor Omega Function 
     omega_1  = motor_1.omega(conditions)   
-    torque_1 = motor_1.outputs.torque[0][0]
-    
+    torque_1 = motor_1.outputs.torque[0][0] 
     
     #------------------------------------
     # Motor Current Function 
@@ -120,8 +118,7 @@ def main():
     
     # Run Motor Torque Function 
     motor_3.torque(conditions)
-    torque_3 = motor_3.outputs.torque[0][0]
-    
+    torque_3 = motor_3.outputs.torque[0][0] 
     
     #------------------------------------
     # Motor Voltage-Current Function 
@@ -146,16 +143,16 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 209.31458785
-    torque_1_truth   = 1051.554404214838
-    current_2_truth  = 314.6294875086255
-    torque_3_truth   = 596.6086933894907 
-    voltage_4_truth  = 400.2383965335998
-    current_4_truth  = 553.026021108451
-    power_out_truth  = 1960.0   
-
+    omega_1_truth    = 196.9313885 
+    torque_1_truth   = 930.8134260150985 
+    current_2_truth  = 567.487532199436 
+    torque_3_truth   = 796.6086927723903 
+    voltage_4_truth  = 417.6203328000929 
+    current_4_truth  = 662.7552641479581 
+    power_out_truth  = 1960.0
+  
     error = Data()
-    error.omega_test     = np.max(np.abs(omega_1_truth   - omega_1[0]  ))
+    error.omega_test     = np.max(np.abs(omega_1_truth   - omega_1[0][0]  ))
     error.torque_test_1  = np.max(np.abs(torque_1_truth  - torque_1 ))
     error.current_test_1 = np.max(np.abs(current_2_truth - current_2))
     error.torque_test_2  = np.max(np.abs(torque_3_truth  - torque_3 ))

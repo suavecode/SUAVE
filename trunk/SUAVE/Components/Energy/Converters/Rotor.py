@@ -267,12 +267,16 @@ class Rotor(Energy_Component):
             
             # If rotor airfoils are defined, using airfoil surrogate 
             if a_loc != None:
-                # Compute blade CL distribution from the airfoil data 
-                Cl    = np.zeros((ctrl_pts,Nr))              
-                Cdval = np.zeros((ctrl_pts,Nr)) 
-                for jj in range(Nr):                 
-                    Cl[:,jj]    = cl_sur[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False)  
-                    Cdval[:,jj] = cd_sur[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False) 
+                # Compute blade Cl and Cd distribution from the airfoil data  
+                Cl      = np.zeros((ctrl_pts,Nr))              
+                Cdval   = np.zeros((ctrl_pts,Nr))  
+                dim_sur = len(cl_sur)
+                for jj in range(dim_sur):                 
+                    Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
+                    Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
+                    locs          = np.where(np.array(a_loc) == jj )
+                    Cl[:,locs]    = Cl_af[:,locs]
+                    Cdval[:,locs] = Cdval_af[:,locs]        
                      
             else:
                 # Estimate Cl max 

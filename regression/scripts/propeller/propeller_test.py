@@ -73,11 +73,12 @@ def main():
     prop_a.angular_velocity         = gearbox.inputs.speed # 207.16160479940007 
     prop_a.design_Cl                = 0.7
     prop_a.design_altitude          = 1. * Units.km      
-    prop_a.airfoil_geometry         = ['../Vehicles/NACA_4412.txt']
-    prop_a.airfoil_polars           = [['../Vehicles/NACA_4412_polar_Re_50000.txt','../Vehicles/NACA_4412_polar_Re_100000.txt',
-                                        '../Vehicles/NACA_4412_polar_Re_200000.txt','../Vehicles/NACA_4412_polar_Re_500000.txt',
-                                        '../Vehicles/NACA_4412_polar_Re_1000000.txt']] 
-    prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
+    prop_a.airfoil_geometry         = ['../Vehicles/NACA_4412.txt','../Vehicles/Clark_y.txt']
+    prop_a.airfoil_polars           = [['../Vehicles/NACA_4412_polar_Re_50000.txt','../Vehicles/NACA_4412_polar_Re_100000.txt','../Vehicles/NACA_4412_polar_Re_200000.txt',
+                                        '../Vehicles/NACA_4412_polar_Re_500000.txt','../Vehicles/NACA_4412_polar_Re_1000000.txt'],
+                                       ['../Vehicles/Clark_y_polar_Re_50000.txt','../Vehicles/Clark_y_polar_Re_100000.txt','../Vehicles/Clark_y_polar_Re_200000.txt',
+                                        '../Vehicles/Clark_y_polar_Re_500000.txt','../Vehicles/Clark_y_polar_Re_1000000.txt']] 
+    prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]  
     prop_a.design_thrust           = 3054.4809132125697
     prop_a                         = propeller_design(prop_a)  
     
@@ -187,10 +188,10 @@ def main():
     plot_results(outputr, rot,'black','-','P')
     
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3383.41788013 
-    Q_a_truth       = 998.54011272  
-    P_a_truth       = 206859.17220763 
-    Cplast_a_truth  = 0.10662024
+    F_a_truth       = 3386.34291682
+    Q_a_truth       = 999.89832977
+    P_a_truth       = 207140.54263182 
+    Cplast_a_truth  = 0.10676527 
     
     # Truth values for propeller without airfoil geometry defined 
     F_truth         = 2705.62271287  
