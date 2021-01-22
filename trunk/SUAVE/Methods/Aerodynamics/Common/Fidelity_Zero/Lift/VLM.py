@@ -202,231 +202,230 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     DCP  = 2*GNET
     CP   = DCP
     
-    ### ---------------------------------------------------------------------------------------
-    ### STEP 11: Compute aerodynamic coefficients 
-    ### ------------------ -------------------------------------------------------------------- 
+    ## ---------------------------------------------------------------------------------------
+    ## STEP 11: Compute aerodynamic coefficients 
+    ## ------------------ -------------------------------------------------------------------- 
     
-    ## PSI is 0 for zero yaw, we also are doing zero roll and no pitch rate
-    #SINALF  = np.tile(np.sin(aoa),n_cp)
-    #COSALF  = np.tile(np.cos(aoa),n_cp)
-    #SINPSI  = 0.
-    #COPSI   = 1.
-    #COSIN   = 0.
-    #COSINP  = 0.
-    #COSCOS  = COSALF *COPSI
-    #PITCH   = 0.
-    #ROLL    = 0.
-    #YAW     = 0.
+    # PSI is 0 for zero yaw, we also are doing zero roll and no pitch rate
+    SINALF  = np.tile(np.sin(aoa),n_cp)
+    COSALF  = np.tile(np.cos(aoa),n_cp)
+    SINPSI  = 0.
+    COPSI   = 1.
+    COSIN   = 0.
+    COSINP  = 0.
+    COSCOS  = COSALF *COPSI
+    PITCH   = 0.
+    ROLL    = 0.
+    YAW     = 0.
     
-    ## Work panel by panel
-    #SURF = np.array(VD.wing_areas)
-    #SREF = Sref
+    # Work panel by panel
+    SURF = np.array(VD.wing_areas)
+    SREF = Sref
 
     
-    ## Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
+    # Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
 
-    #YBH = VD.YBH*ones
-    #XA1 = VD.XA1*ones
-    #XB1 = VD.XB1*ones
-    #YA1 = VD.YA1*ones
-    #YB1 = VD.YB1*ones
+    YBH = VD.YBH*ones
+    XA1 = VD.XA1*ones
+    XB1 = VD.XB1*ones
+    YA1 = VD.YA1*ones
+    YB1 = VD.YB1*ones
     
     
-    ## This is only valid for calculating LE sweeps
-    #boolean = YBH<0. 
-    #XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
+    # This is only valid for calculating LE sweeps
+    boolean = YBH<0. 
+    XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
         
-    #TLE = (YB1-YA1)/(XB1-XA1)
-    #T2  = TLE**2
-    #STB = np.zeros_like(u)
-    #STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
-    #STB = STB[:,0::n_cw]
+    TLE = (YB1-YA1)/(XB1-XA1)
+    T2  = TLE**2
+    STB = np.zeros_like(u)
+    STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
+    STB = STB[:,0::n_cw]
     
-    ## Panel Dihedral Angle, using AH and BH location
-    #YAH = VD.YAH*ones
-    #ZAH = VD.ZAH*ones
-    #ZBH = VD.ZBH*ones
+    # Panel Dihedral Angle, using AH and BH location
+    YAH = VD.YAH*ones
+    ZAH = VD.ZAH*ones
+    ZBH = VD.ZBH*ones
     
-    #YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
+    YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
     
-    #D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
+    D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
     
-    #SID = ((ZBH-ZAH)/D)[:,0::n_cw] # Just the LE values
-    #COD = ((YBH-YAH)/D)[:,0::n_cw] # Just the LE values
-    
-    
-    ## Now on to each strip
-    #PION = (np.pi *(1.0 - FLAX) + 2.0 *FLAX) /RNMAX
-    #ADC  = 0.5*PION
-    #JTS  = 0.
-    
-    ## XLE = LOCATION OF FIRST VORTEX MIDPOINT IN FRACTION OF CHORD.
-    #XLE =.5 *(1.0 -np.cos (.5 *PION)) *(1.0 - FLAX) + 0.125 *PION *FLAX
-    
-    #SICPLE = 0.0 #  COUPLE (ABOUT STRIP CENTERLINE) DUE TO SIDESLIP (no sideslip)
-    #RJTS = JTS
-    #GAF  = 0.5 + 0.5 *RJTS **2
-    
-    ## SINF REFERENCES THE LOAD CONTRIBUTION OF IRT-VORTEX TO THE
-    ## STRIP NOMINAL AREA, I.E., AREA OF STRIP ASSUMING CONSTANT
-    ## (CHORDWISE) HORSESHOE SPAN.    
-    
-    #VST = np.abs((VD.YBH - VD.YAH)*ones)
-    #VSS = np.abs((VD.YBH - VD.YAH)*ones)
-    
-    #SINF = ADC * DCP *VST /VSS
-    
-    ## Split into chordwise strengths and sum into strips
-    n_w  = VD.n_w    
-    ##CNC = np.sum(np.array(np.array_split(SINF,n_cw,axis=1)),axis=2).T
-    #CNC = np.array(np.split(np.reshape(SINF,(-1,n_cw)).sum(axis=1),len(mach)))
-    
-    ## COMPUTE SLOPE (TX) WITH RESPECT TO X-AXIS AT LOAD POINTS BY INTER
-    ## POLATING BETWEEN CONTROL POINTS AND TAKING INTO ACCOUNT THE LOCAL
-    ## INCIDENCE.    
-    #RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)*ones
-    #IRT  = np.tile(np.linspace(1,n_sw,n_sw),n_cw*n_w)*ones
-    #XX   = .5 *(1. - np.cos ((RK - .5) *PION))
-    #XX   = XX *(1.0 - FLAX) + (RK - .75) *PION /2.0 *FLAX
-    #K    = 1*RK
-    #KX   = 1*K
-    #IRTX = 1*IRT
-    #KX[K>1]   = K[K>1]-1
-    #IRTX[K>1] = IRT[[K>1]] - 1
-    
-    ## The exact results of IRTX will not match VORLAX because of differencing indexing to python
-    
-    #RKX = KX
-    #X1  = .5 *(1. - np.cos (RKX *PION))
-    #X1  = X1 *(1.0 - FLAX) + (RKX - .25) *PION /2.0 *FLAX
-    #X2  = .5 *(1. - np.cos((RKX + 1.) *PION))
-    #X2  = X2 *(1.0 - FLAX) + (RKX + .75) *PION /2.0 *FLAX
-    
-    ## CHECK ME LATER WITH CAMBER!!!
-    #XA2 = VD.XA2*ones
-    #XB2 = VD.XB2*ones
-    #ZA1 = VD.ZA1*ones
-    #ZB1 = VD.ZB1*ones       
-    #ZA2 = VD.ZA2*ones
-    #ZB2 = VD.ZB2*ones
-    
-    #X1c  = (XA1+XB1)/2
-    #X2c  = (XA2+XB2)/2
-    #Z1c  = (ZA1+ZB1)/2
-    #Z2c  = (ZA2+ZB2)/2
-    
-    #SLOPE = (Z2c-Z1c)/(X2c-X1c)
-    
-    #####################
-    ##### NOT FINISHED
-    #####################
-    
-    #F1 = SLOPE*1.
-    ##F1[K>1] = SLOPE
-    #F2 = SLOPE*1
-    
-    #ZETA = 0.
-    
-    #####################
-    ##### NOT FINISHED 
-    #####################
-    
-    #TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
-    #TX   = TANX - ZETA
-    #CAXL = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
-    #BMLE = (XLE-XX)*SINF        # These are moment on each panel
-    
-    ## Sum onto the panel
-    ##CAXL = np.sum(np.array(np.array_split(CAXL,n_cw*n_w,axis=1)),axis=0)
-    ##BMLE = np.sum(np.array(np.array_split(BMLE,n_cw*n_w,axis=1)),axis=0)
-    ##CAXL  = np.sum(np.array(np.array_split(CAXL,n_cw,axis=1)),axis=2).T
-    ##BMLE  = np.sum(np.array(np.array_split(BMLE,n_cw,axis=1)),axis=2).T
-    ##CAXL  = np.reshape(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),(-1,len(mach)*n_w))
-    ##BMLE  = np.reshape(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),(-1,len(mach)*n_w))
-    #CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len(mach)))
-    #BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len(mach)))
-    
-    #XX = XLE
+    SID = ((ZBH-ZAH)/D)[:,0::n_cw] # Just the LE values
+    COD = ((YBH-YAH)/D)[:,0::n_cw] # Just the LE values
     
     
-    #SPC  = 0. # Leading edge suction multiplier. See documentation. This is a negative integer
-    #DCP_LE = DCP[:,0::n_cw]
-    #CLE  = 0.5* DCP_LE *np.sqrt(XX)*FLAX
-    #CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
+    # Now on to each strip
+    PION = (np.pi *(1.0 - FLAX) + 2.0 *FLAX) /RNMAX
+    ADC  = 0.5*PION
+    JTS  = 0.
     
-    ## SLE is slope at leading edge
-    #SLE  = SLOPE[:,0::n_cw]
+    # XLE = LOCATION OF FIRST VORTEX MIDPOINT IN FRACTION OF CHORD.
+    XLE =.5 *(1.0 -np.cos (.5 *PION)) *(1.0 - FLAX) + 0.125 *PION *FLAX
     
-    #FKEY = 1. - JTS*(1+JTS)
-    #XCOS = 1./np.sqrt(1+(SLE-ZETA)**2)
-    #XSIN = (SLE-ZETA)*XCOS
-    #TFX  = XCOS
+    SICPLE = 0.0 #  COUPLE (ABOUT STRIP CENTERLINE) DUE TO SIDESLIP (no sideslip)
+    RJTS = JTS
+    GAF  = 0.5 + 0.5 *RJTS **2
     
-    #if SPC<0.:
-        #TFX = XSIN*np.sign(DCP[:,0:n_cw])*FKEY
-    #CAXL = CAXL -TFX*CSUC
-    #TFZ  = - XSIN
-    #if SPC<0.:
-        #TFZ = np.abs(XCOS)*np.sign(DCP[:,0:n_cw])*FKEY
-    ## Add a dimension into the suction to be chordwise
-    #T2_LE = T2[:,0::n_cw]
-    #CNC   = CNC + CSUC*np.sqrt(1+T2_LE)*TFZ
+    # SINF REFERENCES THE LOAD CONTRIBUTION OF IRT-VORTEX TO THE
+    # STRIP NOMINAL AREA, I.E., AREA OF STRIP ASSUMING CONSTANT
+    # (CHORDWISE) HORSESHOE SPAN.    
     
-    ## FCOS AND FSIN ARE THE COSINE AND SINE OF THE ANGLE BETWEEN
-    ## THE CHORDLINE OF THE IR-STRIP AND THE X-AXIS    
+    VST = np.abs((VD.YBH - VD.YAH)*ones)
+    VSS = s[:,0,:]
+    
+    SINF = ADC * DCP *VST /VSS
+    
+    # Split into chordwise strengths and sum into strips
+    #CNC = np.sum(np.array(np.array_split(SINF,n_cw,axis=1)),axis=2).T
+    CNC = np.array(np.split(np.reshape(SINF,(-1,n_cw)).sum(axis=1),len(mach)))
+    
+    # COMPUTE SLOPE (TX) WITH RESPECT TO X-AXIS AT LOAD POINTS BY INTER
+    # POLATING BETWEEN CONTROL POINTS AND TAKING INTO ACCOUNT THE LOCAL
+    # INCIDENCE.    
+    RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)*ones
+    IRT  = np.tile(np.linspace(1,n_sw,n_sw),n_cw*n_w)*ones
+    XX   = .5 *(1. - np.cos ((RK - .5) *PION))
+    XX   = XX *(1.0 - FLAX) + (RK - .75) *PION /2.0 *FLAX
+    K    = 1*RK
+    KX   = 1*K
+    IRTX = 1*IRT
+    KX[K>1]   = K[K>1]-1
+    IRTX[K>1] = IRT[[K>1]] - 1
+    
+    # The exact results of IRTX will not match VORLAX because of differencing indexing to python
+    
+    RKX = KX
+    X1  = .5 *(1. - np.cos (RKX *PION))
+    X1  = X1 *(1.0 - FLAX) + (RKX - .25) *PION /2.0 *FLAX
+    X2  = .5 *(1. - np.cos((RKX + 1.) *PION))
+    X2  = X2 *(1.0 - FLAX) + (RKX + .75) *PION /2.0 *FLAX
+    
+    # CHECK ME LATER WITH CAMBER!!!
+    XA2 = VD.XA2*ones
+    XB2 = VD.XB2*ones
+    ZA1 = VD.ZA1*ones
+    ZB1 = VD.ZB1*ones       
+    ZA2 = VD.ZA2*ones
+    ZB2 = VD.ZB2*ones
+    
+    X1c  = (XA1+XB1)/2
+    X2c  = (XA2+XB2)/2
+    Z1c  = (ZA1+ZB1)/2
+    Z2c  = (ZA2+ZB2)/2
+    
+    SLOPE = (Z2c-Z1c)/(X2c-X1c)
+    
+    ####################
+    #### NOT FINISHED
+    ####################
+    
+    F1 = SLOPE*1.
+    #F1[K>1] = SLOPE
+    F2 = SLOPE*1
+    
+    ZETA = 0.
+    
+    ####################
+    #### NOT FINISHED 
+    ####################
+    
+    TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
+    TX   = TANX - ZETA
+    CAXL = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
+    BMLE = (XLE-XX)*SINF        # These are moment on each panel
+    
+    # Sum onto the panel
+    #CAXL = np.sum(np.array(np.array_split(CAXL,n_cw*n_w,axis=1)),axis=0)
+    #BMLE = np.sum(np.array(np.array_split(BMLE,n_cw*n_w,axis=1)),axis=0)
+    #CAXL  = np.sum(np.array(np.array_split(CAXL,n_cw,axis=1)),axis=2).T
+    #BMLE  = np.sum(np.array(np.array_split(BMLE,n_cw,axis=1)),axis=2).T
+    #CAXL  = np.reshape(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),(-1,len(mach)*n_w))
+    #BMLE  = np.reshape(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),(-1,len(mach)*n_w))
+    CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len(mach)))
+    BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len(mach)))
+    
+    XX = XLE
+    
+    
+    SPC  = 0. # Leading edge suction multiplier. See documentation. This is a negative integer
+    DCP_LE = DCP[:,0::n_cw]
+    CLE  = 0.5* DCP_LE *np.sqrt(XX)*FLAX
+    CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
+    
+    # SLE is slope at leading edge
+    SLE  = SLOPE[:,0::n_cw]
+    
+    FKEY = 1. - JTS*(1+JTS)
+    XCOS = 1./np.sqrt(1+(SLE-ZETA)**2)
+    XSIN = (SLE-ZETA)*XCOS
+    TFX  = XCOS
+    
+    if SPC<0.:
+        TFX = XSIN*np.sign(DCP[:,0:n_cw])*FKEY
+    CAXL = CAXL -TFX*CSUC
+    TFZ  = - XSIN
+    if SPC<0.:
+        TFZ = np.abs(XCOS)*np.sign(DCP[:,0:n_cw])*FKEY
+    # Add a dimension into the suction to be chordwise
+    T2_LE = T2[:,0::n_cw]
+    CNC   = CNC + CSUC*np.sqrt(1+T2_LE)*TFZ
+    
+    # FCOS AND FSIN ARE THE COSINE AND SINE OF THE ANGLE BETWEEN
+    # THE CHORDLINE OF THE IR-STRIP AND THE X-AXIS    
 
-    #FCOS = 1./np.sqrt(1.+ ZETA*ZETA)
-    #FSIN = FCOS*ZETA
+    FCOS = 1./np.sqrt(1.+ ZETA*ZETA)
+    FSIN = FCOS*ZETA
     
-    ## BFX, BFY, AND BFZ ARE THE COMPONENTS ALONG THE BODY AXES
-    ## OF THE STRIP FORCE CONTRIBUTION.
-    #BFX = - CNC *FSIN + CAXL *FCOS
-    #BFY = - (CNC *FCOS + CAXL *FSIN) *SID
-    #BFZ = (CNC *FCOS + CAXL *FSIN) *COD
+    # BFX, BFY, AND BFZ ARE THE COMPONENTS ALONG THE BODY AXES
+    # OF THE STRIP FORCE CONTRIBUTION.
+    BFX = - CNC *FSIN + CAXL *FCOS
+    BFY = - (CNC *FCOS + CAXL *FSIN) *SID
+    BFZ = (CNC *FCOS + CAXL *FSIN) *COD
     
-    ## CONVERT CNC FROM CN INTO CNC (COEFF. *CHORD).
-    #CHORD_strip = CHORD[:,0::n_cw]
-    #CNC  = CNC  * CHORD_strip
-    #BMLE = BMLE * CHORD_strip
+    # CONVERT CNC FROM CN INTO CNC (COEFF. *CHORD).
+    CHORD_strip = CHORD[:,0::n_cw]
+    CNC  = CNC  * CHORD_strip
+    BMLE = BMLE * CHORD_strip
     
-    ## BMX, BMY, AND BMZ ARE THE COMPONENTS ALONG THE BODY AXES
-    ## OF THE STRIP MOMENT (ABOUT MOM. REF. POINT) CONTRIBUTION.
-    #X    = ((VD.XAH+VD.XBH)/2)[0::n_cw]  # These are all LE values
-    #Y    = ((VD.YAH+VD.YBH)/2)[0::n_cw]   # These are all LE values
-    #Z    = ((VD.ZAH+VD.ZBH)/2)[0::n_cw]  # These are all LE values
-    #SINALF = SINALF[:,0::n_cw]
-    #COSALF = COSALF[:,0::n_cw]   
-    #ZBAR = 0.0 # Moment reference center in the Z axis, need to update
-    #XBAR = np.ones(n_sw*n_w) * x_m
-    #BMX  = BFZ * Y - BFY * (Z - ZBAR)
-    #BMX  = BMX + SICPLE
-    #BMY  = BMLE * COD + BFX * (Z - ZBAR) - BFZ * (X - XBAR)
-    #BMZ  = BMLE * SID - BFX *Y + BFY * (X - XBAR)
-    #CDC  = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) *COSALF
-    #CDC  = CDC * CHORD_strip
-    #CMTC = BMLE + CNC * (0.25 - XLE)
+    # BMX, BMY, AND BMZ ARE THE COMPONENTS ALONG THE BODY AXES
+    # OF THE STRIP MOMENT (ABOUT MOM. REF. POINT) CONTRIBUTION.
+    X    = ((VD.XAH+VD.XBH)/2)[0::n_cw]  # These are all LE values
+    Y    = ((VD.YAH+VD.YBH)/2)[0::n_cw]   # These are all LE values
+    Z    = ((VD.ZAH+VD.ZBH)/2)[0::n_cw]  # These are all LE values
+    SINALF = SINALF[:,0::n_cw]
+    COSALF = COSALF[:,0::n_cw]   
+    ZBAR = 0.0 # Moment reference center in the Z axis, need to update
+    XBAR = np.ones(n_sw*n_w) * x_m
+    BMX  = BFZ * Y - BFY * (Z - ZBAR)
+    BMX  = BMX + SICPLE
+    BMY  = BMLE * COD + BFX * (Z - ZBAR) - BFZ * (X - XBAR)
+    BMZ  = BMLE * SID - BFX *Y + BFY * (X - XBAR)
+    CDC  = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) *COSALF
+    CDC  = CDC * CHORD_strip
+    CMTC = BMLE + CNC * (0.25 - XLE)
     
-    #ES    = 2*s[:,:,0]
-    #ES    = ES[:,0::n_cw]
-    #STRIP = ES *CHORD_strip
-    #LIFT  = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
-    #DRAG  = CDC*ES 
-    #FY    = (BFY *COPSI - BFX *SINPSI) *STRIP
-    #FN    = CNC *ES
+    ES    = 2*s[:,:,0]
+    ES    = ES[:,0::n_cw]
+    STRIP = ES *CHORD_strip
+    LIFT  = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
+    DRAG  = CDC*ES 
+    FY    = (BFY *COPSI - BFX *SINPSI) *STRIP
+    FN    = CNC *ES
     
-    #MOMENT = STRIP *(BMY *COPSI - BMX *SINPSI)
-    #RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF * SINPSI + BMZ *SINALF)    
-    #YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)  
+    MOMENT = STRIP *(BMY *COPSI - BMX *SINPSI)
+    RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF * SINPSI + BMZ *SINALF)    
+    YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)  
     
-    ## Now calculate the coefficients in total and for each wing
-    #cl_y     = LIFT/CHORD_strip/ES
-    #cdi_y    = DRAG/CHORD_strip/ES
-    #CL_wing  = np.array(np.split(np.reshape(LIFT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
-    #CDi_wing = np.array(np.split(np.reshape(DRAG,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
-    #CM_wing  = np.array(np.split(np.reshape(MOMENT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF/c_bar
-    #CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T
-    #CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
-    #CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
+    # Now calculate the coefficients in total and for each wing
+    cl_y     = LIFT/CHORD_strip/ES
+    cdi_y    = DRAG/CHORD_strip/ES
+    CL_wing  = np.array(np.split(np.reshape(LIFT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
+    CDi_wing = np.array(np.split(np.reshape(DRAG,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
+    CM_wing  = np.array(np.split(np.reshape(MOMENT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF/c_bar
+    CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T
+    CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
+    CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
 
     Velocity_Profile = Data()
     Velocity_Profile.Vx_ind   = Vx_ind_total
@@ -435,31 +434,31 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     Velocity_Profile.dt       = dt
     
     # Trying to see if we can integrate pressures to get CL and CD
-    panel_areas = compute_panel_area(VD)
-    normals     = compute_unit_normal(VD)
-    normals     = np.broadcast_to(normals,(len(mach),n_cp,3))
-    wing_areas  = np.array(VD.wing_areas)
+    #panel_areas = compute_panel_area(VD)
+    #normals     = compute_unit_normal(VD)
+    #normals     = np.broadcast_to(normals,(len(mach),n_cp,3))
+    #wing_areas  = np.array(VD.wing_areas)
     
-    force_per_panel = np.atleast_3d(panel_areas*CP)
-    dir_f_panel     = force_per_panel*normals
-    cosalpha        = np.cos(aoa)
-    sinalpha        = np.sin(aoa)
+    #force_per_panel = np.atleast_3d(panel_areas*CP)
+    #dir_f_panel     = force_per_panel*normals
+    #cosalpha        = np.cos(aoa)
+    #sinalpha        = np.sin(aoa)
     
-    lift_force_panel = dir_f_panel[:,:,2]*cosalpha + dir_f_panel[:,:,0]*sinalpha
-    drag_force_panel = dir_f_panel[:,:,2]*sinalpha + dir_f_panel[:,:,0]*cosalpha
+    #lift_force_panel = dir_f_panel[:,:,2]*cosalpha + dir_f_panel[:,:,0]*sinalpha
+    #drag_force_panel = dir_f_panel[:,:,2]*sinalpha + dir_f_panel[:,:,0]*cosalpha
     
-    lift_strip  = np.array(np.split(np.reshape(lift_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
-    drag_strip  = np.array(np.split(np.reshape(drag_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
-    chord_strip = np.array(np.split(panel_areas,n_sw*n_w)).sum(axis=1) # area of a chordwise strip
+    #lift_strip  = np.array(np.split(np.reshape(lift_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
+    #drag_strip  = np.array(np.split(np.reshape(drag_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
+    #chord_strip = np.array(np.split(panel_areas,n_sw*n_w)).sum(axis=1) # area of a chordwise strip
     
-    cl_y     = lift_strip/chord_strip
-    cdi_y    = drag_strip/chord_strip
-    CL_wing  = np.array(np.split(np.reshape(lift_strip,(-1,n_sw)).sum(axis=1),len(mach)))/wing_areas
-    CDi_wing = np.array(np.split(np.reshape(drag_strip,(-1,n_sw)).sum(axis=1),len(mach)))/wing_areas
-    CL       = np.atleast_2d(np.sum(lift_force_panel,axis=1)/Sref).T
-    CDi      = np.atleast_2d(np.sum(drag_force_panel,axis=1)/Sref).T
+    #cl_y     = lift_strip/chord_strip
+    #cdi_y    = drag_strip/chord_strip
+    #CL_wing  = np.array(np.split(np.reshape(lift_strip,(-1,n_sw)).sum(axis=1),len(mach)))/wing_areas
+    #CDi_wing = np.array(np.split(np.reshape(drag_strip,(-1,n_sw)).sum(axis=1),len(mach)))/wing_areas
+    #CL       = np.atleast_2d(np.sum(lift_force_panel,axis=1)/Sref).T
+    #CDi      = np.atleast_2d(np.sum(drag_force_panel,axis=1)/Sref).T
     
-    CM       = np.zeros_like(CL)
+    #CM       = np.zeros_like(CL)
     
     
     
