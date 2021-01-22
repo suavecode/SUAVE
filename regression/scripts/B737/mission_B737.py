@@ -149,11 +149,11 @@ def base_analysis(vehicle):
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
-    # ------------------------------------------------------------------
-    #  Stability Analysis
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()
-    stability.geometry = vehicle
-    analyses.append(stability)
+    ## ------------------------------------------------------------------
+    ##  Stability Analysis
+    #stability = SUAVE.Analyses.Stability.Fidelity_Zero()
+    #stability.geometry = vehicle
+    #analyses.append(stability)
 
     # ------------------------------------------------------------------
     #  Energy
@@ -277,6 +277,7 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
+    base_segment.process.finalize.post_process.stability   = SUAVE.Methods.skip 
 
 
     # ------------------------------------------------------------------
