@@ -263,13 +263,12 @@ class Propeller(Energy_Component):
             
             # If propeller airfoils are defined, using airfoil surrogate 
             if a_loc != None:
-                # Compute blade CL distribution from the airfoil data 
-                Cl    = np.zeros((ctrl_pts,Nr))              
-                Cdval = np.zeros((ctrl_pts,Nr)) 
-                for jj in range(Nr):                 
-                    Cl[:,jj]    = cl_sur[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False)  
-                    Cdval[:,jj] = cd_sur[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False) 
-                     
+                # Compute blade CL and CD distribution from the airfoil data                 
+                cl_sur_vector = np.array(list(map(cl_sur.get, np.take(a_geo,a_loc,axis=0))))  
+                cl_sur_vector = np.array(list(map(cd_sur.get, np.take(a_geo,a_loc,axis=0))))  
+                Cl      = 0  # TO DO  np.vectorize(np.array(list(map(cl_sur_vector.get, np.take(a_geo,a_loc,axis=0))))(Re[0,:],alpha[0,:]))
+                Cdval   = 0  # TO DO             
+                
             else:
                 # Estimate Cl max 
                 Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
