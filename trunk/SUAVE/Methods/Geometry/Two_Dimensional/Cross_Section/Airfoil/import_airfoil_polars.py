@@ -33,7 +33,7 @@ def  import_airfoil_polars(airfoil_polar_files):
     
     # number of airfoils 
     num_airfoils = len(airfoil_polar_files)  
-    num_polars = len(airfoil_polar_files[0]) 
+    num_polars   = len(airfoil_polar_files[0]) 
     
     # create empty data structures 
     airfoil_data = Data()
