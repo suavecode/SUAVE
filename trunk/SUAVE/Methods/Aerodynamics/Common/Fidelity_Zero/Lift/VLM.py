@@ -202,9 +202,9 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     DCP  = 2*GNET
     CP   = DCP
     
-    ## ---------------------------------------------------------------------------------------
-    ## STEP 11: Compute aerodynamic coefficients 
-    ## ------------------ -------------------------------------------------------------------- 
+    # ---------------------------------------------------------------------------------------
+    # STEP 11: Compute aerodynamic coefficients 
+    # ------------------ -------------------------------------------------------------------- 
     
     # PSI is 0 for zero yaw, we also are doing zero roll and no pitch rate
     SINALF  = np.tile(np.sin(aoa),n_cp)
@@ -434,29 +434,29 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     Velocity_Profile.dt       = dt
     
     # Trying to see if we can integrate pressures to get CL and CD
-    #panel_areas = compute_panel_area(VD)
-    #normals     = compute_unit_normal(VD)
-    #normals     = np.broadcast_to(normals,(len(mach),n_cp,3))
-    #wing_areas  = np.array(VD.wing_areas)
+    panel_areas = VD.panel_areas
+    normals     = VD.normals
+    normals     = np.broadcast_to(normals,(len(mach),n_cp,3))
+    wing_areas  = np.array(VD.wing_areas)
     
-    #force_per_panel = np.atleast_3d(panel_areas*CP)
-    #dir_f_panel     = force_per_panel*normals
-    #cosalpha        = np.cos(aoa)
-    #sinalpha        = np.sin(aoa)
+    force_per_panel = np.atleast_3d(panel_areas*CP)
+    dir_f_panel     = force_per_panel*normals
+    cosalpha        = np.cos(aoa)
+    sinalpha        = np.sin(aoa)
     
-    #lift_force_panel = dir_f_panel[:,:,2]*cosalpha + dir_f_panel[:,:,0]*sinalpha
-    #drag_force_panel = dir_f_panel[:,:,2]*sinalpha + dir_f_panel[:,:,0]*cosalpha
+    lift_force_panel = dir_f_panel[:,:,2]*cosalpha + dir_f_panel[:,:,0]*sinalpha
+    drag_force_panel = dir_f_panel[:,:,2]*sinalpha + dir_f_panel[:,:,0]*cosalpha
     
-    #lift_strip  = np.array(np.split(np.reshape(lift_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
-    #drag_strip  = np.array(np.split(np.reshape(drag_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
-    #chord_strip = np.array(np.split(panel_areas,n_sw*n_w)).sum(axis=1) # area of a chordwise strip
+    lift_strip  = np.array(np.split(np.reshape(lift_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
+    drag_strip  = np.array(np.split(np.reshape(drag_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
+    chord_strip = np.array(np.split(panel_areas,n_sw*n_w)).sum(axis=1) # area of a chordwise strip
     
     #cl_y     = lift_strip/chord_strip
     #cdi_y    = drag_strip/chord_strip
     #CL_wing  = np.array(np.split(np.reshape(lift_strip,(-1,n_sw)).sum(axis=1),len(mach)))/wing_areas
     #CDi_wing = np.array(np.split(np.reshape(drag_strip,(-1,n_sw)).sum(axis=1),len(mach)))/wing_areas
-    #CL       = np.atleast_2d(np.sum(lift_force_panel,axis=1)/Sref).T
-    #CDi      = np.atleast_2d(np.sum(drag_force_panel,axis=1)/Sref).T
+    #CL       = np.atleast_2d(np.sum(lift_strip,axis=1)/Sref).T
+    #CDi      = np.atleast_2d(np.sum(drag_strip,axis=1)/Sref).T
     
     #CM       = np.zeros_like(CL)
     

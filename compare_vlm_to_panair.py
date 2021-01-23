@@ -64,10 +64,10 @@ def main():
     #vsp_arrow_biconvex     = import_csv(arrow_biconvex_file_vsp)
     #pan_arrow_biconvex     = import_csv(arrow_biconvex_file_pan)
     #su2_arrow_biconvex     = import_csv(arrow_biconvex_file_su2)
-    arrow_biconvex         = arrw_biconvex_dih()
+    #arrow_biconvex         = arrw_biconvex()
     #write(arrow_biconvex,'Check')
-    conditions             = setup_conditions()
-    results_arrow_biconvex = analyze(arrow_biconvex, conditions)
+    #conditions             = setup_conditions()
+    #results_arrow_biconvex = analyze(arrow_biconvex, conditions)
     print('stop')
     #plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
     #plot_results_2D('Arrow biconvex',results_arrow_biconvex,pan_arrow_biconvex,vsp_arrow_biconvex,length)    
@@ -82,14 +82,16 @@ def main():
     #results_arrow_NACA_twist = analyze(arrow_NACA_twist, conditions)
     #plot_results('Arrow NACA Twist',results_arrow_NACA_twist,panair_arrow_NACA_twist,length)
     
-    ## Arrow NACA Twist Dihedral
-    #length             = 5
-    #arrow_NACA_twist_dih_file    = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_NACA_dihedral.csv'
-    #panair_arrow_NACA_twist_dih  = import_csv(arrow_NACA_twist_dih_file)
-    #arrow_NACA_twist_dih         = arrw_naca_twist_dih()
-    #conditions                   = setup_conditions(panair_arrow_NACA_twist_dih)
-    #results_arrow_NACA_twist_dih = analyze(arrow_NACA_twist_dih, conditions)
+    # Arrow NACA Twist Dihedral
+    length             = 5
+    arrow_NACA_twist_dih_file    = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_NACA_dihedral.csv'
+    panair_arrow_NACA_twist_dih  = import_csv(arrow_NACA_twist_dih_file)
+    arrow_NACA_twist_dih         = arrw_naca_twist_dih()
+    conditions                   = setup_conditions_input(panair_arrow_NACA_twist_dih)
+    results_arrow_NACA_twist_dih = analyze(arrow_NACA_twist_dih, conditions)
     #plot_results('Arrow NACA Twist Dihedral',results_arrow_NACA_twist_dih,panair_arrow_NACA_twist_dih,length)
+    plot_results_2D('Arrow NACA Twist Dihedral',results_arrow_NACA_twist_dih,panair_arrow_NACA_twist_dih,length)    
+        
         
     
     
@@ -179,7 +181,7 @@ def plot_results(name,vlm_results,panair_results,length,label_name='Panair'):
     
     return
 
-def plot_results_2D(name,vlm_results,panair_results,vsp_results,length):
+def plot_results_2D(name,vlm_results,panair_results,length):
     
     mach  = panair_results.mach.reshape((-1,length))
     aoa   = panair_results.aoa.reshape((-1,length))
@@ -188,36 +190,36 @@ def plot_results_2D(name,vlm_results,panair_results,vsp_results,length):
     s_CDi = vlm_results.CDi.reshape((-1,length))
     p_CL  = panair_results.CL.reshape((-1,length))
     p_CD  = panair_results.CD.reshape((-1,length))
-    v_CL  = vsp_results.CL.reshape((-1,length))
-    v_CD  = vsp_results.CD.reshape((-1,length))
+    #v_CL  = vsp_results.CL.reshape((-1,length))
+    #v_CD  = vsp_results.CD.reshape((-1,length))
     
     fig_CL  = plt.figure(name+' 2D CL')
     fig_CDi = plt.figure(name+' 2D CD no Wave from VLM')
     fig_CD  = plt.figure(name+' 2D CD with Wave due to Lift')
-    fig_CL.set_size_inches(12, 12)
-    fig_CD.set_size_inches(12, 12)
-    fig_CDi.set_size_inches(12, 12)
+    fig_CL.set_size_inches(12, 8)
+    fig_CD.set_size_inches(12, 8)
+    fig_CDi.set_size_inches(12, 8)
     n_plots = np.shape(mach)[0]
     for ii in range(n_plots):
         a_mach = mach[ii,0]
         axes_CL = fig_CL.add_subplot(n_plots,1,ii+1)
         axes_CL.plot( aoa[ii,:] / Units.degrees, s_CL[ii,:] , 'ro-',label='VLM')
         axes_CL.plot( aoa[ii,:] / Units.degrees, p_CL[ii,:] , 'bo-',label='Panair')
-        axes_CL.plot( aoa[ii,:] / Units.degrees, v_CL[ii,:] , 'go-',label='VSPaero VLM')
+        #axes_CL.plot( aoa[ii,:] / Units.degrees, v_CL[ii,:] , 'go-',label='VSPaero VLM')
         axes_CL.set_ylabel('CL Mach = ' + str(a_mach))
         axes_CL.set_xlabel('AoA')
         
         axes_CDi = fig_CDi.add_subplot(n_plots,1,ii+1)
         axes_CDi.plot( s_CL[ii,:], s_CDi[ii,:] , 'ro-',label='VLM')
         axes_CDi.plot( p_CL[ii,:], p_CD[ii,:] , 'bo-',label='Panair')
-        axes_CDi.plot( v_CL[ii,:], v_CD[ii,:] , 'go-',label='VSPaero VLM')
+        #axes_CDi.plot( v_CL[ii,:], v_CD[ii,:] , 'go-',label='VSPaero VLM')
         axes_CDi.set_ylabel('CDi Mach = ' + str(a_mach))
         axes_CDi.set_xlabel('CL')
         
         axes_CD = fig_CD.add_subplot(n_plots,1,ii+1)
         axes_CD.plot( s_CL[ii,:], s_CD[ii,:] , 'ro-',label='VLM')
         axes_CD.plot( p_CL[ii,:], p_CD[ii,:] , 'bo-',label='Panair')
-        axes_CD.plot( v_CL[ii,:], v_CD[ii,:] , 'go-',label='VSPaero VLM')
+        #axes_CD.plot( v_CL[ii,:], v_CD[ii,:] , 'go-',label='VSPaero VLM')
         axes_CD.set_ylabel('CD Mach = ' + str(a_mach))
         axes_CD.set_xlabel('CL')     
         
@@ -237,8 +239,8 @@ def analyze(config,conditions, use_MCM = False):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 2
-    settings.number_chordwise_vortices = 2
+    settings.number_spanwise_vortices  = 25
+    settings.number_chordwise_vortices = 15
     settings.propeller_wake_model      = None
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
@@ -280,15 +282,15 @@ def analyze(config,conditions, use_MCM = False):
 
 def setup_conditions():
         
-    #aoas  = np.array([-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6]) * Units.degrees
-    #machs = np.array([0.4,0.4,0.4,0.4,0.4,0.8,0.8,0.8,0.8,0.8,1.4,1.4,1.4,1.4,1.4,1.6,1.6,1.6,1.6,1.6,1.8,1.8,1.8,1.8,1.8,2,2,2,2,2])
+    aoas  = np.array([-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6]) * Units.degrees
+    machs = np.array([0.4,0.4,0.4,0.4,0.4,0.8,0.8,0.8,0.8,0.8,1.4,1.4,1.4,1.4,1.4,1.6,1.6,1.6,1.6,1.6,1.8,1.8,1.8,1.8,1.8,2,2,2,2,2])
     
     
     #aoas  = np.array([6.,2.,2.,6.]) * Units.degrees
     #machs = np.array([0.4,1.,2.0,2.0])    
     
-    aoas  = np.array([6.,6]) * Units.degrees
-    machs = np.array([0.4,1.4])        
+    #aoas  = np.array([6.,6]) * Units.degrees
+    #machs = np.array([0.4,1.4])        
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()
@@ -301,6 +303,34 @@ def setup_conditions():
     conditions.freestream.mach_number       = np.atleast_2d(machs).T
 
     return conditions
+
+def setup_conditions_input(panair_results):
+        
+    
+    
+    #aoas  = np.array([6.,2.,2.,6.]) * Units.degrees
+    #machs = np.array([0.4,1.,2.0,2.0])    
+    
+    #aoas  = np.array([6.,6]) * Units.degrees
+    #machs = np.array([0.4,1.4])        
+    
+
+    
+    aoas  = panair_results.aoa
+    machs = panair_results.mach    
+    
+    aoas  = aoas.flatten()
+    machs = machs.flatten()    
+    
+    conditions              = Data()
+    conditions.aerodynamics = Data()
+    conditions.freestream   = Data()
+    conditions.freestream.velocity          = np.atleast_2d(100.*np.ones_like(aoas))
+    conditions.aerodynamics.angle_of_attack = np.atleast_2d(aoas).T
+    conditions.freestream.mach_number       = np.atleast_2d(machs).T
+
+    return conditions
+
 
 
 def strt_biconvex():
