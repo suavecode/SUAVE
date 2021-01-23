@@ -150,16 +150,22 @@ def propeller_design(prop,number_of_stations=20):
             # compute airfoil polars for airfoils 
             airfoil_polars  = compute_airfoil_polars(a_geo, a_pol)  
             airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates 
-            airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates 
+            airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates  
             
-            alpha = np.zeros_like(RE)
-            Cdval = np.zeros_like(RE)  
+            # assign initial values 
+            alpha0   = np.ones(N)*0.05
             
-            for i in range(N):  
-                sol = root(objective, 0.05, args=(airfoil_cl_surs, RE , a_geo , a_loc, i,  Cl)) 
-                AoA_soln = sol.x[0] 
-                alpha[i] = AoA_soln    
-                Cdval[i] = airfoil_cd_surs[a_geo[a_loc[i]]](RE[i],alpha[i],grid=False)  
+            # solve for optimal alpha to meet design Cl target
+            sol      = root(objective, x0 = alpha0 , args=(airfoil_cl_surs, RE , a_geo ,a_loc, Cl ,N))  
+            alpha    = sol.x
+            
+            # query surrogate for sectional Cls at stations 
+            Cdval    = np.zeros_like(RE) 
+            for j in range(len(airfoil_cd_surs)):                 
+                Cdval_af    = airfoil_cd_surs[a_geo[j]](RE,alpha,grid=False)  
+                locs        = np.where(np.array(a_loc) == j )
+                Cdval[locs] = Cdval_af[locs]    
+                
         else:    
             Cdval   = (0.108*(Cl**4)-0.2612*(Cl**3)+0.181*(Cl**2)-0.0139*Cl+0.0278)*((50000./RE)**0.2)
             alpha   = Cl/(2.*np.pi)
@@ -288,7 +294,14 @@ def propeller_design(prop,number_of_stations=20):
     return prop
 
     
-def objective(x, airfoil_cl_surs, RE , a_geo ,a_loc, i,  Cl ): 
-    AoA = x[0]
-    Cl_residual = airfoil_cl_surs[a_geo[a_loc[i]]](RE[i],AoA,grid=False) - Cl 
-    return  Cl_residual 
+def objective(x, airfoil_cl_surs, RE , a_geo ,a_loc, Cl ,N):  
+    # query surrogate for sectional Cls at stations 
+    Cl_vals = np.zeros(N)     
+    for j in range(len(airfoil_cl_surs)):                 
+        Cl_af         = airfoil_cl_surs[a_geo[j]](RE,x,grid=False)   
+        locs          = np.where(np.array(a_loc) == j )
+        Cl_vals[locs] = Cl_af[locs] 
+        
+    # compute Cl residual    
+    Cl_residuals = Cl_vals - Cl 
+    return  Cl_residuals 

@@ -189,7 +189,7 @@ def optimize_kv(io, v , omeg,  etam ,  Q, kv_lower_bound =  0.01, Res_lower_boun
     
     bnds = ((kv_lower_bound, kv_upper_bound), (Res_lower_bound , Res_upper_bound))
     
-    # try hard constraints to fine optimum motor parameters
+    # try hard constraints to find optimum motor parameters
     sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=hard_cons) 
     
     if sol.success == False:
