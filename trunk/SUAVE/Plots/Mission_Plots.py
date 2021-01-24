@@ -1087,7 +1087,7 @@ def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_fi
             y_max      = max(VD.YC) + 2
             axes.set_ylim(x_max, 0)
             axes.set_xlim(-y_max, y_max)            
-            fig.set_size_inches(12, 12)         	 
+            fig.set_size_inches(8,8)         	 
             for i in range(n_w):
                 n_pts     = (n_sw + 1) * (n_cw + 1) 
                 xc_pts    = VD.X[i*(n_pts):(i+1)*(n_pts)]
@@ -1155,7 +1155,7 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
             cl_y = segment.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[ti] 
             line = ['-b','-b','-r','-r','-k']
             fig  = plt.figure()
-            fig.set_size_inches(12, 12)       
+            fig.set_size_inches(8,8)       
             axes = fig.add_subplot(1,1,1)
             for i in range(n_w): 
                 y_pts = VD.Y_SW[i*(n_sw):(i+1)*(n_sw)]

@@ -377,6 +377,7 @@ def vehicle_setup():
     sum_moments_less_fuel=(cg*MTOW-fuel_cg*fuel_mass)
     vehicle.fuel = fuel
     vehicle.mass_properties.zero_fuel_center_of_gravity = sum_moments_less_fuel/vehicle.mass_properties.max_zero_fuel
+    
     return vehicle
 
 def configs_setup(vehicle):

@@ -90,9 +90,9 @@ def VLM(conditions,settings,geometry):
     n_cw       = settings.number_chordwise_vortices   
     pwm        = settings.propeller_wake_model
     ito        = settings.initial_timestep_offset
-    wdt        = settings.wake_development_time  
-    Sref       = geometry.reference_area 
-    
+    wdt        = settings.wake_development_time
+    Sref       = geometry.reference_area
+
     # define point about which moment coefficient is computed
     if 'main_wing' in geometry.wings:
         c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
@@ -137,14 +137,14 @@ def VLM(conditions,settings,geometry):
     # Build Aerodynamic Influence Coefficient Matrix
     A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
         + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
-        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # valdiated from book eqn 7.42  
+        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta))) # valdiated from book eqn 7.42  
    
     # Build the vector
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
-                                                                                 pwm,ito,wdt ) 
+                                                                                 pwm,ito,wdt )
     
     # Spersonic Vortex Lattice - Validated from NASA CR, page 3 
-    locs = np.where(mach>1)[0]
+    locs         = np.where(mach>1)[0]
     DW_mn[locs]  = DW_mn[locs]*2
     C_mn[locs]   = C_mn[locs]*2
     
@@ -212,7 +212,7 @@ def VLM(conditions,settings,geometry):
     # PRESSURE                                                                      
     # --------------------------------------------------------------------------------------------------------          
     L_ij              = np.multiply((1+u),gamma*Del_Y) 
-    CP                = -L_ij/(0.5*VD.panel_areas)
+    CP                = L_ij/VD.panel_areas  
     
     # --------------------------------------------------------------------------------------------------------
     # MOMENT                                                                        

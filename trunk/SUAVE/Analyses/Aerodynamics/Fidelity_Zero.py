@@ -72,7 +72,7 @@ class Fidelity_Zero(Markup):
         settings.number_chordwise_vortices          = None 
         settings.initial_timestep_offset            = 0.
         settings.wake_development_time              = 0.05
-        settings.use_surrogate                      = True 
+        settings.use_surrogate                      = True
         settings.propeller_wake_model               = False 
         
         # build the evaluation process
@@ -131,10 +131,10 @@ class Fidelity_Zero(Markup):
         propeller_wake_model      = self.settings.propeller_wake_model 
         n_sw                      = self.settings.number_spanwise_vortices
         n_cw                      = self.settings.number_chordwise_vortices
-        ito                       = self.settings.initial_timestep_offset        
-        wdt                       = self.settings.wake_development_time    
+        ito                       = self.settings.initial_timestep_offset
+        wdt                       = self.settings.wake_development_time
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt)          
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt)
                                                             
     finalize = initialize                                          

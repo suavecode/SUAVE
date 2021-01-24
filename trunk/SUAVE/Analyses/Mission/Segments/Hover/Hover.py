@@ -70,6 +70,7 @@ class Hover(Aerodynamic):
         ones_row = self.state.ones_row
         self.state.unknowns.throttle   = ones_row(1) * 0.5
         self.state.residuals.force     = ones_row(1) * 0.0
+        self.state.VTOL_flag           = True 
         
         
         # --------------------------------------------------------------

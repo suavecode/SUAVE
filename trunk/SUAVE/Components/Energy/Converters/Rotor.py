@@ -51,8 +51,7 @@ class Rotor(Energy_Component):
         """         
         
         self.tag                       = 'rotor'
-        self.number_of_blades          = 0.0
-        self.number_of_engines         = 0.0
+        self.number_of_blades          = 0.0 
         self.tip_radius                = 0.0
         self.hub_radius                = 0.0
         self.twist_distribution        = 0.0
@@ -102,7 +101,7 @@ class Rotor(Energy_Component):
         conditions.propulsion.               
           throttle                           [-]
                                              
-      Outputs:                             
+        Outputs:                             
         conditions.propulsion.outputs.        
            number_radial_stations            [-]
            number_azimuthal_stations         [-] 
@@ -123,7 +122,7 @@ class Rotor(Energy_Component):
            blade_dT_dr                       [N]
            blade_thrust_distribution         [N]
            disc_thrust_distribution          [N]
-           blade_thrust                      [N]
+           thrust_per_blade                  [N]
            thrust_coefficient                [-] 
            azimuthal_distribution            [rad]
            disc_azimuthal_distribution       [rad]
@@ -131,7 +130,7 @@ class Rotor(Energy_Component):
            blade_dQ_dr                       [Nm]
            blade_torque_distribution         [Nm] 
            disc_torque_distribution          [Nm] 
-           blade_torque                      [Nm] 
+           torque_per_blade                  [Nm] 
            torque_coefficient                [-] 
            power                             [W]    
            power_coefficient                 [-] 
@@ -145,25 +144,23 @@ class Rotor(Energy_Component):
           chord_distribution                 [m]
           mid_chord_aligment                 [m] 
           thrust_angle                       [radians]
-        """       
+        """         
            
         #Unpack    
-        B       = self.number_of_blades
-        E       = self.number_of_engines
+        B       = self.number_of_blades 
         R       = self.tip_radius
         Rh      = self.hub_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
-        r       = self.radius_distribution
-        MCA     = self.mid_chord_aligment
-        t_max   = self.max_thickness_distribution
+        chi     = self.radius_distribution 
         omega   = self.inputs.omega
         a_geo   = self.airfoil_geometry      
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
-        cd_sur  = self.airfoil_cd_surrogates 
+        cd_sur  = self.airfoil_cd_surrogates  
+        tc      = self.thickness_to_chord 
         ua      = self.induced_hover_velocity
-        VTOL    = self.VTOL_flag
+        VTOL    = self.VTOL_flag 
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector 
@@ -201,9 +198,17 @@ class Rotor(Energy_Component):
         Nr       = len(c) # Number of stations radially    
         ctrl_pts = len(Vv)
                  
-        # set up non dimensional radial distribution  
-        chi = self.radius_distribution/R 
-        omega          = np.abs(omega)         
+        # set up non dimensional radial distribution 
+        if self.radius_distribution is None:
+            chi0= Rh/R                      # Where the rotor blade actually starts
+            chi = np.linspace(chi0,1,Nr+1)  # Vector of nondimensional radii
+            chi = chi[0:Nr]
+    
+        else:
+            chi = self.radius_distribution/R
+    
+        omega          = np.abs(omega)        
+        r              = chi*R                              # Radial coordinate 
         pi             = np.pi        
         pi2            = pi*pi       
         n              = omega/(2.*pi)                      # Cycles per second  
@@ -213,7 +218,7 @@ class Rotor(Energy_Component):
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
         psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
-        azimuth_2d     = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], Na, axis=0).T
+        azimuth_2d     = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], Na, axis=0).T  
         
         # 2 dimensiona radial distribution non dimensionalized
         chi_2d         = np.tile(chi ,(Na,1))            
@@ -227,7 +232,7 @@ class Rotor(Energy_Component):
         omegar = np.outer(omega,r)
         Ua     = np.outer((V + ua),np.ones_like(r))
         Ut     = omegar - ut
-        U      = np.sqrt(Ua*Ua + Ut*Ut)
+        U      = np.sqrt(Ua*Ua + Ut*Ut) 
         beta   = total_blade_pitch
         
         # Setup a Newton iteration
@@ -259,12 +264,42 @@ class Rotor(Energy_Component):
             F            = 2.*arccos_piece/pi
             Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5 
             Re           = (W*c)/nu  
-        
-            Cl    = np.zeros((ctrl_pts,Nr))              
-            Cdval = np.zeros((ctrl_pts,Nr)) 
-            for jj in range(Nr):                 
-                Cl[:,jj]    = cl_sur[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False)  
-                Cdval[:,jj] = cd_sur[a_geo[a_loc[jj]]](Re[:,jj],alpha[:,jj],grid=False) 
+            
+            # If rotor airfoils are defined, using airfoil surrogate 
+            if a_loc != None:
+                # Compute blade Cl and Cd distribution from the airfoil data  
+                Cl      = np.zeros((ctrl_pts,Nr))              
+                Cdval   = np.zeros((ctrl_pts,Nr))  
+                dim_sur = len(cl_sur)
+                for jj in range(dim_sur):                 
+                    Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
+                    Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
+                    locs          = np.where(np.array(a_loc) == jj )
+                    Cl[:,locs]    = Cl_af[:,locs]
+                    Cdval[:,locs] = Cdval_af[:,locs]        
+                     
+            else:
+                # Estimate Cl max 
+                Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+                Re_ref     = 9.*10**6      
+                Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+                
+                # If not airfoil polar provided, use 2*pi as lift curve slope
+                Cl = 2.*pi*alpha
+            
+                # By 90 deg, it's totally stalled.
+                Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
+                Cl[alpha>=pi/2] = 0.
+                
+                # Scale for Mach, this is Karmen_Tsien
+                Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+                
+                # If the blade segments are supersonic, don't scale
+                Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]  
+                
+                #This is an atrocious fit of DAE51 data at RE=50k for Cd
+                Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+                Cdval[alpha>=pi/2] = 2.                
 
             Rsquiggly   = Gamma - 0.5*W*c*Cl
         
@@ -319,8 +354,8 @@ class Rotor(Energy_Component):
         
         epsilon                  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
-        deltar                   = (r[1]-r[0])  
-        deltachi                 = (chi[1]-chi[0])  
+        deltar                   = (r[1]-r[0])   
+        deltachi                 = (chi[1]-chi[0])          
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
         thrust                   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
@@ -333,7 +368,7 @@ class Rotor(Energy_Component):
         blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         
-        blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T  
+        blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
         blade_dT_dR = np.zeros((ctrl_pts,Nr))
         blade_dT_dr = np.zeros((ctrl_pts,Nr))
         blade_dQ_dR = np.zeros((ctrl_pts,Nr))
@@ -379,12 +414,6 @@ class Rotor(Energy_Component):
         self.azimuthal_distribution                   = psi  
         results_conditions                            = Data     
         outputs                                       = results_conditions( 
-                    number_of_blades                  = B, 
-                    radius_distribution               = r,
-                    chord_distribution                = c,
-                    twist_distribution                = total_blade_pitch, 
-                    mid_chord_aligment                = MCA,  
-                    max_thickness_distribution        = t_max,  
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,   
                     disc_radial_distribution          = r_dim_2d,  
@@ -408,17 +437,17 @@ class Rotor(Energy_Component):
                     blade_dT_dr                       = blade_dT_dr,
                     blade_thrust_distribution         = blade_T_distribution, 
                     disc_thrust_distribution          = blade_T_distribution_2d, 
-                    blade_thrust                      = thrust/B, 
+                    thrust_per_blade                  = thrust/B, 
                     thrust_coefficient                = Ct, 
                     disc_azimuthal_distribution       = azimuth_2d,
                     blade_dQ_dR                       = blade_dQ_dR,
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution, 
                     disc_torque_distribution          = blade_Q_distribution_2d, 
-                    blade_torque                      = torque/B,   
+                    torque_per_blade                  = torque/B,   
                     torque_coefficient                = Cq,   
                     power                             = power,
-                    power_coefficient                 = Cp,                    
+                    power_coefficient                 = Cp,                      
             ) 
     
         return thrust, torque, power, Cp, outputs , etap

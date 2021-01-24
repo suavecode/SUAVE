@@ -54,7 +54,7 @@ def empty(vehicle):
                         internal_combustion
                             rated_power - maximum rated power of the internal combustion engine [Watts]
                         
-                    number_engines - integer indicating the number of engines on the aircraft
+                    number_of_engines - integer indicating the number of engines on the aircraft
 
                 wt_cargo - weight of the bulk cargo being carried on the aircraft [kilograms]
                 num_seats - number of seats installed on the aircraft [dimensionless]
@@ -188,7 +188,7 @@ def empty(vehicle):
         propulsors.mass_properties.mass  = wt_propulsion 
 
     elif propulsor_name == 'internal_combustion':
-        rated_power                      = propulsors.rated_power/num_eng
+        rated_power                      = propulsors.engine.sea_level_power
         wt_engine_piston                 = Propulsion.engine_piston(rated_power)
         wt_propulsion                    = Propulsion.integrated_propulsion_general_aviation(wt_engine_piston,num_eng)
         propulsors.mass_properties.mass  = wt_propulsion 

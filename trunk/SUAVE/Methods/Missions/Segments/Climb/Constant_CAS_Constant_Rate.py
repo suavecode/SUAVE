@@ -68,7 +68,7 @@ def initialize_conditions(segment):
     density  = conditions.freestream.density[:,0]  
     pressure = conditions.freestream.pressure[:,0] 
 
-    MSL_data  = segment.analyses.atmosphere.compute_values(0.0,segment.temperature_deviation)
+    MSL_data  = segment.analyses.atmosphere.compute_values(0.0,0.0)
     pressure0 = MSL_data.pressure[0]
 
     kcas  = cas / Units.knots

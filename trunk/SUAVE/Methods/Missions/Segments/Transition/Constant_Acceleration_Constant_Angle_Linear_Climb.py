@@ -91,7 +91,7 @@ def initialize_conditions(segment):
     vz = t_nondim *  V  * np.sin(climb_angle) + v0 * np.sin(climb_angle)  
     
     # set the body angle
-    body_angle =time*(Tf-T0)/(t_final-t_initial)
+    body_angle =time*(Tf-T0)/(t_final-t_initial) + T0
     segment.state.conditions.frames.body.inertial_rotations[:,1] = body_angle[:,0]     
     
     # pack
@@ -141,7 +141,5 @@ def residual_total_forces(segment):
     segment.state.residuals.forces[:,0] = FT[:,0]/m[:,0] - a[:,0]
     # vertical
     segment.state.residuals.forces[:,1] = FT[:,2]/m[:,0] - a[:,2]
-    
-    #print (segment.state.residuals.forces[:,0])
-    #print (segment.state.residuals.forces[:,1])
+     
     return
