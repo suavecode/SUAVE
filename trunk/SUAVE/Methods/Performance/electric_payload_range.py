@@ -11,7 +11,7 @@
 from SUAVE.Core import Units, Data
 
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 #------------------------------------------------------------------------------
 # Electric Payload Range Function
