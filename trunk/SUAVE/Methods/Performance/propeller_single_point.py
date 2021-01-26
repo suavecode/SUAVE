@@ -17,8 +17,9 @@ import numpy as np
 #   Propeller Single Point
 # ------------------------------------------------------------------------------
 
+## @ingroup Methods-Performance
 def propeller_single_point(energy_network,
-                           atmosphere,
+                           analyses,
                            pitch,
                            omega,
                            altitude,
@@ -26,17 +27,68 @@ def propeller_single_point(energy_network,
                            speed,
                            plots=False,
                            print_results=False):
-    '''
-    TODO: Add docstring
-    '''
+    """propeller_single_point(energy_network,
+                              analyses,
+                              pitch,
+                              omega,
+                              altitude,
+                              delta_isa,
+                              speed,
+                              plots=False,
+                              print_results=False):
+
+        Uses SUAVE's BEMT propeller model to evaluate propeller performance at a
+        single altitude, pitch command, and angular velocity. Can be used indep-
+        endently, or as part of creation of a propller maps or flight envelopes.
+
+        Sources:
+        N/A
+
+        Assumptions:
+
+        Assumes use of Battery Propeller Energy Network, All Assumptions of
+        the BEMT model.
+
+        Inputs:
+
+            energy_network                      SUAVE Energy Network
+                .propeller                      SUAVE Propeller Data Structure
+
+            analyses                            SUAVE Analyses Structure
+                .atmosphere                     SUAVE Atmosphere Analysis Object
+
+            pitch                               Propeller Pitch/Collective  [User Set]
+            omega                               Test Angular Velocity       [User Set]
+            altitude                            Test Altitude               [User Set]
+            delta_isa                           Atmosphere Temp Offset      [K]
+            speed                               Propeller Intake Speed      [User Set]
+            plots                               Flag for Plot Generation    [Boolean]
+            print_results                       Flag for Terminal Output    [Boolean]
+
+        Outputs:
+
+            results                             SUAVE Data Object
+                .thrust                         BEMT Thrust Prediction      [N]
+                .torque                         BEMT Torque Prediction      [N-m]
+                .power                          BEMT Power Prediction       [W]
+                .power_coefficient              BEMT Cp Prediction          [Unitless]
+                .efficiency                     BEMT Efficiency Prediction  [Unitless]
+                .induced_axial_velocity         BEMT Ind. V_a Prediction    [m/s]
+                .induced_tangential_velocity    BEMT Ind. V_tPrediction     [m/s]
+                .radial_distribution            BEMT Radial Stations        [m]
+                .thrust_distribution            BEMT T Dist. Prediction     [N/m]
+                .torque_distribution            BEMT Q Dist. Prediction     [(N-m)/m]
+                .tangential_velocity            BEMT V_t Prediction         [m/s]
+                .axial_velocity                 BEMT V_a Prediction         [m/s]
+    """
 
     # Unpack Inputs
 
-    prop                        = energy_network.prop
+    prop                        = energy_network.propeller
     prop.pitch_command          = pitch
     energy_network.propeller    = prop
 
-    atmo_data           = atmosphere.compute_values(altitude, delta_isa)
+    atmo_data           = analyses.atmosphere.compute_values(altitude, delta_isa)
     T                   = atmo_data.temperature
     a                   = atmo_data.speed_of_sound
     density             = atmo_data.density
