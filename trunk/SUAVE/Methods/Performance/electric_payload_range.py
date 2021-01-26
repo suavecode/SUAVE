@@ -17,6 +17,7 @@ import matplotlib as plt
 # Electric Payload Range Function
 #------------------------------------------------------------------------------
 
+## @ingroup Methods-Performance
 def electric_payload_range(vehicle,
                            mission,
                            cruise_segment_tag,
