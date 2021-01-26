@@ -61,12 +61,13 @@ def main():
 
     climb_rate = electric_V_h_diagram(vehicle,
                                       analyses,
-                                      0.,
+                                      CL_max=1.4,
+                                      delta_isa=0.,
                                       grid_points=5,
                                       altitude_ceiling= 2e4 * Units.ft,
                                       max_speed=130 * Units['m/s'],
                                       test_omega= 1000 * Units.rpm,
-                                      display_plot=False)
+                                      display_plot=True)
 
     climb_rate_r = [[0., 0., 0., 0., 0.],
                     [0., 0., 0., 0., 0.],

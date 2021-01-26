@@ -96,7 +96,7 @@ def propeller_single_point(energy_network,
 
     # Setup Pseudo-Mission for Prop Evaluation
 
-    ctrl_pts = 3
+    ctrl_pts = 1
     prop.inputs.omega                               = np.ones((ctrl_pts, 1)) * omega
     conditions                                      = Data()
     conditions.freestream                           = Data()

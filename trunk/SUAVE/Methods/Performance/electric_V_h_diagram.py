@@ -14,7 +14,7 @@ from SUAVE.Core import Units, Data
 from SUAVE.Methods.Performance.propeller_single_point import propeller_single_point
 
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 #------------------------------------------------------------------------------
 # Flight Envelope Function
@@ -23,6 +23,7 @@ import matplotlib as plt
 ## @ingroup Methods-Performance
 def electric_V_h_diagram(vehicle,
                          analyses,
+                         CL_max,
                          delta_isa = 0.,
                          grid_points = 20.,
                          altitude_ceiling = 2e4 * Units.ft,
@@ -114,7 +115,7 @@ def electric_V_h_diagram(vehicle,
         altitude    = alt_range[alt_idx]
         atmo_data   = analyses.atmosphere.compute_values(altitude, delta_isa)
         rho         = atmo_data.density
-        Vs          = np.sqrt(2*W/(rho*S*1.4)) # Determine Vehicle Stall Speed
+        Vs          = np.sqrt(2*W/(rho*S*CL_max)) # Determine Vehicle Stall Speed
 
         for speed_idx in range(grid_points):
 

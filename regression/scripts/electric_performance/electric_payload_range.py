@@ -33,7 +33,7 @@ def main():
 
     analyses.finalize()
 
-    payload_range = electric_payload_range(vehicle, mission, 'cruise', display_plot=False)
+    payload_range = electric_payload_range(vehicle, mission, 'cruise', display_plot=True)
 
     payload_range_r = [0., 127815.98691222, 131991.05676247]
 

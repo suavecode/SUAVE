@@ -35,11 +35,13 @@ def main():
 
     results = propeller_single_point(vehicle.propulsors.battery_propeller,
                                      analyses,
-                                     0.,
-                                     1500. * Units.rpm,
-                                     5000 * Units.ft,
-                                     0.,
-                                     10 * Units['m/s']
+                                     pitch=0.,
+                                     omega=1500. * Units.rpm,
+                                     altitude= 5000. * Units.ft,
+                                     delta_isa=0.,
+                                     speed=10 * Units['m/s'],
+                                     plots=True,
+                                     print_results=True
                                      )
 
     thrust  = results.thrust
