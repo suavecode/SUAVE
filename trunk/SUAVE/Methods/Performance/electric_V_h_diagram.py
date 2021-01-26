@@ -63,7 +63,7 @@ def electric_V_h_diagram(vehicle,
                     .planet
                         .sea_level_gravity                              [m/s^2]
             delta_isa                       ISA Temperature Offset      [deg. K/C]
-            grid_points                     Num. Test Points per Dim.   [Unitless]
+            grid_points                     Num. Test Points per Dim.   [Int]
             altitude_ceiling                Maximum Test Altitude       [User Set]
             max_speed                       Maximum Test Speed          [User Set]
             test_omega                      Maximum Power Prop Speed    [User Set]
@@ -132,8 +132,10 @@ def electric_V_h_diagram(vehicle,
                 # Determine Propeller Power at Altitude and Speed
 
                 P = propeller_single_point(vehicle.propulsors.battery_propeller,
-                                           analyses.atmosphere,
-                                           test_omega,
+                                           analyses,
+                                           pitch=0.,
+                                           omega=test_omega,
+                                           altitude=altitude,
                                            delta_isa=0.,
                                            speed=V).power
 
