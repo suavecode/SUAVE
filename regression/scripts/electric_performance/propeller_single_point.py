@@ -36,10 +36,10 @@ def main():
     results = propeller_single_point(vehicle.propulsors.battery_propeller,
                                      analyses,
                                      0.,
-                                     600.,
+                                     1500. * Units.rpm,
                                      5000 * Units.ft,
                                      0.,
-                                     40 * Units['m/s']
+                                     10 * Units['m/s']
                                      )
 
     thrust  = results.thrust
@@ -48,11 +48,11 @@ def main():
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 82.91229875696621
-    torque_r    = 61.45265907560588
-    power_r     = 3861.184445909631
-    Cp_r        = 0.13645547798184815
-    etap_r      = 0.8589312416276809
+    thrust_r    = 8.260234902816148
+    torque_r    = 5.573847034803902
+    power_r     = 91.6861087094991
+    Cp_r        = 0.18057935110253945
+    etap_r      = 0.9009254530572471
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
     assert (np.abs(torque - torque_r) / torque_r < 1e-6), "Propeller Single Point Regression Failed at Torque Test"
