@@ -17,8 +17,8 @@ from SUAVE.Core import Data
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Propulsion import propeller_design 
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv   
-from SUAVE.Plots.Geometry_Plots import * 
+from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv    
+from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -316,20 +316,24 @@ def vehicle_setup():
     # Design the Propeller
     prop = SUAVE.Components.Energy.Converters.Propeller() 
 
-    prop.number_of_blades    = 2.0
-    prop.freestream_velocity = 135.*Units['mph']    
-    prop.angular_velocity    = 1300.  * Units.rpm  
-    prop.tip_radius          = 76./2. * Units.inches
-    prop.hub_radius          = 8.     * Units.inches
-    prop.design_Cl           = 0.8
-    prop.design_altitude     = 12000. * Units.feet
-    prop.design_altitude     = 12000. * Units.feet
-    prop.design_thrust       = 1200.  
-    prop.origin              = [[2.,2.5,0.784],[2.,-2.5,0.784]]         
-    prop.rotation            = [-1,1] 
-    prop.symmetry            = True
-    prop                     = propeller_design(prop)    
-    net.propeller            = prop    
+    prop.number_of_blades       = 2.0
+    prop.freestream_velocity    = 135.*Units['mph']    
+    prop.angular_velocity       = 1300.  * Units.rpm  
+    prop.tip_radius             = 76./2. * Units.inches
+    prop.hub_radius             = 8.     * Units.inches
+    prop.design_Cl              = 0.8
+    prop.design_altitude        = 12000. * Units.feet
+    prop.design_altitude        = 12000. * Units.feet
+    prop.design_thrust          = 1200.  
+    prop.origin                 = [[2.,2.5,0.784],[2.,-2.5,0.784]]         
+    prop.rotation               = [-1,1] 
+    prop.symmetry               = True
+    prop.airfoil_geometry       =  ['../Vehicles/NACA_4412.txt'] 
+    prop.airfoil_polars         = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
+                                  '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
+    prop                        = propeller_design(prop)    
+    net.propeller               = prop    
     
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
