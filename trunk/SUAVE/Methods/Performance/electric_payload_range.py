@@ -22,9 +22,44 @@ def electric_payload_range(vehicle,
                            cruise_segment_tag,
                            display_plot=True):
 
-    '''
-    TODO: Add docstring
-    '''
+    """electric_payload_range(vehicle,
+                           mission,
+                           cruise_segment_tag,
+                           display_plot=True):
+
+        Calculates and optionally displays a payload range diagram for a
+        Variable Cruise Distance - State of Charge SUAVE Mission and Vehicle.
+
+        Sources:
+        N/A
+
+        Assumptions:
+
+        Assumes use of Battery Propeller Energy Network
+
+        Inputs:
+
+            vehicle                         SUAVE Vehicle Structure
+                .mass_properties            SUAVE Mass Properties Structure
+                    .operating_empty        Vehicle Operating Empty Mass    [kg]
+                    .max_payload            Vehicle Maximum Payload Mass    [kg]
+                    .max_takeoff            Vehicle Maximum Takeoff Mass    [kg]
+
+            mission                         SUAVE Mission Structure
+                .Variable_Range_Cruise      Mission Type
+                    .Given_State_of_Charge  Convergence Criteria
+                .cruise_tag                 Mission Segment Tag             [String]
+                .target_state_of_charge     End Mission State of Charge     [Unitless]
+
+            cruise_segment_tag              mission.cruise_tag              [String]
+
+        Outputs:
+
+            payload_range = Data()
+                .range                      [0, Max PLD Range, Ferry Range] [m]
+                .payload                    [Max PLD, Max PLD , 0]          [kg]
+                .takeoff_weight             [MTOW, MTOW, OEW]               [kg]
+    """
 
     # Unpack Weights
 
