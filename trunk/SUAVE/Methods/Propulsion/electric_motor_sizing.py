@@ -156,9 +156,11 @@ def size_optimal_motor(motor,prop):
     Res =  opt_params[1]    
     
     motor.speed_constant   = Kv 
-    motor.resistance       = Res 
+    motor.resistance       = Res  
+    motor.efficiency       = (1- (io*Res)/(v - omeg/Kv))*(omeg/(v*Kv))
+    motor.design_torque    = ((v - omeg/Kv)/Res - io)/Kv 
     
-    return motor 
+    return motor  
   
 ## @ingroup Methods-Propulsion
 def optimize_kv(io, v , omeg,  etam ,  Q, kv_lower_bound =  0.01, Res_lower_bound = 0.001, kv_upper_bound = 100, Res_upper_bound = 10 ): 
@@ -193,20 +195,24 @@ def optimize_kv(io, v , omeg,  etam ,  Q, kv_lower_bound =  0.01, Res_lower_boun
     sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=hard_cons) 
     
     if sol.success == False:
+        print("Using slack constraints to design motor")
+        etam = 0.7
         # use slack constraints  if optimum motor parameters cannot be found 
         sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=slack_cons) 
         
         # use one constraints as last resort if optimum motor parameters cannot be found 
         if sol.success == False:
+            print("Slack constraints did not find solution, using only torque constraint")
+            etam = 0.7            
             sol = minimize(objective, [10], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints= torque_con)         
     
     return sol.x   
   
-# objective function
+# objective function minimize current drawn
 def objective(x, v , omeg,  etam , Q , io ): 
     return (v - omeg/x[0])/x[1]   
 
-# hard efficiency constraint
+# hard motor efficiency constraint
 def hard_constraint_1(x, v , omeg,  etam , Q , io ): 
     return etam - (1- (io*x[1])/(v - omeg/x[0]))*(omeg/(v*x[0]))   
 
@@ -214,10 +220,10 @@ def hard_constraint_1(x, v , omeg,  etam , Q , io ):
 def hard_constraint_2(x, v , omeg,  etam , Q , io ): 
     return ((v - omeg/x[0])/x[1] - io)/x[0] - Q  
 
-# slack efficiency constraint 
+# slack motor efficiency constraint 
 def slack_constraint_1(x, v , omeg,  etam , Q , io ): 
-    return abs(etam - (1- (io*x[1])/(v - omeg/x[0]))*(omeg/(v*x[0]))) - 0.2
+    return  0.3 - abs(etam - (1- (io*x[1])/(v - omeg/x[0]))*(omeg/(v*x[0])))  
 
 # slack torque equality constraint 
 def slack_constraint_2(x, v , omeg,  etam , Q , io ): 
-    return  abs(((v - omeg/x[0])/x[1] - io)/x[0] - Q) - 200 
+    return  Q*0.1 - abs(((v - omeg/x[0])/x[1] - io)/x[0] - Q)   
