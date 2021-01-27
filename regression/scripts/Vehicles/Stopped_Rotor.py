@@ -38,6 +38,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff           = 2450. * Units.lb 
     vehicle.mass_properties.operating_empty   = 2250. * Units.lb               # Approximate
     vehicle.mass_properties.max_takeoff       = 2450. * Units.lb               # Approximate
+    vehicle.mass_properties.max_payload       = 200.  * Units.lb
     vehicle.mass_properties.center_of_gravity = [[2.0144,   0.  ,  0. ]] # Approximate
 
     # basic parameters                          

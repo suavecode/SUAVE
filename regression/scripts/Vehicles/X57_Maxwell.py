@@ -401,9 +401,6 @@ def vehicle_setup():
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
     
-    # plot vehicle 
-    plot_vehicle(vehicle,plot_control_points = False) 
-    
     return vehicle
 
 # ---------------------------------------------------------------------
