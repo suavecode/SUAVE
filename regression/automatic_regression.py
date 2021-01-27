@@ -96,6 +96,9 @@ modules = [
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
     'scripts/weights/weights.py',
+    'scripts/electric_performance/propeller_single_point.py',
+    'scripts/electric_performance/electric_V_h_diagram.py',
+    'scripts/electric_performance/electric_payload_range.py'
 ]
 
 # ----------------------------------------------------------------------
