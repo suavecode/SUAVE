@@ -65,9 +65,10 @@ def main():
     #pan_arrow_biconvex     = import_csv(arrow_biconvex_file_pan)
     #su2_arrow_biconvex     = import_csv(arrow_biconvex_file_su2)
     #arrow_biconvex         = arrw_biconvex()
+    arrow_biconvex           = arrw_biconvex_dih()
     #write(arrow_biconvex,'Check')
-    #conditions             = setup_conditions()
-    #results_arrow_biconvex = analyze(arrow_biconvex, conditions)
+    conditions             = setup_conditions()
+    results_arrow_biconvex = analyze(arrow_biconvex, conditions)
     print('stop')
     #plot_results('Arrow NACA',results_arrow_NACA,panair_arrow_NACA,length)
     #plot_results_2D('Arrow biconvex',results_arrow_biconvex,pan_arrow_biconvex,vsp_arrow_biconvex,length)    
@@ -83,14 +84,14 @@ def main():
     #plot_results('Arrow NACA Twist',results_arrow_NACA_twist,panair_arrow_NACA_twist,length)
     
     # Arrow NACA Twist Dihedral
-    length             = 5
-    arrow_NACA_twist_dih_file    = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_NACA_dihedral.csv'
-    panair_arrow_NACA_twist_dih  = import_csv(arrow_NACA_twist_dih_file)
-    arrow_NACA_twist_dih         = arrw_naca_twist_dih()
-    conditions                   = setup_conditions_input(panair_arrow_NACA_twist_dih)
-    results_arrow_NACA_twist_dih = analyze(arrow_NACA_twist_dih, conditions)
-    #plot_results('Arrow NACA Twist Dihedral',results_arrow_NACA_twist_dih,panair_arrow_NACA_twist_dih,length)
-    plot_results_2D('Arrow NACA Twist Dihedral',results_arrow_NACA_twist_dih,panair_arrow_NACA_twist_dih,length)    
+    #length             = 5
+    #arrow_NACA_twist_dih_file    = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_NACA_dihedral.csv'
+    #panair_arrow_NACA_twist_dih  = import_csv(arrow_NACA_twist_dih_file)
+    #arrow_NACA_twist_dih         = arrw_naca_twist_dih()
+    #conditions                   = setup_conditions_input(panair_arrow_NACA_twist_dih)
+    #results_arrow_NACA_twist_dih = analyze(arrow_NACA_twist_dih, conditions)
+    ##plot_results('Arrow NACA Twist Dihedral',results_arrow_NACA_twist_dih,panair_arrow_NACA_twist_dih,length)
+    #plot_results_2D('Arrow NACA Twist Dihedral',results_arrow_NACA_twist_dih,panair_arrow_NACA_twist_dih,length)    
         
         
     
@@ -282,15 +283,15 @@ def analyze(config,conditions, use_MCM = False):
 
 def setup_conditions():
         
-    aoas  = np.array([-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6]) * Units.degrees
-    machs = np.array([0.4,0.4,0.4,0.4,0.4,0.8,0.8,0.8,0.8,0.8,1.4,1.4,1.4,1.4,1.4,1.6,1.6,1.6,1.6,1.6,1.8,1.8,1.8,1.8,1.8,2,2,2,2,2])
+    #aoas  = np.array([-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6,-2,0,2,4,6]) * Units.degrees
+    #machs = np.array([0.4,0.4,0.4,0.4,0.4,0.8,0.8,0.8,0.8,0.8,1.4,1.4,1.4,1.4,1.4,1.6,1.6,1.6,1.6,1.6,1.8,1.8,1.8,1.8,1.8,2,2,2,2,2])
     
     
     #aoas  = np.array([6.,2.,2.,6.]) * Units.degrees
     #machs = np.array([0.4,1.,2.0,2.0])    
     
-    #aoas  = np.array([6.,6]) * Units.degrees
-    #machs = np.array([0.4,1.4])        
+    aoas  = np.array([6.,6]) * Units.degrees
+    machs = np.array([0.4,1.4])        
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()

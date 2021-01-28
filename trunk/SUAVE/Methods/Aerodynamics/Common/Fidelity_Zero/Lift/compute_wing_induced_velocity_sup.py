@@ -320,7 +320,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     DW_mn[:,:,:,2] = W
     
 
-    return C_mn, DW_mn, s, CHORD, RFLAG  
+    return C_mn, DW_mn, s, t, CHORD, RFLAG
     
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2):

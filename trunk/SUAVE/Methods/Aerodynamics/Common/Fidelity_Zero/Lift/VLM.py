@@ -129,7 +129,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     #plt.show()
     
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn, s, CHORD, RFLAG = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
+    C_mn, DW_mn, s, t, CHORD, RFLAG = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
      
     # Compute flow tangency conditions   
     inv_root_beta           = np.zeros_like(mach)
@@ -196,6 +196,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     #PION    = np.pi/RNMAX
     FACTOR  = FORAXL
     CHORD   = CHORD[:,0,:]
+    t       = t[:,0,:]
     
     # COMPUTE LOAD COEFFICIENT
     GNET = gamma*FACTOR*RNMAX/CHORD
@@ -223,8 +224,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     SREF = Sref
 
     
-    # Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
-
+    ## Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
     YBH = VD.YBH*ones
     XA1 = VD.XA1*ones
     XB1 = VD.XB1*ones
@@ -232,17 +232,20 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     YB1 = VD.YB1*ones
     
     
-    # This is only valid for calculating LE sweeps
+    ## This is only valid for calculating LE sweeps
     boolean = YBH<0. 
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
         
-    TLE = (YB1-YA1)/(XB1-XA1)
+    panel_sweep = (XB1-XA1)/(YB1-YA1)
+    TLE = panel_sweep[:,0::n_cw]
+    TLE = np.repeat(TLE,n_cw,axis=1)
     T2  = TLE**2
     STB = np.zeros_like(u)
     STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
     STB = STB[:,0::n_cw]
     
     # Panel Dihedral Angle, using AH and BH location
+
     YAH = VD.YAH*ones
     ZAH = VD.ZAH*ones
     ZBH = VD.ZBH*ones
@@ -336,19 +339,13 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     BMLE = (XLE-XX)*SINF        # These are moment on each panel
     
     # Sum onto the panel
-    #CAXL = np.sum(np.array(np.array_split(CAXL,n_cw*n_w,axis=1)),axis=0)
-    #BMLE = np.sum(np.array(np.array_split(BMLE,n_cw*n_w,axis=1)),axis=0)
-    #CAXL  = np.sum(np.array(np.array_split(CAXL,n_cw,axis=1)),axis=2).T
-    #BMLE  = np.sum(np.array(np.array_split(BMLE,n_cw,axis=1)),axis=2).T
-    #CAXL  = np.reshape(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),(-1,len(mach)*n_w))
-    #BMLE  = np.reshape(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),(-1,len(mach)*n_w))
     CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len(mach)))
     BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len(mach)))
     
     XX = XLE
     
     
-    SPC  = 0. # Leading edge suction multiplier. See documentation. This is a negative integer
+    SPC  = 0. # Leading edge suction multiplier. See documentation. This is a negative integer if used
     DCP_LE = DCP[:,0::n_cw]
     CLE  = 0.5* DCP_LE *np.sqrt(XX)*FLAX
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
@@ -434,22 +431,22 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     Velocity_Profile.dt       = dt
     
     # Trying to see if we can integrate pressures to get CL and CD
-    panel_areas = VD.panel_areas
-    normals     = VD.normals
-    normals     = np.broadcast_to(normals,(len(mach),n_cp,3))
-    wing_areas  = np.array(VD.wing_areas)
+    #panel_areas = VD.panel_areas
+    #normals     = VD.normals
+    #normals     = np.broadcast_to(normals,(len(mach),n_cp,3))
+    #wing_areas  = np.array(VD.wing_areas)
     
-    force_per_panel = np.atleast_3d(panel_areas*CP)
-    dir_f_panel     = force_per_panel*normals
-    cosalpha        = np.cos(aoa)
-    sinalpha        = np.sin(aoa)
+    #force_per_panel = np.atleast_3d(panel_areas*CP)
+    #dir_f_panel     = force_per_panel*normals
+    #cosalpha        = np.cos(aoa)
+    #sinalpha        = np.sin(aoa)
     
-    lift_force_panel = dir_f_panel[:,:,2]*cosalpha + dir_f_panel[:,:,0]*sinalpha
-    drag_force_panel = dir_f_panel[:,:,2]*sinalpha + dir_f_panel[:,:,0]*cosalpha
+    #lift_force_panel = dir_f_panel[:,:,2]*cosalpha + dir_f_panel[:,:,0]*sinalpha
+    #drag_force_panel = dir_f_panel[:,:,2]*sinalpha + dir_f_panel[:,:,0]*cosalpha
     
-    lift_strip  = np.array(np.split(np.reshape(lift_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
-    drag_strip  = np.array(np.split(np.reshape(drag_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
-    chord_strip = np.array(np.split(panel_areas,n_sw*n_w)).sum(axis=1) # area of a chordwise strip
+    #lift_strip  = np.array(np.split(np.reshape(lift_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
+    #drag_strip  = np.array(np.split(np.reshape(drag_force_panel,(-1,n_cw)).sum(axis=1),len(mach)))
+    #chord_strip = np.array(np.split(panel_areas,n_sw*n_w)).sum(axis=1) # area of a chordwise strip
     
     #cl_y     = lift_strip/chord_strip
     #cdi_y    = drag_strip/chord_strip
