@@ -123,5 +123,6 @@ def datta_discharge(battery,numerics):
     battery.resistive_losses     = Ploss
     battery.voltage_open_circuit = voltage_open_circuit
     battery.voltage_under_load   = voltage_under_load
+    battery.state_of_charge      = new_x
     
     return

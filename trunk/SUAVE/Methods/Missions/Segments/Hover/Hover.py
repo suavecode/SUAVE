@@ -2,14 +2,15 @@
 # Hover.py
 # 
 # Created:  Jan 2016, E. Botero
-# Modified:
+# Modified: May 2019, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Hover
-def initialize_conditions(segment,state):
+def initialize_conditions(segment):
     """Sets the specified conditions which are given for the segment type.
 
     Assumptions:
@@ -37,22 +38,21 @@ def initialize_conditions(segment,state):
     # unpack
     alt        = segment.altitude
     duration   = segment.time
-    conditions = state.conditions   
+    conditions = segment.state.conditions   
     
     
     # check for initial altitude
     if alt is None:
-        if not state.initials: raise AttributeError('altitude not set')
-        alt = -1.0 * state.initials.conditions.frames.inertial.position_vector[-1,2]
-        segment.altitude = alt        
+        if not segment.state.initials: raise AttributeError('altitude not set')
+        alt = -1.0 *segment.state.initials.conditions.frames.inertial.position_vector[-1,2]      
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
-    t_nondim  = state.numerics.dimensionless.control_points
+    t_nondim  = segment.state.numerics.dimensionless.control_points
     time      =  t_nondim * (duration) + t_initial
     
     # pack
-    state.conditions.freestream.altitude[:,0]             = alt
-    state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    state.conditions.frames.inertial.velocity_vector[:,0] = 0.
-    state.conditions.frames.inertial.time[:,0]            = time[:,0]    
+    segment.state.conditions.freestream.altitude[:,0]             = alt
+    segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = 0.
+    segment.state.conditions.frames.inertial.time[:,0]            = time[:,0]    

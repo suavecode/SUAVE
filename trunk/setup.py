@@ -16,8 +16,8 @@ def main():
     import sys
     
     the_package = 'SUAVE'
-    version     = '1.0.0'
-    date        = 'August 15, 2017'
+    version     = '2.3.0'
+    date        = 'December 25, 2020'
     
     if len(sys.argv) >= 2:
         command = sys.argv[1]
@@ -48,7 +48,7 @@ def install(the_package,version,date):
     # list all SUAVE sub packages
     #print 'Listing Packages and Sub-Packages:'
     packages = list_subpackages(the_package,verbose=False)
-    packages = map( '.'.join, packages )
+    packages = list(map( '.'.join, packages ))
 
     # run the setup!!!
     setup(
@@ -91,7 +91,7 @@ def uninstall(the_package,version,date):
     try:
         import pip
     except ImportError:
-        raise ImportError , 'pip is required to uninstall this package'
+        raise ImportError('pip is required to uninstall this package')
     
     # setup up uninstall arguments
     args = sys.argv
@@ -131,11 +131,11 @@ def list_subpackages(package_trail,verbose=False):
     if isinstance(package_trail,str):
         package_trail = [package_trail]
     elif not isinstance(package_trail,(list,tuple)):
-        raise Exception , '%s is not iterable' % package
+        raise Exception('%s is not iterable' % package)
 
     # print current package
     if verbose:
-        print '.'.join(package_trail)
+        print('.'.join(package_trail))
 
     # get absolute path for package
     package_dir = os.path.abspath( os.path.join(*package_trail) )
@@ -165,20 +165,30 @@ def import_tests():
     """ simple check for dependencies
     """
     
+    # imports
+    import sys    
+    
+    if sys.version_info[:2] < (3, 6):
+        raise RuntimeError("Python version >= 3.6 required.")    
     try:
         import numpy
     except ImportError:
-        raise ImportError , 'numpy is required for this package'
+        raise ImportError('numpy is required for this package')
     
     try:
         import scipy
     except ImportError:
-        raise ImportError , 'scipy is required for this package'
+        raise ImportError('scipy is required for this package')
     
     try:
         import matplotlib
     except ImportError:
-        raise ImportError , 'matplotlib is required for this package'
+        raise ImportError('matplotlib is required for this package')
+    
+    try:
+        import sklearn
+    except ImportError:
+        raise ImportError('scikit-learn is required for this package')    
 
     return
     

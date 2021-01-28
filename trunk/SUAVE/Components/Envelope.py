@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from Component import Component
+from .Component import Component
 
 
 # ----------------------------------------------------------------------
@@ -49,6 +49,8 @@ class Envelope(Component):
 
         self.ultimate_load = 0.0
         self.limit_load    = 0.0
+        
+        self.limit_loads = Data()
 
         self.alpha_maximum   = 0.0
         self.alt_vc          = 0.0

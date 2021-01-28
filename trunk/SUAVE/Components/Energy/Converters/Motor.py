@@ -2,7 +2,9 @@
 # Motor.py
 #
 # Created:  Jun 2014, E. Botero
-# Modified: Jan 2016, T. MacDonald
+# Modified: Jan 2016, T. MacDonald 
+#           Mar 2020, M. Clarke
+#           Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,6 +15,7 @@ import SUAVE
 
 # package imports
 import numpy as np
+import scipy as sp
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 
 # ----------------------------------------------------------------------
@@ -51,9 +54,10 @@ class Motor(Energy_Component):
         self.speed_constant     = 0.0
         self.propeller_radius   = 0.0
         self.propeller_Cp       = 0.0
-        self.gear_ratio         = 0.0
-        self.gearbox_efficiency = 0.0
+        self.gear_ratio         = 1.0
+        self.gearbox_efficiency = 1.0
         self.expected_current   = 0.0
+        self.interpolated_func  = None
     
     def omega(self,conditions):
         """Calculates the motor's rotation rate
@@ -117,11 +121,101 @@ class Motor(Energy_Component):
 
         return omega1
     
+    def torque(self,conditions): 
+        """Calculates the motor's torque
+
+        Assumptions:
+
+        Source:
+        N/A
+
+        Inputs:
+
+        Outputs:
+        self.outputs.torque    [N-m] 
+
+        Properties Used:
+        self.
+          gear_ratio           [-]
+          speed_constant       [radian/s/V]
+          resistance           [ohm]
+          outputs.omega        [radian/s]
+          gearbox_efficiency   [-]
+          expected_current     [A]
+          no_load_current      [A]
+          inputs.volage        [V]
+        """
+        
+        Res   = self.resistance
+        etaG  = self.gearbox_efficiency
+        exp_i = self.expected_current
+        io    = self.no_load_current + exp_i*(1-etaG)
+        G     = self.gear_ratio
+        Kv    = self.speed_constant/G
+        v     = self.inputs.voltage
+        omega = self.inputs.omega
+        
+        # Torque
+        Q = ((v-omega/Kv)/Res -io)/Kv
+        
+        self.outputs.torque = Q
+        self.outputs.omega  = omega
+    
+        return Q
+    
+    def voltage_current(self,conditions):
+        """Calculates the motor's voltage and current
+
+        Assumptions:
+
+        Source:
+        N/A
+
+        Inputs:
+
+        Outputs:
+        self.outputs.current   [A]
+        conditions.
+          propulsion.volage    [V]
+        conditions.
+          propulsion.etam      [-] 
+
+        Properties Used:
+        self.
+          gear_ratio           [-]
+          speed_constant       [radian/s/V]
+          resistance           [ohm]
+          outputs.omega        [radian/s]
+          gearbox_efficiency   [-]
+          expected_current     [A]
+          no_load_current      [A]
+        """                      
+               
+        Res   = self.resistance
+        etaG  = self.gearbox_efficiency
+        exp_i = self.expected_current
+        io    = self.no_load_current + exp_i*(1-etaG)
+        G     = self.gear_ratio
+        kv    = self.speed_constant/G
+        Q     = self.inputs.torque
+        omega = self.inputs.omega        
+        
+        v = (Q*kv+io)*Res + omega/kv
+        i = (v-omega/kv)/Res
+        
+        self.outputs.voltage = v
+        self.outputs.current = i
+        
+        etam=(1-io/i)*(1-i*Res/v)
+        conditions.propulsion.etam = etam        
+        
+        return
+    
+    
     def current(self,conditions):
         """Calculates the motor's current
 
         Assumptions:
-        Cp (power coefficient) is constant
 
         Source:
         N/A
@@ -132,8 +226,7 @@ class Motor(Energy_Component):
         Outputs:
         self.outputs.current   [A]
         conditions.
-          propulsion.etam      [-]
-        i                      [A]
+          propulsion.etam      [-] 
 
         Properties Used:
         self.
@@ -167,7 +260,4 @@ class Motor(Energy_Component):
         etam=(1-io/i)*(1-i*Res/v)
         conditions.propulsion.etam = etam
         
-        return i
-
-        
-    
+        return i, etam

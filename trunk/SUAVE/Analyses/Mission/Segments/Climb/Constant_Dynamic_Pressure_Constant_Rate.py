@@ -10,7 +10,7 @@
 # SUAVE imports
 from SUAVE.Methods.Missions import Segments as Methods
 
-from Unknown_Throttle import Unknown_Throttle
+from .Unknown_Throttle import Unknown_Throttle
 
 # Units
 from SUAVE.Core import Units

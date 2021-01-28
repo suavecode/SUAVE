@@ -3,6 +3,9 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
+#           Apr 2019, T. MacDonald
+#           Apr 2020, M. Clarke
+#           Sep 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,18 +13,15 @@
 
 import SUAVE
 from SUAVE.Core import Data
-from Markup import Markup
+from .Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
-
-# default Aero Results
-from Results import Results
 
 # the aero methods
 from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
-from Process_Geometry import Process_Geometry
-from Vortex_Lattice import Vortex_Lattice
+from .Process_Geometry import Process_Geometry
+from .Vortex_Lattice import Vortex_Lattice
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -55,14 +55,6 @@ class Fidelity_Zero(Markup):
         N/A
         """          
         self.tag    = 'fidelity_zero_markup'
-        
-        ## available from Markup
-        #self.geometry = Data()
-        #self.settings = Data()
-        
-        #self.process = Process()
-        #self.process.initialize = Process()
-        #self.process.compute = Process()        
     
         # correction factors
         settings = self.settings
@@ -71,32 +63,25 @@ class Fidelity_Zero(Markup):
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
         settings.oswald_efficiency_factor           = None
+        settings.span_efficiency                    = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
-        settings.maximum_lift_coefficient           = np.inf 
-        
-        # vortex lattice configurations
-        settings.number_panels_spanwise  = 5
-        settings.number_panels_chordwise = 1
-        
+        settings.maximum_lift_coefficient           = np.inf
+        settings.number_spanwise_vortices           = None 
+        settings.number_chordwise_vortices          = None 
+        settings.initial_timestep_offset            = 0.
+        settings.wake_development_time              = 0.05
+        settings.use_surrogate                      = True
+        settings.propeller_wake_model               = False 
         
         # build the evaluation process
         compute = self.process.compute
-        
-        # these methods have interface as
-        # results = function(state,settings,geometry)
-        # results are optional
-        
-        # first stub out empty functions
-        # then implement methods
-        # then we'll figure out how to connect to a mission
         
         compute.lift = Process()
 
         compute.lift.inviscid_wings                = Vortex_Lattice()
         compute.lift.vortex                        = SUAVE.Methods.skip
-        compute.lift.compressible_wings            = Methods.Lift.wing_compressibility_correction
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         
@@ -140,7 +125,16 @@ class Fidelity_Zero(Markup):
         Properties Used:
         self.geometry
         """                  
-        self.process.compute.lift.inviscid_wings.geometry = self.geometry
-        self.process.compute.lift.inviscid_wings.initialize()
+        super(Fidelity_Zero, self).initialize()
         
-    finalize = initialize
+        use_surrogate             = self.settings.use_surrogate
+        propeller_wake_model      = self.settings.propeller_wake_model 
+        n_sw                      = self.settings.number_spanwise_vortices
+        n_cw                      = self.settings.number_chordwise_vortices
+        ito                       = self.settings.initial_timestep_offset
+        wdt                       = self.settings.wake_development_time
+
+        self.process.compute.lift.inviscid_wings.geometry = self.geometry 
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt)
+                                                            
+    finalize = initialize                                          

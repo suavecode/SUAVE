@@ -64,6 +64,7 @@ def main():
     
     
     from SIAI_Marchetti_S211 import vehicle_setup, configs_setup
+    
     vehicle = vehicle_setup()
     configs = configs_setup(vehicle)
     Mach                          = np.array([0.111])
@@ -75,15 +76,15 @@ def main():
     conditions.aerodynamics       = Data()
     conditions.aerodynamics.angle_of_attack = 0.    
    
-    
-    
+
+
     cm_a = taw_cmalpha(vehicle,Mach,conditions,configs.base)[0]
    
     expected = -0.54071741 #Should be -0.6
     error.cm_a_SIAI = (cm_a - expected)/expected
-    print error
-    for k,v in error.items():
-        assert(np.abs(v)<0.01)
+    print(error)
+    for k,v in list(error.items()):
+        assert(np.abs(v)<1e-6)
         
     return
 

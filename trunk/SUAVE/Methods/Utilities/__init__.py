@@ -2,7 +2,8 @@
 # These provide functionality that is not easily grouped into another set.
 # Most of these provide some type of mathematical functionality.
 # @ingroup Methods
-import Chebyshev
-import soft_max
+from . import Chebyshev
+from . import soft_max
 #import Utilities
-import latin_hypercube_sampling
+from . import latin_hypercube_sampling
+from . import Cubic_Spline_Blender

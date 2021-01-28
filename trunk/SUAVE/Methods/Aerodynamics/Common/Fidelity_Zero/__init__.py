@@ -2,6 +2,6 @@
 # Low-fidelity methods that are used by many analyses.
 # @ingroup Methods-Aerodynamics-Common
 
-import Drag
-import Lift
-import Helper_Functions
+from . import Drag
+from . import Lift
+from . import Helper_Functions

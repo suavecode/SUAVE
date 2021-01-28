@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from Landing_Gear import Landing_Gear
+from .Landing_Gear import Landing_Gear
 
 # ----------------------------------------------------------------------
 #  Attribute
@@ -45,7 +45,7 @@ class Nose_Landing_Gear(Landing_Gear):
                 Properties Used:
                 N/A
         """
-          
+        self.tag           = 'nose_gear'
         self.tire_diameter = 0.    
         self.strut_length  = 0.    
         self.units         = 0. # number of nose landing gear    
@@ -56,4 +56,4 @@ class Nose_Landing_Gear(Landing_Gear):
 # ----------------------------------------------------------------------
 # this will run from command line, put simple tests for your code here
 if __name__ == '__main__':
-    raise RuntimeError , 'test failed, not implemented'
+    raise RuntimeError('test failed, not implemented')

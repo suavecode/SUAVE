@@ -15,7 +15,7 @@ try:
     from pyKriging.krige import kriging  
 except ImportError:
     pass 
-from Surrogate_Problem import Surrogate_Problem
+from .Surrogate_Problem import Surrogate_Problem
 import numpy as np
 import time
 
@@ -58,7 +58,7 @@ def build_kriging_models(obj_values, inputs, constraints):
         constraint_surrogate.train()
         constraints_surrogates.append(constraint_surrogate)
     t2=time.time()
-    print 'time to set up = ', t2-t1
+    print('time to set up = ', t2-t1)
     surrogate_function    = Surrogate_Problem()
     surrogate_function.obj_surrogate          = obj_surrogate
     surrogate_function.constraints_surrogates = constraints_surrogates

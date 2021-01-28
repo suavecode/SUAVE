@@ -3,13 +3,15 @@
 # Created:  Jan 2015, T. Lukacyzk
 # Modified: Feb 2016, T. MacDonald
 #           Jun 2016, E. Botero
+#           May 2020, E. Botero
+
 
 
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------        
 
-from DataOrdered import DataOrdered
+from .DataOrdered import DataOrdered
 from warnings    import warn
 
 # ----------------------------------------------------------------------
@@ -113,4 +115,25 @@ class ContainerOrdered(DataOrdered):
         elif isinstance(vals,dict):
             self.update(vals)
         else:
-            raise Exception, 'unrecognized data type'
+            raise Exception('unrecognized data type')
+        
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """        
+        
+        return []  

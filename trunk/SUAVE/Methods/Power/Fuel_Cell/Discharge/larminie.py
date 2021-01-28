@@ -11,8 +11,8 @@
 import numpy as np
 import scipy as sp
 from SUAVE.Core import Units
-from find_voltage_larminie import find_voltage_larminie
-from find_power_diff_larminie import find_power_diff_larminie
+from .find_voltage_larminie import find_voltage_larminie
+from .find_power_diff_larminie import find_power_diff_larminie
 
 # ----------------------------------------------------------------------
 #  Larminie
@@ -46,15 +46,15 @@ def larminie(fuel_cell,conditions,numerics):
     ub              = 1200.0*Units.mA/(Units.cm**2.)
     current_density = np.zeros_like(power)
     
-    for i in xrange(len(power)):
+    for i in range(len(power)):
         current_density[i] = sp.optimize.fminbound(find_power_diff_larminie, lb, ub, args=(fuel_cell, power[i]))
     
     v          = find_voltage_larminie(fuel_cell,current_density)    
     efficiency = np.divide(v, fuel_cell.ideal_voltage)
     mdot       = np.divide(power,np.multiply(fuel_cell.propellant.specific_energy,efficiency))
 
-    print 'efficiency=', efficiency
-    print 'current_density=', current_density
-    print 'v=', v
+    print('efficiency=', efficiency)
+    print('current_density=', current_density)
+    print('v=', v)
    
     return mdot

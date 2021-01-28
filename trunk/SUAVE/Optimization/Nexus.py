@@ -4,6 +4,7 @@
 # Created:  Jul 2015, E. Botero 
 # Modified: Feb 2016, M. Vegh
 #           Apr 2017, T. MacDonald
+#           Jul 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,7 +15,7 @@ import SUAVE
 from SUAVE.Core import Data, DataOrdered
 from SUAVE.Analyses import Process
 from copy import deepcopy
-import helper_functions as help_fun
+from . import helper_functions as help_fun
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -67,6 +68,7 @@ class Nexus(Data):
         self.last_inputs            = None
         self.last_fidelity          = None
         self.evaluation_count       = 0
+        self.force_evaluate         = False
     
     def evaluate(self,x = None):
         """This function runs the problem you setup in SUAVE.
@@ -92,7 +94,8 @@ class Nexus(Data):
         
         # Check if last call was the same
         if np.all(self.optimization_problem.inputs==self.last_inputs) \
-           and self.last_fidelity == self.fidelity_level:
+           and self.last_fidelity == self.fidelity_level \
+           and self.force_evaluate == False:
             pass
         else:
             self._really_evaluate()
@@ -162,7 +165,7 @@ class Nexus(Data):
         objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
-        return scaled_objective
+        return scaled_objective.astype('Float64') 
     
     def inequality_constraint(self,x = None):
         """Retrieve the inequality constraint values for your function
@@ -191,7 +194,7 @@ class Nexus(Data):
         
         # Setup constraints  
         indices = []
-        for ii in xrange(0,len(constraints)):
+        for ii in range(0,len(constraints)):
             if constraints[ii][1]==('='):
                 indices.append(ii)        
         iqconstraints = np.delete(constraints,indices,axis=0)
@@ -199,12 +202,23 @@ class Nexus(Data):
         if iqconstraints == []:
             scaled_constraints = []
         else:
-            constraint_values = help_fun.get_values(self,iqconstraints,aliases)
-            constraint_values[iqconstraints[:,1]=='<'] = -constraint_values[iqconstraints[:,1]=='<']
-            bnd_constraints   = constraint_values - help_fun.scale_const_bnds(iqconstraints)
-            scaled_constraints = help_fun.scale_const_values(iqconstraints,constraint_values)
 
-        return scaled_constraints      
+            # get constaint values 
+            constraint_values = help_fun.get_values(self,iqconstraints,aliases)          
+            
+            # scale bounds 
+            scaled_bnd_constraints  = help_fun.scale_const_bnds(iqconstraints)
+            
+            # scale constaits 
+            scaled_constraints = help_fun.scale_const_values(iqconstraints,constraint_values)
+            
+            # determine difference between bounds and constaints 
+            constraint_evaluations = scaled_constraints  - scaled_bnd_constraints
+            
+            # coorect constaints based on sign 
+            constraint_evaluations[iqconstraints[:,1]=='<'] = -constraint_evaluations[iqconstraints[:,1]=='<']
+            
+        return constraint_evaluations       
     
     def equality_constraint(self,x = None):
         """Retrieve the equality constraint values for your function
@@ -233,7 +247,7 @@ class Nexus(Data):
         
         # Setup constraints  
         indices = []
-        for ii in xrange(0,len(constraints)):
+        for ii in range(0,len(constraints)):
             if constraints[ii][1]=='>':
                 indices.append(ii)
             elif constraints[ii][1]=='<':
@@ -243,11 +257,11 @@ class Nexus(Data):
         if eqconstraints == []:
             scaled_constraints = []
         else:
-            constraint_values = help_fun.get_values(self,eqconstraints,aliases) - help_fun.scale_const_bnds(eqconstraints)
-            scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values)
+            constraint_values  = help_fun.get_values(self,eqconstraints,aliases)
+            scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values) - help_fun.scale_const_bnds(eqconstraints)
 
         return scaled_constraints   
-    
+        
     def all_constraints(self,x = None):
         """Returns both the inequality and equality constraint values for your function
     
@@ -274,8 +288,8 @@ class Nexus(Data):
         results     = self.results
     
         constraint_values  = help_fun.get_values(self,constraints,aliases) 
-        scaled_constraints = help_fun.scale_const_values(constraints,constraint_values)
-    
+        scaled_constraints = help_fun.scale_const_values(constraints,constraint_values) 
+
         return scaled_constraints     
     
     
@@ -367,7 +381,7 @@ class Nexus(Data):
         
         con2 = (con*np.ones_like(jac_con))
         
-        for ii in xrange(0,inplen):
+        for ii in range(0,inplen):
             newx     = np.asarray(x)*1.0
             newx[ii] = newx[ii] + diff_interval
             
@@ -410,7 +424,7 @@ class Nexus(Data):
         # Pull out the inputs and print them
         inpu       = self.optimization_problem.inputs
         print('Design Variable Table:\n')
-        print inpu
+        print(inpu)
         
         # Pull out the constraints
         const       = self.optimization_problem.constraints
@@ -422,7 +436,7 @@ class Nexus(Data):
         const_table = np.insert(const_table,1,const_scale,axis=1)
 
         print('\nConstraint Table:\n')
-        print const_table
+        print(const_table)
         
         return inpu,const_table
                                

@@ -2,7 +2,7 @@
 # Climb.py
 # 
 # Created:  Jan 2016, E. Botero
-# Modified:
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -16,7 +16,7 @@ from SUAVE.Analyses.Mission.Segments import Conditions
 from SUAVE.Methods.Missions import Segments as Methods
 
 from SUAVE.Analyses import Process
-from Hover import Hover
+from .Hover import Hover
 
 # Units
 from SUAVE.Core import Units

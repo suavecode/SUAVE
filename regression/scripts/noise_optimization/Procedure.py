@@ -231,22 +231,25 @@ def short_field_mission(nexus):
 def estimate_clmax(nexus):
     
     # Condition to CLmax calculation: 90KTAS @ 10000ft, ISA
-    conditions = Data()
-    conditions.freestream = Data()
-    conditions.freestream.density           = 0.90477283
-    conditions.freestream.dynamic_viscosity = 1.69220918e-05
-    conditions.freestream.velocity          = 90. * Units.knots
+    state = Data()
+    state.conditions = Data()
+    state.conditions.freestream = Data()
+    state.conditions.freestream.density           = 0.90477283
+    state.conditions.freestream.dynamic_viscosity = 1.69220918e-05
+    state.conditions.freestream.velocity          = 90. * Units.knots
     
     #Takeoff CL_max
     config = nexus.vehicle_configurations.takeoff
-    maximum_lift_coefficient,CDi = compute_max_lift_coeff(config,conditions) 
+    settings = nexus.analyses.takeoff.aerodynamics.settings
+    maximum_lift_coefficient,CDi = compute_max_lift_coeff(state,settings,config)
     config.maximum_lift_coefficient = maximum_lift_coefficient 
     # diff the new data
     config.store_diff()  
     
     #Takeoff CL_max - for short field config
     config = nexus.vehicle_configurations.short_field_takeoff
-    maximum_lift_coefficient,CDi = compute_max_lift_coeff(config,conditions) 
+    settings = nexus.analyses.short_field_takeoff.aerodynamics.settings
+    maximum_lift_coefficient,CDi = compute_max_lift_coeff(state,settings,config)
     config.maximum_lift_coefficient = maximum_lift_coefficient 
     # diff the new data
     config.store_diff()  
@@ -277,7 +280,8 @@ def estimate_clmax(nexus):
     landing.mass_properties.landing = 0.85 * config.mass_properties.takeoff
       
     # Landing CL_max
-    maximum_lift_coefficient,CDi = compute_max_lift_coeff(landing,conditions) 
+    settings = nexus.analyses.landing.aerodynamics.settings
+    maximum_lift_coefficient,CDi = compute_max_lift_coeff(state,settings,landing)
     landing.maximum_lift_coefficient = maximum_lift_coefficient 
     
     # compute approach speed
@@ -440,7 +444,7 @@ def noise_approach(nexus):
     mission = nexus.missions.landing
     nexus.analyses.landing.noise.settings.approach = 1    
     results = nexus.results
-    #results.approach = mission.evaluate()
+    results.approach = mission.evaluate()
     #SUAVE.Input_Output.SUAVE.archive(results.approach,'approach.res')
     results.approach = SUAVE.Input_Output.SUAVE.load('approach.res')  
     
@@ -490,7 +494,7 @@ def compute_noise(config,analyses,noise_segment):
 
 def weight(nexus):   
     
-    for tag,config in nexus.analyses.items():
+    for tag,config in list(nexus.analyses.items()):
         weights = config.weights.evaluate()
     
     return nexus
@@ -512,7 +516,7 @@ def noise_sideline_init(nexus):
     results = nexus.results
     results.sideline_initialization = mission.evaluate()
     
-    n_points   = np.ceil(results.sideline_initialization.conditions.climb.frames.inertial.time[-1] /0.5 +1)
+    n_points   = np.ceil(results.sideline_initialization.segments.climb.conditions.frames.inertial.time[-1] /0.5 +1)
 
     nexus.npoints_sideline_sign=np.sign(n_points)
     nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points = np.minimum(200, np.abs(n_points))  
@@ -528,7 +532,7 @@ def noise_takeoff_init(nexus):
     results = nexus.results
     results.takeoff_initialization = mission.evaluate()
     
-    n_points   = np.ceil(results.takeoff_initialization.conditions.climb.frames.inertial.time[-1] /0.5 +1)
+    n_points   = np.ceil(results.takeoff_initialization.segments.climb.conditions.frames.inertial.time[-1] /0.5 +1)
     nexus.npoints_takeoff_sign=np.sign(n_points)
 
     nexus.missions.takeoff.segments.climb.state.numerics.number_control_points = np.minimum(200, np.abs(n_points))
@@ -640,9 +644,9 @@ def post_process(nexus):
     
     summary.noise_margin  =  summary.noise_approach_margin + summary.noise_sideline_margin + summary.noise_flyover_margin
     
-    print "Sideline = ", summary.noise.sideline
-    print "Flyover = ", summary.noise.flyover
-    print "Approach = ", summary.noise.approach
+    print("Sideline = ", summary.noise.sideline)
+    print("Flyover = ", summary.noise.flyover)
+    print("Approach = ", summary.noise.approach)
   
     return nexus    
 

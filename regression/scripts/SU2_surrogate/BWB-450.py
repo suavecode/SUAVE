@@ -54,12 +54,14 @@ def main():
     results = mission.evaluate()
     
     final_mass = results.segments[-1].conditions.weights.total_mass[-1,0]/Units.lb
-    final_mass_true = 563940.43613379949 # this is in lb
-    
-    print final_mass
-    
-    assert np.abs(final_mass - final_mass_true)/final_mass_true < 1e-6
+    final_mass_true = 561740.1387888432 # [lbs]
 
+    print(final_mass)
+    
+    # Error Calculation
+    error_final_mass = np.abs(final_mass - final_mass_true)/final_mass_true 
+    print(error_final_mass)    
+    assert error_final_mass < 1e-6
 
     return
 
@@ -97,7 +99,7 @@ def analyses_setup(configs):
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
-    for tag,config in configs.items():
+    for tag,config in list(configs.items()):
         analysis = base_analysis(config)
         analyses[tag] = analysis
 
@@ -127,14 +129,16 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
     #aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    aerodynamics.settings.span_efficiency = 0.95
+        
 
     #aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
     aerodynamics.process.compute.lift.inviscid.settings.processors = 12
      
     aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3, .5, .7, .85]) 
     aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.,3.,6.]) * Units.deg
-    aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
-    
+    aerodynamics.process.compute.lift.inviscid.training_file             = 'base_data.txt'
+
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 

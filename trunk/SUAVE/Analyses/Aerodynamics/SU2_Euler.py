@@ -3,6 +3,8 @@
 #
 # Created:  Sep 2016, E. Botero
 # Modified: Jan 2017, T. MacDonald
+#           Apr 2019, T. MacDonald
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,7 +12,7 @@
 
 import SUAVE
 from SUAVE.Core import Data
-from Markup import Markup
+from .Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
 
@@ -18,12 +20,9 @@ from SUAVE.Input_Output.OpenVSP.write_vsp_mesh import write_vsp_mesh
 from SUAVE.Input_Output.GMSH.write_geo_file import write_geo_file
 from SUAVE.Input_Output.GMSH.mesh_geo_file import mesh_geo_file
 
-# Default aero Results
-from Results import Results
-
 # The aero methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
-from Process_Geometry import Process_Geometry
+from .Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.SU2_inviscid import SU2_inviscid
 
 # ----------------------------------------------------------------------
@@ -65,6 +64,7 @@ class SU2_Euler(Markup):
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
         settings.oswald_efficiency_factor           = None
+        settings.span_efficiency                    = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
@@ -130,6 +130,7 @@ class SU2_Euler(Markup):
           vsp_mesh_growth_ratio         [-] Determines how the mesh grows
           vsp_mesh_growth_limiting_flag <boolean> Determines if 3D growth limiting is used
         """         
+        super(SU2_Euler, self).initialize()
         self.process.compute.lift.inviscid.geometry = self.geometry
         
         tag = self.geometry.tag

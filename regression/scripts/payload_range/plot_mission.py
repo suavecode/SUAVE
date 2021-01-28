@@ -86,7 +86,7 @@ def plot_mission(vehicle,mission,results,line_style='bo-'):
     #   Aerodynamics
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Forces")
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -123,7 +123,7 @@ def plot_mission(vehicle,mission,results,line_style='bo-'):
     #   Aerodynamics 2
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients")
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]

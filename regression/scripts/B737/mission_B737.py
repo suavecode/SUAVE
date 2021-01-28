@@ -2,6 +2,10 @@
 # 
 # Created:  Aug 2014, SUAVE Team
 # Modified: Jun 2016, T. MacDonald
+#           May 2019, T. MacDonald 
+#           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
+#           Apr 2020, E. Botero
 
 """ setup file for a mission with a 737
 """
@@ -13,19 +17,12 @@
 
 import SUAVE
 from SUAVE.Core import Units
+from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Geometry_Plots import * 
+import matplotlib.pyplot as plt  
+import numpy as np 
 
-import numpy as np
-import pylab as plt
-
-import copy, time
-
-from SUAVE.Core import (
-Data, Container,
-)
-
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity import compute_aircraft_center_of_gravity
 
 import sys
 
@@ -50,34 +47,12 @@ def main():
     configs, analyses = full_setup()
 
     simple_sizing(configs, analyses)
-
     configs.finalize()
-    analyses.finalize()
-
-  
+    analyses.finalize() 
  
     # mission analysis
     mission = analyses.missions.base
     results = mission.evaluate()
-
-    # print weight breakdown
-    #print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
-
-    # print engine data into file
-    #print_engine_data(configs.base,filename = 'B737_engine_data.dat')
-
-    # print parasite drag data into file
-    # define reference condition for parasite drag
-    ref_condition = Data()
-    ref_condition.mach_number = 0.3
-    ref_condition.reynolds_number = 12e6     
-    #print_parasite_drag(ref_condition,configs.cruise,analyses,'B737_parasite_drag.dat')
-
-    # print compressibility drag data into file
-    #print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
-
-    # print mission breakdown
-    #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
 
     # load older results
     #save_results(results)
@@ -86,12 +61,17 @@ def main():
     # plt the old results
     plot_mission(results)
     plot_mission(old_results,'k-')
-    plt.show(block=True)
-    # check the results
-    check_results(results,old_results)
+    #plt.show(block=True)
     
-   
-
+    # check the results
+    check_results(results,old_results) 
+    
+    # ------------------------------------------------------------------
+    #   Vehicle Definition Complete
+    # ------------------------------------------------------------------
+    
+    # plot vehicle 
+    plot_vehicle(configs.base,plot_control_points = True)      
     return
 
 
@@ -103,6 +83,7 @@ def full_setup():
 
     # vehicle data
     vehicle  = vehicle_setup()
+    print_wing_segs(vehicle)
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
@@ -127,7 +108,7 @@ def analyses_setup(configs):
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
-    for tag,config in configs.items():
+    for tag,config in list(configs.items()):
         analysis = base_analysis(config)
         analyses[tag] = analysis
 
@@ -157,14 +138,14 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
@@ -199,157 +180,27 @@ def base_analysis(vehicle):
 # ----------------------------------------------------------------------
 
 def plot_mission(results,line_style='bo-'):
-
-    axis_font = {'fontname':'Arial', 'size':'14'}    
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics
-    # ------------------------------------------------------------------
-
-
-    fig = plt.figure("Aerodynamic Forces",figsize=(8,6))
-    for segment in results.segments.values():
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]*0.224808943
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]*0.224808943
-        eta  = segment.conditions.propulsion.throttle[:,0]
-        mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
-        thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc    = 3600. * mdot / 0.1019715 / thrust	
-
-
-        axes = fig.add_subplot(2,1,1)
-        axes.plot( time , Thrust , line_style )
-        #axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Thrust (lbf)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(2,1,2)
-        axes.plot( time , eta , line_style )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('eta (lb/lbf-hr)',axis_font)
-        axes.grid(True)	
-
-        #plt.savefig("B737_engine.pdf")
-        #plt.savefig("B737_engine.png")
-
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics 2
-    # ------------------------------------------------------------------
-    fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
-    for segment in results.segments.values():
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
-        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-        aoa = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        l_d = CLift/CDrag
-
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , CLift , line_style )
-        #axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Lift Coefficient',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , l_d , line_style )
-        #axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('L/D',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , aoa , 'ro-' )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('AOA (deg)',axis_font)
-        axes.grid(True)
-
-        #plt.savefig("B737_aero.pdf")
-        #plt.savefig("B737_aero.png")
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics 2
-    # ------------------------------------------------------------------
-    fig = plt.figure("Drag Components",figsize=(8,10))
-    axes = plt.gca()
-    for i, segment in enumerate(results.segments.values()):
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
-        cdp = drag_breakdown.parasite.total[:,0]
-        cdi = drag_breakdown.induced.total[:,0]
-        cdc = drag_breakdown.compressible.total[:,0]
-        cdm = drag_breakdown.miscellaneous.total[:,0]
-        cd  = drag_breakdown.total[:,0]
-
-        if line_style == 'bo-':
-            axes.plot( time , cdp , 'ko-', label='CD parasite' )
-            axes.plot( time , cdi , 'bo-', label='CD induced' )
-            axes.plot( time , cdc , 'go-', label='CD compressibility' )
-            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
-            axes.plot( time , cd  , 'ro-', label='CD total'   )
-            if i == 0:
-                axes.legend(loc='upper center')            
-        else:
-            axes.plot( time , cdp , line_style )
-            axes.plot( time , cdi , line_style )
-            axes.plot( time , cdc , line_style )
-            axes.plot( time , cdm , line_style )
-            axes.plot( time , cd  , line_style )            
-
-    axes.set_xlabel('Time (min)')
-    axes.set_ylabel('CD')
-    axes.grid(True)
-    #plt.savefig("B737_drag.pdf")
-    #plt.savefig("B737_drag.png")
-
-    # ------------------------------------------------------------------
-    #   Altitude,sfc,vehiclde weight
-    # ------------------------------------------------------------------
-
-    fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
-    for segment in results.segments.values():
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
-        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-        aoa    = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        l_d    = CLift/CDrag
-        mass   = segment.conditions.weights.total_mass[:,0]*2.20462
-        altitude = segment.conditions.freestream.altitude[:,0] / Units.km *3.28084 *1000
-        mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
-        thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc    = 3600. * mdot / 0.1019715 / thrust	
-
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , altitude , line_style )
-        #axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Altitude (ft)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , sfc , line_style )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , mass , 'ro-' )
-        #axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Weight (lb)',axis_font)
-        axes.grid(True)
-
-
-        #plt.savefig("B737_mission.pdf")
-        #plt.savefig("B737_mission.png")
+    
+    # Plot Flight Conditions 
+    plot_flight_conditions(results, line_style)
+    
+    # Plot Aerodynamic Forces 
+    plot_aerodynamic_forces(results, line_style)
+    
+    # Plot Aerodynamic Coefficients 
+    plot_aerodynamic_coefficients(results, line_style)
+    
+    # Plot Static Stability Coefficients 
+    plot_stability_coefficients(results, line_style)    
+    
+    # Drag Components
+    plot_drag_components(results, line_style)
+    
+    # Plot Altitude, sfc, vehicle weight 
+    plot_altitude_sfc_weight(results, line_style)
+    
+    # Plot Velocities 
+    plot_aircraft_velocities(results, line_style)  
 
     return
 
@@ -373,13 +224,12 @@ def simple_sizing(configs, analyses):
     # weight analysis
     #need to put here, otherwise it won't be updated
     weights = analyses.configs.base.weights
-    breakdown = weights.evaluate()    
-    
+    breakdown = weights.evaluate(method='New SUAVE')    
     
     #compute centers of gravity
     #need to put here, otherwise, results won't be stored
-    compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
-    compute_aircraft_center_of_gravity(base)
+    compute_component_centers_of_gravity(base)
+    base.center_of_gravity()
     
     # diff the new data
     base.store_diff()
@@ -430,7 +280,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   First Climb Segment: constant Mach, constant segment angle 
+    #   First Climb Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -448,7 +298,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Second Climb Segment: constant Speed, constant segment angle 
+    #   Second Climb Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------    
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -465,7 +315,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Third Climb Segment: constant Mach, constant segment angle 
+    #   Third Climb Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------    
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -473,7 +323,7 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.altitude_end = 10.668 * Units.km
+    segment.altitude_end = 10.5   * Units.km
     segment.air_speed    = 226.0  * Units['m/s']
     segment.climb_rate   = 3.0    * Units['m/s']
 
@@ -482,7 +332,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------    
-    #   Cruise Segment: constant speed, constant altitude
+    #   Cruise Segment: Constant Speed Constant Altitude
     # ------------------------------------------------------------------    
 
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
@@ -490,8 +340,9 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.air_speed  = 230.412 * Units['m/s']
-    segment.distance   = (3933.65 + 770 - 92.6) * Units.km
+    segment.altitude  = 10.668 * Units.km # small jump to test altitude updating
+    segment.air_speed = 230.412 * Units['m/s']
+    segment.distance  = (3933.65 + 770 - 92.6) * Units.km
     
     segment.state.numerics.number_control_points = 10
 
@@ -500,7 +351,7 @@ def mission_setup(analyses):
 
 
 # ------------------------------------------------------------------
-#   First Descent Segment: consant speed, constant segment rate
+#   First Descent Segment: Constant Speed Constant Rate  
 # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -508,16 +359,17 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
-    segment.altitude_end = 8.0   * Units.km
-    segment.air_speed    = 220.0 * Units['m/s']
-    segment.descent_rate = 4.5   * Units['m/s']
+    segment.altitude_start = 10.5 * Units.km # small jump to test altitude updating
+    segment.altitude_end   = 8.0   * Units.km
+    segment.air_speed      = 220.0 * Units['m/s']
+    segment.descent_rate   = 4.5   * Units['m/s']
 
     # add to mission
     mission.append_segment(segment)
 
 
     # ------------------------------------------------------------------
-    #   Second Descent Segment: consant speed, constant segment rate
+    #   Second Descent Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -536,7 +388,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Third Descent Segment: consant speed, constant segment rate
+    #   Third Descent Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -555,7 +407,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Fourth Descent Segment: consant speed, constant segment rate
+    #   Fourth Descent Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -576,7 +428,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Fifth Descent Segment: consant speed, constant segment rate
+    #   Fifth Descent Segment:Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -608,19 +460,16 @@ def missions_setup(base_mission):
     # ------------------------------------------------------------------
     #   Base Mission
     # ------------------------------------------------------------------
-
     missions.base = base_mission
-
 
     # ------------------------------------------------------------------
     #   Mission for Constrained Fuel
     # ------------------------------------------------------------------    
-    fuel_mission = SUAVE.Analyses.Mission.Mission() #Fuel_Constrained()
-    fuel_mission.tag = 'fuel'
+    fuel_mission         = SUAVE.Analyses.Mission.Mission() #Fuel_Constrained()
+    fuel_mission.tag     = 'fuel'
     fuel_mission.range   = 1277. * Units.nautical_mile
-    fuel_mission.payload   = 19000.
+    fuel_mission.payload = 19000.
     missions.append(fuel_mission)    
-
 
     # ------------------------------------------------------------------
     #   Mission for Constrained Short Field
@@ -637,17 +486,14 @@ def missions_setup(base_mission):
     short_field.airport = airport    
     missions.append(short_field)
 
-
-
     # ------------------------------------------------------------------
     #   Mission for Fixed Payload
     # ------------------------------------------------------------------    
     payload = SUAVE.Analyses.Mission.Mission() #Payload_Constrained()
-    payload.tag = 'payload'
+    payload.tag     = 'payload'
     payload.range   = 2316. * Units.nautical_mile
-    payload.payload   = 19000.
+    payload.payload = 19000.
     missions.append(payload)
-
 
     # done!
     return missions  
@@ -659,29 +505,29 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.aerodynamics.angle_of_attack',
         'segments.cruise.conditions.aerodynamics.drag_coefficient',
         'segments.cruise.conditions.aerodynamics.lift_coefficient',
-        'segments.cruise.conditions.stability.static.cm_alpha',
-        'segments.cruise.conditions.stability.static.cn_beta',
+        'segments.cruise.conditions.stability.static.Cm_alpha',
+        'segments.cruise.conditions.stability.static.Cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
     ]
 
     # do the check
     for k in check_list:
-        print k
+        print(k)
 
         old_val = np.max( old_results.deep_get(k) )
         new_val = np.max( new_results.deep_get(k) )
         err = (new_val-old_val)/old_val
-        print 'Error at Max:' , err
+        print('Error at Max:' , err)
         assert np.abs(err) < 1e-6 , 'Max Check Failed : %s' % k
 
         old_val = np.min( old_results.deep_get(k) )
         new_val = np.min( new_results.deep_get(k) )        
         err = (new_val-old_val)/old_val
-        print 'Error at Min:' , err
+        print('Error at Min:' , err)
         assert np.abs(err) < 1e-6 , 'Min Check Failed : %s' % k        
 
-        print ''
+        print('')
 
     ## check high level outputs
     #def check_vals(a,b):
@@ -703,6 +549,16 @@ def check_results(new_results,old_results):
     return
 
 
+
+def print_wing_segs(vehicle):
+    
+    """This prints the wing segments to provide coverage for dataordered printing"""
+    
+    print(vehicle.wings.main_wing.Segments)
+    
+    return
+
+
 def load_results():
     return SUAVE.Input_Output.SUAVE.load('results_mission_B737.res')
 
@@ -712,5 +568,4 @@ def save_results(results):
 
 if __name__ == '__main__': 
     main()    
-    #plt.show()
-
+    plt.show()

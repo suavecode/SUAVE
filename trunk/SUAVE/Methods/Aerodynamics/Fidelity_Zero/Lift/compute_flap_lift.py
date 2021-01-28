@@ -98,7 +98,7 @@ if __name__ == '__main__':
     wing_flap_area  = 120. * .6
 
     dcl_flap = compute_flap_lift(t_c,flap_type,flap_chord,flap_angle,sweep,wing_Sref,wing_flap_area)
-    print 'Delta CL due to Flaps: ', dcl_flap
+    print('Delta CL due to Flaps: ', dcl_flap)
 
     # Test case
     t_c             = 0.11
@@ -110,4 +110,4 @@ if __name__ == '__main__':
     wing_flap_area  = 0.
 
     dcl_flap = compute_flap_lift(t_c,flap_type,flap_chord,flap_angle,sweep,wing_Sref,wing_flap_area)
-    print 'Delta CL due to Flaps: ', dcl_flap
+    print('Delta CL due to Flaps: ', dcl_flap)

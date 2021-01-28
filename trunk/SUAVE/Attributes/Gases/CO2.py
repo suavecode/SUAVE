@@ -1,14 +1,14 @@
 ## @ingroup Attributes-Gases
 # CO2.py
 # 
-# Created:   Mar, 2014, J. Sinsay
-# Modified:  Jan, 2016, M. Vegh      
+# Created:   Mar 2014, J. Sinsay
+# Modified:  Jan 2016, M. Vegh      
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from Gas import Gas
+from .Gas import Gas
 
 # ----------------------------------------------------------------------
 #  CO2 Gas Class

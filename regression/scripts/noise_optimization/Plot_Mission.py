@@ -26,7 +26,7 @@ def plot_mission(results,line_style='bo-'):
 
 
     fig = plt.figure("Aerodynamic Forces",figsize=(8,6))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -35,7 +35,7 @@ def plot_mission(results,line_style='bo-'):
         eta  = segment.conditions.propulsion.throttle[:,0]
         mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
         thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc    = 3600. * mdot / 0.1019715 / thrust	
+        sfc    = 3600. * mdot / 0.1019715 / thrust
 
 
         axes = fig.add_subplot(2,1,1)
@@ -47,14 +47,14 @@ def plot_mission(results,line_style='bo-'):
         axes.plot( time , sfc , line_style )
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
-        axes.grid(True)	
+        axes.grid(True)
 
 
     # ------------------------------------------------------------------
     #   Aerodynamics 2
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -120,7 +120,7 @@ def plot_mission(results,line_style='bo-'):
     # ------------------------------------------------------------------
 
     fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -133,7 +133,7 @@ def plot_mission(results,line_style='bo-'):
         altitude = segment.conditions.freestream.altitude[:,0] / Units.ft
         mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
         thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc    = 3600. * mdot / 0.1019715 / thrust	
+        sfc    = 3600. * mdot / 0.1019715 / thrust
 
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , altitude , line_style )
@@ -154,7 +154,7 @@ def plot_mission(results,line_style='bo-'):
         
         
     fig = plt.figure("Throttle",figsize=(8,6))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lbf

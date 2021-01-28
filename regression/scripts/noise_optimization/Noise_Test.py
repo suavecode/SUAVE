@@ -40,22 +40,21 @@ def main():
     input_vec = var / problem.optimization_problem.inputs[:,3]
 
     problem.objective(input_vec)
-
-    objectives  = problem.objective()       * problem.optimization_problem.objective[:,1]
+    objectives  = problem.objective()* problem.optimization_problem.objective[:,1]
 
     noise_cumulative_margin = objectives[0]
     
     actual = Data()    
-    actual.noise_cumulative_margin = 19.7810544184
+    actual.noise_cumulative_margin = 21.000025956549678
 
     error = Data()
     error.noise_cumulative_margin = abs(actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
     
-    print 'noise_cumulative_margin=', noise_cumulative_margin
+    print('noise_cumulative_margin_error=', noise_cumulative_margin)
     
-    print error.noise_cumulative_margin
-    print error
-    for k,v in error.items():
+    print(error.noise_cumulative_margin)
+    print(error)
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6) 
         
     return
@@ -150,12 +149,12 @@ def setup():
                                                   'vehicle_configurations.*.mass_properties.max_takeoff'               ]],
         [ 'design_TOW'                       ,    'vehicle_configurations.base.mass_properties.takeoff'                 ],
         [ 'short_field_TOW'                  ,    'vehicle_configurations.short_field_takeoff.mass_properties.takeoff'  ],
-        [ 'flap_takeoff_angle'               ,    ['vehicle_configurations.takeoff.wings.main_wing.flaps.angle',
-                                                   'vehicle_configurations.short_field_takeoff.wings.main_wing.flaps.angle']],
-        [ 'flap_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.flaps.angle'          ],
-        [ 'slat_takeoff_angle'               ,    ['vehicle_configurations.takeoff.wings.main_wing.slats.angle',
-                                               'vehicle_configurations.short_field_takeoff.wings.main_wing.slats.angle']],
-        [ 'slat_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.slats.angle'          ],
+        [ 'flap_takeoff_angle'               ,   ['vehicle_configurations.takeoff.wings.main_wing.control_surfaces.flap.deflection',
+                                                  'vehicle_configurations.short_field_takeoff.wings.main_wing.control_surfaces.flap.deflection']],
+        [ 'flap_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.control_surfaces.flap.deflection'          ],
+        [ 'slat_takeoff_angle'               ,   ['vehicle_configurations.takeoff.wings.main_wing.control_surfaces.slat.deflection',
+                                                  'vehicle_configurations.short_field_takeoff.wings.main_wing.control_surfaces.slat.deflection']],
+        [ 'slat_landing_angle'               ,    'vehicle_configurations.landing.wings.main_wing.control_surfaces.slat.deflection'          ],
         [ 'wing_span'                        ,    'vehicle_configurations.base.wings.main_wing.spans.projected'         ],
         [ 'noise_approach_margin'            ,    'summary.noise_approach_margin'                                       ],
         [ 'noise_sideline_margin'            ,    'summary.noise_sideline_margin'                                       ],

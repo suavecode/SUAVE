@@ -18,7 +18,7 @@ def setup(configs):
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
-    for tag,config in configs.items():
+    for tag,config in list(configs.items()):
         analysis = base(config)
         analyses[tag] = analysis
 
@@ -43,14 +43,16 @@ def base(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
+    aerodynamics.settings.number_spanwise_vortices   = 5
+    aerodynamics.settings.number_chordwise_vortices  = 1
+    aerodynamics.geometry                    = vehicle
 
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)

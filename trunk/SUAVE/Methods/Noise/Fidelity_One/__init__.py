@@ -2,6 +2,6 @@
 # Description
 # @ingroup Methods-Noise
 
-import Airframe
-import Engine
-import Noise_Tools
+from . import Airframe
+from . import Engine
+from . import Noise_Tools

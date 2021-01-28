@@ -1,7 +1,9 @@
 ## @ingroup Analyses-Aerodynamics
 # AVL.py
 #
-# Created: Apr 2017, M. Clarke 
+# Created:  Apr 2017, M. Clarke 
+# Modified: Apr 2019, T. MacDonald 
+#           Mar 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -9,16 +11,13 @@
 
 import SUAVE
 from SUAVE.Core import Data
-from Markup import Markup
+from .Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
 
-# Default aero Results
-from Results import Results
-
 # The aero methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
-from Process_Geometry import Process_Geometry
+from .Process_Geometry import Process_Geometry
 from SUAVE.Analyses.Aerodynamics.AVL_Inviscid import AVL_Inviscid
 
 # ----------------------------------------------------------------------
@@ -60,9 +59,15 @@ class AVL(Markup):
         settings.wing_parasite_drag_form_factor     = 1.1
         settings.fuselage_parasite_drag_form_factor = 2.3
         settings.oswald_efficiency_factor           = None
+        settings.span_efficiency                    = None
         settings.viscous_lift_dependent_drag_factor = 0.38
         settings.drag_coefficient_increment         = 0.0000
         settings.spoiler_drag_increment             = 0.00 
+        
+        # ------
+        settings.number_spanwise_vortices           = None
+        settings.number_chordwise_vortices          = None        
+        
         settings.maximum_lift_coefficient           = np.inf 
         
                 
@@ -85,7 +90,6 @@ class AVL(Markup):
         compute.drag.parasite.propulsors.propulsor = Common.Drag.parasite_drag_propulsor
         compute.drag.parasite.pylons               = Common.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Common.Drag.induced_drag_aircraft
         compute.drag.compressibility               = Process()
         compute.drag.compressibility.wings         = Process_Geometry('wings')
         compute.drag.compressibility.wings.wing    = Common.Drag.compressibility_drag_wing
@@ -114,10 +118,16 @@ class AVL(Markup):
 
         Properties Used:
         self.geometry
-        """          
+        """  
+        super(AVL, self).initialize()
+        # unpack
+        sv = self.settings.number_spanwise_vortices
+        cv = self.settings.number_chordwise_vortices 
+        
         self.process.compute.lift.inviscid.geometry = self.geometry
+        
         # Generate the surrogate
-        self.process.compute.lift.inviscid.initialize()
+        self.process.compute.lift.inviscid.initialize(sv,cv)
         
     finalize = initialize
     

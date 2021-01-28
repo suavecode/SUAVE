@@ -3,6 +3,8 @@
 # 
 # Created:  Aug 2015, C. R. I. da Silva
 # Modified: Feb 2016, T. MacDonald
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -47,12 +49,16 @@ class Landing_Gear(Physical_Component):
         """
        
         self.tag = 'landing_gear'
+    
+# ----------------------------------------------------------------------
+#  Handle Linking
+# ----------------------------------------------------------------------
 
-     
-     
+Landing_Gear.Container = Physical_Component.Container
+
 # ----------------------------------------------------------------------
 #   Unit Tests
 # ----------------------------------------------------------------------
 # this will run from command line, put simple tests for your code here
 if __name__ == '__main__':
-    raise RuntimeError , 'test failed, not implemented'
+    raise RuntimeError('test failed, not implemented')

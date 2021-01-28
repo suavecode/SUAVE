@@ -31,14 +31,14 @@ def main():
     con3 = problem.all_constraints([1.1,0.9])    
     
     actual = Data()
-    actual.obj  = 0.665588312259718
-    actual.con  = 1.13148448
-    actual.obj2 = 0.6837024358431955
-    actual.con3 = 1.20031623
-    
-    print 'Fuel Burn   =', obj
-    print 'Fuel Margin =', con    
 
+    actual.obj  = 0.67330174
+    actual.con  = 2.89079424
+    actual.obj2 = 0.67895669
+    actual.con3 = 2.98804255
+    
+    print('Fuel Burn   =', obj)
+    print('Fuel Margin =', con)    
 
     error = Data()
     error.obj  = (actual.obj - obj)/actual.obj
@@ -46,10 +46,10 @@ def main():
     error.obj2 = (actual.obj2 - obj2)/actual.obj2
     error.con3 = (actual.con3 - con3)/actual.con3 
 
-    print 'Fuel Burn Error   =',error.obj
-    print 'Fuel Margin Error =',error.con
+    print('Fuel Burn Error   =',error.obj)
+    print('Fuel Margin Error =',error.con)
     
-    for k,v in error.items():
+    for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)     
         
     return

@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 # SUAVE imports
-from Ground import Ground
+from .Ground import Ground
 from SUAVE.Methods.Missions import Segments as Methods
 
 # Units
@@ -62,10 +62,18 @@ class Takeoff(Ground):
             None
         """         
 
-        self.velocity_start       = 0.0
+        self.velocity_start       = None
         self.velocity_end         = 150 * Units.knots
         self.friction_coefficient = 0.04
         self.throttle             = 1.0
+        self.altitude             = 0.0
+        
+        # initials and unknowns
+        ones_row_m1 = self.state.ones_row_m1
+        self.state.unknowns.velocity_x            = ones_row_m1(1) * 0.0
+        self.state.unknowns.time                  = 100.
+        self.state.residuals.final_velocity_error = 0.0
+        self.state.residuals.forces               = ones_row_m1(1) * 0.0        
 
         # --------------------------------------------------------------
         #   The Solving Process

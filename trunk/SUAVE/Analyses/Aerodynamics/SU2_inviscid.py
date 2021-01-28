@@ -3,6 +3,7 @@
 #
 # Created:  Sep 2016, E. Botero
 # Modified: Jan 2017, T. MacDonald
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,14 +14,15 @@ import SUAVE
 from SUAVE.Core import Data, Units
 
 # Local imports
-from Aerodynamics import Aerodynamics
+from .Aerodynamics import Aerodynamics
 from SUAVE.Input_Output.SU2.call_SU2_CFD import call_SU2_CFD
 from SUAVE.Input_Output.SU2.write_SU2_cfg import write_SU2_cfg
+from sklearn.gaussian_process.kernels import ExpSineSquared
 
 # Package imports
 import numpy as np
 import time
-import pylab as plt
+import matplotlib.pyplot as plt  
 import sklearn
 from sklearn import gaussian_process
 from sklearn import neighbors
@@ -130,10 +132,11 @@ class SU2_inviscid(Aerodynamics):
         surrogates = self.surrogates        
         conditions = state.conditions
         
-        mach = conditions.freestream.mach_number
-        AoA  = conditions.aerodynamics.angle_of_attack
+        mach       = conditions.freestream.mach_number
+        AoA        = conditions.aerodynamics.angle_of_attack
         lift_model = surrogates.lift_coefficient
         drag_model = surrogates.drag_coefficient
+        AR         = geometry.wings['main_wing'].aspect_ratio
         
         # Inviscid lift
         data_len = len(AoA)
@@ -141,14 +144,21 @@ class SU2_inviscid(Aerodynamics):
         for ii,_ in enumerate(AoA):
             inviscid_lift[ii] = lift_model.predict([np.array([AoA[ii][0],mach[ii][0]])]) #sklearn fix
             
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift       = Data()
-        conditions.aerodynamics.lift_breakdown.inviscid_wings_lift.total = inviscid_lift
-        state.conditions.aerodynamics.lift_coefficient                   = inviscid_lift
-        state.conditions.aerodynamics.lift_breakdown.compressible_wings  = inviscid_lift
-        
+        conditions.aerodynamics.lift_coefficient                               = inviscid_lift
+        conditions.aerodynamics.lift_breakdown                                 = Data()
+        conditions.aerodynamics.lift_breakdown.compressible_wings              = Data()
+        conditions.aerodynamics.lift_breakdown.inviscid_wings                  = Data()
+        conditions.aerodynamics.lift_breakdown.total                           = inviscid_lift        
+        conditions.aerodynamics.lift_breakdown.compressible_wings['main_wing'] = inviscid_lift # currently using vehicle drag for wing     
+        conditions.aerodynamics.lift_breakdown.inviscid_wings['main_wing']     = inviscid_lift # currently using vehicle drag for wing  
+                                                                           
         # Inviscid drag, zeros are a placeholder for possible future implementation
-        inviscid_drag                                              = np.zeros([data_len,1])       
-        state.conditions.aerodynamics.inviscid_drag_coefficient    = inviscid_drag
+        inviscid_drag                                                               = np.zeros([data_len,1])       
+        conditions.aerodynamics.drag_breakdown.induced                              = Data()
+        conditions.aerodynamics.drag_breakdown.induced.total                        = inviscid_drag
+        conditions.aerodynamics.drag_breakdown.induced.inviscid                     = inviscid_drag
+        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings               = Data()
+        conditions.aerodynamics.drag_breakdown.induced.inviscid_wings['main_wing']  = inviscid_drag     
         
         return inviscid_lift, inviscid_drag
 
@@ -210,7 +220,7 @@ class SU2_inviscid(Aerodynamics):
             
             time1 = time.time()
             
-            print 'The total elapsed time to run SU2: '+ str(time1-time0) + '  Seconds'
+            print('The total elapsed time to run SU2: '+ str(time1-time0) + '  Seconds')
         else:
             data_array = np.loadtxt(self.training_file)
             xy         = data_array[:,0:2]
@@ -257,17 +267,13 @@ class SU2_inviscid(Aerodynamics):
         CD_data   = training.coefficients[:,1]
         xy        = training.grid_points 
         
+              
         # Gaussian Process New
-        regr_cl = gaussian_process.GaussianProcess()
-        regr_cd = gaussian_process.GaussianProcess()
+        gp_kernel_ES = ExpSineSquared(length_scale=1.0, periodicity=1.0, length_scale_bounds=(1e-5,1e5), periodicity_bounds=(1e-5,1e5))
+        regr_cl = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
+        regr_cd = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel_ES)
         cl_surrogate = regr_cl.fit(xy, CL_data)
-        cd_surrogate = regr_cd.fit(xy, CD_data)          
-        
-        # Gaussian Process New
-        #regr_cl = gaussian_process.GaussianProcessRegressor()
-        #regr_cd = gaussian_process.GaussianProcessRegressor()
-        #cl_surrogate = regr_cl.fit(xy, CL_data)
-        #cd_surrogate = regr_cd.fit(xy, CD_data)  
+        cd_surrogate = regr_cd.fit(xy, CD_data)  
         
         # KNN
         #regr_cl = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')

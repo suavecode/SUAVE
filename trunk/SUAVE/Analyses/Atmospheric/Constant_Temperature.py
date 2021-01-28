@@ -118,10 +118,10 @@ class Constant_Temperature(Atmospheric):
         
         # check ranges
         if np.amin(zs) < zmin:
-            print "Warning: altitude requested below minimum for this atmospheric model; returning values for h = -2.0 km"
+            print("Warning: altitude requested below minimum for this atmospheric model; returning values for h = -2.0 km")
             zs[zs < zmin] = zmin
         if np.amax(zs) > zmax:
-            print "Warning: altitude requested above maximum for this atmospheric model; returning values for h = 86.0 km"   
+            print("Warning: altitude requested above maximum for this atmospheric model; returning values for h = 86.0 km")   
             zs[zs > zmax] = zmax        
 
         # initialize return data
@@ -169,26 +169,3 @@ class Constant_Temperature(Atmospheric):
         atmo_data.dynamic_viscosity = mu
         
         return atmo_data
-
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------
-if __name__ == '__main__':
-    
-    import pylab as plt
-    
-    h = np.linspace(-1.,60.,200) * Units.km
-    temperature=300
-    h = 5000.
-    atmosphere = Constant_Temperature()
-    
-    data = atmosphere.compute_values(h,temperature)
-    p   = data.pressure
-    T   = data.temperature
-    rho = data.density
-    a   = data.speed_of_sound
-    mu  = data.dynamic_viscosity
-    
-    print data
-    

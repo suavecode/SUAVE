@@ -3,6 +3,7 @@
 #
 # Created:  Apr 2017, T. MacDonald
 # Modified: Jun 2017, T. MacDonald
+#           Oct 2019, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,6 +19,7 @@ from SUAVE.Core import Data
 from SUAVE.Optimization import helper_functions as help_fun
 import os
 import sys
+from scipy.optimize import minimize
 
 # ----------------------------------------------------------------------
 #  Trust Region Optimization Class
@@ -64,7 +66,7 @@ class Trust_Region_Optimization(Data):
         self.optimizer_verify_level             = 0
         self.fidelity_levels                    = 2     # only two are currently supported
         self.evaluation_order                   = [1,2] # currently this order is necessary for proper functionality   
-        self.optimizer                          = 'SNOPT'
+        self.optimizer                          = 'SLSQP'
         
     def optimize(self,problem,print_output=False):
         """Optimizes the problem
@@ -189,12 +191,12 @@ class Trust_Region_Optimization(Data):
             if self.optimizer == 'SNOPT':
                 opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_corrected_model, corrections=corrections,tr=tr)
                 
-                for ii in xrange(len(obj)):
+                for ii in range(len(obj)):
                     opt_prob.addObj('f',f_center) 
-                for ii in xrange(0,len(inp)):
+                for ii in range(0,len(inp)):
                     vartype = 'c'
                     opt_prob.addVar(nam[ii],vartype,lower=tr.lower_bound[ii],upper=tr.upper_bound[ii],value=x[ii])    
-                for ii in xrange(0,len(con)):
+                for ii in range(0,len(con)):
                     if con[ii][1]=='<':
                         opt_prob.addCon(name[ii], type='i', upper=con_up_edge[ii])  
                     elif con[ii][1]=='>':
@@ -221,25 +223,50 @@ class Trust_Region_Optimization(Data):
                 fOpt_corr = outputs[0][0]
                 xOpt_corr = outputs[1]
                 gOpt_corr = np.zeros([1,len(con)])[0]  
-                for ii in xrange(len(con)):
+                for ii in range(len(con)):
                     gOpt_corr[ii] = opt_prob._solutions[0]._constraints[ii].value  
+                    
 
+            elif self.optimizer == 'SLSQP':
+                
+                bounds = []
+                for lb, ub in zip(tr.lower_bound, tr.upper_bound):
+                    bounds.append((lb,ub))
+                
+                constraints = self.initialize_SLSQP_constraints(con,problem,corrections,tr)
+                # need corrections, tr
+    
+                res = minimize(self.evaluate_corrected_model, x, constraints=constraints, \
+                               args=(problem,corrections,tr), bounds=bounds)
+                
+                fOpt_corr = res['fun']
+                xOpt_corr = res['x']
+                gOpt_corr = problem.all_constraints(xOpt_corr)
+                
+                if res['success']:
+                    feasible_flag = True
+                else:
+                    feasible_flag = False
+                
             else:
                 raise ValueError('Selected optimizer not implemented')
             success_flag = feasible_flag            
         
+            f_out.write('fopt = ' + str(fOpt_corr)+'\n')
+            f_out.write('xopt = ' + str(xOpt_corr)+'\n')
+            f_out.write('gopt = ' + str(gOpt_corr)+'\n')
             
             
             # Constraint minization ------------------------------------------------------------------------
             if feasible_flag == False:
-                print 'Infeasible within trust region, attempting to minimize constraint'
+                print('Infeasible within trust region, attempting to minimize constraint')
                 
                 if self.optimizer == 'SNOPT':
                     opt_prob = pyOpt.Optimization('SUAVE',self.evaluate_constraints, corrections=corrections,tr=tr,
                                                   lb=con_low_edge,ub=con_up_edge)
-                    for ii in xrange(len(obj)):
+                    for ii in range(len(obj)):
                         opt_prob.addObj('constraint violation',0.) 
-                    for ii in xrange(0,len(inp)):
+                    for ii in range(0,len(inp)):
                         vartype = 'c'
                         opt_prob.addVar(nam[ii],vartype,lower=tr.lower_bound[ii],upper=tr.upper_bound[ii],value=x[ii])           
                     opt = pyOpt.pySNOPT.SNOPT()            
@@ -254,19 +281,36 @@ class Trust_Region_Optimization(Data):
                     xOpt_corr = con_outputs[1]
                     new_outputs = self.evaluate_corrected_model(x, problem=problem,corrections=corrections,tr=tr)
         
-                    fOpt_corr = new_outputs[0][0][0]
+                    fOpt_corr = new_outputs[0][0]
                     gOpt_corr = np.zeros([1,len(con)])[0]   
-                    for ii in xrange(len(con)):
+                    for ii in range(len(con)):
                         gOpt_corr[ii] = new_outputs[1][ii]
+                elif self.optimizer == 'SLSQP':
+                    bounds = []
+                    for lb, ub in zip(con_low_edge, con_up_edge):
+                        bounds.append((lb,ub)) 
+                        
+                    res = minimize(self.evaluate_constraints, x, \
+                                   args=(problem,corrections,tr,con_low_edge,con_up_edge), bounds=bounds, method='slsqp')                    
+                        
+                    xOpt_corr = res['x']
+                    new_outputs = self.evaluate_corrected_model(x, problem=problem,corrections=corrections,tr=tr,
+                                                                return_cons=True)
+                    
+                    fOpt_corr = new_outputs[0][0]
+                    gOpt_corr = np.zeros([1,len(con)])[0]   
+                    for ii in range(len(con)):
+                        gOpt_corr[ii] = new_outputs[1][ii]               
+                        
                 else:
                     raise ValueError('Selected optimizer not implemented')
                 
                 # Constraint minization end ------------------------------------------------------------------------
                 
 
-            print 'fOpt_corr = ', fOpt_corr
-            print 'xOpt_corr = ', xOpt_corr
-            print 'gOpt_corr = ', gOpt_corr
+            print('fOpt_corr = ', fOpt_corr)
+            print('xOpt_corr = ', xOpt_corr)
+            print('gOpt_corr = ', gOpt_corr)
             
             # Evaluate high-fidelity at optimum
             problem.fidelity_level = np.max(self.fidelity_levels)
@@ -283,21 +327,21 @@ class Trust_Region_Optimization(Data):
             # Acceptance Test
             accepted = 0
             if( fOpt_hi < f_center ):
-                print 'Trust region update accepted since objective value is lower\n'
+                print('Trust region update accepted since objective value is lower\n')
                 accepted = 1
             elif( g_violation_opt_hi < g_violation_hi_center ):
-                print 'Trust region update accepted since nonlinear constraint violation is lower\n'
+                print('Trust region update accepted since nonlinear constraint violation is lower\n')
                 accepted = 1
             else:
-                print 'Trust region update rejected (filter)\n'        
+                print('Trust region update rejected (filter)\n')        
             
             # Update Trust Region Size
-            print tr
+            print(tr)
             tr_action = self.update_tr_size(rho,tr,accepted)  
                 
             # Terminate if trust region too small
             if( tr.size < tr.minimum_size ):
-                print 'Trust region too small'
+                print('Trust region too small')
                 f_out.write('Trust region too small')
                 f_out.close()
                 if print_output == False:
@@ -307,7 +351,7 @@ class Trust_Region_Optimization(Data):
             # Terminate if solution is infeasible, no change is detected, and trust region does not expand
             if( success_flag == False and tr_action < 3 and\
                 np.sum(np.isclose(xOpt_corr,x,rtol=1e-15,atol=1e-14)) == len(x) ):
-                print 'Solution infeasible, no improvement can be made'
+                print('Solution infeasible, no improvement can be made')
                 f_out.write('Solution infeasible, no improvement can be made')
                 f_out.close()
                 if print_output == False:
@@ -321,7 +365,7 @@ class Trust_Region_Optimization(Data):
             
             # Convergence check
             if (accepted==1 and (np.abs(f_center-fOpt_hi) < self.convergence_tolerance)):
-                print 'Hard convergence reached'
+                print('Hard convergence reached')
                 f_out.write('Hard convergence reached')
                 f_out.close()
                 if print_output == False:
@@ -333,13 +377,13 @@ class Trust_Region_Optimization(Data):
                 x = xOpt_corr*1.
                 tr.center = x*1.             
             
-            print 'Iteration number: ' + str(iterations)
-            print 'x value: ' + str(x.tolist())
-            print 'Objective value: ' + str(fOpt_hi)
+            print('Iteration number: ' + str(iterations))
+            print('x value: ' + str(x.tolist()))
+            print('Objective value: ' + str(fOpt_hi))
         
         f_out.write('Max iteration limit reached')
         f_out.close()
-        print 'Max iteration limit reached'
+        print('Max iteration limit reached')
         if print_output == False:
             sys.stdout = sys.__stdout__          
         return (fOpt_corr,xOpt_corr,'Max iteration limit reached')
@@ -385,7 +429,7 @@ class Trust_Region_Optimization(Data):
         return (f,df,g,dg)
 
 
-    def evaluate_corrected_model(self,x,problem=None,corrections=None,tr=None):
+    def evaluate_corrected_model(self,x,problem=None,corrections=None,tr=None,return_cons=False):
         """Evaluates the SUAVE nexus problem and applies corrections to the results.
         
         Assumptions:
@@ -420,14 +464,19 @@ class Trust_Region_Optimization(Data):
         const = const + np.matmul(A[1:,:],(x-x0))+b[1:]
         const = const.tolist()
     
-        print 'Inputs'
-        print x
-        print 'Obj'
-        print obj
-        print 'Con'
-        print const
+        print('Inputs')
+        print(x)
+        print('Obj')
+        print(obj)
+        print('Con')
+        print(const)
             
-        return obj,const,fail
+        if self.optimizer == 'SNOPT' or return_cons:
+            return obj,const,fail
+        elif self.optimizer == 'SLSQP':
+            return obj
+        else:
+            raise NotImplemented
     
     
     def evaluate_constraints(self,x,problem=None,corrections=None,tr=None,lb=None,ub=None):
@@ -471,12 +520,14 @@ class Trust_Region_Optimization(Data):
         obj_cons = self.calculate_constraint_violation(const,lb,ub)
         const    = None
         
-        print 'Inputs'
-        print x
-        print 'Cons violation'
-        print obj_cons         
-            
-        return obj_cons,const,fail    
+        print('Inputs')
+        print(x)
+        print('Cons violation')
+        print(obj_cons)         
+        if self.optimizer == 'SNOPT':
+            return obj_cons,const,fail  
+        else:
+            return obj_cons
         
         
     def calculate_constraint_violation(self,gval,lb,ub):
@@ -593,11 +644,11 @@ class Trust_Region_Optimization(Data):
         con_up_edge  = []
         con_low_edge = []
         
-        for ii in xrange(0,len(inp)):
+        for ii in range(0,len(inp)):
             x_low_bound.append(bnd[ii][0]/scl[ii])
             x_up_bound.append(bnd[ii][1]/scl[ii])
 
-        for ii in xrange(0,len(con)):
+        for ii in range(0,len(con)):
             name.append(con[ii][0])
             edge.append(scaled_constraints[ii])
             if con[ii][1]=='<':
@@ -685,24 +736,58 @@ class Trust_Region_Optimization(Data):
         if( not accepted ): # shrink trust region
             tr.size = tr.size*tr.contraction_factor
             tr_action = 1
-            print 'Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size)        
+            print('Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size))        
         elif( rho < 0. ): # bad fit, shrink trust region
             tr.size = tr.size*tr.contraction_factor
             tr_action = 1
-            print 'Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size)
+            print('Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size))
         elif( rho <= tr.contract_threshold ): # okay fit, shrink trust region
             tr.size = tr.size*tr.contraction_factor
             tr_action = 1
-            print 'Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size)
+            print('Trust region shrunk from %f to %f\n\n' % (tr_size_previous,tr.size))
         elif( rho <= tr.expand_threshold ): # pretty good fit, retain trust region
             tr_action = 2
-            print 'Trust region size remains the same at %f\n\n' % tr.size
+            print('Trust region size remains the same at %f\n\n' % tr.size)
         elif( rho <= 1.25 ): # excellent fit, expand trust region
             tr.size = tr.size*tr.expansion_factor
             tr_action = 3
-            print 'Trust region expanded from %f to %f\n\n' % (tr_size_previous,tr.size)
+            print('Trust region expanded from %f to %f\n\n' % (tr_size_previous,tr.size))
         else: # rho > 1.25, okay-bad fit, but good for us, retain trust region
             tr_action = 2
-            print 'Trust region size remains the same at %f\n\n' % tr.size        
+            print('Trust region size remains the same at %f\n\n' % tr.size)        
             
         return tr_action
+    
+    def initialize_SLSQP_constraints(self,con,problem,corrections,tr):
+        # Initialize variables according to SLSQP requirements
+        slsqp_con_list = []
+        for i,c in enumerate(con):
+            c_dict = {}
+            if c[1] == '<' or c[1] == '>':
+                c_dict['type'] = 'ineq'
+            elif c[1] == '=':
+                c_dict['type'] = 'eq'
+            else:
+                raise ValueError('Constraint specification not recognized.')
+            c_dict['fun'] = self.unpack_constraints_slsqp
+            if c[1] == '<':
+                c_dict['args'] = [i,-1,c[2],problem,corrections,tr]
+            else:
+                c_dict['args'] = [i,1,c[2],problem,corrections,tr]
+            slsqp_con_list.append(c_dict)
+        
+        return slsqp_con_list
+    
+    def unpack_constraints_slsqp(self,x,con_ind,sign,edge,problem,corrections,tr):
+    
+        A, b = corrections
+        x0   = tr.center
+        
+        const = problem.all_constraints(x).tolist()
+        
+        const = const + np.matmul(A[1:,:],(x-x0))+b[1:]
+        const = const.tolist()   
+        
+        con = (const[con_ind]-edge)*sign
+        
+        return con

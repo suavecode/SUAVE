@@ -2,7 +2,8 @@
 #print_compress_drag.py
 
 # Created: SUAVE team
-# Updated: Carlos Ilario, Feb 2016
+# Modified: Carlos Ilario, Feb 2016
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -78,14 +79,14 @@ def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
     fid.write('  MAIN WING THICKNESS RATIO ..... ' + str('%5.2f' %   t_c                )   + '    ' + '\n')
     fid.write(' \n')
     fid.write(' TOTAL COMPRESSIBILITY DRAG \n')
-    fid.write(np.insert(np.transpose(map('M={:5.3f} | '.format,(mach_vec))),0,'  CL   |  '))
+    fid.write(str(np.insert(np.transpose(list(map('M={:5.3f} | '.format,(mach_vec)))),0,'  CL   |  ')))
     fid.write('\n')
 
     # call aerodynamic method for each CL
     for idcl, cl in enumerate(cl_vec):
-        state.conditions.aerodynamics.lift_breakdown.compressible_wings = np.atleast_1d(cl)
-        # call method
+        state.conditions.aerodynamics.lift_breakdown.compressible_wings   = Data()
         for wing in vehicle.wings:
+            state.conditions.aerodynamics.lift_breakdown.compressible_wings[wing.tag] = np.atleast_1d(cl) 
             analyses.configs.cruise.aerodynamics.process.compute.drag.compressibility.wings.wing(state,settings,wing)
         # process output for print
         drag_breakdown = state.conditions.aerodynamics.drag_breakdown.compressible
@@ -93,16 +94,16 @@ def print_compress_drag(vehicle,analyses,filename = 'compress_drag.dat'):
             cd_compress[wing.tag][:,idcl] =  drag_breakdown[wing.tag].compressibility_drag
             cd_compress_tot[:,idcl]      +=  drag_breakdown[wing.tag].compressibility_drag
         # print first the TOTAL COMPRESSIBILITY DRAG    
-        fid.write(np.insert((np.transpose(map('{:7.5f} | '.format,(cd_compress_tot[:,idcl])))),0,' {:5.3f} |  '.format(cl)))
+        fid.write(str(np.insert((np.transpose(list(map('{:7.5f} | '.format,(cd_compress_tot[:,idcl]))))),0,' {:5.3f} |  '.format(cl))))
         fid.write('\n')
     fid.write( 119*'-' )
     # print results of other components
     for wing in vehicle.wings: 
         fid.write('\n ' + wing.tag.upper() + '  ( t/c: {:4.3f} )'.format(wing.thickness_to_chord) + '\n')
-        fid.write(np.insert(np.transpose(map('M={:5.3f} | '.format,(mach_vec))),0,'  CL   |  '))
+        fid.write(str(np.insert(np.transpose(list(map('M={:5.3f} | '.format,(mach_vec)))),0,'  CL   |  ')))
         fid.write('\n')
         for idcl, cl in enumerate(cl_vec):
-            fid.write(np.insert((np.transpose(map('{:7.5f} | '.format,(cd_compress[wing.tag][:,idcl])))),0,' {:5.3f} |  '.format(cl)))
+            fid.write(str(np.insert((np.transpose(list(map('{:7.5f} | '.format,(cd_compress[wing.tag][:,idcl]))))),0,' {:5.3f} |  '.format(cl))))
             fid.write('\n')
         fid.write(119*'-')
     # close file
