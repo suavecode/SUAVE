@@ -81,6 +81,7 @@ class Glide(Optimized):
         
         # initials and unknowns
         ones_row    = self.state.ones_row
+        self.state.unknowns.velocity = ones_row(1) * 1.0
         self.state.unknowns.__delitem__('throttle')
         
         initialize = self.process.initialize
@@ -93,7 +94,7 @@ class Glide(Optimized):
 
         return
 
-def unpack_unknowns(segment,state):
+def unpack_unknowns(segment):
     
     """Unpacks the unknowns set in the mission to be available for the mission.
 
@@ -123,9 +124,9 @@ def unpack_unknowns(segment,state):
     """    
     
     # unpack unknowns and givens
-    theta    = state.unknowns.body_angle
-    gamma    = state.unknowns.flight_path_angle
-    vel      = state.unknowns.velocity
+    theta    = segment.state.unknowns.body_angle
+    gamma    = segment.state.unknowns.flight_path_angle
+    vel      = segment.state.unknowns.velocity
     alt0     = segment.altitude_start
     altf     = segment.altitude_end
     vel0     = segment.air_speed_start
@@ -148,17 +149,17 @@ def unpack_unknowns(segment,state):
     v_z   = -v_mag * np.sin(gamma)    
 
     # apply unknowns and pack conditions   
-    state.conditions.propulsion.throttle[:,0]             = np.zeros_like(v_x[:,0])
-    state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   
-    state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
-    state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
+    segment.state.conditions.propulsion.throttle[:,0]             = np.zeros_like(v_x[:,0])
+    segment.state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
+    segment.state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
     
 # ----------------------------------------------------------------------
 #  Update Thrust
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Missions-Segments-Common
-def update_thrust(segment,state):
+def update_thrust(segment):
     """ Evaluates the energy network to find the thrust force and mass rate
 
         Inputs -
@@ -175,17 +176,17 @@ def update_thrust(segment,state):
 
 
     """    
-    ones_row = state.ones_row
+    ones_row = segment.state.ones_row
 
     # pack conditions
-    conditions = state.conditions
+    conditions = segment.state.conditions
     conditions.frames.body.thrust_force_vector = 0. * ones_row(3)
     conditions.weights.vehicle_mass_rate       = 0. * ones_row(1)
     
     
 
 ## @ingroup Methods-Missions-Segments-Climb
-def solve_linear_speed_constant_rate(segment,state):
+def solve_linear_speed_constant_rate(segment):
     
     """ The sets up an solves a mini segment that is a linear speed constant rate segment. The results become the initial conditions for an optimized climb segment later
 
@@ -228,20 +229,20 @@ def solve_linear_speed_constant_rate(segment,state):
     LSCR.altitude_end     = segment.altitude_end
     LSCR.climb_rate       = segment.seed_climb_rate
     LSCR.analyses         = segment.analyses
-    LSCR.state.conditions = state.conditions
-    LSCR.state.numerics   = state.numerics
+    LSCR.state.conditions = segment.state.conditions
+    LSCR.state.numerics   = segment.state.numerics
     mini_mission.append_segment(LSCR)
     
     results = mini_mission.evaluate()
     LSCR_res = results.segments.analysis
     
-    state.unknowns.body_angle        = LSCR_res.unknowns.body_angle
-    state.unknowns.flight_path_angle = LSCR_res.unknowns.body_angle - LSCR_res.conditions.aerodynamics.angle_of_attack
+    segment.state.unknowns.body_angle        = LSCR_res.state.unknowns.body_angle
+    segment.state.unknowns.flight_path_angle = LSCR_res.state.unknowns.body_angle - LSCR_res.state.conditions.aerodynamics.angle_of_attack
     
     # Make the velocity vector
     v_mag = np.linalg.norm(LSCR_res.conditions.frames.inertial.velocity_vector,axis=1)
     
     if segment.air_speed_end is None:
-        state.unknowns.velocity =  np.reshape(v_mag[1:],(-1, 1))/segment.air_speed_start
+        segment.state.unknowns.velocity =  np.reshape(v_mag[1:],(-1, 1))/segment.air_speed_start
     elif segment.air_speed_end is not None:    
-        state.unknowns.velocity = np.reshape(v_mag[1:-1],(-1, 1))/segment.air_speed_start
+        segment.state.unknowns.velocity = np.reshape(v_mag[1:-1],(-1, 1))/segment.air_speed_start

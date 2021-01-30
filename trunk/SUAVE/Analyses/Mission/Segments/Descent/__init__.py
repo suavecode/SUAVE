@@ -10,4 +10,4 @@ from .Linear_Mach_Constant_Rate import Linear_Mach_Constant_Rate
 from .Constant_EAS_Constant_Rate import Constant_EAS_Constant_Rate
 from .Constant_CAS_Constant_Rate import Constant_CAS_Constant_Rate
 from .Unknown_Throttle import Unknown_Throttle
-from Glide import Glide
+from .Glide import Glide
