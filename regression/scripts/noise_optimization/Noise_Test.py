@@ -89,7 +89,7 @@ def setup():
         [ 'design_TOW'                   , 68520.   , ( 20000.    ,100000.   ) , 68520.  ,       1*Units.kg],
         [ 'noise_takeoff_speed_increase' ,    10.0  , (    10.    ,    20.   ) ,    10.0 ,     1*Units.knots],
         [ 'noise_cutback_altitude'       ,   304.8  , (   240.    ,   400.   ) ,   304.8 ,    1*Units.meter],
-    ])
+    ],dtype=object)
 
     # -------------------------------------------------------------------
     #  Objective
@@ -99,7 +99,7 @@ def setup():
 
         [ 'noise_cumulative_margin', 17, 1*Units.less ],
 
-    ])
+    ],dtype=object)
 
 
     # -------------------------------------------------------------------
@@ -123,7 +123,7 @@ def setup():
         [ 'max_throttle' , '<', 1., 1., 1*Units.less],
         [ 'short_takeoff_field_length' , '<', 1330., 1330., 1*Units.meters],
         [ 'noise_cumulative_margin' , '>', 10., 10., 1*Units.less],
-    ])
+    ],dtype=object)
 
     # -------------------------------------------------------------------
     #  Aliases

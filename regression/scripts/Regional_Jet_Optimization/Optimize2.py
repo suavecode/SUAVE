@@ -72,7 +72,7 @@ def setup():
     problem.inputs = np.array([
         [ 'wing_area'                    ,  95    , (   90. ,   130.   ) ,   100. , 1*Units.meter**2],
         [ 'cruise_altitude'              ,  11    , (   9   ,    14.   ) ,   10.  , 1*Units.km],
-    ])
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     # Objective
@@ -82,7 +82,7 @@ def setup():
     # [ tag, scaling, units ]
     problem.objective = np.array([
         [ 'fuel_burn', 10000, 1*Units.kg ]
-    ])
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     # Constraints
@@ -91,7 +91,7 @@ def setup():
     # [ tag, sense, edge, scaling, units ]
     problem.constraints = np.array([
         [ 'design_range_fuel_margin' , '>', 0., 1E-1, 1*Units.less], #fuel margin defined here as fuel 
-    ])
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     #  Aliases

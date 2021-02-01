@@ -31,7 +31,7 @@ def main():
         [ 'x1' , '=',   0., 1., 1*Units.less],
         [ 'x2' , '>',   1., 1., 1*Units.less],
         [ 'x2' , '<',   2., 1., 1*Units.less],
-    ])        
+    ],dtype=object)        
     print('\n\n Checking basic additive with one active constraint...') 
     # suppress iteration printout 
     Nexus.translate(problem)
@@ -65,7 +65,7 @@ def main():
         [ 'x1' , '=',   0., 1., 1*Units.less],
         [ 'x2' , '>',   1., 1., 1*Units.less],
         [ 'x2' , '<',   2., 1., 1*Units.less],
-    ])          
+    ],dtype=object)          
     # suppress iteration printout 
     sys.stdout = open(os.devnull,'w')      
     outputs = scipy_setup.SciPy_Solve(problem, solver='differential_evolution' , sense_step = 1.4901161193847656e-08, pop_size =  10 , prob_seed = seed )  
@@ -91,7 +91,7 @@ def main():
         [ 'x1' , '>', -10., 1., 1*Units.less],
         [ 'x2' , '>',   1., 1., 1*Units.less],
         [ 'x2' , '<',   2., 1., 1*Units.less],
-    ])     
+    ],dtype=object)     
     print('\n\n Checking particle swarm optimization algorithm')
     # suppress iteration printout 
     sys.stdout = open(os.devnull,'w')      
@@ -129,7 +129,7 @@ def setup(solver_name):
     #   [ tag   , initial,(   lb   ,   ub   )     , scaling , units ]
         [ 'x1'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , 1*Units.less],
         [ 'x2'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , 1*Units.less],
-    ])
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     # Objective
@@ -139,7 +139,7 @@ def setup(solver_name):
     # [ tag, scaling, units ]
     problem.objective = np.array([
         ['y',1.,1*Units.less]
-    ])
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     # Constraints

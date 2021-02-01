@@ -27,7 +27,7 @@ def main():
     problem          = setup()
     problem.optimization_problem.inputs = np.array([
         [ 'wing_area'       ,  95, (   90. ,   120.   ) ,   100. , 1*Units.meter**2],
-        [ 'cruise_altitude' ,  11, (   10   ,   13.   ) ,   10.  , 1*Units.km]])
+        [ 'cruise_altitude' ,  11, (   10   ,   13.   ) ,   10.  , 1*Units.km]],dtype=object)
     
     outputs_sweep    = linear_sweep(problem)
     truth_obj_sweeps = [[6789.56688781, 6925.72625581]]

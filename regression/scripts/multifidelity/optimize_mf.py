@@ -45,7 +45,7 @@ def main():
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., 1*Units.less],
         [ 'x2' , '>', -50., 1., 1*Units.less],
-    ])    
+    ],dtype=object)    
     
     print('Checking basic additive with no active constraints...')
     outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=1e-8,print_output=False)
@@ -69,7 +69,7 @@ def main():
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., 1*Units.less],
         [ 'x2' , '>',   1., 1., 1*Units.less],
-    ])    
+    ],dtype=object)    
     
     print('Checking basic additive with one active constraint...')
     outputs = solver.Additive_Solve(problem,max_iterations=1000,num_samples=20,tolerance=1e-8,print_output=False)
@@ -93,7 +93,7 @@ def main():
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '=',   2., 1., 1*Units.less],
         [ 'x2' , '<',  -1., 1., 1*Units.less],
-    ])    
+    ],dtype=object)    
     
     print('Checking basic additive with two active constraints...')
     outputs = solver.Additive_Solve(problem,max_iterations=1000,num_samples=20,tolerance=1e-8,print_output=False)
@@ -119,7 +119,7 @@ def main():
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., 1*Units.less],
         [ 'x2' , '>', -50., 1., 1*Units.less],
-    ])    
+    ],dtype=object)    
     
     print('Checking MEI additive with no active constraint...')
     outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
@@ -143,7 +143,7 @@ def main():
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., 1*Units.less],
         [ 'x2' , '>',   1., 1., 1*Units.less],
-    ])    
+    ],dtype=object)    
     
     print('Checking MEI additive with one active constraint...')
     outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
@@ -167,7 +167,7 @@ def main():
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '=',   2., 1., 1*Units.less],
         [ 'x2' , '<',  -1., 1., 1*Units.less],
-    ])    
+    ],dtype=object)    
     
     print('Checking MEI additive with two active constraints...')
     outputs = solver.Additive_Solve(problem,max_iterations=10,num_samples=20,tolerance=tol,print_output=False,opt_type='MEI')
@@ -193,7 +193,7 @@ def main():
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., 1*Units.less],
         [ 'x2' , '>', -50., 1., 1*Units.less],
-    ])    
+    ],dtype=object)    
     
     tr = Trust_Region()
     problem.trust_region = tr
@@ -220,7 +220,7 @@ def main():
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., 1*Units.less],
         [ 'x2' , '>',   1., 1., 1*Units.less],
-    ])   
+    ],dtype=object)   
     
     tr = Trust_Region()
     problem.trust_region = tr
@@ -247,7 +247,7 @@ def main():
     problem.optimization_problem.constraints = np.array([
         [ 'x1' , '=',   2., 1., 1*Units.less],
         [ 'x2' , '<',  -1., 1., 1*Units.less],
-    ])     
+    ],dtype=object)     
     
     tr = Trust_Region()
     problem.trust_region = tr
@@ -292,7 +292,7 @@ def setup():
     problem.inputs = np.array([
         [ 'x1'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , 1*Units.less],
         [ 'x2'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , 1*Units.less],
-    ])
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     # Objective
@@ -302,7 +302,7 @@ def setup():
     # [ tag, scaling, units ]
     problem.objective = np.array([
         ['y',1.,1*Units.less]
-    ])
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     # Constraints
@@ -312,7 +312,7 @@ def setup():
     problem.constraints = np.array([
         [ 'x1' , '>', -10., 1., 1*Units.less],
         [ 'x2' , '>', -50., 1., 1*Units.less],
-    ])
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     #  Aliases
