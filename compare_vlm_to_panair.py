@@ -63,9 +63,9 @@ def main():
     #arrow_biconvex_file_su2 = '/Users/emiliobotero/Dropbox/Postdoc/exo/Stanford-Exosonic_Aerodynamics/arrow_biconvex_su2.csv'
     #vsp_arrow_biconvex     = import_csv(arrow_biconvex_file_vsp)
     #pan_arrow_biconvex     = import_csv(arrow_biconvex_file_pan)
-    #su2_arrow_biconvex     = import_csv(arrow_biconvex_file_su2)
-    #arrow_biconvex         = arrw_biconvex()
-    arrow_biconvex           = arrw_biconvex_dih()
+    #su2_arrow_biconvex     = import_c8sv(arrow_biconvex_file_su2)
+    arrow_biconvex         = arrw_biconvex()
+    #arrow_biconvex           = arrw_biconvex_dih()
     #write(arrow_biconvex,'Check')
     conditions             = setup_conditions()
     results_arrow_biconvex = analyze(arrow_biconvex, conditions)
@@ -180,6 +180,7 @@ def plot_results(name,vlm_results,panair_results,length,label_name='Panair'):
     fig3.colorbar(vlm_cd, shrink=0.5, aspect=5,label='VLM')
     fig3.colorbar(pan_cd, shrink=0.5, aspect=5,label=label_name)    
     
+    
     return
 
 def plot_results_2D(name,vlm_results,panair_results,length):
@@ -240,8 +241,8 @@ def analyze(config,conditions, use_MCM = False):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 25
-    settings.number_chordwise_vortices = 15
+    settings.number_spanwise_vortices  = 3
+    settings.number_chordwise_vortices = 2
     settings.propeller_wake_model      = None
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)

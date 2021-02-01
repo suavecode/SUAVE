@@ -230,14 +230,17 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     XB1 = VD.XB1*ones
     YA1 = VD.YA1*ones
     YB1 = VD.YB1*ones
+    ZA1 = VD.ZA1*ones
+    ZB1 = VD.ZB1*ones    
     
     
     ## This is only valid for calculating LE sweeps
     boolean = YBH<0. 
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
         
-    panel_sweep = (XB1-XA1)/(YB1-YA1)
-    TLE = panel_sweep[:,0::n_cw]
+    #panel_sweep = (XB1-XA1)/np.sqrt((YB1-YA1)**2 + (ZB1-ZA1)**2)
+    #TLE = panel_sweep[:,0::n_cw]
+    TLE = t[:,0::n_cw]
     TLE = np.repeat(TLE,n_cw,axis=1)
     T2  = TLE**2
     STB = np.zeros_like(u)
@@ -345,10 +348,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     XX = XLE
     
     
-    SPC  = 0. # Leading edge suction multiplier. See documentation. This is a negative integer if used
+    SPC    = 0. # Leading edge suction multiplier. See documentation. This is a negative integer if used
     DCP_LE = DCP[:,0::n_cw]
-    CLE  = 0.5* DCP_LE *np.sqrt(XX)*FLAX
-    CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
+    CLE    = 0.5* DCP_LE *np.sqrt(XX)*FLAX
+    CSUC   = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
     
     # SLE is slope at leading edge
     SLE  = SLOPE[:,0::n_cw]
@@ -430,7 +433,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     Velocity_Profile.V        = V_distribution 
     Velocity_Profile.dt       = dt
     
-    # Trying to see if we can integrate pressures to get CL and CD
+    ## Trying to see if we can integrate pressures to get CL and CD
     #panel_areas = VD.panel_areas
     #normals     = VD.normals
     #normals     = np.broadcast_to(normals,(len(mach),n_cp,3))
@@ -455,7 +458,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     #CL       = np.atleast_2d(np.sum(lift_strip,axis=1)/Sref).T
     #CDi      = np.atleast_2d(np.sum(drag_strip,axis=1)/Sref).T
     
-    #CM       = np.zeros_like(CL)
+    ##CM       = np.zeros_like(CL)
     
     
     
