@@ -27,10 +27,10 @@ def main():
     solver_name = 'SLSQP'
     problem     = setup(solver_name)
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x1' , '=',   0., 1., Units.less],
-        [ 'x2' , '>',   1., 1., Units.less],
-        [ 'x2' , '<',   2., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x1' , '=',   0., 1., 1*Units.less],
+        [ 'x2' , '>',   1., 1., 1*Units.less],
+        [ 'x2' , '<',   2., 1., 1*Units.less],
     ])        
     print('\n\n Checking basic additive with one active constraint...') 
     # suppress iteration printout 
@@ -61,10 +61,10 @@ def main():
     solver_name = 'differential_evolution' 
     problem     = setup(solver_name)
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x1' , '=',   0., 1., Units.less],
-        [ 'x2' , '>',   1., 1., Units.less],
-        [ 'x2' , '<',   2., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x1' , '=',   0., 1., 1*Units.less],
+        [ 'x2' , '>',   1., 1., 1*Units.less],
+        [ 'x2' , '<',   2., 1., 1*Units.less],
     ])          
     # suppress iteration printout 
     sys.stdout = open(os.devnull,'w')      
@@ -88,9 +88,9 @@ def main():
     solver_name = 'particle_swarm_optimization'
     problem     = setup(solver_name)        
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x2' , '>',   1., 1., Units.less],
-        [ 'x2' , '<',   2., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x2' , '>',   1., 1., 1*Units.less],
+        [ 'x2' , '<',   2., 1., 1*Units.less],
     ])     
     print('\n\n Checking particle swarm optimization algorithm')
     # suppress iteration printout 
@@ -127,8 +127,8 @@ def setup(solver_name):
 
     problem.inputs = np.array([
     #   [ tag   , initial,(   lb   ,   ub   )     , scaling , units ]
-        [ 'x1'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , Units.less],
-        [ 'x2'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , Units.less],
+        [ 'x1'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , 1*Units.less],
+        [ 'x2'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , 1*Units.less],
     ])
     
     # -------------------------------------------------------------------
@@ -138,7 +138,7 @@ def setup(solver_name):
     # throw an error if the user isn't specific about wildcards
     # [ tag, scaling, units ]
     problem.objective = np.array([
-        ['y',1.,Units.less]
+        ['y',1.,1*Units.less]
     ])
     
     # -------------------------------------------------------------------
@@ -147,8 +147,8 @@ def setup(solver_name):
     
     # [ tag, sense, edge, scaling, units ]
     problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x2' , '>', -50., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x2' , '>', -50., 1., 1*Units.less],
     ])
     
     # -------------------------------------------------------------------

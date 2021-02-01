@@ -43,8 +43,8 @@ def main():
     solver = set_add_solver()
     
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x2' , '>', -50., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x2' , '>', -50., 1., 1*Units.less],
     ])    
     
     print('Checking basic additive with no active constraints...')
@@ -67,8 +67,8 @@ def main():
     solver = set_add_solver()
     
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x2' , '>',   1., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x2' , '>',   1., 1., 1*Units.less],
     ])    
     
     print('Checking basic additive with one active constraint...')
@@ -91,8 +91,8 @@ def main():
     solver = set_add_solver()
     
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '=',   2., 1., Units.less],
-        [ 'x2' , '<',  -1., 1., Units.less],
+        [ 'x1' , '=',   2., 1., 1*Units.less],
+        [ 'x2' , '<',  -1., 1., 1*Units.less],
     ])    
     
     print('Checking basic additive with two active constraints...')
@@ -117,8 +117,8 @@ def main():
     solver = set_add_solver()
     
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x2' , '>', -50., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x2' , '>', -50., 1., 1*Units.less],
     ])    
     
     print('Checking MEI additive with no active constraint...')
@@ -141,8 +141,8 @@ def main():
     solver = set_add_solver()
     
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x2' , '>',   1., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x2' , '>',   1., 1., 1*Units.less],
     ])    
     
     print('Checking MEI additive with one active constraint...')
@@ -165,8 +165,8 @@ def main():
     solver = set_add_solver()
     
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '=',   2., 1., Units.less],
-        [ 'x2' , '<',  -1., 1., Units.less],
+        [ 'x1' , '=',   2., 1., 1*Units.less],
+        [ 'x2' , '<',  -1., 1., 1*Units.less],
     ])    
     
     print('Checking MEI additive with two active constraints...')
@@ -191,8 +191,8 @@ def main():
     # ------------------------------------------------------------------     
     
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x2' , '>', -50., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x2' , '>', -50., 1., 1*Units.less],
     ])    
     
     tr = Trust_Region()
@@ -218,8 +218,8 @@ def main():
     # ------------------------------------------------------------------     
     
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x2' , '>',   1., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x2' , '>',   1., 1., 1*Units.less],
     ])   
     
     tr = Trust_Region()
@@ -245,8 +245,8 @@ def main():
     # ------------------------------------------------------------------     
     
     problem.optimization_problem.constraints = np.array([
-        [ 'x1' , '=',   2., 1., Units.less],
-        [ 'x2' , '<',  -1., 1., Units.less],
+        [ 'x1' , '=',   2., 1., 1*Units.less],
+        [ 'x2' , '<',  -1., 1., 1*Units.less],
     ])     
     
     tr = Trust_Region()
@@ -290,8 +290,8 @@ def setup():
 
     #   [ tag                            , initial, (lb,ub)             , scaling , units ]
     problem.inputs = np.array([
-        [ 'x1'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , Units.less],
-        [ 'x2'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , Units.less],
+        [ 'x1'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , 1*Units.less],
+        [ 'x2'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , 1*Units.less],
     ])
     
     # -------------------------------------------------------------------
@@ -301,7 +301,7 @@ def setup():
     # throw an error if the user isn't specific about wildcards
     # [ tag, scaling, units ]
     problem.objective = np.array([
-        ['y',1.,Units.less]
+        ['y',1.,1*Units.less]
     ])
     
     # -------------------------------------------------------------------
@@ -310,8 +310,8 @@ def setup():
     
     # [ tag, sense, edge, scaling, units ]
     problem.constraints = np.array([
-        [ 'x1' , '>', -10., 1., Units.less],
-        [ 'x2' , '>', -50., 1., Units.less],
+        [ 'x1' , '>', -10., 1., 1*Units.less],
+        [ 'x2' , '>', -50., 1., 1*Units.less],
     ])
     
     # -------------------------------------------------------------------
