@@ -57,6 +57,7 @@ class Propeller(Energy_Component):
         self.twist_distribution        = 0.0
         self.chord_distribution        = 0.0
         self.mid_chord_aligment        = 0.0
+        self.thickness_to_chord        = 0.0
         self.blade_solidity            = 0.0
         self.thrust_angle              = 0.0
         self.pitch_command             = 0.0

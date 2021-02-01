@@ -4,6 +4,7 @@
 # Created:  Mar 2019, M. Clarke
 # Modified: Mar 2020, M. Clarke
 #           Jan 2021, E. Botero
+#           Jan 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,25 +20,23 @@ from scipy.interpolate        import RectBivariateSpline
 import numpy as np
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def compute_airfoil_polars(a_geo,a_polar):
+def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
     obtaining a more accurate prediction of wing and blade loading. Pre stall characteristics 
     are obtained in the from of a text file of airfoil polar data obtained from airfoiltools.com
     
     Assumptions:
-    Uses AERODAS forumatuon for post stall characteristics 
+    Uses AERODAS formulation for post stall characteristics 
 
     Source:
     Models of Lift and Drag Coefficients of Stalled and Unstalled Airfoils in Wind Turbines and Wind Tunnels
     by D Spera, 2008
 
     Inputs:
-    propeller. 
-        hub_radius         [m]
-        tip_radius         [m]
-        chord_distribution [unitless]
-    airfoils                <string>
+    a_geo                  <string>
+    a_polar                <string>
+    use_pre_stall_data     [Boolean]
            
 
     Outputs:
@@ -149,7 +148,10 @@ def compute_airfoil_polars(a_geo,a_polar):
             # Pack this loop
             CL[i,j,:] = CL_ij
             CD[i,j,:] = CD_ij
-           
+            
+            if use_pre_stall_data == True:
+                CL[i,j,:], CD[i,j,:] = apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL[i,j,:], CD[i,j,:])
+                
         CL_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CL[i,:,:])  
         CD_sur = RectBivariateSpline(airfoil_polar_data.reynolds_number[i],AoA_sweep_radians, CD[i,:,:])   
         
@@ -160,6 +162,26 @@ def compute_airfoil_polars(a_geo,a_polar):
     airfoil_data.lift_coefficient_surrogates   = CL_surs
     airfoil_data.drag_coefficient_surrogates   = CD_surs 
     
+    airfoil_data.lift_coefficients_from_polar  = airfoil_polar_data.lift_coefficients
+    airfoil_data.drag_coefficients_from_polar  = airfoil_polar_data.drag_coefficients
+    airfoil_data.re_from_polar  = airfoil_polar_data.reynolds_number
+    airfoil_data.aoa_from_polar = airfoil_polar_data.angle_of_attacks
+    
     return airfoil_data
 
- 
+def apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL, CD):
+    # Coefficients in pre-stall regime taken from experimental data:
+    aoa_locs = (AoA_sweep_deg>=airfoil_aoa[0]) * (AoA_sweep_deg<=airfoil_aoa[-1])
+    aoa_in_data = AoA_sweep_deg[aoa_locs]
+    
+    # if the data is within experimental use it, if not keep the surrogate values
+    CL[aoa_locs] = airfoil_cl[abs(aoa_in_data[:,None] - airfoil_aoa[None,:]).argmin(axis=-1)]
+    CD[aoa_locs] = airfoil_cd[abs(aoa_in_data[:,None] - airfoil_aoa[None,:]).argmin(axis=-1)]
+    
+    # remove kinks/overlap between pre- and post-stall                
+    data_lb = np.where(CD == airfoil_cd[0])[0][0]
+    data_ub = np.where(CD == airfoil_cd[-1])[0][-1]
+    CD[0:data_lb] = np.maximum(CD[0:data_lb], CD[data_lb]*np.ones_like(CD[0:data_lb]))
+    CD[data_ub:]  = np.maximum(CD[data_ub:],  CD[data_ub]*np.ones_like(CD[data_ub:])) 
+    
+    return CL, CD
