@@ -84,8 +84,10 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	
 	if units_type == 'SI':
 		units_factor = Units.meter * 1.
-	else:
+	elif units_type == 'imperial':
 		units_factor = Units.foot * 1.
+	elif units_type == 'inches':
+		units_factor = Units.inch * 1.	
 		
 	if vsp.GetGeomName(fuselage_id):
 		fuselage.tag = vsp.GetGeomName(fuselage_id)

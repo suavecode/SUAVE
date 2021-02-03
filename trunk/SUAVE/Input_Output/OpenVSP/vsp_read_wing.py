@@ -89,8 +89,10 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	# Set the units
 	if units_type == 'SI':
 		units_factor = Units.meter * 1.
-	else:
+	elif units_type == 'imperial':
 		units_factor = Units.foot * 1.
+	elif units_type == 'inches':
+		units_factor = Units.inch * 1.		
 
 	# Apply a tag to the wing
 	if vsp.GetGeomName(wing_id):

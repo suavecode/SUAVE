@@ -123,10 +123,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # pack vortex distribution 
     geometry.vortex_distribution = VD
     
-    #from SUAVE.Plots.Geometry_Plots import plot_vehicle
-    #plot_vehicle(geometry)    
-    #import matplotlib.pyplot as plt  
-    #plt.show()
+    from SUAVE.Plots.Geometry_Plots import plot_vehicle
+    plot_vehicle(geometry)    
+    import matplotlib.pyplot as plt  
+    plt.show()
     
     # Build induced velocity matrix, C_mn
     C_mn, DW_mn, s, t, CHORD, RFLAG = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
