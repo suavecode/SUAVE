@@ -281,7 +281,6 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     EYE         = np.tile(EYE,np.sum(mach>1))
     CHORD_sup   = CHORD[sup]
     FLAX        = 1
-
     
     U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,t,CHORD_sup,RNMAX,FLAX,EYE,n_cw,n_cp,n_w,RFLAG_sup)
     

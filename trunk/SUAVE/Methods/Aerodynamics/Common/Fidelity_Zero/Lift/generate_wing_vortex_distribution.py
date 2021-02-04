@@ -109,6 +109,7 @@ def generate_wing_vortex_distribution(geometry,settings):
     VD.Y_SW   = np.empty(shape=[0,1])
     n_sw = settings.number_spanwise_vortices 
     n_cw = settings.number_chordwise_vortices     
+    spc  = settings.spanwise_cosine_spacing
 
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
@@ -135,13 +136,16 @@ def generate_wing_vortex_distribution(geometry,settings):
         if sym_para is True :
             span = span/2
         
-        # discretize wing using cosine spacing
-        n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
-        thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
-        y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing
+        if spc == True:
+            
+            # discretize wing using cosine spacing
+            n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
+            thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
+            y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing
+        else:
         
-        # discretize wing using linear spacing
-        #y_coordinates   = np.linspace(0,span,n_sw+1) 
+            # discretize wing using linear spacing
+            y_coordinates   = np.linspace(0,span,n_sw+1) 
         
         # create empty vectors for coordinates 
         xah   = np.zeros(n_cw*n_sw)

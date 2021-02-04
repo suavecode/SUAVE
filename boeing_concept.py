@@ -91,6 +91,7 @@ def analyze(config,conditions):
     settings.number_spanwise_vortices  = 25
     settings.number_chordwise_vortices = 10
     settings.propeller_wake_model      = None
+    settings.spanwise_cosine_spacing   = True
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
 

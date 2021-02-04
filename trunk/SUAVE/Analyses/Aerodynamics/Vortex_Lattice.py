@@ -67,6 +67,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings                                = Data()
         self.settings.number_spanwise_vortices       = 5
         self.settings.number_chordwise_vortices      = 3
+        settings.spanwise_cosine_spacing             = True
         self.settings.vortex_distribution            = Data()   
         self.settings.initial_timestep_offset        = 0
         self.settings.wake_development_time          = 0.05

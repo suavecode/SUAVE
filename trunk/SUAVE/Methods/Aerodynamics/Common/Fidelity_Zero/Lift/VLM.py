@@ -123,10 +123,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # pack vortex distribution 
     geometry.vortex_distribution = VD
     
-    from SUAVE.Plots.Geometry_Plots import plot_vehicle
-    plot_vehicle(geometry)    
-    import matplotlib.pyplot as plt  
-    plt.show()
+    #from SUAVE.Plots.Geometry_Plots import plot_vehicle
+    #plot_vehicle(geometry)    
+    #import matplotlib.pyplot as plt  
+    #plt.show()
     
     # Build induced velocity matrix, C_mn
     C_mn, DW_mn, s, t, CHORD, RFLAG = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
@@ -299,7 +299,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     KX[K>1]   = K[K>1]-1
     IRTX[K>1] = IRT[[K>1]] - 1
     
-    # The exact results of IRTX will not match VORLAX because of differencing indexing to python
+    # The exact results of IRTX will not match VORLAX because of indexing differences in python
     
     RKX = KX
     X1  = .5 *(1. - np.cos (RKX *PION))
@@ -322,19 +322,33 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     SLOPE = (Z2c-Z1c)/(X2c-X1c)
     
-    ####################
-    #### NOT FINISHED
-    ####################
+    # Forward Indices
+    all_aft_indices = np.linspace(1,(n_w*n_cw*n_sw),(n_w*n_cw*n_sw),dtype=int)
+    all_for_indices = all_aft_indices-1
     
-    F1 = SLOPE*1.
-    #F1[K>1] = SLOPE
-    F2 = SLOPE*1
+    mask1 = np.ones_like(all_aft_indices,dtype=bool)
+    mask1[n_cw-1::n_cw] =False
+    
+    aft_indices = all_aft_indices[mask1]
+    for_indices = all_for_indices[mask1]
+    
+    
+    F1 = SLOPE
+    F1[:,aft_indices] = SLOPE[:,for_indices]
+
+    F2 = np.zeros_like(SLOPE)
+    F2[:,for_indices] = SLOPE[:,aft_indices]
+    
+    # Now fill in the LE values for F2
+    mask2 = np.zeros_like(all_aft_indices,dtype=bool)
+    mask3 = np.zeros_like(all_aft_indices,dtype=bool)
+    
+    mask2[0::n_cw] = True
+    mask3[1::n_cw] = True
+    
+    F2[:,all_for_indices[mask2]] = SLOPE[:,all_for_indices[mask3]] 
     
     ZETA = 0.
-    
-    ####################
-    #### NOT FINISHED 
-    ####################
     
     TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
     TX   = TANX - ZETA
@@ -405,7 +419,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     CDC  = CDC * CHORD_strip
     CMTC = BMLE + CNC * (0.25 - XLE)
     
-    ES    = 2*s[:,:,0]
+    ES    = 2*s[:,0,:]
     ES    = ES[:,0::n_cw]
     STRIP = ES *CHORD_strip
     LIFT  = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
