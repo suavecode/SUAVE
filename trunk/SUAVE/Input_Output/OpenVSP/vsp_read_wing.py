@@ -197,7 +197,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 				proj_span_sum += segment_spans[i] * np.cos(segment_dihedral[i])	
 				span_sum      += segment_spans[i]
 			else:
-				segment.root_chord_percent    = (vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(i-1))) * units_factor /total_chord
+				segment.root_chord_percent    = (vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(i-1))) * units_factor /root_chord
 		
 			# XSec airfoil
 			jj = i-1  # Airfoil index i-1 because VSP airfoils and sections are one index off relative to SUAVE.
@@ -252,11 +252,11 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		wing.dihedral              = np.arccos(proj_span_sum_alt / span_sum_alt) 
 		wing.sweeps.quarter_chord  = -np.arctan(sweeps_sum / span_sum_alt)  # Minus sign makes it positive sweep.
 		
-		# Add a tip segment, all values are zero except the tip chord
+		## Add a tip segment, all values are zero except the tip chord
 		tc = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1)) * units_factor
-		segment = SUAVE.Components.Wings.Segment()
-		segment.percent_span_location = 1.0
-		segment.root_chord_percent    = tc / root_chord	
+		#segment = SUAVE.Components.Wings.Segment()
+		#segment.percent_span_location = 1.0
+		#segment.root_chord_percent    = tc / root_chord	
 		
 		# Chords
 		wing.chords.root              = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_0') * units_factor

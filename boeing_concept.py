@@ -1,4 +1,4 @@
-# boeing_concept.py
+#boeing_concept.py
 
 # Created:  Feb 2021, E. Botero
 # Modified: 
@@ -9,10 +9,12 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import matplotlib.pyplot as plt  
 
 from SUAVE.Core import Data, Units
 from SUAVE.Input_Output.OpenVSP.vsp_read import vsp_read
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_segmented_planform import wing_segmented_planform
 
 # ----------------------------------------------------------------------
 #   Main
@@ -21,7 +23,13 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM
 def main():
 
     # First import the geometry
-    vehicle = vsp_read('boeing_n_d_t',units_type='inches')
+    vehicle = vsp_read('boeing_n_d_t.vsp3',units_type='inches')
+    
+    vehicle.fuselages.pop('fueslage')
+    vehicle.wings.pop('tail')
+        
+    vehicle.reference_area = vehicle.wings.gross_wing_b__t___d_.areas.reference
+        
     
     # Setup conditions
     conditions = setup_conditions()
@@ -49,8 +57,11 @@ def setup_conditions():
     #aoas  = np.array([6.,2.,2.,6.]) * Units.degrees
     #machs = np.array([0.4,1.,2.0,2.0])    
     
-    aoas  = np.array([6.,6]) * Units.degrees
-    machs = np.array([0.4,1.4])        
+    #aoas  = np.array([6.,6]) * Units.degrees
+    #machs = np.array([0.4,1.4]) 
+    
+    aoas  = np.array([0.,2.,4.,6.,8.,10,0.,2.,4.,6.,8.,10,0.,2.,4.,6.,8.,10,0.,2.,4.,6.,8.,10]) * Units.degrees
+    machs = np.array([1.4,1.4,1.4,1.4,1.4,1.4,1.6,1.6,1.6,1.6,1.6,1.6,1.8,1.8,1.8,1.8,1.8,1.8,2.0,2.0,2.0,2.0,2.0,2.0])        
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()
@@ -77,14 +88,13 @@ def analyze(config,conditions):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 2
-    settings.number_chordwise_vortices = 2
+    settings.number_spanwise_vortices  = 25
+    settings.number_chordwise_vortices = 10
     settings.propeller_wake_model      = None
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
 
     results.CDi  = CDi
-    results.CD   = CD
     results.CL   = CL
     results.mach = conditions.freestream.mach_number
     results.aoa  = conditions.aerodynamics.angle_of_attack
