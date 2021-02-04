@@ -25,8 +25,8 @@ def main():
     # First import the geometry
     vehicle = vsp_read('boeing_n_d_t.vsp3',units_type='inches')
     
-    vehicle.fuselages.pop('fueslage')
-    vehicle.wings.pop('tail')
+    #vehicle.fuselages.pop('fueslage')
+    #vehicle.wings.pop('tail')
         
     vehicle.reference_area = vehicle.wings.gross_wing_b__t___d_.areas.reference
         

@@ -123,13 +123,13 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # pack vortex distribution 
     geometry.vortex_distribution = VD
     
-    #from SUAVE.Plots.Geometry_Plots import plot_vehicle
-    #plot_vehicle(geometry)    
-    #import matplotlib.pyplot as plt  
-    #plt.show()
+    from SUAVE.Plots.Geometry_Plots import plot_vehicle
+    plot_vehicle(geometry)    
+    import matplotlib.pyplot as plt  
+    plt.show()
     
     # Build induced velocity matrix, C_mn
-    C_mn, DW_mn, s, t, CHORD, RFLAG = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
+    C_mn, s, t, CHORD, RFLAG = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
      
     # Compute flow tangency conditions   
     inv_root_beta           = np.zeros_like(mach)
@@ -156,44 +156,19 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     gamma    = np.linalg.solve(A,RHS)
     gamma_3d = np.repeat(np.atleast_3d(gamma), n_cp ,axis = 2 )
     u        = np.sum(C_mn[:,:,:,0]*gamma_3d, axis = 2)  
-    w        = np.sum(DW_mn[:,:,:,2]*gamma_3d, axis = 2) 
     
     ## ---------------------------------------------------------------------------------------
     ## STEP 10: Compute Pressure Coefficient
     ## ------------------ --------------------------------------------------------------------
-    
-    ## Calculate the vacuum and stagnation limits
-    #CPSTAG = np.ones_like(u)
-    #XM1    = np.ones_like(u)
-    #XM2    = np.zeros_like(u)
-    #XM3    = np.ones_like(u)
-    #XM4    = np.ones_like(u)
-    #XM5    = np.zeros_like(u)
-    #CPVAC  = -142.86 * np.ones_like(u)
-    B2     = np.tile((1 - mach**2),n_cp)
-    
-    ## Supersonic
-    #CPSTAG[B2<-0.92] = ((1.2 + .2 *B2[B2<-0.92] ) **3.5 - 1.) /(.7*(1.+B2[B2<-0.92] ))
-    #CPVAC[B2<-0.92]  = - 1.0 /(1.0 + B2[B2<-0.92])
-    #XM1[B2<-0.92]    = 1.4286 /(1.0 + B2[B2<-0.92])
-    #XM2[B2<-0.92]    = 1.0
-    #XM3[B2<-0.92]    = 0.2 *(1.0 + B2[B2<-0.92])
-    #XM4[B2<-0.92]    = 3.5
-    #XM5[B2<-0.92]    = 1.0   
-    
+
     # COMPUTE FREE-STREAM AND ONSET FLOW PARAMETERS. If yaw is ever added these equations would change
+    B2     = np.tile((1 - mach**2),n_cp)
     COSALF = np.tile(np.cos(aoa),n_cp)
     FORAXL = COSALF
     
-    #FORLAT = 0.
-    #LAX    = 1.0
-    FLAX   = 1.0 # Assume cosine spaced panels (LAX)
-    
-    #KC     =  # The chordwise panel number. All are positve numbers
-    #KS     =  # The spanwise panel number
+    FLAX   = 1.0 # Assume linear spaced panels in the chordwise direction (LAX)
     
     RNMAX   = n_cw*1.
-    #PION    = np.pi/RNMAX
     FACTOR  = FORAXL
     CHORD   = CHORD[:,0,:]
     t       = t[:,0,:]
@@ -212,19 +187,13 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     COSALF  = np.tile(np.cos(aoa),n_cp)
     SINPSI  = 0.
     COPSI   = 1.
-    COSIN   = 0.
-    COSINP  = 0.
-    COSCOS  = COSALF *COPSI
-    PITCH   = 0.
-    ROLL    = 0.
-    YAW     = 0.
     
     # Work panel by panel
     SURF = np.array(VD.wing_areas)
     SREF = Sref
 
     
-    ## Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
+    # Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
     YBH = VD.YBH*ones
     XA1 = VD.XA1*ones
     XB1 = VD.XB1*ones
@@ -234,12 +203,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     ZB1 = VD.ZB1*ones    
     
     
-    ## This is only valid for calculating LE sweeps
+    # This is only valid for calculating LE sweeps
     boolean = YBH<0. 
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
         
-    #panel_sweep = (XB1-XA1)/np.sqrt((YB1-YA1)**2 + (ZB1-ZA1)**2)
-    #TLE = panel_sweep[:,0::n_cw]
     TLE = t[:,0::n_cw]
     TLE = np.repeat(TLE,n_cw,axis=1)
     T2  = TLE**2
@@ -271,7 +238,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     SICPLE = 0.0 #  COUPLE (ABOUT STRIP CENTERLINE) DUE TO SIDESLIP (no sideslip)
     RJTS = JTS
-    GAF  = 0.5 + 0.5 *RJTS **2
     
     # SINF REFERENCES THE LOAD CONTRIBUTION OF IRT-VORTEX TO THE
     # STRIP NOMINAL AREA, I.E., AREA OF STRIP ASSUMING CONSTANT
@@ -477,30 +443,3 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     
     return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile
-
-
-
-
-##  VX, VY, VZ ARE THE FLOW ONSET VELOCITY COMPONENTS AT THE LEADING
-##  EDGE (STRIP MIDPOINT). VX, VY, VZ AND THE ROTATION RATES ARE
-##  REFERENCED TO THE FREE STREAM VELOCITY. 
-
-## Rotation terms are removed
-#VX = COSCOS
-#VY = COSINP
-#VZ = SINALF 
-
-
-## CCNTL AND SCNTL ARE DIRECTION COSINE PARAMETERS OF TANGENT TO
-## CAMBERLINE AT LEADING EDGE.    
-#LE_slopes = SLOPE[:,0:n_cw]
-#SLE   =  np.tile(LE_slopes,n_cw)# LE edge slope
-#CCNTL = 1. /np.sqrt (1.0 + SLE **2)
-#SCNTL = SLE *CCNTL    
-
-
-## EFFINC = COMPONENT OF ONSET FLOW ALONG NORMAL TO CAMBERLINE AT
-##          LEADING EDGE.    
-
-#EFFINC = VX *SCNTL + VY *CCNTL *SID - VZ *CCNTL *COD
-#CLE = CLE-EFFINC

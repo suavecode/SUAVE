@@ -136,7 +136,7 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 		eff_diams.append(segment.effective_diameter)
 		
 		if ii != (fuselage.vsp_data.xsec_num-1): # Segment length: stored as length since previous segment. (last segment will have length 0.0.)
-			next_xsec = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii)
+			next_xsec = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii+1)
 			X_Loc_P_p = vsp.GetXSecParm(next_xsec, 'XLocPercent')
 			percent_x_loc_p1 = vsp.GetParmVal(X_Loc_P_p) 
 			segment.length = fuselage.lengths.total*(percent_x_loc_p1 - segment.percent_x_location) * units_factor
