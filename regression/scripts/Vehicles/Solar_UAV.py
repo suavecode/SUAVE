@@ -168,18 +168,17 @@ def vehicle_setup():
     
     # Component 5 the Propeller
     # Design the Propeller
-    prop                     = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0
-    prop.freestream_velocity = 40.0 * Units['m/s']# freestream
-    prop.angular_velocity    = 150. * Units['rpm']
-    prop.tip_radius          = 4.25 * Units.meters
-    prop.hub_radius          = 0.05 * Units.meters
-    prop.design_Cl           = 0.7
-    prop.design_altitude     = 14.0 * Units.km
-    prop.design_thrust       = None
-    prop.design_power        = 3500.0 * Units.watts
-    prop                     = propeller_design(prop) 
-    net.propeller            = prop
+    prop                         = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_of_blades        = 2.0
+    prop.freestream_velocity     = 40.0 * Units['m/s']# freestream
+    prop.angular_velocity        = 150. * Units['rpm']
+    prop.tip_radius              = 4.25 * Units.meters
+    prop.hub_radius              = 0.05 * Units.meters
+    prop.design_Cl               = 0.7
+    prop.design_altitude         = 14.0 * Units.km
+    prop.design_thrust           = 110.  
+    prop                         = propeller_design(prop) 
+    net.propeller                = prop
 
     # Component 4 the Motor
     motor                      = SUAVE.Components.Energy.Converters.Motor()

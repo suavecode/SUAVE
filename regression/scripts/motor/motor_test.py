@@ -23,16 +23,20 @@ def main():
     '''This script checks the functions in in Motor.py used to compute motor torques 
     and output voltage and currents'''
     # Propeller 
-    prop                     = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0 
-    prop.freestream_velocity = 50.0
-    prop.angular_velocity    = 209.43951023931953
-    prop.tip_radius          = 1.5
-    prop.hub_radius          = 0.05
-    prop.design_Cl           = 0.7 
-    prop.design_altitude     = 0.0 * Units.km
-    prop.design_thrust       = 2271.2220451593753 
-    prop                     = propeller_design(prop)   
+    prop                         = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_of_blades        = 2.0 
+    prop.freestream_velocity     = 50.0
+    prop.angular_velocity        = 209.43951023931953
+    prop.tip_radius              = 1.5
+    prop.hub_radius              = 0.05
+    prop.design_Cl               = 0.7 
+    prop.design_altitude         = 0.0 * Units.km
+    prop.design_thrust           = 2271.2220451593753 
+    prop.airfoil_geometry        =  ['../Vehicles/NACA_4412.txt'] 
+    prop.airfoil_polars          = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
+    prop                         = propeller_design(prop)   
     
     # Motor
     #------------------------------------------------------------------
@@ -72,8 +76,7 @@ def main():
     conditions.freestream.velocity                      = np.array([[V,0,0]])
     conditions.propulsion.throttle                      = np.array([[1.0]])
     conditions.frames.body.transform_to_inertial        = np.array([np.eye(3)]) 
-    conditions.propulsion.propeller_power_coefficient   = np.array([[0.02]])
-    
+    conditions.propulsion.propeller_power_coefficient   = np.array([[0.02]]) 
     
     #------------------------------------
     # Motor Omega Function  
@@ -87,8 +90,7 @@ def main():
     
     # Run Motor Omega Function 
     omega_1  = motor_1.omega(conditions)   
-    torque_1 = motor_1.outputs.torque[0][0]
-    
+    torque_1 = motor_1.outputs.torque[0][0] 
     
     #------------------------------------
     # Motor Current Function 
@@ -116,8 +118,7 @@ def main():
     
     # Run Motor Torque Function 
     motor_3.torque(conditions)
-    torque_3 = motor_3.outputs.torque[0][0]
-    
+    torque_3 = motor_3.outputs.torque[0][0] 
     
     #------------------------------------
     # Motor Voltage-Current Function 
@@ -142,16 +143,16 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 209.31976194
-    torque_1_truth   = 1051.6063921247808 
-    current_2_truth  = 324.5501068473118 
-    torque_3_truth   = 615.5254990807443 
-    voltage_4_truth  = 400.22851683456736 
-    current_4_truth  = 553.06694141467 
+    omega_1_truth    = 163.57739828 
+    torque_1_truth   = 642.2133744789122
+    current_2_truth  = 280.91757593860325 
+    torque_3_truth   = 394.3370915620151
+    voltage_4_truth  = 464.8404166761976 
+    current_4_truth  = 456.24232586256414 
     power_out_truth  = 1960.0
-      
+  
     error = Data()
-    error.omega_test     = np.max(np.abs(omega_1_truth   - omega_1[0]  ))
+    error.omega_test     = np.max(np.abs(omega_1_truth   - omega_1[0][0]  ))
     error.torque_test_1  = np.max(np.abs(torque_1_truth  - torque_1 ))
     error.current_test_1 = np.max(np.abs(current_2_truth - current_2))
     error.torque_test_2  = np.max(np.abs(torque_3_truth  - torque_3 ))

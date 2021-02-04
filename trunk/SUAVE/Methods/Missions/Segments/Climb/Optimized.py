@@ -51,14 +51,12 @@ def unpack_unknowns(segment):
     theta    = segment.state.unknowns.body_angle
     gamma    = segment.state.unknowns.flight_path_angle
     vel      = segment.state.unknowns.velocity
-    alt0     = segment.altitude_start
-    altf     = segment.altitude_end
     vel0     = segment.air_speed_start
     velf     = segment.air_speed_end
 
     # Overide the speeds   
     if segment.air_speed_end is None:
-        v_mag =  np.concatenate([[[vel0]],vel*vel0])
+        v_mag =  np.concatenate([[[vel0]],vel])
     elif segment.air_speed_end is not None:
         v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
         
@@ -80,7 +78,7 @@ def unpack_unknowns(segment):
 
 ## @ingroup Methods-Missions-Segments-Climb   
 def update_differentials(segment):
-    """ On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0. This is different from the common method as it also includes the scaling of operators.
+    """ On each iteration creates the differentials and integration functions from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0. This is different from the common method as it also includes the scaling of operators.
 
         Assumptions:
         Works with a segment discretized in vertical position, altitude
@@ -150,9 +148,9 @@ def objective(segment):
     # If you have an objective set, either maximize or minimize
     if segment.objective is not None:
         if segment.minimize ==True:
-            objective = eval('state.'+segment.objective)
+            objective = eval('segment.state.'+segment.objective)
         else:
-            objective = -eval('state.'+segment.objective)
+            objective = -eval('segment.state.'+segment.objective)
     else:
         objective = 0.
     # No objective is just solved constraint like a normal mission    
@@ -232,12 +230,12 @@ def solve_linear_speed_constant_rate(segment):
     results = mini_mission.evaluate()
     LSCR_res = results.segments.analysis
     
-    segment.state.unknowns.body_angle        = LSCR_res.unknowns.body_angle
-    segment.state.unknowns.throttle          = LSCR_res.unknowns.throttle
-    segment.state.unknowns.flight_path_angle = LSCR_res.unknowns.body_angle - LSCR_res.conditions.aerodynamics.angle_of_attack
+    segment.state.unknowns.body_angle        = LSCR_res.state.unknowns.body_angle
+    segment.state.unknowns.throttle          = LSCR_res.state.unknowns.throttle
+    segment.state.unknowns.flight_path_angle = LSCR_res.state.unknowns.body_angle - LSCR_res.conditions.aerodynamics.angle_of_attack
     
     # Make the velocity vector
-    v_mag = np.linalg.norm(LSCR_res.conditions.frames.inertial.velocity_vector,axis=1)
+    v_mag = np.linalg.norm(LSCR_res.state.conditions.frames.inertial.velocity_vector,axis=1)
     
     if segment.air_speed_end is None:
         segment.state.unknowns.velocity =  np.reshape(v_mag[1:],(-1, 1))

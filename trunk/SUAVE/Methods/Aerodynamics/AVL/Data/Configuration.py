@@ -18,7 +18,7 @@ from SUAVE.Core import Data
 
 ## @ingroup Methods-Aerodynamics-AVL-Data
 class Configuration(Data):
-	"""A data class defining the reference parameters of the aircraft geoemtry and 
+	"""A data class defining the reference parameters of the aircraft geometry and 
 	flight configuration 
 
 	Assumptions:

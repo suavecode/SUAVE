@@ -227,7 +227,19 @@ class Segment(Analysis):
                 if i == 0:
                     state_out[key].update(sub_state[key])
                 else:
+
+                    # Update existing items
                     state_out[key] = state_out[key].do_recursive(append_array,sub_state[key])
+                    
+                    # Check if all the states exist, if not add them
+                    existing_keys = list(state_out[key].keys())
+                    new_keys      = list(sub_state[key].keys())
+                    diff_list     = np.setdiff1d(new_keys,existing_keys).tolist()                    
+                    
+                    # Do an update for the remainder
+                    for update_key in diff_list:
+                        state_out[key][update_key] = sub_state[key][update_key]
+                                        
             
         return state_out
 

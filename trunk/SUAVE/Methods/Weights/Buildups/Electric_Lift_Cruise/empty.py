@@ -86,8 +86,8 @@ def empty(config,
     
         nLiftProps          = propulsor.number_of_rotor_engines
         nThrustProps        = propulsor.number_of_propeller_engines
-        nLiftBlades         = propulsor.rotor.number_blades
-        nThrustBlades       = propulsor.propeller.number_blades
+        nLiftBlades         = propulsor.rotor.number_of_blades
+        nThrustBlades       = propulsor.propeller.number_of_blades
         n_lift_motors       = propulsor.number_of_rotor_engines
         n_cruise_motors     = propulsor.number_of_propeller_engines
         
