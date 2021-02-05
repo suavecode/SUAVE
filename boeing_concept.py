@@ -27,6 +27,7 @@ def main():
     
     #vehicle.fuselages.pop('fueslage')
     #vehicle.wings.pop('tail')
+    vehicle.fuselages.fueslage.origin[0][2] = .25
         
     vehicle.reference_area = vehicle.wings.gross_wing_b__t___d_.areas.reference
         
@@ -92,6 +93,9 @@ def analyze(config,conditions):
     settings.number_chordwise_vortices = 10
     settings.propeller_wake_model      = None
     settings.spanwise_cosine_spacing   = True
+    settings.model_fuselage            = True
+    settings.initial_timestep_offset   = 0.0
+    settings.wake_development_time     = 0.0
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
 

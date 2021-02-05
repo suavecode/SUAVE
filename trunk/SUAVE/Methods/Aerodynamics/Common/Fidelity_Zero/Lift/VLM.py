@@ -89,6 +89,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     n_sw       = settings.number_spanwise_vortices    
     n_cw       = settings.number_chordwise_vortices 
     pwm        = settings.propeller_wake_model
+    ito        = settings.initial_timestep_offset
+    wdt        = settings.wake_development_time    
     Sref       = geometry.reference_area 
     
 
@@ -122,10 +124,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # pack vortex distribution 
     geometry.vortex_distribution = VD
     
-    from SUAVE.Plots.Geometry_Plots import plot_vehicle
-    plot_vehicle(geometry)    
-    import matplotlib.pyplot as plt  
-    plt.show()
+    #from SUAVE.Plots.Geometry_Plots import plot_vehicle
+    #plot_vehicle(geometry)    
+    #import matplotlib.pyplot as plt  
+    #plt.show()
     
     # Build induced velocity matrix, C_mn
     C_mn, s, t, CHORD, RFLAG = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
@@ -191,16 +193,12 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     SURF = np.array(VD.wing_areas)
     SREF = Sref
 
-    
     # Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
     YBH = VD.YBH*ones
     XA1 = VD.XA1*ones
     XB1 = VD.XB1*ones
-    YA1 = VD.YA1*ones
-    YB1 = VD.YB1*ones
     ZA1 = VD.ZA1*ones
     ZB1 = VD.ZB1*ones    
-    
     
     # This is only valid for calculating LE sweeps
     boolean = YBH<0. 
@@ -214,7 +212,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     STB = STB[:,0::n_cw]
     
     # Panel Dihedral Angle, using AH and BH location
-
     YAH = VD.YAH*ones
     ZAH = VD.ZAH*ones
     ZBH = VD.ZBH*ones
@@ -236,7 +233,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     XLE =.5 *(1.0 -np.cos (.5 *PION)) *(1.0 - FLAX) + 0.125 *PION *FLAX
     
     SICPLE = 0.0 #  COUPLE (ABOUT STRIP CENTERLINE) DUE TO SIDESLIP (no sideslip)
-    RJTS = JTS
     
     # SINF REFERENCES THE LOAD CONTRIBUTION OF IRT-VORTEX TO THE
     # STRIP NOMINAL AREA, I.E., AREA OF STRIP ASSUMING CONSTANT
