@@ -38,6 +38,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff           = 2450. * Units.lb 
     vehicle.mass_properties.operating_empty   = 2250. * Units.lb               # Approximate
     vehicle.mass_properties.max_takeoff       = 2450. * Units.lb               # Approximate
+    vehicle.mass_properties.max_payload       = 200.  * Units.lb
     vehicle.mass_properties.center_of_gravity = [[2.0144,   0.  ,  0. ]] # Approximate
 
     # basic parameters                          
@@ -402,41 +403,49 @@ def vehicle_setup():
     Hover_Load     = vehicle.mass_properties.takeoff*g      # hover load  
 
     # Thrust Propeller                          
-    propeller                     = SUAVE.Components.Energy.Converters.Propeller() 
-    propeller.number_of_blades    = 3
-    propeller.number_of_engines   = net.number_of_propeller_engines
-    propeller.freestream_velocity = V_inf
-    propeller.tip_radius          = 1.0668
-    propeller.hub_radius          = 0.21336 
-    propeller.design_tip_mach     = 0.5  
-    propeller.angular_velocity    = propeller.design_tip_mach *speed_of_sound/propeller.tip_radius   
-    propeller.design_Cl           = 0.7
-    propeller.design_altitude     = 1000 * Units.feet   
-    propeller.design_thrust       = (Drag*2.5)/net.number_of_propeller_engines 
-    propeller                     = propeller_design(propeller)   
-    propeller.origin              = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
-    net.propeller                 = propeller
- 
-    # Lift Rotors                               
-    rotor                         = SUAVE.Components.Energy.Converters.Rotor() 
-    rotor.tip_radius              = 2.8 * Units.feet
-    rotor.hub_radius              = 0.35 * Units.feet      
-    rotor.number_of_blades        = 2
-    rotor.design_tip_mach         = 0.65
-    rotor.number_of_engines       = net.number_of_rotor_engines
-    rotor.disc_area               = np.pi*(rotor.tip_radius**2)        
-    rotor.induced_hover_velocity  = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_rotor_engines)) 
-    rotor.freestream_velocity     = 500. * Units['ft/min']  
-    rotor.angular_velocity        = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
-    rotor.design_Cl               = 0.7
-    rotor.design_altitude         = 20 * Units.feet                            
-    rotor.design_thrust           = (Hover_Load* 2.5)/net.number_of_rotor_engines  
-    rotor.x_pitch_count           = 2 
-    rotor.y_pitch_count           = vehicle.fuselages['boom_1r'].y_pitch_count
-    rotor.y_pitch                 = vehicle.fuselages['boom_1r'].y_pitch 
-    rotor                         = propeller_design(rotor)          
-    rotor.origin                  = vehicle.fuselages['boom_1r'].origin
-    rotor.symmetric               = True 
+    propeller                        = SUAVE.Components.Energy.Converters.Propeller() 
+    propeller.number_of_blades       = 3
+    propeller.number_of_engines      = net.number_of_propeller_engines
+    propeller.freestream_velocity    = V_inf
+    propeller.tip_radius             = 1.0668
+    propeller.hub_radius             = 0.21336 
+    propeller.design_tip_mach        = 0.5  
+    propeller.angular_velocity       = propeller.design_tip_mach *speed_of_sound/propeller.tip_radius   
+    propeller.design_Cl              = 0.7
+    propeller.design_altitude        = 1000 * Units.feet   
+    propeller.design_thrust          = (Drag*2.5)/net.number_of_propeller_engines  
+    propeller.airfoil_geometry       =  ['../Vehicles/NACA_4412.txt'] 
+    propeller.airfoil_polars         = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
+                                      '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    propeller.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
+    propeller                        = propeller_design(propeller)   
+    propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
+    net.propeller                    = propeller
+                                     
+    # Lift Rotors                                  
+    rotor                            = SUAVE.Components.Energy.Converters.Rotor() 
+    rotor.tip_radius                 = 2.8 * Units.feet
+    rotor.hub_radius                 = 0.35 * Units.feet      
+    rotor.number_of_blades           = 2
+    rotor.design_tip_mach            = 0.65
+    rotor.number_of_engines          = net.number_of_rotor_engines
+    rotor.disc_area                  = np.pi*(rotor.tip_radius**2)        
+    rotor.induced_hover_velocity     = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_rotor_engines)) 
+    rotor.freestream_velocity        = 500. * Units['ft/min']  
+    rotor.angular_velocity           = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
+    rotor.design_Cl                  = 0.7
+    rotor.design_altitude            = 20 * Units.feet                            
+    rotor.design_thrust              = (Hover_Load* 2.5)/net.number_of_rotor_engines  
+    rotor.x_pitch_count              = 2 
+    rotor.y_pitch_count              = vehicle.fuselages['boom_1r'].y_pitch_count
+    rotor.y_pitch                    = vehicle.fuselages['boom_1r'].y_pitch 
+    rotor.airfoil_geometry           =  ['../Vehicles/NACA_4412.txt'] 
+    rotor.airfoil_polars             = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
+                                         '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
+    rotor                            = propeller_design(rotor)          
+    rotor.origin                     = vehicle.fuselages['boom_1r'].origin
+    rotor.symmetric                  = True 
 
     # populating propellers on one side of wing
     if rotor.y_pitch_count > 1 :

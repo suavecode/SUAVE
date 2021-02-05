@@ -28,7 +28,7 @@ except ImportError:
 import numpy as np
 
 ## @ingroup Input_Output-OpenVSP
-def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):
+def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True,write_file=True):
     """This writes a SUAVE vehicle to OpenVSP format. It will take wing segments into account
     if they are specified in the vehicle setup file.
     
@@ -150,9 +150,13 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True):
             area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind)
     
     # Write the vehicle to the file
-    if verbose:
-        print('Saving OpenVSP File')
-    vsp.WriteVSPFile(tag + ".vsp3")
+    if write_file ==True:
+        if verbose:
+            print('Saving OpenVSP File')
+        vsp.WriteVSPFile(tag + ".vsp3")
+    elif verbose:
+        print('Not Saving OpenVSP File')
+        
     
     return area_tags
 

@@ -25,8 +25,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_development_time = 0.05 ):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
-    Assumptions:
-    None
+    Assumptions: None
 
     Source:
     1. Aerodynamics for Engineers, Sixth Edition by John Bertin & Russel Cummings 
@@ -147,7 +146,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
    
     # Build the vector
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
-                                                                                 pwm,initial_timestep_offset,wake_development_time ) 
+                                                                                     pwm,ito,wdt )
     # Turn off sonic vortices when Mach>1
     RHS = RHS*RFLAG
     

@@ -22,7 +22,7 @@ from SUAVE.Components.Energy.Networks import Lift_Cruise , Turbofan
 from SUAVE.Components.Energy.Converters import Propeller, Rotor 
 ## @ingroup Plots-Geometry_Plots
 def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
-    """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
+    """This plots vortex lattice panels created when Fidelity Zero Aerodynamics 
     Routine is initialized
 
     Assumptions:
@@ -58,8 +58,8 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     # -------------------------------------------------------------------------
     # PLOT WING
     # -------------------------------------------------------------------------
-    wing_face_color = 'grey'        
-    wing_edge_color = 'lightgrey'
+    wing_face_color = 'darkgrey'        
+    wing_edge_color = 'grey'
     wing_alpha_val  = 1    
     plot_wing(axes,VD,wing_face_color,wing_edge_color,wing_alpha_val)  
     if  plot_control_points:
@@ -78,7 +78,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     # PLOT FUSELAGE
     # -------------------------------------------------------------------------        
     fuselage_face_color = 'grey'                
-    fuselage_edge_color = 'black' 
+    fuselage_edge_color = 'darkgrey' 
     fuselage_alpha      = 1      
     for fus in vehicle.fuselages: 
         # Generate Fuselage Geometry
@@ -386,18 +386,28 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
         r_2d   = np.repeat(np.atleast_2d(r).T  ,dim,axis=1)
         
         for i in range(num_B):   
-            # get airfoil coordinate geometry     
-            airfoil_data = import_airfoil_geometry(a_sec,npoints=n_points)   
-            
-            # store points of airfoil in similar format as Vortex Points (i.e. in vertices)  
-            xpts    = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
-            zpts    = np.take(airfoil_data.y_coordinates,a_secl,axis=0) 
-            max_t   = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0) 
+            # get airfoil coordinate geometry   
+            if a_sec != None:
+                airfoil_data = import_airfoil_geometry(a_sec,npoints=n_points)   
+                xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
+                zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0) 
+                max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0) 
+                
+            else: 
+                camber       = 0.02
+                camber_loc   = 0.4
+                thickness    = 0.10 
+                airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points*2 - 2))                  
+                xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
+                zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
+                max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0) 
+             
+            # store points of airfoil in similar format as Vortex Points (i.e. in vertices)   
             max_t2d = np.repeat(np.atleast_2d(max_t).T ,dim,axis=1)
             
-            xp      = rot*(- MCA_2d + xpts*b_2d)             # x coord of airfoil
-            yp      = r_2d*np.ones_like(xp)                                             # radial location        
-            zp      = zpts*(t_2d/max_t2d) # former airfoil y coord 
+            xp      = rot*(- MCA_2d + xpts*b_2d)  # x coord of airfoil
+            yp      = r_2d*np.ones_like(xp)       # radial location        
+            zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord 
                               
             matrix = np.zeros((len(zp),dim,3)) # radial location, airfoil pts (same y)   
             matrix[:,:,0] = xp
