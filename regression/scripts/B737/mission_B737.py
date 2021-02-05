@@ -56,22 +56,22 @@ def main():
 
     # load older results
     #save_results(results)
-    old_results = load_results()   
+    #old_results = load_results()   
 
     # plt the old results
     plot_mission(results)
-    plot_mission(old_results,'k-')
+    #plot_mission(old_results,'k-')
     #plt.show(block=True)
     
     # check the results
-    check_results(results,old_results) 
+    #check_results(results,old_results) 
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
     
     # plot vehicle 
-    plot_vehicle(configs.base,plot_control_points = True)      
+    #plot_vehicle(configs.base,plot_control_points = True)      
     return
 
 
@@ -283,172 +283,172 @@ def mission_setup(analyses):
     #   First Climb Segment: Constant Speed Constant Rate  
     # ------------------------------------------------------------------
 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "climb_1"
+    segment = Segments.Descent.Glide_Constant_AoA(base_segment)
+    segment.tag = "Glide"
 
     segment.analyses.extend( analyses.takeoff )
 
-    segment.altitude_start = 0.0   * Units.km
-    segment.altitude_end   = 3.0   * Units.km
-    segment.air_speed      = 125.0 * Units['m/s']
-    segment.climb_rate     = 6.0   * Units['m/s']
+    segment.altitude_start  = 1.0 * Units.km
+    segment.altitude_end    = 0.0 * Units.km
+    segment.angle_of_attack = 3.0 * Units.degrees
+    segment.state.numerics.number_control_points = 4
 
     # add to misison
     mission.append_segment(segment)
 
 
-    # ------------------------------------------------------------------
-    #   Second Climb Segment: Constant Speed Constant Rate  
-    # ------------------------------------------------------------------    
+    ## ------------------------------------------------------------------
+    ##   Second Climb Segment: Constant Speed Constant Rate  
+    ## ------------------------------------------------------------------    
 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "climb_2"
+    #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    #segment.tag = "climb_2"
 
-    segment.analyses.extend( analyses.cruise )
+    #segment.analyses.extend( analyses.cruise )
 
-    segment.altitude_end   = 8.0   * Units.km
-    segment.air_speed      = 190.0 * Units['m/s']
-    segment.climb_rate     = 6.0   * Units['m/s']
+    #segment.altitude_end   = 8.0   * Units.km
+    #segment.air_speed      = 190.0 * Units['m/s']
+    #segment.climb_rate     = 6.0   * Units['m/s']
 
-    # add to mission
-    mission.append_segment(segment)
-
-
-    # ------------------------------------------------------------------
-    #   Third Climb Segment: Constant Speed Constant Rate  
-    # ------------------------------------------------------------------    
-
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "climb_3"
-
-    segment.analyses.extend( analyses.cruise )
-
-    segment.altitude_end = 10.5   * Units.km
-    segment.air_speed    = 226.0  * Units['m/s']
-    segment.climb_rate   = 3.0    * Units['m/s']
-
-    # add to mission
-    mission.append_segment(segment)
+    ## add to mission
+    #mission.append_segment(segment)
 
 
-    # ------------------------------------------------------------------    
-    #   Cruise Segment: Constant Speed Constant Altitude
-    # ------------------------------------------------------------------    
+    ## ------------------------------------------------------------------
+    ##   Third Climb Segment: Constant Speed Constant Rate  
+    ## ------------------------------------------------------------------    
 
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "cruise"
+    #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    #segment.tag = "climb_3"
 
-    segment.analyses.extend( analyses.cruise )
+    #segment.analyses.extend( analyses.cruise )
 
-    segment.altitude  = 10.668 * Units.km # small jump to test altitude updating
-    segment.air_speed = 230.412 * Units['m/s']
-    segment.distance  = (3933.65 + 770 - 92.6) * Units.km
+    #segment.altitude_end = 10.5   * Units.km
+    #segment.air_speed    = 226.0  * Units['m/s']
+    #segment.climb_rate   = 3.0    * Units['m/s']
+
+    ## add to mission
+    #mission.append_segment(segment)
+
+
+    ## ------------------------------------------------------------------    
+    ##   Cruise Segment: Constant Speed Constant Altitude
+    ## ------------------------------------------------------------------    
+
+    #segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    #segment.tag = "cruise"
+
+    #segment.analyses.extend( analyses.cruise )
+
+    #segment.altitude  = 10.668 * Units.km # small jump to test altitude updating
+    #segment.air_speed = 230.412 * Units['m/s']
+    #segment.distance  = (3933.65 + 770 - 92.6) * Units.km
     
-    segment.state.numerics.number_control_points = 10
+    #segment.state.numerics.number_control_points = 10
 
-    # add to mission
-    mission.append_segment(segment)
-
-
-# ------------------------------------------------------------------
-#   First Descent Segment: Constant Speed Constant Rate  
-# ------------------------------------------------------------------
-
-    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "descent_1"
-
-    segment.analyses.extend( analyses.cruise )
-
-    segment.altitude_start = 10.5 * Units.km # small jump to test altitude updating
-    segment.altitude_end   = 8.0   * Units.km
-    segment.air_speed      = 220.0 * Units['m/s']
-    segment.descent_rate   = 4.5   * Units['m/s']
-
-    # add to mission
-    mission.append_segment(segment)
+    ## add to mission
+    #mission.append_segment(segment)
 
 
-    # ------------------------------------------------------------------
-    #   Second Descent Segment: Constant Speed Constant Rate  
-    # ------------------------------------------------------------------
+## ------------------------------------------------------------------
+##   First Descent Segment: Constant Speed Constant Rate  
+## ------------------------------------------------------------------
 
-    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "descent_2"
+    #segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    #segment.tag = "descent_1"
 
-    segment.analyses.extend( analyses.landing )
+    #segment.analyses.extend( analyses.cruise )
 
-    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+    #segment.altitude_start = 10.5 * Units.km # small jump to test altitude updating
+    #segment.altitude_end   = 8.0   * Units.km
+    #segment.air_speed      = 220.0 * Units['m/s']
+    #segment.descent_rate   = 4.5   * Units['m/s']
 
-    segment.altitude_end = 6.0   * Units.km
-    segment.air_speed    = 195.0 * Units['m/s']
-    segment.descent_rate = 5.0   * Units['m/s']
-
-    # add to mission
-    mission.append_segment(segment)
-
-
-    # ------------------------------------------------------------------
-    #   Third Descent Segment: Constant Speed Constant Rate  
-    # ------------------------------------------------------------------
-
-    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "descent_3"
-
-    segment.analyses.extend( analyses.landing )
-
-    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
-
-    segment.altitude_end = 4.0   * Units.km
-    segment.air_speed    = 170.0 * Units['m/s']
-    segment.descent_rate = 5.0   * Units['m/s']
-
-    # add to mission
-    mission.append_segment(segment)
+    ## add to mission
+    #mission.append_segment(segment)
 
 
-    # ------------------------------------------------------------------
-    #   Fourth Descent Segment: Constant Speed Constant Rate  
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Second Descent Segment: Constant Speed Constant Rate  
+    ## ------------------------------------------------------------------
 
-    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "descent_4"
+    #segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    #segment.tag = "descent_2"
 
-    segment.analyses.extend( analyses.landing )
+    #segment.analyses.extend( analyses.landing )
 
-    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+    #analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
-    segment.altitude_end = 2.0   * Units.km
-    segment.air_speed    = 150.0 * Units['m/s']
-    segment.descent_rate = 5.0   * Units['m/s']
+    #segment.altitude_end = 6.0   * Units.km
+    #segment.air_speed    = 195.0 * Units['m/s']
+    #segment.descent_rate = 5.0   * Units['m/s']
 
-
-    # add to mission
-    mission.append_segment(segment)
-
+    ## add to mission
+    #mission.append_segment(segment)
 
 
-    # ------------------------------------------------------------------
-    #   Fifth Descent Segment:Constant Speed Constant Rate  
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Third Descent Segment: Constant Speed Constant Rate  
+    ## ------------------------------------------------------------------
 
-    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "descent_5"
+    #segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    #segment.tag = "descent_3"
 
-    segment.analyses.extend( analyses.landing )
-    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+    #segment.analyses.extend( analyses.landing )
+
+    #analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+
+    #segment.altitude_end = 4.0   * Units.km
+    #segment.air_speed    = 170.0 * Units['m/s']
+    #segment.descent_rate = 5.0   * Units['m/s']
+
+    ## add to mission
+    #mission.append_segment(segment)
 
 
-    segment.altitude_end = 0.0   * Units.km
-    segment.air_speed    = 145.0 * Units['m/s']
-    segment.descent_rate = 3.0   * Units['m/s']
+    ## ------------------------------------------------------------------
+    ##   Fourth Descent Segment: Constant Speed Constant Rate  
+    ## ------------------------------------------------------------------
+
+    #segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    #segment.tag = "descent_4"
+
+    #segment.analyses.extend( analyses.landing )
+
+    #analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+
+    #segment.altitude_end = 2.0   * Units.km
+    #segment.air_speed    = 150.0 * Units['m/s']
+    #segment.descent_rate = 5.0   * Units['m/s']
 
 
-    # append to mission
-    mission.append_segment(segment)
+    ## add to mission
+    #mission.append_segment(segment)
 
-    # ------------------------------------------------------------------
-    #   Mission definition complete    
-    # ------------------------------------------------------------------
+
+
+    ## ------------------------------------------------------------------
+    ##   Fifth Descent Segment:Constant Speed Constant Rate  
+    ## ------------------------------------------------------------------
+
+    #segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    #segment.tag = "descent_5"
+
+    #segment.analyses.extend( analyses.landing )
+    #analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
+
+
+    #segment.altitude_end = 0.0   * Units.km
+    #segment.air_speed    = 145.0 * Units['m/s']
+    #segment.descent_rate = 3.0   * Units['m/s']
+
+
+    ## append to mission
+    #mission.append_segment(segment)
+
+    ## ------------------------------------------------------------------
+    ##   Mission definition complete    
+    ## ------------------------------------------------------------------
 
     return mission
 

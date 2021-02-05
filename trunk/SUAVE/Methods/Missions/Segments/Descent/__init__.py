@@ -8,3 +8,4 @@ from . import Constant_Speed_Constant_Angle
 from . import Constant_Speed_Constant_Angle_Noise
 from . import Constant_EAS_Constant_Rate
 from . import Constant_CAS_Constant_Rate
+from . import Glide_Constant_AoA
