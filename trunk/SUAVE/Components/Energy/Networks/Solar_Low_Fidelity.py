@@ -172,7 +172,7 @@ class Solar_Low_Fidelity(Propulsor):
         #Pack the conditions for outputs
         a                                        = conditions.freestream.speed_of_sound
         R                                        = propeller.tip_radius        
-        rpm                                      = motor.outputs.omega*60./(2.*np.pi)
+        rpm                                      = motor.outputs.omega / Units.rpm
         current                                  = solar_logic.inputs.currentesc
         battery_draw                             = battery.inputs.power_in 
         battery_energy                           = battery.current_energy

@@ -52,7 +52,7 @@ def size_from_kv(motor):
     # Do the calculations from the regressions
     mass = B_KV/kv
     res  = B_RA/(kv**2.)
-    i0   =  B_i0/(res**0.6)
+    i0   = B_i0/(res**0.6)
     
     # pack
     motor.resistance           = res
@@ -156,9 +156,11 @@ def size_optimal_motor(motor,prop):
     Res =  opt_params[1]    
     
     motor.speed_constant   = Kv 
-    motor.resistance       = Res 
+    motor.resistance       = Res  
+    motor.efficiency       = (1- (io*Res)/(v - omeg/Kv))*(omeg/(v*Kv))
+    motor.design_torque    = ((v - omeg/Kv)/Res - io)/Kv 
     
-    return motor 
+    return motor  
   
 ## @ingroup Methods-Propulsion
 def optimize_kv(io, v , omeg,  etam ,  Q, kv_lower_bound =  0.01, Res_lower_bound = 0.001, kv_upper_bound = 100, Res_upper_bound = 10 ): 
@@ -179,25 +181,49 @@ def optimize_kv(io, v , omeg,  etam ,  Q, kv_lower_bound =  0.01, Res_lower_boun
     
     args = (v , omeg,  etam , Q , io )
     
-    cons1 = [{'type':'eq', 'fun': constraint_1,'args': args},
-            {'type':'eq', 'fun': constraint_2,'args': args}]
+    hard_cons = [{'type':'eq', 'fun': hard_constraint_1,'args': args},
+                 {'type':'eq', 'fun': hard_constraint_2,'args': args}]
     
-    cons2 = [{'type':'eq', 'fun': constraint_2,'args': args}] 
+    slack_cons = [{'type':'eq', 'fun': slack_constraint_1,'args': args},
+                  {'type':'eq', 'fun': slack_constraint_2,'args': args}] 
+  
+    torque_con = [{'type':'eq', 'fun': hard_constraint_2,'args': args}]
     
     bnds = ((kv_lower_bound, kv_upper_bound), (Res_lower_bound , Res_upper_bound))
-    sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=cons1) 
+    
+    # try hard constraints to find optimum motor parameters
+    sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=hard_cons) 
     
     if sol.success == False:
-        sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=cons2)         
+        print("Using slack constraints to design motor")
+        etam = 0.7
+        # use slack constraints  if optimum motor parameters cannot be found 
+        sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=slack_cons) 
+        
+        # use one constraints as last resort if optimum motor parameters cannot be found 
+        if sol.success == False:
+            print("Slack constraints did not find solution, using only torque constraint")
+            etam = 0.7            
+            sol = minimize(objective, [10], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints= torque_con)         
     
     return sol.x   
   
-    
+# objective function minimize current drawn
 def objective(x, v , omeg,  etam , Q , io ): 
     return (v - omeg/x[0])/x[1]   
 
-def constraint_1(x, v , omeg,  etam , Q , io ): 
+# hard motor efficiency constraint
+def hard_constraint_1(x, v , omeg,  etam , Q , io ): 
     return etam - (1- (io*x[1])/(v - omeg/x[0]))*(omeg/(v*x[0]))   
-    
-def constraint_2(x, v , omeg,  etam , Q , io ): 
-    return ((v - omeg/x[0])/x[1] - io)/x[0] - Q
+
+# hard torque equality constraint
+def hard_constraint_2(x, v , omeg,  etam , Q , io ): 
+    return ((v - omeg/x[0])/x[1] - io)/x[0] - Q  
+
+# slack motor efficiency constraint 
+def slack_constraint_1(x, v , omeg,  etam , Q , io ): 
+    return  0.3 - abs(etam - (1- (io*x[1])/(v - omeg/x[0]))*(omeg/(v*x[0])))  
+
+# slack torque equality constraint 
+def slack_constraint_2(x, v , omeg,  etam , Q , io ): 
+    return  Q*0.1 - abs(((v - omeg/x[0])/x[1] - io)/x[0] - Q)   

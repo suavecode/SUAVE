@@ -258,7 +258,7 @@ def empty_weight(vehicle, settings=None, method_type='New SUAVE'):
             if method_type == 'SUAVE':
                 wt_wing = wing_main(vehicle, wing, rho, sigma, computation_type='simple')
             elif method_type == 'New SUAVE':
-                wt_wing = wing_main(vehicle, wing, rho, sigma)
+                wt_wing = wing_main(vehicle, wing, rho, sigma,computation_type='segmented')
             elif method_type == 'FLOPS Simple' or method_type == 'FLOPS Complex':
                 complexity = method_type.split()[1]
                 wt_wing = wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings,

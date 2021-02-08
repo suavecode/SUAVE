@@ -66,15 +66,15 @@ class Optimized(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start  = None
-        self.altitude_end    = None
-        self.air_speed_start = None
-        self.air_speed_end   = None
-        self.objective       = None # This will be a key
-        self.minimize        = True
-        self.CL_limit        = 1.e20 
-        self.seed_climb_rate = 100. * Units['feet/min']
-        self.algorithm       = 'SLSQP'
+        self.altitude_start         = None
+        self.altitude_end           = None
+        self.air_speed_start        = None
+        self.air_speed_end          = None
+        self.objective              = None # This will be a key
+        self.minimize               = True
+        self.lift_coefficient_limit = 1.e20 
+        self.seed_climb_rate        = 100. * Units['feet/min']
+        self.algorithm              = 'SLSQP'
         
         
         # --------------------------------------------------------------

@@ -62,6 +62,7 @@ class Aerodynamic(Simple):
         # conditions
         self.state.conditions.update( Conditions.Aerodynamics() )
         self.temperature_deviation = 0.0
+        self.state.VTOL_flag       = False 
         
         # --------------------------------------------------------------
         #   The Solving Process

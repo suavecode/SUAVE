@@ -115,6 +115,7 @@ class Aerodynamics(Basic):
         self.propulsion.battery_voltage        = ones_1col * 0
         self.propulsion.voltage_under_load     = ones_1col * 0
         self.propulsion.voltage_open_circuit   = ones_1col * 0
+        self.propulsion.state_of_charge        = ones_1col * 0
         self.propulsion.thrust_breakdown       = Conditions()
 
         # energy conditions

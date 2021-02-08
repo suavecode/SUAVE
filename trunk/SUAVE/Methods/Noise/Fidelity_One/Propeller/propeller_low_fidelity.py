@@ -60,19 +60,19 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
     num_f                = len(settings.center_frequencies)
     
     # create empty arrays for results  
-    SPL                  = np.zeros(ctrl_pts)
-    SPL_v                = np.zeros_like(SPL)  
-    SPL_dBA              = np.zeros_like(SPL)    
-    SPL_v_dBA            = np.zeros_like(SPL)
-    SPL_dBA_tot          = np.zeros_like(SPL)
-    SPL_v_spectrum       = np.zeros((ctrl_pts,num_f)) 
-    SPL_v_dBA_spectrum   = np.zeros((ctrl_pts,num_f))  
-    SPL_h_spectrum       = np.zeros((ctrl_pts,num_f)) 
-    SPL_h_dBA_spectrum   = np.zeros((ctrl_pts,num_f))  
-    SPL_spectrum         = np.zeros((ctrl_pts,num_f))
-    SPL_tot_spectrum     = np.zeros((ctrl_pts,num_f)) 
-    SPL_tot_dBA_spectrum = np.zeros((ctrl_pts,num_f))
-    SPL_tot_bps_spectrum = np.zeros((ctrl_pts,num_f))
+    SPL                   = np.zeros(ctrl_pts)
+    SPL_v                 = np.zeros_like(SPL)  
+    SPL_dBA               = np.zeros_like(SPL)    
+    SPL_v_dBA             = np.zeros_like(SPL)
+    SPL_dBA_tot           = np.zeros_like(SPL)
+    SPL_v_spectrum        = np.zeros((ctrl_pts,num_f)) 
+    SPL_v_dBA_spectrum    = np.zeros((ctrl_pts,num_f))  
+    SPL_h_spectrum        = np.zeros((ctrl_pts,num_f)) 
+    SPL_h_dBA_spectrum    = np.zeros((ctrl_pts,num_f))  
+    SPL_spectrum          = np.zeros((ctrl_pts,num_f))
+    SPL_tot_spectrum      = np.zeros((ctrl_pts,num_f)) 
+    SPL_tot_dBA_spectrum  = np.zeros((ctrl_pts,num_f))
+    SPL_tot_bpfs_spectrum = np.zeros((ctrl_pts,num_f))
                                        
     if harmonic_test.any():  
         SPL  = np.zeros((ctrl_pts,len(harmonic_test)))
@@ -91,8 +91,8 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
           
         SPL_r         = np.zeros(num_h)  
         SPL_r_dBA     = np.zeros_like(SPL_r)   
-        p_pref_r    = np.zeros_like(SPL_r)    ##  
-        p_pref_r_dBA= np.zeros_like(SPL_r)    ##      
+        p_pref_r      = np.zeros_like(SPL_r)  
+        p_pref_r_dBA  = np.zeros_like(SPL_r)      
         f             = np.zeros_like(SPL_r)
 
         # ----------------------------------------------------------------------------------
@@ -175,9 +175,9 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
                                       - (1/((r**2)*M_t*r_t))*(dQ_dr)  ) * np.exp(1j*phi_s) *\
                            (jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r))))) \
                            * psi_L  ),x = r,dx = dr)
-            
-            p_mL_H[np.isnan(p_mL_H)] = 0
-            p_mL_H[np.isinf(p_mL_H)] = 0
+             
+            p_mL_H[np.isnan(p_mL_H)] = p_ref
+            p_mL_H[np.isinf(p_mL_H)] = p_ref
             p_mL_H = abs(p_mL_H)
             
             # sound pressure for thickness noise 
@@ -185,18 +185,18 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
                       /(4*np.sqrt(2)*np.pi*(Y/D)*(1 - M*np.cos(theta_r)))) \
                     *np.trapz(((M_s**2)*(t/c)*np.exp(1j*phi_s)*(jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))\
                     /(1 - M*np.cos(theta_r)))))*(k_x**2)*psi_V ),x = r,dx = dr)
-            
-            p_mT_H[np.isnan(p_mT_H)] = 0 
-            p_mT_H[np.isinf(p_mT_H)] = 0  
+             
+            p_mT_H[np.isnan(p_mT_H)] = p_ref
+            p_mT_H[np.isinf(p_mT_H)] = p_ref 
             p_mT_H  = abs(p_mT_H)
             
             # unweighted rotational sound pressure level
             SPL_r[h]        = 10*np.log10(N*((p_mL_H**2 + p_mT_H**2)/(p_ref**2)))
-            p_pref_r[h]     = 10**(SPL_r[h]/10)   ## 
+            p_pref_r[h]     = 10**(SPL_r[h]/10)   
             SPL_r_dBA[h]    = A_weighting(SPL_r[h],f[h]) 
-            p_pref_r_dBA[h] = 10**(SPL_r_dBA[h]/10)    ## 
+            p_pref_r_dBA[h] = 10**(SPL_r_dBA[h]/10)    
         
-        SPL_tot_bps_spectrum[i,:]  = SPL_r 
+        SPL_tot_bpfs_spectrum[i,:num_h]  = SPL_r 
         
         # convert to 1/3 octave spectrum 
         SPL_h_spectrum[i,:]      = SPL_harmonic_to_third_octave(SPL_r,f,settings)         
@@ -238,6 +238,7 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
             p_pref_v_dBA[j] = (10**(0.1*C[j+1]))* (  ((fr[j+1]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) - ((fr[j]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) ) 
         
         p_pref_v_dBA[np.isnan(p_pref_v_dBA)] = 0
+         
         
         # ---------------------------------------------------------------------------
         # convert to 1/3 octave spectrum  
@@ -247,7 +248,7 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
         # ---------------------------------------------------------------------------
         # Combining Rotational(periodic) and Vortex (broadband)
         # ---------------------------------------------------------------------------   
-        SPL_tot_bps_spectrum[i,:]  = SPL_r 
+        SPL_tot_bpfs_spectrum[i,:num_h] = SPL_r 
         SPL_tot_spectrum[i,:]      = 10*np.log10( 10**(SPL_h_spectrum[i,:]/10) +  10**(SPL_v_spectrum[i,:]/10) )
         
         # pressure ratios used to combine A weighted sound since decibel arithmetic does not work for broadband noise since it is a continuous spectrum 
@@ -259,10 +260,10 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
     SPL_tot      =  SPL_arithmetic(SPL_tot_spectrum) 
     
     # Pack Results
-    propeller_noise                  = Data() 
-    propeller_noise.SPL              = SPL_tot
-    propeller_noise.SPL_spectrum     = SPL_tot_spectrum     # 1/3 octave band 
-    propeller_noise.SPL_bps_spectrum = SPL_tot_bps_spectrum # blade passing frequency specturm (only rotational noise)
-    propeller_noise.SPL_dBA          = SPL_dBA_tot   
+    propeller_noise                   = Data() 
+    propeller_noise.SPL               = SPL_tot
+    propeller_noise.SPL_spectrum      = SPL_tot_spectrum     # 1/3 octave band 
+    propeller_noise.SPL_bpfs_spectrum = SPL_tot_bpfs_spectrum # blade passing frequency specturm (only rotational noise)
+    propeller_noise.SPL_dBA           = SPL_dBA_tot   
     
     return propeller_noise
