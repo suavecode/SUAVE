@@ -86,7 +86,7 @@ class Supersonic_Zero(Markup):
         # be used
         # 'OpenVSP' is a desired future possibility. This would allow the cross sectional area to vary with Mach number, but is 
         # much more computationally intensive.        
-        settings.volume_wave_drag_scaling    = 3.7 # 1.8-2.2 are given as typical for an SST, but 3.7 was found to be more accurate 
+        settings.volume_wave_drag_scaling    = 3.2 # 1.8-2.2 are given as typical for an SST, but 3.2 was found to be more accurate 
         # This may be due to added propulsion effects
         settings.fuselage_parasite_drag_begin_blend_mach = 0.91
         settings.fuselage_parasite_drag_end_blend_mach   = 0.99
