@@ -116,8 +116,8 @@ def initialize_conditions(segment):
         segment.velocity_x_start = velocity_x_start
         velocity_z_start = 0.      
         segment.velocity_z_start = velocity_z_start
-        if alt0 != 0.:
-            raise NotImplementedError
+        #if alt0 != 0.:
+            #raise NotImplementedError
         
     t_guess = segment.state.unknowns.time
         
