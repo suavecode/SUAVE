@@ -163,7 +163,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     ## ------------------ --------------------------------------------------------------------
 
     # COMPUTE FREE-STREAM AND ONSET FLOW PARAMETERS. If yaw is ever added these equations would change
-    B2     = np.tile((1 - mach**2),n_cp)
+    B2     = -np.tile((1 - mach**2),n_cp)
     COSALF = np.tile(np.cos(aoa),n_cp)
     FORAXL = COSALF
     
@@ -309,6 +309,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     F2[:,all_for_indices[mask2]] = SLOPE[:,all_for_indices[mask3]] 
     
+    # Zeta needs updating!
     ZETA = 0.
     
     TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
@@ -323,7 +324,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     XX = XLE
     
     
-    SPC    = 0. # Leading edge suction multiplier. See documentation. This is a negative integer if used
+    SPC    = 1. # Leading edge suction multiplier. See documentation. This is a negative integer if used
     DCP_LE = DCP[:,0::n_cw]
     CLE    = 0.5* DCP_LE *np.sqrt(XX)*FLAX
     CSUC   = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
@@ -337,11 +338,11 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     TFX  = XCOS
     
     if SPC<0.:
-        TFX = XSIN*np.sign(DCP[:,0:n_cw])*FKEY
+        TFX = XSIN*np.sign(DCP[:,0::n_cw])*FKEY
     CAXL = CAXL -TFX*CSUC
     TFZ  = - XSIN
     if SPC<0.:
-        TFZ = np.abs(XCOS)*np.sign(DCP[:,0:n_cw])*FKEY
+        TFZ = np.abs(XCOS)*np.sign(DCP[:,0::n_cw])*FKEY
     # Add a dimension into the suction to be chordwise
     T2_LE = T2[:,0::n_cw]
     CNC   = CNC + CSUC*np.sqrt(1+T2_LE)*TFZ
@@ -397,7 +398,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     cdi_y    = DRAG/CHORD_strip/ES
     CL_wing  = np.array(np.split(np.reshape(LIFT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
     CDi_wing = np.array(np.split(np.reshape(DRAG,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
-    CM_wing  = np.array(np.split(np.reshape(MOMENT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF/c_bar
     CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T
     CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
     CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
@@ -432,9 +432,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     #CDi_wing = np.array(np.split(np.reshape(drag_strip,(-1,n_sw)).sum(axis=1),len(mach)))/wing_areas
     #CL       = np.atleast_2d(np.sum(lift_strip,axis=1)/Sref).T
     #CDi      = np.atleast_2d(np.sum(drag_strip,axis=1)/Sref).T
-    
-    ##CM       = np.zeros_like(CL)
-    
+        
     
     
     return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile

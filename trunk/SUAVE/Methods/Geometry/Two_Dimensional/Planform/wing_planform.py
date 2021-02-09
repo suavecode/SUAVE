@@ -72,6 +72,7 @@ def wing_planform(wing):
     
     # calculate
     span       = (ar*sref)**.5
+    span_total = span/cos(dihedral)
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
     mgc        = (chord_root+chord_tip)/2
@@ -127,6 +128,7 @@ def wing_planform(wing):
     wing.areas.wetted               = swet
     wing.areas.affected             = affected_area
     wing.spans.projected            = span
+    wing.spans.total                = span_total
     wing.aerodynamic_center         = [x_coord , y_coord, z_coord]
     wing.total_length               = total_length
     
