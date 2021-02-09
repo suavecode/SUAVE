@@ -28,7 +28,6 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     n_sw     - number_spanwise_vortices         [Unitless]
     n_cw     - number_chordwise_vortices        [Unitless] 
     mach                                        [Unitless] 
-    theta_w  - freestream wake angle            [radians]
     
     Outputs:                                
     C_mn     - total induced velocity matrix    [Unitless] 
@@ -40,51 +39,40 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     # unpack  
     n_cp     = n_sw*n_cw
     n_w      = VD.n_w
- 
-    # Prandtl Glauert Transformation for subsonic
-    inv_root_beta = np.ones_like(mach)
-    yz_stretch    = np.ones_like(mach)
-    
-    yz_stretch = np.atleast_3d(yz_stretch)
-    inv_root_beta = np.atleast_3d(inv_root_beta)
-    
+
     # Control points from the VLM 
-    XAH   = np.atleast_3d(VD.XAH*inv_root_beta) 
-    YAH   = np.atleast_3d(VD.YAH*yz_stretch) 
-    ZAH   = np.atleast_3d(VD.ZAH*yz_stretch) 
-    XBH   = np.atleast_3d(VD.XBH*inv_root_beta) 
-    YBH   = np.atleast_3d(VD.YBH*yz_stretch) 
-    ZBH   = np.atleast_3d(VD.ZBH*yz_stretch) 
-    XA1   = np.atleast_3d(VD.XA1*inv_root_beta) 
-    YA1   = np.atleast_3d(VD.YA1*yz_stretch) 
-    ZA1   = np.atleast_3d(VD.ZA1*yz_stretch) 
-    XB1   = np.atleast_3d(VD.XB1*inv_root_beta) 
-    YB1   = np.atleast_3d(VD.YB1*yz_stretch) 
-    ZB1   = np.atleast_3d(VD.ZB1*yz_stretch)    
-    XA2   = np.atleast_3d(VD.XA2*inv_root_beta) 
-    YA2   = np.atleast_3d(VD.YA2*yz_stretch) 
-    ZA2   = np.atleast_3d(VD.ZA2*yz_stretch) 
-    XB2   = np.atleast_3d(VD.XB2*inv_root_beta) 
-    YB2   = np.atleast_3d(VD.YB2*yz_stretch) 
-    ZB2   = np.atleast_3d(VD.ZB2*yz_stretch)       
-    XC    = np.atleast_3d(VD.XC*inv_root_beta)
-    YC    = np.atleast_3d(VD.YC*yz_stretch) 
-    ZC    = np.atleast_3d(VD.ZC*yz_stretch)  
-    XA_TE = np.atleast_3d(VD.XA_TE*yz_stretch)  
-    XB_TE = np.atleast_3d(VD.XB_TE*yz_stretch)  
-    ZA_TE = np.atleast_3d(VD.ZA_TE*yz_stretch)  
-    ZB_TE = np.atleast_3d(VD.ZB_TE*yz_stretch)      
+    expansion = np.atleast_3d(np.ones_like(mach))
+    XAH   = np.atleast_3d(VD.XAH*expansion) 
+    YAH   = np.atleast_3d(VD.YAH*expansion) 
+    ZAH   = np.atleast_3d(VD.ZAH*expansion) 
+    XBH   = np.atleast_3d(VD.XBH*expansion) 
+    YBH   = np.atleast_3d(VD.YBH*expansion) 
+    ZBH   = np.atleast_3d(VD.ZBH*expansion) 
+    XA1   = np.atleast_3d(VD.XA1*expansion) 
+    YA1   = np.atleast_3d(VD.YA1*expansion) 
+    ZA1   = np.atleast_3d(VD.ZA1*expansion) 
+    XB1   = np.atleast_3d(VD.XB1*expansion) 
+    YB1   = np.atleast_3d(VD.YB1*expansion) 
+    ZB1   = np.atleast_3d(VD.ZB1*expansion)    
+    XA2   = np.atleast_3d(VD.XA2*expansion) 
+    YA2   = np.atleast_3d(VD.YA2*expansion) 
+    ZA2   = np.atleast_3d(VD.ZA2*expansion) 
+    XB2   = np.atleast_3d(VD.XB2*expansion) 
+    YB2   = np.atleast_3d(VD.YB2*expansion) 
+    ZB2   = np.atleast_3d(VD.ZB2*expansion)       
+    XC    = np.atleast_3d(VD.XC*expansion)
+    YC    = np.atleast_3d(VD.YC*expansion) 
+    ZC    = np.atleast_3d(VD.ZC*expansion)  
+    XA_TE = np.atleast_3d(VD.XA_TE*expansion)  
+    XB_TE = np.atleast_3d(VD.XB_TE*expansion)  
+    ZA_TE = np.atleast_3d(VD.ZA_TE*expansion)  
+    ZB_TE = np.atleast_3d(VD.ZB_TE*expansion)      
     
     # supersonic corrections
-    kappa = np.ones_like(XAH)
-    kappa[mach<1.,:] = 2.
     beta_2 = 1-mach**2
     sized_ones = np.ones((np.shape(mach)[0],np.shape(XAH)[-1],np.shape(XAH)[-1]))
     beta_2 = np.atleast_3d(beta_2)
     beta_2 = beta_2*sized_ones
-    kappa  = kappa*sized_ones
-
-    theta_w = np.atleast_3d(theta_w)   # wake model, use theta_w if setting to freestream, use 0 if setting to airfoil chord like
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
@@ -131,14 +119,13 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     costheta = np.cos(theta)
     sintheta = np.sin(theta)
     
-    ## rotated axes
+    # rotated axes
     x1bar = (xb - xc)
     y1bar = (yb - yc)*costheta + (zb - zc)*sintheta
     
     xobar = (xo - xc)
     yobar = (yo - yc)*costheta + (zo - zc)*sintheta
     zobar =-(yo - yc)*sintheta + (zo - zc)*costheta
-    
     
     # COMPUTE COORDINATES OF RECEIVING POINT WITH RESPECT TO END POINTS OF SKEWED LEG.
     s = np.abs(y1bar)
@@ -147,29 +134,13 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     s = np.repeat(s,length,axis=1)
     t = np.repeat(t,length,axis=1)
     
-    
-    ####
-    # This was an attempt not to do the XAH XBH swap
-    
-    #s  = np.abs((YBH - YAH)/2)
-    #t  = (XBH - XAH)/(YBH - YAH)
-    #length = np.shape(s)[-1]
-    #s = np.repeat(s,length,axis=1)
-    #t = np.repeat(t,length,axis=1)    
-    
-    #xobar = xo - xc
-    #yobar = yo - yc
-    #zobar = zo - zc
-    
-    ##########
-    
     X1 = xobar + t*s # In a planar case XC-XAH
     Y1 = yobar + s   # In a planar case YC-YAH
     X2 = xobar - t*s # In a planar case XC-XBH
     Y2 = yobar - s   # In a planar case YC-YBH
     
+    # The cutoff hardcoded into vorlax
     CUTOFF = 0.8
-    
     
     # CALCULATE AXIAL DISTANCE BETWEEN PROJECTION OF RECEIVING POINT ONTO HORSESHOE PLANE AND EXTENSION OF SKEWED LEG.
     XTY = xobar - t*yobar
@@ -181,7 +152,6 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     
     # The notation in this method is flipped from the paper
     B2 = - beta_2
-    
     
     # SET VALUES OF NUMERICAL TOLERANCE CONSTANTS.
     TOL    = s /500.0
@@ -200,7 +170,6 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     XSQ2   = X2 *X2
     RFLAG  = np.ones((len(mach),n_cp*n_w))
     mach_f = np.broadcast_to(mach,np.shape(RFLAG))
-    
     
     # Split the vectors into subsonic and supersonic
     sub = beta_2>0
@@ -245,12 +214,16 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     zobar_sub  = zobar[sub]
     zobar_sup  = zobar[sup]
     RFLAG_sup  = RFLAG[mach_f>1]
-
     
-    
-    # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
-    U_sub, V_sub, W_sub = subsonic(zobar_sub,XSQ1_sub,RO1_sub,XSQ2_sub,RO2_sub,XTY_sub,T_sub,B2_sub,ZSQ_sub,TOLSQ_sub,X1_sub,Y1_sub,X2_sub,Y2_sub,RAD1_sub,RAD2_sub,RTV1_sub,RTV2_sub)
-    
+    if np.sum(sub)>0:
+        # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
+        U_sub, V_sub, W_sub = subsonic(zobar_sub,XSQ1_sub,RO1_sub,XSQ2_sub,RO2_sub,XTY_sub,T_sub,B2_sub,ZSQ_sub,\
+                                       TOLSQ_sub,X1_sub,Y1_sub,X2_sub,Y2_sub,RAD1_sub,RAD2_sub,RTV1_sub,RTV2_sub)
+    else:
+        U_sub = []
+        V_sub = []
+        W_sub = []
+  
     # Update the velocities
     U[sub] = U_sub
     V[sub] = V_sub
@@ -276,7 +249,10 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     FLAX        = 1
     
     if np.sum(sup)>0:
-        U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,t,CHORD_sup,RNMAX,FLAX,EYE,n_cw,n_cp,n_w,RFLAG_sup)
+        U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,\
+                                                    ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,\
+                                                    RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,t,CHORD_sup,RNMAX,\
+                                                    FLAX,EYE,n_cw,n_cp,n_w,RFLAG_sup)
     else:
         U_sup = []
         V_sup = []
@@ -287,22 +263,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     V[sup] = V_sup
     W[sup] = W_sup
     
-    RFLAG[mach_f>1] = RFLAG_sup
-    
-    ## Do vortex splitting for the U velocity 
-    #
-    #panel_front = np.array(XA2+XA1)/2
-    #panel_back  = np.array(XB2+XB1)/2
-    #DELX        = np.abs(panel_back - panel_front) # chordwise length of the panel
-    #DELX        = np.repeat(DELX,length,axis=1)
-    #J           = np.linspace(1,n_cw,n_cw)  # NOTE THIS ASSUMES SYMMETRY
-    #J           = np.tile(J,n_sw*2)
-    #J           = np.broadcast_to(J,np.shape(CHORD))
-    #PION2       = 0.5*np.pi/RNMAX
-    #RJ          = 2 *J - 1
-         
-    
-    
+    RFLAG[mach_f>1] = RFLAG_sup    
     
     U_rot = U
     V_rot = V
@@ -314,7 +275,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     W = (V_rot*sintheta + W_rot*costheta)
     
     # Pack into matrices
-    C_mn = np.zeros(np.shape(kappa)+(3,))
+    C_mn = np.zeros(np.shape(beta_2)+(3,))
     C_mn[:,:,:,0] = U
     C_mn[:,:,:,1] = V
     C_mn[:,:,:,2] = W
@@ -351,7 +312,6 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,R
     V = ZETAPI * (FT1 - FT2 - QB *T)
     V[ZSQ<TOLSQ] = 0.
     W = - (QB *XTY + FT1 *Y1 - FT2 *Y2) /CPI
-    
     
     return U, V, W
 
@@ -403,7 +363,6 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     bool2[X2<TOL]   = False
     bool2[RAD2==0.] = False
     RAD2[X2<TOL]    = 0.0
-
     
     REPS = CUTOFF *XSQ2
     FRAD = RAD2    
@@ -512,7 +471,6 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     W[FLAG_bool_bef] = -1.
     W[FLAG_bool_aft] = -1.
 
-    
     return U, V, W, RFLAG
 
 
@@ -529,66 +487,4 @@ def supersonic_in_plane(RAD1,RAD2,Y1,Y2,TOL,XTY,CPI):
     W = np.zeros_like(RAD1)
     W[np.abs(XTY)>TOL] = (-F1[np.abs(XTY)>TOL] + F2[np.abs(XTY)>TOL])/(XTY[np.abs(XTY)>TOL]*CPI)
     
-    
-    
     return U, V, W
-
-
-#def vortex_split(RNMAX,CHORD,DELX,J,B2,X1,X2,Y1,Y2,Z1,Z2,XCNTL,XLOAD,U,n_cw,n_cp):
-    
-    #boolean = np.ones_like(CHORD)*True
-    
-    #PION2  = 0.5*np.pi/RNMAX
-    #PION3  = 0.5*PION2
-    #PION4  = PION2/8.
-    #RJ     = 2*J -1
-    #RJ1    = 4*J -3
-    #WEIGHT = PION2 *np.sin(RJ*PION2) *CHORD
-    #WT1    = PION3*np.sin(RJ1*PION3) *CHORD
-    #XU1    = XLOAD -WT1
-    #RYZ1   = Y1*Y1 + Z1*Z1
-    #RYZ2   = Y2*Y2 + Z2*Z2
-    #X1SQ   = X1*X1
-    #RS1    = X1SQ - B2 *RYZ1
-    #RS2    = X1SQ - B2 *RYZ2
-    
-    #RS1[RS1>0] = np.square(RS1[RS1>0])
-    #RS2[RS2>0] = np.square(RS2[RS2>0])
-    
-    #RNF = 4.0 *WEIGHT *DELX
-    
-    #boolean[RS1<0.]  = False
-    #boolean[RS1>RNF] = False
-    
-    #RJM = J-1
-    #COSM = np.cos(2*PION2*RJM)
-    
-    
-    #L      = np.linspace(1,8,8)
-    #RVL_a  = 4*L-3
-    #XDIF_a = RVL_a*DELX/32.
-    #WFR_a  = 0.1250
-    #XINT_a = XCNTL-XU1-XDIF_a
-    
-    ## If it's a LE vortex
-    #RVL_b  = 16*(J-1)+2*L-1
-    #XDIF_b = 0.5 *(COSM - np.cos(PION4 *RVL_b))*CHORD
-    #WFR_b  = PION4 *np.sin(PION4 *RVL_b)
-    #XINT_b = XCNTL - XU1 -XDIF_b
-    
-    ## indices for LE, [:,:,0:n_cw:n_cp*2] update and make consistent vectors
-    #XINT = XINT_a
-    #XINT[:,:,0:n_cw:n_cp*2] = XINT_b[:,:,0:n_cw:n_cp*2]
-    
-    #WFR  = np.ones_like(WFR_b)
-    #WFR[:,:,0:n_cw:n_cp*2]  = WFR_B[:,:,0:n_cw:n_cp*2]
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    #return U

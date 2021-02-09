@@ -98,6 +98,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     if 'main_wing' in geometry.wings:
         c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
         x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
+        z_mac      = geometry.wings['main_wing'].aerodynamic_center[2] + geometry.wings['main_wing'].origin[0][2]
     else:
         c_bar = 0.
         x_mac = 0.
@@ -108,10 +109,13 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
                     x_mac = wing.aerodynamic_center[0] + wing.origin[0][0]
             
     x_cg       = geometry.mass_properties.center_of_gravity[0][0]
+    z_cg       = geometry.mass_properties.center_of_gravity[0][2]
     if x_cg == None:
         x_m = x_mac 
+        z_m = z_mac
     else:
         x_m = x_cg
+        z_m = z_cg
     
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
     mach = conditions.freestream.mach_number         # mach number
@@ -120,14 +124,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # generate vortex distribution 
     VD   = generate_wing_vortex_distribution(geometry,settings)  
     n_w  = VD.n_w    
+    n_cp = VD.n_cp  
     
     # pack vortex distribution 
     geometry.vortex_distribution = VD
-    
-    #from SUAVE.Plots.Geometry_Plots import plot_vehicle
-    #plot_vehicle(geometry)    
-    #import matplotlib.pyplot as plt  
-    #plt.show()
     
     # Build induced velocity matrix, C_mn
     C_mn, s, t, CHORD, RFLAG = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
@@ -153,17 +153,14 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     RHS = RHS*RFLAG
     
     # Compute vortex strength  
-    n_cp     = VD.n_cp  
-    gamma    = np.linalg.solve(A,RHS)
-    gamma_3d = np.repeat(np.atleast_3d(gamma), n_cp ,axis = 2 )
-    u        = np.sum(C_mn[:,:,:,0]*gamma_3d, axis = 2)  
+    gamma = np.linalg.solve(A,RHS)
     
     ## ---------------------------------------------------------------------------------------
     ## STEP 10: Compute Pressure Coefficient
     ## ------------------ --------------------------------------------------------------------
 
     # COMPUTE FREE-STREAM AND ONSET FLOW PARAMETERS. If yaw is ever added these equations would change
-    B2     = -np.tile((1 - mach**2),n_cp)
+    B2     = np.tile((mach**2 - 1),n_cp)
     COSALF = np.tile(np.cos(aoa),n_cp)
     FORAXL = COSALF
     
@@ -223,7 +220,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     SID = ((ZBH-ZAH)/D)[:,0::n_cw] # Just the LE values
     COD = ((YBH-YAH)/D)[:,0::n_cw] # Just the LE values
     
-    
     # Now on to each strip
     PION = (np.pi *(1.0 - FLAX) + 2.0 *FLAX) /RNMAX
     ADC  = 0.5*PION
@@ -237,14 +233,12 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # SINF REFERENCES THE LOAD CONTRIBUTION OF IRT-VORTEX TO THE
     # STRIP NOMINAL AREA, I.E., AREA OF STRIP ASSUMING CONSTANT
     # (CHORDWISE) HORSESHOE SPAN.    
-    
     VST = s[:,0,:]
     VSS = s[:,0,:]
     
     SINF = ADC * DCP *VST /VSS
     
     # Split into chordwise strengths and sum into strips
-    #CNC = np.sum(np.array(np.array_split(SINF,n_cw,axis=1)),axis=2).T
     CNC = np.array(np.split(np.reshape(SINF,(-1,n_cw)).sum(axis=1),len(mach)))
     
     # COMPUTE SLOPE (TX) WITH RESPECT TO X-AXIS AT LOAD POINTS BY INTER
@@ -261,7 +255,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     IRTX[K>1] = IRT[[K>1]] - 1
     
     # The exact results of IRTX will not match VORLAX because of indexing differences in python
-    
     RKX = KX
     X1  = .5 *(1. - np.cos (RKX *PION))
     X1  = X1 *(1.0 - FLAX) + (RKX - .25) *PION /2.0 *FLAX
@@ -283,7 +276,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     SLOPE = (Z2c-Z1c)/(X2c-X1c)
     
-    # Forward Indices
+    # This section takes differences for F1 and F2 based on the slopes
     all_aft_indices = np.linspace(1,(n_w*n_cw*n_sw),(n_w*n_cw*n_sw),dtype=int)
     all_for_indices = all_aft_indices-1
     
@@ -292,7 +285,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     aft_indices = all_aft_indices[mask1]
     for_indices = all_for_indices[mask1]
-    
     
     F1 = SLOPE
     F1[:,aft_indices] = SLOPE[:,for_indices]
@@ -323,7 +315,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     XX = XLE
     
-    
     SPC    = 1. # Leading edge suction multiplier. See documentation. This is a negative integer if used
     DCP_LE = DCP[:,0::n_cw]
     CLE    = 0.5* DCP_LE *np.sqrt(XX)*FLAX
@@ -331,25 +322,24 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     # SLE is slope at leading edge
     SLE  = SLOPE[:,0::n_cw]
-    
     FKEY = 1. - JTS*(1+JTS)
     XCOS = 1./np.sqrt(1+(SLE-ZETA)**2)
     XSIN = (SLE-ZETA)*XCOS
     TFX  = XCOS
+    TFZ  = - XSIN
     
     if SPC<0.:
         TFX = XSIN*np.sign(DCP[:,0::n_cw])*FKEY
-    CAXL = CAXL -TFX*CSUC
-    TFZ  = - XSIN
-    if SPC<0.:
         TFZ = np.abs(XCOS)*np.sign(DCP[:,0::n_cw])*FKEY
+        
+    CAXL = CAXL -TFX*CSUC
+
     # Add a dimension into the suction to be chordwise
     T2_LE = T2[:,0::n_cw]
     CNC   = CNC + CSUC*np.sqrt(1+T2_LE)*TFZ
     
     # FCOS AND FSIN ARE THE COSINE AND SINE OF THE ANGLE BETWEEN
     # THE CHORDLINE OF THE IR-STRIP AND THE X-AXIS    
-
     FCOS = 1./np.sqrt(1.+ ZETA*ZETA)
     FSIN = FCOS*ZETA
     
@@ -366,34 +356,28 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     # BMX, BMY, AND BMZ ARE THE COMPONENTS ALONG THE BODY AXES
     # OF THE STRIP MOMENT (ABOUT MOM. REF. POINT) CONTRIBUTION.
-    X    = ((VD.XAH+VD.XBH)/2)[0::n_cw]  # These are all LE values
-    Y    = ((VD.YAH+VD.YBH)/2)[0::n_cw]   # These are all LE values
-    Z    = ((VD.ZAH+VD.ZBH)/2)[0::n_cw]  # These are all LE values
+    X      = ((VD.XAH+VD.XBH)/2)[0::n_cw]  # These are all LE values
+    Y      = ((VD.YAH+VD.YBH)/2)[0::n_cw]  # These are all LE values
+    Z      = ((VD.ZAH+VD.ZBH)/2)[0::n_cw]  # These are all LE values
     SINALF = SINALF[:,0::n_cw]
     COSALF = COSALF[:,0::n_cw]   
-    ZBAR = 0.0 # Moment reference center in the Z axis, need to update
-    XBAR = np.ones(n_sw*n_w) * x_m
-    BMX  = BFZ * Y - BFY * (Z - ZBAR)
-    BMX  = BMX + SICPLE
-    BMY  = BMLE * COD + BFX * (Z - ZBAR) - BFZ * (X - XBAR)
-    BMZ  = BMLE * SID - BFX *Y + BFY * (X - XBAR)
-    CDC  = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) *COSALF
-    CDC  = CDC * CHORD_strip
-    CMTC = BMLE + CNC * (0.25 - XLE)
+    XBAR   = np.ones(n_sw*n_w) * x_m
+    ZBAR   = np.ones(n_sw*n_w) * z_m
+    BMX    = BFZ * Y - BFY * (Z - ZBAR)
+    BMX    = BMX + SICPLE
+    BMY    = BMLE * COD + BFX * (Z - ZBAR) - BFZ * (X - XBAR)
+    CDC    = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) *COSALF
+    CDC    = CDC * CHORD_strip
     
     ES    = 2*s[:,0,:]
     ES    = ES[:,0::n_cw]
     STRIP = ES *CHORD_strip
     LIFT  = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
     DRAG  = CDC*ES 
-    FY    = (BFY *COPSI - BFX *SINPSI) *STRIP
-    FN    = CNC *ES
     
     MOMENT = STRIP *(BMY *COPSI - BMX *SINPSI)
-    RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF * SINPSI + BMZ *SINALF)    
-    YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)  
     
-    # Now calculate the coefficients in total and for each wing
+    # Now calculate the coefficients for each wing and in total
     cl_y     = LIFT/CHORD_strip/ES
     cdi_y    = DRAG/CHORD_strip/ES
     CL_wing  = np.array(np.split(np.reshape(LIFT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
