@@ -1,4 +1,4 @@
-# aerodynamics.py
+# sears_haack.py
 # 
 # Created:  Feb 2021, T. MacDonald
 # Modified: 

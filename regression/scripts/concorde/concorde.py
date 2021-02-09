@@ -158,8 +158,6 @@ def base_analysis(vehicle):
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     aerodynamics.settings.span_efficiency = 0.95
-    aerodynamics.settings.wave_drag_type = 'Sears-Haack'
-    aerodynamics.settings.volume_wave_drag_scaling = 2.3
     analyses.append(aerodynamics)
     
     

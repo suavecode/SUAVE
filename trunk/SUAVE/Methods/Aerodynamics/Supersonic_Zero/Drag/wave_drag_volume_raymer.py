@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
-# wave_drag_volume_Raymer.py
+# wave_drag_volume_raymer.py
 # 
 # Created:  Jun 2014, T. MacDonald
 # Modified: Feb 2019, T. MacDonald
