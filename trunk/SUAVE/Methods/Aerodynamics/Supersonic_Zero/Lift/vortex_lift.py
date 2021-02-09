@@ -6,6 +6,7 @@
 #           Jan 2016, E. Botero
 #           Aug 2018, T. MacDonald
 #           Apr 2020, M. Clarke
+#           Feb 2021, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -62,11 +63,10 @@ def vortex_lift(state,settings,geometry):
                 gamma      = wing.sweeps.leading_edge
                 
             AR = wing.aspect_ratio
-            a = AoA[Mc < 1.0]
-            
+            a = np.abs(AoA[Mc < 1.0])
+            signs = np.sign(AoA[Mc < 1.0])
             # Calculate vortex lift
-            vortex_cl[Mc < 1.0] += np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(gamma) - np.sin(a)/(2*np.cos(gamma)))
-           
+            vortex_cl[Mc < 1.0] += signs*(np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(gamma)-np.sin(a)/(2*np.cos(gamma))))
             # Apply to wing lift
             wing_lift[Mc < 1.0] = vortex_cl[Mc < 1.0]
         
