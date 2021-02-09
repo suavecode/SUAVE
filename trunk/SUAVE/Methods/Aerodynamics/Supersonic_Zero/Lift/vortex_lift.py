@@ -63,8 +63,9 @@ def vortex_lift(state,settings,geometry):
                 gamma      = wing.sweeps.leading_edge
                 
             AR = wing.aspect_ratio
-            a = np.abs(AoA[Mc < 1.0])
-            signs = np.sign(AoA[Mc < 1.0])
+            effective_AoA = AoA[Mc < 1.0] + wing.twists.root # add incidence to the theory
+            a = np.abs(effective_AoA)
+            signs = np.sign(effective_AoA)
             # Calculate vortex lift
             vortex_cl[Mc < 1.0] += signs*(np.pi*AR/2*np.sin(a)*np.cos(a)*(np.cos(a)+np.sin(a)*np.cos(a)/np.cos(gamma)-np.sin(a)/(2*np.cos(gamma))))
             # Apply to wing lift
