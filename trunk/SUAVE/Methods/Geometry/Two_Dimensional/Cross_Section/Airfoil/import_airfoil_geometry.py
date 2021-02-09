@@ -46,7 +46,6 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
     """      
  
     num_airfoils = len(airfoil_geometry_files)
-    
     # unpack      
 
     airfoil_data                    = Data()

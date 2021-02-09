@@ -31,7 +31,7 @@ sys.path.append('../Vehicles')
 
 from Boeing_737 import vehicle_setup, configs_setup
 
-from SUAVE.Input_Output.OpenVSP import write
+
 
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
      print_compress_drag, \
@@ -47,11 +47,8 @@ def main():
     configs, analyses = full_setup()
 
     simple_sizing(configs, analyses)
-        
     configs.finalize()
     analyses.finalize() 
-    
-    
  
     # mission analysis
     mission = analyses.missions.base
@@ -64,17 +61,17 @@ def main():
     # plt the old results
     plot_mission(results)
     plot_mission(old_results,'k-')
-    plt.show(block=True)
+    #plt.show(block=True)
     
     # check the results
-    #check_results(results,old_results) 
+    check_results(results,old_results) 
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
     
     # plot vehicle 
-    #plot_vehicle(configs.base,plot_control_points = True)      
+    plot_vehicle(configs.base,plot_control_points = True)      
     return
 
 
@@ -87,10 +84,6 @@ def full_setup():
     # vehicle data
     vehicle  = vehicle_setup()
     print_wing_segs(vehicle)
-    
-    vehicle.wings.pop('horizontal_stabilizer')
-    vehicle.wings.pop('vertical_stabilizer')
-    #vehicle.wings.pop('tail')
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
@@ -284,7 +277,6 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
-    base_segment.process.finalize.post_process.stability   = SUAVE.Methods.skip 
 
 
     # ------------------------------------------------------------------

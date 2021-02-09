@@ -99,13 +99,13 @@ def vehicle_setup():
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Root'
     segment.percent_span_location         = 0.0
-    #segment.twist                         = 4. * Units.deg
+    segment.twist                         = 4. * Units.deg
     segment.root_chord_percent            = 1.
     segment.thickness_to_chord            = 0.1
     segment.dihedral_outboard             = 2.5 * Units.degrees
     segment.sweeps.quarter_chord          = 28.225 * Units.degrees
     segment.thickness_to_chord            = .1
-    #segment.append_airfoil(root_airfoil)
+    segment.append_airfoil(root_airfoil)
     wing.append_segment(segment)
 
     yehudi_airfoil                        = SUAVE.Components.Wings.Airfoils.Airfoil()
@@ -113,13 +113,13 @@ def vehicle_setup():
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Yehudi'
     segment.percent_span_location         = 0.324
-    #segment.twist                         = 0.047193 * Units.deg
+    segment.twist                         = 0.047193 * Units.deg
     segment.root_chord_percent            = 0.5
     segment.thickness_to_chord            = 0.1
     segment.dihedral_outboard             = 5.5 * Units.degrees
     segment.sweeps.quarter_chord          = 25. * Units.degrees
     segment.thickness_to_chord            = .1
-    #segment.append_airfoil(yehudi_airfoil)
+    segment.append_airfoil(yehudi_airfoil)
     wing.append_segment(segment)
 
     mid_airfoil                           = SUAVE.Components.Wings.Airfoils.Airfoil()
@@ -127,13 +127,13 @@ def vehicle_setup():
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Section_2'
     segment.percent_span_location         = 0.963
-    #segment.twist                         = 0.00258 * Units.deg
+    segment.twist                         = 0.00258 * Units.deg
     segment.root_chord_percent            = 0.220
     segment.thickness_to_chord            = 0.1
     segment.dihedral_outboard             = 5.5 * Units.degrees
     segment.sweeps.quarter_chord          = 56.75 * Units.degrees
     segment.thickness_to_chord            = .1
-    #segment.append_airfoil(mid_airfoil)
+    segment.append_airfoil(mid_airfoil)
     wing.append_segment(segment)
 
     tip_airfoil                           =  SUAVE.Components.Wings.Airfoils.Airfoil()
@@ -141,13 +141,13 @@ def vehicle_setup():
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Tip'
     segment.percent_span_location         = 1.
-    #segment.twist                         = 0. * Units.degrees
+    segment.twist                         = 0. * Units.degrees
     segment.root_chord_percent            = 0.10077
     segment.thickness_to_chord            = 0.1
     segment.dihedral_outboard             = 0.
     segment.sweeps.quarter_chord          = 0.
     segment.thickness_to_chord            = .1
-    #segment.append_airfoil(tip_airfoil)
+    segment.append_airfoil(tip_airfoil)
     wing.append_segment(segment)
 
     # control surfaces -------------------------------------------

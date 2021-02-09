@@ -22,7 +22,7 @@ from SUAVE.Components.Energy.Networks import Lift_Cruise , Turbofan
 from SUAVE.Components.Energy.Converters import Propeller, Rotor 
 ## @ingroup Plots-Geometry_Plots
 def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
-    """This plots vortex lattice panels created when Fidelity Zero Aerodynamics 
+    """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
     Routine is initialized
 
     Assumptions:
