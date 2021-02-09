@@ -1,10 +1,11 @@
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
-# wave_drag_volume.py
+# wave_drag_volume_Raymer.py
 # 
 # Created:  Jun 2014, T. MacDonald
 # Modified: Feb 2019, T. MacDonald
 #           Jan 2020, T. MacDonald
 #           Apr 2020, M. Clarke
+#           Feb 2021, T. MacDonald
 
 import numpy as np
 from SUAVE.Core import Units
@@ -13,7 +14,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 from SUAVE.Components.Wings import Main_Wing
 
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
-def wave_drag_volume(vehicle,mach,scaling_factor):
+def wave_drag_volume_raymer(vehicle,mach,scaling_factor):
     """Computes the volume drag
 
     Assumptions:
