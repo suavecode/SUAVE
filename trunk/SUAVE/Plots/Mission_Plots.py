@@ -9,8 +9,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 from SUAVE.Core import Units 
-import matplotlib.pyplot as plt  
-import mpl_toolkits.mplot3d as plt3d
+import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.ticker as ticker 
 # ------------------------------------------------------------------
@@ -476,7 +475,7 @@ def plot_flight_conditions(results, line_color = 'bo-', save_figure = False, sav
         x        = segment.conditions.frames.inertial.position_vector[:,0]/ Units.mile
         y        = segment.conditions.frames.inertial.position_vector[:,1]
         z        = segment.conditions.frames.inertial.position_vector[:,2]
-        altitude = segment.conditions.freestream.altitude[:,0] / Units.feet
+        altitude = segment.conditions.freestream.altitude[:,0]/Units.feet
         
         axes = fig.add_subplot(2,2,1)
         axes.plot(time, altitude, line_color)
@@ -577,7 +576,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
         axes.plot(time, tm, line_color )
         axes.set_xlabel('Time (mins)',axis_font)
         axes.set_ylabel('Tip Mach',axis_font)
-        set_axes(axes)   
+        set_axes(axes)
         
     if save_figure:
         plt.savefig(save_filename + file_type)  
@@ -842,7 +841,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         time         = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         prop_rpm     = results.segments[i].conditions.propulsion.propeller_rpm[:,0] 
         prop_thrust  = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
-        prop_torque  = results.segments[i].conditions.propulsion.propeller_motor_torque                   
+        prop_torque  = results.segments[i].conditions.propulsion.propeller_motor_torque[:,0]
         prop_effp    = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
         prop_effm    = results.segments[i].conditions.propulsion.propeller_motor_efficiency[:,0]
         prop_Cp      = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
@@ -960,7 +959,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         rpm    = results.segments[i].conditions.propulsion.propeller_rpm [:,0] 
         thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
-        torque = results.segments[i].conditions.propulsion.propeller_motor_torque          [:,0]
+        torque = results.segments[i].conditions.propulsion.propeller_motor_torque[:,0]
         effp   = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
         effm   = results.segments[i].conditions.propulsion.propeller_motor_efficiency[:,0]
         Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
@@ -1148,7 +1147,8 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
     n_w        = VD.n_w
     
     axis_font  = {'size':'12'}  	
-    img_idx    = 1 	
+    img_idx    = 1
+    seg_idx    = 1
     for segment in results.segments.values():   	
         num_ctrl_pts = len(segment.conditions.frames.inertial.time)	
         for ti in range(num_ctrl_pts):  
@@ -1166,7 +1166,8 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
             
             if save_figure: 
                 plt.savefig( save_filename + '_' + str(img_idx) + file_type) 	
-            img_idx += 1 
+            img_idx += 1
+        seg_idx +=1
         
     return      
  

@@ -62,9 +62,9 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     """        
 
     # ==============================================
-    # Unpack
+        # Unpack
     # ==============================================
-    atmo            = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmo            = analyses.atmosphere
     altitude        = airport.altitude * Units.ft
     delta_isa       = airport.delta_isa
     weight          = vehicle.mass_properties.takeoff
@@ -78,13 +78,13 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     # Computing atmospheric conditions
     # ==============================================
     atmo_values       = atmo.compute_values(altitude,delta_isa)
-    conditions        = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics() 
+    conditions        = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     
-    p                 = atmo_values.pressure
-    T                 = atmo_values.temperature
-    rho               = atmo_values.density
-    a                 = atmo_values.speed_of_sound
-    mu                = atmo_values.dynamic_viscosity
+    p   = atmo_values.pressure
+    T   = atmo_values.temperature
+    rho = atmo_values.density
+    a   = atmo_values.speed_of_sound
+    mu  = atmo_values.dynamic_viscosity
     sea_level_gravity = atmo.planet.sea_level_gravity
     
     # ==============================================

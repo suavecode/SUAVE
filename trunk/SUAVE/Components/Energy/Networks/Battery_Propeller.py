@@ -87,14 +87,14 @@ class Battery_Propeller(Propulsor):
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                rpm                     [radians/sec]
-                current                 [amps]
-                battery_draw            [watts]
-                battery_energy          [joules]
-                voltage_open_circuit    [volts]
-                voltage_under_load      [volts]
-                propeller_motor_torque  [N-M]
-                propeller_torque        [N-M]
+                rpm                  [radians/sec]
+                current              [amps]
+                battery_draw         [watts]
+                battery_energy       [joules]
+                voltage_open_circuit [volts]
+                voltage_under_load   [volts]
+                motor_torque         [N-M]
+                propeller_torque     [N-M]
     
             Properties Used:
             Defaulted values

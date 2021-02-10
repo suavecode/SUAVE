@@ -53,8 +53,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     fig = plt.figure(save_filename) 
     fig.set_size_inches(8,8) 
     axes = Axes3D(fig)    
-    #axes.view_init(elev= 30, azim= 210)  
-    axes.view_init(elev = 30, azim = 135) 
+    axes.view_init(elev= 30, azim= 210)
     
     # -------------------------------------------------------------------------
     # PLOT WING

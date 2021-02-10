@@ -115,7 +115,7 @@ class Internal_Combustion_Propeller(Propulsor):
         R                                            = propeller.tip_radius   
         rpm                                          = engine.inputs.speed / Units.rpm
           
-        conditions.propulsion.rpm                    = rpm
+        conditions.propulsion.propeller_rpm          = rpm
         conditions.propulsion.propeller_torque       = Q
         conditions.propulsion.power                  = P
         conditions.propulsion.propeller_tip_mach     = (R*rpm*Units.rpm)/a

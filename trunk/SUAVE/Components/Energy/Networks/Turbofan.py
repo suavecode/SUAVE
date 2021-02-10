@@ -60,9 +60,6 @@ class Turbofan(Propulsor):
         self.tag = 'Turbofan'
         self.number_of_engines    = 0.0
         self.nacelle_diameter     = 0.0
-        self.nacelle_start        = 0.2
-        self.nacelle_end          = 1.0
-        self.nacelle_offset       = 0.5
         self.engine_length        = 0.0
         self.bypass_ratio         = 0.0
         self.thrust_angle         = 0.0
