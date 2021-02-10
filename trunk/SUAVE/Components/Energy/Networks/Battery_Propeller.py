@@ -265,7 +265,7 @@ class Battery_Propeller(Propulsor):
         # Unpack
         q_motor   = segment.state.conditions.propulsion.propeller_motor_torque          
         q_prop    = segment.state.conditions.propulsion.propeller_torque
-        v_actual  = segment.state.conditions.propulsion.voltage_under_load
+        v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
         v_predict = segment.state.unknowns.battery_voltage_under_load
         v_max     = self.voltage
         

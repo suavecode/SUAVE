@@ -234,15 +234,13 @@ def update_stability(segment):
     """    
 
     # unpack
-    conditions      = segment.state.conditions
+    conditions = segment.state.conditions
     stability_model = segment.analyses.stability
     
     # call aerodynamics model
     if stability_model:
-        results = stability_model(segment.state.conditions)        
+        results = stability_model( segment.state.conditions )
         conditions.stability.update(results)
     
     return
-
- 
 

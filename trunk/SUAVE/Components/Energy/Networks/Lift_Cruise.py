@@ -290,8 +290,8 @@ class Lift_Cruise(Propulsor):
         # Store network performance  
         conditions.propulsion.battery_draw                      = battery_draw
         conditions.propulsion.battery_energy                    = battery_energy
-        conditions.propulsion.voltage_open_circuit              = voltage_open_circuit
-        conditions.propulsion.voltage_under_load                = voltage_under_load 
+        conditions.propulsion.battery_voltage_open_circuit      = voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load        = voltage_under_load 
         conditions.propulsion.battery_efficiency                = (battery_draw+battery.resistive_losses)/battery_draw
         conditions.propulsion.payload_efficiency                = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
         conditions.propulsion.battery_specfic_power             = -battery_draw/battery.mass_properties.mass    # kWh/kg

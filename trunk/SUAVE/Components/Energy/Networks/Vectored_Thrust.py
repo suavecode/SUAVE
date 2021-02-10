@@ -192,8 +192,8 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.battery_current                 = current
         conditions.propulsion.battery_draw                    = battery_draw
         conditions.propulsion.battery_energy                  = battery_energy 
-        conditions.propulsion.voltage_open_circuit            = voltage_open_circuit
-        conditions.propulsion.voltage_under_load              = voltage_under_load  
+        conditions.propulsion.battery_voltage_open_circuit    = voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load      = voltage_under_load  
         conditions.propulsion.state_of_charge                 = state_of_charge        
         conditions.propulsion.propeller_motor_torque          = motor.outputs.torque
         conditions.propulsion.propeller_torque                = Q
@@ -286,7 +286,7 @@ class Vectored_Thrust(Propulsor):
         # Unpack
         q_motor   = segment.state.conditions.propulsion.propeller_motor_torque          
         q_prop    = segment.state.conditions.propulsion.propeller_torque
-        v_actual  = segment.state.conditions.propulsion.voltage_under_load
+        v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
         v_predict = segment.state.unknowns.battery_voltage_under_load
         v_max     = self.voltage
         

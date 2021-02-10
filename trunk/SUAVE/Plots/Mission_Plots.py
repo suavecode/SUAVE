@@ -10,6 +10,7 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Units 
 import matplotlib.pyplot as plt
+import mpl_toolkits.mplot3d as plt3d
 import numpy as np
 import matplotlib.ticker as ticker 
 # ------------------------------------------------------------------
@@ -796,8 +797,8 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         eta_l          = results.segments[i].conditions.propulsion.throttle_lift[:,0]
         energy         = results.segments[i].conditions.propulsion.battery_energy[:,0]/ Units.Wh
         specific_power = results.segments[i].conditions.propulsion.battery_specfic_power[:,0]
-        volts          = results.segments[i].conditions.propulsion.voltage_under_load[:,0] 
-        volts_oc       = results.segments[i].conditions.propulsion.voltage_open_circuit[:,0]  
+        volts          = results.segments[i].conditions.propulsion.battery_voltage_under_load[:,0] 
+        volts_oc       = results.segments[i].conditions.propulsion.battery_voltage_open_circuit[:,0]  
                     
         axes = fig.add_subplot(2,2,1)
         axes.plot(time, eta, 'bo-',label='Propeller Motor')

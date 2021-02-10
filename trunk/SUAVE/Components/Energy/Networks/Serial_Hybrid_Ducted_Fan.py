@@ -146,10 +146,10 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
           
-        conditions.propulsion.current              = current
-        conditions.propulsion.battery_draw         = battery_draw
-        conditions.propulsion.battery_energy       = battery_energy
-        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
+        conditions.propulsion.battery_current              = current
+        conditions.propulsion.battery_draw                 = battery_draw
+        conditions.propulsion.battery_energy               = battery_energy
+        conditions.propulsion.battery_voltage_open_circuit = voltage_open_circuit
         
         results.vehicle_mass_rate   = generator.outputs.vehicle_mass_rate
         return results

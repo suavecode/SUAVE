@@ -20,7 +20,7 @@ def compressibility_drag_wing_total(state,settings,geometry):
     """Sums compressibility drag for all wings combined
 
     Assumptions:
-        None
+    None
 
     Source:
     adg.stanford.edu (Stanford AA241 A/B Course Notes)
