@@ -76,7 +76,10 @@ def main():
     results = mission.evaluate()
     
     masses, cg_mins, cg_maxes = compute_fuel_center_of_gravity_longitudinal_range(configs.base)
-    plot_cg_map(masses, cg_mins, cg_maxes)  
+    plot_cg_map(masses, cg_mins, cg_maxes, units = 'metric', fig_title = 'Metric Test')  
+    plot_cg_map(masses, cg_mins, cg_maxes, units = 'imperial', fig_title = 'Foot Test')
+    plot_cg_map(masses, cg_mins, cg_maxes, units = 'imperial', special_length = 'inches',
+                fig_title = 'Inch Test')
     
     results.fuel_tank_test = Data()
     results.fuel_tank_test.masses   = masses
