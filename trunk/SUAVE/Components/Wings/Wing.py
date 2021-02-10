@@ -65,7 +65,7 @@ class Wing(Lofted_Body):
 
         self.tag             = 'wing'
         self.mass_properties = Mass_Properties()
-        self.origin          = [[0.0,0.0,0.0]]
+        self.origin          = np.array([[0.0,0.0,0.0]])
         
         self.symmetric                 = True
         self.vertical                  = False
