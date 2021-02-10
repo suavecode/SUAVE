@@ -24,16 +24,8 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_harmonic_to_third_octave
 
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
-    ''' This computes the SPL of rotors and propellers using Frequency based methods'
-    
-    Source:
-        1. Herniczek, M., Feszty, D., Meslioui, S., Park, Jong Applicability of Early Acoustic Theory for Modern Propeller Design
-        2. Schlegel, R., King, R., and Muli, H., Helicopter Rotor Noise Generation and Propagation, Technical Report, 
-        US Army Aviation Material Laboratories, Fort Eustis, VA, 1966
-  
-    Assumptions:
-        - Empirical based procedure.           
+def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc, harmonic_test ):
+    ''' This computes kal based procedure.           
         - Hanson method used to compute rotational noise  
         - Vortex noise is computed using the method outlined by Schlegel et. al 
         
@@ -79,9 +71,7 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
         SPL_v  = np.zeros_like(SPL) 
 
     # loop for control points  
-    for i in range(ctrl_pts):           
-        auc_opts = conditions.noise.sources[propeller].acoustic_outputs 
-        
+    for i in range(ctrl_pts):            
         if harmonic_test.any():
             harmonics    = harmonic_test
         else:
@@ -111,22 +101,22 @@ def propeller_low_fidelity(propeller,segment,settings, mic_loc, harmonic_test ):
             Vz             = velocity_vector[i][2]                             # z velocity of propeller 
             thrust_angle   = auc_opts.thrust_angle                             # propeller thrust angle
             AoA            = angle_of_attack[i][0]                             # vehicle angle of attack                                            
-            N              = auc_opts.number_of_engines                        # numner of Rotors
-            B              = auc_opts.number_of_blades                         # number of rotor blades
+            N              = network.number_of_engines                         # numner of propeller
+            B              = propeller.number_of_blades                        # number of propeller blades
             omega          = auc_opts.omega[i]                                 # angular velocity          
             T              = auc_opts.blade_thrust[i]                          # propeller/rotor blade thrust     
             T_distribution = auc_opts.blade_thrust_distribution[i]             # propeller/rotor blade thrust distribution  
             dT_dR          = auc_opts.blade_dT_dR[i]                           # differential thrust distribution
             dT_dr          = auc_opts.blade_dT_dr[i]                           # nondimensionalized differential thrust distribution 
-            Q              = auc_opts.blade_torque[i]                          # propeller/rotor blade torque    
-            Q_distribution = auc_opts.blade_torque_distribution[i]             # propeller/rotor blade torque distribution  
+            Q              = auc_opts.blade_torque[i]                          # propeller blade torque    
+            Q_distribution = auc_opts.blade_torque_distribution[i]             # propeller blade torque distribution  
             dQ_dR          = auc_opts.blade_dT_dR[i]                           # differential torque distribution
             dQ_dr          = auc_opts.blade_dT_dr[i]                           # nondimensionalized differential torque distribution
-            R              = auc_opts.radius_distribution                      # radial location     
-            c              = auc_opts.chord_distribution                       # blade chord    
-            beta           = auc_opts.twist_distribution                       # twist distribution  
-            t              = auc_opts.max_thickness_distribution               # twist distribution
-            MCA            = auc_opts.mid_chord_aligment                       # Mid Chord Alighment 
+            R              = propeller.radius_distribution                     # radial location     
+            c              = propeller.chord_distribution                      # blade chord    
+            beta           = propeller.twist_distribution                      # twist distribution  
+            t              = propeller.max_thickness_distribution              # twist distribution
+            MCA            = propeller.mid_chord_aligment                      # Mid Chord Alighment 
                                                                               
             f[h]          = B*omega*m/(2*np.pi)   
             n             = len(R)

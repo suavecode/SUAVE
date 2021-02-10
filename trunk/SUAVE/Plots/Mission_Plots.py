@@ -523,7 +523,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
         frames.inertial.time 
         propulsion.rpm 
         frames.body.thrust_force_vector 
-        propulsion.motor_torque 
+        propulsion.propeller_motor_torque          
         propulsion.propeller_tip_mach 
         
     Outputs: 
@@ -842,7 +842,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         time         = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         prop_rpm     = results.segments[i].conditions.propulsion.propeller_rpm[:,0] 
         prop_thrust  = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
-        prop_torque  = results.segments[i].conditions.propulsion.propeller_motor_torque
+        prop_torque  = results.segments[i].conditions.propulsion.propeller_motor_torque                   
         prop_effp    = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
         prop_effm    = results.segments[i].conditions.propulsion.propeller_motor_efficiency[:,0]
         prop_Cp      = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]
@@ -960,7 +960,7 @@ def plot_lift_cruise_network(results, line_color = 'bo-', save_figure = False, s
         time   = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
         rpm    = results.segments[i].conditions.propulsion.propeller_rpm [:,0] 
         thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
-        torque = results.segments[i].conditions.propulsion.propeller_motor_torque[:,0]
+        torque = results.segments[i].conditions.propulsion.propeller_motor_torque          [:,0]
         effp   = results.segments[i].conditions.propulsion.propeller_efficiency[:,0]
         effm   = results.segments[i].conditions.propulsion.propeller_motor_efficiency[:,0]
         Cp     = results.segments[i].conditions.propulsion.propeller_power_coefficient[:,0]

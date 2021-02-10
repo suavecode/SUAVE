@@ -122,7 +122,7 @@ class Propeller(Energy_Component):
            blade_dT_dr                       [N]
            blade_thrust_distribution         [N]
            disc_thrust_distribution          [N]
-           thrust_per_blade                  [N]
+           blade_thrust                      [N]
            thrust_coefficient                [-] 
            azimuthal_distribution            [rad]
            disc_azimuthal_distribution       [rad]
@@ -130,7 +130,7 @@ class Propeller(Energy_Component):
            blade_dQ_dr                       [Nm]
            blade_torque_distribution         [Nm] 
            disc_torque_distribution          [Nm] 
-           torque_per_blade                  [Nm] 
+           blade_torque                      [Nm] 
            torque_coefficient                [-] 
            power                             [W]    
            power_coefficient                 [-] 
@@ -434,14 +434,14 @@ class Propeller(Energy_Component):
                     blade_dT_dr                       = blade_dT_dr,
                     blade_thrust_distribution         = blade_T_distribution, 
                     disc_thrust_distribution          = blade_T_distribution_2d, 
-                    thrust_per_blade                  = thrust/B, 
+                    blade_thrust                      = thrust/B, 
                     thrust_coefficient                = Ct, 
                     disc_azimuthal_distribution       = azimuth_2d,
                     blade_dQ_dR                       = blade_dQ_dR,
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution, 
                     disc_torque_distribution          = blade_Q_distribution_2d, 
-                    torque_per_blade                  = torque/B,   
+                    blade_torque                      = torque/B,   
                     torque_coefficient                = Cq,   
                     power                             = power,
                     power_coefficient                 = Cp,                      
