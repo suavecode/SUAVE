@@ -66,7 +66,10 @@ def main():
     
     ## Use these scripts to test OpenVSP functionality if desired
     #from SUAVE.Input_Output.OpenVSP.vsp_write import write
+    #from SUAVE.Input_Output.OpenVSP.get_vsp_measurements import get_vsp_measurements
     #write(configs.base,'Concorde')
+    #get_vsp_measurements(filename='Unnamed_CompGeom.csv', measurement_type='wetted_area')
+    #get_vsp_measurements(filename='Unnamed_CompGeom.csv', measurement_type='wetted_volume')
 
     # These functions analyze the mission
     mission = analyses.missions.base
