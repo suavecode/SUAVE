@@ -4,6 +4,7 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
 #           Jul 2017, E. Botero
+#           Feb 2021, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -115,7 +116,7 @@ def update_freestream(segment):
     
     # unpack
     conditions = segment.state.conditions
-    Vvec = conditions.frames.inertial.velocity_vector
+    Vvec = conditions.frames.inertial.velocity_vector + segment.headwind
     rho  = conditions.freestream.density
     a    = conditions.freestream.speed_of_sound
     mu   = conditions.freestream.dynamic_viscosity

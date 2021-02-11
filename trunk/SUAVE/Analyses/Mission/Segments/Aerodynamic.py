@@ -16,6 +16,8 @@ from SUAVE.Methods.Missions import Segments as Methods
 
 from SUAVE.Analyses import Process
 
+import numpy as np
+
 # ----------------------------------------------------------------------
 #  Segment
 # ----------------------------------------------------------------------
@@ -65,6 +67,7 @@ class Aerodynamic(Simple):
         self.state.conditions.update( Conditions.Aerodynamics() )
         self.temperature_deviation = 0.0
         self.state.VTOL_flag       = False 
+        self.headwind  = np.array([[0.,0.,0.]])
         
         # --------------------------------------------------------------
         #   The Solving Process

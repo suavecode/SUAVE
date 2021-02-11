@@ -3,6 +3,7 @@
 # 
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
+#           Feb 2021, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -47,6 +48,7 @@ def initialize_conditions(segment):
     alt0        = segment.altitude_start 
     altf        = segment.altitude_end
     t_nondim    = segment.state.numerics.dimensionless.control_points
+    headwind    = segment.headwind
     conditions  = segment.state.conditions  
 
     # check for initial altitude
@@ -63,9 +65,9 @@ def initialize_conditions(segment):
     a = conditions.freestream.speed_of_sound    
     
     # process velocity vector
-    v_mag = mach_number * a
-    v_z   = -climb_rate # z points down
-    v_x   = np.sqrt( v_mag**2 - v_z**2 )
+    v_mag_wind = mach_number * a
+    v_z   = -climb_rate + headwind[:,2] # z points down
+    v_x   = np.sqrt( v_mag_wind**2 - v_z**2 ) - headwind[:,0]
     
     # pack conditions    
     conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]

@@ -5,6 +5,7 @@
 # Modified: Jan 2016, E. Botero
 #           Nov 2018, T. MacDonald
 #           May 2019, T. MacDonald
+#           Feb 2021, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -45,6 +46,7 @@ def initialize_conditions(segment):
     alt        = segment.altitude
     xf         = segment.distance
     mach       = segment.mach
+    headwind   = segment.headwind
     conditions = segment.state.conditions    
     
     # check for initial altitude
@@ -59,16 +61,17 @@ def initialize_conditions(segment):
     
     # compute speed, constant with constant altitude
     air_speed = mach * a
+    ground_speed = air_speed - headwind[:,0]
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
-    t_final   = xf / air_speed + t_initial
+    t_final   = xf / ground_speed + t_initial
     t_nondim  = segment.state.numerics.dimensionless.control_points
     time      =  t_nondim * (t_final-t_initial) + t_initial
     
     # pack
     segment.state.conditions.freestream.altitude[:,0]             = alt
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    segment.state.conditions.frames.inertial.velocity_vector[:,0] = air_speed[:,0]
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = ground_speed[:,0]
     segment.state.conditions.frames.inertial.time[:,0]            = time[:,0]
     

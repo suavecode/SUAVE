@@ -4,6 +4,7 @@
 # Created:  Jul 2014, SUAVE Team
 # Modified: Jan 2016, E. Botero
 #           May 2019, T. MacDonald
+#           Feb 2021, T. MacDonald
 
 # ----------------------------------------------------------------------
 #  Initialize Conditions
@@ -37,8 +38,11 @@ def initialize_conditions(segment):
     # unpack
     alt        = segment.altitude
     xf         = segment.distance
-    air_speed  = segment.air_speed       
+    air_speed  = segment.air_speed    
+    headwind   = segment.headwind
     conditions = segment.state.conditions 
+    
+    ground_speed = air_speed - headwind[:,0]
     
     # check for initial altitude
     if alt is None:
@@ -47,12 +51,12 @@ def initialize_conditions(segment):
     
     # dimensionalize time
     t_initial = conditions.frames.inertial.time[0,0]
-    t_final   = xf / air_speed + t_initial
+    t_final   = xf / ground_speed + t_initial
     t_nondim  = segment.state.numerics.dimensionless.control_points
     time      = t_nondim * (t_final-t_initial) + t_initial
     
     # pack
     segment.state.conditions.freestream.altitude[:,0]             = alt
     segment.state.conditions.frames.inertial.position_vector[:,2] = -alt # z points down
-    segment.state.conditions.frames.inertial.velocity_vector[:,0] = air_speed
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = ground_speed[:,0]
     segment.state.conditions.frames.inertial.time[:,0]            = time[:,0]
