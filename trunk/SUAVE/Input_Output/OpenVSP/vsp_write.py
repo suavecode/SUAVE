@@ -11,6 +11,7 @@
 #           Mar 2020, M. Clarke
 #           May 2020, E. Botero
 #           Jul 2020, E. Botero 
+#           Feb 2021, T. MacDonald
 
 
 # ----------------------------------------------------------------------
@@ -134,12 +135,12 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, OML_set_ind = 4, writ
         if verbose:
             print('Writing '+vehicle.propulsors.turbofan.tag+' to OpenVSP Model')
         turbofan  = vehicle.propulsors.turbofan
-        write_vsp_turbofan(turbofan)
+        write_vsp_turbofan(turbofan, OML_set_ind)
         
     if 'turbojet' in vehicle.propulsors:
         print('Warning: no meshing sources are currently implemented for the nacelle')
         turbofan  = vehicle.propulsors.turbojet
-        write_vsp_turbofan(turbofan)    
+        write_vsp_turbofan(turbofan, OML_set_ind)    
     
     # -------------
     # Fuselage
@@ -155,15 +156,14 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, OML_set_ind = 4, writ
             area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind,
                                            OML_set_ind)
     
-    # Write the vehicle to the file
-    if verbose:
-        print('Saving OpenVSP File')
+    vsp.Update()
     
-        cwd = os.getcwd()
-        filename = tag + ".vsp3"
-        if verbose:
-            print('Saving OpenVSP File at '+ cwd + '/' + filename)
-        vsp.WriteVSPFile(filename)
+    # Write the vehicle to the file
+    cwd = os.getcwd()
+    filename = tag + ".vsp3"
+    if verbose:
+        print('Saving OpenVSP File at '+ cwd + '/' + filename)
+    vsp.WriteVSPFile(filename)
         
     if write_igs:
         if verbose:
@@ -452,7 +452,7 @@ def write_vsp_wing(wing, area_tags, fuel_tank_set_ind, OML_set_ind):
     return area_tags, wing_id
 
 ## @ingroup Input_Output-OpenVSP
-def write_vsp_turbofan(turbofan):
+def write_vsp_turbofan(turbofan, OML_set_ind):
     """This converts turbofans into OpenVSP format.
     
     Assumptions:
@@ -520,27 +520,29 @@ def write_vsp_turbofan(turbofan):
             vsp.SetParmVal(nac_id, "Super_N", "XSecCurve", 1.)             
             
         else:
-            stack_id = vsp.AddGeom("STACK")
-            vsp.SetGeomName(stack_id, tf_tag+'_'+str(ii+1))
+            nac_id = vsp.AddGeom("STACK")
+            vsp.SetGeomName(nac_id, tf_tag+'_'+str(ii+1))
             
             # Origin
-            vsp.SetParmVal(stack_id,'X_Location','XForm',x)
-            vsp.SetParmVal(stack_id,'Y_Location','XForm',y)
-            vsp.SetParmVal(stack_id,'Z_Location','XForm',z)
-            vsp.SetParmVal(stack_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
-            vsp.SetParmVal(stack_id,'Origin','XForm',0.5)            
+            vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+            vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+            vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
+            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+            vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
             
-            vsp.CutXSec(stack_id,2) # remove extra default subsurface
-            xsecsurf = vsp.GetXSecSurf(stack_id,0)
+            vsp.CutXSec(nac_id,2) # remove extra default subsurface
+            xsecsurf = vsp.GetXSecSurf(nac_id,0)
             vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
             vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
             vsp.Update()
-            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_1", width)
-            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_2", width)
-            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_3", width)
-            vsp.SetParmVal(stack_id, "XDelta", "XSec_1", 0)
-            vsp.SetParmVal(stack_id, "XDelta", "XSec_2", length)
-            vsp.SetParmVal(stack_id, "XDelta", "XSec_3", 0)
+            vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_1", width)
+            vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_2", width)
+            vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_3", width)
+            vsp.SetParmVal(nac_id, "XDelta", "XSec_1", 0)
+            vsp.SetParmVal(nac_id, "XDelta", "XSec_2", length)
+            vsp.SetParmVal(nac_id, "XDelta", "XSec_3", 0)
+            
+        vsp.SetSetFlag(nac_id, OML_set_ind, True)
         
         vsp.Update()
         
@@ -792,6 +794,8 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
     if 'Fuel_Tanks' in fuselage:
         for tank in fuselage.Fuel_Tanks:
             write_fuselage_conformal_fuel_tank(fuse_id, tank, fuel_tank_set_ind)    
+            
+    vsp.SetSetFlag(fuse_id, OML_set_ind, True)
                 
     return area_tags
 
