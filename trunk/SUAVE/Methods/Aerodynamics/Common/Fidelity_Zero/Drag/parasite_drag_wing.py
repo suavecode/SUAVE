@@ -63,9 +63,9 @@ def parasite_drag_wing(state,settings,geometry):
     """
     
     # unpack inputs
-    C                      = settings.wing_parasite_drag_form_factor
-    recalcuate_total_wetted_area = settings.recalcuate_total_wetted_area
-    freestream = state.conditions.freestream
+    C                             = settings.wing_parasite_drag_form_factor
+    recalculate_total_wetted_area = settings.recalculate_total_wetted_area
+    freestream                    = state.conditions.freestream
     
     # conditions
     Mc  = freestream.mach_number
@@ -88,7 +88,7 @@ def parasite_drag_wing(state,settings,geometry):
     xtu       = wing.transition_x_upper
     xtl       = wing.transition_x_lower     
     
-    if num_segments>0 and recalcuate_total_wetted_area:        
+    if num_segments>0 and recalculate_total_wetted_area:        
         total_wetted_area            = 0
         total_segment_parasite_drag  = 0 
         total_segment_k_w            = 0 
@@ -152,7 +152,7 @@ def parasite_drag_wing(state,settings,geometry):
         else: 
             S_exposed_w = wing.areas.reference - 0.5*(chord_root + wing_root)*exposed_root_chord_offset
         
-        if recalcuate_total_wetted_area:   
+        if recalculate_total_wetted_area:   
             if t_c_w < 0.05:
                 Swet = 2.003* S_exposed_w
             else:
