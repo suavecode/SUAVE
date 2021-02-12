@@ -129,8 +129,9 @@ class Container(Physical_Component.Container):
         ones_row = state.ones_row
         
         results = Data()
-        results.thrust_force_vector = 0.*ones_row(3)
-        results.vehicle_mass_rate   = 0.*ones_row(1)
+        results.thrust_force_vector       = 0.*ones_row(3)
+        results.vehicle_mass_rate         = 0.*ones_row(1)
+        results.propulsor_air_mass_rate   = 0.*ones_row(1)
 
         for propulsor in self.values():
             results_p = propulsor.evaluate_thrust(state) 

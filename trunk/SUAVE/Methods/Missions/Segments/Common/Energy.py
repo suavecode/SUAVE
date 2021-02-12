@@ -80,6 +80,10 @@ def update_thrust(segment):
     conditions = segment.state.conditions
     conditions.frames.body.thrust_force_vector = results.thrust_force_vector
     conditions.weights.vehicle_mass_rate       = results.vehicle_mass_rate
+    try:
+        conditions.propulsion.air_mass_rate        = results.propulsor_air_mass_rate
+    except AttributeError:
+        pass
     
 
     

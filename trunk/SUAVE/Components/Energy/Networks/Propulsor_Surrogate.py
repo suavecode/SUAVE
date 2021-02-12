@@ -79,6 +79,10 @@ class Propulsor_Surrogate(Propulsor):
         self.thrust_anchor_conditions = np.array([[1.,1.,1.]])
         self.sfc_rubber_scale         = 1.
         self.use_extended_surrogate   = False
+        self.include_air_mass_flow    = False
+        self.air_mdot_anchor          = None
+        self.air_mdot_anchor_scale    = 1.
+        self.air_mdot_anchor_conditions = np.array([[1.,1.,1.]])
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -133,6 +137,13 @@ class Propulsor_Surrogate(Propulsor):
         results = Data()
         results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]
         results.vehicle_mass_rate   = mdot
+        
+        if self.include_air_mass_flow:
+            air_mdot = self.air_mdot_surrogate.predict(cond)
+            air_mdot = air_mdot*self.air_mdot_input_scale*self.air_mdot_anchor_scale
+            air_mdot = air_mdot*self.number_of_engines
+            
+            results.propulsor_air_mass_rate = air_mdot
    
         return results          
     
@@ -178,46 +189,50 @@ class Propulsor_Surrogate(Propulsor):
         xy  = my_data[:,:3] # Altitude, Mach, Throttle
         thr = np.transpose(np.atleast_2d(my_data[:,3])) # Thrust
         sfc = np.transpose(np.atleast_2d(my_data[:,4]))  # SFC
+        if self.include_air_mass_flow:
+            air_mdot = np.transpose(np.atleast_2d(my_data[:,5]))
         
         self.altitude_input_scale = np.max(xy[:,0])
         self.thrust_input_scale   = np.max(thr)
         self.sfc_input_scale      = np.max(sfc)
+        if self.include_air_mass_flow:
+            self.air_mdot_input_scale = np.max(air_mdot)
         
         # normalize for better surrogate performance
         xy[:,0] /= self.altitude_input_scale
         thr     /= self.thrust_input_scale
         sfc     /= self.sfc_input_scale
+        if self.include_air_mass_flow:
+            air_mdot /= self.air_mdot_input_scale
        
        
         # Pick the type of process
         if self.surrogate_type  == 'gaussian':
             gp_kernel = Matern()
             regr_sfc = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel)
-            regr_thr = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel)      
-            thr_surrogate = regr_thr.fit(xy, thr)
-            sfc_surrogate = regr_sfc.fit(xy, sfc)  
+            regr_thr = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel)
+            if self.include_air_mass_flow:
+                regr_air_mdot = gaussian_process.GaussianProcessRegressor(kernel=gp_kernel)
            
         elif self.surrogate_type  == 'knn':
             regr_sfc = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
             regr_thr = neighbors.KNeighborsRegressor(n_neighbors=1,weights='distance')
-            sfc_surrogate = regr_sfc.fit(xy, sfc)
-            thr_surrogate = regr_thr.fit(xy, thr)  
    
         elif self.surrogate_type  == 'svr':
             regr_thr = svm.SVR(C=500.)
-            regr_sfc = svm.SVR(C=500.)
-            sfc_surrogate  = regr_sfc.fit(xy, sfc)
-            thr_surrogate  = regr_thr.fit(xy, thr)    
+            regr_sfc = svm.SVR(C=500.) 
            
         elif self.surrogate_type == 'linear':
             regr_thr = linear_model.LinearRegression()
             regr_sfc = linear_model.LinearRegression()          
-            sfc_surrogate  = regr_sfc.fit(xy, sfc)
-            thr_surrogate  = regr_thr.fit(xy, thr)
             
         else:
             raise NotImplementedError('Selected surrogate method has not been implemented')
        
+        sfc_surrogate  = regr_sfc.fit(xy, sfc)
+        thr_surrogate  = regr_thr.fit(xy, thr)   
+        if self.include_air_mass_flow:
+            air_mdot_surrogate = regr_air_mdot.fit(xy, air_mdot)
        
         if self.thrust_anchor is not None:
             cons = deepcopy(self.thrust_anchor_conditions)
@@ -230,10 +245,19 @@ class Propulsor_Surrogate(Propulsor):
             cons[0,0] /= self.altitude_input_scale
             base_sfc_at_anchor = sfc_surrogate.predict(cons)
             self.sfc_anchor_scale = self.sfc_anchor/(base_sfc_at_anchor*self.sfc_input_scale)
+            
+        if self.air_mdot_anchor is not None:
+            cons = deepcopy(self.air_mdot_anchor_conditions)
+            cons[0,0] /= self.altitude_input_scale
+            base_air_mdot_at_anchor = air_mdot_surrogate.predict(cons)
+            self.air_mdot_anchor_scale = self.air_mdot_anchor/\
+                (base_air_mdot_at_anchor*self.air_mdot_input_scale)        
        
         # Save the output
         self.sfc_surrogate    = sfc_surrogate
         self.thrust_surrogate = thr_surrogate   
+        if self.include_air_mass_flow:
+            self.air_mdot_surrogate = air_mdot_surrogate
         
     def extended_thrust_surrogate(self, thr_surrogate, cond, lo_blender, hi_blender):
         """ Fixes thrust values outside of the standard throttle range in order to provide
