@@ -64,7 +64,7 @@ def main():
     #plt.show(block=True)
     
     # check the results
-    check_results(results,old_results) 
+    #check_results(results,old_results) 
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
