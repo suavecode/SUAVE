@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM_supersonic as VLM
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.wave_drag_lift import wave_drag_lift
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.wave_drag_volume import wave_drag_volume
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform

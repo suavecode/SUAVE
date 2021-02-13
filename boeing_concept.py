@@ -13,8 +13,7 @@ import matplotlib.pyplot as plt
 
 from SUAVE.Core import Data, Units
 from SUAVE.Input_Output.OpenVSP.vsp_read import vsp_read
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_segmented_planform import wing_segmented_planform
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM_supersonic as VLM
 
 # ----------------------------------------------------------------------
 #   Main
