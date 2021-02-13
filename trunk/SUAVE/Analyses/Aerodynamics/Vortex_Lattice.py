@@ -21,7 +21,9 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM_subsonic
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM_supersonic import VLM_supersonic
+
 # local imports
 from .Aerodynamics import Aerodynamics
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
@@ -72,6 +74,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.model_fuselage                 = False
         self.settings.initial_timestep_offset        = 0
         self.settings.wake_development_time          = 0.05
+        self.settings.vlm_method                     = 'supersonic'
 
         # conditions table, used for surrogate model training
         self.training                                = Data()
@@ -579,6 +582,14 @@ def calculate_VLM(conditions,settings,geometry):
     total_lift_coeff = 0.0
     wing_lifts = Data()
     wing_drags = Data()
+    
+    if settings.vlm_method == 'subsonic':
+        VLM = VLM_subsonic
+    elif settings.vlm_method == 'supersonic':
+        VLM =  VLM_supersonic
+        
+        
+        
     
     total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y , CPi , vel_profile = VLM(conditions,settings,geometry)
 
