@@ -123,6 +123,7 @@ class Supersonic_Zero(Markup):
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
+        compute.drag.engine_out                    = Common.Drag.engine_out
         compute.drag.total                         = Common.Drag.total_aircraft # SZ
         
         

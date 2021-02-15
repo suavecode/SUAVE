@@ -79,6 +79,7 @@ class Propulsor_Surrogate(Propulsor):
         self.thrust_anchor_conditions = np.array([[1.,1.,1.]])
         self.sfc_rubber_scale         = 1.
         self.use_extended_surrogate   = False
+        self.engine_out               = False
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -128,6 +129,12 @@ class Propulsor_Surrogate(Propulsor):
        
         F    = thr
         mdot = thr*sfc*self.number_of_engines
+        mdot[mdot < 0] = 0
+
+        if self.engine_out:
+            remaining_ratio = (self.number_of_engines - 1)/self.number_of_engines
+            F *= remaining_ratio
+            mdot *= remaining_ratio        
        
         # Save the output
         results = Data()
