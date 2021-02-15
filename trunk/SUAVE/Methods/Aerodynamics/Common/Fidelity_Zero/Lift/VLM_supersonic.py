@@ -291,8 +291,10 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
 
     F2[:,all_for_indices[mask2]] = SLOPE[:,all_for_indices[mask3]] 
 
+    #########
     # Zeta needs updating!
     ZETA = 0.
+    #########
 
     TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
     TX   = TANX - ZETA
@@ -305,7 +307,7 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
 
     XX = XLE
 
-    SPC    = 1. # Leading edge suction multiplier. See documentation. This is a negative integer if used
+    SPC    = -1. # Leading edge suction multiplier. See documentation. This is a negative integer if used
     DCP_LE = DCP[:,0::n_cw]
     CLE    = 0.5* DCP_LE *np.sqrt(XX)*FLAX
     CSUC   = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB

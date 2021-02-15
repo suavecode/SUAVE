@@ -157,7 +157,7 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
-    aerodynamics.settings.span_efficiency = 0.95
+    #aerodynamics.settings.span_efficiency = 0.95
     analyses.append(aerodynamics)
     
     

@@ -102,7 +102,7 @@ class Supersonic_Zero(Markup):
         
         compute.lift = Process()
         compute.lift.inviscid_wings                = Vortex_Lattice()
-        compute.lift.vortex                        = Methods.Lift.vortex_lift  # SZ
+        #compute.lift.vortex                        = Methods.Lift.vortex_lift  # SZ
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         
@@ -118,7 +118,7 @@ class Supersonic_Zero(Markup):
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total
-        compute.drag.induced                       = Methods.Drag.induced_drag_aircraft
+        compute.drag.induced                       = Common.Drag.induced_drag_aircraft
         compute.drag.miscellaneous                 = Methods.Drag.miscellaneous_drag_aircraft # different type used in FZ
         compute.drag.untrimmed                     = Common.Drag.untrimmed
         compute.drag.trim                          = Common.Drag.trim
