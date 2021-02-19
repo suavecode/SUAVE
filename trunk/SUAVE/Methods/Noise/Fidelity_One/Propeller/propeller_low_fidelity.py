@@ -53,17 +53,12 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
     
     # create empty arrays for results  
     SPL                   = np.zeros(ctrl_pts)
-    SPL_v                 = np.zeros_like(SPL)  
-    SPL_dBA               = np.zeros_like(SPL)    
-    SPL_v_dBA             = np.zeros_like(SPL)
+    SPL_v                 = np.zeros_like(SPL)   
     SPL_dBA_tot           = np.zeros_like(SPL)
-    SPL_v_spectrum        = np.zeros((ctrl_pts,num_f)) 
-    SPL_v_dBA_spectrum    = np.zeros((ctrl_pts,num_f))  
+    SPL_v_spectrum        = np.zeros((ctrl_pts,num_f))  
     SPL_h_spectrum        = np.zeros((ctrl_pts,num_f)) 
-    SPL_h_dBA_spectrum    = np.zeros((ctrl_pts,num_f))  
-    SPL_spectrum          = np.zeros((ctrl_pts,num_f))
-    SPL_tot_spectrum      = np.zeros((ctrl_pts,num_f)) 
-    SPL_tot_dBA_spectrum  = np.zeros((ctrl_pts,num_f))
+    SPL_h_dBA_spectrum    = np.zeros((ctrl_pts,num_f))   
+    SPL_tot_spectrum      = np.zeros((ctrl_pts,num_f))  
     SPL_tot_bpfs_spectrum = np.zeros((ctrl_pts,num_f))
                                        
     if harmonic_test.any():  
@@ -75,7 +70,7 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
         if harmonic_test.any():
             harmonics    = harmonic_test
         else:
-            harmonics    = np.arange(1,30) 
+            harmonics    = np.arange(1,20) 
             
         num_h = len(harmonics)
           
@@ -86,11 +81,11 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
         f             = np.zeros_like(SPL_r)
 
         # ----------------------------------------------------------------------------------
-        # Rotational Noise 
+        # Rotational Noise  Thickness and Loading Noise
         # ----------------------------------------------------------------------------------        
         for h in range(num_h):
             m              = harmonics[h]                                      # harmonic number 
-            p_ref          = 2e-5                                              # referece atmospheric pressure
+            p_ref          = 2E-5                                              # referece atmospheric pressure
             a              = freestream.speed_of_sound[i][0]                   # speed of sound
             rho            = freestream.density[i][0]                          # air density 
             x              = microphone_location[i,mic_loc,0]                  # x relative position from observer
@@ -103,28 +98,21 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
             AoA            = angle_of_attack[i][0]                             # vehicle angle of attack                                            
             N              = network.number_of_engines                         # numner of propeller
             B              = propeller.number_of_blades                        # number of propeller blades
-            omega          = auc_opts.omega[i]                                 # angular velocity          
-            T              = auc_opts.blade_thrust[i]                          # propeller/rotor blade thrust     
-            T_distribution = auc_opts.blade_thrust_distribution[i]             # propeller/rotor blade thrust distribution  
-            dT_dR          = auc_opts.blade_dT_dR[i]                           # differential thrust distribution
+            omega          = auc_opts.omega[i]                                 # angular velocity       
             dT_dr          = auc_opts.blade_dT_dr[i]                           # nondimensionalized differential thrust distribution 
-            Q              = auc_opts.blade_torque[i]                          # propeller blade torque    
-            Q_distribution = auc_opts.blade_torque_distribution[i]             # propeller blade torque distribution  
-            dQ_dR          = auc_opts.blade_dT_dR[i]                           # differential torque distribution
-            dQ_dr          = auc_opts.blade_dT_dr[i]                           # nondimensionalized differential torque distribution
+            dQ_dr          = auc_opts.blade_dQ_dr[i]                           # nondimensionalized differential torque distribution
             R              = propeller.radius_distribution                     # radial location     
             c              = propeller.chord_distribution                      # blade chord    
+            R_tip          = propeller.tip_radius
             beta           = propeller.twist_distribution                      # twist distribution  
-            t              = propeller.max_thickness_distribution              # twist distribution
+            t              = propeller.max_thickness_distribution              # thickness distribution
+            t_c            = propeller.thickness_to_chord                      # thickness to chord ratio
             MCA            = propeller.mid_chord_aligment                      # Mid Chord Alighment 
                                                                               
             f[h]          = B*omega*m/(2*np.pi)   
-            n             = len(R)
-            R_tip         = R[-1]                                              # Rotor Tip Radius  
+            n             = len(R)  
             D             = 2*R_tip                                            # propeller diameter    
-            r             = R/R_tip                                            # non dimensional radius distribution 
-            dR            = R[1] - R[0]                                        
-            dr            = r[1] - r[0]                                        
+            r             = R/R_tip                                            # non dimensional radius distribution   
             S             = np.sqrt(x**2 + y**2 + z**2)                        # distance between rotor and the observer    
             theta         = np.arccos(x/S)                                     
             alpha         = AoA + thrust_angle                                 
@@ -140,12 +128,12 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
                             (np.sin(theta))**2) + M*(np.sin(theta))**2 )       # theta angle in the retarded reference frame
             theta_r_prime = np.arccos(np.cos(theta_r)*np.cos(alpha) + \
                             np.sin(theta_r)*np.sin(phi)*np.sin(alpha) )    
-            phi_prime     = np.arccos((np.sin(theta_r)/np.sin(theta_r_prime))\
+            phi_prime     = np.arccos((np.sin(theta_r)/np.sin(theta_r_prime)) 
                                       *np.cos(phi))                            # phi angle relative to propeller shaft axis                                                   
-            phi_s         = ((2*m*B*M_t)/(M_s*(1 - M*np.cos(theta_r))))\
-                            *(MCA/D)                                           # phase lag due to sweep
+            phi_s         = ((2*m*B*M_t)/(M_s*(1 - M*np.cos(theta_r))))*(MCA/D)  # phase lag due to sweep         
             S_r           = Y/(np.sin(theta_r))                                # distance in retarded reference frame 
-            k_x           = ((2*m*B*c*M_t)/(M_s*(1 - M*np.cos(theta_r))))      # wave number 
+            k_x           = ((2*m*B*c*M_t)/(M_s*(1 - M*np.cos(theta_r))))      # wave number
+            Jmb           = jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r))))
             psi_L         = np.zeros(n)
             psi_V         = np.zeros(n)
             
@@ -154,40 +142,29 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
                     psi_V[idx] = 2/3                                           # normalized thickness souce transforms
                     psi_L[idx] = 1                                             # normalized loading souce transforms
                 else:  
-                    psi_V[idx] = (8/(k_x[idx]**2))*((2/k_x[idx])*np.sin(0.5*k_x[idx])\
-                                    - np.cos(0.5*k_x[idx]))                    # normalized thickness souce transforms           
+                    psi_V[idx] = (8/(k_x[idx]**2))*((2/k_x[idx])*np.sin(0.5*k_x[idx]) - np.cos(0.5*k_x[idx]))                    # normalized thickness souce transforms           
                     psi_L[idx] = (2/k_x[idx])*np.sin(0.5*k_x[idx])             # normalized loading souce transforms
                     
             # sound pressure for loading noise 
-            p_mL_H = ((  1j*m*B*M_t*np.sin(theta_r)*np.exp(1j*m*B*((omega*S_r/a)+(phi_prime - np.pi/2))) )\
-                      / (2*np.sqrt(2)*np.pi*Y*r_t*(1 - M*np.cos(theta_r)))  ) \
-                      *np.trapz(( (   (np.cos(theta_r_prime)/(1 - M*np.cos(theta_r)))*(dT_dr) \
-                                      - (1/((r**2)*M_t*r_t))*(dQ_dr)  ) * np.exp(1j*phi_s) *\
-                           (jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r))))) \
-                           * psi_L  ),x = r,dx = dr)
-             
-            p_mL_H[np.isnan(p_mL_H)] = p_ref
-            p_mL_H[np.isinf(p_mL_H)] = p_ref
-            p_mL_H = abs(p_mL_H)
+            exponent_fraction = np.exp(1j*m*B*((omega*S_r/a)+(phi_prime - np.pi/2)))/(1 - M*np.cos(theta_r)) 
+            p_mL_H_function  = (m*B*M_t*np.sin(theta_r)/ (2*np.sqrt(2)*np.pi*Y*r_t)) *exponent_fraction
+            p_mL_H_integral  = np.trapz((((np.cos(theta_r_prime)/(1 - M*np.cos(theta_r)))*(dT_dr) - (1/((r**2)*M_t*r_t))*(dQ_dr))
+                                         * np.exp(1j*phi_s)*Jmb * psi_L),x = r)
+            p_mL_H =  p_mL_H_function*p_mL_H_integral 
+            p_mL_H =  abs(p_mL_H)
             
-            # sound pressure for thickness noise 
-            p_mT_H = (-(rho*(a**2)*B*np.sin(theta_r)*np.exp(1j*m*B*((omega*S_r/a)+(phi_prime - np.pi/2))))\
-                      /(4*np.sqrt(2)*np.pi*(Y/D)*(1 - M*np.cos(theta_r)))) \
-                    *np.trapz(((M_s**2)*(t/c)*np.exp(1j*phi_s)*(jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))\
-                    /(1 - M*np.cos(theta_r)))))*(k_x**2)*psi_V ),x = r,dx = dr)
-             
-            p_mT_H[np.isnan(p_mT_H)] = p_ref
-            p_mT_H[np.isinf(p_mT_H)] = p_ref 
-            p_mT_H  = abs(p_mT_H)
+            # sound pressure for thickness noise  
+            p_mT_H_function = ((rho*(a**2)*B*np.sin(theta_r))/(4*np.sqrt(2)*np.pi*(Y/D)))* exponent_fraction
+            p_mT_H_integral = np.trapz(((M_s**2)*(t_c)*np.exp(1j*phi_s)*Jmb*(k_x**2)*psi_V ),x = r)
+            p_mT_H = -p_mT_H_function*p_mT_H_integral   
+            p_mT_H = abs(p_mT_H)
             
-            # unweighted rotational sound pressure level
-            SPL_r[h]        = 10*np.log10(N*((p_mL_H**2 + p_mT_H**2)/(p_ref**2)))
+            # unweighted rotational sound pressure level 
+            SPL_r[h]        = 20*np.log10(N*(np.linalg.norm(p_mL_H + p_mT_H))/p_ref)
             p_pref_r[h]     = 10**(SPL_r[h]/10)   
             SPL_r_dBA[h]    = A_weighting(SPL_r[h],f[h]) 
             p_pref_r_dBA[h] = 10**(SPL_r_dBA[h]/10)    
-        
-        SPL_tot_bpfs_spectrum[i,:num_h]  = SPL_r 
-        
+         
         # convert to 1/3 octave spectrum 
         SPL_h_spectrum[i,:]      = SPL_harmonic_to_third_octave(SPL_r,f,settings)         
         SPL_h_dBA_spectrum[i,:]  = SPL_harmonic_to_third_octave(SPL_r_dBA,f,settings)     
@@ -202,7 +179,7 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
         beta_07   = beta[round(n*0.70)]                                          # blade angle of attack at r/R = 0.7
         h_val     = t_avg*np.cos(beta_07) + c_avg*np.sin(beta_07)                # projected blade thickness                   
         f_peak    = (V_07*St)/h_val                                              # V - blade velocity at a radial location of 0.7              
-        A_blade   = (np.trapz(c, dx = dR))/(Units.feet**2) # area of blade      
+        A_blade   = (np.trapz(c, x = R))/(Units.feet**2) # area of blade      
         CL_07     = 2*np.pi*beta_07
         S_feet    = S/(Units.feet)
         SPL_300ft = 10*np.log10(((6.1E-27)*A_blade*V_07**6)/(10**-16)) + 20*np.log(CL_07/0.4)  
@@ -228,7 +205,6 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
             p_pref_v_dBA[j] = (10**(0.1*C[j+1]))* (  ((fr[j+1]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) - ((fr[j]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) ) 
         
         p_pref_v_dBA[np.isnan(p_pref_v_dBA)] = 0
-         
         
         # ---------------------------------------------------------------------------
         # convert to 1/3 octave spectrum  
@@ -237,9 +213,9 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
         
         # ---------------------------------------------------------------------------
         # Combining Rotational(periodic) and Vortex (broadband)
-        # ---------------------------------------------------------------------------   
+        # --------------------------------------------------------------------------- 
         SPL_tot_bpfs_spectrum[i,:num_h] = SPL_r 
-        SPL_tot_spectrum[i,:]      = 10*np.log10( 10**(SPL_h_spectrum[i,:]/10) +  10**(SPL_v_spectrum[i,:]/10) )
+        SPL_tot_spectrum[i,:]           = 10*np.log10( 10**(SPL_h_spectrum[i,:]/10) +  10**(SPL_v_spectrum[i,:]/10) )
         
         # pressure ratios used to combine A weighted sound since decibel arithmetic does not work for broadband noise since it is a continuous spectrum 
         total_p_pref_dBA = np.concatenate([p_pref_r_dBA,p_pref_v_dBA])

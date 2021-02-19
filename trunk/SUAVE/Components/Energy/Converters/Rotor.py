@@ -354,8 +354,18 @@ class Rotor(Energy_Component):
         
         epsilon                  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
-        deltar                   = (r[1]-r[0])   
-        deltachi                 = (chi[1]-chi[0])          
+        
+        # compute discretized distance , delta r and delta chi using central difference from end points 
+        # forward difference for start point and backward difference fror endpoint 
+        deltar                   = np.zeros_like(r)
+        deltachi                 = np.zeros_like(r)
+        deltar[0]                = (r[1]-r[0])   
+        deltachi[0]              = (chi[1]-chi[0])  
+        deltar[-1]               = (r[-1]-r[-2])   
+        deltachi[-1]             = (chi[-1]-chi[-2])  
+        deltar[1:-1]             = (r[2:]-r[:-2])/2 
+        deltachi[1:-1]           = (chi[2:]-chi[:-2])/2  
+        
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
         thrust                   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
@@ -366,20 +376,21 @@ class Rotor(Energy_Component):
         Va_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
         Vt_ind_2d                = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T
         blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
-        blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
-        
+        blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T  
         blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
-        blade_dT_dR = np.zeros((ctrl_pts,Nr))
-        blade_dT_dr = np.zeros((ctrl_pts,Nr))
-        blade_dQ_dR = np.zeros((ctrl_pts,Nr))
-        blade_dQ_dr = np.zeros((ctrl_pts,Nr))
         
-        for i in range(ctrl_pts):
-            blade_dT_dR[i,:] = np.gradient(blade_T_distribution[i],deltar)
-            blade_dT_dr[i,:] = np.gradient(blade_T_distribution[i],deltachi)
-            blade_dQ_dR[i,:] = np.gradient(blade_Q_distribution[i],deltar)
-            blade_dQ_dr[i,:] = np.gradient(blade_Q_distribution[i],deltachi)
-        
+        # thrust and torque derivatives on the blade.
+        blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
+        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)  
+        #blade_dT_dr = np.zeros_like(blade_T_distribution)
+        #blade_dQ_dr = np.zeros_like(blade_Q_distribution)
+        #blade_dT_dr[:,0]    =  (blade_T_distribution[:,1] - blade_T_distribution[:,0])/(chi[1] - chi[0])
+        #blade_dQ_dr[:,0]    =  (blade_Q_distribution[:,1] - blade_Q_distribution[:,0])/(chi[1] - chi[0])
+        #blade_dT_dr[:,1:-1] =  (blade_T_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2])
+        #blade_dQ_dr[:,1:-1] =  (blade_Q_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2]) 
+        #blade_dT_dr[:,-1]   =  (blade_T_distribution[:,-1] - blade_T_distribution[:,-2])/(chi[-1] - chi[-2])
+        #blade_dQ_dr[:,-1]   =  (blade_Q_distribution[:,-1] - blade_Q_distribution[:,-2])/(chi[-1] - chi[-2])  
+            
         Vt_ind_avg = vt
         Va_ind_avg = va
         Vt_avg     = Wt
@@ -432,15 +443,13 @@ class Rotor(Energy_Component):
                     drag_coefficient                  = Cd,
                     lift_coefficient                  = Cl,       
                     omega                             = omega,  
-                    disc_circulation                  = blade_Gamma_2d,
-                    blade_dT_dR                       = blade_dT_dR,
-                    blade_dT_dr                       = blade_dT_dr,
+                    disc_circulation                  = blade_Gamma_2d, 
+                    blade_dT_dr                       = blade_dT_dr, 
                     blade_thrust_distribution         = blade_T_distribution, 
                     disc_thrust_distribution          = blade_T_distribution_2d, 
                     blade_thrust                      = thrust/B, 
                     thrust_coefficient                = Ct, 
-                    disc_azimuthal_distribution       = azimuth_2d,
-                    blade_dQ_dR                       = blade_dQ_dR,
+                    disc_azimuthal_distribution       = azimuth_2d, 
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution, 
                     disc_torque_distribution          = blade_Q_distribution_2d, 
