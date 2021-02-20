@@ -121,6 +121,7 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
     mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(mach)) 
+    len_mach = len(mach)
 
     # generate vortex distribution 
     VD   = generate_wing_vortex_distribution(geometry,settings)  
@@ -298,15 +299,25 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     BMLE = (XLE-XX)*SINF        # These are moment on each panel
 
     # Sum onto the panel
-    CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len(mach)))
-    BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len(mach)))
+    CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len_mach))
+    BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len_mach))
 
     XX = XLE
-
-    SPC    = -1. # Leading edge suction multiplier. See documentation. This is a negative integer if used
+       
     DCP_LE = DCP[:,0::n_cw]
-    CLE    = 0.5* DCP_LE *np.sqrt(XX)*FLAX
-    CSUC   = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
+    
+    # Leading edge suction multiplier. See documentation. This is a negative integer if used
+    # Default to 1 unless specified otherwise
+    SPC  = np.ones_like(DCP_LE)
+    
+    # If the vehicle is subsonic and there is vortex lift enabled then SPC changes to -1
+    VL   = np.repeat(VD.vortex_lift,n_sw)
+    m_b  = np.atleast_2d(mach[:,0]<1.)
+    SPC_cond = VL*m_b.T
+    SPC[SPC_cond] = -1.
+    
+    CLE  = 0.5* DCP_LE *np.sqrt(XX)*FLAX
+    CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
 
     # SLE is slope at leading edge
     SLE  = SLOPE[:,0::n_cw]
@@ -317,9 +328,9 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     TFX  = XCOS
     TFZ  = - XSIN
 
-    if SPC<0.:
-        TFX = XSIN*np.sign(DCP[:,0::n_cw])*FKEY
-        TFZ = np.abs(XCOS)*np.sign(DCP[:,0::n_cw])*FKEY
+    # If a negative number is used for SPC a different correction is used. See VORLAX documentation for Lan reference
+    TFX[SPC<0] = XSIN[SPC<0]*np.sign(DCP[:,0::n_cw])[SPC<0]*FKEY
+    TFZ[SPC<0] = np.abs(XCOS)[SPC<0]*np.sign(DCP[:,0::n_cw])[SPC<0]*FKEY
 
     CAXL = CAXL -TFX*CSUC
 

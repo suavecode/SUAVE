@@ -115,9 +115,10 @@ def generate_wing_vortex_distribution(geometry,settings):
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
     # ---------------------------------------------------------------------------------------    
-    n_w        = 0  # instantiate the number of wings counter  
-    n_cp       = 0  # instantiate number of bound vortices counter     
-    wing_areas = [] # instantiate wing areas  
+    n_w         = 0  # instantiate the number of wings counter  
+    n_cp        = 0  # instantiate number of bound vortices counter     
+    wing_areas  = [] # instantiate wing areas
+    vortex_lift = []
     
     for wing in geometry.wings:
         # get geometry of wing  
@@ -131,11 +132,13 @@ def generate_wing_vortex_distribution(geometry,settings):
         dihedral      = wing.dihedral
         sym_para      = wing.symmetric 
         vertical_wing = wing.vertical
-        wing_origin   = wing.origin[0] 
+        wing_origin   = wing.origin[0]
+        vortex_lift.append(wing.vortex_lift)
         
         # determine if vehicle has symmetry 
         if sym_para is True :
             span = span/2
+            vortex_lift.append(wing.vortex_lift)
         
         if spc == True:
             
@@ -898,7 +901,10 @@ def generate_wing_vortex_distribution(geometry,settings):
         VD.Y_SW   = np.append(VD.Y_SW ,y_sw)
         VD.Y      = np.append(VD.Y ,y)
         VD.Z      = np.append(VD.Z ,z)         
-        VD.CS     = np.append(VD.CS,cs_w)        
+        VD.CS     = np.append(VD.CS,cs_w)
+    
+    # Pack
+    VD.vortex_lift = vortex_lift
         
             
 
@@ -924,7 +930,7 @@ def generate_wing_vortex_distribution(geometry,settings):
     
     # Compute Panel Normals
     VD.normals = compute_unit_normal(VD)
-
+    
     return VD 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift

@@ -28,6 +28,8 @@ def main():
     #vehicle.fuselages.pop('fueslage')
     #vehicle.wings.pop('tail')
     #vehicle.fuselages.fueslage.origin[0][2] = .25
+    
+    vehicle.wings.gross_wing_b.vortex_lift = True
         
     #vehicle.reference_area = vehicle.wings.gross_wing_b__t___d_.areas.reference
     vehicle.reference_area = 2*158.13
