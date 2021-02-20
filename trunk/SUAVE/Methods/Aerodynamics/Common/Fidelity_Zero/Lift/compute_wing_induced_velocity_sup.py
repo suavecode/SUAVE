@@ -246,7 +246,9 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     EYE         = np.eye(np.shape(CHORD)[-1]).flatten()
     EYE         = np.tile(EYE,np.sum(mach>1))
     CHORD_sup   = CHORD[sup]
-    FLAX        = 1
+    FLAX        = 1.
+    ZETA        = (LE_Z-TE_Z)/(LE_X-LE_Z) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
+    ZETA        = ZETA[:,0,:] # Fix the shape for later
     
     if np.sum(sup)>0:
         U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,\
@@ -280,7 +282,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     C_mn[:,:,:,1] = V
     C_mn[:,:,:,2] = W
     
-    return C_mn, s, t, CHORD, RFLAG
+    return C_mn, s, t, CHORD, RFLAG, ZETA
     
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2):

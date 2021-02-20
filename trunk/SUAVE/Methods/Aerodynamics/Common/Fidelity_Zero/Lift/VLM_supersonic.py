@@ -107,10 +107,11 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
                 if c_bar <= wing.chords.mean_aerodynamic:
                     c_bar = wing.chords.mean_aerodynamic
                     x_mac = wing.aerodynamic_center[0] + wing.origin[0][0]
+                    z_mac = wing.aerodynamic_center[2] + wing.origin[0][2]
 
     x_cg       = geometry.mass_properties.center_of_gravity[0][0]
     z_cg       = geometry.mass_properties.center_of_gravity[0][2]
-    if x_cg == None:
+    if x_cg == 0.0:
         x_m = x_mac 
         z_m = z_mac
     else:
@@ -130,7 +131,7 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     geometry.vortex_distribution = VD
 
     # Build induced velocity matrix, C_mn
-    C_mn, s, t, CHORD, RFLAG = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
+    C_mn, s, t, CHORD, RFLAG, ZETA = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
 
     # Compute flow tangency conditions   
     inv_root_beta           = np.ones_like(mach)
@@ -291,11 +292,6 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
 
     F2[:,all_for_indices[mask2]] = SLOPE[:,all_for_indices[mask3]] 
 
-    #########
-    # Zeta needs updating!
-    ZETA = 0.
-    #########
-
     TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
     TX   = TANX - ZETA
     CAXL = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
@@ -314,6 +310,7 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
 
     # SLE is slope at leading edge
     SLE  = SLOPE[:,0::n_cw]
+    ZETA = ZETA[:,0::n_cw]
     FKEY = 1. - JTS*(1+JTS)
     XCOS = 1./np.sqrt(1+(SLE-ZETA)**2)
     XSIN = (SLE-ZETA)*XCOS

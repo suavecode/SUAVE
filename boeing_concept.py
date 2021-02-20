@@ -22,14 +22,15 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM_supersonic 
 def main():
 
     # First import the geometry
-    vehicle = vsp_read('boeing_n_d_t.vsp3',units_type='inches')
+    #vehicle = vsp_read('boeing_n_d_t.vsp3',units_type='inches')
+    vehicle = vsp_read('boeing_B_only.vsp3',units_type='inches')
     
     #vehicle.fuselages.pop('fueslage')
     #vehicle.wings.pop('tail')
-    vehicle.fuselages.fueslage.origin[0][2] = .25
+    #vehicle.fuselages.fueslage.origin[0][2] = .25
         
-    vehicle.reference_area = vehicle.wings.gross_wing_b__t___d_.areas.reference
-        
+    #vehicle.reference_area = vehicle.wings.gross_wing_b__t___d_.areas.reference
+    vehicle.reference_area = 2*158.13
     
     # Setup conditions
     conditions = setup_conditions()
@@ -60,8 +61,12 @@ def setup_conditions():
     #aoas  = np.array([6.,6]) * Units.degrees
     #machs = np.array([0.4,1.4]) 
     
-    aoas  = np.array([0.,2.,4.,6.,8.,10,0.,2.,4.,6.,8.,10,0.,2.,4.,6.,8.,10,0.,2.,4.,6.,8.,10]) * Units.degrees
-    machs = np.array([1.4,1.4,1.4,1.4,1.4,1.4,1.6,1.6,1.6,1.6,1.6,1.6,1.8,1.8,1.8,1.8,1.8,1.8,2.0,2.0,2.0,2.0,2.0,2.0])        
+    #aoas  = np.array([0.,2.,4.,6.,8.,10,0.,2.,4.,6.,8.,10,0.,2.,4.,6.,8.,10,0.,2.,4.,6.,8.,10]) * Units.degrees
+    #machs = np.array([1.4,1.4,1.4,1.4,1.4,1.4,1.6,1.6,1.6,1.6,1.6,1.6,1.8,1.8,1.8,1.8,1.8,1.8,2.0,2.0,2.0,2.0,2.0,2.0])    
+    
+    aoas  = np.array([-2.,0.,2.,4.,6.,-2.,0.,2.,4.,6.]) * Units.degrees
+    machs = np.array([0.8,0.8,0.8,0.8,0.8,1.6,1.6,1.6,1.6,1.6])        
+    
     
     #aoas  = xv.flatten()
     #machs = yv.flatten()
@@ -100,6 +105,7 @@ def analyze(config,conditions):
 
     results.CDi  = CDi
     results.CL   = CL
+    results.CM   = CM
     results.mach = conditions.freestream.mach_number
     results.aoa  = conditions.aerodynamics.angle_of_attack
     
