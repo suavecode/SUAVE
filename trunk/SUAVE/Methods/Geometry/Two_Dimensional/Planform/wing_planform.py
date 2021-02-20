@@ -72,7 +72,7 @@ def wing_planform(wing):
     
     # calculate
     span       = (ar*sref)**.5
-    span_total = span/cos(dihedral)
+    span_total = span/np.cos(dihedral)
     chord_root = 2*sref/span/(1+taper)
     chord_tip  = taper * chord_root
     mgc        = (chord_root+chord_tip)/2

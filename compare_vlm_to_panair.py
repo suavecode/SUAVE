@@ -17,7 +17,6 @@ from matplotlib import cm
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM_supersonic as VLM
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.wave_drag_lift import wave_drag_lift
-from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.wave_drag_volume import wave_drag_volume
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 from SUAVE.Input_Output.OpenVSP.vsp_write import write
@@ -66,6 +65,7 @@ def main():
     #su2_arrow_biconvex     = import_c8sv(arrow_biconvex_file_su2)
     #arrow_biconvex         = arrw_biconvex_vertical_dih() # Check if this is vertical
     arrow_biconvex           = arrw_biconvex_twist_dih()
+    arrow_biconvex           = arrw_biconvex()
     #write(arrow_biconvex,'Check')
     conditions             = setup_conditions()
     results_arrow_biconvex = analyze(arrow_biconvex, conditions)
@@ -244,6 +244,10 @@ def analyze(config,conditions, use_MCM = False):
     settings.number_spanwise_vortices  = 2
     settings.number_chordwise_vortices = 2
     settings.propeller_wake_model      = None
+    settings.spanwise_cosine_spacing   = False
+    settings.model_fuselage            = True
+    settings.initial_timestep_offset   = 0.0
+    settings.wake_development_time     = 0.0 
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
     
@@ -860,7 +864,7 @@ def arrw_biconvex_twist_dih():
     wing.areas.reference         = 198.
     wing.dihedral                = 30. * Units.degrees
 
-    wing.twists.root             =  -20.0 * Units.degrees
+    wing.twists.root             =  0.0 * Units.degrees
     wing.twists.tip              =  0.0 * Units.degrees
 
     wing.origin                  = [[0.,0.,0.]]
