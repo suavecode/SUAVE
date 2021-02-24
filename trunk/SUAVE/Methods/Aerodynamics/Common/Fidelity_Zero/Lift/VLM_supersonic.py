@@ -329,8 +329,8 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     TFZ  = - XSIN
 
     # If a negative number is used for SPC a different correction is used. See VORLAX documentation for Lan reference
-    TFX[SPC<0] = XSIN[SPC<0]*np.sign(DCP[:,0::n_cw])[SPC<0]*FKEY
-    TFZ[SPC<0] = np.abs(XCOS)[SPC<0]*np.sign(DCP[:,0::n_cw])[SPC<0]*FKEY
+    TFX[SPC<0] = XSIN[SPC<0]*np.sign(DCP_LE)[SPC<0]*FKEY
+    TFZ[SPC<0] = np.abs(XCOS)[SPC<0]*np.sign(DCP_LE)[SPC<0]*FKEY
 
     CAXL = CAXL -TFX*CSUC
 

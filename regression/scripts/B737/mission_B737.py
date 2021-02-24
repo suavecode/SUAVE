@@ -71,7 +71,7 @@ def main():
     # ------------------------------------------------------------------
     
     # plot vehicle 
-    plot_vehicle(configs.base,plot_control_points = True)      
+    #plot_vehicle(configs.base,plot_control_points = True)      
     return
 
 

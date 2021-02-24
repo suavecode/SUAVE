@@ -95,8 +95,8 @@ def analyze(config,conditions):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 25
-    settings.number_chordwise_vortices = 10
+    settings.number_spanwise_vortices  = 50
+    settings.number_chordwise_vortices = 25
     settings.propeller_wake_model      = None
     settings.spanwise_cosine_spacing   = True
     settings.model_fuselage            = True
