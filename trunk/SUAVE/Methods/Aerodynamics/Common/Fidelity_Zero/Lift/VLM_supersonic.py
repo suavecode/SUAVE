@@ -325,7 +325,7 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     FKEY = 1. - JTS*(1+JTS)
     XCOS = 1./np.sqrt(1+(SLE-ZETA)**2)
     XSIN = (SLE-ZETA)*XCOS
-    TFX  = XCOS
+    TFX  = 1*XCOS
     TFZ  = - XSIN
 
     # If a negative number is used for SPC a different correction is used. See VORLAX documentation for Lan reference
