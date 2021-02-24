@@ -189,7 +189,7 @@ class Rotor(Energy_Component):
         V_thrust        = orientation_product(T_body2thrust,V_body) 
      
         if VTOL:    
-            V        = V_thrust[:,0,None] + ua
+            V        = V_thrust[:,0,None] +  np.atleast_2d(ua).T
         else:
             V        = V_thrust[:,0,None]   
         ut  = np.zeros_like(V) 
@@ -230,7 +230,7 @@ class Rotor(Energy_Component):
         # Things that will change with iteration
         size   = (len(a),Nr)
         omegar = np.outer(omega,r)
-        Ua     = np.outer((V + ua),np.ones_like(r))
+        Ua     = np.outer(V,np.ones_like(r))
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut) 
         beta   = total_blade_pitch

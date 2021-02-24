@@ -378,16 +378,16 @@ class Propeller(Energy_Component):
         blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
         
         # thrust and torque derivatives on the blade. 
-        #blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
-        #blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)  
-        blade_dT_dr = np.zeros_like(blade_T_distribution)
-        blade_dQ_dr = np.zeros_like(blade_Q_distribution)
-        blade_dT_dr[:,0]    =  (blade_T_distribution[:,1] - blade_T_distribution[:,0])/(chi[1] - chi[0])
-        blade_dQ_dr[:,0]    =  (blade_Q_distribution[:,1] - blade_Q_distribution[:,0])/(chi[1] - chi[0])
-        blade_dT_dr[:,1:-1] =  (blade_T_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2])
-        blade_dQ_dr[:,1:-1] =  (blade_Q_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2]) 
-        blade_dT_dr[:,-1]   =  (blade_T_distribution[:,-1] - blade_T_distribution[:,-2])/(chi[-1] - chi[-2])
-        blade_dQ_dr[:,-1]   =  (blade_Q_distribution[:,-1] - blade_Q_distribution[:,-2])/(chi[-1] - chi[-2])     
+        blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
+        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)  
+        #blade_dT_dr = np.zeros_like(blade_T_distribution)
+        #blade_dQ_dr = np.zeros_like(blade_Q_distribution)
+        #blade_dT_dr[:,0]    =  (blade_T_distribution[:,1] - blade_T_distribution[:,0])/(chi[1] - chi[0])
+        #blade_dQ_dr[:,0]    =  (blade_Q_distribution[:,1] - blade_Q_distribution[:,0])/(chi[1] - chi[0])
+        #blade_dT_dr[:,1:-1] =  (blade_T_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2])
+        #blade_dQ_dr[:,1:-1] =  (blade_Q_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2]) 
+        #blade_dT_dr[:,-1]   =  (blade_T_distribution[:,-1] - blade_T_distribution[:,-2])/(chi[-1] - chi[-2])
+        #blade_dQ_dr[:,-1]   =  (blade_Q_distribution[:,-1] - blade_Q_distribution[:,-2])/(chi[-1] - chi[-2])     
         
         Vt_ind_avg = vt
         Va_ind_avg = va

@@ -43,23 +43,24 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
     '''
     
     # unpack 
-    conditions           = segment.state.conditions
-    microphone_location  = conditions.noise.microphone_locations
-    angle_of_attack      = conditions.aerodynamics.angle_of_attack 
-    velocity_vector      = conditions.frames.inertial.velocity_vector
-    freestream           = conditions.freestream
-    ctrl_pts             = len(angle_of_attack) 
-    num_f                = len(settings.center_frequencies)
+    conditions             = segment.state.conditions
+    microphone_location    = conditions.noise.microphone_locations
+    angle_of_attack        = conditions.aerodynamics.angle_of_attack 
+    velocity_vector        = conditions.frames.inertial.velocity_vector
+    freestream             = conditions.freestream
+    ctrl_pts               = len(angle_of_attack) 
+    num_f                  = len(settings.center_frequencies)
     
     # create empty arrays for results  
-    SPL                   = np.zeros(ctrl_pts)
-    SPL_v                 = np.zeros_like(SPL)   
-    SPL_dBA_tot           = np.zeros_like(SPL)
-    SPL_v_spectrum        = np.zeros((ctrl_pts,num_f))  
-    SPL_h_spectrum        = np.zeros((ctrl_pts,num_f)) 
-    SPL_h_dBA_spectrum    = np.zeros((ctrl_pts,num_f))   
-    SPL_tot_spectrum      = np.zeros((ctrl_pts,num_f))  
-    SPL_tot_bpfs_spectrum = np.zeros((ctrl_pts,num_f))
+    SPL                    = np.zeros(ctrl_pts)
+    SPL_v                  = np.zeros_like(SPL)   
+    SPL_dBA_tot            = np.zeros_like(SPL)
+    SPL_v_spectrum         = np.zeros((ctrl_pts,num_f))  
+    SPL_h_spectrum         = np.zeros((ctrl_pts,num_f)) 
+    SPL_h_dBA_spectrum     = np.zeros((ctrl_pts,num_f))   
+    SPL_tot_spectrum       = np.zeros((ctrl_pts,num_f))  
+    SPL_tot_tonal_spectrum = np.zeros((ctrl_pts,num_f))  
+    SPL_tot_bpfs_spectrum  = np.zeros((ctrl_pts,num_f))
                                        
     if harmonic_test.any():  
         SPL  = np.zeros((ctrl_pts,len(harmonic_test)))
@@ -88,9 +89,9 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
             p_ref          = 2E-5                                              # referece atmospheric pressure
             a              = freestream.speed_of_sound[i][0]                   # speed of sound
             rho            = freestream.density[i][0]                          # air density 
-            x              = microphone_location[i,mic_loc,0]                  # x relative position from observer
-            y              = microphone_location[i,mic_loc,1]                  # y relative position from observer 
-            z              = microphone_location[i,mic_loc,2]                  # z relative position from observer
+            x              = microphone_location[i,mic_loc,0] # + propeller.origin[0][0]  # x relative position from observer
+            y              = microphone_location[i,mic_loc,1] # + propeller.origin[0][1]  # y relative position from observer 
+            z              = microphone_location[i,mic_loc,2] # + propeller.origin[0][2]  # z relative position from observer
             Vx             = velocity_vector[i][0]                             # x velocity of propeller  
             Vy             = velocity_vector[i][1]                             # y velocity of propeller 
             Vz             = velocity_vector[i][2]                             # z velocity of propeller 
@@ -111,29 +112,28 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
                                                                               
             f[h]          = B*omega*m/(2*np.pi)   
             n             = len(R)  
-            D             = 2*R_tip                                            # propeller diameter    
-            r             = R/R_tip                                            # non dimensional radius distribution   
+            D             = 2*R[-1]                                            # propeller diameter    
+            r             = R/R[-1]                                            # non dimensional radius distribution   
             S             = np.sqrt(x**2 + y**2 + z**2)                        # distance between rotor and the observer    
             theta         = np.arccos(x/S)                                     
-            alpha         = AoA + thrust_angle                                 
+            alpha         = AoA + thrust_angle    
             Y             = np.sqrt(y**2 + z**2)                               # observer distance from propeller axis          
             V             = np.sqrt(Vx**2 + Vy**2 + Vz**2)                     # velocity magnitude
-            M             = V/a                                                # Mach number  
+            M_x           = V/a     
             V_tip         = R_tip*omega                                        # blade_tip_speed 
             M_t           = V_tip/a                                            # tip Mach number 
-            M_s           = np.sqrt(M**2 + (r**2)*(M_t**2))                    # section relative Mach number 
-            r_t           = R_tip                                              # propeller tip radius
-            phi           = np.arctan(z/y)                                     # tangential angle  
-            theta_r       = np.arccos(np.cos(theta)*np.sqrt(1 - (M**2)*\
-                            (np.sin(theta))**2) + M*(np.sin(theta))**2 )       # theta angle in the retarded reference frame
-            theta_r_prime = np.arccos(np.cos(theta_r)*np.cos(alpha) + \
-                            np.sin(theta_r)*np.sin(phi)*np.sin(alpha) )    
-            phi_prime     = np.arccos((np.sin(theta_r)/np.sin(theta_r_prime)) 
-                                      *np.cos(phi))                            # phi angle relative to propeller shaft axis                                                   
-            phi_s         = ((2*m*B*M_t)/(M_s*(1 - M*np.cos(theta_r))))*(MCA/D)  # phase lag due to sweep         
-            S_r           = Y/(np.sin(theta_r))                                # distance in retarded reference frame 
-            k_x           = ((2*m*B*c*M_t)/(M_s*(1 - M*np.cos(theta_r))))      # wave number
-            Jmb           = jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M*np.cos(theta_r))))
+            M_r           = np.sqrt(M_x**2 + (r**2)*(M_t**2))                    # section relative Mach number     
+            B_D           = c/D 
+            phi           = np.arctan(z/y)                                     # tangential angle   
+            
+            theta_r       = np.arccos(np.cos(theta)*np.sqrt(1 - (M_x**2)*(np.sin(theta))**2) + M_x*(np.sin(theta))**2 )       # retarted  theta angle in the retarded reference frame
+            theta_r_prime = np.arccos(np.cos(theta_r)*np.cos(alpha) + np.sin(theta_r)*np.sin(phi)*np.sin(alpha) )    
+            phi_prime     = np.arccos((np.sin(theta_r)/np.sin(theta_r_prime))*np.cos(phi))                            # phi angle relative to propeller shaft axis                                                   
+            k_x           = ((2*m*B*B_D*M_t)/(M_r*(1 - M_x*np.cos(theta_r))))      # wave number
+            k_y           = ((2*m*B*B_D)/(M_r*r)) *((M_x - (M_r**2)*np.cos(theta_r))/(1 - M_x*np.cos(theta_r)))
+            phi_s         = ((2*m*B*M_t)/(M_r*(1 - M_x*np.cos(theta_r))))*(MCA/D)
+            S_r           = Y/(np.sin(theta_r))                                # distance in retarded reference frame   
+            Jmb           = jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M_x*np.cos(theta_r))))  
             psi_L         = np.zeros(n)
             psi_V         = np.zeros(n)
             
@@ -143,24 +143,47 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
                     psi_L[idx] = 1                                             # normalized loading souce transforms
                 else:  
                     psi_V[idx] = (8/(k_x[idx]**2))*((2/k_x[idx])*np.sin(0.5*k_x[idx]) - np.cos(0.5*k_x[idx]))                    # normalized thickness souce transforms           
-                    psi_L[idx] = (2/k_x[idx])*np.sin(0.5*k_x[idx])             # normalized loading souce transforms
-                    
-            # sound pressure for loading noise 
-            exponent_fraction = np.exp(1j*m*B*((omega*S_r/a)+(phi_prime - np.pi/2)))/(1 - M*np.cos(theta_r)) 
-            p_mL_H_function  = (m*B*M_t*np.sin(theta_r)/ (2*np.sqrt(2)*np.pi*Y*r_t)) *exponent_fraction
-            p_mL_H_integral  = np.trapz((((np.cos(theta_r_prime)/(1 - M*np.cos(theta_r)))*(dT_dr) - (1/((r**2)*M_t*r_t))*(dQ_dr))
-                                         * np.exp(1j*phi_s)*Jmb * psi_L),x = r)
-            p_mL_H =  p_mL_H_function*p_mL_H_integral 
-            p_mL_H =  abs(p_mL_H)
+                    psi_L[idx] = (2/k_x[idx])*np.sin(0.5*k_x[idx])             # normalized loading souce transforms             
+            
+            # ---------------------------------------------------------------------------------  
+            # Aeroacoustics of Flight Vehicles Theory and Practice
+            # ---------------------------------------------------------------------------------  
+            # sound pressure for thickness noise  
+
+            #exponent_fraction = np.exp(1j*m*B*((omega*S_r/a)  - np.pi/2))/(1 - M_x*np.cos(theta_r))            
+            #p_mT_H_function = ((rho*(a**2)*B*np.sin(theta_r))/(8*np.pi*(Y/D)))* exponent_fraction
+            #p_mT_H_integral = np.trapz(((M_r**2)*(t_c)*np.exp(1j*phi_s)*Jmb*(k_x**2)*psi_V ),x = r)
+            #p_mT_H = -p_mT_H_function*p_mT_H_integral/np.sqrt(2) 
+            #p_mT_H = abs(p_mT_H)    
+            
+            ## sound pressure for loading noise 
+            #p_mL_H_function  = (1j*m*B*M_t*np.sin(theta_r))/(4*np.pi*Y*R_tip*(1 - M_x*np.cos(theta_r))) 
+            #p_mL_H_integral  = np.trapz((((np.cos(theta_r_prime)/(1 - M_x*np.cos(theta_r)))*dT_dr - (1/((r**2)*M_t*R_tip))*dQ_dr)
+                                                 #* np.exp(1j*phi_s)*Jmb * psi_L),x = r)
+            #p_mL_H =  p_mL_H_function*p_mL_H_integral/np.sqrt(2) 
+            #p_mL_H =  abs(p_mL_H) 
+                        
+            # ---------------------------------------------------------------------------------        
+            # Applicability of Early Acoustic Theory for Modern Propeller Design
+            # ---------------------------------------------------------------------------------     
             
             # sound pressure for thickness noise  
+            exponent_fraction = np.exp(1j*m*B*((omega*S_r/a) +  phi_prime - np.pi/2))/(1 - M_x*np.cos(theta_r))
             p_mT_H_function = ((rho*(a**2)*B*np.sin(theta_r))/(4*np.sqrt(2)*np.pi*(Y/D)))* exponent_fraction
-            p_mT_H_integral = np.trapz(((M_s**2)*(t_c)*np.exp(1j*phi_s)*Jmb*(k_x**2)*psi_V ),x = r)
+            p_mT_H_integral = np.trapz(((M_r**2)*(t_c)*np.exp(1j*phi_s)*Jmb*(k_x**2)*psi_V ),x = r)
             p_mT_H = -p_mT_H_function*p_mT_H_integral   
-            p_mT_H = abs(p_mT_H)
+            p_mT_H = abs(p_mT_H)             
+            
+            # sound pressure for loading noise 
+            p_mL_H_function  = (m*B*M_t*np.sin(theta_r)/ (2*np.sqrt(2)*np.pi*Y*R_tip)) *exponent_fraction
+            p_mL_H_integral  = np.trapz((((np.cos(theta_r_prime)/(1 - M_x*np.cos(theta_r)))*dT_dr - (1/((r**2)*M_t*R_tip))*dQ_dr)
+                                         * np.exp(1j*phi_s)*Jmb * psi_L),x = r)
+            p_mL_H =  p_mL_H_function*p_mL_H_integral 
+            p_mL_H =  abs(p_mL_H) 
+
             
             # unweighted rotational sound pressure level 
-            SPL_r[h]        = 20*np.log10(N*(np.linalg.norm(p_mL_H + p_mT_H))/p_ref)
+            SPL_r[h]        = 20*np.log10(N*(np.linalg.norm(p_mL_H + p_mT_H))/p_ref) 
             p_pref_r[h]     = 10**(SPL_r[h]/10)   
             SPL_r_dBA[h]    = A_weighting(SPL_r[h],f[h]) 
             p_pref_r_dBA[h] = 10**(SPL_r_dBA[h]/10)    
@@ -212,7 +235,12 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
         SPL_v_spectrum[i,:]     = SPL_harmonic_to_third_octave(SPL_v,f_v,settings)
         
         # ---------------------------------------------------------------------------
-        # Combining Rotational(periodic) and Vortex (broadband)
+        # Rotational(periodic/tonal)  
+        # --------------------------------------------------------------------------- 
+        SPL_tot_tonal_spectrum[i,:]           = 10*np.log10( 10**(SPL_h_spectrum[i,:]/10))
+        
+        # ---------------------------------------------------------------------------
+        # Rotational(periodic/tonal) and Vortex (broadband)
         # --------------------------------------------------------------------------- 
         SPL_tot_bpfs_spectrum[i,:num_h] = SPL_r 
         SPL_tot_spectrum[i,:]           = 10*np.log10( 10**(SPL_h_spectrum[i,:]/10) +  10**(SPL_v_spectrum[i,:]/10) )
@@ -231,5 +259,6 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
     propeller_noise.SPL_spectrum      = SPL_tot_spectrum     # 1/3 octave band 
     propeller_noise.SPL_bpfs_spectrum = SPL_tot_bpfs_spectrum # blade passing frequency specturm (only rotational noise)
     propeller_noise.SPL_dBA           = SPL_dBA_tot   
+    propeller_noise.SPL_tonal         = SPL_tot_tonal_spectrum
     
     return propeller_noise
