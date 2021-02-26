@@ -75,7 +75,6 @@ class Propeller(Energy_Component):
         self.profile_drag_coefficient  = .03     
         
         self.nonuniform_freestream = False
-        self.rotation = [1]
 
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -173,7 +172,6 @@ class Propeller(Energy_Component):
         BBB     = BB*B
         
         nonuniform_freestream = self.nonuniform_freestream
-        rotation = self.rotation
         
         # calculate total blade pitch
         total_blade_pitch = beta_0 + pitch_c  
@@ -267,41 +265,8 @@ class Propeller(Energy_Component):
             Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5 
             Re           = (W*c)/nu  
             
-            # If propeller airfoils are defined, using airfoil surrogate 
-            if a_loc != None:
-                # Compute blade Cl and Cd distribution from the airfoil data  
-                Cl      = np.zeros((ctrl_pts,Nr))              
-                Cdval   = np.zeros((ctrl_pts,Nr))  
-                dim_sur = len(cl_sur)
-                for jj in range(dim_sur):                 
-                    Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
-                    Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
-                    locs          = np.where(np.array(a_loc) == jj )
-                    Cl[:,locs]    = Cl_af[:,locs]
-                    Cdval[:,locs] = Cdval_af[:,locs]      
-                
-            else:
-                # Estimate Cl max 
-                Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-                Re_ref     = 9.*10**6      
-                Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
-                
-                # If not airfoil polar provided, use 2*pi as lift curve slope
-                Cl = 2.*pi*alpha
-            
-                # By 90 deg, it's totally stalled.
-                Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
-                Cl[alpha>=pi/2] = 0.
-                
-                # Scale for Mach, this is Karmen_Tsien
-                Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-                
-                # If the blade segments are supersonic, don't scale
-                Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]  
-                
-                #This is an atrocious fit of DAE51 data at RE=50k for Cd
-                Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-                Cdval[alpha>=pi/2] = 2. 
+            # Compute aerodynamic forces based on specified input airfoil or using a surrogate
+            Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha, tc)
 
             Rsquiggly   = Gamma - 0.5*W*c*Cl
         
@@ -427,42 +392,8 @@ class Propeller(Energy_Component):
             # local mach number
             Ma         = (U_2d)/a_2d    
             
-
-            # If propeller airfoils are defined, using airfoil surrogate 
-            if a_loc != None:
-                # Compute blade Cl and Cd distribution from the airfoil data  
-                Cl      = np.zeros((ctrl_pts,Nr))              
-                Cdval   = np.zeros((ctrl_pts,Nr))  
-                dim_sur = len(cl_sur)
-                for jj in range(dim_sur):                 
-                    Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
-                    Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
-                    locs          = np.where(np.array(a_loc) == jj )
-                    Cl[:,locs]    = Cl_af[:,locs]
-                    Cdval[:,locs] = Cdval_af[:,locs]      
-                
-            else:
-                # Estimate Cl max 
-                Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-                Re_ref     = 9.*10**6      
-                Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
-                
-                # If not airfoil polar provided, use 2*pi as lift curve slope
-                Cl = 2.*pi*alpha
             
-                # By 90 deg, it's totally stalled.
-                Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
-                Cl[alpha>=pi/2] = 0.
-                
-                # Scale for Mach, this is Karmen_Tsien
-                Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-                
-                # If the blade segments are supersonic, don't scale
-                Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]  
-                
-                #This is an atrocious fit of DAE51 data at RE=50k for Cd
-                Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-                Cdval[alpha>=pi/2] = 2. 
+            Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha, tc)
             
             #More Cd scaling from Mach from AA241ab notes for turbulent skin friction 
             T_2d    = np.tile(np.atleast_2d(T),(1,Nr))
@@ -587,3 +518,43 @@ class Propeller(Energy_Component):
             ) 
     
         return thrust, torque, power, Cp, outputs , etap
+
+
+def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha, tc):
+    # If propeller airfoils are defined, using airfoil surrogate 
+    if a_loc != None:
+        # Compute blade Cl and Cd distribution from the airfoil data  
+        Cl      = np.zeros((ctrl_pts,Nr))              
+        Cdval   = np.zeros((ctrl_pts,Nr))  
+        dim_sur = len(cl_sur)
+        for jj in range(dim_sur):                 
+            Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
+            Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
+            locs          = np.where(np.array(a_loc) == jj )
+            Cl[:,locs]    = Cl_af[:,locs]
+            Cdval[:,locs] = Cdval_af[:,locs]      
+        
+    else:
+        # Estimate Cl max 
+        Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+        Re_ref     = 9.*10**6      
+        Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+        
+        # If not airfoil polar provided, use 2*pi as lift curve slope
+        Cl = 2.*np.pi*alpha
+    
+        # By 90 deg, it's totally stalled.
+        Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
+        Cl[alpha>=np.pi/2] = 0.
+        
+        # Scale for Mach, this is Karmen_Tsien
+        Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+        
+        # If the blade segments are supersonic, don't scale
+        Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]  
+        
+        #This is an atrocious fit of DAE51 data at RE=50k for Cd
+        Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        Cdval[alpha>=np.pi/2] = 2.    
+        
+    return Cl, Cdval
