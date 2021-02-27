@@ -392,7 +392,13 @@ class Propeller(Energy_Component):
             Ma         = (U_2d)/a_2d    
             
             
-            Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha, tc)
+            Cl    = np.zeros((ctrl_pts,Na,Nr))              
+            Cdval = np.zeros((ctrl_pts,Na,Nr))  
+            for ii in range(Na):                
+                for jj in range(Nr):                 
+                    Cl[:,ii,jj]    = cl_sur[a_geo[int(a_loc[jj])]](Re[:,ii,jj],alpha[:,ii,jj],grid=False)  
+                    Cdval[:,ii,jj] = cd_sur[a_geo[int(a_loc[jj])]](Re[:,ii,jj],alpha[:,ii,jj],grid=False)  
+                        
             
             #More Cd scaling from Mach from AA241ab notes for turbulent skin friction 
             T_2d    = np.tile(np.atleast_2d(T),(1,Nr))
