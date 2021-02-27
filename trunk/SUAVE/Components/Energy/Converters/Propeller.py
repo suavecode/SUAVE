@@ -215,10 +215,9 @@ class Propeller(Energy_Component):
         nu             = mu/rho     
         
         # azimuth distribution 
-        psi            = np.linspace(0,2*pi,Na+1)[:-1]
+        psi            = np.linspace(0,2*pi,Na)
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
         psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
-        azimuth_2d     = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], Na, axis=0).T
         
         # 2 dimensiona radial distribution non dimensionalized
         chi_2d         = np.tile(chi ,(Na,1))            
@@ -505,7 +504,7 @@ class Propeller(Energy_Component):
                     disc_thrust_distribution          = blade_T_distribution_2d, 
                     thrust_per_blade                  = thrust/B, 
                     thrust_coefficient                = Ct, 
-                    disc_azimuthal_distribution       = azimuth_2d,
+                    disc_azimuthal_distribution       = psi_2d,
                     blade_dQ_dR                       = blade_dQ_dR,
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution, 
