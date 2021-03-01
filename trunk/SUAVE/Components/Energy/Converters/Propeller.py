@@ -215,7 +215,7 @@ class Propeller(Energy_Component):
         nu             = mu/rho     
         
         # azimuth distribution 
-        psi            = np.linspace(0,2*pi,Na)
+        psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
         psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
         
@@ -239,7 +239,6 @@ class Propeller(Energy_Component):
         PSIold = np.zeros(size)
         diff   = 1. 
         ii     = 0
-        broke  = False
         tol    = 1e-6  # Convergence tolerance
         
         while (diff>tol):
@@ -307,7 +306,6 @@ class Propeller(Energy_Component):
         
             ii+=1 
             if ii>10000:
-                broke = True
                 print("Propeller BEMT did not converge to a solution (Iteration Limit)")
                 break
     
@@ -352,20 +350,18 @@ class Propeller(Energy_Component):
         Va_avg     = Wa
         
         #------------------------------------------------------------------------------------------
-        # Now, if nonuniform freestream, incorporate the change in velocities at propeller blade sections:
+        # Now, if nonuniform freestream, analyze with the nonuniform velocities at propeller blade sections:
         #------------------------------------------------------------------------------------------
         
         if nonuniform_freestream:             
             
-            #Vt_2d, Vr_2d, Va_2d = wing_wake_velocities_at_downstream_propeller(vehicle,self,conditions,lamdaw)
+            # velocities at each polar grid position on propeller disc with shape = (ctrl_pts,Na,Nr)
             Vt_2d = self.tangential_velocities_2d
             Vr_2d = self.radial_velocities_2d
             Va_2d = self.axial_velocities_2d
             
-            # local total velocity 
-            U_2d   = np.sqrt(np.sqrt(Vt_2d**2 + Va_2d**2)**2 + Vr_2d**2) # (page 165 Leishman)        
-             
-            # blade incident angle 
+            # local total velocity and resulting blade incident angle
+            U_2d   = np.sqrt(np.sqrt(Vt_2d**2 + Va_2d**2)**2 + Vr_2d**2) # (page 165 Leishman)
             phi_2d = np.arctan(Va_2d/Vt_2d)     # (page 166 Leishman)
             
             # 2-D blade twist distribution 
@@ -379,28 +375,20 @@ class Propeller(Energy_Component):
             # local blade angle of attack
             alpha  = theta_2d - phi_2d  # (page 166 Leishman)
     
-            # Scale for Mach, this is Karmen_Tsien 
+            # 2-D atmospheric properties
             a_2d  = np.tile(np.atleast_2d(a),(1,Nr))
             a_2d  = np.repeat(a_2d[:, np.newaxis,  :], Na, axis=1)  
-            
             nu_2d       = np.tile(np.atleast_2d(nu),(1,Nr))
             nu_2d       = np.repeat(nu_2d[:, np.newaxis,  :], Na, axis=1)    
             
+            # local mach and reynolds numbers
             Re         = (U_2d*chord_2d)/nu_2d  
-             
-            # local mach number
             Ma         = (U_2d)/a_2d    
             
-            
-            Cl    = np.zeros((ctrl_pts,Na,Nr))              
-            Cdval = np.zeros((ctrl_pts,Na,Nr))  
-            for ii in range(Na):                
-                for jj in range(Nr):                 
-                    Cl[:,ii,jj]    = cl_sur[a_geo[int(a_loc[jj])]](Re[:,ii,jj],alpha[:,ii,jj],grid=False)  
-                    Cdval[:,ii,jj] = cd_sur[a_geo[int(a_loc[jj])]](Re[:,ii,jj],alpha[:,ii,jj],grid=False)  
-                        
-            
-            #More Cd scaling from Mach from AA241ab notes for turbulent skin friction 
+            # aerodynamic calcs
+            Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha, tc, Na)
+           
+            # More Cd scaling from Mach from AA241ab notes for turbulent skin friction 
             T_2d    = np.tile(np.atleast_2d(T),(1,Nr))
             T_2d    = np.repeat(T_2d[:, np.newaxis,  :], Na, axis=1)     
             Tw_Tinf = 1. + 1.78*(Ma*Ma)
@@ -526,19 +514,33 @@ class Propeller(Energy_Component):
         return thrust, torque, power, Cp, outputs , etap
 
 
-def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha, tc):
-    # If propeller airfoils are defined, using airfoil surrogate 
+def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha, tc, Na=None):
+    # If propeller airfoils are defined, use airfoil surrogate 
     if a_loc != None:
         # Compute blade Cl and Cd distribution from the airfoil data  
-        Cl      = np.zeros((ctrl_pts,Nr))              
-        Cdval   = np.zeros((ctrl_pts,Nr))  
         dim_sur = len(cl_sur)
-        for jj in range(dim_sur):                 
-            Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
-            Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
-            locs          = np.where(np.array(a_loc) == jj )
-            Cl[:,locs]    = Cl_af[:,locs]
-            Cdval[:,locs] = Cdval_af[:,locs]      
+        if Na==None:
+            # return the 2D Cl and CDval of shape (ctrl_pts, Nr)
+            Cl      = np.zeros((ctrl_pts,Nr))              
+            Cdval   = np.zeros((ctrl_pts,Nr))  
+            
+            for jj in range(dim_sur):                 
+                Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
+                Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
+                locs          = np.where(np.array(a_loc) == jj )
+                Cl[:,locs]    = Cl_af[:,locs]
+                Cdval[:,locs] = Cdval_af[:,locs]                 
+            
+        else:
+            # return the 3D Cl and CDval of shape (ctrl_pts, Na, Nr)
+            Cl      = np.zeros((ctrl_pts,Na,Nr))              
+            Cdval   = np.zeros((ctrl_pts,Na,Nr))
+            for jj in range(dim_sur):                 
+                Cl_af           = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
+                Cdval_af        = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
+                locs            = np.where(np.array(a_loc) == jj )
+                Cl[:,:,locs]    = Cl_af[:,:,locs]
+                Cdval[:,:,locs] = Cdval_af[:,:,locs]                 
         
     else:
         # Estimate Cl max 
