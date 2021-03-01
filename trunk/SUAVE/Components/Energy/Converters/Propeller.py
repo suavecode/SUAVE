@@ -520,6 +520,7 @@ class Propeller(Energy_Component):
                     power                             = power,
                     power_coefficient                 = Cp,    
                     converged_inflow_ratio            = lamdaw,
+                    disc_local_angle_of_attack        = alpha
             ) 
     
         return thrust, torque, power, Cp, outputs , etap
