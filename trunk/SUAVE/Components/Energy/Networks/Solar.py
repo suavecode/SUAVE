@@ -86,13 +86,13 @@ class Solar(Propulsor):
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                solar_flux           [watts/m^2] 
-                rpm                  [radians/sec]
-                current              [amps]
-                battery_draw         [watts]
-                battery_energy       [joules]
-                motor_torque         [N-M]
-                propeller_torque     [N-M]
+                solar_flux              [watts/m^2] 
+                rpm                     [radians/sec]
+                current                 [amps]
+                battery_draw            [watts]
+                battery_energy          [joules]
+                propeller_motor_torque  [N-M]
+                propeller_torque        [N-M]
     
             Properties Used:
             Defaulted values
@@ -198,17 +198,17 @@ class Solar(Propulsor):
         state_of_charge                          = battery.state_of_charge
         
         
-        conditions.propulsion.solar_flux           = solar_flux.outputs.flux  
-        conditions.propulsion.rpm                  = rpm
-        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
-        conditions.propulsion.voltage_under_load   = voltage_under_load  
-        conditions.propulsion.current              = current
-        conditions.propulsion.battery_draw         = battery_draw
-        conditions.propulsion.battery_energy       = battery_energy
-        conditions.propulsion.state_of_charge      = state_of_charge
-        conditions.propulsion.motor_torque         = motor.outputs.torque
-        conditions.propulsion.propeller_torque     = Q        
-        conditions.propulsion.propeller_tip_mach   = (R*rpm*Units.rpm)/a
+        conditions.propulsion.solar_flux                     = solar_flux.outputs.flux  
+        conditions.propulsion.motor_rpm                      = rpm
+        conditions.propulsion.battery_voltage_open_circuit   = voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load     = voltage_under_load  
+        conditions.propulsion.battery_current                = current
+        conditions.propulsion.battery_draw                   = battery_draw
+        conditions.propulsion.battery_energy                 = battery_energy
+        conditions.propulsion.state_of_charge                = state_of_charge
+        conditions.propulsion.propeller_motor_torque         = motor.outputs.torque
+        conditions.propulsion.propeller_torque               = Q        
+        conditions.propulsion.propeller_tip_mach             = (R*rpm*Units.rpm)/a
         
         #Create the outputs
         F                                        = num_engines * F * [1,0,0]   
@@ -260,7 +260,7 @@ class Solar(Propulsor):
     
             Inputs:
             state.conditions.propulsion:
-                motor_torque                          [N-m]
+                propeller_motor_torque                [N-m]
                 propeller_torque                      [N-m]
             
             Outputs:
@@ -273,7 +273,7 @@ class Solar(Propulsor):
         # Here we are going to pack the residuals from the network
         
         # Unpack
-        q_motor   = segment.state.conditions.propulsion.motor_torque
+        q_motor   = segment.state.conditions.propulsion.propeller_motor_torque          
         q_prop    = segment.state.conditions.propulsion.propeller_torque
         
         # Return the residuals

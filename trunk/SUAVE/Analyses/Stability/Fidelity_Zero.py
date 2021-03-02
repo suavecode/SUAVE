@@ -153,7 +153,7 @@ class Fidelity_Zero(Stability):
         stability.static.Cm_alpha,stability.static.Cm0, stability.static.CM  = taw_cmalpha(geometry,mach,conditions,configuration)
 
         if 'vertical_stabilizer' in geometry.wings:
-            stability.static.Cn_beta = taw_cnbeta(geometry,conditions,configuration)
+            stability.static.Cn_beta  = taw_cnbeta(geometry,conditions,configuration)
         else:
             stability.static.Cn_beta = np.zeros_like(mach)
 
@@ -204,12 +204,12 @@ class Fidelity_Zero(Stability):
                 stability.dynamic.spiralSubsistenceTimeConstant = Approximations.spiral(conditions.weights.total_mass, velocity, density, Sref, stability.static.Cl_p, stability.static.Cn_beta, stability.static.Cy_phi,\
                                                                             stability.static.Cl_beta, stability.static.Cn_r, stability.static.Cl_r)
             
-            short_period_res                     = Approximations.short_period(velocity, density, Sref, mac, stability.static.Cm_q, stability.static.Cz_alpha, conditions.weights.total_mass, stability.static.Cm_alpha,\
+            short_period_res                               = Approximations.short_period(velocity, density, Sref, mac, stability.static.Cm_q, stability.static.Cz_alpha, conditions.weights.total_mass, stability.static.Cm_alpha,\
                                                             configuration.mass_properties.moments_of_inertia.tensor[1][1], stability.static.Cm_alpha_dot)
             stability.dynamic.shortPeriodFreqHz  = short_period_res.natural_frequency 
             stability.dynamic.shortPeriodDamp    = short_period_res.damping_ratio 
             
-            phugoid_res                     = Approximations.phugoid(conditions.freestream.gravity, conditions.freestream.velocity, aero.drag_coefficient, aero.lift_coefficient)
+            phugoid_res                               = Approximations.phugoid(conditions.freestream.gravity, conditions.freestream.velocity, aero.drag_coefficient, aero.lift_coefficient)
             stability.dynamic.phugoidFreqHz = phugoid_res.natural_frequency
             stability.dynamic.phugoidDamp   = phugoid_res.damping_ratio
 
@@ -229,15 +229,14 @@ class Fidelity_Zero(Stability):
                                     stability.static.Cn_p, stability.static.Cy_phi, stability.static.Cy_psi, stability.static.Cy_beta, conditions.weights.total_mass)
                 longitudinal        = Full_Linearized_Equations.longitudinal(velocity, density, Sref, mac, stability.static.Cm_q, stability.static.Cz_alpha, conditions.weights.total_mass, stability.static.Cm_alpha, \
                                     configuration.mass_properties.moments_of_inertia.tensor[1][1], stability.static.Cm_alpha_dot, stability.static.Cz_u, stability.static.Cz_alpha_dot, stability.static.Cz_q, -aero.lift_coefficient,\
-                                    theta, stability.static.Cx_u, stability.static.Cx_alpha) 
-                
-                stability.dynamic.dutchRollFreqHz                = lateral_directional.dutch_natural_frequency
-                stability.dynamic.dutchRollDamping               = lateral_directional.dutch_damping_ratio
+                                    theta, stability.static.Cx_u, stability.static.Cx_alpha)                    
+                stability.dynamic.dutchRollFreqHz     = lateral_directional.dutch_natural_frequency
+                stability.dynamic.dutchRollDamping    = lateral_directional.dutch_damping_ratio
                 stability.dynamic.spiralSubsistenceTimeConstant  = lateral_directional.spiral_tau
                 stability.dynamic.rollSubsistenceTimeConstant    = lateral_directional.roll_tau
-                stability.dynamic.shortPeriodFreqHz              = longitudinal.short_natural_frequency
-                stability.dynamic.shortPeriodDamp                = longitudinal.short_damping_ratio
-                stability.dynamic.phugoidFreqHz                  = longitudinal.phugoid_natural_frequency
-                stability.dynamic.phugoidDamp                    = longitudinal.phugoid_damping_ratio
-                                                                         
+                stability.dynamic.shortPeriodFreqHz             = longitudinal.short_natural_frequency
+                stability.dynamic.shortPeriodDamp               = longitudinal.short_damping_ratio
+                stability.dynamic.phugoidFreqHz                 = longitudinal.phugoid_natural_frequency
+                stability.dynamic.phugoidDamp                   = longitudinal.phugoid_damping_ratio
+                                                                        
         return stability 

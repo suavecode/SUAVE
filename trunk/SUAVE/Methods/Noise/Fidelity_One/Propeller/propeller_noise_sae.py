@@ -23,7 +23,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import print_propeller_output 
 
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_noise_sae(propeller,segment,settings ,ioprint = 0):
+def propeller_noise_sae(network,propeller,auc_opts,segment,settings ,ioprint = 0):
     """ Computes the Far-field noise for propeller noise following SAE AIR1407 procedure.
 
     Assumptions:
@@ -48,14 +48,13 @@ def propeller_noise_sae(propeller,segment,settings ,ioprint = 0):
     """     
   
     # unpack
-    conditions   = segment.state.conditions  
-    auc_opts     = conditions.noise.sources[propeller.tag].acoustic_outputs 
+    conditions   = segment.state.conditions   
     time         = segment.conditions.frames.inertial.time[:,0]
     altitude     = segment.conditions.freestream.altitude[:,0]
     
     diameter     = (propeller.tip_radius*2) / Units.ft
     n_blades     = propeller.number_of_blades  
-    n_propellers = propeller.number_of_engines 
+    n_propellers = network.number_of_engines 
     HP           = auc_opts.power / Units.horsepower
     RPM          = auc_opts.omega / Units.rpm
     speed        = auc_opts.velocity/ Units.fts

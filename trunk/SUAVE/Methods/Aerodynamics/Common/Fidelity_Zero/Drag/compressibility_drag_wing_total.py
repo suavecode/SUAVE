@@ -20,21 +20,21 @@ def compressibility_drag_wing_total(state,settings,geometry):
     """Sums compressibility drag for all wings combined
 
     Assumptions:
-        None
+    None
 
     Source:
-        adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    adg.stanford.edu (Stanford AA241 A/B Course Notes)
 
     Inputs:
-        state.conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag  [Unitless]
-        geometry.wings.areas.reference                                                            [m^2]
-        geometry.reference_area                                                                   [m^2]
+    state.conditions.aerodynamics.drag_breakdown.compressible[wing.tag].compressibility_drag  [Unitless]
+    geometry.wings.areas.reference                                                            [m^2]
+    geometry.reference_area                                                                   [m^2]
 
     Outputs:
-        total_compressibility_drag                                                                [Unitless]
+    total_compressibility_drag                                                                [Unitless]
 
     Properties Used:
-        N/A
+    N/A
     """ 
 
     # unpack

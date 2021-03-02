@@ -66,14 +66,20 @@ def main():
     
     ## Use these scripts to test OpenVSP functionality if desired
     #from SUAVE.Input_Output.OpenVSP.vsp_write import write
+    #from SUAVE.Input_Output.OpenVSP.get_vsp_measurements import get_vsp_measurements
     #write(configs.base,'Concorde')
+    #get_vsp_measurements(filename='Unnamed_CompGeom.csv', measurement_type='wetted_area')
+    #get_vsp_measurements(filename='Unnamed_CompGeom.csv', measurement_type='wetted_volume')
 
     # These functions analyze the mission
     mission = analyses.missions.base
     results = mission.evaluate()
     
     masses, cg_mins, cg_maxes = compute_fuel_center_of_gravity_longitudinal_range(configs.base)
-    plot_cg_map(masses, cg_mins, cg_maxes)  
+    plot_cg_map(masses, cg_mins, cg_maxes, units = 'metric', fig_title = 'Metric Test')  
+    plot_cg_map(masses, cg_mins, cg_maxes, units = 'imperial', fig_title = 'Foot Test')
+    plot_cg_map(masses, cg_mins, cg_maxes, units = 'imperial', special_length = 'inches',
+                fig_title = 'Inch Test')
     
     results.fuel_tank_test = Data()
     results.fuel_tank_test.masses   = masses

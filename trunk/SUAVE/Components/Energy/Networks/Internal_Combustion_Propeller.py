@@ -111,21 +111,21 @@ class Internal_Combustion_Propeller(Propulsor):
         propeller.outputs = outputs
     
         # Pack the conditions for outputs
-        a                                        = conditions.freestream.speed_of_sound
-        R                                        = propeller.tip_radius   
-        rpm                                      = engine.inputs.speed / Units.rpm
+        a                                            = conditions.freestream.speed_of_sound
+        R                                            = propeller.tip_radius   
+        rpm                                          = engine.inputs.speed / Units.rpm
           
-        conditions.propulsion.rpm                = rpm
-        conditions.propulsion.propeller_torque   = Q
-        conditions.propulsion.power              = P
-        conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
-        conditions.propulsion.motor_torque       = torque
+        conditions.propulsion.propeller_rpm          = rpm
+        conditions.propulsion.propeller_torque       = Q
+        conditions.propulsion.power                  = P
+        conditions.propulsion.propeller_tip_mach     = (R*rpm*Units.rpm)/a
+        conditions.propulsion.propeller_motor_torque = torque
          
         # Create the outputs
-        F                                        = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
-        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))   
-        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # N/m^2                      
-        conditions.propulsion.power_loading      = (F_mag.T)/(P)    # N/W       
+        F                                            = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
+        F_mag                                        = np.atleast_2d(np.linalg.norm(F, axis=1))   
+        conditions.propulsion.disc_loading           = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # N/m^2                      
+        conditions.propulsion.power_loading          = (F_mag.T)/(P)    # N/W       
         
         results = Data()
         results.thrust_force_vector = F
@@ -165,7 +165,7 @@ class Internal_Combustion_Propeller(Propulsor):
         
         Inputs:
             segment.state.conditions.propulsion.
-                motor_torque                       [newtom-meters]                 
+                propeller_motor_torque             [newtom-meters]                 
                 propeller_torque                   [newtom-meters] 
         
         Outputs:
@@ -180,7 +180,7 @@ class Internal_Combustion_Propeller(Propulsor):
         # Here we are going to pack the residuals (torque,voltage) from the network
         
         # Unpack
-        q_motor   = segment.state.conditions.propulsion.motor_torque
+        q_motor   = segment.state.conditions.propulsion.propeller_motor_torque          
         q_prop    = segment.state.conditions.propulsion.propeller_torque
         
         # Return the residuals

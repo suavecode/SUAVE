@@ -137,14 +137,14 @@ def VLM(conditions,settings,geometry):
     # Build Aerodynamic Influence Coefficient Matrix
     A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
         + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
-        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta))) # valdiated from book eqn 7.42  
+        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # valdiated from book eqn 7.42
    
     # Build the vector
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
                                                                                  pwm,ito,wdt )
     
     # Spersonic Vortex Lattice - Validated from NASA CR, page 3 
-    locs         = np.where(mach>1)[0]
+    locs = np.where(mach>1)[0]
     DW_mn[locs]  = DW_mn[locs]*2
     C_mn[locs]   = C_mn[locs]*2
     

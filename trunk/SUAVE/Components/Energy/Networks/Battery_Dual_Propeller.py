@@ -1,4 +1,4 @@
-## @ingroup Components-Energy-Networks
+## @ingroup Components-Energy-Networks 
 # Battery_Dual_Propeller.py
 # 
 # Created: Nov 2020, M. Clarke
@@ -96,14 +96,14 @@ class Battery_Dual_Propeller(Propulsor):
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             conditions.propulsion:
-                rpm                  [radians/sec]
-                current              [amps]
-                battery_draw         [watts]
-                battery_energy       [joules]
-                voltage_open_circuit [volts]
-                voltage_under_load   [volts]
-                motor_torque         [N-M]
-                propeller_torque     [N-M]
+                rpm                     [radians/sec]
+                current                 [amps]
+                battery_draw            [watts]
+                battery_energy          [joules]
+                voltage_open_circuit    [volts]
+                voltage_under_load      [volts]
+                propeller_motor_torque  [N-M]
+                propeller_torque        [N-M]
     
             Properties Used:
             Defaulted values
@@ -322,8 +322,8 @@ class Battery_Dual_Propeller(Propulsor):
         conditions.propulsion.propeller_disc_loading            = (F_forward_mag.T)/(self.number_of_propeller_engines*np.pi*(R_forward)**2)  # N/m^2      
         conditions.propulsion.propeller_power_loading           = (F_forward_mag.T)/(P_forward)   # N/W          
          
-        conditions.noise.sources.propeller.acoustic_outputs     = outputs_forward
-        conditions.noise.sources.rotor.acoustic_outputs         = outputs_lift
+        conditions.noise.sources.propeller   = outputs_forward
+        conditions.noise.sources.rotor       = outputs_lift
         
         F_total = F_lift_total + F_forward_total
         mdot = state.ones_row(1)*0.0
