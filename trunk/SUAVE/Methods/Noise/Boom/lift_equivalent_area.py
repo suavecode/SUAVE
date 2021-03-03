@@ -12,7 +12,7 @@
 import numpy as np
 from SUAVE.Core import Data, Units
 
-import SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM_supersonic.VLM_supersonic as VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM_supersonic as VLM
 
 
 # ----------------------------------------------------------------------

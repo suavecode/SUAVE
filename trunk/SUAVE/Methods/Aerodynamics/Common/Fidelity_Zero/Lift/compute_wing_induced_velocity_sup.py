@@ -250,7 +250,6 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     EYE         = np.eye(np.shape(CHORD)[-1]).flatten()
     EYE         = np.tile(EYE,np.sum(mach>1))
     CHORD_sup   = CHORD[sup]
-    FLAX        = 1.
     ZETA        = (LE_Z-TE_Z)/(LE_X-LE_Z) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
     ZETA        = ZETA[:,0,:] # Fix the shape for later
     
@@ -258,7 +257,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
         U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,\
                                                     ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,\
                                                     RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,CHORD_sup,RNMAX,\
-                                                    FLAX,EYE,n_cw,n_cp,n_w,RFLAG_sup)
+                                                    EYE,n_cw,n_cp,n_w,RFLAG_sup)
     else:
         U_sup = []
         V_sup = []
@@ -361,7 +360,7 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     return U, V, W
 
     
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,FLAX,EYE,n_cw,n_cp,n_w,RFLAG):
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w,RFLAG):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for supersonic mach numbers
 
@@ -396,7 +395,6 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     CUTOFF  coefficient                                  [-]
     CHORD   chord length for a panel                     [m] 
     RNMAX   number of chordwise panels                   [-]
-    FLAX    flag indicating linear x spacing             [-] 
     EYE     eye matrix (linear algebra)                  [-]
     n_cw    number of chordwise panels                   [-]
     n_cp    number of control points                     [-]
@@ -536,7 +534,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     # COMPUTE THE GENERALIZED PRINCIPAL PART OF THE VORTEX-INDUCED VELOCITY INTEGRAL, WWAVE.
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
     WWAVE = np.zeros_like(W)
-    COX   = 1.0 - FLAX + FLAX *CHORD /RNMAX
+    COX   = CHORD /RNMAX
     WWAVE[B2>T2] = - 0.5 *np.sqrt(B2[B2>T2] -T2[B2>T2] )/COX[B2>T2] 
     
     W = W + EYE*WWAVE    

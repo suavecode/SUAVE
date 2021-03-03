@@ -157,12 +157,9 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     B2     = np.tile((mach**2 - 1),n_cp)
     SINALF = np.tile(np.sin(aoa),n_cp)
     COSALF = np.tile(np.cos(aoa),n_cp)
-
-    FLAX   = 1.0 # Assume linear spaced panels in the chordwise direction (LAX)
-
-    RNMAX   = n_cw*1.
-    CHORD   = CHORD[:,0,:]
-    t       = t[:,0,:]
+    RNMAX  = n_cw*1.
+    CHORD  = CHORD[:,0,:]
+    t      = t[:,0,:]
 
     # COMPUTE LOAD COEFFICIENT
     GNET = gamma*COSALF*RNMAX/CHORD
@@ -172,10 +169,6 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     # ---------------------------------------------------------------------------------------
     # STEP 11: Compute aerodynamic coefficients 
     # ------------------ -------------------------------------------------------------------- 
-
-    # PSI is 0 for zero yaw, we also are doing zero roll and no pitch rate
-    SINPSI  = 0.
-    COPSI   = 1.
 
     # Work panel by panel
     SURF = np.array(VD.wing_areas)
@@ -217,14 +210,12 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     COD = ((YBH-YAH)/D)[:,0::n_cw] # Just the LE values
 
     # Now on to each strip
-    PION = (np.pi *(1.0 - FLAX) + 2.0 *FLAX) /RNMAX
+    PION = 2.0 /RNMAX
     ADC  = 0.5*PION
     JTS  = 0.
 
     # XLE = LOCATION OF FIRST VORTEX MIDPOINT IN FRACTION OF CHORD.
-    XLE =.5 *(1.0 -np.cos (.5 *PION)) *(1.0 - FLAX) + 0.125 *PION *FLAX
-
-    SICPLE = 0.0 #  COUPLE (ABOUT STRIP CENTERLINE) DUE TO SIDESLIP (no sideslip)
+    XLE = 0.125 *PION
 
     # SINF REFERENCES THE LOAD CONTRIBUTION OF IRT-VORTEX TO THE
     # STRIP NOMINAL AREA, I.E., AREA OF STRIP ASSUMING CONSTANT
@@ -240,7 +231,7 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)*ones
     IRT  = np.tile(np.linspace(1,n_sw,n_sw),n_cw*n_w)*ones
     XX   = .5 *(1. - np.cos ((RK - .5) *PION))
-    XX   = XX *(1.0 - FLAX) + (RK - .75) *PION /2.0 *FLAX
+    XX   = (RK - .75) *PION /2.0
     K    = 1*RK
     KX   = 1*K
     IRTX = 1*IRT
@@ -250,9 +241,9 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     # The exact results of IRTX will not match VORLAX because of indexing differences in python
     RKX = KX
     X1  = .5 *(1. - np.cos (RKX *PION))
-    X1  = X1 *(1.0 - FLAX) + (RKX - .25) *PION /2.0 *FLAX
+    X1  = (RKX - .25) *PION /2.0
     X2  = .5 *(1. - np.cos((RKX + 1.) *PION))
-    X2  = X2 *(1.0 - FLAX) + (RKX + .75) *PION /2.0 *FLAX
+    X2  = (RKX + .75) *PION /2.0
 
     X1c  = (XA1+XB1)/2
     X2c  = (XA2+XB2)/2
@@ -309,7 +300,7 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     SPC_cond = VL*m_b.T
     SPC[SPC_cond] = -1.
     
-    CLE  = 0.5* DCP_LE *np.sqrt(XX)*FLAX
+    CLE  = 0.5* DCP_LE *np.sqrt(XX)
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
 
     # SLE is slope at leading edge
@@ -357,18 +348,18 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     XBAR   = np.ones(n_sw*n_w) * x_m
     ZBAR   = np.ones(n_sw*n_w) * z_m
     BMX    = BFZ * Y - BFY * (Z - ZBAR)
-    BMX    = BMX + SICPLE
+    BMX    = BMX
     BMY    = BMLE * COD + BFX * (Z - ZBAR) - BFZ * (X - XBAR)
-    CDC    = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) *COSALF
+    CDC    = BFZ * SINALF +  BFX * COSALF
     CDC    = CDC * CHORD_strip
 
     ES    = 2*s[:,0,:]
     ES    = ES[:,0::n_cw]
     STRIP = ES *CHORD_strip
-    LIFT  = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
+    LIFT  = (BFZ *COSALF - BFX *SINALF)*STRIP
     DRAG  = CDC*ES 
 
-    MOMENT = STRIP *(BMY *COPSI - BMX *SINPSI)
+    MOMENT = STRIP *(BMY *1.- BMX *0.)
 
     # Now calculate the coefficients for each wing and in total
     cl_y     = LIFT/CHORD_strip/ES
