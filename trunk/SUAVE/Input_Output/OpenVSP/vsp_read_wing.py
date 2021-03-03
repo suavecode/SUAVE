@@ -183,7 +183,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			if i < segment_num:      # This excludes the tip xsec, but we need a segment in SUAVE to store airfoil.
 				sweep     = vsp.GetParmVal(wing_id, 'Sweep', 'XSec_' + str(i)) * Units.deg
 				sweep_loc = vsp.GetParmVal(wing_id, 'Sweep_Location', 'XSec_' + str(i))
-				AR        = vsp.GetParmVal(wing_id, 'Aspect', 'XSec_' + str(i))
+				AR        = 2*vsp.GetParmVal(wing_id, 'Aspect', 'XSec_' + str(i))
 				taper     = vsp.GetParmVal(wing_id, 'Taper', 'XSec_' + str(i))
 				   
 				segment_sweeps_quarter_chord[i] = convert_sweep(sweep,sweep_loc,0.25,AR,taper)

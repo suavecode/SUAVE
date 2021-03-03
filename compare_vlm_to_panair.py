@@ -64,8 +64,8 @@ def main():
     #pan_arrow_biconvex     = import_csv(arrow_biconvex_file_pan)
     #su2_arrow_biconvex     = import_c8sv(arrow_biconvex_file_su2)
     #arrow_biconvex         = arrw_biconvex_vertical_dih() # Check if this is vertical
-    arrow_biconvex           = arrw_biconvex_twist_dih()
-    arrow_biconvex           = arrw_biconvex()
+    #arrow_biconvex           = arrw_biconvex_twist_dih()
+    arrow_biconvex           = arrw_biconvex_dih()
     #write(arrow_biconvex,'Check')
     conditions             = setup_conditions()
     results_arrow_biconvex = analyze(arrow_biconvex, conditions)
@@ -242,7 +242,7 @@ def analyze(config,conditions, use_MCM = False):
     S                                  = config.reference_area
     settings                           = Data()
     settings.number_spanwise_vortices  = 2
-    settings.number_chordwise_vortices = 2
+    settings.number_chordwise_vortices = 3
     settings.propeller_wake_model      = None
     settings.spanwise_cosine_spacing   = False
     settings.model_fuselage            = True

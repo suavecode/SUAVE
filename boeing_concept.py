@@ -38,7 +38,11 @@ def main():
     conditions = setup_conditions()
     
     # Run
-    results = analyze(vehicle, conditions)
+    results, CP = analyze(vehicle, conditions)
+    
+    # Plot the CP's
+    plot_CP(CP,conditions,vehicle)
+
     
     print(results)
     
@@ -117,8 +121,69 @@ def analyze(config,conditions):
     print('CDi')
     print(CDi)
 
-    return results
+    return results, CP
 
+
+def plot_CP(CP_in,conditions,vehicle,save_figure = True,file_type=".png"):
+    
+    VD         = vehicle.vortex_distribution	 
+    n_cw       = VD.n_cw 	
+    n_cw       = VD.n_cw 
+    n_sw       = VD.n_sw 
+    n_w        = VD.n_w 
+    
+    # Create a boolean for not plotting vertical wings
+    idx        = 0
+    plot_flag  = np.ones(n_w)
+    for wing in vehicle.wings: 
+        if wing.vertical: 
+            plot_flag[idx] = 0 
+            idx += 1    
+        else:
+            idx += 1 
+        if wing.vertical and wing.symmetric:             
+            plot_flag[idx] = 0 
+            idx += 1
+        else:
+            idx += 1  
+        
+    for ii in range(len(conditions.aerodynamics.angle_of_attack)):
+        aoa        = conditions.aerodynamics.angle_of_attack[ii] / Units.degrees
+        mach       = conditions.freestream.mach_number[ii]
+        CP         = CP_in[ii,:]
+        
+        save_filename = str(aoa) + '_' + str(mach)
+        
+        fig        = plt.figure()	
+        axes       = fig.add_subplot(1, 1, 1)  
+        x_max      = max(VD.XC) + 2
+        y_max      = max(VD.YC) + 2
+        axes.set_ylim(x_max, 0)
+        axes.set_xlim(-y_max, y_max)            
+        fig.set_size_inches(8,8)         	 
+        for i in range(n_w):
+            n_pts     = (n_sw + 1) * (n_cw + 1) 
+            xc_pts    = VD.X[i*(n_pts):(i+1)*(n_pts)]
+            x_pts     = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+            y_pts     = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+            z_pts     = np.reshape(np.atleast_2d(CP[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
+            x_pts_p   = x_pts*((n_cw+1)/n_cw) - x_pts[0,0]*((n_cw+1)/n_cw)  +  xc_pts[0] 
+            points    = np.linspace(0.001,1,50)
+            A         = np.cumsum(np.sin(np.pi/2*points))
+            levals    = -(np.concatenate([-A[::-1],A[1:]])/(2*A[-1])  + A[-1]/(2*A[-1]) )[::-1]*0.015  
+            color_map = plt.cm.get_cmap('jet')
+            rev_cm    = color_map.reversed()
+            if plot_flag[i] == 1:
+                CS  = axes.contourf(y_pts,x_pts_p, z_pts, cmap = rev_cm,extend='both')    
+            
+        # Set Color bar	
+        cbar = fig.colorbar(CS, ax=axes)
+        cbar.ax.set_ylabel('$C_{P}$', rotation =  0)  
+        plt.axis('off')	
+        plt.grid(None)            
+        
+        if save_figure: 
+            plt.savefig( save_filename + file_type) 	    
 
 
 
