@@ -22,12 +22,13 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_arithmetic
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_harmonic_to_third_octave
+from SUAVE.Methods.Noise.Fidelity_One.compute_broadband_noise import compute_broadband_noise
 
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
 def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc, harmonic_test ):
-    ''' This computes kal based procedure.           
+    ''' This computes the sound pressure level of a system of rotating blades           
         - Hanson method used to compute rotational noise  
-        - Vortex noise is computed using the method outlined by Schlegel et. al 
+        - Vortex noise is computed using brooks & burley 
         
     Inputs:
         - noise_data	 - SUAVE type vehicle
@@ -195,6 +196,7 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
         # ------------------------------------------------------------------------------------
         # Broadband Noise (Vortex Noise)   
         # ------------------------------------------------------------------------------------ 
+        G_self    = compute_broadband_noise()
         V_07      = V_tip*0.70/(Units.feet)                                      # blade velocity at r/R_tip = 0.7 
         St        = 0.28                                                         # Strouhal number             
         t_avg     = np.mean(t)/(Units.feet)                                      # thickness
