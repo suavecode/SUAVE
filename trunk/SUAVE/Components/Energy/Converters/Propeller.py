@@ -488,7 +488,26 @@ class Propeller(Energy_Component):
 
 
 def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, nonuniform_freestream):
-    """Analyzes aerodynamic forces at sectional blade locations.
+    """
+    Cl, Cdval = compute_aerodynamic_forces(  a_loc, 
+                                             a_geo, 
+                                             cl_sur, 
+                                             cd_sur, 
+                                             ctrl_pts, 
+                                             Nr, 
+                                             Na, 
+                                             Re, 
+                                             Ma, 
+                                             alpha, 
+                                             tc, 
+                                             nonuniform_freestream )
+                                             
+    Computes the aerodynamic forces at sectional blade locations. If airfoil 
+    geometry and locations are specified, the forces are computed using the 
+    airfoil polar lift and drag surrogates, accounting for the local Reynolds 
+    number and local angle of attack. 
+    
+    If the airfoils are not specified, an approximation is used.
 
     Assumptions:
     N/A
