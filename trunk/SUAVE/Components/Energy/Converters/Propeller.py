@@ -255,9 +255,9 @@ class Propeller(Energy_Component):
             
             # 2-D blade pitch and radial distributions
             beta = np.tile(total_blade_pitch,(Na ,1))
-            beta  = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
-            r = np.tile(r,(Na ,1))
-            r = np.repeat(r[np.newaxis,:, :], ctrl_pts, axis=0) 
+            beta = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
+            r    = np.tile(r,(Na ,1))
+            r    = np.repeat(r[np.newaxis,:, :], ctrl_pts, axis=0) 
             
             # 2-D atmospheric properties
             a   = np.tile(np.atleast_2d(a),(1,Nr))
@@ -310,7 +310,7 @@ class Propeller(Energy_Component):
             Re           = (W*c)/nu  
             
             # Compute aerodynamic forces based on specified input airfoil or using a surrogate
-            Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha, tc, Na, nonuniform_freestream)
+            Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, nonuniform_freestream)
 
             Rsquiggly   = Gamma - 0.5*W*c*Cl
         
@@ -487,7 +487,34 @@ class Propeller(Energy_Component):
         return thrust, torque, power, Cp, outputs , etap
 
 
-def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Re, Ma, alpha, tc, Na, nonuniform_freestream):
+def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, nonuniform_freestream):
+    """Analyzes aerodynamic forces at sectional blade locations.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    a_loc                      [-]
+    a_geo                      [-]
+    cl_sur                     [-]
+    cd_sur                     [-]
+    ctrl_pts                   [-]
+    Nr                         [-]
+    Na                         [-]
+    Re                         [-]
+    Ma                         [-]
+    alpha                      [radians]
+    tc                         [-]
+    nonuniform_freestream      [boolean]
+    
+                               
+    Outputs:                    
+    Cl                          [-]                               
+    Cdval                       [-]
+    """        
     # If propeller airfoils are defined, use airfoil surrogate 
     if a_loc != None:
         # Compute blade Cl and Cd distribution from the airfoil data  
