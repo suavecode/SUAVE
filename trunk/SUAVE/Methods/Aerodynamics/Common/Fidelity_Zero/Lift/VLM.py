@@ -223,4 +223,5 @@ def VLM_subsonic(conditions,settings,geometry):
     Velocity_Profile.V        = V_distribution 
     Velocity_Profile.dt       = dt 
     
+    
     return CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile
