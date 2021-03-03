@@ -1,10 +1,11 @@
 ## @ingroup Input_Output-OpenVSP
-# get_vsp_areas.py
+# get_vsp_measurements.py
 # 
 # Created:  --- 2016, T. MacDonald
 # Modified: Aug 2017, T. MacDonald
 #           Mar 2018, T. MacDonald
 #           Jan 2020, T. MacDonald
+#           Feb 2021, T. MacDonald
 
 try:
     import vsp as vsp
@@ -13,13 +14,13 @@ except ImportError:
 import numpy as np
 
 ## @ingroup Input_Output-OpenVSP
-def get_vsp_areas(filename = 'Unnamed_CompGeom.csv'):
-    """This calls OpenVSP to compute the wetted areas of a previously written vehicle.
+def get_vsp_measurements(filename = 'Unnamed_CompGeom.csv', measurement_type = 'wetted_area'):
+    """This calls OpenVSP to compute the wetted areas or volumes of a previously written vehicle.
     
     Assumptions:
     Vehicle must be open in OpenVSP (via recently used vsp_write)
     All components have different tags. Repeated tags are added together under the
-    assumption that this represents multiple engines or similar. Areas computed from
+    assumption that this represents multiple engines or similar. Values computed from
     repeated tags in this way may need to be divided by the number of entities later 
     before assignment. This is because some analyses may multiply an assigned area
     by number of engines, for example.
@@ -31,11 +32,19 @@ def get_vsp_areas(filename = 'Unnamed_CompGeom.csv'):
     None
 
     Outputs:
-    wetted_areas   [m^2] - Dictionary with wetted areas for each component, with component tags as the keys.
+    measurement   [m^2 or m^3] - Dictionary with values for each component, 
+      with component tags as the keys.
 
     Properties Used:
     N/A
     """        
+    
+    if measurement_type == 'wetted_area':
+        output_ind = 2
+    elif measurement_type == 'wetted_volume':
+        output_ind = 4
+    else:
+        raise NotImplementedError
     
     half_mesh = False # Note that this does not affect the Gmsh/SU2 meshing process
     # it only affects how much area of a component is included in the output
@@ -50,7 +59,7 @@ def get_vsp_areas(filename = 'Unnamed_CompGeom.csv'):
     
     f = open(filename)
     
-    wetted_areas = dict()
+    measurements = dict()
     
     # Extract wetted areas for each component
     for ii, line in enumerate(f):
@@ -61,11 +70,11 @@ def get_vsp_areas(filename = 'Unnamed_CompGeom.csv'):
         else:
             vals = line.split(',')
             item_tag = vals[0][:]
-            item_w_area = float(vals[2])
-            if item_tag in wetted_areas:
-                item_w_area = wetted_areas[item_tag] + item_w_area
-            wetted_areas[item_tag] = item_w_area
+            item_w_area = float(vals[output_ind])
+            if item_tag in measurements:
+                item_w_area = measurements[item_tag] + item_w_area
+            measurements[item_tag] = item_w_area
             
     f.close()
     
-    return wetted_areas
+    return measurements

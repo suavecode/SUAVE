@@ -11,6 +11,7 @@
 #           Mar 2020, M. Clarke
 #           May 2020, E. Botero
 #           Jul 2020, E. Botero 
+#           Feb 2021, T. MacDonald
 
 
 # ----------------------------------------------------------------------
@@ -26,9 +27,10 @@ except ImportError:
     # This allows SUAVE to build without OpenVSP
     pass
 import numpy as np
+import os
 
 ## @ingroup Input_Output-OpenVSP
-def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True,write_file=True):
+def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_set_ind = 4, write_igs = False):
     """This writes a SUAVE vehicle to OpenVSP format. It will take wing segments into account
     if they are specified in the vehicle setup file.
     
@@ -113,12 +115,15 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True,write_file=True):
     # -------------
     
     # Default Set_0 in OpenVSP is index 3
-    vsp.SetSetName(fuel_tank_set_ind,'fuel_tanks')
+    vsp.SetSetName(fuel_tank_set_ind, 'fuel_tanks')
+    vsp.SetSetName(OML_set_ind, 'OML')
     
     for wing in vehicle.wings:       
         if verbose:
             print('Writing '+wing.tag+' to OpenVSP Model')
-        area_tags, wing_id = write_vsp_wing(wing,area_tags,fuel_tank_set_ind)
+            area_tags, wing_id = write_vsp_wing(wing,area_tags, fuel_tank_set_ind, OML_set_ind)
+        if wing.tag == 'main_wing':
+            main_wing_id = wing_id    
     
     # -------------
     # Engines
@@ -130,12 +135,12 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True,write_file=True):
         if verbose:
             print('Writing '+vehicle.propulsors.turbofan.tag+' to OpenVSP Model')
         turbofan  = vehicle.propulsors.turbofan
-        write_vsp_turbofan(turbofan)
+        write_vsp_turbofan(turbofan, OML_set_ind)
         
     if 'turbojet' in vehicle.propulsors:
         print('Warning: no meshing sources are currently implemented for the nacelle')
         turbofan  = vehicle.propulsors.turbojet
-        write_vsp_turbofan(turbofan)    
+        write_vsp_turbofan(turbofan, OML_set_ind)    
     
     # -------------
     # Fuselage
@@ -145,23 +150,36 @@ def write(vehicle,tag,fuel_tank_set_ind=3,verbose=True,write_file=True):
         if verbose:
             print('Writing '+fuselage.tag+' to OpenVSP Model')
         try:
-            area_tags = write_vsp_fuselage(fuselage, area_tags, vehicle.wings.main_wing, fuel_tank_set_ind)
+            area_tags = write_vsp_fuselage(fuselage, area_tags, vehicle.wings.main_wing, 
+                                           fuel_tank_set_ind, OML_set_ind)
         except AttributeError:
-            area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind)
+            area_tags = write_vsp_fuselage(fuselage, area_tags, None, fuel_tank_set_ind,
+                                           OML_set_ind)
     
-    # Write the vehicle to the file
+    vsp.Update()
+    
+    # Write the vehicle to the file    
     if write_file ==True:
+        cwd = os.getcwd()
+        filename = tag + ".vsp3"
         if verbose:
-            print('Saving OpenVSP File')
-        vsp.WriteVSPFile(tag + ".vsp3")
+            print('Saving OpenVSP File at '+ cwd + '/' + filename)
+        vsp.WriteVSPFile(filename)
     elif verbose:
         print('Not Saving OpenVSP File')
         
+    if write_igs:
+        if verbose:
+            print('Exporting IGS File')        
+        vehicle_id = vsp.FindContainersWithName('Vehicle')[0]
+        parm_id = vsp.FindParm(vehicle_id,'LabelID','IGESSettings')
+        vsp.SetParmVal(parm_id, 0.)
+        vsp.ExportFile(tag + ".igs", OML_set_ind, vsp.EXPORT_IGES)
     
     return area_tags
 
 ## @ingroup Input_Output-OpenVSP
-def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
+def write_vsp_wing(wing, area_tags, fuel_tank_set_ind, OML_set_ind):
     """This write a given wing into OpenVSP format
     
     Assumptions:
@@ -292,37 +310,47 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
 
     # Note this will fail silently if airfoil is not in correct format
     # check geometry output
+    
+    airfoil_vsp_types = []
+    if n_segments > 0:
+        for i in range(n_segments): 
+            if 'airfoil_type' in wing.Segments[i].keys():
+                if wing.Segments[i].airfoil_type == 'biconvex': 
+                    airfoil_vsp_types.append(vsp.XS_BICONVEX)
+                else:
+                    airfoil_vsp_types.append(vsp.XS_FILE_AIRFOIL)
+            else:
+                airfoil_vsp_types.append(vsp.XS_FILE_AIRFOIL)
+    elif 'airfoil_type' in wing.keys():
+        if wing.airfoil_type == 'biconvex': 
+            airfoil_vsp_types.append(vsp.XS_BICONVEX)
+        else:
+            airfoil_vsp_types.append(vsp.XS_FILE_AIRFOIL)        
+    else:
+        airfoil_vsp_types = [vsp.XS_FILE_AIRFOIL]    
 
     if n_segments==0:
-        if len(wing.Airfoil) != 0:
+        if len(wing.Airfoil) != 0 or 'airfoil_type' in wing.keys():
             xsecsurf = vsp.GetXSecSurf(wing_id,0)
-            vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
-            vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
-            xsec1 = vsp.GetXSec(xsecsurf,0)
-            xsec2 = vsp.GetXSec(xsecsurf,1)
-            vsp.ReadFileAirfoil(xsec1,wing.Airfoil['airfoil'].coordinate_file)
-            vsp.ReadFileAirfoil(xsec2,wing.Airfoil['airfoil'].coordinate_file)
+            vsp.ChangeXSecShape(xsecsurf,0,airfoil_vsp_types[0])
+            vsp.ChangeXSecShape(xsecsurf,1,airfoil_vsp_types[0])
+            if len(wing.Airfoil) != 0:
+                xsec1 = vsp.GetXSec(xsecsurf,0)
+                xsec2 = vsp.GetXSec(xsecsurf,1)
+                vsp.ReadFileAirfoil(xsec1,wing.Airfoil['airfoil'].coordinate_file)
+                vsp.ReadFileAirfoil(xsec2,wing.Airfoil['airfoil'].coordinate_file)
             vsp.Update()
-    else: # The wing airfoil is still used for the root segment if the first added segment does not begin there
-        # This could be combined with above, but is left here for clarity
-        if (len(wing.Airfoil) != 0) and (wing.Segments[0].percent_span_location!=0.):
+    else:
+        if len(wing.Segments[0].Airfoil) != 0 or 'airfoil_type' in wing.Segments[0].keys():
             xsecsurf = vsp.GetXSecSurf(wing_id,0)
-            vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
-            vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
-            xsec1 = vsp.GetXSec(xsecsurf,0)
-            xsec2 = vsp.GetXSec(xsecsurf,1)
-            vsp.ReadFileAirfoil(xsec1,wing.Airfoil['airfoil'].coordinate_file)
-            vsp.ReadFileAirfoil(xsec2,wing.Airfoil['airfoil'].coordinate_file)
-            vsp.Update()
-        elif len(wing.Segments[0].Airfoil) != 0:
-            xsecsurf = vsp.GetXSecSurf(wing_id,0)
-            vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_FILE_AIRFOIL)
-            vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_FILE_AIRFOIL)
-            xsec1 = vsp.GetXSec(xsecsurf,0)
-            xsec2 = vsp.GetXSec(xsecsurf,1)
-            vsp.ReadFileAirfoil(xsec1,wing.Segments[0].Airfoil['airfoil'].coordinate_file)
-            vsp.ReadFileAirfoil(xsec2,wing.Segments[0].Airfoil['airfoil'].coordinate_file)
-            vsp.Update()                
+            vsp.ChangeXSecShape(xsecsurf,0,airfoil_vsp_types[0])
+            vsp.ChangeXSecShape(xsecsurf,1,airfoil_vsp_types[0])
+            if len(wing.Segments[0].Airfoil) != 0:
+                xsec1 = vsp.GetXSec(xsecsurf,0)
+                xsec2 = vsp.GetXSec(xsecsurf,1)
+                vsp.ReadFileAirfoil(xsec1,wing.Segments[0].Airfoil['airfoil'].coordinate_file)
+                vsp.ReadFileAirfoil(xsec2,wing.Segments[0].Airfoil['airfoil'].coordinate_file)
+            vsp.Update()              
 
     # Thickness to chords
     vsp.SetParmVal( wing_id,'ThickChord','XSecCurve_0',root_tc)
@@ -378,11 +406,12 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
             span_i = span*(wing.Segments[i_segs].percent_span_location-wing.Segments[i_segs-1].percent_span_location)/np.cos(dihedral_i*Units.deg)                      
 
         # Insert the new wing section with specified airfoil if available
-        if len(wing.Segments[i_segs-1].Airfoil) != 0:
-            vsp.InsertXSec(wing_id,i_segs-1+adjust,vsp.XS_FILE_AIRFOIL)
-            xsecsurf = vsp.GetXSecSurf(wing_id,0)
-            xsec = vsp.GetXSec(xsecsurf,i_segs+adjust)
-            vsp.ReadFileAirfoil(xsec, wing.Segments[i_segs-1].Airfoil['airfoil'].coordinate_file)                
+        if len(wing.Segments[i_segs-1].Airfoil) != 0 or 'airfoil_type' in wing.Segments[i_segs-1].keys():
+            vsp.InsertXSec(wing_id,i_segs-1+adjust,airfoil_vsp_types[i_segs])
+            if len(wing.Segments[i_segs-1].Airfoil) != 0:
+                xsecsurf = vsp.GetXSecSurf(wing_id,0)
+                xsec = vsp.GetXSec(xsecsurf,i_segs+adjust)
+                vsp.ReadFileAirfoil(xsec, wing.Segments[i_segs-1].Airfoil['airfoil'].coordinate_file)                
         else:
             vsp.InsertXSec(wing_id,i_segs-1+adjust,vsp.XS_FOUR_SERIES)
 
@@ -420,11 +449,13 @@ def write_vsp_wing(wing,area_tags,fuel_tank_set_ind):
     if 'Fuel_Tanks' in wing:
         for tank in wing.Fuel_Tanks:
             write_wing_conformal_fuel_tank(wing, wing_id, tank, fuel_tank_set_ind)
+            
+    vsp.SetSetFlag(wing_id, OML_set_ind, True)
     
     return area_tags, wing_id
 
 ## @ingroup Input_Output-OpenVSP
-def write_vsp_turbofan(turbofan):
+def write_vsp_turbofan(turbofan, OML_set_ind):
     """This converts turbofans into OpenVSP format.
     
     Assumptions:
@@ -447,11 +478,12 @@ def write_vsp_turbofan(turbofan):
     Properties Used:
     N/A
     """    
-    n_engines = turbofan.number_of_engines
-    length    = turbofan.engine_length
-    width     = turbofan.nacelle_diameter
-    origins   = turbofan.origin
-    tf_tag    = turbofan.tag
+    n_engines   = turbofan.number_of_engines
+    length      = turbofan.engine_length
+    width       = turbofan.nacelle_diameter
+    origins     = turbofan.origin
+    inlet_width = turbofan.inlet_diameter
+    tf_tag      = turbofan.tag
     
     # True will create a flow-through subsonic nacelle (which may have dimensional errors)
     # False will create a cylindrical stack (essentially a cylinder)
@@ -470,7 +502,28 @@ def write_vsp_turbofan(turbofan):
         z = origin[2]
         
         if ft_flag == True:
-            nac_id = vsp.AddGeom( "FUSELAGE")
+            nac_id = vsp.AddGeom( "BODYOFREVOLUTION")
+            vsp.SetGeomName(nac_id, tf_tag+'_'+str(ii+1))
+            
+            # Origin
+            vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+            vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+            vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
+            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP  
+            
+            # Length and overall diameter
+            vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
+            
+            vsp.ChangeBORXSecShape(nac_id ,vsp.XS_SUPER_ELLIPSE)
+            vsp.Update()
+            vsp.SetParmVal(nac_id, "Super_Height", "XSecCurve", (width-inlet_width)/2)
+            vsp.SetParmVal(nac_id, "Super_Width", "XSecCurve", length)
+            vsp.SetParmVal(nac_id, "Super_MaxWidthLoc", "XSecCurve", -1.)
+            vsp.SetParmVal(nac_id, "Super_M", "XSecCurve", 2.)
+            vsp.SetParmVal(nac_id, "Super_N", "XSecCurve", 1.)             
+            
+        else:
+            nac_id = vsp.AddGeom("STACK")
             vsp.SetGeomName(nac_id, tf_tag+'_'+str(ii+1))
             
             # Origin
@@ -478,52 +531,26 @@ def write_vsp_turbofan(turbofan):
             vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
             vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
             vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
-            vsp.SetParmVal(nac_id,'Origin','XForm',0.5)    
+            vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
             
-            # Length and overall diameter
-            vsp.SetParmVal(nac_id,"Length","Design",length)
-            vsp.SetParmVal(nac_id,'OrderPolicy','Design',1.) 
-            vsp.SetParmVal(nac_id,'Z_Rotation','XForm',180.)
-            
+            vsp.CutXSec(nac_id,2) # remove extra default subsurface
             xsecsurf = vsp.GetXSecSurf(nac_id,0)
-            vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_ELLIPSE)
-            vsp.Update()
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_0", width-.2)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_1", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_2", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_3", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_0", width-.2)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_1", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_2", width)
-            vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_3", width)            
-            
-        else:
-            stack_id = vsp.AddGeom("STACK")
-            vsp.SetGeomName(stack_id, tf_tag+'_'+str(ii+1))
-            
-            # Origin
-            vsp.SetParmVal(stack_id,'X_Location','XForm',x)
-            vsp.SetParmVal(stack_id,'Y_Location','XForm',y)
-            vsp.SetParmVal(stack_id,'Z_Location','XForm',z)
-            vsp.SetParmVal(stack_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
-            vsp.SetParmVal(stack_id,'Origin','XForm',0.5)            
-            
-            vsp.CutXSec(stack_id,2) # remove extra default subsurface
-            xsecsurf = vsp.GetXSecSurf(stack_id,0)
             vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
             vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
             vsp.Update()
-            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_1", width)
-            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_2", width)
-            vsp.SetParmVal(stack_id, "Circle_Diameter", "XSecCurve_3", width)
-            vsp.SetParmVal(stack_id, "XDelta", "XSec_1", 0)
-            vsp.SetParmVal(stack_id, "XDelta", "XSec_2", length)
-            vsp.SetParmVal(stack_id, "XDelta", "XSec_3", 0)
+            vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_1", width)
+            vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_2", width)
+            vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_3", width)
+            vsp.SetParmVal(nac_id, "XDelta", "XSec_1", 0)
+            vsp.SetParmVal(nac_id, "XDelta", "XSec_2", length)
+            vsp.SetParmVal(nac_id, "XDelta", "XSec_3", 0)
+            
+        vsp.SetSetFlag(nac_id, OML_set_ind, True)
         
         vsp.Update()
         
 ## @ingroup Input_Output-OpenVSP
-def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
+def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set_ind):
     """This writes a fuselage into OpenVSP format.
     
     Assumptions:
@@ -652,8 +679,12 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         vsp.SetParmVal(fuse_id,"RightLStrength","XSec_0",vals.nose.side.strength)
         vsp.SetParmVal(fuse_id,"TBSym","XSec_0",vals.nose.TB_Sym)
         vsp.SetParmVal(fuse_id,"ZLocPercent","XSec_0",vals.nose.z_pos)
+        if not vals.nose.TB_Sym:
+            vsp.SetParmVal(fuse_id,"BottomLAngle","XSec_0",vals.nose.bottom.angle)
+            vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_0",vals.nose.bottom.strength)           
 
         # Tail
+        
         vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
         vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
         # Below can be enabled if AllSym (below) is removed
@@ -725,10 +756,39 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
         vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(end_ind),z_poses[-1])    
         
         # Tail
-        vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
-        vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
-        vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
-        vsp.Update()
+        if heights[-1] > 0.:
+            stdout = vsp.cvar.cstdout
+            errorMgr = vsp.ErrorMgrSingleton_getInstance()
+            errorMgr.PopErrorAndPrint(stdout)
+            
+            pos = len(heights)-1
+            vsp.InsertXSec(fuse_id, pos-1, vsp.XS_ELLIPSE)
+            vsp.Update()
+            vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(pos), widths[-1])
+            vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(pos), heights[-1])
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos),x_poses[-1])
+            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos),z_poses[-1])              
+            
+            xsecsurf = vsp.GetXSecSurf(fuse_id,0)
+            vsp.ChangeXSecShape(xsecsurf,pos+1,vsp.XS_POINT)
+            vsp.Update()           
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos+1),x_poses[-1])
+            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos+1),z_poses[-1])     
+            
+            # update strengths to make end flat
+            vsp.SetParmVal(fuse_id,"TopRStrength","XSec_"+str(pos), 0.)
+            vsp.SetParmVal(fuse_id,"RightRStrength","XSec_"+str(pos), 0.)
+            vsp.SetParmVal(fuse_id,"BottomRStrength","XSec_"+str(pos), 0.)
+            vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(pos+1), 0.)
+            vsp.SetParmVal(fuse_id,"RightLStrength","XSec_"+str(pos+1), 0.)            
+        
+        else:
+            vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
+            vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
+            vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
+            vsp.Update()
+            
+            
         if 'z_pos' in vals.tail:
             tail_z_pos = vals.tail.z_pos
         else:
@@ -737,6 +797,8 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind):
     if 'Fuel_Tanks' in fuselage:
         for tank in fuselage.Fuel_Tanks:
             write_fuselage_conformal_fuel_tank(fuse_id, tank, fuel_tank_set_ind)    
+            
+    vsp.SetSetFlag(fuse_id, OML_set_ind, True)
                 
     return area_tags
 
