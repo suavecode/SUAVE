@@ -1,9 +1,8 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_wing_induced_velocity.py
+# compute_wing_induced_velocity_sup.py
 # 
-# Created:  May 2018, M. Clarke
-#           Apr 2020, M. Clarke
-#           Jun 2020, E. Botero
+# Created:  Jun 2020, E. Botero
+#
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,24 +13,31 @@ import numpy as np
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
-    """ This computes the induced velocitys are each control point 
+    """ This computes the induced velocities at each control point 
     of the vehicle vortex lattice 
 
     Assumptions: 
     Trailing vortex legs infinity are alligned to freestream
 
     Source:  
-    None
+    1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
+    lattice method for subsonic and supersonic flow applications." (1977). (NASA CR)
+    
+    2. VORLAX Source Code
 
     Inputs: 
-    VD       - vehicle vortex distribution      [Unitless] 
-    n_sw     - number_spanwise_vortices         [Unitless]
-    n_cw     - number_chordwise_vortices        [Unitless] 
-    mach                                        [Unitless] 
+    VD       - vehicle vortex distribution                    [Unitless] 
+    n_sw     - number_spanwise_vortices                       [Unitless]
+    n_cw     - number_chordwise_vortices                      [Unitless] 
+    mach                                                      [Unitless] 
     
     Outputs:                                
-    C_mn     - total induced velocity matrix    [Unitless] 
-    DW_mn    - induced downwash velocity matrix [Unitless] 
+    C_mn     - total induced velocity matrix                  [Unitless] 
+    s        - semispan of the horshoe vortex                 [m] 
+    t        - tangent of the horshoe vortex                  [-] 
+    CHORD    - chord length for a panel                       [m] 
+    RFLAG    - sonic vortex flag                              [boolean] 
+    ZETA     - tangent incidence angle of the chordwise strip [-] 
 
     Properties Used:
     N/A
@@ -199,9 +205,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     Y1_sup     = Y1[sup]
     Y2_sub     = Y2[sub]
     Y2_sup     = Y2[sup]
-    RAD1_sub   = RAD1[sub]
     RAD1_sup   = RAD1[sup]
-    RAD2_sub   = RAD2[sub]
     RAD2_sup   = RAD2[sup]
     RTV1_sub   = RTV1[sub]
     RTV1_sup   = RTV1[sup]
@@ -218,7 +222,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     if np.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
         U_sub, V_sub, W_sub = subsonic(zobar_sub,XSQ1_sub,RO1_sub,XSQ2_sub,RO2_sub,XTY_sub,T_sub,B2_sub,ZSQ_sub,\
-                                       TOLSQ_sub,X1_sub,Y1_sub,X2_sub,Y2_sub,RAD1_sub,RAD2_sub,RTV1_sub,RTV2_sub)
+                                       TOLSQ_sub,X1_sub,Y1_sub,X2_sub,Y2_sub,RTV1_sub,RTV2_sub)
     else:
         U_sub = []
         V_sub = []
@@ -253,7 +257,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     if np.sum(sup)>0:
         U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar_sup,XSQ1_sup,RO1_sup,XSQ2_sup,RO2_sup,XTY_sup,T_sup,B2_sup,\
                                                     ZSQ_sup,TOLSQ_sup,TOL_sup,TOLSQ2_sup,X1_sup,Y1_sup,X2_sup,Y2_sup,\
-                                                    RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,t,CHORD_sup,RNMAX,\
+                                                    RAD1_sup,RAD2_sup,RTV1_sup,RTV2_sup,CUTOFF,CHORD_sup,RNMAX,\
                                                     FLAX,EYE,n_cw,n_cp,n_w,RFLAG_sup)
     else:
         U_sup = []
@@ -285,7 +289,46 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     return C_mn, s, t, CHORD, RFLAG, ZETA
     
     
-def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2):
+def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
+    """  This computes the induced velocities at each control point 
+    of the vehicle vortex lattice for subsonic mach numbers
+
+    Assumptions: 
+    Trailing vortex legs infinity are alligned to freestream
+
+    Source:  
+    1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
+    lattice method for subsonic and supersonic flow applications." (1977). (NASA CR)
+    
+    2. VORLAX Source Code
+
+    Inputs: 
+    Z       Z relative location of the vortices          [m]
+    XSQ1    X1 squared                                   [m^2]
+    RO1     coefficient                                  [-]
+    XSQ2    X2 squared                                   [m^2]
+    RO2     coefficient                                  [-]
+    XTY     AXIAL DISTANCE BETWEEN PROJECTION OF RECEIVING POINT ONTO HORSESHOE PLANE AND EXTENSION OF SKEWED LEG [m]
+    T       tangent of the horshoe vortex                [-] 
+    B2      mach^2-1 (-beta2)                            [-] 
+    ZSQ     Z squared                                    [m^2] 
+    TOLSQ   coefficient                                  [-]
+    X1      X coordinate of the left side of the vortex  [m]
+    Y1      Y coordinate of the left side of the vortex  [m]
+    X2      X coordinate of the right side of the vortex [m]
+    Y2      Y coordinate of the right side of the vortex [m]
+    RTV1    coefficient                                  [-]
+    RTV2    coefficient                                  [-]
+
+    
+    Outputs:           
+    U       X velocity       [unitless]
+    V       Y velocity       [unitless]
+    W       Z velocity       [unitless]
+
+    Properties Used:
+    N/A
+    """  
     
     CPI  = 4 * np.pi
     ARG1 = XSQ1 - RO1
@@ -318,7 +361,58 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,R
     return U, V, W
 
     
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2,CUTOFF,t,CHORD,RNMAX,FLAX,EYE,n_cw,n_cp,n_w,RFLAG):
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,FLAX,EYE,n_cw,n_cp,n_w,RFLAG):
+    """  This computes the induced velocities at each control point 
+    of the vehicle vortex lattice for supersonic mach numbers
+
+    Assumptions: 
+    Trailing vortex legs infinity are alligned to freestream
+
+    Source:  
+    1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
+    lattice method for subsonic and supersonic flow applications." (1977). (NASA CR)
+    
+    2. VORLAX Source Code
+
+    Inputs: 
+    Z       Z relative location of the vortices          [m]
+    XSQ1    X1 squared                                   [m^2]
+    RO1     coefficient                                  [-]
+    XSQ2    X2 squared                                   [m^2]
+    RO2     coefficient                                  [-]
+    XTY     AXIAL DISTANCE BETWEEN PROJECTION OF RECEIVING POINT ONTO HORSESHOE PLANE AND EXTENSION OF SKEWED LEG [m]
+    T       tangent of the horshoe vortex                [-] 
+    B2      mach^2-1 (-beta2)                            [-] 
+    ZSQ     Z squared                                    [m^2] 
+    TOLSQ   coefficient                                  [-]
+    X1      X coordinate of the left side of the vortex  [m]
+    Y1      Y coordinate of the left side of the vortex  [m]
+    X2      X coordinate of the right side of the vortex [m]
+    Y2      Y coordinate of the right side of the vortex [m]
+    RAD1    array of zeros                               [-]
+    RAD2    array of zeros                               [-]
+    RTV1    coefficient                                  [-]
+    RTV2    coefficient                                  [-]
+    CUTOFF  coefficient                                  [-]
+    CHORD   chord length for a panel                     [m] 
+    RNMAX   number of chordwise panels                   [-]
+    FLAX    flag indicating linear x spacing             [-] 
+    EYE     eye matrix (linear algebra)                  [-]
+    n_cw    number of chordwise panels                   [-]
+    n_cp    number of control points                     [-]
+    n_w     number of wings                              [-]
+    RFLAG   sonic vortex flag                            [boolean] 
+
+    
+    Outputs:           
+    U       X velocity        [unitless]
+    V       Y velocity        [unitless]
+    W       Z velocity        [unitless]
+    RFLAG   sonic vortex flag [boolean] 
+
+    Properties Used:
+    N/A
+    """      
     
     CPI  = 2 * np.pi
     ARG1 = XSQ1 - RO1
@@ -477,6 +571,36 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
 
 
 def supersonic_in_plane(RAD1,RAD2,Y1,Y2,TOL,XTY,CPI):
+    """  This computes the induced velocities at each control point 
+    in the special case where the vortices lie in the same plane
+    
+    Assumptions: 
+    Trailing vortex legs infinity are alligned to freestream
+
+    Source:  
+    1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
+    lattice method for subsonic and supersonic flow applications." (1977). (NASA CR)
+    
+    2. VORLAX Source Code
+
+    Inputs: 
+    RAD1    array of zeros                               [-]
+    RAD2    array of zeros                               [-]
+    Y1      Y coordinate of the left side of the vortex  [m]
+    Y2      Y coordinate of the right side of the vortex [m]
+    TOL     coefficient                                  [-]
+    XTY     AXIAL DISTANCE BETWEEN PROJECTION OF RECEIVING POINT ONTO HORSESHOE PLANE AND EXTENSION OF SKEWED LEG [m]
+    CPI     2 Pi                                         [radians]
+
+    
+    Outputs:           
+    U       X velocity       [unitless]
+    V       Y velocity       [unitless]
+    W       Z velocity       [unitless]
+
+    Properties Used:
+    N/A
+    """    
     
     F1 = np.zeros_like(RAD1)
     F2 = np.zeros_like(RAD2)

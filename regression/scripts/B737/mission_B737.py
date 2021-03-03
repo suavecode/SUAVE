@@ -64,14 +64,14 @@ def main():
     #plt.show(block=True)
     
     # check the results
-    #check_results(results,old_results) 
+    check_results(results,old_results) 
     
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
     
     # plot vehicle 
-    #plot_vehicle(configs.base,plot_control_points = True)      
+    plot_vehicle(configs.base,plot_control_points = True)      
     return
 
 

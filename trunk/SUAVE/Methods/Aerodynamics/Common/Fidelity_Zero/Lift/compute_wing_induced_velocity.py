@@ -44,7 +44,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     inv_root_beta = np.zeros_like(mach)
     mach[mach==1]         = 1.001  
     inv_root_beta[mach<1] = 1/np.sqrt(1-mach[mach<1]**2)  # note that this applies to all Machs below 1 and does not to take into consideration the common assumtion of no compressibility under mach 0.3   
-    inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1)
+    inv_root_beta[mach>1] = 1/np.sqrt(mach[mach>1]**2-1) 
     inv_root_beta = np.atleast_3d(inv_root_beta)
      
     XAH   = np.atleast_3d(VD.XAH*inv_root_beta) 
@@ -157,10 +157,6 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     C_AB_rl_tot = C_AB_rl_on_wing + C_AB_34_rl + C_Binf  # verified from book using example 7.4 pg 399-404
     C_mn        = C_AB_bv + C_AB_ll_tot  + C_AB_rl_tot   # verified from book using example 7.4 pg 399-404 
     DW_mn       = C_AB_ll_tot + C_AB_rl_tot              # summation of trailing vortices for semi infinite 
-    
-    #DW_mn = DW_mn*MCM
-    #C_mn  = C_mn*MCM
-    
     
     return C_mn, DW_mn
 

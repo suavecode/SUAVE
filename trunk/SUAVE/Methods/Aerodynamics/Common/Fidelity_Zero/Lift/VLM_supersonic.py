@@ -27,22 +27,14 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     Assumptions: None
 
     Source:
-    1. Aerodynamics for Engineers, Sixth Edition by John Bertin & Russel Cummings 
-    Pgs. 379-397(Literature)
-    
-    2. Low-Speed Aerodynamics, Second Edition by Joseph katz, Allen Plotkin
-    Pgs. 331-338(Literature), 579-586 (Fortran Code implementation)
-    
-    3. Yahyaoui, M. "Generalized Vortex Lattice Method for Predicting Characteristics of Wings
-    with Flap and Aileron Deflection" , World Academy of Science, Engineering and Technology 
-    International Journal of Mechanical, Aerospace, Industrial and Mechatronics Engineering 
-    Vol:8 No:10, 2014
-    
-    4. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
+    1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
     lattice method for subsonic and supersonic flow applications." (1977). (NASA CR)
+    
+    2. VORLAX Source Code
 
     Inputs:
     geometry.
+       reference_area                          [m^2]
        wing.
          spans.projected                       [m]
          chords.root                           [m]
@@ -67,8 +59,8 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
         fineness.nose                          [Unitless]
         fineness.tail                          [Unitless]
         
-       settings.number_spanwise_vortices         [Unitless]
-       settings.number_chordwise_vortices        [Unitless]
+       settings.number_spanwise_vortices       [Unitless]
+       settings.number_chordwise_vortices      [Unitless]
        settings.use_surrogate                  [Unitless]
        settings.propeller_wake_model           [Unitless]
        conditions.aerodynamics.angle_of_attack [radians]
@@ -80,6 +72,7 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     CDi                                        [Unitless]
     Cdi                                        [Unitless]
     CM                                         [Unitless]
+    CP                                         [Unitless]
 
     Properties Used:
     N/A
@@ -273,7 +266,7 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     all_for_indices = all_aft_indices-1
 
     mask1 = np.ones_like(all_aft_indices,dtype=bool)
-    mask1[n_cw-1::n_cw] =False
+    mask1[n_cw-1::n_cw] = False
 
     aft_indices = all_aft_indices[mask1]
     for_indices = all_for_indices[mask1]
