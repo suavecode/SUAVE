@@ -521,7 +521,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     T2F[(n_cw-1)::n_cw] = 0.
     T2A[0::n_cw]        = 0.
 
-    # Create a smaller B2 vectors
+    # Create a smaller B2 vector
     B2_inds = np.array(np.ravel(np.atleast_2d(np.linspace(0,size-1,size)).T + (size**2)*np.linspace(0,n_mach-1,n_mach),order='F'),dtype=int)
     B2_1D   = B2[B2_inds]
 

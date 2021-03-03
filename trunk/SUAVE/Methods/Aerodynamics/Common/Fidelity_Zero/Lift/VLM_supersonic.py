@@ -212,7 +212,6 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     # Now on to each strip
     PION = 2.0 /RNMAX
     ADC  = 0.5*PION
-    JTS  = 0.
 
     # XLE = LOCATION OF FIRST VORTEX MIDPOINT IN FRACTION OF CHORD.
     XLE = 0.125 *PION
@@ -229,20 +228,13 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     # POLATING BETWEEN CONTROL POINTS AND TAKING INTO ACCOUNT THE LOCAL
     # INCIDENCE.    
     RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)*ones
-    IRT  = np.tile(np.linspace(1,n_sw,n_sw),n_cw*n_w)*ones
-    XX   = .5 *(1. - np.cos ((RK - .5) *PION))
     XX   = (RK - .75) *PION /2.0
     K    = 1*RK
     KX   = 1*K
-    IRTX = 1*IRT
     KX[K>1]   = K[K>1]-1
-    IRTX[K>1] = IRT[[K>1]] - 1
-
-    # The exact results of IRTX will not match VORLAX because of indexing differences in python
+    
     RKX = KX
-    X1  = .5 *(1. - np.cos (RKX *PION))
     X1  = (RKX - .25) *PION /2.0
-    X2  = .5 *(1. - np.cos((RKX + 1.) *PION))
     X2  = (RKX + .75) *PION /2.0
 
     X1c  = (XA1+XB1)/2
@@ -306,15 +298,14 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     # SLE is slope at leading edge
     SLE  = SLOPE[:,0::n_cw]
     ZETA = ZETA[:,0::n_cw]
-    FKEY = 1. - JTS*(1+JTS)
     XCOS = 1./np.sqrt(1+(SLE-ZETA)**2)
     XSIN = (SLE-ZETA)*XCOS
-    TFX  = 1*XCOS
-    TFZ  = - XSIN
+    TFX  =  1*XCOS
+    TFZ  = -1*XSIN
 
     # If a negative number is used for SPC a different correction is used. See VORLAX documentation for Lan reference
-    TFX[SPC<0] = XSIN[SPC<0]*np.sign(DCP_LE)[SPC<0]*FKEY
-    TFZ[SPC<0] = np.abs(XCOS)[SPC<0]*np.sign(DCP_LE)[SPC<0]*FKEY
+    TFX[SPC<0] = XSIN[SPC<0]*np.sign(DCP_LE)[SPC<0]
+    TFZ[SPC<0] = np.abs(XCOS)[SPC<0]*np.sign(DCP_LE)[SPC<0]
 
     CAXL = CAXL -TFX*CSUC
 
@@ -329,9 +320,9 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
 
     # BFX, BFY, AND BFZ ARE THE COMPONENTS ALONG THE BODY AXES
     # OF THE STRIP FORCE CONTRIBUTION.
-    BFX = - CNC *FSIN + CAXL *FCOS
+    BFX = -  CNC *FSIN + CAXL *FCOS
     BFY = - (CNC *FCOS + CAXL *FSIN) *SID
-    BFZ = (CNC *FCOS + CAXL *FSIN) *COD
+    BFZ =   (CNC *FCOS + CAXL *FSIN) *COD
 
     # CONVERT CNC FROM CN INTO CNC (COEFF. *CHORD).
     CHORD_strip = CHORD[:,0::n_cw]
@@ -359,7 +350,7 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     LIFT  = (BFZ *COSALF - BFX *SINALF)*STRIP
     DRAG  = CDC*ES 
 
-    MOMENT = STRIP *(BMY *1.- BMX *0.)
+    MOMENT = STRIP *BMY
 
     # Now calculate the coefficients for each wing and in total
     cl_y     = LIFT/CHORD_strip/ES
