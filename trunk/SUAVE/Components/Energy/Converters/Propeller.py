@@ -516,23 +516,23 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
     N/A
 
     Inputs:
-    a_loc                      [-]
-    a_geo                      [-]
-    cl_sur                     [-]
-    cd_sur                     [-]
-    ctrl_pts                   [-]
-    Nr                         [-]
-    Na                         [-]
-    Re                         [-]
-    Ma                         [-]
-    alpha                      [radians]
-    tc                         [-]
-    nonuniform_freestream      [boolean]
-    
-                               
-    Outputs:                    
-    Cl                          [-]                               
-    Cdval                       [-]
+    a_loc                      Locations of specified airfoils           [-]
+    a_geo                      Geometry of specified airfoil             [-]
+    cl_sur                     Lift Coefficient Surrogates               [-]
+    cd_sur                     Drag Coefficient Surrogates               [-]
+    ctrl_pts                   Number of control points                  [-]
+    Nr                         Number of radial blade sections           [-]
+    Na                         Number of azimuthal blade stations        [-]
+    Re                         Local Reynolds numbers                    [-]
+    Ma                         Local Mach number                         [-]
+    alpha                      Local angles of attack                    [radians]
+    tc                         Thickness to chord                        [-]
+    nonuniform_freestream      Nonuniform inflow to propeller            [Boolean]
+                                                     
+                                                     
+    Outputs:                                          
+    Cl                       Lift Coefficients                         [-]                               
+    Cdval                    Drag Coefficients  (before scaling)       [-]
     """        
     # If propeller airfoils are defined, use airfoil surrogate 
     if a_loc != None:
