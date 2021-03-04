@@ -12,7 +12,6 @@
 import numpy as np 
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity_sup  import compute_wing_induced_velocity_sup
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution, compute_panel_area, compute_unit_normal
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
 
@@ -125,7 +124,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     geometry.vortex_distribution = VD
 
     # Build induced velocity matrix, C_mn
-    C_mn, s, t, CHORD, RFLAG, ZETA = compute_wing_induced_velocity_sup(VD,n_sw,n_cw,aoa,mach) 
+    C_mn, s, t, CHORD, RFLAG, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
 
     # Compute flow tangency conditions   
     inv_root_beta           = np.ones_like(mach)

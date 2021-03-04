@@ -62,7 +62,7 @@ class Settings(Data):
                 self.discretization                      = Data()
                 self.number_control_surfaces             = 0
                 
-                self.filenames.avl_bin_name              = '/home/matthew-linux/Avl/bin/avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary i.e. '/your/path/to/avl'
+                self.filenames.avl_bin_name              = 'avl' # to call avl from command line. If avl is not on the system path, include absolute path to the avl binary i.e. '/your/path/to/avl'
                 self.filenames.run_folder                = 'avl_files'  
                 self.filenames.features                  = 'aircraft.avl'
                 self.filenames.mass_file                 = 'aircraft.mass'
