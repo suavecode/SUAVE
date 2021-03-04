@@ -176,7 +176,6 @@ class Propeller(Energy_Component):
         
         # calculate total blade pitch
         total_blade_pitch = beta_0 + pitch_c  
-        beta              = total_blade_pitch
         
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
@@ -302,6 +301,7 @@ class Propeller(Energy_Component):
             
             # total velocities
             Ua     = np.outer((V + ua),np.ones_like(r))
+            beta   = total_blade_pitch
             
             # Things that will change with iteration
             size   = (ctrl_pts,Nr)
