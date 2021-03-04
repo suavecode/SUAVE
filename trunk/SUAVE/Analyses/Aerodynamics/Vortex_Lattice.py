@@ -20,9 +20,8 @@ import SUAVE
 
 from SUAVE.Core import Data
 from SUAVE.Core import Units
-
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM_subsonic
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM_supersonic import VLM_supersonic
+ 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
 
 # local imports
 from .Aerodynamics import Aerodynamics
@@ -74,11 +73,11 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.model_fuselage                 = False
         self.settings.initial_timestep_offset        = 0
         self.settings.wake_development_time          = 0.05
-        self.settings.vlm_method                     = 'supersonic'
+        self.settings.number_of_wake_timesteps       = 30
 
         # conditions table, used for surrogate model training
         self.training                                = Data()
-        self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0, 8.0, 10.0 , 12.,20., 45., 75.]]).T * Units.deg 
+        self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0, 8.0, 10.0 , 12., 45., 75.]]).T * Units.deg 
         self.training.Mach                           = np.array([[0.0, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9,\
                                                                   1.3, 1.35 , 1.5 , 2.0, 2.25 , 2.5  , 3.0  , 3.5]]).T          
 
@@ -308,7 +307,8 @@ class Vortex_Lattice(Aerodynamics):
         
         # Evaluate the VLM
         # if in transonic regime, use surrogate
-        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution , pressure_coefficient ,vel_profile = \
+        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution ,
+        induced_angle_distribution , wing_drag_distribution , pressure_coefficient ,vel_profile = \
             calculate_VLM(conditions,settings,geometry)
         
         # Lift 
@@ -324,6 +324,7 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.drag_breakdown.induced.inviscid        = inviscid_drag     
         conditions.aerodynamics.drag_breakdown.induced.inviscid_wings  = wing_drags
         conditions.aerodynamics.drag_breakdown.induced.wings_sectional = wing_drag_distribution 
+        conditions.aerodynamics.drag_breakdown.induced.angle           = induced_angle_distribution
         
         # Pressure
         conditions.aerodynamics.pressure_coefficient                   = pressure_coefficient
@@ -581,18 +582,10 @@ def calculate_VLM(conditions,settings,geometry):
     # iterate over wings
     total_lift_coeff = 0.0
     wing_lifts = Data()
-    wing_drags = Data()
+    wing_drags = Data() 
+        
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y ,alpha_i, CPi , vel_profile = VLM(conditions,settings,geometry)
     
-    if settings.vlm_method == 'subsonic':
-        VLM = VLM_subsonic
-    elif settings.vlm_method == 'supersonic':
-        VLM =  VLM_supersonic
-        
-        
-        
-    
-    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y , CPi , vel_profile = VLM(conditions,settings,geometry)
-
     # Dimensionalize the lift and drag for each wing
     areas = geometry.vortex_distribution.wing_areas
     dim_wing_lifts = CL_wing  * areas

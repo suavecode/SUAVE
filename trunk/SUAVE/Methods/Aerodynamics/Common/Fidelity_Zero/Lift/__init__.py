@@ -10,5 +10,4 @@ from .compute_wing_induced_velocity        import compute_wing_induced_velocity
 from .generate_propeller_wake_distribution import generate_propeller_wake_distribution
 from .generate_wing_vortex_distribution    import generate_wing_vortex_distribution, compute_unit_normal 
 from .fuselage_correction                  import fuselage_correction
-from .VLM                                  import VLM_subsonic
-from .VLM_supersonic                       import VLM_supersonic
+from .VLM                                  import VLM 

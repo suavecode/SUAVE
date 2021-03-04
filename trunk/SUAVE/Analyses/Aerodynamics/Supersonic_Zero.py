@@ -102,7 +102,6 @@ class Supersonic_Zero(Markup):
         
         compute.lift = Process()
         compute.lift.inviscid_wings                = Vortex_Lattice()
-        #compute.lift.vortex                        = Methods.Lift.vortex_lift  # SZ
         compute.lift.fuselage                      = Common.Lift.fuselage_correction
         compute.lift.total                         = Common.Lift.aircraft_total
         

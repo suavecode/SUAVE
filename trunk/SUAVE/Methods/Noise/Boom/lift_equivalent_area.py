@@ -1,8 +1,8 @@
 ## @ingroupMethods-Noise-Boom
 # lift_equivalent_area.py
 # 
-# Created:  Jul 2014, A. Wendorff
-# Modified: Jan 2016, E. Botero
+# Created:  Oct 2020, E. Botero
+# Modified: 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,7 +12,7 @@
 import numpy as np
 from SUAVE.Core import Data, Units
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM as VLM
 
 
 # ----------------------------------------------------------------------
@@ -20,20 +20,49 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM
 # ----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Boom
 def lift_equivalent_area(config,analyses,conditions):
+    """This function computes the lift equivalent area distribution of a supersonic aircraft
     
-    S                                  = config.reference_area
-    q                                  = conditions.freestream.dynamic_pressure
-    mach                               = conditions.freestream.mach_number
+    Assumptions:
+    N/A
+
+    Source:
+    "Two Supersonic Business Aircraft Conceptual Designs, With and Without Sonic Boom Constraint" by
+    Aronstein and Schueler
+
+    Inputs:
+    config               SUAVE Vehicle       [-]
+    conditions.freestream.mach_number        [-]
+    conditions.freestream.dynamic_pressure   [Pa]
+    conditions.aerodynamics.angle_of_attack  [radians]    
+
+    Outputs:    
+    X_locs             location where the slice crosses the X-axis [m]
+    AE_x               cross sectional area due to lift            [m^2]
+      
+
+    Properties Used:
+    N/A
+    """        
+    
+    # Unpack
+    X_max    = config.total_length
+    q        = conditions.freestream.dynamic_pressure
+    mach     = conditions.freestream.mach_number
+
+    
+    # Make fake settings to run VLM
     settings                           = Data()
     settings.number_spanwise_vortices  = analyses.aerodynamics.settings.number_spanwise_vortices
     settings.number_chordwise_vortices = analyses.aerodynamics.settings.number_chordwise_vortices
     settings.model_fuselage            = True
     settings.propeller_wake_model      = None
 
+
+    # Run the VLM to get the lift distribution
     CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
     
+    # Calculate panel properties
     VD = analyses.aerodynamics.geometry.vortex_distribution
-    
     areas      = VD.panel_areas
     normal_vec = VD.unit_normals
     XC         = VD.XC
@@ -51,8 +80,8 @@ def lift_equivalent_area(config,analyses,conditions):
     
     # Order the values
     sort_order = np.argsort(X_shift)
-    X  = np.take(X_shift,sort_order)
-    Y  = np.take(lift_force_per_panel, sort_order)
+    X          = np.take(X_shift,sort_order)
+    Y          = np.take(lift_force_per_panel, sort_order)
 
     u, inv = np.unique(X, return_inverse=True)
     sums   = np.zeros(len(u), dtype=Y.dtype) 
@@ -67,8 +96,7 @@ def lift_equivalent_area(config,analyses,conditions):
     
     Ae_lift_at_each_x = (beta/(2*q[0]))*summed_lift_forces
     
-    X_max  = config.total_length
-    
+
     X_locs = np.concatenate([[0],X_locations,[X_max]])
     AE_x   = np.concatenate([[0],Ae_lift_at_each_x,[Ae_lift_at_each_x[-1]]])
     
