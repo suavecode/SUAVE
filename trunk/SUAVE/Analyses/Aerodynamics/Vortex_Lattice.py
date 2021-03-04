@@ -74,7 +74,6 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.initial_timestep_offset        = 0
         self.settings.wake_development_time          = 0.05
         self.settings.number_of_wake_timesteps       = 30
-        self.settings.vlm_method                     = 'supersonic'
 
         # conditions table, used for surrogate model training
         self.training                                = Data()
