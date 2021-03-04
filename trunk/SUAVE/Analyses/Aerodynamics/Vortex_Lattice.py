@@ -20,9 +20,8 @@ import SUAVE
 
 from SUAVE.Core import Data
 from SUAVE.Core import Units
-
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM_subsonic
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM_supersonic import VLM_supersonic
+ 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
 
 # local imports
 from .Aerodynamics import Aerodynamics
@@ -584,12 +583,7 @@ def calculate_VLM(conditions,settings,geometry):
     # iterate over wings
     total_lift_coeff = 0.0
     wing_lifts = Data()
-    wing_drags = Data()
-    
-    if settings.vlm_method == 'subsonic':
-        VLM = VLM_subsonic
-    elif settings.vlm_method == 'supersonic':
-        VLM =  VLM_supersonic
+    wing_drags = Data() 
         
     total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y ,alpha_i, CPi , vel_profile = VLM(conditions,settings,geometry)
     
