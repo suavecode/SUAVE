@@ -170,10 +170,13 @@ class Propeller(Energy_Component):
         Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B
+        
         nonuniform_freestream = self.nonuniform_freestream
+        rotation              = self.rotation
         
         # calculate total blade pitch
         total_blade_pitch = beta_0 + pitch_c  
+        beta              = total_blade_pitch
         
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
@@ -231,7 +234,35 @@ class Propeller(Energy_Component):
         ii     = 0
         tol    = 1e-6  # Convergence tolerance
         
+        use_2d_analysis = False
+        
+        if theta !=0:
+            # thrust angle creates disturbances in radial and tangential velocities
+            use_2d_analysis       = True
+            
+            # component of freestream in the propeller plane
+            Vz  = V_thrust[:,2,None,None]
+            Vz  = np.repeat(Vz, Na,axis=1)
+            Vz  = np.repeat(Vz, Nr,axis=2)
+            
+            if rotation == None:
+                print("Propeller rotation not specified. Set to 1 (clockwise when viewed from behind).")
+                rotation = 1
+            
+            # compute resulting radial and tangential velocities in propeller frame
+            ut =  ( Vz*np.cos(psi_2d)  ) * rotation
+            ur =  (-Vz*np.sin(psi_2d)  )
+            ua =  np.zeros_like(ut)
+            
         if nonuniform_freestream:
+            use_2d_analysis   = True
+
+            # account for upstream influences
+            ua = self.axial_velocities_2d
+            ut = self.tangential_velocities_2d
+            ur = self.radial_velocities_2d
+            
+        if use_2d_analysis:
             # make everything 2D with shape (ctrl_pts,Na,Nr)
             size   = (ctrl_pts,Na,Nr)
             PSI    = np.ones(size)
@@ -244,14 +275,8 @@ class Propeller(Energy_Component):
             
             omegar = (np.repeat(np.outer(omega,r)[:,None,:], Na, axis=1))
             
-            # account for upstream influences
-            ua = self.axial_velocities_2d
-            ut = self.tangential_velocities_2d
-            ur = self.radial_velocities_2d
-            
             # total velocities
-            Ua     = V_2d + ua
-            Ut     = omegar - ut            
+            Ua     = V_2d + ua         
             
             # 2-D blade pitch and radial distributions
             beta = np.tile(total_blade_pitch,(Na ,1))
@@ -267,7 +292,8 @@ class Propeller(Energy_Component):
             rho = np.tile(np.atleast_2d(rho),(1,Nr))
             rho = np.repeat(rho[:, np.newaxis,  :], Na, axis=1)  
             T   = np.tile(np.atleast_2d(T),(1,Nr))
-            T   = np.repeat(T[:, np.newaxis,  :], Na, axis=1)  
+            T   = np.repeat(T[:, np.newaxis,  :], Na, axis=1)              
+            
         else:
             # uniform freestream
             ua       = np.zeros_like(V)              
@@ -276,15 +302,15 @@ class Propeller(Energy_Component):
             
             # total velocities
             Ua     = np.outer((V + ua),np.ones_like(r))
-            Ut     = omegar - ut
             
             # Things that will change with iteration
             size   = (ctrl_pts,Nr)
             PSI    = np.ones(size)
             PSIold = np.zeros(size)  
         
-        U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
-        beta   = total_blade_pitch
+        # total velocities
+        Ut   = omegar - ut
+        U    = np.sqrt(Ua*Ua + Ut*Ut + ur*ur)
         
         # Drela's Theory
         while (diff>tol):
@@ -310,7 +336,7 @@ class Propeller(Energy_Component):
             Re           = (W*c)/nu  
             
             # Compute aerodynamic forces based on specified input airfoil or using a surrogate
-            Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, nonuniform_freestream)
+            Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis)
 
             Rsquiggly   = Gamma - 0.5*W*c*Cl
         
@@ -368,7 +394,7 @@ class Propeller(Energy_Component):
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
         
-        if nonuniform_freestream:
+        if use_2d_analysis:
             blade_T_distribution_2d = blade_T_distribution
             blade_Q_distribution_2d = blade_Q_distribution
             blade_Gamma_2d = Gamma
@@ -487,7 +513,7 @@ class Propeller(Energy_Component):
         return thrust, torque, power, Cp, outputs , etap
 
 
-def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, nonuniform_freestream):
+def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis):
     """
     Cl, Cdval = compute_aerodynamic_forces(  a_loc, 
                                              a_geo, 
@@ -516,18 +542,18 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
     N/A
 
     Inputs:
-    a_loc                      Locations of specified airfoils           [-]
-    a_geo                      Geometry of specified airfoil             [-]
-    cl_sur                     Lift Coefficient Surrogates               [-]
-    cd_sur                     Drag Coefficient Surrogates               [-]
-    ctrl_pts                   Number of control points                  [-]
-    Nr                         Number of radial blade sections           [-]
-    Na                         Number of azimuthal blade stations        [-]
-    Re                         Local Reynolds numbers                    [-]
-    Ma                         Local Mach number                         [-]
-    alpha                      Local angles of attack                    [radians]
-    tc                         Thickness to chord                        [-]
-    nonuniform_freestream      Nonuniform inflow to propeller            [Boolean]
+    a_loc                      Locations of specified airfoils                 [-]
+    a_geo                      Geometry of specified airfoil                   [-]
+    cl_sur                     Lift Coefficient Surrogates                     [-]
+    cd_sur                     Drag Coefficient Surrogates                     [-]
+    ctrl_pts                   Number of control points                        [-]
+    Nr                         Number of radial blade sections                 [-]
+    Na                         Number of azimuthal blade stations              [-]
+    Re                         Local Reynolds numbers                          [-]
+    Ma                         Local Mach number                               [-]
+    alpha                      Local angles of attack                          [radians]
+    tc                         Thickness to chord                              [-]
+    use_2d_analysis            Specifies 2d disc vs. 1d single angle analysis  [Boolean]
                                                      
                                                      
     Outputs:                                          
@@ -538,8 +564,8 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
     if a_loc != None:
         # Compute blade Cl and Cd distribution from the airfoil data  
         dim_sur = len(cl_sur)   
-        if nonuniform_freestream:
-            # return the 3D Cl and CDval of shape (ctrl_pts, Na, Nr)
+        if use_2d_analysis:
+            # return the 2D Cl and CDval of shape (ctrl_pts, Na, Nr)
             Cl      = np.zeros((ctrl_pts,Na,Nr))              
             Cdval   = np.zeros((ctrl_pts,Na,Nr))
             for jj in range(dim_sur):                 
@@ -549,7 +575,7 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
                 Cl[:,:,locs]    = Cl_af[:,:,locs]
                 Cdval[:,:,locs] = Cdval_af[:,:,locs]          
         else:
-            # return the 2D Cl and CDval of shape (ctrl_pts, Nr)
+            # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
             Cl      = np.zeros((ctrl_pts,Nr))              
             Cdval   = np.zeros((ctrl_pts,Nr))  
             
