@@ -100,8 +100,7 @@ modules = [
     'scripts/electric_performance/propeller_single_point.py',
     'scripts/electric_performance/electric_V_h_diagram.py',
     'scripts/electric_performance/electric_payload_range.py',
-    'scripts/nonuniform_propeller_inflow/nonuniform_propeller_inflow.py',
-    'scripts/nonuniform_propeller_inflow/thrust_angle.py'
+    'scripts/nonuniform_propeller_inflow/nonuniform_propeller_inflow.py'
 ]
 
 # ----------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# nonuniform_propeller_inflow_regression.py
+# nonuniform_propeller_inflow.py
 #
 # Created: Mar 2021, R. Erhard
 # Modified:
@@ -15,10 +15,10 @@ import pylab as plt
 
 def main():
     '''
-    This example shows a propeller operating in a nonuniform freestream flow.
-    A wing in front of the propeller produces a wake, which is accounted for in the propeller analysis.
+    This example shows a propeller operating in a nonuniform freestream flow for two cases:
+    First, a propeller operates at a nonzero thrust angle relative to the freestream.
+    Second, a propeller operates with an arbitrary upstream disturbance.
     
-    Associated branch: feature-nonuniform_freestream
     '''
     # setup basic propeller
     Nr = 101
@@ -27,10 +27,35 @@ def main():
     
     # setup the atmospheric conditions
     conditions = test_conditions()
-    ctrl_pts = len(conditions.aerodynamics.angle_of_attack)
     
+    #-------------------------------------------------------------
+    # test propeller at inclined thrust angle
+    #-------------------------------------------------------------
     # set operating conditions for propeller test
     prop.inputs.omega = np.ones_like(conditions.aerodynamics.angle_of_attack)*prop.angular_velocity
+    prop.thrust_angle = 20. * Units.deg
+    
+    # spin propeller in nonuniform flow
+    thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)    
+    
+    thrust_r1 = 847.83217329
+    torque_r1 = 446.59326314
+    power_r1  = 60797.27830077
+    Cp_r1     = 0.27994538
+    etap_r1   = 1.02517027
+    
+    assert (np.abs(thrust - thrust_r1) / thrust_r1 < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Thrust Test"
+    assert (np.abs(torque - torque_r1) / torque_r1 < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Torque Test"
+    assert (np.abs(power - power_r1) / power_r1 < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Power Test"
+    assert (np.abs(Cp - Cp_r1) / Cp_r1 < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Power Coefficient Test"
+    assert (np.abs(etap - etap_r1) / etap_r1 < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Efficiency Test"    
+
+    #-------------------------------------------------------------    
+    # test propeller in arbitrary nonuniform freestream disturbance
+    #-------------------------------------------------------------
+    prop.nonuniform_freestream  = True   
+    prop.thrust_angle           = 0. * Units.deg
+    ctrl_pts                    = len(conditions.aerodynamics.angle_of_attack)
     
     # azimuthal distribution
     psi            = np.linspace(0,2*np.pi,Na+1)[:-1]
@@ -121,7 +146,7 @@ def basic_prop(Na, Nr):
     prop.design_thrust             = 1200.  
     prop.origin                    = [[0.,0.,0.]]
     prop.number_azimuthal_stations = Na
-    prop.rotation                  = [-1,1] 
+    prop.rotation                  = 1
     prop.symmetry                  = True
     prop.airfoil_geometry          =  ['../Vehicles/NACA_4412.txt'] 
     prop.airfoil_polars            = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,
@@ -131,7 +156,6 @@ def basic_prop(Na, Nr):
                                        '../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
     
     prop.airfoil_polar_stations    = list(np.zeros(Nr).astype(int))
-    prop.nonuniform_freestream     = True   
     prop                        = propeller_design(prop,Nr)    
     
     return prop
