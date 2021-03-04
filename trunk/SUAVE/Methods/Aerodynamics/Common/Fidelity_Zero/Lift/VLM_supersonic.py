@@ -83,9 +83,9 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     n_cw       = settings.number_chordwise_vortices 
     pwm        = settings.propeller_wake_model
     ito        = settings.initial_timestep_offset
+    nts        = settings.number_of_wake_timesteps 
     wdt        = settings.wake_development_time    
-    Sref       = geometry.reference_area 
-
+    Sref       = geometry.reference_area  
 
     # define point about which moment coefficient is computed
     if 'main_wing' in geometry.wings:
@@ -140,9 +140,9 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
         + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
         - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42  
 
-    # Build the vector
+    # Build the vector 
     RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
-                                                                                 pwm,ito,wdt )
+                                                                                 pwm,ito,wdt,nts )
     # Turn off sonic vortices when Mach>1
     RHS = RHS*RFLAG
 
@@ -366,5 +366,10 @@ def VLM_supersonic(conditions,settings,geometry,initial_timestep_offset = 0 ,wak
     Velocity_Profile.Vz_ind   = Vz_ind_total
     Velocity_Profile.V        = V_distribution 
     Velocity_Profile.dt       = dt
-
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, CP, Velocity_Profile    
+    
+    Cl_y            = np.swapaxes(np.array(np.array_split(cl_y,n_w,axis=1)),0,1) 
+    Cdi_y           = np.swapaxes(np.array(np.array_split(cdi_y,n_w,axis=1)),0,1) 
+    
+    alpha_i = np.arctan(Cdi_y/Cl_y) 
+    
+    return CL, CDi, CM, CL_wing, CDi_wing, Cl_y, Cdi_y, alpha_i,  CP, Velocity_Profile    

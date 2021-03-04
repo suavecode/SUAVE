@@ -250,7 +250,7 @@ def compute_wing_induced_velocity_sup(VD,n_sw,n_cw,theta_w,mach):
     EYE         = np.eye(np.shape(CHORD)[-1]).flatten()
     EYE         = np.tile(EYE,np.sum(mach>1))
     CHORD_sup   = CHORD[sup]
-    ZETA        = (LE_Z-TE_Z)/(LE_X-LE_Z) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
+    ZETA        = (LE_Z-TE_Z)/(LE_X-TE_X) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
     ZETA        = ZETA[:,0,:] # Fix the shape for later
     
     if np.sum(sup)>0:

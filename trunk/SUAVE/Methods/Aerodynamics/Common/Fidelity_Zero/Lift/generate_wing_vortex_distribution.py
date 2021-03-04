@@ -107,9 +107,10 @@ def generate_wing_vortex_distribution(geometry,settings):
     VD.Y      = np.empty(shape=[0,1])
     VD.Z      = np.empty(shape=[0,1])
     VD.Y_SW   = np.empty(shape=[0,1])
-    n_sw = settings.number_spanwise_vortices 
-    n_cw = settings.number_chordwise_vortices     
-    spc  = settings.spanwise_cosine_spacing
+    VD.DY     = np.empty(shape=[0,1]) 
+    n_sw      = settings.number_spanwise_vortices 
+    n_cw      = settings.number_chordwise_vortices     
+    spc       = settings.spanwise_cosine_spacing
     model_fuselage = settings.model_fuselage
 
     # ---------------------------------------------------------------------------------------
@@ -495,12 +496,12 @@ def generate_wing_vortex_distribution(geometry,settings):
                 wing_camber  = np.zeros(30) # dimension of Selig airfoil VD file
                 wing_x_coord = np.linspace(0,1,30)
 
-            delta_y = y_b - y_a
+            del_y = y_b - y_a
             for idx_y in range(n_sw):  
                 idx_x = np.arange(n_cw) 
                 eta_a = (y_a[idx_y])  
                 eta_b = (y_b[idx_y]) 
-                eta   = (y_b[idx_y] - delta_y[idx_y]/2) 
+                eta   = (y_b[idx_y] - del_y[idx_y]/2) 
                 
                 # get spanwise discretization points
                 wing_chord_section_a  = root_chord + (eta_a*wing_chord_ratio) 
@@ -616,11 +617,11 @@ def generate_wing_vortex_distribution(geometry,settings):
                     ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
 
                     xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                    zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2)                   
+                    zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
                     ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
 
                     xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                    zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2) 
+                    zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
                     yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
 
                     xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
@@ -656,11 +657,11 @@ def generate_wing_vortex_distribution(geometry,settings):
                     zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
 
                     xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                    ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2)                   
+                    ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
                     zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
 
                     xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                    yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2) 
+                    yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
                     zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
 
                     xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
@@ -754,31 +755,32 @@ def generate_wing_vortex_distribution(geometry,settings):
             n_w += 1 
             # append wing spans          
             if vertical_wing:
-                cs_w = np.concatenate([cs_w,cs_w])
-                xah = np.concatenate([xah,xah])
-                yah = np.concatenate([yah,yah])
-                zah = np.concatenate([zah,-zah])
-                xbh = np.concatenate([xbh,xbh])
-                ybh = np.concatenate([ybh,ybh])
-                zbh = np.concatenate([zbh,-zbh])
-                xch = np.concatenate([xch,xch])
-                ych = np.concatenate([ych,ych])
-                zch = np.concatenate([zch,-zch])
-    
-                xa1 = np.concatenate([xa1,xa1])
-                ya1 = np.concatenate([ya1,ya1])
-                za1 = np.concatenate([za1,-za1])
-                xa2 = np.concatenate([xa2,xa2])
-                ya2 = np.concatenate([ya2,ya2])
-                za2 = np.concatenate([za2,-za2])
-    
-                xb1 = np.concatenate([xb1,xb1])
-                yb1 = np.concatenate([yb1,yb1])    
-                zb1 = np.concatenate([zb1,-zb1])
-                xb2 = np.concatenate([xb2,xb2])
-                yb2 = np.concatenate([yb2,yb2])            
-                zb2 = np.concatenate([zb2,-zb2])
-    
+                del_y = np.concatenate([del_y,del_y]) 
+                cs_w  = np.concatenate([cs_w,cs_w])
+                xah   = np.concatenate([xah,xah])
+                yah   = np.concatenate([yah,yah])
+                zah   = np.concatenate([zah,-zah])
+                xbh   = np.concatenate([xbh,xbh])
+                ybh   = np.concatenate([ybh,ybh])
+                zbh   = np.concatenate([zbh,-zbh])
+                xch   = np.concatenate([xch,xch])
+                ych   = np.concatenate([ych,ych])
+                zch   = np.concatenate([zch,-zch])
+                      
+                xa1   = np.concatenate([xa1,xa1])
+                ya1   = np.concatenate([ya1,ya1])
+                za1   = np.concatenate([za1,-za1])
+                xa2   = np.concatenate([xa2,xa2])
+                ya2   = np.concatenate([ya2,ya2])
+                za2   = np.concatenate([za2,-za2])
+                      
+                xb1   = np.concatenate([xb1,xb1])
+                yb1   = np.concatenate([yb1,yb1])    
+                zb1   = np.concatenate([zb1,-zb1])
+                xb2   = np.concatenate([xb2,xb2])
+                yb2   = np.concatenate([yb2,yb2])            
+                zb2   = np.concatenate([zb2,-zb2])
+                      
                 xac   = np.concatenate([xac ,xac ])
                 yac   = np.concatenate([yac ,yac ])
                 zac   = np.concatenate([zac ,-zac ])            
@@ -804,30 +806,31 @@ def generate_wing_vortex_distribution(geometry,settings):
                 z     = np.concatenate([z ,-z ])                  
                 
             else:
-                cs_w = np.concatenate([cs_w,cs_w])
-                xah = np.concatenate([xah,xah])
-                yah = np.concatenate([yah,-yah])
-                zah = np.concatenate([zah,zah])
-                xbh = np.concatenate([xbh,xbh])
-                ybh = np.concatenate([ybh,-ybh])
-                zbh = np.concatenate([zbh,zbh])
-                xch = np.concatenate([xch,xch])
-                ych = np.concatenate([ych,-ych])
-                zch = np.concatenate([zch,zch])
-    
-                xa1 = np.concatenate([xa1,xa1])
-                ya1 = np.concatenate([ya1,-ya1])
-                za1 = np.concatenate([za1,za1])
-                xa2 = np.concatenate([xa2,xa2])
-                ya2 = np.concatenate([ya2,-ya2])
-                za2 = np.concatenate([za2,za2])
-    
-                xb1 = np.concatenate([xb1,xb1])
-                yb1 = np.concatenate([yb1,-yb1])    
-                zb1 = np.concatenate([zb1,zb1])
-                xb2 = np.concatenate([xb2,xb2])
-                yb2 = np.concatenate([yb2,-yb2])            
-                zb2 = np.concatenate([zb2,zb2])
+                del_y = np.concatenate([del_y,del_y]) 
+                cs_w  = np.concatenate([cs_w,cs_w])
+                xah   = np.concatenate([xah,xah])
+                yah   = np.concatenate([yah,-yah])
+                zah   = np.concatenate([zah,zah])
+                xbh   = np.concatenate([xbh,xbh])
+                ybh   = np.concatenate([ybh,-ybh])
+                zbh   = np.concatenate([zbh,zbh])
+                xch   = np.concatenate([xch,xch])
+                ych   = np.concatenate([ych,-ych])
+                zch   = np.concatenate([zch,zch])
+                      
+                xa1   = np.concatenate([xa1,xa1])
+                ya1   = np.concatenate([ya1,-ya1])
+                za1   = np.concatenate([za1,za1])
+                xa2   = np.concatenate([xa2,xa2])
+                ya2   = np.concatenate([ya2,-ya2])
+                za2   = np.concatenate([za2,za2])
+                      
+                xb1   = np.concatenate([xb1,xb1])
+                yb1   = np.concatenate([yb1,-yb1])    
+                zb1   = np.concatenate([zb1,zb1])
+                xb2   = np.concatenate([xb2,xb2])
+                yb2   = np.concatenate([yb2,-yb2])            
+                zb2   = np.concatenate([zb2,zb2])
     
                 xac   = np.concatenate([xac ,xac ])
                 yac   = np.concatenate([yac ,-yac ])
@@ -901,11 +904,11 @@ def generate_wing_vortex_distribution(geometry,settings):
         VD.Y_SW   = np.append(VD.Y_SW ,y_sw)
         VD.Y      = np.append(VD.Y ,y)
         VD.Z      = np.append(VD.Z ,z)         
-        VD.CS     = np.append(VD.CS,cs_w)
-    
-    # Pack
-    VD.vortex_lift = vortex_lift
+        VD.CS     = np.append(VD.CS,cs_w) 
+        VD.DY     = np.append(VD.DY ,del_y)
         
+    # Pack
+    VD.vortex_lift = vortex_lift 
             
 
     # ---------------------------------------------------------------------------------------

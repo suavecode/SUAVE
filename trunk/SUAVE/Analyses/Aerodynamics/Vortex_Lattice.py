@@ -74,6 +74,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.model_fuselage                 = False
         self.settings.initial_timestep_offset        = 0
         self.settings.wake_development_time          = 0.05
+        self.settings.number_of_wake_timesteps       = 30
         self.settings.vlm_method                     = 'supersonic'
 
         # conditions table, used for surrogate model training
@@ -308,7 +309,8 @@ class Vortex_Lattice(Aerodynamics):
         
         # Evaluate the VLM
         # if in transonic regime, use surrogate
-        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution , pressure_coefficient ,vel_profile = \
+        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution ,
+        induced_angle_distribution , wing_drag_distribution , pressure_coefficient ,vel_profile = \
             calculate_VLM(conditions,settings,geometry)
         
         # Lift 
@@ -324,6 +326,7 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.drag_breakdown.induced.inviscid        = inviscid_drag     
         conditions.aerodynamics.drag_breakdown.induced.inviscid_wings  = wing_drags
         conditions.aerodynamics.drag_breakdown.induced.wings_sectional = wing_drag_distribution 
+        conditions.aerodynamics.drag_breakdown.induced.angle           = induced_angle_distribution
         
         # Pressure
         conditions.aerodynamics.pressure_coefficient                   = pressure_coefficient
@@ -588,11 +591,8 @@ def calculate_VLM(conditions,settings,geometry):
     elif settings.vlm_method == 'supersonic':
         VLM =  VLM_supersonic
         
-        
-        
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y ,alpha_i, CPi , vel_profile = VLM(conditions,settings,geometry)
     
-    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y , CPi , vel_profile = VLM(conditions,settings,geometry)
-
     # Dimensionalize the lift and drag for each wing
     areas = geometry.vortex_distribution.wing_areas
     dim_wing_lifts = CL_wing  * areas
