@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 from SUAVE.Core import Data, Units
 from SUAVE.Input_Output.OpenVSP.vsp_read import vsp_read
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM_supersonic as VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM as VLM
 
 # ----------------------------------------------------------------------
 #   Main
@@ -106,8 +106,9 @@ def analyze(config,conditions):
     settings.model_fuselage            = True
     settings.initial_timestep_offset   = 0.0
     settings.wake_development_time     = 0.0
+    settings.number_of_wake_timesteps  = 0.
 
-    CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
+    CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, Velocity_Profile = VLM(conditions, settings, config)
 
     results.CDi  = CDi
     results.CL   = CL
