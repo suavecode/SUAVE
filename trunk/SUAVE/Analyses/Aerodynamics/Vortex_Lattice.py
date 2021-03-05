@@ -132,7 +132,6 @@ class Vortex_Lattice(Aerodynamics):
         None
         """                      
         # Unpack:
-        geometry = self.geometry
         settings = self.settings      
         
         if n_sw is not None:
@@ -307,8 +306,8 @@ class Vortex_Lattice(Aerodynamics):
         
         # Evaluate the VLM
         # if in transonic regime, use surrogate
-        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution ,
-        induced_angle_distribution , wing_drag_distribution , pressure_coefficient ,vel_profile = \
+        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution, \
+        wing_drag_distribution, induced_angle_distribution, pressure_coefficient, vel_profile = \
             calculate_VLM(conditions,settings,geometry)
         
         # Lift 
@@ -391,8 +390,7 @@ class Vortex_Lattice(Aerodynamics):
         konditions.freestream.mach_number       = Machs
         konditions.freestream.velocity          = zeros
         
-        total_lift, total_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, pressure_coefficient ,vel_profile = \
-                        calculate_VLM(konditions,settings,geometry)     
+        total_lift, total_drag, wing_lifts, wing_drags, _, _, _, _, _ = calculate_VLM(konditions,settings,geometry)     
         
         # Split subsonic from supersonic
         sub_sup_split = np.where(Machs < 1.0)[0][-1] + 1 
@@ -584,7 +582,8 @@ def calculate_VLM(conditions,settings,geometry):
     wing_lifts = Data()
     wing_drags = Data() 
         
-    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y ,alpha_i, CPi , vel_profile = VLM(conditions,settings,geometry)
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CPi,vel_profile \
+        = VLM(conditions,settings,geometry)
     
     # Dimensionalize the lift and drag for each wing
     areas = geometry.vortex_distribution.wing_areas
@@ -604,4 +603,4 @@ def calculate_VLM(conditions,settings,geometry):
             wing_drags[wing.tag] = np.atleast_2d(dim_wing_drags[:,i]).T/ref
         i+=1
 
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_y , cdi_y , CPi , vel_profile
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, alpha_i, CPi, vel_profile

@@ -341,7 +341,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     beta   = prop.twist_distribution         
     b      = prop.chord_distribution         
     r      = prop.radius_distribution 
-    MCA    = prop.mid_chord_aligment
+    MCA    = prop.mid_chord_alignment
     t      = prop.max_thickness_distribution
     ta     = -propulsor.thrust_angle
     

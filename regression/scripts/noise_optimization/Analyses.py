@@ -50,8 +50,8 @@ def base(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
-    aerodynamics.settings.number_spanwise_vortices   = 5
-    aerodynamics.settings.number_chordwise_vortices  = 1
+    aerodynamics.settings.number_spanwise_vortices   = 15
+    aerodynamics.settings.number_chordwise_vortices  = 5
     aerodynamics.geometry                    = vehicle
 
     aerodynamics.settings.drag_coefficient_increment = 0.0000
