@@ -237,7 +237,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     Z1c  = (ZA1+ZB1)/2
     Z2c  = (ZA2+ZB2)/2
 
-    SLOPE = (Z2c-Z1c)/(X2c-X1c)
+    #SLOPE = (Z2c - Z1c)/(X2c - X1c)
+    SLOPE = -np.atleast_2d(VD.normals[:,0])
 
     # This section takes differences for F1 and F2 based on the slopes
     
