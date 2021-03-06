@@ -122,7 +122,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
 
     # pack vortex distribution 
     geometry.vortex_distribution = VD
-
+    
     # Build induced velocity matrix, C_mn
     C_mn, s, t, CHORD, RFLAG, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
 
@@ -240,29 +240,24 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     SLOPE = (Z2c-Z1c)/(X2c-X1c)
 
     # This section takes differences for F1 and F2 based on the slopes
-    all_aft_indices = np.linspace(1,(n_w*n_cw*n_sw),(n_w*n_cw*n_sw),dtype=int)
-    all_for_indices = all_aft_indices-1
-
-    mask1 = np.ones_like(all_aft_indices,dtype=bool)
-    mask1[n_cw-1::n_cw] = False
-
-    aft_indices = all_aft_indices[mask1]
-    for_indices = all_for_indices[mask1]
-
-    F1 = SLOPE
-    F1[:,aft_indices] = SLOPE[:,for_indices]
-
+    
+    # Setup arrays
+    F1 = np.zeros_like(SLOPE)
     F2 = np.zeros_like(SLOPE)
-    F2[:,for_indices] = SLOPE[:,aft_indices]
-
-    # Now fill in the LE values for F2
-    mask2 = np.zeros_like(all_aft_indices,dtype=bool)
-    mask3 = np.zeros_like(all_aft_indices,dtype=bool)
-
-    mask2[0::n_cw] = True
-    mask3[1::n_cw] = True
-
-    F2[:,all_for_indices[mask2]] = SLOPE[:,all_for_indices[mask3]] 
+    
+    # Indices
+    IRT = np.linspace(0,n_cp-1,n_cp,dtype=int)
+    IRT_m1 = IRT -1
+    IRT_m1[0::n_cw] = 0.
+    IRT_p1 = IRT+1
+    
+    F1[:,IRT] = SLOPE[:,IRT_m1]
+    F2[:,IRT] = SLOPE[:,IRT]
+    
+    # Fix the LE case
+    LE_locs = IRT[0::n_cw]
+    F1[:,LE_locs] = SLOPE[:,IRT[LE_locs]]
+    F2[:,LE_locs] = SLOPE[:,IRT_p1[LE_locs]]   
 
     TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
     TX   = TANX - ZETA
@@ -310,8 +305,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
 
     # FCOS AND FSIN ARE THE COSINE AND SINE OF THE ANGLE BETWEEN
     # THE CHORDLINE OF THE IR-STRIP AND THE X-AXIS    
-    FCOS = 1./np.sqrt(1.+ ZETA*ZETA)
-    FSIN = FCOS*ZETA
+    FCOS = np.cos(ZETA)
+    FSIN = np.sin(ZETA)
 
     # BFX, BFY, AND BFZ ARE THE COMPONENTS ALONG THE BODY AXES
     # OF THE STRIP FORCE CONTRIBUTION.
