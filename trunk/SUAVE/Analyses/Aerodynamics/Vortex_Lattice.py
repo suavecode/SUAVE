@@ -63,23 +63,25 @@ class Vortex_Lattice(Aerodynamics):
         Properties Used:
         N/A
         """  
-        self.tag                                     = 'Vortex_Lattice' 
-        self.geometry                                = Data()
-        self.settings                                = Data()
-        self.settings.number_spanwise_vortices       = 15
-        self.settings.number_chordwise_vortices      = 5
-        self.settings.spanwise_cosine_spacing        = True
-        self.settings.vortex_distribution            = Data()   
-        self.settings.model_fuselage                 = False
-        self.settings.initial_timestep_offset        = 0
-        self.settings.wake_development_time          = 0.05
-        self.settings.number_of_wake_timesteps       = 30
+        self.tag                                      = 'Vortex_Lattice' 
+        self.geometry                                 = Data()
+        self.settings                                 = Data()
+        self.settings.number_spanwise_vortices        = 15
+        self.settings.number_chordwise_vortices       = 5
+        self.settings.spanwise_cosine_spacing         = True
+        self.settings.vortex_distribution             = Data()   
+        self.settings.model_fuselage                  = False
+        self.settings.leading_edge_suction_multiplier = 1.0
+        self.settings.initial_timestep_offset         = 0
+        self.settings.wake_development_time           = 0.05
+        self.settings.number_of_wake_timesteps        = 30
 
         # conditions table, used for surrogate model training
         self.training                                = Data()
         self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0, 8.0, 10.0 , 12., 45., 75.]]).T * Units.deg 
         self.training.Mach                           = np.array([[0.0, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9,\
                                                                   1.3, 1.35 , 1.5 , 2.0, 2.25 , 2.5  , 3.0  , 3.5]]).T          
+
 
         self.training.lift_coefficient_sub           = None
         self.training.lift_coefficient_sup           = None

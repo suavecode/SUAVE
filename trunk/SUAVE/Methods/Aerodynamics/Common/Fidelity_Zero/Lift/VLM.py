@@ -83,7 +83,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     pwm        = settings.propeller_wake_model
     ito        = settings.initial_timestep_offset
     nts        = settings.number_of_wake_timesteps 
-    wdt        = settings.wake_development_time    
+    wdt        = settings.wake_development_time   
+    K_SPC      = settings.leading_edge_suction_multiplier
     Sref       = geometry.reference_area  
 
     # define point about which moment coefficient is computed
@@ -237,8 +238,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     Z1c  = (ZA1+ZB1)/2
     Z2c  = (ZA2+ZB2)/2
 
-    #SLOPE = (Z2c - Z1c)/(X2c - X1c)
-    SLOPE = -np.atleast_2d(VD.normals[:,0])
+    SLOPE = (Z2c - Z1c)/(X2c - X1c)
 
     # This section takes differences for F1 and F2 based on the slopes
     
@@ -260,7 +260,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     F1[:,LE_locs] = SLOPE[:,IRT[LE_locs]]
     F2[:,LE_locs] = SLOPE[:,IRT_p1[LE_locs]]   
 
-    TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
+    #TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
+    TANX =  SLOPE
     TX   = TANX - ZETA
     CAXL = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
     BMLE = (XLE-XX)*SINF        # These are moment on each panel
@@ -269,13 +270,13 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len_mach))
     BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len_mach))
 
-    XX = XLE
+    XX = XLE*1.
        
     DCP_LE = DCP[:,0::n_cw]
     
     # Leading edge suction multiplier. See documentation. This is a negative integer if used
     # Default to 1 unless specified otherwise
-    SPC  = np.ones_like(DCP_LE)
+    SPC  = K_SPC*np.ones_like(DCP_LE)
     
     # If the vehicle is subsonic and there is vortex lift enabled then SPC changes to -1
     VL   = np.repeat(VD.vortex_lift,n_sw)
@@ -289,16 +290,16 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # SLE is slope at leading edge
     SLE  = SLOPE[:,0::n_cw]
     ZETA = ZETA[:,0::n_cw]
-    XCOS = 1./np.sqrt(1+(SLE-ZETA)**2)
-    XSIN = (SLE-ZETA)*XCOS
-    TFX  =  1*XCOS
-    TFZ  = -1*XSIN
+    XCOS = np.cos(SLE-ZETA)
+    XSIN = np.sin(SLE-ZETA)
+    TFX  =  1.*XCOS
+    TFZ  = -1.*XSIN
 
     # If a negative number is used for SPC a different correction is used. See VORLAX documentation for Lan reference
     TFX[SPC<0] = XSIN[SPC<0]*np.sign(DCP_LE)[SPC<0]
     TFZ[SPC<0] = np.abs(XCOS)[SPC<0]*np.sign(DCP_LE)[SPC<0]
 
-    CAXL = CAXL -TFX*CSUC
+    CAXL = CAXL - TFX*CSUC
 
     # Add a dimension into the suction to be chordwise
     T2_LE = T2[:,0::n_cw]
@@ -363,4 +364,4 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     alpha_i = np.arctan(Cdi_y/Cl_y) 
     
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i,  CP, Velocity_Profile
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, Velocity_Profile
