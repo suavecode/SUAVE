@@ -225,13 +225,6 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # INCIDENCE.    
     RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)*ones
     XX   = (RK - .75) *PION /2.0
-    K    = 1*RK
-    KX   = 1*K
-    KX[K>1]   = K[K>1]-1
-    
-    RKX = KX
-    X1  = (RKX - .25) *PION /2.0
-    X2  = (RKX + .75) *PION /2.0
 
     X1c  = (XA1+XB1)/2
     X2c  = (XA2+XB2)/2
@@ -239,32 +232,10 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     Z2c  = (ZA2+ZB2)/2
 
     SLOPE = (Z2c - Z1c)/(X2c - X1c)
-
-    # This section takes differences for F1 and F2 based on the slopes
-    
-    # Setup arrays
-    F1 = np.zeros_like(SLOPE)
-    F2 = np.zeros_like(SLOPE)
-    
-    # Indices
-    IRT = np.linspace(0,n_cp-1,n_cp,dtype=int)
-    IRT_m1 = IRT -1
-    IRT_m1[0::n_cw] = 0.
-    IRT_p1 = IRT+1
-    
-    F1[:,IRT] = SLOPE[:,IRT_m1]
-    F2[:,IRT] = SLOPE[:,IRT]
-    
-    # Fix the LE case
-    LE_locs = IRT[0::n_cw]
-    F1[:,LE_locs] = SLOPE[:,IRT[LE_locs]]
-    F2[:,LE_locs] = SLOPE[:,IRT_p1[LE_locs]]   
-
-    #TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
-    TANX =  SLOPE
-    TX   = TANX - ZETA
-    CAXL = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
-    BMLE = (XLE-XX)*SINF        # These are moment on each panel
+    TANX  = SLOPE
+    TX    = TANX - ZETA
+    CAXL  = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
+    BMLE  = (XLE-XX)*SINF        # These are moment on each panel
 
     # Sum onto the panel
     CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len_mach))
