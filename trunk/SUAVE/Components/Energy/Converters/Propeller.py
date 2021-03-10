@@ -215,7 +215,7 @@ class Propeller(Energy_Component):
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
         psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
-        azimuth_2d     = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], Na, axis=0).T
+        azimuth_2d     = np.repeat(np.atleast_2d(psi).T[:,np.newaxis ,:], Nr, axis=1).T
         
         # 2 dimensiona radial distribution non dimensionalized
         chi_2d         = np.tile(chi ,(Na,1))            
@@ -369,6 +369,7 @@ class Propeller(Energy_Component):
         torque                   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None] 
         power                    = omega*torque 
         Va_2d                    = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
+        alpha_2d                 = np.repeat(alpha.T[ : , np.newaxis , :], Na, axis=1).T
         Vt_2d                    = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
         Va_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
         Vt_ind_2d                = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T
@@ -388,11 +389,11 @@ class Propeller(Energy_Component):
         #blade_dQ_dr[:,1:-1] =  (blade_Q_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2]) 
         #blade_dT_dr[:,-1]   =  (blade_T_distribution[:,-1] - blade_T_distribution[:,-2])/(chi[-1] - chi[-2])
         #blade_dQ_dr[:,-1]   =  (blade_Q_distribution[:,-1] - blade_Q_distribution[:,-2])/(chi[-1] - chi[-2])     
-        
-        Vt_ind_avg = vt
-        Va_ind_avg = va
-        Vt_avg     = Wt
-        Va_avg     = Wa
+       
+        V_tot = np.zeros((ctrl_pts,Na,Nr,3))
+        V_tot[:,:,:,0] = Va_2d  
+        V_tot[:,:,:,1] = blade_Gamma_2d*B/(4*np.pi*r_dim_2d)
+        V_tot[:,:,:,2] = Vt_2d
           
         # calculate coefficients 
         D        = 2*R 
@@ -429,11 +430,12 @@ class Propeller(Energy_Component):
                     thrust_angle                      = theta,
                     speed_of_sound                    = conditions.freestream.speed_of_sound,
                     density                           = conditions.freestream.density,
-                    velocity                          = Vv, 
-                    blade_tangential_induced_velocity = Vt_ind_avg, 
-                    blade_axial_induced_velocity      = Va_ind_avg,  
-                    blade_tangential_velocity         = Vt_avg, 
-                    blade_axial_velocity              = Va_avg,  
+                    velocity                          = Vv,
+                    mean_total_flow                   = V_tot,
+                    blade_tangential_induced_velocity = vt, 
+                    blade_axial_induced_velocity      = va,  
+                    blade_tangential_velocity         = Wt, 
+                    blade_axial_velocity              = Wa,  
                     disc_tangential_induced_velocity  = Vt_ind_2d, 
                     disc_axial_induced_velocity       = Va_ind_2d,  
                     disc_tangential_velocity          = Vt_2d, 
@@ -447,6 +449,8 @@ class Propeller(Energy_Component):
                     disc_thrust_distribution          = blade_T_distribution_2d, 
                     blade_thrust                      = thrust/B, 
                     thrust_coefficient                = Ct, 
+                    blade_pitch                       = alpha,
+                    disc_pitch                        = alpha_2d,
                     disc_azimuthal_distribution       = azimuth_2d, 
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution, 

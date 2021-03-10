@@ -391,8 +391,12 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     G.YB2 = np.zeros_like(G.XA1)
     G.ZB2 = np.zeros_like(G.XA1)  
     
-    for n_p in range(num_props):  
-        rot    = prop.rotation[n_p] 
+    for n_p in range(num_props): 
+        try:
+            rot = prop.rotation[n_p]
+        except:
+            rot = 1
+            
         a_o    = 0
         flip_1 = (np.pi/2)  
         flip_2 = (np.pi/2)  
