@@ -264,9 +264,21 @@ def generate_wing_vortex_distribution(geometry,settings):
                 wing_areas.append(np.sum(segment_area[:]))            
 
             #Shift spanwise vortices onto section breaks  
+            if len(y_coordinates) < n_segments:
+                raise ValueError('Not enough spanwise VLM stations for segment breaks')
+
+            last_idx = None            
             for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
-                y_coordinates[idx] = section_stations[i_seg] 
+                if last_idx is not None and idx <= last_idx:
+                    idx = last_idx + 1
+                y_coordinates[idx] = section_stations[i_seg]   
+                last_idx = idx
+
+
+            for i_seg in range(n_segments):
+                if section_stations[i_seg] not in y_coordinates:
+                    raise ValueError('VLM did not capture all section breaks')
                 
             # ---------------------------------------------------------------------------------------
             # STEP 6A: Define coordinates of panels horseshoe vortices and control points 
