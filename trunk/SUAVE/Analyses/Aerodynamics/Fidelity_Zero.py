@@ -72,6 +72,7 @@ class Fidelity_Zero(Markup):
         settings.number_chordwise_vortices          = None 
         settings.initial_timestep_offset            = 0.
         settings.wake_development_time              = 0.05
+        settings.number_of_wake_timesteps           = 30
         settings.use_surrogate                      = True
         settings.propeller_wake_model               = False 
         
@@ -133,8 +134,9 @@ class Fidelity_Zero(Markup):
         n_cw                      = self.settings.number_chordwise_vortices
         ito                       = self.settings.initial_timestep_offset
         wdt                       = self.settings.wake_development_time
-
+        nwts                      = self.settings.number_of_wake_timesteps
+        
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt)
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts )
                                                             
     finalize = initialize                                          
