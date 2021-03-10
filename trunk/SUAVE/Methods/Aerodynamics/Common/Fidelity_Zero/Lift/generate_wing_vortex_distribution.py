@@ -965,14 +965,6 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
     N/A
     """    
     
-    #fhs_xc    = np.zeros(n_cw*n_sw)
-    #fhs_yc    = np.zeros(n_cw*n_sw)
-    #fhs_zc    = np.zeros(n_cw*n_sw) 
-    #fhs_x     = np.zeros((n_cw+1)*(n_sw+1))
-    #fhs_y     = np.zeros((n_cw+1)*(n_sw+1))
-    #fhs_z     = np.zeros((n_cw+1)*(n_sw+1))          
-    #fus_h_cs  = np.zeros(n_sw)  
-    
     fhs_xa1 = np.zeros(n_cw*n_sw)
     fhs_ya1 = np.zeros(n_cw*n_sw)
     fhs_za1 = np.zeros(n_cw*n_sw)
@@ -1135,13 +1127,6 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         fhs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*fhs_eta_a[idx_y]  + fus.origin[0][1]                             
         fhs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                  + fus.origin[0][2]
 
-        #fhs_xc [idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_c                        + fus.origin[0][0]  
-        #fhs_yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta[idx_y]    + fus.origin[0][1]  
-        #fhs_zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]               
-        #fhs_x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([fhs_xi_a1,np.array([fhs_xi_a2[-1]])])+ fus.origin[0][0]  
-        #fhs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*fhs_eta_a[idx_y]  + fus.origin[0][1]                             
-        #fhs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                  + fus.origin[0][2]    
-
         # fuselage vertical section                      
         delta_x_a = fvs.chord[idx_y]/n_cw      
         delta_x_b = fvs.chord[idx_y + 1]/n_cw    
@@ -1208,20 +1193,7 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
     fhs_xb_te = np.concatenate([fhs_xb_te , fhs_xb_te ])
     fhs_yb_te = np.concatenate([fhs_yb_te , fhs_yb_te ])
     fhs_zb_te = np.concatenate([fhs_zb_te ,-fhs_zb_te ])    
-    
-    
 
-    ## Append Horizontal Fuselage Sections  
-    #fhs_xc    = np.concatenate([fhs_xc[::-1] , fhs_xc ])
-    #fhs_yc    = np.concatenate([fhs_yc[::-1] ,-fhs_yc])
-    #fhs_zc    = np.concatenate([fhs_zc[::-1] , fhs_zc ])     
-    #fhs_x     = np.concatenate([fhs_x  , fhs_x  ])
-    #fhs_y     = np.concatenate([fhs_y  ,-fhs_y ])
-    #fhs_z     = np.concatenate([fhs_z  , fhs_z  ])    
-    #VD.FUS_XC = np.append(VD.FUS_XC ,fhs_xc)
-    #VD.FUS_YC = np.append(VD.FUS_YC ,fhs_yc)
-    #VD.FUS_ZC = np.append(VD.FUS_ZC ,fhs_zc)   
-    
     # Horizontal Fuselage Sections 
     wing_areas = []
     wing_areas.append(fus_h_area)
@@ -1262,14 +1234,6 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
     fhs_x   = np.concatenate([fhs_x  , fhs_x  ])
     fhs_y   = np.concatenate([fhs_y  ,-fhs_y ])
     fhs_z   = np.concatenate([fhs_z  , fhs_z  ])      
-
-    ## Append Vertical Fuselage Sections  
-    #fvs_xc    = np.concatenate([fvs_xc[::-1], fvs_xc ])
-    #fvs_yc    = np.concatenate([fvs_yc[::-1], fvs_yc ])
-    #fvs_zc    = np.concatenate([fvs_zc[::-1],-fvs_zc ])
-    #fvs_x     = np.concatenate([fhs_x  , fhs_x  ])
-    #fvs_y     = np.concatenate([fhs_y  , fhs_y ])
-    #fvs_z     = np.concatenate([fhs_z  , -fhs_z ])   
     
     if model_fuselage == True:
         
@@ -1325,15 +1289,6 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         
         VD.wing_areas = np.append(VD.wing_areas, wing_areas)
         VD.Stot = VD.Stot + np.sum(wing_areas)
-    
-    ## Currently, fuselage is only used for plotting not analysis 
-    #VD.FUS_XC = np.append(VD.FUS_XC ,fvs_xc)
-    #VD.FUS_YC = np.append(VD.FUS_YC ,fvs_yc)
-    #VD.FUS_ZC = np.append(VD.FUS_ZC ,fvs_zc) 
-    #VD.X      = np.append(VD.X  ,fvs_x )
-    #VD.Y      = np.append(VD.Y  ,fvs_y )
-    #VD.Z      = np.append(VD.Z  ,fvs_z )     
-         
     
     return VD
 

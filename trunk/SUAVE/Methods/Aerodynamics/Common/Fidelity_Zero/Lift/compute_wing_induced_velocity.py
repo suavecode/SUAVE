@@ -480,18 +480,24 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     W  = - (QB *XTY + FT1 *Y1 - FT2 *Y2) /CPI    
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX WHEN RECEIVING POINT IS IN THE PLANE OF THE HORSESHOE
-    RAD1_in = RAD1[ZSQ<TOLSQ2]
-    RAD2_in = RAD2[ZSQ<TOLSQ2] 
-    Y1_in   = Y1[ZSQ<TOLSQ2]
-    Y2_in   = Y2[ZSQ<TOLSQ2]
-    XTY_in  = XTY[ZSQ<TOLSQ2]
-    TOL_in  = TOL[ZSQ<TOLSQ2]
+    in_plane = ZSQ<TOLSQ2
+    RAD1_in  = RAD1[in_plane]
+    RAD2_in  = RAD2[in_plane] 
+    Y1_in    = Y1[in_plane]
+    Y2_in    = Y2[in_plane]
+    XTY_in   = XTY[in_plane]
+    TOL_in   = TOL[in_plane]
     
-    U_in, V_in, W_in = supersonic_in_plane(RAD1_in, RAD2_in, Y1_in, Y2_in, TOL_in, XTY_in, CPI)
+    if np.sum(in_plane)>0:
+        U_in, V_in, W_in = supersonic_in_plane(RAD1_in, RAD2_in, Y1_in, Y2_in, TOL_in, XTY_in, CPI)
+    else:
+        U_in = []
+        V_in = []
+        W_in = []
     
-    U[ZSQ<TOLSQ2] = U_in
-    V[ZSQ<TOLSQ2] = V_in
-    W[ZSQ<TOLSQ2] = W_in
+    U[in_plane] = U_in
+    V[in_plane] = V_in
+    W[in_plane] = W_in
     
     # DETERMINE IF TRANSVERSE VORTEX LEG OF HORSESHOE ASSOCIATED TO THE
     # CONTROL POINT UNDER CONSIDERATION IS SONIC (SWEPT PARALLEL TO MACH
