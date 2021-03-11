@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM_supersonic as VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift import VLM as VLM
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.wave_drag_lift import wave_drag_lift
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform import wing_planform
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
@@ -241,15 +241,17 @@ def analyze(config,conditions, use_MCM = False):
     
     S                                  = config.reference_area
     settings                           = Data()
-    settings.number_spanwise_vortices  = 2
-    settings.number_chordwise_vortices = 3
+    settings.number_spanwise_vortices  = 1
+    settings.number_chordwise_vortices = 2
     settings.propeller_wake_model      = None
     settings.spanwise_cosine_spacing   = False
     settings.model_fuselage            = True
     settings.initial_timestep_offset   = 0.0
     settings.wake_development_time     = 0.0 
+    settings.number_of_wake_timesteps  = 0.0
+    settings.leading_edge_suction_multiplier = 1.
 
-    CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
+    CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , alpha_i, CP ,Velocity_Profile = VLM(conditions, settings, config)
     
     # Save the CL's to conditions
     conditions.aerodynamics.lift_coefficient = CL
