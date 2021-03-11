@@ -66,8 +66,8 @@ class Vortex_Lattice(Aerodynamics):
         self.tag                                      = 'Vortex_Lattice' 
         self.geometry                                 = Data()
         self.settings                                 = Data()
-        self.settings.number_spanwise_vortices        = 15
-        self.settings.number_chordwise_vortices       = 5
+        self.settings.number_spanwise_vortices        = 5
+        self.settings.number_chordwise_vortices       = 2
         self.settings.spanwise_cosine_spacing         = True
         self.settings.vortex_distribution             = Data()   
         self.settings.model_fuselage                  = False
