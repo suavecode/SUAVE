@@ -291,42 +291,43 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
 def compute_coordinates(i,mic_loc,p_idx,AoA,thrust_angle,mls,prop_origin):  
     
     # rotation of propeller about y axis by thurst angle (one extra dimension for translations)
-    inv_rotation_1      = np.zeros((4,4))
-    inv_rotation_1[0,0] = np.cos(thrust_angle)           
-    inv_rotation_1[0,2] = -np.sin(thrust_angle)                 
-    inv_rotation_1[1,1] = 1
-    inv_rotation_1[2,0] = np.sin(thrust_angle) 
-    inv_rotation_1[2,2] = np.cos(thrust_angle)      
-    inv_rotation_1[3,3] = 1 
+    rotation_1      = np.zeros((4,4))
+    rotation_1[0,0] = np.cos(thrust_angle)           
+    rotation_1[0,2] = np.sin(thrust_angle)                 
+    rotation_1[1,1] = 1
+    rotation_1[2,0] = -np.sin(thrust_angle) 
+    rotation_1[2,2] = np.cos(thrust_angle)      
+    rotation_1[3,3] = 1     
     
     # translation to location on propeller
-    inv_translation_1      = np.eye(4)
-    inv_translation_1[0,3] = -prop_origin[p_idx][0]     
-    inv_translation_1[1,3] = -prop_origin[p_idx][1]           
-    inv_translation_1[2,3] = -prop_origin[p_idx][2]
+    translation_1      = np.eye(4)
+    translation_1[0,3] = prop_origin[p_idx][0]     
+    translation_1[1,3] = prop_origin[p_idx][1]           
+    translation_1[2,3] = prop_origin[p_idx][2] 
     
     # rotation of vehicle about y axis by AoA 
-    inv_rotation_2      = np.zeros((4,4))
-    inv_rotation_2[0,0] = np.cos(AoA)           
-    inv_rotation_2[0,2] = -np.sin(AoA)                 
-    inv_rotation_2[1,1] = 1
-    inv_rotation_2[2,0] = np.sin(AoA) 
-    inv_rotation_2[2,2] = np.cos(AoA)     
-    inv_rotation_2[3,3] = 1
+    rotation_2      = np.zeros((4,4))
+    rotation_2[0,0] = np.cos(AoA)           
+    rotation_2[0,2] = np.sin(AoA)                 
+    rotation_2[1,1] = 1
+    rotation_2[2,0] = -np.sin(AoA) 
+    rotation_2[2,2] = np.cos(AoA)     
+    rotation_2[3,3] = 1 
     
     # translation of vehicle to air 
-    inv_translate_2      = np.eye(4)
-    inv_translate_2[0,3] = -mls[i,mic_loc,0]  
-    inv_translate_2[1,3] = -mls[i,mic_loc,1]   
-    inv_translate_2[2,3] = -mls[i,mic_loc,2]
+    translate_2      = np.eye(4)
+    translate_2[0,3] = mls[i,mic_loc,0]  
+    translate_2[1,3] = mls[i,mic_loc,1]   
+    translate_2[2,3] = mls[i,mic_loc,2] 
     
     mat_0  = np.array([[0],[0],[0],[1]])
     
-    # execute operation 
-    mat_1 = np.matmul(inv_rotation_1,mat_0) 
-    mat_2 = np.matmul(inv_translation_1,mat_1)
-    mat_3 = np.matmul(inv_rotation_2,mat_2) 
-    mat_4 = np.matmul(inv_translate_2,mat_3)
+    # execute operation  
+    mat_1 = np.matmul(rotation_1,mat_0) 
+    mat_2 = np.matmul(translation_1,mat_1)
+    mat_3 = np.matmul(rotation_2,mat_2) 
+    mat_4 = np.matmul(translate_2,mat_3)
+    mat_4 = -mat_4
     
     x = mat_4[0,0] 
     y = mat_4[1,0] 
