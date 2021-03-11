@@ -933,7 +933,6 @@ def generate_wing_vortex_distribution(geometry,settings):
     VD.n_fus = 0
     for fus in geometry.fuselages:   
         VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage) 
-        #VD = generate_fuselage_surface_points(VD,fus)
          
     VD.n_sw       = n_sw
     VD.n_cw       = n_cw       
@@ -1289,6 +1288,11 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         
         VD.wing_areas = np.append(VD.wing_areas, wing_areas)
         VD.Stot = VD.Stot + np.sum(wing_areas)
+        
+        VL = VD.vortex_lift
+        VL.append(False)
+        VL.append(False)
+    
     
     return VD
 

@@ -162,9 +162,10 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Supersonic_Zero()
     aerodynamics.geometry = vehicle
-    aerodynamics.settings.number_spanwise_vortices   = 5
-    aerodynamics.settings.number_chordwise_vortices  = 2       
-    aerodynamics.settings.drag_coefficient_increment = 0.0000
+    aerodynamics.settings.number_spanwise_vortices     = 5
+    aerodynamics.settings.number_chordwise_vortices    = 2       
+    aerodynamics.process.compute.lift.inviscid_wings.settings.model_fuselage = True
+    aerodynamics.settings.drag_coefficient_increment   = 0.0000
     analyses.append(aerodynamics)
     
     
