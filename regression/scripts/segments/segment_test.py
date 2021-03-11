@@ -64,25 +64,25 @@ def main():
     descent_throttle_3 = results.segments.descent_3.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 1.006739820433914 
-    climb_throttle_2_truth   = 1.0054180720867243 
-    climb_throttle_3_truth   = 0.6642649593055092 
-    climb_throttle_4_truth   = 1.1188805118701768 
-    climb_throttle_5_truth   = 1.1721949518806198 
-    climb_throttle_6_truth   = 0.7532683613249997 
-    climb_throttle_7_truth   = 0.9058389329701103 
-    climb_throttle_8_truth   = 1.106769379505344 
-    climb_throttle_9_truth   = 1.201932890949098 
-    climb_throttle_10_truth  = 0.9999957730138034 
-    cruise_CL_1_truth        = 0.6985248846291946 
-    cruise_CL_2_truth        = 0.6992168856168053 
-    cruise_CL_3_truth        = 0.6966313858150793 
-    descent_throttle_1_truth = 0.08716604122306178 
-    descent_throttle_2_truth = 0.23438393000365892 
-    single_pt_CL_1_truth     = 0.2521798400569821 
-    single_pt_CL_2_truth     = 0.25213368244906226 
-    loiter_CL_truth          = 0.5137872230616091 
-    descent_throttle_3_truth = 0.17469605072134745 
+    climb_throttle_1_truth   = 1.1151433078826625
+    climb_throttle_2_truth   = 1.1255776773109512
+    climb_throttle_3_truth   = 0.7115695954851964
+    climb_throttle_4_truth   = 1.1765286082481095
+    climb_throttle_5_truth   = 1.2302647029635323
+    climb_throttle_6_truth   = 0.8271118741440222
+    climb_throttle_7_truth   = 1.009387467182527
+    climb_throttle_8_truth   = 1.2362235545063316
+    climb_throttle_9_truth   = 1.3502127671323987
+    climb_throttle_10_truth  = 0.9999999999999916
+    cruise_CL_1_truth        = 0.6942753853726126
+    cruise_CL_2_truth        = 0.6946696234515815
+    cruise_CL_3_truth        = 0.7204087211112957
+    descent_throttle_1_truth = 0.13315726271136
+    descent_throttle_2_truth = 0.2715383789157149
+    single_pt_CL_1_truth     = 0.24969153076373377
+    single_pt_CL_2_truth     = 0.2496697469120479
+    loiter_CL_truth          = 0.508521787475616
+    descent_throttle_3_truth = 0.2092510572672554
     
     # Store errors 
     error = Data()
@@ -186,6 +186,8 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    aerodynamics.settings.number_spanwise_vortices   = 5
+    aerodynamics.settings.number_chordwise_vortices  = 2       
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 

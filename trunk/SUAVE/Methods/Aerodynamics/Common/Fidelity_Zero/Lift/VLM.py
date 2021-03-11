@@ -20,7 +20,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_development_time = 0.05 ):
+def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
     Assumptions: None
@@ -83,7 +83,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     pwm        = settings.propeller_wake_model
     ito        = settings.initial_timestep_offset
     nts        = settings.number_of_wake_timesteps 
-    wdt        = settings.wake_development_time    
+    wdt        = settings.wake_development_time   
+    K_SPC      = settings.leading_edge_suction_multiplier
     Sref       = geometry.reference_area  
 
     # define point about which moment coefficient is computed
@@ -125,12 +126,12 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
 
     # pack vortex distribution 
     geometry.vortex_distribution = VD
-
+    
     # Build induced velocity matrix, C_mn
     C_mn, s, t, CHORD, RFLAG, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
 
-    # Compute flow tangency conditions   
-    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones          # dihedral angle 
+    # Compute flow tangency conditions
+    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
     # Build Aerodynamic Influence Coefficient Matrix
@@ -156,8 +157,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     SINALF = np.tile(np.sin(aoa),n_cp)
     COSALF = np.tile(np.cos(aoa),n_cp)
     RNMAX  = n_cw*1.
-    CHORD  = CHORD[:,0,:]
-    t      = t[:,0,:]
+    CHORD  = CHORD[0,:]
+    t      = t[0,:]
 
     # COMPUTE LOAD COEFFICIENT
     GNET = gamma*COSALF*RNMAX/CHORD
@@ -173,20 +174,20 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     SREF = Sref
 
     # Unpack coordinates 
-    YAH = VD.YAH*ones
-    ZAH = VD.ZAH*ones
-    ZBH = VD.ZBH*ones    
-    YBH = VD.YBH*ones
-    XA1 = VD.XA1*ones
-    XB1 = VD.XB1*ones
-    ZA1 = VD.ZA1*ones
-    ZB1 = VD.ZB1*ones    
-    XA2 = VD.XA2*ones
-    XB2 = VD.XB2*ones
-    ZA1 = VD.ZA1*ones
-    ZB1 = VD.ZB1*ones       
-    ZA2 = VD.ZA2*ones
-    ZB2 = VD.ZB2*ones    
+    YAH = VD.YAH*1.
+    ZAH = VD.ZAH*1.
+    ZBH = VD.ZBH*1.    
+    YBH = VD.YBH*1.
+    XA1 = VD.XA1*1.
+    XB1 = VD.XB1*1.
+    ZA1 = VD.ZA1*1.
+    ZB1 = VD.ZB1*1.   
+    XA2 = VD.XA2*1.
+    XB2 = VD.XB2*1.
+    ZA1 = VD.ZA1*1.
+    ZB1 = VD.ZB1*1.       
+    ZA2 = VD.ZA2*1.
+    ZB2 = VD.ZB2*1.    
 
     # Flip coordinates on the other side of the wing
     boolean = YBH<0. 
@@ -194,18 +195,19 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
 
     # Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
-    TLE = t[:,0::n_cw]
+    TLE = np.atleast_2d(t[0::n_cw])
     TLE = np.repeat(TLE,n_cw,axis=1)
     T2  = TLE**2
-    STB = np.zeros_like(T2)
+    T2  = np.broadcast_to(T2,np.shape(B2))
+    STB = np.zeros_like(B2)
     STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
     STB = STB[:,0::n_cw]
 
     # Panel Dihedral Angle, using AH and BH location
     D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
 
-    SID = ((ZBH-ZAH)/D)[:,0::n_cw] # Just the LE values
-    COD = ((YBH-YAH)/D)[:,0::n_cw] # Just the LE values
+    SID = ((ZBH-ZAH)/D)[0::n_cw] # Just the LE values
+    COD = ((YBH-YAH)/D)[0::n_cw] # Just the LE values
 
     # Now on to each strip
     PION = 2.0 /RNMAX
@@ -227,62 +229,29 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     # INCIDENCE.    
     RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)*ones
     XX   = (RK - .75) *PION /2.0
-    K    = 1*RK
-    KX   = 1*K
-    KX[K>1]   = K[K>1]-1
-    
-    RKX = KX
-    X1  = (RKX - .25) *PION /2.0
-    X2  = (RKX + .75) *PION /2.0
 
     X1c  = (XA1+XB1)/2
     X2c  = (XA2+XB2)/2
     Z1c  = (ZA1+ZB1)/2
     Z2c  = (ZA2+ZB2)/2
 
-    SLOPE = (Z2c-Z1c)/(X2c-X1c)
-
-    # This section takes differences for F1 and F2 based on the slopes
-    all_aft_indices = np.linspace(1,(n_w*n_cw*n_sw),(n_w*n_cw*n_sw),dtype=int)
-    all_for_indices = all_aft_indices-1
-
-    mask1 = np.ones_like(all_aft_indices,dtype=bool)
-    mask1[n_cw-1::n_cw] = False
-
-    aft_indices = all_aft_indices[mask1]
-    for_indices = all_for_indices[mask1]
-
-    F1 = SLOPE
-    F1[:,aft_indices] = SLOPE[:,for_indices]
-
-    F2 = np.zeros_like(SLOPE)
-    F2[:,for_indices] = SLOPE[:,aft_indices]
-
-    # Now fill in the LE values for F2
-    mask2 = np.zeros_like(all_aft_indices,dtype=bool)
-    mask3 = np.zeros_like(all_aft_indices,dtype=bool)
-
-    mask2[0::n_cw] = True
-    mask3[1::n_cw] = True
-
-    F2[:,all_for_indices[mask2]] = SLOPE[:,all_for_indices[mask3]] 
-
-    TANX = (XX-X2)/(X1-X2)*F1 +(XX-X1)/(X2-X1)*F2
-    TX   = TANX - ZETA
-    CAXL = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
-    BMLE = (XLE-XX)*SINF        # These are moment on each panel
+    SLOPE = (Z2c - Z1c)/(X2c - X1c)
+    TANX  = SLOPE
+    TX    = TANX - ZETA
+    CAXL  = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
+    BMLE  = (XLE-XX)*SINF        # These are moment on each panel
 
     # Sum onto the panel
     CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len_mach))
     BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len_mach))
 
-    XX = XLE
+    XX = XLE*1.
        
     DCP_LE = DCP[:,0::n_cw]
     
     # Leading edge suction multiplier. See documentation. This is a negative integer if used
     # Default to 1 unless specified otherwise
-    SPC  = np.ones_like(DCP_LE)
+    SPC  = K_SPC*np.ones_like(DCP_LE)
     
     # If the vehicle is subsonic and there is vortex lift enabled then SPC changes to -1
     VL   = np.repeat(VD.vortex_lift,n_sw)
@@ -294,18 +263,18 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
 
     # SLE is slope at leading edge
-    SLE  = SLOPE[:,0::n_cw]
-    ZETA = ZETA[:,0::n_cw]
-    XCOS = 1./np.sqrt(1+(SLE-ZETA)**2)
-    XSIN = (SLE-ZETA)*XCOS
-    TFX  =  1*XCOS
-    TFZ  = -1*XSIN
+    SLE  = SLOPE[0::n_cw]
+    ZETA = ZETA[0::n_cw]
+    XCOS = np.broadcast_to(np.cos(SLE-ZETA),np.shape(DCP_LE))
+    XSIN = np.broadcast_to(np.sin(SLE-ZETA),np.shape(DCP_LE))
+    TFX  =  1.*XCOS
+    TFZ  = -1.*XSIN
 
     # If a negative number is used for SPC a different correction is used. See VORLAX documentation for Lan reference
     TFX[SPC<0] = XSIN[SPC<0]*np.sign(DCP_LE)[SPC<0]
     TFZ[SPC<0] = np.abs(XCOS)[SPC<0]*np.sign(DCP_LE)[SPC<0]
 
-    CAXL = CAXL -TFX*CSUC
+    CAXL = CAXL - TFX*CSUC
 
     # Add a dimension into the suction to be chordwise
     T2_LE = T2[:,0::n_cw]
@@ -313,8 +282,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
 
     # FCOS AND FSIN ARE THE COSINE AND SINE OF THE ANGLE BETWEEN
     # THE CHORDLINE OF THE IR-STRIP AND THE X-AXIS    
-    FCOS = 1./np.sqrt(1.+ ZETA*ZETA)
-    FSIN = FCOS*ZETA
+    FCOS = np.cos(ZETA)
+    FSIN = np.sin(ZETA)
 
     # BFX, BFY, AND BFZ ARE THE COMPONENTS ALONG THE BODY AXES
     # OF THE STRIP FORCE CONTRIBUTION.
@@ -323,7 +292,7 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     BFZ =   (CNC *FCOS + CAXL *FSIN) *COD
 
     # CONVERT CNC FROM CN INTO CNC (COEFF. *CHORD).
-    CHORD_strip = CHORD[:,0::n_cw]
+    CHORD_strip = CHORD[0::n_cw]
     CNC  = CNC  * CHORD_strip
     BMLE = BMLE * CHORD_strip
 
@@ -342,8 +311,8 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     CDC    = BFZ * SINALF +  BFX * COSALF
     CDC    = CDC * CHORD_strip
 
-    ES    = 2*s[:,0,:]
-    ES    = ES[:,0::n_cw]
+    ES    = 2*s[0,:]
+    ES    = ES[0::n_cw]
     STRIP = ES *CHORD_strip
     LIFT  = (BFZ *COSALF - BFX *SINALF)*STRIP
     DRAG  = CDC*ES 
@@ -370,4 +339,4 @@ def VLM(conditions,settings,geometry,initial_timestep_offset = 0 ,wake_developme
     
     alpha_i = np.arctan(Cdi_y/Cl_y) 
     
-    return CL, CDi, CM, CL_wing, CDi_wing, Cl_y, Cdi_y, alpha_i,  CP, Velocity_Profile    
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, Velocity_Profile
