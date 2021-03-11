@@ -540,7 +540,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     W[FLAG_bool_rep]  = 0. # Default to zero
 
     # The self velocity goes to 2
-    FLAG_bool_split   = np.array(np.split(FLAG_bool,n_mach))
+    FLAG_bool_split   = np.array(np.split(FLAG_bool.flatten(),n_mach))
     FLAG_ind          = np.array(np.where(FLAG_bool_split))
     squares           = np.tile(np.atleast_3d(np.zeros((size,size))),n_mach)
     squares[FLAG_ind[1],FLAG_ind[1],FLAG_ind[0]] = 1
