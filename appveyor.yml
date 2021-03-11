@@ -1,9 +1,10 @@
-version: 2.4.{build}
+version: 2.4.0
 branches:
   only:
   - master
   - develop
 image: Ubuntu2004
+build: off
 
 environment:
   COVERALLS_SERVICE_NAME: appveyor
