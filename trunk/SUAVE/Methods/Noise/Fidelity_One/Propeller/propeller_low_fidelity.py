@@ -139,7 +139,7 @@ def propeller_low_fidelity(network,propeller,auc_opts,segment,settings, mic_loc,
                 theta_r_prime = np.arccos(np.cos(theta_r)*np.cos(alpha) + np.sin(theta_r)*np.sin(phi)*np.sin(alpha) )    
                 phi_prime     = np.arccos((np.sin(theta_r)/np.sin(theta_r_prime))*np.cos(phi))                            # phi angle relative to propeller shaft axis                                                   
                 k_x           = ((2*m*B*B_D*M_t)/(M_r*(1 - M_x*np.cos(theta_r))))      # wave number
-                k_y           = ((2*m*B*B_D)/(M_r*r)) *((M_x - (M_r**2)*np.cos(theta_r))/(1 - M_x*np.cos(theta_r)))
+                k_y           = ((2*m*B*B_D)/(M_r*r))*((M_x - (M_r**2)*np.cos(theta_r))/(1 - M_x*np.cos(theta_r)))
                 phi_s         = ((2*m*B*M_t)/(M_r*(1 - M_x*np.cos(theta_r))))*(MCA/D)
                 S_r           = Y/(np.sin(theta_r))                                # distance in retarded reference frame   
                 Jmb           = jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M_x*np.cos(theta_r))))  
