@@ -154,8 +154,8 @@ def VLM(conditions,settings,geometry):
     SINALF = np.tile(np.sin(aoa),n_cp)
     COSALF = np.tile(np.cos(aoa),n_cp)
     RNMAX  = n_cw*1.
-    CHORD  = CHORD[:,0,:]
-    t      = t[:,0,:]
+    CHORD  = CHORD[0,:]
+    t      = t[0,:]
 
     # COMPUTE LOAD COEFFICIENT
     GNET = gamma*COSALF*RNMAX/CHORD
@@ -171,20 +171,20 @@ def VLM(conditions,settings,geometry):
     SREF = Sref
 
     # Unpack coordinates 
-    YAH = VD.YAH*ones
-    ZAH = VD.ZAH*ones
-    ZBH = VD.ZBH*ones    
-    YBH = VD.YBH*ones
-    XA1 = VD.XA1*ones
-    XB1 = VD.XB1*ones
-    ZA1 = VD.ZA1*ones
-    ZB1 = VD.ZB1*ones    
-    XA2 = VD.XA2*ones
-    XB2 = VD.XB2*ones
-    ZA1 = VD.ZA1*ones
-    ZB1 = VD.ZB1*ones       
-    ZA2 = VD.ZA2*ones
-    ZB2 = VD.ZB2*ones    
+    YAH = VD.YAH#*ones
+    ZAH = VD.ZAH#*ones
+    ZBH = VD.ZBH#*ones    
+    YBH = VD.YBH#*ones
+    XA1 = VD.XA1#*ones
+    XB1 = VD.XB1#*ones
+    ZA1 = VD.ZA1#*ones
+    ZB1 = VD.ZB1#*ones    
+    XA2 = VD.XA2#*ones
+    XB2 = VD.XB2#*ones
+    ZA1 = VD.ZA1#*ones
+    ZB1 = VD.ZB1#*ones       
+    ZA2 = VD.ZA2#*ones
+    ZB2 = VD.ZB2#*ones    
 
     # Flip coordinates on the other side of the wing
     boolean = YBH<0. 
@@ -192,18 +192,19 @@ def VLM(conditions,settings,geometry):
     YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
 
     # Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
-    TLE = t[:,0::n_cw]
+    TLE = np.atleast_2d(t[0::n_cw])
     TLE = np.repeat(TLE,n_cw,axis=1)
     T2  = TLE**2
-    STB = np.zeros_like(T2)
+    T2  = np.broadcast_to(T2,np.shape(B2))
+    STB = np.zeros_like(B2)
     STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
     STB = STB[:,0::n_cw]
 
     # Panel Dihedral Angle, using AH and BH location
     D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
 
-    SID = ((ZBH-ZAH)/D)[:,0::n_cw] # Just the LE values
-    COD = ((YBH-YAH)/D)[:,0::n_cw] # Just the LE values
+    SID = ((ZBH-ZAH)/D)[0::n_cw] # Just the LE values
+    COD = ((YBH-YAH)/D)[0::n_cw] # Just the LE values
 
     # Now on to each strip
     PION = 2.0 /RNMAX
@@ -259,10 +260,10 @@ def VLM(conditions,settings,geometry):
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
 
     # SLE is slope at leading edge
-    SLE  = SLOPE[:,0::n_cw]
-    ZETA = ZETA[:,0::n_cw]
-    XCOS = np.cos(SLE-ZETA)
-    XSIN = np.sin(SLE-ZETA)
+    SLE  = SLOPE[0::n_cw]
+    ZETA = ZETA[0::n_cw]
+    XCOS = np.broadcast_to(np.cos(SLE-ZETA),np.shape(DCP_LE))
+    XSIN = np.broadcast_to(np.sin(SLE-ZETA),np.shape(DCP_LE))
     TFX  =  1.*XCOS
     TFZ  = -1.*XSIN
 
@@ -288,7 +289,7 @@ def VLM(conditions,settings,geometry):
     BFZ =   (CNC *FCOS + CAXL *FSIN) *COD
 
     # CONVERT CNC FROM CN INTO CNC (COEFF. *CHORD).
-    CHORD_strip = CHORD[:,0::n_cw]
+    CHORD_strip = CHORD[0::n_cw]
     CNC  = CNC  * CHORD_strip
     BMLE = BMLE * CHORD_strip
 
@@ -307,8 +308,8 @@ def VLM(conditions,settings,geometry):
     CDC    = BFZ * SINALF +  BFX * COSALF
     CDC    = CDC * CHORD_strip
 
-    ES    = 2*s[:,0,:]
-    ES    = ES[:,0::n_cw]
+    ES    = 2*s[0,:]
+    ES    = ES[0::n_cw]
     STRIP = ES *CHORD_strip
     LIFT  = (BFZ *COSALF - BFX *SINALF)*STRIP
     DRAG  = CDC*ES 
