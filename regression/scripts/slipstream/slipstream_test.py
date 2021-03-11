@@ -38,7 +38,7 @@ def main():
      
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.41732243018101206
+    lift_coefficient_true         = 0.4173607616263117
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -48,25 +48,13 @@ def main():
     
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([4.06069910e-01, 4.03795913e-01, 3.84921041e-01, 3.33296062e-01,
-                                                3.71319835e-01, 4.52766881e-01, 3.84962842e-01, 3.54150681e-01,
-                                                3.29715932e-01, 3.01181799e-01, 2.67284913e-01, 2.27357864e-01,
-                                                1.81572027e-01, 1.31744281e-01, 8.63610633e-02, 4.06069910e-01,
-                                                4.03795913e-01, 3.84921041e-01, 3.33296062e-01, 3.71319835e-01,
-                                                4.52766881e-01, 3.84962842e-01, 3.54150681e-01, 3.29715932e-01,
-                                                3.01181799e-01, 2.67284913e-01, 2.27357864e-01, 1.81572027e-01,
-                                                1.31744281e-01, 8.63610633e-02, 1.68367422e-02, 1.79634043e-02,
-                                                1.94778080e-02, 2.13435071e-02, 2.34532179e-02, 2.56475960e-02,
-                                                2.76986493e-02, 2.92945864e-02, 3.00847205e-02, 2.97471008e-02,
-                                                2.80437082e-02, 2.48715894e-02, 2.03061215e-02, 1.46363439e-02,
-                                                8.63976768e-03, 1.68367422e-02, 1.79634043e-02, 1.94778080e-02,
-                                                2.13435071e-02, 2.34532179e-02, 2.56475960e-02, 2.76986493e-02,
-                                                2.92945864e-02, 3.00847205e-02, 2.97471008e-02, 2.80437082e-02,
-                                                2.48715894e-02, 2.03061215e-02, 1.46363439e-02, 8.63976768e-03,
-                                                1.78736305e-33, 1.06916762e-34, 3.58394355e-36, 3.75859322e-36,
-                                                3.53992892e-35, 7.34217058e-35, 8.31267757e-35, 9.81567209e-35,
-                                                1.10462893e-34, 1.07979898e-34, 1.00336854e-34, 8.84723167e-35,
-                                                6.66766719e-35, 3.89852169e-35, 1.36647862e-35])
+    sectional_lift_coeff_true       = np.array([4.11914951e-01, 3.75656483e-01, 3.44016280e-01, 2.82181515e-01,
+                                                1.80708913e-01, 4.11914951e-01, 3.75656483e-01, 3.44016280e-01,
+                                                2.82181515e-01, 1.80708913e-01, 1.37503489e-02, 1.40463944e-02,
+                                                1.42491021e-02, 1.43481687e-02, 1.02754137e-02, 1.37503489e-02,
+                                                1.40463944e-02, 1.42491021e-02, 1.43481687e-02, 1.02754137e-02,
+                                                1.97205770e-36, 2.30819853e-36, 4.11907872e-37, 1.57452897e-36,
+                                                7.28438135e-37])
 
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
@@ -161,8 +149,8 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()     
     aerodynamics.settings.use_surrogate              = False
     aerodynamics.settings.propeller_wake_model       = True 
-    aerodynamics.settings.number_spanwise_vortices   = 15
-    aerodynamics.settings.number_chordwise_vortices  = 5   
+    aerodynamics.settings.number_spanwise_vortices   = 5
+    aerodynamics.settings.number_chordwise_vortices  = 2   
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
