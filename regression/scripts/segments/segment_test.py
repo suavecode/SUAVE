@@ -64,25 +64,25 @@ def main():
     descent_throttle_3 = results.segments.descent_3.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 1.046726237574179
-    climb_throttle_2_truth   = 1.0423651408385344
-    climb_throttle_3_truth   = 0.6187690161961495
-    climb_throttle_4_truth   = 1.0709297605528207
-    climb_throttle_5_truth   = 1.1253856482417461
-    climb_throttle_6_truth   = 0.7523944348245536
-    climb_throttle_7_truth   = 0.9524069396049349
-    climb_throttle_8_truth   = 1.1846455326967222
-    climb_throttle_9_truth   = 1.2996945531446802
-    climb_throttle_10_truth  = 1.0
-    cruise_CL_1_truth        = 0.6978253534206994
-    cruise_CL_2_truth        = 0.6985846791004554
-    cruise_CL_3_truth        = 0.693758155919161
-    descent_throttle_1_truth = 0.03839590353846941
-    descent_throttle_2_truth = 0.20754180635010466
-    single_pt_CL_1_truth     = 0.2524548511760814
-    single_pt_CL_2_truth     = 0.2523832509694178
-    loiter_CL_truth          = 0.5144918501507646
-    descent_throttle_3_truth = 0.1491627147411383
+    climb_throttle_1_truth   = 1.0561741329804546
+    climb_throttle_2_truth   = 1.0528764629529601
+    climb_throttle_3_truth   = 0.6219860690014334
+    climb_throttle_4_truth   = 1.066495380355569
+    climb_throttle_5_truth   = 1.1074877159775516
+    climb_throttle_6_truth   = 0.6813058448190507
+    climb_throttle_7_truth   = 0.8493056758460679
+    climb_throttle_8_truth   = 1.070778196369315
+    climb_throttle_9_truth   = 1.174690304067222
+    climb_throttle_10_truth  = 0.9999999999999978
+    cruise_CL_1_truth        = 0.700744237516416
+    cruise_CL_2_truth        = 0.701389540928389
+    cruise_CL_3_truth        = 0.722309591310391
+    descent_throttle_1_truth = 0.03863516199307067
+    descent_throttle_2_truth = 0.21681675415802515
+    single_pt_CL_1_truth     = 0.2532915483644918
+    single_pt_CL_2_truth     = 0.25323218481144383
+    loiter_CL_truth          = 0.5160473744685468
+    descent_throttle_3_truth = 0.15807769386125253
     
     # Store errors 
     error = Data()

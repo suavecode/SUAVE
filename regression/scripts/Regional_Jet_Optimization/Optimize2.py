@@ -32,10 +32,10 @@ def main():
     
     actual = Data()
 
-    actual.obj  = 0.80612841
-    actual.con  = 2.44019044
-    actual.obj2 = 0.83321913
-    actual.con3 = 2.60035476
+    actual.obj  = 0.72266536
+    actual.con  = 2.6873295
+    actual.obj2 = 0.74678904
+    actual.con3 = 2.8405918
     
     print('Fuel Burn   =', obj)
     print('Fuel Margin =', con)    
