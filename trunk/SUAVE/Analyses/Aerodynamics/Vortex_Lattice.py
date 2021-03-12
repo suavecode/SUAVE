@@ -125,7 +125,13 @@ class Vortex_Lattice(Aerodynamics):
         N/A
 
         Inputs:
-        None
+        use_surrogate                                       [bool]
+        n_sw                   number of spanwise vortices  [int]
+        n_cw                   number of chordwise vortices [int]
+        propeller_wake_model                                [bool] 
+        ito                    initial timestep offset      [s]            
+        wdt                    wake development time        [s]
+        nwts                   number of wake timesteps     [int]
 
         Outputs:
         None

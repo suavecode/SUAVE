@@ -125,7 +125,7 @@ def VLM(conditions,settings,geometry):
     geometry.vortex_distribution = VD
     
     # Build induced velocity matrix, C_mn
-    C_mn, s, t, CHORD, RFLAG, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
+    C_mn, s, CHORD, RFLAG, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
 
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
@@ -151,11 +151,10 @@ def VLM(conditions,settings,geometry):
 
     # COMPUTE FREE-STREAM AND ONSET FLOW PARAMETERS. If yaw is ever added these equations would change
     B2     = np.tile((mach**2 - 1),n_cp)
-    SINALF = np.tile(np.sin(aoa),n_cp)
-    COSALF = np.tile(np.cos(aoa),n_cp)
+    SINALF = np.sin(aoa)
+    COSALF = np.cos(aoa)
     RNMAX  = n_cw*1.
     CHORD  = CHORD[0,:]
-    t      = t[0,:]
 
     # COMPUTE LOAD COEFFICIENT
     GNET = gamma*COSALF*RNMAX/CHORD
@@ -301,8 +300,6 @@ def VLM(conditions,settings,geometry):
     X      = ((VD.XAH+VD.XBH)/2)[0::n_cw]  # These are all LE values
     Y      = ((VD.YAH+VD.YBH)/2)[0::n_cw]  # These are all LE values
     Z      = ((VD.ZAH+VD.ZBH)/2)[0::n_cw]  # These are all LE values
-    SINALF = SINALF[:,0::n_cw] # These are all LE values
-    COSALF = COSALF[:,0::n_cw] # These are all LE values
     XBAR   = np.ones(n_sw*n_w) * x_m
     ZBAR   = np.ones(n_sw*n_w) * z_m
     BMX    = BFZ * Y - BFY * (Z - ZBAR)

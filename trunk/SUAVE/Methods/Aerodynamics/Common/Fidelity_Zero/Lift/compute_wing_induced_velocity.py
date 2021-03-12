@@ -45,6 +45,8 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     # unpack  
     n_cp     = n_sw*n_cw
     n_w      = VD.n_w
+    shape    = n_cp*n_w
+    n_mach   = len(mach)
 
     # Control points from the VLM 
     XAH   = np.atleast_2d(VD.XAH*1.) 
@@ -74,17 +76,12 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     ZB_TE = np.atleast_2d(VD.ZB_TE*1.)      
     
     # supersonic corrections
-    beta_2     = 1-mach**2
-    beta_2_1d  = beta_2*1.
-    shape      = np.shape(XAH)[-1]
-    sized_ones = np.ones((np.shape(mach)[0],shape,shape))
-    beta_2     = np.atleast_3d(beta_2)
-    beta_2     = beta_2*sized_ones
+    beta_2 = np.atleast_3d(1-mach**2)*np.ones((n_mach,shape,shape))
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
     # ------------------------------------------------------------------------------------------- 
-    ## If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
+    # If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
     boolean = YBH<0. 
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
     YA1[boolean], YB1[boolean] = YB1[boolean], YA1[boolean]
@@ -137,9 +134,8 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     # COMPUTE COORDINATES OF RECEIVING POINT WITH RESPECT TO END POINTS OF SKEWED LEG.
     s = np.abs(y1bar)
     t = x1bar/y1bar  
-    length = np.shape(s)[-1]
-    s = np.repeat(s,length,axis=0)
-    t = np.repeat(t,length,axis=0)
+    s = np.repeat(s,shape,axis=0)
+    t = np.repeat(t,shape,axis=0)
     
     X1 = xobar + t*s # In a planar case XC-XAH
     Y1 = yobar + s   # In a planar case YC-YAH
@@ -175,7 +171,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     RAD2   = np.zeros_like(beta_2)
     XSQ1   = X1 *X1
     XSQ2   = X2 *X2
-    RFLAG  = np.ones((len(mach),n_cp*n_w))
+    RFLAG  = np.ones((n_mach,shape))
     mach_f = np.broadcast_to(mach,np.shape(RFLAG))
     
     # Split the vectors into subsonic and supersonic
@@ -222,7 +218,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     TE_X        = (XB_TE + XA_TE)/2
     TE_Z        = (ZB_TE + ZA_TE)/2
     CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2 )
-    CHORD       = np.repeat(CHORD,length,axis=0)
+    CHORD       = np.repeat(CHORD,shape,axis=0)
     EYE         = np.eye(np.shape(CHORD)[-1])
     ZETA        = (LE_Z-TE_Z)/(LE_X-TE_X) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
     ZETA        = ZETA[0,:] # Fix the shape for later
@@ -262,7 +258,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     C_mn[:,:,:,1] = V
     C_mn[:,:,:,2] = W
     
-    return C_mn, s, t, CHORD, RFLAG, ZETA
+    return C_mn, s, CHORD, RFLAG, ZETA
     
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
@@ -398,7 +394,6 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     RAD1[ARG1>0.] = np.sqrt(ARG1[ARG1>0.])
     RAD2[ARG2>0.] = np.sqrt(ARG2[ARG2>0.])
     
-
     ZETAPI = Z/CPI
     
     XBSQ  = XTY * XTY

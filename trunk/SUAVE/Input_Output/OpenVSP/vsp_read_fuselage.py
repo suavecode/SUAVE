@@ -12,7 +12,6 @@
 
 import SUAVE
 from SUAVE.Core import Units, Data
-from SUAVE.Input_Output.OpenVSP import get_vsp_areas
 from SUAVE.Components.Fuselages.Fuselage import Fuselage
 import vsp as vsp
 import numpy as np
@@ -43,7 +42,6 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	1. VSP 10-digit geom ID for fuselage.
 	2. Units_type set to 'SI' (default) or 'Imperial'.
 	3. Boolean for whether or not to compute fuselage finenesses (default = True).
-	4. Uses exterior function get_vsp_areas, in SUAVE/trunk/SUAVE/Input_Output/OpenVSP.
 	
 	Outputs:
 	Writes SUAVE fuselage, with these geometries:           (all defaults are SI, but user may specify Imperial)
