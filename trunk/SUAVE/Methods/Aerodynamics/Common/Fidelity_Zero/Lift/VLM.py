@@ -198,7 +198,8 @@ def VLM(conditions,settings,geometry):
     TLE = (XB1[0:n_cp*n_w:n_cw] - XA1[0:n_cp*n_w:n_cw])/ np.sqrt((ZB1[0:n_cp*n_w:n_cw]-ZA1[0:n_cp*n_w:n_cw])**2 + \
                                                                      (YB1[0:n_cp*n_w:n_cw]-YA1[0:n_cp*n_w:n_cw])**2)
     
-    TLE = np.atleast_2d(TLE).T
+    TLE = np.repeat(TLE,n_cw)
+    TLE = np.broadcast_to(TLE,np.shape(B2))
     T2  = TLE**2
     T2  = np.broadcast_to(T2,np.shape(B2))
     STB = np.zeros_like(B2)
