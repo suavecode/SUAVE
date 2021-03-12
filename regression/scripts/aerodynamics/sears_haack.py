@@ -115,7 +115,7 @@ def main():
     polar.drag = CD        
     
     # load older results
-    #save_results(polar)
+    save_results(polar)
     old_polar = load_results()       
     
     # check the results

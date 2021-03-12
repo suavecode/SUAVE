@@ -127,7 +127,7 @@ def VLM(conditions,settings,geometry):
     # Build induced velocity matrix, C_mn
     C_mn, s, t, CHORD, RFLAG, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
 
-    # Compute flow tangency conditions   
+    # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
@@ -177,12 +177,12 @@ def VLM(conditions,settings,geometry):
     YBH = VD.YBH*1.
     XA1 = VD.XA1*1.
     XB1 = VD.XB1*1.
+    YA1 = VD.YA1*1.
+    YB1 = VD.YB1*1.    
     ZA1 = VD.ZA1*1.
     ZB1 = VD.ZB1*1.   
     XA2 = VD.XA2*1.
-    XB2 = VD.XB2*1.
-    ZA1 = VD.ZA1*1.
-    ZB1 = VD.ZB1*1.       
+    XB2 = VD.XB2*1.      
     ZA2 = VD.ZA2*1.
     ZB2 = VD.ZB2*1.    
 
@@ -192,8 +192,11 @@ def VLM(conditions,settings,geometry):
     YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
 
     # Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
-    TLE = np.atleast_2d(t[0::n_cw])
-    TLE = np.repeat(TLE,n_cw,axis=1)
+    TLE = (XB1[0:n_cp*n_w:n_cw] - XA1[0:n_cp*n_w:n_cw])/ np.sqrt((ZB1[0:n_cp*n_w:n_cw]-ZA1[0:n_cp*n_w:n_cw])**2 + \
+                                                                     (YB1[0:n_cp*n_w:n_cw]-YA1[0:n_cp*n_w:n_cw])**2)
+    
+    TLE = np.repeat(TLE,n_cw)
+    TLE = np.broadcast_to(TLE,np.shape(B2))
     T2  = TLE**2
     T2  = np.broadcast_to(T2,np.shape(B2))
     STB = np.zeros_like(B2)
