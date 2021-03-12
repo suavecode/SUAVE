@@ -107,6 +107,7 @@ def analyze(config,conditions):
     settings.initial_timestep_offset   = 0.0
     settings.wake_development_time     = 0.0
     settings.number_of_wake_timesteps  = 0.
+    settings.leading_edge_suction_multiplier = 1.
 
     CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, Velocity_Profile = VLM(conditions, settings, config)
 

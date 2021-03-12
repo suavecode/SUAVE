@@ -111,8 +111,8 @@ def VLM(conditions,settings,geometry):
         x_m = x_cg
         z_m = z_cg
         
-    #x_m   = 7.9629
-    #c_bar = 31.8516
+    x_m   = 7.9629
+    c_bar = 31.8516
 
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
     mach = conditions.freestream.mach_number         # mach number
