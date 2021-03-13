@@ -64,25 +64,25 @@ def main():
     descent_throttle_3 = results.segments.descent_3.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 1.006739820433914 
-    climb_throttle_2_truth   = 1.0054180720867243 
-    climb_throttle_3_truth   = 0.6642649593055092 
-    climb_throttle_4_truth   = 1.1188805118701768 
-    climb_throttle_5_truth   = 1.1721949518806198 
-    climb_throttle_6_truth   = 0.7532683613249997 
-    climb_throttle_7_truth   = 0.9058389329701103 
-    climb_throttle_8_truth   = 1.106769379505344 
-    climb_throttle_9_truth   = 1.201932890949098 
-    climb_throttle_10_truth  = 0.9999957730138034 
-    cruise_CL_1_truth        = 0.6985248846291946 
-    cruise_CL_2_truth        = 0.6992168856168053 
-    cruise_CL_3_truth        = 0.6966313858150793 
-    descent_throttle_1_truth = 0.08716604122306178 
-    descent_throttle_2_truth = 0.23438393000365892 
-    single_pt_CL_1_truth     = 0.2521798400569821 
-    single_pt_CL_2_truth     = 0.25213368244906226 
-    loiter_CL_truth          = 0.5137872230616091 
-    descent_throttle_3_truth = 0.17469605072134745 
+    climb_throttle_1_truth   = 1.0067398204339173
+    climb_throttle_2_truth   = 1.005418072086941
+    climb_throttle_3_truth   = 0.6642649593055091
+    climb_throttle_4_truth   = 1.1188805118703475
+    climb_throttle_5_truth   = 1.172194951880616
+    climb_throttle_6_truth   = 0.753268361325013
+    climb_throttle_7_truth   = 0.9058389329707955
+    climb_throttle_8_truth   = 1.1093703404585362
+    climb_throttle_9_truth   = 1.2046524207132376
+    climb_throttle_10_truth  = 0.9999949500311551
+    cruise_CL_1_truth        = 0.6985208543321569
+    cruise_CL_2_truth        = 0.6992128349898609
+    cruise_CL_3_truth        = 0.6966298153251171
+    descent_throttle_1_truth = 0.08716531200330109
+    descent_throttle_2_truth = 0.23438193147004244
+    single_pt_CL_1_truth     = 0.25217837873947613
+    single_pt_CL_2_truth     = 0.2521322209842421
+    loiter_CL_truth          = 0.5137842525862384
+    descent_throttle_3_truth = 0.17469444809448167
     
     # Store errors 
     error = Data()
