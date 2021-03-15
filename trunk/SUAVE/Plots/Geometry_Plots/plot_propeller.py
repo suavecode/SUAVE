@@ -72,7 +72,7 @@ def plot_propeller(prop, face_color = 'red', edge_color = 'black' , save_figure 
     axes_3.set_xlabel('Radial Station')    
     
     axes_4 = fig_2.add_subplot(2,2,4)
-    axes_4.plot(prop.radius_distribution  , prop.mid_chord_aligment,'bo-')  
+    axes_4.plot(prop.radius_distribution  , prop.mid_chord_alignment,'bo-')  
     axes_4.set_ylabel('Mid Chord Alignment (m)')  
     axes_4.set_xlabel('Radial Station')    
     

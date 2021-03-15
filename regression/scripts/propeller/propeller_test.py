@@ -194,10 +194,10 @@ def main():
     Cplast_a_truth  = 0.10692172
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2705.62271287 
-    Q_truth         = 815.75534392 
-    P_truth         = 168993.18616984
-    Cplast_truth    = 0.08710319
+    F_truth         = 2705.62228566
+    Q_truth         = 815.76685175
+    P_truth         = 168995.57015083
+    Cplast_truth    = 0.08710442
      
     # Truth values for rotor with airfoil geometry defined 
     Fr_a_truth      = 1447.00285504
@@ -206,10 +206,10 @@ def main():
     Cplastr_a_truth = 0.06225539
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1289.53481031
-    Qr_truth        = 179.36630474
-    Pr_truth        = 37157.81153751 
-    Cplastr_truth   = 0.05844738
+    Fr_truth        = 1290.26055703
+    Qr_truth        = 179.49371868
+    Pr_truth        = 37184.2068134
+    Cplastr_truth   = 0.0584889
  
     # Store errors 
     error = Data()

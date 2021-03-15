@@ -56,7 +56,7 @@ class Rotor(Energy_Component):
         self.hub_radius                = 0.0
         self.twist_distribution        = 0.0
         self.chord_distribution        = 0.0
-        self.mid_chord_aligment        = 0.0
+        self.mid_chord_alignment       = 0.0
         self.blade_solidity            = 0.0
         self.thrust_angle              = 0.0
         self.pitch_command             = 0.0
@@ -142,7 +142,7 @@ class Rotor(Energy_Component):
           hub_radius                         [m]
           twist_distribution                 [radians]
           chord_distribution                 [m]
-          mid_chord_aligment                 [m] 
+          mid_chord_alignment                [m] 
           thrust_angle                       [radians]
         """         
            

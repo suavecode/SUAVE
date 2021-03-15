@@ -30,7 +30,7 @@ import numpy as np
 import os
 
 ## @ingroup Input_Output-OpenVSP
-def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, OML_set_ind = 4, write_igs = False):
+def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_set_ind = 4, write_igs = False):
     """This writes a SUAVE vehicle to OpenVSP format. It will take wing segments into account
     if they are specified in the vehicle setup file.
     
@@ -158,12 +158,15 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, OML_set_ind = 4, writ
     
     vsp.Update()
     
-    # Write the vehicle to the file
-    cwd = os.getcwd()
-    filename = tag + ".vsp3"
-    if verbose:
-        print('Saving OpenVSP File at '+ cwd + '/' + filename)
-    vsp.WriteVSPFile(filename)
+    # Write the vehicle to the file    
+    if write_file ==True:
+        cwd = os.getcwd()
+        filename = tag + ".vsp3"
+        if verbose:
+            print('Saving OpenVSP File at '+ cwd + '/' + filename)
+        vsp.WriteVSPFile(filename)
+    elif verbose:
+        print('Not Saving OpenVSP File')
         
     if write_igs:
         if verbose:

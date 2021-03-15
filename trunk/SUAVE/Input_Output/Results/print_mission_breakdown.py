@@ -94,7 +94,8 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
 
 #       Aispeed conversion: KTAS to  KCAS
         atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        p0 , dummy , dummy , dummy , dummy  = atmosphere.compute_values(0)
+        atmo_data  = atmosphere.compute_values(0)
+        p0 = atmo_data.pressure
         deltai = segment.conditions.freestream.pressure[0] / p0
         deltaf = segment.conditions.freestream.pressure[-1]/ p0
 

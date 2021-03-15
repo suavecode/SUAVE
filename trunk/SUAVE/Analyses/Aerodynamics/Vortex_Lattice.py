@@ -20,8 +20,9 @@ import SUAVE
 
 from SUAVE.Core import Data
 from SUAVE.Core import Units
-
+ 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
+
 # local imports
 from .Aerodynamics import Aerodynamics
 from SUAVE.Methods.Aerodynamics.Supersonic_Zero.Drag.Cubic_Spline_Blender import Cubic_Spline_Blender
@@ -62,20 +63,26 @@ class Vortex_Lattice(Aerodynamics):
         Properties Used:
         N/A
         """  
-        self.tag                                     = 'Vortex_Lattice' 
-        self.geometry                                = Data()
-        self.settings                                = Data()
-        self.settings.number_spanwise_vortices       = 15
-        self.settings.number_chordwise_vortices      = 3 
-        self.settings.vortex_distribution            = Data()   
-        self.settings.initial_timestep_offset        = 0
-        self.settings.wake_development_time          = 0.05
+        self.tag                                      = 'Vortex_Lattice' 
+        self.geometry                                 = Data()
+        self.settings                                 = Data()
+        self.settings.number_spanwise_vortices        = 15
+        self.settings.number_chordwise_vortices       = 5
+        self.settings.spanwise_cosine_spacing         = True
+        self.settings.vortex_distribution             = Data()   
+        self.settings.model_fuselage                  = False
+        self.settings.leading_edge_suction_multiplier = 1.0
+        self.settings.initial_timestep_offset         = 0
+        self.settings.wake_development_time           = 0.05
+        self.settings.number_of_wake_timesteps        = 30
 
         # conditions table, used for surrogate model training
-        self.training                                = Data()    
+        self.training                                = Data()
         self.training.angle_of_attack                = np.array([[-5., -2. , 0.0 , 2.0, 5.0, 8.0, 10.0 , 12., 45., 75.]]).T * Units.deg 
         self.training.Mach                           = np.array([[0.0, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9,\
-                                                                  1.3, 1.35 , 1.5 , 2.0, 2.25 , 2.5  , 3.0  , 3.5]]).T                                                                    
+                                                                  1.3, 1.35 , 1.5 , 2.0, 2.25 , 2.5  , 3.0  , 3.5]]).T          
+
+
         self.training.lift_coefficient_sub           = None
         self.training.lift_coefficient_sup           = None
         self.training.wing_lift_coefficient_sub      = None
@@ -108,7 +115,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -118,7 +125,13 @@ class Vortex_Lattice(Aerodynamics):
         N/A
 
         Inputs:
-        None
+        use_surrogate                                       [bool]
+        n_sw                   number of spanwise vortices  [int]
+        n_cw                   number of chordwise vortices [int]
+        propeller_wake_model                                [bool] 
+        ito                    initial timestep offset      [s]            
+        wdt                    wake development time        [s]
+        nwts                   number of wake timesteps     [int]
 
         Outputs:
         None
@@ -127,7 +140,6 @@ class Vortex_Lattice(Aerodynamics):
         None
         """                      
         # Unpack:
-        geometry = self.geometry
         settings = self.settings      
         
         if n_sw is not None:
@@ -138,7 +150,10 @@ class Vortex_Lattice(Aerodynamics):
             
         settings.use_surrogate              = use_surrogate
         settings.propeller_wake_model       = propeller_wake_model  
-                
+        settings.initial_timestep_offset    = ito
+        settings.wake_development_time      = wdt
+        settings.number_of_wake_timesteps   = nwts        
+        
         # If we are using the surrogate
         if use_surrogate == True: 
             # sample training data
@@ -302,7 +317,8 @@ class Vortex_Lattice(Aerodynamics):
         
         # Evaluate the VLM
         # if in transonic regime, use surrogate
-        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution , pressure_coefficient ,vel_profile = \
+        inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution, \
+        wing_drag_distribution, induced_angle_distribution, pressure_coefficient, vel_profile = \
             calculate_VLM(conditions,settings,geometry)
         
         # Lift 
@@ -318,6 +334,7 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.drag_breakdown.induced.inviscid        = inviscid_drag     
         conditions.aerodynamics.drag_breakdown.induced.inviscid_wings  = wing_drags
         conditions.aerodynamics.drag_breakdown.induced.wings_sectional = wing_drag_distribution 
+        conditions.aerodynamics.drag_breakdown.induced.angle           = induced_angle_distribution
         
         # Pressure
         conditions.aerodynamics.pressure_coefficient                   = pressure_coefficient
@@ -384,8 +401,7 @@ class Vortex_Lattice(Aerodynamics):
         konditions.freestream.mach_number       = Machs
         konditions.freestream.velocity          = zeros
         
-        total_lift, total_drag, wing_lifts, wing_drags, wing_lift_distribution , wing_drag_distribution, pressure_coefficient ,vel_profile = \
-                        calculate_VLM(konditions,settings,geometry)     
+        total_lift, total_drag, wing_lifts, wing_drags, _, _, _, _, _ = calculate_VLM(konditions,settings,geometry)     
         
         # Split subsonic from supersonic
         sub_sup_split = np.where(Machs < 1.0)[0][-1] + 1 
@@ -575,10 +591,11 @@ def calculate_VLM(conditions,settings,geometry):
     # iterate over wings
     total_lift_coeff = 0.0
     wing_lifts = Data()
-    wing_drags = Data()
+    wing_drags = Data() 
+        
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CPi,vel_profile \
+        = VLM(conditions,settings,geometry)
     
-    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y , cdi_y , CPi , vel_profile = VLM(conditions,settings,geometry)
-
     # Dimensionalize the lift and drag for each wing
     areas = geometry.vortex_distribution.wing_areas
     dim_wing_lifts = CL_wing  * areas
@@ -597,4 +614,4 @@ def calculate_VLM(conditions,settings,geometry):
             wing_drags[wing.tag] = np.atleast_2d(dim_wing_drags[:,i]).T/ref
         i+=1
 
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags , cl_y , cdi_y , CPi , vel_profile
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, alpha_i, CPi, vel_profile
