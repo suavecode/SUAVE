@@ -60,6 +60,7 @@ def vehicle_setup():
     wing.tag = 'main_wing'
 
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
+    wing.sweeps.leading_edge     = 0.0 * Units.deg
     wing.thickness_to_chord      = 0.12
     wing.areas.reference         = 15.45 * Units['meters**2']  
     wing.spans.projected         = 11. * Units.meter  

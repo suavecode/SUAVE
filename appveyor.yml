@@ -4,6 +4,7 @@ branches:
   - master
   - develop
 image: Ubuntu2004
+build: off
 
 environment:
   COVERALLS_SERVICE_NAME: appveyor

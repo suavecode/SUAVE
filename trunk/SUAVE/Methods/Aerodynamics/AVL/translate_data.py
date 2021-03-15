@@ -193,6 +193,7 @@ def translate_results_to_conditions(cases,results):
     res.aerodynamics.wing_local_spans              = np.zeros((dim,num_wings,n_sw))
     res.aerodynamics.wing_section_chords           = np.zeros_like(res.aerodynamics.wing_local_spans)
     res.aerodynamics.wing_section_cls              = np.zeros_like(res.aerodynamics.wing_local_spans)
+    res.aerodynamics.wing_section_induced_angle    = np.zeros_like(res.aerodynamics.wing_local_spans)
     res.aerodynamics.wing_section_cds              = np.zeros_like(res.aerodynamics.wing_local_spans)
     
     res.stability.static.control_surfaces_cases   = {}
@@ -296,6 +297,7 @@ def translate_results_to_conditions(cases,results):
         res.aerodynamics.wing_local_spans[i][:]             = case_res.aerodynamics.wing_local_spans
         res.aerodynamics.wing_section_chords[i][:]          = case_res.aerodynamics.wing_section_chords  
         res.aerodynamics.wing_section_cls[i][:]             = case_res.aerodynamics.wing_section_cls    
+        res.aerodynamics.wing_section_induced_angle[i][:]   = case_res.aerodynamics.wing_section_aoa_i
         res.aerodynamics.wing_section_cds[i][:]             = case_res.aerodynamics.wing_section_cds   
         
         res.stability.static.control_surfaces_cases[tag]    = case_res.stability.control_surfaces

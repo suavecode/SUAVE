@@ -55,10 +55,10 @@ def main():
     
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([3.21720027e+08, 3.21641740e+08, 3.21409791e+08, 3.21032462e+08,
-                                                        3.20524004e+08, 3.19903709e+08, 3.19198311e+08, 3.18440893e+08,
-                                                        3.17669263e+08, 3.16924086e+08, 3.16243881e+08, 3.15660454e+08,
-                                                        3.15195617e+08, 3.14860918e+08, 3.14660167e+08, 3.14593392e+08])
+    battery_energy_hover_to_transition_true = np.array([3.21720029e+08, 3.21641741e+08, 3.21409792e+08, 3.21032453e+08,
+                                                        3.20523954e+08, 3.19903500e+08, 3.19197658e+08, 3.18439186e+08,
+                                                        3.17665468e+08, 3.16916703e+08, 3.16231170e+08, 3.15640856e+08,
+                                                        3.15168392e+08, 3.14826640e+08, 3.14620876e+08, 3.14552284e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true) 
@@ -68,7 +68,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.6973633354448339
+    lift_coefficient_true   = 0.6953099343291548
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
