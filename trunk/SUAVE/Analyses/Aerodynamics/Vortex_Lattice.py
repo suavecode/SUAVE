@@ -267,8 +267,6 @@ class Vortex_Lattice(Aerodynamics):
         conditions.aerodynamics.drag_breakdown.induced.inviscid = np.atleast_2d(inviscid_drag).T
         
         for wing in geometry.wings.keys(): 
-            inviscid_wing_lifts      = np.zeros([data_len,1])
-            inviscid_wing_drags      = np.zeros([data_len,1])     
             
             if CL_surrogate_sup == None:
                 inviscid_wing_lifts = wing_CL_surrogates_sub[wing](AoA,Mach,grid=False)
