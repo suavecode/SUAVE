@@ -71,18 +71,18 @@ def main():
     climb_throttle_5_truth   = 1.2140754256766335
     climb_throttle_6_truth   = 0.8085269507910768
     climb_throttle_7_truth   = 0.9872000449847137
-    climb_throttle_8_truth   = 1.211859689888348
-    climb_throttle_9_truth   = 1.3221907302186495
-    climb_throttle_10_truth  = 0.999999999999999
-    cruise_CL_1_truth        = 0.6952773196699835
-    cruise_CL_2_truth        = 0.6957205397055404
-    cruise_CL_3_truth        = 0.7209501638201371
-    descent_throttle_1_truth = 0.12076459783178448
-    descent_throttle_2_truth = 0.26344384891821854
-    single_pt_CL_1_truth     = 0.25024296608548674
-    single_pt_CL_2_truth     = 0.2502179008750143
-    loiter_CL_truth          = 0.5096704322368739
-    descent_throttle_3_truth = 0.2017322003422384
+    climb_throttle_8_truth   = 1.2127261175808683
+    climb_throttle_9_truth   = 1.3244817806693368
+    climb_throttle_10_truth  = 0.9999999999999993
+    cruise_CL_1_truth        = 0.6952747673643188
+    cruise_CL_2_truth        = 0.6957179753760501
+    cruise_CL_3_truth        = 0.7209490994452324
+    descent_throttle_1_truth = 0.12076383071816191
+    descent_throttle_2_truth = 0.26344227233456385
+    single_pt_CL_1_truth     = 0.25024204669270306
+    single_pt_CL_2_truth     = 0.25021698141802035
+    loiter_CL_truth          = 0.5096685640551728
+    descent_throttle_3_truth = 0.20173089800220684
     
     # Store errors 
     error = Data()

@@ -107,6 +107,9 @@ class Fidelity_Zero(Markup):
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft
         
+        # Set subsonic mach numbers for the vortex lattice surrogate
+        compute.lift.inviscid_wings.training.Mach = np.array([[0.0, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9]]).T     
+        
         
     def initialize(self):
         """Initializes the surrogate needed for lift calculation.
