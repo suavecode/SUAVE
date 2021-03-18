@@ -45,6 +45,8 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     # unpack  
     n_cp     = n_sw*n_cw
     n_w      = VD.n_w
+    shape    = n_cp*n_w
+    n_mach   = len(mach)
 
     # Control points from the VLM 
     XAH   = np.atleast_2d(VD.XAH*1.) 
@@ -74,17 +76,12 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     ZB_TE = np.atleast_2d(VD.ZB_TE*1.)      
     
     # supersonic corrections
-    beta_2     = 1-mach**2
-    beta_2_1d  = beta_2*1.
-    shape      = np.shape(XAH)[-1]
-    sized_ones = np.ones((np.shape(mach)[0],shape,shape))
-    beta_2     = np.atleast_3d(beta_2)
-    beta_2     = beta_2*sized_ones
+    beta_2 = np.atleast_3d(1-mach**2)*np.ones((n_mach,shape,shape))
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
     # ------------------------------------------------------------------------------------------- 
-    ## If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
+    # If YBH is negative, flip A and B, ie negative side of the airplane. Vortex order flips
     boolean = YBH<0. 
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
     YA1[boolean], YB1[boolean] = YB1[boolean], YA1[boolean]
@@ -137,9 +134,8 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     # COMPUTE COORDINATES OF RECEIVING POINT WITH RESPECT TO END POINTS OF SKEWED LEG.
     s = np.abs(y1bar)
     t = x1bar/y1bar  
-    length = np.shape(s)[-1]
-    s = np.repeat(s,length,axis=0)
-    t = np.repeat(t,length,axis=0)
+    s = np.repeat(s,shape,axis=0)
+    t = np.repeat(t,shape,axis=0)
     
     X1 = xobar + t*s # In a planar case XC-XAH
     Y1 = yobar + s   # In a planar case YC-YAH
@@ -175,7 +171,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     RAD2   = np.zeros_like(beta_2)
     XSQ1   = X1 *X1
     XSQ2   = X2 *X2
-    RFLAG  = np.ones((len(mach),n_cp*n_w))
+    RFLAG  = np.ones((n_mach,shape))
     mach_f = np.broadcast_to(mach,np.shape(RFLAG))
     
     # Split the vectors into subsonic and supersonic
@@ -195,9 +191,9 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     if np.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
         U_sub, V_sub, W_sub = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)
-        U_sub = U_sub.flatten()
-        V_sub = V_sub.flatten()
-        W_sub = W_sub.flatten()        
+        U_sub = U_sub.ravel()
+        V_sub = V_sub.ravel()
+        W_sub = W_sub.ravel()        
         
     else:
         U_sub = []
@@ -222,7 +218,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     TE_X        = (XB_TE + XA_TE)/2
     TE_Z        = (ZB_TE + ZA_TE)/2
     CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2 )
-    CHORD       = np.repeat(CHORD,length,axis=0)
+    CHORD       = np.repeat(CHORD,shape,axis=0)
     EYE         = np.eye(np.shape(CHORD)[-1])
     ZETA        = (LE_Z-TE_Z)/(LE_X-TE_X) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
     ZETA        = ZETA[0,:] # Fix the shape for later
@@ -232,9 +228,9 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
                                                     X1,Y1,X2,Y2,RAD1_sup,RAD2_sup,RTV1,RTV2,CUTOFF,CHORD,RNMAX,\
                                                     EYE,n_cw,n_cp,n_w,RFLAG_sup)
         
-        U_sup = U_sup.flatten()
-        V_sup = V_sup.flatten()
-        W_sup = W_sup.flatten()
+        U_sup = U_sup.ravel()
+        V_sup = V_sup.ravel()
+        W_sup = W_sup.ravel()
     else:
         U_sup = []
         V_sup = []
@@ -262,7 +258,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     C_mn[:,:,:,1] = V
     C_mn[:,:,:,2] = W
     
-    return C_mn, s, t, CHORD, RFLAG, ZETA
+    return C_mn, s, CHORD, RFLAG, ZETA
     
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
@@ -395,23 +391,24 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     ARG1 = XSQ1 - RO1
     ARG2 = XSQ2 - RO2
     
+    shape = np.shape(B2)
+    
     RAD1[ARG1>0.] = np.sqrt(ARG1[ARG1>0.])
     RAD2[ARG2>0.] = np.sqrt(ARG2[ARG2>0.])
     
-
     ZETAPI = Z/CPI
     
     XBSQ  = XTY * XTY
     TBZ   = (T *T - B2) *ZSQ
     DENOM = XBSQ + TBZ
-    SIGN  = np.ones_like(B2)
+    SIGN  = np.ones(shape)
     SIGN[DENOM<0] = -1.
-    TOLSQ         = np.broadcast_to(TOLSQ,np.shape(DENOM))
+    TOLSQ         = np.broadcast_to(TOLSQ,shape)
     DENOM[np.abs(DENOM)<TOLSQ] = SIGN[np.abs(DENOM)<TOLSQ]*TOLSQ[np.abs(DENOM)<TOLSQ]
     
     # Create a boolean for various conditions for F1 that goes to zero
-    bool1           = np.ones_like(B2) * True
-    X1_l_tol        = np.broadcast_to((X1<TOL),np.shape(bool1))
+    bool1           = np.ones(shape) * True
+    X1_l_tol        = np.broadcast_to((X1<TOL),shape)
     bool1[X1_l_tol] = False
     bool1[RAD1==0.] = False
     RAD1[X1_l_tol]  = 0.0
@@ -434,8 +431,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     
     # Round 2
     # Create a boolean for various conditions for F2 that goes to zero
-    bool2           = np.ones_like(B2) * True
-    X2_l_tol        = np.broadcast_to((X2<TOL),np.shape(bool2))
+    bool2           = np.ones(shape) * True
+    X2_l_tol        = np.broadcast_to((X2<TOL),shape)
     bool2[X2_l_tol] = False
     bool2[RAD2==0.] = False
     RAD2[X2_l_tol]  = 0.0
@@ -462,7 +459,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     W  = - (QB *XTY + FT1 *Y1 - FT2 *Y2) /CPI    
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX WHEN RECEIVING POINT IS IN THE PLANE OF THE HORSESHOE
-    in_plane = np.broadcast_to(ZSQ<TOLSQ2,np.shape(RAD1))
+    in_plane = np.broadcast_to(ZSQ<TOLSQ2,shape)
     RAD1_in  = RAD1[in_plane]
     RAD2_in  = RAD2[in_plane] 
     Y1_in    = Y1[ZSQ<TOLSQ2]
@@ -484,8 +481,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     # DETERMINE IF TRANSVERSE VORTEX LEG OF HORSESHOE ASSOCIATED TO THE
     # CONTROL POINT UNDER CONSIDERATION IS SONIC (SWEPT PARALLEL TO MACH
     # LINE)? IF SO THEN RFLAG = 0.0, OTHERWISE RFLAG = 1.0.
-    size   = n_cp*n_w
-    n_mach = len(B2)
+    size   = shape[1]
+    n_mach = shape[0]
     T2     = T*T
     T2_1d  = np.tile(T2[0,:],n_mach)
     T2F    = np.zeros_like(T2_1d)
@@ -510,7 +507,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     T2A[0::n_cw]        = 0.
 
     # Create a smaller B2 vector
-    B2_1D   = B2[:,:,0].flatten()  
+    B2_1D   = B2[:,:,0].ravel()  
 
     TRANS = (B2_1D-T2F)*(B2_1D-T2A)
     FLAG  = np.zeros_like(TRANS)
@@ -521,10 +518,10 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
 
     # COMPUTE THE GENERALIZED PRINCIPAL PART OF THE VORTEX-INDUCED VELOCITY INTEGRAL, WWAVE.
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
-    WWAVE = np.zeros_like(W)
+    WWAVE = np.zeros(shape)
     COX   = CHORD /RNMAX
-    T2    = np.broadcast_to(T2,np.shape(B2))
-    COX   = np.broadcast_to(COX,np.shape(B2))
+    T2    = np.broadcast_to(T2,shape)
+    COX   = np.broadcast_to(COX,shape)
     WWAVE[B2>T2] = - 0.5 *np.sqrt(B2[B2>T2] -T2[B2>T2] )/COX[B2>T2] 
     
     W = W + EYE*WWAVE    
@@ -536,18 +533,18 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     # IN FRONT OF AND BEHIND IT.
     
     # Zero out the row
-    FLAG_bool_rep     = np.broadcast_to(FLAG_bool,(n_mach,size,size))
+    FLAG_bool_rep     = np.broadcast_to(FLAG_bool,shape)
     W[FLAG_bool_rep]  = 0. # Default to zero
 
     # The self velocity goes to 2
-    FLAG_bool_split   = np.array(np.split(FLAG_bool.flatten(),n_mach))
+    FLAG_bool_split   = np.array(np.split(FLAG_bool.ravel(),n_mach))
     FLAG_ind          = np.array(np.where(FLAG_bool_split))
     squares           = np.tile(np.atleast_3d(np.zeros((size,size))),n_mach)
     squares[FLAG_ind[1],FLAG_ind[1],FLAG_ind[0]] = 1
     squares           = np.ravel(squares,order='F')
     
     FLAG_bool_self    = np.where(squares==1)[0]
-    W                 = W.flatten()
+    W                 = W.ravel()
     W[FLAG_bool_self] = 2. # It's own value, -2
     
     # The panels before and after go to -1
@@ -556,7 +553,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     W[FLAG_bool_bef] = -1.
     W[FLAG_bool_aft] = -1.
     
-    W = np.reshape(W,np.shape(U))
+    W = np.reshape(W,shape)
 
     return U, V, W, RFLAG
 

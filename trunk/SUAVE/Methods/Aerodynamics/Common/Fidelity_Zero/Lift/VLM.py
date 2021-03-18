@@ -128,7 +128,7 @@ def VLM(conditions,settings,geometry):
     geometry.vortex_distribution = VD
     
     # Build induced velocity matrix, C_mn
-    C_mn, s, t, CHORD, RFLAG, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
+    C_mn, s, CHORD, RFLAG, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
 
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
@@ -154,11 +154,10 @@ def VLM(conditions,settings,geometry):
 
     # COMPUTE FREE-STREAM AND ONSET FLOW PARAMETERS. If yaw is ever added these equations would change
     B2     = np.tile((mach**2 - 1),n_cp)
-    SINALF = np.tile(np.sin(aoa),n_cp)
-    COSALF = np.tile(np.cos(aoa),n_cp)
+    SINALF = np.sin(aoa)
+    COSALF = np.cos(aoa)
     RNMAX  = n_cw*1.
     CHORD  = CHORD[0,:]
-    t      = t[0,:]
 
     # COMPUTE LOAD COEFFICIENT
     GNET = gamma*COSALF*RNMAX/CHORD
@@ -201,7 +200,6 @@ def VLM(conditions,settings,geometry):
     TLE = np.repeat(TLE,n_cw)
     TLE = np.broadcast_to(TLE,np.shape(B2))
     T2  = TLE**2
-    T2  = np.broadcast_to(T2,np.shape(B2))
     STB = np.zeros_like(B2)
     STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
     STB = STB[:,0::n_cw]
@@ -230,7 +228,7 @@ def VLM(conditions,settings,geometry):
     # COMPUTE SLOPE (TX) WITH RESPECT TO X-AXIS AT LOAD POINTS BY INTER
     # POLATING BETWEEN CONTROL POINTS AND TAKING INTO ACCOUNT THE LOCAL
     # INCIDENCE.    
-    RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)*ones
+    RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)
     XX   = (RK - .75) *PION /2.0
 
     X1c  = (XA1+XB1)/2
@@ -304,8 +302,6 @@ def VLM(conditions,settings,geometry):
     X      = ((VD.XAH+VD.XBH)/2)[0::n_cw]  # These are all LE values
     Y      = ((VD.YAH+VD.YBH)/2)[0::n_cw]  # These are all LE values
     Z      = ((VD.ZAH+VD.ZBH)/2)[0::n_cw]  # These are all LE values
-    SINALF = SINALF[:,0::n_cw] # These are all LE values
-    COSALF = COSALF[:,0::n_cw] # These are all LE values
     XBAR   = np.ones(n_sw*n_w) * x_m
     ZBAR   = np.ones(n_sw*n_w) * z_m
     BMX    = BFZ * Y - BFY * (Z - ZBAR)
@@ -314,8 +310,7 @@ def VLM(conditions,settings,geometry):
     CDC    = BFZ * SINALF +  BFX * COSALF
     CDC    = CDC * CHORD_strip
 
-    ES    = 2*s[0,:]
-    ES    = ES[0::n_cw]
+    ES    = 2*s[0,0::n_cw]
     STRIP = ES *CHORD_strip
     LIFT  = (BFZ *COSALF - BFX *SINALF)*STRIP
     DRAG  = CDC*ES 
