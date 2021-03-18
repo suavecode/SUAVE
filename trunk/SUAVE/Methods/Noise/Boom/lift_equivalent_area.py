@@ -24,24 +24,20 @@ def lift_equivalent_area(config,analyses,conditions):
     S                                  = config.reference_area
     q                                  = conditions.freestream.dynamic_pressure
     mach                               = conditions.freestream.mach_number
-    settings                           = Data()
-    settings.number_spanwise_vortices  = analyses.aerodynamics.settings.number_spanwise_vortices
-    settings.number_chordwise_vortices = analyses.aerodynamics.settings.number_chordwise_vortices
-    settings.model_fuselage            = True
-    settings.propeller_wake_model      = None
-
-    CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , CP ,Velocity_Profile = VLM(conditions, settings, config)
+    settings                           = analyses.aerodynamics.process.compute.lift.inviscid_wings.settings
+    
+    CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, Velocity_Profile = VLM(conditions, settings, config)
     
     VD = analyses.aerodynamics.geometry.vortex_distribution
     
     areas      = VD.panel_areas
-    normal_vec = VD.unit_normals
+    normal_vec = VD.normals
     XC         = VD.XC
     ZC         = VD.ZC
     z_comp     = normal_vec[:,2]
 
     # The 2 is used because the CP acts on both the top and bottom of the panel
-    lift_force_per_panel = 2*CP*q*z_comp*areas
+    lift_force_per_panel = 2*CP[0,:]*q*z_comp*areas
     
     # Mach angle
     mach_angle = np.arcsin(1/mach[0])
