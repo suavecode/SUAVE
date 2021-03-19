@@ -65,6 +65,7 @@ class Battery_Propeller(Propulsor):
         self.number_of_engines         = None
         self.voltage                   = None
         self.thrust_angle              = 0.0
+        self.pitch_command             = 0.0 
         self.tag                       = 'Battery_Propeller'
         self.use_surrogate             = False
         self.generative_design_minimum = 0
@@ -126,8 +127,9 @@ class Battery_Propeller(Propulsor):
         motor.omega(conditions)
         
         # link
-        propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle = self.thrust_angle
+        propeller.inputs.omega = motor.outputs.omega
+        propeller.thrust_angle  = self.thrust_angle
+        propeller.pitch_command = self.pitch_command 
         
         # step 4
         F, Q, P, Cp, outputs , etap = propeller.spin(conditions)
@@ -174,7 +176,8 @@ class Battery_Propeller(Propulsor):
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load    
+        voltage_under_load   = battery.voltage_under_load
+        state_of_charge      = battery.state_of_charge
           
         conditions.propulsion.rpm                   = rpm
         conditions.propulsion.current               = current
@@ -182,6 +185,7 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.battery_energy        = battery_energy
         conditions.propulsion.voltage_open_circuit  = voltage_open_circuit
         conditions.propulsion.voltage_under_load    = voltage_under_load  
+        conditions.propulsion.state_of_charge       = state_of_charge
         conditions.propulsion.motor_torque          = motor.outputs.torque
         conditions.propulsion.propeller_torque      = Q
         conditions.propulsion.battery_specfic_power = -battery_draw/battery.mass_properties.mass # Wh/kg

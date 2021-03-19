@@ -38,6 +38,7 @@ modules = [
 
     # ----------------------- Regression List --------------------------
     'scripts/aerodynamics/aerodynamics.py',
+    'scripts/aerodynamics/sears_haack.py',
     'scripts/airfoil_import/airfoil_import_test.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
@@ -62,6 +63,7 @@ modules = [
     'scripts/geometry/fuselage_planform_compute.py',
     'scripts/industrial_costs/industrial_costs.py',
     'scripts/internal_combustion_propeller/ICE_Test.py',
+    'scripts/internal_combustion_propeller/ICE_CS_Test.py',
     'scripts/lifting_line/lifting_line.py',
     'scripts/mission_range_and_weight_sizing/landing_field_length.py',
     'scripts/mission_range_and_weight_sizing/take_off_field_length.py',
@@ -73,6 +75,7 @@ modules = [
     'scripts/payload_range/payload_range.py',
     'scripts/plots/plot_test.py',
     'scripts/propeller/propeller_test.py',
+    'scripts/propeller_speeds/range_endurance_speeds.py',
     'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/ramjet_network/ramjet_network.py',
     'scripts/Regional_Jet_Optimization/Optimize2.py',
@@ -94,6 +97,10 @@ modules = [
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
     'scripts/weights/weights.py',
+    'scripts/electric_performance/propeller_single_point.py',
+    'scripts/electric_performance/electric_V_h_diagram.py',
+    'scripts/electric_performance/electric_payload_range.py',
+    'scripts/nonuniform_propeller_inflow/nonuniform_propeller_inflow.py'
 ]
 
 # ----------------------------------------------------------------------

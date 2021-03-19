@@ -36,7 +36,7 @@ def compute_wake_contraction_matrix(i,prop,N,m,nts,X_pts):
     """    
     r                 = prop.radius_distribution  
     dim               = N-1
-    B                 = prop.number_blades
+    B                 = prop.number_of_blades
     va                = np.mean(prop.outputs.disc_axial_induced_velocity, axis=1)  # induced velocitied averaged around the azimuth
     R0                = prop.hub_radius 
     R_p               = prop.tip_radius  

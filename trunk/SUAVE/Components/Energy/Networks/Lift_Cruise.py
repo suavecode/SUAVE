@@ -75,10 +75,10 @@ class Lift_Cruise(Propulsor):
         self.number_of_rotor_engines     = None
         self.number_of_propeller_engines = None
         self.voltage                     = None
-        self.rotor_thrust_angle          = 0.0
         self.propeller_thrust_angle      = 0.0
-        self.rotor_pitch_command         = 0.0
-        self.propeller_pitch_command     = 0.0
+        self.propeller_pitch_command     = 0.0 
+        self.rotor_thrust_angle          = 0.0
+        self.rotor_pitch_command         = 0.0     
         self.tag                         = 'Lift_Cruise'
         self.generative_design_minimum   = 0        
         pass
@@ -216,7 +216,8 @@ class Lift_Cruise(Propulsor):
         # link
         rotor.inputs.omega  = rotor_motor.outputs.omega
         rotor.thrust_angle  = self.rotor_thrust_angle
-        rotor.pitch_command = self.rotor_pitch_command
+        rotor.pitch_command = self.rotor_pitch_command 
+        rotor.VTOL_flag     = state.VTOL_flag   
         
         # Run the propeller
         F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = rotor.spin(konditions)
@@ -277,6 +278,8 @@ class Lift_Cruise(Propulsor):
         battery_energy       = battery.current_energy 
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
+        state_of_charge      = battery.state_of_charge
+        
         
         # Calculate the thrust and mdot
         F_lift_total    = F_lift*num_lift * [np.cos(self.rotor_thrust_angle),0,-np.sin(self.rotor_thrust_angle)]    
@@ -293,6 +296,7 @@ class Lift_Cruise(Propulsor):
         conditions.propulsion.battery_efficiency                = (battery_draw+battery.resistive_losses)/battery_draw
         conditions.propulsion.payload_efficiency                = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
         conditions.propulsion.battery_specfic_power             = -battery_draw/battery.mass_properties.mass    # kWh/kg
+        conditions.propulsion.state_of_charge                   = state_of_charge        
         conditions.propulsion.current                           = i_lift + i_forward 
         conditions.propulsion.electronics_efficiency            = -(P_forward*num_forward+P_lift*num_lift)/battery_draw  
         conditions.propulsion.battery_current                   = current_total

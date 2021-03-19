@@ -14,7 +14,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contracti
 from SUAVE.Methods.Geometry.Three_Dimensional import  orientation_product, orientation_transpose
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_offset, time): 
+def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_offset, time, number_of_wake_timesteps ): 
     """ This generates the propeller wake control points used to compute the 
     influence of the wake
 
@@ -44,15 +44,13 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
     omega        = prop.outputs.omega                               
     va           = prop.outputs.disc_axial_induced_velocity 
     V_inf        = prop.outputs.velocity
-    MCA          = prop.mid_chord_aligment 
-    B            = prop.number_blades
+    MCA          = prop.mid_chord_alignment 
+    B            = prop.number_of_blades
     gamma        = prop.outputs.disc_circulation
-    blade_angles = np.linspace(0,2*np.pi,B+1)[:-1]        
-    dt           = (2*np.pi/Na)/omega[0]
-    nts          = int(time/dt)
-    ts           = np.linspace(0,time,nts)
+    blade_angles = np.linspace(0,2*np.pi,B+1)[:-1]   
+    dt           = time/number_of_wake_timesteps
+    ts           = np.linspace(0,time,number_of_wake_timesteps) 
     num_prop     = len(prop.origin) 
-
     t0           = dt*init_timestep_offset
     start_angle  = omega[0]*t0 
 
@@ -68,13 +66,13 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
     wake_skew_angle = np.arctan(mu_prop/lambda_tot)
 
     # reshape gamma to find the average between stations 
-    gamma_new = np.zeros((m,Na,(Nr-1)))
-    gamma_new = (gamma[:,:,:-1] + gamma[:,:,1:])*0.5
+    gamma_new = np.zeros((m,Na,(Nr-1))) #[control points, azimuth  , radial stations -1 ] one less because ring
+    gamma_new = (gamma[:,:,:-1] + gamma[:,:,1:])*0.5 #  not sure if correct 
 
     # define empty arrays 
     WD        = Data()
     n         = Nr-1
-    mat1_size = (m,num_prop,nts-1,B,n)
+    mat1_size = (m,num_prop,number_of_wake_timesteps-1,B,n)
     WD_XA1    = np.zeros(mat1_size)  
     WD_YA1    = np.zeros(mat1_size)  
     WD_ZA1    = np.zeros(mat1_size)  
@@ -89,7 +87,7 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
     WD_ZB2    = np.zeros(mat1_size)     
     WD_GAMMA  = np.zeros(mat1_size)     
 
-    mat2_size = (m,num_prop*(nts-1)*B*n)
+    mat2_size = (m,num_prop*(number_of_wake_timesteps-1)*B*n)
     WD.XA1    = np.zeros(mat2_size)
     WD.YA1    = np.zeros(mat2_size)
     WD.ZA1    = np.zeros(mat2_size)
@@ -104,7 +102,7 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
     WD.ZB2    = np.zeros(mat2_size) 
 
     VD.Wake       = Data()
-    mat3_size     = (num_prop,(nts-1),B,n)
+    mat3_size     = (num_prop,(number_of_wake_timesteps-1),B,n)
     VD.Wake.XA1   = np.zeros(mat3_size) 
     VD.Wake.YA1   = np.zeros(mat3_size) 
     VD.Wake.ZA1   = np.zeros(mat3_size) 
@@ -118,26 +116,26 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
     VD.Wake.YB2   = np.zeros(mat3_size) 
     VD.Wake.ZB2   = np.zeros(mat3_size)   
     
-    Gamma     = np.zeros((m,nts-1,B,n))   
+    Gamma     = np.zeros((m,number_of_wake_timesteps-1,B,n))   
     num       = int(Na/B)  
-    time_idx  = np.arange(nts-1) 
+    time_idx  = np.arange(number_of_wake_timesteps-1) 
     t_idx     = np.atleast_2d(time_idx).T 
     B_idx     = np.arange(B) 
     B_loc     = (B_idx*num + t_idx)%Na  
     Gamma     = gamma_new[:,B_loc,:]  
 
     #( control point, time step , blade number , location on blade )
-    sx_inf0      = np.multiply(V_prop*np.cos(wake_skew_angle), np.atleast_2d(ts))
-    sx_inf       = np.repeat(np.repeat(sx_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)  
-
-    sy_inf0      = np.multiply(np.atleast_2d(V_inf[:,1]).T,np.atleast_2d(ts)) # = zero since no crosswind
-    sy_inf       = np.repeat(np.repeat(sy_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)   
-
-    sz_inf0      = np.multiply(V_prop*np.sin(wake_skew_angle),np.atleast_2d(ts))
-    sz_inf       = np.repeat(np.repeat(sz_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)           
+    sx_inf0            = np.multiply(V_prop*np.cos(wake_skew_angle), np.atleast_2d(ts))
+    sx_inf             = np.repeat(np.repeat(sx_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)  
+                      
+    sy_inf0            = np.multiply(np.atleast_2d(V_inf[:,1]).T,np.atleast_2d(ts)) # = zero since no crosswind
+    sy_inf             = np.repeat(np.repeat(sy_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)   
+                      
+    sz_inf0            = np.multiply(V_prop*np.sin(wake_skew_angle),np.atleast_2d(ts))
+    sz_inf             = np.repeat(np.repeat(sz_inf0[:, :,  np.newaxis], Nr, axis = 2)[:,  : ,np.newaxis,  :], B, axis = 2)           
 
     angle_offset       = np.repeat(np.repeat(np.multiply(omega,np.atleast_2d(ts))[:, :,  np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 
-    blade_angle_loc    = np.repeat(np.repeat(np.tile(np.atleast_2d(blade_angles),(m,1))[:,  np.newaxis, :],nts, axis = 1) [:, :,:, np.newaxis],Nr, axis = 3) 
+    blade_angle_loc    = np.repeat(np.repeat(np.tile(np.atleast_2d(blade_angles),(m,1))[:,  np.newaxis, :],number_of_wake_timesteps, axis = 1) [:, :,:, np.newaxis],Nr, axis = 3) 
     start_angle_offset = np.repeat(np.repeat(np.atleast_2d(start_angle)[:, :, np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 
     
     # adjust for clockwise/counter clockwise rotation
@@ -152,18 +150,18 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
         azi_z   = np.cos(blade_angle_loc + total_angle_offset)
 
         x0_pts = np.tile(np.atleast_2d(MCA+c/4),(B,1))  
-        x_pts  = np.repeat(np.repeat(x0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
+        x_pts  = np.repeat(np.repeat(x0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
         X_pts0 = x_pts + sx_inf   
 
         # compute wake contraction  
-        wake_contraction = compute_wake_contraction_matrix(i,prop,Nr,m,nts,X_pts0)          
+        wake_contraction = compute_wake_contraction_matrix(i,prop,Nr,m,number_of_wake_timesteps,X_pts0)          
 
         y0_pts = np.tile(np.atleast_2d(r),(B,1))
-        y_pts  = np.repeat(np.repeat(y0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
+        y_pts  = np.repeat(np.repeat(y0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
         Y_pts0 = (y_pts*wake_contraction)*azi_y  + sy_inf    
 
         z0_pts = np.tile(np.atleast_2d(r),(B,1))
-        z_pts  = np.repeat(np.repeat(z0_pts[np.newaxis,:,  :], nts, axis=0)[ np.newaxis, : ,:, :,], m, axis=0)
+        z_pts  = np.repeat(np.repeat(z0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0)
         Z_pts0 = (z_pts*wake_contraction)*azi_z + sz_inf     
  
         # Rotate wake by thrust angle 
@@ -217,9 +215,9 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
         VD.Wake.ZB2[i,:,:,:] =  Z_pts[0 ,  1: , : , 1:  ]  
 
     # Compress Data into 1D Arrays  
-    mat4_size = (m,num_prop,(nts-1),B*n)
-    mat5_size = (m,num_prop,(nts-1)*B*n)
-    mat6_size = (m,num_prop*(nts-1)*B*n) 
+    mat4_size = (m,num_prop,(number_of_wake_timesteps-1),B*n)
+    mat5_size = (m,num_prop,(number_of_wake_timesteps-1)*B*n)
+    mat6_size = (m,num_prop*(number_of_wake_timesteps-1)*B*n) 
 
     WD.XA1    =  np.reshape(np.reshape(np.reshape(WD_XA1,mat4_size),mat5_size),mat6_size)
     WD.YA1    =  np.reshape(np.reshape(np.reshape(WD_YA1,mat4_size),mat5_size),mat6_size)

@@ -165,7 +165,7 @@ class Nexus(Data):
         objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
-        return scaled_objective.astype('Float64') 
+        return scaled_objective.astype(np.double) 
     
     def inequality_constraint(self,x = None):
         """Retrieve the inequality constraint values for your function

@@ -1,8 +1,8 @@
-## @ingroup Analyses-Mission-Vary_Cruise
-# Given_Weight.py
+## @ingroup Analyses-Mission-Variable_Range_Cruise
+# Given_State_of_Charge.py
 #
-# Created:  
-# Modified: Feb 2016, Andrew Wendorff
+# Created: Dec 2020, E. Botero
+# Modified: 
 
 
 # ----------------------------------------------------------------------
@@ -17,8 +17,8 @@ from SUAVE.Analyses.Mission import All_At_Once
 # ----------------------------------------------------------------------
 
 ## @ingroup Analyses-Mission-Vary_Cruise
-class Given_Weight(All_At_Once):
-    """ Given a target landing weight, select the cruise distance by adding a residual to the mission
+class Given_State_of_Charge(All_At_Once):
+    """ Given a target landing state of charge, select the cruise distance by adding a residual to the mission
     
         Assumptions:
         None
@@ -46,22 +46,22 @@ class Given_Weight(All_At_Once):
             None
         """           
         
-        self.tag = 'vary_cruise_given_weight'
+        self.tag = 'vary_cruise_given_state_of_charge'
         
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
         self.cruise_tag  = 'cruise'
-        self.target_landing_weight = 1000.0
+        self.target_state_of_charge = .25
         
-        
+
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
         
         # initials and unknowns, on top of segment initials and unknowns
         self.state.unknowns.cruise_distance  = 1000.0
-        self.state.residuals.landing_weight  = 0.0
+        self.state.residuals.state_of_charge = 0.0
         
         
         # --------------------------------------------------------------
@@ -95,7 +95,7 @@ class Given_Weight(All_At_Once):
         iterate.merge_sub_segment_states     = Methods.Segments.Common.Sub_Segments.merge_sub_segment_states
         
         # Solve Residuals
-        self.process.iterate.residual_weight = Methods.Segments.Cruise.Variable_Cruise_Distance.residual_landing_weight
+        self.process.iterate.residual_weight = Methods.Segments.Cruise.Variable_Cruise_Distance.residual_state_of_charge
         
         
         # --------------------------------------------------------------

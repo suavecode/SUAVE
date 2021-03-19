@@ -2,6 +2,7 @@
 # 
 # Created:  Feb 2020, M. Clarke
 #           Apr 2020, M. Clarke
+# Modified: Dec 2020, S. Karpuk
 
 """ setup file for segment test regression with a Boeing 737"""
 
@@ -50,32 +51,38 @@ def main():
     climb_throttle_6   = results.segments.climb_6.conditions.propulsion.throttle[3][0]
     climb_throttle_7   = results.segments.climb_7.conditions.propulsion.throttle[3][0] 
     climb_throttle_8   = results.segments.climb_8.conditions.propulsion.throttle[3][0] 
+    climb_throttle_9   = results.segments.climb_9.conditions.propulsion.throttle[3][0] 
+    climb_throttle_10  = results.segments.climb_10.conditions.propulsion.throttle[2][0] 
     cruise_CL_1        = results.segments.cruise_1.conditions.aerodynamics.lift_coefficient[2][0]
     cruise_CL_2        = results.segments.cruise_2.conditions.aerodynamics.lift_coefficient[2][0]
     cruise_CL_3        = results.segments.cruise_3.conditions.aerodynamics.lift_coefficient[2][0] 
     descent_throttle_1 = results.segments.descent_1.conditions.propulsion.throttle[3][0]
+    descent_throttle_2 = results.segments.descent_2.conditions.propulsion.throttle[3][0]
     single_pt_CL_1     = results.segments.single_point_1.conditions.aerodynamics.lift_coefficient[0][0]
     single_pt_CL_2     = results.segments.single_point_2.conditions.aerodynamics.lift_coefficient[0][0]     
     loiter_CL          = results.segments.loiter.conditions.aerodynamics.lift_coefficient[2][0]
-    descent_throttle_2 = results.segments.descent_2.conditions.propulsion.throttle[3][0]
+    descent_throttle_3 = results.segments.descent_3.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 1.0496566472370832 
-    climb_throttle_2_truth   = 0.8593399482913113 
-    climb_throttle_3_truth   = 0.554225876096577 
-    climb_throttle_4_truth   = 0.9280243609603119 
-    climb_throttle_5_truth   = 1.0728767733778228 
-    climb_throttle_6_truth   = 0.7242365880065347 
-    climb_throttle_7_truth   = 0.8473685964195364 
-    climb_throttle_8_truth   = 1.0082845324269998 
-    cruise_CL_1_truth        = 0.634233677253148
-    cruise_CL_2_truth        = 0.6241429606481604
-    cruise_CL_3_truth        = 0.7066538388860613
-    descent_throttle_1_truth = 0.26763270958794305
-    single_pt_CL_1_truth     = 0.2581996153501819
-    single_pt_CL_2_truth     = 0.25816377507143445
-    loiter_CL_truth          = 0.5259908749142164
-    descent_throttle_2_truth = 0.2040608698706395
+    climb_throttle_1_truth   = 1.1022095477277076
+    climb_throttle_2_truth   = 1.1099968189090093
+    climb_throttle_3_truth   = 0.6992557628012378
+    climb_throttle_4_truth   = 1.1612341553132794
+    climb_throttle_5_truth   = 1.2140754256766335
+    climb_throttle_6_truth   = 0.8085269507910768
+    climb_throttle_7_truth   = 0.9872000449847137
+    climb_throttle_8_truth   = 1.2127261175808683
+    climb_throttle_9_truth   = 1.3244817806693368
+    climb_throttle_10_truth  = 0.9999999999999993
+    cruise_CL_1_truth        = 0.6952747673643188
+    cruise_CL_2_truth        = 0.6957179753760501
+    cruise_CL_3_truth        = 0.7209490994452324
+    descent_throttle_1_truth = 0.12076383071816191
+    descent_throttle_2_truth = 0.26344227233456385
+    single_pt_CL_1_truth     = 0.25024204669270306
+    single_pt_CL_2_truth     = 0.25021698141802035
+    loiter_CL_truth          = 0.5096685640551728
+    descent_throttle_3_truth = 0.20173089800220684
     
     # Store errors 
     error = Data()
@@ -87,14 +94,17 @@ def main():
     error.climb_throttle_6   = np.max(np.abs(climb_throttle_6     - climb_throttle_6_truth))   
     error.climb_throttle_7   = np.max(np.abs(climb_throttle_7     - climb_throttle_7_truth))   
     error.climb_throttle_8   = np.max(np.abs(climb_throttle_8     - climb_throttle_8_truth))  
+    error.climb_throttle_9   = np.max(np.abs(climb_throttle_9     - climb_throttle_9_truth)) 
+    error.climb_throttle_10  = np.max(np.abs(climb_throttle_10    - climb_throttle_10_truth))  
     error.cruise_CL_1        = np.max(np.abs(cruise_CL_1          - cruise_CL_1_truth ))     
     error.cruise_CL_2        = np.max(np.abs(cruise_CL_2          - cruise_CL_2_truth ))      
     error.cruise_CL_3        = np.max(np.abs(cruise_CL_3          - cruise_CL_3_truth ))     
     error.descent_throttle_1 = np.max(np.abs(descent_throttle_1   - descent_throttle_1_truth)) 
+    error.descent_throttle_2 = np.max(np.abs(descent_throttle_2   - descent_throttle_2_truth))
     error.single_pt_CL_1     = np.max(np.abs(single_pt_CL_1       - single_pt_CL_1_truth ))     
     error.single_pt_CL_2     = np.max(np.abs(single_pt_CL_2       - single_pt_CL_2_truth ))  
     error.loiter_CL          = np.max(np.abs(loiter_CL            - loiter_CL_truth ))         
-    error.descent_throttle_2 = np.max(np.abs(descent_throttle_2   - descent_throttle_2_truth))  
+    error.descent_throttle_3 = np.max(np.abs(descent_throttle_3   - descent_throttle_3_truth))  
      
     print('Errors:')
     print(error)
@@ -176,6 +186,8 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    aerodynamics.settings.number_spanwise_vortices   = 5
+    aerodynamics.settings.number_chordwise_vortices  = 2       
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
@@ -279,7 +291,9 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment() 
+    
     ones_row     = base_segment.state.ones_row 
+    base_segment.state.numerics.number_control_points = 4
     
     # ------------------------------------------------------------------
     #   Takeoff Roll
@@ -408,6 +422,35 @@ def mission_setup(analyses):
     segment.climb_rate                       = 1.  
     # add to misison
     mission.append_segment(segment)
+
+    # ------------------------------------------------------------------
+    #   Climb 9 : Constant EAS Constant Rate 
+    # ------------------------------------------------------------------ 
+    segment = Segments.Climb.Constant_CAS_Constant_Rate(base_segment)
+    segment.tag = "climb_9"
+    segment.analyses.extend( analyses.base )  
+    segment.altitude_end                     = 10.9   * Units.km    
+    segment.calibrated_air_speed             = 150. * Units.m / Units.s
+    segment.climb_rate                       = 1.  
+    # add to misison
+    mission.append_segment(segment)
+    
+    # ------------------------------------------------------------------
+    #   Climb 10 : Optimized
+    # ------------------------------------------------------------------ 
+    segment = Segments.Climb.Optimized(base_segment)
+    segment.tag = "climb_10"
+    segment.analyses.extend( analyses.base )  
+    segment.altitude_start         = 10.9   * Units.km   
+    segment.altitude_end           = 11.0   * Units.km   
+    segment.air_speed_start        = 160. * Units.m / Units.s
+    segment.air_speed_end          = None
+    segment.objective              = 'conditions.frames.inertial.time[-1,0]*1000'
+    segment.minimize               = True
+    segment.state.numerics.number_control_points = 3
+    # add to misison
+    mission.append_segment(segment)
+        
     
     # ------------------------------------------------------------------
     #   Cruise Segment 1: constant Speed, constant altitude
@@ -415,7 +458,7 @@ def mission_setup(analyses):
     segment = Segments.Cruise.Constant_Dynamic_Pressure_Constant_Altitude(base_segment)
     segment.tag = "cruise_1" 
     segment.analyses.extend(analyses.base) 
-    segment.altitude                  = 10. * Units.km    
+    segment.altitude                  = 11. * Units.km    
     segment.dynamic_pressure          = 28000 * Units.pascals   
     segment.distance                  = 500 * Units.km 
     # add to misison
@@ -431,6 +474,7 @@ def mission_setup(analyses):
     segment.air_speed_end             = 200 * Units.m / Units.s 
     segment.throttle                  = 0.6
     segment.distance                  = 500 * Units.km 
+    segment.state.numerics.number_control_points = 16
     
     # add to misison
     mission.append_segment(segment)   
@@ -458,11 +502,24 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.base ) 
     segment.altitude_start            = 10.    * Units.km    
     segment.air_speed                 = 150   * Units.m / Units.s 
-    segment.altitude_end              = 2500  * Units.feet 
+    segment.altitude_end              = 5  * Units.km 
     
     # add to misison
     mission.append_segment(segment) 
+
+    # ------------------------------------------------------------------
+    #   Descent Segment 2: Constant CAS Constant Angle 
+    # ------------------------------------------------------------------ 
+    segment = Segments.Descent.Constant_CAS_Constant_Rate(base_segment)
+    segment.tag = "descent_2" 
+    segment.analyses.extend( analyses.base ) 
+    segment.altitude_end              = 2500. * Units.feet
+    segment.descent_rate              = 2.  * Units.m / Units.s
+    segment.calibrated_air_speed      = 100 * Units.m / Units.s
     
+    # add to misison
+    mission.append_segment(segment) 
+
     # ------------------------------------------------------------------
     #  Single Point Segment 1: constant Speed, constant altitude
     # ------------------------------------------------------------------ 
@@ -503,7 +560,7 @@ def mission_setup(analyses):
     #   Descent Segment: Constant EAS Constant Rate
     # ------------------------------------------------------------------ 
     segment = Segments.Descent.Constant_EAS_Constant_Rate(base_segment)
-    segment.tag = "descent_2" 
+    segment.tag = "descent_3" 
     segment.analyses.extend( analyses.base ) 
     segment.altitude_start            = 2500  * Units.feet
     segment.altitude_end              = 0  * Units.feet 

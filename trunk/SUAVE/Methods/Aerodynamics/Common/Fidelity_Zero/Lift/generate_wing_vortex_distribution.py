@@ -107,15 +107,19 @@ def generate_wing_vortex_distribution(geometry,settings):
     VD.Y      = np.empty(shape=[0,1])
     VD.Z      = np.empty(shape=[0,1])
     VD.Y_SW   = np.empty(shape=[0,1])
-    n_sw = settings.number_spanwise_vortices 
-    n_cw = settings.number_chordwise_vortices     
+    VD.DY     = np.empty(shape=[0,1]) 
+    n_sw      = settings.number_spanwise_vortices 
+    n_cw      = settings.number_chordwise_vortices     
+    spc       = settings.spanwise_cosine_spacing
+    model_fuselage = settings.model_fuselage
 
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
     # ---------------------------------------------------------------------------------------    
-    n_w        = 0  # instantiate the number of wings counter  
-    n_cp       = 0  # instantiate number of bound vortices counter     
-    wing_areas = [] # instantiate wing areas  
+    n_w         = 0  # instantiate the number of wings counter  
+    n_cp        = 0  # instantiate number of bound vortices counter     
+    wing_areas  = [] # instantiate wing areas
+    vortex_lift = []
     
     for wing in geometry.wings:
         # get geometry of wing  
@@ -129,16 +133,24 @@ def generate_wing_vortex_distribution(geometry,settings):
         dihedral      = wing.dihedral
         sym_para      = wing.symmetric 
         vertical_wing = wing.vertical
-        wing_origin   = wing.origin[0] 
+        wing_origin   = wing.origin[0]
+        vortex_lift.append(wing.vortex_lift)
         
         # determine if vehicle has symmetry 
         if sym_para is True :
             span = span/2
+            vortex_lift.append(wing.vortex_lift)
         
-        # discretize wing using cosine spacing
-        n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
-        thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
-        y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing
+        if spc == True:
+            
+            # discretize wing using cosine spacing
+            n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
+            thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
+            y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing
+        else:
+        
+            # discretize wing using linear spacing
+            y_coordinates   = np.linspace(0,span,n_sw+1) 
         
         # create empty vectors for coordinates 
         xah   = np.zeros(n_cw*n_sw)
@@ -252,9 +264,21 @@ def generate_wing_vortex_distribution(geometry,settings):
                 wing_areas.append(np.sum(segment_area[:]))            
 
             #Shift spanwise vortices onto section breaks  
+            if len(y_coordinates) < n_segments:
+                raise ValueError('Not enough spanwise VLM stations for segment breaks')
+
+            last_idx = None            
             for i_seg in range(n_segments):
                 idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
-                y_coordinates[idx] = section_stations[i_seg] 
+                if last_idx is not None and idx <= last_idx:
+                    idx = last_idx + 1
+                y_coordinates[idx] = section_stations[i_seg]   
+                last_idx = idx
+
+
+            for i_seg in range(n_segments):
+                if section_stations[i_seg] not in y_coordinates:
+                    raise ValueError('VLM did not capture all section breaks')
                 
             # ---------------------------------------------------------------------------------------
             # STEP 6A: Define coordinates of panels horseshoe vortices and control points 
@@ -477,19 +501,19 @@ def generate_wing_vortex_distribution(geometry,settings):
 
             # Get airfoil section VD  
             if wing.Airfoil: 
-                airfoil_data = import_airfoil_geometry(wing.Airfoil.airfoil.coordinate_file)    
-                wing_camber  = airfoil_data.camber_coordinates
-                wing_x_coord = airfoil_data.x_lower_surface
+                airfoil_data = import_airfoil_geometry([wing.Airfoil.airfoil.coordinate_file])    
+                wing_camber  = airfoil_data.camber_coordinates[0]
+                wing_x_coord = airfoil_data.x_lower_surface[0]
             else:
                 wing_camber  = np.zeros(30) # dimension of Selig airfoil VD file
                 wing_x_coord = np.linspace(0,1,30)
 
-            delta_y = y_b - y_a
+            del_y = y_b - y_a
             for idx_y in range(n_sw):  
                 idx_x = np.arange(n_cw) 
                 eta_a = (y_a[idx_y])  
                 eta_b = (y_b[idx_y]) 
-                eta   = (y_b[idx_y] - delta_y[idx_y]/2) 
+                eta   = (y_b[idx_y] - del_y[idx_y]/2) 
                 
                 # get spanwise discretization points
                 wing_chord_section_a  = root_chord + (eta_a*wing_chord_ratio) 
@@ -605,11 +629,11 @@ def generate_wing_vortex_distribution(geometry,settings):
                     ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
 
                     xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                    zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2)                   
+                    zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
                     ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
 
                     xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                    zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2) 
+                    zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
                     yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
 
                     xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
@@ -645,11 +669,11 @@ def generate_wing_vortex_distribution(geometry,settings):
                     zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
 
                     xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                    ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2)                   
+                    ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
                     zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
 
                     xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                    yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - delta_y[idx_y]/2) 
+                    yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
                     zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
 
                     xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
@@ -708,9 +732,9 @@ def generate_wing_vortex_distribution(geometry,settings):
         xc  = xc + wing_origin[0]  # x coordinate of control points on panel
         yc  = yc + wing_origin[1]  # y coordinate of control points on panel
         zc  = zc + wing_origin[2]  # y coordinate of control points on panel
-        x   = x + wing_origin[0]  # x coordinate of control points on panel
-        y   = y + wing_origin[1]  # y coordinate of control points on panel
-        z   = z + wing_origin[2]  # y coordinate of control points on panel
+        x   = x + wing_origin[0]   # x coordinate of control points on panel
+        y   = y + wing_origin[1]   # y coordinate of control points on panel
+        z   = z + wing_origin[2]   # y coordinate of control points on panel
  
         # find the location of the trailing edge panels of each wing
         locations = ((np.linspace(1,n_sw,n_sw, endpoint = True) * n_cw) - 1).astype(int)
@@ -743,31 +767,32 @@ def generate_wing_vortex_distribution(geometry,settings):
             n_w += 1 
             # append wing spans          
             if vertical_wing:
-                cs_w = np.concatenate([cs_w,cs_w])
-                xah = np.concatenate([xah,xah])
-                yah = np.concatenate([yah,yah])
-                zah = np.concatenate([zah,-zah])
-                xbh = np.concatenate([xbh,xbh])
-                ybh = np.concatenate([ybh,ybh])
-                zbh = np.concatenate([zbh,-zbh])
-                xch = np.concatenate([xch,xch])
-                ych = np.concatenate([ych,ych])
-                zch = np.concatenate([zch,-zch])
-    
-                xa1 = np.concatenate([xa1,xa1])
-                ya1 = np.concatenate([ya1,ya1])
-                za1 = np.concatenate([za1,-za1])
-                xa2 = np.concatenate([xa2,xa2])
-                ya2 = np.concatenate([ya2,ya2])
-                za2 = np.concatenate([za2,-za2])
-    
-                xb1 = np.concatenate([xb1,xb1])
-                yb1 = np.concatenate([yb1,yb1])    
-                zb1 = np.concatenate([zb1,-zb1])
-                xb2 = np.concatenate([xb2,xb2])
-                yb2 = np.concatenate([yb2,yb2])            
-                zb2 = np.concatenate([zb2,-zb2])
-    
+                del_y = np.concatenate([del_y,del_y]) 
+                cs_w  = np.concatenate([cs_w,cs_w])
+                xah   = np.concatenate([xah,xah])
+                yah   = np.concatenate([yah,yah])
+                zah   = np.concatenate([zah,-zah])
+                xbh   = np.concatenate([xbh,xbh])
+                ybh   = np.concatenate([ybh,ybh])
+                zbh   = np.concatenate([zbh,-zbh])
+                xch   = np.concatenate([xch,xch])
+                ych   = np.concatenate([ych,ych])
+                zch   = np.concatenate([zch,-zch])
+                      
+                xa1   = np.concatenate([xa1,xa1])
+                ya1   = np.concatenate([ya1,ya1])
+                za1   = np.concatenate([za1,-za1])
+                xa2   = np.concatenate([xa2,xa2])
+                ya2   = np.concatenate([ya2,ya2])
+                za2   = np.concatenate([za2,-za2])
+                      
+                xb1   = np.concatenate([xb1,xb1])
+                yb1   = np.concatenate([yb1,yb1])    
+                zb1   = np.concatenate([zb1,-zb1])
+                xb2   = np.concatenate([xb2,xb2])
+                yb2   = np.concatenate([yb2,yb2])            
+                zb2   = np.concatenate([zb2,-zb2])
+                      
                 xac   = np.concatenate([xac ,xac ])
                 yac   = np.concatenate([yac ,yac ])
                 zac   = np.concatenate([zac ,-zac ])            
@@ -793,30 +818,31 @@ def generate_wing_vortex_distribution(geometry,settings):
                 z     = np.concatenate([z ,-z ])                  
                 
             else:
-                cs_w = np.concatenate([cs_w,cs_w])
-                xah = np.concatenate([xah,xah])
-                yah = np.concatenate([yah,-yah])
-                zah = np.concatenate([zah,zah])
-                xbh = np.concatenate([xbh,xbh])
-                ybh = np.concatenate([ybh,-ybh])
-                zbh = np.concatenate([zbh,zbh])
-                xch = np.concatenate([xch,xch])
-                ych = np.concatenate([ych,-ych])
-                zch = np.concatenate([zch,zch])
-    
-                xa1 = np.concatenate([xa1,xa1])
-                ya1 = np.concatenate([ya1,-ya1])
-                za1 = np.concatenate([za1,za1])
-                xa2 = np.concatenate([xa2,xa2])
-                ya2 = np.concatenate([ya2,-ya2])
-                za2 = np.concatenate([za2,za2])
-    
-                xb1 = np.concatenate([xb1,xb1])
-                yb1 = np.concatenate([yb1,-yb1])    
-                zb1 = np.concatenate([zb1,zb1])
-                xb2 = np.concatenate([xb2,xb2])
-                yb2 = np.concatenate([yb2,-yb2])            
-                zb2 = np.concatenate([zb2,zb2])
+                del_y = np.concatenate([del_y,del_y]) 
+                cs_w  = np.concatenate([cs_w,cs_w])
+                xah   = np.concatenate([xah,xah])
+                yah   = np.concatenate([yah,-yah])
+                zah   = np.concatenate([zah,zah])
+                xbh   = np.concatenate([xbh,xbh])
+                ybh   = np.concatenate([ybh,-ybh])
+                zbh   = np.concatenate([zbh,zbh])
+                xch   = np.concatenate([xch,xch])
+                ych   = np.concatenate([ych,-ych])
+                zch   = np.concatenate([zch,zch])
+                      
+                xa1   = np.concatenate([xa1,xa1])
+                ya1   = np.concatenate([ya1,-ya1])
+                za1   = np.concatenate([za1,za1])
+                xa2   = np.concatenate([xa2,xa2])
+                ya2   = np.concatenate([ya2,-ya2])
+                za2   = np.concatenate([za2,za2])
+                      
+                xb1   = np.concatenate([xb1,xb1])
+                yb1   = np.concatenate([yb1,-yb1])    
+                zb1   = np.concatenate([zb1,zb1])
+                xb2   = np.concatenate([xb2,xb2])
+                yb2   = np.concatenate([yb2,-yb2])            
+                zb2   = np.concatenate([zb2,zb2])
     
                 xac   = np.concatenate([xac ,xac ])
                 yac   = np.concatenate([yac ,-yac ])
@@ -890,32 +916,39 @@ def generate_wing_vortex_distribution(geometry,settings):
         VD.Y_SW   = np.append(VD.Y_SW ,y_sw)
         VD.Y      = np.append(VD.Y ,y)
         VD.Z      = np.append(VD.Z ,z)         
-        VD.CS     = np.append(VD.CS,cs_w)        
+        VD.CS     = np.append(VD.CS,cs_w) 
+        VD.DY     = np.append(VD.DY ,del_y)
+        
+    # Pack
+    VD.vortex_lift = vortex_lift 
+            
 
     # ---------------------------------------------------------------------------------------
-    # STEP 8.1: Unpack aircraft fuselage geometry NOTE THAT FUSELAGE GOMETRY IS OMITTED FROM VLM
+    # STEP 8.1: Unpack aircraft fuselage geometry
     # --------------------------------------------------------------------------------------- 
-    VD.n_fus = 0
-    for fus in geometry.fuselages:   
-        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw) 
-        VD = generate_fuselage_surface_points(VD,fus)     
-         
     VD.n_w        = n_w
-    VD.n_sw       = n_sw
-    VD.n_cw       = n_cw    
     VD.n_cp       = n_cp  
     VD.wing_areas = np.array(wing_areas)   
-    VD.Stot       = sum(wing_areas)
+    VD.Stot       = sum(wing_areas)        
+    VD.n_fus = 0
+    for fus in geometry.fuselages:   
+        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage) 
+         
+    VD.n_sw       = n_sw
+    VD.n_cw       = n_cw       
 
     geometry.vortex_distribution = VD
 
     # Compute Panel Areas 
-    VD.panel_areas = compute_panel_area(VD)      
-
+    VD.panel_areas = compute_panel_area(VD)
+    
+    # Compute Panel Normals
+    VD.normals = compute_unit_normal(VD)
+    
     return VD 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
+def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False):
     """ This generates the vortex distribution points on the fuselage 
 
     Assumptions: 
@@ -931,13 +964,39 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
     N/A
     """    
     
-    fhs_xc    = np.zeros(n_cw*n_sw)
-    fhs_yc    = np.zeros(n_cw*n_sw)
-    fhs_zc    = np.zeros(n_cw*n_sw) 
-    fhs_x     = np.zeros((n_cw+1)*(n_sw+1))
-    fhs_y     = np.zeros((n_cw+1)*(n_sw+1))
-    fhs_z     = np.zeros((n_cw+1)*(n_sw+1))          
-    fus_h_cs  = np.zeros(n_sw)     
+    fhs_xa1 = np.zeros(n_cw*n_sw)
+    fhs_ya1 = np.zeros(n_cw*n_sw)
+    fhs_za1 = np.zeros(n_cw*n_sw)
+    fhs_xa2 = np.zeros(n_cw*n_sw)
+    fhs_ya2 = np.zeros(n_cw*n_sw)
+    fhs_za2 = np.zeros(n_cw*n_sw)
+    fhs_xb1 = np.zeros(n_cw*n_sw)
+    fhs_yb1 = np.zeros(n_cw*n_sw)
+    fhs_zb1 = np.zeros(n_cw*n_sw)
+    fhs_yb2 = np.zeros(n_cw*n_sw)
+    fhs_xb2 = np.zeros(n_cw*n_sw)
+    fhs_zb2 = np.zeros(n_cw*n_sw)
+    fhs_xah = np.zeros(n_cw*n_sw)
+    fhs_yah = np.zeros(n_cw*n_sw)
+    fhs_zah = np.zeros(n_cw*n_sw)
+    fhs_xbh = np.zeros(n_cw*n_sw)
+    fhs_ybh = np.zeros(n_cw*n_sw)
+    fhs_zbh = np.zeros(n_cw*n_sw)
+    fhs_xch = np.zeros(n_cw*n_sw)
+    fhs_ych = np.zeros(n_cw*n_sw)
+    fhs_zch = np.zeros(n_cw*n_sw)
+    fhs_xc  = np.zeros(n_cw*n_sw)
+    fhs_yc  = np.zeros(n_cw*n_sw)
+    fhs_zc  = np.zeros(n_cw*n_sw)
+    fhs_xac = np.zeros(n_cw*n_sw)
+    fhs_yac = np.zeros(n_cw*n_sw)
+    fhs_zac = np.zeros(n_cw*n_sw)
+    fhs_xbc = np.zeros(n_cw*n_sw)
+    fhs_ybc = np.zeros(n_cw*n_sw)
+    fhs_zbc = np.zeros(n_cw*n_sw)
+    fhs_x   = np.zeros((n_cw+1)*(n_sw+1))
+    fhs_y   = np.zeros((n_cw+1)*(n_sw+1))
+    fhs_z   = np.zeros((n_cw+1)*(n_sw+1))      
 
     fvs_xc    = np.zeros(n_cw*n_sw)
     fvs_zc    = np.zeros(n_cw*n_sw)
@@ -1008,6 +1067,9 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
 
     fhs_cs = np.concatenate([fhs.chord,fhs.chord])
     fvs_cs = np.concatenate([fvs.chord,fvs.chord])
+    
+    fus_h_area = 0
+    fus_v_area = 0    
 
     # define coordinates of horseshoe vortices and control points       
     for idx_y in range(n_sw):  
@@ -1029,13 +1091,40 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
         fhs_xi_c  = (fhs.origin[idx_y][0] + fhs.origin[idx_y+1][0])/2  + delta_x*idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
         fhs_xi_ch = (fhs.origin[idx_y][0] + fhs.origin[idx_y+1][0])/2  + delta_x*idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
 
+
+        fhs_xa1[idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_a1                       + fus.origin[0][0]  
+        fhs_ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta_a[idx_y]  + fus.origin[0][1]  
+        fhs_za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]
+        fhs_xa2[idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_a2                       + fus.origin[0][0]  
+        fhs_ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta_a[idx_y]  + fus.origin[0][1] 
+        fhs_za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]      
+        fhs_xb1[idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_b1                       + fus.origin[0][0]  
+        fhs_yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta_b[idx_y]  + fus.origin[0][1] 
+        fhs_zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]
+        fhs_xb2[idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_b2                       + fus.origin[0][0] 
+        fhs_yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta_b[idx_y]  + fus.origin[0][1] 
+        fhs_zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]       
+        fhs_xah[idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_ah                       + fus.origin[0][0]   
+        fhs_yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta_a[idx_y]  + fus.origin[0][1]  
+        fhs_zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]             
+        fhs_xbh[idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_bh                       + fus.origin[0][0] 
+        fhs_ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta_b[idx_y]  + fus.origin[0][1]  
+        fhs_zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]    
+        fhs_xch[idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_ch                       + fus.origin[0][0]  
+        fhs_ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta[idx_y]    + fus.origin[0][1]                
+        fhs_zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]     
         fhs_xc [idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_c                        + fus.origin[0][0]  
         fhs_yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta[idx_y]    + fus.origin[0][1]  
-        fhs_zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]               
+        fhs_zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]       
+        fhs_xac[idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_ac                       + fus.origin[0][0]  
+        fhs_yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta_a[idx_y]  + fus.origin[0][1]
+        fhs_zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]
+        fhs_xbc[idx_y*n_cw:(idx_y+1)*n_cw] = fhs_xi_bc                       + fus.origin[0][0]  
+        fhs_ybc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*fhs_eta_b[idx_y]  + fus.origin[0][1]                             
+        fhs_zbc[idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                  + fus.origin[0][2]              
         fhs_x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([fhs_xi_a1,np.array([fhs_xi_a2[-1]])])+ fus.origin[0][0]  
         fhs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*fhs_eta_a[idx_y]  + fus.origin[0][1]                             
         fhs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                  + fus.origin[0][2]
-
 
         # fuselage vertical section                      
         delta_x_a = fvs.chord[idx_y]/n_cw      
@@ -1058,7 +1147,10 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
         fvs_yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.zeros(n_cw)                 + fus.origin[0][1]  
         fvs_x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([fvs_xi_a1,np.array([fvs_xi_a2[-1]])]) + fus.origin[0][0]  
         fvs_z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*fvs_eta_a[idx_y] + fus.origin[0][2]               
-        fvs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                 + fus.origin[0][1]               
+        fvs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                 + fus.origin[0][1]
+        
+        fus_h_area += ((fhs.chord[idx_y]+fhs.chord[idx_y + 1])/2)*(fhs_eta_b[idx_y] - fhs_eta_a[idx_y])
+        fus_v_area += ((fvs.chord[idx_y]+fvs.chord[idx_y + 1])/2)*(fvs_eta_b[idx_y] - fvs_eta_a[idx_y])            
 
     fhs_x[-(n_cw+1):] = np.concatenate([fhs_xi_b1,np.array([fhs_xi_b2[-1]])])+ fus.origin[0][0]  
     fhs_y[-(n_cw+1):] = np.ones(n_cw+1)*fhs_eta_b[idx_y]  + fus.origin[0][1]                             
@@ -1067,76 +1159,141 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw):
     fvs_z[-(n_cw+1):] = np.ones(n_cw+1)*fvs_eta_a[idx_y] + fus.origin[0][2]               
     fvs_y[-(n_cw+1):] = np.zeros(n_cw+1)                 + fus.origin[0][1]   
     fhs_cs =  (fhs.chord[:-1]+fhs.chord[1:])/2
-    fvs_cs =  (fvs.chord[:-1]+fvs.chord[1:])/2     
-
-    # Append Horizontal Fuselage Sections  
-    fhs_xc    = np.concatenate([fhs_xc[::-1] , fhs_xc ])
-    fhs_yc    = np.concatenate([fhs_yc[::-1] ,-fhs_yc])
-    fhs_zc    = np.concatenate([fhs_zc[::-1] , fhs_zc ])     
-    fhs_x     = np.concatenate([fhs_x  , fhs_x  ])
-    fhs_y     = np.concatenate([fhs_y  ,-fhs_y ])
-    fhs_z     = np.concatenate([fhs_z  , fhs_z  ])    
-    VD.FUS_XC = np.append(VD.FUS_XC ,fhs_xc)
-    VD.FUS_YC = np.append(VD.FUS_YC ,fhs_yc)
-    VD.FUS_ZC = np.append(VD.FUS_ZC ,fhs_zc)   
-
-    # Append Vertical Fuselage Sections  
-    fvs_xc    = np.concatenate([fvs_xc[::-1], fvs_xc ])
-    fvs_yc    = np.concatenate([fvs_yc[::-1], fvs_yc ])
-    fvs_zc    = np.concatenate([fvs_zc[::-1],-fvs_zc ])
-    fvs_x     = np.concatenate([fhs_x  , fhs_x  ])
-    fvs_y     = np.concatenate([fhs_y  , fhs_y ])
-    fvs_z     = np.concatenate([fhs_z  , -fhs_z ])   
+    fvs_cs =  (fvs.chord[:-1]+fvs.chord[1:])/2  
     
-    # increment fuslage lifting surface sections  
-    VD.n_fus  += 4    
+    # find the location of the trailing edge panels of each wing
+    locations = ((np.linspace(1,n_sw,n_sw, endpoint = True) * n_cw) - 1).astype(int)
+    fhs_xc_te1 = np.repeat(np.atleast_2d(fhs_xc[locations]), n_cw , axis = 0)
+    fhs_yc_te1 = np.repeat(np.atleast_2d(fhs_yc[locations]), n_cw , axis = 0)
+    fhs_zc_te1 = np.repeat(np.atleast_2d(fhs_zc[locations]), n_cw , axis = 0)        
+    fhs_xa_te1 = np.repeat(np.atleast_2d(fhs_xa2[locations]), n_cw , axis = 0)
+    fhs_ya_te1 = np.repeat(np.atleast_2d(fhs_ya2[locations]), n_cw , axis = 0)
+    fhs_za_te1 = np.repeat(np.atleast_2d(fhs_za2[locations]), n_cw , axis = 0)
+    fhs_xb_te1 = np.repeat(np.atleast_2d(fhs_xb2[locations]), n_cw , axis = 0)
+    fhs_yb_te1 = np.repeat(np.atleast_2d(fhs_yb2[locations]), n_cw , axis = 0)
+    fhs_zb_te1 = np.repeat(np.atleast_2d(fhs_zb2[locations]), n_cw , axis = 0)     
     
-    # Currently, fuselage is only used for plotting not analysis 
-    VD.FUS_XC = np.append(VD.FUS_XC ,fvs_xc)
-    VD.FUS_YC = np.append(VD.FUS_YC ,fvs_yc)
-    VD.FUS_ZC = np.append(VD.FUS_ZC ,fvs_zc) 
-    VD.X      = np.append(VD.X  ,fvs_x )
-    VD.Y      = np.append(VD.Y  ,fvs_y )
-    VD.Z      = np.append(VD.Z  ,fvs_z )     
+    fhs_xc_te = np.hstack(fhs_xc_te1.T)
+    fhs_yc_te = np.hstack(fhs_yc_te1.T)
+    fhs_zc_te = np.hstack(fhs_zc_te1.T)        
+    fhs_xa_te = np.hstack(fhs_xa_te1.T)
+    fhs_ya_te = np.hstack(fhs_ya_te1.T)
+    fhs_za_te = np.hstack(fhs_za_te1.T)
+    fhs_xb_te = np.hstack(fhs_xb_te1.T)
+    fhs_yb_te = np.hstack(fhs_yb_te1.T)
+    fhs_zb_te = np.hstack(fhs_zb_te1.T)     
     
-    return VD
+    fhs_xc_te = np.concatenate([fhs_xc_te , fhs_xc_te ])
+    fhs_yc_te = np.concatenate([fhs_yc_te , fhs_yc_te ])
+    fhs_zc_te = np.concatenate([fhs_zc_te ,-fhs_zc_te ])                 
+    fhs_xa_te = np.concatenate([fhs_xa_te , fhs_xa_te ])
+    fhs_ya_te = np.concatenate([fhs_ya_te , fhs_ya_te ])
+    fhs_za_te = np.concatenate([fhs_za_te ,-fhs_za_te ])            
+    fhs_xb_te = np.concatenate([fhs_xb_te , fhs_xb_te ])
+    fhs_yb_te = np.concatenate([fhs_yb_te , fhs_yb_te ])
+    fhs_zb_te = np.concatenate([fhs_zb_te ,-fhs_zb_te ])    
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def generate_fuselage_surface_points(VD,fus):
-    """ This generates the coordinate points on the surface of the fuselage
-
-    Assumptions: 
-    None
-
-    Source:   
-    None
+    # Horizontal Fuselage Sections 
+    wing_areas = []
+    wing_areas.append(fus_h_area)
+    wing_areas.append(fus_h_area)  
     
-    Inputs:   
-    VD                   - vortex distribution    
+    # store points of horizontal section of fuselage 
+    fhs_cs  = np.concatenate([fhs_cs, fhs_cs])
+    fhs_xah = np.concatenate([fhs_xah, fhs_xah])
+    fhs_yah = np.concatenate([fhs_yah,-fhs_yah])
+    fhs_zah = np.concatenate([fhs_zah, fhs_zah])
+    fhs_xbh = np.concatenate([fhs_xbh, fhs_xbh])
+    fhs_ybh = np.concatenate([fhs_ybh,-fhs_ybh])
+    fhs_zbh = np.concatenate([fhs_zbh, fhs_zbh])
+    fhs_xch = np.concatenate([fhs_xch, fhs_xch])
+    fhs_ych = np.concatenate([fhs_ych,-fhs_ych])
+    fhs_zch = np.concatenate([fhs_zch, fhs_zch])
+    fhs_xa1 = np.concatenate([fhs_xa1, fhs_xa1])
+    fhs_ya1 = np.concatenate([fhs_ya1,-fhs_ya1])
+    fhs_za1 = np.concatenate([fhs_za1, fhs_za1])
+    fhs_xa2 = np.concatenate([fhs_xa2, fhs_xa2])
+    fhs_ya2 = np.concatenate([fhs_ya2,-fhs_ya2])
+    fhs_za2 = np.concatenate([fhs_za2, fhs_za2])
+    fhs_xb1 = np.concatenate([fhs_xb1, fhs_xb1])
+    fhs_yb1 = np.concatenate([fhs_yb1,-fhs_yb1])    
+    fhs_zb1 = np.concatenate([fhs_zb1, fhs_zb1])
+    fhs_xb2 = np.concatenate([fhs_xb2, fhs_xb2])
+    fhs_yb2 = np.concatenate([fhs_yb2,-fhs_yb2])            
+    fhs_zb2 = np.concatenate([fhs_zb2, fhs_zb2])
+    fhs_xac = np.concatenate([fhs_xac, fhs_xac])
+    fhs_yac = np.concatenate([fhs_yac,-fhs_yac])
+    fhs_zac = np.concatenate([fhs_zac, fhs_zac])            
+    fhs_xbc = np.concatenate([fhs_xbc, fhs_xbc])
+    fhs_ybc = np.concatenate([fhs_ybc,-fhs_ybc])
+    fhs_zbc = np.concatenate([fhs_zbc, fhs_zbc])
+    fhs_xc  = np.concatenate([fhs_xc , fhs_xc ])
+    fhs_yc  = np.concatenate([fhs_yc ,-fhs_yc])
+    fhs_zc  = np.concatenate([fhs_zc , fhs_zc ])     
+    fhs_x   = np.concatenate([fhs_x  , fhs_x  ])
+    fhs_y   = np.concatenate([fhs_y  ,-fhs_y ])
+    fhs_z   = np.concatenate([fhs_z  , fhs_z  ])      
     
-    Properties Used:
-    N/A
-    """      
-    num_fus_segs = len(fus.Segments.keys())
-    tessellation = 24
-    if num_fus_segs > 0:  
-        fus_pts = np.zeros((num_fus_segs,tessellation ,3))
-        for i_seg in range(num_fus_segs):
-            theta    = np.linspace(0,2*np.pi,tessellation +1)[:-1] 
-            a        = fus.Segments[i_seg].width/2            
-            b        = fus.Segments[i_seg].height/2 
-            r        = np.sqrt((b*np.sin(theta))**2  + (a*np.cos(theta))**2)  
-            fus_ypts = r*np.cos(theta)
-            fus_zpts = r*np.sin(theta) 
-            fus_pts[i_seg,:,0] = fus.Segments[i_seg].origin[0]
-            fus_pts[i_seg,:,1] = fus_ypts + fus.Segments[i_seg].origin[1]
-            fus_pts[i_seg,:,2] = fus_zpts + fus.Segments[i_seg].origin[2]
+    if model_fuselage == True:
         
-        # store points
-        VD.FUS_SURF_PTS = fus_pts
-    else:
-        VD.FUS_SURF_PTS = None # future work
+        # increment fuslage lifting surface sections  
+        VD.n_fus  += 2    
+        VD.n_cp += len(fhs_xch)
+        VD.n_w  += 2          
+    
+        # Store fus in vehicle vector  
+        VD.XAH  = np.append(VD.XAH,fhs_xah)
+        VD.YAH  = np.append(VD.YAH,fhs_yah)
+        VD.ZAH  = np.append(VD.ZAH,fhs_zah)
+        VD.XBH  = np.append(VD.XBH,fhs_xbh)
+        VD.YBH  = np.append(VD.YBH,fhs_ybh)
+        VD.ZBH  = np.append(VD.ZBH,fhs_zbh)
+        VD.XCH  = np.append(VD.XCH,fhs_xch)
+        VD.YCH  = np.append(VD.YCH,fhs_ych)
+        VD.ZCH  = np.append(VD.ZCH,fhs_zch)     
+        VD.XA1  = np.append(VD.XA1,fhs_xa1)
+        VD.YA1  = np.append(VD.YA1,fhs_ya1)
+        VD.ZA1  = np.append(VD.ZA1,fhs_za1)
+        VD.XA2  = np.append(VD.XA2,fhs_xa2)
+        VD.YA2  = np.append(VD.YA2,fhs_ya2)
+        VD.ZA2  = np.append(VD.ZA2,fhs_za2)    
+        VD.XB1  = np.append(VD.XB1,fhs_xb1)
+        VD.YB1  = np.append(VD.YB1,fhs_yb1)
+        VD.ZB1  = np.append(VD.ZB1,fhs_zb1)
+        VD.XB2  = np.append(VD.XB2,fhs_xb2)                
+        VD.YB2  = np.append(VD.YB2,fhs_yb2)        
+        VD.ZB2  = np.append(VD.ZB2,fhs_zb2)  
+        VD.XC_TE  = np.append(VD.XC_TE,fhs_xc_te)
+        VD.YC_TE  = np.append(VD.YC_TE,fhs_yc_te) 
+        VD.ZC_TE  = np.append(VD.ZC_TE,fhs_zc_te)          
+        VD.XA_TE  = np.append(VD.XA_TE,fhs_xa_te)
+        VD.YA_TE  = np.append(VD.YA_TE,fhs_ya_te) 
+        VD.ZA_TE  = np.append(VD.ZA_TE,fhs_za_te) 
+        VD.XB_TE  = np.append(VD.XB_TE,fhs_xb_te)
+        VD.YB_TE  = np.append(VD.YB_TE,fhs_yb_te) 
+        VD.ZB_TE  = np.append(VD.ZB_TE,fhs_zb_te)      
+        VD.XAC  = np.append(VD.XAC,fhs_xac)
+        VD.YAC  = np.append(VD.YAC,fhs_yac) 
+        VD.ZAC  = np.append(VD.ZAC,fhs_zac) 
+        VD.XBC  = np.append(VD.XBC,fhs_xbc)
+        VD.YBC  = np.append(VD.YBC,fhs_ybc) 
+        VD.ZBC  = np.append(VD.ZBC,fhs_zbc)  
+        VD.XC   = np.append(VD.XC ,fhs_xc)
+        VD.YC   = np.append(VD.YC ,fhs_yc)
+        VD.ZC   = np.append(VD.ZC ,fhs_zc)  
+        VD.CS   = np.append(VD.CS ,fhs_cs) 
+        VD.X    = np.append(VD.X  ,fhs_x )  
+        VD.Y    = np.append(VD.Y  ,fhs_y )  
+        VD.Z    = np.append(VD.Z  ,fhs_z )
         
+        VD.wing_areas = np.append(VD.wing_areas, wing_areas)
+        VD.Stot = VD.Stot + np.sum(wing_areas)
+        
+        VL = VD.vortex_lift
+        VL.append(False)
+        VL.append(False)
+    
+    
     return VD
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
@@ -1163,5 +1320,38 @@ def compute_panel_area(VD):
     P2P4 = np.array([VD.XB2 - VD.XB1,VD.YB2 - VD.YB1,VD.ZB2 - VD.ZB1]).T   
     
     # compute area of quadrilateral panel
-    A_panel = 0.5*(np.linalg.norm(np.cross(P1P2,P1P3)) + np.linalg.norm(np.cross(P2P3, P2P4)))
+    A_panel = 0.5*(np.linalg.norm(np.cross(P1P2,P1P3),axis=1) + np.linalg.norm(np.cross(P2P3, P2P4),axis=1))
+    
     return A_panel
+
+
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+def compute_unit_normal(VD):
+    """ This computed the unit normal vector of each panel
+
+
+    Assumptions: 
+    None
+
+    Source:
+    None
+    
+    Inputs:   
+    VD                   - vortex distribution    
+    
+    Properties Used:
+    N/A
+    """     
+
+     # create vectors for panel
+    P1P2 = np.array([VD.XB1 - VD.XA1,VD.YB1 - VD.YA1,VD.ZB1 - VD.ZA1]).T
+    P1P3 = np.array([VD.XA2 - VD.XA1,VD.YA2 - VD.YA1,VD.ZA2 - VD.ZA1]).T
+
+    cross = np.cross(P1P2,P1P3) 
+
+    unit_normal = (cross.T / np.linalg.norm(cross,axis=1)).T
+
+     # adjust Z values, no values should point down, flip vectors if so
+    unit_normal[unit_normal[:,2]<0,:] = -unit_normal[unit_normal[:,2]<0,:]
+
+    return unit_normal

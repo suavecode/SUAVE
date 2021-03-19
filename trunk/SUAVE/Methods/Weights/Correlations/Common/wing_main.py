@@ -122,7 +122,7 @@ def wing_main(vehicle, wing, rho, sigma, computation_type = 'segmented'):
         # Calculate weight of wing for traditional aircraft wing
         weight  = 4.22 * area + 1.642 * 10. ** -6. * Nult * (span) ** 3. * (mtow * zfw) ** 0.5 \
                  * (1. + 2. * taper) / (t_c_w * (np.cos(sweep)) ** 2. * area * (1. + taper))
-        
+
 
     weight = weight * Units.lb  # Convert lb to kg
 

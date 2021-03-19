@@ -22,7 +22,7 @@ import copy, time
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-
+from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle 
 import sys
 
 sys.path.append('../Vehicles')
@@ -73,10 +73,10 @@ def main():
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 105.97391697180569
-    truth_rpm = 236.41412349855702
-    truth_i   = 175.20906685293815
-    truth_bat = 188634807.30459636
+    truth_F   = 105.97751059878202
+    truth_rpm = 214.5705559974985
+    truth_i   = 131.33561855929347
+    truth_bat = 195698222.3048672
     
     print('battery energy')
     print(energy)
@@ -93,6 +93,8 @@ def main():
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)
  
+    # Plot vehicle 
+    plot_vehicle(configs.cruise, save_figure = False, plot_control_points = True)
     
     return
 
@@ -187,7 +189,7 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/15.
+    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/20.
     base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    

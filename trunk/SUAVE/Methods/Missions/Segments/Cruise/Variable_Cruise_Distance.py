@@ -107,5 +107,44 @@ def residual_landing_weight(segment):
     segment.state.residuals.landing_weight = (landing_weight - target_weight)/target_weight
     
     return
+
+
+
+# --------------------------------------------------------------
+#   Residuals - for Take Off Weight
+# --------------------------------------------------------------
+
+## @ingroup Methods-Missions-Segments-Cruise
+def residual_state_of_charge(segment):
+    """This is a method that allows your vehicle to land at a prescribed state of charge.
+    This takes the final weight and compares it against the prescribed state of charge.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    segment.state.segments[-1].conditions.propulsion.state_of_charge [None]
+    segment.target_state_of_charge                                   [None]
+
+    Outputs:
+    segment.state.residuals.state_of_charge                          [None]
+
+    Properties Used:
+    N/A
+    """      
+    
+    # unpack
+    end_SOC    = segment.segments[-1].state.conditions.propulsion.state_of_charge[-1]
+    target_SOC = segment.target_state_of_charge
+    
+    # this needs to go to zero for the solver to complete
+    segment.state.residuals.state_of_charge = (end_SOC - target_SOC)/target_SOC
+    
+    return
+    
+
     
     

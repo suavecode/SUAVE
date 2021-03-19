@@ -4,13 +4,16 @@
 # Created:  Sep 2018, T. MacDonald
 # Modified: Oct 2018, T. MacDonald
 #           Jan 2019, T. MacDonald
+#           Feb 2021, T. MacDonald
 
+from SUAVE.Core import Units
 import numpy as np
 
 ## @ingroup Methods-Center_of_Gravity
-def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0):
+def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0, units='metric',
+                special_length=None, fig_title = "Available Fuel CG Distribution"):
     """Plot possible longitudinal cg positions for the fuel (or full vehicle
-    is empty mass is given)
+    if empty mass is given)
     
     Assumptions:
     None
@@ -19,42 +22,73 @@ def plot_cg_map(masses,cg_mins,cg_maxes,empty_mass=0,empty_cg=0):
     N/A
 
     Inputs:
-    masses     [kg]
-    cg_mins    [m]
-    cg_maxes   [m]
-    empty_mass [kg]
-    empty_cg   [m]
+      Fuel only:
+        masses     [kg]
+        cg_mins    [m]
+        cg_maxes   [m]
+    
+      Vehicle Properties (optional):
+        empty_mass [kg]
+        empty_cg   [m]
 
     Outputs:
-    A plot
+    fig      (figure handle)
+    axes     (axis handle)
+    cg_mins  [m]  (incl. vehicle if vehicle properties specified)
+    cg_maxes [m]  (incl. vehicle if vehicle properties specified)
+    masses   [kg] (incl. vehicle if vehicle properties specified)
 
     Properties Used:
     N/A
     """    
     
-    ylabel_string = 'Fuel Mass (kg)'
+    if units == 'metric':
+        l_str = 'm'
+        m_str = 'kg'
+        ylabel_string = 'Total Mass ('+m_str+')'
+    elif units == 'imperial':
+        if special_length is None:
+            l_str = 'ft'
+        elif special_length == 'inches':
+            l_str = 'in'
+        m_str = 'lb'
+        ylabel_string = 'Total Weight ('+m_str+')'
+    else:
+        raise NotImplementedError('Unit choice not recognized.')    
+    
     
     if empty_mass != 0:
         cg_maxes = (cg_maxes*masses+empty_cg*empty_mass)/(masses+empty_mass)
         cg_mins  = (cg_mins*masses+empty_cg*empty_mass)/(masses+empty_mass)
         masses   = masses+empty_mass
-        ylabel_string = 'Total Mass (kg)'
+    else:
+        if units == 'metric':
+            ylabel_string = 'Fuel Mass ('+m_str+')'
+        else:
+            ylabel_string = 'Fuel Weight ('+m_str+')'
     
     import pylab as plt
 
-    fig = plt.figure("Available Fuel CG Distribution",figsize=(8,6))
+    fig = plt.figure(fig_title, figsize=(8,6))
     axes = plt.gca()
-    axes.plot(cg_maxes,masses,'g-') 
-    axes.plot(cg_mins,masses,'b-')
+    if units == 'metric':
+        axes.plot(cg_maxes,masses,color=plt.cm.Greys(.8)) 
+        axes.plot(cg_mins,masses,color=plt.cm.Greys(.8))
+    elif units == 'imperial' and special_length is None:
+        axes.plot(cg_maxes/Units.ft,masses/Units.lb,color=plt.cm.Greys(.8),label='Maximum CG Position') 
+        axes.plot(cg_mins/Units.ft,masses/Units.lb,color=plt.cm.Greys(.8),label='Minimum CG Position')
+    elif units == 'imperial' and special_length == 'inches':
+        axes.plot(cg_maxes/Units.inch,masses/Units.lb,color=plt.cm.Greys(.8),label='Maximum CG Position') 
+        axes.plot(cg_mins/Units.inch,masses/Units.lb,color=plt.cm.Greys(.8),label='Minimum CG Position')        
+    else:
+        raise NotImplementedError('Unit choice not recognized.')
     
-    axes.set_xlabel('CG Position (m)')
+    axes.set_xlabel('CG Position ('+l_str+')')
     axes.set_ylabel(ylabel_string)
     axes.set_title('Available Fuel CG Distribution')
     axes.grid(True)  
     
-    plt.show()
-    
-    return
+    return fig, axes, cg_mins, cg_maxes, masses
 
 ## @ingroup Methods-Center_of_Gravity
 def compute_fuel_center_of_gravity_longitudinal_range(vehicle):

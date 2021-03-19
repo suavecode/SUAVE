@@ -320,7 +320,7 @@ class Additive_Solver():
         if np.isscalar(fOpt):
             FOpt = np.array([fOpt])
         else:
-            FOpt = fOpt.astype('Float64')
+            FOpt = fOpt.astype(np.double)
         
         return (FOpt,xOpt)
         

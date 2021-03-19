@@ -89,8 +89,10 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	# Set the units
 	if units_type == 'SI':
 		units_factor = Units.meter * 1.
-	else:
+	elif units_type == 'imperial':
 		units_factor = Units.foot * 1.
+	elif units_type == 'inches':
+		units_factor = Units.inch * 1.		
 
 	# Apply a tag to the wing
 	if vsp.GetGeomName(wing_id):
@@ -181,7 +183,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			if i < segment_num:      # This excludes the tip xsec, but we need a segment in SUAVE to store airfoil.
 				sweep     = vsp.GetParmVal(wing_id, 'Sweep', 'XSec_' + str(i)) * Units.deg
 				sweep_loc = vsp.GetParmVal(wing_id, 'Sweep_Location', 'XSec_' + str(i))
-				AR        = vsp.GetParmVal(wing_id, 'Aspect', 'XSec_' + str(i))
+				AR        = 2*vsp.GetParmVal(wing_id, 'Aspect', 'XSec_' + str(i))
 				taper     = vsp.GetParmVal(wing_id, 'Taper', 'XSec_' + str(i))
 				   
 				segment_sweeps_quarter_chord[i] = convert_sweep(sweep,sweep_loc,0.25,AR,taper)
@@ -195,7 +197,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 				proj_span_sum += segment_spans[i] * np.cos(segment_dihedral[i])	
 				span_sum      += segment_spans[i]
 			else:
-				segment.root_chord_percent    = (vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(i-1))) * units_factor /total_chord
+				segment.root_chord_percent    = (vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(i-1))) * units_factor /root_chord
 		
 			# XSec airfoil
 			jj = i-1  # Airfoil index i-1 because VSP airfoils and sections are one index off relative to SUAVE.
@@ -227,11 +229,10 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		
 			elif vsp.GetXSecShape(xsec_id) == vsp.XS_FILE_AIRFOIL:	# XSec shape: 12 is type AF_FILE
 				airfoil.thickness_to_chord = thick_cord
-				airfoil.points             = vsp.GetAirfoilCoordinates(wing_id, float(jj/segment_num))
 				# VSP airfoil API calls get coordinates and write files with the final argument being the fraction of segment position, regardless of relative spans. 
 				# (Write the root airfoil with final arg = 0. Write 4th airfoil of 5 segments with final arg = .8)
 				vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
-				airfoil.coordinate_file    = 'str(wing.tag)' + '_airfoil_XSec_' + str(jj) +'.dat'
+				airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
 				airfoil.tag                = 'AF_file'	
 		
 				segment.append_airfoil(airfoil)
@@ -253,9 +254,6 @@ def vsp_read_wing(wing_id, units_type='SI'):
 		
 		# Add a tip segment, all values are zero except the tip chord
 		tc = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(segment_num-1)) * units_factor
-		segment = SUAVE.Components.Wings.Segment()
-		segment.percent_span_location = 1.0
-		segment.root_chord_percent    = tc / root_chord	
 		
 		# Chords
 		wing.chords.root              = vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_0') * units_factor

@@ -6,17 +6,22 @@
 
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units, Data
 
 from time import time
 
 import pylab as plt
+
+import scipy as sp
+import numpy as np
+
 
 #SUAVE.Analyses.Process.verbose = True
 import sys
 sys.path.append('../Vehicles')
 sys.path.append('../B737')
 from Boeing_737 import vehicle_setup, configs_setup
+from Stopped_Rotor import vehicle_setup as vehicle_setup_SR 
 
 import mission_B737
 # ----------------------------------------------------------------------
@@ -24,6 +29,8 @@ import mission_B737
 # ----------------------------------------------------------------------
 
 def main():
+    
+    # Setup for converging on weight
     
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
@@ -38,7 +45,7 @@ def main():
     
     plot_results(results)
     
-    distance_regression = 3966186.5678927945
+    distance_regression = 3863686.212273777
     distance_calc       = results.conditions.frames.inertial.position_vector[-1,0]
     error_distance      = abs((distance_regression - distance_calc )/distance_regression)
     assert error_distance < 1e-6
@@ -47,7 +54,154 @@ def main():
     print('landing weight error' , error_weight)
     assert error_weight < 1e-6
     
+    
+    
+    # Setup for converging on SOC, using the stopped rotor vehicle
+    vehicle_SR, analyses_SR = full_setup_SR()
+    analyses_SR.finalize()    
+
+    mission_SR              = analyses_SR.mission   
+    results_SR              = mission_SR.evaluate()
+    results_SR              = results_SR.merged()
+    
+    distance_regression_SR = 101909.11926069585
+    distance_calc_SR       = results_SR.conditions.frames.inertial.position_vector[-1,0]
+    error_distance_SR      = abs((distance_regression_SR - distance_calc_SR )/distance_regression_SR)
+    assert error_distance_SR < 1e-6   
+    
+    error_soc = abs(mission_SR.target_state_of_charge- results_SR.conditions.propulsion.state_of_charge[-1,0])
+    print('landing state of charge error' , error_soc)
+    assert error_soc < 1e-6    
+    
+    
     return
+
+
+def find_propeller_max_range_endurance_speeds(analyses,altitude,CL_max,up_bnd,delta_isa):
+    
+    
+    # setup a mission that runs a single point segment without propulsion
+    def mini_mission():
+        
+        # ------------------------------------------------------------------
+        #   Initialize the Mission
+        # ------------------------------------------------------------------
+        mission = SUAVE.Analyses.Mission.Sequential_Segments()
+        mission.tag = 'the_mission'
+        
+        # ------------------------------------------------------------------
+        #  Single Point Segment 1: constant Speed, constant altitude
+        # ------------------------------------------------------------------ 
+        segment = SUAVE.Analyses.Mission.Segments.Single_Point.Set_Speed_Set_Altitude_No_Propulsion()
+        segment.tag = "single_point" 
+        segment.analyses.extend(analyses) 
+        segment.altitude    = altitude
+        segment.air_speed   = 100.
+        segment.temperature_deviation = delta_isa
+        segment.state.numerics.tolerance_solution = 1e-6
+        segment.state.numerics.max_evaluations    = 500
+    
+        # add to misison
+        mission.append_segment(segment)    
+
+        return mission
+        
+    
+    # This is what's called by the optimizer for CL**3/2 /CD Max
+    def single_point_3_halves(X):
+        
+        # Update the mission
+        mission.segments.single_point.air_speed = X
+        mission.segments.single_point.state.unknowns.body_angle = np.array([[15.0]]) * Units.degrees
+        
+        # Run the Mission      
+        point_results = mission.evaluate()    
+                
+        CL = point_results.segments.single_point.conditions.aerodynamics.lift_coefficient
+        CD = point_results.segments.single_point.conditions.aerodynamics.drag_coefficient
+        
+        three_halves = -(CL**(3/2))/CD # Negative because optimizers want to make things small
+        
+        if not point_results.segments.single_point.converged:
+            three_halves = 1.      
+        
+        return three_halves
+    
+    
+    
+    # This is what's called by the optimizer for L/D Max
+    def single_point_LDmax(X):
+        
+        # Modify the mission for the next iteration
+        mission.segments.single_point.air_speed = X
+        mission.segments.single_point.state.unknowns.body_angle = np.array([[15.0]]) * Units.degrees
+        
+        # Run the Mission      
+        point_results = mission.evaluate()    
+                
+        CL = point_results.segments.single_point.conditions.aerodynamics.lift_coefficient
+        CD = point_results.segments.single_point.conditions.aerodynamics.drag_coefficient
+        
+        L_D = -CL/CD # Negative because optimizers want to make things small
+        
+        if not point_results.segments.single_point.converged:
+            L_D = 1.
+
+        return L_D
+
+
+    # ------------------------------------------------------------------
+    #   Run the optimizer to solve
+    # ------------------------------------------------------------------    
+    
+    # Setup the a mini mission
+    mission = mini_mission()
+    
+    # Takeoff mass:
+    mass = analyses.aerodynamics.geometry.mass_properties.takeoff
+    
+    # Calculate the stall speed
+    Vs = stall_speed(analyses,mass,CL_max,altitude,delta_isa)[0][0]
+    
+    # The final results to save
+    results = Data()
+    
+    # Wrap an optimizer around both functions to solve for CL**3/2 /CD max
+    outputs_32 = sp.optimize.minimize_scalar(single_point_3_halves,bounds=(Vs,up_bnd),method='bounded')    
+    
+    # Pack the results
+    results.cl32_cd = Data()
+    results.cl32_cd.air_speed = outputs_32.x
+    results.cl32_cd.cl32_cd   = -outputs_32.fun[0][0]
+    
+    # Wrap an optimizer around both functions to solve for L/D Max
+    outputs_ld = sp.optimize.minimize_scalar(single_point_LDmax,bounds=(Vs,up_bnd),method='bounded')    
+        
+    # Pack the results
+    results.ld_max = Data()
+    results.ld_max.air_speed = outputs_ld.x
+    results.ld_max.L_D_max   = -outputs_ld.fun[0][0]    
+  
+    return results
+
+
+def stall_speed(analyses,mass,CL_max,altitude,delta_isa):
+    
+    # Unpack
+    atmo  = analyses.atmosphere 
+    S     = analyses.aerodynamics.geometry.reference_area
+    
+    # Calculations
+    atmo_values       = atmo.compute_values(altitude,delta_isa)
+    rho               = atmo_values.density
+    sea_level_gravity = atmo.planet.sea_level_gravity
+    
+    W = mass*sea_level_gravity 
+
+    V = np.sqrt(2*W/(rho*S*CL_max))
+    
+    return V
+    
     
     
 def mission_setup(configs,analyses):
@@ -56,7 +210,7 @@ def mission_setup(configs,analyses):
     #   Initialize the Mission
     # ------------------------------------------------------------------
     
-    mission = SUAVE.Analyses.Mission.Vary_Cruise.Given_Weight()
+    mission = SUAVE.Analyses.Mission.Variable_Range_Cruise.Given_Weight()
     mission.tag = 'the_mission'
     
     # the cruise tag to vary cruise distance
@@ -122,6 +276,129 @@ def mission_setup(configs,analyses):
     mission.append_segment(segment)
     
     return mission
+
+
+def mission_setup_SR(vehicle,analyses):
+
+    # ------------------------------------------------------------------
+    #   Initialize the Mission
+    # ------------------------------------------------------------------
+    
+    mission = SUAVE.Analyses.Mission.Variable_Range_Cruise.Given_State_of_Charge()
+    mission.tag = 'the_mission'
+    
+    # the cruise tag to vary cruise distance
+    mission.cruise_tag = 'cruise'
+    mission.target_state_of_charge = 0.5
+    
+    # unpack Segments module
+    Segments = SUAVE.Analyses.Mission.Segments    
+    
+    # base segment
+    base_segment = Segments.Segment()
+    ones_row                                                 = base_segment.state.ones_row    
+    base_segment.state.numerics.number_control_points        = 4
+    base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
+    base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip    
+    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.lift_cruise.residuals_transition
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.lift_cruise.battery.max_voltage * ones_row(1)  
+    base_segment.state.residuals.network                     = 0. * ones_row(2)    
+    
+        
+    
+    # ------------------------------------------------------------------    
+    #   Cruise Segment: constant speed, constant altitude
+    # ------------------------------------------------------------------    
+    
+    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    segment.tag = "cruise"
+    
+    segment.analyses.extend( analyses )
+    
+    segment.altitude  = 1000.0 * Units.ft
+    segment.air_speed = 110.   * Units['mph']
+    segment.distance  = 60.    * Units.miles     
+    segment.battery_energy = vehicle.propulsors.lift_cruise.battery.max_energy
+    
+
+    segment.state.unknowns.propeller_power_coefficient = 0.16 * ones_row(1)  
+    segment.state.unknowns.throttle                    = 0.80 * ones_row(1)
+
+    segment.process.iterate.unknowns.network  = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
+    segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift    
+    
+    mission.append_segment(segment)
+
+
+    return mission
+
+
+# ----------------------------------------------------------------------
+#   Analysis Setup
+# ----------------------------------------------------------------------
+def full_setup_SR():
+    
+    # vehicle data
+    vehicle  = vehicle_setup_SR() 
+
+    # vehicle analyses
+    analyses = base_analysis_SR(vehicle)
+
+    # mission analyses
+    mission  = mission_setup_SR(vehicle,analyses)
+
+    analyses.mission = mission
+    
+    return  vehicle, analyses
+
+
+def base_analysis_SR(vehicle):
+
+    # ------------------------------------------------------------------
+    #   Initialize the Analyses
+    # ------------------------------------------------------------------     
+    analyses = SUAVE.Analyses.Vehicle()
+
+    # ------------------------------------------------------------------
+    #  Basic Geometry Relations
+    sizing = SUAVE.Analyses.Sizing.Sizing()
+    sizing.features.vehicle = vehicle
+    analyses.append(sizing)
+
+    # ------------------------------------------------------------------
+    #  Weights
+    weights = SUAVE.Analyses.Weights.Weights_Electric_Lift_Cruise()
+    weights.vehicle = vehicle
+    analyses.append(weights)
+
+    # ------------------------------------------------------------------
+    #  Aerodynamics Analysis
+    aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
+    aerodynamics.geometry = vehicle
+    aerodynamics.settings.drag_coefficient_increment = 0.4*vehicle.excrescence_area_spin / vehicle.reference_area
+    analyses.append(aerodynamics)
+
+    # ------------------------------------------------------------------
+    #  Energy
+    energy= SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.propulsors 
+    analyses.append(energy)
+
+    # ------------------------------------------------------------------
+    #  Planet Analysis
+    planet = SUAVE.Analyses.Planets.Planet()
+    analyses.append(planet)
+
+    # ------------------------------------------------------------------
+    #  Atmosphere Analysis
+    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    atmosphere.features.planet = planet.features
+    analyses.append(atmosphere)   
+
+    return analyses    
 
 def plot_results(results):
     

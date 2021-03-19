@@ -8,6 +8,6 @@ from .compute_RHS_matrix                   import compute_RHS_matrix
 from .compute_wake_induced_velocity        import compute_wake_induced_velocity 
 from .compute_wing_induced_velocity        import compute_wing_induced_velocity 
 from .generate_propeller_wake_distribution import generate_propeller_wake_distribution
-from .generate_wing_vortex_distribution    import generate_wing_vortex_distribution 
+from .generate_wing_vortex_distribution    import generate_wing_vortex_distribution, compute_unit_normal 
 from .fuselage_correction                  import fuselage_correction
-from .VLM                                  import VLM
+from .VLM                                  import VLM 
