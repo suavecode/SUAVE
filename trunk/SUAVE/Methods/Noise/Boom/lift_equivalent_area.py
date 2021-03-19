@@ -24,6 +24,7 @@ def lift_equivalent_area(config,analyses,conditions):
     S                                  = config.reference_area
     q                                  = conditions.freestream.dynamic_pressure
     mach                               = conditions.freestream.mach_number
+    aoa                                = conditions.aerodynamics.angle_of_attack
     settings                           = analyses.aerodynamics.process.compute.lift.inviscid_wings.settings
     
     CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, Velocity_Profile = VLM(conditions, settings, config)
@@ -37,7 +38,7 @@ def lift_equivalent_area(config,analyses,conditions):
     z_comp     = normal_vec[:,2]
 
     # The 2 is used because the CP acts on both the top and bottom of the panel
-    lift_force_per_panel = 2*CP[0,:]*q*z_comp*areas
+    lift_force_per_panel = CP[0,:]*q*z_comp*areas*np.cos(aoa[0])
     
     # Mach angle
     mach_angle = np.arcsin(1/mach[0])
@@ -68,4 +69,4 @@ def lift_equivalent_area(config,analyses,conditions):
     X_locs = np.concatenate([[0],X_locations,[X_max]])
     AE_x   = np.concatenate([[0],Ae_lift_at_each_x,[Ae_lift_at_each_x[-1]]])
     
-    return X_locs, AE_x
+    return X_locs, AE_x, CP

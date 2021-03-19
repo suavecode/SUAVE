@@ -172,7 +172,10 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			segment.tag                   = 'Section_' + str(i)
 			thick_cord                    = vsp.GetParmVal(wing_id, 'ThickChord', 'XSecCurve_' + str(i-1))
 			segment.thickness_to_chord    = thick_cord	# Thick_cord stored for use in airfoil, below.		
-			segment_root_chord            = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_' + str(i)) * units_factor
+			if i!=segment_num:
+				segment_root_chord    = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_' + str(i)) * units_factor
+			else:
+				segment_root_chord    = 0.0
 			segment.root_chord_percent    = segment_root_chord / root_chord		
 			segment.percent_span_location = proj_span_sum / (total_proj_span/(1+wing.symmetric))
 			segment.twist                 = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(i-1)) * Units.deg

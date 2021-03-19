@@ -420,7 +420,10 @@ class Vortex_Lattice(Aerodynamics):
         total_lift, total_drag, wing_lifts, wing_drags, _, _, _, _, _ = calculate_VLM(konditions,settings,geometry)     
         
         # Split subsonic from supersonic
-        sub_sup_split = np.where(Machs < 1.0)[0][-1] + 1 
+        if np.sum(Machs<1.)==0:
+            sub_sup_split = 0
+        else:
+            sub_sup_split = np.where(Machs < 1.0)[0][-1] + 1 
         len_sub_mach  = np.sum(Mach<1.)
         len_sup_mach  = lenM - len_sub_mach
         
@@ -497,7 +500,10 @@ class Vortex_Lattice(Aerodynamics):
         geometry       = self.geometry
         Mach           = training.Mach
         AoA_data       = training.angle_of_attack[:,0]
-        sub_sup_split  = np.where(Mach < 1.0)[0][-1] + 1 
+        if np.sum(Mach<1.)==0:
+            sub_sup_split = 0
+        else:
+            sub_sup_split = np.where(Mach < 1.0)[0][-1] + 1 
         mach_data_sub  = training.Mach[0:sub_sup_split,0]
         mach_data_sup  = training.Mach[sub_sup_split:,0]
         CL_data_sub    = training.lift_coefficient_sub   
