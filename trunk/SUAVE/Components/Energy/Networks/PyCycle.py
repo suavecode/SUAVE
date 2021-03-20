@@ -85,8 +85,8 @@ class PyCycle(Propulsor):
                                          (0.5, 10000), (0.4, 10000), (0.2, 10000),
                                          (0.2, 1000),  (0.4, 1000),  (0.6, 1000),
                                          (0.6, 0),     (0.4, 0),     (0.2, 0),     (0.001, 0)]
-        self.evaluation_throttles     = [1, 0.9, 0.8, .7]
-        self.throttles_back           = [0.7, 0.85, 1]
+        self.evaluation_throttles     = np.array([1, 0.9, 0.8, .7])
+        #self.throttles_back           = [0.7, 0.85, 1]
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -184,49 +184,50 @@ class PyCycle(Propulsor):
         TSFC      = []
         
         
-        last_MN  = self.evaluation_mach_alt[-1][0] 
-        last_alt = self.evaluation_mach_alt[-1][1]
+        #last_MN  = self.evaluation_mach_alt[-1][0] 
+        #last_alt = self.evaluation_mach_alt[-1][1]
         
         
         # if we added fc.dTS this would handle the deltaISA
+        throttles = self.evaluation_throttles*1.
 
         for MN, alt in self.evaluation_mach_alt: 
     
             print('***'*10)
             print(f'* MN: {MN}, alt: {alt}')
             print('***'*10)
-            pycycle_problem['OD.fc.MN'] = MN
-            pycycle_problem['OD.fc.alt'] = alt
-            pycycle_problem.set_val('OD.bleeds.cust:frac_W', 0.0, units=None)
-            pycycle_problem['ptpwr.fc.MN'] = MN
-            pycycle_problem['ptpwr.fc.alt'] = alt
-            pycycle_problem.set_val('ptpwr.bleeds.cust:frac_W', 0.0, units=None)
+            pycycle_problem['OD_full_pwr.fc.MN'] = MN
+            pycycle_problem['OD_full_pwr.fc.alt'] = alt
+            pycycle_problem['OD_part_pwr.fc.MN'] = MN
+            pycycle_problem['OD_part_pwr.fc.alt'] = alt
     
-            for PC in self.evaluation_throttles: 
+            for PC in throttles: 
                 print(f'## PC = {PC}')
-                pycycle_problem['ptpwr.pc'] = PC
+                pycycle_problem['OD_part_pwr.PC']  = PC
                 pycycle_problem.run_model()
                 #Save to our list for SUAVE
                 Altitudes.append(alt)
                 Machs.append(MN)
                 PCs.append(PC)
-                TSFC.append(pycycle_problem['ptpwr.perf.TSFC'][0])
-                Thrust.append(pycycle_problem['ptpwr.perf.Fn'][0])
+                TSFC.append(pycycle_problem['OD_part_pwr.perf.TSFC'][0])
+                Thrust.append(pycycle_problem['OD_part_pwr.perf.Fn'][0])
+
+            throttles = np.flip(throttles)
     
-            # run throttle back up to full power
-            # If we're at the last tuple skip the throttle up
-            if MN==last_MN and alt==last_alt:
-                continue
-            for PC in self.throttles_back: 
-                pycycle_problem['ptpwr.pc'] = PC
-                pycycle_problem.run_model()
-                if PC not in self.evaluation_throttles:
-                    #Save to our list for SUAVE
-                    Altitudes.append(alt)
-                    Machs.append(MN)
-                    PCs.append(PC)
-                    TSFC.append(pycycle_problem['ptpwr.perf.TSFC'][0])
-                    Thrust.append(pycycle_problem['ptpwr.perf.Fn'][0])                    
+            ## run throttle back up to full power
+            ## If we're at the last tuple skip the throttle up
+            #if MN==last_MN and alt==last_alt:
+                #continue
+            #for PC in self.throttles_back: 
+                #pycycle_problem['OD_part_pwr.PC'] = PC
+                #pycycle_problem.run_model()
+                #if PC not in self.evaluation_throttles:
+                    ##Save to our list for SUAVE
+                    #Altitudes.append(alt)
+                    #Machs.append(MN)
+                    #PCs.append(PC)
+                    #TSFC.append(pycycle_problem['OD_part_pwr.perf.TSFC'][0])
+                    #Thrust.append(pycycle_problem['OD_part_pwr.perf.Fn'][0])                    
 
         # Now setup into vectors
         Altitudes = np.atleast_2d(np.array(Altitudes)).T * Units.feet
