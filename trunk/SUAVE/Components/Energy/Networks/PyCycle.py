@@ -1,39 +1,38 @@
 ## @ingroup Components-Energy-Networks
-# Propulsor_Surrogate.py
+# PyCycle.py
 #
-# Created:  Mar 2017, E. Botero
-# Modified: Jan 2020, T. MacDonald
-
+# Created:  Sep 2020, E. Botero
+# Modified: 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
 from copy import deepcopy
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
-from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
-from SUAVE.Core import Data
 import sklearn
 from sklearn import gaussian_process
 from sklearn.gaussian_process.kernels import RationalQuadratic, ConstantKernel, RBF, Matern
 from sklearn import neighbors
 from sklearn import svm, linear_model
 
+# SUAVE imports
+import SUAVE
+from SUAVE.Core import Data, Units
+from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
+
+# PyCycle imports
+
+
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Propulsor_Surrogate(Propulsor):
-    """ This is a way for you to load engine data from a source.
-        A .csv file is read in, a surrogate made, that surrogate is used during the mission analysis.
-        
-        You need to use build surrogate first when setting up the vehicle to make this work.
+class PyCycle(Propulsor):
+    """ This is a way for you to run PyCycle, create a deck, and load the deck into a SUAVE surrogate
         
         Assumptions:
         The input format for this should be Altitude, Mach, Throttle, Thrust, SFC
@@ -79,7 +78,14 @@ class Propulsor_Surrogate(Propulsor):
         self.thrust_anchor_conditions = np.array([[1.,1.,1.]])
         self.sfc_rubber_scale         = 1.
         self.use_extended_surrogate   = False
-        self.sealevel_static_thrust   = 0.0
+        self.save_deck                = True
+        self.evaluation_mach_alt      = [(0.8, 35000), (0.7, 35000),
+                                         (0.7, 25000), (0.6, 25000),
+                                         (0.6, 20000), (0.5, 20000), 
+                                         (0.5, 10000), (0.4, 10000), (0.2, 10000),
+                                         (0.2, 1000),  (0.4, 1000),  (0.6, 1000),
+                                         (0.6, 0),     (0.4, 0),     (0.2, 0),     (0.001, 0)]
+        self.evaluation_throttles     = np.array([1, 0.9, 0.8, .7])
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -158,27 +164,82 @@ class Propulsor_Surrogate(Propulsor):
             
             Properties Used:
             Defaulted values
-        """          
-       
-        # file name to look for
-        file_name = self.input_file
-       
-        # Load the CSV file
-        my_data = np.genfromtxt(file_name, delimiter=',')
-       
-        # Remove the header line
-        my_data = np.delete(my_data,np.s_[0],axis=0)
-       
+        """     
+        
+        # unpack
+        pycycle_problem = self.model
+        
+        
+        pycycle_problem.set_solver_print(level=-1)
+        pycycle_problem.set_solver_print(level=2, depth=0)        
+        
+        
+        # Extract the data
+        # Create lists that will turn into arrays
+        Altitudes = []
+        Machs     = []
+        PCs       = []
+        Thrust    = []
+        TSFC      = []
+        
+        
+        # if we added fc.dTS this would handle the deltaISA
+        
+        throttles = self.evaluation_throttles*1.
+
+        for MN, alt in self.evaluation_mach_alt: 
+    
+            print('***'*10)
+            print(f'* MN: {MN}, alt: {alt}')
+            print('***'*10)
+            pycycle_problem['OD_full_pwr.fc.MN'] = MN
+            pycycle_problem['OD_full_pwr.fc.alt'] = alt
+            pycycle_problem['OD_part_pwr.fc.MN'] = MN
+            pycycle_problem['OD_part_pwr.fc.alt'] = alt
+    
+            for PC in throttles: 
+                print(f'## PC = {PC}')
+                pycycle_problem['OD_part_pwr.PC']  = PC
+                pycycle_problem.run_model()
+                #Save to our list for SUAVE
+                Altitudes.append(alt)
+                Machs.append(MN)
+                PCs.append(PC)
+                TSFC.append(pycycle_problem['OD_part_pwr.perf.TSFC'][0])
+                Thrust.append(pycycle_problem['OD_part_pwr.perf.Fn'][0])
+
+            throttles = np.flip(throttles)
+
+        # Now setup into vectors
+        Altitudes = np.atleast_2d(np.array(Altitudes)).T * Units.feet
+        Mach      = np.atleast_2d(np.array(Machs)).T
+        Throttle  = np.atleast_2d(np.array(PCs)).T
+        thr       = np.atleast_2d(np.array(Thrust)).T * Units.lbf
+        sfc       = np.atleast_2d(np.array(TSFC)).T   * Units['lbm/hr/lbf'] # lbm/hr/lbf converted to (kg/N/s)
+        
+        
+        # Once we have the data the model must be deleted because pycycle models can't be deepcopied
+        self.pop('model')
+        
+        # Concatenate all together and things will start to look like the propuslor surrogate soon
+        my_data = np.concatenate([Altitudes,Mach,Throttle,thr,sfc],axis=1)
+        
+        if self.save_deck :
+            # Write an engine deck
+            np.savetxt("pyCycle_deck.csv", my_data, delimiter=",")
+        
+        
+        print(my_data)
+        
         # Clean up to remove redundant lines
         b = np.ascontiguousarray(my_data).view(np.dtype((np.void, my_data.dtype.itemsize * my_data.shape[1])))
         _, idx = np.unique(b, return_index=True)
        
         my_data = my_data[idx]                
-               
    
         xy  = my_data[:,:3] # Altitude, Mach, Throttle
         thr = np.transpose(np.atleast_2d(my_data[:,3])) # Thrust
-        sfc = np.transpose(np.atleast_2d(my_data[:,4]))  # SFC
+        sfc = np.transpose(np.atleast_2d(my_data[:,4]))  # SFC        
         
         self.altitude_input_scale = np.max(xy[:,0])
         self.thrust_input_scale   = np.max(thr)

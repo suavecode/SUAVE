@@ -213,7 +213,10 @@ def taw_cnbeta(geometry,conditions,configuration):
     else:
         k_v = 1.0
         
-    quarter_chord_sweep = convert_sweep(geometry.wings['main_wing'])
+    if geometry.wings.main_wing.sweeps.quarter_chord is not None:
+        quarter_chord_sweep  = geometry.wings.main_wing.sweeps.quarter_chord
+    else:
+        quarter_chord_sweep = convert_sweep(geometry.wings['main_wing'])
     
     k_sweep  = (1.0+np.cos(quarter_chord_sweep))
     dsdb_e   = 0.724 + 3.06*((S_v/S)/k_sweep) + 0.4*z_w/h_max + 0.009*AR
