@@ -231,11 +231,11 @@ def vsp_read_wing(wing_id, units_type='SI'):
 				airfoil.thickness_to_chord = thick_cord
 				# VSP airfoil API calls get coordinates and write files with the final argument being the fraction of segment position, regardless of relative spans. 
 				# (Write the root airfoil with final arg = 0. Write 4th airfoil of 5 segments with final arg = .8)
-				vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
-				airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
-				airfoil.tag                = 'AF_file'	
-		
-				segment.append_airfoil(airfoil)
+			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
+			airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
+			airfoil.tag                = 'airfoil'	
+	
+			segment.append_airfoil(airfoil)
 		
 			wing.Segments.append(segment)
 		
