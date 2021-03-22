@@ -99,7 +99,8 @@ modules = [
     'scripts/weights/weights.py',
     'scripts/electric_performance/propeller_single_point.py',
     'scripts/electric_performance/electric_V_h_diagram.py',
-    'scripts/electric_performance/electric_payload_range.py'
+    'scripts/electric_performance/electric_payload_range.py',
+    'scripts/nonuniform_propeller_inflow/nonuniform_propeller_inflow.py'
 ]
 
 # ----------------------------------------------------------------------

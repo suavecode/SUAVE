@@ -56,7 +56,7 @@ def initialize_conditions(segment):
     time      = t_nondim * (t_final-t_initial) + t_initial
     
     # Figure out vx
-    vx = v0+time*ax
+    vx = v0+(time - t_initial)*ax
     
     # pack
     segment.state.conditions.freestream.altitude[:,0] = alt

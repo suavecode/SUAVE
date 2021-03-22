@@ -128,15 +128,17 @@ def vsp_read(tag, units_type='SI'):
 
 	if units_type == 'SI':
 		units_type = 'SI' 
+	elif units_type == 'inches':
+		units_type = 'inches'	
 	else:
-		units_type = 'Imperial' 
+		units_type = 'imperial'	
 
 	# The two for-loops below are in anticipation of an OpenVSP API update with a call for GETGEOMTYPE.
 	# This print function allows user to enter VSP GeomID manually as first argument in vsp_read functions.
 	
 	print("VSP geometry IDs: ")	
 	
-	# Label each geom type by storing its VSP geom ID. (The API call for GETGEOMTYPE was not released as of 8/9/18, v 3.16.1)
+	# Label each geom type by storing its VSP geom ID. 
 	
 	for geom in vsp_geoms: 
 		geom_name = vsp.GetGeomName(geom)

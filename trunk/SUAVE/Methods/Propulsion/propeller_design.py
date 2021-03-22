@@ -266,10 +266,7 @@ def propeller_design(prop,number_of_stations=20):
     if prop.design_power == None: 
         prop.design_power = Power[0]        
     elif prop.design_thrust == None: 
-        prop.design_thrust = Thrust[0]      
-    
-    # approximate thickness to chord ratio  
-    t_c_at_70_percent = t_c[int(N*0.7)]
+        prop.design_thrust = Thrust[0]       
     
     # blade solidity
     r          = chi*R                    # Radial coordinate   
@@ -281,11 +278,11 @@ def propeller_design(prop,number_of_stations=20):
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
     prop.radius_distribution        = r 
-    prop.number_of_blades           = int(B)
-    prop.design_power_coefficient   = Cp[0] 
-    prop.design_thrust_coefficient  = Ct[0]
-    prop.mid_chord_aligment         = MCA
-    prop.thickness_to_chord         = t_c_at_70_percent
+    prop.number_of_blades           = int(B) 
+    prop.design_power_coefficient   = Cp 
+    prop.design_thrust_coefficient  = Ct 
+    prop.mid_chord_alignment        = MCA
+    prop.thickness_to_chord         = t_c 
     prop.blade_solidity             = sigma  
     prop.airfoil_cl_surrogates      = airfoil_cl_surs
     prop.airfoil_cd_surrogates      = airfoil_cd_surs 
