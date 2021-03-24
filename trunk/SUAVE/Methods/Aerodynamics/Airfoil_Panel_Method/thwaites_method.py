@@ -33,10 +33,10 @@ def thwaites_method(theta_0, L, Re_L, x_i, Ve_i, dVe_i):
     """     
     nu         = L / Re_L
     n          = 100
-    y0         = theta_0**2 * getVe(0,x_i,Ve_i)**6
-    xspan      = np.linspace(0,L,n) 
+    y0         = theta_0**2 * getVe(0,x_i,Ve_i)**6 
+    xspan        = np.linspace(0,L,n)  
     theta2_Ve6 = odeint(odefcn, y0, xspan, args=(nu, x_i, Ve_i)) 
-    x          = np.zeros(n)  
+    x          = np.linspace(0,L,n) 
     H          = np.zeros_like(x)
     cf         = np.zeros_like(x)
     del_star   = np.zeros_like(x)

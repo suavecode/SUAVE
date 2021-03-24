@@ -36,9 +36,9 @@ def heads_method(theta_0, del_star_0, L, Re_L, x_i, Ve_i, dVe_i):
     xspan        = np.linspace(0,L,n)  
     ReL_div_L    = Re_L/L
     y            = odeint(odefcn,y0,xspan,args=(ReL_div_L, x_i, Ve_i, dVe_i)) 
-    theta        = y[:,1] 
-    Ve_theta_H1  = y[:,2]
-    x            = np.zeros(n) 
+    theta        = y[:,0] 
+    Ve_theta_H1  = y[:,1]
+    x            =  np.linspace(0,L,n) 
     H1           = np.zeros_like(x)
     H            = np.zeros_like(x)
     cf           = np.zeros_like(x)

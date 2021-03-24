@@ -67,7 +67,7 @@ def infl_coeff(x,y,xbar,ybar,st,ct,ainfl,npanel):
                 ainfl[-1,j_idx] = ainfl[-1,j_idx]+ pi2inv*(sti_minus_j*betaij - cti_minus_j*np.log(rij_plus_1/rij))
                 ainfl[-1,-1] = ainfl[-1,-1]+pi2inv*(sti_minus_j*np.log(rij_plus_1/rij) + cti_minus_j*betaij)
   
-    if np.linalg.matrix_rank(ainfl) != npanel:
+    if np.linalg.matrix_rank(ainfl) != npanel + 1:
         return  
 
     return  ainfl  
