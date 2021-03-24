@@ -43,18 +43,18 @@ def panel_geometry(x,y,npanel):
     N/A
     """     
     # compute various geometrical quantities 
-    l      = np.zeros(npanel)
-    st     = np.zeros_like(l)
-    ct     = np.zeros_like(l)
-    xbar  = np.zeros_like(l)
+    l    = np.zeros(npanel)
+    st   = np.zeros_like(l)
+    ct   = np.zeros_like(l)
+    xbar = np.zeros_like(l)
     ybar = np.zeros_like(l) 
     
     for i in range(npanel):
-        l[i] = np.sqrt((x(i+1) -x[i])^2 +(y(i+1) -y[i])^2)
-        st[i] = (y(i+1) -y[i])/l[i]
-        ct[i] = (x(i+1) -x[i])/l[i]
-        xbar[i] = (x(i+1) +x[i])/2
-        ybar[i] = (y(i+1) +y[i])/2 
+        l[i]    = np.sqrt((x[i+1] -x[i])**2 +(y[i+1] -y[i])**2)
+        st[i]   = (y[i+1] -y[i])/l[i]
+        ct[i]   = (x[i+1] -x[i])/l[i]
+        xbar[i] = (x[i+1] +x[i])/2
+        ybar[i] = (y[i+1] +y[i])/2 
     
     return l,st,ct,xbar,ybar
      

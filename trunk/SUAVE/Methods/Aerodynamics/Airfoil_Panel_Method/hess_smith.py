@@ -46,32 +46,31 @@ def hess_smith(x,y,alpha,npanel):
     N/A
     """      
     # generate panel geometry data for later use 
-    l    = np.zeros(npanel,1)
-    st   = np.zeros(npanel,1)
-    ct   = np.zeros(npanel,1)
-    xbar = np.zeros(npanel,1)
-    ybar = np.zeros(npanel,1)
+    l    = np.zeros(npanel)
+    st   = np.zeros(npanel)
+    ct   = np.zeros(npanel)
+    xbar = np.zeros(npanel)
+    ybar = np.zeros(npanel)
     
     l,st,ct,xbar,ybar = panel_geometry(x,y,npanel)
      
     # compute matrix of aerodynamic influence coefficients  
-    ainfl = np.zeros(npanel+1) 
+    ainfl = np.zeros((npanel+1,npanel+1))
     ainfl = infl_coeff(x,y,xbar,ybar,st,ct,ainfl,npanel)
      
     # compute right hand side vector for the specified angle of attack 
-    b  = np.zeros(npanel+1,1)
-    
-    al = alpha * np.pi / 180
+    b  = np.zeros(npanel+1) 
     
     for i in range(npanel):
-        b[i] = st[i]*np.cos(al) -np.sin(al)*ct[i]
+        b[i] = st[i]*np.cos(alpha)-np.sin(alpha)*ct[i]
      
-    b[npanel+1] = -(ct[0]    *np.cos(al) +st[0]    *np.sin(al))-(ct(npanel)*np.cos(al) +st(npanel)*np.sin(al))
+    b[-1] = -(ct[0]*np.cos(alpha) + st[0]*np.sin(alpha))-(ct[-1]*np.cos(alpha) +st[-1]*np.sin(alpha))
                
     # solve matrix system for vector of q_i and gamma 
+    b = np.atleast_2d(b)
     qg = np.linalg.inv(ainfl) * b
     
     # compute the tangential velocity distribution at the midpoint of panels 
-    vt = veldis(qg,x,y,xbar,ybar,st,ct,al,npanel)
+    vt = veldis(qg,x,y,xbar,ybar,st,ct,alpha,npanel)
     
     return  xbar,ybar,vt,ct   

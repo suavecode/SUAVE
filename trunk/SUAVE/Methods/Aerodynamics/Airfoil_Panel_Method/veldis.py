@@ -54,7 +54,7 @@ def veldis(qg,x,y,xbar,ybar,st,ct,al,npanel):
             rij_plus_1=np.sqrt((xbar[i_idx]-x[j_idx +1])^2 + (ybar[i_idx]-y[j_idx +1])^2)
             rij_dot_rij_plus_1 = (xbar[i_idx]-x[j_idx])*(xbar[i_idx]-x[j_idx +1]) + (ybar[i_idx]-y[j_idx])*(ybar[i_idx]-y[j_idx +1]) 
             anglesign = np.sign((xbar[i_idx]-x[j_idx])*(ybar[i_idx]-y[j_idx +1]) - (xbar[i_idx]-x[j_idx +1])*(ybar[i_idx]-y[j_idx]))
-            betaij= np.real(anglesign*np.acos(rij_dot_rij_plus_1/rij/rij_plus_1))
+            betaij= np.real(anglesign*np.arccos(rij_dot_rij_plus_1/rij/rij_plus_1))
             if i_idx == j_idx:
                 betaij = np.pi
 
