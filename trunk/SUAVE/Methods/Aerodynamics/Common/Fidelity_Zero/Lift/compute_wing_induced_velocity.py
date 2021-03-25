@@ -12,7 +12,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-#@profile   
+@profile   
 def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
@@ -178,9 +178,9 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
         U_sub, V_sub, W_sub = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)   
         
     else:
-        U_sub = []
-        V_sub = []
-        W_sub = []
+        U_sub = np.zeros((0,shape,shape))
+        V_sub = np.zeros((0,shape,shape))
+        W_sub = np.zeros((0,shape,shape))
   
     # Update the velocities
     U[sub] = U_sub
@@ -210,9 +210,10 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
                                                     X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w)
         
     else:
-        U_sup = []
-        V_sup = []
-        W_sup = []
+        U_sup     = np.zeros((0,shape,shape))
+        V_sup     = np.zeros((0,shape,shape))
+        W_sup     = np.zeros((0,shape,shape))
+        RFLAG_sup = np.zeros((0,shape))
     
     # Update the velocities
     U[sup] = U_sup
