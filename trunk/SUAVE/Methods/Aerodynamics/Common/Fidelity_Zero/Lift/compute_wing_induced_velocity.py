@@ -12,7 +12,6 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-#@profile
 def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
@@ -175,17 +174,8 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     
     if np.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
-        U_sub, V_sub, W_sub = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)   
-        
-    else:
-        U_sub = np.zeros((0,shape,shape))
-        V_sub = np.zeros((0,shape,shape))
-        W_sub = np.zeros((0,shape,shape))
-  
-    # Update the velocities
-    U[sub] = U_sub
-    V[sub] = V_sub
-    W[sub] = W_sub
+        U[sub], V[sub], W[sub] = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)   
+
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX
     RNMAX       = n_cw # number of chordwise panels
@@ -201,42 +191,20 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     LE_Z        = np.repeat(LE_Z,n_cw,axis=1)    
     CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2)
     CHORD       = np.repeat(CHORD,shape,axis=0)
-    EYE         = np.eye(shape)
     ZETA        = (LE_Z-TE_Z)/(LE_X-TE_X) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
     ZETA        = ZETA[0,:] # Fix the shape for later
+    RFLAG       = np.ones((n_mach,shape))
     
     if np.sum(sup)>0:
-        U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
-                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w)
-        
-    else:
-        U_sup     = np.zeros((0,shape,shape))
-        V_sup     = np.zeros((0,shape,shape))
-        W_sup     = np.zeros((0,shape,shape))
-        RFLAG_sup = np.zeros((0,shape))
+        U[sup], V[sup], W[sup], RFLAG[sup,:] = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
+                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cw,n_cp,n_w)
+         
     
-    # Update the velocities
-    U[sup] = U_sup
-    V[sup] = V_sup
-    W[sup] = W_sup
-    
-    RFLAG        = np.ones((n_mach,shape))
-    RFLAG[sup,:] = RFLAG_sup    
-    
-    U_rot = U
-    V_rot = V
-    W_rot = W
-    
-    # Velocities in the vehicles frame
-    U = (U_rot)
-    V = (V_rot*costheta - W_rot*sintheta)
-    W = (V_rot*sintheta + W_rot*costheta)
-    
-    # Pack into matrices
+    # Rotate into the vehicle frame and pack into matrices
     C_mn = np.zeros((n_mach,shape,shape,3))
     C_mn[:,:,:,0] = U
-    C_mn[:,:,:,1] = V
-    C_mn[:,:,:,2] = W
+    C_mn[:,:,:,1] = V*costheta - W*sintheta
+    C_mn[:,:,:,2] = V*sintheta + W*costheta
     
     return C_mn, s, CHORD, RFLAG, ZETA
     
@@ -287,9 +255,8 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     ARG2 = XSQ2 - RO2
     RAD2 = np.sqrt(ARG2)
     
-    XBSQ = XTY * XTY
     TBZ  = (T*T-B2)*ZSQ
-    DENOM = XBSQ + TBZ
+    DENOM = XTY * XTY + TBZ
     
     TOLSQ = np.broadcast_to(TOLSQ,np.shape(DENOM))
     
@@ -313,7 +280,7 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     
     return U, V, W
  
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w):
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cw,n_cp,n_w):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for supersonic mach numbers
 
@@ -346,7 +313,6 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     CUTOFF  coefficient                                  [-]
     CHORD   chord length for a panel                     [m] 
     RNMAX   number of chordwise panels                   [-]
-    EYE     eye matrix (linear algebra)                  [-]
     n_cw    number of chordwise panels                   [-]
     n_cp    number of control points                     [-]
     n_w     number of wings                              [-]
@@ -378,16 +344,15 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     
     ZETAPI = Z/CPI
     
-    XBSQ  = XTY * XTY
     TBZ   = (T2 - B2) *ZSQ
-    DENOM = XBSQ + TBZ
+    DENOM = XTY * XTY + TBZ
     SIGN  = np.ones(shape)
     SIGN[DENOM<0] = -1.
     TOLSQ         = np.broadcast_to(TOLSQ,shape)
     DENOM[np.abs(DENOM)<TOLSQ] = SIGN[np.abs(DENOM)<TOLSQ]*TOLSQ[np.abs(DENOM)<TOLSQ]
     
     # Create a boolean for various conditions for F1 that goes to zero
-    bool1           = np.ones(shape) * True
+    bool1           = np.ones(shape,dtype=bool)
     X1_l_tol        = np.broadcast_to((X1<TOL),shape)
     bool1[X1_l_tol] = False
     bool1[RAD1==0.] = False
@@ -411,7 +376,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     
     # Round 2
     # Create a boolean for various conditions for F2 that goes to zero
-    bool2           = np.ones(shape) * True
+    bool2           = np.ones(shape,dtype=bool)
     X2_l_tol        = np.broadcast_to((X2<TOL),shape)
     bool2[X2_l_tol] = False
     bool2[RAD2==0.] = False
@@ -497,8 +462,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     B2_full = np.broadcast_to(B2,shape)
     COX     = np.broadcast_to(COX,shape)
     WWAVE[B2_full>T2] = - 0.5 *np.sqrt(B2_full[B2_full>T2] -T2[B2_full>T2] )/COX[B2_full>T2] 
-    
-    W = W + EYE*WWAVE    
+
+    W = W + np.eye(n_cp*n_w)*WWAVE    
     
     # IF CONTROL POINT BELONGS TO A SONIC HORSESHOE VORTEX, AND THE
     # SENDING ELEMENT IS SUCH HORSESHOE, THEN MODIFY THE NORMALWASH
@@ -513,7 +478,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # The self velocity goes to 2
     FLAG_bool_split   = np.array(np.split(FLAG_bool.ravel(),n_mach))
     FLAG_ind          = np.array(np.where(FLAG_bool_split))
-    squares           = np.tile(np.atleast_3d(np.zeros((size,size))),n_mach)
+    squares           = np.zeros((size,size,n_mach))
     squares[FLAG_ind[1],FLAG_ind[1],FLAG_ind[0]] = 1
     squares           = np.ravel(squares,order='F')
     

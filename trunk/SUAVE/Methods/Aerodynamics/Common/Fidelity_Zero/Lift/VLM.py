@@ -173,12 +173,12 @@ def VLM(conditions,settings,geometry):
     SREF = Sref
 
     # Unpack coordinates 
-    YAH = VD.YAH*1. # Keep
+    YAH = VD.YAH*1.
     ZAH = VD.ZAH
     ZBH = VD.ZBH    
-    YBH = VD.YBH*1. # Keep
-    XA1 = VD.XA1*1. # Keep
-    XB1 = VD.XB1*1. # Keep
+    YBH = VD.YBH*1.
+    XA1 = VD.XA1*1.
+    XB1 = VD.XB1*1.
     YA1 = VD.YA1
     YB1 = VD.YB1    
     ZA1 = VD.ZA1
@@ -245,8 +245,6 @@ def VLM(conditions,settings,geometry):
     # Sum onto the panel
     CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len_mach))
     BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len_mach))
-
-    XX = XLE*1.
        
     DCP_LE = DCP[:,0::n_cw]
     
@@ -260,7 +258,7 @@ def VLM(conditions,settings,geometry):
     SPC_cond = VL*m_b.T
     SPC[SPC_cond] = -1.
     
-    CLE  = 0.5* DCP_LE *np.sqrt(XX)
+    CLE  = 0.5* DCP_LE *np.sqrt(XLE)
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
 
     # SLE is slope at leading edge
