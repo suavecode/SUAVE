@@ -139,11 +139,6 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     # CALCULATE AXIAL DISTANCE BETWEEN PROJECTION OF RECEIVING POINT ONTO HORSESHOE PLANE AND EXTENSION OF SKEWED LEG.
     XTY = xobar - t*yobar
     
-    # ZERO-OUT PERTURBATION VELOCITY COMPONENTS
-    U = np.zeros((n_mach,shape,shape))
-    V = np.zeros((n_mach,shape,shape))
-    W = np.zeros((n_mach,shape,shape))
-    
     # The notation in this method is flipped from the paper
     B2 = np.atleast_3d(mach**2-1.)
     
@@ -156,21 +151,19 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     YSQ2   = Y2 *Y2
     RTV1   = YSQ1 + ZSQ
     RTV2   = YSQ2 + ZSQ
-    RO1    = B2 *RTV1
-    RO2    = B2 *RTV2
     XSQ1   = X1 *X1
     XSQ2   = X2 *X2
     
     # Split the vectors into subsonic and supersonic
-    sub = (B2<0)[:,0,0]
-    sup = (B2>=0)[:,0,0]
+    sub      = (B2<0)[:,0,0]
+    B2_sub   = B2[sub,:,:]
+    RO1_sub  = B2_sub*RTV1
+    RO2_sub  = B2_sub*RTV2
     
-    B2_sub     = B2[sub,:,:]
-    B2_sup     = B2[sup,:,:]
-    RO1_sub    = np.reshape(RO1[sub,:,:],(-1,shape,shape))
-    RO1_sup    = np.reshape(RO1[sup,:,:],(-1,shape,shape))
-    RO2_sub    = np.reshape(RO2[sub,:,:],(-1,shape,shape))
-    RO2_sup    = np.reshape(RO2[sup,:,:],(-1,shape,shape))
+    # ZERO-OUT PERTURBATION VELOCITY COMPONENTS
+    U = np.zeros((n_mach,shape,shape))
+    V = np.zeros((n_mach,shape,shape))
+    W = np.zeros((n_mach,shape,shape))    
     
     if np.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
@@ -178,6 +171,10 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
 
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX
+    sup         = (B2>=0)[:,0,0]
+    B2_sup      = B2[sup,:,:]
+    RO1_sup     = B2[sup,:,:]*RTV1
+    RO2_sup     = B2[sup,:,:]*RTV2
     RNMAX       = n_cw # number of chordwise panels
     LE_A_pts_x  = XA1[:,0::n_cw]
     LE_B_pts_x  = XB1[:,0::n_cw]
