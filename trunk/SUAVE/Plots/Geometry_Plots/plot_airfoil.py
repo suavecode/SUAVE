@@ -13,7 +13,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
      import import_airfoil_geometry 
 
 ## @ingroup Plots-Geometry_Plots
-def plot_airfoil(airfoil_names,  line_color = 'k-', save_figure = False, save_filename = "Airfoil_Geometry", file_type = ".png"):
+def plot_airfoil(airfoil_names,  line_color = 'k-', overlay = False, save_figure = False, save_filename = "Airfoil_Geometry", file_type = ".png"):
     """This plots all airfoil defined in the list "airfoil_names" 
 
     Assumptions:
@@ -33,20 +33,38 @@ def plot_airfoil(airfoil_names,  line_color = 'k-', save_figure = False, save_fi
     """
     # get airfoil coordinate geometry     
     airfoil_data = import_airfoil_geometry(airfoil_names)       
-
-    for i in range(len(airfoil_names)):
-        # separate x and y coordinates 
-        airfoil_x  = airfoil_data.x_coordinates[i] 
-        airfoil_y  = airfoil_data.y_coordinates[i]    
-
-        name = save_filename + '_' + str(i)
+    
+    if overlay:
+        name = save_filename
         fig  = plt.figure(name)
+        fig.set_size_inches(10, 4)
         axes = fig.add_subplot(1,1,1)
-        axes.set_title(airfoil_names[i])
-        axes.plot(airfoil_x, airfoil_y , line_color )                  
-        #axes.set_aspect('equal')
-        axes.axis('equal')
+        for i in range(len(airfoil_names)):
+            # separate x and y coordinates 
+            airfoil_x  = airfoil_data.x_coordinates[i] 
+            airfoil_y  = airfoil_data.y_coordinates[i]    
+            axes.plot(airfoil_x, airfoil_y , label=airfoil_names[i] )                  
+            #axes.axis('equal')
+        
+        axes.set_title("Airfoil Geometry")
+        axes.legend()
         if save_figure:
-            plt.savefig(name + file_type)          
+            plt.savefig(name + file_type)   
+            
+    else:
+        for i in range(len(airfoil_names)):
+            # separate x and y coordinates 
+            airfoil_x  = airfoil_data.x_coordinates[i] 
+            airfoil_y  = airfoil_data.y_coordinates[i]    
+    
+            name = save_filename + '_' + str(i)
+            fig  = plt.figure(name)
+            axes = fig.add_subplot(1,1,1)
+            axes.set_title(airfoil_names[i])
+            axes.plot(airfoil_x, airfoil_y , line_color )                  
+            #axes.set_aspect('equal')
+            axes.axis('equal')
+            if save_figure:
+                plt.savefig(name + file_type)          
 
     return
