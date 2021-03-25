@@ -150,7 +150,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	segment_sweeps_quarter_chord = [None] * (segment_num)
 	
 	# Check for wing segment *inside* fuselage, then skip XSec_0 to start at first exposed segment.
-	if total_chord == 1.:
+	if np.isclose(total_chord,1):
 		start = 1
 		xsec_surf_id = vsp.GetXSecSurf(wing_id, 1)	
 		x_sec        = vsp.GetXSec(xsec_surf_id, 0)
@@ -167,10 +167,15 @@ def vsp_read_wing(wing_id, units_type='SI'):
 	if single_seg == False:
 		
 		# Convert VSP XSecs to SUAVE segments. (Wing segments are defined by outboard sections in VSP, but inboard sections in SUAVE.) 
-		for i in range(start, segment_num+1):		
+		for i in range(start, segment_num+1):	
+			# XSec airfoil
+			if start!=0:
+				jj = i-1  # Airfoil index i-1 because VSP airfoils and sections are one index off relative to SUAVE.
+			else:
+				jj= i*1			
 			segment = SUAVE.Components.Wings.Segment()
 			segment.tag                   = 'Section_' + str(i)
-			thick_cord                    = vsp.GetParmVal(wing_id, 'ThickChord', 'XSecCurve_' + str(i-1))
+			thick_cord                    = vsp.GetParmVal(wing_id, 'ThickChord', 'XSecCurve_' + str(jj))
 			segment.thickness_to_chord    = thick_cord	# Thick_cord stored for use in airfoil, below.		
 			if i!=segment_num:
 				segment_root_chord    = vsp.GetParmVal(wing_id, 'Root_Chord', 'XSec_' + str(i)) * units_factor
@@ -178,7 +183,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 				segment_root_chord    = 0.0
 			segment.root_chord_percent    = segment_root_chord / root_chord		
 			segment.percent_span_location = proj_span_sum / (total_proj_span/(1+wing.symmetric))
-			segment.twist                 = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(i-1)) * Units.deg
+			segment.twist                 = vsp.GetParmVal(wing_id, 'Twist', 'XSec_' + str(jj)) * Units.deg
 			
 			if i==start:
 				wing.thickness_to_chord = thick_cord
@@ -202,8 +207,7 @@ def vsp_read_wing(wing_id, units_type='SI'):
 			else:
 				segment.root_chord_percent    = (vsp.GetParmVal(wing_id, 'Tip_Chord', 'XSec_' + str(i-1))) * units_factor /root_chord
 		
-			# XSec airfoil
-			jj = i-1  # Airfoil index i-1 because VSP airfoils and sections are one index off relative to SUAVE.
+
 			xsec_id = str(vsp.GetXSec(xsec_surf_id, jj))
 			airfoil = Airfoil()
 			if vsp.GetXSecShape(xsec_id) == vsp.XS_FOUR_SERIES: 	# XSec shape: NACA 4-series
@@ -234,11 +238,11 @@ def vsp_read_wing(wing_id, units_type='SI'):
 				airfoil.thickness_to_chord = thick_cord
 				# VSP airfoil API calls get coordinates and write files with the final argument being the fraction of segment position, regardless of relative spans. 
 				# (Write the root airfoil with final arg = 0. Write 4th airfoil of 5 segments with final arg = .8)
-				vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
-				airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
-				airfoil.tag                = 'AF_file'	
-		
-				segment.append_airfoil(airfoil)
+			vsp.WriteSeligAirfoil(str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat', wing_id, float(jj/segment_num))
+			airfoil.coordinate_file    = str(wing.tag) + '_airfoil_XSec_' + str(jj) +'.dat'
+			airfoil.tag                = 'airfoil'	
+	
+			segment.append_airfoil(airfoil)
 		
 			wing.Segments.append(segment)
 		
