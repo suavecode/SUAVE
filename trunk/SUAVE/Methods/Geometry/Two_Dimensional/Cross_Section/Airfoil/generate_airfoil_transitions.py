@@ -71,7 +71,7 @@ def generate_airfoil_transition(a1, a2, space, nairfoils, save_file=False, save_
             
     # save new airfoil geometry files:
     if save_file:
-        new_files = {'a_{}'.format(i): [] for i in range(nairfoils-2)}
+        new_files = {'a_{}'.format(i+1): [] for i in range(nairfoils-2)}
         airfoil_names = []
 
         for k in range(nairfoils-2):
@@ -97,4 +97,4 @@ def generate_airfoil_transition(a1, a2, space, nairfoils, save_file=False, save_
     plot_airfoil(airfoil_names,overlay=True)
     plot_airfoil(airfoil_names,overlay=False)
       
-    return
+    return new_files
