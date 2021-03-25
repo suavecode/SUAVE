@@ -146,9 +146,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     W = np.zeros((n_mach,shape,shape))
     
     # The notation in this method is flipped from the paper
-    B2 = np.atleast_3d(mach**2-1.)*np.ones((n_mach,shape,shape))
-    #B2 = np.atleast_3d(mach**2-1.)#*np.ones((n_mach,shape,shape))
-    
+    B2 = np.atleast_3d(mach**2-1.)
     
     # SET VALUES OF NUMERICAL TOLERANCE CONSTANTS.
     TOL    = s /500.0
@@ -163,27 +161,21 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     RO2    = B2 *RTV2
     XSQ1   = X1 *X1
     XSQ2   = X2 *X2
-    RFLAG  = np.ones((n_mach,shape))
-    mach_f = np.broadcast_to(mach,(n_mach,shape))
     
     # Split the vectors into subsonic and supersonic
-    sub = B2<0
-    sup = B2>=0
+    sub = (B2<0)[:,0,0]
+    sup = (B2>=0)[:,0,0]
     
-    B2_sub     = np.reshape(B2[sub],(-1,shape,shape))
-    B2_sup     = np.reshape(B2[sup],(-1,shape,shape))
-    RO1_sub    = np.reshape(RO1[sub],(-1,shape,shape))
-    RO1_sup    = np.reshape(RO1[sup],(-1,shape,shape))
-    RO2_sub    = np.reshape(RO2[sub],(-1,shape,shape))
-    RO2_sup    = np.reshape(RO2[sup],(-1,shape,shape))
-    RFLAG_sup  = RFLAG[mach_f>1]
+    B2_sub     = B2[sub,:,:]
+    B2_sup     = B2[sup,:,:]
+    RO1_sub    = np.reshape(RO1[sub,:,:],(-1,shape,shape))
+    RO1_sup    = np.reshape(RO1[sup,:,:],(-1,shape,shape))
+    RO2_sub    = np.reshape(RO2[sub,:,:],(-1,shape,shape))
+    RO2_sup    = np.reshape(RO2[sup,:,:],(-1,shape,shape))
     
     if np.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
-        U_sub, V_sub, W_sub = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)
-        U_sub = U_sub.ravel()
-        V_sub = V_sub.ravel()
-        W_sub = W_sub.ravel()        
+        U_sub, V_sub, W_sub = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)   
         
     else:
         U_sub = []
@@ -215,11 +207,8 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     
     if np.sum(sup)>0:
         U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
-                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w,RFLAG_sup)
+                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w)
         
-        U_sup = U_sup.ravel()
-        V_sup = V_sup.ravel()
-        W_sup = W_sup.ravel()
     else:
         U_sup = []
         V_sup = []
@@ -230,7 +219,8 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     V[sup] = V_sup
     W[sup] = W_sup
     
-    RFLAG[mach_f>1] = RFLAG_sup    
+    RFLAG        = np.ones((n_mach,shape))
+    RFLAG[sup,:] = RFLAG_sup    
     
     U_rot = U
     V_rot = V
@@ -322,7 +312,7 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     
     return U, V, W
  
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w,RFLAG):
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for supersonic mach numbers
 
@@ -377,7 +367,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     ARG2 = XSQ2 - RO2
     T2   = T*T
     
-    shape = np.shape(B2)
+    shape = np.shape(RO1)
     
     RAD1 = np.zeros(shape)
     RAD2 = np.zeros(shape)
@@ -493,22 +483,27 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     T2A[0::n_cw]        = 0.
 
     # Create a smaller B2 vector
-    B2_1D   = B2[:,:,0].ravel()  
+    B2_1D   = np.repeat(B2,size)
 
     TRANS = (B2_1D-T2F)*(B2_1D-T2A)
-    FLAG  = np.zeros_like(TRANS)
-    FLAG[TRANS<0] = 1
-    FLAG_bool = np.array(FLAG,dtype=bool)
-    FLAG_bool = np.reshape(FLAG_bool,(n_mach,size,-1))
+    
+    RFLAG = np.ones((n_mach*size))
     RFLAG[TRANS<0] = 0.
+    RFLAG = np.reshape(RFLAG,(n_mach,size))
+    
+    FLAG          = np.zeros_like(TRANS)
+    FLAG[TRANS<0] = 1
+    FLAG_bool     = np.array(FLAG,dtype=bool)
+    FLAG_bool     = np.reshape(FLAG_bool,(n_mach,size,-1))
 
     # COMPUTE THE GENERALIZED PRINCIPAL PART OF THE VORTEX-INDUCED VELOCITY INTEGRAL, WWAVE.
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
-    WWAVE = np.zeros(shape)
-    COX   = CHORD /RNMAX
-    T2    = np.broadcast_to(T2,shape)
-    COX   = np.broadcast_to(COX,shape)
-    WWAVE[B2>T2] = - 0.5 *np.sqrt(B2[B2>T2] -T2[B2>T2] )/COX[B2>T2] 
+    WWAVE   = np.zeros(shape)
+    COX     = CHORD /RNMAX
+    T2      = np.broadcast_to(T2,shape)
+    B2_full = np.broadcast_to(B2,shape)
+    COX     = np.broadcast_to(COX,shape)
+    WWAVE[B2_full>T2] = - 0.5 *np.sqrt(B2_full[B2_full>T2] -T2[B2_full>T2] )/COX[B2_full>T2] 
     
     W = W + EYE*WWAVE    
     
