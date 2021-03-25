@@ -12,7 +12,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-@profile   
+@profile
 def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
@@ -189,19 +189,19 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     
     # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX
     RNMAX       = n_cw # number of chordwise panels
-    LE_A_pts_x  = XA1[:,0:n_cp*n_w:n_cw]
-    LE_B_pts_x  = XB1[:,0:n_cp*n_w:n_cw]
+    LE_A_pts_x  = XA1[:,0::n_cw]
+    LE_B_pts_x  = XB1[:,0::n_cw]
+    LE_A_pts_z  = ZA1[:,0::n_cw]
+    LE_B_pts_z  = ZB1[:,0::n_cw]    
     LE_X        = (LE_A_pts_x+LE_B_pts_x)/2
-    LE_X        = np.repeat(LE_X,n_cw,axis=1)
-    LE_A_pts_z  = ZA1[:,0:n_cp*n_w:n_cw]
-    LE_B_pts_z  = ZB1[:,0:n_cp*n_w:n_cw]
-    LE_Z        = (LE_A_pts_z+LE_B_pts_z)/2    
-    LE_Z        = np.repeat(LE_Z,n_cw,axis=1)
+    LE_Z        = (LE_A_pts_z+LE_B_pts_z)/2
     TE_X        = (XB_TE + XA_TE)/2
     TE_Z        = (ZB_TE + ZA_TE)/2
-    CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2 )
+    LE_X        = np.repeat(LE_X,n_cw,axis=1)
+    LE_Z        = np.repeat(LE_Z,n_cw,axis=1)    
+    CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2)
     CHORD       = np.repeat(CHORD,shape,axis=0)
-    EYE         = np.eye(np.shape(CHORD)[-1])
+    EYE         = np.eye(shape)
     ZETA        = (LE_Z-TE_Z)/(LE_X-TE_X) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
     ZETA        = ZETA[0,:] # Fix the shape for later
     
