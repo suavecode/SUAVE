@@ -12,7 +12,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-@profile
+#@profile
 def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
@@ -460,42 +460,34 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # CONTROL POINT UNDER CONSIDERATION IS SONIC (SWEPT PARALLEL TO MACH
     # LINE)? IF SO THEN RFLAG = 0.0, OTHERWISE RFLAG = 1.0.
     size   = shape[1]
-    n_mach = shape[0]
-    T2_1d  = np.tile(T2[0,:],n_mach)
-    T2F    = np.zeros_like(T2_1d)
-    T2A    = np.zeros_like(T2_1d) 
+    n_mach = shape[0]    
+    T2S = np.atleast_2d(T2[0,:])*np.ones((n_mach,1))
+    T2F = np.zeros((n_mach,size))
+    T2A = np.zeros((n_mach,size))
     
-    F_ind  = np.linspace(0,size*n_mach-1,size*n_mach,dtype=int)
-    F_mask = np.ones_like(F_ind,dtype=bool)
-    F_mask[(n_cw-1)::n_cw] = False
-    F_ind  = F_ind[F_mask]   
-
+    # Setup masks
+    F_mask = np.ones((n_mach,size),dtype=bool)
+    A_mask = np.ones((n_mach,size),dtype=bool)
+    F_mask[:,(n_cw-1)::n_cw] = False
+    A_mask[:,::n_cw]         = False
     
-    A_ind  = np.linspace(0,size*n_mach-1,size*n_mach,dtype=int)
-    A_mask = np.ones_like(A_ind,dtype=bool)
-    A_mask[::n_cw] = False
-    A_ind  = A_ind[A_mask]
-    
-    T2F[A_ind] = T2_1d[F_ind]
-    T2A[F_ind] = T2_1d[A_ind]
+    # Apply the mask
+    T2F[A_mask] = T2S[F_mask]
+    T2A[F_mask] = T2S[A_mask]
     
     # Zero out terms on the LE and TE
-    T2F[(n_cw-1)::n_cw] = 0.
-    T2A[0::n_cw]        = 0.
+    T2F[:,(n_cw-1)::n_cw] = 0.
+    T2A[:,0::n_cw]        = 0.
 
-    # Create a smaller B2 vector
-    B2_1D   = np.repeat(B2,size)
-
-    TRANS = (B2_1D-T2F)*(B2_1D-T2A)
+    TRANS = (B2[:,:,0]-T2F)*(B2[:,:,0]-T2A)
     
-    RFLAG = np.ones((n_mach*size))
+    RFLAG = np.ones((n_mach,size))
     RFLAG[TRANS<0] = 0.
-    RFLAG = np.reshape(RFLAG,(n_mach,size))
     
-    FLAG          = np.zeros_like(TRANS)
-    FLAG[TRANS<0] = 1
-    FLAG_bool     = np.array(FLAG,dtype=bool)
-    FLAG_bool     = np.reshape(FLAG_bool,(n_mach,size,-1))
+    FLAG_bool          = np.zeros_like(TRANS,dtype=bool)
+    FLAG_bool[TRANS<0] = True
+    FLAG_bool          = np.reshape(FLAG_bool,(n_mach,size,-1))
+    
 
     # COMPUTE THE GENERALIZED PRINCIPAL PART OF THE VORTEX-INDUCED VELOCITY INTEGRAL, WWAVE.
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
