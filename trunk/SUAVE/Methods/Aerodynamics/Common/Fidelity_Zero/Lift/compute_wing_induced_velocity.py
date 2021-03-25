@@ -12,9 +12,9 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+#@profile   
 def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
-    """ This computes the induced velocities at each control point 
-    of the vehicle vortex lattice 
+    """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
     Assumptions: 
     Trailing vortex legs infinity are alligned to freestream
@@ -75,9 +75,6 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     ZA_TE = np.atleast_2d(VD.ZA_TE*1.)  
     ZB_TE = np.atleast_2d(VD.ZB_TE*1.)      
     
-    # supersonic corrections
-    beta_2 = np.atleast_3d(1-mach**2)*np.ones((n_mach,shape,shape))
-    
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
     # ------------------------------------------------------------------------------------------- 
@@ -95,11 +92,6 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
 
     XA_TE[boolean], XB_TE[boolean] = XB_TE[boolean], XA_TE[boolean]
     
-    # Transpose thing
-    XC    = XC.T
-    YC    = YC.T
-    ZC    = ZC.T 
-    
     # These vortices will use AH and BH, rather than the typical location
     xa = XAH
     ya = YAH
@@ -114,12 +106,12 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     zc = 0.5*(za+zb)
     
     # This is the receiving point, or the control points
-    xo = XC
-    yo = YC
-    zo = ZC
+    xo = XC.T
+    yo = YC.T
+    zo = ZC.T
     
     # Incline the vortex
-    theta = np.arctan2(zb-za,yb-ya)
+    theta    = np.arctan2(zb-za,yb-ya)
     costheta = np.cos(theta)
     sintheta = np.sin(theta)
     
@@ -149,12 +141,14 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     XTY = xobar - t*yobar
     
     # ZERO-OUT PERTURBATION VELOCITY COMPONENTS
-    U = np.zeros_like(beta_2)
-    V = np.zeros_like(beta_2)
-    W = np.zeros_like(beta_2)
+    U = np.zeros((n_mach,shape,shape))
+    V = np.zeros((n_mach,shape,shape))
+    W = np.zeros((n_mach,shape,shape))
     
     # The notation in this method is flipped from the paper
-    B2 = - beta_2
+    B2 = np.atleast_3d(mach**2-1.)*np.ones((n_mach,shape,shape))
+    #B2 = np.atleast_3d(mach**2-1.)#*np.ones((n_mach,shape,shape))
+    
     
     # SET VALUES OF NUMERICAL TOLERANCE CONSTANTS.
     TOL    = s /500.0
@@ -167,16 +161,14 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     RTV2   = YSQ2 + ZSQ
     RO1    = B2 *RTV1
     RO2    = B2 *RTV2
-    RAD1   = np.zeros_like(beta_2)
-    RAD2   = np.zeros_like(beta_2)
     XSQ1   = X1 *X1
     XSQ2   = X2 *X2
     RFLAG  = np.ones((n_mach,shape))
-    mach_f = np.broadcast_to(mach,np.shape(RFLAG))
+    mach_f = np.broadcast_to(mach,(n_mach,shape))
     
     # Split the vectors into subsonic and supersonic
-    sub = beta_2>0
-    sup = beta_2<=0
+    sub = B2<0
+    sup = B2>=0
     
     B2_sub     = np.reshape(B2[sub],(-1,shape,shape))
     B2_sup     = np.reshape(B2[sup],(-1,shape,shape))
@@ -184,8 +176,6 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     RO1_sup    = np.reshape(RO1[sup],(-1,shape,shape))
     RO2_sub    = np.reshape(RO2[sub],(-1,shape,shape))
     RO2_sup    = np.reshape(RO2[sup],(-1,shape,shape))
-    RAD1_sup   = np.reshape(RAD1[sup],(-1,shape,shape))
-    RAD2_sup   = np.reshape(RAD2[sup],(-1,shape,shape))
     RFLAG_sup  = RFLAG[mach_f>1]
     
     if np.sum(sub)>0:
@@ -225,8 +215,7 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     
     if np.sum(sup)>0:
         U_sup, V_sup, W_sup, RFLAG_sup = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
-                                                    X1,Y1,X2,Y2,RAD1_sup,RAD2_sup,RTV1,RTV2,CUTOFF,CHORD,RNMAX,\
-                                                    EYE,n_cw,n_cp,n_w,RFLAG_sup)
+                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w,RFLAG_sup)
         
         U_sup = U_sup.ravel()
         V_sup = V_sup.ravel()
@@ -253,13 +242,12 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     W = (V_rot*sintheta + W_rot*costheta)
     
     # Pack into matrices
-    C_mn = np.zeros(np.shape(beta_2)+(3,))
+    C_mn = np.zeros((n_mach,shape,shape,3))
     C_mn[:,:,:,0] = U
     C_mn[:,:,:,1] = V
     C_mn[:,:,:,2] = W
     
     return C_mn, s, CHORD, RFLAG, ZETA
-    
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     """  This computes the induced velocities at each control point 
@@ -333,9 +321,8 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     W = - (QB *XTY + FT1 *Y1 - FT2 *Y2) /CPI
     
     return U, V, W
-
-    
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD1,RAD2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w,RFLAG):
+ 
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,EYE,n_cw,n_cp,n_w,RFLAG):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for supersonic mach numbers
 
@@ -363,8 +350,6 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     Y1      Y coordinate of the left side of the vortex  [m]
     X2      X coordinate of the right side of the vortex [m]
     Y2      Y coordinate of the right side of the vortex [m]
-    RAD1    array of zeros                               [-]
-    RAD2    array of zeros                               [-]
     RTV1    coefficient                                  [-]
     RTV2    coefficient                                  [-]
     CUTOFF  coefficient                                  [-]
@@ -390,8 +375,12 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     CPI  = 2 * np.pi
     ARG1 = XSQ1 - RO1
     ARG2 = XSQ2 - RO2
+    T2   = T*T
     
     shape = np.shape(B2)
+    
+    RAD1 = np.zeros(shape)
+    RAD2 = np.zeros(shape)
     
     RAD1[ARG1>0.] = np.sqrt(ARG1[ARG1>0.])
     RAD2[ARG2>0.] = np.sqrt(ARG2[ARG2>0.])
@@ -399,7 +388,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     ZETAPI = Z/CPI
     
     XBSQ  = XTY * XTY
-    TBZ   = (T *T - B2) *ZSQ
+    TBZ   = (T2 - B2) *ZSQ
     DENOM = XBSQ + TBZ
     SIGN  = np.ones(shape)
     SIGN[DENOM<0] = -1.
@@ -468,14 +457,12 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     TOL_in   = TOL[ZSQ<TOLSQ2]
     
     if np.sum(in_plane)>0:
-        U_in, V_in, W_in = supersonic_in_plane(RAD1_in, RAD2_in, Y1_in, Y2_in, TOL_in, XTY_in, CPI)
+        W_in = supersonic_in_plane(RAD1_in, RAD2_in, Y1_in, Y2_in, TOL_in, XTY_in, CPI)
     else:
-        U_in = []
-        V_in = []
         W_in = []
-    
-    U[in_plane] = U_in
-    V[in_plane] = V_in
+
+    U[in_plane] = 0.
+    V[in_plane] = 0.
     W[in_plane] = W_in
     
     # DETERMINE IF TRANSVERSE VORTEX LEG OF HORSESHOE ASSOCIATED TO THE
@@ -483,7 +470,6 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RAD
     # LINE)? IF SO THEN RFLAG = 0.0, OTHERWISE RFLAG = 1.0.
     size   = shape[1]
     n_mach = shape[0]
-    T2     = T*T
     T2_1d  = np.tile(T2[0,:],n_mach)
     T2F    = np.zeros_like(T2_1d)
     T2A    = np.zeros_like(T2_1d) 
@@ -564,6 +550,7 @@ def supersonic_in_plane(RAD1,RAD2,Y1,Y2,TOL,XTY,CPI):
     
     Assumptions: 
     Trailing vortex legs infinity are alligned to freestream
+    In place vortices only produce W velocity
 
     Source:  
     1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
@@ -582,18 +569,17 @@ def supersonic_in_plane(RAD1,RAD2,Y1,Y2,TOL,XTY,CPI):
 
     
     Outputs:           
-    U       X velocity       [unitless]
-    V       Y velocity       [unitless]
     W       Z velocity       [unitless]
 
     Properties Used:
     N/A
     """    
     
-    F1 = np.zeros_like(RAD1)
-    F2 = np.zeros_like(RAD2)
+    shape = np.shape(RAD2)
+    F1    = np.zeros(shape)
+    F2    = np.zeros(shape)
     
-    reps = int(np.shape(F1)[0]/np.size(Y1))
+    reps  = int(shape[0]/np.size(Y1))
     
     Y1  = np.tile(Y1,reps)
     Y2  = np.tile(Y2,reps)
@@ -603,9 +589,7 @@ def supersonic_in_plane(RAD1,RAD2,Y1,Y2,TOL,XTY,CPI):
     F1[np.abs(Y1)>TOL] = RAD1[np.abs(Y1)>TOL]/Y1[np.abs(Y1)>TOL]
     F2[np.abs(Y2)>TOL] = RAD2[np.abs(Y2)>TOL]/Y2[np.abs(Y2)>TOL]
     
-    U = np.zeros_like(RAD1)
-    V = np.zeros_like(RAD1)
-    W = np.zeros_like(RAD1)
+    W = np.zeros(shape)
     W[np.abs(XTY)>TOL] = (-F1[np.abs(XTY)>TOL] + F2[np.abs(XTY)>TOL])/(XTY[np.abs(XTY)>TOL]*CPI)
     
-    return U, V, W
+    return W

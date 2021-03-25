@@ -173,20 +173,20 @@ def VLM(conditions,settings,geometry):
     SREF = Sref
 
     # Unpack coordinates 
-    YAH = VD.YAH*1.
-    ZAH = VD.ZAH*1.
-    ZBH = VD.ZBH*1.    
-    YBH = VD.YBH*1.
-    XA1 = VD.XA1*1.
-    XB1 = VD.XB1*1.
-    YA1 = VD.YA1*1.
-    YB1 = VD.YB1*1.    
-    ZA1 = VD.ZA1*1.
-    ZB1 = VD.ZB1*1.   
-    XA2 = VD.XA2*1.
-    XB2 = VD.XB2*1.      
-    ZA2 = VD.ZA2*1.
-    ZB2 = VD.ZB2*1.    
+    YAH = VD.YAH*1. # Keep
+    ZAH = VD.ZAH
+    ZBH = VD.ZBH    
+    YBH = VD.YBH*1. # Keep
+    XA1 = VD.XA1*1. # Keep
+    XB1 = VD.XB1*1. # Keep
+    YA1 = VD.YA1
+    YB1 = VD.YB1    
+    ZA1 = VD.ZA1
+    ZB1 = VD.ZB1   
+    XA2 = VD.XA2
+    XB2 = VD.XB2      
+    ZA2 = VD.ZA2
+    ZB2 = VD.ZB2    
 
     # Flip coordinates on the other side of the wing
     boolean = YBH<0. 
