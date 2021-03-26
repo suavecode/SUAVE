@@ -407,7 +407,7 @@ def write_vsp_wing(wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
         # Insert the new wing section with specified airfoil if available
         if len(wing.Segments[i_segs-1].Airfoil) != 0 or 'airfoil_type' in wing.Segments[i_segs-1].keys():
-            vsp.InsertXSec(wing_id,i_segs-1+adjust,airfoil_vsp_types[i_segs])
+            vsp.InsertXSec(wing_id,i_segs-1+adjust,airfoil_vsp_types[i_segs-1])
             if len(wing.Segments[i_segs-1].Airfoil) != 0:
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)
                 xsec = vsp.GetXSec(xsecsurf,i_segs+adjust)

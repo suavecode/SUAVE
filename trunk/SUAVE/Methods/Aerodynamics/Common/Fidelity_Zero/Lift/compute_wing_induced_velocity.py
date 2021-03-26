@@ -276,7 +276,8 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     W = - (QB *XTY + FT1 *Y1 - FT2 *Y2) /CPI
     
     return U, V, W
- 
+
+@profile
 def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cw,n_cp,n_w):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for supersonic mach numbers
@@ -313,7 +314,6 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     n_cw    number of chordwise panels                   [-]
     n_cp    number of control points                     [-]
     n_w     number of wings                              [-]
-    RFLAG   sonic vortex flag                            [boolean] 
 
     
     Outputs:           
@@ -455,12 +455,13 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
     WWAVE   = np.zeros(shape)
     COX     = CHORD /RNMAX
-    T2      = np.broadcast_to(T2,shape)
-    B2_full = np.broadcast_to(B2,shape)
-    COX     = np.broadcast_to(COX,shape)
+    eye     = np.eye(n_cp*n_w)
+    T2      = np.broadcast_to(T2,shape)*eye
+    B2_full = np.broadcast_to(B2,shape)*eye
+    COX     = np.broadcast_to(COX,shape)*eye
     WWAVE[B2_full>T2] = - 0.5 *np.sqrt(B2_full[B2_full>T2] -T2[B2_full>T2] )/COX[B2_full>T2] 
 
-    W = W + np.eye(n_cp*n_w)*WWAVE    
+    W = W + WWAVE    
     
     # IF CONTROL POINT BELONGS TO A SONIC HORSESHOE VORTEX, AND THE
     # SENDING ELEMENT IS SUCH HORSESHOE, THEN MODIFY THE NORMALWASH
@@ -500,7 +501,7 @@ def supersonic_in_plane(RAD1,RAD2,Y1,Y2,TOL,XTY,CPI):
     
     Assumptions: 
     Trailing vortex legs infinity are alligned to freestream
-    In place vortices only produce W velocity
+    In plane vortices only produce W velocity
 
     Source:  
     1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
