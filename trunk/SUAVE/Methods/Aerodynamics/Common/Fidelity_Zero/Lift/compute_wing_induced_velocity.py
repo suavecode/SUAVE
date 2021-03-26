@@ -247,10 +247,8 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     """  
     
     CPI  = 4 * np.pi
-    ARG1 = XSQ1 - RO1
-    RAD1 = np.sqrt(ARG1)
-    ARG2 = XSQ2 - RO2
-    RAD2 = np.sqrt(ARG2)
+    RAD1 = np.sqrt(XSQ1 - RO1)
+    RAD2 = np.sqrt(XSQ2 - RO2)
     
     TBZ  = (T*T-B2)*ZSQ
     DENOM = XTY * XTY + TBZ
@@ -277,7 +275,6 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     
     return U, V, W
 
-@profile
 def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cw,n_cp,n_w):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for supersonic mach numbers
