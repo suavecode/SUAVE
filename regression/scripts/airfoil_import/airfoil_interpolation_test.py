@@ -19,7 +19,7 @@ def main():
     
     a1 = airfoils_path + a_labels[0]+".txt"
     a2 = airfoils_path + a_labels[1]+ ".txt"
-    new_files = generate_interpolated_airfoils(a1, a2, nairfoils, save_file=True, save_filename="Transition")
+    new_files = generate_interpolated_airfoils(a1, a2, nairfoils, save_filename="Transition")
     plt.show()
     
     # import the new airfoil geometries and compare to the regression:
