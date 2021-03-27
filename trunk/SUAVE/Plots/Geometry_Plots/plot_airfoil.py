@@ -44,7 +44,6 @@ def plot_airfoil(airfoil_names,  line_color = 'k-', overlay = False, save_figure
             airfoil_x  = airfoil_data.x_coordinates[i] 
             airfoil_y  = airfoil_data.y_coordinates[i]    
             axes.plot(airfoil_x, airfoil_y , label=airfoil_names[i] )                  
-            #axes.axis('equal')
         
         axes.set_title("Airfoil Geometry")
         axes.legend()
@@ -62,7 +61,6 @@ def plot_airfoil(airfoil_names,  line_color = 'k-', overlay = False, save_figure
             axes = fig.add_subplot(1,1,1)
             axes.set_title(airfoil_names[i])
             axes.plot(airfoil_x, airfoil_y , line_color )                  
-            #axes.set_aspect('equal')
             axes.axis('equal')
             if save_figure:
                 plt.savefig(name + file_type)          
