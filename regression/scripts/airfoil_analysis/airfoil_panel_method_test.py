@@ -30,8 +30,8 @@ def main():
     Re     = 5E6 
     
     #Define Angle of Attack
-    AoA1    = 3*Units.degrees 
-    AoA2    = 10*Units.degrees 
+    AoA1   = 3*Units.degrees 
+    AoA2   = 10*Units.degrees 
     
     # -----------------------------------------------
     # SUAVE
@@ -71,7 +71,48 @@ def main():
 
     # -----------------------------------------------
     # Validation  
-    # -----------------------------------------------
+    # ----------------------------------------------- 
+    print('\n\nNACA 3310 Validation at 3 deg') 
+    diff_CL = np.abs(airfoil_properties_1.Cl - xfoil_data_1.Cl) 
+    print('\nCL difference')
+    print(diff_CL)
+    assert np.abs((airfoil_properties_1.Cl  - xfoil_data_1.Cl)/xfoil_data_1.Cl) < 1e-1
+    
+    diff_CD = np.abs(airfoil_properties_1.Cd - xfoil_data_1.Cd) 
+    print('CD difference')
+    print(diff_CD)
+    assert np.abs((airfoil_properties_1.Cd  - xfoil_data_1.Cd)/xfoil_data_1.Cd) < 1e-1
+    
+    diff_CM = np.abs(airfoil_properties_1.Cm - xfoil_data_1.Cm) 
+    print('\nCM difference')
+    print(diff_CM)
+    assert np.abs((airfoil_properties_1.Cm  - xfoil_data_1.Cm)/xfoil_data_1.Cm) < 1e-1
+   
+    diff_CP = np.abs(airfoil_properties_1.Cp[100] - xfoil_data_1.Cp[100]) 
+    print('\nCM difference')
+    print(diff_CP)
+    assert np.abs((airfoil_properties_1.Cp[100]  - xfoil_data_1.Cp[100])/xfoil_data_1.Cp[100]) < 1e-1
+    
+    print('\n\nNACA 3310 Validation at 10 deg') 
+    diff_CL = np.abs(airfoil_properties_2.Cl - xfoil_data_2.Cl) 
+    print('\nCL difference')
+    print(diff_CL)
+    assert np.abs((airfoil_properties_2.Cl  - xfoil_data_2.Cl)/xfoil_data_2.Cl) < 1e-1
+    
+    diff_CD = np.abs(airfoil_properties_2.Cd - xfoil_data_2.Cd) 
+    print('\nCD difference')
+    print(diff_CD)
+    assert np.abs((airfoil_properties_2.Cd  - xfoil_data_2.Cd)/xfoil_data_2.Cd) < 1e-1
+    
+    diff_CM = np.abs(airfoil_properties_2.Cm - xfoil_data_2.Cm) 
+    print('\nCM difference')
+    print(diff_CM)
+    assert np.abs((airfoil_properties_2.Cm  - xfoil_data_2.Cm)/xfoil_data_2.Cm) < 5e-1  
+   
+    diff_CP = np.abs(airfoil_properties_2.Cp[100] - xfoil_data_2.Cp[100]) 
+    print('\nCM difference')
+    print(diff_CP)
+    assert np.abs((airfoil_properties_2.Cp[100]  - xfoil_data_2.Cp[100])/xfoil_data_2.Cp[100]) < 1e-1
     
     return  
 
