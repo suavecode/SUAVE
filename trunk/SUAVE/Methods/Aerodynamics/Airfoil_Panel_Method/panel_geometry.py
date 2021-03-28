@@ -47,14 +47,15 @@ def panel_geometry(x,y,npanel):
     st   = np.zeros_like(l)
     ct   = np.zeros_like(l)
     xbar = np.zeros_like(l)
-    ybar = np.zeros_like(l) 
+    ybar = np.zeros_like(l)  
+    norm = np.zeros((npanel,2))     
+        
+    l    = np.sqrt((x[1:] -x[:-1])**2 +(y[1:] -y[:-1])**2)
+    st   = (y[1:] -y[:-1])/l 
+    ct   = (x[1:] -x[:-1])/l 
+    xbar = (x[1:] +x[:-1])/2
+    ybar = (y[1:] +y[:-1])/2 
     
-    for i in range(npanel):
-        l[i]    = np.sqrt((x[i+1] -x[i])**2 +(y[i+1] -y[i])**2)
-        st[i]   = (y[i+1] -y[i])/l[i]
-        ct[i]   = (x[i+1] -x[i])/l[i]
-        xbar[i] = (x[i+1] +x[i])/2
-        ybar[i] = (y[i+1] +y[i])/2 
-    
-    return l,st,ct,xbar,ybar
+    norm  = np.concatenate((-np.atleast_2d(st).T,np.atleast_2d(ct).T),axis = 1)
+    return l,st,ct,xbar,ybar,norm 
      

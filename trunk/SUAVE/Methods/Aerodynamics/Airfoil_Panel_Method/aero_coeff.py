@@ -41,25 +41,22 @@ def aero_coeff(x,y,cp,al,npanel):
     N/A
     """    
     
-    cl = 0
-    cd = 0
-    cm = 0
-    
-    for i in range(npanel):
-        dx  = x[i+1] -x[i]
-        dy  = y[i+1] -y[i]
-        xa  = 0.5*(x[i+1] +x[i])-0.25
-        ya  = 0.5*(y[i+1] +y[i])
-        dcl = -cp[i]*dx
-        dcd = cp[i]*dy
-        cl  = cl +dcl
-        cd  = cd +dcd
-        cm  = cm +dcd*ya -dcl*xa 
+    cl  = 0
+    cd  = 0
+    cm  = 0
+     
+    dx  = x[1:] -x[:-1]
+    dy  = y[1:] -y[:-1]
+    xa  = 0.5*(x[1:] +x[:-1])-0.25
+    ya  = 0.5*(y[1:] +y[:-1])
+    dcl = -cp[:-1]*dx
+    dcd = cp[:-1]*dy
+    cl  = np.sum(dcl)
+    cd  = np.sum(dcd)
+    cm  = -np.sum(dcd*ya -dcl*xa)
     
     dcl = cl*np.cos(al) -cd*np.sin(al)
     cd  = cl*np.sin(al) +cd*np.cos(al)
-    cl  = dcl 
-    
-    aero_coeff(x,y,cp,al,npanel)
+    cl  = -dcl  
     
     return cl,cd,cm

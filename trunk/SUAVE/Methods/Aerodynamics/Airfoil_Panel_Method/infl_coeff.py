@@ -41,33 +41,34 @@ def infl_coeff(x,y,xbar,ybar,st,ct,ainfl,npanel):
     N/A
     """                         
     
-    pi2inv = 1 / (2*np.pi)
-     
-    # Fill the elements of the matrix of aero influence coefficients 
+    pi2inv  = 1 / (2*np.pi) 
     
-    for i_idx in range(npanel): 
-        # find contribution of the jth panel 
-        for j_idx in range(npanel):
-            sti_minus_j          = st[i_idx]*ct[j_idx]-ct[i_idx]*st[j_idx]
-            cti_minus_j          = ct[i_idx]*ct[j_idx]+st[i_idx]*st[j_idx]
-            rij                  = np.sqrt((xbar[i_idx]-x[j_idx])**2 + (ybar[i_idx]-y[j_idx])**2)
-            rij_plus_1           = np.sqrt((xbar[i_idx]-x[j_idx+1])**2 + (ybar[i_idx]-y[j_idx+1])**2)
-            rij_dot_rij_plus_1   = (xbar[i_idx]-x[j_idx])*(xbar[i_idx]-x[j_idx+1]) + (ybar[i_idx]-y[j_idx])*(ybar[i_idx]-y[j_idx+1])
-            rij_cross_rij_plus_1 = (xbar[i_idx]-x[j_idx])*(ybar[i_idx]-y[j_idx+1]) - (xbar[i_idx]-x[j_idx+1])*(ybar[i_idx]-y[j_idx]) 
-            anglesign            = np.sign((xbar[i_idx]-x[j_idx])*(ybar[i_idx]-y[j_idx+1]) - (xbar[i_idx]-x[j_idx+1])*(ybar[i_idx]-y[j_idx]))
-            betaij               = np.real(anglesign*np.arccos(rij_dot_rij_plus_1/rij/rij_plus_1))
-            
-            if i_idx == j_idx:
-                betaij = np.pi
-            
-            ainfl[i_idx,j_idx] = pi2inv*(sti_minus_j*np.log(rij_plus_1/rij) + cti_minus_j*betaij)
-            ainfl[i_idx,-1] = ainfl[i_idx,-1] + pi2inv*(cti_minus_j*np.log(rij_plus_1/rij)-sti_minus_j*betaij)
-            
-            if i_idx == 0 or i_idx == npanel-1:
-                ainfl[-1,j_idx] = ainfl[-1,j_idx]+ pi2inv*(sti_minus_j*betaij - cti_minus_j*np.log(rij_plus_1/rij))
-                ainfl[-1,-1] = ainfl[-1,-1]+pi2inv*(sti_minus_j*np.log(rij_plus_1/rij) + cti_minus_j*betaij)
-  
-    if np.linalg.matrix_rank(ainfl) != npanel + 1:
-        return  
+    # convert 1d matrices to 2d 
+    x_2d    = np.repeat(np.atleast_2d(x),npanel, axis = 0) 
+    y_2d    = np.repeat(np.atleast_2d(y),npanel, axis = 0)
+    xbar_2d = np.repeat(np.atleast_2d(xbar).T,npanel, axis = 1)
+    ybar_2d = np.repeat(np.atleast_2d(ybar).T,npanel, axis = 1)
+    st_2d   = np.atleast_2d(st)
+    ct_2d   = np.atleast_2d(ct) 
+    
+    # Fill the elements of the matrix of aero influence coefficients
+    sti_minus_j          = np.dot(st_2d.T,ct_2d) - np.dot(ct_2d.T,st_2d)
+    cti_minus_j          = np.dot(ct_2d.T,ct_2d) + np.dot(st_2d.T,st_2d)
+    rij                  = np.sqrt((xbar_2d-x_2d[:,:-1])**2 + (ybar_2d-y_2d[:,:-1])**2)
+    rij_plus_1           = np.sqrt((xbar_2d-x_2d[:,1:])**2 +  (ybar_2d-y_2d[:,1:])**2)
+    rij_dot_rij_plus_1   = (xbar_2d-x_2d[:,:-1])*(xbar_2d-x_2d[:,1:]) + (ybar_2d-y_2d[:,:-1])*(ybar_2d-y_2d[:,1:])  
+    anglesign            = np.sign((xbar_2d-x_2d[:,:-1])*(ybar_2d-y_2d[:,1:]) - (xbar_2d-x_2d[:,1:])*(ybar_2d-y_2d[:,:-1]))
+    betaij               = np.real(anglesign*np.arccos(rij_dot_rij_plus_1/rij/rij_plus_1))
+    diag_indices         = np.diag_indices(npanel)
+    betaij[diag_indices] = np.pi
 
+    ainfl[:-1,:-1]       = pi2inv*(sti_minus_j*np.log(rij_plus_1/rij) + cti_minus_j*betaij)
+    mat_1                = np.sum(pi2inv*(cti_minus_j*np.log(rij_plus_1/rij)-sti_minus_j*betaij), axis = 1)
+    ainfl[:-1,-1]        = mat_1  
+    
+    mat_2                = pi2inv*(sti_minus_j*betaij - cti_minus_j*np.log(rij_plus_1/rij))
+    mat_3                = pi2inv*(sti_minus_j*np.log(rij_plus_1/rij) + cti_minus_j*betaij)
+    ainfl[-1,:-1]        = mat_2[0] + mat_2[-1]
+    ainfl[-1,-1]         = np.sum(mat_3,axis = 1)[0] + np.sum(mat_3,axis = 1)[-1]   
+    
     return  ainfl  

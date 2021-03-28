@@ -54,25 +54,22 @@ def hess_smith(x_coord,y_coord,alpha,npanel):
     xbar = np.zeros(npanel)
     ybar = np.zeros(npanel)
     
-    l,st,ct,xbar,ybar = panel_geometry(x_coord,y_coord,npanel)
+    l,st,ct,xbar,ybar,norm = panel_geometry(x_coord,y_coord,npanel)
      
     # compute matrix of aerodynamic influence coefficients  
-    ainfl = np.zeros((npanel+1,npanel+1))
-    ainfl = infl_coeff(x_coord,y_coord,xbar,ybar,st,ct,ainfl,npanel)
+    ainfl  = np.zeros((npanel+1,npanel+1))
+    ainfl  = infl_coeff(x_coord,y_coord,xbar,ybar,st,ct,ainfl,npanel)
      
     # compute right hand side vector for the specified angle of attack 
-    b  = np.zeros(npanel+1) 
-    
-    for i in range(npanel):
-        b[i] = st[i]*np.cos(alpha)-np.sin(alpha)*ct[i]
-     
-    b[-1] = -(ct[0]*np.cos(alpha) + st[0]*np.sin(alpha))-(ct[-1]*np.cos(alpha) +st[-1]*np.sin(alpha))
+    b      = np.zeros(npanel+1)  
+    b[:-1] = st*np.cos(alpha)-np.sin(alpha)*ct
+    b[-1]  = -(ct[0]*np.cos(alpha) + st[0]*np.sin(alpha))-(ct[-1]*np.cos(alpha) +st[-1]*np.sin(alpha))
                
     # solve matrix system for vector of q_i and gamma 
-    b   =  np.atleast_2d(b).T
-    qg = np.linalg.solve(ainfl,b)
+    b      =  np.atleast_2d(b).T
+    qg     = np.linalg.solve(ainfl,b)
     
     # compute the tangential velocity distribution at the midpoint of panels 
-    vt = veldis(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha,npanel)
+    vt     = veldis(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha,npanel)
     
-    return  xbar,ybar,vt,ct   
+    return  xbar,ybar,vt,ct,norm 

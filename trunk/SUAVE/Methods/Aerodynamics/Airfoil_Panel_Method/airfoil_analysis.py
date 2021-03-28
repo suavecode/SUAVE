@@ -7,10 +7,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import  Data
 import numpy as np
-from scipy.interpolate import interp1d
-import matplotlib.pyplot as plt   
+from scipy.interpolate import interp1d 
 
 
 from .hess_smith      import hess_smith
@@ -23,7 +22,7 @@ from .aero_coeff      import aero_coeff
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def airfoil_analysis(x_coord,y_coord,alpha,npanel = 100):
+def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100):
     """
 
     Assumptions:
@@ -38,191 +37,183 @@ def airfoil_analysis(x_coord,y_coord,alpha,npanel = 100):
 
     Properties Used:
     N/A
-    """     
+    """   
+    
+    x_coord = np.delete( airfoil_geometry.x_coordinates[0][::-1], int(npanel/2)) 
+    y_coord = np.delete( airfoil_geometry.y_coordinates[0][::-1], int(npanel/2))   
+    
     # Begin by solving for velocity distribution at airfoil surface ucosg  inviscid panel simulation 
-    x,y,vt,cos_t = hess_smith(x_coord,y_coord,alpha,npanel)
+    x,y,vt,cos_t,normals = hess_smith(x_coord,y_coord,alpha,npanel)    
     
     # Find stagnation point
     for i in range(npanel):
         if vt[i] > 0:
             i_stag = i   # represents last index on bottom surface
             break 
+
+    # ---------------------------------------------------------------------
+    # Bottom surface of airfoil 
+    # ---------------------------------------------------------------------
+    # x and y coordinates 
+    x_bot_vals    =  x[:i_stag][::-1]  # flip arrays on bottom surface (measured from stagnation point on bottom surface)
+    y_bot         =  y[:i_stag][::-1]  
+    x_bot         = np.zeros_like(x_bot_vals )  
+    x_bot[1:]     = np.cumsum(np.sqrt((x_bot_vals[1:] - x_bot_vals [:-1])**2 + (y_bot[1:] - y_bot[:-1])**2)) 
+      
+    # flow velocity and pressure of on botton surface 
+    Ve_bot        = -vt[:i_stag][::-1] # negative because the velocity is measured anti-clockwise around surface 
+    Cp_bot        = 1 - Ve_bot**2 
+        
+    # velocity gradients on bottom surface 
+    dVe_bot       = np.zeros_like(x_bot_vals)
+    dVe_bot_temp  = np.diff(Ve_bot)/np.diff(x_bot_vals)
+    dVe_bot[0]    = dVe_bot_temp[0] 
+    a             = x_bot[1:-2] - x_bot[:-3]
+    b             = x_bot[2:-1] - x_bot[:-3]
+    dVe_bot[1:-2] = (b*dVe_bot_temp[:-2] + a*dVe_bot_temp[1:-1])/(a+b) 
+    dVe_bot[-1]   = dVe_bot_temp[-1]  
+    L_bot         = x_bot[-1] # x - location of stagnation point 
     
-    # flip arrays on bottom surface and re-parameterise x to represent arc length
-    # measured from stagnation point on bottom surface
-    x_bot_vals         =  x[:i_stag][::-1]
-    cos_t_bot     = -cos_t [:i_stag][::-1]
-    x_bot    = np.zeros_like(x_bot_vals ) 
-    y_bot         =  y[:i_stag][::-1]
-    for i in range(1,len(x_bot_vals )):
-        x_bot[1:] = x_bot[:-1] + np.sqrt((x_bot_vals[1:] - x_bot_vals [:-1])**2 + (y_bot[1:] - y_bot[:-1])**2)
-     
-    Ve_bot       = -vt[:i_stag][::-1] # negative because the velocity is measured anti-clockwise around surface
-    #cp_bot       =    
-    dVe_bot      = np.zeros_like(x_bot_vals)
-    dVe_bot_temp = np.diff(Ve_bot)/np.diff(x_bot_vals)
-    dVe_bot[0]   = dVe_bot_temp[0]
+    # laminar boundary layer properties using thwaites method 
+    x_t_bot, theta_t_bot, del_star_t_bot, H_t_bot, cf_t_bot, Re_theta_t_bot, Re_x_t_bot,delta_t_bot= thwaites_method(0.000001, L_bot , Re_L, x_bot, Ve_bot, dVe_bot)
     
-    for i in range(1,len(x_bot)- 1 ):
-        a = x_bot[i] - x_bot[i-1]
-        b = x_bot[i+1] - x_bot[i-1]
-        dVe_bot[i] = (b*dVe_bot_temp[i-1] + a*dVe_bot_temp[i])/(a+b)
+    # transition location  
+    tr_crit_bot     = Re_theta_t_bot - 1.174*(1 + 224000/Re_x_t_bot)*Re_x_t_bot**0.46                
+    tr_loc_vals     = np.where(tr_crit_bot > 0)[0] 
+    if len(tr_loc_vals) == 0:# no trasition  
+        i_tr_bot =  len(tr_crit_bot) - 1
+    else: # transition 
+        i_tr_bot = tr_loc_vals[0]    
+   
+    x_tr_bot        = x_t_bot[i_tr_bot] 
+    del_star_tr_bot = del_star_t_bot[i_tr_bot] 
+    theta_tr_bot    = theta_t_bot[i_tr_bot]    
+    delta_tr_bot    = delta_t_bot[i_tr_bot] 
     
-    dVe_bot[-1] = dVe_bot_temp[-1]
+    x_h_bot, theta_h_bot, del_star_h_bot, H_h_bot, cf_h_bot, delta_h_bot = heads_method(delta_tr_bot,theta_tr_bot, del_star_tr_bot, L_bot - x_tr_bot, Re_L, x_bot - x_tr_bot, Ve_bot, dVe_bot)
+    x_bs            = np.concatenate([x_t_bot[:i_tr_bot], x_h_bot + x_tr_bot] )
+    theta_bot       = np.concatenate([theta_t_bot[:i_tr_bot] ,theta_h_bot] )
+    del_star_bot    = np.concatenate([del_star_t_bot[:i_tr_bot] ,del_star_h_bot] )
+    H_bot           = np.concatenate([H_t_bot[:i_tr_bot] ,H_h_bot] )
+    cf_bot          = np.concatenate([cf_t_bot[:i_tr_bot], cf_h_bot] )
+    delta_bot       = np.concatenate([delta_t_bot[:i_tr_bot], delta_h_bot]) 
+    
+    # ---------------------------------------------------------------------
+    # Top surface of airfoil 
+    # ---------------------------------------------------------------------
     
     #re-parameterise based on length of boundary for the top surface of the airfoil
-    x_top_vals      = x[i_stag:]
-    cos_t_top  = cos_t[i_stag:]
-    x_top = np.zeros_like(x_top_vals)
-    y_top      = y[i_stag:]
+    x_top_vals    = x[i_stag:] 
+    y_top         = y[i_stag:] 
+    x_top         = np.zeros_like(x_top_vals)
+    x_top[1:]     = np.cumsum(np.sqrt((x_top_vals[1:] - x_top_vals[:-1])**2 + (y_top[1:] - y_top[:-1])**2))
     
-    for i in range(1,len(x_top_vals)):
-        x_top[i] = x_top[i-1] + np.sqrt((x_top_vals[i] - x_top_vals[i-1])**2 + (y_top[i] - y_top[i-1])**2)
+    # flow velocity and pressure on top surface 
+    Ve_top        = vt[i_stag:]  
+    Cp_top        = 1 - Ve_top**2
+    
+    # velocity gradients on top surface 
+    dVe_top       = np.zeros_like(x_top_vals)
+    dVe_top_temp  = np.diff(Ve_top)/np.diff(x_top)
+    dVe_top[0]    = dVe_top_temp[0]
+    a             = x_top[1:-2] - x_top[:-3]
+    b             = x_top[2:-1] - x_top[:-3]
+    dVe_top[1:-2] = (b*dVe_top_temp[:-2] + a*dVe_top_temp[1:-1])/(a+b) 
+    dVe_top[-1]   = dVe_top_temp[-1]   
+    L_top         = x_top[-1]  
+    
+    # laminar boundary layer properties using thwaites method 
+    x_t_top, theta_t_top, del_star_t_top, H_t_top, cf_t_top, Re_theta_t_top, Re_x_t_top, delta_t_top = thwaites_method(0.000001,L_top, Re_L, x_top, Ve_top, dVe_top) 
+    
+    # Mitchel's transition criteria (can often give nonsensical results) 
+    tr_crit_top     = Re_theta_t_top - 1.174*(1 + 224000/Re_x_t_top)*Re_x_t_top**0.46     
+    tr_loc_vals     = np.where(tr_crit_top > 0)[0] 
+    if len(tr_loc_vals) == 0:  # manual trip point at stagnation point (fully turbulent)
+        i_tr_top = 0
+    else: # transition
+        i_tr_top = tr_loc_vals[0]    
+        
+    x_tr_top        = x_t_top[i_tr_top] 
+    del_star_tr_top = del_star_t_top[i_tr_top] 
+    theta_tr_top    = theta_t_top[i_tr_top]    
+    delta_tr_top    = delta_t_top[i_tr_top] 
+    
+    x_h_top, theta_h_top, del_star_h_top, H_h_top, cf_h_top, delta_h_top = heads_method(delta_tr_top,theta_tr_top, del_star_tr_top, L_top - x_tr_top, Re_L, x_top - x_tr_top, Ve_top, dVe_top)
+    x_ts            = np.concatenate([x_t_top[:i_tr_top], x_h_top + x_tr_top])
+    theta_top       = np.concatenate([theta_t_top[:i_tr_top] ,theta_h_top])
+    del_star_top    = np.concatenate([del_star_t_top[:i_tr_top], del_star_h_top])
+    H_top           = np.concatenate([H_t_top[:i_tr_top] ,H_h_top])
+    cf_top          = np.concatenate([cf_t_top[:i_tr_top], cf_h_top])
+    delta_top       = np.concatenate([delta_t_top[:i_tr_top], delta_h_top]) 
+    
+    # ---------------------------------------------------------------------
+    # Concatenate Upper and Lower Surface Data 
+    # ---------------------------------------------------------------------   
+
+    x_vals                = x[::-1]  
+    y_vals                = y[::-1]  
+    Cp_vals               = np.concatenate([Cp_top[::-1],Cp_bot])
+    Ve_vals               = np.concatenate([Ve_top[::-1],Ve_bot])
+    dVe_vals              = np.concatenate([dVe_top[::-1],dVe_bot ])
+                          
+    theta_top_func        = interp1d(x_ts[::-1], theta_top[::-1])
+    theta_bot_func        = interp1d(x_bs,theta_bot) 
+    delta_star_top_func   = interp1d(x_ts[::-1] ,del_star_top[::-1])
+    delta_star_bot_func   = interp1d(x_bs,del_star_bot) 
+    H_top_func            = interp1d(x_ts[::-1],H_top[::-1])
+    H_bot_func            = interp1d(x_bs,H_bot)   
+    Cf_top_func           = interp1d(x_ts[::-1],cf_top[::-1])
+    Cf_bot_func           = interp1d(x_bs,cf_bot) 
+    delta_top_func        = interp1d(x_ts[::-1],delta_top[::-1])
+    delta_bot_func        = interp1d(x_bs,delta_bot)     
+                          
+    theta_vals            = np.concatenate([theta_top_func(x_top[::-1]),theta_bot_func(x_bot)])
+    delta_star_vals       = np.concatenate([delta_star_top_func(x_top[::-1]),delta_star_bot_func(x_bot)])
+    H_vals                = np.concatenate([H_top_func(x_top[::-1]),H_bot_func(x_bot)])
+    Cf_vals               = np.concatenate([Cf_top_func(x_top[::-1]),Cf_bot_func(x_bot)])
+    delta_vals            = np.concatenate([delta_top_func(x_top[::-1]),delta_bot_func(x_bot)])
+    
+    tr_crit_top_func      = interp1d( x_t_top[::-1], tr_crit_top[::-1]) 
+    tr_crit_bot_func      = interp1d( x_t_bot, tr_crit_bot) 
+    Re_theta_t_top_func   = interp1d(x_t_top[::-1],  Re_theta_t_top[::-1])
+    Re_theta_t_bot_func   = interp1d(x_t_bot,Re_theta_t_bot)
+    Re_theta_t_vals       = np.concatenate([Re_theta_t_top_func(x_top[::-1]), Re_theta_t_bot_func(x_bot)])
+    tr_crit_vals          = np.concatenate([tr_crit_top_func(x_top[::-1]),tr_crit_bot_func(x_bot)])
      
-    Ve_top       = vt[i_stag:]
-    #cp_top       = 1 - (Uu/Uinf)**2 
-    dVe_top      = np.zeros_like(x_top_vals)
-    dVe_top_temp = np.diff(Ve_top)/np.diff(x_top)
-    dVe_top[0]   = dVe_top_temp[0]
-    for  i in range(1,len(x_top)- 1):
-        a          = x_top[i] - x_top[i-1]
-        b          = x_top[i+1] - x_top[i-1]
-        dVe_top[i] = (b*dVe_top_temp[i-1] + a*dVe_top_temp[i])/(a+b)
-    
-    dVe_top[-1] = dVe_top_temp[-1] 
-    
-    #Plot velocity distributions
-    fig  = plt.figure(10)
-    axis = fig.add_subplot(1,1,1)     
-    axis.plot(x_top,Ve_top,'-',x_bot,Ve_bot,'--')
-    axis.set_xlabel('Distance from stagnation point')
-    axis.set_ylabel('V_e') 
-    axis.set_xlim([0,1.1])
-    axis.set_ylim([0,1.5])        
-    
-    fig  = plt.figure(11)
-    axis = fig.add_subplot(1,1,1)     
-    axis.plot(x_top,dVe_top,'-',x_bot,dVe_bot,'--')
-    axis.set_xlabel('Distance from stagnation point')
-    axis.set_ylabel('dV_e/dx') 
-    axis.set_xlim([0,1.1])
-    axis.set_ylim([-5, 5])      
- 
- 
-    # bottom
-    Re_L           = 5E6
-    L              = x_bot[-1]
-    dVe_0_func     = interp1d(x_bot,dVe_bot,fill_value = "extrapolate") 
-    dVe_0          = dVe_0_func (0)   
-    theta_0        = np.sqrt(0.075*L/dVe_0/Re_L)
-    x_t, theta_t, del_star_t, H_t, cf_t, Re_theta_t, Re_x_t= thwaites_method(0.000001, L, Re_L, x_bot, Ve_bot, dVe_bot)
-    tr_crit        = Re_theta_t - 1.174*(1 + 224000/Re_x_t)*Re_x_t**0.46
-    
-    fig  = plt.figure(100)
-    axis = fig.add_subplot(1,1,1)   
-    axis.plot(x_t,Re_theta_t,'-', label = '$Re_\theta$')
-    axis.plot(x_t,Re_theta_t-tr_crit,'--', label = '1.174(1+22400/Re_x)Re_x**{0.46}')
-    axis.legend(loc='upper right')   
-    axis.set_title('Transition Bottom Surface') 
-    
-    for i in range(len(tr_crit)):
-        if tr_crit[i] > 0:
-            interp_factor = tr_crit[i-1]/(tr_crit[i] - tr_crit[i-1])
-            x_tr          = interp_factor*(x_t[i] - x_t[i-1]) + x_t[i-1]
-            del_star_tr   = interp_factor*(del_star_t[i] - del_star_t[i-1]) + del_star_t[i-1]
-            theta_tr      = interp_factor*(theta_t[i] - theta_t[i-1]) + theta_t[i-1]
-            i_tr          = i
-            break  
-    
-    x_h, theta_h, del_star_h, H_h, cf_h = heads_method(theta_tr, del_star_tr, L - x_tr, Re_L, x_bot - x_tr, Ve_bot, dVe_bot)
-    x              = np.concatenate( [x_t[:i_tr], x_h + x_tr] )
-    theta          = np.concatenate( [theta_t[:i_tr] ,theta_h] )
-    del_star       = np.concatenate( [del_star_t[:i_tr] ,del_star_h] )
-    H              = np.concatenate( [H_t[:i_tr] ,H_h] )
-    cf             = np.concatenate( [cf_t[:i_tr], cf_h] )
-    cos_t_bot_func = interp1d(x_bot,cos_t_bot,fill_value = "extrapolate")   
-    cd             = cf*cos_t_bot_func(x)
-    CD_top         = np.trapz(cd,x)
-    
-    fig  = plt.figure(2)
-    axis = fig.add_subplot(1,1,1)   
-    axis.plot(x, theta,'b-', label = '$\theta$' )
-    axis.plot(x,del_star,'b--', label = '$\delta$*')
-    axis.set_xlabel('x')
-    axis.set_ylabel('Thickness') 
-    axis.legend(loc='upper right')   
-    fig  = plt.figure(3)
-    axis = fig.add_subplot(1,1,1)   
-    axis.plot(x, H)
-    axis.set_xlabel('x')
-    axis.set_ylabel('H') 
-    
-    fig  = plt.figure(4)
-    axis = fig.add_subplot(1,1,1)   
-    axis.plot(x, cf)
-    axis.set_xlabel('x')
-    axis.set_ylabel('c_f') 
-    axis.set_xlim([0,1,])
-    axis.set_ylim([0,0.005])      
-    
-    #Compute Top Surface
-    L              = x_top[-1] 
-    dVe_0_func     = interp1d(x_top,dVe_top,fill_value = "extrapolate")  
-    dVe_0          = dVe_0_func(0)
-    theta_0        = np.sqrt(0.075*L/dVe_0/Re_L)
-    x_t, theta_t, del_star_t, H_t, cf_t, Re_theta_t, Re_x_t = thwaites_method(0.000001,L, Re_L, x_top, Ve_top, dVe_top) 
-    tr_crit        = Re_theta_t - 1.174*(1 + 224000/Re_x_t)*Re_x_t**0.46
-    
-    fig  = plt.figure(110)
-    axis = fig.add_subplot(1,1,1)   
-    axis.plot(x_t,Re_theta_t,'-', label = '$Re_\theta$')
-    axis.plot(x_t,Re_theta_t-tr_crit,'--', label = '1.174(1+22400/Re_x)Re_x**{0.46}') 
-    axis.legend(loc='upper right')   
-    axis.set_title('Transition Top Surface') 
-    
-    for i in range( len(tr_crit)):
-        if tr_crit[i] > 0:
-            interp_factor = tr_crit[i-1]/(tr_crit[i] - tr_crit[i-1])
-            x_tr          = interp_factor*(x_t[i] - x_t[i-1]) + x_t[i-1]
-            del_star_tr   = interp_factor*(del_star_t[i] - del_star_t[i-1]) + del_star_t[i-1]
-            theta_tr      = interp_factor*(theta_t[i] - theta_t[i-1]) + theta_t[i-1]
-            i_tr          = i
-            break 
-    
-    x_h, theta_h, del_star_h, H_h, cf_h = heads_method(theta_tr, del_star_tr, L - x_tr, Re_L, x_top - x_tr, Ve_top, dVe_top)
-    x               = np.concatenate( [x_t[:i_tr], x_h + x_tr] )
-    theta           = np.concatenate( [theta_t[:i_tr] ,theta_h] )
-    del_star        = np.concatenate( [del_star_t[:i_tr], del_star_h] )
-    H               = np.concatenate( [H_t[:i_tr] ,H_h] )
-    cf              = np.concatenate( [cf_t[:i_tr], cf_h] )
-    cos_t_top_func  = interp1d(x_top,cos_t_top,fill_value = "extrapolate") 
-    cd              = cf*cos_t_top_func(x)   
-    CD_bottom       = np.trapz(cd,x)
-    CD_total        = CD_bottom + CD_top
-    
-    fig  = plt.figure(6)
-    axis = fig.add_subplot(1,1,1)   
-    axis.plot(x, theta,'b-',label = '$\theta$')
-    axis.plot(x,del_star,'b--' , label = '$\delta*$')
-    axis.set_xlabel('x')
-    axis.set_ylabel('Thickness') 
-    axis.legend(loc='upper right')   
+    s_vals                = np.zeros_like(x_vals)
+    H_star_vals           = np.zeros_like(x_vals)
+    P_vals                = np.zeros_like(x_vals)     
+    m_vals                = np.zeros_like(x_vals)     
+    K_vals                = np.zeros_like(x_vals)     
+    tau_vals              = np.zeros_like(x_vals)  
+    Di_val                = np.zeros_like(x_vals)   
      
-    fig  = plt.figure(7)
-    axis = fig.add_subplot(1,1,1) 
-    axis.plot(x, H)
-    axis.set_xlabel('x')
-    axis.set_ylabel('H') 
+    Cl,Cd,Cm = aero_coeff(x_vals,y_vals,Cp_vals,alpha,npanel)  
     
-    fig  = plt.figure(8)
-    axis = fig.add_subplot(1,1,1) 
-    axis.plot(x, cf)
-    axis.set_xlabel('x')
-    axis.set_ylabel('c_f') 
-    axis.set_xlim([0,1.4])
-    axis.set_ylim([0,0.005])    
+    airfoil_properties = Data(
+        Cl         = Cl,
+        Cd         = Cd,
+        Cm         = Cm,
+        normals    = normals,
+        x          = x_vals,
+        y          = y_vals,
+        Cp         = Cp_vals,         
+        Ue_Vinf    = Ve_vals,         
+        dVe        = dVe_vals,         
+        theta      = theta_vals,      
+        delta_star = delta_star_vals, 
+        delta      = delta_vals,
+        H          = H_vals,          
+        s          = s_vals,
+        H_star     = H_star_vals, 
+        P          = P_vals,      
+        m          = m_vals,     
+        K          = K_vals,     
+        tau        = tau_vals,  
+        Di         = Di_val,        
+        Cf         = Cf_vals,          
+        Re_theta_t = Re_theta_t_vals,
+        tr_crit    = tr_crit_vals,     
+        )  
     
-    #cp = np.concatenate([cp_top,cp_bot])
-    #cl,cd,cm = aero_coeff(x,y,cp,alpha,npanel)  
-    
-    return  
+    return  airfoil_properties
