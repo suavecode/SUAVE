@@ -81,9 +81,6 @@ def compute_point_source_coordinates(i,mic_loc,p_idx,AoA,thrust_angle,mls,prop_o
     y = mat_4[1,0] 
     z = mat_4[2,0] 
     
-    position_vector       = np.zeros((len(x),3))
-    position_vector[:,0]  = x 
-    position_vector[:,1]  = y 
-    position_vector[:,2]  = z 
+    position_vector = np.array([x,y,z])
     
     return position_vector

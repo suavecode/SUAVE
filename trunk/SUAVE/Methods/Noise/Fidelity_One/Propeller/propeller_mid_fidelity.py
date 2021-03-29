@@ -18,9 +18,9 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import comp
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_broadband_noise  import compute_broadband_noise
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise   import compute_harmonic_noise
 
-# ----------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 #  Medium Fidelity Frequency Domain Methods for Acoustic Noise Prediction
-# ----------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
 def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc):
     ''' This computes the acoustic signature (sound pressure level, weighted sound pressure levels,
@@ -62,15 +62,18 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
     N                    = network.number_of_engines                    
     ctrl_pts             = len(angle_of_attack) 
     num_f                = len(settings.center_frequencies)
+    harmonics            = np.arange(1,30)  
+    num_h                = len(harmonics)      
     
     # create data structures for computation  
     Noise                             = Data()
     Noise.SPL_dBA_prop                = np.zeros((ctrl_pts,N))  
+    Noise.SPL_prop_bb_spectrum        = np.zeros((ctrl_pts,N,num_f))  
     Noise.SPL_prop_spectrum           = np.zeros((ctrl_pts,N,num_f))   
     Noise.SPL_prop_bpfs_spectrum      = np.zeros((ctrl_pts,N,num_f))     
     Noise.SPL_prop_h_spectrum         = np.zeros((ctrl_pts,N,num_f))    
     Noise.SPL_prop_h_dBA_spectrum     = np.zeros((ctrl_pts,N,num_f)) 
-    Noise.SPL_prop_tonal_spectrum     = np.zeros((ctrl_pts,N,num_f))    
+    Noise.SPL_prop_tonal_spectrum     = np.zeros((ctrl_pts,N,num_f))     
     Noise.SPL_r                       = np.zeros((N,num_h))  
     Noise.SPL_r_dBA                   = np.zeros_like(Noise.SPL_r)  
     Noise.p_pref_r                    = np.zeros_like(Noise.SPL_r) 
@@ -87,9 +90,7 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
     Results.SPL_tot_bpfs_spectrum     = np.zeros((ctrl_pts,num_f))
                                         
     # loop for control points  
-    for i in range(ctrl_pts):   
-        harmonics     = np.arange(1,30)  
-        num_h         = len(harmonics)   
+    for i in range(ctrl_pts):    
         
         # loop through number of propellers/rotors 
         for p_idx in range(N):  
@@ -101,9 +102,9 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
             # ------------------------------------------------------------------------------------
             # Harmonic Noise  
             # ------------------------------------------------------------------------------------            
-            compute_harmonic_noise(i,num_h,p_idx,harmonics,ctrl_pts,N,num_f, harmonics,
-                                   freestream,angle_of_attack,position_vector, velocity_vector, 
-                                   mic_loc,propeller,auc_opts,settings,Noise) 
+            compute_harmonic_noise(i,num_h,p_idx,harmonics ,num_f,freestream,angle_of_attack,
+                                   position_vector,velocity_vector, mic_loc,propeller,auc_opts,
+                                   settings,Noise)            
             
             # ------------------------------------------------------------------------------------
             # Broadband Noise  
