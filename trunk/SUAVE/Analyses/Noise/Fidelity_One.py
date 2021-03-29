@@ -22,7 +22,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_certification_lim
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_arithmetic
 
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_low_fidelity import propeller_low_fidelity
+from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity import propeller_mid_fidelity
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_noise_sae    import propeller_noise_sae 
 
 # package imports
@@ -184,7 +184,7 @@ class Fidelity_One(Noise):
                                 source_SPLs_dBA[:,si,mic_loc]      = propeller_noise.SPL_dBA   
                                 source_SPL_spectra[:,si,:,mic_loc] = propeller_noise.SPL_spectrum     
                             else:
-                                propeller_noise                    = propeller_low_fidelity(net,prop,acoustic_data,segment,settings,mic_loc,harmonics)  
+                                propeller_noise                    = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings,mic_loc,harmonics)  
                                 source_SPLs_dBA[:,si,mic_loc]      = propeller_noise.SPL_dBA 
                                 source_SPL_spectra[:,si,:,mic_loc] = propeller_noise.SPL_spectrum      
                             
