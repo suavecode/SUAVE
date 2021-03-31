@@ -22,12 +22,15 @@ import numpy as np
 
 def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 99):
     
+    vehicle.tag = 'slice'
+    
     # Write the vehicle
     write(vehicle,vehicle.tag,write_file=False)
     
     # Calculate the mach angle and adjust for AoA
+    mach[0] = 1.
     mach_angle = np.arcsin(1/mach[0])
-    roty = mach_angle - angle_of_attack[0]
+    roty = (np.pi/2-mach_angle) + angle_of_attack[0]
     
     # Take the components of the X and Z axis to get the slicing plane
     x_component = np.cos(roty)
@@ -38,7 +41,7 @@ def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 99):
     
     # Pull out the areas from the slices
     pslice_results = vsp.FindLatestResultsID("Slice")
-    slice_areas    = vsp.GetDoubleResults( pslice_results, "Slice_Area" )
+    slice_areas    = vsp.GetDoubleResults( pslice_results, "Slice_Area" ) * np.cos(roty)
     vec3d          = vsp.GetVec3dResults(pslice_results, "Slice_Area_Center")
     
     X = []
@@ -60,6 +63,5 @@ def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 99):
     # Turn them into arrays
     X_locs      = np.array(X_locs)
     slice_areas = np.array(slice_areas)
-    
-        
+           
     return X_locs, slice_areas
