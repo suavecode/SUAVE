@@ -173,12 +173,7 @@ class Rotor(Energy_Component):
         BBB     = BB*B
     
         # calculate total blade pitch
-        total_blade_pitch = beta_0 + pitch_c  
-            
-        # Velocity in the Body frame
-        T_body2inertial = conditions.frames.body.transform_to_inertial
-        T_inertial2body = orientation_transpose(T_body2inertial)
-        V_body          = orientation_product(T_inertial2body,Vv)
+        total_blade_pitch = beta_0 + pitch_c
     
         # Velocity in the Body frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
