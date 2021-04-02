@@ -188,9 +188,8 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     LE_Z        = np.repeat(LE_Z,n_cw,axis=1)    
     CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2)
     CHORD       = np.repeat(CHORD,shape,axis=0)
-    ZETA        = (LE_Z-TE_Z)/(LE_X-TE_X) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
-    ZETA        = ZETA[0,:] # Fix the shape for later
-    RFLAG       = np.ones((n_mach,shape))
+    ZETA        = (LE_Z[0,:]-TE_Z[0,:])/(LE_X[0,:]-TE_X[0,:]) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
+    RFLAG       = np.ones((n_mach,shape),dtype=np.int8)
     
     if np.sum(sup)>0:
         U[sup], V[sup], W[sup], RFLAG[sup,:] = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
@@ -338,19 +337,18 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     
     ZETAPI = Z/CPI
     
-    TBZ   = (T2 - B2) *ZSQ
-    DENOM = XTY * XTY + TBZ
-    SIGN  = np.ones(shape)
-    SIGN[DENOM<0] = -1.
-    TOLSQ         = np.broadcast_to(TOLSQ,shape)
-    DENOM[np.abs(DENOM)<TOLSQ] = SIGN[np.abs(DENOM)<TOLSQ]*TOLSQ[np.abs(DENOM)<TOLSQ]
+    DENOM             = XTY * XTY + (T2 - B2) *ZSQ # The last part of this is the TBZ term
+    SIGN              = np.ones(shape,dtype=np.int8)
+    SIGN[DENOM<0]     = -1.
+    TOLSQ             = np.broadcast_to(TOLSQ,shape)
+    DENOM_COND        = np.abs(DENOM)<TOLSQ
+    DENOM[DENOM_COND] = SIGN[DENOM_COND]*TOLSQ[DENOM_COND]
     
     # Create a boolean for various conditions for F1 that goes to zero
-    bool1           = np.ones(shape,dtype=bool)
-    X1_l_tol        = np.broadcast_to((X1<TOL),shape)
-    bool1[X1_l_tol] = False
+    bool1           = np.ones(shape,dtype=np.bool8)
+    bool1[:,X1<TOL] = False
     bool1[RAD1==0.] = False
-    RAD1[X1_l_tol]  = 0.0
+    RAD1[:,X1<TOL]  = 0.0
     
     REPS = CUTOFF*XSQ1
     FRAD = RAD1
@@ -370,17 +368,16 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     
     # Round 2
     # Create a boolean for various conditions for F2 that goes to zero
-    bool2           = np.ones(shape,dtype=bool)
-    X2_l_tol        = np.broadcast_to((X2<TOL),shape)
-    bool2[X2_l_tol] = False
+    bool2           = np.ones(shape,dtype=np.bool8)
+    bool2[:,X2<TOL] = False
     bool2[RAD2==0.] = False
-    RAD2[X2_l_tol]  = 0.0
+    RAD2[:,X2<TOL]  = 0.0
     
     REPS = CUTOFF *XSQ2
     FRAD = RAD2    
     
     bool2[RO2>REPS] = False
-    FB2 = (T *X2 - B2 *Y2) /FRAD
+    FB2 = (T *X2 - B2 *Y2)/FRAD
     FT2 = X2 /(FRAD *RTV2)
     FT2[RTV2<TOLSQ] = 0.
     
@@ -425,8 +422,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     T2A = np.zeros((n_mach,size))
     
     # Setup masks
-    F_mask = np.ones((n_mach,size),dtype=bool)
-    A_mask = np.ones((n_mach,size),dtype=bool)
+    F_mask = np.ones((n_mach,size),dtype=np.bool8)
+    A_mask = np.ones((n_mach,size),dtype=np.bool8)
     F_mask[:,(n_cw-1)::n_cw] = False
     A_mask[:,::n_cw]         = False
     
@@ -539,5 +536,5 @@ def supersonic_in_plane(RAD1,RAD2,Y1,Y2,TOL,XTY,CPI):
     
     W = np.zeros(shape)
     W[np.abs(XTY)>TOL] = (-F1[np.abs(XTY)>TOL] + F2[np.abs(XTY)>TOL])/(XTY[np.abs(XTY)>TOL]*CPI)
-    
+
     return W

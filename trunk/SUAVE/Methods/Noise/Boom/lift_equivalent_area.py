@@ -64,7 +64,7 @@ def lift_equivalent_area(config,analyses,conditions):
     
     Ae_lift_at_each_x = (beta/(2*q[0]))*summed_lift_forces
     
-    X_max  = config.total_length
+    X_max  = config.total_length*1.25
     
     X_locs = np.concatenate([[0],X_locations,[X_max]])
     AE_x   = np.concatenate([[0],Ae_lift_at_each_x,[Ae_lift_at_each_x[-1]]])

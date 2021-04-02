@@ -21,14 +21,11 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 99):
-    
-    vehicle.tag = 'slice'
-    
+
     # Write the vehicle
     write(vehicle,vehicle.tag,write_file=False)
     
     # Calculate the mach angle and adjust for AoA
-    mach[0] = 1.
     mach_angle = np.arcsin(1/mach[0])
     roty = (np.pi/2-mach_angle) + angle_of_attack[0]
     
