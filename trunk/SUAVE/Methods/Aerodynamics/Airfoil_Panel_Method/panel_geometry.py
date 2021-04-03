@@ -16,9 +16,8 @@ import numpy as np
 # ----------------------------------------------------------------------  
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
 def panel_geometry(x,y,npanel):
-    """Compute airfoil surface panelization parameters  
-                        for later use in the computation of the matrix 
-                        of influence coefficients.        
+    """Computes airfoil surface panelization parameters for later use in 
+    the computation of the matrix of influence coefficients.        
 
     Assumptions:
     None
@@ -32,30 +31,23 @@ def panel_geometry(x,y,npanel):
     npanel  -  Number of panels on the airfoil                       
                                                                      
     Outputs:                                             
-    l       -  Panel lenghts                         
+    l       -  Panel lengths                         
     st      -  np.sin(theta) for each panel  
     ct      -  np.cos(theta) for each panel  
-    xbar    -  X-coordinate of the midpoint of each panel               
-    ybar    -  X-coordinate of the midpoint of each panel                
+    xbar    -  x-coordinate of the midpoint of each panel               
+    ybar    -  y-coordinate of the midpoint of each panel                
     
     
     Properties Used:
     N/A
     """     
-    # compute various geometrical quantities 
-    l    = np.zeros(npanel)
-    st   = np.zeros_like(l)
-    ct   = np.zeros_like(l)
-    xbar = np.zeros_like(l)
-    ybar = np.zeros_like(l)  
-    norm = np.zeros((npanel,2))     
-        
+    # compute various geometrical quantities    
     l    = np.sqrt((x[1:] -x[:-1])**2 +(y[1:] -y[:-1])**2)
     st   = (y[1:] -y[:-1])/l 
     ct   = (x[1:] -x[:-1])/l 
     xbar = (x[1:] +x[:-1])/2
     ybar = (y[1:] +y[:-1])/2 
     
-    norm  = np.concatenate((-np.atleast_2d(st).T,np.atleast_2d(ct).T),axis = 1)
+    norm  = np.concatenate((-np.atleast_2d(st).T,-np.atleast_2d(ct).T),axis = 1)
     return l,st,ct,xbar,ybar,norm 
      

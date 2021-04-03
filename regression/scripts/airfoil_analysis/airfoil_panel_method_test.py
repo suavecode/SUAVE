@@ -27,12 +27,11 @@ def main():
     npanel = 160
     
     # Define Reynolds Number
-    Re     = 5E6 
+    Re     = np.atleast_2d(np.array([5E5,5E6])).T
     
     #Define Angle of Attack
-    AoA1   = 3*Units.degrees 
-    AoA2   = 10*Units.degrees 
-    
+    AoA    = np.atleast_2d(np.linspace(-4,16,11)*Units.degrees).T 
+     
     # -----------------------------------------------
     # SUAVE
     # -----------------------------------------------
@@ -40,85 +39,50 @@ def main():
     airfoil_geometry   = compute_naca_4series(0.03,0.3,0.1,npoints=npanel )
     
     # Compute Airfoil Aerodynamic and Boundary Layer Properties 
-    airfoil_properties_1 = airfoil_analysis(airfoil_geometry,AoA1,Re, npanel) 
-    airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA2,Re, npanel)
+    airfoil_properties = airfoil_analysis(airfoil_geometry,AoA,Re, npanel)  
     
     # Plot Results 
-    plot_airfoil_properties(airfoil_properties_1,line_style='k-',arrow_color = 'r',plot_pressure_vectors = True)  
-    plot_airfoil_properties(airfoil_properties_2,line_style='b-',arrow_color = 'g',plot_pressure_vectors = True)  
+    plot_airfoil_properties(airfoil_properties,line_style='k-',arrow_color = 'r',plot_pressure_vectors = True)  
     
     
     # -----------------------------------------------
     # XFOIL
     # -----------------------------------------------
-    xfoil_boundary_layer_file_1 = 'NACA_3310_3deg.txt'
-    xfoil_cp_file_1             = 'NACA_3310_3deg_cp.txt' 
+    xfoil_boundary_layer_file_1 = 'NACA_3310_4deg.txt'
+    xfoil_cp_file_1             = 'NACA_3310_4deg_cp.txt' 
     xfoil_data_1                = read_xfoil_verification_files(xfoil_boundary_layer_file_1,xfoil_cp_file_1)  
-    xfoil_data_1.Cl             = 0.6622
-    xfoil_data_1.Cd             = 0.00467
-    xfoil_data_1.Cm             = -0.0645
-    
-    xfoil_boundary_layer_file_2 = 'NACA_3310_10deg.txt'
-    xfoil_cp_file_2             = 'NACA_3310_10deg_cp.txt' 
-    xfoil_data_2                = read_xfoil_verification_files(xfoil_boundary_layer_file_2,xfoil_cp_file_2)  
-    xfoil_data_2.Cl             = 1.4039 
-    xfoil_data_2.Cd             = 0.0116
-    xfoil_data_2.Cm             = -0.0610 
-    
-    # Plot Results 
-    plot_airfoil_properties(xfoil_data_1,line_style = 'ko', plot_pressure_vectors = False )  
-    plot_airfoil_properties(xfoil_data_2,line_style = 'bo', plot_pressure_vectors = False )
-
+    xfoil_data_1.Cl             = 0.7865
+    xfoil_data_1.Cd             = 0.00507
+    xfoil_data_1.Cm             = -0.0674
+     
     # -----------------------------------------------
     # Validation  
     # ----------------------------------------------- 
-    print('\n\nNACA 3310 Validation at 3 deg') 
-    diff_CL = np.abs(airfoil_properties_1.Cl - xfoil_data_1.Cl) 
+    print('\n\nNACA 3310 Validation at 4 deg') 
+    diff_CL = np.abs(airfoil_properties.Cl[4,1] - xfoil_data_1.Cl) 
     print('\nCL difference')
     print(diff_CL)
-    assert np.abs((airfoil_properties_1.Cl  - xfoil_data_1.Cl)/xfoil_data_1.Cl) < 1e-1
+    assert np.abs((airfoil_properties.Cl[4,1]  - xfoil_data_1.Cl)/xfoil_data_1.Cl) < 5e-1
     
-    diff_CD = np.abs(airfoil_properties_1.Cd - xfoil_data_1.Cd) 
-    print('CD difference')
-    print(diff_CD)
-    assert np.abs((airfoil_properties_1.Cd  - xfoil_data_1.Cd)/xfoil_data_1.Cd) < 1e-1
-    
-    diff_CM = np.abs(airfoil_properties_1.Cm - xfoil_data_1.Cm) 
-    print('\nCM difference')
-    print(diff_CM)
-    assert np.abs((airfoil_properties_1.Cm  - xfoil_data_1.Cm)/xfoil_data_1.Cm) < 1e-1
-   
-    diff_CP = np.abs(airfoil_properties_1.Cp[100] - xfoil_data_1.Cp[100]) 
-    print('\nCM difference')
-    print(diff_CP)
-    assert np.abs((airfoil_properties_1.Cp[100]  - xfoil_data_1.Cp[100])/xfoil_data_1.Cp[100]) < 1e-1
-    
-    print('\n\nNACA 3310 Validation at 10 deg') 
-    diff_CL = np.abs(airfoil_properties_2.Cl - xfoil_data_2.Cl) 
-    print('\nCL difference')
-    print(diff_CL)
-    assert np.abs((airfoil_properties_2.Cl  - xfoil_data_2.Cl)/xfoil_data_2.Cl) < 1e-1
-    
-    diff_CD = np.abs(airfoil_properties_2.Cd - xfoil_data_2.Cd) 
+    diff_CD = np.abs(airfoil_properties.Cd[4,1] - xfoil_data_1.Cd) 
     print('\nCD difference')
     print(diff_CD)
-    assert np.abs((airfoil_properties_2.Cd  - xfoil_data_2.Cd)/xfoil_data_2.Cd) < 1e-1
+    assert np.abs((airfoil_properties.Cd[4,1]  - xfoil_data_1.Cd)/xfoil_data_1.Cd) < 5e-1
     
-    diff_CM = np.abs(airfoil_properties_2.Cm - xfoil_data_2.Cm) 
+    diff_CM = np.abs(airfoil_properties.Cm[4,1] - xfoil_data_1.Cm) 
     print('\nCM difference')
     print(diff_CM)
-    assert np.abs((airfoil_properties_2.Cm  - xfoil_data_2.Cm)/xfoil_data_2.Cm) < 5e-1  
+    assert np.abs((airfoil_properties.Cm[4,1]  - xfoil_data_1.Cm)/xfoil_data_1.Cm) < 5e-1
    
-    diff_CP = np.abs(airfoil_properties_2.Cp[100] - xfoil_data_2.Cp[100]) 
+    diff_CP = np.abs(airfoil_properties.Cp[40,4,1]  - xfoil_data_1.Cp[40]) 
     print('\nCM difference')
     print(diff_CP)
-    assert np.abs((airfoil_properties_2.Cp[100]  - xfoil_data_2.Cp[100])/xfoil_data_2.Cp[100]) < 1e-1
+    assert np.abs((airfoil_properties.Cp[40,4,1]  - xfoil_data_1.Cp[40])/xfoil_data_1.Cp[40]) < 5e-1 
     
     return  
-
-
+ 
 # ----------------------------------------------------------------------
-#  Reading BEM files
+#  Read Xfoil Verification Files
 # ----------------------------------------------------------------------
 def read_xfoil_verification_files(xfoil_boundary_layer_file,xfoil_cp_file):
     """Reads xfoil data file for regression  

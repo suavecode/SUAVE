@@ -18,8 +18,8 @@ from .veldis import veldis
 # ----------------------------------------------------------------------  
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def hess_smith(x_coord,y_coord,alpha,npanel):
-    """Computes of the incompressible, inviscid flow over an airfoil of  arbitrary shape unp.sing the Hess-Smith panel method.  
+def hess_smith(x_coord,y_coord,alpha,Re,npanel):
+    """Computes of the incompressible, inviscid flow over an airfoil of  arbitrary shape using the Hess-Smith panel method.  
 
     Assumptions:
     None
@@ -29,8 +29,8 @@ def hess_smith(x_coord,y_coord,alpha,npanel):
  
                                                      
     Inputs          
-    x      -  Vector of x coordinates of the surface         
-    y    -  Vector of y coordinates of the surface      
+    x       -  Vector of x coordinates of the surface         
+    y       -  Vector of y coordinates of the surface      
     alpha   -  Airfoil angle of attack                                  
     npanel  -  Number of panels on the airfoil.  The number of nodes  
                 is equal to npanel+1, and the ith panel goes from node   
@@ -40,36 +40,39 @@ def hess_smith(x_coord,y_coord,alpha,npanel):
     cl      -  Airfoil lift coefficient                   
     cd      -  Airfoil drag coefficient                
     cm      -  Airfoil moment coefficient about the c/4             
-    x_bar     -  Vector of x coordinates of the surface nodes        
+    x_bar   -  Vector of x coordinates of the surface nodes        
     y_bar   -  Vector of y coordinates of the surface nodes         
     cp      -  Vector of coefficients of pressure at the nodes     
 
     Properties Used:
     N/A
     """      
-    # generate panel geometry data for later use 
-    l    = np.zeros(npanel)
-    st   = np.zeros(npanel)
-    ct   = np.zeros(npanel)
-    xbar = np.zeros(npanel)
-    ybar = np.zeros(npanel)
     
+    nalpha        = len(alpha)
+    nRe           = len(Re) 
+    alpha_2d      = np.repeat(np.repeat(alpha,nRe, axis = 1)[np.newaxis,:, :], npanel, axis=0) 
+    
+    # generate panel geometry data for later use   
     l,st,ct,xbar,ybar,norm = panel_geometry(x_coord,y_coord,npanel)
-     
-    # compute matrix of aerodynamic influence coefficients  
-    ainfl  = np.zeros((npanel+1,npanel+1))
-    ainfl  = infl_coeff(x_coord,y_coord,xbar,ybar,st,ct,ainfl,npanel)
-     
+    
+    # convert 1D vectors to 2D
+    ct_2d         = np.repeat(np.repeat(ct[:,np.newaxis], nalpha, axis=1)[:,:,np.newaxis], nRe, axis=2)
+    st_2d         = np.repeat(np.repeat(st[:,np.newaxis], nalpha, axis=1)[:,:,np.newaxis], nRe, axis=2) 
+    
+    # compute matrix of aerodynamic influence coefficients
+    ainfl         = infl_coeff(x_coord,y_coord,xbar,ybar,st,ct,npanel)
+    ainfl_2d      = np.repeat(np.repeat(ainfl[:, :,np.newaxis], nalpha, axis=2)[:, :, :, np.newaxis], nRe, axis=3)
+    
     # compute right hand side vector for the specified angle of attack 
-    b      = np.zeros(npanel+1)  
-    b[:-1] = st*np.cos(alpha)-np.sin(alpha)*ct
-    b[-1]  = -(ct[0]*np.cos(alpha) + st[0]*np.sin(alpha))-(ct[-1]*np.cos(alpha) +st[-1]*np.sin(alpha))
-               
-    # solve matrix system for vector of q_i and gamma 
-    b      =  np.atleast_2d(b).T
-    qg     = np.linalg.solve(ainfl,b)
+    b_2d          = np.zeros((npanel+1,nalpha, nRe))
+    b_2d[:-1,:,:] = st_2d*np.cos(alpha_2d) - np.sin(alpha_2d)*ct_2d
+    b_2d[-1,:,:]  = -(ct_2d[0,:,:]*np.cos(alpha_2d[-1,:,:]) + st_2d[0,:,:]*np.sin(alpha_2d[-1,:,:]))-(ct_2d[-1,:,:]*np.cos(alpha_2d[-1,:,:]) +st_2d[-1,:,:]*np.sin(alpha_2d[-1,:,:]))
+      
+    # solve matrix system for vector of q_i and gamma  
+    qg_T          = np.linalg.solve(np.swapaxes(ainfl_2d.T,2,3),b_2d.T)
+    qg            = qg_T.T
     
     # compute the tangential velocity distribution at the midpoint of panels 
-    vt     = veldis(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha,npanel)
+    vt            = veldis(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha,Re,npanel)
     
     return  xbar,ybar,vt,ct,norm 
