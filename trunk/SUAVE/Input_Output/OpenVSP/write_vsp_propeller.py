@@ -9,12 +9,11 @@ from SUAVE.Core import Units, Data
 from SUAVE.Methods.Aerodynamics.AVL.purge_files import purge_files 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
-import numpy as np
-import shutil 
+import numpy as np 
 
 ## @ingroup Input_Output-OpenVSP
 def write_vsp_propeller(vsp_bem_filename,propeller):
-    """   This functions write a .bem file for OpenVSP
+    """   This functions writes a .bem file for OpenVSP
 
     Assumptions:
         None
@@ -91,8 +90,8 @@ Normal: {8}, {9}, {10}
     Xn       = np.round(np.cos(np.pi- prop.thrust_angle ),5)
     Yn       = 0.0000
     Zn       = np.round(np.sin(np.pi- prop.thrust_angle ),5)
-    
-    beta_3_4 = beta[round(N*0.75)] 
+     
+    beta_3_4  = np.interp(prop.tip_radius*0.75,prop.radius_distribution,beta)
     
     # Insert inputs into the template
     header_text = header_base.format(name,N,B,D,beta_3_4,X,Y,Z,Xn,Yn,Zn) 
@@ -125,16 +124,7 @@ def make_section_text(vsp_bem,prop):
     
     N          = len(prop.radius_distribution)
     r_R        = np.zeros(N)
-    c_R        = np.zeros(N)
-    beta_deg   = np.zeros(N)
-    Rake_R     = np.zeros(N)
-    Skew_R     = np.zeros(N)
-    Sweep      = np.zeros(N)
-    t_c        = np.zeros(N)
-    CLi        = np.zeros(N)
-    Axial      = np.zeros(N)
-    Tangential = np.zeros(N)
-     
+    c_R        = np.zeros(N) 
     r_R        = prop.radius_distribution/prop.tip_radius
     c_R        = prop.chord_distribution/prop.tip_radius
     beta_deg   = prop.twist_distribution/Units.degrees 
