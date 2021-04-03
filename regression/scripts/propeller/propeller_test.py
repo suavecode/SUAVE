@@ -9,8 +9,11 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units
-from SUAVE.Plots.Geometry_Plots import plot_propeller
+from SUAVE.Core                                            import Units
+from SUAVE.Plots.Geometry_Plots                            import plot_propeller
+from SUAVE.Input_Output.OpenVSP.vsp_read_propeller         import vsp_read_propeller
+from SUAVE.Input_Output.OpenVSP.write_vsp_propeller        import write_vsp_propeller
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars  import compute_airfoil_polars 
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
 Data, Container,
@@ -80,7 +83,10 @@ def main():
                                         '../Vehicles/Clark_y_polar_Re_500000.txt','../Vehicles/Clark_y_polar_Re_1000000.txt']] 
     prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]  
     prop_a.design_thrust           = 3054.4809132125697
-    prop_a                         = propeller_design(prop_a)  
+    prop_a                         = propeller_design(prop_a) 
+    
+    vsp_bem_filename = 'SUAVE_Blade_Test.bem'
+    write_vsp_propeller(vsp_bem_filename,prop_a)    
     
     # plot propeller 
     plot_propeller(prop_a)
@@ -140,6 +146,29 @@ def main():
     rot.design_thrust            = 2271.2220451593753  
     rot                          = propeller_design(rot) 
     
+    
+    # USING SUAVE-OPENVSP BEM READ FUNCTION
+    propeller_filename                  = '../Vehicles/Veldhuis.bem'
+    prop_VSP                            = vsp_read_propeller(propeller_filename) 
+    prop_VSP.freestream_velocity        = 50.   
+    J                                   = 0.85
+    n                                   = prop_VSP.freestream_velocity/(2.*prop_VSP.tip_radius*J)
+    prop_VSP.angular_velocity           = n*2*np.pi  
+                                    
+    prop_VSP.design_altitude            = 0. * Units.feet
+    prop_VSP.design_thrust              = 40.     
+    prop_VSP.symmetry                   = False 
+    
+    prop_VSP.airfoil_geometry           = ['../Vehicles/Clark_y.txt']
+    prop_VSP.airfoil_polars             = [['../Vehicles/Clark_y_polar_Re_50000.txt','../Vehicles/Clark_y_polar_Re_100000.txt','../Vehicles/Clark_y_polar_Re_200000.txt',
+                                            '../Vehicles/Clark_y_polar_Re_500000.txt','../Vehicles/Clark_y_polar_Re_1000000.txt']]  
+    prop_VSP.airfoil_polar_stations     = list(np.zeros(len(prop_VSP.radius_distribution))) 
+    airfoil_polars                      = compute_airfoil_polars(prop_VSP.airfoil_geometry, prop_VSP.airfoil_polars)  
+    airfoil_cl_surs                     = airfoil_polars.lift_coefficient_surrogates 
+    airfoil_cd_surs                     = airfoil_polars.drag_coefficient_surrogates         
+    prop_VSP.airfoil_cl_surrogates      = airfoil_cl_surs
+    prop_VSP.airfoil_cd_surrogates      = airfoil_cd_surs       
+    
     # Find the operating conditions
     atmosphere            = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmosphere_conditions =  atmosphere.compute_values(rot.design_altitude)
@@ -163,11 +192,15 @@ def main():
     conditions.frames.inertial.velocity_vector   = np.array([[V,0,0]])
     conditions_r.frames.inertial.velocity_vector = np.array([[0,Vr,0]])
     
+    conditions_VSP = copy.deepcopy(conditions) 
+    conditions_VSP.frames.inertial.velocity_vector = np.array([[V,0,0]]) 
+    
     # Create and attach this propeller 
-    prop_a.inputs.omega  = np.array(prop.angular_velocity,ndmin=2)
-    prop.inputs.omega    = np.array(prop.angular_velocity,ndmin=2)
-    rot_a.inputs.omega   = copy.copy(prop.inputs.omega)
-    rot.inputs.omega     = copy.copy(prop.inputs.omega)
+    prop_a.inputs.omega    = np.array(prop.angular_velocity,ndmin=2)
+    prop.inputs.omega      = np.array(prop.angular_velocity,ndmin=2)
+    rot_a.inputs.omega     = copy.copy(prop.inputs.omega)
+    rot.inputs.omega       = copy.copy(prop.inputs.omega)
+    prop_VSP.inputs.omega  = np.array(prop_VSP.angular_velocity,ndmin=2)
     
     # propeller with airfoil results 
     F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)  
@@ -187,48 +220,63 @@ def main():
     Fr, Qr, Pr, Cplastr ,outputr , etapr  = rot.spin(conditions_r)
     plot_results(outputr, rot,'black','-','P')
     
+    # propeller with airfoil results 
+    F_VSP, Q_VSP, P_VSP, Cplast_VSP ,output_VSP , etap_VSP = prop_VSP.spin(conditions_VSP)  
+    plot_results(output_VSP, prop_VSP,'darkorange','-','v')
+    
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3390.61957425
-    Q_a_truth       = 1001.363593
-    P_a_truth       = 207444.08891448 
-    Cplast_a_truth  = 0.10692172
+    F_a_truth        = 3390.61957425
+    Q_a_truth        = 1001.363593
+    P_a_truth        = 207444.08891448 
+    Cplast_a_truth   = 0.10692172
     
     # Truth values for propeller without airfoil geometry defined 
-    F_truth         = 2705.62228566
-    Q_truth         = 815.76685175
-    P_truth         = 168995.57015083
-    Cplast_truth    = 0.08710442
+    F_truth          = 2705.62228566
+    Q_truth          = 815.76685175
+    P_truth          = 168995.57015083
+    Cplast_truth     = 0.08710442
      
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1447.00285504
-    Qr_a_truth      = 191.05249889
-    Pr_a_truth      = 39578.74227177 
-    Cplastr_a_truth = 0.06225539
+    Fr_a_truth       = 1447.00285504
+    Qr_a_truth       = 191.05249889
+    Pr_a_truth       = 39578.74227177 
+    Cplastr_a_truth  = 0.06225539
     
     # Truth values for rotor without airfoil geometry defined 
-    Fr_truth        = 1290.26055703
-    Qr_truth        = 179.49371868
-    Pr_truth        = 37184.2068134
-    Cplastr_truth   = 0.0584889
+    Fr_truth         = 1290.26055703
+    Qr_truth         = 179.49371868
+    Pr_truth         = 37184.2068134
+    Cplastr_truth    = 0.0584889
+    
+    # Truth values for propeller defined in OpenVSP
+    F_VSP_truth      = 37.26133917
+    Q_VSP_truth      = 1.50845971
+    P_VSP_truth      = 2362.39578368
+    Cplast_VSP_truth = 0.17021331
+    
  
     # Store errors 
-    error = Data()
-    error.Thrust_a  = np.max(np.abs(F_a -F_a_truth))
-    error.Torque_a  = np.max(np.abs(Q_a -Q_a_truth))    
-    error.Power_a   = np.max(np.abs(P_a -P_a_truth))
-    error.Cp_a      = np.max(np.abs(Cplast_a -Cplast_a_truth))  
-    error.Thrust    = np.max(np.abs(F-F_truth))
-    error.Torque    = np.max(np.abs(Q-Q_truth))    
-    error.Power     = np.max(np.abs(P-P_truth))
-    error.Cp        = np.max(np.abs(Cplast-Cplast_truth))  
-    error.Thrustr_a = np.max(np.abs(Fr_a-Fr_a_truth))
-    error.Torquer_a = np.max(np.abs(Qr_a-Qr_a_truth))    
-    error.Powerr_a  = np.max(np.abs(Pr_a-Pr_a_truth))
-    error.Cpr_a     = np.max(np.abs(Cplastr_a-Cplastr_a_truth))  
-    error.Thrustr   = np.max(np.abs(Fr-Fr_truth))
-    error.Torquer   = np.max(np.abs(Qr-Qr_truth))    
-    error.Powerr    = np.max(np.abs(Pr-Pr_truth))
-    error.Cpr       = np.max(np.abs(Cplastr-Cplastr_truth))     
+    error            = Data()
+    error.Thrust_a   = np.max(np.abs(F_a -F_a_truth))
+    error.Torque_a   = np.max(np.abs(Q_a -Q_a_truth))    
+    error.Power_a    = np.max(np.abs(P_a -P_a_truth))
+    error.Cp_a       = np.max(np.abs(Cplast_a -Cplast_a_truth))  
+    error.Thrust     = np.max(np.abs(F-F_truth))
+    error.Torque     = np.max(np.abs(Q-Q_truth))    
+    error.Power      = np.max(np.abs(P-P_truth))
+    error.Cp         = np.max(np.abs(Cplast-Cplast_truth))  
+    error.Thrustr_a  = np.max(np.abs(Fr_a-Fr_a_truth))
+    error.Torquer_a  = np.max(np.abs(Qr_a-Qr_a_truth))    
+    error.Powerr_a   = np.max(np.abs(Pr_a-Pr_a_truth))
+    error.Cpr_a      = np.max(np.abs(Cplastr_a-Cplastr_a_truth))  
+    error.Thrustr    = np.max(np.abs(Fr-Fr_truth))
+    error.Torquer    = np.max(np.abs(Qr-Qr_truth))    
+    error.Powerr     = np.max(np.abs(Pr-Pr_truth))
+    error.Cpr        = np.max(np.abs(Cplastr-Cplastr_truth))   
+    error.Thrust_VSP = np.max(np.abs(F_VSP-F_VSP_truth))
+    error.Torque_VSP = np.max(np.abs(Q_VSP-Q_VSP_truth))    
+    error.Power_VSP  = np.max(np.abs(P_VSP-P_VSP_truth))
+    error.Cp_VSP     = np.max(np.abs(Cplast_VSP-Cplast_VSP_truth))       
     
     print('Errors:')
     print(error)
