@@ -38,9 +38,9 @@ modules = [
 
     # ----------------------- Regression List --------------------------
     'scripts/aerodynamics/aerodynamics.py',
-    'scripts/aerodynamics/sears_haack.py',
+    'scripts/aerodynamics/sears_haack.py', 
     'scripts/airfoil_analysis/airfoil_import_test.py',
-    'scripts/airfoil_analysis/airfoil_panel_method_test.py',
+    'scripts/airfoil_analysis/airfoil_panel_method_test.py', 
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
