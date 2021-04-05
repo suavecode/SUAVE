@@ -86,8 +86,7 @@ def compute_harmonic_noise(i,num_h,p_idx,harmonics ,num_f,freestream,angle_of_at
         c              = propeller.chord_distribution      # blade chord    
         R_tip          = propeller.tip_radius 
         t_c            = propeller.thickness_to_chord      # thickness to chord ratio
-        MCA            = propeller.mid_chord_aligment      # Mid Chord Alighment 
-    
+        MCA            = propeller.mid_chord_alignment     # Mid Chord Alighment  
         res.f[h]       = B*omega*m/(2*np.pi)   
         n              = len(R)  
         D              = 2*R[-1]                           # propeller diameter    

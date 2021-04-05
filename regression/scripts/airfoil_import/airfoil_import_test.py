@@ -6,9 +6,7 @@
 #----------------------------------------------------------------------
 #   Imports
 # ---------------------------------------------------------------------
-
 import SUAVE 
-import os
 from SUAVE.Core import Units, Data 
 from SUAVE.Plots.Geometry_Plots import plot_airfoil
 import matplotlib.pyplot as plt  
@@ -16,7 +14,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
      import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_polars \
      import import_airfoil_polars
-
+import os
 import numpy as np
 
 # ----------------------------------------------------------------------

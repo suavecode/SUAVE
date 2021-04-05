@@ -66,24 +66,24 @@ class Fidelity_One(Noise):
                 N/A
         """
         
-        # Initialize quantities    
-        self.harmonics                          = np.empty(shape=[0, 1])
-                                                
-        settings                                = self.settings
-        settings.propeller_SAE_noise_model      = False 
-        settings.flyover                        = False    
-        settings.approach                       = False
-        settings.sideline                       = False
-        settings.mic_x_position                 = 0    
-        settings.ground_microphone_phi_angles   = np.array([30.,45.,60.,75.,89.9,90.1,105.,120.,135.,150.])*Units.degrees
-        settings.ground_microphone_theta_angles = np.array([89.9,89.9,89.9,89.9,89.9,89.9,89.9,89.9, 89.9,89.9 ])*Units.degrees
-        settings.center_frequencies             = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
-                                                            500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
-                                                            4000, 5000, 6300, 8000, 10000])        
-        settings.lower_frequencies              = np.array([14,18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,\
-                                                            900,1120,1400,1800,2240,2800,3550,4500,5600,7100,9000 ])
-        settings.upper_frequencies              = np.array([18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,900,1120,\
-                                                            1400,1800,2240,2800,3550,4500,5600,7100,9000,11200 ])
+        # Initialize quantities                   
+        settings                                 = self.settings
+        settings.harmonics                       = np.arange(1,30)  
+        settings.propeller_SAE_noise_model       = False 
+        settings.flyover                         = False    
+        settings.approach                        = False
+        settings.sideline                        = False
+        settings.mic_x_position                  = 0    
+        microphone_array                         = 9
+        settings.ground_microphone_phi_angles    = np.linspace(270,210,microphone_array)*Units.degrees - 1E-8 
+        settings.ground_microphone_theta_angles  = np.linspace(30,150,microphone_array)*Units.degrees  + 1E-8 
+        settings.center_frequencies              = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
+                                                             500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
+                                                             4000, 5000, 6300, 8000, 10000])        
+        settings.lower_frequencies               = np.array([14,18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,\
+                                                             900,1120,1400,1800,2240,2800,3550,4500,5600,7100,9000 ])
+        settings.upper_frequencies               = np.array([18,22.4,28,35.5,45,56,71,90,112,140,180,224,280,355,450,560,710,900,1120,\
+                                                             1400,1800,2240,2800,3550,4500,5600,7100,9000,11200 ])
         
         return
             
@@ -107,8 +107,7 @@ class Fidelity_One(Noise):
         self.geometry
         """         
     
-        # unpack
-        harmonics     = self.harmonics
+        # unpack 
         config        = segment.analyses.noise.geometry
         analyses      = segment.analyses
         settings      = self.settings 
@@ -116,28 +115,36 @@ class Fidelity_One(Noise):
         
     
         # unpack 
-        alt         = -conditions.frames.inertial.position_vector[:,2]  
-        dist        = conditions.frames.inertial.position_vector[:,0] 
+        alt         = -conditions.frames.inertial.position_vector[:,2]   
         gm_phi      = settings.ground_microphone_phi_angles 
-        gm_theta    = settings.ground_microphone_theta_angles 
+        gm_theta    = settings.ground_microphone_theta_angles  
         cf          = settings.center_frequencies
         
-        dim_alt = len(alt)
-        num_mic = len(gm_phi)  
-        dim_cf  = len(cf)
+        dim_alt   = len(alt)
+        dim_phi   = len(gm_phi)  
+        dim_theta = len(gm_theta)
+        num_mic   = dim_phi*dim_theta
+        dim_cf    = len(cf)
         
-        theta    = np.repeat(np.atleast_2d(gm_theta), dim_alt, axis = 0) 
-        phi      = np.repeat(np.atleast_2d(gm_phi), dim_alt, axis = 0) 
-        altitude = np.repeat(np.atleast_2d(alt).T, num_mic, axis = 1)
+        # dimension:[control point, theta, phi]
+        theta    = np.repeat(np.repeat(np.atleast_2d(gm_theta).T  ,dim_phi  , axis = 1)[np.newaxis,:,:],dim_alt, axis = 0)  
+        phi      = np.repeat(np.repeat(np.atleast_2d(gm_phi)      ,dim_theta, axis = 0)[np.newaxis,:,:],dim_alt, axis = 0) 
+        altitude = np.repeat(np.repeat(np.atleast_2d(alt).T       ,dim_theta, axis = 1)[:,:,np.newaxis],dim_phi, axis = 2) 
+        x_vals   = altitude/np.tan(theta)
+        y_vals   = altitude/np.tan(phi)
+        z_vals   = altitude   
         
-        mic_locations        = np.zeros((dim_alt,num_mic,3)) 
-        mic_locations[:,:,0] = altitude/np.tan(theta)
-        mic_locations[:,:,1] = altitude/np.tan(phi)
-        mic_locations[:,:,2] = altitude 
+        # store microphone locations 
+        mic_locations        = np.zeros((dim_alt,num_mic,3))   
+        mic_locations[:,:,0] = x_vals.reshape(dim_alt,num_mic) 
+        mic_locations[:,:,1] = y_vals.reshape(dim_alt,num_mic) 
+        mic_locations[:,:,2] = z_vals.reshape(dim_alt,num_mic) 
         
-        conditions.noise.microphone_phi_angles = gm_phi
-        conditions.noise.microphone_locations  = mic_locations
-        conditions.noise.number_of_microphones = num_mic
+        # append microphone locations to conditions
+        conditions.noise.microphone_theta_angles = gm_theta
+        conditions.noise.microphone_phi_angles   = gm_phi
+        conditions.noise.microphone_locations    = mic_locations
+        conditions.noise.number_of_microphones   = num_mic
          
         ctrl_pts = len(altitude) 
         
@@ -184,10 +191,9 @@ class Fidelity_One(Noise):
                                 source_SPLs_dBA[:,si,mic_loc]      = propeller_noise.SPL_dBA   
                                 source_SPL_spectra[:,si,:,mic_loc] = propeller_noise.SPL_spectrum     
                             else:
-                                propeller_noise                    = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings,mic_loc,harmonics)  
-                                source_SPLs_dBA[:,si,mic_loc]      = propeller_noise.SPL_dBA 
-                                source_SPL_spectra[:,si,:,mic_loc] = propeller_noise.SPL_spectrum      
-                            
+                                propeller_noise                    = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings,mic_loc)  
+                                source_SPLs_dBA[:,si,mic_loc]      = propeller_noise.SPL_tot_dBA 
+                                source_SPL_spectra[:,si,:,mic_loc] = propeller_noise.SPL_tot_spectrum       
                             si += 1
                 
             total_SPL_dBA[:,mic_loc]  = SPL_arithmetic(source_SPLs_dBA[:,:,mic_loc])

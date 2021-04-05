@@ -43,7 +43,7 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
     Outputs:
         Results.    
             SPL_tot                 - SPL
-            SPL_dBA_tot             - dbA-Weighted SPL 
+            SPL_tot_dBA             - dbA-Weighted SPL 
             SPL_tot_bb_spectrum     - broadband contribution to total SPL
             SPL_tot_spectrum        - 1/3 octave band SPL
             SPL_tot_tonal_spectrum  - harmonic contribution to total SPL
@@ -59,10 +59,10 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
     angle_of_attack      = conditions.aerodynamics.angle_of_attack 
     velocity_vector      = conditions.frames.inertial.velocity_vector
     freestream           = conditions.freestream 
-    N                    = network.number_of_engines                    
+    N                    = int(network.number_of_engines)                    
     ctrl_pts             = len(angle_of_attack) 
     num_f                = len(settings.center_frequencies)
-    harmonics            = np.arange(1,30)  
+    harmonics            = settings.harmonics 
     num_h                = len(harmonics)      
     
     # create data structures for computation  
@@ -83,7 +83,7 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
     # create data structures for results
     Results                           = Data()                              
     Results.SPL_tot                   = np.zeros(ctrl_pts) 
-    Results.SPL_dBA_tot               = np.zeros(ctrl_pts)  
+    Results.SPL_tot_dBA               = np.zeros(ctrl_pts)  
     Results.SPL_tot_bb_spectrum       = np.zeros((ctrl_pts,num_f))    
     Results.SPL_tot_spectrum          = np.zeros((ctrl_pts,num_f))  
     Results.SPL_tot_tonal_spectrum    = np.zeros((ctrl_pts,num_f))  
@@ -116,7 +116,7 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
             # ---------------------------------------------------------------------------
             # Combine Rotational(periodic/tonal) and Broadband Noise
             # --------------------------------------------------------------------------- 
-            Noise.SPL_prop_bpfs_spectrum[i,p_idx,:num_h] = Noise.SPL_r 
+            Noise.SPL_prop_bpfs_spectrum[i,p_idx,:num_h] = Noise.SPL_r[p_idx]
             Noise.SPL_prop_spectrum[i,p_idx,:]           = 10*np.log10( 10**(Noise.SPL_prop_h_spectrum[i,p_idx,:]/10) +\
                                                                   10**(Noise.SPL_prop_bb_spectrum[i,p_idx,:]/10))
             
@@ -127,8 +127,8 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
             Noise.SPL_dBA_prop[np.isinf(Noise.SPL_dBA_prop)] = 0  
         
         # Summation of spectra from propellers into into one SPL
-        Results.SPL_tot[i]                  =  SPL_arithmetic(Noise.SPL_prop_spectrum[i]) 
-        Results.SPL_dBA_tot[i]              =  SPL_arithmetic(Noise.SPL_dBA_prop[i])      
+        Results.SPL_tot[i]                  =  SPL_arithmetic((np.atleast_2d(SPL_arithmetic(Noise.SPL_prop_spectrum[i])))) 
+        Results.SPL_tot_dBA[i]              =  SPL_arithmetic((np.atleast_2d(SPL_arithmetic(Noise.SPL_dBA_prop[i]))))      
         Results.SPL_tot_spectrum[i,:]       =  SPL_spectra_arithmetic(Noise.SPL_prop_spectrum[i])       # 1/3 octave band      
         Results.SPL_tot_bpfs_spectrum[i,:]  =  SPL_spectra_arithmetic(Noise.SPL_prop_bpfs_spectrum[i])  # blade passing frequency specturm  
         Results.SPL_tot_tonal_spectrum[i,:] =  SPL_spectra_arithmetic(Noise.SPL_prop_tonal_spectrum[i]) 
