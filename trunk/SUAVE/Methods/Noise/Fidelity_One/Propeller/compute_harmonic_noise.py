@@ -19,7 +19,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools            import SPL_harmonic
 # ----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
 def compute_harmonic_noise(i,num_h,p_idx,harmonics ,num_f,freestream,angle_of_attack,position_vector,
-                           velocity_vector,mic_loc,propeller,auc_opts,settings,res):
+                           velocity_vector,propeller,auc_opts,settings,res):
     '''This computes the  harmonic noise (i.e. thickness and loading noise) of a propeller or rotor
     in the frequency domain
     
@@ -60,15 +60,15 @@ def compute_harmonic_noise(i,num_h,p_idx,harmonics ,num_f,freestream,angle_of_at
             
     Properties Used:
         N/A   
-    '''    
-    
+    '''     
     num_mic         = len(position_vector[:,1])
     num_h           = len(harmonics)
     dim_r           = len(propeller.radius_distribution)
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise
     # ----------------------------------------------------------------------------------  
-    m              = np.repeat(np.atleast_2d(harmonics),dim_r , axis = 0)                         # harmonic number 
+    # [microphones, radial distribution,  harmonics] 
+    m              = np.repeat(np.repeat(np.atleast_2d(harmonics),dim_r ,axis = 0)[np.newaxis,:,:],num_mic, axis = 0)  # harmonic number 
     m_1d           = harmonics
     p_ref          = 2E-5                              # referece atmospheric pressure
     a              = freestream.speed_of_sound[i][0]   # speed of sound
@@ -76,26 +76,26 @@ def compute_harmonic_noise(i,num_h,p_idx,harmonics ,num_f,freestream,angle_of_at
     AoA            = angle_of_attack[i][0]             # vehicle angle of attack  
     thrust_angle   = auc_opts.thrust_angle             # propeller thrust angle
     alpha          = np.repeat(np.atleast_2d(AoA + thrust_angle).T,num_h , axis = 1)    
-    x              = np.repeat(np.atleast_2d(position_vector[mic_loc,0]).T,num_h , axis = 1)
-    y              = np.repeat(np.atleast_2d(position_vector[mic_loc,1]).T,num_h , axis = 1)
-    z              = np.repeat(np.atleast_2d(position_vector[mic_loc,2]).T,num_h , axis = 1)
-    Vx             = np.repeat(np.atleast_2d(velocity_vector[i][0]).T,num_h , axis = 1)             # x velocity of propeller  
-    Vy             = np.repeat(np.atleast_2d(velocity_vector[i][1]).T,num_h , axis = 1)             # y velocity of propeller 
-    Vz             = np.repeat(np.atleast_2d(velocity_vector[i][2]).T,num_h , axis = 1)             # z velocity of propeller 
+    x              = np.repeat(np.repeat(np.atleast_2d(position_vector[:,0]).T,dim_r , axis = 1)[:,:,np.newaxis],num_h , axis = 2)
+    y              = np.repeat(np.repeat(np.atleast_2d(position_vector[:,1]).T,dim_r , axis = 1)[:,:,np.newaxis],num_h , axis = 2)
+    z              = np.repeat(np.repeat(np.atleast_2d(position_vector[:,2]).T,dim_r , axis = 1)[:,:,np.newaxis],num_h , axis = 2)
+    Vx             = np.repeat(np.repeat(np.atleast_2d(velocity_vector[i][0]).T,num_h , axis = 1)[np.newaxis,:,:],num_mic, axis = 0)             # x velocity of propeller  
+    Vy             = np.repeat(np.repeat(np.atleast_2d(velocity_vector[i][1]).T,num_h , axis = 1)[np.newaxis,:,:],num_mic, axis = 0)             # y velocity of propeller 
+    Vz             = np.repeat(np.repeat(np.atleast_2d(velocity_vector[i][2]).T,num_h , axis = 1)[np.newaxis,:,:],num_mic, axis = 0)             # z velocity of propeller 
     B              = propeller.number_of_blades                                                     # number of propeller blades
-    omega          = np.repeat(np.atleast_2d(auc_opts.omega[i]).T,num_h , axis = 1)                 # angular velocity       
-    dT_dr          = np.repeat(np.atleast_2d(auc_opts.blade_dT_dr[i]).T,num_h , axis = 1)           # nondimensionalized differential thrust distribution 
-    dQ_dr          = np.repeat(np.atleast_2d(auc_opts.blade_dQ_dr[i]).T,num_h , axis = 1)           # nondimensionalized differential torque distribution
-    R              = np.repeat(np.atleast_2d(propeller.radius_distribution).T,num_h , axis = 1)     # radial location     
-    c              = np.repeat(np.atleast_2d(propeller.chord_distribution).T,num_h , axis = 1)      # blade chord    
-    R_tip          = np.repeat(np.atleast_2d(propeller.tip_radius).T,num_h , axis = 1)
-    t_c            = np.repeat(np.atleast_2d(propeller.thickness_to_chord).T,num_h , axis = 1)      # thickness to chord ratio
-    MCA            = np.repeat(np.atleast_2d(propeller.mid_chord_alignment).T,num_h , axis = 1)     # Mid Chord Alighment  
-    f              = B*omega*m/(2*np.pi)    
-    BPF            = B*omega*harmonics/(2*np.pi)        
+    omega          = np.repeat(np.repeat(np.atleast_2d(auc_opts.omega[i]).T,num_h , axis = 1)[np.newaxis,:,:],num_mic, axis = 0)                  # angular velocity       
+    dT_dr          = np.repeat(np.repeat(np.atleast_2d(auc_opts.blade_dT_dr[i]).T,num_h , axis = 1)[np.newaxis,:,:],num_mic, axis = 0)            # nondimensionalized differential thrust distribution 
+    dQ_dr          = np.repeat(np.repeat(np.atleast_2d(auc_opts.blade_dQ_dr[i]).T,num_h , axis = 1)[np.newaxis,:,:],num_mic, axis = 0)            # nondimensionalized differential torque distribution
+    R              = np.repeat(np.repeat(np.atleast_2d(propeller.radius_distribution).T,num_h , axis = 1)[np.newaxis,:,:],num_mic, axis = 0)      # radial location     
+    c              = np.repeat(np.repeat(np.atleast_2d(propeller.chord_distribution).T,num_h , axis = 1)[np.newaxis,:,:],num_mic, axis = 0)       # blade chord    
+    R_tip          = propeller.tip_radius 
+    t_c            = np.repeat(np.repeat(np.atleast_2d(propeller.thickness_to_chord).T,num_h , axis = 1)[np.newaxis,:,:],num_mic, axis = 0)       # thickness to chord ratio
+    MCA            = np.repeat(np.repeat(np.atleast_2d(propeller.mid_chord_alignment).T,num_h , axis = 1)[np.newaxis,:,:],num_mic, axis = 0)      # Mid Chord Alighment  
+    #f              = B*omega*m/(2*np.pi)    
+    res.f          = B*auc_opts.omega[i]*harmonics/(2*np.pi)        
     n              = len(R)  
-    D              = 2*R[-1,:]                         # propeller diameter    
-    r              = R/R[-1,:]                         # non dimensional radius distribution  
+    D              = 2*R[0,-1,:]                       # propeller diameter    
+    r              = R/R[0,-1,:]                       # non dimensional radius distribution  
     S              = np.sqrt(x**2 + y**2 + z**2)       # distance between rotor and the observer    
     theta          = np.arccos(x/S)                    
     Y              = np.sqrt(y**2 + z**2)              # observer distance from propeller axis          
@@ -118,41 +118,42 @@ def compute_harmonic_noise(i,num_h,p_idx,harmonics ,num_f,freestream,angle_of_at
     phi_s          = ((2*m*B*M_t)/(M_r*(1 - M_x*np.cos(theta_r))))*(MCA/D)
     S_r            = Y/(np.sin(theta_r))                                # distance in retarded reference frame   
     Jmb            = jv(m*B,((m*B*r*M_t*np.sin(theta_r_prime))/(1 - M_x*np.cos(theta_r))))  
-    psi_L          = np.zeros((dim_r,num_h))
-    psi_V          = np.zeros((dim_r,num_h))
+    psi_L          = np.zeros((num_mic,dim_r,num_h))
+    psi_V          = np.zeros((num_mic,dim_r,num_h))
 
     # normalized thickness  and loading shape functions                
-    psi_V[0,:]       = 2/3   
-    psi_L[0,:]       = 1     
-    psi_V[1:,:]      = (8/(k_x[1:]**2))*((2/k_x[1:])*np.sin(0.5*k_x[1:]) - np.cos(0.5*k_x[1:]))    
-    psi_L[1:,:]      = (2/k_x[1:])*np.sin(0.5*k_x[1:])                  
+    psi_V[:,0,:]       = 2/3   
+    psi_L[:,0,:]       = 1     
+    psi_V[:,1:,:]      = (8/(k_x[:,1:,:]**2))*((2/k_x[:,1:,:])*np.sin(0.5*k_x[:,1:,:]) - np.cos(0.5*k_x[:,1:,:]))    
+    psi_L[:,1:,:]      = (2/k_x[:,1:,:])*np.sin(0.5*k_x[:,1:,:])                  
 
     # sound pressure for thickness noise  
     exponent_fraction = np.exp(1j*m_1d*B*((omega*S_r/a) +  phi_prime - np.pi/2))/(1 - M_x*np.cos(theta_r))
     p_mT_H_function   = ((rho*(a**2)*B*np.sin(theta_r))/(4*np.sqrt(2)*np.pi*(Y/D)))* exponent_fraction
-    p_mT_H_integral   = np.trapz(((M_r**2)*(t_c)*np.exp(1j*phi_s)*Jmb*(k_x**2)*psi_V ),x = r[:,0], axis = 0 )
-    p_mT_H            = -p_mT_H_function*p_mT_H_integral   
+    p_mT_H_integral   = np.trapz(((M_r**2)*(t_c)*np.exp(1j*phi_s)*Jmb*(k_x**2)*psi_V ),x = r[0,:,0], axis = 1 )
+    p_mT_H            = -p_mT_H_function[:,0,:]*p_mT_H_integral   
     p_mT_H            = abs(p_mT_H)             
 
     # sound pressure for loading noise 
     p_mL_H_function   = (m_1d*B*M_t*np.sin(theta_r)/ (2*np.sqrt(2)*np.pi*Y*R_tip)) *exponent_fraction
     p_mL_H_integral   = np.trapz((((np.cos(theta_r_prime)/(1 - M_x*np.cos(theta_r)))*dT_dr - (1/((r**2)*M_t*R_tip))*dQ_dr)
-                                  * np.exp(1j*phi_s)*Jmb * psi_L),x = r[:,0], axis = 0 )
-    p_mL_H            =  p_mL_H_function*p_mL_H_integral 
+                                  * np.exp(1j*phi_s)*Jmb * psi_L),x = r[0,:,0], axis = 1 )
+    p_mL_H            =  p_mL_H_function[:,0,:]*p_mL_H_integral 
     p_mL_H            =  abs(p_mL_H)  
 
     # unweighted harmonic sound pressure level 
-    res.SPL_r[p_idx]        = 20*np.log10((np.linalg.norm(p_mL_H + p_mT_H, axis = 0))/p_ref) 
-    res.p_pref_r[p_idx]     = 10**(res.SPL_r[p_idx]/10)   
-    res.SPL_r_dBA[p_idx]    = A_weighting(res.SPL_r[p_idx],BPF) 
-    res.p_pref_r_dBA[p_idx] = 10**(res.SPL_r_dBA[p_idx]/10)         
+    #res.SPL_r[i,:,p_idx,:]      = 20*np.log10((np.linalg.norm(p_mL_H + p_mT_H, axis = 0))/p_ref) 
+    res.SPL_r[i,:,p_idx,:]      = 20*np.log10((abs(p_mL_H + p_mT_H))/p_ref) 
+    res.p_pref_r[i,:,p_idx]     = 10**(res.SPL_r[i,:,p_idx]/10)   
+    res.SPL_r_dBA[i,:,p_idx]    = A_weighting(res.SPL_r[i,:,p_idx],res.f) 
+    res.p_pref_r_dBA[i,:,p_idx] = 10**(res.SPL_r_dBA[i,:,p_idx]/10)         
         
     # convert to 1/3 octave spectrum 
-    res.SPL_prop_h_spectrum[i,p_idx,:]     = SPL_harmonic_to_third_octave(res.SPL_r[p_idx,:],res.f,settings)         
-    res.SPL_prop_h_dBA_spectrum[i,p_idx,:] = SPL_harmonic_to_third_octave(res.SPL_r_dBA[p_idx,:],res.f,settings)     
+    res.SPL_prop_h_spectrum[i,:,p_idx,:]     = SPL_harmonic_to_third_octave(res.SPL_r[i,:,p_idx,:],res.f,settings)         
+    res.SPL_prop_h_dBA_spectrum[i,:,p_idx,:] = SPL_harmonic_to_third_octave(res.SPL_r_dBA[i,:,p_idx,:],res.f,settings)     
   
     # Rotational(periodic/tonal)   
-    res.SPL_prop_tonal_spectrum[i,p_idx,:] = 10*np.log10( 10**(res.SPL_prop_h_spectrum[i,p_idx,:]/10))
+    res.SPL_prop_tonal_spectrum[i,:,p_idx,:] = 10*np.log10( 10**(res.SPL_prop_h_spectrum[i,:,p_idx,:]/10))
  
     return  
  

@@ -37,16 +37,18 @@ def SPL_harmonic_to_third_octave(SPL,f,settings):
     lf = settings.lower_frequencies
     uf = settings.upper_frequencies
     
+    dim_cpt          = len(SPL[:,0])
     num_cf           = len(cf)
     num_f            = len(f)
-    SPL_third_octave = np.zeros(num_cf)
+    SPL_third_octave = np.zeros((dim_cpt,num_cf)) 
     
-    for i in range(num_cf):
-        SPL_in_range = []
-        for j in range(num_f):  
-            if ((lf[i] <= f[j]) and (f[j] <= uf[i])) and (SPL[j] != 0) :   
-                SPL_in_range.append(SPL[j]) 
-            if len(SPL_in_range) > 0:
-                SPL_third_octave[i] = SPL_arithmetic(np.atleast_2d(np.array(SPL_in_range)))
-    
+    for i in range(dim_cpt): 
+        for j in range(num_cf):
+            SPL_in_range = []
+            for k in range(num_f):  
+                if ((lf[j] <= f[k]) and (f[k] <= uf[j])) and (SPL[i,k] != 0) :   
+                    SPL_in_range.append(SPL[i,k]) 
+                if len(SPL_in_range) > 0:
+                    SPL_third_octave[i,j] = SPL_arithmetic(np.atleast_2d(np.array(SPL_in_range))) 
+                
     return SPL_third_octave

@@ -18,7 +18,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools             import SPL_harmoni
 # ----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
 def compute_broadband_noise(i ,p_idx ,freestream,angle_of_attack,position_vector,
-                            velocity_vector, mic_loc,propeller,auc_opts,settings,res):
+                            velocity_vector,propeller,auc_opts,settings,res):
     '''This computes the broadband noise of a propeller or rotor in the frequency domain
     
     Assumptions:
@@ -48,11 +48,11 @@ def compute_broadband_noise(i ,p_idx ,freestream,angle_of_attack,position_vector
             
     Properties Used:
         N/A   
-    '''    
-     
-    x              = position_vector[mic_loc,0] 
-    y              = position_vector[mic_loc,1]
-    z              = position_vector[mic_loc,2]                                     
+    '''     
+    num_mic        = len(position_vector[:,1]) 
+    x              = position_vector[:,0] 
+    y              = position_vector[:,1]
+    z              = position_vector[:,2]                                     
     omega          = auc_opts.omega[i]                                      # angular velocity        
     R              = propeller.radius_distribution                          # radial location     
     c              = propeller.chord_distribution                           # blade chord    
@@ -78,27 +78,27 @@ def compute_broadband_noise(i ,p_idx ,freestream,angle_of_attack,position_vector
     
     # estimation of A-Weighting for Vortex Noise  
     f_v            = np.array([0.5*f_peak[0],1*f_peak[0],2*f_peak[0],4*f_peak[0],8*f_peak[0],16*f_peak[0]]) # spectrum
-    fr             = f_v/f_peak                                          # frequency ratio  
-    SPL_weight     = [7.92 , 4.17 , 8.33 , 8.75 ,12.92 , 13.33]          # SPL weight
-    SPL_v          = np.ones_like(SPL_weight)*SPL_v - SPL_weight         # SPL correction
+    fr             = f_v/f_peak                                              # frequency ratio  
+    SPL_weight     = np.repeat(np.atleast_2d(np.array([7.92 , 4.17 , 8.33 , 8.75 ,12.92 , 13.33])), num_mic, axis = 0)    # SPL weight
+    SPL_v          = np.repeat(np.atleast_2d(SPL_v).T, 6 , axis = 1) - SPL_weight            # SPL correction
     dim            = len(f_v)
-    C              = np.zeros(dim) 
-    p_pref_bb_dBA  = np.zeros(dim-1)
-    SPL_bb_dbAi    = np.zeros(dim)
+    C              = np.zeros((num_mic,dim))
+    p_pref_bb_dBA  = np.zeros((num_mic,dim-1))
+    SPL_bb_dbAi    = np.zeros((num_mic,dim))
     
     for j in range(dim):
-        SPL_bb_dbAi[j] = A_weighting(SPL_v[j],f_v[j])
+        SPL_bb_dbAi[:,j] = A_weighting(SPL_v[:,j],f_v[j])
     
     for j in range(dim-1):
-        C[j]            = (SPL_bb_dbAi[j+1] - SPL_bb_dbAi[j])/(np.log10(fr[j+1]) - np.log10(fr[j])) 
-        C[j+1]          = SPL_bb_dbAi[j+1] - C[j]*np.log10(fr[j+1])   
-        p_pref_bb_dBA[j] = (10**(0.1*C[j+1]))* (  ((fr[j+1]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) - ((fr[j]**(0.1*C[j] + 1 ))/(0.1*C[j] + 1 )) ) 
+        C[:,j]             = (SPL_bb_dbAi[:,j+1] - SPL_bb_dbAi[:,j])/(np.log10(fr[j+1]) - np.log10(fr[j])) 
+        C[:,j+1]           = SPL_bb_dbAi[:,j+1] - C[:,j]*np.log10(fr[j+1])   
+        p_pref_bb_dBA[:,j] = (10**(0.1*C[:,j+1]))*(((fr[j+1]**(0.1*C[:,j]+ 1))/(0.1*C[:,j]+ 1))-((fr[j]**(0.1*C[:,j]+ 1))/(0.1*C[:,j]+ 1))) 
     
     p_pref_bb_dBA[np.isnan(p_pref_bb_dBA)] = 0    
     res.p_pref_bb_dBA  = p_pref_bb_dBA 
      
     # convert to 1/3 octave spectrum   
-    res.SPL_prop_bb_spectrum[i,p_idx,:] = SPL_harmonic_to_third_octave(SPL_v,f_v,settings)  
+    res.SPL_prop_bb_spectrum[i,:,p_idx] = SPL_harmonic_to_third_octave(SPL_v,f_v,settings)  
     
     return  
  
