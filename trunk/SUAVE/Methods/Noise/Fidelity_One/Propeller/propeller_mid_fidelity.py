@@ -61,9 +61,11 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
     freestream           = conditions.freestream 
     N                    = int(network.number_of_engines)                    
     ctrl_pts             = len(angle_of_attack) 
+    num_mic              = conditions.noise.number_of_microphones
     num_f                = len(settings.center_frequencies)
     harmonics            = settings.harmonics 
     num_h                = len(harmonics)      
+    
     
     # create data structures for computation  
     Noise                             = Data()
@@ -88,6 +90,30 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
     Results.SPL_tot_spectrum          = np.zeros((ctrl_pts,num_f))  
     Results.SPL_tot_tonal_spectrum    = np.zeros((ctrl_pts,num_f))  
     Results.SPL_tot_bpfs_spectrum     = np.zeros((ctrl_pts,num_f))
+    
+    ## create data structures for computation  
+    #Noise                             = Data()
+    #Noise.SPL_dBA_prop                = np.zeros((ctrl_pts,num_mic,N))  
+    #Noise.SPL_prop_bb_spectrum        = np.zeros((ctrl_pts,num_mic,N,num_f))  
+    #Noise.SPL_prop_spectrum           = np.zeros((ctrl_pts,num_mic,N,num_f))   
+    #Noise.SPL_prop_bpfs_spectrum      = np.zeros((ctrl_pts,num_mic,N,num_f))     
+    #Noise.SPL_prop_h_spectrum         = np.zeros((ctrl_pts,num_mic,N,num_f))    
+    #Noise.SPL_prop_h_dBA_spectrum     = np.zeros((ctrl_pts,num_mic,N,num_f)) 
+    #Noise.SPL_prop_tonal_spectrum     = np.zeros((ctrl_pts,num_mic,N,num_f))     
+    #Noise.SPL_r                       = np.zeros((num_mic,N,num_h))  
+    #Noise.SPL_r_dBA                   = np.zeros_like(Noise.SPL_r)  
+    #Noise.p_pref_r                    = np.zeros_like(Noise.SPL_r) 
+    #Noise.p_pref_r_dBA                = np.zeros_like(Noise.SPL_r)     
+    #Noise.f                           = np.zeros(num_h) 
+    
+    ## create data structures for results
+    #Results                           = Data()                              
+    #Results.SPL_tot                   = np.zeros((ctrl_pts,num_mic))
+    #Results.SPL_tot_dBA               = np.zeros((ctrl_pts,num_mic)) 
+    #Results.SPL_tot_bb_spectrum       = np.zeros((ctrl_pts,num_mic,num_f))    
+    #Results.SPL_tot_spectrum          = np.zeros((ctrl_pts,num_mic,num_f))  
+    #Results.SPL_tot_tonal_spectrum    = np.zeros((ctrl_pts,num_mic,num_f))  
+    #Results.SPL_tot_bpfs_spectrum     = np.zeros((ctrl_pts,num_mic,num_f))
                                         
     # loop for control points  
     for i in range(ctrl_pts):    
@@ -96,21 +122,21 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings, mic_loc)
         for p_idx in range(N):  
             AoA             = angle_of_attack[i][0]   
             thrust_angle    = auc_opts.thrust_angle            
-            position_vector = compute_point_source_coordinates(i,mic_loc,p_idx,AoA,thrust_angle,
+            position_vector = compute_point_source_coordinates(i,p_idx,AoA,thrust_angle,
                                                                microphone_locations,propeller.origin) 
            
             # ------------------------------------------------------------------------------------
             # Harmonic Noise  
             # ------------------------------------------------------------------------------------            
-            compute_harmonic_noise(i,num_h,p_idx,harmonics ,num_f,freestream,angle_of_attack,
-                                   position_vector,velocity_vector, mic_loc,propeller,auc_opts,
+            compute_harmonic_noise(i,num_h,p_idx,harmonics,num_f,freestream,angle_of_attack,
+                                   position_vector,velocity_vector,mic_loc,propeller,auc_opts,
                                    settings,Noise)            
             
             # ------------------------------------------------------------------------------------
             # Broadband Noise  
             # ------------------------------------------------------------------------------------ 
             compute_broadband_noise(i ,p_idx ,freestream,angle_of_attack,position_vector,
-                                    velocity_vector, mic_loc,propeller,auc_opts,settings,
+                                    velocity_vector,mic_loc,propeller,auc_opts,settings,
                                     Noise)       
             
             # ---------------------------------------------------------------------------

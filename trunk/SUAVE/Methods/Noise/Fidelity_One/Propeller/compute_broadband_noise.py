@@ -50,9 +50,9 @@ def compute_broadband_noise(i ,p_idx ,freestream,angle_of_attack,position_vector
         N/A   
     '''    
      
-    x              = position_vector[0] 
-    y              = position_vector[1]
-    z              = position_vector[2]                                     
+    x              = position_vector[mic_loc,0] 
+    y              = position_vector[mic_loc,1]
+    z              = position_vector[mic_loc,2]                                     
     omega          = auc_opts.omega[i]                                      # angular velocity        
     R              = propeller.radius_distribution                          # radial location     
     c              = propeller.chord_distribution                           # blade chord    
