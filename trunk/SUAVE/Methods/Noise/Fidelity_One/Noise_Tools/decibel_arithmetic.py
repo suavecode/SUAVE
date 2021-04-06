@@ -86,6 +86,6 @@ def SPL_spectra_arithmetic(SPL):
     
     ''' 
     p_prefs   = 10**(SPL/10)
-    SPL_total = 10*np.log10(np.sum(p_prefs, axis = 0))
+    SPL_total = 10*np.log10(np.sum(p_prefs, axis = 1))
         
     return SPL_total

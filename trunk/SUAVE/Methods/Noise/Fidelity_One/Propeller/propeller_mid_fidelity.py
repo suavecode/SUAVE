@@ -120,16 +120,18 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings ):
             Noise.SPL_prop_bpfs_spectrum[i,:,p_idx,:num_h] = Noise.SPL_r[i,:,p_idx]
             Noise.SPL_prop_spectrum[i,:,p_idx,:]           = 10*np.log10( 10**(Noise.SPL_prop_h_spectrum[i,:,p_idx,:]/10) +\
                                                                   10**(Noise.SPL_prop_bb_spectrum[i,:,p_idx,:]/10))
+            Noise.SPL_prop_spectrum[np.isnan(Noise.SPL_prop_spectrum)] = 0
             
             # pressure ratios used to combine A weighted sound since decibel arithmetic does not work for 
             #broadband noise since it is a continuous spectrum 
-            total_p_pref_dBA                 = np.concatenate((Noise.p_pref_r_dBA[i,:,p_idx],Noise.p_pref_bb_dBA), axis=1)
-            Noise.SPL_dBA_prop[i,:,p_idx]    = pressure_ratio_to_SPL_arithmetic(total_p_pref_dBA)  
+            total_p_pref_dBA                                 = np.concatenate((Noise.p_pref_r_dBA[i,:,p_idx],Noise.p_pref_bb_dBA), axis=1)
+            Noise.SPL_dBA_prop[i,:,p_idx]                    = pressure_ratio_to_SPL_arithmetic(total_p_pref_dBA)  
             Noise.SPL_dBA_prop[np.isinf(Noise.SPL_dBA_prop)] = 0  
+            Noise.SPL_dBA_prop[np.isnan(Noise.SPL_dBA_prop)] = 0
         
         # Summation of spectra from propellers into into one SPL
         Results.SPL_tot[i,:]                  =  SPL_arithmetic((np.atleast_2d(SPL_arithmetic(Noise.SPL_prop_spectrum[i,:])))) 
-        Results.SPL_tot_dBA[i,:]              =  SPL_arithmetic((np.atleast_2d(SPL_arithmetic(Noise.SPL_dBA_prop[i,:]))))      
+        Results.SPL_tot_dBA[i,:]              =  SPL_arithmetic(Noise.SPL_dBA_prop[i,:])  
         Results.SPL_tot_spectrum[i,:,:]       =  SPL_spectra_arithmetic(Noise.SPL_prop_spectrum[i,:])       # 1/3 octave band      
         Results.SPL_tot_bpfs_spectrum[i,:,:]  =  SPL_spectra_arithmetic(Noise.SPL_prop_bpfs_spectrum[i,:])  # blade passing frequency specturm  
         Results.SPL_tot_tonal_spectrum[i,:,:] =  SPL_spectra_arithmetic(Noise.SPL_prop_tonal_spectrum[i,:]) 

@@ -85,14 +85,12 @@ def main():
     segment.state.conditions                               = conditions  
     settings                                               = noise.settings
     conditions.noise.sources['propeller'].acoustic_outputs = noise_data    
-      
-    # Run Fidelity One  
-    SPL_dBA      = np.zeros((ctrl_pts,num_mic))  
-    SPL_Spectrum = np.zeros((ctrl_pts,num_mic,len(settings.harmonics)))  
-    for mic_loc in range(num_mic):  
-        propeller_noise            = propeller_mid_fidelity(net,prop,noise_data,segment,settings,mic_loc)  
-        SPL_dBA[:,mic_loc]         = propeller_noise.SPL_tot_dBA
-        SPL_Spectrum[:,mic_loc,:]  = propeller_noise.SPL_tot_bpfs_spectrum
+    conditions.noise.number_of_microphones                 = num_mic  
+    
+    # Run Fidelity One   
+    propeller_noise  = propeller_mid_fidelity(net,prop,noise_data,segment,settings)  
+    SPL_dBA          = propeller_noise.SPL_tot_dBA
+    SPL_Spectrum     = propeller_noise.SPL_tot_bpfs_spectrum
     conditions.noise.total_SPL_dBA = SPL_dBA 
     
     #plot_propeller_noise_contour(conditions)
