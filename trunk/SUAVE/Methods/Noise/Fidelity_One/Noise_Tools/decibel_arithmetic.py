@@ -32,7 +32,7 @@ def pressure_ratio_to_SPL_arithmetic(p_pref_total):
         N/A 
     
     '''
-    SPL_total = 10*np.log10(np.sum(p_pref_total, axis = 1))
+    SPL_total = 10*np.log10(np.sum(p_pref_total, axis = 2))
     return SPL_total
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools

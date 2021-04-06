@@ -97,35 +97,34 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings ):
         for p_idx in range(N):  
             AoA             = angle_of_attack[i][0]   
             thrust_angle    = auc_opts.thrust_angle            
-            position_vector = compute_point_source_coordinates(i,p_idx,AoA,thrust_angle,
-                                                               microphone_locations,propeller.origin) 
+            position_vector = compute_point_source_coordinates(i,AoA,thrust_angle,microphone_locations,propeller.origin) 
            
             # ------------------------------------------------------------------------------------
             # Harmonic Noise  
             # ------------------------------------------------------------------------------------            
-            compute_harmonic_noise(i,num_h,p_idx,harmonics,num_f,freestream,angle_of_attack,
+            compute_harmonic_noise(i,num_h,harmonics,num_f,freestream,angle_of_attack,
                                    position_vector,velocity_vector,propeller,auc_opts,
                                    settings,Noise)            
             
             # ------------------------------------------------------------------------------------
             # Broadband Noise  
             # ------------------------------------------------------------------------------------ 
-            compute_broadband_noise(i ,p_idx ,freestream,angle_of_attack,position_vector,
+            compute_broadband_noise(i,freestream,angle_of_attack,position_vector,
                                     velocity_vector,propeller,auc_opts,settings,
                                     Noise)       
             
             # ---------------------------------------------------------------------------
             # Combine Rotational(periodic/tonal) and Broadband Noise
             # --------------------------------------------------------------------------- 
-            Noise.SPL_prop_bpfs_spectrum[i,:,p_idx,:num_h] = Noise.SPL_r[i,:,p_idx]
-            Noise.SPL_prop_spectrum[i,:,p_idx,:]           = 10*np.log10( 10**(Noise.SPL_prop_h_spectrum[i,:,p_idx,:]/10) +\
-                                                                  10**(Noise.SPL_prop_bb_spectrum[i,:,p_idx,:]/10))
+            Noise.SPL_prop_bpfs_spectrum[i]      = Noise.SPL_r[i]
+            Noise.SPL_prop_spectrum[i]           = 10*np.log10( 10**(Noise.SPL_prop_h_spectrum[i]/10) +\
+                                                                  10**(Noise.SPL_prop_bb_spectrum[i]/10))
             Noise.SPL_prop_spectrum[np.isnan(Noise.SPL_prop_spectrum)] = 0
             
             # pressure ratios used to combine A weighted sound since decibel arithmetic does not work for 
             #broadband noise since it is a continuous spectrum 
-            total_p_pref_dBA                                 = np.concatenate((Noise.p_pref_r_dBA[i,:,p_idx],Noise.p_pref_bb_dBA), axis=1)
-            Noise.SPL_dBA_prop[i,:,p_idx]                    = pressure_ratio_to_SPL_arithmetic(total_p_pref_dBA)  
+            total_p_pref_dBA                         = np.concatenate((Noise.p_pref_r_dBA[i],Noise.p_pref_bb_dBA), axis=2)
+            Noise.SPL_dBA_prop[i]                    = pressure_ratio_to_SPL_arithmetic(total_p_pref_dBA)  
             Noise.SPL_dBA_prop[np.isinf(Noise.SPL_dBA_prop)] = 0  
             Noise.SPL_dBA_prop[np.isnan(Noise.SPL_dBA_prop)] = 0
         

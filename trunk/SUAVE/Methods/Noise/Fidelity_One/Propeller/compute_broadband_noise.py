@@ -17,7 +17,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools             import SPL_harmoni
 # Frequency Domain Broadband Noise Computation
 # ----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def compute_broadband_noise(i ,p_idx ,freestream,angle_of_attack,position_vector,
+def compute_broadband_noise(i,freestream,angle_of_attack,position_vector,
                             velocity_vector,propeller,auc_opts,settings,res):
     '''This computes the broadband noise of a propeller or rotor in the frequency domain
     
@@ -49,10 +49,12 @@ def compute_broadband_noise(i ,p_idx ,freestream,angle_of_attack,position_vector
     Properties Used:
         N/A   
     '''     
-    num_mic        = len(position_vector[:,1]) 
-    x              = position_vector[:,0] 
-    y              = position_vector[:,1]
-    z              = position_vector[:,2]                                     
+    num_mic        = len(position_vector[:,0,1])
+    num_prop       = len(position_vector[0,:,1]) 
+    
+    x              = position_vector[:,:,0] 
+    y              = position_vector[:,:,1]
+    z              = position_vector[:,:,2]                                     
     omega          = auc_opts.omega[i]                                      # angular velocity        
     R              = propeller.radius_distribution                          # radial location     
     c              = propeller.chord_distribution                           # blade chord    
@@ -74,31 +76,32 @@ def compute_broadband_noise(i ,p_idx ,freestream,angle_of_attack,position_vector
     CL_07          = 2*np.pi*beta_07
     S_feet         = S/(Units.feet)
     SPL_300ft      = 10*np.log10(((6.1E-27)*A_blade*V_07**6)/(10**-16)) + 20*np.log(CL_07/0.4)  
-    SPL_v          = SPL_300ft - 20*np.log10(S_feet/300)                       
+    SPL_vals       = SPL_300ft - 20*np.log10(S_feet/300)                       
     
     # estimation of A-Weighting for Vortex Noise  
     f_v            = np.array([0.5*f_peak[0],1*f_peak[0],2*f_peak[0],4*f_peak[0],8*f_peak[0],16*f_peak[0]]) # spectrum
     fr             = f_v/f_peak                                              # frequency ratio  
-    SPL_weight     = np.repeat(np.atleast_2d(np.array([7.92 , 4.17 , 8.33 , 8.75 ,12.92 , 13.33])), num_mic, axis = 0)    # SPL weight
-    SPL_v          = np.repeat(np.atleast_2d(SPL_v).T, 6 , axis = 1) - SPL_weight            # SPL correction
+    weights        = np.atleast_2d(np.array([7.92 , 4.17 , 8.33 , 8.75 ,12.92 , 13.33]))
+    SPL_weight     = np.repeat(np.repeat(weights, num_prop, axis = 0)[np.newaxis,:,:], num_mic, axis = 0)    # SPL weight
+    SPL_v          = np.repeat(SPL_vals[:,:,np.newaxis], 6 , axis = 2) - SPL_weight            # SPL correction
     dim            = len(f_v)
-    C              = np.zeros((num_mic,dim))
-    p_pref_bb_dBA  = np.zeros((num_mic,dim-1))
-    SPL_bb_dbAi    = np.zeros((num_mic,dim))
+    C              = np.zeros((num_mic,num_prop,dim))
+    p_pref_bb_dBA  = np.zeros((num_mic,num_prop,dim-1))
+    SPL_bb_dbAi    = np.zeros((num_mic,num_prop,dim))
     
     for j in range(dim):
-        SPL_bb_dbAi[:,j] = A_weighting(SPL_v[:,j],f_v[j])
+        SPL_bb_dbAi[:,:,j] = A_weighting(SPL_v[:,:,j],f_v[j])
     
     for j in range(dim-1):
-        C[:,j]             = (SPL_bb_dbAi[:,j+1] - SPL_bb_dbAi[:,j])/(np.log10(fr[j+1]) - np.log10(fr[j])) 
-        C[:,j+1]           = SPL_bb_dbAi[:,j+1] - C[:,j]*np.log10(fr[j+1])   
-        p_pref_bb_dBA[:,j] = (10**(0.1*C[:,j+1]))*(((fr[j+1]**(0.1*C[:,j]+ 1))/(0.1*C[:,j]+ 1))-((fr[j]**(0.1*C[:,j]+ 1))/(0.1*C[:,j]+ 1))) 
+        C[:,:,j]             = (SPL_bb_dbAi[:,:,j+1] - SPL_bb_dbAi[:,:,j])/(np.log10(fr[j+1]) - np.log10(fr[j])) 
+        C[:,:,j+1]           = SPL_bb_dbAi[:,:,j+1] - C[:,:,j]*np.log10(fr[j+1])   
+        p_pref_bb_dBA[:,:,j] = (10**(0.1*C[:,:,j+1]))*(((fr[j+1]**(0.1*C[:,:,j]+ 1))/(0.1*C[:,:,j]+ 1))-((fr[j]**(0.1*C[:,:,j]+ 1))/(0.1*C[:,:,j]+ 1))) 
     
     p_pref_bb_dBA[np.isnan(p_pref_bb_dBA)] = 0    
     res.p_pref_bb_dBA  = p_pref_bb_dBA 
      
     # convert to 1/3 octave spectrum   
-    res.SPL_prop_bb_spectrum[i,:,p_idx] = SPL_harmonic_to_third_octave(SPL_v,f_v,settings)  
+    res.SPL_prop_bb_spectrum[i] = SPL_harmonic_to_third_octave(SPL_v,f_v,settings)  
     
     return  
  

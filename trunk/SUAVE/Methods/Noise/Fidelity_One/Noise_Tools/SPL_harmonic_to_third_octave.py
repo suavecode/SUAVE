@@ -37,18 +37,21 @@ def SPL_harmonic_to_third_octave(SPL,f,settings):
     lf = settings.lower_frequencies
     uf = settings.upper_frequencies
     
-    dim_cpt          = len(SPL[:,0])
+    dim_cpt          = len(SPL[:,0,0])
+    dim_prop         = len(SPL[0,:,0])
     num_cf           = len(cf)
     num_f            = len(f)
-    SPL_third_octave = np.zeros((dim_cpt,num_cf)) 
+    SPL_third_octave = np.zeros((dim_cpt,dim_prop,num_cf)) 
     
-    for i in range(dim_cpt): 
-        for j in range(num_cf):
-            SPL_in_range = []
-            for k in range(num_f):  
-                if ((lf[j] <= f[k]) and (f[k] <= uf[j])) and (SPL[i,k] != 0) :   
-                    SPL_in_range.append(SPL[i,k]) 
-                if len(SPL_in_range) > 0:
-                    SPL_third_octave[i,j] = SPL_arithmetic(np.atleast_2d(np.array(SPL_in_range))) 
-                
+    # to vectorize 
+    for i in range(dim_cpt):
+        for j in range(dim_prop):
+            for k in range(num_cf):
+                SPL_in_range = []
+                for l in range(num_f):  
+                    if ((lf[k] <= f[l]) and (f[l] <= uf[k])) and (SPL[i,j,l] != 0) :   
+                        SPL_in_range.append(SPL[i,j,l]) 
+                    if len(SPL_in_range) > 0:
+                        SPL_third_octave[i,j,k] = SPL_arithmetic(np.atleast_2d(np.array(SPL_in_range))) 
+                    
     return SPL_third_octave
