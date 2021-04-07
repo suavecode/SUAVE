@@ -92,7 +92,7 @@ class Turbojet_Super(Propulsor):
         	Outputs:
         	results.thrust_force_vector [newtons]
         	results.vehicle_mass_rate   [kg/s]
-        	conditions.noise:
+        	conditions.propulsion.acoustic_outputs:
         	    core:
         		exit_static_temperature      
         		exit_static_pressure       

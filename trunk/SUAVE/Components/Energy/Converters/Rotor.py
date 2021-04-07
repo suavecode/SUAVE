@@ -122,7 +122,7 @@ class Rotor(Energy_Component):
            blade_dT_dr                       [N]
            blade_thrust_distribution         [N]
            disc_thrust_distribution          [N]
-           blade_thrust                      [N]
+           thrust_per_blade                  [N]
            thrust_coefficient                [-] 
            azimuthal_distribution            [rad]
            disc_azimuthal_distribution       [rad]
@@ -130,7 +130,7 @@ class Rotor(Energy_Component):
            blade_dQ_dr                       [Nm]
            blade_torque_distribution         [Nm] 
            disc_torque_distribution          [Nm] 
-           blade_torque                      [Nm] 
+           torque_per_blade                  [Nm] 
            torque_coefficient                [-] 
            power                             [W]    
            power_coefficient                 [-] 
@@ -184,7 +184,7 @@ class Rotor(Energy_Component):
         V_thrust        = orientation_product(T_body2thrust,V_body) 
      
         if VTOL:    
-            V        = V_thrust[:,0,None] +  np.atleast_2d(ua).T
+            V        = V_thrust[:,0,None] + ua
         else:
             V        = V_thrust[:,0,None]   
         ut  = np.zeros_like(V) 
@@ -225,7 +225,7 @@ class Rotor(Energy_Component):
         # Things that will change with iteration
         size   = (len(a),Nr)
         omegar = np.outer(omega,r)
-        Ua     = np.outer(V,np.ones_like(r))
+        Ua     = np.outer((V + ua),np.ones_like(r))
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut) 
         beta   = total_blade_pitch
@@ -349,18 +349,8 @@ class Rotor(Energy_Component):
         
         epsilon                  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
-        
-        # compute discretized distance , delta r and delta chi using central difference from end points 
-        # forward difference for start point and backward difference fror endpoint 
-        deltar                   = np.zeros_like(r)
-        deltachi                 = np.zeros_like(r)
-        deltar[0]                = (r[1]-r[0])   
-        deltachi[0]              = (chi[1]-chi[0])  
-        deltar[-1]               = (r[-1]-r[-2])   
-        deltachi[-1]             = (chi[-1]-chi[-2])  
-        deltar[1:-1]             = (r[2:]-r[:-2])/2 
-        deltachi[1:-1]           = (chi[2:]-chi[:-2])/2  
-        
+        deltar                   = (r[1]-r[0])   
+        deltachi                 = (chi[1]-chi[0])          
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
         thrust                   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
@@ -371,21 +361,14 @@ class Rotor(Energy_Component):
         Va_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
         Vt_ind_2d                = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T
         blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
-        blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T  
+        blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
+        
         blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
         
-        # thrust and torque derivatives on the blade.
-        blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
-        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)  
-        #blade_dT_dr = np.zeros_like(blade_T_distribution)
-        #blade_dQ_dr = np.zeros_like(blade_Q_distribution)
-        #blade_dT_dr[:,0]    =  (blade_T_distribution[:,1] - blade_T_distribution[:,0])/(chi[1] - chi[0])
-        #blade_dQ_dr[:,0]    =  (blade_Q_distribution[:,1] - blade_Q_distribution[:,0])/(chi[1] - chi[0])
-        #blade_dT_dr[:,1:-1] =  (blade_T_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2])
-        #blade_dQ_dr[:,1:-1] =  (blade_Q_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2]) 
-        #blade_dT_dr[:,-1]   =  (blade_T_distribution[:,-1] - blade_T_distribution[:,-2])/(chi[-1] - chi[-2])
-        #blade_dQ_dr[:,-1]   =  (blade_Q_distribution[:,-1] - blade_Q_distribution[:,-2])/(chi[-1] - chi[-2])  
-            
+        # thrust and torque derivatives on the blade.	
+        blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))	
+        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)   
+        
         Vt_ind_avg = vt
         Va_ind_avg = va
         Vt_avg     = Wt
@@ -439,16 +422,16 @@ class Rotor(Energy_Component):
                     lift_coefficient                  = Cl,       
                     omega                             = omega,  
                     disc_circulation                  = blade_Gamma_2d, 
-                    blade_dT_dr                       = blade_dT_dr, 
+                    blade_dT_dr                       = blade_dT_dr,
                     blade_thrust_distribution         = blade_T_distribution, 
                     disc_thrust_distribution          = blade_T_distribution_2d, 
-                    blade_thrust                      = thrust/B, 
+                    thrust_per_blade                  = thrust/B, 
                     thrust_coefficient                = Ct, 
                     disc_azimuthal_distribution       = azimuth_2d, 
                     blade_dQ_dr                       = blade_dQ_dr,
-                    blade_torque_distribution         = blade_Q_distribution, 
+                    blade_torque_distribution         = blade_Q_distribution,    
                     disc_torque_distribution          = blade_Q_distribution_2d, 
-                    blade_torque                      = torque/B,   
+                    torque_per_blade                  = torque/B,   
                     torque_coefficient                = Cq,   
                     power                             = power,
                     power_coefficient                 = Cp,                      

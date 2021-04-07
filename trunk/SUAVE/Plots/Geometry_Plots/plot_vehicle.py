@@ -53,7 +53,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     fig = plt.figure(save_filename) 
     fig.set_size_inches(8,8) 
     axes = Axes3D(fig)    
-    axes.view_init(elev= 30, azim= 210)
+    axes.view_init(elev= 30, azim= 210)  
     
     # -------------------------------------------------------------------------
     # PLOT WING
@@ -275,7 +275,7 @@ def plot_fuselage_geometry(axes,fus_pts, face_color,edge_color,alpha):
     return 
 
 
-def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,propulsor_alpha,tessellation = 24):   
+def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,propulsor_alpha,tessellation = 24):  
     """ This plots the 3D surface of the propulsor
 
     Assumptions: 
@@ -286,6 +286,10 @@ def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,p
     
     Inputs:   
     VD                   - vortex distribution    
+    propulsor            - propulsor data structure
+    propulsor_face_color - color of panel
+    propulsor_edge_color - color of panel edge
+    propulsor_alpha      - translucency:  1 = opaque , 0 = transparent 
     
     Properties Used:
     N/A
@@ -298,39 +302,18 @@ def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,p
         except:
             pass 
         
-        # Generate And Plot Propeller/Rotor Geoemtry   
-        plot_propeller_geometry(axes,prop,propulsor,'propeller')
-
-        # Generate Nacelle Geoemtry
-        nac_geo = generate_nacelle_points(VD,propulsor,'propeller',tessellation)
+        # Generate And Plot Propeller/Rotor Geometry   
+        plot_propeller_geometry(axes,prop,propulsor,'propeller') 
         
-        # Plot Nacel Geometry 
-        plot_nacelle(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha)
-           
     if ('rotor' in propulsor.keys()):  
-        prop = propulsor.rotor   
+        rot = propulsor.rotor   
         try:
             propulsor.thrust_angle = propulsor.rotor_thrust_angle     
         except:
             pass
         
-        # Generate And Plot Propeller/Rotor Geoemtry   
-        plot_propeller_geometry(axes,prop,propulsor,'rotor')
-    
-        # Generate Nacelle Geoemtry 
-        nac_geo = generate_nacelle_points(VD,propulsor,'rotor',tessellation)
-        
-        # Plot Nacel Geometry 
-        plot_nacelle(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha) 
-
-    
-    elif 'turbofan' ==  propulsor.tag: 
-        
-        # Generate Nacelle Geoemtry
-        nac_geo = generate_nacelle_points(VD,propulsor,propulsor.tag,tessellation)
-        
-        # Plot Nacel Geometry 
-        plot_nacelle(axes,nac_geo,propulsor_face_color,propulsor_edge_color,propulsor_alpha)        
+        # Generate and Plot Propeller/Rotor Geometry   
+        plot_propeller_geometry(axes,rot,propulsor,'rotor')        
     
     return 
 
@@ -344,8 +327,8 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     None
     
     Inputs:   
-    VD        - vortex distribution    
-    propulsor - propulsor data structure 
+    VD                   - vortex distribution    
+    propulsor            - propulsor data structure 
     
     Properties Used:
     N/A
@@ -391,12 +374,8 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     G.YB2 = np.zeros_like(G.XA1)
     G.ZB2 = np.zeros_like(G.XA1)  
     
-    for n_p in range(num_props): 
-        try:
-            rot = prop.rotation[n_p]
-        except:
-            rot = 1
-            
+    for n_p in range(num_props):  
+        rot    = prop.rotation[n_p] 
         a_o    = 0
         flip_1 = (np.pi/2)  
         flip_2 = (np.pi/2)  
@@ -507,120 +486,3 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
                     axes.add_collection3d(prop_collection) 
     return 
  
-def generate_nacelle_points(VD,propulsor,propulsor_name,tessellation):
-    """ This generates the coordinate points on the surface of the fuselage
-
-    Assumptions: 
-    None
-
-    Source:   
-    None
-    
-    Inputs:   
-    VD                   - vortex distribution    
-    
-    Properties Used:
-    N/A
-    
-    
-    """       
-    
-    if (propulsor.tag == 'Battery_Dual_Propeller') or (propulsor.tag =='Lift_Cruise'):
-        if propulsor_name == 'propeller':
-            l = propulsor.propeller_engine_length
-            h = propulsor.propeller_nacelle_diameter/2 
-            origin = propulsor.propeller.origin
-            
-        if propulsor_name == 'rotor':
-            l = propulsor.rotor_engine_length
-            h = propulsor.rotor_nacelle_diameter/2  
-            origin = propulsor.rotor.origin
-            
-    else: 
-        h = propulsor.nacelle_diameter/2
-        l = propulsor.engine_length
-        origin = propulsor.origin
-        
-    end    = propulsor.nacelle_end
-    start  = propulsor.nacelle_start
-    elipse_length = l/(end-start)
-    
-    x             = np.linspace(-elipse_length/2,elipse_length/2,10)
-    y             = np.sqrt((1 - (x**2)/((elipse_length/2)**2))*(h**2))
-    nac_height    = y[int(start*10) : int(end*10)]
-    nac_loc       = x[int(start*10) : int(end*10)] + elipse_length*propulsor.nacelle_offset
-    num_nac_segs  = len(nac_height)
-    
-    num_p   = len(propulsor.origin)
-    nac_pts = np.zeros((num_p,num_nac_segs,tessellation ,3)) 
-    
-    try:
-        ta = propulsor.thrust_angle
-    except:
-        ta = 0
-        
-    for ip in range(num_p): 
-        for i_seg in range(num_nac_segs): 
-            theta    = np.linspace(0,2*np.pi,tessellation)
-            a        = nac_height[i_seg]           
-            b        = nac_height[i_seg] 
-            r        = np.sqrt((b*np.sin(theta))**2  + (a*np.cos(theta))**2)  
-            nac_ypts = r*np.cos(theta)
-            nac_zpts = r*np.sin(theta) 
-            
-            # Rotate to thrust angle 
-            X = np.cos(ta)*nac_loc[i_seg]  +  np.sin(ta)*nac_zpts 
-            Y = nac_ypts  
-            Z = -np.sin(ta)*nac_loc[i_seg]  +  np.cos(ta)*nac_zpts 
-                     
-            nac_pts[ip,i_seg,:,0] = X + origin[ip][0]
-            nac_pts[ip,i_seg,:,1] = Y + origin[ip][1]
-            nac_pts[ip,i_seg,:,2] = Z + origin[ip][2] 
-       
-    # store points
-    VD.NAC_SURF_PTS = nac_pts  
-    
-    return VD 
-
-def plot_nacelle(axes,VD,face_color,edge_color,alpha):
-    """ This plots a 3D surface of the nacelle of the propulsor
-
-    Assumptions: 
-    None
-
-    Source:   
-    None
-    
-    Inputs:   
-    VD                   - vortex distribution    
-    
-    Properties Used:
-    N/A
-    """      
-    
-    num_nac_segs = len(VD.NAC_SURF_PTS[0,:,0,0])
-    tesselation  = len(VD.NAC_SURF_PTS[0,0,:,0]) 
-    num_p        = len(VD.NAC_SURF_PTS[:,0,0,0]) 
-    for ip in range(num_p):
-        for i_seg in range(num_nac_segs-1):
-            for i_tes in range(tesselation-1):
-                X = [VD.NAC_SURF_PTS[ip,i_seg  ,i_tes  ,0],
-                     VD.NAC_SURF_PTS[ip,i_seg  ,i_tes+1,0],
-                     VD.NAC_SURF_PTS[ip,i_seg+1,i_tes+1,0],
-                     VD.NAC_SURF_PTS[ip,i_seg+1,i_tes  ,0]]
-                Y = [VD.NAC_SURF_PTS[ip,i_seg  ,i_tes  ,1],
-                     VD.NAC_SURF_PTS[ip,i_seg  ,i_tes+1,1],
-                     VD.NAC_SURF_PTS[ip,i_seg+1,i_tes+1,1],
-                     VD.NAC_SURF_PTS[ip,i_seg+1,i_tes  ,1]]
-                Z = [VD.NAC_SURF_PTS[ip,i_seg  ,i_tes  ,2],
-                     VD.NAC_SURF_PTS[ip,i_seg  ,i_tes+1,2],
-                     VD.NAC_SURF_PTS[ip,i_seg+1,i_tes+1,2],
-                     VD.NAC_SURF_PTS[ip,i_seg+1,i_tes  ,2]]                 
-                verts = [list(zip(X, Y, Z))]
-                collection = Poly3DCollection(verts)
-                collection.set_facecolor(face_color)
-                collection.set_edgecolor(edge_color) 
-                collection.set_alpha(alpha)
-                axes.add_collection3d(collection)  
-    
-    return 

@@ -123,7 +123,7 @@ class Propeller(Energy_Component):
            blade_dT_dr                       [N]
            blade_thrust_distribution         [N]
            disc_thrust_distribution          [N]
-           blade_thrust                      [N]
+           thrust_per_blade                  [N]
            thrust_coefficient                [-] 
            azimuthal_distribution            [rad]
            disc_azimuthal_distribution       [rad]
@@ -131,7 +131,7 @@ class Propeller(Energy_Component):
            blade_dQ_dr                       [Nm]
            blade_torque_distribution         [Nm] 
            disc_torque_distribution          [Nm] 
-           blade_torque                      [Nm] 
+           torque_per_blade                  [Nm] 
            torque_coefficient                [-] 
            power                             [W]    
            power_coefficient                 [-] 
@@ -216,7 +216,6 @@ class Propeller(Energy_Component):
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
         psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)    
-        azimuth_2d     = np.repeat(np.atleast_2d(psi).T[:,np.newaxis ,:], Nr, axis=1).T 
         
         # 2D radial distribution non dimensionalized
         chi_2d         = np.tile(chi ,(Na,1))            
@@ -385,50 +384,52 @@ class Propeller(Energy_Component):
         Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval  
         
         epsilon                  = Cd/Cl
-        epsilon[epsilon==np.inf] = 10.  
-        
-        # compute discretized distance , delta r and delta chi using central difference for internal points.
-        # and forward/backward difference endpoints
-        deltar                   = np.zeros_like(r)
-        deltachi                 = np.zeros_like(r)
-        deltar[0]                = (r[1]-r[0])   
-        deltachi[0]              = (chi[1]-chi[0])  
-        deltar[-1]               = (r[-1]-r[-2])   
-        deltachi[-1]             = (chi[-1]-chi[-2])  
-        deltar[1:-1]             = (r[2:]-r[:-2])/2 
-        deltachi[1:-1]           = (chi[2:]-chi[:-2])/2  
-        
+        epsilon[epsilon==np.inf] = 10. 
+
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
-        thrust                   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
-        torque                   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None] 
-        power                    = omega*torque 
-        Va_2d                    = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
-        alpha_2d                 = np.repeat(alpha.T[ : , np.newaxis , :], Na, axis=1).T
-        Vt_2d                    = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
-        Va_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
-        Vt_ind_2d                = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T
-        blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
-        blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         
-        blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
-        
+        if use_2d_analysis:
+            blade_T_distribution_2d = blade_T_distribution
+            blade_Q_distribution_2d = blade_Q_distribution
+            blade_Gamma_2d = Gamma
+            
+            # set 1d blade loadings to be the average:
+            blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 1)
+            blade_Q_distribution    = np.mean((blade_Q_distribution_2d), axis = 1)  
+            
+            Va_2d = Wa
+            Vt_2d = Wt
+            Va_avg = np.average(Wa, axis=1)      # averaged around the azimuth
+            Vt_avg = np.average(Wt, axis=1)      # averaged around the azimuth
+            
+            Va_ind_2d = va
+            Vt_ind_2d = vt
+            Vt_ind_avg    = np.average(vt, axis=1)
+            Va_ind_avg    = np.average(va, axis=1)          
+            
+        else:
+            Va_2d   = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
+            Vt_2d   = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
+    
+            blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
+            blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
+            blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
+
+            Vt_avg                  = Wt
+            Va_avg                  = Wa 
+            Vt_ind_avg              = vt
+            Va_ind_avg              = va            
+            Va_ind_2d               = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
+            Vt_ind_2d               = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T     
+            
         # thrust and torque derivatives on the blade. 
         blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
-        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)  
-        #blade_dT_dr = np.zeros_like(blade_T_distribution)
-        #blade_dQ_dr = np.zeros_like(blade_Q_distribution)
-        #blade_dT_dr[:,0]    =  (blade_T_distribution[:,1] - blade_T_distribution[:,0])/(chi[1] - chi[0])
-        #blade_dQ_dr[:,0]    =  (blade_Q_distribution[:,1] - blade_Q_distribution[:,0])/(chi[1] - chi[0])
-        #blade_dT_dr[:,1:-1] =  (blade_T_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2])
-        #blade_dQ_dr[:,1:-1] =  (blade_Q_distribution[:,2:] - blade_Q_distribution[:,:-2])/(chi[2:] - chi[0:-2]) 
-        #blade_dT_dr[:,-1]   =  (blade_T_distribution[:,-1] - blade_T_distribution[:,-2])/(chi[-1] - chi[-2])
-        #blade_dQ_dr[:,-1]   =  (blade_Q_distribution[:,-1] - blade_Q_distribution[:,-2])/(chi[-1] - chi[-2])     
-       
-        V_tot = np.zeros((ctrl_pts,Na,Nr,3))
-        V_tot[:,:,:,0] = Va_2d  
-        V_tot[:,:,:,1] = blade_Gamma_2d*B/(4*np.pi*r_dim_2d)
-        V_tot[:,:,:,2] = Vt_2d 
+        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)     
+        
+        thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
+        torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T         
+        power                   = omega*torque   
         
         # calculate coefficients 
         D        = 2*R 
@@ -465,12 +466,11 @@ class Propeller(Energy_Component):
                     thrust_angle                      = theta,
                     speed_of_sound                    = conditions.freestream.speed_of_sound,
                     density                           = conditions.freestream.density,
-                    velocity                          = Vv,
-                    mean_total_flow                   = V_tot,
-                    blade_tangential_induced_velocity = vt, 
-                    blade_axial_induced_velocity      = va,  
-                    blade_tangential_velocity         = Wt, 
-                    blade_axial_velocity              = Wa,  
+                    velocity                          = Vv, 
+                    blade_tangential_induced_velocity = Vt_ind_avg, 
+                    blade_axial_induced_velocity      = Va_ind_avg,  
+                    blade_tangential_velocity         = Vt_avg, 
+                    blade_axial_velocity              = Va_avg,  
                     disc_tangential_induced_velocity  = Vt_ind_2d, 
                     disc_axial_induced_velocity       = Va_ind_2d,  
                     disc_tangential_velocity          = Vt_2d, 
@@ -482,15 +482,13 @@ class Propeller(Energy_Component):
                     blade_dT_dr                       = blade_dT_dr,
                     blade_thrust_distribution         = blade_T_distribution, 
                     disc_thrust_distribution          = blade_T_distribution_2d, 
-                    blade_thrust                      = thrust/B, 
-                    thrust_coefficient                = Ct,  
-                    blade_pitch                       = alpha,
-                    disc_pitch                        = alpha_2d,
-                    disc_azimuthal_distribution       = azimuth_2d,  
+                    thrust_per_blade                  = thrust/B, 
+                    thrust_coefficient                = Ct, 
+                    disc_azimuthal_distribution       = psi_2d, 
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution, 
                     disc_torque_distribution          = blade_Q_distribution_2d, 
-                    blade_torque                      = torque/B,   
+                    torque_per_blade                  = torque/B,   
                     torque_coefficient                = Cq,   
                     power                             = power,
                     power_coefficient                 = Cp,    

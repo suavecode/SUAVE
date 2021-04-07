@@ -62,7 +62,6 @@ class Turbofan(Propulsor):
         self.nacelle_diameter     = 0.0
         self.engine_length        = 0.0
         self.bypass_ratio         = 0.0
-        self.thrust_angle         = 0.0
         self.SFC_adjustment       = 0.0 # Less than 1 is a reduction
         self.OpenVSP_flow_through = False
         
@@ -95,7 +94,7 @@ class Turbofan(Propulsor):
             Outputs:
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
-            conditions.noise:
+            conditions.propulsion.acoustic_outputs:
                 core:
                     exit_static_temperature      
                     exit_static_pressure       
@@ -279,20 +278,20 @@ class Turbofan(Propulsor):
         
         # store data
         results_conditions = Data
-        conditions.noise.sources.turbofan.core = results_conditions(
-        exit_static_temperature                = core_nozzle.outputs.static_temperature,
-        exit_static_pressure                   = core_nozzle.outputs.static_pressure,
-        exit_stagnation_temperature            = core_nozzle.outputs.stagnation_temperature,
-        exit_stagnation_pressure               = core_nozzle.outputs.static_pressure,
-        exit_velocity                          = core_nozzle.outputs.velocity
+        conditions.propulsion.acoustic_outputs.core = results_conditions(
+        exit_static_temperature             = core_nozzle.outputs.static_temperature,
+        exit_static_pressure                = core_nozzle.outputs.static_pressure,
+        exit_stagnation_temperature         = core_nozzle.outputs.stagnation_temperature,
+        exit_stagnation_pressure            = core_nozzle.outputs.static_pressure,
+        exit_velocity                       = core_nozzle.outputs.velocity
         )
         
-        conditions.noise.sources.turbofan.fan = results_conditions(
-        exit_static_temperature               = fan_nozzle.outputs.static_temperature,
-        exit_static_pressure                  = fan_nozzle.outputs.static_pressure,
-        exit_stagnation_temperature           = fan_nozzle.outputs.stagnation_temperature,
-        exit_stagnation_pressure              = fan_nozzle.outputs.static_pressure,
-        exit_velocity                         = fan_nozzle.outputs.velocity
+        conditions.propulsion.acoustic_outputs.fan = results_conditions(
+        exit_static_temperature             = fan_nozzle.outputs.static_temperature,
+        exit_static_pressure                = fan_nozzle.outputs.static_pressure,
+        exit_stagnation_temperature         = fan_nozzle.outputs.stagnation_temperature,
+        exit_stagnation_pressure            = fan_nozzle.outputs.static_pressure,
+        exit_velocity                       = fan_nozzle.outputs.velocity
         )
         
         return results
