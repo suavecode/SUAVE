@@ -1,7 +1,7 @@
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 # decibel_arithmetic.py
 # 
-# Created: Oct 2020, M. Clarke
+# Created: Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -13,7 +13,7 @@ import numpy as np
 # -----------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def pressure_ratio_to_SPL_arithmetic(p_pref_total):
-    ''' This compute the total SPL given mutiple acoustic pressure ratios 
+    ''' This computes the total SPL given mutiple acoustic pressure ratios 
     of one of mutiple sources
     
     Assumptions:
@@ -32,11 +32,11 @@ def pressure_ratio_to_SPL_arithmetic(p_pref_total):
         N/A 
     
     '''
-    SPL_total = 10*np.log10(np.sum(p_pref_total, axis = 2))
+    SPL_total = 10*np.log10(np.sum(p_pref_total, axis = 3))
     return SPL_total
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
-def SPL_arithmetic(SPL):
+def SPL_arithmetic(SPL, sum_axis = 2):
     '''This computes the total SPL from multiple sources 
     using decibel arithmetic  
     
@@ -47,10 +47,10 @@ def SPL_arithmetic(SPL):
         None
 
     Inputs:
-        Sound Pressure Level        [decibel]
+        SPL  -  Sound Pressure Level        [dB]
 
     Outputs: 
-        Sound Pressure Level        [decibel]
+        SPL  -  Sound Pressure Level        [dB]
     
     Properties Used:
         N/A 
@@ -60,7 +60,7 @@ def SPL_arithmetic(SPL):
         SPL_total = SPL 
     else:
         p_prefs   = 10**(SPL/10)
-        SPL_total = 10*np.log10(np.sum(p_prefs, axis = 1))
+        SPL_total = 10*np.log10(np.sum(p_prefs, axis = sum_axis))
         
     return SPL_total
 
@@ -76,16 +76,16 @@ def SPL_spectra_arithmetic(SPL):
         None
 
     Inputs:
-        Sound Pressure Level        [decibel]
+        SPL  -  Sound Pressure Level        [dB]
 
     Outputs: 
-        Sound Pressure Level        [decibel]
+        SPL  -  Sound Pressure Level        [dB]
     
     Properties Used:
         N/A 
     
     ''' 
     p_prefs   = 10**(SPL/10)
-    SPL_total = 10*np.log10(np.sum(p_prefs, axis = 1))
+    SPL_total = 10*np.log10(np.sum(p_prefs, axis = 2))
         
     return SPL_total

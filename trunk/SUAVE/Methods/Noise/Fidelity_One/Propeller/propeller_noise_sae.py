@@ -23,7 +23,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import print_propeller_output 
 
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_noise_sae(network,propeller,auc_opts,segment,settings ,ioprint = 0):
+def propeller_noise_sae(network,propeller,acoustic_outputs,segment,settings ,ioprint = 0):
     """ Computes the Far-field noise for propeller noise following SAE AIR1407 procedure.
 
     Assumptions:
@@ -55,9 +55,9 @@ def propeller_noise_sae(network,propeller,auc_opts,segment,settings ,ioprint = 0
     diameter     = (propeller.tip_radius*2) / Units.ft
     n_blades     = propeller.number_of_blades  
     n_propellers = network.number_of_engines 
-    HP           = auc_opts.power / Units.horsepower
-    RPM          = auc_opts.omega / Units.rpm
-    speed        = auc_opts.velocity/ Units.fts
+    HP           = acoustic_outputs.power  / Units.horsepower
+    RPM          = acoustic_outputs.omega  / Units.rpm
+    speed        = acoustic_outputs.velocity/ Units.fts
     sound_speed  = conditions.freestream.sound_speed / Units.fts
     dist         = segment.dist
     theta        = segment.theta / Units.degrees
@@ -191,15 +191,14 @@ def propeller_noise_sae(network,propeller,auc_opts,segment,settings ,ioprint = 0
     if ioprint: 
         print_propeller_output(speed,nsteps,time,altitude, RPM,theta ,dist ,PNL,PNL_dBA)
         
-    # Pack Results
-    propeller_noise = Data()
-    propeller_noise.PNL_dBA_max   = np.max(PNL_dBA)
-    propeller_noise.EPNdB_takeoff = EPNdB_takeoff
-    propeller_noise.EPNdB_landing = EPNdB_landing
-    propeller_noise.OASPL         = OASPL
-    propeller_noise.EPNL_total    = EPNL_total   
-    propeller_noise.SENEL_total   = SENEL_total      
+    # Pack Results 
+    acoustic_outputs.PNL_dBA_max   = np.max(PNL_dBA)
+    acoustic_outputs.EPNdB_takeoff = EPNdB_takeoff
+    acoustic_outputs.EPNdB_landing = EPNdB_landing
+    acoustic_outputs.OASPL         = OASPL
+    acoustic_outputs.EPNL_total    = EPNL_total   
+    acoustic_outputs.SENEL_total   = SENEL_total      
         
-    return propeller_noise
+    return acoustic_outputs
 
 
