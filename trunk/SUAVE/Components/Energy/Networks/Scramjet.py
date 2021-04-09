@@ -2,7 +2,7 @@
 # Scramjet.py
 #
 # Created:  Dec 2017, W. Maier
-# Modified: Apr 2021, M. Clarke
+# Modified:
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -81,7 +81,7 @@ class Scramjet(Propulsor):
         results.thrust_force_vector                   [N] 
         results.vehicle_mass_rate                     [kg/s] 
 
-        conditions.noise.sources.scramjets: 
+        conditions.propulsion.acoustic_outputs: 
         core: 
         exit_static_temperature                  [K]  
         exit_static_pressure                     [K]  

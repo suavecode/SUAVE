@@ -4,7 +4,6 @@
 # Created:  May 2015, T. MacDonald
 # Modified: Aug 2017, E. Botero
 #           Aug 2018, T. MacDonald
-#           Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -93,7 +92,7 @@ class Turbojet_Super(Propulsor):
         	Outputs:
         	results.thrust_force_vector [newtons]
         	results.vehicle_mass_rate   [kg/s]
-        	conditions.noise.sources.turbojet_super:
+        	conditions.propulsion.acoustic_outputs:
         	    core:
         		exit_static_temperature      
         		exit_static_pressure       

@@ -4,8 +4,6 @@
 # Created:  Sep 2014, M. Vegh
 # Modified: Jan 2016, T. MacDonald
 #           Apr 2019, C. McMillan
-#           Apr 2021, M. Clarke
-
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -139,10 +137,10 @@ class Battery_Ducted_Fan(Propulsor):
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
           
-        conditions.propulsion.current                      = current
-        conditions.propulsion.battery_draw                 = battery_draw
-        conditions.propulsion.battery_energy               = battery_energy
-        conditions.propulsion.battery_voltage_open_circuit = voltage_open_circuit
+        conditions.propulsion.current              = current
+        conditions.propulsion.battery_draw         = battery_draw
+        conditions.propulsion.battery_energy       = battery_energy
+        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
         
         results.vehicle_mass_rate   = mdot
         return results

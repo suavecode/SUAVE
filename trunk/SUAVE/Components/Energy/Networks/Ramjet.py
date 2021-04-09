@@ -3,7 +3,6 @@
 #
 # Created:  Jun 2017, P. Goncalves
 # Modified: Jan 2018, W. Maier
-#           Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -75,7 +74,7 @@ class Ramjet(Propulsor):
         	results.thrust_force_vector                      [newtons]
         	results.vehicle_mass_rate                        [kg/s]
         	results.specific_impulse                         [s]
-        	conditions.noise.sources.ramjet:
+        	conditions.propulsion.acoustic_outputs:
         	    core:
         		exit_static_temperature                  [K]
         		exit_static_pressure                     [K]

@@ -4,7 +4,6 @@
 # Created:  Mar 2020, M. Clarke
 #           Apr 2020, M. Clarke
 #           Sep 2020, M. Clarke 
-#           Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

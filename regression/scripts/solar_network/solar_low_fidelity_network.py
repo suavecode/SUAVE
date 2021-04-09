@@ -140,8 +140,8 @@ def main():
     
     error = Data()
     error.Thrust = np.max(np.abs(F[:,0]-truth_F))
-    error.RPM = np.max(np.abs(conditions.propulsion.propeller_rpm-truth_rpm))
-    error.Current  = np.max(np.abs(conditions.propulsion.battery_current-truth_i))
+    error.RPM = np.max(np.abs(conditions.propulsion.rpm-truth_rpm))
+    error.Current  = np.max(np.abs(conditions.propulsion.current-truth_i))
     error.Battery = np.max(np.abs(bat.current_energy-truth_bat))
     
     print(error)
