@@ -38,11 +38,6 @@ def senel_noise(SPLt_dBA_max):
     
     # Calculates the number of discrete points on the trajectory
     nsteps   = len(SPLt_dBA_max)    
-    
-    # Exclude sources that are not being calculated or doesn't contribute for the total noise of the aircraft
-    if all(SPLt_dBA_max==0):
-        SENEL = 0
-        return(SENEL)
 
     # Finding the time duration for the noise history where PNL is higher than the maximum PNLT - 10 dB
     i = 0

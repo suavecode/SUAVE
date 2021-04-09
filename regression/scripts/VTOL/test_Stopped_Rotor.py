@@ -126,6 +126,13 @@ def base_analysis(vehicle):
     energy.network = vehicle.propulsors 
     analyses.append(energy)
 
+
+    # ------------------------------------------------------------------
+    #  Noise Analysis
+    noise = SUAVE.Analyses.Noise.Fidelity_One()
+    noise.geometry = vehicle
+    analyses.append(noise)
+
     # ------------------------------------------------------------------
     #  Planet Analysis
     planet = SUAVE.Analyses.Planets.Planet()
