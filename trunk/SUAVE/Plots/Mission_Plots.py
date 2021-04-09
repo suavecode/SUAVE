@@ -1480,50 +1480,6 @@ def plot_flight_profile_noise_contour(results, line_color = 'bo-', save_figure =
     if save_figure:
         plt.savefig(save_filename + ".png")   
 
-    return 
-
-# ------------------------------------------------------------------
-#   Propeller Performance
-# ------------------------------------------------------------------
-def plot_propeller_performance(noise, line_color = 'bo-', save_figure = False, save_filename = "Propeller_Performance"): 
-    """This plots the sectional lift distrubtion at all control points
-    on all lifting surfaces of the aircraft
-    Assumptions:
-    None
-    Source:
-    None
-    Inputs:
-    results.segments.aerodynamics.
-        inviscid_wings_sectional_lift
-    vehicle.vortex_distribution.
-       n_sw
-       n_w
-       
-    Outputs: 
-    Plots
-    Properties Used:
-    N/A	
-    """       
-    
-    axis_font = {'fontname':'Arial', 'size':'14'} 
-    fig = plt.figure(save_filename)
-    fig.set_size_inches(10, 8) 
-    T = noise.blade_T_distribution[:][0]
-    Q = noise.blade_Q_distribution[:][0]
-    r = noise.radius_distribution
-           
-    axes = fig.add_subplot(2,1,1)
-    axes.plot(r, T , line_color)
-    axes.set_ylabel('T (N)',axis_font)
-    axes.set_xlabel('r (m)',axis_font)
-    axes.minorticks_on()
-    axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-    axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')   
-    axes.grid(True)      
-    
-    if save_figure:
-        plt.savefig(save_filename + ".png")  
-        
     return  
 
 # ------------------------------------------------------------------

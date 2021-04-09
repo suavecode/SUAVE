@@ -28,6 +28,9 @@ from X57_Maxwell    import vehicle_setup, configs_setup
 # ----------------------------------------------------------------------
 
 def main():   
+    # ----------------------------------------------------------------------
+    # SUAVE Frequecy Domain Propeller Noise Model 
+    # ---------------------------------------------------------------------- 
     configs, analyses = full_setup() 
 
     configs.finalize()
@@ -35,35 +38,19 @@ def main():
     
     # mission analysis
     mission = analyses.missions.base
-    results = mission.evaluate() 
-    
-    # save results  
-    save_results(results)
+    FD_results = mission.evaluate()  
     
     # plot the results
-    plot_results(results) 
-      
-    # load and plot old results  
-    #old_results = load_results()
+    plot_results(FD_results)  
     
-    ## RPM of rotor check during hover
-    #RPM        = results.segments.climb_1.conditions.propulsion.rpm[3][0]
-    #RPM_true   = 884.7650260408985
-    #print(RPM) 
-    #diff_RPM   = np.abs(RPM - RPM_true)
-    #print('RPM difference')
-    #print(diff_RPM)
-    #assert np.abs((RPM - RPM_true)/RPM_true) < 1e-3  
-    
-    ## lift Coefficient Check During Cruise
-    #lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0]
-    #lift_coefficient_true   = 0.3837615929758772
-    #print(lift_coefficient)
-    #diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
-    #print('CL difference')
-    #print(diff_CL)
-    #assert np.abs((lift_coefficient  - lift_coefficient_true)/lift_coefficient_true) < 1e-3   
-     
+    # SPL of rotor check during hover
+    FD_SPL        = FD_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
+    FD_SPL_true   = 80.33223391658487
+    print(FD_SPL) 
+    FD_diff_SPL   = np.abs(FD_SPL - FD_SPL_true)
+    print('SPL difference')
+    print(FD_diff_SPL)
+    assert np.abs((FD_SPL - FD_SPL_true)/FD_SPL_true) < 1e-3    
     return
 
 
@@ -121,7 +108,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Noise Analysis
     noise = SUAVE.Analyses.Noise.Fidelity_One()   
-    noise.geometry = vehicle
+    noise.geometry = vehicle 
     analyses.append(noise)
 
     # ------------------------------------------------------------------
@@ -253,14 +240,7 @@ def plot_results(results):
     # Plot noise contour
     plot_flight_profile_noise_contour(results) 
                         
-    return 
-
-def load_results():
-    return SUAVE.Input_Output.SUAVE.load('electric_aircraft.res')
-
-def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'electric_aircraft.res') 
-    return   
+    return  
 
 if __name__ == '__main__': 
     main()    

@@ -183,17 +183,10 @@ class Fidelity_One(Noise):
                         # Compute Propeller Noise  
                         net           = config.propulsors[network]
                         prop          = config.propulsors[network][source]
-                        acoustic_data = conditions.noise.sources[source]  
-                        if settings.propeller_SAE_noise_model:
-                            propeller_noise              = propeller_noise_sae(net,prop,acoustic_data,segment,settings,ioprint = 0) 
-                            source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA   
-                            source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_spectrum  
-                            
-                            # APPEND SPECTRA OF VEHICLE  
-                        else:
-                            propeller_noise                   = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings)  
-                            source_SPLs_dBA[:,si,:]           = propeller_noise.SPL_dBA 
-                            source_SPL_spectra[:,si,:,:]      = propeller_noise.SPL_spectrum    
+                        acoustic_data = conditions.noise.sources[source]   
+                        propeller_noise                   = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings)  
+                        source_SPLs_dBA[:,si,:]           = propeller_noise.SPL_dBA 
+                        source_SPL_spectra[:,si,:,:]      = propeller_noise.SPL_spectrum    
                             
                         si += 1
              

@@ -1,3 +1,4 @@
+## @ingroup Plots
 # Propeller_Plots.py
 #
 # Created: Mar 2021, R. Erhard
@@ -8,23 +9,25 @@ import pylab as plt
 import numpy as np
 import matplotlib
 
-
+## @ingroup Plots
 def plot_propeller_performance(prop,outputs,conditions):
-    '''
+    """This plots local velocities, blade angles, and blade loading
     
+    Assumptions:
+    None
     
+    Source:
+    None
     
+    Inputs:
     
+       
+    Outputs: 
+    Plots
     
-    
-    
-    
-    
-    
-    
-    '''
-    # Plots local velocities, blade angles, and blade loading
-    
+    Properties Used:
+    N/A	
+    """ 
     # Setting Latex Font style
     font = {'family' : 'normal',
             'weight' : 'normal',
@@ -106,39 +109,3 @@ def plot_propeller_performance(prop,outputs,conditions):
     axis0.set_yticklabels([])    
     
     return    
-
-
-
-## ------------------------------------------------------------------
-##   Rotor/Propeller Acoustics
-## ------------------------------------------------------------------
-#def plot_propeller_noise_contour(conditions, save_figure = False, save_filename = "Noise_Level"):
-    #""" 
-    #TEXT 
-        
-    #"""       
-    #prop_outputs         = conditions.noise.sources['propeller'].acoustic_outputs  
-    #dim_mic              = int(np.sqrt(len(conditions.noise.total_SPL_dBA[0,:])))
-    #dim_ctrl_pts         = len(conditions.noise.microphone_locations[:,0,0])
-    #levals               = np.linspace(0,130,50) 
-    #ctrl_pt_idx          = 0  
-    
-    #for i in range(dim_ctrl_pts):
-        #ctrl_pt_idx += 1  
-        #SPL    = conditions.noise.total_SPL_dBA[i,:].reshape(dim_mic,dim_mic)
-        #x_vals = conditions.noise.microphone_locations[i,:,0].reshape(dim_mic,dim_mic)
-        #y_vals = conditions.noise.microphone_locations[i,:,1].reshape(dim_mic,dim_mic) 
-        
-        #tag    = save_filename + '_Cp' + str(prop_outputs[i,0])
-        #fig    = plt.figure(tag)
-        #fig.set_size_inches(8, 8) 
-        #axes   = fig.add_subplot(1,1,1)  
-        #CS     = axes.contourf(x_vals,y_vals, SPL, cmap = 'jet',levels=levals,extend='both') 
-        #CS     = axes.contourf(x_vals,-y_vals, SPL, cmap = 'jet',levels=levals,extend='both') 
-        #cbar   = plt.colorbar(CS)
-        #cbar.ax.set_ylabel('SPL')        
-    
-        #if save_figure:
-            #plt.savefig(tag + ".png")   
-
-    #return 
