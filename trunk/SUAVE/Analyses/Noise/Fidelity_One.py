@@ -173,20 +173,19 @@ class Fidelity_One(Noise):
                     if bool(conditions.noise.sources[source].fan) and bool(conditions.noise.sources[source].core): 
                         config.propulsors[source].fan.rotation            = 0 # NEED TO UPDATE ENGINE MODEL WITH FAN SPEED in RPM
                         config.propulsors[source].fan_nozzle.noise_speed  = conditions.noise.sources.turbofan.fan.exit_velocity 
-                        config.propulsors[source].core_nozzle.noise_speed = conditions.noise.sources.turbofan.core.exit_velocity 
+                        config.propulsors[source].core_nozzle.noise_speed = conditions.noise.sources.turbofan.core.exit_velocity
                         engine_noise                                      = noise_SAE(config.propulsors[source],segment,analyses,config,settings)  
                         source_SPLs_dBA[:,si,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_mic, axis =1)
                         source_SPL_spectra[:,si,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1)
                         
                 elif (source  == 'propeller')  or (source   == 'rotor'): 
-                    if bool(conditions.noise.sources[source]) == True : 
-                        # Compute Propeller Noise  
-                        net           = config.propulsors[network]
-                        prop          = config.propulsors[network][source]
-                        acoustic_data = conditions.noise.sources[source]   
-                        propeller_noise                   = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings)  
-                        source_SPLs_dBA[:,si,:]           = propeller_noise.SPL_dBA 
-                        source_SPL_spectra[:,si,:,:]      = propeller_noise.SPL_spectrum    
+                    if bool(conditions.noise.sources[source]) == True:
+                        net                          = config.propulsors[network]
+                        prop                         = config.propulsors[network][source]
+                        acoustic_data                = conditions.noise.sources[source]   
+                        propeller_noise              = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings)  
+                        source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
+                        source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_spectrum    
                             
                         si += 1
              

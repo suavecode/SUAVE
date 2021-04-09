@@ -344,11 +344,12 @@ def noise_sideline(nexus):
     nexus.analyses.takeoff.noise.settings.sideline = True
     nexus.analyses.takeoff.noise.settings.flyover  = False
     results                                        = nexus.results 
+    mission                                        = nexus.missions.sideline_takeoff
+    results.sideline                               = mission.evaluate()
     if nexus.save_data:
-        mission          = nexus.missions.sideline_takeoff
-        results.sideline = mission.evaluate()
         save_results(results.sideline,'sideline.res')
-    results.sideline     = load_results('sideline.res')
+    else:
+        results.sideline     = load_results('sideline.res')
     
     # Determine the x0
     x0              = 0.    
@@ -388,11 +389,12 @@ def noise_flyover(nexus):
     nexus.analyses.takeoff.noise.settings.flyover  = True
     nexus.analyses.takeoff.noise.settings.sideline = False
     results                                        = nexus.results 
+    mission                                        = nexus.missions.takeoff
+    results.flyover                                = mission.evaluate()
     if nexus.save_data:
-        mission          = nexus.missions.takeoff
-        results.flyover  = mission.evaluate()
         save_results(results.flyover,'flyover.res')
-    results.flyover      = load_results('flyover.res')
+    else:
+        results.flyover      = load_results('flyover.res')
     
     noise_segment                   = results.flyover.segments.climb
     noise_settings                  = nexus.analyses.takeoff.noise.settings
@@ -434,11 +436,12 @@ def noise_flyover(nexus):
 def noise_approach(nexus):
     nexus.analyses.landing.noise.settings.approach = True
     results                                        = nexus.results
+    mission                                        = nexus.missions.landing
+    results.approach                               = mission.evaluate()
     if nexus.save_data:
-        mission           = nexus.missions.landing
-        results.approach  = mission.evaluate()
         save_results(results.approach,'approach.res')
-    results.approach      = load_results('approach.res')
+    else:
+        results.approach      = load_results('approach.res')
     
     noise_segment  = results.approach.segments.descent
     noise_analyses = nexus.analyses.landing
