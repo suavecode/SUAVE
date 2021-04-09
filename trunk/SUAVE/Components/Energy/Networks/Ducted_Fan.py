@@ -3,6 +3,7 @@
 # 
 # Created:  Feb 2016, M. Vegh
 # Modified: Aug 2017, E. Botero
+#           Apr 2021, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -78,7 +79,7 @@ class Ducted_Fan(Propulsor):
             results.thrust_force_vector [newtons]
             results.vehicle_mass_rate   [kg/s]
             results.power               [Watts]
-            conditions.propulsion.acoustic_outputs:
+            conditions.noise.sources.ducted_fan:
                 fan:
                     exit_static_temperature      
                     exit_static_pressure       
@@ -160,13 +161,15 @@ class Ducted_Fan(Propulsor):
         # store data
         results_conditions = Data
         
-        conditions.propulsion.acoustic_outputs.fan = results_conditions(
-        exit_static_temperature             = fan_nozzle.outputs.static_temperature,
-        exit_static_pressure                = fan_nozzle.outputs.static_pressure,
-        exit_stagnation_temperature         = fan_nozzle.outputs.stagnation_temperature,
-        exit_stagnation_pressure            = fan_nozzle.outputs.static_pressure,
-        exit_velocity                       = fan_nozzle.outputs.velocity
-        )
+        fan_outputs = results_conditions(
+            exit_static_temperature             = fan_nozzle.outputs.static_temperature,
+            exit_static_pressure                = fan_nozzle.outputs.static_pressure,
+            exit_stagnation_temperature         = fan_nozzle.outputs.stagnation_temperature,
+            exit_stagnation_pressure            = fan_nozzle.outputs.static_pressure,
+            exit_velocity                       = fan_nozzle.outputs.velocity
+            )
+        
+        conditions.noise.sources.ducted_fan.fan = fan_outputs
         
         return results
     

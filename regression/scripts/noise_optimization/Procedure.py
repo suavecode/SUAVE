@@ -340,16 +340,19 @@ def max_range_mission(nexus):
 # ----------------------------------------------------------------------        
 #   Sideline noise
 # ----------------------------------------------------------------------      
-def noise_sideline(nexus):         
-    
+def noise_sideline(nexus):    
     nexus.analyses.takeoff.noise.settings.sideline = True
     nexus.analyses.takeoff.noise.settings.flyover  = False
     results                                        = nexus.results 
-    results.sideline                               = SUAVE.Input_Output.SUAVE.load('sideline.res')   
+    if nexus.save_data:
+        mission          = nexus.missions.sideline_takeoff
+        results.sideline = mission.evaluate()
+        save_results(results.sideline,'sideline.res') 
+    results.sideline     = load_results('sideline.res') 
     
     # Determine the x0
     x0              = 0.    
-    position_vector = results.sideline.conditions.climb.frames.inertial.position_vector
+    position_vector = results.sideline.segments.climb.conditions.frames.inertial.position_vector
     degree          = 3
     coefs           = np.polyfit(-position_vector[:,2],position_vector[:,0],degree)
     for idx,coef in enumerate(coefs):
@@ -357,14 +360,13 @@ def noise_sideline(nexus):
 
     nexus.analyses.takeoff.noise.settings.mic_x_position = x0  
     noise_segment                                        = results.sideline.segments.climb 
-    noise_settings                                       = 0
+    noise_settings                                       = nexus.analyses.takeoff.noise.settings
     noise_config                                         = nexus.vehicle_configurations.takeoff
     noise_analyse                                        = nexus.analyses.takeoff
-    noise_config.engine_flag                             = True
-    
-    noise_config.print_output       = 0
-    noise_config.output_file        = 'Noise_Sideline.dat'
-    noise_config.output_file_engine = 'Noise_Sideline_Engine.dat'
+    noise_config.engine_flag                             = True 
+    noise_config.print_output                            = 0
+    noise_config.output_file                             = 'Noise_Sideline.dat'
+    noise_config.output_file_engine                      = 'Noise_Sideline_Engine.dat'
     
     
     if nexus.npoints_sideline_sign == -1:
@@ -382,20 +384,21 @@ def noise_sideline(nexus):
 #   Flyover noise
 # ----------------------------------------------------------------------    
     
-def noise_flyover(nexus):       
-    
-    mission                                        = nexus.missions.takeoff
+def noise_flyover(nexus):        
     nexus.analyses.takeoff.noise.settings.flyover  = True
     nexus.analyses.takeoff.noise.settings.sideline = False
     results                                        = nexus.results 
-    results.flyover                                = SUAVE.Input_Output.SUAVE.load('flyover.res')   
+    if nexus.save_data:
+        mission          = nexus.missions.takeoff
+        results.flyover  = mission.evaluate()        
+        save_results(results.flyover,'flyover.res') 
+    results.flyover      = load_results('flyover.res')   
     
-    noise_segment            = results.flyover.segments.climb
-    noise_settings           = 0 #  Correct
-    noise_config             = nexus.vehicle_configurations.takeoff
-    noise_analyses           = nexus.analyses.takeoff
-    noise_config.engine_flag = True
-    
+    noise_segment                   = results.flyover.segments.climb
+    noise_settings                  = nexus.analyses.takeoff.noise.settings
+    noise_config                    = nexus.vehicle_configurations.takeoff
+    noise_analyses                  = nexus.analyses.takeoff
+    noise_config.engine_flag        = True 
     noise_config.print_output       = 0
     noise_config.output_file        = 'Noise_Flyover_climb.dat'
     noise_config.output_file_engine = 'Noise_Flyover_climb_Engine.dat'
@@ -406,7 +409,7 @@ def noise_flyover(nexus):
         noise_result_takeoff_FL_clb = compute_noise(noise_config,noise_analyses,noise_segment,noise_settings)    
 
     noise_segment                   = results.flyover.segments.cutback
-    noise_settings                  = 0 #  Correct 
+    noise_settings                  = nexus.analyses.takeoff.noise.settings
     noise_config                    = nexus.vehicle_configurations.cutback
     noise_config.print_output       = 0
     noise_config.engine_flag        = True
@@ -428,23 +431,24 @@ def noise_flyover(nexus):
 #   Approach noise
 # ----------------------------------------------------------------------    
     
-def noise_approach(nexus):        
-    mission                                        = nexus.missions.landing
-    nexus.analyses.landing.noise.settings.approach = 1    
-    results                                        = nexus.results
-    results.approach                               = mission.evaluate() 
-    results.approach                               = SUAVE.Input_Output.SUAVE.load('approach.res')   
+def noise_approach(nexus): 
+    nexus.analyses.landing.noise.settings.approach = True    
+    results                                        = nexus.results 
+    if nexus.save_data: 
+        mission           = nexus.missions.landing
+        results.approach  = mission.evaluate() 
+        save_results(results.approach,'approach.res') 
+    results.approach      = load_results('approach.res')  
     
     noise_segment  = results.approach.segments.descent
-    noise_config   = nexus.vehicle_configurations.landing
     noise_analyses = nexus.analyses.landing
-    noise_settings           = 0 #  Correct
+    noise_settings = nexus.analyses.landing.noise.settings 
+    noise_config   = nexus.vehicle_configurations.landing
     
+    noise_config.engine_flag = True
     noise_config.print_output       = 0
     noise_config.output_file        = 'Noise_Approach.dat'
     noise_config.output_file_engine = 'Noise_Approach_Engine.dat'
-    
-    noise_config.engine_flag = True
    
     noise_result_approach = compute_noise(noise_config,noise_analyses,noise_segment,noise_settings)
        
@@ -462,13 +466,15 @@ def compute_noise(config,analyses,noise_segment,noise_settings):
     outputfile        = config.output_file
     outputfile_engine = config.output_file_engine
     print_output      = config.print_output
-    engine_flag       = config.engine_flag  #remove engine noise component from the approach segment
-    
-    airframe_noise = noise_airframe_Fink(config,analyses,noise_segment,noise_settings,print_output,outputfile)   
-    
-    engine_noise   = noise_SAE(turbofan,noise_segment,config,analyses,noise_settings,print_output,outputfile_engine)
+    engine_flag       = config.engine_flag  #remove engine noise component from the approach segment 
 
-    noise_sum      = 10. * np.log10(10**(airframe_noise.EPNL_total/10)+ (engine_flag)*10**(engine_noise.EPNL_total/10))
+    geometric         = noise_geometric(noise_segment,analyses,config)
+                      
+    airframe_noise    = noise_airframe_Fink(noise_segment,analyses,config,noise_settings,print_output,outputfile)   
+                      
+    engine_noise      = noise_SAE(turbofan,noise_segment,analyses,config,noise_settings,print_output,outputfile_engine)
+                      
+    noise_sum         = 10. * np.log10(10**(airframe_noise.EPNL_total/10)+ (engine_flag)*10**(engine_noise.EPNL_total/10))
 
     return noise_sum
 
@@ -505,7 +511,7 @@ def noise_sideline_init(nexus):
 
     nexus.npoints_sideline_sign = np.sign(n_points)
     
-    nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points = np.minimum(200, np.abs(n_points))  
+    nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points = int(np.minimum(200, np.abs(n_points))[0])
  
     return nexus
 
@@ -522,7 +528,7 @@ def noise_takeoff_init(nexus):
     n_points   = np.ceil(results.takeoff_initialization.segments.climb.conditions.frames.inertial.time[-1] /0.5 +1)
     nexus.npoints_takeoff_sign=np.sign(n_points)
 
-    nexus.missions.takeoff.segments.climb.state.numerics.number_control_points = np.minimum(200, np.abs(n_points))
+    nexus.missions.takeoff.segments.climb.state.numerics.number_control_points = int(np.minimum(200, np.abs(n_points))[0])
 
     return nexus
 
@@ -622,8 +628,11 @@ def post_process(nexus):
     print("Approach = ", summary.noise.approach)
   
     return nexus    
+ 
 
+def load_results(filename):
+    return SUAVE.Input_Output.SUAVE.load(filename)
 
-def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'results_noise.res')
+def save_results(results,filename):
+    SUAVE.Input_Output.SUAVE.archive(results,filename)
     return

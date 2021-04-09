@@ -4,6 +4,7 @@
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
 #           Mar 2020, M. Clarke 
+#           Apr 20211, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -110,13 +111,13 @@ class Aerodynamics(Basic):
 
         # propulsion conditions
         self.propulsion = Conditions()
-        self.propulsion.throttle               = ones_1col * 0
-        self.propulsion.battery_energy         = ones_1col * 0
-        self.propulsion.battery_voltage        = ones_1col * 0
+        self.propulsion.throttle                       = ones_1col * 0
+        self.propulsion.battery_energy                 = ones_1col * 0
+        self.propulsion.battery_voltage                = ones_1col * 0
         self.propulsion.battery_voltage_under_load     = ones_1col * 0
         self.propulsion.battery_voltage_open_circuit   = ones_1col * 0
-        self.propulsion.state_of_charge        = ones_1col * 0
-        self.propulsion.thrust_breakdown       = Conditions()
+        self.propulsion.state_of_charge                = ones_1col * 0
+        self.propulsion.thrust_breakdown               = Conditions()
 
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0
@@ -126,12 +127,25 @@ class Aerodynamics(Basic):
         self.weights.vehicle_mass_rate     = ones_1col * 0
         
         # noise conditions
-        self.noise                          = Conditions()
-        self.noise.total                    = Conditions()
-        self.noise.sources                  = Conditions()
-        self.noise.sources.propeller        = Conditions()
-        self.noise.sources.propeller_2      = Conditions()
-        self.noise.sources.rotor            = Conditions()
-        self.noise.sources.turbofan         = Conditions()
-        self.noise.sources.turbofan.fan     = Conditions()
-        self.noise.sources.turbofan.core    = Conditions()
+        self.noise                             = Conditions()
+        self.noise.total                       = Conditions()
+        self.noise.sources                     = Conditions()
+        self.noise.sources.ramjet              = Conditions()
+        self.noise.sources.ramjet.fan          = Conditions()
+        self.noise.sources.scramjet            = Conditions()
+        self.noise.sources.scramjet.fan        = Conditions()
+        self.noise.sources.scramjet.core       = Conditions()        
+        self.noise.sources.ducted_fan          = Conditions()
+        self.noise.sources.ducted_fan.fan      = Conditions()
+        self.noise.sources.liquid_rocket       = Conditions()
+        self.noise.sources.liquid_rocket.core  = Conditions()
+        self.noise.sources.propeller           = Conditions()
+        self.noise.sources.propeller_2         = Conditions()
+        self.noise.sources.rotor               = Conditions()
+        self.noise.sources.turbofan            = Conditions()
+        self.noise.sources.turbofan            = Conditions()
+        self.noise.sources.turbofan.fan        = Conditions()
+        self.noise.sources.turbofan.core       = Conditions()
+        self.noise.sources.turbojet_super      = Conditions()
+        self.noise.sources.turbojet_super.fan  = Conditions()
+        self.noise.sources.turbojet_super.core = Conditions()        

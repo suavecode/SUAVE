@@ -89,11 +89,8 @@ def main():
     
     # Run Fidelity One   
     propeller_noise  = propeller_mid_fidelity(net,prop,noise_data,segment,settings)  
-    SPL_dBA          = propeller_noise.SPL_tot_dBA
-    SPL_Spectrum     = propeller_noise.SPL_tot_bpfs_spectrum
-    conditions.noise.total_SPL_dBA = SPL_dBA 
-    
-    #plot_propeller_noise_contour(conditions)
+    SPL_dBA          = propeller_noise.SPL_dBA
+    SPL_Spectrum     = propeller_noise.SPL_bpfs_spectrum 
     
     # ----------------------------------------------------------------------------------------------------------------------------------------
     #  Experimental Data
@@ -226,22 +223,18 @@ def main():
     #  Regression 
     # ----------------------------------------------------------------------------------------------------------------------------------------     
     SPL_Case_1_60deg_truth = Exp_Test_Case_1_60deg
-    SPL_Case_1_90deg_truth = Exp_Test_Case_1_90deg
-    SPL_Case_2_60deg_truth = Exp_Test_Case_2_60deg
-    SPL_Case_2_90deg_truth = Exp_Test_Case_2_90deg
+    SPL_Case_1_90deg_truth = Exp_Test_Case_1_90deg 
     
     # Store errors 
     error = Data()
     error.SPL_Case_1_60deg  = np.max(np.abs(SUAVE_SPL_Case_1_60deg -SPL_Case_1_60deg_truth))  
-    error.SPL_Case_1_90deg  = np.max(np.abs(SUAVE_SPL_Case_1_90deg -SPL_Case_1_90deg_truth))  
-    error.SPL_Case_2_60deg  = np.max(np.abs(SUAVE_SPL_Case_2_60deg -SPL_Case_2_60deg_truth))  
-    error.SPL_Case_2_90deg  = np.max(np.abs(SUAVE_SPL_Case_2_90deg -SPL_Case_2_90deg_truth))    
+    error.SPL_Case_1_90deg  = np.max(np.abs(SUAVE_SPL_Case_1_90deg -SPL_Case_1_90deg_truth))      
     
     print('Errors:')
     print(error)
     
     for k,v in list(error.items()):
-        assert(np.abs(v)<1E1)
+        assert(np.abs(v)<5E0)
 
     return    
  
