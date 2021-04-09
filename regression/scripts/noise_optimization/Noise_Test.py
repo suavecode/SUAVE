@@ -29,7 +29,7 @@ from Boeing_737 import vehicle_setup, configs_setup
 # ----------------------------------------------------------------------
 def main():
     # New Regression Flag
-    generate_new_truth_data = True  # To be left false unless changing noise model
+    generate_new_truth_data = False  # To be left false unless changing noise model
 
     # Problem Setup
     problem   = setup(generate_new_truth_data)

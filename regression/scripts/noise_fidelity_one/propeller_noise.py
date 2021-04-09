@@ -266,7 +266,7 @@ def design_F8745D4_prop():
     
     ospath                          = os.path.abspath(__file__)
     separator                       = os.path.sep
-    rel_path                        = ospath.split('noise_fidelity_one' + separator + 'isolated_propeller_noise.py')[0] + 'Vehicles' + separator    
+    rel_path                        = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles' + separator    
     prop.airfoil_geometry           = [ rel_path +'Clark_y.txt']
     prop.airfoil_polars             = [[rel_path +'Clark_y_polar_Re_50000.txt' ,rel_path +'Clark_y_polar_Re_100000.txt',rel_path +'Clark_y_polar_Re_200000.txt',
                                         rel_path +'Clark_y_polar_Re_500000.txt',rel_path +'Clark_y_polar_Re_1000000.txt']]
