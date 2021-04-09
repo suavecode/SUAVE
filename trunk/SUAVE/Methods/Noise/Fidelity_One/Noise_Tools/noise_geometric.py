@@ -49,6 +49,7 @@ def noise_geometric(noise_segment,analyses,config,mic_loc = 0):
     altitude        = -noise_segment.conditions.frames.inertial.position_vector[:,2]
     
     s       = position_vector[:,0]
+    s[s==0] = 1E-8
     n_steps = len(altitude)  # number of time steps (space discretization)
        
     if approach == True:
@@ -138,8 +139,7 @@ def noise_geometric(noise_segment,analyses,config,mic_loc = 0):
         # Calculation of the distance vector and emission angles phi and theta
         phi   = np.arctan(y0/altitude)
         dist  = np.sqrt((y0/np.sin(phi))**2+(s-x0)**2)
-        
-        
+
         for i in range(0, n_steps):
             if (s[i]-x0)< 0.:
                 theta[i] = np.arccos(np.abs((x0-s[i])/dist[i]))
@@ -156,6 +156,8 @@ def noise_geometric(noise_segment,analyses,config,mic_loc = 0):
 
         y0 = noise_segment.conditions.noise.microphone_locations[:,mic_loc,1] # position on the y-direction of the sideline microphone (lateral coordinate)
         x0 = noise_segment.conditions.noise.microphone_locations[:,mic_loc,0] # position on the x-direction of the sideline microphone (lateral coordinate)
+        y0[y0==0] = 1E-8
+        x0[x0==0] = 1E-8
 
         estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
         

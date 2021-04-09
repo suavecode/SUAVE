@@ -104,11 +104,7 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
     Altitude               = segment.conditions.freestream.altitude[:,0] 
     AOA                    = np.mean(segment.conditions.aerodynamics.angle_of_attack / Units.deg)
 
-    noise_time             = segment.conditions.frames.inertial.time[:,0]    
-
-    # Calls the function noise_geometric to calculate all the distance and emission angles
-    #geometric = noise_counterplot(segment,config) 
-    noise_geometric(segment,analyses,config)
+    noise_time             = segment.conditions.frames.inertial.time[:,0]
 
     # unpack
     distance_microphone = segment.dist   
@@ -125,8 +121,11 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
     pressure_amb        = np.zeros(nsteps)
     Mach_aircraft       = np.zeros(nsteps)
 
-    #Velocity_primary = np.ones(nsteps)*Velocity_primary_1
-    #Velocity_secondary = np.ones(nsteps)*Velocity_secondary_1
+    if type(Velocity_primary) == float:
+        Velocity_primary    = np.ones(nsteps)*Velocity_primary
+
+    if type(Velocity_secondary) == float:
+        Velocity_secondary  = np.ones(nsteps)*Velocity_secondary
 
     # ==============================================
     # Computing atmospheric conditions
@@ -191,8 +190,9 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
     SPL_mixed_history     = np.zeros((nsteps,num_f))
 
     # Noise history in dBA
-    SPLt_dBA_history = np.zeros((nsteps,num_f))  
-    SPLt_dBA_max = np.zeros(nsteps)     
+    SPLt_dBA         = np.zeros((nsteps,num_f))
+    SPLt_dBA_history = np.zeros((nsteps,num_f))
+    SPLt_dBA_max     = np.zeros(nsteps)
 
     # Start loop for each position of aircraft 
     for id in range(0,nsteps):
@@ -384,9 +384,9 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
         SPL_mixed_history[id][:]     = SPL_m[:]
 
         # Calculation of dBA based on the sound pressure time history
-        SPLt_dBA = dbA_noise(SPL_total)
-        SPLt_dBA_history[i][:] = SPLt_dBA[:]
-        SPLt_dBA_max[i] = max(SPLt_dBA)          
+        SPLt_dBA                = dbA_noise(SPL_total)
+        SPLt_dBA_history[id][:] = dbA_noise(SPL_total)
+        SPLt_dBA_max[id]        = max(SPLt_dBA)
 
     # Calculation of the Perceived Noise Level EPNL based on the sound time history
     PNL_total               =  pnl_noise(SPL_total_history)    
@@ -426,8 +426,8 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
     engine_noise.EPNL_total        = EPNL_total 
     engine_noise.SENEL_total       = SENEL_total
     engine_noise.SPL_spectrum      = SPL_total_history
-    engine_noise.SPL               = SPL_arithmetic(SPL_total_history)
-    engine_noise.SPL_dBA           = SPL_arithmetic(SPLt_dBA)    
+    engine_noise.SPL               = SPL_arithmetic(SPL_total_history,sum_axis=1)
+    engine_noise.SPL_dBA           = SPLt_dBA_max
 
     return engine_noise
 

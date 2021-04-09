@@ -277,9 +277,9 @@ def noise_airframe_Fink(segment,analyses,config,settings,ioprint = 0, filename=0
     # Pack Airframe Noise 
     airframe_noise                   = Data()
     airframe_noise.EPNL_total        = EPNL_total
-    airframe_noise.SPL               = SPL_arithmetic(SPL_total_history)
+    airframe_noise.SPL               = SPL_arithmetic(SPL_total_history, sum_axis= 1)
     airframe_noise.SPL_spectrum      = SPL_total_history
-    airframe_noise.SPL_dBA           = SPL_arithmetic(np.atleast_2d(SPLt_dBA))
+    airframe_noise.SPL_dBA           = SPL_arithmetic(np.atleast_2d(SPLt_dBA), sum_axis= 1)
     airframe_noise.SENEL_total       = SENEL_total 
     airframe_noise.noise_time        = noise_time 
     return airframe_noise

@@ -164,7 +164,7 @@ class Fidelity_One(Noise):
         if 'flap' in config.wings.main_wing.control_surfaces:            
             airframe_noise                = noise_airframe_Fink(segment,analyses,config,settings)  
             source_SPLs_dBA[:,si,:]       = airframe_noise.SPL_dBA          
-            source_SPL_spectra[:,si,:,5:] = airframe_noise.SPL_spectrum
+            source_SPL_spectra[:,si,:,5:] = np.repeat(airframe_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1)
             
         # iterate through sources 
         for source in conditions.noise.sources.keys():  
@@ -175,8 +175,8 @@ class Fidelity_One(Noise):
                         config.propulsors[source].fan_nozzle.noise_speed  = conditions.noise.sources.turbofan.fan.exit_velocity 
                         config.propulsors[source].core_nozzle.noise_speed = conditions.noise.sources.turbofan.core.exit_velocity 
                         engine_noise                                      = noise_SAE(config.propulsors[source],segment,analyses,config,settings)  
-                        source_SPLs_dBA[:,si,:]                           = engine_noise.SPL_dBA      
-                        source_SPL_spectra[:,si,:,5:]                     = engine_noise.SPL_spectrum   
+                        source_SPLs_dBA[:,si,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_mic, axis =1)
+                        source_SPL_spectra[:,si,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1)
                         
                 elif (source  == 'propeller')  or (source   == 'rotor'): 
                     if bool(conditions.noise.sources[source]) == True : 

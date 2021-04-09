@@ -50,6 +50,9 @@ modules = [
     'scripts/cmalpha/cmalpha.py',
     'scripts/cnbeta/cnbeta.py',
     'scripts/concorde/concorde.py',
+    'scripts/electric_performance/propeller_single_point.py',
+    'scripts/electric_performance/electric_V_h_diagram.py',
+    'scripts/electric_performance/electric_payload_range.py',
     'scripts/ducted_fan/ducted_fan_network.py',
     'scripts/ducted_fan/battery_ducted_fan_network.py',
     'scripts/ducted_fan/serial_hybrid_ducted_fan_network.py',
@@ -74,6 +77,7 @@ modules = [
     'scripts/noise_fidelity_zero/DC_10_noise.py', 
     'scripts/noise_fidelity_one/isolated_propeller_noise.py',  
     'scripts/noise_fidelity_one/X57_noise.py',  
+    'scripts/nonuniform_propeller_inflow/nonuniform_propeller_inflow.py',
     'scripts/optimization_packages/optimization_packages.py',
     'scripts/payload_range/payload_range.py',
     'scripts/plots/plot_test.py',
@@ -99,11 +103,7 @@ modules = [
     'scripts/VTOL/test_Multicopter.py',
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
-    'scripts/weights/weights.py',
-    'scripts/electric_performance/propeller_single_point.py',
-    'scripts/electric_performance/electric_V_h_diagram.py',
-    'scripts/electric_performance/electric_payload_range.py',
-    'scripts/nonuniform_propeller_inflow/nonuniform_propeller_inflow.py'
+    'scripts/weights/weights.py'
 ]
 
 # ----------------------------------------------------------------------

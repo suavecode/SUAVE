@@ -2,7 +2,9 @@
 # Vectored_Thrust.py
 # 
 # Created:  Nov 2018, M.Clarke
-#           Mar 2020, M. Clarke
+#           Mar 2020, M.Clarke
+#           Apr 2021, M.Clarke
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -139,7 +141,10 @@ class Vectored_Thrust(Propulsor):
         
         # Run the rotor     
         F, Q, P, Cp , outputs, etap = rotor.spin(conditions)
-            
+
+        # Link
+        rotor.outputs = outputs
+
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]
         P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
@@ -188,17 +193,15 @@ class Vectored_Thrust(Propulsor):
         state_of_charge      = battery.state_of_charge
         
           
-        conditions.propulsion.rpm                             = rpm
-        conditions.propulsion.current                         = current
+        conditions.propulsion.propeller_rpm                   = rpm
         conditions.propulsion.battery_draw                    = battery_draw
         conditions.propulsion.battery_energy                  = battery_energy 
-        conditions.propulsion.voltage_open_circuit            = voltage_open_circuit
-        conditions.propulsion.voltage_under_load              = voltage_under_load  
+        conditions.propulsion.battery_voltage_open_circuit    = voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load      = voltage_under_load
         conditions.propulsion.state_of_charge                 = state_of_charge        
-        conditions.propulsion.motor_torque                    = motor.outputs.torque
+        conditions.propulsion.propeller_motor_torque          = motor.outputs.torque
         conditions.propulsion.propeller_torque                = Q
-        conditions.propulsion.motor_efficiency                = etam
-        conditions.propulsion.acoustic_outputs[rotor.tag]     = outputs
+        conditions.propulsion.propeller_motor_efficiency      = etam
         conditions.propulsion.battery_specfic_power           = -battery_draw/battery.mass_properties.mass #Wh/kg
         conditions.propulsion.electronics_efficiency          = -(P*num_engines)/battery_draw   
         conditions.propulsion.propeller_tip_mach              = (R*rpm*Units.rpm)/a
@@ -210,7 +213,10 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.propeller_efficiency            = etap       
         conditions.propulsion.propeller_thrust_coefficient    = outputs.thrust_coefficient  
         
-        
+        # noise
+        outputs.number_of_engines                             = num_engines
+        conditions.noise.sources.rotor                        = outputs
+
         # Compute force vector       
         F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
         
@@ -282,9 +288,9 @@ class Vectored_Thrust(Propulsor):
         # Here we are going to pack the residuals (torque,voltage) from the network
         
         # Unpack
-        q_motor   = segment.state.conditions.propulsion.motor_torque
+        q_motor   = segment.state.conditions.propulsion.propeller_motor_torque
         q_prop    = segment.state.conditions.propulsion.propeller_torque
-        v_actual  = segment.state.conditions.propulsion.voltage_under_load
+        v_actual  = segment.state.conditions.propulsion.battery_voltage_under_load
         v_predict = segment.state.unknowns.battery_voltage_under_load
         v_max     = self.voltage
         

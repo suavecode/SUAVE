@@ -758,6 +758,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'cruise'
+    config.landing_gear.gear_condition                               = 'up'
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -771,7 +772,7 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Flyover_'
 
-    config.propulsors['turbofan'].fan.rotation     = 3470. #N1 speed
+    config.propulsors['turbofan'].fan.rotation            = 3470. #N1 speed
     config.propulsors['turbofan'].fan_nozzle.noise_speed  = 315.
     config.propulsors['turbofan'].core_nozzle.noise_speed = 415.
 
@@ -788,7 +789,7 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Cutback_'
 
-    config.propulsors['turbofan'].fan.rotation     = 2780. #N1 speed
+    config.propulsors['turbofan'].fan.rotation            = 2780. #N1 speed
     config.propulsors['turbofan'].fan_nozzle.noise_speed  = 210.
     config.propulsors['turbofan'].core_nozzle.noise_speed = 360.
 
