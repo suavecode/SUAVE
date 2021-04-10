@@ -76,7 +76,7 @@ modules = [
     'scripts/noise_optimization/Noise_Test.py', 
     'scripts/noise_fidelity_zero/DC_10_noise.py', 
     'scripts/noise_fidelity_one/propeller_noise.py',  
-    'scripts/noise_fidelity_one/X57_noise.py',  
+    'scripts/noise_fidelity_one/aircraft_noise.py',  
     'scripts/nonuniform_propeller_inflow/nonuniform_propeller_inflow.py',
     'scripts/optimization_packages/optimization_packages.py',
     'scripts/payload_range/payload_range.py',

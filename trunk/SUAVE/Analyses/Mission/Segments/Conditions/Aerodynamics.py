@@ -93,11 +93,11 @@ class Aerodynamics(Basic):
 
         # aerodynamics conditions
         self.aerodynamics = Conditions()        
-        self.aerodynamics.angle_of_attack  = ones_1col * 0
-        self.aerodynamics.side_slip_angle  = ones_1col * 0
-        self.aerodynamics.roll_angle       = ones_1col * 0
-        self.aerodynamics.lift_coefficient = ones_1col * 0
-        self.aerodynamics.drag_coefficient = ones_1col * 0
+        self.aerodynamics.angle_of_attack             = ones_1col * 0
+        self.aerodynamics.side_slip_angle             = ones_1col * 0
+        self.aerodynamics.roll_angle                  = ones_1col * 0
+        self.aerodynamics.lift_coefficient            = ones_1col * 0
+        self.aerodynamics.drag_coefficient            = ones_1col * 0
         self.aerodynamics.lift_breakdown              = Conditions()
         self.aerodynamics.drag_breakdown              = Conditions()
         self.aerodynamics.drag_breakdown.parasite     = Conditions()
@@ -140,9 +140,7 @@ class Aerodynamics(Basic):
         self.noise.sources.liquid_rocket       = Conditions()
         self.noise.sources.liquid_rocket.core  = Conditions()
         self.noise.sources.propeller           = Conditions()
-        self.noise.sources.propeller_2         = Conditions()
         self.noise.sources.rotor               = Conditions()
-        self.noise.sources.turbofan            = Conditions()
         self.noise.sources.turbofan            = Conditions()
         self.noise.sources.turbofan.fan        = Conditions()
         self.noise.sources.turbofan.core       = Conditions()

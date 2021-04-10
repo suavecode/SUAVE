@@ -1,4 +1,4 @@
-# X57_noise.py
+# aircraft_noise.py
 #
 # Created: Arp 2021, M. Clarke 
 
@@ -14,6 +14,7 @@ from SUAVE.Core import Units
 import numpy as np    
 from SUAVE.Core import Data 
 from SUAVE.Plots.Mission_Plots import *   
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 import matplotlib.pyplot as plt 
 
 import sys
@@ -21,7 +22,10 @@ import sys
 sys.path.append('../Vehicles')
 # the analysis functions 
  
-from X57_Maxwell    import vehicle_setup, configs_setup  
+from X57_Maxwell  import vehicle_setup as  X57_vehicle_setup
+from X57_Maxwell  import configs_setup as  X57_configs_setup  
+from Boeing_737   import vehicle_setup as  B737_vehicle_setup 
+from Boeing_737   import configs_setup as  B737_configs_setup 
 
 # ----------------------------------------------------------------------
 #   Main
@@ -29,47 +33,74 @@ from X57_Maxwell    import vehicle_setup, configs_setup
 
 def main():   
     # ----------------------------------------------------------------------
-    # SUAVE Frequecy Domain Propeller Noise Model 
+    # SUAVE Frequecy Domain Propeller Aircraft Noise Model 
     # ---------------------------------------------------------------------- 
-    configs, analyses = full_setup() 
+    configs, analyses = X57_full_setup() 
 
     configs.finalize()
     analyses.finalize()   
     
     # mission analysis
     mission = analyses.missions.base
-    FD_results = mission.evaluate()  
+    X57_results = mission.evaluate()  
     
     # plot the results
-    plot_results(FD_results)  
+    X57_filename = "X57_Noise"
+    plot_results(X57_results,X57_filename)  
     
     # SPL of rotor check during hover
-    FD_SPL        = FD_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
-    FD_SPL_true   = 80.33223391658487
-    print(FD_SPL) 
-    FD_diff_SPL   = np.abs(FD_SPL - FD_SPL_true)
+    X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
+    X57_SPL_true   = 80.33223391658487
+    print(X57_SPL) 
+    X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')
-    print(FD_diff_SPL)
-    assert np.abs((FD_SPL - FD_SPL_true)/FD_SPL_true) < 1e-3    
-    return
+    print(X57_diff_SPL)
+    assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-3    
+    
+    
+    
+    # ----------------------------------------------------------------------
+    # SAE Turbofan Aircraft Noise Model 
+    # ---------------------------------------------------------------------- 
+    configs, analyses = B737_full_setup() 
 
-
+    configs.finalize()
+    analyses.finalize()   
+    
+    # mission analysis
+    mission       = analyses.missions.base
+    B737_results  = mission.evaluate()  
+    
+    # plot the results
+    B737_filename = "B737_Noise"
+    plot_results(B737_results,B737_filename)  
+    
+    # SPL of rotor check during hover
+    B737_SPL        = B737_results.segments.climb.conditions.noise.total_SPL_dBA[3][0]
+    B737_SPL_true   = 56.96076190763407
+    print(B737_SPL) 
+    B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
+    print('SPL difference')
+    print(B737_diff_SPL)
+    assert np.abs((B737_SPL - B737_SPL_true)/B737_SPL_true) < 1e-3    
+    return     
+ 
 # ----------------------------------------------------------------------
 #   Analysis Setup
 # ----------------------------------------------------------------------  
-def full_setup():
+def X57_full_setup():
 
     # vehicle data
-    vehicle  = vehicle_setup()
+    vehicle  = X57_vehicle_setup()
     
     # Set up configs
-    configs  = configs_setup(vehicle)
+    configs  = X57_configs_setup(vehicle)
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs)
 
     # mission analyses
-    mission  = mission_setup(configs_analyses,vehicle)
+    mission  = X57_mission_setup(configs_analyses,vehicle)
     missions_analyses = missions_setup(mission)
 
     analyses = SUAVE.Analyses.Analysis.Container()
@@ -78,6 +109,33 @@ def full_setup():
 
     return configs, analyses
  
+
+# ----------------------------------------------------------------------
+#   Analysis Setup
+# ----------------------------------------------------------------------  
+def B737_full_setup():
+
+    # vehicle data
+    vehicle  = B737_vehicle_setup()
+    vehicle.wings.main_wing.control_surfaces.flap.configuration_type = 'triple_slotted'  
+    vehicle.wings.main_wing.high_lift = True
+    vehicle.wings.main_wing = wing_planform(vehicle.wings.main_wing)
+    
+    # Set up configs
+    configs  = B737_configs_setup(vehicle)
+
+    # vehicle analyses
+    configs_analyses = analyses_setup(configs)
+
+    # mission analyses
+    mission  = B737_mission_setup(configs_analyses)
+    missions_analyses = missions_setup(mission)
+
+    analyses = SUAVE.Analyses.Analysis.Container()
+    analyses.configs  = configs_analyses
+    analyses.missions = missions_analyses
+
+    return configs, analyses 
 
 def base_analysis(vehicle):
 
@@ -168,7 +226,7 @@ def simple_sizing(configs):
 #   Define the Mission
 # ----------------------------------------------------------------------
 
-def mission_setup(analyses,vehicle):  
+def X57_mission_setup(analyses,vehicle):  
     
     # ------------------------------------------------------------------
     #   Initialize the Mission
@@ -218,6 +276,51 @@ def mission_setup(analyses,vehicle):
     
     return mission
 
+def B737_mission_setup(analyses): 
+
+    # ------------------------------------------------------------------
+    #   Initialize the Mission
+    # ------------------------------------------------------------------
+
+    mission = SUAVE.Analyses.Mission.Sequential_Segments()
+    mission.tag = 'the_mission'
+
+    #airport
+    airport = SUAVE.Attributes.Airports.Airport()
+    airport.altitude   =  0.0  * Units.ft
+    airport.delta_isa  =  0.0
+    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+
+    mission.airport = airport    
+
+    # unpack Segments module
+    Segments = SUAVE.Analyses.Mission.Segments
+
+    # base segment
+    base_segment = Segments.Segment() 
+    
+    ones_row     = base_segment.state.ones_row 
+    base_segment.state.numerics.number_control_points = 4
+
+    # ------------------------------------------------------------------
+    #    Climb 1 : Constant Speed Constant Rate  
+    # ------------------------------------------------------------------
+
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb"
+
+    segment.analyses.extend( analyses.takeoff )
+
+    segment.altitude_start = 0.0   * Units.km
+    segment.altitude_end   = 0.05  * Units.km
+    segment.air_speed      = 150   * Units.knots
+    segment.climb_rate     = 10.0  * Units['m/s']
+
+    # add to misison
+    mission.append_segment(segment)
+ 
+    return mission 
+
 def missions_setup(base_mission):
 
     # the mission container
@@ -232,13 +335,13 @@ def missions_setup(base_mission):
     return missions  
 
 
-def plot_results(results):   
+def plot_results(results,filename):   
     
     # Plot noise level
-    plot_noise_level(results)
+    plot_noise_level(results,save_filename = filename)
     
     # Plot noise contour
-    plot_flight_profile_noise_contour(results) 
+    plot_flight_profile_noise_contour(results,save_filename = filename + 'contour') 
                         
     return  
 
