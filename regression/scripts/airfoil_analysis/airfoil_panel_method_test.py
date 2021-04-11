@@ -64,25 +64,30 @@ def main():
     # Validation  
     # ----------------------------------------------- 
     print('\n\nNACA 3310 Validation at 4 deg') 
-    diff_CL = np.abs(airfoil_properties.Cl[4,1] - xfoil_data_1.Cl) 
+    diff_CL           = np.abs(airfoil_properties.Cl[4,1] - xfoil_data_1.Cl) 
+    expected_Cl_error = 0.21281484447415983
     print('\nCL difference')
     print(diff_CL)
-    assert np.abs((airfoil_properties.Cl[4,1]  - xfoil_data_1.Cl)/xfoil_data_1.Cl) < 3e-1
+    assert np.abs((airfoil_properties.Cl[4,1]  - xfoil_data_1.Cl)/xfoil_data_1.Cl) - expected_Cl_error < 1e-6
     
-    diff_CD = np.abs(airfoil_properties.Cd[4,1] - xfoil_data_1.Cd) 
+    diff_CD           = np.abs(airfoil_properties.Cd[4,1] - xfoil_data_1.Cd) 
+    expected_Cd_error = 0.1719841745384137
     print('\nCD difference')
     print(diff_CD)
-    assert np.abs((airfoil_properties.Cd[4,1]  - xfoil_data_1.Cd)/xfoil_data_1.Cd) < 2e-1
+    assert np.abs((airfoil_properties.Cd[4,1]  - xfoil_data_1.Cd)/xfoil_data_1.Cd) - expected_Cd_error < 1e-6
     
-    diff_CM = np.abs(airfoil_properties.Cm[4,1] - xfoil_data_1.Cm) 
+    
+    diff_CM           = np.abs(airfoil_properties.Cm[4,1] - xfoil_data_1.Cm) 
+    expected_Cm_error = 0.385454350005437
     print('\nCM difference')
     print(diff_CM)
-    assert np.abs((airfoil_properties.Cm[4,1]  - xfoil_data_1.Cm)/xfoil_data_1.Cm) < 5e-1 # the CM value at 4 degrees is off
+    assert np.abs((airfoil_properties.Cm[4,1]  - xfoil_data_1.Cm)/xfoil_data_1.Cm) - expected_Cm_error < 1e-6 
    
     diff_CP = np.abs(airfoil_properties.Cp[50,4,1]  - xfoil_data_1.Cp[50]) 
+    expected_Cp_error = 0.05773430375306162
     print('\nCM difference')
     print(diff_CP)
-    assert np.abs((airfoil_properties.Cp[50,4,1]  - xfoil_data_1.Cp[50])/xfoil_data_1.Cp[50]) < 1e-1 
+    assert np.abs((airfoil_properties.Cp[50,4,1]  - xfoil_data_1.Cp[50])/xfoil_data_1.Cp[50]) - expected_Cp_error <  1e-6
     
     return  
  
