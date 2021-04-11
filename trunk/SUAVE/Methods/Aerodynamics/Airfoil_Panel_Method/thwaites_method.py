@@ -47,9 +47,12 @@ def thwaites_method(theta_0, L, Re_L, x_i, Ve_i, dVe_i,n = 200):
     y0          = theta_0**2 * getVe(0,x_i,Ve_i)**6 
     xspan       = np.linspace(0,L,n)  
     theta2_Ve6  = odeint(odefcn, y0, xspan, args=(nu, x_i, Ve_i)) 
-
     x           = np.linspace(0,L,n) 
-    theta       = np.sqrt(theta2_Ve6[:,0]/ getVe(x, x_i, Ve_i)**6)
+    
+    thetav          = np.sqrt(theta2_Ve6[:,0]/ getVe(x, x_i, Ve_i)**6)
+    theta           = thetav
+    idx1            = (abs((thetav[1:] - thetav[:-1])/thetav[:-1]) > 5E-1)
+    theta[1:][idx1] = thetav[:-1][idx1] + 1E-12 
     
     # thwaites separation criteria 
     lambda_val  = theta**2 * getdVe(x,x_i,dVe_i) / nu 
@@ -59,13 +62,12 @@ def thwaites_method(theta_0, L, Re_L, x_i, Ve_i, dVe_i,n = 200):
     Re_theta    = getVe(x,x_i,Ve_i) * theta/ nu
     Re_x        = getVe(x,x_i,Ve_i) * x/ nu
     cf          = getcf(lambda_val ,Re_theta)
-    del_star    = H *theta 
-        
-    # remove non converged points in ODE solver 
-    for i in range(len(del_star)-1): 
-        if (abs((del_star[i+1] - del_star[i])/del_star[i]) > 1E2): 
-            del_star[i+1]  = del_star[i] + 1E-12 
-            
+    del_starv   = H *theta  
+    
+    del_star           = del_starv
+    idx1               = (abs((del_starv[1:] - del_starv[:-1])/del_starv[:-1]) > 5E-1)
+    del_star[1:][idx1] =  del_starv[:-1][idx1] + 1E-12  
+     
     delta       = 5.2*x/np.sqrt(Re_x)
     delta[0]    = 0 
     Re_x[0]     = 1e-12

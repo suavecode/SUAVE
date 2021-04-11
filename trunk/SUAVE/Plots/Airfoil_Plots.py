@@ -85,19 +85,19 @@ def plot_airfoil_properties(ap,line_style= 'k-',arrow_color = 'r',plot_pressure_
         for j in range(nAoA):
             tag = 'AoA: ' + str(round(ap.AoA[j][0]/Units.degrees,2)) + 'deg, Re: ' + str(round(ap.Re[i][0]/1000000,2)) + 'E6'
             # Pressure Coefficient 
-            axis2.plot(ap.x, ap.Cp[:,j,i],color = colors[j], linestyle = '-' ,marker = markers[i], label = tag) 
+            axis2.plot(ap.x, ap.Cp[:,j,i],color = colors[j], linestyle = '-' ,marker = markers[i%9], label = tag) 
             
             # Boundary Layer Edge Velocity 
-            axis3.plot(ap.x, abs(ap.Ue_Vinf)[:,j,i],color = colors[j], linestyle = '-' ,marker =  markers[i], label= tag )
+            axis3.plot(ap.x, abs(ap.Ue_Vinf)[:,j,i],color = colors[j], linestyle = '-' ,marker =  markers[i%9], label= tag )
             
             # Momentum Thickness  
-            axis4.plot(ap.x, ap.theta[:,j,i],color = colors[j], linestyle = '-',marker =  markers[i], label =  tag)  
+            axis4.plot(ap.x, ap.theta[:,j,i],color = colors[j], linestyle = '-',marker =  markers[i%9], label =  tag)  
             
             # Displacement thickenss 
-            axis5.plot(ap.x,ap.delta_star[:,j,i],color = colors[j], linestyle = '-',marker =  markers[i], label =  tag)  
+            axis5.plot(ap.x,ap.delta_star[:,j,i],color = colors[j], linestyle = '-',marker =  markers[i%9], label =  tag)  
     
             # Boundary Layer thickenss 
-            axis6.plot(ap.x,ap.delta[:,j,i],color = colors[j], linestyle = '-',marker =  markers[i], label =  tag)      
+            axis6.plot(ap.x,ap.delta[:,j,i],color = colors[j], linestyle = '-',marker =  markers[i%9], label =  tag)      
             
             if plot_pressure_vectors: 
                 label =  '_AoA_' + str(round(ap.AoA[j][0]/Units.degrees,2)) + '_deg_Re_' + str(round(ap.Re[i][0]/1000000,2)) + 'E6'

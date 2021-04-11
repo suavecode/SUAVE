@@ -21,7 +21,7 @@ from .aero_coeff      import aero_coeff
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 200):
+def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 200, batch_analyis = True ):
     """This computed the aerodynamic polars as well as the boundary lawer properties of 
     an airfoil at a defined set of reynolds numbers and angle of attacks
 
@@ -74,6 +74,12 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     nalpha           = len(alpha)
     nRe              = len(Re_L) 
     
+    if not batch_analyis:
+        if nalpha != nRe:
+            raise AssertionError('Dimension of angle of attacks and Reynolds numbers must be equal')   
+        else:
+            nRe = 1
+            
     airfoil_Cl       = np.zeros((nalpha,nRe))
     airfoil_Cd       = np.zeros_like(airfoil_Cl)
     airfoil_Cm       = np.zeros_like(airfoil_Cl)           
@@ -88,14 +94,20 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     Cf_vals          = np.zeros_like(Cp_vals)
     delta_vals       = np.zeros_like(Cp_vals)
     Re_theta_t_vals  = np.zeros_like(Cp_vals)
-    tr_crit_vals     = np.zeros_like(Cp_vals)
+    tr_crit_vals     = np.zeros_like(Cp_vals)  
     
-     
     for ial in range(nalpha):
         for iRe in range(nRe): 
-            # Find stagnation point             
-            i_stag  = np.where(vt[:,ial,iRe] > 0)[0][0]  
-            
+            # Find stagnation point    
+            if batch_analyis:
+                iRe_     = iRe
+                i_stag   = np.where(vt[:,ial,iRe_] > 0)[0][0]  
+                Re_L_val = Re_L[iRe][0]
+            else:
+                iRe_     = ial
+                i_stag   = np.where(vt[:,ial,iRe_] > 0)[0][0]  
+                Re_L_val = Re_L[ial][0]
+                
             # ---------------------------------------------------------------------
             # Bottom surface of airfoil 
             # ---------------------------------------------------------------------
@@ -106,7 +118,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             x_bot[1:]     = np.cumsum(np.sqrt((x_bot_vals[1:] - x_bot_vals [:-1])**2 + (y_bot[1:] - y_bot[:-1])**2)) 
               
             # flow velocity and pressure of on botton surface 
-            Ve_bot        = -vt[:i_stag,ial,iRe][::-1] # negative because the velocity is measured anti-clockwise around surface 
+            Ve_bot        = -vt[:i_stag,ial,iRe_][::-1] # negative because the velocity is measured anti-clockwise around surface 
             Cp_bot        = 1 - Ve_bot**2  
             
             # velocity gradients on bottom surface 
@@ -120,7 +132,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             L_bot         = x_bot[-1] # x - location of stagnation point 
             
             # laminar boundary layer properties using thwaites method 
-            x_t_bot, theta_t_bot, del_star_t_bot, H_t_bot, cf_t_bot, Re_theta_t_bot, Re_x_t_bot,delta_t_bot= thwaites_method(0.000001, L_bot , Re_L[iRe][0], x_bot, Ve_bot, dVe_bot,n=n_computation)
+            x_t_bot, theta_t_bot, del_star_t_bot, H_t_bot, cf_t_bot, Re_theta_t_bot, Re_x_t_bot,delta_t_bot= thwaites_method(0.000001, L_bot , Re_L_val, x_bot, Ve_bot, dVe_bot,n=n_computation)
             
             # transition location  
             tr_crit_bot     = Re_theta_t_bot - 1.174*(1 + 224000/Re_x_t_bot)*Re_x_t_bot**0.46                
@@ -135,24 +147,16 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             theta_tr_bot    = theta_t_bot[i_tr_bot]    
             delta_tr_bot    = delta_t_bot[i_tr_bot] 
             
-            x_h_bot, theta_h_bot, del_star_h_bot, H_h_bot, cf_h_bot, delta_h_bot = heads_method(delta_tr_bot,theta_tr_bot, del_star_tr_bot, L_bot - x_tr_bot, Re_L[iRe][0], x_bot - x_tr_bot, Ve_bot, dVe_bot,x_tr_bot,n=n_computation )
+            x_h_bot, theta_h_bot, del_star_h_bot, H_h_bot, cf_h_bot, delta_h_bot = heads_method(delta_tr_bot,theta_tr_bot, del_star_tr_bot, L_bot - x_tr_bot,Re_L_val, x_bot - x_tr_bot, Ve_bot, dVe_bot,x_tr_bot,n=n_computation )
   
-            # determine if flow transitions 
-            if i_tr_bot == len(tr_crit_bot)-1:
-                x_bs            = x_t_bot[:i_tr_bot+1] 
-                theta_bot       = theta_t_bot[:i_tr_bot+1]  
-                del_star_bot    = del_star_t_bot[:i_tr_bot+1] 
-                H_bot           = H_t_bot[:i_tr_bot+1]  
-                cf_bot          = cf_t_bot[:i_tr_bot+1] 
-                delta_bot       = delta_t_bot[:i_tr_bot+1] 
-            else:               
-                x_bs            = np.concatenate([x_t_bot[:i_tr_bot], x_h_bot + x_tr_bot] )
-                theta_bot       = np.concatenate([theta_t_bot[:i_tr_bot] ,theta_h_bot] )
-                del_star_bot    = np.concatenate([del_star_t_bot[:i_tr_bot] ,del_star_h_bot] )
-                H_bot           = np.concatenate([H_t_bot[:i_tr_bot] ,H_h_bot] )
-                cf_bot          = np.concatenate([cf_t_bot[:i_tr_bot], cf_h_bot] )
-                delta_bot       = np.concatenate([delta_t_bot[:i_tr_bot], delta_h_bot]) 
-                
+            # determine if flow transitions  
+            x_bs            = np.concatenate([x_t_bot[:i_tr_bot], (x_h_bot + x_tr_bot)[i_tr_bot:]] )
+            theta_bot       = np.concatenate([theta_t_bot[:i_tr_bot] ,theta_h_bot[i_tr_bot:]] )
+            del_star_bot    = np.concatenate([del_star_t_bot[:i_tr_bot] ,del_star_h_bot[i_tr_bot:]] )
+            H_bot           = np.concatenate([H_t_bot[:i_tr_bot] ,H_h_bot[i_tr_bot:]] )
+            cf_bot          = np.concatenate([cf_t_bot[:i_tr_bot], cf_h_bot[i_tr_bot:]] )
+            delta_bot       = np.concatenate([delta_t_bot[:i_tr_bot], delta_h_bot[i_tr_bot:]]) 
+            
             # ---------------------------------------------------------------------
             # Top surface of airfoil 
             # ---------------------------------------------------------------------
@@ -164,7 +168,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             x_top[1:]     = np.cumsum(np.sqrt((x_top_vals[1:] - x_top_vals[:-1])**2 + (y_top[1:] - y_top[:-1])**2))
             
             # flow velocity and pressure on top surface 
-            Ve_top        = vt[i_stag:,ial,iRe]  
+            Ve_top        = vt[i_stag:,ial,iRe_]  
             Cp_top        = 1 - Ve_top**2
             
             # velocity gradients on top surface 
@@ -178,7 +182,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             L_top         = x_top[-1]  
             
             # laminar boundary layer properties using thwaites method 
-            x_t_top, theta_t_top, del_star_t_top, H_t_top, cf_t_top, Re_theta_t_top, Re_x_t_top, delta_t_top = thwaites_method(0.000001,L_top, Re_L[iRe][0], x_top, Ve_top, dVe_top,n=n_computation) 
+            x_t_top, theta_t_top, del_star_t_top, H_t_top, cf_t_top, Re_theta_t_top, Re_x_t_top, delta_t_top = thwaites_method(0.000001,L_top,Re_L_val, x_top, Ve_top, dVe_top,n=n_computation) 
             
             # Mitchel's transition criteria (can often give nonsensical results) 
             tr_crit_top     = Re_theta_t_top - 1.174*(1 + 224000/Re_x_t_top)*Re_x_t_top**0.46     
@@ -193,23 +197,15 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             theta_tr_top    = theta_t_top[i_tr_top]    
             delta_tr_top    = delta_t_top[i_tr_top] 
             
-            x_h_top, theta_h_top, del_star_h_top, H_h_top, cf_h_top, delta_h_top = heads_method(delta_tr_top,theta_tr_top, del_star_tr_top, L_top - x_tr_top, Re_L[iRe][0], x_top - x_tr_top, Ve_top, dVe_top,x_tr_top,n=n_computation)
+            x_h_top, theta_h_top, del_star_h_top, H_h_top, cf_h_top, delta_h_top = heads_method(delta_tr_top,theta_tr_top, del_star_tr_top, L_top - x_tr_top, Re_L_val, x_top - x_tr_top, Ve_top, dVe_top,x_tr_top,n=n_computation)
             
-            # determine if flow transitions 
-            if i_tr_top == len(tr_crit_top)-1:
-                x_ts            = x_t_top[:i_tr_top+1] 
-                theta_top       = theta_t_top[:i_tr_top+1]  
-                del_star_top    = del_star_t_top[:i_tr_top+1] 
-                H_top           = H_t_top[:i_tr_top+1]  
-                cf_top          = cf_t_top[:i_tr_top+1] 
-                delta_top       = delta_t_top[:i_tr_top+1] 
-            else:  
-                x_ts            = np.concatenate([x_t_top[:i_tr_top], x_h_top + x_tr_top])
-                theta_top       = np.concatenate([theta_t_top[:i_tr_top] ,theta_h_top])
-                del_star_top    = np.concatenate([del_star_t_top[:i_tr_top], del_star_h_top])
-                H_top           = np.concatenate([H_t_top[:i_tr_top] ,H_h_top])
-                cf_top          = np.concatenate([cf_t_top[:i_tr_top], cf_h_top])  
-                delta_top       = np.concatenate([delta_t_top[:i_tr_top], delta_h_top]) 
+            # determine if flow transitions  
+            x_ts            = np.concatenate([x_t_top[:i_tr_top], (x_h_top + x_tr_top)[i_tr_top:]])
+            theta_top       = np.concatenate([theta_t_top[:i_tr_top] ,theta_h_top[i_tr_top:]])
+            del_star_top    = np.concatenate([del_star_t_top[:i_tr_top], del_star_h_top[i_tr_top:]])
+            H_top           = np.concatenate([H_t_top[:i_tr_top] ,H_h_top[i_tr_top:]])
+            cf_top          = np.concatenate([cf_t_top[:i_tr_top], cf_h_top[i_tr_top:]])  
+            delta_top       = np.concatenate([delta_t_top[:i_tr_top], delta_h_top[i_tr_top:]]) 
             
             # ---------------------------------------------------------------------
             # Concatenate Upper and Lower Surface Data 
@@ -289,7 +285,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             new_Ve_top        = new_vt[i_stag:,0,0]  
             new_Cp_top        = 1 - new_Ve_top**2
             
-            new_Cp_vals     = np.concatenate([new_Cp_top[::-1],new_Cp_bot])
+            new_Cp_vals       = np.concatenate([new_Cp_top[::-1],new_Cp_bot])
             
             Cl,Cd,Cm = aero_coeff(x_vals,y_vals,new_Cp_vals ,alpha[ial],npanel) 
             
@@ -320,52 +316,4 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
         tr_crit    = tr_crit_vals,     
         )  
     
-    return  airfoil_properties
-
-def compute_boundary_layer_properties(x_surf_vals,x_surf ,Ve_surf,Re_L):  
-    
-    # velocity gradients on bottom surface 
-    dVe_surf       = np.zeros_like(x_surf_vals)
-    dVe_surf_temp  = np.diff(Ve_surf)/np.diff(x_surf_vals)
-    dVe_surf[0]    = dVe_surf_temp[0] 
-    a             = x_surf[1:-2] - x_surf[:-3]
-    b             = x_surf[2:-1] - x_surf[:-3]
-    dVe_surf[1:-2] = (b*dVe_surf_temp[:-2] + a*dVe_surf_temp[1:-1])/(a+b) 
-    dVe_surf[-1]   = dVe_surf_temp[-1]  
-    L_surf         = x_surf[-1] # x - location of stagnation point 
-
-    # laminar boundary layer properties using thwaites method 
-    x_t_surf, theta_t_surf, del_star_t_surf, H_t_surf, cf_t_surf, Re_theta_t_surf, Re_x_t_surf,delta_t_surf= thwaites_method(0.000001, L_surf , Re_L, x_surf, Ve_surf, dVe_surf)
-
-    # transition location  
-    tr_crit_surf     = Re_theta_t_surf - 1.174*(1 + 224000/Re_x_t_surf)*Re_x_t_surf**0.46                
-    tr_loc_vals     = np.where(tr_crit_surf > 0)[0] 
-    if len(tr_loc_vals) == 0:# no transition  
-        i_tr_surf =  len(tr_crit_surf) - 1
-    else: # transition 
-        i_tr_surf = tr_loc_vals[0]     
-
-    x_tr_surf        = x_t_surf[i_tr_surf] 
-    del_star_tr_surf = del_star_t_surf[i_tr_surf] 
-    theta_tr_surf    = theta_t_surf[i_tr_surf]    
-    delta_tr_surf    = delta_t_surf[i_tr_surf] 
-
-    x_h_surf, theta_h_surf, del_star_h_surf, H_h_surf, cf_h_surf, delta_h_surf = heads_method(delta_tr_surf,theta_tr_surf, del_star_tr_surf, L_surf - x_tr_surf, Re_L, x_surf - x_tr_surf, Ve_surf, dVe_surf,x_tr_surf )
-
-    # determine if flow transitions 
-    if i_tr_surf == len(tr_crit_surf)-1:
-        x_surf           = x_t_surf[:i_tr_surf+1] 
-        theta_surf       = theta_t_surf[:i_tr_surf+1]  
-        del_star_surf    = del_star_t_surf[:i_tr_surf+1] 
-        H_surf           = H_t_surf[:i_tr_surf+1]  
-        cf_surf          = cf_t_surf[:i_tr_surf+1] 
-        delta_surf       = delta_t_surf[:i_tr_surf+1] 
-    else:               
-        x_surf           = np.concatenate([x_t_surf[:i_tr_surf], x_h_surf + x_tr_surf] )
-        theta_surf       = np.concatenate([theta_t_surf[:i_tr_surf] ,theta_h_surf] )
-        del_star_surf    = np.concatenate([del_star_t_surf[:i_tr_surf] ,del_star_h_surf] )
-        H_surf           = np.concatenate([H_t_surf[:i_tr_surf] ,H_h_surf] )
-        cf_surf          = np.concatenate([cf_t_surf[:i_tr_surf], cf_h_surf] )
-        delta_surf       = np.concatenate([delta_t_surf[:i_tr_surf], delta_h_surf]) 
-
-    return dVe_surf, x_t_surf, theta_t_surf, del_star_t_surf, H_t_surf, cf_t_surf, Re_theta_t_surf, Re_x_t_surf,delta_t_surf,tr_crit_surf, x_tr_surf,del_star_tr_surf , theta_tr_surf,delta_tr_surf,x_surf,theta_surf, del_star_surf, H_surf,cf_surf,delta_surf   
+    return  airfoil_properties 

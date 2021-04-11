@@ -39,7 +39,12 @@ def main():
     airfoil_geometry   = compute_naca_4series(0.03,0.3,0.1,npoints=npanel )
     
     # Compute Airfoil Aerodynamic and Boundary Layer Properties 
-    airfoil_properties = airfoil_analysis(airfoil_geometry,AoA,Re, npanel)  
+    # Batch Analysis: 
+    airfoil_properties = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, batch_analyis = True )  
+    
+    # Single Condition Analysis:  
+    Re     = np.ones_like(AoA)*5E6  
+    airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, batch_analyis = False )  
     
     # Plot Results 
     plot_airfoil_properties(airfoil_properties,line_style='k-',arrow_color = 'r',plot_pressure_vectors = True)  
@@ -62,22 +67,22 @@ def main():
     diff_CL = np.abs(airfoil_properties.Cl[4,1] - xfoil_data_1.Cl) 
     print('\nCL difference')
     print(diff_CL)
-    assert np.abs((airfoil_properties.Cl[4,1]  - xfoil_data_1.Cl)/xfoil_data_1.Cl) < 5e-1
+    assert np.abs((airfoil_properties.Cl[4,1]  - xfoil_data_1.Cl)/xfoil_data_1.Cl) < 3e-1
     
     diff_CD = np.abs(airfoil_properties.Cd[4,1] - xfoil_data_1.Cd) 
     print('\nCD difference')
     print(diff_CD)
-    assert np.abs((airfoil_properties.Cd[4,1]  - xfoil_data_1.Cd)/xfoil_data_1.Cd) < 5e-1
+    assert np.abs((airfoil_properties.Cd[4,1]  - xfoil_data_1.Cd)/xfoil_data_1.Cd) < 2e-1
     
     diff_CM = np.abs(airfoil_properties.Cm[4,1] - xfoil_data_1.Cm) 
     print('\nCM difference')
     print(diff_CM)
-    assert np.abs((airfoil_properties.Cm[4,1]  - xfoil_data_1.Cm)/xfoil_data_1.Cm) < 5e-1
+    assert np.abs((airfoil_properties.Cm[4,1]  - xfoil_data_1.Cm)/xfoil_data_1.Cm) < 5e-1 # the CM value at 4 degrees is off
    
-    diff_CP = np.abs(airfoil_properties.Cp[40,4,1]  - xfoil_data_1.Cp[40]) 
+    diff_CP = np.abs(airfoil_properties.Cp[50,4,1]  - xfoil_data_1.Cp[50]) 
     print('\nCM difference')
     print(diff_CP)
-    assert np.abs((airfoil_properties.Cp[40,4,1]  - xfoil_data_1.Cp[40])/xfoil_data_1.Cp[40]) < 5e-1 
+    assert np.abs((airfoil_properties.Cp[50,4,1]  - xfoil_data_1.Cp[50])/xfoil_data_1.Cp[50]) < 1e-1 
     
     return  
  

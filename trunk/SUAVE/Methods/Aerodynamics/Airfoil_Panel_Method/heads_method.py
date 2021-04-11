@@ -56,17 +56,17 @@ def heads_method(del_0,theta_0, del_star_0, L, Re_L, x_i, Ve_i, dVe_i,x_tr, n = 
     xspan        = np.linspace(0,L,n)  
     ReL_div_L    = Re_L/L
     y            = odeint(odefcn,y0,xspan,args=(ReL_div_L, x_i, Ve_i, dVe_i)) 
-    theta        = y[:,0] 
-    Ve_theta_H1  = y[:,1]  
+    thetav       = y[:,0] 
+    Ve_theta_H1v = y[:,1]   
     
-    # remove non converged points in ODE solver 
-    for i in range(len(Ve_theta_H1)-1): 
-        if (abs((Ve_theta_H1[i+1] - Ve_theta_H1[i])/Ve_theta_H1[i]) > 5E-1): 
-            Ve_theta_H1[i+1]  = Ve_theta_H1[i] + 1E-12 
+    theta           = thetav
+    idx1            = (abs((thetav[1:] - thetav[:-1])/thetav[:-1]) > 5E-1)
+    theta[1:][idx1] = thetav[:-1][idx1] + 1E-12    
             
-        if (abs((theta[i+1] - theta[i])/theta[i]) > 5E-1): 
-            theta[i+1]  = theta[i] + 1E-12       
-            
+    Ve_theta_H1           = Ve_theta_H1v
+    idx2                  = (abs((Ve_theta_H1v[1:] - Ve_theta_H1v[:-1])/Ve_theta_H1v[:-1]) > 5E-1)
+    Ve_theta_H1[1:][idx2] = Ve_theta_H1v[:-1][idx2] + 1E-12      
+    
     # compute flow properties    
     x            = np.linspace(0,L,n)       
     H1           = Ve_theta_H1/(theta*getVe(x, x_i, Ve_i))
