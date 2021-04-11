@@ -19,7 +19,8 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units, Data 
+from .write_vsp_propeller_bem  import write_vsp_propeller_bem 
 
 try:
     import vsp as vsp
@@ -125,9 +126,9 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         if wing.tag == 'main_wing':
             main_wing_id = wing_id    
     
-    # -------------
+    # ----------------------------------------------------
     # Engines
-    # -------------
+    # ----------------------------------------------------
     ## Skeleton code for props and pylons can be found in previous commits (~Dec 2016) if desired
     ## This was a place to start and may not still be functional    
     
@@ -141,7 +142,17 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         print('Warning: no meshing sources are currently implemented for the nacelle')
         turbofan  = vehicle.propulsors.turbojet
         write_vsp_turbofan(turbofan, OML_set_ind)    
-    
+        
+    if 'propeller' in vehicle.propulsors:
+        print('Writing '+ vehicle.propulsors.propeller.tag+' to .BEM file')
+        vsp_bem_filename = 'propeller'
+        write_vsp_propeller_bem(vsp_bem_filename,vehicle.propulsors.propeller)
+ 
+    if 'rotor' in vehicle.propulsors:
+        print('Writing '+ vehicle.propulsors.rotor.tag+' to .BEM file')
+        vsp_bem_filename = 'rotor'
+        write_vsp_propeller_bem(vsp_bem_filename,vehicle.propulsors.rotor)
+       
     # -------------
     # Fuselage
     # -------------    

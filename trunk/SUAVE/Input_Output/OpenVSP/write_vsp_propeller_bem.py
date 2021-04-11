@@ -1,5 +1,5 @@
 ## @ingroup Input_Output-OpenVSP
-# write_vsp_propeller.py
+# write_vsp_propeller_bem.py
 # 
 # Created: Feb 2021, M. Clarke
 # ----------------------------------------------------------------------
@@ -12,7 +12,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 import numpy as np 
 
 ## @ingroup Input_Output-OpenVSP
-def write_vsp_propeller(vsp_bem_filename,propeller):
+def write_vsp_propeller_bem(vsp_bem_filename,propeller):
     """   This functions writes a .bem file for OpenVSP
 
     Assumptions:

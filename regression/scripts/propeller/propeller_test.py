@@ -11,8 +11,8 @@
 import SUAVE
 from SUAVE.Core                                            import Units
 from SUAVE.Plots.Geometry_Plots                            import plot_propeller
-from SUAVE.Input_Output.OpenVSP.vsp_read_propeller         import vsp_read_propeller
-from SUAVE.Input_Output.OpenVSP.write_vsp_propeller        import write_vsp_propeller
+from SUAVE.Input_Output.OpenVSP.vsp_read_propeller_bem     import vsp_read_propeller_bem
+from SUAVE.Input_Output.OpenVSP.write_vsp_propeller_bem        import write_vsp_propeller_bem
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars  import compute_airfoil_polars 
 import matplotlib.pyplot as plt  
 from SUAVE.Core import (
@@ -86,7 +86,7 @@ def main():
     prop_a                         = propeller_design(prop_a) 
     
     vsp_bem_filename = 'SUAVE_Blade_Test.bem'
-    write_vsp_propeller(vsp_bem_filename,prop_a)    
+    write_vsp_propeller_bem(vsp_bem_filename,prop_a)    
     
     # plot propeller 
     plot_propeller(prop_a)
@@ -149,7 +149,7 @@ def main():
     
     # USING SUAVE-OPENVSP BEM READ FUNCTION
     propeller_filename                  = '../Vehicles/Veldhuis.bem'
-    prop_VSP                            = vsp_read_propeller(propeller_filename) 
+    prop_VSP                            = vsp_read_propeller_bem(propeller_filename) 
     prop_VSP.freestream_velocity        = 50.   
     J                                   = 0.85
     n                                   = prop_VSP.freestream_velocity/(2.*prop_VSP.tip_radius*J)

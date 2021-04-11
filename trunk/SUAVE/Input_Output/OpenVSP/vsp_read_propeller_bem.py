@@ -1,5 +1,5 @@
 ## @ingroup Input_Output-OpenVSP
-# vsp_read_propeller.py
+# vsp_read_propeller_bem.py
 #
 # Created:  Sep 2018, W. Maier
 # Modified: Apr 2021, M. Clarke
@@ -8,14 +8,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Data, Units
+from SUAVE.Core import Data, Units 
 import numpy as np
 
 # ----------------------------------------------------------------------
 #  Reading BEM files
 # ---------------------------------------------------------------------- 
 ## @ingroup Input_Output-OpenVSP
-def vsp_read_propeller(filename):
+def vsp_read_propeller_bem(filename):
     """   This functions reads a .bem file from OpenVSP and saves it in the SUAVE propeller format
 
     Assumptions:
