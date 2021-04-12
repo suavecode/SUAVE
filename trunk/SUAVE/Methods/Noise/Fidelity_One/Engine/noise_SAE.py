@@ -24,8 +24,7 @@ from .secondary_noise_component import secondary_noise_component
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_arithmetic
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise 

@@ -2,6 +2,7 @@
 # 
 # Created:  Nov 2015, Carlos / Tarik
 # Modified: Jun 2016, T. MacDonald
+# Modified: Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -15,18 +16,12 @@ from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
 
-# noise imports 
-from SUAVE.Methods.Noise.Fidelity_One.Airframe    import noise_airframe_Fink
-from SUAVE.Methods.Noise.Fidelity_One.Engine      import noise_SAE 
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_certification_limits
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
-
+# noise imports  
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_certification_limits import noise_certification_limits
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_geometric            import noise_geometric 
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise              import compute_noise
 #
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_coeff import compute_max_lift_coeff
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_coeff    import compute_max_lift_coeff
 # ----------------------------------------------------------------------        
 #   Setup
 # ----------------------------------------------------------------------   
@@ -363,7 +358,7 @@ def noise_sideline(nexus):
     noise_segment                                        = results.sideline.segments.climb 
     noise_settings                                       = nexus.analyses.takeoff.noise.settings
     noise_config                                         = nexus.vehicle_configurations.takeoff
-    noise_analyse                                        = nexus.analyses.takeoff
+    noise_analyses                                       = nexus.analyses.takeoff
     noise_config.engine_flag                             = True
     noise_config.print_output                            = 0
     noise_config.output_file                             = 'Noise_Sideline.dat'
@@ -373,7 +368,7 @@ def noise_sideline(nexus):
     if nexus.npoints_sideline_sign == -1:
         noise_result_takeoff_SL = 500. + nexus.missions.sideline_takeoff.segments.climb.state.numerics.number_control_points
     else:
-        noise_result_takeoff_SL = compute_noise(noise_config,noise_analyse,noise_segment,noise_settings)    
+        noise_result_takeoff_SL = compute_noise(noise_config,noise_analyses,noise_segment,noise_settings)    
     
     nexus.summary.noise = Data()
     nexus.summary.noise.sideline = noise_result_takeoff_SL     
@@ -413,7 +408,7 @@ def noise_flyover(nexus):
     noise_segment                   = results.flyover.segments.cutback
     noise_settings                  = nexus.analyses.takeoff.noise.settings
     noise_config                    = nexus.vehicle_configurations.cutback
-    noise_config.print_output       = 0
+    noise_config.print_output       = 1
     noise_config.engine_flag        = True
     noise_config.output_file        = 'Noise_Flyover_cutback.dat'
     noise_config.output_file_engine = 'Noise_Flyover_cutback_Engine.dat'
@@ -448,7 +443,7 @@ def noise_approach(nexus):
     noise_settings = nexus.analyses.landing.noise.settings
     noise_config   = nexus.vehicle_configurations.landing
     
-    noise_config.engine_flag = True
+    noise_config.engine_flag        = True
     noise_config.print_output       = 0
     noise_config.output_file        = 'Noise_Approach.dat'
     noise_config.output_file_engine = 'Noise_Approach_Engine.dat'
@@ -458,29 +453,7 @@ def noise_approach(nexus):
     nexus.summary.noise.approach = noise_result_approach
     
     return nexus
-
-# ----------------------------------------------------------------------        
-#   NOISE CALCULATION
-# ----------------------------------------------------------------------
-def compute_noise(config,analyses,noise_segment,noise_settings):
-
-    turbofan = config.propulsors['turbofan']
-    
-    outputfile        = config.output_file
-    outputfile_engine = config.output_file_engine
-    print_output      = config.print_output
-    engine_flag       = config.engine_flag  #remove engine noise component from the approach segment
-
-    geometric         = noise_geometric(noise_segment,analyses,config)
-
-    airframe_noise    = noise_airframe_Fink(noise_segment,analyses,config,noise_settings,print_output,outputfile)
-
-    engine_noise      = noise_SAE(turbofan,noise_segment,analyses,config,noise_settings,print_output,outputfile_engine)
-
-    noise_sum         = 10. * np.log10(10**(airframe_noise.EPNL_total/10)+ (engine_flag)*10**(engine_noise.EPNL_total/10))
-
-    return noise_sum
-
+ 
 # ----------------------------------------------------------------------        
 #   Weights
 # ----------------------------------------------------------------------    

@@ -751,14 +751,14 @@ def configs_setup(vehicle):
 
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
+    base_config.landing_gear.gear_condition                               = 'up'
     configs.append(base_config)
 
     # ------------------------------------------------------------------
     #   Cruise Configuration
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'cruise'
-    config.landing_gear.gear_condition                               = 'up'
+    config.tag = 'cruise' 
     configs.append(config)
 
     # ------------------------------------------------------------------

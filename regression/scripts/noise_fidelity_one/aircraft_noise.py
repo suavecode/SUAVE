@@ -15,6 +15,11 @@ import numpy as np
 from SUAVE.Core import Data 
 from SUAVE.Plots.Mission_Plots import *   
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
+from SUAVE.Methods.Noise.Certification import sideline_noise
+from SUAVE.Methods.Noise.Certification import flyover_noise 
+from SUAVE.Methods.Noise.Certification import approach_noise
+
+
 import matplotlib.pyplot as plt 
 
 import sys
@@ -36,28 +41,55 @@ def main():
     # SUAVE Frequecy Domain Propeller Aircraft Noise Model 
     # ---------------------------------------------------------------------- 
     configs, analyses = X57_full_setup() 
-
+ 
     configs.finalize()
     analyses.finalize()   
     
     # mission analysis
     mission = analyses.missions.base
-    X57_results = mission.evaluate()  
+    X57_FD_results = mission.evaluate()  
     
     # plot the results
-    X57_filename = "X57_Noise"
-    plot_results(X57_results,X57_filename)  
+    X57_filename = "X57_FD_Noise"
+    plot_results(X57_FD_results,X57_filename)  
     
     # SPL of rotor check during hover
-    X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
-    X57_SPL_true   = 80.33223391658487
-    print(X57_SPL) 
-    X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
+    print('\n\n SUAVE Frequecy Domain Propeller Aircraft Noise Model')
+    X57_SPL_FD        = X57_FD_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
+    X57_SPL_FD_true   = 80.33223391658487
+    print(X57_SPL_FD) 
+    X57_diff_SPL_FD   = np.abs(X57_SPL_FD - X57_SPL_FD_true)
     print('SPL difference')
-    print(X57_diff_SPL)
-    assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-3    
+    print(X57_diff_SPL_FD)
+    assert np.abs((X57_SPL_FD - X57_SPL_FD_true)/X57_SPL_FD_true) < 1e-6    
     
     
+    # ----------------------------------------------------------------------
+    # SAE Propeller Aircraft Noise Model 
+    # ---------------------------------------------------------------------- 
+    configs, analyses = X57_full_setup() 
+
+    analyses.configs.base.noise.settings.propeller_SAE_noise_model = True
+    configs.finalize()
+    analyses.finalize()   
+    
+    # mission analysis
+    mission = analyses.missions.base
+    X57_SAE_results = mission.evaluate()  
+    
+    # plot the results
+    X57_filename = "X57_SAE_Noise"
+    plot_results(X57_SAE_results,X57_filename)  
+    
+    # SPL of rotor check during hover
+    print('\n\n SAE Propeller Aircraft Noise Model')
+    X57_SPL_SAE        = X57_SAE_results.segments.ica.conditions.noise.total_SPL_dBA[3][0] 
+    X57_SPL_SAE_true   = 41.66881440384027
+    print(X57_SPL_SAE) 
+    X57_diff_SPL_SAE   = np.abs(X57_SPL_SAE - X57_SPL_SAE_true)
+    print('SPL difference')
+    print(X57_diff_SPL_SAE)
+    assert np.abs((X57_SPL_SAE - X57_SPL_SAE_true)/X57_SPL_SAE_true) < 1e-6    
     
     # ----------------------------------------------------------------------
     # SAE Turbofan Aircraft Noise Model 
@@ -71,18 +103,20 @@ def main():
     mission       = analyses.missions.base
     B737_results  = mission.evaluate()  
     
-    # plot the results
-    B737_filename = "B737_Noise"
-    plot_results(B737_results,B737_filename)  
+    # certification calculations  
+    sideline_SPL  = sideline_noise(analyses,configs) 
+    flyover_SPL   = flyover_noise(analyses,configs)  
+    approach_SPL  = approach_noise(analyses,configs) 
     
     # SPL of rotor check during hover
-    B737_SPL        = B737_results.segments.climb.conditions.noise.total_SPL_dBA[3][0]
-    B737_SPL_true   = 56.96076190763407
+    print('\n\n SAE Turbofan Aircraft Noise Model')
+    B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
+    B737_SPL_true   = 24.65512587701436
     print(B737_SPL) 
     B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
     print('SPL difference')
     print(B737_diff_SPL)
-    assert np.abs((B737_SPL - B737_SPL_true)/B737_SPL_true) < 1e-3    
+    assert np.abs((B737_SPL - B737_SPL_true)/B737_SPL_true) < 1e-6    
     return     
  
 # ----------------------------------------------------------------------
@@ -101,7 +135,7 @@ def X57_full_setup():
 
     # mission analyses
     mission  = X57_mission_setup(configs_analyses,vehicle)
-    missions_analyses = missions_setup(mission)
+    missions_analyses = X57_missions_setup(mission)
 
     analyses = SUAVE.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
@@ -129,7 +163,7 @@ def B737_full_setup():
 
     # mission analyses
     mission  = B737_mission_setup(configs_analyses)
-    missions_analyses = missions_setup(mission)
+    missions_analyses = B737_missions_setup(mission,configs_analyses )
 
     analyses = SUAVE.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
@@ -166,7 +200,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Noise Analysis
     noise = SUAVE.Analyses.Noise.Fidelity_One()   
-    noise.geometry = vehicle 
+    noise.geometry = vehicle  
     analyses.append(noise)
 
     # ------------------------------------------------------------------
@@ -277,13 +311,12 @@ def X57_mission_setup(analyses,vehicle):
     return mission
 
 def B737_mission_setup(analyses): 
-
     # ------------------------------------------------------------------
     #   Initialize the Mission
     # ------------------------------------------------------------------
 
     mission = SUAVE.Analyses.Mission.Sequential_Segments()
-    mission.tag = 'the_mission'
+    mission.tag = 'base_mission'
 
     #airport
     airport = SUAVE.Attributes.Airports.Airport()
@@ -297,31 +330,174 @@ def B737_mission_setup(analyses):
     Segments = SUAVE.Analyses.Mission.Segments
 
     # base segment
-    base_segment = Segments.Segment() 
-    
-    ones_row     = base_segment.state.ones_row 
-    base_segment.state.numerics.number_control_points = 4
+    base_segment = Segments.Segment()
+
 
     # ------------------------------------------------------------------
-    #    Climb 1 : Constant Speed Constant Rate  
+    #   First Climb Segment: constant Mach, constant segment angle 
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "climb"
+    segment.tag = "climb_1"
 
     segment.analyses.extend( analyses.takeoff )
+    
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 5. * Units.deg      
 
-    segment.altitude_start = 0.0   * Units.km
-    segment.altitude_end   = 0.05  * Units.km
-    segment.air_speed      = 150   * Units.knots
-    segment.climb_rate     = 10.0  * Units['m/s']
+    segment.altitude_start = 0.001   * Units.km
+    segment.altitude_end   = 3.0   * Units.km
+    segment.air_speed      = 125.0 * Units['m/s']
+    segment.climb_rate     = 6.0   * Units['m/s']
 
     # add to misison
     mission.append_segment(segment)
- 
+
+
+    # ------------------------------------------------------------------
+    #   Second Climb Segment: constant Speed, constant segment angle 
+    # ------------------------------------------------------------------    
+
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb_2"
+
+    segment.analyses.extend( analyses.cutback )
+
+    segment.altitude_end   = 8.0   * Units.km
+    segment.air_speed      = 190.0 * Units['m/s']
+    segment.climb_rate     = 6.0   * Units['m/s']
+
+    # add to mission
+    mission.append_segment(segment)
+
+
+    # ------------------------------------------------------------------
+    #   Third Climb Segment: constant Mach, constant segment angle 
+    # ------------------------------------------------------------------    
+
+    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "climb_3"
+
+    segment.analyses.extend( analyses.base )
+
+    segment.altitude_end = 10.668 * Units.km
+    segment.air_speed    = 226.0  * Units['m/s']
+    segment.climb_rate   = 3.0    * Units['m/s']
+
+    # add to mission
+    mission.append_segment(segment)
+
+
+    # ------------------------------------------------------------------    
+    #   Cruise Segment: constant speed, constant altitude
+    # ------------------------------------------------------------------    
+
+    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    segment.tag = "cruise"
+
+    segment.analyses.extend( analyses.base )
+
+    segment.air_speed  = 230.412 * Units['m/s']
+    segment.distance   = (3933.65 + 770 - 92.6) * Units.km
+
+    # add to mission
+    mission.append_segment(segment)
+
+
+    # ------------------------------------------------------------------
+    #   First Descent Segment: consant speed, constant segment rate
+    # ------------------------------------------------------------------
+
+    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "descent_1"
+
+    segment.analyses.extend( analyses.base )
+
+    segment.altitude_end = 8.0   * Units.km
+    segment.air_speed    = 220.0 * Units['m/s']
+    segment.descent_rate = 4.5   * Units['m/s']
+
+    # add to mission
+    mission.append_segment(segment)
+
+
+    # ------------------------------------------------------------------
+    #   Second Descent Segment: consant speed, constant segment rate
+    # ------------------------------------------------------------------
+
+    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "descent_2"
+
+    segment.analyses.extend( analyses.base )
+
+    segment.altitude_end = 6.0   * Units.km
+    segment.air_speed    = 195.0 * Units['m/s']
+    segment.descent_rate = 5.0   * Units['m/s']
+
+    # add to mission
+    mission.append_segment(segment)
+
+
+    # ------------------------------------------------------------------
+    #   Third Descent Segment: consant speed, constant segment rate
+    # ------------------------------------------------------------------
+
+    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "descent_3"
+
+    segment.analyses.extend( analyses.base )
+
+    segment.altitude_end = 4.0   * Units.km
+    segment.air_speed    = 170.0 * Units['m/s']
+    segment.descent_rate = 5.0   * Units['m/s']
+
+    # add to mission
+    mission.append_segment(segment)
+
+
+    # ------------------------------------------------------------------
+    #   Fourth Descent Segment: consant speed, constant segment rate
+    # ------------------------------------------------------------------
+
+    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "descent_4"
+
+    segment.analyses.extend( analyses.base )
+
+    segment.altitude_end = 2.0   * Units.km
+    segment.air_speed    = 150.0 * Units['m/s']
+    segment.descent_rate = 5.0   * Units['m/s']
+
+
+    # add to mission
+    mission.append_segment(segment)
+
+
+
+    # ------------------------------------------------------------------
+    #   Fifth Descent Segment: consant speed, constant segment rate
+    # ------------------------------------------------------------------
+
+    segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
+    segment.tag = "descent_5"
+
+    segment.analyses.extend( analyses.landing)
+
+    segment.altitude_end = 0.0   * Units.km
+    segment.air_speed    = 145.0 * Units['m/s']
+    segment.descent_rate = 3.0   * Units['m/s']
+
+
+    # append to mission
+    mission.append_segment(segment)
+
+    # ------------------------------------------------------------------
+    #   Mission definition complete    
+    # ------------------------------------------------------------------
+
     return mission 
 
-def missions_setup(base_mission):
+def X57_missions_setup(base_mission):
 
     # the mission container
     missions = SUAVE.Analyses.Mission.Mission.Container()
@@ -334,6 +510,141 @@ def missions_setup(base_mission):
     # done!
     return missions  
 
+
+
+def B737_missions_setup(base_mission,analyses):
+
+    # the mission container
+    missions = SUAVE.Analyses.Mission.Mission.Container()
+
+    # ------------------------------------------------------------------
+    #   Base Mission
+    # ------------------------------------------------------------------ 
+    missions.base = base_mission
+
+
+    # ------------------------------------------------------------------
+    #   Mission for Constrained Fuel
+    # ------------------------------------------------------------------    
+    fuel_mission           = SUAVE.Analyses.Mission.Mission() 
+    fuel_mission.tag       = 'fuel'
+    fuel_mission.range     = 1277. * Units.nautical_mile
+    fuel_mission.payload   = 19000.
+    missions.append(fuel_mission)    
+
+
+    # ------------------------------------------------------------------
+    #   Mission for Constrained Short Field
+    # ------------------------------------------------------------------    
+    short_field            = SUAVE.Analyses.Mission.Mission(base_mission) 
+    short_field.tag        = 'short_field'  
+    
+    airport                = SUAVE.Attributes.Airports.Airport()
+    airport.altitude       =  0.0  * Units.ft
+    airport.delta_isa      =  0.0
+    airport.atmosphere     = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    airport.available_tofl = 1500.
+    short_field.airport    = airport    
+    missions.append(short_field)
+    
+    
+    # ------------------------------------------------------------------
+    #   Mission for Fixed Payload
+    # ------------------------------------------------------------------    
+    payload         = SUAVE.Analyses.Mission.Mission()  
+    payload.tag     = 'payload'
+    payload.range   = 2316. * Units.nautical_mile
+    payload.payload = 19000.
+    missions.append(payload)
+
+    
+    # ------------------------------------------------------------------
+    #   Mission for Takeoff Noise
+    # ------------------------------------------------------------------    
+    takeoff                           = SUAVE.Analyses.Mission.Sequential_Segments()
+    takeoff.tag                       = 'takeoff'   
+                                      
+    # airport                          
+    airport                           = SUAVE.Attributes.Airports.Airport()
+    airport.altitude                  =  0.0  * Units.ft
+    airport.delta_isa                 =  0.0
+    airport.atmosphere                = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    takeoff.airport                   = airport    
+
+    # unpack Segments module
+    Segments                          = SUAVE.Analyses.Mission.Segments 
+    base_segment                      = Segments.Segment()  
+    atmosphere                        = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
+    planet                            = SUAVE.Attributes.Planets.Earth() 
+    
+    # Climb Segment: Constant throttle, constant speed
+    segment                           = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
+    segment.tag                       = "climb"    
+    segment.analyses.extend(analyses.base ) 
+    segment.atmosphere                = atmosphere    
+    segment.planet                    = planet 
+    segment.altitude_start            =  35. *  Units.fts
+    segment.altitude_end              = 304.8 *  Units.meter
+    segment.air_speed                 = 85.4 * Units['m/s']
+    segment.throttle                  = 1.  
+    ones_row                          = segment.state.ones_row  
+    takeoff.append_segment(segment)
+
+    # Cutback Segment: Constant speed, constant segment angle
+    segment                           = Segments.Climb.Constant_Speed_Constant_Angle(base_segment)
+    segment.tag                       = "cutback"   
+    segment.atmosphere                = atmosphere    
+    segment.planet                    = planet     
+    segment.analyses.extend(analyses.base )
+    segment.air_speed                 = 85.4 * Units['m/s']
+    segment.climb_angle               = 2.86  * Units.degrees 
+    takeoff.append_segment(segment)  
+    
+    # append mission 
+    missions.append(takeoff)
+
+    # ------------------------------------------------------------------
+    #   Mission for Sideline Noise
+    # ------------------------------------------------------------------     
+    sideline_takeoff                  = SUAVE.Analyses.Mission.Sequential_Segments()
+    sideline_takeoff.tag              = 'sideline_takeoff'   
+    sideline_takeoff.airport          = airport  
+    segment                           = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
+    segment.tag                       = "climb"    
+    segment.analyses.extend(analyses.base)
+    segment.atmosphere                = atmosphere    
+    segment.planet                    = planet     
+    segment.altitude_start            =  35. *  Units.fts
+    segment.altitude_end              = 1600 *  Units.fts
+    segment.air_speed                 = 85.4 * Units['m/s']
+    segment.throttle                  = 1.  
+    ones_row                          = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 12. * Units.deg  
+    segment.state.unknowns.wind_angle = ones_row(1) * 5. * Units.deg  
+    sideline_takeoff.append_segment(segment)   
+    
+    missions.append(sideline_takeoff)
+    
+    # -------------------   -----------------------------------------------
+    #   Mission for Landing Noise
+    # ------------------------------------------------------------------    
+    landing                           = SUAVE.Analyses.Mission.Sequential_Segments()
+    landing.tag                       = 'landing'   
+    landing.airport                   = airport      
+    segment                           = Segments.Descent.Constant_Speed_Constant_Angle(base_segment)
+    segment.tag                       = "descent"
+    segment.analyses.extend(analyses.base ) 
+    segment.atmosphere                = atmosphere    
+    segment.planet                    = planet     
+    segment.altitude_start            = 2.0   * Units.km
+    segment.altitude_end              = 0.
+    segment.air_speed                 = 67. * Units['m/s']
+    segment.descent_angle             = 3.0   * Units.degrees  
+    landing.append_segment(segment)
+        
+    missions.append(landing)
+    
+    return missions  
 
 def plot_results(results,filename):   
     

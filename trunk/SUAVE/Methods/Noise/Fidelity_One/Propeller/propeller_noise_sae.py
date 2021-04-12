@@ -16,8 +16,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import pnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_tone_correction
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import epnl_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import atmospheric_attenuation
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
-from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_counterplot
+from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric 
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import senel_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import dbA_noise
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import print_propeller_output 
@@ -57,8 +56,9 @@ def propeller_noise_sae(network,propeller,acoustic_outputs,segment,settings ,iop
     n_propellers = network.number_of_engines 
     HP           = acoustic_outputs.power  / Units.horsepower
     RPM          = acoustic_outputs.omega  / Units.rpm
-    speed        = acoustic_outputs.velocity/ Units.fts
-    sound_speed  = conditions.freestream.sound_speed / Units.fts
+    speed        = np.linalg.norm(acoustic_outputs.velocity,axis = 1)/ Units.fts
+    sound_speed  = conditions.freestream.speed_of_sound / Units.fts
+    spectra_dim  = len(settings.center_frequencies)
     dist         = segment.dist
     theta        = segment.theta / Units.degrees
      
@@ -85,6 +85,7 @@ def propeller_noise_sae(network,propeller,acoustic_outputs,segment,settings ,iop
     FL3_2      = np.zeros(nsteps)
     DI         = np.zeros(nsteps)
     PNL_factor = np.zeros(nsteps)
+    OASPL      = np.zeros(nsteps)
     PNL        = np.zeros(nsteps)
     PNL_dBA    = np.zeros(nsteps)
   
@@ -166,39 +167,31 @@ def propeller_noise_sae(network,propeller,acoustic_outputs,segment,settings ,iop
             return (0,0,0)
         
         # ****************** CALCULATION OF NOISE LEVELS *********************        
-        OASPL = FL1[id]+FL2+FL3_2[id]+DI[id]+NC
-        PNL[id] = OASPL + PNL_factor[id]
+        OASPL[id]   = FL1[id]+FL2+FL3_2[id]+DI[id]+NC
+        PNL[id]     = OASPL[id] + PNL_factor[id]
         PNL_dBA[id] = PNL[id] - 14 
-        # *********************** END OF LOOP  *******************************          
-    
-    # Calculation of the tones corrections on the SPL for each component and total
-    tone_correction_total     = noise_tone_correction(OASPL)  
+        # *********************** END OF LOOP  *******************************           
     
     # Calculation of the PLNT for each component and total
-    PNLT_total     = PNL + tone_correction_total 
+    PNLT_total     = PNL  
     
     # Calculation of the EPNL for each component and total
     EPNL_total     = epnl_noise(PNLT_total) 
     
     # Calculation of the SENEL total
-    SENEL_total    = senel_noise( max(OASPL))
-    
-    # Effective Perceived Noise Level for takeoff and landing:
-    EPNdB_takeoff = np.max(PNL) - 4
-    EPNdB_landing = np.max(PNL) - 2
+    SENEL_total    = senel_noise(OASPL) 
      
     # Write output file 
     if ioprint: 
         print_propeller_output(speed,nsteps,time,altitude, RPM,theta ,dist ,PNL,PNL_dBA)
         
     # Pack Results 
-    acoustic_outputs.PNL_dBA_max   = np.max(PNL_dBA)
-    acoustic_outputs.EPNdB_takeoff = EPNdB_takeoff
-    acoustic_outputs.EPNdB_landing = EPNdB_landing
-    acoustic_outputs.OASPL         = OASPL
+    acoustic_outputs.PNL_dBA_max   = np.max(PNL_dBA) 
     acoustic_outputs.EPNL_total    = EPNL_total   
-    acoustic_outputs.SENEL_total   = SENEL_total      
-        
+    acoustic_outputs.SENEL_total   = SENEL_total       
+    acoustic_outputs.SPL_dBA       = OASPL
+    acoustic_outputs.SPL_spectrum  = np.zeros((nsteps,spectra_dim))
+    
     return acoustic_outputs
 
 
