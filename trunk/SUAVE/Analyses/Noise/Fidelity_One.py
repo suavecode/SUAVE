@@ -75,9 +75,9 @@ class Fidelity_One(Noise):
         settings.sideline                        = False
         settings.print_noise_output              = False 
         settings.mic_x_position                  = 0    
-        microphone_array                         = 9
-        settings.ground_microphone_phi_angles    = np.linspace(270,210,microphone_array)*Units.degrees - 1E-8 
-        settings.ground_microphone_theta_angles  = np.linspace(30,150,microphone_array)*Units.degrees  + 1E-8 
+        settings.microphone_array_dimension      = 9
+        settings.ground_microphone_phi_angles    = np.linspace(270,210,settings.microphone_array_dimension)*Units.degrees - 1E-8 
+        settings.ground_microphone_theta_angles  = np.linspace(30,150,settings.microphone_array_dimension)*Units.degrees  + 1E-8 
         settings.center_frequencies              = np.array([16,20,25,31.5,40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, \
                                                              500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150,
                                                              4000, 5000, 6300, 8000, 10000])        

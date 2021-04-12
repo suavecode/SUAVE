@@ -17,7 +17,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
-def noise_geometric(noise_segment,analyses,config,mic_loc = 0):
+def noise_geometric(noise_segment,analyses,config):
     """ This computes the geometric parameters for the noise tools: distance and emission angles for 
     both polar and azimuthal angles.
      
@@ -113,10 +113,8 @@ def noise_geometric(noise_segment,analyses,config,mic_loc = 0):
         #-------------------SIDELINE CALCULATION-----------------
         #--------------------------------------------------------        
         
-        theta = np.zeros(n_steps) 
-
-        y0 = 450.  # position on the y-direction of the sideline microphone (lateral coordinate)
-        
+        theta = np.zeros(n_steps)  
+        y0    = 450.  # position on the y-direction of the sideline microphone (lateral coordinate) 
 
         estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
         
@@ -152,18 +150,21 @@ def noise_geometric(noise_segment,analyses,config,mic_loc = 0):
         #-------------------ARBITRARY LOCATION -----------------
         #--------------------------------------------------------        
 
-        theta = np.zeros(n_steps) 
-
-        y0 = noise_segment.conditions.noise.microphone_locations[:,mic_loc,1] # position on the y-direction of the sideline microphone (lateral coordinate)
-        x0 = noise_segment.conditions.noise.microphone_locations[:,mic_loc,0] # position on the x-direction of the sideline microphone (lateral coordinate)
+        theta     = np.zeros(n_steps)  
+        
+        # microphone location chosen perpendicular to first control point to the segment 
+        # at an azimuth (lateral) angle of 60 degrees from beneath aircraft 
+        mic_loc   = int(analyses.noise.settings.microphone_array_dim**2/2)  
+        y0        = noise_segment.conditions.noise.microphone_locations[0,-1,1]      # position on the y-direction of the sideline microphone (lateral coordinate)
+        x0        = noise_segment.conditions.noise.microphone_locations[0,mic_loc,0] # position on the x-direction of the sideline microphone (lateral coordinate)
         y0[y0==0] = 1E-8
         x0[x0==0] = 1E-8
 
         estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
         
-        # Calculation of the distance vector and emission angles phi and theta
-        phi   = np.arctan(y0/altitude)
-        dist  = np.sqrt((y0/np.sin(phi))**2+(s-x0)**2)
+        # Calculation of the distance vector and emission angles phi and theta 
+        phi      = np.arctan(y0/altitude)
+        dist     = np.sqrt((y0/np.sin(phi))**2+(s-x0)**2)
 
         for i in range(0, n_steps):
             if (s[i]-x0[i]) < 0.:
