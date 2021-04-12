@@ -48,7 +48,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
         settings.number_spanwise_vortices  = 25
         settings.number_chordwise_vortices = 5
         settings.spanwise_cosine_spacing   = False 
-        settings.model_fuselage            = True 
+        settings.model_fuselage            = False
         VD = generate_wing_vortex_distribution(vehicle,settings)  
         
     # initalize figure 

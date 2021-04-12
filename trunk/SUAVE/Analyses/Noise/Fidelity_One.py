@@ -170,7 +170,7 @@ class Fidelity_One(Noise):
                     
                     if bool(conditions.noise.sources[source].fan) and bool(conditions.noise.sources[source].core): 
                                               
-                        config.propulsors[source].fan.rotation            = 0 # NEED TO UPDATE ENGINE MODEL WITH FAN SPEED in RPM
+                        config.propulsors[source].fan.rotation            = 0 # FUTURE WORK: NEED TO UPDATE ENGINE MODEL WITH FAN SPEED in RPM
                         config.propulsors[source].fan_nozzle.noise_speed  = conditions.noise.sources.turbofan.fan.exit_velocity 
                         config.propulsors[source].core_nozzle.noise_speed = conditions.noise.sources.turbofan.core.exit_velocity
                         engine_noise                                      = noise_SAE(config.propulsors[source],segment,analyses,config,settings,ioprint = print_flag)  

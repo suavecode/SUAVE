@@ -7,6 +7,7 @@
 #           Mar 2020, M. Clarke
 #           Sep 2020, M. Clarke 
 #           Mar 2021, R. Erhard
+#           Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -119,7 +120,7 @@ class Propeller(Energy_Component):
            lift_coefficient                  [-]
            omega                             [rad/s]
            disc_circulation                  [-] 
-           blade_dT_dR                       [N/m]
+           blade_dQ_dR                       [N/m]
            blade_dT_dr                       [N]
            blade_thrust_distribution         [N]
            disc_thrust_distribution          [N]

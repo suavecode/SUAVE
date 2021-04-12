@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_polars \
-     import import_airfoil_polars
+import import_airfoil_polars
 import os
 import numpy as np
 
@@ -24,7 +24,7 @@ import numpy as np
 def main():   
     ospath    = os.path.abspath(__file__)
     separator = os.path.sep
-    rel_path  = ospath.split('airfoil_import' + separator + 'airfoil_import_test.py')[0] + 'Vehicles' + separator
+    rel_path  = ospath.split('airfoil_import' + separator + 'airfoil_import_test.py')[0] + 'Vehicles/Airfoils' + separator
     airfoil_polar_names  =  [[rel_path + 'NACA_4412_polar_Re_50000.txt',
                               rel_path + 'NACA_4412_polar_Re_100000.txt',
                               rel_path + 'NACA_4412_polar_Re_200000.txt',

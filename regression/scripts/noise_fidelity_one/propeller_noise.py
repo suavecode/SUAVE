@@ -6,7 +6,7 @@ from SUAVE.Core import Units, Data
 from SUAVE.Components.Energy.Networks.Battery_Propeller                                   import Battery_Propeller 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars  import compute_airfoil_polars
 from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity                    import propeller_mid_fidelity
-from SUAVE.Analyses.Mission.Segments.Conditions                                           import Aerodynamics
+from SUAVE.Analyses.Mission.Segments.Conditions                                           import Aerodynamics , Conditions
 from SUAVE.Analyses.Mission.Segments.Segment                                              import Segment 
 from scipy.interpolate import interp1d  
 
@@ -81,12 +81,12 @@ def main():
     
     # Store Noise Data 
     noise                                                  = SUAVE.Analyses.Noise.Fidelity_One()
-    segment                                                = Segment() 
-    segment.state.conditions                               = conditions  
+    segment                                                = Segment()
     settings                                               = noise.settings
     conditions.noise.sources.propeller                     = noise_data    
     conditions.noise.number_of_microphones                 = num_mic  
-    
+    segment.state.conditions                               = conditions
+
     # Run Fidelity One   
     propeller_noise  = propeller_mid_fidelity(net,prop,noise_data,segment,settings)  
     SPL_dBA          = propeller_noise.SPL_dBA
@@ -266,7 +266,7 @@ def design_F8745D4_prop():
     
     ospath                          = os.path.abspath(__file__)
     separator                       = os.path.sep
-    rel_path                        = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles' + separator    
+    rel_path                        = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles/Airfoils' + separator
     prop.airfoil_geometry           = [ rel_path +'Clark_y.txt']
     prop.airfoil_polars             = [[rel_path +'Clark_y_polar_Re_50000.txt' ,rel_path +'Clark_y_polar_Re_100000.txt',rel_path +'Clark_y_polar_Re_200000.txt',
                                         rel_path +'Clark_y_polar_Re_500000.txt',rel_path +'Clark_y_polar_Re_1000000.txt']]
