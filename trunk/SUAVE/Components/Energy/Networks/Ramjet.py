@@ -3,7 +3,6 @@
 #
 # Created:  Jun 2017, P. Goncalves
 # Modified: Jan 2018, W. Maier
-#           Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports

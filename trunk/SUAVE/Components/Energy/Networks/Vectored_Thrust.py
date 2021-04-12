@@ -213,7 +213,7 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.propeller_efficiency            = etap       
         conditions.propulsion.propeller_thrust_coefficient    = outputs.thrust_coefficient  
         
-        # noise
+        # noise      
         outputs.number_of_engines                             = num_engines
         conditions.noise.sources.rotor                        = outputs
 

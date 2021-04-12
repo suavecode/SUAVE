@@ -20,8 +20,8 @@ import SUAVE
 import numpy as np
 
 from SUAVE.Core import Data
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
-
+from SUAVE.Components.Propulsors.Propulsor      import Propulsor
+from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 # ----------------------------------------------------------------------
 #  Turbofan Network
 # ----------------------------------------------------------------------
@@ -294,6 +294,7 @@ class Turbofan(Propulsor):
             exit_velocity                       = fan_nozzle.outputs.velocity
             )
         
+        conditions.noise.sources.turbofan       = Conditions()        
         conditions.noise.sources.turbofan.fan   = fan_outputs
         conditions.noise.sources.turbofan.core  = core_outputs
 

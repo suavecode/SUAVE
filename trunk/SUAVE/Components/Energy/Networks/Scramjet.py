@@ -1,8 +1,7 @@
 ## @ingroup Components-Energy-Networks
 # Scramjet.py
 #
-# Created:  Dec 2017, W. Maier
-# Modified: Apr 2021, M. Clarke
+# Created:  Dec 2017, W. Maier 
 
 # ----------------------------------------------------------------------
 #  Imports

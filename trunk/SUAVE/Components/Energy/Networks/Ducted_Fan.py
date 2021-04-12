@@ -16,7 +16,8 @@ import SUAVE
 import numpy as np
 
 from SUAVE.Core import Data
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Components.Propulsors.Propulsor      import Propulsor
+from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 
 # ----------------------------------------------------------------------
 #  Ducted_Fan Network
@@ -169,6 +170,7 @@ class Ducted_Fan(Propulsor):
             exit_velocity                       = fan_nozzle.outputs.velocity
             )
         
+        conditions.noise.sources.ducted_fan     = Conditions()
         conditions.noise.sources.ducted_fan.fan = fan_outputs
 
         return results

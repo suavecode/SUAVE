@@ -104,12 +104,12 @@ def noise_airframe_Fink(segment,analyses,config,settings,ioprint = 0, filename=0
     Hn       = config.landing_gear.nose_strut_length   / Units.ft           # NLG strut length, ft
     gear     = config.landing_gear.gear_condition                           # Gear up or gear down
     
-    nose_wheels    =   config.landing_gear.nose_wheels                      # Number of wheels   
-    main_wheels    =   config.landing_gear.main_wheels                      # Number of wheels   
-    main_units     =   config.landing_gear.main_units                       # Number of main units   
-    velocity       =   np.float(segment.conditions.freestream.velocity[0,0])# aircraft velocity 
-    altitude       =   segment.conditions.freestream.altitude[:,0]          # aircraft altitude
-    noise_time     =   segment.conditions.frames.inertial.time[:,0]         # time discretization 
+    nose_wheels  = config.landing_gear.nose_wheels                      # Number of wheels   
+    main_wheels  = config.landing_gear.main_wheels                      # Number of wheels   
+    main_units   = config.landing_gear.main_units                       # Number of main units   
+    velocity     = np.float(segment.conditions.freestream.velocity[0,0])# aircraft velocity 
+    altitude     = segment.conditions.freestream.altitude[:,0]          # aircraft altitude
+    noise_time   = segment.conditions.frames.inertial.time[:,0]         # time discretization 
 
     # determining flap slot number
     if wing.main_wing.control_surfaces.flap.configuration_type   == 'single_slotted':
@@ -126,38 +126,20 @@ def noise_airframe_Fink(segment,analyses,config,settings,ioprint = 0, filename=0
         
     # Number of points on the discretize segment   
     nsteps=len(noise_time)
+     
+    # Computing atmospheric conditions  
+    sound_speed = segment.conditions.freestream.speed_of_sound[:,0] 
+    viscosity   = segment.conditions.freestream.dynamic_viscosity[:,0]*Units.ft*Units.ft # units converstion - m2 to ft2 
+    M           = velocity/sound_speed
     
-    # Preparing matrix for noise calculation
-    sound_speed = np.zeros(nsteps)
-    density     = np.zeros(nsteps)
-    viscosity   = np.zeros(nsteps)
-    temperature = np.zeros(nsteps)
-    M           = np.zeros(nsteps)
-    deltaw      = np.zeros(nsteps)
+    #Wing Turbulent Boundary Layer thickness, ft
+    deltaw      = 0.37*(Sw/bw)*((velocity/Units.ft)*Sw/(bw*viscosity))**(-0.2)
     
-    # ==============================================
-    #         Computing atmospheric conditions
-    # ============================================== 
-    for id in range (0,nsteps):
-        atmo_data = analyses.atmosphere.compute_values(altitude[id])
-        
-        # unpack    
-        sound_speed[id] = np.float(atmo_data.speed_of_sound)
-        density[id]     = np.float(atmo_data.density)
-        viscosity[id]   = np.float(atmo_data.dynamic_viscosity*Units.ft*Units.ft) # units converstion - m2 to ft2
-        temperature[id] = np.float(atmo_data.temperature)
-        
-        # Mach number
-        M[id] = velocity/np.sqrt(1.4*287*temperature[id])
-    
-        #Wing Turbulent Boundary Layer thickness, ft
-        deltaw[id] = 0.37*(Sw/bw)*((velocity/Units.ft)*Sw/(bw*viscosity[id]))**(-0.2)
-
     #Generate array with the One Third Octave Band Center Frequencies
     frequency = settings.center_frequencies[5:]
     num_f     = len(frequency)
     
-    #number of positions of the aircraft to calculate the noise
+    # number of positions of the aircraft to calculate the noise
     nrange = len(angle)  
     SPL_wing_history              = np.zeros((nrange,num_f))
     SPLht_history                 = np.zeros((nrange,num_f))
@@ -178,7 +160,7 @@ def noise_airframe_Fink(segment,analyses,config,settings,ioprint = 0, filename=0
         # Emission angle theta   
         theta = angle[i]
         
-        #D istance from airplane to observer, evaluated at retarded time
+        # Distance from airplane to observer, evaluated at retarded time
         distance = distance_vector[i]    
        
         # Atmospheric attenuation

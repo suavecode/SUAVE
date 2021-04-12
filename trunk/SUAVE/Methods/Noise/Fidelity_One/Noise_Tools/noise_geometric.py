@@ -3,7 +3,7 @@
 # 
 # Created:  Jul 2015, C. Ilario
 # Modified: Jan 2016, E. Botero
-
+# Modified: Apr 2021, M. Clarke
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
@@ -43,14 +43,13 @@ def noise_geometric(noise_segment,analyses,config):
     sideline = analyses.noise.settings.sideline
     flyover  = analyses.noise.settings.flyover
     approach = analyses.noise.settings.approach
-    x0       = analyses.noise.settings.mic_x_position # only sideline
+    x0       = analyses.noise.settings.mic_x_position  
     
     position_vector = noise_segment.conditions.frames.inertial.position_vector 
-    altitude        = -noise_segment.conditions.frames.inertial.position_vector[:,2]
-    
-    s       = position_vector[:,0]
-    s[s==0] = 1E-8
-    n_steps = len(altitude)  # number of time steps (space discretization)
+    altitude        = -noise_segment.conditions.frames.inertial.position_vector[:,2] 
+    s               = position_vector[:,0]
+    s[s==0]         = 1E-8
+    n_steps         = len(altitude)  # number of time steps (space discretization)
        
     if approach == True:
         
@@ -66,13 +65,10 @@ def noise_geometric(noise_segment,analyses,config):
         x0 = 2000.
        
         # Calculation of the distance vector and emission angle
-        dist  = np.sqrt(altitude**2+(s-x0)**2)
-
-        for i in range(0, n_steps):
-            if (s[i]-x0)< 0.:
-                theta[i] = np.arctan(np.abs(altitude[i]/(s[i]-x0)))
-            else:
-                theta[i] = np.pi - np.arctan(np.abs(altitude[i]/(s[i]-x0)))
+        dist        = np.sqrt(altitude**2+(s-x0)**2)  
+        theta       = np.arctan(np.abs(altitude/(s-x0)))
+        flag        = (s-x0) < 0 
+        theta[flag] = np.pi - np.arctan(np.abs(altitude/(s-x0)))[flag]      
         
     elif flyover == True:
         
@@ -99,13 +95,10 @@ def noise_geometric(noise_segment,analyses,config):
         x0 = np.float(6500. - S_0)
         
         # Calculation of the distance vector and emission angle
-        dist  = np.sqrt(altitude**2+(s-x0)**2)
-
-        for i in range(0, n_steps):
-            if (s[i]-x0)< 0.:
-                theta[i] = np.arctan(np.abs(altitude[i]/(s[i]-x0)))
-            else:
-                theta[i] = np.pi - np.arctan(np.abs(altitude[i]/(s[i]-x0)))        
+        dist        = np.sqrt(altitude**2+(s-x0)**2)
+        theta       = np.arctan(np.abs(altitude/(s-x0)))
+        flag        = (s-x0) < 0 
+        theta[flag] = np.pi - np.arctan(np.abs(altitude/(s-x0)))[flag]       
         
     elif sideline == True:
         
@@ -135,43 +128,36 @@ def noise_geometric(noise_segment,analyses,config):
                 x0 = np.interp(304.8,np.abs(position_vector[:,2]),position_vector[:,0])
         
         # Calculation of the distance vector and emission angles phi and theta
-        phi   = np.arctan(y0/altitude)
-        dist  = np.sqrt((y0/np.sin(phi))**2+(s-x0)**2)
-
-        for i in range(0, n_steps):
-            if (s[i]-x0)< 0.:
-                theta[i] = np.arccos(np.abs((x0-s[i])/dist[i]))
-            else:
-                theta[i] = np.pi - np.arccos(np.abs((x0-s[i])/dist[i]))  
-    
+        phi         = np.arctan(y0/altitude)
+        dist        = np.sqrt((y0/np.sin(phi))**2+(s-x0)**2) 
+        theta       = np.arccos(np.abs((x0-s)/dist))
+        flag        = (s-x0) < 0 
+        theta[flag] = (np.pi - np.arccos(np.abs((x0-s)/dist)))[flag] 
     else: 
         
         #--------------------------------------------------------
         #-------------------ARBITRARY LOCATION -----------------
-        #--------------------------------------------------------        
-
-        theta     = np.zeros(n_steps)  
-        
-        # microphone location chosen perpendicular to first control point to the segment 
-        # at an azimuth (lateral) angle of 60 degrees from beneath aircraft 
-        mic_loc   = int(analyses.noise.settings.microphone_array_dim**2/2)  
-        y0        = noise_segment.conditions.noise.microphone_locations[0,-1,1]      # position on the y-direction of the sideline microphone (lateral coordinate)
-        x0        = noise_segment.conditions.noise.microphone_locations[0,mic_loc,0] # position on the x-direction of the sideline microphone (lateral coordinate)
-        y0[y0==0] = 1E-8
-        x0[x0==0] = 1E-8
-
-        estimate_tofl = SUAVE.Methods.Performance.estimate_take_off_field_length
+        #--------------------------------------------------------     
+        theta     = np.zeros(n_steps)   
+        y0        = 450.                  # y-coordinate of the sideline microphone  
+        x0        = position_vector[:,-1] # x-coordinate of the sideline microphone chosen to be last point in segment   
         
         # Calculation of the distance vector and emission angles phi and theta 
-        phi      = np.arctan(y0/altitude)
-        dist     = np.sqrt((y0/np.sin(phi))**2+(s-x0)**2)
-
-        for i in range(0, n_steps):
-            if (s[i]-x0[i]) < 0.:
-                theta[i] = np.arccos(np.abs((x0[i]-s[i])/dist[i]))
-            else:
-                theta[i] = np.pi - np.arccos(np.abs((x0[i]-s[i])/dist[i]))  
-
+        phi         = np.arctan(y0/altitude)
+        dist        = np.sqrt((y0/np.sin(phi))**2+(s-x0)**2) 
+        theta       = np.arccos(np.abs((x0-s)/dist))
+        flag        = (s-x0) < 0 
+        theta[flag] = (np.pi - np.arccos(np.abs((x0-s)/dist)))[flag]
+        
+        # append and update microphone locations to conditions
+        num_mic              = noise_segment.state.conditions.noise.number_of_microphones
+        mic_locations        = noise_segment.state.conditions.noise.microphone_locations 
+        mic_locations        = np.zeros((n_steps,num_mic,3))   
+        mic_locations[:,:,0] = np.repeat(np.atleast_2d(s-x0).T, num_mic, axis =1)
+        mic_locations[:,:,1] = np.repeat(np.atleast_2d(y0).T, num_mic, axis =1)
+        noise_segment.state.conditions.noise.microphone_theta_angles = theta
+        noise_segment.state.conditions.noise.microphone_phi_angles   = phi
+        
     # Pack the results in Noise Segments    
     noise_segment.dist  = dist
     noise_segment.theta = theta

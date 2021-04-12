@@ -22,8 +22,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_certification_lim
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import noise_geometric
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools import SPL_arithmetic
 
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity import propeller_mid_fidelity
-from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_noise_sae    import propeller_noise_sae 
+from SUAVE.Methods.Noise.Fidelity_One.Propeller.propeller_mid_fidelity import propeller_mid_fidelity 
 
 # package imports
 import numpy as np
@@ -68,8 +67,7 @@ class Fidelity_One(Noise):
         
         # Initialize quantities                   
         settings                                 = self.settings
-        settings.harmonics                       = np.arange(1,30)  
-        settings.propeller_SAE_noise_model       = False 
+        settings.harmonics                       = np.arange(1,30) 
         settings.flyover                         = False    
         settings.approach                        = False
         settings.sideline                        = False
@@ -154,54 +152,40 @@ class Fidelity_One(Noise):
         if ('lift_cruise') in config.propulsors.keys():
             num_src += 1
         source_SPLs_dBA    = np.zeros((ctrl_pts,num_src,num_mic)) 
-        source_SPL_spectra = np.zeros((ctrl_pts,num_src,num_mic,dim_cf ))   
+        source_SPL_spectra = np.zeros((ctrl_pts,num_src,num_mic,dim_cf ))    
         
-        # loop for microphone locations  
-        # calcuate location and geometric angles of noise sources 
-        geometric = noise_geometric(segment,analyses,config)
-        
-        si = 1 
-        # make flag to skip if flaps not present        
-        if 'flap' in config.wings.main_wing.control_surfaces:            
-            airframe_noise                = noise_airframe_Fink(segment,analyses,config,settings)  
-            source_SPLs_dBA[:,si,:]       = airframe_noise.SPL_dBA          
-            source_SPL_spectra[:,si,:,5:] = np.repeat(airframe_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1)
-            
+        si = 1  
         # iterate through sources 
         for source in conditions.noise.sources.keys():  
             for network in config.propulsors.keys():                 
-                if source  == 'turbofan':   
+                if source  == 'turbofan':
+                    geometric = noise_geometric(segment,analyses,config)  
+                     
+                    # flap noise - only applicable for turbofan aircraft
+                    if 'flap' in config.wings.main_wing.control_surfaces:            
+                        airframe_noise                = noise_airframe_Fink(segment,analyses,config,settings)  
+                        source_SPLs_dBA[:,si,:]       = airframe_noise.SPL_dBA          
+                        source_SPL_spectra[:,si,:,5:] = np.repeat(airframe_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1)
+                    
+                    
                     if bool(conditions.noise.sources[source].fan) and bool(conditions.noise.sources[source].core): 
+                                              
                         config.propulsors[source].fan.rotation            = 0 # NEED TO UPDATE ENGINE MODEL WITH FAN SPEED in RPM
                         config.propulsors[source].fan_nozzle.noise_speed  = conditions.noise.sources.turbofan.fan.exit_velocity 
                         config.propulsors[source].core_nozzle.noise_speed = conditions.noise.sources.turbofan.core.exit_velocity
                         engine_noise                                      = noise_SAE(config.propulsors[source],segment,analyses,config,settings,ioprint = print_flag)  
-                        source_SPLs_dBA[:,si,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_mic, axis =1)
-                        source_SPL_spectra[:,si,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1)
-                        
+                        source_SPLs_dBA[:,si,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_mic, axis =1)     # noise measures at one microphone location in segment
+                        source_SPL_spectra[:,si,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1) # noise measures at one microphone location in segment
+                          
                 elif (source  == 'propeller')  or (source   == 'rotor'): 
-                    if bool(conditions.noise.sources[source]) == True:
-                        net           = config.propulsors[network]
-                        prop          = config.propulsors[network][source]
-                        acoustic_data = conditions.noise.sources[source]  
-                        if settings.propeller_SAE_noise_model:
-                            propeller_noise              = propeller_noise_sae(net,prop,acoustic_data,segment,settings,ioprint = print_flag) 
-                            source_SPLs_dBA[:,si,:]      = np.repeat(np.atleast_2d(propeller_noise.SPL_dBA).T, num_mic, axis =1)   
-                            source_SPL_spectra[:,si,:,:] = np.repeat(propeller_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1)
-                        
-                            # APPEND SPECTRA OF VEHICLE  
-                        else:
-                            propeller_noise                   = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings)  
-                            source_SPLs_dBA[:,si,:]           = propeller_noise.SPL_dBA 
-                            source_SPL_spectra[:,si,:,:]      = propeller_noise.SPL_spectrum    
-                            
-                        #net                          = config.propulsors[network]
-                        #prop                         = config.propulsors[network][source]
-                        #acoustic_data                = conditions.noise.sources[source]   
-                        #propeller_noise              = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings)  
-                        #source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
-                        #source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_spectrum    
-                            
+                    if bool(conditions.noise.sources[source]) == True: 
+                        net                          = config.propulsors[network]
+                        prop                         = config.propulsors[network][source]
+                        acoustic_data                = conditions.noise.sources[source]   
+                        propeller_noise              = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings)  
+                        source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
+                        source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_spectrum    
+                           
                         si += 1
              
         conditions.noise.total_SPL_dBA = SPL_arithmetic(source_SPLs_dBA,sum_axis=1)

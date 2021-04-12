@@ -47,49 +47,21 @@ def main():
     
     # mission analysis
     mission = analyses.missions.base
-    X57_FD_results = mission.evaluate()  
+    X57_results = mission.evaluate()  
     
     # plot the results
-    X57_filename = "X57_FD_Noise"
-    plot_results(X57_FD_results,X57_filename)  
+    X57_filename = "X57_Noise"
+    plot_results(X57_results,X57_filename)  
     
     # SPL of rotor check during hover
     print('\n\n SUAVE Frequecy Domain Propeller Aircraft Noise Model')
-    X57_SPL_FD        = X57_FD_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
-    X57_SPL_FD_true   = 80.33223391658487
-    print(X57_SPL_FD) 
-    X57_diff_SPL_FD   = np.abs(X57_SPL_FD - X57_SPL_FD_true)
+    X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
+    X57_SPL_true   = 80.33223391658487
+    print(X57_SPL) 
+    X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')
-    print(X57_diff_SPL_FD)
-    assert np.abs((X57_SPL_FD - X57_SPL_FD_true)/X57_SPL_FD_true) < 1e-6    
-    
-    
-    # ----------------------------------------------------------------------
-    # SAE Propeller Aircraft Noise Model 
-    # ---------------------------------------------------------------------- 
-    configs, analyses = X57_full_setup() 
-
-    analyses.configs.base.noise.settings.propeller_SAE_noise_model = True
-    configs.finalize()
-    analyses.finalize()   
-    
-    # mission analysis
-    mission = analyses.missions.base
-    X57_SAE_results = mission.evaluate()  
-    
-    # plot the results
-    X57_filename = "X57_SAE_Noise"
-    plot_results(X57_SAE_results,X57_filename)  
-    
-    # SPL of rotor check during hover
-    print('\n\n SAE Propeller Aircraft Noise Model')
-    X57_SPL_SAE        = X57_SAE_results.segments.ica.conditions.noise.total_SPL_dBA[3][0] 
-    X57_SPL_SAE_true   = 41.66881440384027
-    print(X57_SPL_SAE) 
-    X57_diff_SPL_SAE   = np.abs(X57_SPL_SAE - X57_SPL_SAE_true)
-    print('SPL difference')
-    print(X57_diff_SPL_SAE)
-    assert np.abs((X57_SPL_SAE - X57_SPL_SAE_true)/X57_SPL_SAE_true) < 1e-6    
+    print(X57_diff_SPL)
+    assert np.abs((X57_SPL - X57_SPL_true)/X57_SPL_true) < 1e-6    
     
     # ----------------------------------------------------------------------
     # SAE Turbofan Aircraft Noise Model 
@@ -111,7 +83,7 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SAE Turbofan Aircraft Noise Model')
     B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
-    B737_SPL_true   = 24.65512587701436
+    B737_SPL_true   = 27.76777338285558
     print(B737_SPL) 
     B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
     print('SPL difference')

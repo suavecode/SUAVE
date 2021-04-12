@@ -128,14 +128,12 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
 
     # ==============================================
     # Computing atmospheric conditions
-    # ============================================== 
-    for id in range (0,nsteps):
-        atmo_data =  analyses.atmosphere.compute_values(Altitude[id])    
-        sound_ambient[id]       =   np.float(atmo_data.speed_of_sound)
-        density_ambient[id]     =   np.float(atmo_data.density)
-        viscosity[id]           =   np.float(atmo_data.dynamic_viscosity)
-        temperature_ambient[id] =   np.float(atmo_data.temperature)
-        pressure_amb[id]        =   np.float(atmo_data.pressure)
+    # ==============================================  
+    sound_ambient       =   segment.conditions.freestream.speed_of_sound[:,0]
+    density_ambient     =   segment.conditions.freestream.density[:,0]
+    viscosity           =   segment.conditions.freestream.dynamic_viscosity[:,0]
+    temperature_ambient =   segment.conditions.freestream.temperature[:,0]
+    pressure_amb        =   segment.conditions.freestream.pressure[:,0]
 
     #Base parameters necessary input for the noise code
     pressure_isa = 101325 # [Pa]

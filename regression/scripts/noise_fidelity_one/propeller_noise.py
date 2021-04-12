@@ -84,7 +84,7 @@ def main():
     segment                                                = Segment() 
     segment.state.conditions                               = conditions  
     settings                                               = noise.settings
-    conditions.noise.sources['propeller'].acoustic_outputs = noise_data    
+    conditions.noise.sources.propeller                     = noise_data    
     conditions.noise.number_of_microphones                 = num_mic  
     
     # Run Fidelity One   
