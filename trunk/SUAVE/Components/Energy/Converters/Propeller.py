@@ -191,14 +191,8 @@ class Propeller(Energy_Component):
         Nr       = len(c) # Number of stations radially    
         ctrl_pts = len(Vv)
         
-        # set up non dimensional radial distribution 
-        if self.radius_distribution is None:
-            chi0= Rh/R                      # Where the rotor blade actually starts
-            chi = np.linspace(chi0,1,Nr+1)  # Vector of nondimensional radii
-            chi = chi[0:Nr]
-    
-        else:
-            chi = self.radius_distribution/R
+        # set up non dimensional radial distribution  
+        chi      = self.radius_distribution/R
             
         V        = V_thrust[:,0,None] 
         omega    = np.abs(omega)        
