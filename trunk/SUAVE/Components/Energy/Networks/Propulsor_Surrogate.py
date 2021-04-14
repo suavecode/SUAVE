@@ -129,6 +129,9 @@ class Propulsor_Surrogate(Propulsor):
        
         F    = thr
         mdot = thr*sfc*self.number_of_engines
+        
+        F[throttle<=0.]    = 0.
+        mdot[throttle<=0.] = 0.
        
         # Save the output
         results = Data()
