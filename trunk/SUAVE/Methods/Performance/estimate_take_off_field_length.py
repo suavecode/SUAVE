@@ -132,7 +132,7 @@ def estimate_take_off_field_length(vehicle,analyses,airport,compute_2nd_seg_clim
     conditions.freestream.speed_of_sound   = np.array(a)
     conditions.freestream.temperature      = np.array(np.atleast_1d(T))
     conditions.freestream.pressure         = np.array(np.atleast_1d(p))
-    conditions.propulsion.throttle         = np.array(np.atleast_1d(1.))
+    conditions.propulsion.throttle         = np.array(np.atleast_2d([1.]))
     
     results = vehicle.propulsors.evaluate_thrust(state) # total thrust
     

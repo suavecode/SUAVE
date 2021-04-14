@@ -146,6 +146,41 @@ def scale_input_values(inputs,x):
     
     return inputs
 
+#def limit_input_values(inputs):
+    #""" Ensures that the inputs are between the bounds
+
+    #Assumptions:
+    
+
+    #Source:
+    #N/A
+
+    #Inputs:
+    #x                [array]         
+    #inputs           [list]
+
+    #Outputs:
+    #inputs           [list]
+
+    #Properties Used:
+    #N/A
+    #"""      
+    
+    #provided_values = inputs[:,1]
+    #bounds          = inputs[:,2]
+    
+    #for ii in range(len(provided_values)):
+        #if provided_values[ii]<bounds[ii][0]:
+            #provided_values[ii] = bounds[ii][0]
+        #elif provided_values[ii]>bounds[ii][1]:
+            #provided_values[ii] = bounds[ii][1]
+        
+    
+    
+    
+    #return inputs
+    
+
 ## @ingroup Optimization
 def convert_values(inputs): 
     """ Converts an inputs from an optimization into the right units

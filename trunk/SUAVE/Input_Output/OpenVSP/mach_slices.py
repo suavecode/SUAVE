@@ -60,5 +60,9 @@ def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 99):
     # Turn them into arrays
     X_locs      = np.array(X_locs)
     slice_areas = np.array(slice_areas)
+    
+    ## Exit OpenVSP just in case
+    #print('Exiting OpenVSP on Purpose')
+    #vsp.VSPExit(0)
            
     return X_locs, slice_areas

@@ -81,11 +81,12 @@ def compute_max_lift_coeff(state,settings,geometry):
         sweep      = wing.sweeps.quarter_chord
         sweep_deg  = wing.sweeps.quarter_chord / Units.degree # convert into degrees
         taper      = wing.taper
-        flap_chord = wing.control_surfaces.flap.chord_fraction # correct !!! 
-        flap_angle = wing.control_surfaces.flap.deflection
-        slat_angle = wing.control_surfaces.flap.deflection
-        Swf        = wing.areas.affected  # portion of wing area with flaps
-        flap_type  = wing.control_surfaces.flap.configuration_type
+        if 'flaps' in wing.control_surfaces.keys():
+            flap_chord = wing.control_surfaces.flap.chord_fraction # correct !!! 
+            flap_angle = wing.control_surfaces.flap.deflection
+            slat_angle = wing.control_surfaces.flap.deflection # THIS MAKES NO SENSE
+            Swf        = wing.areas.affected  # portion of wing area with flaps
+            flap_type  = wing.control_surfaces.flap.configuration_type
         
         # conditions data
         V    = conditions.freestream.velocity
@@ -113,11 +114,18 @@ def compute_max_lift_coeff(state,settings,geometry):
         #-----------wing mounted engine ----
         Cl_max_w_eng = Cl_max_FAA - 0.2
 
-        # Compute CL increment due to Slat
-        dcl_slat = compute_slat_lift(slat_angle, sweep)
+        # Compute CL increment due to Flap
+        if 'flaps' in wing.control_surfaces.keys():
+         # Compute CL increment due to Slat
+            dcl_slat = compute_slat_lift(slat_angle, sweep)
+        else:
+            dcl_slat = 0.
 
-         # Compute CL increment due to Flap
-        dcl_flap = compute_flap_lift(tc,flap_type,flap_chord,flap_angle,sweep,Sref,Swf)
+        # Compute CL increment due to Flap
+        if 'flaps' in wing.control_surfaces.keys():
+            dcl_flap = compute_flap_lift(tc,flap_type,flap_chord,flap_angle,sweep,Sref,Swf)
+        else:
+            dcl_flap = 0.0
 
         #results
         Cl_max_ls += (Cl_max_w_eng + dcl_slat + dcl_flap) * Swing / Sref

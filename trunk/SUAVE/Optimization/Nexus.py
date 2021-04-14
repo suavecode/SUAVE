@@ -317,12 +317,14 @@ class Nexus(Data):
         if x is not None:
             inputs = help_fun.scale_input_values(inputs,x)
             
+        ## Limit the values to the edges
+        #inputs = help_fun.limit_input_values(inputs)        
+            
         # Convert units
         converted_values = help_fun.convert_values(inputs)
-        
+
         # Set the dictionary
         aliases = self.optimization_problem.aliases
-        vehicle = self.vehicle_configurations
         
         self    = help_fun.set_values(self,inputs,converted_values,aliases)     
     

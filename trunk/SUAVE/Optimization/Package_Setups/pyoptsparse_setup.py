@@ -182,8 +182,8 @@ def PyOpt_Problem(problem,xdict):
     x = []
     
     for key, val in xdict.items():
-        x.append(float(val))
-        
+        x.append(float(val))  
+                
    
     obj   = problem.objective(x)
     const = problem.all_constraints(x).tolist()
@@ -197,9 +197,9 @@ def PyOpt_Problem(problem,xdict):
     for ii, con in enumerate(const):
         funcs[problem.optimization_problem.constraints[ii,0]] = con
 
-       
+            
     print('Inputs')
-    print(x)
+    print(x)      
     print('Obj')
     print(obj)
     print('Con')
