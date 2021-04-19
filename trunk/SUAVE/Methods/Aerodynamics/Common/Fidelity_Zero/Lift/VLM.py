@@ -125,7 +125,13 @@ def VLM(conditions,settings,geometry):
     geometry.vortex_distribution = VD
     
     # Build induced velocity matrix, C_mn
-    C_mn, s, CHORD, RFLAG, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
+    # This is not affected by AoA, so we can use unique mach numbers only
+    m_unique, inv = np.unique(mach,return_inverse=True)
+    m_unique      = np.atleast_2d(m_unique).T
+    C_mn_small, s, CHORD, RFLAG_small, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,m_unique)
+    
+    C_mn  = C_mn_small[inv,:,:,:]
+    RFLAG = RFLAG_small[inv,:]
 
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 

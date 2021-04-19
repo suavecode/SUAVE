@@ -12,7 +12,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
+def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
     Assumptions: 
@@ -46,33 +46,34 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
     n_w      = VD.n_w
     shape    = n_cp*n_w
     n_mach   = len(mach)
+    mach     = np.array(mach,dtype=np.float32)
 
     # Control points from the VLM 
-    XAH   = np.atleast_2d(VD.XAH*1.) 
-    YAH   = np.atleast_2d(VD.YAH*1.) 
-    ZAH   = np.atleast_2d(VD.ZAH*1.) 
-    XBH   = np.atleast_2d(VD.XBH*1.) 
-    YBH   = np.atleast_2d(VD.YBH*1.) 
-    ZBH   = np.atleast_2d(VD.ZBH*1.) 
-    XA1   = np.atleast_2d(VD.XA1*1.) 
-    YA1   = np.atleast_2d(VD.YA1*1.) 
-    ZA1   = np.atleast_2d(VD.ZA1*1.) 
-    XB1   = np.atleast_2d(VD.XB1*1.) 
-    YB1   = np.atleast_2d(VD.YB1*1.) 
-    ZB1   = np.atleast_2d(VD.ZB1*1.)    
-    XA2   = np.atleast_2d(VD.XA2*1.) 
-    YA2   = np.atleast_2d(VD.YA2*1.) 
-    ZA2   = np.atleast_2d(VD.ZA2*1.) 
-    XB2   = np.atleast_2d(VD.XB2*1.) 
-    YB2   = np.atleast_2d(VD.YB2*1.) 
-    ZB2   = np.atleast_2d(VD.ZB2*1.)       
-    XC    = np.atleast_2d(VD.XC*1.)
-    YC    = np.atleast_2d(VD.YC*1.) 
-    ZC    = np.atleast_2d(VD.ZC*1.)  
-    XA_TE = np.atleast_2d(VD.XA_TE*1.)  
-    XB_TE = np.atleast_2d(VD.XB_TE*1.)  
-    ZA_TE = np.atleast_2d(VD.ZA_TE*1.)  
-    ZB_TE = np.atleast_2d(VD.ZB_TE*1.)      
+    XAH   = np.array(np.atleast_2d(VD.XAH*1.),dtype=np.float32)
+    YAH   = np.array(np.atleast_2d(VD.YAH*1.),dtype=np.float32)
+    ZAH   = np.array(np.atleast_2d(VD.ZAH*1.),dtype=np.float32)
+    XBH   = np.array(np.atleast_2d(VD.XBH*1.),dtype=np.float32)
+    YBH   = np.array(np.atleast_2d(VD.YBH*1.),dtype=np.float32)
+    ZBH   = np.array(np.atleast_2d(VD.ZBH*1.),dtype=np.float32)
+    XA1   = np.array(np.atleast_2d(VD.XA1*1.),dtype=np.float32)
+    YA1   = np.array(np.atleast_2d(VD.YA1*1.),dtype=np.float32)
+    ZA1   = np.array(np.atleast_2d(VD.ZA1*1.),dtype=np.float32)
+    XB1   = np.array(np.atleast_2d(VD.XB1*1.),dtype=np.float32)
+    YB1   = np.array(np.atleast_2d(VD.YB1*1.),dtype=np.float32)
+    ZB1   = np.array(np.atleast_2d(VD.ZB1*1.),dtype=np.float32)
+    XA2   = np.array(np.atleast_2d(VD.XA2*1.),dtype=np.float32)
+    YA2   = np.array(np.atleast_2d(VD.YA2*1.),dtype=np.float32)
+    ZA2   = np.array(np.atleast_2d(VD.ZA2*1.),dtype=np.float32)
+    XB2   = np.array(np.atleast_2d(VD.XB2*1.),dtype=np.float32)
+    YB2   = np.array(np.atleast_2d(VD.YB2*1.),dtype=np.float32)
+    ZB2   = np.array(np.atleast_2d(VD.ZB2*1.),dtype=np.float32)
+    XC    = np.array(np.atleast_2d(VD.XC*1.),dtype=np.float32)
+    YC    = np.array(np.atleast_2d(VD.YC*1.),dtype=np.float32)
+    ZC    = np.array(np.atleast_2d(VD.ZC*1.),dtype=np.float32)
+    XA_TE = np.array(np.atleast_2d(VD.XA_TE*1.),dtype=np.float32)
+    XB_TE = np.array(np.atleast_2d(VD.XB_TE*1.),dtype=np.float32)
+    ZA_TE = np.array(np.atleast_2d(VD.ZA_TE*1.),dtype=np.float32)
+    ZB_TE = np.array(np.atleast_2d(VD.ZB_TE*1.),dtype=np.float32)
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
@@ -196,12 +197,9 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,theta_w,mach):
                                                     X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cw,n_cp,n_w)
          
     
-    # Rotate into the vehicle frame and pack into matrices
-    C_mn = np.zeros((n_mach,shape,shape,3))
-    C_mn[:,:,:,0] = U
-    C_mn[:,:,:,1] = V*costheta - W*sintheta
-    C_mn[:,:,:,2] = V*sintheta + W*costheta
-    
+    # Rotate into the vehicle frame and pack into a velocity matrix
+    C_mn = np.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
+
     return C_mn, s, CHORD, RFLAG, ZETA
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
@@ -449,7 +447,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
     WWAVE   = np.zeros(shape)
     COX     = CHORD /RNMAX
-    eye     = np.eye(n_cp*n_w)
+    eye     = np.eye(n_cp*n_w,dtype=np.int8)
     T2      = np.broadcast_to(T2,shape)*eye
     B2_full = np.broadcast_to(B2,shape)*eye
     COX     = np.broadcast_to(COX,shape)*eye
