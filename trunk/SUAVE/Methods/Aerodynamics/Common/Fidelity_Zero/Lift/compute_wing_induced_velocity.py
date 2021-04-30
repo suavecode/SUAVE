@@ -162,9 +162,9 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     RO2_sub  = B2_sub*RTV2
     
     # ZERO-OUT PERTURBATION VELOCITY COMPONENTS
-    U = np.zeros((n_mach,shape,shape))
-    V = np.zeros((n_mach,shape,shape))
-    W = np.zeros((n_mach,shape,shape))    
+    U = np.zeros((n_mach,shape,shape),dtype=np.float32)
+    V = np.zeros((n_mach,shape,shape),dtype=np.float32)
+    W = np.zeros((n_mach,shape,shape),dtype=np.float32)    
     
     if np.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
@@ -320,20 +320,15 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     N/A
     """      
     
-    CPI  = 2 * np.pi
-    ARG1 = XSQ1 - RO1
-    ARG2 = XSQ2 - RO2
-    T2   = T*T
-    
-    shape = np.shape(RO1)
-    
-    RAD1 = np.zeros(shape)
-    RAD2 = np.zeros(shape)
-    
-    RAD1[ARG1>0.] = np.sqrt(ARG1[ARG1>0.])
-    RAD2[ARG2>0.] = np.sqrt(ARG2[ARG2>0.])
-    
+    CPI    = 2 * np.pi
+    T2     = T*T
     ZETAPI = Z/CPI
+    shape  = np.shape(RO1)
+    RAD1   = np.sqrt(XSQ1 - RO1)
+    RAD2   = np.sqrt(XSQ2 - RO2)
+    
+    RAD1[np.isnan(RAD1)] = 0. 
+    RAD2[np.isnan(RAD2)] = 0. 
     
     DENOM             = XTY * XTY + (T2 - B2) *ZSQ # The last part of this is the TBZ term
     SIGN              = np.ones(shape,dtype=np.int8)
@@ -435,7 +430,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
 
     TRANS = (B2[:,:,0]-T2F)*(B2[:,:,0]-T2A)
     
-    RFLAG = np.ones((n_mach,size))
+    RFLAG = np.ones((n_mach,size),dtype=np.int8)
     RFLAG[TRANS<0] = 0.
     
     FLAG_bool          = np.zeros_like(TRANS,dtype=bool)
@@ -445,7 +440,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
 
     # COMPUTE THE GENERALIZED PRINCIPAL PART OF THE VORTEX-INDUCED VELOCITY INTEGRAL, WWAVE.
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
-    WWAVE   = np.zeros(shape)
+    WWAVE   = np.zeros(shape,dtype=np.float32)
     COX     = CHORD /RNMAX
     eye     = np.eye(n_cp*n_w,dtype=np.int8)
     T2      = np.broadcast_to(T2,shape)*eye

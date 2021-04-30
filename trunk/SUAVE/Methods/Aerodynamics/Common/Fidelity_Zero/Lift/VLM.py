@@ -19,7 +19,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 #  Vortex Lattice
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
@@ -124,6 +124,14 @@ def VLM(conditions,settings,geometry):
     # pack vortex distribution 
     geometry.vortex_distribution = VD
     
+    # Compute flow tangency conditions
+    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
+    delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
+
+    # Build the vector 
+    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
+                                                                                 pwm,ito,wdt,nts )    
+    
     # Build induced velocity matrix, C_mn
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = np.unique(mach,return_inverse=True)
@@ -133,20 +141,13 @@ def VLM(conditions,settings,geometry):
     C_mn  = C_mn_small[inv,:,:,:]
     RFLAG = RFLAG_small[inv,:]
 
-    # Compute flow tangency conditions
-    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
-    delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
-
+    # Turn off sonic vortices when Mach>1
+    RHS = RHS*RFLAG
+    
     # Build Aerodynamic Influence Coefficient Matrix
     A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
         + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
-        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42  
-
-    # Build the vector 
-    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
-                                                                                 pwm,ito,wdt,nts )
-    # Turn off sonic vortices when Mach>1
-    RHS = RHS*RFLAG
+        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42      
 
     # Compute vortex strength  
     gamma = np.linalg.solve(A,RHS)
@@ -202,16 +203,16 @@ def VLM(conditions,settings,geometry):
     
     TLE = np.repeat(TLE,n_cw)
     TLE = np.broadcast_to(TLE,np.shape(B2))
-    T2  = TLE**2
+    T2  = TLE*TLE
     STB = np.zeros_like(B2)
     STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
     STB = STB[:,0::n_cw]
 
     # Panel Dihedral Angle, using AH and BH location
-    D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
+    D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)[0::n_cw]
 
-    SID = ((ZBH-ZAH)/D)[0::n_cw] # Just the LE values
-    COD = ((YBH-YAH)/D)[0::n_cw] # Just the LE values
+    SID = ((ZBH-ZAH)[0::n_cw]/D) # Just the LE values
+    COD = ((YBH-YAH)[0::n_cw]/D) # Just the LE values
 
     # Now on to each strip
     PION = 2.0 /RNMAX
@@ -240,8 +241,7 @@ def VLM(conditions,settings,geometry):
     Z2c  = (ZA2+ZB2)/2
 
     SLOPE = (Z2c - Z1c)/(X2c - X1c)
-    TANX  = SLOPE
-    TX    = TANX - ZETA
+    TX    = SLOPE - ZETA
     CAXL  = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
     BMLE  = (XLE-XX)*SINF        # These are moment on each panel
 

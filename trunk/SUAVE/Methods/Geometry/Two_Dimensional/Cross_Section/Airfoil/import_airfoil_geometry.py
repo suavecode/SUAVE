@@ -68,7 +68,10 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
 
         # Check if it's a Selig or Lednicer file
         format_line = f.readline()
-        format_flag = float(format_line.strip().split(',')[0])
+        try:
+            format_flag = float(format_line.strip().split()[0])
+        except:
+            format_flag = float(format_line.strip().split(',')[0])
         format_extra_data = float(format_line.strip().split()[1])
 
         if format_flag > 1.01: # Amount of wiggle room per airfoil tools
