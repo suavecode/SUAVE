@@ -245,7 +245,6 @@ def vehicle_setup():
     vehicle.append_component(net)   
     
     vehicle.wings['main_wing'].motor_spanwise_locations = np.multiply(
-        2./36.25, [2.283 ,-2.283, 2.283, -2.283])
+        2./36.25, [2.283 ,-2.283, 2.283, -2.283]) 
     
-    vehicle.weight_breakdown  = empty(vehicle,None)
     return vehicle

@@ -19,11 +19,11 @@ import numpy as np
 #-------------------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Buildups-Common
-def wiring(wing, config, max_power_draw):
+def wiring(wing, config, cablePower):
     """ weight = SUAVE.Methods.Weights.Buildups.Common.wiring(
             wing,
             config, 
-            max_power_draw)
+            cablePower)
         
         Assumptions:
         Calculates mass of wiring required for a wing, including DC power
@@ -64,16 +64,13 @@ def wiring(wing, config, max_power_draw):
         fLength     = config.fuselages.fuselage.lengths.total
         fHeight     = config.fuselages.fuselage.heights.maximum
         MSL         = config.wings[wing.tag].motor_spanwise_locations
-        wingspan    = wing.spans.projected
-        
-        nMotors = max(len(MSL),1)    # No. of motors on each half-wing, defaults to 1
+        wingspan    = wing.spans.projected 
+        nMotors     = max(len(MSL),1)    # No. of motors on each half-wing, defaults to 1
         
         #---------------------------------------------------------------------------
         # Determine mass of Power Cables
-        #---------------------------------------------------------------------------
-        
-        cablePower      = max_power_draw/nMotors      # Power draw through each cable
-        cableLength     = 2 * (nMotors * (fLength/2 + fHeight/2) + np.sum(MSL) * wingspan/2)
+        #--------------------------------------------------------------------------- 
+        cableLength     = 2 * (nMotors * (fLength/2 + fHeight/2) + np.sum(abs(MSL)) * wingspan/2)
         cableDensity    = 1e-5
         massCables      = cableDensity * cablePower * cableLength
         

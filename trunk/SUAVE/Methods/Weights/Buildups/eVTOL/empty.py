@@ -157,12 +157,12 @@ def empty(config,
 
         elif isinstance(propulsor, Vectored_Thrust):
             output.servos   = 0.65  * (nLiftProps)      * Units.kg
-            output.hubs     = 2.    * (nLiftProps)      * Units.kg
+            output.hubs     = 4.    * (nLiftProps)      * Units.kg
             output.BRS      = 16.                       * Units.kg
 
         elif isinstance(propulsor, Lift_Cruise):
             output.servos   = 0.65  * (nLiftProps + nThrustProps)   * Units.kg
-            output.hubs     = 2.    * (nLiftProps + nThrustProps)   * Units.kg
+            output.hubs     = 4.    * (nLiftProps + nThrustProps)   * Units.kg
             output.BRS      = 16.                                   * Units.kg
 
         #-------------------------------------------------------------------------------
@@ -204,6 +204,10 @@ def empty(config,
                 output.propeller_motors  = nThrustProps * propulsor.propeller_motor.mass_properties.mass
             else:
                 output.propeller_motors  = nThrustProps * propulsor.motor.mass_properties.mass
+                
+        # total number of propellers and rotors 
+        nProps        = nLiftProps + nThrustProps
+        
         # sum motor weight
         output.motors = output.rotor_motors + output.propeller_motors  
 
@@ -224,7 +228,7 @@ def empty(config,
             total_wing_weight      = total_wing_weight + wing_weight  
 
             # wiring weight
-            wiring_weight          = wiring(w, config, maxLiftPower/eta) * Units.kg 
+            wiring_weight          = wiring(w, config, maxLiftPower/(eta*nProps)) * Units.kg 
             total_wiring_weight    = total_wiring_weight + wiring_weight  
 
         output.wiring              = total_wiring_weight
