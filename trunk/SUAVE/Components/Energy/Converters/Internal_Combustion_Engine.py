@@ -62,7 +62,7 @@ class Internal_Combustion_Engine(Energy_Component):
         throttle                         = conditions.propulsion.combustion_engine_throttle
         PSLS                             = self.sea_level_power
         h_flat                           = self.flat_rate_altitude
-        speed                            = self.speed
+        speed                            = self.inputs.speed
         power_specific_fuel_consumption  = self.power_specific_fuel_consumption
 
 

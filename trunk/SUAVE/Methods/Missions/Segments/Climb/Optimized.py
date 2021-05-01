@@ -51,14 +51,12 @@ def unpack_unknowns(segment):
     theta    = segment.state.unknowns.body_angle
     gamma    = segment.state.unknowns.flight_path_angle
     vel      = segment.state.unknowns.velocity
-    alt0     = segment.altitude_start
-    altf     = segment.altitude_end
     vel0     = segment.air_speed_start
     velf     = segment.air_speed_end
 
     # Overide the speeds   
     if segment.air_speed_end is None:
-        v_mag =  np.concatenate([[[vel0]],vel*vel0])
+        v_mag =  np.concatenate([[[vel0]],vel])
     elif segment.air_speed_end is not None:
         v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
         
@@ -80,7 +78,7 @@ def unpack_unknowns(segment):
 
 ## @ingroup Methods-Missions-Segments-Climb   
 def update_differentials(segment):
-    """ On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0. This is different from the common method as it also includes the scaling of operators.
+    """ On each iteration creates the differentials and integration functions from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0. This is different from the common method as it also includes the scaling of operators.
 
         Assumptions:
         Works with a segment discretized in vertical position, altitude

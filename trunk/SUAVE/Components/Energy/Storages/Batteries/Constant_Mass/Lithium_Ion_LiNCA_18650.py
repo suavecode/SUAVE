@@ -8,7 +8,7 @@
 # ---------------------------------------------------------------------- 
 from SUAVE.Core import Units , Data 
 import numpy as np
-from scipy.interpolate import interp1d, interp2d, RectBivariateSpline
+from scipy.interpolate import  RectBivariateSpline
 
 from SUAVE.Components.Energy.Storages.Batteries                     import Battery 
 from SUAVE.Methods.Power.Battery.Discharge_Models.LiNCA_discharge   import LiNCA_discharge 

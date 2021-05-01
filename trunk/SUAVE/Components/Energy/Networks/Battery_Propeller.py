@@ -4,6 +4,7 @@
 # Created:  Jul 2015, E. Botero
 # Modified: Feb 2016, T. MacDonald
 #           Mar 2020, M. Clarke
+#           May 2021, M. Clarke
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -90,8 +91,8 @@ class Battery_Propeller(Propulsor):
                 current                      [amps]
                 battery_power_draw           [watts]
                 battery_energy               [joules]
-                battery_voltage_open_circuit [volts]
-                battery_voltage_under_load   [volts]
+                battery_voltage_open_circuit [V]
+                battery_voltage_under_load   [V]
                 motor_torque                 [N-M]
                 propeller_torque             [N-M]
     
@@ -100,18 +101,17 @@ class Battery_Propeller(Propulsor):
         """          
     
         # unpack
-        conditions         = state.conditions
-        numerics           = state.numerics
-        motor              = self.motor
-        propeller          = self.propeller
-        esc                = self.esc
-        avionics           = self.avionics
-        payload            = self.payload
-        battery            = self.battery
-        D                  = numerics.time.differentiate    
-        I                  = numerics.time.integrate         
-        battery_data       = battery.discharge_performance_map
-        num_engines        = self.number_of_engines
+        conditions                  = state.conditions
+        numerics                    = state.numerics
+        motor                       = self.motor
+        propeller                   = self.propeller
+        esc                         = self.esc
+        avionics                    = self.avionics
+        payload                     = self.payload
+        battery                     = self.battery
+        D                           = numerics.time.differentiate        
+        battery_data                = battery.discharge_performance_map
+        num_engines                 = self.number_of_engines
          
         # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy
@@ -244,7 +244,7 @@ class Battery_Propeller(Propulsor):
             propeller.outputs = outputs
             
             # Run the motor for current
-            motor.current(conditions)
+            i, etam = motor.current(conditions)
             
             # link
             esc.inputs.currentout =   motor.outputs.current
@@ -256,12 +256,7 @@ class Battery_Propeller(Propulsor):
             battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
             battery.inputs.power_in = -(volts *esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
             battery.inputs.voltage  = volts
-            battery.energy_discharge(numerics)      
-            
-            conditions.propulsion.propeller_power_coefficient  = Cp
-            conditions.propulsion.propeller_efficiency         = etap
-            conditions.propulsion.motor_efficiency             = np.zeros_like(volts)
-            
+            battery.energy_discharge(numerics)       
 
         # --------------------------------------------------------------------------------
         # Run Charge Model 
@@ -272,11 +267,11 @@ class Battery_Propeller(Propulsor):
             battery.inputs.power_in =  battery.cell.charging_current * n_parallel * volts * np.ones_like(volts)
             battery.inputs.voltage  =  battery.charging_voltage 
             Q                       = np.zeros_like(volts)
-            F                       = np.zeros_like(volts) 
+            F                       = np.zeros_like(volts)
+            Cp                      = np.zeros_like(volts)
+            etap                    = np.zeros_like(volts) 
+            etam                    = np.zeros_like(volts) 
             battery.energy_charge(numerics)        
-            conditions.propulsion.propeller_power_coefficient  = np.zeros_like(volts)
-            conditions.propulsion.propeller_efficiency         = np.zeros_like(volts)
-            conditions.propulsion.motor_efficiency             = np.zeros_like(volts)
  
  
         # --------------------------------------------------------------------------------
@@ -316,7 +311,10 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.motor_temperature                    = 0 # currently no motor temperature model
         conditions.propulsion.propeller_torque                     = Q
         conditions.propulsion.propeller_tip_mach                   = (R*motor.outputs.omega)/a
-                
+        conditions.propulsion.propeller_power_coefficient          = Cp   
+        conditions.propulsion.propeller_efficiency                 = etap 
+        conditions.propulsion.propeller_motor_efficiency           = etam
+        
         # Create the outputs
         F                                         = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
         mdot                                      = state.ones_row(1)*0.0
@@ -335,7 +333,9 @@ class Battery_Propeller(Propulsor):
 
         return results
     
-    
+    # -----------------------------------------------------------------
+    # Generic Li-Battery Cell Unknows and Residuals 
+    # -----------------------------------------------------------------    
     def unpack_unknowns(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
     
@@ -347,11 +347,11 @@ class Battery_Propeller(Propulsor):
     
             Inputs:
             state.unknowns.propeller_power_coefficient [None]
-            state.unknowns.battery_voltage_under_load  [volts]
+            state.unknowns.battery_voltage_under_load  [V]
     
             Outputs:
             state.conditions.propulsion.propeller_power_coefficient [None]
-            state.conditions.propulsion.battery_voltage_under_load  [volts]
+            state.conditions.propulsion.battery_voltage_under_load  [V]
     
             Properties Used:
             N/A
@@ -373,10 +373,10 @@ class Battery_Propeller(Propulsor):
             N/A
 
             Inputs:
-            state.unknowns.battery_voltage_under_load  [volts]
+            state.unknowns.battery_voltage_under_load  [V]
 
             Outputs:
-            state.conditions.propulsion.battery_voltage_under_load  [volts]
+            state.conditions.propulsion.battery_voltage_under_load  [V]
 
             Properties Used:
             N/A
@@ -399,14 +399,14 @@ class Battery_Propeller(Propulsor):
             state.conditions.propulsion:
                 motor_torque                          [N-m]
                 propeller_torque                      [N-m]
-                battery_voltage_under_load            [volts]
-            state.unknowns.battery_voltage_under_load [volts]
+                battery_voltage_under_load            [V]
+            state.unknowns.battery_voltage_under_load [V]
             
             Outputs:
             None
     
             Properties Used:
-            self.voltage                              [volts]
+            self.voltage                              [V]
         """        
         
         # Here we are going to pack the residuals (torque,voltage) from the network
@@ -435,14 +435,14 @@ class Battery_Propeller(Propulsor):
 
             Inputs:
             state.conditions.propulsion:
-                battery_voltage_under_load            [volts]
-            state.unknowns.battery_voltage_under_load [volts]
+                battery_voltage_under_load            [V]
+            state.unknowns.battery_voltage_under_load [V]
 
             Outputs:
             None
 
             Properties Used:
-            self.voltage                              [volts]
+            self.voltage                              [V]
         """
 
         # Here we are going to pack the residuals (torque,voltage) from the network
@@ -457,7 +457,34 @@ class Battery_Propeller(Propulsor):
 
         return
     
+    # -----------------------------------------------------------------
+    # LiNCA Battery Cell Unknows and Residuals 
+    # -----------------------------------------------------------------         
     def unpack_unknowns_linca(self,segment):  
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+            This uses only the lift motors.
+    
+            Assumptions:
+            Only the lift motors.
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.propeller_power_coefficient              [None]  
+            state.unknowns.battery_cell_temperature                 [K]
+            state.unknowns.battery_state_of_charge                  [None]
+            state.unknowns.battery_current                          [A]
+                                                                    
+            Outputs:
+            state.conditions.propulsion.propeller_power_coefficient [None]  
+            state.conditions.propulsion.battery_cell_temperature    [K]
+            state.conditions.propulsion.battery_state_of_charge     [None]
+            state.conditions.propulsion.battery_current             [A]
+    
+            Properties Used:
+            N/A
+        """    
         segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
         segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
         segment.state.conditions.propulsion.battery_state_of_charge     = segment.state.unknowns.battery_state_of_charge
@@ -466,7 +493,31 @@ class Battery_Propeller(Propulsor):
         return
     
     def residuals_linca(self,segment):  
-        
+        """ This packs the residuals to be send to the mission solver.
+
+            Assumptions:
+            None
+
+            Source:
+            N/A
+
+            Inputs: 
+            state.conditions.propulsion.motor_torque              [N-m]
+            state.conditions.propulsion.battery_state_of_charge   [None]
+            state.conditions.propulsion.battery_thevenin_voltage  [V]
+            state.conditions.propulsion.propeller_torque          [N-m]
+            state.conditions.propulsion.battery_cell_temperature  [K] 
+            state.unknowns.battery_state_of_charge                [None]
+            state.unknowns.battery_cell_temperature               [K] 
+            state.unknowns.battery_thevenin_voltage               [V]   
+            
+
+            Outputs:
+            segment.state.residuals
+
+            Properties Used:
+            N/A
+        """                
         # Unpack
         q_motor      = segment.state.conditions.propulsion.motor_torque
         q_prop       = segment.state.conditions.propulsion.propeller_torque 
@@ -485,15 +536,60 @@ class Battery_Propeller(Propulsor):
         segment.state.residuals.network[:,1] = v_th_predict[:,0] - v_th_actual[:,0]     
         segment.state.residuals.network[:,2] = SOC_predict[:,0] - SOC_actual[:,0]  
         segment.state.residuals.network[:,3] = Temp_predict[:,0] - Temp_actual[:,0]
+        
+        return 
     
-    def unpack_unknowns_linca_charge(self,segment):   
+    def unpack_unknowns_linca_charge(self,segment):
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+
+            Assumptions:
+            None 
+
+            Source:
+            N/A
+            
+            Inputs:
+            state.unknowns.battery_state_of_charge                 [None]
+            state.unknowns.battery_cell_temperature                [K]
+            state.unknowns.battery_thevenin_voltage                [V]
+ 
+            Outputs: 
+            state.conditions.propulsion.battery_state_of_charge    [None]
+            state.conditions.propulsion.battery_cell_temperature   [K]
+            state.conditions.propulsion.battery_thevenin_voltage   [V]
+
+            Properties Used:
+            N/A
+        """             
         segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
         segment.state.conditions.propulsion.battery_state_of_charge     = segment.state.unknowns.battery_state_of_charge
         segment.state.conditions.propulsion.battery_thevenin_voltage    = segment.state.unknowns.battery_thevenin_voltage  
   
         return
     
-    def residuals_linca_charge(self,segment):  
+    def residuals_linca_charge(self,segment):        
+        """ This packs the residuals to be send to the mission solver.
+
+           Assumptions:
+           None
+
+           Source:
+           N/A
+
+           Inputs:
+           state.conditions.propulsion.battery_state_of_charge    [None]
+           state.conditions.propulsion.battery_cell_temperature   [K]
+           state.conditions.propulsion.battery_thevenin_voltage   [V] 
+           state.unknowns.battery_state_of_charge                 [None]
+           state.unknowns.battery_cell_temperature                [K]
+           state.unknowns.battery_thevenin_voltage                [V]
+
+           Outputs:
+           segment.state.residuals
+
+           Properties Used:
+           N/A
+        """        
         
         # Unpack         
         SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
@@ -510,8 +606,40 @@ class Battery_Propeller(Propulsor):
         segment.state.residuals.network[:,1] = SOC_predict[:,0] - SOC_actual[:,0]  
         segment.state.residuals.network[:,2] = Temp_predict[:,0] - Temp_actual[:,0]
         
+        return 
+   
+    # -----------------------------------------------------------------
+    # LiMnCO Battery Cell Unknows and Residuals 
+    # -----------------------------------------------------------------   
     def unpack_unknowns_linmco(self,segment): 
-  
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+            This uses only the lift motors.
+    
+            Assumptions:
+            Only the lift motors.
+    
+            Source:
+            N/A
+    
+            Inputs:
+            state.unknowns.propeller_power_coefficient              [None] 
+            state.unknowns.throttle_lift                            [None]
+            state.unknowns.throttle                                 [None]
+            state.unknowns.battery_cell_temperature                 [K]
+            state.unknowns.battery_state_of_charge                  [None]
+            state.unknowns.battery_current                          [A]
+                                                                    
+            Outputs:
+            state.conditions.propulsion.propeller_power_coefficient [None] 
+            state.conditions.propulsion.throttle_lift               [None]
+            state.conditions.propulsion.throttle                    [None]
+            state.conditions.propulsion.battery_cell_temperature    [K]
+            state.conditions.propulsion.battery_state_of_charge     [None]
+            state.conditions.propulsion.battery_current             [A]
+    
+            Properties Used:
+            N/A
+        """ 
         segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient        
         segment.state.conditions.propulsion.battery_cell_temperature    = segment.state.unknowns.battery_cell_temperature 
         segment.state.conditions.propulsion.battery_state_of_charge     = segment.state.unknowns.battery_state_of_charge
@@ -520,12 +648,36 @@ class Battery_Propeller(Propulsor):
         return
     
     def residuals_linmco(self,segment):  
+        """ This packs the residuals to be send to the mission solver.
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:  
+            state.conditions.propulsion.motor_torque              [N-m]
+            state.conditions.propulsion.propeller_torque          [N-m]
+            state.conditions.propulsion.battery_state_of_charge   [None]
+            state.conditions.propulsion.battery_cell_temperature  [K]
+            state.conditions.propulsion.battery_current           [A]
+            state.unknowns.battery_state_of_charge                [None]
+            state.unknowns.battery_cell_temperature               [K]
+            state.unknowns.battery_current                        [A]
+            
+            Outputs:
+            segment.state.residuals
+    
+            Properties Used:
+            N/A
+        """             
         # Unpack       
         q_motor      = segment.state.conditions.propulsion.motor_torque
         q_prop       = segment.state.conditions.propulsion.propeller_torque  
         
-        SOC_actual  = segment.state.conditions.propulsion.battery_state_of_charge
-        SOC_predict = segment.state.unknowns.battery_state_of_charge 
+        SOC_actual   = segment.state.conditions.propulsion.battery_state_of_charge
+        SOC_predict  = segment.state.unknowns.battery_state_of_charge 
 
         Temp_actual  = segment.state.conditions.propulsion.battery_cell_temperature 
         Temp_predict = segment.state.unknowns.battery_cell_temperature   
@@ -538,16 +690,63 @@ class Battery_Propeller(Propulsor):
         segment.state.residuals.network[:,1] =  SOC_predict[:,0]  - SOC_actual[:,0]  
         segment.state.residuals.network[:,2] =  Temp_predict[:,0] - Temp_actual[:,0]
         segment.state.residuals.network[:,3] =  i_predict[:,0] - i_actual[:,0]       
-
-
+        
+        return 
+    
+ 
     def unpack_unknowns_linmco_charge(self,segment): 
+        """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
+
+            Assumptions:
+            None
+
+            Source:
+            N/A
+
+            Inputs: 
+            state.unknowns.battery_state_of_charge                 [None]
+            state.unknowns.battery_cell_temperature                [K]
+            state.unknowns.battery_current                         [A]
+            
+            Outputs:  
+            state.conditions.propulsion.battery_state_of_charge    [None]
+            state.conditions.propulsion.battery_cell_temperature   [K]
+            state.conditions.propulsion.battery_current            [A]
+            
+
+            Properties Used:
+            N/A
+        """        
         segment.state.conditions.propulsion.battery_cell_temperature = segment.state.unknowns.battery_cell_temperature 
         segment.state.conditions.propulsion.battery_state_of_charge  = segment.state.unknowns.battery_state_of_charge
         segment.state.conditions.propulsion.battery_current          = segment.state.unknowns.battery_current         
       
         return
     
-    def residuals_linmco_charge(self,segment):  
+    def residuals_linmco_charge(self,segment): 
+        """ This packs the residuals to be send to the mission solver.
+
+            Assumptions:
+            None
+
+            Source:
+            N/A
+
+            Inputs:
+            state.conditions.propulsion.battery_state_of_charge    [None]
+            state.conditions.propulsion.battery_cell_temperature   [K]
+            state.conditions.propulsion.battery_thevenin_voltage   [V] 
+            state.unknowns.battery_state_of_charge                 [None]
+            state.unknowns.battery_cell_temperature                [K]
+            state.unknowns.battery_thevenin_voltage                [V]
+
+            Outputs:
+            segment.state.residuals
+
+            Properties Used: 
+            N/A
+        """        
+        
         # Unpack 
         SOC_actual  = segment.state.conditions.propulsion.battery_state_of_charge
         SOC_predict = segment.state.unknowns.battery_state_of_charge 
@@ -559,10 +758,9 @@ class Battery_Propeller(Propulsor):
         i_predict    = segment.state.unknowns.battery_current      
 
         # Return the residuals 
-        segment.state.residuals.network[:,0] =  i_predict[:,0] - i_actual[:,0]    
-        segment.state.residuals.network[:,1] =  SOC_predict[:,0]  - SOC_actual[:,0]  
-        segment.state.residuals.network[:,2] =  Temp_predict[:,0] - Temp_actual[:,0]
-
+        segment.state.residuals.network[:,0] = i_predict[:,0]    - i_actual[:,0]    
+        segment.state.residuals.network[:,1] = SOC_predict[:,0]  - SOC_actual[:,0]  
+        segment.state.residuals.network[:,2] = Temp_predict[:,0] - Temp_actual[:,0] 
         
         return
 

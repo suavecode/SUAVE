@@ -45,7 +45,7 @@ def main():
     noise_cumulative_margin = objectives[0]
     
     actual = Data()    
-    actual.noise_cumulative_margin = 20.992906491307764
+    actual.noise_cumulative_margin = 20.9814639244308
 
     error = Data()
     error.noise_cumulative_margin = abs(actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
@@ -76,20 +76,20 @@ def setup():
 
     # [ tag , initial, [lb,ub], scaling, units ]
     problem.inputs = np.array([
-        [ 'wing_area'                    ,    124.8 , (    70.    ,   200.   ) ,   124.8 , Units.meter**2],
-        [ 'wing_aspect_ratio'            ,     10.18, (     5.    ,    20.   ) ,    10.18,     Units.less],
-        [ 'wing_sweep'                   ,    25.   , (     0.    ,    35.   ) ,    25.  ,  Units.degrees],
-        [ 'wing_thickness'               ,     0.105 , (     0.07  ,     0.20 ) ,     0.105,     Units.less],
-        [ 'design_thrust'                , 52700.   , ( 10000.    , 70000.   ) , 52700.  ,        Units.N],
-        [ 'MTOW'                         , 79090.   , ( 20000.    ,100000.   ) , 79090.  ,       Units.kg],
-        [ 'MZFW_ratio'                   ,     0.77 , (     0.6   ,     0.99 ) ,    0.77 ,     Units.less],
-        [ 'flap_takeoff_angle'           ,    10.   , (     0.    ,    20.   ) ,    10.  ,  Units.degrees],
-        [ 'flap_landing_angle'           ,    40.   , (     0.    ,    50.   ) ,    40.  ,  Units.degrees],
-        [ 'short_field_TOW'              , 64030.   , ( 20000.    ,100000.   ) , 64030.  ,       Units.kg],
-        [ 'design_TOW'                   , 68520.   , ( 20000.    ,100000.   ) , 68520.  ,       Units.kg],
-        [ 'noise_takeoff_speed_increase' ,    10.0  , (    10.    ,    20.   ) ,    10.0 ,     Units.knots],
-        [ 'noise_cutback_altitude'       ,   304.8  , (   240.    ,   400.   ) ,   304.8 ,    Units.meter],
-    ])
+        [ 'wing_area'                    ,    124.8 , (    70.    ,   200.   ) ,   124.8 , 1*Units.meter**2],
+        [ 'wing_aspect_ratio'            ,     10.18, (     5.    ,    20.   ) ,    10.18,     1*Units.less],
+        [ 'wing_sweep'                   ,    25.   , (     0.    ,    35.   ) ,    25.  ,  1*Units.degrees],
+        [ 'wing_thickness'               ,     0.105 , (     0.07  ,     0.20 ) ,     0.105,     1*Units.less],
+        [ 'design_thrust'                , 52700.   , ( 10000.    , 70000.   ) , 52700.  ,        1*Units.N],
+        [ 'MTOW'                         , 79090.   , ( 20000.    ,100000.   ) , 79090.  ,       1*Units.kg],
+        [ 'MZFW_ratio'                   ,     0.77 , (     0.6   ,     0.99 ) ,    0.77 ,     1*Units.less],
+        [ 'flap_takeoff_angle'           ,    10.   , (     0.    ,    20.   ) ,    10.  ,  1*Units.degrees],
+        [ 'flap_landing_angle'           ,    40.   , (     0.    ,    50.   ) ,    40.  ,  1*Units.degrees],
+        [ 'short_field_TOW'              , 64030.   , ( 20000.    ,100000.   ) , 64030.  ,       1*Units.kg],
+        [ 'design_TOW'                   , 68520.   , ( 20000.    ,100000.   ) , 68520.  ,       1*Units.kg],
+        [ 'noise_takeoff_speed_increase' ,    10.0  , (    10.    ,    20.   ) ,    10.0 ,     1*Units.knots],
+        [ 'noise_cutback_altitude'       ,   304.8  , (   240.    ,   400.   ) ,   304.8 ,    1*Units.meter],
+    ],dtype=object)
 
     # -------------------------------------------------------------------
     #  Objective
@@ -97,9 +97,9 @@ def setup():
 
     problem.objective = np.array([
 
-        [ 'noise_cumulative_margin', 17, Units.less ],
+        [ 'noise_cumulative_margin', 17, 1*Units.less ],
 
-    ])
+    ],dtype=object)
 
 
     # -------------------------------------------------------------------
@@ -108,22 +108,22 @@ def setup():
 
     # [ tag, sense, edge, scaling, units ]
     problem.constraints = np.array([
-        [ 'MZFW consistency' , '>' , 0. , 10 , Units.less],
-        [ 'design_range_fuel_margin' , '>', 0., 10, Units.less],
-        [ 'short_field_fuel_margin' , '>' , 0. , 10, Units.less],
-        [ 'max_range_fuel_margin' , '>' , 0. , 10, Units.less], 
-        [ 'wing_span' , '<', 35.9664, 35.9664, Units.less],
-        [ 'noise_flyover_margin' , '>', 0. , 10., Units.less],
-        [ 'noise_sideline_margin' , '>', 0. , 10. , Units.less],
-        [ 'noise_approach_margin' , '>', 0., 10., Units.less],
-        [ 'takeoff_field_length' , '<', 1985., 1985., Units.meters],
-        [ 'landing_field_length' , '<', 1385., 1385., Units.meters],
-        [ '2nd_segment_climb_max_range' , '>', 0.024, 0.024, Units.less],
-        [ '2nd_segment_climb_short_field' , '>', 0.024, 0.024, Units.less],
-        [ 'max_throttle' , '<', 1., 1., Units.less],
-        [ 'short_takeoff_field_length' , '<', 1330., 1330., Units.meters],
-        [ 'noise_cumulative_margin' , '>', 10., 10., Units.less],
-    ])
+        [ 'MZFW consistency' , '>' , 0. , 10 , 1*Units.less],
+        [ 'design_range_fuel_margin' , '>', 0., 10, 1*Units.less],
+        [ 'short_field_fuel_margin' , '>' , 0. , 10, 1*Units.less],
+        [ 'max_range_fuel_margin' , '>' , 0. , 10, 1*Units.less], 
+        [ 'wing_span' , '<', 35.9664, 35.9664, 1*Units.less],
+        [ 'noise_flyover_margin' , '>', 0. , 10., 1*Units.less],
+        [ 'noise_sideline_margin' , '>', 0. , 10. , 1*Units.less],
+        [ 'noise_approach_margin' , '>', 0., 10., 1*Units.less],
+        [ 'takeoff_field_length' , '<', 1985., 1985., 1*Units.meters],
+        [ 'landing_field_length' , '<', 1385., 1385., 1*Units.meters],
+        [ '2nd_segment_climb_max_range' , '>', 0.024, 0.024, 1*Units.less],
+        [ '2nd_segment_climb_short_field' , '>', 0.024, 0.024, 1*Units.less],
+        [ 'max_throttle' , '<', 1., 1., 1*Units.less],
+        [ 'short_takeoff_field_length' , '<', 1330., 1330., 1*Units.meters],
+        [ 'noise_cumulative_margin' , '>', 10., 10., 1*Units.less],
+    ],dtype=object)
 
     # -------------------------------------------------------------------
     #  Aliases

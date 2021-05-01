@@ -159,8 +159,9 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    aerodynamics.settings.number_spanwise_vortices   = 4
+    aerodynamics.settings.number_chordwise_vortices  = 2       
     aerodynamics.settings.drag_coefficient_increment = 0.0000
-    aerodynamics.settings.aircraft_span_efficiency_factor = 1.0
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
@@ -312,7 +313,8 @@ def mission_setup(analyses):
 
     segment.air_speed  = 450. * Units.knots #230.  * Units['m/s'] 
     segment.distance   = 2100. * Units.nmi
-
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg 
+    
     # add to mission
     mission.append_segment(segment)
 

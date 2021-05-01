@@ -83,7 +83,7 @@ def residual_total_forces(segment):
       
 ## @ingroup Methods-Missions-Segments-Climb 
 def update_differentials_altitude(segment):
-    """ On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0
+    """ On each iteration creates the differentials and integration functions from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0
 
         Assumptions:
         Works with a segment discretized in vertical position, altitude

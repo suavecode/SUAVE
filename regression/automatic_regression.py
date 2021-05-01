@@ -38,7 +38,9 @@ modules = [
 
     # ----------------------- Regression List --------------------------
     'scripts/aerodynamics/aerodynamics.py',
+    'scripts/aerodynamics/sears_haack.py',
     'scripts/airfoil_import/airfoil_import_test.py',
+    'scripts/airfoil_import/airfoil_interpolation_test.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
@@ -96,6 +98,10 @@ modules = [
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
     'scripts/weights/weights.py',
+    'scripts/electric_performance/propeller_single_point.py',
+    'scripts/electric_performance/electric_V_h_diagram.py',
+    'scripts/electric_performance/electric_payload_range.py',
+    'scripts/nonuniform_propeller_inflow/nonuniform_propeller_inflow.py'
 ]
 
 # ----------------------------------------------------------------------

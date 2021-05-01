@@ -46,7 +46,7 @@ def main():
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.rotor_rpm[0][0]
-    RPM_true   = 1915.6234148515541
+    RPM_true   = 2376.524545784301
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -55,10 +55,10 @@ def main():
     
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([3.22760354e+08, 3.22712620e+08, 3.22571255e+08, 3.22340527e+08,
-                                                        3.22027509e+08, 3.21643253e+08, 3.21203271e+08, 3.20726158e+08,
-                                                        3.20234563e+08, 3.19753994e+08, 3.19309430e+08, 3.18922718e+08,
-                                                        3.18610220e+08, 3.18382285e+08, 3.18244189e+08, 3.18197999e+08])
+    battery_energy_hover_to_transition_true = np.array([3.21720029e+08, 3.21641741e+08, 3.21409792e+08, 3.21032453e+08,
+                                                        3.20523954e+08, 3.19903500e+08, 3.19197658e+08, 3.18439186e+08,
+                                                        3.17665468e+08, 3.16916703e+08, 3.16231170e+08, 3.15640856e+08,
+                                                        3.15168392e+08, 3.14826640e+08, 3.14620876e+08, 3.14552284e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true) 
@@ -68,7 +68,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.6973520939590806
+    lift_coefficient_true   = 0.6953099343291548
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -194,8 +194,8 @@ def mission_setup(analyses,vehicle):
     segment.climb_rate                                       = 500. * Units['ft/min']
     segment.battery_energy                                   = vehicle.propulsors.lift_cruise.battery.max_energy
                                                              
-    segment.state.unknowns.rotor_power_coefficient  = 0.04 * ones_row(1) 
-    segment.state.unknowns.throttle_lift                     = 0.85 * ones_row(1) 
+    segment.state.unknowns.rotor_power_coefficient           = 0.02 * ones_row(1) 
+    segment.state.unknowns.throttle_lift                     = 0.9  * ones_row(1) 
     segment.state.unknowns.__delitem__('throttle')
 
     segment.process.iterate.unknowns.network                 = vehicle.propulsors.lift_cruise.unpack_unknowns_no_forward
@@ -218,15 +218,16 @@ def mission_setup(analyses,vehicle):
     segment.altitude        = 40.  * Units.ft
     segment.air_speed_start = 500. * Units['ft/min']
     segment.air_speed_end   = 0.8 * Vstall
-    segment.acceleration    = 9.81/5
-    segment.pitch_initial   = 0.0
+    segment.acceleration    = 9.8/5
+    segment.pitch_initial   = 0.0 * Units.degrees
     segment.pitch_final     = 5. * Units.degrees
     
-    segment.state.unknowns.rotor_power_coefficient =  0.04 *  ones_row(1) 
-    segment.state.unknowns.throttle_lift                    =  0.85 *  ones_row(1) 
-    segment.state.unknowns.propeller_power_coefficient      =  0.01 *  ones_row(1) 
-    segment.state.unknowns.throttle                         =  1.0  *  ones_row(1) 
-    segment.state.residuals.network                         =  0.   *  ones_row(3) 
+    segment.state.unknowns.rotor_power_coefficient          = 0.05 *  ones_row(1)  
+    segment.state.unknowns.throttle_lift                    = 0.9  * ones_row(1)  
+    
+    segment.state.unknowns.propeller_power_coefficient      = 0.14 *  ones_row(1) 
+    segment.state.unknowns.throttle                         = 0.95  *  ones_row(1) 
+    segment.state.residuals.network                         = 0.   *  ones_row(3) 
 
     segment.process.iterate.unknowns.network                = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
     segment.process.iterate.residuals.network               = vehicle.propulsors.lift_cruise.residuals_transition    
@@ -249,12 +250,12 @@ def mission_setup(analyses,vehicle):
     segment.altitude_end           = 50.0 * Units.ft
     segment.air_speed              = 0.8 * Vstall
     segment.climb_angle            = 1 * Units.degrees
-    segment.acceleration           = 1. * Units['m/s/s']    
-    segment.pitch_initial          = 8. * Units.degrees  
+    segment.acceleration           = 0.5 * Units['m/s/s']    
+    segment.pitch_initial          = 5. * Units.degrees  
     segment.pitch_final            = 7. * Units.degrees       
     
-    segment.state.unknowns.rotor_power_coefficient = 0.04  * ones_row(1)
-    segment.state.unknowns.throttle_lift                    = 0.85  * ones_row(1) 
+    segment.state.unknowns.rotor_power_coefficient          = 0.02  * ones_row(1)
+    segment.state.unknowns.throttle_lift                    = 0.8  * ones_row(1) 
     segment.state.unknowns.propeller_power_coefficient      = 0.16  * ones_row(1)
     segment.state.unknowns.throttle                         = 0.80  * ones_row(1)   
     segment.state.residuals.network                         = 0.    * ones_row(3)    

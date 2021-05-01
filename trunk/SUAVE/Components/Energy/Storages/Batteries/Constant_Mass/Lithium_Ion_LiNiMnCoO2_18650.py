@@ -9,7 +9,7 @@
 from   SUAVE.Core import Units , Data 
 from   SUAVE.Components.Energy.Storages.Batteries  import Battery
 import numpy as np
-from   scipy.interpolate import interp1d, interp2d, RectBivariateSpline, RegularGridInterpolator
+from   scipy.interpolate import RegularGridInterpolator
 from   SUAVE.Methods.Power.Battery.Discharge_Models.LiNiMnCo_discharge  import LiNiMnCo_discharge
 from   SUAVE.Methods.Power.Battery.Charge_Models.LiNiMnCo_charge        import LiNiMnCo_charge
 
@@ -93,8 +93,8 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
                                                            
         self.pack_config.series                            = 1
         self.pack_config.parallel                          = 1   
-        self.module_config.normal_count                    = 1    # number of cells normal to flow
-        self.module_config.parallel_count                  = 1    # number of cells parallel to flow      
+        self.module_config.normal_count                    = 1       # number of cells normal to flow
+        self.module_config.parallel_count                  = 1       # number of cells parallel to flow      
         self.module_config.normal_spacing                  = 0.02
         self.module_config.parallel_spacing                = 0.02
                                                            

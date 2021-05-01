@@ -64,6 +64,7 @@ class Solar(Propulsor):
         self.nacelle_diameter          = None
         self.engine_length             = None
         self.number_of_engines         = None
+        self.thrust_angle              = 0.0
         self.tag                       = 'Solar'
         self.use_surrogate             = False
         self.generative_design_minimum = 0
