@@ -4,6 +4,8 @@
 # Created:  Jan 2015, T. Lukacyzk
 # Modified: Feb 2016, T. MacDonald
 #           Jun 2016, E. Botero
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -11,6 +13,7 @@
 
 from .Data     import Data
 from warnings import warn
+import random
 
 # ----------------------------------------------------------------------
 #   Data Container Base Class
@@ -73,6 +76,8 @@ class Container(Data):
     
     def append(self,val):
         """ Appends the value to the containers
+            This overrides the Data class append by allowing for duplicate named components
+            The following components will get new names.
         
             Assumptions:
             None
@@ -90,7 +95,17 @@ class Container(Data):
             N/A
         """           
         
-        #val = self.check_new_val(val)
+        # See if the item tag exists, if it does modify the name
+        keys = self.keys()
+        if str.lower(val.tag) in keys:
+            string_of_keys = "".join(self.keys())
+            n_comps = string_of_keys.count(val.tag)
+            val.tag = val.tag + str(n_comps+1)
+            
+            # Check again, because theres an outside chance that its duplicate again. Then assign a random
+            if str.lower(val.tag) in keys:
+                val.tag = val.tag + str(n_comps+random.randint(0,1000))
+        
         Data.append(self,val)
         
     def extend(self,vals):
@@ -117,3 +132,24 @@ class Container(Data):
             self.update(vals)
         else:
             raise Exception('unrecognized data type')
+        
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """        
+        
+        return []    

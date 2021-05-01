@@ -2,7 +2,7 @@
 # Optimized.py
 #
 # Created:  Mar 2016, E. Botero 
-# Modified:
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -66,15 +66,15 @@ class Optimized(Aerodynamic):
         # --------------------------------------------------------------
         #   User inputs
         # --------------------------------------------------------------
-        self.altitude_start  = None
-        self.altitude_end    = None
-        self.air_speed_start = None
-        self.air_speed_end   = None
-        self.objective       = None # This will be a key
-        self.minimize        = True
-        self.CL_limit        = 1.e20 
-        self.seed_climb_rate = 100. * Units['feet/min']
-        self.algorithm       = 'SLSQP'
+        self.altitude_start         = None
+        self.altitude_end           = None
+        self.air_speed_start        = None
+        self.air_speed_end          = None
+        self.objective              = None # This will be a key
+        self.minimize               = True
+        self.lift_coefficient_limit = 1.e20 
+        self.seed_climb_rate        = 100. * Units['feet/min']
+        self.algorithm              = 'SLSQP'
         
         
         # --------------------------------------------------------------
@@ -138,10 +138,10 @@ class Optimized(Aerodynamic):
         iterate.conditions.atmosphere      = Methods.Common.Aerodynamics.update_atmosphere
         iterate.conditions.gravity         = Methods.Common.Weights.update_gravity
         iterate.conditions.freestream      = Methods.Common.Aerodynamics.update_freestream
-        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations
+        iterate.conditions.orientations    = Methods.Common.Frames.update_orientations 
+        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust        
         iterate.conditions.aerodynamics    = Methods.Common.Aerodynamics.update_aerodynamics
         iterate.conditions.stability       = Methods.Common.Aerodynamics.update_stability
-        iterate.conditions.propulsion      = Methods.Common.Energy.update_thrust
         iterate.conditions.weights         = Methods.Common.Weights.update_weights
         iterate.conditions.forces          = Methods.Common.Frames.update_forces
         iterate.conditions.planet_position = Methods.Common.Frames.update_planet_position

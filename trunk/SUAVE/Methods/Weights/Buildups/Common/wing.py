@@ -72,13 +72,13 @@ def wing(wing,
         Inputs:
 
             wing                    SUAVE Wing Data Structure
-            config                  SUAVE Confiug Data Structure
+            config                  SUAVE Config Data Structure
             maxThrust               Maximum Thrust                      [N]
             numAnalysisPoints       Analysis Points for Sizing          [Unitless]
-            safety_factor           Design Saftey Factor                [Unitless]
+            safety_factor           Design Safety Factor                [Unitless]
             max_g_load              Maximum Accelerative Load           [Unitless]
             moment_to_lift_ratio    Coeff. of Moment to Coeff. of Lift  [Unitless]
-            lift_to_drag_ratio      Coeff. of Lift to Coeff. of Drag    [Unitess]
+            lift_to_drag_ratio      Coeff. of Lift to Coeff. of Drag    [Unitless]
             forward_web_locations   Location of Forward Spar Webbing    [m]
             rear_web_locations      Location of Rear Spar Webbing       [m]
             shear_center            Location of Shear Center            [m]

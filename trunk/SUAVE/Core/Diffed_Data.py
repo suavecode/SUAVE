@@ -12,6 +12,7 @@
 from copy import deepcopy
 from .Container import Container as ContainerBase
 from .Data import Data
+from .DataOrdered import DataOrdered
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -324,6 +325,14 @@ def diff(A,B):
 
         elif isinstance(va,Data) or isinstance(vb,Data):
             result[key] = va
+            
+        elif isinstance(va,DataOrdered) and isinstance(vb,DataOrdered):
+            sub_diff = diff(va,vb)
+            if sub_diff:
+                result[key] = sub_diff
+
+        elif isinstance(va,DataOrdered) or isinstance(vb,DataOrdered):
+            result[key] = va        
 
         elif not np.all(va == vb):
             result[key] = va

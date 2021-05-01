@@ -1,9 +1,0 @@
-Log File of System stderr from AVL Run 
-Wed Jun 17 21:56:30 2015
-
-dyld: Library not loaded: /usr/local/lib/libg2c.0.dylib
-  Referenced from: /usr/bin/avl
-  Reason: image not found
-
-Process finished: Wed Jun 17 21:56:30 2015
-Exit status: -5

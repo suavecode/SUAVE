@@ -17,7 +17,7 @@ Tunit = 1.0 s
 #  Gravity and density to be used as default values in trim setup.
 #  Must be in the units given above.
 g   = 9.81
-rho = 1.2
+rho = 1.2250000002007604
 
 #-------------------------
 #  Mass & Inertia breakdown.

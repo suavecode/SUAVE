@@ -34,8 +34,6 @@ def untrimmed(state,settings,geometry):
 
     # unpack inputs
     conditions     = state.conditions
-    configuration  = settings
-    drag_breakdown = conditions.aerodynamics.drag_breakdown
 
     # various drag components
     parasite_total        = conditions.aerodynamics.drag_breakdown.parasite.total            

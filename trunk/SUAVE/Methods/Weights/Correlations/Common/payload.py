@@ -12,12 +12,13 @@
 
 from SUAVE.Core import Units, Data
 
+
 # ----------------------------------------------------------------------
 #   Payload
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-Common 
-def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195*Units.lbs,wt_baggage = 30*Units.lbs):
+def payload(vehicle, wt_passenger=195 * Units.lbs, wt_baggage=30 * Units.lbs):
     """ Calculate the weight of the payload and the resulting fuel mass
     
     Assumptions:
@@ -44,20 +45,19 @@ def payload(TOW, empty, num_pax, wt_cargo, wt_passenger = 195*Units.lbs,wt_bagga
                
     Properties Used:
         N/A
-    """ 
-    
+    """
+
     # process
-    wt_pax     = wt_passenger * num_pax
-    wt_bag     = wt_baggage * num_pax 
-    wt_payload = wt_pax + wt_bag + wt_cargo
-    wt_fuel    = TOW - wt_payload - empty
-    
+    num_pax     = vehicle.passengers
+    wt_pax      = wt_passenger * num_pax
+    wt_bag      = wt_baggage * num_pax
+    wt_payload  = wt_pax + wt_bag + vehicle.mass_properties.cargo
+
     # packup outputs
-    output = Data()
-    output.payload = wt_payload
-    output.pax     = wt_pax   
-    output.bag     = wt_bag
-    output.fuel    = wt_fuel
-    output.empty   = empty
-  
+    output              = Data()
+    output.total        = wt_payload
+    output.passengers   = wt_pax
+    output.baggage      = wt_bag
+    output.cargo        = vehicle.mass_properties.cargo
+
     return output

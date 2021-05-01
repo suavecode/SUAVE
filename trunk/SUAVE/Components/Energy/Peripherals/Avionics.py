@@ -44,6 +44,7 @@ class Avionics(Energy_Component):
         N/A
         """                 
         self.power_draw = 0.0
+        self.tag        = 'avionics'
         
     def power(self):
         """This gives the power draw from avionics.

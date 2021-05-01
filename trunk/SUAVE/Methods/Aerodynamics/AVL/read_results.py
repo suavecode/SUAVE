@@ -37,8 +37,7 @@ def read_results(avl_object):
     aircraft = avl_object.geometry
     results  = Data()
     case_idx = 0  
-    for case_name in avl_object.current_status.cases:
-        case     = avl_object.current_status.cases[case_name]
+    for case in avl_object.current_status.cases:
         num_ctrl =  case.stability_and_control.number_control_surfaces
         # open newly written result files and read in aerodynamic properties 
         with open(case.aero_result_filename_1,'r') as stab_der_vile:
@@ -87,7 +86,6 @@ def read_results(avl_object):
             case_res.stability.beta_derivatives.roll_moment_derivative      = float(lines[38+num_ctrl][43:54].strip()) # Cl_b
             case_res.stability.beta_derivatives.pitch_moment_derivative     = float(lines[39+num_ctrl][43:54].strip()) # Cm_b
             case_res.stability.beta_derivatives.yaw_moment_derivative       = float(lines[40+num_ctrl][43:54].strip()) # Cn_b
-        
             case_res.stability.CL_p                                         = float(lines[44+num_ctrl][24:34].strip())
             case_res.stability.CL_q                                         = float(lines[44+num_ctrl][43:54].strip())
             case_res.stability.CL_r                                         = float(lines[44+num_ctrl][65:74].strip())
@@ -121,7 +119,7 @@ def read_results(avl_object):
             case_res.stability.neutral_point      = float(lines[50+12*(num_ctrl>0)+num_ctrl][22:33].strip())    
         
         # get number of wings, spanwise discretization for surface and strip force result extraction
-        n_sw    = avl_object.settings.spanwise_vortices
+        n_sw    = avl_object.settings.number_spanwise_vortices
         n_wings = 0 
         for wing in aircraft.wings:
             n_wings += 1
@@ -137,6 +135,7 @@ def read_results(avl_object):
         wing_local_span      = np.zeros((n_wings,n_sw))
         wing_sectional_chord = np.zeros((n_wings,n_sw))
         wing_cl              = np.zeros((n_wings,n_sw))
+        alpha_i              = np.zeros((n_wings,n_sw))
         wing_cd              = np.zeros((n_wings,n_sw))   
         
         # Extract resulst from surface forces result file
@@ -163,18 +162,21 @@ def read_results(avl_object):
             for i in range(n_wings): 
                 for j in range(n_sw):
                     wing_local_span[i,j]      = float(aero_lines_2[header + j + line_idx][8:16].strip())
-                    wing_sectional_chord[i,j] = float(aero_lines_2[header + j + line_idx][16:24].strip())
-                    wing_cl[i,j]              = float(aero_lines_2[header + j + line_idx][61:69].strip()) 
+                    wing_sectional_chord[i,j] = float(aero_lines_2[header + j + line_idx][16:24].strip()) 
+                    wing_cl[i,j]              = float(aero_lines_2[header + j + line_idx][61:69].strip())  
                     # At high angle of attacks, AVL does not give an answer 
                     try:
+                        alpha_i[i,j]              = float(aero_lines_2[header + j + line_idx][43:51].strip())
                         wing_cd[i,j]              = float(aero_lines_2[header + j + line_idx][70:78].strip())
                     except:
+                        alpha_i[i,j]              = 0.
                         wing_cd[i,j]              = 0.
                 line_idx = divider_header +  n_sw + line_idx            
-            case_res.aerodynamics.wing_local_spans    = wing_local_span
-            case_res.aerodynamics.wing_section_chords = wing_sectional_chord 
-            case_res.aerodynamics.wing_section_cls    = wing_cl 
-            case_res.aerodynamics.wing_section_cds    = wing_cd 
+            case_res.aerodynamics.wing_local_spans         = wing_local_span
+            case_res.aerodynamics.wing_section_chords      = wing_sectional_chord 
+            case_res.aerodynamics.wing_section_cls         = wing_cl 
+            case_res.aerodynamics.wing_section_aoa_i       = alpha_i 
+            case_res.aerodynamics.wing_section_cds         = wing_cd 
   
         with open(case.aero_result_filename_4,'r') as bod_der_vile:
             # Extract results from body axis derivatives file                         

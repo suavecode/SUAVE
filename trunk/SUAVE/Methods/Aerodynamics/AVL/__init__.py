@@ -14,5 +14,6 @@ from .write_geometry           import write_geometry
 from .write_mass_file          import write_mass_file
 from .write_input_deck         import write_input_deck
 from .write_run_cases          import write_run_cases
+from .write_avl_airfoil_file   import write_avl_airfoil_file
 
 from . import Data

@@ -3,6 +3,9 @@
 #
 # Created:  Jul 2016, E. Botero
 # Modified: Sep 2016, E. Botero
+#           May 2020, E. Botero
+#           Jul 2020, E. Botero 
+
 
    
 # ----------------------------------------------------------------------
@@ -124,8 +127,7 @@ class Property(object):
 ## @ingroup Core
 class DataOrdered(OrderedDict):
     """ An extension of the Python dict which allows for both tag and '.' usage.
-        This is an unordered dictionary. So indexing it will not produce deterministic results.
-        This has less overhead than ordering. If ordering is needed use DataOrdered().
+        This is an ordered dictionary. So indexing it will produce deterministic results.
        
         Assumptions:
         N/A
@@ -158,12 +160,10 @@ class DataOrdered(OrderedDict):
             N/A    
         """         
         if key is None: key = value.tag
-        key_in = key
         key = key.translate(t_table)
-        if key != key_in: warn("changing appended key '%s' to '%s'\n" % (key_in,key))
         if key is None: key = value.tag
         if key in self: raise KeyError('key "%s" already exists' % key)
-        self[key] = value    
+        self.__setattr__(key,value)    
 
     def __defaults__(self):
         """ A stub for all classes that come later
@@ -203,7 +203,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """          
-        if not isinstance(k,int):
+        if not (isinstance(k,int) or isinstance(k,np.int64)):
             return super(DataOrdered,self).__getattribute__(k)
         else:
             return super(DataOrdered,self).__getattribute__(self.keys()[k])
@@ -251,7 +251,7 @@ class DataOrdered(OrderedDict):
     
     def hasattr(self,k):
         try:
-            elf.__getitem__(k)
+            self.__getitem__(k)
             return True
         except:
             return False
@@ -374,26 +374,6 @@ class DataOrdered(OrderedDict):
         args += self.__str2(indent)
         
         return args
-        
-    def __repr__(self):
-        """ This function is used for printing the dataname of the class
-    
-            Assumptions:
-            N/A
-    
-            Source:
-            N/A
-    
-            Inputs:
-            N/A
-    
-            Outputs:
-            N/A
-    
-            Properties Used:
-            N/A    
-        """            
-        return self.dataname()
     
     def get_bases(self):
         """ Finds the higher classes that may be built off of data
@@ -633,7 +613,7 @@ class DataOrdered(OrderedDict):
         """          
         return self.__dict__.__len__()   
 
-    def __iter__(self):
+    def __iter_basic__(self):
         """ Returns all the iterable values. Can be used in a for loop.
     
             Assumptions:
@@ -656,9 +636,9 @@ class DataOrdered(OrderedDict):
         while curr is not root:
             yield curr[2]
             curr = curr[1]
-
+            
     def __reduce__(self):
-        """ Reduction function used for pickling data
+        """ Reduction function used for making configs
     
             Assumptions:
             N/A
@@ -691,8 +671,8 @@ class DataOrdered(OrderedDict):
             N/A
     
             Inputs:
-            k        [key]
-            v        [value]
+            key        [key]
+            value        [value]
     
             Outputs:
             N/A
@@ -875,7 +855,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """         
-        return list(self.__iter())
+        return list(self.__iter_basic__())
     
     def values(self):
         """ Returns all values inside the Data() class.
@@ -895,7 +875,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """             
-        return [self[key] for key in self.__iter()]
+        return [self[key] for key in self.__iter_basic__()]
     
     def items(self):
         """ Returns all the items inside the data class
@@ -915,7 +895,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """          
-        return [(key, self[key]) for key in self.__iter()]
+        return [(key, self[key]) for key in self.__iter_basic__()]
     
     def iterkeys(self):
         """ Returns all the keys which may be iterated over
@@ -935,7 +915,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """         
-        return self.__iter()
+        return self.__iter_basic__()
     
     def itervalues(self):
         """ Finds all the values that can be iterated over.
@@ -955,7 +935,7 @@ class DataOrdered(OrderedDict):
             Properties Used:
             N/A    
         """          
-        for k in self.__iter():
+        for k in self.__iter_basic__():
             yield self[k]
     
     def iteritems(self):
@@ -1002,45 +982,3 @@ def _reconstructor(klass,items):
     self = DataOrdered.__new__(klass)
     DataOrdered.__init__(self,items)
     return self
-            
-
-# ----------------------------------------------------------------------
-#   Module Tests
-# ----------------------------------------------------------------------        
-
-if __name__ == '__main__':
-    
-    d = DataOrdered()
-    d.tag = 'data name'
-    d['value'] = 132
-    d.options = DataOrdered()
-    d.options.field = 'of greens'
-    d.options.half  = 0.5
-    print(d)
-    
-    import numpy as np
-    ones = np.ones([10,1])
-        
-    m = DataOrdered()
-    m.tag = 'numerical data'
-    m.hieght = ones * 1.
-    m.rates = DataOrdered()
-    m.rates.angle  = ones * 3.14
-    m.rates.slope  = ones * 20.
-    m.rates.special = 'nope'
-    m.value = 1.0
-    
-    print(m)
-    
-    V = m.pack_array('vector')
-    M = m.pack_array('array')
-    
-    print(V)
-    print(M)
-    
-    V = V*10
-    M = M-10
-    
-    print(m.unpack_array(V))
-    print(m.unpack_array(M))
-    

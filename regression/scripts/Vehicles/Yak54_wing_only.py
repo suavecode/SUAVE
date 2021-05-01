@@ -65,7 +65,7 @@ def vehicle_setup():
     wing.areas.reference         = 12.89 * Units['meters**2']  
     wing.vertical                = False
     wing.symmetric               = True
-    wing.high_lift               = True
+    wing.high_lift               = False
     wing.dynamic_pressure_ratio  = 1.0
 
 

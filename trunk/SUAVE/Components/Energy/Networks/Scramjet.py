@@ -60,9 +60,10 @@ class Scramjet(Propulsor):
 
         #setting the default values 
         self.tag = 'Scramjet' 
-        self.number_of_engines = 1.0 
-        self.nacelle_diameter  = 1.0 
-        self.engine_length     = 1.0  
+        self.number_of_engines         = 1.0 
+        self.nacelle_diameter          = 1.0 
+        self.engine_length             = 1.0  
+        self.generative_design_minimum = 0
 
     def evaluate_thrust(self,state): 
         """ Calculate thrust given the current state of the vehicle 
@@ -175,84 +176,5 @@ class Scramjet(Propulsor):
         results.specific_impulse    = Isp
 
         return results 
-
-
-    def size(self,state):       
-        """ Size the scramjet    
-
-            Assumptions: 
-            None 
-
-            Source: 
-            N/A 
-
-            Inputs: 
-            State [state()] 
-
-            Outputs: 
-            None 
-
-            Properties Used: 
-            N/A 
-
-        """        
-        #Unpack components 
-        conditions = state.conditions       
-        ram                       = self.ram 
-        inlet_nozzle              = self.inlet_nozzle 
-        combustor                 = self.combustor 
-        core_nozzle               = self.core_nozzle 
-        thrust                    = self.thrust      
-
-        #Creating the network by manually linking the different components 
-
-        #set the working fluid to determine the fluid properties 
-        ram.inputs.working_fluid                               = self.working_fluid 
-
-        #Flow through the ram , this computes the necessary flow quantities and stores it into conditions 
-        ram(conditions) 
-
-        #link inlet nozzle to ram  
-        inlet_nozzle.inputs.stagnation_temperature             = ram.outputs.stagnation_temperature 
-        inlet_nozzle.inputs.stagnation_pressure                = ram.outputs.stagnation_pressure  
-
-        #Flow through the inlet nozzle 
-        inlet_nozzle.compute_scramjet(conditions) 
-
-        #link the combustor to the inlet nozzle 
-        combustor.inputs.stagnation_temperature                = inlet_nozzle.outputs.stagnation_temperature 
-        combustor.inputs.stagnation_pressure                   = inlet_nozzle.outputs.stagnation_pressure 
-        combustor.inputs.inlet_nozzle                          = inlet_nozzle.outputs 
-
-        #flow through the combustor 
-        combustor.compute_scramjet(conditions) 
-
-        #link the core nozzle to the combustor 
-        core_nozzle.inputs.stagnation_temperature              = combustor.outputs.stagnation_temperature 
-        core_nozzle.inputs.stagnation_pressure                 = combustor.outputs.stagnation_pressure 
-        core_nozzle.inputs.static_temperature                  = combustor.outputs.static_temperature 
-        core_nozzle.inputs.static_pressure                     = combustor.outputs.static_pressure 
-        core_nozzle.inputs.velocity                            = combustor.outputs.velocity 
-        core_nozzle.inputs.fuel_to_air_ratio                   = combustor.outputs.fuel_to_air_ratio 
-
-        #flow through the core nozzle 
-        core_nozzle.compute_scramjet(conditions) 
-
-        #link the thrust component to the core nozzle 
-        thrust.inputs.core_exit_pressure                       = core_nozzle.outputs.pressure 
-        thrust.inputs.core_exit_temperature                    = core_nozzle.outputs.temperature  
-        thrust.inputs.core_exit_velocity                       = core_nozzle.outputs.velocity 
-        thrust.inputs.core_area_ratio                          = core_nozzle.outputs.area_ratio 
-        thrust.inputs.core_nozzle                              = core_nozzle.outputs 
-
-        #link the thrust component to the combustor 
-        thrust.inputs.fuel_to_air_ratio                        = combustor.outputs.fuel_to_air_ratio 
-
-        #link the thrust component to the core nozzle 
-        thrust.inputs.stag_temp_lpt_exit                       = core_nozzle.outputs.stagnation_temperature 
-        thrust.inputs.stag_press_lpt_exit                      = core_nozzle.outputs.stagnation_pressure 
-
-        #compute the thrust 
-        thrust.size_stream_thrust(conditions) 
 
     __call__ = evaluate_thrust 

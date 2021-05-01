@@ -4,6 +4,7 @@
 # Created:  Jul 2015, E. Botero 
 # Modified: Feb 2016, M. Vegh
 #           Apr 2017, T. MacDonald
+#           Jul 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -164,7 +165,7 @@ class Nexus(Data):
         objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
         
-        return scaled_objective
+        return scaled_objective.astype(np.double) 
     
     def inequality_constraint(self,x = None):
         """Retrieve the inequality constraint values for your function
@@ -260,7 +261,7 @@ class Nexus(Data):
             scaled_constraints = help_fun.scale_const_values(eqconstraints,constraint_values) - help_fun.scale_const_bnds(eqconstraints)
 
         return scaled_constraints   
-    
+        
     def all_constraints(self,x = None):
         """Returns both the inequality and equality constraint values for your function
     
@@ -287,8 +288,8 @@ class Nexus(Data):
         results     = self.results
     
         constraint_values  = help_fun.get_values(self,constraints,aliases) 
-        scaled_constraints = help_fun.scale_const_values(constraints,constraint_values)
-    
+        scaled_constraints = help_fun.scale_const_values(constraints,constraint_values) 
+
         return scaled_constraints     
     
     

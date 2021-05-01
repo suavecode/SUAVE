@@ -3,8 +3,10 @@
 # sizing.
 # @ingroup Methods-Weights
 
-from . import eVTOL 
-from . import Electric_Multicopter
-from . import Electric_Lift_Cruise
-from . import Electric_Vectored_Thrust
+from . import eVTOL  
 from . import Common 
+
+# to be removed 
+from . import Electric_Lift_Cruise
+from . import Electric_Multicopter
+from . import Electric_Vectored_Thrust

@@ -3,6 +3,7 @@
 # 
 # Created:  Oct 2015, M. Vegh, 
 # Modified: Jan 2016, E. Botero
+# Modified: Jan 2019, E. Botero
 
 # ----------------------------------------------------------------------
 #  Compute Chord Length from Span Location
@@ -30,9 +31,15 @@ def compute_chord_length_from_span_location(wing,span_location):
 
     Properties Used:
     N/A
-    """      
+    """
+    #unpack
+    ct = wing.chords.tip
+    cr = wing.chords.root
+    b  = wing.spans.projected
+    
+    b_2 = b/2.
+    
+    chord_length = ct + ((cr-ct)/b_2)*(b_2-span_location)
 
-    chord_span_slope=(.25*wing.chords.root-.25*wing.chords.tip)/(wing.spans.projected*.5)
-    chord_length=4*span_location*chord_span_slope+wing.chords.tip
     
     return chord_length

@@ -4,6 +4,7 @@
 # Created:  Dec 2016, E. Botero
 # Modified: Jun 2017, E. Botero
 #           Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -78,7 +79,7 @@ def converge_opt(segment):
         segment_points = segment.state.numerics.number_control_points
         for ii in range(0,2*segment_points):
             opt_prob.addCon(str(ii), type='e', equal=0.)
-        for ii in range(0,3*segment_points-1):
+        for ii in range(0,5*segment_points-1):
             opt_prob.addCon(str(ii+segment_points*2), type='i', lower=0.,upper=np.inf)
     
         print(opt_prob)
@@ -188,7 +189,7 @@ def make_bnds(unknowns, segment):
     elif segment.air_speed_end is not None:    
         vels      = ones_m2*(0.,2000.)
     
-    bnds = np.vstack([vels,throttle_bnds,gamma,body_angle])
+    bnds = np.vstack([throttle_bnds,gamma,body_angle,vels])
     
     bnds = list(map(tuple, bnds))
     
@@ -196,12 +197,14 @@ def make_bnds(unknowns, segment):
 
 ## @ingroup Methods-Missions-Segments
 def get_ieconstraints(unknowns, segment):
-    """ Runs the mission if the inequality constraint values are needed
+    """ Runs the mission if the inequality constraint values are needed, these are specific to a climb
     
         Assumptions:
         Time only goes forward
         CL is less than a specified limit
+        CL is greater than zero
         All altitudes are greater than zero
+        The vehicle accelerates not decelerates
         
         Inputs:
         state.unknowns      [Data]
@@ -219,7 +222,7 @@ def get_ieconstraints(unknowns, segment):
     else:
         segment.state.unknowns = unknowns
         
-    if not np.all(segment.state.inputs_last == segment.state.unknowns):       
+    if not np.all(segment.state.inputs_last == segment.state.unknowns):
         segment.process.iterate(segment)
     
     # Time goes forward, not backward
@@ -227,13 +230,18 @@ def get_ieconstraints(unknowns, segment):
     time_con = (segment.state.conditions.frames.inertial.time[1:,0] - segment.state.conditions.frames.inertial.time[0:-1,0])/t_final
     
     # Less than a specified CL limit
-    lift_coefficient_limit = segment.lift_coefficient_limit 
+    lift_coefficient_limit = segment.lift_coefficient_limit
     CL_con = (lift_coefficient_limit  - segment.state.conditions.aerodynamics.lift_coefficient[:,0])/lift_coefficient_limit
+    
+    CL_con2   = segment.state.conditions.aerodynamics.lift_coefficient[:,0]
     
     # Altitudes are greater than 0
     alt_con = segment.state.conditions.freestream.altitude[:,0]/segment.altitude_end
     
-    constraints = np.concatenate((time_con,CL_con,alt_con))
+    # Acceleration constraint, go faster not slower
+    acc_con   = segment.state.conditions.frames.inertial.acceleration_vector[:,0]
+    
+    constraints = np.concatenate((time_con,CL_con,CL_con2,alt_con,acc_con))
     
     return constraints
 
@@ -264,7 +272,7 @@ def get_problem_pyopt(unknowns, segment):
     else:
         segment.state.unknowns = unknowns
         
-    if not np.all(segment.state.inputs_last == segment.state.unknowns):       
+    if not np.all(segment.state.inputs_last == segment.state.unknowns):
         segment.process.iterate(segment)
         
     obj      = segment.state.objective_value
@@ -275,16 +283,22 @@ def get_problem_pyopt(unknowns, segment):
     
     # Less than a specified CL limit
     lift_coefficient_limit = segment.lift_coefficient_limit 
-    CL_con   = (lift_coefficient_limit  - state.conditions.aerodynamics.lift_coefficient[:,0])/lift_coefficient_limit
+    CL_con   = (lift_coefficient_limit  - segment.state.conditions.aerodynamics.lift_coefficient[:,0])/lift_coefficient_limit
+    
+    CL_con2   = segment.state.conditions.aerodynamics.lift_coefficient[:,0]
     
     # Altitudes are greater than 0
     alt_con = segment.state.conditions.freestream.altitude[:,0]/segment.altitude_end
     
+    # Acceleration constraint, go faster not slower
+    acc_con   = segment.state.conditions.frames.inertial.acceleration_vector[:,0]
+    
     # Put the equality and inequality constraints together
-    constraints = np.concatenate((segment.state.constraint_values,time_con,CL_con,alt_con))
+    constraints = np.concatenate((segment.state.constraint_values,time_con,CL_con,alt_con,acc_con,CL_con2))
+    
     
     obj   = segment.state.objective_value
     const = constraints.tolist()
-    fail  = np.array(np.isnan(obj.tolist()) or np.isnan(np.array(const).any())).astype(int)    
+    fail  = np.array(np.isnan(obj) or np.isnan(np.array(const).any())).astype(int)    
     
     return obj,const,fail

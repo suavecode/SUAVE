@@ -286,6 +286,9 @@ def base(analyses):
     segment.air_speed      = 138.0  * Units['m/s']
     segment.climb_rate     = 3000.  * Units['ft/min']
  
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.body_angle = ones_row(1) * 2. * Units.deg     
+    
     # add to misison
     mission.append_segment(segment)
 

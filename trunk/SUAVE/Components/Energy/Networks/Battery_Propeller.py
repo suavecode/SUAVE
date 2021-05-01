@@ -54,18 +54,21 @@ class Battery_Propeller(Propulsor):
             Properties Used:
             N/A
         """             
-        self.motor             = None
-        self.propeller         = None
-        self.esc               = None
-        self.avionics          = None
-        self.payload           = None
-        self.battery           = None
-        self.nacelle_diameter  = None
-        self.engine_length     = None
-        self.number_of_engines = None
-        self.voltage           = None
-        self.thrust_angle      = 0.0
-        self.use_surrogate     = False
+        self.motor                     = None
+        self.propeller                 = None
+        self.esc                       = None
+        self.avionics                  = None
+        self.payload                   = None
+        self.battery                   = None
+        self.nacelle_diameter          = None
+        self.engine_length             = None
+        self.number_of_engines         = None
+        self.voltage                   = None
+        self.thrust_angle              = 0.0
+        self.pitch_command             = 0.0 
+        self.tag                       = 'Battery_Propeller'
+        self.use_surrogate             = False
+        self.generative_design_minimum = 0
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -124,8 +127,9 @@ class Battery_Propeller(Propulsor):
         motor.omega(conditions)
         
         # link
-        propeller.inputs.omega =  motor.outputs.omega
-        propeller.thrust_angle = self.thrust_angle
+        propeller.inputs.omega = motor.outputs.omega
+        propeller.thrust_angle  = self.thrust_angle
+        propeller.pitch_command = self.pitch_command 
         
         # step 4
         F, Q, P, Cp, outputs , etap = propeller.spin(conditions)
@@ -160,8 +164,8 @@ class Battery_Propeller(Propulsor):
         avionics_payload_current = avionics_payload_power/self.voltage
 
         # link
-        battery.inputs.current  = esc.outputs.currentin*self.number_of_engines + avionics_payload_current
-        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*self.number_of_engines + avionics_payload_power)
+        battery.inputs.current  = esc.outputs.currentin*num_engines + avionics_payload_current
+        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*num_engines + avionics_payload_power)
         battery.energy_calc(numerics)        
     
         # Pack the conditions for outputs
@@ -172,7 +176,8 @@ class Battery_Propeller(Propulsor):
         battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load    
+        voltage_under_load   = battery.voltage_under_load
+        state_of_charge      = battery.state_of_charge
           
         conditions.propulsion.rpm                   = rpm
         conditions.propulsion.current               = current
@@ -180,18 +185,18 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.battery_energy        = battery_energy
         conditions.propulsion.voltage_open_circuit  = voltage_open_circuit
         conditions.propulsion.voltage_under_load    = voltage_under_load  
+        conditions.propulsion.state_of_charge       = state_of_charge
         conditions.propulsion.motor_torque          = motor.outputs.torque
         conditions.propulsion.propeller_torque      = Q
         conditions.propulsion.battery_specfic_power = -battery_draw/battery.mass_properties.mass # Wh/kg
-        conditions.propulsion.propeller_tip_mach    = (R*rpm)/a
+        conditions.propulsion.propeller_tip_mach    = (R*rpm*Units.rpm)/a
         
         # Create the outputs
-        F    = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
-        mdot = np.zeros_like(F)
-
-        F_mag = np.atleast_2d(np.linalg.norm(F, axis=1)/Units.lbs) # lb   
-        conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2) # lb/ft^2                     
-        conditions.propulsion.power_loading         = (F_mag.T)/(battery_draw/Units.hp)                # lb/hp 
+        F                                           = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      
+        mdot                                        = state.ones_row(1)*0.0
+        F_mag                                       = np.atleast_2d(np.linalg.norm(F, axis=1))  
+        conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R)**2) # N/m^2                  
+        conditions.propulsion.power_loading         = (F_mag.T)/(P)                         # N/W 
         
         results = Data()
         results.thrust_force_vector = F

@@ -22,6 +22,9 @@ import numpy as np
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Propulsion.fm_id import fm_id
 
+# exceptions/warnings
+from warnings import warn
+
 # ----------------------------------------------------------------------
 #  Expansion Nozzle Component
 # ----------------------------------------------------------------------
@@ -74,6 +77,7 @@ class Expansion_Nozzle(Energy_Component):
 
         Assumptions:
         Constant polytropic efficiency and pressure ratio
+        If pressures make the Mach number go negative, these values are corrected
 
         Source:
         https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Course_Notes/
@@ -136,6 +140,8 @@ class Expansion_Nozzle(Energy_Component):
         Tt_out   = Tt_in*pid**((gamma-1)/(gamma)*etapold)
         ht_out   = Cp*Tt_out
         
+        # A cap so pressure doesn't go negative
+        Pt_out[Pt_out<Po] = Po[Pt_out<Po]
         
         #compute the output Mach number, static quantities and the output velocity
         Mach          = np.sqrt((((Pt_out/Po)**((gamma-1)/gamma))-1)*2/(gamma-1))
@@ -154,6 +160,11 @@ class Expansion_Nozzle(Energy_Component):
         #Computing output pressure and Mach number for the case Mach >=1.0        
         Mach[i_high]  = 1.0*Mach[i_high]/Mach[i_high]
         P_out[i_high] = Pt_out[i_high]/(1.+(gamma[i_high]-1.)/2.*Mach[i_high]*Mach[i_high])**(gamma[i_high]/(gamma[i_high]-1.))
+        
+        # A cap to make sure Mach doesn't go to zero:
+        if np.any(Mach<=0.0):
+            warn('Pressures Result in Negative Mach Number, making positive',RuntimeWarning)
+            Mach[Mach<=0.0] = 0.001
         
         #Computing the output temperature,enthalpy, velocity and density
         T_out         = Tt_out/(1+(gamma-1)/2*Mach*Mach)

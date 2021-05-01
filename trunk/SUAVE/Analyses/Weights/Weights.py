@@ -1,17 +1,15 @@
 ## @ingroup Analyses-Weights
 # Weights.py
 #
-# Created: Apr 2017, Matthew Clarke
+# Created:  Apr 2017, Matthew Clarke
+# Modified: Apr 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Analyses import Analysis
-
-
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -59,9 +57,11 @@ class Weights(Analysis):
         
         self.vehicle  = Data()
         self.settings = Data()
+        
+        self.settings.empty = None
                
         
-    def evaluate(self):
+    def evaluate(self,conditions=None):
         """Evaluate the weight analysis.
     
         Assumptions:
@@ -71,36 +71,52 @@ class Weights(Analysis):
         N/A
 
         Inputs:
-        None
+        self.vehicle           [Data]
+        self.settings          [Data]
+        self.settings.empty    [Data]
 
         Outputs:
-        None
+        self.weight_breakdown  [Data]
+        results                [Data]
 
         Properties Used:
         N/A
         """         
+        # unpack
+        vehicle  = self.vehicle
+        settings = self.settings
+        empty    = self.settings.empty
+
+        # evaluate
+        results = empty(vehicle,settings)
         
-        return 
+        # storing weigth breakdown into vehicle
+        vehicle.weight_breakdown = results 
+
+        # updating empty weight
+        vehicle.mass_properties.operating_empty = results.empty
+              
+        return results
+    
     
     def finalize(self):
         """Finalize the weight analysis.
     
         Assumptions:
         None
-    
+
         Source:
         N/A
-    
+
         Inputs:
         None
-    
+
         Outputs:
         None
-    
+
         Properties Used:
         N/A
-        """          
+        """           
+        self.mass_properties = self.vehicle.mass_properties
         
-        return     
-    
-        
+        return

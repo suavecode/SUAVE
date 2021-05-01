@@ -48,21 +48,22 @@ class Vectored_Thrust(Propulsor):
     
             Properties Used:
             N/A
-        """             
-        self.motor               = None
-        self.rotor               = None
-        self.esc                 = None
-        self.avionics            = None
-        self.payload             = None
-        self.battery             = None
-        self.nacelle_diameter    = None
-        self.engine_length       = None
-        self.number_of_engines   = None
-        self.voltage             = None
-        self.thrust_angle        = 0.0 
-        self.pitch_command       = 0.0
-        self.thrust_angle_start  = None
-        self.thrust_angle_end    = None        
+        """      
+        self.tag                      = 'vectored_thrust'
+        self.motor                    = None
+        self.rotor                    = None
+        self.esc                      = None
+        self.avionics                 = None
+        self.payload                  = None
+        self.battery                  = None
+        self.nacelle_diameter         = None
+        self.engine_length            = None
+        self.number_of_engines        = None
+        self.voltage                  = None
+        self.thrust_angle             = 0.0 
+        self.pitch_command            = 0.0
+        self.thrust_angle_start       = None
+        self.thrust_angle_end         = None        
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -131,12 +132,13 @@ class Vectored_Thrust(Propulsor):
         thrust_angle = self.thrust_angle
                 
         # link
-        rotor.inputs.omega                  = motor.outputs.omega
-        rotor.thrust_angle                  = thrust_angle
-        conditions.propulsion.pitch_command = self.pitch_command
+        rotor.inputs.omega  = motor.outputs.omega
+        rotor.thrust_angle  = thrust_angle
+        rotor.pitch_command = self.pitch_command  
+        rotor.VTOL_flag     = state.VTOL_flag    
         
         # Run the rotor     
-        F, Q, P, Cp , output, etap = rotor.spin_variable_pitch(conditions)
+        F, Q, P, Cp , outputs, etap = rotor.spin(conditions)
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta        = conditions.propulsion.throttle[:,0,None]
@@ -183,6 +185,8 @@ class Vectored_Thrust(Propulsor):
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
         voltage_under_load   = battery.voltage_under_load    
+        state_of_charge      = battery.state_of_charge
+        
           
         conditions.propulsion.rpm                             = rpm
         conditions.propulsion.current                         = current
@@ -190,30 +194,32 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.battery_energy                  = battery_energy 
         conditions.propulsion.voltage_open_circuit            = voltage_open_circuit
         conditions.propulsion.voltage_under_load              = voltage_under_load  
+        conditions.propulsion.state_of_charge                 = state_of_charge        
         conditions.propulsion.motor_torque                    = motor.outputs.torque
         conditions.propulsion.propeller_torque                = Q
         conditions.propulsion.motor_efficiency                = etam
-        conditions.propulsion.acoustic_outputs[rotor.tag]     = output
+        conditions.propulsion.acoustic_outputs[rotor.tag]     = outputs
         conditions.propulsion.battery_specfic_power           = -battery_draw/battery.mass_properties.mass #Wh/kg
         conditions.propulsion.electronics_efficiency          = -(P*num_engines)/battery_draw   
-        conditions.propulsion.propeller_tip_mach              = (R*motor.outputs.omega)/a
+        conditions.propulsion.propeller_tip_mach              = (R*rpm*Units.rpm)/a
         conditions.propulsion.battery_current                 = total_current
         conditions.propulsion.battery_efficiency              = (battery_draw+battery.resistive_losses)/battery_draw
         conditions.propulsion.payload_efficiency              = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
         conditions.propulsion.propeller_power                 = P*num_engines
         conditions.propulsion.propeller_thrust_coefficient    = Cp   
         conditions.propulsion.propeller_efficiency            = etap       
-        conditions.propulsion.propeller_thrust_coefficient    = output.thrust_coefficient  
+        conditions.propulsion.propeller_thrust_coefficient    = outputs.thrust_coefficient  
         
         
         # Compute force vector       
         F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
         
-        F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1)/Units.lbs)  # lb   
-        conditions.propulsion.disc_loading                    = (F_mag.T)/(num_engines*np.pi*(R/Units.feet)**2) # lb/ft^2       
-        conditions.propulsion.power_loading                   = (F_mag.T)/(battery_draw/Units.hp)               # lb/hp 
+        F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1)) 
+  
+        conditions.propulsion.disc_loading                    = (F_mag.T)/(num_engines*np.pi*(R)**2) # N/m^2  
+        conditions.propulsion.power_loading                   = (F_mag.T)/(P)    # N/W         
         
-        mdot = np.zeros_like(F_vec)
+        mdot = state.ones_row(1)*0.0
 
         results = Data()
         results.thrust_force_vector = F_vec

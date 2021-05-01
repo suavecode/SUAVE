@@ -18,7 +18,7 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Correlations-UAV
-def empty(vehicle):
+def empty(vehicle,settings=None):
     """ This comoutes the weigt of a UAV   
     
     Assumptions:

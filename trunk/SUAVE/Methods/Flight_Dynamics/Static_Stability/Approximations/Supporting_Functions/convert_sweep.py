@@ -68,7 +68,7 @@ def convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.2
     
     #Convert sweep to leading edge sweep if it was not already so
     if old_ref_chord_fraction == 0.0:
-        sweep_LE = sweep
+        sweep_LE = wing.sweeps.leading_edge
     else:
         sweep_LE  = np.arctan(np.tan(sweep)+4*old_ref_chord_fraction*
                               (1-taper)/(ar*(1+taper)))  #Compute leading-edge sweep

@@ -4,18 +4,22 @@
 # Created:  Jun 2018, T. St Francis
 # Modified: Aug 2018, T. St Francis
 #           Jan 2020, T. MacDonald
+#           Jul 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units, Data
-from SUAVE.Input_Output.OpenVSP import get_vsp_areas
-from SUAVE.Components.Wings.Airfoils.Airfoil import Airfoil 
-from SUAVE.Components.Fuselages.Fuselage import Fuselage
+from SUAVE.Input_Output.OpenVSP.vsp_read_fuselage import vsp_read_fuselage
+from SUAVE.Input_Output.OpenVSP.vsp_read_wing import vsp_read_wing
+
 import vsp as vsp
-import numpy as np
+
+
+# ----------------------------------------------------------------------
+#  vsp read
+# ----------------------------------------------------------------------
 
 
 ## @ingroup Input_Output-OpenVSP
@@ -32,7 +36,7 @@ def vsp_read(tag, units_type='SI'):
 	   is a separate geometry and will NOT be processed.
 	2. Fuselage origin is located at nose. VSP file origin can be located anywhere, preferably at the forward tip
 	   of the vehicle or in front (to make all X-coordinates of vehicle positive).
-	3. Written for OpenVSP 3.16.1
+	3. Written for OpenVSP 3.21.1
 	
 	Source:
 	N/A
@@ -124,62 +128,45 @@ def vsp_read(tag, units_type='SI'):
 
 	if units_type == 'SI':
 		units_type = 'SI' 
+	elif units_type == 'inches':
+		units_type = 'inches'	
 	else:
-		units_type = 'Imperial' 
+		units_type = 'imperial'	
 
 	# The two for-loops below are in anticipation of an OpenVSP API update with a call for GETGEOMTYPE.
 	# This print function allows user to enter VSP GeomID manually as first argument in vsp_read functions.
 	
 	print("VSP geometry IDs: ")	
 	
-	# Label each geom type by storing its VSP geom ID. (The API call for GETGEOMTYPE was not released as of 8/9/18, v 3.16.1)
+	# Label each geom type by storing its VSP geom ID. 
 	
 	for geom in vsp_geoms: 
 		geom_name = vsp.GetGeomName(geom)
 		geom_names.append(geom_name)
 		print(str(geom_name) + ': ' + geom)
 	
-	# -----------------------------
-	# MANUAL VSP ENTRY & PROCESSING
-	# -----------------------------		
-	
-	#fuselage = read_vsp_fuselage(fuselage_id, units_type=units_type) # Replace fuselage_id manually.
-	#vehicle.append_component(fuselage)
-	
-	#wing = read_vsp_wing(wing_id, units_type=units_type)		# Replace wing_id manually.
-	#vehicle.append_component(wing)		
-	
-	#prop = read_vsp_prop(prop_id, units_type=units_type)		# Replace prop_id manually.	
-	#vehicle.append_component(prop)
-	
-
 	# --------------------------------
 	# AUTOMATIC VSP ENTRY & PROCESSING
 	# --------------------------------		
 		
-	#for geom in vsp_geoms:
-		#if vsp.GETGEOMTYPE(str(geom)) == 'FUSELAGE':
-			#vsp_fuselages.append(geom)
-		#if vsp.GETGEOMTYPE(str(geom)) == 'WING':
-			#vsp_wings.append(geom)
-		#if vsp.GETGEOMTYPE(str(geom)) == 'PROP':
-			#vsp_props.append(geom)
+	for geom in vsp_geoms:
+		geom_name = vsp.GetGeomTypeName(str(geom))
+		
+		if geom_name == 'Fuselage':
+			vsp_fuselages.append(geom)
+		if geom_name == 'Wing':
+			vsp_wings.append(geom)
+		if geom_name == 'Propeller':
+			vsp_props.append(geom)
 	
-	# Read VSP geoms and store in SUAVE components.
+	#Read VSP geoms and store in SUAVE components
 	
-	#for vsp_fuselage in vsp_fuselages:
-		#fuselage_id = vsp_fuselages[vsp_fuselage]
-		#fuselage = read_vsp_fuselage(fuselage_id, units_type)
-		#vehicle.append_component(fuselage)
+	for fuselage_id in vsp_fuselages:
+		fuselage = vsp_read_fuselage(fuselage_id, units_type)
+		vehicle.append_component(fuselage)
 	
-	#for vsp_wing in vsp_wings:
-		#wing_id = vsp_wings[vsp_wing]
-		#wing = read_vsp_wing(wing_id, units_type)
-		#vehicle.append_component(wing)		
-	
-	#for vsp_prop in vsp_props:
-		#prop_id = vsp_props[vsp_prop]
-		#prop = read_vsp_prop(prop_id, units_type)		
-		#vehicle.append_component(prop)
+	for wing_id in vsp_wings:
+		wing = vsp_read_wing(wing_id, units_type)
+		vehicle.append_component(wing)		
 	
 	return vehicle

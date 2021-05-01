@@ -3,7 +3,7 @@
 #
 # Created:  Jan 2016, E. Botero
 # Modified: Jul 2017, T. MacDonald
-#           Mar 2020, M. Clarke
+#           Mar 2020, M. Clarke 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -63,9 +63,9 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         self.air_speed_start    = 0.0 * Units['m/s']
         self.air_speed_end      = 1.0 * Units['m/s']        
         self.pitch_initial      = None
-        self.pitch_final        = 0.0 * Units['rad']        
+        self.pitch_final        = 0.0 * Units['rad']
         
-        
+
         # --------------------------------------------------------------
         #   State
         # --------------------------------------------------------------
@@ -75,7 +75,8 @@ class Constant_Acceleration_Constant_Pitchrate_Constant_Altitude(Aerodynamic):
         
         # initials and unknowns
         ones_row = self.state.ones_row
-        self.state.residuals.forces    = ones_row(2) * 0.0
+        self.state.residuals.forces   = ones_row(2) * 0.0
+        self.state.VTOL_flag          = True       
         
         
         # --------------------------------------------------------------

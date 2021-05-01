@@ -20,7 +20,7 @@ from .Weights import Weights
 
 ## @ingroup Analyses-Weights
 class Weights_eVTOL(Weights):
-    """ SUAVE.Analyses.Weights.Weights_Electric_Lift_Cruise()
+    """ SUAVE.Analyses.Weights.Weights_eVTOL()
     
     Assumptions:
     None
@@ -57,7 +57,7 @@ class Weights_eVTOL(Weights):
         N/A
         """
         
-        self.tag = 'weights_electric_stopped_rotor'
+        self.tag = 'weights_eVTOL'
         
         self.vehicle  = Data()
         self.settings = Data()
@@ -67,8 +67,7 @@ class Weights_eVTOL(Weights):
         """Uses the weight buildup method to estimate vehicle weight
 
         Assumptions:
-        Analysis has been assigned a vehicle.
-        Weight method to be used is default Electric Stopped Rotor method.
+        Analysis has been assigned a vehicle. 
 
         Source:
         N/A

@@ -38,12 +38,6 @@ def base_analysis(vehicle):
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
     
-    # ------------------------------------------------------------------
-    #  Propulsion Analysis
-    propulsion = SUAVE.Analyses.Energy.Propulsion()
-    propulsion.vehicle = vehicle
-    analyses.append(propulsion)
-    
     # done!
     return analyses    
 
@@ -65,10 +59,11 @@ def main():
     landing_config.wings['main_wing'].high_lift  = True
     # Vref_V2_ratio may be informed by user. If not, use default value (1.23)
     landing_config.Vref_VS_ratio = 1.23
+    
     # CLmax for a given configuration may be informed by user
-    # landing_config.maximum_lift_coefficient = 2.XX
     # Used defined ajust factor for maximum lift coefficient
-    landing_config.max_lift_coefficient_factor = 0.90
+    analyses = base_analysis(vehicle)
+    analyses.aerodynamics.settings.maximum_lift_coefficient_factor = 0.90
 
     # --- Airport definition ---
     airport = SUAVE.Attributes.Airports.Airport()
@@ -84,7 +79,7 @@ def main():
     landing_field_length = np.zeros_like(w_vec)
     for id_w,weight in enumerate(w_vec):
         landing_config.mass_properties.landing = weight
-        landing_field_length[id_w] = estimate_landing_field_length(landing_config,landing_config,airport)
+        landing_field_length[id_w] = estimate_landing_field_length(landing_config,analyses,airport)
 
     truth_LFL = np.array( [  723.67022689 ,  786.82625714 ,  849.98228739  , 913.13831764  , 976.29434789 , 1039.45037815 , 1102.6064084 ,  1165.76243865 , 1228.9184689 ,  1292.07449915])
     LFL_error = np.max(np.abs(landing_field_length-truth_LFL))

@@ -11,13 +11,14 @@
 #   Imports
 # ----------------------------------------------------------------------
 
+import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
 import SUAVE
 from SUAVE.Core.DataOrdered import DataOrdered
 import sys, os, traceback, time
-import matplotlib.pyplot as plt
+
 
 # ----------------------------------------------------------------------
 #   How This Works
@@ -37,17 +38,17 @@ modules = [
 
     # ----------------------- Regression List --------------------------
     'scripts/aerodynamics/aerodynamics.py',
-    #'scripts/aerodynamics_super/aerodynamics_super.py',
-    #'scripts/regression/test_mission_AS2.py', 
-    'scripts/airfoil_import/airfoil_import_test.py',    
+    'scripts/aerodynamics/sears_haack.py',
+    'scripts/airfoil_import/airfoil_import_test.py',
+    'scripts/airfoil_import/airfoil_interpolation_test.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
     'scripts/B737/mission_B737.py',
-    'scripts/battery/battery.py', 
-    'scripts/battery_propeller/battery_propeller.py',    
+    'scripts/battery/battery.py',
+    'scripts/battery_propeller/battery_propeller.py',
     'scripts/cmalpha/cmalpha.py',
-    'scripts/cnbeta/cnbeta.py',    
+    'scripts/cnbeta/cnbeta.py',
     'scripts/concorde/concorde.py',
     'scripts/DC_10_noise/DC_10_noise.py',
     'scripts/ducted_fan/ducted_fan_network.py',
@@ -55,45 +56,52 @@ modules = [
     'scripts/ducted_fan/serial_hybrid_ducted_fan_network.py',
     'scripts/dynamic_stability/dynamicstability.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
-    'scripts/fuel_cell/fuel_cell.py',     
+    'scripts/fuel_cell/fuel_cell.py',
     'scripts/gasturbine_network/gasturbine_network.py',
     'scripts/geometry/NACA_airfoil_compute.py',
     'scripts/geometry/NACA_volume_compute.py',
     'scripts/geometry/wing_fuel_volume_compute.py',
-    'scripts/geometry/fuselage_planform_compute.py', 
-    'scripts/industrial_costs/industrial_costs.py', 
-    'scripts/internal_combustion_propeller/ICE_Test.py',     
+    'scripts/geometry/fuselage_planform_compute.py',
+    'scripts/industrial_costs/industrial_costs.py',
+    'scripts/internal_combustion_propeller/ICE_Test.py',
+    'scripts/internal_combustion_propeller/ICE_CS_Test.py',
     'scripts/lifting_line/lifting_line.py',
-    'scripts/mission_range_and_weight_sizing/landing_field_length.py', 
+    'scripts/mission_range_and_weight_sizing/landing_field_length.py',
     'scripts/mission_range_and_weight_sizing/take_off_field_length.py',
-    'scripts/mission_range_and_weight_sizing/take_off_weight_from_tofl.py', 
+    'scripts/mission_range_and_weight_sizing/take_off_weight_from_tofl.py',
+    'scripts/motor/motor_test.py',
     'scripts/multifidelity/optimize_mf.py',
-    'scripts/noise_optimization/Noise_Test.py', 
-    'scripts/optimization_packages/optimization_packages.py',    
+    'scripts/noise_optimization/Noise_Test.py',
+    'scripts/optimization_packages/optimization_packages.py',
     'scripts/payload_range/payload_range.py',
+    'scripts/plots/plot_test.py',
     'scripts/propeller/propeller_test.py',
-    'scripts/motor/motor_test.py', 
+    'scripts/propeller_speeds/range_endurance_speeds.py',
     'scripts/propulsion_surrogate/propulsion_surrogate.py',
     'scripts/ramjet_network/ramjet_network.py',
     'scripts/Regional_Jet_Optimization/Optimize2.py',
     'scripts/scramjet_network/scramjet_network.py',
     'scripts/rocket_network/Rocketdyne_F1.py',
-    'scripts/rocket_network/Rocketdyne_J2.py',   
-    'scripts/segments/segment_test.py',     
-    'scripts/sizing_loop/sizing_loop.py',
+    'scripts/rocket_network/Rocketdyne_J2.py',
+    'scripts/segments/segment_test.py',
+    'scripts/slipstream/slipstream_test.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
     'scripts/solar_radiation/solar_radiation.py',
-    'scripts/SU2_surrogate/BWB-450.py',   
+    'scripts/SU2_surrogate/BWB-450.py',
     'scripts/sweeps/test_sweeps.py',
     'scripts/test_input_output/test_xml_read_write.py',
-    'scripts/test_input_output/test_freemind_write.py',    
-    'scripts/variable_cruise_distance/variable_cruise_distance.py', 
-    'scripts/V_n_diagram/V_n_diagram_regression.py',      
+    'scripts/test_input_output/test_freemind_write.py',
+    'scripts/variable_cruise_distance/variable_cruise_distance.py',
+    'scripts/V_n_diagram/V_n_diagram_regression.py',
     'scripts/VTOL/test_Multicopter.py',
-    'scripts/VTOL/test_Tiltwing.py',    
+    'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
-    'scripts/weights/weights.py',       
+    'scripts/weights/weights.py',
+    'scripts/electric_performance/propeller_single_point.py',
+    'scripts/electric_performance/electric_V_h_diagram.py',
+    'scripts/electric_performance/electric_payload_range.py',
+    'scripts/nonuniform_propeller_inflow/nonuniform_propeller_inflow.py'
 ]
 
 # ----------------------------------------------------------------------

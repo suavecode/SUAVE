@@ -61,7 +61,7 @@ def initialize_conditions(segment):
     # determine airspeed from equivalent airspeed
     SUAVE.Methods.Missions.Segments.Common.Aerodynamics.update_atmosphere(segment) # get density for airspeed
     density   = conditions.freestream.density[:,0]   
-    MSL_data  = segment.analyses.atmosphere.compute_values(0.0,segment.temperature_deviation)
+    MSL_data  = segment.analyses.atmosphere.compute_values(0.0,0.0)
     air_speed = eas/np.sqrt(density/MSL_data.density[0])    
     
     # process velocity vector

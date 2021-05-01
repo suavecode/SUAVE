@@ -3,6 +3,8 @@
 # 
 # Created:  
 # Modified: Dec 2016, T. MacDonald
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -39,7 +41,6 @@ class Lofted_Body(Physical_Component):
         """         
         self.tag = 'Lofted_Body'
         self.Segments = DataOrdered() # think edges
-        self.Sections = SectionContainer() # think nodes
     
    
 # ------------------------------------------------------------
@@ -112,53 +113,17 @@ class Section(Component):
             None
         """         
         self.tag = 'Section'
-        
-        self.Curves = CurveContainer()
-        
+                
         self.prev = None
         self.next = None
         
-# ------------------------------------------------------------
-#  Curve
-# ------------------------------------------------------------
-
-## @ingroup Components
-class Curve(Component):
-    """ A class that stubs out what a curve is
-    
-    Assumptions:
-    None
-    
-    Source:
-    None
-    """       
-    def __defaults__(self):
-        """This sets the default values.
-    
-            Assumptions:
-            None
-    
-            Source:
-            N/A
-    
-            Inputs:
-            None
-    
-            Outputs:
-            None
-    
-            Properties Used:
-            None
-        """         
-        self.tag = 'Curve'
-        self.points = []
         
 # ------------------------------------------------------------
 #  Containers
 # ------------------------------------------------------------
 
 ## @ingroup Components
-class SectionContainer(Component.Container):
+class Section_Container(Component.Container):
     """ This does nothing
     
     Assumptions:
@@ -167,28 +132,33 @@ class SectionContainer(Component.Container):
     Source:
     None
     """    
-    pass
-
-## @ingroup Components
-class CurveContainer(Component.Container):
-    """ This does nothing
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
     
-    Assumptions:
-    None
+        Source:
+        N/A
     
-    Source:
-    None
-    """      
-    pass
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """       
+        
+        return []
 
 
 # ------------------------------------------------------------
 #  Handle Linking
 # ------------------------------------------------------------
 
-Section.Curve       = Curve
-Section.Container   = SectionContainer
-Curve.Container     = CurveContainer
+Section.Container   = Section_Container
 Lofted_Body.Section = Section
 Lofted_Body.Segment = Segment
 

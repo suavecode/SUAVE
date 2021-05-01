@@ -1,7 +1,9 @@
 # segment_test.py
 # 
-# Created: Feb 2020, M. Clarke
-#
+# Created:  Feb 2020, M. Clarke
+#           Apr 2020, M. Clarke
+# Modified: Dec 2020, S. Karpuk
+
 """ setup file for segment test regression with a Boeing 737"""
 
 # ----------------------------------------------------------------------
@@ -14,15 +16,10 @@ from SUAVE.Core import Units
 import numpy as np
 import pylab as plt
 
-import copy, time
 
-from SUAVE.Core import (
-Data, Container,
-)
+from SUAVE.Core import Data
 
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity import compute_aircraft_center_of_gravity
 
 import sys
 
@@ -54,32 +51,38 @@ def main():
     climb_throttle_6   = results.segments.climb_6.conditions.propulsion.throttle[3][0]
     climb_throttle_7   = results.segments.climb_7.conditions.propulsion.throttle[3][0] 
     climb_throttle_8   = results.segments.climb_8.conditions.propulsion.throttle[3][0] 
+    climb_throttle_9   = results.segments.climb_9.conditions.propulsion.throttle[3][0] 
+    climb_throttle_10  = results.segments.climb_10.conditions.propulsion.throttle[2][0] 
     cruise_CL_1        = results.segments.cruise_1.conditions.aerodynamics.lift_coefficient[2][0]
     cruise_CL_2        = results.segments.cruise_2.conditions.aerodynamics.lift_coefficient[2][0]
     cruise_CL_3        = results.segments.cruise_3.conditions.aerodynamics.lift_coefficient[2][0] 
     descent_throttle_1 = results.segments.descent_1.conditions.propulsion.throttle[3][0]
+    descent_throttle_2 = results.segments.descent_2.conditions.propulsion.throttle[3][0]
     single_pt_CL_1     = results.segments.single_point_1.conditions.aerodynamics.lift_coefficient[0][0]
     single_pt_CL_2     = results.segments.single_point_2.conditions.aerodynamics.lift_coefficient[0][0]     
     loiter_CL          = results.segments.loiter.conditions.aerodynamics.lift_coefficient[2][0]
-    descent_throttle_3 = results.segments.descent_2.conditions.propulsion.throttle[3][0]
+    descent_throttle_3 = results.segments.descent_3.conditions.propulsion.throttle[3][0]
     
     # Truth values 
-    climb_throttle_1_truth   = 0.9499524546537521 
-    climb_throttle_2_truth   = 1.1685885177613662 
-    climb_throttle_3_truth   = 0.5079637017920765 
-    climb_throttle_4_truth   = 0.8801550569111616 
-    climb_throttle_5_truth   = 1.0239006858923554 
-    climb_throttle_6_truth   = 0.7024442228086503 
-    climb_throttle_7_truth   = 0.8452263730010348 
-    climb_throttle_8_truth   = 1.0236880656986576 
-    cruise_CL_1_truth        = 0.44622880901388906 
-    cruise_CL_2_truth        = 0.4383927979043647 
-    cruise_CL_3_truth        = 0.50049037320594 
-    descent_throttle_1_truth = 0.17370506162344296 
-    single_pt_CL_1_truth     = 0.2579265640161655
-    single_pt_CL_2_truth     = 0.25771431471991657 
-    loiter_CL_truth          = 0.5255640469802842 
-    descent_throttle_3_truth = 0.15473366469514083 
+    climb_throttle_1_truth   = 1.1022095477277076
+    climb_throttle_2_truth   = 1.1099968189090093
+    climb_throttle_3_truth   = 0.6992557628012378
+    climb_throttle_4_truth   = 1.1612341553132794
+    climb_throttle_5_truth   = 1.2140754256766335
+    climb_throttle_6_truth   = 0.8085269507910768
+    climb_throttle_7_truth   = 0.9872000449847137
+    climb_throttle_8_truth   = 1.2127261175808683
+    climb_throttle_9_truth   = 1.3244817806693368
+    climb_throttle_10_truth  = 0.9999999999999993
+    cruise_CL_1_truth        = 0.6952747673643188
+    cruise_CL_2_truth        = 0.6957179753760501
+    cruise_CL_3_truth        = 0.7209490994452324
+    descent_throttle_1_truth = 0.12076383071816191
+    descent_throttle_2_truth = 0.26344227233456385
+    single_pt_CL_1_truth     = 0.25024204669270306
+    single_pt_CL_2_truth     = 0.25021698141802035
+    loiter_CL_truth          = 0.5096685640551728
+    descent_throttle_3_truth = 0.20173089800220684
     
     # Store errors 
     error = Data()
@@ -91,15 +94,18 @@ def main():
     error.climb_throttle_6   = np.max(np.abs(climb_throttle_6     - climb_throttle_6_truth))   
     error.climb_throttle_7   = np.max(np.abs(climb_throttle_7     - climb_throttle_7_truth))   
     error.climb_throttle_8   = np.max(np.abs(climb_throttle_8     - climb_throttle_8_truth))  
+    error.climb_throttle_9   = np.max(np.abs(climb_throttle_9     - climb_throttle_9_truth)) 
+    error.climb_throttle_10  = np.max(np.abs(climb_throttle_10    - climb_throttle_10_truth))  
     error.cruise_CL_1        = np.max(np.abs(cruise_CL_1          - cruise_CL_1_truth ))     
     error.cruise_CL_2        = np.max(np.abs(cruise_CL_2          - cruise_CL_2_truth ))      
     error.cruise_CL_3        = np.max(np.abs(cruise_CL_3          - cruise_CL_3_truth ))     
     error.descent_throttle_1 = np.max(np.abs(descent_throttle_1   - descent_throttle_1_truth)) 
+    error.descent_throttle_2 = np.max(np.abs(descent_throttle_2   - descent_throttle_2_truth))
     error.single_pt_CL_1     = np.max(np.abs(single_pt_CL_1       - single_pt_CL_1_truth ))     
     error.single_pt_CL_2     = np.max(np.abs(single_pt_CL_2       - single_pt_CL_2_truth ))  
     error.loiter_CL          = np.max(np.abs(loiter_CL            - loiter_CL_truth ))         
     error.descent_throttle_3 = np.max(np.abs(descent_throttle_3   - descent_throttle_3_truth))  
-    
+     
     print('Errors:')
     print(error)
     
@@ -172,7 +178,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -180,6 +186,8 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    aerodynamics.settings.number_spanwise_vortices   = 5
+    aerodynamics.settings.number_chordwise_vortices  = 2       
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
@@ -234,8 +242,8 @@ def simple_sizing(configs, analyses):
     
     #compute centers of gravity
     #need to put here, otherwise, results won't be stored
-    compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
-    compute_aircraft_center_of_gravity(base)
+    compute_component_centers_of_gravity(base)
+    base.center_of_gravity()
     
     # diff the new data
     base.store_diff()
@@ -283,24 +291,9 @@ def mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment() 
-    ones_row     = base_segment.state.ones_row
     
-    # ------------------------------------------------------------------
-    #  Ground
-    # ------------------------------------------------------------------
-
-    segment = Segments.Ground.Ground(base_segment)
-    segment.tag = "Ground"
-
-    segment.analyses.extend( analyses.takeoff )
-    segment.velocity_start           = 10 * Units.knots
-    segment.velocity_end             = 20.* Units.knots
-    segment.friction_coefficient     = 0.4
-    segment.time                     = 60 
-    segment.state.unknowns.throttle  = 0.3 * ones_row(1)  
-    
-    # add to misison
-    mission.append_segment(segment)    
+    ones_row     = base_segment.state.ones_row 
+    base_segment.state.numerics.number_control_points = 4
     
     # ------------------------------------------------------------------
     #   Takeoff Roll
@@ -313,8 +306,7 @@ def mission_setup(analyses):
     segment.velocity_start           = 100.* Units.knots
     segment.velocity_end             = 150 * Units.knots
     segment.friction_coefficient     = 0.04
-    segment.time                     = 20
-    segment.state.unknowns.throttle  = 1.0 * ones_row(1)  
+    segment.altitude                 = 0.0
 
     # add to misison
     mission.append_segment(segment)
@@ -346,8 +338,8 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.base ) 
     segment.altitude_start                   = 0.05  * Units.km
     segment.altitude_end                     = 2.    * Units.km
-    segment.climb_angle                      = 10.   * Units.degrees 
-    segment.dynamic_pressure                 = 6300  * Units.pascals   
+    segment.climb_angle                      = 5.   * Units.degrees 
+    segment.dynamic_pressure                 = 3800 * Units.pascals   
 
     # add to misison
     mission.append_segment(segment)
@@ -430,6 +422,35 @@ def mission_setup(analyses):
     segment.climb_rate                       = 1.  
     # add to misison
     mission.append_segment(segment)
+
+    # ------------------------------------------------------------------
+    #   Climb 9 : Constant EAS Constant Rate 
+    # ------------------------------------------------------------------ 
+    segment = Segments.Climb.Constant_CAS_Constant_Rate(base_segment)
+    segment.tag = "climb_9"
+    segment.analyses.extend( analyses.base )  
+    segment.altitude_end                     = 10.9   * Units.km    
+    segment.calibrated_air_speed             = 150. * Units.m / Units.s
+    segment.climb_rate                       = 1.  
+    # add to misison
+    mission.append_segment(segment)
+    
+    # ------------------------------------------------------------------
+    #   Climb 10 : Optimized
+    # ------------------------------------------------------------------ 
+    segment = Segments.Climb.Optimized(base_segment)
+    segment.tag = "climb_10"
+    segment.analyses.extend( analyses.base )  
+    segment.altitude_start         = 10.9   * Units.km   
+    segment.altitude_end           = 11.0   * Units.km   
+    segment.air_speed_start        = 160. * Units.m / Units.s
+    segment.air_speed_end          = None
+    segment.objective              = 'conditions.frames.inertial.time[-1,0]*1000'
+    segment.minimize               = True
+    segment.state.numerics.number_control_points = 3
+    # add to misison
+    mission.append_segment(segment)
+        
     
     # ------------------------------------------------------------------
     #   Cruise Segment 1: constant Speed, constant altitude
@@ -437,10 +458,9 @@ def mission_setup(analyses):
     segment = Segments.Cruise.Constant_Dynamic_Pressure_Constant_Altitude(base_segment)
     segment.tag = "cruise_1" 
     segment.analyses.extend(analyses.base) 
-    segment.altitude                  = 10. * Units.km    
-    segment.dynamic_pressure          = 40000 * Units.pascals   
+    segment.altitude                  = 11. * Units.km    
+    segment.dynamic_pressure          = 28000 * Units.pascals   
     segment.distance                  = 500 * Units.km 
-
     # add to misison
     mission.append_segment(segment)    
 
@@ -450,10 +470,12 @@ def mission_setup(analyses):
     segment = Segments.Cruise.Constant_Throttle_Constant_Altitude(base_segment)
     segment.tag = "cruise_2" 
     segment.analyses.extend(analyses.base)   
-    segment.air_speed_end             = 240 * Units.m / Units.s 
+    
+    segment.air_speed_end             = 200 * Units.m / Units.s 
     segment.throttle                  = 0.6
     segment.distance                  = 500 * Units.km 
-
+    segment.state.numerics.number_control_points = 16
+    
     # add to misison
     mission.append_segment(segment)   
     
@@ -467,7 +489,7 @@ def mission_setup(analyses):
     segment.pitch_rate                = 0.0001  * Units['rad/s/s']
     segment.pitch_final               = 4.  * Units.degrees 
     segment.distance                  = 500 * Units.km 
-    segment.state.unknowns.throttle = ones_row(1) * 0.6
+    segment.state.unknowns.throttle = ones_row(1) * 0.9
     segment.state.unknowns.velocity = ones_row(1) * 200
     # add to misison
     mission.append_segment(segment)   
@@ -480,11 +502,24 @@ def mission_setup(analyses):
     segment.analyses.extend( analyses.base ) 
     segment.altitude_start            = 10.    * Units.km    
     segment.air_speed                 = 150   * Units.m / Units.s 
-    segment.altitude_end              = 2500  * Units.feet 
+    segment.altitude_end              = 5  * Units.km 
     
     # add to misison
     mission.append_segment(segment) 
+
+    # ------------------------------------------------------------------
+    #   Descent Segment 2: Constant CAS Constant Angle 
+    # ------------------------------------------------------------------ 
+    segment = Segments.Descent.Constant_CAS_Constant_Rate(base_segment)
+    segment.tag = "descent_2" 
+    segment.analyses.extend( analyses.base ) 
+    segment.altitude_end              = 2500. * Units.feet
+    segment.descent_rate              = 2.  * Units.m / Units.s
+    segment.calibrated_air_speed      = 100 * Units.m / Units.s
     
+    # add to misison
+    mission.append_segment(segment) 
+
     # ------------------------------------------------------------------
     #  Single Point Segment 1: constant Speed, constant altitude
     # ------------------------------------------------------------------ 
@@ -505,7 +540,7 @@ def mission_setup(analyses):
     segment.analyses.extend(analyses.base) 
     segment.altitude    =  2500. * Units.feet
     segment.air_speed   =  200. * Units['m/s']   
-    segment.throttle    =  0.6
+    segment.throttle    =  0.5
 
     # add to misison
     mission.append_segment(segment)    
@@ -525,7 +560,7 @@ def mission_setup(analyses):
     #   Descent Segment: Constant EAS Constant Rate
     # ------------------------------------------------------------------ 
     segment = Segments.Descent.Constant_EAS_Constant_Rate(base_segment)
-    segment.tag = "descent_2" 
+    segment.tag = "descent_3" 
     segment.analyses.extend( analyses.base ) 
     segment.altitude_start            = 2500  * Units.feet
     segment.altitude_end              = 0  * Units.feet 
@@ -544,10 +579,9 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.landing )
     segment.velocity_start           = 150 * Units.knots
-    segment.velocity_end             = 100
+    segment.velocity_end             = 100 * Units.knots
     segment.friction_coefficient     = 0.4
-    segment.time                     = 20
-    segment.state.unknowns.throttle  = 1.0 * ones_row(1)     
+    segment.altitude                 = 0.0
 
     # add to misison
     mission.append_segment(segment)     

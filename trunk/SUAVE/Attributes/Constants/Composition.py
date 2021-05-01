@@ -83,4 +83,4 @@ class Composition(Constant):
                 
         # check for negative other
         if other < 0.0:
-            warn('Composition adds to more than 1.0',Data_Warning)
+            warn('Composition adds to more than 1.0')

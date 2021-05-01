@@ -58,7 +58,6 @@ def vehicle_setup():
     wing.aspect_ratio            = 289.**2 / (7840. * 2)
     wing.thickness_to_chord      = 0.15
     wing.taper                   = 0.0138
-    wing.span_efficiency         = 0.95
     wing.spans.projected         = 289.0 * Units.feet  
     wing.chords.root             = 145.0 * Units.feet
     wing.chords.tip              = 3.5  * Units.feet
@@ -68,7 +67,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
     wing.dihedral                = 2.5 * Units.degrees
-    wing.origin                  = [0.,0.,0]
+    wing.origin                  = [[0.,0.,0]]
     wing.aerodynamic_center      = [0,0,0] 
     wing.vertical                = False
     wing.symmetric               = True
@@ -76,14 +75,15 @@ def vehicle_setup():
     wing.dynamic_pressure_ratio  = 1.0
 
     segment = SUAVE.Components.Wings.Segment()
-    segment.tag                      = 'section_1'
-    segment.percent_span_location    = 0.0
-    segment.twist                    = 0. * Units.deg
-    segment.root_chord_percent       = 1.
-    segment.dihedral_outboard        = 0. * Units.degrees
-    segment.sweeps.quarter_chord     = 30.0 * Units.degrees
-    segment.thickness_to_chord       = 0.165
-    segment.vsp_mesh                 = Data()
+
+    segment.tag                   = 'section_1'
+    segment.percent_span_location = 0.0
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 1.
+    segment.dihedral_outboard     = 0. * Units.degrees
+    segment.sweeps.quarter_chord  = 40.0 * Units.degrees
+    segment.thickness_to_chord    = 0.165
+    segment.vsp_mesh              = Data()
     segment.vsp_mesh.inner_radius    = 4.
     segment.vsp_mesh.outer_radius    = 4.
     segment.vsp_mesh.inner_length    = .14
@@ -184,6 +184,7 @@ def vehicle_setup():
     #instantiate the gas turbine network
     turbofan     = SUAVE.Components.Energy.Networks.Turbofan()
     turbofan.tag = 'turbofan1'
+
     # setup
     turbofan.number_of_engines = 3.0
     turbofan.bypass_ratio      = 8.1

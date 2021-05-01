@@ -9,7 +9,7 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 from SUAVE.Core       import Data , Units
-from SUAVE.Components import Component
+from SUAVE.Components import Physical_Component
 from SUAVE.Components import Lofted_Body
 import numpy as np 
     
@@ -18,7 +18,7 @@ import numpy as np
 # ------------------------------------------------------------
 
 ## @ingroup Components-Wings-Control_Surfaces
-class Control_Surface(Component):
+class Control_Surface(Physical_Component):
     def __defaults__(self):
         """This sets the default values of control surfaces defined in SUAVE. 
         sign_duplicate: 1.0 or -1.0 - the sign of the duplicate control on the mirror wing.

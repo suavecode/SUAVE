@@ -1,7 +1,8 @@
 # test_VTOL.py
 # 
 # Created: Feb 2020, M. Clarke
-#
+#          Sep 2020, M. Clarke 
+
 """ setup file for electric aircraft regression """
 
 # ----------------------------------------------------------------------
@@ -9,17 +10,12 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units
-
+from SUAVE.Core import Units 
 import numpy as np
-import pylab as plt
-
+import pylab as plt 
 import copy, time
-
-from SUAVE.Core import (
-Data, Container,
-)
-
+from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Core import Data, Container
 import sys
 
 sys.path.append('../Vehicles')
@@ -31,8 +27,7 @@ from X57_Maxwell    import vehicle_setup, configs_setup
 #   Main
 # ----------------------------------------------------------------------
 
-def main():         
-   
+def main():                
     configs, analyses = full_setup()
 
     simple_sizing(configs)
@@ -45,19 +40,19 @@ def main():
     results = mission.evaluate() 
     
     # save results 
-    #save_results(results)
+    # This should be always left uncommented to test the SUAVE's Input/Output archive functions
+    save_results(results)
     
-    # plt the old results
-    plot_mission(results,configs.base) 
+    # plot the results
+    plot_results(results) 
       
     # load and plot old results  
     old_results = load_results()
-    plot_mission(old_results,configs.base) 
- 
+    plot_results(old_results)  
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.rpm[3][0]
-    RPM_true   = 1328.4527794415255
+    RPM_true   = 884.7650260408985
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -66,24 +61,26 @@ def main():
     
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0]
-    lift_coefficient_true   = 0.3837615929789279
+    lift_coefficient_true   = 0.3837615929758772
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
-    assert np.abs((lift_coefficient  - lift_coefficient_true)/lift_coefficient_true) < 1e-3    
-    
+    assert np.abs((lift_coefficient  - lift_coefficient_true)/lift_coefficient_true) < 1e-3   
+        
     return
 
 
 # ----------------------------------------------------------------------
 #   Analysis Setup
-# ----------------------------------------------------------------------
+# ---------------------------------------------------------------------- 
 
 def full_setup():
 
     # vehicle data
     vehicle  = vehicle_setup()
+    
+    # Set up configs
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
@@ -129,22 +126,22 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
-    aerodynamics = SUAVE.Analyses.Aerodynamics.AERODAS()
+    aerodynamics = SUAVE.Analyses.Aerodynamics.AERODAS() 
     aerodynamics.geometry = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
-    analyses.append(aerodynamics)
+    analyses.append(aerodynamics)  
 
-    # ------------------------------------------------------------------
-    #  Stability Analysis
-    stability = SUAVE.Analyses.Stability.Fidelity_Zero()    
-    stability.geometry = vehicle
-    analyses.append(stability)
+    # ------------------------------------------------------------------	
+    #  Stability Analysis	
+    stability = SUAVE.Analyses.Stability.Fidelity_Zero()    	
+    stability.geometry = vehicle	
+    analyses.append(stability) 
 
     # ------------------------------------------------------------------
     #  Energy
@@ -165,123 +162,6 @@ def base_analysis(vehicle):
 
     # done!
     return analyses    
-
-# ----------------------------------------------------------------------
-#   Plot Mission
-# ----------------------------------------------------------------------
-
-def plot_mission(results ,vec_configs):
-    prop_radius_ft = vec_configs.propulsors.propulsor.propeller.tip_radius*3.28084 # convert to ft 
-    # ------------------------------------------------------------------
-    #   Aero Conditions
-    # ------------------------------------------------------------------
-    fig = plt.figure("Aero Conditions")
-    fig.set_size_inches(16, 8)
-    for i in range(len(results.segments)): 
-
-        time = results.segments[i].conditions.frames.inertial.time[:,0] 
-        cl   = results.segments[i].conditions.aerodynamics.lift_coefficient[:,0,None] 
-        cd   = results.segments[i].conditions.aerodynamics.drag_coefficient[:,0,None] 
-        aoa  = results.segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        l_d  = cl/cd
-
-        axes = fig.add_subplot(2,2,1)
-        axes.plot( time , aoa , 'bo-' )
-        axes.set_ylabel('Angle of Attack (deg)' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
-
-        axes = fig.add_subplot(2,2,2)
-        axes.plot( time , cl, 'bo-' )
-        axes.set_ylabel('CL' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
-
-        axes = fig.add_subplot(2,2,3)
-        axes.plot( time , cd, 'bo-' )
-        axes.set_xlabel('Time (s)' )
-        axes.set_ylabel('CD' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
-
-        axes = fig.add_subplot(2,2,4)
-        axes.plot( time , l_d, 'bo-' )
-        axes.set_xlabel('Time (s)' )
-        axes.set_ylabel('L/D' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
-          
-
-
-    # ------------------------------------------------------------------
-    #   Propulsion Conditions
-    # ------------------------------------------------------------------
-    fig = plt.figure("Propulsor")
-    fig.set_size_inches(16, 8)
-    for i in range(len(results.segments)):  
-
-        time   = results.segments[i].conditions.frames.inertial.time[:,0]
-        rpm    = results.segments[i].conditions.propulsion.rpm [:,0] 
-        thrust = results.segments[i].conditions.frames.body.thrust_force_vector[:,0]
-        torque = results.segments[i].conditions.propulsion.motor_torque
-        effp   = results.segments[i].conditions.propulsion.etap[:,0]
-        effm   = results.segments[i].conditions.propulsion.etam[:,0]
-        prop_omega = results.segments[i].conditions.propulsion.rpm*0.104719755  
-        ts = prop_omega*prop_radius_ft
-
-        axes = fig.add_subplot(2,3,1)
-        axes.plot(time, rpm, 'bo-')
-        axes.set_ylabel('RPM' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
-        
-        axes = fig.add_subplot(2,3,2)
-        axes.plot(time, thrust, 'bo-')
-        axes.set_ylabel('Thrust (N)' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
-
-        axes = fig.add_subplot(2,3,3)
-        axes.plot(time, torque, 'bo-' ) 
-        axes.set_ylabel('Torque (N-m)' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')  
-
-        axes = fig.add_subplot(2,3,4)
-        axes.plot(time, effp, 'bo-' )
-        axes.set_xlabel('Time (s)' )
-        axes.set_ylabel('Propeller Efficiency ($\eta_{prop}$)' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')       
-        plt.ylim((0,1))
-
-        axes = fig.add_subplot(2,3,5)
-        axes.plot(time, effm, 'bo-' )
-        axes.set_xlabel('Time (s)' )
-        axes.set_ylabel('Motor Efficiency ($\eta_{motor}$)' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey') 
-        plt.ylim((0,1))
-
-        axes = fig.add_subplot(2,3,6)
-        axes.plot(time, ts, 'bo-' )
-        axes.set_xlabel('Time (s)' )
-        axes.set_ylabel('Tip Speed (ft/s)' )
-        axes.minorticks_on()
-        axes.grid(which='major', linestyle='-', linewidth='0.5', color='grey')
-        axes.grid(which='minor', linestyle=':', linewidth='0.5', color='grey')     
- 
-
-    return
 
 def simple_sizing(configs):
 
@@ -329,10 +209,10 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 4
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.battery_propeller.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.battery_propeller.residuals
     base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.propulsor.battery.max_voltage * ones_row(1)  
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.battery_propeller.battery.max_voltage * ones_row(1)  
     base_segment.state.residuals.network                     = 0. * ones_row(2)        
     
     # ------------------------------------------------------------------
@@ -341,7 +221,7 @@ def mission_setup(analyses,vehicle):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_1"
     segment.analyses.extend( analyses.base )
-    segment.battery_energy                   = vehicle.propulsors.propulsor.battery.max_energy * 0.89
+    segment.battery_energy                   = vehicle.propulsors.battery_propeller.battery.max_energy * 0.89
     segment.altitude_start                   = 2500.0  * Units.feet
     segment.altitude_end                     = 8012    * Units.feet 
     segment.air_speed                        = 96.4260 * Units['mph'] 
@@ -375,7 +255,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude_end              = 2500  * Units.feet
     segment.air_speed                 = 140.91 * Units['mph']  
     segment.climb_rate                = - 500.401  * Units['ft/min']  
-    segment.state.unknowns.throttle  = 0.9 * ones_row(1)  
+    segment.state.unknowns.throttle   = 0.9 * ones_row(1)  
     
     # add to misison
     mission.append_segment(segment) 
@@ -397,6 +277,33 @@ def missions_setup(base_mission):
 
     # done!
     return missions  
+
+
+def plot_results(results,line_style = 'bo-'):  
+    
+    # Plot Flight Conditions 
+    plot_flight_conditions(results, line_style) 
+    
+    # Plot Aerodynamic Coefficients
+    plot_aerodynamic_coefficients(results, line_style)  
+    
+    # Plot Aircraft Flight Speed
+    plot_aircraft_velocities(results, line_style)
+    
+    # Plot Aircraft Electronics
+    plot_electronic_conditions(results, line_style)
+    
+    # Plot Propeller Conditions 
+    plot_propeller_conditions(results, line_style) 
+    
+    # Plot Electric Motor and Propeller Efficiencies 
+    plot_eMotor_Prop_efficiencies(results, line_style)
+    
+    # Plot propeller Disc and Power Loading
+    plot_disc_power_loading(results, line_style)   
+     
+     
+    return
 
 
 def load_results():

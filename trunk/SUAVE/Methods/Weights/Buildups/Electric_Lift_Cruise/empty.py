@@ -17,12 +17,15 @@ from SUAVE.Methods.Weights.Buildups.Common.wiring import wiring
 from SUAVE.Methods.Weights.Buildups.Common.wing import wing
 import numpy as np
 
+from warnings import warn
+
 #-------------------------------------------------------------------------------
 # Empty
 #-------------------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Buildups-Electric_Lift_Cruise
 def empty(config,
+          settings,
           contingency_factor            = 1.1,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
@@ -73,16 +76,25 @@ def empty(config,
     #-------------------------------------------------------------------------------
     # Unpack Inputs
     #-------------------------------------------------------------------------------
-    rRotor              = config.propulsors.propulsor.rotor.tip_radius 
-    rotor_bladeSol      = config.propulsors.propulsor.rotor.blade_solidity    
-    rPropThrust         = config.propulsors.propulsor.propeller.tip_radius
-    mBattery            = config.propulsors.propulsor.battery.mass_properties.mass
-    mPayload            = config.propulsors.propulsor.payload.mass_properties.mass
+    for propulsor_keys in config.propulsors.keys():
+        propulsor = config.propulsors[propulsor_keys]
+        rRotor              = propulsor.rotor.tip_radius 
+        rotor_bladeSol      = propulsor.rotor.blade_solidity    
+        rPropThrust         = propulsor.propeller.tip_radius
+        mBattery            = propulsor.battery.mass_properties.mass
+        mPayload            = propulsor.payload.mass_properties.mass
+    
+        nLiftProps          = propulsor.number_of_rotor_engines
+        nThrustProps        = propulsor.number_of_propeller_engines
+        nLiftBlades         = propulsor.rotor.number_of_blades
+        nThrustBlades       = propulsor.propeller.number_of_blades
+        n_lift_motors       = propulsor.number_of_rotor_engines
+        n_cruise_motors     = propulsor.number_of_propeller_engines
+        
+    if len(config.propulsors.items())>1:
+        warn('Using multiple propulsors, this method is not prepared to handle')
+    
     MTOW                = config.mass_properties.max_takeoff
-    nLiftProps          = config.propulsors.propulsor.number_of_engines_lift
-    nThrustProps        = config.propulsors.propulsor.number_of_engines_forward
-    nLiftBlades         = config.propulsors.propulsor.rotor.number_blades
-    nThrustBlades       = config.propulsors.propulsor.propeller.number_blades
     fLength             = config.fuselages.fuselage.lengths.total
     fWidth              = config.fuselages.fuselage.width
     fHeight             = config.fuselages.fuselage.heights.maximum
@@ -96,13 +108,13 @@ def empty(config,
     output.payload      = mPayload * Units.kg
     output.seats        = 30. *Units.kg
     output.avionics     = 15. *Units.kg
-    output.motors       = (config.propulsors.propulsor.number_of_engines_lift * 10. *Units.kg 
-                           + config.propulsors.propulsor.number_of_engines_forward * 25. *Units.kg)
+    output.motors       = (n_lift_motors * 10. *Units.kg 
+                           + n_cruise_motors * 25. *Units.kg)
     output.battery      = mBattery *Units.kg
-    output.servos       = config.propulsors.propulsor.number_of_engines_lift * 0.65 *Units.kg
+    output.servos       = n_lift_motors* 0.65 *Units.kg
     output.brs          = 16. *Units.kg
-    output.hubs         = (config.propulsors.propulsor.number_of_engines_lift * 2. *Units.kg
-                           + config.propulsors.propulsor.number_of_engines_forward * 5. *Units.kg)
+    output.hubs         = (n_lift_motors* 2. *Units.kg
+                           + n_cruise_motors * 5. *Units.kg)
     output.landing_gear = MTOW * 0.02 *Units.kg
     
     #-------------------------------------------------------------------------------
@@ -122,8 +134,8 @@ def empty(config,
     maxTorque    = maxLiftPower/omega
 
     # Component Weight Calculations
-    output.lift_rotors      = (prop(config.propulsors.propulsor.rotor, maxLift) * (len(config.wings['main_wing'].motor_spanwise_locations)))*Units.kg
-    output.thrust_rotors    = prop(config.propulsors.propulsor.propeller, maxLift/5) *Units.kg
+    output.lift_rotors      = (prop(propulsor.rotor, maxLift) * (len(config.wings['main_wing'].motor_spanwise_locations)))*Units.kg
+    output.thrust_rotors    = prop(propulsor.propeller, maxLift/5) *Units.kg
     output.fuselage         = fuselage(config) *Units.kg
     output.wiring           = wiring(config, np.ones(8)**0.25, maxLiftPower/etaMotor) *Units.kg 
     output.wings            = Data()

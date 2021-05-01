@@ -5,6 +5,8 @@
 # Modified: Feb 2016, T. MacDonald
 #           Oct 2017, E. Botero
 #           Mar 2020, M. Clarke
+#           May 2020, E. Botero
+
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -45,6 +47,14 @@ class System(Physical_Component):
         N/A
         """        
         
-        self.tag             = 'System'  
+        self.tag             = 'System'
+        self.origin          = [[0.0,0.0,0.0]]
         self.control         = None
         self.accessories     = None
+        
+    
+# ------------------------------------------------------------
+#  Handle Linking
+# ------------------------------------------------------------
+
+System.Container = Physical_Component.Container

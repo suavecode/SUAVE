@@ -21,21 +21,13 @@ import numpy as np
 #-------------------------------------------------------------------------------
 
 ## @ingroup Methods-Weights-Buildups-Electric_Multicopter
-def empty(config,
+def empty(config,settings,
           speed_of_sound                = 340.294,
           max_tip_mach                  = 0.65,
           disk_area_factor              = 1.15,
           max_thrust_to_weight_ratio    = 1.1,
           motor_efficiency              = 0.85 * 0.98):
-    """weight = SUAVE.Methods.Weights.Buildups.Electric_Multicopter.empty(
-            config,
-            speed_of_sound              = 340.294,
-            maximumTipMach              = 0.65,
-            disk_area_factor            = 1.15,
-            max_thrust_to_weight_ratio  = 1.1,
-            motor_efficiency            = 0.85 * 0.98)
-
-        Calculates the empty fuselage mass for an electric helicopter including
+    """ Calculates the empty fuselage mass for an electric helicopter including
         seats, avionics, servomotors, ballistic recovery system, rotor and hub
         assembly, transmission, and landing gear. Additionally incorporates
         results of the following common buildup scripts: 
@@ -74,14 +66,11 @@ def empty(config,
     # Unpack Inputs
     #-------------------------------------------------------------------------------
 
-    rRotor              = config.propulsors.propulsor.rotor.tip_radius 
-    rotor_bladeSol      = config.propulsors.propulsor.rotor.blade_solidity    
-    mBattery            = config.propulsors.propulsor.battery.mass_properties.mass
-    mPayload            = config.propulsors.propulsor.payload.mass_properties.mass
+    rRotor              = config.propulsors.vectored_thrust.rotor.tip_radius 
+    rotor_bladeSol      = config.propulsors.vectored_thrust.rotor.blade_solidity    
+    mBattery            = config.propulsors.vectored_thrust.battery.mass_properties.mass
+    mPayload            = config.propulsors.vectored_thrust.payload.mass_properties.mass
     MTOW                = config.mass_properties.max_takeoff
-    fLength             = config.fuselages.fuselage.lengths.total
-    fWidth              = config.fuselages.fuselage.width
-    fHeight             = config.fuselages.fuselage.heights.maximum
      
     tipMach             = max_tip_mach
     k                   = disk_area_factor
@@ -91,7 +80,7 @@ def empty(config,
     output.payload      = mPayload
     output.seats        = 30.
     output.avionics     = 15.
-    output.motors       = config.propulsors.propulsor.number_of_engines * 20.
+    output.motors       = config.propulsors.vectored_thrust.number_of_engines * 20.
     output.battery      = mBattery
     output.servos       = 5.2
     output.brs          = 16.
@@ -120,9 +109,9 @@ def empty(config,
 
     # Component Weight Calculations
 
-    output.rotor         = prop(config.propulsors.propulsor.rotor,
+    output.rotor         = prop(config.propulsors.vectored_thrust.rotor,
                                 maxThrust)
-    output.tail_rotor    = prop(config.propulsors.propulsor.rotor,
+    output.tail_rotor    = prop(config.propulsors.vectored_thrust.rotor,
                                 1.5*maxTorque/(1.25*rRotor))*0.2
     output.transmission  = maxPower * 1.5873e-4          # From NASA OH-58 Study
     output.fuselage      = fuselage(config)

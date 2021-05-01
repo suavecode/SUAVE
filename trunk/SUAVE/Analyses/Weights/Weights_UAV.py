@@ -1,7 +1,8 @@
 ## @ingroup Analyses-Weights
 # Weights_UAV.py
 #
-# Created: Apr 2017, Matthew Clarke
+# Created:  Apr 2017, Matthew Clarke
+# Modified: Apr 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,7 +11,6 @@
 import SUAVE
 from SUAVE.Core import Data
 from .Weights import Weights
-
 
 # ----------------------------------------------------------------------
 #  Analysis
@@ -58,62 +58,4 @@ class Weights_UAV(Weights):
         self.vehicle  = Data()
         self.settings = Data()
         
-        
-    def evaluate(self,conditions=None):
-        """Evaluate the weight analysis.
-    
-        Assumptions:
-        None
-
-        Source:
-        N/A
-
-        Inputs:
-        None
-
-        Outputs:
-        results
-
-        Properties Used:
-        N/A
-        """         
-        # unpack
-        vehicle = self.vehicle
-        empty   = SUAVE.Methods.Weights.Correlations.UAV.empty     
-
-        
-        # evaluate
-        results = empty(vehicle)
-        
-        # storing weigth breakdown into vehicle
-        vehicle.weight_breakdown = results 
-
-        # updating empty weight
-        vehicle.mass_properties.operating_empty = results.empty
-              
-        # done!
-        return results
-    
-    
-    def finalize(self):
-        """Finalize the weight analysis.
-    
-        Assumptions:
-        None
-
-        Source:
-        N/A
-
-        Inputs:
-        None
-
-        Outputs:
-        None
-
-        Properties Used:
-        N/A
-        """           
-        self.mass_properties = self.vehicle.mass_properties
-        
-        return
-        
+        self.settings.empty = SUAVE.Methods.Weights.Correlations.UAV.empty

@@ -1,7 +1,7 @@
 # fuselage_planform_compute.py
 # 
-# Created:  April 2018, W. Maier
-# Modified: 
+# Created:  Apr 2018, W. Maier
+# Modified: Apr 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -24,11 +24,7 @@ def main():
     # ------------------------------------------------------------------
 
     # Setup
-    fuselage          = Data()
-    fuselage.fineness = Data()
-    fuselage.lengths  = Data()
-    fuselage.heights  = Data()
-    fuselage.areas    = Data()
+    fuselage          = SUAVE.Components.Fuselages.Fuselage()
     
     fuselage.number_coach_seats = 170.
     fuselage.seat_pitch         = 1.0 

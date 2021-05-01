@@ -40,14 +40,14 @@ def vehicle_setup():
     wing.aspect_ratio   = wing.spans.projected**2/wing.areas.reference
     wing.symmetric      = True
     wing.vertical       = False
-    wing.origin         = np.array([13.5,0,0]) * Units.feet
+    wing.origin         = [[13.5  * Units.feet,0,0]]
     wing.aerodynamic_center  = np.array([trapezoid_ac_x(wing),0.,0.])#16.6, 0. , 0. ]) * Units.feet - wing.origin
     wing.dynamic_pressure_ratio = 1.0
     wing.ep_alpha       = 0.0
     
     span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
-    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    wing.mass_properties.center_of_gravity[0][0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
 
 
@@ -92,7 +92,7 @@ def vehicle_setup():
     wing.sweeps.leading_edge = 18.5  * Units.deg  # Same as the quarter chord sweep (ignore why EMB)
     wing.taper               = 1.6/3.88
     wing.aspect_ratio        = wing.spans.projected**2/wing.areas.reference
-    wing.origin              = np.array([26.07,0.,0.]) * Units.feet
+    wing.origin              = [[26.07  * Units.feet ,0.,0.]]
     wing.symmetric           = True
     wing.vertical            = False
     wing.dynamic_pressure_ratio = 0.9
@@ -102,7 +102,7 @@ def vehicle_setup():
 
     span_location_mac                        =compute_span_location_from_chord_length(wing, wing.chords.mean_aerodynamic)
     mac_le_offset                            =.8*np.sin(wing.sweeps.leading_edge)*span_location_mac  #assume that 80% of the chord difference is from leading edge sweep
-    wing.mass_properties.center_of_gravity[0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
+    wing.mass_properties.center_of_gravity[0][0]=.3*wing.chords.mean_aerodynamic+mac_le_offset
     
 
 
@@ -118,7 +118,7 @@ def vehicle_setup():
     fuselage.lengths.total        = 30.9  * Units.feet
     fuselage.width                = ((2.94+5.9)/2)   * Units.feet
     vehicle.append_component(fuselage)
-    vehicle.mass_properties.center_of_gravity = np.array([16.6,0,0]) * Units.feet
+    vehicle.mass_properties.center_of_gravity = np.array([[16.6,0,0]]) * Units.feet
 
 
 

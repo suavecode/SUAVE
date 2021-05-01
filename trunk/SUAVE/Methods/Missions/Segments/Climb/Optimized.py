@@ -3,6 +3,7 @@
 # 
 # Created:  Dec 2016, E. Botero
 # Modified: Mar 2020, M. Clarke
+#           Apr 2020, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -46,20 +47,16 @@ def unpack_unknowns(segment):
     """    
     
     # unpack unknowns and givens
-    conditions = segment.state.conditions
-    throttle   = segment.state.unknowns.throttle
-    theta      = segment.state.unknowns.body_angle
-    gamma      = segment.state.unknowns.flight_path_angle
-    vel        = segment.state.unknowns.velocity
-    alt0       = segment.altitude_start
-    altf       = segment.altitude_end
-    vel0       = segment.air_speed_start
-    velf       = segment.air_speed_end 
-    
+    throttle = segment.state.unknowns.throttle
+    theta    = segment.state.unknowns.body_angle
+    gamma    = segment.state.unknowns.flight_path_angle
+    vel      = segment.state.unknowns.velocity
+    vel0     = segment.air_speed_start
+    velf     = segment.air_speed_end
 
     # Overide the speeds   
     if segment.air_speed_end is None:
-        v_mag =  np.concatenate([[[vel0]],vel*vel0])
+        v_mag =  np.concatenate([[[vel0]],vel])
     elif segment.air_speed_end is not None:
         v_mag = np.concatenate([[[vel0]],vel,[[velf]]])
         
@@ -74,14 +71,14 @@ def unpack_unknowns(segment):
     v_z   = -v_mag * np.sin(gamma)    
 
     # apply unknowns and pack conditions   
-    conditions.propulsion.throttle[:,0]             = throttle[:,0]
-    conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]   
-    conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0] 
-    conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0] 
+    segment.state.conditions.propulsion.throttle[:,0]             = throttle[:,0]
+    segment.state.conditions.frames.body.inertial_rotations[:,1]  = theta[:,0]
+    segment.state.conditions.frames.inertial.velocity_vector[:,0] = v_x[:,0]
+    segment.state.conditions.frames.inertial.velocity_vector[:,2] = v_z[:,0]
 
 ## @ingroup Methods-Missions-Segments-Climb   
 def update_differentials(segment):
-    """ On each iteration creates the differentials and integration funcitons from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0. This is different from the common method as it also includes the scaling of operators.
+    """ On each iteration creates the differentials and integration functions from knowns about the problem. Sets the time at each point. Must return in dimensional time, with t[0] = 0. This is different from the common method as it also includes the scaling of operators.
 
         Assumptions:
         Works with a segment discretized in vertical position, altitude
@@ -129,7 +126,7 @@ def update_differentials(segment):
     numerics.time.control_points                    = x
     numerics.time.differentiate                     = D
     numerics.time.integrate                         = I
-    conditions.frames.inertial.time[1:,0]           = t_initial + x[1:,0] 
+    conditions.frames.inertial.time[1:,0]            = t_initial + x[1:,0]
     conditions.frames.inertial.position_vector[:,2] = -alt[:,0] # z points down
     conditions.freestream.altitude[:,0]             =  alt[:,0] # positive altitude in this context    
 
@@ -230,7 +227,7 @@ def solve_linear_speed_constant_rate(segment):
     LSCR.state.numerics   = segment.state.numerics
     mini_mission.append_segment(LSCR)
     
-    results  = mini_mission.evaluate()
+    results = mini_mission.evaluate()
     LSCR_res = results.segments.analysis
     
     segment.state.unknowns.body_angle        = LSCR_res.state.unknowns.body_angle

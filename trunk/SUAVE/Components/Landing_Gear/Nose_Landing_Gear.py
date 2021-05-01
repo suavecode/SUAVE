@@ -45,7 +45,7 @@ class Nose_Landing_Gear(Landing_Gear):
                 Properties Used:
                 N/A
         """
-          
+        self.tag           = 'nose_gear'
         self.tire_diameter = 0.    
         self.strut_length  = 0.    
         self.units         = 0. # number of nose landing gear    

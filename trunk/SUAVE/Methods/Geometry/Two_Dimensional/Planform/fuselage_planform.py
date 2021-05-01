@@ -3,6 +3,8 @@
 #
 # Created:  Jul 2014, T. MacDonald
 # Modified: Jan 2016, E. Botero
+#           May 2020, E. Botero
+
 
 # TODO:
 # object placement, wing location
@@ -13,7 +15,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from math import pi, sqrt
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Methods
@@ -65,13 +67,33 @@ def fuselage_planform(fuselage):
     aft_extra       = fuselage.lengths.aft_space
     fuselage_width  = fuselage.width
     fuselage_height = fuselage.heights.maximum
+    length          = fuselage.lengths.total
     
-    # process
-    nose_length     = nose_fineness * fuselage_width
-    tail_length     = tail_fineness * fuselage_width
-    cabin_length    = number_seats * seat_pitch / seats_abreast + \
-                   forward_extra + aft_extra
-    fuselage_length = cabin_length + nose_length + tail_length
+    if length ==0.:    
+        # process
+        nose_length     = nose_fineness * fuselage_width
+        tail_length     = tail_fineness * fuselage_width
+        cabin_length    = number_seats * seat_pitch / seats_abreast + \
+                       forward_extra + aft_extra
+        fuselage_length = cabin_length + nose_length + tail_length
+    else:
+        fuselage_length = fuselage.lengths.total
+        nose_length     = nose_fineness * fuselage_width
+        tail_length     = tail_fineness * fuselage_width      
+        cabin_length    = fuselage_length - nose_length - tail_length
+        
+        if fuselage_length <= 0:
+            fuselage_length = 1.
+        if nose_length <= 0.:
+            nose_length = 1.
+        if tail_length <= 0:
+            tail_length = 1.
+        if cabin_length <= 1.:
+            cabin_length <= 1.
+        
+        # Now we can calculate the number of passengers
+        number_seats    = np.round(cabin_length * seats_abreast / seat_pitch)
+        if number_seats <=0: number_seats=0
     
     wetted_area = 0.0
     
@@ -79,9 +101,9 @@ def fuselage_planform(fuselage):
     # approximate circumference http://en.wikipedia.org/wiki/Ellipse#Circumference
     a = fuselage_width/2.
     b = fuselage_height/2.
-    A = pi * a * b  # area
+    A = np.pi * a * b  # area
     R = (a-b)/(a+b) # effective radius
-    C = pi*(a+b)*(1.+ ( 3*R**2 )/( 10+sqrt(4.-3.*R**2) )) # circumfrence
+    C = np.pi*(a+b)*(1.+ ( 3*R**2 )/( 10+np.sqrt(4.-3.*R**2) )) # circumference
     
     wetted_area += C * cabin_length
     cross_section_area = A
@@ -89,10 +111,7 @@ def fuselage_planform(fuselage):
     # approximate nose and tail wetted area
     # http://adg.stanford.edu/aa241/drag/wettedarea.html
     Deff = (a+b)*(64.-3.*R**4)/(64.-16.*R**2)
-    wetted_area += 0.75*pi*Deff * (nose_length + tail_length)
-    
-    # reference area approximated with
-    reference_area = cross_section_area
+    wetted_area += 0.75*np.pi*Deff * (nose_length + tail_length)
     
     # update
     fuselage.lengths.nose          = nose_length
@@ -102,5 +121,6 @@ def fuselage_planform(fuselage):
     fuselage.areas.wetted          = wetted_area
     fuselage.areas.front_projected = cross_section_area
     fuselage.effective_diameter    = Deff
+    fuselage.number_coach_seats    = number_seats
     
-    return 0
+    return fuselage

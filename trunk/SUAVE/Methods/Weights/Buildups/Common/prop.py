@@ -100,7 +100,7 @@ def prop(prop,
 
     rProp       = prop.tip_radius
     maxThrust   = maximum_thrust
-    nBlades     = prop.number_blades
+    nBlades     = prop.number_of_blades
     chord       = rProp * chord_to_radius_ratio
     N           = spanwise_analysis_points
     SF          = safety_factor

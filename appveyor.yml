@@ -1,0 +1,32 @@
+version: 2.4.{build}
+branches:
+  only:
+  - master
+  - develop
+image: Ubuntu2004
+build: off
+
+environment:
+  COVERALLS_SERVICE_NAME: appveyor
+  COVERALLS_REPO_TOKEN: g1W9MoLXlrfhitmMnBH4s7mRXgwLxWRIi
+
+init:
+    - sudo apt-get update
+    - sudo apt-get install -qq python3-pip
+    
+install:
+    - cd trunk
+    - pip3 install --upgrade pip
+    - pip3 install --upgrade numpy
+    - pip3 install --upgrade scipy
+    - pip3 install --upgrade scikit-learn
+    - pip3 install --upgrade matplotlib
+    - pip3 install coveralls
+    - python3 setup.py develop --user
+    - cd ../regression
+    
+test_script:
+  ~/.local/bin/coverage run automatic_regression.py test
+     
+on_success:
+  ~/.local/bin/coveralls

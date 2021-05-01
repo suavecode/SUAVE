@@ -55,6 +55,7 @@ class Settings(Data):
                 Properties Used:
                     N/A
                 """  
+
                 self.run_cases                           = Run_Case.Container()
                 self.filenames                           = Data()
                 self.flow_symmetry                       = Data()
@@ -80,5 +81,3 @@ class Settings(Data):
                 self.flow_symmetry.xz_plane              = 0	# Symmetry across the xz-plane, y=0
                 self.flow_symmetry.xy_parallel           = 0    # Symmetry across the z=z_symmetry_plane plane
                 self.flow_symmetry.z_symmetry_plane      = 0.0
-
-                

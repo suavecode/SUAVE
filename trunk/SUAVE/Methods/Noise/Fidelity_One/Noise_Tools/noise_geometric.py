@@ -83,10 +83,7 @@ def noise_geometric(noise_segment,analyses,config):
     
         # defining required data for tofl evaluation S0
         takeoff_airport = SUAVE.Attributes.Airports.Airport()        
-        atmo = Data()
-        atmo.base = Data()
-        atmo.base.atmosphere = analyses.atmosphere
-        S_0 = estimate_tofl(config,atmo,takeoff_airport)           
+        S_0 = estimate_tofl(config,analyses,takeoff_airport)           
 
         #Microphone position from the brake release point
         x0= np.float(6500. - S_0)
@@ -116,10 +113,7 @@ def noise_geometric(noise_segment,analyses,config):
         
         # defining required data for tofl evaluation
         takeoff_airport = SUAVE.Attributes.Airports.Airport()        
-        atmo = Data()
-        atmo.base = Data()
-        atmo.base.atmosphere = analyses.atmosphere
-        S_0 = estimate_tofl(config,atmo,takeoff_airport)        
+        S_0 = estimate_tofl(config,analyses,takeoff_airport)        
  
         
         # looking for X coordinate for 1000ft altitude

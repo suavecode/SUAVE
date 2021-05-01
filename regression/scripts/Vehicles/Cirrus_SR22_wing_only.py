@@ -35,7 +35,7 @@ def vehicle_setup():
     vehicle.mass_properties.cargo                     =  59.0  * Units.kilogram   
     
     # envelope properties
-    vehicle.envelope.category 	             = 'normal'
+    vehicle.envelope.category                = 'normal'
     vehicle.envelope.FAR_part_number         = 23
     vehicle.envelope.limit_loads.positive    = 1.5
     vehicle.envelope.limit_loads.negative    = -1

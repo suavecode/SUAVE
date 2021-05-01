@@ -74,9 +74,9 @@ rho = {2}
         else:
             raise AttributeError("Specify Vehicle Mass")
          
-        x       = aircraft.mass_properties.center_of_gravity[0]
-        y       = aircraft.mass_properties.center_of_gravity[1]
-        z       = aircraft.mass_properties.center_of_gravity[2]
+        x       = aircraft.mass_properties.center_of_gravity[0][0]
+        y       = aircraft.mass_properties.center_of_gravity[0][1]
+        z       = aircraft.mass_properties.center_of_gravity[0][2]
         Ixx     = aircraft.mass_properties.moments_of_inertia.tensor[0][0]
         Iyy     = aircraft.mass_properties.moments_of_inertia.tensor[1][1]
         Izz     = aircraft.mass_properties.moments_of_inertia.tensor[2][2]

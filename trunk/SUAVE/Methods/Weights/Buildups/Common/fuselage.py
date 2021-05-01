@@ -26,13 +26,7 @@ def fuselage(config,
              maximum_g_load = 3.8,
              landing_impact_factor = 3.5,
              safety_factor = 1.5):
-    """ weight = SUAVE.Methods.Weights.Buildups.Common.fuselage(
-            config,
-            max_g_load = 3.8,
-            landing_impact_factor = 3.5,
-            safety_factor = 1.5)
-
-        Calculates the structural mass of a fuselage for an eVTOL vehicle,
+    """ Calculates the structural mass of a fuselage for an eVTOL vehicle,
         assuming a structural keel taking bending an torsional loads.
         
         Assumptions:

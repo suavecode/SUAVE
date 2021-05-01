@@ -1,6 +1,0 @@
-Log File of System stdout from AVL Run 
-Wed Jun 17 21:56:30 2015
-
-
-Process finished: Wed Jun 17 21:56:30 2015
-Exit status: -5

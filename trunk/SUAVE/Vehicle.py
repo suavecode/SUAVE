@@ -5,14 +5,22 @@
 # Modified: ### ####, M. Vegh
 #           Feb 2016, E. Botero
 #           Apr 2017, M. Clarke 
+#           Apr 2020, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data, Container
+from SUAVE.Core import Data, Container, DataOrdered
 from SUAVE import Components
+from SUAVE.Components import Physical_Component
 import numpy as np
+
+from warnings import warn
+import string
+chars = string.punctuation + string.whitespace
+t_table = str.maketrans( chars          + string.ascii_uppercase , 
+                            '_'*len(chars) + string.ascii_lowercase )
 
 # ----------------------------------------------------------------------
 #  Vehicle Data Class
@@ -53,13 +61,14 @@ class Vehicle(Data):
         self.propulsors             = Components.Propulsors.Propulsor.Container()
         self.energy                 = Components.Energy.Energy()
         self.systems                = Components.Systems.System.Container()
-        self.mass_properties        = Vehicle_Mass_Properties()
+        self.mass_properties        = Vehicle_Mass_Container()
+        self.payload                = Components.Payloads.Payload.Container()
         self.costs                  = Costs()
         self.envelope               = Components.Envelope()
+        self.landing_gear           = Components.Landing_Gear.Landing_Gear.Container()
         self.reference_area         = 0.0
         self.passengers             = 0.0
-
-        self.max_lift_coefficient_factor = 1.0
+        self.performance            = DataOrdered()
 
     _component_root_map = None
 
@@ -85,13 +94,19 @@ class Vehicle(Data):
         super(Vehicle,self).__init__(*args,**kwarg)
 
         self._component_root_map = {
-            Components.Fuselages.Fuselage              : self['fuselages']              ,
-            Components.Wings.Wing                      : self['wings']                  ,
-            Components.Systems.System                  : self['systems']                ,
-            Components.Propulsors.Propulsor            : self['propulsors']             ,
-            Components.Envelope                        : self['envelope']               ,
-        }
+            Components.Fuselages.Fuselage              : self['fuselages']        ,
+            Components.Wings.Wing                      : self['wings']            ,
+            Components.Systems.System                  : self['systems']          ,
+            Components.Propulsors.Propulsor            : self['propulsors']       ,
+            Components.Envelope                        : self['envelope']         ,
+            Components.Landing_Gear.Landing_Gear       : self['landing_gear']     ,
+            Vehicle_Mass_Properties                    : self['mass_properties']  ,
 
+        
+        }
+        
+        self.append_component(Vehicle_Mass_Properties())
+        
         return
 
     def find_component_root(self,component):
@@ -150,11 +165,84 @@ class Vehicle(Data):
 
         # find the place to store data
         component_root = self.find_component_root(component)
+        
+        # See if the component exists, if it does modify the name
+        keys = component_root.keys()
+        if str.lower(component.tag) in keys:
+            string_of_keys = "".join(component_root.keys())
+            n_comps = string_of_keys.count(component.tag)
+            component.tag = component.tag + str(n_comps+1)
 
         # store data
         component_root.append(component)
 
         return
+
+    def sum_mass(self):
+        """ Regresses through the vehicle and sums the masses
+        
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """  
+
+        total = 0.0
+        
+        for key in self.keys():
+            item = self[key]
+            if isinstance(item,Physical_Component.Container):
+                total += item.sum_mass()
+
+        return total
+    
+    
+    def center_of_gravity(self):
+        """ will recursively search the data tree and sum
+            any Comp.Mass_Properties.mass, and return the total sum
+            
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            None
+    
+            Outputs:
+            None
+    
+            Properties Used:
+            None
+        """   
+        total = np.array([[0.0,0.0,0.0]])
+
+        for key in self.keys():
+            item = self[key]
+            if isinstance(item,Physical_Component.Container):
+                total += item.total_moment()
+                
+        mass = self.sum_mass()
+        if mass ==0:
+            mass = 1.
+                
+        CG = total/mass
+        
+        self.mass_properties.center_of_gravity = CG
+                
+        return CG
+
 
 ## @ingroup Vehicle
 class Vehicle_Mass_Properties(Components.Mass_Properties):
@@ -189,6 +277,7 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
             None
             """         
 
+        self.tag             = ''
         self.operating_empty = 0.0
         self.max_takeoff     = 0.0
         self.takeoff         = 0.0
@@ -203,8 +292,15 @@ class Vehicle_Mass_Properties(Components.Mass_Properties):
         self.max_fuel        = 0.0
         self.fuel            = 0.0
         self.max_zero_fuel   = 0.0
-        self.center_of_gravity = [0.0,0.0,0.0]
-        self.zero_fuel_center_of_gravity=np.array([0.0,0.0,0.0])
+        self.center_of_gravity = [[0.0,0.0,0.0]]
+        self.zero_fuel_center_of_gravity = np.array([[0.0,0.0,0.0]])
+
+        self.generative_design_max_per_vehicle = 1
+        self.generative_design_special_parent  = None
+        self.generative_design_characteristics = ['max_takeoff','max_zero_fuel']
+        self.generative_design_minimum         = 1
+        self.generative_design_char_min_bounds = [1,1]   
+        self.generative_design_char_max_bounds = [np.inf,np.inf]        
 
 ## @ingroup Vehicle
 class Costs(Data):
@@ -237,3 +333,49 @@ class Costs(Data):
         self.tag = 'costs'
         self.industrial = Components.Costs.Industrial_Costs()
         self.operating  = Components.Costs.Operating_Costs()
+        
+        
+class Vehicle_Mass_Container(Components.Physical_Component.Container,Vehicle_Mass_Properties):
+        
+    def append(self,value,key=None):
+        """ Appends the vehicle mass, but only let's one ever exist. Keeps the newest one
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """      
+        self.clear()
+        for key in value.keys():
+            self[key] = value[key]
+
+    def get_children(self):
+        """ Returns the components that can go inside
+        
+        Assumptions:
+        None
+    
+        Source:
+        N/A
+    
+        Inputs:
+        None
+    
+        Outputs:
+        None
+    
+        Properties Used:
+        N/A
+        """       
+        
+        return [Vehicle_Mass_Properties]

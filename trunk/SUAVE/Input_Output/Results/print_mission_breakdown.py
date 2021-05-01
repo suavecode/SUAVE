@@ -94,7 +94,8 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
 
 #       Aispeed conversion: KTAS to  KCAS
         atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        p0 , dummy , dummy , dummy , dummy  = atmosphere.compute_values(0)
+        atmo_data  = atmosphere.compute_values(0)
+        p0 = atmo_data.pressure
         deltai = segment.conditions.freestream.pressure[0] / p0
         deltaf = segment.conditions.freestream.pressure[-1]/ p0
 
@@ -150,7 +151,7 @@ def print_mission_breakdown(results,filename='mission_breakdown.dat', units="imp
 
     #Summary of results [nm]
     TotalFuel = results.segments[0].conditions.weights.total_mass[0] - results.segments[-1].conditions.weights.total_mass[-1]   #[kg]
-    TotalTime = (results.segments[-1].conditions.frames.inertial.time[-1] - results.segments[0].conditions.frames.inertial.time[0])  #[min]
+    TotalTime = (results.segments[-1].conditions.frames.inertial.time[-1][0] - results.segments[0].conditions.frames.inertial.time[0][0])  #[min]
 
     fid.write(2*'\n')
     if imperial:

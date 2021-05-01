@@ -8,9 +8,11 @@
 # ----------------------------------------------------------------------
 #   Landing Gear
 # ----------------------------------------------------------------------
+from SUAVE.Core import Data
 
-## @ingroup Methods-Weights-Correlations-Common 
-def landing_gear(TOW, landing_gear_wt_factor = 0.04):
+
+## @ingroup Methods-Weights-Correlations-Common
+def landing_gear(vehicle, landing_gear_wt_factor=0.04):
     """ Calculate the weight of the landing gear assuming that the gear 
     weight is 4 percent of the takeoff weight        
     
@@ -29,9 +31,11 @@ def landing_gear(TOW, landing_gear_wt_factor = 0.04):
             
     Properties Used:
         N/A
-    """ 
-    
-    #process
-    weight = landing_gear_wt_factor * TOW
-    
-    return weight
+    """
+
+    # process
+    weight          = landing_gear_wt_factor * vehicle.mass_properties.max_takeoff
+    output          = Data()
+    output.main     = weight * 0.9
+    output.nose     = weight * 0.1
+    return output
