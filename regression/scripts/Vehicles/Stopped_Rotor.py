@@ -13,7 +13,7 @@ from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruis
 from SUAVE.Methods.Power.Battery.Sizing                        import initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , size_optimal_motor
 from SUAVE.Methods.Propulsion                                  import propeller_design   
-from SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty import empty
+from SUAVE.Methods.Weights.Buildups.eVTOL.empty                import empty
 
 import numpy as np
 import pylab as plt
