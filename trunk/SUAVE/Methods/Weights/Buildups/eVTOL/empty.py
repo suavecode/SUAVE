@@ -56,12 +56,12 @@ def empty(config,
             prop.py
             wing.py
             wiring.py
- 
+
         Sources:
         Project Vahana Conceptual Trade Study
         https://github.com/VahanaOpenSource
-        
-        
+
+
         Inputs:
 
             config:                     SUAVE Config Data Stucture
@@ -97,185 +97,150 @@ def empty(config,
                         Wiring
                     Payload 
 
-    """
-
-    output = Data()
+    """ 
+    output                   = Data()
+    output.rotors            = 0.0
+    output.propellers        = 0.0
+    output.rotor_motors      = 0.0
+    output.propeller_motors  = 0.0 
 
     #-------------------------------------------------------------------------------
     # Unpacking Inputs
     #------------------------------------------------------------------------------- 
-    for propulsor in config.propulsors:
-        #propulsor = config.propulsors.propulsor
-        
-        # Common Inputs 
-        mBattery    = propulsor.battery.mass_properties.mass
-        mPayload    = propulsor.payload.mass_properties.mass
-        MTOW        = config.mass_properties.max_takeoff 
-        
-        # Conditional Inputs
-        
-        #if ('rotor' in propulsor.keys()):
-        #if ('propeller' in propulsor.keys()):
-        if isinstance(propulsor, Battery_Propeller) or isinstance(propulsor, Vectored_Thrust):
-            nLiftProps      = propulsor.number_of_engines 
-            rTipLiftProp    = propulsor.rotor.tip_radius 
-            rotor_bladeSol      = propulsor.rotor.blade_solidity    
-                
-        elif isinstance(propulsor, Lift_Cruise):     
-            rTipLiftProp        = propulsor.rotor.tip_radius  
-            rotor_bladeSol      = propulsor.rotor.blade_solidity    
-            propeller_bladeSol  = propulsor.propeller.blade_solidity  
-            nThrustBlades       = propulsor.propeller.number_of_blades
-            cThrustProp         = propulsor.propeller.chord_distribution 
-            rTipThrustProp      = propulsor.propeller.tip_radius
-            rHubThrustProp      = propulsor.propeller.hub_radius
-            mBattery            = propulsor.battery.mass_properties.mass
-            mPayload            = propulsor.payload.mass_properties.mass 
-            nLiftProps          = propulsor.number_of_rotor_engines
-            nThrustProps        = propulsor.number_of_propeller_engines 
-            
+    for propulsor in config.propulsors: 
+	# Common Inputs 
+	mBattery    = propulsor.battery.mass_properties.mass
+	mPayload    = propulsor.payload.mass_properties.mass
+	MTOW        = config.mass_properties.max_takeoff 
+
+	# Conditional Inputs
+        mBattery  = propulsor.battery.mass_properties.mass
+        mPayload  = propulsor.payload.mass_properties.mass 
+	if 'rotor' in propulsor.keys():
+	    rTipLiftProp        = propulsor.rotor.tip_radius  
+	    rotor_bladeSol      = propulsor.rotor.blade_solidity    
         else:
-            warn("""eVTOL weight buildup only supports the Battery Propeller, Lift Cruise and Vectored Thrust energy networks.\n
+	    rTipLiftProp        = 0.0
+	    rotor_bladeSol      = 0.0 
+	    
+	if isinstance(propulsor, Lift_Cruise):     
+	    nLiftProps          = propulsor.number_of_rotor_engines
+	    nThrustProps        = propulsor.number_of_propeller_engines 
+         
+	elif isinstance(propulsor, Battery_Propeller) or isinstance(propulsor, Vectored_Thrust):
+	    nLiftProps          = propulsor.number_of_engines 
+	    nThrustProps        = 0.0
+	    
+	else:
+	    warn("""eVTOL weight buildup only supports the Battery Propeller, Lift Cruise and Vectored Thrust energy networks.\n
             Weight buildup will not return information on propulsion system.""", stacklevel=1)
+ 
+	tipMach     = max_tip_mach
+	k           = disk_area_factor
+	ToverW      = max_thrust_to_weight_ratio
+	eta         = motor_efficiency
+
+	#-------------------------------------------------------------------------------
+	# Fixed Weights
+	#------------------------------------------------------------------------------- 
+	output.payload      = mPayload                  * Units.kg
+	output.seats        = config.passengers * 15.   * Units.kg
+	output.avionics     = 15.                       * Units.kg
+	output.battery      = mBattery                  * Units.kg
+	output.landing_gear = MTOW * 0.02               * Units.kg
+	output.ECS          = config.passengers * 7.    * Units.kg
+
+	if isinstance(propulsor, Battery_Propeller):
+	    output.servos   = 5.2 * nLiftProps          * Units.kg
+	    output.hubs     = MTOW * 0.04 * nLiftProps  * Units.kg
+	    if nLiftProps > 1:
+		output.BRS  = 16.                       * Units.kg
+
+	elif isinstance(propulsor, Vectored_Thrust):
+	    output.servos   = 0.65  * (nLiftProps)      * Units.kg
+	    output.hubs     = 2.    * (nLiftProps)      * Units.kg
+	    output.BRS      = 16.                       * Units.kg
+
+	elif isinstance(propulsor, Lift_Cruise):
+	    output.servos   = 0.65  * (nLiftProps + nThrustProps)   * Units.kg
+	    output.hubs     = 2.    * (nLiftProps + nThrustProps)   * Units.kg
+	    output.BRS      = 16.                                   * Units.kg
+
+	#-------------------------------------------------------------------------------
+	# Calculated Attributes
+	#-------------------------------------------------------------------------------
+	# Preparatory Calculations
+	rho_ref      = 1.225
+	maxVTip      = speed_of_sound * tipMach                            # Prop Tip Velocity 
+	maxLift      = config.mass_properties.max_takeoff * ToverW * 9.81  # Maximum Thrust 
+	AvgBladeCD   = 0.012                                               # Average Blade CD
+	maxLiftPower = 1.15*maxLift*(k*np.sqrt(maxLift/(2*rho_ref*np.pi*rTipLiftProp**2)) +
+		                                 rotor_bladeSol*AvgBladeCD/8*maxVTip**3/(maxLift/(rho_ref*np.pi*rTipLiftProp**2)))   
+	maxLiftOmega    = maxVTip/rTipLiftProp                             # Maximum Lift Prop Angular Velocity 
+
+	#-------------------------------------------------------------------------------
+	# Fuselage  Weight
+	#-------------------------------------------------------------------------------  
+	output.fuselage = fuselage(config) * Units.kg
+
+	#-------------------------------------------------------------------------------
+	# Transission Weight
+	#-------------------------------------------------------------------------------  	
+	output.transmission  = maxLiftPower * 1.5873e-4 * Units.kg  # From NASA OH-58 Study 
         
-        sound       = speed_of_sound
-        tipMach     = max_tip_mach
-        k           = disk_area_factor
-        ToverW      = max_thrust_to_weight_ratio
-        eta         = motor_efficiency
-        
-        #-------------------------------------------------------------------------------
-        # Fixed Weights
-        #-------------------------------------------------------------------------------
-        
-        output.payload      = mPayload                  * Units.kg
-        output.seats        = config.passengers * 15.   * Units.kg
-        output.avionics     = 15.                       * Units.kg
-        output.battery      = mBattery                  * Units.kg
-        output.landing_gear = MTOW * 0.02               * Units.kg
-        output.ECS          = config.passengers * 7.    * Units.kg
-        
-        if isinstance(propulsor, Battery_Propeller):
-            output.servos   = 5.2 * nLiftProps          * Units.kg
-            output.hubs     = MTOW * 0.04 * nLiftProps  * Units.kg
-            if nLiftProps > 1:
-                output.BRS  = 16.                       * Units.kg
-        
-        elif isinstance(propulsor, Vectored_Thrust):
-            output.servos   = 0.65  * (nLiftProps)      * Units.kg
-            output.hubs     = 2.    * (nLiftProps)      * Units.kg
-            output.BRS      = 16.                       * Units.kg
-              
-        elif isinstance(propulsor, Lift_Cruise):
-            output.servos   = 0.65  * (nLiftProps + nThrustProps)   * Units.kg
-            output.hubs     = 2.    * (nLiftProps + nThrustProps)   * Units.kg
-            output.BRS      = 16.                                   * Units.kg
-        
-        #-------------------------------------------------------------------------------
-        # Calculated Attributes
-        #-------------------------------------------------------------------------------
-        # Preparatory Calculations
-        rho_ref      = 1.225
-        maxVTip      = speed_of_sound * tipMach                            # Prop Tip Velocity 
-        maxLift      = config.mass_properties.max_takeoff * ToverW * 9.81  # Maximum Thrust 
-        AvgBladeCD   = 0.012                                               # Average Blade CD
-        maxLiftPower = 1.15*maxLift*(k*np.sqrt(maxLift/(2*rho_ref*np.pi*rTipLiftProp**2)) +
-                                     rotor_bladeSol*AvgBladeCD/8*maxVTip**3/(maxLift/(rho_ref*np.pi*rTipLiftProp**2)))   
-        maxLiftOmega    = maxVTip/rTipLiftProp                             # Maximum Lift Prop Angular Velocity 
-  
-        #-------------------------------------------------------------------------------
-        # Component Weight Calculations
-        #-------------------------------------------------------------------------------
-        
-        # NOTE: Throughout this section, the expression max(nLiftProps-1,1) is used to
-        #       express assumption that vehicle must be able to operate with 1 motor out
-        
-        output.fuselage = fuselage(config)                                          * Units.kg
-        
-        if isinstance(propulsor, Battery_Propeller):
-            output.transmission  = maxLiftPower * 1.5873e-4                          * Units.kg                   # From NASA OH-58 Study
-            output.rotors        = nLiftProps * prop(propulsor.propeller, maxLift / max(nLiftProps - 1, 1))* Units.kg
-            output.rotor_motors  = nLiftProps * propulsor.motor.mass_properties.mass
-            output.motors        = output.rotor_motors
+	#-------------------------------------------------------------------------------
+	#Tail Rotor Weight
+	#-------------------------------------------------------------------------------          
+	if nLiftProps == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor 
+	    maxLiftTorque     = maxLiftPower / maxLiftOmega
+	    output.tail_rotor = prop(propulsor.propeller, 1.5*maxLiftTorque/(1.25*rTipLiftProp))*0.2 * Units.kg
+ 
+	#-------------------------------------------------------------------------------
+	# Rotor, Propeller and Motor Weight
+	#------------------------------------------------------------------------------- 
+	if 'rotor' in propulsor.keys(): 
+	    output.rotors            = nLiftProps * prop(propulsor.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg
+	    output.rotor_motors      = nLiftProps   * propulsor.rotor_motor.mass_properties.mass
+	    
+	if 'propeller' in propulsor.keys():     
+	    output.propellers        = prop(propulsor.propeller, maxLift/5.) * Units.kg
+	    output.propeller_motors  = nThrustProps * propulsor.propeller_motor.mass_properties.mass
+	    
+	# sum motor weight
+	output.motors = output.rotor_motors + output.propeller_motors  
+	
+	#-------------------------------------------------------------------------------
+	# Wing and Motor Wiring Weight
+	#-------------------------------------------------------------------------------  
+	# Compute wing weight 
+	total_wing_weight        = 0.0
+	total_wiring_weight      = 0.0
+	output.wings             = Data()   
+	output.wiring            = Data()  
+		
+	for w in config.wings:
+	    # wing weight 
+	    wing_weight            = wing(w, config, maxLift/5, safety_factor= safety_factor, max_g_load =  max_g_load ) 
+	    wing_tag               = w.tag 
+	    output.wings[wing_tag] = wing_weight
+	    total_wing_weight      = total_wing_weight + wing_weight  
             
-            if nLiftProps == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor 
-                maxLiftTorque     = maxLiftPower / maxLiftOmega
-                output.tail_rotor = prop(propulsor.propeller, 1.5*maxLiftTorque/(1.25*rTipLiftProp))*0.2 * Units.kg
-        
-        elif isinstance(propulsor, Lift_Cruise): 
-            output.rotors            = nLiftProps * prop(propulsor.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg
-            output.propellers        = prop(propulsor.propeller, maxLift/5.) * Units.kg
-            output.rotor_motors      = nLiftProps   * propulsor.rotor_motor.mass_properties.mass
-            output.propeller_motors  = nThrustProps * propulsor.propeller_motor.mass_properties.mass
-            output.motors            = output.rotor_motors + output.propeller_motors 
+	    # wiring weight
+	    wiring_weight          = wiring(w, config, maxLiftPower/eta) * Units.kg 
+	    total_wiring_weight    = total_wiring_weight + wiring_weight  
             
-            # Compute wing weight 
-            total_wing_weight        = 0.0
-            total_wiring_weight      = 0.0
-            output.wings             = Data()   
-            output.wiring            = Data() 
-            for w in config.wings:
-                # wing weight 
-                wing_weight            = wing(w, config, maxLift/5, safety_factor= safety_factor, max_g_load =  max_g_load ) 
-                wing_tag               = w.tag 
-                output.wings[wing_tag] = wing_weight
-                total_wing_weight      = total_wing_weight + wing_weight  
-                
-                # wiring weight
-                wiring_weight          = wiring(w, config, maxLiftPower/eta)* Units.kg 
-                total_wiring_weight    = total_wiring_weight + wiring_weight  
-                
-            output.wiring            = total_wiring_weight
-            output.total_wing_weight = total_wing_weight  
-            
-        elif isinstance(propulsor, Vectored_Thrust): 
-            output.rotors            = nLiftProps * prop(propulsor.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg 
-            output.rotor_motors      = nLiftProps   * propulsor.motor.mass_properties.mass
-            output.propellers        = 0.0
-            output.propeller_motors  = 0.0
-            output.motors            = output.rotor_motors + output.propeller_motors 
-            
-            # Compute wing weight 
-            total_wing_weight        = 0.0
-            total_wiring_weight      = 0.0
-            output.wings             = Data()   
-            output.wiring            = Data() 
-            for w in config.wings:
-                # wing weight 
-                wing_weight            = wing(w, config, maxLift/5, safety_factor= safety_factor, max_g_load =  max_g_load ) 
-                wing_tag               = w.tag 
-                output.wings[wing_tag] = wing_weight
-                total_wing_weight      = total_wing_weight + wing_weight  
-                
-                # wiring weight
-                wiring_weight          = wiring(w, config, maxLiftPower/eta)   * Units.kg 
-                total_wiring_weight    = total_wiring_weight + wiring_weight  
-                
-            output.wiring            = total_wiring_weight
-            output.total_wing_weight = total_wing_weight            
-                
-        #-------------------------------------------------------------------------------
-        # Pack Up Outputs
-        #------------------------------------------------------------------------------- 
-        output.structural   = (output.rotors +
-                               output.propellers +
-                                output.hubs +
-                                output.fuselage +
-                                output.landing_gear +
-                                output.total_wing_weight
-                                )*Units.kg
-        
-        output.empty        = (contingency_factor * (
-                               output.structural +
-                               output.seats +
-                               output.avionics +
-                               output.motors +
-                               output.servos +
-                               output.wiring +
-                               output.BRS
-                               ) + output.battery) *Units.kg
-        
-        output.total        = (output.empty +
-                               output.payload)
-        
+	output.wiring              = total_wiring_weight
+	output.total_wing_weight   = total_wing_weight            
+
+	#-------------------------------------------------------------------------------
+	# Pack Up Outputs
+	#------------------------------------------------------------------------------- 
+	output.structural   = (output.rotors + output.propellers + output.hubs +
+		               output.fuselage + output.landing_gear +output.total_wing_weight)*Units.kg
+
+	output.empty        = (contingency_factor * (output.structural + output.seats + output.avionics +
+		               output.motors + output.servos + output.wiring + output.BRS) + output.battery) *Units.kg
+
+	output.total        = output.empty + output.payload
+	
     return output

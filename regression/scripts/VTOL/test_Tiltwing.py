@@ -129,8 +129,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_eVTOL()
-    #weights = SUAVE.Analyses.Weights.Weights_Electric_Vectored_Thrust()
+    weights = SUAVE.Analyses.Weights.Weights_eVTOL() 
     weights.vehicle = vehicle
     analyses.append(weights)
 
