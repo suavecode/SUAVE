@@ -125,11 +125,6 @@ class Wing(Lofted_Body):
         self.control_surfaces   = SUAVE.Core.Container()
         self.Fuel_Tanks         = SUAVE.Core.Container()
 
-        self.materials.skin_materials   = SUAVE.Core.Container()
-        self.materials.spar_materials   = SUAVE.Core.Container()
-        self.materials.rib_materials    = SUAVE.Core.Container()
-        self.materials.flap_materials   = SUAVE.Core.Container()
-
     def append_segment(self,segment):
         """ Adds a segment to the wing 
     

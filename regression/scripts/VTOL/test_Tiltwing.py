@@ -36,6 +36,7 @@ def main():
     analyses.finalize()
     weights   = analyses.configs.base.weights
     breakdown = weights.evaluate()    
+    print(breakdown)
     mission   = analyses.missions.base 
 
     # Plot vehicle 
@@ -128,8 +129,8 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    #weights = SUAVE.Analyses.Weights.Weights_eVTOL()
-    weights = SUAVE.Analyses.Weights.Weights_Electric_Vectored_Thrust()
+    weights = SUAVE.Analyses.Weights.Weights_eVTOL()
+    #weights = SUAVE.Analyses.Weights.Weights_Electric_Vectored_Thrust()
     weights.vehicle = vehicle
     analyses.append(weights)
 

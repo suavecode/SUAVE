@@ -206,7 +206,7 @@ def vehicle_setup():
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()
     payload.power_draw           = 10. #Watts 
-    payload.mass_properties.mass = 1.0 * Units.kg
+    payload.mass_properties.mass = 200.0 * Units.kg
     net.payload                  = payload
 
     # Component 7 the Avionics
