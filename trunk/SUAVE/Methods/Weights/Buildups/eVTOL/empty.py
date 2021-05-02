@@ -144,6 +144,7 @@ def empty(config,
         #------------------------------------------------------------------------------- 
         output.payload      = mPayload                  * Units.kg
         output.seats        = config.passengers * 15.   * Units.kg
+        output.passengers   = config.passengers * 70.   * Units.kg
         output.avionics     = 15.                       * Units.kg
         output.battery      = mBattery                  * Units.kg
         output.landing_gear = MTOW * 0.02               * Units.kg
@@ -221,11 +222,14 @@ def empty(config,
         output.wiring            = Data()  
 
         for w in config.wings:
-            # wing weight 
-            wing_weight            = wing(w, config, maxLift/5, safety_factor= safety_factor, max_g_load =  max_g_load ) 
-            wing_tag               = w.tag 
-            output.wings[wing_tag] = wing_weight
-            total_wing_weight      = total_wing_weight + wing_weight  
+            if w.symbolic:
+                wing_weight = 0
+            else:
+                # wing weight 
+                wing_weight            = wing(w, config, maxLift/5, safety_factor= safety_factor, max_g_load =  max_g_load ) 
+                wing_tag               = w.tag 
+                output.wings[wing_tag] = wing_weight
+            total_wing_weight          = total_wing_weight + wing_weight  
 
             # wiring weight
             wiring_weight          = wiring(w, config, maxLiftPower/(eta*nProps)) * Units.kg 
@@ -243,6 +247,6 @@ def empty(config,
         output.empty        = (contingency_factor * (output.structural + output.seats + output.avionics +
                                 output.motors + output.servos + output.wiring + output.BRS) + output.battery) *Units.kg
 
-        output.total        = output.empty + output.payload
+        output.total        = output.empty + output.payload + output.passengers 
 
     return output
