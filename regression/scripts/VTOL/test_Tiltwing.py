@@ -338,7 +338,7 @@ def plot_mission(results,line_style = 'bo-'):
     plot_aircraft_velocities(results, line_style)
     
     # Plot Aircraft Electronics
-    plot_electronic_conditions(results, line_style)
+    plot_battery_pack_conditions(results, line_style)
     
     # Plot Propeller Conditions 
     plot_propeller_conditions(results, line_style) 

@@ -127,7 +127,7 @@ def datta_discharge(battery,numerics):
     DOD_new = 1 - SOC_new
       
     # Determine new charge throughput (the amount of charge gone through the battery)
-    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(abs(I_bat)[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T  
+    Q_total    = np.atleast_2d(np.hstack(( Q_prior[0] , Q_prior[0] + cumtrapz(abs(I_bat)[:,0], x   = numerics.time.control_points[:,0])/Units.hr ))).T  
     Q_segment  = np.atleast_2d(np.hstack(( np.zeros_like(Q_prior[0]) , cumtrapz(abs(I_bat)[:,0], x = numerics.time.control_points[:,0])/Units.hr ))).T      
             
     # A voltage model from Chen, M. and Rincon-Mora, G. A., "Accurate Electrical Battery Model Capable of Predicting

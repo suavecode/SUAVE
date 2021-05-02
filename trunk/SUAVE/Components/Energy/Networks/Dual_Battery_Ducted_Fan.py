@@ -130,8 +130,8 @@ class Dual_Battery_Ducted_Fan(Propulsor):
         primary_battery.inputs           = primary_battery_logic
         auxiliary_battery.inputs         = auxiliary_battery_logic
         tol                              = 1e-6
-        primary_battery.energy_calc(numerics)
-        auxiliary_battery.energy_calc(numerics)
+        primary_battery.energy_discharge(numerics)
+        auxiliary_battery.energy_discharge(numerics)
         
         #allow for mass gaining batteries 
         try:

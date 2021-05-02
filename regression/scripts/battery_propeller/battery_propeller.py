@@ -204,6 +204,7 @@ def mission_setup(analyses,vehicle):
     Segments = SUAVE.Analyses.Mission.Segments 
     
     # base segment
+    bat                                                      = vehicle.propulsors.battery_propeller.battery
     base_segment = Segments.Segment()
     ones_row     = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
@@ -212,8 +213,13 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.battery_propeller.unpack_unknowns
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.battery_propeller.residuals
     base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.battery_propeller.battery.max_voltage * ones_row(1)  
-    base_segment.state.residuals.network                     = 0. * ones_row(2)        
+    base_segment.state.unknowns.battery_voltage_under_load   = bat.max_voltage * ones_row(1)  
+    base_segment.state.residuals.network                     = 0. * ones_row(2) 
+    base_segment.battery_configuration                       = bat.pack_config
+    #base_segment.charging_SOC_cutoff                         = bat.cell.charging_SOC_cutoff  
+    #base_segment.charging_voltage                            = bat.charging_voltage  * bat.pack_config.series
+    #base_segment.charging_current                            = bat.charging_current  * bat.pack_config.parallel    
+    base_segment.max_energy                                  = bat.max_energy  
     
     # ------------------------------------------------------------------
     #   Climb 1 : constant Speed, constant rate segment 
@@ -227,6 +233,17 @@ def mission_setup(analyses,vehicle):
     segment.air_speed                        = 96.4260 * Units['mph'] 
     segment.climb_rate                       = 700.034 * Units['ft/min']  
     segment.state.unknowns.throttle          = 0.85 * ones_row(1)  
+    
+    
+    segment.battery_cell_temperature                     = 20   
+    segment.battery_pack_temperature                     = 20
+    segment.ambient_temperature                          = 20   
+    #segment.battery_age_in_days                          = day   
+    #segment.battery_discharge                            = True 
+    segment.battery_cumulative_charge_throughput         = 0  
+    segment.battery_resistance_growth_factor             = 1 
+    segment.battery_capacity_fade_factor                 = 1        
+        
 
     # add to misison
     mission.append_segment(segment)
@@ -291,7 +308,8 @@ def plot_results(results,line_style = 'bo-'):
     plot_aircraft_velocities(results, line_style)
     
     # Plot Aircraft Electronics
-    plot_electronic_conditions(results, line_style)
+    plot_battery_pack_conditions(results, line_style)
+    plot_battery_cell_conditions(results, line_style)
     
     # Plot Propeller Conditions 
     plot_propeller_conditions(results, line_style) 

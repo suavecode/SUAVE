@@ -138,7 +138,7 @@ class Serial_Hybrid_Ducted_Fan(Propulsor):
                 generator.outputs.power_generated)
         
         # Run the battery
-        battery.energy_calc(numerics)        
+        battery.energy_discharge(numerics)        
 
         # Pack the conditions for outputs
         current              = esc.outputs.currentin

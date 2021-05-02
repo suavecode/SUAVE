@@ -10,7 +10,7 @@ from SUAVE.Core import Data , Units
 import numpy as np 
 from scipy.integrate import  cumtrapz 
 
-def LiNCA_charge (battery,numerics): 
+def LiNCA_charge(battery,numerics): 
     """This is a Charge model for lithium-nickel-cobalt-aluminum oxide 18650 battery
        using a thevenin equavalent circuit with parameters taken from 
        pulse tests done by NASA Glen (referece below) of a Samsung (SDI 18650-30Q).

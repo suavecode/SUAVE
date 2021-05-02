@@ -184,7 +184,7 @@ class Solar(Propulsor):
         
         # link
         battery.inputs = solar_logic.outputs
-        battery.energy_calc(numerics)
+        battery.energy_discharge(numerics)
         
         #Pack the conditions for outputs
         a                                        = conditions.freestream.speed_of_sound

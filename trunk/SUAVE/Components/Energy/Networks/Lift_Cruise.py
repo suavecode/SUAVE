@@ -354,7 +354,7 @@ class Lift_Cruise(Propulsor):
             battery.inputs.power_in = - power_total
             
             # Run the battery
-            battery.energy_calc(numerics)   
+            battery.energy_discharge(numerics)   
              
         # --------------------------------------------------------------------------------
         # Run Charge Model 

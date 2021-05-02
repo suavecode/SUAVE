@@ -197,7 +197,7 @@ class Battery_Propeller(Propulsor):
         else: 
             volts                            = state.unknowns.battery_voltage_under_load
             battery.battery_thevenin_voltage = 0             
-            battery.cell_temperature         = battery.temperature  
+            battery.temperature              = conditions.propulsion.battery_pack_temperature
             
         # --------------------------------------------------------------------------------
         # Run Motor, Avionics and Systems (Discharge Model)

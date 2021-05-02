@@ -157,7 +157,7 @@ class Constant_Temperature(Atmospheric):
         rho = gas.compute_density(T,p)
         a   = gas.compute_speed_of_sound(T)
         mu  = gas.compute_absolute_viscosity(T)
-        K   = gas.computer_thermal_conductivity(T)
+        K   = gas.compute_thermal_conductivity(T)
 
                 
         atmo_data = Conditions()
