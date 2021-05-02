@@ -12,7 +12,7 @@ from SUAVE.Core import Units, Data
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_inflow import compute_propeller_nonuniform_inflow
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 from SUAVE.Plots.Propeller_Plots import plot_propeller_disc_inflow, plot_propeller_disc_performance
 from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_propulsor
 import numpy as np
@@ -102,7 +102,7 @@ def run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=
     prop_copy.nonuniform_freestream = True
     prop_copy.origin = np.array([prop.origin[1] ])# only concerned with the impact the upstream prop has on this one
     prop_copy.rotation = [prop.rotation[1]]
-    prop = compute_propeller_nonuniform_inflow(prop_copy, propeller_wake, conditions)
+    prop = compute_propeller_nonuniform_freestream(prop_copy, propeller_wake, conditions)
     
     # run the propeller in this nonuniform flow
     T, Q, P, Cp, outputs , etap = prop.spin(conditions)

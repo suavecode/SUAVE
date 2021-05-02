@@ -26,12 +26,12 @@ import numpy as np
 def main():   
     ospath    = os.path.abspath(__file__)
     separator = os.path.sep
-    rel_path  = ospath.split('airfoil_import' + separator + 'airfoil_import_test.py')[0] + 'Vehicles' + separator
-    airfoil_polar_names  =  [[rel_path + 'NACA_4412_polar_Re_50000.txt',
-                              rel_path + 'NACA_4412_polar_Re_100000.txt',
-                              rel_path + 'NACA_4412_polar_Re_200000.txt',
-                              rel_path + 'NACA_4412_polar_Re_500000.txt',
-                              rel_path + 'NACA_4412_polar_Re_1000000.txt']]   
+    rel_path  = ospath.split('airfoil_import' + separator + 'airfoil_import_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator
+    airfoil_polar_names  =  [[rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_50000.txt',
+                              rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_100000.txt',
+                              rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_200000.txt',
+                              rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_500000.txt',
+                              rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_1000000.txt']]   
     airfoil_polar_data     =  import_airfoil_polars(airfoil_polar_names) 
 
     airfoil_geometry_names = [rel_path + 'NACA_4412.txt','airfoil_geometry_2.txt', 'airfoil_geometry_2-selig.txt']    

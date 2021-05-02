@@ -414,9 +414,12 @@ def vehicle_setup():
     propeller.design_Cl              = 0.7
     propeller.design_altitude        = 1000 * Units.feet   
     propeller.design_thrust          = (Drag*2.5)/net.number_of_propeller_engines  
-    propeller.airfoil_geometry       =  ['../Vehicles/NACA_4412.txt'] 
-    propeller.airfoil_polars         = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
-                                      '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    propeller.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    propeller.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     propeller.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     propeller                        = propeller_design(propeller)   
     propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]  
@@ -439,9 +442,12 @@ def vehicle_setup():
     rotor.x_pitch_count              = 2 
     rotor.y_pitch_count              = vehicle.fuselages['boom_1r'].y_pitch_count
     rotor.y_pitch                    = vehicle.fuselages['boom_1r'].y_pitch 
-    rotor.airfoil_geometry           =  ['../Vehicles/NACA_4412.txt'] 
-    rotor.airfoil_polars             = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
-                                         '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    rotor.airfoil_geometry           =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    rotor.airfoil_polars             = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
     rotor                            = propeller_design(rotor)          
     rotor.origin                     = vehicle.fuselages['boom_1r'].origin

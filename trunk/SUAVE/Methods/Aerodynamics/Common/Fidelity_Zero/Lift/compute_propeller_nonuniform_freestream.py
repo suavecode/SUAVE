@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-# compute_propeller_nonuniform_inflow.py
+# compute_propeller_nonuniform_freestream.py
 # 
 # Created:   April 2021, R. Erhard
 # Modified: 
@@ -12,7 +12,7 @@ import scipy as sp
 from SUAVE.Methods.Geometry.Three_Dimensional import  orientation_product, orientation_transpose
 
 
-def compute_propeller_nonuniform_inflow(prop, upstream_wake,conditions):
+def compute_propeller_nonuniform_freestream(prop, upstream_wake,conditions):
     """ Computes the inflow velocities in the frame of the rotating propeller
     
     Inputs:

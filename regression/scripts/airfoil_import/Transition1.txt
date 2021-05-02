@@ -1,4 +1,4 @@
-Airfoil Transition 1 betweenC:\Users\rerha\Desktop\Suave Material\SUAVE\regression\scripts\airfoil_import\../Vehicles/Airfoils/Clark_y.txtandC:\Users\rerha\Desktop\Suave Material\SUAVE\regression\scripts\airfoil_import\../Vehicles/Airfoils/E63.txt
+Airfoil Transition 1 between/Users/rerha/Desktop/SUAVECODE/SUAVE/regression/scripts/airfoil_import/../Vehicles/Airfoils/Clark_y.txtand/Users/rerha/Desktop/SUAVECODE/SUAVE/regression/scripts/airfoil_import/../Vehicles/Airfoils/E63.txt
  61. 61.
 
 0.0 -0.00041

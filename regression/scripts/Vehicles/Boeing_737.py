@@ -95,7 +95,7 @@ def vehicle_setup():
 
     # Wing Segments
     root_airfoil                          = SUAVE.Components.Wings.Airfoils.Airfoil()
-    root_airfoil.coordinate_file          = '../Vehicles/B737a.txt'
+    root_airfoil.coordinate_file          = '../Vehicles/Airfoils/B737a.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Root'
     segment.percent_span_location         = 0.0
@@ -109,7 +109,7 @@ def vehicle_setup():
     wing.append_segment(segment)
 
     yehudi_airfoil                        = SUAVE.Components.Wings.Airfoils.Airfoil()
-    yehudi_airfoil.coordinate_file        = '../Vehicles/B737b.txt'
+    yehudi_airfoil.coordinate_file        = '../Vehicles/Airfoils/B737b.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Yehudi'
     segment.percent_span_location         = 0.324
@@ -123,7 +123,7 @@ def vehicle_setup():
     wing.append_segment(segment)
 
     mid_airfoil                           = SUAVE.Components.Wings.Airfoils.Airfoil()
-    mid_airfoil.coordinate_file           = '../Vehicles/B737c.txt'
+    mid_airfoil.coordinate_file           = '../Vehicles/Airfoils/B737c.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Section_2'
     segment.percent_span_location         = 0.963
@@ -137,7 +137,7 @@ def vehicle_setup():
     wing.append_segment(segment)
 
     tip_airfoil                           =  SUAVE.Components.Wings.Airfoils.Airfoil()
-    tip_airfoil.coordinate_file           = '../Vehicles/B737d.txt'
+    tip_airfoil.coordinate_file           = '../Vehicles/Airfoils/B737d.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Tip'
     segment.percent_span_location         = 1.
