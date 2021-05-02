@@ -7,23 +7,19 @@
 #   Imports
 # ---------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units, Data
-import copy
-from SUAVE.Components.Energy.Networks.Vectored_Thrust import Vectored_Thrust
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , size_optimal_motor
-from SUAVE.Methods.Weights.Correlations.Propulsion import nasa_motor, hts_motor , air_cooled_motor
-from SUAVE.Methods.Propulsion import propeller_design 
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff 
-from SUAVE.Methods.Weights.Buildups.eVTOL.empty import empty
-from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
-from SUAVE.Plots.Geometry_Plots import * 
+from SUAVE.Core import Units, Data 
 
-import numpy as np
-import pylab as plt
-from copy import deepcopy
+from SUAVE.Components.Energy.Networks.Vectored_Thrust                     import Vectored_Thrust
+from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
+from SUAVE.Methods.Propulsion.electric_motor_sizing                       import  size_optimal_motor
+from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor 
+from SUAVE.Methods.Propulsion                                             import propeller_design  
+from SUAVE.Plots.Geometry_Plots                                           import * 
+from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty 
+from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity   import compute_aircraft_center_of_gravity
+from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 
-
+import numpy as np  
 
 def vehicle_setup(): 
     # ------------------------------------------------------------------
@@ -372,6 +368,10 @@ def vehicle_setup():
 
     net.origin = rot.origin 
 
+    vehicle.weight_breakdown  = empty(vehicle)
+    compute_component_centers_of_gravity(vehicle)
+    compute_aircraft_center_of_gravity(vehicle)
+    
     return vehicle
 
 
