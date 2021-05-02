@@ -79,12 +79,12 @@ def compute_propeller_nonuniform_inflow(prop, upstream_wake,conditions):
     
     if rotation == [1]:
         Vt_2d =  V_thrust[:,0]*( -np.array(uw_wing)*np.cos(psi_2d) + np.array(uv_wing)*np.sin(psi_2d)  )  # velocity tangential to the disk plane, positive toward the trailing edge eqn 6.34 pg 165           
-        Vr_2d =  V_thrust[:,0]*( -np.array(uw_wing)*np.sin(psi_2d) - np.array(uv_wing)*np.cos(psi_2d)  )  # radial velocity , positive outward   eqn 6.35 pg 165                 
+        Vr_2d =  V_thrust[:,0]*( -np.array(uw_wing)*np.sin(psi_2d) - np.array(uv_wing)*np.cos(psi_2d)  )  # radial velocity , positive outward              
         Va_2d =  V_thrust[:,0]*   np.array(ua_wing)                                                       # velocity perpendicular to the disk plane, positive downward  eqn 6.36 pg 166  
     else:     
-        Vt_2d =  V_thrust[:,0]*(  np.array(uw_wing)*np.cos(psi_2d) - np.array(uv_wing)*np.sin(psi_2d)  )  # velocity tangential to the disk plane, positive toward the trailing edge eqn 6.34 pg 165           
-        Vr_2d =  V_thrust[:,0]*( -np.array(uw_wing)*np.sin(psi_2d) - np.array(uv_wing)*np.cos(psi_2d)  )  # radial velocity , positive outward   eqn 6.35 pg 165                 
-        Va_2d =  V_thrust[:,0]*   np.array(ua_wing)                                                       # velocity perpendicular to the disk plane, positive downward  eqn 6.36 pg 166   
+        Vt_2d =  V_thrust[:,0]*(  np.array(uw_wing)*np.cos(psi_2d) - np.array(uv_wing)*np.sin(psi_2d)  )  # velocity tangential to the disk plane, positive toward the trailing edge       
+        Vr_2d =  V_thrust[:,0]*( -np.array(uw_wing)*np.sin(psi_2d) - np.array(uv_wing)*np.cos(psi_2d)  )  # radial velocity , positive outward               
+        Va_2d =  V_thrust[:,0]*   np.array(ua_wing)                                                       # velocity perpendicular to the disk plane, positive downward
     
     # Append velocities to propeller
     prop.tangential_velocities_2d = Vt_2d

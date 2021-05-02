@@ -93,7 +93,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     propulsor_edge_color = 'black' 
     propulsor_alpha      = 1    
     for propulsor in vehicle.propulsors:    
-        plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,propulsor_alpha)    
+        plot_propulsor(axes,propulsor)    
       
     # Plot Vehicle
     plt.axis('off') 
@@ -275,7 +275,7 @@ def plot_fuselage_geometry(axes,fus_pts, face_color,edge_color,alpha):
     return 
 
 
-def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,propulsor_alpha,tessellation = 24):  
+def plot_propulsor(axes,propulsor):  
     """ This plots the 3D surface of the propulsor
 
     Assumptions: 
@@ -284,8 +284,7 @@ def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,p
     Source:   
     None
     
-    Inputs:   
-    VD                   - vortex distribution    
+    Inputs:     
     propulsor            - propulsor data structure
     propulsor_face_color - color of panel
     propulsor_edge_color - color of panel edge
@@ -326,8 +325,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     Source:   
     None
     
-    Inputs:   
-    VD                   - vortex distribution    
+    Inputs:    
     propulsor            - propulsor data structure 
     
     Properties Used:
@@ -356,23 +354,12 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     n_points  = 10
     af_pts    = (2*n_points)-1
     dim       = len(b)
+    dim2      = 2*n_points
     num_props = len(origin) 
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]   
     
-    # create empty arrays for storing geometry
-    G = Data()
-    G.XA1 = np.zeros((dim-1,af_pts))
-    G.YA1 = np.zeros_like(G.XA1)
-    G.ZA1 = np.zeros_like(G.XA1)
-    G.XA2 = np.zeros_like(G.XA1)
-    G.YA2 = np.zeros_like(G.XA1)
-    G.ZA2 = np.zeros_like(G.XA1)
-    G.XB1 = np.zeros_like(G.XA1)
-    G.YB1 = np.zeros_like(G.XA1)
-    G.ZB1 = np.zeros_like(G.XA1)
-    G.XB2 = np.zeros_like(G.XA1)
-    G.YB2 = np.zeros_like(G.XA1)
-    G.ZB2 = np.zeros_like(G.XA1)  
+    # create empty data structure for storing geometry
+    G = Data()    
     
     for n_p in range(num_props):  
         rot    = prop.rotation[n_p] 
@@ -380,10 +367,10 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
         flip_1 = (np.pi/2)  
         flip_2 = (np.pi/2)  
         
-        MCA_2d = np.repeat(np.atleast_2d(MCA).T,dim,axis=1)
-        b_2d   = np.repeat(np.atleast_2d(b).T  ,dim,axis=1)
-        t_2d   = np.repeat(np.atleast_2d(t).T  ,dim,axis=1)
-        r_2d   = np.repeat(np.atleast_2d(r).T  ,dim,axis=1)
+        MCA_2d = np.repeat(np.atleast_2d(MCA).T,dim2,axis=1)
+        b_2d   = np.repeat(np.atleast_2d(b).T  ,dim2,axis=1)
+        t_2d   = np.repeat(np.atleast_2d(t).T  ,dim2,axis=1)
+        r_2d   = np.repeat(np.atleast_2d(r).T  ,dim2,axis=1)
         
         for i in range(num_B):   
             # get airfoil coordinate geometry   
@@ -403,13 +390,13 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
                 max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0) 
              
             # store points of airfoil in similar format as Vortex Points (i.e. in vertices)   
-            max_t2d = np.repeat(np.atleast_2d(max_t).T ,dim,axis=1)
+            max_t2d = np.repeat(np.atleast_2d(max_t).T ,dim2,axis=1)
             
             xp      = rot*(- MCA_2d + xpts*b_2d)  # x coord of airfoil
             yp      = r_2d*np.ones_like(xp)       # radial location        
             zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord 
                               
-            matrix = np.zeros((len(zp),dim,3)) # radial location, airfoil pts (same y)   
+            matrix = np.zeros((len(zp),dim2,3)) # radial location, airfoil pts (same y)   
             matrix[:,:,0] = xp
             matrix[:,:,1] = yp
             matrix[:,:,2] = zp
@@ -436,7 +423,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
             trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0)
             
             trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
-            rot_mat   = np.repeat(trans[:, np.newaxis,:,:],len(yp),axis=1)
+            rot_mat   = np.repeat(trans[:, np.newaxis,:,:],dim2,axis=1)
              
             # ---------------------------------------------------------------------------------------------
             # ROTATE POINTS
@@ -444,19 +431,19 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
             
             # ---------------------------------------------------------------------------------------------
             # store points
-            G.XA1[:,:]  = mat[:-1,:-1,0] + origin[n_p][0]
-            G.YA1[:,:]  = mat[:-1,:-1,1] + origin[n_p][1] 
-            G.ZA1[:,:]  = mat[:-1,:-1,2] + origin[n_p][2]
-            G.XA2[:,:]  = mat[:-1,1:,0]  + origin[n_p][0]
-            G.YA2[:,:]  = mat[:-1,1:,1]  + origin[n_p][1] 
-            G.ZA2[:,:]  = mat[:-1,1:,2]  + origin[n_p][2]
-                                 
-            G.XB1[:,:]  = mat[1:,:-1,0] + origin[n_p][0]
-            G.YB1[:,:]  = mat[1:,:-1,1] + origin[n_p][1]  
-            G.ZB1[:,:]  = mat[1:,:-1,2] + origin[n_p][2]
-            G.XB2[:,:]  = mat[1:,1:,0]  + origin[n_p][0]
-            G.YB2[:,:]  = mat[1:,1:,1]  + origin[n_p][1]
-            G.ZB2[:,:]  = mat[1:,1:,2]  + origin[n_p][2]    
+            G.XA1  = mat[:-1,:-1,0] + origin[n_p][0]
+            G.YA1  = mat[:-1,:-1,1] + origin[n_p][1] 
+            G.ZA1  = mat[:-1,:-1,2] + origin[n_p][2]
+            G.XA2  = mat[:-1,1:,0]  + origin[n_p][0]
+            G.YA2  = mat[:-1,1:,1]  + origin[n_p][1] 
+            G.ZA2  = mat[:-1,1:,2]  + origin[n_p][2]
+                            
+            G.XB1  = mat[1:,:-1,0] + origin[n_p][0]
+            G.YB1  = mat[1:,:-1,1] + origin[n_p][1]  
+            G.ZB1  = mat[1:,:-1,2] + origin[n_p][2]
+            G.XB2  = mat[1:,1:,0]  + origin[n_p][0]
+            G.YB2  = mat[1:,1:,1]  + origin[n_p][1]
+            G.ZB2  = mat[1:,1:,2]  + origin[n_p][2]    
              
             # ------------------------------------------------------------------------
             # Plot Propeller Blade 
