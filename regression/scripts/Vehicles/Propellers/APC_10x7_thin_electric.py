@@ -22,12 +22,13 @@ def propeller_geometry():
     # --------------------------------------------------------------------------------------------------
 
     prop = SUAVE.Components.Energy.Converters.Propeller()
-    prop.inputs = Data()
-    prop.tag = "APC 10x7 Propeller"
-    prop.tip_radius = 5 * Units.inches
+    
+    prop.tag              = "APC 10x7 Propeller"
+    prop.tip_radius       = 5 * Units.inches
     prop.number_of_blades = 2
-    prop.hub_radius = prop.tip_radius * 0.1
-    prop.inputs.omega = np.array([[4500 * Units.rpm]]) #6531
+    prop.hub_radius       = prop.tip_radius * 0.1
+    prop.inputs           = Data()
+    prop.inputs.omega     = np.array([[4500 * Units.rpm]])    
     
 
     r_R = np.array(
@@ -49,7 +50,6 @@ def propeller_geometry():
             0.85,
             0.90,
             0.95,
-            #0.999,
         ]
     )
     c_R = np.array(
@@ -71,7 +71,6 @@ def propeller_geometry():
             0.096,
             0.081,
             0.061,
-            #0.040,
         ]
     )
     beta = np.array(
@@ -93,7 +92,6 @@ def propeller_geometry():
             14.64,
             13.86,
             12.72,
-            #11.53,
         ]
     )
 
@@ -106,9 +104,8 @@ def propeller_geometry():
     prop.number_azimuthal_stations = 24
     prop.number_radial_stations    = len(r_R)
     
-    # This is the distance from the mid chord to the line axis out of the center of the blade
-    # In this case the 1/4 chords are all aligned 
-    MCA    = prop.chord_distribution/4. - prop.chord_distribution[0]/4.  
+    # Distance from mid chord to the line axis out of the center of the blade - In this case the 1/4 chords are all aligned 
+    MCA = prop.chord_distribution/4. - prop.chord_distribution[0]/4.  
     prop.mid_chord_alignment = MCA
     
     airfoils_path = os.path.join(os.path.dirname(__file__), "../Airfoils/")
@@ -126,7 +123,7 @@ def propeller_geometry():
     prop.airfoil_polar_stations = np.zeros(len(r_R))
     prop.airfoil_polar_stations = list(prop.airfoil_polar_stations.astype(int))
 
-    airfoil_polars = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)
+    airfoil_polars  = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)
     airfoil_cl_surs = airfoil_polars.lift_coefficient_surrogates
     airfoil_cd_surs = airfoil_polars.drag_coefficient_surrogates
     
@@ -135,40 +132,11 @@ def propeller_geometry():
     
 
     results = Data()
-    results.lift_coefficient_surrogates          = airfoil_polars.lift_coefficient_surrogates  
-    results.drag_coefficient_surrogates          = airfoil_polars.drag_coefficient_surrogates 
+    results.lift_coefficient_surrogates  = airfoil_polars.lift_coefficient_surrogates  
+    results.drag_coefficient_surrogates  = airfoil_polars.drag_coefficient_surrogates 
     results.cl_airfoiltools  = airfoil_polars.lift_coefficients_from_polar
     results.cd_airfoiltools  = airfoil_polars.drag_coefficients_from_polar  
     results.re_airfoiltools  = airfoil_polars.re_from_polar 
     results.aoa_airfoiltools = airfoil_polars.aoa_from_polar
     
-    # --------------------------------------------------------------------------------------------------
-    # Propeller Geometry:
-    # --------------------------------------------------------------------------------------------------
-    conditions = UIUC_conditions()
-    
-    return prop, conditions
-
-
-def UIUC_conditions():
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data = atmosphere.compute_values(altitude=0. * Units.ft)
-    rho = atmo_data.density
-    mu = atmo_data.dynamic_viscosity
-    T = atmo_data.temperature
-    a = atmo_data.speed_of_sound
-
-    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-    conditions.freestream.density = rho
-    conditions.freestream.dynamic_viscosity = mu
-    conditions.freestream.speed_of_sound = a
-    conditions.freestream.temperature = T
-    conditions.frames.body.transform_to_inertial = np.array(
-        [[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]]
-    )
-    # Set dummy initial velocity
-    Vv = np.array([35*Units.mph])
-    velocity_vector = np.array([Vv[0], 0, 0])
-    conditions.frames.inertial.velocity_vector = np.tile(velocity_vector, (1, 1))
-    conditions.propulsion.throttle = np.ones([len(Vv), 1])    
-    return conditions
+    return prop

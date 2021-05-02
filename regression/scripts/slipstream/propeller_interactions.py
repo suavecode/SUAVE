@@ -14,7 +14,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wak
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
 from SUAVE.Plots.Propeller_Plots import plot_propeller_disc_inflow, plot_propeller_disc_performance
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_propulsor
+
 import numpy as np
 import pylab as plt
 import copy
@@ -25,9 +25,8 @@ from APC_10x7_thin_electric import propeller_geometry
 
 def main():
     '''
-    This example shows a propeller operating in a nonuniform freestream flow.
-    A propeller upstream of another propeller produces a wake, which is accounted 
-    for in the analysis of the downstream propeller.
+    This example shows the influence of a propeller wake on another nearby propeller.
+    A propeller produces a wake, which is accounted for in the analysis of another propeller.
     '''
     #--------------------------------------------------------------------
     #    SETUP
@@ -40,25 +39,13 @@ def main():
     prop    = vehicle.propulsors.prop_net.propeller
     
     # set the atmospheric conditions
-    conditions = simulation_conditions()
+    conditions = simulation_conditions(prop)
     
     # set the grid and VLM settings
     grid_settings, VLM_settings = simulation_settings(vehicle)
     
     # generate the grid points at the downstream propeller:
     grid_points = generate_propeller_grid(prop, grid_settings, plot_grid=plot_flag)
-    
-    ## plot the propeller system
-    #fig = plt.figure()
-    #axes = fig.add_subplot(projection='3d')
-    #for propulsor in vehicle.propulsors:  
-        #plot_propulsor(axes,propulsor)  
-        #axes.set_xlabel('x')
-        #axes.set_ylabel('y')
-        #axes.set_zlabel('z')
-        #axes.set_xlim([-0.5,3.5])
-        #axes.set_ylim([-0.5,3.5])
-        #axes.set_zlim([-0.5,3.5])
     
     #--------------------------------------------------------------------
     #    ANALYSIS
@@ -68,7 +55,14 @@ def main():
     T_iso, Q_iso, P_iso, Cp_iso, outputs_iso , etap_iso = prop.spin(conditions)
     prop.outputs = outputs_iso
     
-    T_iso_true, Q_iso_true, P_iso_true, Cp_iso_true, etap_iso_true = 1.23118019, 0.03279611, 15.45480129, 0.04350239, 0.71225347
+    # compute the induced velocities from upstream propeller at the grid points on the downstream propeller
+    propeller_wake = compute_propeller_wake(prop, grid_settings, grid_points, plot_velocities=plot_flag)
+    
+    # run the downstream propeller in the presence of this nonuniform flow
+    T, Q, P, Cp, outputs , etap = run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=plot_flag)
+    
+    # compare regression results:
+    T_iso_true, Q_iso_true, P_iso_true, Cp_iso_true, etap_iso_true = 3.37953082, 0.0749165, 50.99404704, 0.04762847, 0.59253405
     
     assert(abs(T_iso-T_iso_true)<1e-6)
     assert(abs(Q_iso-Q_iso_true)<1e-6)
@@ -76,14 +70,8 @@ def main():
     assert(abs(Cp_iso-Cp_iso_true)<1e-6)
     assert(abs(etap_iso-etap_iso_true)<1e-6)
     
+    T_true, Q_true, P_true, Cp_true, etap_true = 3.37503748,0.07490184,50.98406621,0.04761914,0.59186207
     
-    # compute the induced velocities from upstream propeller at the grid points on the downstream propeller
-    propeller_wake              = compute_propeller_wake(prop, grid_settings, grid_points, plot_velocities=plot_flag)
-    
-    # run the downstream propeller in the presence of this nonuniform flow
-    T, Q, P, Cp, outputs , etap = run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=plot_flag)
-    
-    T_true, Q_true, P_true, Cp_true, etap_true = 13.02920345,0.6556547,308.96999913,0.86969297,0.37703176
     assert(abs(T-T_true)<1e-6)
     assert(abs(Q-Q_true)<1e-6)
     assert(abs(P-P_true)<1e-6)
@@ -122,11 +110,12 @@ def compute_propeller_wake(prop,grid_settings,grid_points, plot_velocities=True)
     prop_copy.rotation = [prop.rotation[0]]
     VD                       = Data()
     cpts                     = 1 # only testing one condition
-    number_of_wake_timesteps = 80
+    number_of_wake_timesteps = 100
     init_timestep_offset     = 0
-    time                     = 2.55
+    time                     = 10
     
     WD, dt, ts, B, Nr  = generate_propeller_wake_distribution(prop_copy,cpts,VD,init_timestep_offset, time, number_of_wake_timesteps )
+    prop.start_angle = prop_copy.start_angle
     
     # compute the wake induced velocities:
     VD.YC   = grid_points.ymesh
@@ -163,7 +152,7 @@ def generate_propeller_grid(prop, grid_settings, plot_grid=True):
     psi_360   = np.linspace(0,2*np.pi,Na+1)
     influencing_prop = prop.origin[0]
     influenced_prop  = prop.origin[1]
-    x_offset         = influenced_prop[0] - influencing_prop[0] 
+    
     y_offset         = influenced_prop[1] - influencing_prop[1] 
     z_offset         = influenced_prop[2] - influencing_prop[2] 
 
@@ -210,42 +199,44 @@ def generate_propeller_grid(prop, grid_settings, plot_grid=True):
         axes.set_xlabel('y [m]')
         axes.set_ylabel("z [m]")
         axes.set_title("New Grid Points")
-        
-        
-        #plt.show()    
     
     return grid_points
     
     
-def simulation_conditions():
+def simulation_conditions(prop):
     # --------------------------------------------------------------------------------------------------
     # Atmosphere Conditions:
     # --------------------------------------------------------------------------------------------------
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    atmo_data = atmosphere.compute_values(altitude=14000 * Units.ft)
-    rho = atmo_data.density
-    mu = atmo_data.dynamic_viscosity
-    T = atmo_data.temperature
-    a = atmo_data.speed_of_sound
+    atmo_data  = atmosphere.compute_values(altitude=14000 * Units.ft)
+    rho        = atmo_data.density
+    mu         = atmo_data.dynamic_viscosity
+    T          = atmo_data.temperature
+    a          = atmo_data.speed_of_sound
     
-    # aerodynamics analyzed for a fixed angle of attack
-    aoa = np.array([[3 * Units.deg  ]])  
-    Vv = np.array([[ 20 * Units.mph]])
+    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions.freestream.density           = rho
+    conditions.freestream.dynamic_viscosity = mu
+    conditions.freestream.speed_of_sound    = a
+    conditions.freestream.temperature       = T
+    
+    # Set freestream operating conditions
+    Vv    = np.array([[ 20 * Units.mph]])
     mach  = Vv/a
 
-    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
-    conditions.freestream.density = rho
-    conditions.freestream.dynamic_viscosity = mu
-    conditions.freestream.speed_of_sound = a
-    conditions.freestream.temperature = T
     conditions.freestream.mach_number = mach
-    conditions.freestream.velocity = Vv
-    conditions.aerodynamics.angle_of_attack = aoa
+    conditions.freestream.velocity    = Vv
     conditions.frames.body.transform_to_inertial = np.array(
         [[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]]
     )
     conditions.frames.inertial.velocity_vector = np.array([[Vv[0][0],0,0]])
-    conditions.propulsion.throttle = np.array([[1]])
+    conditions.propulsion.throttle             = np.array([[1]])
+        
+    # Set propeller operating conditions
+    prop.inputs.omega = np.array([[6500 * Units.rpm]]) 
+    prop.rotation     = [-1,1]
+    prop.origin       = np.array([[0., 0., 0.],
+                                  [0., 0.01+2*prop.tip_radius, 0.]])     
     
     return conditions    
 
@@ -278,26 +269,18 @@ def simulation_settings(vehicle):
     return grid_settings, VLM_settings
 
 def vehicle_setup():
-    #-----------------------------------------------------------------
-    #   Vehicle Initialization:
-    #-----------------------------------------------------------------
+    
+    # Vehicle Initialization:
     vehicle = SUAVE.Vehicle()
     vehicle.tag = 'simple_vehicle'    
     
-    # ------------------------------------------------------------------
-    #   Propulsion Properties
-    # ------------------------------------------------------------------
-    net                          = SUAVE.Components.Energy.Networks.Battery_Propeller()
-    net.tag                      = 'prop_net'
-    net.number_of_engines        = 2
-    
-    prop            = SUAVE.Components.Energy.Converters.Propeller()
-    prop,conditions = propeller_geometry() 
-    
-    # adjust propeller location and rotation:
-    prop.rotation = [-1,1]
-    prop.origin   = np.array([[0., 0., 0.],
-                             [2.5, 0., 0.]]) 
+    # Propulsion Properties:
+    net                   = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net.tag               = 'prop_net'
+    net.number_of_engines = 2
+
+    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop = propeller_geometry() 
     
     net.propeller = prop
     vehicle.append_component(net)

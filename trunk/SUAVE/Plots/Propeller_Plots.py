@@ -4,6 +4,8 @@
 # Modified:
 
 from SUAVE.Core import Units
+
+import matplotlib.patches as patches
 import pylab as plt
 import numpy as np
 import matplotlib
@@ -110,8 +112,8 @@ def plot_propeller_disc_inflow(prop,velocities, grid_points):
     Rh = prop.hub_radius
     psi_360 = np.linspace(0,2*np.pi,40)
     
-    vmin = round(np.min([u,v,w]),3)
-    vmax = round(np.max([u,v,w]),3)
+    vmin = round(np.min([u,v,w,vtot]),3)
+    vmax = round(np.max([u,v,w,vtot]),3)
     levels = np.linspace(vmin,vmax, 21)
     
     # plot the grid point velocities
@@ -145,6 +147,28 @@ def plot_propeller_disc_inflow(prop,velocities, grid_points):
     ax3.plot(Rh*np.cos(psi_360), Rh*np.sin(psi_360), 'k')
     ax4.plot(Rh*np.cos(psi_360), Rh*np.sin(psi_360), 'k')
     
+    # plot rotation direction
+    style = "Simple, tail_width=0.5, head_width=4, head_length=8"
+    kw    = dict(arrowstyle=style,color="k")
+    
+    if prop.rotation[0]==1:
+        # Rotation direction is ccw
+        arrow1 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
+        arrow2 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
+        arrow3 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
+        arrow4 = patches.FancyArrowPatch((-0.8*R,-0.8*R),(0.8*R,-0.8*R), connectionstyle="arc3,rad=0.4", **kw)
+    elif prop.rotation[0]==-1:
+        # Rotation direction is cw
+        arrow1 = patches.FancyArrowPatch((0.8*R,-0.8*R),(-0.8*R,-0.8*R), connectionstyle="arc3,rad=-0.4", **kw)
+        arrow2 = patches.FancyArrowPatch((0.8*R,-0.8*R),(-0.8*R,-0.8*R), connectionstyle="arc3,rad=-0.4", **kw)
+        arrow3 = patches.FancyArrowPatch((0.8*R,-0.8*R),(-0.8*R,-0.8*R), connectionstyle="arc3,rad=-0.4", **kw)
+        arrow4 = patches.FancyArrowPatch((0.8*R,-0.8*R),(-0.8*R,-0.8*R), connectionstyle="arc3,rad=-0.4", **kw) 
+    
+    ax1.add_patch(arrow1)
+    ax2.add_patch(arrow2)
+    ax3.add_patch(arrow3)
+    ax4.add_patch(arrow4)
+    
     ax1.set_aspect('equal', 'box')
     ax2.set_aspect('equal', 'box')
     ax3.set_aspect('equal', 'box')
@@ -162,7 +186,7 @@ def plot_propeller_disc_inflow(prop,velocities, grid_points):
     ax3.set_title("Downwash Velocity, w")
     ax4.set_title("Total Velocity")
     
-    fig.suptitle("Inflow to Downstream Propeller")
+    fig.suptitle("Induced Velocities at Propeller")
     
     return
 

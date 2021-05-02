@@ -54,6 +54,7 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time, n
     num_prop     = len(prop.origin) 
     t0           = dt*init_timestep_offset
     start_angle  = omega[0]*t0 
+    prop.start_angle = start_angle
 
     # define points ( control point, time step , blade number , location on blade )
     # compute lambda and mu 
