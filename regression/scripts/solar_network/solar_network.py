@@ -68,8 +68,8 @@ def main():
     
     # Check Results 
     F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.rpm[1,0] 
-    current = results.segments.cruise1.conditions.propulsion.current[1,0] 
+    rpm     = results.segments.cruise1.conditions.propulsion.propeller_rpm[1,0] 
+    current = results.segments.cruise1.conditions.propulsion.battery_current[1,0] 
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
@@ -190,6 +190,8 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/20.
+    base_segment.battery_configuration                       = vehicle.propulsors.solar.battery.pack_config 
+    base_segment.max_energy                                  = vehicle.propulsors.solar.battery.max_energy  
     base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    
@@ -211,6 +213,13 @@ def mission_setup(analyses,vehicle):
     segment.battery_energy = vehicle.propulsors.solar.battery.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
+    
+    segment.battery_cell_temperature                   = 20   
+    segment.battery_pack_temperature                   = 20
+    segment.ambient_temperature                        = 20    
+    segment.battery_cumulative_charge_throughput       = 0  
+    segment.battery_resistance_growth_factor           = 1 
+    segment.battery_capacity_fade_factor               = 1    
     
     mission.append_segment(segment)    
 

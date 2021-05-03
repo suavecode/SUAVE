@@ -89,7 +89,7 @@ class Solar(Propulsor):
                 solar_flux           [watts/m^2] 
                 rpm                  [radians/sec]
                 current              [amps]
-                battery_draw         [watts]
+                battery_power_draw   [watts]
                 battery_energy       [joules]
                 motor_torque         [N-M]
                 propeller_torque     [N-M]
@@ -111,6 +111,25 @@ class Solar(Propulsor):
         solar_logic = self.solar_logic
         battery     = self.battery
         num_engines = self.number_of_engines
+        
+        # Set battery energy
+        battery.current_energy      = conditions.propulsion.battery_energy
+        battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
+        battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput     
+        battery.age_in_days         = conditions.propulsion.battery_age_in_days  
+        battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
+        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
+        battery.max_energy          = conditions.propulsion.battery_max_aged_energy  
+        
+        # update ambient temperature based on altitude
+        battery.ambient_temperature                   = conditions.freestream.temperature   
+        battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
+        battery.cooling_fluid.kinematic_viscosity     = conditions.freestream.kinematic_viscosity
+        battery.cooling_fluid.density                 = conditions.freestream.density 
+        battery.battery_thevenin_voltage              = 0    
+        
+        # Set Temperature 
+        battery.temperature              = conditions.propulsion.battery_pack_temperature
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy
@@ -146,7 +165,7 @@ class Solar(Propulsor):
         propeller.inputs.omega =  motor.outputs.omega
         
         # step 6
-        F, Q, P, Cplast ,  outputs  , etap   = propeller.spin(conditions)
+        F, Q, P, Cp ,  outputs  , etap   = propeller.spin(conditions)
      
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -169,7 +188,7 @@ class Solar(Propulsor):
         solar_logic.inputs.ppayload = payload.outputs.power
         
         # Run the motor for current
-        motor.current(conditions)
+        i, etam = motor.current(conditions)
         
         # link
         esc.inputs.currentout =  motor.outputs.current
@@ -198,17 +217,20 @@ class Solar(Propulsor):
         state_of_charge                          = battery.state_of_charge
         
         
-        conditions.propulsion.solar_flux           = solar_flux.outputs.flux  
-        conditions.propulsion.rpm                  = rpm
-        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
-        conditions.propulsion.voltage_under_load   = voltage_under_load  
-        conditions.propulsion.current              = current
-        conditions.propulsion.battery_draw         = battery_draw
-        conditions.propulsion.battery_energy       = battery_energy
-        conditions.propulsion.state_of_charge      = state_of_charge
-        conditions.propulsion.motor_torque         = motor.outputs.torque
-        conditions.propulsion.propeller_torque     = Q        
-        conditions.propulsion.propeller_tip_mach   = (R*rpm*Units.rpm)/a
+        conditions.propulsion.solar_flux                   = solar_flux.outputs.flux  
+        conditions.propulsion.propeller_rpm                = rpm
+        conditions.propulsion.battery_voltage_open_circuit = voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load   = voltage_under_load  
+        conditions.propulsion.battery_current              = current
+        conditions.propulsion.battery_power_draw           = battery_draw
+        conditions.propulsion.battery_energy               = battery_energy
+        conditions.propulsion.battery_state_of_charge      = state_of_charge
+        conditions.propulsion.motor_torque                 = motor.outputs.torque
+        conditions.propulsion.propeller_torque             = Q        
+        conditions.propulsion.propeller_tip_mach           = (R*rpm*Units.rpm)/a 
+        conditions.propulsion.propeller_power_coefficient  = Cp 
+        conditions.propulsion.propeller_efficiency         = etap 
+        conditions.propulsion.propeller_motor_efficiency   = etam        
         
         #Create the outputs
         F                                        = num_engines * F * [1,0,0]   

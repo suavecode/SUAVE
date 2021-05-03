@@ -85,16 +85,15 @@ def datta_discharge(battery,numerics):
     
     # Compute state of charge and depth of discarge of the battery
     initial_discharge_state = np.dot(I,P_bat) + E_current[0]
-    DOD_old =  1 - np.divide(initial_discharge_state,E_max)
-    DOD_old[DOD_old< 0.] = 0. 
+    DOD_old                 = 1 - np.divide(initial_discharge_state,E_max)
+    DOD_old[DOD_old< 0.]    = 0. 
     
     # compute the C rate
     C = np.abs(3600.*P_bat/E_max)
     
     # Empirical for for discharge   
     f = 1-np.exp(-20.*DOD_old)-np.exp(-20.*(1.- DOD_old)) 
-    f[f<0.0] = 0.0 # Negative f's don't make sense
-    f = np.reshape(f, np.shape(C))
+    f[f<0.0] = 0.0 # Negative f's don't make sense 
     
     # Compute internal resistance
     R_0 = R_bat*(1.+np.multiply(C,f))*R_growth_factor

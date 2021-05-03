@@ -169,6 +169,8 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.lift_cruise.residuals_transition
     base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.lift_cruise.battery.max_voltage * ones_row(1)  
+    base_segment.battery_configuration                       = vehicle.propulsors.lift_cruise.battery.pack_config 
+    base_segment.max_energy                                  = vehicle.propulsors.lift_cruise.battery.max_energy
     base_segment.state.residuals.network                     = 0. * ones_row(2)    
 
 
@@ -203,7 +205,14 @@ def mission_setup(analyses,vehicle):
     segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability          = SUAVE.Methods.skip
-
+    
+    segment.battery_cell_temperature                         = 20   
+    segment.battery_pack_temperature                         = 20
+    segment.ambient_temperature                              = 20    
+    segment.battery_cumulative_charge_throughput             = 0  
+    segment.battery_resistance_growth_factor                 = 1 
+    segment.battery_capacity_fade_factor                     = 1    
+    
     # add to misison
     mission.append_segment(segment)
     

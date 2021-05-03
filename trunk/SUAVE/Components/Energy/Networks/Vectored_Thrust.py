@@ -85,7 +85,7 @@ class Vectored_Thrust(Propulsor):
             conditions.propulsion:
                 rpm                  [radians/sec]
                 current              [amps]
-                battery_draw         [watts]
+                battery_power_draw   [watts]
                 battery_energy       [joules]
                 voltage_open_circuit [volts]
                 voltage_under_load   [volts]
@@ -107,8 +107,7 @@ class Vectored_Thrust(Propulsor):
         battery       = self.battery
         battery_data  = battery.discharge_performance_map
         num_engines   = self.number_of_engines
-        D             = numerics.time.differentiate           
-        t_nondim      = state.numerics.dimensionless.control_points
+        D             = numerics.time.differentiate            
         
           # Set battery energy
         battery.current_energy      = conditions.propulsion.battery_energy
@@ -194,38 +193,27 @@ class Vectored_Thrust(Propulsor):
  
         else: 
             volts                            = state.unknowns.battery_voltage_under_load
+            volts[volts>self.voltage]        = self.voltage 
             battery.battery_thevenin_voltage = 0             
-            battery.cell_temperature         = battery.temperature  
-            
+            battery.temperature              = conditions.propulsion.battery_pack_temperature 
        
         # --------------------------------------------------------------------------------
         # Run Motor, Avionics and Systems (Discharge Model)
         # --------------------------------------------------------------------------------    
-        if discharge_flag:     
-            # Run the avionics
-            avionics.power()
-        
-            # Run the payload
-            payload.power()
-        
-            # Calculate avionics and payload power
-            avionics_payload_power = avionics.outputs.power + payload.outputs.power
-        
-            # Calculate avionics and payload current
-            avionics_payload_current = avionics_payload_power/volts
+        if discharge_flag:       
         
             # Step 1 battery power
             esc.inputs.voltagein = volts
-        
+         
             # Step 2
             esc.voltageout(conditions)
-        
+            
             # link
-            motor.inputs.voltage = esc.outputs.voltageout 
-        
-            # step 3
-            motor.omega(conditions) 
-        
+            motor.inputs.voltage = esc.outputs.voltageout
+            
+            # Run the motor
+            motor.omega(conditions)
+            
             # Define the thrust angle 
             thrust_angle = self.thrust_angle
         
@@ -235,24 +223,26 @@ class Vectored_Thrust(Propulsor):
             rotor.pitch_command = self.pitch_command  
             rotor.VTOL_flag     = state.VTOL_flag    
         
-            # Run the rotor     
-            F, Q, P, Cp , outputs, etap = rotor.spin(conditions)
-            
+            # Run the rotor
+            F, Q, P, Cp , outputs, etap = rotor.spin(conditions) 
             
             # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
             eta        = conditions.propulsion.throttle[:,0,None]
             P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
-            F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]
-        
-            # link
-            rotor.outputs = outputs 
+            F[eta>1.0] = F[eta>1.0]*eta[eta>1.0] 
+            
+            # Run the avionics
+            avionics.power()
+            
+            # Run the payload
+            payload.power()
             
             # Run the motor for current
             i, etam = motor.current(conditions)  
             
             # Fix the current for the throttle cap
             motor.outputs.current[eta>1.0] = motor.outputs.current[eta>1.0]*eta[eta>1.0]
-             
+            
             # link
             esc.inputs.currentout =  motor.outputs.current
             
@@ -261,16 +251,15 @@ class Vectored_Thrust(Propulsor):
             
             # Calculate avionics and payload power
             avionics_payload_power = avionics.outputs.power + payload.outputs.power
-    
+            
             # Calculate avionics and payload current
-            avionics_payload_current = avionics_payload_power/self.voltage
+            avionics_payload_current = avionics_payload_power/self.voltage 
             
             # link
             propeller_current       = esc.outputs.currentin*num_engines
             total_current           = propeller_current + avionics_payload_current
             battery.inputs.current  = total_current 
             battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*num_engines + avionics_payload_power)
-            battery.inputs.voltage  = volts
             battery.energy_discharge(numerics)  
               
         # --------------------------------------------------------------------------------
@@ -288,39 +277,45 @@ class Vectored_Thrust(Propulsor):
             etam                    = np.zeros_like(volts)
             battery.energy_charge(numerics)        
         
-        # Pack the conditions for outputs
-        rpm                  = motor.outputs.omega / Units.rpm
-        a                    = conditions.freestream.speed_of_sound
-        R                    = rotor.tip_radius       
-        current              = esc.outputs.currentin
-        battery_draw         = battery.inputs.power_in 
-        battery_energy       = battery.current_energy
-        voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load    
-        state_of_charge      = battery.state_of_charge
+        # Pack the conditions for outputs 
+        a                         = conditions.freestream.speed_of_sound
+        R                         = rotor.tip_radius
+        rpm                       = motor.outputs.omega/Units.rpm
+        battery_power_draw        = abs(battery.inputs.power_in)        
         
-          
-        conditions.propulsion.rpm                             = rpm
-        conditions.propulsion.current                         = current
-        conditions.propulsion.battery_draw                    = battery_draw
-        conditions.propulsion.battery_energy                  = battery_energy 
-        conditions.propulsion.voltage_open_circuit            = voltage_open_circuit
-        conditions.propulsion.voltage_under_load              = voltage_under_load  
-        conditions.propulsion.state_of_charge                 = state_of_charge        
-        conditions.propulsion.motor_torque                    = motor.outputs.torque
-        conditions.propulsion.propeller_torque                = Q
-        conditions.propulsion.propeller_motor_efficiency      = etam
-        conditions.propulsion.acoustic_outputs[rotor.tag]     = outputs
-        conditions.propulsion.battery_specfic_power           = -battery_draw/battery.mass_properties.mass #Wh/kg
-        conditions.propulsion.electronics_efficiency          = -(P*num_engines)/battery_draw   
-        conditions.propulsion.propeller_tip_mach              = (R*rpm*Units.rpm)/a
-        conditions.propulsion.battery_current                 = total_current
-        conditions.propulsion.battery_efficiency              = (battery_draw+battery.resistive_losses)/battery_draw
-        conditions.propulsion.payload_efficiency              = (battery_draw+(avionics.outputs.power + payload.outputs.power))/battery_draw            
-        conditions.propulsion.propeller_power                 = P*num_engines 
-        conditions.propulsion.propeller_efficiency            = etap       
-        conditions.propulsion.propeller_thrust_coefficient    = outputs.thrust_coefficient  
-        conditions.propulsion.propeller_power_coefficient     = Cp 
+        conditions.propulsion.battery_current                      = abs(battery.current)
+        conditions.propulsion.battery_power_draw                   = -battery_power_draw
+        conditions.propulsion.battery_energy                       = battery.current_energy
+        conditions.propulsion.battery_max_aged_energy              = battery.max_energy
+        conditions.propulsion.battery_voltage_open_circuit         = battery.voltage_open_circuit 
+        conditions.propulsion.battery_voltage_under_load           = battery.voltage_under_load  
+        conditions.propulsion.battery_cumulative_charge_throughput = battery.cumulative_cell_charge_throughput 
+        conditions.propulsion.battery_charge_throughput            = battery.cell_charge_throughput 
+        conditions.propulsion.battery_state_of_charge              = battery.state_of_charge 
+        conditions.propulsion.battery_pack_temperature             = battery.pack_temperature 
+        conditions.propulsion.battery_thevenin_voltage             = battery.thevenin_voltage          
+        conditions.propulsion.battery_specfic_power                = -battery_power_draw/battery.mass_properties.mass # Wh/kg
+        conditions.propulsion.battery_age_in_days                  = battery.age_in_days  
+
+        conditions.propulsion.battery_cell_power_draw              = -battery_power_draw/n_series
+        conditions.propulsion.battery_cell_energy                  = battery.current_energy/n_total   
+        conditions.propulsion.battery_cell_voltage_under_load      = battery.cell_voltage_under_load    
+        conditions.propulsion.battery_cell_voltage_open_circuit    = battery.cell_voltage_open_circuit  
+        conditions.propulsion.battery_cell_current                 = abs(battery.cell_current)        
+        conditions.propulsion.battery_cell_temperature             = battery.cell_temperature
+        conditions.propulsion.battery_cell_heat_energy_generated   = battery.heat_energy_generated
+        conditions.propulsion.battery_cell_joule_heat_fraction     = battery.cell_joule_heat_fraction   
+        conditions.propulsion.battery_cell_entropy_heat_fraction   = battery.cell_entropy_heat_fraction
+
+        conditions.propulsion.motor_torque                         = motor.outputs.torque 
+        conditions.propulsion.propeller_rpm                        = rpm   
+        conditions.propulsion.propeller_torque                     = Q
+        conditions.propulsion.propeller_tip_mach                   = (R*motor.outputs.omega)/a
+        conditions.propulsion.propeller_thrust_coefficient         = outputs.thrust_coefficient 
+        conditions.propulsion.propeller_power_coefficient          = Cp   
+        conditions.propulsion.propeller_efficiency                 = etap 
+        conditions.propulsion.propeller_motor_efficiency           = etam 
+        conditions.propulsion.acoustic_outputs[rotor.tag]          = outputs 
         
         # Compute force vector       
         F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   

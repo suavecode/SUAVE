@@ -304,7 +304,8 @@ def mission_setup_SR(vehicle,analyses):
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.lift_cruise.residuals_transition
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.lift_cruise.battery.max_voltage * ones_row(1)  
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.lift_cruise.battery.max_voltage * ones_row(1)
+    base_segment.battery_configuration                       = vehicle.propulsors.lift_cruise.battery.pack_config   
     base_segment.state.residuals.network                     = 0. * ones_row(2)    
     
         

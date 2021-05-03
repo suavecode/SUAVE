@@ -51,7 +51,7 @@ def main():
     plot_results(old_results)  
     
     # RPM of rotor check during hover
-    RPM        = results.segments.climb_1.conditions.propulsion.rpm[3][0]
+    RPM        = results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0]
     RPM_true   = 884.7650260408985
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
@@ -215,35 +215,28 @@ def mission_setup(analyses,vehicle):
     base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
     base_segment.state.unknowns.battery_voltage_under_load   = bat.max_voltage * ones_row(1)  
     base_segment.state.residuals.network                     = 0. * ones_row(2) 
-    base_segment.battery_configuration                       = bat.pack_config
-    #base_segment.charging_SOC_cutoff                         = bat.cell.charging_SOC_cutoff  
-    #base_segment.charging_voltage                            = bat.charging_voltage  * bat.pack_config.series
-    #base_segment.charging_current                            = bat.charging_current  * bat.pack_config.parallel    
+    base_segment.battery_configuration                       = bat.pack_config     
     base_segment.max_energy                                  = bat.max_energy  
     
     # ------------------------------------------------------------------
     #   Climb 1 : constant Speed, constant rate segment 
     # ------------------------------------------------------------------ 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    segment     = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_1"
     segment.analyses.extend( analyses.base )
-    segment.battery_energy                   = vehicle.propulsors.battery_propeller.battery.max_energy * 0.89
-    segment.altitude_start                   = 2500.0  * Units.feet
-    segment.altitude_end                     = 8012    * Units.feet 
-    segment.air_speed                        = 96.4260 * Units['mph'] 
-    segment.climb_rate                       = 700.034 * Units['ft/min']  
-    segment.state.unknowns.throttle          = 0.85 * ones_row(1)  
-    
+    segment.battery_energy                               = vehicle.propulsors.battery_propeller.battery.max_energy * 0.89
+    segment.altitude_start                               = 2500.0  * Units.feet
+    segment.altitude_end                                 = 8012    * Units.feet 
+    segment.air_speed                                    = 96.4260 * Units['mph'] 
+    segment.climb_rate                                   = 700.034 * Units['ft/min']  
+    segment.state.unknowns.throttle                      = 0.85 * ones_row(1)   
     
     segment.battery_cell_temperature                     = 20   
     segment.battery_pack_temperature                     = 20
-    segment.ambient_temperature                          = 20   
-    #segment.battery_age_in_days                          = day   
-    #segment.battery_discharge                            = True 
+    segment.ambient_temperature                          = 20    
     segment.battery_cumulative_charge_throughput         = 0  
     segment.battery_resistance_growth_factor             = 1 
-    segment.battery_capacity_fade_factor                 = 1        
-        
+    segment.battery_capacity_fade_factor                 = 1   
 
     # add to misison
     mission.append_segment(segment)
@@ -333,3 +326,4 @@ def save_results(results):
     return  
 if __name__ == '__main__': 
     main()    
+    plt.show() 

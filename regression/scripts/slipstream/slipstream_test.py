@@ -212,11 +212,11 @@ def mission_setup(analyses,vehicle):
     base_segment.state.numerics.number_control_points        = 2
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.battery_propeller.unpack_unknowns
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.battery_propeller.residuals
-    base_segment.state.unknowns.propeller_power_coefficient  = 0.2 * ones_row(1) 
-    bat                                                      = vehicle.propulsors.battery_propeller.battery 
-    base_segment.state.unknowns.battery_voltage_under_load   = bat.max_voltage * ones_row(1)  
+    base_segment.state.unknowns.propeller_power_coefficient  = 0.2 * ones_row(1)  
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.battery_propeller.battery.max_voltage * ones_row(1)  
     base_segment.state.residuals.network                     = 0. * ones_row(2) 
-    base_segment.max_energy                                  = bat.max_energy 
+    base_segment.max_energy                                  = vehicle.propulsors.battery_propeller.battery.max_energy 
+    base_segment.battery_configuration                       = vehicle.propulsors.lift_cruise.battery.pack_config 
     
     # ------------------------------------------------------------------
     #   Climb 1 : constant Speed, constant rate segment 
@@ -231,6 +231,13 @@ def mission_setup(analyses,vehicle):
     segment.climb_rate                = 700.034 * Units['ft/min']  
     segment.state.unknowns.throttle   = 0.85 * ones_row(1)  
 
+    segment.battery_cell_temperature                   = 20   
+    segment.battery_pack_temperature                   = 20
+    segment.ambient_temperature                        = 20    
+    segment.battery_cumulative_charge_throughput       = 0  
+    segment.battery_resistance_growth_factor           = 1 
+    segment.battery_capacity_fade_factor               = 1    
+    
     # add to misison
     mission.append_segment(segment)
     

@@ -103,7 +103,7 @@ class Lift_Cruise(Propulsor):
                 rpm _forward             [radians/sec]
                 rotor_current_draw       [amps]
                 propeller_current_draw   [amps]
-                battery_draw             [watts]
+                battery_power_draw       [watts]
                 battery_energy           [joules]
                 voltage_open_circuit     [V]
                 voltage_under_load       [V]
@@ -219,10 +219,9 @@ class Lift_Cruise(Propulsor):
             volts                    = n_series*V_ul_cell   
  
         else: 
-            volts                            = state.unknowns.battery_voltage_under_load * 1. 
+            volts                            = state.unknowns.battery_voltage_under_load
             battery.battery_thevenin_voltage = 0             
-            battery.cell_temperature         = battery.temperature   
-        
+            battery.temperature              = conditions.propulsion.battery_pack_temperature
         
         # --------------------------------------------------------------------------------
         # Run Motor, Avionics and Systems (Discharge Model)
@@ -397,8 +396,9 @@ class Lift_Cruise(Propulsor):
         F_forward_mag = np.atleast_2d(np.linalg.norm(F_forward_total, axis=1))
         
         # Store network performance  
-        conditions.propulsion.battery_draw                      = battery_draw
+        conditions.propulsion.battery_power_draw                = battery_draw
         conditions.propulsion.battery_energy                    = battery_energy
+        conditions.propulsion.battery_thevenin_voltage          = battery.thevenin_voltage
         conditions.propulsion.voltage_open_circuit              = voltage_open_circuit
         conditions.propulsion.voltage_under_load                = voltage_under_load 
         conditions.propulsion.battery_efficiency                = (battery_draw+battery.resistive_losses)/battery_draw

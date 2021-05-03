@@ -334,7 +334,7 @@ def vehicle_setup():
     motor.gearbox_efficiency   = 1. # Gear box efficiency        
     motor.nominal_voltage      = bat.max_voltage *3/4  
     motor.propeller_radius     = rot.tip_radius 
-    motor.no_load_current      = 2.0 
+    motor.no_load_current      = 0.01 
     motor                      = size_optimal_motor(motor,rot) 
     net.motor                  = motor 
 

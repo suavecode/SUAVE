@@ -4,7 +4,6 @@
 # at each iteration to calculate thrust and a mass flow rate.
 # @ingroup Components-Energy
 
-
 from .Solar                                        import Solar
 from .Ducted_Fan                                   import Ducted_Fan
 from .Battery_Ducted_Fan                           import Battery_Ducted_Fan 
@@ -18,7 +17,6 @@ from .Serial_Hybrid_Ducted_Fan                     import Serial_Hybrid_Ducted_F
 from .Vectored_Thrust                              import Vectored_Thrust
 from .Propulsor_Surrogate                          import Propulsor_Surrogate
 from .Battery_Propeller                            import Battery_Propeller
-from .Battery_Test                                 import Battery_Test
 from .Ramjet                                       import Ramjet
 from .Scramjet                                     import Scramjet
 from .Liquid_Rocket                                import Liquid_Rocket

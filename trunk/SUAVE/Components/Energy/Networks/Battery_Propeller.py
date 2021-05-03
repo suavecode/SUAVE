@@ -66,6 +66,7 @@ class Battery_Propeller(Propulsor):
         self.number_of_engines         = None
         self.voltage                   = None
         self.thrust_angle              = 0.0
+        self.pitch_command             = 0.0
         self.tag                       = 'Battery_Propeller'
         self.use_surrogate             = False
         self.generative_design_minimum = 0
@@ -306,14 +307,16 @@ class Battery_Propeller(Propulsor):
         conditions.propulsion.battery_cell_joule_heat_fraction     = battery.cell_joule_heat_fraction   
         conditions.propulsion.battery_cell_entropy_heat_fraction   = battery.cell_entropy_heat_fraction
 
-        conditions.propulsion.rpm                                  = rpm   
-        conditions.propulsion.motor_torque                         = motor.outputs.torque
-        conditions.propulsion.motor_temperature                    = 0 # currently no motor temperature model
+        conditions.propulsion.motor_torque                         = motor.outputs.torque 
+        conditions.propulsion.propeller_rpm                        = rpm   
         conditions.propulsion.propeller_torque                     = Q
         conditions.propulsion.propeller_tip_mach                   = (R*motor.outputs.omega)/a
+        conditions.propulsion.propeller_thrust_coefficient         = outputs.thrust_coefficient 
         conditions.propulsion.propeller_power_coefficient          = Cp   
         conditions.propulsion.propeller_efficiency                 = etap 
         conditions.propulsion.propeller_motor_efficiency           = etam
+        
+        conditions.propulsion.acoustic_outputs[propeller.tag]          = outputs 
         
         # Create the outputs
         F                                         = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]      

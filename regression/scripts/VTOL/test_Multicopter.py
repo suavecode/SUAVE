@@ -41,13 +41,13 @@ def main():
     plot_mission(results)
     
     # save, load and plot old results 
-    #save_multicopter_results(results)
+    save_multicopter_results(results)
     old_results = load_multicopter_results() 
     plot_mission(old_results,'k-')
     plt.show(block=True)    
     
     # RPM of rotor check during hover
-    RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
+    RPM        = results.segments.climb.conditions.propulsion.propeller_rpm[0][0]
     RPM_true   = 1821.7082493081875
 
     print(RPM) 
@@ -212,6 +212,8 @@ def mission_setup(analyses,vehicle):
     base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.vectored_thrust.battery.max_voltage * ones_row(1)     
     base_segment.state.unknowns.thurst_angle                 = 90. * Units.degrees * ones_row(1)
     base_segment.state.residuals.network                     = 0. * ones_row(3)    
+    base_segment.battery_configuration                       = vehicle.propulsors.vectored_thrust.battery.pack_config 
+    base_segment.max_energy                                  = vehicle.propulsors.vectored_thrust.battery.max_energy
     
     # VSTALL Calculation
     m      = vehicle.mass_properties.max_takeoff
@@ -233,41 +235,48 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start  = 0.0  * Units.ft
     segment.altitude_end    = 40.  * Units.ft
     segment.climb_rate      = 300. * Units['ft/min']
-    segment.battery_energy  = vehicle.propulsors.vectored_thrust.battery.max_energy*0.95
+    segment.battery_energy  = vehicle.propulsors.vectored_thrust.battery.max_energy 
     
     segment.state.unknowns.throttle                       = 1.0 * ones_row(1)
-    segment.state.unknowns.propeller_power_coefficient    = 0.2 * ones_row(1) 
+    segment.state.unknowns.propeller_power_coefficient    = 0.05 * ones_row(1) 
 
-    segment.process.iterate.unknowns.network          = vehicle.propulsors.vectored_thrust.unpack_unknowns
-    segment.process.iterate.residuals.network         = vehicle.propulsors.vectored_thrust.residuals
-    segment.process.iterate.unknowns.mission          = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability   = SUAVE.Methods.skip 
+    segment.process.iterate.unknowns.network              = vehicle.propulsors.vectored_thrust.unpack_unknowns
+    segment.process.iterate.residuals.network             = vehicle.propulsors.vectored_thrust.residuals
+    segment.process.iterate.unknowns.mission              = SUAVE.Methods.skip
+    segment.process.iterate.conditions.stability          = SUAVE.Methods.skip
+    segment.process.finalize.post_process.stability       = SUAVE.Methods.skip 
+                                                          
+    segment.battery_cell_temperature                      = 20   
+    segment.battery_pack_temperature                      = 20
+    segment.ambient_temperature                           = 20    
+    segment.battery_cumulative_charge_throughput          = 0  
+    segment.battery_resistance_growth_factor              = 1 
+    segment.battery_capacity_fade_factor                  = 1        
     
     # add to misison
     mission.append_segment(segment)
 
-    # ------------------------------------------------------------------
-    #   Hover Segment: Constant Speed, Constant Rate
-    # ------------------------------------------------------------------
+    ## ------------------------------------------------------------------
+    ##   Hover Segment: Constant Speed, Constant Rate
+    ## ------------------------------------------------------------------
 
-    segment    = Segments.Hover.Hover(base_segment)
-    segment.tag = "Hover" 
-    segment.analyses.extend( analyses.hover )
+    #segment    = Segments.Hover.Hover(base_segment)
+    #segment.tag = "Hover" 
+    #segment.analyses.extend( analyses.hover )
  
-    segment.altitude    = 40.  * Units.ft
-    segment.time        = 2*60
-    segment.state.unknowns.propeller_power_coefficient      = 0.04 * ones_row(1)     
-    segment.state.unknowns.throttle                         = 0.7 * ones_row(1)
+    #segment.altitude    = 40.  * Units.ft
+    #segment.time        = 2*60
+    #segment.state.unknowns.propeller_power_coefficient      = 0.04 * ones_row(1)     
+    #segment.state.unknowns.throttle                         = 0.7 * ones_row(1)
     
-    segment.process.iterate.unknowns.network          = vehicle.propulsors.vectored_thrust.unpack_unknowns 
-    segment.process.iterate.residuals.network         = vehicle.propulsors.vectored_thrust.residuals   
-    segment.process.iterate.unknowns.mission          = SUAVE.Methods.skip
-    segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
-    segment.process.finalize.post_process.stability   = SUAVE.Methods.skip 
+    #segment.process.iterate.unknowns.network          = vehicle.propulsors.vectored_thrust.unpack_unknowns 
+    #segment.process.iterate.residuals.network         = vehicle.propulsors.vectored_thrust.residuals   
+    #segment.process.iterate.unknowns.mission          = SUAVE.Methods.skip
+    #segment.process.iterate.conditions.stability      = SUAVE.Methods.skip
+    #segment.process.finalize.post_process.stability   = SUAVE.Methods.skip 
     
-    # add to misison
-    mission.append_segment(segment)  
+    ## add to misison
+    #mission.append_segment(segment)  
 
     return mission
          
@@ -294,13 +303,13 @@ def missions_setup(base_mission):
 def plot_mission(results,line_style='bo-'): 
     
     # Plot Flight Conditions 
-    plot_flight_conditions(results, line_style) 
+    #plot_flight_conditions(results, line_style) 
     
     # Plot Aerodynamic Coefficients
-    plot_aerodynamic_coefficients(results, line_style)  
+    #plot_aerodynamic_coefficients(results, line_style)  
     
     # Plot Aircraft Flight Speed
-    plot_aircraft_velocities(results, line_style)
+    #plot_aircraft_velocities(results, line_style)
     
     # Plot Aircraft Electronics
     plot_battery_pack_conditions(results, line_style)
@@ -309,10 +318,10 @@ def plot_mission(results,line_style='bo-'):
     plot_propeller_conditions(results, line_style) 
     
     # Plot Electric Motor and Propeller Efficiencies 
-    plot_eMotor_Prop_efficiencies(results, line_style)
+    #plot_eMotor_Prop_efficiencies(results, line_style)
     
     # Plot propeller Disc and Power Loading
-    plot_disc_power_loading(results, line_style)    
+    #plot_disc_power_loading(results, line_style)    
          
     return
  

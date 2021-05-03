@@ -62,18 +62,19 @@ def mission_setup(vehicle, analyses):
     Segments = SUAVE.Analyses.Mission.Segments
 
     # base segment
-    base_segment = Segments.Segment()
-    ones_row = base_segment.state.ones_row
-    base_segment.state.numerics.number_control_points = 4
-    base_segment.process.iterate.conditions.stability = SUAVE.Methods.skip
-    base_segment.process.finalize.post_process.stability = SUAVE.Methods.skip
+    base_segment                                             = Segments.Segment()
+    ones_row                                                 = base_segment.state.ones_row
+    base_segment.state.numerics.number_control_points        = 4
+    base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
+    base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.process.iterate.conditions.planet_position = SUAVE.Methods.skip
-    base_segment.process.iterate.unknowns.network = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
-    base_segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_transition
-    base_segment.state.unknowns.battery_voltage_under_load = vehicle.propulsors.lift_cruise.battery.max_voltage * ones_row(
-        1)
-    base_segment.state.residuals.network = 0. * ones_row(2)
+    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.lift_cruise.residuals_transition
+    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.lift_cruise.battery.max_voltage * ones_row(1)
+    base_segment.max_energy                                  = vehicle.propulsors.lift_cruise.battery.max_energy
+    base_segment.battery_configuration                       = vehicle.propulsors.lift_cruise.battery.pack_config
+    base_segment.state.residuals.network                     = 0. * ones_row(2)
 
     # ------------------------------------------------------------------
     #   Cruise Segment: constant speed, constant altitude
@@ -84,16 +85,23 @@ def mission_setup(vehicle, analyses):
 
     segment.analyses.extend(analyses)
 
-    segment.altitude = 1000.0 * Units.ft
-    segment.air_speed = 110. * Units['mph']
-    segment.distance = 60. * Units.miles
+    segment.altitude       = 1000.0 * Units.ft
+    segment.air_speed      = 110. * Units['mph']
+    segment.distance       = 60. * Units.miles
     segment.battery_energy = vehicle.propulsors.lift_cruise.battery.max_energy
 
     segment.state.unknowns.propeller_power_coefficient = 0.16 * ones_row(1)
-    segment.state.unknowns.throttle = 0.80 * ones_row(1)
+    segment.state.unknowns.throttle                    = 0.80 * ones_row(1)
 
-    segment.process.iterate.unknowns.network = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
-    segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift
+    segment.process.iterate.unknowns.network           = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
+    segment.process.iterate.residuals.network          = vehicle.propulsors.lift_cruise.residuals_no_lift
+    
+    segment.battery_cell_temperature                   = 20   
+    segment.battery_pack_temperature                   = 20
+    segment.ambient_temperature                        = 20    
+    segment.battery_cumulative_charge_throughput       = 0  
+    segment.battery_resistance_growth_factor           = 1 
+    segment.battery_capacity_fade_factor               = 1       
 
     mission.append_segment(segment)
 

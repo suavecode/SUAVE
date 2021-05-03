@@ -201,13 +201,14 @@ def vehicle_setup():
     rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/rotor.tip_radius   
     rotor.design_Cl              = 0.8
     rotor.design_altitude        = 1000 * Units.feet                   
-    rotor.design_thrust          = (Hover_Load/net.number_of_engines)*2.
+    rotor.design_thrust          = (Hover_Load*1.1)/net.number_of_engines  
     rotor.airfoil_geometry       =  ['../Vehicles/NACA_4412.txt'] 
     rotor.airfoil_polars         = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
                                      '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
     rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
-    rotor                        = propeller_design(rotor)    
     rotor.induced_hover_velocity = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines))  
+    rotor                        = propeller_design(rotor)    
+    rotor.VTOL_flag              = True 
     
     # propulating propellers on the other side of the vehicle    
     rotor.origin                 = []
@@ -226,13 +227,13 @@ def vehicle_setup():
     # Motor
     motor                      = SUAVE.Components.Energy.Converters.Motor() 
     motor.efficiency           = 0.95  
-    motor.nominal_voltage      = bat.max_voltage 
+    motor.nominal_voltage      = bat.max_voltage* 0.8
     motor.mass_properties.mass = 3. * Units.kg 
     motor.origin               = rotor.origin  
     motor.propeller_radius     = rotor.tip_radius  
     motor.gear_ratio           = 1.0
     motor.gearbox_efficiency   = 1.0 
-    motor.no_load_current      = 4.0     
+    motor.no_load_current      = 0.1    
     motor                      = size_optimal_motor(motor,rotor)
     net.motor                  = motor 
                                                 

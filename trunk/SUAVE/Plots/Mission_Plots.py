@@ -713,7 +713,7 @@ def plot_propeller_conditions(results, line_color = 'bo-', save_figure = False, 
     
     for segment in results.segments.values():  
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        rpm    = segment.conditions.propulsion.rpm[:,0] 
+        rpm    = segment.conditions.propulsion.propeller_rpm[:,0] 
         effp   = segment.conditions.propulsion.propeller_efficiency[:,0]
         Cp     = segment.conditions.propulsion.propeller_power_coefficient[:,0]
         tm     = segment.conditions.propulsion.propeller_tip_mach[:,0]
