@@ -20,18 +20,15 @@ from sklearn import svm, linear_model
 # SUAVE imports
 import SUAVE
 from SUAVE.Core import Data, Units
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Components.Energy.Networks import Propulsor_Surrogate
 from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
-
-# PyCycle imports
-
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class PyCycle(Propulsor):
+class PyCycle(Propulsor_Surrogate):
     """ This is a way for you to run PyCycle, create a deck, and load the deck into a SUAVE surrogate
         
         Assumptions:
@@ -61,7 +58,7 @@ class PyCycle(Propulsor):
         self.nacelle_diameter         = None
         self.engine_length            = None
         self.number_of_engines        = None
-        self.tag                      = 'Engine_Deck_Surrogate'
+        self.tag                      = 'PyCycle_Engine'
         self.input_file               = None
         self.sfc_surrogate            = None
         self.thrust_surrogate         = None
@@ -86,63 +83,7 @@ class PyCycle(Propulsor):
                                          (0.2, 1000),  (0.4, 1000),  (0.6, 1000),
                                          (0.6, 0),     (0.4, 0),     (0.2, 0),     (0.001, 0)]
         self.evaluation_throttles     = np.array([1, 0.9, 0.8, .7])
-   
-    # manage process with a driver function
-    def evaluate_thrust(self,state):
-        """ Calculate thrust given the current state of the vehicle
-        
-            Assumptions:
-            None
-            
-            Source:
-            N/A
-            
-            Inputs:
-            state [state()]
-            
-            Outputs:
-            results.thrust_force_vector [newtons]
-            results.vehicle_mass_rate   [kg/s]
-            
-            Properties Used:
-            Defaulted values
-        """            
-        
-        # Unpack the surrogate
-        sfc_surrogate = self.sfc_surrogate
-        thr_surrogate = self.thrust_surrogate
-        
-        # Unpack the conditions
-        conditions = state.conditions
-        # rescale altitude for proper surrogate performance
-        altitude   = conditions.freestream.altitude/self.altitude_input_scale
-        mach       = conditions.freestream.mach_number
-        throttle   = conditions.propulsion.throttle
-        
-        cond = np.hstack([altitude,mach,throttle])
-           
-        if self.use_extended_surrogate:
-            lo_blender = Cubic_Spline_Blender(0, .01)
-            hi_blender = Cubic_Spline_Blender(0.99, 1)            
-            sfc = self.extended_sfc_surrogate(sfc_surrogate, cond, lo_blender, hi_blender)
-            thr = self.extended_thrust_surrogate(thr_surrogate, cond, lo_blender, hi_blender)
-        else:
-            sfc = sfc_surrogate.predict(cond)
-            thr = thr_surrogate.predict(cond)
 
-        sfc = sfc*self.sfc_input_scale*self.sfc_anchor_scale
-        thr = thr*self.thrust_input_scale*self.thrust_anchor_scale
-       
-        F    = thr
-        mdot = thr*sfc*self.number_of_engines
-       
-        # Save the output
-        results = Data()
-        results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]
-        results.vehicle_mass_rate   = mdot
-   
-        return results          
-    
     def build_surrogate(self):
         """ Build a surrogate. Multiple options for models are available including:
             -Gaussian Processes
@@ -228,7 +169,6 @@ class PyCycle(Propulsor):
             # Write an engine deck
             np.savetxt("pyCycle_deck.csv", my_data, delimiter=",")
         
-        
         print(my_data)
         
         # Clean up to remove redundant lines
@@ -296,125 +236,3 @@ class PyCycle(Propulsor):
         # Save the output
         self.sfc_surrogate    = sfc_surrogate
         self.thrust_surrogate = thr_surrogate   
-        
-    def extended_thrust_surrogate(self, thr_surrogate, cond, lo_blender, hi_blender):
-        """ Fixes thrust values outside of the standard throttle range in order to provide
-            reasonable values outside of the typical surrogate coverage area. 
-            
-            Assumptions:
-            None
-            
-            Source:
-            N/A
-            
-            Inputs:
-            thr_surrogate     - Trained sklearn surrogate that outputs a scaled thrust value
-            cond              - nx3 numpy array with input conditions for the surrogate
-            lo_blender        - Cubic spline blending class that is used at the low throttle cutoff
-            hi_blender        - Cubic spline blending class that is used at the high throttle cutoff
-            
-            Outputs:
-            T                 [nondim]
-            
-            Properties Used:
-            None
-        """            
-        # initialize
-        cond_zero_eta      = deepcopy(cond)
-        cond_one_eta       = deepcopy(cond)
-        cond_zero_eta[:,2] = 0
-        cond_one_eta[:,2]  = 1
-        
-        min_thrs = thr_surrogate.predict(cond_zero_eta)
-        max_thrs = thr_surrogate.predict(cond_one_eta)
-        dTdetas  = max_thrs - min_thrs
-        
-        etas          = cond[:,2]
-        mask_low      = etas < 0
-        mask_lo_blend = np.logical_and(etas >= 0, etas < 0.01)
-        mask_mid      = np.logical_and(etas >= 0.01, etas < 0.99)
-        mask_hi_blend = np.logical_and(etas >= 0.99, etas < 1)
-        mask_high     = etas >= 1
-        
-        etas = np.atleast_2d(etas).T
-        T = np.zeros_like(etas)
-        
-        # compute thrust
-        T[mask_low] = min_thrs[mask_low] + etas[mask_low]*dTdetas[mask_low]
-        
-        if np.sum(mask_lo_blend) > 0:
-            lo_weight = lo_blender.compute(etas[mask_lo_blend])
-            T[mask_lo_blend] = (min_thrs[mask_lo_blend] + etas[mask_lo_blend]*dTdetas[mask_lo_blend])*lo_weight + \
-                               thr_surrogate.predict(cond[mask_lo_blend])*(1-lo_weight)
-        
-        if np.sum(mask_mid) > 0:
-            T[mask_mid] = thr_surrogate.predict(cond[mask_mid])
-        
-        if np.sum(mask_hi_blend) > 0:
-            hi_weight = hi_blender.compute(etas[mask_hi_blend])
-            T[mask_hi_blend] = thr_surrogate.predict(cond[mask_hi_blend])*hi_weight + \
-                               (max_thrs[mask_hi_blend] + (etas[mask_hi_blend]-1)*dTdetas[mask_hi_blend])*(1-hi_weight)
-        
-        T[mask_high] = max_thrs[mask_high] + (etas[mask_high]-1)*dTdetas[mask_high]
-        
-        return T
-    
-    def extended_sfc_surrogate(self, sfc_surrogate, cond, lo_blender, hi_blender):
-        """ Fixes sfc values outside of the standard throttle range in order to provide
-            reasonable values outside of the typical surrogate coverage area. 
-            
-            Assumptions:
-            None
-            
-            Source:
-            N/A
-            
-            Inputs:
-            sfc_surrogate     - Trained sklearn surrogate that outputs a scaled sfc value
-            cond              - nx3 numpy array with input conditions for the surrogate
-            lo_blender        - Cubic spline blending class that is used at the low throttle cutoff
-            hi_blender        - Cubic spline blending class that is used at the high throttle cutoff
-            
-            Outputs:
-            sfcs              [nondim]
-            
-            Properties Used:
-            None
-        """           
-        # initialize
-        cond_zero_eta      = deepcopy(cond)
-        cond_one_eta       = deepcopy(cond)
-        cond_zero_eta[:,2] = 0
-        cond_one_eta[:,2]  = 1  
-        
-        etas          = cond[:,2]
-        mask_low      = etas < 0
-        mask_lo_blend = np.logical_and(etas >= 0, etas < 0.01)
-        mask_mid      = np.logical_and(etas >= 0.01, etas < 0.99)
-        mask_hi_blend = np.logical_and(etas >= 0.99, etas < 1)
-        mask_high     = etas >= 1 
-        
-        etas = np.atleast_2d(etas).T
-        sfcs = np.zeros_like(etas)
-        
-        # compute sfc
-        if np.sum(mask_low) > 0:
-            sfcs[mask_low] = sfc_surrogate.predict(cond_zero_eta[mask_low])
-        
-        if np.sum(mask_lo_blend) > 0:
-            lo_weight = lo_blender.compute(etas[mask_lo_blend])
-            sfcs[mask_lo_blend] = sfc_surrogate.predict(cond_zero_eta[mask_lo_blend])*lo_weight + \
-                               sfc_surrogate.predict(cond[mask_lo_blend])*(1-lo_weight)
-        
-        if np.sum(mask_mid) > 0:
-            sfcs[mask_mid] = sfc_surrogate.predict(cond[mask_mid])
-        
-        if np.sum(mask_hi_blend) > 0:
-            hi_weight = hi_blender.compute(etas[mask_hi_blend])
-            sfcs[mask_hi_blend] = sfc_surrogate.predict(cond[mask_hi_blend])*hi_weight + \
-                               sfc_surrogate.predict(cond_one_eta[mask_hi_blend])*(1-hi_weight)
-        
-        if np.sum(mask_high) > 0:
-            sfcs[mask_high] = sfc_surrogate.predict(cond_one_eta[mask_high])
-            
-        return sfcs   

@@ -5,8 +5,6 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units, Data
 from . import write
 
 try:
@@ -21,6 +19,32 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 99):
+    """ This method calculates the volume equivalent area for a vehicle for sonic boom analysis. It will write a VSP
+        then slice it up depending on the mach number and angle of attack
+    
+        Assumptions:
+        X_locs is the location where lift values are taken on the x-axis
+        AE_x is the lift equivalent area
+        
+        
+        Source:
+        N/A
+        
+        Inputs:
+        vehicle             [vehicle]
+        mach                [-]
+        angle_of_attack     [radians]
+        number_slices       [int]
+
+
+        Outputs:
+        X_locs              [m]
+        slice_areas         [m^2]
+        
+        Properties Used:
+        N/A
+    """       
+    
 
     # Write the vehicle
     write(vehicle,vehicle.tag,write_file=False)
@@ -60,9 +84,6 @@ def mach_slices(vehicle,mach,angle_of_attack=[0.],number_slices = 99):
     # Turn them into arrays
     X_locs      = np.array(X_locs)
     slice_areas = np.array(slice_areas)
-    
-    ## Exit OpenVSP just in case
-    #print('Exiting OpenVSP on Purpose')
-    #vsp.VSPExit(0)
+
            
     return X_locs, slice_areas

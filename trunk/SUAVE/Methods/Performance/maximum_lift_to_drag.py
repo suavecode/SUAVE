@@ -20,6 +20,33 @@ import SUAVE
 
 
 def maximum_lift_to_drag(analyses,altitude,CL_max,up_bnd,delta_isa):
+        """ Computes L/D max at give altitude. This runs a mini mission wrapped by an optimizer to find the L/D max.
+        up_bnd is the fastest airspeed that the optimizer can try. The output is a dictionary containing the maximum 
+        lift to drag value as well as the airspeed.
+
+        Assumptions:
+        No propulsion source is given
+
+
+        Source:
+        N/A
+
+
+        Inputs:
+        analyses.atmosphere        [-]
+        analyses.aerodynamics      [-]
+        altitude                   [m]
+        CL_max                     [float]
+        up_bnd                     [m/s]
+        delta_isa                  [deg C]
+
+        Outputs:
+        results.L_D_max.air_speed  [m/s]
+        results.L_D_max.value      [-]
+
+        Properties Used:
+        N/A
+        """           
 
 
         # setup a mission that runs a single point segment without propulsion
