@@ -21,32 +21,26 @@ from SUAVE.Plots.Mission_Plots import *
 
 # Numpy is use extensively throughout SUAVE
 import numpy as np
-# Scipy is required here for integration functions used in post processing
-import scipy as sp
-from scipy import integrate
 
 # Post processing plotting tools are imported here
 import pylab as plt
 
-# copy is used to copy variable that should not be linked
-# time is used to measure run time if needed
-import copy, time
-
 # More basic SUAVE function
-from SUAVE.Core import (
-Data, Container,
-)
+from SUAVE.Core import Data
 
 import sys
 sys.path.append('../Vehicles')
 from Concorde import vehicle_setup, configs_setup
 
 # This is a sizing function to fill turbojet parameters
-from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
      import compute_fuel_center_of_gravity_longitudinal_range
 from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
      import plot_cg_map 
+
+
+# This imports lift equivalent area
+from SUAVE.Methods.Noise.Boom.lift_equivalent_area import lift_equivalent_area
 
 # ----------------------------------------------------------------------
 #   Main
@@ -75,6 +69,9 @@ def main():
     mission = analyses.missions.base
     results = mission.evaluate()
     
+    # Check the lift equivalent area
+    equivalent_area(configs.base, analyses.configs.base, results.segments.cruise.state.conditions)        
+    
     masses, cg_mins, cg_maxes = compute_fuel_center_of_gravity_longitudinal_range(configs.base)
     plot_cg_map(masses, cg_mins, cg_maxes, units = 'metric', fig_title = 'Metric Test')  
     plot_cg_map(masses, cg_mins, cg_maxes, units = 'imperial', fig_title = 'Foot Test')
@@ -89,6 +86,7 @@ def main():
     # load older results
     #save_results(results)
     old_results = load_results()   
+    
 
     # plt the old results
     plot_mission(results)
@@ -96,7 +94,9 @@ def main():
     plt.show()
 
     # check the results
-    check_results(results,old_results) 
+    check_results(results,old_results)
+    
+
     
     return
 
@@ -123,6 +123,31 @@ def full_setup():
     analyses.missions = missions_analyses        
     
     return configs, analyses
+
+
+# ----------------------------------------------------------------------
+#   Lift Equivalent Area Regression
+# ----------------------------------------------------------------------
+
+def equivalent_area(vehicle,analyses,conditions):
+    
+    X_locs, AE_x, _ = lift_equivalent_area(vehicle,analyses,conditions)
+    
+    regression_X_locs = np.array([ 0.        , 23.1225    , 30.07443051, 36.06867653, 40.19106365,
+                                  42.87922865, 43.7586439 , 44.46766887, 44.75288993, 45.4025956 ,
+                                  45.75309804, 45.83545015, 50.60861756, 53.9097691 , 53.9525    ,
+                                  55.43401042, 56.10861756, 56.78777586, 57.28419859, 57.49949247,
+                                  57.99040593, 58.61762884, 58.94737944, 77.075     ])
+    
+    regression_AE_x   = np.array([ 0.        , -0.4903499 ,  6.85718954, 10.79745721, 15.71068878,
+                                   17.56279576, 23.59364052, 24.04875565, 26.95674961, 33.92542641,
+                                   35.66182881, 36.16191188, 36.16191188, 36.16191188, 36.92780271,
+                                   36.92780271, 36.92780271, 36.92780271, 36.92780271, 36.92780271,
+                                   36.92780271, 36.92780271, 36.92780271, 36.92780271])
+    
+    assert (np.abs((X_locs[1:] - regression_X_locs[1:] )/regression_X_locs[1:] ) < 1e-6).all() 
+    assert (np.abs((AE_x[1:] - regression_AE_x[1:])/regression_AE_x[1:]) < 1e-6).all()
+
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle Analyses
