@@ -43,8 +43,9 @@ def pyopt_surrogate_setup(surrogate_function, inputs, constraints):
 
     #taken from initial optimization problem that you set up
     ini              = inputs[:,1] # values
-    bnd              = inputs[:,2] # Bounds
-    scl              = inputs[:,3] # Scaling
+    bndl             = inputs[:,2] # Bounds
+    bndu             = inputs[:,3] # Bounds
+    scl              = inputs[:,4] # Scaling
     input_units      = inputs[:,-1] *1.0
     constraint_scale = constraints[:,3]
     constraint_units = constraints[:,-1]*1.0
@@ -62,8 +63,8 @@ def pyopt_surrogate_setup(surrogate_function, inputs, constraints):
     print('x_setup=', x)
     #bound the input variables
     for j in range(len(inputs[:,1])):
-        lbd = bnd[j][0]/(scl[j])#*input_units[j]
-        ubd = bnd[j][1]/(scl[j])#*input_units[j]
+        lbd = bndl[j]/(scl[j])#*input_units[j]
+        ubd = bndu[j]/(scl[j])#*input_units[j]
         opt_problem.addVar('x%i' % j, 'c', lower = lbd, upper = ubd, value = x[j])
  
     #put in the constraints

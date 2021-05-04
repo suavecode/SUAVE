@@ -7,9 +7,7 @@
 #   Imports
 # ---------------------------------------------------------------------
 
-import SUAVE 
 import os
-from SUAVE.Core import Units, Data 
 from SUAVE.Plots.Geometry_Plots import plot_airfoil
 import matplotlib.pyplot as plt  
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\

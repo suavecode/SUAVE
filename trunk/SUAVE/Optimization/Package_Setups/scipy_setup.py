@@ -52,10 +52,11 @@ def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08, tol
     wrapper = lambda x:SciPy_Problem(problem,x)    
     
     # Set inputsq
-    nam = inp[:,0] # Names
-    ini = inp[:,1] # Initials
-    bnd = inp[:,2] # Bounds
-    scl = inp[:,3] # Scale
+    nam  = inp[:,0] # Names
+    ini  = inp[:,1] # Initials
+    bndl = inp[:,2] # Bounds
+    bndu = inp[:,3] # Bounds
+    scl  = inp[:,4] # Scale
     
     x   = ini/scl
     bnds = np.zeros((len(inp),2))
@@ -65,10 +66,10 @@ def SciPy_Solve(problem,solver='SLSQP', sense_step = 1.4901161193847656e-08, tol
     
     for ii in range(0,len(inp)):
         # Scaled bounds
-        bnds[ii] = (bnd[ii][0]/scl[ii]),(bnd[ii][1]/scl[ii])  
-        lb[ii]   = bnd[ii][0]/scl[ii]
-        ub[ii]   = bnd[ii][1]/scl[ii]
-        de_bnds.append((bnd[ii][0]/scl[ii],bnd[ii][1]/scl[ii]))  
+        bnds[ii] = (bndl[ii]/scl[ii]),(bndu[ii]/scl[ii])  
+        lb[ii]   = bndl[ii]/scl[ii]
+        ub[ii]   = bndu[ii]/scl[ii]
+        de_bnds.append((bndl[ii]/scl[ii],bndu[ii]/scl[ii]))  
      
     # Finalize problem statement and run
     if solver=='SLSQP':

@@ -45,9 +45,10 @@ def Ipopt_Solve(problem):
     ncon = len(con)
     
     # Set inputs
-    ini = inp[:,1] # Initials
-    bnd = inp[:,2] # Bounds
-    scl = inp[:,3] # Scale
+    ini  = inp[:,1] # Initials
+    bndl = inp[:,2] # Bounds
+    bndu = inp[:,3] # Bounds
+    scl  = inp[:,4] # Scale
     
     # Scaled initials
     x0 = ini/scl
@@ -61,8 +62,8 @@ def Ipopt_Solve(problem):
     flbd = np.zeros_like(ini)
     fubd = np.zeros_like(ini)
     for ii in range(0,nvar):
-        flbd[ii] = (bnd[ii][0]/scl[ii])
-        fubd[ii] = (bnd[ii][1]/scl[ii])
+        flbd[ii] = (bndl[ii]/scl[ii])
+        fubd[ii] = (bndu[ii]/scl[ii])
 
     g_L = np.zeros_like(con)
     g_U = np.zeros_like(con)

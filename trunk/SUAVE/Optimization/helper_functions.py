@@ -54,7 +54,6 @@ def set_values(dictionary,input_dictionary,converted_values,aliases):
     for ii in range(0,len(pointer)):
         pointers = pointer[ii][:]
         if isinstance(pointers,str):
-            length = 0
             if '*' in pointers:
                 newstrings = find_a_star(dictionary,pointer[ii])
                 for jj in range(0,len(newstrings)):
@@ -141,44 +140,43 @@ def scale_input_values(inputs,x):
     N/A
     """    
     
-    provided_scale = inputs[:,3]
+    provided_scale = inputs[:,-2]
     inputs[:,1] =  x*provided_scale
     
     return inputs
 
-#def limit_input_values(inputs):
-    #""" Ensures that the inputs are between the bounds
+def limit_input_values(inputs):
+    """ Ensures that the inputs are between the bounds
 
-    #Assumptions:
-    
+    Assumptions:
+    N/A
 
-    #Source:
-    #N/A
+    Source:
+    N/A
 
-    #Inputs:
-    #x                [array]         
-    #inputs           [list]
+    Inputs:
+    x                [array]         
+    inputs           [list]
 
-    #Outputs:
-    #inputs           [list]
+    Outputs:
+    inputs           [list]
 
-    #Properties Used:
-    #N/A
-    #"""      
+    Properties Used:
+    N/A
+    """      
     
-    #provided_values = inputs[:,1]
-    #bounds          = inputs[:,2]
+    provided_values = inputs[:,1]
+    lower_bounds    = inputs[:,2]
+    upper_bounds    = inputs[:,3]
     
-    #for ii in range(len(provided_values)):
-        #if provided_values[ii]<bounds[ii][0]:
-            #provided_values[ii] = bounds[ii][0]
-        #elif provided_values[ii]>bounds[ii][1]:
-            #provided_values[ii] = bounds[ii][1]
-        
+    # Fix if the input is too low
+    provided_values[provided_values<lower_bounds] = lower_bounds[provided_values<lower_bounds] 
     
+    # Fix if the input is too high
+    provided_values[provided_values>upper_bounds] = upper_bounds[provided_values>upper_bounds]
+
     
-    
-    #return inputs
+    return inputs
     
 
 ## @ingroup Optimization
@@ -342,7 +340,7 @@ def scale_const_bnds(inputs):
 
 ## @ingroup Optimization
 def unscale_const_values(inputs,x):
-    """ Rescales constraint bounds based on Nexus inputs scale
+    """ Rescales values based on Nexus inputs scale
 
     Assumptions:
     N/A
@@ -362,7 +360,7 @@ def unscale_const_values(inputs,x):
     """     
     
     provided_units   = inputs[:,-1]*1.0
-    provided_scale = np.array(inputs[:,3],dtype = float)
+    provided_scale = np.array(inputs[:,-2],dtype = float)
     scaled =  x*provided_scale/provided_units
     
     return scaled

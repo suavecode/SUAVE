@@ -69,6 +69,7 @@ class Nexus(Data):
         self.last_fidelity          = None
         self.evaluation_count       = 0
         self.force_evaluate         = False
+        self.hard_bounded_inputs    = False
     
     def evaluate(self,x = None):
         """This function runs the problem you setup in SUAVE.
@@ -160,7 +161,6 @@ class Nexus(Data):
         
         aliases     = self.optimization_problem.aliases
         objective   = self.optimization_problem.objective
-        results     = self.results
     
         objective_value  = help_fun.get_values(self,objective,aliases)  
         scaled_objective = help_fun.scale_obj_values(objective,objective_value)
@@ -243,7 +243,6 @@ class Nexus(Data):
 
         aliases     = self.optimization_problem.aliases
         constraints = self.optimization_problem.constraints
-        results     = self.results
         
         # Setup constraints  
         indices = []
@@ -285,7 +284,6 @@ class Nexus(Data):
         
         aliases     = self.optimization_problem.aliases
         constraints = self.optimization_problem.constraints
-        results     = self.results
     
         constraint_values  = help_fun.get_values(self,constraints,aliases) 
         scaled_constraints = help_fun.scale_const_values(constraints,constraint_values) 
@@ -317,8 +315,9 @@ class Nexus(Data):
         if x is not None:
             inputs = help_fun.scale_input_values(inputs,x)
             
-        ## Limit the values to the edges
-        #inputs = help_fun.limit_input_values(inputs)        
+        # Limit the values to the edges
+        if self.hard_bounded_inputs:
+            inputs = help_fun.limit_input_values(inputs)        
             
         # Convert units
         converted_values = help_fun.convert_values(inputs)
@@ -327,6 +326,7 @@ class Nexus(Data):
         aliases = self.optimization_problem.aliases
         
         self    = help_fun.set_values(self,inputs,converted_values,aliases)     
+
     
     def constraints_individual(self,x = None):
         """Put's the values of the problem in the right place.
@@ -427,6 +427,16 @@ class Nexus(Data):
         inpu       = self.optimization_problem.inputs
         print('Design Variable Table:\n')
         print(inpu)
+        
+        # Print the objective value
+        obj         = self.optimization_problem.objective
+        obj_val     = self.objective(x)
+        obj_scale   = help_fun.unscale_const_values(obj,obj_val)
+        obj_table   = np.array(obj)
+        obj_table   = np.insert(obj_table,1,obj_scale)
+        
+        print('\nObjective Table:\n')
+        print(obj_table)
         
         # Pull out the constraints
         const       = self.optimization_problem.constraints

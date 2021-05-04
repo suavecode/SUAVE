@@ -72,14 +72,13 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
             format_flag = float(format_line.strip().split()[0])
         except:
             format_flag = float(format_line.strip().split(',')[0])
-        format_extra_data = float(format_line.strip().split()[1])
+            
 
         if format_flag > 1.01: # Amount of wiggle room per airfoil tools
             lednicer_format = True
         else:
             lednicer_format = False
 
-            
 
         if lednicer_format:
 
@@ -123,22 +122,26 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
             for line_count , line in enumerate(data_block): 
                 #check for line which starts with 0., which should be the split between upper and lower in selig
                 line_check = data_block[line_count].strip()
-                if float(line_check.split(',')[0]) == 0.:
-                    x_up_surf_rev.append(float(data_block[line_count].strip().split(',')[0])) 
-                    y_up_surf_rev.append(float(data_block[line_count].strip().split()[1]))
+                
+                # Remove any commas
+                line_check = line_check.replace(',','')
+                
+                if float(line_check.split()[0]) == 0.:
+                    x_up_surf_rev.append(float(data_block[line_count].strip().replace(',','').split()[0])) 
+                    y_up_surf_rev.append(float(data_block[line_count].strip().replace(',','').split()[1]))
 
-                    x_lo_surf.append(float(data_block[line_count].strip().split(',')[0])) 
-                    y_lo_surf.append(float(data_block[line_count].strip().split()[1])) 
+                    x_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[0])) 
+                    y_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[1])) 
 
                     upper_surface_flag = False
                     continue
 
                 if upper_surface_flag:
-                    x_up_surf_rev.append(float(data_block[line_count].strip().split(',')[0])) 
-                    y_up_surf_rev.append(float(data_block[line_count].strip().split()[1])) 
+                    x_up_surf_rev.append(float(data_block[line_count].strip().replace(',','').split()[0])) 
+                    y_up_surf_rev.append(float(data_block[line_count].strip().replace(',','').split()[1])) 
                 else:                              
-                    x_lo_surf.append(float(data_block[line_count].strip().split(',')[0])) 
-                    y_lo_surf.append(float(data_block[line_count].strip().split()[1]))
+                    x_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[0])) 
+                    y_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[1]))
 
             # Upper surface values in Selig format are reversed from Lednicer format, so fix that
 
@@ -150,8 +153,8 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
 
             # Add back data from first line, that was used to check format
 
-            x_up_surf.append(float(format_line.strip().split(',')[0]))
-            y_up_surf.append(float(format_line.strip().split()[1]))
+            x_up_surf.append(float(format_line.strip().replace(',','').split()[0]))
+            y_up_surf.append(float(format_line.strip().replace(',','').split()[1]))
 
         
         # determine the thickness to chord ratio - note that the upper and lower surface

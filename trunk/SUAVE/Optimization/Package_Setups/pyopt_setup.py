@@ -61,11 +61,12 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
         opt_prob.addObj(obj[ii,0])    
        
     # Set inputs
-    nam = inp[:,0] # Names
-    ini = inp[:,1] # Initials
-    bnd = inp[:,2] # Bounds
-    scl = inp[:,3] # Scale
-    typ = inp[:,4] # Type
+    nam  = inp[:,0] # Names
+    ini  = inp[:,1] # Initials
+    bndl = inp[:,2] # Bounds
+    bndu = inp[:,3] # Bounds
+    scl  = inp[:,4] # Scale
+    typ  = inp[:,5] # Type
    
     # Pull out the constraints and scale them
     bnd_constraints = help_fun.scale_const_bnds(con)
@@ -73,8 +74,8 @@ def Pyopt_Solve(problem,solver='SNOPT',FD='single', sense_step=1.0E-6,  nonderiv
     x   = ini/scl
    
     for ii in range(0,len(inp)):
-        lbd = (bnd[ii][0]/scl[ii])
-        ubd = (bnd[ii][1]/scl[ii])
+        lbd = (bndl[ii]/scl[ii])
+        ubd = (bndu[ii]/scl[ii])
         #if typ[ii] == 'continuous':
         vartype = 'c'
         #if typ[ii] == 'integer':
