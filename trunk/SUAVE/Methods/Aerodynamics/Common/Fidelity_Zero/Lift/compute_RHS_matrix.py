@@ -58,7 +58,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
     for propulsor in geometry.propulsors:
             if propeller_wake_model:
                 if 'propeller' in propulsor.keys():
-                    # extract the propeller data struction
+                    # extract the propeller data structure
                     prop = propulsor.propeller
 
                     # generate the geometry of the propeller helical wake
@@ -71,7 +71,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
 
                 if 'rotor' in propulsor.keys():
 
-                    # extract the propeller data struction
+                    # extract the propeller data structure
                     rot = propulsor.rotor
 
                     # generate the geometry of the propeller helical wake

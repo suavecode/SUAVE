@@ -164,6 +164,7 @@ class Lift_Cruise(Propulsor):
         
         # Run the propeller
         F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = propeller.spin(conditions)
+        propeller.outputs = outputs_forward
             
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = conditions.propulsion.throttle[:,0,None]
@@ -221,6 +222,7 @@ class Lift_Cruise(Propulsor):
         
         # Run the propeller
         F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = rotor.spin(konditions)
+        rotor.outputs = outputs_lift
         
         # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
         eta = state.conditions.propulsion.throttle_lift

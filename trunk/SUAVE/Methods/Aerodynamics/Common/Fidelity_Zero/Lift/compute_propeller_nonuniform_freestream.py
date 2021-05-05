@@ -16,12 +16,17 @@ def compute_propeller_nonuniform_freestream(prop, upstream_wake,conditions):
     """ Computes the inflow velocities in the frame of the rotating propeller
     
     Inputs:
-       prop                   SUAVE propeller 
+       prop.                               SUAVE propeller 
+            tip_radius                     - propeller radius                         [m]
+            rotation                       - propeller rotation direction             [-]
+            thrust_angle                   - thrust angle of prop                     [rad]
+            number_radial_stations         - number of propeller radial stations      [-]
+            number_azimuthal_stations      - number of propeller azimuthal stations   [-]
        upstream_wake.
-          u_velocities        Streamwise velocities from upstream wake
-          v_velocities        Spanwise velocities from upstream wake
-          w_velocities        Downwash velocities from upstream wake
-          VD                  Vortex distribution from upstream wake
+          u_velocities                     - Streamwise velocities from upstream wake
+          v_velocities                     - Spanwise velocities from upstream wake
+          w_velocities                     - Downwash velocities from upstream wake
+          VD                               - Vortex distribution from upstream wake
        conditions.
           frames
        
