@@ -141,6 +141,7 @@ class Constant_Pitch_Rate_Constant_Altitude(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = Methods.Common.Frames.integrate_inertial_horizontal_position
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
         
         return
 

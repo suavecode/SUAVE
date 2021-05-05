@@ -47,7 +47,7 @@ def main():
     plt.show(block=True)    
     
     # RPM of rotor check during hover
-    RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
+    RPM        = results.segments.climb.conditions.propulsion.propeller_rpm[0][0]
     RPM_true   = 1821.7082493081875
 
     print(RPM) 

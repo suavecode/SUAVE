@@ -4,4 +4,5 @@
 
 from . import Airframe
 from . import Engine
+from . import Propeller
 from . import Noise_Tools
