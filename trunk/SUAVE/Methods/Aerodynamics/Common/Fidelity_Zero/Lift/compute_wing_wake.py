@@ -123,7 +123,7 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     wing_wake.u_velocities = u
     wing_wake.v_velocities = v
     wing_wake.w_velocities = w
-    wing_wake.VD = VD
+    wing_wake.VD           = VD
     
     # Contour plots of the flow field behind the wing
     if plot_wake:

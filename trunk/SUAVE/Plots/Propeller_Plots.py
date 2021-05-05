@@ -190,7 +190,7 @@ def plot_propeller_disc_inflow(prop,velocities, grid_points):
     
     return
 
-def plot_propeller_disc_performance(prop,outputs,i=0):
+def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     """
     Inputs
          prop          SUAVE Propeller
@@ -237,5 +237,6 @@ def plot_propeller_disc_performance(prop,outputs,i=0):
     plt.colorbar(CS_2, ax=ax2, orientation='horizontal')
     ax2.set_title('Local Blade Angle (deg)',pad=15) 
     ax2.set_rorigin(-rh)
+    fig.suptitle(title)
  
     return
