@@ -98,6 +98,7 @@ def vehicle_setup():
     
     # This airfoil is not a true Concorde airfoil
     wing_airfoil.coordinate_file   = '../Vehicles/Airfoils/NACA65-203.txt' 
+
     
     wing.append_airfoil(wing_airfoil)  
     

@@ -12,12 +12,13 @@ import os
 
 
 def main():
+    ospath        = os.path.abspath(__file__)
+    separator     = os.path.sep
+    airfoils_path = ospath.split('airfoil_import' + separator + 'airfoil_interpolation_test.py')[0] + 'Vehicles/Airfoils' + separator
+    a_labels      = ["Clark_y", "E63"]
+    nairfoils     = 4   # number of total airfoils
     
-    airfoils_path = os.path.join(os.path.dirname(__file__), "../Vehicles/Airfoils/")
-    a_labels  = ["Clark_y", "E63"]
-    nairfoils = 4   # number of total airfoils
-    
-    a1 = airfoils_path + a_labels[0]+".txt"
+    a1 = airfoils_path + a_labels[0]+ ".txt"
     a2 = airfoils_path + a_labels[1]+ ".txt"
     new_files = generate_interpolated_airfoils(a1, a2, nairfoils, save_filename="Transition")
     plt.show()

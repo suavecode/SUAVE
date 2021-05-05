@@ -1,3 +1,4 @@
+## @ingroup Plots
 # Propeller_Plots.py
 #
 # Created: Mar 2021, R. Erhard
@@ -10,10 +11,25 @@ import pylab as plt
 import numpy as np
 import matplotlib
 
-
+## @ingroup Plots
 def plot_propeller_performance(prop,outputs,conditions):
-    # Plots local velocities, blade angles, and blade loading
+    """This plots local velocities, blade angles, and blade loading
     
+    Assumptions:
+    None
+    
+    Source:
+    None
+    
+    Inputs:
+    
+       
+    Outputs: 
+    Plots
+    
+    Properties Used:
+    N/A	
+    """ 
     # Setting Latex Font style
     font = {'family' : 'normal',
             'weight' : 'normal',

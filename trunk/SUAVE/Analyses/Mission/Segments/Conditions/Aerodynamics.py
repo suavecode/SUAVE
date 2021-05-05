@@ -4,6 +4,7 @@
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
 #           Mar 2020, M. Clarke 
+#           Apr 20211, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -92,11 +93,11 @@ class Aerodynamics(Basic):
 
         # aerodynamics conditions
         self.aerodynamics = Conditions()        
-        self.aerodynamics.angle_of_attack  = ones_1col * 0
-        self.aerodynamics.side_slip_angle  = ones_1col * 0
-        self.aerodynamics.roll_angle       = ones_1col * 0
-        self.aerodynamics.lift_coefficient = ones_1col * 0
-        self.aerodynamics.drag_coefficient = ones_1col * 0
+        self.aerodynamics.angle_of_attack             = ones_1col * 0
+        self.aerodynamics.side_slip_angle             = ones_1col * 0
+        self.aerodynamics.roll_angle                  = ones_1col * 0
+        self.aerodynamics.lift_coefficient            = ones_1col * 0
+        self.aerodynamics.drag_coefficient            = ones_1col * 0
         self.aerodynamics.lift_breakdown              = Conditions()
         self.aerodynamics.drag_breakdown              = Conditions()
         self.aerodynamics.drag_breakdown.parasite     = Conditions()
@@ -110,16 +111,13 @@ class Aerodynamics(Basic):
 
         # propulsion conditions
         self.propulsion = Conditions()
-        self.propulsion.throttle               = ones_1col * 0
-        self.propulsion.battery_energy         = ones_1col * 0
-        self.propulsion.battery_voltage        = ones_1col * 0
-        self.propulsion.voltage_under_load     = ones_1col * 0
-        self.propulsion.voltage_open_circuit   = ones_1col * 0
-        self.propulsion.state_of_charge        = ones_1col * 0
-        self.propulsion.thrust_breakdown       = Conditions()
-        self.propulsion.acoustic_outputs       = Conditions()
-        self.propulsion.acoustic_outputs.fan   = Conditions()
-        self.propulsion.acoustic_outputs.core  = Conditions()
+        self.propulsion.throttle                       = ones_1col * 0
+        self.propulsion.battery_energy                 = ones_1col * 0
+        self.propulsion.battery_voltage                = ones_1col * 0
+        self.propulsion.battery_voltage_under_load     = ones_1col * 0
+        self.propulsion.battery_voltage_open_circuit   = ones_1col * 0
+        self.propulsion.state_of_charge                = ones_1col * 0
+        self.propulsion.thrust_breakdown               = Conditions()
 
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0
@@ -127,3 +125,8 @@ class Aerodynamics(Basic):
         
         # weights conditions
         self.weights.vehicle_mass_rate     = ones_1col * 0
+        
+        # noise conditions
+        self.noise                             = Conditions()
+        self.noise.total                       = Conditions()
+        self.noise.sources                     = Conditions()

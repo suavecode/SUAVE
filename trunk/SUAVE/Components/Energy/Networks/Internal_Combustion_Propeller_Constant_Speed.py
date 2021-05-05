@@ -4,6 +4,7 @@
 # Created:  Sep 2016, E. Botero
 # Modified: Apr 2018, M. Clarke 
 #           Mar 2020, M. Clarke 
+#           Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -111,6 +112,10 @@ class Internal_Combustion_Propeller_Constant_Speed(Propulsor):
         conditions.propulsion.power              = P
         conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
         
+        # noise
+        outputs.number_of_engines                = num_engines
+        conditions.noise.sources.propeller       = outputs
+
         # Create the outputs
         F                                                = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
         F_mag                                            = np.atleast_2d(np.linalg.norm(F, axis=1))   

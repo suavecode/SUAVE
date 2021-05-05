@@ -245,6 +245,7 @@ def basic_prop(Na=24, Nr=101):
     prop.number_azimuthal_stations = Na
     prop.rotation                  = [1]
     prop.symmetry                  = True
+
     prop.airfoil_geometry          =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
     prop.airfoil_polars            = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
@@ -253,7 +254,7 @@ def basic_prop(Na=24, Nr=101):
                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     
     prop.airfoil_polar_stations    = list(np.zeros(Nr).astype(int))
-    prop                        = propeller_design(prop,Nr)    
+    prop                           = propeller_design(prop,Nr)
     
     return prop
 

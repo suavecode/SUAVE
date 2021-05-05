@@ -202,12 +202,14 @@ def vehicle_setup():
     rotor.design_Cl              = 0.8
     rotor.design_altitude        = 1000 * Units.feet                   
     rotor.design_thrust          = (Hover_Load/net.number_of_engines)*2.
+
     rotor.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
     rotor.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+    
     rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     rotor                        = propeller_design(rotor)    
     rotor.induced_hover_velocity = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines))  

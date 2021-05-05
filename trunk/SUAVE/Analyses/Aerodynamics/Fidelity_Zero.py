@@ -75,7 +75,8 @@ class Fidelity_Zero(Markup):
         settings.number_of_wake_timesteps           = 30
         settings.use_surrogate                      = True
         settings.propeller_wake_model               = False 
-        
+        settings.model_fuselage                     = False
+
         # build the evaluation process
         compute = self.process.compute
         
@@ -138,8 +139,9 @@ class Fidelity_Zero(Markup):
         ito                       = self.settings.initial_timestep_offset
         wdt                       = self.settings.wake_development_time
         nwts                      = self.settings.number_of_wake_timesteps
-        
+        mf                        = self.settings.model_fuselage
+
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts )
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts,mf )
                                                             
     finalize = initialize                                          
