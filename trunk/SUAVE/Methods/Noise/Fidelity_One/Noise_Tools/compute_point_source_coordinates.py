@@ -53,7 +53,6 @@ def compute_point_source_coordinates(AoA,thrust_angle,mls,prop_origin):
     
     # translation to location on propeller
     I                        = np.atleast_3d(np.eye(4)).T
-    I                        = np.swapaxes(I,1,2)
     translation_1            = np.repeat(np.repeat(np.repeat(I,num_prop, axis = 0)[np.newaxis,:,:,:],num_mic, axis = 0)[np.newaxis,:,:,:,:],num_cpt, axis = 0)
     translation_1[:,:,:,0,3] = np.repeat(np.repeat(np.atleast_2d(prop_origin[:,0]),num_mic, axis = 0)[np.newaxis,:,:],num_cpt, axis = 0)     
     translation_1[:,:,:,1,3] = np.repeat(np.repeat(np.atleast_2d(prop_origin[:,1]),num_mic, axis = 0)[np.newaxis,:,:],num_cpt, axis = 0)           
