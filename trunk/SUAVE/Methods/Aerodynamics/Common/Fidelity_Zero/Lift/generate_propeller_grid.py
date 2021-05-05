@@ -12,7 +12,23 @@ import pylab as plt
 from SUAVE.Core import Data
 
 def generate_propeller_grid(prop, grid_settings, plot_grid=True):
+    """ Generates new grid points at a propeller plane.
     
+    Inputs: 
+    prop                     SUAVE vehicle data object
+    grid_settings            Settings for the grid
+         radius              Radius for cartesian grid (propeller radius)
+         hub_radius          Radius for non-evaluation points (propeller hub radius)
+         grid_mode           Option for cartesian or radial grid description
+         Ny                  Number of points in y-direction for cartesian grid
+         Nz                  Number of points in z-direction for cartesian grid
+         
+    plot_grid                Boolean for visualizing the grid point generation
+
+    
+    grid_points              Dictionary of grid points for the propeller grid
+
+    """    
     R         = grid_settings.radius
     Rh        = grid_settings.hub_radius
     Nr        = grid_settings.Nr
