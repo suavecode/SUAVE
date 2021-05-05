@@ -11,22 +11,54 @@ import numpy as np
 from SUAVE.Core            import Units  
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
-def print_airframe_output(tag, filename,velocity,nsteps,time,altitude,M,angle,distance_vector,PNLT_wing,phi,
-                          PNLT_ht,PNLT_vt,PNLT_flap,PNLT_slat,PNLT_nose_landing_gear,PNLT_main_landing_gear,
-                          PNLT_total,SPLt_dBA_max,nrange, frequency, EPNL_wing,EPNL_ht,EPNL_vt,
-                          EPNL_flap,EPNL_slat,EPNL_nose_landing_gear,EPNL_main_landing_gear,EPNL_total, SENEL_total,                                
-                          SPL_total_history,SPLt_dBA_history): 
-    
-    """This method prints
+def print_airframe_output(SAE_Airframe_Noise_Outputs): 
+    """This prints the airframe noise of a turbofan aircraft
 
-    Assumptions: 
+    Assumptions:
+       N/A
 
     Inputs: 
-
+       SAE_Airframe_Noise_Outputs  - Airframe Noise Data Structure  
 
     Outputs:  
-
+        N/A
+        
+    Properties Used:
+        None 
     """  
+    tag                      = SAE_Airframe_Noise_Outputs.tag
+    filename                 = SAE_Airframe_Noise_Outputs.filename
+    velocity                 = SAE_Airframe_Noise_Outputs.velocity
+    nsteps                   = SAE_Airframe_Noise_Outputs.nsteps
+    time                     = SAE_Airframe_Noise_Outputs.time
+    altitude                 = SAE_Airframe_Noise_Outputs.altitude
+    M                        = SAE_Airframe_Noise_Outputs.M
+    angle                    = SAE_Airframe_Noise_Outputs.angle
+    distance_vector          = SAE_Airframe_Noise_Outputs.distance_vector
+    PNLT_wing                = SAE_Airframe_Noise_Outputs.PNLT_wing
+    phi                      = SAE_Airframe_Noise_Outputs.phi
+    PNLT_ht                  = SAE_Airframe_Noise_Outputs.PNLT_ht
+    PNLT_vt                  = SAE_Airframe_Noise_Outputs.PNLT_vt
+    PNLT_flap                = SAE_Airframe_Noise_Outputs.PNLT_flap
+    PNLT_slat                = SAE_Airframe_Noise_Outputs.PNLT_slat
+    PNLT_nose_landing_gear   = SAE_Airframe_Noise_Outputs.PNLT_nose_landing_gear
+    PNLT_main_landing_gear   = SAE_Airframe_Noise_Outputs.PNLT_main_landing_gear
+    PNLT_total               = SAE_Airframe_Noise_Outputs.PNLT_total
+    SPLt_dBA_max             = SAE_Airframe_Noise_Outputs.SPLt_dBA_max
+    nrange                   = SAE_Airframe_Noise_Outputs.nrange
+    frequency                = SAE_Airframe_Noise_Outputs.frequency
+    EPNL_wing                = SAE_Airframe_Noise_Outputs.EPNL_wing
+    EPNL_ht                  = SAE_Airframe_Noise_Outputs.EPNL_ht
+    EPNL_vt                  = SAE_Airframe_Noise_Outputs.EPNL_vt
+    EPNL_flap                = SAE_Airframe_Noise_Outputs.EPNL_flap
+    EPNL_slat                = SAE_Airframe_Noise_Outputs.EPNL_slat
+    EPNL_nose_landing_gear   = SAE_Airframe_Noise_Outputs.EPNL_nose_landing_gear
+    EPNL_main_landing_gear   = SAE_Airframe_Noise_Outputs.EPNL_main_landing_gear
+    EPNL_total               = SAE_Airframe_Noise_Outputs.EPNL_total
+    SENEL_total              = SAE_Airframe_Noise_Outputs.SENEL_total
+    SPL_total_history        = SAE_Airframe_Noise_Outputs.SPL_total_history
+    SPLt_dBA_history         = SAE_Airframe_Noise_Outputs.SPLt_dBA_history  
+    
     # write header of file
     if not filename:            
         filename = ('Noise_' + str(tag) + '.dat')

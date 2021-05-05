@@ -33,21 +33,21 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings):
     None
     
     Inputs:
-        network                     - vehicle energy network data structure 
-        segment                     - flight segment data structure 
-        mic_loc                     - microhone location 
-        propeller                   - propeller class data structure
-        auc_opts                    - data structure of acoustic data
-        settings                    - accoustic settings 
-    
+        network                 - vehicle energy network data structure               [None]
+        segment                 - flight segment data structure                       [None]
+        mic_loc                 - microhone location                                  [m]
+        propeller               - propeller class data structure                      [None]
+        auc_opts                - data structure of acoustic data                     [None]
+        settings                - accoustic settings                                  [None]
+                               
     Outputs:
         Results.    
-            SPL                 - SPL
-            SPL_dBA             - dbA-Weighted SPL 
-            SPL_bb_spectrum     - broadband contribution to total SPL
-            SPL_spectrum        - 1/3 octave band SPL
-            SPL_tonal_spectrum  - harmonic contribution to total SPL
-            SPL_bpfs_spectrum   - 1/3 octave band harmonic contribution to total SPL
+            SPL                 - SPL                                                 [dB]
+            SPL_dBA             - dbA-Weighted SPL                                    [dBA]
+            SPL_bb_spectrum     - broadband contribution to total SPL                 [dB]
+            SPL_spectrum        - 1/3 octave band SPL                                 [dB]
+            SPL_tonal_spectrum  - harmonic contribution to total SPL                  [dB]
+            SPL_bpfs_spectrum   - 1/3 octave band harmonic contribution to total SPL  [dB]
     
     Properties Used:
         N/A   

@@ -23,13 +23,13 @@ def compute_point_source_coordinates(AoA,thrust_angle,mls,prop_origin):
         N/A  
 
     Inputs:  
-    AoA                   - angle of attack
-    thrust_angle          - thrust angle
-    mls                   - microphone locations 
-    prop_origin           - propeller/rotor orgin
+    AoA                   - angle of attack           [rad]
+    thrust_angle          - thrust angle              [rad]
+    mls                   - microphone locations      [m]
+    prop_origin           - propeller/rotor orgin     [m]
 
     Outputs: 
-        position vector   - position vector of points 
+        position vector   - position vector of points [m]
 
     Properties Used:
         N/A       
@@ -69,17 +69,14 @@ def compute_point_source_coordinates(AoA,thrust_angle,mls,prop_origin):
     rotation_2[:,:,:,2,2] = np.cos(AoA_mat)     
     rotation_2[:,:,:,3,3] = 1 
     
-    # translation of vehicle to air 
-    I                      = np.atleast_3d(np.eye(4)).T
-    I                      = np.swapaxes(I,1,2)
+    # translation of vehicle to air  
     translate_2            = np.repeat(np.repeat(np.repeat(I,num_prop, axis = 0)[np.newaxis,:,:,:],num_mic, axis = 0)[np.newaxis,:,:,:,:],num_cpt, axis = 0)       
     translate_2[:,:,:,0,3] = np.repeat(mls[:,:,0][:,:,np.newaxis],num_prop, axis = 2) 
     translate_2[:,:,:,1,3] = np.repeat(mls[:,:,1][:,:,np.newaxis],num_prop, axis = 2) 
     translate_2[:,:,:,2,3] = np.repeat(mls[:,:,2][:,:,np.newaxis],num_prop, axis = 2) 
     
     # identity transformation 
-    I0    =  np.atleast_3d(np.array([[0],[0],[0],[1]])).T
-    I0    = np.swapaxes(I0,1,2)
+    I0    = np.atleast_3d(np.array([[0,0,0,1]]))
     mat_0 = np.repeat(np.repeat(np.repeat(I0,num_prop, axis = 0)[np.newaxis,:,:,:],num_mic, axis = 0)[np.newaxis,:,:,:,:],num_cpt, axis = 0)
     
     # execute operation  

@@ -26,10 +26,10 @@ def epnl_noise(PNLT):
         N/A
 
     Inputs:
-        PNLT - Perceived Noise Level with Tone Correction
+        PNLT - Perceived Noise Level with Tone Correction  [PNLdB]
      
      Outputs:
-        EPNL - Effective Perceived Noise Level in EPNdB
+        EPNL - Effective Perceived Noise Level in          [EPNdB]
      
     Properties Used:
         N/A  

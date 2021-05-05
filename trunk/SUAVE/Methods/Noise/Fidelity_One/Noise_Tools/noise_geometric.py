@@ -25,15 +25,16 @@ def noise_geometric(noise_segment,analyses,config):
         For sideline condition we assume the maximum noise at takeoff occurs at 1000ft from the ground.     
         
     Inputs:
-        noise_segment	 - SUAVE type vehicle
-        analyses
-        config
-        mic_loc          - ground microphone index
+        noise_segment	 - SUAVE type vehicle                                                             [Unitless]
+        analyses                                                                                          [Unitless]
+        config                                                                                            [Unitless]
+        mic_loc          - ground microphone index                                                        [meters]            
     
     Outputs:
-        dist  - Distance vector from the aircraft position in relation to the microphone coordinates,    [meters]
-        theta - Polar angle emission vector relatively to the aircraft to the microphone coordinates,     [rad]
-        phi   - Azimuthal angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
+        noise_segment.
+           dist  - Distance vector from the aircraft position in relation to the microphone coordinates,     [meters]
+           theta - Polar angle emission vector relatively to the aircraft to the microphone coordinates,     [rad]
+           phi   - Azimuthal angle emission vector relatively to the aircraft to the microphone coordinates, [rad]
 
     Properties Used:
         None     

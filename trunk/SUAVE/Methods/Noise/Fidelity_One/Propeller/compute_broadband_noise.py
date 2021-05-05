@@ -22,7 +22,7 @@ def compute_broadband_noise(freestream,angle_of_attack,position_vector,
     '''This computes the broadband noise of a propeller or rotor in the frequency domain
     
     Assumptions:
-        Coorelated are adjusted from reference altitude of 300 ft 
+        Coorelations are adjusted from reference altitude of 300 ft 
 
     Source:
        Schlegel, Ronald, Robert King, and Harold Mull. Helicopter rotor noise generation 
@@ -30,18 +30,18 @@ def compute_broadband_noise(freestream,angle_of_attack,position_vector,
     
     
     Inputs:  
-        freestream                    - freestream data structure
-        angle_of_attack               - aircraft angle of attack
-        position_vector               - position vector of aircraft
-        velocity_vector               - velocity vector of aircraft 
-        propeller                     - propeller class data structure
-        auc_opts                      - data structure of acoustic data
-        settings                      - accoustic settings  
+        freestream                    - freestream data structure        [m/s]
+        angle_of_attack               - aircraft angle of attack         [rad]
+        position_vector               - position vector of aircraft      [m]
+        velocity_vector               - velocity vector of aircraft      [m/s]
+        propeller                     - propeller class data structure   [None] 
+        auc_opts                      - data structure of acoustic data  [None] 
+        settings                      - accoustic settings               [None]
         res.      
-            SPL_prop_bb_spectrum      - SPL of Frequency Spectrum 
+            SPL_prop_bb_spectrum      - SPL of Frequency Spectrum        [dB]
     
     Outputs
-       *acoustic data is stored in passed in data structures*
+       *acoustic data is stored and passed in data structures*
             
     Properties Used:
         N/A   
@@ -50,7 +50,12 @@ def compute_broadband_noise(freestream,angle_of_attack,position_vector,
     num_mic        = len(position_vector[0,:,0,1])
     num_prop       = len(position_vector[0,0,:,1])
     
-    x              = position_vector[:,:,:,0] 
+    # ----------------------------------------------------------------------------------
+    # Broadband (Vortex) Noise
+    # ----------------------------------------------------------------------------------      
+    # [number control points, number of mics, number of props, positions]
+    
+    x              = position_vector[:,:,:,0]                               
     y              = position_vector[:,:,:,1]
     z              = position_vector[:,:,:,2]                                     
     omega          = auc_opts.omega[:,0]                                    # angular velocity        

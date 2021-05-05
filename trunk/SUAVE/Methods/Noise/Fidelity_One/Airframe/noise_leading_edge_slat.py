@@ -23,20 +23,20 @@ def noise_leading_edge_slat(SPL_wing,Sw,bw,velocity,deltaw,viscosity,M,phi,theta
          Correlation based.
          
      Inputs:
-             SPL_wing                   - Sound Pressure Level of the clean wing [dB]
-             Sw                         - Wing Area [sq.ft]
-             bw                         - Wing Span [ft]
-             deltaw                     - Wing Turbulent Boundary Layer thickness [ft]
-             velocity                   - Aircraft speed [kts]
-             viscosity                  - Dynamic viscosity
-             M                          - Mach number
-             phi                        - Azimuthal angle [rad]
-             theta                      - Polar angle [rad]
+             SPL_wing                   - Sound Pressure Level of the clean wing                         [dB]
+             Sw                         - Wing Area                                                      [sq.ft]
+             bw                         - Wing Span                                                      [ft]
+             deltaw                     - Wing Turbulent Boundary Layer thickness                        [ft]
+             velocity                   - Aircraft speed                                                 [kts]
+             viscosity                  - Dynamic viscosity                                              [kg m^-1s^-1]
+             M                          - Mach number                                                    [unitless]
+             phi                        - Azimuthal angle                                                [rad]
+             theta                      - Polar angle                                                    [rad]
              distance                   - Distance from airplane to observer, evaluated at retarded time [ft]
-             frequency                  - Frequency array [Hz]
-     
-     Outputs: One Third Octave Band SPL [dB]
-         SPL                             - Sound Pressure Level of the slat leading edge [dB]
+             frequency                  - Frequency array                                                [Hz]
+                                                                                                         
+     Outputs: One Third Octave Band SPL                                                                  [dB]
+         SPL                             - Sound Pressure Level of the slat leading edge                 [dB]
     
     Properties Used:
         None    

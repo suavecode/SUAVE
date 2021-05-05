@@ -96,8 +96,10 @@ class Fidelity_One(Noise):
         N/4
     
         Inputs:
-        conditions - DataDict() of aerodynamic conditions
-        results    - DataDict() of moment coeffients and stability and body axis derivatives
+        self.settings.
+            ground_microphone_phi_angles   - azimuth measured from observer to aircraft body frame     [radians]
+            ground_microphone_theta_angles - axial angle measured from observer to aircraft body frame [radians]
+            center_frequencies             - 1/3 octave band frequencies                               [unitless]
     
         Outputs:
         None

@@ -15,9 +15,7 @@ import numpy as np
 from SUAVE.Core import Data 
 from SUAVE.Plots.Mission_Plots import *   
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
-from SUAVE.Methods.Noise.Certification import sideline_noise
-from SUAVE.Methods.Noise.Certification import flyover_noise 
-from SUAVE.Methods.Noise.Certification import approach_noise
+from SUAVE.Methods.Noise.Certification import sideline_noise, flyover_noise, approach_noise
 
 
 import matplotlib.pyplot as plt 

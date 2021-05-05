@@ -35,23 +35,23 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     
     
     Inputs: 
-        harmonics                     - harmomics  
-        freestream                    - freestream data structure
-        angle_of_attack               - aircraft angle of attack
-        position_vector               - position vector of aircraft
-        velocity_vector               - velocity vector of aircraft
-        mic_loc                       - microhone location 
-        propeller                     - propeller class data structure
-        auc_opts                      - data structure of acoustic data
-        settings                      - accoustic settings  
-        res.      
-            SPL_prop_tonal_spectrum   - SPL of Frequency Spectrum
-            SPL_bpfs_spectrum         - Blade Passing Frequency Spectrum
-            SPL_prop_h_spectrum       - Rotational Noise Frequency Spectrum in 1/3 octave spectrum 
-            SPL_prop_h_dBA_spectrum   - dBA-WeightedRotational Noise Frequency Spectrum in 1/3 octave spectrum 
+        harmonics                     - harmomics                                                              [Unitless]
+        freestream                    - freestream data structure                                              [m/s]
+        angle_of_attack               - aircraft angle of attack                                               [rad]
+        position_vector               - position vector of aircraft                                            [m]
+        velocity_vector               - velocity vector of aircraft                                            [m/s]
+        mic_loc                       - microhone location                                                     [None]
+        propeller                     - propeller class data structure                                         [None]
+        auc_opts                      - data structure of acoustic data                                        [None]
+        settings                      - accoustic settings                                                     
+        res.                                                                                                   [dB]
+            SPL_prop_tonal_spectrum   - SPL of Frequency Spectrum                                              [dB]
+            SPL_bpfs_spectrum         - Blade Passing Frequency Spectrum                                       [dB]
+            SPL_prop_h_spectrum       - Rotational Noise Frequency Spectrum in 1/3 octave spectrum             [dB]
+            SPL_prop_h_dBA_spectrum   - dBA-WeightedRotational Noise Frequency Spectrum in 1/3 octave spectrum [dB]
     
     Outputs
-       *acoustic data is stored in passed in data structures*
+       *acoustic data is stored and passed in data structures*
             
     Properties Used:
         N/A   
@@ -62,46 +62,48 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     num_prop        = len(position_vector[0,0,:,1])
     num_h           = len(harmonics)
     num_r           = len(propeller.radius_distribution)
+    
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise
     # ----------------------------------------------------------------------------------  
     # [control point , propellers, microphones, radial distribution,  harmonics] 
-    m              = vectorize_1(harmonics,num_cpt,num_r ,num_prop,num_mic)  # harmonic number 
-    m_1d           = harmonics
-    p_ref          = 2E-5                                                                 # referece atmospheric pressure
-    a              = vectorize_2(freestream.speed_of_sound[:,0],num_r,num_h,num_prop,num_mic)                                       # speed of sound
-    rho            = vectorize_2(freestream.density[:,0],num_r,num_h,num_prop,num_mic)                                              # air density 
-    AoA            = angle_of_attack[:,0]                                                 # vehicle angle of attack  
-    thrust_angle   = auc_opts.thrust_angle                                                # propeller thrust angle
-    alpha          = vectorize_2((AoA + thrust_angle),num_r,num_h,num_prop,num_mic) 
-    x              = vectorize_3(position_vector[:,:,:,0],num_r,num_h)                  # x component of position vector of propeller to microphone 
-    y              = vectorize_3(position_vector[:,:,:,1],num_r,num_h)                  # y component of position vector of propeller to microphone
-    z              = vectorize_3(position_vector[:,:,:,2],num_r,num_h)                  # z component of position vector of propeller to microphone
-    Vx             = vectorize_2(velocity_vector[:,0],num_r,num_h,num_prop,num_mic)            # x velocity of propeller  
-    Vy             = vectorize_2(velocity_vector[:,1],num_r,num_h,num_prop,num_mic)            # y velocity of propeller 
-    Vz             = vectorize_2(velocity_vector[:,2],num_r,num_h,num_prop,num_mic)            # z velocity of propeller 
-    B              = propeller.number_of_blades                                           # number of propeller blades
-    omega          = vectorize_2(auc_opts.omega[:,0],num_r,num_h,num_prop,num_mic)               # angular velocity       
-    dT_dr          = vectorize_4(auc_opts.blade_dT_dr,num_h,num_prop,num_mic)          # nondimensionalized differential thrust distribution 
-    dQ_dr          = vectorize_4(auc_opts.blade_dQ_dr,num_h,num_prop,num_mic)          # nondimensionalized differential torque distribution
-    R              = vectorize_5(propeller.radius_distribution,num_cpt,num_h,num_prop,num_mic)    # radial location     
-    c              = vectorize_5(propeller.chord_distribution,num_cpt,num_h,num_prop,num_mic)     # blade chord    
-    R_tip          = propeller.tip_radius                     
-    t_c            = vectorize_5(propeller.thickness_to_chord,num_cpt,num_h,num_prop,num_mic)     # thickness to chord ratio
-    MCA            = vectorize_5(propeller.mid_chord_alignment,num_cpt,num_h,num_prop,num_mic)    # Mid Chord Alighment  
+    
+    m              = vectorize(harmonics,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 1)                     # harmonic number 
+    m_1d           = harmonics                                                                                          
+    p_ref          = 2E-5                                                                                               # referece atmospheric pressure
+    a              = vectorize(freestream.speed_of_sound[:,0],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 2)# speed of sound
+    rho            = vectorize(freestream.density[:,0],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 2)       # air density 
+    AoA            = angle_of_attack[:,0]                                                                               # vehicle angle of attack  
+    thrust_angle   = auc_opts.thrust_angle                                                                              # propeller thrust angle
+    alpha          = vectorize((AoA + thrust_angle),num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 2)            
+    x              = vectorize(position_vector[:,:,:,0],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 3)      # x component of position vector of propeller to microphone 
+    y              = vectorize(position_vector[:,:,:,1],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 3)      # y component of position vector of propeller to microphone
+    z              = vectorize(position_vector[:,:,:,2],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 3)      # z component of position vector of propeller to microphone
+    Vx             = vectorize(velocity_vector[:,0],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 2)          # x velocity of propeller  
+    Vy             = vectorize(velocity_vector[:,1],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 2)          # y velocity of propeller 
+    Vz             = vectorize(velocity_vector[:,2],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 2)          # z velocity of propeller 
+    B              = propeller.number_of_blades                                                                         # number of propeller blades
+    omega          = vectorize(auc_opts.omega[:,0],num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 2)           # angular velocity       
+    dT_dr          = vectorize(auc_opts.blade_dT_dr,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 4)          # nondimensionalized differential thrust distribution 
+    dQ_dr          = vectorize(auc_opts.blade_dQ_dr,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 4)          # nondimensionalized differential torque distribution
+    R              = vectorize(propeller.radius_distribution,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 5) # radial location     
+    c              = vectorize(propeller.chord_distribution,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 5)  # blade chord    
+    R_tip          = propeller.tip_radius                                                     
+    t_c            = vectorize(propeller.thickness_to_chord,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 5)  # thickness to chord ratio
+    MCA            = vectorize(propeller.mid_chord_alignment,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 5) # Mid Chord Alighment  
     res.f          = B*omega*m/(2*np.pi) 
-    D              = 2*R[0,0,0,-1,:]                       # propeller diameter    
-    r              = R/R[0,0,0,-1,:]                       # non dimensional radius distribution  
-    S              = np.sqrt(x**2 + y**2 + z**2)       # distance between rotor and the observer    
-    theta          = np.arccos(x/S)                    
-    Y              = np.sqrt(y**2 + z**2)              # observer distance from propeller axis          
-    V              = np.sqrt(Vx**2 + Vy**2 + Vz**2)    # velocity magnitude
-    M_x            = V/a                               
-    V_tip          = R_tip*omega                       # blade_tip_speed 
-    M_t            = V_tip/a                           # tip Mach number 
-    M_r            = np.sqrt(M_x**2 + (r**2)*(M_t**2)) # section relative Mach number     
-    B_D            = c/D                               
-    phi            = np.arctan(z/y)                    # tangential angle   
+    D              = 2*R[0,0,0,-1,:]                                                                                    # propeller diameter    
+    r              = R/R[0,0,0,-1,:]                                                                                    # non dimensional radius distribution  
+    S              = np.sqrt(x**2 + y**2 + z**2)                                                                        # distance between rotor and the observer    
+    theta          = np.arccos(x/S)                                                            
+    Y              = np.sqrt(y**2 + z**2)                                                                               # observer distance from propeller axis          
+    V              = np.sqrt(Vx**2 + Vy**2 + Vz**2)                                                                     # velocity magnitude
+    M_x            = V/a                                                                                                
+    V_tip          = R_tip*omega                                                                                        # blade_tip_speed 
+    M_t            = V_tip/a                                                                                            # tip Mach number 
+    M_r            = np.sqrt(M_x**2 + (r**2)*(M_t**2))                                                                  # section relative Mach number     
+    B_D            = c/D                                                                                                
+    phi            = np.arctan(z/y)                                                                                     # tangential angle   
 
     # retarted  theta angle in the retarded reference frame
     theta_r        = np.arccos(np.cos(theta)*np.sqrt(1 - (M_x**2)*(np.sin(theta))**2) + M_x*(np.sin(theta))**2 )   
@@ -153,8 +155,8 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
  
     return  
 
-## @ingroupMethods-Noise-Fidelity_One-Propeller
-def vectorize_1(X,num_cpt, num_r ,num_prop,num_mic):
+## @ingroupMethods-Noise-Fidelity_One-Propeller 
+def vectorize(X,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method): 
     ''' This vectorizes an variable for acoustic computation 
     
     Assumptions:
@@ -163,43 +165,14 @@ def vectorize_1(X,num_cpt, num_r ,num_prop,num_mic):
     Source:
         None
 
-    Inputs:
-        X        - input argument 
-        num_cpt  - number of control points 
-        num_h    - number of harmonics
-        num_r    - number of radial stations on propeller 
-        num_prop - number of propellers/rotors 
-        num_mic  - number of microphones
-        
-
-    Outputs: 
-        vectorized_x - vectorized output
-
-    Properties Used:
-        N/A 
-    '''   
-    vectorized_x = np.repeat(np.repeat(np.repeat(np.repeat(np.atleast_2d(X),num_r ,axis = 0)[np.newaxis,:,:],
-                        num_prop, axis = 0)[np.newaxis,:,:,:],num_mic, axis = 0)[np.newaxis,:,:,:,:],num_cpt, axis = 0)
-    
-    return vectorized_x
-
-## @ingroupMethods-Noise-Fidelity_One-Propeller
-def vectorize_2(X,num_r,num_h,num_prop,num_mic):
-    ''' This vectorizes an variable for acoustic computation 
-    
-    Assumptions:
-        None
-
-    Source:
-        None
-
-    Inputs:
-        X        - input argument 
-        num_h    - number of harmonics
-        num_r    - number of radial stations on propeller 
-        num_prop - number of propellers/rotors 
-        num_mic  - number of microphones
-        
+    Inputs:                                                       
+        X                - input argument                           [None]
+        num_cpt          - number of control points                 [Unitless]
+        num_h            - number of harmonics                      [Unitless]
+        num_r            - number of radial stations on propeller   [Unitless]
+        num_prop         - number of propellers/rotors              [Unitless]
+        num_mic          - number of microphones                    [Unitless]
+        vectorize_method - method of vectorizing data               [Unitless]
 
     Outputs: 
         vectorized_x - vectorized output
@@ -207,85 +180,22 @@ def vectorize_2(X,num_r,num_h,num_prop,num_mic):
     Properties Used:
         N/A 
     '''
-    vectorized_x = np.repeat(np.repeat(np.repeat(np.repeat(np.atleast_2d(X).T,num_mic, axis = 1)[:,:,np.newaxis],
-                   num_prop, axis = 2)[:,:,:,np.newaxis] ,num_r , axis = 3)[:,:,:,:,np.newaxis],num_h , axis = 4)
-    return vectorized_x
-
-## @ingroupMethods-Noise-Fidelity_One-Propeller
-def vectorize_3(X,num_r,num_h):
-    ''' This vectorizes an variable for acoustic computation 
+    if   vectorize_method == 1:
+        vectorized_x = np.repeat(np.repeat(np.repeat(np.repeat(np.atleast_2d(X),num_r ,axis = 0)[np.newaxis,:,:],
+                            num_prop, axis = 0)[np.newaxis,:,:,:],num_mic, axis = 0)[np.newaxis,:,:,:,:],num_cpt, axis = 0)        
     
-    Assumptions:
-        None
-
-    Source:
-        None
-
-    Inputs:
-        X        - input argument
-        num_r    - number of radial stations on propeller 
-        num_h    - number of harmonics    
-        
-
-    Outputs: 
-        vectorized_x - vectorized output
-
-    Properties Used:
-        N/A 
-    '''
-    vectorized_x = np.repeat(np.repeat(X[:,:,:,np.newaxis] ,num_r , axis = 3)[:,:,:,:,np.newaxis],num_h , axis = 4)
-    return vectorized_x
-
-def vectorize_4(X,num_h,num_prop,num_mic):
-    ''' This vectorizes an variable for acoustic computation 
+    elif vectorize_method == 2:
+        vectorized_x = np.repeat(np.repeat(np.repeat(np.repeat(np.atleast_2d(X).T,num_mic, axis = 1)[:,:,np.newaxis],
+                       num_prop, axis = 2)[:,:,:,np.newaxis] ,num_r , axis = 3)[:,:,:,:,np.newaxis],num_h , axis = 4)        
     
-    Assumptions:
-        None
-
-    Source:
-        None
-
-    Inputs:
-        X        - input argument 
-        num_h    - number of harmonics 
-        num_prop - number of propellers/rotors 
-        num_mic  - number of microphones
-        
-
-    Outputs: 
-        vectorized_x - vectorized output
-
-    Properties Used:
-        N/A 
-    '''
-    vectorized_x = np.repeat(np.repeat(np.repeat(X[:,np.newaxis,:],num_mic, axis = 1)[:,:,np.newaxis,:],
-                   num_prop, axis = 2)[:,:,:,:,np.newaxis],num_h , axis = 4)
-    return vectorized_x
-
-## @ingroupMethods-Noise-Fidelity_One-Propeller
-def vectorize_5(X,num_cpt,num_h,num_prop,num_mic):
-    ''' This vectorizes an variable for acoustic computation 
+    elif vectorize_method == 3: 
+        vectorized_x = np.repeat(np.repeat(X[:,:,:,np.newaxis] ,num_r , axis = 3)[:,:,:,:,np.newaxis],num_h , axis = 4)
     
-    Assumptions:
-        None
-
-    Source:
-        None
-
-    Inputs:
-        X        - input argument
-        num_cpt  - number of control points 
-        num_h    - number of harmonics 
-        num_prop - number of propellers/rotors 
-        num_mic  - number of microphones
-        
-
-    Outputs: 
-        vectorized_x - vectorized output
-
-    Properties Used:
-        N/A 
-    '''
-    vectorized_x = np.repeat(np.repeat(np.repeat(np.repeat(np.atleast_2d(X).T,num_h , axis = 1)[np.newaxis,:,:],
-                   num_prop, axis = 0)[np.newaxis,:,:,:],num_mic, axis = 0)[np.newaxis,:,:,:,:],num_cpt, axis = 0)
+    elif vectorize_method == 4: 
+        vectorized_x = np.repeat(np.repeat(np.repeat(X[:,np.newaxis,:],num_mic, axis = 1)[:,:,np.newaxis,:],
+                       num_prop, axis = 2)[:,:,:,:,np.newaxis],num_h , axis = 4)        
+    
+    elif vectorize_method == 5: 
+        vectorized_x = np.repeat(np.repeat(np.repeat(np.repeat(np.atleast_2d(X).T,num_h , axis = 1)[np.newaxis,:,:],
+                       num_prop, axis = 0)[np.newaxis,:,:,:],num_mic, axis = 0)[np.newaxis,:,:,:,:],num_cpt, axis = 0)
     return vectorized_x

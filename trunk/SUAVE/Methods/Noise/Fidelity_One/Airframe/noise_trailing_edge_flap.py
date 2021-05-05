@@ -23,18 +23,18 @@ def noise_trailing_edge_flap(Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,fr
         Correlation based.
         
     Inputs:
-        Sf         - Flap area [sq.ft]
-        cf         - Flap chord [ft]
-        deltaf     - Flap deflection [rad]
-        slots      - Number of slots (Flap type)
-        velocity   - Aircraft speed [kts]
-        M          - Mach number
-        phi        - Azimuthal angle [rad]
-        theta      - Polar angle [rad]
+        Sf         - Flap area                                                      [sq.ft]
+        cf         - Flap chord                                                     [ft]
+        deltaf     - Flap deflection                                                [rad]
+        slots      - Number of slots                                                (Flap type)
+        velocity   - Aircraft speed                                                 [kts]
+        M          - Mach number                                                    [Unitless]
+        phi        - Azimuthal angle                                                [rad]
+        theta      - Polar angle                                                    [rad]
         distance   - Distance from airplane to observer, evaluated at retarded time [ft]
-        frequency  - Frequency array [Hz]
+        frequency  - Frequency array                                                [Hz]
         
-    Outputs: One Third Octave Band SPL [dB]
+    Outputs: One Third Octave Band SPL                                              [dB]
         SPL                
  
     Properties Used:

@@ -26,12 +26,12 @@ def angle_of_attack_effect (AoA,Mach_aircraft,theta_m):
         SAE Model
     
     Inputs:   
-        AoA            [rad]
-        Mach_aircraft  [-]
-        theta_m        [rad]
+        AoA           angle of attack         [rad]
+        Mach_aircraft mach number of aircraft [Unitless]
+        theta_m       emission angle          [rad]                
     
     Outputs:
-        ATK_m          [-]    
+        ATK_m         angle of attack effect  [Unitless]    
     
     Properties Used:
         None 

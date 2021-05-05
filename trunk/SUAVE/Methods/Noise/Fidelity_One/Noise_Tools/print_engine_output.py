@@ -5,28 +5,56 @@
 
 # ----------------------------------------------------------------------        
 #   Imports
-# ----------------------------------------------------------------------    
-
+# ----------------------------------------------------------------------     
 import numpy as np
 from SUAVE.Core            import Units  
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
-def print_engine_output(filename, tag,EPNL_total,PNLT_total,Velocity_aircraft, time,Altitude,Mach_aircraft,
-                            Velocity_primary,Velocity_secondary,angles,phi, distance_microphone,PNLT_primary,PNLT_secondary,
-                            PNLT_mixed,SPLt_dBA_max, EPNL_primary,EPNL_secondary,EPNL_mixed,SENEL_total, nsteps,
-                            frequency, SPL_primary_history,SPL_secondary_history,SPL_mixed_history , SPL_total_history ): 
-    
-    """This method prints
+def print_engine_output(SAE_Engine_Noise_Outputs):  
+    """This prints the engine noise of a turbofan aircraft
 
-    Assumptions: 
+    Assumptions:
+       N/A
 
     Inputs: 
-
+       SAE_Engine_Noise_Outputs  - Engine Noise Data Structure  
 
     Outputs:  
-
+        N/A
+        
+    Properties Used:
+        None 
     """ 
     # unpack   
+    
+    filename               = SAE_Engine_Noise_Outputs.filename             
+    tag                    = SAE_Engine_Noise_Outputs.tag                  
+    EPNL_total             = SAE_Engine_Noise_Outputs.EPNL_total           
+    PNLT_total             = SAE_Engine_Noise_Outputs.PNLT_total           
+    Velocity_aircraft      = SAE_Engine_Noise_Outputs.Velocity_aircraft    
+    time                   = SAE_Engine_Noise_Outputs.noise_time           
+    Altitude               = SAE_Engine_Noise_Outputs.Altitude             
+    Mach_aircraft          = SAE_Engine_Noise_Outputs.Mach_aircraft        
+    Velocity_primary       = SAE_Engine_Noise_Outputs.Velocity_primary     
+    Velocity_secondary     = SAE_Engine_Noise_Outputs.Velocity_secondary   
+    angles                 = SAE_Engine_Noise_Outputs.angles               
+    phi                    = SAE_Engine_Noise_Outputs.phi                  
+    distance_microphone    = SAE_Engine_Noise_Outputs.distance_microphone  
+    PNLT_primary           = SAE_Engine_Noise_Outputs.PNLT_primary         
+    PNLT_secondary         = SAE_Engine_Noise_Outputs.PNLT_secondary       
+    PNLT_mixed             = SAE_Engine_Noise_Outputs.PNLT_mixed           
+    SPLt_dBA_max           = SAE_Engine_Noise_Outputs.SPLt_dBA_max         
+    EPNL_primary           = SAE_Engine_Noise_Outputs.EPNL_primary         
+    EPNL_secondary         = SAE_Engine_Noise_Outputs.EPNL_secondary       
+    EPNL_mixed             = SAE_Engine_Noise_Outputs.EPNL_mixed           
+    SENEL_total            = SAE_Engine_Noise_Outputs.SENEL_total          
+    nsteps                 = SAE_Engine_Noise_Outputs.nsteps               
+    frequency              = SAE_Engine_Noise_Outputs.frequency            
+    SPL_primary_history    = SAE_Engine_Noise_Outputs.SPL_primary_history  
+    SPL_secondary_history  = SAE_Engine_Noise_Outputs.SPL_secondary_history
+    SPL_mixed_history      = SAE_Engine_Noise_Outputs.SPL_mixed_history    
+    SPL_total_history      = SAE_Engine_Noise_Outputs.SPL_total_history    
+                        
     if not filename:
         filename = ('SAE_Noise_' + str( tag) + '.dat')
 
@@ -104,11 +132,4 @@ def print_engine_output(filename, tag,EPNL_total,PNLT_total,Velocity_aircraft, t
 
     fid.close 
     
-    return  
-
-
-
-
-
-
-
+    return

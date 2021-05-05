@@ -18,7 +18,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools                    import nois
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def compute_noise(config,analyses,noise_segment,noise_settings):
-    """This method calculates approach noise of a turbofan aircraft
+    """This method computes the noise of a turbofan aircraft
             
     Assumptions:
         N/A
@@ -27,11 +27,15 @@ def compute_noise(config,analyses,noise_segment,noise_settings):
         N/A 
 
     Inputs:
-        mission
-        aircraft configuration 
-
+        config.
+        propulsors.turbofan   - SUAVE turbodan data structure               [None]
+        output_file           - flag to write noise outout to file          [Boolean]
+        output_file_engine    - flag to write engine outout to file         [Boolean]
+        print_output          - flag to print outout to file                [Boolean]
+        engine_flag           - flag to include engine in noise calculation [Boolean]
+        
     Outputs: 
-        SPL    -  [dB]
+        noise_sum                                                           [dB]
 
     Properties Used:
         N/A 

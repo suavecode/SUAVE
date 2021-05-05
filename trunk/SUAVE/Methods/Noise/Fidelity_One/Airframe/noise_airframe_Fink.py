@@ -249,12 +249,43 @@ def noise_airframe_Fink(segment,analyses,config,settings,ioprint = 0, filename=0
     #Calculation of the SENEL total
     SENEL_total = senel_noise(SPLt_dBA_max)
     
+    
+    SAE_Airframe_Noise_Outputs = Data(
+        tag                       = config.tag,
+        filename                  = filename,
+        velocity                  = velocity,
+        nsteps                    = nsteps,
+        time                      = noise_time,
+        altitude                  = altitude,
+        M                         = M,
+        angle                     = angle,
+        distance_vector           = distance_vector,
+        PNLT_wing                 = PNLT_wing,
+        phi                       = phi,
+        PNLT_ht                   = PNLT_ht,
+        PNLT_vt                   = PNLT_vt,
+        PNLT_flap                 = PNLT_flap,
+        PNLT_slat                 = PNLT_slat,
+        PNLT_nose_landing_gear    = PNLT_nose_landing_gear,
+        PNLT_main_landing_gear    = PNLT_main_landing_gear,
+        PNLT_total                = PNLT_total,
+        SPLt_dBA_max              = SPLt_dBA_max,
+        nrange                    = nrange,
+        frequency                 = frequency,
+        EPNL_wing                 = EPNL_wing,
+        EPNL_ht                   = EPNL_ht,
+        EPNL_vt                   = EPNL_vt,
+        EPNL_flap                 = EPNL_flap,
+        EPNL_slat                 = EPNL_slat,
+        EPNL_nose_landing_gear    = EPNL_nose_landing_gear,
+        EPNL_main_landing_gear    = EPNL_main_landing_gear,
+        EPNL_total                = EPNL_total,
+        SENEL_total               = SENEL_total,
+        SPL_total_history         = SPL_total_history,
+        SPLt_dBA_history          = SPLt_dBA_history)  
+    
     if ioprint:
-        print_airframe_output(config.tag,filename,velocity,nsteps,noise_time,altitude,M,angle,distance_vector,PNLT_wing,phi,
-                              PNLT_ht,PNLT_vt,PNLT_flap,PNLT_slat,PNLT_nose_landing_gear,PNLT_main_landing_gear,
-                              PNLT_total,SPLt_dBA_max,nrange, frequency, EPNL_wing,EPNL_ht,EPNL_vt,
-                              EPNL_flap,EPNL_slat,EPNL_nose_landing_gear,EPNL_main_landing_gear,EPNL_total, SENEL_total,                                
-                              SPL_total_history,SPLt_dBA_history) 
+        print_airframe_output(SAE_Airframe_Noise_Outputs) 
     
     # Pack Airframe Noise 
     airframe_noise                   = Data()

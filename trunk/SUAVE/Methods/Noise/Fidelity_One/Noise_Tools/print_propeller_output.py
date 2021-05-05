@@ -1,8 +1,7 @@
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 # print_propeller_output.py
 # 
-# Created:  Oct 2020, M. Clarke
-
+# Created:  Oct 2020, M. Clarke 
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
@@ -12,18 +11,28 @@ from SUAVE.Core            import Units
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def print_propeller_output(speed,nsteps,time,altitude, RPM,theta ,dist ,PNL,PNL_dBA): 
-    
-    """This method prints
+    """This prints the noise of a propeller aircraft using SAE noise analysis methods
 
-    Assumptions: 
+    Assumptions:
+       N/A
 
-    Inputs: 
-
+    Inputs:
+    speed     aircraft speed                     [m/s]
+    nsteps    numer of timesteps                 [unitless]
+    time      time                               [s]
+    altitude  aircraft altitude                  [m]
+    RPM       rpm of propeller                   [unitless]
+    theta     emission angle                     [rad]
+    dist      emission distance                  [m]
+    PNL       perceived noise level              [dB]
+    PNL_dBA   A -weighted perceived noise level  [dBa]
 
     Outputs:  
-
-    """  
-
+        N/A
+        
+    Properties Used:
+        None 
+    """ 
 
     fid = open('prop_test.dat','w')   # Open output file    
     
@@ -52,10 +61,4 @@ def print_propeller_output(speed,nsteps,time,altitude, RPM,theta ,dist ,PNL,PNL_
     fid.write('dBA max =  ')
     fid.write(str('%2.2f' % (np.max(PNL_dBA)))+'  dBA')             
     fid.close      
-    return  
-
-
-
-
-
-
+    return

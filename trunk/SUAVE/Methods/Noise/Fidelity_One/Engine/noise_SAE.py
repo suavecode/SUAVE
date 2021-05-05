@@ -48,23 +48,23 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
     Inputs:
         vehicle	 - SUAVE type vehicle 
         includes these fields:
-            Velocity_primary           - Primary jet flow velocity
-            Temperature_primary        - Primary jet flow temperature
-            Pressure_primary           - Primary jet flow pressure
-            Area_primary               - Area of the primary nozzle
-            Velocity_secondary         - Secondary jet flow velocity
-            Temperature_secondary      - Secondary jet flow temperature
-            Pressure_secondary         - Secondary jet flow pressure
-            Area_secondary             - Area of the secondary nozzle
-            AOA                        - Angle of attack
-            Velocity_aircraft          - Aircraft velocity
-            Altitude                   - Altitude
-            N1                         - Fan rotational speed [rpm]
-            EXA                        - Distance from fan face to fan exit/ fan diameter
-            Plug_diameter              - Diameter of the engine external plug [m]
-            Engine_height              - Engine centerline height above the ground plane
-            distance_microphone        - Distance from the nozzle exhaust to the microphones
-            angles                     - Array containing the desired polar angles
+            Velocity_primary           - Primary jet flow velocity                           [m/s]
+            Temperature_primary        - Primary jet flow temperature                        [m/s]
+            Pressure_primary           - Primary jet flow pressure                           [Pa]
+            Area_primary               - Area of the primary nozzle                          [m^2]
+            Velocity_secondary         - Secondary jet flow velocity                         [m/s]
+            Temperature_secondary      - Secondary jet flow temperature                      [m/s]
+            Pressure_secondary         - Secondary jet flow pressure                         [Pa]
+            Area_secondary             - Area of the secondary nozzle                        [m^2]
+            AOA                        - Angle of attack                                     [rad]
+            Velocity_aircraft          - Aircraft velocity                                   [m/s]
+            Altitude                   - Altitude                                            [m]
+            N1                         - Fan rotational speed                                [rpm]
+            EXA                        - Distance from fan face to fan exit/ fan diameter    [m]
+            Plug_diameter              - Diameter of the engine external plug                [m]
+            Engine_height              - Engine centerline height above the ground plane     [m]
+            distance_microphone        - Distance from the nozzle exhaust to the microphones [m]
+            angles                     - Array containing the desired polar angles           [rad]
 
 
         airport   - SUAVE type airport data, with followig fields:
@@ -74,10 +74,10 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
 
 
     Outputs: One Third Octave Band SPL [dB]
-        SPL_p                           - Sound Pressure Level of the primary jet
-        SPL_s                           - Sound Pressure Level of the secondary jet
-        SPL_m                           - Sound Pressure Level of the mixed jet
-        SPL_total                       - Sound Pressure Level of the total jet noise 
+        SPL_p                           - Sound Pressure Level of the primary jet            [dB]
+        SPL_s                           - Sound Pressure Level of the secondary jet          [dB]
+        SPL_m                           - Sound Pressure Level of the mixed jet              [dB]
+        SPL_total                       - Sound Pressure Level of the total jet noise        [dB]
 
     """ 
     # unpack 
@@ -138,8 +138,8 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
     #Base parameters necessary input for the noise code
     pressure_isa = 101325 # [Pa]
     R_gas        = 287.1  # [J/kg K]
-    gama_primary = 1.37   # Corretion for the primary jet
-    gama         = 1.4
+    gamma_primary = 1.37   # Corretion for the primary jet
+    gamma         = 1.4
 
     #Calculation of nozzle areas
     Area_primary   = np.pi*(Diameter_primary/2)**2 
@@ -197,8 +197,8 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
         # Jet Flow Parameters
 
         #Primary and Secondary jets
-        Cpp = R_gas/(1-1/gama_primary)
-        Cp  = R_gas/(1-1/gama)
+        Cpp = R_gas/(1-1/gamma_primary)
+        Cp  = R_gas/(1-1/gamma)
 
         density_primary   = Pressure_primary[id]/(R_gas*Temperature_primary[id]-(0.5*R_gas*Velocity_primary[id]**2/Cpp))
         density_secondary = Pressure_secondary[id]/(R_gas*Temperature_secondary[id]-(0.5*R_gas*Velocity_secondary[id]**2/Cp))
@@ -413,11 +413,37 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
     SENEL_total = senel_noise(SPLt_dBA_max)
 
     # Open output file to print the results
+    SAE_Engine_Noise_Outputs = Data(
+        filename               = filename,
+        tag                    = config.tag,
+        EPNL_total             = EPNL_total,
+        PNLT_total             = PNLT_total,
+        Velocity_aircraft      = Velocity_aircraft,
+        noise_time             = noise_time,
+        Altitude               = Altitude,
+        Mach_aircraft          = Mach_aircraft,
+        Velocity_primary       = Velocity_primary,
+        Velocity_secondary     = Velocity_secondary,
+        angles                 = angles,
+        phi                    = phi,
+        distance_microphone    = distance_microphone,
+        PNLT_primary           = PNLT_primary,
+        PNLT_secondary         = PNLT_secondary,
+        PNLT_mixed             = PNLT_mixed,
+        SPLt_dBA_max           = SPLt_dBA_max,
+        EPNL_primary           = EPNL_primary,
+        EPNL_secondary         = EPNL_secondary,
+        EPNL_mixed             = EPNL_mixed,
+        SENEL_total            = SENEL_total,
+        nsteps                 = nsteps,
+        frequency              = frequency,
+        SPL_primary_history    = SPL_primary_history,
+        SPL_secondary_history  = SPL_secondary_history,
+        SPL_mixed_history      = SPL_mixed_history,
+        SPL_total_history      = SPL_total_history)   
+    
     if ioprint:
-        print_engine_output(filename, config.tag,EPNL_total,PNLT_total,Velocity_aircraft, noise_time,Altitude,Mach_aircraft,
-                            Velocity_primary,Velocity_secondary,angles,phi, distance_microphone,PNLT_primary,PNLT_secondary,
-                            PNLT_mixed,SPLt_dBA_max, EPNL_primary,EPNL_secondary,EPNL_mixed,SENEL_total, nsteps,
-                            frequency, SPL_primary_history,SPL_secondary_history,SPL_mixed_history , SPL_total_history )
+        print_engine_output(SAE_Engine_Noise_Outputs)
 
     engine_noise                   = Data()
     engine_noise.EPNL_total        = EPNL_total 
@@ -427,10 +453,3 @@ def noise_SAE(turbofan,segment,analyses,config,settings,ioprint = 0, filename = 
     engine_noise.SPL_dBA           = SPLt_dBA_max
 
     return engine_noise
-
-
-
-
-
-
-

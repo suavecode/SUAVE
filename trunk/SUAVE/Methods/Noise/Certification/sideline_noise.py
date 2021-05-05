@@ -11,7 +11,7 @@ import numpy as np
 from SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.compute_noise import compute_noise
 
 # ----------------------------------------------------------------------        
-#   Approach noise
+#   Sideline noise
 # ----------------------------------------------------------------------     
 
 ## @ingroup Methods-Noise-Certification 
@@ -25,11 +25,11 @@ def sideline_noise(analyses,noise_configs):
         N/A 
 
     Inputs:
-        mission
-        aircraft configuration 
+        analyses        - data structure of SUAVE analyses                [None]
+        noise_configs   - data structure for SUAVE vehicle configurations [None]
 
     Outputs: 
-        SPL    -  [dB]
+        SPL             - sound pressure level                            [dB]
 
     Properties Used:
         N/A 

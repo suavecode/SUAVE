@@ -11,13 +11,10 @@ def compute_noise(segment):
     """ Evaluates the energy network to find the thrust force and mass rate
 
         Inputs -
-            segment.analyses.energy_network    [Function]
+            segment.analyses.noise             [Function]
 
-        Outputs -
-            state.conditions:
-               frames.body.thrust_force_vector [Newtons]
-               weights.vehicle_mass_rate       [kg/s]
-
+        Outputs
+            N/A
 
         Assumptions -
 

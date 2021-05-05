@@ -25,11 +25,11 @@ def approach_noise(analyses,noise_configs):
         N/A 
 
     Inputs:
-        mission
-        aircraft configuration 
+        analyses        - data structure of SUAVE analyses                [None]
+        noise_configs   - data structure for SUAVE vehicle configurations [None]
 
     Outputs: 
-        SPL    -  [dB]
+        SPL             - sound pressure level                            [dB]
 
     Properties Used:
         N/A 

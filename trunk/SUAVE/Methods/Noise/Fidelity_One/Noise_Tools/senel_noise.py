@@ -25,10 +25,10 @@ def senel_noise(SPLt_dBA_max):
         None  
     
     Inputs:
-        PNLT                     - Perceived Noise Level with Tone Correction
+        PNLT                     - Perceived Noise Level with Tone Correction [Unitless]
 
     Outputs: 
-        EPNL                     - Effective Perceived Noise Level in EPNdB
+        EPNL                     - Effective Perceived Noise Level            [EPNdB]
         
     Properties Used:
         N/A     
