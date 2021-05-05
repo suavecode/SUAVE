@@ -13,6 +13,7 @@ from SUAVE.Core import Units, Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_grid import generate_propeller_grid
 from SUAVE.Plots.Propeller_Plots import plot_propeller_disc_inflow, plot_propeller_disc_performance
 
 import numpy as np
@@ -56,7 +57,7 @@ def main():
     prop.outputs = outputs_iso
     
     # compute the induced velocities from upstream propeller at the grid points on the downstream propeller
-    propeller_wake = compute_propeller_wake(prop, grid_settings, grid_points, plot_velocities=plot_flag)
+    propeller_wake = compute_propeller_wake_velocities(prop, grid_settings, grid_points, plot_velocities=plot_flag)
     
     # run the downstream propeller in the presence of this nonuniform flow
     T, Q, P, Cp, outputs , etap = run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=plot_flag)
@@ -100,7 +101,7 @@ def run_downstream_propeller(prop, propeller_wake, conditions, plot_performance=
         
     return T, Q, P, Cp, outputs , etap
 
-def compute_propeller_wake(prop,grid_settings,grid_points, plot_velocities=True):
+def compute_propeller_wake_velocities(prop,grid_settings,grid_points, plot_velocities=True):
     
     x_plane = prop.origin[1,0] #second propeller, x-location
     
@@ -140,67 +141,7 @@ def compute_propeller_wake(prop,grid_settings,grid_points, plot_velocities=True)
     
     return propeller_wake
 
-def generate_propeller_grid(prop, grid_settings, plot_grid=True):
-    
-    R         = grid_settings.radius
-    Rh        = grid_settings.hub_radius
-    Nr        = grid_settings.Nr
-    Na        = grid_settings.Na
-    grid_mode = grid_settings.grid_mode
-    Ny        = grid_settings.Ny
-    Nz        = grid_settings.Nz
-    psi_360   = np.linspace(0,2*np.pi,Na+1)
-    influencing_prop = prop.origin[0]
-    influenced_prop  = prop.origin[1]
-    
-    y_offset         = influenced_prop[1] - influencing_prop[1] 
-    z_offset         = influenced_prop[2] - influencing_prop[2] 
 
-    
-    if grid_mode == 'radial':
-        psi     = psi_360[:-1]
-        psi_2d  = np.tile(np.atleast_2d(psi).T,(1,Nr)) 
-        r       = np.linspace(Rh,0.99*R,Nr)
-        
-        # basic radial grid
-        ymesh = r*np.cos(psi_2d)
-        zmesh = r*np.sin(psi_2d)
-        
-    elif grid_mode == 'cartesian':
-        y     = np.linspace(-R,R,Ny)
-        z     = np.linspace(-R,R,Nz)
-        ymesh = np.tile(np.atleast_2d(y).T,(1,Nz))
-        zmesh = np.tile(np.atleast_2d(z),(Ny,1))
-        
-        r_pts   = np.sqrt(ymesh**2 + zmesh**2)
-        cutoffs = r_pts<R
-        
-        ymesh  = ymesh[cutoffs]
-        zmesh  = zmesh[cutoffs]
-        
-    
-    grid_points        = Data()
-    grid_points.ymesh  = ymesh + y_offset
-    grid_points.zmesh  = zmesh + z_offset
-    grid_points.Nr     = Nr
-    grid_points.Na     = Na
-    
-    if plot_grid:
-        
-        # plot the grid points
-        fig  = plt.figure()
-        axes = fig.add_subplot(1,1,1)
-        axes.plot(ymesh,zmesh,'k.')
-        
-        # plot the propeller radius
-        axes.plot(R*np.cos(psi_360), R*np.sin(psi_360), 'r')
-        
-        axes.set_aspect('equal', 'box')
-        axes.set_xlabel('y [m]')
-        axes.set_ylabel("z [m]")
-        axes.set_title("New Grid Points")
-    
-    return grid_points
     
     
 def simulation_conditions(prop):
