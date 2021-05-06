@@ -153,7 +153,6 @@ def case_3(vehicle,conditions):
     # Plot results
     if plot_flag:
         plot_propeller_disc_performance(prop,outputs, title='Case 3: Pusher Propeller')
-        #plt.show()
     
     return    
 
