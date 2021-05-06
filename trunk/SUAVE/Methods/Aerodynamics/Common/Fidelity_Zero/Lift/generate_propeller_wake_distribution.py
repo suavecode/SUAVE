@@ -2,6 +2,7 @@
 #  generate_propeller_wake_distribution.py
 # 
 # Created:  Sep 2020, M. Clarke 
+# Modified: May 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -36,24 +37,24 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time, n
     """    
 
     # Unpack unknowns  
-    R            = prop.tip_radius
-    r            = prop.radius_distribution 
-    c            = prop.chord_distribution 
-    Na           = prop.outputs.number_azimuthal_stations
-    Nr           = prop.outputs.number_radial_stations
-    omega        = prop.outputs.omega                               
-    va           = prop.outputs.disc_axial_induced_velocity 
-    V_inf        = prop.outputs.velocity
-    MCA          = prop.mid_chord_alignment 
-    B            = prop.number_of_blades
-    gamma        = prop.outputs.disc_circulation
-    thrust_angle = prop.thrust_angle
-    blade_angles = np.linspace(0,2*np.pi,B+1)[:-1]   
-    dt           = time/number_of_wake_timesteps
-    ts           = np.linspace(0,time,number_of_wake_timesteps) 
-    num_prop     = len(prop.origin) 
-    t0           = dt*init_timestep_offset
-    start_angle  = omega[0]*t0 
+    R                = prop.tip_radius
+    r                = prop.radius_distribution 
+    c                = prop.chord_distribution 
+    Na               = prop.outputs.number_azimuthal_stations
+    Nr               = prop.outputs.number_radial_stations
+    omega            = prop.outputs.omega                               
+    va               = prop.outputs.disc_axial_induced_velocity 
+    V_inf            = prop.outputs.velocity
+    MCA              = prop.mid_chord_alignment 
+    B                = prop.number_of_blades
+    gamma            = prop.outputs.disc_circulation
+    thrust_angle     = prop.thrust_angle
+    blade_angles     = np.linspace(0,2*np.pi,B+1)[:-1]   
+    dt               = time/number_of_wake_timesteps
+    ts               = np.linspace(0,time,number_of_wake_timesteps) 
+    num_prop         = len(prop.origin) 
+    t0               = dt*init_timestep_offset
+    start_angle      = omega[0]*t0 
     prop.start_angle = start_angle
 
     # define points ( control point, time step , blade number , location on blade )

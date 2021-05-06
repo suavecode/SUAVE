@@ -140,7 +140,10 @@ def case_3(vehicle,conditions):
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
     
     thrust_r, torque_r, power_r, Cp_r, etap_r = 621.13987084, 390.98629804, 53227.18620232, 0.24508836, 0.912936
-    
+    print('Case 3 Errors: \n')
+    print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
+    print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
+    print('Etap difference = ', np.abs(etap - etap_r) / etap_r )
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Nonuniform Propeller Inflow Regression Failed at Thrust Test"
     assert (np.abs(torque - torque_r) / torque_r < 1e-6), "Nonuniform Propeller Inflow Regression Failed at Torque Test"
     assert (np.abs(power - power_r) / power_r < 1e-6), "Nonuniform Propeller Inflow Regression Failed at Power Test"
@@ -150,7 +153,7 @@ def case_3(vehicle,conditions):
     # Plot results
     if plot_flag:
         plot_propeller_disc_performance(prop,outputs, title='Case 3: Pusher Propeller')
-        plt.show()
+        #plt.show()
     
     return    
 
