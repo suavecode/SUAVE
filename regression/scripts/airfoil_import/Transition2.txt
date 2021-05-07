@@ -1,4 +1,4 @@
-Airfoil Transition 2 between/home/matthew-linux/Documents/SUAVE/SUAVE/regression/scripts/Vehicles/Airfoils/Clark_y.txtand/home/matthew-linux/Documents/SUAVE/SUAVE/regression/scripts/Vehicles/Airfoils/E63.txt
+Airfoil Transition 2 between/Users/rerha/Desktop/SUAVECODE/SUAVE/regression/scripts/Vehicles/Airfoils/Clark_y.txtand/Users/rerha/Desktop/SUAVECODE/SUAVE/regression/scripts/Vehicles/Airfoils/E63.txt
  61. 61.
 
 0.0 -0.00082

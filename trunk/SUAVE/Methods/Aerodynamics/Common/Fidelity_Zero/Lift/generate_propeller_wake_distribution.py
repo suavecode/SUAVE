@@ -2,6 +2,7 @@
 #  generate_propeller_wake_distribution.py
 # 
 # Created:  Sep 2020, M. Clarke 
+# Modified: May 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,7 +15,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contracti
 from SUAVE.Methods.Geometry.Three_Dimensional import  orientation_product, orientation_transpose
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_offset, time, number_of_wake_timesteps ): 
+def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time, number_of_wake_timesteps ): 
     """ This generates the propeller wake control points used to compute the 
     influence of the wake
 
@@ -36,23 +37,25 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
     """    
 
     # Unpack unknowns  
-    R            = prop.tip_radius
-    r            = prop.radius_distribution 
-    c            = prop.chord_distribution 
-    Na           = prop.outputs.number_azimuthal_stations
-    Nr           = prop.outputs.number_radial_stations
-    omega        = prop.outputs.omega                               
-    va           = prop.outputs.disc_axial_induced_velocity 
-    V_inf        = prop.outputs.velocity
-    MCA          = prop.mid_chord_alignment 
-    B            = prop.number_of_blades
-    gamma        = prop.outputs.disc_circulation
-    blade_angles = np.linspace(0,2*np.pi,B+1)[:-1]   
-    dt           = time/number_of_wake_timesteps
-    ts           = np.linspace(0,time,number_of_wake_timesteps) 
-    num_prop     = len(prop.origin) 
-    t0           = dt*init_timestep_offset
-    start_angle  = omega[0]*t0 
+    R                = prop.tip_radius
+    r                = prop.radius_distribution 
+    c                = prop.chord_distribution 
+    Na               = prop.outputs.number_azimuthal_stations
+    Nr               = prop.outputs.number_radial_stations
+    omega            = prop.outputs.omega                               
+    va               = prop.outputs.disc_axial_induced_velocity 
+    V_inf            = prop.outputs.velocity
+    MCA              = prop.mid_chord_alignment 
+    B                = prop.number_of_blades
+    gamma            = prop.outputs.disc_circulation
+    thrust_angle     = prop.thrust_angle
+    blade_angles     = np.linspace(0,2*np.pi,B+1)[:-1]   
+    dt               = time/number_of_wake_timesteps
+    ts               = np.linspace(0,time,number_of_wake_timesteps) 
+    num_prop         = len(prop.origin) 
+    t0               = dt*init_timestep_offset
+    start_angle      = omega[0]*t0 
+    prop.start_angle = start_angle
 
     # define points ( control point, time step , blade number , location on blade )
     # compute lambda and mu 
@@ -115,8 +118,7 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
     VD.Wake.XB2   = np.zeros(mat3_size) 
     VD.Wake.YB2   = np.zeros(mat3_size) 
     VD.Wake.ZB2   = np.zeros(mat3_size)   
-    
-    Gamma     = np.zeros((m,number_of_wake_timesteps-1,B,n))   
+      
     num       = int(Na/B)  
     time_idx  = np.arange(number_of_wake_timesteps-1) 
     t_idx     = np.atleast_2d(time_idx).T 
@@ -138,13 +140,12 @@ def generate_propeller_wake_distribution(prop,thrust_angle,m,VD,init_timestep_of
     blade_angle_loc    = np.repeat(np.repeat(np.tile(np.atleast_2d(blade_angles),(m,1))[:,  np.newaxis, :],number_of_wake_timesteps, axis = 1) [:, :,:, np.newaxis],Nr, axis = 3) 
     start_angle_offset = np.repeat(np.repeat(np.atleast_2d(start_angle)[:, :, np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 
     
-    # adjust for clockwise/counter clockwise rotation
     total_angle_offset = angle_offset - start_angle_offset
 
     for i in range(num_prop): 
-
+        # adjust for clockwise/counter clockwise rotation
         if (prop.rotation != None) and (prop.rotation[i] == 1):        
-            total_angle_offset = -total_angle_offset    
+            total_angle_offset = -total_angle_offset
 
         azi_y   = np.sin(blade_angle_loc + total_angle_offset)  
         azi_z   = np.cos(blade_angle_loc + total_angle_offset)
