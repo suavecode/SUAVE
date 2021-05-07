@@ -72,22 +72,24 @@ def wing(wing,
 
         Inputs:
 
-            wing                    SUAVE Wing Data Structure
-            config                  SUAVE Config Data Structure
-            maxThrust               Maximum Thrust                      [N]
-            numAnalysisPoints       Analysis Points for Sizing          [Unitless]
-            safety_factor           Design Safety Factor                [Unitless]
-            max_g_load              Maximum Accelerative Load           [Unitless]
-            moment_to_lift_ratio    Coeff. of Moment to Coeff. of Lift  [Unitless]
-            lift_to_drag_ratio      Coeff. of Lift to Coeff. of Drag    [Unitless]
-            forward_web_locations   Location of Forward Spar Webbing    [m]
-            rear_web_locations      Location of Rear Spar Webbing       [m]
-            shear_center            Location of Shear Center            [m]
-            margin_factor           Allowable Extra Mass Fraction       [Unitless]
+            wing                          SUAVE Wing Data Structure           [None]
+                 winglet_fraction         winglet fraction                    [Unitless]
+                 motor_spanwise_locations spanwise fraction location of motor [Unitless]
+            config                        SUAVE Config Data Structure         [None]
+            maxThrust                     Maximum Thrust                      [N]
+            numAnalysisPoints             Analysis Points for Sizing          [Unitless]
+            safety_factor                 Design Safety Factor                [Unitless]
+            max_g_load                    Maximum Accelerative Load           [Unitless]
+            moment_to_lift_ratio          Coeff. of Moment to Coeff. of Lift  [Unitless]
+            lift_to_drag_ratio            Coeff. of Lift to Coeff. of Drag    [Unitless]
+            forward_web_locations         Location of Forward Spar Webbing    [m]
+            rear_web_locations            Location of Rear Spar Webbing       [m]
+            shear_center                  Location of Shear Center            [m]
+            margin_factor                 Allowable Extra Mass Fraction       [Unitless]
 
         Outputs:
 
-            weight:                 Wing Mass                           [kg]
+            weight:                       Wing Mass                           [kg]
     """
 
     #-------------------------------------------------------------------------------

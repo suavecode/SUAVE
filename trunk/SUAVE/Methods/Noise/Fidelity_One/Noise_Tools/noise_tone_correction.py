@@ -18,15 +18,25 @@ import numpy as np
 def noise_tone_correction(SPL):
     """This method calculates de correction for spectral irregularities by means of
         a correction tone factor
+        
+    Assumptions:
+        None
+    
+    Source:
+        None 
 
-        Inputs:
-                    SPL                     - Sound Pressure Level in 1/3 octave band
+    Inputs:
+        SPL                     - Sound Pressure Level in 1/3 octave band
 
-                Outputs: 
-                    tone_correction_max     - Maximum tone correction for a time history signal"""
-                    
-                    
-    #Defining the necessary arrays for the tone correction procedure
+    Outputs: 
+        tone_correction_max     - Maximum tone correction for a time history signal 
+        
+    Properties Used:
+        N/A     
+    """
+        
+        
+    # Defining the necessary arrays for the tone correction procedure
     nsteps              = len(SPL)
     slope               = np.zeros(23)
     aux_ds              = np.zeros(23)
@@ -158,6 +168,5 @@ def noise_tone_correction(SPL):
         #------------------------------------------------------------
         tone_correction_max[j] = np.max(tone_correction)
     
-    
-    return (tone_correction_max)
+        return tone_correction_max
     

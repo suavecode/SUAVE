@@ -15,8 +15,7 @@ from SUAVE.Methods.Propulsion.electric_motor_sizing                       import
 from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor 
 from SUAVE.Methods.Propulsion                                             import propeller_design  
 from SUAVE.Plots.Geometry_Plots                                           import * 
-from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty 
-from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity   import compute_aircraft_center_of_gravity
+from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 
 import numpy as np  
@@ -209,10 +208,7 @@ def vehicle_setup():
     # Component 7 the Avionics
     avionics = SUAVE.Components.Energy.Peripherals.Avionics()
     avionics.power_draw = 20. #Watts  
-    net.avionics        = avionics      
-
-    # add the solar network to the vehicle
-    vehicle.append_component(net)        
+    net.avionics        = avionics
 
     #------------------------------------------------------------------
     # Design Battery
@@ -258,9 +254,9 @@ def vehicle_setup():
     Lift                         = vehicle.mass_properties.takeoff*9.81  
     rot.design_thrust            = (Lift * 1.5 )/net.number_of_engines  
     rot.induced_hover_velocity   = np.sqrt(Lift/(2*rho*rot.disc_area*net.number_of_engines))    
-    rot.airfoil_geometry         =  ['../Vehicles/NACA_4412.txt'] 
-    rot.airfoil_polars           = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
-                                     '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    rot.airfoil_geometry         =  ['../Vehicles/Airfoils/NACA_4412.txt']
+    rot.airfoil_polars           = [['../Vehicles/Airfoils/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/Airfoils/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_1000000.txt' ]]
     rot.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
     rot                          = propeller_design(rot)  
     rot.rotation                 = [1,1,1,1,1,1,1,1]
@@ -333,8 +329,7 @@ def vehicle_setup():
     motor.no_load_current      = 2.0 
     motor                      = size_optimal_motor(motor,rot) 
     motor.mass_properties.mass = nasa_motor(motor.design_torque)
-    net.motor                  = motor 
-
+    net.motor                  = motor
     vehicle.append_component(net) 
 
 
@@ -370,7 +365,7 @@ def vehicle_setup():
 
     vehicle.weight_breakdown  = empty(vehicle)
     compute_component_centers_of_gravity(vehicle)
-    compute_aircraft_center_of_gravity(vehicle)
+    vehicle.center_of_gravity()
     
     return vehicle
 

@@ -146,6 +146,7 @@ class Set_Speed_Set_Altitude(Aerodynamic):
         finalize.post_process = Process()        
         finalize.post_process.inertial_position = skip
         finalize.post_process.stability         = Methods.Common.Aerodynamics.update_stability
+        finalize.post_process.noise             = Methods.Common.Noise.compute_noise
         
         return
 

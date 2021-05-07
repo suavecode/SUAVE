@@ -8,14 +8,15 @@
 #   Imports
 # ---------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core                                       import Units, Data 
-from SUAVE.Components.Energy.Networks.Vectored_Thrust import Vectored_Thrust
-from SUAVE.Methods.Power.Battery.Sizing               import initialize_from_mass 
-from SUAVE.Methods.Propulsion                         import propeller_design
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift    import compute_max_lift_coeff 
-from SUAVE.Methods.Weights.Buildups.eVTOL.empty       import empty 
-from SUAVE.Methods.Propulsion.electric_motor_sizing   import size_from_mass , size_optimal_motor
-from SUAVE.Methods.Weights.Correlations.Propulsion    import nasa_motor, hts_motor , air_cooled_motor
+from SUAVE.Core                                                           import Units, Data
+from SUAVE.Components.Energy.Networks.Vectored_Thrust                     import Vectored_Thrust
+from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
+from SUAVE.Methods.Propulsion                                             import propeller_design
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift                        import compute_max_lift_coeff
+from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
+from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
+from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
+from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor, hts_motor , air_cooled_motor
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -204,9 +205,9 @@ def vehicle_setup():
     rotor.design_Cl              = 0.8
     rotor.design_altitude        = 1000 * Units.feet                   
     rotor.design_thrust          = (Hover_Load/net.number_of_engines)*2.
-    rotor.airfoil_geometry       =  ['../Vehicles/NACA_4412.txt'] 
-    rotor.airfoil_polars         = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
-                                     '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+    rotor.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
+    rotor.airfoil_polars         = [['../Vehicles/Airfoils/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/Airfoils/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_1000000.txt' ]]
     rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     rotor                        = propeller_design(rotor)    
     rotor.induced_hover_velocity = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines))  
@@ -255,5 +256,8 @@ def vehicle_setup():
     
     vehicle.append_component(net)
     
-    #vehicle.weight_breakdown  = empty(vehicle)
+    vehicle.weight_breakdown  = empty(vehicle)
+    compute_component_centers_of_gravity(vehicle)
+    vehicle.center_of_gravity()
+
     return vehicle

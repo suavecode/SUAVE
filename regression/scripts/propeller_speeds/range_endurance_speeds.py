@@ -35,8 +35,8 @@ def main():
     
     results = propeller_range_endurance_speeds(analyses_SR,altitude,CL_max,up_bnd,delta_isa)
     
-    saved_results_L_D  = 43.41884295
-    saved_results_CL32 = 35.87976616
+    saved_results_L_D  = 43.50352752
+    saved_results_CL32 = 35.91340743
     
 
     error_L_D = float(abs(results.L_D_max.air_speed - saved_results_L_D)/saved_results_L_D)

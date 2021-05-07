@@ -32,9 +32,11 @@ def main():
     # build the vehicle, configs, and analyses 
     configs, analyses = full_setup() 
     analyses.finalize()    
-    weights      = analyses.configs.base.weights
-    breakdown    = weights.evaluate()  
-    print(breakdown)
+
+    # Print weight properties of vehicle
+    print(configs.base.weight_breakdown)
+    print(configs.base.mass_properties.center_of_gravity)
+
     mission      = analyses.missions.base  
     results      = mission.evaluate()
         
@@ -48,7 +50,7 @@ def main():
     plt.show(block=True)    
     
     # RPM of rotor check during hover
-    RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
+    RPM        = results.segments.climb.conditions.propulsion.propeller_rpm[0][0]
     RPM_true   = 1821.7082493081875
 
     print(RPM) 
