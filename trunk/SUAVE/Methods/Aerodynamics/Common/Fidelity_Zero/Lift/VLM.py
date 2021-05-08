@@ -72,6 +72,10 @@ def VLM(conditions,settings,geometry):
     Cdi                                        [Unitless]
     CM                                         [Unitless]
     CP                                         [Unitless]
+    VD                                         [Unitless]
+    gamma                                      [Unitless]
+    Velocity_Profile                           [Unitless]
+    
 
     Properties Used:
     N/A
@@ -323,15 +327,14 @@ def VLM(conditions,settings,geometry):
     CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
     CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
 
+    Cl_y    = np.swapaxes(np.array(np.array_split(cl_y,n_w,axis=1)),0,1) 
+    Cdi_y   = np.swapaxes(np.array(np.array_split(cdi_y,n_w,axis=1)),0,1) 
+    alpha_i = np.arctan(Cdi_y/Cl_y) 
+    
     Velocity_Profile = Data()
     Velocity_Profile.Vx_ind   = Vx_ind_total
     Velocity_Profile.Vz_ind   = Vz_ind_total
     Velocity_Profile.V        = V_distribution 
     Velocity_Profile.dt       = dt
     
-    Cl_y            = np.swapaxes(np.array(np.array_split(cl_y,n_w,axis=1)),0,1) 
-    Cdi_y           = np.swapaxes(np.array(np.array_split(cdi_y,n_w,axis=1)),0,1) 
-    
-    alpha_i = np.arctan(Cdi_y/Cl_y) 
-    
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, Velocity_Profile
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, VD, gamma, Velocity_Profile

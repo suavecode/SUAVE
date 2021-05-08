@@ -61,7 +61,8 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     AoA_sweep_deg = np.linspace(-14,90,105)
     CL = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
     CD = np.zeros((num_airfoils,num_polars,len(AoA_sweep_deg)))
-    
+    aoa0 = np.zeros((num_airfoils,num_polars))
+    cl0 = np.zeros((num_airfoils,num_polars))
 
     CL_surs = Data()
     CD_surs = Data()    
@@ -148,6 +149,8 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
             # Pack this loop
             CL[i,j,:] = CL_ij
             CD[i,j,:] = CD_ij
+            aoa0[i,j] = A0
+            cl0[i,j]  = np.interp(0,airfoil_aoa,airfoil_cl)
             
             if use_pre_stall_data == True:
                 CL[i,j,:], CD[i,j,:] = apply_pre_stall_data(AoA_sweep_deg, airfoil_aoa, airfoil_cl, airfoil_cd, CL[i,j,:], CD[i,j,:])
