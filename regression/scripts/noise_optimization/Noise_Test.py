@@ -28,26 +28,24 @@ from Boeing_737 import vehicle_setup, configs_setup
 #   Run the whole thing
 # ----------------------------------------------------------------------
 def main():
-    
-    problem = setup()
+    # New Regression Flag
+    generate_new_truth_data = False # To be left false unless changing noise model
 
-    n_des_var = 13
-
-    var = np.zeros(n_des_var)
-
-    var = [134.6,9.6105641082,35.0,0.123,49200.0,70000.0,0.75,6.6,30.0,70000.0,70000.0,11.5,283.0]
-
+    # Problem Setup
+    problem   = setup(generate_new_truth_data)
+    var       = np.array([134.6,9.6105641082,35.0,0.123,49200.0,70000.0,0.75,6.6,30.0,70000.0,70000.0,11.5,283.0])
     input_vec = var / problem.optimization_problem.inputs[:,3]
 
+    # Problem Objective
     problem.objective(input_vec)
     objectives  = problem.objective()* problem.optimization_problem.objective[:,1]
 
-    noise_cumulative_margin = objectives[0]
-    
-    actual = Data()    
-    actual.noise_cumulative_margin = 33.55955022177828
+    # Compare with truth values
+    noise_cumulative_margin        = objectives[0]
+    actual                         = Data()
+    actual.noise_cumulative_margin = 17.9098999718527242
 
-    error = Data()
+    error                         = Data()
     error.noise_cumulative_margin = abs(actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
     
     print('noise_cumulative_margin_error=', noise_cumulative_margin)
@@ -64,7 +62,7 @@ def main():
 #   Inputs, Objective, & Constraints
 # ----------------------------------------------------------------------
 
-def setup():
+def setup(generate_new_truth_data):
 
     nexus = Nexus()
     problem = Data()
@@ -199,6 +197,10 @@ def setup():
     # -------------------------------------------------------------------
     nexus.missions = Missions.setup(nexus.analyses)
 
+    # -------------------------------------------------------------------
+    #  New Regression Flag
+    # -------------------------------------------------------------------
+    nexus.save_data = generate_new_truth_data
 
     # -------------------------------------------------------------------
     #  Procedure

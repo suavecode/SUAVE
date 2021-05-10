@@ -586,10 +586,28 @@ def mission_setup(analyses):
     # add to misison
     mission.append_segment(segment)     
 
+
+    # ------------------------------------------------------------------
+    #   Non Converged Segment : Constant Throttle Constant Altltude
+    # ------------------------------------------------------------------ 
+    segment = Segments.Cruise.Constant_Throttle_Constant_Altitude(base_segment)
+    segment.tag = "cruise_non_converged" 
+    segment.analyses.extend(analyses.base)   
     
+    segment.air_speed_end                        = 150 * Units.knots
+    segment.throttle                             = 0
+    segment.distance                             = 10 * Units.km 
+    segment.state.numerics.number_control_points = 2
+    segment.state.numerics.max_evaluations       = 10
+    
+    # add to misison
+    mission.append_segment(segment)     
+
+        
     # ------------------------------------------------------------------
     #   Mission definition complete    
     # ------------------------------------------------------------------ 
+    
     return mission
 
 

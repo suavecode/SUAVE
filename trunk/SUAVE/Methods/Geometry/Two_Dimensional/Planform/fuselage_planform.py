@@ -89,7 +89,7 @@ def fuselage_planform(fuselage):
         if tail_length <= 0:
             tail_length = 1.
         if cabin_length <= 1.:
-            cabin_length <= 1.
+            cabin_length = 1.
         
         # Now we can calculate the number of passengers
         number_seats    = np.round(cabin_length * seats_abreast / seat_pitch)

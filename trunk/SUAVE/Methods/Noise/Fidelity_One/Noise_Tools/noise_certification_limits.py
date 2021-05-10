@@ -8,7 +8,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Units
+from SUAVE.Core import Units , Data 
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -17,20 +17,27 @@ import numpy as np
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools
 def noise_certification_limits(results,vehicle):
-    """ SUAVE.Methods.Noise.Fidelity_One.Noise_Tools.noise_certification_limits(results,vehicle):
-            Computes the certification noise limits as a function of the aircraft weight [lbs] and number of engines for each segment.
+    """ This computes the certification noise limits as a function of the aircraft weight [lbs] 
+    and number of engines for each segment.
 
-            Inputs:
-                vehicle	 - SUAVE type vehicle
-                results
+    Assumptions:
+        None
+    
+    Source:
+        SAE 
+        
+    Inputs:
+        vehicle	 - SUAVE type vehicle
+        results
 
-            Outputs: Noise limits in EPNL
-                noise_approach_limit             - Approach noise limit as a function of the landing weight, [EPNdB]
-                noise_flyover_limit              - Flyover noise limit as a function of the takeoff weight, [EPNdB]
-                noise_sideline_limit             - Sideline noise limit as a function of the takeoff weight, [EPNdB]
+    Outputs: Noise limits in EPNL
+        noise_approach_limit  - Approach noise limit as a function of the landing weight, [EPNdB]
+        noise_flyover_limit   - Flyover noise limit as a function of the takeoff weight,  [EPNdB]
+        noise_sideline_limit  - Sideline noise limit as a function of the takeoff weight, [EPNdB]
 
-            Assumptions:
-                None."""
+    Properties Used:
+        None
+    """
     
     #unpack
     weight_approach     = np.float(results.approach.segments.descent.conditions.weights.total_mass[-1]) / Units.lbs
@@ -57,4 +64,9 @@ def noise_certification_limits(results,vehicle):
     noise_flyover_limit  = np.around(np.log((weight_tow_mission/C_flyover)) * T_flyover  /np.log(2),decimals=1)
     noise_approach_limit = np.around(np.log((weight_approach   /C_approach))* T_approach /np.log(2),decimals=1)
 
-    return (noise_approach_limit,noise_flyover_limit,noise_sideline_limit)
+    certification_limits = Data()
+    certification_limits.noise_sideline_limit  = noise_sideline_limit
+    certification_limits.noise_flyover_limit   = noise_flyover_limit 
+    certification_limits.noise_approach_limit  = noise_approach_limit 
+
+    return certification_limits
