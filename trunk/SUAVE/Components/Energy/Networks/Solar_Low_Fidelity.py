@@ -178,8 +178,8 @@ class Solar_Low_Fidelity(Propulsor):
         battery_energy                           = battery.current_energy
                                                  
         conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
-        conditions.propulsion.rpm                = rpm
-        conditions.propulsion.current            = current
+        conditions.propulsion.propeller_rpm      = rpm
+        conditions.propulsion.battery_current    = current
         conditions.propulsion.battery_draw       = battery_draw
         conditions.propulsion.battery_energy     = battery_energy
         conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a

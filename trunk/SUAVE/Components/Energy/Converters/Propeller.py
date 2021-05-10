@@ -7,6 +7,7 @@
 #           Mar 2020, M. Clarke
 #           Sep 2020, M. Clarke 
 #           Mar 2021, R. Erhard
+#           Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -119,7 +120,7 @@ class Propeller(Energy_Component):
            lift_coefficient                  [-]
            omega                             [rad/s]
            disc_circulation                  [-] 
-           blade_dT_dR                       [N/m]
+           blade_dQ_dR                       [N/m]
            blade_dT_dr                       [N]
            blade_thrust_distribution         [N]
            disc_thrust_distribution          [N]
@@ -190,14 +191,8 @@ class Propeller(Energy_Component):
         Nr       = len(c) # Number of stations radially    
         ctrl_pts = len(Vv)
         
-        # set up non dimensional radial distribution 
-        if self.radius_distribution is None:
-            chi0= Rh/R                      # Where the rotor blade actually starts
-            chi = np.linspace(chi0,1,Nr+1)  # Vector of nondimensional radii
-            chi = chi[0:Nr]
-    
-        else:
-            chi = self.radius_distribution/R
+        # set up non dimensional radial distribution  
+        chi      = self.radius_distribution/R
             
         V        = V_thrust[:,0,None] 
         omega    = np.abs(omega)        
@@ -215,7 +210,7 @@ class Propeller(Energy_Component):
         # azimuth distribution 
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
-        psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
+        psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)    
         
         # 2D radial distribution non dimensionalized
         chi_2d         = np.tile(chi ,(Na,1))            
@@ -421,18 +416,11 @@ class Propeller(Energy_Component):
             Vt_ind_avg              = vt
             Va_ind_avg              = va            
             Va_ind_2d               = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
-            Vt_ind_2d               = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T    
-              
-        blade_dT_dR = np.zeros((ctrl_pts,Nr))
-        blade_dT_dr = np.zeros((ctrl_pts,Nr))
-        blade_dQ_dR = np.zeros((ctrl_pts,Nr))
-        blade_dQ_dr = np.zeros((ctrl_pts,Nr))
-        
-        for i in range(ctrl_pts):
-            blade_dT_dR[i,:] = np.gradient(blade_T_distribution[i],deltar)
-            blade_dT_dr[i,:] = np.gradient(blade_T_distribution[i],deltachi)
-            blade_dQ_dR[i,:] = np.gradient(blade_Q_distribution[i],deltar)
-            blade_dQ_dr[i,:] = np.gradient(blade_Q_distribution[i],deltachi)
+            Vt_ind_2d               = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T     
+            
+        # thrust and torque derivatives on the blade. 
+        blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
+        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)     
         
         thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
         torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T         
@@ -485,15 +473,13 @@ class Propeller(Energy_Component):
                     drag_coefficient                  = Cd,
                     lift_coefficient                  = Cl,       
                     omega                             = omega,  
-                    disc_circulation                  = blade_Gamma_2d,
-                    blade_dT_dR                       = blade_dT_dR,
+                    disc_circulation                  = blade_Gamma_2d, 
                     blade_dT_dr                       = blade_dT_dr,
                     blade_thrust_distribution         = blade_T_distribution, 
                     disc_thrust_distribution          = blade_T_distribution_2d, 
                     thrust_per_blade                  = thrust/B, 
                     thrust_coefficient                = Ct, 
-                    disc_azimuthal_distribution       = psi_2d,
-                    blade_dQ_dR                       = blade_dQ_dR,
+                    disc_azimuthal_distribution       = psi_2d, 
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution, 
                     disc_torque_distribution          = blade_Q_distribution_2d, 

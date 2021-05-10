@@ -53,7 +53,7 @@ def main():
     plot_mission(old_results,'k-')
    
     # RPM check during hover
-    RPM        = results.segments.hover.conditions.propulsion.rpm[0][0]
+    RPM        = results.segments.hover.conditions.propulsion.propeller_rpm[0][0]
     RPM_true   = 1402.2059859503863
     
     print(RPM) 
@@ -135,7 +135,8 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
-    aerodynamics.geometry = vehicle
+    aerodynamics.geometry                = vehicle 
+    aerodynamics.settings.model_fuselage = True     
     aerodynamics.settings.drag_coefficient_increment = 0.4*vehicle.excrescence_area_spin / vehicle.reference_area
     analyses.append(aerodynamics)
 
@@ -181,7 +182,8 @@ def mission_setup(analyses,vehicle):
 
     # base segment
     base_segment                                             = Segments.Segment()
-    ones_row                                                 = base_segment.state.ones_row 
+    base_segment.state.numerics.number_control_points        = 6
+    ones_row                                                 = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.vectored_thrust.unpack_unknowns
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.vectored_thrust.residuals

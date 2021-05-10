@@ -115,7 +115,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts,mf):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -152,7 +152,8 @@ class Vortex_Lattice(Aerodynamics):
         settings.propeller_wake_model       = propeller_wake_model  
         settings.initial_timestep_offset    = ito
         settings.wake_development_time      = wdt
-        settings.number_of_wake_timesteps   = nwts        
+        settings.number_of_wake_timesteps   = nwts
+        settings.model_fuselage             = mf
         
         # If we are using the surrogate
         if use_surrogate == True: 
@@ -643,7 +644,7 @@ def calculate_VLM(conditions,settings,geometry):
     wing_lifts = Data()
     wing_drags = Data() 
         
-    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CPi,vel_profile \
+    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CPi,VD, gamma,vel_profile \
         = VLM(conditions,settings,geometry)
     
     # Dimensionalize the lift and drag for each wing
