@@ -63,7 +63,6 @@ def lift_equivalent_area(config,analyses,conditions):
     ZC         = VD.ZC
     z_comp     = normal_vec[:,2]
 
-    # The 2 is used because the CP acts on both the top and bottom of the panel
     lift_force_per_panel = CP[0,:]*q*z_comp*areas*np.cos(aoa[0])
     
     # Mach angle

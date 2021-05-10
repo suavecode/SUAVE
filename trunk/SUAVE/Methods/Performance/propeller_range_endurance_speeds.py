@@ -20,7 +20,7 @@ import SUAVE
 
 
 def propeller_range_endurance_speeds(analyses,altitude,CL_max,up_bnd,delta_isa):
-        """ Computes L/D amx and CL^3/2 / CD max at give altitude. This runs a mini mission wrapped by an
+        """ Computes L/D max and CL^3/2 / CD max at a given altitude. This runs a mini mission wrapped by an
         optimizer to find the L/D max. up_bnd is the fastest airspeed that the optimizer can try. The output is a
         dictionary containing the maximum values as well as the airspeeds.
 

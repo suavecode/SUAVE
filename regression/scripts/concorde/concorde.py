@@ -5,6 +5,7 @@
 #           Jul 2017, T. MacDonald
 #           Aug 2018, T. MacDonald
 #           Nov 2018, T. MacDonald
+#           May 2021, E. Botero
 
 """ setup file for a mission with Concorde
 """

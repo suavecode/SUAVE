@@ -1,8 +1,9 @@
 ## @ingroup Optimization
 #  line_plot.py
 #
-# Created  : Oct 2017, M. Vegh 
-# Modified : Nov 2017, M. Vegh
+# Created:  Oct 2017, M. Vegh 
+# Modified: Nov 2017, M. Vegh
+#           May 2021, E. Botero 
 
 # ----------------------------------------------------------------------
 #  Imports

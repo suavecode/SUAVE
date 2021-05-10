@@ -1,8 +1,9 @@
 ## @ingroup Optimization
 # carpet_plot.py
 #
-# Created : Feb 2016, M. Vegh 
-# Modified : Feb 2017, M. Vegh
+# Created:  Feb 2016, M. Vegh 
+# Modified: Feb 2017, M. Vegh
+#           May 2021, E. Botero 
 
 # ----------------------------------------------------------------------
 #  Imports

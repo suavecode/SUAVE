@@ -2,7 +2,7 @@
 # surrogate_setup.py
 #
 # Created:  May 2016, M. Vegh
-# Modified:
+# Modified: May 2021, E. Botero 
 
 
 # ----------------------------------------------------------------------

@@ -11,17 +11,14 @@
 import numpy as np
 from copy import deepcopy
 
-import sklearn
 from sklearn import gaussian_process
-from sklearn.gaussian_process.kernels import RationalQuadratic, ConstantKernel, RBF, Matern
+from sklearn.gaussian_process.kernels import Matern
 from sklearn import neighbors
 from sklearn import svm, linear_model
 
 # SUAVE imports
-import SUAVE
 from SUAVE.Core import Data, Units
 from SUAVE.Components.Energy.Networks import Propulsor_Surrogate
-from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 # ----------------------------------------------------------------------
 #  Network
