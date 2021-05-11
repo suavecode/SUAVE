@@ -25,5 +25,9 @@ omit =
     ../trunk/SUAVE/Plugins/pint/*
     ../trunk/SUAVE/Optimization/Package_Setups/pyoptsparse_setup.py
     ../trunk/SUAVE/Optimization/Package_Setups/pyopt_setup.py
+    ../trunk/SUAVE/Optimization/Package_Setups/pyopt_surrogate_setup.py
     ../trunk/SUAVE/Optimization/Package_Setups/ipopt_setup.py
+    ../trunk/SUAVE/Components/Energy/Networks/PyCycle.py 
     ../trunk/SUAVE/Input_Output/OpenVSP/*
+
+

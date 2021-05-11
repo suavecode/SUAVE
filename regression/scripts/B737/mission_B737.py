@@ -66,6 +66,9 @@ def main():
     # check the results
     check_results(results,old_results) 
     
+    # print weights breakdown
+    print_weight_breakdown(configs.cruise)
+    
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
