@@ -30,7 +30,7 @@ def generate_wing_wake_grid(geometry, H, L, hf, x_plane, Nzo=20, Nzf=35, Nyo=20,
     # unpack
     span      = geometry.wings.main_wing.spans.projected
     half_span = span/2
-    VD        = geometry.VD
+    VD        = geometry.vortex_distribution
     n_cw      = VD.n_cw
     
     # grid bounds

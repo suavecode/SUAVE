@@ -27,10 +27,6 @@ def setup(analyses):
     # ------------------------------------------------------------------
     base_mission = base(analyses)
     missions.base = base_mission 
- 
-
-    
-
 
 
     return missions  

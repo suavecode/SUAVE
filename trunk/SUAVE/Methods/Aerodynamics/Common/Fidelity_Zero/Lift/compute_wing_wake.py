@@ -59,8 +59,8 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     # --------------------------------------------------------------------------------
     #          Run the VLM for the given vehicle and conditions 
     # --------------------------------------------------------------------------------
-    CL, CDi, CM, CL_wing, CDi_wing, cl_y , cdi_y , alpha_i, CP , VD, gamma, Velocity_Profile  = VLM(conditions, VLM_settings, geometry)
-    geometry.VD = VD
+    _, _, _, _, _, _, _, _, _, gamma  = VLM(conditions, VLM_settings, geometry)
+    VD = geometry.vortex_distribution 
     
     # create a deep copy of the vortex distribution
     VD       = copy.deepcopy(VD)
@@ -81,7 +81,7 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     #----------------------------------------------------------------------------------------------
     # Compute wing induced velocity    
     #----------------------------------------------------------------------------------------------    
-    C_mn, _, _, _, _ = compute_wing_induced_velocity(VD,VLM_settings.number_spanwise_vortices,VLM_settings.number_chordwise_vortices,aoa,mach)     
+    C_mn, _, _, _, _ = compute_wing_induced_velocity(VD,VLM_settings.number_spanwise_vortices,VLM_settings.number_chordwise_vortices,mach)     
     u_inviscid = (C_mn[:,:,:,0]@gammaT)[0,:,0]
     v_inviscid = (C_mn[:,:,:,1]@gammaT)[0,:,0]
     w_inviscid = (C_mn[:,:,:,2]@gammaT)[0,:,0]     
@@ -98,13 +98,11 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
         # impart viscous wake to grid points within the span of the wing
         y_inside            = abs(VD.YC)<0.5*span
         chord_distribution  = croot - (croot-ctip)*(abs(VD.YC[y_inside])/(0.5*span))
-        Rex_te              = Vv*(chord_distribution)/nu
         
         # boundary layer development distance
         x_dev      = (x-x0_wing) * np.ones_like(chord_distribution)
         
         # For turbulent flow
-        delta_te    = 0.37*chord_distribution/(Rex_te**(1/5)) 
         theta_turb  = 0.036*x_dev/(Rex_prop_plane**(1/5))
         x_theta     = (x_dev-chord_distribution)/theta_turb
 

@@ -6,6 +6,7 @@
 #----------------------------------------------------------------------
 #   Imports
 # ---------------------------------------------------------------------
+
 import SUAVE 
 from SUAVE.Core import Units, Data 
 from SUAVE.Plots.Geometry_Plots import plot_airfoil
