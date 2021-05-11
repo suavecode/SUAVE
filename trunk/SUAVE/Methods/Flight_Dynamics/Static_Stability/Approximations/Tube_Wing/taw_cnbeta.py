@@ -120,26 +120,11 @@ def taw_cnbeta(geometry,conditions,configuration):
         N/A  
     """         
 
-    try:
-        configuration.other
-    except AttributeError:
-        configuration.other = 0
-    CnBeta_other = []
-
     # Unpack inputs
-    S      = geometry.wings['main_wing'].areas.reference
+    S      = geometry.reference_area
     b      = geometry.wings['main_wing'].spans.projected
-    sweep  = geometry.wings['main_wing'].sweeps.quarter_chord
     AR     = geometry.wings['main_wing'].aspect_ratio
     z_w    = geometry.wings['main_wing'].origin[0][2]
-    S_bs   = geometry.fuselages['fuselage'].areas.side_projected
-    l_f    = geometry.fuselages['fuselage'].lengths.total
-    h_max  = geometry.fuselages['fuselage'].heights.maximum
-    w_max  = geometry.fuselages['fuselage'].width
-    h1     = geometry.fuselages['fuselage'].heights.at_quarter_length
-    h2     = geometry.fuselages['fuselage'].heights.at_three_quarters_length
-    d_i    = geometry.fuselages['fuselage'].heights.at_wing_root_quarter_chord
-    other  = configuration.other
     vert   = extend_to_ref_area(geometry.wings['vertical_stabilizer'])
     S_v    = vert.extended.areas.reference
     x_v    = vert.extended.origin[0][0]
@@ -154,47 +139,32 @@ def taw_cnbeta(geometry,conditions,configuration):
     #Compute wing contribution to Cn_beta
     CnBeta_w = 0.0    #The wing contribution is assumed to be zero except at very
                       #high angles of attack. 
+    fuse_cnb = 0.0
+                      
+    for fuse in geometry.fuselages:
     
-    #Compute fuselage contribution to Cn_beta
-    Re_fuse  = rho*v_inf*l_f/mu
-    x1       = x_cg/l_f
-    x2       = l_f*l_f/S_bs
-    x3       = np.sqrt(h1/h2)
-    x4       = h_max/w_max
-    kN_1     = 3.2413*x1 - 0.663345 + 6.1086*np.exp(-0.22*x2)
-    kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3*x3)*kN_1
-    kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4*x4 - 2.811*np.exp(-4.0*x4))
-    K_N      = (-0.47899 + kN_3*kN_2)*0.001
-    K_Rel    = 1.0+0.8*np.log(Re_fuse/1.0E6)/np.log(50.) 
-        #K_Rel: Correction for fuselage Reynolds number. Roskam VI, page 400.
-    CnBeta_f = -57.3*K_N*K_Rel*S_bs*l_f/S/b
+        S_bs   = fuse.areas.side_projected
+        l_f    = fuse.lengths.total
+        h_max  = fuse.heights.maximum
+        w_max  = fuse.width
+        h1     = fuse.heights.at_quarter_length
+        h2     = fuse.heights.at_three_quarters_length
+        d_i    = fuse.heights.at_wing_root_quarter_chord    
     
-    #Compute contributions of other bodies on CnBeta
-    if other > 0:
-        for body in other:
-            #Unpack inputs
-            S_bs   = body.areas.side_projected
-            x_le   = body.origin[0]
-            l_b    = body.lengths.total
-            h_max  = body.heights.maximum
-            w_max  = body.width
-            h1     = body.heights.at_quarter_length
-            h2     = body.heights.at_three_quarters_length 
-            #Compute body contribution to Cn_beta
-            x_cg_on_body = (x_cg-x_le)/l_b
-            Re_body  = rho*v_inf*l_b/mu
-            x1       = x_cg_on_body/l_b
-            x2       = l_b*l_b/S_bs
-            x3       = np.sqrt(h1/h2)
-            x4       = h_max/w_max
-            kN_1     = 3.2413*x1 - 0.663345 + 6.1086*np.exp(-0.22*x2)
-            kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3*x3)*kN_1
-            kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4*x4 - 2.811*np.exp(-4.0*x4))
-            K_N      = (-0.47899 + kN_3*kN_2)*0.001
+        #Compute fuselage contribution to Cn_beta
+        Re_fuse  = rho*v_inf*l_f/mu
+        x1       = x_cg/l_f
+        x2       = l_f*l_f/S_bs
+        x3       = np.sqrt(h1/h2)
+        x4       = h_max/w_max
+        kN_1     = 3.2413*x1 - 0.663345 + 6.1086*np.exp(-0.22*x2)
+        kN_2     = (-0.2023 + 1.3422*x3 - 0.1454*x3*x3)*kN_1
+        kN_3     = (0.7870 + 0.1038*x4 + 0.1834*x4*x4 - 2.811*np.exp(-4.0*x4))
+        K_N      = (-0.47899 + kN_3*kN_2)*0.001
+        K_Rel    = 1.0+0.8*np.log(Re_fuse/1.0E6)/np.log(50.) 
             #K_Rel: Correction for fuselage Reynolds number. Roskam VI, page 400.
-            K_Rel    = 1.0+0.8*np.log(Re_body/1.0E6)/np.log(50.)
-            CnBeta_b = -57.3*K_N*K_Rel*S_bs*l_b/S/b
-            CnBeta_other.append(CnBeta_b)
+        fuse_cnb = fuse_cnb -57.3*K_N*K_Rel*S_bs*l_f/S/b
+    
     
     #Compute vertical tail contribution
     l_v    = x_v + ac_vLE - x_cg
@@ -225,6 +195,6 @@ def taw_cnbeta(geometry,conditions,configuration):
     
     CnBeta_v = -Cy_bv*l_v/b
     
-    CnBeta   = CnBeta_w + CnBeta_f + CnBeta_v + sum(CnBeta_other)
+    CnBeta   = CnBeta_w + CnBeta_v + fuse_cnb
     
     return CnBeta
