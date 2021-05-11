@@ -50,7 +50,7 @@ def case_1(vehicle, conditions):
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)  
     
     # plot velocities at propeller plane and resulting performance
-    plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')       
+    plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
     
     thrust_r = 847.83217329
     torque_r = 446.59326314

@@ -44,7 +44,6 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     # unpack  
     n_cp     = n_sw*n_cw
     n_w      = VD.n_w
-    shape    = n_cp*n_w
     n_mach   = len(mach)
     mach     = np.array(mach,dtype=np.float32)
 
@@ -124,10 +123,13 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     zobar =-(yo - yc)*sintheta + (zo - zc)*costheta
     
     # COMPUTE COORDINATES OF RECEIVING POINT WITH RESPECT TO END POINTS OF SKEWED LEG.
-    s = np.abs(y1bar)
-    t = x1bar/y1bar  
-    s = np.repeat(s,shape,axis=0)
-    t = np.repeat(t,shape,axis=0)
+    shape   = np.shape(xobar)
+    shape_0 = shape[0]
+    shape_1 = shape[1]
+    s       = np.abs(y1bar)
+    t       = x1bar/y1bar  
+    s       = np.repeat(s,shape_0,axis=0)
+    t       = np.repeat(t,shape_0,axis=0)
     
     X1 = xobar + t*s # In a planar case XC-XAH
     Y1 = yobar + s   # In a planar case YC-YAH
@@ -162,9 +164,9 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     RO2_sub  = B2_sub*RTV2
     
     # ZERO-OUT PERTURBATION VELOCITY COMPONENTS
-    U = np.zeros((n_mach,shape,shape),dtype=np.float32)
-    V = np.zeros((n_mach,shape,shape),dtype=np.float32)
-    W = np.zeros((n_mach,shape,shape),dtype=np.float32)    
+    U = np.zeros((n_mach,shape_0,shape_1),dtype=np.float32)
+    V = np.zeros((n_mach,shape_0,shape_1),dtype=np.float32)
+    W = np.zeros((n_mach,shape_0,shape_1),dtype=np.float32)    
     
     if np.sum(sub)>0:
         # COMPUTATION FOR SUBSONIC HORSESHOE VORTEX
@@ -188,9 +190,9 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     LE_X        = np.repeat(LE_X,n_cw,axis=1)
     LE_Z        = np.repeat(LE_Z,n_cw,axis=1)    
     CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2)
-    CHORD       = np.repeat(CHORD,shape,axis=0)
+    CHORD       = np.repeat(CHORD,shape_0,axis=0)
     ZETA        = (LE_Z[0,:]-TE_Z[0,:])/(LE_X[0,:]-TE_X[0,:]) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
-    RFLAG       = np.ones((n_mach,shape),dtype=np.int8)
+    RFLAG       = np.ones((n_mach,shape_1),dtype=np.int8)
     
     if np.sum(sup)>0:
         U[sup], V[sup], W[sup], RFLAG[sup,:] = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\

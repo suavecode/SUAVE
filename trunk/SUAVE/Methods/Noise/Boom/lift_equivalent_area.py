@@ -53,7 +53,7 @@ def lift_equivalent_area(config,analyses,conditions):
     settings     = analyses.aerodynamics.process.compute.lift.inviscid_wings.settings
     length       = config.total_length
     
-    CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, Velocity_Profile = VLM(conditions, settings, config)
+    _, _, _, _, _, _, _, _, CP, _ = VLM(conditions, settings, config)
     
     VD = analyses.aerodynamics.geometry.vortex_distribution
     
