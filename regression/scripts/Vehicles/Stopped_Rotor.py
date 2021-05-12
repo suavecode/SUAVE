@@ -9,11 +9,12 @@
 import SUAVE
 from SUAVE.Core import Units, Data 
 import copy
-from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
-from SUAVE.Methods.Power.Battery.Sizing                        import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , size_optimal_motor
-from SUAVE.Methods.Propulsion                                  import propeller_design   
-from SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty import empty
+from SUAVE.Components.Energy.Networks.Lift_Cruise                         import Lift_Cruise
+from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
+from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
+from SUAVE.Methods.Propulsion                                             import propeller_design
+from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
+from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 
 import numpy as np
 import pylab as plt
@@ -627,5 +628,9 @@ def vehicle_setup():
     vehicle.wings['main_wing'].winglet_fraction        = 0.0
     vehicle.wings['main_wing'].thickness_to_chord      = 0.18
     vehicle.wings['main_wing'].chords.mean_aerodynamic = 0.9644599977664836    
+
+    vehicle.weight_breakdown  = empty(vehicle)
+    compute_component_centers_of_gravity(vehicle)
+    vehicle.center_of_gravity()
 
     return vehicle

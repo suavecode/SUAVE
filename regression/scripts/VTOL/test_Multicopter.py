@@ -32,8 +32,11 @@ def main():
     # build the vehicle, configs, and analyses 
     configs, analyses = full_setup() 
     analyses.finalize()    
-    weights      = analyses.configs.base.weights
-    breakdown    = weights.evaluate()     
+
+    # Print weight properties of vehicle
+    print(configs.base.weight_breakdown)
+    print(configs.base.mass_properties.center_of_gravity)
+
     mission      = analyses.missions.base  
     results      = mission.evaluate()
         
@@ -157,7 +160,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Electric_Multicopter()
+    weights = SUAVE.Analyses.Weights.Weights_eVTOL() 
     weights.vehicle = vehicle
     analyses.append(weights)
 

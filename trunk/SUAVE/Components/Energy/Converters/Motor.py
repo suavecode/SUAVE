@@ -54,6 +54,7 @@ class Motor(Energy_Component):
         self.speed_constant     = 0.0
         self.propeller_radius   = 0.0
         self.propeller_Cp       = 0.0
+        self.efficiency         = 1.0
         self.gear_ratio         = 1.0
         self.gearbox_efficiency = 1.0
         self.expected_current   = 0.0

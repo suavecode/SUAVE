@@ -1,3 +1,4 @@
+
 # Electric_Multicopter.py
 # 
 # Created: Feb 2020, M Clarke
@@ -7,14 +8,15 @@
 #   Imports
 # ---------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units, Data 
-from SUAVE.Components.Energy.Networks.Vectored_Thrust import Vectored_Thrust
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass 
-from SUAVE.Methods.Propulsion import propeller_design
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff 
-from SUAVE.Methods.Weights.Buildups.Electric_Multicopter.empty import empty 
-from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , size_optimal_motor
-from SUAVE.Methods.Weights.Correlations.Propulsion import nasa_motor, hts_motor , air_cooled_motor
+from SUAVE.Core                                                           import Units, Data
+from SUAVE.Components.Energy.Networks.Vectored_Thrust                     import Vectored_Thrust
+from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
+from SUAVE.Methods.Propulsion                                             import propeller_design
+from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift                        import compute_max_lift_coeff
+from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
+from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
+from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
+from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor, hts_motor , air_cooled_motor
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -47,6 +49,7 @@ def vehicle_setup():
     wing.tag                                    = 'main_wing'  
     wing.aspect_ratio                           = 1  
     wing.spans.projected                        = 0.01
+    wing.symbolic                               = True 
     vehicle.append_component(wing)
     
     # ------------------------------------------------------    
@@ -258,5 +261,8 @@ def vehicle_setup():
     
     vehicle.append_component(net)
     
-    vehicle.weight_breakdown  = empty(vehicle,None)
+    vehicle.weight_breakdown  = empty(vehicle)
+    compute_component_centers_of_gravity(vehicle)
+    vehicle.center_of_gravity()
+
     return vehicle
