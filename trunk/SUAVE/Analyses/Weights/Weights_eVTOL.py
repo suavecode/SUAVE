@@ -21,7 +21,7 @@ from .Weights import Weights
 
 ## @ingroup Analyses-Weights
 class Weights_eVTOL(Weights):
-    """ SThis is class that evaluates the weight of an eVTOL aircraft
+    """This is class that evaluates the weight of an eVTOL aircraft
     
     Assumptions:
     None
