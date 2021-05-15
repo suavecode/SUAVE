@@ -89,12 +89,12 @@ def empty(config,
                         Seats
                         Battery
                         Motors
-                        Servomotors
+                        Servo         
                     Systems.
                         Avionics
-                        ECS
-                        BRS
-                        Wiring
+                        ECS               - Environmental Control System 
+                        BRS               - Ballistic Recovery System 
+                        Wiring            - Aircraft Electronic Wiring
                     Payload 
 
     """ 
@@ -145,7 +145,6 @@ def empty(config,
     output.landing_gear = MTOW * 0.02               * Units.kg
     output.ECS          = config.passengers * 7.    * Units.kg 
 
-
     # Select a length scale depending on what kind of vehicle this is
     length_scale = 1.
     nose_length  = 0.
@@ -167,6 +166,12 @@ def empty(config,
                 length_scale = length
                 nose_length  = nose
 
+    #-------------------------------------------------------------------------------
+    # Environmental Control System
+    #-------------------------------------------------------------------------------      
+    config.systems.air_conditioner.origin[0][0]          = 0.51 * length_scale 
+    config.systems.air_conditioner.mass_properties.mass  = output.ECS
+    
     #-------------------------------------------------------------------------------
     # Propulsor Weight
     #-------------------------------------------------------------------------------
@@ -192,21 +197,6 @@ def empty(config,
         propulsor.avionics.origin[0][0]                                      = 0.4 * nose_length
         propulsor.avionics.mass_properties.center_of_gravity[0][0]           = 0.0
         propulsor.avionics.mass_properties.mass                              = output.avionics
-        
-        #-------------------------------------------------------------------------------
-        # Electronic Speed Controller Weight
-        #-------------------------------------------------------------------------------
-        if isinstance(propulsor, Lift_Cruise):
-            propulsor.rotor_esc.origin[0][0]                                 = 0.51 * length_scale
-            propulsor.rotor_esc.mass_properties.center_of_gravity[0][0]      = 0.0
-            propulsor.rotor_esc.mass_properties.mass                         = output.ECS
-            propulsor.propeller_esc.origin[0][0]                             = 0.51 * length_scale
-            propulsor.propeller_esc.mass_properties.center_of_gravity[0][0]  = 0.0
-            propulsor.propeller_esc.mass_properties.mass                     = output.ECS
-        else:
-            propulsor.esc.origin[0][0]                                       = 0.51 * length_scale
-            propulsor.esc.mass_properties.center_of_gravity[0][0]            = 0.0
-            propulsor.esc.mass_properties.mass                               = output.ECS
 
         #-------------------------------------------------------------------------------
         # Rotor, Propeller, Motor, Servo, Hub and BRS Weight
@@ -347,8 +337,8 @@ def empty(config,
     output.structural = (output.rotors + output.propellers + output.hubs +
                                  output.fuselage + output.landing_gear +output.total_wing_weight)*Units.kg
 
-    output.empty      = (contingency_factor * (output.structural + output.seats + output.avionics +
-                          output.motors + output.servos + output.wiring + output.BRS) + output.battery) *Units.kg
+    output.empty      = (contingency_factor * (output.structural + output.seats + output.avionics +output.ECS +\
+                        output.motors + output.servos + output.wiring + output.BRS) + output.battery) *Units.kg
 
     output.total      = output.empty + output.payload + output.passengers
                                                    
