@@ -93,7 +93,6 @@ class Motor(Energy_Component):
         # Unpack
         V     = conditions.freestream.velocity[:,0,None]
         rho   = conditions.freestream.density[:,0,None]
-        Cp    = conditions.propulsion.propeller_power_coefficient[:,0,None]
         Res   = self.resistance
         etaG  = self.gearbox_efficiency
         exp_i = self.expected_current
@@ -102,6 +101,8 @@ class Motor(Energy_Component):
         Kv    = self.speed_constant/G
         R     = self.propeller_radius
         v     = self.inputs.voltage
+        Cp    = self.inputs.propeller_CP
+        
     
         # Omega
         # This is solved by setting the torque of the motor equal to the torque of the prop
