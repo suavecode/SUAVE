@@ -140,7 +140,7 @@ def empty(config,
     #-------------------------------------------------------------------------------    
     MTOW                = config.mass_properties.max_takeoff  
     output.seats        = config.passengers * 15.   * Units.kg
-    output.passengers   = config.passengers * 62.   * Units.kg
+    output.passengers   = config.passengers * 70.   * Units.kg
     output.avionics     = 15.                       * Units.kg
     output.landing_gear = MTOW * 0.02               * Units.kg
     output.ECS          = config.passengers * 7.    * Units.kg 
