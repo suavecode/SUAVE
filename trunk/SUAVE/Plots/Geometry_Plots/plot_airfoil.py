@@ -38,7 +38,7 @@ def plot_airfoil(airfoil_names,  line_color = 'k-', overlay = False, save_figure
         name = save_filename
         fig  = plt.figure(name)
         fig.set_size_inches(10, 4)
-        axes = plt.subplot(1,1,1)
+        axes = fig.add_subplot(1,1,1)
         for i in range(len(airfoil_names)):
             # separate x and y coordinates 
             airfoil_x  = airfoil_data.x_coordinates[i] 
@@ -58,7 +58,7 @@ def plot_airfoil(airfoil_names,  line_color = 'k-', overlay = False, save_figure
     
             name = save_filename + '_' + str(i)
             fig  = plt.figure(name)
-            axes = plt.subplot(1,1,1)
+            axes = fig.add_subplot(1,1,1)
             axes.set_title(airfoil_names[i])
             axes.plot(airfoil_x, airfoil_y , line_color )                  
             axes.axis('equal')

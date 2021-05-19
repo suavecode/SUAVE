@@ -2,8 +2,10 @@
 # Propeller_Plots.py
 #
 # Created: Mar 2021, R. Erhard
-# Modified:
 
+# ----------------------------------------------------------------------
+#  Imports
+# ----------------------------------------------------------------------
 from SUAVE.Core import Units
 
 import matplotlib.patches as patches
