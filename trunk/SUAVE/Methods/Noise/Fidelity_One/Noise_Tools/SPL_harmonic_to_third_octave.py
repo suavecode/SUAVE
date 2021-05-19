@@ -50,7 +50,7 @@ def SPL_harmonic_to_third_octave(SPL,f,settings):
     dim_mic          = len(SPL[0,:,0,0])
     dim_prop         = len(SPL[0,0,:,0])
     num_cf           = len(cf)
-    num_f            = len(f)
+    num_f            = len(f[0,:])
     SPL_third_octave = np.zeros((dim_cpt,dim_mic,dim_prop,num_cf)) 
     
     # loop through 1/3 octave spectra and sum up components 
