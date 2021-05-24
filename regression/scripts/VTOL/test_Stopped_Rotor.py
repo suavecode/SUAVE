@@ -29,12 +29,14 @@ def main():
     # ------------------------------------------------------------------------------------------------------------------
     # build the vehicle, configs, and analyses
     configs, analyses = full_setup() 
-    analyses.finalize()     	   
-    weights   = analyses.weights	
-    breakdown = weights.evaluate()    
-    mission   = analyses.mission  
+    analyses.finalize()
+
+    # Print weight properties of vehicle
+    print(configs.weight_breakdown)
+    print(configs.mass_properties.center_of_gravity)
     
-    # evaluate mission     
+    # evaluate mission
+    mission   = analyses.mission
     results   = mission.evaluate()
         
     # plot results
@@ -110,7 +112,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Electric_Lift_Cruise()
+    weights = SUAVE.Analyses.Weights.Weights_eVTOL()   
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -352,6 +354,10 @@ def load_stopped_rotor_results():
     return SUAVE.Input_Output.SUAVE.load('results_stopped_rotor.res')
 
 def save_stopped_rotor_results(results):
+
+    for segment in results.segments.values():
+        del segment.conditions.noise
+
     SUAVE.Input_Output.SUAVE.archive(results,'results_stopped_rotor.res')
     return
  

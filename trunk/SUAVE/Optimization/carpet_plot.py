@@ -1,8 +1,9 @@
 ## @ingroup Optimization
 # carpet_plot.py
 #
-# Created : Feb 2016, M. Vegh 
-# Modified : Feb 2017, M. Vegh
+# Created:  Feb 2016, M. Vegh 
+# Modified: Feb 2017, M. Vegh
+#           May 2021, E. Botero 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -52,8 +53,9 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
     opt_prob        = problem.optimization_problem
     base_inputs     = opt_prob.inputs
     names           = base_inputs[:,0] # Names
-    bnd             = base_inputs[:,2] # Bounds
-    scl             = base_inputs[:,3] # Scaling
+    bndl            = base_inputs[:,2] # Bounds
+    bndu            = base_inputs[:,3] # Bounds
+    scl             = base_inputs[:,4] # Scaling
     base_objective  = opt_prob.objective
     obj_name        = base_objective[0][0] #objective function name (used for scaling)
     obj_scaling     = base_objective[0][1]
@@ -69,8 +71,8 @@ def carpet_plot(problem, number_of_points,  plot_obj=1, plot_const=0, sweep_inde
     
     
     #create inputs matrix
-    inputs[0,:] = np.linspace(bnd[idx0][0], bnd[idx0][1], number_of_points)
-    inputs[1,:] = np.linspace(bnd[idx1][0], bnd[idx1][1], number_of_points)
+    inputs[0,:] = np.linspace(bndl[idx0], bndu[idx0], number_of_points)
+    inputs[1,:] = np.linspace(bndl[idx1], bndu[idx1], number_of_points)
 
     
     #inputs defined; now run sweep

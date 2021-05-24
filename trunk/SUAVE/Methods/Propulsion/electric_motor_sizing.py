@@ -194,11 +194,13 @@ def optimize_kv(io, v , omeg,  etam ,  Q, kv_lower_bound =  0.01, Res_lower_boun
     
     if sol.success == False:
         # use slack constraints  if optimum motor parameters cannot be found 
-        sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=slack_cons) 
+        print('\n Optimum motor design failed. Using slack constraints')
+        sol = minimize(objective, [0.5, 0.1], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints=slack_cons)
         
         # use one constraints as last resort if optimum motor parameters cannot be found 
         if sol.success == False:
-            sol = minimize(objective, [10], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints= torque_con)         
+            print ('\n Slack contraints failed. Using one constraint')
+            sol = minimize(objective, [10], args=(v , omeg,  etam , Q , io) , method='SLSQP', bounds=bnds, tol=1e-6, constraints= torque_con)
     
     return sol.x   
   

@@ -9,11 +9,12 @@
 import SUAVE
 from SUAVE.Core import Units, Data 
 import copy
-from SUAVE.Components.Energy.Networks.Lift_Cruise              import Lift_Cruise
-from SUAVE.Methods.Power.Battery.Sizing                        import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing            import size_from_mass , size_optimal_motor
-from SUAVE.Methods.Propulsion                                  import propeller_design   
-from SUAVE.Methods.Weights.Buildups.Electric_Lift_Cruise.empty import empty
+from SUAVE.Components.Energy.Networks.Lift_Cruise                         import Lift_Cruise
+from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
+from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
+from SUAVE.Methods.Propulsion                                             import propeller_design
+from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
+from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 
 import numpy as np
 import pylab as plt
@@ -517,9 +518,14 @@ def vehicle_setup():
     propeller.design_Cl              = 0.7
     propeller.design_altitude        = 1000 * Units.feet   
     propeller.design_thrust          = (Drag*2.5)/net.number_of_propeller_engines  
-    propeller.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    propeller.airfoil_polars         = [['../Vehicles/Airfoils/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_200000.txt' ,
-                                      '../Vehicles/Airfoils/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_1000000.txt' ]]
+
+    propeller.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    propeller.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+
     propeller.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     propeller                        = propeller_design(propeller)   
     propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]   
@@ -542,9 +548,14 @@ def vehicle_setup():
     rotor.x_pitch_count              = 2
     rotor.y_pitch_count              = vehicle.fuselages['boom_1r'].y_pitch_count
     rotor.y_pitch                    = vehicle.fuselages['boom_1r'].y_pitch 
-    rotor.airfoil_geometry           =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    rotor.airfoil_polars             = [['../Vehicles/Airfoils/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_200000.txt' ,
-                                         '../Vehicles/Airfoils/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_1000000.txt' ]]
+
+    rotor.airfoil_geometry           =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    rotor.airfoil_polars             = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                         '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+
     rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
     rotor                            = propeller_design(rotor)          
     rotor.rotation                   = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
@@ -617,5 +628,9 @@ def vehicle_setup():
     vehicle.wings['main_wing'].winglet_fraction        = 0.0
     vehicle.wings['main_wing'].thickness_to_chord      = 0.18
     vehicle.wings['main_wing'].chords.mean_aerodynamic = 0.9644599977664836    
+
+    vehicle.weight_breakdown  = empty(vehicle)
+    compute_component_centers_of_gravity(vehicle)
+    vehicle.center_of_gravity()
 
     return vehicle

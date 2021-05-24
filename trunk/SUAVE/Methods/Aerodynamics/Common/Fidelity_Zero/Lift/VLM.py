@@ -2,7 +2,7 @@
 # VLM.py
 # 
 # Created:  Oct 2020, E. Botero
-#           
+# Modified: May 2021, E. Botero     
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +19,7 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 #  Vortex Lattice
 # ----------------------------------------------------------------------
 
-## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
@@ -110,7 +110,7 @@ def VLM(conditions,settings,geometry):
     else:
         x_m = x_cg
         z_m = z_cg
-
+        
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
     mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(mach)) 
@@ -124,23 +124,30 @@ def VLM(conditions,settings,geometry):
     # pack vortex distribution 
     geometry.vortex_distribution = VD
     
-    # Build induced velocity matrix, C_mn
-    C_mn, s, CHORD, RFLAG, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,aoa,mach) 
-
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
+    # Build the vector 
+    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
+                                                                                 pwm,ito,wdt,nts )    
+    
+    # Build induced velocity matrix, C_mn
+    # This is not affected by AoA, so we can use unique mach numbers only
+    m_unique, inv = np.unique(mach,return_inverse=True)
+    m_unique      = np.atleast_2d(m_unique).T
+    C_mn_small, s, CHORD, RFLAG_small, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,m_unique)
+    
+    C_mn  = C_mn_small[inv,:,:,:]
+    RFLAG = RFLAG_small[inv,:]
+
+    # Turn off sonic vortices when Mach>1
+    RHS = RHS*RFLAG
+    
     # Build Aerodynamic Influence Coefficient Matrix
     A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
         + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
-        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42
-
-    # Build the vector 
-    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
-                                                                                 pwm,ito,wdt,nts )
-    # Turn off sonic vortices when Mach>1
-    RHS = RHS*RFLAG
+        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42      
 
     # Compute vortex strength  
     gamma = np.linalg.solve(A,RHS)
@@ -171,19 +178,19 @@ def VLM(conditions,settings,geometry):
 
     # Unpack coordinates 
     YAH = VD.YAH*1.
-    ZAH = VD.ZAH*1.
-    ZBH = VD.ZBH*1.    
+    ZAH = VD.ZAH
+    ZBH = VD.ZBH    
     YBH = VD.YBH*1.
     XA1 = VD.XA1*1.
     XB1 = VD.XB1*1.
-    YA1 = VD.YA1*1.
-    YB1 = VD.YB1*1.    
-    ZA1 = VD.ZA1*1.
-    ZB1 = VD.ZB1*1.   
-    XA2 = VD.XA2*1.
-    XB2 = VD.XB2*1.      
-    ZA2 = VD.ZA2*1.
-    ZB2 = VD.ZB2*1.    
+    YA1 = VD.YA1
+    YB1 = VD.YB1    
+    ZA1 = VD.ZA1
+    ZB1 = VD.ZB1   
+    XA2 = VD.XA2
+    XB2 = VD.XB2      
+    ZA2 = VD.ZA2
+    ZB2 = VD.ZB2    
 
     # Flip coordinates on the other side of the wing
     boolean = YBH<0. 
@@ -196,16 +203,16 @@ def VLM(conditions,settings,geometry):
     
     TLE = np.repeat(TLE,n_cw)
     TLE = np.broadcast_to(TLE,np.shape(B2))
-    T2  = TLE**2
+    T2  = TLE*TLE
     STB = np.zeros_like(B2)
     STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
     STB = STB[:,0::n_cw]
 
     # Panel Dihedral Angle, using AH and BH location
-    D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
+    D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)[0::n_cw]
 
-    SID = ((ZBH-ZAH)/D)[0::n_cw] # Just the LE values
-    COD = ((YBH-YAH)/D)[0::n_cw] # Just the LE values
+    SID = ((ZBH-ZAH)[0::n_cw]/D) # Just the LE values
+    COD = ((YBH-YAH)[0::n_cw]/D) # Just the LE values
 
     # Now on to each strip
     PION = 2.0 /RNMAX
@@ -234,16 +241,13 @@ def VLM(conditions,settings,geometry):
     Z2c  = (ZA2+ZB2)/2
 
     SLOPE = (Z2c - Z1c)/(X2c - X1c)
-    TANX  = SLOPE
-    TX    = TANX - ZETA
+    TX    = SLOPE - ZETA
     CAXL  = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
     BMLE  = (XLE-XX)*SINF        # These are moment on each panel
 
     # Sum onto the panel
     CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len_mach))
     BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len_mach))
-
-    XX = XLE*1.
        
     DCP_LE = DCP[:,0::n_cw]
     
@@ -257,7 +261,7 @@ def VLM(conditions,settings,geometry):
     SPC_cond = VL*m_b.T
     SPC[SPC_cond] = -1.
     
-    CLE  = 0.5* DCP_LE *np.sqrt(XX)
+    CLE  = 0.5* DCP_LE *np.sqrt(XLE)
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
 
     # SLE is slope at leading edge
@@ -323,15 +327,9 @@ def VLM(conditions,settings,geometry):
     CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
     CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
 
-    Velocity_Profile = Data()
-    Velocity_Profile.Vx_ind   = Vx_ind_total
-    Velocity_Profile.Vz_ind   = Vz_ind_total
-    Velocity_Profile.V        = V_distribution 
-    Velocity_Profile.dt       = dt
-    
-    Cl_y            = np.swapaxes(np.array(np.array_split(cl_y,n_w,axis=1)),0,1) 
-    Cdi_y           = np.swapaxes(np.array(np.array_split(cdi_y,n_w,axis=1)),0,1) 
+    Cl_y     = np.swapaxes(np.array(np.array_split(cl_y,n_w,axis=1)),0,1) 
+    Cdi_y    = np.swapaxes(np.array(np.array_split(cdi_y,n_w,axis=1)),0,1) 
     
     alpha_i = np.arctan(Cdi_y/Cl_y) 
     
-    return CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, Velocity_Profile
+    return CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, gamma

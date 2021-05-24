@@ -12,4 +12,5 @@ from .propeller_range_endurance_speeds  import propeller_range_endurance_speeds,
 from .electric_V_h_diagram              import electric_V_h_diagram
 from .propeller_single_point            import propeller_single_point
 from .electric_payload_range            import electric_payload_range
+from .maximum_lift_to_drag              import maximum_lift_to_drag
 
