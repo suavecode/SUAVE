@@ -45,6 +45,7 @@ class Mass_Properties(Data):
             None
         """         
         
+        self.tag    = 'mass_properties'
         self.mass   = 0.0
         self.volume = 0.0
         self.center_of_gravity = np.array([[0.0,0.0,0.0]])

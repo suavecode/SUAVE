@@ -78,9 +78,11 @@ def compute_component_centers_of_gravity(vehicle, nose_load = 0.06):
     propulsion_moment = 0.
     propulsion_mass   = 0. 
     for prop in vehicle.propulsors:
-            prop.mass_properties.center_of_gravity[0][0] = prop.engine_length*.5
-            propulsion_mass                              += prop.mass_properties.mass         
-            propulsion_moment                            += propulsion_mass*(prop.engine_length*.5+prop.origin[0][0])
+        if prop.number_of_engines <=0:
+            continue
+        prop.mass_properties.center_of_gravity[0][0] = prop.engine_length*.5
+        propulsion_mass                              += prop.mass_properties.mass         
+        propulsion_moment                            += propulsion_mass*(prop.engine_length*.5+prop.origin[0][0])
             
     if propulsion_mass!= 0.:
         propulsion_cg = propulsion_moment/propulsion_mass

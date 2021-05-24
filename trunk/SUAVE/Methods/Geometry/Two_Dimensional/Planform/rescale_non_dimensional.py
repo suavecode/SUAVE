@@ -124,7 +124,7 @@ def set_origin_dimensional(vehicle):
         n = int(prop.number_of_engines)
         non_dims  = prop.non_dimensional_origin
         
-        prop.origin.clear()
+        prop.origin = []
         
         origin = np.zeros((n,3))
     

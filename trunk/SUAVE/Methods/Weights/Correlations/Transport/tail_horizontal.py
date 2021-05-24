@@ -51,11 +51,25 @@ def tail_horizontal(vehicle, wing):
     area    = wing.areas.reference / Units.ft ** 2  # Convert meters squared to ft squared
     mtow    = vehicle.mass_properties.max_takeoff / Units.lb  # Convert kg to lbs
     exposed = wing.areas.exposed / wing.areas.wetted
-    l_w2h   = wing.origin[0][0] + wing.aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0][0] - \
-                vehicle.wings['main_wing'].aerodynamic_center[0]
+    try:
+        main_wing_l = vehicle.wings['main_wing'].origin[0][0] + vehicle.wings['main_wing'].aerodynamic_center[0]
+        l_w         = vehicle.wings['main_wing'].chords.mean_aerodynamic / Units.ft  # Convert from meters to ft
+    except:
+        l_w = 0.
+        main_wing_l = 0.
+        for wing in vehicle.wings:
+            main_wing_l += (wing.origin[0][0] + wing.aerodynamic_center[0])*wing.areas.reference
+            if wing.chords.mean_aerodynamic / Units.ft > l_w:
+                l_w = wing.chords.mean_aerodynamic / Units.ft
+            
+        main_wing_l = main_wing_l/vehicle.reference_area
+            
+        
+    
+    l_w2h   = wing.origin[0][0] + wing.aerodynamic_center[0] - main_wing_l
     if type(l_w2h) == np.ndarray:
         l_w2h = l_w2h[0]
-    l_w = vehicle.wings['main_wing'].chords.mean_aerodynamic / Units.ft  # Convert from meters to ft
+
     if np.isnan(l_w):
         l_w = 0
     if np.isnan(l_w2h):

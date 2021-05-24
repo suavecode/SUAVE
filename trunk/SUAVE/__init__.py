@@ -20,7 +20,7 @@ from . import Input_Output
 from . import Plots
 
 # the vehicle class
-from .Vehicle import Vehicle
+from .Vehicle import Vehicle, Vehicle_Mass_Properties
 
 from warnings import simplefilter
 simplefilter('ignore')
