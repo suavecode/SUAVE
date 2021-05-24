@@ -16,7 +16,8 @@ import numpy as np
 ## @ingroup Methods-Power-Battery-Sizing
 def initialize_from_mass(battery, mass):
     """
-    Calculate the max energy and power based of the mass
+    Calculate the max energy and power based on the mass.
+    
     Assumptions:
     A constant value of specific energy and power
 
