@@ -18,6 +18,7 @@
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Geometry_Plots import * 
 import matplotlib.pyplot as plt  
 import numpy as np 
 
@@ -46,7 +47,6 @@ def main():
     configs, analyses = full_setup()
 
     simple_sizing(configs, analyses)
-
     configs.finalize()
     analyses.finalize() 
  
@@ -64,8 +64,17 @@ def main():
     #plt.show(block=True)
     
     # check the results
-    check_results(results,old_results)
-
+    check_results(results,old_results) 
+    
+    # print weights breakdown
+    print_weight_breakdown(configs.cruise)
+    
+    # ------------------------------------------------------------------
+    #   Vehicle Definition Complete
+    # ------------------------------------------------------------------
+    
+    # plot vehicle 
+    plot_vehicle(configs.base,plot_control_points = True)      
     return
 
 
@@ -140,6 +149,8 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero() 
     aerodynamics.geometry                            = vehicle
+    aerodynamics.settings.number_spanwise_vortices   = 5
+    aerodynamics.settings.number_chordwise_vortices  = 2    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 

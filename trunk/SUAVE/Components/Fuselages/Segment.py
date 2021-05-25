@@ -41,6 +41,7 @@ class Segment(Lofted_Body.Segment):
         """         
         self.tag                = 'segment'
         self.percent_x_location = 0.0      # Percent location along fuselage length.
+        self.percent_y_location = 0.0       
         self.percent_z_location = 0.0      # Vertical translation of segment. Percent of length.
         self.height             = 0.0
         self.width              = 0.0

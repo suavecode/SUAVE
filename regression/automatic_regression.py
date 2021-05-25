@@ -38,7 +38,9 @@ modules = [
 
     # ----------------------- Regression List --------------------------
     'scripts/aerodynamics/aerodynamics.py',
+    'scripts/aerodynamics/sears_haack.py',
     'scripts/airfoil_import/airfoil_import_test.py',
+    'scripts/airfoil_import/airfoil_interpolation_test.py',
     'scripts/atmosphere/atmosphere.py',
     'scripts/atmosphere/constant_temperature.py',
     'scripts/AVL/test_AVL.py',
@@ -48,11 +50,13 @@ modules = [
     'scripts/cmalpha/cmalpha.py',
     'scripts/cnbeta/cnbeta.py',
     'scripts/concorde/concorde.py',
-    'scripts/DC_10_noise/DC_10_noise.py',
     'scripts/ducted_fan/ducted_fan_network.py',
     'scripts/ducted_fan/battery_ducted_fan_network.py',
     'scripts/ducted_fan/serial_hybrid_ducted_fan_network.py',
     'scripts/dynamic_stability/dynamicstability.py',
+    'scripts/electric_performance/propeller_single_point.py',
+    'scripts/electric_performance/electric_V_h_diagram.py',
+    'scripts/electric_performance/electric_payload_range.py',
     'scripts/Embraer_E190_constThr/mission_Embraer_E190_constThr.py',
     'scripts/fuel_cell/fuel_cell.py',
     'scripts/gasturbine_network/gasturbine_network.py',
@@ -69,7 +73,11 @@ modules = [
     'scripts/mission_range_and_weight_sizing/take_off_weight_from_tofl.py',
     'scripts/motor/motor_test.py',
     'scripts/multifidelity/optimize_mf.py',
-    'scripts/noise_optimization/Noise_Test.py',
+    'scripts/noise_optimization/Noise_Test.py', 
+    'scripts/noise_fidelity_zero/DC_10_noise.py', 
+    'scripts/noise_fidelity_one/propeller_noise.py',  
+    'scripts/noise_fidelity_one/aircraft_noise.py',  
+    'scripts/nonuniform_propeller_inflow/nonuniform_propeller_inflow.py',
     'scripts/optimization_packages/optimization_packages.py',
     'scripts/payload_range/payload_range.py',
     'scripts/plots/plot_test.py',
@@ -83,6 +91,7 @@ modules = [
     'scripts/rocket_network/Rocketdyne_J2.py',
     'scripts/segments/segment_test.py',
     'scripts/slipstream/slipstream_test.py',
+    'scripts/slipstream/propeller_interactions.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
     'scripts/solar_radiation/solar_radiation.py',
@@ -95,7 +104,7 @@ modules = [
     'scripts/VTOL/test_Multicopter.py',
     'scripts/VTOL/test_Tiltwing.py',
     'scripts/VTOL/test_Stopped_Rotor.py',
-    'scripts/weights/weights.py',
+    'scripts/weights/weights.py'
 ]
 
 # ----------------------------------------------------------------------

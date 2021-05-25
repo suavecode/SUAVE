@@ -1,8 +1,7 @@
 ## @ingroup Components-Energy-Networks
 # Scramjet.py
 #
-# Created:  Dec 2017, W. Maier
-# Modified:
+# Created:  Dec 2017, W. Maier 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -81,7 +80,7 @@ class Scramjet(Propulsor):
         results.thrust_force_vector                   [N] 
         results.vehicle_mass_rate                     [kg/s] 
 
-        conditions.propulsion.acoustic_outputs: 
+        conditions.noise.sources.scramjets:
         core: 
         exit_static_temperature                  [K]  
         exit_static_pressure                     [K]  

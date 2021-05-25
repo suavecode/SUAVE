@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Data
 from .fuselage import fuselage
 from .landing_gear import landing_gear
 from .payload import payload
@@ -54,7 +54,7 @@ def empty(vehicle):
                         internal_combustion
                             rated_power - maximum rated power of the internal combustion engine [Watts]
                         
-                    number_engines - integer indicating the number of engines on the aircraft
+                    number_of_engines - integer indicating the number of engines on the aircraft
 
                 wt_cargo - weight of the bulk cargo being carried on the aircraft [kilograms]
                 num_seats - number of seats installed on the aircraft [dimensionless]
@@ -166,11 +166,8 @@ def empty(vehicle):
 
     # Unpack inputs
     S_gross_w   = vehicle.reference_area
-    fuel        = vehicle.fuel
-    Nult        = vehicle.envelope.ultimate_load
-    Nlim        = vehicle.envelope.limit_load
-    TOW         = vehicle.mass_properties.max_takeoff
-    wt_zf       = vehicle.mass_properties.max_zero_fuel
+    Nult        = vehicle.envelope.ultimate_load 
+    TOW         = vehicle.mass_properties.max_takeoff 
     num_pax     = vehicle.passengers
     wt_cargo    = vehicle.mass_properties.cargo
 
@@ -188,7 +185,7 @@ def empty(vehicle):
         propulsors.mass_properties.mass  = wt_propulsion 
 
     elif propulsor_name == 'internal_combustion':
-        rated_power                      = propulsors.rated_power/num_eng
+        rated_power                      = propulsors.engine.sea_level_power
         wt_engine_piston                 = Propulsion.engine_piston(rated_power)
         wt_propulsion                    = Propulsion.integrated_propulsion_general_aviation(wt_engine_piston,num_eng)
         propulsors.mass_properties.mass  = wt_propulsion 
@@ -203,8 +200,11 @@ def empty(vehicle):
         N_tank     = 0 
         V_fuel     = 0.
         V_fuel_int = 0.
-      
+        m_fuel     = 0.
+        fuel       = None
+
     else:
+        fuel                        = vehicle.fuel 
         m_fuel                      = fuel.mass_properties.mass
         landing_weight              = TOW-m_fuel  #just assume this for now
         N_tank                      = fuel.number_of_tanks
@@ -214,8 +214,7 @@ def empty(vehicle):
 
     #main wing
     if 'main_wing' not in vehicle.wings:
-        wt_wing = 0.0
-        wing_c_r = 0.0
+        wt_wing = 0.0 
         warnings.warn("There is no Wing Weight being added to the Configuration", stacklevel=1)
 
     else:
@@ -223,9 +222,7 @@ def empty(vehicle):
         AR_w       = (b**2.)/S_gross_w
         taper_w    = vehicle.wings['main_wing'].taper
         t_c_w      = vehicle.wings['main_wing'].thickness_to_chord
-        sweep_w    = vehicle.wings['main_wing'].sweeps.quarter_chord
-        mac_w      = vehicle.wings['main_wing'].chords.mean_aerodynamic
-        wing_c_r   = vehicle.wings['main_wing'].chords.root
+        sweep_w    = vehicle.wings['main_wing'].sweeps.quarter_chord 
         #now run weight script for the wing
         wt_wing                                         = wing_main(S_gross_w, m_fuel, AR_w, sweep_w, q_c, taper_w, t_c_w,Nult,TOW)
         vehicle.wings['main_wing'].mass_properties.mass = wt_wing
@@ -240,8 +237,7 @@ def empty(vehicle):
         b_h                = vehicle.wings['horizontal_stabilizer'].spans.projected
         AR_h               = (b_h**2.)/S_h
         taper_h            = vehicle.wings['horizontal_stabilizer'].spans.projected
-        sweep_h            = vehicle.wings['horizontal_stabilizer'].sweeps.quarter_chord
-        mac_h              = vehicle.wings['horizontal_stabilizer'].chords.mean_aerodynamic
+        sweep_h            = vehicle.wings['horizontal_stabilizer'].sweeps.quarter_chord 
         t_c_h              = vehicle.wings['horizontal_stabilizer'].thickness_to_chord
         l_w2h              = vehicle.wings['horizontal_stabilizer'].origin[0][0] + vehicle.wings['horizontal_stabilizer'].aerodynamic_center[0] - vehicle.wings['main_wing'].origin[0][0] - vehicle.wings['main_wing'].aerodynamic_center[0] #used for fuselage weight
         wt_tail_horizontal = tail_horizontal(S_h, AR_h, sweep_h, q_c, taper_h, t_c_h,Nult,TOW)                
@@ -274,8 +270,7 @@ def empty(vehicle):
         w_fus      = vehicle.fuselages['fuselage'].width
         h_fus      = vehicle.fuselages['fuselage'].heights.maximum
         l_fus      = vehicle.fuselages['fuselage'].lengths.structure
-        V_fuse     = vehicle.fuselages['fuselage'].mass_properties.volume
-        V_int      = vehicle.fuselages['fuselage'].mass_properties.internal_volume 
+        V_fuse     = vehicle.fuselages['fuselage'].mass_properties.volume 
         num_seats  = vehicle.fuselages['fuselage'].number_coach_seats 
         #calculate fuselage weight
         wt_fuselage = fuselage(S_fus, Nult, TOW, w_fus, h_fus, l_fus, l_w2h, q_c, V_fuse, diff_p_fus)

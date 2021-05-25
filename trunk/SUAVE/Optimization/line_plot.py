@@ -1,8 +1,9 @@
 ## @ingroup Optimization
 #  line_plot.py
 #
-# Created  : Oct 2017, M. Vegh 
-# Modified : Nov 2017, M. Vegh
+# Created:  Oct 2017, M. Vegh 
+# Modified: Nov 2017, M. Vegh
+#           May 2021, E. Botero 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -55,14 +56,13 @@ def line_plot(problem, number_of_points,  plot_obj=1, plot_const=1, sweep_index=
     opt_prob        = problem.optimization_problem
     base_inputs     = opt_prob.inputs
     names           = base_inputs[:,0] # Names
-    bnd             = base_inputs[:,2] # Bounds
-    scl             = base_inputs[:,3] # Scaling
+    bndl            = base_inputs[:,2] # Bounds
+    bndu            = base_inputs[:,3] # Bounds
     base_objective  = opt_prob.objective
     obj_name        = base_objective[0][0] #objective function name (used for scaling)
     obj_scaling     = base_objective[0][1]
     base_constraints= opt_prob.constraints
     constraint_names= base_constraints[:,0]
-    constraint_scale= base_constraints[:,3]
    
     #define inputs, output, and constraints for sweep
     inputs          = np.zeros([2,number_of_points])
@@ -72,10 +72,9 @@ def line_plot(problem, number_of_points,  plot_obj=1, plot_const=1, sweep_index=
     
     
     #create inputs matrix
-    inputs[0,:] = np.linspace(bnd[idx0][0], bnd[idx0][1], number_of_points)
+    inputs[0,:] = np.linspace(bndl[idx0], bndu[idx0], number_of_points)
  
 
-    
     #inputs defined; now run sweep
     for i in range(0, number_of_points):
         opt_prob.inputs[:,1][idx0]= inputs[0,i]

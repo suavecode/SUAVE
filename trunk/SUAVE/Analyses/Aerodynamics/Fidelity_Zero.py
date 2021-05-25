@@ -70,9 +70,13 @@ class Fidelity_Zero(Markup):
         settings.maximum_lift_coefficient           = np.inf
         settings.number_spanwise_vortices           = None 
         settings.number_chordwise_vortices          = None 
-        settings.use_surrogate                      = True 
+        settings.initial_timestep_offset            = 0.
+        settings.wake_development_time              = 0.05
+        settings.number_of_wake_timesteps           = 30
+        settings.use_surrogate                      = True
         settings.propeller_wake_model               = False 
-        
+        settings.model_fuselage                     = False
+
         # build the evaluation process
         compute = self.process.compute
         
@@ -104,6 +108,9 @@ class Fidelity_Zero(Markup):
         compute.drag.spoiler                       = Common.Drag.spoiler_drag
         compute.drag.total                         = Common.Drag.total_aircraft
         
+        # Set subsonic mach numbers for the vortex lattice surrogate
+        compute.lift.inviscid_wings.training.Mach = np.array([[0.0, 0.1  , 0.2 , 0.3,  0.5,  0.75 , 0.85 , 0.9]]).T     
+        
         
     def initialize(self):
         """Initializes the surrogate needed for lift calculation.
@@ -129,8 +136,12 @@ class Fidelity_Zero(Markup):
         propeller_wake_model      = self.settings.propeller_wake_model 
         n_sw                      = self.settings.number_spanwise_vortices
         n_cw                      = self.settings.number_chordwise_vortices
+        ito                       = self.settings.initial_timestep_offset
+        wdt                       = self.settings.wake_development_time
+        nwts                      = self.settings.number_of_wake_timesteps
+        mf                        = self.settings.model_fuselage
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model)          
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts,mf )
                                                             
     finalize = initialize                                          

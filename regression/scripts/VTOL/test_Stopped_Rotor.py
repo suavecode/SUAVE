@@ -7,9 +7,10 @@
 #   Imports
 # ---------------------------------------------------------------------- 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units , Data
 from SUAVE.Plots.Mission_Plots import * 
-import sys 
+from SUAVE.Plots.Geometry_Plots import *
+import sys
 import numpy as np  
 
 sys.path.append('../Vehicles')
@@ -28,12 +29,14 @@ def main():
     # ------------------------------------------------------------------------------------------------------------------
     # build the vehicle, configs, and analyses
     configs, analyses = full_setup() 
-    analyses.finalize()     	   
-    weights   = analyses.weights	
-    breakdown = weights.evaluate()    
-    mission   = analyses.mission  
+    analyses.finalize()
+
+    # Print weight properties of vehicle
+    print(configs.weight_breakdown)
+    print(configs.mass_properties.center_of_gravity)
     
-    # evaluate mission     
+    # evaluate mission
+    mission   = analyses.mission
     results   = mission.evaluate()
         
     # plot results
@@ -41,12 +44,12 @@ def main():
  
     # save, load and plot old results 
     #save_stopped_rotor_results(results)
-    old_results = load_stopped_rotor_results()
+    old_results  = load_stopped_rotor_results()
     plot_mission(old_results,configs, 'k-')
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.rotor_rpm[0][0]
-    RPM_true   = 2277.8663356855614
+    RPM_true   = 2118.8560644326994
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -55,10 +58,7 @@ def main():
     
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([3.22279668e+08, 3.22218318e+08, 3.22036255e+08, 3.21739806e+08,
-                                                        3.21340964e+08, 3.20853966e+08, 3.20297926e+08, 3.19699161e+08,
-                                                        3.19086329e+08, 3.18492007e+08, 3.17946970e+08, 3.17476652e+08,
-                                                        3.17099729e+08, 3.16826786e+08, 3.16662341e+08, 3.16607504e+08])
+    battery_energy_hover_to_transition_true = np.array([3.21822058e+08, 3.18028945e+08, 3.14731091e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true) 
@@ -67,8 +67,8 @@ def main():
     assert all(np.abs((battery_energy_hover_to_transition - battery_energy_hover_to_transition_true)/battery_energy_hover_to_transition) < 1e-3)
 
     # lift Coefficient Check During Cruise
-    lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true   = 0.6973633354447636
+    lift_coefficient        = results.segments.departure_terminal_procedures.conditions.aerodynamics.lift_coefficient[0][0]
+    lift_coefficient_true   = 0.8045446242610749
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -84,6 +84,7 @@ def full_setup():
     
     # vehicle data
     vehicle  = vehicle_setup() 
+    plot_vehicle(vehicle,plot_control_points = False)
 
     # vehicle analyses
     analyses = base_analysis(vehicle)
@@ -111,7 +112,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Electric_Lift_Cruise()
+    weights = SUAVE.Analyses.Weights.Weights_eVTOL()   
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -127,6 +128,13 @@ def base_analysis(vehicle):
     energy= SUAVE.Analyses.Energy.Energy()
     energy.network = vehicle.propulsors 
     analyses.append(energy)
+
+
+    # ------------------------------------------------------------------
+    #  Noise Analysis
+    noise = SUAVE.Analyses.Noise.Fidelity_One()
+    noise.geometry = vehicle
+    analyses.append(noise)
 
     # ------------------------------------------------------------------
     #  Planet Analysis
@@ -163,6 +171,7 @@ def mission_setup(analyses,vehicle):
                                                              
     # base segment                                           
     base_segment                                             = Segments.Segment()
+    base_segment.state.numerics.number_control_points        = 3
     ones_row                                                 = base_segment.state.ones_row
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
@@ -195,7 +204,7 @@ def mission_setup(analyses,vehicle):
     segment.battery_energy                                   = vehicle.propulsors.lift_cruise.battery.max_energy
                                                              
     segment.state.unknowns.rotor_power_coefficient           = 0.02 * ones_row(1) 
-    segment.state.unknowns.throttle_lift                     = 0.85 * ones_row(1) 
+    segment.state.unknowns.throttle_lift                     = 0.9  * ones_row(1) 
     segment.state.unknowns.__delitem__('throttle')
 
     segment.process.iterate.unknowns.network                 = vehicle.propulsors.lift_cruise.unpack_unknowns_no_forward
@@ -222,8 +231,8 @@ def mission_setup(analyses,vehicle):
     segment.pitch_initial   = 0.0 * Units.degrees
     segment.pitch_final     = 5. * Units.degrees
     
-    segment.state.unknowns.rotor_power_coefficient          = 0.03 *  ones_row(1)  
-    segment.state.unknowns.throttle_lift                    = 0.9 * ones_row(1)  
+    segment.state.unknowns.rotor_power_coefficient          = 0.05 *  ones_row(1)  
+    segment.state.unknowns.throttle_lift                    = 0.9  * ones_row(1)  
     
     segment.state.unknowns.propeller_power_coefficient      = 0.14 *  ones_row(1) 
     segment.state.unknowns.throttle                         = 0.95  *  ones_row(1) 
@@ -250,12 +259,12 @@ def mission_setup(analyses,vehicle):
     segment.altitude_end           = 50.0 * Units.ft
     segment.air_speed              = 0.8 * Vstall
     segment.climb_angle            = 1 * Units.degrees
-    segment.acceleration           = 1. * Units['m/s/s']    
-    segment.pitch_initial          = 8. * Units.degrees  
+    segment.acceleration           = 0.5 * Units['m/s/s']    
+    segment.pitch_initial          = 5. * Units.degrees  
     segment.pitch_final            = 7. * Units.degrees       
     
     segment.state.unknowns.rotor_power_coefficient          = 0.02  * ones_row(1)
-    segment.state.unknowns.throttle_lift                    = 0.85  * ones_row(1) 
+    segment.state.unknowns.throttle_lift                    = 0.8  * ones_row(1) 
     segment.state.unknowns.propeller_power_coefficient      = 0.16  * ones_row(1)
     segment.state.unknowns.throttle                         = 0.80  * ones_row(1)   
     segment.state.residuals.network                         = 0.    * ones_row(3)    
@@ -309,58 +318,11 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                    =  0.80   * ones_row(1)
 
     segment.process.iterate.unknowns.network  = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
-    segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift     
+    segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift
 
 
     # add to misison
     mission.append_segment(segment)
-
-    # ------------------------------------------------------------------
-    #   Third Climb Segment: Constant Acceleration, Constant Rate
-    # ------------------------------------------------------------------
-
-    segment     = Segments.Climb.Linear_Speed_Constant_Rate(base_segment)
-    segment.tag = "accelerated_climb"
-
-    segment.analyses.extend( analyses )
-
-    segment.altitude_start  = 300.0 * Units.ft
-    segment.altitude_end    = 1000. * Units.ft
-    segment.climb_rate      = 500.  * Units['ft/min']
-    segment.air_speed_start = np.sqrt((500 * Units['ft/min'])**2 + (1.2*Vstall)**2)
-    segment.air_speed_end   = 110.  * Units['mph']                                            
-
-    segment.state.unknowns.propeller_power_coefficient =  0.16   * ones_row(1)
-    segment.state.unknowns.throttle                    =  0.80   * ones_row(1)
-
-    segment.process.iterate.unknowns.network  = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
-    segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift   
-
-    # add to misison
-    mission.append_segment(segment)    
-
-    # ------------------------------------------------------------------
-    #   Third Cruise Segment: Constant Acceleration, Constant Altitude
-    # ------------------------------------------------------------------
-
-    segment     = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "cruise"
-
-    segment.analyses.extend( analyses )
- 
-    segment.altitude  = 1000.0 * Units.ft
-    segment.air_speed = 110.   * Units['mph']
-    segment.distance  = 60.    * Units.miles                       
-
-    segment.state.unknowns.propeller_power_coefficient = 0.16 * ones_row(1)  
-    segment.state.unknowns.throttle                    = 0.80 * ones_row(1)
-
-    segment.process.iterate.unknowns.network  = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
-    segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift    
-
-
-    # add to misison
-    mission.append_segment(segment)     
 
     return mission
 
@@ -392,6 +354,10 @@ def load_stopped_rotor_results():
     return SUAVE.Input_Output.SUAVE.load('results_stopped_rotor.res')
 
 def save_stopped_rotor_results(results):
+
+    for segment in results.segments.values():
+        del segment.conditions.noise
+
     SUAVE.Input_Output.SUAVE.archive(results,'results_stopped_rotor.res')
     return
  

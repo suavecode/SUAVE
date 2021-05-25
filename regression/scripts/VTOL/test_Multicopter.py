@@ -32,8 +32,11 @@ def main():
     # build the vehicle, configs, and analyses 
     configs, analyses = full_setup() 
     analyses.finalize()    
-    weights      = analyses.configs.base.weights
-    breakdown    = weights.evaluate()     
+
+    # Print weight properties of vehicle
+    print(configs.base.weight_breakdown)
+    print(configs.base.mass_properties.center_of_gravity)
+
     mission      = analyses.missions.base  
     results      = mission.evaluate()
         
@@ -47,22 +50,21 @@ def main():
     plt.show(block=True)    
     
     # RPM of rotor check during hover
-    RPM        = results.segments.climb.conditions.propulsion.rpm[0][0]
-    RPM_true   = 1556.9137273685803
+    RPM        = results.segments.climb.conditions.propulsion.propeller_rpm[0][0]
+    RPM_true   = 1821.7082493081875
 
     print(RPM) 
-    diff_RPM   = np.abs(RPM - RPM_true)
+    diff_RPM = np.abs(RPM - RPM_true)
     print('RPM difference')
     print(diff_RPM)
     assert np.abs((RPM - RPM_true)/RPM_true) < 1e-3  
     
     # Battery Energy Check During Transition
     battery_energy_transition         = results.segments.hover.conditions.propulsion.battery_energy[:,0]
-    battery_energy_transition_true    = np.array([3.57444216e+08, 3.57193036e+08, 3.56450136e+08, 3.55247040e+08,
-                                                  3.53634978e+08, 3.51682925e+08, 3.49474864e+08, 3.47106352e+08,
-                                                  3.44680483e+08, 3.42303427e+08, 3.40079732e+08, 3.38107626e+08,
-                                                  3.36474542e+08, 3.35253094e+08, 3.34497714e+08, 3.34242116e+08])
-
+    battery_energy_transition_true    = np.array([3.55585731e+08, 3.55104040e+08, 3.53674020e+08, 3.51341657e+08,
+                                                  3.48184651e+08, 3.44313843e+08, 3.39872932e+08, 3.35037815e+08,
+                                                  3.30010491e+08, 3.25010966e+08, 3.20268401e+08, 3.16009151e+08,
+                                                  3.12443962e+08, 3.09754638e+08, 3.08081653e+08, 3.07513853e+08])
     print(battery_energy_transition)
     diff_battery_energy_transition    = np.abs(battery_energy_transition  - battery_energy_transition_true) 
     print('battery energy of transition')
@@ -158,7 +160,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Electric_Multicopter()
+    weights = SUAVE.Analyses.Weights.Weights_eVTOL() 
     weights.vehicle = vehicle
     analyses.append(weights)
 

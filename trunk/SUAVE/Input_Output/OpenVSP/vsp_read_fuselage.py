@@ -12,7 +12,6 @@
 
 import SUAVE
 from SUAVE.Core import Units, Data
-from SUAVE.Input_Output.OpenVSP import get_vsp_areas
 from SUAVE.Components.Fuselages.Fuselage import Fuselage
 import vsp as vsp
 import numpy as np
@@ -43,7 +42,6 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	1. VSP 10-digit geom ID for fuselage.
 	2. Units_type set to 'SI' (default) or 'Imperial'.
 	3. Boolean for whether or not to compute fuselage finenesses (default = True).
-	4. Uses exterior function get_vsp_areas, in SUAVE/trunk/SUAVE/Input_Output/OpenVSP.
 	
 	Outputs:
 	Writes SUAVE fuselage, with these geometries:           (all defaults are SI, but user may specify Imperial)
@@ -84,8 +82,10 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 	
 	if units_type == 'SI':
 		units_factor = Units.meter * 1.
-	else:
+	elif units_type == 'imperial':
 		units_factor = Units.foot * 1.
+	elif units_type == 'inches':
+		units_factor = Units.inch * 1.	
 		
 	if vsp.GetGeomName(fuselage_id):
 		fuselage.tag = vsp.GetGeomName(fuselage_id)
@@ -134,7 +134,7 @@ def vsp_read_fuselage(fuselage_id, units_type='SI', fineness=True):
 		eff_diams.append(segment.effective_diameter)
 		
 		if ii != (fuselage.vsp_data.xsec_num-1): # Segment length: stored as length since previous segment. (last segment will have length 0.0.)
-			next_xsec = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii)
+			next_xsec = vsp.GetXSec(fuselage.vsp_data.xsec_surf_id, ii+1)
 			X_Loc_P_p = vsp.GetXSecParm(next_xsec, 'XLocPercent')
 			percent_x_loc_p1 = vsp.GetParmVal(X_Loc_P_p) 
 			segment.length = fuselage.lengths.total*(percent_x_loc_p1 - segment.percent_x_location) * units_factor

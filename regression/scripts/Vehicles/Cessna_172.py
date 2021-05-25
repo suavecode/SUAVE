@@ -227,16 +227,39 @@ def vehicle_setup():
     net.nacelle_diameter                        = 42 * Units.inches
     net.engine_length                           = 0.01 * Units.inches
     net.areas                                   = Data()
-    net.rated_speed                             = 2700. * Units.rpm
-    net.rated_power                             = 180.  * Units.hp
     net.areas.wetted                            = 0.01
                                                 
-    # Component 1 the engine                    
+    # the engine                    
     net.engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
     net.engine.sea_level_power                  = 180. * Units.horsepower
     net.engine.flat_rate_altitude               = 0.0
-    net.engine.speed                            = 2700. * Units.rpm
+    net.engine.rated_speed                      = 2700. * Units.rpm
     net.engine.power_specific_fuel_consumption  = 0.52 
+    
+    
+    # the prop
+    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop.number_of_blades        = 2.0
+    prop.freestream_velocity     = 119.   * Units.knots
+    prop.angular_velocity        = 2650.  * Units.rpm
+    prop.tip_radius              = 76./2. * Units.inches
+    prop.hub_radius              = 8.     * Units.inches
+    prop.design_Cl               = 0.8
+    prop.design_altitude         = 12000. * Units.feet
+    prop.design_power            = .64 * 180. * Units.horsepower
+
+    prop.airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    prop.airfoil_polars          = [['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+
+    prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
+    prop                         = propeller_design(prop)   
+    
+    net.propeller = prop
+     
     
     # add the network to the vehicle
     vehicle.append_component(net) 

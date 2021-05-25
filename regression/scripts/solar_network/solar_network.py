@@ -22,7 +22,7 @@ import copy, time
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
-
+from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle 
 import sys
 
 sys.path.append('../Vehicles')
@@ -68,15 +68,15 @@ def main():
     
     # Check Results 
     F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.rpm[1,0] 
-    current = results.segments.cruise1.conditions.propulsion.current[1,0] 
+    rpm     = results.segments.cruise1.conditions.propulsion.propeller_rpm[1,0]
+    current = results.segments.cruise1.conditions.propulsion.battery_current[1,0]
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 105.9739169506257
-    truth_rpm = 214.27179253741863
-    truth_i   = 178.88932733145853
-    truth_bat = 187815498.6290547
+    truth_F   = 105.97751059878202
+    truth_rpm = 214.5705559974985
+    truth_i   = 131.33561855929347
+    truth_bat = 195698222.3048672
     
     print('battery energy')
     print(energy)
@@ -93,6 +93,8 @@ def main():
     for k,v in list(error.items()):
         assert(np.abs(v)<1e-6)
  
+    # Plot vehicle 
+    plot_vehicle(configs.cruise, save_figure = False, plot_control_points = True)
     
     return
 

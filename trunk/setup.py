@@ -16,8 +16,8 @@ def main():
     import sys
     
     the_package = 'SUAVE'
-    version     = '2.3.0'
-    date        = 'December 25, 2020'
+    version     = '2.4.0'
+    date        = 'May 25, 2021'
     
     if len(sys.argv) >= 2:
         command = sys.argv[1]

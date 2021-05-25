@@ -25,6 +25,9 @@ from Embraer_190 import vehicle_setup, configs_setup
 def main():
     problem = setup()
     
+    # Enforce the bounds
+    problem.hard_bounded_inputs = True
+    
     obj = problem.objective([1.,1.])
     con = problem.all_constraints([1.,1.])
     obj2 = problem.objective([0.9,1.1])
@@ -32,10 +35,10 @@ def main():
     
     actual = Data()
 
-    actual.obj  = 0.67330174
-    actual.con  = 2.89079424
-    actual.obj2 = 0.67895669
-    actual.con3 = 2.98804255
+    actual.obj  = 0.71675392
+    actual.con  = 2.71025508
+    actual.obj2 = 0.73969766
+    actual.con3 = 2.86060695
     
     print('Fuel Burn   =', obj)
     print('Fuel Margin =', con)    
@@ -70,9 +73,9 @@ def setup():
 
     #   [ tag                            , initial, (lb,ub)             , scaling , units ]
     problem.inputs = np.array([
-        [ 'wing_area'                    ,  95    , (   90. ,   130.   ) ,   100. , Units.meter**2],
-        [ 'cruise_altitude'              ,  11    , (   9   ,    14.   ) ,   10.  , Units.km],
-    ])
+        [ 'wing_area'                    ,  95    ,    90. ,   130.    ,   100. , 1*Units.meter**2],
+        [ 'cruise_altitude'              ,  11    ,    9.  ,    14.    ,   10.  , 1*Units.km],
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     # Objective
@@ -81,8 +84,8 @@ def setup():
     # throw an error if the user isn't specific about wildcards
     # [ tag, scaling, units ]
     problem.objective = np.array([
-        [ 'fuel_burn', 10000, Units.kg ]
-    ])
+        [ 'fuel_burn', 10000, 1*Units.kg ]
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     # Constraints
@@ -90,8 +93,8 @@ def setup():
     
     # [ tag, sense, edge, scaling, units ]
     problem.constraints = np.array([
-        [ 'design_range_fuel_margin' , '>', 0., 1E-1, Units.less], #fuel margin defined here as fuel 
-    ])
+        [ 'design_range_fuel_margin' , '>', 0., 1E-1, 1*Units.less], #fuel margin defined here as fuel 
+    ],dtype=object)
     
     # -------------------------------------------------------------------
     #  Aliases
