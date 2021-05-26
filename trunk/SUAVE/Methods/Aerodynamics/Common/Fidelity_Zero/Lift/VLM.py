@@ -179,6 +179,13 @@ def VLM(conditions,settings,geometry):
     XCH = VD.XCH
     YCH = VD.YCH
     ZCH = VD.ZCH
+    
+    XA_TE =  VD.XA_TE
+    XB_TE =  VD.XB_TE
+    YA_TE =  VD.YA_TE
+    YB_TE =  VD.YB_TE
+    ZA_TE =  VD.ZA_TE
+    ZB_TE =  VD.ZB_TE    
 
     #---ADDED variables for sideslip/acceleration
     #For angular values, VORLAX uses degrees by default to radians via DTR (degrees to rads). 
@@ -225,32 +232,38 @@ def VLM(conditions,settings,geometry):
     COS_DL = (ZBH-ZAH)[0::n_cw]/D
     SIN_DL = (YBH-YAH)[0::n_cw]/D
 
-    # COMPUTE EFFECT OF SIDESLIP on DCP intermediate variables
+    # COMPUTE EFFECT OF SIDESLIP on DCP intermediate variables. needs change if cosine chorwise spacing added
     FORAXL = COSCOS
     FORLAT = COSIN
     
-    TAN_LE = (XB1[0:n_cp*n_w:n_cw] - XA1[0:n_cp*n_w:n_cw])/ np.sqrt((ZB1[0:n_cp*n_w:n_cw]-ZA1[0:n_cp*n_w:n_cw])**2 + \
-                                                                     (YB1[0:n_cp*n_w:n_cw]-YA1[0:n_cp*n_w:n_cw])**2)
-    TAN_TE = (XB2[0:n_cp*n_w:n_cw] - XA2[0:n_cp*n_w:n_cw])/ np.sqrt((ZB2[0:n_cp*n_w:n_cw]-ZA2[0:n_cp*n_w:n_cw])**2 + \
-                                                                     (YB2[0:n_cp*n_w:n_cw]-YA2[0:n_cp*n_w:n_cw])**2)        
+    TAN_LE = (XB1[0:n_cp*n_w:n_cw] - XA1[0:n_cp*n_w:n_cw])/ \
+                np.sqrt((ZB1[0:n_cp*n_w:n_cw]-ZA1[0:n_cp*n_w:n_cw])**2 + \
+                        (YB1[0:n_cp*n_w:n_cw]-YA1[0:n_cp*n_w:n_cw])**2)  
+    TAN_TE = (XB_TE - XA_TE)/ np.sqrt((ZB_TE-ZA_TE)**2 + (YB_TE-YA_TE)**2) # _TE variables already have np.repeat built in 
+    TAN_LE = np.broadcast_to(np.repeat(TAN_LE,n_cw),np.shape(B2)) 
+    TAN_TE = np.broadcast_to(TAN_TE,np.shape(B2))    
+    
     SIGN   = 1 #may have to be changed later for symmetry/assymetry?
     TAD    = TAN_LE *SIGN  #may not have to use?
-    TNL    = TAN_LE
-    TNT    = TAN_TE
+    TNL    = TAN_LE * 1
+    TNT    = TAN_TE * 1
     
-    XIA    = np.arange(n_cw) / RNMAX
-    XIB    = np.arange(1,n_cw+1) / RNMAX
+    XIA    = np.broadcast_to(np.tile(np.arange(n_cw)/RNMAX,     n_sw), np.shape(B2))
+    XIB    = np.broadcast_to(np.tile(np.arange(1,n_cw+1)/RNMAX, n_sw), np.shape(B2))
     TANA   = TNL *(1. - XIA) + TNT *XIA
     TANB   = TNL *(1. - XIB) + TNT *XIB
     KTOP   = np.arange(n_cw)  
     
     # cumsum GANT loop if KTOP > 0
-    GFX    = 1 /CHORD
-    GANT   = 0
+    GFX    = np.tile((1 /CHORD), (len_mach,1))
+    GANT   = (GFX*GAMMA).reshape(-1,n_sw, n_cw)
+    GANT   = np.cumsum(GANT,axis=2).reshape(len_mach,-1)
+    GANT   = np.roll(GANT,1)
+    GANT[:,::n_cw]   = 0 
     
-    GLAT   = GANT *(TANA - TANB)
-    GLAT   = GLAT - GFX *GAMMA *TANB
-    DCPSID = FORLAT *COS_DL *GLAT /(XIB - XIA)
+    GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
+    cos_DL  = np.broadcast_to(np.repeat(COS_DL,n_cw),np.shape(B2))
+    DCPSID = FORLAT * cos_DL *GLAT /(XIB - XIA)
     FACTOR = FORAXL + ONSET
     
     
@@ -275,8 +288,6 @@ def VLM(conditions,settings,geometry):
 
     # Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
     TLE = TAN_LE *1
-    TLE = np.repeat(TLE,n_cw)
-    TLE = np.broadcast_to(TLE,np.shape(B2))
     T2  = TLE*TLE
     STB = np.zeros_like(B2)
     STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
