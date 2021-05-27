@@ -7,12 +7,14 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 import matplotlib.pyplot as plt   
+import numpy as np
+import os
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_polars \
      import import_airfoil_polars 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
      import compute_airfoil_polars
 
-def plot_polars(airfoil_polar_paths, line_color = 'k-', raw_polars = True, overlay = True, 
+def plot_polars(airfoil_polar_paths, line_color = 'k-', raw_polars = True, 
                 save_figure = False, save_filename = "Airfoil_Polars", file_type = ".png"):
     """This plots all airfoil polars in the list "airfoil_polar_paths" 
 
@@ -37,38 +39,33 @@ def plot_polars(airfoil_polar_paths, line_color = 'k-', raw_polars = True, overl
         CL = airfoil_polar_data.lift_coefficients
         CD = airfoil_polar_data.drag_coefficients
         
+        shape      = np.shape(CL)
+        n_airfoils = shape[0]
+        n_Re       = shape[1]
+
     else:
         # Plot surrogate polars
         plot_surrogate_polars(airfoil_polar_paths)
             
     
-    if overlay:
-        name = save_filename
-        fig  = plt.figure(name)
-        fig.set_size_inches(10, 4)
-        axes = fig.add_subplot(1,1,1)
-        for i in range(len(airfoil_polar_data)):
-            polar_label = str(i)
-            axes.plot(CL[i], CD[i] , label=polar_label )                  
+
+    for i in range(n_airfoils):
+        airfoil_name = os.path.basename(airfoil_polar_paths[i][0])
         
-        axes.set_title("Airfoil Polars")
+        # plot all Reynolds number polars for ith airfoil
+        fig  = plt.figure(save_filename +'_'+ str(i))
+        fig.set_size_inches(10, 4)
+        axes = plt.subplot(1,1,1)
+        axes.set_title(airfoil_name)            
+        for j in range(n_Re):
+            Re_val = 'Re_'+str(j)
+            axes.plot(CD[i,j,:], CL[i,j,:], label=Re_val)
+            
+        axes.set_xlabel('$C_D$')  
+        axes.set_ylabel('$C_L$')  
         axes.legend()
+        
         if save_figure:
             plt.savefig(name + file_type)   
             
-    else:
-        for i in range(len(airfoil_names)):
-            # separate x and y coordinates 
-            airfoil_x  = airfoil_data.x_coordinates[i] 
-            airfoil_y  = airfoil_data.y_coordinates[i]    
-    
-            name = save_filename + '_' + str(i)
-            fig  = plt.figure(name)
-            axes = fig.add_subplot(1,1,1)
-            axes.set_title(airfoil_names[i])
-            axes.plot(airfoil_x, airfoil_y , line_color )                  
-            axes.axis('equal')
-            if save_figure:
-                plt.savefig(name + file_type)          
-
     return
