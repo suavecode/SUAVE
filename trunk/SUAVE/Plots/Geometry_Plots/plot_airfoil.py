@@ -14,7 +14,6 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
      import import_airfoil_geometry 
 import os
 
-## @ingroup Plots-Geometry_Plots
 def plot_airfoil(airfoil_paths,  line_color = 'k-', overlay = False, save_figure = False, save_filename = "Airfoil_Geometry", file_type = ".png"):
     """This plots all airfoil defined in the list "airfoil_names" 
 
