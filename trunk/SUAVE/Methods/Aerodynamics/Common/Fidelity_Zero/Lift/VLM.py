@@ -92,15 +92,18 @@ def VLM(conditions,settings,geometry):
         c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
         x_mac      = geometry.wings['main_wing'].aerodynamic_center[0] + geometry.wings['main_wing'].origin[0][0]
         z_mac      = geometry.wings['main_wing'].aerodynamic_center[2] + geometry.wings['main_wing'].origin[0][2]
+        w_span     = geometry.wings['main_wing'].spans.projected
     else:
-        c_bar = 0.
-        x_mac = 0.
+        c_bar  = 0.
+        x_mac  = 0.
+        w_span = 0.
         for wing in geometry.wings:
             if wing.vertical == False:
                 if c_bar <= wing.chords.mean_aerodynamic:
-                    c_bar = wing.chords.mean_aerodynamic
-                    x_mac = wing.aerodynamic_center[0] + wing.origin[0][0]
-                    z_mac = wing.aerodynamic_center[2] + wing.origin[0][2]
+                    c_bar  = wing.chords.mean_aerodynamic
+                    x_mac  = wing.aerodynamic_center[0] + wing.origin[0][0]
+                    z_mac  = wing.aerodynamic_center[2] + wing.origin[0][2]
+                    w_span = wing.spans.projected
 
     x_cg       = geometry.mass_properties.center_of_gravity[0][0]
     z_cg       = geometry.mass_properties.center_of_gravity[0][2]
@@ -111,6 +114,7 @@ def VLM(conditions,settings,geometry):
         x_m = x_cg
         z_m = z_cg
         
+        
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
     mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(mach)) 
@@ -118,45 +122,11 @@ def VLM(conditions,settings,geometry):
 
     # generate vortex distribution 
     VD   = generate_wing_vortex_distribution(geometry,settings)  
+
+    # Unpack coordinates (VD)
     n_w  = VD.n_w    
     n_cp = VD.n_cp  
 
-    # pack vortex distribution 
-    geometry.vortex_distribution = VD
-    
-    # Compute flow tangency conditions
-    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
-    delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
-
-    # Build the vector 
-    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
-                                                                                 pwm,ito,wdt,nts )    
-    
-    # Build induced velocity matrix, C_mn
-    # This is not affected by AoA, so we can use unique mach numbers only
-    m_unique, inv = np.unique(mach,return_inverse=True)
-    m_unique      = np.atleast_2d(m_unique).T
-    C_mn_small, s, CHORD, RFLAG_small, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,m_unique)
-    
-    C_mn  = C_mn_small[inv,:,:,:]
-    RFLAG = RFLAG_small[inv,:]
-
-    # Turn off sonic vortices when Mach>1
-    RHS = RHS*RFLAG
-    
-    # Build Aerodynamic Influence Coefficient Matrix
-    A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
-        + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
-        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42      
-
-    # Compute vortex strength  
-    gamma = np.linalg.solve(A,RHS)
-
-    # ---------------------------------------------------------------------------------------
-    # STEP 10: Compute Pressure Coefficient
-    # ------------------ --------------------------------------------------------------------
-
-    # Unpack coordinates 
     YAH = VD.YAH*1.
     ZAH = VD.ZAH
     ZBH = VD.ZBH    
@@ -185,30 +155,100 @@ def VLM(conditions,settings,geometry):
     YA_TE =  VD.YA_TE
     YB_TE =  VD.YB_TE
     ZA_TE =  VD.ZA_TE
-    ZB_TE =  VD.ZB_TE    
+    ZB_TE =  VD.ZB_TE     
 
-    #---ADDED variables for sideslip/acceleration
+    # additional VD preprocessing
+    # from here on, VD will also be used to hold processed information about geometry
+    XBAR    = np.ones(n_sw*n_w) * x_m
+    ZBAR    = np.ones(n_sw*n_w) * z_m 
+    
+    xa      = np.array(np.atleast_2d(VD.XAH*1.),dtype=np.float32)
+    xb      = np.array(np.atleast_2d(VD.XBH*1.),dtype=np.float32)
+    xc      = 0.5*(xa+xb)    
+    xo      = np.array(np.atleast_2d(VD.XC*1.),dtype=np.float32).T 
+    xobar   = (xo - xc)    
+    shape   = np.shape(xobar)
+    shape_0 = shape[0]    
+    RNMAX       = n_cw * 1 # number of chordwise panels
+    LE_A_pts_x  = np.array(np.atleast_2d(VD.XA1*1.),dtype=np.float32)[:,0::n_cw]
+    LE_B_pts_x  = np.array(np.atleast_2d(VD.XB1*1.),dtype=np.float32)[:,0::n_cw]
+    LE_A_pts_z  = np.array(np.atleast_2d(VD.ZA1*1.),dtype=np.float32)[:,0::n_cw]
+    LE_B_pts_z  = np.array(np.atleast_2d(VD.ZB1*1.),dtype=np.float32)[:,0::n_cw]    
+    LE_X        = (LE_A_pts_x+LE_B_pts_x)/2
+    LE_Z        = (LE_A_pts_z+LE_B_pts_z)/2
+    TE_X        = (XB_TE + XA_TE)/2
+    TE_Z        = (ZB_TE + ZA_TE)/2
+    LE_X        = np.repeat(LE_X,n_cw,axis=1)
+    LE_Z        = np.repeat(LE_Z,n_cw,axis=1)    
+    CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2)
+    CHORD       = np.repeat(CHORD,shape_0,axis=0)    
+    
+    X1c  = (XA1+XB1)/2
+    X2c  = (XA2+XB2)/2
+    Z1c  = (ZA1+ZB1)/2
+    Z2c  = (ZA2+ZB2)/2
+    SLOPE = (Z2c - Z1c)/(X2c - X1c)
+    SLE  = SLOPE[0::n_cw]
+    
+    # pack vortex distribution 
+    VD.XBAR  = XBAR * 1
+    VD.ZBAR  = ZBAR * 1   
+    VD.RNMAX = RNMAX
+    VD.LE_X  = LE_X
+    VD.LE_Z  = LE_Z
+    VD.CHORD = CHORD
+    VD.SLOPE = SLOPE*1
+    VD.SLE   = SLE*1
+    geometry.vortex_distribution = VD
+    
+    # Compute flow tangency conditions
+    phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
+    delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
+
+    # Build the vector 
+    rhs = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,pwm,ito,wdt,nts) 
+    RHS = rhs.RHS*1
+    
+    # Build induced velocity matrix, C_mn
+    # This is not affected by AoA, so we can use unique mach numbers only
+    m_unique, inv = np.unique(mach,return_inverse=True)
+    m_unique      = np.atleast_2d(m_unique).T
+    C_mn_small, s, CHORD, RFLAG_small, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,m_unique)
+    
+    C_mn  = C_mn_small[inv,:,:,:]
+    RFLAG = RFLAG_small[inv,:]
+
+    # Turn off sonic vortices when Mach>1
+    RHS = RHS*RFLAG
+    
+    # Build Aerodynamic Influence Coefficient Matrix
+    A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
+        + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
+        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42      
+
+    # Compute vortex strength  
+    gamma = np.linalg.solve(A,RHS)
+
+    #rename GAMMA and multiply by -1 to match VORLAX
+    GAMMA = np.array(gamma)*(-1)
+
+    # ---------------------------------------------------------------------------------------
+    # STEP 10: Compute Pressure Coefficient
+    # ------------------ --------------------------------------------------------------------   
+
+    #Inputs for sideslip/acceleration
     #For angular values, VORLAX uses degrees by default to radians via DTR (degrees to rads). 
     #SUAVE uses radians and its Units system. All algular variables will be in radians or var*Units.degrees
-    
-    #inputs
     PSI       = conditions.aerodynamics.sideslip_angle     
     PITCHQ    = conditions.stability.dynamic.pitch_rate              
     ROLLQ     = conditions.stability.dynamic.roll_rate             
-    YAWQ      = conditions.stability.dynamic.yaw_rate               
-    
+    YAWQ      = conditions.stability.dynamic.yaw_rate 
+    VINF      = conditions.freestream.velocity
+                  
+    #HANGING VARS
     #SUAVE variables renamed to be consistent with VORLAX
-    ONSET = 0 #prob needs changing for rot rates
-    
-    VINF = (conditions.freestream.velocity).T
+    ONSET = 0 #prob needs changing for rot rates    
     RJTS = 0                         #spanwise strip exposure flag, always 0 for SUAVE's infinitely thin airfoils
-    X = XCH                          #x-coord of load point (horseshoe centroid)
-    XTE = (VD.XA_TE + VD.XB_TE)/2    #Trailing edge x-coord behind the control point?
-    EW = C_mn[:,0,:,2]*2
-    GAMMA = np.array(gamma)
-    YY = YCH
-    ZZ = ZCH
-    #---END added variables
     
     # COMPUTE FREE-STREAM AND ONSET FLOW PARAMETERS.
     B2     = np.tile((mach**2 - 1),n_cp)
@@ -223,14 +263,13 @@ def VLM(conditions,settings,geometry):
     ROLL = ROLLQ /VINF
     YAW = YAWQ /VINF    
     
-    RNMAX  = n_cw*1.
     CHORD  = CHORD[0,:]
     CHORD_strip = CHORD[0::n_cw]     
 
     # Panel Dihedral Angle, using AH and BH location
     D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)[0::n_cw]
-    COS_DL = (ZBH-ZAH)[0::n_cw]/D
-    SIN_DL = (YBH-YAH)[0::n_cw]/D
+    COS_DL = (YBH-YAH)[0::n_cw]/D
+    SIN_DL = (ZBH-ZAH)[0::n_cw]/D
 
     # COMPUTE EFFECT OF SIDESLIP on DCP intermediate variables. needs change if cosine chorwise spacing added
     FORAXL = COSCOS
@@ -295,8 +334,8 @@ def VLM(conditions,settings,geometry):
     
     # DL IS THE DIHEDRAL ANGLE (WITH RESPECT TO THE X-Y PLANE) OF
     # THE IR STREAMWISE STRIP OF HORSESHOE VORTICES.    
-    SID = COS_DL # Just the LE values
-    COD = SIN_DL # Just the LE values
+    SID = SIN_DL # Just the LE values
+    COD = COS_DL # Just the LE values
 
     # Now on to each strip
     PION = 2.0 /RNMAX
@@ -310,6 +349,8 @@ def VLM(conditions,settings,geometry):
     # CORMED IS LENGTH OF STRIP CENTERLINE BETWEEN LOAD POINT
     # AND TRAILING EDGE? THIS PARAMETER IS USED IN THE COMPUTATION
     # OF THE STRIP ROLLING COUPLE CONTRIBUTION DUE TO SIDESLIP.
+    X = XCH                          #x-coord of load point (horseshoe centroid)
+    XTE = (VD.XA_TE + VD.XB_TE)/2    #Trailing edge x-coord behind the control point?    
     CORMED = XTE - X   
 
     # SINF REFERENCES THE LOAD CONTRIBUTION OF IRT-VORTEX TO THE
@@ -327,13 +368,6 @@ def VLM(conditions,settings,geometry):
     # INCIDENCE.    
     RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)
     XX   = (RK - .75) *PION /2.0
-
-    X1c  = (XA1+XB1)/2
-    X2c  = (XA2+XB2)/2
-    Z1c  = (ZA1+ZB1)/2
-    Z2c  = (ZA2+ZB2)/2
-
-    SLOPE = (Z2c - Z1c)/(X2c - X1c)
     TX    = SLOPE - ZETA
     CAXL  = -SINF*TX/(1.0+TX**2) # These are the axial forces on each panel
     BMLE  = (XLE-XX)*SINF        # These are moment on each panel
@@ -350,37 +384,29 @@ def VLM(conditions,settings,geometry):
     # Underestimates these effects when using linear chorwise spacing (LAX==1 in VORLAX), 
     #     but trend directions are accurate
     # ** TO DO ** Add cosine spacing (earlier in VLM) to properly capture the magnitude of these effects
+    EW  = C_mn[:,0,:,2]*2
     CLE = (EW*GAMMA).sum(axis=1)
     CLE = np.array(np.split(CLE, len_mach))
 
-    # XGIRO, YGIRO, ZGIRO ARE THE COORDINATES OF THE STRIP LEADING EDGE
-    # MIDPOINT WITH RESPECT TO THE POINT OF AIRCRAFT ROTATION (IF ANY).
-    XBAR  = np.ones(n_sw*n_w) * x_m
-    ZBAR  = np.ones(n_sw*n_w) * z_m    
-    XGIRO = X - CHORD_strip *XLE - XBAR
-    YGIRO = YY 
-    ZGIRO = ZZ - ZBAR
-    
-    # VX, VY, VZ ARE THE FLOW ONSET VELOCITY COMPONENTS AT THE LEADING
-    # EDGE (STRIP MIDPOINT). VX, VY, VZ AND THE ROTATION RATES ARE
-    # REFERENCED TO THE FREE STREAM VELOCITY.
-    
-    VX = COSCOS - PITCH *ZGIRO + YAW *YGIRO
-    VY = COSINP - YAW *XGIRO + ROLL *ZGIRO
-    VZ = SINALF - ROLL *YGIRO + PITCH *XGIRO
-    
-    # CCNTL AND SCNTL ARE DIRECTION COSINE PARAMETERS OF TANGENT TO
-    # CAMBERLINE AT LEADING EDGE.
-    # SLE is slope at leading edge
-    SLE  = SLOPE[0::n_cw]   
-    CCNTL = 1. / np.sqrt(1.0 + SLE**2)
-    SCNTL = SLE *CCNTL
+    # The following are calculated earlier in VLM or in compute_RHS_matrix. They are noted here to
+    # make following along in VORLAX easier if need be
+    #XGIRO 
+    #YGIRO 
+    #ZGIRO    
+    #VX    
+    #VY    
+    #VZ      
+    #SLE   
+    #CCNTL 
+    #SCNTL 
     
     # EFFINC = COMPONENT OF ONSET FLOW ALONG NORMAL TO CAMBERLINE AT
     #          LEADING EDGE.
-    EFFINC = VX *SCNTL + VY *CCNTL *SID - VZ *CCNTL *COD
+    EFFINC = RHS  #happens to be the same equation. See AERO and PRESS in VORLAX
     CLE = CLE - EFFINC 
-    CLE = np.where(STB > 0, CLE /RNMAX /STB, CLE)
+    STB_LE_stripwise = np.repeat(STB, n_cw, axis=1)
+    CLE = np.where(STB_LE_stripwise > 0, CLE /RNMAX /STB_LE_stripwise, CLE)
+    #end force rotation computation re: ** TO DO **
     
     # Leading edge suction multiplier. See documentation. This is a negative integer if used
     # Default to 1 unless specified otherwise
@@ -397,6 +423,7 @@ def VLM(conditions,settings,geometry):
 
     # TFX AND TFZ ARE THE COMPONENTS OF LEADING EDGE FORCE VECTOR ALONG
     # ALONG THE X AND Z BODY AXES.   
+    SLE  = SLOPE[0::n_cw]
     ZETA = ZETA[0::n_cw] 
     XCOS = np.broadcast_to(np.cos(SLE-ZETA),np.shape(DCP_LE))
     XSIN = np.broadcast_to(np.sin(SLE-ZETA),np.shape(DCP_LE))
@@ -469,9 +496,12 @@ def VLM(conditions,settings,geometry):
     CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T
     CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
     CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
+
     CYTOT    = np.atleast_2d(np.sum(FY,axis=1)/SREF).T   # total y force coeff
     CRTOT    = np.atleast_2d(np.sum(RM,axis=1)/SREF).T   # total rolling moment coeff
+    CRMTOT   = CRTOT/w_span*(-1)                         # an output in VORLAG.LOG
     CNTOT    = np.atleast_2d(np.sum(YM,axis=1)/SREF).T   # total yawing  moment coeff
+    CYMTOT   = CNTOT/w_span*(-1)                         # an output in VORLAG.LOG
 
     # ---------------------------------------------------------------------------------------
     # STEP 12: Pack outputs
@@ -483,7 +513,9 @@ def VLM(conditions,settings,geometry):
     results.CM         =  CM  
     results.CYTOT      =  CYTOT
     results.CRTOT      =  CRTOT
+    results.CRMTOT     =  CRMTOT
     results.CNTOT      =  CNTOT
+    results.CYMTOT     =  CYMTOT
     
     #other SUAVE outputs
     results.CL_wing    =  CL_wing   
@@ -492,8 +524,11 @@ def VLM(conditions,settings,geometry):
     results.cdi_y      =  cdi_y     
     results.alpha_i    =  alpha_i  
     results.CP         =  CP
-    results.gamma      =  gamma
+    results.gamma      =  GAMMA
     
-    
+    #append inputs
+    results.conditions = conditions
+    results.settings   = settings
+    results.geometry   = geometry
     
     return results

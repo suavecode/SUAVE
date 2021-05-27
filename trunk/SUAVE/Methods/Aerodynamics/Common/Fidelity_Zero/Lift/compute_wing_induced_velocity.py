@@ -173,24 +173,17 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
         U[sub], V[sub], W[sub] = subsonic(zobar,XSQ1,RO1_sub,XSQ2,RO2_sub,XTY,t,B2_sub,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2)   
 
     
-    # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX
+    # COMPUTATION FOR SUPERSONIC HORSESHOE VORTEX. some values computed in a preprocessing section in VLM
     sup         = (B2>=0)[:,0,0]
     B2_sup      = B2[sup,:,:]
     RO1_sup     = B2[sup,:,:]*RTV1
     RO2_sup     = B2[sup,:,:]*RTV2
-    RNMAX       = n_cw # number of chordwise panels
-    LE_A_pts_x  = XA1[:,0::n_cw]
-    LE_B_pts_x  = XB1[:,0::n_cw]
-    LE_A_pts_z  = ZA1[:,0::n_cw]
-    LE_B_pts_z  = ZB1[:,0::n_cw]    
-    LE_X        = (LE_A_pts_x+LE_B_pts_x)/2
-    LE_Z        = (LE_A_pts_z+LE_B_pts_z)/2
+    RNMAX       = VD.RNMAX # number of chordwise panels
     TE_X        = (XB_TE + XA_TE)/2
     TE_Z        = (ZB_TE + ZA_TE)/2
-    LE_X        = np.repeat(LE_X,n_cw,axis=1)
-    LE_Z        = np.repeat(LE_Z,n_cw,axis=1)    
-    CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2)
-    CHORD       = np.repeat(CHORD,shape_0,axis=0)
+    LE_X        = VD.LE_X
+    LE_Z        = VD.LE_Z    
+    CHORD       = VD.CHORD
     ZETA        = (LE_Z[0,:]-TE_Z[0,:])/(LE_X[0,:]-TE_X[0,:]) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
     RFLAG       = np.ones((n_mach,shape_1),dtype=np.int8)
     
