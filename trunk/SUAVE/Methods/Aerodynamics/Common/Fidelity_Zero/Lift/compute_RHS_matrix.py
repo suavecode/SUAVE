@@ -132,21 +132,21 @@ def build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_dist
     ZBAR   = VD.ZBAR
 
     CHORD  = VD.CHORD[0,:]
-    XLE = 0.125 * 2/VD.RNMAX  # 0.125 * PION
+    DELTAX = 0.5/VD.RNMAX 
     
     # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
     # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
     # ARE XGIRO, YGIRO, AND ZGIRO.
-    XGIRO = X - CHORD*XLE - np.repeat(XBAR, n_cw)
+    XGIRO = X + CHORD*DELTAX - np.repeat(XBAR, n_cw)
     YGIRO = YY 
     ZGIRO = ZZ - np.repeat(ZBAR, n_cw)  
     
     # VX, VY, VZ ARE THE FLOW ONSET VELOCITY COMPONENTS AT THE LEADING
     # EDGE (STRIP MIDPOINT). VX, VY, VZ AND THE ROTATION RATES ARE
     # REFERENCED TO THE FREE STREAM VELOCITY.    
-    VX = COSCOS - PITCH *ZGIRO + YAW *YGIRO
-    VY = COSIN - YAW *XGIRO + ROLL *ZGIRO
-    VZ = SINALF - ROLL *YGIRO + PITCH *XGIRO 
+    VX = (COSCOS - PITCH*ZGIRO + YAW  *YGIRO)
+    VY = (COSIN  - YAW  *XGIRO + ROLL *ZGIRO)
+    VZ = (SINALF - ROLL *YGIRO + PITCH*XGIRO)
 
     # CCNTL AND SCNTL ARE DIRECTION COSINE PARAMETERS OF TANGENT TO
     # CAMBERLINE AT LEADING EDGE.
@@ -157,14 +157,30 @@ def build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_dist
     COD = np.cos(phi)
     SID = np.sin(phi)
 
+    # COMPUTE ONSET FLOW COMPONENT ALONG THE OUTWARD NORMAL TO
+    # THE SURFACE AT THE CONTROL POINT, ALOC.
     ALOC = VX *SCNTL + VY *CCNTL *SID - VZ *CCNTL *COD    
+    
+    # COMPUTE VELOCITY COMPONENT ALONG X-AXIS INDUCED BY THE RIGID
+    # BODY ROTATION, ONSET.    
+    ONSET = - PITCH *ZGIRO + YAW *YGIRO
     
     #pack RHS
     rhs = Data()
     rhs.RHS            = ALOC
+    rhs.ONSET          = ONSET
     rhs.Vx_ind_total   = Vx_ind_total
     rhs.Vz_ind_total   = Vz_ind_total
     rhs.V_distribution = V_distribution
     rhs.dt             = dt
+    
+    #these values will be used later to calculate EFFINC
+    rhs.YGIRO  = YGIRO
+    rhs.ZGIRO  = ZGIRO
+    rhs.VX     = VX   
+    rhs.SCNTL  = SCNTL
+    rhs.CCNTL  = CCNTL
+    rhs.COD    = COD  
+    rhs.SID    = SID  
     
     return rhs

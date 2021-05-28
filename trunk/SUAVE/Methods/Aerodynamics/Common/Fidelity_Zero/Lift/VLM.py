@@ -207,7 +207,8 @@ def VLM(conditions,settings,geometry):
 
     # Build the vector 
     rhs = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,pwm,ito,wdt,nts) 
-    RHS = rhs.RHS*1
+    RHS     = rhs.RHS*1
+    ONSET   = rhs.ONSET*1
     
     # Build induced velocity matrix, C_mn
     # This is not affected by AoA, so we can use unique mach numbers only
@@ -246,8 +247,6 @@ def VLM(conditions,settings,geometry):
     VINF      = conditions.freestream.velocity
                   
     #HANGING VARS
-    #SUAVE variables renamed to be consistent with VORLAX
-    ONSET = 0 #prob needs changing for rot rates    
     RJTS = 0                         #spanwise strip exposure flag, always 0 for SUAVE's infinitely thin airfoils
     
     # COMPUTE FREE-STREAM AND ONSET FLOW PARAMETERS.
@@ -287,13 +286,13 @@ def VLM(conditions,settings,geometry):
     TNL    = TAN_LE * 1
     TNT    = TAN_TE * 1
     
-    XIA    = np.broadcast_to(np.tile(np.arange(n_cw)/RNMAX,     n_sw), np.shape(B2))
-    XIB    = np.broadcast_to(np.tile(np.arange(1,n_cw+1)/RNMAX, n_sw), np.shape(B2))
+    XIA    = np.broadcast_to(np.tile(np.arange(n_cw)/RNMAX,     n_sw*n_w), np.shape(B2))
+    XIB    = np.broadcast_to(np.tile(np.arange(1,n_cw+1)/RNMAX, n_sw*n_w), np.shape(B2))
     TANA   = TNL *(1. - XIA) + TNT *XIA
     TANB   = TNL *(1. - XIB) + TNT *XIB
     KTOP   = np.arange(n_cw)  
     
-    # cumsum GANT loop if KTOP > 0
+    # cumsum GANT loop if KTOP > 0 (don't actually need KTOP with vectorized arrays)
     GFX    = np.tile((1 /CHORD), (len_mach,1))
     GANT   = (GFX*GAMMA).reshape(-1,n_sw, n_cw)
     GANT   = np.cumsum(GANT,axis=2).reshape(len_mach,-1)
@@ -387,22 +386,31 @@ def VLM(conditions,settings,geometry):
     EW  = C_mn[:,0,:,2]*2
     CLE = (EW*GAMMA).sum(axis=1)
     CLE = np.array(np.split(CLE, len_mach))
+    
+    # Up till EFFINC, some of the following values were computed in compute_RHS_matrix().
+    #     EFFINC and ALOC are calculated the exact same way, except for the XGIRO term.
+    # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
+    # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
+    # ARE XGIRO, YGIRO, AND ZGIRO. 
+    XGIRO = X - CHORD*XLE - np.repeat(XBAR, n_cw)
+    YGIRO = rhs.YGIRO
+    ZGIRO = rhs.ZGIRO  
+    
+    # VX, VY, VZ ARE THE FLOW ONSET VELOCITY COMPONENTS AT THE LEADING
+    # EDGE (STRIP MIDPOINT). VX, VY, VZ AND THE ROTATION RATES ARE
+    # REFERENCED TO THE FREE STREAM VELOCITY.    
+    VX = rhs.VX
+    VY = (COSINP - YAW  *XGIRO + ROLL *ZGIRO)
+    VZ = (SINALF - ROLL *YGIRO + PITCH*XGIRO)
 
-    # The following are calculated earlier in VLM or in compute_RHS_matrix. They are noted here to
-    # make following along in VORLAX easier if need be
-    #XGIRO 
-    #YGIRO 
-    #ZGIRO    
-    #VX    
-    #VY    
-    #VZ      
-    #SLE   
-    #CCNTL 
-    #SCNTL 
+    # CCNTL AND SCNTL ARE DIRECTION COSINE PARAMETERS OF TANGENT TO
+    # CAMBERLINE AT LEADING EDGE.
+    # These and SID and COD were computed in compute_RHS_matrix()
     
     # EFFINC = COMPONENT OF ONSET FLOW ALONG NORMAL TO CAMBERLINE AT
     #          LEADING EDGE.
-    EFFINC = RHS  #happens to be the same equation. See AERO and PRESS in VORLAX
+    EFFINC = VX *rhs.SCNTL + VY *rhs.CCNTL *rhs.SID - VZ *rhs.CCNTL *rhs.COD 
+    EFFINC = np.repeat(EFFINC[:,0::n_cw], n_cw, axis=1)
     CLE = CLE - EFFINC 
     STB_LE_stripwise = np.repeat(STB, n_cw, axis=1)
     CLE = np.where(STB_LE_stripwise > 0, CLE /RNMAX /STB_LE_stripwise, CLE)
