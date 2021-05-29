@@ -1,4 +1,4 @@
-## @ingroup Plots-Geometry_Plots
+## @ingroup Plots
 # plot_airfoil_polars.py
 # 
 # Created:  May 2021, R. Erhard
