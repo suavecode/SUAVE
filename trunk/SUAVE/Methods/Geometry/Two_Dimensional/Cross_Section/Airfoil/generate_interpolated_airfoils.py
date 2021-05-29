@@ -11,6 +11,7 @@
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry 
 from SUAVE.Plots.Geometry_Plots import plot_airfoil
 import numpy as np
+import os
 
 def generate_interpolated_airfoils(a1, a2, nairfoils, save_filename="Transition", npts=50):
     """ Takes in two airfoils, interpolates between their coordinates to generate new
@@ -29,6 +30,8 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, save_filename="Transition"
     
     # import airfoil geometry for the two airfoils
     airfoil_geo_files = [a1, a2]
+    a1_name           = os.path.basename(a1)
+    a2_name           = os.path.basename(a2)
     a_geo = import_airfoil_geometry(airfoil_geo_files,npts)
     
     # identify x and y coordinates of the two airfoils
@@ -70,7 +73,7 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, save_filename="Transition"
 
     for k in range(nairfoils-2):
         # create new files and write title block for each new airfoil
-        title_block     = "Airfoil Transition "+str(k+1)+" between"+a1+"and"+a2+"\n 61. 61.\n\n"
+        title_block     = "Airfoil Transition "+str(k+1)+" between "+a1_name+" and "+a2_name+"\n 61. 61.\n\n"
         file            ='a_'+str(k+1)
         new_files[file] = open(save_filename + str(k+1) +".txt", "w+")
         new_files[file].write(title_block)

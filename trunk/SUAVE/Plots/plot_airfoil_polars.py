@@ -1,5 +1,5 @@
 ## @ingroup Plots-Geometry_Plots
-# plot_polars.py
+# plot_airfoil_polars.py
 # 
 # Created:  May 2021, R. Erhard
 
@@ -14,8 +14,8 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
      import compute_airfoil_polars
 
-def plot_polars(airfoil_path, airfoil_polar_paths, line_color = 'k-', use_surrogate = False, 
-                save_figure = False, save_filename = "Airfoil_Polars", file_type = ".png"):
+def plot_airfoil_polars(airfoil_path, airfoil_polar_paths, line_color = 'k-', use_surrogate = False, 
+                display_plot = False, save_figure = False, save_filename = "Airfoil_Polars", file_type = ".png"):
     """This plots all airfoil polars in the list "airfoil_polar_paths" 
 
     Assumptions:
@@ -88,5 +88,6 @@ def plot_polars(airfoil_path, airfoil_polar_paths, line_color = 'k-', use_surrog
         
         if save_figure:
             plt.savefig(save_filename +'_' + str(i) + file_type)   
-    plt.show()
+        if display_plot:
+            plt.show()
     return

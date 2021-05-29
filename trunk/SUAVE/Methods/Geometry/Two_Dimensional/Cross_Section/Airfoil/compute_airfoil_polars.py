@@ -82,6 +82,9 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     state.conditions.aerodynamics.pre_stall_coefficients = Data()
     state.conditions.aerodynamics.post_stall_coefficients = Data()
 
+    # read airfoil polars 
+    airfoil_polar_data = import_airfoil_polars(a_polar)
+    
     # AERODAS 
     for i in range(num_airfoils):
         
@@ -89,9 +92,7 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
         geometry.thickness_to_chord = airfoil_data.thickness_to_chord[i]
         
         for j in range(num_polars):
-            
-            # read airfoil polars 
-            airfoil_polar_data = import_airfoil_polars(a_polar)
+            # Extract from polars
             airfoil_cl         = airfoil_polar_data.lift_coefficients[i,j] 
             airfoil_cd         = airfoil_polar_data.drag_coefficients[i,j] 
             airfoil_aoa        = airfoil_polar_data.angle_of_attacks  
