@@ -99,7 +99,9 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
             # computing approximate zero lift aoa
             airfoil_cl_plus = airfoil_cl[airfoil_cl>0]
             idx_zero_lift = np.where(airfoil_cl == min(airfoil_cl_plus))[0][0]
-            A0  = airfoil_aoa[idx_zero_lift] * Units.degrees
+            airfoil_cl_crossing = airfoil_cl[idx_zero_lift-1:idx_zero_lift+1]
+            airfoil_aoa_crossing = airfoil_aoa[idx_zero_lift-1:idx_zero_lift+1]
+            A0  = np.interp(0,airfoil_cl_crossing, airfoil_aoa_crossing)* Units.deg 
             
 
             # max lift coefficent and associated aoa
