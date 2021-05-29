@@ -52,11 +52,11 @@ def case_1(vehicle, conditions):
     # plot velocities at propeller plane and resulting performance
     plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
     
-    thrust_r = 847.83217329
-    torque_r = 446.59326314
-    power_r  = 60797.27830077
-    Cp_r     = 0.27994538
-    etap_r   = 1.02517027
+    thrust_r = 848.65295168
+    torque_r = 447.33636799
+    power_r  = 60898.44138557
+    Cp_r     = 0.2804112
+    etap_r   = 1.02445809
     print('\nCase 1 Errors: \n')
     print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
     print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
@@ -101,11 +101,11 @@ def case_2(vehicle,conditions, Na=24, Nr=101):
     plot_propeller_disc_performance(prop,outputs,title='Case 2: Arbitrary Freestream')    
     
     # expected results
-    thrust_r = 77.90144045
-    torque_r = 60.17252777
-    power_r  = 8191.62808502
-    Cp_r     = 0.03771893
-    etap_r   = 0.74397732
+    thrust_r = 78.41788551
+    torque_r = 60.61148635
+    power_r  = 8251.38601033
+    Cp_r     = 0.03799409
+    etap_r   = 0.74348576
     print('\nCase 2 Errors: \n')
     print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
     print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
