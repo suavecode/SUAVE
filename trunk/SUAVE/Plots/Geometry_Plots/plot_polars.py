@@ -14,7 +14,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_airfoil_polars \
      import compute_airfoil_polars
 
-def plot_polars(airfoil_path, airfoil_polar_paths, line_color = 'k-', use_surrogate = True, 
+def plot_polars(airfoil_path, airfoil_polar_paths, line_color = 'k-', use_surrogate = False, 
                 save_figure = False, save_filename = "Airfoil_Polars", file_type = ".png"):
     """This plots all airfoil polars in the list "airfoil_polar_paths" 
 
@@ -43,7 +43,7 @@ def plot_polars(airfoil_path, airfoil_polar_paths, line_color = 'k-', use_surrog
         CL_sur = a_data.lift_coefficient_surrogates
         CD_sur = a_data.drag_coefficient_surrogates
         
-        alpha   = a_data.aoa_from_polar
+        alpha   = np.asarray(a_data.aoa_from_polar)
         n_alpha = len(alpha.T)
         alpha   = np.reshape(alpha,(n_airfoils,1,n_alpha))
         alpha   = np.repeat(alpha, n_Re, axis=1)
@@ -60,7 +60,11 @@ def plot_polars(airfoil_path, airfoil_polar_paths, line_color = 'k-', use_surrog
         airfoil_polar_data = import_airfoil_polars(airfoil_polar_paths)
         CL = airfoil_polar_data.lift_coefficients
         CD = airfoil_polar_data.drag_coefficients
+        
+        n_alpha = np.shape(CL)[2]
         Re = airfoil_polar_data.reynolds_number
+        Re = np.reshape(Re, (n_airfoils,n_Re,1))
+        Re = np.repeat(Re, n_alpha, axis=2)
 
 
     for i in range(n_airfoils):

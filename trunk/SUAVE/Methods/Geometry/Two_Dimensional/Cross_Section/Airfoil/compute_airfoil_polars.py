@@ -101,7 +101,10 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
             idx_zero_lift = np.where(airfoil_cl == min(airfoil_cl_plus))[0][0]
             airfoil_cl_crossing = airfoil_cl[idx_zero_lift-1:idx_zero_lift+1]
             airfoil_aoa_crossing = airfoil_aoa[idx_zero_lift-1:idx_zero_lift+1]
-            A0  = np.interp(0,airfoil_cl_crossing, airfoil_aoa_crossing)* Units.deg 
+            try:
+                A0  = np.interp(0,airfoil_cl_crossing, airfoil_aoa_crossing)* Units.deg 
+            except:
+                A0 = airfoil_aoa[idx_zero_lift] * Units.deg
             
 
             # max lift coefficent and associated aoa
@@ -172,7 +175,7 @@ def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     airfoil_data.lift_coefficients_from_polar  = airfoil_polar_data.lift_coefficients
     airfoil_data.drag_coefficients_from_polar  = airfoil_polar_data.drag_coefficients
     airfoil_data.re_from_polar  = airfoil_polar_data.reynolds_number
-    airfoil_data.aoa_from_polar = np.asarray(aoa_from_polars) # airfoil_polar_data.angle_of_attacks
+    airfoil_data.aoa_from_polar = aoa_from_polars #airfoil_polar_data.angle_of_attacks
     
     return airfoil_data
 
