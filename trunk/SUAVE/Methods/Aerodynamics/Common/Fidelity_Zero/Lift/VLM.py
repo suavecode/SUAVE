@@ -331,6 +331,12 @@ def VLM(conditions,settings,geometry):
     STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
     STB = STB[:,0::n_cw]
     
+    #TESTING
+    C_mn2 = C_mn[0,:,:,2] * 2 # EW appears to always be 2x C_mn
+    C_mn_ew = C_mn[0, 0::n_cw,:,2] * 2  #EW in VORLAX's AERO appears to take on C_mn's leading edge vals
+    C_mn_ew_invert = C_mn[0, :, 0::n_cw, 2] * 2  #EW in VORLAX's AERO appears to take on C_mn's leading edge vals
+    
+    
     # DL IS THE DIHEDRAL ANGLE (WITH RESPECT TO THE X-Y PLANE) OF
     # THE IR STREAMWISE STRIP OF HORSESHOE VORTICES.    
     SID = SIN_DL # Just the LE values
@@ -379,42 +385,10 @@ def VLM(conditions,settings,geometry):
        
     DCP_LE = DCP[:,0::n_cw]
     
-    # Force computation of the rotational effects (pitch, roll, yaw rates)
-    # Underestimates these effects when using linear chorwise spacing (LAX==1 in VORLAX), 
-    #     but trend directions are accurate
+    
     # ** TO DO ** Add cosine spacing (earlier in VLM) to properly capture the magnitude of these effects
-    EW  = C_mn[:,0,:,2]*2
-    CLE = (EW*GAMMA).sum(axis=1)
-    CLE = np.array(np.split(CLE, len_mach))
-    
-    # Up till EFFINC, some of the following values were computed in compute_RHS_matrix().
-    #     EFFINC and ALOC are calculated the exact same way, except for the XGIRO term.
-    # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
-    # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
-    # ARE XGIRO, YGIRO, AND ZGIRO. 
-    XGIRO = X - CHORD*XLE - np.repeat(XBAR, n_cw)
-    YGIRO = rhs.YGIRO
-    ZGIRO = rhs.ZGIRO  
-    
-    # VX, VY, VZ ARE THE FLOW ONSET VELOCITY COMPONENTS AT THE LEADING
-    # EDGE (STRIP MIDPOINT). VX, VY, VZ AND THE ROTATION RATES ARE
-    # REFERENCED TO THE FREE STREAM VELOCITY.    
-    VX = rhs.VX
-    VY = (COSINP - YAW  *XGIRO + ROLL *ZGIRO)
-    VZ = (SINALF - ROLL *YGIRO + PITCH*XGIRO)
-
-    # CCNTL AND SCNTL ARE DIRECTION COSINE PARAMETERS OF TANGENT TO
-    # CAMBERLINE AT LEADING EDGE.
-    # These and SID and COD were computed in compute_RHS_matrix()
-    
-    # EFFINC = COMPONENT OF ONSET FLOW ALONG NORMAL TO CAMBERLINE AT
-    #          LEADING EDGE.
-    EFFINC = VX *rhs.SCNTL + VY *rhs.CCNTL *rhs.SID - VZ *rhs.CCNTL *rhs.COD 
-    EFFINC = np.repeat(EFFINC[:,0::n_cw], n_cw, axis=1)
-    CLE = CLE - EFFINC 
-    STB_LE_stripwise = np.repeat(STB, n_cw, axis=1)
-    CLE = np.where(STB_LE_stripwise > 0, CLE /RNMAX /STB_LE_stripwise, CLE)
-    #end force rotation computation re: ** TO DO **
+    CLE = compute_rotation_effects(settings, C_mn, GAMMA, len_mach, X, CHORD, XLE, XBAR, 
+                                   rhs, COSINP, SINALF, PITCH, ROLL, YAW, STB, RNMAX)    
     
     # Leading edge suction multiplier. See documentation. This is a negative integer if used
     # Default to 1 unless specified otherwise
@@ -426,7 +400,7 @@ def VLM(conditions,settings,geometry):
     SPC_cond = VL*m_b.T
     SPC[SPC_cond] = -1.
     
-    CLE  = 0.5* DCP_LE *np.sqrt(XLE)
+    CLE  = CLE + 0.5* DCP_LE *np.sqrt(XLE)
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
 
     # TFX AND TFZ ARE THE COMPONENTS OF LEADING EDGE FORCE VECTOR ALONG
@@ -540,3 +514,52 @@ def VLM(conditions,settings,geometry):
     results.geometry   = geometry
     
     return results
+
+
+def compute_rotation_effects(settings, C_mn, GAMMA, len_mach, X, CHORD, XLE, XBAR, 
+                             rhs, COSINP, SINALF, PITCH, ROLL, YAW, STB, RNMAX):
+    spacing     = settings.spanwise_cosine_spacing
+    n_cw        = settings.number_chordwise_vortices
+
+    if spacing == False: # linear spacing is LAX==1 in VORLAX
+        return 0 #CLE not calculated till later for linear spacing
+    
+    # Computate rotational effects (pitch, roll, yaw rates)
+    # Underestimates these effects when using linear chorwise spacing (LAX==1 in VORLAX), 
+    #     but trend directions are accurate   
+    # **TODO** find out where EW comes from.
+    C_mn2 = C_mn * 2 # EW appears to always be 2x C_mn
+    C_mn_ew = C_mn[:,0::n_cw,:,2] * 2  #EW in VORLAX's AERO appears to take on C_mn's leading edge vals
+    EW  = C_mn[:,0,:,2]*2
+    CLE = (EW*GAMMA).sum(axis=1)
+    CLE = np.array(np.split(CLE, len_mach))
+    
+    # Up till EFFINC, some of the following values were computed in compute_RHS_matrix().
+    #     EFFINC and ALOC are calculated the exact same way, except for the XGIRO term.
+    # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
+    # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
+    # ARE XGIRO, YGIRO, AND ZGIRO. 
+    XGIRO = X - CHORD*XLE - np.repeat(XBAR, n_cw)
+    YGIRO = rhs.YGIRO
+    ZGIRO = rhs.ZGIRO  
+    
+    # VX, VY, VZ ARE THE FLOW ONSET VELOCITY COMPONENTS AT THE LEADING
+    # EDGE (STRIP MIDPOINT). VX, VY, VZ AND THE ROTATION RATES ARE
+    # REFERENCED TO THE FREE STREAM VELOCITY.    
+    VX = rhs.VX
+    VY = (COSINP - YAW  *XGIRO + ROLL *ZGIRO)
+    VZ = (SINALF - ROLL *YGIRO + PITCH*XGIRO)
+
+    # CCNTL AND SCNTL ARE DIRECTION COSINE PARAMETERS OF TANGENT TO
+    # CAMBERLINE AT LEADING EDGE.
+    # These and SID and COD were computed in compute_RHS_matrix()
+    
+    # EFFINC = COMPONENT OF ONSET FLOW ALONG NORMAL TO CAMBERLINE AT
+    #          LEADING EDGE.
+    EFFINC = VX *rhs.SCNTL + VY *rhs.CCNTL *rhs.SID - VZ *rhs.CCNTL *rhs.COD 
+    EFFINC = np.repeat(EFFINC[:,0::n_cw], n_cw, axis=1)
+    CLE = CLE - EFFINC 
+    STB_LE_stripwise = np.repeat(STB, n_cw, axis=1)
+    CLE = (np.where(STB_LE_stripwise > 0, CLE /RNMAX /STB_LE_stripwise, CLE))[:,0::n_cw]
+    
+    return CLE
