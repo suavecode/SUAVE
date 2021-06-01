@@ -87,9 +87,9 @@ def compute_point_source_coordinates(AoA,thrust_angle,mls,prop_origin):
      
     # store points 
     position_vector          = np.zeros((num_cpt,num_mic,num_prop,3))
-    position_vector[:,:,:,0] =  mat_4[:,:,:,0,0]
-    position_vector[:,:,:,1] =  mat_4[:,:,:,1,0]
-    position_vector[:,:,:,2] =  mat_4[:,:,:,2,0]
+    position_vector[:,:,:,0] = mat_4[:,:,:,0,0]
+    position_vector[:,:,:,1] = mat_4[:,:,:,1,0]
+    position_vector[:,:,:,2] = mat_4[:,:,:,2,0]
      
     return position_vector
  

@@ -66,7 +66,7 @@ def compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,
     # ----------------------------------------------------------------------------------
     # Rotational Noise  Thickness and Loading Noise
     # ----------------------------------------------------------------------------------  
-    # [control point , propellers, microphones, radial distribution,  harmonics] 
+    # [control point ,microphones, propellers, radial distribution, harmonics] 
     
     m              = vectorize(harmonics,num_cpt,num_h,num_r,num_prop,num_mic,vectorize_method = 1)                     # harmonic number 
     m_1d           = harmonics                                                                                          
