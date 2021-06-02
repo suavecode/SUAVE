@@ -74,6 +74,13 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     ZA_TE = np.array(np.atleast_2d(VD.ZA_TE*1.),dtype=np.float32)
     ZB_TE = np.array(np.atleast_2d(VD.ZB_TE*1.),dtype=np.float32)
     
+    
+    # Panel Dihedral Angle, using AH and BH location
+    D      = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)
+    COS_DL = (YBH-YAH)/D    
+    DL     = np.arccos(COS_DL)
+    DL[DL>np.pi/2] = DL[DL>np.pi/2] - np.pi # This flips the dihedral angle for the other side of the wing
+    
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
     # ------------------------------------------------------------------------------------------- 
@@ -194,8 +201,16 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = np.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
+    
+    # Calculate the W velocity in the VORLAX frame for later calcs
+    # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
+    COS1   = np.cos(DL.T - DL)
+    SIN1   = np.sin(DL.T - DL) 
+    WEIGHT = 1
+    
+    EW = (W*COS1-V*SIN1)*WEIGHT
 
-    return C_mn, s, CHORD, RFLAG, ZETA
+    return C_mn, s, CHORD, RFLAG, ZETA, EW
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     """  This computes the induced velocities at each control point 

@@ -214,10 +214,11 @@ def VLM(conditions,settings,geometry):
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = np.unique(mach,return_inverse=True)
     m_unique      = np.atleast_2d(m_unique).T
-    C_mn_small, s, CHORD, RFLAG_small, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,m_unique)
+    C_mn_small, s, CHORD, RFLAG_small, ZETA, EW_small = compute_wing_induced_velocity(VD,n_sw,n_cw,m_unique)
     
     C_mn  = C_mn_small[inv,:,:,:]
     RFLAG = RFLAG_small[inv,:]
+    EW    = EW_small[inv,:,:]
 
     # Turn off sonic vortices when Mach>1
     RHS = RHS*RFLAG
@@ -254,13 +255,13 @@ def VLM(conditions,settings,geometry):
     SINALF = np.sin(aoa)
     COSALF = np.cos(aoa)
     SINPSI = np.sin(PSI)
-    COPSI = np.cos(PSI)
-    COSIN = COSALF *SINPSI *2.0
+    COPSI  = np.cos(PSI)
+    COSIN  = COSALF *SINPSI *2.0
     COSINP = COSALF *SINPSI
     COSCOS = COSALF *COPSI
-    PITCH = PITCHQ /VINF
-    ROLL = ROLLQ /VINF
-    YAW = YAWQ /VINF    
+    PITCH  = PITCHQ /VINF
+    ROLL   = ROLLQ /VINF
+    YAW    = YAWQ /VINF    
     
     CHORD  = CHORD[0,:]
     CHORD_strip = CHORD[0::n_cw]     
@@ -329,13 +330,7 @@ def VLM(conditions,settings,geometry):
     T2  = TLE*TLE
     STB = np.zeros_like(B2)
     STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
-    STB = STB[:,0::n_cw]
-    
-    #TESTING
-    C_mn2 = C_mn[0,:,:,2] * 2 # EW appears to always be 2x C_mn
-    C_mn_ew = C_mn[0, 0::n_cw,:,2] * 2  #EW in VORLAX's AERO appears to take on C_mn's leading edge vals
-    C_mn_ew_invert = C_mn[0, :, 0::n_cw, 2] * 2  #EW in VORLAX's AERO appears to take on C_mn's leading edge vals
-    
+    STB = STB[:,0::n_cw]    
     
     # DL IS THE DIHEDRAL ANGLE (WITH RESPECT TO THE X-Y PLANE) OF
     # THE IR STREAMWISE STRIP OF HORSESHOE VORTICES.    
