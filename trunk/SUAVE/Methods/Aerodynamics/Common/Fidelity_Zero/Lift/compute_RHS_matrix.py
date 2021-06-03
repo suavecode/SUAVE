@@ -2,7 +2,7 @@
 # compute_RHS_matrix.py
 # 
 # Created:  Aug 2018, M. Clarke
-#           Apr 2020, M. Clarke
+#           Jun 2021, A. Blaufox
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -27,9 +27,14 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
     geometry
         propulsors                               [Unitless]  
         vehicle vortex distribution              [Unitless] 
-    conditions.
-        aerodynamics.angle_of_attack             [radians] 
-        freestream.velocity                      [m/s]
+        
+    conditions.aerodynamics.angle_of_attack      [radians]
+    conditions.aerodynamics.sideslip_angle       [radians]
+    conditions.freestream.velocity               [m/s]
+    conditions.stability.dynamic.pitch_rate      [radians/s]
+    conditions.stability.dynamic.roll_rate       [radians/s]
+    conditions.stability.dynamic.yaw_rate        [radians/s]
+    
     n_sw        - number_spanwise_vortices       [Unitless]
     n_cw        - number_chordwise_vortices      [Unitless]
     sur_flag    - use_surrogate flag             [Unitless]
@@ -37,7 +42,20 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
     delta, phi  - flow tangency angles           [radians]
        
     Outputs:                                   
-    RHS                                        [Unitless] 
+    rhs.
+        RHS                                                              
+        ONSET                                                
+        Vx_ind_total                                   
+        Vz_ind_total                                   
+        V_distribution                                  
+        dt                                              
+        YGIRO                                          
+        ZGIRO                                          
+        VX                                               
+        SCNTL                                           
+        CCNTL                                                  
+        COD                                                         
+        SID                                                     
 
     Properties Used:
     N/A

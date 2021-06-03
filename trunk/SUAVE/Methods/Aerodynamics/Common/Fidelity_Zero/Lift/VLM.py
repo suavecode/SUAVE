@@ -2,7 +2,7 @@
 # VLM.py
 # 
 # Created:  Oct 2020, E. Botero
-# Modified: May 2021, E. Botero     
+# Modified: Jun 2021, A. Blaufox     
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -58,12 +58,18 @@ def VLM(conditions,settings,geometry):
         fineness.nose                          [Unitless]
         fineness.tail                          [Unitless]
         
-       settings.number_spanwise_vortices       [Unitless]
-       settings.number_chordwise_vortices      [Unitless]
-       settings.use_surrogate                  [Unitless]
-       settings.propeller_wake_model           [Unitless]
-       conditions.aerodynamics.angle_of_attack [radians]
-       conditions.freestream.mach_number       [Unitless]
+    settings.number_spanwise_vortices          [Unitless]
+    settings.number_chordwise_vortices         [Unitless]
+    settings.use_surrogate                     [Unitless]
+    settings.propeller_wake_model              [Unitless]
+       
+    conditions.aerodynamics.angle_of_attack    [radians]
+    conditions.aerodynamics.sideslip_angle     [radians]
+    conditions.freestream.mach_number          [Unitless]
+    conditions.freestream.velocity             [m/s]
+    conditions.stability.dynamic.pitch_rate    [radians/s]
+    conditions.stability.dynamic.roll_rate     [radians/s]
+    conditions.stability.dynamic.yaw_rate      [radians/s]
        
     Outputs:                                   
     CL                                         [Unitless]
@@ -72,6 +78,8 @@ def VLM(conditions,settings,geometry):
     Cdi                                        [Unitless]
     CM                                         [Unitless]
     CP                                         [Unitless]
+    CRMTOT                                     [Unitless]
+    CYMTOT                                     [Unitless]
 
     Properties Used:
     N/A
