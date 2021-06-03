@@ -2,7 +2,8 @@
 # VLM.py
 # 
 # Created:  Oct 2020, E. Botero
-# Modified: Jun 2021, A. Blaufox     
+# Modified: May 2021, E. Botero   
+#           Jun 2021, A. Blaufox     
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -64,7 +65,7 @@ def VLM(conditions,settings,geometry):
     settings.propeller_wake_model              [Unitless]
        
     conditions.aerodynamics.angle_of_attack    [radians]
-    conditions.aerodynamics.sideslip_angle     [radians]
+    conditions.aerodynamics.side_slip_angle    [radians]
     conditions.freestream.mach_number          [Unitless]
     conditions.freestream.velocity             [m/s]
     conditions.stability.dynamic.pitch_rate    [radians/s]
@@ -257,7 +258,7 @@ def VLM(conditions,settings,geometry):
     #Inputs for sideslip/acceleration
     #For angular values, VORLAX uses degrees by default to radians via DTR (degrees to rads). 
     #SUAVE uses radians and its Units system. All algular variables will be in radians or var*Units.degrees
-    PSI       = conditions.aerodynamics.sideslip_angle     
+    PSI       = conditions.aerodynamics.side_slip_angle     
     PITCHQ    = conditions.stability.dynamic.pitch_rate              
     ROLLQ     = conditions.stability.dynamic.roll_rate             
     YAWQ      = conditions.stability.dynamic.yaw_rate 

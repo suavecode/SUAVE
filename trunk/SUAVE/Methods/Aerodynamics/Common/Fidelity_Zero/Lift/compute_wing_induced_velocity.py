@@ -2,7 +2,8 @@
 # compute_wing_induced_velocity.py
 # 
 # Created:  Dec 2020, E. Botero
-# Modified: Jun 2021, E. Botero  
+# Modified: May 2021, E. Botero  
+#           Jun 2021, E. Botero  
 
 # ----------------------------------------------------------------------
 #  Imports

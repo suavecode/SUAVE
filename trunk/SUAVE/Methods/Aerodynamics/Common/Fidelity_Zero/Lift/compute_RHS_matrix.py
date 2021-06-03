@@ -2,7 +2,8 @@
 # compute_RHS_matrix.py
 # 
 # Created:  Aug 2018, M. Clarke
-#           Jun 2021, A. Blaufox
+#           Apr 2020, M. Clarke
+# Modified: Jun 2021, A. Blaufox
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -29,7 +30,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
         vehicle vortex distribution              [Unitless] 
         
     conditions.aerodynamics.angle_of_attack      [radians]
-    conditions.aerodynamics.sideslip_angle       [radians]
+    conditions.aerodynamics.side_slip_angle      [radians]
     conditions.freestream.velocity               [m/s]
     conditions.stability.dynamic.pitch_rate      [radians/s]
     conditions.stability.dynamic.roll_rate       [radians/s]
@@ -66,7 +67,7 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
     
     aoa              = conditions.aerodynamics.angle_of_attack 
     aoa_distribution = np.repeat(aoa, VD.n_cp, axis = 1) 
-    PSI              = conditions.aerodynamics.sideslip_angle
+    PSI              = conditions.aerodynamics.side_slip_angle
     PSI_distribution = np.repeat(PSI, VD.n_cp, axis = 1)
     V_inf            = conditions.freestream.velocity
     V_distribution   = np.repeat(V_inf , VD.n_cp, axis = 1)
