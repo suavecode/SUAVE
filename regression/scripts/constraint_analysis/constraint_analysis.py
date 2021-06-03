@@ -160,9 +160,9 @@ def main():
 
     # true values
     prop_WS_truth = 244.116424
-    prop_TW_truth = 0.17915
+    prop_TW_truth = 0.1791623
     jet_WS_truth  = 725.143706
-    jet_TW_truth  = 3.6941
+    jet_TW_truth  = 3.694133
 
     err_prop_WS = (prop_WS - prop_WS_truth)/prop_WS_truth
     err_prop_TW = (prop_TW - prop_TW_truth)/prop_TW_truth 
@@ -174,7 +174,6 @@ def main():
     err.propeller_TW_error = err_prop_TW
     err.jet_WS_error       = err_jet_WS
     err.jet_TW_error       = err_jet_TW
-    print(err)
 
     for k,v in list(err.items()):
         assert(np.abs(v)<1E-6)    
