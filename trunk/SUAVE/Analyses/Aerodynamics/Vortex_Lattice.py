@@ -411,10 +411,8 @@ class Vortex_Lattice(Aerodynamics):
         Machs  = np.atleast_2d(np.tile(Mach,lenAoA).flatten()).T
         zeros  = np.zeros_like(Machs)
         
-        # Setup Konditions                      
-        konditions                              = Data()
-        konditions.aerodynamics                 = Data()
-        konditions.freestream                   = Data()
+        # Setup Konditions    
+        konditions                              = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
         konditions.aerodynamics.angle_of_attack = AoAs
         konditions.freestream.mach_number       = Machs
         konditions.freestream.velocity          = zeros
@@ -651,8 +649,15 @@ def calculate_VLM(conditions,settings,geometry):
     wing_lifts = Data()
     wing_drags = Data() 
         
-    total_lift_coeff, total_induced_drag_coeff, _, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CPi, _ \
-        = VLM(conditions,settings,geometry)
+    results = VLM(conditions,settings,geometry)
+    total_lift_coeff          = results.CL
+    total_induced_drag_coeff  = results.CDi
+    CL_wing                   = results.CL_wing  
+    CDi_wing                  = results.CDi_wing 
+    cl_y                      = results.cl_y     
+    cdi_y                     = results.cdi_y    
+    alpha_i                   = results.alpha_i  
+    CPi                       = results.CP      
     
     # Dimensionalize the lift and drag for each wing
     areas = geometry.vortex_distribution.wing_areas

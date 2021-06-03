@@ -95,6 +95,10 @@ def VLM(conditions,settings,geometry):
     wdt        = settings.wake_development_time   
     K_SPC      = settings.leading_edge_suction_multiplier
     Sref       = geometry.reference_area  
+    
+    #div by 0 safeguard
+    unsafe = (conditions.freestream.velocity == 0)
+    conditions.freestream.velocity[unsafe] = 0.00000000001
 
     # define point about which moment coefficient is computed
     if 'main_wing' in geometry.wings:
@@ -245,10 +249,13 @@ def VLM(conditions,settings,geometry):
         - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42      
 
     # Compute vortex strength  
-    gamma = np.linalg.solve(A,RHS)
+    gamma0 = np.linalg.solve(A,rhs.RHS0) # old A with old RHS
+    gamma1  = -np.linalg.solve(A,RHS)    # old A with new RHS
+    gamma  = np.linalg.solve(EW,RHS)     # new matrices, both in VORLAX frame
+    
 
-    #rename GAMMA and multiply by -1 to match VORLAX
-    GAMMA = np.array(gamma)*(-1)
+    #rename GAMMA to match VORLAX
+    GAMMA = np.array(gamma)
 
     # ---------------------------------------------------------------------------------------
     # STEP 11: Compute Pressure Coefficient
@@ -462,16 +469,16 @@ def VLM(conditions,settings,geometry):
     CDC    = CDC * CHORD_strip
     CMTC   = BMLE + CNC * (0.25 - XLE) #doesn't affect coefficients, but is in VORLAX
 
-    ES    = 2*s[0,0::n_cw]
-    STRIP = ES *CHORD_strip
-    LIFT  = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
-    DRAG  = CDC*ES 
+    ES     = 2*s[0,0::n_cw]
+    STRIP  = ES *CHORD_strip
+    LIFT   = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
+    DRAG   = CDC*ES 
     MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)  
-    FN    = CNC *ES                    #doesn't affect coefficients, but is in VORLAX
-    FY    = (BFY *COPSI - BFX *SINPSI) *STRIP
+    FN     = CNC *ES                    #doesn't affect coefficients, but is in VORLAX
+    FY     = (BFY *COPSI - BFX *SINPSI) *STRIP
     RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF *SINPSI + BMZ *SINALF)
     YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)
-    XSUC   = CSUC *STRIP /SURF         #doesn't affect coefficients, but is in VORLAX
+    #XSUC   = CSUC *STRIP /SURF         #doesn't affect coefficients, but is in VORLAX
 
     # Now calculate the coefficients for each wing
     cl_y     = LIFT/CHORD_strip/ES

@@ -59,8 +59,9 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     # --------------------------------------------------------------------------------
     #          Run the VLM for the given vehicle and conditions 
     # --------------------------------------------------------------------------------
-    _, _, _, _, _, _, _, _, _, gamma  = VLM(conditions, VLM_settings, geometry)
-    VD = geometry.vortex_distribution 
+    results = VLM(conditions, VLM_settings, geometry)
+    gamma   = results.gamma
+    VD      = geometry.vortex_distribution 
     
     # create a deep copy of the vortex distribution
     VD       = copy.deepcopy(VD)

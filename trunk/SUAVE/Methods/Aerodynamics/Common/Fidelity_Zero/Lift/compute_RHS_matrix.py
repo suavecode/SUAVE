@@ -186,9 +186,13 @@ def build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_dist
     # BODY ROTATION, ONSET.    
     ONSET = - PITCH *ZGIRO + YAW *YGIRO
     
+    # M. Clarke's original RHS for no sideslip and no rotation rates
+    RHS0 = np.sin(aoa_distribution - delta )*np.cos(phi)
+
     #pack RHS
     rhs = Data()
     rhs.RHS            = ALOC
+    rhs.RHS0           = RHS0
     rhs.ONSET          = ONSET
     rhs.Vx_ind_total   = Vx_ind_total
     rhs.Vz_ind_total   = Vz_ind_total
@@ -203,5 +207,5 @@ def build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_dist
     rhs.CCNTL  = CCNTL
     rhs.COD    = COD  
     rhs.SID    = SID  
-    
+
     return rhs
