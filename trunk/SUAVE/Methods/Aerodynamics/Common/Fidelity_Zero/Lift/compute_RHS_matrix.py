@@ -109,6 +109,8 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
 
 def build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_distribution,
               Vx_ind_total, Vz_ind_total, V_distribution, dt):
+    #VORLAX subroutine = BOUNDY
+    
     #unpack conditions 
     ALFA   = aoa_distribution
     PSIRAD = PSI_distribution

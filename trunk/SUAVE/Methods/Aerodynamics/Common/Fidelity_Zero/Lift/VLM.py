@@ -120,7 +120,10 @@ def VLM(conditions,settings,geometry):
     ones = np.atleast_2d(np.ones_like(mach)) 
     len_mach = len(mach)
 
-    # generate vortex distribution 
+    # ---------------------------------------------------------------------------------------
+    # STEPS 1-9: Generate Panelization and Vortex Distribution
+    # ------------------ --------------------------------------------------------------------    
+    # generate vortex distribution (VLM steps 1-9)
     VD   = generate_wing_vortex_distribution(geometry,settings)  
 
     # Unpack coordinates (VD)
@@ -158,7 +161,8 @@ def VLM(conditions,settings,geometry):
     ZB_TE =  VD.ZB_TE     
 
     # additional VD preprocessing
-    # from here on, VD will also be used to hold processed information about geometry
+    # from here on, VD will also be used to hold some processed information about geometry
+    # for the easier passage of this information into functions
     XBAR    = np.ones(n_sw*n_w) * x_m
     ZBAR    = np.ones(n_sw*n_w) * z_m 
     
@@ -183,12 +187,12 @@ def VLM(conditions,settings,geometry):
     CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2)
     CHORD       = np.repeat(CHORD,shape_0,axis=0)    
     
-    X1c  = (XA1+XB1)/2
-    X2c  = (XA2+XB2)/2
-    Z1c  = (ZA1+ZB1)/2
-    Z2c  = (ZA2+ZB2)/2
+    X1c   = (XA1+XB1)/2
+    X2c   = (XA2+XB2)/2
+    Z1c   = (ZA1+ZB1)/2
+    Z2c   = (ZA2+ZB2)/2
     SLOPE = (Z2c - Z1c)/(X2c - X1c)
-    SLE  = SLOPE[0::n_cw]
+    SLE   = SLOPE[0::n_cw]
     
     # pack vortex distribution 
     VD.XBAR  = XBAR * 1
@@ -201,11 +205,14 @@ def VLM(conditions,settings,geometry):
     VD.SLE   = SLE*1
     geometry.vortex_distribution = VD
     
+    # ---------------------------------------------------------------------------------------
+    # STEP 10: Generate A and RHS matrices from VD and geometry
+    # ------------------ --------------------------------------------------------------------    
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
-    # Build the vector 
+    # Build the RHS vector 
     rhs = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,pwm,ito,wdt,nts) 
     RHS     = rhs.RHS*1
     ONSET   = rhs.ONSET*1
@@ -235,8 +242,9 @@ def VLM(conditions,settings,geometry):
     GAMMA = np.array(gamma)*(-1)
 
     # ---------------------------------------------------------------------------------------
-    # STEP 10: Compute Pressure Coefficient
+    # STEP 11: Compute Pressure Coefficient
     # ------------------ --------------------------------------------------------------------   
+    #VORLAX subroutine = PRESS
 
     #Inputs for sideslip/acceleration
     #For angular values, VORLAX uses degrees by default to radians via DTR (degrees to rads). 
@@ -247,10 +255,10 @@ def VLM(conditions,settings,geometry):
     YAWQ      = conditions.stability.dynamic.yaw_rate 
     VINF      = conditions.freestream.velocity
                   
-    #HANGING VARS
-    RJTS = 0                         #spanwise strip exposure flag, always 0 for SUAVE's infinitely thin airfoils
+    # spanwise strip exposure flag, always 0 for SUAVE's infinitely thin airfoils. Needs to change if thick airfoils added
+    RJTS = 0                         
     
-    # COMPUTE FREE-STREAM AND ONSET FLOW PARAMETERS.
+    # COMPUTE FREE-STREAM AND ONSET FLOW PARAMETERS. Used throughout the remainder of VLM
     B2     = np.tile((mach**2 - 1),n_cp)
     SINALF = np.sin(aoa)
     COSALF = np.cos(aoa)
@@ -266,7 +274,7 @@ def VLM(conditions,settings,geometry):
     CHORD  = CHORD[0,:]
     CHORD_strip = CHORD[0::n_cw]     
 
-    # Panel Dihedral Angle, using AH and BH location
+    # Panel Dihedral Angle, using AH and BH location. Similar to COD and SID (later) except for signs
     D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)[0::n_cw]
     COS_DL = (YBH-YAH)[0::n_cw]/D
     SIN_DL = (ZBH-ZAH)[0::n_cw]/D
@@ -282,18 +290,15 @@ def VLM(conditions,settings,geometry):
     TAN_LE = np.broadcast_to(np.repeat(TAN_LE,n_cw),np.shape(B2)) 
     TAN_TE = np.broadcast_to(TAN_TE,np.shape(B2))    
     
-    SIGN   = 1 #may have to be changed later for symmetry/assymetry?
-    TAD    = TAN_LE *SIGN  #may not have to use?
-    TNL    = TAN_LE * 1
+    TNL    = TAN_LE * 1 # VORLAX's SIGN variable not needed, as these are taken directly from geometry
     TNT    = TAN_TE * 1
     
     XIA    = np.broadcast_to(np.tile(np.arange(n_cw)/RNMAX,     n_sw*n_w), np.shape(B2))
     XIB    = np.broadcast_to(np.tile(np.arange(1,n_cw+1)/RNMAX, n_sw*n_w), np.shape(B2))
     TANA   = TNL *(1. - XIA) + TNT *XIA
     TANB   = TNL *(1. - XIB) + TNT *XIB
-    KTOP   = np.arange(n_cw)  
     
-    # cumsum GANT loop if KTOP > 0 (don't actually need KTOP with vectorized arrays)
+    # cumsum GANT loop if KTOP > 0 (don't actually need KTOP with vectorized arrays and np.roll)
     GFX    = np.tile((1 /CHORD), (len_mach,1))
     GANT   = (GFX*GAMMA).reshape(-1,n_sw, n_cw)
     GANT   = np.cumsum(GANT,axis=2).reshape(len_mach,-1)
@@ -313,8 +318,9 @@ def VLM(conditions,settings,geometry):
     CP   = DCP
 
     # ---------------------------------------------------------------------------------------
-    # STEP 11: Compute aerodynamic coefficients 
+    # STEP 12: Compute aerodynamic coefficients 
     # ------------------ -------------------------------------------------------------------- 
+    #VORLAX subroutine = AERO
 
     # Work panel by panel
     SURF = np.array(VD.wing_areas)
@@ -333,9 +339,9 @@ def VLM(conditions,settings,geometry):
     STB = STB[:,0::n_cw]    
     
     # DL IS THE DIHEDRAL ANGLE (WITH RESPECT TO THE X-Y PLANE) OF
-    # THE IR STREAMWISE STRIP OF HORSESHOE VORTICES.    
-    SID = SIN_DL # Just the LE values
-    COD = COS_DL # Just the LE values
+    # THE IR STREAMWISE STRIP OF HORSESHOE VORTICES. 
+    COD = np.cos(phi[0,0::n_cw])  # Just the LE values
+    SID = np.sin(phi[0,0::n_cw])  # Just the LE values
 
     # Now on to each strip
     PION = 2.0 /RNMAX
@@ -349,8 +355,8 @@ def VLM(conditions,settings,geometry):
     # CORMED IS LENGTH OF STRIP CENTERLINE BETWEEN LOAD POINT
     # AND TRAILING EDGE? THIS PARAMETER IS USED IN THE COMPUTATION
     # OF THE STRIP ROLLING COUPLE CONTRIBUTION DUE TO SIDESLIP.
-    X = XCH                          #x-coord of load point (horseshoe centroid)
-    XTE = (VD.XA_TE + VD.XB_TE)/2    #Trailing edge x-coord behind the control point?    
+    X      = XCH                       #x-coord of load point (horseshoe centroid)
+    XTE    = (VD.XA_TE + VD.XB_TE)/2   #Trailing edge x-coord behind the control point?    
     CORMED = XTE - X   
 
     # SINF REFERENCES THE LOAD CONTRIBUTION OF IRT-VORTEX TO THE
@@ -380,9 +386,11 @@ def VLM(conditions,settings,geometry):
        
     DCP_LE = DCP[:,0::n_cw]
     
-    
+    # COMPUTE LEADING EDGE THRUST COEFF. (CSUC) BY CALCULATING
+    # THE TOTAL INDUCED FLOW AT THE LEADING EDGE. THIS COMPUTATION
+    # ONLY PERFORMED FOR COSINE CHORDWISE SPACING (LAX = 0).    
     # ** TO DO ** Add cosine spacing (earlier in VLM) to properly capture the magnitude of these effects
-    CLE = compute_rotation_effects(settings, C_mn, GAMMA, len_mach, X, CHORD, XLE, XBAR, 
+    CLE = compute_rotation_effects(settings, EW, GAMMA, len_mach, X, CHORD, XLE, XBAR, 
                                    rhs, COSINP, SINALF, PITCH, ROLL, YAW, STB, RNMAX)    
     
     # Leading edge suction multiplier. See documentation. This is a negative integer if used
@@ -443,36 +451,32 @@ def VLM(conditions,settings,geometry):
     BMZ    = BMLE * SID - BFX * Y + BFY * (X - XBAR)
     CDC    = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) * COSALF
     CDC    = CDC * CHORD_strip
-    #CMTC   = BMLE + CNC * (0.25 - XLE) #doesn't affect coefficients, but is in VORLAX
+    CMTC   = BMLE + CNC * (0.25 - XLE) #doesn't affect coefficients, but is in VORLAX
 
     ES    = 2*s[0,0::n_cw]
     STRIP = ES *CHORD_strip
     LIFT  = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
     DRAG  = CDC*ES 
-    MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)
-    
-    #FN    = CNC *ES                    #doesn't affect coefficients, but is in VORLAX
-
+    MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)  
+    FN    = CNC *ES                    #doesn't affect coefficients, but is in VORLAX
     FY    = (BFY *COPSI - BFX *SINPSI) *STRIP
     RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF *SINPSI + BMZ *SINALF)
     YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)
-    #XSUC   = CSUC *STRIP /SURF         #doesn't affect coefficients, but is in VORLAX
+    XSUC   = CSUC *STRIP /SURF         #doesn't affect coefficients, but is in VORLAX
 
     # Now calculate the coefficients for each wing
     cl_y     = LIFT/CHORD_strip/ES
     cdi_y    = DRAG/CHORD_strip/ES
     CL_wing  = np.array(np.split(np.reshape(LIFT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
     CDi_wing = np.array(np.split(np.reshape(DRAG,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
-
     Cl_y     = np.swapaxes(np.array(np.array_split(cl_y,n_w,axis=1)),0,1) 
-    Cdi_y    = np.swapaxes(np.array(np.array_split(cdi_y,n_w,axis=1)),0,1) 
-    
+    Cdi_y    = np.swapaxes(np.array(np.array_split(cdi_y,n_w,axis=1)),0,1)   
     alpha_i = np.arctan(Cdi_y/Cl_y) 
     
     # Now calculate total coefficients
-    CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T
-    CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
-    CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
+    CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T          # CLTOT in VORLAX
+    CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T          # CDTOT in VORLAX
+    CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar  # CMTOT in VORLAX
 
     CYTOT    = np.atleast_2d(np.sum(FY,axis=1)/SREF).T   # total y force coeff
     CRTOT    = np.atleast_2d(np.sum(RM,axis=1)/SREF).T   # total rolling moment coeff
@@ -511,23 +515,24 @@ def VLM(conditions,settings,geometry):
     return results
 
 
-def compute_rotation_effects(settings, C_mn, GAMMA, len_mach, X, CHORD, XLE, XBAR, 
+def compute_rotation_effects(settings, EW_small, GAMMA, len_mach, X, CHORD, XLE, XBAR, 
                              rhs, COSINP, SINALF, PITCH, ROLL, YAW, STB, RNMAX):
     spacing     = settings.spanwise_cosine_spacing
     n_cw        = settings.number_chordwise_vortices
 
-    if spacing == False: # linear spacing is LAX==1 in VORLAX
-        return 0 #CLE not calculated till later for linear spacing
+    # Normally, VORLAX skips this calculation for linear chordwise spacing (the if statement below). 
+    # However, since the trends are correct, albeit underestimated, this calculation is being forced
+    # here.
+    # **TODO** put this check back in when cosine chordwise spacing is added
+    ##if spacing == False: # linear spacing is LAX==1 in VORLAX
+    ##    return 0 #CLE not calculated till later for linear spacing
     
-    # Computate rotational effects (pitch, roll, yaw rates)
-    # Underestimates these effects when using linear chorwise spacing (LAX==1 in VORLAX), 
-    #     but trend directions are accurate   
-    # **TODO** find out where EW comes from.
-    C_mn2 = C_mn * 2 # EW appears to always be 2x C_mn
-    C_mn_ew = C_mn[:,0::n_cw,:,2] * 2  #EW in VORLAX's AERO appears to take on C_mn's leading edge vals
-    EW  = C_mn[:,0,:,2]*2
-    CLE = (EW*GAMMA).sum(axis=1)
-    CLE = np.array(np.split(CLE, len_mach))
+    # Computate rotational effects (pitch, roll, yaw rates) on LE suction
+    # pick leading edge strip values for EW and reshape GAMMA -> gamma accordingly
+    EW    = EW_small[: ,0::n_cw, :]
+    n_tot_strips = EW.shape[1]
+    gamma = np.array(np.split(np.repeat(GAMMA, n_tot_strips, axis=0), len_mach))
+    CLE = (EW*gamma).sum(axis=2)
     
     # Up till EFFINC, some of the following values were computed in compute_RHS_matrix().
     #     EFFINC and ALOC are calculated the exact same way, except for the XGIRO term.
@@ -545,16 +550,12 @@ def compute_rotation_effects(settings, C_mn, GAMMA, len_mach, X, CHORD, XLE, XBA
     VY = (COSINP - YAW  *XGIRO + ROLL *ZGIRO)
     VZ = (SINALF - ROLL *YGIRO + PITCH*XGIRO)
 
-    # CCNTL AND SCNTL ARE DIRECTION COSINE PARAMETERS OF TANGENT TO
-    # CAMBERLINE AT LEADING EDGE.
-    # These and SID and COD were computed in compute_RHS_matrix()
+    # CCNTL, SCNTL, SID, and COD were computed in compute_RHS_matrix()
     
     # EFFINC = COMPONENT OF ONSET FLOW ALONG NORMAL TO CAMBERLINE AT
     #          LEADING EDGE.
     EFFINC = VX *rhs.SCNTL + VY *rhs.CCNTL *rhs.SID - VZ *rhs.CCNTL *rhs.COD 
-    EFFINC = np.repeat(EFFINC[:,0::n_cw], n_cw, axis=1)
-    CLE = CLE - EFFINC 
-    STB_LE_stripwise = np.repeat(STB, n_cw, axis=1)
-    CLE = (np.where(STB_LE_stripwise > 0, CLE /RNMAX /STB_LE_stripwise, CLE))[:,0::n_cw]
+    CLE = CLE - EFFINC[:,0::n_cw] 
+    CLE = np.where(STB > 0, CLE /RNMAX /STB, CLE)
     
     return CLE
