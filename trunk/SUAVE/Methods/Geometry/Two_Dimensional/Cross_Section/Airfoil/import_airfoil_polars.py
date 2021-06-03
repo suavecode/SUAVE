@@ -4,6 +4,7 @@
 # Created:  Mar 2019, M. Clarke
 #           Mar 2020, M. Clarke
 #           Sep 2020, M. Clarke 
+#           May 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -49,15 +50,26 @@ def  import_airfoil_polars(airfoil_polar_files):
         for j in range(num_polars):   
             # Open file and read column names and data block
             f = open(airfoil_polar_files[i][j]) 
-            
-            # Ignore header
-            for header_line in range(12):
-                line = f.readline()          
-                if header_line == 8:     
-                    Re[i,j] = float(line[25:40].strip().replace(" ", ""))
             data_block = f.readlines()
             f.close()
-        
+            
+            # Ignore header
+            for header_line in range(len(data_block)):
+                line = data_block[header_line]   
+                if 'Re =' in line:    
+                    Re[i,j] = float(line[25:40].strip().replace(" ", ""))
+                if '---' in line:
+                    data_block = data_block[header_line+1:]
+                    break
+                
+            # Remove any extra lines at end of file:
+            last_line = False
+            while last_line == False:
+                if data_block[-1]=='\n':
+                    data_block = data_block[0:-1]
+                else:
+                    last_line = True
+            
             data_len = len(data_block)
             airfoil_aoa= np.zeros(data_len)
             airfoil_cl = np.zeros(data_len)

@@ -8,6 +8,7 @@
 #           May 2020, B. Dalman
 #           Sep 2020, M. Clarke
 #           May 2021, E. Botero
+#           May 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -64,31 +65,36 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
         # Open file and read column names and data block
         f = open(airfoil_geometry_files[i]) 
 
-        # Ignore header comment
-        f.readline()
-
-        # Check if it's a Selig or Lednicer file
-        format_line = f.readline()
+        # Extract data
+        data_block = f.readlines()
         try:
-            format_flag = float(format_line.strip().split()[0])
+            # Check for header block
+            first_element = float(data_block[0][0])
+            if first_element == 1.:
+                lednicer_format = False
         except:
-            format_flag = float(format_line.strip().split(',')[0])
-            
-
-        if format_flag > 1.01: # Amount of wiggle room per airfoil tools
-            lednicer_format = True
-        else:
-            lednicer_format = False
-
+            # Check for format line and remove header block
+            format_line = data_block[1]
+    
+            # Check if it's a Selig or Lednicer file
+            try:
+                format_flag = float(format_line.strip().split()[0])
+            except:
+                format_flag = float(format_line.strip().split(',')[0])
+                
+            if format_flag > 1.01: # Amount of wiggle room per airfoil tools
+                lednicer_format = True
+                # Remove header block
+                data_block      = data_block[3:]
+            else:
+                lednicer_format = False   
+                # Remove header block
+                data_block = data_block[1:]
+                
+        # Close the file
+        f.close() 
 
         if lednicer_format:
-
-            # Ignore last line of header
-            f.readline()    
-
-            data_block = f.readlines()
-            f.close() 
-            
             x_up_surf = []
             y_up_surf = []
             x_lo_surf = []
@@ -110,9 +116,6 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
                     y_lo_surf.append(float(data_block[line_count].strip().split()[1]))   
 
         else:
-            data_block = f.readlines()
-            f.close()
-
             x_up_surf_rev = []
             y_up_surf_rev = []
             x_lo_surf = []
@@ -145,19 +148,13 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
                     y_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[1]))
 
             # Upper surface values in Selig format are reversed from Lednicer format, so fix that
-
             x_up_surf_rev.reverse()
             y_up_surf_rev.reverse()
 
             x_up_surf = x_up_surf_rev
             y_up_surf = y_up_surf_rev
 
-            # Add back data from first line, that was used to check format
 
-            x_up_surf.append(float(format_line.strip().replace(',','').split()[0]))
-            y_up_surf.append(float(format_line.strip().replace(',','').split()[1]))
-
-        
         # determine the thickness to chord ratio - note that the upper and lower surface
         # may be of different lenghts so initial interpolation is required 
         # x coordinates
