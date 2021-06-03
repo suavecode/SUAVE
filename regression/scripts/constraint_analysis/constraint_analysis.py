@@ -25,6 +25,7 @@ def main():
     # Define default constraint analysis
     ca.analyses.takeoff   = True
     ca.analyses.cruise    = True
+    ca.analyses.max_cruise = False
     ca.analyses.landing   = True
     ca.analyses.OEI_climb = True
     ca.analyses.turn      = True
@@ -36,20 +37,20 @@ def main():
     ca.takeoff.ground_run       = 1550 * Units['m']
     # climb
     ca.climb.altitude   = 35000 * Units['feet']
-    ca.climb.airspeed   = 430   * Units['knots']
+    ca.climb.airspeed   = 450   * Units['knots']
     ca.climb.climb_rate = 1.7   * Units['m/s']
     #cruise
     ca.cruise.altitude        = 35000 * Units['feet']  
-    ca.cruise.airspeed        = 430   * Units['knots']
+    ca.cruise.mach            = 0.78
     ca.cruise.thrust_fraction = 0.85
     # turn
     ca.turn.angle           = 15    * Units['degrees']
     ca.turn.altitude        = 35000 * Units['feet']   
-    ca.turn.airspeed        = 430   * Units['knots'] 
+    ca.turn.mach            = 0.78
     ca.turn.thrust_fraction = 0.85
     # ceiling
     ca.ceiling.altitude    = 36500 * Units['feet'] 
-    ca.ceiling.airspeed    = 390   * Units['knots'] 
+    ca.ceiling.mach            = 0.78
     # landing
     ca.landing.ground_roll = 1400 * Units['m']   
 
@@ -66,12 +67,7 @@ def main():
     ca.engine.type         = 'turbofan'
     ca.engine.number       = 2
     ca.engine.bypass_ratio = 6.0
-    # weights
-    ca.weights.climb_weight_fraction   = 1.00
-    ca.weights.cruise_weight_fraction  = 0.95
-    ca.weights.turn_weight_fraction    = 0.95
-    ca.weights.ceiling_weight_fraction = 0.95
-    ca.weights.landing_weight_fraction = 0.95
+    ca.engine.method       = "Mattingly"
 
     # Define aerodynamics
     ca.aerodynamics.cd_takeoff     = 0.044
@@ -98,6 +94,7 @@ def main():
     # Define default constraint analysis
     ca.analyses.takeoff   = True
     ca.analyses.cruise    = True
+    ca.analyses.max_cruise = False
     ca.analyses.landing   = True
     ca.analyses.OEI_climb = True
     ca.analyses.turn      = True
@@ -112,16 +109,16 @@ def main():
     ca.climb.climb_rate = 4   * Units['m/s']
     #cruise
     ca.cruise.altitude        = 20000 * Units['feet']  
-    ca.cruise.airspeed        = 280   * Units['knots']
+    ca.cruise.mach            = 0.42
     ca.cruise.thrust_fraction = 1
     # turn
     ca.turn.angle           = 15    * Units['degrees']
     ca.turn.altitude        = 20000 * Units['feet']   
-    ca.turn.airspeed        = 280   * Units['knots'] 
+    ca.turn.mach            = 0.42
     ca.turn.thrust_fraction = 1
     # ceiling
     ca.ceiling.altitude    = 25000 * Units['feet'] 
-    ca.ceiling.airspeed    = 240   * Units['knots'] 
+    ca.ceiling.mach            = 0.42
     # landing
     ca.landing.ground_roll = 650 * Units['m']   
 
@@ -144,12 +141,6 @@ def main():
     ca.propeller.turn_efficiency      = 0.85
     ca.propeller.ceiling_efficiency   = 0.85
     ca.propeller.OEI_climb_efficiency = 0.5
-    # weights
-    ca.weights.climb_weight_fraction   = 1.00
-    ca.weights.cruise_weight_fraction  = 0.95
-    ca.weights.turn_weight_fraction    = 0.95
-    ca.weights.ceiling_weight_fraction = 0.95
-    ca.weights.landing_weight_fraction = 0.95
 
     # Define aerodynamics
     ca.aerodynamics.cd_takeoff     = 0.04
@@ -169,9 +160,9 @@ def main():
 
     # true values
     prop_WS_truth = 244.116424
-    prop_TW_truth = 0.181850364
+    prop_TW_truth = 0.17915
     jet_WS_truth  = 725.143706
-    jet_TW_truth  = 3.37949544 
+    jet_TW_truth  = 3.6941
 
     err_prop_WS = (prop_WS - prop_WS_truth)/prop_WS_truth
     err_prop_TW = (prop_TW - prop_TW_truth)/prop_TW_truth 
@@ -183,10 +174,11 @@ def main():
     err.propeller_TW_error = err_prop_TW
     err.jet_WS_error       = err_jet_WS
     err.jet_TW_error       = err_jet_TW
+    print(err)
 
     for k,v in list(err.items()):
         assert(np.abs(v)<1E-6)    
-    print(err)
+
     
 if __name__ == '__main__':
     main()

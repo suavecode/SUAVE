@@ -61,13 +61,15 @@ class Constraint_Analysis():
         self.analyses = Data()
         self.analyses.takeoff   = True
         self.analyses.cruise    = True
+        self.analyses.ma_cruise = False
         self.analyses.landing   = True
         self.analyses.OEI_climb = True
         self.analyses.turn      = False
         self.analyses.climb     = False
         self.analyses.ceiling   = False
         
-        self.wing_loading = np.arange(5, 200, 5) * Units['force_pound/foot**2']
+        self.wing_loading      = np.arange(5, 200, 5) * Units['force_pound/foot**2']
+        self.design_point_type = None
 
         # Default parameters for the constraint analysis
         # take-off
@@ -92,6 +94,12 @@ class Constraint_Analysis():
         self.cruise.delta_ISA       = 0.0
         self.cruise.airspeed        = 0.0
         self.cruise.thrust_fraction = 0.0
+        # max cruise
+        self.max_cruise = Data()
+        self.max_cruise.altitude        = 0.0
+        self.max_cruise.delta_ISA       = 0.0
+        self.max_cruise.mach            = 0.0
+        self.max_cruise.thrust_fraction = 0.0
         # turn
         self.turn = Data()
         self.turn.angle           = 0.0
@@ -123,18 +131,13 @@ class Constraint_Analysis():
         self.geometry.high_lift_type_landing = None 
         # engine
         self.engine = Data()
-        self.engine.type           = None
-        self.engine.number         = 0
-        self.engine.bypass_ratio   = 0.0 
-        self.engine.throttle_ratio = 1.0   
-        self.engine.afterburner    = False    
-        # weights
-        self.weights = Data()
-        self.weights.climb_weight_fraction   = 1.0
-        self.weights.cruise_weight_fraction  = 1.0
-        self.weights.turn_weight_fraction    = 1.0
-        self.weights.ceiling_weight_fraction = 1.0
-        self.weights.landing_weight_fraction = 1.0
+        self.engine.type             = None
+        self.engine.number           = 0
+        self.engine.bypass_ratio     = 0.0 
+        self.engine.degree_of_hybridization = 0.0
+        self.engine.throttle_ratio   = 1.0   
+        self.engine.afterburner      = False
+        self.engine.method           = 'Mattingly'
         # propeller
         self.propeller = Data()
         self.propeller.takeoff_efficiency   = 0.0
@@ -157,7 +160,7 @@ class Constraint_Analysis():
         self.aerodynamics.viscous_factor  = 0.38
         
 
-    def create_constraint_diagram(self): 
+    def create_constraint_diagram(self,plot_figure = True): 
         """Creates a constraint diagram
 
         Assumptions:
@@ -205,9 +208,15 @@ class Constraint_Analysis():
 
         # cruise
         if analyses.cruise == True:
-            TW_cruise = self.cruise_constraints()
+            TW_cruise = self.cruise_constraints('normal cruise')
             all_constraints.append(TW_cruise)
             ax.plot(WS,TW_cruise, label = 'Cruise')
+
+        # maximum cruise
+        if analyses.max_cruise == True:
+            TW_max_cruise = self.cruise_constraints('max cruise')
+            all_constraints.append(TW_max_cruise)
+            ax.plot(WS,TW_max_cruise, label = 'Max Cruise')  
         
         # climb
         if analyses.climb == True:
@@ -223,7 +232,7 @@ class Constraint_Analysis():
 
         # landing
         if analyses.landing == True:
-            WS_landing, TW_landing = self.landing_constraints()
+            WS_landing, TW_landing    = self.landing_constraints()
             ax.plot(WS_landing,TW_landing, label = 'Landing')
 
         # OEI 2nd segment climb
@@ -233,7 +242,8 @@ class Constraint_Analysis():
             ax.plot(WS,TW_OEI_climb, label = '2nd segm-t OEI climb')
 
         # Find the design point
-        combined_curve = np.amax(all_constraints,0)
+        combined_curve             = np.amax(all_constraints,0)
+        self.combined_design_curve = combined_curve 
 
         if design_point_tag == 'minimum thrust-to-weight' or  design_point_tag == 'minimum power-to-weight':
             design_TW = min(combined_curve)                              
@@ -252,29 +262,52 @@ class Constraint_Analysis():
         ax.set_xlim(0, WS_landing[0]+10)
 
         # Plot the constraint diagram and store the design point
-        ax.legend()
+        ax.legend(loc=2,)
         ax.grid(True)
         if self.plot_units == 'US':
-            design_WS = 4.88243 * design_WS 
+            design_WS  = 4.88243 * design_WS 
+            landing_WS = 4.88243 * WS_landing
             plt.ylim(0, 0.5)
-            if self.engine.type != 'turbofan' or self.engine.type == 'turbojet':
+            if self.engine.type != 'turbofan' and self.engine.type != 'turbojet':
                 ax.set_ylabel('P/W, hp/lb')
                 design_TW = 1.64399 * design_TW      # convert from hp/lb to kW/kg 
+                plt.ylim(0, 0.3)
             else:
                 ax.set_ylabel('T/W, lb/lb')
                 design_TW = 9.81 * design_TW         # convert from lb/lb to N/kg
             ax.set_xlabel('W/S, lb/sq ft')  
+            plt.ylim(0, 0.2)
         else:
-            plt.ylim(0, 6)
-            if self.engine.type != 'turbofan' or self.engine.type == 'turbojet':
+            landing_WS = WS_landing
+            
+            if self.engine.type != 'turbofan' and self.engine.type != 'turbojet':
                 ax.set_ylabel('P/W, kW/kg')
+                plt.ylim(0, 0.3)
             else:
-                ax.set_ylabel('T/W, N/kg')   
-            ax.set_xlabel('W/S, kg/sq m')             
-        plt.savefig("Constarint_diagram.png", dpi=150)
+                ax.set_ylabel('T/W, N/kg')  
+                plt.ylim(0, 6)
+            ax.set_xlabel('W/S, kg/sq m')    
 
+        if plot_figure == True:         
+            plt.savefig("Constarint_diagram.png", dpi=150)
+
+        # Write the constrain diagram design point into a file
+        f = open("Constraint_analysis_data.dat", "w")
+        f.write('Output file with the constraint analysis design point\n\n')           
+        f.write("Design point :\n")
+        f.write('     Wing loading = ' + str(design_WS) + ' kg/sq m\n')
+        f.write('                    ' + str(design_WS*0.204816) + ' lb/sq ft\n')  
+        if self.engine.type != 'turbofan' and self.engine.type != 'turbojet':
+            f.write('     Power-to-weight ratio = ' + str(design_TW) + ' kW/kg\n')    
+            f.write('                             ' + str(design_TW*0.608277388) + ' hp/lb\n')
+        else:
+            f.write('     Thrust-to-weight ratio = ' + str(design_TW) + ' N/kg\n')
+            f.write('                              ' + str(design_TW/9.81) + ' lb/lb\n')    
+        f.close()
+        
         # Pack outputs
         self.des_wing_loading     = design_WS
+        self.landing_wing_loading = landing_WS
         self.des_thrust_to_weight = design_TW
 
         return
@@ -347,7 +380,7 @@ class Constraint_Analysis():
         g           = atmosphere.planet.sea_level_gravity
 
         T_W = np.zeros(len(W_S))
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             P_W  = np.zeros(len(W_S))
             etap = self.propeller.takeoff_efficiency
             if etap == 0:
@@ -358,22 +391,22 @@ class Constraint_Analysis():
             T_W[i] = eps**2*W_S[i] / (g*Sg*rho*cl_max_TO) + eps*cd_TO/(2*cl_max_TO) + miu * (1-eps*cl_TO/(2*cl_max_TO))
             
             # Convert thrust to power (for propeller-driven engines) and normalize the results wrt the Sea-level
-            if eng_type != 'turbofan' or eng_type == 'turbojet':
+            if eng_type != 'turbofan' and eng_type != 'turbojet':
                 
                 P_W[i] = T_W[i]*Vlof/etap
 
                 if eng_type == 'turboprop':
-                    P_W[i] = P_W[i] / self.normalize_turboprop_thrust(p,T)
+                    P_W[i] = P_W[i] / self.normalize_turboprop_thrust(p,T) 
                 elif eng_type == 'piston':
-                    P_W[i] = P_W[i] / self.normalize_power_piston(rho) 
+                    P_W[i] = P_W[i] / self.normalize_power_piston(rho)
                 elif eng_type == 'electric':
-                    P_W[i] = P_W[i] / self.normalize_power_electric(rho) 
+                    P_W[i] = P_W[i] / self.normalize_power_electric(rho)  
             else:
-               T_W[i] = T_W[i] / self.normalize_gasturbine_thrust(eng_type,p,T,Mlof)   
+               T_W[i] = T_W[i] / self.normalize_gasturbine_thrust(eng_type,p,T,Mlof,altitude,'takeoff')  
      
 
         # Pack outputs
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             if self.plot_units == 'US':
                 constraint = 0.00608 * P_W       # convert to hp/lb
             else:
@@ -420,7 +453,7 @@ class Constraint_Analysis():
         phi       = self.turn.angle         
         altitude  = self.turn.altitude        
         delta_ISA = self.turn.delta_ISA       
-        Vturn     = self.turn.airspeed        
+        M         = self.turn.mach       
         Ps        = self.turn.specific_energy 
         throttle  = self.turn.thrust_fraction   
         AR        = self.geometry.aspect_ratio
@@ -435,12 +468,12 @@ class Constraint_Analysis():
         rho         = atmo_values.density[0,0]
         p           = atmo_values.pressure[0,0]
         T           = atmo_values.temperature[0,0]
-        M           = Vturn/atmo_values.speed_of_sound[0,0]
+        Vturn       = M * atmo_values.speed_of_sound[0,0]
         q           = 0.5*rho*Vturn**2
         g           = atmosphere.planet.sea_level_gravity   
 
         T_W = np.zeros(len(W_S))
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             P_W  = np.zeros(len(W_S))
             etap = self.propeller.turn_efficiency
             if etap == 0:
@@ -450,32 +483,33 @@ class Constraint_Analysis():
             CL = W_S[i]/q
 
             # Calculate compressibility_drag
-            cd_comp = self.compressibility_drag(M,CL) 
+            cd_comp   = self.compressibility_drag(M,CL) 
+            cd_comp_e = self.compressibility_drag(M,0)  
             cd0     = cd_min + cd_comp  
 
             # Calculate Oswald efficiency
             if self.aerodynamics.oswald_factor == 0:
-                e = self.oswald_efficiency(cd0,M)
+                e = self.oswald_efficiency(cd_min+cd_comp_e,M)
 
             k      = 1/(np.pi*e*AR)
             T_W[i] = q * (cd0/W_S[i] + k/(q*np.cos(phi))**2*W_S[i]) + Ps/Vturn
 
         # Convert thrust to power (for propeller-driven engines) and normalize the results wrt the Sea-level
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
 
             P_W = T_W*Vturn/etap
 
             if eng_type == 'turboprop':
-                P_W = P_W / self.normalize_turboprop_thrust(p,T)
+                P_W = P_W / self.normalize_turboprop_thrust(p,T) 
             elif eng_type == 'piston':
                 P_W = P_W / self.normalize_power_piston(rho) 
             elif eng_type == 'electric':
                 P_W = P_W / self.normalize_power_electric(rho) 
         else:
-            T_W = T_W / self.normalize_gasturbine_thrust(eng_type,p,T,M)         
+            T_W = T_W / self.normalize_gasturbine_thrust(eng_type,p,T,M,altitude,'turn')          
 
         # Pack outputs normalized by throttle
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             if self.plot_units == 'US':
                 constraint = 0.006 * P_W / throttle      # convert to hp/lb
             else:
@@ -488,7 +522,7 @@ class Constraint_Analysis():
 
         return constraint
 
-    def cruise_constraints(self):
+    def cruise_constraints(self,cruise_tag):
         """Calculate thrust-to-weight ratios for the cruise
 
         Assumptions:
@@ -515,12 +549,19 @@ class Constraint_Analysis():
         """  
 
         # Unpack inputs
+        if cruise_tag == 'max cruise':
+            altitude    = self.max_cruise.altitude 
+            delta_ISA   = self.max_cruise.delta_ISA
+            M           = self.max_cruise.mach 
+            throttle    = self.max_cruise.thrust_fraction 
+        else:
+            altitude    = self.cruise.altitude 
+            delta_ISA   = self.cruise.delta_ISA
+            M           = self.cruise.mach 
+            throttle    = self.cruise.thrust_fraction
+
         eng_type  = self.engine.type
         cd_min    = self.aerodynamics.cd_min_clean 
-        altitude  = self.cruise.altitude 
-        delta_ISA = self.cruise.delta_ISA
-        Vcr       = self.cruise.airspeed 
-        throttle  = self.cruise.thrust_fraction   
         AR        = self.geometry.aspect_ratio
         W_S       = self.wing_loading
               
@@ -533,13 +574,13 @@ class Constraint_Analysis():
         rho         = atmo_values.density[0,0]
         p           = atmo_values.pressure[0,0]
         T           = atmo_values.temperature[0,0]
-        M           = Vcr/atmo_values.speed_of_sound[0,0]
+        Vcr         = M * atmo_values.speed_of_sound[0,0]
         q           = 0.5*rho*Vcr**2
         g           = atmosphere.planet.sea_level_gravity
    
 
         T_W = np.zeros(len(W_S))
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             P_W  = np.zeros(len(W_S))
             etap = self.propeller.cruise_efficiency
             if etap == 0:
@@ -548,32 +589,34 @@ class Constraint_Analysis():
             CL = W_S[i]/q
 
             # Calculate compressibility_drag
-            cd_comp = self.compressibility_drag(M,CL) 
-            cd0     = cd_min + cd_comp  
+            cd_comp   = self.compressibility_drag(M,CL) 
+            cd_comp_e = self.compressibility_drag(M,0)  
+            cd0       = cd_min + cd_comp  
 
             # Calculate Oswald efficiency
             if self.aerodynamics.oswald_factor == 0:
-                e = self.oswald_efficiency(cd0,M)
+                e = self.oswald_efficiency(cd_min+cd_comp_e,M)
 
             k = 1/(np.pi*e*AR)
             T_W[i] = q*cd0/W_S[i]+k*W_S[i]/q
 
         # Convert thrust to power (for propeller-driven engines) and normalize the results wrt the Sea-level
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
 
             P_W = T_W*Vcr/etap
 
             if eng_type == 'turboprop':
                 P_W = P_W / self.normalize_turboprop_thrust(p,T)
             elif eng_type == 'piston':
-                P_W = P_W / self.normalize_power_piston(rho) 
+                P_W = P_W / self.normalize_power_piston(rho)
             elif eng_type == 'electric':
-                P_W = P_W / self.normalize_power_electric(rho) 
+                P_W = P_W / self.normalize_power_electric(rho)
         else:
-            T_W = T_W / self.normalize_gasturbine_thrust(eng_type,p,T,M)         
+            T_W = T_W / self.normalize_gasturbine_thrust(eng_type,p,T,M,altitude,'cruise')     
+
 
         # Pack outputs
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             if self.plot_units == 'US':
                 constraint = 0.006 * P_W / throttle      # convert to hp/lb
             else:
@@ -635,7 +678,7 @@ class Constraint_Analysis():
         a           = atmo_values.speed_of_sound[0,0]   
 
         T_W = np.zeros(len(W_S))
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             P_W        = np.zeros(len(W_S))
             etap       = self.propeller.climb_efficiency
             if etap == 0:
@@ -651,12 +694,13 @@ class Constraint_Analysis():
                     CL = W_S[i]/q
 
                     # Calculate compressibility_drag
-                    cd_comp = self.compressibility_drag(M,CL) 
+                    cd_comp   = self.compressibility_drag(M,CL) 
+                    cd_comp_e = self.compressibility_drag(M,0)  
                     cd0     = cd_min + cd_comp  
 
                     # Calculate Oswald efficiency
                     if self.aerodynamics.oswald_factor == 0:
-                        e = self.oswald_efficiency(cd0,M)
+                        e = self.oswald_efficiency(cd_min+cd_comp_e,M)
 
                     k     = 1/(np.pi*e*AR)
                     Vx    = np.sqrt(2/rho*W_S[i]*np.sqrt(k/(3*cd0)))
@@ -669,11 +713,11 @@ class Constraint_Analysis():
                 P_W[i] = T_W[i]*Vx/etap
 
                 if eng_type == 'turboprop':
-                    P_W[i] = P_W[i] / self.normalize_turboprop_thrust(p,T)
+                    P_W[i] = P_W[i] / self.normalize_turboprop_thrust(p,T) 
                 elif eng_type == 'piston':
-                    P_W[i] = P_W[i] / self.normalize_power_piston(rho) 
+                    P_W[i] = P_W[i] / self.normalize_power_piston(rho)   
                 elif eng_type == 'electric':
-                    P_W[i] = P_W[i] / self.normalize_power_electric(rho) 
+                    P_W[i] = P_W[i] / self.normalize_power_electric(rho)  
 
         else:
             M  = Vx/a                           
@@ -683,19 +727,20 @@ class Constraint_Analysis():
                 CL = W_S[i]/q
 
                 # Calculate compressibility_drag
-                cd_comp = self.compressibility_drag(M,CL) 
+                cd_comp   = self.compressibility_drag(M,CL) 
+                cd_comp_e = self.compressibility_drag(M,0)  
                 cd0     = cd_min + cd_comp  
 
                 # Calculate Oswald efficiency
                 if self.aerodynamics.oswald_factor == 0:
-                    e = self.oswald_efficiency(cd0,M)
+                    e = self.oswald_efficiency(cd_min+cd_comp_e,M)
 
                 k      = 1/(np.pi*e*AR)
                 T_W[i] = Vy/Vx + q/W_S[i]*cd0 + k/q*W_S[i]
-                T_W[i] = T_W[i] / self.normalize_gasturbine_thrust(eng_type,p,T,M) 
+                T_W[i] = T_W[i] / self.normalize_gasturbine_thrust(eng_type,p,T,M,altitude,'climb')  
 
         # Pack outputs
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             if self.plot_units == 'US':
                 constraint = 0.006 * P_W       # convert to hp/lb
             else:
@@ -738,7 +783,7 @@ class Constraint_Analysis():
         cd_min    = self.aerodynamics.cd_min_clean
         altitude  = self.ceiling.altitude  
         delta_ISA = self.ceiling.delta_ISA 
-        Vceil     = self.ceiling.airspeed  
+        M         = self.ceiling.mach 
         AR        = self.geometry.aspect_ratio
         W_S       = self.wing_loading  
 
@@ -752,11 +797,11 @@ class Constraint_Analysis():
         p           = atmo_values.pressure[0,0]
         T           = atmo_values.temperature[0,0]
         a           = atmo_values.speed_of_sound[0,0] 
-        M           = Vceil/a
+        Vceil       = M * a
         q           = 0.5 * rho * Vceil**2 
 
         T_W = np.zeros(len(W_S))
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             P_W  = np.zeros(len(W_S))
             etap = self.propeller.cruise_efficiency
             if etap == 0:
@@ -765,33 +810,34 @@ class Constraint_Analysis():
             CL = W_S[i]/q
 
             # Calculate compressibility_drag
-            cd_comp = self.compressibility_drag(M,CL) 
+            cd_comp   = self.compressibility_drag(M,CL) 
+            cd_comp_e = self.compressibility_drag(M,0)  
             cd0     = cd_min + cd_comp  
 
             # Calculate Oswald efficiency
             if self.aerodynamics.oswald_factor == 0:
-                e = self.oswald_efficiency(cd0,M)
+                e = self.oswald_efficiency(cd_min+cd_comp_e,M)
 
             k = 1/(np.pi*e*AR)
 
             T_W[i] = 0.508/(np.sqrt(2/rho*W_S[i]*np.sqrt(k/(3*cd0)))) + 4*np.sqrt(k*cd0/3)
 
-        # Convert thrust to power (for propeller-driven engines) and normalize the results wrt the Sea-level
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        # Convert thrust to power (for propeller-driven engines) and normalize the results wrt the Sea-level       
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
 
             P_W = T_W*Vceil/etap
 
             if eng_type   == 'turboprop':
-                P_W = P_W / self.normalize_turboprop_thrust(p,T)
+                P_W = P_W / self.normalize_turboprop_thrust(p,T) 
             elif eng_type == 'piston':
                 P_W = P_W / self.normalize_power_piston(rho) 
             elif eng_type == 'electric':
-                P_W = P_W / self.normalize_power_electric(rho) 
+                P_W = P_W / self.normalize_power_electric(rho)  
         else:
-            T_W = T_W / self.normalize_gasturbine_thrust(eng_type,p,T,M)         
+            T_W = T_W / self.normalize_gasturbine_thrust(eng_type,p,T,M,altitude,'ceiling')           
 
         # Pack outputs
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             if self.plot_units == 'US':
                 constraint = 0.006 * P_W       # convert to hp/lb
             else:
@@ -869,7 +915,7 @@ class Constraint_Analysis():
         T_W    = np.zeros(len(W_S))
         T_W[:] = Ne/((Ne-1)*L_D)+gamma
 
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             P_W  = np.zeros(len(W_S))
             etap = self.propeller.cruise_efficiency
             if etap == 0:
@@ -886,10 +932,10 @@ class Constraint_Analysis():
                     P_W[i] = P_W[i] / self.normalize_power_electric(rho) 
         else:
             for i in range(len(W_S)):
-                T_W[i] = T_W[i] / self.normalize_gasturbine_thrust(eng_type,p,T,M[i])  
+                T_W[i] = T_W[i] / self.normalize_gasturbine_thrust(eng_type,p,T,M[i],altitude,'OEIclimb')  
 
         # Pack outputs
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             if self.plot_units == 'US':
                 constraint = 0.006 * P_W       # convert to hp/lb
             else:
@@ -940,7 +986,7 @@ class Constraint_Analysis():
             cl_max = self.estimate_max_lift(self.geometry.high_lift_type_takeoff)
 
         # Estimate the approach speed
-        if eng_type != 'turbofan' or eng_type == 'turbojet':
+        if eng_type != 'turbofan' and eng_type != 'turbojet':
             kappa = 0.7
             Vapp  = np.sqrt(3.8217*Sg/kappa+49.488)
         else:
@@ -1166,9 +1212,9 @@ class Constraint_Analysis():
         Properties Used:       
         """
 
-        return 0.4505*density/1.225+0.5519
+        return 0.50987*density/1.225+0.4981
 
-    def normalize_gasturbine_thrust(self,engine_type,pressure,temperature,mach):
+    def normalize_gasturbine_thrust(self,engine_type,pressure,temperature,mach,altitude,seg_tag):
         """Altitude correction for engines that feature a gas turbine
 
         Assumptions:
@@ -1178,6 +1224,8 @@ class Constraint_Analysis():
             S. Gudmundsson "General Aviation aircraft Design. Applied methods and procedures", Butterworth-Heinemann (6 Nov. 2013), ISBN - 0123973082
             Clarkson Universitty AE429 Lecture notes (https://people.clarkson.edu/~pmarzocc/AE429/AE-429-6.pdf)
 
+
+            For the Howe method, an afterburner factor of 1.2 is used
         Inputs:
             engine_type             string
             pressure                [Pa]
@@ -1194,7 +1242,7 @@ class Constraint_Analysis():
 
         # Calculate atmospheric ratios
         theta = temperature/288 * (1+0.2*mach**2)
-        delta = pressure/101325 * (1+0.2*mach**2)**3.5
+        delta = pressure/101325 * (1+0.2*mach**2)**3.5 
         
         if engine_type == 'turbojet':
 
@@ -1210,23 +1258,103 @@ class Constraint_Analysis():
                     thrust_ratio =  delta * 0.8 * (1 - 0.16 * np.sqrt(mach) - 24 * (theta - TR) / ((9 + mach) * theta))
 
         elif engine_type == 'turbofan':
-            if self.engine.bypass_ratio < 1:
-                if self.engine.afterburner == True:
-                    if theta <= TR:
-                        thrust_ratio =  delta
-                    else:
-                        thrust_ratio = delta * (1 - 3.5 * (theta - TR) / theta)    
-                else: 
-                    if theta <= TR:
-                        thrust_ratio =  0.6 * delta
-                    else:
-                        thrust_ratio = 0.6 * delta * (1 - 3.8 * (theta - TR) / theta)
-            else:
-                if theta <= TR:
-                    thrust_ratio =  delta * (1 - 0.49 * np.sqrt(mach))
+            
+            if self.engine.method == 'Mattingly':
+                if self.engine.bypass_ratio < 1:
+                    if self.engine.afterburner == True:
+                        if theta <= TR:
+                            thrust_ratio =  delta
+                        else:
+                            thrust_ratio = delta * (1 - 3.5 * (theta - TR) / theta)    
+                    else: 
+                        if theta <= TR:
+                            thrust_ratio =  0.6 * delta
+                        else:
+                            thrust_ratio = 0.6 * delta * (1 - 3.8 * (theta - TR) / theta)
                 else:
-                    thrust_ratio =  delta * (1 - 0.49 * np.sqrt(mach) - 3 * (theta - TR)/(1.5 + mach))
+                    if theta <= TR:
+                        thrust_ratio =  delta * (1 - 0.49 * np.sqrt(mach))
+                    else:
+                        thrust_ratio =  delta * (1 - 0.49 * np.sqrt(mach) - 3 * (theta - TR)/(1.5 + mach))
+            
+            elif self.engine.method == 'Scholz':
+                if seg_tag != 'takeoff' and seg_tag != 'OEIclimb':
+                    BPR          = self.engine.bypass_ratio
+                    thrust_ratio = (0.0013*BPR-0.0397)*altitude/1000-0.0248*BPR+0.7125
+                else:
+                    thrust_ratio = 1.0  
+            
+            elif self.engine.method == 'Howe':
+                BPR = self.engine.bypass_ratio
+                if self.engine.bypass_ratio <= 1:
+                    s = 0.8
+                    if mach < 0.4:
+                        if self.engine.afterburner == False:
+                            K   = [1.0, 0.0, -0.2, 0.07]
+                            kab = 1.0
+                        else:
+                            K   = [1.32, 0.062, -0.13, -0.27]  
+                            kab = 1.2                    
+                    elif mach < 0.9:
+                        if self.engine.afterburner == False:     
+                            K   = [0.856, 0.062, 0.16, -0.23]   
+                            kab = 1.0
+                        else:
+                            K   = [1.17, -0.12, 0.25, -0.17]
+                            kab = 1.2
+                    elif mach < 2.2:
+                        if self.engine.afterburner == False:  
+                            K   = [1.0, -0.145, 0.5, -0.05]
+                            kab = 1.0
+                        else:
+                            K   = [1.4, 0.03, 0.8, 0.4]
+                            kab = 1.2
+                    else:
+                        raise ValueError("the Mach number is too high for the Howe method. The maximum possible value is 2.2\n")  
+                
+                elif self.engine.bypass_ratio > 3 and self.engine.bypass_ratio < 6:
+                    s = 0.7
+                    if self.engine.afterburner == False:
+                        kab = 1.0
+                    else:
+                        kab = 1.2
 
+                    if mach < 0.4:
+                        K   = [1.0, 0.0, -0.6, -0.04]
+                    elif mach < 0.9:
+                        K = [0.88, -0.016, -0.3, 0.0]
+                    else:
+                        raise ValueError("the Mach number is too high for the Howe method. The maximum possible value is 0.9\n")  
+                       
+                else:
+                    s = 0.7
+                    if self.engine.afterurner == False:
+                        kab = 1.0
+                    else:
+                        kab = 1.2
+
+                    if mach < 0.4:
+                        K = [1.0, 0.0, -0.595, -0.03]
+                    elif mach < 0.9:
+                        K = [0.89, -0.014, -0.3, 0.005]
+                    else:
+                        raise ValueError("the Mach number is too high for the Howe method. The maximum possible value is 0.9\n")  
+                                                                           
+                sigma        = (1 -2.2558e-5*altitude)**4.2561 
+                thrust_ratio = kab * (K[0]+K[1]*BPR+(K[2]+K[3]*BPR)*mach)*sigma**s
+
+            elif self.engine.method == 'Bartel':
+                BPR   = self.engine.bypass_ratio
+                p_pSL = (1-2.2558e-5*altitude)**5.2461
+                A     = -0.4327*p_pSL**2+1.3855*p_pSL+0.0472
+                Z     = 0.9106*p_pSL**3-1.7736*p_pSL**2+1.8697*p_pSL
+                X     = 0.1377*p_pSL**3-0.4374*p_pSL**2+1.3003*p_pSL
+                G0    = 0.0603*BPR+0.6337
+
+                thrust_ratio = A - (0.377*(1+BPR))/(((1+0.82*BPR)*G0)**0.5)*Z*mach+(0.23+0.19*BPR**0.5)*X*mach**2
+
+            else:
+                raise ValueError("Enter a correct thrust normalization method\n")  
 
         return thrust_ratio
 
