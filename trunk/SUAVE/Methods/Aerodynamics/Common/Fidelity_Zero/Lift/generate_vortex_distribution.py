@@ -3,6 +3,7 @@
 # 
 # Created:  May 2018, M. Clarke
 #           Apr 2020, M. Clarke
+# Modified: Jun 2021, A. Blaufox
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -10,6 +11,7 @@
 
 # package imports 
 import numpy as np
+from copy import deepcopy
 from SUAVE.Core import  Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
@@ -121,7 +123,12 @@ def generate_vortex_distribution(geometry,settings):
     VD.wing_areas  = [] # instantiate wing areas
     VD.vortex_lift = []
     
-    for wing in geometry.wings:
+    #reformat wings and control surfaces for VLM panelization
+    VLM_wings = make_VLM_wings(geometry)
+    geometry.VLM_wings = VLM_wings
+    
+    #generate panelization for each wing (and control surface)
+    for wing in geometry.VLM_wings:
         VD = generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc)
         
     # ---------------------------------------------------------------------------------------
@@ -146,9 +153,46 @@ def generate_vortex_distribution(geometry,settings):
     
     return VD 
 
+
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+def make_VLM_wings(geometry):
+    """ This forces all wings to be segmented, appends all control surfaces
+        as full wings to geometry, and contructs helper variables for later
+
+    Assumptions: 
+    None
+
+    Source:   
+    None
+    
+    Inputs:   
+    VD                   - vortex distribution    
+    
+    Properties Used:
+    N/A
+    """     
+    wings = deepcopy(geometry.wings)
+    
+    return wings
+    
+
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
-        # get geometry of wing  
+    """ This generates the vortex distribution points on the wing 
+
+    Assumptions: 
+    The wing is segmented
+
+    Source:   
+    None
+    
+    Inputs:   
+    VD                   - vortex distribution    
+    
+    Properties Used:
+    N/A
+    """       
+    # get geometry of wing  
     span          = wing.spans.projected
     root_chord    = wing.chords.root
     tip_chord     = wing.chords.tip
