@@ -12,15 +12,20 @@
 # package imports 
 import numpy as np
 from copy import deepcopy
+
+import SUAVE
 from SUAVE.Core import  Data
+from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import populate_control_sections
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def generate_vortex_distribution(geometry,settings):
     ''' Compute the coordinates of panels, vortices , control points
-    and geometry used to build the influence coefficient matrix.
-    
+    and geometry used to build the influence coefficient matrix. All
+    major sections (wings and fuslages) have the same n_sw and n_cw in
+    order to allow the usage of vectorized calculations.    
 
     Assumptions: 
     Below is a schematic of the coordinates of an arbitrary panel  
@@ -43,6 +48,9 @@ def generate_vortex_distribution(geometry,settings):
          |   <--  vortex   -->    |  
          |         legs           | 
              
+    
+    In addition, all control surfaces should be appended directly
+       to the wing, not the wing segments    
     
     Source:  
     None
@@ -160,18 +168,81 @@ def make_VLM_wings(geometry):
         as full wings to geometry, and contructs helper variables for later
 
     Assumptions: 
-    None
+    All control surfaces are appended directly to the wing, not wing segments
+    If a given wing has no segments, it must have either .taper or .chords.root 
+        and .chords.tip defined
 
     Source:   
     None
     
     Inputs:   
-    VD                   - vortex distribution    
+    VD                   - vortex distribution 
+    For geometry with one or more non-segmented wings:
+    geometry.
+        wings.wing.
+            twists.root
+            twists.tip
+            dihedral
+            sweeps.quarter_chord
+            thickness_to_chord
+            taper
+            chord.root
+            chords.tip
     
     Properties Used:
     N/A
     """     
     wings = deepcopy(geometry.wings)
+    
+    for wing in wings:
+        wing.is_a_control_surface = False
+        
+    for wing in wings:
+        #skip if this wing is actually a control surface
+        if wing.is_a_control_surface == True:
+            continue
+        
+        #force the wing to at least have a root and tip segment -- assume no airfoil for now
+        n_segments           = len(wing.Segments.keys())
+        if n_segments==0:
+            # root segment 
+            segment                               = SUAVE.Components.Wings.Segment()
+            segment.tag                           = 'root_segment'
+            segment.percent_span_location         = 0.0
+            segment.twist                         = wing.twists.root
+            segment.root_chord_percent            = 1.
+            segment.dihedral_outboard             = wing.dihedral
+            segment.sweeps.quarter_chord          = wing.sweeps.quarter_chord
+            segment.thickness_to_chord            = wing.thickness_to_chord
+            wing.append_segment(segment) 
+            
+            # tip segment 
+            segment                               = SUAVE.Components.Wings.Segment()
+            segment.tag                           = 'tip_segment'
+            segment.percent_span_location         = 1.
+            segment.twist                         = wing.twists.tip
+            if wing.taper==0:
+                wing.taper = wing.chords.tip / wing.chord.root            
+            segment.root_chord_percent            = wing.taper
+            segment.dihedral_outboard             = 0.
+            segment.sweeps.quarter_chord          = 0.
+            segment.thickness_to_chord            = wing.thickness_to_chord
+            wing.append_segment(segment)   
+        else:
+            for segment in wing.Segments:
+                if len(segment.control_surfaces) > 0:
+                    raise ValueError('Input, control surfaces should be appended to the wing, not its segments. ' + 
+                                     'This function will move the control surfaces to wing segments itself.')
+            
+        #move wing control surfaces to from wing to its segments
+        wing = populate_control_sections(wing) 
+        
+        #create arrays to hold span break values
+        segments_breaks = []
+        
+        #process all control surfaces in each segment
+        
+        #condense segments_breaks into wing_breaks and pack
     
     return wings
     
