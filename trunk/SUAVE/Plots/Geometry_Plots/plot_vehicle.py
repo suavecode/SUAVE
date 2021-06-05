@@ -17,7 +17,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series  
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution
 from SUAVE.Components.Energy.Networks import Lift_Cruise , Turbofan 
 from SUAVE.Components.Energy.Converters import Propeller, Rotor 
 ## @ingroup Plots-Geometry_Plots
@@ -49,7 +49,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
         settings.number_chordwise_vortices = 5
         settings.spanwise_cosine_spacing   = False 
         settings.model_fuselage            = False
-        VD = generate_wing_vortex_distribution(vehicle,settings)  
+        VD = generate_vortex_distribution(vehicle,settings)  
         
     # initalize figure 
     fig = plt.figure(save_filename) 
