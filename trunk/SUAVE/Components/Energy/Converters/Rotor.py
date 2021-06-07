@@ -68,7 +68,7 @@ class Rotor(Energy_Component):
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
-        self.rotation                  = None
+        self.rotation                  = [1]
         self.ducted                    = False 
         self.VTOL_flag                 = False
         self.number_azimuthal_stations = 24
