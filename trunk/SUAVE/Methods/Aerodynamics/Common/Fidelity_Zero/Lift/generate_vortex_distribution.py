@@ -17,6 +17,7 @@ import SUAVE
 from SUAVE.Core import  Data
 from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import populate_control_sections
+from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions.convert_sweep import convert_sweep
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 
@@ -168,7 +169,7 @@ def make_VLM_wings(geometry):
         as full wings to geometry, and contructs helper variables for later
 
     Assumptions: 
-    All control surfaces are appended directly to the wing, not wing segments
+    All control surfaces are appended directly to the wing, not wing segments.
     If a given wing has no segments, it must have either .taper or .chords.root 
         and .chords.tip defined
 
@@ -188,64 +189,267 @@ def make_VLM_wings(geometry):
             taper
             chord.root
             chords.tip
+            
+            control_surface.
+                tag
+                span_fraction_start
+                span_fraction_end
+                deflection
+                chord_fraction
     
     Properties Used:
     N/A
-    """     
+    """ 
     wings = deepcopy(geometry.wings)
     
+    # reformat original wings to have at least 2 segments, check that no control_surfaces are on segments yet
     for wing in wings:
         wing.is_a_control_surface = False
-        
-    for wing in wings:
-        #skip if this wing is actually a control surface
-        if wing.is_a_control_surface == True:
-            continue
-        
-        #force the wing to at least have a root and tip segment -- assume no airfoil for now
         n_segments           = len(wing.Segments.keys())
         if n_segments==0:
-            # root segment 
-            segment                               = SUAVE.Components.Wings.Segment()
-            segment.tag                           = 'root_segment'
-            segment.percent_span_location         = 0.0
-            segment.twist                         = wing.twists.root
-            segment.root_chord_percent            = 1.
-            segment.dihedral_outboard             = wing.dihedral
-            segment.sweeps.quarter_chord          = wing.sweeps.quarter_chord
-            segment.thickness_to_chord            = wing.thickness_to_chord
-            wing.append_segment(segment) 
-            
-            # tip segment 
-            segment                               = SUAVE.Components.Wings.Segment()
-            segment.tag                           = 'tip_segment'
-            segment.percent_span_location         = 1.
-            segment.twist                         = wing.twists.tip
-            if wing.taper==0:
-                wing.taper = wing.chords.tip / wing.chord.root            
-            segment.root_chord_percent            = wing.taper
-            segment.dihedral_outboard             = 0.
-            segment.sweeps.quarter_chord          = 0.
-            segment.thickness_to_chord            = wing.thickness_to_chord
-            wing.append_segment(segment)   
+            wing       = convert_to_segmented_wing(wing)
         else:
             for segment in wing.Segments:
                 if len(segment.control_surfaces) > 0:
                     raise ValueError('Input, control surfaces should be appended to the wing, not its segments. ' + 
-                                     'This function will move the control surfaces to wing segments itself.')
-            
+                                     'This function will move the control surfaces to wing segments itself.')  
         #move wing control surfaces to from wing to its segments
-        wing = populate_control_sections(wing) 
+        wing = populate_control_sections(wing)         
+    
+    # each control-surfaced-turned-wing will have its own unique ID number
+    cs_ID = 0
+    
+    # build wing objects from control surfaces on segments 
+    for wing in wings:
+        if wing.is_a_control_surface == True: #skip if this wing is actually a control surface
+            continue
         
-        #create arrays to hold span break values
-        segments_breaks = []
-        
+        #prepare to iterate across all segments and control surfaces
+        seg_breaks = []
+        LE_breaks  = []
+        TE_breaks  = []
+        n_segments           = len(wing.Segments.keys())
+
         #process all control surfaces in each segment
+        for i in range(n_segments):   
+            (ia, ib) = (0, 0) if i==0 else (i-1, i)
+            seg_a = wing.Segments[ia]
+            seg_b = wing.Segments[ib]
+            
+            seg_b.chord = seg_b.root_chord_percent *wing.chords.root
+            for cs in seg_b.control_surfaces: #should be no control surfaces on root segment
+                
+                # create and append a wing object from the control_surface object, the segment it is attached to,
+                #    and the previous segment-------------------------------------------------------------------
+                cs_wing = make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID)
+                wings.append(cs_wing)
+                                
+                # register cs start and end span breaks-----------------------------------------------------------
+                cs_span_breaks = make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID)
+                if type(cs)==Slat:
+                    LE_breaks.append(cs_span_breaks[0])
+                    LE_breaks.append(cs_span_breaks[1])
+                else:
+                    TE_breaks.append(cs_span_breaks[0])
+                    TE_breaks.append(cs_span_breaks[1])                    
+                
+                cs_ID += 1
+            
+            # register segment span break--------------------------------------------------------------------------
+            span_break = make_span_break_from_segment(seg_b)
+            seg_breaks.append(span_break)
+
+        #convert span_breaks into wing_sections
+        #   1.  sort all span_breaks by their span_fraction
+        #   2a. adjust outboard attributes for cs span_breaks coincident with a segment span break. 
+        #   2b. Then remove redundant segment span breaks
+        #   3.  combine LE and TE breaks with the same span_fraction values (LE cuts from slats and TE cuts from others)
+        span_breaks = []
         
-        #condense segments_breaks into wing_breaks and pack
+        # 1:
+        
     
     return wings
     
+def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
+    cs_wing = SUAVE.Components.Wings.Wing()
+    cs_wing.tag                   = wing.tag + '|' + seg_b.tag + '|' + cs.tag + '|cs_ID_{}'.format(cs_ID)
+    span_a                        = seg_a.percent_span_location
+    span_b                        = seg_b.percent_span_location
+    twist_a                       = seg_a.twist
+    twist_b                       = seg_b.twist
+    cs_wing.twists.root           = np.interp(cs.span_fraction_start, [span_a, span_b], [twist_a, twist_b])
+    cs_wing.twists.tip            = np.interp(cs.span_fraction_end,   [span_a, span_b], [twist_a, twist_b])
+    cs_wing.dihedral              = seg_a.dihedral_outboard
+    cs_wing.thickness_to_chord    = (seg_a.thickness_to_chord + seg_b.thickness_to_chord)/2
+    cs_wing.taper                 = seg_b.root_chord_percent / seg_a.root_chord_percent
+    
+    ## may have to recompute when shifting y_coords to match span breaks in generate_wing_vortex_distribution
+    span_fraction_tot             = cs.span_fraction_end - cs.span_fraction_start
+    cs_wing.spans.projected       = wing.spans.projected * span_fraction_tot #includes 2x lenth if cs is on a symmetric wing 
+    
+    ### may have to recompute when computing owning wing's modificaions in generate_wing_vortex_distribution
+    wing_chord_local_at_cs_root   = np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.chord, seg_b.chord])
+    wing_chord_local_at_cs_tip    = np.interp(cs.span_fraction_end,   [span_a, span_b], [seg_a.chord, seg_b.chord])
+    cs_wing.chords.root           = wing_chord_local_at_cs_root * cs.chord_fraction  
+    cs_wing.chords.tip            = wing_chord_local_at_cs_tip  * cs.chord_fraction             
+    cs_wing.sweeps.quarter_chord  = 0  # compute when computing owning wing's modificaions in generate_wing_vortex_distribution
+
+    cs_wing.symmetric             = wing.symmetric
+    cs_wing.vertical              = wing.vertical
+    cs_wing.vortex_lift           = wing.vortex_lift
+
+    cs_wing.is_a_control_surface  = True
+    cs_wing.cs_ID                 = cs_ID
+    cs_wing.pivot_edge            = 'TE' if type(cs)==Slat else 'LE'
+    cs_wing.deflection            = cs.deflection
+    cs_wing.span_break_fractions  = np.array([cs.span_fraction_start, cs.span_fraction_end]) #to be multiplied by span once span is found 
+    
+    cs_wing = convert_to_segmented_wing(cs_wing)
+    return cs_wing
+
+def make_span_break_from_segment(seg):
+    span_frac      = seg.percent_span_location
+    ib_LE_cut      = 0
+    ib_TE_cut      = 1
+    ob_LE_cut      = 0 
+    ob_TE_cut      = 1 
+    dihedral_ob    = seg.dihedral_outboard
+    sweep_ob_QC    = seg.sweeps.quarter_chord
+    sweep_ob_LE    = seg.sweeps.leading_edge
+    twist          = seg.twist    
+    local_chord    = seg.chord    
+    span_break = make_span_break(-1, 0, 0, span_frac, ib_LE_cut, ib_TE_cut, ob_LE_cut, ob_TE_cut, 
+                                 dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord)    
+    return span_break
+
+def make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID):
+    LE_TE          = 0 if type(cs)==Slat else 1
+    
+    ib_ob          = 1 #the inboard break of the cs is the outboard part of the span_break
+    span_frac      = cs.span_fraction_start
+    ib_LE_cut      = -1
+    ib_TE_cut      = -1      
+    ob_LE_cut      = cs.chord_fraction if type(cs)==Slat else -1
+    ob_TE_cut      = -1 if type(cs)==Slat else 1 - cs.chord_fraction
+    dihedral_ob    = seg_a.dihedral_outboard
+    sweep_ob_QC    = seg_a.sweeps.quarter_chord
+    sweep_ob_LE    = seg_a.sweeps.leading_edge
+    twist          = cs_wing.twists.root    
+    local_chord    = cs_wing.chords.root / cs.chord_fraction
+    inboard_span_break  = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ib_LE_cut, ib_TE_cut, ob_LE_cut, ob_TE_cut, 
+                                          dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord)
+    
+    ib_ob          = 0 #the outboard break of the cs is the inboard part of the span_break
+    span_frac      = cs.span_fraction_end
+    ib_LE_cut      = cs.chord_fraction if type(cs)==Slat else -1
+    ib_TE_cut      = -1 if type(cs)==Slat else 1 - cs.chord_fraction     
+    ob_LE_cut      = -1
+    ob_TE_cut      = -1
+    dihedral_ob    = seg_a.dihedral_outboard     #will have to changed in a later function if the outboard edge is conicident with seg_b 
+    sweep_ob_QC    = seg_a.sweeps.quarter_chord  #will have to changed in a later function if the outboard edge is conicident with seg_b
+    sweep_ob_LE    = seg_a.sweeps.leading_edge   #will have to changed in a later function if the outboard edge is conicident with seg_b
+    twist          = cs_wing.twists.tip    
+    local_chord    = cs_wing.chords.tip  / cs.chord_fraction
+    outboard_span_break = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ib_LE_cut, ib_TE_cut, ob_LE_cut, ob_TE_cut, 
+                                          dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord)    
+    return inboard_span_break, outboard_span_break
+
+def make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ib_LE_cut, ib_TE_cut, ob_LE_cut, ob_TE_cut, 
+                    dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord):
+    """ This gathers information related to a span break into one Data() object
+
+    Assumptions: 
+    None
+
+    Source:   
+    None
+    
+    Outputs:
+    span_break
+    
+    Properties Used:
+    N/A
+    """     
+    span_break = Data()
+    span_break.cs_IDs               = [[-1,-1],[-1,-1]] #
+    span_break.cs_IDs[LE_TE][ib_ob] = cs_ID
+    span_break.span_fraction        = span_frac
+    # The following 'cut' attributes are in terms of the local total chord and represent positions. 
+    #    (an aileron with chord fraction 0.2 would have a cut value of 0.8)
+    # For inboard__cut, -1 takes value of previous outboard cut value in a later function
+    # For outboard__cut, -1 takes value of next inboard cut value.
+    # If no break directly touching this one, cut becomes 0 (LE) or 1 (TE).
+    span_break.inboard_LE_cut       = ib_LE_cut 
+    span_break.inboard_TE_cut       = ib_TE_cut 
+    span_break.outboard_LE_cut      = ob_LE_cut
+    span_break.outboard_TE_cut      = ob_TE_cut
+    span_break.dihdral_outboard     = dihedral_ob
+    span_break.sweep_outboard_QC    = sweep_ob_QC
+    span_break.sweep_outboard_LE    = sweep_ob_LE
+    span_break.twist                = twist
+    span_break.local_chord          = local_chord
+    return span_break
+
+def convert_to_segmented_wing(wing):
+    """ This turns a non-segmented wing into a segmented wing
+
+    Assumptions: 
+    If a given wing has no segments, it must have either .taper or .chords.root 
+        and .chords.tip defined
+
+    Source:   
+    None
+    
+    Inputs:   
+    VD                   - vortex distribution 
+    geometry.
+        wings.wing.
+            twists.root
+            twists.tip
+            dihedral
+            sweeps.quarter_chord
+            thickness_to_chord
+            taper
+            chord.root
+            chords.tip
+    
+    Properties Used:
+    N/A
+    """     
+    if len(wing.Segments.keys()) > 0:
+        return wing   
+    # root segment 
+    segment                               = SUAVE.Components.Wings.Segment()
+    segment.tag                           = 'root_segment'
+    segment.percent_span_location         = 0.0
+    segment.twist                         = wing.twists.root
+    segment.root_chord_percent            = 1.
+    segment.dihedral_outboard             = wing.dihedral
+    segment.sweeps.quarter_chord          = wing.sweeps.quarter_chord
+    segment.sweeps.leading_edge           = wing.sweeps.leading_edge
+    segment.thickness_to_chord            = wing.thickness_to_chord
+    if wing.Airfoil: 
+        segment.append_airfoil(wing.Airfoil.airfoil)              
+    wing.append_segment(segment) 
+    
+    # tip segment 
+    if wing.taper==0:
+        wing.taper = wing.chords.tip / wing.chord.root            
+        
+    segment                               = SUAVE.Components.Wings.Segment()
+    segment.tag                           = 'tip_segment'
+    segment.percent_span_location         = 1.
+    segment.twist                         = wing.twists.tip
+    segment.root_chord_percent            = wing.taper
+    segment.dihedral_outboard             = 0.
+    segment.sweeps.quarter_chord          = 0.
+    segment.thickness_to_chord            = wing.thickness_to_chord
+    if wing.Airfoil: 
+        segment.append_airfoil(wing.Airfoil.airfoil)             
+    wing.append_segment(segment) 
+    
+    return wing
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
