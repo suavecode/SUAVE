@@ -71,10 +71,10 @@ class Propeller(Energy_Component):
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
-        self.rotation                  = [1]
+        self.rotation                  = [1]      # counter-clockwise rotation as viewed from the front of the aircraft 
         self.ducted                    = False         
         self.number_azimuthal_stations = 24
-        self.induced_power_factor      = 1.48  #accounts for interference effects
+        self.induced_power_factor      = 1.48     # accounts for interference effects
         self.profile_drag_coefficient  = .03     
         self.nonuniform_freestream     = False
 
@@ -242,11 +242,11 @@ class Propeller(Energy_Component):
             Vz  = np.repeat(Vz, Na,axis=1)
             Vz  = np.repeat(Vz, Nr,axis=2)
             
-            if (rotation != 1) or (rotation != -1):  
-                rotation = 1
+            if (rotation != [1]) or (rotation != [-1]):  
+                rotation = [1]
             
             # compute resulting radial and tangential velocities in propeller frame
-            ut =  ( Vz*np.cos(psi_2d)  ) * rotation
+            ut =  ( Vz*np.cos(psi_2d)  ) * rotation[0]
             ur =  (-Vz*np.sin(psi_2d)  )
             ua =  np.zeros_like(ut)
             
