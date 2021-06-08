@@ -72,7 +72,7 @@ def wiring(wing, config, cablePower):
         # Determine mass of Power Cables
         #--------------------------------------------------------------------------- 
         cableLength     = 2 * (nMotors * (fLength/2 + fHeight/2) + np.sum(abs(MSL)) * wingspan/2)
-        cableDensity    = 1e-5
+        cableDensity    = 5.7e-6
         massCables      = cableDensity * cablePower * cableLength
         
         #---------------------------------------------------------------------------
