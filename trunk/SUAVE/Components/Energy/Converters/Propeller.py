@@ -242,7 +242,9 @@ class Propeller(Energy_Component):
             Vz  = np.repeat(Vz, Na,axis=1)
             Vz  = np.repeat(Vz, Nr,axis=2)
             
-            if (rotation != [1]) or (rotation != [-1]):  
+            if (rotation == [1]) or (rotation == [-1]):  
+                pass
+            else: 
                 rotation = [1]
             
             # compute resulting radial and tangential velocities in propeller frame
