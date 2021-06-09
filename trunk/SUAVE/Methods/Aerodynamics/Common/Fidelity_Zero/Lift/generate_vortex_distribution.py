@@ -139,10 +139,16 @@ def generate_vortex_distribution(geometry,settings):
     VLM_wings = make_VLM_wings(geometry)
     geometry.VLM_wings = VLM_wings
     
-    #generate panelization for each wing (and control surface)
+    #generate panelization for each original wing
     for wing in geometry.VLM_wings:
-        VD = generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc)
+        if not wing.is_a_control_surface:
+            VD = generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc)
         
+    #generate panelization for each control surface wing
+    for cs_wing in geometry.VLM_wings:
+        if cs_wing.is_a_control_surface:
+            VD = generate_wing_vortex_distribution(VD,cs_wing,n_cw,n_sw,spc)    
+                    
     # ---------------------------------------------------------------------------------------
     # STEP 8.1: Unpack aircraft fuselage geometry
     # --------------------------------------------------------------------------------------- 

@@ -79,17 +79,23 @@ def make_VLM_wings(geometry):
         wing = populate_control_sections(wing)
         
         #ensure wing has attributes that will be needed later
+        wing_halfspan = wing.spans.projected * 0.5 if wing.symmetric else wing.spans.projected
         for i in range(n_segments):   
-            (ia, ib)    = (0, 0) if i==0 else (i-1, i)
-            seg_a       = wing.Segments[ia]
-            seg_b       = wing.Segments[ib]            
-            seg_b.chord = seg_b.root_chord_percent *wing.chords.root
+            (ia, ib)       = (0, 0) if i==0 else (i-1, i)
+            seg_a          = wing.Segments[ia]
+            seg_b          = wing.Segments[ib]            
+            seg_b.chord    = seg_b.root_chord_percent *wing.chords.root  ##may be worth implementing a self-calculating .chord attribute    
             
             #guarantee that all segments have leading edge sweep
             if (i != 0) and (seg_a.sweeps.leading_edge is None):
                 old_sweep                 = seg_a.sweeps.quarter_chord
                 new_sweep                 = convert_sweep_segments(old_sweep, seg_a, seg_b, wing, old_ref_chord_fraction=0.25, new_ref_chord_fraction=0.0)
                 seg_a.sweeps.leading_edge = new_sweep 
+                
+            #give segments offsets for giving cs_wings an origin later
+            section_span     = (seg_b.percent_span_location - seg_a.percent_span_location) * wing_halfspan
+            seg_b.x_offset   = 0 if i==0 else seg_a.x_offset   + section_span*np.tan(seg_a.sweeps.leading_edge)
+            seg_b.dih_offset = 0 if i==0 else seg_a.dih_offset + section_span*np.tan(seg_a.dihedral_outboard)
         wing.Segments[-1].sweeps.leading_edge = 1e-8
     
     # each control_surface-turned-wing will have its own unique ID number
@@ -156,7 +162,7 @@ def make_VLM_wings(geometry):
                 elif diff < 0:
                     break
             for TE_break in TE_breaks:
-                diff = seg_break.span_fraction - LE_break.span_fraction
+                diff = seg_break.span_fraction - TE_break.span_fraction
                 if isclose(diff, 0, abs_tol=1e-6):
                     TE_break.dihdral_outboard     = seg_break.dihdral_outboard 
                     TE_break.sweep_outboard_QC    = seg_break.sweep_outboard_QC
@@ -197,15 +203,18 @@ def make_VLM_wings(geometry):
         for edge, edge_str in enumerate(['LE','TE']):
             for i in range(len(span_breaks)-1):
                 ID_i = span_breaks[i].cs_IDs[edge,ob]
+                cut  = span_breaks[i].cuts[edge,ob]
                 if ID_i == -1:
                     continue
+                #copy the cs ID and its cut until the end of the control surface is found
                 for j in range(i+1,len(span_breaks)):
-                    i += 1
-                    ID_j = span_breaks[j].cs_IDs[edge,ib]
-                    if ID_j == ID_i:
+                    i    += 1
+                    ID_j = span_breaks[j].cs_IDs[edge,ib]                    
+                    if ID_j == ID_i: #found control surface end
                         break
-                    elif ID_j == -1:
+                    elif ID_j == -1: #found a span_break within control surface. copy values
                         span_breaks[j].cs_IDs[edge,:] = [ID_i, ID_i]
+                        span_breaks[j].cuts[edge,:]   = [cut, cut]
                     else:
                         raise ValueError('VLM does not support multiple control surfaces on the same edge at this time')
                 
@@ -264,7 +273,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.twists.tip            = np.interp(cs.span_fraction_end,   [span_a, span_b], [twist_a, twist_b])
     cs_wing.dihedral              = seg_a.dihedral_outboard
     cs_wing.thickness_to_chord    = (seg_a.thickness_to_chord + seg_b.thickness_to_chord)/2
-    cs_wing.taper                 = seg_b.root_chord_percent / seg_a.root_chord_percent
+    cs_wing.origin                = np.array(wing.origin) *1.
     
     ## may have to recompute when shifting y_coords to match span breaks in generate_wing_vortex_distribution
     span_fraction_tot             = cs.span_fraction_end - cs.span_fraction_start
@@ -275,6 +284,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     wing_chord_local_at_cs_tip    = np.interp(cs.span_fraction_end,   [span_a, span_b], [seg_a.chord, seg_b.chord])
     cs_wing.chords.root           = wing_chord_local_at_cs_root * cs.chord_fraction  
     cs_wing.chords.tip            = wing_chord_local_at_cs_tip  * cs.chord_fraction             
+    cs_wing.taper                 = cs_wing.chords.tip / cs_wing.chords.root
     cs_wing.sweeps.quarter_chord  = 0  # leave at 0. VLM will use leading edge
 
     cs_wing.symmetric             = wing.symmetric
@@ -290,7 +300,18 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.deflection            = cs.deflection
     cs_wing.span_break_fractions  = np.array([cs.span_fraction_start, cs.span_fraction_end]) #to be multiplied by span once span is found 
     
-    use_le_sweep                  = (seg_a.sweeps.leading_edge is not None)
+    #find origin - may need to be adjusted later
+    wing_halfspan                 = wing.spans.projected * 0.5 if wing.symmetric else wing.spans.projected
+    increment_span                = (cs.span_fraction_start - seg_a.percent_span_location) * wing_halfspan
+    LE_TE_cs_offset               = 0 if cs_wing.is_slat else (1 - cs.chord_fraction)*wing_chord_local_at_cs_root
+    cs_wing.origin[0,0]          += seg_a.x_offset + increment_span*np.tan(seg_a.sweeps.leading_edge) + LE_TE_cs_offset
+    cs_wing.origin[0,1]          += cs.span_fraction_start * wing_halfspan
+    cs_wing.origin[0,2]          += np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])
+    if wing.vertical:
+        cs_wing[0,1], cs_wing[0,2] = cs_wing[0,2], cs_wing[0,1]
+    
+    #find sweep of the 'outside' edge (LE for slats, TE for everything else)
+    use_le_sweep                  = not (seg_a.sweeps.leading_edge is None)
     new_cf                        = 0 if cs_wing.is_slat else 1
     old_cf                        = 0 if use_le_sweep else 0.25
     old_sweep                     = seg_a.sweeps.leading_edge if use_le_sweep else seg_a.sweeps.quarter_chord
@@ -420,7 +441,8 @@ def make_span_break_from_segment(seg):
     None
     
     Inputs:   
-    seg    - a segment object
+    seg    - a segment object with standard attributes except for:
+        .chord
     
     Properties Used:
     N/A
@@ -430,7 +452,7 @@ def make_span_break_from_segment(seg):
     sweep_ob_QC     = seg.sweeps.quarter_chord
     sweep_ob_LE     = seg.sweeps.leading_edge
     twist           = seg.twist    
-    local_chord     = seg.chord    
+    local_chord     = seg.chord       #non-standard attribute
     span_break = make_span_break(-1, 0, 0, span_frac, 0., 
                                  dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord)  
     span_break.cuts = np.array([[0.,0.],  

@@ -141,7 +141,7 @@ def convert_sweep_segments(old_sweep, seg_a,seg_b,wing,old_ref_chord_fraction = 
     tip_chord      = seg_b.root_chord_percent *wing.chords.root
     taper          = tip_chord / root_chord
     
-    wingspan       = wing.spans.projected 
+    wingspan       = wing.spans.projected if wing.symmetric else wing.spans.projected *2 #calculation is for full wingspan
     section_span   = wingspan *(seg_b.percent_span_location - seg_a.percent_span_location)
     chord_mean_geo = 0.5 * (root_chord + tip_chord)
     ar             = section_span / chord_mean_geo  
