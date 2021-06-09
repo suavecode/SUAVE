@@ -431,8 +431,8 @@ class Propeller(Energy_Component):
         blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
         blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)     
         
-        thrust                  = jnp.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T
-        torque                  = jnp.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T
+        thrust                  = jnp.atleast_2d((B * jnp.sum(blade_T_distribution, axis = 1))).T
+        torque                  = jnp.atleast_2d((B * jnp.sum(blade_Q_distribution, axis = 1))).T
         power                   = omega*torque   
         
         # calculate coefficients 
