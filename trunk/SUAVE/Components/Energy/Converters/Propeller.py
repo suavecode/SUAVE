@@ -319,7 +319,7 @@ class Propeller(Energy_Component):
             Wt           = 0.5*Ut + 0.5*U*cos_psi   
             va           = Wa - Ua
             vt           = Ut - Wt
-            alpha        = beta - np.arctan2(Wa,Wt)
+            alpha        = beta - jnp.arctan2(Wa,Wt)
             W            = (Wa*Wa + Wt*Wt)**0.5
             Ma           = (W)/a        # a is the speed of sound  
             lamdaw       = r*Wa/(R*Wt) 
