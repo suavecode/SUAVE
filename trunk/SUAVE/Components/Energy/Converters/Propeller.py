@@ -388,7 +388,7 @@ class Propeller(Energy_Component):
         Cd          = ((1/Tp_Tinf)*(1/Rp_Rinf)**0.2)*Cdval  
         
         epsilon                  = Cd/Cl
-        epsilon[epsilon==np.inf] = 10. 
+        epsilon.at[epsilon==np.inf].set(10.)
 
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
@@ -431,8 +431,8 @@ class Propeller(Energy_Component):
         blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
         blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)     
         
-        thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
-        torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T         
+        thrust                  = jnp.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T
+        torque                  = jnp.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T
         power                   = omega*torque   
         
         # calculate coefficients 
