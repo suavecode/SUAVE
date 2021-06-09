@@ -584,17 +584,17 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
         Cl = 2.*np.pi*alpha
     
         # By 90 deg, it's totally stalled.
-        Cl[Cl>Cl1maxp]  = Cl1maxp[0][Cl>Cl1maxp] # This line of code is what changed the regression testing
-        Cl[alpha>=np.pi/2] = 0.
+        Cl.at[Cl>Cl1maxp].set(Cl1maxp[0][Cl>Cl1maxp]) # This line of code is what changed the regression testing
+        Cl.at[alpha>=np.pi/2].set(0.)
         
         # Scale for Mach, this is Karmen_Tsien
-        Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+        Cl.at[Ma[:,:]<1.].set(Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2))
         
         # If the blade segments are supersonic, don't scale
-        Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]  
+        Cl.at[Ma[:,:]>=1.].set(Cl[Ma[:,:]>=1.])
         
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-        Cdval[alpha>=np.pi/2] = 2.    
+        Cdval.at[alpha>=np.pi/2].set(2.)
         
     return Cl, Cdval
