@@ -327,7 +327,7 @@ class Propeller(Energy_Component):
             # Limiter to keep from Nan-ing
             lamdaw.at[lamdaw<0.].set(0.)
             f            = (B/2.)*(1.-r/R)/lamdaw
-            f[f<0.]      = 0.
+            f.at[f<0.].set(0.)
             piece        = np.exp(-f)
             arccos_piece = np.arccos(piece)
             F            = 2.*arccos_piece/pi # Prandtl's tip factor
