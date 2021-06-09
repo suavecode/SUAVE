@@ -19,6 +19,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 
 # package imports
 import numpy as np
+import jax.numpy as jnp
 
 # ----------------------------------------------------------------------
 #  Propeller Class
@@ -312,8 +313,8 @@ class Propeller(Energy_Component):
         
         # Drela's Theory
         while (diff>tol):
-            sin_psi      = np.sin(PSI)
-            cos_psi      = np.cos(PSI)
+            sin_psi      = jnp.sin(PSI)
+            cos_psi      = jnp.cos(PSI)
             Wa           = 0.5*Ua + 0.5*U*sin_psi
             Wt           = 0.5*Ut + 0.5*U*cos_psi   
             va           = Wa - Ua
@@ -324,7 +325,7 @@ class Propeller(Energy_Component):
             lamdaw       = r*Wa/(R*Wt) 
             
             # Limiter to keep from Nan-ing
-            lamdaw[lamdaw<0.] = 0. 
+            lamdaw.at[lamdaw<0.].set(0.)
             f            = (B/2.)*(1.-r/R)/lamdaw
             f[f<0.]      = 0.
             piece        = np.exp(-f)
@@ -358,7 +359,7 @@ class Propeller(Energy_Component):
                             r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U + 
                             Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5))) 
         
-            dR_dpsi[np.isnan(dR_dpsi)] = 0.1
+            dR_dpsi.at[jnp.isnan(dR_dpsi)].set(0.1)
         
             dpsi        = -Rsquiggly/dR_dpsi
             PSI         = PSI + dpsi
