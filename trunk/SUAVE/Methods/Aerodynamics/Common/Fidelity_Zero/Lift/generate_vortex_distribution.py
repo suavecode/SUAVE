@@ -382,13 +382,23 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             xi_c  = segment_chord_x_offset[i_seg] + eta *np.tan(segment_sweep[i_seg])  + delta_x  *idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
             xi_ch = segment_chord_x_offset[i_seg] + eta *np.tan(segment_sweep[i_seg])  + delta_x  *idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
 
+            #adjust camber for control surfaces
+            nondim_camber_x_coords = segment_x_coord[i_seg] *1
+            nondim_camber          = segment_camber[i_seg]  *1
+            if wing.is_a_control_surface:
+                if not wing.is_slat:
+                    nondim_camber_x_coords -= 1 - wing.chord_fraction
+                nondim_camber_x_coords /= wing.chord_fraction
+                nondim_camber          /= wing.chord_fraction
+
             # adjustment of coordinates for camber
-            section_camber_a  = segment_camber[i_seg]*wing_chord_section_a  
-            section_camber_b  = segment_camber[i_seg]*wing_chord_section_b  
-            section_camber_c    = segment_camber[i_seg]*wing_chord_section                
-            section_x_coord_a = segment_x_coord[i_seg]*wing_chord_section_a
-            section_x_coord_b = segment_x_coord[i_seg]*wing_chord_section_b
-            section_x_coord   = segment_x_coord[i_seg]*wing_chord_section
+            section_camber_a  = nondim_camber*wing_chord_section_a  
+            section_camber_b  = nondim_camber*wing_chord_section_b  
+            section_camber_c  = nondim_camber*wing_chord_section             
+            
+            section_x_coord_a = nondim_camber_x_coords*wing_chord_section_a
+            section_x_coord_b = nondim_camber_x_coords*wing_chord_section_b
+            section_x_coord   = nondim_camber_x_coords*wing_chord_section
 
             z_c_a1 = np.interp((idx_x    *delta_x_a)                  ,section_x_coord_a,section_camber_a) 
             z_c_ah = np.interp((idx_x    *delta_x_a + delta_x_a*0.25) ,section_x_coord_a,section_camber_a)

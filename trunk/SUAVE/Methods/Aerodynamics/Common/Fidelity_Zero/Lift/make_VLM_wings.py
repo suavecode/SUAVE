@@ -149,27 +149,28 @@ def make_VLM_wings(geometry):
         LE_breaks  = sorted(LE_breaks,  key=lambda span_break: span_break.span_fraction)
         TE_breaks  = sorted(TE_breaks,  key=lambda span_break: span_break.span_fraction)
         seg_breaks = sorted(seg_breaks, key=lambda span_break: span_break.span_fraction)
-        
-        # 2:
-        for seg_break in seg_breaks:
-            for LE_break in LE_breaks:
-                diff = seg_break.span_fraction - LE_break.span_fraction
-                if isclose(diff, 0, abs_tol=1e-6):
-                    LE_break.dihdral_outboard     = seg_break.dihdral_outboard 
-                    LE_break.sweep_outboard_QC    = seg_break.sweep_outboard_QC
-                    LE_break.sweep_outboard_LE    = seg_break.sweep_outboard_LE
-                    seg_break.is_redundant        = True
-                elif diff < 0:
-                    break
-            for TE_break in TE_breaks:
-                diff = seg_break.span_fraction - TE_break.span_fraction
-                if isclose(diff, 0, abs_tol=1e-6):
-                    TE_break.dihdral_outboard     = seg_break.dihdral_outboard 
-                    TE_break.sweep_outboard_QC    = seg_break.sweep_outboard_QC
-                    TE_break.sweep_outboard_LE    = seg_break.sweep_outboard_LE
-                    seg_break.is_redundant        = True
-                elif diff < 0:
-                    break 
+                
+        ####This is moved to make_span_breaks_from_cs
+        ### 2:
+        ##for seg_break in seg_breaks:
+        ##    for LE_break in LE_breaks:
+        ##        diff = seg_break.span_fraction - LE_break.span_fraction
+        ##        if isclose(diff, 0, abs_tol=1e-6):
+        ##            LE_break.dihdral_outboard     = seg_break.dihdral_outboard 
+        ##            LE_break.sweep_outboard_QC    = seg_break.sweep_outboard_QC
+        ##            LE_break.sweep_outboard_LE    = seg_break.sweep_outboard_LE
+        ##            seg_break.is_redundant        = True
+        ##        elif diff < 0:
+        ##            break
+        ##    for TE_break in TE_breaks:
+        ##        diff = seg_break.span_fraction - TE_break.span_fraction
+        ##        if isclose(diff, 0, abs_tol=1e-6):
+        ##            TE_break.dihdral_outboard     = seg_break.dihdral_outboard 
+        ##            TE_break.sweep_outboard_QC    = seg_break.sweep_outboard_QC
+        ##            TE_break.sweep_outboard_LE    = seg_break.sweep_outboard_LE
+        ##            seg_break.is_redundant        = True
+        ##        elif diff < 0:
+        ##            break 
         
         # 3: similar to a 3-way merge sort
         span_breaks = []        
@@ -300,7 +301,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.deflection            = cs.deflection
     cs_wing.span_break_fractions  = np.array([cs.span_fraction_start, cs.span_fraction_end]) #to be multiplied by span once span is found 
     
-    #find origin - may need to be adjusted later
+    #adjust origin - may need to be adjusted later
     wing_halfspan                 = wing.spans.projected * 0.5 if wing.symmetric else wing.spans.projected
     increment_span                = (cs.span_fraction_start - seg_a.percent_span_location) * wing_halfspan
     LE_TE_cs_offset               = 0 if cs_wing.is_slat else (1 - cs.chord_fraction)*wing_chord_local_at_cs_root
@@ -328,6 +329,11 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     
     #convert to segmented wing and return
     cs_wing = convert_to_segmented_wing(cs_wing)
+    
+    #add airfoil
+    cs_wing.Segments[0].Airfoil     = seg_a.Airfoil
+    cs_wing.Segments[1].Airfoil     = seg_b.Airfoil if cs.span_fraction_end==span_b else seg_a.Airfoil
+    
     return cs_wing
 
 def convert_to_segmented_wing(wing):
@@ -448,12 +454,13 @@ def make_span_break_from_segment(seg):
     N/A
     """       
     span_frac       = seg.percent_span_location
+    Airfoil         = seg.Airfoil
     dihedral_ob     = seg.dihedral_outboard
     sweep_ob_QC     = seg.sweeps.quarter_chord
     sweep_ob_LE     = seg.sweeps.leading_edge
     twist           = seg.twist    
     local_chord     = seg.chord       #non-standard attribute
-    span_break = make_span_break(-1, 0, 0, span_frac, 0., 
+    span_break = make_span_break(-1, 0, 0, span_frac, 0., Airfoil,
                                  dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord)  
     span_break.cuts = np.array([[0.,0.],  
                                 [1.,1.]])
@@ -482,30 +489,35 @@ def make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID):
     is_slat        = (type(cs)==Slat)
     LE_TE          = 0 if type(cs)==Slat else 1
     
+    #inboard span break
     ib_ob          = 1 #the inboard break of the cs is the outboard part of the span_break
     span_frac      = cs.span_fraction_start    
     ob_cut         = cs.chord_fraction if is_slat else 1 - cs.chord_fraction
+    Airfoil        = seg_a.Airfoil
     dihedral_ob    = seg_a.dihedral_outboard
     sweep_ob_QC    = seg_a.sweeps.quarter_chord
     sweep_ob_LE    = seg_a.sweeps.leading_edge
     twist          = cs_wing.twists.root    
     local_chord    = cs_wing.chords.root / cs.chord_fraction
-    inboard_span_break  = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ob_cut, 
+    inboard_span_break  = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ob_cut, Airfoil,
                                           dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord)
     
+    #outboard span break
+    is_coincident  = (cs.span_fraction_end==seg_b.percent_span_location)
     ib_ob          = 0 #the outboard break of the cs is the inboard part of the span_break
     span_frac      = cs.span_fraction_end
     ib_cut         = cs.chord_fraction if is_slat else 1 - cs.chord_fraction
-    dihedral_ob    = seg_a.dihedral_outboard     #will have to changed in a later function if the outboard edge is conicident with seg_b 
-    sweep_ob_QC    = seg_a.sweeps.quarter_chord  #will have to changed in a later function if the outboard edge is conicident with seg_b
-    sweep_ob_LE    = seg_a.sweeps.leading_edge   #will have to changed in a later function if the outboard edge is conicident with seg_b
+    Airfoil        = seg_b.Airfoil               if is_coincident else seg_a.Airfoil #take seg_b value if this outboard break is conicident with seg_b 
+    dihedral_ob    = seg_b.dihedral_outboard     if is_coincident else seg_a.dihedral_outboard
+    sweep_ob_QC    = seg_b.sweeps.quarter_chord  if is_coincident else seg_a.sweeps.quarter_chord
+    sweep_ob_LE    = seg_b.sweeps.leading_edge   if is_coincident else seg_a.sweeps.leading_edge
     twist          = cs_wing.twists.tip    
     local_chord    = cs_wing.chords.tip  / cs.chord_fraction
-    outboard_span_break = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ib_cut, 
+    outboard_span_break = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ib_cut, Airfoil,
                                           dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord)    
     return inboard_span_break, outboard_span_break
 
-def make_span_break(cs_ID, LE_TE, ib_ob, span_frac, chord_cut, 
+def make_span_break(cs_ID, LE_TE, ib_ob, span_frac, chord_cut, Airfoil,
                     dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord):
     """ This gathers information related to a span break into one Data() object.
     A span break is the spanwise location of a discontinuity in the discretization
@@ -560,6 +572,7 @@ cut from a non-slat control surface     |           |           .       fraction
     span_break.cuts                 = np.array([[0.,0.],   #  [[inboard LE cut, outboard LE cut],
                                                 [1.,1.]])  #   [inboard TE cut, outboard TE cut]]
     span_break.cuts[LE_TE,ib_ob]    = chord_cut
+    span_break.Airfoil              = Airfoil
     span_break.dihdral_outboard     = dihedral_ob
     span_break.sweep_outboard_QC    = sweep_ob_QC
     span_break.sweep_outboard_LE    = sweep_ob_LE
