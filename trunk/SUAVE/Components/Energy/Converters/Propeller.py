@@ -443,19 +443,19 @@ class Propeller(Energy_Component):
         etap     = V*thrust/power 
 
         # prevent things from breaking 
-        Cq[Cq<0]                                           = 0.  
-        Ct[Ct<0]                                           = 0.  
-        Cp[Cp<0]                                           = 0.  
-        thrust[conditions.propulsion.throttle[:,0] <=0.0]  = 0.0
-        power[conditions.propulsion.throttle[:,0]  <=0.0]  = 0.0 
-        torque[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        thrust[omega<0.0]                                  = - thrust[omega<0.0]  
-        thrust[omega==0.0]                                 = 0.0
-        power[omega==0.0]                                  = 0.0
-        torque[omega==0.0]                                 = 0.0
-        Ct[omega==0.0]                                     = 0.0
-        Cp[omega==0.0]                                     = 0.0 
-        etap[omega==0.0]                                   = 0.0 
+        Cq.at[Cq<0].set(0.)
+        Ct.at[Ct<0].set(0.)
+        Cp.at[Cp<0].set(0.)
+        thrust.at[conditions.propulsion.throttle[:,0]<=0.0].set(0.0)
+        power.at[conditions.propulsion.throttle[:,0]<=0.0].set(0.0)
+        torque.at[conditions.propulsion.throttle[:,0]<=0.0].set(0.0)
+        thrust.at[omega<0.0].set(- thrust[omega<0.0])
+        thrust.at[omega==0.0].set(0.0)
+        power.at[omega==0.0].set( 0.0)
+        torque.at[omega==0.0].set(0.0)
+        Ct.at[omega==0.0].set(0.0)
+        Cp.at[omega==0.0].set(0.0)
+        etap.at[omega==0.0].set(0.0)
         
         # assign efficiency to network
         conditions.propulsion.etap = etap   
