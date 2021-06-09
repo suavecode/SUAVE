@@ -328,8 +328,8 @@ class Propeller(Energy_Component):
             lamdaw.at[lamdaw<0.].set(0.)
             f            = (B/2.)*(1.-r/R)/lamdaw
             f.at[f<0.].set(0.)
-            piece        = np.exp(-f)
-            arccos_piece = np.arccos(piece)
+            piece        = jnp.exp(-f)
+            arccos_piece = jnp.arccos(piece)
             F            = 2.*arccos_piece/pi # Prandtl's tip factor
             Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5 
             Re           = (W*c)/nu  
