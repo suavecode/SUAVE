@@ -585,7 +585,7 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
         Cl = 2.*np.pi*alpha
     
         # By 90 deg, it's totally stalled.
-        Cl.at[Cl>Cl1maxp].set(Cl1maxp[0][Cl>Cl1maxp]) # This line of code is what changed the regression testing
+        Cl.at[Cl>Cl1maxp].set(Cl1maxp[0][[Cl>Cl1maxp][0][0]]) # This line of code is what changed the regression testing
         Cl.at[alpha>=np.pi/2].set(0.)
         
         # Scale for Mach, this is Karmen_Tsien
