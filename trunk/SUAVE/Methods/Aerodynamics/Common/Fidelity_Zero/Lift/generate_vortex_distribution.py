@@ -277,8 +277,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     break_spans       = np.zeros(n_breaks) 
     section_span      = np.zeros(n_breaks)
     section_area      = np.zeros(n_breaks)
-    section_LE_cuts   = np.zeros(n_breaks)
-    section_TE_cuts   = np.ones(n_breaks)
+    section_LE_cut    = np.zeros(n_breaks)
+    section_TE_cut    = np.ones(n_breaks)
 
     # ---------------------------------------------------------------------------------------
     # STEP 5:  Obtain sweep, chord, dihedral and twist at the beginning/end of each segment.
@@ -315,8 +315,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             break_camber_xs.append(np.linspace(0,1,30)) 
 
         # Get control surface leading and trailing edge cute cuts: section__cuts[-1] should never be used in the following code
-        section_LE_cuts[i_break] = span_breaks[i_break].cuts[0,1]
-        section_TE_cuts[i_break] = span_breaks[i_break].cuts[1,1]
+        section_LE_cut[i_break] = span_breaks[i_break].cuts[0,1]
+        section_TE_cut[i_break] = span_breaks[i_break].cuts[1,1]
 
     VD.wing_areas.append(np.sum(section_area[:]))
     if sym_para is True :
@@ -356,21 +356,26 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
         wing_chord_section_b  = break_chord[i_break] + (eta_b*segment_chord_ratio)
         wing_chord_section    = break_chord[i_break] + (eta*segment_chord_ratio)
 
-        delta_x_a = wing_chord_section_a/n_cw  
-        delta_x_b = wing_chord_section_b/n_cw      
-        delta_x   = wing_chord_section/n_cw                                       
+        nondim_x_stations = np.interp(np.linspace(0.,1.,num=n_cw+1), [0.,1.], [section_LE_cut[i_break], section_TE_cut[i_break]])
+        x_stations_a      = nondim_x_stations * wing_chord_section_a
+        x_stations_b      = nondim_x_stations * wing_chord_section_b
+        x_stations        = nondim_x_stations * wing_chord_section
+        
+        delta_x_a = (x_stations_a[-1] - x_stations_a[0])/n_cw  
+        delta_x_b = (x_stations_b[-1] - x_stations_b[0])/n_cw      
+        delta_x   = (x_stations[-1]   - x_stations[0]  )/n_cw                                       
 
         # define coordinates of horseshoe vortices and control points----------------------------
-        xi_a1 = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + delta_x_a*idx_x                  # x coordinate of top left corner of panel
-        xi_ah = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + delta_x_a*idx_x + delta_x_a*0.25 # x coordinate of left corner of panel
-        xi_a2 = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + delta_x_a*idx_x + delta_x_a      # x coordinate of bottom left corner of bound vortex 
-        xi_ac = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + delta_x_a*idx_x + delta_x_a*0.75 # x coordinate of bottom left corner of control point vortex  
-        xi_b1 = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + delta_x_b*idx_x                  # x coordinate of top right corner of panel      
-        xi_bh = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + delta_x_b*idx_x + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
-        xi_b2 = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + delta_x_b*idx_x + delta_x_b      # x coordinate of bottom right corner of panel
-        xi_bc = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + delta_x_b*idx_x + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
-        xi_c  = break_x_offset[i_break] + eta  *np.tan(break_sweep[i_break]) + delta_x  *idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
-        xi_ch = break_x_offset[i_break] + eta  *np.tan(break_sweep[i_break]) + delta_x  *idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
+        xi_a1 = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + x_stations_a[:-1]                  # x coordinate of top left corner of panel
+        xi_ah = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + x_stations_a[:-1] + delta_x_a*0.25 # x coordinate of left corner of panel
+        xi_ac = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + x_stations_a[:-1] + delta_x_a*0.75 # x coordinate of bottom left corner of control point vortex  
+        xi_a2 = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + x_stations_a[1:]                   # x coordinate of bottom left corner of bound vortex 
+        xi_b1 = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + x_stations_b[:-1]                  # x coordinate of top right corner of panel      
+        xi_bh = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + x_stations_b[:-1] + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
+        xi_bc = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + x_stations_b[:-1] + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
+        xi_b2 = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + x_stations_b[1:]                   # x coordinate of bottom right corner of panel
+        xi_ch = break_x_offset[i_break] + eta  *np.tan(break_sweep[i_break]) + x_stations[:-1]   + delta_x  *0.25 # x coordinate center of bound vortex of each panel 
+        xi_c  = break_x_offset[i_break] + eta  *np.tan(break_sweep[i_break]) + x_stations[:-1]   + delta_x  *0.75 # x coordinate three-quarter chord control point for each panel
 
         #adjust for camber-------------------------------------------------------------------       
         #format camber vars for wings vs control surface wings
@@ -391,16 +396,16 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
         section_x_coord_b = nondim_camber_x_coords*wing_chord_section_b
         section_x_coord   = nondim_camber_x_coords*wing_chord_section
 
-        z_c_a1 = np.interp((idx_x    *delta_x_a)                  ,section_x_coord_a,section_camber_a) 
-        z_c_ah = np.interp((idx_x    *delta_x_a + delta_x_a*0.25) ,section_x_coord_a,section_camber_a)
-        z_c_a2 = np.interp(((idx_x+1)*delta_x_a)                  ,section_x_coord_a,section_camber_a) 
-        z_c_ac = np.interp((idx_x    *delta_x_a + delta_x_a*0.75) ,section_x_coord_a,section_camber_a) 
-        z_c_b1 = np.interp((idx_x    *delta_x_b)                  ,section_x_coord_b,section_camber_b)   
-        z_c_bh = np.interp((idx_x    *delta_x_b + delta_x_b*0.25) ,section_x_coord_b,section_camber_b) 
-        z_c_b2 = np.interp(((idx_x+1)*delta_x_b)                  ,section_x_coord_b,section_camber_b) 
-        z_c_bc = np.interp((idx_x    *delta_x_b + delta_x_b*0.75) ,section_x_coord_b,section_camber_b) 
-        z_c    = np.interp((idx_x    *delta_x   + delta_x  *0.75) ,section_x_coord,section_camber_c) 
-        z_c_ch = np.interp((idx_x    *delta_x   + delta_x  *0.25) ,section_x_coord,section_camber_c) 
+        z_c_a1 = np.interp((x_stations_a[:-1]                 ) ,section_x_coord_a, section_camber_a) 
+        z_c_ah = np.interp((x_stations_a[:-1] + delta_x_a*0.25) ,section_x_coord_a, section_camber_a)
+        z_c_ac = np.interp((x_stations_a[:-1] + delta_x_a*0.75) ,section_x_coord_a, section_camber_a) 
+        z_c_a2 = np.interp((x_stations_a[1:]                  ) ,section_x_coord_a, section_camber_a) 
+        z_c_b1 = np.interp((x_stations_b[:-1]                 ) ,section_x_coord_b, section_camber_b)   
+        z_c_bh = np.interp((x_stations_b[:-1] + delta_x_b*0.25) ,section_x_coord_b, section_camber_b) 
+        z_c_bc = np.interp((x_stations_b[:-1] + delta_x_b*0.75) ,section_x_coord_b, section_camber_b) 
+        z_c_b2 = np.interp((x_stations_b[1:]                  ) ,section_x_coord_b, section_camber_b) 
+        z_c_ch = np.interp((x_stations[:-1]   + delta_x  *0.25) ,section_x_coord  , section_camber_c) 
+        z_c    = np.interp((x_stations[:-1]   + delta_x  *0.75) ,section_x_coord  , section_camber_c) 
 
         #adjust for dihedral and add to camber---------------------------------------------------      
         zeta_a1 = break_z_offset[i_break] + eta_a*np.tan(break_dihedral[i_break])  + z_c_a1  # z coordinate of top left corner of panel
