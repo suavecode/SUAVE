@@ -94,8 +94,8 @@ def make_VLM_wings(geometry):
                 
             #give segments offsets for giving cs_wings an origin later
             section_span     = (seg_b.percent_span_location - seg_a.percent_span_location) * wing_halfspan
-            seg_b.x_offset   = 0 if i==0 else seg_a.x_offset   + section_span*np.tan(seg_a.sweeps.leading_edge)
-            seg_b.dih_offset = 0 if i==0 else seg_a.dih_offset + section_span*np.tan(seg_a.dihedral_outboard)
+            seg_b.x_offset   = 0. if i==0 else seg_a.x_offset   + section_span*np.tan(seg_a.sweeps.leading_edge)
+            seg_b.dih_offset = 0. if i==0 else seg_a.dih_offset + section_span*np.tan(seg_a.dihedral_outboard)
         wing.Segments[-1].sweeps.leading_edge = 1e-8
     
     # each control_surface-turned-wing will have its own unique ID number
@@ -156,7 +156,7 @@ def make_VLM_wings(geometry):
         ##    for LE_break in LE_breaks:
         ##        diff = seg_break.span_fraction - LE_break.span_fraction
         ##        if isclose(diff, 0, abs_tol=1e-6):
-        ##            LE_break.dihdral_outboard     = seg_break.dihdral_outboard 
+        ##            LE_break.dihedral_outboard     = seg_break.dihedral_outboard 
         ##            LE_break.sweep_outboard_QC    = seg_break.sweep_outboard_QC
         ##            LE_break.sweep_outboard_LE    = seg_break.sweep_outboard_LE
         ##            seg_break.is_redundant        = True
@@ -165,7 +165,7 @@ def make_VLM_wings(geometry):
         ##    for TE_break in TE_breaks:
         ##        diff = seg_break.span_fraction - TE_break.span_fraction
         ##        if isclose(diff, 0, abs_tol=1e-6):
-        ##            TE_break.dihdral_outboard     = seg_break.dihdral_outboard 
+        ##            TE_break.dihedral_outboard     = seg_break.dihedral_outboard 
         ##            TE_break.sweep_outboard_QC    = seg_break.sweep_outboard_QC
         ##            TE_break.sweep_outboard_LE    = seg_break.sweep_outboard_LE
         ##            seg_break.is_redundant        = True
@@ -286,7 +286,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.chords.root           = wing_chord_local_at_cs_root * cs.chord_fraction  
     cs_wing.chords.tip            = wing_chord_local_at_cs_tip  * cs.chord_fraction             
     cs_wing.taper                 = cs_wing.chords.tip / cs_wing.chords.root
-    cs_wing.sweeps.quarter_chord  = 0  # leave at 0. VLM will use leading edge
+    cs_wing.sweeps.quarter_chord  = 0.  # leave at 0. VLM will use leading edge
 
     cs_wing.symmetric             = wing.symmetric
     cs_wing.vertical              = wing.vertical
@@ -303,9 +303,8 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     
     #adjust origin - may need to be adjusted later
     wing_halfspan                 = wing.spans.projected * 0.5 if wing.symmetric else wing.spans.projected
-    increment_span                = (cs.span_fraction_start - seg_a.percent_span_location) * wing_halfspan
-    LE_TE_cs_offset               = 0 if cs_wing.is_slat else (1 - cs.chord_fraction)*wing_chord_local_at_cs_root
-    cs_wing.origin[0,0]          += seg_a.x_offset + increment_span*np.tan(seg_a.sweeps.leading_edge) + LE_TE_cs_offset
+    LE_TE_cs_offset               = 0. if cs_wing.is_slat else (1 - cs.chord_fraction)*wing_chord_local_at_cs_root
+    cs_wing.origin[0,0]          += np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset]) + LE_TE_cs_offset
     cs_wing.origin[0,1]          += cs.span_fraction_start * wing_halfspan
     cs_wing.origin[0,2]          += np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])
     if wing.vertical:
@@ -313,8 +312,8 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     
     #find sweep of the 'outside' edge (LE for slats, TE for everything else)
     use_le_sweep                  = not (seg_a.sweeps.leading_edge is None)
-    new_cf                        = 0 if cs_wing.is_slat else 1
-    old_cf                        = 0 if use_le_sweep else 0.25
+    new_cf                        = 0. if cs_wing.is_slat else 1
+    old_cf                        = 0. if use_le_sweep else 0.25
     old_sweep                     = seg_a.sweeps.leading_edge if use_le_sweep else seg_a.sweeps.quarter_chord
     new_sweep                     = convert_sweep_segments(old_sweep, seg_a, seg_b, wing, old_ref_chord_fraction=old_cf, new_ref_chord_fraction=new_cf)
     cs_wing.outside_sweep         = new_sweep
@@ -327,8 +326,14 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
         new_sweep                   = convert_sweep_segments(old_sweep, seg_a, seg_b, wing, old_ref_chord_fraction=old_cf, new_ref_chord_fraction=new_cf)
         cs_wing.sweeps.leading_edge = new_sweep
     
-    #convert to segmented wing and return
+    #convert to segmented wing
     cs_wing = convert_to_segmented_wing(cs_wing)
+    
+    # give segments offsets (in coordinates relative to the cs_wing)
+    cs_wing.Segments[0].x_offset   = 0.
+    cs_wing.Segments[0].dih_offset = 0.  
+    cs_wing.Segments[1].x_offset   = wing_halfspan * span_fraction_tot *np.tan(cs_wing.Segments[0].sweeps.leading_edge)
+    cs_wing.Segments[1].dih_offset = wing_halfspan * span_fraction_tot *np.tan(cs_wing.Segments[0].dihedral_outboard)    
     
     #add airfoil
     cs_wing.Segments[0].Airfoil     = seg_a.Airfoil
@@ -460,8 +465,11 @@ def make_span_break_from_segment(seg):
     sweep_ob_LE     = seg.sweeps.leading_edge
     twist           = seg.twist    
     local_chord     = seg.chord       #non-standard attribute
+    x_offset        = seg.x_offset
+    dih_offset      = seg.dih_offset   
     span_break = make_span_break(-1, 0, 0, span_frac, 0., Airfoil,
-                                 dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord)  
+                                 dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord,
+                                 x_offset, dih_offset)  
     span_break.cuts = np.array([[0.,0.],  
                                 [1.,1.]])
     return span_break
@@ -488,6 +496,8 @@ def make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID):
     """     
     is_slat        = (type(cs)==Slat)
     LE_TE          = 0 if type(cs)==Slat else 1
+    span_a         = seg_a.percent_span_location
+    span_b         = seg_b.percent_span_location    
     
     #inboard span break
     ib_ob          = 1 #the inboard break of the cs is the outboard part of the span_break
@@ -499,8 +509,11 @@ def make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID):
     sweep_ob_LE    = seg_a.sweeps.leading_edge
     twist          = cs_wing.twists.root    
     local_chord    = cs_wing.chords.root / cs.chord_fraction
+    x_offset       = np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset])
+    dih_offset     = np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])
     inboard_span_break  = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ob_cut, Airfoil,
-                                          dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord)
+                                          dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord,
+                                          x_offset, dih_offset)
     
     #outboard span break
     is_coincident  = (cs.span_fraction_end==seg_b.percent_span_location)
@@ -513,18 +526,26 @@ def make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID):
     sweep_ob_LE    = seg_b.sweeps.leading_edge   if is_coincident else seg_a.sweeps.leading_edge
     twist          = cs_wing.twists.tip    
     local_chord    = cs_wing.chords.tip  / cs.chord_fraction
+    x_offset       = np.interp(cs.span_fraction_end, [span_a, span_b], [seg_a.x_offset, seg_b.x_offset])
+    dih_offset     = np.interp(cs.span_fraction_end, [span_a, span_b], [seg_a.dih_offset, seg_b.dih_offset])    
     outboard_span_break = make_span_break(cs_ID, LE_TE, ib_ob, span_frac, ib_cut, Airfoil,
-                                          dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord)    
+                                          dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord,
+                                          x_offset, dih_offset)    
     return inboard_span_break, outboard_span_break
 
 def make_span_break(cs_ID, LE_TE, ib_ob, span_frac, chord_cut, Airfoil,
-                    dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord):
+                    dihedral_ob, sweep_ob_QC, sweep_ob_LE, twist, local_chord,
+                    x_offset, dih_offset):
     """ This gathers information related to a span break into one Data() object.
     A span break is the spanwise location of a discontinuity in the discretization
     of the panels. These can be caused by segments and by the inboard and outboard 
     edges of a control surface. The inboard and outboard sides of a span break can
-    have different chords due to cuts made by control surfaces. A diagram is given 
-    below
+    have different chords due to cuts made by control surfaces. Ultimately, the
+    attributes of the span_breaks of the wing will provide the discretization function 
+    generate_wing_vortex_distribution() with the necessary values to make VLM panels
+    as well as reshape those panels to make the control surface cuts dipicted below.
+    
+    A diagram is given below:
 
 
                                             nominal local chord
@@ -573,11 +594,13 @@ cut from a non-slat control surface     |           |           .       fraction
                                                 [1.,1.]])  #   [inboard TE cut, outboard TE cut]]
     span_break.cuts[LE_TE,ib_ob]    = chord_cut
     span_break.Airfoil              = Airfoil
-    span_break.dihdral_outboard     = dihedral_ob
+    span_break.dihedral_outboard    = dihedral_ob
     span_break.sweep_outboard_QC    = sweep_ob_QC
     span_break.sweep_outboard_LE    = sweep_ob_LE
     span_break.twist                = twist
     span_break.local_chord          = local_chord #this is the local chord BEFORE cuts are made
+    span_break.x_offset             = x_offset
+    span_break.dih_offset           = dih_offset  #dih_offset is the y or z accumulated offset from dihedral
     span_break.is_redundant         = False
     return span_break
 

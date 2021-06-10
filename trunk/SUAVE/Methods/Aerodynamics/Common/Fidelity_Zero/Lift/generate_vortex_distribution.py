@@ -139,15 +139,10 @@ def generate_vortex_distribution(geometry,settings):
     VLM_wings = make_VLM_wings(geometry)
     geometry.VLM_wings = VLM_wings
     
-    #generate panelization for each original wing
+    #generate panelization for each wing
     for wing in geometry.VLM_wings:
-        if not wing.is_a_control_surface:
-            VD = generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc)
-        
-    #generate panelization for each control surface wing
-    for cs_wing in geometry.VLM_wings:
-        if cs_wing.is_a_control_surface:
-            VD = generate_wing_vortex_distribution(VD,cs_wing,n_cw,n_sw,spc)    
+        VD = generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc)    
+        ##VD = old_generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc)    
                     
     # ---------------------------------------------------------------------------------------
     # STEP 8.1: Unpack aircraft fuselage geometry
@@ -177,13 +172,14 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     """ This generates the vortex distribution points on the wing 
 
     Assumptions: 
-    The wing is segmented
+    The wing is segmented and was made or modified by make_VLM_wings()
 
     Source:   
     None
     
     Inputs:   
-    VD                   - vortex distribution    
+    VD                   - vortex distribution
+    wing                 - a wing() object made or modified by make_VLM_wings()
     
     Properties Used:
     N/A
@@ -261,517 +257,310 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     cs_w  = np.zeros(n_sw)
 
     # ---------------------------------------------------------------------------------------
-    # STEP 3: Determine if wing segments are defined  
+    # STEP 3: Get span_breaks  
     # ---------------------------------------------------------------------------------------
-    n_segments           = len(wing.Segments.keys())
-    if n_segments>0:            
-        # ---------------------------------------------------------------------------------------
-        # STEP 4A: Discretizing the wing sections into panels
-        # ---------------------------------------------------------------------------------------
-        segment_chord          = np.zeros(n_segments)
-        segment_twist          = np.zeros(n_segments)
-        segment_sweep          = np.zeros(n_segments)
-        segment_span           = np.zeros(n_segments)
-        segment_area           = np.zeros(n_segments)
-        segment_dihedral       = np.zeros(n_segments)
-        segment_x_coord        = [] 
-        segment_camber         = []
-        segment_chord_x_offset = np.zeros(n_segments)
-        segment_chord_z_offset = np.zeros(n_segments)
-        section_stations       = np.zeros(n_segments) 
+    span_breaks   = wing.span_breaks
+    n_breaks      = len(span_breaks)
 
-        # ---------------------------------------------------------------------------------------
-        # STEP 5A: Obtain sweep, chord, dihedral and twist at the beginning/end of each segment.
-        #          If applicable, append airfoil section VD and flap/aileron deflection angles.
-        # --------------------------------------------------------------------------------------- 
-        for i_seg in range(n_segments):   
-            segment_chord[i_seg]    = wing.Segments[i_seg].root_chord_percent*root_chord
-            segment_twist[i_seg]    = wing.Segments[i_seg].twist
-            section_stations[i_seg] = wing.Segments[i_seg].percent_span_location*span  
-            segment_dihedral[i_seg] = wing.Segments[i_seg].dihedral_outboard                    
+    # ---------------------------------------------------------------------------------------
+    # STEP 4: Setup span_break and section arrays. A 'section' is the trapezoid between two
+    #         span_breaks. A 'span_break' is described in the file make_VLM_wings.py
+    # ---------------------------------------------------------------------------------------
+    break_chord       = np.zeros(n_breaks)
+    break_twist       = np.zeros(n_breaks)
+    break_sweep       = np.zeros(n_breaks)
+    break_dihedral    = np.zeros(n_breaks)
+    break_camber_xs   = [] 
+    break_camber_zs   = []
+    break_x_offset    = np.zeros(n_breaks)
+    break_z_offset    = np.zeros(n_breaks)
+    break_spans       = np.zeros(n_breaks) 
+    section_span      = np.zeros(n_breaks)
+    section_area      = np.zeros(n_breaks)
+    section_LE_cuts   = np.zeros(n_breaks)
+    section_TE_cuts   = np.ones(n_breaks)
 
-            # change to leading edge sweep, if quarter chord sweep givent, convert to leading edge sweep 
-            if (i_seg == n_segments-1):
-                segment_sweep[i_seg] = 0                                  
-            else: 
-                if wing.Segments[i_seg].sweeps.leading_edge != None:
-                    segment_sweep[i_seg] = wing.Segments[i_seg].sweeps.leading_edge
-                else:                                                                 
-                    sweep_quarter_chord  = wing.Segments[i_seg].sweeps.quarter_chord
-                    cf       = 0.25                          
-                    seg_root_chord       = root_chord*wing.Segments[i_seg].root_chord_percent
-                    seg_tip_chord        = root_chord*wing.Segments[i_seg+1].root_chord_percent
-                    seg_span             = span*(wing.Segments[i_seg+1].percent_span_location - wing.Segments[i_seg].percent_span_location )
-                    segment_sweep[i_seg] = np.arctan(((seg_root_chord*cf) + (np.tan(sweep_quarter_chord)*seg_span - cf*seg_tip_chord)) /seg_span)  
+    # ---------------------------------------------------------------------------------------
+    # STEP 5:  Obtain sweep, chord, dihedral and twist at the beginning/end of each segment.
+    #          If applicable, append airfoil section VD and flap/aileron deflection angles.
+    # --------------------------------------------------------------------------------------- 
+    for i_break in range(n_breaks):   
+        break_spans[i_break]    = span_breaks[i_break].span_fraction*span  
+        break_chord[i_break]    = span_breaks[i_break].local_chord
+        break_twist[i_break]    = span_breaks[i_break].twist
+        break_dihedral[i_break] = span_breaks[i_break].dihedral_outboard                    
 
-            if i_seg == 0:
-                segment_span[i_seg]           = 0.0
-                segment_chord_x_offset[i_seg] = 0.0  
-                segment_chord_z_offset[i_seg] = 0.0       
-            else:
-                segment_span[i_seg]           = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
-                segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
-                segment_chord_z_offset[i_seg] = segment_chord_z_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_dihedral[i_seg-1])
-                segment_area[i_seg]           = 0.5*(root_chord*wing.Segments[i_seg-1].root_chord_percent + root_chord*wing.Segments[i_seg].root_chord_percent)*segment_span[i_seg]
+        # get leading edge sweep. make_VLM wings should have precomputed this for all span_breaks
+        is_not_last_break    = (i_break != n_breaks-1)
+        break_sweep[i_break] = span_breaks[i_break].sweep_outboard_LE if is_not_last_break else 0
 
-            # Get airfoil section VD  
-            if wing.Segments[i_seg].Airfoil: 
-                airfoil_data = import_airfoil_geometry([wing.Segments[i_seg].Airfoil.airfoil.coordinate_file])    
-                segment_camber.append(airfoil_data.camber_coordinates[0])
-                segment_x_coord.append(airfoil_data.x_lower_surface[0]) 
-            else:
-                segment_camber.append(np.zeros(30))              
-                segment_x_coord.append(np.linspace(0,1,30)) 
-
-            # ** TO DO ** Get flap/aileron locations and deflection
-
-        VD.wing_areas.append(np.sum(segment_area[:]))
-        if sym_para is True :
-            VD.wing_areas.append(np.sum(segment_area[:]))            
-
-        #Shift spanwise vortices onto section breaks  
-        if len(y_coordinates) < n_segments:
-            raise ValueError('Not enough spanwise VLM stations for segment breaks')
-
-        last_idx = None            
-        for i_seg in range(n_segments):
-            idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
-            if last_idx is not None and idx <= last_idx:
-                idx = last_idx + 1
-            y_coordinates[idx] = section_stations[i_seg]   
-            last_idx = idx
-
-
-        for i_seg in range(n_segments):
-            if section_stations[i_seg] not in y_coordinates:
-                raise ValueError('VLM did not capture all section breaks')
-
-        # ---------------------------------------------------------------------------------------
-        # STEP 6A: Define coordinates of panels horseshoe vortices and control points 
-        # --------------------------------------------------------------------------------------- 
-        y_a   = y_coordinates[:-1] 
-        y_b   = y_coordinates[1:]             
-        del_y = y_coordinates[1:] - y_coordinates[:-1]           
-        i_seg = 0           
-        for idx_y in range(n_sw):
-            # define coordinates of horseshoe vortices and control points
-            idx_x = np.arange(n_cw) 
-            eta_a = (y_a[idx_y] - section_stations[i_seg])  
-            eta_b = (y_b[idx_y] - section_stations[i_seg]) 
-            eta   = (y_b[idx_y] - del_y[idx_y]/2 - section_stations[i_seg]) 
-
-            segment_chord_ratio = (segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1]
-            segment_twist_ratio = (segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1]
-
-            wing_chord_section_a  = segment_chord[i_seg] + (eta_a*segment_chord_ratio) 
-            wing_chord_section_b  = segment_chord[i_seg] + (eta_b*segment_chord_ratio)
-            wing_chord_section    = segment_chord[i_seg] + (eta*segment_chord_ratio)
-
-            delta_x_a = wing_chord_section_a/n_cw  
-            delta_x_b = wing_chord_section_b/n_cw      
-            delta_x   = wing_chord_section/n_cw                                       
-
-            xi_a1 = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x                  # x coordinate of top left corner of panel
-            xi_ah = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x + delta_x_a*0.25 # x coordinate of left corner of panel
-            xi_a2 = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x + delta_x_a      # x coordinate of bottom left corner of bound vortex 
-            xi_ac = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x + delta_x_a*0.75 # x coordinate of bottom left corner of control point vortex  
-            xi_b1 = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg]) + delta_x_b*idx_x                  # x coordinate of top right corner of panel      
-            xi_bh = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg]) + delta_x_b*idx_x + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
-            xi_b2 = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg]) + delta_x_b*idx_x + delta_x_b      # x coordinate of bottom right corner of panel
-            xi_bc = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg]) + delta_x_b*idx_x + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
-            xi_c  = segment_chord_x_offset[i_seg] + eta *np.tan(segment_sweep[i_seg])  + delta_x  *idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
-            xi_ch = segment_chord_x_offset[i_seg] + eta *np.tan(segment_sweep[i_seg])  + delta_x  *idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
-
-            #adjust camber for control surfaces
-            nondim_camber_x_coords = segment_x_coord[i_seg] *1
-            nondim_camber          = segment_camber[i_seg]  *1
-            if wing.is_a_control_surface:
-                if not wing.is_slat:
-                    nondim_camber_x_coords -= 1 - wing.chord_fraction
-                nondim_camber_x_coords /= wing.chord_fraction
-                nondim_camber          /= wing.chord_fraction
-
-            # adjustment of coordinates for camber
-            section_camber_a  = nondim_camber*wing_chord_section_a  
-            section_camber_b  = nondim_camber*wing_chord_section_b  
-            section_camber_c  = nondim_camber*wing_chord_section             
-            
-            section_x_coord_a = nondim_camber_x_coords*wing_chord_section_a
-            section_x_coord_b = nondim_camber_x_coords*wing_chord_section_b
-            section_x_coord   = nondim_camber_x_coords*wing_chord_section
-
-            z_c_a1 = np.interp((idx_x    *delta_x_a)                  ,section_x_coord_a,section_camber_a) 
-            z_c_ah = np.interp((idx_x    *delta_x_a + delta_x_a*0.25) ,section_x_coord_a,section_camber_a)
-            z_c_a2 = np.interp(((idx_x+1)*delta_x_a)                  ,section_x_coord_a,section_camber_a) 
-            z_c_ac = np.interp((idx_x    *delta_x_a + delta_x_a*0.75) ,section_x_coord_a,section_camber_a) 
-            z_c_b1 = np.interp((idx_x    *delta_x_b)                  ,section_x_coord_b,section_camber_b)   
-            z_c_bh = np.interp((idx_x    *delta_x_b + delta_x_b*0.25) ,section_x_coord_b,section_camber_b) 
-            z_c_b2 = np.interp(((idx_x+1)*delta_x_b)                  ,section_x_coord_b,section_camber_b) 
-            z_c_bc = np.interp((idx_x    *delta_x_b + delta_x_b*0.75) ,section_x_coord_b,section_camber_b) 
-            z_c    = np.interp((idx_x    *delta_x   + delta_x  *0.75) ,section_x_coord,section_camber_c) 
-            z_c_ch = np.interp((idx_x    *delta_x   + delta_x  *0.25) ,section_x_coord,section_camber_c) 
-
-            zeta_a1 = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_a1  # z coordinate of top left corner of panel
-            zeta_ah = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_ah  # z coordinate of left corner of bound vortex  
-            zeta_a2 = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_a2  # z coordinate of bottom left corner of panel
-            zeta_ac = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_ac  # z coordinate of bottom left corner of panel of control point
-            zeta_bc = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])  + z_c_bc  # z coordinate of top right corner of panel of control point                          
-            zeta_b1 = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])  + z_c_b1  # z coordinate of top right corner of panel  
-            zeta_bh = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])  + z_c_bh  # z coordinate of right corner of bound vortex        
-            zeta_b2 = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])  + z_c_b2  # z coordinate of bottom right corner of panel                 
-            zeta    = segment_chord_z_offset[i_seg] + eta*np.tan(segment_dihedral[i_seg])    + z_c     # z coordinate three-quarter chord control point for each panel
-            zeta_ch = segment_chord_z_offset[i_seg] + eta*np.tan(segment_dihedral[i_seg])    + z_c_ch  # z coordinate center of bound vortex on each panel
-
-            # adjustment of coordinates for twist  
-            xi_LE_a = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg])               # x location of leading edge left corner of wing
-            xi_LE_b = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg])               # x location of leading edge right of wing
-            xi_LE   = segment_chord_x_offset[i_seg] + eta*np.tan(segment_sweep[i_seg])                 # x location of leading edge center of wing
-
-            zeta_LE_a = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])          # z location of leading edge left corner of wing
-            zeta_LE_b = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])          # z location of leading edge right of wing
-            zeta_LE   = segment_chord_z_offset[i_seg] + eta*np.tan(segment_dihedral[i_seg])            # z location of leading edge center of wing
-
-            # determine section twist
-            section_twist_a = segment_twist[i_seg] + (eta_a * segment_twist_ratio)                     # twist at left side of panel
-            section_twist_b = segment_twist[i_seg] + (eta_b * segment_twist_ratio)                     # twist at right side of panel
-            section_twist   = segment_twist[i_seg] + (eta* segment_twist_ratio)                        # twist at center local chord 
-
-            xi_prime_a1  = xi_LE_a + np.cos(section_twist_a)*(xi_a1-xi_LE_a) + np.sin(section_twist_a)*(zeta_a1-zeta_LE_a)   # x coordinate transformation of top left corner
-            xi_prime_ah  = xi_LE_a + np.cos(section_twist_a)*(xi_ah-xi_LE_a) + np.sin(section_twist_a)*(zeta_ah-zeta_LE_a)   # x coordinate transformation of bottom left corner
-            xi_prime_a2  = xi_LE_a + np.cos(section_twist_a)*(xi_a2-xi_LE_a) + np.sin(section_twist_a)*(zeta_a2-zeta_LE_a)   # x coordinate transformation of bottom left corner
-            xi_prime_ac  = xi_LE_a + np.cos(section_twist_a)*(xi_ac-xi_LE_a) + np.sin(section_twist_a)*(zeta_a2-zeta_LE_a)   # x coordinate transformation of bottom left corner of control point
-            xi_prime_bc  = xi_LE_b + np.cos(section_twist_b)*(xi_bc-xi_LE_b) + np.sin(section_twist_b)*(zeta_b1-zeta_LE_b)   # x coordinate transformation of top right corner of control point                         
-            xi_prime_b1  = xi_LE_b + np.cos(section_twist_b)*(xi_b1-xi_LE_b) + np.sin(section_twist_b)*(zeta_b1-zeta_LE_b)   # x coordinate transformation of top right corner 
-            xi_prime_bh  = xi_LE_b + np.cos(section_twist_b)*(xi_bh-xi_LE_b) + np.sin(section_twist_b)*(zeta_bh-zeta_LE_b)   # x coordinate transformation of top right corner 
-            xi_prime_b2  = xi_LE_b + np.cos(section_twist_b)*(xi_b2-xi_LE_b) + np.sin(section_twist_b)*(zeta_b2-zeta_LE_b)   # x coordinate transformation of botton right corner 
-            xi_prime     = xi_LE   + np.cos(section_twist)  *(xi_c-xi_LE)    + np.sin(section_twist)*(zeta-zeta_LE)          # x coordinate transformation of control point
-            xi_prime_ch  = xi_LE   + np.cos(section_twist)  *(xi_ch-xi_LE)   + np.sin(section_twist)*(zeta_ch-zeta_LE)       # x coordinate transformation of center of horeshoe vortex 
-
-            zeta_prime_a1  = zeta_LE_a - np.sin(section_twist_a)*(xi_a1-xi_LE_a) + np.cos(section_twist_a)*(zeta_a1-zeta_LE_a) # z coordinate transformation of top left corner
-            zeta_prime_ah  = zeta_LE_a - np.sin(section_twist_a)*(xi_ah-xi_LE_a) + np.cos(section_twist_a)*(zeta_ah-zeta_LE_a) # z coordinate transformation of bottom left corner
-            zeta_prime_a2  = zeta_LE_a - np.sin(section_twist_a)*(xi_a2-xi_LE_a) + np.cos(section_twist_a)*(zeta_a2-zeta_LE_a) # z coordinate transformation of bottom left corner
-            zeta_prime_ac  = zeta_LE_a - np.sin(section_twist_a)*(xi_ac-xi_LE_a) + np.cos(section_twist_a)*(zeta_ac-zeta_LE_a) # z coordinate transformation of bottom left corner
-            zeta_prime_bc  = zeta_LE_b - np.sin(section_twist_b)*(xi_bc-xi_LE_b) + np.cos(section_twist_b)*(zeta_bc-zeta_LE_b) # z coordinate transformation of top right corner                         
-            zeta_prime_b1  = zeta_LE_b - np.sin(section_twist_b)*(xi_b1-xi_LE_b) + np.cos(section_twist_b)*(zeta_b1-zeta_LE_b) # z coordinate transformation of top right corner 
-            zeta_prime_bh  = zeta_LE_b - np.sin(section_twist_b)*(xi_bh-xi_LE_b) + np.cos(section_twist_b)*(zeta_bh-zeta_LE_b) # z coordinate transformation of top right corner 
-            zeta_prime_b2  = zeta_LE_b - np.sin(section_twist_b)*(xi_b2-xi_LE_b) + np.cos(section_twist_b)*(zeta_b2-zeta_LE_b) # z coordinate transformation of botton right corner 
-            zeta_prime     = zeta_LE   - np.sin(section_twist)*(xi_c-xi_LE)      + np.cos(-section_twist)*(zeta-zeta_LE)            # z coordinate transformation of control point
-            zeta_prime_ch  = zeta_LE   - np.sin(section_twist)*(xi_ch-xi_LE)     + np.cos(-section_twist)*(zeta_ch-zeta_LE)            # z coordinate transformation of center of horseshoe
-
-            # ** TO DO ** Get flap/aileron locations and deflection
-            # store coordinates of panels, horseshoeces vortices and control points relative to wing root 
-            if vertical_wing:
-                xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
-                za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                ya1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
-                xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
-                za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                ya2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
-
-                xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
-                zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                yb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
-                xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
-                zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                        
-                yb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
-
-                xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
-                zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                yah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
-                xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
-                zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
-
-                xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
-                ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
-
-                xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
-                yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
-
-                xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
-                zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                yac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
-                xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
-                zbc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                            
-                ybc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc
-                x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
-                z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
-                y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])
-
-            else:     
-                xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
-                ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                za1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
-                xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
-                ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
-
-                xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
-                yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
-                yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
-                zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
-
-                xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
-                yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
-                xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
-                ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
-
-                xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                    
-                zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
-
-                xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)
-                zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
-
-                xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
-                yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
-                xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
-                ybc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                            
-                zbc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc   
-                x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
-                y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
-                z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])                   
-
-            idx += 1
-
-            cs_w[idx_y] = wing_chord_section       
-
-            if y_b[idx_y] == section_stations[i_seg+1]: 
-                i_seg += 1      
-
-        if vertical_wing:    
-            x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
-            z[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
-            y[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
-        else:    
-            x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
-            y[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
-            z[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])                
-
-    else:   # when no segments are defined on wing  
-        # ---------------------------------------------------------------------------------------
-        # STEP 6B: Define coordinates of panels horseshoe vortices and control points 
-        # ---------------------------------------------------------------------------------------
-        y_a   = y_coordinates[:-1] 
-        y_b   = y_coordinates[1:] 
-
-        if sweep_le != None:
-            sweep = sweep_le
-        else:                                                                
-            cf    = 0.25                          
-            sweep = np.arctan(((root_chord*cf) + (np.tan(sweep_qc)*span - cf*tip_chord)) /span)  
-
-        wing_chord_ratio = (tip_chord-root_chord)/span
-        wing_twist_ratio = (twist_tc-twist_rc)/span                    
-        VD.wing_areas.append(0.5*(root_chord+tip_chord)*span) 
-        if sym_para is True :
-            VD.wing_areas.append(0.5*(root_chord+tip_chord)*span)   
+        # find span and area. All span_break offsets should be calculated in make_VLM_wings
+        if i_break == 0:
+            section_span[i_break]   = 0.0
+            break_x_offset[i_break] = 0.0  
+            break_z_offset[i_break] = 0.0       
+        else:
+            section_span[i_break]   = break_spans[i_break] - break_spans[i_break-1]
+            section_area[i_break]   = 0.5*(break_chord[i_break-1] + break_chord[i_break])*section_span[i_break]
+            break_x_offset[i_break] = span_breaks[i_break].x_offset
+            break_z_offset[i_break] = span_breaks[i_break].dih_offset
 
         # Get airfoil section VD  
-        if wing.Airfoil: 
-            airfoil_data = import_airfoil_geometry([wing.Airfoil.airfoil.coordinate_file])    
-            wing_camber  = airfoil_data.camber_coordinates[0]
-            wing_x_coord = airfoil_data.x_lower_surface[0]
+        if span_breaks[i_break].Airfoil: 
+            airfoil_data = import_airfoil_geometry([span_breaks[i_break].Airfoil.airfoil.coordinate_file])    
+            break_camber_zs.append(airfoil_data.camber_coordinates[0])
+            break_camber_xs.append(airfoil_data.x_lower_surface[0]) 
         else:
-            wing_camber  = np.zeros(30) # dimension of Selig airfoil VD file
-            wing_x_coord = np.linspace(0,1,30)
+            break_camber_zs.append(np.zeros(30))              
+            break_camber_xs.append(np.linspace(0,1,30)) 
 
-        del_y = y_b - y_a
-        for idx_y in range(n_sw):  
-            idx_x = np.arange(n_cw) 
-            eta_a = (y_a[idx_y])  
-            eta_b = (y_b[idx_y]) 
-            eta   = (y_b[idx_y] - del_y[idx_y]/2) 
+        # Get control surface leading and trailing edge cute cuts: section__cuts[-1] should never be used in the following code
+        section_LE_cuts[i_break] = span_breaks[i_break].cuts[0,1]
+        section_TE_cuts[i_break] = span_breaks[i_break].cuts[1,1]
 
-            # get spanwise discretization points
-            wing_chord_section_a  = root_chord + (eta_a*wing_chord_ratio) 
-            wing_chord_section_b  = root_chord + (eta_b*wing_chord_ratio)
-            wing_chord_section    = root_chord + (eta*wing_chord_ratio)
+    VD.wing_areas.append(np.sum(section_area[:]))
+    if sym_para is True :
+        VD.wing_areas.append(np.sum(section_area[:]))            
 
-            # get chordwise discretization points
-            delta_x_a = wing_chord_section_a/n_cw   
-            delta_x_b = wing_chord_section_b/n_cw   
-            delta_x   = wing_chord_section/n_cw                                  
+    #Shift spanwise vortices onto section breaks  
+    if len(y_coordinates) < n_breaks:
+        raise ValueError('Not enough spanwise VLM stations for segment breaks')
 
-            xi_a1 = eta_a*np.tan(sweep) + delta_x_a*idx_x                  # x coordinate of top left corner of panel
-            xi_ah = eta_a*np.tan(sweep) + delta_x_a*idx_x + delta_x_a*0.25 # x coordinate of left corner of panel
-            xi_a2 = eta_a*np.tan(sweep) + delta_x_a*idx_x + delta_x_a      # x coordinate of bottom left corner of bound vortex 
-            xi_ac = eta_a*np.tan(sweep) + delta_x_a*idx_x + delta_x_a*0.75 # x coordinate of bottom left corner of control point vortex  
-            xi_b1 = eta_b*np.tan(sweep) + delta_x_b*idx_x                  # x coordinate of top right corner of panel      
-            xi_bh = eta_b*np.tan(sweep) + delta_x_b*idx_x + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
-            xi_b2 = eta_b*np.tan(sweep) + delta_x_b*idx_x + delta_x_b      # x coordinate of bottom right corner of panel
-            xi_bc = eta_b*np.tan(sweep) + delta_x_b*idx_x + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
-            xi_c  =  eta *np.tan(sweep)  + delta_x  *idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
-            xi_ch =  eta *np.tan(sweep)  + delta_x  *idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
+    unshifted_idxs = np.full(len(y_coordinates), True)
+    for i_break in range(n_breaks):
+        idx = (np.abs(y_coordinates[unshifted_idxs]-break_spans[i_break])).argmin() #index of y-coord nearest to the span break
+        y_coordinates[idx] = break_spans[i_break]
 
-            # adjustment of coordinates for camber
-            section_camber_a  = wing_camber*wing_chord_section_a
-            section_camber_b  = wing_camber*wing_chord_section_b  
-            section_camber_c  = wing_camber*wing_chord_section
+    for i_break in range(n_breaks):
+        if break_spans[i_break] not in y_coordinates:
+            raise ValueError('VLM did not capture all section breaks')
+    
+    # ---------------------------------------------------------------------------------------
+    # STEP 6: Define coordinates of panels horseshoe vortices and control points 
+    # --------------------------------------------------------------------------------------- 
+    y_a   = y_coordinates[:-1] 
+    y_b   = y_coordinates[1:]             
+    del_y = y_coordinates[1:] - y_coordinates[:-1]           
+    i_break = 0           
+    for idx_y in range(n_sw):
+        # define basic geometric values----------------------------------------------------------
+        idx_x = np.arange(n_cw) 
+        eta_a = (y_a[idx_y] - break_spans[i_break])  
+        eta_b = (y_b[idx_y] - break_spans[i_break]) 
+        eta   = (y_b[idx_y] - del_y[idx_y]/2 - break_spans[i_break]) 
 
-            section_x_coord_a = wing_x_coord*wing_chord_section_a
-            section_x_coord_b = wing_x_coord*wing_chord_section_b
-            section_x_coord   = wing_x_coord*wing_chord_section
+        segment_chord_ratio = (break_chord[i_break+1] - break_chord[i_break])/section_span[i_break+1]
+        segment_twist_ratio = (break_twist[i_break+1] - break_twist[i_break])/section_span[i_break+1]
 
-            z_c_a1 = np.interp((idx_x    *delta_x_a)                  ,section_x_coord_a,section_camber_a) 
-            z_c_ah = np.interp((idx_x    *delta_x_a + delta_x_a*0.25) ,section_x_coord_a,section_camber_a)
-            z_c_a2 = np.interp(((idx_x+1)*delta_x_a)                  ,section_x_coord_a,section_camber_a) 
-            z_c_ac = np.interp((idx_x    *delta_x_a + delta_x_a*0.75) ,section_x_coord_a,section_camber_a) 
-            z_c_b1 = np.interp((idx_x    *delta_x_b)                  ,section_x_coord_b,section_camber_b)   
-            z_c_bh = np.interp((idx_x    *delta_x_b + delta_x_b*0.25) ,section_x_coord_b,section_camber_b) 
-            z_c_b2 = np.interp(((idx_x+1)*delta_x_b)                  ,section_x_coord_b,section_camber_b) 
-            z_c_bc = np.interp((idx_x    *delta_x_b + delta_x_b*0.75) ,section_x_coord_b,section_camber_b) 
-            z_c    = np.interp((idx_x    *delta_x   + delta_x  *0.75) ,section_x_coord  ,section_camber_c) 
-            z_c_ch = np.interp((idx_x    *delta_x   + delta_x  *0.25) ,section_x_coord  ,section_camber_c) 
+        wing_chord_section_a  = break_chord[i_break] + (eta_a*segment_chord_ratio) 
+        wing_chord_section_b  = break_chord[i_break] + (eta_b*segment_chord_ratio)
+        wing_chord_section    = break_chord[i_break] + (eta*segment_chord_ratio)
 
-            zeta_a1 = eta_a*np.tan(dihedral)  + z_c_a1  # z coordinate of top left corner of panel
-            zeta_ah = eta_a*np.tan(dihedral)  + z_c_ah  # z coordinate of left corner of bound vortex  
-            zeta_a2 = eta_a*np.tan(dihedral)  + z_c_a2  # z coordinate of bottom left corner of panel
-            zeta_ac = eta_a*np.tan(dihedral)  + z_c_ac  # z coordinate of bottom left corner of panel of control point
-            zeta_bc = eta_b*np.tan(dihedral)  + z_c_bc  # z coordinate of top right corner of panel of control point                          
-            zeta_b1 = eta_b*np.tan(dihedral)  + z_c_b1  # z coordinate of top right corner of panel  
-            zeta_bh = eta_b*np.tan(dihedral)  + z_c_bh  # z coordinate of right corner of bound vortex        
-            zeta_b2 = eta_b*np.tan(dihedral)  + z_c_b2  # z coordinate of bottom right corner of panel                 
-            zeta    =   eta*np.tan(dihedral)    + z_c     # z coordinate three-quarter chord control point for each panel
-            zeta_ch =   eta*np.tan(dihedral)    + z_c_ch  # z coordinate center of bound vortex on each panel
+        delta_x_a = wing_chord_section_a/n_cw  
+        delta_x_b = wing_chord_section_b/n_cw      
+        delta_x   = wing_chord_section/n_cw                                       
 
-            # adjustment of coordinates for twist  
-            xi_LE_a = eta_a*np.tan(sweep)               # x location of leading edge left corner of wing
-            xi_LE_b = eta_b*np.tan(sweep)               # x location of leading edge right of wing
-            xi_LE   = eta  *np.tan(sweep)               # x location of leading edge center of wing
+        # define coordinates of horseshoe vortices and control points----------------------------
+        xi_a1 = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + delta_x_a*idx_x                  # x coordinate of top left corner of panel
+        xi_ah = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + delta_x_a*idx_x + delta_x_a*0.25 # x coordinate of left corner of panel
+        xi_a2 = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + delta_x_a*idx_x + delta_x_a      # x coordinate of bottom left corner of bound vortex 
+        xi_ac = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + delta_x_a*idx_x + delta_x_a*0.75 # x coordinate of bottom left corner of control point vortex  
+        xi_b1 = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + delta_x_b*idx_x                  # x coordinate of top right corner of panel      
+        xi_bh = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + delta_x_b*idx_x + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
+        xi_b2 = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + delta_x_b*idx_x + delta_x_b      # x coordinate of bottom right corner of panel
+        xi_bc = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break]) + delta_x_b*idx_x + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
+        xi_c  = break_x_offset[i_break] + eta  *np.tan(break_sweep[i_break]) + delta_x  *idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
+        xi_ch = break_x_offset[i_break] + eta  *np.tan(break_sweep[i_break]) + delta_x  *idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
 
-            zeta_LE_a = eta_a*np.tan(dihedral)          # z location of leading edge left corner of wing
-            zeta_LE_b = eta_b*np.tan(dihedral)          # z location of leading edge right of wing
-            zeta_LE   = eta  *np.tan(dihedral)          # z location of leading edge center of wing
+        #adjust for camber-------------------------------------------------------------------       
+        #format camber vars for wings vs control surface wings
+        nondim_camber_x_coords = break_camber_xs[i_break] *1
+        nondim_camber          = break_camber_zs[i_break] *1
+        if wing.is_a_control_surface:
+            if not wing.is_slat:
+                nondim_camber_x_coords -= 1 - wing.chord_fraction
+            nondim_camber_x_coords /= wing.chord_fraction
+            nondim_camber          /= wing.chord_fraction
 
-            # determine section twist
-            section_twist_a = twist_rc + (eta_a * wing_twist_ratio)                     # twist at left side of panel
-            section_twist_b = twist_rc + (eta_b * wing_twist_ratio)                     # twist at right side of panel
-            section_twist   = twist_rc + (eta   * wing_twist_ratio)                     # twist at center local chord 
+        # adjustment of coordinates for camber
+        section_camber_a  = nondim_camber*wing_chord_section_a  
+        section_camber_b  = nondim_camber*wing_chord_section_b  
+        section_camber_c  = nondim_camber*wing_chord_section             
+        
+        section_x_coord_a = nondim_camber_x_coords*wing_chord_section_a
+        section_x_coord_b = nondim_camber_x_coords*wing_chord_section_b
+        section_x_coord   = nondim_camber_x_coords*wing_chord_section
 
-            xi_prime_a1  = xi_LE_a + np.cos(section_twist_a)*(xi_a1-xi_LE_a) + np.sin(section_twist_a)*(zeta_a1-zeta_LE_a)   # x coordinate transformation of top left corner
-            xi_prime_ah  = xi_LE_a + np.cos(section_twist_a)*(xi_ah-xi_LE_a) + np.sin(section_twist_a)*(zeta_ah-zeta_LE_a)   # x coordinate transformation of bottom left corner
-            xi_prime_a2  = xi_LE_a + np.cos(section_twist_a)*(xi_a2-xi_LE_a) + np.sin(section_twist_a)*(zeta_a2-zeta_LE_a)   # x coordinate transformation of bottom left corner
-            xi_prime_ac  = xi_LE_a + np.cos(section_twist_a)*(xi_ac-xi_LE_a) + np.sin(section_twist_a)*(zeta_a2-zeta_LE_a)   # x coordinate transformation of bottom left corner of control point
-            xi_prime_bc  = xi_LE_b + np.cos(section_twist_b)*(xi_bc-xi_LE_b) + np.sin(section_twist_b)*(zeta_b1-zeta_LE_b)   # x coordinate transformation of top right corner of control point                         
-            xi_prime_b1  = xi_LE_b + np.cos(section_twist_b)*(xi_b1-xi_LE_b) + np.sin(section_twist_b)*(zeta_b1-zeta_LE_b)   # x coordinate transformation of top right corner 
-            xi_prime_bh  = xi_LE_b + np.cos(section_twist_b)*(xi_bh-xi_LE_b) + np.sin(section_twist_b)*(zeta_bh-zeta_LE_b)   # x coordinate transformation of top right corner 
-            xi_prime_b2  = xi_LE_b + np.cos(section_twist_b)*(xi_b2-xi_LE_b) + np.sin(section_twist_b)*(zeta_b2-zeta_LE_b)   # x coordinate transformation of botton right corner 
-            xi_prime     = xi_LE   + np.cos(section_twist)  *(xi_c-xi_LE)    + np.sin(section_twist)*(zeta-zeta_LE)          # x coordinate transformation of control point
-            xi_prime_ch  = xi_LE   + np.cos(section_twist)  *(xi_ch-xi_LE)   + np.sin(section_twist)*(zeta_ch-zeta_LE)       # x coordinate transformation of center of horeshoe vortex 
+        z_c_a1 = np.interp((idx_x    *delta_x_a)                  ,section_x_coord_a,section_camber_a) 
+        z_c_ah = np.interp((idx_x    *delta_x_a + delta_x_a*0.25) ,section_x_coord_a,section_camber_a)
+        z_c_a2 = np.interp(((idx_x+1)*delta_x_a)                  ,section_x_coord_a,section_camber_a) 
+        z_c_ac = np.interp((idx_x    *delta_x_a + delta_x_a*0.75) ,section_x_coord_a,section_camber_a) 
+        z_c_b1 = np.interp((idx_x    *delta_x_b)                  ,section_x_coord_b,section_camber_b)   
+        z_c_bh = np.interp((idx_x    *delta_x_b + delta_x_b*0.25) ,section_x_coord_b,section_camber_b) 
+        z_c_b2 = np.interp(((idx_x+1)*delta_x_b)                  ,section_x_coord_b,section_camber_b) 
+        z_c_bc = np.interp((idx_x    *delta_x_b + delta_x_b*0.75) ,section_x_coord_b,section_camber_b) 
+        z_c    = np.interp((idx_x    *delta_x   + delta_x  *0.75) ,section_x_coord,section_camber_c) 
+        z_c_ch = np.interp((idx_x    *delta_x   + delta_x  *0.25) ,section_x_coord,section_camber_c) 
 
-            zeta_prime_a1  = zeta_LE_a - np.sin(section_twist_a)*(xi_a1-xi_LE_a) + np.cos(section_twist_a)*(zeta_a1-zeta_LE_a) # z coordinate transformation of top left corner
-            zeta_prime_ah  = zeta_LE_a - np.sin(section_twist_a)*(xi_ah-xi_LE_a) + np.cos(section_twist_a)*(zeta_ah-zeta_LE_a) # z coordinate transformation of bottom left corner
-            zeta_prime_a2  = zeta_LE_a - np.sin(section_twist_a)*(xi_a2-xi_LE_a) + np.cos(section_twist_a)*(zeta_a2-zeta_LE_a) # z coordinate transformation of bottom left corner
-            zeta_prime_ac  = zeta_LE_a - np.sin(section_twist_a)*(xi_ac-xi_LE_a) + np.cos(section_twist_a)*(zeta_ac-zeta_LE_a) # z coordinate transformation of bottom left corner
-            zeta_prime_bc  = zeta_LE_b - np.sin(section_twist_b)*(xi_bc-xi_LE_b) + np.cos(section_twist_b)*(zeta_bc-zeta_LE_b) # z coordinate transformation of top right corner                         
-            zeta_prime_b1  = zeta_LE_b - np.sin(section_twist_b)*(xi_b1-xi_LE_b) + np.cos(section_twist_b)*(zeta_b1-zeta_LE_b) # z coordinate transformation of top right corner 
-            zeta_prime_bh  = zeta_LE_b - np.sin(section_twist_b)*(xi_bh-xi_LE_b) + np.cos(section_twist_b)*(zeta_bh-zeta_LE_b) # z coordinate transformation of top right corner 
-            zeta_prime_b2  = zeta_LE_b - np.sin(section_twist_b)*(xi_b2-xi_LE_b) + np.cos(section_twist_b)*(zeta_b2-zeta_LE_b) # z coordinate transformation of botton right corner 
-            zeta_prime     = zeta_LE   - np.sin(section_twist)  *(xi_c-xi_LE)    + np.cos(-section_twist) *(zeta-zeta_LE)      # z coordinate transformation of control point
-            zeta_prime_ch  = zeta_LE   - np.sin(section_twist)  *(xi_ch-xi_LE)   + np.cos(-section_twist) *(zeta_ch-zeta_LE)   # z coordinate transformation of center of horseshoe
+        #adjust for dihedral and add to camber---------------------------------------------------      
+        zeta_a1 = break_z_offset[i_break] + eta_a*np.tan(break_dihedral[i_break])  + z_c_a1  # z coordinate of top left corner of panel
+        zeta_ah = break_z_offset[i_break] + eta_a*np.tan(break_dihedral[i_break])  + z_c_ah  # z coordinate of left corner of bound vortex  
+        zeta_a2 = break_z_offset[i_break] + eta_a*np.tan(break_dihedral[i_break])  + z_c_a2  # z coordinate of bottom left corner of panel
+        zeta_ac = break_z_offset[i_break] + eta_a*np.tan(break_dihedral[i_break])  + z_c_ac  # z coordinate of bottom left corner of panel of control point
+        zeta_bc = break_z_offset[i_break] + eta_b*np.tan(break_dihedral[i_break])  + z_c_bc  # z coordinate of top right corner of panel of control point                          
+        zeta_b1 = break_z_offset[i_break] + eta_b*np.tan(break_dihedral[i_break])  + z_c_b1  # z coordinate of top right corner of panel  
+        zeta_bh = break_z_offset[i_break] + eta_b*np.tan(break_dihedral[i_break])  + z_c_bh  # z coordinate of right corner of bound vortex        
+        zeta_b2 = break_z_offset[i_break] + eta_b*np.tan(break_dihedral[i_break])  + z_c_b2  # z coordinate of bottom right corner of panel                 
+        zeta    = break_z_offset[i_break] + eta  *np.tan(break_dihedral[i_break])  + z_c     # z coordinate three-quarter chord control point for each panel
+        zeta_ch = break_z_offset[i_break] + eta  *np.tan(break_dihedral[i_break])  + z_c_ch  # z coordinate center of bound vortex on each panel
 
-            # ** TO DO ** Get flap/aileron locations and deflection
+        # adjust for twist-------------------------------------------------------------------   
+        # pivot point is the leading edge before camber  
+        pivot_x_a = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break])             # x location of leading edge left corner of wing
+        pivot_x_b = break_x_offset[i_break] + eta_b*np.tan(break_sweep[i_break])             # x location of leading edge right of wing
+        pivot_x   = break_x_offset[i_break] + eta  *np.tan(break_sweep[i_break])             # x location of leading edge center of wing
+        
+        pivot_z_a = break_z_offset[i_break] + eta_a*np.tan(break_dihedral[i_break])          # z location of leading edge left corner of wing
+        pivot_z_b = break_z_offset[i_break] + eta_b*np.tan(break_dihedral[i_break])          # z location of leading edge right of wing
+        pivot_z   = break_z_offset[i_break] + eta  *np.tan(break_dihedral[i_break])          # z location of leading edge center of wing
 
-            # store coordinates of panels, horseshoe vortices and control points relative to wing root 
-            if vertical_wing:
-                xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
-                za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                ya1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
-                xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
-                za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                ya2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
+        # adjust twist pivot line for control surface wings: offset leading edge to match that of the owning wing            
+        if wing.is_a_control_surface and not wing.is_slat: #correction only leading for non-leading edge control surfaces since the LE is the pivot by default
+            nondim_cs_LE = (1 - wing.chord_fraction)
+            pivot_x_a   -= nondim_cs_LE *(wing_chord_section_a /wing.chord_fraction) 
+            pivot_x_b   -= nondim_cs_LE *(wing_chord_section_b /wing.chord_fraction) 
+            pivot_x     -= nondim_cs_LE *(wing_chord_section   /wing.chord_fraction) 
 
-                xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
-                zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                yb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
-                xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
-                zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                        
-                yb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
+        # adjust coordinates for twist
+        section_twist_a = break_twist[i_break] + (eta_a * segment_twist_ratio)                     # twist at left side of panel
+        section_twist_b = break_twist[i_break] + (eta_b * segment_twist_ratio)                     # twist at right side of panel
+        section_twist   = break_twist[i_break] + (eta* segment_twist_ratio)                        # twist at center local chord 
 
-                xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
-                zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                yah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
-                xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
-                zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
+        xi_prime_a1    = pivot_x_a + np.cos(section_twist_a)*(xi_a1-pivot_x_a) + np.sin(section_twist_a)*(zeta_a1-pivot_z_a) # x coordinate transformation of top left corner
+        xi_prime_ah    = pivot_x_a + np.cos(section_twist_a)*(xi_ah-pivot_x_a) + np.sin(section_twist_a)*(zeta_ah-pivot_z_a) # x coordinate transformation of bottom left corner
+        xi_prime_a2    = pivot_x_a + np.cos(section_twist_a)*(xi_a2-pivot_x_a) + np.sin(section_twist_a)*(zeta_a2-pivot_z_a) # x coordinate transformation of bottom left corner
+        xi_prime_ac    = pivot_x_a + np.cos(section_twist_a)*(xi_ac-pivot_x_a) + np.sin(section_twist_a)*(zeta_a2-pivot_z_a) # x coordinate transformation of bottom left corner of control point
+        xi_prime_bc    = pivot_x_b + np.cos(section_twist_b)*(xi_bc-pivot_x_b) + np.sin(section_twist_b)*(zeta_b1-pivot_z_b) # x coordinate transformation of top right corner of control point                         
+        xi_prime_b1    = pivot_x_b + np.cos(section_twist_b)*(xi_b1-pivot_x_b) + np.sin(section_twist_b)*(zeta_b1-pivot_z_b) # x coordinate transformation of top right corner 
+        xi_prime_bh    = pivot_x_b + np.cos(section_twist_b)*(xi_bh-pivot_x_b) + np.sin(section_twist_b)*(zeta_bh-pivot_z_b) # x coordinate transformation of top right corner 
+        xi_prime_b2    = pivot_x_b + np.cos(section_twist_b)*(xi_b2-pivot_x_b) + np.sin(section_twist_b)*(zeta_b2-pivot_z_b) # x coordinate transformation of botton right corner 
+        xi_prime       = pivot_x   + np.cos(section_twist)  *(xi_c -pivot_x)   + np.sin(section_twist)  *(zeta   -pivot_z)   # x coordinate transformation of control point
+        xi_prime_ch    = pivot_x   + np.cos(section_twist)  *(xi_ch-pivot_x)   + np.sin(section_twist)  *(zeta_ch-pivot_z)   # x coordinate transformation of center of horeshoe vortex 
 
-                xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
-                ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+        zeta_prime_a1  = pivot_z_a - np.sin(section_twist_a)*(xi_a1-pivot_x_a) + np.cos(section_twist_a)*(zeta_a1-pivot_z_a) # z coordinate transformation of top left corner
+        zeta_prime_ah  = pivot_z_a - np.sin(section_twist_a)*(xi_ah-pivot_x_a) + np.cos(section_twist_a)*(zeta_ah-pivot_z_a) # z coordinate transformation of bottom left corner
+        zeta_prime_a2  = pivot_z_a - np.sin(section_twist_a)*(xi_a2-pivot_x_a) + np.cos(section_twist_a)*(zeta_a2-pivot_z_a) # z coordinate transformation of bottom left corner
+        zeta_prime_ac  = pivot_z_a - np.sin(section_twist_a)*(xi_ac-pivot_x_a) + np.cos(section_twist_a)*(zeta_ac-pivot_z_a) # z coordinate transformation of bottom left corner
+        zeta_prime_bc  = pivot_z_b - np.sin(section_twist_b)*(xi_bc-pivot_x_b) + np.cos(section_twist_b)*(zeta_bc-pivot_z_b) # z coordinate transformation of top right corner                         
+        zeta_prime_b1  = pivot_z_b - np.sin(section_twist_b)*(xi_b1-pivot_x_b) + np.cos(section_twist_b)*(zeta_b1-pivot_z_b) # z coordinate transformation of top right corner 
+        zeta_prime_bh  = pivot_z_b - np.sin(section_twist_b)*(xi_bh-pivot_x_b) + np.cos(section_twist_b)*(zeta_bh-pivot_z_b) # z coordinate transformation of top right corner 
+        zeta_prime_b2  = pivot_z_b - np.sin(section_twist_b)*(xi_b2-pivot_x_b) + np.cos(section_twist_b)*(zeta_b2-pivot_z_b) # z coordinate transformation of botton right corner 
+        zeta_prime     = pivot_z   - np.sin(section_twist)  *(xi_c -pivot_x)   + np.cos(-section_twist) *(zeta   -pivot_z)   # z coordinate transformation of control point
+        zeta_prime_ch  = pivot_z   - np.sin(section_twist)  *(xi_ch-pivot_x)   + np.cos(-section_twist) *(zeta_ch-pivot_z)   # z coordinate transformation of center of horseshoe
 
-                xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
-                yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
+        # Make cuts in original wing for its control surface wings
+        
+        
+        #start symmetry loop here
+        
+        # ** TO DO ** Deflect control surfaces
+        
+        # store coordinates of panels, horseshoeces vortices and control points relative to wing root 
+        if vertical_wing:
+            xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
+            za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            ya1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
+            xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
+            za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            ya2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
 
-                xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
-                zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                yac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
-                xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
-                zbc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                            
-                ybc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc        
-                x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
-                z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
-                y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])                    
+            xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
+            zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+            yb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
+            xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
+            zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                        
+            yb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
 
-            else: 
-                xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
-                ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                za1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
-                xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
-                ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
+            xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
+            zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            yah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
+            xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
+            zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+            ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
 
-                xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
-                yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
-                yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
-                zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
+            xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
+            zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
+            ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
 
-                xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
-                yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
-                xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
-                ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
-                zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
+            xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
+            zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
+            yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
 
-                xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
-                ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
-                zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+            xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
+            zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            yac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
+            xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
+            zbc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                            
+            ybc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc
+            x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
+            z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
+            y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])
 
-                xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
-                yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
-                zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
+        else:     
+            xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
+            ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            za1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
+            xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
+            ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
 
-                xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
-                yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
-                zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
-                xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
-                ybc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                            
-                zbc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc       
-                x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
-                y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
-                z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])              
+            xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
+            yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+            zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
+            yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+            xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
+            zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
 
-            cs_w[idx_y] = wing_chord_section
+            xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
+            yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
+            xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
+            ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+            zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
 
-        if vertical_wing:    
-            x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
-            z[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
-            y[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
-        else:           
-            x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
-            y[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
-            z[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])   
+            xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
+            ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                    
+            zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+
+            xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
+            yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)
+            zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
+
+            xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
+            yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
+            xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
+            ybc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                            
+            zbc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc   
+            x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
+            y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
+            z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])                   
+
+        idx += 1
+
+        cs_w[idx_y] = wing_chord_section       
+
+        if y_b[idx_y] == break_spans[i_break+1]: 
+            i_break += 1      
+
+    if vertical_wing:    
+        x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
+        z[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
+        y[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
+    else:    
+        x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
+        y[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
+        z[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])                
 
     # adjusting coordinate axis so reference point is at the nose of the aircraft
     xah = xah + wing_origin[0] # x coordinate of left corner of bound vortex 
@@ -1406,3 +1195,660 @@ def compute_unit_normal(VD):
     unit_normal[unit_normal[:,2]<0,:] = -unit_normal[unit_normal[:,2]<0,:]
 
     return unit_normal
+
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+#########################################################################################################
+
+## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
+def old_generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
+    """ This generates the vortex distribution points on the wing 
+
+    Assumptions: 
+    The wing is segmented and was made or modified by make_VLM_wings()
+
+    Source:   
+    None
+    
+    Inputs:   
+    VD                   - vortex distribution
+    wing                 - a wing() object made or modified by make_VLM_wings()
+    
+    Properties Used:
+    N/A
+    """       
+    # get geometry of wing  
+    span          = wing.spans.projected
+    root_chord    = wing.chords.root
+    tip_chord     = wing.chords.tip
+    sweep_qc      = wing.sweeps.quarter_chord
+    sweep_le      = wing.sweeps.leading_edge 
+    twist_rc      = wing.twists.root
+    twist_tc      = wing.twists.tip
+    dihedral      = wing.dihedral
+    sym_para      = wing.symmetric 
+    vertical_wing = wing.vertical
+    wing_origin   = wing.origin[0]
+    VD.vortex_lift.append(wing.vortex_lift)
+
+    # determine if vehicle has symmetry 
+    if sym_para is True :
+        span = span/2
+        VD.vortex_lift.append(wing.vortex_lift)
+
+    if spc == True:
+
+        # discretize wing using cosine spacing
+        n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
+        thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
+        y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing
+    else:
+
+        # discretize wing using linear spacing
+        y_coordinates   = np.linspace(0,span,n_sw+1) 
+
+    # create empty vectors for coordinates 
+    xah   = np.zeros(n_cw*n_sw)
+    yah   = np.zeros(n_cw*n_sw)
+    zah   = np.zeros(n_cw*n_sw)
+    xbh   = np.zeros(n_cw*n_sw)
+    ybh   = np.zeros(n_cw*n_sw)
+    zbh   = np.zeros(n_cw*n_sw)    
+    xch   = np.zeros(n_cw*n_sw)
+    ych   = np.zeros(n_cw*n_sw)
+    zch   = np.zeros(n_cw*n_sw)    
+    xa1   = np.zeros(n_cw*n_sw)
+    ya1   = np.zeros(n_cw*n_sw)
+    za1   = np.zeros(n_cw*n_sw)
+    xa2   = np.zeros(n_cw*n_sw)
+    ya2   = np.zeros(n_cw*n_sw)
+    za2   = np.zeros(n_cw*n_sw)    
+    xb1   = np.zeros(n_cw*n_sw)
+    yb1   = np.zeros(n_cw*n_sw)
+    zb1   = np.zeros(n_cw*n_sw)
+    xb2   = np.zeros(n_cw*n_sw) 
+    yb2   = np.zeros(n_cw*n_sw) 
+    zb2   = np.zeros(n_cw*n_sw)    
+    xac   = np.zeros(n_cw*n_sw)
+    yac   = np.zeros(n_cw*n_sw)
+    zac   = np.zeros(n_cw*n_sw)    
+    xbc   = np.zeros(n_cw*n_sw)
+    ybc   = np.zeros(n_cw*n_sw)
+    zbc   = np.zeros(n_cw*n_sw)    
+    xa_te = np.zeros(n_cw*n_sw)
+    ya_te = np.zeros(n_cw*n_sw)
+    za_te = np.zeros(n_cw*n_sw)    
+    xb_te = np.zeros(n_cw*n_sw)
+    yb_te = np.zeros(n_cw*n_sw)
+    zb_te = np.zeros(n_cw*n_sw)  
+    xc    = np.zeros(n_cw*n_sw) 
+    yc    = np.zeros(n_cw*n_sw) 
+    zc    = np.zeros(n_cw*n_sw) 
+    x     = np.zeros((n_cw+1)*(n_sw+1)) 
+    y     = np.zeros((n_cw+1)*(n_sw+1)) 
+    z     = np.zeros((n_cw+1)*(n_sw+1))         
+    cs_w  = np.zeros(n_sw)
+
+    # ---------------------------------------------------------------------------------------
+    # STEP 3: Get span_breaks  
+    # ---------------------------------------------------------------------------------------
+    span_breaks   = wing.span_breaks
+    n_breaks      = len(span_breaks)
+    n_segments    = len(wing.Segments.keys())
+
+    # ---------------------------------------------------------------------------------------
+    # STEP 4: Discretizing the wing sections into panels
+    # ---------------------------------------------------------------------------------------
+    segment_chord          = np.zeros(n_segments)
+    segment_twist          = np.zeros(n_segments)
+    segment_sweep          = np.zeros(n_segments)
+    segment_span           = np.zeros(n_segments)
+    segment_area           = np.zeros(n_segments)
+    segment_dihedral       = np.zeros(n_segments)
+    segment_x_coord        = [] 
+    segment_camber         = []
+    segment_chord_x_offset = np.zeros(n_segments)
+    segment_chord_z_offset = np.zeros(n_segments)
+    section_stations       = np.zeros(n_segments) 
+
+    # ---------------------------------------------------------------------------------------
+    # STEP 5 OLD:  Obtain sweep, chord, dihedral and twist at the beginning/end of each segment.
+    #          If applicable, append airfoil section VD and flap/aileron deflection angles.
+    # --------------------------------------------------------------------------------------- 
+    for i_seg in range(n_segments):   
+        segment_chord[i_seg]    = wing.Segments[i_seg].root_chord_percent*root_chord
+        segment_twist[i_seg]    = wing.Segments[i_seg].twist
+        section_stations[i_seg] = wing.Segments[i_seg].percent_span_location*span  
+        segment_dihedral[i_seg] = wing.Segments[i_seg].dihedral_outboard                    
+
+        # change to leading edge sweep, if quarter chord sweep givent, convert to leading edge sweep 
+        if (i_seg == n_segments-1):
+            segment_sweep[i_seg] = 0                                  
+        else: 
+            if wing.Segments[i_seg].sweeps.leading_edge != None:
+                segment_sweep[i_seg] = wing.Segments[i_seg].sweeps.leading_edge
+            else:                                                                 
+                sweep_quarter_chord  = wing.Segments[i_seg].sweeps.quarter_chord
+                cf       = 0.25                          
+                seg_root_chord       = root_chord*wing.Segments[i_seg].root_chord_percent
+                seg_tip_chord        = root_chord*wing.Segments[i_seg+1].root_chord_percent
+                seg_span             = span*(wing.Segments[i_seg+1].percent_span_location - wing.Segments[i_seg].percent_span_location )
+                segment_sweep[i_seg] = np.arctan(((seg_root_chord*cf) + (np.tan(sweep_quarter_chord)*seg_span - cf*seg_tip_chord)) /seg_span)  
+
+        if i_seg == 0:
+            segment_span[i_seg]           = 0.0
+            segment_chord_x_offset[i_seg] = 0.0  
+            segment_chord_z_offset[i_seg] = 0.0       
+        else:
+            segment_span[i_seg]           = wing.Segments[i_seg].percent_span_location*span - wing.Segments[i_seg-1].percent_span_location*span
+            segment_chord_x_offset[i_seg] = segment_chord_x_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_sweep[i_seg-1])
+            segment_chord_z_offset[i_seg] = segment_chord_z_offset[i_seg-1] + segment_span[i_seg]*np.tan(segment_dihedral[i_seg-1])
+            segment_area[i_seg]           = 0.5*(root_chord*wing.Segments[i_seg-1].root_chord_percent + root_chord*wing.Segments[i_seg].root_chord_percent)*segment_span[i_seg]
+
+        # Get airfoil section VD  
+        if wing.Segments[i_seg].Airfoil: 
+            airfoil_data = import_airfoil_geometry([wing.Segments[i_seg].Airfoil.airfoil.coordinate_file])    
+            segment_camber.append(airfoil_data.camber_coordinates[0])
+            segment_x_coord.append(airfoil_data.x_lower_surface[0]) 
+        else:
+            segment_camber.append(np.zeros(30))              
+            segment_x_coord.append(np.linspace(0,1,30)) 
+
+        # ** TO DO ** Get flap/aileron locations and deflection
+
+    VD.wing_areas.append(np.sum(segment_area[:]))
+    if sym_para is True :
+        VD.wing_areas.append(np.sum(segment_area[:]))            
+
+    #Shift spanwise vortices onto section breaks  
+    if len(y_coordinates) < n_segments:
+        raise ValueError('Not enough spanwise VLM stations for segment breaks')
+
+    last_idx = None            
+    for i_seg in range(n_segments):
+        idx =  (np.abs(y_coordinates-section_stations[i_seg])).argmin()
+        if last_idx is not None and idx <= last_idx:
+            idx = last_idx + 1
+        y_coordinates[idx] = section_stations[i_seg]   
+        last_idx = idx
+
+
+    for i_seg in range(n_segments):
+        if section_stations[i_seg] not in y_coordinates:
+            raise ValueError('VLM did not capture all section breaks')
+        
+    # ---------------------------------------------------------------------------------------
+    # STEP 6: Define coordinates of panels horseshoe vortices and control points 
+    # --------------------------------------------------------------------------------------- 
+    y_a   = y_coordinates[:-1] 
+    y_b   = y_coordinates[1:]             
+    del_y = y_coordinates[1:] - y_coordinates[:-1]           
+    i_seg = 0           
+    for idx_y in range(n_sw):
+        # define coordinates of horseshoe vortices and control points------------------------
+        idx_x = np.arange(n_cw) 
+        eta_a = (y_a[idx_y] - section_stations[i_seg])  
+        eta_b = (y_b[idx_y] - section_stations[i_seg]) 
+        eta   = (y_b[idx_y] - del_y[idx_y]/2 - section_stations[i_seg]) 
+
+        segment_chord_ratio = (segment_chord[i_seg+1] - segment_chord[i_seg])/segment_span[i_seg+1]
+        segment_twist_ratio = (segment_twist[i_seg+1] - segment_twist[i_seg])/segment_span[i_seg+1]
+
+        wing_chord_section_a  = segment_chord[i_seg] + (eta_a*segment_chord_ratio) 
+        wing_chord_section_b  = segment_chord[i_seg] + (eta_b*segment_chord_ratio)
+        wing_chord_section    = segment_chord[i_seg] + (eta*segment_chord_ratio)
+
+        delta_x_a = wing_chord_section_a/n_cw  
+        delta_x_b = wing_chord_section_b/n_cw      
+        delta_x   = wing_chord_section/n_cw                                       
+
+        xi_a1 = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x                  # x coordinate of top left corner of panel
+        xi_ah = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x + delta_x_a*0.25 # x coordinate of left corner of panel
+        xi_a2 = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x + delta_x_a      # x coordinate of bottom left corner of bound vortex 
+        xi_ac = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg]) + delta_x_a*idx_x + delta_x_a*0.75 # x coordinate of bottom left corner of control point vortex  
+        xi_b1 = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg]) + delta_x_b*idx_x                  # x coordinate of top right corner of panel      
+        xi_bh = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg]) + delta_x_b*idx_x + delta_x_b*0.25 # x coordinate of right corner of bound vortex         
+        xi_b2 = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg]) + delta_x_b*idx_x + delta_x_b      # x coordinate of bottom right corner of panel
+        xi_bc = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg]) + delta_x_b*idx_x + delta_x_b*0.75 # x coordinate of bottom right corner of control point vortex         
+        xi_c  = segment_chord_x_offset[i_seg] + eta *np.tan(segment_sweep[i_seg])  + delta_x  *idx_x + delta_x*0.75   # x coordinate three-quarter chord control point for each panel
+        xi_ch = segment_chord_x_offset[i_seg] + eta *np.tan(segment_sweep[i_seg])  + delta_x  *idx_x + delta_x*0.25   # x coordinate center of bound vortex of each panel 
+
+        #adjust for camber-------------------------------------------------------------------
+        
+        #adjust camber for control surfaces
+        nondim_camber_x_coords = segment_x_coord[i_seg] *1
+        nondim_camber          = segment_camber[i_seg]  *1
+        if wing.is_a_control_surface:
+            if not wing.is_slat:
+                nondim_camber_x_coords -= 1 - wing.chord_fraction
+            nondim_camber_x_coords /= wing.chord_fraction
+            nondim_camber          /= wing.chord_fraction
+
+        # adjustment of coordinates for camber
+        section_camber_a  = nondim_camber*wing_chord_section_a  
+        section_camber_b  = nondim_camber*wing_chord_section_b  
+        section_camber_c  = nondim_camber*wing_chord_section             
+        
+        section_x_coord_a = nondim_camber_x_coords*wing_chord_section_a
+        section_x_coord_b = nondim_camber_x_coords*wing_chord_section_b
+        section_x_coord   = nondim_camber_x_coords*wing_chord_section
+
+        z_c_a1 = np.interp((idx_x    *delta_x_a)                  ,section_x_coord_a,section_camber_a) 
+        z_c_ah = np.interp((idx_x    *delta_x_a + delta_x_a*0.25) ,section_x_coord_a,section_camber_a)
+        z_c_a2 = np.interp(((idx_x+1)*delta_x_a)                  ,section_x_coord_a,section_camber_a) 
+        z_c_ac = np.interp((idx_x    *delta_x_a + delta_x_a*0.75) ,section_x_coord_a,section_camber_a) 
+        z_c_b1 = np.interp((idx_x    *delta_x_b)                  ,section_x_coord_b,section_camber_b)   
+        z_c_bh = np.interp((idx_x    *delta_x_b + delta_x_b*0.25) ,section_x_coord_b,section_camber_b) 
+        z_c_b2 = np.interp(((idx_x+1)*delta_x_b)                  ,section_x_coord_b,section_camber_b) 
+        z_c_bc = np.interp((idx_x    *delta_x_b + delta_x_b*0.75) ,section_x_coord_b,section_camber_b) 
+        z_c    = np.interp((idx_x    *delta_x   + delta_x  *0.75) ,section_x_coord,section_camber_c) 
+        z_c_ch = np.interp((idx_x    *delta_x   + delta_x  *0.25) ,section_x_coord,section_camber_c) 
+
+        zeta_a1 = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_a1  # z coordinate of top left corner of panel
+        zeta_ah = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_ah  # z coordinate of left corner of bound vortex  
+        zeta_a2 = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_a2  # z coordinate of bottom left corner of panel
+        zeta_ac = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])  + z_c_ac  # z coordinate of bottom left corner of panel of control point
+        zeta_bc = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])  + z_c_bc  # z coordinate of top right corner of panel of control point                          
+        zeta_b1 = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])  + z_c_b1  # z coordinate of top right corner of panel  
+        zeta_bh = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])  + z_c_bh  # z coordinate of right corner of bound vortex        
+        zeta_b2 = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])  + z_c_b2  # z coordinate of bottom right corner of panel                 
+        zeta    = segment_chord_z_offset[i_seg] + eta*np.tan(segment_dihedral[i_seg])    + z_c     # z coordinate three-quarter chord control point for each panel
+        zeta_ch = segment_chord_z_offset[i_seg] + eta*np.tan(segment_dihedral[i_seg])    + z_c_ch  # z coordinate center of bound vortex on each panel
+
+        # adjust for twist-------------------------------------------------------------------   
+        # pivot point is the leading edge before camber  
+        pivot_x_a = segment_chord_x_offset[i_seg] + eta_a*np.tan(segment_sweep[i_seg])             # x location of leading edge left corner of wing
+        pivot_x_b = segment_chord_x_offset[i_seg] + eta_b*np.tan(segment_sweep[i_seg])             # x location of leading edge right of wing
+        pivot_x   = segment_chord_x_offset[i_seg] + eta  *np.tan(segment_sweep[i_seg])             # x location of leading edge center of wing
+        
+        pivot_z_a = segment_chord_z_offset[i_seg] + eta_a*np.tan(segment_dihedral[i_seg])          # z location of leading edge left corner of wing
+        pivot_z_b = segment_chord_z_offset[i_seg] + eta_b*np.tan(segment_dihedral[i_seg])          # z location of leading edge right of wing
+        pivot_z   = segment_chord_z_offset[i_seg] + eta  *np.tan(segment_dihedral[i_seg])          # z location of leading edge center of wing
+
+        # adjust twist pivot line for control surfaces: offset leading edge to match that of the owning wing            
+        if wing.is_a_control_surface and not wing.is_slat: #correction only leading for non-leading edge control surfaces since the LE is the pivot by default
+            nondim_cs_LE = (1 - wing.chord_fraction)
+            pivot_x_a   -= nondim_cs_LE *(wing_chord_section_a /wing.chord_fraction) 
+            pivot_x_b   -= nondim_cs_LE *(wing_chord_section_b /wing.chord_fraction) 
+            pivot_x     -= nondim_cs_LE *(wing_chord_section   /wing.chord_fraction) 
+
+        # determine section twist
+        section_twist_a = segment_twist[i_seg] + (eta_a * segment_twist_ratio)                     # twist at left side of panel
+        section_twist_b = segment_twist[i_seg] + (eta_b * segment_twist_ratio)                     # twist at right side of panel
+        section_twist   = segment_twist[i_seg] + (eta* segment_twist_ratio)                        # twist at center local chord 
+
+        xi_prime_a1    = pivot_x_a + np.cos(section_twist_a)*(xi_a1-pivot_x_a) + np.sin(section_twist_a)*(zeta_a1-pivot_z_a) # x coordinate transformation of top left corner
+        xi_prime_ah    = pivot_x_a + np.cos(section_twist_a)*(xi_ah-pivot_x_a) + np.sin(section_twist_a)*(zeta_ah-pivot_z_a) # x coordinate transformation of bottom left corner
+        xi_prime_a2    = pivot_x_a + np.cos(section_twist_a)*(xi_a2-pivot_x_a) + np.sin(section_twist_a)*(zeta_a2-pivot_z_a) # x coordinate transformation of bottom left corner
+        xi_prime_ac    = pivot_x_a + np.cos(section_twist_a)*(xi_ac-pivot_x_a) + np.sin(section_twist_a)*(zeta_a2-pivot_z_a) # x coordinate transformation of bottom left corner of control point
+        xi_prime_bc    = pivot_x_b + np.cos(section_twist_b)*(xi_bc-pivot_x_b) + np.sin(section_twist_b)*(zeta_b1-pivot_z_b) # x coordinate transformation of top right corner of control point                         
+        xi_prime_b1    = pivot_x_b + np.cos(section_twist_b)*(xi_b1-pivot_x_b) + np.sin(section_twist_b)*(zeta_b1-pivot_z_b) # x coordinate transformation of top right corner 
+        xi_prime_bh    = pivot_x_b + np.cos(section_twist_b)*(xi_bh-pivot_x_b) + np.sin(section_twist_b)*(zeta_bh-pivot_z_b) # x coordinate transformation of top right corner 
+        xi_prime_b2    = pivot_x_b + np.cos(section_twist_b)*(xi_b2-pivot_x_b) + np.sin(section_twist_b)*(zeta_b2-pivot_z_b) # x coordinate transformation of botton right corner 
+        xi_prime       = pivot_x   + np.cos(section_twist)  *(xi_c -pivot_x)   + np.sin(section_twist)  *(zeta   -pivot_z)   # x coordinate transformation of control point
+        xi_prime_ch    = pivot_x   + np.cos(section_twist)  *(xi_ch-pivot_x)   + np.sin(section_twist)  *(zeta_ch-pivot_z)   # x coordinate transformation of center of horeshoe vortex 
+
+        zeta_prime_a1  = pivot_z_a - np.sin(section_twist_a)*(xi_a1-pivot_x_a) + np.cos(section_twist_a)*(zeta_a1-pivot_z_a) # z coordinate transformation of top left corner
+        zeta_prime_ah  = pivot_z_a - np.sin(section_twist_a)*(xi_ah-pivot_x_a) + np.cos(section_twist_a)*(zeta_ah-pivot_z_a) # z coordinate transformation of bottom left corner
+        zeta_prime_a2  = pivot_z_a - np.sin(section_twist_a)*(xi_a2-pivot_x_a) + np.cos(section_twist_a)*(zeta_a2-pivot_z_a) # z coordinate transformation of bottom left corner
+        zeta_prime_ac  = pivot_z_a - np.sin(section_twist_a)*(xi_ac-pivot_x_a) + np.cos(section_twist_a)*(zeta_ac-pivot_z_a) # z coordinate transformation of bottom left corner
+        zeta_prime_bc  = pivot_z_b - np.sin(section_twist_b)*(xi_bc-pivot_x_b) + np.cos(section_twist_b)*(zeta_bc-pivot_z_b) # z coordinate transformation of top right corner                         
+        zeta_prime_b1  = pivot_z_b - np.sin(section_twist_b)*(xi_b1-pivot_x_b) + np.cos(section_twist_b)*(zeta_b1-pivot_z_b) # z coordinate transformation of top right corner 
+        zeta_prime_bh  = pivot_z_b - np.sin(section_twist_b)*(xi_bh-pivot_x_b) + np.cos(section_twist_b)*(zeta_bh-pivot_z_b) # z coordinate transformation of top right corner 
+        zeta_prime_b2  = pivot_z_b - np.sin(section_twist_b)*(xi_b2-pivot_x_b) + np.cos(section_twist_b)*(zeta_b2-pivot_z_b) # z coordinate transformation of botton right corner 
+        zeta_prime     = pivot_z   - np.sin(section_twist)  *(xi_c -pivot_x)   + np.cos(-section_twist) *(zeta   -pivot_z)   # z coordinate transformation of control point
+        zeta_prime_ch  = pivot_z   - np.sin(section_twist)  *(xi_ch-pivot_x)   + np.cos(-section_twist) *(zeta_ch-pivot_z)   # z coordinate transformation of center of horseshoe
+
+        # ** TO DO ** Make cuts in original wing for its control surface wings
+        
+        #start symmetry loop here
+        
+        # ** TO DO ** Deflect control surfaces
+        
+        # store coordinates of panels, horseshoeces vortices and control points relative to wing root 
+        if vertical_wing:
+            xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
+            za1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            ya1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
+            xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
+            za2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            ya2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
+
+            xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
+            zb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+            yb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
+            xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
+            zb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                        
+            yb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
+
+            xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
+            zah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            yah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
+            xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
+            zbh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+            ybh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
+
+            xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
+            zch[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                   
+            ych[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+
+            xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
+            zc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2) 
+            yc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
+
+            xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
+            zac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            yac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
+            xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
+            zbc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                            
+            ybc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc
+            x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
+            z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
+            y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])
+
+        else:     
+            xa1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a1 
+            ya1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            za1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a1
+            xa2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_a2
+            ya2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            za2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_a2
+
+            xb1[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b1 
+            yb1[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+            zb1[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b1
+            yb2[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+            xb2[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_b2 
+            zb2[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_b2 
+
+            xah[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ah
+            yah[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            zah[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ah                    
+            xbh[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bh 
+            ybh[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]
+            zbh[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bh
+
+            xch[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ch
+            ych[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)                    
+            zch[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ch
+
+            xc [idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime 
+            yc [idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*(y_b[idx_y] - del_y[idx_y]/2)
+            zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
+
+            xac[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_ac 
+            yac[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_a[idx_y]
+            zac[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_ac
+            xbc[idx_y*n_cw:(idx_y+1)*n_cw] = xi_prime_bc
+            ybc[idx_y*n_cw:(idx_y+1)*n_cw] = np.ones(n_cw)*y_b[idx_y]                            
+            zbc[idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime_bc   
+            x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([xi_prime_a1,np.array([xi_prime_a2[-1]])])
+            y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.ones(n_cw+1)*y_a[idx_y] 
+            z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.concatenate([zeta_prime_a1,np.array([zeta_prime_a2[-1]])])                   
+
+        idx += 1
+
+        cs_w[idx_y] = wing_chord_section       
+
+        if y_b[idx_y] == section_stations[i_seg+1]: 
+            i_seg += 1      
+
+    if vertical_wing:    
+        x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
+        z[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
+        y[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])
+    else:    
+        x[-(n_cw+1):] = np.concatenate([xi_prime_b1,np.array([xi_prime_b2[-1]])])
+        y[-(n_cw+1):] = np.ones(n_cw+1)*y_b[idx_y] 
+        z[-(n_cw+1):] = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])                
+
+    # adjusting coordinate axis so reference point is at the nose of the aircraft
+    xah = xah + wing_origin[0] # x coordinate of left corner of bound vortex 
+    yah = yah + wing_origin[1] # y coordinate of left corner of bound vortex 
+    zah = zah + wing_origin[2] # z coordinate of left corner of bound vortex 
+    xbh = xbh + wing_origin[0] # x coordinate of right corner of bound vortex 
+    ybh = ybh + wing_origin[1] # y coordinate of right corner of bound vortex 
+    zbh = zbh + wing_origin[2] # z coordinate of right corner of bound vortex 
+    xch = xch + wing_origin[0] # x coordinate of center of bound vortex on panel
+    ych = ych + wing_origin[1] # y coordinate of center of bound vortex on panel
+    zch = zch + wing_origin[2] # z coordinate of center of bound vortex on panel  
+
+    xa1 = xa1 + wing_origin[0] # x coordinate of top left corner of panel
+    ya1 = ya1 + wing_origin[1] # y coordinate of bottom left corner of panel
+    za1 = za1 + wing_origin[2] # z coordinate of top left corner of panel
+    xa2 = xa2 + wing_origin[0] # x coordinate of bottom left corner of panel
+    ya2 = ya2 + wing_origin[1] # x coordinate of bottom left corner of panel
+    za2 = za2 + wing_origin[2] # z coordinate of bottom left corner of panel  
+
+    xb1 = xb1 + wing_origin[0] # x coordinate of top right corner of panel  
+    yb1 = yb1 + wing_origin[1] # y coordinate of top right corner of panel 
+    zb1 = zb1 + wing_origin[2] # z coordinate of top right corner of panel 
+    xb2 = xb2 + wing_origin[0] # x coordinate of bottom rightcorner of panel 
+    yb2 = yb2 + wing_origin[1] # y coordinate of bottom rightcorner of panel 
+    zb2 = zb2 + wing_origin[2] # z coordinate of bottom right corner of panel                   
+
+    xac = xac + wing_origin[0]  # x coordinate of control points on panel
+    yac = yac + wing_origin[1]  # y coordinate of control points on panel
+    zac = zac + wing_origin[2]  # z coordinate of control points on panel
+    xbc = xbc + wing_origin[0]  # x coordinate of control points on panel
+    ybc = ybc + wing_origin[1]  # y coordinate of control points on panel
+    zbc = zbc + wing_origin[2]  # z coordinate of control points on panel
+
+    xc  = xc + wing_origin[0]  # x coordinate of control points on panel
+    yc  = yc + wing_origin[1]  # y coordinate of control points on panel
+    zc  = zc + wing_origin[2]  # y coordinate of control points on panel
+    x   = x + wing_origin[0]   # x coordinate of control points on panel
+    y   = y + wing_origin[1]   # y coordinate of control points on panel
+    z   = z + wing_origin[2]   # y coordinate of control points on panel
+
+    # find the location of the trailing edge panels of each wing
+    locations = ((np.linspace(1,n_sw,n_sw, endpoint = True) * n_cw) - 1).astype(int)
+    xc_te1 = np.repeat(np.atleast_2d(xc[locations]), n_cw , axis = 0)
+    yc_te1 = np.repeat(np.atleast_2d(yc[locations]), n_cw , axis = 0)
+    zc_te1 = np.repeat(np.atleast_2d(zc[locations]), n_cw , axis = 0)        
+    xa_te1 = np.repeat(np.atleast_2d(xa2[locations]), n_cw , axis = 0)
+    ya_te1 = np.repeat(np.atleast_2d(ya2[locations]), n_cw , axis = 0)
+    za_te1 = np.repeat(np.atleast_2d(za2[locations]), n_cw , axis = 0)
+    xb_te1 = np.repeat(np.atleast_2d(xb2[locations]), n_cw , axis = 0)
+    yb_te1 = np.repeat(np.atleast_2d(yb2[locations]), n_cw , axis = 0)
+    zb_te1 = np.repeat(np.atleast_2d(zb2[locations]), n_cw , axis = 0)     
+
+    xc_te = np.hstack(xc_te1.T)
+    yc_te = np.hstack(yc_te1.T)
+    zc_te = np.hstack(zc_te1.T)        
+    xa_te = np.hstack(xa_te1.T)
+    ya_te = np.hstack(ya_te1.T)
+    za_te = np.hstack(za_te1.T)
+    xb_te = np.hstack(xb_te1.T)
+    yb_te = np.hstack(yb_te1.T)
+    zb_te = np.hstack(zb_te1.T) 
+
+    # find spanwise locations 
+    y_sw = yc[locations]        
+
+    # if symmetry, store points of mirrored wing 
+    VD.n_w += 1  
+    if sym_para is True :
+        VD.n_w += 1 
+        # append wing spans          
+        if vertical_wing:
+            del_y = np.concatenate([del_y,del_y]) 
+            cs_w  = np.concatenate([cs_w,cs_w])
+            xah   = np.concatenate([xah,xah])
+            yah   = np.concatenate([yah,yah])
+            zah   = np.concatenate([zah,-zah])
+            xbh   = np.concatenate([xbh,xbh])
+            ybh   = np.concatenate([ybh,ybh])
+            zbh   = np.concatenate([zbh,-zbh])
+            xch   = np.concatenate([xch,xch])
+            ych   = np.concatenate([ych,ych])
+            zch   = np.concatenate([zch,-zch])
+
+            xa1   = np.concatenate([xa1,xa1])
+            ya1   = np.concatenate([ya1,ya1])
+            za1   = np.concatenate([za1,-za1])
+            xa2   = np.concatenate([xa2,xa2])
+            ya2   = np.concatenate([ya2,ya2])
+            za2   = np.concatenate([za2,-za2])
+
+            xb1   = np.concatenate([xb1,xb1])
+            yb1   = np.concatenate([yb1,yb1])    
+            zb1   = np.concatenate([zb1,-zb1])
+            xb2   = np.concatenate([xb2,xb2])
+            yb2   = np.concatenate([yb2,yb2])            
+            zb2   = np.concatenate([zb2,-zb2])
+
+            xac   = np.concatenate([xac ,xac ])
+            yac   = np.concatenate([yac ,yac ])
+            zac   = np.concatenate([zac ,-zac ])            
+            xbc   = np.concatenate([xbc ,xbc ])
+            ybc   = np.concatenate([ybc ,ybc ])
+            zbc   = np.concatenate([zbc ,-zbc ]) 
+            xc_te = np.concatenate([xc_te , xc_te ])
+            yc_te = np.concatenate([yc_te , yc_te ])
+            zc_te = np.concatenate([zc_te ,-zc_te ])                 
+            xa_te = np.concatenate([xa_te , xa_te ])
+            ya_te = np.concatenate([ya_te , ya_te ])
+            za_te = np.concatenate([za_te ,-za_te ])            
+            xb_te = np.concatenate([xb_te , xb_te ])
+            yb_te = np.concatenate([yb_te , yb_te ])
+            zb_te = np.concatenate([zb_te ,-zb_te ])
+
+            y_sw  = np.concatenate([y_sw,-y_sw ])
+            xc    = np.concatenate([xc ,xc ])
+            yc    = np.concatenate([yc ,yc]) 
+            zc    = np.concatenate([zc ,-zc ])
+            x     = np.concatenate([x , x ])
+            y     = np.concatenate([y ,y])
+            z     = np.concatenate([z ,-z ])                  
+
+        else:
+            del_y = np.concatenate([del_y,del_y]) 
+            cs_w  = np.concatenate([cs_w,cs_w])
+            xah   = np.concatenate([xah,xah])
+            yah   = np.concatenate([yah,-yah])
+            zah   = np.concatenate([zah,zah])
+            xbh   = np.concatenate([xbh,xbh])
+            ybh   = np.concatenate([ybh,-ybh])
+            zbh   = np.concatenate([zbh,zbh])
+            xch   = np.concatenate([xch,xch])
+            ych   = np.concatenate([ych,-ych])
+            zch   = np.concatenate([zch,zch])
+
+            xa1   = np.concatenate([xa1,xa1])
+            ya1   = np.concatenate([ya1,-ya1])
+            za1   = np.concatenate([za1,za1])
+            xa2   = np.concatenate([xa2,xa2])
+            ya2   = np.concatenate([ya2,-ya2])
+            za2   = np.concatenate([za2,za2])
+
+            xb1   = np.concatenate([xb1,xb1])
+            yb1   = np.concatenate([yb1,-yb1])    
+            zb1   = np.concatenate([zb1,zb1])
+            xb2   = np.concatenate([xb2,xb2])
+            yb2   = np.concatenate([yb2,-yb2])            
+            zb2   = np.concatenate([zb2,zb2])
+
+            xac   = np.concatenate([xac ,xac ])
+            yac   = np.concatenate([yac ,-yac ])
+            zac   = np.concatenate([zac ,zac ])            
+            xbc   = np.concatenate([xbc ,xbc ])
+            ybc   = np.concatenate([ybc ,-ybc ])
+            zbc   = np.concatenate([zbc ,zbc ]) 
+            xc_te = np.concatenate([xc_te , xc_te ])
+            yc_te = np.concatenate([yc_te ,-yc_te ])
+            zc_te = np.concatenate([zc_te , zc_te ])                   
+            xa_te = np.concatenate([xa_te , xa_te ])
+            ya_te = np.concatenate([ya_te ,-ya_te ])
+            za_te = np.concatenate([za_te , za_te ])            
+            xb_te = np.concatenate([xb_te , xb_te ])
+            yb_te = np.concatenate([yb_te ,-yb_te ])
+            zb_te = np.concatenate([zb_te , zb_te ]) 
+
+            y_sw  = np.concatenate([y_sw,-y_sw ])
+            xc    = np.concatenate([xc ,xc ])
+            yc    = np.concatenate([yc ,-yc]) 
+            zc    = np.concatenate([zc ,zc ])
+            x     = np.concatenate([x , x ])
+            y     = np.concatenate([y ,-y])
+            z     = np.concatenate([z , z ])            
+
+    VD.n_cp += len(xch)        
+
+    # ---------------------------------------------------------------------------------------
+    # STEP 7: Store wing in vehicle vector
+    # ---------------------------------------------------------------------------------------       
+    VD.XAH    = np.append(VD.XAH,xah)
+    VD.YAH    = np.append(VD.YAH,yah)
+    VD.ZAH    = np.append(VD.ZAH,zah)
+    VD.XBH    = np.append(VD.XBH,xbh)
+    VD.YBH    = np.append(VD.YBH,ybh)
+    VD.ZBH    = np.append(VD.ZBH,zbh)
+    VD.XCH    = np.append(VD.XCH,xch)
+    VD.YCH    = np.append(VD.YCH,ych)
+    VD.ZCH    = np.append(VD.ZCH,zch)            
+    VD.XA1    = np.append(VD.XA1,xa1)
+    VD.YA1    = np.append(VD.YA1,ya1)
+    VD.ZA1    = np.append(VD.ZA1,za1)
+    VD.XA2    = np.append(VD.XA2,xa2)
+    VD.YA2    = np.append(VD.YA2,ya2)
+    VD.ZA2    = np.append(VD.ZA2,za2)        
+    VD.XB1    = np.append(VD.XB1,xb1)
+    VD.YB1    = np.append(VD.YB1,yb1)
+    VD.ZB1    = np.append(VD.ZB1,zb1)
+    VD.XB2    = np.append(VD.XB2,xb2)                
+    VD.YB2    = np.append(VD.YB2,yb2)        
+    VD.ZB2    = np.append(VD.ZB2,zb2)    
+    VD.XC_TE  = np.append(VD.XC_TE,xc_te)
+    VD.YC_TE  = np.append(VD.YC_TE,yc_te) 
+    VD.ZC_TE  = np.append(VD.ZC_TE,zc_te)          
+    VD.XA_TE  = np.append(VD.XA_TE,xa_te)
+    VD.YA_TE  = np.append(VD.YA_TE,ya_te) 
+    VD.ZA_TE  = np.append(VD.ZA_TE,za_te) 
+    VD.XB_TE  = np.append(VD.XB_TE,xb_te)
+    VD.YB_TE  = np.append(VD.YB_TE,yb_te) 
+    VD.ZB_TE  = np.append(VD.ZB_TE,zb_te)  
+    VD.XAC    = np.append(VD.XAC,xac)
+    VD.YAC    = np.append(VD.YAC,yac) 
+    VD.ZAC    = np.append(VD.ZAC,zac) 
+    VD.XBC    = np.append(VD.XBC,xbc)
+    VD.YBC    = np.append(VD.YBC,ybc) 
+    VD.ZBC    = np.append(VD.ZBC,zbc)  
+    VD.XC     = np.append(VD.XC ,xc)
+    VD.YC     = np.append(VD.YC ,yc)
+    VD.ZC     = np.append(VD.ZC ,zc)  
+    VD.X      = np.append(VD.X ,x)
+    VD.Y_SW   = np.append(VD.Y_SW ,y_sw)
+    VD.Y      = np.append(VD.Y ,y)
+    VD.Z      = np.append(VD.Z ,z)         
+    VD.CS     = np.append(VD.CS,cs_w) 
+    VD.DY     = np.append(VD.DY ,del_y)
+
+    return VD
