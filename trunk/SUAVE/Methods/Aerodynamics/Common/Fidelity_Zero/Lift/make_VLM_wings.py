@@ -297,6 +297,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.cs_ID                 = cs_ID
     cs_wing.chord_fraction        = cs.chord_fraction
     cs_wing.is_slat               = (type(cs)==Slat)
+    cs_wing.is_aileron            = (type(cs)==Aileron)
     cs_wing.pivot_edge            = 'TE' if cs_wing.is_slat else 'LE'
     cs_wing.deflection            = cs.deflection
     cs_wing.span_break_fractions  = np.array([cs.span_fraction_start, cs.span_fraction_end]) #to be multiplied by span once span is found 
