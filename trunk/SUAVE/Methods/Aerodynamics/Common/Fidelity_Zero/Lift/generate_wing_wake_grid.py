@@ -31,7 +31,7 @@ def generate_wing_wake_grid(geometry, H, L, hf, x_plane, Nzo=20, Nzf=35, Nyo=20,
     span      = geometry.wings.main_wing.spans.projected
     half_span = span/2
     VD        = geometry.vortex_distribution
-    n_cw      = VD.n_cw
+    breaks    = VD.chordwise_breaks
     
     # grid bounds
     z_bot     = -H*half_span
@@ -49,7 +49,7 @@ def generate_wing_wake_grid(geometry, H, L, hf, x_plane, Nzo=20, Nzf=35, Nyo=20,
     zlocs         = np.concatenate([z_outer_bot, z_inner_bot, z_inner_top, z_outer_top])
 
     # generate spanwise grid point locations: placed between vortex lines to avoid discontinuities
-    ypts        = VD.YC[0::n_cw]
+    ypts        = VD.YC[breaks]
     y_semispan  = ypts[0:int(len(ypts)/2)]
     
     if L>=1.:
