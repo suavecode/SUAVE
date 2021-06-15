@@ -112,19 +112,22 @@ def VLM(conditions,settings,geometry):
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
     mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(mach)) 
-    len_mach = len(mach)
 
     # generate vortex distribution 
     VD   = generate_wing_vortex_distribution(geometry,settings) 
     
     # Unpack vortex distribution
-    n_cp   = VD.n_cp
-    n_w    = VD.n_w    
-    n_sw   = VD.n_sw
-    RNMAX  = VD.panels_per_strip    
-    LE_ind = VD.leading_edge_indices
-    ZETA   = VD.tangent_incidence_angle
-    RK     = VD.chordwise_panel_number
+    n_cp         = VD.n_cp
+    n_w          = VD.n_w    
+    n_sw         = VD.n_sw
+    CHORD        = VD.chord_lengths
+    chord_breaks = VD.chordwise_breaks
+    span_breaks  = VD.spanwise_breaks
+    RNMAX        = VD.panels_per_strip    
+    LE_ind       = VD.leading_edge_indices
+    ZETA         = VD.tangent_incidence_angle
+    RK           = VD.chordwise_panel_number
+
     
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
@@ -137,7 +140,7 @@ def VLM(conditions,settings,geometry):
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = np.unique(mach,return_inverse=True)
     m_unique      = np.atleast_2d(m_unique).T
-    C_mn_small, s, CHORD, RFLAG_small, ZETA = compute_wing_induced_velocity(VD,m_unique)
+    C_mn_small, s, RFLAG_small = compute_wing_induced_velocity(VD,m_unique)
     
     C_mn  = C_mn_small[inv,:,:,:]
     RFLAG = RFLAG_small[inv,:]
@@ -223,12 +226,8 @@ def VLM(conditions,settings,geometry):
     # (CHORDWISE) HORSESHOE SPAN.    
     SINF = ADC * DCP # The horshoe span lengths have been removed
 
-    # Split into chordwise strengths and sum into strips
-    CNC = np.array(np.split(np.reshape(SINF,(-1,n_cw)).sum(axis=1),len(mach)))
-
-    #np.split(SINF,RNMAX,axis=1)[0].shape
-    
-    # Steps to sum, I have a 160, 30 array. Split by CW to be 160, 15, 2. Then Sum the last axis
+    # Split into chordwise strengths and sum into strips    
+    CNC = np.add.reduceat(SINF,chord_breaks,axis=1)
 
     # COMPUTE SLOPE (TX) WITH RESPECT TO X-AXIS AT LOAD POINTS BY INTER
     # POLATING BETWEEN CONTROL POINTS AND TAKING INTO ACCOUNT THE LOCAL
@@ -246,8 +245,8 @@ def VLM(conditions,settings,geometry):
     BMLE  = (XLE-XX)*SINF        # These are moment on each panel
 
     # Sum onto the panel
-    CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len_mach))
-    BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len_mach))
+    CAXL = np.add.reduceat(CAXL,chord_breaks,axis=1)
+    BMLE = np.add.reduceat(BMLE,chord_breaks,axis=1)
        
     DCP_LE = DCP[:,LE_ind]
     
@@ -258,10 +257,10 @@ def VLM(conditions,settings,geometry):
     # If the vehicle is subsonic and there is vortex lift enabled then SPC changes to -1
     VL   = np.repeat(VD.vortex_lift,n_sw)
     m_b  = np.atleast_2d(mach[:,0]<1.)
-    SPC_cond = VL*m_b.T
+    SPC_cond      = VL*m_b.T
     SPC[SPC_cond] = -1.
     
-    CLE  = 0.5* DCP_LE *np.sqrt(XLE)
+    CLE  = 0.5* DCP_LE *np.sqrt(XLE[LE_ind])
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
 
     # SLE is slope at leading edge
@@ -319,8 +318,8 @@ def VLM(conditions,settings,geometry):
     # Now calculate the coefficients for each wing and in total
     cl_y     = LIFT/CHORD_strip/ES
     cdi_y    = DRAG/CHORD_strip/ES
-    CL_wing  = np.array(np.split(np.reshape(LIFT,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
-    CDi_wing = np.array(np.split(np.reshape(DRAG,(-1,n_sw)).sum(axis=1),len(mach)))/SURF
+    CL_wing  = np.add.reduceat(LIFT,span_breaks,axis=1)/SURF
+    CDi_wing = np.add.reduceat(DRAG,span_breaks,axis=1)/SURF
     CL       = np.atleast_2d(np.sum(LIFT,axis=1)/SREF).T
     CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
     CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar

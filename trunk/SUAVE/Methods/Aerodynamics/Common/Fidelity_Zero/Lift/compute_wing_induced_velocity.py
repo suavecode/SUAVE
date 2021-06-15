@@ -178,7 +178,6 @@ def compute_wing_induced_velocity(VD,mach):
     RNMAX       = VD.panels_per_strip
     CHORD       = VD.chord_lengths
     CHORD       = np.repeat(CHORD,shape_0,axis=0)
-    ZETA        = VD.tangent_incidence_angle
     RFLAG       = np.ones((n_mach,shape_1),dtype=np.int8)
     
     if np.sum(sup)>0:
@@ -189,7 +188,7 @@ def compute_wing_induced_velocity(VD,mach):
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = np.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
 
-    return C_mn, s, CHORD, RFLAG, ZETA
+    return C_mn, s, RFLAG
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     """  This computes the induced velocities at each control point 
