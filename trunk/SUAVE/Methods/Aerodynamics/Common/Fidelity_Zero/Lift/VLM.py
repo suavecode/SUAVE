@@ -117,12 +117,12 @@ def VLM(conditions,settings,geometry):
     len_mach = len(mach)
 
     # generate vortex distribution 
-    VD   = generate_wing_vortex_distribution(geometry,settings)  
-    n_w  = VD.n_w    
-    n_cp = VD.n_cp  
-
-    # pack vortex distribution 
-    geometry.vortex_distribution = VD
+    VD   = generate_wing_vortex_distribution(geometry,settings) 
+    
+    n_cp   = VD.n_cp
+    n_w    = VD.n_w    
+    LE_ind = VD.leading_edge_indices
+    ZETA   = VD.tangent_incidence_angle
     
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
@@ -136,7 +136,7 @@ def VLM(conditions,settings,geometry):
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = np.unique(mach,return_inverse=True)
     m_unique      = np.atleast_2d(m_unique).T
-    C_mn_small, s, CHORD, RFLAG_small, ZETA = compute_wing_induced_velocity(VD,n_sw,n_cw,m_unique)
+    C_mn_small, s, CHORD, RFLAG_small, ZETA = compute_wing_induced_velocity(VD,m_unique)
     
     C_mn  = C_mn_small[inv,:,:,:]
     RFLAG = RFLAG_small[inv,:]
@@ -197,22 +197,19 @@ def VLM(conditions,settings,geometry):
     XA1[boolean], XB1[boolean] = XB1[boolean], XA1[boolean]
     YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
 
-    # Leading edge sweep and trailing edge sweep. VORLAX does it panel by panel. This will be spanwise.
-    TLE = (XB1[0:n_cp*n_w:n_cw] - XA1[0:n_cp*n_w:n_cw])/ np.sqrt((ZB1[0:n_cp*n_w:n_cw]-ZA1[0:n_cp*n_w:n_cw])**2 + \
-                                                                     (YB1[0:n_cp*n_w:n_cw]-YA1[0:n_cp*n_w:n_cw])**2)
+    # Leading edge sweep. VORLAX does it panel by panel. This will be spanwise.
+    TLE = (XB1[LE_ind] - XA1[LE_ind])/ np.sqrt((ZB1[LE_ind]-ZA1[LE_ind])**2 + (YB1[LE_ind]-YA1[LE_ind])**2)
     
-    TLE = np.repeat(TLE,n_cw)
-    TLE = np.broadcast_to(TLE,np.shape(B2))
-    T2  = TLE*TLE
-    STB = np.zeros_like(B2)
-    STB[B2<T2] = np.sqrt(T2[B2<T2]-B2[B2<T2])
-    STB = STB[:,0::n_cw]
+    B2_LE = B2[:,LE_ind]
+    T2    = np.broadcast_to(TLE*TLE,np.shape(B2_LE))
+    STB   = np.zeros_like(B2_LE)
+    STB[B2_LE<T2] = np.sqrt(T2[B2_LE<T2]-B2_LE[B2_LE<T2])
 
     # Panel Dihedral Angle, using AH and BH location
-    D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)[0::n_cw]
+    D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)[LE_ind]
 
-    SID = ((ZBH-ZAH)[0::n_cw]/D) # Just the LE values
-    COD = ((YBH-YAH)[0::n_cw]/D) # Just the LE values
+    #SID = ((ZBH-ZAH)[LE_ind]/D) # Just the LE values
+    COD = ((YBH-YAH)[LE_ind]/D) # Just the LE values
 
     # Now on to each strip
     PION = 2.0 /RNMAX
@@ -249,7 +246,7 @@ def VLM(conditions,settings,geometry):
     CAXL = np.array(np.split(np.reshape(CAXL,(-1,n_cw)).sum(axis=1),len_mach))
     BMLE = np.array(np.split(np.reshape(BMLE,(-1,n_cw)).sum(axis=1),len_mach))
        
-    DCP_LE = DCP[:,0::n_cw]
+    DCP_LE = DCP[:,LE_ind]
     
     # Leading edge suction multiplier. See documentation. This is a negative integer if used
     # Default to 1 unless specified otherwise
@@ -265,8 +262,8 @@ def VLM(conditions,settings,geometry):
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
 
     # SLE is slope at leading edge
-    SLE  = SLOPE[0::n_cw]
-    ZETA = ZETA[0::n_cw]
+    SLE  = SLOPE[LE_ind]
+    ZETA = ZETA[LE_ind]
     XCOS = np.broadcast_to(np.cos(SLE-ZETA),np.shape(DCP_LE))
     XSIN = np.broadcast_to(np.sin(SLE-ZETA),np.shape(DCP_LE))
     TFX  =  1.*XCOS
@@ -279,8 +276,7 @@ def VLM(conditions,settings,geometry):
     CAXL = CAXL - TFX*CSUC
 
     # Add a dimension into the suction to be chordwise
-    T2_LE = T2[:,0::n_cw]
-    CNC   = CNC + CSUC*np.sqrt(1+T2_LE)*TFZ
+    CNC   = CNC + CSUC*np.sqrt(1+T2)*TFZ
 
     # FCOS AND FSIN ARE THE COSINE AND SINE OF THE ANGLE BETWEEN
     # THE CHORDLINE OF THE IR-STRIP AND THE X-AXIS    
@@ -290,28 +286,27 @@ def VLM(conditions,settings,geometry):
     # BFX, BFY, AND BFZ ARE THE COMPONENTS ALONG THE BODY AXES
     # OF THE STRIP FORCE CONTRIBUTION.
     BFX = -  CNC *FSIN + CAXL *FCOS
-    BFY = - (CNC *FCOS + CAXL *FSIN) *SID
+    #BFY = - (CNC *FCOS + CAXL *FSIN) *SID
     BFZ =   (CNC *FCOS + CAXL *FSIN) *COD
 
     # CONVERT CNC FROM CN INTO CNC (COEFF. *CHORD).
-    CHORD_strip = CHORD[0::n_cw]
+    CHORD_strip = CHORD[LE_ind]
     CNC  = CNC  * CHORD_strip
     BMLE = BMLE * CHORD_strip
 
     # BMX, BMY, AND BMZ ARE THE COMPONENTS ALONG THE BODY AXES
     # OF THE STRIP MOMENT (ABOUT MOM. REF. POINT) CONTRIBUTION.
-    X      = ((VD.XAH+VD.XBH)/2)[0::n_cw]  # These are all LE values
-    Y      = ((VD.YAH+VD.YBH)/2)[0::n_cw]  # These are all LE values
-    Z      = ((VD.ZAH+VD.ZBH)/2)[0::n_cw]  # These are all LE values
+    X      = VD.XCH[LE_ind]  # These are all LE values
+    #Y      = VD.YCH[LE_ind]  # These are all LE values
+    Z      = VD.ZCH[LE_ind]  # These are all LE values
     XBAR   = np.ones(n_sw*n_w) * x_m
     ZBAR   = np.ones(n_sw*n_w) * z_m
-    BMX    = BFZ * Y - BFY * (Z - ZBAR)
-    BMX    = BMX
+    #BMX    = BFZ * Y - BFY * (Z - ZBAR)
     BMY    = BMLE * COD + BFX * (Z - ZBAR) - BFZ * (X - XBAR)
     CDC    = BFZ * SINALF +  BFX * COSALF
     CDC    = CDC * CHORD_strip
 
-    ES    = 2*s[0,0::n_cw]
+    ES    = 2*s[0,LE_ind]
     STRIP = ES *CHORD_strip
     LIFT  = (BFZ *COSALF - BFX *SINALF)*STRIP
     DRAG  = CDC*ES 
