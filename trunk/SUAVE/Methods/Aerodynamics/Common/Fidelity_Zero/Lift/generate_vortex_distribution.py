@@ -141,7 +141,12 @@ def generate_vortex_distribution(geometry,settings):
     
     #generate panelization for each wing
     for wing in geometry.VLM_wings:
-        VD = generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc)    
+        if not wing.is_a_control_surface:
+            VD = generate_wing_vortex_distribution(VD,wing,geometry.VLM_wings,n_cw,n_sw,spc)    
+                    
+    for wing in geometry.VLM_wings:
+        if wing.is_a_control_surface:
+            VD = generate_wing_vortex_distribution(VD,wing,geometry.VLM_wings,n_cw,n_sw,spc)     
                     
     # ---------------------------------------------------------------------------------------
     # STEP 8.1: Unpack aircraft fuselage geometry
@@ -167,7 +172,7 @@ def generate_vortex_distribution(geometry,settings):
 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
+def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
     """ This generates the vortex distribution points on the wing 
 
     Assumptions: 
@@ -182,7 +187,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     
     Properties Used:
     N/A
-    """       
+    """      
+    print('discretizing ' + wing.tag)
     # get geometry of wing  
     span          = wing.spans.projected
     root_chord    = wing.chords.root
@@ -283,15 +289,18 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     if len(y_coordinates) < n_breaks:
         raise ValueError('Not enough spanwise VLM stations for segment breaks')
 
+    y_coords_required = break_spans if (not wing.is_a_control_surface) else np.array(sorted(wing.y_coords_required))  #control surfaces have additional required y_coords  
     shifted_idxs = np.zeros(len(y_coordinates))
-    for i_break in range(n_breaks):
-        idx = (np.abs(y_coordinates-break_spans[i_break]) + shifted_idxs).argmin() #index of y-coord nearest to the span break
+    for y_req in y_coords_required:
+        idx = (np.abs(y_coordinates - y_req) + shifted_idxs).argmin() #index of y-coord nearest to the span break
         shifted_idxs[idx]  = np.inf 
-        y_coordinates[idx] = break_spans[i_break]
+        y_coordinates[idx] = y_req
 
-    for i_break in range(n_breaks):
-        if break_spans[i_break] not in y_coordinates:
-            raise ValueError('VLM did not capture all section breaks')
+    y_coordinates = np.array(sorted(y_coordinates))
+    
+    for y_req in y_coords_required:
+        if y_req not in y_coordinates:
+            raise ValueError('VLM did not capture all section breaks')  
     
     # ---------------------------------------------------------------------------------------
     # STEP 6: Define coordinates of panels horseshoe vortices and control points 
@@ -300,12 +309,28 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     y_b   = y_coordinates[1:]             
     del_y = y_coordinates[1:] - y_coordinates[:-1] 
     
+    # Let relevant control surfaces know which y-coords they are required to have----------------------------------
+    if not wing.is_a_control_surface:
+        i_break = 0
+        for idx_y in range(n_sw):
+            span_break = span_breaks[i_break]
+            cs_IDs     = span_break.cs_IDs[:,1] #only the outboard control surfaces
+            y_coord    = y_coordinates[idx_y]
+            
+            for cs_ID in cs_IDs[cs_IDs >= 0]:
+                cs_tag     = wing.tag + '__cs_id_{}'.format(cs_ID)
+                cs_wing    = wings[cs_tag]
+                rel_offset = cs_wing.origin[0,1] if not vertical_wing else cs_wing.origin[0,2]
+                cs_wing.y_coords_required.append(y_coord - rel_offset)
+            
+            if y_coordinates[idx_y+1] == break_spans[i_break+1]: 
+                i_break += 1
+            
+    
     # -------------------------------------------------------------------------------------------------------------
     # Run the stip contruction loop again if wing is symmetric. Reflection plane = x-y plane for vertical wings. Otherwise, reflection plane = x-z plane
-    print(wing.tag)
     signs = np.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
     for sym_sign in signs[[True,sym_para]]:
-        print(sym_sign)
         # create empty vectors for coordinates 
         xah   = np.zeros(n_cw*n_sw)
         yah   = np.zeros(n_cw*n_sw)

@@ -263,9 +263,11 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     Properties Used:
     N/A
     """      
+    hspan = wing.spans.projected*0.5 if wing.symmetric else wing.spans.projected
+    
     #standard wing attributes
     cs_wing = SUAVE.Components.Wings.Wing()
-    cs_wing.tag                   = wing.tag + '|' + seg_b.tag + '|' + cs.tag + '|cs_ID_{}'.format(cs_ID)
+    cs_wing.tag                   = wing.tag + '__cs_id_{}'.format(cs_ID)
     span_a                        = seg_a.percent_span_location
     span_b                        = seg_b.percent_span_location
     twist_a                       = seg_a.twist
@@ -295,12 +297,12 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     #non-standard wing attributes, mostly to do with cs_wing's identity as a control surface
     cs_wing.is_a_control_surface  = True
     cs_wing.cs_ID                 = cs_ID
+    cs_wing.name                  = wing.tag + '__' + seg_b.tag + '__' + cs.tag + '__cs_ID_{}'.format(cs_ID)
     cs_wing.chord_fraction        = cs.chord_fraction
     cs_wing.is_slat               = (type(cs)==Slat)
     cs_wing.is_aileron            = (type(cs)==Aileron)
     cs_wing.pivot_edge            = 'TE' if cs_wing.is_slat else 'LE'
     cs_wing.deflection            = cs.deflection
-    cs_wing.span_break_fractions  = np.array([cs.span_fraction_start, cs.span_fraction_end]) #to be multiplied by span once span is found 
     
     #adjust origin - may need to be adjusted later
     wing_halfspan                 = wing.spans.projected * 0.5 if wing.symmetric else wing.spans.projected
@@ -311,6 +313,10 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     if wing.vertical:
         cs_wing[0,1], cs_wing[0,2] = cs_wing[0,2], cs_wing[0,1]
     
+    # holds all required y-coords. Will be added to during discretization to ensure y-coords match up between wing and control surface. it starts with the y_coord of the outboard segment since this won't be covered later
+    rel_offset                    = cs_wing.origin[0,1] if not cs_wing.vertical else cs_wing.origin[0,2]
+    cs_wing.y_coords_required     = [cs.span_fraction_end*hspan - rel_offset] 
+
     #find sweep of the 'outside' edge (LE for slats, TE for everything else)
     use_le_sweep                  = not (seg_a.sweeps.leading_edge is None)
     new_cf                        = 0. if cs_wing.is_slat else 1
