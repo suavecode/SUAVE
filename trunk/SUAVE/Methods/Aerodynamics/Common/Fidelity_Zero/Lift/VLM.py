@@ -124,6 +124,12 @@ def VLM(conditions,settings,geometry):
     # pack vortex distribution 
     geometry.vortex_distribution = VD
     
+    ### VISUALIZE NEW VORTEX DISTRIBUTION
+    #from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization       import plot_vehicle_vlm_panelization
+    #import matplotlib.pyplot    as plt
+    #plot_vehicle_vlm_panelization(geometry, plot_control_points=0)
+    #plt.show()
+    
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
