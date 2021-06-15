@@ -951,8 +951,8 @@ def generate_wing_vortex_distribution(geometry,settings):
     # Set LE and TE minus one indices
     VD.leading_edge_indices  = np.zeros_like(VD.XC,dtype=bool)
     VD.leading_edge_indices[0:n_cp*n_w:n_cw] = True
-    VD.trailing_edge_m_one_indices = np.zeros_like(VD.XC,dtype=bool)
-    VD.trailing_edge_m_one_indices[n_cw-1:n_cp*n_w:n_cw] = True    
+    VD.trailing_edge_indices = np.zeros_like(VD.XC,dtype=bool)
+    VD.trailing_edge_indices[n_cw-1:n_cp*n_w:n_cw] = True    
     
     ##
     # Panels per strip (RNMAX), this is assigned for all panels

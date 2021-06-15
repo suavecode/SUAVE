@@ -42,7 +42,7 @@ def compute_wing_induced_velocity(VD,mach):
     # unpack  
     LE_ind       = VD.leading_edge_indices
     n_cp         = VD.n_cp
-    TE_m_one_ind = VD.trailing_edge_m_one_indices
+    TE_ind       = VD.trailing_edge_indices
     n_mach       = len(mach)
     mach         = np.array(mach,dtype=np.float32)
 
@@ -182,7 +182,7 @@ def compute_wing_induced_velocity(VD,mach):
     
     if np.sum(sup)>0:
         U[sup], V[sup], W[sup], RFLAG[sup,:] = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
-                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_m_one_ind,LE_ind)
+                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)
          
     
     # Rotate into the vehicle frame and pack into a velocity matrix
@@ -260,7 +260,7 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     
     return U, V, W
 
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_m_one_ind, LE_ind):
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind, LE_ind):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for supersonic mach numbers
 
@@ -294,7 +294,8 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     CHORD        chord length for a panel                     [m] 
     RNMAX        number of chordwise panels                   [-]
     n_cp         number of control points                     [-]
-    TE_m_one_ind indices of the panel ahead of the TE         [-]
+    TE_ind       indices of the trailing edge                 [-]
+    LE_ind       indices of the leading edge                  [-]
     
 
     
@@ -405,15 +406,15 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # Setup masks
     F_mask = np.ones((n_mach,size),dtype=np.bool8)
     A_mask = np.ones((n_mach,size),dtype=np.bool8)
-    F_mask[:,TE_m_one_ind] = False
-    A_mask[:,LE_ind]         = False
+    F_mask[:,TE_ind] = False
+    A_mask[:,LE_ind] = False
     
     # Apply the mask
     T2F[A_mask] = T2S[F_mask]
     T2A[F_mask] = T2S[A_mask]
     
     # Zero out terms on the LE and TE
-    T2F[:,TE_m_one_ind] = 0.
+    T2F[:,TE_ind] = 0.
     T2A[:,LE_ind]        = 0.
 
     TRANS = (B2[:,:,0]-T2F)*(B2[:,:,0]-T2A)
