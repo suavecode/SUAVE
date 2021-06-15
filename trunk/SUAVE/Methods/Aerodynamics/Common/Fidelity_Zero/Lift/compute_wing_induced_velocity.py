@@ -12,7 +12,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
+def compute_wing_induced_velocity(VD,mach):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
     Assumptions: 
@@ -26,8 +26,6 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
 
     Inputs: 
     VD       - vehicle vortex distribution                    [Unitless] 
-    n_sw     - number_spanwise_vortices                       [Unitless]
-    n_cw     - number_chordwise_vortices                      [Unitless] 
     mach                                                      [Unitless] 
     
     Outputs:                                
@@ -42,10 +40,11 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     N/A
     """
     # unpack  
-    n_cp     = n_sw*n_cw
-    n_w      = VD.n_w
-    n_mach   = len(mach)
-    mach     = np.array(mach,dtype=np.float32)
+    LE_ind       = VD.leading_edge_indices
+    n_cp         = VD.n_cp
+    TE_ind       = VD.trailing_edge_indices
+    n_mach       = len(mach)
+    mach         = np.array(mach,dtype=np.float32)
 
     # Control points from the VLM 
     XAH   = np.array(np.atleast_2d(VD.XAH*1.),dtype=np.float32)
@@ -71,8 +70,6 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     ZC    = np.array(np.atleast_2d(VD.ZC*1.),dtype=np.float32)
     XA_TE = np.array(np.atleast_2d(VD.XA_TE*1.),dtype=np.float32)
     XB_TE = np.array(np.atleast_2d(VD.XB_TE*1.),dtype=np.float32)
-    ZA_TE = np.array(np.atleast_2d(VD.ZA_TE*1.),dtype=np.float32)
-    ZB_TE = np.array(np.atleast_2d(VD.ZB_TE*1.),dtype=np.float32)
     
     # -------------------------------------------------------------------------------------------
     # Compute velocity induced by horseshoe vortex segments on every control point by every panel
@@ -178,31 +175,20 @@ def compute_wing_induced_velocity(VD,n_sw,n_cw,mach):
     B2_sup      = B2[sup,:,:]
     RO1_sup     = B2[sup,:,:]*RTV1
     RO2_sup     = B2[sup,:,:]*RTV2
-    RNMAX       = n_cw # number of chordwise panels
-    LE_A_pts_x  = XA1[:,0::n_cw]
-    LE_B_pts_x  = XB1[:,0::n_cw]
-    LE_A_pts_z  = ZA1[:,0::n_cw]
-    LE_B_pts_z  = ZB1[:,0::n_cw]    
-    LE_X        = (LE_A_pts_x+LE_B_pts_x)/2
-    LE_Z        = (LE_A_pts_z+LE_B_pts_z)/2
-    TE_X        = (XB_TE + XA_TE)/2
-    TE_Z        = (ZB_TE + ZA_TE)/2
-    LE_X        = np.repeat(LE_X,n_cw,axis=1)
-    LE_Z        = np.repeat(LE_Z,n_cw,axis=1)    
-    CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2)
+    RNMAX       = VD.panels_per_strip
+    CHORD       = VD.chord_lengths
     CHORD       = np.repeat(CHORD,shape_0,axis=0)
-    ZETA        = (LE_Z[0,:]-TE_Z[0,:])/(LE_X[0,:]-TE_X[0,:]) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
     RFLAG       = np.ones((n_mach,shape_1),dtype=np.int8)
     
     if np.sum(sup)>0:
         U[sup], V[sup], W[sup], RFLAG[sup,:] = supersonic(zobar,XSQ1,RO1_sup,XSQ2,RO2_sup,XTY,t,B2_sup,ZSQ,TOLSQ,TOL,TOLSQ2,\
-                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cw,n_cp,n_w)
+                                                    X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind,LE_ind)
          
     
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = np.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
 
-    return C_mn, s, CHORD, RFLAG, ZETA
+    return C_mn, s, RFLAG
     
 def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     """  This computes the induced velocities at each control point 
@@ -274,7 +260,7 @@ def subsonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,X1,Y1,X2,Y2,RTV1,RTV2):
     
     return U, V, W
 
-def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cw,n_cp,n_w):
+def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV1,RTV2,CUTOFF,CHORD,RNMAX,n_cp,TE_ind, LE_ind):
     """  This computes the induced velocities at each control point 
     of the vehicle vortex lattice for supersonic mach numbers
 
@@ -288,28 +274,29 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     2. VORLAX Source Code
 
     Inputs: 
-    Z       Z relative location of the vortices          [m]
-    XSQ1    X1 squared                                   [m^2]
-    RO1     coefficient                                  [-]
-    XSQ2    X2 squared                                   [m^2]
-    RO2     coefficient                                  [-]
-    XTY     AXIAL DISTANCE BETWEEN PROJECTION OF RECEIVING POINT ONTO HORSESHOE PLANE AND EXTENSION OF SKEWED LEG [m]
-    T       tangent of the horshoe vortex                [-] 
-    B2      mach^2-1 (-beta2)                            [-] 
-    ZSQ     Z squared                                    [m^2] 
-    TOLSQ   coefficient                                  [-]
-    X1      X coordinate of the left side of the vortex  [m]
-    Y1      Y coordinate of the left side of the vortex  [m]
-    X2      X coordinate of the right side of the vortex [m]
-    Y2      Y coordinate of the right side of the vortex [m]
-    RTV1    coefficient                                  [-]
-    RTV2    coefficient                                  [-]
-    CUTOFF  coefficient                                  [-]
-    CHORD   chord length for a panel                     [m] 
-    RNMAX   number of chordwise panels                   [-]
-    n_cw    number of chordwise panels                   [-]
-    n_cp    number of control points                     [-]
-    n_w     number of wings                              [-]
+    Z            Z relative location of the vortices          [m]
+    XSQ1         X1 squared                                   [m^2]
+    RO1          coefficient                                  [-]
+    XSQ2         X2 squared                                   [m^2]
+    RO2          coefficient                                  [-]
+    XTY          AXIAL DISTANCE BETWEEN PROJECTION OF RECEIVING POINT ONTO HORSESHOE PLANE AND EXTENSION OF SKEWED LEG [m]
+    T            tangent of the horshoe vortex                [-] 
+    B2           mach^2-1 (-beta2)                            [-] 
+    ZSQ          Z squared                                    [m^2] 
+    TOLSQ        coefficient                                  [-]
+    X1           X coordinate of the left side of the vortex  [m]
+    Y1           Y coordinate of the left side of the vortex  [m]
+    X2           X coordinate of the right side of the vortex [m]
+    Y2           Y coordinate of the right side of the vortex [m]
+    RTV1         coefficient                                  [-]
+    RTV2         coefficient                                  [-]
+    CUTOFF       coefficient                                  [-]
+    CHORD        chord length for a panel                     [m] 
+    RNMAX        number of chordwise panels                   [-]
+    n_cp         number of control points                     [-]
+    TE_ind       indices of the trailing edge                 [-]
+    LE_ind       indices of the leading edge                  [-]
+    
 
     
     Outputs:           
@@ -419,16 +406,16 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # Setup masks
     F_mask = np.ones((n_mach,size),dtype=np.bool8)
     A_mask = np.ones((n_mach,size),dtype=np.bool8)
-    F_mask[:,(n_cw-1)::n_cw] = False
-    A_mask[:,::n_cw]         = False
+    F_mask[:,TE_ind] = False
+    A_mask[:,LE_ind] = False
     
     # Apply the mask
     T2F[A_mask] = T2S[F_mask]
     T2A[F_mask] = T2S[A_mask]
     
     # Zero out terms on the LE and TE
-    T2F[:,(n_cw-1)::n_cw] = 0.
-    T2A[:,0::n_cw]        = 0.
+    T2F[:,TE_ind] = 0.
+    T2A[:,LE_ind]        = 0.
 
     TRANS = (B2[:,:,0]-T2F)*(B2[:,:,0]-T2A)
     
@@ -444,7 +431,7 @@ def supersonic(Z,XSQ1,RO1,XSQ2,RO2,XTY,T,B2,ZSQ,TOLSQ,TOL,TOLSQ2,X1,Y1,X2,Y2,RTV
     # FROM LINE 2647 VORLAX, the IR .NE. IRR means that we're looking at vortices that affect themselves
     WWAVE   = np.zeros(shape,dtype=np.float32)
     COX     = CHORD /RNMAX
-    eye     = np.eye(n_cp*n_w,dtype=np.int8)
+    eye     = np.eye(n_cp,dtype=np.int8)
     T2      = np.broadcast_to(T2,shape)*eye
     B2_full = np.broadcast_to(B2,shape)*eye
     COX     = np.broadcast_to(COX,shape)*eye

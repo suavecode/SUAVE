@@ -70,9 +70,6 @@ def propeller_design(prop,number_of_stations=20):
     elif (Thrust!= None) and (Power!= None):
         raise AssertionError('Specify either design thrust or design power!')
     
-    if prop.rotation == None:
-        prop.rotation = list(np.ones(int(B))) 
-    
     # Calculated total velocity 
     V  = Vinf + Va
     # Calculate atmospheric properties
