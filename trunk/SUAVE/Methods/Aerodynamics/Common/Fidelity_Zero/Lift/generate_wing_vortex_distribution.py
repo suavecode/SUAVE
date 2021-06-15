@@ -945,14 +945,16 @@ def generate_wing_vortex_distribution(geometry,settings):
     ###################
     # NEW THINGS FOR AARON TO TRACK
     
+    ##
     # Set LE and TE minus one indices
     VD.leading_edge_indices  = np.zeros_like(VD.XC,dtype=bool)
     VD.leading_edge_indices[0:n_cp*n_w:n_cw] = True
     VD.trailing_edge_m_one_indices = np.zeros_like(VD.XC,dtype=bool)
     VD.trailing_edge_m_one_indices[n_cw-1:n_cp*n_w:n_cw] = True    
     
+    ##
     # Panels per strip (RNMAX), this is assigned for all panels
-    VD.panels_per_strip = np.ones_like(VD.XC)*n_cw
+    VD.panels_per_strip = np.ones_like(VD.XC,np.int16)*n_cw
     
     # Chord length, this is assigned for all panels. Calculate this anyway you'd like, but the output data structure matters
     LE_ind      = VD.leading_edge_indices
@@ -978,11 +980,21 @@ def generate_wing_vortex_distribution(geometry,settings):
     LE_Z        = np.repeat(np.atleast_2d(LE_Z),n_cw,axis=1)    
     CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2)    
     
+    ##
     VD.chord_lengths    = CHORD
     
     ZETA        = (LE_Z-TE_Z)/(LE_X-TE_X) # Zeta is the tangent incidence angle of the chordwise strip. LE to TE
     
+    ##
     VD.tangent_incidence_angle = ZETA[0,:]
+    
+    ##
+    # Count off the panel number in the strip
+    VD.chordwise_panel_number = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)
+    
+    ##
+    # Number spanwise is now a vector for each wing
+    VD.n_sw = np.ones((n_w,1))*n_sw
 
     
     #####################

@@ -78,8 +78,6 @@ def VLM(conditions,settings,geometry):
     """ 
     
     # unpack settings
-    n_sw       = settings.number_spanwise_vortices    
-    n_cw       = settings.number_chordwise_vortices 
     pwm        = settings.propeller_wake_model
     ito        = settings.initial_timestep_offset
     nts        = settings.number_of_wake_timesteps 
@@ -119,18 +117,21 @@ def VLM(conditions,settings,geometry):
     # generate vortex distribution 
     VD   = generate_wing_vortex_distribution(geometry,settings) 
     
+    # Unpack vortex distribution
     n_cp   = VD.n_cp
     n_w    = VD.n_w    
+    n_sw   = VD.n_sw
+    RNMAX  = VD.panels_per_strip    
     LE_ind = VD.leading_edge_indices
     ZETA   = VD.tangent_incidence_angle
+    RK     = VD.chordwise_panel_number
     
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
     # Build the vector 
-    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
-                                                                                 pwm,ito,wdt,nts )    
+    RHS, Vx_ind_total, Vz_ind_total, V_distribution, dt = compute_RHS_matrix(delta,phi,conditions,geometry,pwm,ito,wdt,nts)    
     
     # Build induced velocity matrix, C_mn
     # This is not affected by AoA, so we can use unique mach numbers only
@@ -160,7 +161,6 @@ def VLM(conditions,settings,geometry):
     B2     = np.tile((mach**2 - 1),n_cp)
     SINALF = np.sin(aoa)
     COSALF = np.cos(aoa)
-    RNMAX  = n_cw*1.
     CHORD  = CHORD[0,:]
 
     # COMPUTE LOAD COEFFICIENT
@@ -226,10 +226,13 @@ def VLM(conditions,settings,geometry):
     # Split into chordwise strengths and sum into strips
     CNC = np.array(np.split(np.reshape(SINF,(-1,n_cw)).sum(axis=1),len(mach)))
 
+    #np.split(SINF,RNMAX,axis=1)[0].shape
+    
+    # Steps to sum, I have a 160, 30 array. Split by CW to be 160, 15, 2. Then Sum the last axis
+
     # COMPUTE SLOPE (TX) WITH RESPECT TO X-AXIS AT LOAD POINTS BY INTER
     # POLATING BETWEEN CONTROL POINTS AND TAKING INTO ACCOUNT THE LOCAL
     # INCIDENCE.    
-    RK   = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)
     XX   = (RK - .75) *PION /2.0
 
     X1c  = (XA1+XB1)/2
@@ -299,8 +302,8 @@ def VLM(conditions,settings,geometry):
     X      = VD.XCH[LE_ind]  # These are all LE values
     #Y      = VD.YCH[LE_ind]  # These are all LE values
     Z      = VD.ZCH[LE_ind]  # These are all LE values
-    XBAR   = np.ones(n_sw*n_w) * x_m
-    ZBAR   = np.ones(n_sw*n_w) * z_m
+    XBAR   = np.ones(sum(LE_ind)) * x_m
+    ZBAR   = np.ones(sum(LE_ind)) * z_m
     #BMX    = BFZ * Y - BFY * (Z - ZBAR)
     BMY    = BMLE * COD + BFX * (Z - ZBAR) - BFZ * (X - XBAR)
     CDC    = BFZ * SINALF +  BFX * COSALF
