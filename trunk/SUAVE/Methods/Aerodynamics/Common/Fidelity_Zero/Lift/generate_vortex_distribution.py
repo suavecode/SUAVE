@@ -122,30 +122,45 @@ def generate_vortex_distribution(geometry,settings):
     VD.Z      = np.empty(shape=[0,1])
     VD.Y_SW   = np.empty(shape=[0,1])
     VD.DY     = np.empty(shape=[0,1]) 
-    n_sw      = settings.number_spanwise_vortices 
-    n_cw      = settings.number_chordwise_vortices     
+    n_sw      = settings.number_spanwise_vortices  # This is the base value, but may change for each wing
+    n_cw      = settings.number_chordwise_vortices # This is the base value, but may change for each wing     
     spc       = settings.spanwise_cosine_spacing
     model_fuselage = settings.model_fuselage
 
+    # empty vectors necessary for arbitrary discretization dimensions
+    VD.n_w         = 0                                # number of wings counter (refers to wings, fuselages or other structures)  
+    VD.n_cp        = 0                                # number of bound vortices (panels) counter 
+    VD.n_sw        = np.array([],dtype=np.int16)      # array of the number of spanwise  strips in each wing
+    VD.n_cw        = np.array([],dtype=np.int16)      # array of the number of chordwise panels per strip in each wing
+    VD.chordwise_breaks = np.array([],dtype=np.int32) # indices of the first panel in every strip      (given a list of all panels)
+    VD.spanwise_breaks  = np.array([],dtype=np.int32) # indices of the first strip of panels in a wing (given chordwise_breaks)    
+    
+    VD.leading_edge_indices    = np.array([],dtype=bool)     # bool array of leading  edge indices (all false except for panels at leading  edge)
+    VD.trailing_edge_indices   = np.array([],dtype=bool)     # bool array of trailing edge indices (all false except for panels at trailing edge)    
+    VD.panels_per_strip        = np.array([],dtype=np.int16) # array of the number of panels per strip (RNMAX); this is assigned for all panels  
+    VD.chordwise_panel_number  = np.array([],dtype=np.int16) # array of panels' numbers in their strips.     
+    VD.chord_lengths           = np.array([])                # Chord length, this is assigned for all panels.
+    VD.tangent_incidence_angle = np.array([])                # Tangent Incidence Angles of the chordwise strip. LE to TE, ZETA
+    
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
     # ---------------------------------------------------------------------------------------    
-    VD.n_w         = 0  # instantiate the number of wings counter  
-    VD.n_cp        = 0  # instantiate number of bound vortices counter     
     VD.wing_areas  = [] # instantiate wing areas
     VD.vortex_lift = []
     
-    #reformat wings and control surfaces for VLM panelization
+    #reformat/preprocess wings and control surfaces for VLM panelization
     VLM_wings = make_VLM_wings(geometry)
     geometry.VLM_wings = VLM_wings
     
-    #generate panelization for each wing
+    #generate panelization for each wing. Wings first, then control surface wings
     for wing in geometry.VLM_wings:
         if not wing.is_a_control_surface:
+            print('discretizing ' + wing.tag)
             VD = generate_wing_vortex_distribution(VD,wing,geometry.VLM_wings,n_cw,n_sw,spc)    
                     
     for wing in geometry.VLM_wings:
         if wing.is_a_control_surface:
+            print('discretizing ' + wing.tag)
             VD = generate_wing_vortex_distribution(VD,wing,geometry.VLM_wings,n_cw,n_sw,spc)     
                     
     # ---------------------------------------------------------------------------------------
@@ -155,18 +170,22 @@ def generate_vortex_distribution(geometry,settings):
     VD.wing_areas = np.array(VD.wing_areas)   
     VD.n_fus = 0
     for fus in geometry.fuselages:   
-        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage) 
-         
-    VD.n_sw       = n_sw
-    VD.n_cw       = n_cw       
+        print('discretizing ' + fus.tag)
+        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage)       
 
-    geometry.vortex_distribution = VD
 
     # Compute Panel Areas 
     VD.panel_areas = compute_panel_area(VD)
     
     # Compute Panel Normals
-    VD.normals = compute_unit_normal(VD)
+    VD.normals = compute_unit_normal(VD)  
+    
+    # pack VD into geometry
+    VD.chord_lengths = np.atleast_2d(VD.chord_lengths) #need to be 2D for later calculations
+    
+    geometry.vortex_distribution = VD
+    
+    print('finish discretization')
     
     return VD 
 
@@ -188,7 +207,6 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
     Properties Used:
     N/A
     """      
-    print('discretizing ' + wing.tag)
     # get geometry of wing  
     span          = wing.spans.projected
     root_chord    = wing.chords.root
@@ -208,20 +226,22 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
         span = span/2
         VD.vortex_lift.append(wing.vortex_lift)
 
-    if spc == True:
-
-        # discretize wing using cosine spacing
+    # ---------------------------------------------------------------------------------------
+    # STEP 3: Get discretization control variables  
+    # ---------------------------------------------------------------------------------------
+    # get number of spanwise and chordwise panels for this wing
+    n_sw = n_sw #if (not wing.is_a_control_surface) else max(len(wing.y_coords_required)-1,1)
+    n_cw = n_cw #if (not wing.is_a_control_surface) else max(int(np.ceil(wing.chord_fraction*n_cw)),2)  
+    
+    # get y_coordinates (y-locations of the edges of each strip in wing-local coords)
+    if spc == True: # discretize wing using cosine spacing     
         n               = np.linspace(n_sw+1,0,n_sw+1)         # vectorize
         thetan          = n*(np.pi/2)/(n_sw+1)                 # angular stations
         y_coordinates   = span*np.cos(thetan)                  # y locations based on the angular spacing
-    else:
-
-        # discretize wing using linear spacing
+    else:           # discretize wing using linear spacing 
         y_coordinates   = np.linspace(0,span,n_sw+1) 
 
-    # ---------------------------------------------------------------------------------------
-    # STEP 3: Get span_breaks  
-    # ---------------------------------------------------------------------------------------
+    # get span_breaks object
     span_breaks   = wing.span_breaks
     n_breaks      = len(span_breaks)
 
@@ -621,15 +641,39 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
     
             cs_w[idx_y] = wing_chord_section       
     
-            #increment i_break if needed --> May have to also set xyz[-(n_cw+1):] = xyz_prime_bs if control surface wings are modified to have more than 2 segments
+            #increment i_break if needed; check for end of wing----------------------------------------------------
             if y_b[idx_y] == break_spans[i_break+1]: 
                 i_break += 1
-        #End 'for each strip' loop
+                
+                # append final xyz chordline 
+                if i_break == n_breaks-1:
+                    x[-(n_cw+1):] = xi_prime_bs
+                    y[-(n_cw+1):] = y_prime_bs
+                    z[-(n_cw+1):] = zeta_prime_bs                                     
+                
+            # store this strip's discretization information--------------------------------------------------------
+            LE_inds        = np.full(n_cw, False)
+            TE_inds        = np.full(n_cw, False)
+            LE_inds[0]     = True
+            TE_inds[-1]    = True
             
-        # append final xyz chordline --> Will have to change if control surface wings are modified to have more than 2 segments   
-        x[-(n_cw+1):] = xi_prime_bs
-        y[-(n_cw+1):] = y_prime_bs
-        z[-(n_cw+1):] = zeta_prime_bs                
+            RNMAX          = np.ones(n_cw, np.int16)*n_cw
+            panel_numbers  = np.linspace(1,n_cw,n_cw, dtype=np.int16)
+            
+            LE_X           = (xi_prime_a1  [0 ] + xi_prime_b1  [0 ])/2
+            LE_Z           = (zeta_prime_a1[0 ] + zeta_prime_b1[0 ])/2
+            TE_X           = (xi_prime_a2  [-1] + xi_prime_b2  [-1])/2
+            TE_Z           = (zeta_prime_a2[-1] + zeta_prime_b2[-1])/2           
+            chord_adjusted = np.ones(n_cw) * np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
+            tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax
+            
+            VD.leading_edge_indices    = np.append(VD.leading_edge_indices   , LE_inds       ) 
+            VD.trailing_edge_indices   = np.append(VD.trailing_edge_indices  , TE_inds       )            
+            VD.panels_per_strip        = np.append(VD.panels_per_strip       , RNMAX         )
+            VD.chordwise_panel_number  = np.append(VD.chordwise_panel_number , panel_numbers )  
+            VD.chord_lengths           = np.append(VD.chord_lengths          , chord_adjusted)
+            VD.tangent_incidence_angle = np.append(VD.tangent_incidence_angle, tan_incidence )
+        #End 'for each strip' loop            
     
         # adjusting coordinate axis so reference point is at the nose of the aircraft------------------------------
         xah = xah + wing_origin_x # x coordinate of left corner of bound vortex 
@@ -696,8 +740,19 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
         y_sw = yc[locations]        
     
         # increment number of wings and panels
+        n_panels = len(xch)
         VD.n_w  += 1             
-        VD.n_cp += len(xch)        
+        VD.n_cp += n_panels 
+        
+        # store this wing's discretization information  
+        first_panel_ind = VD.XAH.size
+        first_strip_ind = VD.chordwise_breaks.size
+        chordwise_breaks =  first_panel_ind + np.linspace(0,n_panels-1,n_panels-1)[0::n_cw]
+        
+        VD.chordwise_breaks = np.append(VD.chordwise_breaks, np.int32(chordwise_breaks))
+        VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
+        VD.n_sw             = np.append(VD.n_sw, np.int16(n_sw))
+        VD.n_cw             = np.append(VD.n_cw, np.int16(n_cw))
     
         # ---------------------------------------------------------------------------------------
         # STEP 7: Store wing in vehicle vector
@@ -811,7 +866,16 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
     fvs_y     = np.zeros((n_cw+1)*(n_sw+1))
     fvs_z     = np.zeros((n_cw+1)*(n_sw+1))   
     fus_v_cs  = np.zeros(n_sw)     
+    
+    # arrays to hold strip discretization values
+    leading_edge_indices    = np.array([],dtype=bool)    
+    trailing_edge_indices   = np.array([],dtype=bool)    
+    panels_per_strip        = np.array([],dtype=np.int16)
+    chordwise_panel_number  = np.array([],dtype=np.int16)
+    chord_lengths           = np.array([])               
+    tangent_incidence_angle = np.array([])               
 
+    # geometry values
     semispan_h = fus.width * 0.5  
     semispan_v = fus.heights.maximum * 0.5
     origin     = fus.origin[0]
@@ -956,8 +1020,32 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         fvs_y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = np.zeros(n_cw+1)                 + fus.origin[0][1]
         
         fus_h_area += ((fhs.chord[idx_y]+fhs.chord[idx_y + 1])/2)*(fhs_eta_b[idx_y] - fhs_eta_a[idx_y])
-        fus_v_area += ((fvs.chord[idx_y]+fvs.chord[idx_y + 1])/2)*(fvs_eta_b[idx_y] - fvs_eta_a[idx_y])            
+        fus_v_area += ((fvs.chord[idx_y]+fvs.chord[idx_y + 1])/2)*(fvs_eta_b[idx_y] - fvs_eta_a[idx_y])
+        
+        # store this strip's discretization information
+        LE_inds        = np.full(n_cw, False)
+        TE_inds        = np.full(n_cw, False)
+        LE_inds[0]     = True
+        TE_inds[-1]    = True
+        
+        RNMAX          = np.ones(n_cw, np.int16)*n_cw
+        panel_numbers  = np.linspace(1,n_cw,n_cw, dtype=np.int16)
+        
+        LE_X           = (fhs_xa1[0 ] + fhs_xb1[0 ])/2
+        LE_Z           = (fhs_za1[0 ] + fhs_zb1[0 ])/2
+        TE_X           = (fhs_xa2[-1] + fhs_xb2[-1])/2
+        TE_Z           = (fhs_za2[-1] + fhs_zb2[-1])/2           
+        chord_adjusted = np.ones(n_cw) * np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
+        tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax
+        
+        leading_edge_indices    = np.append(leading_edge_indices   , LE_inds       ) 
+        trailing_edge_indices   = np.append(trailing_edge_indices  , TE_inds       )            
+        panels_per_strip        = np.append(panels_per_strip       , RNMAX         )
+        chordwise_panel_number  = np.append(chordwise_panel_number , panel_numbers )  
+        chord_lengths           = np.append(chord_lengths          , chord_adjusted)
+        tangent_incidence_angle = np.append(tangent_incidence_angle, tan_incidence )        
 
+    # xyz positions for the right side of this fuselage's outermost panels
     fhs_x[-(n_cw+1):] = np.concatenate([fhs_xi_b1,np.array([fhs_xi_b2[-1]])])+ fus.origin[0][0]  
     fhs_y[-(n_cw+1):] = np.ones(n_cw+1)*fhs_eta_b[idx_y]  + fus.origin[0][1]                             
     fhs_z[-(n_cw+1):] = np.zeros(n_cw+1)                  + fus.origin[0][2]        
@@ -1002,7 +1090,7 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
     # Horizontal Fuselage Sections 
     wing_areas = []
     wing_areas.append(fus_h_area)
-    wing_areas.append(fus_h_area)  
+    wing_areas.append(fus_h_area)
     
     # store points of horizontal section of fuselage 
     fhs_cs  = np.concatenate([fhs_cs, fhs_cs])
@@ -1045,7 +1133,25 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         # increment fuslage lifting surface sections  
         VD.n_fus  += 2    
         VD.n_cp += len(fhs_xch)
-        VD.n_w  += 2          
+        VD.n_w  += 2 
+        
+        # store this fuselage's discretization information 
+        n_panels         = n_sw*n_cw
+        first_panel_ind  = VD.XAH.size
+        first_strip_ind  = [VD.chordwise_breaks.size, VD.chordwise_breaks.size+n_sw]
+        chordwise_breaks =  first_panel_ind + np.linspace(0,2*n_panels-1,2*n_panels-1)[0::n_cw]        
+        
+        VD.chordwise_breaks = np.append(VD.chordwise_breaks, np.int32(chordwise_breaks))
+        VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
+        VD.n_sw             = np.append(VD.n_sw, np.int16([n_sw, n_sw]))
+        VD.n_cw             = np.append(VD.n_cw, np.int16([n_cw, n_cw]))
+        
+        VD.leading_edge_indices    = np.append(VD.leading_edge_indices   , np.tile(leading_edge_indices   , 2) )
+        VD.trailing_edge_indices   = np.append(VD.trailing_edge_indices  , np.tile(trailing_edge_indices  , 2) )           
+        VD.panels_per_strip        = np.append(VD.panels_per_strip       , np.tile(panels_per_strip       , 2) )
+        VD.chordwise_panel_number  = np.append(VD.chordwise_panel_number , np.tile(chordwise_panel_number , 2) ) 
+        VD.chord_lengths           = np.append(VD.chord_lengths          , np.tile(chord_lengths          , 2) )
+        VD.tangent_incidence_angle = np.append(VD.tangent_incidence_angle, np.tile(tangent_incidence_angle, 2) )       
     
         # Store fus in vehicle vector  
         VD.XAH  = np.append(VD.XAH,fhs_xah)
