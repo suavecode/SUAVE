@@ -1031,12 +1031,13 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         RNMAX          = np.ones(n_cw, np.int16)*n_cw
         panel_numbers  = np.linspace(1,n_cw,n_cw, dtype=np.int16)
         
-        LE_X           = (fhs_xa1[0 ] + fhs_xb1[0 ])/2
-        LE_Z           = (fhs_za1[0 ] + fhs_zb1[0 ])/2
-        TE_X           = (fhs_xa2[-1] + fhs_xb2[-1])/2
-        TE_Z           = (fhs_za2[-1] + fhs_zb2[-1])/2           
+        i_LE, i_TE     = idx_y*n_cw, (idx_y+1)*n_cw-1
+        LE_X           = (fhs_xa1[i_LE] + fhs_xb1[i_LE])/2
+        LE_Z           = (fhs_za1[i_LE] + fhs_zb1[i_LE])/2
+        TE_X           = (fhs_xa2[i_TE] + fhs_xb2[i_TE])/2
+        TE_Z           = (fhs_za2[i_TE] + fhs_zb2[i_TE])/2           
         chord_adjusted = np.ones(n_cw) * np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
-        tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax
+        tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax      
         
         leading_edge_indices    = np.append(leading_edge_indices   , LE_inds       ) 
         trailing_edge_indices   = np.append(trailing_edge_indices  , TE_inds       )            
