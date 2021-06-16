@@ -331,10 +331,6 @@ def VLM(conditions,settings,geometry):
     CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
     CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
 
-    #Cl_y     = np.swapaxes(np.array(np.array_split(cl_y,n_w,axis=1)),0,1) 
-    #Cdi_y    = np.swapaxes(np.array(np.array_split(cdi_y,n_w,axis=1)),0,1) 
-    
-    #alpha_i = np.arctan(Cdi_y/Cl_y)
-    alpha_i = 'for Emilio/Matthew'
-    
+    alpha_i  = np.hsplit(np.arctan(cdi_y/cl_y),span_breaks[1:])
+
     return CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, gamma
