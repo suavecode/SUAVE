@@ -647,9 +647,10 @@ def calculate_VLM(conditions,settings,geometry):
     
     """            
     # iterate over wings
-    total_lift_coeff = 0.0
-    wing_lifts = Data()
-    wing_drags = Data() 
+    total_lift_coeff   = 0.0
+    wing_lifts         = Data()
+    wing_drags         = Data()
+    wing_induced_angle = Data()
         
     total_lift_coeff, total_induced_drag_coeff, _, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CPi, _ \
         = VLM(conditions,settings,geometry)
@@ -664,12 +665,14 @@ def calculate_VLM(conditions,settings,geometry):
     for wing in geometry.wings.values():
         ref = wing.areas.reference
         if wing.symmetric:
-            wing_lifts[wing.tag] = np.atleast_2d(np.sum(dim_wing_lifts[:,i:(i+2)],axis=1)).T/ref
-            wing_drags[wing.tag] = np.atleast_2d(np.sum(dim_wing_drags[:,i:(i+2)],axis=1)).T/ref
+            wing_lifts[wing.tag]         = np.atleast_2d(np.sum(dim_wing_lifts[:,i:(i+2)],axis=1)).T/ref
+            wing_drags[wing.tag]         = np.atleast_2d(np.sum(dim_wing_drags[:,i:(i+2)],axis=1)).T/ref
+            wing_induced_angle[wing.tag] = np.concatenate((alpha_i[i],alpha_i[i+1]),axis=1)
             i+=1
         else:
-            wing_lifts[wing.tag] = np.atleast_2d(dim_wing_lifts[:,i]).T/ref
-            wing_drags[wing.tag] = np.atleast_2d(dim_wing_drags[:,i]).T/ref
+            wing_lifts[wing.tag]         = np.atleast_2d(dim_wing_lifts[:,i]).T/ref
+            wing_drags[wing.tag]         = np.atleast_2d(dim_wing_drags[:,i]).T/ref
+            wing_induced_angle[wing.tag] = alpha_i[i]
         i+=1
 
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, alpha_i, CPi
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, wing_induced_angle, CPi

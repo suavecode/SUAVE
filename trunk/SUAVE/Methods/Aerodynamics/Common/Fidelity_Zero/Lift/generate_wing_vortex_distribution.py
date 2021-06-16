@@ -928,23 +928,76 @@ def generate_wing_vortex_distribution(geometry,settings):
     # --------------------------------------------------------------------------------------- 
     VD.n_w        = n_w
     VD.n_cp       = n_cp  
+    VD.n_sw       = n_sw
+    VD.n_cw       = n_cw         
     VD.wing_areas = np.array(wing_areas)   
     VD.Stot       = sum(wing_areas)        
     VD.n_fus = 0
     for fus in geometry.fuselages:   
         VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage) 
-         
-    VD.n_sw       = n_sw
-    VD.n_cw       = n_cw       
-
-    geometry.vortex_distribution = VD
-
+        
+    n_cp = VD.n_cp
+    n_w  = VD.n_w
+    
     # Compute Panel Areas 
     VD.panel_areas = compute_panel_area(VD)
     
     # Compute Panel Normals
     VD.normals = compute_unit_normal(VD)
     
+
+    ## NEW THINGS FOR AARON TO TRACK. Calculate these anyway you'd like, but the output data structure matters
+    
+    # Set LE and TE minus one indices
+    VD.leading_edge_indices  = np.zeros_like(VD.XC,dtype=bool)
+    VD.leading_edge_indices[0:n_cp*n_w:n_cw] = True
+    VD.trailing_edge_indices = np.zeros_like(VD.XC,dtype=bool)
+    VD.trailing_edge_indices[n_cw-1:n_cp*n_w:n_cw] = True    
+    
+    ##
+    # Panels per strip (RNMAX), this is assigned for all panels
+    VD.panels_per_strip = np.ones_like(VD.XC,np.int16)*n_cw
+    
+    # Chord length, this is assigned for all panels. 
+    LE_ind      = VD.leading_edge_indices
+    XA1         = VD.XA1
+    XB1         = VD.XB1
+    ZA1         = VD.ZA1
+    ZB1         = VD.ZB1
+    XA_TE       = VD.XA_TE
+    XB_TE       = VD.XB_TE
+    ZA_TE       = VD.ZA_TE
+    ZB_TE       = VD.ZB_TE    
+    LE_A_pts_x  = XA1[LE_ind]
+    LE_B_pts_x  = XB1[LE_ind]
+    LE_A_pts_z  = ZA1[LE_ind]
+    LE_B_pts_z  = ZB1[LE_ind]    
+    LE_X        = (LE_A_pts_x+LE_B_pts_x)/2
+    LE_Z        = (LE_A_pts_z+LE_B_pts_z)/2
+    TE_X        = (XB_TE + XA_TE)/2
+    TE_Z        = (ZB_TE + ZA_TE)/2
+    LE_X        = np.repeat(np.atleast_2d(LE_X),n_cw,axis=1)
+    LE_Z        = np.repeat(np.atleast_2d(LE_Z),n_cw,axis=1)    
+    CHORD       = np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2)    
+    VD.chord_lengths    = CHORD
+
+    # Tangent Incidence Angles of the chordwise strip. LE to TE, ZETA
+    VD.tangent_incidence_angle = ((LE_Z-TE_Z)/(LE_X-TE_X))[0,:]
+
+    # Count off the panel number in the strip
+    VD.chordwise_panel_number = np.tile(np.linspace(1,n_cw,n_cw),n_sw*n_w)
+
+    # Number spanwise and chordwise is now a vector for each wing
+    VD.n_sw = np.ones((n_w,),dtype=np.int32)*n_sw
+    VD.n_cw = np.ones((n_w,),dtype=np.int32)*n_cw
+    
+    # break indices
+    VD.chordwise_breaks = np.linspace(0,n_sw*n_w-1,n_sw*n_w,dtype=np.int32)*n_cw
+    VD.spanwise_breaks  = np.linspace(0,n_w-1,n_w,dtype=np.int32)*n_sw
+
+    geometry.vortex_distribution = VD
+
+
     return VD 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
