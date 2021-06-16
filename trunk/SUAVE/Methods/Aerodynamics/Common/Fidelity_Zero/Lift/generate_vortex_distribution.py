@@ -61,6 +61,14 @@ def generate_vortex_distribution(geometry,settings):
 
     Inputs:
     geometry.wings                                [Unitless]  
+    
+    Of the following settings, the user should define either the number_ atrributes or the wing_ and fuse_ attributes 
+    settings.number_spanwise_vortices             - a base number of vortices to be applied to both wings and fuselages
+    settings.number_chordwise_vortices            - a base number of vortices to be applied to both wings and fuselages
+    settings.wing_spanwise_vortices               - the number of vortices to be applied to only the wings
+    settings.wing_chordwise_vortices              - the number of vortices to be applied to only the wings
+    settings.fuselage_spanwise_vortices           - the number of vortices to be applied to only the fuslages
+    settings.fuselage_chordwise_vortices          - the number of vortices to be applied to only the fuselages    
        
     Outputs:                                   
     VD - vehicle vortex distribution              [Unitless] 
@@ -69,6 +77,22 @@ def generate_vortex_distribution(geometry,settings):
     N/A 
          
     '''
+    # ---------------------------------------------------------------------------------------
+    # STEP 0: Unpack settings
+    # ---------------------------------------------------------------------------------------    
+    base_disc_defined = ('number_spanwise_vortices'   in settings.keys())
+    wing_disc_defined = ('wing_spanwise_vortices'     in settings.keys())
+    fuse_disc_defined = ('fuselage_spanwise_vortices' in settings.keys())
+    
+    n_sw_base      = 1         if not base_disc_defined else settings.number_spanwise_vortices  
+    n_cw_base      = 2         if not base_disc_defined else settings.number_chordwise_vortices
+    n_sw_wing      = n_sw_base if not wing_disc_defined else settings.wing_spanwise_vortices  
+    n_cw_wing      = n_cw_base if not wing_disc_defined else settings.wing_chordwise_vortices
+    n_sw_fuse      = n_sw_base if not fuse_disc_defined else settings.fuselage_spanwise_vortices  
+    n_cw_fuse      = n_cw_base if not fuse_disc_defined else settings.fuselage_chordwise_vortices    
+    spc            = settings.spanwise_cosine_spacing
+    model_fuselage = settings.model_fuselage    
+    
     # ---------------------------------------------------------------------------------------
     # STEP 1: Define empty vectors for coordinates of panes, control points and bound vortices
     # ---------------------------------------------------------------------------------------
@@ -122,10 +146,6 @@ def generate_vortex_distribution(geometry,settings):
     VD.Z      = np.empty(shape=[0,1])
     VD.Y_SW   = np.empty(shape=[0,1])
     VD.DY     = np.empty(shape=[0,1]) 
-    n_sw      = settings.number_spanwise_vortices  # This is the base value, but may change for each wing
-    n_cw      = settings.number_chordwise_vortices # This is the base value, but may change for each wing     
-    spc       = settings.spanwise_cosine_spacing
-    model_fuselage = settings.model_fuselage
 
     # empty vectors necessary for arbitrary discretization dimensions
     VD.n_w         = 0                                # number of wings counter (refers to wings, fuselages or other structures)  
@@ -156,12 +176,12 @@ def generate_vortex_distribution(geometry,settings):
     for wing in geometry.VLM_wings:
         if not wing.is_a_control_surface:
             print('discretizing ' + wing.tag)
-            VD = generate_wing_vortex_distribution(VD,wing,geometry.VLM_wings,n_cw,n_sw,spc)    
+            VD = generate_wing_vortex_distribution(VD,wing,geometry.VLM_wings,n_cw_wing,n_sw_wing,spc)    
                     
     for wing in geometry.VLM_wings:
         if wing.is_a_control_surface:
             print('discretizing ' + wing.tag)
-            VD = generate_wing_vortex_distribution(VD,wing,geometry.VLM_wings,n_cw,n_sw,spc)     
+            VD = generate_wing_vortex_distribution(VD,wing,geometry.VLM_wings,n_cw_wing,n_sw_wing,spc)     
                     
     # ---------------------------------------------------------------------------------------
     # STEP 8.1: Unpack aircraft fuselage geometry
@@ -171,7 +191,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.n_fus = 0
     for fus in geometry.fuselages:   
         print('discretizing ' + fus.tag)
-        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage)       
+        VD = generate_fuselage_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,model_fuselage)       
 
 
     # Compute Panel Areas 
