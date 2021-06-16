@@ -230,8 +230,8 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
     # STEP 3: Get discretization control variables  
     # ---------------------------------------------------------------------------------------
     # get number of spanwise and chordwise panels for this wing
-    n_sw = n_sw #if (not wing.is_a_control_surface) else max(len(wing.y_coords_required)-1,1)
-    n_cw = n_cw #if (not wing.is_a_control_surface) else max(int(np.ceil(wing.chord_fraction*n_cw)),2)  
+    n_sw = n_sw if (not wing.is_a_control_surface) else max(len(wing.y_coords_required)-1,1)
+    n_cw = n_cw if (not wing.is_a_control_surface) else max(int(np.ceil(wing.chord_fraction*n_cw)),2)  
     
     # get y_coordinates (y-locations of the edges of each strip in wing-local coords)
     if spc == True: # discretize wing using cosine spacing     
