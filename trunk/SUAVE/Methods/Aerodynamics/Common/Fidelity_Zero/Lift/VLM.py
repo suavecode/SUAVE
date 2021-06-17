@@ -60,8 +60,12 @@ def VLM(conditions,settings,geometry):
         
        settings.number_spanwise_vortices       [Unitless]
        settings.number_chordwise_vortices      [Unitless]
-       settings.use_surrogate                  [Unitless]
        settings.propeller_wake_model           [Unitless]
+       settings.initial_timestep_offset        [seconds]
+       settings.number_of_wake_timesteps 
+       settings.wake_development_time 
+       settings.leading_edge_suction_multiplier
+       
        conditions.aerodynamics.angle_of_attack [radians]
        conditions.freestream.mach_number       [Unitless]
        

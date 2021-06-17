@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------  
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 import numpy as np 
 import matplotlib.pyplot as plt  
 from mpl_toolkits.mplot3d import Axes3D
@@ -100,6 +100,8 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     # Plot Vehicle
     plt.axis('off') 
     plt.grid(None)      
+    if save_figure:
+        plt.savefig(save_filename)
     return 
 
 def plot_wing(axes,VD,face_color,edge_color,alpha_val): 
@@ -344,6 +346,10 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     MCA    = prop.mid_chord_alignment
     t      = prop.max_thickness_distribution
     ta     = -propulsor.thrust_angle
+    try:
+        a_o = -prop.azimuthal_offset
+    except:
+        a_o = 0.0 # no offset
     
     if isinstance(propulsor,Lift_Cruise):
         if propulsor_name == 'propeller': 
@@ -365,7 +371,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     
     for n_p in range(num_props):  
         rot    = prop.rotation[n_p] 
-        a_o    = 0
+        a_o    = a_o*rot
         flip_1 = (np.pi/2)  
         flip_2 = (np.pi/2)  
         
