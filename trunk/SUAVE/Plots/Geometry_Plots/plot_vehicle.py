@@ -2,24 +2,23 @@
 # plot_vehicle.py
 # 
 # Created:  Mar 2020, M. Clarke
-#           Apr 2020, M. Clarke
+# Modified: Apr 2020, M. Clarke
 #           Jul 2020, M. Clarke
+#           Jun 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------  
-from SUAVE.Core import Data, Units
+from SUAVE.Core import Data
 import numpy as np 
 import matplotlib.pyplot as plt  
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series  
-from SUAVE.Methods.Geometry.Three_Dimensional \
-     import  orientation_product, orientation_transpose
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution
-from SUAVE.Components.Energy.Networks import Lift_Cruise , Turbofan 
-from SUAVE.Components.Energy.Converters import Propeller, Rotor 
+from SUAVE.Components.Energy.Networks import Lift_Cruise 
+
 ## @ingroup Plots-Geometry_Plots
 def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 

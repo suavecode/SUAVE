@@ -13,6 +13,7 @@ from SUAVE.Plots.Geometry_Plots import plot_airfoil
 import numpy as np
 import os
 
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def generate_interpolated_airfoils(a1, a2, nairfoils, save_filename="Transition", npts=50):
     """ Takes in two airfoils, interpolates between their coordinates to generate new
     airfoil geometries and saves new airfoil files.
