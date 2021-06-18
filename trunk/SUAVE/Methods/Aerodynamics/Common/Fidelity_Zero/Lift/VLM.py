@@ -121,7 +121,9 @@ def VLM(conditions,settings,geometry):
     len_mach = len(mach)
 
     # generate vortex distribution 
+    #from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution import generate_wing_vortex_distribution as generate_vortex_distribution 
     VD   = generate_vortex_distribution(geometry,settings)  
+    
     
     # Unpack vortex distribution
     n_cp         = VD.n_cp

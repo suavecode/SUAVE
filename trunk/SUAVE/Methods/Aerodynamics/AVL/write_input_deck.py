@@ -10,6 +10,7 @@
 # ----------------------------------------------------------------------
 
 from .purge_files import purge_files
+from SUAVE.Core import Units
 
 ## @ingroup Methods-Aerodynamics-AVL
 def write_input_deck(avl_object,trim_aircraft):
@@ -56,9 +57,13 @@ G
         input_deck.write(open_runs.format(batch))
         input_deck.write(base_input)
         for case in avl_object.current_status.cases:
+            cs_commands = control_surface_deflection_command(case,avl_object.geometry)            
+            
             # write and store aerodynamic and static stability result files 
             case_command = make_case_command(avl_object,case,trim_aircraft)
-            input_deck.write(case_command)
+            
+            commands = cs_commands + case_command            
+            input_deck.write(commands)
 
         input_deck.write('\nQUIT\n')
 
@@ -193,15 +198,15 @@ def control_surface_deflection_command(case,aircraft):
         N/A
     """     
     cs_template = \
-'''
-D{0}
+'''D{0}
 D{1}
-{2}'''
+{2}
+'''
     cs_idx = 1 
     cs_commands = ''
     for wing in aircraft.wings:
-        for ctrl_surf in wing.control_surfaces:
-            cs_command = cs_template.format(cs_idx,cs_idx,wing.control_surfaces[ctrl_surf].deflection)
+        for ctrl_surf in wing.control_surfaces.keys():
+            cs_command = cs_template.format(cs_idx,cs_idx,wing.control_surfaces[ctrl_surf].deflection / Units.deg)
             cs_commands = cs_commands + cs_command
             cs_idx += 1
     return cs_commands 
