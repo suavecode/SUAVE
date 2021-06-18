@@ -161,6 +161,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.chordwise_panel_number  = np.array([],dtype=np.int16) # array of panels' numbers in their strips.     
     VD.chord_lengths           = np.array([])                # Chord length, this is assigned for all panels.
     VD.tangent_incidence_angle = np.array([])                # Tangent Incidence Angles of the chordwise strip. LE to TE, ZETA
+    VD.SPC_switch              = np.array([])                # 0 or 1 per strip. 0 turns off leading edge suction for non-slat control surfaces
     
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
@@ -765,14 +766,19 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
         VD.n_cp += n_panels 
         
         # store this wing's discretization information  
-        first_panel_ind = VD.XAH.size
-        first_strip_ind = VD.chordwise_breaks.size
-        chordwise_breaks =  first_panel_ind + np.linspace(0,n_panels-1,n_panels-1)[0::n_cw]
+        first_panel_ind  = VD.XAH.size
+        first_strip_ind  = VD.chordwise_breaks.size
+        chordwise_breaks = first_panel_ind + np.linspace(0,n_panels-1,n_panels-1)[0::n_cw]
+        SPC_switch       = np.ones(n_sw)
+        if wing.is_a_control_surface:
+            if not wing.is_slat:
+                SPC_switch = SPC_switch*0
         
         VD.chordwise_breaks = np.append(VD.chordwise_breaks, np.int32(chordwise_breaks))
         VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
-        VD.n_sw             = np.append(VD.n_sw, np.int16(n_sw))
-        VD.n_cw             = np.append(VD.n_cw, np.int16(n_cw))
+        VD.n_sw             = np.append(VD.n_sw            , np.int16(n_sw)            )
+        VD.n_cw             = np.append(VD.n_cw            , np.int16(n_cw)            )
+        VD.SPC_switch       = np.append(VD.SPC_switch      , SPC_switch                )
     
         # ---------------------------------------------------------------------------------------
         # STEP 7: Store wing in vehicle vector
@@ -1172,7 +1178,8 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         VD.panels_per_strip        = np.append(VD.panels_per_strip       , np.tile(panels_per_strip       , 2) )
         VD.chordwise_panel_number  = np.append(VD.chordwise_panel_number , np.tile(chordwise_panel_number , 2) ) 
         VD.chord_lengths           = np.append(VD.chord_lengths          , np.tile(chord_lengths          , 2) )
-        VD.tangent_incidence_angle = np.append(VD.tangent_incidence_angle, np.tile(tangent_incidence_angle, 2) )       
+        VD.tangent_incidence_angle = np.append(VD.tangent_incidence_angle, np.tile(tangent_incidence_angle, 2) ) 
+        VD.SPC_switch              = np.append(VD.SPC_switch             , np.tile(np.ones(n_sw)          , 2) )
     
         # Store fus in vehicle vector  
         VD.XAH  = np.append(VD.XAH,fhs_xah)

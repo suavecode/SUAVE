@@ -136,6 +136,7 @@ def VLM(conditions,settings,geometry):
     LE_ind       = VD.leading_edge_indices
     ZETA         = VD.tangent_incidence_angle
     RK           = VD.chordwise_panel_number
+    SPC_switch   = VD.SPC_switch
 
     
     ### VISUALIZE NEW VORTEX DISTRIBUTION
@@ -274,6 +275,7 @@ def VLM(conditions,settings,geometry):
     m_b  = np.atleast_2d(mach[:,0]<1.)
     SPC_cond      = VL*m_b.T
     SPC[SPC_cond] = -1.
+    #SPC           = SPC * SPC_switch
     
     CLE  = 0.5* DCP_LE *np.sqrt(XLE[LE_ind])
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB
