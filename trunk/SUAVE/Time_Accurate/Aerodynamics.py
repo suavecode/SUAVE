@@ -1,33 +1,28 @@
-## @ingroup Analyses-Aerodynamics
-# Fidelity_Zero.py
+## @ingroup Time_Accurate
+# Aerodynamics.py
 #
 # Created:  
-# Modified: Feb 2016, Andrew Wendorff
-#           Apr 2019, T. MacDonald
-#           Apr 2020, M. Clarke
-#           Sep 2020, M. Clarke 
+# Modified: Jun 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Data
-from .Markup import Markup
+from SUAVE.Analyses.Aerodynamics.Markup import Markup
 from SUAVE.Analyses import Process
 import numpy as np
 
 # the aero methods
-from SUAVE.Methods.Aerodynamics import Fidelity_Zero as Methods
 from SUAVE.Methods.Aerodynamics.Common import Fidelity_Zero as Common
-from .Process_Geometry import Process_Geometry
-from .Vortex_Lattice import Vortex_Lattice
+from SUAVE.Analyses.Aerodynamics.Process_Geometry import Process_Geometry
+from SUAVE.Analyses.Aerodynamics.Vortex_Lattice import Vortex_Lattice
 
 # ----------------------------------------------------------------------
 #  Analysis
 # ----------------------------------------------------------------------
-## @ingroup Analyses-Aerodynamics
-class Fidelity_Zero(Markup):
+## @ingroup Time_Accurate
+class Time_Accurate(Markup):
     """This is an analysis based on low-fidelity models.
 
     Assumptions:
@@ -54,7 +49,7 @@ class Fidelity_Zero(Markup):
         Properties Used:
         N/A
         """          
-        self.tag    = 'fidelity_zero_markup'
+        self.tag    = 'time_accurate_markup'
     
         # correction factors
         settings = self.settings
@@ -70,11 +65,13 @@ class Fidelity_Zero(Markup):
         settings.maximum_lift_coefficient           = np.inf
         settings.number_spanwise_vortices           = None 
         settings.number_chordwise_vortices          = None 
+        
+        # settings for propeller wake model
         settings.initial_timestep_offset            = 0.
         settings.wake_development_time              = 0.05
         settings.number_of_wake_timesteps           = 30
-        settings.use_surrogate                      = True
-        settings.propeller_wake_model               = False 
+        settings.use_surrogate                      = False
+        settings.propeller_wake_model               = True 
         settings.model_fuselage                     = False
 
         # build the evaluation process

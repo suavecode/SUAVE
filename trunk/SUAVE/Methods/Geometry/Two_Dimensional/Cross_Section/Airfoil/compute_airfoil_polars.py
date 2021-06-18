@@ -19,7 +19,7 @@ from .import_airfoil_polars   import import_airfoil_polars
 from scipy.interpolate        import RectBivariateSpline
 import numpy as np
 
-
+## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
 def compute_airfoil_polars(a_geo,a_polar,use_pre_stall_data=True):
     """This computes the lift and drag coefficients of an airfoil in stall regimes using pre-stall
     characterstics and AERODAS formation for post stall characteristics. This is useful for 
