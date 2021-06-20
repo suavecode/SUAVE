@@ -1,3 +1,9 @@
+## @ingroup Time_Accurate-Simulations
+# save_prop_wake_vtk.py
+# 
+# Created:    Jun 2021, R. Erhard
+# Modified: 
+#           
 
 def save_prop_wake_vtk(VD,filename,Results,i_prop):
     # Extract wake properties of the ith propeller

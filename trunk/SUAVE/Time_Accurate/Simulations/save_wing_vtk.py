@@ -1,7 +1,13 @@
+## @ingroup Time_Accurate-Simulations
+# save_wing_vtk.py
+# 
+# Created:    Jun 2021, R. Erhard
+# Modified: 
+#           
 
 
 def save_wing_vtk(VD, filename, Results):
-    "Saves a SUAVE wing object as a VTK in legacy format"
+    "Saves a SUAVE wing object as a VTK in legacy format."
     
     n_cw = VD.n_cw[0]
     n_sw = VD.n_sw[0]

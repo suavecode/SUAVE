@@ -1,5 +1,16 @@
+## @ingroup Time_Accurate-Simulations
+# save_prop_vtk.py
+# 
+# Created:    Jun 2021, R. Erhard
+# Modified: 
+#           
 
-def save_prop_vtk(vehicle,filename,Results, i_prop, Gprops):
+
+def save_prop_vtk(vehicle, filename, Results, i_prop, Gprops):
+    """
+    Assumptions: 
+         Quad cell structures for mesh
+    """
     # Generate propeller point geometry
     prop   = vehicle.propulsors.battery_propeller.propeller
     # Create file
@@ -8,7 +19,7 @@ def save_prop_vtk(vehicle,filename,Results, i_prop, Gprops):
         # Write header
         #---------------------
         l1 = "# vtk DataFile Version 4.0"               # File version and identifier
-        l2 = "\nSUAVE Model of PROWIM Propeller "  # Title 
+        l2 = "\nSUAVE Model of PROWIM Propeller "       # Title 
         l3 = "\nASCII"                                  # Data type
         l4 = "\nDATASET UNSTRUCTURED_GRID"              # Dataset structure / topology     
         
@@ -18,8 +29,8 @@ def save_prop_vtk(vehicle,filename,Results, i_prop, Gprops):
         # --------------------
         # Write Points
         # --------------------   
-        n_r  = len(prop.chord_distribution)
-        n_af = 19
+        n_r      = len(prop.chord_distribution)
+        n_af     = Gprops.n_af
         n_blades = prop.number_of_blades
         
         n_vertices = n_blades*(n_r)*(n_af)    # total number of node vertices
@@ -55,8 +66,33 @@ def save_prop_vtk(vehicle,filename,Results, i_prop, Gprops):
                     new_point = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
                     node_number = r_idx + (n_r)*c_idx
                     #print("Point: ", new_point, "; Node Number: ", str(node_number))
-                    f.write(new_point)                  
+                    f.write(new_point)  
+                    print(node_number)
+                    
+        #---------------------    
+        # Write Cells:
+        #---------------------
+        cells_per_blade = n_af*(n_r-1)
+        n_cells         = n_blades*cells_per_blade
+        v_per_cell      = 4    # quad cells
+        size            = n_cells*(1+v_per_cell) # total number of integer values required to represent the list
+        cell_header     = "\n\nCELLS "+str(n_cells)+" "+str(size)
+        f.write(cell_header)
         
+        for B_idx in range(n_blades):
+            for i in range(cells_per_blade):
+                
+                new_cell = "\n4 "+str(i)+" "+str(i+n_af)+" "+str(i+n_af+1)+" "+str(i+1)
+                f.write(new_cell)
+                
+        
+        #---------------------        
+        # Write Cell Types:
+        #---------------------
+        cell_type_header  = "\n\nCELL_TYPES "+str(n_cells)
+        f.write(cell_type_header)        
+        for i in range(n_cells):
+            f.write("\n9")            
     f.close()
     
     
