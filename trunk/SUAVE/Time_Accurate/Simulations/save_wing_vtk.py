@@ -4,22 +4,42 @@
 # Created:    Jun 2021, R. Erhard
 # Modified: 
 #           
+import SUAVE
 
+from SUAVE.Plots.Geometry_Plots.plot_vehicle import generate_wing_points
 from SUAVE.Core import Data
 
-def save_wing_vtk(vehicle, filename, Results):
+
+def save_wing_vtk(vehicle, wing_instance, settings, filename, Results):
     "Saves a SUAVE wing object as a VTK in legacy format."
     
-    VD   = vehicle.vortex_distribution 
-    n_cw = VD.n_cw[0]
-    n_sw = VD.n_sw[0]
+    # generate VD for this wing alone
+    wing_vehicle = SUAVE.Vehicle() 
+    wing_vehicle.append_component(wing_instance)
+    
+    VD = generate_wing_points(wing_vehicle,settings) 
+    
+    
+    #VD   = vehicle.vortex_distribution 
+    n_cw = VD.n_cw
+    n_sw = VD.n_sw
     n_cp = VD.n_cp # number of control points and panels on wing
     
-    symmetric = vehicle.wings.main_wing.symmetric
+    ## check for wing segments:
+    #n_w        = len(vehicle.wings)
+    #main_wing  = vehicle.wings.main_wing
+    #n_segments = len(main_wing.Segments.keys())
+    #n_sw       = n_sw*(n_segments+1)
+    
+    
+    symmetric = vehicle.wings[wing_instance.tag].symmetric
     
     if symmetric:
         half_l = int(len(VD.XA1)/2)
+        
+        # number panels per half span
         n_cp   = int(n_cp/2)
+        #n_sw   = int(n_sw/2)
         
         # split wing into two separate wings
         Rwing = Data()
@@ -130,7 +150,7 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
         #---------------------
         n            = n_cp # total number of cells
         v_per_cell   = 4 # quad cells
-        size         = n_cp*(1+v_per_cell) # total number of integer values required to represent the list
+        size         = n*(1+v_per_cell) # total number of integer values required to represent the list
         cell_header  = "\n\nCELLS "+str(n)+" "+str(size)
         f.write(cell_header)
         

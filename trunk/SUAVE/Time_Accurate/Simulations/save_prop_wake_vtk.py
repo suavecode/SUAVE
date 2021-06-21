@@ -91,8 +91,23 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
         cell_type_header  = "\n\nCELL_TYPES "+str(n_cells)
         f.write(cell_type_header)        
         for i in range(n_cells):
-            f.write("\n9")        
+            f.write("\n9")       
+            
+        #--------------------------        
+        # Write Scalar Cell Data:
+        #--------------------------
+        cell_data_header  = "\n\nCELL_DATA "+str(n_cells)
+        f.write(cell_data_header)      
         
+        # First scalar value
+        f.write("\nSCALARS circulation float 1")
+        f.write("\nLOOKUP_TABLE default")   
+        blade_circulation = Results['prop_outputs'].disc_circulation[0][0]
+        for B_idx in range(n_blades):
+            for i in range(cells_per_blade):
+                new_circ = str(blade_circulation[int(i%(n_radial_rings+1))])
+                f.write("\n"+new_circ)     
+        stopper=1
         
     f.close()
         

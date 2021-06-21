@@ -6,13 +6,13 @@
 #           
 
 
-def save_prop_vtk(vehicle, filename, Results, i_prop, Gprops):
+def save_prop_vtk(prop, filename, Results, i_prop, Gprops):
     """
     Assumptions: 
          Quad cell structures for mesh
     """
     # Generate propeller point geometry
-    prop     = vehicle.propulsors.battery_propeller.propeller
+    #prop     = vehicle.propulsors.battery_propeller.propeller
     n_blades = prop.number_of_blades
     
     
