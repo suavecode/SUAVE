@@ -168,7 +168,7 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
             new_cl = str(cl[int(i/n_cw)])
             f.write("\n"+new_cl)
             
-        f.write("\nSCALARS cl_CL float 1")
+        f.write("\nSCALARS Cl/CL float 1")
         f.write("\nLOOKUP_TABLE default")   
         cl = Results['cl_y_DVE'][0]
         CL = Results['CL_wing_DVE'][0][0]

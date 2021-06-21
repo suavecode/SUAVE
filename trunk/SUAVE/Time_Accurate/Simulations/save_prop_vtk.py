@@ -67,11 +67,11 @@ def save_prop_vtk(vehicle, filename, Results, i_prop, Gprops):
             
             rlap=0
             for i in range(cells_per_blade): # loop over all nodes in blade
-                if i==n_af-1+n_af*rlap:
+                if i==(n_af-1+n_af*rlap):
                     # last airfoil face connects back to first node
-                    b = i-(n_af-1)
-                    c = i+1
-                    rlap=rlap+1
+                    b    = i-(n_af-1)
+                    c    = i+1
+                    rlap = rlap+1
                 else:
                     b = i+1
                     c = i+n_af+1
@@ -82,7 +82,6 @@ def save_prop_vtk(vehicle, filename, Results, i_prop, Gprops):
                 
                 f.write(new_cell)
                 
-                    
             
             #---------------------        
             # Write Cell Types:
