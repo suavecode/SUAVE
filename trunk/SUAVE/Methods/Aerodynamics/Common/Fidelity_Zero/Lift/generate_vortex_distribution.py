@@ -657,21 +657,11 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
             zc [idx_y*n_cw:(idx_y+1)*n_cw] = zeta_prime 
            
             x[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = xi_prime_as     # x, y, z represent all all points of the corners of the panels, LE and TE inclusive
-            y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = y_prime_as
+            y[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = y_prime_as      # the final right corners get appended at last strip in wing, later
             z[idx_y*(n_cw+1):(idx_y+1)*(n_cw+1)] = zeta_prime_as              
     
             cs_w[idx_y] = wing_chord_section       
-    
-            #increment i_break if needed; check for end of wing----------------------------------------------------
-            if y_b[idx_y] == break_spans[i_break+1]: 
-                i_break += 1
-                
-                # append final xyz chordline 
-                if i_break == n_breaks-1:
-                    x[-(n_cw+1):] = xi_prime_bs
-                    y[-(n_cw+1):] = y_prime_bs
-                    z[-(n_cw+1):] = zeta_prime_bs                                     
-                
+                   
             # store this strip's discretization information--------------------------------------------------------
             LE_inds        = np.full(n_cw, False)
             TE_inds        = np.full(n_cw, False)
@@ -687,6 +677,11 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
             TE_Z           = (zeta_prime_a2[-1] + zeta_prime_b2[-1])/2           
             chord_adjusted = np.ones(n_cw) * np.sqrt((TE_X-LE_X)**2 + (TE_Z-LE_Z)**2) # CHORD in vorlax
             tan_incidence  = np.ones(n_cw) * (LE_Z-TE_Z)/(LE_X-TE_X)                  # ZETA  in vorlax
+                        
+            is_a_slat         = wing.is_a_control_surface and wing.is_slat
+            strip_has_no_slat = (not wing.is_a_control_surface) and (span_breaks[i_break].cs_IDs[0,1] == -1) # wing's le, outboard control surface ID
+            
+            SPC_switch       = 1 if is_a_slat or strip_has_no_slat else 0   
             
             VD.leading_edge_indices    = np.append(VD.leading_edge_indices   , LE_inds       ) 
             VD.trailing_edge_indices   = np.append(VD.trailing_edge_indices  , TE_inds       )            
@@ -694,6 +689,17 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
             VD.chordwise_panel_number  = np.append(VD.chordwise_panel_number , panel_numbers )  
             VD.chord_lengths           = np.append(VD.chord_lengths          , chord_adjusted)
             VD.tangent_incidence_angle = np.append(VD.tangent_incidence_angle, tan_incidence )
+            VD.SPC_switch              = np.append(VD.SPC_switch             , SPC_switch    )
+            
+            #increment i_break if needed; check for end of wing----------------------------------------------------
+            if y_b[idx_y] == break_spans[i_break+1]: 
+                i_break += 1
+                
+                # append final xyz chordline 
+                if i_break == n_breaks-1:
+                    x[-(n_cw+1):] = xi_prime_bs
+                    y[-(n_cw+1):] = y_prime_bs
+                    z[-(n_cw+1):] = zeta_prime_bs                                     
         #End 'for each strip' loop            
     
         # adjusting coordinate axis so reference point is at the nose of the aircraft------------------------------
@@ -769,16 +775,11 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
         first_panel_ind  = VD.XAH.size
         first_strip_ind  = VD.chordwise_breaks.size
         chordwise_breaks = first_panel_ind + np.linspace(0,n_panels-1,n_panels-1)[0::n_cw]
-        SPC_switch       = np.ones(n_sw)
-        if wing.is_a_control_surface:
-            if not wing.is_slat:
-                SPC_switch = SPC_switch*0
         
         VD.chordwise_breaks = np.append(VD.chordwise_breaks, np.int32(chordwise_breaks))
         VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
         VD.n_sw             = np.append(VD.n_sw            , np.int16(n_sw)            )
         VD.n_cw             = np.append(VD.n_cw            , np.int16(n_cw)            )
-        VD.SPC_switch       = np.append(VD.SPC_switch      , SPC_switch                )
     
         # ---------------------------------------------------------------------------------------
         # STEP 7: Store wing in vehicle vector
