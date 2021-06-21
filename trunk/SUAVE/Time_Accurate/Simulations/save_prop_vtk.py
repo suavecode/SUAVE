@@ -99,7 +99,7 @@ def save_prop_vtk(vehicle, filename, Results, i_prop, Gprops):
             f.write(cell_data_header)            
             
             # First scalar value
-            f.write("\nSCALARS cl float 1")
+            f.write("\nSCALARS i float 1")
             f.write("\nLOOKUP_TABLE default")  
             for i in range(cells_per_blade):
                 new_idx = str(i)
