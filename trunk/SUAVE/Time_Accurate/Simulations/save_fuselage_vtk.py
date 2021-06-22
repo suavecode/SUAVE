@@ -105,5 +105,7 @@ def write_fuselage_vtk(fus_pts,filename):
         for i in range(n):
             new_idx = str(i)
             f.write("\n"+new_idx)
+            
+            
     f.close()
     return
