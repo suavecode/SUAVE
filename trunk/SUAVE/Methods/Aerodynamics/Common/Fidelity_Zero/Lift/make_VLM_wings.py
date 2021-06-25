@@ -22,7 +22,7 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 # make_VLM_wings()
 # ------------------------------------------------------------------  
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def make_VLM_wings(geometry):
+def make_VLM_wings(geometry, settings):
     """ This forces all wings to be segmented, appends all control surfaces
         as full wings to geometry, and contructs helper variables (most 
         notably span_breaks[]) for later
@@ -55,14 +55,18 @@ def make_VLM_wings(geometry):
                 span_fraction_end
                 deflection
                 chord_fraction
+                
+    settings.discretize_control_surfaces  --> set to True to generate control surface panels
     
     Properties Used:
     N/A
     """ 
-    wings = deepcopy(geometry.wings)
+    # unpack inputs
+    discretize_cs = settings.discretize_control_surfaces if ('discretize_control_surfaces' in settings.keys()) else False
+    wings         = deepcopy(geometry.wings)
     
     # ------------------------------------------------------------------
-    # Reformat original wings to have at least 2 segments, check that no control_surfaces are on segments yet
+    # Reformat original wings to have at least 2 segments and additional values for processing later
     # ------------------------------------------------------------------    
     for wing in wings:
         wing.is_a_control_surface = False
@@ -76,7 +80,7 @@ def make_VLM_wings(geometry):
                     raise ValueError('Input, control surfaces should be appended to the wing, not its segments. ' + 
                                      'This function will move the control surfaces to wing segments itself.')  
         #move wing control surfaces to from wing to its segments
-        wing = populate_control_sections(wing)
+        wing = populate_control_sections(wing) if discretize_cs else wing
         
         #ensure wing has attributes that will be needed later
         wing_halfspan = wing.spans.projected * 0.5 if wing.symmetric else wing.spans.projected

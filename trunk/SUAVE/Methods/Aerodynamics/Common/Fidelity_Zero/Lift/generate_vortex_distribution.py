@@ -93,7 +93,7 @@ def generate_vortex_distribution(geometry,settings):
     spc            = settings.spanwise_cosine_spacing
     model_fuselage = settings.model_fuselage
     
-    show_prints    = True if ('show_prints' in settings.keys() and settings.show_prints==True) else False
+    show_prints    = settings.show_prints if ('show_prints' in settings.keys()) else False
     
     # ---------------------------------------------------------------------------------------
     # STEP 1: Define empty vectors for coordinates of panes, control points and bound vortices
@@ -172,7 +172,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.vortex_lift = []
     
     #reformat/preprocess wings and control surfaces for VLM panelization
-    VLM_wings = make_VLM_wings(geometry)
+    VLM_wings = make_VLM_wings(geometry, settings)
     geometry.VLM_wings = VLM_wings
     
     #generate panelization for each wing. Wings first, then control surface wings

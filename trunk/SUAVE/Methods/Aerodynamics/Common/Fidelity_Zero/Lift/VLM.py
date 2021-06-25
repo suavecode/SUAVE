@@ -68,6 +68,7 @@ def VLM(conditions,settings,geometry):
        
        settings.use_surrogate                  [Unitless]
        settings.propeller_wake_model           [Unitless]
+       settings.discretize_control_surfaces    [Boolean] -- set to True to generate control surface panels
        conditions.aerodynamics.angle_of_attack [radians]
        conditions.freestream.mach_number       [Unitless]
        
