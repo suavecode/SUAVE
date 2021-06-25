@@ -10,21 +10,17 @@
 # ----------------------------------------------------------------------
 
 from .purge_files import purge_files
-from SUAVE.Core import Units
 
 ## @ingroup Methods-Aerodynamics-AVL
 def write_input_deck(avl_object,trim_aircraft):
     """ This function writes the execution steps used in the AVL call
-
     Assumptions:
         None
         
     Source:
         Drela, M. and Youngren, H., AVL, http://web.mit.edu/drela/Public/web/avl
-
     Inputs:
         avl_object
-
     Outputs:
         None
  
@@ -37,7 +33,6 @@ mset
 0
 PLOP
 G
-
 '''   
     open_runs = \
 '''CASE {}
@@ -57,13 +52,9 @@ G
         input_deck.write(open_runs.format(batch))
         input_deck.write(base_input)
         for case in avl_object.current_status.cases:
-            cs_commands = control_surface_deflection_command(case,avl_object.geometry)            
-            
             # write and store aerodynamic and static stability result files 
             case_command = make_case_command(avl_object,case,trim_aircraft)
-            
-            commands = cs_commands + case_command            
-            input_deck.write(commands)
+            input_deck.write(case_command)
 
         input_deck.write('\nQUIT\n')
 
@@ -72,18 +63,15 @@ G
 
 def make_case_command(avl_object,case,trim_aircraft):
     """ Makes commands for case execution in AVL
-
     Assumptions:
         None
         
     Source:
         None
-
     Inputs:
         case.index
         case.tag
         case.result_filename
-
     Outputs:
         case_command
  
@@ -139,16 +127,13 @@ x
 
 def make_trim_text_command(case):
     """ Writes the trim command currently for a specified AoA or flight CL condition
-
     Assumptions:
         None
         
     Source:
         None
-
     Inputs:
         case
-
     Outputs:
         trim_command
  
@@ -180,17 +165,14 @@ c1
 
 def control_surface_deflection_command(case,aircraft): 
     """Writes the control surface command template
-
     Assumptions:
         None
         
     Source:
         None
-
     Inputs:
         avl_object
         case
-
     Outputs:
         em_case_command
  
@@ -198,15 +180,15 @@ def control_surface_deflection_command(case,aircraft):
         N/A
     """     
     cs_template = \
-'''D{0}
-D{1}
-{2}
 '''
+D{0}
+D{1}
+{2}'''
     cs_idx = 1 
     cs_commands = ''
     for wing in aircraft.wings:
-        for ctrl_surf in wing.control_surfaces.keys():
-            cs_command = cs_template.format(cs_idx,cs_idx,wing.control_surfaces[ctrl_surf].deflection / Units.deg)
+        for ctrl_surf in wing.control_surfaces:
+            cs_command = cs_template.format(cs_idx,cs_idx,wing.control_surfaces[ctrl_surf].deflection)
             cs_commands = cs_commands + cs_command
             cs_idx += 1
     return cs_commands 
