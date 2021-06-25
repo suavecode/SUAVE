@@ -91,7 +91,9 @@ def generate_vortex_distribution(geometry,settings):
     n_sw_fuse      = n_sw_base if not fuse_disc_defined else settings.fuselage_spanwise_vortices  
     n_cw_fuse      = n_cw_base if not fuse_disc_defined else settings.fuselage_chordwise_vortices    
     spc            = settings.spanwise_cosine_spacing
-    model_fuselage = settings.model_fuselage    
+    model_fuselage = settings.model_fuselage
+    
+    show_prints    = True if ('show_prints' in settings.keys() and settings.show_prints==True) else False
     
     # ---------------------------------------------------------------------------------------
     # STEP 1: Define empty vectors for coordinates of panes, control points and bound vortices
@@ -176,12 +178,12 @@ def generate_vortex_distribution(geometry,settings):
     #generate panelization for each wing. Wings first, then control surface wings
     for wing in geometry.VLM_wings:
         if not wing.is_a_control_surface:
-            print('discretizing ' + wing.tag)
+            if show_prints: print('discretizing ' + wing.tag) 
             VD = generate_wing_vortex_distribution(VD,wing,geometry.VLM_wings,n_cw_wing,n_sw_wing,spc)    
                     
     for wing in geometry.VLM_wings:
         if wing.is_a_control_surface:
-            print('discretizing ' + wing.tag)
+            if show_prints:print('discretizing ' + wing.tag)
             VD = generate_wing_vortex_distribution(VD,wing,geometry.VLM_wings,n_cw_wing,n_sw_wing,spc)     
                     
     # ---------------------------------------------------------------------------------------
@@ -191,7 +193,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.wing_areas = np.array(VD.wing_areas)   
     VD.n_fus = 0
     for fus in geometry.fuselages:   
-        print('discretizing ' + fus.tag)
+        if show_prints: print('discretizing ' + fus.tag)
         VD = generate_fuselage_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,model_fuselage)       
 
 
@@ -206,7 +208,7 @@ def generate_vortex_distribution(geometry,settings):
     
     geometry.vortex_distribution = VD
     
-    print('finish discretization')
+    if show_prints: print('finish discretization')
     
     return VD 
 

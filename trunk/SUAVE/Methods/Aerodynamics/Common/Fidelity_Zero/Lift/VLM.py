@@ -121,7 +121,6 @@ def VLM(conditions,settings,geometry):
     len_mach = len(mach)
 
     # generate vortex distribution 
-    #from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution import generate_wing_vortex_distribution as generate_vortex_distribution 
     VD   = generate_vortex_distribution(geometry,settings)  
     
     
@@ -137,13 +136,6 @@ def VLM(conditions,settings,geometry):
     ZETA         = VD.tangent_incidence_angle
     RK           = VD.chordwise_panel_number
     SPC_switch   = VD.SPC_switch
-
-    
-    ### VISUALIZE NEW VORTEX DISTRIBUTION
-    #from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization       import plot_vehicle_vlm_panelization
-    #import matplotlib.pyplot    as plt
-    #plot_vehicle_vlm_panelization(geometry, plot_control_points=0)
-    #plt.show()
     
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
