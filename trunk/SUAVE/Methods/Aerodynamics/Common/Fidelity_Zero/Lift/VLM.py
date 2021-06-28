@@ -136,7 +136,7 @@ def VLM(conditions,settings,geometry):
 
     # Build the vector 
 
-    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,\
+    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(delta,phi,conditions,geometry,\
                                                                                  pwm,bemt_wake,ito,wdt,nts )    
 
     
