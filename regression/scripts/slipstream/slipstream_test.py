@@ -28,14 +28,11 @@ from X57_Maxwell import vehicle_setup, configs_setup
 #   Main
 # ----------------------------------------------------------------------
 def main():
-    ti = time.time()
+    # run test with helical fixed wake model
     helical_fixed_wake_analysis()
-    t_1 = time.time()
+
+    # run test with bemt wake model
     bemt_wake_analysis()
-    t_2 = time.time()
-    
-    t_elapsed_HFW = t_1 - ti
-    t_elapsed_BEMT = t_2 - t_1
     
     return 
 

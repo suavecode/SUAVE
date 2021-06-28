@@ -12,7 +12,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_bemt_induced_velocity(prop,geometry):  
+def compute_bemt_induced_velocity(prop,geometry,cpts):  
     """ This computes the velocity induced by the BEMT wake
     on lifting surface control points
 
@@ -25,7 +25,7 @@ def compute_bemt_induced_velocity(prop,geometry):
     Inputs: 
        prop        - propeller or rotor data structure             [Unitless] 
        geometry    - SUAVE vehicle                                 [Unitless] 
-
+       cpts        - control points in segment                     [Unitless]
     Properties Used:
        N/A
     """    
@@ -46,13 +46,13 @@ def compute_bemt_induced_velocity(prop,geometry):
     prop_y_min   = hub_y_center - r[-1]
     prop_y_max   = hub_y_center + r[-1]
     
-    prop_V_wake_ind = np.zeros((1,VD.n_cp,3)) # one mission control point, n_cp wing control points, 3 velocity components
+    # initialize propeller wake induced velocities
+    prop_V_wake_ind = np.zeros((cpts,VD.n_cp,3))
     
     ir = prop_y_min+r
     ro = np.flipud(prop_y_max-r)
     prop_y_range = np.append(ir, ro)
     
-
     # within this range, add an induced x- and z- velocity from propeller wake
     bool_in_range = (abs(VD.YC)>ir[0])*(abs(VD.YC)<ro[-1])
     YC_in_range   = VD.YC[bool_in_range]
