@@ -191,7 +191,7 @@ def generate_vortex_distribution(geometry,settings):
     # --------------------------------------------------------------------------------------- 
     VD.Stot       = sum(VD.wing_areas)        
     VD.wing_areas = np.array(VD.wing_areas)   
-    VD.n_fus = 0
+    VD.n_fus      = 0
     for fus in geometry.fuselages:   
         if show_prints: print('discretizing ' + fus.tag)
         VD = generate_fuselage_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,model_fuselage)       
@@ -433,6 +433,7 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
             wing_chord_section_b  = break_chord[i_break] + (eta_b*segment_chord_ratio)
             wing_chord_section    = break_chord[i_break] + (eta*segment_chord_ratio)
     
+            # x-positions based on whether the wing needs 'cuts' for its control sufaces
             nondim_x_stations = np.interp(np.linspace(0.,1.,num=n_cw+1), [0.,1.], [section_LE_cut[i_break], section_TE_cut[i_break]])
             x_stations_a      = nondim_x_stations * wing_chord_section_a  #x positions accounting for control surface cuts, relative to leading
             x_stations_b      = nondim_x_stations * wing_chord_section_b
@@ -524,9 +525,9 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
                 pivot_x     -= nondim_cs_LE *(wing_chord_section   /wing.chord_fraction) 
     
             # adjust coordinates for twist
-            section_twist_a = break_twist[i_break] + (eta_a * segment_twist_ratio)                     # twist at left side of panel
-            section_twist_b = break_twist[i_break] + (eta_b * segment_twist_ratio)                     # twist at right side of panel
-            section_twist   = break_twist[i_break] + (eta* segment_twist_ratio)                        # twist at center local chord 
+            section_twist_a = break_twist[i_break] + (eta_a * segment_twist_ratio)               # twist at left side of panel
+            section_twist_b = break_twist[i_break] + (eta_b * segment_twist_ratio)               # twist at right side of panel
+            section_twist   = break_twist[i_break] + (eta   * segment_twist_ratio)               # twist at center local chord 
     
             xi_prime_a1    = pivot_x_a + np.cos(section_twist_a)*(xi_a1-pivot_x_a) + np.sin(section_twist_a)*(zeta_a1-pivot_z_a) # x coordinate transformation of top left corner
             xi_prime_ah    = pivot_x_a + np.cos(section_twist_a)*(xi_ah-pivot_x_a) + np.sin(section_twist_a)*(zeta_ah-pivot_z_a) # x coordinate transformation of bottom left corner
@@ -776,7 +777,7 @@ def generate_wing_vortex_distribution(VD,wing,wings,n_cw,n_sw,spc):
         # store this wing's discretization information  
         first_panel_ind  = VD.XAH.size
         first_strip_ind  = VD.chordwise_breaks.size
-        chordwise_breaks = first_panel_ind + np.linspace(0,n_panels-1,n_panels-1)[0::n_cw]
+        chordwise_breaks = first_panel_ind + np.arange(n_panels)[0::n_cw]
         
         VD.chordwise_breaks = np.append(VD.chordwise_breaks, np.int32(chordwise_breaks))
         VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
@@ -1161,15 +1162,15 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
     if model_fuselage == True:
         
         # increment fuslage lifting surface sections  
-        VD.n_fus  += 2    
-        VD.n_cp += len(fhs_xch)
-        VD.n_w  += 2 
+        VD.n_fus += 2    
+        VD.n_cp  += len(fhs_xch)
+        VD.n_w   += 2 
         
         # store this fuselage's discretization information 
         n_panels         = n_sw*n_cw
         first_panel_ind  = VD.XAH.size
         first_strip_ind  = [VD.chordwise_breaks.size, VD.chordwise_breaks.size+n_sw]
-        chordwise_breaks =  first_panel_ind + np.linspace(0,2*n_panels-1,2*n_panels-1)[0::n_cw]        
+        chordwise_breaks =  first_panel_ind + np.arange(0,2*n_panels)[0::n_cw]        
         
         VD.chordwise_breaks = np.append(VD.chordwise_breaks, np.int32(chordwise_breaks))
         VD.spanwise_breaks  = np.append(VD.spanwise_breaks , np.int32(first_strip_ind ))            
