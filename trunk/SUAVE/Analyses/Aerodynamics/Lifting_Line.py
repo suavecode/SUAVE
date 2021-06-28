@@ -3,6 +3,7 @@
 # 
 # Created:  Aug 2017, E. Botero
 #           Apr 2020, M. Clarke
+#           Jun 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -71,7 +72,7 @@ class Lifting_Line(Aerodynamics):
         self.surrogates.drag_coefficient = None
  
         
-    def initialize(self,use_surrogate,n_sw,n_cw ,propeller_wake_model,ito,wdt,nwts,mf):
+    def initialize(self,use_surrogate,n_sw,n_cw ,propeller_wake_model,bemt_model,ito,wdt,nwts,mf):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:

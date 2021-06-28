@@ -84,7 +84,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     fuselage_alpha      = 1      
     for fus in vehicle.fuselages: 
         # Generate Fuselage Geometry
-        fus_pts = generate_fuselage_points(axes, fus) 
+        fus_pts = generate_fuselage_points(fus) 
         
         # Plot Fuselage Geometry          
         plot_fuselage_geometry(axes,fus_pts,fuselage_face_color,fuselage_edge_color,fuselage_alpha)  

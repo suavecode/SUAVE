@@ -65,7 +65,6 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
                     wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(prop,num_ctrl_pts,\
                                                                                                                             VD,initial_timestep_offset,wake_development_time,\
                                                                                                                             number_of_wake_timesteps)
-
                     # compute the induced velocity
                     prop_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
 
@@ -78,7 +77,6 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
                     wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(rot,num_ctrl_pts,\
                                                                                                                             VD,initial_timestep_offset,wake_development_time,\
                                                                                                                             number_of_wake_timesteps)
-
                     # compute the induced velocity
                     rot_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
 
@@ -92,27 +90,24 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
                 V_distribution    = np.sqrt(Vx**2 + Vz**2 ) # need to include Vy here (helical wake imports spanwise velocities too)
                 aoa_distribution  = np.arctan(Vz/Vx)
 
-                RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
-
-                return  RHS ,Vx_ind_total , Vz_ind_total , V_distribution , dt
             elif bemt_wake:
                 # adapt the RHS matrix with the BEMT induced velocities
                 if 'propeller' in propulsor.keys():
                     prop = propulsor.propeller
-                    compute_bemt_induced_velocity(prop,geometry,conditions, plot_induced_v=False)
+                    prop_V_wake_ind = compute_bemt_induced_velocity(prop,geometry,conditions, plot_induced_v=False)
                     
+                if 'rotor' in propulsor.keys():
+                    rot = propulsor.rotor
+                    rot_V_wake_ind = compute_bemt_induced_velocity(rot,geometry,conditions, plot_induced_v=False)
                     
-                    # update the total induced velocity distribution
-                    Vx_ind_total = Vx_ind_total + prop_V_wake_ind[:,:,0] + rot_V_wake_ind[:,:,0]
-                    Vz_ind_total = Vz_ind_total + prop_V_wake_ind[:,:,2] + rot_V_wake_ind[:,:,2]
-                
-                    Vx                = V_inf*np.cos(aoa) - Vx_ind_total
-                    Vz                = V_inf*np.sin(aoa) - Vz_ind_total
-                    V_distribution    = np.sqrt(Vx**2 + Vz**2 )
-                    aoa_distribution  = np.arctan(Vz/Vx)
-                
-                    RHS = np.sin(aoa_distribution - delta )*np.cos(phi)                    
-                    
+                # update the total induced velocity distribution
+                Vx_ind_total = Vx_ind_total + prop_V_wake_ind[:,:,0] + rot_V_wake_ind[:,:,0]
+                Vz_ind_total = Vz_ind_total + prop_V_wake_ind[:,:,2] + rot_V_wake_ind[:,:,2]
+            
+                Vx                = V_inf*np.cos(aoa) - Vx_ind_total
+                Vz                = V_inf*np.sin(aoa) - Vz_ind_total
+                V_distribution    = np.sqrt(Vx**2 + Vz**2 )
+                aoa_distribution  = np.arctan(Vz/Vx)
                 
     RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
     
