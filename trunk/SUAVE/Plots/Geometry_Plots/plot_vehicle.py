@@ -197,7 +197,7 @@ def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
     return 
     
 
-def generate_fuselage_points(axes, fus ,tessellation = 24 ):
+def generate_fuselage_points(fus ,tessellation = 24 ):
     """ This generates the coordinate points on the surface of the fuselage 
 
     Assumptions: 

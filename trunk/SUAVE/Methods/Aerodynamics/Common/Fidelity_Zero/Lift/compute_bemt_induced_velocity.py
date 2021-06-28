@@ -11,7 +11,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_bemt_induced_velocity(prop,geometry,conditions, plot_induced_v=False):  
+def compute_bemt_induced_velocity(prop,geometry,conditions):  
     """ This computes the velocity induced by the fixed helical wake
     on lifting surface control points
 
@@ -41,22 +41,6 @@ def compute_bemt_induced_velocity(prop,geometry,conditions, plot_induced_v=False
     r = prop.outputs.disc_radial_distribution[0][0]
     
     Vinf = conditions.freestream.velocity[0][0]
-    
-    if plot_induced_v:
-        import pylab as plt
-        ls = ['-','--','-.']
-        lc = ['black','mediumblue','firebrick']
-        plt.rcParams['axes.linewidth'] = 2.
-        plt.rcParams["font.family"]    = "Times New Roman"
-        plt.rcParams.update({'font.size': 14})                    
-        plt.figure()
-        plt.plot(r/R,va/Vinf,ls[0],color=lc[0],label="$\\frac{V_a}{V_\infty}$")
-        plt.plot(r/R,vt/Vinf,ls[0],color=lc[2],label="$\\frac{V_t}{V_\infty}$")
-        plt.xlabel("$\\frac{r}{R}$")
-        plt.ylabel("Normalized Velocity")
-        plt.title("Contracted Induced Velocities at Wing")
-        plt.legend()
-        plt.show()
     
     hub_y_center = prop.origin[0][1]
     prop_y_min = hub_y_center - r[-1]
