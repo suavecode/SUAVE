@@ -12,7 +12,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_bemt_induced_velocity(prop,geometry,cpts):  
+def compute_bemt_induced_velocity(prop,geometry,cpts,wing_instance=None):  
     """ This computes the velocity induced by the BEMT wake
     on lifting surface control points
 
@@ -34,8 +34,18 @@ def compute_bemt_induced_velocity(prop,geometry,cpts):
     R  = prop.tip_radius
     
     # contraction factor by McCormick
-    s  = geometry.wings.main_wing.origin[0][0] - prop.origin[0][0]
-    kd = 1 + s/(np.sqrt(s**2 + R**2))
+    if wing_instance == None:
+        print("No wing specified for wake analysis in compute_bemt_induced_velocity. Looking for main_wing.")
+        for wing in geometry.wings:
+            if isinstance(wing,"main_wing"):
+                s  = wing.origin[0][0] - prop.origin[0][0]
+                kd = 1 + s/(np.sqrt(s**2 + R**2))
+            else:
+                print("No main wing. Setting wake contraction factor to kd=2.")
+                kd = 2
+    else:
+        s  = wing_instance.origin[0][0] - prop.origin[0][0]
+        kd = 1 + s/(np.sqrt(s**2 + R**2))        
 
     # extract radial and azimuthal velocities at blade
     va = kd*prop.outputs.blade_axial_induced_velocity[0]
