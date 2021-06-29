@@ -83,7 +83,6 @@ def compute_RHS_matrix(delta,phi,conditions,geometry,propeller_wake_model,bemt_w
                     # compute the induced velocity
                     rot_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
 
-
             elif bemt_wake:
                 # adapt the RHS matrix with the BEMT induced velocities
                 if 'propeller' in propulsor.keys():
@@ -105,6 +104,9 @@ def compute_RHS_matrix(delta,phi,conditions,geometry,propeller_wake_model,bemt_w
                 Vz                = V_inf*np.sin(aoa) - Vz_ind_total
                 V_distribution    = np.sqrt(Vx**2 + Vy**2 + Vz**2 )
                 aoa_distribution  = np.arctan(Vz/Vx)
+                RHS               = np.sin(aoa_distribution - delta )*np.cos(phi)
+                
+                return RHS ,Vx_ind_total , Vz_ind_total , V_distribution , dt
                 
     RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
     

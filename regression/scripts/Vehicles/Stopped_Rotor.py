@@ -634,3 +634,25 @@ def vehicle_setup():
     vehicle.center_of_gravity()
 
     return vehicle
+
+
+# ---------------------------------------------------------------------
+#   Define the Configurations
+# ---------------------------------------------------------------------
+
+def configs_setup(vehicle):
+
+    # ------------------------------------------------------------------
+    #   Initialize Configurations
+    # ------------------------------------------------------------------
+
+    configs = SUAVE.Components.Configs.Config.Container()
+
+    base_config = SUAVE.Components.Configs.Config(vehicle)
+    base_config.tag = 'base'
+    base_config.propulsors.lift_cruise.pitch_command = 0 
+    configs.append(base_config) 
+
+
+    # done!
+    return configs
