@@ -52,8 +52,10 @@ def compute_RHS_matrix(delta,phi,conditions,geometry,propeller_wake_model,bemt_w
     rot_V_wake_ind   = np.zeros((len(aoa), VD.n_cp,3))
     prop_V_wake_ind  = np.zeros((len(aoa), VD.n_cp,3))
     Vx_ind_total     = np.zeros_like(V_distribution)
+    Vy_ind_total     = np.zeros_like(V_distribution)
+    Vz_ind_total     = np.zeros_like(V_distribution)
+    
     dt               = 0 
-    Vz_ind_total     = np.zeros_like(V_distribution)    
     num_ctrl_pts     = len(aoa) # number of control points      
     
     for propulsor in geometry.propulsors:
@@ -84,11 +86,13 @@ def compute_RHS_matrix(delta,phi,conditions,geometry,propeller_wake_model,bemt_w
 
                 # update the total induced velocity distribution
                 Vx_ind_total = Vx_ind_total + prop_V_wake_ind[:,:,0] + rot_V_wake_ind[:,:,0]
+                Vy_ind_total = Vy_ind_total + prop_V_wake_ind[:,:,1] + rot_V_wake_ind[:,:,1]
                 Vz_ind_total = Vz_ind_total + prop_V_wake_ind[:,:,2] + rot_V_wake_ind[:,:,2]
 
                 Vx                = V_inf*np.cos(aoa) - Vx_ind_total
+                Vy                = Vy_ind_total
                 Vz                = V_inf*np.sin(aoa) - Vz_ind_total
-                V_distribution    = np.sqrt(Vx**2 + Vz**2 ) # need to include Vy here (helical wake imports spanwise velocities too)
+                V_distribution    = np.sqrt(Vx**2 + Vy**2 + Vz**2 ) # need to include Vy here (helical wake imports spanwise velocities too)
                 aoa_distribution  = np.arctan(Vz/Vx)
 
             elif bemt_wake:
@@ -103,11 +107,13 @@ def compute_RHS_matrix(delta,phi,conditions,geometry,propeller_wake_model,bemt_w
                     
                 # update the total induced velocity distribution
                 Vx_ind_total = Vx_ind_total + prop_V_wake_ind[:,:,0] + rot_V_wake_ind[:,:,0]
+                Vy_ind_total = Vy_ind_total + prop_V_wake_ind[:,:,1] + rot_V_wake_ind[:,:,1]
                 Vz_ind_total = Vz_ind_total + prop_V_wake_ind[:,:,2] + rot_V_wake_ind[:,:,2]
             
                 Vx                = V_inf*np.cos(aoa) - Vx_ind_total
+                Vy                = Vy_ind_total
                 Vz                = V_inf*np.sin(aoa) - Vz_ind_total
-                V_distribution    = np.sqrt(Vx**2 + Vz**2 )
+                V_distribution    = np.sqrt(Vx**2 + Vy**2 + Vz**2 )
                 aoa_distribution  = np.arctan(Vz/Vx)
                 
     RHS = np.sin(aoa_distribution - delta )*np.cos(phi)
