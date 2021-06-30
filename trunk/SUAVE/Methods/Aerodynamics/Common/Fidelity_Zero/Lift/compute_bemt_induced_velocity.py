@@ -36,13 +36,21 @@ def compute_bemt_induced_velocity(prop,geometry,cpts,wing_instance=None):
     # contraction factor by McCormick
     if wing_instance == None:
         print("No wing specified for wake analysis in compute_bemt_induced_velocity. Looking for main_wing.")
+        nmw = 0
         for wing in geometry.wings:
-            if isinstance(wing,"main_wing"):
-                s  = wing.origin[0][0] - prop.origin[0][0]
-                kd = 1 + s/(np.sqrt(s**2 + R**2))
-            else:
-                print("No main wing. Setting wake contraction factor to kd=2.")
-                kd = 2
+            if not isinstance(wing,"main_wing"): continue
+            nmw = nmw+1
+            s  = wing.origin[0][0] - prop.origin[0][0]
+            kd = 1 + s/(np.sqrt(s**2 + R**2))
+        if nmw ==1:
+            print("Main wing used for slipstream analysis.")
+        elif nmw>1:
+            print("Multiple main wings. Using the last one for slipstream analysis")
+        else:
+            print("No main_wing defined! Using last wing found for slipstream analysis.")
+            s  = wing.origin[0][0] - prop.origin[0][0]
+            kd = 1 + s/(np.sqrt(s**2 + R**2))            
+                
     else:
         s  = wing_instance.origin[0][0] - prop.origin[0][0]
         kd = 1 + s/(np.sqrt(s**2 + R**2))        
