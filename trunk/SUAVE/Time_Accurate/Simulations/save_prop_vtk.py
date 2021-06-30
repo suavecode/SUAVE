@@ -89,8 +89,21 @@ def save_prop_vtk(prop, filename, Results, i_prop, Gprops):
             cell_type_header  = "\n\nCELL_TYPES "+str(cells_per_blade)
             f.write(cell_type_header)        
             for i in range(cells_per_blade):
-                f.write("\n9")           
+                f.write("\n9")   
                 
+            #--------------------------        
+            # Write Scalar Cell Data:
+            #--------------------------
+            cell_data_header  = "\n\nCELL_DATA "+str(cells_per_blade)
+            f.write(cell_data_header)            
+            
+            # First scalar value
+            f.write("\nSCALARS i float 1")
+            f.write("\nLOOKUP_TABLE default")  
+            for i in range(cells_per_blade):
+                new_idx = str(i)
+                f.write("\n"+new_idx)
+
                 
         f.close()
     
