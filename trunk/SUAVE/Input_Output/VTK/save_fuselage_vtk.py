@@ -6,8 +6,7 @@
 #           
 import SUAVE
 
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import generate_wing_points, generate_fuselage_points
-from SUAVE.Core import Data
+from SUAVE.Plots.Geometry_Plots.plot_vehicle import generate_fuselage_points
 import numpy as np
 
 def save_fuselage_vtk(vehicle, settings, filename, Results):
