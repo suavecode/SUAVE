@@ -84,7 +84,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     fuselage_alpha      = 1      
     for fus in vehicle.fuselages: 
         # Generate Fuselage Geometry
-        fus_pts = generate_fuselage_points(axes, fus) 
+        fus_pts = generate_fuselage_points(fus) 
         
         # Plot Fuselage Geometry          
         plot_fuselage_geometry(axes,fus_pts,fuselage_face_color,fuselage_edge_color,fuselage_alpha)  
@@ -197,7 +197,7 @@ def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
     return 
     
 
-def generate_fuselage_points(axes, fus ,tessellation = 24 ):
+def generate_fuselage_points(fus ,tessellation = 24 ):
     """ This generates the coordinate points on the surface of the fuselage 
 
     Assumptions: 

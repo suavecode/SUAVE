@@ -6,6 +6,7 @@
 #           Apr 2019, T. MacDonald
 #           Apr 2020, M. Clarke
 #           Sep 2020, M. Clarke 
+#           Jun 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -75,6 +76,7 @@ class Fidelity_Zero(Markup):
         settings.number_of_wake_timesteps           = 30
         settings.use_surrogate                      = True
         settings.propeller_wake_model               = False 
+        settings.use_bemt_wake_model                = False 
         settings.model_fuselage                     = False
 
         # build the evaluation process
@@ -134,6 +136,7 @@ class Fidelity_Zero(Markup):
         
         use_surrogate             = self.settings.use_surrogate
         propeller_wake_model      = self.settings.propeller_wake_model 
+        use_bemt_wake_model       = self.settings.use_bemt_wake_model
         n_sw                      = self.settings.number_spanwise_vortices
         n_cw                      = self.settings.number_chordwise_vortices
         ito                       = self.settings.initial_timestep_offset
@@ -142,6 +145,6 @@ class Fidelity_Zero(Markup):
         mf                        = self.settings.model_fuselage
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts,mf )
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf )
                                                             
     finalize = initialize                                          

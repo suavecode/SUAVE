@@ -321,6 +321,7 @@ def simulation_settings(vehicle):
     VLM_settings.number_chordwise_vortices       = 4
     VLM_settings.use_surrogate                   = True
     VLM_settings.propeller_wake_model            = False
+    VLM_settings.use_bemt_wake_model             = False
     VLM_settings.model_fuselage                  = False
     VLM_settings.spanwise_cosine_spacing         = True
     VLM_settings.number_of_wake_timesteps        = 0.
