@@ -70,7 +70,7 @@ def bemt_wake_analysis():
                                                 2.50307660e-19])
 
     print(sectional_lift_coeff)
-    diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
+    diff_Cl   = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
     print(diff_Cl)
     assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
