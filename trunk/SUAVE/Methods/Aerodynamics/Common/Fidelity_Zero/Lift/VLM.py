@@ -79,6 +79,7 @@ def VLM(conditions,settings,geometry):
     
     # unpack settings
     pwm        = settings.propeller_wake_model
+    bemt_wake  = settings.use_bemt_wake_model
     ito        = settings.initial_timestep_offset
     nts        = settings.number_of_wake_timesteps 
     wdt        = settings.wake_development_time   
@@ -134,7 +135,10 @@ def VLM(conditions,settings,geometry):
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
     # Build the vector 
-    RHS, Vx_ind_total, Vz_ind_total, V_distribution, dt = compute_RHS_matrix(delta,phi,conditions,geometry,pwm,ito,wdt,nts)    
+
+    RHS  ,Vx_ind_total , Vz_ind_total , V_distribution , dt = compute_RHS_matrix(delta,phi,conditions,geometry,\
+                                                                                 pwm,bemt_wake,ito,wdt,nts )    
+
     
     # Build induced velocity matrix, C_mn
     # This is not affected by AoA, so we can use unique mach numbers only
@@ -324,6 +328,6 @@ def VLM(conditions,settings,geometry):
     CDi      = np.atleast_2d(np.sum(DRAG,axis=1)/SREF).T
     CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar
 
-    alpha_i  = np.hsplit(np.arctan(cdi_y/cl_y),span_breaks[1:])
-
+    alpha_i = np.hsplit(np.arctan(cdi_y/cl_y),span_breaks[1:])
+    
     return CL, CDi, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CP, gamma
