@@ -9,17 +9,11 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-import SUAVE
-from SUAVE.Core import Units
-
-import numpy as np
 import pylab as plt
 import sys
 
-from SUAVE.Plots.Mission_Plots import *  
-from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
-from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 
+from SUAVE.Time_Accurate.Simulations.save_vehicle_vtk import save_vehicle_vtk
 sys.path.append('../Vehicles') 
 from X57_Maxwell import vehicle_setup, configs_setup 
 
@@ -30,7 +24,7 @@ from X57_Maxwell import vehicle_setup, configs_setup
 def main():
     # run test with helical fixed wake model
     x57 = vehicle_setup()
-    generate_vtks(x57)
+    save_vehicle_vtk(x57)
     
     return 
 

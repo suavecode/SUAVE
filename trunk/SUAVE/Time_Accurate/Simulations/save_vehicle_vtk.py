@@ -6,9 +6,11 @@ from SUAVE.Time_Accurate.Simulations.save_prop_wake_vtk import save_prop_wake_vt
 from SUAVE.Time_Accurate.Simulations.save_fuselage_vtk import save_fuselage_vtk
 
 
-def save_vtks(vehicle, settings, Results, Gprops, prop_filename="prop.vtk",wake_filename="prop_wake.vtk", 
+def save_vehicle_vtk(vehicle, settings, Results, Gprops, prop_filename="prop.vtk",wake_filename="prop_wake.vtk", 
               wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None, tiltwing=False):
-
+    """
+    
+    """
     # unpack vortex distribution 
     try:
         VD = vehicle.vortex_distribution 
@@ -28,17 +30,30 @@ def save_vtks(vehicle, settings, Results, Gprops, prop_filename="prop.vtk",wake_
     for propulsor in vehicle.propulsors:
         try:
             propeller = propulsor.propeller
+            n_props = int(propulsor.number_of_engines)
+            for i in range(n_props):
+                # save the ith propeller
+                filename = save_loc + prop_filename
+                sep  = filename.find('.')
+                file = filename[0:sep]+str(i)+filename[sep:]        
+                
+                save_prop_vtk(propeller, file, Results,i, Gprops) 
+        except:
+            print("No propeller.")
         try:
             rotor = propulsor.rotor
-        n_props = int(propulsor.number_of_engines)
+            n_rots = int(propulsor.number_of_engines)
+            for i in range(n_rots):
+                # save the ith rotor
+                filename = save_loc + prop_filename
+                sep  = filename.find('.')
+                file = filename[0:sep]+str(i)+filename[sep:]        
+                
+                save_prop_vtk(rotor, file, Results,i, Gprops) 
+        except:
+            print("No rotor.")                
         
-        for i in range(n_props):
-            # save the ith propeller
-            filename = save_loc + prop_filename
-            sep  = filename.find('.')
-            file = filename[0:sep]+str(i)+filename[sep:]        
-            
-            save_prop_vtk(propeller, file, Results,i, Gprops)   
+           
 
     
     #---------------------------
