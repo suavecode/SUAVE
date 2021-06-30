@@ -91,8 +91,39 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
         cell_type_header  = "\n\nCELL_TYPES "+str(n_cells)
         f.write(cell_type_header)        
         for i in range(n_cells):
-            f.write("\n9")          
+            f.write("\n9")      
+            
+        #--------------------------        
+        # Write Scalar Cell Data:
+        #--------------------------
+        cell_data_header  = "\n\nCELL_DATA "+str(n_cells)
+        f.write(cell_data_header)      
+        
+        # First scalar value
+        f.write("\nSCALARS circulation float 1")
+        f.write("\nLOOKUP_TABLE default")   
+        blade_circulation = Results['prop_outputs'].disc_circulation[0][0]
+        for B_idx in range(n_blades):
+            for i in range(cells_per_blade):
+                circ_L = blade_circulation[int(i%(n_radial_rings))]
+                circ_R = blade_circulation[int(i%(n_radial_rings))+1]
+                circ_C = 0.5*(circ_L+circ_R)
                 
+                new_circ = str(circ_C)
+                f.write("\n"+new_circ)     
+        
+        # Second scalar value
+        f.write("\nSCALARS vt float 1")
+        f.write("\nLOOKUP_TABLE default")   
+        vt = Results['prop_outputs'].blade_tangential_induced_velocity[0]
+        for B_idx in range(n_blades):
+            for i in range(cells_per_blade):
+                vt_L = vt[int(i%(n_radial_rings))]
+                vt_R = vt[int(i%(n_radial_rings))+1]
+                vt_C = 0.5*(vt_L+vt_R)
+                
+                new_vt = str(vt_C)
+                f.write("\n"+new_vt)                  
     f.close()
         
         
