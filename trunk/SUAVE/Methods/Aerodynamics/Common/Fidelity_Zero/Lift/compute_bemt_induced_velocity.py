@@ -10,6 +10,7 @@
 # package imports
 import numpy as np 
 from scipy.interpolate import interp1d
+from SUAVE.Components import Wings
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
 def compute_bemt_induced_velocity(prop,geometry,cpts,wing_instance=None):  
@@ -38,7 +39,7 @@ def compute_bemt_induced_velocity(prop,geometry,cpts,wing_instance=None):
         print("No wing specified for wake analysis in compute_bemt_induced_velocity. Looking for main_wing.")
         nmw = 0
         for wing in geometry.wings:
-            if not isinstance(wing,"main_wing"): continue
+            if not isinstance(wing,Wings.Main_Wing): continue
             nmw = nmw+1
             s  = wing.origin[0][0] - prop.origin[0][0]
             kd = 1 + s/(np.sqrt(s**2 + R**2))

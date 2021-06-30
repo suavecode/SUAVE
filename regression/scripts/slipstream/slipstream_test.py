@@ -38,8 +38,8 @@ def main():
 
 def bemt_wake_analysis():
     # Evaluate wing in propeller wake (using helical fixed-wake model)
-    bemt_wake          = False
-    fixed_helical_wake = True
+    bemt_wake          = True
+    fixed_helical_wake = False
     configs, analyses = full_setup(bemt_wake, fixed_helical_wake) 
 
     configs.finalize()
@@ -51,7 +51,7 @@ def bemt_wake_analysis():
 
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.41736071686679566
+    lift_coefficient_true         = 0.41740508937310206
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -61,13 +61,13 @@ def bemt_wake_analysis():
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([4.11915245e-01, 3.75655664e-01, 3.44016591e-01, 2.82181764e-01,
-                                                1.80709184e-01, 4.11915252e-01, 3.75655555e-01, 3.44016523e-01,
-                                                2.82181785e-01, 1.80709067e-01, 1.37505047e-02, 1.40465694e-02,
-                                                1.42493022e-02, 1.43483867e-02, 1.02755735e-02, 1.37504969e-02,
-                                                1.40465666e-02, 1.42493137e-02, 1.43484195e-02, 1.02756176e-02,
-                                                3.55612530e-19, 3.24988720e-19, 2.24280772e-19, 6.54353824e-19,
-                                                2.79777639e-19])
+    sectional_lift_coeff_true       = np.array([4.18317777e-01, 3.39747792e-01, 3.55217695e-01, 2.95278505e-01,
+                                                1.89985182e-01, 4.18317784e-01, 3.39747664e-01, 3.55217626e-01,
+                                                2.95278536e-01, 1.89985061e-01, 2.70117726e-02, 2.86711644e-02,
+                                                3.00075461e-02, 2.96503404e-02, 2.08753047e-02, 2.70117662e-02,
+                                                2.86711650e-02, 3.00075681e-02, 2.96503955e-02, 2.08753826e-02,
+                                                5.53404435e-19, 5.36327825e-19, 1.33474765e-19, 5.86659527e-19,
+                                                2.50307660e-19])
 
     print(sectional_lift_coeff)
     diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
