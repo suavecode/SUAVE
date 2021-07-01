@@ -191,11 +191,18 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
         #--------------------------
         if len(Results)!=0:
             cell_data_header  = "\n\nCELL_DATA "+str(n)
-            f.write(cell_data_header)                
+            f.write(cell_data_header)  
+            
+            # First scalar value
+            f.write("\nSCALARS i float 1")
+            f.write("\nLOOKUP_TABLE default")  
+            for i in range(n_cp):
+                new_idx = str(i)
+                f.write("\n"+new_idx)
+                
             # Check for results
             try:
                 cl = Results['cl_y_DVE'][0]
-                # First scalar value
                 f.write("\nSCALARS cl float 1")
                 f.write("\nLOOKUP_TABLE default")   
                 cl = Results['cl_y_DVE'][0]

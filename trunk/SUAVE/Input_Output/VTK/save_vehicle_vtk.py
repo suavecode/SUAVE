@@ -67,7 +67,10 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
         try:
             print("Attempting to save propeller.")
             propeller = propulsor.propeller
-            n_props   = int(propulsor.number_of_engines)
+            try:
+                n_props = int(propulsor.number_of_propeller_engines)
+            except:
+                n_props   = int(propulsor.number_of_engines)
         except:
             print("No propeller.")
             n_props = 0
@@ -87,7 +90,10 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
         try:
             print("Attempting to save rotor.")
             rotor = propulsor.rotor
-            n_rots = int(propulsor.number_of_engines)    
+            try:
+                n_rots = int(propulsor.number_of_rotor_engines)
+            except:
+                n_rots = int(propulsor.number_of_engines)    
         except:
             print("No rotor.") 
             n_rots = 0
