@@ -1,3 +1,10 @@
+## @ingroup Input_Output-VTK
+# save_vehicle_vtks.py
+# 
+# Created:    Jun 2021, R. Erhard
+# Modified: 
+#  
+
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution
 from SUAVE.Input_Output.VTK.save_wing_vtk import save_wing_vtk
@@ -6,11 +13,36 @@ from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
 from SUAVE.Input_Output.VTK.save_fuselage_vtk import save_fuselage_vtk
 
 
-def save_vehicle_vtk(vehicle, settings, Results,time_step, prop_filename="propeller.vtk",rot_filename="rotor.vtk",wake_filename="prop_wake.vtk", 
-              wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None, tiltwing=False):
+def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
+                     wake_filename="prop_wake.vtk", wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
     """
+    Saves SUAVE vehicle components as VTK files in legacy format.
+
+    Inputs:
+       vehicle                Data structure of SUAVE vehicle                    [Unitless] 
+       settings               Settings for aerodynamic analysis                  [Unitless] 
+       Results                Data structure of wing and propeller results       [Unitless]
+       time_step              Simulation time step                               [Unitless]
+       prop_filename          Name of vtk file to save                           [String] 
+       rot_filename           Name of vtk file to save                           [String] 
+       wake_filename          Name of vtk file to save                           [String] 
+       wing_filename          Name of vtk file to save                           [String] 
+       fuselage_filename      Name of vtk file to save                           [String] 
+       save_loc               Location at which to save vtk files                [String]
+       
+    Outputs:                                   
+       N/A
+
+    Properties Used:
+       N/A 
     
-    """
+    Assumptions:
+       Quad cell structures for mesh
+    
+    Source:  
+       None
+    
+    """  
     # unpack vortex distribution 
     try:
         VD = vehicle.vortex_distribution 
@@ -83,7 +115,7 @@ def save_vehicle_vtk(vehicle, settings, Results,time_step, prop_filename="propel
                 filename = save_loc + wake_filename 
             sep  = filename.find('.')
             file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
-            save_prop_wake_vtk(VD, file, Results,i) 
+            save_prop_wake_vtk(VD.Wake, file, Results,i) 
     except:
         print("Wake simulation has not yet been run. No propeller wakes generated.")
     
@@ -114,9 +146,7 @@ def save_vehicle_vtk(vehicle, settings, Results,time_step, prop_filename="propel
         sep  = filename.find('.')
         file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
         
-        save_fuselage_vtk(vehicle, settings, file, Results)
-            
-    
+        save_fuselage_vtk(vehicle, file, Results)
     
     return
 

@@ -1,23 +1,39 @@
-## @ingroup Time_Accurate-Simulations
+## @ingroup Input_Output-VTK
 # save_fuselage_vtk.py
 # 
 # Created:    Jun 2021, R. Erhard
 # Modified: 
-#           
-import SUAVE
+#  
 
 from SUAVE.Plots.Geometry_Plots.plot_vehicle import generate_fuselage_points
 import numpy as np
 
-def save_fuselage_vtk(vehicle, settings, filename, Results):
-    "Saves a SUAVE wing object as a VTK in legacy format."
+def save_fuselage_vtk(vehicle, filename, Results):
+    """
+    Saves a SUAVE fuselage object as a VTK in legacy format.
+
+    Inputs:
+       vehicle        Data structure of SUAVE vehicle                [Unitless] 
+       filename       Name of vtk file to save                       [String]  
+       Results        Data structure of wing and propeller results   [Unitless]
+       
+    Outputs:                                   
+       N/A
+
+    Properties Used:
+       N/A 
     
-    #fuselage_vehicle = SUAVE.Vehicle()
-    #fuselage_vehicle.append_component(vehicle.fuselages.fuselage)
+    Assumptions:
+       N/A
+    
+    Source:  
+       None
+    
+    """    
     
     fus_pts = generate_fuselage_points(vehicle.fuselages.fuselage)
-    num_fus_segs = np.size(fus_pts)[0]
-    if num_fus_segs ==0:
+    num_fus_segs = np.shape(fus_pts)[0]
+    if num_fus_segs == 0:
         print("No fuselage segments found!")
     else:
         write_fuselage_vtk(fus_pts,filename)
@@ -32,10 +48,10 @@ def write_fuselage_vtk(fus_pts,filename):
         #---------------------
         # Write header
         #---------------------
-        header = ["# vtk DataFile Version 4.0",     # File version and identifier
-                  "\nSUAVE Model of Fuselage" ,     # Title
-                  "\nASCII"                   ,     # Data type
-                  "\nDATASET UNSTRUCTURED_GRID" ]   # Dataset structure / topology
+        header = ["# vtk DataFile Version 4.0"  ,     # File version and identifier
+                  "\nSUAVE Model of Fuselage"   ,     # Title
+                  "\nASCII"                     ,     # Data type
+                  "\nDATASET UNSTRUCTURED_GRID" ]     # Dataset structure / topology
                   
         f.writelines(header) 
         

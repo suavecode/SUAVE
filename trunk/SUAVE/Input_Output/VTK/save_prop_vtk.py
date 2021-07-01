@@ -1,11 +1,13 @@
-## @ingroup Time_Accurate-Simulations
+## @ingroup Input_Output-VTK
 # save_prop_vtk.py
 # 
 # Created:    Jun 2021, R. Erhard
 # Modified: 
 #           
 
-
+#----------------------------------
+# Imports
+#----------------------------------
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series  
 from SUAVE.Core import Data
@@ -15,12 +17,32 @@ import copy
 
 def save_prop_vtk(prop, filename, Results, i_prop, time_step):
     """
-    Assumptions: 
-         Quad cell structures for mesh
-    """
+    Saves a SUAVE propeller object as a VTK in legacy format.
+
+    Inputs:
+       prop          Data structure of SUAVE propeller                  [Unitless] 
+       filename      Name of vtk file to save                           [String]  
+       Results       Data structure of wing and propeller results       [Unitless]
+       i_prop        ith propeller to evaluate wake of                  [Unitless]
+       time_step     Simulation time step                               [Unitless]
+       
+    Outputs:                                   
+       N/A
+
+    Properties Used:
+       N/A 
+    
+    Assumptions:
+       Quad cell structures for mesh
+    
+    Source:  
+       None
+    
+    """  
+    
     # Generate propeller point geometry
     n_blades = prop.number_of_blades 
-    Gprops   = prop_points(prop)
+    Gprops   = generate_lofted_propeller_points(prop)
     
     for B_idx in range(n_blades):
         # Get geometry of blade for current propeller instance
@@ -33,13 +55,12 @@ def save_prop_vtk(prop, filename, Results, i_prop, time_step):
         with open(file, 'w') as f:
             #---------------------
             # Write header
-            #---------------------
-            l1 = "# vtk DataFile Version 4.0"                     # File version and identifier
-            l2 = "\nSUAVE Model of PROWIM Propeller Blade "       # Title 
-            l3 = "\nASCII"                                        # Data type
-            l4 = "\nDATASET UNSTRUCTURED_GRID"                    # Dataset structure / topology     
-            
-            header = [l1, l2, l3, l4]
+            #--------------------- 
+            header = ["# vtk DataFile Version 4.0"                ,   # File version and identifier
+                      "\nSUAVE Model of PROWIM Propeller Blade "  ,   # Title 
+                      "\nASCII"                                   ,   # Data type
+                      "\nDATASET UNSTRUCTURED_GRID"               ]   # Dataset structure / topology     
+
             f.writelines(header)     
             
             # --------------------
@@ -48,7 +69,7 @@ def save_prop_vtk(prop, filename, Results, i_prop, time_step):
             n_r      = len(prop.chord_distribution)
             n_af     = Gprops.n_af
             
-            n_vertices = (n_r)*(n_af)    # total number of node vertices per blade
+            n_vertices    = (n_r)*(n_af)    # total number of node vertices per blade
             points_header = "\n\nPOINTS "+str(n_vertices) +" float"
             f.write(points_header)
             
@@ -59,7 +80,7 @@ def save_prop_vtk(prop, filename, Results, i_prop, time_step):
                     yp = round(G.Y[r_idx,c_idx],4)
                     zp = round(G.Z[r_idx,c_idx],4)
                         
-                    new_point   = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
+                    new_point = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
                     f.write(new_point)  
                         
             #---------------------    
@@ -117,7 +138,7 @@ def save_prop_vtk(prop, filename, Results, i_prop, time_step):
     return
 
 
-def prop_points(prop):
+def generate_lofted_propeller_points(prop):
     num_B  = prop.number_of_blades      
     a_sec  = prop.airfoil_geometry          
     a_secl = prop.airfoil_polar_stations
@@ -132,20 +153,19 @@ def prop_points(prop):
     try:
         a_o = -prop.azimuthal_offset
     except:
-        a_o = 0.0 # no offset, start at 90deg (vertical)
+        # default is no azimuthal offset (blade 1 starts vertical)
+        a_o = 0.0 
     
+    n_a_cw    = 20                                   # number of airfoil chordwise points
+    n_r       = len(b)                               # number radial points
+    n_a_loft  = 2*n_a_cw                             # number points around airfoil
+    num_props = len(origin)                          # number of propellers
+    theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]  # azimuthal stations
     
-    n_points  = 20
-    af_pts    = (2*n_points)-1  # airfoil points
-    n_r       = len(b)          # number radial points
-    n_a       = 2*n_points      # number azimuthal points
-    num_props = len(origin) 
-    theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]   
-    
-    # create empty data structure for storing geometry
+    # create empty data structure for storing propeller geometries
     G           = Data()
     Gprops      = Data()
-    Gprops.n_af = n_a
+    Gprops.n_af = n_a_loft
     
     for n_p in range(num_props):  
         Gprops[n_p] = Data()
@@ -153,16 +173,16 @@ def prop_points(prop):
         flip_1      = (np.pi/2)  
         flip_2      = (np.pi/2)  
         
-        MCA_2d = np.repeat(np.atleast_2d(MCA).T,n_a,axis=1)
-        b_2d   = np.repeat(np.atleast_2d(b).T  ,n_a,axis=1)
-        t_2d   = np.repeat(np.atleast_2d(t).T  ,n_a,axis=1)
-        r_2d   = np.repeat(np.atleast_2d(r).T  ,n_a,axis=1)
+        MCA_2d = np.repeat(np.atleast_2d(MCA).T,n_a_loft,axis=1)
+        b_2d   = np.repeat(np.atleast_2d(b).T  ,n_a_loft,axis=1)
+        t_2d   = np.repeat(np.atleast_2d(t).T  ,n_a_loft,axis=1)
+        r_2d   = np.repeat(np.atleast_2d(r).T  ,n_a_loft,axis=1)
         
         for i in range(num_B):   
             Gprops[n_p][i] = Data()
             # get airfoil coordinate geometry   
             if a_sec != None:
-                airfoil_data = import_airfoil_geometry(a_sec,npoints=n_points)   
+                airfoil_data = import_airfoil_geometry(a_sec,npoints=n_a_cw)   
                 xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
                 zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0) 
                 max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0) 
@@ -171,19 +191,19 @@ def prop_points(prop):
                 camber       = 0.02
                 camber_loc   = 0.4
                 thickness    = 0.10 
-                airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points*2 - 2))                  
+                airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_a_loft - 2))                  
                 xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,n_r,axis=0)
                 zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,n_r,axis=0)
                 max_t        = np.repeat(airfoil_data.thickness_to_chord,n_r,axis=0) 
              
             # store points of airfoil in similar format as Vortex Points (i.e. in vertices)   
-            max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_a,axis=1)
+            max_t2d = np.repeat(np.atleast_2d(max_t).T ,n_a_loft,axis=1)
             
             xp      = rot*(- MCA_2d + xpts*b_2d)  # x coord of airfoil
             yp      = r_2d*np.ones_like(xp)       # radial location        
             zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord 
                               
-            matrix = np.zeros((n_r,n_a,3)) # radial location, airfoil pts (same y)   
+            matrix = np.zeros((n_r,n_a_loft,3)) # radial location, airfoil pts (same y)   
             matrix[:,:,0] = xp
             matrix[:,:,1] = yp
             matrix[:,:,2] = zp
@@ -200,18 +220,18 @@ def prop_points(prop):
     
             # rotation about x axis to create azimuth locations 
             trans_2 = np.array([[1 , 0 , 0],
-                           [0 , np.cos(theta[i] + rot*a_o + flip_2 ), -np.sin(theta[i] + rot*a_o + flip_2)],
-                           [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]) 
+                                [0 , np.cos(theta[i] + rot*a_o + flip_2 ), -np.sin(theta[i] + rot*a_o + flip_2)],
+                                [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]   ]) 
             trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],n_r,axis=0)
             
             # roation about y to orient propeller/rotor to thrust angle 
-            trans_3 = np.array([[np.cos(ta),0 , -np.sin(ta)],
-                           [0 ,  1 , 0] ,
-                           [np.sin(ta) , 0 , np.cos(ta)]])
+            trans_3 = np.array([[np.cos(ta),0 , -np.sin(ta)  ],
+                                [0 ,  1 , 0                  ],
+                                [np.sin(ta) , 0 , np.cos(ta)]])
             trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],n_r,axis=0)
             
-            trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
-            rot_mat   = np.repeat(trans[:, np.newaxis,:,:],n_a,axis=1)
+            trans   = np.matmul(trans_3,np.matmul(trans_2,trans_1))
+            rot_mat = np.repeat(trans[:, np.newaxis,:,:],n_a_loft,axis=1)
              
             # ---------------------------------------------------------------------------------------------
             # ROTATE POINTS
@@ -238,13 +258,6 @@ def prop_points(prop):
             G.YB2  = mat[1:,1:,1]  + origin[n_p][1]
             G.ZB2  = mat[1:,1:,2]  + origin[n_p][2]    
             
-            #import pylab as plt
-            #marks = ['ro','go','yo','mo','bo','rs','gs','ys','ms','bs',
-                     #'ro','go','yo','mo','bo','ro','go','yo','mo','bo']
-            #for i in range(len(G.XA1[0])):
-                #plt.plot(G.XA1[0,i],G.YA1[0,i],marks[i])
-            
-            #plt.show()
             # Store G for this blade:
             Gprops[n_p][i] = copy.deepcopy(G)
             

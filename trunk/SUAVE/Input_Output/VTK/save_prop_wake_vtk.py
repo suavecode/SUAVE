@@ -1,13 +1,34 @@
-## @ingroup Time_Accurate-Simulations
+## @ingroup Input_Output-VTK
 # save_prop_wake_vtk.py
 # 
 # Created:    Jun 2021, R. Erhard
 # Modified: 
 #           
 
-def save_prop_wake_vtk(VD,filename,Results,i_prop):
+def save_prop_wake_vtk(wVD,filename,Results,i_prop):
+    """
+    Saves a SUAVE propeller wake as a VTK in legacy format.
+
+    Inputs:
+       wVD           Vortex distribution of propeller wake          [Unitless]  
+       filename      Name of vtk file to save                       [Unitless]  
+       Results       Data structure of wing and propeller results   [Unitless]  
+       i_prop        ith propeller to evaluate wake of              [Unitless]
+       
+    Outputs:                                   
+       N/A
+
+    Properties Used:
+       N/A 
+    
+    Assumptions:
+       Quad cell structures for mesh
+    
+    Source:  
+       None
+    
+    """
     # Extract wake properties of the ith propeller
-    wVD             = VD.Wake
     n_time_steps    = len(wVD.XA1[i_prop,:,0,0])
     n_blades        = len(wVD.XA1[i_prop,0,:,0])
     n_radial_rings  = len(wVD.XA1[i_prop,0,0,:])
@@ -18,12 +39,10 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
         #---------------------
         # Write header
         #---------------------
-        l1 = "# vtk DataFile Version 4.0"               # File version and identifier
-        l2 = "\nSUAVE Model of PROWIM Propeller Wake "  # Title 
-        l3 = "\nASCII"                                  # Data type
-        l4 = "\nDATASET UNSTRUCTURED_GRID"              # Dataset structure / topology   
-        
-        header = [l1, l2, l3, l4]
+        header = ["# vtk DataFile Version 4.0"              , # File version and identifier
+                  "\nSUAVE Model of PROWIM Propeller Wake " , # Title
+                  "\nASCII"                                 , # Data type
+                  "\nDATASET UNSTRUCTURED_GRID"             ] # Dataset structure / topology
         f.writelines(header)   
         
         # --------------------
@@ -32,7 +51,6 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
         n_vertices = n_blades*(n_radial_rings+1)*(n_time_steps+1)    # total number of node vertices
         points_header = "\n\nPOINTS "+str(n_vertices) +" float"
         f.write(points_header)
-        
         
         for B_idx in range(n_blades):
             for t_idx in range(n_time_steps+1):
@@ -61,7 +79,6 @@ def save_prop_wake_vtk(VD,filename,Results,i_prop):
                     
                     new_point = "\n"+str(xp)+" "+str(yp)+" "+str(zp)
                     node_number = r_idx + (n_radial_rings)*t_idx
-                    #print("Point: ", new_point, "; Node Number: ", str(node_number))
                     f.write(new_point)                
         #---------------------    
         # Write Cells:
