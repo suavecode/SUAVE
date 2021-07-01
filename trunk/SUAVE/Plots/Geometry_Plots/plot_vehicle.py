@@ -414,7 +414,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     
             # rotation about x axis to create azimuth locations 
             trans_2 = np.array([[1 , 0 , 0],
-                           [0 , np.cos(theta[i] + rot*a_o + flip_2 ), np.sin(theta[i] + rot*a_o + flip_2)],
+                           [0 , np.cos(theta[i] + rot*a_o + flip_2 ), -np.sin(theta[i] + rot*a_o + flip_2)],
                            [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]) 
             trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
             
