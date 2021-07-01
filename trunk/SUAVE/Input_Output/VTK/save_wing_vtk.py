@@ -16,7 +16,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series  
 
 
-def save_wing_vtk(vehicle, wing_instance, settings, filename, Results):
+def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step):
     "Saves a SUAVE wing object as a VTK in legacy format."
     
     # generate VD for this wing alone
@@ -80,8 +80,8 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results):
         
         sep  = filename.find('.')
         
-        Lfile = filename[0:sep]+"_L"+filename[sep:]
-        Rfile = filename[0:sep]+"_R"+filename[sep:]
+        Lfile = filename[0:sep]+"_L"+"_t"+str(time_step)+filename[sep:]
+        Rfile = filename[0:sep]+"_R"+"_t"+str(time_step)+filename[sep:]
         
         # write vtks for each half wing
         write_wing_vtk(Lwing,n_cw,n_sw,n_cp,Results,Lfile)
@@ -90,7 +90,9 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results):
         
     else:
         wing = VD
-        write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename)
+        sep  = filename.find('.')
+        file = filename[0:sep]+"_t"+str(time_step)+filename[sep:]
+        write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,file)
 
     return
 

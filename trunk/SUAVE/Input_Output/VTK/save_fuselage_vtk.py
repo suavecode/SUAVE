@@ -12,13 +12,15 @@ import numpy as np
 def save_fuselage_vtk(vehicle, settings, filename, Results):
     "Saves a SUAVE wing object as a VTK in legacy format."
     
-    fuselage_vehicle = SUAVE.Vehicle()
-    fuselage_vehicle.append_component(vehicle.fuselages.fuselage)
+    #fuselage_vehicle = SUAVE.Vehicle()
+    #fuselage_vehicle.append_component(vehicle.fuselages.fuselage)
     
     fus_pts = generate_fuselage_points(vehicle.fuselages.fuselage)
-    
-    
-    write_fuselage_vtk(fus_pts,filename)
+    num_fus_segs = np.size(fus_pts)[0]
+    if num_fus_segs ==0:
+        print("No fuselage segments found!")
+    else:
+        write_fuselage_vtk(fus_pts,filename)
 
     return
 
@@ -30,12 +32,11 @@ def write_fuselage_vtk(fus_pts,filename):
         #---------------------
         # Write header
         #---------------------
-        l1 = "# vtk DataFile Version 4.0"     # File version and identifier
-        l2 = "\nSUAVE Model of Fuselage "  # Title 
-        l3 = "\nASCII"                        # Data type
-        l4 = "\nDATASET UNSTRUCTURED_GRID"    # Dataset structure / topology
-
-        header = [l1, l2, l3, l4]
+        header = ["# vtk DataFile Version 4.0",     # File version and identifier
+                  "\nSUAVE Model of Fuselage" ,     # Title
+                  "\nASCII"                   ,     # Data type
+                  "\nDATASET UNSTRUCTURED_GRID" ]   # Dataset structure / topology
+                  
         f.writelines(header) 
         
         #---------------------    

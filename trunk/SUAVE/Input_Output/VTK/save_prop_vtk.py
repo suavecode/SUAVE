@@ -13,7 +13,7 @@ import numpy as np
 import copy
 
 
-def save_prop_vtk(prop, filename, Results, i_prop):
+def save_prop_vtk(prop, filename, Results, i_prop, time_step):
     """
     Assumptions: 
          Quad cell structures for mesh
@@ -27,7 +27,7 @@ def save_prop_vtk(prop, filename, Results, i_prop):
         G = Gprops[i_prop][B_idx]
         
         sep  = filename.find('.')
-        file = filename[0:sep]+"_blade"+str(B_idx)+filename[sep:]
+        file = filename[0:sep]+"_blade"+str(B_idx)+"_t"+str(time_step)+filename[sep:]
         
         # Create file for each blade
         with open(file, 'w') as f:

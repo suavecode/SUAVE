@@ -6,7 +6,7 @@ from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
 from SUAVE.Input_Output.VTK.save_fuselage_vtk import save_fuselage_vtk
 
 
-def save_vehicle_vtk(vehicle, settings, Results, prop_filename="propeller.vtk",rot_filename="rotor.vtk",wake_filename="prop_wake.vtk", 
+def save_vehicle_vtk(vehicle, settings, Results,time_step, prop_filename="propeller.vtk",rot_filename="rotor.vtk",wake_filename="prop_wake.vtk", 
               wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None, tiltwing=False):
     """
     
@@ -44,9 +44,9 @@ def save_vehicle_vtk(vehicle, settings, Results, prop_filename="propeller.vtk",r
                 else:
                     filename = save_loc + prop_filename
                 sep  = filename.find('.')
-                file = filename[0:sep]+str(i)+filename[sep:]        
+                file = filename[0:sep]+str(i)+filename[sep:]
             
-                save_prop_vtk(propeller, file, Results,i) 
+                save_prop_vtk(propeller, file, Results,i, time_step) 
                 
         try:
             print("Attempting to save rotor.")
@@ -66,7 +66,7 @@ def save_vehicle_vtk(vehicle, settings, Results, prop_filename="propeller.vtk",r
                 sep  = filename.find('.')
                 file = filename[0:sep]+str(i)+filename[sep:]        
                 
-                save_prop_vtk(rotor, file, Results,i) 
+                save_prop_vtk(rotor, file, Results,i,time_step) 
                        
         
     
@@ -82,7 +82,7 @@ def save_vehicle_vtk(vehicle, settings, Results, prop_filename="propeller.vtk",r
             else:            
                 filename = save_loc + wake_filename 
             sep  = filename.find('.')
-            file = filename[0:sep]+str(i)+filename[sep:]
+            file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
             save_prop_wake_vtk(VD, file, Results,i) 
     except:
         print("Wake simulation has not yet been run. No propeller wakes generated.")
@@ -99,7 +99,7 @@ def save_vehicle_vtk(vehicle, settings, Results, prop_filename="propeller.vtk",r
             filename = save_loc + wing_filename 
         sep  = filename.find('.')
         file = filename[0:sep]+str(wing_names[i])+filename[sep:]
-        save_wing_vtk(vehicle, vehicle.wings[wing_names[i]], settings, file, Results)
+        save_wing_vtk(vehicle, vehicle.wings[wing_names[i]], settings, file, Results,time_step)
         
         
     #------------------------------
@@ -112,7 +112,8 @@ def save_vehicle_vtk(vehicle, settings, Results, prop_filename="propeller.vtk",r
         else:           
             filename = save_loc + fuselage_filename 
         sep  = filename.find('.')
-        file = filename[0:sep]+str(i)+filename[sep:]
+        file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
+        
         save_fuselage_vtk(vehicle, settings, file, Results)
             
     
