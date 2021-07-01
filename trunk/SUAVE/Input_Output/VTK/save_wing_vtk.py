@@ -189,39 +189,57 @@ def write_wing_vtk(wing,n_cw,n_sw,n_cp,Results,filename):
         #--------------------------        
         # Write Scalar Cell Data:
         #--------------------------
-        cell_data_header  = "\n\nCELL_DATA "+str(n)
-        f.write(cell_data_header)    
+        if len(Results)!=0:
+            cell_data_header  = "\n\nCELL_DATA "+str(n)
+            f.write(cell_data_header)                
+            # Check for results
+            try:
+                cl = Results['cl_y_DVE'][0]
+                # First scalar value
+                f.write("\nSCALARS cl float 1")
+                f.write("\nLOOKUP_TABLE default")   
+                cl = Results['cl_y_DVE'][0]
+                for i in range(n_cp):
+                    new_cl = str(cl[int(i/n_cw)])
+                    f.write("\n"+new_cl)                
+            except:
+                print("No 'cl_y_DVE' in results. Skipping this scalar output.")
+                
+            try:
+                cl = Results['cl_y_DVE'][0]
+                CL = Results['CL_wing_DVE'][0][0]   
+                f.write("\nSCALARS Cl/CL float 1")
+                f.write("\nLOOKUP_TABLE default")                 
         
-        # First scalar value
-        f.write("\nSCALARS cl float 1")
-        f.write("\nLOOKUP_TABLE default")   
-        cl = Results['cl_y_DVE'][0]
-        for i in range(n_cp):
-            new_cl = str(cl[int(i/n_cw)])
-            f.write("\n"+new_cl)
+                for i in range(n_cp):
+                    new_cl_CL = str(cl[int(i/n_cw)]/CL)
+                    f.write("\n"+new_cl_CL)
+            except:
+                print("No 'CL_wing_DVE' in results. Skipping this scalar output.")
             
-        f.write("\nSCALARS Cl/CL float 1")
-        f.write("\nLOOKUP_TABLE default")   
-        cl = Results['cl_y_DVE'][0]
-        CL = Results['CL_wing_DVE'][0][0]
-        for i in range(n_cp):
-            new_cl_CL = str(cl[int(i/n_cw)]/CL)
-            f.write("\n"+new_cl_CL)
+            try:
+                cd = Results['cdi_y_DVE'][0]
+                f.write("\nSCALARS cd float 1")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_cp):
+                    new_cd = str(cd[int(i/n_cw)])
+                    f.write("\n"+new_cd) 
+            except:
+                print("No 'cdi_y_DVE' in results. Skipping this scalar output.")
+                
+            try:
+                cd = Results['cdi_y_DVE'][0]
+                CD = Results['CDi_wing_DVE'][0][0]                
             
-        f.write("\nSCALARS cd float 1")
-        f.write("\nLOOKUP_TABLE default")   
-        cd = Results['cdi_y_DVE'][0]
-        for i in range(n_cp):
-            new_cd = str(cd[int(i/n_cw)])
-            f.write("\n"+new_cd)  
-            
-        f.write("\nSCALARS cd_CD float 1")
-        f.write("\nLOOKUP_TABLE default")   
-        cd = Results['cdi_y_DVE'][0]
-        CD = Results['CDi_wing_DVE'][0][0]
-        for i in range(n_cp):
-            new_cd_CD = str(cd[int(i/n_cw)]/CD)
-            f.write("\n"+new_cd_CD)               
+                f.write("\nSCALARS cd_CD float 1")
+                f.write("\nLOOKUP_TABLE default")   
+                
+                for i in range(n_cp):
+                    new_cd_CD = str(cd[int(i/n_cw)]/CD)
+                    f.write("\n"+new_cd_CD)     
+            except:
+                print("No 'CDi_wing_DVE' in results. Skipping this scalar output.")
     
     f.close()
     return

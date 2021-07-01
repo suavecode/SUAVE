@@ -10,6 +10,7 @@
 #----------------------------------
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series  
+from SUAVE.Input_Output.VTK.write_azimuthal_cell_values import write_azimuthal_cell_values
 from SUAVE.Core import Data
 import numpy as np
 import copy
@@ -92,22 +93,7 @@ def save_prop_vtk(prop, filename, Results, i_prop, time_step):
             cell_header     = "\n\nCELLS "+str(cells_per_blade)+" "+str(size)
             f.write(cell_header)
             
-            rlap=0
-            for i in range(cells_per_blade): # loop over all nodes in blade
-                if i==(n_af-1+n_af*rlap):
-                    # last airfoil face connects back to first node
-                    b    = i-(n_af-1)
-                    c    = i+1
-                    rlap = rlap+1
-                else:
-                    b = i+1
-                    c = i+n_af+1
-                    
-                a        = i
-                d        = i+n_af
-                new_cell = "\n4 "+str(a)+" "+str(b)+" "+str(c)+" "+str(d)
-                
-                f.write(new_cell)
+            write_azimuthal_cell_values(f, cells_per_blade, n_af)
                 
             
             #---------------------        
@@ -137,8 +123,26 @@ def save_prop_vtk(prop, filename, Results, i_prop, time_step):
     
     return
 
-
 def generate_lofted_propeller_points(prop):
+    """
+    Generates nodes on the lofted propeller.
+
+    Inputs:
+       prop          Data structure of SUAVE propeller                  [Unitless] 
+
+    Outputs:                                   
+       N/A
+
+    Properties Used:
+       N/A 
+    
+    Assumptions:
+       Quad cell structures for mesh
+    
+    Source:  
+       None
+    
+    """      
     num_B  = prop.number_of_blades      
     a_sec  = prop.airfoil_geometry          
     a_secl = prop.airfoil_polar_stations

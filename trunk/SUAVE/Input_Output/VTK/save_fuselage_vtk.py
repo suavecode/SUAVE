@@ -5,9 +5,18 @@
 # Modified: 
 #  
 
+#------------------------------
+# Imports
+#------------------------------
+
 from SUAVE.Plots.Geometry_Plots.plot_vehicle import generate_fuselage_points
+from SUAVE.Input_Output.VTK.write_azimuthal_cell_values import write_azimuthal_cell_values
 import numpy as np
 
+
+#------------------------------
+# Fuselage VTK generation
+#------------------------------
 def save_fuselage_vtk(vehicle, filename, Results):
     """
     Saves a SUAVE fuselage object as a VTK in legacy format.
@@ -36,12 +45,34 @@ def save_fuselage_vtk(vehicle, filename, Results):
     if num_fus_segs == 0:
         print("No fuselage segments found!")
     else:
-        write_fuselage_vtk(fus_pts,filename)
+        write_fuselage_data(fus_pts,filename)
 
     return
 
+#------------------------------
+# Writing fuselage data
+#------------------------------
+def write_fuselage_data(fus_pts,filename):
+    """
+    Writes data for a SUAVE fuselage object as a VTK in legacy format.
 
-def write_fuselage_vtk(fus_pts,filename):
+    Inputs:
+       fus_pts        Array of nodes making up the fuselage          [Unitless] 
+       filename       Name of vtk file to save                       [String] 
+       
+    Outputs:                                   
+       N/A
+
+    Properties Used:
+       N/A 
+    
+    Assumptions:
+       N/A
+    
+    Source:  
+       None
+    
+    """       
     # Create file
     with open(filename, 'w') as f:
     
@@ -84,22 +115,7 @@ def write_fuselage_vtk(fus_pts,filename):
         cell_header  = "\n\nCELLS "+str(n)+" "+str(size)
         f.write(cell_header)
         
-        rlap=0
-        for i in range(n): # loop over all nodes in blade
-            if i==(n_a-1+n_a*rlap):
-                # last airfoil face connects back to first node
-                b    = i-(n_a-1)
-                c    = i+1
-                rlap = rlap+1
-            else:
-                b = i+1
-                c = i+n_a+1
-                
-            a        = i
-            d        = i+n_a
-            new_cell = "\n4 "+str(a)+" "+str(b)+" "+str(c)+" "+str(d)
-            
-            f.write(new_cell)
+        write_azimuthal_cell_values(f,n,n_a)
     
         #---------------------        
         # Write Cell Types:

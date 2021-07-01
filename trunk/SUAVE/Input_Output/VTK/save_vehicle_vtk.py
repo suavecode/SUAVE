@@ -5,6 +5,9 @@
 # Modified: 
 #  
 
+#----------------------------
+# Imports
+#----------------------------
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution
 from SUAVE.Input_Output.VTK.save_wing_vtk import save_wing_vtk
@@ -47,6 +50,7 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
     try:
         VD = vehicle.vortex_distribution 
     except:
+        print("Simulation has not yet been run. Generating vortex distribution for geometry export.")
         settings = Data()
         settings.number_spanwise_vortices  = 25
         settings.number_chordwise_vortices = 5
