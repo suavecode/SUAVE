@@ -69,7 +69,7 @@ def vehicle_setup():
     wing.chords.root                            = 66. * Units.inches
     wing.chords.tip                             = 45. * Units.inches
     wing.chords.mean_aerodynamic                = 58. * Units.inches
-    wing.taper                                  = wing.chords.root/wing.chords.tip
+    wing.taper                                  = wing.chords.tip/wing.chords.root
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 3.0 * Units.degrees
     wing.twists.tip                             = 1.5 * Units.degrees
@@ -116,7 +116,7 @@ def vehicle_setup():
     wing.chords.root                            = 55. * Units.inches
     wing.chords.tip                             = 30. * Units.inches
     wing.chords.mean_aerodynamic                = 43. * Units.inches 
-    wing.taper                                  = wing.chords.root/wing.chords.tip
+    wing.taper                                  = wing.chords.tip/wing.chords.root
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 0.0 * Units.degrees
     wing.twists.tip                             = 0.0 * Units.degrees
@@ -142,7 +142,7 @@ def vehicle_setup():
     wing.chords.root                            = 66. * Units.inches
     wing.chords.tip                             = 27. * Units.inches
     wing.chords.mean_aerodynamic                = 48. * Units.inches 
-    wing.taper                                  = wing.chords.root/wing.chords.tip
+    wing.taper                                  = wing.chords.tip/wing.chords.root
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 0.0 * Units.degrees
     wing.twists.tip                             = 0.0 * Units.degrees

@@ -9,6 +9,7 @@
 #           Sep 2020, M. Clarke
 #           May 2021, E. Botero
 #           May 2021, R. Erhard
+#           Jun 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -45,7 +46,12 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
 
     Properties Used:
     N/A
-    """      
+    """ 
+    
+    if isinstance(airfoil_geometry_files,str):
+        print('import_airfoil_geometry was expecting a list of strings with absolute paths to airfoils')
+        print('Attempting to change path string to list')
+        airfoil_geometry_files = [airfoil_geometry_files]
  
     num_airfoils = len(airfoil_geometry_files)
     # unpack      
