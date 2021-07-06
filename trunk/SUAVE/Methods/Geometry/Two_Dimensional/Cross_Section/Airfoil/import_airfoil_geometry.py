@@ -124,9 +124,10 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
         else:
             x_up_surf_rev = []
             y_up_surf_rev = []
-            x_lo_surf = []
-            y_lo_surf = []
-
+            x_lo_surf     = []
+            y_lo_surf     = []
+            switch_at_next   = False
+            
             # Loop through each value: append to each column
             upper_surface_flag = True
             for line_count , line in enumerate(data_block): 
@@ -136,7 +137,7 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
                 # Remove any commas
                 line_check = line_check.replace(',','')
                 
-                if float(line_check.split()[0]) == 0.:
+                if float(line_check.split()[0]) == 0. or switch_at_next:
                     x_up_surf_rev.append(float(data_block[line_count].strip().replace(',','').split()[0])) 
                     y_up_surf_rev.append(float(data_block[line_count].strip().replace(',','').split()[1]))
 
@@ -152,7 +153,14 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
                 else:                              
                     x_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[0])) 
                     y_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[1]))
-
+                
+                # check if next line flips without x-coordinate going to 0
+                next_line  = data_block[line_count+1].strip()
+                next_line  = next_line.replace(',','')
+                
+                if next_line.split()[0]>line_check.split()[0]:
+                    switch_at_next = True
+                    
             # Upper surface values in Selig format are reversed from Lednicer format, so fix that
             x_up_surf_rev.reverse()
             y_up_surf_rev.reverse()
