@@ -60,7 +60,7 @@ def VLM(conditions,settings,geometry):
         
        settings.number_spanwise_vortices       [Unitless]  <---|
        settings.number_chordwise_vortices      [Unitless]  <---|
-                                                               |--Either/or
+                                                               |--Either/or; see generate_vortex_distribution() for more details
        settings.wing_spanwise_vortices         [Unitless]  <---|
        settings.wing_chordwise_vortices        [Unitless]  <---|
        settings.fuselage_spanwise_vortices     [Unitless]  <---|

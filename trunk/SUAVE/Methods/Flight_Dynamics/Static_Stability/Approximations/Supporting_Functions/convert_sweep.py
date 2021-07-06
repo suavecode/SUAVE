@@ -86,7 +86,7 @@ def convert_sweep(wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.2
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Flight_Dynamics-Static_Stability-Approximations-Supporting_Functions
-def convert_sweep_segments(old_sweep, seg_a,seg_b,wing,old_ref_chord_fraction = 0.0,new_ref_chord_fraction = 0.25):
+def convert_sweep_segments(old_sweep, seg_a, seg_b, wing, old_ref_chord_fraction=0.0, new_ref_chord_fraction=0.25):
     """ This method converts the sweep of a section of a wing between two segments 
     to refer to a new chord fraction. More specifically, it converts the inboard 
     segment's (seg_a's) outboard sweep. Defaults to converting from leading-edge sweep to 

@@ -10,7 +10,6 @@
 # package imports 
 import numpy as np
 from copy import deepcopy
-from math import isclose
 
 import SUAVE
 from SUAVE.Core import  Data
@@ -145,7 +144,6 @@ def make_VLM_wings(geometry, settings):
 
         #merge _breaks arrays into one span_breaks array----------------------------------
         #   1.  sort all span_breaks by their span_fraction
-        #   2.  adjust outboard attributes for LE and TE _breaks coincident with a segment span break.
         #   3.  combine LE and TE breaks with the same span_fraction values (LE cuts from slats and TE cuts from others)
         #   4.  scan LE and TE to pick up cs cuts that cross over one or more span breaks
         
@@ -153,30 +151,8 @@ def make_VLM_wings(geometry, settings):
         LE_breaks  = sorted(LE_breaks,  key=lambda span_break: span_break.span_fraction)
         TE_breaks  = sorted(TE_breaks,  key=lambda span_break: span_break.span_fraction)
         seg_breaks = sorted(seg_breaks, key=lambda span_break: span_break.span_fraction)
-                
-        ####This is moved to make_span_breaks_from_cs
-        ### 2:
-        ##for seg_break in seg_breaks:
-        ##    for LE_break in LE_breaks:
-        ##        diff = seg_break.span_fraction - LE_break.span_fraction
-        ##        if isclose(diff, 0, abs_tol=1e-6):
-        ##            LE_break.dihedral_outboard     = seg_break.dihedral_outboard 
-        ##            LE_break.sweep_outboard_QC    = seg_break.sweep_outboard_QC
-        ##            LE_break.sweep_outboard_LE    = seg_break.sweep_outboard_LE
-        ##            seg_break.is_redundant        = True
-        ##        elif diff < 0:
-        ##            break
-        ##    for TE_break in TE_breaks:
-        ##        diff = seg_break.span_fraction - TE_break.span_fraction
-        ##        if isclose(diff, 0, abs_tol=1e-6):
-        ##            TE_break.dihedral_outboard     = seg_break.dihedral_outboard 
-        ##            TE_break.sweep_outboard_QC    = seg_break.sweep_outboard_QC
-        ##            TE_break.sweep_outboard_LE    = seg_break.sweep_outboard_LE
-        ##            seg_break.is_redundant        = True
-        ##        elif diff < 0:
-        ##            break 
         
-        # 3: similar to a 3-way merge sort
+        # 2: similar to a 3-way merge sort
         span_breaks = []        
         n_LE        = len(LE_breaks)
         n_TE        = len(TE_breaks)
@@ -203,7 +179,7 @@ def make_VLM_wings(geometry, settings):
             else:
                 raise ValueError("No suitable span break") #should never occur
                 
-        # 4:
+        # 3:
         ib, ob = 0, 1 #inboard, outboard indices
         for edge, edge_str in enumerate(['LE','TE']):
             for i in range(len(span_breaks)-1):
@@ -227,7 +203,7 @@ def make_VLM_wings(geometry, settings):
         wing.span_breaks = span_breaks
         
     # ------------------------------------------------------------------
-    # Give cs_wings simple span_breaks arrays
+    # Give cs_wings span_breaks arrays
     # ------------------------------------------------------------------   
     for cs_wing in wings:
         if cs_wing.is_a_control_surface == False: #skip if this wing isn't actually a control surface
@@ -269,8 +245,9 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     """      
     hspan = wing.spans.projected*0.5 if wing.symmetric else wing.spans.projected
     
-    #standard wing attributes
-    cs_wing = SUAVE.Components.Wings.Wing()
+    cs_wing                       = SUAVE.Components.Wings.Wing()
+    
+    #standard wing attributes--------------------------------------------------------------------------------------
     cs_wing.tag                   = wing.tag + '__cs_id_{}'.format(cs_ID)
     span_a                        = seg_a.percent_span_location
     span_b                        = seg_b.percent_span_location
@@ -282,11 +259,9 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.thickness_to_chord    = (seg_a.thickness_to_chord + seg_b.thickness_to_chord)/2
     cs_wing.origin                = np.array(wing.origin) *1.
     
-    ## may have to recompute when shifting y_coords to match span breaks in generate_wing_vortex_distribution
     span_fraction_tot             = cs.span_fraction_end - cs.span_fraction_start
     cs_wing.spans.projected       = wing.spans.projected * span_fraction_tot #includes 2x lenth if cs is on a symmetric wing 
     
-    ### may have to recompute when computing owning wing's modificaions in generate_wing_vortex_distribution
     wing_chord_local_at_cs_root   = np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.chord, seg_b.chord])
     wing_chord_local_at_cs_tip    = np.interp(cs.span_fraction_end,   [span_a, span_b], [seg_a.chord, seg_b.chord])
     cs_wing.chords.root           = wing_chord_local_at_cs_root * cs.chord_fraction  
@@ -298,7 +273,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.vertical              = wing.vertical
     cs_wing.vortex_lift           = wing.vortex_lift
 
-    #non-standard wing attributes, mostly to do with cs_wing's identity as a control surface
+    #non-standard wing attributes, mostly to do with cs_wing's identity as a control surface-----------------------
     cs_wing.is_a_control_surface  = True
     cs_wing.cs_ID                 = cs_ID
     cs_wing.name                  = wing.tag + '__' + seg_b.tag + '__' + cs.tag + '__cs_ID_{}'.format(cs_ID)
@@ -308,6 +283,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.pivot_edge            = 'TE' if cs_wing.is_slat else 'LE'
     cs_wing.deflection            = cs.deflection
     
+    #adjustments---------------------------------------------------------------------------------------------------
     #adjust origin - may need to be adjusted later
     wing_halfspan                 = wing.spans.projected * 0.5 if wing.symmetric else wing.spans.projected
     LE_TE_cs_offset               = 0. if cs_wing.is_slat else (1 - cs.chord_fraction)*wing_chord_local_at_cs_root
@@ -317,9 +293,9 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     if wing.vertical:
         cs_wing[0,1], cs_wing[0,2] = cs_wing[0,2], cs_wing[0,1]
     
-    # holds all required y-coords. Will be added to during discretization to ensure y-coords match up between wing and control surface. it starts with the y_coord of the outboard segment since this won't be covered later
+    # holds all required y-coords. Will be added to during discretization to ensure y-coords match up between wing and control surface.
     rel_offset                    = cs_wing.origin[0,1] if not cs_wing.vertical else cs_wing.origin[0,2]
-    cs_wing.y_coords_required     = [cs.span_fraction_end*hspan - rel_offset] 
+    cs_wing.y_coords_required     = [cs.span_fraction_end*hspan - rel_offset] #initialize with the tip y-coord. Other coords to be added in VLM
 
     #find sweep of the 'outside' edge (LE for slats, TE for everything else)
     use_le_sweep                  = not (seg_a.sweeps.leading_edge is None)
@@ -337,7 +313,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
         new_sweep                   = convert_sweep_segments(old_sweep, seg_a, seg_b, wing, old_ref_chord_fraction=old_cf, new_ref_chord_fraction=new_cf)
         cs_wing.sweeps.leading_edge = new_sweep
     
-    #convert to segmented wing
+    #convert to segmented wing-------------------------------------------------------------------------------------
     cs_wing = convert_to_segmented_wing(cs_wing)
     
     # give segments offsets (in coordinates relative to the cs_wing)

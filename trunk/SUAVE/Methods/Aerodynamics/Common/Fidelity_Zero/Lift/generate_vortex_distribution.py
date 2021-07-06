@@ -62,7 +62,8 @@ def generate_vortex_distribution(geometry,settings):
     Inputs:
     geometry.wings                                [Unitless]  
     
-    Of the following settings, the user should define either the number_ atrributes or the wing_ and fuse_ attributes 
+    Of the following settings, the user should define either the number_ atrributes or the wing_ and fuse_ attributes.
+    If defined, wing_ or fuse_ attributes supercede number_ attributes if number_ attributes are also defined:
     settings.number_spanwise_vortices             - a base number of vortices to be applied to both wings and fuselages
     settings.number_chordwise_vortices            - a base number of vortices to be applied to both wings and fuselages
     settings.wing_spanwise_vortices               - the number of vortices to be applied to only the wings
