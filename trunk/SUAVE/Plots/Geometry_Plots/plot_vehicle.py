@@ -84,7 +84,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     fuselage_alpha      = 1      
     for fus in vehicle.fuselages: 
         # Generate Fuselage Geometry
-        fus_pts = generate_fuselage_points(axes, fus) 
+        fus_pts = generate_fuselage_points(fus) 
         
         # Plot Fuselage Geometry          
         plot_fuselage_geometry(axes,fus_pts,fuselage_face_color,fuselage_edge_color,fuselage_alpha)  
@@ -197,7 +197,7 @@ def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
     return 
     
 
-def generate_fuselage_points(axes, fus ,tessellation = 24 ):
+def generate_fuselage_points(fus ,tessellation = 24 ):
     """ This generates the coordinate points on the surface of the fuselage 
 
     Assumptions: 
@@ -414,7 +414,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     
             # rotation about x axis to create azimuth locations 
             trans_2 = np.array([[1 , 0 , 0],
-                           [0 , np.cos(theta[i] + rot*a_o + flip_2 ), np.sin(theta[i] + rot*a_o + flip_2)],
+                           [0 , np.cos(theta[i] + rot*a_o + flip_2 ), -np.sin(theta[i] + rot*a_o + flip_2)],
                            [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]) 
             trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
             

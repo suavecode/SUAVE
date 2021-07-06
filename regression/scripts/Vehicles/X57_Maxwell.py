@@ -68,7 +68,7 @@ def vehicle_setup():
     wing.chords.root             = 1.67 * Units.meter  
     wing.chords.tip              = 1.14 * Units.meter  
     wing.chords.mean_aerodynamic = 1.47 * Units.meter   
-    wing.taper                   = wing.chords.tip / wing.chords.root
+    wing.taper                   = wing.chords.tip/wing.chords.root
 
     wing.aspect_ratio            = wing.spans.projected**2. / wing.areas.reference
 
@@ -104,7 +104,7 @@ def vehicle_setup():
     wing.chords.root             = 1.397 * Units.meter 
     wing.chords.tip              = 0.762 * Units.meter 
     wing.chords.mean_aerodynamic = 1.09 * Units.meter 
-    wing.taper                   = wing.chords.tip / wing.chords.root
+    wing.taper                   = wing.chords.tip/wing.chords.root
 
     wing.aspect_ratio            = wing.spans.projected**2. / wing.areas.reference
 
@@ -139,7 +139,7 @@ def vehicle_setup():
     wing.chords.root             = 1.6764 * Units.meter 
     wing.chords.tip              = 0.6858 * Units.meter 
     wing.chords.mean_aerodynamic = 1.21 * Units.meter 
-    wing.taper                   = wing.chords.tip / wing.chords.root
+    wing.taper                   = wing.chords.tip/wing.chords.root
 
     wing.aspect_ratio            = wing.spans.projected**2. / wing.areas.reference
 

@@ -11,6 +11,7 @@
 #           Jun 2020, E. Botero
 #           Sep 2020, M. Clarke 
 #           May 2021, E. Botero
+#           Jun 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -116,7 +117,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts,mf):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model, use_bemt_wake_model,ito,wdt,nwts,mf):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -150,7 +151,8 @@ class Vortex_Lattice(Aerodynamics):
             settings.number_chordwise_vortices = n_cw 
             
         settings.use_surrogate              = use_surrogate
-        settings.propeller_wake_model       = propeller_wake_model  
+        settings.propeller_wake_model       = propeller_wake_model 
+        settings.use_bemt_wake_model        = use_bemt_wake_model
         settings.initial_timestep_offset    = ito
         settings.wake_development_time      = wdt
         settings.number_of_wake_timesteps   = nwts
