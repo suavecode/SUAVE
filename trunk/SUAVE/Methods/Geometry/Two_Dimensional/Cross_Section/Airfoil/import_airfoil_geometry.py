@@ -122,11 +122,11 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
                     y_lo_surf.append(float(data_block[line_count].strip().split()[1]))   
 
         else:
-            x_up_surf_rev = []
-            y_up_surf_rev = []
-            x_lo_surf     = []
-            y_lo_surf     = []
-            switch_at_next   = False
+            x_up_surf_rev  = []
+            y_up_surf_rev  = []
+            x_lo_surf      = []
+            y_lo_surf      = []
+            switch_at_next = False
             
             # Loop through each value: append to each column
             upper_surface_flag = True
