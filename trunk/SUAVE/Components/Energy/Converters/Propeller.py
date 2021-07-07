@@ -598,7 +598,9 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         Cdval[alpha>=np.pi/2] = 2.    
-    if np.any(Cl==0):
-        Cl[Cl==0] = 1e-4
+        
+    
+    # prevent zero Cl to keep Cd/Cl from breaking in bemt  
+    Cl[Cl==0] = 1e-6
         
     return Cl, Cdval
