@@ -9,7 +9,7 @@
 
 # package imports 
 import numpy as np
-from copy import copy
+from copy import deepcopy
 
 import SUAVE
 from SUAVE.Core import  Data
@@ -105,7 +105,7 @@ def make_VLM_wings(geometry, settings):
     cs_ID = 0
     
     # ------------------------------------------------------------------
-    # Build wing() objects and wing.span_breaks[] from control surfaces on segments
+    # Build wing Data() objects and wing.span_breaks[] from control surfaces on segments
     # ------------------------------------------------------------------    
     for wing in wings:
         if wing.is_a_control_surface == True: #skip if this wing is actually a control surface
@@ -218,36 +218,80 @@ def make_VLM_wings(geometry, settings):
     return wings
   
 
-    
 # ------------------------------------------------------------------
-# wing helper functions
-# ------------------------------------------------------------------  
+# custom deepcopy(wings)
+# --TO DO-- This is a stand-in for a more fleshed-out VLM_surface class
+# ------------------------------------------------------------------      
 def copy_wings(original_wings):
-    """ This copies all standard attributes for every wing object in original_wings into 
-    a new wings container
+    """ This copies VLM attributes for every wing object in original_wings into 
+    a new wings container with new Data objects
     
     Inputs:   
     original_wings - the original wings container
     """       
-    wings = SUAVE.Components.Wings.Wing.Container()    
+    wings = SUAVE.Core.Container() 
+    paths = get_VLM_wing_paths()
     for og_wing in original_wings:
-        wing = copy_standard_attributes(og_wing)
+        wing = copy_from_key_paths(og_wing, paths)
         wings.append(wing)
     return wings
 
-def copy_standard_attributes(old_object):
-    """ This copies the attributes that are standard to an object of the
-    same class as old_object into a new object
+def get_VLM_wing_paths():
+    paths = ['tag',
+            'origin',
+            'symmetric',
+            'vertical',
+            'taper',
+            'dihedral',
+            'thickness_to_chord',
+            'spans.projected',
+            'chords.root',
+            'chords.tip',
+            'sweeps.quarter_chord',
+            'sweeps.leading_edge',
+            'twists.root',
+            'twists.tip',
+            'vortex_lift',
+            'Airfoil',
+            'Segments',
+            'control_surfaces',
+            ]
+    return paths
+
+def copy_from_key_paths(old_object, paths):
+    """ This copies the attributes specified by 'paths' from old_object  
+    into a new Data() object
 
     Inputs:   
     old_object - an object to copy
     """       
-    new_object = type(old_object)()
-    keys = new_object.keys()    
-    for key in keys:
-        new_object[key] = copy(old_object[key])
+    new_object = Data()   
+    for path in paths:
+        val = deepcopy(old_object.deep_get(path))
+        recursive_set(new_object, path, val)
     return new_object
 
+def recursive_set(data_obj, path, val):
+    """ This is similar to the deep_set function, but also creates
+    intermediate Data() objects for keys that do not yet exist
+    """
+    keys = path.split('.')
+    key  = keys[0]
+    if len(keys) == 1:
+        data_obj[key] = val
+        return
+    
+    has_key = key in data_obj.keys()
+    if not has_key:
+        data_obj[key] = Data()
+        
+    new_path = '.'.join(keys[1:])
+    recursive_set(data_obj[key], new_path, val)
+    
+
+# ------------------------------------------------------------------
+# wing helper functions
+# ------------------------------------------------------------------  
 def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     """ This uses a control surface and the segment it lies between to create
     an equilvalent wing object. The wing has a couple of non-standard attributes
@@ -271,7 +315,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     """      
     hspan = wing.spans.projected*0.5 if wing.symmetric else wing.spans.projected
     
-    cs_wing                       = SUAVE.Components.Wings.Wing()
+    cs_wing                       = copy_from_key_paths(SUAVE.Components.Wings.Wing(), get_VLM_wing_paths())
     
     #standard wing attributes--------------------------------------------------------------------------------------
     cs_wing.tag                   = wing.tag + '__cs_id_{}'.format(cs_ID)
@@ -394,7 +438,7 @@ def convert_to_segmented_wing(wing):
     segment.thickness_to_chord            = wing.thickness_to_chord
     if wing.Airfoil: 
         segment.append_airfoil(wing.Airfoil.airfoil)              
-    wing.append_segment(segment) 
+    wing.Segments.append(segment) 
     
     # tip segment 
     if wing.taper==0:
@@ -414,11 +458,9 @@ def convert_to_segmented_wing(wing):
     segment.thickness_to_chord            = wing.thickness_to_chord
     if wing.Airfoil: 
         segment.append_airfoil(wing.Airfoil.airfoil)             
-    wing.append_segment(segment) 
+    wing.Segments.append(segment) 
     
     return wing
-
-
 
 # ------------------------------------------------------------------
 # span_break helper functions
