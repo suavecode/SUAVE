@@ -9,7 +9,7 @@
 
 # package imports 
 import numpy as np
-from copy import deepcopy
+from copy import copy
 
 import SUAVE
 from SUAVE.Core import  Data
@@ -62,7 +62,7 @@ def make_VLM_wings(geometry, settings):
     """ 
     # unpack inputs
     discretize_cs = settings.discretize_control_surfaces if ('discretize_control_surfaces' in settings.keys()) else False
-    wings         = deepcopy(geometry.wings)
+    wings         = copy_wings(geometry.wings)
     
     # ------------------------------------------------------------------
     # Reformat original wings to have at least 2 segments and additional values for processing later
@@ -221,7 +221,33 @@ def make_VLM_wings(geometry, settings):
     
 # ------------------------------------------------------------------
 # wing helper functions
-# ------------------------------------------------------------------     
+# ------------------------------------------------------------------  
+def copy_wings(original_wings):
+    """ This copies all standard attributes for every wing object in original_wings into 
+    a new wings container
+    
+    Inputs:   
+    original_wings - the original wings container
+    """       
+    wings = SUAVE.Components.Wings.Wing.Container()    
+    for og_wing in original_wings:
+        wing = copy_standard_attributes(og_wing)
+        wings.append(wing)
+    return wings
+
+def copy_standard_attributes(old_object):
+    """ This copies the attributes that are standard to an object of the
+    same class as old_object into a new object
+
+    Inputs:   
+    old_object - an object to copy
+    """       
+    new_object = type(old_object)()
+    keys = new_object.keys()    
+    for key in keys:
+        new_object[key] = copy(old_object[key])
+    return new_object
+
 def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     """ This uses a control surface and the segment it lies between to create
     an equilvalent wing object. The wing has a couple of non-standard attributes
