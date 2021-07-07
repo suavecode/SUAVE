@@ -75,8 +75,8 @@ def save_prop_vtk(prop, filename, Results, i_prop, time_step):
             f.write(points_header)
             
             # Loop over all nodes
-            for c_idx in range(n_af):
-                for r_idx in range(n_r):
+            for r_idx in range(n_r):
+                for c_idx in range(n_af):
                     xp = round(G.X[r_idx,c_idx],4)
                     yp = round(G.Y[r_idx,c_idx],4)
                     zp = round(G.Z[r_idx,c_idx],4)
