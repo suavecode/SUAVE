@@ -1,3 +1,4 @@
+import sys
 import numpy                as np 
 import matplotlib.pyplot    as plt
 
@@ -6,7 +7,9 @@ from SUAVE.Core                                                     import Data,
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift           import VLM as VLM
 from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization       import plot_vehicle_vlm_panelization
 
-from regression.scripts.Vehicles.Boeing_737  import vehicle_setup   as b737_setup
+sys.path.append('../Vehicles')
+
+from Boeing_737  import vehicle_setup   as b737_setup
 
 def main():
     
