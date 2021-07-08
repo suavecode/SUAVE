@@ -27,7 +27,7 @@ def make_VLM_wings(geometry, settings):
         After, the wing data objects are reformatted. They are forced to represent 
         to be segmented wings. All control surfaces are also added to the Container
         as Data objects representing full wings. Helper variables are then computed (most 
-        notably span_breaks[]) for later. 
+        notably span_breaks) for later. 
         
         see make_span_break() for further details
 
@@ -108,16 +108,16 @@ def make_VLM_wings(geometry, settings):
     cs_ID = 0
     
     # ------------------------------------------------------------------
-    # Build wing Data() objects and wing.span_breaks[] from control surfaces on segments
+    # Build wing Data() objects and wing.span_breaks from control surfaces on segments
     # ------------------------------------------------------------------    
     for wing in wings:
         if wing.is_a_control_surface == True: #skip if this wing is actually a control surface
             continue
         
         #prepare to iterate across all segments and control surfaces
-        seg_breaks  = []
-        LE_breaks   = []
-        TE_breaks   = []
+        seg_breaks  = SUAVE.Core.ContainerOrdered()
+        LE_breaks   = SUAVE.Core.ContainerOrdered()
+        TE_breaks   = SUAVE.Core.ContainerOrdered()
         n_segments  = len(wing.Segments.keys())
 
         #process all control surfaces in each segment-------------------------------------
@@ -156,7 +156,7 @@ def make_VLM_wings(geometry, settings):
         seg_breaks = sorted(seg_breaks, key=lambda span_break: span_break.span_fraction)
         
         # 2: similar to a 3-way merge sort
-        span_breaks = []        
+        span_breaks = SUAVE.Core.ContainerOrdered()        
         n_LE        = len(LE_breaks)
         n_TE        = len(TE_breaks)
         n_seg       = len(seg_breaks)
@@ -203,7 +203,7 @@ def make_VLM_wings(geometry, settings):
                         raise ValueError('VLM does not support multiple control surfaces on the same edge at this time')
                 
         # pack span_breaks
-        wing.span_breaks = span_breaks
+        wing.span_breaks = reprocess_span_breaks(span_breaks)
         
     # ------------------------------------------------------------------
     # Give cs_wings span_breaks arrays
@@ -211,7 +211,7 @@ def make_VLM_wings(geometry, settings):
     for cs_wing in wings:
         if cs_wing.is_a_control_surface == False: #skip if this wing isn't actually a control surface
             continue  
-        span_breaks = []
+        span_breaks = SUAVE.Core.ContainerOrdered()
         span_break  = make_span_break_from_segment(cs_wing.Segments[0])
         span_breaks.append(span_break)
         span_break  = make_span_break_from_segment(cs_wing.Segments[1])
@@ -522,11 +522,11 @@ def convert_to_segmented_wing(wing):
     return wing
 
 # ------------------------------------------------------------------
-# span_break helper functions
+# span_break processing helper functions
 # ------------------------------------------------------------------  
 def add_span_break(span_break, span_breaks):
     """ This is a helper function that appends or superimposes a span_break 
-    into span_breaks[]
+    into span_breaks
 
     Assumptions: 
     None
@@ -544,11 +544,11 @@ def add_span_break(span_break, span_breaks):
     if len(span_breaks) == 0:
         span_breaks.append(span_break)
     else:
-        # if non-coincident, the space between the breaks is nominal wing
+        # if non-coincident, the space between the breaks is nominal wing: append the new span_break
         if span_breaks[-1].span_fraction < span_break.span_fraction: 
             span_breaks.append(span_break)
         
-        # else coincident: need to superimpose cs_IDs and cuts, don't need to append
+        # else coincident: need to superimpose cs_IDs and cuts, not append
         else:
             boolean = span_breaks[-1].cs_IDs==-1
             span_breaks[-1].cs_IDs[boolean] = span_break.cs_IDs[boolean]
@@ -556,6 +556,24 @@ def add_span_break(span_break, span_breaks):
                 
     return
 
+
+def reprocess_span_breaks(span_breaks):
+    """ This reprocesses the tags in a newly superimposed set of
+    span_breaks and creates a new object so that the new keys match 
+    the new tags
+    
+    Inputs:
+    span_breaks
+    """     
+    sbs = SUAVE.Core.ContainerOrdered()
+    for i,span_break in enumerate(span_breaks):
+        span_break.tag = make_span_break_tag(span_break)
+        sbs.append(span_break)
+    return sbs
+
+# ------------------------------------------------------------------
+# span_break creation helper functions
+# ------------------------------------------------------------------ 
 def make_span_break_from_segment(seg):
     """ This creates a span_break Data() object from a segment
 
@@ -715,7 +733,12 @@ cut from a non-slat control surface     |           |           .       fraction
     span_break.local_chord          = local_chord #this is the local chord BEFORE cuts are made
     span_break.x_offset             = x_offset
     span_break.dih_offset           = dih_offset  #dih_offset is the y or z accumulated offset from dihedral
-    span_break.is_redundant         = False
+    span_break.tag                  = make_span_break_tag(span_break)
     return span_break
 
-
+def make_span_break_tag(span_break):
+    location   = round(span_break.span_fraction, 3)
+    cs_IDs_arr = span_break.cs_IDs.flatten()
+    cs_IDs_str = '{}'.format(cs_IDs_arr).replace('[','').replace(']','').replace('-1', 'na').replace('  ', '_')
+    
+    return "{}___{}".format(location, cs_IDs_str)
