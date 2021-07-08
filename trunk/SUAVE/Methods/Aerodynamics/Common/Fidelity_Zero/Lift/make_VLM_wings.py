@@ -130,7 +130,7 @@ def make_VLM_wings(geometry, settings):
                                 
                 # register cs start and end span breaks
                 cs_span_breaks = make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID)
-                if type(cs)==Slat:
+                if cs.cs_type==Slat:
                     LE_breaks.append(cs_span_breaks[0])
                     LE_breaks.append(cs_span_breaks[1])
                 else:
@@ -267,7 +267,7 @@ def copy_from_key_paths(old_object, paths):
     """       
     new_object = Data()   
     for path in paths:
-        val = deepcopy(old_object.deep_get(path))
+        val = old_object.deep_get(path)
         recursive_set(new_object, path, val)
     return new_object
 
@@ -278,7 +278,7 @@ def recursive_set(data_obj, path, val):
     keys = path.split('.')
     key  = keys[0]
     if len(keys) == 1:
-        data_obj[key] = val
+        data_obj[key] = deepcopy(val) if key != 'control_surfaces' else copy_control_surfaces_as_data(val)
         return
     
     has_key = key in data_obj.keys()
@@ -288,6 +288,32 @@ def recursive_set(data_obj, path, val):
     new_path = '.'.join(keys[1:])
     recursive_set(data_obj[key], new_path, val)
     
+def copy_control_surfaces_as_data(control_surfaces):
+    """ This function helps avoid copying control_surface objects directly,
+    since they are Physical_Components
+    """    
+    cs_container = SUAVE.Core.Container()   
+    paths = ['tag',               
+             'span',               
+             'span_fraction_start',
+             'span_fraction_end',  
+             'chord_fraction',     
+             'hinge_fraction',     
+             'deflection',         
+             'configuration_type', 
+             'gain',             
+             ]
+    
+    for control_surface in control_surfaces:
+        cs_data = Data()
+        
+        for path in paths:
+            cs_data[path] = control_surface[path]
+        cs_data.cs_type = type(control_surface)
+        cs_container.append(cs_data)
+        
+    return cs_container
+        
 
 # ------------------------------------------------------------------
 # wing helper functions
@@ -348,8 +374,8 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.cs_ID                 = cs_ID
     cs_wing.name                  = wing.tag + '__' + seg_b.tag + '__' + cs.tag + '__cs_ID_{}'.format(cs_ID)
     cs_wing.chord_fraction        = cs.chord_fraction
-    cs_wing.is_slat               = (type(cs)==Slat)
-    cs_wing.is_aileron            = (type(cs)==Aileron)
+    cs_wing.is_slat               = (cs.cs_type==Slat)
+    cs_wing.is_aileron            = (cs.cs_type==Aileron)
     cs_wing.pivot_edge            = 'TE' if cs_wing.is_slat else 'LE'
     cs_wing.deflection            = cs.deflection
     
@@ -549,8 +575,8 @@ def make_span_breaks_from_cs(cs, seg_a, seg_b, cs_wing, cs_ID):
     Properties Used:
     N/A
     """     
-    is_slat        = (type(cs)==Slat)
-    LE_TE          = 0 if type(cs)==Slat else 1
+    is_slat        = (cs.cs_type==Slat)
+    LE_TE          = 0 if is_slat else 1
     span_a         = seg_a.percent_span_location
     span_b         = seg_b.percent_span_location    
     
