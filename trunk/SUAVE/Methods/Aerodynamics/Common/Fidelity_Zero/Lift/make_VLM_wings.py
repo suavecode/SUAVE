@@ -229,36 +229,27 @@ def copy_wings(original_wings):
     Inputs:   
     original_wings - the original wings container
     """       
-    wings = SUAVE.Core.Container() 
-    paths = get_VLM_wing_paths()
-    for og_wing in original_wings:
-        wing = copy_from_key_paths(og_wing, paths)
-        wings.append(wing)
-    return wings
+    return copy_large_container(original_wings, "wings")
 
-def get_VLM_wing_paths():
-    paths = ['tag',
-            'origin',
-            'symmetric',
-            'vertical',
-            'taper',
-            'dihedral',
-            'thickness_to_chord',
-            'spans.projected',
-            'chords.root',
-            'chords.tip',
-            'sweeps.quarter_chord',
-            'sweeps.leading_edge',
-            'twists.root',
-            'twists.tip',
-            'vortex_lift',
-            'Airfoil',
-            'Segments',
-            'control_surfaces',
-            ]
-    return paths
+def copy_large_container(large_container, type_str):
+    """ This function helps avoid copying a container of large objects directly,
+    especially if those objects are Physical_Components
+    
+    Inputs:
+    objects  -  a Container of large objects
+    """    
+    container = SUAVE.Core.Container()  if type_str != "Segments" else SUAVE.Core.ContainerOrdered()
+    paths = get_paths(type_str)
+    
+    for obj in large_container:        
+        data = copy_data_from_paths(obj, paths)        
+        if type_str == 'control_surfaces':
+            data.cs_type = type(obj) # needed to identify the class of a control surface
+        container.append(data)
+        
+    return container
 
-def copy_from_key_paths(old_object, paths):
+def copy_data_from_paths(old_object, paths):
     """ This copies the attributes specified by 'paths' from old_object  
     into a new Data() object
 
@@ -273,12 +264,17 @@ def copy_from_key_paths(old_object, paths):
 
 def recursive_set(data_obj, path, val):
     """ This is similar to the deep_set function, but also creates
-    intermediate Data() objects for keys that do not yet exist
+    intermediate Data() objects for keys that do not yet exist. Special
+    copy cases are made for paths that lead to large class objects
     """
+    special_case_keys = ['control_surfaces', 'Segments']
     keys = path.split('.')
     key  = keys[0]
     if len(keys) == 1:
-        data_obj[key] = deepcopy(val) if key != 'control_surfaces' else copy_control_surfaces_as_data(val)
+        if key in special_case_keys:
+            data_obj[key] = copy_large_container(val, key) # will eventually recurse back to this function
+        else:
+            data_obj[key] = deepcopy(val) # at this point, should only be copying primitive types or very small Data objects
         return
     
     has_key = key in data_obj.keys()
@@ -287,33 +283,64 @@ def recursive_set(data_obj, path, val):
         
     new_path = '.'.join(keys[1:])
     recursive_set(data_obj[key], new_path, val)
+
+def get_paths(type_str):
+    """ This returns a list of the paths to the attributes needed in VLM
+    for a given type of object.
     
-def copy_control_surfaces_as_data(control_surfaces):
-    """ This function helps avoid copying control_surface objects directly,
-    since they are Physical_Components
-    """    
-    cs_container = SUAVE.Core.Container()   
-    paths = ['tag',               
-             'span',               
-             'span_fraction_start',
-             'span_fraction_end',  
-             'chord_fraction',     
-             'hinge_fraction',     
-             'deflection',         
-             'configuration_type', 
-             'gain',             
-             ]
+    Note that if any element in the paths array is the same as the array's correponding type_str, 
+    this will cause copy_large_container() to recurse infinitely. It will also recurse infinitely 
+    if any element in the current array is the same as a type_str that corresponds to a different array
+    which itself has an element that is the same as the current type_str. 
     
-    for control_surface in control_surfaces:
-        cs_data = Data()
+    Inputs:
+    type_str  -  "wings", "control_surfaces" or "Segments"
+    """       
+    if type_str == 'wings':
+        paths = ['tag',
+                'origin',
+                'symmetric',
+                'vertical',
+                'taper',
+                'dihedral',
+                'thickness_to_chord',
+                'spans.projected',
+                'chords.root',
+                'chords.tip',
+                'sweeps.quarter_chord',
+                'sweeps.leading_edge',
+                'twists.root',
+                'twists.tip',
+                'vortex_lift',
+                'Airfoil',
+                'Segments',
+                'control_surfaces',
+                ]
+    elif type_str == 'control_surfaces':
+        paths = ['tag',               
+                 'span',               
+                 'span_fraction_start',
+                 'span_fraction_end',  
+                 'chord_fraction',     
+                 'hinge_fraction',     
+                 'deflection',         
+                 'configuration_type', 
+                 'gain',             
+                 ]
+    elif type_str == 'Segments':
+        paths = ['tag',               
+                 'percent_span_location',               
+                 'twist',
+                 'root_chord_percent',  
+                 'dihedral_outboard',     
+                 'thickness_to_chord',     
+                 'sweeps.quarter_chord',         
+                 'sweeps.leading_edge', 
+                 'Airfoil', 
+                 'control_surfaces',
+                 ]        
         
-        for path in paths:
-            cs_data[path] = control_surface[path]
-        cs_data.cs_type = type(control_surface)
-        cs_container.append(cs_data)
-        
-    return cs_container
-        
+    return paths
 
 # ------------------------------------------------------------------
 # wing helper functions
@@ -341,7 +368,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     """      
     hspan = wing.spans.projected*0.5 if wing.symmetric else wing.spans.projected
     
-    cs_wing                       = copy_from_key_paths(SUAVE.Components.Wings.Wing(), get_VLM_wing_paths())
+    cs_wing                       = copy_data_from_paths(SUAVE.Components.Wings.Wing(), get_paths("wings"))
     
     #standard wing attributes--------------------------------------------------------------------------------------
     cs_wing.tag                   = wing.tag + '__cs_id_{}'.format(cs_ID)

@@ -129,7 +129,7 @@ def populate_control_sections(wing):
                     if 'cs_type' in cs.keys():
                         control_surface.cs_type           = cs.cs_type
                     
-                    w_seg[i].append_control_surface(control_surface)        
+                    w_seg[i].control_surfaces.append(control_surface)        
                 
     # returns an updated wing with control surfaces appended onto the wing segments                  
     return wing  
