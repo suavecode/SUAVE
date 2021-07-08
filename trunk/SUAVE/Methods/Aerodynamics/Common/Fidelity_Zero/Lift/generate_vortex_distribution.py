@@ -11,16 +11,11 @@
 
 # package imports 
 import numpy as np
-from copy import deepcopy
-from math import isclose
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import make_VLM_wings
 
 import SUAVE
 from SUAVE.Core import  Data
-from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
-from SUAVE.Methods.Geometry.Two_Dimensional.Planform import populate_control_sections
-from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions import convert_sweep_segments
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 
@@ -216,7 +211,7 @@ def generate_vortex_distribution(geometry,settings):
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
-    """ This generates the vortex distribution points on the wing 
+    """ This generates vortex distribution points for the given wing 
 
     Assumptions: 
     The wing is segmented and was made or modified by make_VLM_wings()
@@ -226,7 +221,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     
     Inputs:   
     VD                   - vortex distribution
-    wing                 - a wing() object made or modified by make_VLM_wings()
+    wing                 - a Data object made or modified by make_VLM_wings() to mimick a Wing object
     
     Properties Used:
     N/A
@@ -577,6 +572,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             zeta_prime_bs = np.concatenate([zeta_prime_b1,np.array([zeta_prime_b2[-1]])])*1 if is_last_section else None       
             
             # Deflect control surfaces-----------------------------------------------------------------------------
+            # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
+            # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
             if wing.is_a_control_surface:
                 # get rotation point and deflection angle: slat vs non-slat vs aileron
                 if wing.is_slat: #rotate from trailing edge

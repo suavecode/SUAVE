@@ -22,9 +22,14 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 # ------------------------------------------------------------------  
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def make_VLM_wings(geometry, settings):
-    """ This forces all wings to be segmented, appends all control surfaces
-        as full wings to geometry, and contructs helper variables (most 
-        notably span_breaks[]) for later
+    """ This pareses through geometry.wings to create a Container of Data objects.
+        Relevant VLM attributes are copied from geometry.wings to the Container.
+        After, the wing data objects are reformatted. They are forced to represent 
+        to be segmented wings. All control surfaces are also added to the Container
+        as Data objects representing full wings. Helper variables are then computed (most 
+        notably span_breaks[]) for later. 
+        
+        see make_span_break() for further details
 
     Assumptions: 
     All control surfaces are appended directly to the wing, not wing segments.
@@ -34,9 +39,7 @@ def make_VLM_wings(geometry, settings):
     Source:   
     None
     
-    Inputs:   
-    VD                   - vortex distribution 
-    For geometry with one or more non-segmented wings:
+    Inputs:
     geometry.
         wings.wing.
             twists.root
@@ -362,6 +365,9 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     seg_b - the segment object outboard of the cs. The cs is also attached to this
     wing  - the wing object which owns seg_a and seg_b
     cs_ID - a unique identifier for the cs_wing
+    
+    Outputs:
+    cs_wing - a Data object with relevant Wing and Control_Surface attributes
     
     Properties Used:
     N/A
