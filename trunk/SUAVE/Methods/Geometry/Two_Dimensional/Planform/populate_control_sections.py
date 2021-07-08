@@ -115,23 +115,20 @@ def populate_control_sections(wing):
                 
                 if append_CS == True:
                     # initialize the data structure for control surfaces , store results, and append to the correct segment 
-                    if (type(cs) ==  Slat):
-                        control_surface = Slat() 
-                    elif (type(cs) ==  Flap):
-                        control_surface = Flap() 
-                    elif (type(cs) ==  Aileron):
-                        control_surface = Aileron()                              
-                    elif (type(cs) ==  Elevator):
-                        control_surface = Elevator() 
-                    elif (type(cs) ==  Rudder):
-                        control_surface = Rudder()                          
-                        
-                    control_surface.tag                   =cs.tag 
+                    control_surface = type(cs)() # control_surface takes came type as cs (Slat, Aileron, Data(for VLM), etc)                                             
+                    control_surface.tag                   = cs.tag 
+                    control_surface.span                  = cs.span*(s_sf[1]-s_sf[0])/(cs.span_fraction_end-cs.span_fraction_start)
                     control_surface.span_fraction_start   = s_sf[0] 
                     control_surface.span_fraction_end     = s_sf[1]         
                     control_surface.chord_fraction        = cs.chord_fraction
                     control_surface.hinge_fraction        = cs.hinge_fraction
                     control_surface.deflection            = cs.deflection
+                    control_surface.configuration_type    = cs.configuration_type
+                    control_surface.gain                  = cs.gain                    
+                    
+                    if 'cs_type' in cs.keys():
+                        control_surface.cs_type           = cs.cs_type
+                    
                     w_seg[i].append_control_surface(control_surface)        
                 
     # returns an updated wing with control surfaces appended onto the wing segments                  
