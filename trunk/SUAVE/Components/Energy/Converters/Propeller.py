@@ -457,6 +457,7 @@ class Propeller(Energy_Component):
         Cq       = torque/(rho_0*(n*n)*(D*D*D*D*D)) 
         Ct       = thrust/(rho_0*(n*n)*(D*D*D*D))
         Cp       = power/(rho_0*(n*n*n)*(D*D*D*D*D))
+        Crd      = rotor_drag/(rho_0*(n*n)*(D*D*D*D))
         etap     = V*thrust/power 
 
         # prevent things from breaking 
@@ -519,7 +520,8 @@ class Propeller(Energy_Component):
                     disc_local_angle_of_attack        = alpha,
                     propeller_efficiency              = etap,
                     blade_H_distribution              = rotor_drag_distribution,
-                    rotor_drag                        = rotor_drag
+                    rotor_drag                        = rotor_drag,
+                    rotor_drag_coefficient            = Crd
             ) 
     
         return thrust, torque, power, Cp, outputs , etap
