@@ -528,6 +528,19 @@ def VLM(conditions,settings,geometry):
     results.settings   = settings
     results.geometry   = geometry
     
+    ##FOR DEBUGGING ONLY
+    show_vars({'RHS'       : [rhs.RHS0, RHS          ], 
+               'A'         : [A, EW                  ], 
+               'gamma'     : [gamma0, gamma1, gamma  ],
+               'CP'        : [CP                     ],
+               'CSUC'      : [CSUC                   ],
+               'CAXL'      : [CAXL                   ],
+               'CNC'       : [CNC                    ],
+               'CDC'       : [CDC                    ],
+               'BMLE'      : [BMLE                   ],
+               'CL CDi CM' : [CL, CDi, CM            ],
+               })      
+    
     return results
 
 
@@ -575,3 +588,21 @@ def compute_rotation_effects(settings, EW_small, GAMMA, len_mach, X, CHORD, XLE,
     CLE = np.where(STB > 0, CLE /RNMAX /STB, CLE)
     
     return CLE
+
+
+
+##FOR DEBUGGING ONLY
+def show_vars(data):
+    """ Input should be of the form:
+    {'key1':  [var1, var2,...],
+     'key2':  [var1, var2,...],
+     ...                         }
+    """
+    
+    output     = ''
+    for key in data.keys():
+        output += '{}:\n'.format(key)
+        for var in data[key]:
+            output += '{}\n\n'.format(var)
+        
+    print("{}\n showing {}\n{}\n{}".format('='*50, data.keys(), output, '='*50))
