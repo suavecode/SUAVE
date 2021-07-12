@@ -182,19 +182,19 @@ def vehicle_setup():
     #   Turbofan Network
     # ------------------------------------------------------------------
     #instantiate the gas turbine network
-    turbofan     = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbofan1'
-
-    # setup
+    turbofan                   = SUAVE.Components.Energy.Networks.Turbofan()
+    turbofan.tag               = 'turbofan1' 
     turbofan.number_of_engines = 3.0
     turbofan.bypass_ratio      = 8.1
-    turbofan.engine_length     = 289. * Units.inches
-    turbofan.nacelle_diameter  = 3.96 * Units.meters
-    #turbofan.cooling_ratio     = 1.0
     turbofan.origin            = [[133.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet],[145.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet],[133.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]
-    
+       
+    # the nacelle 
+    nacelle                    = SUAVE.Components.Energy.Nacelles.Nacelle()
+    nacelle.diameter           = 3.96 * Units.meters 
+    nacelle.length             = 289. * Units.inches   
+ 
     # working fluid
-    turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
+    turbofan.working_fluid     = SUAVE.Attributes.Gases.Air()
     
     # ------------------------------------------------------------------
     #   Component 1 - Ram

@@ -146,11 +146,15 @@ def vehicle_setup():
     net                    = Vectored_Thrust()
     net.number_of_engines  = 6
     net.thrust_angle       = 90. * Units.degrees
-    net.nacelle_diameter   = 0.6 * Units.feet # need to check 
-    net.engine_length      = 0.5 * Units.feet
-    net.areas              = Data()
-    net.areas.wetted       = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
-    net.voltage            =  500.
+    
+    # -----------------------------------------------------------------
+    # Design the Nacelle
+    # ----------------------------------------------------------------- 
+    nacelle                 = SUAVE.Components.Energy.Nacelles.Nacelle()
+    nacelle.diameter        =  0.6 * Units.feet # need to check 
+    nacelle.length          =  0.5 * Units.feet  
+    nacelle.areas.wetted    =  np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
+    net.nacelle             =  nacelle
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 

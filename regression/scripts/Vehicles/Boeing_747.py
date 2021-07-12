@@ -177,19 +177,19 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     # instantiate the gas turbine network
-    turbofan = SUAVE.Components.Energy.Networks.Turbofan()
-    turbofan.tag = 'turbofan'
-
-    # setup
+    turbofan                    = SUAVE.Components.Energy.Networks.Turbofan()
+    turbofan.tag                = 'turbofan' 
     turbofan.number_of_engines  = 4.0
     turbofan.bypass_ratio       = 4.8
-    turbofan.engine_length      = 3.934
-    turbofan.nacelle_diameter   = 2.428
-    turbofan.origin = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]
+    turbofan.origin             = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]  
+    
+    # the nacelle 
+    nacelle                                     = SUAVE.Components.Energy.Nacelles.Nacelle()
+    nacelle.diameter                            =  2.428 
+    nacelle.length                              = 3.934   
 
     # compute engine areas
-    Awet = 1.1 * np.pi * turbofan.nacelle_diameter * turbofan.engine_length
-
+    Awet = 1.1 * np.pi * turbofan.nacelle.diameter * turbofan.enacelle.length
     # Assign engine areas
     turbofan.areas.wetted = Awet
 

@@ -185,12 +185,15 @@ def vehicle_setup():
     #------------------------------------------------------------------
     net                   = Vectored_Thrust()    
     net.number_of_engines = 8
-    net.thrust_angle      = 0.0   * Units.degrees #  conversion to radians, 
-    net.nacelle_diameter  = 0.2921 # https://www.magicall.biz/products/integrated-motor-controller-magidrive/
-    net.engine_length     = 0.95 
-    net.areas             = Data()
-    net.areas.wetted      = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
-    net.voltage           = 400.             
+    net.thrust_angle      = 0.0   * Units.degrees #  conversion to radians,  
+
+    nacelle                 = SUAVE.Components.Energy.Nacelles.Nacelle()
+    nacelle.diameter        = 0.2921
+    nacelle.length          = 0.95 
+    nacelle.areas.wetted    =  np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
+    net.nacelle             =  nacelle
+        
+    net.voltage             = 400.             
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 

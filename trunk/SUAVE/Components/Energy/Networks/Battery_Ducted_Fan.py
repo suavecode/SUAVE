@@ -57,7 +57,7 @@ class Battery_Ducted_Fan(Propulsor):
         self.motor_efficiency          = 0.0
         self.tag                       = 'Battery_Ducted_Fan'
         self.number_of_engines         = 0.
-        self.nacelle_diameter          = 0.
+        self.nacelle                   = None
         self.esc                       = None
         self.avionics                  = None
         self.payload                   = None

@@ -445,10 +445,20 @@ def vehicle_setup():
     net.number_of_propeller_engines = 1
     net.rotor_thrust_angle          = 90. * Units.degrees
     net.propeller_thrust_angle      = 0. 
-    net.nacelle_diameter            = 0.6 * Units.feet  
-    net.engine_length               = 0.5 * Units.feet
-    net.areas                       = Data()
-    net.areas.wetted                = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
+    
+
+    rotor_nacelle                         = SUAVE.Components.Energy.Nacelles.Nacelle()
+    rotor_nacelle.diameter                =  0.6 * Units.feet # need to check 
+    rotor_nacelle.length                  =  0.5 * Units.feet  
+    rotor_nacelle.areas.wetted            =  np.pi*rotor_nacelle.diameter*rotor_nacelle.length + 0.5*np.pi*rotor_nacelle.diameter**2   
+    net.rotor_nacelle                     =  rotor_nacelle
+    
+    propeller_nacelle                     = SUAVE.Components.Energy.Nacelles.Nacelle()
+    propeller_nacelle.diameter            =  0.6 * Units.feet # need to check 
+    propeller_nacelle.length              =  0.5 * Units.feet  
+    propeller_nacelle.areas.wetted        =  np.pi*propeller_nacelle.diameter*propeller_nacelle.length + 0.5*np.pi*propeller_nacelle.diameter**2   
+    net.propeller_nacelle                 =  propeller_nacelle 
+    
     net.voltage                     = 500.
 
     #------------------------------------------------------------------

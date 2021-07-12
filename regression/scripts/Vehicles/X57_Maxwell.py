@@ -302,12 +302,14 @@ def vehicle_setup():
     # build network    
     net = Battery_Propeller() 
     net.number_of_engines       = 2.
-    net.nacelle_diameter        = 42 * Units.inches
-    net.engine_length           = 0.01 * Units.inches
-    net.areas                   = Data()
-    net.areas.wetted            = 0.01*(2*np.pi*0.01/2)    
+    
 
-
+    nacelle                 = SUAVE.Components.Energy.Nacelles.Nacelle()
+    nacelle.diameter        = 42 * Units.inches
+    nacelle.length          = 0.01 * Units.inches
+    nacelle.areas.wetted    = np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
+    net.nacelle             = nacelle  
+    
     # Component 1 the ESC
     esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
     esc.efficiency = 0.95 # Gundlach for brushless motors
