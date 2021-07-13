@@ -75,8 +75,9 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
     rot_V_wake_ind   = np.zeros((len(aoa), VD.n_cp,3))
     prop_V_wake_ind  = np.zeros((len(aoa), VD.n_cp,3))
     Vx_ind_total     = np.zeros_like(V_distribution)
-    dt               = 0 
+    Vy_ind_total     = np.zeros_like(V_distribution)    
     Vz_ind_total     = np.zeros_like(V_distribution)    
+    dt               = 0 
     num_ctrl_pts     = len(aoa) # number of control points      
     
     for propulsor in geometry.propulsors:
@@ -117,19 +118,23 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
                 aoa_distribution  = np.arctan(Vz/Vx)
 
                 rhs = build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_distribution,
-                                Vx_ind_total, Vz_ind_total, V_distribution, dt)
+                                Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)
                 return  rhs
     
     rhs = build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_distribution,
-                    Vx_ind_total, Vz_ind_total, V_distribution, dt)    
+                    Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)    
     return rhs
 
 
 
 def build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_distribution,
-              Vx_ind_total, Vz_ind_total, V_distribution, dt):
+              Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt):
+    use_LE_vals = 1
+    delta_LE = np.repeat(delta[:,0::n_cw], n_cw, axis=1) if use_LE_vals else delta*1
+    phi_LE   = np.repeat(phi[:,0::n_cw]  , n_cw, axis=1) if use_LE_vals else phi*1
     #VORLAX subroutine = BOUNDY
     
+    #VORLAX frame RHS calculation---------------------------------------------------------
     #unpack conditions 
     ALFA   = aoa_distribution
     PSIRAD = PSI_distribution
@@ -175,8 +180,8 @@ def build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_dist
     SLE = np.repeat(VD.SLE, n_cw)
     CCNTL = 1. / np.sqrt(1.0 + SLE**2) 
     SCNTL = SLE *CCNTL
-    COD = np.cos(phi)
-    SID = np.sin(phi)
+    COD = np.cos(phi_LE)
+    SID = np.sin(phi_LE)
 
     # COMPUTE ONSET FLOW COMPONENT ALONG THE OUTWARD NORMAL TO
     # THE SURFACE AT THE CONTROL POINT, ALOC.
@@ -186,13 +191,39 @@ def build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_dist
     # BODY ROTATION, ONSET.    
     ONSET = - PITCH *ZGIRO + YAW *YGIRO
     
-    # M. Clarke's original RHS for no sideslip and no rotation rates
-    RHS0 = np.sin(aoa_distribution - delta )*np.cos(phi)
+    
+    # Body-Frame RHS calculation----------------------------------------------------------
+    Vx                = V_distribution*np.cos(aoa_distribution)*np.cos(PSI_distribution) - Vx_ind_total
+    Vy                = V_distribution*np.cos(aoa_distribution)*np.sin(PSI_distribution) - Vy_ind_total
+    Vz                = V_distribution*np.sin(aoa_distribution)                          - Vz_ind_total
+    V_distribution    = np.sqrt(Vx**2 + Vy**2 + Vz**2 )
+    aoa_distribution  = np.arctan(Vz/ np.sqrt(Vx**2 + Vy**2) )    
+    PSI_distribution  = np.arctan(Vy / Vx)    
 
-    #pack RHS
+    # M. Clarke's original RHS for no sideslip and no rotation rates
+    aoa_bound         = np.sin(aoa_distribution - delta_LE)*np.cos(phi_LE)
+    RHS0              = aoa_bound
+
+    # original equation taking sideslip into account
+    psi_bound         = np.sin(PSI_distribution)*np.sin(phi_LE)
+    RHS1              = aoa_bound - psi_bound
+    
+    # dot(v_inf, panel_normals)
+    normals = VD.normals*1
+    n_panels = len(normals[:,0])
+    n_machs  = len(aoa_distribution[:,0])
+    normals = np.reshape( np.repeat(normals, n_machs, axis=0) , (n_panels, n_machs, 3))
+    Vxyz = (np.array([Vx,Vy,Vz])/V_distribution).T
+    RHS2 = np.sum(Vxyz*normals, axis=2).T
+    
+    
+
+    #pack RHS-----------------------------------------------------------------------------
     rhs = Data()
     rhs.RHS            = ALOC
     rhs.RHS0           = RHS0
+    rhs.RHS1           = RHS1
+    rhs.RHS2           = RHS2
     rhs.ONSET          = ONSET
     rhs.Vx_ind_total   = Vx_ind_total
     rhs.Vz_ind_total   = Vz_ind_total

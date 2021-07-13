@@ -250,7 +250,9 @@ def VLM(conditions,settings,geometry):
 
     # Compute vortex strength  
     gamma0 = np.linalg.solve(A,rhs.RHS0) # old A with old RHS
-    gamma1  = -np.linalg.solve(A,RHS)    # old A with new RHS
+    gamma1 = np.linalg.solve(A,rhs.RHS1) # old A with modified RHS 
+    gamma2 = np.linalg.solve(A,rhs.RHS2) # old A with modified RHS 
+    gamma3 = -np.linalg.solve(A,RHS)     # old A with new RHS (vorlax)
     gamma  = np.linalg.solve(EW,RHS)     # new matrices, both in VORLAX frame
     
 
@@ -529,9 +531,9 @@ def VLM(conditions,settings,geometry):
     results.geometry   = geometry
     
     ##FOR DEBUGGING ONLY
-    show_vars({'RHS'       : [rhs.RHS0, RHS          ], 
+    show_vars({'RHS'       : [rhs.RHS0, rhs.RHS1, RHS], 
                'A'         : [A, EW                  ], 
-               'gamma'     : [gamma0, gamma1, gamma  ],
+               'gamma'     : [gamma0, gamma1, gamma2, gamma  ],
                'CP'        : [CP                     ],
                'CSUC'      : [CSUC                   ],
                'CAXL'      : [CAXL                   ],
