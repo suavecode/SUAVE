@@ -1,6 +1,16 @@
+# control_surfaces_vlm.py
+# 
+# Created:  July 2021, A. Blaufox
+# Modified: 
+# 
+# File to test control surfaces in VLM
+
+# ----------------------------------------------------------------------
+#   Imports
+# ----------------------------------------------------------------------
+
 import sys
-import numpy                as np 
-import matplotlib.pyplot    as plt
+import numpy as np 
 
 import SUAVE
 from SUAVE.Core                                                     import Data, Units
@@ -10,7 +20,11 @@ from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization       import plot_
 sys.path.append('../Vehicles')
 
 from Boeing_737  import vehicle_setup   as b737_setup
+import matplotlib.pyplot                as plt
 
+# ----------------------------------------------------------------------
+#   Main
+# ----------------------------------------------------------------------
 def main():
     
     # control surface cases
@@ -62,7 +76,9 @@ def main():
     
     return
 
-
+# ----------------------------------------------------------------------
+#   Setup Functions
+# ----------------------------------------------------------------------
 def get_deflected_b737(deflection):  
     pos_def    = (deflection > 0)
     sla_def    = deflection if pos_def else 0.
@@ -115,7 +131,9 @@ def get_settings():
     
     return settings
 
-
+# ----------------------------------------------------------------------
+#   Save/Load Utility Functions
+# ----------------------------------------------------------------------
 def load_results():
     return SUAVE.Input_Output.SUAVE.load('control_surfaces_vlm_results.res')
 
@@ -123,9 +141,10 @@ def save_results(results):
     SUAVE.Input_Output.SUAVE.archive(results,'control_surfaces_vlm_results.res')
     return
 
-
+# ----------------------------------------------------------------------        
+#   Call Main
+# ----------------------------------------------------------------------    
 if __name__ == '__main__':
-
     main()
     plt.show()
     print('control_surface_vlm regression test passed!')

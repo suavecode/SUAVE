@@ -22,12 +22,11 @@ from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Fu
 # ------------------------------------------------------------------  
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def make_VLM_wings(geometry, settings):
-    """ This pareses through geometry.wings to create a Container of Data objects.
+    """ This parses through geometry.wings to create a Container of Data objects.
         Relevant VLM attributes are copied from geometry.wings to the Container.
-        After, the wing data objects are reformatted. They are forced to represent 
-        to be segmented wings. All control surfaces are also added to the Container
-        as Data objects representing full wings. Helper variables are then computed (most 
-        notably span_breaks) for later. 
+        After, the wing data objects are reformatted. All control surfaces are 
+        also added to the Container as Data objects representing full wings. 
+        Helper variables are then computed (most notably span_breaks) for later. 
         
         see make_span_break() for further details
 
@@ -147,8 +146,8 @@ def make_VLM_wings(geometry, settings):
 
         #merge _breaks arrays into one span_breaks array----------------------------------
         #   1.  sort all span_breaks by their span_fraction
-        #   3.  combine LE and TE breaks with the same span_fraction values (LE cuts from slats and TE cuts from others)
-        #   4.  scan LE and TE to pick up cs cuts that cross over one or more span breaks
+        #   2.  combine LE and TE breaks with the same span_fraction values (LE cuts from slats and TE cuts from others)
+        #   3.  scan LE and TE to pick up cs cuts that cross over one or more span breaks
         
         # 1: 
         LE_breaks  = sorted(LE_breaks,  key=lambda span_break: span_break.span_fraction)
@@ -389,7 +388,7 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.origin                = np.array(wing.origin) *1.
     
     span_fraction_tot             = cs.span_fraction_end - cs.span_fraction_start
-    cs_wing.spans.projected       = wing.spans.projected * span_fraction_tot #includes 2x lenth if cs is on a symmetric wing 
+    cs_wing.spans.projected       = wing.spans.projected * span_fraction_tot #includes 2x length if cs is on a symmetric wing 
     
     wing_chord_local_at_cs_root   = np.interp(cs.span_fraction_start, [span_a, span_b], [seg_a.chord, seg_b.chord])
     wing_chord_local_at_cs_tip    = np.interp(cs.span_fraction_end,   [span_a, span_b], [seg_a.chord, seg_b.chord])

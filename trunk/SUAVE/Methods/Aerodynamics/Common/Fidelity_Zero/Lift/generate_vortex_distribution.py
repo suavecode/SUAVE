@@ -2,8 +2,8 @@
 # generate_vortex_distribution.py
 # 
 # Created:  May 2018, M. Clarke
-#           Apr 2020, M. Clarke
-# Modified: Jun 2021, A. Blaufox
+# Modified: Apr 2020, M. Clarke
+#           Jun 2021, A. Blaufox
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -14,17 +14,22 @@ import numpy as np
 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import make_VLM_wings
 
-import SUAVE
 from SUAVE.Core import  Data
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
 
+# ----------------------------------------------------------------------
+#  Generate Vortex Distribution
+# ----------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def generate_vortex_distribution(geometry,settings):
     ''' Compute the coordinates of panels, vortices , control points
-    and geometry used to build the influence coefficient matrix. All
-    major sections (wings and fuslages) have the same n_sw and n_cw in
-    order to allow the usage of vectorized calculations.    
+    and geometry used to build the influence coefficient matrix. A 
+    different discretization (n_sw and n_cw) may be defined for each type
+    of major section (wings and fuselages). 
+    
+    Control surfaces are modelled as wings, but adapt their panel density 
+    to that of the area in which they reside on their owning wing.   
 
     Assumptions: 
     Below is a schematic of the coordinates of an arbitrary panel  
@@ -50,6 +55,9 @@ def generate_vortex_distribution(geometry,settings):
     
     In addition, all control surfaces should be appended directly
        to the wing, not the wing segments    
+    
+    For control surfaces, "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
+    symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
     
     Source:  
     None
@@ -89,7 +97,7 @@ def generate_vortex_distribution(geometry,settings):
     spc            = settings.spanwise_cosine_spacing
     model_fuselage = settings.model_fuselage
     
-    show_prints    = settings.show_prints if ('show_prints' in settings.keys()) else False
+    show_prints    = settings.verbose if ('verbose' in settings.keys()) else False
     
     # ---------------------------------------------------------------------------------------
     # STEP 1: Define empty vectors for coordinates of panes, control points and bound vortices
@@ -159,7 +167,7 @@ def generate_vortex_distribution(geometry,settings):
     VD.chordwise_panel_number  = np.array([],dtype=np.int16) # array of panels' numbers in their strips.     
     VD.chord_lengths           = np.array([])                # Chord length, this is assigned for all panels.
     VD.tangent_incidence_angle = np.array([])                # Tangent Incidence Angles of the chordwise strip. LE to TE, ZETA
-    VD.SPC_switch              = np.array([])                # 0 or 1 per strip. 0 turns off leading edge suction for non-slat control surfaces
+    VD.LE_flag                 = np.array([])                # 0 or 1 per strip. 0 turns off leading edge suction for non-slat control surfaces
     
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
@@ -184,8 +192,7 @@ def generate_vortex_distribution(geometry,settings):
                     
     # ---------------------------------------------------------------------------------------
     # STEP 8.1: Unpack aircraft fuselage geometry
-    # --------------------------------------------------------------------------------------- 
-    VD.Stot       = sum(VD.wing_areas)        
+    # ---------------------------------------------------------------------------------------      
     VD.wing_areas = np.array(VD.wing_areas)   
     VD.n_fus      = 0
     for fus in geometry.fuselages:   
@@ -208,13 +215,18 @@ def generate_vortex_distribution(geometry,settings):
     
     return VD 
 
-
+# ----------------------------------------------------------------------
+#  Discretize Wings
+# ----------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     """ This generates vortex distribution points for the given wing 
 
     Assumptions: 
     The wing is segmented and was made or modified by make_VLM_wings()
+    
+    For control surfaces, "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
+    symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
 
     Source:   
     None
@@ -369,7 +381,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             
     
     # -------------------------------------------------------------------------------------------------------------
-    # Run the stip contruction loop again if wing is symmetric. Reflection plane = x-y plane for vertical wings. Otherwise, reflection plane = x-z plane
+    # Run the strip contruction loop again if wing is symmetric. 
+    # Reflection plane = x-y plane for vertical wings. Otherwise, reflection plane = x-z plane
     signs = np.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
     for sym_sign in signs[[True,sym_para]]:
         # create empty vectors for coordinates 
@@ -414,6 +427,16 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
         z     = np.zeros((n_cw+1)*(n_sw+1))         
         cs_w  = np.zeros(n_sw)        
         
+        # adjust origin for symmetry with special case for vertical symmetry
+        if vertical_wing:
+            wing_origin_x = wing_origin[0]
+            wing_origin_y = wing_origin[1]
+            wing_origin_z = wing_origin[2] * sym_sign
+        else:
+            wing_origin_x = wing_origin[0]
+            wing_origin_y = wing_origin[1] * sym_sign
+            wing_origin_z = wing_origin[2]       
+            
         # ---------------------------------------------------------------------------------------------------------
         # Loop over each strip of panels in the wing
         i_break = 0           
@@ -439,17 +462,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             
             delta_x_a = (x_stations_a[-1] - x_stations_a[0])/n_cw  
             delta_x_b = (x_stations_b[-1] - x_stations_b[0])/n_cw      
-            delta_x   = (x_stations[-1]   - x_stations[0]  )/n_cw  
-            
-            # adjust origin for symmetry with special case for vertical symmetry
-            if vertical_wing:
-                wing_origin_x = wing_origin[0]
-                wing_origin_y = wing_origin[1]
-                wing_origin_z = wing_origin[2] * sym_sign
-            else:
-                wing_origin_x = wing_origin[0]
-                wing_origin_y = wing_origin[1] * sym_sign
-                wing_origin_z = wing_origin[2]                 
+            delta_x   = (x_stations[-1]   - x_stations[0]  )/n_cw             
     
             # define coordinates of horseshoe vortices and control points------------------------------------------
             xi_a1 = break_x_offset[i_break] + eta_a*np.tan(break_sweep[i_break]) + x_stations_a[:-1]                  # x coordinate of top left corner of panel
@@ -467,7 +480,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             #format camber vars for wings vs control surface wings
             nondim_camber_x_coords = break_camber_xs[i_break] *1
             nondim_camber          = break_camber_zs[i_break] *1
-            if wing.is_a_control_surface:
+            if wing.is_a_control_surface: #rescale so that airfoils get cut properly
                 if not wing.is_slat:
                     nondim_camber_x_coords -= 1 - wing.chord_fraction
                 nondim_camber_x_coords /= wing.chord_fraction
@@ -684,7 +697,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             is_a_slat         = wing.is_a_control_surface and wing.is_slat
             strip_has_no_slat = (not wing.is_a_control_surface) and (span_breaks[i_break].cs_IDs[0,1] == -1) # wing's le, outboard control surface ID
             
-            SPC_switch       = 1 if is_a_slat or strip_has_no_slat else 0   
+            LE_flag          = 1 if is_a_slat or strip_has_no_slat else 0   
             
             VD.leading_edge_indices    = np.append(VD.leading_edge_indices   , LE_inds       ) 
             VD.trailing_edge_indices   = np.append(VD.trailing_edge_indices  , TE_inds       )            
@@ -692,7 +705,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             VD.chordwise_panel_number  = np.append(VD.chordwise_panel_number , panel_numbers )  
             VD.chord_lengths           = np.append(VD.chord_lengths          , chord_adjusted)
             VD.tangent_incidence_angle = np.append(VD.tangent_incidence_angle, tan_incidence )
-            VD.SPC_switch              = np.append(VD.SPC_switch             , SPC_switch    )
+            VD.LE_flag                 = np.append(VD.LE_flag                , LE_flag       )
             
             #increment i_break if needed; check for end of wing----------------------------------------------------
             if y_b[idx_y] == break_spans[i_break+1]: 
@@ -837,7 +850,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
     return VD
     
 
-
+# ----------------------------------------------------------------------
+#  Discretize Fuselage
+# ----------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False):
     """ This generates the vortex distribution points on the fuselage 
@@ -918,6 +933,8 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
     fus_nose_curvature =  np.interp(np.interp(fus.fineness.nose,vec2,x), x , vec1)
     fus_tail_curvature =  np.interp(np.interp(fus.fineness.tail,vec2,x), x , vec1) 
 
+    # --TO DO-- model fuselage segments if defined, else use the following code
+    
     # Horizontal Sections of fuselage
     fhs        = Data()        
     fhs.origin = np.zeros((n_sw+1,3))        
@@ -1183,7 +1200,7 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         VD.chordwise_panel_number  = np.append(VD.chordwise_panel_number , np.tile(chordwise_panel_number , 2) ) 
         VD.chord_lengths           = np.append(VD.chord_lengths          , np.tile(chord_lengths          , 2) )
         VD.tangent_incidence_angle = np.append(VD.tangent_incidence_angle, np.tile(tangent_incidence_angle, 2) ) 
-        VD.SPC_switch              = np.append(VD.SPC_switch             , np.tile(np.ones(n_sw)          , 2) )
+        VD.LE_flag                 = np.append(VD.LE_flag                , np.tile(np.ones(n_sw)          , 2) )
     
         # Store fus in vehicle vector  
         VD.XAH  = np.append(VD.XAH,fhs_xah)
@@ -1231,7 +1248,6 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         VD.Z    = np.append(VD.Z  ,fhs_z )
         
         VD.wing_areas = np.append(VD.wing_areas, wing_areas)
-        VD.Stot = VD.Stot + np.sum(wing_areas)
         
         VL = VD.vortex_lift
         VL.append(False)
@@ -1240,9 +1256,12 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
     
     return VD
 
+# ----------------------------------------------------------------------
+#  Panel Computations
+# ----------------------------------------------------------------------
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_panel_area(VD):
-    """ This computed the area of the panels on the lifting surface of the vehicle 
+    """ This computes the area of the panels on the lifting surface of the vehicle 
 
     Assumptions: 
     None
@@ -1271,7 +1290,7 @@ def compute_panel_area(VD):
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def compute_unit_normal(VD):
-    """ This computed the unit normal vector of each panel
+    """ This computes the unit normal vector of each panel
 
 
     Assumptions: 
@@ -1300,6 +1319,9 @@ def compute_unit_normal(VD):
 
     return unit_normal
 
+# ----------------------------------------------------------------------
+#  Rotation functions
+# ----------------------------------------------------------------------
 def rotate_points_about_line(point_on_line, direction_unit_vector, rotation_angle, points):
     """ This computes the location of given points after rotating about an arbitrary 
     line that passes through a given point. An important thing to note is that this
