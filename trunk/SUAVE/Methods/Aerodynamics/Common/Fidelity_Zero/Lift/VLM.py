@@ -137,7 +137,7 @@ def VLM(conditions,settings,geometry):
     LE_ind       = VD.leading_edge_indices
     ZETA         = VD.tangent_incidence_angle
     RK           = VD.chordwise_panel_number
-    LE_flag      = VD.LE_flag
+    exposed_leading_edge_flag = VD.exposed_leading_edge_flag
     
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
@@ -272,7 +272,7 @@ def VLM(conditions,settings,geometry):
     m_b  = np.atleast_2d(mach[:,0]<1.)
     SPC_cond      = VL*m_b.T
     SPC[SPC_cond] = -1.
-    SPC           = SPC * LE_flag
+    SPC           = SPC * exposed_leading_edge_flag
     
     CLE  = 0.5* DCP_LE *np.sqrt(XLE[LE_ind])
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB

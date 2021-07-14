@@ -12,7 +12,6 @@
 # package imports 
 import numpy as np
 
-import SUAVE
 from SUAVE.Core import  Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import make_VLM_wings
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
@@ -185,13 +184,13 @@ def generate_vortex_distribution(geometry,settings):
     VD.chordwise_breaks = np.array([],dtype=np.int32) # indices of the first panel in every strip      (given a list of all panels)
     VD.spanwise_breaks  = np.array([],dtype=np.int32) # indices of the first strip of panels in a wing (given chordwise_breaks)    
     
-    VD.leading_edge_indices    = np.array([],dtype=bool)     # bool array of leading  edge indices (all false except for panels at leading  edge)
-    VD.trailing_edge_indices   = np.array([],dtype=bool)     # bool array of trailing edge indices (all false except for panels at trailing edge)    
-    VD.panels_per_strip        = np.array([],dtype=np.int16) # array of the number of panels per strip (RNMAX); this is assigned for all panels  
-    VD.chordwise_panel_number  = np.array([],dtype=np.int16) # array of panels' numbers in their strips.     
-    VD.chord_lengths           = np.array([])                # Chord length, this is assigned for all panels.
-    VD.tangent_incidence_angle = np.array([])                # Tangent Incidence Angles of the chordwise strip. LE to TE, ZETA
-    VD.LE_flag                 = np.array([])                # 0 or 1 per strip. 0 turns off leading edge suction for non-slat control surfaces
+    VD.leading_edge_indices      = np.array([],dtype=bool)     # bool array of leading  edge indices (all false except for panels at leading  edge)
+    VD.trailing_edge_indices     = np.array([],dtype=bool)     # bool array of trailing edge indices (all false except for panels at trailing edge)    
+    VD.panels_per_strip          = np.array([],dtype=np.int16) # array of the number of panels per strip (RNMAX); this is assigned for all panels  
+    VD.chordwise_panel_number    = np.array([],dtype=np.int16) # array of panels' numbers in their strips.     
+    VD.chord_lengths             = np.array([])                # Chord length, this is assigned for all panels.
+    VD.tangent_incidence_angle   = np.array([])                # Tangent Incidence Angles of the chordwise strip. LE to TE, ZETA
+    VD.exposed_leading_edge_flag = np.array([])                # 0 or 1 per strip. 0 turns off leading edge suction for non-slat control surfaces
     
     # ---------------------------------------------------------------------------------------
     # STEP 2: Unpack aircraft wing geometry 
@@ -721,15 +720,15 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc):
             is_a_slat         = wing.is_a_control_surface and wing.is_slat
             strip_has_no_slat = (not wing.is_a_control_surface) and (span_breaks[i_break].cs_IDs[0,1] == -1) # wing's le, outboard control surface ID
             
-            LE_flag          = 1 if is_a_slat or strip_has_no_slat else 0   
+            exposed_leading_edge_flag  = 1 if is_a_slat or strip_has_no_slat else 0   
             
-            VD.leading_edge_indices    = np.append(VD.leading_edge_indices   , LE_inds       ) 
-            VD.trailing_edge_indices   = np.append(VD.trailing_edge_indices  , TE_inds       )            
-            VD.panels_per_strip        = np.append(VD.panels_per_strip       , RNMAX         )
-            VD.chordwise_panel_number  = np.append(VD.chordwise_panel_number , panel_numbers )  
-            VD.chord_lengths           = np.append(VD.chord_lengths          , chord_adjusted)
-            VD.tangent_incidence_angle = np.append(VD.tangent_incidence_angle, tan_incidence )
-            VD.LE_flag                 = np.append(VD.LE_flag                , LE_flag       )
+            VD.leading_edge_indices      = np.append(VD.leading_edge_indices     , LE_inds                  ) 
+            VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , TE_inds                  )            
+            VD.panels_per_strip          = np.append(VD.panels_per_strip         , RNMAX                    )
+            VD.chordwise_panel_number    = np.append(VD.chordwise_panel_number   , panel_numbers            )  
+            VD.chord_lengths             = np.append(VD.chord_lengths            , chord_adjusted           )
+            VD.tangent_incidence_angle   = np.append(VD.tangent_incidence_angle  , tan_incidence            )
+            VD.exposed_leading_edge_flag = np.append(VD.exposed_leading_edge_flag, exposed_leading_edge_flag)
             
             #increment i_break if needed; check for end of wing----------------------------------------------------
             if y_b[idx_y] == break_spans[i_break+1]: 
@@ -1218,13 +1217,13 @@ def generate_fuselage_vortex_distribution(VD,fus,n_cw,n_sw,model_fuselage=False)
         VD.n_sw             = np.append(VD.n_sw, np.int16([n_sw, n_sw]))
         VD.n_cw             = np.append(VD.n_cw, np.int16([n_cw, n_cw]))
         
-        VD.leading_edge_indices    = np.append(VD.leading_edge_indices   , np.tile(leading_edge_indices   , 2) )
-        VD.trailing_edge_indices   = np.append(VD.trailing_edge_indices  , np.tile(trailing_edge_indices  , 2) )           
-        VD.panels_per_strip        = np.append(VD.panels_per_strip       , np.tile(panels_per_strip       , 2) )
-        VD.chordwise_panel_number  = np.append(VD.chordwise_panel_number , np.tile(chordwise_panel_number , 2) ) 
-        VD.chord_lengths           = np.append(VD.chord_lengths          , np.tile(chord_lengths          , 2) )
-        VD.tangent_incidence_angle = np.append(VD.tangent_incidence_angle, np.tile(tangent_incidence_angle, 2) ) 
-        VD.LE_flag                 = np.append(VD.LE_flag                , np.tile(np.ones(n_sw)          , 2) )
+        VD.leading_edge_indices      = np.append(VD.leading_edge_indices     , np.tile(leading_edge_indices   , 2) )
+        VD.trailing_edge_indices     = np.append(VD.trailing_edge_indices    , np.tile(trailing_edge_indices  , 2) )           
+        VD.panels_per_strip          = np.append(VD.panels_per_strip         , np.tile(panels_per_strip       , 2) )
+        VD.chordwise_panel_number    = np.append(VD.chordwise_panel_number   , np.tile(chordwise_panel_number , 2) ) 
+        VD.chord_lengths             = np.append(VD.chord_lengths            , np.tile(chord_lengths          , 2) )
+        VD.tangent_incidence_angle   = np.append(VD.tangent_incidence_angle  , np.tile(tangent_incidence_angle, 2) ) 
+        VD.exposed_leading_edge_flag = np.append(VD.exposed_leading_edge_flag, np.tile(np.ones(n_sw)          , 2) )
     
         # Store fus in vehicle vector  
         VD.XAH  = np.append(VD.XAH,fhs_xah)
