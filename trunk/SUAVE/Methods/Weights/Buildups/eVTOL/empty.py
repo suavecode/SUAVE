@@ -221,8 +221,8 @@ def empty(config,
             rTip_ref        = propulsor.rotor.tip_radius  
             bladeSol_ref    = propulsor.rotor.blade_solidity 
         else:
-            rTip_ref        = propulsor.propeller.tip_radius  
-            bladeSol_ref    = propulsor.propeller.tip_radius      
+            rTip_ref        = propulsor.propellers.propeller.tip_radius  
+            bladeSol_ref    = propulsor.propellers.propeller.tip_radius      
 
         # total number of propellers and rotors
         nProps         = int(nLiftProps + nThrustProps)

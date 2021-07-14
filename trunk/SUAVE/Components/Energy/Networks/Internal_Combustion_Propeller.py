@@ -50,11 +50,12 @@ class Internal_Combustion_Propeller(Propulsor):
             Properties Used:
             N/A
         """        
-        self.engine            = None
-        self.propeller         = None
-        self.engine_length     = None
-        self.number_of_engines = None
-        self.thrust_angle      = 0.0
+        self.engines              = Container()
+        self.propellers           = Container()
+        self.engine_length        = None
+        self.number_of_engines    = None
+        self.thrust_angle         = 0.0
+        self.identical_propellers = True
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -81,42 +82,60 @@ class Internal_Combustion_Propeller(Propulsor):
         """           
         # unpack
         conditions  = state.conditions
-        engine      = self.engine
-        propeller   = self.propeller
+        engines     = self.engines
+        props       = self.propellers
         num_engines = self.number_of_engines
         
-        # Throttle the engine
-        engine.inputs.speed = state.conditions.propulsion.rpm * Units.rpm
-        conditions.propulsion.combustion_engine_throttle = conditions.propulsion.throttle
+        # How many evaluations to do
+        if self.identical_propellers:
+            n_evals = 1
+        else:
+            n_evals = int(self.number_of_engines)
+            
+        # Setup numbers for iteration
+        total_thrust        = 0.
+        total_power         = 0.
         
-        # Run the engine
-        engine.power(conditions)
-        power_output = engine.outputs.power
-        sfc          = engine.outputs.power_specific_fuel_consumption
-        mdot         = engine.outputs.fuel_flow_rate
-        torque       = engine.outputs.torque     
+        for ii in range(n_evals):     
+            
+            # Unpack the engine and props
+            engine_key = list(engines.keys())[ii]
+            prop_key   = list(props.keys())[ii]
+            engine     = self.engines[engine_key]
+            prop       = self.propellers[prop_key]            
         
-        # link
-        propeller.inputs.omega = state.conditions.propulsion.rpm * Units.rpm
-        propeller.thrust_angle = self.thrust_angle
+            # Throttle the engine
+            engine.inputs.speed = state.conditions.propulsion.rpm * Units.rpm
+            conditions.propulsion.combustion_engine_throttle = conditions.propulsion.throttle
+            
+            # Run the engine
+            engine.power(conditions)
+            mdot         = engine.outputs.fuel_flow_rate
+            torque       = engine.outputs.torque     
+            
+            # link
+            prop.inputs.omega = state.conditions.propulsion.rpm * Units.rpm
+            prop.thrust_angle = self.thrust_angle
+            
+            # step 4
+            F, Q, P, Cp ,  outputs  , etap  = prop.spin(conditions)
+            
+            # Check to see if magic thrust is needed
+            eta        = conditions.propulsion.throttle
+            P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
+            F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]   
         
-        # step 4
-        F, Q, P, Cp ,  outputs  , etap  = propeller.spin(conditions)
+            # link
+            prop.outputs = outputs
         
-        # Check to see if magic thrust is needed
-        eta        = conditions.propulsion.throttle
-        P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
-        F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]   
-        
-        # link
-        propeller.outputs = outputs
-    
-        # Pack the conditions for outputs
-        a                                        = conditions.freestream.speed_of_sound
-        R                                        = propeller.tip_radius   
-        rpm                                      = engine.inputs.speed / Units.rpm
-          
-        conditions.propulsion.rpm                = rpm
+            # Pack the conditions for outputs
+            a                                        = conditions.freestream.speed_of_sound
+            R                                        = prop.tip_radius   
+            rpm                                      = engine.inputs.speed / Units.rpm
+              
+            conditions.propulsion.rpm                = rpm
+            
+            
         conditions.propulsion.propeller_torque   = Q
         conditions.propulsion.power              = P
         conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
@@ -191,6 +210,66 @@ class Internal_Combustion_Propeller(Propulsor):
         # Return the residuals
         segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]    
         
-        return    
+        return
+    
+    
+    
+    def add_unknowns_and_residuals_to_segment(self, segment, initial_power_coefficient = 0.005):
+        """ This function sets up the information that the mission needs to run a mission segment using this network
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            segment
+            
+            Outputs:
+            segment.state.unknowns.battery_voltage_under_load
+            segment.state.unknowns.propeller_power_coefficient
+            segment.state.conditions.propulsion.propeller_motor_torque
+            segment.state.conditions.propulsion.propeller_torque   
+    
+            Properties Used:
+            N/A
+        """                
+        
+        # unpack the ones function
+        ones_row = segment.state.ones_row
+        
+        # Count how many unknowns and residuals based on p
+        n_props  = len(self.propellers)
+        n_motors = len(self.motors)
+        n_eng    = self.number_of_engines
+        
+        if n_props!=n_motors!=n_eng:
+            print('The number of propellers is not the same as the number of motors')
+            
+        # Now check if the propellers are all identical, in this case they have the same of residuals and unknowns
+        if self.identical_propellers:
+            n_props = 1
+            
+        # number of residuals, props plus the battery voltage
+        n_res = n_props + 1
+        
+        # Setup the residuals
+        segment.state.residuals.network = 0. * ones_row(n_res)
+        
+        # Setup the unknowns
+        segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)
+        
+        # Setup the conditions
+        segment.state.conditions.propulsion = Data()
+        segment.state.conditions.propulsion.propeller_motor_torque = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_torque       = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.rpm                    = 0. * ones_row(n_props)
+
+        # Ensure the mission knows how to pack and unpack the unknowns and residuals
+        segment.process.iterate.unknowns.network  = self.unpack_unknowns
+        segment.process.iterate.residuals.network = self.residuals        
+
+        return segment
             
     __call__ = evaluate_thrust

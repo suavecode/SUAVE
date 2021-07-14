@@ -61,7 +61,6 @@ class Propeller(Energy_Component):
         self.mid_chord_alignment       = 0.0
         self.thickness_to_chord        = 0.0
         self.blade_solidity            = 0.0
-        self.thrust_angle              = 0.0
         self.pitch_command             = 0.0 
         self.design_power              = None
         self.VTOL_flag                 = False
@@ -71,7 +70,8 @@ class Propeller(Energy_Component):
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
-        self.rotation                  = [1]      # counter-clockwise rotation as viewed from the front of the aircraft 
+        self.rotation                  = [1]      # counter-clockwise rotation as viewed from the front of the aircraft
+        self.orientation               = [1.,0.,0.]
         self.ducted                    = False         
         self.number_azimuthal_stations = 24
         self.induced_power_factor      = 1.48     # accounts for interference effects
@@ -146,7 +146,7 @@ class Propeller(Energy_Component):
           twist_distribution                 [radians]
           chord_distribution                 [m]
           mid_chord_alignment                [m] 
-          thrust_angle                       [radians]
+          orientation                        [xhat, yhat, zhat]
         """         
            
         #Unpack    
@@ -170,7 +170,7 @@ class Propeller(Energy_Component):
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
         pitch_c = self.pitch_command
-        theta   = self.thrust_angle 
+        ori     = self.orientation
         Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B
@@ -185,7 +185,7 @@ class Propeller(Energy_Component):
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
-        body2thrust     = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
+        body2thrust     = np.array([ori,[0., 1., 0.], [-ori[2], ori[1], ori[0]]])
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
         V_thrust        = orientation_product(T_body2thrust,V_body) 
         
@@ -235,7 +235,7 @@ class Propeller(Energy_Component):
         
         use_2d_analysis = False
         
-        if theta !=0:
+        if ori[0] !=1.:
             # thrust angle creates disturbances in radial and tangential velocities
             use_2d_analysis       = True
             
@@ -445,7 +445,7 @@ class Propeller(Energy_Component):
             
         # thrust and torque derivatives on the blade. 
         blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
-        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)     
+        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r) 
         
         thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
         torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T
@@ -468,14 +468,17 @@ class Propeller(Energy_Component):
         power[conditions.propulsion.throttle[:,0]  <=0.0]      = 0.0 
         torque[conditions.propulsion.throttle[:,0]  <=0.0]     = 0.0
         rotor_drag[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        thrust[omega<0.0]                                      = - thrust[omega<0.0]  
-        thrust[omega==0.0]                                     = 0.0
+        thrust[omega<0.0]                               = - thrust[omega<0.0]  
+        thrust[omega==0.0]                              = 0.0
         power[omega==0.0]                                      = 0.0
         torque[omega==0.0]                                     = 0.0
         rotor_drag[omega==0.0]                                 = 0.0
         Ct[omega==0.0]                                         = 0.0
         Cp[omega==0.0]                                         = 0.0 
         etap[omega==0.0]                                       = 0.0 
+        
+        # Make the thrust a 3D vector
+        thrust_vector = ori*thrust
         
         # assign efficiency to network
         conditions.propulsion.etap = etap   
@@ -487,7 +490,6 @@ class Propeller(Energy_Component):
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,   
                     disc_radial_distribution          = r_dim_2d,  
-                    thrust_angle                      = theta,
                     speed_of_sound                    = conditions.freestream.speed_of_sound,
                     density                           = conditions.freestream.density,
                     velocity                          = Vv, 
@@ -524,7 +526,7 @@ class Propeller(Energy_Component):
                     rotor_drag_coefficient            = Crd
             ) 
     
-        return thrust, torque, power, Cp, outputs , etap
+        return thrust_vector, torque, power, Cp, outputs , etap
 
 
 def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis):

@@ -369,7 +369,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Motors
     #------------------------------------------------------------------
-    # Propeller  motor
+    # Propeller motor
     # Component 4 the Motor
     motor                              = SUAVE.Components.Energy.Converters.Motor()
     etam                               = 0.95

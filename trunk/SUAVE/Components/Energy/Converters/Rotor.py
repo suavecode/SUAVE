@@ -59,7 +59,6 @@ class Rotor(Energy_Component):
         self.chord_distribution        = 0.0
         self.mid_chord_alignment       = 0.0
         self.blade_solidity            = 0.0
-        self.thrust_angle              = 0.0
         self.pitch_command             = 0.0
         self.design_power              = None
         self.design_thrust             = None        
@@ -69,6 +68,7 @@ class Rotor(Energy_Component):
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
         self.rotation                  = [1]
+        self.orientation               = [1.,0.,0.]
         self.ducted                    = False 
         self.VTOL_flag                 = False
         self.number_azimuthal_stations = 24
@@ -144,7 +144,7 @@ class Rotor(Energy_Component):
           twist_distribution                 [radians]
           chord_distribution                 [m]
           mid_chord_alignment                [m] 
-          thrust_angle                       [radians]
+          orientation                        [xhat, yhat, zhat]
         """         
            
         #Unpack    
@@ -168,7 +168,7 @@ class Rotor(Energy_Component):
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
         pitch_c = self.pitch_command
-        theta   = self.thrust_angle 
+        ori     = self.orientation
         Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B
@@ -180,7 +180,7 @@ class Rotor(Energy_Component):
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
-        body2thrust     = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
+        body2thrust     = np.array([ori,[0., 1., 0.], [-ori[2], ori[1], ori[0]]])
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
         V_thrust        = orientation_product(T_body2thrust,V_body) 
      
@@ -393,6 +393,9 @@ class Rotor(Energy_Component):
         
         # assign efficiency to network
         conditions.propulsion.etap = etap   
+        
+        # Make the thrust a 3D vector
+        thrust_vector = ori*thrust        
                 
         # store data
         self.azimuthal_distribution                   = psi  
@@ -401,7 +404,6 @@ class Rotor(Energy_Component):
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,   
                     disc_radial_distribution          = r_dim_2d,  
-                    thrust_angle                      = theta,
                     speed_of_sound                    = conditions.freestream.speed_of_sound,
                     density                           = conditions.freestream.density,
                     velocity                          = Vv, 
@@ -432,4 +434,4 @@ class Rotor(Energy_Component):
                     power_coefficient                 = Cp,                      
             ) 
     
-        return thrust, torque, power, Cp, outputs , etap
+        return thrust_vector, torque, power, Cp, outputs , etap
