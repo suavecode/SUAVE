@@ -7,22 +7,18 @@
 #   Imports
 # ---------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units, Data
-import copy
-from SUAVE.Components.Energy.Networks.Vectored_Thrust import Vectored_Thrust
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
-from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_mass , size_optimal_motor
-from SUAVE.Methods.Propulsion import propeller_design 
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift import compute_max_lift_coeff 
-from SUAVE.Methods.Weights.Buildups.Electric_Vectored_Thrust.empty import empty
-from SUAVE.Methods.Utilities.Chebyshev  import chebyshev_data
-from SUAVE.Plots.Geometry_Plots import * 
+from SUAVE.Core import Units, Data 
 
-import numpy as np
-import pylab as plt
-from copy import deepcopy
+from SUAVE.Components.Energy.Networks.Vectored_Thrust                     import Vectored_Thrust
+from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
+from SUAVE.Methods.Propulsion.electric_motor_sizing                       import  size_optimal_motor
+from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor 
+from SUAVE.Methods.Propulsion                                             import propeller_design  
+from SUAVE.Plots.Geometry_Plots                                           import * 
+from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
+from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 
-
+import numpy as np  
 
 def vehicle_setup(): 
     # ------------------------------------------------------------------
@@ -39,7 +35,7 @@ def vehicle_setup():
     vehicle.mass_properties.operating_empty     = 2250. * Units.lb
     vehicle.mass_properties.max_takeoff         = 2250. * Units.lb
     vehicle.mass_properties.center_of_gravity   = [[ 2.0144,   0.  ,  0.]]
-
+    vehicle.passengers                          = 1
     vehicle.reference_area                      = 10.58275476  
     vehicle.envelope.ultimate_load              = 5.7
     vehicle.envelope.limit_load                 = 3.     
@@ -206,22 +202,19 @@ def vehicle_setup():
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()
     payload.power_draw           = 10. #Watts 
-    payload.mass_properties.mass = 1.0 * Units.kg
+    payload.mass_properties.mass = 0.0 * Units.kg
     net.payload                  = payload
 
     # Component 7 the Avionics
     avionics = SUAVE.Components.Energy.Peripherals.Avionics()
     avionics.power_draw = 20. #Watts  
-    net.avionics        = avionics      
-
-    # add the solar network to the vehicle
-    vehicle.append_component(net)        
+    net.avionics        = avionics
 
     #------------------------------------------------------------------
     # Design Battery
     #------------------------------------------------------------------ 
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.mass_properties.mass = 300. * Units.kg  
+    bat.mass_properties.mass = 200. * Units.kg  
     bat.specific_energy      = 200. * Units.Wh/Units.kg
     bat.resistance           = 0.006
     bat.max_voltage          = 400.
@@ -259,11 +252,15 @@ def vehicle_setup():
     rot.design_Cl                = 0.7
     rot.design_altitude          = 500 * Units.feet                  
     Lift                         = vehicle.mass_properties.takeoff*9.81  
-    rot.design_thrust            = (Lift * 1.5  )/net.number_of_engines  
+    rot.design_thrust            = (Lift * 1.5 )/net.number_of_engines  
     rot.induced_hover_velocity   = np.sqrt(Lift/(2*rho*rot.disc_area*net.number_of_engines))    
-    rot.airfoil_geometry         =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    rot.airfoil_polars           = [['../Vehicles/Airfoils/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_200000.txt' ,
-                                     '../Vehicles/Airfoils/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_1000000.txt' ]]
+
+    rot.airfoil_geometry         =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    rot.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     rot.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
     rot                          = propeller_design(rot)  
     rot.rotation                 = [1,1,1,1,1,1,1,1]
@@ -327,7 +324,6 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Propeller (Thrust) motor
     motor                      = SUAVE.Components.Energy.Converters.Motor()
-    motor.mass_properties.mass = 9. * Units.kg
     motor.origin               = rot_front.origin + rot_rear.origin  
     motor.efficiency           = 0.935
     motor.gear_ratio           = 1. 
@@ -336,8 +332,8 @@ def vehicle_setup():
     motor.propeller_radius     = rot.tip_radius 
     motor.no_load_current      = 2.0 
     motor                      = size_optimal_motor(motor,rot) 
-    net.motor                  = motor 
-
+    motor.mass_properties.mass = nasa_motor(motor.design_torque)
+    net.motor                  = motor
     vehicle.append_component(net) 
 
 
@@ -355,22 +351,26 @@ def vehicle_setup():
     main_tire_height                 = (0.75 + 0.5) * Units.feet
     main_tire_width                  = 4. * Units.inches 
     total_excrescence_area_spin      = 12.*motor_height*motor_width + 2.* main_gear_length*main_gear_width \
-        + nose_gear_width*nose_gear_length + 2 * main_tire_height*main_tire_width\
-                                       + nose_tire_height*nose_tire_width 
+                                         + nose_gear_width*nose_gear_length + 2 * main_tire_height*main_tire_width\
+                                         + nose_tire_height*nose_tire_width 
     total_excrescence_area_no_spin   = total_excrescence_area_spin + 12*propeller_height*propeller_width  
     vehicle.excrescence_area_no_spin = total_excrescence_area_no_spin 
     vehicle.excrescence_area_spin    = total_excrescence_area_spin  
+    
     # append motor origin spanwise locations onto wing data structure 
-    motor_origins_front              = np.array(rot_front.origin)
+    motor_origins_front                                   = np.array(rot_front.origin) 
+    motor_origins_rear                                    = np.array(rot_rear.origin)
+    vehicle.wings['canard_wing'].motor_spanwise_locations = motor_origins_front[:,1]/ vehicle.wings['canard_wing'].spans.projected
+    vehicle.wings['canard_wing'].motor_spanwise_locations = motor_origins_front[:,1]/ vehicle.wings['canard_wing'].spans.projected 
+    vehicle.wings['main_wing'].motor_spanwise_locations   = motor_origins_rear[:,1]/ vehicle.wings['main_wing'].spans.projected
 
-    vehicle.wings['canard_wing'].motor_spanwise_locations = np.multiply(
-        0.19 ,motor_origins_front[:,1])
-    motor_origins_rear = np.array(rot_rear.origin)
-    vehicle.wings['main_wing'].motor_spanwise_locations = np.multiply(
-        0.19 ,motor_origins_rear[:,1])    
 
     net.origin = rot.origin 
 
+    vehicle.weight_breakdown  = empty(vehicle)
+    compute_component_centers_of_gravity(vehicle)
+    vehicle.center_of_gravity()
+    
     return vehicle
 
 

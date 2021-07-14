@@ -10,6 +10,8 @@
 #           Apr 2020, M. Clarke
 #           Jun 2020, E. Botero
 #           Sep 2020, M. Clarke 
+#           May 2021, E. Botero
+#           Jun 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -115,7 +117,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts,mf):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model, use_bemt_wake_model,ito,wdt,nwts,mf):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -149,7 +151,8 @@ class Vortex_Lattice(Aerodynamics):
             settings.number_chordwise_vortices = n_cw 
             
         settings.use_surrogate              = use_surrogate
-        settings.propeller_wake_model       = propeller_wake_model  
+        settings.propeller_wake_model       = propeller_wake_model 
+        settings.use_bemt_wake_model        = use_bemt_wake_model
         settings.initial_timestep_offset    = ito
         settings.wake_development_time      = wdt
         settings.number_of_wake_timesteps   = nwts
@@ -335,7 +338,7 @@ class Vortex_Lattice(Aerodynamics):
         # Evaluate the VLM
         # if in transonic regime, use surrogate
         inviscid_lift, inviscid_drag, wing_lifts, wing_drags, wing_lift_distribution, \
-        wing_drag_distribution, induced_angle_distribution, pressure_coefficient, vel_profile = \
+        wing_drag_distribution, induced_angle_distribution, pressure_coefficient = \
             calculate_VLM(conditions,settings,geometry)
         
         # Lift 
@@ -418,10 +421,13 @@ class Vortex_Lattice(Aerodynamics):
         konditions.freestream.mach_number       = Machs
         konditions.freestream.velocity          = zeros
         
-        total_lift, total_drag, wing_lifts, wing_drags, _, _, _, _, _ = calculate_VLM(konditions,settings,geometry)     
-        
+        total_lift, total_drag, wing_lifts, wing_drags, _, _, _, _ = calculate_VLM(konditions,settings,geometry)     
+    
         # Split subsonic from supersonic
-        sub_sup_split = np.where(Machs < 1.0)[0][-1] + 1 
+        if np.sum(Machs<1.)==0:
+            sub_sup_split = 0
+        else:
+            sub_sup_split = np.where(Machs < 1.0)[0][-1] + 1 
         len_sub_mach  = np.sum(Mach<1.)
         len_sup_mach  = lenM - len_sub_mach
         
@@ -498,7 +504,10 @@ class Vortex_Lattice(Aerodynamics):
         geometry       = self.geometry
         Mach           = training.Mach
         AoA_data       = training.angle_of_attack[:,0]
-        sub_sup_split  = np.where(Mach < 1.0)[0][-1] + 1 
+        if np.sum(Mach<1.)==0:
+            sub_sup_split = 0
+        else:
+            sub_sup_split = np.where(Mach < 1.0)[0][-1] + 1 
         mach_data_sub  = training.Mach[0:sub_sup_split,0]
         mach_data_sup  = training.Mach[sub_sup_split:,0]
         CL_data_sub    = training.lift_coefficient_sub   
@@ -640,11 +649,12 @@ def calculate_VLM(conditions,settings,geometry):
     
     """            
     # iterate over wings
-    total_lift_coeff = 0.0
-    wing_lifts = Data()
-    wing_drags = Data() 
+    total_lift_coeff   = 0.0
+    wing_lifts         = Data()
+    wing_drags         = Data()
+    wing_induced_angle = Data()
         
-    total_lift_coeff,total_induced_drag_coeff, CM, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CPi,vel_profile \
+    total_lift_coeff, total_induced_drag_coeff, _, CL_wing, CDi_wing, cl_y, cdi_y, alpha_i, CPi, _ \
         = VLM(conditions,settings,geometry)
     
     # Dimensionalize the lift and drag for each wing
@@ -657,12 +667,14 @@ def calculate_VLM(conditions,settings,geometry):
     for wing in geometry.wings.values():
         ref = wing.areas.reference
         if wing.symmetric:
-            wing_lifts[wing.tag] = np.atleast_2d(np.sum(dim_wing_lifts[:,i:(i+2)],axis=1)).T/ref
-            wing_drags[wing.tag] = np.atleast_2d(np.sum(dim_wing_drags[:,i:(i+2)],axis=1)).T/ref
+            wing_lifts[wing.tag]         = np.atleast_2d(np.sum(dim_wing_lifts[:,i:(i+2)],axis=1)).T/ref
+            wing_drags[wing.tag]         = np.atleast_2d(np.sum(dim_wing_drags[:,i:(i+2)],axis=1)).T/ref
+            wing_induced_angle[wing.tag] = np.concatenate((alpha_i[i],alpha_i[i+1]),axis=1)
             i+=1
         else:
-            wing_lifts[wing.tag] = np.atleast_2d(dim_wing_lifts[:,i]).T/ref
-            wing_drags[wing.tag] = np.atleast_2d(dim_wing_drags[:,i]).T/ref
+            wing_lifts[wing.tag]         = np.atleast_2d(dim_wing_lifts[:,i]).T/ref
+            wing_drags[wing.tag]         = np.atleast_2d(dim_wing_drags[:,i]).T/ref
+            wing_induced_angle[wing.tag] = alpha_i[i]
         i+=1
 
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, alpha_i, CPi, vel_profile
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, wing_induced_angle, CPi

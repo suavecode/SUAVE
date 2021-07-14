@@ -22,7 +22,7 @@ def compute_wake_induced_velocity(WD,VD,cpts):
     Inputs: 
     WD     - helical wake distribution points               [Unitless] 
     VD     - vortex distribution points on lifting surfaces [Unitless] 
-    cpts   - control points in segemnt                     [Unitless] 
+    cpts   - control points in segment                      [Unitless] 
 
     Properties Used:
     N/A

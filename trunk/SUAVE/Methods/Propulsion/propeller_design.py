@@ -70,9 +70,6 @@ def propeller_design(prop,number_of_stations=20):
     elif (Thrust!= None) and (Power!= None):
         raise AssertionError('Specify either design thrust or design power!')
     
-    if prop.rotation == None:
-        prop.rotation = list(np.ones(int(B))) 
-    
     # Calculated total velocity 
     V  = Vinf + Va
     # Calculate atmospheric properties
@@ -137,7 +134,7 @@ def propeller_design(prop,number_of_stations=20):
         tanphi  = tanphit/chi          # Flow angle at every station
         f       = (B/2.)*(1.-chi)/np.sin(phit) 
         F       = (2./np.pi)*np.arccos(np.exp(-f)) #Prandtl momentum loss factor
-        phi     = np.arctan(tanphi)  #Flow angle at every station
+        phi     = np.arctan(tanphi)    # Flow angle at every station
         
         #Step 3, determine the product Wc, and RE
         G       = F*x*np.cos(phi)*np.sin(phi) #Circulation function

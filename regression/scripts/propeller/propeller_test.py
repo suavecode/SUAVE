@@ -55,9 +55,13 @@ def main():
     bad_prop.design_Cl                = 0.7
     bad_prop.design_altitude          = 1. * Units.km      
     bad_prop.airfoil_geometry         = ['../Vehicles/Airfoils/NACA_4412.txt']
-    bad_prop.airfoil_polars           = [['../Vehicles/Airfoils/NACA_4412_polar_Re_50000.txt','../Vehicles/Airfoils/NACA_4412_polar_Re_100000.txt',
-                                          '../Vehicles/Airfoils/NACA_4412_polar_Re_200000.txt','../Vehicles/Airfoils/NACA_4412_polar_Re_500000.txt',
-                                          '../Vehicles/Airfoils/NACA_4412_polar_Re_1000000.txt']]
+
+    bad_prop.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
+                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']] 
+
     bad_prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  
     bad_prop.design_thrust           = 100000
     bad_prop                         = propeller_design(bad_prop)  
@@ -74,10 +78,18 @@ def main():
     prop_a.design_Cl                = 0.7
     prop_a.design_altitude          = 1. * Units.km      
     prop_a.airfoil_geometry         = ['../Vehicles/Airfoils/NACA_4412.txt','../Vehicles/Airfoils/Clark_y.txt']
-    prop_a.airfoil_polars           = [['../Vehicles/Airfoils/NACA_4412_polar_Re_50000.txt','../Vehicles/Airfoils/NACA_4412_polar_Re_100000.txt','../Vehicles/Airfoils/NACA_4412_polar_Re_200000.txt',
-                                        '../Vehicles/Airfoils/NACA_4412_polar_Re_500000.txt','../Vehicles/Airfoils/NACA_4412_polar_Re_1000000.txt'],
-                                       ['../Vehicles/Airfoils/Clark_y_polar_Re_50000.txt','../Vehicles/Airfoils/Clark_y_polar_Re_100000.txt','../Vehicles/Airfoils/Clark_y_polar_Re_200000.txt',
-                                        '../Vehicles/Airfoils/Clark_y_polar_Re_500000.txt','../Vehicles/Airfoils/Clark_y_polar_Re_1000000.txt']]
+
+    prop_a.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
+                                        '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt'],
+                                       ['../Vehicles/Airfoils/Polars/Clark_y_polar_Re_50000.txt',
+                                        '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_100000.txt',
+                                        '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_200000.txt',
+                                        '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_500000.txt',
+                                        '../Vehicles/Airfoils/Polars/Clark_y_polar_Re_1000000.txt']] 
+
     prop_a.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1]  
     prop_a.design_thrust           = 3054.4809132125697
     prop_a                         = propeller_design(prop_a)  
@@ -117,9 +129,13 @@ def main():
     rot_a.design_altitude          = 20 * Units.feet                            
     rot_a.design_thrust            = 2271.2220451593753 
     rot_a.airfoil_geometry         = ['../Vehicles/Airfoils/NACA_4412.txt']
-    rot_a.airfoil_polars           = [['../Vehicles/Airfoils/NACA_4412_polar_Re_50000.txt','../Vehicles/Airfoils/NACA_4412_polar_Re_100000.txt',
-                                       '../Vehicles/Airfoils/NACA_4412_polar_Re_200000.txt','../Vehicles/Airfoils/NACA_4412_polar_Re_500000.txt',
-                                       '../Vehicles/Airfoils/NACA_4412_polar_Re_1000000.txt']]
+
+    rot_a.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt',
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt']]
+
     rot_a.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]    
     rot_a                          = propeller_design(rot_a) 
     
@@ -188,9 +204,9 @@ def main():
     plot_results(outputr, rot,'black','-','P')
     
     # Truth values for propeller with airfoil geometry defined 
-    F_a_truth       = 3390.61957425
-    Q_a_truth       = 1001.363593
-    P_a_truth       = 207444.08891448 
+    F_a_truth       = 3390.61958013
+    Q_a_truth       = 1001.3635954
+    P_a_truth       = 207444.0894117
     Cplast_a_truth  = 0.10692172
     
     # Truth values for propeller without airfoil geometry defined 
@@ -200,9 +216,9 @@ def main():
     Cplast_truth    = 0.08710442
      
     # Truth values for rotor with airfoil geometry defined 
-    Fr_a_truth      = 1447.00285504
-    Qr_a_truth      = 191.05249889
-    Pr_a_truth      = 39578.74227177 
+    Fr_a_truth      = 1447.00288602
+    Qr_a_truth      = 191.05250446
+    Pr_a_truth      = 39578.74342443
     Cplastr_a_truth = 0.06225539
     
     # Truth values for rotor without airfoil geometry defined 

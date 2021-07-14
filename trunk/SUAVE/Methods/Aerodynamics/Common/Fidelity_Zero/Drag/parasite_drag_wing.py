@@ -5,6 +5,7 @@
 # Modified: Jan 2016, E. Botero      
 #           Apr 2019, T. MacDonald
 #           Apr 2020, M. Clarke
+#           May 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -77,8 +78,6 @@ def parasite_drag_wing(state,settings,geometry):
     
     # Unpack wing
     exposed_root_chord_offset = wing.exposed_root_chord_offset
-    symm                      = wing.symmetric
-    semispan                  = wing.spans.projected*0.5 * (2 - symm)
     t_c_w                     = wing.thickness_to_chord
     Sref                      = wing.areas.reference
     num_segments              = len(wing.Segments.keys())     

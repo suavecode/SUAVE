@@ -70,7 +70,7 @@ def vehicle_setup():
     wing.chords.root             = 1.67 * Units.meter  
     wing.chords.tip              = 1.14 * Units.meter  
     wing.chords.mean_aerodynamic = 1.47 * Units.meter   
-    wing.taper                   = wing.chords.root/wing.chords.tip
+    wing.taper                   = wing.chords.tip/wing.chords.root
 
     wing.aspect_ratio            = wing.spans.projected**2. / wing.areas.reference
 
@@ -106,7 +106,7 @@ def vehicle_setup():
     wing.chords.root             = 1.397 * Units.meter 
     wing.chords.tip              = 0.762 * Units.meter 
     wing.chords.mean_aerodynamic = 1.09 * Units.meter 
-    wing.taper                   = wing.chords.root/wing.chords.tip
+    wing.taper                   = wing.chords.tip/wing.chords.root
 
     wing.aspect_ratio            = wing.spans.projected**2. / wing.areas.reference
 
@@ -141,7 +141,7 @@ def vehicle_setup():
     wing.chords.root             = 1.6764 * Units.meter 
     wing.chords.tip              = 0.6858 * Units.meter 
     wing.chords.mean_aerodynamic = 1.21 * Units.meter 
-    wing.taper                   = wing.chords.root/wing.chords.tip
+    wing.taper                   = wing.chords.tip/wing.chords.root
 
     wing.aspect_ratio            = wing.spans.projected**2. / wing.areas.reference
 
@@ -332,9 +332,14 @@ def vehicle_setup():
     prop.origin                 = [[2.,2.5,0.784]]         
     prop.rotation               = [-1] 
     prop.symmetry               = True
-    prop.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
-    prop.airfoil_polars         = [['../Vehicles/Airfoils/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_200000.txt' ,
-                                  '../Vehicles/Airfoils/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/Airfoils/NACA_4412_polar_Re_1000000.txt' ]]
+
+    prop.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    prop.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                    '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
     prop                        = propeller_design(prop)
     
