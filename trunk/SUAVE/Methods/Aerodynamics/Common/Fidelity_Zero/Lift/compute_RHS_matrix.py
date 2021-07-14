@@ -231,10 +231,15 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
        
     # Body-Frame RHS calculation----------------------------------------------------------
     # Add wake and rotation effects to the freestream
-    Vx                = V_distribution*np.cos(aoa_distribution)*np.cos(PSI_distribution) - Vx_ind_total
-    Vy                = V_distribution*np.cos(aoa_distribution)*np.sin(PSI_distribution) - Vy_ind_total
-    Vz                = V_distribution*np.sin(aoa_distribution)                          - Vz_ind_total
+    Vx_rotation       = -PITCHQ*ZGIRO + YAWQ  *YGIRO
+    Vy_rotation       = -YAWQ  *XGIRO + ROLLQ *ZGIRO
+    Vz_rotation       = -ROLLQ *YGIRO + PITCHQ*XGIRO
+    
+    Vx                = V_distribution*np.cos(aoa_distribution)*np.cos(PSI_distribution) + Vx_rotation - Vx_ind_total
+    Vy                = V_distribution*np.cos(aoa_distribution)*np.sin(PSI_distribution) + Vy_rotation - Vy_ind_total
+    Vz                = V_distribution*np.sin(aoa_distribution)                          + Vz_rotation - Vz_ind_total
     V_distribution    = np.sqrt(Vx**2 + Vy**2 + Vz**2 )
+    
     aoa_distribution  = np.arctan(Vz/ np.sqrt(Vx**2 + Vy**2) )    
     PSI_distribution  = np.arctan(Vy / Vx)    
     
