@@ -111,6 +111,8 @@ def get_conditions():
 
 def get_settings():
     settings = Data()
+    settings.number_spanwise_vortices        = None
+    settings.number_chordwise_vortices       = None  
     settings.wing_spanwise_vortices          = 7
     settings.wing_chordwise_vortices         = 4
     settings.fuselage_spanwise_vortices      = 7

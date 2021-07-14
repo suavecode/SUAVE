@@ -66,7 +66,6 @@ def generate_vortex_distribution(geometry,settings):
     geometry.wings                                [Unitless]  
     
     Of the following settings, the user should define either the number_ atrributes or the wing_ and fuse_ attributes.
-    If defined, wing_ or fuse_ attributes supercede number_ attributes if number_ attributes are also defined:
     settings.number_spanwise_vortices             - a base number of vortices to be applied to both wings and fuselages
     settings.number_chordwise_vortices            - a base number of vortices to be applied to both wings and fuselages
     settings.wing_spanwise_vortices               - the number of vortices to be applied to only the wings
@@ -83,21 +82,46 @@ def generate_vortex_distribution(geometry,settings):
     '''
     # ---------------------------------------------------------------------------------------
     # STEP 0: Unpack settings
-    # ---------------------------------------------------------------------------------------    
-    base_disc_defined = ('number_spanwise_vortices'   in settings.keys())
-    wing_disc_defined = ('wing_spanwise_vortices'     in settings.keys())
-    fuse_disc_defined = ('fuselage_spanwise_vortices' in settings.keys())
-    
-    n_sw_base      = 1         if not base_disc_defined else settings.number_spanwise_vortices  
-    n_cw_base      = 2         if not base_disc_defined else settings.number_chordwise_vortices
-    n_sw_wing      = n_sw_base if not wing_disc_defined else settings.wing_spanwise_vortices  
-    n_cw_wing      = n_cw_base if not wing_disc_defined else settings.wing_chordwise_vortices
-    n_sw_fuse      = n_sw_base if not fuse_disc_defined else settings.fuselage_spanwise_vortices  
-    n_cw_fuse      = n_cw_base if not fuse_disc_defined else settings.fuselage_chordwise_vortices    
+    # ---------------------------------------------------------------------------------------        
+    #unpack other settings----------------------------------------------------
     spc            = settings.spanwise_cosine_spacing
     model_fuselage = settings.model_fuselage
     
     show_prints    = settings.verbose if ('verbose' in settings.keys()) else False
+    
+    # unpack discretization settings------------------------------------------
+    n_sw_global    = settings.number_spanwise_vortices  
+    n_cw_global    = settings.number_chordwise_vortices
+    n_sw_wing      = settings.wing_spanwise_vortices  
+    n_cw_wing      = settings.wing_chordwise_vortices
+    n_sw_fuse      = settings.fuselage_spanwise_vortices  
+    n_cw_fuse      = settings.fuselage_chordwise_vortices
+    
+    #make sure n_cw and n_sw are both defined or not defined
+    invalid_global_n   = bool(n_sw_global) != bool(n_cw_global) 
+    invalid_wing_n     = bool(n_sw_wing)   != bool(n_cw_wing)
+    invalid_fuse_n     = bool(n_sw_fuse)   != bool(n_cw_fuse)
+    invalid_separate_n = bool(n_sw_wing)   != bool(n_sw_fuse)
+    if invalid_global_n:
+        raise AssertionError('If using global surface discretization, both n_sw and n_cw must be defined')
+    elif invalid_wing_n or invalid_fuse_n:
+        raise AssertionError('If using separate surface discretization, all n_sw and n_cw values must be defined')
+    elif invalid_separate_n:
+        raise AssertionError('If using separate surface discretization, both wing and fuselage discretization must be defined')
+    
+    #make sure that global and separate settings aren't both defined
+    global_n_defined   = bool(n_sw_global) 
+    separate_n_defined = bool(n_sw_wing)
+    if global_n_defined == separate_n_defined:
+        raise AssertionError('Specify either global or separate discretization')
+    elif global_n_defined:
+        n_sw_wing = n_sw_global
+        n_cw_wing = n_cw_global
+        n_sw_fuse = n_sw_global
+        n_cw_fuse = n_cw_global
+    else: #separate_n_defined
+        #everything is already set up to use separate discretization
+        pass
     
     # ---------------------------------------------------------------------------------------
     # STEP 1: Define empty vectors for coordinates of panes, control points and bound vortices
