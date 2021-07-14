@@ -16,13 +16,17 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wak
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_model,initial_timestep_offset,wake_development_time,number_of_wake_timesteps):     
+def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,settings,geometry,
+                       propeller_wake_model,initial_timestep_offset,wake_development_time,number_of_wake_timesteps):     
     """ This computes the right hand side matrix for the VLM. In this
     function, induced velocites from propeller wake are also included 
     when relevent and where specified     
 
     Source:  
-    None
+    1. Low-Speed Aerodynamics, Second Edition by Joseph katz, Allen Plotkin
+    Pgs. 331-338
+    
+    2. VORLAX Source Code
 
     Inputs:
     geometry
@@ -117,24 +121,57 @@ def compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,propeller_wake_mo
                 V_distribution    = np.sqrt(Vx**2 + Vz**2 )
                 aoa_distribution  = np.arctan(Vz/Vx)
 
-                rhs = build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_distribution,
-                                Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)
+                rhs = build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
+                                Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt, n_sw, n_cw)
                 return  rhs
     
-    rhs = build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_distribution,
-                    Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)    
+    rhs = build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
+                    Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt, n_sw, n_cw)    
     return rhs
 
 
 
-def build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_distribution,
-              Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt):
-    use_LE_vals = 1
-    delta_LE = np.repeat(delta[:,0::n_cw], n_cw, axis=1) if use_LE_vals else delta*1
-    phi_LE   = np.repeat(phi[:,0::n_cw]  , n_cw, axis=1) if use_LE_vals else phi*1
-    #VORLAX subroutine = BOUNDY
+def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
+              Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt, n_sw, n_cw):
+    """ This uses freestream conditions, induced wake velocities, and rotation
+    rates (pitch, roll, yaw) to find the boundary conditions (RHS) needed to 
+    compute gamma. The function defaults to a classical boundary condition 
+    equation, RHS = V dot N, where V is the unit velocity vector only the panel 
+    and N is the panel unit normal. However, the use may also define
+    settings.use_VORLAX_matrix_calculation to use the boundary condition equation
+    from VORLAX, the code on which this VLM is based. This is useful for future
+    developers who need to compare numbers 1:1 with VORLAX.
     
-    #VORLAX frame RHS calculation---------------------------------------------------------
+    Note if using VORLAX boundary conditions:
+    VORLAX does not take induced wake velocity into account. Additionally,
+    VORLAX uses the camber, twist, and dihedral values of a strip's leading 
+    edge panel for every panel in that strip when calculating panel normals.
+
+    Source:  
+    1. Low-Speed Aerodynamics, Second Edition by Joseph katz, Allen Plotkin Pgs. 331-338
+    
+    2. VORLAX Source Code
+
+    Inputs:
+    settings.use_VORLAX_matrix_calculation  - RHS equation switch               [boolean]
+    conditions.stability.dynamic.pitch_rate -                                   [radians/s]
+    conditions.stability.dynamic.roll_rate  -                                   [radians/s]
+    conditions.stability.dynamic.yaw_rate   -                                   [radians/s]
+    aoa_distribution                        - angle of attack                   [radians]
+    PSI_distribution                        - sideslip angle                    [radians]
+    V[]_ind_total                           - component induced wake velocities [m/s]
+    V_distribution                          - freestream velocity magnitude     [m/s]
+    delta, phi                              - flow tangency angles              [radians]
+       
+    Outputs:                                   
+    rhs  -  a Data object used to hold several values including RHS                                           
+
+    Properties Used:
+    N/A
+    """  
+    
+    # VORLAX frame RHS calculation---------------------------------------------------------
+    #VORLAX subroutine = BOUNDY
     #unpack conditions 
     ALFA   = aoa_distribution
     PSIRAD = PSI_distribution
@@ -177,53 +214,44 @@ def build_RHS(VD, conditions, n_sw, n_cw, aoa_distribution, delta, phi, PSI_dist
     # CCNTL AND SCNTL ARE DIRECTION COSINE PARAMETERS OF TANGENT TO
     # CAMBERLINE AT LEADING EDGE.
     # SLE is slope at leading edge only     
-    SLE = np.repeat(VD.SLE, n_cw)
-    CCNTL = 1. / np.sqrt(1.0 + SLE**2) 
-    SCNTL = SLE *CCNTL
-    COD = np.cos(phi_LE)
-    SID = np.sin(phi_LE)
+    SLE    = np.repeat(VD.SLE, n_cw)
+    CCNTL  = 1. / np.sqrt(1.0 + SLE**2) 
+    SCNTL  = SLE *CCNTL
+    phi_LE = np.repeat(phi[:,0::n_cw]  , n_cw, axis=1) 
+    COD    = np.cos(phi_LE)
+    SID    = np.sin(phi_LE)
 
     # COMPUTE ONSET FLOW COMPONENT ALONG THE OUTWARD NORMAL TO
     # THE SURFACE AT THE CONTROL POINT, ALOC.
-    ALOC = VX *SCNTL + VY *CCNTL *SID - VZ *CCNTL *COD    
+    ALOC  = VX *SCNTL + VY *CCNTL *SID - VZ *CCNTL *COD    
     
     # COMPUTE VELOCITY COMPONENT ALONG X-AXIS INDUCED BY THE RIGID
     # BODY ROTATION, ONSET.    
     ONSET = - PITCH *ZGIRO + YAW *YGIRO
-    
-    
+       
     # Body-Frame RHS calculation----------------------------------------------------------
+    # Add wake and rotation effects to the freestream
     Vx                = V_distribution*np.cos(aoa_distribution)*np.cos(PSI_distribution) - Vx_ind_total
     Vy                = V_distribution*np.cos(aoa_distribution)*np.sin(PSI_distribution) - Vy_ind_total
     Vz                = V_distribution*np.sin(aoa_distribution)                          - Vz_ind_total
     V_distribution    = np.sqrt(Vx**2 + Vy**2 + Vz**2 )
     aoa_distribution  = np.arctan(Vz/ np.sqrt(Vx**2 + Vy**2) )    
     PSI_distribution  = np.arctan(Vy / Vx)    
-
-    # M. Clarke's original RHS for no sideslip and no rotation rates
-    aoa_bound         = np.sin(aoa_distribution - delta_LE)*np.cos(phi_LE)
-    RHS0              = aoa_bound
-
-    # original equation taking sideslip into account
-    psi_bound         = np.sin(PSI_distribution)*np.sin(phi_LE)
-    RHS1              = aoa_bound - psi_bound
     
-    # dot(v_inf, panel_normals)
-    normals = VD.normals*1
-    n_panels = len(normals[:,0])
-    n_machs  = len(aoa_distribution[:,0])
-    normals = np.reshape( np.repeat(normals, n_machs, axis=0) , (n_panels, n_machs, 3))
-    Vxyz = (np.array([Vx,Vy,Vz])/V_distribution).T
-    RHS2 = np.sum(Vxyz*normals, axis=2).T
+    # compute RHS: dot(v, panel_normals)
+    # note there is a subtle difference bewtween the normals used here and VD.normals
+    panel_normals    = -np.array([np.sin(delta), np.cos(delta)*np.sin(phi), -np.cos(delta)*np.cos(phi)]).T
+    n_panels         = len(panel_normals[:,0])
+    n_machs          = len(aoa_distribution[:,0])
+    panel_normals    = np.reshape( np.repeat(panel_normals, n_machs, axis=0) , (n_panels, n_machs, 3))
+    V_unit_vector    = (np.array([Vx,Vy,Vz])/V_distribution).T
+    RHS_from_normals = np.sum(V_unit_vector*panel_normals, axis=2).T
     
+    #pack values--------------------------------------------------------------------------
+    use_VORLAX_RHS = getattr(settings, 'use_VORLAX_matrix_calculation', False)
     
-
-    #pack RHS-----------------------------------------------------------------------------
     rhs = Data()
-    rhs.RHS            = ALOC
-    rhs.RHS0           = RHS0
-    rhs.RHS1           = RHS1
-    rhs.RHS2           = RHS2
+    rhs.RHS            = RHS_from_normals if not use_VORLAX_RHS else ALOC
     rhs.ONSET          = ONSET
     rhs.Vx_ind_total   = Vx_ind_total
     rhs.Vz_ind_total   = Vz_ind_total

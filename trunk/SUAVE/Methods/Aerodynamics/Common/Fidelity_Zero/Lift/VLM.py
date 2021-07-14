@@ -22,7 +22,10 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
 def VLM(conditions,settings,geometry):
-    """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
+    """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients.
+    
+    The user has the option to use the boundary conditions and induced velocities from either SUAVE
+    or VORLAX. See build_RHS in compute_RHS_matrix.py for mor details.
 
     Assumptions: None
 
@@ -63,6 +66,7 @@ def VLM(conditions,settings,geometry):
     settings.number_chordwise_vortices         [Unitless]
     settings.use_surrogate                     [Unitless]
     settings.propeller_wake_model              [Unitless]
+    settings.use_VORLAX_matrix_calculation     [boolean]
        
     conditions.aerodynamics.angle_of_attack    [radians]
     conditions.aerodynamics.side_slip_angle    [radians]
@@ -226,7 +230,7 @@ def VLM(conditions,settings,geometry):
     delta = np.arctan((VD.ZC - VD.ZCH)/((VD.XC - VD.XCH)*ones)) # mean camber surface angle 
 
     # Build the RHS vector 
-    rhs = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,geometry,pwm,ito,wdt,nts) 
+    rhs = compute_RHS_matrix(n_sw,n_cw,delta,phi,conditions,settings,geometry,pwm,ito,wdt,nts) 
     RHS     = rhs.RHS*1
     ONSET   = rhs.ONSET*1
     
@@ -244,20 +248,16 @@ def VLM(conditions,settings,geometry):
     RHS = RHS*RFLAG
     
     # Build Aerodynamic Influence Coefficient Matrix
-    A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
-        + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
-        - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42      
+    use_VORLAX_induced_velocity = getattr(settings, 'use_VORLAX_matrix_calculation', False)
+    if not use_VORLAX_induced_velocity:
+        A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
+            + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
+            - np.multiply(C_mn[:,:,:,2],np.atleast_3d(np.cos(phi)*np.cos(delta)))   # validated from book eqn 7.42 
+    else:
+        A = EW
 
-    # Compute vortex strength  
-    gamma0 = np.linalg.solve(A,rhs.RHS0) # old A with old RHS
-    gamma1 = np.linalg.solve(A,rhs.RHS1) # old A with modified RHS 
-    gamma2 = np.linalg.solve(A,rhs.RHS2) # old A with modified RHS 
-    gamma3 = -np.linalg.solve(A,RHS)     # old A with new RHS (vorlax)
-    gamma  = np.linalg.solve(EW,RHS)     # new matrices, both in VORLAX frame
-    
-
-    #rename GAMMA to match VORLAX
-    GAMMA = np.array(gamma)
+    # Compute vortex strength
+    GAMMA  = np.linalg.solve(A,RHS)
 
     # ---------------------------------------------------------------------------------------
     # STEP 11: Compute Pressure Coefficient
@@ -531,9 +531,9 @@ def VLM(conditions,settings,geometry):
     results.geometry   = geometry
     
     ##FOR DEBUGGING ONLY
-    show_vars({'RHS'       : [rhs.RHS0, rhs.RHS1, RHS], 
-               'A'         : [A, EW                  ], 
-               'gamma'     : [gamma0, gamma1, gamma2, gamma  ],
+    show_vars({'RHS'       : [RHS                    ], 
+               'A'         : [A                      ], 
+               'gamma'     : [GAMMA                  ],
                'CP'        : [CP                     ],
                'CSUC'      : [CSUC                   ],
                'CAXL'      : [CAXL                   ],
