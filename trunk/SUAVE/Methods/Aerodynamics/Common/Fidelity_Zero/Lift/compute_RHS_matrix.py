@@ -245,12 +245,9 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     
     # compute RHS: dot(v, panel_normals)
     # note there is a subtle difference bewtween the normals used here and VD.normals
-    panel_normals    = -np.array([np.sin(delta), np.cos(delta)*np.sin(phi), -np.cos(delta)*np.cos(phi)]).T
-    n_panels         = len(panel_normals[:,0])
-    n_machs          = len(aoa_distribution[:,0])
-    panel_normals    = np.reshape( np.repeat(panel_normals, n_machs, axis=0) , (n_panels, n_machs, 3))
+    panel_normals    = np.array([np.sin(delta), np.cos(delta)*np.sin(phi), -np.cos(delta)*np.cos(phi)]).T
     V_unit_vector    = (np.array([Vx,Vy,Vz])/V_distribution).T
-    RHS_from_normals = np.sum(V_unit_vector*panel_normals, axis=2).T
+    RHS_from_normals = np.sum(-V_unit_vector*panel_normals, axis=2).T
     
     #pack values--------------------------------------------------------------------------
     use_VORLAX_RHS = getattr(settings, 'use_VORLAX_matrix_calculation', False)
