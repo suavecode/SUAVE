@@ -316,7 +316,7 @@ def simulation_settings(vehicle):
     grid_settings.length = 1.2
     grid_settings.height_fine = 0.2
     
-    VLM_settings        = Data()
+    VLM_settings        = SUAVE.Analyses.Aerodynamics.Vortex_Lattice().settings
     VLM_settings.number_spanwise_vortices        = 16
     VLM_settings.number_chordwise_vortices       = 4
     VLM_settings.use_surrogate                   = True
