@@ -77,7 +77,7 @@ def make_VLM_wings(geometry, settings):
             n_segments = 2
         else:
             for segment in wing.Segments:
-                if len(segment.control_surfaces) > 0:
+                if 'control_surfaces' in segment.keys() and len(segment.control_surfaces) > 0:
                     raise ValueError('Input, control surfaces should be appended to the wing, not its segments. ' + 
                                      'This function will move the control surfaces to wing segments itself.')  
         #move wing control surfaces to from wing to its segments
@@ -339,7 +339,6 @@ def get_paths(type_str):
                  'sweeps.quarter_chord',         
                  'sweeps.leading_edge', 
                  'Airfoil', 
-                 'control_surfaces',
                  ]        
         
     return paths
