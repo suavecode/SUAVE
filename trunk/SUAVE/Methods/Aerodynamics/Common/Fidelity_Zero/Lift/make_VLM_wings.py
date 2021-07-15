@@ -125,7 +125,8 @@ def make_VLM_wings(geometry, settings):
             seg_a       = wing.Segments[ia]
             seg_b       = wing.Segments[ib]            
             
-            for cs in seg_b.control_surfaces: #should be no control surfaces on root segment
+            control_surfaces = seg_b.control_surfaces if 'control_surfaces' in seg_b.keys() else Data()
+            for cs in control_surfaces: #should be no control surfaces on root segment
                 # create and append a wing object from the control_surface object and relevant segments
                 cs_wing = make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID)
                 wings.append(cs_wing)
