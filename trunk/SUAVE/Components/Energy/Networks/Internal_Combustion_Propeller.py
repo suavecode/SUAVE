@@ -10,12 +10,10 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Components.Physical_Component import Container
 from SUAVE.Core import Data, Units
 
 # ----------------------------------------------------------------------
@@ -54,7 +52,6 @@ class Internal_Combustion_Propeller(Propulsor):
         self.propellers           = Container()
         self.engine_length        = None
         self.number_of_engines    = None
-        self.thrust_angle         = 0.0
         self.identical_propellers = True
     
     # manage process with a driver function
@@ -86,16 +83,21 @@ class Internal_Combustion_Propeller(Propulsor):
         props       = self.propellers
         num_engines = self.number_of_engines
         
+        # Unpack conditions
+        a = conditions.freestream.speed_of_sound        
+        
         # How many evaluations to do
         if self.identical_propellers:
             n_evals = 1
+            factor  = num_engines*1
         else:
-            n_evals = int(self.number_of_engines)
+            n_evals = int(num_engines)
+            factor  = 1.
             
         # Setup numbers for iteration
-        total_thrust        = 0.
+        total_thrust        = 0. * state.ones_row(3)
         total_power         = 0.
-        
+        mdot                = 0.
         for ii in range(n_evals):     
             
             # Unpack the engine and props
@@ -105,54 +107,47 @@ class Internal_Combustion_Propeller(Propulsor):
             prop       = self.propellers[prop_key]            
         
             # Throttle the engine
-            engine.inputs.speed = state.conditions.propulsion.rpm * Units.rpm
+            engine.inputs.speed                              = state.conditions.propulsion.rpm * Units.rpm
             conditions.propulsion.combustion_engine_throttle = conditions.propulsion.throttle
             
             # Run the engine
             engine.power(conditions)
-            mdot         = engine.outputs.fuel_flow_rate
+            mdot         = mdot + engine.outputs.fuel_flow_rate * factor
             torque       = engine.outputs.torque     
             
             # link
             prop.inputs.omega = state.conditions.propulsion.rpm * Units.rpm
-            prop.thrust_angle = self.thrust_angle
             
             # step 4
-            F, Q, P, Cp ,  outputs  , etap  = prop.spin(conditions)
+            F, Q, P, Cp, outputs, etap = prop.spin(conditions)
             
             # Check to see if magic thrust is needed
-            eta        = conditions.propulsion.throttle
-            P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
-            F[eta>1.0] = F[eta>1.0]*eta[eta>1.0]   
-        
-            # link
-            prop.outputs = outputs
-        
-            # Pack the conditions for outputs
-            a                                        = conditions.freestream.speed_of_sound
-            R                                        = prop.tip_radius   
-            rpm                                      = engine.inputs.speed / Units.rpm
+            eta               = conditions.propulsion.throttle[:,0,None]
+            P[eta>1.0]        = P[eta>1.0]*eta[eta>1.0]
+            F[eta[:,0]>1.0,:] = F[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]
+                
+            # Pack the conditions
+            R                   = prop.tip_radius
+            rpm                 = engine.inputs.speed / Units.rpm
+            F_mag               = np.atleast_2d(np.linalg.norm(F, axis=1))  
+            total_thrust        = total_thrust + F * factor
+            total_power         = total_power  + P * factor
               
-            conditions.propulsion.rpm                = rpm
-            
-            
-        conditions.propulsion.propeller_torque   = Q
-        conditions.propulsion.power              = P
-        conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
-        conditions.propulsion.motor_torque       = torque
-         
-        # noise
-        outputs.number_of_engines                = num_engines
-        conditions.noise.sources.propeller       = outputs
+            # Pack specific outputs
+            conditions.propulsion.engine_torque[:,ii]      = torque[:,0]
+            conditions.propulsion.propeller_torque[:,ii]   = Q[:,0]
+            conditions.propulsion.propeller_rpm[:,ii]      = rpm[:,0]
+            conditions.propulsion.propeller_tip_mach[:,ii] = (R*rpm[:,0]*Units.rpm)/a[:,0]
+            conditions.propulsion.disc_loading[:,ii]       = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
+            conditions.propulsion.power_loading[:,ii]      = (F_mag[:,0])/(P[:,0])      # N/W               
+            conditions.noise.sources.propellers[prop.tag]  = outputs
+
 
         # Create the outputs
-        F                                        = num_engines* F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]  
-        F_mag                                    = np.atleast_2d(np.linalg.norm(F, axis=1))   
-        conditions.propulsion.disc_loading       = (F_mag.T)/ (num_engines*np.pi*(R/Units.feet)**2)   # N/m^2                      
-        conditions.propulsion.power_loading      = (F_mag.T)/(P)    # N/W       
+        conditions.propulsion.power = total_power
         
         results = Data()
-        results.thrust_force_vector = F
+        results.thrust_force_vector = total_thrust
         results.vehicle_mass_rate   = mdot
         
         return results
@@ -204,17 +199,15 @@ class Internal_Combustion_Propeller(Propulsor):
         # Here we are going to pack the residuals (torque,voltage) from the network
         
         # Unpack
-        q_motor   = segment.state.conditions.propulsion.motor_torque
+        q_motor   = segment.state.conditions.propulsion.engine_torque
         q_prop    = segment.state.conditions.propulsion.propeller_torque
         
         # Return the residuals
-        segment.state.residuals.network[:,0] = q_motor[:,0] - q_prop[:,0]    
+        segment.state.residuals.network = q_motor - q_prop
         
         return
     
-    
-    
-    def add_unknowns_and_residuals_to_segment(self, segment, initial_power_coefficient = 0.005):
+    def add_unknowns_and_residuals_to_segment(self, segment,rpm=2500):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
             Assumptions:
@@ -225,6 +218,7 @@ class Internal_Combustion_Propeller(Propulsor):
     
             Inputs:
             segment
+            rpm                      [rpm]
             
             Outputs:
             segment.state.unknowns.battery_voltage_under_load
@@ -240,31 +234,33 @@ class Internal_Combustion_Propeller(Propulsor):
         ones_row = segment.state.ones_row
         
         # Count how many unknowns and residuals based on p
-        n_props  = len(self.propellers)
-        n_motors = len(self.motors)
+        n_props   = len(self.propellers)
+        n_engines = len(self.engines)
         n_eng    = self.number_of_engines
         
-        if n_props!=n_motors!=n_eng:
-            print('The number of propellers is not the same as the number of motors')
+        if n_props!=n_engines!=n_eng:
+            print('The number of propellers is not the same as the number of engines')
             
         # Now check if the propellers are all identical, in this case they have the same of residuals and unknowns
         if self.identical_propellers:
             n_props = 1
             
-        # number of residuals, props plus the battery voltage
-        n_res = n_props + 1
+        # number of residuals, number of props
+        n_res = n_props
         
         # Setup the residuals
         segment.state.residuals.network = 0. * ones_row(n_res)
         
         # Setup the unknowns
-        segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)
+        segment.state.unknowns.rpm = rpm * ones_row(1) 
         
         # Setup the conditions
-        segment.state.conditions.propulsion = Data()
-        segment.state.conditions.propulsion.propeller_motor_torque = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.engine_torque          = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_torque       = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rpm                    = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_rpm          = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.disc_loading           = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.power_loading          = 0. * ones_row(n_props)    
+        segment.state.conditions.propulsion.propeller_tip_mach     = 0. * ones_row(n_props)
 
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns

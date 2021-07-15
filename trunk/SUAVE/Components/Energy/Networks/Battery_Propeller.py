@@ -112,7 +112,7 @@ class Battery_Propeller(Propulsor):
         num_engines = self.number_of_engines
         
         # Unpack conditions
-        a           = conditions.freestream.speed_of_sound
+        a = conditions.freestream.speed_of_sound
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
@@ -126,9 +126,9 @@ class Battery_Propeller(Propulsor):
         # How many evaluations to do
         if self.identical_propellers:
             n_evals = 1
-            factor  = self.number_of_engines*1
+            factor  = num_engines*1
         else:
-            n_evals = int(self.number_of_engines)
+            n_evals = int(num_engines)
             factor  = 1.
         
         # Setup numbers for iteration
@@ -136,6 +136,7 @@ class Battery_Propeller(Propulsor):
         total_thrust        = 0. * state.ones_row(3)
         total_power         = 0.
         
+        # Iterate over motor/props
         for ii in range(n_evals):
             
             # Unpack the motor and props
@@ -156,41 +157,38 @@ class Battery_Propeller(Propulsor):
             prop.pitch_command = self.pitch_command 
             
             # step 4
-            F, Q, P, Cp, outputs , etap = prop.spin(conditions)
+            F, Q, P, Cp, outputs, etap = prop.spin(conditions)
                 
             # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
             eta        = conditions.propulsion.throttle[:,0,None]
             P[eta>1.0] = P[eta>1.0]*eta[eta>1.0]
             F[eta[:,0]>1.0,:] = F[eta[:,0]>1.0,:]*eta[eta[:,0]>1.0,:]
-            
-            # link
-            prop.outputs = outputs
-            
+
             # Run the motor for current
             motor.current(conditions)
             
             # Conditions specific to this instantation of motor and propellers
             R                   = prop.tip_radius
             rpm                 = motor.outputs.omega / Units.rpm
-            total_thrust        = total_thrust + F
-            total_power         = total_power  + P
+            F_mag               = np.atleast_2d(np.linalg.norm(F, axis=1)).T
+            total_thrust        = total_thrust + F * factor
+            total_power         = total_power  + P * factor
             total_motor_current = total_motor_current + factor*motor.outputs.current
 
-
-            
             # Pack specific outputs
             conditions.propulsion.propeller_motor_torque[:,ii] = motor.outputs.torque[:,0]
             conditions.propulsion.propeller_torque[:,ii]       = Q[:,0]
-            conditions.propulsion.propeller_rpm                = rpm
-            conditions.propulsion.propeller_tip_mach           = (R*rpm*Units.rpm)/a
-        
-        
+            conditions.propulsion.propeller_rpm[:,ii]          = rpm[:,0]
+            conditions.propulsion.propeller_tip_mach[:,ii]     = (R*rpm[:,0]*Units.rpm)/a[:,0]
+            conditions.propulsion.disc_loading[:,ii]           = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
+            conditions.propulsion.power_loading[:,ii]          = (F_mag[:,0])/(P[:,0])      # N/W               
+            conditions.noise.sources.propellers[prop.tag]      = outputs
+
         # Run the avionics
         avionics.power()
 
         # Run the payload
         payload.power()
-        
         
         # link
         esc.inputs.currentout = total_motor_current
@@ -210,37 +208,18 @@ class Battery_Propeller(Propulsor):
         battery.energy_calc(numerics)        
     
         # Pack the conditions for outputs
-
-        current              = esc.outputs.currentin
-        battery_draw         = battery.inputs.power_in 
-        battery_energy       = battery.current_energy
-        voltage_open_circuit = battery.voltage_open_circuit
-        voltage_under_load   = battery.voltage_under_load
-        state_of_charge      = battery.state_of_charge
-          
-
-        conditions.propulsion.battery_current               = current
-        conditions.propulsion.battery_draw                  = battery_draw
-        conditions.propulsion.battery_energy                = battery_energy
-        conditions.propulsion.battery_voltage_open_circuit  = voltage_open_circuit
-        conditions.propulsion.battery_voltage_under_load    = voltage_under_load
-        conditions.propulsion.state_of_charge               = state_of_charge
-        conditions.propulsion.battery_specfic_power         = -battery_draw/battery.mass_properties.mass # Wh/kg
-        
-        # noise
-        outputs.number_of_engines                   = num_engines
-        conditions.noise.sources.propeller          = outputs
-
+        conditions.propulsion.battery_current              = esc.outputs.currentin
+        conditions.propulsion.battery_draw                 = battery.inputs.power_in 
+        conditions.propulsion.battery_energy               = battery.current_energy
+        conditions.propulsion.battery_voltage_open_circuit = battery.voltage_open_circuit
+        conditions.propulsion.battery_voltage_under_load   = battery.voltage_under_load
+        conditions.propulsion.state_of_charge              = battery.state_of_charge
+        conditions.propulsion.battery_specfic_power        = -battery.inputs.power_in/battery.mass_properties.mass #Wh/kg
+    
         # Create the outputs
-        mdot                                        = state.ones_row(1)*0.0
-        F_mag                                       = np.atleast_2d(np.linalg.norm(total_thrust, axis=1))  
-        conditions.propulsion.disc_loading          = (F_mag.T)/ (num_engines*np.pi*(R)**2) # N/m^2                  
-        conditions.propulsion.power_loading         = (F_mag.T)/(P)                         # N/W 
-        
         results = Data()
-        results.thrust_force_vector = F
-        results.vehicle_mass_rate   = mdot
-        
+        results.thrust_force_vector = total_thrust
+        results.vehicle_mass_rate   = state.ones_row(1)*0.0
         
         return results
     
@@ -267,8 +246,9 @@ class Battery_Propeller(Propulsor):
         """                  
         
         # Here we are going to unpack the unknowns (Cp) provided for this network
-        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        ss = segment.state
+        ss.conditions.propulsion.propeller_power_coefficient = ss.unknowns.propeller_power_coefficient
+        ss.conditions.propulsion.battery_voltage_under_load  = ss.unknowns.battery_voltage_under_load
         
         return
     
@@ -305,7 +285,7 @@ class Battery_Propeller(Propulsor):
         v_max     = self.voltage
         
         # Return the residuals
-        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])/v_max
+        segment.state.residuals.network[:,0]  = (v_predict[:,0] - v_actual[:,0])/v_max
         segment.state.residuals.network[:,1:] = q_motor - q_prop
         
         return    
@@ -322,6 +302,8 @@ class Battery_Propeller(Propulsor):
     
             Inputs:
             segment
+            initial_voltage                   [v]
+            initial_power_coefficient         [float]s
             
             Outputs:
             segment.state.unknowns.battery_voltage_under_load
@@ -363,11 +345,13 @@ class Battery_Propeller(Propulsor):
         segment.state.unknowns.propeller_power_coefficient = initial_power_coefficient * ones_row(n_props)
         
         # Setup the conditions
-        segment.state.conditions.propulsion = Data()
         segment.state.conditions.propulsion.propeller_motor_torque = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_torque       = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.rpm                    = 0. * ones_row(n_props)
-
+        segment.state.conditions.propulsion.propeller_rpm          = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.disc_loading           = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.power_loading          = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_tip_mach     = 0. * ones_row(n_props)
+        
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns
         segment.process.iterate.residuals.network = self.residuals        
