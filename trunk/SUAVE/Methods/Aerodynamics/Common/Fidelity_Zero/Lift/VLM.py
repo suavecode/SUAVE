@@ -23,7 +23,10 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
-    Assumptions: None
+    Assumptions:
+    The user provides either global discretezation (number_spanwise/chordwise_vortices) or
+    separate discretization (wing/fuselage_spanwise/chordwise_vortices) in settings, not both.
+    The set of settings not being used should be set to None.
 
     Source:
     1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
