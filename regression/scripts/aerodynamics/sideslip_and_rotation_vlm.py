@@ -92,7 +92,7 @@ def get_conditions():
     return conditions
 
 def get_settings():
-    settings = Data()
+    settings = SUAVE.Analyses.Aerodynamics.Vortex_Lattice().settings
     settings.number_spanwise_vortices        = 14  # **TODO** once control surfaces are merged, this number can be decreased
     settings.number_chordwise_vortices       = 2   # due to changes in the y-coordinate matching algorithm
     settings.use_bemt_wake_model             = False
