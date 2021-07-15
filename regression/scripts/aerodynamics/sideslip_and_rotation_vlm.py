@@ -115,10 +115,10 @@ def get_settings():
 #   Save/Load Utility Functions
 # ----------------------------------------------------------------------
 def load_results():
-    return SUAVE.Input_Output.SUAVE.load('control_surfaces_vlm_results.res')
+    return SUAVE.Input_Output.SUAVE.load('sideslip_and_rotation_vlm_results.res')
 
 def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'control_surfaces_vlm_results.res')
+    SUAVE.Input_Output.SUAVE.archive(results,'sideslip_and_rotation_vlm_results.res')
     return
 
 # ----------------------------------------------------------------------        
