@@ -110,7 +110,7 @@ def get_conditions():
     return conditions
 
 def get_settings():
-    settings = Data()
+    settings = SUAVE.Analyses.Aerodynamics.Vortex_Lattice().settings
     settings.number_spanwise_vortices        = None
     settings.number_chordwise_vortices       = None  
     settings.wing_spanwise_vortices          = 7

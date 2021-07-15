@@ -20,6 +20,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution
 from SUAVE.Components.Energy.Networks import Lift_Cruise , Turbofan 
 from SUAVE.Components.Energy.Converters import Propeller, Rotor 
+from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 ## @ingroup Plots-Geometry_Plots
 def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
@@ -44,7 +45,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     try:
         VD = vehicle.vortex_distribution 
     except:
-        settings = Data()
+        settings = Vortex_Lattice().settings
         settings.number_spanwise_vortices  = 25
         settings.number_chordwise_vortices = 5
         settings.spanwise_cosine_spacing   = False 

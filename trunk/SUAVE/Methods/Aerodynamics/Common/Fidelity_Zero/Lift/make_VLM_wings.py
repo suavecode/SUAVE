@@ -63,7 +63,7 @@ def make_VLM_wings(geometry, settings):
     N/A
     """ 
     # unpack inputs
-    discretize_cs = settings.discretize_control_surfaces if ('discretize_control_surfaces' in settings.keys()) else False
+    discretize_cs = settings.discretize_control_surfaces
     wings         = copy_wings(geometry.wings)
     
     # ------------------------------------------------------------------
