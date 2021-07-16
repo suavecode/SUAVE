@@ -38,6 +38,7 @@ modules = [
 
     # ----------------------- Regression List --------------------------
     'scripts/aerodynamics/aerodynamics.py',
+    'scripts/aerodynamics/control_surfaces_vlm.py',
     'scripts/aerodynamics/sears_haack.py',
     'scripts/airfoil_import/airfoil_import_test.py',
     'scripts/airfoil_import/airfoil_interpolation_test.py',

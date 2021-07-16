@@ -1061,6 +1061,7 @@ def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_fi
     n_cw       = VD.n_cw 
     n_sw       = VD.n_sw 
     n_w        = VD.n_w 
+    b_pts      = np.concatenate(([0],np.cumsum(VD.n_sw*VD.n_cw)))
     
     # Create a boolean for not plotting vertical wings
     idx        = 0
@@ -1092,12 +1093,12 @@ def plot_surface_pressure_contours(results,vehicle, save_figure = False, save_fi
             axes.set_xlim(-y_max, y_max)            
             fig.set_size_inches(8,8)         	 
             for i in range(n_w):
-                n_pts     = (n_sw + 1) * (n_cw + 1) 
+                n_pts     = (n_sw[i] + 1) * (n_cw[i]+ 1) 
                 xc_pts    = VD.X[i*(n_pts):(i+1)*(n_pts)]
-                x_pts     = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                y_pts     = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                z_pts     = np.reshape(np.atleast_2d(CP[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                x_pts_p   = x_pts*((n_cw+1)/n_cw) - x_pts[0,0]*((n_cw+1)/n_cw)  +  xc_pts[0] 
+                x_pts     = np.reshape(np.atleast_2d(VD.XC[b_pts[i]:b_pts[i+1]]).T, (n_sw[i],-1))
+                y_pts     = np.reshape(np.atleast_2d(VD.YC[b_pts[i]:b_pts[i+1]]).T, (n_sw[i],-1))
+                z_pts     = np.reshape(np.atleast_2d(CP[b_pts[i]:b_pts[i+1]]).T, (n_sw[i],-1))
+                x_pts_p   = x_pts*((n_cw[i]+1)/n_cw[i]) - x_pts[0,0]*((n_cw[i]+1)/n_cw[i])  +  xc_pts[0] 
                 points    = np.linspace(0.001,1,50)
                 A         = np.cumsum(np.sin(np.pi/2*points))
                 levals    = -(np.concatenate([-A[::-1],A[1:]])/(2*A[-1])  + A[-1]/(2*A[-1]) )[::-1]*0.015  
@@ -1147,8 +1148,8 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
     N/A	
     """   
     VD         = vehicle.vortex_distribution	 	
-    n_sw       = VD.n_sw 
     n_w        = VD.n_w
+    b_sw       = np.concatenate(([0],np.cumsum(VD.n_sw)))
     
     axis_font  = {'size':'12'}  	
     img_idx    = 1
@@ -1162,8 +1163,8 @@ def plot_lift_distribution(results,vehicle, save_figure = False, save_filename =
             fig.set_size_inches(8,8)       
             axes = plt.subplot(1,1,1)
             for i in range(n_w): 
-                y_pts = VD.Y_SW[i*(n_sw):(i+1)*(n_sw)]
-                z_pts = cl_y[i*(n_sw):(i+1)*(n_sw)]
+                y_pts = VD.Y_SW[b_sw[i]:b_sw[i+1]]
+                z_pts = cl_y[b_sw[i]:b_sw[i+1]]
                 axes.plot(y_pts, z_pts, line[i] ) 
             axes.set_xlabel("Spanwise Location (m)",axis_font)
             axes.set_title('$C_{Ly}$',axis_font)  
@@ -1215,6 +1216,7 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
     n_sw       = VD.n_sw 
     n_w        = VD.n_w
     n_fus      = VD.n_fus
+    b_pts      = np.concatenate(([0],np.cumsum(VD.n_sw*VD.n_cw)))
     
     # Create a boolean for not plotting vertical wings
     idx        = 0
@@ -1250,12 +1252,12 @@ def create_video_frames(results,vehicle, save_figure = True ,flight_profile = Tr
             
             # plot wing CP distribution   
             for i in range(n_w):
-                n_pts     = (n_sw + 1) * (n_cw + 1) 
+                n_pts     = (n_sw[i] + 1) * (n_cw[i]+ 1) 
                 xc_pts    = VD.X[i*(n_pts):(i+1)*(n_pts)]
-                x_pts     = np.reshape(np.atleast_2d(VD.XC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                y_pts     = np.reshape(np.atleast_2d(VD.YC[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))
-                z_pts     = np.reshape(np.atleast_2d(CP[i*(n_sw*n_cw):(i+1)*(n_sw*n_cw)]).T, (n_sw,-1))  
-                x_pts_p   = x_pts*((n_cw+1)/n_cw) - x_pts[0,0]*((n_cw+1)/n_cw)  +  xc_pts[0]  
+                x_pts     = np.reshape(np.atleast_2d(VD.XC[b_pts[i]:b_pts[i+1]]).T, (n_sw[i],-1))
+                y_pts     = np.reshape(np.atleast_2d(VD.YC[b_pts[i]:b_pts[i+1]]).T, (n_sw[i],-1))
+                z_pts     = np.reshape(np.atleast_2d(CP[b_pts[i]:b_pts[i+1]]).T, (n_sw[i],-1))  
+                x_pts_p   = x_pts*((n_cw[i]+1)/n_cw[i]) - x_pts[0,0]*((n_cw[i]+1)/n_cw[i])  +  xc_pts[0]  
                 points    = np.linspace(0.001,1,50)
                 A         = np.cumsum(np.sin(np.pi/2*points))
                 levals    = -(np.concatenate([-A[::-1],A[1:]])/(2*A[-1])  + A[-1]/(2*A[-1]) )[::-1]*0.015  

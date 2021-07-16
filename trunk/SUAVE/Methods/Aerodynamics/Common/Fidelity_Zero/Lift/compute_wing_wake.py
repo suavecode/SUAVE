@@ -82,7 +82,7 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     #----------------------------------------------------------------------------------------------
     # Compute wing induced velocity    
     #----------------------------------------------------------------------------------------------    
-    C_mn, _, _, _, _ = compute_wing_induced_velocity(VD,VLM_settings.number_spanwise_vortices,VLM_settings.number_chordwise_vortices,mach)     
+    C_mn, _, _ = compute_wing_induced_velocity(VD,mach)     
     u_inviscid = (C_mn[:,:,:,0]@gammaT)[0,:,0]
     v_inviscid = (C_mn[:,:,:,1]@gammaT)[0,:,0]
     w_inviscid = (C_mn[:,:,:,2]@gammaT)[0,:,0]     

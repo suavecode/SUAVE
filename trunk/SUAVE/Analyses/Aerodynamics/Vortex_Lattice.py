@@ -11,6 +11,7 @@
 #           Jun 2020, E. Botero
 #           Sep 2020, M. Clarke 
 #           May 2021, E. Botero
+#           Jun 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -69,6 +70,11 @@ class Vortex_Lattice(Aerodynamics):
         self.settings                                 = Data()
         self.settings.number_spanwise_vortices        = 15
         self.settings.number_chordwise_vortices       = 5
+        self.settings.wing_spanwise_vortices          = None
+        self.settings.wing_chordwise_vortices         = None
+        self.settings.fuselage_spanwise_vortices      = None
+        self.settings.fuselage_chordwise_vortices     = None 
+        
         self.settings.spanwise_cosine_spacing         = True
         self.settings.vortex_distribution             = Data()   
         self.settings.model_fuselage                  = False
@@ -76,6 +82,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.initial_timestep_offset         = 0
         self.settings.wake_development_time           = 0.05
         self.settings.number_of_wake_timesteps        = 30
+        self.settings.discretize_control_surfaces     = False
         self.settings.use_VORLAX_matrix_calculation   = False
 
         # conditions table, used for surrogate model training
@@ -117,7 +124,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts,mf):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model, use_bemt_wake_model,ito,wdt,nwts,mf):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -151,7 +158,8 @@ class Vortex_Lattice(Aerodynamics):
             settings.number_chordwise_vortices = n_cw 
             
         settings.use_surrogate              = use_surrogate
-        settings.propeller_wake_model       = propeller_wake_model  
+        settings.propeller_wake_model       = propeller_wake_model 
+        settings.use_bemt_wake_model        = use_bemt_wake_model
         settings.initial_timestep_offset    = ito
         settings.wake_development_time      = wdt
         settings.number_of_wake_timesteps   = nwts
@@ -646,9 +654,10 @@ def calculate_VLM(conditions,settings,geometry):
     
     """            
     # iterate over wings
-    total_lift_coeff = 0.0
-    wing_lifts = Data()
-    wing_drags = Data() 
+    total_lift_coeff   = 0.0
+    wing_lifts         = Data()
+    wing_drags         = Data()
+    wing_induced_angle = Data()
         
     results = VLM(conditions,settings,geometry)
     total_lift_coeff          = results.CL
@@ -670,12 +679,14 @@ def calculate_VLM(conditions,settings,geometry):
     for wing in geometry.wings.values():
         ref = wing.areas.reference
         if wing.symmetric:
-            wing_lifts[wing.tag] = np.atleast_2d(np.sum(dim_wing_lifts[:,i:(i+2)],axis=1)).T/ref
-            wing_drags[wing.tag] = np.atleast_2d(np.sum(dim_wing_drags[:,i:(i+2)],axis=1)).T/ref
+            wing_lifts[wing.tag]         = np.atleast_2d(np.sum(dim_wing_lifts[:,i:(i+2)],axis=1)).T/ref
+            wing_drags[wing.tag]         = np.atleast_2d(np.sum(dim_wing_drags[:,i:(i+2)],axis=1)).T/ref
+            wing_induced_angle[wing.tag] = np.concatenate((alpha_i[i],alpha_i[i+1]),axis=1)
             i+=1
         else:
-            wing_lifts[wing.tag] = np.atleast_2d(dim_wing_lifts[:,i]).T/ref
-            wing_drags[wing.tag] = np.atleast_2d(dim_wing_drags[:,i]).T/ref
+            wing_lifts[wing.tag]         = np.atleast_2d(dim_wing_lifts[:,i]).T/ref
+            wing_drags[wing.tag]         = np.atleast_2d(dim_wing_drags[:,i]).T/ref
+            wing_induced_angle[wing.tag] = alpha_i[i]
         i+=1
 
-    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, alpha_i, CPi
+    return total_lift_coeff, total_induced_drag_coeff, wing_lifts, wing_drags, cl_y, cdi_y, wing_induced_angle, CPi
