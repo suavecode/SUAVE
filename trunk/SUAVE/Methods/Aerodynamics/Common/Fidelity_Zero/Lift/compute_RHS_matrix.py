@@ -126,11 +126,6 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
                 Vy_ind_total = Vy_ind_total + prop_V_wake_ind[:,:,1] + rot_V_wake_ind[:,:,1]
                 Vz_ind_total = Vz_ind_total + prop_V_wake_ind[:,:,2] + rot_V_wake_ind[:,:,2]
             
-                Vx                = V_inf*np.cos(aoa)*np.cos(PSI) - Vx_ind_total
-                Vy                = Vy_ind_total
-                Vz                = V_inf*np.sin(aoa) - Vz_ind_total
-                V_distribution    = np.sqrt(Vx**2 + Vy**2 + Vz**2 )
-                aoa_distribution  = np.arctan(Vz/Vx)
                 rhs = build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distribution,
                                 Vx_ind_total, Vy_ind_total, Vz_ind_total, V_distribution, dt)
                 return  rhs
@@ -207,8 +202,8 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     XBAR   = VD.XBAR
     ZBAR   = VD.ZBAR
 
-    CHORD  = VD.CHORD[0,:]
-    DELTAX = 0.5/VD.RNMAX 
+    CHORD  = VD.chord_lengths[0,:]
+    DELTAX = 0.5/RNMAX 
     
     # LOCATE VORTEX LATTICE CONTROL POINT WITH RESPECT TO THE
     # ROTATION CENTER (XBAR, 0, ZBAR). THE RELATIVE COORDINATES
@@ -227,10 +222,10 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     # CCNTL AND SCNTL ARE DIRECTION COSINE PARAMETERS OF TANGENT TO
     # CAMBERLINE AT LEADING EDGE.
     # SLE is slope at leading edge only     
-    SLE    = np.repeat(VD.SLE, n_cw)
+    SLE    = np.repeat(VD.SLE, RNMAX[LE_ind])
     CCNTL  = 1. / np.sqrt(1.0 + SLE**2) 
     SCNTL  = SLE *CCNTL
-    phi_LE = np.repeat(phi[:,LE_ind]  , n_cw, axis=1) 
+    phi_LE = np.repeat(phi[:,LE_ind]  , RNMAX[LE_ind], axis=1) 
     COD    = np.cos(phi_LE)
     SID    = np.sin(phi_LE)
 
@@ -249,7 +244,7 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     Vz_rotation       = -ROLLQ *YGIRO + PITCHQ*XGIRO
     
     Vx                = V_distribution*np.cos(aoa_distribution)*np.cos(PSI_distribution) + Vx_rotation - Vx_ind_total
-    Vy                = V_distribution*np.cos(aoa_distribution)*np.sin(PSI_distribution) + Vy_rotation - Vy_ind_total
+    Vy                = V_distribution*np.cos(aoa_distribution)*np.sin(PSI_distribution) + Vy_rotation + Vy_ind_total
     Vz                = V_distribution*np.sin(aoa_distribution)                          + Vz_rotation - Vz_ind_total
     V_distribution    = np.sqrt(Vx**2 + Vy**2 + Vz**2 )
     

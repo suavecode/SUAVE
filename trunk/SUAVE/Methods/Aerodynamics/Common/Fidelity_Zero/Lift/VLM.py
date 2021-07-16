@@ -309,13 +309,12 @@ def VLM(conditions,settings,geometry):
     
     # cumsum GANT loop if KTOP > 0 (don't actually need KTOP with vectorized arrays and np.roll)
     GFX    = np.tile((1 /CHORD), (len_mach,1))
-    GANT   = (GFX*GAMMA).reshape(-1,n_sw, n_cw)
-    GANT   = np.cumsum(GANT,axis=2).reshape(len_mach,-1)
+    GANT   = strip_cumsum(GFX*GAMMA, chord_breaks, RNMAX[LE_ind])
     GANT   = np.roll(GANT,1)
     GANT[:,LE_ind]   = 0 
     
     GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
-    cos_DL  = np.broadcast_to(np.repeat(COS_DL,n_cw),np.shape(B2))
+    cos_DL  = np.broadcast_to(np.repeat(COS_DL,RNMAX[LE_ind]),np.shape(B2))
     DCPSID = FORLAT * cos_DL *GLAT /(XIB - XIA)
     FACTOR = FORAXL + ONSET
     
@@ -341,9 +340,9 @@ def VLM(conditions,settings,geometry):
     YAH[boolean], YBH[boolean] = YBH[boolean], YAH[boolean]
 
     # Leading edge sweep. VORLAX does it panel by panel. This will be spanwise.
-    TLE = TAN_LE *1
+    TLE   = TAN_LE[:,LE_ind]
     B2_LE = B2[:,LE_ind]
-    T2    = np.broadcast_to(TLE*TLE,np.shape(B2_LE))
+    T2    = TLE*TLE
     STB   = np.zeros_like(B2_LE)
     STB[B2_LE<T2] = np.sqrt(T2[B2_LE<T2]-B2_LE[B2_LE<T2])
     
@@ -459,7 +458,7 @@ def VLM(conditions,settings,geometry):
     BMZ    = BMLE * SID - BFX * Y + BFY * (X - XBAR)
     CDC    = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) * COSALF
     CDC    = CDC * CHORD_strip
-    CMTC   = BMLE + CNC * (0.25 - XLE) #doesn't affect coefficients, but is in VORLAX
+    CMTC   = BMLE + CNC * (0.25 - XLE[LE_ind]) #doesn't affect coefficients, but is in VORLAX
 
     ES     = 2*s[0,LE_ind]
     STRIP  = ES *CHORD_strip
@@ -520,11 +519,19 @@ def VLM(conditions,settings,geometry):
     
     return results
 
-
+# ----------------------------------------------------------------------
+#  CLE rotation effects helper function
+# ----------------------------------------------------------------------
 def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, XLE, XBAR, 
                              rhs, COSINP, SINALF, PITCH, ROLL, YAW, STB, RNMAX):
+    """ This computes the effects of the freestream and aircraft rotation rate on 
+    CLE, the induced flow at the leading edge
+    
+    Assumptions:
+    Several of the values needed in this calculation have been computed earlier in
+    either compute_RHS_matrix() or generate_vortex_distribution() and stored in VD
+    """
     spacing     = settings.spanwise_cosine_spacing
-    n_cw        = VD.n_cw
     LE_ind      = VD.leading_edge_indices
     RNMAX       = VD.panels_per_strip
 
@@ -564,6 +571,22 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     #          LEADING EDGE.
     EFFINC = VX *rhs.SCNTL + VY *rhs.CCNTL *rhs.SID - VZ *rhs.CCNTL *rhs.COD 
     CLE = CLE - EFFINC[:,LE_ind] 
-    CLE = np.where(STB > 0, CLE /RNMAX /STB, CLE)
+    CLE = np.where(STB > 0, CLE /RNMAX[LE_ind] /STB, CLE)
     
     return CLE
+
+# ----------------------------------------------------------------------
+#  Vectorized cumsum from indices
+# ----------------------------------------------------------------------
+def strip_cumsum(arr, chord_breaks, strip_lengths):
+    """ Uses numpy to to compute a cumsum that resets along
+    the leading edge of every strip.
+    
+    Assumptions:
+    chordwise_breaks always starts at 0
+    """    
+    cumsum  = np.cumsum(arr, axis=1)
+    offsets = cumsum[:,chord_breaks-1]
+    offsets[:,0]  = 0
+    offsets = np.repeat(offsets, strip_lengths, axis=1)
+    return cumsum - offsets
