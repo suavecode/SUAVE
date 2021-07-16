@@ -238,11 +238,19 @@ def vehicle_setup():
 
     # add to vehicle
     vehicle.append_component(fuselage)
+    
+    # -----------------------------------------------------------------
+    # Design the Nacelle
+    # ----------------------------------------------------------------- 
+    nacelle                 = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter        = 2.05
+    nacelle.origin          =  [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]]
+    vehicle.append_component(nacelle)        
+    
 
     # ------------------------------------------------------------------
     #  Turbofan Network
-    # ------------------------------------------------------------------    
-
+    # ------------------------------------------------------------------   
 
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
@@ -250,13 +258,12 @@ def vehicle_setup():
     gt_engine.origin            = [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]]
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4
-    gt_engine.engine_length     = 2.71
-    gt_engine.nacelle_diameter  = 2.05
+    gt_engine.engine_length     = 2.71 
     gt_engine.inlet_diameter    = 2.0
 
     #compute engine areas)
-    Amax                        = (np.pi/4.)*gt_engine.nacelle_diameter**2.
-    Awet                        = 1.1*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length # 1.1 is simple coefficient
+    Amax                        = (np.pi/4.)*nacelle.diameter**2.
+    Awet                        = 1.1*np.pi*nacelle.diameter*gt_engine.engine_length # 1.1 is simple coefficient
     #Assign engine area
     gt_engine.areas.wetted      = Awet
     #set the working fluid for the network

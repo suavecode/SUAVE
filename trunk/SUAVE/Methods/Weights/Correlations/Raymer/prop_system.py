@@ -63,7 +63,7 @@ def total_prop_Raymer(vehicle, prop):
     return output
 
 ## @ingroup Methods-Weights-Correlations-Raymer
-def nacelle_Raymer(vehicle, prop, WENG):
+def nacelle_Raymer(vehicle, nacelle, WENG):
     """ Calculates the nacelle weight based on the Raymer method
         Assumptions:
 
@@ -71,13 +71,14 @@ def nacelle_Raymer(vehicle, prop, WENG):
             Aircraft Design: A Conceptual Approach (2nd edition)
 
         Inputs:
-            vehicle - data dictionary with vehicle properties                   [dimensionless]
+            vehicle - data dictionary with vehicle properties                        [dimensionless]
                 -.ultimate_load: ultimate load factor of aircraft
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
-                -.number_of_engines: number of engines
-                -.engine_lenght: total length of engine                     [m]
-                -.nacelle_diameter: diameter of nacelle                     [m]
-            WENG    - dry engine weight                                     [kg]
+            nacelle 
+                - data dictionary for the specific propulsor that is being estimated [dimensionless]
+                -.number_of_nacelles: number of engines
+                -.lenght: total length of engine                                     [m]
+                -.ndiameter: diameter of nacelle                                     [m]
+            WENG    - dry engine weight                                              [kg]
 
 
         Outputs:
@@ -86,10 +87,10 @@ def nacelle_Raymer(vehicle, prop, WENG):
         Properties Used:
             N/A
     """
-    NENG    = prop.number_of_engines
+    NENG    = nacelle.number_of_nacelle
     Kng     = 1 # assuming the engine is not pylon mounted
-    Nlt     = prop.engine_length / Units.ft
-    Nw      = prop.nacelle_diameter / Units.ft
+    Nlt     = nacelle.length / Units.ft
+    Nw      = nacelle.diameter / Units.ft
     Wec     = 2.331 * WENG ** 0.901 * 1.18
     Sn      = 2 * np.pi * Nw/2 * Nlt + np.pi * Nw**2/4 * 2
     WNAC = 0.6724 * Kng * Nlt ** 0.1 * Nw ** 0.294 * vehicle.envelope.ultimate_load ** 0.119 \

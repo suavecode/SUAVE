@@ -128,11 +128,10 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     # -------------
     ## Skeleton code for props and pylons can be found in previous commits (~Dec 2016) if desired
     ## This was a place to start and may not still be functional    
-    for propulsor in vehicle.propulsors: 
+    for nacelle in vehicle.nacelles: 
         if verbose:
-            print('Writing '+vehicle.propulsors.propulsor .tag+' to OpenVSP Model')
-        propulsor   = vehicle.propulsors.propulsor 
-        write_vsp_nacelle(propulsor, OML_set_ind)  
+            print('Writing '+ nacelle.tag+' to OpenVSP Model')  
+        write_vsp_nacelle(nacelle, OML_set_ind)  
     
     # -------------
     # Fuselage
@@ -444,7 +443,7 @@ def write_vsp_wing(wing, area_tags, fuel_tank_set_ind, OML_set_ind):
     return area_tags, wing_id
 
 ## @ingroup Input_Output-OpenVSP
-def write_vsp_nacelle(propulsor, OML_set_ind):
+def write_vsp_nacelle(nacelle, OML_set_ind):
     """This converts nacelles into OpenVSP format.
     
     Assumptions:
@@ -453,22 +452,21 @@ def write_vsp_nacelle(propulsor, OML_set_ind):
     Source:
     N/A
 
-    Inputs:
-    propulsor.
-      origin                                  [m] in all three dimension, should have as many origins as engines
-      number_of_engines                       [-]
+    Inputs: 
       nacelle.
-          relative_origin                     [m]
-          length                              [m]
-          diameter                            [m]
-          segment(optional).
-             width                            [m]
-             height                           [m]
-             lenght                           [m]
-             percent_x_location               [m]     
-             percent_y_location               [m]        
-             percent_z_location               [m] 
-      OpenVSP_flow_through                    <boolean> if True create a flow through nacelle, if False create a cylinder
+      origin                              [m] in all three dimension, should have as many origins as engines
+      number_of_nacelles                  [-]
+      length                              [m]
+      diameter                            [m]
+      flow_through                        <boolean> if True create a flow through nacelle, if False create a cylinder
+      segment(optional).
+         width                            [m]
+         height                           [m]
+         lenght                           [m]
+         percent_x_location               [m]     
+         percent_y_location               [m]        
+         percent_z_location               [m] 
+       
 
     Outputs:
     Operates on the active OpenVSP model, no direct output
@@ -478,80 +476,188 @@ def write_vsp_nacelle(propulsor, OML_set_ind):
     """    
     
     # True will create a flow-through subsonic nacelle (which may have dimensional errors)
-    # False will create a cylindrical stack (essentially a cylinder)            
-    ft_flag = propulsor.OpenVSP_flow_through
-    n_engines   = propulsor.number_of_engines
-    if 'nacelle' in propulsor.keys: 
-        if len(propulsor.nacelle.segments) == 0: 
-            length      = propulsor.nacelle.length
-            width       = propulsor.nacelle.width
-            origins     = propulsor.origin
-            inlet_width = propulsor.inlet_diameter
-            prop_tag    = propulsor.tag    
+    # False will create a cylindrical stack (essentially a cylinder)         
+    num_nac     = nacelle.number_of_nacelles 
+    ft_flag     = nacelle.flow_through            
+    length      = nacelle.length
+    width       = nacelle.width
+    origins     = nacelle.origin
+    inlet_width = nacelle.inlet_diameter
+    prop_tag    = nacelle.tag    
+    
+    import operator # import here since engines are not always needed
+    # sort engines per left to right convention
+    origins_sorted = sorted(origins, key=operator.itemgetter(1))
+    
+    for ii in range(0,int(num_nac)):
+        origin = origins_sorted[ii] 
+        x      = origin[0]
+        y      = origin[1]
+        z      = origin[2]            
         
-            import operator # import here since engines are not always needed
-            # sort engines per left to right convention
-            origins_sorted = sorted(origins, key=operator.itemgetter(1))
-        
-            for ii in range(0,int(n_engines)):
-        
-                origin = origins_sorted[ii]
-        
-                x = origin[0]
-                y = origin[1]
-                z = origin[2]
-        
-                if ft_flag == True:
-                    nac_id = vsp.AddGeom( "BODYOFREVOLUTION")
-                    vsp.SetGeomName(nac_id, prop_tag+'_'+str(ii+1))
-        
-                    # Origin
-                    vsp.SetParmVal(nac_id,'X_Location','XForm',x)
-                    vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-                    vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
-                    vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP  
-        
-                    # Length and overall diameter
-                    vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
-                    
-                    # TO DO 
-                    # ADD SECTIONAL INFORMATION 
-        
-                    vsp.ChangeBORXSecShape(nac_id ,vsp.XS_SUPER_ELLIPSE)
+        if  len(nacelle.segments) == 0:
+            #nac_id = vsp.AddGeom( "BODYOFREVOLUTION")
+            #vsp.SetGeomName(nac_id, prop_tag+'_'+str(ii+1))
+            
+            ## Origin
+            #vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+            #vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+            #vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
+            #vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',v
+            
+            ## Length and overall diameter
+            #vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
+            
+            pass
+            #nac_id = vsp.AddGeom("STACK")
+            #vsp.SetGeomName(nac_id, prop_tag+'_'+str(ii+1))
+    
+            ## Origin
+            #vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+            #vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+            #vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
+            #vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
+            #vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
+    
+            #vsp.CutXSec(nac_id,2) # remove extra default subsurface
+            #xsecsurf = vsp.GetXSecSurf(nac_id,0)
+            #vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
+            #vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
+            #vsp.Update()
+            #vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_1", width)
+            #vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_2", width)
+            #vsp.SetParmVal(nac_id, "XDelta", "XSec_1", 0)
+            #vsp.SetParmVal(nac_id, "XDelta", "XSec_2", length)
+            #vsp.SetParmVal(nac_id, "XDelta", "XSec_3", 0)
+    
+            # use fusleage scripts 
+            if ft_flag:
+                pass
+            #vsp.SetSetFlag(nac_id, OML_set_ind, True) 
+                
+            else:
+                pass
+            # OpenVSP vals do not exist:
+            vals                   = Data()
+            vals.nose              = Data()
+            vals.tail              = Data()
+            vals.tail.top          = Data()
+            
+            vals.nose.z_pos        = 0.0
+            vals.tail.top.angle    = 0.0
+            vals.tail.top.strength = 0.0
+            
+            if len(np.unique(x_poses)) != len(x_poses):
+                raise ValueError('Duplicate fuselage section positions detected.')
+            vsp.SetParmVal(fuse_id,"Length","Design",length)
+            if num_segs != 5: # reduce to only nose and tail
+                vsp.CutXSec(fuse_id,1) # remove extra default section
+                vsp.CutXSec(fuse_id,1) # remove extra default section
+                vsp.CutXSec(fuse_id,1) # remove extra default section
+                for i in range(num_segs-2): # add back the required number of sections
+                    vsp.InsertXSec(fuse_id, 0, vsp.XS_ELLIPSE)           
                     vsp.Update()
-                    vsp.SetParmVal(nac_id, "Super_Height", "XSecCurve", (width-inlet_width)/2)
-                    vsp.SetParmVal(nac_id, "Super_Width", "XSecCurve", length)
-                    vsp.SetParmVal(nac_id, "Super_MaxWidthLoc", "XSecCurve", -1.)
-                    vsp.SetParmVal(nac_id, "Super_M", "XSecCurve", 2.)
-                    vsp.SetParmVal(nac_id, "Super_N", "XSecCurve", 1.)             
-        
-                else:
-                    nac_id = vsp.AddGeom("STACK")
-                    vsp.SetGeomName(nac_id, prop_tag+'_'+str(ii+1))
-        
-                    # Origin
-                    vsp.SetParmVal(nac_id,'X_Location','XForm',x)
-                    vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-                    vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
-                    vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
-                    vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
-        
-                    vsp.CutXSec(nac_id,2) # remove extra default subsurface
-                    xsecsurf = vsp.GetXSecSurf(nac_id,0)
-                    vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
-                    vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
-                    vsp.Update()
-                    vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_1", width)
-                    vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_2", width)
-                    vsp.SetParmVal(nac_id, "XDelta", "XSec_1", 0)
-                    vsp.SetParmVal(nac_id, "XDelta", "XSec_2", length)
-                    vsp.SetParmVal(nac_id, "XDelta", "XSec_3", 0)
-        
-                vsp.SetSetFlag(nac_id, OML_set_ind, True)
-        
-                vsp.Update() 
-        else:
-        
+            for i in range(num_segs-2):
+                # Bunch sections to allow proper length settings in the next step
+                # This is necessary because OpenVSP will not move a section past an adjacent section
+                vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),1e-6*(i+1))
+                vsp.Update()
+            if x_poses[1] < (num_segs-2)*1e-6:
+                print('Warning: Second fuselage section is too close to the nose. OpenVSP model may not be accurate.')
+            for i in reversed(range(num_segs-2)):
+                # order is reversed because sections are initially bunched in the front and cannot be extended passed the next
+                vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),x_poses[i+1])
+                vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(i+1),z_poses[i+1])
+                vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(i+1), widths[i+1])
+                vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(i+1), heights[i+1])   
+                vsp.Update()             
+                set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)            
+                
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
+            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])
+            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(end_ind),x_poses[-1])
+            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(end_ind),z_poses[-1])    
+            
+            # Tail
+            if heights[-1] > 0.:
+                stdout = vsp.cvar.cstdout
+                errorMgr = vsp.ErrorMgrSingleton_getInstance()
+                errorMgr.PopErrorAndPrint(stdout)
+                
+                pos = len(heights)-1
+                vsp.InsertXSec(fuse_id, pos-1, vsp.XS_ELLIPSE)
+                vsp.Update()
+                vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(pos), widths[-1])
+                vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(pos), heights[-1])
+                vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos),x_poses[-1])
+                vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos),z_poses[-1])              
+                
+                xsecsurf = vsp.GetXSecSurf(fuse_id,0)
+                vsp.ChangeXSecShape(xsecsurf,pos+1,vsp.XS_POINT)
+                vsp.Update()           
+                vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos+1),x_poses[-1])
+                vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos+1),z_poses[-1])     
+                
+                # update strengths to make end flat
+                vsp.SetParmVal(fuse_id,"TopRStrength","XSec_"+str(pos), 0.)
+                vsp.SetParmVal(fuse_id,"RightRStrength","XSec_"+str(pos), 0.)
+                vsp.SetParmVal(fuse_id,"BottomRStrength","XSec_"+str(pos), 0.)
+                vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(pos+1), 0.)
+                vsp.SetParmVal(fuse_id,"RightLStrength","XSec_"+str(pos+1), 0.)            
+            
+            else:
+                vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
+                vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
+                vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
+                vsp.Update()
+                
+                
+            if 'z_pos' in vals.tail:
+                tail_z_pos = vals.tail.z_pos
+            else:
+                pass # use above default                  
+        else: 
+            nac_id = vsp.AddGeom( "BODYOFREVOLUTION")
+            vsp.SetGeomName(nac_id, prop_tag+'_'+str(ii+1))
+    
+            # Origin
+            vsp.SetParmVal(nac_id,'X_Location','XForm',x)
+            vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
+            vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
+            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP  
+    
+            # Length and overall diameter
+            vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
+            if ft_flag:
+                vsp.SetParmVal(nac_id,"Mode","Design",0.0)
+            else:
+                vsp.SetParmVal(nac_id,"Mode","Design",1.0)
+             
+            if len(nacelle.naca_4_series_airfoil) == 4:
+                
+                vsp.ChangeBORXSecShape(nac_id ,vsp.XS_FOUR_SERIES)
+                vsp.Update()
+                vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
+                vsp.SetParmVal(nac_id,"Angle","Design",value)
+                vsp.SetParmVal(nac_id, "Chord", "XSecCurve", length)
+                vsp.SetParmVal(nac_id, "ThickChord", "XSecCurve",  value)
+                vsp.SetParmVal(nac_id, "Camber", "XSecCurve",  value )
+                vsp.SetParmVal(nac_id, "CamberLoc", "XSecCurve", value )    
+            else:
+                vsp.ChangeBORXSecShape(nac_id ,vsp.XS_SUPER_ELLIPSE)
+                vsp.Update()
+                vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
+                vsp.SetParmVal(nac_id, "Super_Height", "XSecCurve", (width-inlet_width)/2)
+                vsp.SetParmVal(nac_id, "Super_Width", "XSecCurve", length)
+                vsp.SetParmVal(nac_id, "Super_MaxWidthLoc", "XSecCurve", -1.)
+                vsp.SetParmVal(nac_id, "Super_M", "XSecCurve", 2.)
+                vsp.SetParmVal(nac_id, "Super_N", "XSecCurve", 1.) 
+    
+    
+        vsp.SetSetFlag(nac_id, OML_set_ind, True)
+    
+        vsp.Update() 
+     
     else: 
         pass
    

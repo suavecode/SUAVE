@@ -28,10 +28,13 @@ def main():
     
     return
 
-def energy_network():
+def energy_network(): 
+    
     # ------------------------------------------------------------------
     #   Battery Ducted Fan Network
     # ------------------------------------------------------------------    
+    nacelle = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter  = 1.064 * Units.meter    
     
     #instantiate the ducted fan network
     ducted_fan = SUAVE.Components.Energy.Networks.Ducted_Fan()
@@ -40,11 +43,10 @@ def energy_network():
     # setup
     ducted_fan.number_of_engines = 2
     ducted_fan.engine_length     = 1.038 * Units.meter
-    ducted_fan.nacelle_diameter  = 1.064 * Units.meter
     ducted_fan.origin            = [[8.95, 1.48, 0.50],[8.95, -1.48, 0.50]] # meters
 
     #compute engine areas
-    ducted_fan.areas.wetted      = 1.1*np.pi*ducted_fan.nacelle_diameter*ducted_fan.engine_length
+    ducted_fan.areas.wetted      = 1.1*np.pi*nacelle.diameter*ducted_fan.engine_length
     
     # working fluid
     ducted_fan.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -121,9 +123,11 @@ def energy_network():
     #size the ducted fan
     ducted_fan_sizing(ducted_fan,mach_number,altitude)
     
+    nacelle = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter  = 1.064 * Units.meter    
+    
     battery_ducted_fan                      = SUAVE.Components.Energy.Networks.Battery_Ducted_Fan()
-    battery_ducted_fan.tag                  = 'battery_ducted_fan'
-    battery_ducted_fan.nacelle_diameter     = ducted_fan.nacelle_diameter
+    battery_ducted_fan.tag                  = 'battery_ducted_fan' 
     battery_ducted_fan.areas                = Data()
     battery_ducted_fan.areas.wetted         = ducted_fan.areas.wetted
     battery_ducted_fan.engine_length        = ducted_fan.engine_length

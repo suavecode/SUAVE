@@ -55,8 +55,7 @@ class Turbojet_Super(Propulsor):
 
         #setting the default values
         self.tag = 'Turbojet'
-        self.number_of_engines  = 0.0
-        self.nacelle_diameter   = 1.0
+        self.number_of_engines  = 0.0 
         self.engine_length      = 1.0
         self.afterburner_active = False
         self.OpenVSP_flow_through = False

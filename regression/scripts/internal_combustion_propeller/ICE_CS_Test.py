@@ -77,11 +77,13 @@ def ICE_CS(vehicle):
     net.tag                                     = 'internal_combustion'
     net.number_of_engines                       = 1.
 
-    nacelle                                     = SUAVE.Components.Energy.Nacelles.Nacelle()
+    nacelle                                     = SUAVE.Components.Nacelles.Nacelle()
     nacelle.diameter                            = 42 * Units.inches
     nacelle.length                              = 0.01 * Units.inches
-    nacelle.areas.wetted                        = 0.01
-    net.nacelle                                 =  nacelle 
+    nacelle.areas.wetted                        = 0.01   
+    vehicle.append_component(nacelle)   
+    
+    
     net.rated_speed                             = 2700. * Units.rpm
     net.rated_power                             = 180.  * Units.hp 
     

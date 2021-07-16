@@ -29,11 +29,10 @@ def main():
     net = Solar_Low_Fidelity()
     net.number_of_engines = 1.
     
-    nacelle                 = SUAVE.Components.Energy.Nacelles.Nacelle()
+    nacelle                 = SUAVE.Components.Nacelles.Nacelle()
     nacelle.diameter        =  0.05
     nacelle.length          =  0.01
-    nacelle.areas.wetted    =  0.01*(2*np.pi*0.01/2)
-    net.nacelle             =  nacelle
+    nacelle.areas.wetted    =  0.01*(2*np.pi*0.01/2) 
 
     # Component 1 the Sun
     sun = SUAVE.Components.Energy.Processes.Solar_Radiation()

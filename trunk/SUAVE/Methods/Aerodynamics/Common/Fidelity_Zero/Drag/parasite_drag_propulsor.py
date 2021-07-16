@@ -23,7 +23,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
-def parasite_drag_propulsor(state,settings,geometry):
+def parasite_drag_propulsor(state,settings,nacelle):
     """Computes the parasite drag due to the propulsor
 
     Assumptions:
@@ -37,8 +37,8 @@ def parasite_drag_propulsor(state,settings,geometry):
       mach_number                                [Unitless]
       temperature                                [K]
       reynolds_number                            [Unitless]
-    geometry.      
-      nacelle_diameter                           [m^2]
+    nacelle.
+      diameter                                   [m]    
       areas.wetted                               [m^2]
       engine_length                              [m]
 
@@ -51,14 +51,12 @@ def parasite_drag_propulsor(state,settings,geometry):
 
     # unpack inputs
     conditions    = state.conditions
-    configuration = settings
+     
+    Sref      = nacelle.diameter**2. / 4. * np.pi
+    Swet      = nacelle.areas.wetted
     
-    propulsor = geometry
-    Sref      = propulsor.nacelle_diameter**2. / 4. * np.pi
-    Swet      = propulsor.areas.wetted
-    
-    l_prop = propulsor.engine_length
-    d_prop = propulsor.nacelle_diameter
+    l_prop = nacelle.length
+    d_prop = nacelle.diameter
     
     # conditions
     freestream = conditions.freestream
@@ -89,6 +87,6 @@ def parasite_drag_propulsor(state,settings,geometry):
         reynolds_factor           = k_reyn  , 
         form_factor               = k_prop  ,
     )
-    conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag] = propulsor_result    
+    conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag] = propulsor_result    
     
     return propulsor_parasite_drag

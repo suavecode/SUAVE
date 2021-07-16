@@ -120,6 +120,12 @@ def energy_network():
     state_off_design.conditions=conditions
 
     # ------------------------------------------------------------------
+    #  Nacelle
+    # ------------------------------------------------------------------       
+    nacelle = SUAVE.Components.Nacelles.Nacelle() 
+    nacelle.diameter  = 1.3 * Units.meter
+    
+    # ------------------------------------------------------------------
     #  Ramjet Network
     # ------------------------------------------------------------------    
     
@@ -130,7 +136,6 @@ def energy_network():
     # setup
     ramjet.number_of_engines = 2.0
     ramjet.engine_length     = 6.0
-    ramjet.nacelle_diameter  = 1.3 * Units.meter
     ramjet.inlet_diameter    = 1.1 * Units.meter
     
     # working fluid

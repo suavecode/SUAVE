@@ -59,6 +59,7 @@ class Vehicle(Data):
         self.fuselages              = Components.Fuselages.Fuselage.Container()
         self.wings                  = Components.Wings.Wing.Container()
         self.propulsors             = Components.Propulsors.Propulsor.Container()
+        self.nacelles               = Components.Nacelles.Nacelle.Container()
         self.energy                 = Components.Energy.Energy()
         self.systems                = Components.Systems.System.Container()
         self.mass_properties        = Vehicle_Mass_Container()
@@ -98,6 +99,7 @@ class Vehicle(Data):
             Components.Wings.Wing                      : self['wings']            ,
             Components.Systems.System                  : self['systems']          ,
             Components.Propulsors.Propulsor            : self['propulsors']       ,
+            Components.Nacelles.Nacelle                : self['nacelles']         ,
             Components.Envelope                        : self['envelope']         ,
             Components.Landing_Gear.Landing_Gear       : self['landing_gear']     ,
             Vehicle_Mass_Properties                    : self['mass_properties']  ,

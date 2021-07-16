@@ -216,6 +216,15 @@ def vehicle_setup():
     fuel.mass_properties.mass                   = 319 *Units.lbs
     vehicle.fuel                                = fuel
 
+   
+    # the nacelle 
+    nacelle                                     = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter                            = 42 * Units.inches
+    nacelle.length                              = 0.01 * Units.inches 
+    nacelle.areas.wetted                        = 0.01
+    vehicle.append_component(nacelle) 
+                                                
+
     # ------------------------------------------------------------------
     #   Piston Propeller Network
     # ------------------------------------------------------------------    
@@ -225,13 +234,7 @@ def vehicle_setup():
     net.tag                                     = 'internal_combustion'
     net.number_of_engines                       = 1.
     
-    # the nacelle 
-    nacelle                                     = SUAVE.Components.Energy.Nacelles.Nacelle()
-    nacelle.diameter                            = 42 * Units.inches
-    nacelle.length                              = 0.01 * Units.inches 
-    nacelle.areas.wetted                        = 0.01
-    net.nacelle                                 = nacelle 
-                                                
+
     # the engine                    
     net.engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
     net.engine.sea_level_power                  = 180. * Units.horsepower

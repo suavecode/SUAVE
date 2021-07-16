@@ -139,22 +139,23 @@ def vehicle_setup():
                                                 
     # add to vehicle
     vehicle.append_component(fuselage)   
-       
+    
+    # -----------------------------------------------------------------
+    # Design the Nacelle
+    # ----------------------------------------------------------------- 
+    nacelle                 = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter        =  0.6 * Units.feet # need to check 
+    nacelle.length          =  0.5 * Units.feet  
+    nacelle.areas.wetted    =  np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
+    nacelle.origin          = [[ 0.3,2.5,1.4],[ 0.3,-2.5,1.4], [4.9,2.5,1.4] ,[4.9,-2.5,1.4]] 
+    vehicle.append_component(nacelle)        
+    
     #------------------------------------------------------------------
     # PROPULSOR
     #------------------------------------------------------------------
     net                    = Vectored_Thrust()
     net.number_of_engines  = 6
-    net.thrust_angle       = 90. * Units.degrees
-    
-    # -----------------------------------------------------------------
-    # Design the Nacelle
-    # ----------------------------------------------------------------- 
-    nacelle                 = SUAVE.Components.Energy.Nacelles.Nacelle()
-    nacelle.diameter        =  0.6 * Units.feet # need to check 
-    nacelle.length          =  0.5 * Units.feet  
-    nacelle.areas.wetted    =  np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
-    net.nacelle             =  nacelle
+    net.thrust_angle       = 90. * Units.degrees 
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
@@ -200,6 +201,7 @@ def vehicle_setup():
     design_tip_mach = 0.7                                    # design tip mach number 
     
     rotor                        = SUAVE.Components.Energy.Converters.Rotor() 
+    rotor.origin                 = [[ 0.3,2.5,1.4],[ 0.3,-2.5,1.4], [4.9,2.5,1.4] ,[4.9,-2.5,1.4]] 
     rotor.tip_radius             = 3.95 * Units.feet
     rotor.hub_radius             = 0.6  * Units.feet 
     rotor.disc_area              = np.pi*(rotor.tip_radius**2) 
@@ -219,16 +221,8 @@ def vehicle_setup():
     
     rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     rotor                        = propeller_design(rotor)    
-    rotor.induced_hover_velocity = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines))  
+    rotor.induced_hover_velocity = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines))   
     
-    # propulating propellers on the other side of the vehicle    
-    rotor.origin                 = []
-    for fuselage in vehicle.fuselages:
-        if fuselage.tag == 'fuselage':
-            continue
-        else:
-            rotor.origin.append(fuselage.origin[0])           
-   
     # append propellers to vehicle           
     net.rotor = rotor
     

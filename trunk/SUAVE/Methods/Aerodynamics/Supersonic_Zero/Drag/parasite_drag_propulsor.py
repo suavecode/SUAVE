@@ -19,7 +19,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Supersonic_Zero-Drag
-def parasite_drag_propulsor(state,settings,geometry):
+def parasite_drag_propulsor(state,settings,nacelle):
     """Computes the parasite drag due to the propulsor
 
     Assumptions:
@@ -47,21 +47,18 @@ def parasite_drag_propulsor(state,settings,geometry):
     """
     
     # unpack inputs
-    
     conditions    = state.conditions
-    configuration = settings
-    propulsor     = geometry
     
     low_mach_cutoff  = settings.begin_drag_rise_mach_number
     high_mach_cutoff = settings.end_drag_rise_mach_number    
         
     freestream = conditions.freestream
     
-    Sref        = propulsor.nacelle_diameter**2 / 4 * np.pi
-    Swet        = propulsor.areas.wetted
+    Sref        = nacelle.diameter**2 / 4 * np.pi
+    Swet        = nacelle.areas.wetted
     
-    l_prop  = propulsor.engine_length
-    d_prop  = propulsor.nacelle_diameter
+    l_prop  = nacelle.length
+    d_prop  = nacelle.diameter
     
     # conditions
     freestream = conditions.freestream

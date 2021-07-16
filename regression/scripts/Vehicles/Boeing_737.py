@@ -490,6 +490,16 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(fuselage) 
     
+    
+    # ------------------------------------------------------------------
+    #   Nacelle  
+    # ------------------------------------------------------------------
+    nacelle            = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.length     = 2.71
+    nacelle.diameter   = 2.05
+    nacelle.origin     = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
+    vehicle.append_component(nacelle) 
+
     # ------------------------------------------------------------------
     #   Turbofan Network
     # ------------------------------------------------------------------
@@ -501,13 +511,11 @@ def vehicle_setup():
     # setup
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
-    turbofan.nacelle.length     = 2.71
-    turbofan.nacelle.diameter  = 2.05
     # This origin is overwritten by compute_component_centers_of_gravity(base,compute_propulsor_origin=True)
     turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
 
     #compute engine areas
-    Awet    = 1.1*np.pi*turbofan.nacelle.diameter*turbofan.nacelle.length
+    Awet    = 1.1*np.pi* nacelle.diameter* nacelle.length
 
     #Assign engine areas
     turbofan.areas.wetted  = Awet

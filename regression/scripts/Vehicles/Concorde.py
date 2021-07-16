@@ -352,7 +352,15 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(fuselage)
     
-        
+    # the nacelle 
+    nacelle                                     = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter                            = 1.3
+    nacelle.origin                              = [[37.,6.,-1.3],[37.,5.3,-1.3],[37.,-5.3,-1.3],[37.,-6.,-1.3]] 
+    nacelle.length                              = 12.0 
+    nacelle.inlet_diameter                      = 1.1 
+    nacelle.areas.wetted                        = 120./turbojet.number_of_engines
+    vehicle.append_component(nacelle)  
+    
     # ------------------------------------------------------------------
     #   Turbojet Network
     # ------------------------------------------------------------------    
@@ -363,15 +371,7 @@ def vehicle_setup():
     
     # setup
     turbojet.number_of_engines = 4.  
-    turbojet.origin            = [[37.,6.,-1.3],[37.,5.3,-1.3],[37.,-5.3,-1.3],[37.,-6.,-1.3]]
-    
-    # the nacelle 
-    nacelle                                     = SUAVE.Components.Energy.Nacelles.Nacelle()
-    nacelle.diameter                            = 1.3
-    nacelle.length                              = 12.0 
-    nacelle.inlet_diameter                      = 1.1 
-    nacelle.areas.wetted                        = 120./turbojet.number_of_engines
-    turbojet.nacelle                            = nacelle  
+    turbojet.origin            = [[37.,6.,-1.3],[37.,5.3,-1.3],[37.,-5.3,-1.3],[37.,-6.,-1.3]] 
     
     # working fluid
     turbojet.working_fluid = SUAVE.Attributes.Gases.Air()

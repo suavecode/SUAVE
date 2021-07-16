@@ -19,7 +19,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Propulsion
-def compute_turbofan_geometry(turbofan, conditions=None):
+def compute_turbofan_geometry(turbofan, nacelle, conditions=None):
     """Estimates geometry for a ducted fan.
     
     This script doesn't actually use conditions; however, it takes it as input to maintain common interface
@@ -57,10 +57,9 @@ def compute_turbofan_geometry(turbofan, conditions=None):
    
 
     # pack
+    nacelle.diameter          = nacelle_diameter 
     turbofan.engine_length    = L_eng_m
-    turbofan.nacelle_diameter = nacelle_diameter 
-    turbofan.inlet_diameter   = nacelle_diameter/np.sqrt(2.1)
-  
-    turbofan.areas.wetted     = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
+    turbofan.inlet_diameter   = nacelle_diameter/np.sqrt(2.1) 
+    turbofan.areas.wetted     = 1.1*np.pi*nacelle_diameter*turbofan.engine_length
     
-    return turbofan
+    return turbofan , nacelle

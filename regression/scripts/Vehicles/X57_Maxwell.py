@@ -297,18 +297,20 @@ def vehicle_setup():
     vehicle.append_component(fuselage)   
 
     #---------------------------------------------------------------------------------------------
-    # DEFINE PROPELLER
+    # Nacelle
+    #---------------------------------------------------------------------------------------------
+    nacelle                 = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter        = 42 * Units.inches
+    nacelle.length          = 0.01 * Units.inches
+    nacelle.areas.wetted    = np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
+    vehicle.append_component(nacelle) 
+    
+    #---------------------------------------------------------------------------------------------
+    # Propulsor
     #---------------------------------------------------------------------------------------------
     # build network    
     net = Battery_Propeller() 
     net.number_of_engines       = 2.
-    
-
-    nacelle                 = SUAVE.Components.Energy.Nacelles.Nacelle()
-    nacelle.diameter        = 42 * Units.inches
-    nacelle.length          = 0.01 * Units.inches
-    nacelle.areas.wetted    = np.pi*nacelle.diameter*nacelle.length + 0.5*np.pi*nacelle.diameter**2   
-    net.nacelle             = nacelle  
     
     # Component 1 the ESC
     esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
