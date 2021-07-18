@@ -13,6 +13,7 @@ from .generate_propeller_grid                 import generate_propeller_grid
 from .generate_wing_wake_grid                 import generate_wing_wake_grid
 from .compute_wing_wake                       import compute_wing_wake
 from .compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
-from .generate_wing_vortex_distribution       import generate_wing_vortex_distribution, compute_unit_normal 
+from .generate_vortex_distribution            import generate_vortex_distribution, compute_unit_normal 
 from .fuselage_correction                     import fuselage_correction
+from .make_VLM_wings                          import make_VLM_wings
 from .VLM                                     import VLM
