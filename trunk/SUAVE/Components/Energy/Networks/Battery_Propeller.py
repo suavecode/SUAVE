@@ -61,7 +61,8 @@ class Battery_Propeller(Propulsor):
         self.esc                       = None
         self.avionics                  = None
         self.payload                   = None
-        self.battery                   = None 
+        self.battery                   = None
+        self.engine_length             = None
         self.number_of_engines         = None
         self.voltage                   = None
         self.thrust_angle              = 0.0

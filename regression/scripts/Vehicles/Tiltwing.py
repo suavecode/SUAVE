@@ -198,7 +198,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     net                   = Vectored_Thrust()    
     net.number_of_engines = 8
-    net.thrust_angle      = 0.0   * Units.degrees #  conversion to radians    
+    net.thrust_angle      = 0.0   * Units.degrees #  conversion to radians
     net.voltage           = 400.             
 
     #------------------------------------------------------------------

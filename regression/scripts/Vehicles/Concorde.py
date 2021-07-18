@@ -358,7 +358,7 @@ def vehicle_setup():
     nacelle.origin                              = [[37.,6.,-1.3],[37.,5.3,-1.3],[37.,-5.3,-1.3],[37.,-6.,-1.3]] 
     nacelle.length                              = 12.0 
     nacelle.inlet_diameter                      = 1.1 
-    nacelle.areas.wetted                        = 120./turbojet.number_of_engines
+    nacelle.areas.wetted                        = 30.
     vehicle.append_component(nacelle)  
     
     # ------------------------------------------------------------------

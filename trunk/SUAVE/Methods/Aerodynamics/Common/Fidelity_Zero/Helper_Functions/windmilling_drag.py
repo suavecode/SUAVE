@@ -45,13 +45,13 @@ def windmilling_drag(geometry,state):
     N/A
     """    
     # ==============================================
-        # Unpack
+	# Unpack
     # ==============================================
     vehicle = geometry
 
     # Defining reference area
     if vehicle.reference_area:
-        reference_area = vehicle.reference_area
+            reference_area = vehicle.reference_area
     else:
         n_wing = 0
         for wing in vehicle.wings:

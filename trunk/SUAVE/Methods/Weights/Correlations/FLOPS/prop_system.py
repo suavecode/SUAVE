@@ -11,7 +11,7 @@ from SUAVE.Core import Units, Data
 import numpy as np
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
-def total_prop_flops(vehicle, prop,nacelle):
+def total_prop_flops(vehicle,prop,nacelle):
     """ Calculate the weight of propulsion system, including:
         - dry engine weight
         - fuel system weight
@@ -62,7 +62,7 @@ def total_prop_flops(vehicle, prop,nacelle):
     WNAC        = nacelle_FLOPS(prop)
     WFSYS       = fuel_system_FLOPS(vehicle, NENG)
     WENG        = engine_FLOPS(vehicle, prop)
-    WEC, WSTART = misc_engine_FLOPS(vehicle, prop.nacelle)
+    WEC, WSTART = misc_engine_FLOPS(vehicle,prop,nacelle)
     WTHR        = thrust_reverser_FLOPS(prop)
     WPRO        = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
 
@@ -134,7 +134,7 @@ def thrust_reverser_FLOPS(prop):
     return WTHR * Units.lbs
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
-def misc_engine_FLOPS(vehicle, prop,nacelle):
+def misc_engine_FLOPS(vehicle,prop,nacelle):
     """ Calculates the miscellaneous engine weight based on the FLOPS method, electrical control system weight
         and starter engine weight
         Assumptions:

@@ -184,7 +184,7 @@ def vehicle_setup():
     nacelle                    = SUAVE.Components.Nacelles.Nacelle()
     nacelle.diameter           = 3.96 * Units.meters 
     nacelle.length             = 289. * Units.inches    
-    nacelle.origin            = [[133.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet],[145.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet],[133.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]
+    nacelle.origin             = [[133.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet],[145.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet],[133.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]
     vehicle.append_component(nacelle)  
 
     # ------------------------------------------------------------------
@@ -197,9 +197,8 @@ def vehicle_setup():
     turbofan.bypass_ratio      = 8.1
     turbofan.origin            = [[133.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet],[145.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet],[133.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]
 
- 
     # working fluid
-    turbofan.working_fluid     = SUAVE.Attributes.Gases.Air()
+    turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
     
     # ------------------------------------------------------------------
     #   Component 1 - Ram

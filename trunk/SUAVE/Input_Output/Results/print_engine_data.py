@@ -79,11 +79,11 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
         raise ValueError("No engine found in the vehicle")
 
 
-    engine_tag = vehicle.propulsors.turbofan.tag
-    design_thrust = vehicle.propulsors.turbofan.design_thrust
-    engine_length = vehicle.propulsors.turbofan.engine_length
+    engine_tag       = vehicle.propulsors.turbofan.tag
+    design_thrust    = vehicle.propulsors.turbofan.design_thrust
+    engine_length    = vehicle.propulsors.turbofan.engine_length
     nacelle_diameter = vehicle.nacelles.nacelle.diameter
-    bypass_ratio = vehicle.propulsors.turbofan.thrust.bypass_ratio
+    bypass_ratio     = vehicle.propulsors.turbofan.thrust.bypass_ratio
 
     # Considering planet and atmosphere of 1st mission segment
     sea_level_gravity = SUAVE.Attributes.Planets.Earth().sea_level_gravity

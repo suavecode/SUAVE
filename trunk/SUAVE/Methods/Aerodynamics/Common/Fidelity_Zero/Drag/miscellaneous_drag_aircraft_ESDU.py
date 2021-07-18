@@ -55,8 +55,8 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     for fuselage in geometry.fuselages:
         swet_tot += fuselage.areas.wetted
 
-    for propulsor in geometry.propulsors:
-        swet_tot += propulsor.areas.wetted * propulsor.number_of_engines
+    for nacelle in geometry.nacelles:
+        swet_tot += nacelle.areas.wetted * len(nacelle.origin)
 
     swet_tot *= 1.10
     

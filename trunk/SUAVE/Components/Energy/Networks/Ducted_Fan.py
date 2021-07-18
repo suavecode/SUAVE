@@ -56,7 +56,8 @@ class Ducted_Fan(Propulsor):
         
         #setting the default values
         self.tag = 'Ducted_Fan'
-        self.number_of_engines = 1.0 
+        self.number_of_engines = 1.0
+        self.engine_length = 1.0
         self.bypass_ratio      = 0.0
         self.areas             = Data()
         

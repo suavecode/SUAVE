@@ -175,10 +175,11 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Nacelle  
     # ------------------------------------------------------------------
-    nacelle            = SUAVE.Components.Nacelles.Nacelle()
-    nacelle.diameter   =  2.428 
-    nacelle.length     = 3.934
-    nacelle.origin     = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]   
+    nacelle              = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter     =  2.428
+    nacelle.length       = 3.934
+    nacelle.origin       = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]
+    nacelle.areas.wetted = 1.1 * np.pi * nacelle.diameter * nacelle.length
     vehicle.append_component(nacelle) 
     
     # ------------------------------------------------------------------
@@ -191,11 +192,6 @@ def vehicle_setup():
     turbofan.number_of_engines  = 4.0
     turbofan.bypass_ratio       = 4.8
     turbofan.origin             = [[36.56, 22, -1.9], [27, 12, -1.9],[36.56, -22, -1.9], [27, -12, -1.9]]   
-    
-    # compute engine areas
-    Awet = 1.1 * np.pi * nacelle.diameter * nacelle.length
-    # Assign engine areas
-    turbofan.areas.wetted = Awet
 
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()

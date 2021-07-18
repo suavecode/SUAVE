@@ -155,7 +155,7 @@ def vehicle_setup():
     
     # build network
     net                   = Solar()
-    net.number_of_engines = 1.    
+    net.number_of_engines = 1.
     
     # Component 1 the Sun?
     sun            = SUAVE.Components.Energy.Processes.Solar_Radiation()
