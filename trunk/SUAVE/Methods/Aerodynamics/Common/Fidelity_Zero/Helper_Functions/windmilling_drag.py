@@ -33,10 +33,10 @@ def windmilling_drag(geometry,state):
       max_mach_operational        [Unitless]
       reference_area              [m^2]
       wings.sref                  [m^2]
-      nacelles.diameter           [m^2]
-      propulsors. 
+      nacelles.
+        diameter                  [m^2] 
         areas.wetted              [m^2]
-        engine_length             [m^2]
+        length                    [m^2]
 
     Outputs:
     windmilling_drag_coefficient  [Unitless]
@@ -76,8 +76,8 @@ def windmilling_drag(geometry,state):
                 l_nac = 0
                 for idx2,nacelle in enumerate(vehicle.nacelles):
                     D_nac = nacelle.diameter
-                    if propulsor.engine_length != 0.:
-                        l_nac = propulsor.engine_length
+                    if nacelle.length != 0.:
+                        l_nac = nacelle.length
                     else:
                         try:
                             MMO = vehicle.max_mach_operational

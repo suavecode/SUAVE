@@ -11,7 +11,7 @@ from SUAVE.Core import Units, Data
 import numpy as np
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
-def total_prop_flops(vehicle, prop):
+def total_prop_flops(vehicle, prop,nacelle):
     """ Calculate the weight of propulsion system, including:
         - dry engine weight
         - fuel system weight
@@ -38,10 +38,11 @@ def total_prop_flops(vehicle, prop):
                 -.systems.accessories: type of aircraft (short-range, commuter
                                                         medium-range, long-range,
                                                         sst, cargo)
-            prop - data dictionary with propulsion system properties
-                -.number_of_engines: number of engines
-                -.nacelle_diameter: diameter of nacelle                         [meters]
-                -.engine_length: length of complete engine assembly             [meters]
+            nacelle - data dictionary with propulsion system properties
+                -.number_of_nacelles: number of engines
+                -.diameter: diameter of nacelle                                [meters]
+                -.length: length of complete engine assembly                    [meters]
+            prop.
                 -.sealevel_static_thrust: thrust at sea level                   [N]
 
 
@@ -62,7 +63,7 @@ def total_prop_flops(vehicle, prop):
     WNAC        = nacelle_FLOPS(prop)
     WFSYS       = fuel_system_FLOPS(vehicle, NENG)
     WENG        = engine_FLOPS(vehicle, prop)
-    WEC, WSTART = misc_engine_FLOPS(vehicle, prop)
+    WEC, WSTART = misc_engine_FLOPS(vehicle, prop.nacelle)
     WTHR        = thrust_reverser_FLOPS(prop)
     WPRO        = NENG * WENG + WFSYS + WEC + WSTART + WTHR + WNAC
 
@@ -77,7 +78,7 @@ def total_prop_flops(vehicle, prop):
     return output
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
-def nacelle_FLOPS(prop):
+def nacelle_FLOPS(prop,nacelle):
     """ Calculates the nacelle weight based on the FLOPS method
         Assumptions:
 
@@ -87,22 +88,23 @@ def nacelle_FLOPS(prop):
         Inputs:
             prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
                 -.number_of_engines: number of engines
-                -.engine_lenght: total length of engine                     [m]
-                -.nacelle_diameter: diameter of nacelle                     [m]
-                -.sealevel_static_thrust: sealevel static thrust of engine  [N]
-            WENG    - dry engine weight                                     [kg]
-
-
-        Outputs:
-            WNAC: nacelle weight                                            [kg]
+                -.engine_lenght: total length of engine                                  [m]
+                -.sealevel_static_thrust: sealevel static thrust of engine               [N]
+            nacelle.             
+                -.diameter: diameter of nacelle                                          [m]
+            WENG    - dry engine weight                                                  [kg]
+             
+             
+        Outputs:             
+            WNAC: nacelle weight                                                         [kg]
 
         Properties Used:
             N/A
     """
-    NENG = prop.number_of_engines
+    NENG = nacelle.number_of_nacelles
     TNAC = NENG + 1. / 2 * (NENG - 2 * np.floor(NENG / 2.))
-    DNAC = prop.nacelle_diameter / Units.ft
-    XNAC = prop.engine_length / Units.ft
+    DNAC = nacelle.diameter / Units.ft
+    XNAC = nacelle.length / Units.ft
     FTHRST = prop.sealevel_static_thrust * 1 / Units.lbf
     WNAC = 0.25 * TNAC * DNAC * XNAC * FTHRST ** 0.36
     return WNAC * Units.lbs
@@ -133,7 +135,7 @@ def thrust_reverser_FLOPS(prop):
     return WTHR * Units.lbs
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
-def misc_engine_FLOPS(vehicle, prop):
+def misc_engine_FLOPS(vehicle, prop,nacelle):
     """ Calculates the miscellaneous engine weight based on the FLOPS method, electrical control system weight
         and starter engine weight
         Assumptions:
@@ -142,16 +144,17 @@ def misc_engine_FLOPS(vehicle, prop):
             The Flight Optimization System Weight Estimation Method
 
         Inputs:
-            vehicle - data dictionary with vehicle properties                   [dimensionless]
+            vehicle - data dictionary with vehicle properties                            [dimensionless]
                  -.design_mach_number: design mach number
             prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
                 -.number_of_engines: number of engines
-                -.nacelle_diameter: diameter of nacelle                     [m]
-                -.sealevel_static_thrust: sealevel static thrust of engine  [N]
-
-        Outputs:
-            WEC: electrical engine control system weight                    [kg]
-            WSTART: starter engine weight                                   [kg]
+                -.sealevel_static_thrust: sealevel static thrust of engine               [N]
+            nacelle              
+                -.diameter: diameter of nacelle                                          [m]
+              
+        Outputs:              
+            WEC: electrical engine control system weight                                 [kg]
+            WSTART: starter engine weight                                                [kg]
 
         Properties Used:
             N/A
@@ -159,7 +162,7 @@ def misc_engine_FLOPS(vehicle, prop):
     NENG = prop.number_of_engines
     THRUST = prop.sealevel_static_thrust * 1 / Units.lbf
     WEC = 0.26 * NENG * THRUST ** 0.5
-    FNAC = prop.nacelle_diameter / Units.ft
+    FNAC = nacelle.diameter / Units.ft
     VMAX = vehicle.design_mach_number
     WSTART = 11.0 * NENG * VMAX ** 0.32 * FNAC ** 1.6
     return WEC * Units.lbs, WSTART * Units.lbs

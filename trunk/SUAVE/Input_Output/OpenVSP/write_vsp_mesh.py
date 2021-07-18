@@ -152,11 +152,10 @@ def set_sources(geometry):
         comp_dict[wing.tag] = wing
     for fuselage in geometry.fuselages:
         comp_type_dict[fuselage.tag] = 'fuselage'
-        comp_dict[fuselage.tag] = fuselage
-    # Propulsor sources have not been implemented
-    #for propulsor in geometry.propulsors:
-        #comp_type_dict[propulsor.tag] = 'turbojet'
-        #comp_dict[propulsor.tag] = propulsor
+        comp_dict[fuselage.tag] = fuselage 
+    for nacelle in geometry.nacelles:
+        comp_type_dict[nacelle.tag] = 'nacelle'
+        comp_dict[nacelle.tag] = nacelle
         
     components = vsp.FindGeoms()
     
@@ -267,25 +266,22 @@ def set_sources(geometry):
             vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
             uloc = 1.0
             vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
-            pass
+            pass 
         
-        # This is a stub for the nacelle implementation. It will create sources
-        # as is but they will not be appropriate for the nacelle shape.
-        
-        #elif comp_type == 'turbofan':
-            #propulsor = comp_dict[comp_name[0:8]]
-            #if propulsor.has_key('vsp_mesh'):
-                #len1 = propulsor.vsp_mesh.length
-                #rad1 = propulsor.vsp_mesh.radius
-            #else:
-                #len1 = 0.1 * 0.5 # not sure where VSP is getting this value
-                #rad1 = 0.2 * propulsor.engine_length
-            #uloc = 0.0
-            #wloc = 0.0
-            #vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
-            #uloc = 1.0
-            #vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
-            #pass        
+        elif comp_type == 'nacelle':
+            nacelle = comp_dict[comp_name[0:8]]
+            if nacelle.has_key('vsp_mesh'):
+                len1 = nacelle.vsp_mesh.length
+                rad1 = nacelle.vsp_mesh.radius
+            else:
+                len1 = 0.1 * 0.5 # not sure where VSP is getting this value
+                rad1 = 0.2 * nacelle.length
+            uloc = 0.0
+            wloc = 0.0
+            vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
+            uloc = 1.0
+            vsp.AddCFDSource(vsp.POINT_SOURCE,comp,0,len1,rad1,uloc,wloc) 
+            pass        
     
         
 ## @ingroup Input_Output-OpenVSP

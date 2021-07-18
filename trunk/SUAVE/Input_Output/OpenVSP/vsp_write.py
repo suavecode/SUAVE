@@ -13,6 +13,7 @@
 #           Jul 2020, E. Botero 
 #           Feb 2021, T. MacDonald
 #           May 2021, E. Botero 
+#           Jul 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -490,141 +491,111 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
     origins_sorted = sorted(origins, key=operator.itemgetter(1))
     
     for ii in range(0,int(num_nac)):
-        origin = origins_sorted[ii] 
-        x      = origin[0]
-        y      = origin[1]
-        z      = origin[2]            
+        origin         = origins_sorted[ii] 
+        nac_x          = origin[0]
+        nac_y          = origin[1]
+        nac_z          = origin[2]    
+        nac_x_rotation = nacelle.x_rotation   
+        nac_y_rotation = nacelle.y_rotation
+        nac_z_rotation = nacelle.z_rotation   
         
-        if  len(nacelle.segments) == 0:
-            #nac_id = vsp.AddGeom( "BODYOFREVOLUTION")
-            #vsp.SetGeomName(nac_id, prop_tag+'_'+str(ii+1))
-            
-            ## Origin
-            #vsp.SetParmVal(nac_id,'X_Location','XForm',x)
-            #vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-            #vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
-            #vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',v
-            
-            ## Length and overall diameter
-            #vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
-            
-            pass
-            #nac_id = vsp.AddGeom("STACK")
-            #vsp.SetGeomName(nac_id, prop_tag+'_'+str(ii+1))
-    
-            ## Origin
-            #vsp.SetParmVal(nac_id,'X_Location','XForm',x)
-            #vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-            #vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
-            #vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP
-            #vsp.SetParmVal(nac_id,'Origin','XForm',0.5)            
-    
-            #vsp.CutXSec(nac_id,2) # remove extra default subsurface
-            #xsecsurf = vsp.GetXSecSurf(nac_id,0)
-            #vsp.ChangeXSecShape(xsecsurf,1,vsp.XS_CIRCLE)
-            #vsp.ChangeXSecShape(xsecsurf,2,vsp.XS_CIRCLE)
-            #vsp.Update()
-            #vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_1", width)
-            #vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_2", width)
-            #vsp.SetParmVal(nac_id, "XDelta", "XSec_1", 0)
-            #vsp.SetParmVal(nac_id, "XDelta", "XSec_2", length)
-            #vsp.SetParmVal(nac_id, "XDelta", "XSec_3", 0)
-    
-            # use fusleage scripts 
-            if ft_flag:
-                pass
-            #vsp.SetSetFlag(nac_id, OML_set_ind, True) 
+        num_segs = len(nacelle.segments)
+        if  num_segs > 0: 
+            nac_id = vsp.AddGeom( "STACK")
+            vsp.SetGeomName(nac_id, nacelle.tag)  
                 
-            else:
-                pass
-            # OpenVSP vals do not exist:
-            vals                   = Data()
-            vals.nose              = Data()
-            vals.tail              = Data()
-            vals.tail.top          = Data()
+            # set nacelle relative location and rotation
+            vsp.SetParmVal( nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
+            vsp.SetParmVal( nac_id,'X_Rotation','XForm',nac_x_rotation)
+            vsp.SetParmVal( nac_id,'Y_Rotation','XForm',nac_y_rotation)
+            vsp.SetParmVal( nac_id,'Z_Rotation','XForm',nac_z_rotation) 
+            vsp.SetParmVal( nac_id,'X_Location','XForm',nac_x)
+            vsp.SetParmVal( nac_id,'Y_Location','XForm',nac_y)
+            vsp.SetParmVal( nac_id,'Z_Location','XForm',nac_z)        
+                 
+            widths  = []
+            heights = []
+            x_delta = []
+            x_poses = []
+            z_delta = []
+            segs = nacelle.Segments
+            for seg in segs:
+                widths.append(seg.width)
+                heights.append(seg.height) 
+                x_poses.append(seg.percent_x_location)
+                if seg == 0: 
+                    x_delta.append(0)
+                    z_delta.append(0) 
+                else:
+                    x_delta.append(length*(segs[seg].percent_x_location - segs[seg-1].percent_x_location))
+                    z_delta.append(length*(segs[seg].percent_z_location - segs[seg-1].percent_z_location)) 
             
-            vals.nose.z_pos        = 0.0
-            vals.tail.top.angle    = 0.0
-            vals.tail.top.strength = 0.0
-            
+                
             if len(np.unique(x_poses)) != len(x_poses):
-                raise ValueError('Duplicate fuselage section positions detected.')
-            vsp.SetParmVal(fuse_id,"Length","Design",length)
+                raise ValueError('Duplicate nacelle section positions detected.') 
             if num_segs != 5: # reduce to only nose and tail
-                vsp.CutXSec(fuse_id,1) # remove extra default section
-                vsp.CutXSec(fuse_id,1) # remove extra default section
-                vsp.CutXSec(fuse_id,1) # remove extra default section
+                vsp.CutXSec(nac_id,1) # remove extra default section
+                vsp.CutXSec(nac_id,1) # remove extra default section
+                vsp.CutXSec(nac_id,1) # remove extra default section
                 for i in range(num_segs-2): # add back the required number of sections
-                    vsp.InsertXSec(fuse_id, 0, vsp.XS_ELLIPSE)           
+                    vsp.InsertXSec(nac_id, 0, vsp.XS_ELLIPSE)           
                     vsp.Update()
             for i in range(num_segs-2):
                 # Bunch sections to allow proper length settings in the next step
                 # This is necessary because OpenVSP will not move a section past an adjacent section
-                vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),1e-6*(i+1))
-                vsp.Update()
-            if x_poses[1] < (num_segs-2)*1e-6:
-                print('Warning: Second fuselage section is too close to the nose. OpenVSP model may not be accurate.')
-            for i in reversed(range(num_segs-2)):
-                # order is reversed because sections are initially bunched in the front and cannot be extended passed the next
-                vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(i+1),x_poses[i+1])
-                vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(i+1),z_poses[i+1])
-                vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(i+1), widths[i+1])
-                vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(i+1), heights[i+1])   
-                vsp.Update()             
-                set_section_angles(i, vals.nose.z_pos, tail_z_pos, x_poses, z_poses, heights, widths,length,end_ind,fuse_id)            
+                vsp.SetParmVal(nac_id, "XLocPercent", "XSec_"+str(i+1),1e-6*(i+1))
+                vsp.Update() 
+    
+            # use fusleage scripts 
+            if ft_flag:   
+                for i in reversed(range(num_segs)):
+                    # order is reversed because sections are initially bunched in the front and cannot be extended passed the next 
+                    vsp.SetParmVal(nac_id, "XDelta", "XSec_"+str(i),x_delta[i])
+                    vsp.SetParmVal(nac_id, "ZDelta", "XSec_"+str(i),z_delta[i])
+                    vsp.SetParmVal(nac_id, "Type", "XSec_"+str(i),0)
+                    vsp.Update()             
+                    set_nacelle_section_angles(i,num_segs, nac_id)            
+ 
+            else: 
+                num_segs += 2 # add two sections for start and end point to close geoemtry 
+                # append end point 
+                xsecsurf = vsp.GetXSecSurf(nac_id,0)
+                vsp.ChangeXSecShape(xsecsurf,num_segs-1,vsp.XS_POINT)
+                vsp.Update()     
+                vsp.SetParmVal(nac_id, "XDelta", "XSec_"+str(num_segs-1),0)
+                vsp.SetParmVal(nac_id, "ZDelta", "XSec_"+str(num_segs-1),0) 
+                vsp.Update()               
                 
-            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(0),x_poses[0])
-            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(0),z_poses[0])
-            vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(end_ind),x_poses[-1])
-            vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(end_ind),z_poses[-1])    
-            
-            # Tail
-            if heights[-1] > 0.:
-                stdout = vsp.cvar.cstdout
-                errorMgr = vsp.ErrorMgrSingleton_getInstance()
-                errorMgr.PopErrorAndPrint(stdout)
+                # append all points in reverse
+                for i in reversed(range(1,num_segs-1)):
+                    # order is reversed because sections are initially bunched in the front and cannot be extended passed the next 
+                    vsp.SetParmVal(nac_id, "XDelta", "XSec_"+str(i),x_delta[i-1])
+                    vsp.SetParmVal(nac_id, "ZDelta", "XSec_"+str(i),z_delta[i-1])
+                    vsp.SetParmVal(nac_id, "Ellipse_Width", "XSecCurve_"+str(i-1), widths[i-1])
+                    vsp.SetParmVal(nac_id, "Ellipse_Height", "XSecCurve_"+str(i-1), heights[i-1])   
+                    vsp.Update()             
+                    set_nacelle_section_angles(i,num_segs, nac_id)                         
                 
-                pos = len(heights)-1
-                vsp.InsertXSec(fuse_id, pos-1, vsp.XS_ELLIPSE)
-                vsp.Update()
-                vsp.SetParmVal(fuse_id, "Ellipse_Width", "XSecCurve_"+str(pos), widths[-1])
-                vsp.SetParmVal(fuse_id, "Ellipse_Height", "XSecCurve_"+str(pos), heights[-1])
-                vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos),x_poses[-1])
-                vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos),z_poses[-1])              
+                # append front point  
+                xsecsurf = vsp.GetXSecSurf(nac_id,0)
+                vsp.ChangeXSecShape(xsecsurf,0,vsp.XS_POINT)
+                vsp.Update()                      
+                vsp.SetParmVal(nac_id, "XDelta", "XSec_"+str(0),0)
+                vsp.SetParmVal(nac_id, "ZDelta", "XSec_"+str(0),0)   
+                vsp.Update()              
                 
-                xsecsurf = vsp.GetXSecSurf(fuse_id,0)
-                vsp.ChangeXSecShape(xsecsurf,pos+1,vsp.XS_POINT)
-                vsp.Update()           
-                vsp.SetParmVal(fuse_id, "XLocPercent", "XSec_"+str(pos+1),x_poses[-1])
-                vsp.SetParmVal(fuse_id, "ZLocPercent", "XSec_"+str(pos+1),z_poses[-1])     
-                
-                # update strengths to make end flat
-                vsp.SetParmVal(fuse_id,"TopRStrength","XSec_"+str(pos), 0.)
-                vsp.SetParmVal(fuse_id,"RightRStrength","XSec_"+str(pos), 0.)
-                vsp.SetParmVal(fuse_id,"BottomRStrength","XSec_"+str(pos), 0.)
-                vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(pos+1), 0.)
-                vsp.SetParmVal(fuse_id,"RightLStrength","XSec_"+str(pos+1), 0.)            
-            
-            else:
-                vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
-                vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
-                vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
-                vsp.Update()
-                
-                
-            if 'z_pos' in vals.tail:
-                tail_z_pos = vals.tail.z_pos
-            else:
-                pass # use above default                  
         else: 
             nac_id = vsp.AddGeom( "BODYOFREVOLUTION")
             vsp.SetGeomName(nac_id, prop_tag+'_'+str(ii+1))
     
-            # Origin
-            vsp.SetParmVal(nac_id,'X_Location','XForm',x)
-            vsp.SetParmVal(nac_id,'Y_Location','XForm',y)
-            vsp.SetParmVal(nac_id,'Z_Location','XForm',z)
-            vsp.SetParmVal(nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS) # misspelling from OpenVSP  
+            # Origin 
+            vsp.SetParmVal( nac_id,'Abs_Or_Relitive_flag','XForm',vsp.ABS)
+            vsp.SetParmVal( nac_id,'X_Rotation','XForm',nac_x_rotation)
+            vsp.SetParmVal( nac_id,'Y_Rotation','XForm',nac_y_rotation)
+            vsp.SetParmVal( nac_id,'Z_Rotation','XForm',nac_z_rotation) 
+            vsp.SetParmVal( nac_id,'X_Location','XForm',nac_x)
+            vsp.SetParmVal( nac_id,'Y_Location','XForm',nac_y)
+            vsp.SetParmVal( nac_id,'Z_Location','XForm',nac_z)        
     
             # Length and overall diameter
             vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
@@ -633,16 +604,23 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
             else:
                 vsp.SetParmVal(nac_id,"Mode","Design",1.0)
              
-            if len(nacelle.naca_4_series_airfoil) == 4:
-                
-                vsp.ChangeBORXSecShape(nac_id ,vsp.XS_FOUR_SERIES)
-                vsp.Update()
-                vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
-                vsp.SetParmVal(nac_id,"Angle","Design",value)
-                vsp.SetParmVal(nac_id, "Chord", "XSecCurve", length)
-                vsp.SetParmVal(nac_id, "ThickChord", "XSecCurve",  value)
-                vsp.SetParmVal(nac_id, "Camber", "XSecCurve",  value )
-                vsp.SetParmVal(nac_id, "CamberLoc", "XSecCurve", value )    
+            if len(nacelle.naca_4_series_airfoil) != None:
+                if isinstance(nacelle.naca_4_series_airfoil, str) and len(nacelle.naca_4_series_airfoil) != 4:
+                    raise AssertionError('Nacelle Cowling airfoil must be of type < string > and length < 4 >')
+                else: 
+                    angle        = nacelle.cowling_airfoil_angle
+                    camber       = float(nacelle.naca_4_series_airfoil[0])/100
+                    camber_loc   = float(nacelle.naca_4_series_airfoil[1])/10
+                    thickness    = float(nacelle.naca_4_series_airfoil[2:])/100
+                    
+                    vsp.ChangeBORXSecShape(nac_id ,vsp.XS_FOUR_SERIES)
+                    vsp.Update()
+                    vsp.SetParmVal(nac_id,"Diameter","Design",inlet_width)
+                    vsp.SetParmVal(nac_id,"Angle","Design",angle)
+                    vsp.SetParmVal(nac_id, "Chord", "XSecCurve", length)
+                    vsp.SetParmVal(nac_id, "ThickChord", "XSecCurve", thickness)
+                    vsp.SetParmVal(nac_id, "Camber", "XSecCurve", camber )
+                    vsp.SetParmVal(nac_id, "CamberLoc", "XSecCurve",camber_loc)    
             else:
                 vsp.ChangeBORXSecShape(nac_id ,vsp.XS_SUPER_ELLIPSE)
                 vsp.Update()
@@ -651,8 +629,7 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
                 vsp.SetParmVal(nac_id, "Super_Width", "XSecCurve", length)
                 vsp.SetParmVal(nac_id, "Super_MaxWidthLoc", "XSecCurve", -1.)
                 vsp.SetParmVal(nac_id, "Super_M", "XSecCurve", 2.)
-                vsp.SetParmVal(nac_id, "Super_N", "XSecCurve", 1.) 
-    
+                vsp.SetParmVal(nac_id, "Super_N", "XSecCurve", 1.)  
     
         vsp.SetSetFlag(nac_id, OML_set_ind, True)
     
@@ -722,12 +699,10 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
     fuse_z_rotation    = fuselage.z_rotation    
     if num_segs==0: # SUAVE default fuselage shaping
     
-        width    = fuselage.width
-        hmax     = fuselage.heights.maximum
+        width    = fuselage.width 
         height1  = fuselage.heights.at_quarter_length
         height2  = fuselage.heights.at_wing_root_quarter_chord 
-        height3  = fuselage.heights.at_three_quarters_length
-        effdia   = fuselage.effective_diameter
+        height3  = fuselage.heights.at_three_quarters_length 
         n_fine   = fuselage.fineness.nose 
         t_fine   = fuselage.fineness.tail  
         
@@ -957,7 +932,7 @@ def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end
     top_angle  = np.tan(top_z_diff/x_diff)/Units.deg
     bot_angle  = np.tan(-bot_z_diff/x_diff)/Units.deg
     side_angle = np.tan(y_diff/x_diff)/Units.deg
-        
+      
     vsp.SetParmVal(fuse_id,"TBSym","XSec_"+str(i+1),0)
     vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(i+1),top_angle)
     vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(i+1),0.75)
@@ -966,6 +941,34 @@ def set_section_angles(i,nose_z,tail_z,x_poses,z_poses,heights,widths,length,end
     vsp.SetParmVal(fuse_id,"RightLAngle","XSec_"+str(i+1),side_angle)
     vsp.SetParmVal(fuse_id,"RightLStrength","XSec_"+str(i+1),0.75)   
     
+    return
+
+## ingroup Input_Output-OpenVSP
+def set_nacelle_section_angles(i,num_segs,nac_id):
+    
+    
+    if (i == 0):  
+        angle = 90
+        strength = 0
+    elif (i == num_segs-1):
+        angle = -90
+        strength = 0  
+    else:
+        angle = 0 
+        strength = 0            
+    
+    vsp.SetParmVal(nac_id,"AllSym","XSec_"+str(i+1),1)
+    vsp.SetParmVal(nac_id,"TopLAngle","XSec_"+str(i+1),angle)
+    vsp.SetParmVal(nac_id,"TopLAngleSet","XSec_"+str(i+1),1)
+    vsp.SetParmVal(nac_id,"TopLRAngleEq","XSec_"+str(i+1),1)
+    vsp.SetParmVal(nac_id,"TopLSlewSet","XSec_"+str(i+1),1)
+    vsp.SetParmVal(nac_id,"TopLCurveSet","XSec_"+str(i+1),1)
+    vsp.SetParmVal(nac_id,"TopLRSlewEq","XSec_"+str(i+1),1) 
+    vsp.SetParmVal(nac_id,"TopLRStrengthEq","XSec_"+str(i+1),1)
+    vsp.SetParmVal(nac_id,"TopLRCurveEq","XSec_"+str(i+1),1) 
+    vsp.SetParmVal(nac_id,"TopLStrength","XSec_"+str(i+1),strength ) 
+    vsp.SetParmVal(nac_id,"TopLStrengthSet","XSec_"+str(i+1),1)            
+        
     return
 
 ## @ingroup Input_Output-OpenVSP

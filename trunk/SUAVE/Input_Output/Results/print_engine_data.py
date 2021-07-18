@@ -35,8 +35,8 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
       propulsors.turbofan.
         design_thrust         [N]
         engine_length         [m]
-        nacelle_diameter      [m]
         thrust.bypass_ratio   [-]
+      nacelle.diameter        [m]
     filename (optional)       <string> Determines the name of the saved file
     units (optional)          <string> Determines the type of units used in the output, options are imperial and si
 
@@ -82,7 +82,7 @@ def print_engine_data(vehicle, filename='engine_data.dat', units="imperial"):
     engine_tag = vehicle.propulsors.turbofan.tag
     design_thrust = vehicle.propulsors.turbofan.design_thrust
     engine_length = vehicle.propulsors.turbofan.engine_length
-    nacelle_diameter = vehicle.propulsors.turbofan.nacelle_diameter
+    nacelle_diameter = vehicle.nacelles.nacelle.diameter
     bypass_ratio = vehicle.propulsors.turbofan.thrust.bypass_ratio
 
     # Considering planet and atmosphere of 1st mission segment

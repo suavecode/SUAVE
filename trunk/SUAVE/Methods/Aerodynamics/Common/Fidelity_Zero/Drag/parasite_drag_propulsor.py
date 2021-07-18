@@ -40,7 +40,7 @@ def parasite_drag_propulsor(state,settings,nacelle):
     nacelle.
       diameter                                   [m]    
       areas.wetted                               [m^2]
-      engine_length                              [m]
+      length                                     [m]
 
     Outputs:
     propulsor_parasite_drag                      [Unitless]

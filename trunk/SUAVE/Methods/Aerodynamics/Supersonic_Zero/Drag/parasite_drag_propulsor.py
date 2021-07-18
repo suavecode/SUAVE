@@ -35,10 +35,10 @@ def parasite_drag_propulsor(state,settings,nacelle):
       temperature                                [K]
       reynolds_number                            [Unitless]
     geometry.      
-      nacelle_diameter                           [m^2]
-      areas.wetted                               [m^2]
-      engine_length                              [m]
-
+      nacelle.diameter                           [m^2]
+             areas.wetted                        [m^2]
+             length                              [m]
+ 
     Outputs:
     propulsor_parasite_drag                      [Unitless]
 

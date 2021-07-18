@@ -1,18 +1,13 @@
 ## @defgroup Components-Energy-Nacelles Nacelles
 # Nacelle.py
 # 
-# Created:  Jul 2021, M. Clarke 
-# Modified:   
+# Created:  Jul 2021, M. Clarke  
 
 # ----------------------------------------------------------------------
 #  Imports
-# ---------------------------------------------------------------------- 
-import SUAVE
-from SUAVE.Core import Data, Container, ContainerOrdered
-from SUAVE.Components import Physical_Component, Lofted_Body
-from SUAVE.Components.Nacelles.Segment import Segment_Container
-import numpy as np
-
+# ----------------------------------------------------------------------  
+from SUAVE.Core import Data, ContainerOrdered
+from SUAVE.Components import Physical_Component, Lofted_Body  
 
 # ------------------------------------------------------------
 #  Nacalle
@@ -48,25 +43,26 @@ class Nacelle(Lofted_Body):
         None
         """      
         
-        self.tag                   = 'nacelle'
-        self.origin                = [[0.0,0.0,0.0]]
-        self.aerodynamic_center    = [0.0,0.0,0.0] 
-         
-        self.areas                 = Data()
-        self.areas.front_projected = 0.0
-        self.areas.side_projected  = 0.0
-        self.areas.wetted          = 0.0
-         
-        self.diameter              = 0.0 
-        self.lengths               = 0.0  
-        
-        self.x_rotation            = 0.0
-        self.y_rotation            = 0.0
-        self.z_rotation            = 0.0 
-        
-        self.flow_through          = True 
-        self.differential_pressure = 0.0  
-        self.naca_4_series_airfoil = False 
+        self.tag                     = 'nacelle'
+        self.origin                  = [[0.0,0.0,0.0]]
+        self.aerodynamic_center      = [0.0,0.0,0.0] 
+           
+        self.areas                   = Data()
+        self.areas.front_projected   = 0.0
+        self.areas.side_projected    = 0.0
+        self.areas.wetted            = 0.0
+           
+        self.diameter                = 0.0 
+        self.lengths                 = 0.0  
+          
+        self.x_rotation              = 0.0
+        self.y_rotation              = 0.0
+        self.z_rotation              = 0.0 
+          
+        self.flow_through            = True 
+        self.differential_pressure   = 0.0  
+        self.naca_4_series_airfoil   = None # string
+        self.cowling_airfoil_angle   = 0.0
  
         # For VSP
         self.vsp_data                = Data()
@@ -97,34 +93,4 @@ class Nacelle(Lofted_Body):
         # Store data
         self.Segments.append(segment)
 
-        return
-         
-         
-
-class Container(Physical_Component.Container):
-    def get_children(self):
-        """ Returns the components that can go inside
-        
-        Assumptions:
-        None
-    
-        Source:
-        N/A
-    
-        Inputs:
-        None
-    
-        Outputs:
-        None
-    
-        Properties Used:
-        N/A
-        """        
-        
-        return [Nacelle]
-
-# ------------------------------------------------------------
-#  Handle Linking
-# ------------------------------------------------------------
-
-Nacelle.Container = Container         
+        return 
