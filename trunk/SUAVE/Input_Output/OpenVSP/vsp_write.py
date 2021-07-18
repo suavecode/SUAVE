@@ -455,8 +455,7 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
 
     Inputs: 
       nacelle.
-      origin                              [m] in all three dimension, should have as many origins as engines
-      number_of_nacelles                  [-]
+      origin                              [m] in all three dimension, should have as many origins as engines 
       length                              [m]
       diameter                            [m]
       flow_through                        <boolean> if True create a flow through nacelle, if False create a cylinder
@@ -478,7 +477,7 @@ def write_vsp_nacelle(nacelle, OML_set_ind):
     
     # True will create a flow-through subsonic nacelle (which may have dimensional errors)
     # False will create a cylindrical stack (essentially a cylinder)         
-    num_nac     = nacelle.number_of_nacelles 
+    num_nac     = len(nacelle.origin)
     ft_flag     = nacelle.flow_through            
     length      = nacelle.length
     width       = nacelle.width

@@ -74,8 +74,7 @@ def nacelle_Raymer(vehicle, nacelle, WENG):
             vehicle - data dictionary with vehicle properties                        [dimensionless]
                 -.ultimate_load: ultimate load factor of aircraft
             nacelle 
-                - data dictionary for the specific propulsor that is being estimated [dimensionless]
-                -.number_of_nacelles: number of engines
+                - data dictionary for the specific propulsor that is being estimated [dimensionless] 
                 -.lenght: total length of engine                                     [m]
                 -.ndiameter: diameter of nacelle                                     [m]
             WENG    - dry engine weight                                              [kg]
@@ -87,7 +86,7 @@ def nacelle_Raymer(vehicle, nacelle, WENG):
         Properties Used:
             N/A
     """
-    NENG    = nacelle.number_of_nacelle
+    NENG    = len(nacelle.origin)
     Kng     = 1 # assuming the engine is not pylon mounted
     Nlt     = nacelle.length / Units.ft
     Nw      = nacelle.diameter / Units.ft

@@ -36,8 +36,7 @@ def parasite_drag_pylon(state,settings,geometry):
       reynolds_number                                               [Unitless]
     geometry.reference_area                                         [m^2]
     geometry.nacelle.
-      diameter                                                      [m]
-      number_of_nacelles                                            [Unitless]
+      diameter                                                      [m] 
 
     Outputs:
     propulsor_parasite_drag                                         [Unitless]
@@ -50,8 +49,8 @@ def parasite_drag_pylon(state,settings,geometry):
     conditions = state.conditions
     configuration = settings
     
-    pylon_factor        =  0.20 # 20% of propulsor drag
-    n_nacelles          =  len(geometry.nacelle)  # number of propulsive system in vehicle (NOT # of ENGINES)
+    pylon_factor        = 0.20 # 20% of nacelle drag
+    n_nacelles          = len(geometry.nacelles)  # number of propulsive system in vehicle (NOT # of ENGINES)
     pylon_parasite_drag = 0.00
     pylon_wetted_area   = 0.00
     pylon_cf            = 0.00
@@ -62,12 +61,12 @@ def parasite_drag_pylon(state,settings,geometry):
     # Estimating pylon drag
     for nacelle in geometry.nacelles:
         ref_area = nacelle.diameter**2 / 4 * np.pi
-        pylon_parasite_drag += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient* (ref_area/geometry.reference_area * propulsor.number_of_engines)
-        pylon_wetted_area   += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].wetted_area * propulsor.number_of_nacelles
-        pylon_cf            += conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].skin_friction_coefficient
-        pylon_compr_fact    += conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].compressibility_factor
-        pylon_rey_fact      += conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].reynolds_factor
-        pylon_FF            += conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].form_factor
+        pylon_parasite_drag += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].parasite_drag_coefficient* (ref_area/geometry.reference_area * len(nacelle.origin))
+        pylon_wetted_area   += pylon_factor *  conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].wetted_area * len(nacelle.origin)
+        pylon_cf            += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].skin_friction_coefficient
+        pylon_compr_fact    += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].compressibility_factor
+        pylon_rey_fact      += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].reynolds_factor
+        pylon_FF            += conditions.aerodynamics.drag_breakdown.parasite[nacelle.tag].form_factor
         
     pylon_cf            /= n_nacelles       
     pylon_compr_fact    /= n_nacelles

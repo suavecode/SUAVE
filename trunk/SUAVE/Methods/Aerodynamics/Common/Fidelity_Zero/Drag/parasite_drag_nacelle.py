@@ -1,8 +1,9 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
-# parasite_drag_propulsor.py
+# parasite_drag_nacelle.py
 # 
 # Created:  Dec 2013, SUAVE Team
-# Modified: Jan 2016, E. Botero          
+# Modified: Jan 2016, E. Botero     
+#           Jul 2021, M. Clarke
 
 #Sources: Stanford AA241 Course Notes
 #         Raymer: Aircraft Design: A Conceptual Approach
@@ -23,7 +24,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
-def parasite_drag_propulsor(state,settings,nacelle):
+def parasite_drag_nacelle(state,settings,nacelle):
     """Computes the parasite drag due to the propulsor
 
     Assumptions:

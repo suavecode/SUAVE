@@ -38,8 +38,7 @@ def total_prop_flops(vehicle, prop,nacelle):
                 -.systems.accessories: type of aircraft (short-range, commuter
                                                         medium-range, long-range,
                                                         sst, cargo)
-            nacelle - data dictionary with propulsion system properties
-                -.number_of_nacelles: number of engines
+            nacelle - data dictionary with propulsion system properties 
                 -.diameter: diameter of nacelle                                [meters]
                 -.length: length of complete engine assembly                    [meters]
             prop.
@@ -59,7 +58,7 @@ def total_prop_flops(vehicle, prop,nacelle):
         Properties Used:
             N/A
     """
-    NENG        = prop.number_of_engines
+    NENG        = len(nacelle.origin)
     WNAC        = nacelle_FLOPS(prop)
     WFSYS       = fuel_system_FLOPS(vehicle, NENG)
     WENG        = engine_FLOPS(vehicle, prop)
@@ -101,7 +100,7 @@ def nacelle_FLOPS(prop,nacelle):
         Properties Used:
             N/A
     """
-    NENG = nacelle.number_of_nacelles
+    NENG = len(nacelle.origin)
     TNAC = NENG + 1. / 2 * (NENG - 2 * np.floor(NENG / 2.))
     DNAC = nacelle.diameter / Units.ft
     XNAC = nacelle.length / Units.ft
