@@ -81,10 +81,14 @@ def propeller_single_point(energy_network,
                 .tangential_velocity            BEMT V_t Prediction         [m/s]
                 .axial_velocity                 BEMT V_a Prediction         [m/s]
     """
+    # Check if the propellers are identical
+    if not energy_network.identical_propellers:
+        assert('This script only works with identical propellers')
+    
 
     # Unpack Inputs
-
-    prop                        = energy_network.propeller
+    prop_key                    = list(energy_network.propellers.keys())[0]
+    prop                        = energy_network.propellers[prop_key]
     prop.pitch_command          = pitch
     energy_network.propeller    = prop
 

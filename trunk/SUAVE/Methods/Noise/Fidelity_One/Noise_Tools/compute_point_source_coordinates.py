@@ -13,7 +13,7 @@ import numpy as np
 # ---------------------------------------------------------------------
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
-def compute_point_source_coordinates(AoA,thrust_angle,mls,prop_origin):  
+def compute_point_source_coordinates(AoA,prop_orientation,mls,prop_origin):  
     """This calculated the position vector from a point source to the observer 
             
     Assumptions:
@@ -23,13 +23,13 @@ def compute_point_source_coordinates(AoA,thrust_angle,mls,prop_origin):
         N/A  
 
     Inputs:  
-    AoA                   - angle of attack           [rad]
-    thrust_angle          - thrust angle              [rad]
-    mls                   - microphone locations      [m]
-    prop_origin           - propeller/rotor orgin     [m]
+    AoA                   - angle of attack            [rad]
+    prop_orientation      - unit normal vector of prop [float,float,float]
+    mls                   - microphone locations       [m]
+    prop_origin           - propeller/rotor orgin      [m]
 
     Outputs: 
-        position vector   - position vector of points [m]
+        position vector   - position vector of points  [m]
 
     Properties Used:
         N/A       
@@ -39,10 +39,10 @@ def compute_point_source_coordinates(AoA,thrust_angle,mls,prop_origin):
     num_cpt         = len(AoA)
     num_mic         = len(mls[0,:,0])
     num_prop        = len(prop_origin)
-    prop_origin     = np.array(prop_origin) 
+    prop_origin     = np.array(prop_origin)
     
     # [control point, microphone , propeller , 2D geometry matrix ]
-    # rotation of propeller about y axis by thurst angle (one extra dimension for translations)
+    # rotation of propeller about y axis by thrust angle (one extra dimension for translations)
     rotation_1            = np.zeros((num_cpt,num_mic,num_prop,4,4))
     rotation_1[:,:,:,0,0] = np.cos(thrust_angle)           
     rotation_1[:,:,:,0,2] = np.sin(thrust_angle)                 

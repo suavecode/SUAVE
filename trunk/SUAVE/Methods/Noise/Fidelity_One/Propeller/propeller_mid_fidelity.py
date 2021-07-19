@@ -66,7 +66,7 @@ def propeller_mid_fidelity(network,propeller,auc_opts,segment,settings):
     Results = Data()
                      
     # compute position vector of microphones         
-    position_vector = compute_point_source_coordinates(angle_of_attack,auc_opts.thrust_angle,microphone_locations,propeller.origin)  
+    position_vector = compute_point_source_coordinates(angle_of_attack,propeller.orientation,microphone_locations,propeller.origin)  
      
     # Harmonic Noise    
     compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,propeller,auc_opts,settings,Noise)       

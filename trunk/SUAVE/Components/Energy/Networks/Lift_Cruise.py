@@ -405,11 +405,11 @@ class Lift_Cruise(Propulsor):
         """          
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.battery_voltage_under_load        = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.rotor_power_coefficient           = segment.state.unknowns.rotor_power_coefficient
-        segment.state.conditions.propulsion.propeller_power_coefficient       = segment.state.unknowns.propeller_power_coefficient   
-        segment.state.conditions.propulsion.throttle_lift                     = segment.state.unknowns.throttle_lift        
-        segment.state.conditions.propulsion.throttle                          = segment.state.unknowns.throttle
+        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.rotor_power_coefficient     = segment.state.unknowns.rotor_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient   
+        segment.state.conditions.propulsion.throttle_lift               = segment.state.unknowns.throttle_lift        
+        segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
         
         return
     
@@ -444,9 +444,9 @@ class Lift_Cruise(Propulsor):
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
         segment.state.conditions.propulsion.throttle_lift                       = 0.0 * ones(1)
+        segment.state.conditions.propulsion.rotor_power_coefficient             = 0.0 * ones(1)
         segment.state.conditions.propulsion.battery_voltage_under_load          = segment.state.unknowns.battery_voltage_under_load
         segment.state.conditions.propulsion.propeller_power_coefficient         = segment.state.unknowns.propeller_power_coefficient
-        segment.state.conditions.propulsion.rotor_power_coefficient             = 0.0 * ones(1)
         segment.state.conditions.propulsion.throttle                            = segment.state.unknowns.throttle
         
         return    
@@ -482,8 +482,8 @@ class Lift_Cruise(Propulsor):
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
         segment.state.conditions.propulsion.throttle_lift               = segment.state.unknowns.throttle_lift
         segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.propeller_power_coefficient = 0.0 * ones(1)
         segment.state.conditions.propulsion.rotor_power_coefficient     = segment.state.unknowns.rotor_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient = 0.0 * ones(1)
         segment.state.conditions.propulsion.throttle                    = 0.0 * ones(1)
         
         return    
@@ -519,15 +519,14 @@ class Lift_Cruise(Propulsor):
         q_prop_forward    = segment.state.conditions.propulsion.propeller_torque
         q_rotor_motor     = segment.state.conditions.propulsion.rotor_motor_torque
         q_prop_lift       = segment.state.conditions.propulsion.rotor_torque        
-        
-        v_actual        = segment.state.conditions.propulsion.battery_voltage_under_load
-        v_predict       = segment.state.unknowns.battery_voltage_under_load
-        v_max           = self.voltage        
+        v_actual          = segment.state.conditions.propulsion.battery_voltage_under_load
+        v_predict         = segment.state.unknowns.battery_voltage_under_load
+        v_max             = self.voltage
         
         # Return the residuals
-        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])/v_max  
-        segment.state.residuals.network[:,1] = (q_propeller_motor[:,0] - q_prop_forward[:,0])/q_propeller_motor[:,0] 
-        segment.state.residuals.network[:,2] = (q_rotor_motor[:,0] - q_prop_lift[:,0])/q_rotor_motor[:,0]
+        segment.state.residuals.network.voltage    = (v_predict - v_actual)/v_max  
+        segment.state.residuals.network.propellers = (q_propeller_motor - q_prop_forward)/q_propeller_motor
+        segment.state.residuals.network.rotors     = (q_rotor_motor - q_prop_lift)/q_rotor_motor
 
         return
     
@@ -561,14 +560,13 @@ class Lift_Cruise(Propulsor):
         # Here we are going to pack the residuals (torque,voltage) from the network
         q_propeller_motor = segment.state.conditions.propulsion.propeller_motor_torque
         q_prop_forward    = segment.state.conditions.propulsion.propeller_torque   
-        
         v_actual          = segment.state.conditions.propulsion.battery_voltage_under_load
         v_predict         = segment.state.unknowns.battery_voltage_under_load
         v_max             = self.voltage        
         
         # Return the residuals
-        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])/v_max 
-        segment.state.residuals.network[:,1] = (q_propeller_motor[:,0] - q_prop_forward[:,0])/q_propeller_motor[:,0] 
+        segment.state.residuals.network.voltage   = (v_predict - v_actual)/v_max 
+        segment.state.residuals.network.propeller = (q_propeller_motor - q_prop_forward)/q_propeller_motor
 
         return    
     
@@ -607,7 +605,237 @@ class Lift_Cruise(Propulsor):
         v_max           = self.voltage        
         
         # Return the residuals
-        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])/v_max  
-        segment.state.residuals.network[:,1] = (q_rotor_motor[:,0] - q_prop_lift[:,0])/q_rotor_motor[:,0]
+        segment.state.residuals.network = (v_predict - v_actual)/v_max  
+        segment.state.residuals.network = (q_rotor_motor - q_prop_lift)/q_rotor_motor
 
         return
+    
+    
+    def add_transition_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
+                                                         initial_prop_power_coefficient = 0.005,
+                                                         initial_rotor_power_coefficient = 0.005):
+        """ This function sets up the information that the mission needs to run a mission segment using this network
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            segment
+            initial_voltage                   [v]
+            initial_power_coefficient         [float]s
+            
+            Outputs:
+            segment.state.unknowns.battery_voltage_under_load
+            segment.state.unknowns.propeller_power_coefficient
+            segment.state.conditions.propulsion.propeller_motor_torque
+            segment.state.conditions.propulsion.propeller_torque   
+    
+            Properties Used:
+            N/A
+        """           
+        
+        # unpack the ones function
+        ones_row = segment.state.ones_row
+        
+        # unpack the initial values if the user doesn't specify
+        if initial_voltage==None:
+            initial_voltage = self.battery.max_voltage
+        
+        # Count how many unknowns and residuals based on p
+        n_props    = len(self.propellers)
+        n_rotors   = len(self.rotors)
+        n_motors_p = len(self.propeller_motors)
+        n_motors_r = len(self.rotors_motors)
+        n_eng_p    = self.number_of_propeller_engines
+        n_eng_r    = self.number_of_rotor_engines
+
+        
+        if n_props!=n_motors_p!=n_eng_p:
+            assert('The number of propellers is not the same as the number of motors')
+            
+        if n_rotors!=n_motors_r!=n_eng_r:
+            assert('The number of rotors is not the same as the number of motors')
+            
+        # Now check if the props/rotors are all identical, in this case they have the same of residuals and unknowns
+        if self.identical_propellers:
+            n_props = 1
+        else:
+            self.number_of_propeller_engines = int(self.number_of_propeller_engines)
+            
+        if self.identical_rotors:
+            n_rotors = 1
+        else:
+            self.number_of_rotor_engines = int(self.number_of_rotor_engines)
+        
+        # Setup the residuals
+        segment.state.residuals.network.voltage    = 0. * ones_row(1)
+        segment.state.residuals.network.propellers = 0. * ones_row(n_props)
+        segment.state.residuals.network.rotors     = 0. * ones_row(n_rotors)
+        
+        # Setup the unknowns
+        segment.state.unknowns.battery_voltage_under_load  = initial_voltage * ones_row(1)
+        segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)
+        segment.state.unknowns.rotor_power_coefficient     = initial_rotor_power_coefficient * ones_row(n_rotors)
+        
+        # Setup the conditions for the propellers
+        segment.state.conditions.propulsion.propeller_motor_torque  = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_torque        = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_rpm           = 0. * ones_row(n_props)      
+        segment.state.conditions.propulsion.propeller_disc_loading  = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.propeller_power_loading = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_tip_mach      = 0. * ones_row(n_props)
+
+        # Setup the conditions for the rotors
+        segment.state.conditions.propulsion.rotor_motor_torque      = 0. * ones_row(n_rotors)
+        segment.state.conditions.propulsion.rotor_torque            = 0. * ones_row(n_rotors)
+        segment.state.conditions.propulsion.rotor_rpm               = 0. * ones_row(n_rotors)
+        segment.state.conditions.propulsion.rotor_disc_loading      = 0. * ones_row(n_rotors)                 
+        segment.state.conditions.propulsion.rotor_power_loading     = 0. * ones_row(n_rotors)        
+        segment.state.conditions.propulsion.rotor_tip_mach          = 0. * ones_row(n_rotors)
+        
+        # Ensure the mission knows how to pack and unpack the unknowns and residuals
+        segment.process.iterate.unknowns.network  = self.unpack_unknowns_transition
+        segment.process.iterate.residuals.network = self.residuals_transition      
+
+        return segment
+    
+    
+    def add_cruise_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
+                                                         initial_prop_power_coefficient = 0.005):
+        """ This function sets up the information that the mission needs to run a mission segment using this network
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            segment
+            initial_voltage                   [v]
+            initial_power_coefficient         [float]s
+            
+            Outputs:
+            segment.state.unknowns.battery_voltage_under_load
+            segment.state.unknowns.propeller_power_coefficient
+            segment.state.conditions.propulsion.propeller_motor_torque
+            segment.state.conditions.propulsion.propeller_torque   
+    
+            Properties Used:
+            N/A
+        """           
+        
+        # unpack the ones function
+        ones_row = segment.state.ones_row
+        
+        # unpack the initial values if the user doesn't specify
+        if initial_voltage==None:
+            initial_voltage = self.battery.max_voltage
+        
+        # Count how many unknowns and residuals based on p
+        n_props    = len(self.propellers)
+        n_motors_p = len(self.propeller_motors)
+        n_eng_p    = self.number_of_propeller_engines
+        
+        if n_props!=n_motors_p!=n_eng_p:
+            assert('The number of propellers is not the same as the number of motors')
+            
+        # Now check if the propellers are all identical, in this case they have the same of residuals and unknowns
+        if self.identical_propellers:
+            n_props = 1
+        else:
+            self.number_of_propeller_engines = int(self.number_of_propeller_engines)
+        
+        # Setup the residuals
+        segment.state.residuals.network.voltage    = 0. * ones_row(1)
+        segment.state.residuals.network.propellers = 0. * ones_row(n_props)
+        
+        # Setup the unknowns
+        segment.state.unknowns.battery_voltage_under_load  = initial_voltage * ones_row(1)
+        segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient * ones_row(n_props)
+        
+        # Setup the conditions for the propellers
+        segment.state.conditions.propulsion.propeller_motor_torque  = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_torque        = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_rpm           = 0. * ones_row(n_props)      
+        segment.state.conditions.propulsion.propeller_disc_loading  = 0. * ones_row(n_props)                 
+        segment.state.conditions.propulsion.propeller_power_loading = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_tip_mach      = 0. * ones_row(n_props)
+
+        # Ensure the mission knows how to pack and unpack the unknowns and residuals
+        segment.process.iterate.unknowns.network  = self.unpack_unknowns_cruise
+        segment.process.iterate.residuals.network = self.residuals_cruise     
+
+        return segment
+    
+    
+    def add_lift_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None,
+                                                         initial_rotor_power_coefficient = 0.005):
+        """ This function sets up the information that the mission needs to run a mission segment using this network
+    
+            Assumptions:
+            None
+    
+            Source:
+            N/A
+    
+            Inputs:
+            segment
+            initial_voltage                   [v]
+            initial_power_coefficient         [float]s
+            
+            Outputs:
+            segment.state.unknowns.battery_voltage_under_load
+            segment.state.unknowns.propeller_power_coefficient
+            segment.state.conditions.propulsion.propeller_motor_torque
+            segment.state.conditions.propulsion.propeller_torque   
+    
+            Properties Used:
+            N/A
+        """           
+        
+        # unpack the ones function
+        ones_row = segment.state.ones_row
+        
+        # unpack the initial values if the user doesn't specify
+        if initial_voltage==None:
+            initial_voltage = self.battery.max_voltage
+        
+        # Count how many unknowns and residuals based on p
+        n_rotors   = len(self.rotors)
+        n_motors_r = len(self.rotors_motors)
+        n_eng_r    = self.number_of_rotor_engines
+
+        if n_rotors!=n_motors_r!=n_eng_r:
+            assert('The number of rotors is not the same as the number of motors')
+            
+        # Now check if the rotors are all identical, in this case they have the same of residuals and unknowns
+        if self.identical_rotors:
+            n_rotors = 1
+        else:
+            self.number_of_rotor_engines = int(self.number_of_rotor_engines)
+        
+        # Setup the residuals
+        segment.state.residuals.network.voltage    = 0. * ones_row(1)
+        segment.state.residuals.network.rotors     = 0. * ones_row(n_rotors)
+        
+        # Setup the unknowns
+        segment.state.unknowns.battery_voltage_under_load  = initial_voltage * ones_row(1)
+        segment.state.unknowns.rotor_power_coefficient     = initial_rotor_power_coefficient * ones_row(n_rotors)
+
+        # Setup the conditions for the rotors
+        segment.state.conditions.propulsion.rotor_motor_torque      = 0. * ones_row(n_rotors)
+        segment.state.conditions.propulsion.rotor_torque            = 0. * ones_row(n_rotors)
+        segment.state.conditions.propulsion.rotor_rpm               = 0. * ones_row(n_rotors)
+        segment.state.conditions.propulsion.rotor_disc_loading      = 0. * ones_row(n_rotors)                 
+        segment.state.conditions.propulsion.rotor_power_loading     = 0. * ones_row(n_rotors)        
+        segment.state.conditions.propulsion.rotor_tip_mach          = 0. * ones_row(n_rotors)
+        
+        # Ensure the mission knows how to pack and unpack the unknowns and residuals
+        segment.process.iterate.unknowns.network  = self.unpack_unknowns_lift
+        segment.process.iterate.residuals.network = self.residuals_lift 
+
+        return segment    
