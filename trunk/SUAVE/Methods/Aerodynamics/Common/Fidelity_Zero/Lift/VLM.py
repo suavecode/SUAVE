@@ -110,8 +110,8 @@ def VLM(conditions,settings,geometry):
     Sref       = geometry.reference_area  
     
     #div by 0 safeguard
-    unsafe = (conditions.freestream.velocity == 0)
-    conditions.freestream.velocity[unsafe] = 0.00000000001
+    if not conditions.freestream.velocity.all():
+        raise AssertionError('VLM requires that freestream velocity be provided')
 
     # define point about which moment coefficient is computed
     if 'main_wing' in geometry.wings:
