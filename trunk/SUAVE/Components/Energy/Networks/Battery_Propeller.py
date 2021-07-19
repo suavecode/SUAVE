@@ -5,6 +5,7 @@
 # Modified: Feb 2016, T. MacDonald
 #           Mar 2020, M. Clarke
 #           Apr 2021, M. Clarke
+#           Jul 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -203,8 +204,8 @@ class Battery_Propeller(Propulsor):
         avionics_payload_current = avionics_payload_power/self.voltage
 
         # link
-        battery.inputs.current  = esc.outputs.currentin*num_engines + avionics_payload_current
-        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin*num_engines + avionics_payload_power)
+        battery.inputs.current  = esc.outputs.currentin + avionics_payload_current
+        battery.inputs.power_in = -(esc.outputs.voltageout*esc.outputs.currentin + avionics_payload_power)
         battery.energy_calc(numerics)        
     
         # Pack the conditions for outputs

@@ -16,6 +16,7 @@ import SUAVE
 import numpy as np
 from SUAVE.Core import Units, Data
 from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Components.Physical_Component import Container
 
 # ----------------------------------------------------------------------
 #  Lift_Forward
@@ -59,10 +60,10 @@ class Lift_Cruise(Propulsor):
             Properties Used:
             N/A
         """             
-        self.rotor_motor                 = None
-        self.propeller_motor             = None
-        self.rotor                       = None
-        self.propeller                   = None
+        self.rotor_motors                = Container()
+        self.propeller_motors            = Container()
+        self.rotors                      = Container()
+        self.propellers                  = Container()
         self.rotor_esc                   = None
         self.propeller_esc               = None
         self.avionics                    = None
@@ -75,12 +76,12 @@ class Lift_Cruise(Propulsor):
         self.number_of_rotor_engines     = None
         self.number_of_propeller_engines = None
         self.voltage                     = None
-        self.propeller_thrust_angle      = 0.0
         self.propeller_pitch_command     = 0.0 
-        self.rotor_thrust_angle          = 0.0
         self.rotor_pitch_command         = 0.0     
         self.tag                         = 'Lift_Cruise'
-        self.generative_design_minimum   = 0        
+        self.generative_design_minimum   = 0
+        self.identical_propellers        = True
+        self.identical_rotors            = True
         pass
         
     def evaluate_thrust(self,state):
@@ -117,19 +118,19 @@ class Lift_Cruise(Propulsor):
         """          
         
         # unpack
-        conditions        = state.conditions
-        numerics          = state.numerics
-        rotor_motor       = self.rotor_motor 
-        propeller_motor   = self.propeller_motor
-        rotor             = self.rotor 
-        propeller         = self.propeller
-        rotor_esc         = self.rotor_esc
-        propeller_esc     = self.propeller_esc        
-        avionics          = self.avionics
-        payload           = self.payload
-        battery           = self.battery
-        num_lift          = self.number_of_rotor_engines
-        num_forward       = self.number_of_propeller_engines
+        conditions       = state.conditions
+        numerics         = state.numerics
+        rotor_motors     = self.rotor_motors
+        propeller_motors = self.propeller_motors
+        rotors           = self.rotors
+        propellers       = self.propellers
+        rotor_esc        = self.rotor_esc
+        propeller_esc    = self.propeller_esc        
+        avionics         = self.avionics
+        payload          = self.payload
+        battery          = self.battery
+        num_lift         = self.number_of_rotor_engines
+        num_forward      = self.number_of_propeller_engines
         
         #-----------------------------------------------------------------
         # SETUP BATTERIES AND ESC's
@@ -151,34 +152,56 @@ class Lift_Cruise(Propulsor):
         # Throttle the voltage
         propeller_esc.voltageout(conditions) 
         
-        # link
-        propeller_motor.inputs.voltage = propeller_esc.outputs.voltageout
+        # How many evaluations to do
+        if self.identical_propellers:
+            n_evals = 1
+            factor  = num_forward*1
+        else:
+            n_evals = int(num_forward)
+            factor  = 1.
         
-        # Run the motor
-        propeller_motor.omega(conditions)
+        # Setup numbers for iteration
+        total_prop_motor_current = 0.
+        total_prop_thrust        = 0. * state.ones_row(3)
+        total_prop_power         = 0.
         
-        # link
-        propeller.inputs.omega  = propeller_motor.outputs.omega
-        propeller.thrust_angle  = self.propeller_thrust_angle  
-        propeller.pitch_command = self.propeller_pitch_command 
-        
-        # Run the propeller
-        F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = propeller.spin(conditions)
-
-        # Link
-        propeller.outputs = outputs_forward
+        # Iterate over motor/props
+        for ii in range(n_evals):    
             
-
-        # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
-        eta = conditions.propulsion.throttle[:,0,None]
-        P_forward[eta>1.0] = P_forward[eta>1.0]*eta[eta>1.0]
-        F_forward[eta>1.0] = F_forward[eta>1.0]*eta[eta>1.0]        
+            # Unpack the motor and props
+            motor_key = list(propeller_motors.keys())[ii]
+            prop_key  = list(propellers.keys())[ii]
+            motor     = self.propeller_motors[motor_key]
+            prop      = self.propellers[prop_key]            
         
-        # Run the motor for current
-        i, etam_forward = propeller_motor.current(conditions)  
-        
-        # Fix the current for the throttle cap
-        propeller_motor.outputs.current[eta>1.0] = propeller_motor.outputs.current[eta>1.0]*eta[eta>1.0]
+            # link
+            motor.inputs.voltage = propeller_esc.outputs.voltageout
+            
+            # Run the motor
+            motor.omega(conditions)
+            
+            # link
+            propeller.inputs.omega  = propeller_motor.outputs.omega
+            propeller.thrust_angle  = self.propeller_thrust_angle  
+            propeller.pitch_command = self.propeller_pitch_command 
+            
+            # Run the propeller
+            F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = propeller.spin(conditions)
+    
+            # Link
+            propeller.outputs = outputs_forward
+                
+    
+            # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
+            eta = conditions.propulsion.throttle[:,0,None]
+            P_forward[eta>1.0] = P_forward[eta>1.0]*eta[eta>1.0]
+            F_forward[eta>1.0] = F_forward[eta>1.0]*eta[eta>1.0]        
+            
+            # Run the motor for current
+            i, etam_forward = propeller_motor.current(conditions)  
+            
+            # Fix the current for the throttle cap
+            propeller_motor.outputs.current[eta>1.0] = propeller_motor.outputs.current[eta>1.0]*eta[eta>1.0]
         
         # link
         propeller_esc.inputs.currentout =  propeller_motor.outputs.current 
@@ -391,7 +414,7 @@ class Lift_Cruise(Propulsor):
         return
     
     
-    def unpack_unknowns_no_lift(self,segment):
+    def unpack_unknowns_cruise(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
             This uses only the forward motors and turns the rest off.
     
@@ -428,7 +451,7 @@ class Lift_Cruise(Propulsor):
         
         return    
     
-    def unpack_unknowns_no_forward(self,segment):
+    def unpack_unknowns_lift(self,segment):
         """ This is an extra set of unknowns which are unpacked from the mission solver and send to the network.
             This uses only the lift motors.
     
@@ -502,14 +525,14 @@ class Lift_Cruise(Propulsor):
         v_max           = self.voltage        
         
         # Return the residuals
-        segment.state.residuals.network[:,0] = (q_propeller_motor[:,0] - q_prop_forward[:,0])/q_propeller_motor[:,0] 
-        segment.state.residuals.network[:,1] = (q_rotor_motor[:,0] - q_prop_lift[:,0])/q_rotor_motor[:,0]
-        segment.state.residuals.network[:,2] = (v_predict[:,0] - v_actual[:,0])/v_max  
+        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])/v_max  
+        segment.state.residuals.network[:,1] = (q_propeller_motor[:,0] - q_prop_forward[:,0])/q_propeller_motor[:,0] 
+        segment.state.residuals.network[:,2] = (q_rotor_motor[:,0] - q_prop_lift[:,0])/q_rotor_motor[:,0]
 
         return
     
     
-    def residuals_no_lift(self,segment):
+    def residuals_cruise(self,segment):
         """ This packs the residuals to be send to the mission solver.
             Use this if only the forward motors are operational
     
@@ -544,11 +567,12 @@ class Lift_Cruise(Propulsor):
         v_max             = self.voltage        
         
         # Return the residuals
-        segment.state.residuals.network[:,0] = (q_propeller_motor[:,0] - q_prop_forward[:,0])/q_propeller_motor[:,0] 
-        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max 
+        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])/v_max 
+        segment.state.residuals.network[:,1] = (q_propeller_motor[:,0] - q_prop_forward[:,0])/q_propeller_motor[:,0] 
+
         return    
     
-    def residuals_no_forward(self,segment):
+    def residuals_lift(self,segment):
         """ This packs the residuals to be send to the mission solver.
             Only the lift motors are operational
     
@@ -583,6 +607,7 @@ class Lift_Cruise(Propulsor):
         v_max           = self.voltage        
         
         # Return the residuals
-        segment.state.residuals.network[:,0] = (q_rotor_motor[:,0] - q_prop_lift[:,0])/q_rotor_motor[:,0]
-        segment.state.residuals.network[:,1] = (v_predict[:,0] - v_actual[:,0])/v_max  
+        segment.state.residuals.network[:,0] = (v_predict[:,0] - v_actual[:,0])/v_max  
+        segment.state.residuals.network[:,1] = (q_rotor_motor[:,0] - q_prop_lift[:,0])/q_rotor_motor[:,0]
+
         return

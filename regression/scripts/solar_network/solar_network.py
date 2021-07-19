@@ -62,7 +62,7 @@ def main():
     #save_results(results)
     old_results = load_results()   
 
-    # plt the old results
+    ## plt the old results
     plot_mission(results)
     plot_mission(old_results,'k-') 
     
@@ -184,13 +184,8 @@ def mission_setup(analyses,vehicle):
     Segments = SUAVE.Analyses.Mission.Segments
     
     # base segment
-    base_segment = Segments.Segment()   
-    ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
+    base_segment = Segments.Segment()
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/20.
-    base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
@@ -211,6 +206,8 @@ def mission_setup(analyses,vehicle):
     segment.battery_energy = vehicle.propulsors.solar.battery.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
+    segment = vehicle.propulsors.solar.add_unknowns_and_residuals_to_segment(segment,initial_power_coefficient = 0.05)    
+    
     
     mission.append_segment(segment)    
 
