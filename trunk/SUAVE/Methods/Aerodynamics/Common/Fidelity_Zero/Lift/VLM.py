@@ -77,6 +77,7 @@ def VLM(conditions,settings,geometry):
     settings.propeller_wake_model              [Unitless]
     settings.discretize_control_surfaces       [Boolean] -- set to True to generate control surface panels
     settings.use_VORLAX_matrix_calculation     [boolean]
+    settings.use_float64                       [boolean]
        
     conditions.aerodynamics.angle_of_attack    [radians]
     conditions.aerodynamics.side_slip_angle    [radians]
@@ -492,6 +493,8 @@ def VLM(conditions,settings,geometry):
     # ---------------------------------------------------------------------------------------
     # STEP 12: Pack outputs
     # ------------------ --------------------------------------------------------------------     
+    precision      = np.float32 if not settings.use_float64 else np.float64
+    
     #VORLAX _TOT outputs
     results = Data()
     results.CL         =  CL         
@@ -509,8 +512,8 @@ def VLM(conditions,settings,geometry):
     results.cl_y       =  cl_y     
     results.cdi_y      =  cdi_y     
     results.alpha_i    =  alpha_i  
-    results.CP         =  CP
-    results.gamma      =  GAMMA
+    results.CP         =  np.array(CP    , dtype=precision)
+    results.gamma      =  np.array(GAMMA , dtype=precision)
     
     #append inputs
     results.conditions = conditions

@@ -84,6 +84,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.number_of_wake_timesteps        = 30
         self.settings.discretize_control_surfaces     = False
         self.settings.use_VORLAX_matrix_calculation   = False
+        self.settings.use_float64                     = False
 
         # conditions table, used for surrogate model training
         self.training                                = Data()
