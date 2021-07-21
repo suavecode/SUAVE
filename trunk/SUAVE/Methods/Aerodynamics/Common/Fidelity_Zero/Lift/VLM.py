@@ -511,7 +511,7 @@ def VLM(conditions,settings,geometry):
     CYMTOT   = CNTOT/w_span*(-1)                         # an output in VORLAG.LOG
 
     # ---------------------------------------------------------------------------------------
-    # STEP 12: Pack outputs
+    # STEP 13: Pack outputs
     # ------------------ --------------------------------------------------------------------     
     precision      = np.float32 if not settings.use_float64 else np.float64
     
