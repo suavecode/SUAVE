@@ -112,16 +112,13 @@ def VLM(conditions,settings,geometry):
     
     #freestream 0 velocity safeguard
     if not conditions.freestream.velocity.all():
-        print('VLM requires that conditions.freestream.velocity be provided')
-        print('CONVERTING MACH TO VELOCITY AT SEA LEVEL SPEED OF SOUND')
-        from SUAVE.Analyses.Atmospheric import US_Standard_1976
-        atmosphere                     = US_Standard_1976()
-        speed_of_sound                 = atmosphere.compute_values(0).speed_of_sound.flatten()
-        
-        velocity                       = conditions.freestream.velocity
-        velocity[velocity==0]          = conditions.freestream.mach_number[velocity==0] * speed_of_sound
-        velocity[velocity==0]          = np.ones(len(velocity[velocity==0])) * 1e-6
-        conditions.freestream.velocity = velocity
+        if settings.use_surrogate:
+            velocity                       = conditions.freestream.velocity
+            velocity[velocity==0]          = np.ones(len(velocity[velocity==0])) * 1e-6
+            conditions.freestream.velocity = velocity
+        else:
+            raise AssertionError("VLM requires that conditions.freestream.velocity be specified and non-zero")
+            
 
     # define point about which moment coefficient is computed
     if 'main_wing' in geometry.wings:
