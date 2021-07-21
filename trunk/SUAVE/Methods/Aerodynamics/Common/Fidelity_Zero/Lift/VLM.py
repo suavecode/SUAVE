@@ -3,7 +3,7 @@
 # 
 # Created:  Oct 2020, E. Botero
 # Modified: May 2021, E. Botero   
-#           Jun 2021, A. Blaufox     
+#           Jul 2021, A. Blaufox     
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -24,13 +24,24 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients.
     
+    The user has the option to discretize control surfaces using the boolean settings.discretize_control_surfaces.
+    The user should be forwarned that this will cause very slight differences in results for 0 deflection due to
+    the slightly different discretization.
+    
     The user has the option to use the boundary conditions and induced velocities from either SUAVE
     or VORLAX. See build_RHS in compute_RHS_matrix.py for mor details.
+    
+    By default, VLM performs calculations based on panel coordinates with float32 precision. The user
+    may choose to use float64, but be warned that using VLM in this way can be memory intensive.
 
+    
     Assumptions:
     The user provides either global discretezation (number_spanwise/chordwise_vortices) or
     separate discretization (wing/fuselage_spanwise/chordwise_vortices) in settings, not both.
     The set of settings not being used should be set to None.
+    
+    The VLM requires that the user provide a non-zero velocity that matches mach number. For
+    surrogate training cases at mach 0, VLM uses a velocity of 1e-6 m/s
 
     Source:
     1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
@@ -87,15 +98,16 @@ def VLM(conditions,settings,geometry):
     conditions.stability.dynamic.roll_rate     [radians/s]
     conditions.stability.dynamic.yaw_rate      [radians/s]
        
-    Outputs:                                   
-    CL                                         [Unitless]
-    Cl                                         [Unitless]
-    CDi                                        [Unitless]
-    Cdi                                        [Unitless]
-    CM                                         [Unitless]
-    CP                                         [Unitless]
-    CRMTOT                                     [Unitless]
-    CYMTOT                                     [Unitless]
+    Outputs:    
+    results.
+        CL                                     [Unitless]
+        Cl                                     [Unitless]
+        CDi                                    [Unitless]
+        Cdi                                    [Unitless]
+        CM                                     [Unitless]
+        CP                                     [Unitless]
+        CRMTOT                                 [Unitless]
+        CYMTOT                                 [Unitless]
 
     Properties Used:
     N/A
@@ -170,7 +182,9 @@ def VLM(conditions,settings,geometry):
     LE_ind       = VD.leading_edge_indices
     ZETA         = VD.tangent_incidence_angle
     RK           = VD.chordwise_panel_number
+    
     exposed_leading_edge_flag = VD.exposed_leading_edge_flag
+    
     YAH = VD.YAH*1.
     ZAH = VD.ZAH
     ZBH = VD.ZBH    
@@ -465,14 +479,14 @@ def VLM(conditions,settings,geometry):
     BMZ    = BMLE * SID - BFX * Y + BFY * (X - XBAR)
     CDC    = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) * COSALF
     CDC    = CDC * CHORD_strip
-    CMTC   = BMLE + CNC * (0.25 - XLE[LE_ind]) #doesn't affect coefficients, but is in VORLAX
+    #CMTC   = BMLE + CNC * (0.25 - XLE[LE_ind]) #doesn't affect coefficients, but is in VORLAX
 
     ES     = 2*s[0,LE_ind]
     STRIP  = ES *CHORD_strip
     LIFT   = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
     DRAG   = CDC*ES 
     MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)  
-    FN     = CNC *ES                    #doesn't affect coefficients, but is in VORLAX
+    #FN     = CNC *ES                    #doesn't affect coefficients, but is in VORLAX
     FY     = (BFY *COPSI - BFX *SINPSI) *STRIP
     RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF *SINPSI + BMZ *SINALF)
     YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)

@@ -18,6 +18,9 @@ def compute_wing_induced_velocity(VD,mach,computed_in_VLM=False):
 
     Assumptions: 
     Trailing vortex legs infinity are alligned to freestream
+    
+    VORLAX's EW only ever needs to be calculated for VLM to match up with VORLAX's boundary
+    conditions.
 
     Source:  
     1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
