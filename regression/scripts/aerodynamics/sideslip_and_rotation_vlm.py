@@ -118,6 +118,7 @@ def load_results():
     return SUAVE.Input_Output.SUAVE.load('sideslip_and_rotation_vlm_results.res')
 
 def save_results(results):
+    print('!####! SAVING NEW REGRESSION RESULTS !####!')
     SUAVE.Input_Output.SUAVE.archive(results,'sideslip_and_rotation_vlm_results.res')
     return
 

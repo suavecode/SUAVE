@@ -277,6 +277,9 @@ def save_results(results, SAVE=False):
         SUAVE.Input_Output.SUAVE.archive(results,regression_results_filename())        
     return
 
+# ----------------------------------------------------------------------
+#   Call Main
+# ----------------------------------------------------------------------
 if __name__ == '__main__':
 
     main()

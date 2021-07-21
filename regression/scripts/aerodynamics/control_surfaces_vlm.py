@@ -139,6 +139,7 @@ def load_results():
     return SUAVE.Input_Output.SUAVE.load('control_surfaces_vlm_results.res')
 
 def save_results(results):
+    print('!####! SAVING NEW REGRESSION RESULTS !####!')
     SUAVE.Input_Output.SUAVE.archive(results,'control_surfaces_vlm_results.res')
     return
 
