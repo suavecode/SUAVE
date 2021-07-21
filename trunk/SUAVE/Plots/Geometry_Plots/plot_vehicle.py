@@ -418,7 +418,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
                            [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]) 
             trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
             
-            # roation about y to orient propeller/rotor to thrust angle 
+            # rotation about y to orient propeller/rotor to thrust angle 
             trans_3 = np.array([[np.cos(ta),0 , -np.sin(ta)],
                            [0 ,  1 , 0] ,
                            [np.sin(ta) , 0 , np.cos(ta)]])

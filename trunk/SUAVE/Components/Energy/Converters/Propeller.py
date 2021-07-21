@@ -15,10 +15,11 @@
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data
 from SUAVE.Methods.Geometry.Three_Dimensional \
-     import  orientation_product, orientation_transpose
+     import orientation_product, orientation_transpose
 
 # package imports
 import numpy as np
+import scipy as sp
 
 # ----------------------------------------------------------------------
 #  Propeller Class
@@ -185,6 +186,7 @@ class Propeller(Energy_Component):
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
+        rot_matrix      = self.rotation_matrix()
         body2thrust     = np.array([ori,[0., 1., 0.], [-ori[2], ori[1], ori[0]]])
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
         V_thrust        = orientation_product(T_body2thrust,V_body) 
@@ -527,6 +529,42 @@ class Propeller(Energy_Component):
             ) 
     
         return thrust_vector, torque, power, Cp, outputs , etap
+    
+    
+    def rotation_matrix(self):
+        """This function returns the rotation matrix of the propeller using orientation
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """ 
+        # Unpack
+        orientation = self.orientation
+        
+        # make sure it's actually a unit vector
+        orientation = orientation/np.linalg.norm(orientation)
+        
+        alpha = np.arccos(orientation[0])
+        beta  = np.arccos(orientation[1])
+        gamma = np.arccos(orientation[2])
+        
+        rotations = np.atleast_2d([gamma,beta,alpha])
+        
+        r = sp.spatial.transform.Rotation.from_rotvec(rotations)
+        rot_mat = r.as_matrix()
+
+        return rot_mat
 
 
 def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis):
