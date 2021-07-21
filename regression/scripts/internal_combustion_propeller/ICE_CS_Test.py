@@ -46,11 +46,13 @@ def main():
     # evaluate
     results = mission.evaluate()
     
-    P_truth     = 114305.16935834507
-    mdot_truth  = 0.01004311386492617
+    P_truth     = 114296.12784606258
+    mdot_truth  = 0.0100423194569578
     
     P    = results.segments.cruise.state.conditions.propulsion.power[-1,0]
     mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]
+    #print(P)    # for easy regression reset
+    #print(mdot)     
 
     # Check the errors
     error = Data()
