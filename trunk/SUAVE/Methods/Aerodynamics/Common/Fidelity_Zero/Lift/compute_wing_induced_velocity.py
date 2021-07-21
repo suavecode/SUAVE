@@ -13,7 +13,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_wing_induced_velocity(VD,mach):
+def compute_wing_induced_velocity(VD,mach,computed_in_VLM=False):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
     Assumptions: 
@@ -196,13 +196,20 @@ def compute_wing_induced_velocity(VD,mach):
     # Rotate into the vehicle frame and pack into a velocity matrix
     C_mn = np.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
     
-    # Calculate the W velocity in the VORLAX frame for later calcs
-    # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
-    COS1   = np.cos(DL.T - DL)
-    SIN1   = np.sin(DL.T - DL) 
-    WEIGHT = 1
     
-    EW = (W*COS1-V*SIN1)*WEIGHT
+    if computed_in_VLM == True:
+        # Calculate the W velocity in the VORLAX frame for later calcs
+        # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
+        COS1   = np.cos(DL.T - DL)
+        SIN1   = np.sin(DL.T - DL) 
+        WEIGHT = 1
+        
+        EW = (W*COS1-V*SIN1)*WEIGHT
+    else:
+        # Assume and warn that this function is being used outside of VLM, EW is not needed
+        print('NOTE: compute_wing_induced_velocity is being used outside of VLM.')
+        EW = np.nan
+        
 
     return C_mn, s, RFLAG, EW
     

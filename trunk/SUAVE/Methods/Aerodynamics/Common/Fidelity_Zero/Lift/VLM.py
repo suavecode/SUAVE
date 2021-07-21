@@ -110,9 +110,18 @@ def VLM(conditions,settings,geometry):
     K_SPC      = settings.leading_edge_suction_multiplier
     Sref       = geometry.reference_area  
     
-    #div by 0 safeguard
+    #freestream 0 velocity safeguard
     if not conditions.freestream.velocity.all():
-        raise AssertionError('VLM requires that freestream velocity be provided')
+        print('VLM requires that conditions.freestream.velocity be provided')
+        print('CONVERTING MACH TO VELOCITY AT SEA LEVEL SPEED OF SOUND')
+        from SUAVE.Analyses.Atmospheric import US_Standard_1976
+        atmosphere                     = US_Standard_1976()
+        speed_of_sound                 = atmosphere.compute_values(0).speed_of_sound.flatten()
+        
+        velocity                       = conditions.freestream.velocity
+        velocity[velocity==0]          = conditions.freestream.mach_number[velocity==0] * speed_of_sound
+        velocity[velocity==0]          = np.ones(len(velocity[velocity==0])) * 1e-6
+        conditions.freestream.velocity = velocity
 
     # define point about which moment coefficient is computed
     if 'main_wing' in geometry.wings:
@@ -230,7 +239,7 @@ def VLM(conditions,settings,geometry):
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = np.unique(mach,return_inverse=True)
     m_unique      = np.atleast_2d(m_unique).T
-    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique)
+    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique,computed_in_VLM=True)
     
     C_mn  = C_mn_small[inv,:,:,:]
     RFLAG = RFLAG_small[inv,:]
