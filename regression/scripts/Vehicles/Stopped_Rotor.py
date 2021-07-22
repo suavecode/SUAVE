@@ -504,7 +504,9 @@ def vehicle_setup():
     Cd             = Cd0 + Cdi                              # total drag
     V_inf          = 110.* Units['mph']                     # freestream velocity 
     Drag           = S * (0.5*rho*V_inf**2 )*Cd             # cruise drag
-    Hover_Load     = vehicle.mass_properties.takeoff*g      # hover load  
+    Hover_Load     = vehicle.mass_properties.takeoff*g      # hover load 
+    net.identical_propellers = True
+    net.identical_rotors     = True
 
     # Thrust Propeller                          
     propeller                        = SUAVE.Components.Energy.Converters.Propeller() 
@@ -529,7 +531,7 @@ def vehicle_setup():
     propeller.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     propeller                        = propeller_design(propeller)   
     propeller.origin                 = [[16.*0.3048 , 0. ,2.02*0.3048 ]]   
-    net.propeller                    = propeller
+    net.propellers.append(propeller)
                                      
     # Lift Rotors                                  
     rotor                            = SUAVE.Components.Energy.Converters.Rotor() 
@@ -557,16 +559,24 @@ def vehicle_setup():
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
     rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
-    rotor                            = propeller_design(rotor)          
-    rotor.rotation                   = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
-    rotor.origin                     = [[0.543,  1.63  , -0.126] ,[0.543, -1.63  ,  -0.126 ] ,
-                                        [3.843,  1.63  , -0.126] ,[3.843, -1.63  ,  -0.126] ,
-                                        [0.543,  2.826 , -0.126] ,[0.543, -2.826 ,  -0.126 ] ,
-                                        [3.843,  2.826 , -0.126] ,[3.843, -2.826 ,  -0.126] ,
-                                        [0.543,  4.022 , -0.126] ,[0.543, -4.022 ,  -0.126 ] ,
-                                        [3.843,  4.022 , -0.126] ,[3.843, -4.022 ,  -0.126 ]]
-    rotor.symmetric                  = True
-    net.number_of_rotor_engines      = 12
+    rotor                            = propeller_design(rotor)
+    
+    rotations = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
+    origins   = [[0.543,  1.63  , -0.126] ,[0.543, -1.63  ,  -0.126],
+                 [3.843,  1.63  , -0.126] ,[3.843, -1.63  ,  -0.126],
+                 [0.543,  2.826 , -0.126] ,[0.543, -2.826 ,  -0.126],
+                 [3.843,  2.826 , -0.126] ,[3.843, -2.826 ,  -0.126],
+                 [0.543,  4.022 , -0.126] ,[0.543, -4.022 ,  -0.126],
+                 [3.843,  4.022 , -0.126] ,[3.843, -4.022 ,  -0.126]]
+    
+    for ii in range(12):
+        rotor          = deepcopy(rotor)
+        rotor.tag      = 'rotor'
+        rotor.rotation = rotations[ii]
+        rotor.origin   = [origins[ii]]
+        net.rotors.append(rotor)
+        
+    net.number_of_rotor_engines = 12
 
     # append propellers to vehicle     
     net.rotor = rotor
@@ -583,7 +593,7 @@ def vehicle_setup():
     propeller_motor.propeller_radius     = propeller.tip_radius      
     propeller_motor.no_load_current      = 2.0  
     propeller_motor                      = size_optimal_motor(propeller_motor,propeller)
-    net.propeller_motor                  = propeller_motor
+    net.propeller_motors.append(propeller_motor)
 
     # Rotor (Lift) Motor                        
     rotor_motor                         = SUAVE.Components.Energy.Converters.Motor()
@@ -595,7 +605,12 @@ def vehicle_setup():
     rotor_motor.gearbox_efficiency      = 1.0 
     rotor_motor.no_load_current         = 4.0   
     rotor_motor                         = size_optimal_motor(rotor_motor,rotor)
-    net.rotor_motor                     = rotor_motor  
+
+    for _ in range(12):
+        rotor_motor = deepcopy(rotor_motor)
+        rotor_motor.tag = 'motor'
+        net.rotor_motors.append(rotor_motor)
+
 
     # append motor origin spanwise locations onto wing data structure 
     vehicle.append_component(net)

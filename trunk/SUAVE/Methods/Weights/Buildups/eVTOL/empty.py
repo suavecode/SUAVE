@@ -269,7 +269,8 @@ def empty(config,
             rotor_mass     = prop(propulsor.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg
             output.rotors += nLiftProps * rotor_mass
             if isinstance(propulsor, Lift_Cruise):
-                output.rotor_motors  += nLiftProps * propulsor.rotor_motor.mass_properties.mass
+                for rotor_motor in propulsor.rotor_motors:
+                    output.rotor_motors  += rotor_motor.mass_properties.mass
             else:                                  
                 output.rotor_motors  += nLiftProps * propulsor.motor.mass_properties.mass
             propulsor.rotor.mass_properties.mass = rotor_mass + hub_weight + servo_weight

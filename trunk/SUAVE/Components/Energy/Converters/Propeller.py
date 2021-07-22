@@ -71,7 +71,7 @@ class Propeller(Energy_Component):
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
-        self.rotation                  = [1]       # counter-clockwise rotation as viewed from the front of the aircraft
+        self.rotation                  = 1         # counter-clockwise rotation as viewed from the front of the aircraft
         self.orientation_euler_angles  = [0.,0.,0] #s This is X-direction thrust
         self.ducted                    = False         
         self.number_azimuthal_stations = 24
@@ -554,33 +554,6 @@ class Propeller(Energy_Component):
         
         r = sp.spatial.transform.Rotation.from_rotvec(rots)
         rot_mat = r.as_matrix()
-
-        return rot_mat
-    
-    def prop_to_body_matrix(self):
-        """This function returns the rotation matrix of the propeller using orientation
-
-        Assumptions:
-        None
-
-        Source:
-        N/A
-
-        Inputs:
-        None
-
-        Outputs:
-        None
-
-        Properties Used:
-        None
-        """ 
-        # Unpack
-        rots = self.orientation_euler_angles
-        
-        r = sp.spatial.transform.Rotation.from_rotvec(rots)
-        p = r.inv()
-        rot_mat = p.as_matrix()
 
         return rot_mat
 

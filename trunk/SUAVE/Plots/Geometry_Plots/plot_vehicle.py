@@ -296,26 +296,21 @@ def plot_propulsor(axes,propulsor):
     N/A
     """          
     
-    if ('propeller' in propulsor.keys()):  
-        prop = propulsor.propeller 
-        try:
-            propulsor.thrust_angle = propulsor.propeller_thrust_angle     
-        except:
-            pass 
+    #if ('propellers' in propulsor.keys()):  
+        #prop = propulsor.propeller 
         
-        # Generate And Plot Propeller/Rotor Geometry   
-        plot_propeller_geometry(axes,prop,propulsor,'propeller') 
+        #for prop in propulsor.propellers:
         
-    if ('rotor' in propulsor.keys()):  
-        rot = propulsor.rotor   
-        try:
-            propulsor.thrust_angle = propulsor.rotor_thrust_angle     
-        except:
-            pass
+            ## Generate And Plot Propeller/Rotor Geometry   
+            #plot_propeller_geometry(axes,prop,propulsor,'propeller') 
         
-        # Generate and Plot Propeller/Rotor Geometry   
-        plot_propeller_geometry(axes,rot,propulsor,'rotor')        
-    
+    #if ('rotors' in propulsor.keys()):  
+        
+        #for rotor in propulsor.rotors:
+            
+            ## Generate and Plot Propeller/Rotor Geometry   
+            #plot_propeller_geometry(axes,rotor,propulsor,'rotor')        
+        
     return 
 
 def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
@@ -357,121 +352,120 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     af_pts    = (2*n_points)-1
     dim       = len(b)
     dim2      = 2*n_points
-    num_props = len(origin) 
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]   
     
     # create empty data structure for storing geometry
     G = Data()    
+
+
+    rot    = prop.rotation
+    a_o    = 0
+    flip_1 = (np.pi/2)  
+    flip_2 = (np.pi/2)  
     
-    for n_p in range(num_props):  
-        rot    = prop.rotation[n_p] 
-        a_o    = 0
-        flip_1 = (np.pi/2)  
-        flip_2 = (np.pi/2)  
-        
-        MCA_2d = np.repeat(np.atleast_2d(MCA).T,dim2,axis=1)
-        b_2d   = np.repeat(np.atleast_2d(b).T  ,dim2,axis=1)
-        t_2d   = np.repeat(np.atleast_2d(t).T  ,dim2,axis=1)
-        r_2d   = np.repeat(np.atleast_2d(r).T  ,dim2,axis=1)
-        
-        for i in range(num_B):   
-            # get airfoil coordinate geometry   
-            if a_sec != None:
-                airfoil_data = import_airfoil_geometry(a_sec,npoints=n_points)   
-                xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
-                zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0) 
-                max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0) 
-                
-            else: 
-                camber       = 0.02
-                camber_loc   = 0.4
-                thickness    = 0.10 
-                airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points*2 - 2))                  
-                xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
-                zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
-                max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0) 
-             
-            # store points of airfoil in similar format as Vortex Points (i.e. in vertices)   
-            max_t2d = np.repeat(np.atleast_2d(max_t).T ,dim2,axis=1)
-            
-            xp      = rot*(- MCA_2d + xpts*b_2d)  # x coord of airfoil
-            yp      = r_2d*np.ones_like(xp)       # radial location        
-            zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord 
-                              
-            matrix = np.zeros((len(zp),dim2,3)) # radial location, airfoil pts (same y)   
-            matrix[:,:,0] = xp
-            matrix[:,:,1] = yp
-            matrix[:,:,2] = zp
-            
-            # ROTATION MATRICES FOR INNER SECTION     
-            # rotation about y axis to create twist and position blade upright  
-            trans_1 = np.zeros((dim,3,3))
-            trans_1[:,0,0] = np.cos(rot*flip_1 - rot*beta)           
-            trans_1[:,0,2] = -np.sin(rot*flip_1 - rot*beta)                 
-            trans_1[:,1,1] = 1
-            trans_1[:,2,0] = np.sin(rot*flip_1 - rot*beta) 
-            trans_1[:,2,2] = np.cos(rot*flip_1 - rot*beta) 
+    MCA_2d = np.repeat(np.atleast_2d(MCA).T,dim2,axis=1)
+    b_2d   = np.repeat(np.atleast_2d(b).T  ,dim2,axis=1)
+    t_2d   = np.repeat(np.atleast_2d(t).T  ,dim2,axis=1)
+    r_2d   = np.repeat(np.atleast_2d(r).T  ,dim2,axis=1)
     
-            # rotation about x axis to create azimuth locations 
-            trans_2 = np.array([[1 , 0 , 0],
-                           [0 , np.cos(theta[i] + rot*a_o + flip_2 ), -np.sin(theta[i] + rot*a_o + flip_2)],
-                           [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]) 
-            trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
+    for i in range(num_B):   
+        # get airfoil coordinate geometry   
+        if a_sec != None:
+            airfoil_data = import_airfoil_geometry(a_sec,npoints=n_points)   
+            xpts         = np.take(airfoil_data.x_coordinates,a_secl,axis=0)
+            zpts         = np.take(airfoil_data.y_coordinates,a_secl,axis=0) 
+            max_t        = np.take(airfoil_data.thickness_to_chord,a_secl,axis=0) 
             
-            # rotation about y to orient propeller/rotor to thrust angle 
-            trans_3 = np.array([[np.cos(ta),0 , -np.sin(ta)],
-                           [0 ,  1 , 0] ,
-                           [np.sin(ta) , 0 , np.cos(ta)]])
-            trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0)
-            
-            trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
-            rot_mat   = np.repeat(trans[:, np.newaxis,:,:],dim2,axis=1)
-             
-            # ---------------------------------------------------------------------------------------------
-            # ROTATE POINTS
-            mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze() 
-            
-            # ---------------------------------------------------------------------------------------------
-            # store points
-            G.XA1  = mat[:-1,:-1,0] + origin[n_p][0]
-            G.YA1  = mat[:-1,:-1,1] + origin[n_p][1] 
-            G.ZA1  = mat[:-1,:-1,2] + origin[n_p][2]
-            G.XA2  = mat[:-1,1:,0]  + origin[n_p][0]
-            G.YA2  = mat[:-1,1:,1]  + origin[n_p][1] 
-            G.ZA2  = mat[:-1,1:,2]  + origin[n_p][2]
-                            
-            G.XB1  = mat[1:,:-1,0] + origin[n_p][0]
-            G.YB1  = mat[1:,:-1,1] + origin[n_p][1]  
-            G.ZB1  = mat[1:,:-1,2] + origin[n_p][2]
-            G.XB2  = mat[1:,1:,0]  + origin[n_p][0]
-            G.YB2  = mat[1:,1:,1]  + origin[n_p][1]
-            G.ZB2  = mat[1:,1:,2]  + origin[n_p][2]    
-             
-            # ------------------------------------------------------------------------
-            # Plot Propeller Blade 
-            # ------------------------------------------------------------------------
-            prop_face_color = 'red'
-            prop_edge_color = 'red'
-            prop_alpha      = 1
-            for sec in range(dim-1): 
-                for loc in range(af_pts): 
-                    X = [G.XA1[sec,loc],
-                         G.XB1[sec,loc],
-                         G.XB2[sec,loc],
-                         G.XA2[sec,loc]]
-                    Y = [G.YA1[sec,loc],
-                         G.YB1[sec,loc],
-                         G.YB2[sec,loc],
-                         G.YA2[sec,loc]]
-                    Z = [G.ZA1[sec,loc],
-                         G.ZB1[sec,loc],
-                         G.ZB2[sec,loc],
-                         G.ZA2[sec,loc]]                    
-                    prop_verts = [list(zip(X, Y, Z))]
-                    prop_collection = Poly3DCollection(prop_verts)
-                    prop_collection.set_facecolor(prop_face_color)
-                    prop_collection.set_edgecolor(prop_edge_color) 
-                    prop_collection.set_alpha(prop_alpha)
-                    axes.add_collection3d(prop_collection) 
+        else: 
+            camber       = 0.02
+            camber_loc   = 0.4
+            thickness    = 0.10 
+            airfoil_data = compute_naca_4series(camber, camber_loc, thickness,(n_points*2 - 2))                  
+            xpts         = np.repeat(np.atleast_2d(airfoil_data.x_coordinates) ,dim,axis=0)
+            zpts         = np.repeat(np.atleast_2d(airfoil_data.y_coordinates) ,dim,axis=0)
+            max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0) 
+         
+        # store points of airfoil in similar format as Vortex Points (i.e. in vertices)   
+        max_t2d = np.repeat(np.atleast_2d(max_t).T ,dim2,axis=1)
+        
+        xp      = rot*(- MCA_2d + xpts*b_2d)  # x coord of airfoil
+        yp      = r_2d*np.ones_like(xp)       # radial location        
+        zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord 
+                          
+        matrix = np.zeros((len(zp),dim2,3)) # radial location, airfoil pts (same y)   
+        matrix[:,:,0] = xp
+        matrix[:,:,1] = yp
+        matrix[:,:,2] = zp
+        
+        # ROTATION MATRICES FOR INNER SECTION     
+        # rotation about y axis to create twist and position blade upright  
+        trans_1 = np.zeros((dim,3,3))
+        trans_1[:,0,0] = np.cos(rot*flip_1 - rot*beta)           
+        trans_1[:,0,2] = -np.sin(rot*flip_1 - rot*beta)                 
+        trans_1[:,1,1] = 1
+        trans_1[:,2,0] = np.sin(rot*flip_1 - rot*beta) 
+        trans_1[:,2,2] = np.cos(rot*flip_1 - rot*beta) 
+
+        # rotation about x axis to create azimuth locations 
+        trans_2 = np.array([[1 , 0 , 0],
+                       [0 , np.cos(theta[i] + rot*a_o + flip_2 ), -np.sin(theta[i] + rot*a_o + flip_2)],
+                       [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]) 
+        trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
+        
+        # rotation about y to orient propeller/rotor to thrust angle 
+        trans_3 = np.array([[np.cos(ta),0 , -np.sin(ta)],
+                       [0 ,  1 , 0] ,
+                       [np.sin(ta) , 0 , np.cos(ta)]])
+        trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0)
+        
+        trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
+        rot_mat   = np.repeat(trans[:, np.newaxis,:,:],dim2,axis=1)
+         
+        # ---------------------------------------------------------------------------------------------
+        # ROTATE POINTS
+        mat  =  np.matmul(rot_mat,matrix[...,None]).squeeze() 
+        
+        # ---------------------------------------------------------------------------------------------
+        # store points
+        G.XA1  = mat[:-1,:-1,0] + origin[n_p][0]
+        G.YA1  = mat[:-1,:-1,1] + origin[n_p][1] 
+        G.ZA1  = mat[:-1,:-1,2] + origin[n_p][2]
+        G.XA2  = mat[:-1,1:,0]  + origin[n_p][0]
+        G.YA2  = mat[:-1,1:,1]  + origin[n_p][1] 
+        G.ZA2  = mat[:-1,1:,2]  + origin[n_p][2]
+                        
+        G.XB1  = mat[1:,:-1,0] + origin[n_p][0]
+        G.YB1  = mat[1:,:-1,1] + origin[n_p][1]  
+        G.ZB1  = mat[1:,:-1,2] + origin[n_p][2]
+        G.XB2  = mat[1:,1:,0]  + origin[n_p][0]
+        G.YB2  = mat[1:,1:,1]  + origin[n_p][1]
+        G.ZB2  = mat[1:,1:,2]  + origin[n_p][2]    
+         
+        # ------------------------------------------------------------------------
+        # Plot Propeller Blade 
+        # ------------------------------------------------------------------------
+        prop_face_color = 'red'
+        prop_edge_color = 'red'
+        prop_alpha      = 1
+        for sec in range(dim-1): 
+            for loc in range(af_pts): 
+                X = [G.XA1[sec,loc],
+                     G.XB1[sec,loc],
+                     G.XB2[sec,loc],
+                     G.XA2[sec,loc]]
+                Y = [G.YA1[sec,loc],
+                     G.YB1[sec,loc],
+                     G.YB2[sec,loc],
+                     G.YA2[sec,loc]]
+                Z = [G.ZA1[sec,loc],
+                     G.ZB1[sec,loc],
+                     G.ZB2[sec,loc],
+                     G.ZA2[sec,loc]]                    
+                prop_verts = [list(zip(X, Y, Z))]
+                prop_collection = Poly3DCollection(prop_verts)
+                prop_collection.set_facecolor(prop_face_color)
+                prop_collection.set_edgecolor(prop_edge_color) 
+                prop_collection.set_alpha(prop_alpha)
+                axes.add_collection3d(prop_collection) 
     return 
  

@@ -67,8 +67,8 @@ class Rotor(Energy_Component):
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
-        self.rotation                  = [1]
-        self.orientation               = [1.,0.,0.]
+        self.rotation                  = 1
+        self.orientation_euler_angles  = [0.,0.,0] #s This is X-direction thrust
         self.ducted                    = False 
         self.VTOL_flag                 = False
         self.number_azimuthal_stations = 24
@@ -168,7 +168,6 @@ class Rotor(Energy_Component):
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
         pitch_c = self.pitch_command
-        ori     = self.orientation
         Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B
@@ -395,7 +394,9 @@ class Rotor(Energy_Component):
         conditions.propulsion.etap = etap   
         
         # Make the thrust a 3D vector
-        thrust_vector = ori*thrust        
+        thrust_prop_frame      = conditions.ones_row(3)*0.
+        thrust_prop_frame[:,0] = thrust[:,0]
+        thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)     
                 
         # store data
         self.azimuthal_distribution                   = psi  
@@ -435,3 +436,30 @@ class Rotor(Energy_Component):
             ) 
     
         return thrust_vector, torque, power, Cp, outputs , etap
+
+
+    def body_to_prop_matrix(self):
+        """This function returns the rotation matrix of the propeller using orientation
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """ 
+        # Unpack
+        rots = self.orientation_euler_angles
+        
+        r = sp.spatial.transform.Rotation.from_rotvec(rots)
+        rot_mat = r.as_matrix()
+
+        return rot_mat
