@@ -63,7 +63,7 @@ def generate_vortex_distribution(geometry,settings):
 
     Inputs:
     geometry.wings                                [Unitless]  
-    settings.use_float64                          [boolean]
+    settings.floating_point_precision             [np.dtype]
     
     Of the following settings, the user should define either the number_ atrributes or the wing_ and fuse_ attributes.
     settings.number_spanwise_vortices             - a base number of vortices to be applied to both wings and fuselages
@@ -86,7 +86,7 @@ def generate_vortex_distribution(geometry,settings):
     #unpack other settings----------------------------------------------------
     spc            = settings.spanwise_cosine_spacing
     model_fuselage = settings.model_fuselage
-    precision      = np.float32 if not settings.use_float64 else np.float64
+    precision      = settings.floating_point_precision
     
     show_prints    = settings.verbose if ('verbose' in settings.keys()) else False
     

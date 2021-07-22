@@ -31,8 +31,8 @@ def VLM(conditions,settings,geometry):
     The user has the option to use the boundary conditions and induced velocities from either SUAVE
     or VORLAX. See build_RHS in compute_RHS_matrix.py for mor details.
     
-    By default, VLM performs calculations based on panel coordinates with float32 precision. The user
-    may choose to use float64, but be warned that using VLM in this way can be memory intensive.
+    By default in Vortex_Lattice, VLM performs calculations based on panel coordinates with float32 precision. 
+    The user may also choose to use float16 or float64, but be warned that the latter can be memory intensive.
 
     
     Assumptions:
@@ -88,7 +88,7 @@ def VLM(conditions,settings,geometry):
     settings.propeller_wake_model              [Unitless]
     settings.discretize_control_surfaces       [Boolean] -- set to True to generate control surface panels
     settings.use_VORLAX_matrix_calculation     [boolean]
-    settings.use_float64                       [boolean]
+    settings.floating_point_precision          [np.dtype]
        
     conditions.aerodynamics.angle_of_attack    [radians]
     conditions.aerodynamics.side_slip_angle    [radians]
@@ -112,7 +112,6 @@ def VLM(conditions,settings,geometry):
     Properties Used:
     N/A
     """ 
-    
     # unpack settings
     pwm        = settings.propeller_wake_model
     bemt_wake  = settings.use_bemt_wake_model
@@ -513,7 +512,7 @@ def VLM(conditions,settings,geometry):
     # ---------------------------------------------------------------------------------------
     # STEP 13: Pack outputs
     # ------------------ --------------------------------------------------------------------     
-    precision      = np.float32 if not settings.use_float64 else np.float64
+    precision      = settings.floating_point_precision
     
     #VORLAX _TOT outputs
     results = Data()
