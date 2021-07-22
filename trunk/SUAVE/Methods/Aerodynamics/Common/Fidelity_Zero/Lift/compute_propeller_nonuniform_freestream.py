@@ -52,7 +52,7 @@ def compute_propeller_nonuniform_freestream(prop, upstream_wake,conditions):
     T_body2inertial = conditions.frames.body.transform_to_inertial
     T_inertial2body = orientation_transpose(T_body2inertial)
     V_body          = orientation_product(T_inertial2body,Vv)
-    body2thrust     = prop.body_to_prop_matrix()
+    body2thrust     = prop.body_to_prop_vel()
     T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
     V_thrust        = orientation_product(T_body2thrust,V_body) 
     

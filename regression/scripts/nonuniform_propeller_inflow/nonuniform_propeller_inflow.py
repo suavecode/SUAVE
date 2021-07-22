@@ -44,7 +44,7 @@ def case_1(vehicle, conditions):
     # set operating conditions for propeller test
     prop = vehicle.propulsors.prop_net.propeller
     prop.inputs.omega = np.ones_like(conditions.aerodynamics.angle_of_attack)*prop.angular_velocity
-    prop.orientation_euler_angles  = [0.,-20.*Units.degrees,0]
+    prop.orientation_euler_angles  = [0.,20.*Units.degrees,0]
     
     # spin propeller in nonuniform flow
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)  

@@ -38,7 +38,7 @@ class Propeller(Energy_Component):
         """This sets the default values for the component to function.
 
         Assumptions:
-        orientation_euler_angles is vector, RotX, RotY, RotZ in canonical Euler Rotations.
+        orientation_euler_angles is a vector, RotX, RotY, RotZ in canonical Euler Rotations from the vehicle frame
 
         Source:
         N/A
@@ -181,13 +181,13 @@ class Propeller(Energy_Component):
         # calculate total blade pitch
         total_blade_pitch = beta_0 + pitch_c  
          
-        # Velocity in the Body frame
+        # Velocities in the frame of the propeller
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
-        body2thrust     = self.body_to_prop_matrix()
+        body2thrust     = self.body_to_prop_vel()
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
-        V_thrust        = orientation_product(T_body2thrust,V_body) 
+        V_thrust        = orientation_product(T_body2thrust,V_body)
         
         if VTOL:
             V        = V_thrust[:,0,None] + ua
@@ -477,7 +477,7 @@ class Propeller(Energy_Component):
         Ct[omega==0.0]                                         = 0.0
         Cp[omega==0.0]                                         = 0.0 
         etap[omega==0.0]                                       = 0.0 
-        
+    
         # Make the thrust a 3D vector
         thrust_prop_frame      = conditions.ones_row(3)*0.
         thrust_prop_frame[:,0] = thrust[:,0]
@@ -531,12 +531,13 @@ class Propeller(Energy_Component):
     
         return thrust_vector, torque, power, Cp, outputs , etap
     
-    
-    def body_to_prop_matrix(self):
-        """This function returns the rotation matrix of the propeller using orientation
+    def vec_to_vel(self):
+        """This rotates from the propellers vehicle frame to the propellers velocity frame
 
         Assumptions:
-        None
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
         Source:
         N/A
@@ -549,20 +550,20 @@ class Propeller(Energy_Component):
 
         Properties Used:
         None
-        """ 
-        # Unpack
-        rots = self.orientation_euler_angles
+        """
         
-        r = sp.spatial.transform.Rotation.from_rotvec(rots)
-        rot_mat = r.as_matrix()
-
+        rot_mat = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+        
         return rot_mat
     
-    def prop_to_body_matrix(self):
-        """This function returns the rotation matrix of the propeller using orientation
+    
+    def body_to_prop_vel(self):
+        """This rotates from the systems body frame to the propellers velocity frame
 
         Assumptions:
-        None
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
 
         Source:
         N/A
@@ -575,15 +576,56 @@ class Propeller(Energy_Component):
 
         Properties Used:
         None
-        """ 
-        # Unpack
-        rots = self.orientation_euler_angles
+        """
         
-        r = sp.spatial.transform.Rotation.from_rotvec(rots)
+        # Go from body to vehicle frame
+        body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+        
+        # Go from vehicle frame to propeller vehicle frame: rot 1
+        rots = self.orientation_euler_angles
+        vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
+        
+        # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
+        prop_vec_2_prop_vel = self.vec_to_vel()
+        
+        # Do all the matrix multiplies
+        rot1    = np.matmul(body_2_vehicle,vehicle_2_prop_vec)
+        rot_mat = np.matmul(rot1,prop_vec_2_prop_vel)
+
+        
+        return rot_mat
+    
+    
+    def prop_vel_to_body(self):
+        """This rotates from the systems body frame to the propellers velocity frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+        
+        body2propvel = self.body_to_prop_matrix()
+        
+        r = sp.spatial.transform.Rotation.from_matrix(body2propvel)
+        r = r.inv()
         rot_mat = r.as_matrix()
 
         return rot_mat
-
+        
+    
 
 def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis):
     """
