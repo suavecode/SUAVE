@@ -38,7 +38,7 @@ class Propeller(Energy_Component):
         """This sets the default values for the component to function.
 
         Assumptions:
-        None
+        orientation_euler_angles is vector, RotX, RotY, RotZ in canonical Euler Rotations.
 
         Source:
         N/A
@@ -71,8 +71,8 @@ class Propeller(Energy_Component):
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
-        self.rotation                  = [1]      # counter-clockwise rotation as viewed from the front of the aircraft
-        self.orientation               = [1.,0.,0.]
+        self.rotation                  = [1]       # counter-clockwise rotation as viewed from the front of the aircraft
+        self.orientation_euler_angles  = [0.,0.,0] #s This is X-direction thrust
         self.ducted                    = False         
         self.number_azimuthal_stations = 24
         self.induced_power_factor      = 1.48     # accounts for interference effects
@@ -171,7 +171,6 @@ class Propeller(Energy_Component):
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
         pitch_c = self.pitch_command
-        ori     = self.orientation
         Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B
@@ -186,8 +185,7 @@ class Propeller(Energy_Component):
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
-        rot_matrix      = self.rotation_matrix()
-        body2thrust     = np.array([ori,[0., 1., 0.], [-ori[2], ori[1], ori[0]]])
+        body2thrust     = self.body_to_prop_matrix()
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
         V_thrust        = orientation_product(T_body2thrust,V_body) 
         
@@ -237,9 +235,9 @@ class Propeller(Energy_Component):
         
         use_2d_analysis = False
         
-        if ori[0] !=1.:
+        if not np.all(self.orientation_euler_angles==0.):
             # thrust angle creates disturbances in radial and tangential velocities
-            use_2d_analysis       = True
+            use_2d_analysis = True
             
             # component of freestream in the propeller plane
             Vz  = V_thrust[:,2,None,None]
@@ -470,8 +468,8 @@ class Propeller(Energy_Component):
         power[conditions.propulsion.throttle[:,0]  <=0.0]      = 0.0 
         torque[conditions.propulsion.throttle[:,0]  <=0.0]     = 0.0
         rotor_drag[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        thrust[omega<0.0]                               = - thrust[omega<0.0]  
-        thrust[omega==0.0]                              = 0.0
+        thrust[omega<0.0]                                      = - thrust[omega<0.0]  
+        thrust[omega==0.0]                                     = 0.0
         power[omega==0.0]                                      = 0.0
         torque[omega==0.0]                                     = 0.0
         rotor_drag[omega==0.0]                                 = 0.0
@@ -480,7 +478,9 @@ class Propeller(Energy_Component):
         etap[omega==0.0]                                       = 0.0 
         
         # Make the thrust a 3D vector
-        thrust_vector = ori*thrust
+        thrust_prop_frame      = conditions.ones_row(3)*0.
+        thrust_prop_frame[:,0] = thrust[:,0]
+        thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
         
         # assign efficiency to network
         conditions.propulsion.etap = etap   
@@ -531,7 +531,7 @@ class Propeller(Energy_Component):
         return thrust_vector, torque, power, Cp, outputs , etap
     
     
-    def rotation_matrix(self):
+    def body_to_prop_matrix(self):
         """This function returns the rotation matrix of the propeller using orientation
 
         Assumptions:
@@ -550,19 +550,37 @@ class Propeller(Energy_Component):
         None
         """ 
         # Unpack
-        orientation = self.orientation
+        rots = self.orientation_euler_angles
         
-        # make sure it's actually a unit vector
-        orientation = orientation/np.linalg.norm(orientation)
-        
-        alpha = np.arccos(orientation[0])
-        beta  = np.arccos(orientation[1])
-        gamma = np.arccos(orientation[2])
-        
-        rotations = np.atleast_2d([gamma,beta,alpha])
-        
-        r = sp.spatial.transform.Rotation.from_rotvec(rotations)
+        r = sp.spatial.transform.Rotation.from_rotvec(rots)
         rot_mat = r.as_matrix()
+
+        return rot_mat
+    
+    def prop_to_body_matrix(self):
+        """This function returns the rotation matrix of the propeller using orientation
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """ 
+        # Unpack
+        rots = self.orientation_euler_angles
+        
+        r = sp.spatial.transform.Rotation.from_rotvec(rots)
+        p = r.inv()
+        rot_mat = p.as_matrix()
 
         return rot_mat
 
