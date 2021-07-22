@@ -65,7 +65,8 @@ def main():
     
     # Set up for Propeller Model
     prop.inputs.omega                            = np.atleast_2d(omega).T
-    conditions                                   = Aerodynamics()   
+    conditions                                   = Aerodynamics()
+    conditions._size                             = 3
     conditions.freestream.density                = np.ones((ctrl_pts,1)) * density
     conditions.freestream.dynamic_viscosity      = np.ones((ctrl_pts,1)) * dynamic_viscosity   
     conditions.freestream.speed_of_sound         = np.ones((ctrl_pts,1)) * a 

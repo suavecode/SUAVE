@@ -13,7 +13,7 @@ import numpy as np
 # ---------------------------------------------------------------------
 
 ## @ingroupMethods-Noise-Fidelity_One-Noise_Tools 
-def compute_point_source_coordinates(AoA,prop_orientation,mls,prop_origin):  
+def compute_point_source_coordinates(AoA,prop_to_body_matrix,mls,prop_origin):  
     """This calculated the position vector from a point source to the observer 
             
     Assumptions:

@@ -72,7 +72,7 @@ class Propeller(Energy_Component):
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
         self.rotation                  = 1         # counter-clockwise rotation as viewed from the front of the aircraft
-        self.orientation_euler_angles  = [0.,0.,0] #s This is X-direction thrust
+        self.orientation_euler_angles  = [0.,0.,0.] #s This is X-direction thrust
         self.ducted                    = False         
         self.number_azimuthal_stations = 24
         self.induced_power_factor      = 1.48     # accounts for interference effects
@@ -147,7 +147,7 @@ class Propeller(Energy_Component):
           twist_distribution                 [radians]
           chord_distribution                 [m]
           mid_chord_alignment                [m] 
-          orientation                        [xhat, yhat, zhat]
+          orientation_euler_angles           [rad, rad, rad]
         """         
            
         #Unpack    
@@ -235,7 +235,8 @@ class Propeller(Energy_Component):
         
         use_2d_analysis = False
         
-        if not np.all(self.orientation_euler_angles)==0.:
+        # This follows the original assumption that thrust_angle is not zero. I believe that is a poor assumption
+        if not np.all(np.array(self.orientation_euler_angles)==0):
             # thrust angle creates disturbances in radial and tangential velocities
             use_2d_analysis = True
             
@@ -532,6 +533,32 @@ class Propeller(Energy_Component):
     
     
     def body_to_prop_matrix(self):
+        """This function returns the rotation matrix of the propeller using orientation
+
+        Assumptions:
+        None
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """ 
+        # Unpack
+        rots = self.orientation_euler_angles
+        
+        r = sp.spatial.transform.Rotation.from_rotvec(rots)
+        rot_mat = r.as_matrix()
+
+        return rot_mat
+    
+    def prop_to_body_matrix(self):
         """This function returns the rotation matrix of the propeller using orientation
 
         Assumptions:
