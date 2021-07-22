@@ -235,7 +235,7 @@ class Propeller(Energy_Component):
         
         use_2d_analysis = False
         
-        if not np.all(self.orientation_euler_angles==0.):
+        if not np.all(self.orientation_euler_angles)==0.:
             # thrust angle creates disturbances in radial and tangential velocities
             use_2d_analysis = True
             
