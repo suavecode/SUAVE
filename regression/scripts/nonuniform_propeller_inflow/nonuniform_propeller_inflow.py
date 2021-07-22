@@ -44,7 +44,7 @@ def case_1(vehicle, conditions):
     # set operating conditions for propeller test
     prop = vehicle.propulsors.prop_net.propeller
     prop.inputs.omega = np.ones_like(conditions.aerodynamics.angle_of_attack)*prop.angular_velocity
-    prop.thrust_angle = 20. * Units.deg
+    prop.orientation_euler_angles  = [0.,-20.*Units.degrees,0]
     
     # spin propeller in nonuniform flow
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)  
@@ -52,6 +52,7 @@ def case_1(vehicle, conditions):
     # plot velocities at propeller plane and resulting performance
     plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
     
+    thrust   = np.linalg.norm(thrust)
     thrust_r = 848.65295168
     torque_r = 447.33636799
     power_r  = 60898.44138557
@@ -77,7 +78,7 @@ def case_2(vehicle,conditions, Na=24, Nr=101):
     #-------------------------------------------------------------
     prop = vehicle.propulsors.prop_net.propeller
     prop.nonuniform_freestream  = True   
-    prop.thrust_angle           = 0. * Units.deg
+    prop.orientation_euler_angles  = [0,0,0]
     ctrl_pts                    = len(conditions.aerodynamics.angle_of_attack)
     
     # azimuthal distribution
@@ -101,6 +102,7 @@ def case_2(vehicle,conditions, Na=24, Nr=101):
     plot_propeller_disc_performance(prop,outputs,title='Case 2: Arbitrary Freestream')    
     
     # expected results
+    thrust   = np.linalg.norm(thrust)
     thrust_r = 78.41788551
     torque_r = 60.61148635
     power_r  = 8251.38601033
@@ -149,6 +151,7 @@ def case_3(vehicle,conditions):
     prop.nonuniform_freestream = True
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
     
+    thrust   = np.linalg.norm(thrust)
     thrust_r, torque_r, power_r, Cp_r, etap_r = 621.13987084, 390.98629804, 53227.18620232, 0.24508836, 0.912936
     print('\nCase 3 Errors: \n')
     print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
