@@ -65,8 +65,7 @@ class Propeller(Energy_Component):
         self.pitch_command             = 0.0 
         self.design_power              = None
         self.VTOL_flag                 = False
-        self.design_thrust             = None
-        self.induced_hover_velocity    = 0.0
+        self.design_thrust             = None 
         self.airfoil_geometry          = None
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
@@ -161,9 +160,7 @@ class Propeller(Energy_Component):
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
         cd_sur  = self.airfoil_cd_surrogates 
-        tc      = self.thickness_to_chord
-        ua      = self.induced_hover_velocity
-        VTOL    = self.VTOL_flag
+        tc      = self.thickness_to_chord  
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector 
@@ -188,12 +185,10 @@ class Propeller(Energy_Component):
         body2thrust     = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
         V_thrust        = orientation_product(T_body2thrust,V_body) 
-        
-        if VTOL:
-            V        = V_thrust[:,0,None] + ua
-        else:
-            V        = V_thrust[:,0,None]
-        ut  = np.zeros_like(V)
+         
+        V       = V_thrust[:,0,None]  
+        V[V==0.0] = 1E-6
+        ut      = np.zeros_like(V)
 
         #Things that don't change with iteration
         Nr       = len(c) # Number of stations radially    

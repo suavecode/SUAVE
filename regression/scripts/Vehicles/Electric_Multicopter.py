@@ -37,7 +37,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff             = 2080. * Units.lb 
     vehicle.mass_properties.operating_empty     = 1666. * Units.lb            
     vehicle.mass_properties.max_takeoff         = 2080. * Units.lb               
-    vehicle.mass_properties.center_of_gravity   = [2.6, 0., 0. ]  
+    vehicle.mass_properties.center_of_gravity   = [[2.6, 0., 0. ]] 
                                                 
     # This needs updating                       
     vehicle.passengers                          = 5
@@ -47,8 +47,11 @@ def vehicle_setup():
                                                 
     wing = SUAVE.Components.Wings.Main_Wing()   
     wing.tag                                    = 'main_wing'  
-    wing.aspect_ratio                           = 1  
-    wing.spans.projected                        = 0.01
+    wing.aspect_ratio                           = 1.  
+    wing.spans.projected                        = 0.1
+    wing.chords.root                            = 0.1
+    wing.chords.tip                             = 0.1
+    wing.origin                                 = [[2.6, 0., 0. ]] 
     wing.symbolic                               = True 
     vehicle.append_component(wing)
     
@@ -189,24 +192,23 @@ def vehicle_setup():
     # Design Rotors  
     #------------------------------------------------------------------ 
     # atmosphere and flight conditions for propeller/rotor design
-    g               = 9.81                                   # gravitational acceleration  
-    speed_of_sound  = 340                                    # speed of sound 
-    rho             = 1.22                                   # reference density
-    Hover_Load      = vehicle.mass_properties.takeoff*g      # hover load   
-    design_tip_mach = 0.7                                    # design tip mach number 
+    g                            = 9.81                                   # gravitational acceleration  
+    speed_of_sound               = 340                                    # speed of sound 
+    Hover_Load                   = vehicle.mass_properties.takeoff*g      # hover load   
+    design_tip_mach              = 0.7                                    # design tip mach number 
     
     rotor                        = SUAVE.Components.Energy.Converters.Rotor() 
     rotor.tip_radius             = 3.95 * Units.feet
     rotor.hub_radius             = 0.6  * Units.feet 
     rotor.disc_area              = np.pi*(rotor.tip_radius**2) 
     rotor.number_of_blades       = 3
-    rotor.freestream_velocity    = 500. * Units['ft/min']  
+    rotor.freestream_velocity    = 10.0
     rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/rotor.tip_radius   
-    rotor.design_Cl              = 0.8
+    rotor.design_Cl              = 0.7
     rotor.design_altitude        = 1000 * Units.feet                   
-    rotor.design_thrust          = (Hover_Load/net.number_of_engines)*2.
+    rotor.design_thrust          = Hover_Load/(net.number_of_engines-1) # contingency for one-engine-inoperative condition
 
-    rotor.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    rotor.airfoil_geometry       = ['../Vehicles/Airfoils/NACA_4412.txt'] 
     rotor.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
@@ -214,16 +216,12 @@ def vehicle_setup():
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     
     rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
-    rotor                        = propeller_design(rotor)    
-    rotor.induced_hover_velocity = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines))  
+    rotor                        = propeller_design(rotor)     
     
     # propulating propellers on the other side of the vehicle    
-    rotor.origin                 = []
-    for fuselage in vehicle.fuselages:
-        if fuselage.tag == 'fuselage':
-            continue
-        else:
-            rotor.origin.append(fuselage.origin[0])           
+    rotor.origin                 = [[ 0.,2.,1.4],[ 0.0,-2.,1.4],
+                                    [2.5,4.,1.4] ,[2.5,-4.,1.4],
+                                    [5.0,2.,1.4] ,[5.0,-2.,1.4]]  
    
     # append propellers to vehicle           
     net.rotor = rotor
@@ -233,14 +231,12 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Motor
     motor                      = SUAVE.Components.Energy.Converters.Motor() 
-    motor.efficiency           = 0.95  
-    motor.nominal_voltage      = bat.max_voltage 
+    motor.efficiency           = 0.95
+    motor.nominal_voltage      = bat.max_voltage * 0.5
     motor.mass_properties.mass = 3. * Units.kg 
     motor.origin               = rotor.origin  
-    motor.propeller_radius     = rotor.tip_radius  
-    motor.gear_ratio           = 1.0
-    motor.gearbox_efficiency   = 1.0 
-    motor.no_load_current      = 4.0     
+    motor.propeller_radius     = rotor.tip_radius   
+    motor.no_load_current      = 2.0     
     motor                      = size_optimal_motor(motor,rotor)
     net.motor                  = motor 
                                                 
@@ -263,6 +259,6 @@ def vehicle_setup():
     
     vehicle.weight_breakdown  = empty(vehicle)
     compute_component_centers_of_gravity(vehicle)
-    vehicle.center_of_gravity()
-
+    vehicle.center_of_gravity() 
+    
     return vehicle
