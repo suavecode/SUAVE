@@ -231,14 +231,8 @@ def vehicle_setup():
     # Design Rotors  
     #------------------------------------------------------------------ 
     # atmosphere conditions 
-    speed_of_sound               = 340
-    rho                          = 1.22 
-    fligth_CL                    = 0.75
-    AR                           = vehicle.wings.main_wing.aspect_ratio
-    Cd0                          = 0.06
-    Cdi                          = fligth_CL**2/(np.pi*AR*0.98)
-    Cd                           = Cd0 + Cdi   
-
+    speed_of_sound               = 340 
+    
     # Create propeller geometry  
     rot                          = SUAVE.Components.Energy.Converters.Rotor() 
     rot.y_pitch                  = 1.850
@@ -251,9 +245,8 @@ def vehicle_setup():
     rot.angular_velocity         = rot.design_tip_mach*speed_of_sound/rot.tip_radius      
     rot.design_Cl                = 0.7
     rot.design_altitude          = 500 * Units.feet                  
-    Lift                         = vehicle.mass_properties.takeoff*9.81  
-    rot.design_thrust            = (Lift * 1.5 )/net.number_of_engines  
-    rot.induced_hover_velocity   = np.sqrt(Lift/(2*rho*rot.disc_area*net.number_of_engines))    
+    Hover_Load                   = vehicle.mass_properties.takeoff*9.81  
+    rot.design_thrust            = Hover_Load/(net.number_of_engines-1) # contingency for one-engine-inoperative condition
 
     rot.airfoil_geometry         =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
     rot.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
@@ -267,51 +260,20 @@ def vehicle_setup():
 
     # Front Rotors Locations 
     rot_front                    = Data()
-    rot_front.origin             =  [[-0.2 , 1.347 ,0. ]]
+    rot_front.origin             = [[-0.2, 1.347, 0.0], [-0.2, 3.2969999999999997, 0.0], [-0.2, -1.347, 0.0], [-0.2, -3.2969999999999997, 0.0]]
     rot_front.symmetric          = True
     rot_front.x_pitch_count      = 1
     rot_front.y_pitch_count      = 2     
     rot_front.y_pitch            = 1.95 
 
-    # populating rotors on one side of wing
-    if rot_front.y_pitch_count > 1 :
-        for n in range(rot_front.y_pitch_count):
-            if n == 0:
-                continue
-            for i in range(len(rot_front.origin)):
-                propeller_origin = [rot_front.origin[i][0] , rot_front.origin[i][1] +  n*rot_front.y_pitch ,rot_front.origin[i][2]]
-                rot_front.origin.append(propeller_origin)   
-
-
-    # populating rotors on the other side of the vehicle   
-    if rot_front.symmetric : 
-        for n in range(len(rot_front.origin)):
-            propeller_origin = [rot_front.origin[n][0] , -rot_front.origin[n][1] ,rot_front.origin[n][2] ]
-            rot_front.origin.append(propeller_origin) 
-
     # Rear Rotors Locations 
-    rot_rear               = Data()
-    rot_rear.origin        =  [[ 5.138 -0.2, 1.347 ,1.54 ]]  
-    rot_rear.symmetric     = True
-    rot_rear.x_pitch_count = 1
-    rot_rear.y_pitch_count = 2     
-    rot_rear.y_pitch       = 1.95                 
-    # populating rotors on one side of wing
-    if rot_rear.y_pitch_count > 1 :
-        for n in range(rot_rear.y_pitch_count):
-            if n == 0:
-                continue
-            for i in range(len(rot_rear.origin)):
-                propeller_origin = [rot_rear.origin[i][0] , rot_rear.origin[i][1] +  n*rot_rear.y_pitch ,rot_rear.origin[i][2]]
-                rot_rear.origin.append(propeller_origin)   
-
-
-    # populating rotors on the other side of the vehicle   
-    if rot_rear.symmetric : 
-        for n in range(len(rot_rear.origin)):
-            propeller_origin = [rot_rear.origin[n][0] , -rot_rear.origin[n][1] ,rot_rear.origin[n][2] ]
-            rot_rear.origin.append(propeller_origin) 
-
+    rot_rear                     = Data()
+    rot_rear.origin              = [[4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54], [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
+    rot_rear.symmetric           = True
+    rot_rear.x_pitch_count       = 1
+    rot_rear.y_pitch_count       = 2     
+    rot_rear.y_pitch             = 1.95       
+    
     # Assign all rotors (front and rear) to network
     rot.origin = rot_front.origin + rot_rear.origin   
 
@@ -325,9 +287,7 @@ def vehicle_setup():
     # Propeller (Thrust) motor
     motor                      = SUAVE.Components.Energy.Converters.Motor()
     motor.origin               = rot_front.origin + rot_rear.origin  
-    motor.efficiency           = 0.935
-    motor.gear_ratio           = 1. 
-    motor.gearbox_efficiency   = 1. # Gear box efficiency        
+    motor.efficiency           = 0.9 
     motor.nominal_voltage      = bat.max_voltage *3/4  
     motor.propeller_radius     = rot.tip_radius 
     motor.no_load_current      = 2.0 
