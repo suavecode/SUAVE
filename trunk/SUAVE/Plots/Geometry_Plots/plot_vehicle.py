@@ -11,18 +11,16 @@
 from SUAVE.Core import Data
 import numpy as np 
 import matplotlib.pyplot as plt  
-from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series  
-from SUAVE.Methods.Geometry.Three_Dimensional \
-     import  orientation_product, orientation_transpose
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution
-from SUAVE.Components.Energy.Networks import Lift_Cruise , Turbofan 
-from SUAVE.Components.Energy.Converters import Propeller, Rotor 
+from SUAVE.Components.Energy.Networks import Lift_Cruise 
 from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
+
 ## @ingroup Plots-Geometry_Plots
-def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
+def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limits = 10,
+                 save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
     Routine is initialized
 
@@ -41,6 +39,9 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     Properties Used:
     N/A	
     """	
+    
+    print("\nPlotting vehicle")
+    
     # unpack vortex distribution 
     try:
         VD = vehicle.vortex_distribution 
@@ -55,8 +56,8 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     # initalize figure 
     fig = plt.figure(save_filename) 
     fig.set_size_inches(8,8) 
-    axes = Axes3D(fig)    
-    axes.view_init(elev= 30, azim= 210)  
+    axes = plt.axes(projection='3d')
+    axes.view_init(elev= elevation_angle, azim= azimuthal_angle)   
     
     # -------------------------------------------------------------------------
     # PLOT WING
@@ -89,6 +90,7 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
         
         # Plot Fuselage Geometry          
         plot_fuselage_geometry(axes,fus_pts,fuselage_face_color,fuselage_edge_color,fuselage_alpha)  
+        
     # -------------------------------------------------------------------------
     # PLOT ENGINE
     # -------------------------------------------------------------------------        
@@ -96,9 +98,12 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     propulsor_edge_color = 'black' 
     propulsor_alpha      = 1    
     for propulsor in vehicle.propulsors:    
-        plot_propulsor(axes,propulsor)    
-      
-    # Plot Vehicle
+        plot_propulsor(axes,propulsor)     
+        
+    axes.set_xlim(-axis_limits,axis_limits)
+    axes.set_ylim(-axis_limits,axis_limits)
+    axes.set_zlim(-axis_limits,axis_limits)    
+       
     plt.axis('off') 
     plt.grid(None)      
     return 
@@ -138,15 +143,6 @@ def plot_wing(axes,VD,face_color,edge_color,alpha_val):
         collection.set_alpha(alpha_val)
         
         axes.add_collection3d(collection)     
-        max_range = np.array([VD.X.max()-VD.X.min(), VD.Y.max()-VD.Y.min(), VD.Z.max()-VD.Z.min()]).max() / 2.0 
-        
-        mid_x = (VD.X .max()+VD.X .min()) * 0.5
-        mid_y = (VD.Y .max()+VD.Y .min()) * 0.5
-        mid_z = (VD.Z .max()+VD.Z .min()) * 0.5
-        
-        axes.set_xlim(mid_x - max_range, mid_x + max_range)
-        axes.set_ylim(mid_y - max_range, mid_y + max_range)
-        axes.set_zlim(mid_z - max_range, mid_z + max_range)    
         
     return    
  
@@ -346,6 +342,12 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     dim2      = 2*n_points
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]   
     
+    if len(prop.rotation) != num_props: 
+        print('Inconsistent ' + prop.tag + ' rotation vector defined. \nDefaulting to all clockwise rotating blades.')
+        prop.rotation = list(np.ones(num_props))
+    else:
+        pass
+        
     # create empty data structure for storing geometry
     G = Data()    
 

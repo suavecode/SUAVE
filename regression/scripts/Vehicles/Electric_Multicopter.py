@@ -36,7 +36,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff             = 2080. * Units.lb 
     vehicle.mass_properties.operating_empty     = 1666. * Units.lb            
     vehicle.mass_properties.max_takeoff         = 2080. * Units.lb               
-    vehicle.mass_properties.center_of_gravity   = [2.6, 0., 0. ]  
+    vehicle.mass_properties.center_of_gravity   = [[2.6, 0., 0. ]] 
                                                 
     # This needs updating                       
     vehicle.passengers                          = 5
@@ -46,8 +46,11 @@ def vehicle_setup():
                                                 
     wing = SUAVE.Components.Wings.Main_Wing()   
     wing.tag                                    = 'main_wing'  
-    wing.aspect_ratio                           = 1  
-    wing.spans.projected                        = 0.01
+    wing.aspect_ratio                           = 1.  
+    wing.spans.projected                        = 0.1
+    wing.chords.root                            = 0.1
+    wing.chords.tip                             = 0.1
+    wing.origin                                 = [[2.6, 0., 0. ]] 
     wing.symbolic                               = True 
     vehicle.append_component(wing)
     
@@ -214,17 +217,15 @@ def vehicle_setup():
     rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     rotor                        = propeller_design(rotor)     
     
-    # propulating propellers on the other side of the vehicle    
-    origins                 = [[ 0.3,2.5,1.4],[ 0.3,-2.5,1.4],
-                                    [4.9,2.5,1.4] ,[4.9,-2.5,1.4],
-                                    [ 0.,0.,0.],[ 0.,0.,0.]]  # Dummies, this geometry needs updating
+    origins                 = [[ 0.,2.,1.4],[ 0.0,-2.,1.4],
+                                [2.5,4.,1.4] ,[2.5,-4.,1.4],
+                                [5.0,2.,1.4] ,[5.0,-2.,1.4]]
     
     for ii in range(6):
         rotor          = deepcopy(rotor)
         rotor.tag      = 'propeller' # weight estimation gets confused since it's looking for hard coded names
         rotor.origin   = [origins[ii]]
-        net.propellers.append(rotor)    
-
+        net.propellers.append(rotor)
     
     #------------------------------------------------------------------
     # Design Motors
@@ -264,6 +265,6 @@ def vehicle_setup():
     
     vehicle.weight_breakdown  = empty(vehicle)
     compute_component_centers_of_gravity(vehicle)
-    vehicle.center_of_gravity()
-
+    vehicle.center_of_gravity() 
+    
     return vehicle
