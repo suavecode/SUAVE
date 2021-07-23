@@ -163,7 +163,8 @@ def main():
     V  = prop.freestream_velocity
     Vr = rot.freestream_velocity
     
-    conditions                                          = Data()
+    conditions                                          = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
+    conditions._size                                    = 1
     conditions.freestream                               = Data()
     conditions.propulsion                               = Data()
     conditions.frames                                   = Data()
@@ -229,19 +230,19 @@ def main():
  
     # Store errors 
     error = Data()
-    error.Thrust_a  = np.max(np.abs(F_a -F_a_truth))
+    error.Thrust_a  = np.max(np.abs(np.linalg.norm(F_a) -F_a_truth))
     error.Torque_a  = np.max(np.abs(Q_a -Q_a_truth))    
     error.Power_a   = np.max(np.abs(P_a -P_a_truth))
     error.Cp_a      = np.max(np.abs(Cplast_a -Cplast_a_truth))  
-    error.Thrust    = np.max(np.abs(F-F_truth))
+    error.Thrust    = np.max(np.abs(np.linalg.norm(F)-F_truth))
     error.Torque    = np.max(np.abs(Q-Q_truth))    
     error.Power     = np.max(np.abs(P-P_truth))
     error.Cp        = np.max(np.abs(Cplast-Cplast_truth))  
-    error.Thrustr_a = np.max(np.abs(Fr_a-Fr_a_truth))
+    error.Thrustr_a = np.max(np.abs(np.linalg.norm(Fr_a)-Fr_a_truth))
     error.Torquer_a = np.max(np.abs(Qr_a-Qr_a_truth))    
     error.Powerr_a  = np.max(np.abs(Pr_a-Pr_a_truth))
     error.Cpr_a     = np.max(np.abs(Cplastr_a-Cplastr_a_truth))  
-    error.Thrustr   = np.max(np.abs(Fr-Fr_truth))
+    error.Thrustr   = np.max(np.abs(np.linalg.norm(Fr)-Fr_truth))
     error.Torquer   = np.max(np.abs(Qr-Qr_truth))    
     error.Powerr    = np.max(np.abs(Pr-Pr_truth))
     error.Cpr       = np.max(np.abs(Cplastr-Cplastr_truth))     
