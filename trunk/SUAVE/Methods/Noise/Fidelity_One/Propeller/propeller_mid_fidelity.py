@@ -2,6 +2,7 @@
 # noise_propeller_low_fidelty.py
 #
 # Created:  Mar 2021, M. Clarke
+# Modified: Jul 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -22,7 +23,7 @@ from SUAVE.Methods.Noise.Fidelity_One.Propeller.compute_harmonic_noise   import 
 #  Medium Fidelity Frequency Domain Methods for Acoustic Noise Prediction
 # -------------------------------------------------------------------------------------
 ## @ingroupMethods-Noise-Fidelity_One-Propeller
-def propeller_mid_fidelity(network,propellers,auc_opts,segment,settings):
+def propeller_mid_fidelity(network,auc_opts,segment,settings):
     ''' This computes the acoustic signature (sound pressure level, weighted sound pressure levels,
     and frequency spectrums of a system of rotating blades (i.e. propellers and rotors)          
         
@@ -61,18 +62,21 @@ def propeller_mid_fidelity(network,propellers,auc_opts,segment,settings):
     freestream           = conditions.freestream  
     harmonics            = settings.harmonics  
     
+    if not network.identical_propellers:
+        assert('This method currently only works with identical propellers')
+    
     # create data structures for computation  
     Noise   = Data()  
     Results = Data()
                      
     # compute position vector of microphones         
-    position_vector = compute_point_source_coordinates(conditions,propellers,microphone_locations)  
+    position_vector = compute_point_source_coordinates(conditions,network,microphone_locations)  
      
     # Harmonic Noise    
-    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,propellers,auc_opts,settings,Noise)       
+    compute_harmonic_noise(harmonics,freestream,angle_of_attack,position_vector,velocity_vector,network,auc_opts,settings,Noise)       
      
     # Broadband Noise   
-    compute_broadband_noise(freestream,angle_of_attack,position_vector, velocity_vector,propellers,auc_opts,settings,Noise)       
+    compute_broadband_noise(freestream,angle_of_attack,position_vector, velocity_vector,network,auc_opts,settings,Noise)       
      
     # Combine Rotational(periodic/tonal) and Broadband Noise 
     Noise.SPL_prop_bpfs_spectrum                               = Noise.SPL_r

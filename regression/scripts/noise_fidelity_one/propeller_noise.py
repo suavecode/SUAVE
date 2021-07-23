@@ -24,10 +24,12 @@ def main():
     '''   
 
     # Define Network 
-    net                     = Battery_Propeller()     
-    net.number_of_engines   = 1
-    prop                    = design_F8745D4_prop()  
-    net.propeller           = prop    
+    net                      = Battery_Propeller()     
+    net.number_of_engines    = 1
+    net.identical_propellers = True
+    prop                     = design_F8745D4_prop()
+    net.propellers.append(prop)
+
  
     # Set-up Validation Conditions 
     a                       = 343.376
@@ -79,9 +81,7 @@ def main():
     
     # Run Propeller model 
     F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions)
-    
-    propellers = SUAVE.Core.Container()
-    propellers.append(prop)
+
     
     # Store Noise Data 
     noise                                                  = SUAVE.Analyses.Noise.Fidelity_One()
@@ -92,7 +92,7 @@ def main():
     segment.state.conditions                               = conditions
 
     # Run Fidelity One   
-    propeller_noise  = propeller_mid_fidelity(net,propellers,noise_data,segment,settings)  
+    propeller_noise  = propeller_mid_fidelity(net,noise_data,segment,settings)  
     SPL_dBA          = propeller_noise.SPL_dBA
     SPL_Spectrum     = propeller_noise.SPL_bpfs_spectrum
     
