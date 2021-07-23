@@ -182,8 +182,7 @@ def VLM(conditions,settings,geometry):
     # STEPS 1-9: Generate Panelization and Vortex Distribution
     # ------------------ --------------------------------------------------------------------    
     # generate vortex distribution (VLM steps 1-9)
-    VD   = generate_vortex_distribution(geometry,settings, x_m, z_m)  
-    
+    VD   = generate_vortex_distribution(geometry,settings)  
     
     # Unpack vortex distribution
     n_cp         = VD.n_cp
@@ -217,12 +216,16 @@ def VLM(conditions,settings,geometry):
     YB_TE =  VD.YB_TE
     ZA_TE =  VD.ZA_TE
     ZB_TE =  VD.ZB_TE     
-    
-    XBAR  = VD.XBAR  
-    ZBAR  = VD.ZBAR 
+     
     SLOPE = VD.SLOPE
     SLE   = VD.SLE
     D     = VD.D
+    
+    # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
+    XBAR    = np.ones(sum(LE_ind)) * x_m
+    ZBAR    = np.ones(sum(LE_ind)) * z_m   
+    VD.XBAR = XBAR
+    VD.ZBAR = ZBAR    
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Generate A and RHS matrices from VD and geometry
