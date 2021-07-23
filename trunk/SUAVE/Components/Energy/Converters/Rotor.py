@@ -73,7 +73,8 @@ class Rotor(Energy_Component):
         self.number_azimuthal_stations = 24
         self.induced_power_factor      = 1.48  #accounts for interference effects
         self.profile_drag_coefficient  = .03        
-
+        
+        self.inputs.y_axis_rotation    = 0.
 
     def spin(self,conditions):
         """Analyzes a rotor given geometry and operating conditions.
@@ -153,6 +154,7 @@ class Rotor(Energy_Component):
         c       = self.chord_distribution
         chi     = self.radius_distribution 
         omega   = self.inputs.omega
+        pitch_c = self.inputs.pitch_command
         a_geo   = self.airfoil_geometry      
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
@@ -163,7 +165,6 @@ class Rotor(Energy_Component):
         Vv      = conditions.frames.inertial.velocity_vector 
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
-        pitch_c = self.inputs.pitch_command
         Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B
@@ -482,9 +483,10 @@ class Rotor(Energy_Component):
         # Go from body to vehicle frame
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
         
-        # Go from vehicle frame to propeller vehicle frame: rot 1
-        rots = self.orientation_euler_angles
-        vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
+        # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
+        rots    = np.array(self.orientation_euler_angles) * 1.
+        rots[1] = rots[1] + self.inputs.y_axis_rotation
+        vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()        
         
         # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
         prop_vec_2_prop_vel = self.vec_to_vel()

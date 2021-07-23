@@ -76,6 +76,9 @@ class Propeller(Energy_Component):
         self.induced_power_factor      = 1.48     # accounts for interference effects
         self.profile_drag_coefficient  = .03     
         self.nonuniform_freestream     = False
+        
+        self.inputs.y_axis_rotation    = 0.
+        self.inputs.pitch_command      = 0.
 
     def spin(self,conditions):
         """Analyzes a propeller given geometry and operating conditions.
@@ -155,6 +158,7 @@ class Propeller(Energy_Component):
         c       = self.chord_distribution
         chi     = self.radius_distribution 
         omega   = self.inputs.omega
+        pitch_c = self.inputs.pitch_command
         a_geo   = self.airfoil_geometry      
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
@@ -165,7 +169,7 @@ class Propeller(Energy_Component):
         Vv      = conditions.frames.inertial.velocity_vector 
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
-        pitch_c = self.inputs.pitch_command
+
         Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B
@@ -205,7 +209,6 @@ class Propeller(Energy_Component):
         nu       = mu/rho  
         
         deltar   = (r[1]-r[0])  
-        deltachi = (chi[1]-chi[0])          
         rho_0    = rho
         
         # azimuth distribution 
@@ -574,8 +577,9 @@ class Propeller(Energy_Component):
         # Go from body to vehicle frame
         body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
         
-        # Go from vehicle frame to propeller vehicle frame: rot 1
-        rots = self.orientation_euler_angles
+        # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
+        rots    = np.array(self.orientation_euler_angles) * 1.
+        rots[1] = rots[1] + self.inputs.y_axis_rotation
         vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()
         
         # GO from the propeller vehicle frame to the propeller velocity frame: rot 2

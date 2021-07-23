@@ -235,7 +235,7 @@ def vehicle_setup():
     speed_of_sound               = 340 
     
     # Create propeller geometry  
-    rot                          = SUAVE.Components.Energy.Converters.Rotor() 
+    rot                          = SUAVE.Components.Energy.Converters.Propeller() # This is truly a prop because the default of the mission is pointing forward
     rot.tip_radius               = 0.8875  
     rot.hub_radius               = 0.15 
     rot.disc_area                = np.pi*(rot.tip_radius**2)   
@@ -264,7 +264,7 @@ def vehicle_setup():
                [4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54], [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
     
     for ii in range(8):
-        rotor          = deepcopy(rotor)
+        rotor          = deepcopy(rot)
         rotor.tag      = 'propeller' # weight estimation gets confused since it's looking for hard coded names
         rotor.origin   = [origins[ii]]
         net.propellers.append(rotor)        
@@ -318,9 +318,9 @@ def vehicle_setup():
     vehicle.wings['canard_wing'].motor_spanwise_locations = motor_origins_front[:,1]/ vehicle.wings['canard_wing'].spans.projected
     vehicle.wings['canard_wing'].motor_spanwise_locations = motor_origins_front[:,1]/ vehicle.wings['canard_wing'].spans.projected 
     vehicle.wings['main_wing'].motor_spanwise_locations   = motor_origins_rear[:,1]/ vehicle.wings['main_wing'].spans.projected
-
-    net.origin = rot.origin 
-
+    
+    vehicle.append_component(net)
+    
     vehicle.weight_breakdown  = empty(vehicle)
     compute_component_centers_of_gravity(vehicle)
     vehicle.center_of_gravity()
