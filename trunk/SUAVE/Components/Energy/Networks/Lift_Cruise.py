@@ -185,8 +185,8 @@ class Lift_Cruise(Propulsor):
             motor.omega(conditions)
             
             # link
-            prop.inputs.omega  = motor.outputs.omega
-            prop.pitch_command = self.propeller_pitch_command 
+            prop.inputs.omega         = motor.outputs.omega
+            prop.inputs.pitch_command = self.propeller_pitch_command 
             
             # Run the propeller
             F_forward, Q_forward, P_forward, Cp_forward, outputs_forward, etap_forward = prop.spin(conditions)
@@ -283,9 +283,9 @@ class Lift_Cruise(Propulsor):
             rotor_motor.omega(konditions)
             
             # link
-            rotor.inputs.omega  = rotor_motor.outputs.omega
-            rotor.pitch_command = self.rotor_pitch_command 
-            rotor.VTOL_flag     = state.VTOL_flag   
+            rotor.inputs.omega         = rotor_motor.outputs.omega
+            rotor.inputs.pitch_command = self.rotor_pitch_command 
+            rotor.VTOL_flag            = state.VTOL_flag   
             
             # Run the propeller
             F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = rotor.spin(konditions)

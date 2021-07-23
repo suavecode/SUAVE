@@ -9,7 +9,6 @@
 import SUAVE
 from SUAVE.Core import Units, Data 
 
-from SUAVE.Components.Energy.Networks.Vectored_Thrust                     import Vectored_Thrust
 from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
 from SUAVE.Methods.Propulsion.electric_motor_sizing                       import  size_optimal_motor
 from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor 
@@ -17,6 +16,7 @@ from SUAVE.Methods.Propulsion                                             import
 from SUAVE.Plots.Geometry_Plots                                           import * 
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
+from copy import deepcopy
 
 import numpy as np  
 
@@ -183,14 +183,15 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # PROPULSOR
     #------------------------------------------------------------------
-    net                   = Vectored_Thrust()    
-    net.number_of_engines = 8
-    net.thrust_angle      = 0.0   * Units.degrees #  conversion to radians, 
-    net.nacelle_diameter  = 0.2921 # https://www.magicall.biz/products/integrated-motor-controller-magidrive/
-    net.engine_length     = 0.95 
-    net.areas             = Data()
-    net.areas.wetted      = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
-    net.voltage           = 400.             
+    net                      = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net.number_of_engines    = 8
+    net.thrust_angle         = 0.0   * Units.degrees #  conversion to radians, 
+    net.nacelle_diameter     = 0.2921 # https://www.magicall.biz/products/integrated-motor-controller-magidrive/
+    net.engine_length        = 0.95 
+    net.areas                = Data()
+    net.areas.wetted         = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
+    net.voltage              = 400.             
+    net.identical_propellers = True
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
@@ -235,7 +236,6 @@ def vehicle_setup():
     
     # Create propeller geometry  
     rot                          = SUAVE.Components.Energy.Converters.Rotor() 
-    rot.y_pitch                  = 1.850
     rot.tip_radius               = 0.8875  
     rot.hub_radius               = 0.15 
     rot.disc_area                = np.pi*(rot.tip_radius**2)   
@@ -256,29 +256,19 @@ def vehicle_setup():
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     rot.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
     rot                          = propeller_design(rot)  
-    rot.rotation                 = [1,1,1,1,1,1,1,1]
+    rot.rotation                 = 1
 
     # Front Rotors Locations 
-    rot_front                    = Data()
-    rot_front.origin             = [[-0.2, 1.347, 0.0], [-0.2, 3.2969999999999997, 0.0], [-0.2, -1.347, 0.0], [-0.2, -3.2969999999999997, 0.0]]
-    rot_front.symmetric          = True
-    rot_front.x_pitch_count      = 1
-    rot_front.y_pitch_count      = 2     
-    rot_front.y_pitch            = 1.95 
-
-    # Rear Rotors Locations 
-    rot_rear                     = Data()
-    rot_rear.origin              = [[4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54], [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
-    rot_rear.symmetric           = True
-    rot_rear.x_pitch_count       = 1
-    rot_rear.y_pitch_count       = 2     
-    rot_rear.y_pitch             = 1.95       
     
-    # Assign all rotors (front and rear) to network
-    rot.origin = rot_front.origin + rot_rear.origin   
+    origins = [[-0.2, 1.347, 0.0], [-0.2, 3.2969999999999997, 0.0], [-0.2, -1.347, 0.0], [-0.2, -3.2969999999999997, 0.0],\
+               [4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54], [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
+    
+    for ii in range(8):
+        rotor          = deepcopy(rotor)
+        rotor.tag      = 'propeller' # weight estimation gets confused since it's looking for hard coded names
+        rotor.origin   = [origins[ii]]
+        net.propellers.append(rotor)        
 
-    # append rotors to vehicle     
-    net.rotor = rot
 
     # Motor
     #------------------------------------------------------------------
@@ -286,7 +276,6 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Propeller (Thrust) motor
     motor                      = SUAVE.Components.Energy.Converters.Motor()
-    motor.origin               = rot_front.origin + rot_rear.origin  
     motor.efficiency           = 0.9 
     motor.nominal_voltage      = bat.max_voltage *3/4  
     motor.propeller_radius     = rot.tip_radius 
@@ -294,7 +283,13 @@ def vehicle_setup():
     motor                      = size_optimal_motor(motor,rot) 
     motor.mass_properties.mass = nasa_motor(motor.design_torque)
     net.motor                  = motor
-    vehicle.append_component(net) 
+    
+    for ii in range(8):
+        rotor_motor = deepcopy(motor)
+        rotor_motor.tag    = 'motor'
+        rotor_motor.origin = [origins[ii]]
+        net.motors.append(rotor_motor)      
+
 
 
     # Add extra drag sources from motors, props, and landing gear. All of these hand measured 
@@ -318,12 +313,11 @@ def vehicle_setup():
     vehicle.excrescence_area_spin    = total_excrescence_area_spin  
     
     # append motor origin spanwise locations onto wing data structure 
-    motor_origins_front                                   = np.array(rot_front.origin) 
-    motor_origins_rear                                    = np.array(rot_rear.origin)
+    motor_origins_front                                   = np.array(origins[:4]) 
+    motor_origins_rear                                    = np.array(origins[5:])
     vehicle.wings['canard_wing'].motor_spanwise_locations = motor_origins_front[:,1]/ vehicle.wings['canard_wing'].spans.projected
     vehicle.wings['canard_wing'].motor_spanwise_locations = motor_origins_front[:,1]/ vehicle.wings['canard_wing'].spans.projected 
     vehicle.wings['main_wing'].motor_spanwise_locations   = motor_origins_rear[:,1]/ vehicle.wings['main_wing'].spans.projected
-
 
     net.origin = rot.origin 
 
@@ -360,12 +354,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover' 
     vector_angle                                      = 90.0 * Units.degrees
-    config.propulsors.vectored_thrust.thrust_angle    = vector_angle
+    config.propulsors.battery_propeller.thrust_angle  = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle  
-    config.propulsors.vectored_thrust.pitch_command   = 0.  * Units.degrees 
+    config.propulsors.battery_propeller.pitch_command = 0.  * Units.degrees 
     configs.append(config)         
 
     # ------------------------------------------------------------------
@@ -374,12 +368,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover_climb'
     vector_angle                                      = 90.0 * Units.degrees
-    config.propulsors.vectored_thrust.thrust_angle    = vector_angle
+    config.propulsors.battery_propeller.thrust_angle    = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle   
-    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees   
+    config.propulsors.battery_propeller.pitch_command = -5.  * Units.degrees   
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -388,12 +382,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     vector_angle                                      = 45.0  * Units.degrees 
     config.tag                                        = 'transition_seg_1_4'
-    config.propulsors.vectored_thrust.thrust_angle    = vector_angle
+    config.propulsors.battery_propeller.thrust_angle  = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle
-    config.propulsors.vectored_thrust.pitch_command   = 3.  * Units.degrees  
+    config.propulsors.battery_propeller.pitch_command = 3.  * Units.degrees  
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -402,12 +396,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'transition_seg_2_3'
     vector_angle                                      = 15.0  * Units.degrees  
-    config.propulsors.vectored_thrust.thrust_angle    = vector_angle
+    config.propulsors.battery_propeller.thrust_angle  = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle 
-    config.propulsors.vectored_thrust.pitch_command   = 5.  * Units.degrees     
+    config.propulsors.battery_propeller.pitch_command = 5.  * Units.degrees     
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -416,12 +410,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'cruise'   
     vector_angle                                      = 0.0 * Units.degrees
-    config.propulsors.vectored_thrust.thrust_angle    = vector_angle
+    config.propulsors.battery_propeller.thrust_angle  = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle  
-    config.propulsors.vectored_thrust.pitch_command   = 10.  * Units.degrees   
+    config.propulsors.battery_propeller.pitch_command = 10.  * Units.degrees   
     configs.append(config)    
 
 
@@ -432,12 +426,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover_descent'
     vector_angle                                      = 90.0  * Units.degrees  
-    config.propulsors.vectored_thrust.thrust_angle    = vector_angle
+    config.propulsors.battery_propeller.thrust_angle  = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle     
-    config.propulsors.vectored_thrust.pitch_command   = -5.  * Units.degrees  
+    config.propulsors.battery_propeller.pitch_command = -5.  * Units.degrees  
     configs.append(config)
 
     return configs

@@ -185,20 +185,22 @@ def main():
     rot.inputs.omega     = copy.copy(prop.inputs.omega)
     
     # propeller with airfoil results 
+    prop_a.inputs.pitch_command                = np.array([[0.0]])*Units.degree
     F_a, Q_a, P_a, Cplast_a ,output_a , etap_a = prop_a.spin(conditions)  
     plot_results(output_a, prop_a,'blue','-','s')
     
     # propeller without airfoil results 
-    conditions.propulsion.pitch_command = np.array([[1.0]])*Units.degree
+    prop.inputs.pitch_command           = np.array([[0.0]])*Units.degree
     F, Q, P, Cplast ,output , etap      = prop.spin(conditions)
     plot_results(output, prop,'red','-','o')
     
     # rotor with airfoil results 
+    rot_a.inputs.pitch_command                     = np.array([[0.0]])*Units.degree
     Fr_a, Qr_a, Pr_a, Cplastr_a ,outputr_a , etapr = rot_a.spin(conditions_r)
     plot_results(outputr_a, rot_a,'green','-','^')
     
     # rotor with out airfoil results 
-    conditions_r.propulsion.pitch_command = np.array([[1.0]])*Units.degree
+    rot.inputs.pitch_command              = np.array([[0.0]])*Units.degree
     Fr, Qr, Pr, Cplastr ,outputr , etapr  = rot.spin(conditions_r)
     plot_results(outputr, rot,'black','-','P')
     

@@ -60,7 +60,6 @@ class Rotor(Energy_Component):
         self.chord_distribution        = 0.0
         self.mid_chord_alignment       = 0.0
         self.blade_solidity            = 0.0
-        self.pitch_command             = 0.0
         self.design_power              = None
         self.design_thrust             = None    
         self.airfoil_geometry          = None
@@ -164,7 +163,7 @@ class Rotor(Energy_Component):
         Vv      = conditions.frames.inertial.velocity_vector 
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
-        pitch_c = self.pitch_command
+        pitch_c = self.inputs.pitch_command
         Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B

@@ -32,7 +32,7 @@ class Battery_Propeller(Propulsor):
         The second is torque matching between motor and propeller.
     
         Assumptions:
-        None
+        The y axis rotation is used for rotating the propeller about the Y-axis for tilt rotors and tiltwings
         
         Source:
         None
@@ -65,11 +65,11 @@ class Battery_Propeller(Propulsor):
         self.engine_length             = None
         self.number_of_engines         = None
         self.voltage                   = None
-        self.pitch_command             = 0.0 
         self.tag                       = 'Battery_Propeller'
         self.use_surrogate             = False
         self.generative_design_minimum = 0
         self.identical_propellers      = True
+        self.y_axis_rotation           = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -155,7 +155,8 @@ class Battery_Propeller(Propulsor):
             
             # link
             prop.inputs.omega  = motor.outputs.omega
-            prop.pitch_command = self.pitch_command 
+            prop.inputs.pitch_command = self.pitch_command
+            prop.inputs
             
             # step 4
             F, Q, P, Cp, outputs, etap = prop.spin(conditions)

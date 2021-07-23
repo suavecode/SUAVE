@@ -296,8 +296,6 @@ def vehicle_setup():
     long_boom.areas.front_projected              = 0.018
     long_boom.effective_diameter                 = 0.15
     long_boom.differential_pressure              = 0.
-    long_boom.y_pitch_count                      = 1
-    long_boom.y_pitch                            = 1.196
     long_boom.symmetric                          = True
     long_boom.index                              = 1
 
@@ -544,9 +542,6 @@ def vehicle_setup():
     rotor.design_Cl                  = 0.7
     rotor.design_altitude            = 20 * Units.feet                            
     rotor.design_thrust              = Hover_Load/(net.number_of_rotor_engines-1) # contingency for one-engine-inoperative condition
-    rotor.x_pitch_count              = 2
-    rotor.y_pitch_count              = vehicle.fuselages['boom_1r'].y_pitch_count
-    rotor.y_pitch                    = vehicle.fuselages['boom_1r'].y_pitch 
 
     rotor.airfoil_geometry           =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
     rotor.airfoil_polars             = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,

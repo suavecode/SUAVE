@@ -91,7 +91,7 @@ def propeller_single_point(energy_network,
     # Unpack Inputs
     prop_key                    = list(energy_network.propellers.keys())[0]
     prop                        = energy_network.propellers[prop_key]
-    prop.pitch_command          = pitch
+    prop.inputs.pitch_command   = pitch
     energy_network.propeller    = prop
 
     atmo_data           = analyses.atmosphere.compute_values(altitude, delta_isa)
