@@ -85,7 +85,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.discretize_control_surfaces     = False
         self.settings.use_VORLAX_matrix_calculation   = False
         self.settings.floating_point_precision        = np.float32
-        self.settings.use_surrogate                   = False
+        self.settings.use_surrogate                   = True
 
         # conditions table, used for surrogate model training
         self.training                                = Data()

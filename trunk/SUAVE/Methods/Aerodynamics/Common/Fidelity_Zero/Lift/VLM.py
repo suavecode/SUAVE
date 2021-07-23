@@ -259,7 +259,7 @@ def VLM(conditions,settings,geometry):
     RHS = RHS*RFLAG
     
     # Build Aerodynamic Influence Coefficient Matrix
-    use_VORLAX_induced_velocity = getattr(settings, 'use_VORLAX_matrix_calculation', False)
+    use_VORLAX_induced_velocity = settings.use_VORLAX_matrix_calculation
     if not use_VORLAX_induced_velocity:
         A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
             + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
