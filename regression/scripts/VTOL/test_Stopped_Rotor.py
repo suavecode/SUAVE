@@ -251,7 +251,7 @@ def mission_setup(analyses,vehicle):
     
   
     # ------------------------------------------------------------------
-    #   Second Climb Segment: Constant Speed, Constant Rat
+    #   Second Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
     segment                                            = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag                                        = "climb_2"
