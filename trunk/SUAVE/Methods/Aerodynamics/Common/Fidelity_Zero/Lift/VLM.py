@@ -12,7 +12,7 @@
 import numpy as np 
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_induced_velocity      import compute_wing_induced_velocity
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution, compute_panel_area, compute_unit_normal
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution       import generate_vortex_distribution, compute_panel_area, compute_unit_normal
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix                 import compute_RHS_matrix 
 
 # ----------------------------------------------------------------------
@@ -23,7 +23,10 @@ from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_RHS_matrix    
 def VLM(conditions,settings,geometry):
     """Uses the vortex lattice method to compute the lift, induced drag and moment coefficients  
 
-    Assumptions: None
+    Assumptions:
+    The user provides either global discretezation (number_spanwise/chordwise_vortices) or
+    separate discretization (wing/fuselage_spanwise/chordwise_vortices) in settings, not both.
+    The set of settings not being used should be set to None.
 
     Source:
     1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
@@ -58,10 +61,17 @@ def VLM(conditions,settings,geometry):
         fineness.nose                          [Unitless]
         fineness.tail                          [Unitless]
         
-       settings.number_spanwise_vortices       [Unitless]
-       settings.number_chordwise_vortices      [Unitless]
+       settings.number_spanwise_vortices       [Unitless]  <---|
+       settings.number_chordwise_vortices      [Unitless]  <---|
+                                                               |--Either/or; see generate_vortex_distribution() for more details
+       settings.wing_spanwise_vortices         [Unitless]  <---|
+       settings.wing_chordwise_vortices        [Unitless]  <---|
+       settings.fuselage_spanwise_vortices     [Unitless]  <---|
+       settings.fuselage_chordwise_vortices    [Unitless]  <---|  
+       
        settings.use_surrogate                  [Unitless]
        settings.propeller_wake_model           [Unitless]
+       settings.discretize_control_surfaces    [Boolean] -- set to True to generate control surface panels
        conditions.aerodynamics.angle_of_attack [radians]
        conditions.freestream.mach_number       [Unitless]
        
@@ -113,9 +123,11 @@ def VLM(conditions,settings,geometry):
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
     mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(mach)) 
+    len_mach = len(mach)
 
     # generate vortex distribution 
-    VD   = generate_wing_vortex_distribution(geometry,settings) 
+    VD   = generate_vortex_distribution(geometry,settings)  
+    
     
     # Unpack vortex distribution
     n_cp         = VD.n_cp
@@ -128,7 +140,7 @@ def VLM(conditions,settings,geometry):
     LE_ind       = VD.leading_edge_indices
     ZETA         = VD.tangent_incidence_angle
     RK           = VD.chordwise_panel_number
-
+    exposed_leading_edge_flag = VD.exposed_leading_edge_flag
     
     # Compute flow tangency conditions
     phi   = np.arctan((VD.ZBC - VD.ZAC)/(VD.YBC - VD.YAC))*ones # dihedral angle 
@@ -263,6 +275,7 @@ def VLM(conditions,settings,geometry):
     m_b  = np.atleast_2d(mach[:,0]<1.)
     SPC_cond      = VL*m_b.T
     SPC[SPC_cond] = -1.
+    SPC           = SPC * exposed_leading_edge_flag
     
     CLE  = 0.5* DCP_LE *np.sqrt(XLE[LE_ind])
     CSUC = 0.5*np.pi*np.abs(SPC)*(CLE**2)*STB

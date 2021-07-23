@@ -70,6 +70,11 @@ class Vortex_Lattice(Aerodynamics):
         self.settings                                 = Data()
         self.settings.number_spanwise_vortices        = 15
         self.settings.number_chordwise_vortices       = 5
+        self.settings.wing_spanwise_vortices          = None
+        self.settings.wing_chordwise_vortices         = None
+        self.settings.fuselage_spanwise_vortices      = None
+        self.settings.fuselage_chordwise_vortices     = None 
+        
         self.settings.spanwise_cosine_spacing         = True
         self.settings.vortex_distribution             = Data()   
         self.settings.model_fuselage                  = False
@@ -77,6 +82,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.initial_timestep_offset         = 0
         self.settings.wake_development_time           = 0.05
         self.settings.number_of_wake_timesteps        = 30
+        self.settings.discretize_control_surfaces     = False
 
         # conditions table, used for surrogate model training
         self.training                                = Data()
