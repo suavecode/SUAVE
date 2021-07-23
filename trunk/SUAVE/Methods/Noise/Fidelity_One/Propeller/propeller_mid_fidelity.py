@@ -64,6 +64,9 @@ def propeller_mid_fidelity(network,auc_opts,segment,settings):
     
     if not network.identical_propellers:
         assert('This method currently only works with identical propellers')
+        
+    # Because the propellers are identical, get the first propellers results
+    auc_opts = auc_opts[list(auc_opts.keys())[0]]
     
     # create data structures for computation  
     Noise   = Data()  

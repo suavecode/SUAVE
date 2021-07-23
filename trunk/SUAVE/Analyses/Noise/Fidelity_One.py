@@ -4,6 +4,7 @@
 # Created:  
 # Modified: Feb 2016, A. Wendorff
 # Modified: Apr 2021, M. Clarke
+#           Jul 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -179,12 +180,12 @@ class Fidelity_One(Noise):
                         source_SPLs_dBA[:,si,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_mic, axis =1)     # noise measures at one microphone location in segment
                         source_SPL_spectra[:,si,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1) # noise measures at one microphone location in segment
                           
-                elif (source  == 'propeller')  or (source   == 'rotor'): 
+                elif (source  == 'propellers')  or (source   == 'rotors'): 
                     if bool(conditions.noise.sources[source]) == True: 
                         net                          = config.propulsors[network]
                         prop                         = config.propulsors[network][source]
                         acoustic_data                = conditions.noise.sources[source]   
-                        propeller_noise              = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings)  
+                        propeller_noise              = propeller_mid_fidelity(net,acoustic_data,segment,settings)  
                         source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
                         source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_spectrum    
                            
