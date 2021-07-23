@@ -216,7 +216,7 @@ def generate_vortex_distribution(geometry,settings):
             VD = generate_wing_vortex_distribution(VD,wing,n_cw_wing,n_sw_wing,spc,precision)     
                     
     # ---------------------------------------------------------------------------------------
-    # STEP 8.1: Unpack aircraft fuselage geometry
+    # STEP 8: Unpack aircraft fuselage geometry
     # ---------------------------------------------------------------------------------------      
     VD.wing_areas = np.array(VD.wing_areas, dtype=precision)   
     VD.n_fus      = 0
@@ -224,16 +224,34 @@ def generate_vortex_distribution(geometry,settings):
         if show_prints: print('discretizing ' + fus.tag)
         VD = generate_fuselage_vortex_distribution(VD,fus,n_cw_fuse,n_sw_fuse,precision,model_fuselage)       
 
+    # ---------------------------------------------------------------------------------------
+    # STEP 9: Postprocess VD information
+    # ---------------------------------------------------------------------------------------      
 
-    # Compute Panel Areas 
+    LE_ind = VD.leading_edge_indices
+
+    # Compute Panel Areas and Normals
     VD.panel_areas = np.array(compute_panel_area(VD) , dtype=precision)
-    
-    # Compute Panel Normals
     VD.normals     = np.array(compute_unit_normal(VD), dtype=precision)  
     
-    # pack VD into geometry
+    # Reshape chord_lengths
     VD.chord_lengths = np.atleast_2d(VD.chord_lengths) #need to be 2D for later calculations
     
+    # Compute variables used in VORLAX
+    X1c   = (VD.XA1+VD.XB1)/2
+    X2c   = (VD.XA2+VD.XB2)/2
+    Z1c   = (VD.ZA1+VD.ZB1)/2
+    Z2c   = (VD.ZA2+VD.ZB2)/2
+    SLOPE = (Z2c - Z1c)/(X2c - X1c)
+    SLE   = SLOPE[LE_ind]    
+    D    = np.sqrt((VD.YAH-VD.YBH)**2+(VD.ZAH-VD.ZBH)**2)[LE_ind]
+    
+    # Pack VORLAX variables
+    VD.SLOPE = SLOPE
+    VD.SLE   = SLE
+    VD.D     = D
+    
+    # pack VD into geometry
     geometry.vortex_distribution = VD
     
     if show_prints: print('finish discretization')            

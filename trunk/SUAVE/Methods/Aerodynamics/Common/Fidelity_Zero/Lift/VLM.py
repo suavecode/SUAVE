@@ -33,7 +33,9 @@ def VLM(conditions,settings,geometry):
     
     By default in Vortex_Lattice, VLM performs calculations based on panel coordinates with float32 precision. 
     The user may also choose to use float16 or float64, but be warned that the latter can be memory intensive.
-
+    
+    The user should note that fully capitalized variables correspond to a VORLAX variable of the same name
+    
     
     Assumptions:
     The user provides either global discretezation (number_spanwise/chordwise_vortices) or
@@ -43,12 +45,14 @@ def VLM(conditions,settings,geometry):
     The VLM requires that the user provide a non-zero velocity that matches mach number. For
     surrogate training cases at mach 0, VLM uses a velocity of 1e-6 m/s
 
+    
     Source:
     1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
     lattice method for subsonic and supersonic flow applications." (1977). (NASA CR)
     
     2. VORLAX Source Code
 
+    
     Inputs:
     geometry.
        reference_area                          [m^2]
@@ -98,6 +102,7 @@ def VLM(conditions,settings,geometry):
     conditions.stability.dynamic.roll_rate     [radians/s]
     conditions.stability.dynamic.yaw_rate      [radians/s]
        
+    
     Outputs:    
     results.
         CL                                     [Unitless]
@@ -109,28 +114,20 @@ def VLM(conditions,settings,geometry):
         CRMTOT                                 [Unitless]
         CYMTOT                                 [Unitless]
 
+    
     Properties Used:
     N/A
     """ 
-    # unpack settings
+    # unpack settings----------------------------------------------------------------
     pwm        = settings.propeller_wake_model
     bemt_wake  = settings.use_bemt_wake_model
     ito        = settings.initial_timestep_offset
     nts        = settings.number_of_wake_timesteps 
     wdt        = settings.wake_development_time   
     K_SPC      = settings.leading_edge_suction_multiplier
-    Sref       = geometry.reference_area  
-    
-    #freestream 0 velocity safeguard
-    if not conditions.freestream.velocity.all():
-        if settings.use_surrogate:
-            velocity                       = conditions.freestream.velocity
-            velocity[velocity==0]          = np.ones(len(velocity[velocity==0])) * 1e-6
-            conditions.freestream.velocity = velocity
-        else:
-            raise AssertionError("VLM requires that conditions.freestream.velocity be specified and non-zero")
-            
+    Sref       = geometry.reference_area              
 
+    # unpack geometry----------------------------------------------------------------
     # define point about which moment coefficient is computed
     if 'main_wing' in geometry.wings:
         c_bar      = geometry.wings['main_wing'].chords.mean_aerodynamic
@@ -158,17 +155,34 @@ def VLM(conditions,settings,geometry):
         x_m = x_cg
         z_m = z_cg
         
+    # unpack conditions--------------------------------------------------------------
     aoa  = conditions.aerodynamics.angle_of_attack   # angle of attack  
     mach = conditions.freestream.mach_number         # mach number
     ones = np.atleast_2d(np.ones_like(mach)) 
     len_mach = len(mach)
+    
+    #For angular values, VORLAX uses degrees by default to radians via DTR (degrees to rads). 
+    #SUAVE uses radians and its Units system. All algular variables will be in radians or var*Units.degrees
+    PSI       = conditions.aerodynamics.side_slip_angle     
+    PITCHQ    = conditions.stability.dynamic.pitch_rate              
+    ROLLQ     = conditions.stability.dynamic.roll_rate             
+    YAWQ      = conditions.stability.dynamic.yaw_rate 
+    VINF      = conditions.freestream.velocity    
+       
+    #freestream 0 velocity safeguard
+    if not conditions.freestream.velocity.all():
+        if settings.use_surrogate:
+            velocity                       = conditions.freestream.velocity
+            velocity[velocity==0]          = np.ones(len(velocity[velocity==0])) * 1e-6
+            conditions.freestream.velocity = velocity
+        else:
+            raise AssertionError("VLM requires that conditions.freestream.velocity be specified and non-zero")    
 
     # ---------------------------------------------------------------------------------------
     # STEPS 1-9: Generate Panelization and Vortex Distribution
     # ------------------ --------------------------------------------------------------------    
     # generate vortex distribution (VLM steps 1-9)
     VD   = generate_vortex_distribution(geometry,settings)  
-    
     
     # Unpack vortex distribution
     n_cp         = VD.n_cp
@@ -184,9 +198,7 @@ def VLM(conditions,settings,geometry):
     
     exposed_leading_edge_flag = VD.exposed_leading_edge_flag
     
-    YAH = VD.YAH*1.
-    ZAH = VD.ZAH
-    ZBH = VD.ZBH    
+    YAH = VD.YAH*1.  
     YBH = VD.YBH*1.
     
     XA1 = VD.XA1*1.
@@ -194,18 +206,9 @@ def VLM(conditions,settings,geometry):
     YA1 = VD.YA1
     YB1 = VD.YB1    
     ZA1 = VD.ZA1
-    ZB1 = VD.ZB1 
-    
-    XA2 = VD.XA2
-    XB2 = VD.XB2
-    YA2 = VD.YA2
-    YB2 = VD.YB2    
-    ZA2 = VD.ZA2
-    ZB2 = VD.ZB2 
+    ZB1 = VD.ZB1  
     
     XCH = VD.XCH
-    YCH = VD.YCH
-    ZCH = VD.ZCH
     
     XA_TE =  VD.XA_TE
     XB_TE =  VD.XB_TE
@@ -213,24 +216,16 @@ def VLM(conditions,settings,geometry):
     YB_TE =  VD.YB_TE
     ZA_TE =  VD.ZA_TE
     ZB_TE =  VD.ZB_TE     
-
-    # additional VD preprocessing
-    # from here on, VD will also be used to hold some processed information about geometry
-    # for the easier passage of this information into functions
+     
+    SLOPE = VD.SLOPE
+    SLE   = VD.SLE
+    D     = VD.D
+    
+    # Compute X and Z BAR ouside of generate_vortex_distribution to avoid requiring x_m and z_m as inputs
     XBAR    = np.ones(sum(LE_ind)) * x_m
-    ZBAR    = np.ones(sum(LE_ind)) * z_m
-    
-    X1c   = (XA1+XB1)/2
-    X2c   = (XA2+XB2)/2
-    Z1c   = (ZA1+ZB1)/2
-    Z2c   = (ZA2+ZB2)/2
-    SLOPE = (Z2c - Z1c)/(X2c - X1c)
-    SLE   = SLOPE[LE_ind]
-    
-    VD.XBAR  = XBAR * 1
-    VD.ZBAR  = ZBAR * 1
-    VD.SLOPE = SLOPE*1
-    VD.SLE   = SLE*1
+    ZBAR    = np.ones(sum(LE_ind)) * z_m   
+    VD.XBAR = XBAR
+    VD.ZBAR = ZBAR    
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Generate A and RHS matrices from VD and geometry
@@ -259,7 +254,7 @@ def VLM(conditions,settings,geometry):
     RHS = RHS*RFLAG
     
     # Build Aerodynamic Influence Coefficient Matrix
-    use_VORLAX_induced_velocity = getattr(settings, 'use_VORLAX_matrix_calculation', False)
+    use_VORLAX_induced_velocity = settings.use_VORLAX_matrix_calculation
     if not use_VORLAX_induced_velocity:
         A =   np.multiply(C_mn[:,:,:,0],np.atleast_3d(np.sin(delta)*np.cos(phi))) \
             + np.multiply(C_mn[:,:,:,1],np.atleast_3d(np.cos(delta)*np.sin(phi))) \
@@ -274,15 +269,6 @@ def VLM(conditions,settings,geometry):
     # STEP 11: Compute Pressure Coefficient
     # ------------------ --------------------------------------------------------------------   
     #VORLAX subroutine = PRESS
-
-    #Inputs for sideslip/acceleration
-    #For angular values, VORLAX uses degrees by default to radians via DTR (degrees to rads). 
-    #SUAVE uses radians and its Units system. All algular variables will be in radians or var*Units.degrees
-    PSI       = conditions.aerodynamics.side_slip_angle     
-    PITCHQ    = conditions.stability.dynamic.pitch_rate              
-    ROLLQ     = conditions.stability.dynamic.roll_rate             
-    YAWQ      = conditions.stability.dynamic.yaw_rate 
-    VINF      = conditions.freestream.velocity
                   
     # spanwise strip exposure flag, always 0 for SUAVE's infinitely thin airfoils. Needs to change if thick airfoils added
     RJTS = 0                         
@@ -300,13 +286,9 @@ def VLM(conditions,settings,geometry):
     ROLL   = ROLLQ /VINF
     YAW    = YAWQ /VINF    
     
+    # reshape CHORD
     CHORD  = CHORD[0,:]
     CHORD_strip = CHORD[LE_ind]     
-
-    # Panel Dihedral Angle, using AH and BH location. Similar to COD and SID (later) except for signs
-    D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)[LE_ind]
-    COS_DL = (YBH-YAH)[LE_ind]/D
-    SIN_DL = (ZBH-ZAH)[LE_ind]/D
 
     # COMPUTE EFFECT OF SIDESLIP on DCP intermediate variables. needs change if cosine chorwise spacing added
     FORAXL = COSCOS
@@ -334,6 +316,7 @@ def VLM(conditions,settings,geometry):
     GANT[:,LE_ind]   = 0 
     
     GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
+    COS_DL = (YBH-YAH)[LE_ind]/D
     cos_DL  = np.broadcast_to(np.repeat(COS_DL,RNMAX[LE_ind]),np.shape(B2))
     DCPSID = FORLAT * cos_DL *GLAT /(XIB - XIA)
     FACTOR = FORAXL + ONSET
@@ -478,18 +461,15 @@ def VLM(conditions,settings,geometry):
     BMZ    = BMLE * SID - BFX * Y + BFY * (X - XBAR)
     CDC    = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) * COSALF
     CDC    = CDC * CHORD_strip
-    #CMTC   = BMLE + CNC * (0.25 - XLE[LE_ind]) #doesn't affect coefficients, but is in VORLAX
 
     ES     = 2*s[0,LE_ind]
     STRIP  = ES *CHORD_strip
     LIFT   = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
     DRAG   = CDC*ES 
     MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)  
-    #FN     = CNC *ES                    #doesn't affect coefficients, but is in VORLAX
     FY     = (BFY *COPSI - BFX *SINPSI) *STRIP
     RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF *SINPSI + BMZ *SINALF)
     YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)
-    #XSUC   = CSUC *STRIP /SURF         #doesn't affect coefficients, but is in VORLAX
 
     # Now calculate the coefficients for each wing
     cl_y     = LIFT/CHORD_strip/ES
@@ -553,7 +533,6 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     Several of the values needed in this calculation have been computed earlier in
     either compute_RHS_matrix() or generate_vortex_distribution() and stored in VD
     """
-    spacing     = settings.spanwise_cosine_spacing
     LE_ind      = VD.leading_edge_indices
     RNMAX       = VD.panels_per_strip
 
@@ -561,6 +540,7 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     # However, since the trends are correct, albeit underestimated, this calculation is being forced
     # here.
     # **TODO** put this check back in when cosine chordwise spacing is added
+    ##spacing = settings.spanwise_cosine_spacing
     ##if spacing == False: # linear spacing is LAX==1 in VORLAX
     ##    return 0 #CLE not calculated till later for linear spacing
     
