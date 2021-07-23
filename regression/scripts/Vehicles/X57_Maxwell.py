@@ -330,7 +330,7 @@ def vehicle_setup():
     prop.design_altitude        = 12000. * Units.feet
     prop.design_thrust          = 1200.  
     prop.origin                 = [[2.,2.5,0.784]]         
-    prop.rotation               = [-1] 
+    prop.rotation               = -1 
     prop.symmetry               = True
 
     prop.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
@@ -345,7 +345,7 @@ def vehicle_setup():
     
     prop_left = deepcopy(prop)
     prop_left.origin   = [[2.,-2.5,0.784]]
-    prop_left.rotation = [1] 
+    prop_left.rotation = 1 
     
     
     net.propellers.append(prop)

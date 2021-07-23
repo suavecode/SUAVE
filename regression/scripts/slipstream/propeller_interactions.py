@@ -65,7 +65,7 @@ def main():
     # compare regression results:
     T_iso_true, Q_iso_true, P_iso_true, Cp_iso_true, etap_iso_true = 3.37954649, 0.0749168, 50.99424705, 0.04762865, 0.59253447
     
-    assert(abs(T_iso-T_iso_true)<1e-6)
+    assert(abs(np.linalg.norm(T_iso)-T_iso_true)<1e-6)
     assert(abs(Q_iso-Q_iso_true)<1e-6)
     assert(abs(P_iso-P_iso_true)<1e-6)
     assert(abs(Cp_iso-Cp_iso_true)<1e-6)
@@ -73,7 +73,7 @@ def main():
     
     T_true, Q_true, P_true, Cp_true, etap_true = 3.37504629,0.074902,50.98417632,0.04761925,0.59186234
     
-    assert(abs(T-T_true)<1e-6)
+    assert(abs(np.linalg.norm(T)-T_true)<1e-6)
     assert(abs(Q-Q_true)<1e-6)
     assert(abs(P-P_true)<1e-6)
     assert(abs(Cp-Cp_true)<1e-6)
