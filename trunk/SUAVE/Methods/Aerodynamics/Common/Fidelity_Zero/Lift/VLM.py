@@ -182,7 +182,7 @@ def VLM(conditions,settings,geometry):
     # STEPS 1-9: Generate Panelization and Vortex Distribution
     # ------------------ --------------------------------------------------------------------    
     # generate vortex distribution (VLM steps 1-9)
-    VD   = generate_vortex_distribution(geometry,settings)  
+    VD   = generate_vortex_distribution(geometry,settings, x_m, z_m)  
     
     
     # Unpack vortex distribution
@@ -228,24 +228,12 @@ def VLM(conditions,settings,geometry):
     YB_TE =  VD.YB_TE
     ZA_TE =  VD.ZA_TE
     ZB_TE =  VD.ZB_TE     
-
-    # additional VD preprocessing
-    # from here on, VD will also be used to hold some processed information about geometry
-    # for the easier passage of this information into functions
-    XBAR    = np.ones(sum(LE_ind)) * x_m
-    ZBAR    = np.ones(sum(LE_ind)) * z_m
     
-    X1c   = (XA1+XB1)/2
-    X2c   = (XA2+XB2)/2
-    Z1c   = (ZA1+ZB1)/2
-    Z2c   = (ZA2+ZB2)/2
-    SLOPE = (Z2c - Z1c)/(X2c - X1c)
-    SLE   = SLOPE[LE_ind]
-    
-    VD.XBAR  = XBAR * 1
-    VD.ZBAR  = ZBAR * 1
-    VD.SLOPE = SLOPE*1
-    VD.SLE   = SLE*1
+    XBAR  = VD.XBAR  
+    ZBAR  = VD.ZBAR 
+    SLOPE = VD.SLOPE
+    SLE   = VD.SLE
+    D     = VD.D
     
     # ---------------------------------------------------------------------------------------
     # STEP 10: Generate A and RHS matrices from VD and geometry
@@ -306,13 +294,9 @@ def VLM(conditions,settings,geometry):
     ROLL   = ROLLQ /VINF
     YAW    = YAWQ /VINF    
     
+    # reshape CHORD
     CHORD  = CHORD[0,:]
     CHORD_strip = CHORD[LE_ind]     
-
-    # Panel Dihedral Angle, using AH and BH location. Similar to COD and SID (later) except for signs
-    D   = np.sqrt((YAH-YBH)**2+(ZAH-ZBH)**2)[LE_ind]
-    COS_DL = (YBH-YAH)[LE_ind]/D
-    SIN_DL = (ZBH-ZAH)[LE_ind]/D
 
     # COMPUTE EFFECT OF SIDESLIP on DCP intermediate variables. needs change if cosine chorwise spacing added
     FORAXL = COSCOS
@@ -340,6 +324,7 @@ def VLM(conditions,settings,geometry):
     GANT[:,LE_ind]   = 0 
     
     GLAT   = GANT *(TANA - TANB) - GFX *GAMMA *TANB
+    COS_DL = (YBH-YAH)[LE_ind]/D
     cos_DL  = np.broadcast_to(np.repeat(COS_DL,RNMAX[LE_ind]),np.shape(B2))
     DCPSID = FORLAT * cos_DL *GLAT /(XIB - XIA)
     FACTOR = FORAXL + ONSET
@@ -484,18 +469,15 @@ def VLM(conditions,settings,geometry):
     BMZ    = BMLE * SID - BFX * Y + BFY * (X - XBAR)
     CDC    = BFZ * SINALF +  (BFX *COPSI + BFY *SINPSI) * COSALF
     CDC    = CDC * CHORD_strip
-    #CMTC   = BMLE + CNC * (0.25 - XLE[LE_ind]) #doesn't affect coefficients, but is in VORLAX
 
     ES     = 2*s[0,LE_ind]
     STRIP  = ES *CHORD_strip
     LIFT   = (BFZ *COSALF - (BFX *COPSI + BFY *SINPSI) *SINALF)*STRIP
     DRAG   = CDC*ES 
     MOMENT = STRIP * (BMY *COPSI - BMX *SINPSI)  
-    #FN     = CNC *ES                    #doesn't affect coefficients, but is in VORLAX
     FY     = (BFY *COPSI - BFX *SINPSI) *STRIP
     RM     = STRIP *(BMX *COSALF *COPSI + BMY *COSALF *SINPSI + BMZ *SINALF)
     YM     = STRIP *(BMZ *COSALF - (BMX *COPSI + BMY *SINPSI) *SINALF)
-    #XSUC   = CSUC *STRIP /SURF         #doesn't affect coefficients, but is in VORLAX
 
     # Now calculate the coefficients for each wing
     cl_y     = LIFT/CHORD_strip/ES
@@ -559,7 +541,6 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     Several of the values needed in this calculation have been computed earlier in
     either compute_RHS_matrix() or generate_vortex_distribution() and stored in VD
     """
-    spacing     = settings.spanwise_cosine_spacing
     LE_ind      = VD.leading_edge_indices
     RNMAX       = VD.panels_per_strip
 
@@ -567,6 +548,7 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     # However, since the trends are correct, albeit underestimated, this calculation is being forced
     # here.
     # **TODO** put this check back in when cosine chordwise spacing is added
+    ##spacing = settings.spanwise_cosine_spacing
     ##if spacing == False: # linear spacing is LAX==1 in VORLAX
     ##    return 0 #CLE not calculated till later for linear spacing
     
