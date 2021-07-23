@@ -538,13 +538,12 @@ def vehicle_setup():
     rotor.number_of_blades           = 2
     rotor.design_tip_mach            = 0.65
     rotor.number_of_engines          = net.number_of_rotor_engines
-    rotor.disc_area                  = np.pi*(rotor.tip_radius**2)        
-    rotor.induced_hover_velocity     = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_rotor_engines)) 
+    rotor.disc_area                  = np.pi*(rotor.tip_radius**2)         
     rotor.freestream_velocity        = 500. * Units['ft/min']  
     rotor.angular_velocity           = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
     rotor.design_Cl                  = 0.7
     rotor.design_altitude            = 20 * Units.feet                            
-    rotor.design_thrust              = (Hover_Load* 2.5)/net.number_of_rotor_engines  
+    rotor.design_thrust              = Hover_Load/(net.number_of_rotor_engines-1) # contingency for one-engine-inoperative condition
     rotor.x_pitch_count              = 2
     rotor.y_pitch_count              = vehicle.fuselages['boom_1r'].y_pitch_count
     rotor.y_pitch                    = vehicle.fuselages['boom_1r'].y_pitch 
@@ -595,8 +594,8 @@ def vehicle_setup():
 
     # Rotor (Lift) Motor                        
     rotor_motor                         = SUAVE.Components.Energy.Converters.Motor()
-    rotor_motor.efficiency              = 0.95  
-    rotor_motor.nominal_voltage         = bat.max_voltage 
+    rotor_motor.efficiency              = 0.85
+    rotor_motor.nominal_voltage         = bat.max_voltage*3/4 
     rotor_motor.mass_properties.mass    = 3. * Units.kg 
     rotor_motor.origin                  = rotor.origin  
     rotor_motor.propeller_radius        = rotor.tip_radius   

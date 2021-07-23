@@ -62,8 +62,7 @@ class Rotor(Energy_Component):
         self.blade_solidity            = 0.0
         self.pitch_command             = 0.0
         self.design_power              = None
-        self.design_thrust             = None        
-        self.induced_hover_velocity    = 0.0
+        self.design_thrust             = None    
         self.airfoil_geometry          = None
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
@@ -159,9 +158,7 @@ class Rotor(Energy_Component):
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
         cd_sur  = self.airfoil_cd_surrogates  
-        tc      = self.thickness_to_chord 
-        ua      = self.induced_hover_velocity
-        VTOL    = self.VTOL_flag 
+        tc      = self.thickness_to_chord   
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector 
@@ -180,14 +177,12 @@ class Rotor(Energy_Component):
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
         body2thrust     = self.body_to_prop_vel()
-        T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
-        V_thrust        = orientation_product(T_body2thrust,V_body)
-     
-        if VTOL:    
-            V        = V_thrust[:,0,None] + ua
-        else:
-            V        = V_thrust[:,0,None]   
-        ut  = np.zeros_like(V) 
+        T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
+        V_thrust        = orientation_product(T_body2thrust,V_body) 
+    
+        V         = V_thrust[:,0,None]  
+        V[V==0.0] = 1E-6
+        ut        = np.zeros_like(V) 
     
         #Things that don't change with iteration
         Nr       = len(c) # Number of stations radially    
@@ -219,7 +214,7 @@ class Rotor(Energy_Component):
         # Things that will change with iteration
         size   = (len(a),Nr)
         omegar = np.outer(omega,r)
-        Ua     = np.outer((V + ua),np.ones_like(r))
+        Ua     = np.outer((V),np.ones_like(r))
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut) 
         beta   = total_blade_pitch
