@@ -13,6 +13,7 @@ from copy import deepcopy
 
 import SUAVE
 from SUAVE.Core import  Data
+from SUAVE.Components.Wings import Stabilator 
 from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import populate_control_sections
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions import convert_sweep_segments
@@ -73,13 +74,22 @@ def make_VLM_wings(geometry, settings):
         wing.is_a_control_surface = False
         n_segments           = len(wing.Segments.keys())
         if n_segments==0:
+            # covert to preferred format for the panelization loop
             wing       = convert_to_segmented_wing(wing)
             n_segments = 2
         else:
-            for segment in wing.Segments:
+            # check for invalid/unsupported geometry input            
+            if wing.wing_type == Stabilator: # these cases unsupported due to the way the panelization loop is structured at the moment
+                if n_segments > 2: 
+                    raise ValueError('Input: non-trapezoidal Stabilators are not supported in VLM at this time. Please format ' +
+                                     'Stabilator as an un-Segmented wing or as a wing with exactly 2 Segments')
+                elif len(wing.control_surfaces) > 0:
+                    raise ValueError('Input: control surfaces are not supported on Stabilators at this time')
+            for segment in wing.Segments: #unsupported by convention
                 if 'control_surfaces' in segment.keys() and len(segment.control_surfaces) > 0:
-                    raise ValueError('Input, control surfaces should be appended to the wing, not its segments. ' + 
+                    raise ValueError('Input: control surfaces should be appended to the wing, not its segments. ' + 
                                      'This function will move the control surfaces to wing segments itself.')  
+        
         #move wing control surfaces to from wing to its segments
         wing = populate_control_sections(wing) if discretize_cs else wing
         
@@ -244,10 +254,19 @@ def copy_large_container(large_container, type_str):
     container = SUAVE.Core.Container()  if type_str != "Segments" else SUAVE.Core.ContainerOrdered()
     paths = get_paths(type_str)
     
-    for obj in large_container:        
-        data = copy_data_from_paths(obj, paths)        
+    for obj in large_container: 
+        #copy from paths
+        data = copy_data_from_paths(obj, paths)     
+        
+        #special case new attributes
         if type_str == 'control_surfaces':
-            data.cs_type = type(obj) # needed to identify the class of a control surface
+            data.cs_type   = type(obj) # needed to identify the class of a control surface
+        elif type_str == 'wings':
+            data.wing_type = type(obj)
+            if data.wing_type == Stabilator:
+                data.hinge_fraction = obj.hinge_fraction 
+                data.deflection     = obj.deflection     
+                data.gain           = obj.gain                           
         container.append(data)
         
     return container
