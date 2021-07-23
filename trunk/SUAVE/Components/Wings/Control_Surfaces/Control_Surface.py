@@ -21,9 +21,13 @@ import numpy as np
 class Control_Surface(Physical_Component):
     def __defaults__(self):
         """This sets the default values of control surfaces defined in SUAVE. 
-        sign_duplicate: 1.0 or -1.0 - the sign of the duplicate control on the mirror wing.
         
+        sign_duplicate: 1.0 or -1.0 - the sign of the duplicate control on the mirror wing.        
         Use 1.0 for a mirrored control surface, like an elevator. Use -1.0 for an aileron.
+        
+        hinge_fraction: number between 0.0 and 1.0. This corresponds to the location of the 
+        hingeline, where 0 and 1 correspond to the leading and trailing edges, respectively, 
+        of the control surface.
         
         The span fraction is given by the array shown below:  
         [abs. % span location at beginning of crtl surf, abs. % span location at end  of crtl surf]
@@ -51,8 +55,12 @@ class Control_Surface(Physical_Component):
         self.span                  = 0.0
         self.span_fraction_start   = 0.0
         self.span_fraction_end     = 0.0
-        self.chord_fraction        = 0.0  
-        self.hinge_fraction        = 1.0
+        
+        self.hinge_fraction        = 0.0
+        self.chord_fraction        = 0.0
+        
+        self.sign_duplicate        = 1.0
         self.deflection            = 0.0  
         self.configuration_type    = 'single_slotted'
-        self.gain                  = 1.0
+        
+        self.gain                  = 1.0 #deflection multiplier used only for AVL

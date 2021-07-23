@@ -38,9 +38,7 @@ class Stabilator(Wing):
     def __defaults__(self):
         """This sets the default for stabilators in SUAVE.
         
-        A hinge_fraction of 0 means the Stabilator rotates about the leading edge,
-        while 1 means it rotates about the trailing edge. By default, the Stabilators
-        rotate about the quarter chord line.
+        see Control_Surface().__defaults__ and Wing().__defaults__ for an explanation of attributes
     
         Assumptions:
         None
@@ -60,9 +58,9 @@ class Stabilator(Wing):
         self.tag = 'stabilator'
         
         #describe control surface-like behavior
+        self.sign_duplicate        = 1.0
         self.hinge_fraction        = 0.25
-        self.deflection            = 0.0 
-        self.gain                  = 1.0        
+        self.deflection            = 0.0      
 
 
 # ----------------------------------------------------------------------

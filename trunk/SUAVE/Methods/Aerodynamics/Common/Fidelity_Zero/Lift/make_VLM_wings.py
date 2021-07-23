@@ -264,9 +264,9 @@ def copy_large_container(large_container, type_str):
         elif type_str == 'wings':
             data.wing_type = type(obj)
             if data.wing_type == Stabilator:
+                data.sign_duplicate = obj.sign_duplicate
                 data.hinge_fraction = obj.hinge_fraction 
-                data.deflection     = obj.deflection     
-                data.gain           = obj.gain                           
+                data.deflection     = obj.deflection  
         container.append(data)
         
     return container
@@ -343,11 +343,11 @@ def get_paths(type_str):
                  'span',               
                  'span_fraction_start',
                  'span_fraction_end',  
-                 'chord_fraction',     
                  'hinge_fraction',     
+                 'chord_fraction',     
+                 'sign_duplicate',
                  'deflection',         
-                 'configuration_type', 
-                 'gain',             
+                 'configuration_type',      
                  ]
     elif type_str == 'Segments':
         paths = ['tag',               
