@@ -199,9 +199,7 @@ def VLM(conditions,settings,geometry):
     
     exposed_leading_edge_flag = VD.exposed_leading_edge_flag
     
-    YAH = VD.YAH*1.
-    ZAH = VD.ZAH
-    ZBH = VD.ZBH    
+    YAH = VD.YAH*1.  
     YBH = VD.YBH*1.
     
     XA1 = VD.XA1*1.
@@ -209,18 +207,9 @@ def VLM(conditions,settings,geometry):
     YA1 = VD.YA1
     YB1 = VD.YB1    
     ZA1 = VD.ZA1
-    ZB1 = VD.ZB1 
-    
-    XA2 = VD.XA2
-    XB2 = VD.XB2
-    YA2 = VD.YA2
-    YB2 = VD.YB2    
-    ZA2 = VD.ZA2
-    ZB2 = VD.ZB2 
+    ZB1 = VD.ZB1  
     
     XCH = VD.XCH
-    YCH = VD.YCH
-    ZCH = VD.ZCH
     
     XA_TE =  VD.XA_TE
     XB_TE =  VD.XB_TE
