@@ -354,7 +354,7 @@ class Battery_Propeller(Propulsor):
         segment.state.conditions.propulsion.disc_loading           = 0. * ones_row(n_props)                 
         segment.state.conditions.propulsion.power_loading          = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_tip_mach     = 0. * ones_row(n_props)
-        segment.state.conditions.propulsion.propeller_efficiency    = 0. * ones_row(n_props)        
+        segment.state.conditions.propulsion.propeller_efficiency   = 0. * ones_row(n_props)        
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns

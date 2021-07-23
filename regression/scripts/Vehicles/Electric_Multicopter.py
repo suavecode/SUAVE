@@ -9,15 +9,14 @@
 # ---------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core                                                           import Units, Data
-from SUAVE.Components.Energy.Networks.Vectored_Thrust                     import Vectored_Thrust
 from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
 from SUAVE.Methods.Propulsion                                             import propeller_design
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift                        import compute_max_lift_coeff
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
+from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_optimal_motor
 from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor, hts_motor , air_cooled_motor
 import numpy as np
+from copy import deepcopy
 
 # ----------------------------------------------------------------------
 #   Build the Vehicle
@@ -143,15 +142,15 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # PROPULSOR
     #------------------------------------------------------------------
-    net                    = Vectored_Thrust()
-    net.number_of_engines  = 6
-    net.thrust_angle       = 90. * Units.degrees
-    net.nacelle_diameter   = 0.6 * Units.feet # need to check 
-    net.engine_length      = 0.5 * Units.feet
-    net.areas              = Data()
-    net.areas.wetted       = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
-    net.voltage            =  500.
-    net.identical_rotors   = True
+    net                      = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net.number_of_engines    = 6
+    net.thrust_angle         = 90. * Units.degrees
+    net.nacelle_diameter     = 0.6 * Units.feet # need to check 
+    net.engine_length        = 0.5 * Units.feet
+    net.areas                = Data()
+    net.areas.wetted         = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
+    net.voltage              =  500.
+    net.identical_propellers = True
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
@@ -217,11 +216,16 @@ def vehicle_setup():
     rotor                        = propeller_design(rotor)     
     
     # propulating propellers on the other side of the vehicle    
-    rotor.origin                 = [[ 0.3,2.5,1.4],[ 0.3,-2.5,1.4],
-                                    [4.9,2.5,1.4] ,[4.9,-2.5,1.4]]  
-   
-    # append propellers to vehicle           
-    net.rotor = rotor
+    origins                 = [[ 0.3,2.5,1.4],[ 0.3,-2.5,1.4],
+                                    [4.9,2.5,1.4] ,[4.9,-2.5,1.4],
+                                    [ 0.,0.,0.],[ 0.,0.,0.]]  # Dummies, this geometry needs updating
+    
+    for ii in range(6):
+        rotor          = deepcopy(rotor)
+        rotor.tag      = 'propeller' # weight estimation gets confused since it's looking for hard coded names
+        rotor.origin   = [origins[ii]]
+        net.propellers.append(rotor)    
+
     
     #------------------------------------------------------------------
     # Design Motors
@@ -250,7 +254,12 @@ def vehicle_setup():
     # test air cooled motor weight function 
     mass                        = air_cooled_motor(max_power) 
     motor.mass_properties.mass  = mass 
-    net.motor                   = motor 
+    
+    for ii in range(6):
+        rotor_motor = deepcopy(motor)
+        rotor_motor.tag = 'motor'
+        net.motors.append(rotor_motor)        
+
     
     vehicle.append_component(net)
     
