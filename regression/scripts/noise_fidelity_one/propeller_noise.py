@@ -78,7 +78,10 @@ def main():
     conditions.noise.microphone_locations        = mic_locations
     
     # Run Propeller model 
-    F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions)   
+    F, Q, P, Cp , noise_data , etap                        = prop.spin(conditions)
+    
+    propellers = SUAVE.Core.Container()
+    propellers.append(prop)
     
     # Store Noise Data 
     noise                                                  = SUAVE.Analyses.Noise.Fidelity_One()
@@ -89,7 +92,7 @@ def main():
     segment.state.conditions                               = conditions
 
     # Run Fidelity One   
-    propeller_noise  = propeller_mid_fidelity(net,prop,noise_data,segment,settings)  
+    propeller_noise  = propeller_mid_fidelity(net,propellers,noise_data,segment,settings)  
     SPL_dBA          = propeller_noise.SPL_dBA
     SPL_Spectrum     = propeller_noise.SPL_bpfs_spectrum
     

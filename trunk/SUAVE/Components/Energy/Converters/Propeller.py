@@ -617,7 +617,7 @@ class Propeller(Energy_Component):
         None
         """
         
-        body2propvel = self.body_to_prop_matrix()
+        body2propvel = self.body_to_prop_vel()
         
         r = sp.spatial.transform.Rotation.from_matrix(body2propvel)
         r = r.inv()
