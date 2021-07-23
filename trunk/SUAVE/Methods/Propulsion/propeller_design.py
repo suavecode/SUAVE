@@ -48,7 +48,7 @@ def propeller_design(prop,number_of_stations=20):
           Based on Design of Optimum Propellers by Adkins and Liebeck
           
     """    
-    print('\nDesinging ',prop.tag)
+    print('\nDesinging',prop.tag)
     
     # Unpack
     N      = number_of_stations       # this number determines the discretization of the propeller into stations 
