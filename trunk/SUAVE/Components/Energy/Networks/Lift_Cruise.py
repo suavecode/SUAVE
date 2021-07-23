@@ -284,7 +284,6 @@ class Lift_Cruise(Propulsor):
             
             # link
             rotor.inputs.omega  = rotor_motor.outputs.omega
-            rotor.thrust_angle  = self.rotor_thrust_angle
             rotor.pitch_command = self.rotor_pitch_command 
             rotor.VTOL_flag     = state.VTOL_flag   
             

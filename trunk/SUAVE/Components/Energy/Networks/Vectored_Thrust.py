@@ -64,8 +64,7 @@ class Vectored_Thrust(Propulsor):
         self.voltage                  = None
         self.thrust_angle             = 0.0 
         self.pitch_command            = 0.0
-        self.thrust_angle_start       = None
-        self.thrust_angle_end         = None        
+     
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -107,7 +106,6 @@ class Vectored_Thrust(Propulsor):
         payload     = self.payload
         battery     = self.battery
         num_engines = self.number_of_engines
-        t_nondim    = state.numerics.dimensionless.control_points
         
         # Set battery energy
         battery.current_energy = conditions.propulsion.battery_energy  
@@ -213,23 +211,13 @@ class Vectored_Thrust(Propulsor):
         conditions.propulsion.propeller_efficiency            = etap       
         conditions.propulsion.propeller_thrust_coefficient    = outputs.thrust_coefficient  
         
-        # noise      
-        outputs.number_of_engines                             = num_engines
-        conditions.noise.sources.rotor                        = outputs
-
-        # Compute force vector       
-        F_vec = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]   
-        
-        F_mag = np.atleast_2d(np.linalg.norm(F_vec, axis=1)) 
   
         conditions.propulsion.disc_loading                    = (F_mag.T)/(num_engines*np.pi*(R)**2) # N/m^2  
         conditions.propulsion.power_loading                   = (F_mag.T)/(P)    # N/W         
-        
-        mdot = state.ones_row(1)*0.0
 
         results = Data()
         results.thrust_force_vector = F_vec
-        results.vehicle_mass_rate   = mdot   
+        results.vehicle_mass_rate   = state.ones_row(1)*0.0 
         
         return results
       

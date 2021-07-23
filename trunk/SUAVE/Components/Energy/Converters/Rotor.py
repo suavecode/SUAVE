@@ -108,7 +108,6 @@ class Rotor(Energy_Component):
            number_radial_stations            [-]
            number_azimuthal_stations         [-] 
            disc_radial_distribution          [m]
-           thrust_angle                      [rad]
            speed_of_sound                    [m/s]
            density                           [kg/m-3]
            velocity                          [m/s]

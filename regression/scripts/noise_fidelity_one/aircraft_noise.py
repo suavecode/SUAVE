@@ -36,7 +36,7 @@ from Boeing_737   import configs_setup as  B737_configs_setup
 
 def main():   
     # ----------------------------------------------------------------------
-    # SUAVE Frequecy Domain Propeller Aircraft Noise Model 
+    # SUAVE Frequency Domain Propeller Aircraft Noise Model 
     # ---------------------------------------------------------------------- 
     configs, analyses = X57_full_setup() 
  
@@ -52,7 +52,7 @@ def main():
     plot_results(X57_results,X57_filename)  
     
     # SPL of rotor check during hover
-    print('\n\n SUAVE Frequecy Domain Propeller Aircraft Noise Model')
+    print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
     X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
     X57_SPL_true   = 81.59170186276414
     print(X57_SPL) 

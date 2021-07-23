@@ -149,8 +149,9 @@ def vehicle_setup():
     net.nacelle_diameter   = 0.6 * Units.feet # need to check 
     net.engine_length      = 0.5 * Units.feet
     net.areas              = Data()
-    net.areas.wetted       = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
+    net.areas.wetted       = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
     net.voltage            =  500.
+    net.identical_rotors   = True
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 

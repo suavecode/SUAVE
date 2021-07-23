@@ -443,8 +443,6 @@ def vehicle_setup():
     net                             = Lift_Cruise()
     net.number_of_rotor_engines     = 12
     net.number_of_propeller_engines = 1
-    net.rotor_thrust_angle          = 90. * Units.degrees
-    net.propeller_thrust_angle      = 0. 
     net.nacelle_diameter            = 0.6 * Units.feet  
     net.engine_length               = 0.5 * Units.feet
     net.areas                       = Data()
