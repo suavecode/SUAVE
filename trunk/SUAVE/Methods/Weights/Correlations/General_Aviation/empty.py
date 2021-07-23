@@ -185,7 +185,9 @@ def empty(vehicle):
         propulsors.mass_properties.mass  = wt_propulsion 
 
     elif propulsor_name == 'internal_combustion':
-        rated_power                      = propulsors.engine.sea_level_power
+        engine_key                       = list(propulsors.engines.keys())[0]
+        engine                           = propulsors.engines[engine_key]
+        rated_power                      = engine.sea_level_power
         wt_engine_piston                 = Propulsion.engine_piston(rated_power)
         wt_propulsion                    = Propulsion.integrated_propulsion_general_aviation(wt_engine_piston,num_eng)
         propulsors.mass_properties.mass  = wt_propulsion 
