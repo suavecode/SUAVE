@@ -67,6 +67,7 @@ def main():
     
     # Set up for Propeller Model
     prop.inputs.omega                            = np.atleast_2d(omega).T
+    prop.inputs.pitch_command                    = 0.
     conditions                                   = Aerodynamics()
     conditions._size                             = 3
     conditions.freestream.density                = np.ones((ctrl_pts,1)) * density
@@ -247,7 +248,6 @@ def main():
                                         
 def design_F8745D4_prop():  
     prop                            = SUAVE.Components.Energy.Converters.Propeller()
-    prop.inputs                     = Data()
     prop.tag                        = 'F8745_D4_Propeller'  
     prop.tip_radius                 = 2.03/2
     prop.hub_radius                 = prop.tip_radius*0.20

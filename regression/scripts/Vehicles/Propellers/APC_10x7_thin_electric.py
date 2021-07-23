@@ -27,7 +27,6 @@ def propeller_geometry():
     prop.tip_radius       = 5 * Units.inches
     prop.number_of_blades = 2
     prop.hub_radius       = prop.tip_radius * 0.1
-    prop.inputs           = Data()
     prop.inputs.omega     = np.array([[4500 * Units.rpm]])    
     
 
