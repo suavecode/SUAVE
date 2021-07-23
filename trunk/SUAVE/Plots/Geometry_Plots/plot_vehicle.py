@@ -296,20 +296,19 @@ def plot_propulsor(axes,propulsor):
     N/A
     """          
     
-    #if ('propellers' in propulsor.keys()):  
-        #prop = propulsor.propeller 
+    if ('propellers' in propulsor.keys()):  
         
-        #for prop in propulsor.propellers:
+        for prop in propulsor.propellers:
         
-            ## Generate And Plot Propeller/Rotor Geometry   
-            #plot_propeller_geometry(axes,prop,propulsor,'propeller') 
+            # Generate And Plot Propeller/Rotor Geometry   
+            plot_propeller_geometry(axes,prop,propulsor,'propeller') 
         
-    #if ('rotors' in propulsor.keys()):  
+    if ('rotors' in propulsor.keys()):  
         
-        #for rotor in propulsor.rotors:
+        for rotor in propulsor.rotors:
             
-            ## Generate and Plot Propeller/Rotor Geometry   
-            #plot_propeller_geometry(axes,rotor,propulsor,'rotor')        
+            # Generate and Plot Propeller/Rotor Geometry   
+            plot_propeller_geometry(axes,rotor,propulsor,'rotor')        
         
     return 
 
@@ -338,7 +337,6 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     r      = prop.radius_distribution 
     MCA    = prop.mid_chord_alignment
     t      = prop.max_thickness_distribution
-    ta     = -propulsor.thrust_angle
     
     if isinstance(propulsor,Lift_Cruise):
         if propulsor_name == 'propeller': 
@@ -413,9 +411,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
         trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
         
         # rotation about y to orient propeller/rotor to thrust angle 
-        trans_3 = np.array([[np.cos(ta),0 , -np.sin(ta)],
-                       [0 ,  1 , 0] ,
-                       [np.sin(ta) , 0 , np.cos(ta)]])
+        trans_3 =  prop.prop_vel_to_body()
         trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0)
         
         trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
@@ -427,19 +423,19 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
         
         # ---------------------------------------------------------------------------------------------
         # store points
-        G.XA1  = mat[:-1,:-1,0] + origin[n_p][0]
-        G.YA1  = mat[:-1,:-1,1] + origin[n_p][1] 
-        G.ZA1  = mat[:-1,:-1,2] + origin[n_p][2]
-        G.XA2  = mat[:-1,1:,0]  + origin[n_p][0]
-        G.YA2  = mat[:-1,1:,1]  + origin[n_p][1] 
-        G.ZA2  = mat[:-1,1:,2]  + origin[n_p][2]
+        G.XA1  = mat[:-1,:-1,0] + origin[0][0]
+        G.YA1  = mat[:-1,:-1,1] + origin[0][1] 
+        G.ZA1  = mat[:-1,:-1,2] + origin[0][2]
+        G.XA2  = mat[:-1,1:,0]  + origin[0][0]
+        G.YA2  = mat[:-1,1:,1]  + origin[0][1] 
+        G.ZA2  = mat[:-1,1:,2]  + origin[0][2]
                         
-        G.XB1  = mat[1:,:-1,0] + origin[n_p][0]
-        G.YB1  = mat[1:,:-1,1] + origin[n_p][1]  
-        G.ZB1  = mat[1:,:-1,2] + origin[n_p][2]
-        G.XB2  = mat[1:,1:,0]  + origin[n_p][0]
-        G.YB2  = mat[1:,1:,1]  + origin[n_p][1]
-        G.ZB2  = mat[1:,1:,2]  + origin[n_p][2]    
+        G.XB1  = mat[1:,:-1,0] + origin[0][0]
+        G.YB1  = mat[1:,:-1,1] + origin[0][1]  
+        G.ZB1  = mat[1:,:-1,2] + origin[0][2]
+        G.XB2  = mat[1:,1:,0]  + origin[0][0]
+        G.YB2  = mat[1:,1:,1]  + origin[0][1]
+        G.ZB2  = mat[1:,1:,2]  + origin[0][2]    
          
         # ------------------------------------------------------------------------
         # Plot Propeller Blade 

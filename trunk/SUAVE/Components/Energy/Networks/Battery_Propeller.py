@@ -182,7 +182,9 @@ class Battery_Propeller(Propulsor):
             conditions.propulsion.propeller_rpm[:,ii]          = rpm[:,0]
             conditions.propulsion.propeller_tip_mach[:,ii]     = (R*rpm[:,0]*Units.rpm)/a[:,0]
             conditions.propulsion.disc_loading[:,ii]           = (F_mag[:,0])/(np.pi*(R**2)) # N/m^2                  
-            conditions.propulsion.power_loading[:,ii]          = (F_mag[:,0])/(P[:,0])      # N/W               
+            conditions.propulsion.power_loading[:,ii]          = (F_mag[:,0])/(P[:,0])      # N/W      
+            conditions.propulsion.propeller_efficiency         = etap[:,0]      
+            
             conditions.noise.sources.propellers[prop.tag]      = outputs
 
         # Run the avionics
@@ -352,6 +354,7 @@ class Battery_Propeller(Propulsor):
         segment.state.conditions.propulsion.disc_loading           = 0. * ones_row(n_props)                 
         segment.state.conditions.propulsion.power_loading          = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_tip_mach     = 0. * ones_row(n_props)
+        segment.state.conditions.propulsion.propeller_efficiency    = 0. * ones_row(n_props)        
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns

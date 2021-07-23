@@ -58,7 +58,7 @@ def main():
     
     # Battery Energy Check During Transition
     battery_energy_hover_to_transition      = results.segments.transition_1.conditions.propulsion.battery_energy[:,0]
-    battery_energy_hover_to_transition_true = np.array([3.21822058e+08, 3.18028945e+08, 3.14731091e+08])
+    battery_energy_hover_to_transition_true = np.array([3.23819664e+08, 3.23055016e+08, 3.21905618e+08])
     
     print(battery_energy_hover_to_transition)
     diff_battery_energy_hover_to_transition    = np.abs(battery_energy_hover_to_transition  - battery_energy_hover_to_transition_true) 
@@ -84,7 +84,7 @@ def full_setup():
     
     # vehicle data
     vehicle  = vehicle_setup() 
-    plot_vehicle(vehicle,plot_control_points = False)
+    #plot_vehicle(vehicle,plot_control_points = False)
 
     # vehicle analyses
     analyses = base_analysis(vehicle)
@@ -222,12 +222,8 @@ def mission_setup(analyses,vehicle):
     segment.pitch_initial   = 0.0 * Units.degrees
     segment.pitch_final     = 5. * Units.degrees
     
-    #segment.state.unknowns.rotor_power_coefficient          = 0.05 *  ones_row(1)  
-    #segment.state.unknowns.throttle_lift                    = 0.9  * ones_row(1)  
-    
-    #segment.state.unknowns.propeller_power_coefficient      = 0.14 *  ones_row(1) 
-    #segment.state.unknowns.throttle                         = 0.95  *  ones_row(1) 
-    #segment.state.residuals.network                         = 0.   *  ones_row(3) 
+    ones_row = segment.state.ones_row
+    segment.state.unknowns.throttle                         = 0.95  *  ones_row(1) 
 
     segment = vehicle.propulsors.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
  
@@ -253,12 +249,7 @@ def mission_setup(analyses,vehicle):
     segment.acceleration           = 0.5 * Units['m/s/s']    
     segment.pitch_initial          = 5. * Units.degrees  
     segment.pitch_final            = 7. * Units.degrees       
-    
-    #segment.state.unknowns.rotor_power_coefficient          = 0.02  * ones_row(1)
-    #segment.state.unknowns.throttle_lift                    = 0.8  * ones_row(1) 
-    #segment.state.unknowns.propeller_power_coefficient      = 0.16  * ones_row(1)
-    #segment.state.unknowns.throttle                         = 0.80  * ones_row(1)   
-    #segment.state.residuals.network                         = 0.    * ones_row(3)    
+    segment.state.unknowns.throttle                         = 0.80  * ones_row(1)   
     
     segment = vehicle.propulsors.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
   
@@ -284,12 +275,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude_end    = 300. * Units.ft
     segment.climb_rate      = 500. * Units['ft/min']
     
-    segment = vehicle.propulsors.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)
-
-    #segment.state.unknowns.propeller_power_coefficient         = 0.16   * ones_row(1)
-    #segment.state.unknowns.throttle                            = 0.80   * ones_row(1)
-    #segment.process.iterate.unknowns.network  = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
-    #segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift     
+    segment = vehicle.propulsors.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)  
 
     # add to misison
     mission.append_segment(segment)
@@ -307,14 +293,11 @@ def mission_setup(analyses,vehicle):
     segment.time      = 60.   * Units.second
     segment.air_speed = 1.2*Vstall
 
-    #segment.state.unknowns.propeller_power_coefficient =  0.16   * ones_row(1)
-    #segment.state.unknowns.throttle                    =  0.80   * ones_row(1)
-    
-    
-    segment = vehicle.propulsors.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)    
+    segment.state.unknowns.throttle =  0.80 * ones_row(1)
+    segment = vehicle.propulsors.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,\
+                                                                                          initial_prop_power_coefficient = 0.16)    
 
-    #segment.process.iterate.unknowns.network  = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
-    #segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift
+
 
 
     # add to misison

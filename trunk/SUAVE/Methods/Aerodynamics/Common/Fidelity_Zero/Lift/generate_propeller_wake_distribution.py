@@ -48,7 +48,6 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time, n
     MCA              = prop.mid_chord_alignment 
     B                = prop.number_of_blades
     gamma            = prop.outputs.disc_circulation
-    thrust_angle     = prop.thrust_angle
     blade_angles     = np.linspace(0,2*np.pi,B+1)[:-1]   
     dt               = time/number_of_wake_timesteps
     ts               = np.linspace(0,time,number_of_wake_timesteps) 
@@ -165,10 +164,12 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time, n
         z_pts  = np.repeat(np.repeat(z0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0)
         Z_pts0 = (z_pts*wake_contraction)*azi_z + sz_inf     
  
-        # Rotate wake by thrust angle 
-        X_pts  = prop.origin[i][0] + X_pts0*np.cos(-thrust_angle) - Z_pts0*np.sin(-thrust_angle)
-        Y_pts  = prop.origin[i][1] + Y_pts0
-        Z_pts  = prop.origin[i][2] + X_pts0*np.sin(-thrust_angle) + Z_pts0*np.cos(-thrust_angle) 
+        # Rotate wake by thrust angle
+        rot_mat = prop.prop_vel_to_body()
+        
+        X_pts   = prop.origin[i][0] + X_pts0*rot_mat[0,0] - Z_pts0*rot_mat[0,2]
+        Y_pts   = prop.origin[i][1] + Y_pts0*rot_mat[1,1]
+        Z_pts   = prop.origin[i][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2]
 
         # Store points  
         # ( control point,  prop ,  time step , blade number , location on blade )
