@@ -342,12 +342,6 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     dim       = len(b)
     dim2      = 2*n_points
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]   
-    
-    if len(prop.rotation) != num_props: 
-        print('Inconsistent ' + prop.tag + ' rotation vector defined. \nDefaulting to all clockwise rotating blades.')
-        prop.rotation = list(np.ones(num_props))
-    else:
-        pass
         
     # create empty data structure for storing geometry
     G = Data()    
