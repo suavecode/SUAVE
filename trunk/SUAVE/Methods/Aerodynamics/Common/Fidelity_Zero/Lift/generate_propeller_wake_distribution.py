@@ -3,6 +3,7 @@
 # 
 # Created:  Sep 2020, M. Clarke 
 # Modified: May 2021, R. Erhard
+#           Jul 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -12,10 +13,9 @@
 import numpy as np
 from SUAVE.Core import Data 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contraction_matrix import compute_wake_contraction_matrix
-from SUAVE.Methods.Geometry.Three_Dimensional import  orientation_product, orientation_transpose
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time, number_of_wake_timesteps ): 
+def generate_propeller_wake_distribution(props,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
     """ This generates the propeller wake control points used to compute the 
     influence of the wake
 
@@ -35,23 +35,29 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time, n
     Properties Used:
     N/A
     """    
-
-    # Unpack unknowns  
+    # The higher level method assumes all props are identical, so only the first one is unpacked
+    prop_key     = list(props.keys())[0]
+    prop         = props[prop_key]
+    prop_outputs = conditions.noise.sources.propellers[prop_key]
+    
+    # Unpack
     R                = prop.tip_radius
     r                = prop.radius_distribution 
     c                = prop.chord_distribution 
-    Na               = prop.outputs.number_azimuthal_stations
-    Nr               = prop.outputs.number_radial_stations
-    omega            = prop.outputs.omega                               
-    va               = prop.outputs.disc_axial_induced_velocity 
-    V_inf            = prop.outputs.velocity
     MCA              = prop.mid_chord_alignment 
-    B                = prop.number_of_blades
-    gamma            = prop.outputs.disc_circulation
+    B                = prop.number_of_blades    
+    
+    Na               = prop_outputs.number_azimuthal_stations
+    Nr               = prop_outputs.number_radial_stations
+    omega            = prop_outputs.omega                               
+    va               = prop_outputs.disc_axial_induced_velocity 
+    V_inf            = prop_outputs.velocity
+    gamma            = prop_outputs.disc_circulation
+    
     blade_angles     = np.linspace(0,2*np.pi,B+1)[:-1]   
     dt               = time/number_of_wake_timesteps
     ts               = np.linspace(0,time,number_of_wake_timesteps) 
-    num_prop         = len(prop.origin) 
+    num_prop         = len(props) 
     t0               = dt*init_timestep_offset
     start_angle      = omega[0]*t0 
     prop.start_angle = start_angle
@@ -141,9 +147,13 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time, n
     
     total_angle_offset = angle_offset - start_angle_offset
 
-    for i in range(num_prop): 
+    for i in range(num_prop):
         # adjust for clockwise/counter clockwise rotation
-        if (prop.rotation != None) and (prop.rotation[i] == 1):        
+        # For this step need to index the unique prop
+        propi_key     = list(props.keys())[i]
+        propi         = props[propi_key]        
+        
+        if (propi.rotation != None) and (propi.rotation == 1):        
             total_angle_offset = -total_angle_offset
 
         azi_y   = np.sin(blade_angle_loc + total_angle_offset)  
@@ -154,7 +164,7 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time, n
         X_pts0 = x_pts + sx_inf   
 
         # compute wake contraction  
-        wake_contraction = compute_wake_contraction_matrix(i,prop,Nr,m,number_of_wake_timesteps,X_pts0)          
+        wake_contraction = compute_wake_contraction_matrix(i,propi,Nr,m,number_of_wake_timesteps,X_pts0,prop_outputs)          
 
         y0_pts = np.tile(np.atleast_2d(r),(B,1))
         y_pts  = np.repeat(np.repeat(y0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
@@ -167,13 +177,13 @@ def generate_propeller_wake_distribution(prop,m,VD,init_timestep_offset, time, n
         # Rotate wake by thrust angle
         rot_mat = prop.prop_vel_to_body()
         
-        X_pts   = prop.origin[i][0] + X_pts0*rot_mat[0,0] - Z_pts0*rot_mat[0,2]
-        Y_pts   = prop.origin[i][1] + Y_pts0*rot_mat[1,1]
-        Z_pts   = prop.origin[i][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2]
+        X_pts   = propi.origin[0][0] + X_pts0*rot_mat[0,0] - Z_pts0*rot_mat[0,2]
+        Y_pts   = propi.origin[0][1] + Y_pts0*rot_mat[1,1]
+        Z_pts   = propi.origin[0][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2]
 
         # Store points  
         # ( control point,  prop ,  time step , blade number , location on blade )
-        if (prop.rotation != None) and (prop.rotation[i] == -1):  
+        if (propi.rotation != None) and (propi.rotation == -1):  
             WD_XA1[:,i,:,:,:] = X_pts[: , :-1 , : , :-1 ]
             WD_YA1[:,i,:,:,:] = Y_pts[: , :-1 , : , :-1 ]
             WD_ZA1[:,i,:,:,:] = Z_pts[: , :-1 , : , :-1 ]

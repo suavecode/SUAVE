@@ -13,7 +13,7 @@ from scipy.interpolate import interp1d
 from SUAVE.Components import Wings
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_bemt_induced_velocity(prop,geometry,cpts,wing_instance=None):  
+def compute_bemt_induced_velocity(props,geometry,cpts,conditions,wing_instance=None):  
     """ This computes the velocity induced by the BEMT wake
     on lifting surface control points
 
@@ -30,6 +30,12 @@ def compute_bemt_induced_velocity(prop,geometry,cpts,wing_instance=None):
     Properties Used:
        N/A
     """    
+    # The higher level method assumes all props are identical, so only the first one is unpacked
+    prop_key     = list(props.keys())[0]
+    prop         = props[prop_key]
+    prop_outputs = conditions.noise.sources.propellers[prop_key]
+        
+    
     # extract parameters
     VD = geometry.vortex_distribution
     R  = prop.tip_radius
@@ -56,9 +62,9 @@ def compute_bemt_induced_velocity(prop,geometry,cpts,wing_instance=None):
         kd = 1 + s/(np.sqrt(s**2 + R**2))        
 
     # extract radial and azimuthal velocities at blade
-    va = kd*prop.outputs.blade_axial_induced_velocity[0]
-    vt = kd*prop.outputs.blade_tangential_induced_velocity[0]
-    r  = prop.outputs.disc_radial_distribution[0][0]
+    va = kd*prop_outputs.blade_axial_induced_velocity[0]
+    vt = kd*prop_outputs.blade_tangential_induced_velocity[0]
+    r  = prop_outputs.disc_radial_distribution[0][0]
     
     hub_y_center = prop.origin[0][1]
     prop_y_min   = hub_y_center - r[-1]
@@ -76,7 +82,7 @@ def compute_bemt_induced_velocity(prop,geometry,cpts,wing_instance=None):
     YC_in_range   = VD.YC[bool_in_range]
     
     va_y_range  = np.append(np.flipud(va), va)
-    vt_y_range  = np.append(np.flipud(vt), vt)*prop.rotation[0]
+    vt_y_range  = np.append(np.flipud(vt), vt)*prop.rotation
     va_interp   = interp1d(prop_y_range, va_y_range)
     vt_interp   = interp1d(prop_y_range, vt_y_range)
     
