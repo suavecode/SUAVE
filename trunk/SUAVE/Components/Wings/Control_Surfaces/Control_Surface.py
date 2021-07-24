@@ -22,21 +22,24 @@ class Control_Surface(Physical_Component):
     def __defaults__(self):
         """This sets the default values of control surfaces defined in SUAVE. 
         
-        sign_duplicate: 1.0 or -1.0 - the sign of the duplicate control on the mirror wing.        
-        Use 1.0 for a mirrored control surface, like an elevator. Use -1.0 for an aileron.
+        - span: the span of the control surface in meters        
+        - span_fraction_start: % span of the wing where the control surface starts        
+        - span_fraction_start: % span of the wing where the control surface starts
         
-        hinge_fraction: number between 0.0 and 1.0. This corresponds to the location of the 
-        hingeline, where 0 and 1 correspond to the leading and trailing edges, respectively, 
-        of the control surface.
+        - hinge_fraction: number between 0.0 and 1.0. This corresponds to the location of the 
+            hingeline, where 0 and 1 correspond to the leading and trailing edges, respectively, 
+            of the CONTROL SURFACE (NOT the wing).
+        - chord_fraction: number between 0.0 and 1.0 describing the fraction of the wing's chord
+            that is 'cut' out by the control surface
         
-        The span fraction is given by the array shown below:  
-        [abs. % span location at beginning of crtl surf, abs. % span location at end  of crtl surf]
-        
-        The function argumentis a string that defines the function of a control surface. Options
-        are 'elevator','rudder','flap', 'aileron' and 'slat'
+        - sign_duplicate: 1.0 or -1.0 - the sign of the duplicate control on the mirror wing.        
+            Use 1.0 for a mirrored control surface, like an elevator. Use -1.0 for an aileron.
+        - deflection: the angle the control surface is deflected. 
+        - configuration_type: the kind of control surface (e.g. single_slotted)
         
         Assumptions:
-        None
+        - for chord_fraction, Slats are always cut out from the leading edge and everything else
+            os cut out from the trailing edge.
 
         Source:
         N/A
