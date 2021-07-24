@@ -1,12 +1,15 @@
 # nonuniform_propeller_inflow.py
 #
-# Created: Mar 2021, R. Erhard
+# Created:   Mar 2021, R. Erhard
 # Modified:
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units, Data
 from SUAVE.Methods.Propulsion import propeller_design 
-from SUAVE.Plots.Propeller_Plots import plot_propeller_performance
+from SUAVE.Plots.Propeller_Plots import plot_propeller_disc_performance
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wing_wake import compute_wing_wake
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_propeller_nonuniform_freestream import compute_propeller_nonuniform_freestream
+
 
 import numpy as np
 import pylab as plt
@@ -15,44 +18,64 @@ import pylab as plt
 
 def main():
     '''
-    This example shows a propeller operating in a nonuniform freestream flow for two cases:
+    This example shows a propeller operating in three cases of nonuniform freestream flow:
     First, a propeller operates at a nonzero thrust angle relative to the freestream.
     Second, a propeller operates with an arbitrary upstream disturbance.
+    Third, a propeller operates in the wake of an upstream wing
     
     '''
-    # setup basic propeller
-    Nr = 101
-    Na = 24
-    prop    = basic_prop(Na, Nr)
+    # setup a simple vehicle
+    vehicle = vehicle_setup(Na=24, Nr=101)
     
     # setup the atmospheric conditions
     conditions = test_conditions()
     
+    case_1(vehicle, conditions)
+    case_2(vehicle, conditions)
+    case_3(vehicle, conditions)
+
+    
+    return
+
+def case_1(vehicle, conditions):
     #-------------------------------------------------------------
     # test propeller at inclined thrust angle
     #-------------------------------------------------------------
     # set operating conditions for propeller test
+    prop = vehicle.propulsors.prop_net.propeller
     prop.inputs.omega = np.ones_like(conditions.aerodynamics.angle_of_attack)*prop.angular_velocity
     prop.thrust_angle = 20. * Units.deg
     
     # spin propeller in nonuniform flow
-    thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)    
+    thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)  
     
-    thrust_r1 = 847.83217329
-    torque_r1 = 446.59326314
-    power_r1  = 60797.27830077
-    Cp_r1     = 0.27994538
-    etap_r1   = 1.02517027
+    # plot velocities at propeller plane and resulting performance
+    plot_propeller_disc_performance(prop,outputs,title='Case 1: Operating at Thrust Angle')
     
-    assert (np.abs(thrust - thrust_r1) / thrust_r1 < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Thrust Test"
-    assert (np.abs(torque - torque_r1) / torque_r1 < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Torque Test"
-    assert (np.abs(power - power_r1) / power_r1 < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Power Test"
-    assert (np.abs(Cp - Cp_r1) / Cp_r1 < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Power Coefficient Test"
-    assert (np.abs(etap - etap_r1) / etap_r1 < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Efficiency Test"    
+    thrust_r = 848.65295168
+    torque_r = 447.33636799
+    power_r  = 60898.44138557
+    Cp_r     = 0.2804112
+    etap_r   = 1.02445809
+    print('\nCase 1 Errors: \n')
+    print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
+    print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
+    print('Power difference = ', np.abs(power - power_r) / power_r )
+    print('Cp difference = ', np.abs(Cp - Cp_r) / Cp_r )
+    print('Etap difference = ', np.abs(etap - etap_r) / etap_r )    
+    assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Thrust Test"
+    assert (np.abs(torque - torque_r) / torque_r < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Torque Test"
+    assert (np.abs(power - power_r) / power_r < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Power Test"
+    assert (np.abs(Cp - Cp_r) / Cp_r < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Power Coefficient Test"
+    assert (np.abs(etap - etap_r) / etap_r < 1e-6), "Nonuniform Propeller Thrust Angle Regression Failed at Efficiency Test"    
 
+    return
+
+def case_2(vehicle,conditions, Na=24, Nr=101):
     #-------------------------------------------------------------    
     # test propeller in arbitrary nonuniform freestream disturbance
     #-------------------------------------------------------------
+    prop = vehicle.propulsors.prop_net.propeller
     prop.nonuniform_freestream  = True   
     prop.thrust_angle           = 0. * Units.deg
     ctrl_pts                    = len(conditions.aerodynamics.angle_of_attack)
@@ -75,23 +98,75 @@ def main():
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
     
     # plot velocities at propeller plane and resulting performance
-    plot_propeller_performance(prop,outputs,conditions)    
+    plot_propeller_disc_performance(prop,outputs,title='Case 2: Arbitrary Freestream')    
     
     # expected results
-    thrust_r = 77.90144045
-    torque_r = 60.17252777
-    power_r  = 8191.62808502
-    Cp_r     = 0.03771893
-    etap_r   = 0.74397732
-    
+    thrust_r = 78.41788551
+    torque_r = 60.61148635
+    power_r  = 8251.38601033
+    Cp_r     = 0.03799409
+    etap_r   = 0.74348576
+    print('\nCase 2 Errors: \n')
+    print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
+    print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
+    print('Power difference = ', np.abs(power - power_r) / power_r )
+    print('Cp difference = ', np.abs(Cp - Cp_r) / Cp_r )
+    print('Etap difference = ', np.abs(etap - etap_r) / etap_r )    
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Nonuniform Propeller Inflow Regression Failed at Thrust Test"
     assert (np.abs(torque - torque_r) / torque_r < 1e-6), "Nonuniform Propeller Inflow Regression Failed at Torque Test"
     assert (np.abs(power - power_r) / power_r < 1e-6), "Nonuniform Propeller Inflow Regression Failed at Power Test"
     assert (np.abs(Cp - Cp_r) / Cp_r < 1e-6), "Nonuniform Propeller Inflow Regression Failed at Power Coefficient Test"
     assert (np.abs(etap - etap_r) / etap_r < 1e-6), "Nonuniform Propeller Inflow Regression Failed at Efficiency Test"    
     
+    
+    
     return
 
+def case_3(vehicle,conditions):
+    '''
+    This example shows a propeller operating in a nonuniform freestream flow.
+    A wing in front of the propeller produces a wake, which is accounted for in the propeller analysis.
+    '''
+    # set plot flag
+    plot_flag = True
+    
+    
+    # grid and VLM settings
+    grid_settings, VLM_settings = simulation_settings(vehicle)
+    
+    #--------------------------------------------------------------------------------------
+    # Part 1. Compute the velocities induced by the wing at the propeller plane downstream
+    #--------------------------------------------------------------------------------------
+    prop_loc      = vehicle.propulsors.prop_net.propeller.origin
+    prop_x_center = np.array([vehicle.wings.main_wing.origin[0][0] + prop_loc[0][0]]) 
+    wing_wake     = compute_wing_wake(vehicle,conditions,prop_x_center[0], grid_settings, VLM_settings, plot_grid=plot_flag, plot_wake=plot_flag)
+    
+
+    #--------------------------------------------------------------------------------------    
+    # Part 2. Compute and run the propeller in this nonuniform flow
+    #--------------------------------------------------------------------------------------
+    prop = compute_propeller_nonuniform_freestream(vehicle.propulsors.prop_net.propeller, wing_wake,conditions)
+    prop.nonuniform_freestream = True
+    thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
+    
+    thrust_r, torque_r, power_r, Cp_r, etap_r = 621.13987084, 390.98629804, 53227.18620232, 0.24508836, 0.912936
+    print('\nCase 3 Errors: \n')
+    print('Thrust difference = ', np.abs(thrust - thrust_r) / thrust_r )
+    print('Torque difference = ', np.abs(torque - torque_r) / torque_r )
+    print('Power difference = ', np.abs(power - power_r) / power_r )
+    print('Cp difference = ', np.abs(Cp - Cp_r) / Cp_r )
+    print('Etap difference = ', np.abs(etap - etap_r) / etap_r )
+    assert (np.abs(thrust - thrust_r) / thrust_r < 1e-5), "Nonuniform Propeller Inflow Regression Failed at Thrust Test"
+    assert (np.abs(torque - torque_r) / torque_r < 1e-5), "Nonuniform Propeller Inflow Regression Failed at Torque Test"
+    assert (np.abs(power - power_r) / power_r < 1e-5), "Nonuniform Propeller Inflow Regression Failed at Power Test"
+    assert (np.abs(Cp - Cp_r) / Cp_r < 1e-5), "Nonuniform Propeller Inflow Regression Failed at Power Coefficient Test"
+    assert (np.abs(etap - etap_r) / etap_r < 1e-5), "Nonuniform Propeller Inflow Regression Failed at Efficiency Test"   
+    
+    # Plot results
+    if plot_flag:
+        plot_propeller_disc_performance(prop,outputs, title='Case 3: Pusher Propeller')
+    
+    return    
 
 def test_conditions():
     # --------------------------------------------------------------------------------------------------
@@ -131,7 +206,43 @@ def test_conditions():
     
     return conditions    
 
-def basic_prop(Na, Nr):
+
+
+def vehicle_setup(Na, Nr):
+    #-----------------------------------------------------------------
+    #   Vehicle Initialization:
+    #-----------------------------------------------------------------
+    vehicle = SUAVE.Vehicle()
+    vehicle.tag = 'simple_vehicle'    
+    
+    # ------------------------------------------------------------------
+    #   Wing Properties
+    # ------------------------------------------------------------------
+    wing = basic_wing()
+    vehicle.append_component(wing)
+    
+    # ------------------------------------------------------------------
+    #   Propulsion Properties
+    # ------------------------------------------------------------------
+    net                          = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net.tag                      = 'prop_net'
+    net.number_of_engines        = 2
+    
+    prop = SUAVE.Components.Energy.Converters.Propeller()
+    prop = basic_prop() 
+    
+    # adjust propeller location and rotation:
+    prop.rotation = [-1]
+    prop.origin  = np.array([[(0.7+0.2), -2., 0.],
+                             [(0.7+0.2),  2., 0.]]) 
+    prop.pusher = True
+    
+    net.propeller = prop
+    vehicle.append_component(net)
+    
+    return vehicle
+
+def basic_prop(Na=24, Nr=101):
  
     # Design the Propeller
     prop = SUAVE.Components.Energy.Converters.Propeller() 
@@ -146,21 +257,79 @@ def basic_prop(Na, Nr):
     prop.design_thrust             = 1200.  
     prop.origin                    = [[0.,0.,0.]]
     prop.number_azimuthal_stations = Na
-    prop.rotation                  = 1
+    prop.rotation                  = [1]
     prop.symmetry                  = True
-    prop.airfoil_geometry          =  ['../Vehicles/NACA_4412.txt'] 
-    prop.airfoil_polars            = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,
-                                       '../Vehicles/NACA_4412_polar_Re_100000.txt' ,
-                                       '../Vehicles/NACA_4412_polar_Re_200000.txt' ,
-                                       '../Vehicles/NACA_4412_polar_Re_500000.txt' ,
-                                       '../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+
+    prop.airfoil_geometry          =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    prop.airfoil_polars            = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                       '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     
     prop.airfoil_polar_stations    = list(np.zeros(Nr).astype(int))
-    prop                        = propeller_design(prop,Nr)    
+    prop                           = propeller_design(prop,Nr)
     
     return prop
 
+def basic_wing():
+    #-------------------------------------------------------------------------
+    #          Variables:
+    #-------------------------------------------------------------------------
+    span         = 9.6
+    croot        = 0.7
+    ctip         = 0.3
+    sweep_le     = 0.0
+    sref         = span*(croot+ctip)/2
+    twist_root   = 0.0 * Units.degrees
+    twist_tip    = 0.0 * Units.degrees
+    dihedral     = 0.0 * Units.degrees
+    AR           = span**2/sref
+    # ------------------------------------------------------------------
+    # Initialize the Main Wing
+    # ------------------------------------------------------------------
+    wing = SUAVE.Components.Wings.Main_Wing()
+    wing.tag = 'main_wing'
 
+    wing.aspect_ratio            = AR
+    wing.spans.projected         = span
+    wing.chords.root             = croot
+    wing.chords.tip              = ctip
+    wing.areas.reference         = sref
+    wing.twists.root             = twist_root
+    wing.twists.tip              = twist_tip
+    wing.sweeps.leading_edge     = sweep_le #45. * Units.degrees
+    wing.dihedral                = dihedral #0. * Units.degrees
+    wing.span_efficiency         = 0.8
+    wing.origin                  = np.array([[0.,0.,0.]])
+    wing.vertical                = False
+    wing.symmetric               = True
+ 
+    
+    return wing
+
+
+def simulation_settings(vehicle):
+
+    grid_settings = Data()
+    grid_settings.height = 12*vehicle.propulsors.prop_net.propeller.tip_radius / vehicle.wings.main_wing.spans.projected
+    grid_settings.length = 1.2
+    grid_settings.height_fine = 0.2
+    
+    VLM_settings        = SUAVE.Analyses.Aerodynamics.Vortex_Lattice().settings
+    VLM_settings.number_spanwise_vortices        = 16
+    VLM_settings.number_chordwise_vortices       = 4
+    VLM_settings.use_surrogate                   = True
+    VLM_settings.propeller_wake_model            = False
+    VLM_settings.use_bemt_wake_model             = False
+    VLM_settings.model_fuselage                  = False
+    VLM_settings.spanwise_cosine_spacing         = True
+    VLM_settings.number_of_wake_timesteps        = 0.
+    VLM_settings.leading_edge_suction_multiplier = 1.
+    VLM_settings.initial_timestep_offset         = 0.
+    VLM_settings.wake_development_time           = 0.
+    
+    return grid_settings, VLM_settings
 
 if __name__ == '__main__':
     main()

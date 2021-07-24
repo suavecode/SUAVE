@@ -28,26 +28,24 @@ from Boeing_737 import vehicle_setup, configs_setup
 #   Run the whole thing
 # ----------------------------------------------------------------------
 def main():
-    
-    problem = setup()
+    # New Regression Flag
+    generate_new_truth_data = False # To be left false unless changing noise model
 
-    n_des_var = 13
-
-    var = np.zeros(n_des_var)
-
-    var = [134.6,9.6105641082,35.0,0.123,49200.0,70000.0,0.75,6.6,30.0,70000.0,70000.0,11.5,283.0]
-
+    # Problem Setup
+    problem   = setup(generate_new_truth_data)
+    var       = np.array([134.6,9.6105641082,35.0,0.123,49200.0,70000.0,0.75,6.6,30.0,70000.0,70000.0,11.5,283.0])
     input_vec = var / problem.optimization_problem.inputs[:,3]
 
+    # Problem Objective
     problem.objective(input_vec)
     objectives  = problem.objective()* problem.optimization_problem.objective[:,1]
 
-    noise_cumulative_margin = objectives[0]
-    
-    actual = Data()    
-    actual.noise_cumulative_margin = 20.9814639244308
+    # Compare with truth values
+    noise_cumulative_margin        = objectives[0]
+    actual                         = Data()
+    actual.noise_cumulative_margin = 21.1640598803196
 
-    error = Data()
+    error                         = Data()
     error.noise_cumulative_margin = abs(actual.noise_cumulative_margin - noise_cumulative_margin)/actual.noise_cumulative_margin
     
     print('noise_cumulative_margin_error=', noise_cumulative_margin)
@@ -64,7 +62,7 @@ def main():
 #   Inputs, Objective, & Constraints
 # ----------------------------------------------------------------------
 
-def setup():
+def setup(generate_new_truth_data):
 
     nexus = Nexus()
     problem = Data()
@@ -76,19 +74,19 @@ def setup():
 
     # [ tag , initial, [lb,ub], scaling, units ]
     problem.inputs = np.array([
-        [ 'wing_area'                    ,    124.8 , (    70.    ,   200.   ) ,   124.8 , 1*Units.meter**2],
-        [ 'wing_aspect_ratio'            ,     10.18, (     5.    ,    20.   ) ,    10.18,     1*Units.less],
-        [ 'wing_sweep'                   ,    25.   , (     0.    ,    35.   ) ,    25.  ,  1*Units.degrees],
-        [ 'wing_thickness'               ,     0.105 , (     0.07  ,     0.20 ) ,     0.105,     1*Units.less],
-        [ 'design_thrust'                , 52700.   , ( 10000.    , 70000.   ) , 52700.  ,        1*Units.N],
-        [ 'MTOW'                         , 79090.   , ( 20000.    ,100000.   ) , 79090.  ,       1*Units.kg],
-        [ 'MZFW_ratio'                   ,     0.77 , (     0.6   ,     0.99 ) ,    0.77 ,     1*Units.less],
-        [ 'flap_takeoff_angle'           ,    10.   , (     0.    ,    20.   ) ,    10.  ,  1*Units.degrees],
-        [ 'flap_landing_angle'           ,    40.   , (     0.    ,    50.   ) ,    40.  ,  1*Units.degrees],
-        [ 'short_field_TOW'              , 64030.   , ( 20000.    ,100000.   ) , 64030.  ,       1*Units.kg],
-        [ 'design_TOW'                   , 68520.   , ( 20000.    ,100000.   ) , 68520.  ,       1*Units.kg],
-        [ 'noise_takeoff_speed_increase' ,    10.0  , (    10.    ,    20.   ) ,    10.0 ,     1*Units.knots],
-        [ 'noise_cutback_altitude'       ,   304.8  , (   240.    ,   400.   ) ,   304.8 ,    1*Units.meter],
+        [ 'wing_area'                    ,    124.8 ,     70.    ,   200.    ,   124.8 , 1*Units.meter**2],
+        [ 'wing_aspect_ratio'            ,     10.18,      5.    ,    20.    ,    10.18,     1*Units.less],
+        [ 'wing_sweep'                   ,    25.   ,      0.    ,    35.    ,    25.  ,  1*Units.degrees],
+        [ 'wing_thickness'               ,     0.105 ,     0.07  ,     0.20  ,     0.105,    1*Units.less],
+        [ 'design_thrust'                , 52700.   ,  10000.    , 70000.    , 52700.  ,        1*Units.N],
+        [ 'MTOW'                         , 79090.   ,  20000.    ,100000.    , 79090.  ,       1*Units.kg],
+        [ 'MZFW_ratio'                   ,     0.77 ,      0.6   ,     0.99  ,    0.77 ,     1*Units.less],
+        [ 'flap_takeoff_angle'           ,    10.   ,      0.    ,    20.    ,    10.  ,  1*Units.degrees],
+        [ 'flap_landing_angle'           ,    40.   ,      0.    ,    50.    ,    40.  ,  1*Units.degrees],
+        [ 'short_field_TOW'              , 64030.   ,  20000.    ,100000.    , 64030.  ,       1*Units.kg],
+        [ 'design_TOW'                   , 68520.   ,  20000.    ,100000.    , 68520.  ,       1*Units.kg],
+        [ 'noise_takeoff_speed_increase' ,    10.0  ,     10.    ,    20.    ,    10.0 ,    1*Units.knots],
+        [ 'noise_cutback_altitude'       ,   304.8  ,    240.    ,   400.    ,   304.8 ,    1*Units.meter],
     ],dtype=object)
 
     # -------------------------------------------------------------------
@@ -199,6 +197,10 @@ def setup():
     # -------------------------------------------------------------------
     nexus.missions = Missions.setup(nexus.analyses)
 
+    # -------------------------------------------------------------------
+    #  New Regression Flag
+    # -------------------------------------------------------------------
+    nexus.save_data = generate_new_truth_data
 
     # -------------------------------------------------------------------
     #  Procedure

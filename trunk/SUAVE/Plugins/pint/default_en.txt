@@ -172,7 +172,7 @@ kayser = 1 / centimeter = wavenumber
 gram = kilogram / 1000 = g
 dram = oz / 16 = dr = avoirdupois_dram
 ounce = 28.349523125 * gram = oz = avoirdupois_ounce
-pound = 0.45359237 * kilogram = lb = avoirdupois_pound
+pound = 0.45359237 * kilogram = lb = lbm = avoirdupois_pound
 stone = 14 * lb = st
 carat = 200 * milligram
 grain = 64.79891 * milligram = gr

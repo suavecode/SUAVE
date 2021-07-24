@@ -1,4 +1,4 @@
-Airfoil Transition 1 between/home/matthew-linux/Documents/SUAVE/SUAVE/regression/scripts/airfoil_analysis/../Vehicles/Airfoils/Clark_y.txtand/home/matthew-linux/Documents/SUAVE/SUAVE/regression/scripts/airfoil_analysis/../Vehicles/Airfoils/E63.txt
+Airfoil Transition 1 between Clark_y.txt and E63.txt
  61. 61.
 
 0.0 -0.00041

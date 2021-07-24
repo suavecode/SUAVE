@@ -12,7 +12,7 @@
 #           May 2020, E. Botero
 #           Jul 2020, E. Botero 
 #           Feb 2021, T. MacDonald
-
+#           May 2021, E. Botero 
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -138,7 +138,6 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
         write_vsp_turbofan(turbofan, OML_set_ind)
         
     if 'turbojet' in vehicle.propulsors:
-        print('Warning: no meshing sources are currently implemented for the nacelle')
         turbofan  = vehicle.propulsors.turbojet
         write_vsp_turbofan(turbofan, OML_set_ind)    
     
@@ -279,17 +278,14 @@ def write_vsp_wing(wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
     # Twists
     if n_segments != 0:
-        if wing.Segments[0].percent_span_location == 0.:
+        if np.isclose(wing.Segments[0].percent_span_location,0.):
             vsp.SetParmVal( wing_id,'Twist',x_secs[0],wing.Segments[0].twist / Units.deg) # root
         else:
             vsp.SetParmVal( wing_id,'Twist',x_secs[0],root_twist) # root
-        if wing.Segments[-1].percent_span_location == 1.:
-            vsp.SetParmVal( wing_id,'Twist',x_secs[-2],wing.Segments[0].twist / Units.deg) # root
-        else:
-            vsp.SetParmVal( wing_id,'Twist',x_secs[-2],tip_twist) # root
+        # The tips should write themselves
     else:
         vsp.SetParmVal( wing_id,'Twist',x_secs[0],root_twist) # root
-        vsp.SetParmVal( wing_id,'Twist',x_secs[0],tip_twist) # tip
+        vsp.SetParmVal( wing_id,'Twist',x_secs[1],tip_twist) # tip
 
 
     # Figure out if there is an airfoil provided
@@ -407,7 +403,7 @@ def write_vsp_wing(wing, area_tags, fuel_tank_set_ind, OML_set_ind):
 
         # Insert the new wing section with specified airfoil if available
         if len(wing.Segments[i_segs-1].Airfoil) != 0 or 'airfoil_type' in wing.Segments[i_segs-1].keys():
-            vsp.InsertXSec(wing_id,i_segs-1+adjust,airfoil_vsp_types[i_segs])
+            vsp.InsertXSec(wing_id,i_segs-1+adjust,airfoil_vsp_types[i_segs-1])
             if len(wing.Segments[i_segs-1].Airfoil) != 0:
                 xsecsurf = vsp.GetXSecSurf(wing_id,0)
                 xsec = vsp.GetXSec(xsecsurf,i_segs+adjust)
@@ -434,7 +430,7 @@ def write_vsp_wing(wing, area_tags, fuel_tank_set_ind, OML_set_ind):
     if (n_segments != 0) and (wing.Segments[-1].percent_span_location == 1.):
         tip_chord = root_chord*wing.Segments[-1].root_chord_percent
         vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[n_segments-1+adjust],tip_chord)
-        vsp.SetParmVal( wing_id,'ThickChord',x_secs[n_segments-1+adjust],wing.Segments[-1].thickness_to_chord)
+        vsp.SetParmVal( wing_id,'ThickChord',x_sec_curves[n_segments-1+adjust],wing.Segments[-1].thickness_to_chord)
         # twist is set in the normal loop
     else:
         vsp.SetParmVal( wing_id,'Tip_Chord',x_secs[-1-(1-adjust)],tip_chord)
@@ -540,7 +536,6 @@ def write_vsp_turbofan(turbofan, OML_set_ind):
             vsp.Update()
             vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_1", width)
             vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_2", width)
-            vsp.SetParmVal(nac_id, "Circle_Diameter", "XSecCurve_3", width)
             vsp.SetParmVal(nac_id, "XDelta", "XSec_1", 0)
             vsp.SetParmVal(nac_id, "XDelta", "XSec_2", length)
             vsp.SetParmVal(nac_id, "XDelta", "XSec_3", 0)
@@ -684,9 +679,6 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
             vsp.SetParmVal(fuse_id,"BottomLStrength","XSec_0",vals.nose.bottom.strength)           
 
         # Tail
-        
-        vsp.SetParmVal(fuse_id,"TopLAngle","XSec_"+str(end_ind),vals.tail.top.angle)
-        vsp.SetParmVal(fuse_id,"TopLStrength","XSec_"+str(end_ind),vals.tail.top.strength)
         # Below can be enabled if AllSym (below) is removed
         #vsp.SetParmVal(fuse_id,"RightLAngle","XSec_4",vals.tail.side.angle)
         #vsp.SetParmVal(fuse_id,"RightLStrength","XSec_4",vals.tail.side.strength)
@@ -698,7 +690,6 @@ def write_vsp_fuselage(fuselage,area_tags, main_wing, fuel_tank_set_ind, OML_set
         else:
             pass # use above default
 
-        vsp.SetParmVal(fuse_id,"AllSym","XSec_"+str(end_ind),1)
 
     if num_segs == 0:
         vsp.SetParmVal(fuse_id,"Length","Design",length)

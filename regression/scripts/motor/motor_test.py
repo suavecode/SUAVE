@@ -32,9 +32,14 @@ def main():
     prop.design_Cl               = 0.7 
     prop.design_altitude         = 0.0 * Units.km
     prop.design_thrust           = 2271.2220451593753 
-    prop.airfoil_geometry        =  ['../Vehicles/NACA_4412.txt'] 
-    prop.airfoil_polars          = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
-                                     '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+
+    prop.airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    prop.airfoil_polars          = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+
     prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
     prop                         = propeller_design(prop)   
     
@@ -143,12 +148,12 @@ def main():
     current   = i[0][0]  
      
     # Truth values
-    omega_1_truth    = 163.57739828 
-    torque_1_truth   = 642.2133744789122
-    current_2_truth  = 280.91757593860325 
-    torque_3_truth   = 394.3370915620151
-    voltage_4_truth  = 464.8404166761976 
-    current_4_truth  = 456.24232586256414 
+    omega_1_truth    = 163.57739949
+    torque_1_truth   = 642.2133839748203
+    current_2_truth  = 280.91758304681844 
+    torque_3_truth   = 394.3371015401603
+    voltage_4_truth  = 464.840414954647
+    current_4_truth  = 456.2423326614951
     power_out_truth  = 1960.0
   
     error = Data()

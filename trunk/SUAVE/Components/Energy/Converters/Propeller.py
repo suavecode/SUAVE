@@ -7,6 +7,7 @@
 #           Mar 2020, M. Clarke
 #           Sep 2020, M. Clarke 
 #           Mar 2021, R. Erhard
+#           Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -61,18 +62,18 @@ class Propeller(Energy_Component):
         self.thickness_to_chord        = 0.0
         self.blade_solidity            = 0.0
         self.thrust_angle              = 0.0
-        self.pitch_command             = 0.0
+        self.pitch_command             = 0.0 
         self.design_power              = None
-        self.design_thrust             = None        
-        self.induced_hover_velocity    = 0.0
+        self.VTOL_flag                 = False
+        self.design_thrust             = None 
         self.airfoil_geometry          = None
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
-        self.rotation                  = None
+        self.rotation                  = [1]      # counter-clockwise rotation as viewed from the front of the aircraft 
         self.ducted                    = False         
         self.number_azimuthal_stations = 24
-        self.induced_power_factor      = 1.48  #accounts for interference effects
+        self.induced_power_factor      = 1.48     # accounts for interference effects
         self.profile_drag_coefficient  = .03     
         self.nonuniform_freestream     = False
 
@@ -119,7 +120,7 @@ class Propeller(Energy_Component):
            lift_coefficient                  [-]
            omega                             [rad/s]
            disc_circulation                  [-] 
-           blade_dT_dR                       [N/m]
+           blade_dQ_dR                       [N/m]
            blade_dT_dr                       [N]
            blade_thrust_distribution         [N]
            disc_thrust_distribution          [N]
@@ -159,7 +160,7 @@ class Propeller(Energy_Component):
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
         cd_sur  = self.airfoil_cd_surrogates 
-        tc      = self.thickness_to_chord
+        tc      = self.thickness_to_chord  
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
         Vv      = conditions.frames.inertial.velocity_vector 
@@ -184,20 +185,17 @@ class Propeller(Energy_Component):
         body2thrust     = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
         V_thrust        = orientation_product(T_body2thrust,V_body) 
-        
-        
+         
+        V       = V_thrust[:,0,None]  
+        V[V==0.0] = 1E-6
+        ut      = np.zeros_like(V)
+
         #Things that don't change with iteration
         Nr       = len(c) # Number of stations radially    
         ctrl_pts = len(Vv)
         
-        # set up non dimensional radial distribution 
-        if self.radius_distribution is None:
-            chi0= Rh/R                      # Where the rotor blade actually starts
-            chi = np.linspace(chi0,1,Nr+1)  # Vector of nondimensional radii
-            chi = chi[0:Nr]
-    
-        else:
-            chi = self.radius_distribution/R
+        # set up non dimensional radial distribution  
+        chi      = self.radius_distribution/R
             
         V        = V_thrust[:,0,None] 
         omega    = np.abs(omega)        
@@ -215,13 +213,15 @@ class Propeller(Energy_Component):
         # azimuth distribution 
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
-        psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
+        psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)    
         
         # 2D radial distribution non dimensionalized
         chi_2d         = np.tile(chi ,(Na,1))            
         chi_2d         = np.repeat(chi_2d[ np.newaxis,:, :], ctrl_pts, axis=0) 
         r_dim_2d       = np.tile(r ,(Na,1))  
         r_dim_2d       = np.repeat(r_dim_2d[ np.newaxis,:, :], ctrl_pts, axis=0)  
+        c_2d           = np.tile(c ,(Na,1)) 
+        c_2d           = np.repeat(c_2d[ np.newaxis,:, :], ctrl_pts, axis=0)        
      
         # Setup a Newton iteration
         diff   = 1. 
@@ -239,12 +239,13 @@ class Propeller(Energy_Component):
             Vz  = np.repeat(Vz, Na,axis=1)
             Vz  = np.repeat(Vz, Nr,axis=2)
             
-            if rotation == None:
-                print("Propeller rotation not specified. Set to 1 (clockwise when viewed from behind).")
-                rotation = 1
+            if (rotation == [1]) or (rotation == [-1]):  
+                pass
+            else: 
+                rotation = [1]
             
             # compute resulting radial and tangential velocities in propeller frame
-            ut =  ( Vz*np.cos(psi_2d)  ) * rotation
+            ut =  ( Vz*np.cos(psi_2d)  ) * rotation[0]
             ur =  (-Vz*np.sin(psi_2d)  )
             ua =  np.zeros_like(ut)
             
@@ -406,7 +407,13 @@ class Propeller(Energy_Component):
             Va_ind_2d = va
             Vt_ind_2d = vt
             Vt_ind_avg    = np.average(vt, axis=1)
-            Va_ind_avg    = np.average(va, axis=1)          
+            Va_ind_avg    = np.average(va, axis=1)   
+            
+            # compute the hub force / rotor drag distribution along the blade
+            dL_2d    = 0.5*rho*c_2d*Cd*omegar**2*deltar
+            dD_2d    = 0.5*rho*c_2d*Cl*omegar**2*deltar
+            
+            rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=1)
             
         else:
             Va_2d   = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
@@ -421,21 +428,23 @@ class Propeller(Energy_Component):
             Vt_ind_avg              = vt
             Va_ind_avg              = va            
             Va_ind_2d               = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
-            Vt_ind_2d               = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T    
-              
-        blade_dT_dR = np.zeros((ctrl_pts,Nr))
-        blade_dT_dr = np.zeros((ctrl_pts,Nr))
-        blade_dQ_dR = np.zeros((ctrl_pts,Nr))
-        blade_dQ_dr = np.zeros((ctrl_pts,Nr))
-        
-        for i in range(ctrl_pts):
-            blade_dT_dR[i,:] = np.gradient(blade_T_distribution[i],deltar)
-            blade_dT_dr[i,:] = np.gradient(blade_T_distribution[i],deltachi)
-            blade_dQ_dR[i,:] = np.gradient(blade_Q_distribution[i],deltar)
-            blade_dQ_dr[i,:] = np.gradient(blade_Q_distribution[i],deltachi)
+            Vt_ind_2d               = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T     
+            
+            # compute the hub force / rotor drag distribution along the blade
+            dL    = 0.5*rho*c*Cd*omegar**2*deltar
+            dL_2d = np.repeat(dL[:,None,:], Na, axis=1)
+            dD    = 0.5*rho*c*Cl*omegar**2*deltar            
+            dD_2d = np.repeat(dD[:,None,:], Na, axis=1)
+            
+            rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=1)
+            
+        # thrust and torque derivatives on the blade. 
+        blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
+        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)     
         
         thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
-        torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T         
+        torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T
+        rotor_drag              = np.atleast_2d((B * np.sum(rotor_drag_distribution, axis=1))).T
         power                   = omega*torque   
         
         # calculate coefficients 
@@ -443,22 +452,25 @@ class Propeller(Energy_Component):
         Cq       = torque/(rho_0*(n*n)*(D*D*D*D*D)) 
         Ct       = thrust/(rho_0*(n*n)*(D*D*D*D))
         Cp       = power/(rho_0*(n*n*n)*(D*D*D*D*D))
+        Crd      = rotor_drag/(rho_0*(n*n)*(D*D*D*D))
         etap     = V*thrust/power 
 
         # prevent things from breaking 
-        Cq[Cq<0]                                           = 0.  
-        Ct[Ct<0]                                           = 0.  
-        Cp[Cp<0]                                           = 0.  
-        thrust[conditions.propulsion.throttle[:,0] <=0.0]  = 0.0
-        power[conditions.propulsion.throttle[:,0]  <=0.0]  = 0.0 
-        torque[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        thrust[omega<0.0]                                  = - thrust[omega<0.0]  
-        thrust[omega==0.0]                                 = 0.0
-        power[omega==0.0]                                  = 0.0
-        torque[omega==0.0]                                 = 0.0
-        Ct[omega==0.0]                                     = 0.0
-        Cp[omega==0.0]                                     = 0.0 
-        etap[omega==0.0]                                   = 0.0 
+        Cq[Cq<0]                                               = 0.  
+        Ct[Ct<0]                                               = 0.  
+        Cp[Cp<0]                                               = 0.  
+        thrust[conditions.propulsion.throttle[:,0] <=0.0]      = 0.0
+        power[conditions.propulsion.throttle[:,0]  <=0.0]      = 0.0 
+        torque[conditions.propulsion.throttle[:,0]  <=0.0]     = 0.0
+        rotor_drag[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
+        thrust[omega<0.0]                                      = - thrust[omega<0.0]  
+        thrust[omega==0.0]                                     = 0.0
+        power[omega==0.0]                                      = 0.0
+        torque[omega==0.0]                                     = 0.0
+        rotor_drag[omega==0.0]                                 = 0.0
+        Ct[omega==0.0]                                         = 0.0
+        Cp[omega==0.0]                                         = 0.0 
+        etap[omega==0.0]                                       = 0.0 
         
         # assign efficiency to network
         conditions.propulsion.etap = etap   
@@ -485,15 +497,13 @@ class Propeller(Energy_Component):
                     drag_coefficient                  = Cd,
                     lift_coefficient                  = Cl,       
                     omega                             = omega,  
-                    disc_circulation                  = blade_Gamma_2d,
-                    blade_dT_dR                       = blade_dT_dR,
+                    disc_circulation                  = blade_Gamma_2d, 
                     blade_dT_dr                       = blade_dT_dr,
                     blade_thrust_distribution         = blade_T_distribution, 
                     disc_thrust_distribution          = blade_T_distribution_2d, 
                     thrust_per_blade                  = thrust/B, 
                     thrust_coefficient                = Ct, 
-                    disc_azimuthal_distribution       = psi_2d,
-                    blade_dQ_dR                       = blade_dQ_dR,
+                    disc_azimuthal_distribution       = psi_2d, 
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution, 
                     disc_torque_distribution          = blade_Q_distribution_2d, 
@@ -502,7 +512,11 @@ class Propeller(Energy_Component):
                     power                             = power,
                     power_coefficient                 = Cp,    
                     converged_inflow_ratio            = lamdaw,
-                    disc_local_angle_of_attack        = alpha
+                    disc_local_angle_of_attack        = alpha,
+                    propeller_efficiency              = etap,
+                    blade_H_distribution              = rotor_drag_distribution,
+                    rotor_drag                        = rotor_drag,
+                    rotor_drag_coefficient            = Crd
             ) 
     
         return thrust, torque, power, Cp, outputs , etap
@@ -602,5 +616,9 @@ def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, R
         #This is an atrocious fit of DAE51 data at RE=50k for Cd
         Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
         Cdval[alpha>=np.pi/2] = 2.    
+        
+    
+    # prevent zero Cl to keep Cd/Cl from breaking in bemt  
+    Cl[Cl==0] = 1e-6
         
     return Cl, Cdval

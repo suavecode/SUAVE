@@ -5,6 +5,7 @@
 # Modified: Nov 2016, T. MacDonald
 #           Apr 2019, T. MacDonald
 #           Apr 2020, M. Clarke
+#           Jun 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -77,7 +78,9 @@ class Supersonic_Zero(Markup):
         settings.number_spanwise_vortices           = None 
         settings.number_chordwise_vortices          = None 
         settings.use_surrogate                      = True 
-        settings.propeller_wake_model               = False  
+        settings.propeller_wake_model               = False
+        settings.use_bemt_wake_model                = False
+        settings.model_fuselage                     = False
         
         # this multiplier is used to determine the volume wave drag at the peak Mach number
         # by multiplying the volume wave drag at the end drag rise Mach number
@@ -148,13 +151,15 @@ class Supersonic_Zero(Markup):
         
         use_surrogate             = self.settings.use_surrogate
         propeller_wake_model      = self.settings.propeller_wake_model 
+        use_bemt_wake_model       = self.settings.use_bemt_wake_model
         n_sw                      = self.settings.number_spanwise_vortices    
         n_cw                      = self.settings.number_chordwise_vortices  
         ito                       = self.settings.initial_timestep_offset
         wdt                       = self.settings.wake_development_time
         nwts                      = self.settings.number_of_wake_timesteps
-    
+        mf                        = self.settings.model_fuselage
+
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,ito,wdt,nwts)   
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf)
                 
     finalize = initialize        

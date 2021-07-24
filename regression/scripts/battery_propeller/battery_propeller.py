@@ -16,6 +16,7 @@ import pylab as plt
 import copy, time
 from SUAVE.Plots.Mission_Plots import *
 from SUAVE.Core import Data, Container
+from SUAVE.Methods.Weights.Buildups.eVTOL.empty import empty 
 import sys
 
 sys.path.append('../Vehicles')
@@ -34,7 +35,11 @@ def main():
 
     configs.finalize()
     analyses.finalize()  
-
+    
+    # evaluate the weight of an electric general aviation aircraft using eVTOL weight build-up
+    evtol_breakdown = empty(configs.base,contingency_factor=1.1)
+    print(evtol_breakdown)      
+     
     # mission analysis
     mission = analyses.missions.base
     results = mission.evaluate() 
@@ -51,7 +56,7 @@ def main():
     plot_results(old_results)  
     
     # RPM of rotor check during hover
-    RPM        = results.segments.climb_1.conditions.propulsion.rpm[3][0]
+    RPM        = results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0]
     RPM_true   = 884.7650260408985
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)

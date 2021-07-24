@@ -69,7 +69,7 @@ def vehicle_setup():
     wing.chords.root                            = 66. * Units.inches
     wing.chords.tip                             = 45. * Units.inches
     wing.chords.mean_aerodynamic                = 58. * Units.inches
-    wing.taper                                  = wing.chords.root/wing.chords.tip
+    wing.taper                                  = wing.chords.tip/wing.chords.root
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 3.0 * Units.degrees
     wing.twists.tip                             = 1.5 * Units.degrees
@@ -116,7 +116,7 @@ def vehicle_setup():
     wing.chords.root                            = 55. * Units.inches
     wing.chords.tip                             = 30. * Units.inches
     wing.chords.mean_aerodynamic                = 43. * Units.inches 
-    wing.taper                                  = wing.chords.root/wing.chords.tip
+    wing.taper                                  = wing.chords.tip/wing.chords.root
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 0.0 * Units.degrees
     wing.twists.tip                             = 0.0 * Units.degrees
@@ -142,7 +142,7 @@ def vehicle_setup():
     wing.chords.root                            = 66. * Units.inches
     wing.chords.tip                             = 27. * Units.inches
     wing.chords.mean_aerodynamic                = 48. * Units.inches 
-    wing.taper                                  = wing.chords.root/wing.chords.tip
+    wing.taper                                  = wing.chords.tip/wing.chords.root
     wing.aspect_ratio                           = wing.spans.projected**2. / wing.areas.reference
     wing.twists.root                            = 0.0 * Units.degrees
     wing.twists.tip                             = 0.0 * Units.degrees
@@ -247,9 +247,14 @@ def vehicle_setup():
     prop.design_Cl               = 0.8
     prop.design_altitude         = 12000. * Units.feet
     prop.design_power            = .64 * 180. * Units.horsepower
-    prop.airfoil_geometry        =  ['../Vehicles/NACA_4412.txt'] 
-    prop.airfoil_polars          = [['../Vehicles/NACA_4412_polar_Re_50000.txt' ,'../Vehicles/NACA_4412_polar_Re_100000.txt' ,'../Vehicles/NACA_4412_polar_Re_200000.txt' ,
-                                     '../Vehicles/NACA_4412_polar_Re_500000.txt' ,'../Vehicles/NACA_4412_polar_Re_1000000.txt' ]]
+
+    prop.airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    prop.airfoil_polars          = [['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
+                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
+
     prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     prop                         = propeller_design(prop)   
     

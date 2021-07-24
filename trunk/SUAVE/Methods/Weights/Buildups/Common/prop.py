@@ -63,6 +63,9 @@ def prop(prop,
 
         Originally written as part of an AA 290 project inteded for trade study
         of the above vehicle types.
+
+        If vehicle model does not have material properties assigned, appropriate
+        assumptions are made based on SUAVE's Solids Attributes library.
         
         Sources:
         Project Vahana Conceptual Trade Study
@@ -114,43 +117,70 @@ def prop(prop,
 # Unpack Material Properties
 #-------------------------------------------------------------------------------
 
-    BiCF = Bidirectional_Carbon_Fiber()
-    BiCF_MGT = BiCF.minimum_gage_thickness
-    BiCF_DEN = BiCF.density
-    BiCF_UTS = BiCF.ultimate_tensile_strength
-    BiCF_USS = BiCF.ultimate_shear_strength
-    BiCF_UBS = BiCF.ultimate_bearing_strength
+    try:
+        torsMat = prop.materials.skin_materials.torsion_carrier
+    except AttributeError:
+        torsMat = Bidirectional_Carbon_Fiber()
+    torsUSS = torsMat.ultimate_shear_strength
+    torsMGT = torsMat.minimum_gage_thickness
+    torsDen = torsMat.density
+
+    try:
+        shearMat = prop.materials.spar_materials.shear_carrier
+    except AttributeError:
+        shearMat = Bidirectional_Carbon_Fiber()
+    shearUSS = shearMat.ultimate_shear_strength
+    shearMGT = shearMat.minimum_gage_thickness
+    shearDen = shearMat.density
+
+    try:
+        bendMat = prop.materials.flap_materials.bending_carrier
+    except AttributeError:
+        bendMat = Unidirectional_Carbon_Fiber()
+    bendDen = bendMat.density
+    bendUTS = bendMat.ultimate_tensile_strength
+    bendUSS = bendMat.ultimate_shear_strength
+
+    try:
+        coreMat = prop.materials.skin_materials.core
+    except AttributeError:
+        coreMat = Carbon_Fiber_Honeycomb()
+    coreDen = coreMat.density
+
+    try:
+        ribMat = prop.materials.rib_materials.structural
+    except AttributeError:
+        ribMat = Aluminum_Rib()
+    ribWid = ribMat.minimum_width
+    ribMGT = ribMat.minimum_gage_thickness
+    ribDen = ribMat.density
+
+    try:
+        rootMat = prop.materials.root_materials.structural
+    except AttributeError:
+        rootMat = Aluminum()
+    rootDen = rootMat.density
+    rootUTS = rootMat.ultimate_tensile_strength
+
+    try:
+        leMat = prop.materials.skin_materials.leading_edge
+    except:
+        leMat = Nickel()
+    leDen = leMat.density
     
-    UniCF = Unidirectional_Carbon_Fiber()
-    UniCF_MGT = UniCF.minimum_gage_thickness
-    UniCF_DEN = UniCF.density
-    UniCF_UTS = UniCF.ultimate_tensile_strength
-    UniCF_USS = UniCF.ultimate_shear_strength
+    try:
+        glueMat = prop.materials.skin_materials.adhesive
+    except AttributeError:
+        glueMat = Epoxy()
+    glueMGT = glueMat.minimum_gage_thickness
+    glueDen = glueMat.density
     
-    HCMB = Carbon_Fiber_Honeycomb()
-    HCMB_MGT = HCMB.minimum_gage_thickness
-    HCMB_DEN = HCMB.density
-    
-    RIB = Aluminum_Rib()
-    RIB_WID = RIB.minimum_width
-    RIB_MGT = RIB.minimum_gage_thickness
-    RIB_DEN = RIB.density
-    
-    ALUM = Aluminum()
-    ALUM_DEN = ALUM.density
-    ALUM_MGT = ALUM.minimum_gage_thickness
-    ALUM_UTS = ALUM.ultimate_tensile_strength
-    
-    NICK = Nickel()
-    NICK_DEN = NICK.density
-    
-    EPOXY = Epoxy()
-    EPOXY_MGT = EPOXY.minimum_gage_thickness
-    EPOXY_DEN = EPOXY.density
-    
-    PAINT = Paint()
-    PAINT_MGT = PAINT.minimum_gage_thickness
-    PAINT_DEN = PAINT.density
+    try:
+        coverMat = prop.materials.skin_materials.cover
+    except:
+        coverMat = Paint()
+    coverMGT = coverMat.minimum_gage_thickness
+    coverDen = coverMat.density
 
 #-------------------------------------------------------------------------------
 # Airfoil
@@ -188,9 +218,9 @@ def prop(prop,
     skinLength = np.sum(np.sqrt(np.sum(np.diff(box,axis=0)**2,axis=1)))
     maxThickness = (np.amax(box[:,1])-np.amin(box[:,1]))/2
     rootBendingMoment = SF*maxThrust/nBlades*0.75*rProp
-    m = (UniCF_DEN*dx*rootBendingMoment/
-        (2*UniCF_USS*maxThickness))+ \
-        skinLength*BiCF_MGT*dx*BiCF_DEN
+    m = (bendDen*dx*rootBendingMoment/
+        (2*bendUSS*maxThickness))+ \
+        skinLength*shearMGT*dx*shearDen
     m = m*np.ones(N)
     error = 1               # Initialize Error
     tolerance = 1e-8        # Mass Tolerance
@@ -258,38 +288,38 @@ def prop(prop,
 
         # Calculate Skin Weight Based on Torsion
 
-        tTorsion = My/(2*BiCF_USS*enclosedArea)                 # Torsion Skin Thickness
-        tTorsion = np.maximum(tTorsion,BiCF_MGT*np.ones(N))     # Gage Constraint
-        mTorsion = tTorsion * skinLength * BiCF_DEN             # Torsion Mass
+        tTorsion = My/(2*torsUSS*enclosedArea)                 # Torsion Skin Thickness
+        tTorsion = np.maximum(tTorsion,torsMGT*np.ones(N))     # Gage Constraint
+        mTorsion = tTorsion * skinLength * torsDen             # Torsion Mass
 
         # Calculate Flap Mass Based on Bending
 
-        tFlap = CF/(capLength*UniCF_UTS) +   \
-            Mx*np.amax(np.abs(box[:,1]))/(capInertia*UniCF_UTS)
-        mFlap = tFlap*capLength*UniCF_DEN
-        mGlue = EPOXY_MGT*EPOXY_DEN*capLength*np.ones(N)
+        tFlap = CF/(capLength*bendUTS) +   \
+            Mx*np.amax(np.abs(box[:,1]))/(capInertia*bendUTS)
+        mFlap = tFlap*capLength*bendDen
+        mGlue = glueMGT*glueDen*capLength*np.ones(N)
 
         # Calculate Web Mass Based on Shear
 
-        tShear = 1.5*Vz/(BiCF_USS*shearHeight)
-        tShear = np.maximum(tShear,BiCF_MGT*np.ones(N))
-        mShear = tShear*shearHeight*BiCF_DEN
+        tShear = 1.5*Vz/(shearUSS*shearHeight)
+        tShear = np.maximum(tShear,shearMGT*np.ones(N))
+        mShear = tShear*shearHeight*shearDen
 
         # Paint Weight
 
-        mPaint = skinLength*PAINT_MGT*PAINT_DEN*np.ones(N)
+        mPaint = skinLength*coverMGT*coverDen*np.ones(N)
 
         # Core Mass
 
-        mCore = coreArea*HCMB_DEN*np.ones(N)
-        mGlue += EPOXY_MGT*EPOXY_DEN*skinLength*np.ones(N)
+        mCore = coreArea*coreDen*np.ones(N)
+        mGlue += glueMGT*glueDen*skinLength*np.ones(N)
 
         # Leading Edge Protection
 
         box = coord * chord
         box = box[box[:,0]<(0.1*chord)]
         leLength = np.sum(np.sqrt(np.sum(np.diff(box,axis=0)**2,axis=1)))
-        mLE = leLength*420e-6*NICK_DEN*np.ones(N)
+        mLE = leLength*420e-6*leDen*np.ones(N)
 
         # Section Mass
 
@@ -297,15 +327,15 @@ def prop(prop,
 
         # Rib Weight
 
-        mRib = (enclosedArea+skinLength*RIB_WID)*RIB_MGT*RIB_DEN
+        mRib = (enclosedArea+skinLength*ribWid)*ribMGT*ribDen
 
         # Root Fitting
 
         box = coord * chord
         rRoot = (np.amax(box[:,1])-np.amin(box[:,1]))/2
-        t = np.amax(CF)/(2*np.pi*rRoot*ALUM_UTS) +    \
-            np.amax(Mx)/(3*np.pi*rRoot**2*ALUM_UTS)
-        mRoot = 2*np.pi*rRoot*t*rootLength*ALUM_DEN
+        t = np.amax(CF)/(2*np.pi*rRoot*rootUTS) +    \
+            np.amax(Mx)/(3*np.pi*rRoot**2*rootUTS)
+        mRoot = 2*np.pi*rRoot*t*rootLength*rootDen
 
         # Total Weight
 

@@ -3,6 +3,7 @@
 #
 # Created:  Mar 2017, E. Botero
 # Modified: Jan 2020, T. MacDonald
+#           May 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -79,6 +80,8 @@ class Propulsor_Surrogate(Propulsor):
         self.thrust_anchor_conditions = np.array([[1.,1.,1.]])
         self.sfc_rubber_scale         = 1.
         self.use_extended_surrogate   = False
+        self.sealevel_static_thrust   = 0.0
+        self.negative_throttle_values = False
    
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -128,7 +131,11 @@ class Propulsor_Surrogate(Propulsor):
        
         F    = thr
         mdot = thr*sfc*self.number_of_engines
-       
+        
+        if self.negative_throttle_values == False:
+            F[throttle<=0.]    = 0.
+            mdot[throttle<=0.] = 0.
+           
         # Save the output
         results = Data()
         results.thrust_force_vector = self.number_of_engines * F * [np.cos(self.thrust_angle),0,-np.sin(self.thrust_angle)]

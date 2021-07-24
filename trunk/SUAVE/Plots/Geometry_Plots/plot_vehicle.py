@@ -11,17 +11,16 @@
 from SUAVE.Core import Data
 import numpy as np 
 import matplotlib.pyplot as plt  
-from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series import compute_naca_4series  
-from SUAVE.Methods.Geometry.Three_Dimensional \
-     import  orientation_product, orientation_transpose
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution
-from SUAVE.Components.Energy.Networks import Lift_Cruise , Turbofan 
-from SUAVE.Components.Energy.Converters import Propeller, Rotor 
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution
+from SUAVE.Components.Energy.Networks import Lift_Cruise 
+from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
+
 ## @ingroup Plots-Geometry_Plots
-def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
+def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limits = 10,
+                 save_figure = False, plot_control_points = True, save_filename = "Vehicle_Geometry"):     
     """This plots vortex lattice panels created when Fidelity Zero  Aerodynamics 
     Routine is initialized
 
@@ -40,20 +39,25 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     Properties Used:
     N/A	
     """	
+    
+    print("\nPlotting vehicle")
+    
     # unpack vortex distribution 
     try:
         VD = vehicle.vortex_distribution 
     except:
-        settings = Data()
+        settings = Vortex_Lattice().settings
         settings.number_spanwise_vortices  = 25
         settings.number_chordwise_vortices = 5
-        VD = generate_wing_vortex_distribution(vehicle,settings)  
+        settings.spanwise_cosine_spacing   = False 
+        settings.model_fuselage            = False
+        VD = generate_vortex_distribution(vehicle,settings)  
         
     # initalize figure 
     fig = plt.figure(save_filename) 
     fig.set_size_inches(8,8) 
-    axes = Axes3D(fig)    
-    axes.view_init(elev= 30, azim= 210)  
+    axes = plt.axes(projection='3d')
+    axes.view_init(elev= elevation_angle, azim= azimuthal_angle)   
     
     # -------------------------------------------------------------------------
     # PLOT WING
@@ -82,10 +86,11 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     fuselage_alpha      = 1      
     for fus in vehicle.fuselages: 
         # Generate Fuselage Geometry
-        fus_pts = generate_fuselage_points(axes, fus) 
+        fus_pts = generate_fuselage_points(fus) 
         
         # Plot Fuselage Geometry          
         plot_fuselage_geometry(axes,fus_pts,fuselage_face_color,fuselage_edge_color,fuselage_alpha)  
+        
     # -------------------------------------------------------------------------
     # PLOT ENGINE
     # -------------------------------------------------------------------------        
@@ -93,9 +98,12 @@ def plot_vehicle(vehicle, save_figure = False, plot_control_points = True, save_
     propulsor_edge_color = 'black' 
     propulsor_alpha      = 1    
     for propulsor in vehicle.propulsors:    
-        plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,propulsor_alpha)    
-      
-    # Plot Vehicle
+        plot_propulsor(axes,propulsor)     
+        
+    axes.set_xlim(-axis_limits,axis_limits)
+    axes.set_ylim(-axis_limits,axis_limits)
+    axes.set_zlim(-axis_limits,axis_limits)    
+       
     plt.axis('off') 
     plt.grid(None)      
     return 
@@ -135,15 +143,6 @@ def plot_wing(axes,VD,face_color,edge_color,alpha_val):
         collection.set_alpha(alpha_val)
         
         axes.add_collection3d(collection)     
-        max_range = np.array([VD.X.max()-VD.X.min(), VD.Y.max()-VD.Y.min(), VD.Z.max()-VD.Z.min()]).max() / 2.0 
-        
-        mid_x = (VD.X .max()+VD.X .min()) * 0.5
-        mid_y = (VD.Y .max()+VD.Y .min()) * 0.5
-        mid_z = (VD.Z .max()+VD.Z .min()) * 0.5
-        
-        axes.set_xlim(mid_x - max_range, mid_x + max_range)
-        axes.set_ylim(mid_y - max_range, mid_y + max_range)
-        axes.set_zlim(mid_z - max_range, mid_z + max_range)    
         
     return    
  
@@ -195,7 +194,7 @@ def plot_propeller_wake(axes, VD,face_color,edge_color,alpha):
     return 
     
 
-def generate_fuselage_points(axes, fus ,tessellation = 24 ):
+def generate_fuselage_points(fus ,tessellation = 24 ):
     """ This generates the coordinate points on the surface of the fuselage 
 
     Assumptions: 
@@ -275,7 +274,7 @@ def plot_fuselage_geometry(axes,fus_pts, face_color,edge_color,alpha):
     return 
 
 
-def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,propulsor_alpha,tessellation = 24):  
+def plot_propulsor(axes,propulsor):  
     """ This plots the 3D surface of the propulsor
 
     Assumptions: 
@@ -284,8 +283,7 @@ def plot_propulsor(axes,VD,propulsor,propulsor_face_color,propulsor_edge_color,p
     Source:   
     None
     
-    Inputs:   
-    VD                   - vortex distribution    
+    Inputs:     
     propulsor            - propulsor data structure
     propulsor_face_color - color of panel
     propulsor_edge_color - color of panel edge
@@ -326,8 +324,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     Source:   
     None
     
-    Inputs:   
-    VD                   - vortex distribution    
+    Inputs:    
     propulsor            - propulsor data structure 
     
     Properties Used:
@@ -356,23 +353,18 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     n_points  = 10
     af_pts    = (2*n_points)-1
     dim       = len(b)
+    dim2      = 2*n_points
     num_props = len(origin) 
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]   
     
-    # create empty arrays for storing geometry
-    G = Data()
-    G.XA1 = np.zeros((dim-1,af_pts))
-    G.YA1 = np.zeros_like(G.XA1)
-    G.ZA1 = np.zeros_like(G.XA1)
-    G.XA2 = np.zeros_like(G.XA1)
-    G.YA2 = np.zeros_like(G.XA1)
-    G.ZA2 = np.zeros_like(G.XA1)
-    G.XB1 = np.zeros_like(G.XA1)
-    G.YB1 = np.zeros_like(G.XA1)
-    G.ZB1 = np.zeros_like(G.XA1)
-    G.XB2 = np.zeros_like(G.XA1)
-    G.YB2 = np.zeros_like(G.XA1)
-    G.ZB2 = np.zeros_like(G.XA1)  
+    if len(prop.rotation) != num_props: 
+        print('Inconsistent ' + prop.tag + ' rotation vector defined. \nDefaulting to all clockwise rotating blades.')
+        prop.rotation = list(np.ones(num_props))
+    else:
+        pass
+        
+    # create empty data structure for storing geometry
+    G = Data()    
     
     for n_p in range(num_props):  
         rot    = prop.rotation[n_p] 
@@ -380,10 +372,10 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
         flip_1 = (np.pi/2)  
         flip_2 = (np.pi/2)  
         
-        MCA_2d = np.repeat(np.atleast_2d(MCA).T,dim,axis=1)
-        b_2d   = np.repeat(np.atleast_2d(b).T  ,dim,axis=1)
-        t_2d   = np.repeat(np.atleast_2d(t).T  ,dim,axis=1)
-        r_2d   = np.repeat(np.atleast_2d(r).T  ,dim,axis=1)
+        MCA_2d = np.repeat(np.atleast_2d(MCA).T,dim2,axis=1)
+        b_2d   = np.repeat(np.atleast_2d(b).T  ,dim2,axis=1)
+        t_2d   = np.repeat(np.atleast_2d(t).T  ,dim2,axis=1)
+        r_2d   = np.repeat(np.atleast_2d(r).T  ,dim2,axis=1)
         
         for i in range(num_B):   
             # get airfoil coordinate geometry   
@@ -403,13 +395,13 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
                 max_t        = np.repeat(airfoil_data.thickness_to_chord,dim,axis=0) 
              
             # store points of airfoil in similar format as Vortex Points (i.e. in vertices)   
-            max_t2d = np.repeat(np.atleast_2d(max_t).T ,dim,axis=1)
+            max_t2d = np.repeat(np.atleast_2d(max_t).T ,dim2,axis=1)
             
             xp      = rot*(- MCA_2d + xpts*b_2d)  # x coord of airfoil
             yp      = r_2d*np.ones_like(xp)       # radial location        
             zp      = zpts*(t_2d/max_t2d)         # former airfoil y coord 
                               
-            matrix = np.zeros((len(zp),dim,3)) # radial location, airfoil pts (same y)   
+            matrix = np.zeros((len(zp),dim2,3)) # radial location, airfoil pts (same y)   
             matrix[:,:,0] = xp
             matrix[:,:,1] = yp
             matrix[:,:,2] = zp
@@ -425,7 +417,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     
             # rotation about x axis to create azimuth locations 
             trans_2 = np.array([[1 , 0 , 0],
-                           [0 , np.cos(theta[i] + rot*a_o + flip_2 ), np.sin(theta[i] + rot*a_o + flip_2)],
+                           [0 , np.cos(theta[i] + rot*a_o + flip_2 ), -np.sin(theta[i] + rot*a_o + flip_2)],
                            [0,np.sin(theta[i] + rot*a_o + flip_2), np.cos(theta[i] + rot*a_o + flip_2)]]) 
             trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],dim,axis=0)
             
@@ -436,7 +428,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
             trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],dim,axis=0)
             
             trans     = np.matmul(trans_3,np.matmul(trans_2,trans_1))
-            rot_mat   = np.repeat(trans[:, np.newaxis,:,:],len(yp),axis=1)
+            rot_mat   = np.repeat(trans[:, np.newaxis,:,:],dim2,axis=1)
              
             # ---------------------------------------------------------------------------------------------
             # ROTATE POINTS
@@ -444,19 +436,19 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
             
             # ---------------------------------------------------------------------------------------------
             # store points
-            G.XA1[:,:]  = mat[:-1,:-1,0] + origin[n_p][0]
-            G.YA1[:,:]  = mat[:-1,:-1,1] + origin[n_p][1] 
-            G.ZA1[:,:]  = mat[:-1,:-1,2] + origin[n_p][2]
-            G.XA2[:,:]  = mat[:-1,1:,0]  + origin[n_p][0]
-            G.YA2[:,:]  = mat[:-1,1:,1]  + origin[n_p][1] 
-            G.ZA2[:,:]  = mat[:-1,1:,2]  + origin[n_p][2]
-                                 
-            G.XB1[:,:]  = mat[1:,:-1,0] + origin[n_p][0]
-            G.YB1[:,:]  = mat[1:,:-1,1] + origin[n_p][1]  
-            G.ZB1[:,:]  = mat[1:,:-1,2] + origin[n_p][2]
-            G.XB2[:,:]  = mat[1:,1:,0]  + origin[n_p][0]
-            G.YB2[:,:]  = mat[1:,1:,1]  + origin[n_p][1]
-            G.ZB2[:,:]  = mat[1:,1:,2]  + origin[n_p][2]    
+            G.XA1  = mat[:-1,:-1,0] + origin[n_p][0]
+            G.YA1  = mat[:-1,:-1,1] + origin[n_p][1] 
+            G.ZA1  = mat[:-1,:-1,2] + origin[n_p][2]
+            G.XA2  = mat[:-1,1:,0]  + origin[n_p][0]
+            G.YA2  = mat[:-1,1:,1]  + origin[n_p][1] 
+            G.ZA2  = mat[:-1,1:,2]  + origin[n_p][2]
+                            
+            G.XB1  = mat[1:,:-1,0] + origin[n_p][0]
+            G.YB1  = mat[1:,:-1,1] + origin[n_p][1]  
+            G.ZB1  = mat[1:,:-1,2] + origin[n_p][2]
+            G.XB2  = mat[1:,1:,0]  + origin[n_p][0]
+            G.YB2  = mat[1:,1:,1]  + origin[n_p][1]
+            G.ZB2  = mat[1:,1:,2]  + origin[n_p][2]    
              
             # ------------------------------------------------------------------------
             # Plot Propeller Blade 

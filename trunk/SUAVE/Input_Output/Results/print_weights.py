@@ -120,7 +120,7 @@ def print_weight_breakdown(config, filename='weight_breakdown.dat'):
     fid.write(' ZERO FUEL WEIGHT BREAKDOWN \n')
     fid.write(' ...... ZERO FUEL WEIGHT ........ :' + str('%8.0F' % weight_breakdown.zero_fuel_weight) + ' kg\n')
     fid.write(' Payload Weight Breakdown \n')
-    fid.write(" Total payload weight".ljust(33, '.') + ' :' + str('%8.0F' % weight_breakdown.payload) + ' kg\n')
+    fid.write(" Total payload weight".ljust(33, '.') + ' :' + str('%8.0F' % weight_breakdown.payload_breakdown.total) + ' kg\n')
     for tag, value in weight_breakdown.payload_breakdown.items():
         if tag != "total":
             tag = tag.replace('_', ' ')

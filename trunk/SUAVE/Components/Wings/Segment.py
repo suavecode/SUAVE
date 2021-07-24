@@ -59,7 +59,6 @@ class Segment(Lofted_Body.Segment):
         self.generative_design_char_min_bounds   = [0.,-np.pi/3,0.,-.1,-1.2,0.0001]   
         self.generative_design_char_max_bounds   = [1.,np.pi/3,np.inf,1.,1.2,0.5]        
         
-        self.control_surfaces      = Data()  
         
     def append_airfoil(self,airfoil):
         """ Adds an airfoil to the segment
@@ -85,32 +84,6 @@ class Segment(Lofted_Body.Segment):
 
         # store data
         self.Airfoil.append(airfoil)
-
-    def append_control_surface(self,control_surface):
-        """ Adds an control_surface to the segment
-        
-        Assumptions:
-        None
-        
-        Source:
-        N/A
-        
-        Inputs:
-        None
-        
-        Outputs:
-        None
-        
-        Properties Used:
-        N/A
-        """  
-        # assert database type
-        if not isinstance(control_surface,Data):
-            raise Exception('input component must be of type Data()')
-
-        # store data
-        self.control_surfaces.append(control_surface)
-        return    
 
         
 ## @ingroup Components-Wings
