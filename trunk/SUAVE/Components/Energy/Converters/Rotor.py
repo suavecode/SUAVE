@@ -144,7 +144,7 @@ class Rotor(Energy_Component):
           twist_distribution                 [radians]
           chord_distribution                 [m]
           mid_chord_alignment                [m] 
-          orientation                        [xhat, yhat, zhat]
+          orientation_euler_angles           [rad, rad, rad]
         """         
            
         #Unpack    

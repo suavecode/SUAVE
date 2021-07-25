@@ -50,7 +50,7 @@ def main():
     plot_mission(results)   
 
     # save, load and plot old results 
-    save_tiltwing_results(results)
+    #save_tiltwing_results(results)
     old_results = load_tiltwing_results() 
     plot_mission(old_results,'k-')
 

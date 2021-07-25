@@ -553,6 +553,7 @@ def vehicle_setup():
     rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
     rotor                            = propeller_design(rotor)
     
+    # Appending rotors with different origins
     rotations = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
     origins   = [[0.543,  1.63  , -0.126] ,[0.543, -1.63  ,  -0.126],
                  [3.843,  1.63  , -0.126] ,[3.843, -1.63  ,  -0.126],
@@ -598,6 +599,7 @@ def vehicle_setup():
     rotor_motor.no_load_current         = 4.0   
     rotor_motor                         = size_optimal_motor(rotor_motor,rotor)
 
+    # Appending motors with different origins
     for _ in range(12):
         rotor_motor = deepcopy(rotor_motor)
         rotor_motor.tag = 'motor'
