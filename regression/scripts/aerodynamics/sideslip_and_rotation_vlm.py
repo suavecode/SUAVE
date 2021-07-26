@@ -71,11 +71,11 @@ def main():
 def get_conditions():
     machs      = np.array([0.4  ,0.4  ,0.4  ,0.4  ,0.4  ,1.4  ,])
     altitudes  = np.array([5000 ,5000 ,5000 ,5000 ,5000 ,5000 ,])  *Units.ft
-    aoas       = np.array([-6.  ,0.   ,6.   ,0.   ,0.   ,6    ,])  *Units.degrees 
-    PSIs       = np.array([-5.  ,3.   ,5.   ,5.   ,0.   ,5.   ,])  *Units.degrees     
-    PITCHQs    = np.array([-6.  ,3.   ,6.   ,0.   ,5.   ,6.   ,])  *Units.degrees    
-    ROLLQs     = np.array([-6.  ,3.   ,6.   ,0.   ,5.   ,6.   ,])  *Units.degrees  
-    YAWQs      = np.array([-6.  ,3.   ,6.   ,0.   ,5.   ,6.   ,])  *Units.degrees         
+    aoas       = np.array([-6.  ,0.   ,6.   ,0.   ,0.   ,6    ,])  *Units.degrees #angle of attack in degrees
+    PSIs       = np.array([-5.  ,3.   ,5.   ,5.   ,0.   ,5.   ,])  *Units.degrees #sideslip angle  in degrees
+    PITCHQs    = np.array([-6.  ,3.   ,6.   ,0.   ,5.   ,6.   ,])  *Units.degrees #pitch rate      in degrees/s   
+    ROLLQs     = np.array([-6.  ,3.   ,6.   ,0.   ,5.   ,6.   ,])  *Units.degrees #roll  rate      in degrees/s
+    YAWQs      = np.array([-6.  ,3.   ,6.   ,0.   ,5.   ,6.   ,])  *Units.degrees #yaw   rate      in degrees/s       
     
     conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
     atmosphere                              = SUAVE.Analyses.Atmospheric.US_Standard_1976()

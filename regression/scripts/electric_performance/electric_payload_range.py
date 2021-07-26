@@ -34,7 +34,6 @@ def main():
     analyses.finalize()
 
     payload_range = electric_payload_range(vehicle, mission, 'cruise', display_plot=True)
-    #print(payload_range) #for easy regression reset
 
     payload_range_r = [     0.,         102514.56470521, 109015.00941805]
 
