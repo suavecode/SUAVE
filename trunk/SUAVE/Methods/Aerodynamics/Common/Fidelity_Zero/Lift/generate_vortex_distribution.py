@@ -13,6 +13,7 @@
 import numpy as np
 
 from SUAVE.Core import  Data
+from SUAVE.Components.Wings import Stabilator 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import make_VLM_wings
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
@@ -426,8 +427,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     # -------------------------------------------------------------------------------------------------------------
     # Run the strip contruction loop again if wing is symmetric. 
     # Reflection plane = x-y plane for vertical wings. Otherwise, reflection plane = x-z plane
-    signs = np.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
-    for sym_sign in signs[[True,sym_para]]:
+    signs         = np.array([1, -1]) # acts as a multiplier for symmetry. -1 is only ever used for symmetric wings
+    symmetry_mask = [True,sym_para]
+    for sym_sign_ind, sym_sign in enumerate(signs[symmetry_mask]):
         # create empty vectors for coordinates 
         xah   = np.zeros(n_cw*n_sw)
         yah   = np.zeros(n_cw*n_sw)
@@ -630,16 +632,26 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             # Deflect control surfaces-----------------------------------------------------------------------------
             # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
             # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
-            if wing.is_a_control_surface:
-                # get rotation point and deflection angle: slat vs non-slat vs aileron
-                if wing.is_slat: #rotate from trailing edge
-                    ib_hinge_point   = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])
-                    ob_hinge_point   = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])
-                    deflection_angle = -wing.deflection *sym_sign 
-                else:            #rotate from leading edge, 
-                    ib_hinge_point   = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
-                    ob_hinge_point   = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])
-                    deflection_angle =  wing.deflection *sym_sign if (not wing.is_aileron) else wing.deflection
+            wing_is_a_stabilator = (not wing.is_a_control_surface) and (wing.wing_type == Stabilator)
+            if wing.is_a_control_surface or wing_is_a_stabilator:
+                # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
+                ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
+                ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])
+                ob_le_strip_corner = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
+                ob_te_strip_corner = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]]) 
+                
+                interp_fractions = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
+                interp_domains   = np.array([0.,1., 2.,3., 4.,5.])
+                interp_ranges_ib = np.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
+                interp_ranges_ob = np.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
+                
+                ib_hinge_point   = np.interp(interp_fractions, interp_domains, interp_ranges_ib)
+                ob_hinge_point   = np.interp(interp_fractions, interp_domains, interp_ranges_ob)
+                
+                # get deflection angle
+                deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
+                symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
+                deflection_angle      = deflection_base_angle * symmetry_multiplier
                     
                 # make quaternion rotation matrix
                 hinge_vector = ob_hinge_point - ib_hinge_point

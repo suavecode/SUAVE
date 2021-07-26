@@ -267,6 +267,7 @@ def copy_large_container(large_container, type_str):
                 data.sign_duplicate = obj.sign_duplicate
                 data.hinge_fraction = obj.hinge_fraction 
                 data.deflection     = obj.deflection  
+                data.is_slat        = False
         container.append(data)
         
     return container
@@ -348,6 +349,7 @@ def get_paths(type_str):
                  'sign_duplicate',
                  'deflection',         
                  'configuration_type',      
+                 'gain',      
                  ]
     elif type_str == 'Segments':
         paths = ['tag',               
@@ -421,13 +423,18 @@ def make_cs_wing_from_cs(cs, seg_a, seg_b, wing, cs_ID):
     cs_wing.vortex_lift           = wing.vortex_lift
 
     #non-standard wing attributes, mostly to do with cs_wing's identity as a control surface-----------------------
+    #metadata
     cs_wing.is_a_control_surface  = True
     cs_wing.cs_ID                 = cs_ID
     cs_wing.name                  = wing.tag + '__' + seg_b.tag + '__' + cs.tag + '__cs_ID_{}'.format(cs_ID)
-    cs_wing.chord_fraction        = cs.chord_fraction
     cs_wing.is_slat               = (cs.cs_type==Slat)
     cs_wing.is_aileron            = (cs.cs_type==Aileron)
     cs_wing.pivot_edge            = 'TE' if cs_wing.is_slat else 'LE'
+    
+    #control surface attributes
+    cs_wing.chord_fraction        = cs.chord_fraction
+    cs_wing.hinge_fraction        = cs.hinge_fraction
+    cs_wing.sign_duplicate        = cs.sign_duplicate
     cs_wing.deflection            = cs.deflection
     
     #adjustments---------------------------------------------------------------------------------------------------
