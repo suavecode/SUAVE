@@ -90,9 +90,9 @@ def VLM(conditions,settings,geometry):
        
     settings.use_surrogate                     [Unitless]
     settings.propeller_wake_model              [Unitless]
-    settings.discretize_control_surfaces       [Boolean] -- set to True to generate control surface panels
+    settings.discretize_control_surfaces       [Boolean], set to True to generate control surface panels
     settings.use_VORLAX_matrix_calculation     [boolean]
-    settings.floating_point_precision          [np.dtype]
+    settings.floating_point_precision          [np.float16/32/64]
        
     conditions.aerodynamics.angle_of_attack    [radians]
     conditions.aerodynamics.side_slip_angle    [radians]
@@ -105,14 +105,21 @@ def VLM(conditions,settings,geometry):
     
     Outputs:    
     results.
-        CL                                     [Unitless]
-        Cl                                     [Unitless]
-        CDi                                    [Unitless]
-        Cdi                                    [Unitless]
-        CM                                     [Unitless]
-        CP                                     [Unitless]
-        CRMTOT                                 [Unitless]
-        CYMTOT                                 [Unitless]
+        CL                                     [Unitless], CLTOT in VORLAX
+        CDi                                    [Unitless], CDTOT in VORLAX
+        CM                                     [Unitless], CMTOT in VORLAX
+        CYTOT                                  [Unitless], Total y force coeff
+        CRTOT                                  [Unitless], Rolling moment coeff (unscaled)
+        CRMTOT                                 [Unitless], Rolling moment coeff (scaled by w_span)
+        CNTOT                                  [Unitless], Yawing  moment coeff (unscaled)
+        CYMTOT                                 [Unitless], Yawing  moment coeff (scaled by w_span)
+        CL_wing                                [Unitless], CL  of each wing
+        CDi_wing                               [Unitless], CDi of each wing
+        cl_y                                   [Unitless], CL  of each strip
+        cdi_y                                  [Unitless], CDi of each strip
+        alpha_i                                [Unitless], Induced angle of each strip in each wing (array of numpy arrays)
+        CP                                     [Unitless], Pressure coefficient of each panel
+        gamma                                  [Unitless], Vortex strengths of each panel
 
     
     Properties Used:
@@ -244,7 +251,7 @@ def VLM(conditions,settings,geometry):
     # This is not affected by AoA, so we can use unique mach numbers only
     m_unique, inv = np.unique(mach,return_inverse=True)
     m_unique      = np.atleast_2d(m_unique).T
-    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique,computed_in_VLM=True)
+    C_mn_small, s, RFLAG_small, EW_small = compute_wing_induced_velocity(VD,m_unique,compute_EW=True)
     
     C_mn  = C_mn_small[inv,:,:,:]
     RFLAG = RFLAG_small[inv,:]
@@ -399,7 +406,8 @@ def VLM(conditions,settings,geometry):
     # COMPUTE LEADING EDGE THRUST COEFF. (CSUC) BY CALCULATING
     # THE TOTAL INDUCED FLOW AT THE LEADING EDGE. THIS COMPUTATION
     # ONLY PERFORMED FOR COSINE CHORDWISE SPACING (LAX = 0).    
-    # ** TO DO ** Add cosine spacing (earlier in VLM) to properly capture the magnitude of these effects
+    # ** TO DO ** Add cosine spacing (earlier in VLM) to properly capture the magnitude of these earlier.
+    # Right now, this computation still happens with linear spacing, though its effects are underestimated.
     CLE = compute_rotation_effects(VD, settings, EW, GAMMA, len_mach, X, CHORD, XLE, XBAR, 
                                    rhs, COSINP, SINALF, PITCH, ROLL, YAW, STB, RNMAX)    
     
@@ -484,10 +492,10 @@ def VLM(conditions,settings,geometry):
     CM       = np.atleast_2d(np.sum(MOMENT,axis=1)/SREF).T/c_bar  # CMTOT in VORLAX
 
     CYTOT    = np.atleast_2d(np.sum(FY,axis=1)/SREF).T   # total y force coeff
-    CRTOT    = np.atleast_2d(np.sum(RM,axis=1)/SREF).T   # total rolling moment coeff
-    CRMTOT   = CRTOT/w_span*(-1)                         # an output in VORLAG.LOG
-    CNTOT    = np.atleast_2d(np.sum(YM,axis=1)/SREF).T   # total yawing  moment coeff
-    CYMTOT   = CNTOT/w_span*(-1)                         # an output in VORLAG.LOG
+    CRTOT    = np.atleast_2d(np.sum(RM,axis=1)/SREF).T   # rolling moment coeff (unscaled)
+    CRMTOT   = CRTOT/w_span*(-1)                         # rolling moment coeff
+    CNTOT    = np.atleast_2d(np.sum(YM,axis=1)/SREF).T   # yawing  moment coeff (unscaled)
+    CYMTOT   = CNTOT/w_span*(-1)                         # yawing  moment coeff
 
     # ---------------------------------------------------------------------------------------
     # STEP 13: Pack outputs
@@ -513,11 +521,6 @@ def VLM(conditions,settings,geometry):
     results.alpha_i    =  alpha_i  
     results.CP         =  np.array(CP    , dtype=precision)
     results.gamma      =  np.array(GAMMA , dtype=precision)
-    
-    #append inputs
-    results.conditions = conditions
-    results.settings   = settings
-    results.geometry   = geometry
     
     return results
 

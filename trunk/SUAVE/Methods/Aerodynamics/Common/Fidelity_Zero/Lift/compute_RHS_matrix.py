@@ -25,7 +25,7 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
     when relevent and where specified     
 
     Source:  
-    1. Low-Speed Aerodynamics, Second Edition by Joseph katz, Allen Plotkin
+    1. Low-Speed Aerodynamics, Second Edition by Joseph Katz, Allen Plotkin
     Pgs. 331-338
     
     2. VORLAX Source Code
@@ -142,7 +142,7 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     rates (pitch, roll, yaw) to find the boundary conditions (RHS) needed to 
     compute gamma. The function defaults to a classical boundary condition 
     equation, RHS = V dot N, where V is the unit velocity vector only the panel 
-    and N is the panel unit normal. However, the use may also define
+    and N is the panel unit normal. However, the user may also define
     settings.use_VORLAX_matrix_calculation to use the boundary condition equation
     from VORLAX, the code on which this VLM is based. This is useful for future
     developers who need to compare numbers 1:1 with VORLAX.
@@ -153,7 +153,7 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     edge panel for every panel in that strip when calculating panel normals.
 
     Source:  
-    1. Low-Speed Aerodynamics, Second Edition by Joseph katz, Allen Plotkin Pgs. 331-338
+    1. Low-Speed Aerodynamics, Second Edition by Joseph Katz, Allen Plotkin Pgs. 331-338
     
     2. VORLAX Source Code
 
@@ -191,9 +191,9 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     SINALF = np.sin(ALFA)
     COSIN  = np.cos(ALFA) * np.sin(PSIRAD)
     COSCOS = np.cos(ALFA) * np.cos(PSIRAD)
-    PITCH = PITCHQ /VINF
-    ROLL = ROLLQ /VINF
-    YAW = YAWQ /VINF     
+    PITCH  = PITCHQ / VINF
+    ROLL   = ROLLQ  / VINF
+    YAW    = YAWQ   / VINF     
     
     #unpack/rename variables from VD
     X      = VD.XCH

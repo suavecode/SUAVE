@@ -13,14 +13,14 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift
-def compute_wing_induced_velocity(VD,mach,computed_in_VLM=False):
+def compute_wing_induced_velocity(VD,mach,compute_EW=False):
     """ This computes the induced velocities at each control point of the vehicle vortex lattice 
 
     Assumptions: 
     Trailing vortex legs infinity are alligned to freestream
     
-    VORLAX's EW only ever needs to be calculated for VLM to match up with VORLAX's boundary
-    conditions.
+    Outside of a call to the VLM() function itself, EW does not need to be computed, as C_mn 
+    provides the same information in the body-frame. 
 
     Source:  
     1. Miranda, Luis R., Robert D. Elliot, and William M. Baker. "A generalized vortex 
@@ -200,7 +200,7 @@ def compute_wing_induced_velocity(VD,mach,computed_in_VLM=False):
     C_mn = np.stack([U, V*costheta - W*sintheta, V*sintheta + W*costheta],axis=-1)
     
     
-    if computed_in_VLM == True:
+    if compute_EW == True:
         # Calculate the W velocity in the VORLAX frame for later calcs
         # The angles are Dihedral angle of the current panel - dihedral angle of the influencing panel
         COS1   = np.cos(DL.T - DL)
@@ -210,7 +210,7 @@ def compute_wing_induced_velocity(VD,mach,computed_in_VLM=False):
         EW = (W*COS1-V*SIN1)*WEIGHT
     else:
         # Assume and warn that this function is being used outside of VLM, EW is not needed
-        print('NOTE: compute_wing_induced_velocity is being used outside of VLM.')
+        print('NOTE: EW is not computed outside of VLM() unless specified.')
         EW = np.nan
         
 
