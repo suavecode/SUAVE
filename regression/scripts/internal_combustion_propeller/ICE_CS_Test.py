@@ -46,11 +46,11 @@ def main():
     # evaluate
     results = mission.evaluate()
     
-    P_truth     = 114305.16935834507
-    mdot_truth  = 0.01004311386492617
+    P_truth     = 114296.12784606258
+    mdot_truth  = 0.0100423194569578
     
     P    = results.segments.cruise.state.conditions.propulsion.power[-1,0]
-    mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]
+    mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]     
 
     # Check the errors
     error = Data()
@@ -84,11 +84,13 @@ def ICE_CS(vehicle):
     net.areas.wetted                            = 0.01
     
     # Component 1 the engine                    
-    net.engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
-    net.engine.sea_level_power                  = 180. * Units.horsepower
-    net.engine.flat_rate_altitude               = 0.0
-    net.engine.rated_speed                      = 2700. * Units.rpm
-    net.engine.power_specific_fuel_consumption  = 0.52     
+    engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
+    engine.sea_level_power                  = 180. * Units.horsepower
+    engine.flat_rate_altitude               = 0.0
+    engine.rated_speed                      = 2700. * Units.rpm
+    engine.power_specific_fuel_consumption  = 0.52
+    
+    net.engines.append(engine)
     
     # 
     prop = SUAVE.Components.Energy.Converters.Propeller()
@@ -111,7 +113,7 @@ def ICE_CS(vehicle):
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
     prop                        = propeller_design(prop)    
     
-    net.propeller = prop
+    net.propellers.append(prop)
     
     # Replace the network
     vehicle.propulsors.internal_combustion = net

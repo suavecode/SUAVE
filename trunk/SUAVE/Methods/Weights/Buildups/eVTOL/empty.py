@@ -17,7 +17,6 @@ from SUAVE.Methods.Weights.Buildups.Common.wing import wing
 
 from SUAVE.Components.Energy.Networks import Battery_Propeller
 from SUAVE.Components.Energy.Networks import Lift_Cruise
-from SUAVE.Components.Energy.Networks import Vectored_Thrust
 
 import numpy as np
 from warnings import  warn
@@ -204,11 +203,6 @@ def empty(config,
         if isinstance(propulsor, Lift_Cruise):     
             nLiftProps          = propulsor.number_of_rotor_engines
             nThrustProps        = propulsor.number_of_propeller_engines 
-
-        elif isinstance(propulsor, Vectored_Thrust):
-            nLiftProps          = propulsor.number_of_engines 
-            nThrustProps        = 0.0
-
         elif isinstance(propulsor, Battery_Propeller):
             nLiftProps          = 0.0
             nThrustProps        = propulsor.number_of_engines
@@ -221,8 +215,8 @@ def empty(config,
             rTip_ref        = propulsor.rotor.tip_radius  
             bladeSol_ref    = propulsor.rotor.blade_solidity 
         else:
-            rTip_ref        = propulsor.propeller.tip_radius  
-            bladeSol_ref    = propulsor.propeller.tip_radius      
+            rTip_ref        = propulsor.propellers.propeller.tip_radius  
+            bladeSol_ref    = propulsor.propellers.propeller.tip_radius      
 
         # total number of propellers and rotors
         nProps         = int(nLiftProps + nThrustProps)
@@ -246,11 +240,6 @@ def empty(config,
             if nProps > 1:
                 BRS_weight = 16.   * Units.kg
 
-        elif isinstance(propulsor, Vectored_Thrust):
-            servo_weight   = 0.65  * Units.kg
-            hub_weight     = 4.    * Units.kg
-            BRS_weight     = 16.   * Units.kg
-
         elif isinstance(propulsor, Lift_Cruise):
             servo_weight   = 0.65 * Units.kg
             hub_weight     = 4.   * Units.kg
@@ -269,7 +258,8 @@ def empty(config,
             rotor_mass     = prop(propulsor.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg
             output.rotors += nLiftProps * rotor_mass
             if isinstance(propulsor, Lift_Cruise):
-                output.rotor_motors  += nLiftProps * propulsor.rotor_motor.mass_properties.mass
+                for rotor_motor in propulsor.rotor_motors:
+                    output.rotor_motors  += rotor_motor.mass_properties.mass
             else:                                  
                 output.rotor_motors  += nLiftProps * propulsor.motor.mass_properties.mass
             propulsor.rotor.mass_properties.mass = rotor_mass + hub_weight + servo_weight

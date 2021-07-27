@@ -214,11 +214,7 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 4
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.battery_propeller.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.battery_propeller.residuals
-    base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.battery_propeller.battery.max_voltage * ones_row(1)  
-    base_segment.state.residuals.network                     = 0. * ones_row(2)        
+
     
     # ------------------------------------------------------------------
     #   Climb 1 : constant Speed, constant rate segment 
@@ -231,7 +227,8 @@ def mission_setup(analyses,vehicle):
     segment.altitude_end                     = 8012    * Units.feet 
     segment.air_speed                        = 96.4260 * Units['mph'] 
     segment.climb_rate                       = 700.034 * Units['ft/min']  
-    segment.state.unknowns.throttle          = 0.85 * ones_row(1)  
+    segment.state.unknowns.throttle          = 0.85 * ones_row(1)
+    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)    
 
     # add to misison
     mission.append_segment(segment)
@@ -246,6 +243,7 @@ def mission_setup(analyses,vehicle):
     segment.air_speed                 = 140.91 * Units['mph'] 
     segment.distance                  =  20.   * Units.nautical_mile  
     segment.state.unknowns.throttle   = 0.9 *  ones_row(1)   
+    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)   
 
     # add to misison
     mission.append_segment(segment)    
@@ -260,7 +258,8 @@ def mission_setup(analyses,vehicle):
     segment.altitude_end              = 2500  * Units.feet
     segment.air_speed                 = 140.91 * Units['mph']  
     segment.climb_rate                = - 500.401  * Units['ft/min']  
-    segment.state.unknowns.throttle   = 0.9 * ones_row(1)  
+    segment.state.unknowns.throttle   = 0.9 * ones_row(1)
+    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)   
     
     # add to misison
     mission.append_segment(segment) 
