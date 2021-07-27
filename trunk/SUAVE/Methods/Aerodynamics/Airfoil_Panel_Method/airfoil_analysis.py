@@ -106,32 +106,31 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     # ---------------------------------------------------------------------
     # Bottom surface of airfoil 
     # ---------------------------------------------------------------------    
-    VT         = np.ma.masked_greater(vt,0 )
-    VT_mask    = np.ma.masked_greater(vt,0 ).mask
-    X_BOT_VALS = np.ma.array(X, mask = VT_mask)[::-1]
-    Y_BOT      = np.ma.array(Y, mask = VT_mask)[::-1]
-    
-    X_BOT      = np.zeros_like(X_BOT_VALS)
-    X_BOT[1:]  = np.cumsum(np.sqrt((X_BOT_VALS[1:] - X_BOT_VALS[:-1])**2 + (Y_BOT[1:] - Y_BOT[:-1])**2),axis = 0)
-    first_idx  = np.ma.count_masked(X_BOT,axis = 0)
-    prev_index = first_idx-1
-    panel      = list(prev_index.flatten())
-    aoas       = list(np.repeat(np.arange(nalpha),nRe))
-    res        = list(np.tile(np.arange(nRe),nalpha) )
+    VT              = np.ma.masked_greater(vt,0 )
+    VT_mask         = np.ma.masked_greater(vt,0 ).mask
+    X_BOT_VALS      = np.ma.array(X, mask = VT_mask)[::-1]
+    Y_BOT           = np.ma.array(Y, mask = VT_mask)[::-1]
+         
+    X_BOT           = np.zeros_like(X_BOT_VALS)
+    X_BOT[1:]       = np.cumsum(np.sqrt((X_BOT_VALS[1:] - X_BOT_VALS[:-1])**2 + (Y_BOT[1:] - Y_BOT[:-1])**2),axis = 0)
+    first_idx       = np.ma.count_masked(X_BOT,axis = 0)
+    prev_index      = first_idx-1
+    panel           = list(prev_index.flatten())
+    aoas            = list(np.repeat(np.arange(nalpha),nRe))
+    res             = list(np.tile(np.arange(nRe),nalpha) )
     X_BOT.mask[panel,aoas,res] = False
     
     # flow velocity and pressure of on botton surface 
-    VE_BOT     = -VT[::-1] 
-    CP_BOT     = 1 - VE_BOT**2  
+    VE_BOT          = -VT[::-1] 
+    CP_BOT          = 1 - VE_BOT**2  
     
     # velocity gradients on bottom surface  
-    DVE_BOT       = np.zeros_like(X_BOT)
-    DVE_BOT_TEMP  = np.diff(VE_BOT,axis = 0)/np.diff(X_BOT_VALS,axis = 0)
+    DVE_BOT         = np.zeros_like(X_BOT)
+    DVE_BOT_TEMP    = np.diff(VE_BOT,axis = 0)/np.diff(X_BOT_VALS,axis = 0)
     a               = X_BOT[1:-1] - X_BOT[:-2]
     b               = X_BOT[2:]   - X_BOT[:-2]
     DVE_BOT[1:-1]   = (b*DVE_BOT_TEMP[:-1] + a*DVE_BOT_TEMP[1:])/(a+b) 
-    DVE_BOT[-1,:,:] = DVE_BOT_TEMP[-1,:,:]  
-    
+    DVE_BOT[-1,:,:] = DVE_BOT_TEMP[-1,:,:]   
     L_BOT           = L_BOT[-1,:,:] # x - location of stagnation point 
     
     for ial in range(nalpha):
