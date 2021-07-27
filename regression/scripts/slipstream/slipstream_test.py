@@ -51,7 +51,7 @@ def bemt_wake_analysis():
 
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.41740508937310206
+    lift_coefficient_true         = 0.4174061883155896
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
@@ -68,6 +68,7 @@ def bemt_wake_analysis():
                                                 2.86711650e-02, 3.00075681e-02, 2.96503955e-02, 2.08753826e-02,
                                                 5.53404429e-19, 5.36327825e-19, 1.33474765e-19, 5.86659527e-19,
                                                 2.50307660e-19])
+
 
     print(sectional_lift_coeff)
     diff_Cl   = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
