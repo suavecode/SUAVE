@@ -24,13 +24,14 @@ import numpy as np
 
 def main():    
     # Define Panelization 
-    npanel = 160
+    npanel = 10
     
     # Define Reynolds Number
     Re     = np.atleast_2d(np.array([5E5,5E6])).T
     
     #Define Angle of Attack
-    AoA    = np.atleast_2d(np.linspace(-4,16,11)*Units.degrees).T 
+    #AoA    = np.atleast_2d(np.linspace(-4,16,11)*Units.degrees).T 
+    AoA    = np.atleast_2d(np.linspace(3,6,2)*Units.degrees).T 
      
     # -----------------------------------------------
     # SUAVE
@@ -40,7 +41,7 @@ def main():
     
     # Compute Airfoil Aerodynamic and Boundary Layer Properties 
     # Batch Analysis: 
-    airfoil_properties = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, batch_analyis = True )  
+    airfoil_properties = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, n_computation = 40, batch_analyis = True )  
     
     # Single Condition Analysis:  
     Re     = np.ones_like(AoA)*5E6  
