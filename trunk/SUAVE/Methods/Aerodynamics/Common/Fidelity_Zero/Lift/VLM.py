@@ -29,7 +29,7 @@ def VLM(conditions,settings,geometry):
     the slightly different discretization.
     
     The user has the option to use the boundary conditions and induced velocities from either SUAVE
-    or VORLAX. See build_RHS in compute_RHS_matrix.py for mor details.
+    or VORLAX. See build_RHS in compute_RHS_matrix.py for more details.
     
     By default in Vortex_Lattice, VLM performs calculations based on panel coordinates with float32 precision. 
     The user may also choose to use float16 or float64, but be warned that the latter can be memory intensive.
@@ -117,7 +117,7 @@ def VLM(conditions,settings,geometry):
         CDi_wing                               [Unitless], CDi of each wing
         cl_y                                   [Unitless], CL  of each strip
         cdi_y                                  [Unitless], CDi of each strip
-        alpha_i                                [Unitless], Induced angle of each strip in each wing (array of numpy arrays)
+        alpha_i                                [radians] , Induced angle of each strip in each wing (array of numpy arrays)
         CP                                     [Unitless], Pressure coefficient of each panel
         gamma                                  [Unitless], Vortex strengths of each panel
 
@@ -192,8 +192,7 @@ def VLM(conditions,settings,geometry):
     VD   = generate_vortex_distribution(geometry,settings)  
     
     # Unpack vortex distribution
-    n_cp         = VD.n_cp
-    n_w          = VD.n_w    
+    n_cp         = VD.n_cp 
     n_sw         = VD.n_sw
     CHORD        = VD.chord_lengths
     chord_breaks = VD.chordwise_breaks
@@ -371,10 +370,10 @@ def VLM(conditions,settings,geometry):
     GAF = 0.5 + 0.5 *RJTS**2
 
     # CORMED IS LENGTH OF STRIP CENTERLINE BETWEEN LOAD POINT
-    # AND TRAILING EDGE? THIS PARAMETER IS USED IN THE COMPUTATION
+    # AND TRAILING EDGE THIS PARAMETER IS USED IN THE COMPUTATION
     # OF THE STRIP ROLLING COUPLE CONTRIBUTION DUE TO SIDESLIP.
     X      = XCH                       #x-coord of load point (horseshoe centroid)
-    XTE    = (VD.XA_TE + VD.XB_TE)/2   #Trailing edge x-coord behind the control point?    
+    XTE    = (VD.XA_TE + VD.XB_TE)/2   #Trailing edge x-coord behind the control point  
     CORMED = XTE - X   
 
     # SINF REFERENCES THE LOAD CONTRIBUTION OF IRT-VORTEX TO THE

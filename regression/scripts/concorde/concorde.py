@@ -133,8 +133,6 @@ def full_setup():
 def equivalent_area(vehicle,analyses,conditions):
     
     X_locs, AE_x, _ = lift_equivalent_area(vehicle,analyses,conditions)
-    #print(X_locs) #use for easy re-saving regression values
-    #print(AE_x)
     
     regression_X_locs = np.array([ 0.         , 30.0744302 , 36.06867764, 40.19106341, 42.87922798, 43.75864575,
                                    44.46766888, 44.75288937, 45.40259517, 45.75309872, 45.83545016, 50.60861803,
