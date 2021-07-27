@@ -59,8 +59,9 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     # --------------------------------------------------------------------------------
     #          Run the VLM for the given vehicle and conditions 
     # --------------------------------------------------------------------------------
-    _, _, _, _, _, _, _, _, _, gamma  = VLM(conditions, VLM_settings, geometry)
-    VD = geometry.vortex_distribution 
+    results = VLM(conditions, VLM_settings, geometry)
+    gamma   = results.gamma
+    VD      = geometry.vortex_distribution 
     
     # create a deep copy of the vortex distribution
     VD       = copy.deepcopy(VD)
@@ -81,10 +82,10 @@ def compute_wing_wake(geometry, conditions, x, grid_settings, VLM_settings, visc
     #----------------------------------------------------------------------------------------------
     # Compute wing induced velocity    
     #----------------------------------------------------------------------------------------------    
-    C_mn, _, _ = compute_wing_induced_velocity(VD,mach)     
-    u_inviscid = (C_mn[:,:,:,0]@gammaT)[0,:,0]
-    v_inviscid = (C_mn[:,:,:,1]@gammaT)[0,:,0]
-    w_inviscid = (C_mn[:,:,:,2]@gammaT)[0,:,0]     
+    C_mn, _, _, _ = compute_wing_induced_velocity(VD,mach)     
+    u_inviscid    = (C_mn[:,:,:,0]@gammaT)[0,:,0]
+    v_inviscid    = (C_mn[:,:,:,1]@gammaT)[0,:,0]
+    w_inviscid    = (C_mn[:,:,:,2]@gammaT)[0,:,0]     
     
     #----------------------------------------------------------------------------------------------
     # Impart the wake deficit from BL of wing if x is behind the wing

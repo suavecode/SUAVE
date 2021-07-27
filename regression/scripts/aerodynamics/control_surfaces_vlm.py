@@ -46,12 +46,11 @@ def main():
         data        = VLM(conditions, settings, geometry)
         
         plot_title  = "{}, deflection = {} degrees".format(geometry.tag, round(deflection/Units.degrees))
-        plot_vehicle_vlm_panelization(geometry, plot_control_points=False, save_filename=plot_title)
-        CL, CDi, CM, __, __, __, __, __, __, __ = data
+        plot_vehicle_vlm_panelization(geometry, plot_control_points=False, save_filename=plot_title)        
         
-        results.CL  = np.append(results.CL , CL.flatten() )
-        results.CDi = np.append(results.CDi, CDi.flatten())
-        results.CM  = np.append(results.CM , CM.flatten() )
+        results.CL  = np.append(results.CL , data.CL.flatten() )
+        results.CDi = np.append(results.CDi, data.CDi.flatten())
+        results.CM  = np.append(results.CM , data.CM.flatten() )
         
     # save/load results
     #save_results(results)
@@ -140,6 +139,7 @@ def load_results():
     return SUAVE.Input_Output.SUAVE.load('control_surfaces_vlm_results.res')
 
 def save_results(results):
+    print('!####! SAVING NEW REGRESSION RESULTS !####!')
     SUAVE.Input_Output.SUAVE.archive(results,'control_surfaces_vlm_results.res')
     return
 
