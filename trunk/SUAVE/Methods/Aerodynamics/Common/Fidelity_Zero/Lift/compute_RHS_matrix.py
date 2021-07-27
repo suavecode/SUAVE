@@ -258,7 +258,7 @@ def build_RHS(VD, conditions, settings, aoa_distribution, delta, phi, PSI_distri
     RHS_from_normals = np.sum(-V_unit_vector*panel_normals, axis=2).T
     
     #pack values--------------------------------------------------------------------------
-    use_VORLAX_RHS = getattr(settings, 'use_VORLAX_matrix_calculation', False)
+    use_VORLAX_RHS = settings.use_VORLAX_matrix_calculation
     
     rhs = Data()
     rhs.RHS            = RHS_from_normals if not use_VORLAX_RHS else ALOC

@@ -37,7 +37,7 @@ def main():
     max_err_sweeps = (np.max(np.abs(outputs_sweep['objective']-truth_obj_sweeps )/truth_obj_sweeps))
     
     print('max_err_sweeps = ', max_err_sweeps)
-    #assert(max_err_sweeps<1e-6)
+    assert(max_err_sweeps<1e-6)
     
     
     outputs_carpet = variable_sweep(problem)
