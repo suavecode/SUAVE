@@ -532,16 +532,15 @@ def compute_rotation_effects(VD, settings, EW_small, GAMMA, len_mach, X, CHORD, 
     CLE, the induced flow at the leading edge
     
     Assumptions:
-    Several of the values needed in this calculation have been computed earlier in
-    either compute_RHS_matrix() or generate_vortex_distribution() and stored in VD
+    Several of the values needed in this calculation have been computed earlier and stored in VD
+    
+    Normally, VORLAX skips the calculation implemented in this function for linear 
+    chordwise spacing (the if statement below). However, since the trends are correct, 
+    albeit underestimated, this calculation is being forced here.    
     """
     LE_ind      = VD.leading_edge_indices
     RNMAX       = VD.panels_per_strip
 
-    # Normally, VORLAX skips this calculation for linear chordwise spacing (the if statement below). 
-    # However, since the trends are correct, albeit underestimated, this calculation is being forced
-    # here.
-    # **TODO** put this check back in when cosine chordwise spacing is added
     ##spacing = settings.spanwise_cosine_spacing
     ##if spacing == False: # linear spacing is LAX==1 in VORLAX
     ##    return 0 #CLE not calculated till later for linear spacing
