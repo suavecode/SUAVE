@@ -39,7 +39,6 @@ def compute_propeller_nonuniform_freestream(prop, upstream_wake,conditions):
     Vv       = conditions.frames.inertial.velocity_vector 
     R        = prop.tip_radius    
     rotation = prop.rotation
-    theta    = prop.thrust_angle 
     c        = prop.chord_distribution
     Na       = prop.number_azimuthal_stations 
     Nr       = len(c)
@@ -53,7 +52,7 @@ def compute_propeller_nonuniform_freestream(prop, upstream_wake,conditions):
     T_body2inertial = conditions.frames.body.transform_to_inertial
     T_inertial2body = orientation_transpose(T_body2inertial)
     V_body          = orientation_product(T_inertial2body,Vv)
-    body2thrust     = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
+    body2thrust     = prop.body_to_prop_vel()
     T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
     V_thrust        = orientation_product(T_body2thrust,V_body) 
     

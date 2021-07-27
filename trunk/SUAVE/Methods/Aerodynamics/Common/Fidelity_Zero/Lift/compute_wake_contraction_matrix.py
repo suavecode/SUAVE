@@ -2,7 +2,7 @@
 # compute_wake_contraction_matrix.py
 # 
 # Created:  Sep 2020, M. Clarke 
-
+#           Jul 2021, E. Botero
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
@@ -11,7 +11,7 @@
 import numpy as np 
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift 
-def compute_wake_contraction_matrix(i,prop,N,m,nts,X_pts):
+def compute_wake_contraction_matrix(i,prop,N,m,nts,X_pts,prop_outputs):
     """ This computes slipstream development factor for all points 
     along slipstream
 
@@ -37,12 +37,12 @@ def compute_wake_contraction_matrix(i,prop,N,m,nts,X_pts):
     r                 = prop.radius_distribution  
     dim               = N-1
     B                 = prop.number_of_blades
-    va                = np.mean(prop.outputs.disc_axial_induced_velocity, axis=1)  # induced velocitied averaged around the azimuth
+    va                = np.mean(prop_outputs.disc_axial_induced_velocity, axis=1)  # induced velocitied averaged around the azimuth
     R0                = prop.hub_radius 
     R_p               = prop.tip_radius  
-    s                 = X_pts[:,:,0,-1] - prop.origin[i][0]    #  ( control point, time step , blade number , location on blade )                  
+    s                 = X_pts[:,:,0,-1] - prop.origin[0][0]    #  ( control point, time step , blade number , location on blade )                  
     Kd                = np.repeat(np.atleast_2d(1 + s/(np.sqrt(s**2 + R_p**2)))[:,:,np.newaxis], dim , axis = 2)   
-    VX                = np.repeat(np.repeat(np.atleast_2d(prop.outputs.velocity[:,0]).T, nts, axis = 1)[:,:,np.newaxis], dim , axis = 2) # dimension (num control points X propeller distribution X wake points )
+    VX                = np.repeat(np.repeat(np.atleast_2d(prop_outputs.velocity[:,0]).T, nts, axis = 1)[:,:,np.newaxis], dim , axis = 2) # dimension (num control points X propeller distribution X wake points )
    
     prop_dif          = np.atleast_2d(va[:,1:] +  va[:,:-1])
     prop_dif          = np.repeat(prop_dif[:,np.newaxis,  :], nts, axis=1) 

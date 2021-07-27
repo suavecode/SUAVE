@@ -3,8 +3,9 @@
 # 
 # Created:  Aug 2018, M. Clarke
 # Modified: Apr 2020, M. Clarke
-#           Jun 2021, R. Erhard
+#           Jun 2021, R. Erhards
 #           Jul 2021, A. Blaufox
+#           Jul 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -87,38 +88,48 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
     
     for propulsor in geometry.propulsors:
             if propeller_wake_model:
-                if 'propeller' in propulsor.keys():
+                if 'propellers' in propulsor.keys():
+                    
+                    if not propulsor.identical_propellers:
+                        assert('This method only works with identical propellers')                    
+                    
                     # extract the propeller data structure
-                    prop = propulsor.propeller
+                    props = propulsor.propellers
 
                     # generate the geometry of the propeller helical wake
-                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(prop,num_ctrl_pts,\
+                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(props,num_ctrl_pts,\
                                                                                                                             VD,initial_timestep_offset,wake_development_time,\
-                                                                                                                            number_of_wake_timesteps)
+                                                                                                                            number_of_wake_timesteps,conditions)
                     # compute the induced velocity
                     prop_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
 
-                if 'rotor' in propulsor.keys():
+                if 'rotors' in propulsor.keys():
+                    if not propulsor.identical_rotors:
+                        assert('This method only works with identical rotors')                    
 
                     # extract the propeller data structure
-                    rot = propulsor.rotor
+                    rotors = propulsor.rotors
 
                     # generate the geometry of the propeller helical wake
-                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(rot,num_ctrl_pts,\
+                    wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(rotors,num_ctrl_pts,\
                                                                                                                             VD,initial_timestep_offset,wake_development_time,\
-                                                                                                                            number_of_wake_timesteps)
+                                                                                                                            number_of_wake_timesteps,conditions)
                     # compute the induced velocity
                     rot_V_wake_ind = compute_wake_induced_velocity(wake_distribution,VD,num_ctrl_pts)
 
             elif bemt_wake:
                 # adapt the RHS matrix with the BEMT induced velocities
-                if 'propeller' in propulsor.keys():
-                    prop = propulsor.propeller
-                    prop_V_wake_ind = compute_bemt_induced_velocity(prop,geometry,num_ctrl_pts)
+                if 'propellers' in propulsor.keys():
+                    if not propulsor.identical_propellers:
+                        assert('This method only works with identical propellers')                    
+                    props = propulsor.propellers
+                    prop_V_wake_ind = compute_bemt_induced_velocity(props,geometry,num_ctrl_pts,conditions)
                     
-                if 'rotor' in propulsor.keys():
-                    rot = propulsor.rotor
-                    rot_V_wake_ind = compute_bemt_induced_velocity(rot,geometry,num_ctrl_pts)
+                if 'rotors' in propulsor.keys():
+                    if not propulsor.identical_rotors:
+                        assert('This method only works with identical rotors')                        
+                    rotors = propulsor.rotors
+                    rot_V_wake_ind = compute_bemt_induced_velocity(rotors,geometry,num_ctrl_pts,conditions)
                     
             if propeller_wake_model or bemt_wake:     
                 # update the total induced velocity distribution

@@ -20,6 +20,8 @@ from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power,
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv    
 from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle
 
+from copy import deepcopy
+
 # ----------------------------------------------------------------------
 #   Define the Vehicle
 # ----------------------------------------------------------------------
@@ -304,6 +306,7 @@ def vehicle_setup():
     net.number_of_engines       = 2.
     net.nacelle_diameter        = 42 * Units.inches
     net.engine_length           = 0.01 * Units.inches
+    net.identical_propellers    = True
     net.areas                   = Data()
     net.areas.wetted            = 0.01*(2*np.pi*0.01/2)    
 
@@ -326,8 +329,8 @@ def vehicle_setup():
     prop.design_altitude        = 12000. * Units.feet
     prop.design_altitude        = 12000. * Units.feet
     prop.design_thrust          = 1200.  
-    prop.origin                 = [[2.,2.5,0.784],[2.,-2.5,0.784]]         
-    prop.rotation               = [-1,1] 
+    prop.origin                 = [[2.,2.5,0.784]]         
+    prop.rotation               = -1 
     prop.symmetry               = True
 
     prop.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
@@ -338,8 +341,15 @@ def vehicle_setup():
                                     '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
-    prop                        = propeller_design(prop)    
-    net.propeller               = prop    
+    prop                        = propeller_design(prop)
+    
+    prop_left = deepcopy(prop)
+    prop_left.origin   = [[2.,-2.5,0.784]]
+    prop_left.rotation = 1 
+    
+    
+    net.propellers.append(prop)
+    net.propellers.append(prop_left)
     
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
@@ -359,7 +369,7 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Motors
     #------------------------------------------------------------------
-    # Propeller  motor
+    # Propeller motor
     # Component 4 the Motor
     motor                              = SUAVE.Components.Energy.Converters.Motor()
     etam                               = 0.95
@@ -386,7 +396,8 @@ def vehicle_setup():
     motor.no_load_current              = io 
     motor.gear_ratio                   = 1. 
     motor.gearbox_efficiency           = 1. # Gear box efficiency     
-    net.motor                          = motor 
+    net.motors.append(motor)
+    net.motors.append(motor)
 
 
     # Component 6 the Payload

@@ -302,13 +302,8 @@ def mission_setup_SR(vehicle,analyses):
     base_segment.state.numerics.number_control_points        = 4
     base_segment.process.iterate.conditions.stability        = SUAVE.Methods.skip
     base_segment.process.finalize.post_process.stability     = SUAVE.Methods.skip    
+    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.lift_cruise.unpack_unknowns_transition
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.lift_cruise.residuals_transition
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.lift_cruise.battery.max_voltage * ones_row(1)  
-    base_segment.state.residuals.network                     = 0. * ones_row(2)    
-    
         
     
     # ------------------------------------------------------------------    
@@ -324,14 +319,10 @@ def mission_setup_SR(vehicle,analyses):
     segment.air_speed = 110.   * Units['mph']
     segment.distance  = 60.    * Units.miles     
     segment.battery_energy = vehicle.propulsors.lift_cruise.battery.max_energy
+    segment.state.unknowns.throttle = 0.80 * ones_row(1)
     
+    segment = vehicle.propulsors.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,initial_prop_power_coefficient=0.16)
 
-    segment.state.unknowns.propeller_power_coefficient = 0.16 * ones_row(1)  
-    segment.state.unknowns.throttle                    = 0.80 * ones_row(1)
-
-    segment.process.iterate.unknowns.network  = vehicle.propulsors.lift_cruise.unpack_unknowns_no_lift
-    segment.process.iterate.residuals.network = vehicle.propulsors.lift_cruise.residuals_no_lift    
-    
     mission.append_segment(segment)
 
 
