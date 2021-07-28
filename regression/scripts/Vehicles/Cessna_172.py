@@ -226,16 +226,17 @@ def vehicle_setup():
     net.number_of_engines                       = 1.
     net.nacelle_diameter                        = 42 * Units.inches
     net.engine_length                           = 0.01 * Units.inches
+    net.identical_propellers                    = True
     net.areas                                   = Data()
     net.areas.wetted                            = 0.01
                                                 
     # the engine                    
-    net.engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
-    net.engine.sea_level_power                  = 180. * Units.horsepower
-    net.engine.flat_rate_altitude               = 0.0
-    net.engine.rated_speed                      = 2700. * Units.rpm
-    net.engine.power_specific_fuel_consumption  = 0.52 
-    
+    engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
+    engine.sea_level_power                  = 180. * Units.horsepower
+    engine.flat_rate_altitude               = 0.0
+    engine.rated_speed                      = 2700. * Units.rpm
+    engine.power_specific_fuel_consumption  = 0.52 
+    net.engines.append(engine)
     
     # the prop
     prop = SUAVE.Components.Energy.Converters.Propeller()
@@ -258,7 +259,7 @@ def vehicle_setup():
     prop.airfoil_polar_stations  = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
     prop                         = propeller_design(prop)   
     
-    net.propeller = prop
+    net.propellers.append(prop)
      
     
     # add the network to the vehicle

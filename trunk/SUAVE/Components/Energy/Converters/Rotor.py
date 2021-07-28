@@ -7,6 +7,7 @@
 #           Mar 2020, M. Clarke
 #           Sep 2020, M. Clarke 
 #           Apr 2021, M. Clarke
+#           Jul 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -18,6 +19,7 @@ from SUAVE.Methods.Geometry.Three_Dimensional \
 
 # package imports
 import numpy as np
+import scipy as sp
 
 # ----------------------------------------------------------------------
 #  Rotor Class
@@ -59,21 +61,21 @@ class Rotor(Energy_Component):
         self.chord_distribution        = 0.0
         self.mid_chord_alignment       = 0.0
         self.blade_solidity            = 0.0
-        self.thrust_angle              = 0.0
-        self.pitch_command             = 0.0
         self.design_power              = None
         self.design_thrust             = None    
         self.airfoil_geometry          = None
         self.airfoil_polars            = None
         self.airfoil_polar_stations    = None 
         self.radius_distribution       = None
-        self.rotation                  = [1]
+        self.rotation                  = 1
+        self.orientation_euler_angles  = [0.,np.pi/2.,0.] # This is Z-direction thrust up
         self.ducted                    = False 
         self.VTOL_flag                 = False
         self.number_azimuthal_stations = 24
-        self.induced_power_factor      = 1.48  #accounts for interference effects
+        self.induced_power_factor      = 1.48             # accounts for interference effects
         self.profile_drag_coefficient  = .03        
-
+        
+        self.inputs.y_axis_rotation    = 0.
 
     def spin(self,conditions):
         """Analyzes a rotor given geometry and operating conditions.
@@ -106,7 +108,6 @@ class Rotor(Energy_Component):
            number_radial_stations            [-]
            number_azimuthal_stations         [-] 
            disc_radial_distribution          [m]
-           thrust_angle                      [rad]
            speed_of_sound                    [m/s]
            density                           [kg/m-3]
            velocity                          [m/s]
@@ -143,7 +144,7 @@ class Rotor(Energy_Component):
           twist_distribution                 [radians]
           chord_distribution                 [m]
           mid_chord_alignment                [m] 
-          thrust_angle                       [radians]
+          orientation_euler_angles           [rad, rad, rad]
         """         
            
         #Unpack    
@@ -154,6 +155,7 @@ class Rotor(Energy_Component):
         c       = self.chord_distribution
         chi     = self.radius_distribution 
         omega   = self.inputs.omega
+        pitch_c = self.inputs.pitch_command
         a_geo   = self.airfoil_geometry      
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
@@ -164,8 +166,6 @@ class Rotor(Energy_Component):
         Vv      = conditions.frames.inertial.velocity_vector 
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
-        pitch_c = self.pitch_command
-        theta   = self.thrust_angle 
         Na      = self.number_azimuthal_stations 
         BB      = B*B    
         BBB     = BB*B
@@ -173,12 +173,12 @@ class Rotor(Energy_Component):
         # calculate total blade pitch
         total_blade_pitch = beta_0 + pitch_c
     
-        # Velocity in the Body frame
+        # Velocities in the frame of the propeller
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
-        body2thrust     = np.array([[np.cos(theta), 0., np.sin(theta)],[0., 1., 0.], [-np.sin(theta), 0., np.cos(theta)]])
-        T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)  
+        body2thrust     = self.body_to_prop_vel()
+        T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
         V_thrust        = orientation_product(T_body2thrust,V_body) 
     
         V         = V_thrust[:,0,None]  
@@ -388,7 +388,12 @@ class Rotor(Energy_Component):
         
         # assign efficiency to network
         conditions.propulsion.etap = etap   
-                
+        
+        # Make the thrust a 3D vector
+        thrust_prop_frame      = conditions.ones_row(3)*0.
+        thrust_prop_frame[:,0] = thrust[:,0]
+        thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
+
         # store data
         self.azimuthal_distribution                   = psi  
         results_conditions                            = Data     
@@ -396,7 +401,6 @@ class Rotor(Energy_Component):
                     number_radial_stations            = Nr,
                     number_azimuthal_stations         = Na,   
                     disc_radial_distribution          = r_dim_2d,  
-                    thrust_angle                      = theta,
                     speed_of_sound                    = conditions.freestream.speed_of_sound,
                     density                           = conditions.freestream.density,
                     velocity                          = Vv, 
@@ -427,4 +431,100 @@ class Rotor(Energy_Component):
                     power_coefficient                 = Cp,                      
             ) 
     
-        return thrust, torque, power, Cp, outputs , etap
+        return thrust_vector, torque, power, Cp, outputs , etap
+
+
+    def vec_to_vel(self):
+        """This rotates from the propellers vehicle frame to the propellers velocity frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+        
+        rot_mat = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+        
+        return rot_mat
+    
+    
+    def body_to_prop_vel(self):
+        """This rotates from the systems body frame to the propellers velocity frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+        
+        # Go from body to vehicle frame
+        body_2_vehicle = sp.spatial.transform.Rotation.from_rotvec([0,np.pi,0]).as_matrix()
+        
+        # Go from vehicle frame to propeller vehicle frame: rot 1 including the extra body rotation
+        rots    = np.array(self.orientation_euler_angles) * 1.
+        rots[1] = rots[1] + self.inputs.y_axis_rotation
+        vehicle_2_prop_vec = sp.spatial.transform.Rotation.from_rotvec(rots).as_matrix()        
+        
+        # GO from the propeller vehicle frame to the propeller velocity frame: rot 2
+        prop_vec_2_prop_vel = self.vec_to_vel()
+        
+        # Do all the matrix multiplies
+        rot1    = np.matmul(body_2_vehicle,vehicle_2_prop_vec)
+        rot_mat = np.matmul(rot1,prop_vec_2_prop_vel)
+
+        
+        return rot_mat
+    
+    
+    def prop_vel_to_body(self):
+        """This rotates from the systems body frame to the propellers velocity frame
+
+        Assumptions:
+        There are two propeller frames, the vehicle frame describing the location and the propeller velocity frame
+        velocity frame is X out the nose, Z towards the ground, and Y out the right wing
+        vehicle frame is X towards the tail, Z towards the ceiling, and Y out the right wing
+
+        Source:
+        N/A
+
+        Inputs:
+        None
+
+        Outputs:
+        None
+
+        Properties Used:
+        None
+        """
+        
+        body2propvel = self.body_to_prop_vel()
+        
+        r = sp.spatial.transform.Rotation.from_matrix(body2propvel)
+        r = r.inv()
+        rot_mat = r.as_matrix()
+
+        return rot_mat

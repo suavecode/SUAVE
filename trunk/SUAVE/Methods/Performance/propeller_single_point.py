@@ -8,6 +8,8 @@
 # Imports
 #-------------------------------------------------------------------------------
 
+import SUAVE
+
 from SUAVE.Core import Units, Data
 
 import matplotlib.pyplot as plt
@@ -81,11 +83,15 @@ def propeller_single_point(energy_network,
                 .tangential_velocity            BEMT V_t Prediction         [m/s]
                 .axial_velocity                 BEMT V_a Prediction         [m/s]
     """
+    # Check if the propellers are identical
+    if not energy_network.identical_propellers:
+        assert('This script only works with identical propellers')
+    
 
     # Unpack Inputs
-
-    prop                        = energy_network.propeller
-    prop.pitch_command          = pitch
+    prop_key                    = list(energy_network.propellers.keys())[0]
+    prop                        = energy_network.propellers[prop_key]
+    prop.inputs.pitch_command   = pitch
     energy_network.propeller    = prop
 
     atmo_data           = analyses.atmosphere.compute_values(altitude, delta_isa)
@@ -95,15 +101,14 @@ def propeller_single_point(energy_network,
     dynamic_viscosity   = atmo_data.dynamic_viscosity
 
     # Setup Pseudo-Mission for Prop Evaluation
-
     ctrl_pts = 1
     prop.inputs.omega                               = np.ones((ctrl_pts, 1)) * omega
-    conditions                                      = Data()
+    conditions                                      = SUAVE.Analyses.Mission.Segments.Conditions.Conditions()
     conditions.freestream                           = Data()
     conditions.propulsion                           = Data()
     conditions.frames                               = Data()
     conditions.frames.inertial                      = Data()
-    conditions.frames.body                          = Data()
+    conditions.frames.body                          = Data()    
     conditions.freestream.density                   = np.ones((ctrl_pts, 1)) * density
     conditions.freestream.dynamic_viscosity         = np.ones((ctrl_pts, 1)) * dynamic_viscosity
     conditions.freestream.speed_of_sound            = np.ones((ctrl_pts, 1)) * a

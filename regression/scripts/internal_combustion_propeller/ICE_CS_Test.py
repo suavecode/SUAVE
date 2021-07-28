@@ -84,11 +84,13 @@ def ICE_CS(vehicle):
     net.areas.wetted                            = 0.01
     
     # Component 1 the engine                    
-    net.engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
-    net.engine.sea_level_power                  = 180. * Units.horsepower
-    net.engine.flat_rate_altitude               = 0.0
-    net.engine.rated_speed                      = 2700. * Units.rpm
-    net.engine.power_specific_fuel_consumption  = 0.52     
+    engine                                  = SUAVE.Components.Energy.Converters.Internal_Combustion_Engine()
+    engine.sea_level_power                  = 180. * Units.horsepower
+    engine.flat_rate_altitude               = 0.0
+    engine.rated_speed                      = 2700. * Units.rpm
+    engine.power_specific_fuel_consumption  = 0.52
+    
+    net.engines.append(engine)
     
     # 
     prop = SUAVE.Components.Energy.Converters.Propeller()
@@ -111,7 +113,7 @@ def ICE_CS(vehicle):
     prop.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
     prop                        = propeller_design(prop)    
     
-    net.propeller = prop
+    net.propellers.append(prop)
     
     # Replace the network
     vehicle.propulsors.internal_combustion = net
