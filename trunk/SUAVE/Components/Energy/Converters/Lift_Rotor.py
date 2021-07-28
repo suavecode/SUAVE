@@ -8,13 +8,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 from .Rotor import Rotor
+import numpy as np
 
 # ----------------------------------------------------------------------
 #  Lift Rotor Class
 # ----------------------------------------------------------------------    
 ## @ingroup Components-Energy-Converters
 class Lift_Rotor(Rotor):
-    """This is a lift rotor component.
+    """This is a lift rotor component, and is a sub-class of rotor.
     
     Assumptions:
     None
@@ -41,7 +42,8 @@ class Lift_Rotor(Rotor):
         None
         """         
 
-        self.tag                   = 'lift_rotor'
-        self.use_2d_analysis       = True
+        self.tag                       = 'lift_rotor'
+        self.orientation_euler_angles  = [0.,np.pi/2.,0.] # This is Z-direction thrust up in vehicle frame
+        self.use_2d_analysis           = True
         
         
