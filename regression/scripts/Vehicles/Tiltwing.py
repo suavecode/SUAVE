@@ -235,28 +235,28 @@ def vehicle_setup():
     speed_of_sound               = 340 
     
     # Create propeller geometry  
-    rot                          = SUAVE.Components.Energy.Converters.Propeller() # This is truly a prop because the default of the mission is pointing forward
-    rot.tip_radius               = 0.8875  
-    rot.hub_radius               = 0.15 
-    rot.disc_area                = np.pi*(rot.tip_radius**2)   
-    rot.design_tip_mach          = 0.5
-    rot.number_of_blades         = 3  
-    rot.freestream_velocity      = 10     
-    rot.angular_velocity         = rot.design_tip_mach*speed_of_sound/rot.tip_radius      
-    rot.design_Cl                = 0.7
-    rot.design_altitude          = 500 * Units.feet                  
+    prop                          = SUAVE.Components.Energy.Converters.Propeller() # This is truly a prop because the default of the mission is pointing forward
+    prop.tip_radius               = 0.8875  
+    prop.hub_radius               = 0.15 
+    prop.disc_area                = np.pi*(prop.tip_radius**2)   
+    prop.design_tip_mach          = 0.5
+    prop.number_of_blades         = 3  
+    prop.freestream_velocity      = 10     
+    prop.angular_velocity         = prop.design_tip_mach*speed_of_sound/prop.tip_radius      
+    prop.design_Cl                = 0.7
+    prop.design_altitude          = 500 * Units.feet                  
     Hover_Load                   = vehicle.mass_properties.takeoff*9.81  
-    rot.design_thrust            = Hover_Load/(net.number_of_engines-1) # contingency for one-engine-inoperative condition
+    prop.design_thrust            = Hover_Load/(net.number_of_engines-1) # contingency for one-engine-inoperative condition
 
-    rot.airfoil_geometry         =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
-    rot.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    prop.airfoil_geometry         =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    prop.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
-    rot.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
-    rot                          = propeller_design(rot)  
-    rot.rotation                 = 1
+    prop.airfoil_polar_stations   = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]     
+    prop                          = propeller_design(prop)  
+    prop.rotation                 = 1
 
     # Front Rotors Locations 
     
@@ -264,8 +264,8 @@ def vehicle_setup():
                [4.938, 1.347, 1.54], [4.938, 3.2969999999999997, 1.54], [4.938, -1.347, 1.54], [4.938, -3.2969999999999997, 1.54]]
     
     for ii in range(8):
-        rotor          = deepcopy(rot)
-        rotor.tag      = 'propeller' # weight estimation gets confused since it's looking for hard coded names
+        rotor          = deepcopy(prop)
+        rotor.tag      = 'propeller'
         rotor.origin   = [origins[ii]]
         net.propellers.append(rotor)        
 
@@ -278,9 +278,9 @@ def vehicle_setup():
     motor                      = SUAVE.Components.Energy.Converters.Motor()
     motor.efficiency           = 0.9 
     motor.nominal_voltage      = bat.max_voltage *3/4  
-    motor.propeller_radius     = rot.tip_radius 
+    motor.propeller_radius     = prop.tip_radius 
     motor.no_load_current      = 2.0 
-    motor                      = size_optimal_motor(motor,rot) 
+    motor                      = size_optimal_motor(motor,prop) 
     motor.mass_properties.mass = nasa_motor(motor.design_torque)
     net.motor                  = motor
     
