@@ -1,8 +1,8 @@
 ## @ingroup Methods-Weights-Buildups-eVTOL
 # empty.py
 #
-# Created: Apr, 2019, J. Smart
-# Modified:
+# Created:    Apr, 2019, J. Smart
+# Modified:   July, 2021, R. Erhard
 
 #-------------------------------------------------------------------------------
 # Imports
@@ -17,6 +17,9 @@ from SUAVE.Methods.Weights.Buildups.Common.wing import wing
 
 from SUAVE.Components.Energy.Networks import Battery_Propeller
 from SUAVE.Components.Energy.Networks import Lift_Cruise
+
+from SUAVE.Components.Energy.Converters import Lift_Rotor
+from SUAVE.Components.Energy.Converters import Propeller
 
 import numpy as np
 from warnings import  warn
@@ -210,13 +213,24 @@ def empty(config,
             warn("""eVTOL weight buildup only supports the Battery Propeller, Lift Cruise and Vectored Thrust energy networks.\n
             Weight buildup will not return information on propulsion system.""", stacklevel=1)    
             
-        # Get reference rotor properties for sizing - defaulted as rotor 
-        if 'rotor' in propulsor.keys():
-            rTip_ref        = propulsor.rotor.tip_radius  
-            bladeSol_ref    = propulsor.rotor.blade_solidity 
-        else:
-            rTip_ref        = propulsor.propellers.propeller.tip_radius  
-            bladeSol_ref    = propulsor.propellers.propeller.tip_radius      
+        # Get reference rotor properties for sizing - defaulted as rotor
+        
+        for propeller in propulsor.propellers:
+            proprotor    = propeller
+            rTip_ref     = proprotor.tip_radius
+            bladeSol_ref = proprotor.blade_solidity
+            
+        #for lift_rotor in propulsor.lift_rotors:
+            #liftrotor    = lift_rotor
+            #rTip_ref     = liftrotor.tip_radius
+            #bladeSol_ref = liftrotor.blade_solidity            
+            
+        #if 'rotor' in propulsor.keys():
+            #rTip_ref        = propulsor.rotor.tip_radius  
+            #bladeSol_ref    = propulsor.rotor.blade_solidity 
+        #else:
+            #rTip_ref        = propulsor.propellers.propeller.tip_radius  
+            #bladeSol_ref    = propulsor.propellers.propeller.tip_radius      
 
         # total number of propellers and rotors
         nProps         = int(nLiftProps + nThrustProps)

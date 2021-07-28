@@ -159,7 +159,7 @@ class Rotor(Energy_Component):
         R       = self.tip_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
-        r       = self.radius_distribution 
+        r_1d    = self.radius_distribution 
         tc      = self.thickness_to_chord 
         
         # Unpack rotor airfoil data
@@ -213,9 +213,9 @@ class Rotor(Energy_Component):
         ctrl_pts = len(Vv)
                  
         # Non-dimensional radial distribution and differential radius
-        chi           = r/R 
-        diff_r        = np.diff(r)
-        deltar        = np.zeros(len(r))
+        chi           = r_1d/R 
+        diff_r        = np.diff(r_1d)
+        deltar        = np.zeros(len(r_1d))
         deltar[1:-1]  = diff_r[0:-1]/2 + diff_r[1:]/2
         deltar[0]     = diff_r[0]/2
         deltar[-1]    = diff_r[-1]/2
@@ -227,23 +227,22 @@ class Rotor(Energy_Component):
             rotation = -rotation        
         
         # Calculating rotational parameters
-        omega          = np.abs(omega)        
-        n              = omega/(2.*pi)   # Rotations per second  
+        omegar   = np.outer(omega,r_1d)    
+        n        = omega/(2.*pi)   # Rotations per second  
              
     
         # Azimuthal distribution of stations
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
         psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
-        azimuth_2d     = np.repeat(np.atleast_2d(psi).T[np.newaxis,: ,:], Na, axis=0).T  
         
         # 2 dimensiona radial distribution non dimensionalized
         chi_2d         = np.tile(chi ,(Na,1))            
-        chi_2d         = np.repeat(chi_2d[ np.newaxis,:, :], ctrl_pts, axis=0)    
-        r_dim_2d       = np.tile(r ,(Na,1))  
-        r_dim_2d       = np.repeat(r_dim_2d[ np.newaxis,:, :], ctrl_pts, axis=0)  
+        chi_2d         = np.repeat(chi_2d[None,:,:], ctrl_pts, axis=0) 
+        r_dim_2d       = np.tile(r_1d ,(Na,1))  
+        r_dim_2d       = np.repeat(r_dim_2d[None,:,:], ctrl_pts, axis=0)          
         c_2d           = np.tile(c ,(Na,1)) 
-        c_2d           = np.repeat(c_2d[ np.newaxis,:, :], ctrl_pts, axis=0)   
+        c_2d           = np.repeat(c_2d[None,:,:], ctrl_pts, axis=0)  
         
         # Starting with uniform freestream
         ua       = 0             
@@ -315,6 +314,7 @@ class Rotor(Energy_Component):
             
         else:
             # total velocities
+            r      = r_1d
             Ua     = np.outer((V + ua),np.ones_like(r))
             beta   = total_blade_pitch
             
