@@ -291,7 +291,7 @@ class Rotor(Energy_Component):
             V_2d   = V_thrust[:,0,None,None]
             V_2d   = np.repeat(V_2d, Na,axis=1)
             V_2d   = np.repeat(V_2d, Nr,axis=2)
-            omegar = (np.repeat(np.outer(omega,r)[:,None,:], Na, axis=1))
+            omegar = (np.repeat(np.outer(omega,r_1d)[:,None,:], Na, axis=1))
             
             # total velocities
             Ua     = V_2d + ua      
@@ -299,7 +299,7 @@ class Rotor(Energy_Component):
             # 2-D blade pitch and radial distributions
             beta = np.tile(total_blade_pitch,(Na ,1))
             beta = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
-            r    = np.tile(r,(Na ,1))
+            r    = np.tile(r_1d,(Na ,1))
             r    = np.repeat(r[np.newaxis,:, :], ctrl_pts, axis=0) 
             
             # 2-D atmospheric properties

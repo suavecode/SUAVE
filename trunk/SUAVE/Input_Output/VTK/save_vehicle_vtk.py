@@ -91,7 +91,7 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
             print("Attempting to save rotor.")
             rotor = propulsor.rotor
             try:
-                n_rots = int(propulsor.number_of_rotor_engines)
+                n_rots = int(propulsor.number_of_lift_rotor_engines)
             except:
                 n_rots = int(propulsor.number_of_engines)    
         except:

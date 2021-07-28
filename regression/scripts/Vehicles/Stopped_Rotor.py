@@ -438,21 +438,21 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # PROPULSOR
     #------------------------------------------------------------------
-    net                             = Lift_Cruise()
-    net.number_of_rotor_engines     = 12
-    net.number_of_propeller_engines = 1
-    net.nacelle_diameter            = 0.6 * Units.feet  
-    net.engine_length               = 0.5 * Units.feet
-    net.areas                       = Data()
-    net.areas.wetted                = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
-    net.voltage                     = 500.
+    net                              = Lift_Cruise()
+    net.number_of_lift_rotor_engines = 12
+    net.number_of_propeller_engines  = 1
+    net.nacelle_diameter             = 0.6 * Units.feet  
+    net.engine_length                = 0.5 * Units.feet
+    net.areas                        = Data()
+    net.areas.wetted                 = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
+    net.voltage                      = 500.
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
     #------------------------------------------------------------------
-    rotor_esc              = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
-    rotor_esc.efficiency   = 0.95
-    net.rotor_esc          = rotor_esc 
+    lift_rotor_esc              = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
+    lift_rotor_esc.efficiency   = 0.95
+    net.lift_rotor_esc          = lift_rotor_esc 
 
     propeller_esc            = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
     propeller_esc.efficiency = 0.95
@@ -530,28 +530,28 @@ def vehicle_setup():
     net.propellers.append(propeller)
                                      
     # Lift Rotors                                  
-    rotor                            = SUAVE.Components.Energy.Converters.Rotor() 
-    rotor.tip_radius                 = 2.8 * Units.feet
-    rotor.hub_radius                 = 0.35 * Units.feet      
-    rotor.number_of_blades           = 2
-    rotor.design_tip_mach            = 0.65
-    rotor.number_of_engines          = net.number_of_rotor_engines
-    rotor.disc_area                  = np.pi*(rotor.tip_radius**2)         
-    rotor.freestream_velocity        = 500. * Units['ft/min']  
-    rotor.angular_velocity           = rotor.design_tip_mach* speed_of_sound /rotor.tip_radius   
-    rotor.design_Cl                  = 0.7
-    rotor.design_altitude            = 20 * Units.feet                            
-    rotor.design_thrust              = Hover_Load/(net.number_of_rotor_engines-1) # contingency for one-engine-inoperative condition
+    lift_rotor                            = SUAVE.Components.Energy.Converters.Lift_Rotor() 
+    lift_rotor.tip_radius                 = 2.8 * Units.feet
+    lift_rotor.hub_radius                 = 0.35 * Units.feet      
+    lift_rotor.number_of_blades           = 2
+    lift_rotor.design_tip_mach            = 0.65
+    lift_rotor.number_of_engines          = net.number_of_lift_rotor_engines
+    lift_rotor.disc_area                  = np.pi*(lift_rotor.tip_radius**2)         
+    lift_rotor.freestream_velocity        = 500. * Units['ft/min']  
+    lift_rotor.angular_velocity           = lift_rotor.design_tip_mach* speed_of_sound /lift_rotor.tip_radius   
+    lift_rotor.design_Cl                  = 0.7
+    lift_rotor.design_altitude            = 20 * Units.feet                            
+    lift_rotor.design_thrust              = Hover_Load/(net.number_of_lift_rotor_engines-1) # contingency for one-engine-inoperative condition
 
-    rotor.airfoil_geometry           =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
-    rotor.airfoil_polars             = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    lift_rotor.airfoil_geometry           =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    lift_rotor.airfoil_polars             = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
 
-    rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
-    rotor                            = propeller_design(rotor)
+    lift_rotor.airfoil_polar_stations     = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]       
+    lift_rotor                            = propeller_design(lift_rotor)
     
     # Appending rotors with different origins
     rotations = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
@@ -563,16 +563,16 @@ def vehicle_setup():
                  [3.843,  4.022 , -0.126] ,[3.843, -4.022 ,  -0.126]]
     
     for ii in range(12):
-        rotor          = deepcopy(rotor)
-        rotor.tag      = 'rotor'
-        rotor.rotation = rotations[ii]
-        rotor.origin   = [origins[ii]]
-        net.rotors.append(rotor)
+        lift_rotor          = deepcopy(lift_rotor)
+        lift_rotor.tag      = 'lift_rotor'
+        lift_rotor.rotation = rotations[ii]
+        lift_rotor.origin   = [origins[ii]]
+        net.lift_rotors.append(lift_rotor)
         
-    net.number_of_rotor_engines = 12
+    net.number_of_lift_rotor_engines = 12
 
     # append propellers to vehicle     
-    net.rotor = rotor
+    net.lift_rotor = lift_rotor
 
     #------------------------------------------------------------------
     # Design Motors
@@ -589,21 +589,21 @@ def vehicle_setup():
     net.propeller_motors.append(propeller_motor)
 
     # Rotor (Lift) Motor                        
-    rotor_motor                         = SUAVE.Components.Energy.Converters.Motor()
-    rotor_motor.efficiency              = 0.85
-    rotor_motor.nominal_voltage         = bat.max_voltage*3/4 
-    rotor_motor.mass_properties.mass    = 3. * Units.kg 
-    rotor_motor.origin                  = rotor.origin  
-    rotor_motor.propeller_radius        = rotor.tip_radius   
-    rotor_motor.gearbox_efficiency      = 1.0 
-    rotor_motor.no_load_current         = 4.0   
-    rotor_motor                         = size_optimal_motor(rotor_motor,rotor)
+    lift_rotor_motor                         = SUAVE.Components.Energy.Converters.Motor()
+    lift_rotor_motor.efficiency              = 0.85
+    lift_rotor_motor.nominal_voltage         = bat.max_voltage*3/4 
+    lift_rotor_motor.mass_properties.mass    = 3. * Units.kg 
+    lift_rotor_motor.origin                  = lift_rotor.origin  
+    lift_rotor_motor.propeller_radius        = lift_rotor.tip_radius   
+    lift_rotor_motor.gearbox_efficiency      = 1.0 
+    lift_rotor_motor.no_load_current         = 4.0   
+    lift_rotor_motor                         = size_optimal_motor(lift_rotor_motor,lift_rotor)
 
     # Appending motors with different origins
     for _ in range(12):
-        rotor_motor = deepcopy(rotor_motor)
-        rotor_motor.tag = 'motor'
-        net.rotor_motors.append(rotor_motor)
+        lift_rotor_motor = deepcopy(lift_rotor_motor)
+        lift_rotor_motor.tag = 'motor'
+        net.lift_rotor_motors.append(lift_rotor_motor)
 
 
     # append motor origin spanwise locations onto wing data structure 
