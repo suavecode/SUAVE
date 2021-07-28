@@ -211,83 +211,100 @@ def empty(config,
         propulsor.avionics.mass_properties.center_of_gravity[0][0]           = 0.0
         propulsor.avionics.mass_properties.mass                              = output.avionics
 
+        
+        #-------------------------------------------------------------------------------        
+        # Servo, Hub and BRS Weights
         #-------------------------------------------------------------------------------
-        # Rotor, Propeller, Motor, Servo, Hub and BRS Weight
+        lift_rotor_servo_weight = 0.65 * Units.kg
+        lift_rotor_hub_weight   = 4.   * Units.kg
+        lift_rotor_BRS_weight   = 16.  * Units.kg   
+        
+        prop_servo_weight       = 5.2  * Units.kg           # shouldn't this depend on propeller size too?
+        prop_hub_weight         = MTOW * 0.04  * Units.kg
+        
+        
+        #-------------------------------------------------------------------------------
+        # Rotor, Propeller, parameters for sizing
         #-------------------------------------------------------------------------------
         if isinstance(propulsor, Lift_Cruise):    
             # Total number of rotors and propellers
-            nLiftProps    = propulsor.number_of_lift_rotor_engines
+            nLiftRotors   = propulsor.number_of_lift_rotor_engines
             nThrustProps  = propulsor.number_of_propeller_engines 
-            nProps        = int(nLiftProps + nThrustProps)            
             
-            # Get reference properties for sizing
+        elif isinstance(propulsor, Battery_Propeller):
+            # Total number of rotors and propellers
+            nLiftRotors   = 0
+            nThrustProps  = propulsor.number_of_engines      
+            
+        else:
+            warn("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
+            Weight buildup will not return information on propulsion system.""", stacklevel=1)                
+
+        nProps  = int(nLiftRotors + nThrustProps)   
+        if nProps > 1:
+            prop_BRS_weight     = 16.   * Units.kg  
+        else:
+            prop_BRS_weight     = 0.   * Units.kg 
+            
+            
+        if nThrustProps > 0:
             if propulsor.identical_propellers:
                 # Get reference properties for sizing from first propeller (assumes identical)
                 proprotor    = next(iter(propulsor.propellers))
+                propmotor    = next(iter(propulsor.propeller_motors))
                 rTip_ref     = proprotor.tip_radius
                 bladeSol_ref = proprotor.blade_solidity 
                 
                 # Compute and add propeller weights
+                propeller_mass                 = prop(proprotor, maxLift/5.) * Units.kg
+                output.propellers             += nThrustProps * propeller_mass
+                output.propeller_motors       += nThrustProps * propmotor.mass_properties.mass
+                proprotor.mass_properties.mass = propeller_mass + prop_hub_weight + prop_servo_weight
                 
             else: 
                 for propeller in propulsor.propellers:
                     proprotor    = propeller
+                    propmotor    = next(iter(propulsor.propeller_motors))
                     rTip_ref     = proprotor.tip_radius
                     bladeSol_ref = proprotor.blade_solidity
                     
                     # Compute and add propeller weights
-                    
-            
-            
-            # Get reference properties for sizing from first lift_rotor (assumes identical)
+                    propeller_mass                 = prop(proprotor, maxLift/5.) * Units.kg
+                    output.propellers             += propeller_mass
+                    output.propeller_motors       += propmotor.mass_properties.mass
+                    proprotor.mass_properties.mass = propeller_mass + prop_hub_weight + prop_servo_weight
+                
+        if nLiftRotors > 0:
             if propulsor.identical_lift_rotors:
+                # Get reference properties for sizing from first lift_rotor (assumes identical)
                 liftrotor = next(iter(propulsor.lift_rotors))
+                liftmotor = next(iter(propulsor.lift_rotor_motors))
                 rTip_ref     = liftrotor.tip_radius
                 bladeSol_ref = liftrotor.blade_solidity 
                 
                 # Compute and add lift_rotor weights
+                lift_rotor_mass                = prop(liftrotor, maxLift / max(nLiftRotors - 1, 1))  * Units.kg
+                output.lift_rotors            += nLiftRotors * lift_rotor_mass
+                output.lift_rotor_motors      += nLiftRotors * liftmotor.mass_properties.mass
+                liftrotor.mass_properties.mass = lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
                 
             else:
                 for lift_rotor in propulsor.lift_rotors:
                     liftrotor    = lift_rotor
+                    liftmotor    = next(iter(propulsor.lift_rotor_motors))
                     rTip_ref     = liftrotor.tip_radius
                     bladeSol_ref = liftrotor.blade_solidity  
                     
                     # Compute and add lift_rotor weights
-                    
-                    
-            
-            # Servo, Hub and BRS Weight
-            servo_weight   = 0.65 * Units.kg
-            hub_weight     = 4.   * Units.kg
-            BRS_weight     = 16.  * Units.kg            
-            
-                
-        elif isinstance(propulsor, Battery_Propeller):
-            # Total number of rotors and propellers
-            nLiftProps    = 0
-            nThrustProps  = propulsor.number_of_engines
-            nProps        = int(nLiftProps + nThrustProps) 
-            
-            # Get reference propeller properties for sizing 
-            for propeller in propulsor.propellers:
-                proprotor    = propeller
-                rTip_ref     = proprotor.tip_radius
-                bladeSol_ref = proprotor.blade_solidity 
-                
-            # Servo, Hub and BRS Weight
-            servo_weight   = 5.2  * Units.kg
-            hub_weight     = MTOW * 0.04  * Units.kg
-            if nProps > 1:
-                BRS_weight = 16.   * Units.kg            
-        else:
-            warn("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
-            Weight buildup will not return information on propulsion system.""", stacklevel=1)    
-            
+                    lift_rotor_mass                = prop(liftrotor, maxLift / max(nLiftRotors - 1, 1))  * Units.kg
+                    output.lift_rotors            += lift_rotor_mass
+                    output.lift_rotor_motors      += liftmotor.mass_properties.mass
+                    liftrotor.mass_properties.mass = lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight                    
+       
         # Add associated weights 
-        output.servos += nProps * servo_weight
-        output.hubs   += nProps * hub_weight
-        output.BRS    += BRS_weight      
+        output.servos += (nLiftRotors * lift_rotor_servo_weight + nThrustProps * prop_servo_weight)
+        output.hubs   += (nLiftRotors * lift_rotor_hub_weight + nThrustProps * prop_hub_weight)
+        output.BRS    += (prop_BRS_weight + lift_rotor_BRS_weight) 
         
 
         maxLiftPower   = 1.15*maxLift*(k*np.sqrt(maxLift/(2*rho_ref*np.pi*rTip_ref**2)) +
@@ -296,30 +313,9 @@ def empty(config,
         maxLiftTorque  = maxLiftPower / maxLiftOmega
 
         # Tail Rotor
-        if nLiftProps == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor 
+        if nLiftRotors == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor 
             output.tail_rotor += prop(propulsor.propeller, 1.5*maxLiftTorque/(1.25*rTip_ref))*0.2 * Units.kg
 
-        # Rotor
-        if 'rotor' in propulsor.keys(): 
-            rotor_mass     = prop(propulsor.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg
-            output.lift_rotors += nLiftProps * rotor_mass
-            if isinstance(propulsor, Lift_Cruise):
-                for lift_rotor_motor in propulsor.lift_rotor_motors:
-                    output.lift_rotor_motors  += lift_rotor_motor.mass_properties.mass
-            else:                                  
-                output.lift_rotor_motors  += nLiftProps * propulsor.motor.mass_properties.mass
-            propulsor.rotor.mass_properties.mass = rotor_mass + hub_weight + servo_weight
-
-        # Propeller
-        if 'propeller' in propulsor.keys():    
-            propeller_mass     = prop(propulsor.propeller, maxLift/5.) * Units.kg
-            output.propellers += nThrustProps * propeller_mass
-            if isinstance(propulsor, Lift_Cruise):
-                output.propeller_motors += nThrustProps * propulsor.propeller_motor.mass_properties.mass
-            else:
-                output.propeller_motors += nThrustProps * propulsor.motor.mass_properties.mass
-            propulsor.propeller.mass_properties.mass = propeller_mass + hub_weight + servo_weight
-        
     # sum motor weight
     output.motors = output.lift_rotor_motors + output.propeller_motors  
 
@@ -379,3 +375,33 @@ def empty(config,
     output.total      = output.empty + output.payload + output.passengers
                                                    
     return output
+
+
+def compute_rotor_component_weight(liftrotor, liftingthrust, Nrot):
+    rotor_mass = prop(liftrotor, liftingthrust)
+    rotor_weight = Nrot * rotor_mass
+    
+    ## Rotor
+    #if 'rotor' in propulsor.keys(): 
+        #rotor_mass     = prop(propulsor.rotor, maxLift / max(nLiftRotors - 1, 1))  * Units.kg
+        #output.lift_rotors += nLiftRotors * rotor_mass
+        #if isinstance(propulsor, Lift_Cruise):
+            #for lift_rotor_motor in propulsor.lift_rotor_motors:
+                #output.lift_rotor_motors  += lift_rotor_motor.mass_properties.mass
+        #else:                                  
+            #output.lift_rotor_motors  += nLiftRotors * propulsor.motor.mass_properties.mass
+        #propulsor.rotor.mass_properties.mass = rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
+
+    ## Propeller
+    #if 'propeller' in propulsor.keys():    
+        #propeller_mass     = prop(propulsor.propeller, maxLift/5.) * Units.kg
+        #output.propellers += nThrustProps * propeller_mass
+        #if isinstance(propulsor, Lift_Cruise):
+            #output.propeller_motors += nThrustProps * propulsor.propeller_motor.mass_properties.mass
+        #else:
+            #output.propeller_motors += nThrustProps * propulsor.motor.mass_properties.mass
+        #propulsor.propeller.mass_properties.mass = propeller_mass + prop_hub_weight + prop_servo_weight
+    
+    
+    
+    return rotor_weight
