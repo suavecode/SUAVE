@@ -64,7 +64,6 @@ class Propeller(Energy_Component):
         self.thickness_to_chord        = 0.0
         self.blade_solidity            = 0.0
         self.design_power              = None
-        self.VTOL_flag                 = False
         self.design_thrust             = None 
         self.airfoil_geometry          = None
         self.airfoil_polars            = None

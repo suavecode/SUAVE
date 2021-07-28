@@ -6,14 +6,16 @@
 #           Feb 2019, M. Vegh            
 #           Mar 2020, M. Clarke
 #           Sep 2020, M. Clarke 
+#           Mar 2021, R. Erhard
 #           Apr 2021, M. Clarke
 #           Jul 2021, E. Botero
+#           Jul 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Core import Data
+from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
 
@@ -22,11 +24,11 @@ import numpy as np
 import scipy as sp
 
 # ----------------------------------------------------------------------
-#  Rotor Class
+#  Generalized Rotor Class
 # ----------------------------------------------------------------------    
 ## @ingroup Components-Energy-Converters
 class Rotor(Energy_Component):
-    """This is a rotor component.
+    """This is a general rotor component.
     
     Assumptions:
     None
@@ -60,6 +62,7 @@ class Rotor(Energy_Component):
         self.twist_distribution        = 0.0
         self.chord_distribution        = 0.0
         self.mid_chord_alignment       = 0.0
+        self.thickness_to_chord        = 0.0
         self.blade_solidity            = 0.0
         self.design_power              = None
         self.design_thrust             = None    
@@ -70,15 +73,21 @@ class Rotor(Energy_Component):
         self.rotation                  = 1
         self.orientation_euler_angles  = [0.,np.pi/2.,0.] # This is Z-direction thrust up
         self.ducted                    = False 
-        self.VTOL_flag                 = False
         self.number_azimuthal_stations = 24
         self.induced_power_factor      = 1.48             # accounts for interference effects
-        self.profile_drag_coefficient  = .03        
+        self.profile_drag_coefficient  = .03      
+        
+        self.use_2d_analysis           = False    # True if rotor is at an angle relative to freestream or nonuniform freestream
+        self.nonuniform_freestream     = False 
+        self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
+        self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
+        self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor        
         
         self.inputs.y_axis_rotation    = 0.
+        self.inputs.pitch_command      = 0.
 
     def spin(self,conditions):
-        """Analyzes a rotor given geometry and operating conditions.
+        """Analyzes a general rotor given geometry and operating conditions.
 
         Assumptions:
         per source
@@ -140,66 +149,89 @@ class Rotor(Energy_Component):
         self.                                
           number_of_blades                   [-]
           tip_radius                         [m]
-          hub_radius                         [m]
           twist_distribution                 [radians]
           chord_distribution                 [m]
-          mid_chord_alignment                [m] 
           orientation_euler_angles           [rad, rad, rad]
         """         
            
-        #Unpack    
+        # Unpack rotor blade parameters
         B       = self.number_of_blades 
         R       = self.tip_radius
-        Rh      = self.hub_radius
         beta_0  = self.twist_distribution
         c       = self.chord_distribution
-        chi     = self.radius_distribution 
-        omega   = self.inputs.omega
-        pitch_c = self.inputs.pitch_command
+        r       = self.radius_distribution 
+        tc      = self.thickness_to_chord 
+        
+        # Unpack rotor airfoil data
         a_geo   = self.airfoil_geometry      
         a_loc   = self.airfoil_polar_stations  
         cl_sur  = self.airfoil_cl_surrogates
         cd_sur  = self.airfoil_cd_surrogates  
-        tc      = self.thickness_to_chord   
+          
+        # Unpack rotor inputs and conditions
+        omega                 = self.inputs.omega
+        pitch_c               = self.inputs.pitch_command        
+        Na                    = self.number_azimuthal_stations 
+        nonuniform_freestream = self.nonuniform_freestream
+        use_2d_analysis       = self.use_2d_analysis
+        rotation              = self.rotation           
+        
+        # Unpack freestream conditions
         rho     = conditions.freestream.density[:,0,None]
         mu      = conditions.freestream.dynamic_viscosity[:,0,None]
-        Vv      = conditions.frames.inertial.velocity_vector 
         a       = conditions.freestream.speed_of_sound[:,0,None]
         T       = conditions.freestream.temperature[:,0,None]
-        Na      = self.number_azimuthal_stations 
+        Vv      = conditions.frames.inertial.velocity_vector 
+        nu      = mu/rho   
+        rho_0   = rho
+        
+        # Helpful shorthands
         BB      = B*B    
         BBB     = BB*B
-    
-        # calculate total blade pitch
+        pi      = np.pi        
+        pi2     = pi*pi         
+     
+        # Calculate total blade pitch
         total_blade_pitch = beta_0 + pitch_c
     
-        # Velocities in the frame of the propeller
+        # Velocity in the rotor frame
         T_body2inertial = conditions.frames.body.transform_to_inertial
         T_inertial2body = orientation_transpose(T_body2inertial)
         V_body          = orientation_product(T_inertial2body,Vv)
         body2thrust     = self.body_to_prop_vel()
         T_body2thrust   = orientation_transpose(np.ones_like(T_body2inertial[:])*body2thrust)
         V_thrust        = orientation_product(T_body2thrust,V_body) 
-    
+        
+        # Check and correct for hover
         V         = V_thrust[:,0,None]  
         V[V==0.0] = 1E-6
+        
         ut        = np.zeros_like(V) 
     
         #Things that don't change with iteration
         Nr       = len(c) # Number of stations radially    
         ctrl_pts = len(Vv)
                  
-        # set up non dimensional radial distribution  
-        chi            = self.radius_distribution/R 
+        # Non-dimensional radial distribution and differential radius
+        chi           = r/R 
+        diff_r        = np.diff(r)
+        deltar        = np.zeros(len(r))
+        deltar[1:-1]  = diff_r[0:-1]/2 + diff_r[1:]/2
+        deltar[0]     = diff_r[0]/2
+        deltar[-1]    = diff_r[-1]/2
         
+        # Check for negative rotation rate
+        if np.any(omega) <0:
+            print("Negative rotation rate defined! Reverting direction.")
+            omega    = np.abs(omega)
+            rotation = -rotation        
+        
+        # Calculating rotational parameters
         omega          = np.abs(omega)        
-        r              = chi*R          # Radial coordinate 
-        pi             = np.pi        
-        pi2            = pi*pi       
-        n              = omega/(2.*pi)  # Cycles per second  
-        nu             = mu/rho         
+        n              = omega/(2.*pi)   # Rotations per second  
+             
     
-        # azimuth distribution 
+        # Azimuthal distribution of stations
         psi            = np.linspace(0,2*pi,Na+1)[:-1]
         psi_2d         = np.tile(np.atleast_2d(psi).T,(1,Nr))
         psi_2d         = np.repeat(psi_2d[np.newaxis, :, :], ctrl_pts, axis=0)   
@@ -207,85 +239,129 @@ class Rotor(Energy_Component):
         
         # 2 dimensiona radial distribution non dimensionalized
         chi_2d         = np.tile(chi ,(Na,1))            
-        chi_2d         = np.repeat(chi_2d[ np.newaxis,:, :], ctrl_pts, axis=0) 
-                       
+        chi_2d         = np.repeat(chi_2d[ np.newaxis,:, :], ctrl_pts, axis=0)    
         r_dim_2d       = np.tile(r ,(Na,1))  
         r_dim_2d       = np.repeat(r_dim_2d[ np.newaxis,:, :], ctrl_pts, axis=0)  
+        c_2d           = np.tile(c ,(Na,1)) 
+        c_2d           = np.repeat(c_2d[ np.newaxis,:, :], ctrl_pts, axis=0)   
+        
+        # Starting with uniform freestream
+        ua       = 0             
+        ut       = 0            
+        ur       = 0             
     
-        # Things that will change with iteration
-        size   = (len(a),Nr)
-        omegar = np.outer(omega,r)
-        Ua     = np.outer((V),np.ones_like(r))
+        # Include velocities introduced by rotor incidence angles
+        if not np.all(np.array(self.orientation_euler_angles)==0): # this needs to be instead angle to freestream, not to body
+            # incidence angle creates disturbances in radial and tangential velocities
+            use_2d_analysis = True
+            
+            # component of freestream in the propeller plane
+            Vz  = V_thrust[:,2,None,None]
+            Vz  = np.repeat(Vz, Na,axis=1)
+            Vz  = np.repeat(Vz, Nr,axis=2)
+            
+            # check for invalid rotation angle
+            if (rotation == 1) or (rotation == -1):  
+                pass
+            else: 
+                print("Invalid rotation direction. Setting to 1.")
+                rotation = 1
+            
+            # compute resulting radial and tangential velocities in propeller frame
+            ut +=  ( Vz*np.cos(psi_2d)  ) * rotation
+            ur +=  (-Vz*np.sin(psi_2d)  )
+            ua +=  np.zeros_like(ut)
+        
+        # Include external velocities introduced by user  
+        if nonuniform_freestream:
+            use_2d_analysis   = True
+
+            # include additional influences specified at rotor sections, shape=(ctrl_pts,Na,Nr)
+            ua += self.axial_velocities_2d
+            ut += self.tangential_velocities_2d
+            ur += self.radial_velocities_2d        
+        
+                
+        if use_2d_analysis:
+            # make everything 2D with shape (ctrl_pts,Na,Nr)
+            size   = (ctrl_pts,Na,Nr)
+            PSI    = np.ones(size)
+            PSIold = np.zeros(size)
+            
+            # 2-D freestream velocity and omega*r
+            V_2d   = V_thrust[:,0,None,None]
+            V_2d   = np.repeat(V_2d, Na,axis=1)
+            V_2d   = np.repeat(V_2d, Nr,axis=2)
+            omegar = (np.repeat(np.outer(omega,r)[:,None,:], Na, axis=1))
+            
+            # total velocities
+            Ua     = V_2d + ua      
+            
+            # 2-D blade pitch and radial distributions
+            beta = np.tile(total_blade_pitch,(Na ,1))
+            beta = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
+            r    = np.tile(r,(Na ,1))
+            r    = np.repeat(r[np.newaxis,:, :], ctrl_pts, axis=0) 
+            
+            # 2-D atmospheric properties
+            a   = np.tile(np.atleast_2d(a),(1,Nr))
+            a   = np.repeat(a[:, np.newaxis,  :], Na, axis=1)  
+            nu  = np.tile(np.atleast_2d(nu),(1,Nr))
+            nu  = np.repeat(nu[:, np.newaxis,  :], Na, axis=1)    
+            rho = np.tile(np.atleast_2d(rho),(1,Nr))
+            rho = np.repeat(rho[:, np.newaxis,  :], Na, axis=1)  
+            T   = np.tile(np.atleast_2d(T),(1,Nr))
+            T   = np.repeat(T[:, np.newaxis,  :], Na, axis=1)              
+            
+        else:
+            # total velocities
+            Ua     = np.outer((V + ua),np.ones_like(r))
+            beta   = total_blade_pitch
+            
+            # Things that will change with iteration
+            size   = (ctrl_pts,Nr)
+            PSI    = np.ones(size)
+            PSIold = np.zeros(size)  
+        
+        
+        
+        
+        # Total velocities
         Ut     = omegar - ut
-        U      = np.sqrt(Ua*Ua + Ut*Ut) 
-        beta   = total_blade_pitch
+        U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur) 
         
         # Setup a Newton iteration
-        PSI    = np.ones(size)
-        PSIold = np.zeros(size)
-        diff   = 1. 
-        ii     = 0
-        broke  = False
+        diff   = 1.
         tol    = 1e-6  # Convergence tolerance
+        ii     = 0             
         
+        # BEMT Iteration
         while (diff>tol):
             sin_psi      = np.sin(PSI)
             cos_psi      = np.cos(PSI)
             Wa           = 0.5*Ua + 0.5*U*sin_psi
-            Wt           = 0.5*Ut + 0.5*U*cos_psi   
+            Wt           = 0.5*Ut + 0.5*U*cos_psi
             va           = Wa - Ua
             vt           = Ut - Wt
             alpha        = beta - np.arctan2(Wa,Wt)
             W            = (Wa*Wa + Wt*Wt)**0.5
-            Ma           = (W)/a        # a is the speed of sound  
-            lamdaw       = r*Wa/(R*Wt) 
+            Ma           = W/a        # a is the speed of sound  
+            lamdaw       = r*Wa/(R*Wt)
             
             # Limiter to keep from Nan-ing
-            lamdaw[lamdaw<0.] = 0. 
+            lamdaw[lamdaw<0.] = 0.
             f            = (B/2.)*(1.-r/R)/lamdaw
             f[f<0.]      = 0.
             piece        = np.exp(-f)
             arccos_piece = np.arccos(piece)
             F            = 2.*arccos_piece/pi
-            Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5 
-            Re           = (W*c)/nu  
+            Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
+            Re           = (W*c)/nu
             
-            # If rotor airfoils are defined, using airfoil surrogate 
-            if a_loc != None:
-                # Compute blade Cl and Cd distribution from the airfoil data  
-                Cl      = np.zeros((ctrl_pts,Nr))              
-                Cdval   = np.zeros((ctrl_pts,Nr))  
-                dim_sur = len(cl_sur)
-                for jj in range(dim_sur):                 
-                    Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
-                    Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
-                    locs          = np.where(np.array(a_loc) == jj )
-                    Cl[:,locs]    = Cl_af[:,locs]
-                    Cdval[:,locs] = Cdval_af[:,locs]        
-                     
-            else:
-                # Estimate Cl max 
-                Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
-                Re_ref     = 9.*10**6      
-                Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
-                
-                # If not airfoil polar provided, use 2*pi as lift curve slope
-                Cl = 2.*pi*alpha
+            # Compute aerodynamic forces based on specified input airfoil or surrogate
+            Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis)
             
-                # By 90 deg, it's totally stalled.
-                Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
-                Cl[alpha>=pi/2] = 0.
-                
-                # Scale for Mach, this is Karmen_Tsien
-                Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
-                
-                # If the blade segments are supersonic, don't scale
-                Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]  
-                
-                #This is an atrocious fit of DAE51 data at RE=50k for Cd
-                Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
-                Cdval[alpha>=pi/2] = 2.                
-
+            # Newton residual
             Rsquiggly   = Gamma - 0.5*W*c*Cl
         
             # An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
@@ -317,6 +393,7 @@ class Rotor(Energy_Component):
         
             # omega = 0, do not run BEMT convergence loop 
             if all(omega[:,0]) == 0. :
+                print("Rotor BEMT did not run to convergence (omega=0)")                
                 break
             
             # If its really not going to converge
@@ -326,7 +403,6 @@ class Rotor(Energy_Component):
         
             ii+=1 
             if ii>10000:
-                broke = True
                 print("Rotor BEMT did not converge to a solution (Iteration Limit)")
                 break
     
@@ -339,62 +415,102 @@ class Rotor(Energy_Component):
         
         epsilon                  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
-        deltar                   = (r[1]-r[0])   
-        deltachi                 = (chi[1]-chi[0])          
+
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
-        thrust                   = rho*B*(np.sum(Gamma*(Wt-epsilon*Wa)*deltar,axis=1)[:,None])
-        torque                   = rho*B*np.sum(Gamma*(Wa+epsilon*Wt)*r*deltar,axis=1)[:,None]  
-        power                    = omega*torque  
-        Va_2d                    = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
-        Vt_2d                    = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
-        Va_ind_2d                = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
-        Vt_ind_2d                = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T
-        blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
-        blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
         
-        blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
+        if use_2d_analysis:
+            blade_T_distribution_2d = blade_T_distribution
+            blade_Q_distribution_2d = blade_Q_distribution
+            blade_Gamma_2d = Gamma
+            
+            # set 1d blade loadings to be the average:
+            blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 1)
+            blade_Q_distribution    = np.mean((blade_Q_distribution_2d), axis = 1)  
+            
+            Va_2d = Wa
+            Vt_2d = Wt
+            Va_avg = np.average(Wa, axis=1)      # averaged around the azimuth
+            Vt_avg = np.average(Wt, axis=1)      # averaged around the azimuth
+            
+            Va_ind_2d  = va
+            Vt_ind_2d  = vt
+            Vt_ind_avg = np.average(vt, axis=1)
+            Va_ind_avg = np.average(va, axis=1)   
+            
+            # compute the hub force / rotor drag distribution along the blade
+            dL_2d    = 0.5*rho*c_2d*Cd*omegar**2*deltar
+            dD_2d    = 0.5*rho*c_2d*Cl*omegar**2*deltar
+            
+            rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=1)
+            
+        else:
+            Va_2d   = np.repeat(Wa.T[ : , np.newaxis , :], Na, axis=1).T
+            Vt_2d   = np.repeat(Wt.T[ : , np.newaxis , :], Na, axis=1).T
+    
+            blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
+            blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
+            blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
+
+            Vt_avg                  = Wt
+            Va_avg                  = Wa 
+            Vt_ind_avg              = vt
+            Va_ind_avg              = va            
+            Va_ind_2d               = np.repeat(va.T[ : , np.newaxis , :], Na, axis=1).T
+            Vt_ind_2d               = np.repeat(vt.T[ : , np.newaxis , :], Na, axis=1).T     
+            
+            # compute the hub force / rotor drag distribution along the blade
+            dL    = 0.5*rho*c*Cd*omegar**2*deltar
+            dL_2d = np.repeat(dL[:,None,:], Na, axis=1)
+            dD    = 0.5*rho*c*Cl*omegar**2*deltar            
+            dD_2d = np.repeat(dD[:,None,:], Na, axis=1)
+            
+            rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=1)
         
-        # thrust and torque derivatives on the blade.	
-        blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))	
-        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)   
+        # thrust and torque derivatives on the blade. 
+        blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
+        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)         
         
-        Vt_ind_avg = vt
-        Va_ind_avg = va
-        Vt_avg     = Wt
-        Va_avg     = Wa
-                
+        thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
+        torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T
+        rotor_drag              = np.atleast_2d((B * np.sum(rotor_drag_distribution, axis=1))).T
+        power                   = omega*torque   
+        
         # calculate coefficients 
         D        = 2*R 
-        Cq       = torque/(rho*(n*n)*(D*D*D*D*D)) 
-        Ct       = thrust/(rho*(n*n)*(D*D*D*D))
-        Cp       = power/(rho*(n*n*n)*(D*D*D*D*D))
-        etap     = V*thrust/power # efficiency    
-
-        # prevent things from breaking 
-        Cq[Cq<0]                                           = 0.  
-        Ct[Ct<0]                                           = 0.  
-        Cp[Cp<0]                                           = 0.  
-        thrust[conditions.propulsion.throttle[:,0] <=0.0]  = 0.0
-        power[conditions.propulsion.throttle[:,0]  <=0.0]  = 0.0 
-        torque[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
-        thrust[omega<0.0]                                  = - thrust[omega<0.0]  
-        thrust[omega==0.0]                                 = 0.0
-        power[omega==0.0]                                  = 0.0
-        torque[omega==0.0]                                 = 0.0
-        Ct[omega==0.0]                                     = 0.0
-        Cp[omega==0.0]                                     = 0.0 
-        etap[omega==0.0]                                   = 0.0 
+        Cq       = torque/(rho_0*(n*n)*(D*D*D*D*D)) 
+        Ct       = thrust/(rho_0*(n*n)*(D*D*D*D))
+        Cp       = power/(rho_0*(n*n*n)*(D*D*D*D*D))
+        Crd      = rotor_drag/(rho_0*(n*n)*(D*D*D*D))
+        etap     = V*thrust/power 
         
-        # assign efficiency to network
-        conditions.propulsion.etap = etap   
+        # prevent things from breaking 
+        Cq[Cq<0]                                               = 0.  
+        Ct[Ct<0]                                               = 0.  
+        Cp[Cp<0]                                               = 0.  
+        thrust[conditions.propulsion.throttle[:,0] <=0.0]      = 0.0
+        power[conditions.propulsion.throttle[:,0]  <=0.0]      = 0.0 
+        torque[conditions.propulsion.throttle[:,0]  <=0.0]     = 0.0
+        rotor_drag[conditions.propulsion.throttle[:,0]  <=0.0] = 0.0
+        thrust[omega<0.0]                                      = - thrust[omega<0.0]  
+        thrust[omega==0.0]                                     = 0.0
+        power[omega==0.0]                                      = 0.0
+        torque[omega==0.0]                                     = 0.0
+        rotor_drag[omega==0.0]                                 = 0.0
+        Ct[omega==0.0]                                         = 0.0
+        Cp[omega==0.0]                                         = 0.0 
+        etap[omega==0.0]                                       = 0.0           
+          
         
         # Make the thrust a 3D vector
         thrust_prop_frame      = conditions.ones_row(3)*0.
         thrust_prop_frame[:,0] = thrust[:,0]
         thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
-
-        # store data
+       
+        # Assign efficiency to network
+        conditions.propulsion.etap = etap 
+        
+        # Store data
         self.azimuthal_distribution                   = psi  
         results_conditions                            = Data     
         outputs                                       = results_conditions( 
@@ -421,14 +537,20 @@ class Rotor(Energy_Component):
                     disc_thrust_distribution          = blade_T_distribution_2d, 
                     thrust_per_blade                  = thrust/B, 
                     thrust_coefficient                = Ct, 
-                    disc_azimuthal_distribution       = azimuth_2d, 
+                    disc_azimuthal_distribution       = psi_2d, 
                     blade_dQ_dr                       = blade_dQ_dr,
                     blade_torque_distribution         = blade_Q_distribution,    
                     disc_torque_distribution          = blade_Q_distribution_2d, 
                     torque_per_blade                  = torque/B,   
                     torque_coefficient                = Cq,   
                     power                             = power,
-                    power_coefficient                 = Cp,                      
+                    power_coefficient                 = Cp,  
+                    converged_inflow_ratio            = lamdaw,
+                    disc_effective_angle_of_attack    = alpha,
+                    propeller_efficiency              = etap,
+                    blade_H_distribution              = rotor_drag_distribution,
+                    rotor_drag                        = rotor_drag,
+                    rotor_drag_coefficient            = Crd                    
             ) 
     
         return thrust_vector, torque, power, Cp, outputs , etap
@@ -528,3 +650,105 @@ class Rotor(Energy_Component):
         rot_mat = r.as_matrix()
 
         return rot_mat
+
+
+def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis):
+    """
+    Cl, Cdval = compute_aerodynamic_forces(  a_loc, 
+                                             a_geo, 
+                                             cl_sur, 
+                                             cd_sur, 
+                                             ctrl_pts, 
+                                             Nr, 
+                                             Na, 
+                                             Re, 
+                                             Ma, 
+                                             alpha, 
+                                             tc, 
+                                             nonuniform_freestream )
+                                             
+    Computes the aerodynamic forces at sectional blade locations. If airfoil 
+    geometry and locations are specified, the forces are computed using the 
+    airfoil polar lift and drag surrogates, accounting for the local Reynolds 
+    number and local angle of attack. 
+    
+    If the airfoils are not specified, an approximation is used.
+
+    Assumptions:
+    N/A
+
+    Source:
+    N/A
+
+    Inputs:
+    a_loc                      Locations of specified airfoils                 [-]
+    a_geo                      Geometry of specified airfoil                   [-]
+    cl_sur                     Lift Coefficient Surrogates                     [-]
+    cd_sur                     Drag Coefficient Surrogates                     [-]
+    ctrl_pts                   Number of control points                        [-]
+    Nr                         Number of radial blade sections                 [-]
+    Na                         Number of azimuthal blade stations              [-]
+    Re                         Local Reynolds numbers                          [-]
+    Ma                         Local Mach number                               [-]
+    alpha                      Local angles of attack                          [radians]
+    tc                         Thickness to chord                              [-]
+    use_2d_analysis            Specifies 2d disc vs. 1d single angle analysis  [Boolean]
+                                                     
+                                                     
+    Outputs:                                          
+    Cl                       Lift Coefficients                         [-]                               
+    Cdval                    Drag Coefficients  (before scaling)       [-]
+    """        
+    # If propeller airfoils are defined, use airfoil surrogate 
+    if a_loc != None:
+        # Compute blade Cl and Cd distribution from the airfoil data  
+        dim_sur = len(cl_sur)   
+        if use_2d_analysis:
+            # return the 2D Cl and CDval of shape (ctrl_pts, Na, Nr)
+            Cl      = np.zeros((ctrl_pts,Na,Nr))              
+            Cdval   = np.zeros((ctrl_pts,Na,Nr))
+            for jj in range(dim_sur):                 
+                Cl_af           = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
+                Cdval_af        = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
+                locs            = np.where(np.array(a_loc) == jj )
+                Cl[:,:,locs]    = Cl_af[:,:,locs]
+                Cdval[:,:,locs] = Cdval_af[:,:,locs]          
+        else:
+            # return the 1D Cl and CDval of shape (ctrl_pts, Nr)
+            Cl      = np.zeros((ctrl_pts,Nr))              
+            Cdval   = np.zeros((ctrl_pts,Nr))  
+            
+            for jj in range(dim_sur):                 
+                Cl_af         = cl_sur[a_geo[jj]](Re,alpha,grid=False)  
+                Cdval_af      = cd_sur[a_geo[jj]](Re,alpha,grid=False)  
+                locs          = np.where(np.array(a_loc) == jj )
+                Cl[:,locs]    = Cl_af[:,locs]
+                Cdval[:,locs] = Cdval_af[:,locs]                   
+    else:
+        # Estimate Cl max 
+        Cl_max_ref = -0.0009*tc**3 + 0.0217*tc**2 - 0.0442*tc + 0.7005
+        Re_ref     = 9.*10**6      
+        Cl1maxp    = Cl_max_ref * ( Re / Re_ref ) **0.1
+        
+        # If not airfoil polar provided, use 2*pi as lift curve slope
+        Cl = 2.*np.pi*alpha
+    
+        # By 90 deg, it's totally stalled.
+        Cl[Cl>Cl1maxp]  = Cl1maxp[Cl>Cl1maxp] # This line of code is what changed the regression testing
+        Cl[alpha>=np.pi/2] = 0.
+        
+        # Scale for Mach, this is Karmen_Tsien
+        Cl[Ma[:,:]<1.] = Cl[Ma[:,:]<1.]/((1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5+((Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])/(1+(1-Ma[Ma[:,:]<1.]*Ma[Ma[:,:]<1.])**0.5))*Cl[Ma<1.]/2)
+        
+        # If the blade segments are supersonic, don't scale
+        Cl[Ma[:,:]>=1.] = Cl[Ma[:,:]>=1.]  
+        
+        #This is an atrocious fit of DAE51 data at RE=50k for Cd
+        Cdval = (0.108*(Cl*Cl*Cl*Cl)-0.2612*(Cl*Cl*Cl)+0.181*(Cl*Cl)-0.0139*Cl+0.0278)*((50000./Re)**0.2)
+        Cdval[alpha>=np.pi/2] = 2.    
+        
+    
+    # prevent zero Cl to keep Cd/Cl from breaking in bemt  
+    Cl[Cl==0] = 1e-6
+        
+    return Cl, Cdval
