@@ -103,9 +103,9 @@ def empty(config,
     
     # Set up data structures for SUAVE weight methods
     output                   = Data()
-    output.rotors            = 0.0
+    output.lift_rotors       = 0.0
     output.propellers        = 0.0
-    output.rotor_motors      = 0.0
+    output.lift_rotor_motors = 0.0
     output.propeller_motors  = 0.0 
     output.battery           = 0.0
     output.payload           = 0.0
@@ -220,17 +220,42 @@ def empty(config,
             nThrustProps  = propulsor.number_of_propeller_engines 
             nProps        = int(nLiftProps + nThrustProps)            
             
-            # Get reference propeller properties for sizing 
-            for propeller in propulsor.propellers:
-                proprotor    = propeller
+            # Get reference properties for sizing
+            if propulsor.identical_propellers:
+                # Get reference properties for sizing from first propeller (assumes identical)
+                proprotor    = next(iter(propulsor.propellers))
                 rTip_ref     = proprotor.tip_radius
-                bladeSol_ref = proprotor.blade_solidity
+                bladeSol_ref = proprotor.blade_solidity 
                 
-            # Get reference lift_rotor properties for sizing 
-            for lift_rotor in propulsor.lift_rotors:
-                liftrotor    = lift_rotor
+                # Compute and add propeller weights
+                
+            else: 
+                for propeller in propulsor.propellers:
+                    proprotor    = propeller
+                    rTip_ref     = proprotor.tip_radius
+                    bladeSol_ref = proprotor.blade_solidity
+                    
+                    # Compute and add propeller weights
+                    
+            
+            
+            # Get reference properties for sizing from first lift_rotor (assumes identical)
+            if propulsor.identical_lift_rotors:
+                liftrotor = next(iter(propulsor.lift_rotors))
                 rTip_ref     = liftrotor.tip_radius
-                bladeSol_ref = liftrotor.blade_solidity  
+                bladeSol_ref = liftrotor.blade_solidity 
+                
+                # Compute and add lift_rotor weights
+                
+            else:
+                for lift_rotor in propulsor.lift_rotors:
+                    liftrotor    = lift_rotor
+                    rTip_ref     = liftrotor.tip_radius
+                    bladeSol_ref = liftrotor.blade_solidity  
+                    
+                    # Compute and add lift_rotor weights
+                    
+                    
             
             # Servo, Hub and BRS Weight
             servo_weight   = 0.65 * Units.kg
@@ -277,12 +302,12 @@ def empty(config,
         # Rotor
         if 'rotor' in propulsor.keys(): 
             rotor_mass     = prop(propulsor.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg
-            output.rotors += nLiftProps * rotor_mass
+            output.lift_rotors += nLiftProps * rotor_mass
             if isinstance(propulsor, Lift_Cruise):
-                for rotor_motor in propulsor.rotor_motors:
-                    output.rotor_motors  += rotor_motor.mass_properties.mass
+                for lift_rotor_motor in propulsor.lift_rotor_motors:
+                    output.lift_rotor_motors  += lift_rotor_motor.mass_properties.mass
             else:                                  
-                output.rotor_motors  += nLiftProps * propulsor.motor.mass_properties.mass
+                output.lift_rotor_motors  += nLiftProps * propulsor.motor.mass_properties.mass
             propulsor.rotor.mass_properties.mass = rotor_mass + hub_weight + servo_weight
 
         # Propeller
@@ -296,7 +321,7 @@ def empty(config,
             propulsor.propeller.mass_properties.mass = propeller_mass + hub_weight + servo_weight
         
     # sum motor weight
-    output.motors = output.rotor_motors + output.propeller_motors  
+    output.motors = output.lift_rotor_motors + output.propeller_motors  
 
     #-------------------------------------------------------------------------------
     # Wing and Motor Wiring Weight
@@ -345,7 +370,7 @@ def empty(config,
     #-------------------------------------------------------------------------------
     # Pack Up Outputs
     #-------------------------------------------------------------------------------
-    output.structural = (output.rotors + output.propellers + output.hubs +
+    output.structural = (output.lift_rotors + output.propellers + output.hubs +
                                  output.fuselage + output.landing_gear +output.total_wing_weight)*Units.kg
 
     output.empty      = (contingency_factor * (output.structural + output.seats + output.avionics +output.ECS +\

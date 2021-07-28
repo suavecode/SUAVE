@@ -420,7 +420,8 @@ class Rotor(Energy_Component):
         if use_2d_analysis:
             blade_T_distribution_2d = blade_T_distribution
             blade_Q_distribution_2d = blade_Q_distribution
-            blade_Gamma_2d = Gamma
+            blade_Gamma_2d          = Gamma
+            alpha_2d                = alpha
             
             # set 1d blade loadings to be the average:
             blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 1)
@@ -449,6 +450,7 @@ class Rotor(Energy_Component):
             blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
             blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
             blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
+            alpha_2d                 = np.repeat(alpha.T[ : , np.newaxis , :], Na, axis=1).T
 
             Vt_avg                  = Wt
             Va_avg                  = Wa 
@@ -533,6 +535,7 @@ class Rotor(Energy_Component):
                     blade_dT_dr                       = blade_dT_dr,
                     blade_thrust_distribution         = blade_T_distribution, 
                     disc_thrust_distribution          = blade_T_distribution_2d, 
+                    disc_effective_angle_of_attack    = alpha_2d,
                     thrust_per_blade                  = thrust/B, 
                     thrust_coefficient                = Ct, 
                     disc_azimuthal_distribution       = psi_2d, 
@@ -544,7 +547,6 @@ class Rotor(Energy_Component):
                     power                             = power,
                     power_coefficient                 = Cp,  
                     converged_inflow_ratio            = lamdaw,
-                    disc_effective_angle_of_attack    = alpha,
                     propeller_efficiency              = etap,
                     blade_H_distribution              = rotor_drag_distribution,
                     rotor_drag                        = rotor_drag,
