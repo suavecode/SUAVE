@@ -324,8 +324,6 @@ class Rotor(Energy_Component):
             PSIold = np.zeros(size)  
         
         
-        
-        
         # Total velocities
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur) 
