@@ -178,7 +178,7 @@ class Rotor(Energy_Component):
         pitch_c               = self.inputs.pitch_command  
         
         # Check for variable pitch
-        if pitch_c !=0 and not self.variable_pitch:
+        if any(pitch_c !=0) and not self.variable_pitch:
             print("Warning: pitch commanded for a fixed-pitch rotor. Changing to variable pitch rotor for weights analysis.")
             self.variable_pitch = True
         

@@ -13,16 +13,12 @@
 import SUAVE
 from SUAVE.Core import Units 
 import numpy as np
-import pylab as plt 
-import copy, time
 from SUAVE.Plots.Mission_Plots import *
-from SUAVE.Core import Data, Container
+from SUAVE.Core import Data
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty import empty 
 import sys
 
 sys.path.append('../Vehicles')
-# the analysis functions 
- 
 from X57_Maxwell    import vehicle_setup, configs_setup 
 
 # ----------------------------------------------------------------------

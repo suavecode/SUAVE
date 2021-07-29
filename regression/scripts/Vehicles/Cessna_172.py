@@ -248,6 +248,7 @@ def vehicle_setup():
     prop.design_Cl               = 0.8
     prop.design_altitude         = 12000. * Units.feet
     prop.design_power            = .64 * 180. * Units.horsepower
+    prop.variable_pitch          = True
 
     prop.airfoil_geometry        =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
     prop.airfoil_polars          = [['../Vehicles//Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
