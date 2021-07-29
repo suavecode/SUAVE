@@ -21,7 +21,7 @@ from SUAVE.Core import Data, Units
 #  Network
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
-class Internal_Combustion_Propeller_Constant_Speed(Propulsor):
+class Internal_Combustion_Propeller_Constant_Speed(Network):
     """ An internal combustion engine with a constant speed propeller.
     
         Assumptions:

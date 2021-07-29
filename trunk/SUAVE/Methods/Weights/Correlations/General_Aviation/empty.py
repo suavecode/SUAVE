@@ -47,8 +47,8 @@ def empty(vehicle):
                 design_dynamic_pressure - dynamic pressure at cruise conditions [Pascal]
                 design_mach_number      - mach number at cruise conditions      [dimensionless]
                 
-                propulsors - a data dictionary with the fields: 
-                    keys           - identifier for the type of propulsor; different types have different fields
+                networks - a data dictionary with the fields: 
+                    keys           - identifier for the type of network; different types have different fields
                         turbofan
                             thrust_sls - sealevel standard thrust                               [Newtons]             
                         internal_combustion
@@ -174,26 +174,26 @@ def empty(vehicle):
     q_c         = vehicle.design_dynamic_pressure
     mach_number = vehicle.design_mach_number
 
-    propulsor_name = list(vehicle.propulsors.keys())[0] #obtain the key for the propulsor for assignment purposes
-    propulsors     = vehicle.propulsors[propulsor_name]
-    num_eng        = propulsors.number_of_engines
+    network_name   = list(vehicle.networks.keys())[0] #obtain the key for the network for assignment purposes
+    networks       = vehicle.networks[network_name]
+    num_eng        = networks.number_of_engines
 
-    if propulsor_name == 'turbofan':
-        thrust_sls                       = propulsors.sealevel_static_thrust
+    if network_name == 'turbofan':
+        thrust_sls                       = networks.sealevel_static_thrust
         wt_engine_jet                    = Propulsion.engine_jet(thrust_sls)
         wt_propulsion                    = Propulsion.integrated_propulsion(wt_engine_jet,num_eng)
-        propulsors.mass_properties.mass  = wt_propulsion 
+        networks.mass_properties.mass  = wt_propulsion 
 
-    elif propulsor_name == 'internal_combustion':
-        engine_key                       = list(propulsors.engines.keys())[0]
-        engine                           = propulsors.engines[engine_key]
+    elif network_name == 'internal_combustion':
+        engine_key                       = list(networks.engines.keys())[0]
+        engine                           = networks.engines[engine_key]
         rated_power                      = engine.sea_level_power
         wt_engine_piston                 = Propulsion.engine_piston(rated_power)
         wt_propulsion                    = Propulsion.integrated_propulsion_general_aviation(wt_engine_piston,num_eng)
-        propulsors.mass_properties.mass  = wt_propulsion 
+        networks.mass_properties.mass  = wt_propulsion 
 
-    else: #propulsor used is not an IC Engine or Turbofan; assume mass_properties defined outside model
-        wt_propulsion                    = propulsors.mass_properties.mass
+    else: #network used is not an IC Engine or Turbofan; assume mass_properties defined outside model
+        wt_propulsion                    = networks.mass_properties.mass
         if wt_propulsion==0:
             warnings.warn("Propulsion mass= 0 ;e there is no Engine Weight being added to the Configuration", stacklevel=1)    
     #find fuel volume
