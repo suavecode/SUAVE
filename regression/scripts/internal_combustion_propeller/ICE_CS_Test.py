@@ -116,7 +116,7 @@ def ICE_CS(vehicle):
     net.propellers.append(prop)
     
     # Replace the network
-    vehicle.propulsors.internal_combustion = net
+    vehicle.networks.internal_combustion = net
     
     
     return vehicle
@@ -216,7 +216,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
 
     # ------------------------------------------------------------------

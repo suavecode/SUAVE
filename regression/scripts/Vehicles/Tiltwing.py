@@ -181,7 +181,7 @@ def vehicle_setup():
 
 
     #------------------------------------------------------------------
-    # PROPULSOR
+    # network
     #------------------------------------------------------------------
     net                      = SUAVE.Components.Energy.Networks.Battery_Propeller()
     net.number_of_engines    = 8
@@ -354,12 +354,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover' 
     vector_angle                                      = 90.0 * Units.degrees
-    config.propulsors.battery_propeller.thrust_angle  = vector_angle
+    config.networks.battery_propeller.thrust_angle  = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle  
-    config.propulsors.battery_propeller.pitch_command = 0.  * Units.degrees 
+    config.networks.battery_propeller.pitch_command = 0.  * Units.degrees 
     configs.append(config)         
 
     # ------------------------------------------------------------------
@@ -368,12 +368,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover_climb'
     vector_angle                                      = 90.0 * Units.degrees
-    config.propulsors.battery_propeller.thrust_angle    = vector_angle
+    config.networks.battery_propeller.thrust_angle    = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle   
-    config.propulsors.battery_propeller.pitch_command = -5.  * Units.degrees   
+    config.networks.battery_propeller.pitch_command = -5.  * Units.degrees   
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -382,12 +382,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     vector_angle                                      = 45.0  * Units.degrees 
     config.tag                                        = 'transition_seg_1_4'
-    config.propulsors.battery_propeller.thrust_angle  = vector_angle
+    config.networks.battery_propeller.thrust_angle  = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle
-    config.propulsors.battery_propeller.pitch_command = 3.  * Units.degrees  
+    config.networks.battery_propeller.pitch_command = 3.  * Units.degrees  
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -396,12 +396,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'transition_seg_2_3'
     vector_angle                                      = 15.0  * Units.degrees  
-    config.propulsors.battery_propeller.thrust_angle  = vector_angle
+    config.networks.battery_propeller.thrust_angle  = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle 
-    config.propulsors.battery_propeller.pitch_command = 5.  * Units.degrees     
+    config.networks.battery_propeller.pitch_command = 5.  * Units.degrees     
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -410,12 +410,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'cruise'   
     vector_angle                                      = 0.0 * Units.degrees
-    config.propulsors.battery_propeller.thrust_angle  = vector_angle
+    config.networks.battery_propeller.thrust_angle  = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle  
-    config.propulsors.battery_propeller.pitch_command = 10.  * Units.degrees   
+    config.networks.battery_propeller.pitch_command = 10.  * Units.degrees   
     configs.append(config)    
 
 
@@ -426,12 +426,12 @@ def configs_setup(vehicle):
     config                                            = SUAVE.Components.Configs.Config(base_config)
     config.tag                                        = 'hover_descent'
     vector_angle                                      = 90.0  * Units.degrees  
-    config.propulsors.battery_propeller.thrust_angle  = vector_angle
+    config.networks.battery_propeller.thrust_angle  = vector_angle
     config.wings.main_wing.twists.root                = vector_angle
     config.wings.main_wing.twists.tip                 = vector_angle
     config.wings.canard_wing.twists.root              = vector_angle
     config.wings.canard_wing.twists.tip               = vector_angle     
-    config.propulsors.battery_propeller.pitch_command = -5.  * Units.degrees  
+    config.networks.battery_propeller.pitch_command = -5.  * Units.degrees  
     configs.append(config)
 
     return configs

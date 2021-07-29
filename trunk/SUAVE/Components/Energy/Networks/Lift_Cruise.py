@@ -16,7 +16,7 @@ import SUAVE
 # package imports
 import numpy as np
 from SUAVE.Core import Units, Data
-from . import Network
+from .Network import Network
 from SUAVE.Components.Physical_Component import Container
 
 # ----------------------------------------------------------------------

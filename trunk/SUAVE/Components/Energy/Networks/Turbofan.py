@@ -17,7 +17,7 @@
 import numpy as np
 
 from SUAVE.Core import Data
-from . import Network
+from .Network import Network
 from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 # ----------------------------------------------------------------------
 #  Turbofan Network

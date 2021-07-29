@@ -130,7 +130,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'hover'
-    config.propulsors.battery_propeller.pitch_command            = 0.  * Units.degrees 
+    config.networks.battery_propeller.pitch_command            = 0.  * Units.degrees 
     configs.append(config)
     
     # ------------------------------------------------------------------
@@ -138,7 +138,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'climb'   
-    config.propulsors.battery_propeller.pitch_command            = 0. * Units.degrees 
+    config.networks.battery_propeller.pitch_command            = 0. * Units.degrees 
     configs.append(config)
     
     return configs
@@ -165,7 +165,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -216,11 +216,11 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start                                = 0.0  * Units.ft
     segment.altitude_end                                  = 40.  * Units.ft
     segment.climb_rate                                    = 300. * Units['ft/min']
-    segment.battery_energy                                = vehicle.propulsors.battery_propeller.battery.max_energy  
+    segment.battery_energy                                = vehicle.networks.battery_propeller.battery.max_energy  
     segment.state.unknowns.throttle                       = 0.9 * ones_row(1) 
     segment.process.iterate.conditions.stability          = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability       = SUAVE.Methods.skip 
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
                                                                                          initial_power_coefficient = 0.01)
     
     # add to misison
@@ -236,7 +236,7 @@ def mission_setup(analyses,vehicle):
     segment.time                                            = 2*60
     segment.process.iterate.conditions.stability            = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability         = SUAVE.Methods.skip 
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
     
     
     # add to misison

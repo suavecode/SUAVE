@@ -42,7 +42,7 @@ def case_1(vehicle, conditions):
     # test propeller at inclined thrust angle
     #-------------------------------------------------------------
     # set operating conditions for propeller test
-    prop = vehicle.propulsors.prop_net.propeller
+    prop = vehicle.networks.prop_net.propeller
     prop.inputs.omega = np.ones_like(conditions.aerodynamics.angle_of_attack)*prop.angular_velocity
     prop.orientation_euler_angles  = [0.,20.*Units.degrees,0]
     
@@ -76,7 +76,7 @@ def case_2(vehicle,conditions, Na=24, Nr=101):
     #-------------------------------------------------------------    
     # test propeller in arbitrary nonuniform freestream disturbance
     #-------------------------------------------------------------
-    prop = vehicle.propulsors.prop_net.propeller
+    prop = vehicle.networks.prop_net.propeller
     prop.nonuniform_freestream  = True   
     prop.orientation_euler_angles  = [0,0,0]
     ctrl_pts                    = len(conditions.aerodynamics.angle_of_attack)
@@ -139,7 +139,7 @@ def case_3(vehicle,conditions):
     #--------------------------------------------------------------------------------------
     # Part 1. Compute the velocities induced by the wing at the propeller plane downstream
     #--------------------------------------------------------------------------------------
-    prop_loc      = vehicle.propulsors.prop_net.propeller.origin
+    prop_loc      = vehicle.networks.prop_net.propeller.origin
     prop_x_center = np.array([vehicle.wings.main_wing.origin[0][0] + prop_loc[0][0]]) 
     wing_wake     = compute_wing_wake(vehicle,conditions,prop_x_center[0], grid_settings, VLM_settings, plot_grid=plot_flag, plot_wake=plot_flag)
     
@@ -147,7 +147,7 @@ def case_3(vehicle,conditions):
     #--------------------------------------------------------------------------------------    
     # Part 2. Compute and run the propeller in this nonuniform flow
     #--------------------------------------------------------------------------------------
-    prop = compute_propeller_nonuniform_freestream(vehicle.propulsors.prop_net.propeller, wing_wake,conditions)
+    prop = compute_propeller_nonuniform_freestream(vehicle.networks.prop_net.propeller, wing_wake,conditions)
     prop.nonuniform_freestream = True
     thrust, torque, power, Cp, outputs , etap = prop.spin(conditions)
     
@@ -315,7 +315,7 @@ def basic_wing():
 def simulation_settings(vehicle):
 
     grid_settings = Data()
-    grid_settings.height = 12*vehicle.propulsors.prop_net.propeller.tip_radius / vehicle.wings.main_wing.spans.projected
+    grid_settings.height = 12*vehicle.networks.prop_net.propeller.tip_radius / vehicle.wings.main_wing.spans.projected
     grid_settings.length = 1.2
     grid_settings.height_fine = 0.2
     

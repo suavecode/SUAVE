@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 
 from SUAVE.Core import Data
-from . import Network
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Ramjet Network

@@ -126,7 +126,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
 
@@ -194,11 +194,11 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start                                   = 0.0  * Units.ft
     segment.altitude_end                                     = 40.  * Units.ft
     segment.climb_rate                                       = 500. * Units['ft/min']
-    segment.battery_energy                                   = vehicle.propulsors.lift_cruise.battery.max_energy
+    segment.battery_energy                                   = vehicle.networks.lift_cruise.battery.max_energy
     segment.process.iterate.unknowns.mission                 = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability          = SUAVE.Methods.skip
-    segment = vehicle.propulsors.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment,\
+    segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment,\
                                                                                     initial_rotor_power_coefficient=0.01,
                                                                                     initial_throttle_lift = 0.9)
     # add to misison
@@ -222,7 +222,7 @@ def mission_setup(analyses,vehicle):
     segment.process.iterate.unknowns.mission         = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability     = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability  = SUAVE.Methods.skip
-    segment = vehicle.propulsors.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
 
     # add to misison
     mission.append_segment(segment)
@@ -244,7 +244,7 @@ def mission_setup(analyses,vehicle):
     segment.process.iterate.unknowns.mission        = SUAVE.Methods.skip
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability = SUAVE.Methods.skip
-    segment = vehicle.propulsors.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.lift_cruise.add_transition_unknowns_and_residuals_to_segment(segment)
 
     # add to misison
     mission.append_segment(segment)
@@ -260,7 +260,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start                             = 50.0 * Units.ft
     segment.altitude_end                               = 300. * Units.ft
     segment.climb_rate                                 = 500. * Units['ft/min']
-    segment = vehicle.propulsors.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)  
+    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment)  
 
     # add to misison
     mission.append_segment(segment)
@@ -275,7 +275,7 @@ def mission_setup(analyses,vehicle):
     segment.time                                       = 60.   * Units.second
     segment.air_speed                                  = 1.2*Vstall
     segment.state.unknowns.throttle =  0.80 * ones_row(1)
-    segment = vehicle.propulsors.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,\
+    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment,\
                                                                                           initial_prop_power_coefficient = 0.16)    
 
     # add to misison

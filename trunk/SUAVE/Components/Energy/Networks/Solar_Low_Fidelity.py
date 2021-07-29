@@ -11,7 +11,7 @@
 
 # package imports
 import numpy as np
-from . import Network
+from .Network import Network
 
 from SUAVE.Core import Data , Units
 

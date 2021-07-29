@@ -12,7 +12,7 @@
 # package imports
 import numpy as np
 from copy import deepcopy
-from . import Network
+from .Network import Network
 from SUAVE.Methods.Utilities.Cubic_Spline_Blender import Cubic_Spline_Blender
 
 from SUAVE.Core import Data
