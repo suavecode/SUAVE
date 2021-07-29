@@ -1,9 +1,10 @@
-## @ingroup Components-Propulsors
+## @ingroup Components-Energy-Networks
 # Propulsor.py
 # 
 # Created:  
 # Modified: Feb 2016, T. MacDonald
 #           May 2020, E. Botero
+#           Jul 2021, E. Botero
 
 
 # ----------------------------------------------------------------------
@@ -17,8 +18,8 @@ from SUAVE.Core import Data
 #  Propulsor
 # ----------------------------------------------------------------------
 
-## @ingroup Components-Propulsors
-class Propulsor(Physical_Component):
+## @ingroup Components-Energy-Networks
+class Network(Physical_Component):
 
     """ SUAVE.Components.Propulsor()
     
@@ -65,7 +66,7 @@ class Propulsor(Physical_Component):
         self.areas.exit        = 0.0
         self.areas.inflow      = 0.0
         
-## @ingroup Components-Propulsors
+## @ingroup Components-Energy-Networks
 class Container(Physical_Component.Container):
     """ SUAVE.Components.Propulsor.Container()
         
@@ -97,9 +98,6 @@ class Container(Physical_Component.Container):
         N/A
         """
         import SUAVE.Components.Energy.Networks as Nw
-        
-        #return [Nw.Battery_Propeller,Nw.Battery_Ducted_Fan,Nw.Lift_Forward_Propulsor,Nw.Ramjet,Nw.Solar, \
-                #Nw.Turbofan,Nw.Turbojet_Super]
                 
         return [Nw.Turbofan,Nw.Turbojet_Super]
 
@@ -137,13 +135,11 @@ class Container(Physical_Component.Container):
             
             for key in results.keys():
                 results[key] += results_p[key]
-            
-            
-            
+
         return results
 
 # ----------------------------------------------------------------------
 #  Handle Linking
 # ----------------------------------------------------------------------
 
-Propulsor.Container = Container
+Network.Container = Container

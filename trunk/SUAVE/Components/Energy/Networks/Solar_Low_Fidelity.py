@@ -9,12 +9,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from . import Network
 
 from SUAVE.Core import Data , Units
 
@@ -23,7 +20,7 @@ from SUAVE.Core import Data , Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Solar_Low_Fidelity(Propulsor):
+class Solar_Low_Fidelity(Network):
     """ A solar powered system with batteries and maximum power point tracking.
         
         This network adds an extra unknowns to the mission, the torque matching between motor and propeller.

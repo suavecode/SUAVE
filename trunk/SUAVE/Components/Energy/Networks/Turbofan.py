@@ -13,21 +13,18 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
 
 from SUAVE.Core import Data
-from SUAVE.Components.Propulsors.Propulsor      import Propulsor
+from . import Network
 from SUAVE.Analyses.Mission.Segments.Conditions import Conditions
 # ----------------------------------------------------------------------
 #  Turbofan Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Turbofan(Propulsor):
+class Turbofan(Network):
     """ This is a turbofan. 
     
         Assumptions:

@@ -12,7 +12,7 @@
 
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from . import Network
 from SUAVE.Components.Physical_Component import Container
 
 from SUAVE.Core import Data , Units
@@ -22,7 +22,7 @@ from SUAVE.Core import Data , Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Solar(Propulsor):
+class Solar(Network):
     """ A solar powered system with batteries and maximum power point tracking.
         
         This network adds an extra unknowns to the mission, the torque matching between motor and propeller.

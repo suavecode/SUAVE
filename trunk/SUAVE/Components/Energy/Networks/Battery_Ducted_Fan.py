@@ -10,19 +10,16 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from . import Network
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Battery_Ducted_Fan(Propulsor):
+class Battery_Ducted_Fan(Network):
     """ Simply connects a battery to a ducted fan, with an assumed motor efficiency
     
         Assumptions:

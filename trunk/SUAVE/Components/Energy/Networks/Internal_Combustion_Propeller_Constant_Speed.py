@@ -13,7 +13,7 @@
 
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from . import Network
 from SUAVE.Components.Physical_Component import Container
 from SUAVE.Core import Data, Units
 
