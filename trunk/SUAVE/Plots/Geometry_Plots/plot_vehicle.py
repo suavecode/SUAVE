@@ -301,12 +301,12 @@ def plot_propulsor(axes,propulsor):
             # Generate And Plot Propeller/Rotor Geometry   
             plot_propeller_geometry(axes,prop,propulsor,'propeller') 
         
-    if ('rotors' in propulsor.keys()):  
+    if ('lift_rotors' in propulsor.keys()):  
         
-        for rotor in propulsor.rotors:
+        for rotor in propulsor.lift_rotors:
             
             # Generate and Plot Propeller/Rotor Geometry   
-            plot_propeller_geometry(axes,rotor,propulsor,'rotor')        
+            plot_propeller_geometry(axes,rotor,propulsor,'lift_rotor')        
         
     return 
 

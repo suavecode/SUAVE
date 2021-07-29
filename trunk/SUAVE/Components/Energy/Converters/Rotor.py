@@ -85,7 +85,7 @@ class Rotor(Energy_Component):
         
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
-        self.variable_pitch            = True
+        self.variable_pitch            = False
 
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
@@ -171,11 +171,16 @@ class Rotor(Energy_Component):
           
         # Unpack rotor inputs and conditions
         omega                 = self.inputs.omega
-        pitch_c               = self.inputs.pitch_command        
         Na                    = self.number_azimuthal_stations 
         nonuniform_freestream = self.nonuniform_freestream
         use_2d_analysis       = self.use_2d_analysis
         rotation              = self.rotation           
+        pitch_c               = self.inputs.pitch_command  
+        
+        # Check for variable pitch
+        if pitch_c !=0 and not self.variable_pitch:
+            print("Warning: pitch commanded for a fixed-pitch rotor. Changing to variable pitch rotor for weights analysis.")
+            self.variable_pitch = True
         
         # Unpack freestream conditions
         rho     = conditions.freestream.density[:,0,None]

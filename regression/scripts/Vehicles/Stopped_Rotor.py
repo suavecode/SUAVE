@@ -516,6 +516,7 @@ def vehicle_setup():
     propeller.design_Cl              = 0.7
     propeller.design_altitude        = 1000 * Units.feet   
     propeller.design_thrust          = (Drag*2.5)/net.number_of_propeller_engines  
+    propeller.variable_pitch         = True
 
     propeller.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
     propeller.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
@@ -542,7 +543,8 @@ def vehicle_setup():
     lift_rotor.design_Cl                  = 0.7
     lift_rotor.design_altitude            = 20 * Units.feet                            
     lift_rotor.design_thrust              = Hover_Load/(net.number_of_lift_rotor_engines-1) # contingency for one-engine-inoperative condition
-
+    lift_rotor.variable_pitch             = True
+    
     lift_rotor.airfoil_geometry           =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
     lift_rotor.airfoil_polars             = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                          '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
