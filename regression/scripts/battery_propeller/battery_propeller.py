@@ -38,7 +38,30 @@ def main():
     
     # evaluate the weight of an electric general aviation aircraft using eVTOL weight build-up
     evtol_breakdown = empty(configs.base,contingency_factor=1.1)
-    print(evtol_breakdown)      
+    print(evtol_breakdown)    
+    
+    # check weights
+    empty_r       = 1016.3716573393712
+    structural_r  = 304.0287793994283
+    total_r       = 1297.3716573393713
+    lift_rotors_r = 0.
+    propellers_r  = 4.097659513422731
+    prop_motors_r = 20.
+    rot_motors_r  = 0.
+    
+    weights_error = Data()
+    weights_error.empty       = abs(empty_r - evtol_breakdown.empty)/empty_r
+    weights_error.structural  = abs(structural_r - evtol_breakdown.structural)/structural_r
+    weights_error.total       = abs(total_r - evtol_breakdown.total)/total_r
+    weights_error.lift_rotors = abs(lift_rotors_r - evtol_breakdown.lift_rotors)/lift_rotors_r if lift_rotors_r!=0 else 0 
+    weights_error.propellers  = abs(propellers_r - evtol_breakdown.propellers)/propellers_r if propellers_r!=0 else 0 
+    weights_error.prop_motors = abs(prop_motors_r - evtol_breakdown.propeller_motors)/prop_motors_r if prop_motors_r!=0 else 0 
+    weights_error.rot_motors  = abs(rot_motors_r - evtol_breakdown.lift_rotor_motors)/rot_motors_r if rot_motors_r!=0 else 0
+    
+    for k, v in weights_error.items():
+        assert (np.abs(v) < 1E-6)    
+        
+            
      
     # mission analysis
     mission = analyses.missions.base

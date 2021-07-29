@@ -288,7 +288,7 @@ def vehicle_setup():
         rotor_motor = deepcopy(motor)
         rotor_motor.tag    = 'motor'
         rotor_motor.origin = [origins[ii]]
-        net.motors.append(rotor_motor)      
+        net.propeller_motors.append(rotor_motor)      
 
 
 

@@ -96,7 +96,6 @@ def prop(prop,
     #-------------------------------------------------------------------------------
     # Unpack Inputs
     #-------------------------------------------------------------------------------
-
     rProp              = prop.tip_radius
     maxLiftingThrust   = maximum_lifting_thrust
     nBlades            = prop.number_of_blades
@@ -184,51 +183,46 @@ def prop(prop,
     #-------------------------------------------------------------------------------
     # Airfoil
     #-------------------------------------------------------------------------------
-
-    NACA = np.multiply(5 * toc, [0.2969, -0.1260, -0.3516, 0.2843, -0.1015])
-    coord = np.unique(fwdWeb+np.linspace(0,1,N).tolist())[:,np.newaxis]
-    coordMAT = np.concatenate((coord**0.5,coord,coord**2,coord**3,coord**4),axis=1)
-    nacaMAT = coordMAT.dot(NACA)[:, np.newaxis]
-    coord = np.concatenate((coord,nacaMAT),axis=1)
-    coord = np.concatenate((coord[-1:0:-1],coord.dot(np.array([[1.,0.],[0.,-1.]]))),axis=0)
+    NACA       = np.multiply(5 * toc, [0.2969, -0.1260, -0.3516, 0.2843, -0.1015])
+    coord      = np.unique(fwdWeb+np.linspace(0,1,N).tolist())[:,np.newaxis]
+    coordMAT   = np.concatenate((coord**0.5,coord,coord**2,coord**3,coord**4),axis=1)
+    nacaMAT    = coordMAT.dot(NACA)[:, np.newaxis]
+    coord      = np.concatenate((coord,nacaMAT),axis=1)
+    coord      = np.concatenate((coord[-1:0:-1],coord.dot(np.array([[1.,0.],[0.,-1.]]))),axis=0)
     coord[:,0] = coord[:,0] - xShear
 
     #-------------------------------------------------------------------------------
     # Beam Geometry
     #-------------------------------------------------------------------------------
-
-    x = np.linspace(0,rProp,N)
-    dx = x[1] - x[0]
+    x         = np.linspace(0,rProp,N)
+    dx        = x[1] - x[0]
     fwdWeb[:] = [round(loc - xShear,2) for loc in fwdWeb]
 
     #-------------------------------------------------------------------------------
     # Loads
     #-------------------------------------------------------------------------------
-
-    omega = sound*tipMach/rProp                   # Propeller Angular Velocity
-    F = SF*3*(maxLiftingThrust/rProp**3)*(x**2)/nBlades  # Force Distribution
-    Q = F * chord * cmocl                         # Torsion Distribution
+    omega = sound*tipMach/rProp                              # Propeller Angular Velocity
+    F     = SF*3*(maxLiftingThrust/rProp**3)*(x**2)/nBlades  # Force Distribution
+    Q     = F * chord * cmocl                                # Torsion Distribution
 
     #-------------------------------------------------------------------------------
     # Initial Mass Estimates
     #-------------------------------------------------------------------------------
-
-    box = coord * chord
-    skinLength = np.sum(np.sqrt(np.sum(np.diff(box,axis=0)**2,axis=1)))
-    maxThickness = (np.amax(box[:,1])-np.amin(box[:,1]))/2
+    box               = coord * chord
+    skinLength        = np.sum(np.sqrt(np.sum(np.diff(box,axis=0)**2,axis=1)))
+    maxThickness      = (np.amax(box[:,1])-np.amin(box[:,1]))/2
     rootBendingMoment = SF*maxLiftingThrust/nBlades*0.75*rProp
-    m = (bendDen*dx*rootBendingMoment/
-        (2*bendUSS*maxThickness))+ \
-        skinLength*shearMGT*dx*shearDen
-    m = m*np.ones(N)
-    error = 1               # Initialize Error
-    tolerance = 1e-8        # Mass Tolerance
-    massOld = np.sum(m)
+    m                 = (bendDen*dx*rootBendingMoment/
+                        (2*bendUSS*maxThickness))+ \
+                        skinLength*shearMGT*dx*shearDen
+    m                 = m*np.ones(N)
+    error             = 1               # Initialize Error
+    tolerance         = 1e-8        # Mass Tolerance
+    massOld           = np.sum(m)
 
     #-------------------------------------------------------------------------------
     # General Structural Properties
     #-------------------------------------------------------------------------------
-
     seg = []                                            # List of Structural Segments
 
     # Torsion
@@ -244,7 +238,7 @@ def prop(prop,
 
     # Flap & Drag Inertia
     capInertia = 0
-    capLength = 0
+    capLength  = 0
 
     for i in range(0,2):
         l = np.sqrt(np.sum(np.diff(seg[i],axis=0)**2,axis=1))   # Segment Lengths
@@ -256,7 +250,7 @@ def prop(prop,
     # Shear Properties
     box = coord
     box = box[box[:,0]<=fwdWeb[1]]
-    z = box[box[:,0]==fwdWeb[0],1]*chord
+    z   = box[box[:,0]==fwdWeb[0],1]*chord
     shearHeight = np.abs(z[0] - z[1])
 
     # Core Properties
@@ -274,7 +268,6 @@ def prop(prop,
     #-------------------------------------------------------------------------------
     # Mass Calculation
     #-------------------------------------------------------------------------------
-
     while error > tolerance:
         CF = (SF*omega**2*
             np.append(np.cumsum(( m[0:-1]*np.diff(x)*x[0:-1])[::-1])[::-1],0))  # Centripetal Force
@@ -303,10 +296,10 @@ def prop(prop,
         mGlue += glueMGT*glueDen*skinLength*np.ones(N)
 
         # Leading Edge Protection
-        box = coord * chord
-        box = box[box[:,0]<(0.1*chord)]
+        box      = coord * chord
+        box      = box[box[:,0]<(0.1*chord)]
         leLength = np.sum(np.sqrt(np.sum(np.diff(box,axis=0)**2,axis=1)))
-        mLE = leLength*420e-6*leDen*np.ones(N)
+        mLE      = leLength*420e-6*leDen*np.ones(N)
 
         # Section Mass
         m = mTorsion + mCore + mFlap + mShear + mGlue + mPaint + mLE
@@ -315,15 +308,15 @@ def prop(prop,
         mRib = (enclosedArea+skinLength*ribWid)*ribMGT*ribDen
 
         # Root Fitting
-        box = coord * chord
+        box   = coord * chord
         rRoot = (np.amax(box[:,1])-np.amin(box[:,1]))/2
-        t = np.amax(CF)/(2*np.pi*rRoot*rootUTS) +    \
-            np.amax(Mx)/(3*np.pi*rRoot**2*rootUTS)
+        t     = np.amax(CF)/(2*np.pi*rRoot*rootUTS) +    \
+                np.amax(Mx)/(3*np.pi*rRoot**2*rootUTS)
         mRoot = 2*np.pi*rRoot*t*rootLength*rootDen
 
         # Total Weight
-        mass = nBlades*(np.sum(m[0:-1]*np.diff(x))+2*mRib+mRoot)
-        error = np.abs(mass-massOld)
+        mass    = nBlades*(np.sum(m[0:-1]*np.diff(x))+2*mRib+mRoot)
+        error   = np.abs(mass-massOld)
         massOld = mass
 
     mass = mass * grace

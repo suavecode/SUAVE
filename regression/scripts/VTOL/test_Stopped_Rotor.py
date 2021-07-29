@@ -2,6 +2,7 @@
 # 
 # Created: Feb 2020, M. Clarke
 #          Sep 2020, M. Clarke 
+#          Jul 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -32,8 +33,30 @@ def main():
     analyses.finalize()
 
     # Print weight properties of vehicle
-    print(configs.weight_breakdown)
-    print(configs.mass_properties.center_of_gravity)
+    weights = configs.weight_breakdown
+    print(weights)
+    print(configs.mass_properties.center_of_gravity)    
+    
+    # check weights
+    empty_r       = 831.0480821239719
+    structural_r  = 321.68932478738003
+    total_r       = 1031.0480821239719
+    lift_rotors_r = 16.445392185186808
+    propellers_r  = 3.2944573008378044
+    prop_motors_r = 2.0
+    rot_motors_r  = 36.0
+    
+    weights_error = Data()
+    weights_error.empty       = abs(empty_r - weights.empty)/empty_r
+    weights_error.structural  = abs(structural_r - weights.structural)/structural_r
+    weights_error.total       = abs(total_r - weights.total)/total_r
+    weights_error.lift_rotors = abs(lift_rotors_r - weights.lift_rotors)/lift_rotors_r
+    weights_error.propellers  = abs(propellers_r - weights.propellers)/propellers_r
+    weights_error.propellers  = abs(prop_motors_r - weights.propeller_motors)/prop_motors_r
+    weights_error.propellers  = abs(rot_motors_r - weights.lift_rotor_motors)/rot_motors_r
+    
+    for k, v in weights_error.items():
+        assert (np.abs(v) < 1E-6)    
     
     # evaluate mission
     mission   = analyses.mission

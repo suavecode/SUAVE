@@ -308,13 +308,15 @@ def empty(config,
         
 
         maxLiftPower   = 1.15*maxLift*(k*np.sqrt(maxLift/(2*rho_ref*np.pi*rTip_ref**2)) +
-                         bladeSol_ref*AvgBladeCD/8*maxVTip**3/(maxLift/(rho_ref*np.pi*rTip_ref**2)))
+                         bladeSol_ref*AvgBladeCD/8*maxVTip**3/(maxLift/(rho_ref*np.pi*rTip_ref**2)))  # not sure how to adjust for multiple rotors/props, which value of rTip_ref etc. to use?
         maxLiftOmega   = maxVTip/rTip_ref
         maxLiftTorque  = maxLiftPower / maxLiftOmega
 
         # Tail Rotor
         if nLiftRotors == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor 
-            output.tail_rotor += prop(propulsor.propeller, 1.5*maxLiftTorque/(1.25*rTip_ref))*0.2 * Units.kg
+            tailrotor = next(iter(propulsor.lift_rotors))
+            output.tail_rotor   = prop(tailrotor, 1.5*maxLiftTorque/(1.25*rTip_ref))*0.2 * Units.kg
+            output.lift_rotors += output.tail_rotor
 
     # sum motor weight
     output.motors = output.lift_rotor_motors + output.propeller_motors  
@@ -376,32 +378,3 @@ def empty(config,
                                                    
     return output
 
-
-def compute_rotor_component_weight(liftrotor, liftingthrust, Nrot):
-    rotor_mass = prop(liftrotor, liftingthrust)
-    rotor_weight = Nrot * rotor_mass
-    
-    ## Rotor
-    #if 'rotor' in propulsor.keys(): 
-        #rotor_mass     = prop(propulsor.rotor, maxLift / max(nLiftRotors - 1, 1))  * Units.kg
-        #output.lift_rotors += nLiftRotors * rotor_mass
-        #if isinstance(propulsor, Lift_Cruise):
-            #for lift_rotor_motor in propulsor.lift_rotor_motors:
-                #output.lift_rotor_motors  += lift_rotor_motor.mass_properties.mass
-        #else:                                  
-            #output.lift_rotor_motors  += nLiftRotors * propulsor.motor.mass_properties.mass
-        #propulsor.rotor.mass_properties.mass = rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
-
-    ## Propeller
-    #if 'propeller' in propulsor.keys():    
-        #propeller_mass     = prop(propulsor.propeller, maxLift/5.) * Units.kg
-        #output.propellers += nThrustProps * propeller_mass
-        #if isinstance(propulsor, Lift_Cruise):
-            #output.propeller_motors += nThrustProps * propulsor.propeller_motor.mass_properties.mass
-        #else:
-            #output.propeller_motors += nThrustProps * propulsor.motor.mass_properties.mass
-        #propulsor.propeller.mass_properties.mass = propeller_mass + prop_hub_weight + prop_servo_weight
-    
-    
-    
-    return rotor_weight

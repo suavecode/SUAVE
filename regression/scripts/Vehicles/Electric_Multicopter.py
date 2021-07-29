@@ -258,9 +258,9 @@ def vehicle_setup():
     
     # Appending motors with different origins    
     for ii in range(6):
-        lift_rotor_motor = deepcopy(lift_motor)
-        lift_rotor_motor.tag = 'motor'
-        net.motors.append(lift_rotor_motor)        
+        propeller_motor = deepcopy(lift_motor)
+        propeller_motor.tag = 'motor'
+        net.propeller_motors.append(propeller_motor)        
 
     
     vehicle.append_component(net)

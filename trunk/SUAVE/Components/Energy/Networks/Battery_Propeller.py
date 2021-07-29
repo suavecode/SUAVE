@@ -55,7 +55,7 @@ class Battery_Propeller(Propulsor):
             Properties Used:
             N/A
         """             
-        self.motors                    = Container()
+        self.propeller_motors          = Container()
         self.propellers                = Container()
         self.esc                       = None
         self.avionics                  = None
@@ -104,7 +104,7 @@ class Battery_Propeller(Propulsor):
         # unpack
         conditions  = state.conditions
         numerics    = state.numerics
-        motors      = self.motors
+        motors      = self.propeller_motors
         props       = self.propellers
         esc         = self.esc
         avionics    = self.avionics
@@ -143,7 +143,7 @@ class Battery_Propeller(Propulsor):
             # Unpack the motor and props
             motor_key = list(motors.keys())[ii]
             prop_key  = list(props.keys())[ii]
-            motor     = self.motors[motor_key]
+            motor     = self.propeller_motors[motor_key]
             prop      = self.propellers[prop_key]
             
             # link
@@ -328,7 +328,7 @@ class Battery_Propeller(Propulsor):
         
         # Count how many unknowns and residuals based on p
         n_props  = len(self.propellers)
-        n_motors = len(self.motors)
+        n_motors = len(self.propeller_motors)
         n_eng    = self.number_of_engines
         
         if n_props!=n_motors!=n_eng:

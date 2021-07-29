@@ -396,8 +396,8 @@ def vehicle_setup():
     motor.no_load_current              = io 
     motor.gear_ratio                   = 1. 
     motor.gearbox_efficiency           = 1. # Gear box efficiency     
-    net.motors.append(motor)
-    net.motors.append(motor)
+    net.propeller_motors.append(motor)
+    net.propeller_motors.append(motor)
 
 
     # Component 6 the Payload
