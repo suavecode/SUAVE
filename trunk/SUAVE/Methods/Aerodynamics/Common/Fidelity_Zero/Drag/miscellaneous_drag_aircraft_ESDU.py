@@ -2,14 +2,15 @@
 # miscellaneous_drag_aircraft_ESDU.py
 # 
 # Created:  Jan 2014, T. Orra
-# Modified: Jan 2016, E. Botero    
+# Modified: Jan 2016, E. Botero 
+#           Jul 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 # SUAVE imports
 from SUAVE.Core import Data
-
+import numpy as np
 # ----------------------------------------------------------------------
 #  Computes the miscellaneous drag
 # ----------------------------------------------------------------------
@@ -56,7 +57,10 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
         swet_tot += fuselage.areas.wetted
 
     for propulsor in geometry.propulsors:
-        swet_tot += propulsor.areas.wetted * propulsor.number_of_engines
+        if propulsor.identical_propellers:
+            swet_tot += propulsor.areas.wetted * propulsor.number_of_engines
+        else:
+            swet_tot += np.sum(propulsor.areas.wetted)
 
     swet_tot *= 1.10
     

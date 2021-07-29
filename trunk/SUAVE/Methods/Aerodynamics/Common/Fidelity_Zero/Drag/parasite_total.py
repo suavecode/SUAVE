@@ -73,11 +73,16 @@ def parasite_total(state,settings,geometry):
         ref_area = propulsor.nacelle_diameter**2 / 4 * np.pi
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient 
         conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient  = parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
-        total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
- 
+        
+        # sum of parasite drag from all propellers
+        if propulsor.identical_propellers:
+            total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
+        else:
+            total_parasite_drag += np.atleast_2d(np.sum(parasite_drag * np.atleast_2d(ref_area/vehicle_reference_area),axis=1)).T
+
     # from pylons
     try:
-        parasite_drag = conditions.aerodynamics.drag_breakdown.parasite['pylon'].parasite_drag_coefficient
+        parasite_drag = np.atleast_2d(np.sum(conditions.aerodynamics.drag_breakdown.parasite['pylon'].parasite_drag_coefficient,axis=1)).T
     except:
         parasite_drag = 0. # not currently available for supersonics
 
