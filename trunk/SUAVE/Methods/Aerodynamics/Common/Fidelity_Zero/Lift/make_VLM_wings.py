@@ -13,7 +13,7 @@ from copy import deepcopy
 
 import SUAVE
 from SUAVE.Core import  Data
-from SUAVE.Components.Wings import Stabilator 
+from SUAVE.Components.Wings import All_Moving_Surface 
 from SUAVE.Components.Wings.Control_Surfaces import Aileron , Elevator , Slat , Flap , Rudder 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import populate_control_sections
 from SUAVE.Methods.Flight_Dynamics.Static_Stability.Approximations.Supporting_Functions import convert_sweep_segments
@@ -79,12 +79,12 @@ def make_VLM_wings(geometry, settings):
             n_segments = 2
         else:
             # check for invalid/unsupported geometry input            
-            if wing.wing_type == Stabilator: # these cases unsupported due to the way the panelization loop is structured at the moment
+            if issubclass(wing.wing_type, All_Moving_Surface): # these cases unsupported due to the way the panelization loop is structured at the moment
                 if n_segments > 2: 
-                    raise ValueError('Input: non-trapezoidal Stabilators are not supported in VLM at this time. Please format ' +
-                                     'Stabilator as an un-Segmented wing or as a wing with exactly 2 Segments')
+                    raise ValueError('Input: non-trapezoidal all-moving surfaces are not supported in VLM at this time. Please format ' +
+                                     'this surface as an un-Segmented wing or as a wing with exactly 2 Segments')
                 elif len(wing.control_surfaces) > 0:
-                    raise ValueError('Input: control surfaces are not supported on Stabilators at this time')
+                    raise ValueError('Input: control surfaces are not supported on all-moving surfaces at this time')
             for segment in wing.Segments: #unsupported by convention
                 if 'control_surfaces' in segment.keys() and len(segment.control_surfaces) > 0:
                     raise ValueError('Input: control surfaces should be appended to the wing, not its segments. ' + 
@@ -263,7 +263,7 @@ def copy_large_container(large_container, type_str):
             data.cs_type   = type(obj) # needed to identify the class of a control surface
         elif type_str == 'wings':
             data.wing_type = type(obj)
-            if data.wing_type == Stabilator:
+            if issubclass(data.wing_type, All_Moving_Surface):
                 data.sign_duplicate = obj.sign_duplicate
                 data.hinge_fraction = obj.hinge_fraction 
                 data.deflection     = obj.deflection  

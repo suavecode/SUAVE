@@ -13,7 +13,7 @@
 import numpy as np
 
 from SUAVE.Core import  Data
-from SUAVE.Components.Wings import Stabilator 
+from SUAVE.Components.Wings import All_Moving_Surface 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.make_VLM_wings import make_VLM_wings
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
@@ -632,8 +632,8 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             # Deflect control surfaces-----------------------------------------------------------------------------
             # note:    "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
             # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
-            wing_is_a_stabilator = (not wing.is_a_control_surface) and (wing.wing_type == Stabilator)
-            if wing.is_a_control_surface or wing_is_a_stabilator:
+            wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
+            if wing.is_a_control_surface or wing_is_all_moving:
                 # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
                 ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
                 ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])
