@@ -222,18 +222,11 @@ class Rotor(Energy_Component):
         deltar        = np.zeros(len(r_1d))
         deltar[1:-1]  = diff_r[0:-1]/2 + diff_r[1:]/2
         deltar[0]     = diff_r[0]/2
-        deltar[-1]    = diff_r[-1]/2
-        
-        # Check for negative rotation rate
-        if np.any(omega) <0:
-            print("Negative rotation rate defined! Reverting direction.")
-            omega    = np.abs(omega)
-            rotation = -rotation        
+        deltar[-1]    = diff_r[-1]/2 
         
         # Calculating rotational parameters
         omegar   = np.outer(omega,r_1d)    
         n        = omega/(2.*pi)   # Rotations per second  
-             
     
         # Azimuthal distribution of stations
         psi            = np.linspace(0,2*pi,Na+1)[:-1]

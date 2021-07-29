@@ -20,6 +20,8 @@ from SUAVE.Plots.Mission_Plots import *
 from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
 from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 
+from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
+
 sys.path.append('../Vehicles') 
 from X57_Mod4 import vehicle_setup, configs_setup 
 
@@ -54,6 +56,12 @@ def helical_fixed_wake_analysis():
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
+    
+    
+    save_vehicle_vtks(configs.base, settings=Data(),Results=Data(),time_step=1,save_loc="/Users/rerha/Desktop/mod4/")
+    
+    
+    
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
 
     # sectional lift coefficient check

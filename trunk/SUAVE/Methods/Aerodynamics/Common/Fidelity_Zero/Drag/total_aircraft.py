@@ -5,13 +5,10 @@
 # Modified: Feb 2014, A. Variyar, T. Lukaczyk, T. Orra
 #           Jan 2016, E. Botero 
 #           Oct 2017, T. MacDonald
-#           Jul 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Total Aircraft
 # ----------------------------------------------------------------------
-
-import numpy as np
 
 ## @ingroup Methods-Aerodynamics-Fidelity_Zero-Drag
 def total_aircraft(state,settings,geometry):

@@ -9,7 +9,7 @@
 # Imports
 #----------------------------
 from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution  import generate_wing_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution
 from SUAVE.Input_Output.VTK.save_wing_vtk import save_wing_vtk
 from SUAVE.Input_Output.VTK.save_prop_vtk import save_prop_vtk
 from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
@@ -56,7 +56,7 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
         settings.number_chordwise_vortices = 5
         settings.spanwise_cosine_spacing   = False 
         settings.model_fuselage            = False
-        VD = generate_wing_vortex_distribution(vehicle,settings) 
+        VD = generate_vortex_distribution(vehicle,settings) 
         vehicle.vortex_distribution = VD
     
     

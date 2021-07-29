@@ -65,21 +65,21 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
     wing.sweeps.leading_edge     = 0.0 * Units.deg
     wing.thickness_to_chord      = 0.12
-    wing.areas.reference         = 15.45 * Units['meters**2']  
-    wing.spans.projected         = 11. * Units.meter  
+    wing.areas.reference         = 6.144
+    wing.spans.projected         = 31.6 * Units.feet  
 
-    wing.chords.root             = 1.67 * Units.meter  
-    wing.chords.tip              = 1.14 * Units.meter  
-    wing.chords.mean_aerodynamic = 1.47 * Units.meter   
+    wing.chords.root             = 2.48 * Units.feet  
+    wing.chords.tip              = 1.74 * Units.feet  
+    wing.chords.mean_aerodynamic = 2.13 * Units.feet   
     wing.taper                   = wing.chords.tip/wing.chords.root
 
     wing.aspect_ratio            = wing.spans.projected**2. / wing.areas.reference
 
     wing.twists.root             = 3.0 * Units.degrees
-    wing.twists.tip              = 1.5 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees
 
-    wing.origin                  = [[2.032, 0., 0.784]]
-    wing.aerodynamic_center      = [0.558, 0., 0.784]
+    wing.origin                  = [[2.93, 0., 1.01]]
+    wing.aerodynamic_center      = [3.0, 0., 1.01]
 
     wing.vertical                = False
     wing.symmetric               = True
@@ -114,8 +114,8 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
 
-    wing.origin                  = [[6.248, 0., 0 ]]
-    wing.aerodynamic_center      = [0.508, 0., 0.]
+    wing.origin                  = [[7.7, 0., 0.25 ]]
+    wing.aerodynamic_center      = [7.8, 0., 0.25]
 
     wing.vertical                = False
     wing.symmetric               = True
@@ -149,7 +149,7 @@ def vehicle_setup():
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
 
-    wing.origin                  = [[6.01 ,0,  0.623]]
+    wing.origin                  = [[6.75 ,0,  0.623]]
     wing.aerodynamic_center      = [0.508 ,0,0] 
 
     wing.vertical                = True 
@@ -401,7 +401,7 @@ def vehicle_setup():
     for i in range(12):
         side_factor = -1+2*(i//6) # -1 if on port side, 1 if on starboard side of vehicle
         p           = deepcopy(highlift_prop)
-        p.origin    = [[2.5, (1.05+dist*i)*side_factor, 1.01]]  
+        p.origin    = [[2.5, (1.05+dist*(i%6))*side_factor, 1.01]]  
         p.rotation  = -side_factor
         net.propellers.append(p)
     
