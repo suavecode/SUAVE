@@ -230,11 +230,17 @@ def empty(config,
             # Total number of rotors and propellers
             nLiftRotors   = propulsor.number_of_lift_rotor_engines
             nThrustProps  = propulsor.number_of_propeller_engines 
+            props         = propulsor.propellers
+            rots          = propulsor.lift_rotors
+            prop_motors   = propulsor.propeller_motors
+            rot_motors    = propulsor.lift_rotor_motors
+            
             
         elif isinstance(propulsor, Battery_Propeller):
             # Total number of rotors and propellers
             nLiftRotors   = 0
-            nThrustProps  = propulsor.number_of_engines      
+            nThrustProps  = propulsor.number_of_engines   
+            props         = propulsor.propellers
             
         else:
             warn("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n
@@ -247,11 +253,12 @@ def empty(config,
             prop_BRS_weight     = 0.   * Units.kg 
             
         prop_servo_weight  = 0.0   
-        if nThrustProps > 0:
+         
+        if nThrustProps > 0:          
             if propulsor.identical_propellers:
                 # Get reference properties for sizing from first propeller (assumes identical)
-                proprotor    = next(iter(propulsor.propellers))
-                propmotor    = next(iter(propulsor.propeller_motors))
+                proprotor    = props[list(props.keys())[0]]
+                propmotor    = prop_motors[list(prop_motors.keys())[0]]
                 rTip_ref     = proprotor.tip_radius
                 bladeSol_ref = proprotor.blade_solidity 
 
@@ -265,9 +272,9 @@ def empty(config,
                 proprotor.mass_properties.mass = propeller_mass + prop_hub_weight + prop_servo_weight
                 
             else: 
-                for propeller in propulsor.propellers:
+                for idx, propeller in enumerate(propulsor.propellers):
                     proprotor    = propeller
-                    propmotor    = next(iter(propulsor.propeller_motors))
+                    propmotor    = prop_motors[list(prop_motors.keys())[idx]]
                     rTip_ref     = proprotor.tip_radius
                     bladeSol_ref = proprotor.blade_solidity
                     
@@ -284,8 +291,8 @@ def empty(config,
         if nLiftRotors > 0:
             if propulsor.identical_lift_rotors:
                 # Get reference properties for sizing from first lift_rotor (assumes identical)
-                liftrotor = next(iter(propulsor.lift_rotors))
-                liftmotor = next(iter(propulsor.lift_rotor_motors))
+                liftrotor = rots[list(rots.keys())[0]]
+                liftmotor = rot_motors[list(rot_motors.keys())[0]]
                 rTip_ref     = liftrotor.tip_radius
                 bladeSol_ref = liftrotor.blade_solidity 
                 
@@ -300,9 +307,9 @@ def empty(config,
                 liftrotor.mass_properties.mass = lift_rotor_mass + lift_rotor_hub_weight + lift_rotor_servo_weight
                 
             else:
-                for lift_rotor in propulsor.lift_rotors:
+                for idx, lift_rotor in enumerate(propulsor.lift_rotors):
                     liftrotor    = lift_rotor
-                    liftmotor    = next(iter(propulsor.lift_rotor_motors))
+                    liftmotor    = rot_motors[list(rot_motors.keys())[idx]]
                     rTip_ref     = liftrotor.tip_radius
                     bladeSol_ref = liftrotor.blade_solidity  
                     
