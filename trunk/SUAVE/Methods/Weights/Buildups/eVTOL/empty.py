@@ -215,12 +215,12 @@ def empty(config,
         #-------------------------------------------------------------------------------        
         # Servo, Hub and BRS Weights
         #-------------------------------------------------------------------------------
-        lift_rotor_servo_weight = 0.65 * Units.kg
-        lift_rotor_hub_weight   = 4.   * Units.kg
-        lift_rotor_BRS_weight   = 16.  * Units.kg   
         
-        prop_servo_weight       = 5.2  * Units.kg           # shouldn't this depend on propeller size too?
+        lift_rotor_hub_weight   = 4.   * Units.kg
         prop_hub_weight         = MTOW * 0.04  * Units.kg
+        
+        lift_rotor_BRS_weight   = 16.  * Units.kg 
+        
         
         
         #-------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ def empty(config,
         else:
             prop_BRS_weight     = 0.   * Units.kg 
             
-            
+        prop_servo_weight  = 0.0   
         if nThrustProps > 0:
             if propulsor.identical_propellers:
                 # Get reference properties for sizing from first propeller (assumes identical)
@@ -254,6 +254,9 @@ def empty(config,
                 propmotor    = next(iter(propulsor.propeller_motors))
                 rTip_ref     = proprotor.tip_radius
                 bladeSol_ref = proprotor.blade_solidity 
+
+                if proprotor.variable_pitch:
+                    prop_servo_weight  = 5.2  * Units.kg              
                 
                 # Compute and add propeller weights
                 propeller_mass                 = prop(proprotor, maxLift/5.) * Units.kg
@@ -268,12 +271,16 @@ def empty(config,
                     rTip_ref     = proprotor.tip_radius
                     bladeSol_ref = proprotor.blade_solidity
                     
+                    if proprotor.variable_pitch:
+                        prop_servo_weight  = 5.2  * Units.kg                      
+                    
                     # Compute and add propeller weights
                     propeller_mass                 = prop(proprotor, maxLift/5.) * Units.kg
                     output.propellers             += propeller_mass
                     output.propeller_motors       += propmotor.mass_properties.mass
                     proprotor.mass_properties.mass = propeller_mass + prop_hub_weight + prop_servo_weight
                 
+        lift_rotor_servo_weight = 0.0  
         if nLiftRotors > 0:
             if propulsor.identical_lift_rotors:
                 # Get reference properties for sizing from first lift_rotor (assumes identical)
@@ -281,6 +288,10 @@ def empty(config,
                 liftmotor = next(iter(propulsor.lift_rotor_motors))
                 rTip_ref     = liftrotor.tip_radius
                 bladeSol_ref = liftrotor.blade_solidity 
+                
+                
+                if liftrotor.variable_pitch:
+                    lift_rotor_servo_weight = 0.65 * Units.kg
                 
                 # Compute and add lift_rotor weights
                 lift_rotor_mass                = prop(liftrotor, maxLift / max(nLiftRotors - 1, 1))  * Units.kg
@@ -294,6 +305,10 @@ def empty(config,
                     liftmotor    = next(iter(propulsor.lift_rotor_motors))
                     rTip_ref     = liftrotor.tip_radius
                     bladeSol_ref = liftrotor.blade_solidity  
+                    
+                    
+                    if liftrotor.variable_pitch:
+                        lift_rotor_servo_weight = 0.65 * Units.kg                  
                     
                     # Compute and add lift_rotor weights
                     lift_rotor_mass                = prop(liftrotor, maxLift / max(nLiftRotors - 1, 1))  * Units.kg

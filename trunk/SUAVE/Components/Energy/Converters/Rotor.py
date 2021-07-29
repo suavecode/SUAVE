@@ -85,6 +85,7 @@ class Rotor(Energy_Component):
         
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
+        self.variable_pitch            = True
 
     def spin(self,conditions):
         """Analyzes a general rotor given geometry and operating conditions.
@@ -206,8 +207,6 @@ class Rotor(Energy_Component):
         V         = V_thrust[:,0,None]  
         V[V==0.0] = 1E-6
         
-        ut        = np.zeros_like(V) 
-    
         #Things that don't change with iteration
         Nr       = len(c) # Number of stations radially    
         ctrl_pts = len(Vv)
