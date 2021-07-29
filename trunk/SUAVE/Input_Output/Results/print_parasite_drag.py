@@ -123,7 +123,7 @@ def print_parasite_drag(ref_condition,vehicle,analyses,filename = 'parasite_drag
         compute.parasite.fuselages.fuselage(state,settings,fuselage)    
         
     for network in vehicle.networks:
-        compute.parasite.networks.network(state,settings,network) 
+        compute.parasite.propulsors.propulsor(state,settings,network) 
       
     compute.parasite.pylons(state,settings,vehicle) 
     compute.miscellaneous(state,settings,vehicle)

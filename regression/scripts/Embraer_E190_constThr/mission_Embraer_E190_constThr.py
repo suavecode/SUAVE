@@ -27,7 +27,6 @@ sys.path.append('../Vehicles')
 # the analysis functions
 
 from Embraer_190 import vehicle_setup, configs_setup
-from SUAVE.Methods.Performance  import payload_range
 
 
 

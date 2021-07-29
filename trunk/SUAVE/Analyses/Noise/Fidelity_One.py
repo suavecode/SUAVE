@@ -152,7 +152,7 @@ class Fidelity_One(Noise):
         
         # create empty arrays for results  
         num_src            = len(config.networks) + 1 
-        if ('lift_cruise') in config.v.keys():
+        if ('lift_cruise') in config.networks.keys():
             num_src += 1
         source_SPLs_dBA    = np.zeros((ctrl_pts,num_src,num_mic)) 
         source_SPL_spectra = np.zeros((ctrl_pts,num_src,num_mic,dim_cf ))    

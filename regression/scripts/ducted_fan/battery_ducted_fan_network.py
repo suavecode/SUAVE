@@ -131,7 +131,7 @@ def energy_network():
     battery_ducted_fan.voltage              = 400.
 
     # add  gas turbine network turbofan to the network 
-    battery_ducted_fan.network            = ducted_fan
+    battery_ducted_fan.propulsor            = ducted_fan
 
     # Create ESC and add to the network
     esc = SUAVE.Components.Energy.Distributors.Electronic_Speed_Controller()
@@ -212,9 +212,9 @@ def energy_network():
     conditions.propulsion.throttle                     = np.array([[1.0],[1.0]])
     conditions.propulsion.battery_energy               = bat.max_energy*np.ones_like(ones_1col)
     
-    print("Design thrust ", battery_ducted_fan.network.design_thrust 
+    print("Design thrust ", battery_ducted_fan.propulsor.design_thrust 
           * battery_ducted_fan.number_of_engines)
-    print("Sealevel static thrust ", battery_ducted_fan.network.sealevel_static_thrust
+    print("Sealevel static thrust ", battery_ducted_fan.propulsor.sealevel_static_thrust
           * battery_ducted_fan.number_of_engines)
     
     
