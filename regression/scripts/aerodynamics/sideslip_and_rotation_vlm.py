@@ -54,14 +54,14 @@ def main():
     for key in results.keys():
         vals    = results[key]
         vals_tr = results_tr[key]
-        errors     = (vals-vals_tr)/vals_tr
+        errors  = (vals-vals_tr)/vals_tr
         print('{} errors:'.format(key)    )
         print(errors                      )
         print('                          ')
                 
         max_err    = np.max(   np.abs(errors))
         argmax_err = np.argmax(np.abs(errors))
-        assert max_err < 1e-6 , 'Failed at {} test, case {}'.format(key, argmax_err+1)
+        assert max_err < 1e-5 , 'Failed at {} test, case {}'.format(key, argmax_err+1)
     
     return
 
