@@ -10,10 +10,9 @@
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units , Data
+from SUAVE.Core import Units
 from SUAVE.Plots.Mission_Plots import * 
 import numpy as np 
-import time 
 import sys  
 
 sys.path.append('../Vehicles')

@@ -2,6 +2,7 @@
 # 
 # Created: Feb 2020, M. Clarke
 #          Sep 2020, M. Clarke 
+#          Jul 2021, R. Erhard
 
 """ setup file for electric aircraft regression """
 
