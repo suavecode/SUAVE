@@ -80,7 +80,7 @@ def make_VLM_wings(geometry, settings):
         else:
             # check for invalid/unsupported/conflicting geometry input            
             if issubclass(wing.wing_type, All_Moving_Surface): # these cases unsupported due to the way the panelization loop is structured at the moment
-                if (wing.hinge_vector != np.array([0.,0.,0.])) and wing.use_constant_hinge_fraction:
+                if not (wing.hinge_vector == np.array([0.,0.,0.])).all() and wing.use_constant_hinge_fraction:
                     raise ValueError("A hinge_vector is specified, but the surface is set to use a constant hinge fraction")
                 if len(wing.control_surfaces) > 0:
                     raise ValueError('Input: control surfaces are not supported on all-moving surfaces at this time')
