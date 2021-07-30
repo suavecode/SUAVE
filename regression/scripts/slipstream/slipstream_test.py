@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units,Data
+from SUAVE.Core import Units
 
 import numpy as np
 import pylab as plt
@@ -20,7 +20,6 @@ from SUAVE.Plots.Mission_Plots import *
 from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
 from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 
-from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
 sys.path.append('../Vehicles') 
 from X57_Maxwell import vehicle_setup, configs_setup 
 

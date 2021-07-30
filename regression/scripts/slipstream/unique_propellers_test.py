@@ -42,6 +42,7 @@ def main():
 
 def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
     # Evaluate wing in propeller wake (using helical fixed-wake model)
+    ti = time.time()
     fixed_helical_wake = True
     configs, analyses  = full_setup(fixed_helical_wake) 
 
@@ -50,26 +51,30 @@ def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
 
     # mission analysis
     mission = analyses.missions.base
+    print("\nEvaluating the mission...")
     results = mission.evaluate()
 
     # lift coefficient  
-    lift_coefficient              = results.segments.climb_1.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true         = 0.5306053340921111
+    lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
+    lift_coefficient_true         = 0.22770950632885756
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true)
     print(lift_coefficient)
     print('CL difference')
     print(diff_CL)
+    
+    print((time.time()-ti)/60)
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
 
     # sectional lift coefficient check
-    sectional_lift_coeff            = results.segments.climb_1.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 9.70469690e-01,  1.24765575e+00,  1.17458075e+00,  3.66746565e-01,
-                                                 3.10118917e-01,  9.70469746e-01,  1.24765610e+00,  1.17458115e+00,
-                                                 3.66747127e-01,  3.10119059e-01,  2.87579592e-01,  3.05938576e-01,
-                                                 2.93656626e-01,  2.40733997e-01,  1.53052257e-01,  2.87579597e-01,
-                                                 3.05938607e-01,  2.93656721e-01,  2.40734290e-01,  1.53052742e-01,
-                                                -2.12352683e-15,  1.80144906e-15,  2.79713246e-15,  3.33525018e-15,
-                                                 2.30033709e-15])
+    sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
+    sectional_lift_coeff_true       = np.array([ 5.36389124e-01,  7.08905067e-01,  4.90179732e-01, -1.01007420e-01,
+                                                 -8.40036720e-03,  5.36389179e-01,  7.08905260e-01,  4.90179768e-01,
+                                                 -1.01007450e-01, -8.40044023e-03,  4.17332215e-02,  4.26489106e-02,
+                                                  3.67501893e-02,  2.56909156e-02,  1.50058383e-02,  4.17332045e-02,
+                                                  4.26488896e-02,  3.67501632e-02,  2.56909027e-02,  1.50058641e-02,
+                                                 -3.17409567e-15,  7.05665908e-17,  8.10719162e-16,  9.72568745e-16,
+                                                  6.59192808e-16])
+
     diff_Cl                         = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     
     print(sectional_lift_coeff)
@@ -242,34 +247,34 @@ def mission_setup(analyses,vehicle):
     ## ------------------------------------------------------------------
     ##   Climb 1 : constant Speed, constant rate segment 
     ## ------------------------------------------------------------------ 
-    segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
-    segment.tag = "climb_1"
-    segment.analyses.extend( analyses.base )
-    segment.battery_energy            = vehicle.propulsors.battery_propeller.battery.max_energy* 0.89
-    segment.altitude_start            = 2500.0  * Units.feet
-    segment.altitude_end              = 8012    * Units.feet 
-    segment.air_speed                 = 96.4260 * Units['mph'] 
-    segment.climb_rate                = 700.034 * Units['ft/min']  
-    segment.state.unknowns.throttle   = 0.85 * ones_row(1)
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
-
-    # add to misison
-    mission.append_segment(segment)
-    
-    ## ------------------------------------------------------------------
-    ##   Cruise Segment: constant Speed, constant altitude
-    ## ------------------------------------------------------------------ 
-    #segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    #segment.tag = "cruise" 
-    #segment.analyses.extend(analyses.base)  
-    ##segment.altitude                  = 8012.0  * Units.feet
-    #segment.air_speed                 = 135. * Units['mph'] 
-    #segment.distance                  = 20.  * Units.nautical_mile  
-    #segment.state.unknowns.throttle   = 0.85 *  ones_row(1)
+    #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    #segment.tag = "climb_1"
+    #segment.analyses.extend( analyses.base )
+    #segment.battery_energy            = vehicle.propulsors.battery_propeller.battery.max_energy* 0.89
+    #segment.altitude_start            = 2500.0  * Units.feet
+    #segment.altitude_end              = 8012    * Units.feet 
+    #segment.air_speed                 = 96.4260 * Units['mph'] 
+    #segment.climb_rate                = 700.034 * Units['ft/min']  
+    #segment.state.unknowns.throttle   = 0.85 * ones_row(1)
     #segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
-    
+
     ## add to misison
-    #mission.append_segment(segment)        
+    #mission.append_segment(segment)
+    
+    # ------------------------------------------------------------------
+    #   Cruise Segment: constant Speed, constant altitude
+    # ------------------------------------------------------------------ 
+    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    segment.tag = "cruise" 
+    segment.analyses.extend(analyses.base)  
+    segment.altitude                  = 8012.0  * Units.feet
+    segment.air_speed                 = 135. * Units['mph'] 
+    segment.distance                  = 20.  * Units.nautical_mile  
+    segment.state.unknowns.throttle   = 0.85 *  ones_row(1)
+    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    
+    # add to misison
+    mission.append_segment(segment)        
     
     return mission
 
