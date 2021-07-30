@@ -3,14 +3,18 @@
 # Created:   Jul 2021, R. Erhard
 # Modified: 
 
-""" setup file for a cruise segment of the NASA X-57 Maxwell (Twin Engine Variant) Electric Aircraft 
+""" 
+Setup file for a cruise segment of the NASA X-57 Maxwell (Mod 4) Electric Aircraft.
+Runs the propeller-wing interaction with two different types of propellers. Two tip-
+mounted cruise propellers, and 12 additional smaller propellers for lift augmentation
+via slipstream interaction during takeoff/landing.
 """
 # ----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units,Data
 
 import numpy as np
 import pylab as plt
@@ -56,9 +60,10 @@ def helical_fixed_wake_analysis():
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
-    
-    
-    save_vehicle_vtks(configs.base, settings=Data(),Results=Data(),time_step=1,save_loc="/Users/rerha/Desktop/mod4/")
+
+    Results  = Data()
+    Results['prop_outputs'] = results.segments.climb_1.conditions.noise.sources.propellers.propeller    
+    save_vehicle_vtks(configs.base,Results,time_step=1,save_loc="/Users/rerha/Desktop/mod4/")
     
     
     
@@ -177,6 +182,7 @@ def base_analysis(vehicle, bemt_wake, fixed_helical_wake):
 
     aerodynamics.settings.number_spanwise_vortices   = 5
     aerodynamics.settings.number_chordwise_vortices  = 2   
+    aerodynamics.settings.spanwise_cosine_spacing    = True  
     aerodynamics.geometry                            = vehicle
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)

@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units,Data
 
 import numpy as np
 import pylab as plt
@@ -20,6 +20,7 @@ from SUAVE.Plots.Mission_Plots import *
 from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
 from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
 
+from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
 sys.path.append('../Vehicles') 
 from X57_Maxwell import vehicle_setup, configs_setup 
 
@@ -57,6 +58,12 @@ def bemt_wake_analysis():
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
+    
+    
+
+    save_vehicle_vtks(configs.base,Results=Data(),time_step=1,save_loc="/Users/rerha/Desktop/mod2/")
+    
+    
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
 
     # sectional lift coefficient check
@@ -107,6 +114,10 @@ def helical_fixed_wake_analysis():
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
+    
+    Results  = Data()
+    Results['prop_outputs'] = results.segments.climb_1.conditions.noise.sources.propellers.propeller
+    save_vehicle_vtks(configs.base,Results,time_step=1,save_loc="/Users/rerha/Desktop/mod2/")
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
 
     # sectional lift coefficient check

@@ -15,6 +15,8 @@ import numpy as np
 from SUAVE.Core import Data 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contraction_matrix import compute_wake_contraction_matrix
 
+from copy import deepcopy
+
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
 def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
     """ This generates the propeller wake control points used to compute the 
@@ -37,17 +39,33 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
     Properties Used:
     N/A
     """    
-    num_prop         = len(props) 
+    num_prop = len(props) 
     
     if identical:
-        # All props are identical, so only the first one is unpacked
-        prop_key = list(props.keys())[0]
-        prop     = props[prop_key]
+        # All props are identical in geometry, so only the first one is unpacked
+        prop_keys    = list(props.keys())
+        prop_key     = prop_keys[0]
+        prop         = props[prop_key]
         prop_outputs = conditions.noise.sources.propellers[prop_key]
         
         Bmax = int(prop.number_of_blades)
         nmax = int(prop_outputs.number_radial_stations - 1)
-        unique_propellers = prop
+        
+        ## All propellers are identical, only one unique propeller
+        #unique_propellers = Data()
+        #unique_propellers.propellers       = Data()
+        #unique_propellers.propellers.prop  = deepcopy(prop)
+        
+        ## Append origins of the repeated propellers
+        #repeat_origins = prop.origin
+        #rotations      = np.array([prop.rotation])
+        #for k in range(num_prop-1):
+            #repeat_origins = np.append(repeat_origins, props[prop_keys[k+1]].origin,axis=0)
+            #rotations = np.append(rotations, props[prop_keys[k+1]].rotation)
+            
+        #unique_propellers.repeated_origins  = repeat_origins
+        #unique_propellers.repeated_rotations = rotations
+        
         # do normal calcs
     else:
         # Props are unique, must find required matrix sizes to fit all vortex distributions
@@ -66,17 +84,25 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         # Identify max indices for pre-allocating vortex wake distribution matrices
         Bmax = int(max(B_list))
         nmax = int(max(Nr_list)-1)
-        unique_propellers = props
+        
+        ## Identify unique propellers and repeated instances
+        #unique_propellers = Data()
+        #unique_propellers.propellers = props
+        
+        
         # do calcs with zeros in matrix spots where they don't align
         
     # Initialize empty arrays with required sizes
     VD, WD, Wmid = initialize_distributions(nmax, Bmax, number_of_wake_timesteps, num_prop, m,VD)
     
-    # for each unique propeller, unpack and compute 
+    ## counter for propeller wakes
+    #idx = 0
     
-    for idx, propi in enumerate(unique_propellers):
-        propi_key     = list(props.keys())[idx]
-        prop_outputs = conditions.noise.sources.propellers[propi_key]
+    # for each propeller, unpack and compute 
+    for i, propi in enumerate(props):
+        propi_key        = list(props.keys())[i]
+        propi_outputs     = conditions.noise.sources.propellers[propi_key]
+        #propi_origins    = unique_propellers.repeated_origins
         
         # Unpack
         R                = propi.tip_radius
@@ -85,19 +111,19 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         MCA              = propi.mid_chord_alignment 
         B                = propi.number_of_blades    
         
-        Na               = prop_outputs.number_azimuthal_stations
-        Nr               = prop_outputs.number_radial_stations
-        omega            = prop_outputs.omega                               
-        va               = prop_outputs.disc_axial_induced_velocity 
-        V_inf            = prop_outputs.velocity
-        gamma            = prop_outputs.disc_circulation
+        Na               = propi_outputs.number_azimuthal_stations
+        Nr               = propi_outputs.number_radial_stations
+        omega            = propi_outputs.omega                               
+        va               = propi_outputs.disc_axial_induced_velocity 
+        V_inf            = propi_outputs.velocity
+        gamma            = propi_outputs.disc_circulation
         
         blade_angles     = np.linspace(0,2*np.pi,B+1)[:-1]   
         dt               = time/number_of_wake_timesteps
         ts               = np.linspace(0,time,number_of_wake_timesteps) 
         
-        t0               = dt*init_timestep_offset
-        start_angle      = omega[0]*t0 
+        t0                = dt*init_timestep_offset
+        start_angle       = omega[0]*t0 
         propi.start_angle = start_angle
 
         # define points ( control point, time step , blade number , location on blade )
@@ -139,7 +165,6 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         
         total_angle_offset = angle_offset - start_angle_offset
         
-        i = idx
     #for i in range(num_prop):
         # adjust for clockwise/counter clockwise rotation
         ## For this step need to index the unique prop
@@ -157,7 +182,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         X_pts0 = x_pts + sx_inf   
 
         # compute wake contraction  
-        wake_contraction = compute_wake_contraction_matrix(i,propi,Nr,m,number_of_wake_timesteps,X_pts0,prop_outputs)          
+        wake_contraction = compute_wake_contraction_matrix(i,propi,Nr,m,number_of_wake_timesteps,X_pts0,propi_outputs)          
 
         y0_pts = np.tile(np.atleast_2d(r),(B,1))
         y_pts  = np.repeat(np.repeat(y0_pts[np.newaxis,:,  :], number_of_wake_timesteps, axis=0)[ np.newaxis, : ,:, :,], m, axis=0) 
@@ -169,7 +194,9 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
  
         # Rotate wake by thrust angle
         rot_mat = propi.prop_vel_to_body()
-        
+
+        # append propeller wake to each of its repeated origins        
+        #for rep in range(len(propi_origins)):
         X_pts   = propi.origin[0][0] + X_pts0*rot_mat[0,0] - Z_pts0*rot_mat[0,2]
         Y_pts   = propi.origin[0][1] + Y_pts0*rot_mat[1,1]
         Z_pts   = propi.origin[0][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2]
@@ -218,6 +245,9 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         VD.Wake.XB2[i,:,0:B,:] =  X_pts[0 ,  1: , : , 1:  ]
         VD.Wake.YB2[i,:,0:B,:] =  Y_pts[0 ,  1: , : , 1:  ]
         VD.Wake.ZB2[i,:,0:B,:] =  Z_pts[0 ,  1: , : , 1:  ]  
+        
+        ## update wake iteration
+        #idx +=1
 
     # Compress Data into 1D Arrays  
     mat4_size = (m,num_prop,(number_of_wake_timesteps-1),Bmax*nmax)

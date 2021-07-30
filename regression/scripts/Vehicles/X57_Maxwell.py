@@ -329,6 +329,7 @@ def vehicle_setup():
     prop.design_altitude        = 12000. * Units.feet
     prop.design_altitude        = 12000. * Units.feet
     prop.design_thrust          = 1200.  
+    #prop.repeated_origins       = [[2.,2.5,0.784], [2.,-2.5,0.784]] 
     prop.origin                 = [[2.,2.5,0.784]]         
     prop.rotation               = -1 
     prop.symmetry               = True
@@ -351,6 +352,11 @@ def vehicle_setup():
     
     net.propellers.append(prop)
     net.propellers.append(prop_left)
+    
+    #if net.identical_props:
+        ## take the origins and rotations into single vector
+    
+    
     
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()

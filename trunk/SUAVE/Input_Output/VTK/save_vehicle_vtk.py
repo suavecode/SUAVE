@@ -10,13 +10,14 @@
 #----------------------------
 from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution  import generate_vortex_distribution
+from SUAVE.Analyses.Aerodynamics import Vortex_Lattice
 from SUAVE.Input_Output.VTK.save_wing_vtk import save_wing_vtk
 from SUAVE.Input_Output.VTK.save_prop_vtk import save_prop_vtk
 from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
 from SUAVE.Input_Output.VTK.save_fuselage_vtk import save_fuselage_vtk
 
 
-def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
+def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                      wake_filename="prop_wake.vtk", wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
     """
     Saves SUAVE vehicle components as VTK files in legacy format.
@@ -46,37 +47,40 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
        None
     
     """  
+    if settings == None:
+        settings = Vortex_Lattice().settings
+        settings.number_spanwise_vortices  = 25
+        settings.number_chordwise_vortices = 5
+        settings.spanwise_cosine_spacing   = False 
+        settings.model_fuselage            = False
+        
     # unpack vortex distribution 
     try:
         VD = vehicle.vortex_distribution 
     except:
         print("Simulation has not yet been run. Generating vortex distribution for geometry export.")
-        settings = Data()
-        settings.number_spanwise_vortices  = 25
-        settings.number_chordwise_vortices = 5
-        settings.spanwise_cosine_spacing   = False 
-        settings.model_fuselage            = False
         VD = generate_vortex_distribution(vehicle,settings) 
-        vehicle.vortex_distribution = VD
-    
-    
+        vehicle.vortex_distribution = VD        
+
+        
     #---------------------------
     # Save propellers and rotors to vtk
     #---------------------------
     for propulsor in vehicle.propulsors:
         try:
             print("Attempting to save propeller.")
-            propeller = propulsor.propeller
-            try:
-                n_props = int(propulsor.number_of_propeller_engines)
-            except:
-                n_props   = int(propulsor.number_of_engines)
+            propellers = propulsor.propellers
+            n_props = len(propellers)
+            
         except:
-            print("No propeller.")
+            print("No propellers.")
             n_props = 0
+        
             
         if n_props>0:
             for i in range(n_props):
+                propi = propellers[list(propellers.keys())[i]]
+                
                 # save the ith propeller
                 if save_loc ==None:
                     filename = prop_filename
@@ -85,18 +89,16 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
                 sep  = filename.find('.')
                 file = filename[0:sep]+str(i)+filename[sep:]
             
-                save_prop_vtk(propeller, file, Results,i, time_step) 
+                save_prop_vtk(propi, file, Results, time_step) 
                 
         try:
             print("Attempting to save rotor.")
-            rotor = propulsor.rotor
-            try:
-                n_rots = int(propulsor.number_of_lift_rotor_engines)
-            except:
-                n_rots = int(propulsor.number_of_engines)    
+            lift_rotors = propulsor.lift_rotors
+            n_rots = len(lift_rotors)
         except:
-            print("No rotor.") 
+            print("No lift rotors.") 
             n_rots = 0
+            
             
         if n_rots > 0:
             for i in range(n_rots):
@@ -108,7 +110,7 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
                 sep  = filename.find('.')
                 file = filename[0:sep]+str(i)+filename[sep:]        
                 
-                save_prop_vtk(rotor, file, Results,i,time_step) 
+                save_prop_vtk(lift_rotors[list(lift_rotors.keys())[i]], file, Results,i,time_step) 
                        
         
     
@@ -117,6 +119,12 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
     #---------------------------
     try:
         n_wakes = len(VD.Wake.XA1[:,0,0,0])
+
+    except:
+        print("Wake simulation has not yet been run. No propeller wakes generated.")
+        n_wakes = 0
+        
+    if n_wakes >0:
         for i in range(n_wakes):
             # save the wake of the ith propeller
             if save_loc ==None:
@@ -126,8 +134,6 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
             sep  = filename.find('.')
             file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
             save_prop_wake_vtk(VD.Wake, file, Results,i) 
-    except:
-        print("Wake simulation has not yet been run. No propeller wakes generated.")
     
     #---------------------------
     # Save wing results to vtk
