@@ -190,4 +190,3 @@ def save_results(results):
 if __name__ == '__main__':
     main()
     plt.show()
-    print('all_moving_surfaces_vlm regression test passed!')

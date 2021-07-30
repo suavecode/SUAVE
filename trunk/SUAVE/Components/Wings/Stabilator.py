@@ -60,10 +60,3 @@ class Stabilator(Horizontal_Tail, All_Moving_Surface):
         """ 
         self.tag = 'stabilator'
         self.sign_duplicate        = 1.0
-
-# ----------------------------------------------------------------------
-#   Unit Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-if __name__ == '__main__':
-    raise RuntimeError('test failed, not implemented')

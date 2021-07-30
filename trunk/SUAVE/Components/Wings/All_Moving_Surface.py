@@ -8,7 +8,7 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-from SUAVE.Core import Data
+from SUAVE.Components.Lofted_Body import Lofted_Body
 
 import numpy as np
 
@@ -17,7 +17,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Wings
-class All_Moving_Surface(Data):
+class All_Moving_Surface(Lofted_Body):
     """ This class is used to allow every all-moving control surface class
     (e.g. Stabilator) to inherit from both a type of Wing (Horizontal_Tail
     in the case of a Stabilator) and this class. This, way All_Moving_Surface
@@ -87,11 +87,3 @@ class All_Moving_Surface(Data):
         #attributes unique to All_Moving_Surface
         self.use_constant_hinge_fraction = False
         self.hinge_vector                = np.array([0.,0.,0.])
-
-
-# ----------------------------------------------------------------------
-#   Unit Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-if __name__ == '__main__':
-    raise RuntimeError('test failed, not implemented')

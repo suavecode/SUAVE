@@ -74,7 +74,7 @@ def make_VLM_wings(geometry, settings):
         wing.is_a_control_surface = False
         n_segments           = len(wing.Segments.keys())
         if n_segments==0:
-            # covert to preferred format for the panelization loop
+            # convert to preferred format for the panelization loop
             wing       = convert_to_segmented_wing(wing)
             n_segments = 2
         else:

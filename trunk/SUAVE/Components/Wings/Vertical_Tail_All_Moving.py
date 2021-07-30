@@ -93,11 +93,3 @@ class Vertical_Tail_All_Moving(Vertical_Tail, All_Moving_Surface):
         wing.deflection      *= -1*self.sign_duplicate
         wing.hinge_vector[1] *= -1
         return wing
-
-
-# ----------------------------------------------------------------------
-#   Unit Tests
-# ----------------------------------------------------------------------
-# this will run from command line, put simple tests for your code here
-if __name__ == '__main__':
-    raise RuntimeError('test failed, not implemented')
