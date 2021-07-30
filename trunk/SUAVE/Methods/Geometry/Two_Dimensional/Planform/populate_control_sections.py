@@ -127,8 +127,9 @@ def populate_control_sections(wing):
                     control_surface.configuration_type    = cs.configuration_type
                     control_surface.gain                  = cs.gain                    
                     
+                    #for calls from make_VLM_wings
                     if 'cs_type' in cs.keys():
-                        control_surface.cs_type           = cs.cs_type
+                        control_surface.cs_type = cs.cs_type
                     
                     w_seg[i].control_surfaces.append(control_surface)        
                 

@@ -640,40 +640,41 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                 
                 #For the first strip of the wing, always need to find the hinge root point. The hinge root point and direction vector 
                 #found here will not change for the rest of this control surface/all-moving surface. See docstring for reasoning.
-                is_first_strip                 = (idx_y == 0)
+                is_first_strip = (idx_y == 0)
                 if is_first_strip:
                     # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
                     ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
-                    ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])
+                    ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])                    
                     
                     interp_fractions   = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
                     interp_domains     = np.array([0.,1., 2.,3., 4.,5.])
                     interp_ranges_ib   = np.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
                     ib_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ib)
                     
-                    hinge_vector       = wing.hinge_vector
                     
-                    #Find the hinge_vector if the user has not already defined and chosen to use a specific one                    
-                    hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and not (hinge_vector==np.array([0.,0.,0.])).all()
-                    need_to_compute_hinge_vector = not hinge_vector_is_pre_defined                    
+                    #Find the hinge_vector if this is a control surface or the user has not already defined and chosen to use a specific one                    
+                    if wing.is_a_control_surface:
+                        need_to_compute_hinge_vector = True
+                    else: #wing is an all-moving surface
+                        hinge_vector                 = wing.hinge_vectors
+                        hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
+                                                        not (hinge_vector==np.array([0.,0.,0.])).all()
+                        need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
+                        
                     if need_to_compute_hinge_vector:
                         ob_le_strip_corner = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
-                        ob_te_strip_corner = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]]) 
-                        
+                        ob_te_strip_corner = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]])                         
                         interp_ranges_ob   = np.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
                         ob_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ob)
                     
-                        use_root_chord_in_plane_normal = not wing.use_constant_hinge_fraction
+                        use_root_chord_in_plane_normal = wing_is_all_moving and not wing.use_constant_hinge_fraction
                         if use_root_chord_in_plane_normal: ob_hinge_point[0] = ib_hinge_point[0]
                     
                         hinge_vector       = ob_hinge_point - ib_hinge_point
-                        hinge_vector       = hinge_vector / np.linalg.norm(hinge_vector)
-                    
-                    #For a vertical wing, flip y and z of hinge vector since later operations will flip y and z of the whole strip again
-                    elif wing.vertical:
+                        hinge_vector       = hinge_vector / np.linalg.norm(hinge_vector)   
+                    elif wing.vertical: #For a vertical all-moving surface, flip y and z of hinge vector before flipping again later
                         hinge_vector[1], hinge_vector[2] = hinge_vector[2], hinge_vector[1] 
                         
-                    
                     #store hinge root point and direction vector
                     wing.hinge_root_point = ib_hinge_point
                     wing.hinge_vector     = hinge_vector
