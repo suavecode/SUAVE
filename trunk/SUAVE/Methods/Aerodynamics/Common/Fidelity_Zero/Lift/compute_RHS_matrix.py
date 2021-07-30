@@ -107,7 +107,7 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
 
             if 'lift_rotors' in propulsor.keys():
                 
-                if not propulsor.identical_rotors:
+                if not propulsor.identical_lift_rotors:
                     assert('This method currently only works with identical rotors')                    
 
                 # extract the propeller data structure
@@ -130,7 +130,7 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
                 prop_V_wake_ind = compute_bemt_induced_velocity(props,geometry,num_ctrl_pts,conditions)
                 
             if 'lift_rotors' in propulsor.keys():
-                if not propulsor.identical_rotors:
+                if not propulsor.identical_lift_rotors:
                     assert('This method currently only works with identical rotors')                        
                 rotors = propulsor.rotors
                 rot_V_wake_ind = compute_bemt_induced_velocity(rotors,geometry,num_ctrl_pts,conditions)

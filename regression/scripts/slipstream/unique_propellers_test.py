@@ -19,6 +19,7 @@ from SUAVE.Core import Units,Data
 import numpy as np
 import pylab as plt
 import sys
+import time
 
 from SUAVE.Plots.Mission_Plots import *  
 from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
@@ -36,14 +37,13 @@ from X57_Mod4 import vehicle_setup, configs_setup
 def main():
     # run test with helical fixed wake model
     helical_fixed_wake_analysis()
-    
     return 
 
 def helical_fixed_wake_analysis():
+    ti = time.time()
     # Evaluate wing in propeller wake (using helical fixed-wake model)
-    bemt_wake          = False
     fixed_helical_wake = True
-    configs, analyses  = full_setup(bemt_wake, fixed_helical_wake) 
+    configs, analyses  = full_setup(fixed_helical_wake) 
 
     configs.finalize()
     analyses.finalize()  
@@ -53,76 +53,53 @@ def helical_fixed_wake_analysis():
     results = mission.evaluate()
 
     # lift coefficient  
-    lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.4173266749520784
+    lift_coefficient              = results.segments.climb_1.conditions.aerodynamics.lift_coefficient[0][0]
+    lift_coefficient_true         = 0.5306053340921111
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
 
-    Results  = Data()
-    Results['prop_outputs'] = results.segments.climb_1.conditions.noise.sources.propellers.propeller    
-    save_vehicle_vtks(configs.base,Results,time_step=1,save_loc="/Users/rerha/Desktop/mod4/")
+    #Results  = Data()
+    #Results['identical'] = False
+    #Results['all_prop_outputs'] = results.segments.cruise.conditions.noise.sources.propellers 
+    #save_vehicle_vtks(configs.base,Results,time_step=1,save_loc="/Users/rerha/Desktop/mod4/")
     
-    
+    telapsed = time.time() - ti
     
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
 
     # sectional lift coefficient check
-    sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 4.12334543e-01,  3.74363711e-01,  3.44384916e-01,  2.82624422e-01,
-                                                 1.81020596e-01,  4.12334550e-01,  3.74363603e-01,  3.44384848e-01,
-                                                 2.82624444e-01,  1.81020479e-01,  1.39312033e-02,  1.42418023e-02,
-                                                 1.44760805e-02,  1.46100826e-02,  1.04727521e-02,  1.39311955e-02,
-                                                 1.42417998e-02,  1.44760923e-02,  1.46101159e-02,  1.04727968e-02,
-                                                 5.48022331e-16, -1.50875544e-17, -4.86966704e-16, -5.00651272e-16,
-                                                -3.60726798e-16])
-
+    sectional_lift_coeff            = results.segments.climb_1.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
+    sectional_lift_coeff_true       = np.array([ 9.70469690e-01,  1.24765575e+00,  1.17458075e+00,  3.66746565e-01,
+                                                 3.10118917e-01,  9.70469746e-01,  1.24765610e+00,  1.17458115e+00,
+                                                 3.66747127e-01,  3.10119059e-01,  2.87579592e-01,  3.05938576e-01,
+                                                 2.93656626e-01,  2.40733997e-01,  1.53052257e-01,  2.87579597e-01,
+                                                 3.05938607e-01,  2.93656721e-01,  2.40734290e-01,  1.53052742e-01,
+                                                -2.12352683e-15,  1.80144906e-15,  2.79713246e-15,  3.33525018e-15,
+                                                 2.30033709e-15])
 
     print(sectional_lift_coeff)
-    diff_Cl                       = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
+    diff_Cl = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
     print(diff_Cl)
     assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
 
-    # plot results 
-    plot_mission(results,configs.base)  
-
-    # Plot vehicle 
-    plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
-
-    # Plot vortex distribution
-    plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
     return
-    
-
-def plot_mission(results,vehicle): 
-    
-    # Plot surface pressure coefficient 
-    plot_surface_pressure_contours(results,vehicle)
-    
-    # Plot lift distribution 
-    plot_lift_distribution(results,vehicle)
-    
-    # Create Video Frames 
-    create_video_frames(results,vehicle, save_figure = False)
-    
-    return
-
 
 # ----------------------------------------------------------------------
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup(bemt_wake, fixed_helical_wake):
+def full_setup(fixed_helical_wake):
 
     # vehicle data
     vehicle  = vehicle_setup() 
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
-    configs_analyses = analyses_setup(configs, bemt_wake, fixed_helical_wake)
+    configs_analyses = analyses_setup(configs, fixed_helical_wake)
 
     # mission analyses
     mission  = mission_setup(configs_analyses,vehicle) 
@@ -138,18 +115,18 @@ def full_setup(bemt_wake, fixed_helical_wake):
 #   Define the Vehicle Analyses
 # ----------------------------------------------------------------------
 
-def analyses_setup(configs, bemt_wake, fixed_helical_wake):
+def analyses_setup(configs, fixed_helical_wake):
 
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
     for tag,config in configs.items():
-        analysis = base_analysis(config, bemt_wake, fixed_helical_wake)
+        analysis = base_analysis(config, fixed_helical_wake)
         analyses[tag] = analysis
 
     return analyses
 
-def base_analysis(vehicle, bemt_wake, fixed_helical_wake):
+def base_analysis(vehicle, fixed_helical_wake):
 
     # ------------------------------------------------------------------
     #   Initialize the Analyses
@@ -171,11 +148,7 @@ def base_analysis(vehicle, bemt_wake, fixed_helical_wake):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()    
-    if bemt_wake == True:
-        aerodynamics.settings.use_surrogate             = False
-        aerodynamics.settings.propeller_wake_model      = False 
-        aerodynamics.settings.use_bemt_wake_model       = True
-    elif fixed_helical_wake ==True:
+    if fixed_helical_wake ==True:
         aerodynamics.settings.use_surrogate              = False
         aerodynamics.settings.propeller_wake_model       = True   
         aerodynamics.settings.use_bemt_wake_model        = False      
@@ -243,9 +216,9 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
     base_segment.state.numerics.number_control_points        = 2
     
-    # ------------------------------------------------------------------
-    #   Climb 1 : constant Speed, constant rate segment 
-    # ------------------------------------------------------------------ 
+    ## ------------------------------------------------------------------
+    ##   Climb 1 : constant Speed, constant rate segment 
+    ## ------------------------------------------------------------------ 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_1"
     segment.analyses.extend( analyses.base )
@@ -260,19 +233,20 @@ def mission_setup(analyses,vehicle):
     # add to misison
     mission.append_segment(segment)
     
-    # ------------------------------------------------------------------
-    #   Cruise Segment: constant Speed, constant altitude
-    # ------------------------------------------------------------------ 
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "cruise" 
-    segment.analyses.extend(analyses.base)  
-    segment.air_speed                 = 135. * Units['mph'] 
-    segment.distance                  = 20.  * Units.nautical_mile  
-    segment.state.unknowns.throttle   = 0.85 *  ones_row(1)
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    ## ------------------------------------------------------------------
+    ##   Cruise Segment: constant Speed, constant altitude
+    ## ------------------------------------------------------------------ 
+    #segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    #segment.tag = "cruise" 
+    #segment.analyses.extend(analyses.base)  
+    ##segment.altitude                  = 8012.0  * Units.feet
+    #segment.air_speed                 = 135. * Units['mph'] 
+    #segment.distance                  = 20.  * Units.nautical_mile  
+    #segment.state.unknowns.throttle   = 0.85 *  ones_row(1)
+    #segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
     
-    # add to misison
-    mission.append_segment(segment)        
+    ## add to misison
+    #mission.append_segment(segment)        
     
     return mission
 

@@ -247,7 +247,7 @@ class Rotor(Energy_Component):
         ur       = 0             
     
         # Include velocities introduced by rotor incidence angles
-        if not np.all(np.array(self.orientation_euler_angles)==0): # this needs to be instead angle to freestream, not to body
+        if not np.all(np.array(self.orientation_euler_angles)==0):
             # incidence angle creates disturbances in radial and tangential velocities
             use_2d_analysis = True
             
@@ -393,7 +393,7 @@ class Rotor(Energy_Component):
             
             # If its really not going to converge
             if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-                print("Rotor BEMT did not converge to a solution")
+                print("Rotor BEMT did not converge to a solution (Stall)")
                 break
         
             ii+=1 
