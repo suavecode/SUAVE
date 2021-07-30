@@ -656,7 +656,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                     if wing.is_a_control_surface:
                         need_to_compute_hinge_vector = True
                     else: #wing is an all-moving surface
-                        hinge_vector                 = wing.hinge_vectors
+                        hinge_vector                 = wing.hinge_vector
                         hinge_vector_is_pre_defined  = (not wing.use_constant_hinge_fraction) and \
                                                         not (hinge_vector==np.array([0.,0.,0.])).all()
                         need_to_compute_hinge_vector = not hinge_vector_is_pre_defined  
