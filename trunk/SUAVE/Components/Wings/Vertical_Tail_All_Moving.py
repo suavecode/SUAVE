@@ -89,8 +89,9 @@ class Vertical_Tail_All_Moving(Vertical_Tail, All_Moving_Surface):
         Properties Used:
         N/A
         """       
-        wing = super().make_x_z_reflection()
-        wing.deflection *= -1*self.sign_duplicate
+        wing                  = super().make_x_z_reflection()
+        wing.deflection      *= -1*self.sign_duplicate
+        wing.hinge_vector[1] *= -1
         return wing
 
 

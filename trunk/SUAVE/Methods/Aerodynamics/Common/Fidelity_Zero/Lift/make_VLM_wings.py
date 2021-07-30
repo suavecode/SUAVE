@@ -78,12 +78,11 @@ def make_VLM_wings(geometry, settings):
             wing       = convert_to_segmented_wing(wing)
             n_segments = 2
         else:
-            # check for invalid/unsupported geometry input            
+            # check for invalid/unsupported/conflicting geometry input            
             if issubclass(wing.wing_type, All_Moving_Surface): # these cases unsupported due to the way the panelization loop is structured at the moment
-                if n_segments > 2: 
-                    raise ValueError('Input: non-trapezoidal all-moving surfaces are not supported in VLM at this time. Please format ' +
-                                     'this surface as an un-Segmented wing or as a wing with exactly 2 Segments')
-                elif len(wing.control_surfaces) > 0:
+                if (wing.hinge_vector != np.array([0.,0.,0.])) and wing.use_constant_hinge_fraction:
+                    raise ValueError("A hinge_vector is specified, but the surface is set to use a constant hinge fraction")
+                if len(wing.control_surfaces) > 0:
                     raise ValueError('Input: control surfaces are not supported on all-moving surfaces at this time')
             for segment in wing.Segments: #unsupported by convention
                 if 'control_surfaces' in segment.keys() and len(segment.control_surfaces) > 0:
@@ -260,14 +259,18 @@ def copy_large_container(large_container, type_str):
         
         #special case new attributes
         if type_str == 'control_surfaces':
-            data.cs_type   = type(obj) # needed to identify the class of a control surface
+            data.cs_type                     = type(obj) # needed to identify the class of a control surface
+            data.use_constant_hinge_fraction = True
+            data.hinge_vector                = np.array([0.,0.,0.])
         elif type_str == 'wings':
             data.wing_type = type(obj)
             if issubclass(data.wing_type, All_Moving_Surface):
-                data.sign_duplicate = obj.sign_duplicate
-                data.hinge_fraction = obj.hinge_fraction 
-                data.deflection     = obj.deflection  
-                data.is_slat        = False
+                data.sign_duplicate              = obj.sign_duplicate
+                data.hinge_fraction              = obj.hinge_fraction 
+                data.deflection                  = obj.deflection  
+                data.is_slat                     = False
+                data.use_constant_hinge_fraction = obj.use_constant_hinge_fraction
+                data.hinge_vector                = obj.hinge_vector
         container.append(data)
         
     return container

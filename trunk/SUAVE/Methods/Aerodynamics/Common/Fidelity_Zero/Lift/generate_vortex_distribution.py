@@ -271,6 +271,9 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
     
     For control surfaces, "positve" deflection corresponds to the RH rule where the axis of rotation is the OUTBOARD-pointing hinge vector
     symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
+    
+    The hinge_vector will only ever be calcualted on the first strip of any control/all-moving surface. It is assumed that all control
+    surfaces are trapezoids, thus needing only one hinge, and that all all-moving surfaces have exactly one point of rotation.
 
     Source:   
     None
@@ -634,19 +637,32 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
             # symmetry: the LH rule is applied to the reflected surface for non-ailerons. Ailerons follow a RH rule for both sides
             wing_is_all_moving = (not wing.is_a_control_surface) and issubclass(wing.wing_type, All_Moving_Surface)
             if wing.is_a_control_surface or wing_is_all_moving:
-                # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
-                ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
-                ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])
-                ob_le_strip_corner = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
-                ob_te_strip_corner = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]]) 
                 
-                interp_fractions = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
-                interp_domains   = np.array([0.,1., 2.,3., 4.,5.])
-                interp_ranges_ib = np.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
-                interp_ranges_ob = np.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
-                
-                ib_hinge_point   = np.interp(interp_fractions, interp_domains, interp_ranges_ib)
-                ob_hinge_point   = np.interp(interp_fractions, interp_domains, interp_ranges_ob)
+                #For the first strip of the wing, find the hinge_vector if the user has not already defined and chosen to use a specific one
+                #This will be the hinge vector for the entire control surface/all-moving surface. See docstring for reasoning.
+                is_first_strip                 = (idx_y == 0)
+                hinge_vector_is_pre_defined    = (not wing.use_constant_hinge_fraction) and (not wing.hinge_vector==np.array([0.,0.,0.]))
+                need_to_compute_hinge_vector   = not hinge_vector_is_pre_defined
+                if is_first_strip and need_to_compute_hinge_vector:
+                    # get rotation points by iterpolating between strip corners --> le/te, ib/ob = leading/trailing edge, in/outboard
+                    ib_le_strip_corner = np.array([xi_prime_a1[0 ], y_prime_a1[0 ], zeta_prime_a1[0 ]])
+                    ib_te_strip_corner = np.array([xi_prime_a2[-1], y_prime_a2[-1], zeta_prime_a2[-1]])
+                    ob_le_strip_corner = np.array([xi_prime_b1[0 ], y_prime_b1[0 ], zeta_prime_b1[0 ]])                
+                    ob_te_strip_corner = np.array([xi_prime_b2[-1], y_prime_b2[-1], zeta_prime_b2[-1]]) 
+                    
+                    interp_fractions   = np.array([0.,    2.,    4.   ]) + wing.hinge_fraction
+                    interp_domains     = np.array([0.,1., 2.,3., 4.,5.])
+                    interp_ranges_ib   = np.array([ib_le_strip_corner, ib_te_strip_corner]).T.flatten()
+                    interp_ranges_ob   = np.array([ob_le_strip_corner, ob_te_strip_corner]).T.flatten()
+                    
+                    ib_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ib)
+                    ob_hinge_point     = np.interp(interp_fractions, interp_domains, interp_ranges_ob)
+                    
+                    use_root_chord_in_plane_normal = not wing.use_constant_hinge_fraction
+                    if use_root_chord_in_plane_normal: ob_hinge_point[0] = ib_hinge_point[0]
+                    
+                    wing.hinge_vector  = ob_hinge_point - ib_hinge_point
+                    wing.hinge_vector  = wing.hinge_vector / np.linalg.norm(hinge_vector) 
                 
                 # get deflection angle
                 deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
@@ -654,8 +670,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                 deflection_angle      = deflection_base_angle * symmetry_multiplier
                     
                 # make quaternion rotation matrix
-                hinge_vector = ob_hinge_point - ib_hinge_point
-                hinge_vector = hinge_vector / np.linalg.norm(hinge_vector)                   
+                hinge_vector = wing.hinge_vector
                 quaternion   = make_hinge_quaternion(ib_hinge_point, hinge_vector, deflection_angle)
                 
                 # rotate strips
