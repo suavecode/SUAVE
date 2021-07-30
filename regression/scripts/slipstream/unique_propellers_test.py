@@ -62,13 +62,13 @@ def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 5.36389124e-01,  7.08905067e-01,  4.90179732e-01, -1.01007420e-01,
-                                                 -8.40036720e-03,  5.36389179e-01,  7.08905260e-01,  4.90179768e-01,
-                                                 -1.01007450e-01, -8.40044023e-03,  4.17332215e-02,  4.26489106e-02,
-                                                  3.67501893e-02,  2.56909156e-02,  1.50058383e-02,  4.17332045e-02,
-                                                  4.26488896e-02,  3.67501632e-02,  2.56909027e-02,  1.50058641e-02,
-                                                 -3.17409567e-15,  7.05665908e-17,  8.10719162e-16,  9.72568745e-16,
-                                                  6.59192808e-16])
+    sectional_lift_coeff_true       = np.array([ 5.36394747e-01,  7.08910766e-01,  4.90185369e-01, -1.01002420e-01,
+                                                 -8.39700963e-03,  5.36394802e-01,  7.08910959e-01,  4.90185405e-01,
+                                                 -1.01002449e-01, -8.39708270e-03,  4.17360381e-02,  4.26519321e-02,
+                                                  3.67531636e-02,  2.56934392e-02,  1.50074699e-02,  4.17360203e-02,
+                                                  4.26519099e-02,  3.67531364e-02,  2.56934255e-02,  1.50074953e-02,
+                                                  1.93442102e-15,  1.08705900e-16, -2.92033700e-16, -3.92391436e-16,
+                                                 -2.63521794e-16])
 
     diff_Cl                         = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     
@@ -76,8 +76,8 @@ def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
     print('Cl difference')
     print(diff_Cl)
     
-    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
-    assert np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
+    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-5
+    assert np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-5
     
     # Check weights breakdown
     evtol_breakdown = empty(configs.base,contingency_factor=1.1)
