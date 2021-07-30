@@ -241,6 +241,7 @@ def empty(config,
             nLiftRotors   = 0
             nThrustProps  = propulsor.number_of_engines   
             props         = propulsor.propellers
+            prop_motors   = propulsor.propeller_motors
             
         else:
             warn("""eVTOL weight buildup only supports the Battery Propeller and Lift Cruise energy networks.\n

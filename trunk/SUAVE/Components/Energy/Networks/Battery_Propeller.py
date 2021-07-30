@@ -56,21 +56,21 @@ class Battery_Propeller(Propulsor):
             Properties Used:
             N/A
         """             
-        self.propeller_motors          = Container()
-        self.propellers                = Container()
-        self.esc                       = None
-        self.avionics                  = None
-        self.payload                   = None
-        self.battery                   = None
-        self.nacelle_diameter          = None
-        self.engine_length             = None
-        self.number_of_engines         = None
-        self.voltage                   = None
-        self.tag                       = 'Battery_Propeller'
-        self.use_surrogate             = False
-        self.generative_design_minimum = 0
-        self.identical_propellers      = True
-        self.thrust_angle              = 0.
+        self.propeller_motors             = Container()
+        self.propellers                   = Container()
+        self.esc                          = None
+        self.avionics                     = None
+        self.payload                      = None
+        self.battery                      = None
+        self.nacelle_diameter             = None
+        self.engine_length                = None
+        self.number_of_propeller_engines  = None
+        self.voltage                      = None
+        self.tag                          = 'Battery_Propeller'
+        self.use_surrogate                = False
+        self.generative_design_minimum    = 0
+        self.identical_propellers         = True
+        self.thrust_angle                 = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -111,7 +111,7 @@ class Battery_Propeller(Propulsor):
         avionics    = self.avionics
         payload     = self.payload
         battery     = self.battery
-        num_engines = self.number_of_engines
+        num_engines = self.number_of_propeller_engines
         
         # Unpack conditions
         a = conditions.freestream.speed_of_sound
@@ -330,7 +330,7 @@ class Battery_Propeller(Propulsor):
         # Count how many unknowns and residuals based on p
         n_props  = len(self.propellers)
         n_motors = len(self.propeller_motors)
-        n_eng    = self.number_of_engines
+        n_eng    = self.number_of_propeller_engines
         
         if n_props!=n_motors!=n_eng:
             print('The number of propellers is not the same as the number of motors')

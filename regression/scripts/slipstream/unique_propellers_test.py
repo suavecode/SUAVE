@@ -23,9 +23,8 @@ import time
 
 from SUAVE.Plots.Mission_Plots import *  
 from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
-from SUAVE.Plots.Geometry_Plots.plot_vehicle_vlm_panelization  import plot_vehicle_vlm_panelization
-
 from SUAVE.Input_Output.VTK.save_vehicle_vtk import save_vehicle_vtks
+from SUAVE.Methods.Weights.Buildups.eVTOL.empty import empty 
 
 sys.path.append('../Vehicles') 
 from X57_Mod4 import vehicle_setup, configs_setup 
@@ -36,11 +35,12 @@ from X57_Mod4 import vehicle_setup, configs_setup
 # ----------------------------------------------------------------------
 def main():
     # run test with helical fixed wake model
-    helical_fixed_wake_analysis()
+    save_vtks = False
+    plot_vehicle = False
+    helical_fixed_wake_analysis(save_vtks,plot_vehicle)
     return 
 
-def helical_fixed_wake_analysis():
-    ti = time.time()
+def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
     # Evaluate wing in propeller wake (using helical fixed-wake model)
     fixed_helical_wake = True
     configs, analyses  = full_setup(fixed_helical_wake) 
@@ -55,19 +55,10 @@ def helical_fixed_wake_analysis():
     # lift coefficient  
     lift_coefficient              = results.segments.climb_1.conditions.aerodynamics.lift_coefficient[0][0]
     lift_coefficient_true         = 0.5306053340921111
-
+    diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true)
     print(lift_coefficient)
-    diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
-
-    #Results  = Data()
-    #Results['identical'] = False
-    #Results['all_prop_outputs'] = results.segments.cruise.conditions.noise.sources.propellers 
-    #save_vehicle_vtks(configs.base,Results,time_step=1,save_loc="/Users/rerha/Desktop/mod4/")
-    
-    telapsed = time.time() - ti
-    
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
 
     # sectional lift coefficient check
@@ -79,13 +70,45 @@ def helical_fixed_wake_analysis():
                                                  3.05938607e-01,  2.93656721e-01,  2.40734290e-01,  1.53052742e-01,
                                                 -2.12352683e-15,  1.80144906e-15,  2.79713246e-15,  3.33525018e-15,
                                                  2.30033709e-15])
-
+    diff_Cl                         = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
+    
     print(sectional_lift_coeff)
-    diff_Cl = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     print('Cl difference')
     print(diff_Cl)
     assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
+    
+    # Check weights breakdown
+    evtol_breakdown = empty(configs.base,contingency_factor=1.1)
 
+    empty_r       = 1794.957643448814
+    structural_r  = 829.4342213171035
+    total_r       = 2075.957643448814
+    lift_rotors_r = 0.
+    propellers_r  = 10.224459471963282
+    prop_motors_r = 140.0
+    rot_motors_r  = 0.
+    
+    weights_error = Data()
+    weights_error.empty       = abs(empty_r - evtol_breakdown.empty)/empty_r
+    weights_error.structural  = abs(structural_r - evtol_breakdown.structural)/structural_r
+    weights_error.total       = abs(total_r - evtol_breakdown.total)/total_r
+    weights_error.lift_rotors = abs(lift_rotors_r - evtol_breakdown.lift_rotors)/lift_rotors_r if lift_rotors_r!=0 else abs(lift_rotors_r - evtol_breakdown.lift_rotors)
+    weights_error.propellers  = abs(propellers_r - evtol_breakdown.propellers)/propellers_r if propellers_r!=0 else abs(propellers_r - evtol_breakdown.propellers)
+    weights_error.prop_motors = abs(prop_motors_r - evtol_breakdown.propeller_motors)/prop_motors_r if prop_motors_r!=0 else abs(prop_motors_r - evtol_breakdown.propeller_motors)
+    weights_error.rot_motors  = abs(rot_motors_r - evtol_breakdown.lift_rotor_motors)/rot_motors_r if rot_motors_r!=0 else abs(rot_motors_r - evtol_breakdown.lift_rotor_motors)
+        
+    for k, v in weights_error.items():
+        assert (np.abs(v) < 1E-6)    
+        
+    if save_vtks:
+        Results  = Data()
+        Results['identical'] = False
+        Results['all_prop_outputs'] = results.segments.cruise.conditions.noise.sources.propellers 
+        save_vehicle_vtks(configs.base,Results,time_step=1)
+        
+    if plot_vehicle:
+        plot_vehicle(configs.base, save_figure = False, plot_control_points = False)
+        
     return
 
 # ----------------------------------------------------------------------
