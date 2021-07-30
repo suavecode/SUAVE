@@ -19,7 +19,6 @@ from SUAVE.Core import Units,Data
 import numpy as np
 import pylab as plt
 import sys
-import time
 
 from SUAVE.Plots.Mission_Plots import *  
 from SUAVE.Plots.Geometry_Plots.plot_vehicle import plot_vehicle  
@@ -42,7 +41,6 @@ def main():
 
 def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
     # Evaluate wing in propeller wake (using helical fixed-wake model)
-    ti = time.time()
     fixed_helical_wake = True
     configs, analyses  = full_setup(fixed_helical_wake) 
 
@@ -56,14 +54,11 @@ def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
 
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true         = 0.22770950632885756
+    lift_coefficient_true         = 0.2277127893248017
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true)
     print(lift_coefficient)
     print('CL difference')
     print(diff_CL)
-    
-    print((time.time()-ti)/60)
-    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
@@ -80,7 +75,9 @@ def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
     print(sectional_lift_coeff)
     print('Cl difference')
     print(diff_Cl)
-    assert  np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
+    
+    assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
+    assert np.max(np.abs(sectional_lift_coeff - sectional_lift_coeff_true)) < 1e-6
     
     # Check weights breakdown
     evtol_breakdown = empty(configs.base,contingency_factor=1.1)
