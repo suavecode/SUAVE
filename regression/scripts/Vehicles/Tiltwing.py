@@ -183,15 +183,15 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # PROPULSOR
     #------------------------------------------------------------------
-    net                      = SUAVE.Components.Energy.Networks.Battery_Propeller()
-    net.number_of_engines    = 8
-    net.thrust_angle         = 0.0   * Units.degrees #  conversion to radians, 
-    net.nacelle_diameter     = 0.2921 # https://www.magicall.biz/products/integrated-motor-controller-magidrive/
-    net.engine_length        = 0.95 
-    net.areas                = Data()
-    net.areas.wetted         = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
-    net.voltage              = 400.             
-    net.identical_propellers = True
+    net                                = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net.number_of_propeller_engines    = 8
+    net.thrust_angle                   = 0.0   * Units.degrees #  conversion to radians, 
+    net.nacelle_diameter               = 0.2921 # https://www.magicall.biz/products/integrated-motor-controller-magidrive/
+    net.engine_length                  = 0.95 
+    net.areas                          = Data()
+    net.areas.wetted                   = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
+    net.voltage                        = 400.             
+    net.identical_propellers           = True
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
@@ -246,7 +246,7 @@ def vehicle_setup():
     prop.design_Cl                = 0.7
     prop.design_altitude          = 500 * Units.feet                  
     Hover_Load                   = vehicle.mass_properties.takeoff*9.81  
-    prop.design_thrust            = Hover_Load/(net.number_of_engines-1) # contingency for one-engine-inoperative condition
+    prop.design_thrust            = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
 
     prop.airfoil_geometry         =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
     prop.airfoil_polars           = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,

@@ -117,7 +117,8 @@ def compute_propeller_wake_velocities(prop,grid_settings,grid_points, conditions
     props = SUAVE.Core.Container()
     props.append(prop_copy)
     
-    WD, dt, ts, B, Nr  = generate_propeller_wake_distribution(props,cpts,VD,init_timestep_offset, time, number_of_wake_timesteps, conditions )
+    identical_props = True
+    WD, dt, ts, B, Nr  = generate_propeller_wake_distribution(props,identical_props,cpts,VD,init_timestep_offset, time, number_of_wake_timesteps, conditions )
     prop.start_angle = prop_copy.start_angle
     
     # compute the wake induced velocities:
@@ -220,7 +221,7 @@ def vehicle_setup():
     # Propulsion Properties:
     net                   = SUAVE.Components.Energy.Networks.Battery_Propeller()
     net.tag               = 'prop_net'
-    net.number_of_engines = 2
+    net.number_of_propeller_engines = 2
 
     prop = SUAVE.Components.Energy.Converters.Propeller()
     prop = propeller_geometry() 

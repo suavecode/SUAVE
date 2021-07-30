@@ -69,7 +69,7 @@ class Battery_Propeller(Propulsor):
         self.tag                          = 'Battery_Propeller'
         self.use_surrogate                = False
         self.generative_design_minimum    = 0
-        self.identical_propellers         = True
+        self.identical_propellers         = False
         self.thrust_angle                 = 0.
     
     # manage process with a driver function

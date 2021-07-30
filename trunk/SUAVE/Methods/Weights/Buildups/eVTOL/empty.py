@@ -239,7 +239,7 @@ def empty(config,
         elif isinstance(propulsor, Battery_Propeller):
             # Total number of rotors and propellers
             nLiftRotors   = 0
-            nThrustProps  = propulsor.number_of_engines   
+            nThrustProps  = propulsor.number_of_propeller_engines   
             props         = propulsor.propellers
             prop_motors   = propulsor.propeller_motors
             

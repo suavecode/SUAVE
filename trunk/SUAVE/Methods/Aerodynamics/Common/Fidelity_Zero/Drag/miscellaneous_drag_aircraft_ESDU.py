@@ -9,6 +9,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 # SUAVE imports
+from SUAVE.Components.Energy.Networks.Lift_Cruise import Lift_Cruise
+from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Core import Data
 import numpy as np
 # ----------------------------------------------------------------------
@@ -57,17 +59,18 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
         swet_tot += fuselage.areas.wetted
 
     for propulsor in geometry.propulsors:
-        if 'propellers' in propulsor.keys():
-            if propulsor.identical_propellers:
-                swet_tot += propulsor.areas.wetted * propulsor.number_of_propeller_engines
-            else:
-                swet_tot += np.sum(propulsor.areas.wetted)
-        if 'lift_rotors' in propulsor.keys():
-            if propulsor.identical_lift_rotors:
-                swet_tot += propulsor.areas.wetted * propulsor.number_of_lift_rotor_engines
-            else:
-                swet_tot += np.sum(propulsor.areas.wetted)
-        if not ('propellers' or 'lift_rotors') in propulsor.keys():
+        if isinstance(propulsor,Lift_Cruise) or isinstance(propulsor,Battery_Propeller):
+            if 'propellers' in propulsor.keys():
+                if propulsor.identical_propellers:
+                    swet_tot += propulsor.areas.wetted * propulsor.number_of_propeller_engines
+                else:
+                    swet_tot += np.sum(propulsor.areas.wetted)
+            if 'lift_rotors' in propulsor.keys():
+                if propulsor.identical_lift_rotors:
+                    swet_tot += propulsor.areas.wetted * propulsor.number_of_lift_rotor_engines
+                else:
+                    swet_tot += np.sum(propulsor.areas.wetted)
+        else:
             swet_tot += propulsor.areas.wetted * propulsor.number_of_engines
             
         

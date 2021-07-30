@@ -29,7 +29,7 @@ def main():
     # analysis scripts
     
     net                       = Battery_Propeller()   
-    net.number_of_engines     = 2    
+    net.number_of_propeller_engines     = 2    
     
     # Design Gearbox 
     gearbox                   = SUAVE.Components.Energy.Converters.Gearbox()

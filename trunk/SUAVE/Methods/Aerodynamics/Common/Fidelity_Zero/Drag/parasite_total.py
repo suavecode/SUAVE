@@ -9,7 +9,8 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-
+from SUAVE.Components.Energy.Networks.Lift_Cruise import Lift_Cruise
+from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -75,19 +76,21 @@ def parasite_total(state,settings,geometry):
         parasite_drag = conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient 
         conditions.aerodynamics.drag_breakdown.parasite[propulsor.tag].parasite_drag_coefficient  = parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
         
-        # sum of parasite drag from all propellers
-        if 'propellers' in propulsor.keys():
-            if propulsor.identical_propellers:
-                total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_propeller_engines
-                    
-            else:
-                total_parasite_drag += np.atleast_2d(np.sum(parasite_drag * np.atleast_2d(ref_area/vehicle_reference_area),axis=1)).T
-        if 'lift_rotors' in propulsor.keys():
-            if propulsor.identical_propellers:
-                total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_lift_rotor_engines
-            else:
-                total_parasite_drag += np.atleast_2d(np.sum(parasite_drag * np.atleast_2d(ref_area/vehicle_reference_area),axis=1)).T
-        if not ('propellers' or 'lift_rotors') in propulsor.keys():
+        # sum of parasite drag from all rotors
+        if isinstance(propulsor,Lift_Cruise) or isinstance(propulsor,Battery_Propeller):
+            if 'propellers' in propulsor.keys():
+                if np.isscalar(propulsor.nacelle_diameter):
+                    total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_propeller_engines
+                else:
+                    # sum using parasite_drag from each prop
+                    total_parasite_drag += np.atleast_2d(np.sum(parasite_drag * np.atleast_2d(ref_area/vehicle_reference_area),axis=1)).T
+            if 'lift_rotors' in propulsor.keys():
+                if np.isscalar(propulsor.nacelle_diameter):
+                    total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_lift_rotor_engines
+                else:
+                    # sum using parasite_drag from each lift rotor
+                    total_parasite_drag += np.atleast_2d(np.sum(parasite_drag * np.atleast_2d(ref_area/vehicle_reference_area),axis=1)).T
+        else:
             total_parasite_drag += parasite_drag * ref_area/vehicle_reference_area * propulsor.number_of_engines
             
     # from pylons

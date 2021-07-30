@@ -303,15 +303,15 @@ def vehicle_setup():
     # DEFINE PROPELLER NETWORK AND PROPELLERS
     #---------------------------------------------------------------------------------------------
     # build network    
-    net                         = Battery_Propeller() 
-    net.number_of_engines       = 14.                  # 2 during cruise, +12 used during takeoff/landing
-    net.nacelle_diameter        = np.array([1.66, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
-                                            0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.66]) * Units.feet
-    net.engine_length           = np.array([3., 1., 1., 1., 1., 1., 1.,
-                                            1., 1., 1., 1., 1., 1., 3.]) * Units.feet
-    net.identical_propellers    = False
-    net.areas                   = Data()
-    net.areas.wetted            = net.nacelle_diameter*net.engine_length + (np.pi*net.nacelle_diameter**2/2)    
+    net                               = Battery_Propeller() 
+    net.number_of_propeller_engines   = 14.                  # 2 during cruise, +12 used during takeoff/landing
+    net.nacelle_diameter              = np.array([1.66, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                                                  0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.66]) * Units.feet
+    net.engine_length                 = np.array([3., 1., 1., 1., 1., 1., 1.,
+                                                  1., 1., 1., 1., 1., 1., 3.]) * Units.feet
+    net.identical_propellers          = False
+    net.areas                         = Data()
+    net.areas.wetted                  = net.nacelle_diameter*net.engine_length + (np.pi*net.nacelle_diameter**2/2)    
 
 
     # Component 1 the ESC

@@ -101,8 +101,10 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
     # for each propeller, unpack and compute 
     for i, propi in enumerate(props):
         propi_key        = list(props.keys())[i]
-        propi_outputs     = conditions.noise.sources.propellers[propi_key]
-        #propi_origins    = unique_propellers.repeated_origins
+        if identical:
+            propi_outputs = prop_outputs
+        else:
+            propi_outputs     = conditions.noise.sources.propellers[propi_key]
         
         # Unpack
         R                = propi.tip_radius
@@ -164,12 +166,6 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         start_angle_offset = np.repeat(np.repeat(np.atleast_2d(start_angle)[:, :, np.newaxis],B, axis = 2)[:, :,:, np.newaxis],Nr, axis = 3) 
         
         total_angle_offset = angle_offset - start_angle_offset
-        
-    #for i in range(num_prop):
-        # adjust for clockwise/counter clockwise rotation
-        ## For this step need to index the unique prop
-        #propi_key     = list(props.keys())[i]
-        #propi         = props[propi_key]        
         
         if (propi.rotation != None) and (propi.rotation == 1):        
             total_angle_offset = -total_angle_offset
@@ -246,9 +242,6 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         VD.Wake.YB2[i,:,0:B,:] =  Y_pts[0 ,  1: , : , 1:  ]
         VD.Wake.ZB2[i,:,0:B,:] =  Z_pts[0 ,  1: , : , 1:  ]  
         
-        ## update wake iteration
-        #idx +=1
-
     # Compress Data into 1D Arrays  
     mat4_size = (m,num_prop,(number_of_wake_timesteps-1),Bmax*nmax)
     mat5_size = (m,num_prop,(number_of_wake_timesteps-1)*Bmax*nmax)

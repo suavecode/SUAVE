@@ -91,9 +91,6 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
         if propeller_wake_model:
             if 'propellers' in propulsor.keys():
                 
-                if not propulsor.identical_propellers:
-                    assert('This method currently only works with identical propellers')                    
-                
                 # extract the propeller data structure
                 identical_props = propulsor.identical_propellers
                 props           = propulsor.propellers
@@ -107,9 +104,6 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
 
             if 'lift_rotors' in propulsor.keys():
                 
-                if not propulsor.identical_lift_rotors:
-                    assert('This method currently only works with identical rotors')                    
-
                 # extract the propeller data structure
                 identical_rots = propulsor.identical_lift_rotors
                 lift_rotors    = propulsor.rotors
