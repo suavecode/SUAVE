@@ -162,15 +162,13 @@ def generate_lofted_propeller_points(prop):
     n_a_cw    = 20                                   # number of airfoil chordwise points
     n_r       = len(b)                               # number radial points
     n_a_loft  = 2*n_a_cw                             # number points around airfoil
-    #num_props = len(origin)                          # number of propellers
     theta     = np.linspace(0,2*np.pi,num_B+1)[:-1]  # azimuthal stations
     
     # create empty data structure for storing propeller geometries
     G           = Data()
     Gprops      = Data()
     Gprops.n_af = n_a_loft
-    
-    #for n_p in range(num_props):  
+     
     rot         = prop.rotation
     flip_1      = (np.pi/2)  
     flip_2      = (np.pi/2)  

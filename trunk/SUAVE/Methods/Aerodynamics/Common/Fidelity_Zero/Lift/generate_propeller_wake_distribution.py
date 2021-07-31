@@ -15,8 +15,6 @@ import numpy as np
 from SUAVE.Core import Data 
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contraction_matrix import compute_wake_contraction_matrix
 
-from copy import deepcopy
-
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
 def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
     """ This generates the propeller wake control points used to compute the 
@@ -51,22 +49,6 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         Bmax = int(prop.number_of_blades)
         nmax = int(prop_outputs.number_radial_stations - 1)
         
-        ## All propellers are identical, only one unique propeller
-        #unique_propellers = Data()
-        #unique_propellers.propellers       = Data()
-        #unique_propellers.propellers.prop  = deepcopy(prop)
-        
-        ## Append origins of the repeated propellers
-        #repeat_origins = prop.origin
-        #rotations      = np.array([prop.rotation])
-        #for k in range(num_prop-1):
-            #repeat_origins = np.append(repeat_origins, props[prop_keys[k+1]].origin,axis=0)
-            #rotations = np.append(rotations, props[prop_keys[k+1]].rotation)
-            
-        #unique_propellers.repeated_origins  = repeat_origins
-        #unique_propellers.repeated_rotations = rotations
-        
-        # do normal calcs
     else:
         # Props are unique, must find required matrix sizes to fit all vortex distributions
         prop_keys   = list(props.keys())
@@ -85,18 +67,8 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         Bmax = int(max(B_list))
         nmax = int(max(Nr_list)-1)
         
-        ## Identify unique propellers and repeated instances
-        #unique_propellers = Data()
-        #unique_propellers.propellers = props
-        
-        
-        # do calcs with zeros in matrix spots where they don't align
-        
     # Initialize empty arrays with required sizes
     VD, WD, Wmid = initialize_distributions(nmax, Bmax, number_of_wake_timesteps, num_prop, m,VD)
-    
-    ## counter for propeller wakes
-    #idx = 0
     
     # for each propeller, unpack and compute 
     for i, propi in enumerate(props):

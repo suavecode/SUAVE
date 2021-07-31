@@ -353,10 +353,6 @@ def vehicle_setup():
     net.propellers.append(prop)
     net.propellers.append(prop_left)
     
-    #if net.identical_props:
-        ## take the origins and rotations into single vector
-    
-    
     
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
