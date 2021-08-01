@@ -54,7 +54,7 @@ def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
 
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true         = 0.2277127893248017
+    lift_coefficient_true         = 0.24208441016923554
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true)
     print(lift_coefficient)
     print('CL difference')
@@ -62,13 +62,13 @@ def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 5.36394747e-01,  7.08910766e-01,  4.90185369e-01, -1.01002420e-01,
-                                                 -8.39700963e-03,  5.36394802e-01,  7.08910959e-01,  4.90185405e-01,
-                                                 -1.01002449e-01, -8.39708270e-03,  4.17360381e-02,  4.26519321e-02,
-                                                  3.67531636e-02,  2.56934392e-02,  1.50074699e-02,  4.17360203e-02,
-                                                  4.26519099e-02,  3.67531364e-02,  2.56934255e-02,  1.50074953e-02,
-                                                  1.93442102e-15,  1.08705900e-16, -2.92033700e-16, -3.92391436e-16,
-                                                 -2.63521794e-16])
+    sectional_lift_coeff_true       = np.array([ 5.62716894e-01,  7.33100233e-01,  5.11285765e-01, -7.78676723e-02,
+                                                 9.84763281e-03,  5.62544953e-01,  7.32998285e-01,  5.10973071e-01,
+                                                -8.02718054e-02,  9.80704230e-03,  5.44700249e-02,  5.63185668e-02,
+                                                 5.02731348e-02,  3.72460226e-02,  2.25007006e-02,  5.45327411e-02,
+                                                 5.64004350e-02,  5.03415670e-02,  3.72940393e-02,  2.25291350e-02,
+                                                 1.85066657e-10,  1.06572126e-11,  2.28043656e-12,  5.99413284e-13,
+                                                 2.31213820e-13])
 
     diff_Cl                         = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     

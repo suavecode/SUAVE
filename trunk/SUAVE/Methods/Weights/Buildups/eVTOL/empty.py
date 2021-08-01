@@ -18,9 +18,6 @@ from SUAVE.Methods.Weights.Buildups.Common.wing import wing
 from SUAVE.Components.Energy.Networks import Battery_Propeller
 from SUAVE.Components.Energy.Networks import Lift_Cruise
 
-from SUAVE.Components.Energy.Converters import Lift_Rotor
-from SUAVE.Components.Energy.Converters import Propeller
-
 import numpy as np
 from warnings import  warn
 

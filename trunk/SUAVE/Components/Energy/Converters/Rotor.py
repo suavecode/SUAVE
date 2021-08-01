@@ -84,7 +84,7 @@ class Rotor(Energy_Component):
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor        
         
         self.inputs.y_axis_rotation    = 0.
-        self.inputs.pitch_command      = 0.
+        self.inputs.pitch_command      = [[0.]]
         self.variable_pitch            = False
 
     def spin(self,conditions):
@@ -247,14 +247,20 @@ class Rotor(Energy_Component):
         ur       = 0             
     
         # Include velocities introduced by rotor incidence angles
-        if not np.all(np.array(self.orientation_euler_angles)==0):
+        if np.any(abs(V_thrust[:,1]) >1e-3) or np.any(abs(V_thrust[:,2]) >1e-3):
+            
             # incidence angle creates disturbances in radial and tangential velocities
             use_2d_analysis = True
             
-            # component of freestream in the propeller plane
+            # y-component of freestream in the propeller plane
+            Vy  = V_thrust[:,1,None,None]
+            Vy  = np.repeat(Vy, Na,axis=1)
+            Vy  = np.repeat(Vy, Nr,axis=2)
+            
+            # z-component of freestream in the propeller plane
             Vz  = V_thrust[:,2,None,None]
             Vz  = np.repeat(Vz, Na,axis=1)
-            Vz  = np.repeat(Vz, Nr,axis=2)
+            Vz  = np.repeat(Vz, Nr,axis=2)            
             
             # check for invalid rotation angle
             if (rotation == 1) or (rotation == -1):  
@@ -263,11 +269,16 @@ class Rotor(Energy_Component):
                 print("Invalid rotation direction. Setting to 1.")
                 rotation = 1
             
-            # compute resulting radial and tangential velocities in propeller frame
-            ut +=  ( Vz*np.cos(psi_2d)  ) * rotation
-            ur +=  (-Vz*np.sin(psi_2d)  )
+            # compute resulting radial and tangential velocities in rotational frame
+            utz =  Vz*np.cos(psi_2d) * rotation
+            urz = -Vz*np.sin(psi_2d)
+            uty = -Vy*np.sin(psi_2d) * rotation
+            ury = -Vy*np.cos(psi_2d)
+            
+            ut +=  (utz + uty)
+            ur +=  (urz + ury)
             ua +=  np.zeros_like(ut)
-        
+            
         # Include external velocities introduced by user  
         if nonuniform_freestream:
             use_2d_analysis   = True
@@ -294,8 +305,8 @@ class Rotor(Energy_Component):
             Ua     = V_2d + ua      
             
             # 2-D blade pitch and radial distributions
-            beta = np.tile(total_blade_pitch,(Na ,1))
-            beta = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
+            beta = np.repeat(total_blade_pitch[:,None,:],Na,axis=1)
+            #beta = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
             r    = np.tile(r_1d,(Na ,1))
             r    = np.repeat(r[np.newaxis,:, :], ctrl_pts, axis=0) 
             
@@ -411,18 +422,25 @@ class Rotor(Energy_Component):
         epsilon                  = Cd/Cl
         epsilon[epsilon==np.inf] = 10. 
 
+        # thrust and torque and their derivatives on the blade. 
         blade_T_distribution     = rho*(Gamma*(Wt-epsilon*Wa))*deltar 
         blade_Q_distribution     = rho*(Gamma*(Wa+epsilon*Wt)*r)*deltar 
+        blade_dT_dr              = rho*(Gamma*(Wt-epsilon*Wa))
+        blade_dQ_dr              = rho*(Gamma*(Wa+epsilon*Wt)*r)          
         
         if use_2d_analysis:
             blade_T_distribution_2d = blade_T_distribution
             blade_Q_distribution_2d = blade_Q_distribution
+            blade_dT_dr_2d          = blade_dT_dr
+            blade_dQ_dr_2d          = blade_dQ_dr
             blade_Gamma_2d          = Gamma
             alpha_2d                = alpha
             
             # set 1d blade loadings to be the average:
             blade_T_distribution    = np.mean((blade_T_distribution_2d), axis = 1)
             blade_Q_distribution    = np.mean((blade_Q_distribution_2d), axis = 1)  
+            blade_dT_dr             = np.mean((blade_dT_dr_2d), axis = 1) 
+            blade_dQ_dr             = np.mean((blade_dQ_dr_2d), axis = 1)
             
             Va_2d = Wa
             Vt_2d = Wt
@@ -446,6 +464,8 @@ class Rotor(Energy_Component):
     
             blade_T_distribution_2d  = np.repeat(blade_T_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
             blade_Q_distribution_2d  = np.repeat(blade_Q_distribution.T[ np.newaxis,:  , :], Na, axis=0).T 
+            blade_dT_dr_2d           = np.repeat(blade_dT_dr.T[ np.newaxis,:  , :], Na, axis=0).T 
+            blade_dQ_dr_2d           = np.repeat(blade_dQ_dr.T[ np.newaxis,:  , :], Na, axis=0).T 
             blade_Gamma_2d           = np.repeat(Gamma.T[ : , np.newaxis , :], Na, axis=1).T
             alpha_2d                 = np.repeat(alpha.T[ : , np.newaxis , :], Na, axis=1).T
 
@@ -464,10 +484,8 @@ class Rotor(Energy_Component):
             
             rotor_drag_distribution = np.mean(dL_2d*np.sin(psi_2d) + dD_2d*np.cos(psi_2d),axis=1)
         
-        # thrust and torque derivatives on the blade. 
-        blade_dT_dr = rho*(Gamma*(Wt-epsilon*Wa))
-        blade_dQ_dr = rho*(Gamma*(Wa+epsilon*Wt)*r)         
-        
+       
+        # forces
         thrust                  = np.atleast_2d((B * np.sum(blade_T_distribution, axis = 1))).T 
         torque                  = np.atleast_2d((B * np.sum(blade_Q_distribution, axis = 1))).T
         rotor_drag              = np.atleast_2d((B * np.sum(rotor_drag_distribution, axis=1))).T
@@ -530,6 +548,7 @@ class Rotor(Energy_Component):
                     omega                             = omega,  
                     disc_circulation                  = blade_Gamma_2d, 
                     blade_dT_dr                       = blade_dT_dr,
+                    disc_dT_dr                        = blade_dT_dr_2d,
                     blade_thrust_distribution         = blade_T_distribution, 
                     disc_thrust_distribution          = blade_T_distribution_2d, 
                     disc_effective_angle_of_attack    = alpha_2d,
@@ -537,6 +556,7 @@ class Rotor(Energy_Component):
                     thrust_coefficient                = Ct, 
                     disc_azimuthal_distribution       = psi_2d, 
                     blade_dQ_dr                       = blade_dQ_dr,
+                    disc_dQ_dr                        = blade_dQ_dr_2d,
                     blade_torque_distribution         = blade_Q_distribution,    
                     disc_torque_distribution          = blade_Q_distribution_2d, 
                     torque_per_blade                  = torque/B,   
