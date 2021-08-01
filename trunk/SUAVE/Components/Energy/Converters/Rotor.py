@@ -84,7 +84,7 @@ class Rotor(Energy_Component):
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor        
         
         self.inputs.y_axis_rotation    = 0.
-        self.inputs.pitch_command      = [[0.]]
+        self.inputs.pitch_command      = 0.
         self.variable_pitch            = False
 
     def spin(self,conditions):
@@ -305,8 +305,8 @@ class Rotor(Energy_Component):
             Ua     = V_2d + ua      
             
             # 2-D blade pitch and radial distributions
-            beta = np.repeat(total_blade_pitch[:,None,:],Na,axis=1)
-            #beta = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
+            beta = np.tile(total_blade_pitch,(Na ,1))
+            beta = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
             r    = np.tile(r_1d,(Na ,1))
             r    = np.repeat(r[np.newaxis,:, :], ctrl_pts, axis=0) 
             

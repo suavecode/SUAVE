@@ -78,8 +78,8 @@ class Lift_Cruise(Propulsor):
         self.number_of_lift_rotor_engines = 0
         self.number_of_propeller_engines  = 0
         self.voltage                      = None
-        self.propeller_pitch_command      = [[0.0]]
-        self.lift_rotor_pitch_command     = [[0.0]]   
+        self.propeller_pitch_command      = 0.0
+        self.lift_rotor_pitch_command     = 0.0   
         self.tag                          = 'Lift_Cruise'
         self.generative_design_minimum    = 0
         self.identical_propellers         = True

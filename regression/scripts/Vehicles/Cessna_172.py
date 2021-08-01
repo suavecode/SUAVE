@@ -227,7 +227,6 @@ def vehicle_setup():
     net.nacelle_diameter                        = 42 * Units.inches
     net.engine_length                           = 0.01 * Units.inches
     net.identical_propellers                    = True
-    net.areas                                   = Data()
     net.areas.wetted                            = 0.01
                                                 
     # the engine                    

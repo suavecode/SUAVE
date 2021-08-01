@@ -46,8 +46,8 @@ def main():
     # evaluate
     results = mission.evaluate()
     
-    P_truth     = 114546.52966949211
-    mdot_truth  = 0.010064320334422967
+    P_truth     = 83768.03932075672
+    mdot_truth  = 0.007360051709494732
     
     P    = results.segments.cruise.state.conditions.propulsion.power[-1,0]
     mdot = results.segments.cruise.state.conditions.weights.vehicle_mass_rate[-1,0]     
@@ -78,7 +78,6 @@ def ICE_CS(vehicle):
     net.number_of_engines                       = 1.
     net.nacelle_diameter                        = 42 * Units.inches
     net.engine_length                           = 0.01 * Units.inches
-    net.areas                                   = Data()
     net.rated_speed                             = 2700. * Units.rpm
     net.rated_power                             = 180.  * Units.hp
     net.areas.wetted                            = 0.01
@@ -140,36 +139,30 @@ def mission_setup(analyses):
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
     airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-
-    mission.airport = airport    
+    mission.airport    = airport    
 
     # unpack Segments module
     Segments = SUAVE.Analyses.Mission.Segments
 
     # base segment
     base_segment = Segments.Segment()
-    
+    ones_row     = base_segment.state.ones_row
+    base_segment.state.numerics.number_control_points    = 3
 
 
     # ------------------------------------------------------------------    
     #   Cruise Segment: Constant Speed Constant Altitude
     # ------------------------------------------------------------------    
 
-    segment = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
-    segment.tag = "cruise"
-
+    segment        = Segments.Cruise.Constant_Speed_Constant_Altitude(base_segment)
+    segment.tag    = "cruise"
     segment.analyses.extend( analyses )
 
-    segment.altitude  = 12000. * Units.feet
-    segment.air_speed = 119.   * Units.knots
-    segment.distance  = 10 * Units.nautical_mile
-    
-    ones_row                                        = segment.state.ones_row   
+    segment.altitude                                = 12000. * Units.feet
+    segment.air_speed                               = 119.   * Units.knots
+    segment.distance                                = 10 * Units.nautical_mile
     segment.state.conditions.propulsion.rpm         = 2650.  * Units.rpm *  ones_row(1) 
-    segment.state.numerics.number_control_points    = 4
-    segment.state.unknowns.throttle                 = 0.1  *  ones_row(1) 
-    
-    
+    segment.state.unknowns.throttle                 = 0.1  *  ones_row(1)
     segment.process.iterate.conditions.stability    = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability = SUAVE.Methods.skip    
 

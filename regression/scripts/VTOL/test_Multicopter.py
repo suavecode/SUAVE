@@ -129,7 +129,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'hover'
-    config.propulsors.battery_propeller.pitch_command            = [[0.* Units.degrees ]]  
+    config.propulsors.battery_propeller.pitch_command            = 0.* Units.degrees 
     configs.append(config)
     
     # ------------------------------------------------------------------
@@ -137,7 +137,7 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'climb'   
-    config.propulsors.battery_propeller.pitch_command            = [[0.* Units.degrees]]  
+    config.propulsors.battery_propeller.pitch_command            = 0.* Units.degrees
     configs.append(config)
     
     return configs
