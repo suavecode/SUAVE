@@ -41,7 +41,7 @@ modules = [
     'scripts/aerodynamics/aerodynamics.py',
     'scripts/aerodynamics/control_surfaces_vlm.py',
     'scripts/aerodynamics/sears_haack.py',
-    #'scripts/aerodynamics/sideslip_and_rotation_vlm.py',
+    'scripts/aerodynamics/sideslip_and_rotation_vlm.py',
     'scripts/airfoil_import/airfoil_import_test.py',
     'scripts/airfoil_import/airfoil_interpolation_test.py',
     'scripts/atmosphere/atmosphere.py',
