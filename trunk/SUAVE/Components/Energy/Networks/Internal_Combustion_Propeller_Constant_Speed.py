@@ -118,6 +118,7 @@ class Internal_Combustion_Propeller_Constant_Speed(Propulsor):
             prop       = self.propellers[prop_key]                
 
             # Run the propeller to get the power
+            prop.inputs.pitch_command = conditions.propulsion.throttle
             prop.inputs.omega         = rpm
             
             # step 4

@@ -305,8 +305,12 @@ class Rotor(Energy_Component):
             Ua     = V_2d + ua      
             
             # 2-D blade pitch and radial distributions
-            beta = np.tile(total_blade_pitch,(Na ,1))
-            beta = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
+            if np.size(pitch_c)>1:
+                # control variable is the blade pitch, repeat around azimuth
+                beta = np.repeat(total_blade_pitch[:,None,:], Na, axis=1)
+            else:
+                beta = np.tile(total_blade_pitch,(Na ,1))
+                beta = np.repeat(beta[np.newaxis,:, :], ctrl_pts, axis=0)
             r    = np.tile(r_1d,(Na ,1))
             r    = np.repeat(r[np.newaxis,:, :], ctrl_pts, axis=0) 
             
