@@ -4,6 +4,8 @@
 # Created:  Jun 2016, E. Botero
 # Modified: Jan 2020, M. Clarke
 #           May 2020, E. Botero
+#           Jul 2021, E. Botero
+
 
 
 # ----------------------------------------------------------------------
@@ -453,16 +455,16 @@ class Data(dict):
             Properties Used:
             N/A    
         """          
-        klass = self.__class__
-        klasses = []
-        while klass:
-            if issubclass(klass,Data): 
-                klasses.append(klass)
-                klass = klass.__base__
-            else:
-                klass = None
-        if not klasses: # empty list
-            raise TypeError('class %s is not of type Data()' % self.__class__)
+        # Get the Method Resolution Order, i.e. the ancestor tree
+        klasses = list(self.__class__.__mro__)
+        
+        # Make sure that this is a Data object, otherwise throw an error.
+        if Data not in klasses:
+            raise TypeError('class %s is not of type Data()' % self.__class__)    
+        
+        # Remove the last two items, dict and object. Since the line before ensures this is a data objectt this won't break
+        klasses = klasses[:-2]
+
         return klasses    
     
     def append(self,value,key=None):

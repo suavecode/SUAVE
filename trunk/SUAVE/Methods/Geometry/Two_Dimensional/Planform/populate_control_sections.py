@@ -120,12 +120,14 @@ def populate_control_sections(wing):
                     control_surface.span                  = cs.span*(s_sf[1]-s_sf[0])/(cs.span_fraction_end-cs.span_fraction_start)
                     control_surface.span_fraction_start   = s_sf[0] 
                     control_surface.span_fraction_end     = s_sf[1]         
-                    control_surface.chord_fraction        = cs.chord_fraction
                     control_surface.hinge_fraction        = cs.hinge_fraction
+                    control_surface.chord_fraction        = cs.chord_fraction
+                    control_surface.sign_duplicate        = cs.sign_duplicate
                     control_surface.deflection            = cs.deflection
                     control_surface.configuration_type    = cs.configuration_type
                     control_surface.gain                  = cs.gain                    
                     
+                    #for calls from make_VLM_wings
                     if 'cs_type' in cs.keys():
                         control_surface.cs_type           = cs.cs_type
                     
