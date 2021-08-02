@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data 
+import SUAVE 
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.integrate import odeint
@@ -15,13 +15,12 @@ from scipy.integrate import odeint
 # thwaites_method
 # ----------------------------------------------------------------------  
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def thwaites_method(nalpha,nRe,L,RE_L,X_I, VE_I, DVE_I,batch_analysis,THETA_0,n = 200):
+def thwaites_method_old(theta_0, L, Re_L, x_i, Ve_i, dVe_i,n = 200):
     """ Computes the boundary layer characteristics in laminar 
     flow pressure gradients
     
     Assumptions:
     None
-
     Inputs:  
     theta_0     - intial momentum thickness  
     L           - normalized lenth of surface
@@ -30,7 +29,6 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I, VE_I, DVE_I,batch_analysis,THETA_0,n 
     Ve_i        - boundary layer velocity at transition location 
     dVe_i       - intial derivative value of boundary layer velocity at transition location 
     n           - number of points on surface 
-
     Outputs: 
     x           - new dimension of x coordinated on surface of airfoil
     theta       - momentum thickness
@@ -38,106 +36,51 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I, VE_I, DVE_I,batch_analysis,THETA_0,n 
     H           - shape factor
     cf          - friction coefficient
     delta       - boundary layer thickness
-
     Properties Used:
     N/A
     """     
     
-    X_T        = np.zeros((n,nalpha,nRe))
-    THETA_T    = np.zeros_like(X_T)
-    DELTA_STAR_T = np.zeros_like(X_T)
-    H_T        = np.zeros_like(X_T)
-    CF_T       = np.zeros_like(X_T)
-    RE_THETA_T = np.zeros_like(X_T)
-    RE_X_T     = np.zeros_like(X_T)
-    DELTA_T    = np.zeros_like(X_T)  
+    nu          = L / Re_L
+    y0          = theta_0**2 * getVe(0,x_i,Ve_i)**6 
+    xspan       = np.linspace(0,L,n)  
+    theta2_Ve6  = odeint(odefcn, y0, xspan, args=(nu, x_i, Ve_i)) 
+    x           = np.linspace(0,L,n) 
     
-    if batch_analysis:
-        N_ALPHA = nalpha
-    else:
-        N_ALPHA = 1 
+    thetav          = np.sqrt(theta2_Ve6[:,0]/ getVe(x, x_i, Ve_i)**6)
+    theta           = thetav
+    idx1            = (abs((thetav[1:] - thetav[:-1])/thetav[:-1]) > 5E-1)
+    theta[1:][idx1] = thetav[:-1][idx1] + 1E-12 
     
-    for a_i in range(N_ALPHA):
-        for re_i in range(nRe):    
-            if batch_analysis: 
-                l   = L[a_i,re_i]
-            else:
-                a_i = re_i    
-            l   = L[a_i,re_i]
-            theta_0 = THETA_0 
-            Re_L    = RE_L[a_i,re_i]
-            nu      = l/Re_L    
-            x_i     = X_I.data[:,0,0][X_I.mask[:,0,0] ==False]
-            Ve_i    = VE_I.data[:,0,0][VE_I.mask[:,0,0] ==False]
-            dVe_i   = DVE_I.data[:,0,0][DVE_I.mask[:,0,0] ==False]
-            
-            y0                 = theta_0**2 * getVe(0,x_i,Ve_i)**6  # for one aoa, one rei 
-            xspan              = np.linspace(0,l,n)  # for all surface points 
-            theta2_Ve6         = odeint(odefcn, y0, xspan, args=(nu, x_i, Ve_i)) # make a loop 
-            x                  = np.linspace(0,l,n) # for all surface points 
-                
-            thetav             = np.sqrt(theta2_Ve6[:,0]/ getVe(x, x_i, Ve_i)**6)
-            theta              = thetav
-            idx1               = (abs((thetav[1:] - thetav[:-1])/thetav[:-1]) > 5E-1)
-            theta[1:][idx1]    = thetav[:-1][idx1] + 1E-12 
-            
-            # thwaites separation criteria 
-            lambda_val         = theta**2 * getdVe(x,x_i,dVe_i) / nu 
-            
-            # compute flow properties 
-            H                  = getH(lambda_val )
-            Re_theta           = getVe(x,x_i,Ve_i) * theta/ nu
-            Re_x               = getVe(x,x_i,Ve_i) * x/ nu
-            cf                 = getcf(lambda_val ,Re_theta)
-            del_starv          = H *theta  
-            
-            del_star           = del_starv
-            idx1               = (abs((del_starv[1:] - del_starv[:-1])/del_starv[:-1]) > 5E-1)
-            del_star[1:][idx1] =  del_starv[:-1][idx1] + 1E-12  
-             
-            delta              = 5.2*x/np.sqrt(Re_x)
-            delta[0]           = 0 
-            Re_x[0]            = 1e-12
-            
-            
-            X_T[:,a_i,re_i]        = x
-            THETA_T[:,a_i,re_i]    = theta
-            DELTA_STAR_T[:,a_i,re_i] = del_star
-            H_T[:,a_i,re_i]        = H
-            CF_T[:,a_i,re_i]       = cf
-            RE_THETA_T[:,a_i,re_i] = Re_theta
-            RE_X_T[:,a_i,re_i]     = Re_x
-            DELTA_T[:,a_i,re_i]    = delta
-            
+    # thwaites separation criteria 
+    lambda_val  = theta**2 * getdVe(x,x_i,dVe_i) / nu 
     
-    RESULTS = Data(
-        X_T          = X_T,      
-        THETA_T      = THETA_T,   
-        DELTA_STAR_T = DELTA_STAR_T,
-        H_T          = H_T,       
-        CF_T         = CF_T,      
-        RE_THETA_T   = RE_THETA_T,   
-        RE_X_T       = RE_X_T,    
-        DELTA_T      = DELTA_T,   
-    )    
+    # compute flow properties 
+    H           = getH(lambda_val )
+    Re_theta    = getVe(x,x_i,Ve_i) * theta/ nu
+    Re_x        = getVe(x,x_i,Ve_i) * x/ nu
+    cf          = getcf(lambda_val ,Re_theta)
+    del_starv   = H *theta  
     
-    return RESULTS
+    del_star           = del_starv
+    idx1               = (abs((del_starv[1:] - del_starv[:-1])/del_starv[:-1]) > 5E-1)
+    del_star[1:][idx1] =  del_starv[:-1][idx1] + 1E-12  
+     
+    delta       = 5.2*x/np.sqrt(Re_x)
+    delta[0]    = 0 
+    Re_x[0]     = 1e-12
+    
+    return x, theta, del_star, H, cf, Re_theta, Re_x , delta 
     
 def getH(lambda_val ): 
     """ Computes the shape factor, H
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     lamdda_val  - thwaites separation criteria 
-
     Outputs:  
     H           - shape factor
-
     Properties Used:
     N/A
     """      
@@ -150,13 +93,10 @@ def getH(lambda_val ):
     
 def odefcn(y,x, nu,x_i,Ve_i):
     """ Computes bounday layer functions using SciPy ODE solver 
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     y           - initial conditions of functions 
     x           - new x values at which to solve ODE
@@ -166,7 +106,6 @@ def odefcn(y,x, nu,x_i,Ve_i):
     
     Outputs:  
     dydx        - expression for the momentum thickness and velocity (theta**2/Ve**6)
-
     Properties Used:
     N/A 
     """        
@@ -175,13 +114,10 @@ def odefcn(y,x, nu,x_i,Ve_i):
     
 def getVe(x,x_i,Ve_i):
     """ Interpolates the bounday layer velocity over a new dimension of x 
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     x         - new x dimension
     x_i       - old x dimension 
@@ -189,23 +125,19 @@ def getVe(x,x_i,Ve_i):
     
     Outputs:  
     Ve        - new boundary layer velocity values 
-
     Properties Used:
     N/A 
     """
-    Ve_func = interp1d(x_i,Ve_i, axis=0,fill_value = "extrapolate")
+    Ve_func = interp1d(x_i,Ve_i,fill_value = "extrapolate")
     Ve      = Ve_func(x)
     return Ve 
 
 def getdVe(x,x_i,dVe_i):
     """ Interpolates the derivatives of the bounday layer velocity over a new dimension of x 
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     x         - new x dimension
     x_i       - old x dimension 
@@ -213,7 +145,6 @@ def getdVe(x,x_i,dVe_i):
     
     Outputs:  
     dVe       - new derivative of boundary layer velocity values 
-
     Properties Used:
     N/A 
     """
@@ -223,20 +154,15 @@ def getdVe(x,x_i,dVe_i):
 
 def getcf(lambda_val , Re_theta):
     """ Computes the skin friction coefficient, cf
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     lambda_val - thwaites separation criteria 
     Re_theta   - Reynolds Number as a function of momentum thickness  
-
     Outputs:  
     cf       - skin friction coefficient
-
     Properties Used:
     N/A 
     """        

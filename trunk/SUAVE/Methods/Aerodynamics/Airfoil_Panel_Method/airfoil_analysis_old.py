@@ -11,9 +11,9 @@ from SUAVE.Core import  Data
 import numpy as np
 from scipy.interpolate import interp1d  
 
-from .hess_smith      import hess_smith
-from .thwaites_method import thwaites_method
-from .heads_method    import heads_method
+from .hess_smith_old      import hess_smith_old
+from .thwaites_method_old import thwaites_method_old
+from .heads_method_old    import heads_method_old
 from .aero_coeff      import aero_coeff 
 
 # ----------------------------------------------------------------------
@@ -21,7 +21,7 @@ from .aero_coeff      import aero_coeff
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 200, batch_analyis = True ):
+def airfoil_analysis_old(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 200, batch_analyis = True ):
     """This computed the aerodynamic polars as well as the boundary lawer properties of 
     an airfoil at a defined set of reynolds numbers and angle of attacks
 
@@ -71,7 +71,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     # Begin by solving for velocity distribution at airfoil surface ucosg  inviscid panel simulation
     ## these are the locations (faces) where things are computed , len = n panel
     # dimension of vt = npanel x nalpha x nRe
-    x,y,vt,cos_t,normals = hess_smith(x_coord,y_coord,alpha,Re_L,npanel)    
+    x,y,vt,cos_t,normals = hess_smith_old(x_coord,y_coord,alpha,Re_L,npanel)    
     
     nalpha           = len(alpha)
     nRe              = len(Re_L) 
@@ -135,7 +135,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             L_bot         = x_bot[-1] # x - location of stagnation point 
             
             # laminar boundary layer properties using thwaites method 
-            x_t_bot, theta_t_bot, del_star_t_bot, H_t_bot, cf_t_bot, Re_theta_t_bot, Re_x_t_bot,delta_t_bot= thwaites_method(0.000001, L_bot , Re_L_val, x_bot, Ve_bot, dVe_bot,n=n_computation)
+            x_t_bot, theta_t_bot, del_star_t_bot, H_t_bot, cf_t_bot, Re_theta_t_bot, Re_x_t_bot,delta_t_bot= thwaites_method_old(0.000001, L_bot , Re_L_val, x_bot, Ve_bot, dVe_bot,n=n_computation)
             
             # transition location  
             tr_crit_bot     = Re_theta_t_bot - 1.174*(1 + 224000/Re_x_t_bot)*Re_x_t_bot**0.46                
@@ -150,7 +150,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             theta_tr_bot    = theta_t_bot[i_tr_bot]    
             delta_tr_bot    = delta_t_bot[i_tr_bot] 
             
-            x_h_bot, theta_h_bot, del_star_h_bot, H_h_bot, cf_h_bot, delta_h_bot = heads_method(delta_tr_bot,theta_tr_bot, del_star_tr_bot, L_bot - x_tr_bot,Re_L_val, x_bot - x_tr_bot, Ve_bot, dVe_bot,x_tr_bot,n=n_computation )
+            x_h_bot, theta_h_bot, del_star_h_bot, H_h_bot, cf_h_bot, delta_h_bot = heads_method_old(delta_tr_bot,theta_tr_bot, del_star_tr_bot, L_bot - x_tr_bot,Re_L_val, x_bot - x_tr_bot, Ve_bot, dVe_bot,x_tr_bot,n=n_computation )
   
             # determine if flow transitions  
             x_bs            = np.concatenate([x_t_bot[:i_tr_bot], (x_h_bot + x_tr_bot)[i_tr_bot:]] )
@@ -185,7 +185,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             L_top         = x_top[-1]  
             
             # laminar boundary layer properties using thwaites method 
-            x_t_top, theta_t_top, del_star_t_top, H_t_top, cf_t_top, Re_theta_t_top, Re_x_t_top, delta_t_top = thwaites_method(0.000001,L_top,Re_L_val, x_top, Ve_top, dVe_top,n=n_computation) 
+            x_t_top, theta_t_top, del_star_t_top, H_t_top, cf_t_top, Re_theta_t_top, Re_x_t_top, delta_t_top = thwaites_method_old(0.000001,L_top,Re_L_val, x_top, Ve_top, dVe_top,n=n_computation) 
             
             # Mitchel's transition criteria (can often give nonsensical results) 
             tr_crit_top     = Re_theta_t_top - 1.174*(1 + 224000/Re_x_t_top)*Re_x_t_top**0.46     
@@ -200,7 +200,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             theta_tr_top    = theta_t_top[i_tr_top]    
             delta_tr_top    = delta_t_top[i_tr_top] 
             
-            x_h_top, theta_h_top, del_star_h_top, H_h_top, cf_h_top, delta_h_top = heads_method(delta_tr_top,theta_tr_top, del_star_tr_top, L_top - x_tr_top, Re_L_val, x_top - x_tr_top, Ve_top, dVe_top,x_tr_top,n=n_computation)
+            x_h_top, theta_h_top, del_star_h_top, H_h_top, cf_h_top, delta_h_top = heads_method_old(delta_tr_top,theta_tr_top, del_star_tr_top, L_top - x_tr_top, Re_L_val, x_top - x_tr_top, Ve_top, dVe_top,x_tr_top,n=n_computation)
             
             # determine if flow transitions  
             x_ts            = np.concatenate([x_t_top[:i_tr_top], (x_h_top + x_tr_top)[i_tr_top:]])
@@ -252,13 +252,15 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
             flag              = (y_vals < 0)
             new_y_coord       = y_vals        + delta_vals[:,ial,iRe]*(normals[:,1]) 
             new_y_coord[flag] = y_vals[flag]  + delta_vals[:,ial,iRe][flag]*(normals[flag][:,1])  
+            
             new_x_coord       = x_vals        + delta_vals[:,ial,iRe]*(normals[:,0]) 
             new_x_coord[flag] = x_vals[flag]  + delta_vals[:,ial,iRe][flag]*(normals[flag][:,0])  
+            
             y_coord           = np.insert(new_y_coord, int(npanel/2) ,0)[::-1]
             x_coord           = np.insert(new_x_coord, int(npanel/2) ,0)[::-1]
             x_coord           = x_coord - min(x_coord) 
             
-            new_x,new_y,new_vt,new_cos_t,new_normals = hess_smith(x_coord,y_coord,np.atleast_2d(alpha[ial]),np.atleast_2d(Re_L[iRe]),npanel)                
+            new_x,new_y,new_vt,new_cos_t,new_normals = hess_smith_old(x_coord,y_coord,np.atleast_2d(alpha[ial]),np.atleast_2d(Re_L[iRe]),npanel)                
             x_bl_vals             = new_x[::-1]  
             y_bl_vals             = new_y[::-1]  
             Xbl_vals[:,ial,iRe]   = x_bl_vals

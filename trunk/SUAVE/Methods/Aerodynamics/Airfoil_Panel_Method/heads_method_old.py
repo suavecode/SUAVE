@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data 
+import SUAVE 
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.integrate import odeint
@@ -13,16 +13,13 @@ from scipy.integrate import odeint
 # heads_method.py 
 # ----------------------------------------------------------------------   
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I, VE_I, DVE_I,X_TR,batch_analysis, n = 200):
+def heads_method_old(del_0,theta_0, del_star_0, L, Re_L, x_i, Ve_i, dVe_i,x_tr, n = 200):
     """ Computes the boundary layer characteristics in turbulent
     flow pressure gradients
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     del_0       - intital bounday layer thickness 
     theta_0     - intial momentum thickness 
@@ -34,7 +31,6 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I, VE_I, DVE_
     dVe_i       - intial derivative value of boundary layer velocity at transition location
     x_tr        - transition location on surface 
     n           - number of points on surface 
-
     Outputs: 
     x           - new dimension of x coordinated on surface of airfoil
     theta       - momentum thickness
@@ -42,108 +38,52 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I, VE_I, DVE_
     H           - shape factor
     cf          - friction coefficient
     delta       - boundary layer thickness
-
     Properties Used:
     N/A
-    """   
+    """        
+   
+    nu           = L / Re_L
+    H_0          = del_star_0 / theta_0
+    H1_0         = getH1(np.atleast_1d(H_0))[0]
+    if np.isnan(H1_0):
+        H1_0     = (del_0 - del_star_0) / theta_0 
+    y0           = [theta_0, getVe(0,x_i,Ve_i)*theta_0*H1_0]    
+    xspan        = np.linspace(0,L,n)  
+    ReL_div_L    = Re_L/L
+    y            = odeint(odefcn,y0,xspan,args=(ReL_div_L, x_i, Ve_i, dVe_i)) 
+    thetav       = y[:,0] 
+    Ve_theta_H1v = y[:,1]   
     
-    X_H          = np.zeros((n,nalpha,nRe))
-    THETA_H      = np.zeros_like(X_H)
-    DELTA_STAR_H = np.zeros_like(X_H)
-    H_H          = np.zeros_like(X_H)
-    CF_H         = np.zeros_like(X_H) 
-    RE_THETA_H   = np.zeros_like(X_H)
-    RE_X_H       = np.zeros_like(X_H)
-    DELTA_H      = np.zeros_like(X_H)       
-
-    if batch_analysis:
-        N_ALPHA = nalpha
-    else:
-        N_ALPHA = 1  
-    for a_i in range(N_ALPHA):
-        for re_i in range(nRe):   
-            if batch_analysis: 
-                l   = L[a_i,re_i]
-            else:
-                a_i = re_i  
-            l            = L[a_i,re_i]
-            theta_0      = THETA_0[a_i,re_i] 
-            Re_L         = RE_L[a_i,re_i] 
-            nu           = l/Re_L    
-            x_i          = X_I.data[:,0,0][X_I.mask[:,0,0] ==False]
-            Ve_i         = VE_I.data[:,0,0][VE_I.mask[:,0,0] ==False]
-            dVe_i        = DVE_I.data[:,0,0][DVE_I.mask[:,0,0] ==False]
-            del_0        = DEL_0[a_i,re_i]
-            del_star_0   = DELTA_STAR_0[a_i,re_i]
-            H_0          = del_star_0 / theta_0
-            H1_0         = getH1(np.atleast_1d(H_0))[0]
-            if np.isnan(H1_0):
-                H1_0     = (del_0 - del_star_0) / theta_0 
-            y0           = [theta_0, getVe(0,x_i,Ve_i)*theta_0*H1_0]    
-            xspan        = np.linspace(0,l,n)  
-            ReL_div_L    = Re_L/l
-            y            = odeint(odefcn,y0,xspan,args=(ReL_div_L, x_i, Ve_i, dVe_i)) 
-            thetav       = y[:,0] 
-            Ve_theta_H1v = y[:,1]   
+    theta           = thetav
+    idx1            = (abs((thetav[1:] - thetav[:-1])/thetav[:-1]) > 5E-1)
+    theta[1:][idx1] = thetav[:-1][idx1] + 1E-12    
             
-            theta           = thetav
-            idx1            = (abs((thetav[1:] - thetav[:-1])/thetav[:-1]) > 5E-1)
-            theta[1:][idx1] = thetav[:-1][idx1] + 1E-12    
-                    
-            Ve_theta_H1           = Ve_theta_H1v
-            idx2                  = (abs((Ve_theta_H1v[1:] - Ve_theta_H1v[:-1])/Ve_theta_H1v[:-1]) > 5E-1)
-            Ve_theta_H1[1:][idx2] = Ve_theta_H1v[:-1][idx2] + 1E-12      
-            
-            # compute flow properties    
-            x            = np.linspace(0,l,n)       
-            H1           = Ve_theta_H1/(theta*getVe(x, x_i, Ve_i))
-            H            = getH(np.atleast_1d(H1))
-            Re_theta     = Re_L/l * getVe(x,x_i,Ve_i) * theta 
-            Re_x         = getVe(x,x_i,Ve_i) * x/ nu
-            cf           = getcf(np.atleast_1d(Re_theta),np.atleast_1d(H))
-            del_star     = H*theta   
-            delta        = theta*H1 + del_star 
-            delta[0]     = 0   
-            Re_x[0]      = 1e-12            
-            
-            X_H[:,a_i,re_i]          = x
-            THETA_H[:,a_i,re_i]      = theta
-            DELTA_STAR_H[:,a_i,re_i] = del_star
-            H_H[:,a_i,re_i]          = H
-            CF_H[:,a_i,re_i]         = cf 
-            RE_THETA_H[:,a_i,re_i]   = Re_theta
-            RE_X_H[:,a_i,re_i]       = Re_x
-            DELTA_H[:,a_i,re_i]      = delta
-        
-        
-    RESULTS = Data(
-        X_H          = X_H,      
-        THETA_H      = THETA_H,   
-        DELTA_STAR_H = DELTA_STAR_H,
-        H_H          = H_H,       
-        CF_H         = CF_H,   
-        RE_THETA_H   = RE_THETA_H,   
-        RE_X_H       = RE_X_H,    
-        DELTA_H      = DELTA_H,   
-    )    
-         
-    return  RESULTS
+    Ve_theta_H1           = Ve_theta_H1v
+    idx2                  = (abs((Ve_theta_H1v[1:] - Ve_theta_H1v[:-1])/Ve_theta_H1v[:-1]) > 5E-1)
+    Ve_theta_H1[1:][idx2] = Ve_theta_H1v[:-1][idx2] + 1E-12      
+    
+    # compute flow properties    
+    x            = np.linspace(0,L,n)       
+    H1           = Ve_theta_H1/(theta*getVe(x, x_i, Ve_i))
+    H            = getH(np.atleast_1d(H1))
+    Re_theta     = Re_L/L * getVe(x,x_i,Ve_i) * theta 
+    cf           = getcf(np.atleast_1d(Re_theta),np.atleast_1d(H))
+    del_star     = H*theta   
+    delta        = theta*H1 + del_star 
+    delta[0]     = 0 
+     
+    return x, theta, del_star, H, cf ,delta  
 
 def getH(H1):
     """ Computes the shape factor, H
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     H1       - mass flow shape factor
-
     Outputs:  
     H        - shape factor
-
     Properties Used:
     N/A
     """         
@@ -158,19 +98,14 @@ def getH(H1):
 
 def getH1(H) :    
     """ Computes the mass flow shape factor, H1
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     H        - shape factor
-
     Outputs:  
     H1       - mass flow shape factor
-
     Properties Used:
     N/A 
     """
@@ -181,13 +116,10 @@ def getH1(H) :
 
 def odefcn(y,x,ReL_div_L, x_i, Ve_i, dVe_i): 
     """ Computes bounday layer functions using SciPy ODE solver 
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     y           - initial conditions of functions 
     x           - new x values at which to solve ODE
@@ -199,7 +131,6 @@ def odefcn(y,x,ReL_div_L, x_i, Ve_i, dVe_i):
     Outputs:  
     f           - 2D function of momentum thickness and the product of 
                   the velocity,momentum thickness and the mass flow shape factor
-
     Properties Used:
     N/A 
     """    
@@ -221,13 +152,10 @@ def odefcn(y,x,ReL_div_L, x_i, Ve_i, dVe_i):
 
 def getVe(x,x_i,Ve_i):
     """ Interpolates the bounday layer velocity over a new dimension of x 
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     x         - new x dimension
     x_i       - old x dimension 
@@ -235,7 +163,6 @@ def getVe(x,x_i,Ve_i):
     
     Outputs:  
     Ve        - new boundary layer velocity values 
-
     Properties Used:
     N/A 
     """    
@@ -248,10 +175,8 @@ def getdVe(x,x_i,dVe_i):
     
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     x         - new x dimension
     x_i       - old x dimension 
@@ -259,7 +184,6 @@ def getdVe(x,x_i,dVe_i):
     
     Outputs:  
     dVe       - new derivative of boundary layer velocity values 
-
     Properties Used:
     N/A 
     """        
@@ -269,20 +193,15 @@ def getdVe(x,x_i,dVe_i):
 
 def getcf(Re_theta,H): 
     """ Computes the skin friction coefficient, cf
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     Re_theta - Reynolds Number as a function of momentum thickness 
     H        - shape factor
-
     Outputs:  
     cf       - skin friction coefficient
-
     Properties Used:
     N/A 
     """    

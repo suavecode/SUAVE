@@ -10,3 +10,9 @@ from .panel_geometry                    import panel_geometry
 from .thwaites_method                   import thwaites_method    
 from .veldis                            import veldis
 
+from .veldis_old import veldis_old
+from .panel_geometry_old import panel_geometry_old
+from .hess_smith_old                        import hess_smith_old               
+from .infl_coeff_old                        import infl_coeff_old      
+from .thwaites_method_old               import thwaites_method_old 
+from .heads_method_old                      import heads_method_old       
