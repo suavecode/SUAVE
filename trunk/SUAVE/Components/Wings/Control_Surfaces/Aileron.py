@@ -35,6 +35,8 @@ class Aileron(Control_Surface):
     """ 
     def __defaults__(self):
         """This sets the default for slats in SUAVE.
+        
+        see Control_Surface().__defaults__ for an explanation of attributes
     
         Assumptions:
         None
@@ -52,6 +54,8 @@ class Aileron(Control_Surface):
         N/A
         """ 
         
-        self.tag      = 'aileron'  
+        self.tag                   = 'aileron'  
+        self.hinge_fraction        = 0.0
+        self.sign_duplicate        = -1.0
         
         pass 
