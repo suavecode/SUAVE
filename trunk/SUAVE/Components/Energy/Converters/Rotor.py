@@ -245,9 +245,12 @@ class Rotor(Energy_Component):
         ua       = 0             
         ut       = 0            
         ur       = 0             
-    
-        # Include velocities introduced by rotor incidence angles
-        if np.any(abs(V_thrust[:,1]) >1e-3) or np.any(abs(V_thrust[:,2]) >1e-3):
+        
+        # Check if nonuniform incidence analysis is appropriate
+        lifting_orientation = (self.orientation_euler_angles[1]==np.pi/2)
+        
+        # Include velocities introduced by rotor incidence angles 
+        if np.any(abs(V_thrust[:,1]) >1e-3) or np.any(abs(V_thrust[:,2]) >1e-3) and not lifting_orientation:
             
             # incidence angle creates disturbances in radial and tangential velocities
             use_2d_analysis = True
@@ -402,8 +405,7 @@ class Rotor(Energy_Component):
             PSIold      = PSI
         
             # omega = 0, do not run BEMT convergence loop 
-            if all(omega[:,0]) == 0. :
-                print("Rotor BEMT did not run to convergence (omega=0)")                
+            if all(omega[:,0]) == 0. :              
                 break
             
             # If its really not going to converge
