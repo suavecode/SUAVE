@@ -25,15 +25,15 @@ import numpy as np
 
 def main():    
     # Define Panelization 
-    npanel = 20
+    npanel = 100
     
     # Define Reynolds Number
-    #Re     = np.atleast_2d(np.array([5E5,5E6])).T
-    #AoA    = np.atleast_2d(np.linspace(-4,16,11)*Units.degrees).T 
+    Re     = np.atleast_2d(np.array([5E5,5E6])).T
+    AoA    = np.atleast_2d(np.linspace(-4,16,11)*Units.degrees).T 
     
     
-    Re     = np.atleast_2d(np.array([1E6])).T 
-    AoA    = np.atleast_2d(np.array([3])*Units.degrees).T 
+    #Re     = np.atleast_2d(np.array([5E6])).T 
+    #AoA    = np.atleast_2d(np.array([4])*Units.degrees).T 
      
     # -----------------------------------------------
     # SUAVE
@@ -43,11 +43,11 @@ def main():
     airfoil_stations     = [0]
     # Compute Airfoil Aerodynamic and Boundary Layer Properties 
     # Batch Analysis: 
-    airfoil_properties_old = airfoil_analysis_old(airfoil_geometry,AoA,Re, npanel, n_computation = 40, batch_analyis = True ) 
-    plot_airfoil_properties_old(airfoil_properties_old,line_style='k-',arrow_color = 'r',plot_pressure_vectors = False) 
+    #airfoil_properties_old = airfoil_analysis_old(airfoil_geometry,AoA,Re, npanel, n_computation = 40, batch_analyis = True ) 
+    #plot_airfoil_properties_old(airfoil_properties_old,line_style='k-',arrow_color = 'r',plot_pressure_vectors = False) 
     
-    airfoil_properties     = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, n_computation = 40, batch_analyis = True)  
-    plot_airfoil_properties(airfoil_properties,line_style='k-',arrow_color = 'r',plot_pressure_vectors = False)  
+    airfoil_properties     = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, n_computation = 200, batch_analyis = True)  
+    plot_airfoil_properties(airfoil_properties,arrow_color = 'r',plot_pressure_vectors = False)  
     
     # Single Condition Analysis:  
     Re     = np.ones_like(AoA)*5E6  
@@ -68,7 +68,7 @@ def main():
     ## Validation  
     ## ----------------------------------------------- 
     #print('\n\nNACA 3310 Validation at 4 deg') 
-    #diff_CL           = np.abs(airfoil_properties.Cl[4,1] - xfoil_data_1.Cl) 
+    #diff_CL           = np.abs(airfoil_properties.Cl[4,1] - xfoil_data_1.Cl)  # 0.573685
     #expected_Cl_error = 0.21281484447415983
     #print('\nCL difference')
     #print(diff_CL)

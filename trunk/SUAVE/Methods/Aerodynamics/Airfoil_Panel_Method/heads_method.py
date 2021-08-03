@@ -13,7 +13,7 @@ from scipy.integrate import odeint
 # heads_method.py 
 # ----------------------------------------------------------------------   
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I, VE_I, DVE_I,X_TR,batch_analysis, n = 200):
+def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I,X_TR,batch_analysis, n = 200):
     """ Computes the boundary layer characteristics in turbulent
     flow pressure gradients
 
@@ -80,9 +80,8 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I, VE_I, DVE_
             if np.isnan(H1_0):
                 H1_0     = (del_0 - del_star_0) / theta_0 
             y0           = [theta_0, getVe(0,x_i,Ve_i)*theta_0*H1_0]    
-            xspan        = np.linspace(0,l,n)  
-            ReL_div_L    = Re_L/l
-            y            = odeint(odefcn,y0,xspan,args=(ReL_div_L, x_i, Ve_i, dVe_i)) 
+            xspan        = np.linspace(0,l,n)   
+            y            = odeint(odefcn,y0,xspan,args=(Re_L/l, x_i, Ve_i, dVe_i)) 
             thetav       = y[:,0] 
             Ve_theta_H1v = y[:,1]   
             
@@ -103,8 +102,8 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I, VE_I, DVE_
             cf           = getcf(np.atleast_1d(Re_theta),np.atleast_1d(H))
             del_star     = H*theta   
             delta        = theta*H1 + del_star 
-            delta[0]     = 0   
-            Re_x[0]      = 1e-12            
+            delta[0]     = 0       
+            Re_x[0]      = 1E-5
             
             X_H[:,a_i,re_i]          = x
             THETA_H[:,a_i,re_i]      = theta
@@ -152,8 +151,8 @@ def getH(H1):
     H[idx1] = 3.0
     idx2    = (H1 > 5.3)
     H[idx2] = 1.1 + 0.86*(H1[idx2] - 3.3)**-0.777 
-    idx3    = (H<0) # this makes sure the values are sensical 
-    H[idx3] = 1E-6    
+    #idx3    = (H<0) # this makes sure the values are sensical 
+    #H[idx3] = 1E-6    
     return H 
 
 def getH1(H) :    
@@ -174,7 +173,7 @@ def getH1(H) :
     Properties Used:
     N/A 
     """
-    H1       = 3.3 + 0.8234*(H - 1.1)**-1.287 
+    H1       = 3.3 + 0.8234*(H - 1.1)**-1.287  
     idx1     = (H > 1.6) 
     H1[idx1] = 3.3 + 1.5501*(H[idx1] - 0.6778)**-3.064
     return H1 

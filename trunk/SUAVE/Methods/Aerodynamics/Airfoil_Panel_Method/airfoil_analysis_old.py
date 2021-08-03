@@ -190,7 +190,7 @@ def airfoil_analysis_old(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation 
             # Mitchel's transition criteria (can often give nonsensical results) 
             tr_crit_top     = Re_theta_t_top - 1.174*(1 + 224000/Re_x_t_top)*Re_x_t_top**0.46     
             tr_loc_vals     = np.where(tr_crit_top > 0)[0] 
-            if len(tr_loc_vals) == 0:  # manual trip point at stagnation point (fully turbulent)
+            if len(tr_loc_vals) == 0:  # manual trip point at stagnation point (fully turbulent) 63
                 i_tr_top = 0
             else: # transition
                 i_tr_top = tr_loc_vals[0]    
