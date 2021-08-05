@@ -180,5 +180,6 @@ def propeller_single_point(energy_network,
     results.torque_distribution         = Q_distribution_BEMT
     results.tangential_velocity         = vt_BEMT
     results.axial_velocity              = va_BEMT
+    results.outputs                     = outputs
 
     return results

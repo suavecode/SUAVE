@@ -247,7 +247,7 @@ class Rotor(Energy_Component):
         ur       = 0             
         
         # Check if nonuniform incidence analysis is appropriate
-        lifting_orientation = (self.orientation_euler_angles[1]==np.pi/2)
+        lifting_orientation = (np.arcsin(body2thrust[0,2]/body2thrust[0,0])>=np.pi/2)
         
         # Include velocities introduced by rotor incidence angles 
         if np.any(abs(V_thrust[:,1]) >1e-3) or np.any(abs(V_thrust[:,2]) >1e-3) and not lifting_orientation:

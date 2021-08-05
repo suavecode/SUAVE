@@ -225,9 +225,7 @@ def generate_lofted_propeller_points(prop):
         trans_2 =  np.repeat(trans_2[ np.newaxis,:,: ],n_r,axis=0)
         
         # roation about y to orient propeller/rotor to thrust angle 
-        trans_3 = np.array([[np.cos(ta),0 , -np.sin(ta)  ],
-                            [0 ,  1 , 0                  ],
-                            [np.sin(ta) , 0 , np.cos(ta)]])
+        trans_3 = prop.prop_vel_to_body()
         trans_3 =  np.repeat(trans_3[ np.newaxis,:,: ],n_r,axis=0)
         
         trans   = np.matmul(trans_3,np.matmul(trans_2,trans_1))

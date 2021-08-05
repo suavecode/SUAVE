@@ -329,7 +329,6 @@ def vehicle_setup():
     prop.design_altitude        = 12000. * Units.feet
     prop.design_altitude        = 12000. * Units.feet
     prop.design_thrust          = 1200.  
-    #prop.repeated_origins       = [[2.,2.5,0.784], [2.,-2.5,0.784]] 
     prop.origin                 = [[2.,2.5,0.784]]         
     prop.rotation               = -1 
     prop.symmetry               = True

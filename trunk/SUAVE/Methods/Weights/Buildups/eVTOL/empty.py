@@ -325,15 +325,14 @@ def empty(config,
         output.servos += (nLiftRotors * lift_rotor_servo_weight + nThrustProps * prop_servo_weight)
         output.hubs   += (nLiftRotors * lift_rotor_hub_weight + nThrustProps * prop_hub_weight)
         output.BRS    += (prop_BRS_weight + lift_rotor_BRS_weight) 
-        
-
-        maxLiftPower   = 1.15*maxLift*(k*np.sqrt(maxLift/(2*rho_ref*np.pi*rTip_ref**2)) +
-                         bladeSol_ref*AvgBladeCD/8*maxVTip**3/(maxLift/(rho_ref*np.pi*rTip_ref**2)))  # not sure how to adjust for multiple rotors/props, which value of rTip_ref etc. to use?
-        maxLiftOmega   = maxVTip/rTip_ref
-        maxLiftTorque  = maxLiftPower / maxLiftOmega
 
         # Tail Rotor
         if nLiftRotors == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor 
+            maxLiftPower   = 1.15*maxLift*(k*np.sqrt(maxLift/(2*rho_ref*np.pi*rTip_ref**2)) +
+                                               bladeSol_ref*AvgBladeCD/8*maxVTip**3/(maxLift/(rho_ref*np.pi*rTip_ref**2)))
+            maxLiftOmega   = maxVTip/rTip_ref
+            maxLiftTorque  = maxLiftPower / maxLiftOmega
+            
             tailrotor = next(iter(propulsor.lift_rotors))
             output.tail_rotor   = prop(tailrotor, 1.5*maxLiftTorque/(1.25*rTip_ref))*0.2 * Units.kg
             output.lift_rotors += output.tail_rotor

@@ -99,21 +99,21 @@ class Lift_Cruise(Propulsor):
             state [state()]
     
             Outputs:
-            results.thrust_force_vector [Newtons]
-            results.vehicle_mass_rate   [kg/s]
+            results.thrust_force_vector       [Newtons]
+            results.vehicle_mass_rate         [kg/s]
             conditions.propulsion:
                 lift_rotor_rpm                [radians/sec]
-                rpm _forward             [radians/sec]
+                rpm _forward                  [radians/sec]
                 lift_rotor_current_draw       [amps]
-                propeller_current_draw   [amps]
-                battery_draw             [watts]
-                battery_energy           [joules]
-                voltage_open_circuit     [volts]
-                voltage_under_load       [volts]
-                lift_rotor_motor_torque        [N-M]
-                propeller_motor_torque     [N-M]
-                lift_rotor_torque    [N-M]
-                propeller_torque [N-M]
+                propeller_current_draw        [amps]
+                battery_draw                  [watts]
+                battery_energy                [joules]
+                voltage_open_circuit          [volts]
+                voltage_under_load            [volts]
+                lift_rotor_motor_torque       [N-M]
+                propeller_motor_torque        [N-M]
+                lift_rotor_torque             [N-M]
+                propeller_torque              [N-M]
     
             Properties Used:
             Defaulted values
