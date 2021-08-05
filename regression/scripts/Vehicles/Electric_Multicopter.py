@@ -143,7 +143,7 @@ def vehicle_setup():
     vehicle.append_component(fuselage)   
        
     #------------------------------------------------------------------
-    # PROPULSOR
+    # Network
     #------------------------------------------------------------------
     net                      = SUAVE.Components.Energy.Networks.Battery_Propeller()
     net.number_of_propeller_engines    = 6

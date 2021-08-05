@@ -1,8 +1,8 @@
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Drag
 # miscellaneous_drag_aircraft_ESDU.py
-# 
+#
 # Created:  Jan 2014, T. Orra
-# Modified: Jan 2016, E. Botero 
+# Modified: Jan 2016, E. Botero
 #           Jul 2021, R. Erhard
 
 # ----------------------------------------------------------------------
@@ -32,8 +32,8 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     geometry.reference_area                    [m^2]
     geometry.wings.areas.wetted                [m^2]
     geometry.fuselages.areas.wetted            [m^2]
-    geometry.propulsor.areas.wetted            [m^2]
-    geometry.propulsor.number_of_engines       [Unitless]
+    geometry.network.areas.wetted              [m^2]
+    geometry.network.number_of_engines         [Unitless]
 
     Outputs:
     cd_excrescence (drag)                      [Unitless]
@@ -43,10 +43,10 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     """
 
     # unpack inputs
-    
+
     conditions    = state.conditions
     configuration = settings
-    
+
     Sref      = geometry.reference_area
     ones_1col = conditions.freestream.mach_number *0.+1
 
@@ -58,24 +58,24 @@ def miscellaneous_drag_aircraft_ESDU(state,settings,geometry):
     for fuselage in geometry.fuselages:
         swet_tot += fuselage.areas.wetted
 
-    for propulsor in geometry.propulsors:
-        if isinstance(propulsor,Lift_Cruise) or isinstance(propulsor,Battery_Propeller):
-            if 'propellers' in propulsor.keys():
-                if propulsor.identical_propellers:
-                    swet_tot += propulsor.areas.wetted * propulsor.number_of_propeller_engines
+    for network in geometry.networks:
+        if isinstance(network,Lift_Cruise) or isinstance(network,Battery_Propeller):
+            if 'propellers' in network.keys():
+                if network.identical_propellers:
+                    swet_tot += network.areas.wetted * network.number_of_propeller_engines
                 else:
-                    swet_tot += np.sum(propulsor.areas.wetted)
-            if 'lift_rotors' in propulsor.keys():
-                if propulsor.identical_lift_rotors:
-                    swet_tot += propulsor.areas.wetted * propulsor.number_of_lift_rotor_engines
+                    swet_tot += np.sum(network.areas.wetted)
+            if 'lift_rotors' in network.keys():
+                if network.identical_lift_rotors:
+                    swet_tot += network.areas.wetted * network.number_of_lift_rotor_engines
                 else:
-                    swet_tot += np.sum(propulsor.areas.wetted)
+                    swet_tot += np.sum(network.areas.wetted)
         else:
-            swet_tot += propulsor.areas.wetted * propulsor.number_of_engines
-            
-        
+            swet_tot += network.areas.wetted * network.number_of_engines
+
+
     swet_tot *= 1.10
-    
+
     # Estimating excrescence drag, based in ESDU 94044, figure 1
     D_q = 0.40* (0.0184 + 0.000469 * swet_tot - 1.13*10**-7 * swet_tot ** 2)
     cd_excrescence = D_q / Sref

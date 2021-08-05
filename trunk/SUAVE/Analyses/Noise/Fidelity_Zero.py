@@ -100,10 +100,10 @@ class Fidelity_Zero(Noise):
         # unpack 
         geometry = self.geometry   
         
-        if 'turbofan' in geometry.propulsors: 
+        if 'turbofan' in geometry.networks: 
             weight_landing    = conditions.weights.total_mass[-1,0]
-            number_of_engines = geometry.propulsors['turbofan'].number_of_engines
-            thrust_sea_level  = geometry.propulsors['turbofan'].sealevel_static_thrust * Units.force_pounds
+            number_of_engines = geometry.networks['turbofan'].number_of_engines
+            thrust_sea_level  = geometry.networks['turbofan'].sealevel_static_thrust * Units.force_pounds
             thrust_landing    = 0.45 * thrust_sea_level
             
             # Run Shevell Correlations  

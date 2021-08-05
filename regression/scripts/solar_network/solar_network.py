@@ -148,7 +148,7 @@ def base_analysis(vehicle): # --------------------------------------------------
     # ------------------------------------------------------------------
     #  Energy
     energy = SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
     
     # ------------------------------------------------------------------
@@ -203,10 +203,10 @@ def mission_setup(analyses,vehicle):
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
-    segment.battery_energy = vehicle.propulsors.solar.battery.max_energy*0.3 #Charge the battery to start
+    segment.battery_energy = vehicle.networks.solar.battery.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
-    segment = vehicle.propulsors.solar.add_unknowns_and_residuals_to_segment(segment,initial_power_coefficient = 0.05)    
+    segment = vehicle.networks.solar.add_unknowns_and_residuals_to_segment(segment,initial_power_coefficient = 0.05)    
     
     
     mission.append_segment(segment)    

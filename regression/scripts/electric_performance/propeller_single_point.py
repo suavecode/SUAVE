@@ -33,7 +33,7 @@ def main():
     analyses.append(atmosphere)
 
 
-    results = propeller_single_point(vehicle.propulsors.battery_propeller,
+    results = propeller_single_point(vehicle.networks.battery_propeller,
                                      analyses,
                                      pitch=0.,
                                      omega=1500. * Units.rpm,

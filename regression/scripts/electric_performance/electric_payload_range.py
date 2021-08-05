@@ -83,9 +83,9 @@ def mission_setup(vehicle, analyses):
     segment.altitude = 1000.0 * Units.ft
     segment.air_speed = 110. * Units['mph']
     segment.distance = 60. * Units.miles
-    segment.battery_energy = vehicle.propulsors.lift_cruise.battery.max_energy
+    segment.battery_energy = vehicle.networks.lift_cruise.battery.max_energy
     segment.state.unknowns.throttle = 0.80 * ones_row(1)
-    segment = vehicle.propulsors.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment, initial_prop_power_coefficient = 0.16)
+    segment = vehicle.networks.lift_cruise.add_cruise_unknowns_and_residuals_to_segment(segment, initial_prop_power_coefficient = 0.16)
 
 
     mission.append_segment(segment)
@@ -121,7 +121,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------

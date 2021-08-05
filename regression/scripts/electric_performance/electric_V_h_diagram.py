@@ -47,7 +47,7 @@ def main():
     analyses.append(stability)
 
     energy = SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     planet = SUAVE.Analyses.Planets.Planet()

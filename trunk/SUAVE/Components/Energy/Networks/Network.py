@@ -1,9 +1,10 @@
-## @ingroup Components-Propulsors
+## @ingroup Components-Energy-Networks
 # Propulsor.py
 # 
 # Created:  
 # Modified: Feb 2016, T. MacDonald
 #           May 2020, E. Botero
+#           Jul 2021, E. Botero
 
 
 # ----------------------------------------------------------------------
@@ -14,15 +15,15 @@ from SUAVE.Components import Physical_Component
 from SUAVE.Core import Data
 
 # ----------------------------------------------------------------------
-#  Propulsor
+#  Network
 # ----------------------------------------------------------------------
 
-## @ingroup Components-Propulsors
-class Propulsor(Physical_Component):
+## @ingroup Components-Energy-Networks
+class Network(Physical_Component):
 
-    """ SUAVE.Components.Propulsor()
+    """ SUAVE.Components.Energy.Networks.Network()
     
-        The Top Level Propulsor Class
+        The Top Level Network Class
             
             Assumptions:
             None
@@ -34,7 +35,7 @@ class Propulsor(Physical_Component):
 
     def __defaults__(self):
         
-        """ This sets the default attributes for the propulsor.
+        """ This sets the default attributes for the network.
         
                 Assumptions:
                 None
@@ -51,7 +52,7 @@ class Propulsor(Physical_Component):
                 Properties Used:
                 N/A
         """
-        self.tag = 'Propulsor'
+        self.tag = 'network'
         self.generative_design_max_per_vehicle = 1
         self.non_dimensional_origin = [[0.0,0.0,0.0]]
         self.number_of_engines = 1.0
@@ -65,11 +66,11 @@ class Propulsor(Physical_Component):
         self.areas.exit        = 0.0
         self.areas.inflow      = 0.0
         
-## @ingroup Components-Propulsors
+## @ingroup Components-Energy-Networks
 class Container(Physical_Component.Container):
-    """ SUAVE.Components.Propulsor.Container()
+    """ SUAVE.Components.Energy.Networks.Network.Container()
         
-        The Propulsor Container Class
+        The Network Container Class
     
             Assumptions:
             None
@@ -97,9 +98,6 @@ class Container(Physical_Component.Container):
         N/A
         """
         import SUAVE.Components.Energy.Networks as Nw
-        
-        #return [Nw.Battery_Propeller,Nw.Battery_Ducted_Fan,Nw.Lift_Forward_Propulsor,Nw.Ramjet,Nw.Solar, \
-                #Nw.Turbofan,Nw.Turbojet_Super]
                 
         return [Nw.Turbofan,Nw.Turbojet_Super]
 
@@ -107,11 +105,11 @@ class Container(Physical_Component.Container):
 
     
     def evaluate_thrust(self,state):
-        """ This is used to evaluate the thrust produced by the propulsor.
+        """ This is used to evaluate the thrust produced by the network.
         
                 Assumptions:
-                Propulsor has "evaluate_thrust" method
-                If multiple propulsors are attached their masses will be summed
+                Network has "evaluate_thrust" method
+                If multiple networks are attached their masses will be summed
                 
                 Source:
                 N/A
@@ -132,18 +130,16 @@ class Container(Physical_Component.Container):
         results.thrust_force_vector = 0.*ones_row(3)
         results.vehicle_mass_rate   = 0.*ones_row(1)
 
-        for propulsor in self.values():
-            results_p = propulsor.evaluate_thrust(state) 
+        for net in self.values():
+            results_p = net.evaluate_thrust(state) 
             
             for key in results.keys():
                 results[key] += results_p[key]
-            
-            
-            
+
         return results
 
 # ----------------------------------------------------------------------
 #  Handle Linking
 # ----------------------------------------------------------------------
 
-Propulsor.Container = Container
+Network.Container = Container

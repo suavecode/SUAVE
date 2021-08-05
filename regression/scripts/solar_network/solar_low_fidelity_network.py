@@ -22,7 +22,7 @@ from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv
 def main():
    
     #------------------------------------------------------------------
-    # Propulsor
+    # Network
     #------------------------------------------------------------------
 
     # build network

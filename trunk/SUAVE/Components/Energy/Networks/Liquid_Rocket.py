@@ -8,17 +8,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
-from SUAVE.Core import Data, Units
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Core import Data
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Liquid Rocket Network
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
-class Liquid_Rocket(Propulsor):
+class Liquid_Rocket(Network):
     """ This sets up the equations for a liquid rocket.
 
         Assumptions:

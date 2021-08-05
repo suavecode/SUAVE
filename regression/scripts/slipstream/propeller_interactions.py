@@ -37,7 +37,7 @@ def main():
     
     # set the basic propeller geometry
     vehicle = vehicle_setup()
-    prop    = vehicle.propulsors.prop_net.propeller
+    prop    = vehicle.networks.prop_net.propeller
     
     # set the atmospheric conditions
     conditions = simulation_conditions(prop)
@@ -188,8 +188,8 @@ def simulation_settings(vehicle):
     
     # grid conditions for downstream propeller
     grid_settings            = Data()
-    grid_settings.radius     = vehicle.propulsors.prop_net.propeller.tip_radius
-    grid_settings.hub_radius = vehicle.propulsors.prop_net.propeller.hub_radius
+    grid_settings.radius     = vehicle.networks.prop_net.propeller.tip_radius
+    grid_settings.hub_radius = vehicle.networks.prop_net.propeller.hub_radius
     grid_settings.Nr         = 70
     grid_settings.Na         = 40
     

@@ -14,7 +14,7 @@
 
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 from SUAVE.Components.Physical_Component import Container
 
 from SUAVE.Core import Data , Units
@@ -24,7 +24,7 @@ from SUAVE.Core import Data , Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Battery_Propeller(Propulsor):
+class Battery_Propeller(Network):
     """ This is a simple network with a battery powering a propeller through
         an electric motor
         

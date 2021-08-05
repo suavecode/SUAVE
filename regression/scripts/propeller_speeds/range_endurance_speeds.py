@@ -93,7 +93,7 @@ def base_analysis_SR(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------

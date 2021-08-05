@@ -9,19 +9,16 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Serial_Hybrid_Ducted_Fan(Propulsor):
+class Serial_Hybrid_Ducted_Fan(Network):
     """ Connects a generator to a battery to a ducted fan, with assumed motor & generator efficiencies
     
         Assumptions:

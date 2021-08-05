@@ -17,7 +17,7 @@ import SUAVE
 # package imports
 import numpy as np
 from SUAVE.Core import Units, Data
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 from SUAVE.Components.Physical_Component import Container
 
 # ----------------------------------------------------------------------
@@ -25,7 +25,7 @@ from SUAVE.Components.Physical_Component import Container
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Lift_Cruise(Propulsor):
+class Lift_Cruise(Network):
     """ This is a complex version of battery_propeller with a battery powering propellers through
         electric motors. In this case we have 2 sets of motors at different motors that can be controlled seperately
         
