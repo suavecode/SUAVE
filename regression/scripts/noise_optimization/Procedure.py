@@ -89,8 +89,8 @@ def initial_sizing(nexus):
         conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()
         conditions.freestream = freestream 
         
-        turbofan_sizing(config.propulsors['turbofan'], mach_number, altitude)
-        compute_turbofan_geometry(config.propulsors['turbofan'], conditions)
+        turbofan_sizing(config.networks['turbofan'], mach_number, altitude)
+        compute_turbofan_geometry(config.networks['turbofan'], conditions)
         
         # diff the new data
         config.store_diff()  

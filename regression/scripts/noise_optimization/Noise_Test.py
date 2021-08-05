@@ -142,7 +142,7 @@ def setup(generate_new_truth_data):
         [ 'horizontal_tail_aspect_ratio'     ,    'vehicle_configurations.*.wings.horizontal_stabilizer.aspect_ratio'   ],
         [ 'vertical_tail_area'               ,    'vehicle_configurations.*.wings.vertical_stabilizer.areas.reference'  ],
         [ 'vertical_tail_aspect_ratio'       ,    'vehicle_configurations.*.wings.vertical_stabilizer.aspect_ratio'     ],
-        [ 'design_thrust'                    ,    'vehicle_configurations.*.propulsors.turbofan.thrust.total_design'   ],
+        [ 'design_thrust'                    ,    'vehicle_configurations.*.networks.turbofan.thrust.total_design'   ],
         [ 'MTOW'                             ,   ['vehicle_configurations.*.mass_properties.takeoff'   ,
                                                   'vehicle_configurations.*.mass_properties.max_takeoff'               ]],
         [ 'design_TOW'                       ,    'vehicle_configurations.base.mass_properties.takeoff'                 ],

@@ -95,11 +95,11 @@ def plot_vehicle(vehicle, elevation_angle = 30,azimuthal_angle = 210, axis_limit
     # -------------------------------------------------------------------------
     # PLOT ENGINE
     # -------------------------------------------------------------------------        
-    propulsor_face_color = 'darkred'                
-    propulsor_edge_color = 'black' 
-    propulsor_alpha      = 1    
-    for propulsor in vehicle.propulsors:    
-        plot_propulsor(axes,propulsor)     
+    network_face_color = 'darkred'                
+    network_edge_color = 'black' 
+    network_alpha      = 1    
+    for network in vehicle.networks:    
+        plot_network(axes,network)     
         
     axes.set_xlim(-axis_limits,axis_limits)
     axes.set_ylim(-axis_limits,axis_limits)
@@ -275,8 +275,8 @@ def plot_fuselage_geometry(axes,fus_pts, face_color,edge_color,alpha):
     return 
 
 
-def plot_propulsor(axes,propulsor):  
-    """ This plots the 3D surface of the propulsor
+def plot_network(axes,network):  
+    """ This plots the 3D surface of the network
 
     Assumptions: 
     None
@@ -285,32 +285,32 @@ def plot_propulsor(axes,propulsor):
     None
     
     Inputs:     
-    propulsor            - propulsor data structure
-    propulsor_face_color - color of panel
-    propulsor_edge_color - color of panel edge
-    propulsor_alpha      - translucency:  1 = opaque , 0 = transparent 
+    network            - network data structure
+    network_face_color - color of panel
+    network_edge_color - color of panel edge
+    network_alpha      - translucency:  1 = opaque , 0 = transparent 
     
     Properties Used:
     N/A
     """          
     
-    if ('propellers' in propulsor.keys()):  
+    if ('propellers' in network.keys()):  
         
-        for prop in propulsor.propellers:
+        for prop in network.propellers:
         
             # Generate And Plot Propeller/Rotor Geometry   
-            plot_propeller_geometry(axes,prop,propulsor,'propeller') 
+            plot_propeller_geometry(axes,prop,network,'propeller') 
         
-    if ('rotors' in propulsor.keys()):  
+    if ('rotors' in network.keys()):  
         
-        for rotor in propulsor.rotors:
+        for rotor in network.rotors:
             
             # Generate and Plot Propeller/Rotor Geometry   
-            plot_propeller_geometry(axes,rotor,propulsor,'rotor')        
+            plot_propeller_geometry(axes,rotor,network,'rotor')        
         
     return 
 
-def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
+def plot_propeller_geometry(axes,prop,network,network_name):
     """ This plots a 3D surface of the  propeller
 
     Assumptions: 
@@ -320,7 +320,7 @@ def plot_propeller_geometry(axes,prop,propulsor,propulsor_name):
     None
     
     Inputs:    
-    propulsor            - propulsor data structure 
+    network            - network data structure 
     
     Properties Used:
     N/A

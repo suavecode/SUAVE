@@ -33,7 +33,7 @@ def operating_items_FLOPS(vehicle):
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
-                -.propulsors: data dictionary containing all propulsion properties
+                -.networks: data dictionary containing all propulsion properties
                     -.number_of_engines: number of engines
                     -.sealevel_static_thrust: thrust at sea level               [N]
                 -.reference_area: wing surface area                             [m^2]
@@ -53,10 +53,10 @@ def operating_items_FLOPS(vehicle):
         Properties Used:
             N/A
     """
-    propulsor_name  = list(vehicle.propulsors.keys())[0]
-    propulsors      = vehicle.propulsors[propulsor_name]
-    NENG            = propulsors.number_of_engines
-    THRUST          = propulsors.sealevel_static_thrust * 1 / Units.lbf
+    network_name  = list(vehicle.networks.keys())[0]
+    networks      = vehicle.networks[network_name]
+    NENG            = networks.number_of_engines
+    THRUST          = networks.sealevel_static_thrust * 1 / Units.lbf
     SW              = vehicle.reference_area / Units.ft ** 2
     FMXTOT          = vehicle.mass_properties.max_zero_fuel / Units.lbs
     DESRNG          = vehicle.design_range / Units.nmi

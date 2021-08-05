@@ -162,8 +162,8 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy = SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
 
     # ------------------------------------------------------------------

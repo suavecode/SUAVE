@@ -63,14 +63,14 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
     #---------------------------
     # Save propellers and rotors to vtk
     #---------------------------
-    for propulsor in vehicle.propulsors:
+    for network in vehicle.networks:
         try:
             print("Attempting to save propeller.")
-            propeller = propulsor.propeller
+            propeller = network.propeller
             try:
-                n_props = int(propulsor.number_of_propeller_engines)
+                n_props = int(network.number_of_propeller_engines)
             except:
-                n_props   = int(propulsor.number_of_engines)
+                n_props   = int(network.number_of_engines)
         except:
             print("No propeller.")
             n_props = 0
@@ -89,11 +89,11 @@ def save_vehicle_vtks(vehicle, settings, Results, time_step, prop_filename="prop
                 
         try:
             print("Attempting to save rotor.")
-            rotor = propulsor.rotor
+            rotor = network.rotor
             try:
-                n_rots = int(propulsor.number_of_rotor_engines)
+                n_rots = int(network.number_of_rotor_engines)
             except:
-                n_rots = int(propulsor.number_of_engines)    
+                n_rots = int(network.number_of_engines)    
         except:
             print("No rotor.") 
             n_rots = 0

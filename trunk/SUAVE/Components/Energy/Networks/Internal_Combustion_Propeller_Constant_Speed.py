@@ -13,7 +13,7 @@
 
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 from SUAVE.Components.Physical_Component import Container
 from SUAVE.Core import Data, Units
 
@@ -21,7 +21,7 @@ from SUAVE.Core import Data, Units
 #  Network
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
-class Internal_Combustion_Propeller_Constant_Speed(Propulsor):
+class Internal_Combustion_Propeller_Constant_Speed(Network):
     """ An internal combustion engine with a constant speed propeller.
     
         Assumptions:

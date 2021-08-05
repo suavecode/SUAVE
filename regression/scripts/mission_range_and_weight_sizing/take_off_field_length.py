@@ -63,7 +63,7 @@ def main():
     
     for id_eng,engine_number in enumerate(engines):
         
-        configuration.propulsors.turbofan.number_of_engines = engine_number
+        configuration.networks.turbofan.number_of_engines = engine_number
         
         for id_w,weight in enumerate(w_vec):
             configuration.mass_properties.takeoff = weight
@@ -152,7 +152,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy Analysis
     energy  = SUAVE.Analyses.Energy.Energy()
-    energy.network=vehicle.propulsors
+    energy.network=vehicle.networks
     analyses.append(energy)
     
     # ------------------------------------------------------------------

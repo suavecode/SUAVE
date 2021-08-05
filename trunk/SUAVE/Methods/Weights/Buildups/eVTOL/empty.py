@@ -172,51 +172,51 @@ def empty(config,
     config.systems.air_conditioner.mass_properties.mass  = output.ECS
     
     #-------------------------------------------------------------------------------
-    # Propulsor Weight
+    # Network Weight
     #-------------------------------------------------------------------------------
-    for propulsor in config.propulsors:
+    for network in config.networks:
 
         #-------------------------------------------------------------------------------
         # Battery Weight
         #-------------------------------------------------------------------------------
-        propulsor.battery.origin[0][0]                                       = 0.51 * length_scale
-        propulsor.battery.mass_properties.center_of_gravity[0][0]            = 0.0
-        output.battery                                                       += propulsor.battery.mass_properties.mass * Units.kg
+        network.battery.origin[0][0]                                   = 0.51 * length_scale
+        network.battery.mass_properties.center_of_gravity[0][0]        = 0.0
+        output.battery                                                += network.battery.mass_properties.mass * Units.kg
 
         #-------------------------------------------------------------------------------
         # Payload Weight
         #-------------------------------------------------------------------------------
-        propulsor.payload.origin[0][0]                                       = 0.51 * length_scale
-        propulsor.payload.mass_properties.center_of_gravity[0][0]            = 0.0
-        output.payload                                                       += propulsor.payload.mass_properties.mass * Units.kg
+        network.payload.origin[0][0]                                   = 0.51 * length_scale
+        network.payload.mass_properties.center_of_gravity[0][0]        = 0.0
+        output.payload                                                += network.payload.mass_properties.mass * Units.kg
 
         #-------------------------------------------------------------------------------
         # Avionics Weight
         #-------------------------------------------------------------------------------
-        propulsor.avionics.origin[0][0]                                      = 0.4 * nose_length
-        propulsor.avionics.mass_properties.center_of_gravity[0][0]           = 0.0
-        propulsor.avionics.mass_properties.mass                              = output.avionics
+        network.avionics.origin[0][0]                                  = 0.4 * nose_length
+        network.avionics.mass_properties.center_of_gravity[0][0]       = 0.0
+        network.avionics.mass_properties.mass                          = output.avionics
 
         #-------------------------------------------------------------------------------
         # Rotor, Propeller, Motor, Servo, Hub and BRS Weight
         #-------------------------------------------------------------------------------
-        if isinstance(propulsor, Lift_Cruise):     
-            nLiftProps          = propulsor.number_of_rotor_engines
-            nThrustProps        = propulsor.number_of_propeller_engines 
-        elif isinstance(propulsor, Battery_Propeller):
+        if isinstance(network, Lift_Cruise):     
+            nLiftProps          = network.number_of_rotor_engines
+            nThrustProps        = network.number_of_propeller_engines 
+        elif isinstance(network, Battery_Propeller):
             nLiftProps          = 0.0
-            nThrustProps        = propulsor.number_of_engines
+            nThrustProps        = network.number_of_engines
         else:
             warn("""eVTOL weight buildup only supports the Battery Propeller, Lift Cruise and Vectored Thrust energy networks.\n
             Weight buildup will not return information on propulsion system.""", stacklevel=1)    
             
         # Get reference rotor properties for sizing - defaulted as rotor 
-        if 'rotor' in propulsor.keys():
-            rTip_ref        = propulsor.rotor.tip_radius  
-            bladeSol_ref    = propulsor.rotor.blade_solidity 
+        if 'rotor' in network.keys():
+            rTip_ref        = network.rotor.tip_radius  
+            bladeSol_ref    = network.rotor.blade_solidity 
         else:
-            rTip_ref        = propulsor.propellers.propeller.tip_radius  
-            bladeSol_ref    = propulsor.propellers.propeller.tip_radius      
+            rTip_ref        = network.propellers.propeller.tip_radius  
+            bladeSol_ref    = network.propellers.propeller.tip_radius      
 
         # total number of propellers and rotors
         nProps         = int(nLiftProps + nThrustProps)
@@ -234,13 +234,13 @@ def empty(config,
         maxLiftTorque  = maxLiftPower / maxLiftOmega
         
         # Servo, Hub and BRS Weight
-        if isinstance(propulsor, Battery_Propeller):
+        if isinstance(network, Battery_Propeller):
             servo_weight   = 5.2  * Units.kg
             hub_weight     = MTOW * 0.04  * Units.kg
             if nProps > 1:
                 BRS_weight = 16.   * Units.kg
 
-        elif isinstance(propulsor, Lift_Cruise):
+        elif isinstance(network, Lift_Cruise):
             servo_weight   = 0.65 * Units.kg
             hub_weight     = 4.   * Units.kg
             BRS_weight     = 16.  * Units.kg
@@ -251,28 +251,28 @@ def empty(config,
 
         # Tail Rotor
         if nLiftProps == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor 
-            output.tail_rotor += prop(propulsor.propeller, 1.5*maxLiftTorque/(1.25*rTip_ref))*0.2 * Units.kg
+            output.tail_rotor += prop(network.propeller, 1.5*maxLiftTorque/(1.25*rTip_ref))*0.2 * Units.kg
 
         # Rotor
-        if 'rotor' in propulsor.keys(): 
-            rotor_mass     = prop(propulsor.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg
+        if 'rotor' in network.keys(): 
+            rotor_mass     = prop(network.rotor, maxLift / max(nLiftProps - 1, 1))  * Units.kg
             output.rotors += nLiftProps * rotor_mass
-            if isinstance(propulsor, Lift_Cruise):
-                for rotor_motor in propulsor.rotor_motors:
+            if isinstance(network, Lift_Cruise):
+                for rotor_motor in network.rotor_motors:
                     output.rotor_motors  += rotor_motor.mass_properties.mass
             else:                                  
-                output.rotor_motors  += nLiftProps * propulsor.motor.mass_properties.mass
-            propulsor.rotor.mass_properties.mass = rotor_mass + hub_weight + servo_weight
+                output.rotor_motors  += nLiftProps * network.motor.mass_properties.mass
+            network.rotor.mass_properties.mass = rotor_mass + hub_weight + servo_weight
 
         # Propeller
-        if 'propeller' in propulsor.keys():    
-            propeller_mass     = prop(propulsor.propeller, maxLift/5.) * Units.kg
+        if 'propeller' in network.keys():    
+            propeller_mass     = prop(network.propeller, maxLift/5.) * Units.kg
             output.propellers += nThrustProps * propeller_mass
-            if isinstance(propulsor, Lift_Cruise):
-                output.propeller_motors += nThrustProps * propulsor.propeller_motor.mass_properties.mass
+            if isinstance(network, Lift_Cruise):
+                output.propeller_motors += nThrustProps * network.propeller_motor.mass_properties.mass
             else:
-                output.propeller_motors += nThrustProps * propulsor.motor.mass_properties.mass
-            propulsor.propeller.mass_properties.mass = propeller_mass + hub_weight + servo_weight
+                output.propeller_motors += nThrustProps * network.motor.mass_properties.mass
+            network.propeller.mass_properties.mass = propeller_mass + hub_weight + servo_weight
         
     # sum motor weight
     output.motors = output.rotor_motors + output.propeller_motors  

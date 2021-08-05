@@ -33,7 +33,7 @@ def windmilling_drag(geometry,state):
       max_mach_operational        [Unitless]
       reference_area              [m^2]
       wings.sref                  [m^2]
-      propulsors. 
+      networks. 
         areas.wetted              [m^2]
         nacelle_diameter          [m^2]
         engine_length             [m^2]
@@ -68,14 +68,14 @@ def windmilling_drag(geometry,state):
                 break
 
     # getting geometric data from engine (estimating when not available)
-    for idx,propulsor in enumerate(vehicle.propulsors):
+    for idx,network in enumerate(vehicle.networks):
         try:
-            swet_nac = propulsor.areas.wetted
+            swet_nac = network.areas.wetted
         except:
             try:
-                D_nac = propulsor.nacelle_diameter
-                if propulsor.engine_length != 0.:
-                    l_nac = propulsor.engine_length
+                D_nac = network.nacelle_diameter
+                if network.engine_length != 0.:
+                    l_nac = network.engine_length
                 else:
                     try:
                         MMO = vehicle.max_mach_operational

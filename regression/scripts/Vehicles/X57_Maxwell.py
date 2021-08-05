@@ -434,7 +434,7 @@ def configs_setup(vehicle):
 
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
-    base_config.propulsors.battery_propeller.pitch_command = 0 
+    base_config.networks.battery_propeller.pitch_command = 0 
     configs.append(base_config) 
 
 
