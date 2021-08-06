@@ -326,10 +326,11 @@ def empty(config,
         output.hubs   += (nLiftRotors * lift_rotor_hub_weight + nThrustProps * prop_hub_weight)
         output.BRS    += (prop_BRS_weight + lift_rotor_BRS_weight)
 
+        maxLiftPower   = 1.15*maxLift*(k*np.sqrt(maxLift/(2*rho_ref*np.pi*rTip_ref**2)) +
+                                           bladeSol_ref*AvgBladeCD/8*maxVTip**3/(maxLift/(rho_ref*np.pi*rTip_ref**2)))
         # Tail Rotor
         if nLiftRotors == 1: # this assumes that the vehicle is an electric helicopter with a tail rotor
-            maxLiftPower   = 1.15*maxLift*(k*np.sqrt(maxLift/(2*rho_ref*np.pi*rTip_ref**2)) +
-                                               bladeSol_ref*AvgBladeCD/8*maxVTip**3/(maxLift/(rho_ref*np.pi*rTip_ref**2)))
+            
             maxLiftOmega   = maxVTip/rTip_ref
             maxLiftTorque  = maxLiftPower / maxLiftOmega
 

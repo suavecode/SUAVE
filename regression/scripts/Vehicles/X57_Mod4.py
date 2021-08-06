@@ -17,7 +17,7 @@ from SUAVE.Core import Units, Data
 
 from SUAVE.Components.Energy.Networks.Battery_Propeller import Battery_Propeller
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass 
-from SUAVE.Methods.Propulsion.electric_motor_sizing  import size_optimal_motor
+from SUAVE.Methods.Propulsion.electric_motor_sizing  import size_optimal_motor, size_from_mass
 from SUAVE.Methods.Propulsion import propeller_design 
  
 
@@ -376,7 +376,7 @@ def vehicle_setup():
     highlift_prop.tag                    = "high_lift_propeller"
     highlift_prop.number_of_blades       = 5
     highlift_prop.freestream_velocity    = 64.*Units['mph']    
-    highlift_prop.angular_velocity       = 2250.  * Units.rpm  
+    highlift_prop.angular_velocity       = 4000.  * Units.rpm  
     highlift_prop.tip_radius             = 0.58/2
     highlift_prop.hub_radius             = 0.1
     highlift_prop.design_Cl              = 0.75
@@ -408,34 +408,41 @@ def vehicle_setup():
     
     # --------------------------------------------------------------------
     # CORRESPONDING MOTORS
-    # -------------------------------------------------------------------- 
+    # --------------------------------------------------------------------
+    motor                   = SUAVE.Components.Energy.Converters.Motor()
+    etam                    = 0.95
+    v                       = bat.max_voltage
+    io                      = 2.0 
+    start_kv                = 1
+    end_kv                  = 25
+    # do optimization to find kv or just do a linspace then remove all negative values, take smallest one use 0.05 change
+    # essentially you are sizing the motor for a particular rpm which is sized for a design tip mach 
+    # this reduces the bookkeeping errors     
+    possible_kv_vals        = np.linspace(start_kv,end_kv,(end_kv-start_kv)*20 +1 , endpoint = True) * Units.rpm
+    
+    
+    motor.mass_properties.mass = 10. * Units.kg
+    motor.speed_constant       = 0.35 
+    motor.no_load_current      = io 
+    motor.gear_ratio           = 1. 
+    motor.gearbox_efficiency   = 1.  
     
     props = net.propellers
     keys = props.keys()
-    
-    base_motor = SUAVE.Components.Energy.Converters.Motor()
-    base_motor.efficiency           = 0.95
-    base_motor.no_load_current      = 4.0  
-    base_motor.nominal_voltage      = bat.max_voltage 
-    
     for i in range(len(props)):
         p                    = props[list(keys)[i]]
-        m                    = deepcopy(base_motor)
-        m.origin             = p.origin  
-        m.propeller_radius   = p.tip_radius 
+        omeg                 = p.angular_velocity  
+        res_kv_vals          = ((v-omeg/possible_kv_vals)*(1.-etam*v*possible_kv_vals/omeg))/io  
+        positive_res_vals    = np.extract(res_kv_vals > 0 ,res_kv_vals) 
+        res                  = min(positive_res_vals) 
         
-        # size motor for this prop
-        if p.tag=='cruise_propeller':
-            # use larger motor mass
-            m.mass_properties.mass = 10.0  * Units.kg
-        else:
-            m.mass_properties.mass = 3.0  * Units.kg
-            
-        m   = size_optimal_motor(m,p)
+        m                    = deepcopy(motor)
+        m.resistance         = res
+        m.tag                = p.tag+"_motor"
+        m.origin             = p.origin
+        m.propeller_radius   = p.tip_radius   
         net.propeller_motors.append(m)
-        
-        
-    
+
     # --------------------------------------------------------------------
     # Component 9 Miscellaneous Systems 
     # --------------------------------------------------------------------
@@ -477,7 +484,7 @@ def configs_setup(vehicle):
 
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
-    base_config.propulsors.battery_propeller.pitch_command = 0.
+    base_config.networks.battery_propeller.pitch_command = 0.
     configs.append(base_config) 
 
 

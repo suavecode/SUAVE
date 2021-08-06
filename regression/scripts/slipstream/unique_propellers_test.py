@@ -28,7 +28,6 @@ from SUAVE.Methods.Weights.Buildups.eVTOL.empty import empty
 sys.path.append('../Vehicles') 
 from X57_Mod4 import vehicle_setup, configs_setup 
 
-
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -58,7 +57,7 @@ def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
 
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[0][0]
-    lift_coefficient_true         = 0.16334169837120907
+    lift_coefficient_true         = 0.26450982066106576
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true)
     print(lift_coefficient)
     print('CL difference')
@@ -66,13 +65,13 @@ def helical_fixed_wake_analysis(save_vtks,plot_vehicle):
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 5.91836188e-01,  5.15336453e-01, -1.72400103e-01, -1.21544795e-01,
-                                                 3.32904607e-02,  5.91938186e-01,  5.17390851e-01, -1.69516508e-01,
-                                                -1.23748694e-01,  3.66002735e-02,  9.03392329e-02,  9.60653759e-02,
-                                                 9.50842766e-02,  8.25330679e-02,  5.39442008e-02,  9.03365946e-02,
-                                                 9.60666536e-02,  9.50510686e-02,  8.24508914e-02,  5.38746343e-02,
-                                                 3.98297380e-12,  1.46468983e-11,  3.49934717e-11,  3.95132640e-11,
-                                                 2.28060098e-11])
+    sectional_lift_coeff_true       = np.array([6.52376450e-01, 6.37368957e-01, 2.57910552e-01, 1.99434808e-01,
+                                                1.71314513e-01, 6.52376460e-01, 6.37369086e-01, 2.57910663e-01,
+                                                1.99434798e-01, 1.71314100e-01, 1.44498941e-01, 1.54294999e-01,
+                                                1.51595121e-01, 1.29045685e-01, 8.35592073e-02, 1.44498944e-01,
+                                                1.54295027e-01, 1.51595189e-01, 1.29045834e-01, 8.35594706e-02,
+                                                2.49695442e-16, 1.42405789e-15, 1.96944105e-15, 1.80666802e-15,
+                                                1.22193109e-15])
 
     diff_Cl                         = np.abs(sectional_lift_coeff - sectional_lift_coeff_true)
     
@@ -198,7 +197,7 @@ def base_analysis(vehicle, fixed_helical_wake):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -255,7 +254,7 @@ def mission_setup(analyses,vehicle):
     segment.air_speed                 = 135. * Units['mph'] 
     segment.distance                  = 20.  * Units.nautical_mile  
     segment.state.unknowns.throttle   = 0.75 *  ones_row(1)
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
     
     # add to misison
     mission.append_segment(segment)        

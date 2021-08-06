@@ -246,14 +246,8 @@ class Rotor(Energy_Component):
         ut       = 0            
         ur       = 0             
         
-        # Check if nonuniform incidence analysis is appropriate
-        lifting_orientation = (np.arcsin(body2thrust[0,2]/body2thrust[0,0])>=np.pi/2)
-        
         # Include velocities introduced by rotor incidence angles 
-        if np.any(abs(V_thrust[:,1]) >1e-3) or np.any(abs(V_thrust[:,2]) >1e-3) and not lifting_orientation:
-            
-            # incidence angle creates disturbances in radial and tangential velocities
-            use_2d_analysis = True
+        if (np.any(abs(V_thrust[:,1]) >1e-3) or np.any(abs(V_thrust[:,2]) >1e-3)) and use_2d_analysis:
             
             # y-component of freestream in the propeller plane
             Vy  = V_thrust[:,1,None,None]

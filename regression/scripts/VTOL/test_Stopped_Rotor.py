@@ -222,7 +222,7 @@ def mission_setup(analyses,vehicle):
     segment.process.iterate.conditions.stability             = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability          = SUAVE.Methods.skip
     segment = vehicle.networks.lift_cruise.add_lift_unknowns_and_residuals_to_segment(segment,\
-                                                                                    initial_rotor_power_coefficient=0.01,
+                                                                                    initial_lift_rotor_power_coefficient=0.01,
                                                                                     initial_throttle_lift = 0.9)
     # add to misison
     mission.append_segment(segment)
