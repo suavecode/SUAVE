@@ -28,8 +28,11 @@ from X57_Maxwell import vehicle_setup, configs_setup
 #   Main
 # ----------------------------------------------------------------------
 def main():
-    # run test with helical fixed wake model
-    helical_fixed_wake_analysis()
+    #run test with helical fixed wake model
+    helical_fixed_wake_analysis(identical_props=True)
+    
+    # run test with helical fixed wake model and non-identical props
+    helical_fixed_wake_analysis(identical_props=False)
 
     # run test with bemt wake model
     bemt_wake_analysis()
@@ -40,7 +43,7 @@ def bemt_wake_analysis():
     # Evaluate wing in propeller wake (using helical fixed-wake model)
     bemt_wake          = True
     fixed_helical_wake = False
-    configs, analyses = full_setup(bemt_wake, fixed_helical_wake) 
+    configs, analyses = full_setup(bemt_wake, fixed_helical_wake, identical_props=True) 
 
     configs.finalize()
     analyses.finalize()  
@@ -88,11 +91,11 @@ def bemt_wake_analysis():
     plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
     return
 
-def helical_fixed_wake_analysis():
+def helical_fixed_wake_analysis(identical_props):
     # Evaluate wing in propeller wake (using helical fixed-wake model)
     bemt_wake          = False
     fixed_helical_wake = True
-    configs, analyses = full_setup(bemt_wake, fixed_helical_wake) 
+    configs, analyses = full_setup(bemt_wake, fixed_helical_wake,identical_props) 
 
     configs.finalize()
     analyses.finalize()  
@@ -158,10 +161,14 @@ def plot_mission(results,vehicle):
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup(bemt_wake, fixed_helical_wake):
+def full_setup(bemt_wake, fixed_helical_wake, identical_props):
 
     # vehicle data
     vehicle  = vehicle_setup() 
+    
+    # test for non-identical propellers
+    if not identical_props:
+        vehicle.networks.battery_propeller.identical_propellers = False    
     configs  = configs_setup(vehicle)
 
     # vehicle analyses

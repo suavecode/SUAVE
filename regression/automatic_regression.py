@@ -94,7 +94,6 @@ modules = [
     'scripts/rocket_network/Rocketdyne_J2.py',
     'scripts/segments/segment_test.py',
     'scripts/slipstream/slipstream_test.py',
-    'scripts/slipstream/unique_propellers_test.py',
     'scripts/slipstream/propeller_interactions.py',
     'scripts/solar_network/solar_network.py',
     'scripts/solar_network/solar_low_fidelity_network.py',
