@@ -2,10 +2,8 @@
 # parasite_drag_propulsor.py
 # 
 # Created:  Dec 2013, SUAVE Team
-# Modified: Jan 2016, E. Botero          
-
-#Sources: Stanford AA241 Course Notes
-#         Raymer: Aircraft Design: A Conceptual Approach
+# Modified: Jan 2016, E. Botero 
+#         
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -31,6 +29,7 @@ def parasite_drag_propulsor(state,settings,geometry):
 
     Source:
     adg.stanford.edu (Stanford AA241 A/B Course Notes)
+    Raymer: Aircraft Design: A Conceptual Approach
 
     Inputs:
     state.conditions.freestream.
@@ -73,7 +72,7 @@ def parasite_drag_propulsor(state,settings,geometry):
     cf_prop, k_comp, k_reyn = compressible_turbulent_flat_plate(Re_prop,Mc,Tc)
     
     ## form factor according to Raymer equation (pg 283 of Aircraft Design: A Conceptual Approach)
-    k_prop = 1 + 0.35 / (float(l_prop)/float(d_prop))  
+    k_prop = 1 + 0.35 / (l_prop/d_prop)
     
    
     # find the final result    

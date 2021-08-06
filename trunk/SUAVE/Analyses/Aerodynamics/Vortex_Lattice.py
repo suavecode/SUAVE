@@ -82,6 +82,8 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.initial_timestep_offset         = 0
         self.settings.wake_development_time           = 0.05
         self.settings.number_of_wake_timesteps        = 30
+        self.settings.propeller_wake_model            = False
+        self.settings.use_bemt_wake_model             = False
         self.settings.discretize_control_surfaces     = False
         self.settings.use_VORLAX_matrix_calculation   = False
         self.settings.floating_point_precision        = np.float32

@@ -1,5 +1,5 @@
 ## @ingroup Components-Energy-Converters
-# Propeller.py
+# Lift_Rotor.py
 #
 # Created:  July 2021, R. Erhard
 # Modified: 
@@ -8,13 +8,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 from .Rotor import Rotor
+import numpy as np
 
 # ----------------------------------------------------------------------
-#  Propeller Class
+#  Lift Rotor Class
 # ----------------------------------------------------------------------    
 ## @ingroup Components-Energy-Converters
-class Propeller(Rotor):
-    """This is a propeller component, and is a sub-class of rotor.
+class Lift_Rotor(Rotor):
+    """This is a lift rotor component, and is a sub-class of rotor.
     
     Assumptions:
     None
@@ -41,8 +42,8 @@ class Propeller(Rotor):
         None
         """         
 
-        self.tag                       = 'propeller'
-        self.orientation_euler_angles  = [0.,0.,0.] # This is X-direction thrust in vehicle frame
-        self.use_2d_analysis           = False       
+        self.tag                       = 'lift_rotor'
+        self.orientation_euler_angles  = [0.,np.pi/2.,0.] # This is Z-direction thrust up in vehicle frame
+        self.use_2d_analysis           = False
         self.variable_pitch            = False
         

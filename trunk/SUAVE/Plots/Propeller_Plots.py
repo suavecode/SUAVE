@@ -53,7 +53,7 @@ def plot_propeller_performance(prop,outputs,conditions):
     thrust_disc = outputs.disc_thrust_distribution[i]
     torque_disc = outputs.disc_torque_distribution[i]
     
-    delta_alpha = (outputs.disc_local_angle_of_attack[i] - 
+    delta_alpha = (outputs.disc_effective_angle_of_attack[i] - 
                    conditions.aerodynamics.angle_of_attack[i,0])/Units.deg  
     
     # completing the full revolution for the disc
@@ -108,7 +108,7 @@ def plot_propeller_performance(prop,outputs,conditions):
     CS_0 = axis0.contourf(psi, r, delta_alpha,10,cmap=plt.cm.jet)
     cbar0 = plt.colorbar(CS_0, ax=axis0, format=matplotlib.ticker.FormatStrFormatter('%.2f'))
     cbar0.ax.set_ylabel('Angle of Attack (deg)',labelpad=25)
-    axis0.set_title('Blade Local Angle of Attack',pad=15) 
+    axis0.set_title('Blade Local Effective Angle of Attack',pad=15) 
     axis0.set_rorigin(-rh)
     axis0.set_yticklabels([])    
     
@@ -224,7 +224,7 @@ def plot_propeller_disc_performance(prop,outputs,i=0,title=None):
     
     T    = outputs.disc_thrust_distribution[i]
     Q    = outputs.disc_torque_distribution[i]
-    alf  = (outputs.disc_local_angle_of_attack[i])/Units.deg
+    alf  = (outputs.disc_effective_angle_of_attack[i])/Units.deg
     
     T    = np.append(T,np.array([T[0]]),axis=0)
     Q    = np.append(Q,np.array([Q[0]]),axis=0)

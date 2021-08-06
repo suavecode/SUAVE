@@ -5,6 +5,7 @@
 # Modified: Mar 2020, M. Clarke
 #           Apr 2021, M. Clarke
 #           Jul 2021, E. Botero
+#           Jul 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -61,28 +62,28 @@ class Lift_Cruise(Network):
             Properties Used:
             N/A
         """             
-        self.rotor_motors                = Container()
-        self.propeller_motors            = Container()
-        self.rotors                      = Container()
-        self.propellers                  = Container()
-        self.rotor_esc                   = None
-        self.propeller_esc               = None
-        self.avionics                    = None
-        self.payload                     = None
-        self.battery                     = None
-        self.rotor_nacelle_diameter      = None
-        self.propeller_nacelle_diameter  = None
-        self.rotor_engine_length         = None
-        self.propeller_engine_length     = None
-        self.number_of_rotor_engines     = None
-        self.number_of_propeller_engines = None
-        self.voltage                     = None
-        self.propeller_pitch_command     = 0.0 
-        self.rotor_pitch_command         = 0.0     
-        self.tag                         = 'Lift_Cruise'
-        self.generative_design_minimum   = 0
-        self.identical_propellers        = True
-        self.identical_rotors            = True
+        self.lift_rotor_motors            = Container()
+        self.propeller_motors             = Container()
+        self.lift_rotors                  = Container()
+        self.propellers                   = Container()
+        self.lift_rotor_esc               = None
+        self.propeller_esc                = None
+        self.avionics                     = None
+        self.payload                      = None
+        self.battery                      = None
+        self.lift_rotor_nacelle_diameter  = None
+        self.propeller_nacelle_diameter   = None
+        self.lift_rotor_engine_length     = None
+        self.propeller_engine_length      = None
+        self.number_of_lift_rotor_engines = 0
+        self.number_of_propeller_engines  = 0
+        self.voltage                      = None
+        self.propeller_pitch_command      = 0.0
+        self.lift_rotor_pitch_command     = 0.0   
+        self.tag                          = 'Lift_Cruise'
+        self.generative_design_minimum    = 0
+        self.identical_propellers         = True
+        self.identical_lift_rotors        = True
         pass
         
     def evaluate_thrust(self,state):
@@ -98,40 +99,40 @@ class Lift_Cruise(Network):
             state [state()]
     
             Outputs:
-            results.thrust_force_vector [Newtons]
-            results.vehicle_mass_rate   [kg/s]
+            results.thrust_force_vector       [Newtons]
+            results.vehicle_mass_rate         [kg/s]
             conditions.propulsion:
-                rotor_rpm                [radians/sec]
-                rpm _forward             [radians/sec]
-                rotor_current_draw       [amps]
-                propeller_current_draw   [amps]
-                battery_draw             [watts]
-                battery_energy           [joules]
-                voltage_open_circuit     [volts]
-                voltage_under_load       [volts]
-                rotor_motor_torque        [N-M]
-                propeller_motor_torque     [N-M]
-                rotor_torque    [N-M]
-                propeller_torque [N-M]
+                lift_rotor_rpm                [radians/sec]
+                rpm _forward                  [radians/sec]
+                lift_rotor_current_draw       [amps]
+                propeller_current_draw        [amps]
+                battery_draw                  [watts]
+                battery_energy                [joules]
+                voltage_open_circuit          [volts]
+                voltage_under_load            [volts]
+                lift_rotor_motor_torque       [N-M]
+                propeller_motor_torque        [N-M]
+                lift_rotor_torque             [N-M]
+                propeller_torque              [N-M]
     
             Properties Used:
             Defaulted values
         """          
         
         # unpack
-        conditions       = state.conditions
-        numerics         = state.numerics
-        rotor_motors     = self.rotor_motors
-        propeller_motors = self.propeller_motors
-        rotors           = self.rotors
-        propellers       = self.propellers
-        rotor_esc        = self.rotor_esc
-        propeller_esc    = self.propeller_esc        
-        avionics         = self.avionics
-        payload          = self.payload
-        battery          = self.battery
-        num_lift         = self.number_of_rotor_engines
-        num_forward      = self.number_of_propeller_engines
+        conditions        = state.conditions
+        numerics          = state.numerics
+        lift_rotor_motors = self.lift_rotor_motors
+        propeller_motors  = self.propeller_motors
+        lift_rotors       = self.lift_rotors
+        propellers        = self.propellers
+        lift_rotor_esc    = self.lift_rotor_esc
+        propeller_esc     = self.propeller_esc        
+        avionics          = self.avionics
+        payload           = self.payload
+        battery           = self.battery
+        num_lift          = self.number_of_lift_rotor_engines
+        num_forward       = self.number_of_propeller_engines
         
         # Unpack conditions
         a = conditions.freestream.speed_of_sound        
@@ -147,8 +148,8 @@ class Lift_Cruise(Network):
         volts[volts>self.voltage] = self.voltage 
         
         # ESC Voltage
-        rotor_esc.inputs.voltagein     = volts      
-        propeller_esc.inputs.voltagein = volts 
+        lift_rotor_esc.inputs.voltagein = volts      
+        propeller_esc.inputs.voltagein  = volts 
         
         #---------------------------------------------------------------
         # EVALUATE THRUST FROM FORWARD PROPULSORS 
@@ -241,7 +242,7 @@ class Lift_Cruise(Network):
         konditions.frames.inertial                        = Data()
         konditions.frames.body                            = Data()
         konditions.propulsion.throttle                    = conditions.propulsion.throttle_lift* 1.
-        konditions.propulsion.propeller_power_coefficient = conditions.propulsion.rotor_power_coefficient * 1.
+        konditions.propulsion.propeller_power_coefficient = conditions.propulsion.lift_rotor_power_coefficient * 1.
         konditions.freestream.density                     = conditions.freestream.density * 1.
         konditions.freestream.velocity                    = conditions.freestream.velocity * 1.
         konditions.freestream.dynamic_viscosity           = conditions.freestream.dynamic_viscosity * 1.
@@ -252,10 +253,10 @@ class Lift_Cruise(Network):
         konditions.frames.body.transform_to_inertial      = conditions.frames.body.transform_to_inertial
 
         # Throttle the voltage
-        rotor_esc.voltageout(konditions)      
+        lift_rotor_esc.voltageout(konditions)      
         
         # How many evaluations to do
-        if self.identical_rotors:
+        if self.identical_lift_rotors:
             n_evals = 1
             factor  = num_lift*1
         else:
@@ -263,33 +264,33 @@ class Lift_Cruise(Network):
             factor  = 1.
         
         # Setup numbers for iteration
-        total_rotor_motor_current = 0.
-        total_rotor_thrust        = 0. * state.ones_row(3)
-        total_rotor_power         = 0.        
+        total_lift_rotor_motor_current = 0.
+        total_lift_rotor_thrust        = 0. * state.ones_row(3)
+        total_lift_rotor_power         = 0.        
         
-        # Iterate over motor/rotors
+        # Iterate over motor/lift_rotors
         for ii in range(n_evals):          
             
             # Unpack the motor and props
-            motor_key   = list(rotor_motors.keys())[ii]
-            rotor_key   = list(rotors.keys())[ii]
-            rotor_motor = self.rotor_motors[motor_key]
-            rotor       = self.rotors[rotor_key]            
+            motor_key   = list(lift_rotor_motors.keys())[ii]
+            lift_rotor_key   = list(lift_rotors.keys())[ii]
+            lift_rotor_motor = self.lift_rotor_motors[motor_key]
+            lift_rotor       = self.lift_rotors[lift_rotor_key]            
                     
             # link
-            rotor_motor.inputs.voltage = rotor_esc.outputs.voltageout
-            rotor_motor.inputs.propeller_CP = np.atleast_2d(conditions.propulsion.rotor_power_coefficient[:,ii]).T
+            lift_rotor_motor.inputs.voltage = lift_rotor_esc.outputs.voltageout
+            lift_rotor_motor.inputs.propeller_CP = np.atleast_2d(conditions.propulsion.lift_rotor_power_coefficient[:,ii]).T
             
             # Run the motor
-            rotor_motor.omega(konditions)
+            lift_rotor_motor.omega(konditions)
             
             # link
-            rotor.inputs.omega         = rotor_motor.outputs.omega
-            rotor.inputs.pitch_command = self.rotor_pitch_command 
-            rotor.VTOL_flag            = state.VTOL_flag   
+            lift_rotor.inputs.omega         = lift_rotor_motor.outputs.omega
+            lift_rotor.inputs.pitch_command = self.lift_rotor_pitch_command 
+            lift_rotor.VTOL_flag            = state.VTOL_flag   
             
             # Run the propeller
-            F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = rotor.spin(konditions)
+            F_lift, Q_lift, P_lift, Cp_lift, outputs_lift, etap_lift = lift_rotor.spin(konditions)
             
             # Check to see if magic thrust is needed, the ESC caps throttle at 1.1 already
             eta                       = conditions.propulsion.throttle_lift[:,0,None]
@@ -298,34 +299,34 @@ class Lift_Cruise(Network):
                 
             
             # Run the motor for current
-            _, etam_rotor =rotor_motor.current(konditions)  
+            _, etam_lift_rotor =lift_rotor_motor.current(konditions)  
             
             # Conditions specific to this instantation of motor and propellers
-            R                         = rotor.tip_radius
-            rpm                       = rotor_motor.outputs.omega / Units.rpm
-            F_mag                     = np.atleast_2d(np.linalg.norm(F_lift, axis=1)).T
-            total_rotor_thrust        = total_rotor_thrust + F_lift * factor
-            total_rotor_power         = total_rotor_power  + P_lift * factor
-            total_rotor_motor_current = total_rotor_motor_current + factor*rotor_motor.outputs.current
+            R                              = lift_rotor.tip_radius
+            rpm                            = lift_rotor_motor.outputs.omega / Units.rpm
+            F_mag                          = np.atleast_2d(np.linalg.norm(F_lift, axis=1)).T
+            total_lift_rotor_thrust        = total_lift_rotor_thrust + F_lift * factor
+            total_lift_rotor_power         = total_lift_rotor_power  + P_lift * factor
+            total_lift_rotor_motor_current = total_lift_rotor_motor_current + factor*lift_rotor_motor.outputs.current
             
             
             # Pack specific outputs
-            conditions.propulsion.rotor_motor_torque[:,ii]     = rotor_motor.outputs.torque[:,0]
-            conditions.propulsion.rotor_torque[:,ii]           = Q_lift[:,0]
-            conditions.propulsion.rotor_rpm[:,ii]              = rpm[:,0]
-            conditions.propulsion.rotor_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
-            conditions.propulsion.rotor_disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
-            conditions.propulsion.rotor_power_loading[:,ii]    = (F_mag[:,0])/(P_lift[:,0])  # N/W      
-            conditions.propulsion.rotor_efficiency[:,ii]       = etap_lift[:,0]
-            conditions.propulsion.rotor_motor_efficiency[:,ii] = etam_rotor[:,0]
+            conditions.propulsion.lift_rotor_motor_torque[:,ii]     = lift_rotor_motor.outputs.torque[:,0]
+            conditions.propulsion.lift_rotor_torque[:,ii]           = Q_lift[:,0]
+            conditions.propulsion.lift_rotor_rpm[:,ii]              = rpm[:,0]
+            conditions.propulsion.lift_rotor_tip_mach[:,ii]         = (R*rpm[:,0]*Units.rpm)/a[:,0]
+            conditions.propulsion.lift_rotor_disc_loading[:,ii]     = (F_mag[:,0])/(np.pi*(R**2))    # N/m^2                  
+            conditions.propulsion.lift_rotor_power_loading[:,ii]    = (F_mag[:,0])/(P_lift[:,0])  # N/W      
+            conditions.propulsion.lift_rotor_efficiency[:,ii]       = etap_lift[:,0]
+            conditions.propulsion.lift_rotor_motor_efficiency[:,ii] = etam_lift_rotor[:,0]
             
-            conditions.noise.sources.rotors[rotor.tag]      = outputs_forward                    
+            conditions.noise.sources.lift_rotors[lift_rotor.tag]    = outputs_forward                    
             
         # link
-        rotor_esc.inputs.currentout =  rotor_motor.outputs.current     
+        lift_rotor_esc.inputs.currentout =  lift_rotor_motor.outputs.current     
         
-        # Run the rotor esc
-        rotor_esc.currentin(konditions)          
+        # Run the lift_rotor esc
+        lift_rotor_esc.currentin(konditions)          
         
         # Run the avionics
         avionics.power()
@@ -340,7 +341,7 @@ class Lift_Cruise(Network):
         i_avionics_payload = avionics_payload_power/volts   
         
         # Add up the power usages
-        i_lift    = rotor_esc.outputs.currentin
+        i_lift    = lift_rotor_esc.outputs.currentin
         i_forward = propeller_esc.outputs.currentin
         
         current_total = i_lift + i_forward + i_avionics_payload
@@ -366,7 +367,7 @@ class Lift_Cruise(Network):
         conditions.propulsion.electronics_efficiency            = -(P_forward + P_lift)/battery_draw  
         conditions.propulsion.battery_current                   = current_total
 
-        F_total = total_prop_thrust + total_rotor_thrust
+        F_total = total_prop_thrust + total_lift_rotor_thrust
 
         results = Data()
         results.thrust_force_vector = F_total
@@ -385,14 +386,14 @@ class Lift_Cruise(Network):
             N/A
     
             Inputs:
-            state.unknowns.rotor_power_coefficient[None]
+            state.unknowns.lift_rotor_power_coefficient[None]
             state.unknowns.propeller_power_coefficient [None]
             state.unknowns.battery_voltage_under_load  [volts]
             state.unknowns.throttle_lift               [0-1]
             state.unknowns.throttle                    [0-1]
     
             Outputs:
-            state.conditions.propulsion.rotor_power_coefficient [None]
+            state.conditions.propulsion.lift_rotor_power_coefficient [None]
             state.conditions.propulsion.propeller_power_coefficient [None]
             state.conditions.propulsion.battery_voltage_under_load  [volts]
             state.conditions.propulsion.throttle_lift              [0-1]
@@ -403,11 +404,11 @@ class Lift_Cruise(Network):
         """          
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.rotor_power_coefficient     = segment.state.unknowns.rotor_power_coefficient
-        segment.state.conditions.propulsion.propeller_power_coefficient = segment.state.unknowns.propeller_power_coefficient   
-        segment.state.conditions.propulsion.throttle_lift               = segment.state.unknowns.throttle_lift        
-        segment.state.conditions.propulsion.throttle                    = segment.state.unknowns.throttle
+        segment.state.conditions.propulsion.battery_voltage_under_load   = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.lift_rotor_power_coefficient = segment.state.unknowns.lift_rotor_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient  = segment.state.unknowns.propeller_power_coefficient   
+        segment.state.conditions.propulsion.throttle_lift                = segment.state.unknowns.throttle_lift        
+        segment.state.conditions.propulsion.throttle                     = segment.state.unknowns.throttle
         
         return
     
@@ -442,7 +443,7 @@ class Lift_Cruise(Network):
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
         segment.state.conditions.propulsion.throttle_lift                       = 0.0 * ones(1)
-        segment.state.conditions.propulsion.rotor_power_coefficient             = 0.0 * ones(1)
+        segment.state.conditions.propulsion.lift_rotor_power_coefficient        = 0.0 * ones(1)
         segment.state.conditions.propulsion.battery_voltage_under_load          = segment.state.unknowns.battery_voltage_under_load
         segment.state.conditions.propulsion.propeller_power_coefficient         = segment.state.unknowns.propeller_power_coefficient
         segment.state.conditions.propulsion.throttle                            = segment.state.unknowns.throttle
@@ -478,11 +479,11 @@ class Lift_Cruise(Network):
         ones = segment.state.ones_row
         
         # Here we are going to unpack the unknowns (Cps,throttle,voltage) provided for this network
-        segment.state.conditions.propulsion.throttle_lift               = segment.state.unknowns.throttle_lift
-        segment.state.conditions.propulsion.battery_voltage_under_load  = segment.state.unknowns.battery_voltage_under_load
-        segment.state.conditions.propulsion.rotor_power_coefficient     = segment.state.unknowns.rotor_power_coefficient
-        segment.state.conditions.propulsion.propeller_power_coefficient = 0.0 * ones(1)
-        segment.state.conditions.propulsion.throttle                    = 0.0 * ones(1)
+        segment.state.conditions.propulsion.throttle_lift                = segment.state.unknowns.throttle_lift
+        segment.state.conditions.propulsion.battery_voltage_under_load   = segment.state.unknowns.battery_voltage_under_load
+        segment.state.conditions.propulsion.lift_rotor_power_coefficient = segment.state.unknowns.lift_rotor_power_coefficient
+        segment.state.conditions.propulsion.propeller_power_coefficient  = 0.0 * ones(1)
+        segment.state.conditions.propulsion.throttle                     = 0.0 * ones(1)
         
         return    
     
@@ -499,9 +500,9 @@ class Lift_Cruise(Network):
             Inputs:
             state.conditions.propulsion:
                 propeller_motor_torque                [N-m]
-                rotor_motor_torque                    [N-m]
+                lift_rotor_motor_torque                    [N-m]
                 propeller_torque                      [N-m]
-                rotor_torque                          [N-m]
+                lift_rotor_torque                          [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
     
@@ -513,18 +514,18 @@ class Lift_Cruise(Network):
         """            
         
         # Here we are going to pack the residuals (torque,voltage) from the network
-        q_propeller_motor = segment.state.conditions.propulsion.propeller_motor_torque
-        q_prop_forward    = segment.state.conditions.propulsion.propeller_torque
-        q_rotor_motor     = segment.state.conditions.propulsion.rotor_motor_torque
-        q_prop_lift       = segment.state.conditions.propulsion.rotor_torque        
-        v_actual          = segment.state.conditions.propulsion.battery_voltage_under_load
-        v_predict         = segment.state.unknowns.battery_voltage_under_load
-        v_max             = self.voltage
+        q_propeller_motor  = segment.state.conditions.propulsion.propeller_motor_torque
+        q_prop_forward     = segment.state.conditions.propulsion.propeller_torque
+        q_lift_rotor_motor = segment.state.conditions.propulsion.lift_rotor_motor_torque
+        q_prop_lift        = segment.state.conditions.propulsion.lift_rotor_torque        
+        v_actual           = segment.state.conditions.propulsion.battery_voltage_under_load
+        v_predict          = segment.state.unknowns.battery_voltage_under_load
+        v_max              = self.voltage
         
         # Return the residuals
-        segment.state.residuals.network.voltage    = (v_predict - v_actual)/v_max  
-        segment.state.residuals.network.propellers = (q_propeller_motor - q_prop_forward)/q_propeller_motor
-        segment.state.residuals.network.rotors     = (q_rotor_motor - q_prop_lift)/q_rotor_motor
+        segment.state.residuals.network.voltage     = (v_predict - v_actual)/v_max  
+        segment.state.residuals.network.propellers  = (q_propeller_motor - q_prop_forward)/q_propeller_motor
+        segment.state.residuals.network.lift_rotors = (q_lift_rotor_motor - q_prop_lift)/q_lift_rotor_motor
 
         return
     
@@ -542,9 +543,9 @@ class Lift_Cruise(Network):
             Inputs:
             state.conditions.propulsion:
                 propeller_motor_torque                [N-m]
-                rotor_motor_torque                    [N-m]
+                lift_rotor_motor_torque                    [N-m]
                 propeller_torque                      [N-m]
-                rotor_torque                          [N-m]
+                lift_rotor_torque                          [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
             
@@ -581,9 +582,9 @@ class Lift_Cruise(Network):
             Inputs:
             state.conditions.propulsion:
                 propeller_motor_torque                [N-m]
-                rotor_motor_torque                    [N-m]
+                lift_rotor_motor_torque                    [N-m]
                 propeller_torque                      [N-m]
-                rotor_torque                          [N-m]
+                lift_rotor_torque                          [N-m]
                 voltage_under_load                    [volts]
             state.unknowns.battery_voltage_under_load [volts]
     
@@ -595,23 +596,23 @@ class Lift_Cruise(Network):
         """            
         
         # Here we are going to pack the residuals (torque,voltage) from the network
-        q_rotor_motor   = segment.state.conditions.propulsion.rotor_motor_torque
-        q_rotor_lift    = segment.state.conditions.propulsion.rotor_torque        
+        q_lift_rotor_motor   = segment.state.conditions.propulsion.lift_rotor_motor_torque
+        q_lift_rotor_lift    = segment.state.conditions.propulsion.lift_rotor_torque        
 
         v_actual        = segment.state.conditions.propulsion.battery_voltage_under_load
         v_predict       = segment.state.unknowns.battery_voltage_under_load
         v_max           = self.voltage        
         
         # Return the residuals
-        segment.state.residuals.network.voltage = (v_predict - v_actual)/v_max  
-        segment.state.residuals.network.rotors  = (q_rotor_motor - q_rotor_lift)/q_rotor_motor
+        segment.state.residuals.network.voltage      = (v_predict - v_actual)/v_max  
+        segment.state.residuals.network.lift_rotors  = (q_lift_rotor_motor - q_lift_rotor_lift)/q_lift_rotor_motor
 
         return
     
     
     def add_transition_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None, 
                                                          initial_prop_power_coefficient = 0.005,
-                                                         initial_rotor_power_coefficient = 0.005,
+                                                         initial_lift_rotor_power_coefficient = 0.005,
                                                          initial_throttle_lift = 0.9):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
@@ -644,42 +645,42 @@ class Lift_Cruise(Network):
             initial_voltage = self.battery.max_voltage
         
         # Count how many unknowns and residuals based on p
-        n_props    = len(self.propellers)
-        n_rotors   = len(self.rotors)
-        n_motors_p = len(self.propeller_motors)
-        n_motors_r = len(self.rotor_motors)
-        n_eng_p    = self.number_of_propeller_engines
-        n_eng_r    = self.number_of_rotor_engines
+        n_props       = len(self.propellers)
+        n_lift_rotors = len(self.lift_rotors)
+        n_motors_p    = len(self.propeller_motors)
+        n_motors_r    = len(self.lift_rotor_motors)
+        n_eng_p       = self.number_of_propeller_engines
+        n_eng_r       = self.number_of_lift_rotor_engines
 
         
         if n_props!=n_motors_p!=n_eng_p:
             assert('The number of propellers is not the same as the number of motors')
             
-        if n_rotors!=n_motors_r!=n_eng_r:
-            assert('The number of rotors is not the same as the number of motors')
+        if n_lift_rotors!=n_motors_r!=n_eng_r:
+            assert('The number of lift_rotors is not the same as the number of motors')
             
-        # Now check if the props/rotors are all identical, in this case they have the same of residuals and unknowns
+        # Now check if the props/lift_rotors are all identical, in this case they have the same of residuals and unknowns
         if self.identical_propellers:
             n_props = 1
         else:
             self.number_of_propeller_engines = int(self.number_of_propeller_engines)
             
-        if self.identical_rotors:
-            n_rotors = 1
+        if self.identical_lift_rotors:
+            n_lift_rotors = 1
         else:
-            self.number_of_rotor_engines = int(self.number_of_rotor_engines)
+            self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
         
         # Setup the residuals
-        segment.state.residuals.network            = Data()        
-        segment.state.residuals.network.voltage    = 0. * ones_row(1)
-        segment.state.residuals.network.propellers = 0. * ones_row(n_props)
-        segment.state.residuals.network.rotors     = 0. * ones_row(n_rotors)
+        segment.state.residuals.network             = Data()        
+        segment.state.residuals.network.voltage     = 0. * ones_row(1)
+        segment.state.residuals.network.propellers  = 0. * ones_row(n_props)
+        segment.state.residuals.network.lift_rotors = 0. * ones_row(n_lift_rotors)
         
         # Setup the unknowns
-        segment.state.unknowns.throttle_lift               = initial_throttle_lift           * ones_row(1)   
-        segment.state.unknowns.battery_voltage_under_load  = initial_voltage                 * ones_row(1)
-        segment.state.unknowns.propeller_power_coefficient = initial_prop_power_coefficient  * ones_row(n_props)
-        segment.state.unknowns.rotor_power_coefficient     = initial_rotor_power_coefficient * ones_row(n_rotors)
+        segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1)   
+        segment.state.unknowns.battery_voltage_under_load   = initial_voltage                 * ones_row(1)
+        segment.state.unknowns.propeller_power_coefficient  = initial_prop_power_coefficient  * ones_row(n_props)
+        segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)
         
         # Setup the conditions for the propellers
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
@@ -691,15 +692,15 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
 
-        # Setup the conditions for the rotors
-        segment.state.conditions.propulsion.rotor_motor_torque      = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_torque            = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_rpm               = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_disc_loading      = 0. * ones_row(n_rotors)                 
-        segment.state.conditions.propulsion.rotor_power_loading     = 0. * ones_row(n_rotors)        
-        segment.state.conditions.propulsion.rotor_tip_mach          = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_efficiency        = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_motor_efficiency  = 0. * ones_row(n_rotors)
+        # Setup the conditions for the lift_rotors
+        segment.state.conditions.propulsion.lift_rotor_motor_torque      = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_torque            = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_rpm               = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_disc_loading      = 0. * ones_row(n_lift_rotors)                 
+        segment.state.conditions.propulsion.lift_rotor_power_loading     = 0. * ones_row(n_lift_rotors)        
+        segment.state.conditions.propulsion.lift_rotor_tip_mach          = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_efficiency        = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_motor_efficiency  = 0. * ones_row(n_lift_rotors)
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns_transition
@@ -748,16 +749,16 @@ class Lift_Cruise(Network):
         if n_props!=n_motors_p!=n_eng_p:
             assert('The number of propellers is not the same as the number of motors')
             
-        # Now check if the props/rotors are all identical, in this case they have the same of residuals and unknowns
+        # Now check if the props/lift_rotors are all identical, in this case they have the same of residuals and unknowns
         if self.identical_propellers:
             n_props = 1
         else:
             self.number_of_propeller_engines = int(self.number_of_propeller_engines)
             
-        if self.identical_rotors:
-            n_rotors = 1
+        if self.identical_lift_rotors:
+            n_lift_rotors = 1
         else:
-            self.number_of_rotor_engines = int(self.number_of_rotor_engines)
+            self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
         
         # Setup the residuals
         segment.state.residuals.network            = Data()
@@ -778,15 +779,15 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
         
-        # Setup the conditions for the rotors
-        segment.state.conditions.propulsion.rotor_motor_torque      = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_torque            = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_rpm               = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_disc_loading      = 0. * ones_row(n_rotors)                 
-        segment.state.conditions.propulsion.rotor_power_loading     = 0. * ones_row(n_rotors)        
-        segment.state.conditions.propulsion.rotor_tip_mach          = 0. * ones_row(n_rotors)       
-        segment.state.conditions.propulsion.rotor_efficiency        = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_motor_efficiency  = 0. * ones_row(n_rotors)
+        # Setup the conditions for the lift_rotors
+        segment.state.conditions.propulsion.lift_rotor_motor_torque      = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_torque            = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_rpm               = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_disc_loading      = 0. * ones_row(n_lift_rotors)                 
+        segment.state.conditions.propulsion.lift_rotor_power_loading     = 0. * ones_row(n_lift_rotors)        
+        segment.state.conditions.propulsion.lift_rotor_tip_mach          = 0. * ones_row(n_lift_rotors)       
+        segment.state.conditions.propulsion.lift_rotor_efficiency        = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_motor_efficiency  = 0. * ones_row(n_lift_rotors)
 
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns_cruise
@@ -796,7 +797,7 @@ class Lift_Cruise(Network):
     
     
     def add_lift_unknowns_and_residuals_to_segment(self, segment, initial_voltage = None,
-                                                         initial_rotor_power_coefficient = 0.005,
+                                                         initial_lift_rotor_power_coefficient = 0.005,
                                                          initial_throttle_lift = 0.9):
         """ This function sets up the information that the mission needs to run a mission segment using this network
     
@@ -829,34 +830,34 @@ class Lift_Cruise(Network):
             initial_voltage = self.battery.max_voltage
         
         # Count how many unknowns and residuals based on p
-        n_rotors   = len(self.rotors)
-        n_motors_r = len(self.rotor_motors)
-        n_eng_r    = self.number_of_rotor_engines
+        n_lift_rotors   = len(self.lift_rotors)
+        n_motors_r = len(self.lift_rotor_motors)
+        n_eng_r    = self.number_of_lift_rotor_engines
 
-        if n_rotors!=n_motors_r!=n_eng_r:
-            assert('The number of rotors is not the same as the number of motors')
+        if n_lift_rotors!=n_motors_r!=n_eng_r:
+            assert('The number of lift_rotors is not the same as the number of motors')
             
-        # Now check if the props/rotors are all identical, in this case they have the same of residuals and unknowns
+        # Now check if the props/lift_rotors are all identical, in this case they have the same of residuals and unknowns
         if self.identical_propellers:
             n_props = 1
         else:
             self.number_of_propeller_engines = int(self.number_of_propeller_engines)
             
-        if self.identical_rotors:
-            n_rotors = 1
+        if self.identical_lift_rotors:
+            n_lift_rotors = 1
         else:
-            self.number_of_rotor_engines = int(self.number_of_rotor_engines)
+            self.number_of_lift_rotor_engines = int(self.number_of_lift_rotor_engines)
         
         # Setup the residuals
-        segment.state.residuals.network            = Data()        
-        segment.state.residuals.network.voltage    = 0. * ones_row(1)
-        segment.state.residuals.network.rotors     = 0. * ones_row(n_rotors)
+        segment.state.residuals.network             = Data()        
+        segment.state.residuals.network.voltage     = 0. * ones_row(1)
+        segment.state.residuals.network.lift_rotors = 0. * ones_row(n_lift_rotors)
         
         # Setup the unknowns
         segment.state.unknowns.__delitem__('throttle')
-        segment.state.unknowns.throttle_lift               = initial_throttle_lift           * ones_row(1)
-        segment.state.unknowns.battery_voltage_under_load  = initial_voltage                 * ones_row(1)
-        segment.state.unknowns.rotor_power_coefficient     = initial_rotor_power_coefficient * ones_row(n_rotors)
+        segment.state.unknowns.throttle_lift                = initial_throttle_lift           * ones_row(1)
+        segment.state.unknowns.battery_voltage_under_load   = initial_voltage                 * ones_row(1)
+        segment.state.unknowns.lift_rotor_power_coefficient = initial_lift_rotor_power_coefficient * ones_row(n_lift_rotors)
         
         # Setup the conditions for the propellers
         segment.state.conditions.propulsion.propeller_motor_torque     = 0. * ones_row(n_props)
@@ -868,15 +869,15 @@ class Lift_Cruise(Network):
         segment.state.conditions.propulsion.propeller_efficiency       = 0. * ones_row(n_props)
         segment.state.conditions.propulsion.propeller_motor_efficiency = 0. * ones_row(n_props)
 
-        # Setup the conditions for the rotors
-        segment.state.conditions.propulsion.rotor_motor_torque      = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_torque            = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_rpm               = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_disc_loading      = 0. * ones_row(n_rotors)                 
-        segment.state.conditions.propulsion.rotor_power_loading     = 0. * ones_row(n_rotors)        
-        segment.state.conditions.propulsion.rotor_tip_mach          = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_efficiency        = 0. * ones_row(n_rotors)
-        segment.state.conditions.propulsion.rotor_motor_efficiency  = 0. * ones_row(n_rotors)
+        # Setup the conditions for the lift_rotors
+        segment.state.conditions.propulsion.lift_rotor_motor_torque      = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_torque            = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_rpm               = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_disc_loading      = 0. * ones_row(n_lift_rotors)                 
+        segment.state.conditions.propulsion.lift_rotor_power_loading     = 0. * ones_row(n_lift_rotors)        
+        segment.state.conditions.propulsion.lift_rotor_tip_mach          = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_efficiency        = 0. * ones_row(n_lift_rotors)
+        segment.state.conditions.propulsion.lift_rotor_motor_efficiency  = 0. * ones_row(n_lift_rotors)
         
         # Ensure the mission knows how to pack and unpack the unknowns and residuals
         segment.process.iterate.unknowns.network  = self.unpack_unknowns_lift

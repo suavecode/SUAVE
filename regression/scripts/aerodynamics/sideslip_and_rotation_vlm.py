@@ -54,7 +54,7 @@ def main():
     for key in results.keys():
         vals    = results[key]
         vals_tr = results_tr[key]
-        errors     = (vals-vals_tr)/vals_tr
+        errors  = (vals-vals_tr)/vals_tr
         print('{} errors:'.format(key)    )
         print(errors                      )
         print('                          ')

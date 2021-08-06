@@ -6,6 +6,7 @@
 #           Mar 2020, M. Clarke
 #           Apr 2021, M. Clarke
 #           Jul 2021, E. Botero
+#           Jul 2021, R. Erhard
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -55,21 +56,21 @@ class Battery_Propeller(Network):
             Properties Used:
             N/A
         """             
-        self.motors                    = Container()
-        self.propellers                = Container()
-        self.esc                       = None
-        self.avionics                  = None
-        self.payload                   = None
-        self.battery                   = None
-        self.nacelle_diameter          = None
-        self.engine_length             = None
-        self.number_of_engines         = None
-        self.voltage                   = None
-        self.tag                       = 'Battery_Propeller'
-        self.use_surrogate             = False
-        self.generative_design_minimum = 0
-        self.identical_propellers      = True
-        self.thrust_angle              = 0.
+        self.propeller_motors             = Container()
+        self.propellers                   = Container()
+        self.esc                          = None
+        self.avionics                     = None
+        self.payload                      = None
+        self.battery                      = None
+        self.nacelle_diameter             = None
+        self.engine_length                = None
+        self.number_of_propeller_engines  = None
+        self.voltage                      = None
+        self.tag                          = 'Battery_Propeller'
+        self.use_surrogate                = False
+        self.generative_design_minimum    = 0
+        self.identical_propellers         = True
+        self.thrust_angle                 = 0.
     
     # manage process with a driver function
     def evaluate_thrust(self,state):
@@ -104,13 +105,13 @@ class Battery_Propeller(Network):
         # unpack
         conditions  = state.conditions
         numerics    = state.numerics
-        motors      = self.motors
+        motors      = self.propeller_motors
         props       = self.propellers
         esc         = self.esc
         avionics    = self.avionics
         payload     = self.payload
         battery     = self.battery
-        num_engines = self.number_of_engines
+        num_engines = self.number_of_propeller_engines
         
         # Unpack conditions
         a = conditions.freestream.speed_of_sound
@@ -143,7 +144,7 @@ class Battery_Propeller(Network):
             # Unpack the motor and props
             motor_key = list(motors.keys())[ii]
             prop_key  = list(props.keys())[ii]
-            motor     = self.motors[motor_key]
+            motor     = self.propeller_motors[motor_key]
             prop      = self.propellers[prop_key]
             
             # link
@@ -328,8 +329,8 @@ class Battery_Propeller(Network):
         
         # Count how many unknowns and residuals based on p
         n_props  = len(self.propellers)
-        n_motors = len(self.motors)
-        n_eng    = self.number_of_engines
+        n_motors = len(self.propeller_motors)
+        n_eng    = self.number_of_propeller_engines
         
         if n_props!=n_motors!=n_eng:
             print('The number of propellers is not the same as the number of motors')
