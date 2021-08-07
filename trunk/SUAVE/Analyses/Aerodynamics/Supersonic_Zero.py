@@ -117,7 +117,7 @@ class Supersonic_Zero(Markup):
         compute.drag.parasite.wings.wing           = Common.Drag.parasite_drag_wing 
         compute.drag.parasite.fuselages            = Process_Geometry('fuselages')
         compute.drag.parasite.fuselages.fuselage   = Methods.Drag.parasite_drag_fuselage 
-        compute.drag.parasite.propulsors           = Process_Geometry('propulsors')
+        compute.drag.parasite.propulsors           = Process_Geometry('networks')
         compute.drag.parasite.propulsors.propulsor = Methods.Drag.parasite_drag_propulsor # SZ
         #compute.drag.parasite.pylons               = Methods.Drag.parasite_drag_pylon
         compute.drag.parasite.total                = Common.Drag.parasite_total

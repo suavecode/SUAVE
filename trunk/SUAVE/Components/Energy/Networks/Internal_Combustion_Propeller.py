@@ -13,7 +13,7 @@
 
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 from SUAVE.Components.Physical_Component import Container
 from SUAVE.Core import Data, Units
 
@@ -21,7 +21,7 @@ from SUAVE.Core import Data, Units
 #  Network
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
-class Internal_Combustion_Propeller(Propulsor):
+class Internal_Combustion_Propeller(Network):
     """ A simple mock up of an internal combustion propeller engine. Tis network adds an extra
         unknowns to the mission, the torque matching between motor and propeller.
     

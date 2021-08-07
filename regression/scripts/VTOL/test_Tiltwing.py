@@ -56,7 +56,7 @@ def main():
 
     # RPM check during hover
     RPM        = results.segments.departure.conditions.propulsion.propeller_rpm[0][0]
-    RPM_true   = 1896.784618807648
+    RPM_true   = 1926.3247780885956
     
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
@@ -66,7 +66,7 @@ def main():
 
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.climb.conditions.aerodynamics.lift_coefficient[0][0] 
-    lift_coefficient_true   = 1.0211063685754398
+    lift_coefficient_true   = 1.0211063664785844
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
@@ -145,7 +145,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -198,11 +198,11 @@ def mission_setup(analyses,vehicle):
     segment.altitude_start                             = 0.0  * Units.ft
     segment.altitude_end                               = 40.  * Units.ft
     segment.climb_rate                                 = 300. * Units['ft/min']
-    segment.battery_energy                             = vehicle.propulsors.battery_propeller.battery.max_energy   
+    segment.battery_energy                             = vehicle.networks.battery_propeller.battery.max_energy   
     segment.state.unknowns.throttle                    = 1.0 * ones_row(1) 
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability    = SUAVE.Methods.skip
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
                                                                                          initial_power_coefficient = 0.06)
     
 
@@ -223,7 +223,7 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                    = 0.80 * ones_row(1)    
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability    = SUAVE.Methods.skip      
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
                                                                                          initial_power_coefficient = 0.03)
 
     # add to misison
@@ -241,7 +241,7 @@ def mission_setup(analyses,vehicle):
     segment.state.unknowns.throttle                    = 0.5 * ones_row(1) 
     segment.process.iterate.conditions.stability       = SUAVE.Methods.skip
     segment.process.finalize.post_process.stability    = SUAVE.Methods.skip      
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment,\
                                                                                          initial_power_coefficient = 0.03)
     
         

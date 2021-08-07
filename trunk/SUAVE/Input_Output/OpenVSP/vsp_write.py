@@ -35,7 +35,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     if they are specified in the vehicle setup file.
     
     Assumptions:
-    Vehicle is composed of conventional shape fuselages, wings, and propulsors. Any propulsor
+    Vehicle is composed of conventional shape fuselages, wings, and networks. Any network
     that should be created is tagged as 'turbofan'.
 
     Source:
@@ -62,7 +62,7 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
           dihedral_outboard                     [radians]
           sweeps.quarter_chord                  [radians]
           thickness_to_chord                    [-]
-      propulsors.turbofan. (optional)
+      networks.turbofan. (optional)
         number_of_engines                       [-]
         engine_length                           [m]
         nacelle_diameter                        [m]
@@ -131,14 +131,14 @@ def write(vehicle, tag, fuel_tank_set_ind=3, verbose=True, write_file=True, OML_
     ## Skeleton code for props and pylons can be found in previous commits (~Dec 2016) if desired
     ## This was a place to start and may not still be functional    
     
-    if 'turbofan' in vehicle.propulsors:
+    if 'turbofan' in vehicle.networks:
         if verbose:
-            print('Writing '+vehicle.propulsors.turbofan.tag+' to OpenVSP Model')
-        turbofan  = vehicle.propulsors.turbofan
+            print('Writing '+vehicle.networks.turbofan.tag+' to OpenVSP Model')
+        turbofan  = vehicle.networks.turbofan
         write_vsp_turbofan(turbofan, OML_set_ind)
         
-    if 'turbojet' in vehicle.propulsors:
-        turbofan  = vehicle.propulsors.turbojet
+    if 'turbojet' in vehicle.networks:
+        turbofan  = vehicle.networks.turbojet
         write_vsp_turbofan(turbofan, OML_set_ind)    
     
     # -------------

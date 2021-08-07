@@ -10,11 +10,8 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
-from SUAVE.Core import Data, Units
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Core import Data
+from .Network import Network
 
 import numpy as np
 
@@ -23,7 +20,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Turbojet_Super(Propulsor):
+class Turbojet_Super(Network):
     """ This is a turbojet for supersonic flight.
 
         Assumptions:

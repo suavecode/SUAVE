@@ -24,10 +24,10 @@ def main():
     '''   
 
     # Define Network 
-    net                      = Battery_Propeller()     
-    net.number_of_engines    = 1
-    net.identical_propellers = True
-    prop                     = design_F8745D4_prop()
+    net                                = Battery_Propeller()     
+    net.number_of_propeller_engines    = 1
+    net.identical_propellers           = True
+    prop                               = design_F8745D4_prop()
     net.propellers.append(prop)
 
  

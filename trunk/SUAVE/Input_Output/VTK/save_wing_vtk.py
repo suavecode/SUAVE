@@ -6,7 +6,7 @@
 #           
 import SUAVE
 from SUAVE.Core import Data
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_wing_vortex_distribution import generate_wing_vortex_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_vortex_distribution import generate_vortex_distribution
 
 
 
@@ -38,7 +38,7 @@ def save_wing_vtk(vehicle, wing_instance, settings, filename, Results,time_step)
     wing_vehicle = SUAVE.Vehicle() 
     wing_vehicle.append_component(wing_instance)
     
-    VD        = generate_wing_vortex_distribution(wing_vehicle,settings)
+    VD        = generate_vortex_distribution(wing_vehicle,settings)
     symmetric = vehicle.wings[wing_instance.tag].symmetric
     n_cw      = VD.n_cw[0]  # number of chordwise panels per half wing
     n_sw      = VD.n_sw[0]  # number of spanwise panels per half wing

@@ -47,7 +47,7 @@ def main():
     analyses.append(stability)
 
     energy = SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     planet = SUAVE.Analyses.Planets.Planet()
@@ -71,7 +71,7 @@ def main():
 
     climb_rate_r = [[0., 0., 0., 0., 0.],
                     [0., 0., 0., 0., 0.],
-                    [732.51532185, 590.73441261, 456.55699063, 327.27220398, 204.13143284],
+                    [706.99701678, 567.7209874 , 436.11313543, 309.95779092, 189.82546606],
                     [0., 0., 0., 0., 0.],
                     [0., 0., 0., 0., 0.]]
 

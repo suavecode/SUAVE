@@ -28,8 +28,11 @@ from X57_Maxwell import vehicle_setup, configs_setup
 #   Main
 # ----------------------------------------------------------------------
 def main():
-    # run test with helical fixed wake model
-    helical_fixed_wake_analysis()
+    #run test with helical fixed wake model
+    helical_fixed_wake_analysis(identical_props=True)
+    
+    # run test with helical fixed wake model and non-identical props
+    helical_fixed_wake_analysis(identical_props=False)
 
     # run test with bemt wake model
     bemt_wake_analysis()
@@ -40,7 +43,7 @@ def bemt_wake_analysis():
     # Evaluate wing in propeller wake (using helical fixed-wake model)
     bemt_wake          = True
     fixed_helical_wake = False
-    configs, analyses = full_setup(bemt_wake, fixed_helical_wake) 
+    configs, analyses = full_setup(bemt_wake, fixed_helical_wake, identical_props=True) 
 
     configs.finalize()
     analyses.finalize()  
@@ -51,23 +54,25 @@ def bemt_wake_analysis():
 
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.4174061883155896
+    lift_coefficient_true         = 0.41741181604779815
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
+    
+    
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 4.18069346e-01,  3.40732971e-01,  3.55021737e-01,  2.94979998e-01,
-                                                 1.89771750e-01,  4.18069354e-01,  3.40732860e-01,  3.55021673e-01,
-                                                 2.94980023e-01,  1.89771628e-01,  2.67717115e-02,  2.84081342e-02,
-                                                 2.97226593e-02,  2.93669491e-02,  2.06762263e-02,  2.67717052e-02,
-                                                 2.84081349e-02,  2.97226813e-02,  2.93670031e-02,  2.06763036e-02,
-                                                 6.65361277e-16,  1.34036964e-16, -3.08230482e-16, -3.70557669e-16,
-                                                -2.69396929e-16])
+    sectional_lift_coeff_true       = np.array([ 4.18244032e-01,  3.40155967e-01,  3.55150658e-01,  2.95196629e-01,
+                                                 1.89928151e-01,  4.18244039e-01,  3.40155855e-01,  3.55150594e-01,
+                                                 2.95196655e-01,  1.89928028e-01,  2.69491655e-02,  2.86030330e-02,
+                                                 2.99358393e-02,  2.95820123e-02,  2.08282714e-02,  2.69491592e-02,
+                                                 2.86030338e-02,  2.99358614e-02,  2.95820665e-02,  2.08283492e-02,
+                                                 6.67753211e-16,  1.36866614e-16, -3.05023682e-16, -3.67890745e-16,
+                                                -2.67558659e-16])
 
 
     print(sectional_lift_coeff)
@@ -86,11 +91,11 @@ def bemt_wake_analysis():
     plot_vehicle_vlm_panelization(configs.base, save_figure=False, plot_control_points=True)
     return
 
-def helical_fixed_wake_analysis():
+def helical_fixed_wake_analysis(identical_props):
     # Evaluate wing in propeller wake (using helical fixed-wake model)
     bemt_wake          = False
     fixed_helical_wake = True
-    configs, analyses = full_setup(bemt_wake, fixed_helical_wake) 
+    configs, analyses = full_setup(bemt_wake, fixed_helical_wake,identical_props) 
 
     configs.finalize()
     analyses.finalize()  
@@ -101,23 +106,24 @@ def helical_fixed_wake_analysis():
 
     # lift coefficient  
     lift_coefficient              = results.segments.cruise.conditions.aerodynamics.lift_coefficient[1][0]
-    lift_coefficient_true         = 0.4173315445383163
+    lift_coefficient_true         = 0.4173334382292267
 
     print(lift_coefficient)
     diff_CL                       = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')
     print(diff_CL)
+    
     assert np.abs(lift_coefficient  - lift_coefficient_true) < 1e-6
 
     # sectional lift coefficient check
     sectional_lift_coeff            = results.segments.cruise.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[0]
-    sectional_lift_coeff_true       = np.array([ 4.12013099e-01,  3.75207757e-01,  3.44182694e-01,  2.82313266e-01,
-                                                 1.80799122e-01,  4.12013106e-01,  3.75207648e-01,  3.44182626e-01,
-                                                 2.82313287e-01,  1.80799006e-01,  1.38033387e-02,  1.41028223e-02,
-                                                 1.43120844e-02,  1.44180014e-02,  1.03273289e-02,  1.38033309e-02,
-                                                 1.41028196e-02,  1.43120961e-02,  1.44180344e-02,  1.03273732e-02,
-                                                 5.44127952e-16, -1.91895916e-17, -4.91194356e-16, -5.04922972e-16,
-                                                -3.63607225e-16])
+    sectional_lift_coeff_true       = np.array([ 4.12287459e-01,  3.74505983e-01,  3.44356397e-01,  2.82577789e-01,
+                                                 1.80987178e-01,  4.12287466e-01,  3.74505874e-01,  3.44356329e-01,
+                                                 2.82577810e-01,  1.80987061e-01,  1.39125545e-02,  1.42214906e-02,
+                                                 1.44516573e-02,  1.45807619e-02,  1.04503486e-02,  1.39125467e-02,
+                                                 1.42214881e-02,  1.44516690e-02,  1.45807952e-02,  1.04503933e-02,
+                                                 5.47406199e-16, -1.57415966e-17, -4.87646408e-16, -5.01339523e-16,
+                                                -3.61191112e-16])
 
 
     print(sectional_lift_coeff)
@@ -155,10 +161,14 @@ def plot_mission(results,vehicle):
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup(bemt_wake, fixed_helical_wake):
+def full_setup(bemt_wake, fixed_helical_wake, identical_props):
 
     # vehicle data
     vehicle  = vehicle_setup() 
+    
+    # test for non-identical propellers
+    if not identical_props:
+        vehicle.networks.battery_propeller.identical_propellers = False    
     configs  = configs_setup(vehicle)
 
     # vehicle analyses
@@ -235,7 +245,7 @@ def base_analysis(vehicle, bemt_wake, fixed_helical_wake):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -288,13 +298,13 @@ def mission_setup(analyses,vehicle):
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "climb_1"
     segment.analyses.extend( analyses.base )
-    segment.battery_energy            = vehicle.propulsors.battery_propeller.battery.max_energy* 0.89
+    segment.battery_energy            = vehicle.networks.battery_propeller.battery.max_energy* 0.89
     segment.altitude_start            = 2500.0  * Units.feet
     segment.altitude_end              = 8012    * Units.feet 
     segment.air_speed                 = 96.4260 * Units['mph'] 
     segment.climb_rate                = 700.034 * Units['ft/min']  
     segment.state.unknowns.throttle   = 0.85 * ones_row(1)
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
 
     # add to misison
     mission.append_segment(segment)
@@ -308,7 +318,7 @@ def mission_setup(analyses,vehicle):
     segment.air_speed                 = 135. * Units['mph'] 
     segment.distance                  = 20.  * Units.nautical_mile  
     segment.state.unknowns.throttle   = 0.85 *  ones_row(1)
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
     
     # add to misison
     mission.append_segment(segment)        

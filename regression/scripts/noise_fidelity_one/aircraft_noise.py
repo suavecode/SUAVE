@@ -54,7 +54,7 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
     X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
-    X57_SPL_true   = 81.59119430908689
+    X57_SPL_true   = 81.77560293900922
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')
@@ -176,7 +176,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -263,7 +263,7 @@ def X57_mission_setup(analyses,vehicle):
     segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment) 
     segment.tag = 'ICA' 
     segment.analyses.extend( analyses.base )  
-    segment.battery_energy                                   = vehicle.propulsors.battery_propeller.battery.max_energy  
+    segment.battery_energy                                   = vehicle.networks.battery_propeller.battery.max_energy  
     segment.state.unknowns.throttle                          = 0.85  * ones_row(1)  
     segment.altitude_start                                   = 50.0 * Units.feet
     segment.altitude_end                                     = 500.0 * Units.feet
@@ -271,7 +271,7 @@ def X57_mission_setup(analyses,vehicle):
     segment.air_speed_end                                    = 50 * Units['m/s']   
     segment.climb_rate                                       = 600 * Units['ft/min']    
     
-    segment = vehicle.propulsors.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
     
     mission.append_segment(segment) 
               

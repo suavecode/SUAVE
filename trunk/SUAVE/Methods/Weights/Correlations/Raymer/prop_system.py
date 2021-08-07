@@ -29,7 +29,7 @@ def total_prop_Raymer(vehicle, prop):
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+            prop    - data dictionary for the specific network that is being estimated [dimensionless]
 
         Outputs:
             output - data dictionary with weights                               [kilograms]
@@ -73,7 +73,7 @@ def nacelle_Raymer(vehicle, prop, WENG):
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
                 -.ultimate_load: ultimate load factor of aircraft
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+            prop    - data dictionary for the specific network that is being estimated [dimensionless]
                 -.number_of_engines: number of engines
                 -.engine_lenght: total length of engine                     [m]
                 -.nacelle_diameter: diameter of nacelle                     [m]
@@ -108,7 +108,7 @@ def misc_engine_Raymer(vehicle, prop, WENG):
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
                 -.fuselages['fuselage'].lengths.total: length of fuselage   [m]
-            prop    - data dictionary for the specific propulsor that is being estimated [dimensionless]
+            prop    - data dictionary for the specific network that is being estimated [dimensionless]
                 -.number_of_engines: number of engines
 
         Outputs:
