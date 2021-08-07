@@ -82,16 +82,19 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
             y0           = [theta_0, getVe(0,x_i,Ve_i)*theta_0*H1_0]    
             xspan        = np.linspace(0,l,n)   
             y            = odeint(odefcn,y0,xspan,args=(Re_L/l, x_i, Ve_i, dVe_i)) 
-            thetav       = y[:,0] 
-            Ve_theta_H1v = y[:,1]   
+            theta       = y[:,0] 
+            Ve_theta_H1 = y[:,1]   
             
-            theta           = thetav
-            idx1            = (abs((thetav[1:] - thetav[:-1])/thetav[:-1]) > 5E-1)
-            theta[1:][idx1] = thetav[:-1][idx1] + 1E-12    
-                    
-            Ve_theta_H1           = Ve_theta_H1v
-            idx2                  = (abs((Ve_theta_H1v[1:] - Ve_theta_H1v[:-1])/Ve_theta_H1v[:-1]) > 5E-1)
-            Ve_theta_H1[1:][idx2] = Ve_theta_H1v[:-1][idx2] + 1E-12      
+            idx1            = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > 2E1)[0]
+            if len(idx1)> 1:
+                next_idx        = idx1 + 1
+                np.put(theta,next_idx, theta[idx1])   
+            
+                     
+            idx1               = np.where(abs((Ve_theta_H1[1:] - Ve_theta_H1[:-1])/Ve_theta_H1[:-1]) > 2E1)[0]
+            if len(idx1)> 1:
+                next_idx           = idx1 + 1
+                np.put(Ve_theta_H1,next_idx, Ve_theta_H1[idx1])   
             
             # compute flow properties    
             x            = np.linspace(0,l,n)       

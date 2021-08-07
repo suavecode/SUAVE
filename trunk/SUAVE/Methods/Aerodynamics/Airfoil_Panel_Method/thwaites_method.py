@@ -78,10 +78,11 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,COS_I,VE_I, DVE_I,batch_analysis,THETA
             theta2_Ve6         = odeint(odefcn, y0, xspan, args=(nu, x_i, Ve_i)) # make a loop 
             x                  = np.linspace(0,l,n) # for all surface points 
                 
-            thetav             = np.sqrt(theta2_Ve6[:,0]/ getVe(x, x_i, Ve_i)**6)
-            theta              = thetav
-            idx1               = (abs((thetav[1:] - thetav[:-1])/thetav[:-1]) > 5E-1)
-            theta[1:][idx1]    = thetav[:-1][idx1] + 1E-12 
+            theta              = np.sqrt(theta2_Ve6[:,0]/ getVe(x, x_i, Ve_i)**6)
+            idx1               = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > 2E1)[0] 
+            if len(idx1)> 1: 
+                next_idx           = idx1 + 1
+                np.put(theta,next_idx, theta[idx1])
             
             # thwaites separation criteria 
             lambda_val         = theta**2 * getdVe(x,x_i,dVe_i) / nu 
@@ -91,11 +92,11 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,COS_I,VE_I, DVE_I,batch_analysis,THETA
             Re_theta           = getVe(x,x_i,Ve_i) * theta / nu
             Re_x               = getVe(x,x_i,Ve_i) * x/ nu
             cf                 = getcf(lambda_val ,Re_theta)
-            del_starv          = H *theta  
-            
-            del_star           = del_starv
-            idx1               = (abs((del_starv[1:] - del_starv[:-1])/del_starv[:-1]) > 5E-1)
-            del_star[1:][idx1] =  del_starv[:-1][idx1] + 1E-12  
+            del_star          = H *theta   
+            idx1               = np.where(abs((del_star[1:] - del_star[:-1])/del_star[:-1]) > 2E1)[0]
+            if len(idx1)> 1:
+                next_idx           = idx1 + 1
+                np.put(del_star,next_idx, del_star[idx1])
              
             delta              = 5.2*x/np.sqrt(Re_x)
             delta[0]           = 0   

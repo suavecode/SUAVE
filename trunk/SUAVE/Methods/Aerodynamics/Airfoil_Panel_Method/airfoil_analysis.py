@@ -449,13 +449,13 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     CP_BL              = CP_BL_VALS[CP_BL_VALS.mask == False ].reshape(npanel,nalpha,nRe).data
     
     
-    cd_top = CF_TOP_SURF*COS_T_TOP  
-    CD_TOP = np.trapz(cd_top,X_TOP_SURF,axis = 0)
+    #cd_top = CF_TOP_SURF*COS_T_TOP  
+    #CD_TOP = np.trapz(cd_top,X_TOP_SURF,axis = 0)
     
-    cd_bot = CF_BOT_SURF*-COS_T_BOT  
-    CD_BOT = np.trapz(cd_bot,X_BOT_SURF,axis = 0)
+    #cd_bot = CF_BOT_SURF*-COS_T_BOT  
+    #CD_BOT = np.trapz(cd_bot,X_BOT_SURF,axis = 0)
     
-    CD = CD_TOP + CD_BOT
+    #CD = CD_TOP + CD_BOT
     
     
     AERO_RES_BL        = aero_coeff(X,Y,-CP_BL,alpha,npanel) 
@@ -464,15 +464,15 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     airfoil_properties = Data(
         AoA        = alpha,
         Re         = Re_L,
-        Cl         = AERO_RES.Cl,
-        Cd         = AERO_RES.Cd,
-        Cm         = AERO_RES.Cm,
+        Cl         = AERO_RES_BL.Cl,
+        Cd         = AERO_RES_BL.Cd,
+        Cm         = AERO_RES_BL.Cm,
         normals    = normals,
         x          = X,
         y          = Y,        
         x_bl       = X_BL,
         y_bl       = Y_BL,
-        Cp         = CP_BL,         
+        Cp         = CP,         
         Ue_Vinf    = VE,         
         dVe        = DVE,   
         theta      = THETA,      

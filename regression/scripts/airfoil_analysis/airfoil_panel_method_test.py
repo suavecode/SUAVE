@@ -15,7 +15,7 @@ from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis_old import
 import matplotlib.pyplot as plt   
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
      import  compute_naca_4series
-from SUAVE.Plots.Airfoil_Plots  import plot_airfoil_properties , plot_airfoil_properties_old
+from SUAVE.Plots.Airfoil_Plots  import plot_airfoil_properties  
 
 import numpy as np
 
@@ -28,12 +28,12 @@ def main():
     npanel = 100
     
     # Define Reynolds Number
-    Re     = np.atleast_2d(np.array([5E5,5E6])).T
-    AoA    = np.atleast_2d(np.linspace(-4,16,11)*Units.degrees).T 
+    Re     = np.atleast_2d(np.array([5E5,7E6])).T
+    AoA    = np.atleast_2d(np.linspace(-2,12,11)*Units.degrees).T 
     
     
-    #Re     = np.atleast_2d(np.array([5E6])).T 
-    #AoA    = np.atleast_2d(np.array([4])*Units.degrees).T 
+    #Re     = np.atleast_2d(np.array([5E5])).T 
+    #AoA    = np.atleast_2d(np.array([-4,-2,0,2,4,6,8,10,12,14])*Units.degrees).T 
      
     # -----------------------------------------------
     # SUAVE
@@ -46,7 +46,7 @@ def main():
     #airfoil_properties_old = airfoil_analysis_old(airfoil_geometry,AoA,Re, npanel, n_computation = 40, batch_analyis = True ) 
     #plot_airfoil_properties_old(airfoil_properties_old,line_style='k-',arrow_color = 'r',plot_pressure_vectors = False) 
     
-    airfoil_properties     = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, n_computation = 200, batch_analyis = True)  
+    airfoil_properties     = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, n_computation = 100, batch_analyis = True)  
     plot_airfoil_properties(airfoil_properties,arrow_color = 'r',plot_pressure_vectors = False)  
     
     # Single Condition Analysis:  
