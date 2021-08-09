@@ -224,14 +224,32 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     RE_X_BOT_SURF        = np.ma.concatenate([RE_X_T_BOT,RE_X_H_BOT], axis = 0)    
     DELTA_BOT_SURF       = np.ma.concatenate([DELTA_T_BOT,DELTA_H_BOT], axis = 0) 
     
-    X_BOT_SURF           = X_BOT_SURF[X_BOT_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    THETA_BOT_SURF       = THETA_BOT_SURF[THETA_BOT_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    DELTA_STAR_BOT_SURF  = DELTA_STAR_BOT_SURF[DELTA_STAR_BOT_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    H_BOT_SURF           = H_BOT_SURF[H_BOT_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    CF_BOT_SURF          = CF_BOT_SURF[CF_BOT_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    RE_THETA_BOT_SURF    = RE_THETA_BOT_SURF[RE_THETA_BOT_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    RE_X_BOT_SURF        = RE_X_BOT_SURF[RE_X_BOT_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data    
-    DELTA_BOT_SURF       = DELTA_BOT_SURF[DELTA_BOT_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
+    X_BOT_SURF_1          = X_BOT_SURF.flatten('F')
+    THETA_BOT_SURF_1      = THETA_BOT_SURF.flatten('F') 
+    DELTA_STAR_BOT_SURF_1 = DELTA_STAR_BOT_SURF.flatten('F') 
+    H_BOT_SURF_1          = H_BOT_SURF.flatten('F')
+    CF_BOT_SURF_1         = CF_BOT_SURF.flatten('F')
+    RE_THETA_BOT_SURF_1   = RE_THETA_BOT_SURF.flatten('F') 
+    RE_X_BOT_SURF_1       = RE_X_BOT_SURF.flatten('F')
+    DELTA_BOT_SURF_1      = DELTA_BOT_SURF.flatten('F')  
+    
+    DELTA_STAR_BOT_SURF_2  = DELTA_STAR_BOT_SURF_1.data[~DELTA_STAR_BOT_SURF_1.mask]
+    X_BOT_SURF_2           = X_BOT_SURF_1.data[~X_BOT_SURF_1.mask]
+    THETA_BOT_SURF_2       = THETA_BOT_SURF_1.data[~THETA_BOT_SURF_1.mask] 
+    H_BOT_SURF_2           = H_BOT_SURF_1.data[~H_BOT_SURF_1.mask]
+    CF_BOT_SURF_2          = CF_BOT_SURF_1.data[~CF_BOT_SURF_1.mask]
+    RE_THETA_BOT_SURF_2    = RE_THETA_BOT_SURF_1.data[~RE_THETA_BOT_SURF_1.mask] 
+    RE_X_BOT_SURF_2        = RE_X_BOT_SURF_1.data[~RE_X_BOT_SURF_1.mask]
+    DELTA_BOT_SURF_2       = DELTA_BOT_SURF_1.data[~DELTA_BOT_SURF_1.mask]
+    
+    DELTA_STAR_BOT_SURF  = DELTA_STAR_BOT_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F') 
+    X_BOT_SURF           = X_BOT_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F') 
+    THETA_BOT_SURF       = THETA_BOT_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')   
+    H_BOT_SURF           = H_BOT_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')
+    CF_BOT_SURF          = CF_BOT_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')
+    RE_THETA_BOT_SURF    = RE_THETA_BOT_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')  
+    RE_X_BOT_SURF        = RE_X_BOT_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')  
+    DELTA_BOT_SURF       = DELTA_BOT_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')          
     
     # ------------------------------------------------------------------------------------------------------
     # Top surface of airfoil 
@@ -352,15 +370,34 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     RE_X_TOP_SURF        = np.ma.concatenate([RE_X_T_TOP,RE_X_H_TOP], axis = 0)
     DELTA_TOP_SURF       = np.ma.concatenate([DELTA_T_TOP,DELTA_H_TOP], axis = 0) 
     
-    # Use mask to trim vector down to from 2*n_computation  to n_computation size
-    X_TOP_SURF           = X_TOP_SURF[X_TOP_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    THETA_TOP_SURF       = THETA_TOP_SURF[THETA_TOP_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    DELTA_STAR_TOP_SURF  = DELTA_STAR_TOP_SURF[DELTA_STAR_TOP_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    H_TOP_SURF           = H_TOP_SURF[H_TOP_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    CF_TOP_SURF          = CF_TOP_SURF[CF_TOP_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    RE_THETA_TOP_SURF    = RE_THETA_TOP_SURF[RE_THETA_TOP_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    RE_X_TOP_SURF        = RE_X_TOP_SURF[RE_X_TOP_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data
-    DELTA_TOP_SURF       = DELTA_TOP_SURF[DELTA_TOP_SURF.mask == False ].reshape(n_computation,nalpha,nRe).data    
+    # Use mask to trim vector down to from 2*n_computation  to n_computation size  
+    X_TOP_SURF_1          = X_TOP_SURF.flatten('F')
+    THETA_TOP_SURF_1      = THETA_TOP_SURF.flatten('F') 
+    DELTA_STAR_TOP_SURF_1 = DELTA_STAR_TOP_SURF.flatten('F') 
+    H_TOP_SURF_1          = H_TOP_SURF.flatten('F')
+    CF_TOP_SURF_1         = CF_TOP_SURF.flatten('F')
+    RE_THETA_TOP_SURF_1   = RE_THETA_TOP_SURF.flatten('F') 
+    RE_X_TOP_SURF_1       = RE_X_TOP_SURF.flatten('F')
+    DELTA_TOP_SURF_1      = DELTA_TOP_SURF.flatten('F')  
+    
+    DELTA_STAR_TOP_SURF_2  = DELTA_STAR_TOP_SURF_1.data[~DELTA_STAR_TOP_SURF_1.mask]
+    X_TOP_SURF_2           = X_TOP_SURF_1.data[~X_TOP_SURF_1.mask]
+    THETA_TOP_SURF_2       = THETA_TOP_SURF_1.data[~THETA_TOP_SURF_1.mask] 
+    H_TOP_SURF_2           = H_TOP_SURF_1.data[~H_TOP_SURF_1.mask]
+    CF_TOP_SURF_2          = CF_TOP_SURF_1.data[~CF_TOP_SURF_1.mask]
+    RE_THETA_TOP_SURF_2    = RE_THETA_TOP_SURF_1.data[~RE_THETA_TOP_SURF_1.mask] 
+    RE_X_TOP_SURF_2        = RE_X_TOP_SURF_1.data[~RE_X_TOP_SURF_1.mask]
+    DELTA_TOP_SURF_2       = DELTA_TOP_SURF_1.data[~DELTA_TOP_SURF_1.mask]
+    
+    DELTA_STAR_TOP_SURF  = DELTA_STAR_TOP_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F') 
+    X_TOP_SURF           = X_TOP_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F') 
+    THETA_TOP_SURF       = THETA_TOP_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')   
+    H_TOP_SURF           = H_TOP_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')
+    CF_TOP_SURF          = CF_TOP_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')
+    RE_THETA_TOP_SURF    = RE_THETA_TOP_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')  
+    RE_X_TOP_SURF        = RE_X_TOP_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')  
+    DELTA_TOP_SURF       = DELTA_TOP_SURF_2.reshape((n_computation,nalpha,nRe),order = 'F')          
+
     
     # ------------------------------------------------------------------------------------------------------
     # Interpolate to trim vector down to n_computation size  
@@ -376,9 +413,18 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     VE_VALS    = np.ma.concatenate([np.flip(VE_TOP,axis = 0),VE_BOT ], axis = 0)
     DVE_VALS   = np.ma.concatenate([np.flip(DVE_TOP,axis = 0),DVE_BOT], axis = 0)  
     CP_VALS    = np.ma.concatenate([np.flip(CP_TOP,axis = 0),CP_BOT], axis = 0 )  
-    VE         = VE_VALS[VE_VALS.mask == False ].reshape(npanel,nalpha,nRe).data
-    DVE        = DVE_VALS[DVE_VALS.mask == False ].reshape(npanel,nalpha,nRe).data    
-    CP         = CP_VALS[CP_VALS.mask == False ].reshape(npanel,nalpha,nRe).data    
+    
+    VE_VALS_1  = VE_VALS.flatten('F')
+    DVE_VALS_1 = DVE_VALS.flatten('F') 
+    CP_VALS_1  = CP_VALS.flatten('F')  
+     
+    VE_VALS_2  = VE_VALS_1.data[~VE_VALS_1.mask]
+    DVE_VALS_2 = DVE_VALS_1.data[~DVE_VALS_1.mask]
+    CP_VALS_2  = CP_VALS_1.data[~CP_VALS_1.mask] 
+     
+    VE         = VE_VALS_2.reshape((npanel,nalpha,nRe),order = 'F') 
+    DVE        = DVE_VALS_2.reshape((npanel,nalpha,nRe),order = 'F') 
+    CP         = CP_VALS_2.reshape((npanel,nalpha,nRe),order = 'F')     
     
     # ------------------------------------------------------------------------------------------------------
     # Compute effective surface of airfoil with boundary layer and recompute aerodynamic properties  
@@ -386,7 +432,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     X  = np.flip(X,axis = 0)
     Y  = np.flip(Y,axis = 0)
     
-    DELTA             = np.nan_to_num(DELTA)
+    DELTA             = np.nan_to_num(DELTA) # make sure no nans 
     new_y_coord       = np.zeros((npanel,nalpha,nRe)) 
     new_x_coord       = np.zeros((npanel,nalpha,nRe)) 
     new_y_coord       = Y + DELTA*normals[:,1,:,:]
@@ -394,85 +440,78 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     zeros             = np.zeros((nalpha,nRe))
     y_coord_3d_bl     = np.flip(np.insert(new_y_coord, int(npanel/2) ,zeros,axis = 0),axis = 0)
     x_coord_3d_bl     = np.flip(np.insert(new_x_coord, int(npanel/2) ,zeros,axis = 0),axis = 0) 
-    x_coord_3d_bl     = x_coord_3d_bl - x_coord_3d_bl.min(axis=0) # shift airfoils so start value is 0 
+    #x_coord_3d_bl     = x_coord_3d_bl - x_coord_3d_bl.min(axis=0) # shift airfoils so start value is 0 
     
     X_BL, Y_BL,vt_bl,cos_t_bl,normals_bl = hess_smith(x_coord_3d_bl,y_coord_3d_bl,alpha,Re_L,npanel,batch_analyis)      
-    
+      
     # ---------------------------------------------------------------------
     # Bottom surface of airfoil with boundary layer 
-    # ---------------------------------------------------------------------     
+    # ---------------------------------------------------------------------       
     VT_BL              = np.ma.masked_greater(vt_bl,0 )
-    VT_mask_BL         = np.ma.masked_greater(vt_bl,0 ).mask
-    X_BOT_VALS_BL      = np.ma.array(X_BL, mask = VT_mask_BL)[::-1]
-    Y_BOT_BL           = np.ma.array(Y_BL, mask = VT_mask_BL)[::-1]
+    VT_BL_mask         = np.ma.masked_greater(vt_bl,0 ).mask
+    X_BL_BOT_VALS      = np.ma.array(X_BL, mask = VT_mask)[::-1]
+    Y_BL_BOT           = np.ma.array(Y_BL, mask = VT_mask)[::-1]
+    COS_BL_T_BOT       = np.ma.array(cos_t_bl, mask = VT_mask)[::-1]
          
-    X_BOT_BL        = np.zeros_like(X_BOT_VALS_BL)
-    X_BOT_BL[1:]    = np.cumsum(np.sqrt((X_BOT_VALS_BL[1:] - X_BOT_VALS_BL[:-1])**2 + (Y_BOT_BL[1:] - Y_BOT_BL[:-1])**2),axis = 0)
-    first_idx       = np.ma.count_masked(X_BOT_BL,axis = 0)
-    mask_count      = np.ma.count(X_BOT_BL,axis = 0)
+    X_BL_BOT        = np.zeros_like(X_BL_BOT_VALS)
+    X_BL_BOT[1:]    = np.cumsum(np.sqrt((X_BL_BOT_VALS[1:] - X_BL_BOT_VALS[:-1])**2 + (Y_BL_BOT[1:] - Y_BL_BOT[:-1])**2),axis = 0)
+    first_idx       = np.ma.count_masked(X_BL_BOT,axis = 0)
+    mask_count      = np.ma.count(X_BL_BOT,axis = 0)
     prev_index      = first_idx-1
     first_panel     = list(prev_index.flatten())
     last_panel      = list((first_idx-1 + mask_count).flatten())
     last_paneldve   = list((first_idx-2 + mask_count).flatten())
     aoas            = list(np.repeat(np.arange(nalpha),nRe))
     res             = list(np.tile(np.arange(nRe),nalpha) )
-    X_BOT_BL.mask[first_panel,aoas,res] = False
+    X_BL_BOT.mask[first_panel,aoas,res] = False
     
     # flow velocity and pressure of on botton surface 
-    VE_BOT_BL          = -VT_BL[::-1] 
-    CP_BOT_BL          = 1 - VE_BOT_BL**2    
+    VE_BL_BOT          = -VT_BL[::-1] 
+    CP_BL_BOT          = 1 - VE_BL_BOT**2   
          
     # ---------------------------------------------------------------------
     # Top surface of airfoil with boundary layer 
-    # ---------------------------------------------------------------------     
+    # ---------------------------------------------------------------------    
     VT_BL              = np.ma.masked_less(vt_bl,0 )
-    VT_mask_BL         = np.ma.masked_less(vt_bl,0 ).mask
-    X_TOP_VALS_BL      = np.ma.array(X_BL, mask = VT_mask) 
-    Y_TOP_BL           = np.ma.array(Y_BL, mask = VT_mask) 
+    VT_BL_mask         = np.ma.masked_less(vt_bl,0 ).mask
+    X_BL_TOP_VALS      = np.ma.array(X_BL, mask = VT_BL_mask) 
+    Y_BL_TOP           = np.ma.array(Y_BL, mask = VT_BL_mask)  
+    COS_BL_T_TOP       = np.ma.array(cos_t_bl, mask = VT_BL_mask) 
 
-    X_TOP_BL        = np.zeros_like(X_TOP_VALS_BL)
-    X_TOP_BL[1:]    = np.cumsum(np.sqrt((X_TOP_VALS_BL[1:] - X_TOP_VALS_BL[:-1])**2 + (Y_TOP_BL[1:] - Y_TOP_BL[:-1])**2),axis = 0)
-    first_idx       = np.ma.count_masked(X_TOP_BL,axis = 0)
-    mask_count      = np.ma.count(X_TOP_BL,axis = 0)
+    X_BL_TOP           = np.zeros_like(X_BL_TOP_VALS)
+    X_BL_TOP[1:]       = np.cumsum(np.sqrt((X_BL_TOP_VALS[1:] - X_BL_TOP_VALS[:-1])**2 + (Y_BL_TOP[1:] - Y_BL_TOP[:-1])**2),axis = 0)
+    first_idx       = np.ma.count_masked(X_BL_TOP,axis = 0)
+    mask_count      = np.ma.count(X_BL_TOP,axis = 0)
     prev_index      = first_idx-1
     first_panel     = list(prev_index.flatten())
     last_panel      = list((first_idx-1 + mask_count).flatten())
     last_paneldve   = list((first_idx-2 + mask_count).flatten())
     aoas            = list(np.repeat(np.arange(nalpha),nRe))
     res             = list(np.tile(np.arange(nRe),nalpha) )
-    X_TOP_BL.mask[first_panel,aoas,res] = False
-
+    X_BL_TOP.mask[first_panel,aoas,res] = False
+    
     # flow velocity and pressure of on botton surface 
-    VE_TOP_BL          = VT_BL 
-    CP_TOP_BL          = 1 - VE_TOP_BL**2 
-    CP_BL_VALS         = np.ma.concatenate([np.flip(CP_TOP_BL,axis = 0),CP_BOT_BL], axis = 0 )  
-    CP_BL              = CP_BL_VALS[CP_BL_VALS.mask == False ].reshape(npanel,nalpha,nRe).data
+    VE_BL_TOP    = VT_BL
+    CP_BL_TOP    = 1 - VE_BL_TOP**2     
     
-    
-    #cd_top = CF_TOP_SURF*COS_T_TOP  
-    #CD_TOP = np.trapz(cd_top,X_TOP_SURF,axis = 0)
-    
-    #cd_bot = CF_BOT_SURF*-COS_T_BOT  
-    #CD_BOT = np.trapz(cd_bot,X_BOT_SURF,axis = 0)
-    
-    #CD = CD_TOP + CD_BOT
-    
+    CP_BL_VALS   = np.ma.concatenate([np.flip(CP_BL_TOP,axis = 0),CP_BL_BOT], axis = 0 )  
+    CP_BL_VALS_1 = CP_BL_VALS.flatten('F')  
+    CP_BL_VALS_2 = CP_BL_VALS_1.data[~CP_BL_VALS_1.mask] 
+    CP_BL        = CP_BL_VALS_2.reshape((npanel,nalpha,nRe),order = 'F')     
     
     AERO_RES_BL        = aero_coeff(X,Y,-CP_BL,alpha,npanel) 
-    AERO_RES           = aero_coeff(X,Y,-CP,alpha,npanel) 
-    
     airfoil_properties = Data(
         AoA        = alpha,
         Re         = Re_L,
         Cl         = AERO_RES_BL.Cl,
         Cd         = AERO_RES_BL.Cd,
-        Cm         = AERO_RES_BL.Cm,
+        Cm         = AERO_RES_BL.Cm,  
         normals    = normals,
         x          = X,
         y          = Y,        
         x_bl       = X_BL,
         y_bl       = Y_BL,
-        Cp         = CP,         
+        Cp         = CP_BL,         
         Ue_Vinf    = VE,         
         dVe        = DVE,   
         theta      = THETA,      
@@ -493,7 +532,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
 
 
 def interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,FUNC_BOT_SURF,FUNC_TOP_SURF,npanel,nalpha,nRe): 
-    '''Interpolation of airfoil properties''' 
+    '''Interpolation of airfoil properties''' # numpy.ma.apply_along_axis¶
     FUNC = np.zeros((npanel,nalpha,nRe))
     for a_i in range(nalpha):
         for Re_i in range(nRe):

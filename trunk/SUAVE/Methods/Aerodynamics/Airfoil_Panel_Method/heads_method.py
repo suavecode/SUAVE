@@ -79,19 +79,20 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
             H1_0         = getH1(np.atleast_1d(H_0))[0]
             if np.isnan(H1_0):
                 H1_0     = (del_0 - del_star_0) / theta_0 
+                
             y0           = [theta_0, getVe(0,x_i,Ve_i)*theta_0*H1_0]    
             xspan        = np.linspace(0,l,n)   
             y            = odeint(odefcn,y0,xspan,args=(Re_L/l, x_i, Ve_i, dVe_i)) 
             theta       = y[:,0] 
             Ve_theta_H1 = y[:,1]   
             
-            idx1            = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > 2E1)[0]
+            idx1            = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > 2E0)[0]
             if len(idx1)> 1:
                 next_idx        = idx1 + 1
                 np.put(theta,next_idx, theta[idx1])   
             
                      
-            idx1               = np.where(abs((Ve_theta_H1[1:] - Ve_theta_H1[:-1])/Ve_theta_H1[:-1]) > 2E1)[0]
+            idx1               = np.where(abs((Ve_theta_H1[1:] - Ve_theta_H1[:-1])/Ve_theta_H1[:-1]) > 2E0)[0]
             if len(idx1)> 1:
                 next_idx           = idx1 + 1
                 np.put(Ve_theta_H1,next_idx, Ve_theta_H1[idx1])   
@@ -99,7 +100,12 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
             # compute flow properties    
             x            = np.linspace(0,l,n)       
             H1           = Ve_theta_H1/(theta*getVe(x, x_i, Ve_i))
-            H            = getH(np.atleast_1d(H1))
+            H            = getH(np.atleast_1d(H1)) 
+            idx1               = np.where(abs((H[1:] - H[:-1])/H[:-1]) > 2E0)[0]
+            if len(idx1)> 1:
+                next_idx           = idx1 + 1
+                np.put(H,next_idx, H[idx1])             
+            
             Re_theta     = Re_L/l * getVe(x,x_i,Ve_i) * theta 
             Re_x         = getVe(x,x_i,Ve_i) * x/ nu
             cf           = getcf(np.atleast_1d(Re_theta),np.atleast_1d(H))
@@ -154,8 +160,6 @@ def getH(H1):
     H[idx1] = 3.0
     idx2    = (H1 > 5.3)
     H[idx2] = 1.1 + 0.86*(H1[idx2] - 3.3)**-0.777 
-    #idx3    = (H<0) # this makes sure the values are sensical 
-    #H[idx3] = 1E-6    
     return H 
 
 def getH1(H) :    

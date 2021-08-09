@@ -28,29 +28,23 @@ def main():
     npanel = 100
     
     # Define Reynolds Number
-    Re     = np.atleast_2d(np.array([5E5,7E6])).T
-    AoA    = np.atleast_2d(np.linspace(-2,12,11)*Units.degrees).T 
+    #Re     = np.atleast_2d(np.array([1E5,1E5,5E6])).T
+    Re     = np.atleast_2d(np.array([5E5])).T
+    AoA    = np.atleast_2d(np.linspace(-5,16,19)*Units.degrees).T   
     
-    
-    #Re     = np.atleast_2d(np.array([5E5])).T 
-    #AoA    = np.atleast_2d(np.array([-4,-2,0,2,4,6,8,10,12,14])*Units.degrees).T 
-     
     # -----------------------------------------------
     # SUAVE
     # -----------------------------------------------
     # Generate Airfoil Geometry (NACA 3310) 
     airfoil_geometry   = compute_naca_4series(0.03,0.3,0.1,npoints=npanel )
-    airfoil_stations     = [0]
-    # Compute Airfoil Aerodynamic and Boundary Layer Properties 
-    # Batch Analysis: 
-    #airfoil_properties_old = airfoil_analysis_old(airfoil_geometry,AoA,Re, npanel, n_computation = 40, batch_analyis = True ) 
-    #plot_airfoil_properties_old(airfoil_properties_old,line_style='k-',arrow_color = 'r',plot_pressure_vectors = False) 
+    airfoil_stations   = [0]
     
-    airfoil_properties     = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, n_computation = 100, batch_analyis = True)  
+    # Compute Airfoil Aerodynamic and Boundary Layer Properties  
+    airfoil_properties     = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, n_computation = 200, batch_analyis = True)  
     plot_airfoil_properties(airfoil_properties,arrow_color = 'r',plot_pressure_vectors = False)  
     
     # Single Condition Analysis:  
-    Re     = np.ones_like(AoA)*5E6  
+    #Re     = np.ones_like(AoA)*5E6  
     #airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, batch_analyis = False, airfoil_stations = airfoil_stations)   
     
     

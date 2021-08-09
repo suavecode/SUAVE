@@ -45,13 +45,13 @@ def aero_coeff(x,y,cp,al,npanel):
     xa      = 0.5*(x[1:] +x[:-1])-0.25
     ya      = 0.5*(y[1:] +y[:-1])
     dcl     = -cp[:-1]*dx
-    dcd     =  cp[:-1]*dy
+    dcd     = -cp[:-1]*dy
     cl_val  = np.sum(dcl,axis=0)
     cd_val  = np.sum(dcd,axis=0)
     cm_val  = np.sum((dcd*ya -dcl*xa),axis=0) 
     
     cl      = cl_val*np.cos(al) - cd_val*np.sin(al) 
-    cd      = cl_val*np.sin(al) + cd_val*np.cos(al)
+    cd      = cl_val*np.sin(al) - cd_val*np.cos(al)
     cm      = cm_val 
     
     AERO_RES = Data(

@@ -9,7 +9,7 @@
 from SUAVE.Core import Data 
 import numpy as np
 from scipy.interpolate import interp1d
-from scipy.integrate import odeint
+from scipy.integrate import odeint ,  solve_ivp, RK45, OdeSolver
 
 # ----------------------------------------------------------------------
 # thwaites_method
@@ -73,13 +73,13 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,COS_I,VE_I, DVE_I,batch_analysis,THETA
             Ve_i    = VE_I.data[:,0,0][VE_I.mask[:,0,0] ==False]
             dVe_i   = DVE_I.data[:,0,0][DVE_I.mask[:,0,0] ==False]
             
-            y0                 = theta_0**2 * getVe(0,x_i,Ve_i)**6  # for one aoa, one rei 
+            y0                 = theta_0**2 * getVe(0,x_i,Ve_i)**6 
             xspan              = np.linspace(0,l,n)  # for all surface points 
             theta2_Ve6         = odeint(odefcn, y0, xspan, args=(nu, x_i, Ve_i)) # make a loop 
             x                  = np.linspace(0,l,n) # for all surface points 
                 
             theta              = np.sqrt(theta2_Ve6[:,0]/ getVe(x, x_i, Ve_i)**6)
-            idx1               = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > 2E1)[0] 
+            idx1               = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > 2E0)[0] 
             if len(idx1)> 1: 
                 next_idx           = idx1 + 1
                 np.put(theta,next_idx, theta[idx1])
@@ -89,14 +89,15 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,COS_I,VE_I, DVE_I,batch_analysis,THETA
             
             # compute flow properties 
             H                  = getH(lambda_val )
+            idx1               = np.where(abs((H[1:] - H[:-1])/H[:-1]) > 2E0)[0]
+            if len(idx1)> 1:
+                next_idx           = idx1 + 1
+                np.put(H,next_idx, H[idx1])
+                
             Re_theta           = getVe(x,x_i,Ve_i) * theta / nu
             Re_x               = getVe(x,x_i,Ve_i) * x/ nu
             cf                 = getcf(lambda_val ,Re_theta)
-            del_star          = H *theta   
-            idx1               = np.where(abs((del_star[1:] - del_star[:-1])/del_star[:-1]) > 2E1)[0]
-            if len(idx1)> 1:
-                next_idx           = idx1 + 1
-                np.put(del_star,next_idx, del_star[idx1])
+            del_star           = H*theta   
              
             delta              = 5.2*x/np.sqrt(Re_x)
             delta[0]           = 0   
@@ -144,12 +145,10 @@ def getH(lambda_val ):
 
     Properties Used:
     N/A
-    """      
+    """       
     H       = 0.0731/(0.14 + lambda_val ) + 2.088 
     idx1    = (lambda_val>0.0)  
-    H[idx1] = 2.61 - 3.75*lambda_val[idx1]  + 5.24*lambda_val[idx1]**2  
-    idx2    = (H<0) # this makes sure the values are sensical 
-    H[idx2] = 1E-6
+    H[idx1] = 2.61 - 3.75*lambda_val[idx1]  + 5.24*lambda_val[idx1]**2   
     return H 
     
 def odefcn(y,x, nu,x_i,Ve_i):

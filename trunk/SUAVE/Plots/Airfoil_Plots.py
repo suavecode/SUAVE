@@ -67,14 +67,6 @@ def plot_airfoil_properties(ap,arrow_color = 'r',plot_pressure_vectors = False )
     
     axis11 = fig3.add_subplot(2,2,4)      
     axis11.set_ylabel('$C_f$')      
-        
-    
-    #fig  = plt.figure('Airfoil',figsize=(8,6)) 
-    #axis8 = fig.add_subplot(1,1,1)      
-    #axis8.set_xlabel('x')
-    #axis8.set_ylabel('y')   
-    #axis8.set_ylim(-0.2, 0.2) 
-    #
     
     fig4  = plt.figure('Figure_3',figsize=(12,5))
     axis12 = fig4.add_subplot(1,3,1)     
