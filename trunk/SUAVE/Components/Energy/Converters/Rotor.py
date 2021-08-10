@@ -518,7 +518,7 @@ class Rotor(Energy_Component):
           
         
         # Make the thrust a 3D vector
-        thrust_prop_frame      = conditions.ones_row(3)*0.
+        thrust_prop_frame      = np.zeros((ctrl_pts,3))
         thrust_prop_frame[:,0] = thrust[:,0]
         thrust_vector          = orientation_product(orientation_transpose(T_body2thrust),thrust_prop_frame)
        
