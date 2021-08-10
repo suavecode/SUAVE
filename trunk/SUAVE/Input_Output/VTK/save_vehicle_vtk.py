@@ -69,7 +69,7 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
     for network in vehicle.networks:
         try:
             print("Attempting to save propeller.")
-            propeller = network.propeller
+            propellers = network.propellers
             try:
                 n_props = int(network.number_of_propeller_engines)
             except:
@@ -95,7 +95,7 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
 
         try:
             print("Attempting to save rotor.")
-            rotor = network.rotor
+            lift_rotors = network.lift_rotors
             try:
                 n_rots = int(network.number_of_lift_rotor_engines)
             except:
