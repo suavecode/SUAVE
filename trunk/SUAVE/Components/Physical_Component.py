@@ -114,7 +114,7 @@ class Container(Component.Container):
             if isinstance(Comp,Physical_Component.Container):
                 total += Comp.total_moment() # recursive!
             elif isinstance(Comp,Physical_Component):
-                total += Comp.mass_properties.mass*(np.sum(np.array(Comp.origin),axis=0)+Comp.mass_properties.center_of_gravity)/len(Comp.origin)
+                total += Comp.mass_properties.mass*(np.sum(np.array(Comp.origin),axis=0)/len(Comp.origin)+Comp.mass_properties.center_of_gravity)
 
         return total
     
