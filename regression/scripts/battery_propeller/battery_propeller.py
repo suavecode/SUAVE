@@ -19,7 +19,7 @@ from SUAVE.Methods.Weights.Buildups.eVTOL.empty import empty
 import sys
 
 sys.path.append('../Vehicles')
-from X57_Maxwell    import vehicle_setup, configs_setup 
+from X57_Maxwell_Mod2    import vehicle_setup, configs_setup 
 
 # ----------------------------------------------------------------------
 #   Main
@@ -38,9 +38,9 @@ def main():
     print(evtol_breakdown)    
     
     # check weights
-    empty_r       = 1016.3716573393712
-    structural_r  = 304.0287793994283
-    total_r       = 1297.3716573393713
+    empty_r       = 1004.473514153519
+    structural_r  = 293.21228559410815
+    total_r       = 1285.4735141535189
     lift_rotors_r = 0.
     propellers_r  = 4.097659513422731
     prop_motors_r = 20.
@@ -77,7 +77,7 @@ def main():
     
     # RPM of rotor check during hover
     RPM        = results.segments.climb_1.conditions.propulsion.propeller_rpm[3][0]
-    RPM_true   = 892.0347394691572
+    RPM_true   = 887.1356296331286
     print(RPM) 
     diff_RPM   = np.abs(RPM - RPM_true)
     print('RPM difference')
@@ -86,7 +86,7 @@ def main():
     
     # lift Coefficient Check During Cruise
     lift_coefficient        = results.segments.cruise.conditions.aerodynamics.lift_coefficient[2][0]
-    lift_coefficient_true   = 0.3837615929759837
+    lift_coefficient_true   =0.40171393102909314
     print(lift_coefficient)
     diff_CL                 = np.abs(lift_coefficient  - lift_coefficient_true) 
     print('CL difference')

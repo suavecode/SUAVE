@@ -25,10 +25,10 @@ import sys
 sys.path.append('../Vehicles')
 # the analysis functions 
  
-from X57_Maxwell  import vehicle_setup as  X57_vehicle_setup
-from X57_Maxwell  import configs_setup as  X57_configs_setup  
-from Boeing_737   import vehicle_setup as  B737_vehicle_setup 
-from Boeing_737   import configs_setup as  B737_configs_setup 
+from X57_Maxwell_Mod2  import vehicle_setup as  X57_vehicle_setup
+from X57_Maxwell_Mod2  import configs_setup as  X57_configs_setup  
+from Boeing_737        import vehicle_setup as  B737_vehicle_setup 
+from Boeing_737        import configs_setup as  B737_configs_setup 
 
 # ----------------------------------------------------------------------
 #   Main
@@ -54,7 +54,7 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
     X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
-    X57_SPL_true   = 81.77560293900922
+    X57_SPL_true   = 81.49359840432146
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')

@@ -17,7 +17,7 @@ import numpy as np
 import sys
 sys.path.append('../Vehicles')
 
-from X57_Maxwell import vehicle_setup
+from X57_Maxwell_Mod2 import vehicle_setup
 
 #-------------------------------------------------------------------------------
 # Test Function
