@@ -274,8 +274,8 @@ def design_F8745D4_prop():
     separator                       = os.path.sep
     rel_path                        = ospath.split('noise_fidelity_one' + separator + 'propeller_noise.py')[0] + 'Vehicles/Airfoils' + separator
     prop.airfoil_geometry           = [ rel_path +'Clark_y.txt']
-    prop.airfoil_polars             = [[rel_path +'Clark_y_polar_Re_50000.txt' ,rel_path +'Clark_y_polar_Re_100000.txt',rel_path +'Clark_y_polar_Re_200000.txt',
-                                        rel_path +'Clark_y_polar_Re_500000.txt',rel_path +'Clark_y_polar_Re_1000000.txt']]
+    prop.airfoil_polars             = [[rel_path +'Polars/Clark_y_polar_Re_50000.txt' ,rel_path +'Polars/Clark_y_polar_Re_100000.txt',rel_path +'Polars/Clark_y_polar_Re_200000.txt',
+                                        rel_path +'Polars/Clark_y_polar_Re_500000.txt',rel_path +'Polars/Clark_y_polar_Re_1000000.txt']]
     prop.airfoil_polar_stations     = list(np.zeros(dim))  
     airfoil_polars                  = compute_airfoil_polars(prop.airfoil_geometry, prop.airfoil_polars)  
     airfoil_cl_surs                 = airfoil_polars.lift_coefficient_surrogates 
