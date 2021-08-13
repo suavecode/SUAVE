@@ -10,6 +10,7 @@
 import SUAVE
 from SUAVE.Core import Units
 import numpy as np
+import copy
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
 def wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings, num_main_wings):
@@ -99,7 +100,7 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings, num_main_wings)
     else:
         NSD             = 500
         N2              = int(sum(networks.wing_mounted) / 2)
-        ETA, C, T, SWP  = generate_wing_stations(vehicle.fuselages['fuselage'].width, wing)
+        ETA, C, T, SWP  = generate_wing_stations(vehicle.fuselages['fuselage'].width, copy.deepcopy(wing))
         NS, Y           = generate_int_stations(NSD, ETA)
         EETA            = get_spanwise_engine(networks, SEMISPAN)
         P0              = calculate_load(ETA[-1])

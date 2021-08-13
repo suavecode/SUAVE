@@ -42,17 +42,17 @@ def payload_FLOPS(vehicle, weight_per_passenger = 165. * Units.lb):
     WPASS   = vehicle.passengers * WPPASS
     DESRNG  = vehicle.design_range / Units.nmi
     if DESRNG <= 900:
-        BPP = 35  # luggage weight per passenger depends on the design range
+        BPP = 35 * Units.lbs  # luggage weight per passenger depends on the design range
     elif DESRNG <= 2900:
-        BPP = 40
+        BPP = 40 * Units.lbs
     else:
-        BPP = 44
+        BPP = 44 * Units.lbs
     WPBAG       = BPP * vehicle.passengers  # baggage weight
     WPAYLOAD    = WPASS + WPBAG + vehicle.mass_properties.cargo / Units.lbs  # payload weight
 
     output              = Data()
-    output.total        = WPAYLOAD * Units.lbs
-    output.passengers   = WPASS * Units.lbs
-    output.baggage      = WPBAG * Units.lbs
+    output.total        = WPAYLOAD
+    output.passengers   = WPASS
+    output.baggage      = WPBAG
     output.cargo        = vehicle.mass_properties.cargo
     return output
