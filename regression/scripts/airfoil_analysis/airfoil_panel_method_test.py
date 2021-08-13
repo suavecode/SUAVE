@@ -13,7 +13,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4
      import  compute_naca_4series
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
      import import_airfoil_geometry
-from SUAVE.Plots.Airfoil_Plots  import plot_airfoil_properties  
+from SUAVE.Plots.Airfoil_Plots  import plot_airfoil_batch_properties  
 import os 
 import numpy as np
 
@@ -28,155 +28,67 @@ def main():
     # -----------------------------------------------
     # Batch analysis of single airfoil - NACA 2410 
     # -----------------------------------------------
-    #Re_batch     = np.atleast_2d(np.array([5E4,1E5,2E5,5E5])).T
-    #AoA_batch    = np.atleast_2d(np.linspace(-10,20,31)*Units.degrees).T   
-
     Re_batch     = np.atleast_2d(np.array([1E5,2E5])).T
-    AoA_batch    = np.atleast_2d(np.linspace(-2,6,5)*Units.degrees).T       
+    AoA_batch    = np.atleast_2d(np.linspace(-5,15,5)*Units.degrees).T       
     airfoil_geometry     = compute_naca_4series(0.02,0.4,0.1,npoints=npanel )
-    airfoil_properties_1 = airfoil_analysis(airfoil_geometry,AoA_batch,Re_batch, npanel, n_computation = 200, batch_analyis = True)  
-    plot_airfoil_properties(airfoil_properties_1,arrow_color = 'r',plot_pressure_vectors = True )  
+    airfoil_properties_1 = airfoil_analysis(airfoil_geometry,AoA_batch,Re_batch, npanel, n_computation = 200, batch_analysis = True)  
+    plot_airfoil_batch_properties(airfoil_properties_1,arrow_color = 'r',plot_pressure_vectors = True)  
     
+    # XFOIL Validation - Source :   
+    xfoil_data_Cl             = 0.7922
+    xfoil_data_Cd             = 0.01588   
+    xfoil_data_Cm             = -0.0504 
+ 
+    print('\n\nNACA 2410 Batch Analysis Validation at 5 deg, Re = 1E5') 
+    diff_CL           = np.abs(airfoil_properties_1.Cl[2,0] - xfoil_data_Cl)  # 0.573685
+    expected_Cl_error = -0.08267635005095875
+    print('\nCL difference')
+    print(diff_CL)
+    assert np.abs(((airfoil_properties_1.Cl[2,0]- expected_Cl_error)  - xfoil_data_Cl)/xfoil_data_Cl)  < 1e-6 
+    
+    diff_CD           = np.abs(airfoil_properties_1.Cd[2,0] - xfoil_data_Cd) 
+    expected_Cd_error = -0.006893203451858655
+    print('\nCD difference')
+    print(diff_CD)
+    assert np.abs(((airfoil_properties_1.Cd[2,0]- expected_Cd_error)  - xfoil_data_Cd)/xfoil_data_Cd)  < 1e-6
+    
+    diff_CM           = np.abs(airfoil_properties_1.Cm[2,0] - xfoil_data_Cm) 
+    expected_Cm_error =  0.012488216333628205
+    print('\nCM difference')
+    print(diff_CM)
+    assert np.abs(((airfoil_properties_1.Cm[2,0]- expected_Cm_error)  - xfoil_data_Cm)/xfoil_data_Cm)  < 1e-6  
+    return   
+
     # -----------------------------------------------
     # Single Condition Analysis of multiple airfoils  
-    # -----------------------------------------------
-    ospath    = os.path.abspath(__file__)
+    # ----------------------------------------------- 
     separator = os.path.sep 
-    rel_path  = ospath.split('airfoil_import' + separator + 'airfoil_panel_method_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator 
-    Re_vals              = np.atleast_2d(np.array([1E5,2E5,3E5])).T
-    AoA_vals            = np.atleast_2d(np.array([2,4,5])*Units.degrees).T       
-    airfoil_stations     = [0,1,2] 
-    airfoils             = [rel_path + 'NACA_4412.txt',rel_path +'Clark_y.txt', rel_path +'E63.txt']             
-    airfoil_geometry     = import_airfoil_geometry(airfoils)    
-    airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals, npanel, batch_analyis = False, airfoil_stations = airfoil_stations)   
-    plot_airfoil_properties(airfoil_properties_2,arrow_color = 'r',plot_pressure_vectors = False)  
+    rel_path  = ospath.split('airfoil_analysis' + separator + 'airfoil_panel_method_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator 
+    Re_vals              = np.atleast_2d(np.array([1E5,1E5,1E5,1E5,1E5,1E5])).T
+    AoA_vals             = np.atleast_2d(np.array([2,2,2,2,2,2])*Units.degrees).T       
+    airfoil_stations     = [0,1,0,1,0,1] 
+    airfoils             = [rel_path + 'NACA_4412.txt',rel_path +'Clark_y.txt']             
+    airfoil_geometry     = import_airfoil_geometry(airfoils, npoints= npanel+2)    
+    airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals, npanel, batch_analysis = False, airfoil_stations = airfoil_stations)    
     
-    ## -----------------------------------------------
-    ## XFOIL
-    ## -----------------------------------------------
-    #xfoil_boundary_layer_file_1 = 'NACA_3310_4deg.txt'
-    #xfoil_cp_file_1             = 'NACA_3310_4deg_cp.txt' 
-    #xfoil_data_1                = read_xfoil_verification_files(xfoil_boundary_layer_file_1,xfoil_cp_file_1)  
-    #xfoil_data_1.Cl             = 0.7865
-    #xfoil_data_1.Cd             = 0.00507
-    #xfoil_data_1.Cm             = -0.0674
+    True_Cls  = np.array([0.57162636, 0.5362878 , 0.56544856, 0.5362878 , 0.56544856, 0.5362878 ])
+    True_Cds  = np.array([0.01133623, 0.00716673, 0.00318314, 0.00716673, 0.00318314, 0.00716673])
+    True_Cms  = np.array([-0.07574378, -0.05903947, -0.06817584, -0.05903947, -0.06817584,-0.05903947])    
+    
+    print('\n\nSingle Point Validation')  
+    print('\nCL difference')
+    print(diff_CL)
+    assert np.sum(np.abs((airfoil_properties_2.Cl[2,0]  - True_Cls)/True_Cls))  < 1e-6 
      
-    ## -----------------------------------------------
-    ## Validation  
-    ## ----------------------------------------------- 
-    #print('\n\nNACA 4210 Validation at 4 deg, Re = 2E5') 
-    #diff_CL           = np.abs(airfoil_properties.Cl[4,1] - xfoil_data_1.Cl)  # 0.573685
-    #expected_Cl_error = 0.21281484447415983
-    #print('\nCL difference')
-    #print(diff_CL)
-    #assert np.abs((airfoil_properties.Cl[4,1]  - xfoil_data_1.Cl)/xfoil_data_1.Cl) - expected_Cl_error < 1e-6
+    print('\nCD difference')
+    print(diff_CD)
+    assert np.sum(np.abs((airfoil_properties_2.Cd[2,0]  - True_Cds)/True_Cds))  < 1e-6
+     
+    print('\nCM difference')
+    print(diff_CM)
+    assert np.sum(np.abs((airfoil_properties_2.Cm[2,0]  - True_Cms)/True_Cms))  < 1e-6  
+    return   
     
-    #diff_CD           = np.abs(airfoil_properties.Cd[4,1] - xfoil_data_1.Cd) 
-    #expected_Cd_error = 0.1719841745384137
-    #print('\nCD difference')
-    #print(diff_CD)
-    #assert np.abs((airfoil_properties.Cd[4,1]  - xfoil_data_1.Cd)/xfoil_data_1.Cd) - expected_Cd_error < 1e-6
-    
-    #diff_CM           = np.abs(airfoil_properties.Cm[4,1] - xfoil_data_1.Cm) 
-    #expected_Cm_error = 0.385454350005437
-    #print('\nCM difference')
-    #print(diff_CM)
-    #assert np.abs((airfoil_properties.Cm[4,1]  - xfoil_data_1.Cm)/xfoil_data_1.Cm) - expected_Cm_error < 1e-6 
-   
-    #diff_CP = np.abs(airfoil_properties.Cp[50,4,1]  - xfoil_data_1.Cp[50]) 
-    #expected_Cp_error = 0.05773430375306162
-    #print('\nCM difference')
-    #print(diff_CP)
-    #assert np.abs((airfoil_properties.Cp[50,4,1]  - xfoil_data_1.Cp[50])/xfoil_data_1.Cp[50]) - expected_Cp_error <  1e-6
-    
-    return  
- 
-# ----------------------------------------------------------------------
-#  Read Xfoil Verification Files
-# ----------------------------------------------------------------------
-def read_xfoil_verification_files(xfoil_boundary_layer_file,xfoil_cp_file):
-    """Reads xfoil data file for regression  
-    
-    Assumptions: 
-    None 
-    
-    Inputs:  
-    xfoil_boundary_layer_file
-    xfoil_cp file             
-        
-    Outputs:
-    airfoil_properties.
-       x        - x coordinates of airfoil 
-       y        - y coordinates of airfoil 
-       Cp       - pressure coefficient 
-       Ue/Vinf  - boundary layer edge velocity 
-       Dstar    - displacement thickness 
-       Theta    - momentum thickness 
-       Cf       - friction coefficient 
-       H        - boundary layer shape factor 
-       H*       - 
-       P        - 
-       m        - 
-       K        - 
-       tau      - shear stress
-       Di       - 
-       
-    Source:
-    None
-    
-    """
-    x_vals       = np.zeros(160)
-    s_vals       = np.zeros_like(x_vals)
-    y_vals       = np.zeros_like(x_vals)
-    Cp_vals      = np.zeros_like(x_vals)
-    Ue_Vinf_vals = np.zeros_like(x_vals)
-    Dstar_vals   = np.zeros_like(x_vals)
-    Theta_vals   = np.zeros_like(x_vals)
-    Cf_vals      = np.zeros_like(x_vals)
-    H_vals       = np.zeros_like(x_vals)
-    H_star_vals  = np.zeros_like(x_vals) 
-    P_vals       = np.zeros_like(x_vals) 
-    
-   
-    with open(xfoil_boundary_layer_file,'r') as xblf:
-        bl_file_lines  = xblf.readlines() 
-        header         = 1
-        for i in range(160):
-            bl_line          = list(bl_file_lines[header + i][0:120].strip().split())   
-            s_vals[i]        = float(bl_line[0])
-            x_vals[i]        = float(bl_line[1])
-            y_vals[i]        = float(bl_line[2]) 
-            Ue_Vinf_vals[i]  = float(bl_line[3])
-            Dstar_vals[i]    = float(bl_line[4])
-            Theta_vals[i]    = float(bl_line[5])
-            Cf_vals[i]       = float(bl_line[6])
-            H_vals[i]        = float(bl_line[7])
-            H_star_vals[i]   = float(bl_line[8])
-            P_vals[i]        = float(bl_line[9]) 
-            
-    with open(xfoil_cp_file,'r') as xcpf:
-        cp_file_lines  = xcpf.readlines() 
-        header         = 1
-        for i in range(160):
-            cp_line       = list(cp_file_lines[header + i][0:120].strip().split())   
-            Cp_vals[i]    = float(cp_line[1]) 
-            
-    airfoil_properties = Data(
-        s          = s_vals,
-        x          = x_vals,     
-        y          = y_vals,     
-        Cp         = Cp_vals,   
-        Ue_Vinf    = Ue_Vinf_vals,
-        delta_star = Dstar_vals,  
-        theta      = Theta_vals, 
-        Cf         = Cf_vals,     
-        H          = H_vals,    
-        H_star     = H_star_vals, 
-        P          = P_vals,     
-    )   
-    
-    return airfoil_properties 
-
 
 if __name__ == '__main__': 
     main() 

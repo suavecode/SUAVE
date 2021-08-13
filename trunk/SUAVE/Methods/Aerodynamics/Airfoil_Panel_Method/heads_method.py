@@ -13,7 +13,7 @@ from scipy.integrate import odeint
 # heads_method.py 
 # ----------------------------------------------------------------------   
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I,X_TR,batch_analysis, n = 200,tol  = 1E0):
+def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I,X_TR,batch_analysis, n = 200,tol= 1E0):
     """ Computes the boundary layer characteristics in turbulent
     flow pressure gradients
 
@@ -111,7 +111,7 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
             H            = getH(np.atleast_1d(H1)) 
             H[H<0]       = 1E-6    # H cannot be negative 
             # find H values that do not converge and replace them with neighbor
-            idx1               = np.where(abs((H[1:] - H[:-1])/H[:-1]) > 2E0)[0]
+            idx1               = np.where(abs((H[1:] - H[:-1])/H[:-1]) >tol)[0]
             if len(idx1)> 1: 
                 np.put(H,idx1 + 1, H[idx1])     
             
@@ -123,6 +123,7 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
             
             # Compute skin friction 
             cf           = getcf(np.atleast_1d(Re_theta),np.atleast_1d(H))
+            cf[cf<0]     = 1E-6 
             
             # Compute displacement thickness
             del_star     = H*theta   

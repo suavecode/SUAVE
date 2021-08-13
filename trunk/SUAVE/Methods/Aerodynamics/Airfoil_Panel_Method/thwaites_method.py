@@ -110,6 +110,7 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
             
             # Compute skin friction 
             cf          = getcf(lambda_val ,Re_theta)
+            cf[cf<0]    = 1E-6 
             
             # Compute displacement thickness
             del_star    = H*theta   
@@ -122,14 +123,14 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
             Re_x[0]     = 1E-5
             
             # Store results 
-            X_T[:,a_i,re_i]        = x
-            THETA_T[:,a_i,re_i]    = theta
+            X_T[:,a_i,re_i]          = x
+            THETA_T[:,a_i,re_i]      = theta
             DELTA_STAR_T[:,a_i,re_i] = del_star
-            H_T[:,a_i,re_i]        = H
-            CF_T[:,a_i,re_i]       = cf
-            RE_THETA_T[:,a_i,re_i] = Re_theta
-            RE_X_T[:,a_i,re_i]     = Re_x
-            DELTA_T[:,a_i,re_i]    = delta 
+            H_T[:,a_i,re_i]          = H
+            CF_T[:,a_i,re_i]         = cf
+            RE_THETA_T[:,a_i,re_i]   = Re_theta
+            RE_X_T[:,a_i,re_i]       = Re_x
+            DELTA_T[:,a_i,re_i]      = delta 
     
     RESULTS = Data(
         X_T          = X_T,      

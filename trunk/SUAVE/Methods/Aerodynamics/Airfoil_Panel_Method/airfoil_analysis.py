@@ -21,7 +21,7 @@ from .aero_coeff      import aero_coeff
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 200, batch_analyis = True, airfoil_stations = None):
+def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 200, batch_analysis = True, airfoil_stations = None):
     """This computed the aerodynamic polars as well as the boundary lawer properties of 
     an airfoil at a defined set of reynolds numbers and angle of attacks
 
@@ -37,7 +37,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     Re_L              - Reynolds numbers
     npanel            - number of panels
     n_computation     - number of refined points of surface for boundary layer computation 
-    batch_analyis     - boolean : If True: the specified number of angle of attacks and Reynolds
+    batch_analysis     - boolean : If True: the specified number of angle of attacks and Reynolds
                                   numbers are used to create a table of 2-D results for each combination
                                   Note: Can only accomodate one airfoil
                                   
@@ -77,9 +77,11 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     nalpha           = len(alpha)
     nRe              = len(Re_L) 
     
-    if batch_analyis:
+    if batch_analysis:
         x_coord    = np.delete( airfoil_geometry.x_coordinates[0][::-1], int(npanel/2))  # these are the vertices of each panel, len = 1 + npanel
-        y_coord    = np.delete( airfoil_geometry.y_coordinates[0][::-1], int(npanel/2))    
+        y_coord    = np.delete( airfoil_geometry.y_coordinates[0][::-1], int(npanel/2))   
+        x_coord_3d = np.repeat(np.repeat(np.atleast_2d(x_coord).T,nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)
+        y_coord_3d = np.repeat(np.repeat(np.atleast_2d(y_coord).T,nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)        
     else:
         try: 
             nairfoil         = len(airfoil_stations) 
@@ -89,19 +91,17 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
         if (nalpha != nRe) and ( nairfoil!= nalpha):
             raise AssertionError('Dimension of angle of attacks,Reynolds numbers and airfoil stations must all be equal')    
         
-        x_coord    = np.take(airfoil_geometry.x_coordinates,airfoil_stations,axis=0)  
-        y_coord    = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0) 
-        x_coord    = np.delete( x_coord[::-1], int(npanel/2))  
-        y_coord    = np.delete( y_coord[::-1], int(npanel/2))     
-   
-
-    x_coord_3d = np.repeat(np.repeat(np.atleast_2d(x_coord).T,nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)
-    y_coord_3d = np.repeat(np.repeat(np.atleast_2d(y_coord).T,nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)
+        x_coord    = np.take(airfoil_geometry.x_coordinates,airfoil_stations,axis=0).T 
+        y_coord    = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0).T
+        x_coord    = np.delete(x_coord[::-1], int(npanel/2),0)  
+        y_coord    = np.delete(y_coord[::-1], int(npanel/2),0)      
+        x_coord_3d = np.repeat(x_coord[:,:,np.newaxis],nRe, axis = 2)
+        y_coord_3d = np.repeat(y_coord[:,:,np.newaxis],nRe, axis = 2)
         
     # Begin by solving for velocity distribution at airfoil surface using inviscid panel simulation
     ## these are the locations (faces) where things are computed , len = n panel
     # dimension of vt = npanel x nalpha x nRe
-    X,Y,vt,normals = hess_smith(x_coord_3d,y_coord_3d,alpha,Re_L,npanel,batch_analyis)  
+    X,Y,vt,normals = hess_smith(x_coord_3d,y_coord_3d,alpha,Re_L,npanel,batch_analysis)  
     
     # Reynolds number 
     RE_L_VALS = np.repeat(Re_L.T,nalpha, axis = 0)
@@ -144,7 +144,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     L_BOT                          = X_BOT[-1,:,:]    
         
     # laminar boundary layer properties using thwaites method 
-    BOT_T_RESULTS  = thwaites_method(nalpha,nRe, L_BOT , RE_L_VALS, X_BOT, VE_BOT, DVE_BOT,batch_analyis,
+    BOT_T_RESULTS  = thwaites_method(nalpha,nRe, L_BOT , RE_L_VALS, X_BOT, VE_BOT, DVE_BOT,batch_analysis,
                                      THETA_0=1E-5,n=n_computation) 
     X_T_BOT          = BOT_T_RESULTS.X_T      
     THETA_T_BOT      = BOT_T_RESULTS.THETA_T     
@@ -158,7 +158,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     # transition location  
     TR_CRIT_BOT     = RE_THETA_T_BOT - 1.174*(1 + 224000/RE_X_T_BOT)*RE_X_T_BOT**0.46  
     CRITERION_BOT   = np.ma.masked_greater(TR_CRIT_BOT,0 ) 
-    if batch_analyis:
+    if batch_analysis:
         mask_count  = np.ma.count(CRITERION_BOT,axis = 0)  
         mask_count[mask_count == n_computation] = n_computation-1
     else:
@@ -178,7 +178,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     # turbulent boundary layer properties using heads method 
     BOT_H_RESULTS   = heads_method(nalpha,nRe,DELTA_TR_BOT ,THETA_TR_BOT , DELTA_STAR_TR_BOT,
                                    TURBULENT_SURF, RE_L_VALS,TURBULENT_COORD, VE_BOT, DVE_BOT ,X_TR_BOT,
-                                   batch_analyis,n=n_computation )
+                                   batch_analysis,n=n_computation )
     
     X_H_BOT          = BOT_H_RESULTS.X_H      
     THETA_H_BOT      = BOT_H_RESULTS.THETA_H   
@@ -287,7 +287,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     L_TOP                          = X_TOP[-1,:,:]    
 
     # laminar boundary layer properties using thwaites method 
-    TOP_T_RESULTS    = thwaites_method(nalpha,nRe, L_TOP , RE_L_VALS,X_TOP,VE_TOP, DVE_TOP,batch_analyis,
+    TOP_T_RESULTS    = thwaites_method(nalpha,nRe, L_TOP , RE_L_VALS,X_TOP,VE_TOP, DVE_TOP,batch_analysis,
                                      THETA_0=1E-5,n=n_computation) 
     X_T_TOP          = TOP_T_RESULTS.X_T      
     THETA_T_TOP      = TOP_T_RESULTS.THETA_T     
@@ -302,7 +302,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     TR_CRIT_TOP       = RE_THETA_T_TOP - 1.174*(1 + 224000/RE_X_T_TOP)*(RE_X_T_TOP**0.46)
     CRITERION_TOP     = np.ma.masked_greater(TR_CRIT_TOP,0 )
   
-    if batch_analyis:
+    if batch_analysis:
         mask_count  = np.ma.count(CRITERION_TOP,axis = 0) 
         mask_count[mask_count == n_computation] = n_computation-1
     else:
@@ -323,7 +323,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     # turbulent boundary layer properties using heads method 
     TOP_H_RESULTS     = heads_method(nalpha,nRe,DELTA_TR_TOP ,THETA_TR_TOP , DELTA_STAR_TR_TOP,
                                    TURBULENT_SURF, RE_L_VALS,TURBULENT_COORD, VE_TOP, DVE_TOP ,X_TR_TOP,
-                                   batch_analyis,n=n_computation )
+                                   batch_analysis,n=n_computation )
 
     X_H_TOP          = TOP_H_RESULTS.X_H      
     THETA_H_TOP      = TOP_H_RESULTS.THETA_H   
@@ -398,13 +398,13 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     # ------------------------------------------------------------------------------------------------------
     # Interpolate to trim vector down to n_computation size  
     # ------------------------------------------------------------------------------------------------------      
-    THETA      = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,THETA_BOT_SURF,THETA_TOP_SURF,npanel,nalpha,nRe)
-    DELTA_STAR = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,DELTA_STAR_BOT_SURF,DELTA_STAR_TOP_SURF,npanel,nalpha,nRe) 
-    H          = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,H_BOT_SURF,H_TOP_SURF,npanel,nalpha,nRe)  
-    CF         = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,CF_BOT_SURF,CF_TOP_SURF,npanel,nalpha,nRe) 
-    RE_THETA   = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,RE_THETA_BOT_SURF,RE_THETA_TOP_SURF,npanel,nalpha,nRe)  
-    RE_X       = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,RE_X_BOT_SURF,RE_X_TOP_SURF,npanel,nalpha,nRe) 
-    DELTA      = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,DELTA_BOT_SURF,DELTA_TOP_SURF,npanel,nalpha,nRe)   
+    THETA      = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,THETA_BOT_SURF,THETA_TOP_SURF,npanel,nalpha,nRe,batch_analysis)
+    DELTA_STAR = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,DELTA_STAR_BOT_SURF,DELTA_STAR_TOP_SURF,npanel,nalpha,nRe,batch_analysis) 
+    H          = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,H_BOT_SURF,H_TOP_SURF,npanel,nalpha,nRe,batch_analysis)  
+    CF         = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,CF_BOT_SURF,CF_TOP_SURF,npanel,nalpha,nRe,batch_analysis) 
+    RE_THETA   = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,RE_THETA_BOT_SURF,RE_THETA_TOP_SURF,npanel,nalpha,nRe,batch_analysis)  
+    RE_X       = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,RE_X_BOT_SURF,RE_X_TOP_SURF,npanel,nalpha,nRe,batch_analysis) 
+    DELTA      = interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,DELTA_BOT_SURF,DELTA_TOP_SURF,npanel,nalpha,nRe,batch_analysis)   
      
     VE_VALS    = np.ma.concatenate([np.flip(VE_TOP,axis = 0),VE_BOT ], axis = 0)
     DVE_VALS   = np.ma.concatenate([np.flip(DVE_TOP,axis = 0),DVE_BOT], axis = 0)  
@@ -436,9 +436,8 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     zeros             = np.zeros((nalpha,nRe))
     y_coord_3d_bl     = np.flip(np.insert(new_y_coord, int(npanel/2) ,zeros,axis = 0),axis = 0)
     x_coord_3d_bl     = np.flip(np.insert(new_x_coord, int(npanel/2) ,zeros,axis = 0),axis = 0) 
-    #x_coord_3d_bl     = x_coord_3d_bl - x_coord_3d_bl.min(axis=0) # shift airfoils so start value is 0 
     
-    X_BL, Y_BL,vt_bl,normals_bl = hess_smith(x_coord_3d_bl,y_coord_3d_bl,alpha,Re_L,npanel,batch_analyis)      
+    X_BL, Y_BL,vt_bl,normals_bl = hess_smith(x_coord_3d_bl,y_coord_3d_bl,alpha,Re_L,npanel,batch_analysis)      
       
     # ---------------------------------------------------------------------
     # Bottom surface of airfoil with boundary layer 
@@ -517,7 +516,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
         Cf         = CF,          
         )  
     
-    if batch_analyis:
+    if batch_analysis:
         pass
     else:
         airfoil_properties = extract_values(airfoil_properties) 
@@ -525,11 +524,19 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     return  airfoil_properties 
 
 
-def interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,FUNC_BOT_SURF,FUNC_TOP_SURF,npanel,nalpha,nRe): 
+def interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,FUNC_BOT_SURF,FUNC_TOP_SURF,npanel,nalpha,nRe,batch_analysis): 
     '''Interpolation of airfoil properties''' # numpy.ma.apply_along_axis¶
     FUNC = np.zeros((npanel,nalpha,nRe))
-    for a_i in range(nalpha):
-        for Re_i in range(nRe):
+    
+    if batch_analysis:
+        N_ALPHA = nalpha
+    else:
+        N_ALPHA = 1 
+    
+    for a_i in range(N_ALPHA):
+        for Re_i in range(nRe):    
+            if not batch_analysis:
+                a_i = Re_i  
             top_func          = interp1d(np.flip(X_TOP_SURF, axis=0)[:,a_i,Re_i],np.flip(FUNC_TOP_SURF, axis=0)[:,a_i,Re_i], fill_value='extrapolate')
             bot_func          = interp1d(X_BOT_SURF[:,a_i,Re_i],FUNC_BOT_SURF[:,a_i,Re_i], fill_value='extrapolate')  
             x_top             = np.flip(X_TOP, axis=0)[:,a_i,Re_i]
