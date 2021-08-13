@@ -435,8 +435,8 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     DELTA             = np.nan_to_num(DELTA) # make sure no nans 
     new_y_coord       = np.zeros((npanel,nalpha,nRe)) 
     new_x_coord       = np.zeros((npanel,nalpha,nRe)) 
-    new_y_coord       = Y + DELTA*normals[:,1,:,:]
-    new_x_coord       = X + DELTA*normals[:,0,:,:]
+    new_y_coord       = Y - DELTA*normals[:,1,:,:]
+    new_x_coord       = X - DELTA*normals[:,0,:,:]
     zeros             = np.zeros((nalpha,nRe))
     y_coord_3d_bl     = np.flip(np.insert(new_y_coord, int(npanel/2) ,zeros,axis = 0),axis = 0)
     x_coord_3d_bl     = np.flip(np.insert(new_x_coord, int(npanel/2) ,zeros,axis = 0),axis = 0) 

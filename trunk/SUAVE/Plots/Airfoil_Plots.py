@@ -73,16 +73,19 @@ def plot_airfoil_properties(ap,arrow_color = 'r',plot_pressure_vectors = False )
     axis12.set_title('Aero Coefficients')
     axis12.set_xlabel('AoA')
     axis12.set_ylabel(r'Lift Coefficient, Cl') 
+    axis12.set_ylim(-1,2)  
     
     axis13 = fig4.add_subplot(1,3,2)    
     axis13.set_title('Drag Coefficient') 
     axis13.set_xlabel('AoA')
     axis13.set_ylabel(r'Drag Coefficient, Cd') 
+    axis13.set_ylim(0,0.25)  
     
     axis14 = fig4.add_subplot(1,3,3)   
     axis14.set_title('Moment Coefficient')  
     axis14.set_xlabel('AoA')
     axis14.set_ylabel(r'Moment Coefficient, Cm ')    
+    axis14.set_ylim(-0.1,0.1)  
      
     mid = int(len(ap.x)/2)
     
@@ -127,6 +130,7 @@ def plot_airfoil_properties(ap,arrow_color = 'r',plot_pressure_vectors = False )
             axis11.plot(ap.x[:mid,j,i], ap.Cf[:mid,j,i],color = colors[j], linestyle = '-' ,marker =  markers[j%9] )  
             axis11.plot(ap.x[mid:,j,i], ap.Cf[mid:,j,i],color = colors[j], linestyle = '--' ,marker =  markers[j%9] )                    
             
+            plt.tight_layout()
     
             #axis8.plot(ap.x_bl[:,j,i], ap.y_bl[:,j,i],color = colors[j], linestyle = '--')      
             
@@ -159,19 +163,19 @@ def plot_airfoil_properties(ap,arrow_color = 'r',plot_pressure_vectors = False )
         
         # Moment Coefficient
         axis14.plot(ap.AoA[:,0]/Units.degrees, ap.Cm[:,i],color = colors[i], linestyle = '-',marker =  markers[i], label =  Re_tag)     
-        
+        plt.tight_layout()
     ## append                   
     
     # add legends for plotting
     plt.tight_layout()
     lines1, labels1 = fig2.axes[0].get_legend_handles_labels()
-    fig2.legend(lines1, labels1, loc='upper center', ncol=3)
+    #fig2.legend(lines1, labels1, loc='upper center', ncol=3)
      
     #if plot_pressure_vectors: 
         #axis7.legend(loc='upper left')      
         
-    axis12.legend(loc='upper left')   
-    axis13.legend(loc='upper left')      
-    axis14.legend(loc='upper left')  
+    #axis12.legend(loc='upper left')   
+    #axis13.legend(loc='upper left')      
+    #axis14.legend(loc='upper left')  
     
     return   

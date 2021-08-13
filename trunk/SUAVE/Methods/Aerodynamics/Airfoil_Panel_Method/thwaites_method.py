@@ -42,7 +42,7 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,COS_I,VE_I, DVE_I,batch_analysis,THETA
     Properties Used:
     N/A
     """     
-    
+    tol  = 1E0
     X_T        = np.zeros((n,nalpha,nRe))
     THETA_T    = np.zeros_like(X_T)
     DELTA_STAR_T = np.zeros_like(X_T)
@@ -79,7 +79,7 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,COS_I,VE_I, DVE_I,batch_analysis,THETA
             x                  = np.linspace(0,l,n) # for all surface points 
                 
             theta              = np.sqrt(theta2_Ve6[:,0]/ getVe(x, x_i, Ve_i)**6)
-            idx1               = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > 2E0)[0] 
+            idx1               = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > tol)[0] 
             if len(idx1)> 1: 
                 next_idx           = idx1 + 1
                 np.put(theta,next_idx, theta[idx1])
@@ -89,7 +89,7 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,COS_I,VE_I, DVE_I,batch_analysis,THETA
             
             # compute flow properties 
             H                  = getH(lambda_val )
-            idx1               = np.where(abs((H[1:] - H[:-1])/H[:-1]) > 2E0)[0]
+            idx1               = np.where(abs((H[1:] - H[:-1])/H[:-1]) >tol)[0]
             if len(idx1)> 1:
                 next_idx           = idx1 + 1
                 np.put(H,next_idx, H[idx1])

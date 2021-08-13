@@ -25,22 +25,22 @@ import numpy as np
 
 def main():    
     # Define Panelization 
-    npanel = 100
+    npanel = 100 
     
     # Define Reynolds Number
     #Re     = np.atleast_2d(np.array([1E5,1E5,5E6])).T
-    Re     = np.atleast_2d(np.array([5E5])).T
-    AoA    = np.atleast_2d(np.linspace(-5,16,19)*Units.degrees).T   
+    Re     = np.atleast_2d(np.array([5E4,1E5,2E5,5E5])).T
+    AoA    = np.atleast_2d(np.linspace(-10,20,31)*Units.degrees).T   
     
     # -----------------------------------------------
     # SUAVE
     # -----------------------------------------------
     # Generate Airfoil Geometry (NACA 3310) 
-    airfoil_geometry   = compute_naca_4series(0.03,0.3,0.1,npoints=npanel )
+    airfoil_geometry   = compute_naca_4series(0.02,0.4,0.1,npoints=npanel )
     airfoil_stations   = [0]
     
     # Compute Airfoil Aerodynamic and Boundary Layer Properties  
-    airfoil_properties     = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, n_computation = 200, batch_analyis = True)  
+    airfoil_properties     = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, n_computation = 500, batch_analyis = True)  
     plot_airfoil_properties(airfoil_properties,arrow_color = 'r',plot_pressure_vectors = False)  
     
     # Single Condition Analysis:  

@@ -50,7 +50,7 @@ def panel_geometry(x,y,npanel,nalpha,nRe):
     
     norm  = np.zeros((npanel,2,nalpha,nRe))
     norm[:,0,:,:]  =  -st
-    norm[:,1,:,:]  =  -ct 
+    norm[:,1,:,:]  =  ct 
     
     return l,st,ct,xbar,ybar,norm 
      

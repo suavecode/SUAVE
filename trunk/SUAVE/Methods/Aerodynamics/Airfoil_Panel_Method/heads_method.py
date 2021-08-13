@@ -47,6 +47,7 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
     N/A
     """   
     
+    tol = 1E0
     X_H          = np.zeros((n,nalpha,nRe))
     THETA_H      = np.zeros_like(X_H)
     DELTA_STAR_H = np.zeros_like(X_H)
@@ -86,13 +87,13 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
             theta       = y[:,0] 
             Ve_theta_H1 = y[:,1]   
             
-            idx1            = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > 2E0)[0]
+            idx1            = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > tol )[0]
             if len(idx1)> 1:
                 next_idx        = idx1 + 1
                 np.put(theta,next_idx, theta[idx1])   
             
                      
-            idx1               = np.where(abs((Ve_theta_H1[1:] - Ve_theta_H1[:-1])/Ve_theta_H1[:-1]) > 2E0)[0]
+            idx1               = np.where(abs((Ve_theta_H1[1:] - Ve_theta_H1[:-1])/Ve_theta_H1[:-1]) >tol)[0]
             if len(idx1)> 1:
                 next_idx           = idx1 + 1
                 np.put(Ve_theta_H1,next_idx, Ve_theta_H1[idx1])   
@@ -104,7 +105,11 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
             idx1               = np.where(abs((H[1:] - H[:-1])/H[:-1]) > 2E0)[0]
             if len(idx1)> 1:
                 next_idx           = idx1 + 1
-                np.put(H,next_idx, H[idx1])             
+                np.put(H,next_idx, H[idx1])   
+                
+            if np.any(H>10):
+                test = True 
+            H[H<0] = 1E-6
             
             Re_theta     = Re_L/l * getVe(x,x_i,Ve_i) * theta 
             Re_x         = getVe(x,x_i,Ve_i) * x/ nu
