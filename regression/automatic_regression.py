@@ -36,9 +36,9 @@ import sys, os, traceback, time
 
 modules = [
 
-    # ----------------------- Regression List -------------------------- 
+    # ----------------------- Regression List --------------------------
     'scripts/aerodynamics/aerodynamics.py',
-    'scripts/aerodynamics/all_moving_surfaces_vlm.py', 
+    'scripts/aerodynamics/all_moving_surfaces_vlm.py',
     'scripts/aerodynamics/control_surfaces_vlm.py',
     'scripts/airfoil_import/airfoil_import_test.py',
     'scripts/airfoil_import/airfoil_interpolation_test.py',

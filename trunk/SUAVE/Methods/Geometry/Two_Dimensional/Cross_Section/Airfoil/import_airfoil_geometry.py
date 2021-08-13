@@ -10,6 +10,7 @@
 #           May 2021, E. Botero
 #           May 2021, R. Erhard
 #           Jun 2021, E. Botero
+#           Aug 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -19,7 +20,7 @@ import numpy as np
 import scipy.interpolate as interp
 
 ## @ingroup Methods-Geometry-Two_Dimensional-Cross_Section-Airfoil
-def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
+def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200):
     """This imports an airfoil geometry from a text file  and stores
     the coordinates of upper and lower surfaces as well as the mean
     camberline
