@@ -6,17 +6,15 @@
 #----------------------------------------------------------------------
 #   Imports
 # ---------------------------------------------------------------------
-
-import SUAVE 
-import os
 from SUAVE.Core import Units, Data 
-from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis
-from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis_old import airfoil_analysis_old
+from SUAVE.Methods.Aerodynamics.Airfoil_Panel_Method.airfoil_analysis      import airfoil_analysis 
 import matplotlib.pyplot as plt   
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.compute_naca_4series \
      import  compute_naca_4series
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_geometry\
+     import import_airfoil_geometry
 from SUAVE.Plots.Airfoil_Plots  import plot_airfoil_properties  
-
+import os 
 import numpy as np
 
 # ----------------------------------------------------------------------
@@ -27,26 +25,31 @@ def main():
     # Define Panelization 
     npanel = 100 
     
-    # Define Reynolds Number
-    #Re     = np.atleast_2d(np.array([1E5,1E5,5E6])).T
-    Re     = np.atleast_2d(np.array([5E4,1E5,2E5,5E5])).T
-    AoA    = np.atleast_2d(np.linspace(-10,20,31)*Units.degrees).T   
+    # -----------------------------------------------
+    # Batch analysis of single airfoil - NACA 2410 
+    # -----------------------------------------------
+    #Re_batch     = np.atleast_2d(np.array([5E4,1E5,2E5,5E5])).T
+    #AoA_batch    = np.atleast_2d(np.linspace(-10,20,31)*Units.degrees).T   
+
+    Re_batch     = np.atleast_2d(np.array([1E5,2E5])).T
+    AoA_batch    = np.atleast_2d(np.linspace(-2,6,5)*Units.degrees).T       
+    airfoil_geometry     = compute_naca_4series(0.02,0.4,0.1,npoints=npanel )
+    airfoil_properties_1 = airfoil_analysis(airfoil_geometry,AoA_batch,Re_batch, npanel, n_computation = 200, batch_analyis = True)  
+    plot_airfoil_properties(airfoil_properties_1,arrow_color = 'r',plot_pressure_vectors = True )  
     
     # -----------------------------------------------
-    # SUAVE
+    # Single Condition Analysis of multiple airfoils  
     # -----------------------------------------------
-    # Generate Airfoil Geometry (NACA 3310) 
-    airfoil_geometry   = compute_naca_4series(0.02,0.4,0.1,npoints=npanel )
-    airfoil_stations   = [0]
-    
-    # Compute Airfoil Aerodynamic and Boundary Layer Properties  
-    airfoil_properties     = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, n_computation = 500, batch_analyis = True)  
-    plot_airfoil_properties(airfoil_properties,arrow_color = 'r',plot_pressure_vectors = False)  
-    
-    # Single Condition Analysis:  
-    #Re     = np.ones_like(AoA)*5E6  
-    #airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA,Re, npanel, batch_analyis = False, airfoil_stations = airfoil_stations)   
-    
+    ospath    = os.path.abspath(__file__)
+    separator = os.path.sep 
+    rel_path  = ospath.split('airfoil_import' + separator + 'airfoil_panel_method_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator 
+    Re_vals              = np.atleast_2d(np.array([1E5,2E5,3E5])).T
+    AoA_vals            = np.atleast_2d(np.array([2,4,5])*Units.degrees).T       
+    airfoil_stations     = [0,1,2] 
+    airfoils             = [rel_path + 'NACA_4412.txt',rel_path +'Clark_y.txt', rel_path +'E63.txt']             
+    airfoil_geometry     = import_airfoil_geometry(airfoils)    
+    airfoil_properties_2 = airfoil_analysis(airfoil_geometry,AoA_vals,Re_vals, npanel, batch_analyis = False, airfoil_stations = airfoil_stations)   
+    plot_airfoil_properties(airfoil_properties_2,arrow_color = 'r',plot_pressure_vectors = False)  
     
     ## -----------------------------------------------
     ## XFOIL
@@ -61,7 +64,7 @@ def main():
     ## -----------------------------------------------
     ## Validation  
     ## ----------------------------------------------- 
-    #print('\n\nNACA 3310 Validation at 4 deg') 
+    #print('\n\nNACA 4210 Validation at 4 deg, Re = 2E5') 
     #diff_CL           = np.abs(airfoil_properties.Cl[4,1] - xfoil_data_1.Cl)  # 0.573685
     #expected_Cl_error = 0.21281484447415983
     #print('\nCL difference')
@@ -73,7 +76,6 @@ def main():
     #print('\nCD difference')
     #print(diff_CD)
     #assert np.abs((airfoil_properties.Cd[4,1]  - xfoil_data_1.Cd)/xfoil_data_1.Cd) - expected_Cd_error < 1e-6
-    
     
     #diff_CM           = np.abs(airfoil_properties.Cm[4,1] - xfoil_data_1.Cm) 
     #expected_Cm_error = 0.385454350005437

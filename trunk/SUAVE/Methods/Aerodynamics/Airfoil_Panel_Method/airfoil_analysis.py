@@ -98,10 +98,10 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     x_coord_3d = np.repeat(np.repeat(np.atleast_2d(x_coord).T,nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)
     y_coord_3d = np.repeat(np.repeat(np.atleast_2d(y_coord).T,nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)
         
-    # Begin by solving for velocity distribution at airfoil surface ucosg  inviscid panel simulation
+    # Begin by solving for velocity distribution at airfoil surface using inviscid panel simulation
     ## these are the locations (faces) where things are computed , len = n panel
     # dimension of vt = npanel x nalpha x nRe
-    X,Y,vt,cos_t,normals = hess_smith(x_coord_3d,y_coord_3d,alpha,Re_L,npanel,batch_analyis)  
+    X,Y,vt,normals = hess_smith(x_coord_3d,y_coord_3d,alpha,Re_L,npanel,batch_analyis)  
     
     # Reynolds number 
     RE_L_VALS = np.repeat(Re_L.T,nalpha, axis = 0)
@@ -113,7 +113,6 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     VT_mask         = np.ma.masked_greater(vt,0 ).mask
     X_BOT_VALS      = np.ma.array(X, mask = VT_mask)[::-1]
     Y_BOT           = np.ma.array(Y, mask = VT_mask)[::-1]
-    COS_T_BOT       = np.ma.array(cos_t, mask = VT_mask)[::-1]
          
     X_BOT           = np.zeros_like(X_BOT_VALS)
     X_BOT[1:]       = np.cumsum(np.sqrt((X_BOT_VALS[1:] - X_BOT_VALS[:-1])**2 + (Y_BOT[1:] - Y_BOT[:-1])**2),axis = 0)
@@ -145,14 +144,13 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     L_BOT                          = X_BOT[-1,:,:]    
         
     # laminar boundary layer properties using thwaites method 
-    BOT_T_RESULTS  = thwaites_method(nalpha,nRe, L_BOT , RE_L_VALS, X_BOT,COS_T_BOT, VE_BOT, DVE_BOT,batch_analyis,
+    BOT_T_RESULTS  = thwaites_method(nalpha,nRe, L_BOT , RE_L_VALS, X_BOT, VE_BOT, DVE_BOT,batch_analyis,
                                      THETA_0=1E-5,n=n_computation) 
     X_T_BOT          = BOT_T_RESULTS.X_T      
     THETA_T_BOT      = BOT_T_RESULTS.THETA_T     
     DELTA_STAR_T_BOT = BOT_T_RESULTS.DELTA_STAR_T  
     H_T_BOT          = BOT_T_RESULTS.H_T         
-    CF_T_BOT         = BOT_T_RESULTS.CF_T  
-    COS_T_BOT        = BOT_T_RESULTS.COS_T
+    CF_T_BOT         = BOT_T_RESULTS.CF_T   
     RE_THETA_T_BOT   = BOT_T_RESULTS.RE_THETA_T    
     RE_X_T_BOT       = BOT_T_RESULTS.RE_X_T      
     DELTA_T_BOT      = BOT_T_RESULTS.DELTA_T      
@@ -258,7 +256,6 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     VT_mask         = np.ma.masked_less(vt,0 ).mask
     X_TOP_VALS      = np.ma.array(X, mask = VT_mask) 
     Y_TOP           = np.ma.array(Y, mask = VT_mask)  
-    COS_T_TOP       = np.ma.array(cos_t, mask = VT_mask) 
 
     X_TOP           = np.zeros_like(X_TOP_VALS)
     X_TOP[1:]       = np.cumsum(np.sqrt((X_TOP_VALS[1:] - X_TOP_VALS[:-1])**2 + (Y_TOP[1:] - Y_TOP[:-1])**2),axis = 0)
@@ -290,14 +287,13 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     L_TOP                          = X_TOP[-1,:,:]    
 
     # laminar boundary layer properties using thwaites method 
-    TOP_T_RESULTS    = thwaites_method(nalpha,nRe, L_TOP , RE_L_VALS,X_TOP,COS_T_TOP,VE_TOP, DVE_TOP,batch_analyis,
+    TOP_T_RESULTS    = thwaites_method(nalpha,nRe, L_TOP , RE_L_VALS,X_TOP,VE_TOP, DVE_TOP,batch_analyis,
                                      THETA_0=1E-5,n=n_computation) 
     X_T_TOP          = TOP_T_RESULTS.X_T      
     THETA_T_TOP      = TOP_T_RESULTS.THETA_T     
     DELTA_STAR_T_TOP = TOP_T_RESULTS.DELTA_STAR_T  
     H_T_TOP          = TOP_T_RESULTS.H_T         
-    CF_T_TOP         = TOP_T_RESULTS.CF_T     
-    COS_T_TOP        = TOP_T_RESULTS.COS_T
+    CF_T_TOP         = TOP_T_RESULTS.CF_T      
     RE_THETA_T_TOP   = TOP_T_RESULTS.RE_THETA_T    
     RE_X_T_TOP       = TOP_T_RESULTS.RE_X_T      
     DELTA_T_TOP      = TOP_T_RESULTS.DELTA_T      
@@ -442,7 +438,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     x_coord_3d_bl     = np.flip(np.insert(new_x_coord, int(npanel/2) ,zeros,axis = 0),axis = 0) 
     #x_coord_3d_bl     = x_coord_3d_bl - x_coord_3d_bl.min(axis=0) # shift airfoils so start value is 0 
     
-    X_BL, Y_BL,vt_bl,cos_t_bl,normals_bl = hess_smith(x_coord_3d_bl,y_coord_3d_bl,alpha,Re_L,npanel,batch_analyis)      
+    X_BL, Y_BL,vt_bl,normals_bl = hess_smith(x_coord_3d_bl,y_coord_3d_bl,alpha,Re_L,npanel,batch_analyis)      
       
     # ---------------------------------------------------------------------
     # Bottom surface of airfoil with boundary layer 
@@ -451,7 +447,6 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     VT_BL_mask         = np.ma.masked_greater(vt_bl,0 ).mask
     X_BL_BOT_VALS      = np.ma.array(X_BL, mask = VT_mask)[::-1]
     Y_BL_BOT           = np.ma.array(Y_BL, mask = VT_mask)[::-1]
-    COS_BL_T_BOT       = np.ma.array(cos_t_bl, mask = VT_mask)[::-1]
          
     X_BL_BOT        = np.zeros_like(X_BL_BOT_VALS)
     X_BL_BOT[1:]    = np.cumsum(np.sqrt((X_BL_BOT_VALS[1:] - X_BL_BOT_VALS[:-1])**2 + (Y_BL_BOT[1:] - Y_BL_BOT[:-1])**2),axis = 0)
@@ -476,7 +471,6 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     VT_BL_mask         = np.ma.masked_less(vt_bl,0 ).mask
     X_BL_TOP_VALS      = np.ma.array(X_BL, mask = VT_BL_mask) 
     Y_BL_TOP           = np.ma.array(Y_BL, mask = VT_BL_mask)  
-    COS_BL_T_TOP       = np.ma.array(cos_t_bl, mask = VT_BL_mask) 
 
     X_BL_TOP           = np.zeros_like(X_BL_TOP_VALS)
     X_BL_TOP[1:]       = np.cumsum(np.sqrt((X_BL_TOP_VALS[1:] - X_BL_TOP_VALS[:-1])**2 + (Y_BL_TOP[1:] - Y_BL_TOP[:-1])**2),axis = 0)

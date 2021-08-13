@@ -28,7 +28,7 @@ def main():
     ospath    = os.path.abspath(__file__)
     separator = os.path.sep
 
-    rel_path  = ospath.split('airfoil_import' + separator + 'airfoil_import_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator
+    rel_path  = ospath.split('airfoil_analysis' + separator + 'airfoil_import_test.py')[0] + 'Vehicles' + separator + 'Airfoils' + separator
     airfoil_geometry_with_selig =  [rel_path + 'NACA_4412.txt','airfoil_geometry_2.txt', 'airfoil_geometry_2-selig.txt']        
     airfoil_geometry            = [rel_path + 'NACA_4412.txt']
     airfoil_polar_names         =  [[rel_path + 'Polars' + separator + 'NACA_4412_polar_Re_50000.txt',

@@ -29,20 +29,21 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel,batch_analyis):
  
                                                      
     Inputs          
-    x       -  Vector of x coordinates of the surface         
-    y       -  Vector of y coordinates of the surface      
-    alpha   -  Airfoil angle of attack                                  
-    npanel  -  Number of panels on the airfoil.  The number of nodes  
-                is equal to npanel+1, and the ith panel goes from node   
-                i to node i+1                                
-                                                                     
-    Outputs                                                
-    cl      -  Airfoil lift coefficient                   
-    cd      -  Airfoil drag coefficient                
-    cm      -  Airfoil moment coefficient about the c/4             
-    x_bar   -  Vector of x coordinates of the surface nodes        
-    y_bar   -  Vector of y coordinates of the surface nodes         
-    cp      -  Vector of coefficients of pressure at the nodes     
+    x             -  Vector of x coordinates of the surface         
+    y             -  Vector of y coordinates of the surface      
+    batch_analyis - flag for batch analysis
+    alpha         -  Airfoil angle of attack                                  
+    npanel        -  Number of panels on the airfoil.  The number of nodes  
+                      is equal to npanel+1, and the ith panel goes from node   
+                      i to node i+1                                
+                                                                           
+    Outputs                                                      
+    cl            -  Airfoil lift coefficient                   
+    cd            -  Airfoil drag coefficient                
+    cm            -  Airfoil moment coefficient about the c/4             
+    x_bar         -  Vector of x coordinates of the surface nodes        
+    y_bar         -  Vector of y coordinates of the surface nodes         
+    cp            -  Vector of coefficients of pressure at the nodes     
 
     Properties Used:
     N/A
@@ -70,4 +71,4 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel,batch_analyis):
     # compute the tangential velocity distribution at the midpoint of panels 
     vt            = veldis(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha,Re,npanel)
     
-    return  xbar,ybar,vt,ct,norm 
+    return  xbar,ybar,vt,norm 

@@ -36,7 +36,7 @@ def veldis(qg,x,y,xbar,ybar,st,ct,alpha,Re,npanel):
 
      Outputs:                                                        
 
-     vt          -  Vector of tangential velocities      
+     vt_2d        -  Vector of tangential velocities      
 
     Properties Used:
     N/A

@@ -68,7 +68,7 @@ def plot_airfoil_properties(ap,arrow_color = 'r',plot_pressure_vectors = False )
     axis11 = fig3.add_subplot(2,2,4)      
     axis11.set_ylabel('$C_f$')      
     
-    fig4  = plt.figure('Figure_3',figsize=(12,5))
+    fig4   = plt.figure('Figure_3',figsize=(12,5))
     axis12 = fig4.add_subplot(1,3,1)     
     axis12.set_title('Aero Coefficients')
     axis12.set_xlabel('AoA')
@@ -131,26 +131,22 @@ def plot_airfoil_properties(ap,arrow_color = 'r',plot_pressure_vectors = False )
             axis11.plot(ap.x[mid:,j,i], ap.Cf[mid:,j,i],color = colors[j], linestyle = '--' ,marker =  markers[j%9] )                    
             
             plt.tight_layout()
-    
-            #axis8.plot(ap.x_bl[:,j,i], ap.y_bl[:,j,i],color = colors[j], linestyle = '--')      
-            
-            #if plot_pressure_vectors: 
-                #label =  '_AoA_' + str(round(ap.AoA[j][0]/Units.degrees,2)) + '_deg_Re_' + str(round(ap.Re[i][0]/1000000,2)) + 'E6'
-                #fig   = plt.figure('Airfoil_Pressure_Normals' + label )
-                #axis7 = fig.add_subplot(1,1,1)      
-                #axis7.plot(ap.x[:,j,i], ap.y[:,j,i],line_style) 
+     
+            if plot_pressure_vectors: 
+                label =  '_AoA_' + str(round(ap.AoA[j][0]/Units.degrees,2)) + '_deg_Re_' + str(round(ap.Re[i][0]/1000000,2)) + 'E6'
+                fig   = plt.figure('Airfoil_Pressure_Normals' + label )
+                axis15 = fig.add_subplot(1,1,1)      
+                axis15.plot(ap.x[:,j,i], ap.y[:,j,i],'k-') 
                 
-                #for k in range(len(ap.x)):
-                    #dx_val = ap.normals[k,0,j,i]*abs(ap.Cp[k,j,i])*0.1
-                    #dy_val = ap.normals[k,1,j,i]*abs(ap.Cp[k,j,i])*0.1
-                    #if ap.Cp[k,j,i] < 0:
-                        #plt.arrow(x= ap.x[k,j,i], y=ap.y[k,j,i] , dx= dx_val , dy = dy_val , 
-                                  #fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
-                    #else:
-                        #plt.arrow(x= ap.x[k,j,i]+dx_val , y= ap.y[k,j,i]+dy_val , dx= -dx_val , dy = -dy_val , 
-                                  #fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
-            
-
+                for k in range(len(ap.x)):
+                    dx_val = ap.normals[k,0,j,i]*abs(ap.Cp[k,j,i])*0.1
+                    dy_val = ap.normals[k,1,j,i]*abs(ap.Cp[k,j,i])*0.1
+                    if ap.Cp[k,j,i] < 0:
+                        plt.arrow(x= ap.x[k,j,i], y=ap.y[k,j,i] , dx= dx_val , dy = dy_val , 
+                                  fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
+                    else:
+                        plt.arrow(x= ap.x[k,j,i]+dx_val , y= ap.y[k,j,i]+dy_val , dx= -dx_val , dy = -dy_val , 
+                                  fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )    
                           
                                   
         Re_tag  = 'Re: ' + str(round(ap.Re[i][0]/1000000,2)) + 'E6'
@@ -163,19 +159,18 @@ def plot_airfoil_properties(ap,arrow_color = 'r',plot_pressure_vectors = False )
         
         # Moment Coefficient
         axis14.plot(ap.AoA[:,0]/Units.degrees, ap.Cm[:,i],color = colors[i], linestyle = '-',marker =  markers[i], label =  Re_tag)     
-        plt.tight_layout()
-    ## append                   
+        plt.tight_layout() 
     
     # add legends for plotting
     plt.tight_layout()
     lines1, labels1 = fig2.axes[0].get_legend_handles_labels()
-    #fig2.legend(lines1, labels1, loc='upper center', ncol=3)
+    fig2.legend(lines1, labels1, loc='upper center', ncol=3)
      
-    #if plot_pressure_vectors: 
-        #axis7.legend(loc='upper left')      
+    if plot_pressure_vectors: 
+        axis7.legend(loc='upper left')      
         
-    #axis12.legend(loc='upper left')   
-    #axis13.legend(loc='upper left')      
-    #axis14.legend(loc='upper left')  
+    axis12.legend(loc='upper left')   
+    axis13.legend(loc='upper left')      
+    axis14.legend(loc='upper left')  
     
     return   
