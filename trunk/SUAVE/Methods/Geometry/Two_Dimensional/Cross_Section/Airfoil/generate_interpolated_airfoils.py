@@ -13,7 +13,7 @@ from SUAVE.Plots.Geometry_Plots import plot_airfoil
 import numpy as np
 import os
 
-def generate_interpolated_airfoils(a1, a2, nairfoils, save_filename="Transition", npts=50):
+def generate_interpolated_airfoils(a1, a2, nairfoils, save_filename="Transition", npts=100):
     """ Takes in two airfoils, interpolates between their coordinates to generate new
     airfoil geometries and saves new airfoil files.
     
@@ -78,10 +78,10 @@ def generate_interpolated_airfoils(a1, a2, nairfoils, save_filename="Transition"
         new_files[file] = open(save_filename + str(k+1) +".txt", "w+")
         new_files[file].write(title_block)
         
-        y_n_u = np.reshape(y_n_upper[k+1],(npts,1))
-        y_n_l = np.reshape(y_n_lower[k+1],(npts,1))
-        x_n_u = np.reshape(x_n_upper[k+1],(npts,1))
-        x_n_l = np.reshape(x_n_lower[k+1],(npts,1))
+        y_n_u = np.reshape(y_n_upper[k+1],(int(npts/2),1))
+        y_n_l = np.reshape(y_n_lower[k+1],(int(npts/2),1))
+        x_n_u = np.reshape(x_n_upper[k+1],(int(npts/2),1))
+        x_n_l = np.reshape(x_n_lower[k+1],(int(npts/2),1))
         
         airfoil_files.append(new_files[file].name)
         upper_data = np.append(x_n_u, y_n_u,axis=1)
