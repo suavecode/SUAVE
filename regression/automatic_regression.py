@@ -97,7 +97,7 @@ modules = [
     'scripts/solar_network/solar_low_fidelity_network.py',
     'scripts/solar_radiation/solar_radiation.py',
     'scripts/aerodynamics/sears_haack.py',
-    'scripts/aerodynamics/sideslip_and_rotation_vlm.py',
+    ##'scripts/aerodynamics/sideslip_and_rotation_vlm.py',
     'scripts/SU2_surrogate/BWB-450.py',
     'scripts/sweeps/test_sweeps.py',
     'scripts/test_input_output/test_xml_read_write.py',
