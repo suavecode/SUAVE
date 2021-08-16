@@ -2,7 +2,7 @@
 # Constant_CAS_Constant_Rate.py
 #
 # Created:  Nov 2020, S. Karpuk
-# Modified: 
+# Modified: Aug 2021, J. Mukhopadhaya
 #
 # Adapted from Constant_CAS_Constant_Rate
 

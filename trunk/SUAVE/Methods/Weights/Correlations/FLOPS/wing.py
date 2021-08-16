@@ -2,7 +2,7 @@
 # wing.py
 #
 # Created:  May 2020, W. Van Gijseghem
-# Modified:
+# Modified: Aug 2021, J. Mukhopadhaya
 
 # ----------------------------------------------------------------------
 #  Imports
