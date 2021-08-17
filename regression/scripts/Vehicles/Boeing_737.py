@@ -95,7 +95,7 @@ def vehicle_setup():
 
     # Wing Segments
     root_airfoil                          = SUAVE.Components.Wings.Airfoils.Airfoil()
-    root_airfoil.coordinate_file          = '../Vehicles/B737a.txt'
+    root_airfoil.coordinate_file          = '../Vehicles/Airfoils/B737a.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Root'
     segment.percent_span_location         = 0.0
@@ -109,7 +109,7 @@ def vehicle_setup():
     wing.append_segment(segment)
 
     yehudi_airfoil                        = SUAVE.Components.Wings.Airfoils.Airfoil()
-    yehudi_airfoil.coordinate_file        = '../Vehicles/B737b.txt'
+    yehudi_airfoil.coordinate_file        = '../Vehicles/Airfoils/B737b.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Yehudi'
     segment.percent_span_location         = 0.324
@@ -123,7 +123,7 @@ def vehicle_setup():
     wing.append_segment(segment)
 
     mid_airfoil                           = SUAVE.Components.Wings.Airfoils.Airfoil()
-    mid_airfoil.coordinate_file           = '../Vehicles/B737c.txt'
+    mid_airfoil.coordinate_file           = '../Vehicles/Airfoils/B737c.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Section_2'
     segment.percent_span_location         = 0.963
@@ -137,7 +137,7 @@ def vehicle_setup():
     wing.append_segment(segment)
 
     tip_airfoil                           =  SUAVE.Components.Wings.Airfoils.Airfoil()
-    tip_airfoil.coordinate_file           = '../Vehicles/B737d.txt'
+    tip_airfoil.coordinate_file           = '../Vehicles/Airfoils/B737d.txt'
     segment                               = SUAVE.Components.Wings.Segment()
     segment.tag                           = 'Tip'
     segment.percent_span_location         = 1.
@@ -744,20 +744,21 @@ def vehicle_setup():
 
 def configs_setup(vehicle):
 
-  # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     #   Initialize Configurations
     # ------------------------------------------------------------------
     configs = SUAVE.Components.Configs.Config.Container()
 
     base_config = SUAVE.Components.Configs.Config(vehicle)
     base_config.tag = 'base'
+    base_config.landing_gear.gear_condition                               = 'up'
     configs.append(base_config)
 
     # ------------------------------------------------------------------
     #   Cruise Configuration
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
-    config.tag = 'cruise'
+    config.tag = 'cruise' 
     configs.append(config)
 
     # ------------------------------------------------------------------
@@ -771,9 +772,9 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Flyover_'
 
-    config.propulsors['turbofan'].fan.rotation     = 3470. #N1 speed
-    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 315.
-    config.propulsors['turbofan'].core_nozzle.noise_speed = 415.
+    config.networks['turbofan'].fan.rotation            = 3470. #N1 speed
+    config.networks['turbofan'].fan_nozzle.noise_speed  = 315.
+    config.networks['turbofan'].core_nozzle.noise_speed = 415.
 
     configs.append(config)
 
@@ -788,9 +789,9 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition                               = 'up'       
     config.output_filename                                           = 'Cutback_'
 
-    config.propulsors['turbofan'].fan.rotation     = 2780. #N1 speed
-    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 210.
-    config.propulsors['turbofan'].core_nozzle.noise_speed = 360.
+    config.networks['turbofan'].fan.rotation            = 2780. #N1 speed
+    config.networks['turbofan'].fan_nozzle.noise_speed  = 210.
+    config.networks['turbofan'].core_nozzle.noise_speed = 360.
 
     configs.append(config)
 
@@ -807,9 +808,9 @@ def configs_setup(vehicle):
     config.landing_gear.gear_condition                               = 'down'    
     config.output_filename                                           = 'Approach_'
 
-    config.propulsors['turbofan'].fan.rotation     = 2030.  #N1 speed
-    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 109.3
-    config.propulsors['turbofan'].core_nozzle.noise_speed = 92.
+    config.networks['turbofan'].fan.rotation     = 2030.  #N1 speed
+    config.networks['turbofan'].fan_nozzle.noise_speed  = 109.3
+    config.networks['turbofan'].core_nozzle.noise_speed = 92.
 
     configs.append(config)
 

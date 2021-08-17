@@ -17,7 +17,7 @@ import numpy as np
 import sys
 sys.path.append('../Vehicles')
 
-from X57_Maxwell import vehicle_setup
+from X57_Maxwell_Mod2 import vehicle_setup
 
 #-------------------------------------------------------------------------------
 # Test Function
@@ -33,7 +33,7 @@ def main():
     analyses.append(atmosphere)
 
 
-    results = propeller_single_point(vehicle.propulsors.battery_propeller,
+    results = propeller_single_point(vehicle.networks.battery_propeller,
                                      analyses,
                                      pitch=0.,
                                      omega=1500. * Units.rpm,
@@ -50,11 +50,11 @@ def main():
     Cp      = results.power_coefficient
     etap    = results.efficiency
 
-    thrust_r    = 2388.4192996911806
-    torque_r    = 853.6979972278123
-    power_r     = 134098.56782376074
-    Cp_r        = 0.3033014877238663
-    etap_r      = 0.17810923251843858
+    thrust_r    = 2301.918639576478
+    torque_r    = 827.0387902717155
+    power_r     = 129910.94938757055
+    Cp_r        = 0.29383001519191787
+    etap_r      = 0.17719204196630386
 
     assert (np.abs(thrust - thrust_r) / thrust_r < 1e-6), "Propeller Single Point Regression Failed at Thrust Test"
     assert (np.abs(torque - torque_r) / torque_r < 1e-6), "Propeller Single Point Regression Failed at Torque Test"

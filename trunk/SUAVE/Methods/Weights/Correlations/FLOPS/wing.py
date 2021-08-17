@@ -46,7 +46,7 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings, num_main_wings)
                     -.twists.root: twist of wing at root                        [deg]
                     -.twists.tip: twist of wing at tip                          [deg]
                     -.flap_ratio: flap surface area over wing surface area
-                 -.propulsors: data dictionary containing all propulsion properties
+                 -.networks: data dictionary containing all propulsion properties
                     -.number_of_engines: number of engines
                     -.sealevel_static_thrust: thrust at sea level               [N]
             WPOD - weight of engine pod including the nacelle                   [kilograms]
@@ -78,9 +78,9 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings, num_main_wings)
     FAERT           = aeroelastic_tailoring_factor  
     # Wing strut bracing factor [0 for no struts, 1 for struts]
     FSTRT           = strut_braced_wing_factor
-    propulsor_name  = list(vehicle.propulsors.keys())[0]
-    propulsors      = vehicle.propulsors[propulsor_name]
-    NEW             = sum(propulsors.wing_mounted)
+    network_name    = list(vehicle.networks.keys())[0]
+    networks        = vehicle.networks[network_name]
+    NEW             = sum(networks.wing_mounted)
     DG              = vehicle.mass_properties.max_takeoff / Units.lbs  # Design gross weight in lb
 
     if complexity == 'Simple':
@@ -98,10 +98,10 @@ def wing_weight_FLOPS(vehicle, wing, WPOD, complexity, settings, num_main_wings)
 
     else:
         NSD             = 500
-        N2              = int(sum(propulsors.wing_mounted) / 2)
+        N2              = int(sum(networks.wing_mounted) / 2)
         ETA, C, T, SWP  = generate_wing_stations(vehicle.fuselages['fuselage'].width, wing)
         NS, Y           = generate_int_stations(NSD, ETA)
-        EETA            = get_spanwise_engine(propulsors, SEMISPAN)
+        EETA            = get_spanwise_engine(networks, SEMISPAN)
         P0              = calculate_load(ETA[-1])
         ASW             = 0
         EM              = 0
@@ -404,7 +404,7 @@ def find_sweep(y, lst_y, swp):
     return swps
 
 ## @ingroup Methods-Weights-Correlations-FLOPS
-def get_spanwise_engine(propulsors, SEMISPAN):
+def get_spanwise_engine(networks, SEMISPAN):
     """ Returns EETA for the engine locations along the wing
 
         Assumptions:
@@ -413,7 +413,7 @@ def get_spanwise_engine(propulsors, SEMISPAN):
             The Flight Optimization System Weight Estimation Method
 
         Inputs:
-            propulsors: data dictionary with all the engine properties
+            networks: data dictionary with all the engine properties
                 -.wing_mounted: list of boolean if engine is mounted to wing
                 -.number_of_engines: number of engines
                 -.origin: origin of the engine
@@ -424,12 +424,12 @@ def get_spanwise_engine(propulsors, SEMISPAN):
         Properties Used:
             N/A
     """
-    N2      = int(sum(propulsors.wing_mounted) / 2)
+    N2      = int(sum(networks.wing_mounted) / 2)
     EETA    = np.zeros(N2)
     idx     = 0
-    for i in range(int(propulsors.number_of_engines)):
-        if propulsors.wing_mounted[i] and propulsors.origin[i][1] > 0:
-            EETA[idx] = (propulsors.origin[i][1] / Units.ft) * 1 / SEMISPAN
+    for i in range(int(networks.number_of_engines)):
+        if networks.wing_mounted[i] and networks.origin[i][1] > 0:
+            EETA[idx] = (networks.origin[i][1] / Units.ft) * 1 / SEMISPAN
             idx += 1
     return EETA
 

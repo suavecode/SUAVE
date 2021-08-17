@@ -2,6 +2,6 @@
 # Functions to evaluate battery discharge losses and voltage requirements
 # @ingroup Methods-Power-Battery
 
-from .datta_discharge    import datta_discharge
-from .LiNCA_discharge    import LiNCA_discharge 
-from .LiNiMnCo_discharge import LiNiMnCo_discharge
+from .LiFePO4_discharge      import LiFePO4_discharge
+from .LiNCA_discharge        import LiNCA_discharge 
+from .LiNiMnCoO2_discharge   import LiNiMnCoO2_discharge

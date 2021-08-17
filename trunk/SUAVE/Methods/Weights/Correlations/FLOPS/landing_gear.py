@@ -23,7 +23,7 @@ def landing_gear_FLOPS(vehicle):
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
-                -.propulsors: data dictionary containing all propulsion properties
+                -.networks: data dictionary containing all propulsion properties
                 -.design_range: design range of aircraft                        [nmi]
                 -.systems.accessories: type of aircraft (short-range, commuter
                                                         medium-range, long-range,
@@ -50,12 +50,12 @@ def landing_gear_FLOPS(vehicle):
     DESRNG  = vehicle.design_range / Units.nmi  # Design range in nautical miles
     WLDG    = vehicle.mass_properties.max_takeoff / Units.lbs * (1 - RFACT * DESRNG)
 
-    propulsor_name  = list(vehicle.propulsors.keys())[0]  # obtain the key for the propulsor for assignment purposes
-    propulsors      = vehicle.propulsors[propulsor_name]
-    if sum(propulsors.wing_mounted) > 0:
-        FNAC    = propulsors.nacelle_diameter / Units.ft
+    network_name  = list(vehicle.networks.keys())[0]  # obtain the key for the network for assignment purposes
+    networks      = vehicle.networks[network_name]
+    if sum(networks.wing_mounted) > 0:
+        FNAC    = networks.nacelle_diameter / Units.ft
         DIH     = vehicle.wings['main_wing'].dihedral
-        YEE     = np.max(np.abs(np.array(propulsors.origin)[:, 1])) / Units.ft
+        YEE     = np.max(np.abs(np.array(networks.origin)[:, 1])) / Units.ft
         WF      = vehicle.fuselages['fuselage'].width / Units.ft
         XMLG    = 12 * FNAC + (0.26 - np.tan(DIH)) * (YEE - 6 * WF)  # length of extended main landing gear
     else:

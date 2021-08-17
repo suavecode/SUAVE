@@ -22,7 +22,7 @@ from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv
 def main():
    
     #------------------------------------------------------------------
-    # Propulsor
+    # Network
     #------------------------------------------------------------------
 
     # build network
@@ -76,7 +76,7 @@ def main():
     net.avionics        = avionics      
 
     # Component 8 the Battery
-    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
+    bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion_LiFePO4()
     bat.mass_properties.mass = 5.0  * Units.kg
     bat.specific_energy      = 250. *Units.Wh/Units.kg
     bat.resistance           = 0.003
@@ -140,8 +140,8 @@ def main():
     
     error = Data()
     error.Thrust = np.max(np.abs(F[:,0]-truth_F))
-    error.RPM = np.max(np.abs(conditions.propulsion.rpm-truth_rpm))
-    error.Current  = np.max(np.abs(conditions.propulsion.current-truth_i))
+    error.RPM = np.max(np.abs(conditions.propulsion.propeller_rpm-truth_rpm))
+    error.Current  = np.max(np.abs(conditions.propulsion.battery_current-truth_i))
     error.Battery = np.max(np.abs(bat.current_energy-truth_bat))
     
     print(error)

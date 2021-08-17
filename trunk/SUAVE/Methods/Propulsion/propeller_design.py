@@ -48,14 +48,15 @@ def propeller_design(prop,number_of_stations=20):
           Based on Design of Optimum Propellers by Adkins and Liebeck
           
     """    
+    print('\nDesigning',prop.tag)
+    
     # Unpack
     N      = number_of_stations       # this number determines the discretization of the propeller into stations 
     B      = prop.number_of_blades
     R      = prop.tip_radius
     Rh     = prop.hub_radius
-    omega  = prop.angular_velocity    # Rotation Rate in rad/s
-    Va     = prop.induced_hover_velocity
-    Vinf   = prop.freestream_velocity # Freestream Velocity
+    omega  = prop.angular_velocity    # Rotation Rate in rad/s 
+    V      = prop.freestream_velocity # Freestream Velocity
     Cl     = prop.design_Cl           # Design Lift Coefficient
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
@@ -68,13 +69,11 @@ def propeller_design(prop,number_of_stations=20):
         raise AssertionError('Specify either design thrust or design power!')
     
     elif (Thrust!= None) and (Power!= None):
-        raise AssertionError('Specify either design thrust or design power!')
+        raise AssertionError('Specify either design thrust or design power!') 
     
-    if prop.rotation == None:
-        prop.rotation = list(np.ones(int(B))) 
-    
-    # Calculated total velocity 
-    V  = Vinf + Va
+    if V == 0.0:
+        V = 1E-6 
+        
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data = atmosphere.compute_values(alt)
@@ -137,7 +136,7 @@ def propeller_design(prop,number_of_stations=20):
         tanphi  = tanphit/chi          # Flow angle at every station
         f       = (B/2.)*(1.-chi)/np.sin(phit) 
         F       = (2./np.pi)*np.arccos(np.exp(-f)) #Prandtl momentum loss factor
-        phi     = np.arctan(tanphi)  #Flow angle at every station
+        phi     = np.arctan(tanphi)    # Flow angle at every station
         
         #Step 3, determine the product Wc, and RE
         G       = F*x*np.cos(phi)*np.sin(phi) #Circulation function
@@ -278,11 +277,11 @@ def propeller_design(prop,number_of_stations=20):
     prop.twist_distribution         = beta
     prop.chord_distribution         = c
     prop.radius_distribution        = r 
-    prop.number_of_blades           = int(B)
+    prop.number_of_blades           = int(B) 
     prop.design_power_coefficient   = Cp 
     prop.design_thrust_coefficient  = Ct 
     prop.mid_chord_alignment        = MCA
-    prop.thickness_to_chord         = t_c
+    prop.thickness_to_chord         = t_c 
     prop.blade_solidity             = sigma  
     prop.airfoil_cl_surrogates      = airfoil_cl_surs
     prop.airfoil_cd_surrogates      = airfoil_cd_surs 

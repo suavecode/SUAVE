@@ -7,11 +7,11 @@
 #  Imports
 # ---------------------------------------------------------------------- 
 from   SUAVE.Core import Units , Data 
-from   SUAVE.Components.Energy.Storages.Batteries  import Battery
 import numpy as np
 from   scipy.interpolate import RegularGridInterpolator
-from   SUAVE.Methods.Power.Battery.Discharge_Models.LiNiMnCo_discharge  import LiNiMnCo_discharge
-from   SUAVE.Methods.Power.Battery.Charge_Models.LiNiMnCo_charge        import LiNiMnCo_charge
+from   SUAVE.Components.Energy.Storages.Batteries                         import Battery
+from   SUAVE.Methods.Power.Battery.Discharge_Models.LiNiMnCoO2_discharge  import LiNiMnCoO2_discharge
+from   SUAVE.Methods.Power.Battery.Charge_Models.LiNiMnCoO2_charge        import LiNiMnCoO2_charge
 
 ## @ingroup Components-Energy-Storages-Batteries-Constant_Mass
 class Lithium_Ion_LiNiMnCoO2_18650(Battery):
@@ -56,16 +56,17 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         N/A
     """      
     def __defaults__(self):
-        self.tag                                           = 'Lithium_Ion_Battery'
-        self.chemistry                                     = 'LiNiMnCoO2' 
+        self.tag                                           = 'Lithium_Ion_Battery_Cell' 
         self.cell                                          = Data()   
         self.module                                        = Data()        
         self.pack_config                                   = Data()
         self.module_config                                 = Data()
         self.cooling_fluid                                 = Data()
                                                            
-        self.mass_properties.mass                          = 0.048 * Units.kg
         self.cell.mass                                     = 0.048 * Units.kg 
+        self.cell.diameter                                 = 0.018   # [m]
+        self.cell.height                                   = 0.06485 # [m]
+        self.cell.surface_area                             = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)   # [m^2]
         self.cell.density                                  = 1760    # [kg/m^3] 
         self.cell.volume                                   = 3.2E-5  # [m^3] 
         self.cell.electrode_area                           = 0.0342  # [m^2] 
@@ -77,7 +78,7 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.cell.charging_voltage                         = self.cell.nominal_voltage   # [V]  
         self.cell.charging_current                         = 3.0                         # [Amps]        
         self.watt_hour_rating                              = self.cell.nominal_capacity  * self.cell.nominal_voltage  # [Watt-hours]      
-        self.specific_energy                               = self.watt_hour_rating*Units.Wh/self.mass_properties.mass # [J/kg]
+        self.specific_energy                               = self.watt_hour_rating*Units.Wh/self.cell.mass            # [J/kg]
         self.specific_power                                = self.specific_energy/self.cell.nominal_capacity          # [W/kg]   
         self.resistance                                    = 0.025   # [Ohms]
                                                                      #
@@ -87,9 +88,6 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.heat_transfer_efficiency                      = 1.0
         self.cell.thermal_conductivity                     = 3.91    # [J/kgK] 
                                                            
-        self.cell.diameter                                 = 0.018   # [m]
-        self.cell.height                                   = 0.06485 # [m]
-        self.cell.surface_area                             = (np.pi*self.cell.height*self.cell.diameter) + (0.5*np.pi*self.cell.diameter**2)   # [m^2]
                                                            
         self.pack_config.series                            = 1
         self.pack_config.parallel                          = 1   
@@ -102,26 +100,14 @@ class Lithium_Ion_LiNiMnCoO2_18650(Battery):
         self.cooling_fluid.thermal_conductivity            = 0.0253 # W/mK
         self.cooling_fluid.specific_heat_capacity          = 1006   # K/kgK
         self.cooling_fluid.discharge_air_cooling_flowspeed = 0.05   
-        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.05   
-        self.cooling_fluid.prandlt_number_fit              = prandlt_number_model()
+        self.cooling_fluid.charge_air_cooling_flowspeed    = 0.05    
                                                            
-        self.discharge_model                               = LiNiMnCo_discharge
-        self.charge_model                                  = LiNiMnCo_charge 
+        self.discharge_model                               = LiNiMnCoO2_discharge
+        self.charge_model                                  = LiNiMnCoO2_charge 
                                                            
         self.discharge_performance_map                     = create_discharge_performance_map()
         
-        return 
-    
-def prandlt_number_model():
-    raw_Pr = np.array([[-173.2,0.780 ], [-153.2,0.759 ], [-133.2,0.747 ], [-93.2,0.731  ], [-73.2,0.726  ], [-53.2,0.721  ], 
-                       [-33.2,0.717  ], [-13.2,0.713  ], [0.0,0.711    ], [6.9,0.710    ],[15.6,0.709   ], [26.9,0.707   ],
-                       [46.9,0.705   ], [66.9,0.703   ], [86.9,0.701   ], [106.9,0.700  ], [126.9,0.699  ], [226.9,0.698  ], 
-                       [326.9,0.703  ], [426.9,0.710  ], [526.9,0.717  ], [626.9,0.724  ], [  726.9,0.730 ],[826.9,0.734],[1226.9,0.743], [1626.9,0.742]]) 
-   
-    z1  = np.polyfit(raw_Pr[:,0],raw_Pr[:,1],4)
-    pnf = np.poly1d(z1)  
-    
-    return pnf 
+        return  
 
 def create_discharge_performance_map():
     """ Create discharge and charge response surface for 
@@ -158,7 +144,7 @@ def create_response_surface(processed_data):
     
     battery_map             = Data() 
     amps                    = np.linspace(0, 8, 5)
-    temp                    = np.linspace(0, 50, 6)
+    temp                    = np.linspace(0, 50, 6) +  272.65
     SOC                     = np.linspace(0, 1, 15) 
     battery_map.Voltage     = RegularGridInterpolator((amps, temp, SOC), processed_data.Voltage)
     battery_map.Temperature = RegularGridInterpolator((amps, temp, SOC), processed_data.Temperature)

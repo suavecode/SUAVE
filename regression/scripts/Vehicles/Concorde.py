@@ -97,7 +97,8 @@ def vehicle_setup():
     wing_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
     
     # This airfoil is not a true Concorde airfoil
-    wing_airfoil.coordinate_file   = '../Vehicles/NACA65-203.dat' 
+    wing_airfoil.coordinate_file   = '../Vehicles/Airfoils/NACA65-203.txt' 
+
     
     wing.append_airfoil(wing_airfoil)  
     
@@ -244,7 +245,7 @@ def vehicle_setup():
     
     tail_airfoil = SUAVE.Components.Wings.Airfoils.Airfoil()
     # This airfoil is not a true Concorde airfoil
-    tail_airfoil.coordinate_file = '../Vehicles/supersonic_tail.dat' 
+    tail_airfoil.coordinate_file = '../Vehicles/Airfoils/supersonic_tail.txt' 
     
     wing.append_airfoil(tail_airfoil)  
 
@@ -520,7 +521,7 @@ def vehicle_setup():
     #total design thrust (includes all the engines)
     thrust.total_design             = 40000. * Units.lbf
  
-    # Note: Sizing builds the propulsor. It does not actually set the size of the turbojet
+    # Note: Sizing builds the network. It does not actually set the size of the turbojet
     #design sizing conditions
     altitude      = 60000.0*Units.ft
     mach_number   = 2.02
@@ -575,7 +576,7 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'climb'
     
-    config.propulsors.turbojet.afterburner_active = True
+    config.networks.turbojet.afterburner_active = True
     
     configs.append(config)    
     
@@ -590,7 +591,7 @@ def configs_setup(vehicle):
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2.
     
-    config.propulsors.turbojet.afterburner_active = True
+    config.networks.turbojet.afterburner_active = True
     
     configs.append(config)
     

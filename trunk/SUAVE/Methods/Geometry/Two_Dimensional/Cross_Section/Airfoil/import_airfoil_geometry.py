@@ -7,6 +7,9 @@
 #           Apr 2020, M. Clarke
 #           May 2020, B. Dalman
 #           Sep 2020, M. Clarke
+#           May 2021, E. Botero
+#           May 2021, R. Erhard
+#           Jun 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -43,7 +46,12 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
 
     Properties Used:
     N/A
-    """      
+    """ 
+    
+    if isinstance(airfoil_geometry_files,str):
+        print('import_airfoil_geometry was expecting a list of strings with absolute paths to airfoils')
+        print('Attempting to change path string to list')
+        airfoil_geometry_files = [airfoil_geometry_files]
  
     num_airfoils = len(airfoil_geometry_files)
     # unpack      
@@ -63,29 +71,36 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
         # Open file and read column names and data block
         f = open(airfoil_geometry_files[i]) 
 
-        # Ignore header comment
-        f.readline()
-
-        # Check if it's a Selig or Lednicer file
-        format_line = f.readline()
-        format_flag = float(format_line.strip().split()[0])
-        format_extra_data = float(format_line.strip().split()[1])
-
-        if format_flag > 1.01: # Amount of wiggle room per airfoil tools
-            lednicer_format = True
-        else:
-            lednicer_format = False
-
-            
+        # Extract data
+        data_block = f.readlines()
+        try:
+            # Check for header block
+            first_element = float(data_block[0][0])
+            if first_element == 1.:
+                lednicer_format = False
+        except:
+            # Check for format line and remove header block
+            format_line = data_block[1]
+    
+            # Check if it's a Selig or Lednicer file
+            try:
+                format_flag = float(format_line.strip().split()[0])
+            except:
+                format_flag = float(format_line.strip().split(',')[0])
+                
+            if format_flag > 1.01: # Amount of wiggle room per airfoil tools
+                lednicer_format = True
+                # Remove header block
+                data_block      = data_block[3:]
+            else:
+                lednicer_format = False   
+                # Remove header block
+                data_block = data_block[1:]
+                
+        # Close the file
+        f.close() 
 
         if lednicer_format:
-
-            # Ignore last line of header
-            f.readline()    
-
-            data_block = f.readlines()
-            f.close() 
-            
             x_up_surf = []
             y_up_surf = []
             x_lo_surf = []
@@ -107,50 +122,54 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 100):
                     y_lo_surf.append(float(data_block[line_count].strip().split()[1]))   
 
         else:
-            data_block = f.readlines()
-            f.close()
-
-            x_up_surf_rev = []
-            y_up_surf_rev = []
-            x_lo_surf = []
-            y_lo_surf = []
-
+            x_up_surf_rev  = []
+            y_up_surf_rev  = []
+            x_lo_surf      = []
+            y_lo_surf      = []
+            
             # Loop through each value: append to each column
             upper_surface_flag = True
             for line_count , line in enumerate(data_block): 
                 #check for line which starts with 0., which should be the split between upper and lower in selig
                 line_check = data_block[line_count].strip()
+                
+                # Remove any commas
+                line_check = line_check.replace(',','')
+                
                 if float(line_check.split()[0]) == 0.:
-                    x_up_surf_rev.append(float(data_block[line_count].strip().split()[0])) 
-                    y_up_surf_rev.append(float(data_block[line_count].strip().split()[1]))
+                    x_up_surf_rev.append(float(data_block[line_count].strip().replace(',','').split()[0])) 
+                    y_up_surf_rev.append(float(data_block[line_count].strip().replace(',','').split()[1]))
 
-                    x_lo_surf.append(float(data_block[line_count].strip().split()[0])) 
-                    y_lo_surf.append(float(data_block[line_count].strip().split()[1])) 
+                    x_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[0])) 
+                    y_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[1])) 
 
                     upper_surface_flag = False
                     continue
 
                 if upper_surface_flag:
-                    x_up_surf_rev.append(float(data_block[line_count].strip().split()[0])) 
-                    y_up_surf_rev.append(float(data_block[line_count].strip().split()[1])) 
+                    x_up_surf_rev.append(float(data_block[line_count].strip().replace(',','').split()[0])) 
+                    y_up_surf_rev.append(float(data_block[line_count].strip().replace(',','').split()[1])) 
                 else:                              
-                    x_lo_surf.append(float(data_block[line_count].strip().split()[0])) 
-                    y_lo_surf.append(float(data_block[line_count].strip().split()[1]))
-
+                    x_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[0])) 
+                    y_lo_surf.append(float(data_block[line_count].strip().replace(',','').split()[1]))
+                
+                
+                if upper_surface_flag ==True:
+                    # check if next line flips without x-coordinate going to 0
+                    next_line  = data_block[line_count+1].strip()
+                    next_line  = next_line.replace(',','')
+                
+                    if next_line.split()[0]>line_check.split()[0] and next_line.split()[0] !=0.:
+                        upper_surface_flag = False
+                    
             # Upper surface values in Selig format are reversed from Lednicer format, so fix that
-
             x_up_surf_rev.reverse()
             y_up_surf_rev.reverse()
 
             x_up_surf = x_up_surf_rev
             y_up_surf = y_up_surf_rev
 
-            # Add back data from first line, that was used to check format
 
-            x_up_surf.append(float(format_line.strip().split()[0]))
-            y_up_surf.append(float(format_line.strip().split()[1]))
-
-        
         # determine the thickness to chord ratio - note that the upper and lower surface
         # may be of different lenghts so initial interpolation is required 
         # x coordinates

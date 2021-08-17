@@ -16,31 +16,34 @@ from SUAVE.Core import Units
 # ----------------------------------------------------------------------
 
 ## @ingroupMethods-Noise-Fidelity_One-Airframe
-def noise_trailing_edge_flap (Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,frequency):
-    """ SUAVE.Methods.Noise.Fidelity_One.noise_trailing_edge_flap(D,H,wheels,M,velocity,phi,theta,distance,frequency):
-            Calculates the noise from the flap trailing edge as a 1/3 octave band sound pressure level.
+def noise_trailing_edge_flap(Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,frequency):
+    """ This calculates the noise from the flap trailing edge as a 1/3 octave band sound pressure level.
 
-            Inputs:
-                    Sf                         - Flap area [sq.ft]
-                    cf                         - Flap chord [ft]
-                    deltaf                     - Flap deflection [rad]
-                    slots                      - Number of slots (Flap type)
-                    velocity                   - Aircraft speed [kts]
-                    M                          - Mach number
-                    phi                        - Azimuthal angle [rad]
-                    theta                      - Polar angle [rad]
-                    distance                   - Distance from airplane to observer, evaluated at retarded time [ft]
-                    frequency                  - Frequency array [Hz]
+    Assumptions:
+        Correlation based.
+        
+    Inputs:
+        Sf         - Flap area                                                      [sq.ft]
+        cf         - Flap chord                                                     [ft]
+        deltaf     - Flap deflection                                                [rad]
+        slots      - Number of slots                                                (Flap type)
+        velocity   - Aircraft speed                                                 [kts]
+        M          - Mach number                                                    [Unitless]
+        phi        - Azimuthal angle                                                [rad]
+        theta      - Polar angle                                                    [rad]
+        distance   - Distance from airplane to observer, evaluated at retarded time [ft]
+        frequency  - Frequency array                                                [Hz]
+        
+    Outputs: One Third Octave Band SPL                                              [dB]
+        SPL                
+ 
+    Properties Used:
+        N/A 
+    
+    """
 
-            Outputs: One Third Octave Band SPL [dB]
-                SPL                              - Sound Pressure Level of the flap trailing edge [dB]
-
-            Assumptions:
-                Correlation based."""
-
-    #Process
+    # Process
     G      = np.zeros(24)
-    kt2fts = 1.6878098571
 
     test   = frequency*cf/(velocity/Units.ft*(1-M*np.cos(theta)))
 
@@ -72,4 +75,4 @@ def noise_trailing_edge_flap (Sf,cf,deltaf,slots,velocity,M,phi,theta,distance,f
     SPL = G+10*np.log10(Sf*(np.sin(deltaf))**2/(distance**2))+ \
         60*np.log10((velocity/Units.kts)/100.0)+directivity
 
-    return(SPL)
+    return SPL 

@@ -87,7 +87,9 @@ def base(analyses):
     Segments = SUAVE.Analyses.Mission.Segments
 
     # base segment
-    base_segment = Segments.Segment()
+    base_segment = Segments.Segment() 
+    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    
     atmosphere=SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     planet = SUAVE.Attributes.Planets.Earth()
      # ------------------------------------------------------------------
@@ -401,6 +403,8 @@ def max_range_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
+    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    
     atmosphere=SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     planet = SUAVE.Attributes.Planets.Earth()
     # ------------------------------------------------------------------
@@ -519,7 +523,7 @@ def max_range_setup(analyses):
 
     # connect vehicle configuration
     segment.analyses.extend( analyses.cruise )
-
+    
     # segment attributes
     segment.atmosphere = atmosphere
     segment.planet     = planet
@@ -600,18 +604,10 @@ def max_range_setup(analyses):
 
     # ------------------------------------------------------------------
     #   Mission definition complete    
-    # ------------------------------------------------------------------
-
-
-    #------------------------------------------------------------------
-    ###         Reserve mission
-    #------------------------------------------------------------------
-    
+    # ------------------------------------------------------------------ 
     # ------------------------------------------------------------------
     #   First Climb Segment: constant Mach, constant segment angle
-    # ------------------------------------------------------------------
-    
-    #segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    # ------------------------------------------------------------------ 
     segment = Segments.Climb.Linear_Mach_Constant_Rate(base_segment)
     segment.tag = "reserve_climb_1"
     
@@ -628,8 +624,7 @@ def max_range_setup(analyses):
     segment.state.unknowns.body_angle  = ones_row(1) * 8. * Units.degrees 
     
     # add to misison
-    mission.append_segment(segment)
-    
+    mission.append_segment(segment) 
     
     
     # ------------------------------------------------------------------
@@ -714,6 +709,8 @@ def short_field_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
+    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    
     atmosphere=SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
     planet = SUAVE.Attributes.Planets.Earth()
     # ------------------------------------------------------------------
@@ -1026,7 +1023,7 @@ def takeoff_mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
-
+    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
     
     # Climb Segment: Constant throttle, constant speed
     segment = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
@@ -1048,8 +1045,7 @@ def takeoff_mission_setup(analyses):
     segment.tag = "cutback"    
     segment.analyses.extend( analyses.takeoff )
     segment.air_speed    = 85.4 * Units['m/s']
-    segment.climb_angle   = 2.86  * Units.degrees
-    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    segment.climb_angle   = 2.86  * Units.degrees 
     mission.append_segment(segment)  
     
     return mission
@@ -1073,6 +1069,7 @@ def sideline_mission_setup(analyses):
 
     # base segment
     base_segment = Segments.Segment()
+    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
     
     # Climb Segment: Constant throttle, constant speed
     segment = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
@@ -1111,7 +1108,8 @@ def takeoff_mission_initialization(analyses):
 
     # base segment
     base_segment = Segments.Segment()
-
+    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    
     # Climb Segment: Constant speed, constant segment angle
     segment = Segments.Climb.Constant_Throttle_Constant_Speed(base_segment)
     segment.tag = "climb"    
@@ -1149,7 +1147,9 @@ def landing_mission_setup(analyses):
     Segments = SUAVE.Analyses.Mission.Segments
 
     # base segment
-    base_segment = Segments.Segment()    
+    base_segment = Segments.Segment()   
+    base_segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    
     # ------------------------------------------------------------------
     #   Descent Segment: Constant speed, constant segment angle
     # ------------------------------------------------------------------
@@ -1158,8 +1158,7 @@ def landing_mission_setup(analyses):
     segment.analyses.extend( analyses.landing )
 
     segment.air_speed    = 67. * Units['m/s']
-    segment.descent_angle = 3.0   * Units.degrees 
-    #segment.state.numerics.discretization_method = SUAVE.Methods.Utilities.Chebyshev.linear_data
+    segment.descent_angle = 3.0   * Units.degrees  
     mission.append_segment(segment)
         
     return mission

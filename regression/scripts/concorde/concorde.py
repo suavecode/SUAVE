@@ -5,6 +5,7 @@
 #           Jul 2017, T. MacDonald
 #           Aug 2018, T. MacDonald
 #           Nov 2018, T. MacDonald
+#           May 2021, E. Botero
 
 """ setup file for a mission with Concorde
 """
@@ -21,32 +22,26 @@ from SUAVE.Plots.Mission_Plots import *
 
 # Numpy is use extensively throughout SUAVE
 import numpy as np
-# Scipy is required here for integration functions used in post processing
-import scipy as sp
-from scipy import integrate
 
 # Post processing plotting tools are imported here
 import pylab as plt
 
-# copy is used to copy variable that should not be linked
-# time is used to measure run time if needed
-import copy, time
-
 # More basic SUAVE function
-from SUAVE.Core import (
-Data, Container,
-)
+from SUAVE.Core import Data
 
 import sys
 sys.path.append('../Vehicles')
 from Concorde import vehicle_setup, configs_setup
 
 # This is a sizing function to fill turbojet parameters
-from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
      import compute_fuel_center_of_gravity_longitudinal_range
 from SUAVE.Methods.Center_of_Gravity.compute_fuel_center_of_gravity_longitudinal_range \
      import plot_cg_map 
+
+
+# This imports lift equivalent area
+from SUAVE.Methods.Noise.Boom.lift_equivalent_area import lift_equivalent_area
 
 # ----------------------------------------------------------------------
 #   Main
@@ -75,6 +70,9 @@ def main():
     mission = analyses.missions.base
     results = mission.evaluate()
     
+    # Check the lift equivalent area
+    equivalent_area(configs.base, analyses.configs.base, results.segments.cruise.state.conditions)        
+    
     masses, cg_mins, cg_maxes = compute_fuel_center_of_gravity_longitudinal_range(configs.base)
     plot_cg_map(masses, cg_mins, cg_maxes, units = 'metric', fig_title = 'Metric Test')  
     plot_cg_map(masses, cg_mins, cg_maxes, units = 'imperial', fig_title = 'Foot Test')
@@ -89,6 +87,7 @@ def main():
     # load older results
     #save_results(results)
     old_results = load_results()   
+    
 
     # plt the old results
     plot_mission(results)
@@ -96,7 +95,9 @@ def main():
     plt.show()
 
     # check the results
-    check_results(results,old_results) 
+    check_results(results,old_results)
+    
+
     
     return
 
@@ -123,6 +124,29 @@ def full_setup():
     analyses.missions = missions_analyses        
     
     return configs, analyses
+
+
+# ----------------------------------------------------------------------
+#   Lift Equivalent Area Regression
+# ----------------------------------------------------------------------
+
+def equivalent_area(vehicle,analyses,conditions):
+    
+    X_locs, AE_x, _ = lift_equivalent_area(vehicle,analyses,conditions)
+    
+    regression_X_locs = np.array([ 0.         , 30.0744302 , 36.06867764, 40.19106341, 42.87922798, 43.75864575,
+                                   44.46766888, 44.75288937, 45.40259517, 45.75309872, 45.83545016, 50.60861803,
+                                   53.90976954, 55.43400893, 56.10861803, 56.78777765, 57.28419734, 57.49949357,
+                                   57.99040541, 58.61763071, 58.94738099, 77.075     ])
+    
+    regression_AE_x   = np.array([ 0.         , 8.40446297 , 12.77123494, 18.13723062, 20.1479308 , 24.54590694,
+                                   25.03871393, 27.58775842, 34.74216303, 36.52107847, 37.03881103, 37.03881102,
+                                   37.03881102, 37.03881102, 37.03881102, 37.03881102, 37.03881102, 37.03881102,
+                                   37.03881102, 37.03881102, 37.03881102, 37.03881102])
+    
+    assert (np.abs((X_locs[1:] - regression_X_locs[1:] )/regression_X_locs[1:] ) < 1e-6).all() 
+    assert (np.abs((AE_x[1:] - regression_AE_x[1:])/regression_AE_x[1:]) < 1e-6).all()
+
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle Analyses
@@ -172,7 +196,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
     
     # ------------------------------------------------------------------

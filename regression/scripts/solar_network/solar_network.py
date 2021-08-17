@@ -62,21 +62,21 @@ def main():
     #save_results(results)
     old_results = load_results()   
 
-    # plt the old results
+    ## plt the old results
     plot_mission(results)
     plot_mission(old_results,'k-') 
     
     # Check Results 
     F       = results.segments.cruise1.conditions.frames.body.thrust_force_vector[1,0]
-    rpm     = results.segments.cruise1.conditions.propulsion.propeller_rpm[1,0] 
-    current = results.segments.cruise1.conditions.propulsion.battery_current[1,0] 
+    rpm     = results.segments.cruise1.conditions.propulsion.propeller_rpm[1,0]
+    current = results.segments.cruise1.conditions.propulsion.battery_current[1,0]
     energy  = results.segments.cruise1.conditions.propulsion.battery_energy[8,0]  
     
     # Truth results
-    truth_F   = 105.97751059878202
-    truth_rpm = 214.5705559974985
-    truth_i   = 131.33561855929347
-    truth_bat = 195698222.3048672
+    truth_F   = 105.97750757826377
+    truth_rpm = 218.8454586151948
+    truth_i   = 130.93354507592824
+    truth_bat = 184724099.1875254
     
     print('battery energy')
     print(energy)
@@ -148,7 +148,7 @@ def base_analysis(vehicle): # --------------------------------------------------
     # ------------------------------------------------------------------
     #  Energy
     energy = SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
     
     # ------------------------------------------------------------------
@@ -184,15 +184,8 @@ def mission_setup(analyses,vehicle):
     Segments = SUAVE.Analyses.Mission.Segments
     
     # base segment
-    base_segment = Segments.Segment()   
-    ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
+    base_segment = Segments.Segment()
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/20.
-    base_segment.battery_configuration                       = vehicle.propulsors.solar.battery.pack_config 
-    base_segment.max_energy                                  = vehicle.propulsors.solar.battery.max_energy  
-    base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
@@ -210,16 +203,11 @@ def mission_setup(analyses,vehicle):
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
-    segment.battery_energy = vehicle.propulsors.solar.battery.max_energy*0.3 #Charge the battery to start
+    segment.battery_energy = vehicle.networks.solar.battery.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
+    segment = vehicle.networks.solar.add_unknowns_and_residuals_to_segment(segment,initial_power_coefficient = 0.05)    
     
-    segment.battery_cell_temperature                   = 20   
-    segment.battery_pack_temperature                   = 20
-    segment.ambient_temperature                        = 20    
-    segment.battery_cumulative_charge_throughput       = 0  
-    segment.battery_resistance_growth_factor           = 1 
-    segment.battery_capacity_fade_factor               = 1    
     
     mission.append_segment(segment)    
 

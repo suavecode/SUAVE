@@ -8,17 +8,14 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
-from SUAVE.Core import Data, Units
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Core import Data
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Ramjet Network
 # ----------------------------------------------------------------------
 ## @ingroup Components-Energy-Networks
-class Ramjet(Propulsor):
+class Ramjet(Network):
     """ This is a ramjet for supersonic flight.
 
         Assumptions:
@@ -74,7 +71,7 @@ class Ramjet(Propulsor):
         	results.thrust_force_vector                      [newtons]
         	results.vehicle_mass_rate                        [kg/s]
         	results.specific_impulse                         [s]
-        	conditions.propulsion.acoustic_outputs:
+        	conditions.noise.sources.ramjet:
         	    core:
         		exit_static_temperature                  [K]
         		exit_static_pressure                     [K]

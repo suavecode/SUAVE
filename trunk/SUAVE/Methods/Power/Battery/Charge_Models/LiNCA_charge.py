@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 from SUAVE.Core import Data , Units 
 import numpy as np 
-from scipy.integrate import  cumtrapz 
+from scipy.integrate import  cumtrapz  
 
 def LiNCA_charge(battery,numerics): 
     """This is a Charge model for lithium-nickel-cobalt-aluminum oxide 18650 battery
@@ -131,39 +131,39 @@ def LiNCA_charge(battery,numerics):
 
     else: 
         # Chapter 7 pg 437-446 of Fundamentals of heat and mass transfer : Frank P. Incropera ... Incropera, Fran
-        S_T     = battery.module_config.normal_spacing          
-        S_L     = battery.module_config.parallel_spacing                       
-        K_air   = battery.cooling_fluid.thermal_conductivity    
-        Cp_air  = battery.cooling_fluid.specific_heat_capacity  
-        V_air   = battery.cooling_fluid.discharge_air_cooling_flowspeed
-        rho_air = battery.cooling_fluid.density 
-        nu_air  = battery.cooling_fluid.kinematic_viscosity 
-        Pr_fit  = battery.cooling_fluid.prandlt_number_fit     
-
+        S_T             = battery.module_config.normal_spacing          
+        S_L             = battery.module_config.parallel_spacing   
+        coolant         = SUAVE.Attributes.Gases.Air()
+        coolant.K       = battery.cooling_fluid.thermal_conductivity    
+        coolant.Cp      = battery.cooling_fluid.specific_heat_capacity  
+        coolant.V       = battery.cooling_fluid.discharge_air_cooling_flowspeed
+        coolant.rho     = battery.cooling_fluid.density 
+        coolant.nu      = battery.cooling_fluid.kinematic_viscosity    
+        coolant.Pr      = coolant.compute_prandlt_number(T_ambient)
+        coolant.Pr_wall = coolant.compute_prandlt_number(T)  
+    
         S_D = np.sqrt(S_T**2+S_L**2)
         if 2*(S_D-D_cell) < (S_T-D_cell):
-            V_max    = V_air*(S_T/(2*(S_D-D_cell)))
+            V_max    = coolant.V_air*(S_T/(2*(S_D-D_cell)))
         else:
-            V_max   = V_air*(S_T/(S_T-D_cell))
-
+            V_max   = coolant.V_air*(S_T/(S_T-D_cell))
+    
         T        = (T_ambient+T_current)/2   
-        Re_max   = V_max*D_cell/nu_air
-        Pr       = Pr_fit(T_ambient- 272.65)
-        Prw      = Pr_fit(T- 272.65)  
+        Re_max   = V_max*D_cell/coolant.nu_air   
         if all(Re_max) > 10E2: 
             C        = 0.35*((S_T/S_L)**0.2) 
             m        = 0.6 
         else:
             C = 0.51
             m = 0.5 
-        Nu       = C*(Re_max**m)*(Pr**0.36)*((Pr/Prw)**0.25)           
-        h        = Nu*K_air/D_cell
+        Nu       = C*(Re_max**m)*(coolant.Pr**0.36)*((coolant.Pr/coolant.Pr_wall)**0.25)           
+        h        = Nu*coolant.K/D_cell
         Tw_Ti    = (T - T_ambient)
-        Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(rho_air*V_air*Nn*S_T*Cp_air))
+        Tw_To    = Tw_Ti * np.exp((-np.pi*D_cell*n_total_module*h)/(coolant.rho*coolant.V*Nn*S_T*coolant.Cp))
         dT_lm    = (Tw_Ti - Tw_To)/np.log(Tw_Ti/Tw_To)
-        Q_convec = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm  
-        P_net    = Q_heat_gen*n_total_module - Q_convec 
-
+        Q_convec = heat_transfer_efficiency*h*np.pi*D_cell*H_cell*n_total_module*dT_lm 
+        P_net    = Q_heat_gen*n_total_module - Q_convec  
+         
     dT_dt     = P_net/(cell_mass*n_total_module*Cp)
     T_current = T_current[0] + np.dot(I,dT_dt)  
 
@@ -176,20 +176,19 @@ def LiNCA_charge(battery,numerics):
     R_Th = np.zeros_like(I_cell)  
     C_Th = np.zeros_like(I_cell)  
     R_0  = np.zeros_like(I_cell) 
-    for i in range(len(SOC_old)): 
-        T_cell_Celcius = T_cell[i]- 272.65
+    for i in range(len(SOC_old)):  
         
         # Open Circuit Voltage
-        V_oc[i] = battery_data.V_oc_interp(T_cell_Celcius, SOC_old[i])[0]
+        V_oc[i] = battery_data.V_oc_interp(T_cell[i], SOC_old[i])[0]
         
         # Thevenin Capacitance 
-        C_Th[i] = battery_data.C_Th_interp(T_cell_Celcius, SOC_old[i])[0]
+        C_Th[i] = battery_data.C_Th_interp(T_cell[i], SOC_old[i])[0]
         
         # Thevenin Resistance 
-        R_Th[i] = battery_data.R_Th_interp(T_cell_Celcius, SOC_old[i])[0]
+        R_Th[i] = battery_data.R_Th_interp(T_cell[i], SOC_old[i])[0]
         
         # Li-ion battery interal resistance
-        R_0[i]  = battery_data.R_0_interp(T_cell_Celcius, SOC_old[i])[0] 
+        R_0[i]  = battery_data.R_0_interp(T_cell[i], SOC_old[i])[0] 
         
     
     # Compute thevening equivalent voltage  

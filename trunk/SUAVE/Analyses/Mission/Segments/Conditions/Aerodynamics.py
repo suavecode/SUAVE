@@ -3,7 +3,9 @@
 #
 # Created:  
 # Modified: Feb 2016, Andrew Wendorff
-#           Mar 2020, M. Clarke
+#           Mar 2020, M. Clarke 
+#           Apr 2021, M. Clarke
+#           Jun 2021, A. Blaufox
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -71,34 +73,32 @@ class Aerodynamics(Basic):
 
         # planet frame conditions
         self.frames.planet = Conditions()
-        self.frames.planet.start_time        = None
-        self.frames.planet.latitude          = ones_1col * 0
-        self.frames.planet.longitude         = ones_1col * 0
+        self.frames.planet.start_time      = None
+        self.frames.planet.latitude        = ones_1col * 0
+        self.frames.planet.longitude       = ones_1col * 0
 
         # freestream conditions
         self.freestream = Conditions()        
-        self.freestream.velocity             = ones_1col * 0
-        self.freestream.mach_number          = ones_1col * 0
-        self.freestream.pressure             = ones_1col * 0
-        self.freestream.temperature          = ones_1col * 0
-        self.freestream.density              = ones_1col * 0
-        self.freestream.speed_of_sound       = ones_1col * 0
-        self.freestream.dynamic_viscosity    = ones_1col * 0
-        self.freestream.kinematic_viscosity  = ones_1col * 0
-        self.freestream.altitude             = ones_1col * 0
-        self.freestream.thermal_conductivity = ones_1col * 0
-        self.freestream.gravity              = ones_1col * 0
-        self.freestream.reynolds_number      = ones_1col * 0
-        self.freestream.dynamic_pressure     = ones_1col * 0
-        self.freestream.delta_ISA            = ones_1col * 0
+        self.freestream.velocity           = ones_1col * 0
+        self.freestream.mach_number        = ones_1col * 0
+        self.freestream.pressure           = ones_1col * 0
+        self.freestream.temperature        = ones_1col * 0
+        self.freestream.density            = ones_1col * 0
+        self.freestream.speed_of_sound     = ones_1col * 0
+        self.freestream.dynamic_viscosity  = ones_1col * 0
+        self.freestream.altitude           = ones_1col * 0
+        self.freestream.gravity            = ones_1col * 0
+        self.freestream.reynolds_number    = ones_1col * 0
+        self.freestream.dynamic_pressure   = ones_1col * 0
+        self.freestream.delta_ISA          = ones_1col * 0
 
         # aerodynamics conditions
         self.aerodynamics = Conditions()        
-        self.aerodynamics.angle_of_attack    = ones_1col * 0
-        self.aerodynamics.side_slip_angle    = ones_1col * 0
-        self.aerodynamics.roll_angle         = ones_1col * 0
-        self.aerodynamics.lift_coefficient   = ones_1col * 0
-        self.aerodynamics.drag_coefficient   = ones_1col * 0
+        self.aerodynamics.angle_of_attack             = ones_1col * 0
+        self.aerodynamics.side_slip_angle             = ones_1col * 0
+        self.aerodynamics.roll_angle                  = ones_1col * 0
+        self.aerodynamics.lift_coefficient            = ones_1col * 0
+        self.aerodynamics.drag_coefficient            = ones_1col * 0
         self.aerodynamics.lift_breakdown              = Conditions()
         self.aerodynamics.drag_breakdown              = Conditions()
         self.aerodynamics.drag_breakdown.parasite     = Conditions()
@@ -109,35 +109,39 @@ class Aerodynamics(Basic):
         self.stability         = Conditions()        
         self.stability.static  = Conditions()
         self.stability.dynamic = Conditions()
+        self.stability.dynamic.pitch_rate   = ones_1col * 0
+        self.stability.dynamic.roll_rate    = ones_1col * 0
+        self.stability.dynamic.yaw_rate     = ones_1col * 0       
 
         # propulsion conditions
         self.propulsion = Conditions()
-        self.propulsion.throttle                             = ones_1col * 0 
-        self.propulsion.thrust_breakdown                     = Conditions()
         self.propulsion.throttle                             = ones_1col * 0
         self.propulsion.battery_energy                       = ones_1col * 0
         self.propulsion.battery_voltage                      = ones_1col * 0
+        self.propulsion.battery_voltage_under_load           = ones_1col * 0
+        self.propulsion.battery_voltage_open_circuit         = ones_1col * 0
+        self.propulsion.state_of_charge                      = ones_1col * 0
+        self.propulsion.thrust_breakdown                     = Conditions() 
         self.propulsion.voltage_under_load                   = ones_1col * 0
-        self.propulsion.voltage_open_circuit                 = ones_1col * 0
-        self.propulsion.state_of_charge                      = ones_1col * 0    
-        self.propulsion.battery_energy                       = ones_1col * 0
+        self.propulsion.voltage_open_circuit                 = ones_1col * 0 
         self.propulsion.battery_pack_temperature             = ones_1col * 0
-        self.propulsion.battery_cell_temperature             = ones_1col * 0
-        self.propulsion.battery_voltage                      = ones_1col * 0
+        self.propulsion.battery_cell_temperature             = ones_1col * 0 
         self.propulsion.battery_cumulative_charge_throughput = ones_1col * 0    
         self.propulsion.battery_age_in_days                  = 0.
         self.propulsion.battery_resistance_growth_factor     = 1.
         self.propulsion.battery_capacity_fade_factor         = 1.
         self.propulsion.battery_discharge                    = True 
-        self.propulsion.thrust_breakdown                     = Conditions()
-        self.propulsion.acoustic_outputs                     = Conditions()
-        self.propulsion.acoustic_outputs.fan                 = Conditions()
-        self.propulsion.acoustic_outputs.core                = Conditions()
- 
+        
         # energy conditions
         self.energies.gravity_energy       = ones_1col * 0
-        self.energies.propulsion_power     = ones_1col * 0 
+        self.energies.propulsion_power     = ones_1col * 0
         
         # weights conditions
         self.weights.vehicle_mass_rate     = ones_1col * 0
-         
+        
+        # noise conditions
+        self.noise                             = Conditions()
+        self.noise.total                       = Conditions()
+        self.noise.sources                     = Conditions()
+        self.noise.sources.propellers          = Conditions()
+        self.noise.sources.lift_rotors         = Conditions()

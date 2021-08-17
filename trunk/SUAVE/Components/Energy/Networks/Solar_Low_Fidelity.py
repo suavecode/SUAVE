@@ -9,12 +9,9 @@
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 
 from SUAVE.Core import Data , Units
 
@@ -23,7 +20,7 @@ from SUAVE.Core import Data , Units
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Solar_Low_Fidelity(Propulsor):
+class Solar_Low_Fidelity(Network):
     """ A solar powered system with batteries and maximum power point tracking.
         
         This network adds an extra unknowns to the mission, the torque matching between motor and propeller.
@@ -87,7 +84,7 @@ class Solar_Low_Fidelity(Propulsor):
                 solar_flux           [watts/m^2] 
                 rpm                  [radians/sec]
                 current              [amps]
-                battery_power_draw   [watts]
+                battery_draw         [watts]
                 battery_energy       [joules]
                 
             Properties Used:
@@ -167,20 +164,20 @@ class Solar_Low_Fidelity(Propulsor):
         solar_logic.logic(conditions,numerics)
         # link
         battery.inputs = solar_logic.outputs
-        battery.energy_discharge(numerics)
+        battery.energy_calc(numerics)
         
         #Pack the conditions for outputs
         a                                        = conditions.freestream.speed_of_sound
         R                                        = propeller.tip_radius        
         rpm                                      = motor.outputs.omega / Units.rpm
         current                                  = solar_logic.inputs.currentesc
-        battery_draw                             = battery.inputs.power_in
+        battery_draw                             = battery.inputs.power_in 
         battery_energy                           = battery.current_energy
                                                  
         conditions.propulsion.solar_flux         = solar_flux.outputs.flux  
-        conditions.propulsion.rpm                = rpm
-        conditions.propulsion.current            = current
-        conditions.propulsion.battery_power_draw = battery_draw
+        conditions.propulsion.propeller_rpm      = rpm
+        conditions.propulsion.battery_current    = current
+        conditions.propulsion.battery_draw       = battery_draw
         conditions.propulsion.battery_energy     = battery_energy
         conditions.propulsion.propeller_tip_mach = (R*rpm*Units.rpm)/a
         

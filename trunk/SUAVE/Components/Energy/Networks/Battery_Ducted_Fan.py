@@ -4,23 +4,22 @@
 # Created:  Sep 2014, M. Vegh
 # Modified: Jan 2016, T. MacDonald
 #           Apr 2019, C. McMillan
+#           Apr 2021, M. Clarke
+
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Battery_Ducted_Fan(Propulsor):
+class Battery_Ducted_Fan(Network):
     """ Simply connects a battery to a ducted fan, with an assumed motor efficiency
     
         Assumptions:
@@ -52,7 +51,7 @@ class Battery_Ducted_Fan(Propulsor):
 
         self.propulsor                 = None
         self.battery                   = None
-        self.motor_efficiency          = 1.0
+        self.motor_efficiency          = 0.0
         self.tag                       = 'Battery_Ducted_Fan'
         self.number_of_engines         = 0.
         self.nacelle_diameter          = 0.
@@ -87,35 +86,18 @@ class Battery_Ducted_Fan(Propulsor):
         """ 
 
          # unpack
-        conditions    = state.conditions
-        numerics      = state.numerics
-        esc           = self.esc
-        avionics      = self.avionics
-        payload       = self.payload  
-        propulsor     = self.propulsor
-        battery       = self.battery
-        D             = numerics.time.differentiate        
-        battery_data  = battery.discharge_performance_map
+        conditions = state.conditions
+        numerics   = state.numerics
+        esc        = self.esc
+        avionics   = self.avionics
+        payload    = self.payload 
+        battery    = self.battery
+        propulsor  = self.propulsor
+        battery    = self.battery
 
-    
         # Set battery energy
-        battery.current_energy      = conditions.propulsion.battery_energy
-        battery.pack_temperature    = conditions.propulsion.battery_pack_temperature
-        battery.charge_throughput   = conditions.propulsion.battery_cumulative_charge_throughput     
-        battery.age_in_days         = conditions.propulsion.battery_age_in_days  
-        battery.R_growth_factor     = conditions.propulsion.battery_resistance_growth_factor
-        battery.E_growth_factor     = conditions.propulsion.battery_capacity_fade_factor 
-        battery.max_energy          = conditions.propulsion.battery_max_aged_energy 
-        
-        # update ambient temperature based on altitude
-        battery.ambient_temperature                   = conditions.freestream.temperature   
-        battery.cooling_fluid.thermal_conductivity    = conditions.freestream.thermal_conductivity
-        battery.cooling_fluid.kinematic_viscosity     = conditions.freestream.kinematic_viscosity
-        battery.cooling_fluid.density                 = conditions.freestream.density
-         
-        battery.battery_thevenin_voltage              = 0             
-        battery.temperature                           = conditions.propulsion.battery_pack_temperature
-             
+        battery.current_energy = conditions.propulsion.battery_energy
+
         # Calculate ducted fan power
         results             = propulsor.evaluate_thrust(state)
         propulsive_power    = np.reshape(results.power, (-1,1))
@@ -143,21 +125,21 @@ class Battery_Ducted_Fan(Propulsor):
         # link to the battery
         battery.inputs.current  = esc.outputs.currentin + avionics_payload_current 
         battery.inputs.power_in = -(esc_power + avionics_payload_power)
-        battery.energy_discharge(numerics)        
+        battery.energy_calc(numerics)        
     
         # No mass gaining batteries
         mdot = np.zeros(np.shape(conditions.freestream.velocity))
 
         # Pack the conditions for outputs
         current              = esc.outputs.currentin
-        battery_power_draw   = battery.inputs.power_in
+        battery_draw         = battery.inputs.power_in 
         battery_energy       = battery.current_energy
         voltage_open_circuit = battery.voltage_open_circuit
-
-        conditions.propulsion.current              = current
-        conditions.propulsion.battery_power_draw   = battery_draw
-        conditions.propulsion.battery_energy       = battery_energy
-        conditions.propulsion.voltage_open_circuit = voltage_open_circuit
+          
+        conditions.propulsion.current                      = current
+        conditions.propulsion.battery_draw                 = battery_draw
+        conditions.propulsion.battery_energy               = battery_energy
+        conditions.propulsion.battery_voltage_open_circuit = voltage_open_circuit
         
         results.vehicle_mass_rate   = mdot
         return results

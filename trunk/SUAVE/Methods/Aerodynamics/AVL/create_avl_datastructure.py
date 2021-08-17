@@ -159,7 +159,7 @@ def populate_wing_sections(avl_wing,suave_wing):
             ctrl_surf_at_seg = False 
 
             # condition for the presence of control surfaces in segment 
-            if segments[i_segs].control_surfaces:    
+            if getattr(segments[i_segs],'control_surfaces',False):    
                 dihedral_ob   = segments[i_segs-1].dihedral_outboard 
                 section_spans = []
                 for cs in segments[i_segs].control_surfaces:     

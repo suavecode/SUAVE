@@ -26,23 +26,28 @@ def main():
     # Pull out the problem and reset the bounds
     problem          = setup()
     problem.optimization_problem.inputs = np.array([
-        [ 'wing_area'       ,  95, (   90. ,   120.   ) ,   100. , 1*Units.meter**2],
-        [ 'cruise_altitude' ,  11, (   10   ,   13.   ) ,   10.  , 1*Units.km]],dtype=object)
+        [ 'wing_area'       ,  95,    90. ,   120.    ,   100. , 1*Units.meter**2],
+        [ 'cruise_altitude' ,  11,    10   ,   13.    ,   10.  , 1*Units.km]],dtype=object)
     
     outputs_sweep    = linear_sweep(problem)
-    truth_obj_sweeps = [[7396.96384538, 7164.99154552]]
+    truth_obj_sweeps = [[7335.29754241, 7100.27474431]]
+    print('sweeps = {}'.format(outputs_sweep['objective']))
     
     #print outputs_sweep
     max_err_sweeps = (np.max(np.abs(outputs_sweep['objective']-truth_obj_sweeps )/truth_obj_sweeps))
     
     print('max_err_sweeps = ', max_err_sweeps)
     assert(max_err_sweeps<1e-6)
+    
+    
     outputs_carpet = variable_sweep(problem)
+    truth_obj_carp = [[7180.09681525, 7086.37363271],
+                      [7624.3826517,  7079.54283558]]
+    print('carpet:\n{}'.format(outputs_carpet['objective']))
     
     #print outputs_carpet
-    truth_obj_carp  = [[7242.3323198 , 7151.50157635],[7683.41936031, 7141.92320783]]
     max_err_carp    = np.max(np.abs(outputs_carpet['objective']-truth_obj_carp)/truth_obj_carp) 
-    print(' max_err_carp = ',  max_err_carp)
+    print('max_err_carp = ',  max_err_carp)
     assert(max_err_carp<1e-6)
     return
         

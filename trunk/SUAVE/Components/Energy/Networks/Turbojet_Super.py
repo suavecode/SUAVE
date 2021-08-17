@@ -4,16 +4,14 @@
 # Created:  May 2015, T. MacDonald
 # Modified: Aug 2017, E. Botero
 #           Aug 2018, T. MacDonald
+#           Apr 2021, M. Clarke
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
-from SUAVE.Core import Data, Units
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Core import Data
+from .Network import Network
 
 import numpy as np
 
@@ -22,7 +20,7 @@ import numpy as np
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Turbojet_Super(Propulsor):
+class Turbojet_Super(Network):
     """ This is a turbojet for supersonic flight.
 
         Assumptions:
@@ -92,7 +90,7 @@ class Turbojet_Super(Propulsor):
         	Outputs:
         	results.thrust_force_vector [newtons]
         	results.vehicle_mass_rate   [kg/s]
-        	conditions.propulsion.acoustic_outputs:
+        	conditions.noise.sources.turbojet_super:
         	    core:
         		exit_static_temperature      
         		exit_static_pressure       

@@ -1,29 +1,21 @@
 ## @ingroup Components-Energy-Networks
 # Scramjet.py
 #
-# Created:  Dec 2017, W. Maier
-# Modified:
+# Created:  Dec 2017, W. Maier 
 
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
 
-# suave imports
-import SUAVE
-
-# package imports
-import numpy as np
-import scipy as sc
-
-from SUAVE.Core import Data, Units
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from SUAVE.Core import Data
+from .Network import Network
 
 # ----------------------------------------------------------------------
 #  Scramjet Network
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks 
-class Scramjet(Propulsor): 
+class Scramjet(Network): 
     """ This is a scramjet for hypersonic flight. 
 
         Assumptions: 
@@ -81,7 +73,7 @@ class Scramjet(Propulsor):
         results.thrust_force_vector                   [N] 
         results.vehicle_mass_rate                     [kg/s] 
 
-        conditions.propulsion.acoustic_outputs: 
+        conditions.noise.sources.scramjets:
         core: 
         exit_static_temperature                  [K]  
         exit_static_pressure                     [K]  

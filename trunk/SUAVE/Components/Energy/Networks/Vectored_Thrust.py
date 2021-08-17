@@ -13,7 +13,7 @@ import SUAVE
 
 # package imports
 import numpy as np
-from SUAVE.Components.Propulsors.Propulsor import Propulsor
+from .Network import Network
 import math 
 from SUAVE.Core import  Units, Data
 
@@ -22,7 +22,7 @@ from SUAVE.Core import  Units, Data
 # ----------------------------------------------------------------------
 
 ## @ingroup Components-Energy-Networks
-class Vectored_Thrust(Propulsor):
+class Vectored_Thrust(Network):
     """ This is a simple network with a battery powering a rotor through
         an electric motor
 

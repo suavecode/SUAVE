@@ -125,7 +125,7 @@ def simple_sizing(nexus):
     freestream.mach_number = mach_number
     freestream.gravity     = 9.81
     
-    conditions             = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
+    conditions             = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for network sizing
     conditions.freestream  = freestream
     
     
@@ -145,8 +145,8 @@ def simple_sizing(nexus):
         fuselage              = config.fuselages['fuselage']
         fuselage.differential_pressure = diff_pressure 
         
-        turbofan_sizing(config.propulsors['turbofan'], mach_number, altitude)
-        compute_turbofan_geometry(config.propulsors['turbofan'], conditions)
+        turbofan_sizing(config.networks['turbofan'], mach_number, altitude)
+        compute_turbofan_geometry(config.networks['turbofan'], conditions)
         # diff the new data
         #config.store_diff()
 

@@ -127,8 +127,8 @@ def setup(solver_name):
 
     problem.inputs = np.array([
     #   [ tag   , initial,(   lb   ,   ub   )     , scaling , units ]
-        [ 'x1'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , 1*Units.less],
-        [ 'x2'  ,  1.  , (   -2.   ,   2.   )  ,   1.   , 1*Units.less],
+        [ 'x1'  ,  1.  ,    -2.   ,   2.     ,   1.   , 1*Units.less],
+        [ 'x2'  ,  1.  ,    -2.   ,   2.     ,   1.   , 1*Units.less],
     ],dtype=object)
     
     # -------------------------------------------------------------------

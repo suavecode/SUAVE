@@ -25,20 +25,25 @@ from Embraer_190 import vehicle_setup, configs_setup
 def main():
     problem = setup()
     
+    # Enforce the bounds
+    problem.hard_bounded_inputs = True
+    
     obj = problem.objective([1.,1.])
     con = problem.all_constraints([1.,1.])
     obj2 = problem.objective([0.9,1.1])
-    con3 = problem.all_constraints([1.1,0.9])    
-    
-    actual = Data()
-
-    actual.obj  = 0.71675392
-    actual.con  = 2.71025508
-    actual.obj2 = 0.73969638
-    actual.con3 = 2.86060695
+    con3 = problem.all_constraints([1.1,0.9])   
     
     print('Fuel Burn   =', obj)
-    print('Fuel Margin =', con)    
+    print('Fuel Margin =', con)
+    print(obj2)
+    print(con3)
+    
+    actual = Data()
+    actual.obj  = 0.7104222
+    actual.con  = 2.73413428
+    actual.obj2 = 0.73352975
+    actual.con3 = 2.88527578
+    
 
     error = Data()
     error.obj  = (actual.obj - obj)/actual.obj
@@ -70,8 +75,8 @@ def setup():
 
     #   [ tag                            , initial, (lb,ub)             , scaling , units ]
     problem.inputs = np.array([
-        [ 'wing_area'                    ,  95    , (   90. ,   130.   ) ,   100. , 1*Units.meter**2],
-        [ 'cruise_altitude'              ,  11    , (   9   ,    14.   ) ,   10.  , 1*Units.km],
+        [ 'wing_area'                    ,  95    ,    90. ,   130.    ,   100. , 1*Units.meter**2],
+        [ 'cruise_altitude'              ,  11    ,    9.  ,    14.    ,   10.  , 1*Units.km],
     ],dtype=object)
     
     # -------------------------------------------------------------------

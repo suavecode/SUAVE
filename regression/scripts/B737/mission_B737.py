@@ -66,6 +66,9 @@ def main():
     # check the results
     check_results(results,old_results) 
     
+    # print weights breakdown
+    print_weight_breakdown(configs.cruise)
+    
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
@@ -159,8 +162,8 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy = SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
 
     # ------------------------------------------------------------------
