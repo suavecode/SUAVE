@@ -187,7 +187,12 @@ class Battery_Propeller(Network):
             conditions.propulsion.power_loading[:,ii]          = (F_mag[:,0])/(P[:,0])      # N/W      
             conditions.propulsion.propeller_efficiency         = etap[:,0]      
             
-            conditions.noise.sources.propellers[prop.tag]      = outputs
+            if n_evals==1:
+                # Append outputs to each identical propeller
+                for i,p in enumerate(props):
+                    conditions.noise.sources.propellers[p.tag]      = outputs
+            else:
+                conditions.noise.sources.propellers[prop.tag]      = outputs
 
         # Run the avionics
         avionics.power()
