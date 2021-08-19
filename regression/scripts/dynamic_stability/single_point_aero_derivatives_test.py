@@ -47,11 +47,20 @@ def main():
     #----------------------------------------------------------------------------
     # compute aerodynamic derivatives for this single-point mission segment
     #----------------------------------------------------------------------------  
-    aero_derivatives, nom_res = single_point_aero_derivatives(analyses.configs,vehicle, cruise_state)
-    print(aero_derivatives.dCL_dAlpha)
+    aero_derivatives = single_point_aero_derivatives(analyses.configs,vehicle, cruise_state)
+    
+    #----------------------------------------------------------------------------
+    # verify results
+    #----------------------------------------------------------------------------      
+    dCL_dAlpha_t     = np.array([6.451567213386683])
+    dCT_dAlpha0_t    = np.array([0.01311])
+    
+    assert(aero_derivatives.dCL_dAlpha-dCL_dAlpha_t < 1e-5)
+    assert(aero_derivatives.dCT_dAlpha[0]-dCT_dAlpha0_t < 1e-5)
     
     # print table of aerodynamic derivatives
     display_derivative_table(aero_derivatives)
+    
     return 
 
 
@@ -67,7 +76,6 @@ def display_derivative_table(aero_derivatives):
     
     data=np.array([[aero_derivatives.dCL_dAlpha,aero_derivatives.dCL_dThrottle,aero_derivatives.dCL_dV],
           [aero_derivatives.dCD_dAlpha,aero_derivatives.dCD_dThrottle,aero_derivatives.dCD_dV],])
-          #[aero_derivatives.dCM_dAlpha,aero_derivatives.dCM_dThrottle,aero_derivatives.dCM_dV],])
     
     for i in range(len(aero_derivatives.dCT_dAlpha)):
         data = np.append(data,[[aero_derivatives.dCT_dAlpha[i],aero_derivatives.dCT_dThrottle[i],aero_derivatives.dCT_dV[i]]],axis=0)
@@ -187,7 +195,7 @@ def base_analysis(vehicle, fixed_helical_wake):
 
 
 # ----------------------------------------------------------------------
-#   Define the Mission
+#   Define the Initial Mission
 # ----------------------------------------------------------------------
 
 def cruise_mission(analyses,vehicle,Vcruise=135.*Units.mph, Alt=8000.*Units.feet):
@@ -233,52 +241,18 @@ def cruise_mission(analyses,vehicle,Vcruise=135.*Units.mph, Alt=8000.*Units.feet
     
     return mission
 
-def single_point_mission(analyses, altitude, speed, throttle):
-    mission = SUAVE.Analyses.Mission.Sequential_Segments()
-    mission.tag = 'the_mission'
-    
-    #airport
-    airport = SUAVE.Attributes.Airports.Airport()
-    airport.altitude   =  0.0  * Units.ft
-    airport.delta_isa  =  0.0
-    airport.atmosphere = SUAVE.Attributes.Atmospheres.Earth.US_Standard_1976()
-
-    mission.airport = airport   
-
-    # unpack Segments module
-    Segments = SUAVE.Analyses.Mission.Segments
-
-    # base segment
-    base_segment = Segments.Segment()    
-    #base_segment.state.numerics.number_control_points = 4 
-    # ------------------------------------------------------------------
-    #  Single Point Segment 1: constant Speed, constant altitude
-    # ------------------------------------------------------------------ 
-    segment = Segments.Single_Point.Set_Speed_Set_Throttle(base_segment)
-    segment.tag = "single_point" 
-    segment.analyses.extend(analyses.base) 
-    segment.altitude    =  altitude
-    segment.air_speed   =  speed 
-    segment.throttle    =  throttle
-
-    # add to misison
-    mission.append_segment(segment)    
-    
-    
-    return mission    
 
 def missions_setup(base_mission):
-
+    
     # the mission container
     missions = SUAVE.Analyses.Mission.Mission.Container()
 
     # ------------------------------------------------------------------
     #   Base Mission
     # ------------------------------------------------------------------
-
+    
     missions.base = base_mission
 
-    # done!
     return missions  
 
 
