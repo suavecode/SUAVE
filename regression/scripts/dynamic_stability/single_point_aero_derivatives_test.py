@@ -51,7 +51,7 @@ def main():
     #----------------------------------------------------------------------------
     # compute aerodynamic derivatives for this single-point mission segment
     #----------------------------------------------------------------------------  
-    aero_derivatives = single_point_aero_derivatives(analyses.configs,vehicle, cruise_state)
+    aero_derivatives, nom_res = single_point_aero_derivatives(analyses.configs,vehicle, cruise_state)
     print(aero_derivatives.dCL_dAlpha)
     return 
 
