@@ -55,6 +55,7 @@ modules = [
     'scripts/ducted_fan/battery_ducted_fan_network.py',
     'scripts/ducted_fan/serial_hybrid_ducted_fan_network.py',
     'scripts/dynamic_stability/dynamicstability.py',
+    'scripts/dynamic_stability/single_point_aero_derivatives_test.py',
     'scripts/electric_performance/propeller_single_point.py',
     'scripts/electric_performance/electric_V_h_diagram.py',
     'scripts/electric_performance/electric_payload_range.py',

@@ -29,9 +29,26 @@ from X57_Maxwell_Mod2 import vehicle_setup, configs_setup
 # -------------------------------------------------------------------------------
 def main():
     #----------------------------------------------------------------------------
-    # setup the vehicle and mission segment
+    # Analyze without prop-wing interaction:
     #----------------------------------------------------------------------------
-    fixed_helical_wake = False
+    aero_derivatives = run_test(fixed_helical_wake=False)
+    
+    # verify results    
+    dCL_dAlpha_t     = np.array([6.484447102988838])
+    dCT_dAlpha0_t    = np.array([0.012724685069449848])
+    
+    assert(aero_derivatives.dCL_dAlpha-dCL_dAlpha_t < 1e-5)
+    assert(aero_derivatives.dCT_dAlpha[0]-dCT_dAlpha0_t < 1e-5)
+    
+    # print table of aerodynamic derivatives
+    display_derivative_table(aero_derivatives)
+    
+    return 
+
+def run_test(fixed_helical_wake):
+    #----------------------------------------------------------------------------
+    # setup the vehicle and mission segment
+    #----------------------------------------------------------------------------    
     Vcruise            = 135 * Units.mph
     Alt                = 8000 * Units.feet
     configs, analyses  = full_setup(fixed_helical_wake,Vcruise=Vcruise,Alt=Alt) 
@@ -49,20 +66,8 @@ def main():
     #----------------------------------------------------------------------------  
     aero_derivatives = single_point_aero_derivatives(analyses.configs,vehicle, cruise_state)
     
-    #----------------------------------------------------------------------------
-    # verify results
-    #----------------------------------------------------------------------------      
-    dCL_dAlpha_t     = np.array([6.451567213386683])
-    dCT_dAlpha0_t    = np.array([0.01311])
-    
-    assert(aero_derivatives.dCL_dAlpha-dCL_dAlpha_t < 1e-5)
-    assert(aero_derivatives.dCT_dAlpha[0]-dCT_dAlpha0_t < 1e-5)
-    
-    # print table of aerodynamic derivatives
-    display_derivative_table(aero_derivatives)
-    
-    return 
 
+    return aero_derivatives
 
 def display_derivative_table(aero_derivatives):
     
@@ -104,6 +109,9 @@ def full_setup(fixed_helical_wake,Vcruise,Alt):
     # vehicle data
     vehicle  = vehicle_setup() 
     configs  = configs_setup(vehicle)
+    
+    # enable 2d rotor analysis
+    vehicle.networks.battery_propeller.propellers.propeller.use_2d_analysis  = True
 
     # vehicle analyses
     configs_analyses = analyses_setup(configs, fixed_helical_wake)
