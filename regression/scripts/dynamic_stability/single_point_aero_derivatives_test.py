@@ -13,18 +13,14 @@ to the wing angle of attack and each propeller throttle setting.
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units
 from SUAVE.Plots.Mission_Plots import *  
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import  VLM  
 from SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.single_point_aero_derivatives import single_point_aero_derivatives
 
-from copy import deepcopy
-import numpy as np
 import pylab as plt
 import sys
 
 sys.path.append('../Vehicles') 
-#from X57_Mod4 import vehicle_setup, configs_setup 
 from X57_Maxwell_Mod2 import vehicle_setup, configs_setup
 
 
@@ -53,7 +49,43 @@ def main():
     #----------------------------------------------------------------------------  
     aero_derivatives, nom_res = single_point_aero_derivatives(analyses.configs,vehicle, cruise_state)
     print(aero_derivatives.dCL_dAlpha)
+    
+    # print table of aerodynamic derivatives
+    display_derivative_table(aero_derivatives)
     return 
+
+
+def display_derivative_table(aero_derivatives):
+    
+    # plot table of aero derivatives 
+    column_labels=["$d\\alpha$", "dThrottle", "$dV_\\infty$"]
+    row_labels=["$dC_L$", "$dC_{D}$"]
+    
+    plt.rcParams["figure.figsize"] = [7.00, 4.00]
+    plt.rcParams["figure.autolayout"] = True    
+    fig, ax =plt.subplots(1,1)
+    
+    data=np.array([[aero_derivatives.dCL_dAlpha,aero_derivatives.dCL_dThrottle,aero_derivatives.dCL_dV],
+          [aero_derivatives.dCD_dAlpha,aero_derivatives.dCD_dThrottle,aero_derivatives.dCD_dV],])
+          #[aero_derivatives.dCM_dAlpha,aero_derivatives.dCM_dThrottle,aero_derivatives.dCM_dV],])
+    
+    for i in range(len(aero_derivatives.dCT_dAlpha)):
+        data = np.append(data,[[aero_derivatives.dCT_dAlpha[i],aero_derivatives.dCT_dThrottle[i],aero_derivatives.dCT_dV[i]]],axis=0)
+        row_labels = np.append(row_labels,f"$dC_T({i})$")
+        data = np.append(data,[[aero_derivatives.dMyaw_dAlpha[i],aero_derivatives.dMyaw_dThrottle[i],aero_derivatives.dMyaw_dV[i]]],axis=0)
+        row_labels = np.append(row_labels,f"$dM_y({i})$" )
+    
+    
+    round_data = np.round(data,3)
+    ax.axis('tight')
+    ax.axis('off')
+    table = ax.table(cellText=round_data,rowLabels=row_labels,colLabels=column_labels,loc="center")  
+    table.auto_set_font_size(False)
+    table.set_fontsize(14)
+    plt.show()
+    
+    return
+
 
 # ----------------------------------------------------------------------
 #   Analysis Setup

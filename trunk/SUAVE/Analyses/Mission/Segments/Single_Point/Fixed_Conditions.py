@@ -29,8 +29,9 @@ from SUAVE.Core import Units
 ## @ingroup Analyses-Mission-Segments-Single_Point
 class Fixed_Conditions(Aerodynamic):
     """ This is a segment that is solved using a single point. A snapshot in time.
-        We fix all conditions and simply evaluate the vehicle at the specified conditions.
-        This is useful for analyzing vehicle response to perturbations in conditions.
+        We fix all conditions and simply evaluate the vehicle at the specified state.
+        This is useful for analyzing vehicle response to perturbations in conditions,
+        or replicating wind tunnel tests.
     
         Assumptions:
         None
