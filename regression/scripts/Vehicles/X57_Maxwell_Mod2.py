@@ -362,6 +362,7 @@ def vehicle_setup():
     prop.rotation               = -1
     prop.symmetry               = True
     prop.variable_pitch         = True
+    prop.use_2d_analysis        = True
 
     prop.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt']
     prop.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,

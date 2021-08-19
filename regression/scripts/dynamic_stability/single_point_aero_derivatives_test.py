@@ -46,12 +46,12 @@ def main():
     vehicle       = configs.base
     
     results = mission.evaluate()
-    state   = results.segments.cruise.state
+    cruise_state   = results.segments.cruise.state
     
     #----------------------------------------------------------------------------
     # compute aerodynamic derivatives for this single-point mission segment
     #----------------------------------------------------------------------------  
-    aero_derivatives = single_point_aero_derivatives(vehicle, state)
+    aero_derivatives = single_point_aero_derivatives(analyses.configs,vehicle, cruise_state)
     print(aero_derivatives.dCL_dAlpha)
     return 
 
