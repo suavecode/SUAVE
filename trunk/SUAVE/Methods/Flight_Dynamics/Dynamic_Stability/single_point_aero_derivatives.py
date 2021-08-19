@@ -42,6 +42,8 @@ def single_point_aero_derivatives(analyses,vehicle, state, h=0.01):
     throttle = state.conditions.propulsion.throttle
     velocity = state.conditions.freestream.velocity
     
+    Results, nominal_results_for_comparison = evaluate_aero_results(analyses,vehicle,state)
+    
     # ----------------------------------------------------------------------------
     # Perturb each state variable
     # ----------------------------------------------------------------------------
@@ -55,10 +57,10 @@ def single_point_aero_derivatives(analyses,vehicle, state, h=0.01):
     # test the single point set speed set throttle result
     
     
-    results_Alpha_plus = evaluate_aero_results(analyses,vehicle,perturbed_state)
+    results_Alpha_plus, res = evaluate_aero_results(analyses,vehicle,perturbed_state)
     
     perturbed_state.conditions.aerodynamics.angle_of_attack = alpha_minus
-    results_Alpha_minus = evaluate_aero_results(analyses,vehicle,perturbed_state)    
+    results_Alpha_minus, res = evaluate_aero_results(analyses,vehicle,perturbed_state)    
 
     # ----------------------------------------------------------------------------    
     # Throttle perturbation
@@ -68,9 +70,9 @@ def single_point_aero_derivatives(analyses,vehicle, state, h=0.01):
     
     perturbed_state = deepcopy(state)
     perturbed_state.conditions.propulsion.throttle = throttle_plus
-    results_Throttle_plus = evaluate_aero_results(analyses,vehicle,perturbed_state)
+    results_Throttle_plus, res = evaluate_aero_results(analyses,vehicle,perturbed_state)
     perturbed_state.conditions.propulsion.throttle = throttle_minus
-    results_Throttle_minus = evaluate_aero_results(analyses,vehicle,perturbed_state)
+    results_Throttle_minus, res = evaluate_aero_results(analyses,vehicle,perturbed_state)
 
     # ----------------------------------------------------------------------------     
     # Velocity perturbation
@@ -80,11 +82,11 @@ def single_point_aero_derivatives(analyses,vehicle, state, h=0.01):
     
     perturbed_state.conditions.freestream.velocity = velocity_plus
     perturbed_state.conditions.frames.inertial.velocity_vector[:,0] = velocity_plus[0][0]
-    results_Velocity_plus = evaluate_aero_results(analyses,vehicle,perturbed_state)
+    results_Velocity_plus, res = evaluate_aero_results(analyses,vehicle,perturbed_state)
     
     perturbed_state.conditions.freestream.velocity = velocity_minus
     perturbed_state.conditions.frames.inertial.velocity_vector[:,0] = velocity_minus[0][0]
-    results_Velocity_minus = evaluate_aero_results(analyses,vehicle,perturbed_state)        
+    results_Velocity_minus, res = evaluate_aero_results(analyses,vehicle,perturbed_state)        
 
     # ---------------------------------------------------------------------------- 
     # Compute and store aerodynamic derivatives
@@ -93,25 +95,25 @@ def single_point_aero_derivatives(analyses,vehicle, state, h=0.01):
     aero_derivatives.dCL_dAlpha  = (results_Alpha_plus.CL  - results_Alpha_minus.CL)/h
     aero_derivatives.dCD_dAlpha = (results_Alpha_plus.CD - results_Alpha_minus.CD)/h  
     aero_derivatives.dCM_dAlpha  = 0#(results_Alpha_plus.CM - results_Alpha_minus.CM)/h  
-    #aero_derivatives.dT_dAlpha   = (results_Alpha_plus.T  - results_Alpha_minus.T)/h  
+    aero_derivatives.dCT_dAlpha   = (results_Alpha_plus.CT  - results_Alpha_minus.CT)/h  
     #aero_derivatives.dYaw_dAlpha = (results_Alpha_plus.Yaw - results_Alpha_minus.Yaw)/h 
 
     aero_derivatives.dCL_dThrottle   = (results_Throttle_plus.CL  - results_Throttle_minus.CL)/h
     aero_derivatives.dCD_dThrottle  = (results_Throttle_plus.CD - results_Throttle_minus.CD)/h  
     aero_derivatives.dCM_dThrottle   = 0#(results_Throttle_plus.CM - results_Throttle_minus.CM)/h  
-    #aero_derivatives.dT_dThrottle    = (results_Throttle_plus.T  - results_Throttle_minus.T)/h  
+    aero_derivatives.dCT_dThrottle    = (results_Throttle_plus.CT  - results_Throttle_minus.CT)/h  
     #aero_derivatives.dYaw_dThrottle  = (results_Throttle_plus.Yaw  - results_Throttle_minus.Yaw)/h       
     
     aero_derivatives.dCL_dV  = (results_Velocity_plus.CL  - results_Velocity_minus.CL)/h
     aero_derivatives.dCD_dV = (results_Velocity_plus.CD - results_Velocity_minus.CD)/h 
     aero_derivatives.dCM_dV  = 0# (results_Velocity_plus.CM - results_Velocity_minus.CM)/h
-    #aero_derivatives.dT_dV   = (results_Velocity_plus.T  - results_Velocity_minus.T)/h
+    aero_derivatives.dCT_dV   = (results_Velocity_plus.CT  - results_Velocity_minus.CT)/h
     #aero_derivatives.dYaw_dV = (results_Velocity_plus.Yaw - results_Velocity_minus.Yaw)/h
     
     
     display_derivative_table(aero_derivatives)
     
-    return aero_derivatives 
+    return aero_derivatives,nominal_results_for_comparison
 
 def display_derivative_table(aero_derivatives):
     
@@ -127,11 +129,11 @@ def display_derivative_table(aero_derivatives):
           [aero_derivatives.dCD_dAlpha,aero_derivatives.dCD_dThrottle,aero_derivatives.dCD_dV],
           [aero_derivatives.dCM_dAlpha,aero_derivatives.dCM_dThrottle,aero_derivatives.dCM_dV],])
     
-    #for i in range(len(aero_derivatives.dT_dAlpha)):
-        #data = np.append(data,[[aero_derivatives.dT_dAlpha[i],aero_derivatives.dT_dThrottle[i],aero_derivatives.dT_dV[i]]],axis=0)
-        #row_labels = np.append(row_labels,f"$dT_{i}$")
-        #data = np.append(data,[[aero_derivatives.dYaw_dAlpha[i],aero_derivatives.dYaw_dThrottle[i],aero_derivatives.dYaw_dV[i]]],axis=0)
-        #row_labels = np.append(row_labels,f"$dMyaw_{i}$" )
+    #for i in range(len(aero_derivatives.dCT_dAlpha)):
+    data = np.append(data,[[aero_derivatives.dCT_dAlpha,aero_derivatives.dCT_dThrottle,aero_derivatives.dCT_dV]],axis=0)
+    row_labels = np.append(row_labels,f"$dC_T$")
+    #data = np.append(data,[[aero_derivatives.dYaw_dAlpha,aero_derivatives.dYaw_dThrottle,aero_derivatives.dYaw_dV]],axis=0)
+    #row_labels = np.append(row_labels,f"$dMyaw_{i}$" )
     
     
     round_data = np.round(data,3)
@@ -160,15 +162,16 @@ def evaluate_aero_results(analyses,vehicle,state):
     #Results.Yaw = Myaw    
 
     
-    return Results
+    return Results, results
 
 
 def single_point_mission(analyses,vehicle,state):
     # Extract single point values from state
-    body_angle = state.conditions.aerodynamics.angle_of_attack
-    throttle   = state.conditions.propulsion.throttle
-    air_speed  = state.conditions.freestream.velocity  
-    altitude   = state.conditions.freestream.altitude
+    body_angle     = state.conditions.aerodynamics.angle_of_attack
+    throttle       = state.conditions.propulsion.throttle
+    air_speed      = state.conditions.freestream.velocity  
+    altitude       = state.conditions.freestream.altitude
+    battery_energy = state.conditions.propulsion.battery_energy[-1]
     
     # ------------------------------------------------------------------
     #   Initialize the Mission
@@ -200,10 +203,11 @@ def single_point_mission(analyses,vehicle,state):
     segment = Segments.Single_Point.Fixed_Conditions(base_segment)
     segment.tag = "single_point" 
     segment.analyses.extend(analyses.base) 
-    segment.altitude    =  altitude   
-    segment.air_speed   =  air_speed  
-    segment.body_angle  =  body_angle 
-    segment.throttle    =  throttle  
+    segment.battery_energy = battery_energy
+    segment.altitude       =  altitude   
+    segment.air_speed      =  air_speed  
+    segment.body_angle     =  body_angle 
+    segment.throttle       =  throttle  
     segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)  
 
     # add to misison
