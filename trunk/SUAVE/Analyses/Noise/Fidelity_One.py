@@ -4,6 +4,7 @@
 # Created:  
 # Modified: Feb 2016, A. Wendorff
 # Modified: Apr 2021, M. Clarke
+#           Jul 2021, E. Botero
 
 # ----------------------------------------------------------------------
 #  Imports
@@ -150,8 +151,8 @@ class Fidelity_One(Noise):
         ctrl_pts = len(altitude) 
         
         # create empty arrays for results  
-        num_src            = len(config.propulsors) + 1 
-        if ('lift_cruise') in config.propulsors.keys():
+        num_src            = len(config.networks) + 1 
+        if ('lift_cruise') in config.networks.keys():
             num_src += 1
         source_SPLs_dBA    = np.zeros((ctrl_pts,num_src,num_mic)) 
         source_SPL_spectra = np.zeros((ctrl_pts,num_src,num_mic,dim_cf ))    
@@ -159,7 +160,7 @@ class Fidelity_One(Noise):
         si = 1  
         # iterate through sources 
         for source in conditions.noise.sources.keys():  
-            for network in config.propulsors.keys():                 
+            for network in config.networks.keys():                 
                 if source  == 'turbofan':
                     geometric = noise_geometric(segment,analyses,config)  
                      
@@ -172,19 +173,19 @@ class Fidelity_One(Noise):
                     
                     if bool(conditions.noise.sources[source].fan) and bool(conditions.noise.sources[source].core): 
                                               
-                        config.propulsors[source].fan.rotation            = 0 # FUTURE WORK: NEED TO UPDATE ENGINE MODEL WITH FAN SPEED in RPM
-                        config.propulsors[source].fan_nozzle.noise_speed  = conditions.noise.sources.turbofan.fan.exit_velocity 
-                        config.propulsors[source].core_nozzle.noise_speed = conditions.noise.sources.turbofan.core.exit_velocity
-                        engine_noise                                      = noise_SAE(config.propulsors[source],segment,analyses,config,settings,ioprint = print_flag)  
+                        config.networks[source].fan.rotation            = 0 # FUTURE WORK: NEED TO UPDATE ENGINE MODEL WITH FAN SPEED in RPM
+                        config.networks[source].fan_nozzle.noise_speed  = conditions.noise.sources.turbofan.fan.exit_velocity 
+                        config.networks[source].core_nozzle.noise_speed = conditions.noise.sources.turbofan.core.exit_velocity
+                        engine_noise                                      = noise_SAE(config.networks[source],segment,analyses,config,settings,ioprint = print_flag)  
                         source_SPLs_dBA[:,si,:]                           = np.repeat(np.atleast_2d(engine_noise.SPL_dBA).T, num_mic, axis =1)     # noise measures at one microphone location in segment
                         source_SPL_spectra[:,si,:,5:]                     = np.repeat(engine_noise.SPL_spectrum[:,np.newaxis,:], num_mic, axis =1) # noise measures at one microphone location in segment
                           
-                elif (source  == 'propeller')  or (source   == 'rotor'): 
+                elif (source  == 'propellers')  or (source   == 'rotors'): 
                     if bool(conditions.noise.sources[source]) == True: 
-                        net                          = config.propulsors[network]
-                        prop                         = config.propulsors[network][source]
+                        net                          = config.networks[network]
+                        prop                         = config.networks[network][source]
                         acoustic_data                = conditions.noise.sources[source]   
-                        propeller_noise              = propeller_mid_fidelity(net,prop,acoustic_data,segment,settings)  
+                        propeller_noise              = propeller_mid_fidelity(net,acoustic_data,segment,settings)  
                         source_SPLs_dBA[:,si,:]      = propeller_noise.SPL_dBA 
                         source_SPL_spectra[:,si,:,:] = propeller_noise.SPL_spectrum    
                            

@@ -28,7 +28,7 @@ def compute_noise(config,analyses,noise_segment,noise_settings):
 
     Inputs:
         config.
-        propulsors.turbofan   - SUAVE turbodan data structure               [None]
+        networks.turbofan     - SUAVE turbofan data structure               [None]
         output_file           - flag to write noise outout to file          [Boolean]
         output_file_engine    - flag to write engine outout to file         [Boolean]
         print_output          - flag to print outout to file                [Boolean]
@@ -42,7 +42,7 @@ def compute_noise(config,analyses,noise_segment,noise_settings):
         
     """  
  
-    turbofan          = config.propulsors['turbofan'] 
+    turbofan          = config.networks['turbofan'] 
     outputfile        = config.output_file
     outputfile_engine = config.output_file_engine
     print_output      = config.print_output

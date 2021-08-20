@@ -46,10 +46,10 @@ def plot_propeller(prop, face_color = 'red', edge_color = 'black' , save_figure 
     axes_1.set_zlim(-1,1)    
     
     # append a network for origin and thrust angle default values
-    propulsor = Battery_Propeller() 
+    network = Battery_Propeller() 
     
     # plot propeller geometry
-    plot_propeller_geometry(axes_1,prop,propulsor,prop.tag) 
+    plot_propeller_geometry(axes_1,prop,network,prop.tag) 
     
     if save_figure:
         plt.savefig(save_filename + '_3D' + file_type)  

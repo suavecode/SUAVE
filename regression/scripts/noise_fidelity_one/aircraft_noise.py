@@ -1,6 +1,6 @@
 # aircraft_noise.py
 #
-# Created: Arp 2021, M. Clarke 
+# Created: Apr 2021, M. Clarke 
 
 """ setup file for the X57-Maxwell Electric Aircraft to valdiate noise in a climb segment
 """
@@ -25,10 +25,10 @@ import sys
 sys.path.append('../Vehicles')
 # the analysis functions 
  
-from X57_Maxwell  import vehicle_setup as  X57_vehicle_setup
-from X57_Maxwell  import configs_setup as  X57_configs_setup  
-from Boeing_737   import vehicle_setup as  B737_vehicle_setup 
-from Boeing_737   import configs_setup as  B737_configs_setup 
+from X57_Maxwell_Mod2  import vehicle_setup as  X57_vehicle_setup
+from X57_Maxwell_Mod2  import configs_setup as  X57_configs_setup  
+from Boeing_737        import vehicle_setup as  B737_vehicle_setup 
+from Boeing_737        import configs_setup as  B737_configs_setup 
 
 # ----------------------------------------------------------------------
 #   Main
@@ -36,7 +36,7 @@ from Boeing_737   import configs_setup as  B737_configs_setup
 
 def main():   
     # ----------------------------------------------------------------------
-    # SUAVE Frequecy Domain Propeller Aircraft Noise Model 
+    # SUAVE Frequency Domain Propeller Aircraft Noise Model 
     # ---------------------------------------------------------------------- 
     configs, analyses = X57_full_setup() 
  
@@ -52,9 +52,9 @@ def main():
     plot_results(X57_results,X57_filename)  
     
     # SPL of rotor check during hover
-    print('\n\n SUAVE Frequecy Domain Propeller Aircraft Noise Model')
+    print('\n\n SUAVE Frequency Domain Propeller Aircraft Noise Model')
     X57_SPL        = X57_results.segments.ica.conditions.noise.total_SPL_dBA[3][0]
-    X57_SPL_true   = 81.5900710365277
+    X57_SPL_true   = 81.49359840432146
     print(X57_SPL) 
     X57_diff_SPL   = np.abs(X57_SPL - X57_SPL_true)
     print('SPL difference')
@@ -81,7 +81,7 @@ def main():
     # SPL of rotor check during hover
     print('\n\n SAE Turbofan Aircraft Noise Model')
     B737_SPL        = B737_results.segments.climb_1.conditions.noise.total_SPL_dBA[3][0]
-    B737_SPL_true   = 27.76777338285558
+    B737_SPL_true   = 27.767647082406157
     print(B737_SPL) 
     B737_diff_SPL   = np.abs(B737_SPL - B737_SPL_true)
     print('SPL difference')
@@ -176,7 +176,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks 
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -255,12 +255,7 @@ def X57_mission_setup(analyses,vehicle):
     base_segment.use_Jacobian                                = False  
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
-    base_segment.state.numerics.number_control_points        = 4
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.battery_propeller.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.battery_propeller.residuals
-    base_segment.state.unknowns.propeller_power_coefficient  = 0.005 * ones_row(1) 
-    base_segment.state.unknowns.battery_voltage_under_load   = vehicle.propulsors.battery_propeller.battery.max_voltage * ones_row(1)  
-    base_segment.state.residuals.network                     = 0. * ones_row(2)        
+    base_segment.state.numerics.number_control_points        = 4  
     
     # ------------------------------------------------------------------
     #   Initial Climb Area Segment Flight 1  
@@ -268,13 +263,16 @@ def X57_mission_setup(analyses,vehicle):
     segment = Segments.Climb.Linear_Speed_Constant_Rate(base_segment) 
     segment.tag = 'ICA' 
     segment.analyses.extend( analyses.base )  
-    segment.battery_energy                                   = vehicle.propulsors.battery_propeller.battery.max_energy  
+    segment.battery_energy                                   = vehicle.networks.battery_propeller.battery.max_energy  
     segment.state.unknowns.throttle                          = 0.85  * ones_row(1)  
     segment.altitude_start                                   = 50.0 * Units.feet
     segment.altitude_end                                     = 500.0 * Units.feet
     segment.air_speed_start                                  = 45  * Units['m/s']   
     segment.air_speed_end                                    = 50 * Units['m/s']   
     segment.climb_rate                                       = 600 * Units['ft/min']    
+    
+    segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
+    
     mission.append_segment(segment) 
               
     

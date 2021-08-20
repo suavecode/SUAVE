@@ -48,14 +48,15 @@ def propeller_design(prop,number_of_stations=20):
           Based on Design of Optimum Propellers by Adkins and Liebeck
           
     """    
+    print('\nDesigning',prop.tag)
+    
     # Unpack
     N      = number_of_stations       # this number determines the discretization of the propeller into stations 
     B      = prop.number_of_blades
     R      = prop.tip_radius
     Rh     = prop.hub_radius
-    omega  = prop.angular_velocity    # Rotation Rate in rad/s
-    Va     = prop.induced_hover_velocity
-    Vinf   = prop.freestream_velocity # Freestream Velocity
+    omega  = prop.angular_velocity    # Rotation Rate in rad/s 
+    V      = prop.freestream_velocity # Freestream Velocity
     Cl     = prop.design_Cl           # Design Lift Coefficient
     alt    = prop.design_altitude
     Thrust = prop.design_thrust
@@ -68,10 +69,11 @@ def propeller_design(prop,number_of_stations=20):
         raise AssertionError('Specify either design thrust or design power!')
     
     elif (Thrust!= None) and (Power!= None):
-        raise AssertionError('Specify either design thrust or design power!')
+        raise AssertionError('Specify either design thrust or design power!') 
     
-    # Calculated total velocity 
-    V  = Vinf + Va
+    if V == 0.0:
+        V = 1E-6 
+        
     # Calculate atmospheric properties
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     atmo_data = atmosphere.compute_values(alt)

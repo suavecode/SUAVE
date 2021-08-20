@@ -26,7 +26,7 @@ def systems_Raymer(vehicle):
 
         Inputs:
             vehicle - data dictionary with vehicle properties                   [dimensionless]
-                -.propulsors: data dictionary containing all propulsion properties
+                -.networks: data dictionary containing all propulsion properties
                 -.number_of_engines: number of engines
                 -.sealevel_static_thrust: thrust at sea level               [N]
                 -.fuselages['fuselage'].lengths.total: fuselage total length    [meters]
@@ -64,8 +64,8 @@ def systems_Raymer(vehicle):
     Scs            = vehicle.wings['main_wing'].flap_ratio * vehicle.reference_area / Units.ft**2
     design_mach    = vehicle.design_mach_number
     num_pax        = vehicle.passengers
-    propulsor_name = list(vehicle.propulsors.keys())[0]
-    propulsors     = vehicle.propulsors[propulsor_name]    
+    network_name   = list(vehicle.networks.keys())[0]
+    networks       = vehicle.networks[network_name]    
     fuse_w         = vehicle.fuselages['fuselage'].width / Units.ft
     fuse_h         = vehicle.fuselages['fuselage'].heights.maximum / Units.ft   
     cargo_weight   = vehicle.payload.cargo.mass_properties.mass / Units.lbs
@@ -88,7 +88,7 @@ def systems_Raymer(vehicle):
     else:
         apu_wt = 0.0  # no apu if less than 9 seats
     WAPU            = max(apu_wt, 70./Units.lbs)
-    NENG            = propulsors.number_of_engines
+    NENG            = networks.number_of_engines
     WIN = 4.509 * Kr * Ktp * flight_crew ** 0.541 * NENG * (L + Bw) ** 0.5
     WHYD = 0.2673 * Nf * (L + Bw) ** 0.937
     WELEC = 7.291 * Rkva ** 0.782 * (2*L) ** 0.346 * NENG ** 0.1

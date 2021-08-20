@@ -17,7 +17,7 @@ def print_weight_breakdown(config, filename='weight_breakdown.dat'):
     """This creates a file showing weight information.
 
     Assumptions:
-    One propulsor (can be multiple engines) with 'turbofan' tag.
+    One network (can be multiple engines) with 'turbofan' tag.
 
     Source:
     N/A

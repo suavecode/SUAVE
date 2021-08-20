@@ -9,15 +9,14 @@
 # ---------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core                                                           import Units, Data
-from SUAVE.Components.Energy.Networks.Vectored_Thrust                     import Vectored_Thrust
 from SUAVE.Methods.Power.Battery.Sizing                                   import initialize_from_mass
 from SUAVE.Methods.Propulsion                                             import propeller_design
-from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift                        import compute_max_lift_coeff
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
-from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_from_mass , size_optimal_motor
+from SUAVE.Methods.Propulsion.electric_motor_sizing                       import size_optimal_motor
 from SUAVE.Methods.Weights.Correlations.Propulsion                        import nasa_motor, hts_motor , air_cooled_motor
 import numpy as np
+from copy import deepcopy
 
 # ----------------------------------------------------------------------
 #   Build the Vehicle
@@ -37,7 +36,7 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff             = 2080. * Units.lb 
     vehicle.mass_properties.operating_empty     = 1666. * Units.lb            
     vehicle.mass_properties.max_takeoff         = 2080. * Units.lb               
-    vehicle.mass_properties.center_of_gravity   = [2.6, 0., 0. ]  
+    vehicle.mass_properties.center_of_gravity   = [[2.6, 0., 0. ]] 
                                                 
     # This needs updating                       
     vehicle.passengers                          = 5
@@ -47,8 +46,11 @@ def vehicle_setup():
                                                 
     wing = SUAVE.Components.Wings.Main_Wing()   
     wing.tag                                    = 'main_wing'  
-    wing.aspect_ratio                           = 1  
-    wing.spans.projected                        = 0.01
+    wing.aspect_ratio                           = 1.  
+    wing.spans.projected                        = 0.1
+    wing.chords.root                            = 0.1
+    wing.chords.tip                             = 0.1
+    wing.origin                                 = [[2.6, 0., 0. ]] 
     wing.symbolic                               = True 
     vehicle.append_component(wing)
     
@@ -141,16 +143,16 @@ def vehicle_setup():
     vehicle.append_component(fuselage)   
        
     #------------------------------------------------------------------
-    # PROPULSOR
+    # Network
     #------------------------------------------------------------------
-    net                    = Vectored_Thrust()
-    net.number_of_engines  = 6
-    net.thrust_angle       = 90. * Units.degrees
-    net.nacelle_diameter   = 0.6 * Units.feet # need to check 
-    net.engine_length      = 0.5 * Units.feet
-    net.areas              = Data()
-    net.areas.wetted       = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2    
-    net.voltage            =  500.
+    net                      = SUAVE.Components.Energy.Networks.Battery_Propeller()
+    net.number_of_propeller_engines    = 6
+    net.nacelle_diameter     = 0.6 * Units.feet # need to check 
+    net.engine_length        = 0.5 * Units.feet
+    net.areas                = Data()
+    net.areas.wetted         = np.pi*net.nacelle_diameter*net.engine_length + 0.5*np.pi*net.nacelle_diameter**2
+    net.voltage              =  500.
+    net.identical_propellers = True
 
     #------------------------------------------------------------------
     # Design Electronic Speed Controller 
@@ -188,65 +190,61 @@ def vehicle_setup():
     #------------------------------------------------------------------
     # Design Rotors  
     #------------------------------------------------------------------ 
-    # atmosphere and flight conditions for propeller/rotor design
-    g               = 9.81                                   # gravitational acceleration  
-    speed_of_sound  = 340                                    # speed of sound 
-    rho             = 1.22                                   # reference density
-    Hover_Load      = vehicle.mass_properties.takeoff*g      # hover load   
-    design_tip_mach = 0.7                                    # design tip mach number 
+    # atmosphere and flight conditions for propeller/lift_rotor design
+    g                            = 9.81                                   # gravitational acceleration  
+    speed_of_sound               = 340                                    # speed of sound 
+    Hover_Load                   = vehicle.mass_properties.takeoff*g      # hover load   
+    design_tip_mach              = 0.7                                    # design tip mach number 
     
-    rotor                        = SUAVE.Components.Energy.Converters.Rotor() 
-    rotor.tip_radius             = 3.95 * Units.feet
-    rotor.hub_radius             = 0.6  * Units.feet 
-    rotor.disc_area              = np.pi*(rotor.tip_radius**2) 
-    rotor.number_of_blades       = 3
-    rotor.freestream_velocity    = 500. * Units['ft/min']  
-    rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/rotor.tip_radius   
-    rotor.design_Cl              = 0.8
-    rotor.design_altitude        = 1000 * Units.feet                   
-    rotor.design_thrust          = (Hover_Load/net.number_of_engines)*2.
+    lift_rotor                        = SUAVE.Components.Energy.Converters.Lift_Rotor() 
+    lift_rotor.tip_radius             = 3.95 * Units.feet
+    lift_rotor.hub_radius             = 0.6  * Units.feet 
+    lift_rotor.disc_area              = np.pi*(lift_rotor.tip_radius**2) 
+    lift_rotor.number_of_blades       = 3
+    lift_rotor.freestream_velocity    = 10.0
+    lift_rotor.angular_velocity       = (design_tip_mach*speed_of_sound)/lift_rotor.tip_radius   
+    lift_rotor.design_Cl              = 0.7
+    lift_rotor.design_altitude        = 1000 * Units.feet                   
+    lift_rotor.design_thrust          = Hover_Load/(net.number_of_propeller_engines-1) # contingency for one-engine-inoperative condition
 
-    rotor.airfoil_geometry       =  ['../Vehicles/Airfoils/NACA_4412.txt'] 
-    rotor.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
+    lift_rotor.airfoil_geometry       = ['../Vehicles/Airfoils/NACA_4412.txt'] 
+    lift_rotor.airfoil_polars         = [['../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_50000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_100000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_200000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_500000.txt' ,
                                      '../Vehicles/Airfoils/Polars/NACA_4412_polar_Re_1000000.txt' ]]
     
-    rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
-    rotor                        = propeller_design(rotor)    
-    rotor.induced_hover_velocity = np.sqrt(Hover_Load/(2*rho*rotor.disc_area*net.number_of_engines))  
+    lift_rotor.airfoil_polar_stations = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]      
+    lift_rotor                        = propeller_design(lift_rotor)     
     
-    # propulating propellers on the other side of the vehicle    
-    rotor.origin                 = []
-    for fuselage in vehicle.fuselages:
-        if fuselage.tag == 'fuselage':
-            continue
-        else:
-            rotor.origin.append(fuselage.origin[0])           
-   
-    # append propellers to vehicle           
-    net.rotor = rotor
+    # Appending rotors with different origins
+    origins                 = [[ 0.,2.,1.4],[ 0.0,-2.,1.4],
+                                [2.5,4.,1.4] ,[2.5,-4.,1.4],
+                                [5.0,2.,1.4] ,[5.0,-2.,1.4]]
+    
+    for ii in range(6):
+        lift_rotor          = deepcopy(lift_rotor)
+        lift_rotor.tag      = 'lift_rotor'
+        lift_rotor.origin   = [origins[ii]]
+        net.propellers.append(lift_rotor)
     
     #------------------------------------------------------------------
     # Design Motors
     #------------------------------------------------------------------
     # Motor
-    motor                      = SUAVE.Components.Energy.Converters.Motor() 
-    motor.efficiency           = 0.95  
-    motor.nominal_voltage      = bat.max_voltage 
-    motor.mass_properties.mass = 3. * Units.kg 
-    motor.origin               = rotor.origin  
-    motor.propeller_radius     = rotor.tip_radius  
-    motor.gear_ratio           = 1.0
-    motor.gearbox_efficiency   = 1.0 
-    motor.no_load_current      = 4.0     
-    motor                      = size_optimal_motor(motor,rotor)
-    net.motor                  = motor 
+    lift_motor                      = SUAVE.Components.Energy.Converters.Motor() 
+    lift_motor.efficiency           = 0.95
+    lift_motor.nominal_voltage      = bat.max_voltage * 0.5
+    lift_motor.mass_properties.mass = 3. * Units.kg 
+    lift_motor.origin               = lift_rotor.origin  
+    lift_motor.propeller_radius     = lift_rotor.tip_radius   
+    lift_motor.no_load_current      = 2.0     
+    lift_motor                      = size_optimal_motor(lift_motor,lift_rotor)
+    net.lift_motor                  = lift_motor 
                                                 
     # Define motor sizing parameters            
-    max_power  = rotor.design_power * 1.2
-    max_torque = rotor.design_torque * 1.2
+    max_power  = lift_rotor.design_power * 1.2
+    max_torque = lift_rotor.design_torque * 1.2
     
     # test high temperature superconducting motor weight function 
     mass = hts_motor(max_power) 
@@ -255,14 +253,20 @@ def vehicle_setup():
     mass = nasa_motor(max_torque)
     
     # test air cooled motor weight function 
-    mass                        = air_cooled_motor(max_power) 
-    motor.mass_properties.mass  = mass 
-    net.motor                   = motor 
+    mass                             = air_cooled_motor(max_power) 
+    lift_motor.mass_properties.mass  = mass 
+    
+    # Appending motors with different origins    
+    for ii in range(6):
+        propeller_motor = deepcopy(lift_motor)
+        propeller_motor.tag = 'motor'
+        net.propeller_motors.append(propeller_motor)        
+
     
     vehicle.append_component(net)
     
     vehicle.weight_breakdown  = empty(vehicle)
     compute_component_centers_of_gravity(vehicle)
-    vehicle.center_of_gravity()
-
+    vehicle.center_of_gravity() 
+    
     return vehicle
