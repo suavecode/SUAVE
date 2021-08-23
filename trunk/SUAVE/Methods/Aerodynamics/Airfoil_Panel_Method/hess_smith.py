@@ -11,7 +11,7 @@ import numpy as np
 
 from .panel_geometry import panel_geometry
 from .infl_coeff  import infl_coeff
-from .veldis import veldis
+from .velocity_distribution import velocity_distribution
 
 # ----------------------------------------------------------------------
 # hess_smith.py
@@ -19,7 +19,7 @@ from .veldis import veldis
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
 def hess_smith(x_coord,y_coord,alpha,Re,npanel,batch_analyis):
-    """Computes of the incompressible, inviscid flow over an airfoil of  arbitrary shape using the Hess-Smith panel method.  
+    """Computes the incompressible, inviscid flow over an airfoil of  arbitrary shape using the Hess-Smith panel method.  
 
     Assumptions:
     None
@@ -29,21 +29,21 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel,batch_analyis):
  
                                                      
     Inputs          
-    x             -  Vector of x coordinates of the surface         
-    y             -  Vector of y coordinates of the surface      
-    batch_analyis - flag for batch analysis
-    alpha         -  Airfoil angle of attack                                  
-    npanel        -  Number of panels on the airfoil.  The number of nodes  
+    x             -  Vector of x coordinates of the surface                  [unitess]     
+    y             -  Vector of y coordinates of the surface                  [unitess] 
+    batch_analyis - flag for batch analysis                                  [boolean]
+    alpha         -  Airfoil angle of attack                                 [radians] 
+    npanel        -  Number of panels on the airfoil.  The number of nodes   [unitess] 
                       is equal to npanel+1, and the ith panel goes from node   
                       i to node i+1                                
                                                                            
     Outputs                                                      
-    cl            -  Airfoil lift coefficient                   
-    cd            -  Airfoil drag coefficient                
-    cm            -  Airfoil moment coefficient about the c/4             
-    x_bar         -  Vector of x coordinates of the surface nodes        
-    y_bar         -  Vector of y coordinates of the surface nodes         
-    cp            -  Vector of coefficients of pressure at the nodes     
+    cl            -  Airfoil lift coefficient                         [unitless]           
+    cd            -  Airfoil drag coefficient                         [unitless]      
+    cm            -  Airfoil moment coefficient about the c/4         [unitless]            
+    x_bar         -  Vector of x coordinates of the surface nodes     [unitless]           
+    y_bar         -  Vector of y coordinates of the surface nodes     [unitless]          
+    cp            -  Vector of coefficients of pressure at the nodes  [unitless]         
 
     Properties Used:
     N/A
@@ -69,6 +69,6 @@ def hess_smith(x_coord,y_coord,alpha,Re,npanel,batch_analyis):
     qg            = np.swapaxes(qg_T.T,1,2) 
     
     # compute the tangential velocity distribution at the midpoint of panels 
-    vt            = veldis(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha,Re,npanel)
+    vt            = velocity_distribution(qg,x_coord,y_coord,xbar,ybar,st,ct,alpha,Re,npanel)
     
     return  xbar,ybar,vt,norm 

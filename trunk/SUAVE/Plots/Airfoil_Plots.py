@@ -13,7 +13,22 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 ## @ingroup Plots
-def plot_airfoil_batch_properties(ap,arrow_color = 'r',plot_pressure_vectors = False ):  
+def plot_airfoil_boundary_layer_properties(ap):  
+    """ This plots the boundary layer properties of an airfoil
+        or group of airfoils
+    
+        Assumptions:
+        None
+        
+        Inputs: 
+        ap       - data stucture of airfoil boundary layer properties  
+        
+        Outputs: 
+        None 
+        
+        Properties Used:
+        N/A
+        """        
     
     # determine dimension of angle of attack and reynolds number 
     nAoA = len(ap.AoA)
@@ -55,26 +70,7 @@ def plot_airfoil_batch_properties(ap,arrow_color = 'r',plot_pressure_vectors = F
     fig3  = plt.figure('Airfoil Cp',figsize=(8,6)) 
     axis8 = fig3.add_subplot(1,1,1)      
     axis8.set_ylabel('$C_p$') 
-    axis8.set_ylim(1.2,-7) 
-    
-    fig4   = plt.figure('Airfoil Polars',figsize=(12,5))
-    axis12 = fig4.add_subplot(1,3,1)     
-    axis12.set_title('Aero Coefficients')
-    axis12.set_xlabel('AoA')
-    axis12.set_ylabel(r'Lift Coefficient, Cl') 
-    axis12.set_ylim(-1,2)  
-    
-    axis13 = fig4.add_subplot(1,3,2)    
-    axis13.set_title('Drag Coefficient') 
-    axis13.set_xlabel('AoA')
-    axis13.set_ylabel(r'Drag Coefficient, Cd') 
-    axis13.set_ylim(0,0.25)  
-    
-    axis14 = fig4.add_subplot(1,3,3)   
-    axis14.set_title('Moment Coefficient')  
-    axis14.set_xlabel('AoA')
-    axis14.set_ylabel(r'Moment Coefficient, Cm ')    
-    axis14.set_ylim(-0.1,0.1)  
+    axis8.set_ylim(1.2,-7)  
      
     mid = int(len(ap.x)/2)
     
@@ -108,25 +104,70 @@ def plot_airfoil_batch_properties(ap,arrow_color = 'r',plot_pressure_vectors = F
             axis8.plot(ap.x[:mid,j,i], ap.Cp[:mid,j,i] ,color = colors[j], linestyle = '-' ,marker =  markers[j%9] , label= tag) 
             axis8.plot(ap.x[mid:,j,i], ap.Cp[ mid:,j,i],color = colors[j], linestyle = '--' ,marker =  markers[j%9])              
             
-            plt.tight_layout()
+            plt.tight_layout() 
+                           
+    # add legends for plotting
+    plt.tight_layout()
+    lines1, labels1 = fig2.axes[0].get_legend_handles_labels()
+    fig2.legend(lines1, labels1, loc='upper center', ncol=3)
+    axis8.legend(loc='upper left')    
+    
+    return   
+ 
+
+## @ingroup Plots
+def plot_airfoil_polars(ap):  
+    """ This plots the polars of an airfoil or group of airfoils
+    
+        Assumptions:
+        None
+        
+        Inputs: 
+        ap       - data stucture of airfoil boundary layer properties and polars 
+         
+        Outputs: 
+        None 
+        
+        Properties Used:
+        N/A
+        """        
+    
+    # determine dimension of angle of attack and reynolds number 
+    nAoA = len(ap.AoA)
+    nRe  = len(ap.Re)
+    
+    # create array of colors for difference reynolds numbers 
+    colors  = cm.rainbow(np.linspace(0, 1,nAoA))
+    markers = ['o','v','s','P','p','^','D','X','*']
+    
+    fig1  = plt.figure('Airfoil Geometry',figsize=(8,6)) 
+    axis1 = fig1.add_subplot(1,1,1)     
+    axis1.set_xlabel('x')
+    axis1.set_ylabel('y')   
+    axis1.set_ylim(-0.2, 0.2)  
      
-            if plot_pressure_vectors: 
-                label =  '_AoA_' + str(round(ap.AoA[j][0]/Units.degrees,2)) + '_deg_Re_' + str(round(ap.Re[i][0]/1000000,2)) + 'E6'
-                fig   = plt.figure('Airfoil_Pressure_Normals' + label )
-                axis15 = fig.add_subplot(1,1,1)      
-                axis15.plot(ap.x[:,j,i], ap.y[:,j,i],'k-') 
-                
-                for k in range(len(ap.x)):
-                    dx_val = ap.normals[k,0,j,i]*abs(ap.Cp[k,j,i])*0.1
-                    dy_val = -ap.normals[k,1,j,i]*abs(ap.Cp[k,j,i])*0.1
-                    if ap.Cp[k,j,i] < 0:
-                        plt.arrow(x= ap.x[k,j,i], y=ap.y[k,j,i] , dx= dx_val , dy = dy_val , 
-                                  fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
-                    else:
-                        plt.arrow(x= ap.x[k,j,i]+dx_val , y= ap.y[k,j,i]+dy_val , dx= -dx_val , dy = -dy_val , 
-                                  fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )    
-                          
-                                  
+    
+    fig4   = plt.figure('Airfoil Polars',figsize=(12,5))
+    axis12 = fig4.add_subplot(1,3,1)     
+    axis12.set_title('Aero Coefficients')
+    axis12.set_xlabel('AoA')
+    axis12.set_ylabel(r'Lift Coefficient, Cl') 
+    axis12.set_ylim(-1,2)  
+    
+    axis13 = fig4.add_subplot(1,3,2)    
+    axis13.set_title('Drag Coefficient') 
+    axis13.set_xlabel('AoA')
+    axis13.set_ylabel(r'Drag Coefficient, Cd') 
+    axis13.set_ylim(0,0.25)  
+    
+    axis14 = fig4.add_subplot(1,3,3)   
+    axis14.set_title('Moment Coefficient')  
+    axis14.set_xlabel('AoA')
+    axis14.set_ylabel(r'Moment Coefficient, Cm ')    
+    axis14.set_ylim(-0.1,0.1)  
+      
+    for i in range(nRe):  
+        
         Re_tag  = 'Re: ' + str(round(ap.Re[i][0]/1000000,2)) + 'E6'
         
         # Lift Coefficient
@@ -139,13 +180,50 @@ def plot_airfoil_batch_properties(ap,arrow_color = 'r',plot_pressure_vectors = F
         axis14.plot(ap.AoA[:,0]/Units.degrees, ap.Cm[:,i],color = colors[i], linestyle = '-',marker =  markers[i], label =  Re_tag)     
         plt.tight_layout() 
     
-    # add legends for plotting
-    plt.tight_layout()
-    lines1, labels1 = fig2.axes[0].get_legend_handles_labels()
-    fig2.legend(lines1, labels1, loc='upper center', ncol=3)
-    axis8.legend(loc='upper left')   
+    # add legends for plotting 
     axis12.legend(loc='upper left')   
     axis13.legend(loc='upper left')      
     axis14.legend(loc='upper left')  
+    
+    return   
+ 
+## @ingroup Plots
+def plot_airfoil_surface_forces(ap,arrow_color = 'r'):  
+    """ This plots the forces on an airfoil surface
+    
+        Assumptions:
+        None
+        
+        Inputs: 
+        ap       - data stucture of airfoil boundary layer properties and polars 
+         
+        Outputs: 
+        None 
+        
+        Properties Used:
+        N/A
+        """        
+    
+    # determine dimension of angle of attack and reynolds number 
+    nAoA = len(ap.AoA)
+    nRe  = len(ap.Re)
+     
+    for i in range(nRe): 
+        for j in range(nAoA): 
+      
+            label =  '_AoA_' + str(round(ap.AoA[j][0]/Units.degrees,2)) + '_deg_Re_' + str(round(ap.Re[i][0]/1000000,2)) + 'E6'
+            fig   = plt.figure('Airfoil_Pressure_Normals' + label )
+            axis15 = fig.add_subplot(1,1,1)      
+            axis15.plot(ap.x[:,j,i], ap.y[:,j,i],'k-') 
+            
+            for k in range(len(ap.x)):
+                dx_val = ap.normals[k,0,j,i]*abs(ap.Cp[k,j,i])*0.1
+                dy_val = -ap.normals[k,1,j,i]*abs(ap.Cp[k,j,i])*0.1
+                if ap.Cp[k,j,i] < 0:
+                    plt.arrow(x= ap.x[k,j,i], y=ap.y[k,j,i] , dx= dx_val , dy = dy_val , 
+                              fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
+                else:
+                    plt.arrow(x= ap.x[k,j,i]+dx_val , y= ap.y[k,j,i]+dy_val , dx= -dx_val , dy = -dy_val , 
+                              fc=arrow_color, ec=arrow_color,head_width=0.005, head_length=0.01 )   
     
     return   

@@ -26,16 +26,16 @@ def panel_geometry(x,y,npanel,nalpha,nRe):
     None 
                                                                        
     Inputs:                                                         
-    x       -  Vector of x coordinates of the surface nodes      
-    y       -  Vector of y coordinates of the surface nodes       
-    npanel  -  Number of panels on the airfoil                       
+    x       -  Vector of x coordinates of the surface nodes  [unitless]         
+    y       -  Vector of y coordinates of the surface nodes  [unitless]      
+    npanel  -  Number of panels on the airfoil               [unitless]         
                                                                      
     Outputs:                                             
-    l       -  Panel lengths                         
-    st      -  np.sin(theta) for each panel  
-    ct      -  np.cos(theta) for each panel  
-    xbar    -  x-coordinate of the midpoint of each panel               
-    ybar    -  y-coordinate of the midpoint of each panel                
+    l       -  Panel lengths                              [unitless]
+    st      -  np.sin(theta) for each panel               [radians]
+    ct      -  np.cos(theta) for each panel               [radians]
+    xbar    -  x-coordinate of the midpoint of each panel [unitless]              
+    ybar    -  y-coordinate of the midpoint of each panel [unitless]               
     
     
     Properties Used:

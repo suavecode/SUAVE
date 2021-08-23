@@ -20,44 +20,45 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
     flow pressure gradients
     
     Assumptions:
-    None
+    Thwaites, Bryan. "Approximate calculation of the laminar boundary layer." 
+    Aeronautical Quarterly 1.3 (1949): 245-280.
 
     Inputs:  
-    nalpha         - number of angle of attacks
-    nRe            - number of reynolds numbers 
-    batch_analysis - flag for batch analysis
-    THETA_0        - intial momentum thickness  
-    L              - normalized lenth of surface
-    RE_L           - Reynolds number
-    X_I            - x coordinated on surface of airfoil
-    VE_I           - boundary layer velocity at transition location 
-    DVE_I          - intial derivative value of boundary layer velocity at transition location 
-    n              - number of points on surface 
-    tol            - boundary layer error correction tolerance
+    nalpha         - number of angle of attacks                                                  [unitless]
+    nRe            - number of reynolds numbers                                                  [unitless]
+    batch_analysis - flag for batch analysis                                                     [boolean]
+    THETA_0        - initial momentum thickness                                                  [m]
+    L              - normalized length of surface                                                [unitless]
+    RE_L           - Reynolds number                                                             [unitless]
+    X_I            - x coordinate on surface of airfoil                                          [unitless]
+    VE_I           - boundary layer velocity at transition location                              [m/s] 
+    DVE_I          - initial derivative value of boundary layer velocity at transition location  [m/s-m] 
+    n              - number of points on surface                                                 [unitless]
+    tol            - boundary layer error correction tolerance                                   [unitless]
 
     Outputs: 
     RESULTS.
-      X_T          - reshaped distance along airfoil surface    
-      THETA_T      - momentum thickness
-      DELTA_STAR_T - displacement thickness
-      H_T          - shape factor 
-      CF_T         - friction coefficient 
-      RE_THETA_T   - Reynolds number as a function of momentum thickness
-      RE_X_T       - Reynolds number as a function of distance
-      DELTA_T      - boundary layer thickness 
+      X_T          - reshaped distance along airfoil surface             [unitless]
+      THETA_T      - momentum thickness                                  [m]
+      DELTA_STAR_T - displacement thickness                              [m] 
+      H_T          - shape factor                                        [unitless]
+      CF_T         - friction coefficient                                [unitless]
+      RE_THETA_T   - Reynolds number as a function of momentum thickness [unitless]
+      RE_X_T       - Reynolds number as a function of distance           [unitless]
+      DELTA_T      - boundary layer thickness                            [m]
 
     Properties Used:
     N/A
     """     
     # Initialize vectors 
-    X_T        = np.zeros((n,nalpha,nRe))
-    THETA_T    = np.zeros_like(X_T)
+    X_T          = np.zeros((n,nalpha,nRe))
+    THETA_T      = np.zeros_like(X_T)
     DELTA_STAR_T = np.zeros_like(X_T)
-    H_T        = np.zeros_like(X_T)
-    CF_T       = np.zeros_like(X_T)
-    RE_THETA_T = np.zeros_like(X_T)
-    RE_X_T     = np.zeros_like(X_T)
-    DELTA_T    = np.zeros_like(X_T)  
+    H_T          = np.zeros_like(X_T)
+    CF_T         = np.zeros_like(X_T)
+    RE_THETA_T   = np.zeros_like(X_T)
+    RE_X_T       = np.zeros_like(X_T)
+    DELTA_T      = np.zeros_like(X_T)  
     
     if batch_analysis:
         N_ALPHA = nalpha
@@ -66,9 +67,7 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
     
     for a_i in range(N_ALPHA):
         for re_i in range(nRe):    
-            if batch_analysis: 
-                l   = L[a_i,re_i]
-            else:
+            if not batch_analysis:  
                 a_i = re_i 
             # compute laminar boundary layer properties  
             l           = L[a_i,re_i]
@@ -119,7 +118,7 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
             delta       = 5.2*x/np.sqrt(Re_x)
             delta[0]    = 0   
             
-            # Reynolds number at x=0 cannot be negative (give nans)
+            # Reynolds number at x=0 cannot be negative 
             Re_x[0]     = 1E-5
             
             # Store results 
@@ -155,10 +154,10 @@ def getH(lambda_val ):
     None
 
     Inputs: 
-    lamdda_val  - thwaites separation criteria 
+    lamdda_val  - thwaites separation criteria [unitless]
 
     Outputs:  
-    H           - shape factor
+    H           - shape factor [unitless]
 
     Properties Used:
     N/A
@@ -169,7 +168,7 @@ def getH(lambda_val ):
     return H 
     
 def odefcn(y,x, nu,x_i,Ve_i):
-    """ Computes bounday layer functions using SciPy ODE solver 
+    """ Computes boundary layer functions using SciPy ODE solver 
 
     Assumptions:
     None
@@ -178,11 +177,11 @@ def odefcn(y,x, nu,x_i,Ve_i):
     None
 
     Inputs: 
-    y           - initial conditions of functions 
-    x           - new x values at which to solve ODE
-    nu          - kinematic viscosity 
-    x_i         - intial array of x values 
-    Ve_i        - intial boundary layer velocity 
+    y           - initial conditions of functions    [unitless]
+    x           - new x values at which to solve ODE [unitless]
+    nu          - kinematic viscosity                [m^2/s]
+    x_i         - intial array of x values           [unitless]
+    Ve_i        - intial boundary layer velocity     [m/s]
     
     Outputs:  
     dydx        - expression for the momentum thickness and velocity (theta**2/Ve**6)
@@ -203,44 +202,19 @@ def getVe(x,x_i,Ve_i):
     None
 
     Inputs: 
-    x         - new x dimension
-    x_i       - old x dimension 
-    Ve_i      - old boundary layer velocity values  
+    x         - new x dimension                    [unitless]
+    x_i       - old x dimension                    [unitless]
+    Ve_i      - old boundary layer velocity values [m/s] 
     
     Outputs:  
-    Ve        - new boundary layer velocity values 
+    Ve        - new boundary layer velocity values [m/s]
 
     Properties Used:
     N/A 
     """
     Ve_func = interp1d(x_i,Ve_i, axis=0,fill_value = "extrapolate")
     Ve      = Ve_func(x)
-    return Ve 
-
-
-def getcos(x,x_i,cos_i):
-    """ Interpolates the bounday layer velocity over a new dimension of x 
-
-    Assumptions:
-    None
-
-    Source:
-    None
-
-    Inputs: 
-    x         - new x dimension
-    x_i       - old x dimension 
-    cos_i      - old boundary layer velocity values  
-    
-    Outputs:  
-    cos        - new boundary layer velocity values 
-
-    Properties Used:
-    N/A 
-    """
-    cos_func = interp1d(x_i,cos_i, axis=0,fill_value = "extrapolate")
-    cos_t     = cos_func(x)
-    return cos_t
+    return Ve  
 
 def getdVe(x,x_i,dVe_i):
     """ Interpolates the derivatives of the bounday layer velocity over a new dimension of x 
@@ -252,12 +226,12 @@ def getdVe(x,x_i,dVe_i):
     None
 
     Inputs: 
-    x         - new x dimension
-    x_i       - old x dimension 
-    dVe_i     - old derivative of boundary layer velocity values  
+    x         - new x dimension                                   [unitless]
+    x_i       - old x dimension                                   [unitless]
+    dVe_i     - old derivative of boundary layer velocity values  [m/s-m]
     
     Outputs:  
-    dVe       - new derivative of boundary layer velocity values 
+    dVe       - new derivative of boundary layer velocity values  [m/s-m]
 
     Properties Used:
     N/A 
@@ -276,11 +250,11 @@ def getcf(lambda_val , Re_theta):
     None
 
     Inputs: 
-    lambda_val - thwaites separation criteria 
-    Re_theta   - Reynolds Number as a function of momentum thickness  
+    lambda_val - thwaites separation criteria                        [unitless]
+    Re_theta   - Reynolds Number as a function of momentum thickness [unitless]
 
     Outputs:  
-    cf       - skin friction coefficient
+    cf         - skin friction coefficient [unitless]
 
     Properties Used:
     N/A 

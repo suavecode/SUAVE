@@ -176,20 +176,20 @@ def  import_airfoil_geometry(airfoil_geometry_files, npoints = 200):
         # may be of different lenghts so initial interpolation is required 
         # x coordinates 
         x_up_surf_old = np.array(x_up_surf)   
-        arrx_up_interp= interp.interp1d(np.arange(x_up_surf_old.size),x_up_surf_old)
+        arrx_up_interp= interp.interp1d(np.arange(x_up_surf_old.size),x_up_surf_old, kind='cubic')
         x_up_surf_new = arrx_up_interp(np.linspace(0,x_up_surf_old.size-1,n_pts))    
         
         x_lo_surf_old = np.array(x_lo_surf) 
-        arrx_lo_interp= interp.interp1d(np.arange(x_lo_surf_old.size),x_lo_surf_old)
+        arrx_lo_interp= interp.interp1d(np.arange(x_lo_surf_old.size),x_lo_surf_old, kind='cubic')
         x_lo_surf_new = arrx_lo_interp(np.linspace(0,x_lo_surf_old.size-1,n_pts)) 
         
         # y coordinates 
         y_up_surf_old = np.array(y_up_surf)   
-        arry_up_interp= interp.interp1d(np.arange(y_up_surf_old.size),y_up_surf_old)
+        arry_up_interp= interp.interp1d(np.arange(y_up_surf_old.size),y_up_surf_old, kind='cubic')
         y_up_surf_new = arry_up_interp(np.linspace(0,y_up_surf_old.size-1,n_pts))    
         
         y_lo_surf_old = np.array(y_lo_surf) 
-        arry_lo_interp= interp.interp1d(np.arange(y_lo_surf_old.size),y_lo_surf_old)
+        arry_lo_interp= interp.interp1d(np.arange(y_lo_surf_old.size),y_lo_surf_old, kind='cubic')
         y_lo_surf_new = arry_lo_interp(np.linspace(0,y_lo_surf_old.size-1,n_pts)) 
          
         # compute thickness, camber and concatenate coodinates 

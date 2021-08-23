@@ -1,5 +1,5 @@
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-# veldis.py 
+# velocity_distribution.py 
 #
 # Created:  Mar 2021, M. Clarke
 
@@ -11,28 +11,31 @@ from SUAVE.Core import Units
 import numpy as np
 
 # ----------------------------------------------------------------------
-# veldis
+# velocity_distribution
 # ----------------------------------------------------------------------
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def veldis(qg,x,y,xbar,ybar,st,ct,alpha,Re,npanel):
+def velocity_distribution(qg,x,y,xbar,ybar,st,ct,alpha,Re,npanel):
     """Compute the tangential velocity distribution at the       
                  midpoint of each panel   
+    
+    Source:
+    None
 
     Assumptions:
     None  
     
     Inputs:                                                    
 
-     qg          -  Vector of source/sink and vortex strengths              
-     x           -  Vector of x coordinates of the surface nodes            
-     y           -  Vector of y coordinates of the surface nodes             
-     xbar        -  x-coordinate of the midpoint of each panel            
-     ybar        -  y-coordinate of the midpoint of each panel            
-     st          -  np.sin(theta) for each panel                                
-     ct          -  np.cos(theta) for each panel                               
-     al          -  Angle of attack in radians                              
-     npanel      -  Number of panels on the airfoil                 
+     qg          -  Vector of source/sink and vortex strengths    [unitless]          
+     x           -  Vector of x coordinates of the surface nodes  [unitless]         
+     y           -  Vector of y coordinates of the surface nodes  [unitless]            
+     xbar        -  x-coordinate of the midpoint of each panel    [unitless]           
+     ybar        -  y-coordinate of the midpoint of each panel    [unitless]           
+     st          -  np.sin(theta) for each panel                  [radians]                
+     ct          -  np.cos(theta) for each panel                  [radians]             
+     al          -  Angle of attack in radians                    [radians]             
+     npanel      -  Number of panels on the airfoil               [unitless]  
 
      Outputs:                                                        
 

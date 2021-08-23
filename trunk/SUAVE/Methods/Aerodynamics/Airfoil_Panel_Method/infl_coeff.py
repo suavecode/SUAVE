@@ -24,16 +24,16 @@ def infl_coeff(x,y,xbar,ybar,st,ct,npanel,nalpha,nRe,batch_analyis):
     None 
  
     Inputs
-    x       -  Vector of x coordinates of the surface nodes     
-    y       -  Vector of y coordinates of the surface nodes      
-    xbar    -  x-coordinate of the midpoint of each panel     
-    ybar    -  y-coordinate of the midpoint of each panel     
-    st      -  np.sin(theta) for each panel                                
-    ct      -  np.cos(theta) for each panel                             
-    npanel  -  Number of panels on the airfoil                      
+    x       -  Vector of x coordinates of the surface nodes  [unitless]   
+    y       -  Vector of y coordinates of the surface nodes  [unitless]   
+    xbar    -  x-coordinate of the midpoint of each panel    [unitless]      
+    ybar    -  y-coordinate of the midpoint of each panel    [unitless]     
+    st      -  np.sin(theta) for each panel                  [radians]               
+    ct      -  np.cos(theta) for each panel                  [radians]                 
+    npanel  -  Number of panels on the airfoil               [unitless]       
                                                                                             
     Outputs                                        
-    ainfl   -  Aero influence coefficient matrix    
+    ainfl   -  Aero influence coefficient matrix             [unitless]
 
     Properties Used:
     N/A
@@ -42,7 +42,7 @@ def infl_coeff(x,y,xbar,ybar,st,ct,npanel,nalpha,nRe,batch_analyis):
     ainfl                = np.zeros((nalpha,nRe,npanel+1,npanel+1))    
     pi2inv               = 1 / (2*np.pi) 
     
-    # convert 1d matrices to 2d 
+    # convert 1d matrices to 4d 
     x_2d                 = np.repeat(np.swapaxes(np.swapaxes(x,0, 2),0,1)[:,:,np.newaxis,:],npanel, axis = 2)
     y_2d                 = np.repeat(np.swapaxes(np.swapaxes(y,0, 2),0,1)[:,:,np.newaxis,:],npanel, axis = 2)
     xbar_2d              = np.repeat(np.swapaxes(np.swapaxes(xbar,0, 2),0,1)[:,:,:,np.newaxis],npanel, axis = 3)

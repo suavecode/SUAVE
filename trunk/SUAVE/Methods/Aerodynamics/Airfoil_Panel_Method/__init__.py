@@ -8,4 +8,4 @@ from .hess_smith                        import hess_smith
 from .infl_coeff                        import infl_coeff       
 from .panel_geometry                    import panel_geometry   
 from .thwaites_method                   import thwaites_method    
-from .veldis                            import veldis 
+from .velocity_distribution             import velocity_distribution 

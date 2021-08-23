@@ -21,22 +21,23 @@ from .aero_coeff      import aero_coeff
 # ----------------------------------------------------------------------   
 
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 200, batch_analysis = True, airfoil_stations = None):
-    """This computed the aerodynamic polars as well as the boundary lawer properties of 
+def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 200, batch_analysis = True, airfoil_stations = [0],
+                     initial_momentum_thickness=1E-5):
+    """This computes the aerodynamic polars as well as the boundary layer properties of 
     an airfoil at a defined set of reynolds numbers and angle of attacks
 
     Assumptions:
-    Mitchel Criteria used for transition
+    Michel Criteria used for transition
 
     Source:
     N/A
 
     Inputs: 
-    airfoil_geometry  - airfoil geometry points 
-    alpha             - angle of attacks
-    Re_L              - Reynolds numbers
-    npanel            - number of panels
-    n_computation     - number of refined points of surface for boundary layer computation 
+    airfoil_geometry   - airfoil geometry points 
+    alpha              - angle of attacks
+    Re_L               - Reynolds numbers
+    npanel             - number of panels
+    n_computation      - number of refined points of surface for boundary layer computation 
     batch_analysis     - boolean : If True: the specified number of angle of attacks and Reynolds
                                   numbers are used to create a table of 2-D results for each combination
                                   Note: Can only accomodate one airfoil
@@ -71,30 +72,27 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
                         
     Properties Used:
     N/A
-    """   
-    
+    """    
     
     nalpha           = len(alpha)
     nRe              = len(Re_L) 
     
-    if batch_analysis:
-        x_coord    = np.delete( airfoil_geometry.x_coordinates[0][::-1], int(npanel/2))  # these are the vertices of each panel, len = 1 + npanel
-        y_coord    = np.delete( airfoil_geometry.y_coordinates[0][::-1], int(npanel/2))   
-        x_coord_3d = np.repeat(np.repeat(np.atleast_2d(x_coord).T,nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)
-        y_coord_3d = np.repeat(np.repeat(np.atleast_2d(y_coord).T,nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)        
+    x_coord    = np.take(airfoil_geometry.x_coordinates,airfoil_stations,axis=0).T 
+    y_coord    = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0).T
+    x_coord    = np.delete(x_coord[::-1], int(npanel/2),0)  
+    y_coord    = np.delete(y_coord[::-1], int(npanel/2),0) 
+    
+    if batch_analysis:        
+        x_coord_3d = np.repeat(np.repeat(np.atleast_2d(x_coord),nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)
+        y_coord_3d = np.repeat(np.repeat(np.atleast_2d(y_coord),nalpha,axis = 1)[:,:,np.newaxis],nRe, axis = 2)        
     else:
         try: 
-            nairfoil         = len(airfoil_stations) 
+            nairfoil = len(airfoil_stations) 
         except:
-            raise AssertionError('Specifiy airfoil stations') 
+            raise AssertionError('Specify airfoil stations') 
         
         if (nalpha != nRe) and ( nairfoil!= nalpha):
-            raise AssertionError('Dimension of angle of attacks,Reynolds numbers and airfoil stations must all be equal')    
-        
-        x_coord    = np.take(airfoil_geometry.x_coordinates,airfoil_stations,axis=0).T 
-        y_coord    = np.take(airfoil_geometry.y_coordinates,airfoil_stations,axis=0).T
-        x_coord    = np.delete(x_coord[::-1], int(npanel/2),0)  
-        y_coord    = np.delete(y_coord[::-1], int(npanel/2),0)      
+            raise AssertionError('Dimension of angle of attacks,Reynolds numbers and airfoil stations must all be equal')      
         x_coord_3d = np.repeat(x_coord[:,:,np.newaxis],nRe, axis = 2)
         y_coord_3d = np.repeat(y_coord[:,:,np.newaxis],nRe, axis = 2)
         
@@ -145,7 +143,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
         
     # laminar boundary layer properties using thwaites method 
     BOT_T_RESULTS  = thwaites_method(nalpha,nRe, L_BOT , RE_L_VALS, X_BOT, VE_BOT, DVE_BOT,batch_analysis,
-                                     THETA_0=1E-5,n=n_computation) 
+                                     THETA_0=initial_momentum_thickness,n=n_computation) 
     X_T_BOT          = BOT_T_RESULTS.X_T      
     THETA_T_BOT      = BOT_T_RESULTS.THETA_T     
     DELTA_STAR_T_BOT = BOT_T_RESULTS.DELTA_STAR_T  
@@ -288,7 +286,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
 
     # laminar boundary layer properties using thwaites method 
     TOP_T_RESULTS    = thwaites_method(nalpha,nRe, L_TOP , RE_L_VALS,X_TOP,VE_TOP, DVE_TOP,batch_analysis,
-                                     THETA_0=1E-5,n=n_computation) 
+                                     THETA_0=initial_momentum_thickness,n=n_computation) 
     X_T_TOP          = TOP_T_RESULTS.X_T      
     THETA_T_TOP      = TOP_T_RESULTS.THETA_T     
     DELTA_STAR_T_TOP = TOP_T_RESULTS.DELTA_STAR_T  
@@ -353,7 +351,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     RE_X_H_TOP       = np.ma.array(RE_X_H_TOP , mask = ~CRITERION_TOP.mask)    
     DELTA_H_TOP      = np.ma.array(DELTA_H_TOP , mask = ~CRITERION_TOP.mask)   
     
-    # Concatenate laminart and turbulent vectors
+    # Concatenate laminar and turbulent vectors
     X_H_TOP_MOD          = X_H_TOP.data + X_TR_TOP.data
     X_H_TOP_MOD          = np.ma.array(X_H_TOP_MOD, mask = X_H_TOP.mask)
     
@@ -419,8 +417,7 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
     CP_VALS_2  = CP_VALS_1.data[~CP_VALS_1.mask] 
      
     VE         = VE_VALS_2.reshape((npanel,nalpha,nRe),order = 'F') 
-    DVE        = DVE_VALS_2.reshape((npanel,nalpha,nRe),order = 'F') 
-    CP         = CP_VALS_2.reshape((npanel,nalpha,nRe),order = 'F')     
+    DVE        = DVE_VALS_2.reshape((npanel,nalpha,nRe),order = 'F')  
     
     # ------------------------------------------------------------------------------------------------------
     # Compute effective surface of airfoil with boundary layer and recompute aerodynamic properties  
@@ -525,7 +522,32 @@ def airfoil_analysis(airfoil_geometry,alpha,Re_L,npanel = 100,n_computation = 20
 
 
 def interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,FUNC_BOT_SURF,FUNC_TOP_SURF,npanel,nalpha,nRe,batch_analysis): 
-    '''Interpolation of airfoil properties''' # numpy.ma.apply_along_axis¶
+    '''Interpolation of airfoil properties   
+    
+    Assumptions:
+    None
+
+    Source:
+    None                                                                    
+                                                                   
+    Inputs:                                    
+    X_BOT          - user specified discretization of bottom surface of airfoil 
+    X_TOP          - user specified discretization of top surface of airfoil 
+    X_BOT_SURF     - numerical computation discretization of bottom surface of airfoil  
+    X_TOP_SURF     - numerical computation discretization of top surface of airfoil  
+    FUNC_BOT_SURF  - airfoil property computation discretization on bottom surface
+    FUNC_TOP_SURF  - airfoil property computation discretization on top surface
+    npanel         - number of panels 
+    nalpha         - number of angle of attacks 
+    nRe            - number of Reynolds numbers 
+    batch_analysis - batch analysis flag 
+                                                                 
+    Outputs:                                           
+    FUNC           - airfoil property in user specified discretization on entire surface of airfoil        
+     
+    Properties Used:
+    N/A  
+    '''  
     FUNC = np.zeros((npanel,nalpha,nRe))
     
     if batch_analysis:
@@ -548,24 +570,45 @@ def interpolate_values(X_BOT,X_TOP,X_BOT_SURF,X_TOP_SURF,FUNC_BOT_SURF,FUNC_TOP_
 
 
 def extract_values(AP):    
-    AP.Cl         = np.diagonal(AP.Cl,axis1 = 0, axis2 = 1)
-    AP.Cd         = np.diagonal(AP.Cd,axis1 = 0, axis2 = 1)
-    AP.Cm         = np.diagonal(AP.Cm,axis1 = 0, axis2 = 1)
-    AP.normals    = np.diagonal(AP.normals,axis1 = 2, axis2 = 3)
-    AP.x          = np.diagonal(AP.x,axis1 = 1, axis2 = 2)
-    AP.y          = np.diagonal(AP.y,axis1 = 1, axis2 = 2)
-    AP.x_bl       = np.diagonal(AP.x_bl,axis1 = 1, axis2 = 2)
-    AP.y_bl       = np.diagonal(AP.y_bl,axis1 = 1, axis2 = 2)
-    AP.Cp         = np.diagonal(AP.Cp,axis1 = 1, axis2 = 2)         
-    AP.Ue_Vinf    = np.diagonal(AP.Ue_Vinf,axis1 = 1, axis2 = 2)        
-    AP.dVe        = np.diagonal(AP.dVe,axis1 = 1, axis2 = 2)   
-    AP.theta      = np.diagonal(AP.theta,axis1 = 1, axis2 = 2)      
-    AP.delta_star = np.diagonal(AP.delta_star,axis1 = 1, axis2 = 2)
-    AP.delta      = np.diagonal(AP.delta,axis1 = 1, axis2 = 2)
-    AP.Re_theta   = np.diagonal(AP.Re_theta,axis1 = 1, axis2 = 2)
-    AP.Re_x       = np.diagonal(AP.Re_x,axis1 = 1, axis2 = 2)
-    AP.H          = np.diagonal(AP.H,axis1 = 1, axis2 = 2)                
-    AP.Cf         = np.diagonal(AP.Cf,axis1 = 1, axis2 = 2)
+    '''
+    This funtion retrieves the aerodynamic and boundary layer properties of airfoils 
+    that are not analyzed in a batch analysis. The results from an analysis which is
+    not in batch mode lie on the diagonal.
+    
+    Assumptions:
+    None
+
+    Source:
+    None                                                                    
+                                                                   
+    Inputs:                                    
+    AP      - Data structure of airfoil polars and boundary layer properties
+                                                                 
+    Outputs:                                           
+    AP      - Reshaped data structure of airfoil polars and boundary layer
+              properties   
+     
+    Properties Used:
+    N/A  
+    '''
+    AP.Cl         = np.atleast_2d(np.diagonal(AP.Cl,axis1 = 0, axis2 = 1))
+    AP.Cd         = np.atleast_2d(np.diagonal(AP.Cd,axis1 = 0, axis2 = 1))
+    AP.Cm         = np.atleast_2d(np.diagonal(AP.Cm,axis1 = 0, axis2 = 1))
+    AP.normals    = np.atleast_2d(np.diagonal(AP.normals,axis1 = 2, axis2 = 3))
+    AP.x          = np.atleast_2d(np.diagonal(AP.x,axis1 = 1, axis2 = 2))
+    AP.y          = np.atleast_2d(np.diagonal(AP.y,axis1 = 1, axis2 = 2))
+    AP.x_bl       = np.atleast_2d(np.diagonal(AP.x_bl,axis1 = 1, axis2 = 2))
+    AP.y_bl       = np.atleast_2d(np.diagonal(AP.y_bl,axis1 = 1, axis2 = 2))
+    AP.Cp         = np.atleast_2d(np.diagonal(AP.Cp,axis1 = 1, axis2 = 2))        
+    AP.Ue_Vinf    = np.atleast_2d(np.diagonal(AP.Ue_Vinf,axis1 = 1, axis2 = 2))        
+    AP.dVe        = np.atleast_2d(np.diagonal(AP.dVe,axis1 = 1, axis2 = 2))   
+    AP.theta      = np.atleast_2d(np.diagonal(AP.theta,axis1 = 1, axis2 = 2))      
+    AP.delta_star = np.atleast_2d(np.diagonal(AP.delta_star,axis1 = 1, axis2 = 2))
+    AP.delta      = np.atleast_2d(np.diagonal(AP.delta,axis1 = 1, axis2 = 2))
+    AP.Re_theta   = np.atleast_2d(np.diagonal(AP.Re_theta,axis1 = 1, axis2 = 2))
+    AP.Re_x       = np.atleast_2d(np.diagonal(AP.Re_x,axis1 = 1, axis2 = 2))
+    AP.H          = np.atleast_2d(np.diagonal(AP.H,axis1 = 1, axis2 = 2))               
+    AP.Cf         = np.atleast_2d(np.diagonal(AP.Cf,axis1 = 1, axis2 = 2))
     
     return AP
     

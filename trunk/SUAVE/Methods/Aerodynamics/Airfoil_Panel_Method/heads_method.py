@@ -18,37 +18,38 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
     flow pressure gradients
 
     Assumptions:
-    None
+    Head, M. R., and P. Bandyopadhyay. "New aspects of turbulent boundary-layer structure."
+    Journal of fluid mechanics 107 (1981): 297-338.
 
     Source:
     None
 
     Inputs: 
-    nalpha         - number of angle of attacks
-    nRe            - number of reynolds numbers
-    batch_analysis - flag for batch analysis
-    DEL_0          - intital bounday layer thickness  
-    DELTA_STAR_0   - initial displacement thickness 
-    THETA_0        - intial momentum thickness  
-    L              - normalized lenth of surface
-    RE_L           - Reynolds number
-    X_I            - x coordinated on surface of airfoil
-    VE_I           - boundary layer velocity at transition location 
-    DVE_I          - intial derivative value of boundary layer velocity at transition location 
-    x_tr           - transition location on surface 
-    n              - number of points on surface 
-    tol            - boundary layer error correction tolerance
+    nalpha         - number of angle of attacks                                                    [unitless]
+    nRe            - number of reynolds numbers                                                    [unitless]
+    batch_analysis - flag for batch analysis                                                       [boolean]
+    DEL_0          - intital bounday layer thickness                                               [m]
+    DELTA_STAR_0   - initial displacement thickness                                                [m]
+    THETA_0        - initial momentum thickness                                                    [m]
+    L              - normalized length of surface                                                  [unitless]
+    RE_L           - Reynolds number                                                               [unitless]
+    X_I            - x coordinate on surface of airfoil                                            [unitless] 
+    VE_I           - boundary layer velocity at transition location                                [m/s-m] 
+    DVE_I          - intial derivative value of boundary layer velocity at transition location     [unitless]
+    x_tr           - transition location on surface                                                [unitless]
+    n              - number of points on surface                                                   [unitless]
+    tol            - boundary layer error correction tolerance                                     [unitless]
 
     Outputs: 
     RESULTS.
-      X_H          - reshaped distance along airfoil surface    
-      THETA_H      - momentum thickness
-      DELTA_STAR_H - displacement thickness
-      H_H          - shape factor 
-      CF_H         - friction coefficient 
-      RE_THETA_H   - Reynolds number as a function of momentum thickness
-      RE_X_H       - Reynolds number as a function of distance
-      DELTA_H      - boundary layer thickness 
+      X_H          - reshaped distance along airfoil surface                    [unitless]
+      THETA_H      - momentum thickness                                         [m]
+      DELTA_STAR_H - displacement thickness                                     [m] 
+      H_H          - shape factor                                               [unitless]
+      CF_H         - friction coefficient                                       [unitless]
+      RE_THETA_H   - Reynolds number as a function of momentum thickness        [unitless]
+      RE_X_H       - Reynolds number as a function of distance                  [unitless]
+      DELTA_H      - boundary layer thickness                                   [m]
        
     Properties Used:
     N/A
@@ -69,9 +70,7 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
         N_ALPHA = 1  
     for a_i in range(N_ALPHA):
         for re_i in range(nRe):   
-            if batch_analysis: 
-                l   = L[a_i,re_i]
-            else:
+            if not batch_analysis:  
                 a_i = re_i  
             # compute turbulent boundary layer properties  
             l            = L[a_i,re_i]
@@ -168,10 +167,10 @@ def getH(H1):
     None
 
     Inputs: 
-    H1       - mass flow shape factor
+    H1       - mass flow shape factor [unitless]
 
     Outputs:  
-    H        - shape factor
+    H        - shape factor [unitless]
 
     Properties Used:
     N/A
@@ -193,10 +192,10 @@ def getH1(H) :
     None
 
     Inputs: 
-    H        - shape factor
+    H        - shape factor [unitless]
 
     Outputs:  
-    H1       - mass flow shape factor
+    H1       - mass flow shape factor [unitless]
 
     Properties Used:
     N/A 
@@ -207,7 +206,7 @@ def getH1(H) :
     return H1 
 
 def odefcn(y,x,ReL_div_L, x_i, Ve_i, dVe_i): 
-    """ Computes bounday layer functions using SciPy ODE solver 
+    """ Computes boundary layer functions using SciPy ODE solver 
 
     Assumptions:
     None
@@ -215,13 +214,13 @@ def odefcn(y,x,ReL_div_L, x_i, Ve_i, dVe_i):
     Source:
     None
 
-    Inputs: 
-    y           - initial conditions of functions 
-    x           - new x values at which to solve ODE
-    ReL_div_L   - ratio of Reynolds number to length of surface 
-    x_i         - intial array of x values 
-    Ve_i        - intial boundary layer velocity
-    dVe_i       - initial derivative of bounday layer velocity
+    Inputs:  
+    y           - initial conditions of functions               [unitless]
+    x           - new x values at which to solve ODE            [unitless]
+    ReL_div_L   - ratio of Reynolds number to length of surface [unitless]
+    x_i         - intial array of x values                      [unitless]
+    Ve_i        - intial boundary layer velocity                [m/s]
+    dVe_i       - initial derivative of bounday layer velocity  [m/s-m]
     
     Outputs:  
     f           - 2D function of momentum thickness and the product of 
@@ -256,12 +255,12 @@ def getVe(x,x_i,Ve_i):
     None
 
     Inputs: 
-    x         - new x dimension
-    x_i       - old x dimension 
-    Ve_i      - old boundary layer velocity values  
+    x         - new x dimension                    [unitless]
+    x_i       - old x dimension                    [unitless]
+    Ve_i      - old boundary layer velocity values [m/s] 
     
     Outputs:  
-    Ve        - new boundary layer velocity values 
+    Ve        - new boundary layer velocity values [m/s]
 
     Properties Used:
     N/A 
@@ -280,12 +279,12 @@ def getdVe(x,x_i,dVe_i):
     None
 
     Inputs: 
-    x         - new x dimension
-    x_i       - old x dimension 
-    dVe_i     - old derivative of boundary layer velocity values  
+    x         - new x dimension                                  [unitless]
+    x_i       - old x dimension                                  [unitless]
+    dVe_i     - old derivative of boundary layer velocity values [m/s-m] 
     
     Outputs:  
-    dVe       - new derivative of boundary layer velocity values 
+    dVe       - new derivative of boundary layer velocity values [m/s-m]
 
     Properties Used:
     N/A 
@@ -304,11 +303,11 @@ def getcf(Re_theta,H):
     None
 
     Inputs: 
-    Re_theta - Reynolds Number as a function of momentum thickness 
-    H        - shape factor
+    Re_theta - Reynolds Number as a function of momentum thickness [m]
+    H        - shape factor                                        [unitless]
 
     Outputs:  
-    cf       - skin friction coefficient
+    cf       - skin friction coefficient  [unitless]
 
     Properties Used:
     N/A 
