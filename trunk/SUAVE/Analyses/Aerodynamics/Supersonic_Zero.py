@@ -81,6 +81,8 @@ class Supersonic_Zero(Markup):
         settings.propeller_wake_model               = False
         settings.use_bemt_wake_model                = False
         settings.model_fuselage                     = False
+        settings.recalculate_total_wetted_area      = False
+        
         
         # this multiplier is used to determine the volume wave drag at the peak Mach number
         # by multiplying the volume wave drag at the end drag rise Mach number

@@ -15,6 +15,8 @@ from SUAVE.Methods.Propulsion.electric_motor_sizing                       import
 from SUAVE.Methods.Propulsion                                             import propeller_design
 from SUAVE.Methods.Weights.Buildups.eVTOL.empty                           import empty
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
+
 
 import numpy as np
 import pylab as plt
@@ -106,6 +108,9 @@ def vehicle_setup():
     segment.sweeps.quarter_chord  = 0.0 * Units.degrees
     segment.thickness_to_chord    = 0.12
     wing.Segments.append(segment)
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)        
 
     # add to vehicle
     vehicle.append_component(wing)

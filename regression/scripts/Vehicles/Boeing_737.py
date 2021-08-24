@@ -16,8 +16,7 @@ import numpy as np
 import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-
-
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
 
 # ----------------------------------------------------------------------
 #   Define the Vehicle
@@ -149,6 +148,9 @@ def vehicle_setup():
     segment.thickness_to_chord            = .1
     segment.append_airfoil(tip_airfoil)
     wing.append_segment(segment)
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)    
 
     # control surfaces -------------------------------------------
     slat                          = SUAVE.Components.Wings.Control_Surfaces.Slat()
@@ -175,6 +177,8 @@ def vehicle_setup():
     aileron.deflection            = 0.0 * Units.degrees
     aileron.chord_fraction        = 0.16
     wing.append_control_surface(aileron)
+    
+
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -233,6 +237,9 @@ def vehicle_setup():
     segment.sweeps.quarter_chord   = 0 * Units.degrees  
     segment.thickness_to_chord     = .1
     wing.append_segment(segment)
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)        
 
     # control surfaces -------------------------------------------
     elevator                       = SUAVE.Components.Wings.Control_Surfaces.Elevator()
@@ -312,6 +319,9 @@ def vehicle_setup():
     segment.sweeps.quarter_chord          = 0.0    
     segment.thickness_to_chord            = .1  
     wing.append_segment(segment)
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)        
 
     # add to vehicle
     vehicle.append_component(wing)

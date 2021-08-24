@@ -74,6 +74,8 @@ class SU2_Euler(Markup):
         settings.processors                         = 1
         settings.vsp_mesh_growth_ratio              = 1.3
         settings.vsp_mesh_growth_limiting_flag      = False
+        settings.recalculate_total_wetted_area      = False
+        
         
         # Build the evaluation process
         compute = self.process.compute

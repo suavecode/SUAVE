@@ -18,6 +18,9 @@ import SUAVE
 from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
+
+
 # ----------------------------------------------------------------------
 #   Define the Vehicle
 # ----------------------------------------------------------------------
@@ -120,7 +123,10 @@ def vehicle_setup():
     segment.thickness_to_chord    = .11
     segment.dihedral_outboard     = 0.
     segment.sweeps.quarter_chord  = 0.
-    wing.Segments.append(segment)            
+    wing.Segments.append(segment)       
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)        
 
     # control surfaces -------------------------------------------
     flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 

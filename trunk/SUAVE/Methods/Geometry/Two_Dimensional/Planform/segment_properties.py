@@ -14,7 +14,7 @@ from SUAVE.Core import Data
 # ----------------------------------------------------------------------
 #  Methods
 # ----------------------------------------------------------------------
-def segment_properties(settings,wing):
+def segment_properties(wing):
     """Computes detailed segment properties. These are currently used for parasite drag calculations.
 
     Assumptions:
@@ -110,4 +110,4 @@ def segment_properties(settings,wing):
     wing.areas.wetted    = total_wetted_area
     wing.areas.reference = total_reference_area
         
-    return
+    return wing

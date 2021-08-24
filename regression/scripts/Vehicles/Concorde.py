@@ -13,11 +13,12 @@
 import numpy as np
 import SUAVE
 from SUAVE.Core import Units
-from SUAVE.Core import (
-    Data, Container,
-)
+from SUAVE.Core import Data
+
 from SUAVE.Methods.Propulsion.turbojet_sizing import turbojet_sizing
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
+
 
 def vehicle_setup():
 
@@ -150,6 +151,9 @@ def vehicle_setup():
     segment.thickness_to_chord    = 0.03
     segment.append_airfoil(wing_airfoil)
     wing.Segments.append(segment)      
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)        
     
     # CG locations are approximate
     # Masses from http://www.concordesst.com/fuelsys.html
@@ -284,6 +288,9 @@ def vehicle_setup():
     segment.thickness_to_chord    = 0.04
     segment.append_airfoil(tail_airfoil)
     wing.Segments.append(segment)    
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)        
     
     # add to vehicle
     vehicle.append_component(wing)    
