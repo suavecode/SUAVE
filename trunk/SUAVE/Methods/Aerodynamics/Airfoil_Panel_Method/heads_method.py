@@ -8,12 +8,13 @@
 from SUAVE.Core import Data 
 import numpy as np
 from scipy.interpolate import interp1d
-from scipy.integrate import odeint
+from scipy.integrate import odeint  
 # ----------------------------------------------------------------------
 # heads_method.py 
 # ----------------------------------------------------------------------   
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I,X_TR,batch_analysis, n = 200,tol= 1E0):
+def heads_method(npanel,nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, TURBULENT_SURF,RE_L,TURBULENT_COORD,
+                 VE_I, DVE_I,batch_analysis,tol= 1E0):
     """ Computes the boundary layer characteristics in turbulent
     flow pressure gradients
 
@@ -37,7 +38,7 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
     VE_I           - boundary layer velocity at transition location                                [m/s-m] 
     DVE_I          - intial derivative value of boundary layer velocity at transition location     [unitless]
     x_tr           - transition location on surface                                                [unitless]
-    n              - number of points on surface                                                   [unitless]
+    npanel         - number of points on surface                                                   [unitless]
     tol            - boundary layer error correction tolerance                                     [unitless]
 
     Outputs: 
@@ -54,8 +55,9 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
     Properties Used:
     N/A
     """   
+     
     # Initialize vectors 
-    X_H          = np.zeros((n,nalpha,nRe))
+    X_H          = np.zeros((npanel,nalpha,nRe))
     THETA_H      = np.zeros_like(X_H)
     DELTA_STAR_H = np.zeros_like(X_H)
     H_H          = np.zeros_like(X_H)
@@ -72,78 +74,82 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
         for re_i in range(nRe):   
             if not batch_analysis:  
                 a_i = re_i  
-            # compute turbulent boundary layer properties  
-            l            = L[a_i,re_i]
-            theta_0      = THETA_0[a_i,re_i] 
-            Re_L         = RE_L[a_i,re_i] 
-            nu           = l/Re_L    
-            x_i          = X_I.data[:,0,0][X_I.mask[:,0,0] ==False]
-            Ve_i         = VE_I.data[:,0,0][VE_I.mask[:,0,0] ==False]
-            dVe_i        = DVE_I.data[:,0,0][DVE_I.mask[:,0,0] ==False]
-            del_0        = DEL_0[a_i,re_i]
-            del_star_0   = DELTA_STAR_0[a_i,re_i]
-            H_0          = del_star_0 / theta_0
-            H1_0         = getH1(np.atleast_1d(H_0))[0]
-            if np.isnan(H1_0):
-                H1_0     = (del_0 - del_star_0) / theta_0 
-            y0           = [theta_0, getVe(0,x_i,Ve_i)*theta_0*H1_0]    
-            xspan        = np.linspace(0,l,n)   
-            y            = odeint(odefcn,y0,xspan,args=(Re_L/l, x_i, Ve_i, dVe_i)) 
-            x            = np.linspace(0,l,n) 
-            
-            # Compute momentum thickness, theta 
-            theta        = y[:,0] 
-            Ve_theta_H1  = y[:,1]    
-            
-            # find theta values that do not converge and replace them with neighbor
-            idx1         = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > tol )[0]
-            if len(idx1)> 1: 
-                np.put(theta,idx1 + 1, theta[idx1])    
-            idx1         = np.where(abs((Ve_theta_H1[1:] - Ve_theta_H1[:-1])/Ve_theta_H1[:-1]) >tol)[0]
-            if len(idx1)> 1: 
-                np.put(Ve_theta_H1,idx1 + 1, Ve_theta_H1[idx1])    
-              
-            # Compute mass flow shape factor, H1
-            H1           = Ve_theta_H1/(theta*getVe(x, x_i, Ve_i))
-            
-            # Compute H 
-            H            = getH(np.atleast_1d(H1)) 
-            H[H<0]       = 1E-6    # H cannot be negative 
-            # find H values that do not converge and replace them with neighbor
-            idx1               = np.where(abs((H[1:] - H[:-1])/H[:-1]) >tol)[0]
-            if len(idx1)> 1: 
-                np.put(H,idx1 + 1, H[idx1])     
-            
-            # Compute Reynolds numbers based on momentum thickness  
-            Re_theta     = Re_L/l * getVe(x,x_i,Ve_i) * theta 
-            
-            # Compute Reynolds numbers based on distance along airfoil
-            Re_x         = getVe(x,x_i,Ve_i) * x/ nu
-            
-            # Compute skin friction 
-            cf           = getcf(np.atleast_1d(Re_theta),np.atleast_1d(H))
-            cf[cf<0]     = 1E-6 
-            
-            # Compute displacement thickness
-            del_star     = H*theta   
-            
-            # Compute boundary layer thickness 
-            delta        = theta*H1 + del_star 
-            delta[0]     = 0  
-            
-            # Reynolds number at x=0 cannot be negative (give nans)
-            Re_x[0]      = 1E-5
-            
-            X_H[:,a_i,re_i]          = x
-            THETA_H[:,a_i,re_i]      = theta
-            DELTA_STAR_H[:,a_i,re_i] = del_star
-            H_H[:,a_i,re_i]          = H
-            CF_H[:,a_i,re_i]         = cf 
-            RE_THETA_H[:,a_i,re_i]   = Re_theta
-            RE_X_H[:,a_i,re_i]       = Re_x
-            DELTA_H[:,a_i,re_i]      = delta
-        
-        
+            # length of tubulent surface  
+            l = TURBULENT_SURF[a_i,re_i] 
+            if l == 0.0:
+                pass
+            else: 
+                theta_0      = THETA_0[a_i,re_i] 
+                Re_L         = RE_L[a_i,re_i] 
+                nu           = l/Re_L    
+                x_i          = TURBULENT_COORD.data[:,a_i,re_i][TURBULENT_COORD.mask[:,a_i,re_i] ==False] 
+                Ve_i         = VE_I.data[:,a_i,re_i][TURBULENT_COORD.mask[:,a_i,re_i] ==False]
+                dVe_i        = DVE_I.data[:,a_i,re_i][TURBULENT_COORD.mask[:,a_i,re_i] ==False]  
+                del_0        = DEL_0[a_i,re_i]
+                del_star_0   = DELTA_STAR_0[a_i,re_i]
+                H_0          = del_star_0 / theta_0
+                H1_0         = getH1(np.atleast_1d(H_0))[0]
+                if np.isnan(H1_0):
+                    H1_0     = (del_0 - del_star_0) / theta_0 
+                y0           = [theta_0, getVe(0,x_i,Ve_i)*theta_0*H1_0]     
+                y            = odeint(odefcn,y0,x_i,args=(Re_L/l, x_i, Ve_i, dVe_i))  
+                
+                # Compute momentum thickness, theta 
+                theta        = y[:,0] 
+                Ve_theta_H1  = y[:,1]    
+                
+                # find theta values that do not converge and replace them with neighbor
+                idx1         = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > tol )[0]
+                if len(idx1)> 1: 
+                    np.put(theta,idx1 + 1, theta[idx1])    
+                idx1         = np.where(abs((Ve_theta_H1[1:] - Ve_theta_H1[:-1])/Ve_theta_H1[:-1]) >tol)[0]
+                if len(idx1)> 1: 
+                    np.put(Ve_theta_H1,idx1 + 1, Ve_theta_H1[idx1])    
+                  
+                # Compute mass flow shape factor, H1
+                H1           = Ve_theta_H1/(theta*Ve_i)
+                
+                # Compute H 
+                H            = getH(np.atleast_1d(H1)) 
+                H[H<0]       = 1E-6    # H cannot be negative 
+                # find H values that do not converge and replace them with neighbor
+                idx1               = np.where(abs((H[1:] - H[:-1])/H[:-1]) >tol)[0]
+                if len(idx1)> 1: 
+                    np.put(H,idx1 + 1, H[idx1])     
+                
+                # Compute Reynolds numbers based on momentum thickness  
+                Re_theta     = Re_L/l * Ve_i*theta 
+                
+                # Compute Reynolds numbers based on distance along airfoil
+                Re_x         = Ve_i* x_i / nu
+                
+                # Compute skin friction 
+                cf           = getcf(np.atleast_1d(Re_theta),np.atleast_1d(H))
+                cf[cf<0]     = 1E-6 
+                
+                # Compute displacement thickness
+                del_star     = H*theta   
+                
+                # Compute boundary layer thickness 
+                delta        = theta*H1 + del_star 
+                delta[0]     = 0  
+                
+                # Reynolds number at x=0 cannot be negative (give nans)
+                Re_x[0]      = 1E-5                
+    
+                # Find where matrices are not masked 
+                indices = np.where(TURBULENT_COORD.mask[:,a_i,re_i] == False)
+                
+                # Store results 
+                np.put(X_H[:,a_i,re_i],indices,x_i )
+                np.put(THETA_H[:,a_i,re_i],indices,theta)
+                np.put(DELTA_STAR_H[:,a_i,re_i],indices,del_star)
+                np.put(H_H[:,a_i,re_i],indices,H)
+                np.put(CF_H[:,a_i,re_i],indices ,cf)
+                np.put(RE_THETA_H[:,a_i,re_i],indices,Re_theta)
+                np.put(RE_X_H[:,a_i,re_i],indices,Re_x)
+                np.put(DELTA_H[:,a_i,re_i],indices,delta) 
+
     RESULTS = Data(
         X_H          = X_H,      
         THETA_H      = THETA_H,   
@@ -154,24 +160,19 @@ def heads_method(nalpha,nRe,DEL_0,THETA_0,DELTA_STAR_0, L, RE_L, X_I,VE_I, DVE_I
         RE_X_H       = RE_X_H,    
         DELTA_H      = DELTA_H,   
     )    
-         
+
     return  RESULTS
 
 def getH(H1):
     """ Computes the shape factor, H
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     H1       - mass flow shape factor [unitless]
-
     Outputs:  
     H        - shape factor [unitless]
-
     Properties Used:
     N/A
     """         
@@ -184,19 +185,14 @@ def getH(H1):
 
 def getH1(H) :    
     """ Computes the mass flow shape factor, H1
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     H        - shape factor [unitless]
-
     Outputs:  
     H1       - mass flow shape factor [unitless]
-
     Properties Used:
     N/A 
     """
@@ -207,13 +203,10 @@ def getH1(H) :
 
 def odefcn(y,x,ReL_div_L, x_i, Ve_i, dVe_i): 
     """ Computes boundary layer functions using SciPy ODE solver 
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs:  
     y           - initial conditions of functions               [unitless]
     x           - new x values at which to solve ODE            [unitless]
@@ -221,22 +214,21 @@ def odefcn(y,x,ReL_div_L, x_i, Ve_i, dVe_i):
     x_i         - intial array of x values                      [unitless]
     Ve_i        - intial boundary layer velocity                [m/s]
     dVe_i       - initial derivative of bounday layer velocity  [m/s-m]
-    
+
     Outputs:  
     f           - 2D function of momentum thickness and the product of 
                   the velocity,momentum thickness and the mass flow shape factor
-
     Properties Used:
     N/A 
     """    
     theta       = y[0]
     Ve_theta_H1 = y[1]  
-    
+
     if theta == 0:
         H1 = Ve_theta_H1 / (theta + 1e-6) / getVe(x,x_i,Ve_i)
     else:
         H1 = Ve_theta_H1 / theta / getVe(x,x_i,Ve_i)
-    
+
     H           = getH(np.atleast_1d(H1))
     Re_theta    = ReL_div_L * theta
     cf          = getcf(np.atleast_1d(Re_theta),np.atleast_1d(H))
@@ -247,21 +239,17 @@ def odefcn(y,x,ReL_div_L, x_i, Ve_i, dVe_i):
 
 def getVe(x,x_i,Ve_i):
     """ Interpolates the bounday layer velocity over a new dimension of x 
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     x         - new x dimension                    [unitless]
     x_i       - old x dimension                    [unitless]
     Ve_i      - old boundary layer velocity values [m/s] 
-    
+
     Outputs:  
     Ve        - new boundary layer velocity values [m/s]
-
     Properties Used:
     N/A 
     """    
@@ -271,21 +259,18 @@ def getVe(x,x_i,Ve_i):
 
 def getdVe(x,x_i,dVe_i):
     """ Interpolates the derivatives of the bounday layer velocity over a new dimension of x
-    
+
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     x         - new x dimension                                  [unitless]
     x_i       - old x dimension                                  [unitless]
     dVe_i     - old derivative of boundary layer velocity values [m/s-m] 
-    
+
     Outputs:  
     dVe       - new derivative of boundary layer velocity values [m/s-m]
-
     Properties Used:
     N/A 
     """        
@@ -295,20 +280,15 @@ def getdVe(x,x_i,dVe_i):
 
 def getcf(Re_theta,H): 
     """ Computes the skin friction coefficient, cf
-
     Assumptions:
     None
-
     Source:
     None
-
     Inputs: 
     Re_theta - Reynolds Number as a function of momentum thickness [m]
     H        - shape factor                                        [unitless]
-
     Outputs:  
     cf       - skin friction coefficient  [unitless]
-
     Properties Used:
     N/A 
     """    

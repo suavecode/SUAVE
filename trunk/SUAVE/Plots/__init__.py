@@ -18,9 +18,10 @@ from .Mission_Plots       import plot_propeller_conditions
 from .Mission_Plots       import plot_surface_pressure_contours
 from .Mission_Plots       import create_video_frames
 
-from .Airfoil_Plots       import plot_airfoil_boundary_layer_properties 
-from .Airfoil_Plots       import plot_airfoil_polars 
-from .Airfoil_Plots       import plot_airfoil_surface_forces  
+from .Airfoil_Plots       import plot_airfoil_analysis_boundary_layer_properties 
+from .Airfoil_Plots       import plot_airfoil_analysis_polars
+from .Airfoil_Plots       import plot_airfoil_analysis_surface_forces  
+from .Airfoil_Plots       import plot_airfoil_polar_files
 
 from .Propeller_Plots     import plot_propeller_performance 
 

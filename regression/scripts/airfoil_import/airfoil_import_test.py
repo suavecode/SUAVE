@@ -16,7 +16,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil
      import import_airfoil_geometry
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Airfoil.import_airfoil_polars \
      import import_airfoil_polars
-from SUAVE.Plots import plot_airfoil_polars
+from SUAVE.Plots.Airfoil_Plots import plot_airfoil_polar_files
 import os
 import numpy as np
 
@@ -39,8 +39,8 @@ def main():
     
     
     # plot airfoil polar data with and without surrogate
-    plot_airfoil_polars(airfoil_geometry, airfoil_polar_names, display_plot=True)
-    plot_airfoil_polars(airfoil_geometry, airfoil_polar_names, use_surrogate=True, display_plot=True)
+    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names, display_plot=True)
+    plot_airfoil_polar_files(airfoil_geometry, airfoil_polar_names, use_surrogate=True, display_plot=True)
     
     airfoil_polar_data     =  import_airfoil_polars(airfoil_polar_names) 
 

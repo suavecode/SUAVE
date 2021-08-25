@@ -15,7 +15,7 @@ from scipy.integrate import odeint
 # thwaites_method
 # ----------------------------------------------------------------------  
 ## @ingroup Methods-Aerodynamics-Airfoil_Panel_Method
-def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n = 200,tol  = 1E0):
+def thwaites_method(npanel,nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,tol  = 1E0):
     """ Computes the boundary layer characteristics in laminar 
     flow pressure gradients
     
@@ -24,6 +24,7 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
     Aeronautical Quarterly 1.3 (1949): 245-280.
 
     Inputs:  
+    npanel         - number of points on surface                                                 [unitless]
     nalpha         - number of angle of attacks                                                  [unitless]
     nRe            - number of reynolds numbers                                                  [unitless]
     batch_analysis - flag for batch analysis                                                     [boolean]
@@ -33,7 +34,6 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
     X_I            - x coordinate on surface of airfoil                                          [unitless]
     VE_I           - boundary layer velocity at transition location                              [m/s] 
     DVE_I          - initial derivative value of boundary layer velocity at transition location  [m/s-m] 
-    n              - number of points on surface                                                 [unitless]
     tol            - boundary layer error correction tolerance                                   [unitless]
 
     Outputs: 
@@ -49,9 +49,10 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
 
     Properties Used:
     N/A
-    """     
+    """
+    
     # Initialize vectors 
-    X_T          = np.zeros((n,nalpha,nRe))
+    X_T          = np.zeros((npanel,nalpha,nRe))
     THETA_T      = np.zeros_like(X_T)
     DELTA_STAR_T = np.zeros_like(X_T)
     H_T          = np.zeros_like(X_T)
@@ -74,16 +75,14 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
             theta_0     = THETA_0 
             Re_L        = RE_L[a_i,re_i]
             nu          = l/Re_L    
-            x_i         = X_I.data[:,0,0][X_I.mask[:,0,0] ==False]
-            Ve_i        = VE_I.data[:,0,0][VE_I.mask[:,0,0] ==False]
-            dVe_i       = DVE_I.data[:,0,0][DVE_I.mask[:,0,0] ==False] 
-            y0          = theta_0**2 * getVe(0,x_i,Ve_i)**6 
-            xspan       = np.linspace(0,l,n)   
-            theta2_Ve6  = odeint(odefcn, y0, xspan, args=(nu, x_i, Ve_i))  
-            x           = np.linspace(0,l,n)  
+            x_i         = X_I.data[:,a_i,re_i][X_I.mask[:,a_i,re_i] ==False]
+            Ve_i        = VE_I.data[:,a_i,re_i][VE_I.mask[:,a_i,re_i] ==False]
+            dVe_i       = DVE_I.data[:,a_i,re_i][DVE_I.mask[:,a_i,re_i] ==False] 
+            y0          = theta_0**2 * getVe(0,x_i,Ve_i)**6   
+            theta2_Ve6  = odeint(odefcn, y0,x_i , args=(nu, x_i, Ve_i))  
             
             # Compute momentum thickness, theta 
-            theta       = np.sqrt(theta2_Ve6[:,0]/ getVe(x, x_i, Ve_i)**6)
+            theta       = np.sqrt(theta2_Ve6[:,0]/ Ve_i**6)
             
             # find theta values that do not converge and replace them with neighbor
             idx1        = np.where(abs((theta[1:] - theta[:-1])/theta[:-1]) > tol)[0] 
@@ -91,7 +90,7 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
                 np.put(theta,idx1 + 1, theta[idx1])
             
             # Thwaites separation criteria 
-            lambda_val  = theta**2 * getdVe(x,x_i,dVe_i) / nu 
+            lambda_val  = theta**2 * dVe_i / nu 
             
             # Compute H 
             H           = getH(lambda_val)
@@ -102,10 +101,10 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
                 np.put(H,idx1 + 1, H[idx1]) 
             
             # Compute Reynolds numbers based on momentum thickness  
-            Re_theta    = getVe(x,x_i,Ve_i) * theta / nu
+            Re_theta    = Ve_i * theta / nu
             
             # Compute Reynolds numbers based on distance along airfoil
-            Re_x        = getVe(x,x_i,Ve_i) * x/ nu
+            Re_x        = Ve_i * x_i/ nu
             
             # Compute skin friction 
             cf          = getcf(lambda_val ,Re_theta)
@@ -115,21 +114,24 @@ def thwaites_method(nalpha,nRe,L,RE_L,X_I,VE_I, DVE_I,batch_analysis,THETA_0,n =
             del_star    = H*theta   
             
             # Compute boundary layer thickness 
-            delta       = 5.2*x/np.sqrt(Re_x)
+            delta       = 5.2*x_i/np.sqrt(Re_x)
             delta[0]    = 0   
             
             # Reynolds number at x=0 cannot be negative 
             Re_x[0]     = 1E-5
             
+            # Find where matrices are not masked 
+            indices = np.where(X_I.mask[:,a_i,re_i] == False)
+            
             # Store results 
-            X_T[:,a_i,re_i]          = x
-            THETA_T[:,a_i,re_i]      = theta
-            DELTA_STAR_T[:,a_i,re_i] = del_star
-            H_T[:,a_i,re_i]          = H
-            CF_T[:,a_i,re_i]         = cf
-            RE_THETA_T[:,a_i,re_i]   = Re_theta
-            RE_X_T[:,a_i,re_i]       = Re_x
-            DELTA_T[:,a_i,re_i]      = delta 
+            np.put(X_T[:,a_i,re_i],indices,x_i)
+            np.put(THETA_T[:,a_i,re_i],indices,theta)
+            np.put(DELTA_STAR_T[:,a_i,re_i],indices,del_star)
+            np.put(H_T[:,a_i,re_i],indices,H)
+            np.put(CF_T[:,a_i,re_i],indices ,cf)
+            np.put(RE_THETA_T[:,a_i,re_i],indices,Re_theta)
+            np.put(RE_X_T[:,a_i,re_i],indices,Re_x)
+            np.put(DELTA_T[:,a_i,re_i],indices,delta)
     
     RESULTS = Data(
         X_T          = X_T,      
