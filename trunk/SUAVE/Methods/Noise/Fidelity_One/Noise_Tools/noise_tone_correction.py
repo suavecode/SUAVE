@@ -78,10 +78,10 @@ def noise_tone_correction(SPL):
         #STEP 4 - Compute new adjusted sound pressure level
         #------------------------------------------------------------        
         step4 = np.zeros(23)
-        for i in range(1,24):
+        for i in range(1,23):
             if step3[i]!=0 and i<23:
                 step4[i] = (SPL[j][i-1]+SPL[j][i+1])/2
-            if step3[i]!=0 and i==23:
+            if step3[i]!=0 and i==22:
                 step4[i] = SPL[j][i-1]+slope[i-1]
             if step3[i]==0:
                 step4[i] = SPL[j][i]
