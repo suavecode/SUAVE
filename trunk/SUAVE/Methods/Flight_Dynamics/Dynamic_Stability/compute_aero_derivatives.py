@@ -1,5 +1,5 @@
 ## @ingroup Methods-Flight_Dynamics-Dynamic_Stability
-# single_point_aero_derivatives.py
+# compute_aero_derivatives.py
 # 
 # Created:   Aug 2021, R. Erhard
 # Modified: 
@@ -8,13 +8,12 @@
 # ----------------------------------------------------------------------
 import SUAVE
 from SUAVE.Core import Data
-from SUAVE.Plots.Mission_Plots import *  
 
 import numpy as np 
 from copy import deepcopy
 
 ## @ingroup Methods-Flight_Dynamics-Dynamic_Stability
-def single_point_aero_derivatives(analyses,vehicle, state, h=0.01): 
+def compute_aero_derivatives(segment, h=1e-6): 
     """This function takes an aircraft with analyses setup and initial state,
     and computes the aerodynamic derivatives about the initial state.
     
@@ -35,70 +34,77 @@ def single_point_aero_derivatives(analyses,vehicle, state, h=0.01):
        N/A
      """
     
-    # extract states from prior mission segment
-    alpha           = state.conditions.aerodynamics.angle_of_attack
-    throttle        = state.conditions.propulsion.throttle
-    velocity        = state.conditions.freestream.velocity
-    velocity_vector = state.conditions.frames.inertial.velocity_vector
+    # extract states from converged mission segment
+    
+    throttle           = segment.state.conditions.propulsion.throttle
+    velocity           = segment.state.conditions.freestream.velocity
+    orientation_vector = segment.state.conditions.frames.body.inertial_rotations
+    
+    alpha           = orientation_vector[:,1]
+    beta            = orientation_vector[:,2]
     
     # ----------------------------------------------------------------------------
     # Perturb each state variable
     # ----------------------------------------------------------------------------
+    # deepcopy segment
+    perturbed_segment = deepcopy(segment)
+    
     # Alpha perturbation
-    perturbed_state = deepcopy(state)
-    alpha_plus      = alpha + 0.5*h
-    alpha_minus     = alpha - 0.5*h
+    alpha_plus = alpha*(1+h)
+    perturbed_segment.state.conditions.frames.body.inertial_rotations[:,1] = alpha_plus
     
-    perturbed_state.conditions.aerodynamics.angle_of_attack = alpha_plus
-    results_Alpha_plus = evaluate_aero_results(analyses,vehicle,perturbed_state)
+    iterate = perturbed_segment.process.iterate
+    iterate.conditions(perturbed_segment) 
     
-    perturbed_state.conditions.aerodynamics.angle_of_attack = alpha_minus
-    results_Alpha_minus = evaluate_aero_results(analyses,vehicle,perturbed_state)    
-
+    # set segment derivatives based on perturbed segment
+    dCL    = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
+    dCD    = perturbed_segment.state.conditions.aerodynamics.drag_coefficient - segment.state.conditions.aerodynamics.drag_coefficient
+    
+    dAlpha = np.atleast_2d(alpha_plus-alpha).T
+    
+    dCL_dAlpha = dCL/dAlpha
+    dCD_dAlpha = dCD/dAlpha
+    
+    segment.state.conditions.aero_derivatives.dCL_dAlpha = dCL_dAlpha
+    segment.state.conditions.aero_derivatives.dCD_dAlpha = dCD_dAlpha
+    
+    
     # ----------------------------------------------------------------------------    
     # Throttle perturbation
-    perturbed_state = deepcopy(state)
-    throttle_plus   = throttle + 0.5*h
-    throttle_minus  = throttle - 0.5*h
+    perturbed_segment = deepcopy(segment)
+    throttle_plus   = throttle*(1+h)
     
-    perturbed_state.conditions.propulsion.throttle = throttle_plus
-    results_Throttle_plus = evaluate_aero_results(analyses,vehicle,perturbed_state)
-    
-    perturbed_state.conditions.propulsion.throttle = throttle_minus
-    results_Throttle_minus = evaluate_aero_results(analyses,vehicle,perturbed_state)
+    perturbed_segment.state.conditions.propulsion.throttle = throttle_plus
+    iterate = perturbed_segment.process.iterate
+    results_Throttle_plus = iterate.conditions(perturbed_segment) 
 
-    # ----------------------------------------------------------------------------     
-    # Velocity perturbation
-    perturbed_state = deepcopy(state)
-    velocity_plus   = velocity + 0.5*h
-    velocity_minus  = velocity - 0.5*h
+    ## ----------------------------------------------------------------------------     
+    ## Velocity perturbation
+    #perturbed_segment = deepcopy(segment)
+    #velocity_plus   = velocity*(1+h)
     
-    perturbed_state.conditions.freestream.velocity = velocity_plus
-    perturbed_state.conditions.frames.inertial.velocity_vector[:,0] = velocity_plus[0][0]
-    results_Velocity_plus = evaluate_aero_results(analyses,vehicle,perturbed_state)
-    
-    perturbed_state.conditions.freestream.velocity = velocity_minus
-    perturbed_state.conditions.frames.inertial.velocity_vector[:,0] = velocity_minus[0][0]
-    results_Velocity_minus = evaluate_aero_results(analyses,vehicle,perturbed_state)        
+    #perturbed_segment.state.conditions.freestream.velocity = velocity_plus
+    #perturbed_segment.state.conditions.frames.inertial.velocity_vector[:,0] = velocity_plus[0][0]
+    #results_Velocity_plus  = iterate.conditions() 
 
     # ---------------------------------------------------------------------------- 
     # Compute and store aerodynamic derivatives
     # ---------------------------------------------------------------------------- 
     aero_derivatives = Data()
-    aero_derivatives.dCL_dAlpha   = (results_Alpha_plus.CL  - results_Alpha_minus.CL)/h
-    aero_derivatives.dCD_dAlpha   = (results_Alpha_plus.CD - results_Alpha_minus.CD)/h  
-    aero_derivatives.dCT_dAlpha   = (results_Alpha_plus.CT  - results_Alpha_minus.CT)/h  
-    aero_derivatives.dMyaw_dAlpha = (results_Alpha_plus.Myaw - results_Alpha_minus.Myaw)/h 
+    aero_derivatives.dCL_dAlpha   = (results_Alpha_plus.CL  - segment.state.conditions.aerodynamics.lift_coefficient)/(alpha*h)
+    #aero_derivatives.dCD_dAlpha   = (results_Alpha_plus.CD - results_Alpha_minus.CD)/h  
+    #aero_derivatives.dCT_dAlpha   = (results_Alpha_plus.CT  - results_Alpha_minus.CT)/h  
+    #aero_derivatives.dMyaw_dAlpha = (results_Alpha_plus.Myaw - results_Alpha_minus.Myaw)/h 
 
-    aero_derivatives.dCL_dThrottle   = (results_Throttle_plus.CL  - results_Throttle_minus.CL)/h
-    aero_derivatives.dCD_dThrottle   = (results_Throttle_plus.CD - results_Throttle_minus.CD)/h  
-    aero_derivatives.dCT_dThrottle   = (results_Throttle_plus.CT  - results_Throttle_minus.CT)/h  
-    aero_derivatives.dMyaw_dThrottle = (results_Throttle_plus.Myaw  - results_Throttle_minus.Myaw)/h       
+    #aero_derivatives.dCL_dThrottle   = (results_Throttle_plus.CL  - results_Throttle_minus.CL)/h
+    #aero_derivatives.dCD_dThrottle   = (results_Throttle_plus.CD - results_Throttle_minus.CD)/h  
+    #aero_derivatives.dCT_dThrottle   = (results_Throttle_plus.CT  - results_Throttle_minus.CT)/h  
+    #aero_derivatives.dMyaw_dThrottle = (results_Throttle_plus.Myaw  - results_Throttle_minus.Myaw)/h       
     
-    aero_derivatives.dCL_dV   = (results_Velocity_plus.CL  - results_Velocity_minus.CL)/h
-    aero_derivatives.dCD_dV   = (results_Velocity_plus.CD - results_Velocity_minus.CD)/h 
-    aero_derivatives.dCT_dV   = (results_Velocity_plus.CT  - results_Velocity_minus.CT)/h
-    aero_derivatives.dMyaw_dV = (results_Velocity_plus.Myaw - results_Velocity_minus.Myaw)/h
+    #aero_derivatives.dCL_dV   = (results_Velocity_plus.CL  - results_Velocity_minus.CL)/h
+    #aero_derivatives.dCD_dV   = (results_Velocity_plus.CD - results_Velocity_minus.CD)/h 
+    #aero_derivatives.dCT_dV   = (results_Velocity_plus.CT  - results_Velocity_minus.CT)/h
+    #aero_derivatives.dMyaw_dV = (results_Velocity_plus.Myaw - results_Velocity_minus.Myaw)/h
     
     return aero_derivatives
 
