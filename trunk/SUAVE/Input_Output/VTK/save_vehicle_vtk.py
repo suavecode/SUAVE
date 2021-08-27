@@ -17,7 +17,7 @@ from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
 from SUAVE.Input_Output.VTK.save_fuselage_vtk import save_fuselage_vtk
 
 
-def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
+def save_vehicle_vtks(vehicle, results, time_step, settings=None, prop_filename="propeller.vtk", rot_filename="rotor.vtk",
                      wake_filename="prop_wake.vtk", wing_filename="wing_vlm.vtk", fuselage_filename="fuselage.vtk", save_loc=None):
     """
     Saves SUAVE vehicle components as VTK files in legacy format.
@@ -25,7 +25,7 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
     Inputs:
        vehicle                Data structure of SUAVE vehicle                    [Unitless]
        settings               Settings for aerodynamic analysis                  [Unitless]
-       Results                Data structure of wing and propeller results       [Unitless]
+       results                Results from running full mission                  [Unitless]
        time_step              Simulation time step                               [Unitless]
        prop_filename          Name of vtk file to save                           [String]
        rot_filename           Name of vtk file to save                           [String]
@@ -47,6 +47,42 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
        None
 
     """
+    
+    # Extract wing and propeller performance from results
+    
+    Results = Data()
+    
+    Results['cl_y_DVE']     = Data()
+    Results['CL_wing_DVE']  = Data()
+    Results['cdi_y_DVE']    = Data()
+    Results['CDi_wing_DVE'] = Data()
+    Results['CL_wing_DVE']  = Data()
+    
+    Results["all_prop_outputs"]       = Data()
+    Results["all_lift_rotor_outputs"] = Data()
+    
+    
+    i=0
+    for segment in results.segments.values():
+        num_ctrl_pts = len(segment.conditions.frames.inertial.time)
+        for ti in range(num_ctrl_pts):
+        
+            # Store wing outputs
+            Results['cl_y_DVE'][i]     = segment.conditions.aerodynamics.lift_breakdown.inviscid_wings_sectional[ti]
+            Results['CL_wing_DVE'][i]  = segment.conditions.aerodynamics.lift_breakdown.total[ti]
+            Results['cdi_y_DVE'][i]    = segment.conditions.aerodynamics.drag_breakdown.induced.wings_sectional[ti]
+            Results['CDi_wing_DVE'][i] = segment.conditions.aerodynamics.drag_breakdown.total[ti]
+    
+            # Store rotor outputs
+            Results["all_prop_outputs"][i]       = segment.conditions.noise.sources.propellers
+            Results["all_lift_rotor_outputs"][i] = segment.conditions.noise.sources.lift_rotors
+            
+            i+=1
+    #except:
+        #Results = Data()
+        #print("Mission results not complete. Saving VTKs of vehicle geometry only...")
+    
+    
     if settings == None:
         settings = Vortex_Lattice().settings
         settings.number_spanwise_vortices  = 25
@@ -130,18 +166,25 @@ def save_vehicle_vtks(vehicle, Results, time_step, settings=None, prop_filename=
         n_wakes = 0
 
     if n_wakes >0:
-        for i in range(n_wakes):
-            # save the wake of the ith propeller
-            if save_loc ==None:
-                filename = wake_filename
-            else:
-                filename = save_loc + wake_filename
-            sep  = filename.find('.')
-            file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
+    
+        # evaluate for each control point in the mission
+        for ti in range(len(Results['all_prop_outputs'])):
+            props_ti_key = list(Results['all_prop_outputs'].keys())[ti]
+            all_prop_outputs = Results['all_prop_outputs'][props_ti_key]
             
-            propi_key = list(Results['all_prop_outputs'].keys())[i]
-            Results['prop_outputs'] = Results['all_prop_outputs'][propi_key]
-            save_prop_wake_vtk(VD.Wake, file, Results,i)
+            # evaluate each wake per control point
+            for i in range(n_wakes):
+                # save the wake of the ith propeller
+                if save_loc ==None:
+                    filename = wake_filename
+                else:
+                    filename = save_loc + wake_filename
+                sep  = filename.find('.')
+                file = filename[0:sep]+str(i)+"_t"+str(time_step)+filename[sep:]
+                
+                propi_key = list(all_prop_outputs.keys())[i]
+                Results['prop_outputs'] = all_prop_outputs[propi_key]
+                save_prop_wake_vtk(VD.Wake, file, Results,i)
 
     #---------------------------
     # Save wing results to vtk

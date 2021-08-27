@@ -89,6 +89,7 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
 
     for network in geometry.networks:
         if propeller_wake_model:
+            # take instantaneous wake result
             if 'propellers' in network.keys():
 
                 # extract the propeller data structure
@@ -106,7 +107,7 @@ def compute_RHS_matrix(delta,phi,conditions,settings,geometry,propeller_wake_mod
 
                 # extract the propeller data structure
                 identical_rots = network.identical_lift_rotors
-                lift_rotors    = network.rotors
+                lift_rotors    = network.lift_rotors
 
                 # generate the geometry of the propeller helical wake
                 wake_distribution, dt,time_steps,num_blades, num_radial_stations = generate_propeller_wake_distribution(lift_rotors,identical_rots,num_ctrl_pts,\
