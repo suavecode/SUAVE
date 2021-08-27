@@ -523,6 +523,76 @@ def VLM(conditions,settings,geometry):
     
     return results
 
+def VLM_time_averaged(conditions,settings,geometry):
+    # Set range of azimuthal offsets to average over
+    psi_steps = 15
+    psi_offsets = np.linspace(0,2*np.pi,psi_steps)
+    
+    VD      = generate_vortex_distribution(geometry,settings) 
+    n_cpts  = len(conditions.frames.inertial.time)
+    n_w     = VD.n_w
+    n_sw    = settings.number_spanwise_vortices
+    n_cw    = settings.number_chordwise_vortices
+    
+    # initialize VLM results for averaging
+    res_CL       = np.zeros((n_cpts,1))
+    res_CDi      = np.zeros((n_cpts,1))
+    res_CM       = np.zeros((n_cpts,1))
+    res_CYTOT    = np.zeros((n_cpts,1))
+    res_CRTOT    = np.zeros((n_cpts,1))
+    res_CRMTOT   = np.zeros((n_cpts,1))
+    res_CNTOT    = np.zeros((n_cpts,1))
+    res_CYMTOT   = np.zeros((n_cpts,1))
+    res_CL_wing  = np.zeros((n_cpts,n_w))
+    res_CDi_wing = np.zeros((n_cpts,n_w))
+    res_cl_y     = np.zeros((n_cpts,n_sw*n_cw))
+    res_cdi_y    = np.zeros((n_cpts,n_sw*n_cw))
+    res_alpha_i  = np.zeros((n_w,n_cpts,n_sw))
+    res_CP       = np.zeros((n_cpts,n_sw*n_cw*n_w))
+    res_gamma    = np.zeros((n_cpts,n_sw*n_cw*n_w))
+    
+    
+    for psi_offset in psi_offsets:
+        # run VLM, average results
+        settings.initial_start_angle = psi_offset
+        results = VLM(conditions, settings, geometry)
+        
+        res_CL      += results.CL
+        res_CDi     += results.CDi
+        res_CM      += results.CM
+        res_CYTOT   += results.CYTOT
+        res_CRTOT   += results.CRTOT
+        res_CRMTOT  += results.CRMTOT
+        res_CNTOT   += results.CNTOT
+        res_CYMTOT  += results.CYMTOT
+        res_CL_wing += results.CL_wing
+        res_CDi_wing+= results.CDi_wing
+        res_cl_y    += results.cl_y
+        res_cdi_y   += results.cdi_y
+        res_alpha_i += results.alpha_i
+        res_CP      += results.CP 
+        res_gamma   += results.gamma
+        
+        
+    # average over the number of azimuthal steps  
+    results.CL       = res_CL      /psi_steps
+    results.CDi      = res_CDi     /psi_steps
+    results.CM       = res_CM      /psi_steps
+    results.CYTOT    = res_CYTOT   /psi_steps
+    results.CRTOT    = res_CRTOT   /psi_steps
+    results.CRMTOT   = res_CRMTOT  /psi_steps
+    results.CNTOT    = res_CNTOT   /psi_steps
+    results.CYMTOT   = res_CYMTOT  /psi_steps
+    results.CL_wing  = res_CL_wing /psi_steps 
+    results.CDi_wing = res_CDi_wing/psi_steps  
+    results.cl_y     = res_cl_y    /psi_steps
+    results.cdi_y    = res_cdi_y   /psi_steps
+    results.alpha_i  = res_alpha_i /psi_steps 
+    results.CP       = res_CP      /psi_steps
+    results.gamma    = res_gamma   /psi_steps
+        
+    return results
+
 # ----------------------------------------------------------------------
 #  CLE rotation effects helper function
 # ----------------------------------------------------------------------

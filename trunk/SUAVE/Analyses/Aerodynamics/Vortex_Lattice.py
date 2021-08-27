@@ -23,7 +23,7 @@ import SUAVE
 from SUAVE.Core import Data
 from SUAVE.Core import Units
  
-from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.VLM import VLM,VLM_time_averaged
 
 # local imports
 from .Aerodynamics import Aerodynamics
@@ -83,6 +83,7 @@ class Vortex_Lattice(Aerodynamics):
         self.settings.wake_development_time           = 0.05
         self.settings.number_of_wake_timesteps        = 30
         self.settings.propeller_wake_model            = False
+        self.settings.time_averaged_wake              = False
         self.settings.use_bemt_wake_model             = False
         self.settings.discretize_control_surfaces     = False
         self.settings.use_VORLAX_matrix_calculation   = False
@@ -128,7 +129,7 @@ class Vortex_Lattice(Aerodynamics):
         
         self.evaluate                                = None
         
-    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model, use_bemt_wake_model,ito,wdt,nwts,mf):
+    def initialize(self,use_surrogate,n_sw,n_cw,propeller_wake_model,time_averaged_wake, use_bemt_wake_model,ito,wdt,nwts,mf):
         """Drives functions to get training samples and build a surrogate.
 
         Assumptions:
@@ -163,6 +164,7 @@ class Vortex_Lattice(Aerodynamics):
             
         settings.use_surrogate              = use_surrogate
         settings.propeller_wake_model       = propeller_wake_model 
+        settings.time_averaged_wake         = time_averaged_wake
         settings.use_bemt_wake_model        = use_bemt_wake_model
         settings.initial_timestep_offset    = ito
         settings.wake_development_time      = wdt
@@ -662,8 +664,12 @@ def calculate_VLM(conditions,settings,geometry):
     wing_lifts         = Data()
     wing_drags         = Data()
     wing_induced_angle = Data()
+    
+    if settings.time_averaged_wake:
+        results = VLM_time_averaged(conditions,settings,geometry)
+    else:
+        results = VLM(conditions,settings,geometry)
         
-    results = VLM(conditions,settings,geometry)
     total_lift_coeff          = results.CL
     total_induced_drag_coeff  = results.CDi
     CL_wing                   = results.CL_wing  

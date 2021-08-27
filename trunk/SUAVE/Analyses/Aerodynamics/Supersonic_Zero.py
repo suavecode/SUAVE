@@ -79,6 +79,7 @@ class Supersonic_Zero(Markup):
         settings.number_chordwise_vortices          = None 
         settings.use_surrogate                      = True 
         settings.propeller_wake_model               = False
+        settings.time_averaged_wake                 = False
         settings.use_bemt_wake_model                = False
         settings.model_fuselage                     = False
         
@@ -151,6 +152,7 @@ class Supersonic_Zero(Markup):
         
         use_surrogate             = self.settings.use_surrogate
         propeller_wake_model      = self.settings.propeller_wake_model 
+        time_averaged_wake        = self.settings.time_averaged_wake
         use_bemt_wake_model       = self.settings.use_bemt_wake_model
         n_sw                      = self.settings.number_spanwise_vortices    
         n_cw                      = self.settings.number_chordwise_vortices  
@@ -160,6 +162,6 @@ class Supersonic_Zero(Markup):
         mf                        = self.settings.model_fuselage
 
         self.process.compute.lift.inviscid_wings.geometry = self.geometry 
-        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,use_bemt_wake_model,ito,wdt,nwts,mf)
+        self.process.compute.lift.inviscid_wings.initialize(use_surrogate,n_sw,n_cw,propeller_wake_model,time_averaged_wake,use_bemt_wake_model,ito,wdt,nwts,mf)
                 
     finalize = initialize        

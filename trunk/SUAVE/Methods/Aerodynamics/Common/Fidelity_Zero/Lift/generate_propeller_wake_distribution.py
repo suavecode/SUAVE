@@ -16,7 +16,7 @@ from SUAVE.Core import Data
 from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_contraction_matrix import compute_wake_contraction_matrix
 
 ## @ingroup Methods-Aerodynamics-Common-Fidelity_Zero-Lift   
-def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ): 
+def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions,psi_increment=None ): 
     """ This generates the propeller wake control points used to compute the 
     influence of the wake
 
@@ -95,9 +95,14 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         blade_angles     = np.linspace(0,2*np.pi,B+1)[:-1]   
         dt               = time/number_of_wake_timesteps
         ts               = np.linspace(0,time,number_of_wake_timesteps) 
+        t0               = dt*init_timestep_offset
         
-        t0                = dt*init_timestep_offset
-        start_angle       = omega[0]*t0 
+        if psi_increment==None:
+            start_angle       = omega[0]*t0             
+        else:
+            # used for time-averaged VLM
+            start_angle = omega[0]*t0 + psi_increment
+            
         propi.start_angle = start_angle
 
         # define points ( control point, time step , blade number , location on blade )
