@@ -350,6 +350,9 @@ def mission_setup(analyses):
     segment.distance  = (3933.65 + 770 - 92.6) * Units.km
     
     segment.state.numerics.number_control_points = 10
+    
+    #segment.process.iterate.conditions.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.compute_aero_derivatives
+    segment.process.finalize.post_process.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.compute_aero_derivatives
 
     # add to mission
     mission.append_segment(segment)
