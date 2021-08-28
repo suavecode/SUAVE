@@ -6,6 +6,7 @@
 #           Mar 2020, M. Clarke
 #           Apr 2020, M. Clarke
 #           Apr 2020, E. Botero
+#           Aug 2021, R. Erhard
 
 """ setup file for a mission with a 737
 """
@@ -351,7 +352,7 @@ def mission_setup(analyses):
     
     segment.state.numerics.number_control_points = 10
     
-    #segment.process.iterate.conditions.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.compute_aero_derivatives
+    # post-process aerodynamic derivatives in cruise
     segment.process.finalize.post_process.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Dynamic_Stability.compute_aero_derivatives
 
     # add to mission
@@ -517,6 +518,8 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.stability.static.Cn_beta',
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
+        'segments.cruise.conditions.aero_derivatives.dCL_dAlpha',
+        'segments.cruise.conditions.aero_derivatives.dCD_dAlpha',
     ]
 
     # do the check
