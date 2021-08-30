@@ -318,6 +318,10 @@ def mission_setup(analyses,vehicle):
     segment.air_speed                 = 135. * Units['mph'] 
     segment.distance                  = 20.  * Units.nautical_mile  
     segment.state.unknowns.throttle   = 0.85 *  ones_row(1)
+    
+    # post-process aerodynamic derivatives in cruise
+    segment.process.finalize.post_process.aero_derivatives = SUAVE.Methods.Flight_Dynamics.Static_Stability.compute_aero_derivatives
+        
     segment = vehicle.networks.battery_propeller.add_unknowns_and_residuals_to_segment(segment)
     
     # add to misison
