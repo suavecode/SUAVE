@@ -519,7 +519,7 @@ def check_results(new_results,old_results):
         'segments.cruise.conditions.propulsion.throttle',
         'segments.cruise.conditions.weights.vehicle_mass_rate',
         'segments.cruise.conditions.aero_derivatives.dCL_dAlpha',
-        'segments.cruise.conditions.aero_derivatives.dCD_dAlpha',
+        'segments.cruise.conditions.aero_derivatives.dCn_dBeta'
     ]
 
     # do the check

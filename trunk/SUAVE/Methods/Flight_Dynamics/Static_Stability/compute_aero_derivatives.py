@@ -30,9 +30,10 @@ def compute_aero_derivatives(segment, h=1e-4):
     Properties Used:
        N/A
      """
+    # check for surrogate
+    surrogate_used = segment.analyses.aerodynamics.settings.use_surrogate
     
     # extract states from converged mission segment
-    velocity_vector    = segment.state.conditions.frames.inertial.velocity_vector
     orientation_vector = segment.state.conditions.frames.body.inertial_rotations
     
     pitch     = orientation_vector[:,1]
@@ -58,20 +59,22 @@ def compute_aero_derivatives(segment, h=1e-4):
     # set segment derivatives based on perturbed segment
     dAlpha = perturbed_segment.state.conditions.aerodynamics.angle_of_attack - segment.state.conditions.aerodynamics.angle_of_attack
     dCL    = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
-    dCD    = perturbed_segment.state.conditions.aerodynamics.drag_coefficient - segment.state.conditions.aerodynamics.drag_coefficient
-    dCM    = perturbed_segment.state.conditions.stability.static.CM - segment.state.conditions.stability.static.CM
-
+    
+    if surrogate_used:
+        dCM_dAlpha = segment.state.conditions.stability.static.Cm_alpha
+    else:
+        # use VLM outputs directly
+        dCM    = perturbed_segment.state.conditions.aerodynamics.moment_coefficient - segment.state.conditions.aerodynamics.moment_coefficient
+        dCM_dAlpha = dCM/dAlpha
+        
     # propeller derivatives
     dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts)
         
     dCL_dAlpha = dCL/dAlpha
-    dCD_dAlpha = dCD/dAlpha
-    dCM_dAlpha = dCM/dAlpha
     dCT_dAlpha = dCT/dAlpha[None,:,:]
     dCP_dAlpha = dCP/dAlpha[None,:,:]
     
     segment.state.conditions.aero_derivatives.dCL_dAlpha = dCL_dAlpha
-    segment.state.conditions.aero_derivatives.dCD_dAlpha = dCD_dAlpha
     segment.state.conditions.aero_derivatives.dCM_dAlpha = dCM_dAlpha
     segment.state.conditions.aero_derivatives.dCT_dAlpha = dCT_dAlpha
     segment.state.conditions.aero_derivatives.dCP_dAlpha = dCP_dAlpha
@@ -88,60 +91,39 @@ def compute_aero_derivatives(segment, h=1e-4):
     iterate.conditions(perturbed_segment) 
     
     # set segment derivatives based on perturbed segment
-    dBeta  = perturbed_segment.state.conditions.aerodynamics.side_slip_angle - segment.state.conditions.aerodynamics.side_slip_angle #np.atleast_2d(psi_plus-psi).T
-    dCL    = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
-    dCD    = perturbed_segment.state.conditions.aerodynamics.drag_coefficient - segment.state.conditions.aerodynamics.drag_coefficient
-    dCM    = perturbed_segment.state.conditions.stability.static.CM - segment.state.conditions.stability.static.CM
+    dBeta  = perturbed_segment.state.conditions.aerodynamics.side_slip_angle - segment.state.conditions.aerodynamics.side_slip_angle
     
-    dCn_beta_dBeta = perturbed_segment.state.conditions.stability.static.Cn_beta - segment.state.conditions.stability.static.Cn_beta
-
+    # roll and yaw moment coefficient derivatives
+    if surrogate_used:
+        # check for roll and yaw moment coefficient derivatives in surrogate outputs
+        if 'Cn_beta' in segment.state.conditions.stability.static.keys():
+            dCn_dBeta = segment.state.conditions.stability.static.Cn_beta
+        else:
+            print("No dCn_dBeta in surrogate output. dCn_dBeta not included in aerodynamic derivatives.")
+            dCn_dBeta = None
+        if 'Cl_beta' in segment.state.conditions.stability.static.keys():
+            dCl_dBeta = segment.state.conditions.stability.static.Cl_beta 
+        else:
+            print("No dCl_dBeta in surrogate output. dCl_dBeta not included in aerodynamic derivatives.")
+            dCl_dBeta = None            
+    else:
+        # use VLM outputs directly
+        dCn = perturbed_segment.state.conditions.stability.static.yawing_moment_coefficient - segment.state.conditions.stability.static.yawing_moment_coefficient
+        dCl = perturbed_segment.state.conditions.stability.static.rolling_moment_coefficient - segment.state.conditions.stability.static.rolling_moment_coefficient
+        dCn_dBeta = dCn/dBeta
+        dCl_dBeta = dCl/dBeta
+        
     # check for propellers
     dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts)  
 
-    dCL_dBeta = dCL/dBeta
-    dCD_dBeta = dCD/dBeta
-    dCM_dBeta = dCM/dBeta
     dCT_dBeta = dCT/dBeta
     dCP_dBeta = dCP/dBeta
     
-    segment.state.conditions.aero_derivatives.dCL_dBeta = dCL_dBeta
-    segment.state.conditions.aero_derivatives.dCD_dBeta = dCD_dBeta
-    segment.state.conditions.aero_derivatives.dCM_dBeta = dCM_dBeta
-    segment.state.conditions.aero_derivatives.dCn_dBeta = dCn_beta_dBeta
+    segment.state.conditions.aero_derivatives.dCn_dBeta = dCn_dBeta
+    segment.state.conditions.aero_derivatives.dCl_dBeta = dCl_dBeta
     segment.state.conditions.aero_derivatives.dCT_dBeta = dCT_dBeta
     segment.state.conditions.aero_derivatives.dCP_dBeta = dCP_dBeta
     
-    
-    # ----------------------------------------------------------------------------    
-    # Velocity perturbation
-    
-    perturbed_segment = deepcopy(segment)    
-    Vx_plus           = velocity_vector[:,0]*(1+h)
-    perturbed_segment.state.conditions.frames.inertial.velocity_vector[:,0] = Vx_plus
-    
-    iterate = perturbed_segment.process.iterate
-    iterate.conditions(perturbed_segment) 
-    
-    # set segment derivatives based on perturbed segment
-    dV    = np.atleast_2d(Vx_plus-velocity_vector[:,0]).T
-    dCL   = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
-    dCD   = perturbed_segment.state.conditions.aerodynamics.drag_coefficient - segment.state.conditions.aerodynamics.drag_coefficient
-    dCM   = perturbed_segment.state.conditions.stability.static.CM - segment.state.conditions.stability.static.CM
-    
-    # check for propellers
-    dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts)  
-    
-    dCL_dV = dCL/dV
-    dCD_dV = dCD/dV
-    dCM_dV = dCM/dV
-    dCT_dV = dCT/dV[None,:,:]
-    dCP_dV = dCP/dV[None,:,:]
-    
-    segment.state.conditions.aero_derivatives.dCL_dV = dCL_dV
-    segment.state.conditions.aero_derivatives.dCD_dV = dCD_dV
-    segment.state.conditions.aero_derivatives.dCD_dV = dCM_dV
-    segment.state.conditions.aero_derivatives.dCT_dV = dCT_dV
-    segment.state.conditions.aero_derivatives.dCP_dV = dCP_dV
     
     # ----------------------------------------------------------------------------    
     # Throttle perturbation
@@ -157,20 +139,17 @@ def compute_aero_derivatives(segment, h=1e-4):
     dThrottle = throttle_plus-throttle
     dCL       = perturbed_segment.state.conditions.aerodynamics.lift_coefficient - segment.state.conditions.aerodynamics.lift_coefficient
     dCD       = perturbed_segment.state.conditions.aerodynamics.drag_coefficient - segment.state.conditions.aerodynamics.drag_coefficient
-    dCM       = perturbed_segment.state.conditions.stability.static.CM - segment.state.conditions.stability.static.CM
 
     # check for propellers
     dCT, dCP = propeller_derivatives(segment, perturbed_segment, n_cpts)  
 
     dCL_dThrottle = dCL/dThrottle
     dCD_dThrottle = dCD/dThrottle
-    dCM_dThrottle = dCM/dThrottle
     dCT_dThrottle = dCT/dThrottle
     dCP_dThrottle = dCP/dThrottle
     
     segment.state.conditions.aero_derivatives.dCL_dThrottle = dCL_dThrottle
-    segment.state.conditions.aero_derivatives.dCD_dThrottle = dCD_dThrottle   
-    segment.state.conditions.aero_derivatives.dCM_dThrottle = dCM_dThrottle     
+    segment.state.conditions.aero_derivatives.dCD_dThrottle = dCD_dThrottle      
     segment.state.conditions.aero_derivatives.dCT_dThrottle = dCT_dThrottle    
     segment.state.conditions.aero_derivatives.dCP_dThrottle = dCP_dThrottle         
     
