@@ -411,7 +411,11 @@ class Rotor(Energy_Component):
             if ii>10000:
                 print("Rotor BEMT did not converge to a solution (Iteration Limit)")
                 break
-    
+            
+        # correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
+        va = F*va
+        vt = F*vt      
+        
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf     = 1. + 1.78*(Ma*Ma)
         Tp_Tinf     = 1. + 0.035*(Ma*Ma) + 0.45*(Tw_Tinf-1.)
