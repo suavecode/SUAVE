@@ -683,6 +683,7 @@ def generate_wing_vortex_distribution(VD,wing,n_cw,n_sw,spc,precision):
                 # get deflection angle
                 deflection_base_angle = wing.deflection      if (not wing.is_slat) else -wing.deflection
                 symmetry_multiplier   = -wing.sign_duplicate if sym_sign_ind==1    else 1
+                symmetry_multiplier  *= -1                   if vertical_wing      else 1
                 deflection_angle      = deflection_base_angle * symmetry_multiplier
                     
                 # make quaternion rotation matrix
