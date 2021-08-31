@@ -72,7 +72,7 @@ def main():
     assert(abs(Cp_iso-Cp_iso_true)<1e-6)
     assert(abs(etap_iso-etap_iso_true)<1e-6)
     
-    T_true, Q_true, P_true, Cp_true, etap_true = 3.284812729032044,0.07270233,49.48690365,0.04622079,0.59346719
+    T_true, Q_true, P_true, Cp_true, etap_true = 3.2849888860951233,0.07270277,49.4872045,0.04622107,0.59349541
 
     assert(abs(np.linalg.norm(T)-T_true)<1e-6)
     assert(abs(Q-Q_true)<1e-6)
