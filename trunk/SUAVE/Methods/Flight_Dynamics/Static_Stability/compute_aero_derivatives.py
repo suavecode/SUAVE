@@ -12,7 +12,7 @@ from copy import deepcopy
 
 ## @ingroup Methods-Flight_Dynamics-Static_Stability
 def compute_aero_derivatives(segment, h=1e-4): 
-    """This function takes an computes the aerodynamic derivatives about a segment.
+    """This function computes the aerodynamic derivatives about a segment.
     
     Assumptions:
        Linearized equations are used for each state variable
@@ -21,11 +21,10 @@ def compute_aero_derivatives(segment, h=1e-4):
       N/A
 
     Inputs:
-      vehicle                SUAVE Vehicle 
-      state                  Initial state of vehicle (after running mission segment of interest)
-
+      segment                SUAVE mission segment
+      
     Outputs: 
-       aero_derivatives      Aerodynamic derivatives wrt perturbed state variables
+       N/A
 
     Properties Used:
        N/A

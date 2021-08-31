@@ -5,4 +5,3 @@
 from .Set_Speed_Set_Altitude               import Set_Speed_Set_Altitude
 from .Set_Speed_Set_Throttle               import Set_Speed_Set_Throttle
 from .Set_Speed_Set_Altitude_No_Propulsion import Set_Speed_Set_Altitude_No_Propulsion
-from .Fixed_Conditions                     import Fixed_Conditions
