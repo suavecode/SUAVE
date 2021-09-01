@@ -11,8 +11,11 @@ import numpy as np
 from copy import deepcopy
 
 ## @ingroup Methods-Flight_Dynamics-Static_Stability
-def compute_aero_derivatives(segment, h=1e-4): 
-    """This function computes the aerodynamic derivatives about a segment.
+def compute_aero_derivatives(segment): 
+    """This function computes the aerodynamic derivatives of the aircraft about a 
+    mission segment, and stores them in the aero_derivatives data structure associated
+    with the state conditions of the given mission segment. All derivatives are 
+    computed using forward difference.
     
     Assumptions:
        Linearized equations are used for each state variable
@@ -24,7 +27,20 @@ def compute_aero_derivatives(segment, h=1e-4):
       segment                SUAVE mission segment
       
     Outputs: 
-       N/A
+       segment.state.conditions.aero_derivatives
+         .dCL_dAlpha       -   lift-curve slope                                                            [-]  
+         .dCM_dAlpha       -   derivative of pitching moment coefficient with respect to angle of attack   [-] 
+         .dCT_dAlpha       -   derivative of rotor thrust coefficient with respect to angle of attack      [-] 
+         .dCP_dAlpha       -   derivative of rotor power coefficient with respect to angle of attack       [-] 
+         .dCn_dBeta        -   derivative of yawing moment coefficient with respect to sideslip angle      [-] 
+         .dCl_dBeta        -   derivative of pitching moment with respect to angle of attack               [-] 
+         .dCT_dBeta        -   derivative of rotor thrust coefficient with respect to sideslip angle       [-] 
+         .dCP_dBeta        -   derivative of rotor power coefficient with respect to sideslip angle        [-] 
+         .dCL_dThrottle    -   derivative of lift coefficient with respect to throttle                     [-] 
+         .dCD_dThrottle    -   derivative of drag coefficient with respect to throttle                     [-] 
+         .dCT_dThrottle    -   derivative of rotor thrust coefficient with respect to throttle             [-] 
+         .dCP_dThrottle    -   derivative of rotor power coefficient with respect to throttle              [-] 
+           
 
     Properties Used:
        N/A
@@ -44,7 +60,7 @@ def compute_aero_derivatives(segment, h=1e-4):
     # ----------------------------------------------------------------------------
     # Perturb each state variable
     # ----------------------------------------------------------------------------
-
+    h = 1e-4
     # ----------------------------------------------------------------------------    
     # Alpha perturbation
     
