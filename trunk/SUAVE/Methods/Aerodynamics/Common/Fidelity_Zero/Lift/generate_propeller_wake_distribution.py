@@ -27,13 +27,16 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
     None
 
     Inputs:  
-    identical            - if all props are identical        [Bool]
-    m                    - control point                     [Unitless] 
-    VD                   - vortex distribution               
-    prop                 - propeller/rotor data structure         
-    init_timestep_offset - intial time step                  [Unitless] 
-    time                 - time                              [s]
-
+    identical                - if all props are identical        [Bool]
+    m                        - control point                     [Unitless] 
+    VD                       - vortex distribution               
+    prop                     - propeller/rotor data structure         
+    init_timestep_offset     - intial time step                  [Unitless] 
+    time                     - time                              [s]
+    number_of_wake_timesteps - number of wake timesteps          [Unitless]
+    conditions.
+       noise.sources.propellers   -  propeller noise sources data structure
+       
     Properties Used:
     N/A
     """    
@@ -214,6 +217,22 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         VD.Wake.YB2[i,:,0:B,:] =  Y_pts[0 ,  1: , : , 1:  ]
         VD.Wake.ZB2[i,:,0:B,:] =  Z_pts[0 ,  1: , : , 1:  ]  
         
+        # Append wake geometry and vortex strengths to each individual propeller
+        propi.Wake_VD.XA1   = VD.Wake.XA1[i,:,0:B,:]
+        propi.Wake_VD.YA1   = VD.Wake.YA1[i,:,0:B,:]
+        propi.Wake_VD.ZA1   = VD.Wake.ZA1[i,:,0:B,:]
+        propi.Wake_VD.XA2   = VD.Wake.XA2[i,:,0:B,:]
+        propi.Wake_VD.YA2   = VD.Wake.YA2[i,:,0:B,:]
+        propi.Wake_VD.ZA2   = VD.Wake.ZA2[i,:,0:B,:]
+        propi.Wake_VD.XB1   = VD.Wake.XB1[i,:,0:B,:]
+        propi.Wake_VD.YB1   = VD.Wake.YB1[i,:,0:B,:]
+        propi.Wake_VD.ZB1   = VD.Wake.ZB1[i,:,0:B,:]
+        propi.Wake_VD.XB2   = VD.Wake.XB2[i,:,0:B,:]
+        propi.Wake_VD.YB2   = VD.Wake.YB2[i,:,0:B,:]
+        propi.Wake_VD.ZB2   = VD.Wake.ZB2[i,:,0:B,:]
+        propi.Wake_VD.GAMMA = Wmid.WD_GAMMA[:,i,:,0:B,:]
+        
+
     # Compress Data into 1D Arrays  
     mat4_size = (m,num_prop,(number_of_wake_timesteps-1),Bmax*nmax)
     mat5_size = (m,num_prop,(number_of_wake_timesteps-1)*Bmax*nmax)

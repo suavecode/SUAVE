@@ -14,10 +14,13 @@
 # ----------------------------------------------------------------------
 #  Imports
 # ----------------------------------------------------------------------
-from SUAVE.Core import Data
+from SUAVE.Core import Data, Units
 from SUAVE.Components.Energy.Energy_Component import Energy_Component
 from SUAVE.Methods.Geometry.Three_Dimensional \
      import  orientation_product, orientation_transpose
+
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.generate_propeller_wake_distribution import generate_propeller_wake_distribution
+from SUAVE.Methods.Aerodynamics.Common.Fidelity_Zero.Lift.compute_wake_induced_velocity import compute_wake_induced_velocity
 
 # package imports
 import numpy as np
@@ -82,6 +85,7 @@ class Rotor(Energy_Component):
         self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
         self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor        
+        self.Wake_VD                   = Data()
         
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
@@ -575,7 +579,110 @@ class Rotor(Energy_Component):
             ) 
     
         return thrust_vector, torque, power, Cp, outputs , etap
+    
+    
+    def spin_HFW(self,conditions):
+        """Analyzes a general rotor given geometry and operating conditions.
+        Runs the blade element theory with a helical fixed-wake model for the
+        iterative wake analysis.
 
+        Assumptions:
+          Helical fixed-wake with wake skew angle
+
+        Source:
+          N/A
+
+        Inputs:
+        self.inputs.omega                    [radian/s]
+        conditions.freestream.               
+          density                            [kg/m^3]
+          dynamic_viscosity                  [kg/(m-s)]
+          speed_of_sound                     [m/s]
+          temperature                        [K]
+        conditions.frames.                   
+          body.transform_to_inertial         (rotation matrix)
+          inertial.velocity_vector           [m/s]
+        conditions.propulsion.               
+          throttle                           [-]
+                                             
+        Outputs:                             
+        conditions.propulsion.outputs.        
+           number_radial_stations            [-]
+           number_azimuthal_stations         [-] 
+           disc_radial_distribution          [m]
+           speed_of_sound                    [m/s]
+           density                           [kg/m-3]
+           velocity                          [m/s]
+           disc_tangential_induced_velocity  [m/s]
+           disc_axial_induced_velocity       [m/s]
+           disc_tangential_velocity          [m/s]
+           disc_axial_velocity               [m/s]
+           drag_coefficient                  [-]
+           lift_coefficient                  [-]
+           omega                             [rad/s]
+           disc_circulation                  [-] 
+           blade_dQ_dR                       [N/m]
+           blade_dT_dr                       [N]
+           blade_thrust_distribution         [N]
+           disc_thrust_distribution          [N]
+           thrust_per_blade                  [N]
+           thrust_coefficient                [-] 
+           azimuthal_distribution            [rad]
+           disc_azimuthal_distribution       [rad]
+           blade_dQ_dR                       [N]
+           blade_dQ_dr                       [Nm]
+           blade_torque_distribution         [Nm] 
+           disc_torque_distribution          [Nm] 
+           torque_per_blade                  [Nm] 
+           torque_coefficient                [-] 
+           power                             [W]    
+           power_coefficient                 [-] 
+                                             
+        Properties Used:                     
+        self.                                
+          number_of_blades                   [-]
+          tip_radius                         [m]
+          twist_distribution                 [radians]
+          chord_distribution                 [m]
+          orientation_euler_angles           [rad, rad, rad]
+        """           
+        # Initialize by running BEMT for initial blade circulation
+        _, _, _, _, bemt_outputs , _ = self.spin(conditions)
+        conditions.noise.sources.propellers[self.tag] = bemt_outputs
+        
+        # check if vortex distribution has already been generated
+        if len(self.Wake_VD) !=0:
+            WD = self.Wake_VD
+        else:
+            # generate vortex distribution for this propeller
+            props = Data()
+            props.propeller = self
+            
+            # initialize inputs
+            VD        = Data()
+            m         = 1
+            identical = True
+            init_timestep_offset = 0.
+            
+            # generate wake distribution for n rotor rotation
+            nrots         = 5
+            steps_per_rot = 30
+            rpm           = self.inputs.omega/Units.rpm
+            
+            # simulation parameters for n rotor rotations
+            time = 60*nrots/rpm[0][0]
+            number_of_wake_timesteps = steps_per_rot*nrots
+            
+            WD, dt, ts, B, Nr  = generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ) 
+                    
+        # get velocities induced at rotor blade by rotor vortex wake
+        Va, Vt = compute_HFW_blade_velocities(self, bemt_outputs, WD, time, init_timestep_offset, number_of_wake_timesteps)
+        
+        # iterate until convergence in the BET loop
+        
+        
+        
+        return thrust_vector, torque, power, Cp, outputs , etap
 
     def vec_to_vel(self):
         """This rotates from the propellers vehicle frame to the propellers velocity frame
@@ -671,6 +778,53 @@ class Rotor(Energy_Component):
         rot_mat = r.as_matrix()
 
         return rot_mat
+
+def compute_HFW_blade_velocities(prop, bemt_outputs, WD, time, init_timestep_offset, number_of_wake_timesteps):
+    VD                       = Data()
+    omega                    = bemt_outputs.omega  
+    cpts                     = 1   # only testing one condition
+
+    conditions = Data()
+    conditions.noise = Data()
+    conditions.noise.sources = Data()
+    conditions.noise.sources.propellers = Data()
+    conditions.noise.sources.propellers.propeller = bemt_outputs
+    
+    # compute radial blade section locations based on initial timestep offset 
+    dt            = time/number_of_wake_timesteps
+    t0            = dt*init_timestep_offset
+    blade_angle   = omega[0]*t0
+    
+    # position in propeller frame:
+    r          = prop.radius_distribution
+    r_inner    = np.array([0.0, 0.05, 0.1, 0.13])*prop.tip_radius
+    r_outer    = np.array([1.05, 1.1, 1.2])*prop.tip_radius
+    r_extended = np.append(np.append(r_inner,r), r_outer)
+    y          = r_extended * np.cos(blade_angle)
+    z          = r_extended * np.sin(blade_angle)
+    
+    # ----------------------------------------------------------------    
+    # Compute the wake-induced velocities at propeller blade
+    # ----------------------------------------------------------------
+    
+    # set the evaluation points in the vortex distribution
+    VD.YC   = y
+    VD.ZC   = z
+    VD.XC   = prop.origin[0][0]*np.ones_like(VD.YC)
+    VD.n_cp = np.size(VD.YC)   
+
+    # Compute induced velocities at blade from the helical fixed wake
+    VD.Wake_collapsed = WD
+    
+    V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
+    u       = V_ind[0,:,0]
+    v       = V_ind[0,:,1]
+    w       = V_ind[0,:,2]   
+    
+    Va  = u
+    Vt  = (w*np.cos(blade_angle) - v*np.sin(blade_angle))*prop.rotation
+    
+    return Va, Vt
 
 
 def compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis):
