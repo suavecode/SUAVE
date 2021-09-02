@@ -79,7 +79,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         if identical:
             propi_outputs = prop_outputs
         else:
-            propi_outputs     = conditions.noise.sources.propellers[propi_key]
+            propi_outputs = conditions.noise.sources.propellers[propi_key]
         
         # Unpack
         R                = propi.tip_radius
@@ -166,8 +166,7 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         # Rotate wake by thrust angle
         rot_mat = propi.prop_vel_to_body()
 
-        # append propeller wake to each of its repeated origins        
-        #for rep in range(len(propi_origins)):
+        # append propeller wake to each of its repeated origins  
         X_pts   = propi.origin[0][0] + X_pts0*rot_mat[0,0] - Z_pts0*rot_mat[0,2]
         Y_pts   = propi.origin[0][1] + Y_pts0*rot_mat[1,1]
         Z_pts   = propi.origin[0][2] + X_pts0*rot_mat[2,0] + Z_pts0*rot_mat[2,2]
@@ -231,6 +230,9 @@ def generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offs
         propi.Wake_VD.YB2   = VD.Wake.YB2[i,:,0:B,:]
         propi.Wake_VD.ZB2   = VD.Wake.ZB2[i,:,0:B,:]
         propi.Wake_VD.GAMMA = Wmid.WD_GAMMA[:,i,:,0:B,:]
+        propi.Wake_VD.Xblades = X_pts[0,0,:,:]
+        propi.Wake_VD.Yblades = Y_pts[0,0,:,:]
+        propi.Wake_VD.Zblades = Z_pts[0,0,:,:]
         
 
     # Compress Data into 1D Arrays  

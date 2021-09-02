@@ -85,7 +85,14 @@ class Rotor(Energy_Component):
         self.axial_velocities_2d       = None     # user input for additional velocity influences at the rotor
         self.tangential_velocities_2d  = None     # user input for additional velocity influences at the rotor
         self.radial_velocities_2d      = None     # user input for additional velocity influences at the rotor        
+        
         self.Wake_VD                   = Data()
+        self.wake_method               = "momentum"
+        self.wake_settings             = Data()
+        
+        self.wake_settings.initial_timestep_offset   = 0
+        self.wake_settings.wake_development_time     = 0.05
+        self.wake_settings.number_of_wake_timesteps  = 30   
         
         self.inputs.y_axis_rotation    = 0.
         self.inputs.pitch_command      = 0.
@@ -178,6 +185,7 @@ class Rotor(Energy_Component):
         Na                    = self.number_azimuthal_stations 
         nonuniform_freestream = self.nonuniform_freestream
         use_2d_analysis       = self.use_2d_analysis
+        wake_method           = self.wake_method
         rotation              = self.rotation           
         pitch_c               = self.inputs.pitch_command  
         
@@ -341,24 +349,101 @@ class Rotor(Energy_Component):
         Ut     = omegar - ut
         U      = np.sqrt(Ua*Ua + Ut*Ut + ur*ur) 
         
-        # Setup a Newton iteration
-        diff   = 1.
-        tol    = 1e-6  # Convergence tolerance
-        ii     = 0             
+        if wake_method == "momentum":
+            # perform a Newton iteration for BEMT
+            # Setup a Newton iteration
+            diff   = 1.
+            tol    = 1e-6  # Convergence tolerance
+            ii     = 0             
+            
+            # BEMT Iteration
+            while (diff>tol):
+                sin_psi      = np.sin(PSI)
+                cos_psi      = np.cos(PSI)
+                Wa           = 0.5*Ua + 0.5*U*sin_psi
+                Wt           = 0.5*Ut + 0.5*U*cos_psi
+                va           = Wa - Ua
+                vt           = Ut - Wt
+                alpha        = beta - np.arctan2(Wa,Wt)
+                W            = (Wa*Wa + Wt*Wt)**0.5
+                Ma           = W/a        # a is the speed of sound  
+                lamdaw       = r*Wa/(R*Wt)
+                
+                # Limiter to keep from Nan-ing
+                lamdaw[lamdaw<0.] = 0.
+                f            = (B/2.)*(1.-r/R)/lamdaw
+                f[f<0.]      = 0.
+                piece        = np.exp(-f)
+                arccos_piece = np.arccos(piece)
+                F            = 2.*arccos_piece/pi
+                Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
+                Re           = (W*c)/nu
+                
+                # Compute aerodynamic forces based on specified input airfoil or surrogate
+                Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis)
+                
+                # Newton residual
+                Rsquiggly   = Gamma - 0.5*W*c*Cl
+            
+                # An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
+                # This was solved symbolically in Matlab and exported        
+                f_wt_2      = 4*Wt*Wt
+                f_wa_2      = 4*Wa*Wa
+                Ucospsi     = U*cos_psi
+                Usinpsi     = U*sin_psi
+                Utcospsi    = Ut*cos_psi
+                Uasinpsi    = Ua*sin_psi 
+                UapUsinpsi  = (Ua + Usinpsi)
+                utpUcospsi  = (Ut + Ucospsi) 
+                utpUcospsi2 = utpUcospsi*utpUcospsi
+                UapUsinpsi2 = UapUsinpsi*UapUsinpsi 
+                dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B - 
+                               (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
+                               + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
+                               - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. - 
+                                (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R - 
+                                r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U + 
+                                Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5))) 
+            
+                dR_dpsi[np.isnan(dR_dpsi)] = 0.1
+            
+                dpsi        = -Rsquiggly/dR_dpsi
+                PSI         = PSI + dpsi
+                diff        = np.max(abs(PSIold-PSI))
+                PSIold      = PSI
+            
+                # omega = 0, do not run BEMT convergence loop 
+                if all(omega[:,0]) == 0. :              
+                    break
+                
+                # If its really not going to converge
+                if np.any(PSI>pi/2) and np.any(dpsi>0.0):
+                    print("Rotor BEMT did not converge to a solution (Stall)")
+                    break
+            
+                ii+=1 
+                if ii>10000:
+                    print("Rotor BEMT did not converge to a solution (Iteration Limit)")
+                    break
+                
+            # correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
+            va = F*va
+            vt = F*vt  
+            
+        elif wake_method == "helical_fixed_wake":
+            # compute induced velocities at blade by wake, 
+            va, vt = compute_HFW_blade_velocities(self, self.outputs)
         
-        # BEMT Iteration
-        while (diff>tol):
-            sin_psi      = np.sin(PSI)
-            cos_psi      = np.cos(PSI)
-            Wa           = 0.5*Ua + 0.5*U*sin_psi
-            Wt           = 0.5*Ut + 0.5*U*cos_psi
-            va           = Wa - Ua
-            vt           = Ut - Wt
+            
+            # Skip Newton iteration, use va,vt directly (external optimizer is used to converge)
+            Wa = va + Ua
+            Wt = Ut - vt
+        
             alpha        = beta - np.arctan2(Wa,Wt)
             W            = (Wa*Wa + Wt*Wt)**0.5
             Ma           = W/a        # a is the speed of sound  
             lamdaw       = r*Wa/(R*Wt)
-            
+        
             # Limiter to keep from Nan-ing
             lamdaw[lamdaw<0.] = 0.
             f            = (B/2.)*(1.-r/R)/lamdaw
@@ -368,57 +453,11 @@ class Rotor(Energy_Component):
             F            = 2.*arccos_piece/pi
             Gamma        = vt*(4.*pi*r/B)*F*(1.+(4.*lamdaw*R/(pi*B*r))*(4.*lamdaw*R/(pi*B*r)))**0.5
             Re           = (W*c)/nu
-            
+        
             # Compute aerodynamic forces based on specified input airfoil or surrogate
             Cl, Cdval = compute_aerodynamic_forces(a_loc, a_geo, cl_sur, cd_sur, ctrl_pts, Nr, Na, Re, Ma, alpha, tc, use_2d_analysis)
             
-            # Newton residual
             Rsquiggly   = Gamma - 0.5*W*c*Cl
-        
-            # An analytical derivative for dR_dpsi, this is derived by taking a derivative of the above equations
-            # This was solved symbolically in Matlab and exported        
-            f_wt_2      = 4*Wt*Wt
-            f_wa_2      = 4*Wa*Wa
-            Ucospsi     = U*cos_psi
-            Usinpsi     = U*sin_psi
-            Utcospsi    = Ut*cos_psi
-            Uasinpsi    = Ua*sin_psi 
-            UapUsinpsi  = (Ua + Usinpsi)
-            utpUcospsi  = (Ut + Ucospsi) 
-            utpUcospsi2 = utpUcospsi*utpUcospsi
-            UapUsinpsi2 = UapUsinpsi*UapUsinpsi 
-            dR_dpsi     = ((4.*U*r*arccos_piece*sin_psi*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5))/B - 
-                           (pi*U*(Ua*cos_psi - Ut*sin_psi)*(beta - np.arctan((Wa+Wa)/(Wt+Wt))))/(2.*(f_wt_2 + f_wa_2)**(0.5))
-                           + (pi*U*(f_wt_2 +f_wa_2)**(0.5)*(U + Utcospsi  +  Uasinpsi))/(2.*(f_wa_2/(f_wt_2) + 1.)*utpUcospsi2)
-                           - (4.*U*piece*((16.*UapUsinpsi2)/(BB*pi2*f_wt_2) + 1.)**(0.5)*(R - r)*(Ut/2. - 
-                            (Ucospsi)/2.)*(U + Utcospsi + Uasinpsi ))/(f_wa_2*(1. - np.exp(-(B*(Wt+Wt)*(R - 
-                            r))/(r*(Wa+Wa))))**(0.5)) + (128.*U*r*arccos_piece*(Wa+Wa)*(Ut/2. - (Ucospsi)/2.)*(U + 
-                            Utcospsi  + Uasinpsi ))/(BBB*pi2*utpUcospsi*utpUcospsi2*((16.*f_wa_2)/(BB*pi2*f_wt_2) + 1.)**(0.5))) 
-        
-            dR_dpsi[np.isnan(dR_dpsi)] = 0.1
-        
-            dpsi        = -Rsquiggly/dR_dpsi
-            PSI         = PSI + dpsi
-            diff        = np.max(abs(PSIold-PSI))
-            PSIold      = PSI
-        
-            # omega = 0, do not run BEMT convergence loop 
-            if all(omega[:,0]) == 0. :              
-                break
-            
-            # If its really not going to converge
-            if np.any(PSI>pi/2) and np.any(dpsi>0.0):
-                print("Rotor BEMT did not converge to a solution (Stall)")
-                break
-        
-            ii+=1 
-            if ii>10000:
-                print("Rotor BEMT did not converge to a solution (Iteration Limit)")
-                break
-            
-        # correction for velocities, since tip loss correction is only applied to loads in prior BEMT iteration
-        va = F*va
-        vt = F*vt      
         
         # More Cd scaling from Mach from AA241ab notes for turbulent skin friction
         Tw_Tinf     = 1. + 1.78*(Ma*Ma)
@@ -575,7 +614,23 @@ class Rotor(Energy_Component):
                     propeller_efficiency              = etap,
                     blade_H_distribution              = rotor_drag_distribution,
                     rotor_drag                        = rotor_drag,
-                    rotor_drag_coefficient            = Crd                    
+                    rotor_drag_coefficient            = Crd,
+                    Ua=Ua,
+                    Ut=Ut,
+                    a=a,
+                    beta=beta,
+                    r=r,
+                    R=R,
+                    a_loc=a_loc,
+                    a_geo=a_geo,
+                    cl_sur=cl_sur,
+                    cd_sur=cd_sur,
+                    use_2d_analysis=use_2d_analysis,
+                    c=c,
+                    nu=nu,
+                    ctrl_pts=ctrl_pts,
+                    Na=Na,
+                    tc=tc
             ) 
     
         return thrust_vector, torque, power, Cp, outputs , etap
@@ -646,44 +701,48 @@ class Rotor(Energy_Component):
           chord_distribution                 [m]
           orientation_euler_angles           [rad, rad, rad]
         """           
+
+        #--------------------------------------------------------------------------------        
         # Initialize by running BEMT for initial blade circulation
+        #--------------------------------------------------------------------------------
         _, _, _, _, bemt_outputs , _ = self.spin(conditions)
         conditions.noise.sources.propellers[self.tag] = bemt_outputs
+        self.outputs = bemt_outputs
+        omega = self.inputs.omega
         
-        # check if vortex distribution has already been generated
-        if len(self.Wake_VD) !=0:
-            WD = self.Wake_VD
-        else:
-            # generate vortex distribution for this propeller
-            props = Data()
-            props.propeller = self
-            
-            # initialize inputs
-            VD        = Data()
-            m         = 1
-            identical = True
-            init_timestep_offset = 0.
-            
-            # generate wake distribution for n rotor rotation
-            nrots         = 5
-            steps_per_rot = 30
-            rpm           = self.inputs.omega/Units.rpm
-            
-            # simulation parameters for n rotor rotations
-            time = 60*nrots/rpm[0][0]
-            number_of_wake_timesteps = steps_per_rot*nrots
-            
-            WD, dt, ts, B, Nr  = generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ) 
-                    
-        # get velocities induced at rotor blade by rotor vortex wake
-        Va, Vt = compute_HFW_blade_velocities(self, bemt_outputs, WD, time, init_timestep_offset, number_of_wake_timesteps)
+        #--------------------------------------------------------------------------------
+        # generate wake vortex distribution
+        #--------------------------------------------------------------------------------
+        props = Data()
+        props.propeller = self
         
-        # iterate until convergence in the BET loop
+        # initialize inputs
+        VD        = Data()
+        m         = 1
+        identical = True
         
+        # generate wake distribution for n rotor rotation
+        nrots         = 5
+        steps_per_rot = 30
+        rpm           = omega/Units.rpm
         
+        # simulation parameters for n rotor rotations
+        init_timestep_offset     = 0.
+        time                     = 60*nrots/rpm[0][0]
+        number_of_wake_timesteps = steps_per_rot*nrots
+        
+        self.wake_settings.init_timestep_offset     = init_timestep_offset
+        self.wake_settings.wake_development_time    = time
+        self.wake_settings.number_of_wake_timesteps = number_of_wake_timesteps
+        
+        # generate wake distribution using initial circulation from BEMT
+        _, _, _, _, _  = generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ) 
+        
+        # spin propeller with helical fixed-wake
+        self.wake_method = "helical_fixed_wake"
+        thrust_vector, torque, power, Cp, outputs , etap = self.spin(conditions)
         
         return thrust_vector, torque, power, Cp, outputs , etap
-
     def vec_to_vel(self):
         """This rotates from the propellers vehicle frame to the propellers velocity frame
 
@@ -779,10 +838,22 @@ class Rotor(Energy_Component):
 
         return rot_mat
 
-def compute_HFW_blade_velocities(prop, bemt_outputs, WD, time, init_timestep_offset, number_of_wake_timesteps):
+def compute_HFW_blade_velocities(prop, bemt_outputs ):
+    """
+    
+    Outputs:
+       Va - axial velocity array of shape (ctrl_pts, Na, Nr)
+       Vt - tangential velocity array of shape (ctrl_pts, Na, Nr)
+    """
     VD                       = Data()
-    omega                    = bemt_outputs.omega  
+    omega                    = prop.inputs.omega  
+    time                     = prop.wake_settings.wake_development_time
+    init_timestep_offset     = prop.wake_settings.init_timestep_offset
+    number_of_wake_timesteps = prop.wake_settings.number_of_wake_timesteps     
+    
     cpts                     = 1   # only testing one condition
+    Na = prop.number_azimuthal_stations 
+    Nr = len(prop.chord_distribution)
 
     conditions = Data()
     conditions.noise = Data()
@@ -791,39 +862,70 @@ def compute_HFW_blade_velocities(prop, bemt_outputs, WD, time, init_timestep_off
     conditions.noise.sources.propellers.propeller = bemt_outputs
     
     # compute radial blade section locations based on initial timestep offset 
-    dt            = time/number_of_wake_timesteps
-    t0            = dt*init_timestep_offset
-    blade_angle   = omega[0]*t0
+    dt   = time/number_of_wake_timesteps
+    t0   = dt*init_timestep_offset
+    m=1
+    identical=True
+    props=Data()
+    props.propeller = prop
     
-    # position in propeller frame:
-    r          = prop.radius_distribution
-    r_inner    = np.array([0.0, 0.05, 0.1, 0.13])*prop.tip_radius
-    r_outer    = np.array([1.05, 1.1, 1.2])*prop.tip_radius
-    r_extended = np.append(np.append(r_inner,r), r_outer)
-    y          = r_extended * np.cos(blade_angle)
-    z          = r_extended * np.sin(blade_angle)
+    # set shape of velocitie arrays
+    Va = np.zeros((cpts,Na,Nr))
+    Vt = np.zeros((cpts,Na,Nr))
+    for i in range(Na):
+        # increment blade angle to new axial position
+        blade_angle   = omega[0]*t0 + i*(2*np.pi/(Na))
+        
+        # update wake geometry
+        init_timestep_offset = blade_angle/(omega * dt)
+        
+        # generate wake distribution using initial circulation from BEMT
+        WD, _, _, _, _  = generate_propeller_wake_distribution(props,identical,m,VD,init_timestep_offset, time, number_of_wake_timesteps,conditions ) 
+               
+        # position in propeller frame:
+        r          = prop.radius_distribution
+        y          = -r * np.cos(blade_angle)
+        z          = r * np.sin(blade_angle)
+        
+        # ----------------------------------------------------------------    
+        # Compute the wake-induced velocities at propeller blade
+        # ----------------------------------------------------------------
+        offset_angle = -2*Units.deg
+        offset_time  = offset_angle/omega[0][0]
+        x_offset     = offset_time*prop.outputs.velocity[0][0]
+        rot_mat = np.array([[np.cos(offset_angle), -np.sin(offset_angle)],
+                            [np.sin(offset_angle), np.cos(offset_angle)]])
+        
+        # set the evaluation points in the vortex distribution
+        Yb   = prop.Wake_VD.Yblades[0,:]  #y
+        Zb   = prop.Wake_VD.Zblades[0,:]  #z
+        Xb   = prop.Wake_VD.Xblades[0,:]  #prop.origin[0][0]*np.ones_like(VD.YC)
+        
+        VD.YC = Yb*rot_mat[0,0] + Zb*rot_mat[0,1]
+        VD.ZC = Yb*rot_mat[1,0] + Zb*rot_mat[1,1]
+        VD.XC = Xb + x_offset
+        
+        
+        VD.n_cp = np.size(VD.YC)   
     
-    # ----------------------------------------------------------------    
-    # Compute the wake-induced velocities at propeller blade
-    # ----------------------------------------------------------------
+        # Compute induced velocities at blade from the helical fixed wake
+        VD.Wake_collapsed = WD
+        
+        V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
+        u       = V_ind[0,:,0]
+        v       = V_ind[0,:,1]
+        w       = V_ind[0,:,2]   
+        
+        Va[:,i,:]  = -u
+        Vt[:,i,:]  = (w*np.cos(blade_angle) - v*np.sin(blade_angle))*prop.rotation
     
-    # set the evaluation points in the vortex distribution
-    VD.YC   = y
-    VD.ZC   = z
-    VD.XC   = prop.origin[0][0]*np.ones_like(VD.YC)
-    VD.n_cp = np.size(VD.YC)   
-
-    # Compute induced velocities at blade from the helical fixed wake
-    VD.Wake_collapsed = WD
-    
-    V_ind   = compute_wake_induced_velocity(WD, VD, cpts)
-    u       = V_ind[0,:,0]
-    v       = V_ind[0,:,1]
-    w       = V_ind[0,:,2]   
-    
-    Va  = u
-    Vt  = (w*np.cos(blade_angle) - v*np.sin(blade_angle))*prop.rotation
-    
+        # test generate vtk
+        from SUAVE.Input_Output.VTK.save_prop_wake_vtk import save_prop_wake_vtk
+        from SUAVE.Input_Output.VTK.save_evaluation_points_vtk import save_evaluation_points_vtk
+        Results = Data()
+        Results["prop_outputs"] = prop.outputs
+        save_prop_wake_vtk(VD.Wake, filename="/Users/rerha/Desktop/vtk_test/wake."+str(i)+".vtk", Results=Results, i_prop=0)
+        save_evaluation_points_vtk(VD, filename="/Users/rerha/Desktop/vtk_test/eval_points."+str(i)+".vtk")
     return Va, Vt
 
 
